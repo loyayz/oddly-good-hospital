@@ -1,0 +1,138 @@
+param([string]$OutputPath)
+$ErrorActionPreference = 'Stop'
+$docsRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
+if (-not $OutputPath) { $OutputPath = Join-Path $docsRoot 'product-design.html' }
+$generatedJson = & python -B -X utf8 (Join-Path $PSScriptRoot 'validate_design.py') --chapters-json
+if ($LASTEXITCODE -ne 0) { throw 'Design validation failed; the existing book was not changed.' }
+$generated = ($generatedJson -join [Environment]::NewLine) | ConvertFrom-Json
+$catalog = [IO.File]::ReadAllText((Join-Path $docsRoot 'data/content-catalog.json')) | ConvertFrom-Json
+$designVersion = [Net.WebUtility]::HtmlEncode($catalog.content_version)
+$bookSourcePath = Join-Path $docsRoot 'product-design.html'
+$chapters = @(
+    @{ File='design/01-simulation.md'; Id='simulation'; Title='模拟与经营规则' },
+    @{ File='design/07-clinical-team.md'; Id='clinical-team'; Title='医生、手术与住院' },
+    @{ File='design/08-hospital-life.md'; Id='hospital-life'; Title='医院日常与居民回馈' },
+    @{ File='design/09-consultation-wellbeing.md'; Id='wellbeing'; Title='诊室互动与员工休闲' },
+    @{ File='design/10-community-comedy.md'; Id='comedy'; Title='熟客记忆与社区活动' },
+    @{ File='design/11-growth-arrivals-recruitment.md'; Id='growth'; Title='随机来客、多层与招聘' },
+    @{ File='design/02-content.md'; Id='content'; Title='内容与后续扩展' },
+    @{ File='design/03-experience.md'; Id='experience'; Title='界面与操作' },
+    @{ File='design/04-technical.md'; Id='technical'; Title='技术与保存' },
+    @{ File='design/05-production.md'; Id='production'; Title='美术与声音制作' },
+    @{ File='design/06-validation.md'; Id='validation'; Title='验收标准' },
+    @{ Generated='atlas'; Id='atlas'; Title='完整内容索引' },
+    @{ Generated='report'; Id='report'; Title='设计核验报告' }
+)
+$chapterByPath = @{}
+foreach ($chapter in $chapters) {
+    if ($chapter.Generated) { continue }
+    $chapter.Path = [IO.Path]::GetFullPath((Join-Path $docsRoot $chapter.File))
+    $chapterByPath[$chapter.Path] = $chapter.Id
+}
+$sections = [Collections.Generic.List[string]]::new()
+$sourceDigestText = [Text.StringBuilder]::new()
+foreach ($chapter in $chapters) {
+    if ($chapter.Generated) {
+        $markdown = $generated.($chapter.Generated)
+        $sourceDir = $docsRoot
+    } else {
+        $markdown = [IO.File]::ReadAllText($chapter.Path, [Text.Encoding]::UTF8)
+        $sourceDir = [IO.Path]::GetDirectoryName($chapter.Path)
+    }
+    [void]$sourceDigestText.Append($markdown)
+    $body = (ConvertFrom-Markdown -InputObject $markdown).Html
+    $body = [regex]::Replace($body, '\bid="([^"]+)"', {
+        param($match)
+        return 'id="' + $chapter.Id + '--' + $match.Groups[1].Value + '"'
+    })
+    $body = [regex]::Replace($body, 'href="([^"]+)"', {
+        param($match)
+        $href = [Net.WebUtility]::HtmlDecode($match.Groups[1].Value)
+        if ($href -match '^[a-zA-Z]+:') { return $match.Value }
+        if ($href.StartsWith('#')) { return 'href="#' + $chapter.Id + '--' + $href.Substring(1) + '"' }
+        $linkPath = $href.Split('#')[0]
+        $resolved = [IO.Path]::GetFullPath((Join-Path $sourceDir $linkPath))
+        if ($resolved -eq $bookSourcePath) {
+            $fragment = if ($href.Contains('#')) { $href.Substring($href.IndexOf('#') + 1) } else { 'simulation' }
+            return 'href="#' + $fragment + '"'
+        }
+        if ($chapterByPath.ContainsKey($resolved)) {
+            return 'href="#' + $chapterByPath[$resolved] + '"'
+        }
+        if ($resolved -eq (Join-Path $docsRoot 'assets/hospital-concept.png')) {
+            return 'href="#scene-concept-image"'
+        }
+        if ([IO.Path]::GetExtension($resolved) -eq '.json' -and [IO.File]::Exists($resolved)) {
+            $encoded = [Convert]::ToBase64String([IO.File]::ReadAllBytes($resolved))
+            $filename = [Net.WebUtility]::HtmlEncode([IO.Path]::GetFileName($resolved))
+            return 'href="data:application/json;base64,' + $encoded + '" download="' + $filename + '"'
+        }
+        return $match.Value
+    })
+    $body = [regex]::Replace($body, 'src="([^"]+)"', {
+        param($match)
+        $src = [Net.WebUtility]::HtmlDecode($match.Groups[1].Value)
+        if ($src -match '^[a-zA-Z]+:') { return $match.Value }
+        $resolved = [IO.Path]::GetFullPath((Join-Path $sourceDir $src))
+        $encoded = [Convert]::ToBase64String([IO.File]::ReadAllBytes($resolved))
+        return 'id="scene-concept-image" src="data:image/png;base64,' + $encoded + '"'
+    })
+    $body = $body.Replace('<table>', '<div class="table-wrap"><table>').Replace('</table>', '</table></div>')
+    $sections.Add('<section class="chapter" id="' + $chapter.Id + '">' + $body + '</section>')
+}
+$digestBytes = [Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($sourceDigestText.ToString()))
+$digest = [Convert]::ToHexString($digestBytes).ToLowerInvariant()
+$toc = ($chapters | ForEach-Object { '<li><a href="#' + $_.Id + '">' + $_.Title + '</a></li>' }) -join [Environment]::NewLine
+$sectionHtml = $sections -join [Environment]::NewLine
+$document = @"
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="design-source-sha256" content="$digest">
+<title>怪好的医院 · Oddly Good Hospital · 产品设计方案</title>
+<style>
+:root{color-scheme:light;--ink:#243932;--muted:#59695f;--green:#286f5a;--paper:#fffdf7;--line:#dce3d8}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:24px}
+body{margin:0;background:#f5f0e6;color:var(--ink);font:17px/1.85 "Microsoft YaHei","Segoe UI",sans-serif}
+a{color:#21624c;text-underline-offset:3px}a:hover{color:#a44f29}
+aside{position:fixed;inset:0 auto 0 0;width:224px;padding:30px 20px;background:#e7eee3;overflow-y:auto;border-right:1px solid #cdd9cb}
+.brand{font-size:24px;font-weight:700;letter-spacing:-.5px;margin:0 0 4px}
+.edition{font-size:13px;color:var(--muted);margin:0 0 26px}
+nav ol{padding-left:20px;margin:0}nav li{margin:10px 0;padding-left:2px}nav a{text-decoration:none;font-size:14px}
+.note{font-size:12px;line-height:1.7;margin-top:30px;color:var(--muted)}
+main{margin-left:224px;padding:30px clamp(24px,4vw,70px) 80px;max-width:1600px}
+.book-title{font-size:16px;color:var(--muted);margin:4px 0 24px}
+.chapter{background:var(--paper);padding:clamp(24px,4vw,54px);margin:0 0 32px;border:1px solid var(--line);border-radius:6px;overflow-wrap:anywhere}
+h1{font-size:30px;line-height:1.4;margin:0 0 24px;color:#254e3c}
+h2{font-size:24px;line-height:1.45;margin:44px 0 18px;border-top:1px solid var(--line);padding-top:26px;color:#286044}
+h3{font-size:20px;margin:28px 0 12px}p{margin:12px 0 18px}
+ul,ol{padding-left:26px}li{margin:7px 0}
+img{display:block;max-width:100%;height:auto;border-radius:4px}
+.table-wrap{overflow-x:auto;margin:18px 0 24px}
+table{border-collapse:collapse;width:100%;font-size:14px;line-height:1.75}
+th{background:#e6eee2;color:#244a36;text-align:left;font-weight:700}
+th,td{border:1px solid #d4ddd0;padding:10px 12px;vertical-align:top;min-width:78px}
+tr:nth-child(even) td{background:#f6f8f1}
+pre{white-space:pre;overflow:auto;background:#edf1e8;border:1px solid var(--line);padding:18px;font-size:13px;line-height:1.6}
+code{font-family:Consolas,"Microsoft YaHei",monospace;font-size:.9em}
+:not(pre)>code{background:#edf1e8;padding:2px 5px;border-radius:3px}
+blockquote{border-left:3px solid #8fae98;margin:18px 0;padding:4px 18px;color:#496453}
+input[type=checkbox]{accent-color:#286f5a;pointer-events:none}
+@media(max-width:1050px){aside{position:static;width:100%;padding:18px 24px;border-right:0;border-bottom:1px solid #cdd9cb}nav ol{display:flex;flex-wrap:wrap;gap:4px 24px;list-style:none;padding:0}nav li{margin:0}.edition{margin-bottom:12px}.note{margin-top:12px}main{margin-left:0;padding:20px}.chapter{padding:24px}h1{font-size:26px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+@media print{aside,.book-title{display:none}main{margin:0;padding:0;max-width:none}.chapter{border:0;padding:0;margin:0 0 30px;break-before:page}.chapter:first-child{break-before:auto}body{background:white;font-size:11pt}table{font-size:9pt}h1{font-size:22pt}h2{font-size:16pt}pre{white-space:pre-wrap}.table-wrap{overflow:visible}a{color:inherit}}
+</style>
+</head>
+<body>
+<aside><p class="brand">怪好的医院</p><p class="edition">Oddly Good Hospital<br>完整产品方案 · $designVersion</p><nav aria-label="文档目录"><ol>$toc</ol></nav><p class="note">全部章节与概念图已包含在本文件中。可离线阅读；源数据链接可另存为JSON。游戏实现与实机验收尚未执行。</p></aside>
+<main><p class="book-title">轻松经营一座属于人类与奇妙居民的医院</p>$sectionHtml</main>
+</body></html>
+"@
+[IO.File]::WriteAllText([IO.Path]::GetFullPath($OutputPath), $document, [Text.UTF8Encoding]::new($false))
+Write-Output "DESIGN_CHECKS_PASS=$($generated.checks); LOCAL_LINKS=$($generated.local_links)"
+Write-Output "BOOK_CHAPTERS=$($chapters.Count)"
+Write-Output "BOOK_BYTES=$((Get-Item -LiteralPath $OutputPath).Length)"
+Write-Output "SOURCE_SHA256=$digest"

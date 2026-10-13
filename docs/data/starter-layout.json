@@ -1,0 +1,546 @@
+{
+  "schema_version": 9,
+  "id": "starter",
+  "plot": [
+    1,
+    2
+  ],
+  "entry": {
+    "anchor": [
+      47,
+      93
+    ],
+    "size": [
+      3,
+      3
+    ],
+    "door_definition_id": "DR06",
+    "included_with_plot": true
+  },
+  "rooms": [
+    {
+      "id": "room_gp",
+      "type": "gp",
+      "anchor": [
+        36,
+        86
+      ],
+      "size": [
+        4,
+        4
+      ],
+      "door": {
+        "edge": "south",
+        "offset": 1,
+        "definition_id": "DR04"
+      }
+    },
+    {
+      "id": "room_physical",
+      "type": "T01",
+      "anchor": [
+        42,
+        84
+      ],
+      "size": [
+        6,
+        6
+      ],
+      "door": {
+        "edge": "south",
+        "offset": 2,
+        "definition_id": "DR04"
+      }
+    },
+    {
+      "id": "room_daily",
+      "type": "T10",
+      "anchor": [
+        50,
+        85
+      ],
+      "size": [
+        5,
+        5
+      ],
+      "door": {
+        "edge": "south",
+        "offset": 2,
+        "definition_id": "DR01"
+      }
+    },
+    {
+      "id": "room_rest",
+      "type": "rest",
+      "anchor": [
+        56,
+        86
+      ],
+      "size": [
+        4,
+        4
+      ],
+      "door": {
+        "edge": "south",
+        "offset": 1,
+        "definition_id": "DR01"
+      }
+    },
+    {
+      "id": "room_toilet",
+      "type": "toilet",
+      "anchor": [
+        56,
+        80
+      ],
+      "size": [
+        3,
+        4
+      ],
+      "door": {
+        "edge": "south",
+        "offset": 1,
+        "definition_id": "DR01"
+      }
+    },
+    {
+      "id": "room_doctor_office",
+      "type": "doctor_office",
+      "anchor": [
+        36,
+        80
+      ],
+      "size": [
+        4,
+        4
+      ],
+      "door": {
+        "edge": "south",
+        "offset": 1,
+        "definition_id": "DR01"
+      }
+    }
+  ],
+  "objects": [
+    {
+      "id": "reception",
+      "definition_id": "FUR01",
+      "anchor": [
+        43,
+        92
+      ],
+      "size": [
+        2,
+        1
+      ],
+      "room_id": null
+    },
+    {
+      "id": "gp_station",
+      "definition_id": "FUR02",
+      "anchor": [
+        36,
+        87
+      ],
+      "size": [
+        2,
+        1
+      ],
+      "room_id": "room_gp"
+    },
+    {
+      "id": "zombie_machine",
+      "definition_id": "M09",
+      "anchor": [
+        45,
+        85
+      ],
+      "size": [
+        2,
+        2
+      ],
+      "room_id": "room_physical"
+    },
+    {
+      "id": "cold_machine",
+      "definition_id": "M37",
+      "anchor": [
+        51,
+        86
+      ],
+      "size": [
+        2,
+        2
+      ],
+      "room_id": "room_daily"
+    },
+    {
+      "id": "rest_sofa",
+      "definition_id": "FUR06",
+      "anchor": [
+        57,
+        86
+      ],
+      "size": [
+        2,
+        1
+      ],
+      "room_id": "room_rest"
+    },
+    {
+      "id": "toilet_fixture",
+      "definition_id": "FUR07",
+      "anchor": [
+        56,
+        80
+      ],
+      "size": [
+        2,
+        2
+      ],
+      "room_id": "room_toilet"
+    },
+    {
+      "id": "warm_trolley",
+      "definition_id": "FUR08",
+      "anchor": [
+        50,
+        92
+      ],
+      "size": [
+        1,
+        1
+      ],
+      "room_id": null
+    },
+    {
+      "id": "staff_bed_a",
+      "definition_id": "SE04",
+      "anchor": [
+        56,
+        86
+      ],
+      "size": [
+        1,
+        2
+      ],
+      "room_id": "room_rest"
+    },
+    {
+      "id": "staff_bed_b",
+      "definition_id": "SE04",
+      "anchor": [
+        59,
+        86
+      ],
+      "size": [
+        1,
+        2
+      ],
+      "room_id": "room_rest"
+    },
+    {
+      "id": "doctor_office_desk",
+      "definition_id": "SE05",
+      "anchor": [
+        36,
+        81
+      ],
+      "size": [
+        2,
+        1
+      ],
+      "room_id": "room_doctor_office"
+    },
+    {
+      "id": "nurse_workbench",
+      "definition_id": "SE06",
+      "anchor": [
+        60,
+        86
+      ],
+      "size": [
+        2,
+        1
+      ],
+      "room_id": null
+    },
+    {
+      "id": "chair_1",
+      "definition_id": "FUR09",
+      "anchor": [
+        37,
+        92
+      ],
+      "size": [
+        1,
+        1
+      ],
+      "room_id": null
+    },
+    {
+      "id": "chair_2",
+      "definition_id": "FUR09",
+      "anchor": [
+        39,
+        92
+      ],
+      "size": [
+        1,
+        1
+      ],
+      "room_id": null
+    },
+    {
+      "id": "chair_3",
+      "definition_id": "FUR09",
+      "anchor": [
+        41,
+        92
+      ],
+      "size": [
+        1,
+        1
+      ],
+      "room_id": null
+    },
+    {
+      "id": "chair_4",
+      "definition_id": "FUR09",
+      "anchor": [
+        53,
+        92
+      ],
+      "size": [
+        1,
+        1
+      ],
+      "room_id": null
+    },
+    {
+      "id": "chair_5",
+      "definition_id": "FUR09",
+      "anchor": [
+        55,
+        92
+      ],
+      "size": [
+        1,
+        1
+      ],
+      "room_id": null
+    },
+    {
+      "id": "chair_6",
+      "definition_id": "FUR09",
+      "anchor": [
+        57,
+        92
+      ],
+      "size": [
+        1,
+        1
+      ],
+      "room_id": null
+    },
+    {
+      "id": "water",
+      "definition_id": "FUR17",
+      "anchor": [
+        59,
+        92
+      ],
+      "size": [
+        1,
+        1
+      ],
+      "room_id": null
+    },
+    {
+      "id": "bin",
+      "definition_id": "FUR18",
+      "anchor": [
+        60,
+        92
+      ],
+      "size": [
+        1,
+        1
+      ],
+      "room_id": null
+    }
+  ],
+  "path_rectangles": [
+    {
+      "anchor": [
+        41,
+        90
+      ],
+      "size": [
+        18,
+        2
+      ]
+    },
+    {
+      "anchor": [
+        47,
+        92
+      ],
+      "size": [
+        2,
+        2
+      ]
+    }
+  ],
+  "inventory": [
+    {
+      "definition_id": "M09",
+      "quantity": 1,
+      "paid_cost": 0,
+      "borrowed": false
+    }
+  ],
+  "suggested_gift_placement": {
+    "definition_id": "M09",
+    "anchor": [
+      42,
+      85
+    ],
+    "size": [
+      2,
+      2
+    ],
+    "room_id": "room_physical"
+  },
+  "staff_spawn": [
+    50,
+    94
+  ],
+  "camera_focus": [
+    48,
+    87
+  ],
+  "initial_offers": [
+    "D09",
+    "D37"
+  ],
+  "initial_speed": 0,
+  "doctor_roster": [
+    {
+      "id": "starter_doctor_a",
+      "title_id": "DT01",
+      "personality_id": "DP01",
+      "primary_track": "diagnosis",
+      "diagnosis": 1,
+      "surgery": 0,
+      "shifts": [
+        {
+          "kind": "outpatient",
+          "pool": [
+            "diagnosis"
+          ]
+        },
+        {
+          "kind": "rest"
+        },
+        {
+          "kind": "outpatient",
+          "pool": [
+            "diagnosis"
+          ]
+        }
+      ],
+      "fatigue": 0,
+      "stress": 0,
+      "treatment": 1
+    },
+    {
+      "id": "starter_doctor_b",
+      "title_id": "DT01",
+      "personality_id": "DP05",
+      "primary_track": "treatment",
+      "diagnosis": 1,
+      "surgery": 0,
+      "shifts": [
+        {
+          "kind": "outpatient",
+          "pool": [
+            "T01",
+            "T10"
+          ]
+        },
+        {
+          "kind": "outpatient",
+          "pool": [
+            "T01",
+            "T10"
+          ]
+        },
+        {
+          "kind": "rest"
+        }
+      ],
+      "fatigue": 0,
+      "stress": 0,
+      "treatment": 1
+    },
+    {
+      "id": "starter_doctor_c",
+      "title_id": "DT01",
+      "personality_id": "DP04",
+      "primary_track": "treatment",
+      "diagnosis": 1,
+      "surgery": 0,
+      "shifts": [
+        {
+          "kind": "rest"
+        },
+        {
+          "kind": "outpatient",
+          "pool": [
+            "diagnosis"
+          ]
+        },
+        {
+          "kind": "outpatient",
+          "pool": [
+            "T01",
+            "T10"
+          ]
+        }
+      ],
+      "fatigue": 0,
+      "stress": 0,
+      "treatment": 1
+    }
+  ],
+  "care_departments": [
+    {
+      "id": "starter_department",
+      "name": "综合诊疗科",
+      "room_ids": [
+        "room_gp",
+        "room_physical",
+        "room_daily"
+      ],
+      "focus_specialty_id": "T10"
+    }
+  ],
+  "floor_id": "floor:1",
+  "staff_work_areas": [
+    {
+      "id": "starter_nurse_corner",
+      "anchor": [
+        60,
+        86
+      ],
+      "size": [
+        3,
+        4
+      ],
+      "equipment_ids": [
+        "nurse_workbench"
+      ]
+    }
+  ]
+}

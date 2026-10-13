@@ -1,0 +1,294 @@
+{
+  "schema_version": 5,
+  "notes": "临床布局同时验证设备按示例身体展开后的真实占地、操作区与路线。示例不实例化人物。其他身体和员工须重新预检；床与术台的内置附件共用主体状态。",
+  "layouts": [
+    {
+      "id": "or_standard",
+      "room_type_id": "operating_room",
+      "size": [
+        8,
+        8
+      ],
+      "door_id": "DR04",
+      "door_offset": 3,
+      "patient_clearance": 2,
+      "objects": [
+        {
+          "definition_id": "EQ01",
+          "anchor": [
+            2,
+            2
+          ]
+        }
+      ],
+      "service_points": [
+        {
+          "kind": "patient_staging",
+          "anchor": [
+            2,
+            6
+          ],
+          "clearance": 2
+        },
+        {
+          "kind": "surgeon",
+          "anchor": [
+            1,
+            3
+          ],
+          "clearance": 1
+        },
+        {
+          "kind": "anesthetist",
+          "anchor": [
+            5,
+            2
+          ],
+          "clearance": 1
+        },
+        {
+          "kind": "nurse",
+          "anchor": [
+            5,
+            4
+          ],
+          "clearance": 1
+        }
+      ],
+      "repair_points": [
+        [
+          1,
+          2
+        ]
+      ],
+      "floor_id": "floor:1",
+      "bed_links": [],
+      "sample_species_id": "S01"
+    },
+    {
+      "id": "or_giant",
+      "room_type_id": "operating_room",
+      "size": [
+        10,
+        10
+      ],
+      "door_id": "DR06",
+      "door_offset": 3,
+      "patient_clearance": 3,
+      "objects": [
+        {
+          "definition_id": "EQ01",
+          "anchor": [
+            3,
+            1
+          ]
+        }
+      ],
+      "service_points": [
+        {
+          "kind": "patient_staging",
+          "anchor": [
+            3,
+            6
+          ],
+          "clearance": 3
+        },
+        {
+          "kind": "surgeon",
+          "anchor": [
+            2,
+            3
+          ],
+          "clearance": 1
+        },
+        {
+          "kind": "anesthetist",
+          "anchor": [
+            6,
+            2
+          ],
+          "clearance": 1
+        },
+        {
+          "kind": "nurse",
+          "anchor": [
+            6,
+            4
+          ],
+          "clearance": 1
+        }
+      ],
+      "repair_points": [
+        [
+          2,
+          2
+        ]
+      ],
+      "floor_id": "floor:1",
+      "bed_links": [],
+      "sample_species_id": "S59"
+    },
+    {
+      "id": "ward_two_beds",
+      "room_type_id": "ward",
+      "size": [
+        8,
+        8
+      ],
+      "door_id": "DR04",
+      "door_offset": 3,
+      "patient_clearance": 1,
+      "objects": [
+        {
+          "definition_id": "EQ05",
+          "anchor": [
+            1,
+            1
+          ]
+        },
+        {
+          "definition_id": "EQ05",
+          "anchor": [
+            5,
+            1
+          ]
+        },
+        {
+          "definition_id": "SE06",
+          "anchor": [
+            1,
+            6
+          ]
+        }
+      ],
+      "service_points": [
+        {
+          "kind": "patient_staging_1",
+          "anchor": [
+            1,
+            4
+          ],
+          "clearance": 1
+        },
+        {
+          "kind": "patient_staging_2",
+          "anchor": [
+            5,
+            4
+          ],
+          "clearance": 1
+        },
+        {
+          "kind": "care_1",
+          "anchor": [
+            0,
+            2
+          ],
+          "clearance": 1
+        },
+        {
+          "kind": "care_2",
+          "anchor": [
+            4,
+            2
+          ],
+          "clearance": 1
+        },
+        {
+          "kind": "nurse_base",
+          "anchor": [
+            1,
+            7
+          ],
+          "clearance": 1
+        }
+      ],
+      "repair_points": [
+        [
+          0,
+          2
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "floor_id": "floor:1",
+      "bed_links": [
+        {
+          "bed_index": 0
+        },
+        {
+          "bed_index": 1
+        }
+      ],
+      "sample_species_id": "S49"
+    },
+    {
+      "id": "ward_giant",
+      "room_type_id": "ward",
+      "size": [
+        10,
+        10
+      ],
+      "door_id": "DR06",
+      "door_offset": 3,
+      "patient_clearance": 3,
+      "objects": [
+        {
+          "definition_id": "EQ05",
+          "anchor": [
+            3,
+            1
+          ]
+        },
+        {
+          "definition_id": "SE06",
+          "anchor": [
+            0,
+            0
+          ]
+        }
+      ],
+      "service_points": [
+        {
+          "kind": "patient_staging",
+          "anchor": [
+            3,
+            6
+          ],
+          "clearance": 3
+        },
+        {
+          "kind": "care",
+          "anchor": [
+            7,
+            3
+          ],
+          "clearance": 1
+        },
+        {
+          "kind": "nurse_base",
+          "anchor": [
+            0,
+            1
+          ],
+          "clearance": 1
+        }
+      ],
+      "repair_points": [
+        [
+          2,
+          2
+        ]
+      ],
+      "floor_id": "floor:1",
+      "bed_links": [
+        {
+          "bed_index": 0
+        }
+      ],
+      "sample_species_id": "S59"
+    }
+  ]
+}
