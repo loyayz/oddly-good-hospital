@@ -160,7 +160,7 @@ func request_group_move(world: WorldState, primary_id: String, members: Array, o
 	return ""
 
 func advance(world: WorldState) -> void:
-	_sweep_index.clear()
+	_sweep_index.begin_boundary(world.facts.moves)
 	_ensure_actor_index(world)
 	release_adaptations(world)
 	_advance_connectors(world)
@@ -281,14 +281,15 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 
 func _actor_rect(actor: Dictionary, origin: Vector2) -> Rect2:
 	var dimensions: Dictionary = body(actor)
+	var cells: int = ceili(maxf(float(dimensions.width_m),float(dimensions.depth_m))/CELL_METERS)
 	if actor.get("posture","standing") == "lying":
-		var root: Vector2 = origin+Vector2.ONE*clearance(actor)*0.5
+		var root: Vector2 = origin+Vector2.ONE*cells*0.5
 		return Rect2(root-Vector2(float(dimensions.width_m)*0.5,float(dimensions.height_m))/CELL_METERS,Vector2(float(dimensions.width_m),float(dimensions.height_m))/CELL_METERS)
 	var size: Vector2 = Vector2(float(dimensions.width_m),float(dimensions.depth_m)) / CELL_METERS
 	var cosine: float = absf(cos(float(actor.facing)))
 	var sine: float = absf(sin(float(actor.facing)))
 	size = Vector2(size.x*cosine+size.y*sine,size.x*sine+size.y*cosine)
-	return Rect2(origin + (Vector2.ONE * clearance(actor) - size) * 0.5, size)
+	return Rect2(origin + (Vector2.ONE * cells - size) * 0.5, size)
 
 func overlaps_facility(world: WorldState, actor_id: String, facility_id: String) -> bool:
 	var actor: Dictionary = world.facts.actors[actor_id]

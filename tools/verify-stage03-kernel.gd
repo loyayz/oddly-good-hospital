@@ -54,6 +54,7 @@ func _run() -> void:
 	var overflow: MoveActorPayload = MoveActorPayload.from_record({"actor_id":"sample_S21","floor_id":1,"cell":[4294967330,66],"confirmed_location":world.facts.actors.sample_S21.location})
 	_check("target_coordinate_never_wraps",overflow==null)
 	_routing_projection(content)
+	_sweep_boundaries()
 	session.set_speed(3)
 	session.pause("photo")
 	session.pause("focus")
@@ -121,6 +122,19 @@ func _routing_projection(content: HospitalContent) -> void:
 					if query.reason(cell)!=space.static_reason(world,actor,floor_id,cell):
 						matched = false
 	_check("route_projection_matches_live_geometry",matched and _canonical(world)==before)
+
+func _sweep_boundaries() -> void:
+	var index: BodyIndex = BodyIndex.new()
+	var rect: Rect2 = Rect2(3.5,3.5,2.0,2.0)
+	index.update("old",1,rect)
+	index.begin_boundary({"old":true,"new":true})
+	_check("sweep_requires_current_boundary",not index.intersects(1,rect,""))
+	index.update("old",1,rect)
+	_check("same_rectangle_reactivates_sweep",index.intersects(1,rect,""))
+	index.begin_boundary({"new":true})
+	_check("retired_sweep_pruned",not index.intersects(1,rect,"") and index._records.is_empty())
+	index.update("new",2,rect)
+	_check("sweep_floor_isolation",not index.intersects(1,rect,"") and index.intersects(2,rect,""))
 
 func _canonical(world: WorldState) -> String:
 	return JSON.stringify(world.facts,"",true,true)
