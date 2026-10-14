@@ -41,10 +41,11 @@ func remove(id: String) -> void:
 
 func intersects(floor_id: int, rect: Rect2, ignored_id: String, ignored_ids: Array = []) -> bool:
 	var floor: Dictionary = _buckets.get(floor_id,{})
-	for key: Vector2i in _keys(rect):
-		for id: String in floor.get(key,{}):
-			if id!=ignored_id and not id in ignored_ids and rect.intersects(_records[id].rect,false):
-				return true
+	for x: int in range(floori(rect.position.x/BUCKET_CELLS),floori(rect.end.x/BUCKET_CELLS)+1):
+		for y: int in range(floori(rect.position.y/BUCKET_CELLS),floori(rect.end.y/BUCKET_CELLS)+1):
+			for id: String in floor.get(Vector2i(x,y),{}):
+				if id!=ignored_id and not id in ignored_ids and rect.intersects(_records[id].rect,false):
+					return true
 	return false
 
 func rectangle(id: String) -> Rect2:

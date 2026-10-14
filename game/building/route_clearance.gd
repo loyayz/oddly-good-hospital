@@ -1,7 +1,7 @@
 class_name RouteClearance
 extends RefCounted
 
-# A synchronous route sees one layout. Keep this projection local to that query.
+# Projection lifetime is one synchronous route or movement boundary.
 var _size: int
 var _plots: Dictionary = {}
 var _blocked: Dictionary = {}
@@ -44,6 +44,12 @@ func reason(origin: Vector2i) -> String:
 		var result: String = member.query.reason(origin+member.offset)
 		if not result.is_empty():
 			return result
+	if _blocked.is_empty() and _doors.is_empty() and _facilities.is_empty() and _connectors.is_empty() and _reservations.is_empty():
+		for x: int in range(floori(float(origin.x)/32.0),floori(float(origin.x+_size-1)/32.0)+1):
+			for y: int in range(floori(float(origin.y)/32.0),floori(float(origin.y+_size-1)/32.0)+1):
+				if not _plots.has(Vector2i(x,y)):
+					return "身体超出已取得地块"
+		return ""
 	for x: int in range(origin.x,origin.x+_size):
 		for y: int in range(origin.y,origin.y+_size):
 			var cell: Vector2i = Vector2i(x,y)

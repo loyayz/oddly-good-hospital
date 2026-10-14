@@ -164,6 +164,11 @@ func advance(world: WorldState) -> void:
 	_ensure_actor_index(world)
 	release_adaptations(world)
 	_advance_connectors(world)
+	var clearance_queries: Dictionary = {}
+	var reserved_floors: Dictionary = {}
+	for reservation: Dictionary in world.facts.adaptations.values():
+		if reservation.kind=="facility":
+			reserved_floors[int(reservation.floor_id)] = true
 	for actor_id: String in world.ids("moves"):
 		if not world.facts.moves.has(actor_id):
 			continue
@@ -199,8 +204,19 @@ func advance(world: WorldState) -> void:
 			next = target
 		var initial_rect: Rect2 = _actor_index.rectangle(actor_id) if members.size()==1 else _unit_rect(world,actor,start,members,offsets)
 		var swept: Rect2 = initial_rect.merge(_unit_rect(world,actor,next,members,offsets))
-		if segment.kind!="support_exit" and not _step_static_clear(world,actor,movement,next):
-			continue
+		if segment.kind!="support_exit":
+			var query: RouteClearance
+			var floor_id: int = int(actor.location.floor_id)
+			if members.size()<=1 and not reserved_floors.has(floor_id):
+				var key: String = str(floor_id)+":"+str(actor.species_id)+":"+str(actor.get("body_binding_id",""))
+				query = clearance_queries.get(key)
+				if query==null:
+					query = RouteClearance.new(self,world,actor,floor_id)
+					clearance_queries[key] = query
+			else:
+				query = RouteClearance.new(self,world,actor,floor_id,members,offsets)
+			if not _step_static_clear(world,actor,movement,next,query):
+				continue
 		if not _reserve_doors(world,actor,movement,swept):
 			continue
 		if not _dynamic_clear(world,actor_id,int(actor.location.floor_id),swept,members):
@@ -476,9 +492,11 @@ func _reserve_doors(world: WorldState, actor: Dictionary, movement: Dictionary, 
 			"span":quote.span,"clear_height_m":quote.clear_height_m,"clear_width_m":quote.clear_width_m,"regions":[[rect.position.x,rect.position.y,rect.size.x,rect.size.y]]}
 	return true
 
-func _step_static_clear(world: WorldState, actor: Dictionary, movement: Dictionary, next: Vector2) -> bool:
+func _step_static_clear(world: WorldState, actor: Dictionary, movement: Dictionary, next: Vector2, query: RouteClearance = null) -> bool:
 	var origin: Vector2i = Vector2i(floori(next.x),floori(next.y))
-	if static_reason(world,actor,int(actor.location.floor_id),origin,movement.get("members",[]),movement.get("offsets",{})).is_empty():
+	if query==null:
+		query = RouteClearance.new(self,world,actor,int(actor.location.floor_id),movement.get("members",[]),movement.get("offsets",{}))
+	if query.reason(origin).is_empty():
 		return true
 	var route_again: Dictionary = route(world,actor.id,int(movement.target_floor),movement.target_cell)
 	if route_again.ok:

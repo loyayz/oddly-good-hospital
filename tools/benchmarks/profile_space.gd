@@ -14,9 +14,9 @@ func _dynamic_clear(world: WorldState, actor_id: String, floor_id: int, rect: Re
 	_record("dynamic_clear",started)
 	return result
 
-func _step_static_clear(world: WorldState, actor: Dictionary, movement: Dictionary, next: Vector2) -> bool:
+func _step_static_clear(world: WorldState, actor: Dictionary, movement: Dictionary, next: Vector2, query: RouteClearance = null) -> bool:
 	var started: int = Time.get_ticks_usec()
-	var result: bool = super._step_static_clear(world,actor,movement,next)
+	var result: bool = super._step_static_clear(world,actor,movement,next,query)
 	_record("step_static_clear",started)
 	return result
 
