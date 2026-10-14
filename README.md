@@ -23,7 +23,7 @@ pwsh -NoProfile -File tools/prepare-performance-plan.ps1
 pwsh -NoProfile -File tools/prepare-kernel-benchmark.ps1
 ```
 
-第三阶段已测量160人、1×/3×的完整固定步和真实命令边界。评审修复后按160→320→640人逐档验证；当前人数的1×/3×均通过才进入下一档，每档失败后最多三轮优化、提交与正式复测，三轮仍未达标则停止后续档并记录原因。每组预热60秒、采样600秒，两组约22分钟，完整六组约66分钟。当前完整步预算为P95≤10ms、P99≤15ms、普通最大≤30ms，实际速度≥99%；帧预算分配与历史160人记录另行评估见第三阶段报告。原始记录和OS资源采样位于`.cache/validation/stage03/<RunName>`，基准使用独立资料目录。
+第三阶段按160→320→640人逐档验证，当前人数的1×/3×均通过才进入下一档，每档失败后最多三轮优化、提交与正式复测。160人阶段门禁已通过；最终构建320人完成三轮优化后，1×P95为10.135ms，仍高于10ms预算，3×通过，640人及其通过后的六组完整基准未执行。38项规则检查通过，最终结果与限制见[第三阶段报告](docs/design/15-stage03-kernel-performance.md)。完整步预算为P95≤10ms、P99≤15ms、普通最大≤30ms，实际速度≥99%。每组预热60秒、采样600秒；两组约22分钟，完整六组约66分钟。原始数据位于`.cache/validation/stage03/<RunName>`，基准使用独立资料目录。
 
 ```powershell
 pwsh -NoProfile -File tools/measure-kernel.ps1 -Actors 160 -RunName local-kernel

@@ -179,8 +179,8 @@ def main():
             lines.append(f'| {model["speed"]}× | {model["intercept_ms"]:.4f} | {model["ms_per_actor"]:.6f} | {model["predicted_640_ms"]:.3f} | {model["measured_640_ms"]:.3f} | {model["holdout_relative_error"]:.1%} |')
         lines += ["", "到访容量、候诊离院、环境脏区、互动候选、多临床站点和全部正式资源尚未接入本夹具。绘制/姿态、图形分配、保存恢复的大世界峰值及完整游戏性能保持缺失；最晚接入阶段由`tools/benchmarks/cost-coverage.json`记录。", "",
                   "## 运行与收尾", "", "第二阶段提供基准准备、72组显示计划、原始记录、OS资源采集、报表和成本接入清单；性能检测跳过。第三阶段提供类型化世界/命令/结果/事实事件、稳定十阶段、会话播放控制、命令原子失败、账目幂等、独立回放及规则运行器。", "",
-                  "空间优化以完整身体包络建立分桶索引，同步真实移动、承托、乘梯和离院；同一tick的规范化事实和十二条随机流比较另见等价证据。采集工具拒绝有Godot运行错误的记录。早期诊断中的Array类型互操作错误已修复，该批诊断保留为无效证据，不参与成本校准。", "",
-                  "普通规则测试未执行；规则运行器已交付。本次实际执行范围为Release构建、性能采集、优化前后同tick事实核对和静态设计校验。第一阶段历史报告中的规则、保存、安装及绘制证据不被视为本次重验。", ""]
+                  "空间优化以完整身体包络建立分桶索引，同步真实移动、承托、乘梯和离院。采集工具拒绝有Godot运行错误的记录；完整事实及随机流的一致性由独立规则验证记录。", "",
+                  "性能采集和规则验证分别记录。本采集工具核对Release性能数据；医院规则、保存、安装与绘制证据由相应验证入口记录。", ""]
         args.markdown.parent.mkdir(parents=True, exist_ok=True)
         args.markdown.write_text("\n".join(lines), encoding="utf-8")
     print(json.dumps({"groups": len(groups), "requested_matrix_complete": complete, "formal_matrix_complete": full_matrix_complete,

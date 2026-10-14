@@ -4,20 +4,20 @@
   "stage03_groups": [
     {
       "accepted_commands": 60,
-      "actors": 160,
+      "actors": 320,
       "actual_attempts": 2,
       "clinical_phase": "surgery",
       "command_boundary": {
         "count": 60,
-        "max_ms": 1.103,
-        "mean_ms": 0.39525,
-        "p50_ms": 0.321,
-        "p95_ms": 0.757,
-        "p99_ms": 1.103
+        "max_ms": 0.71,
+        "mean_ms": 0.3273666666666667,
+        "p50_ms": 0.298,
+        "p95_ms": 0.56,
+        "p99_ms": 0.71
       },
       "debug_build": false,
       "executed_ticks": 6000,
-      "final_world_sha256": "893f4160839767a7c57f18653bda2b6f3b1dbb39a7b313f442a5de4c1749b5eb",
+      "final_world_sha256": "af1e133cc3dfd74602366c371eeb70a51067971fc438991739d5ed464b0e8a5c",
       "first_tick": 599,
       "fixture": {
         "active_floors": [
@@ -26,7 +26,7 @@
           1000,
           10000
         ],
-        "actor_records": 160,
+        "actor_records": 320,
         "clinical_scope": "one real D23 pathway; additional bodies execute real repeated movement",
         "clinical_visits": 1,
         "distribution": "four_mobile_floors",
@@ -34,17 +34,17 @@
         "fixture": "kernel-mobile-and-surgery-v1",
         "layout": "four actual 96x96 floors plus the stage01 surgical layout",
         "missing": "multiple simultaneous clinical stations and later daily systems",
-        "mobile_actors": 146,
+        "mobile_actors": 306,
         "staff": 9,
-        "target_present_actors": 160
+        "target_present_actors": 320
       },
       "fixture_dispatch": {
         "count": 6000,
-        "max_ms": 26.9,
-        "mean_ms": 2.138856,
-        "p50_ms": 0.087,
-        "p95_ms": 14.2,
-        "p99_ms": 19.249
+        "max_ms": 23.118,
+        "mean_ms": 2.1723206666666663,
+        "p50_ms": 0.132,
+        "p95_ms": 12.792,
+        "p99_ms": 13.82
       },
       "formal_capture": true,
       "last_tick": 6599,
@@ -59,12 +59,12 @@
       ],
       "passed": false,
       "path_refused": 0,
-      "path_requests": 146000,
+      "path_requests": 306000,
       "peak_clinical_sessions": 1,
-      "peak_moves": 148,
+      "peak_moves": 308,
       "present_actors_range": [
-        160,
-        160
+        320,
+        320
       ],
       "rejected_commands": 0,
       "rng_end": {
@@ -129,18 +129,18 @@
           "state_decimal": "2436677921316883013"
         }
       },
-      "sample_real_seconds": 600.002537,
+      "sample_real_seconds": 600.00259,
       "schema_version": 1,
       "speed": 1,
-      "speed_ratio": 0.9999957716845455,
+      "speed_ratio": 0.9999956833519668,
       "status": "measured",
       "step": {
         "count": 6000,
-        "max_ms": 98.5,
-        "mean_ms": 5.9039605,
-        "p50_ms": 5.667,
-        "p95_ms": 11.039,
-        "p99_ms": 13.762
+        "max_ms": 20.295,
+        "mean_ms": 6.991892166666666,
+        "p50_ms": 7.718,
+        "p95_ms": 10.135,
+        "p99_ms": 11.235
       },
       "targets": {
         "frame_p95_ms": 16.7,
@@ -152,42 +152,44 @@
         "room_preview_p95_ms": 200.0,
         "save_max_seconds": 2.0,
         "sim_speed_ratio_min": 0.99,
-        "sim_step_p95_ms": 4.0,
+        "sim_step_ordinary_max_ms": 30.0,
+        "sim_step_p95_ms": 10.0,
+        "sim_step_p99_ms": 15.0,
         "snapshot_copy_p95_ms": 25.0,
         "working_set_target_bytes": 2147483648.0
       },
       "timer_overhead": {
         "count": 10000,
-        "max_ms": 0.001,
+        "max_ms": 0.007,
         "mean_ms": 2.76e-05,
         "p50_ms": 0.0,
         "p95_ms": 0.0,
         "p99_ms": 0.001
       },
-      "warmup_real_seconds": 60.011665,
+      "warmup_real_seconds": 60.015694,
       "evidence_valid": true,
       "evidence_errors": [],
       "exit_code": 1,
       "OS_resources": {
-        "observed_peak_working_set_bytes": 87994368,
-        "observed_peak_private_commit_bytes": 50528256,
-        "lifetime_peak_working_set_bytes": 90128384,
+        "observed_peak_working_set_bytes": 96473088,
+        "observed_peak_private_commit_bytes": 58290176,
+        "lifetime_peak_working_set_bytes": 96473088,
         "cadence_seconds": 1,
         "includes_warmup": true,
         "graphics": null
       },
-      "raw_sha256": "172294421bcf108a7d40045b1aedcaa9508c3c537b1c3bb713b32b1338dddf0d",
+      "raw_sha256": "c941d9fb9b6dc861f1a7413ec7cf83446aa72080d51ecd367432917138e1e40e",
       "evidence_sha256": {
-        "capture-start.json": "0d1d4245590571997dd1889ea49fb107ffbcbd84f27086ed5d8acd51f781d1f8",
-        "summary.json": "5abb1883f2e6bfe154e0dc65bd48553a975c256ea7f90beac2cee89f6da1cc99",
+        "capture-start.json": "434c05db9feb792e3c277957fe3d6c2d3bb57630e7ba7c517cc7924a7d8de44f",
+        "summary.json": "aafe35983bce625f1c55ed450a334ea925e45cf93eb3c58022f590467638e232",
         "validation.json": "b9849704bf9b7714a831cc16fb138cabbb564cd4b83a8d40675fdace1cb34ede",
-        "execution.json": "b69724a7f26637236e9740c3011bc2008c3989b60c8573318575b05c78c4340f",
-        "process.ndjson": "23a06fabe9b1e289b642a5d6e4fa6f91089e6b3235c0e579e088da4dbc83b13e",
-        "final-world.json": "00bc737fb2f3eccf52fa5a73d98e84fd96d10922d097f440b2a0373b36416c4e",
-        "stdout.log": "ab84d508f723a1bf8fe1c7d06acbc75f01b07090acde6cda08f9c30e2948d95f",
+        "execution.json": "81eb3706fbc8505af55e5eb399877ef905d7d7b95fa3367678527fa4074c2804",
+        "process.ndjson": "e44380f738338676f341c1e3cfb8b64f6ac0101435c40522be02c2d041644a4f",
+        "final-world.json": "c9ac7f0bdf08c533edfd5ff993ef387a9b88c5dfdce391e276dae419652fde34",
+        "stdout.log": "5fa13102ce1f56043e196b5c19ff5864a716bc261460cb354b623e559fe7985f",
         "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       },
-      "raw_path": ".cache\\validation\\stage03\\formal-v3\\actors-160-speed-1\\raw.ndjson",
+      "raw_path": ".cache\\validation\\stage03\\opt320-3\\actors-320-speed-1\\raw.ndjson",
       "evaluation_targets": {
         "frame_p95_ms": 16.7,
         "frame_p99_ms": 25,
@@ -204,24 +206,34 @@
         "working_set_target_bytes": 2147483648,
         "graphics_resources_target_bytes": 536870912
       },
-      "evaluation_passed": false
+      "evaluation_passed": false,
+      "distribution": {
+        "steps_over_p95_budget": 365,
+        "steps_over_p95_budget_percent": 6.083333333333333,
+        "quartile_mean_ms": [
+          6.798158,
+          7.1043433333333335,
+          6.865538666666667,
+          7.199528666666667
+        ]
+      }
     },
     {
       "accepted_commands": 180,
-      "actors": 160,
+      "actors": 320,
       "actual_attempts": 2,
       "clinical_phase": "departed",
       "command_boundary": {
         "count": 180,
-        "max_ms": 0.774,
-        "mean_ms": 0.3282333333333333,
-        "p50_ms": 0.279,
-        "p95_ms": 0.57,
-        "p99_ms": 0.661
+        "max_ms": 0.851,
+        "mean_ms": 0.3266611111111111,
+        "p50_ms": 0.296,
+        "p95_ms": 0.539,
+        "p99_ms": 0.66
       },
       "debug_build": false,
       "executed_ticks": 18000,
-      "final_world_sha256": "42ba049f15463a404bca2d411ad2e8635a5a93f5120172710e11c17c79e44d00",
+      "final_world_sha256": "c5281f0ebffbdb6edbd5560a191b5a6c9ba25aa81dec097069da7e37905b2fe0",
       "first_tick": 1799,
       "fixture": {
         "active_floors": [
@@ -230,7 +242,7 @@
           1000,
           10000
         ],
-        "actor_records": 161,
+        "actor_records": 321,
         "clinical_scope": "one real D23 pathway; additional bodies execute real repeated movement",
         "clinical_visits": 1,
         "distribution": "four_mobile_floors",
@@ -238,17 +250,17 @@
         "fixture": "kernel-mobile-and-surgery-v1",
         "layout": "four actual 96x96 floors plus the stage01 surgical layout",
         "missing": "multiple simultaneous clinical stations and later daily systems",
-        "mobile_actors": 147,
+        "mobile_actors": 307,
         "staff": 9,
-        "target_present_actors": 160
+        "target_present_actors": 320
       },
       "fixture_dispatch": {
         "count": 18000,
-        "max_ms": 38.663,
-        "mean_ms": 1.7579555,
-        "p50_ms": 0.065,
-        "p95_ms": 9.881,
-        "p99_ms": 16.622
+        "max_ms": 22.489,
+        "mean_ms": 2.127803611111111,
+        "p50_ms": 0.104,
+        "p95_ms": 12.526,
+        "p99_ms": 13.531
       },
       "formal_capture": true,
       "last_tick": 19799,
@@ -261,14 +273,14 @@
         "full_daily_systems",
         "multiple_clinical_stations"
       ],
-      "passed": false,
+      "passed": true,
       "path_refused": 0,
-      "path_requests": 439582,
+      "path_requests": 919582,
       "peak_clinical_sessions": 1,
-      "peak_moves": 149,
+      "peak_moves": 309,
       "present_actors_range": [
-        159,
-        160
+        319,
+        320
       ],
       "rejected_commands": 0,
       "rng_end": {
@@ -333,18 +345,18 @@
           "state_decimal": "2436677921316883013"
         }
       },
-      "sample_real_seconds": 600.004779,
+      "sample_real_seconds": 600.005946,
       "schema_version": 1,
       "speed": 3,
-      "speed_ratio": 0.9999920350634408,
+      "speed_ratio": 0.999990090098207,
       "status": "measured",
       "step": {
         "count": 18000,
-        "max_ms": 66.0,
-        "mean_ms": 4.821029555555556,
-        "p50_ms": 4.881,
-        "p95_ms": 8.915,
-        "p99_ms": 12.341
+        "max_ms": 21.77,
+        "mean_ms": 6.840642388888888,
+        "p50_ms": 7.57,
+        "p95_ms": 9.923,
+        "p99_ms": 11.105
       },
       "targets": {
         "frame_p95_ms": 16.7,
@@ -356,42 +368,44 @@
         "room_preview_p95_ms": 200.0,
         "save_max_seconds": 2.0,
         "sim_speed_ratio_min": 0.99,
-        "sim_step_p95_ms": 4.0,
+        "sim_step_ordinary_max_ms": 30.0,
+        "sim_step_p95_ms": 10.0,
+        "sim_step_p99_ms": 15.0,
         "snapshot_copy_p95_ms": 25.0,
         "working_set_target_bytes": 2147483648.0
       },
       "timer_overhead": {
         "count": 10000,
         "max_ms": 0.001,
-        "mean_ms": 2.82e-05,
+        "mean_ms": 2.75e-05,
         "p50_ms": 0.0,
         "p95_ms": 0.0,
         "p99_ms": 0.001
       },
-      "warmup_real_seconds": 60.015861,
+      "warmup_real_seconds": 60.015842,
       "evidence_valid": true,
       "evidence_errors": [],
-      "exit_code": 1,
+      "exit_code": 0,
       "OS_resources": {
-        "observed_peak_working_set_bytes": 89890816,
-        "observed_peak_private_commit_bytes": 52314112,
-        "lifetime_peak_working_set_bytes": 89890816,
+        "observed_peak_working_set_bytes": 97878016,
+        "observed_peak_private_commit_bytes": 60567552,
+        "lifetime_peak_working_set_bytes": 97878016,
         "cadence_seconds": 1,
         "includes_warmup": true,
         "graphics": null
       },
-      "raw_sha256": "9162c1a0f92d72903d9a1268581ef8f5e484688fc4d211ce2bccd742778c0f44",
+      "raw_sha256": "9af143faa62771bcea75a9c50eca4e5682bf601b3ac323697b4bbd3fb180505b",
       "evidence_sha256": {
-        "capture-start.json": "cb9ea73f2d9a76c9f631d600b5896cf2d272aed38c74d5f6ff60811d35fd0636",
-        "summary.json": "cb418a976788c10360da1d96a5004795c8cbd8472b8a97ab254c3663da2c0fba",
+        "capture-start.json": "f9485716795a0473335050aabd0de3aaf618e76e20236464361f7fd89e68e224",
+        "summary.json": "8bb8d52cdd1271d1311b6cd99c372d08cc5b0259ee0c035ef246355927b5f6ff",
         "validation.json": "b9849704bf9b7714a831cc16fb138cabbb564cd4b83a8d40675fdace1cb34ede",
-        "execution.json": "3f12b87d9452bf03767e974e3f73ea61694aad43d264fd05c5124f5fc0afb711",
-        "process.ndjson": "71edd78437041ea6a7852a7bb64df36da12b252d5c8c3173ad425b4ff8f9c9d8",
-        "final-world.json": "41222804f9522945b50993ab394791bf6e148ec70d4f7869c58095fe27d8e1e0",
-        "stdout.log": "16424e0be273a9734faaa57579207d8f57fa0a1e8b1d1ddc3fe788fd7b8be6fd",
+        "execution.json": "9f50d2c28df207d5f5a0501ff5d94a13b30fb6b5885d348f2ae727f38524c60d",
+        "process.ndjson": "8d19d17fa083fe7dbd308a324c31388a2eacdd2373140654a380f6dfc4e4734e",
+        "final-world.json": "b9f44068b1c1c4754e915fc8396d88c5aafc4aac0166e0c0257c9e2abb5e001f",
+        "stdout.log": "c1a90c50a6777b3c489f5b65ec21fb5d81f1687873e26d5f4c05653028995da4",
         "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       },
-      "raw_path": ".cache\\validation\\stage03\\formal-v3\\actors-160-speed-3\\raw.ndjson",
+      "raw_path": ".cache\\validation\\stage03\\opt320-3\\actors-320-speed-3\\raw.ndjson",
       "evaluation_targets": {
         "frame_p95_ms": 16.7,
         "frame_p99_ms": 25,
@@ -408,14 +422,24 @@
         "working_set_target_bytes": 2147483648,
         "graphics_resources_target_bytes": 536870912
       },
-      "evaluation_passed": false
+      "evaluation_passed": true,
+      "distribution": {
+        "steps_over_p95_budget": 818,
+        "steps_over_p95_budget_percent": 4.544444444444444,
+        "quartile_mean_ms": [
+          6.756909555555556,
+          6.852204222222222,
+          6.799054,
+          6.954401777777778
+        ]
+      }
     }
   ],
   "requested_actors": [
-    160
+    320
   ],
   "deferred_actors": [
-    320,
+    160,
     640
   ],
   "requested_matrix_complete": true,
@@ -434,12 +458,12 @@
   "build_identity": {
     "version": "0.3.0-stage03",
     "engine": "4.7.2.stable.official.ed1daf0bf",
-    "source_head": "224fbbe82cc15df7ab9e9cfd3547ade97ded7c7a",
-    "captured_utc": "2026-10-14T13:56:24.6416582Z",
+    "source_head": "67efd62822d12f66922262d16cece8737f24e7a8",
+    "captured_utc": "2026-10-14T17:22:49.0211902Z",
     "sources": [
       {
         "path": "docs/data/balance.json",
-        "sha256": "d6c0c0d4ccc9a83152bec9551e6579b1d3b584e51ce0d7809c9dff6bb52e1a55"
+        "sha256": "3f42a9e0666063481fd8959227782b660e394c822c4aea8db641eea21172d79b"
       },
       {
         "path": "docs/data/clinical-layouts.json",
@@ -471,11 +495,15 @@
       },
       {
         "path": "game/building/body_index.gd",
-        "sha256": "48e3c53c53784ae2120817e86d5506a2db761a977af07e2e3d014c56ad56b68b"
+        "sha256": "840a9848835a98e1486310a8871f4db8301f1eee679ef4c1aa4f4d5298a3b264"
       },
       {
         "path": "game/building/hospital_space.gd",
-        "sha256": "2207fe8dafc5493a6fa926f4355792e67fde214c7a111f18afd73ca1b67b0b5e"
+        "sha256": "c27f66689b530ff5f7737ca9693ff53b92203652747ce17ce9a570e5f7e428ad"
+      },
+      {
+        "path": "game/building/route_clearance.gd",
+        "sha256": "a5ff8d7a93c3f3c33d411f37139ac97ecd011278807405525cc36cdc1940a753"
       },
       {
         "path": "game/clinic/clinical_runtime.gd",
@@ -491,7 +519,7 @@
       },
       {
         "path": "game/economy/ledger.gd",
-        "sha256": "5935c7b45f2315b6387950a285cf3aef1198f95282078d42db2b271fa09ebb02"
+        "sha256": "95d89ab29f120eeee051895922f4f9eae82c2f540d689006ef90d10dd80f1aa7"
       },
       {
         "path": "game/persistence/json_stream.gd",
@@ -515,11 +543,11 @@
       },
       {
         "path": "game/sim/types/game_command.gd",
-        "sha256": "4a8f8654fb6ad2919789977885b403f60112b0e659aafa29a0ea3f97123dcf2a"
+        "sha256": "6e3165dc82a06ef56b0115881a2ed2e5ab98f0dfb5dd2d0b0e1177fee86b1d79"
       },
       {
         "path": "game/sim/types/move_actor_payload.gd",
-        "sha256": "fbd9b3ca8ba45361291c49cf69cd23cb4275c435f6c3f94b1f7197b98f4d6e0a"
+        "sha256": "f9ced5a3b5649af68128e5cb1effe4d6ee516d18327eedfced56da7de6c03fcc"
       },
       {
         "path": "game/sim/types/sim_event.gd",
@@ -559,7 +587,7 @@
       },
       {
         "path": "tools/benchmarks/kernel_capture.gd",
-        "sha256": "02f3e9131592e73992b8478f030273d6b4d01fec3a21fcc3822f40d1eee793bb"
+        "sha256": "714b4843b7b3a742ec64629e0c93f3c1befdde5a8c62e6f75449253b79cb7b4e"
       },
       {
         "path": "tools/benchmarks/kernel_capture.tscn",
@@ -575,7 +603,7 @@
       },
       {
         "path": "tools/benchmarks/profile_space.gd",
-        "sha256": "c0eca0bbb05eabb3b462f1eb0c07842e64589d71f201736fdd1ce703e9b2993c"
+        "sha256": "9e3843d132f9f9b95ca07656ffad45d71fad551043a14919c4f3dd3c04d9b5cb"
       },
       {
         "path": "tools/benchmarks/timed_simulation.gd",
@@ -590,8 +618,8 @@
       },
       {
         "path": "kernel-benchmark.pck",
-        "bytes": 31026268,
-        "sha256": "48baa3d08bd9156d8f494666f69c2be4a1e60a3309afa2f17992bc8df8297b05"
+        "bytes": 31029816,
+        "sha256": "4ac8b5fa22d44ccc038587b0c79b1ee93fc511bdb89d13f3b5af7dbb0e652e95"
       },
       {
         "path": "oddly_good_platform.windows.x86_64.dll",
@@ -601,7 +629,7 @@
     ]
   },
   "environment": {
-    "captured_utc": "2026-10-14T14:00:27.9911257Z",
+    "captured_utc": "2026-10-14T17:23:50.4716967Z",
     "cpu": [
       {
         "Name": "Intel(R) Core(TM) Ultra 5 125H",
@@ -613,7 +641,7 @@
       "Caption": "Microsoft Windows 11 家庭版 中文版",
       "Version": "10.0.26300",
       "TotalVisibleMemorySize": 32987452,
-      "FreePhysicalMemory": 17745012
+      "FreePhysicalMemory": 17356552
     },
     "adapters": [
       {
@@ -642,81 +670,81 @@
     "battery": [
       {
         "BatteryStatus": 2,
-        "EstimatedChargeRemaining": 61
+        "EstimatedChargeRemaining": 100
       }
     ],
     "background": [
       {
         "ProcessName": "CordC",
         "Id": 16444,
-        "CPU": 4296.921875,
-        "WorkingSet64": 324952064
-      },
-      {
-        "ProcessName": "Weixin",
-        "Id": 12560,
-        "CPU": 922.59375,
-        "WorkingSet64": 289234944
-      },
-      {
-        "ProcessName": "chrome",
-        "Id": 21432,
-        "CPU": 863.140625,
-        "WorkingSet64": 300273664
-      },
-      {
-        "ProcessName": "explorer",
-        "Id": 5104,
-        "CPU": 601.390625,
-        "WorkingSet64": 437137408
-      },
-      {
-        "ProcessName": "jetbrains-toolbox",
-        "Id": 4760,
-        "CPU": 590.96875,
-        "WorkingSet64": 390094848
-      },
-      {
-        "ProcessName": "ChatGPT",
-        "Id": 20808,
-        "CPU": 489.125,
-        "WorkingSet64": 250437632
+        "CPU": 5529.59375,
+        "WorkingSet64": 321163264
       },
       {
         "ProcessName": "ChatGPT",
         "Id": 38564,
-        "CPU": 488.9375,
-        "WorkingSet64": 621551616
+        "CPU": 1981.9375,
+        "WorkingSet64": 939036672
+      },
+      {
+        "ProcessName": "ChatGPT",
+        "Id": 20808,
+        "CPU": 1343.671875,
+        "WorkingSet64": 288333824
+      },
+      {
+        "ProcessName": "Weixin",
+        "Id": 12560,
+        "CPU": 982.578125,
+        "WorkingSet64": 276361216
+      },
+      {
+        "ProcessName": "chrome",
+        "Id": 21432,
+        "CPU": 919.015625,
+        "WorkingSet64": 287080448
+      },
+      {
+        "ProcessName": "jetbrains-toolbox",
+        "Id": 4760,
+        "CPU": 737.890625,
+        "WorkingSet64": 396369920
+      },
+      {
+        "ProcessName": "explorer",
+        "Id": 5104,
+        "CPU": 693.4375,
+        "WorkingSet64": 320479232
       },
       {
         "ProcessName": "chrome",
         "Id": 18504,
-        "CPU": 414.90625,
-        "WorkingSet64": 307228672
+        "CPU": 492.609375,
+        "WorkingSet64": 258863104
       },
       {
         "ProcessName": "MuMuNxService",
         "Id": 20724,
-        "CPU": 312.203125,
-        "WorkingSet64": 51888128
+        "CPU": 386.046875,
+        "WorkingSet64": 51384320
       },
       {
         "ProcessName": "ChatGPT",
         "Id": 23680,
-        "CPU": 137.4375,
-        "WorkingSet64": 384348160
+        "CPU": 379.265625,
+        "WorkingSet64": 399060992
       },
       {
-        "ProcessName": "jetbrainsd",
-        "Id": 7920,
-        "CPU": 130.96875,
-        "WorkingSet64": 54071296
+        "ProcessName": "WeMail",
+        "Id": 40260,
+        "CPU": 275.796875,
+        "WorkingSet64": 36388864
       },
       {
-        "ProcessName": "ctfmon",
-        "Id": 20124,
-        "CPU": 126.8125,
-        "WorkingSet64": 81154048
+        "ProcessName": "codex",
+        "Id": 31300,
+        "CPU": 193.3125,
+        "WorkingSet64": 447467520
       }
     ],
     "scope": "headless Release simulation; no presented frames or GPU measurements",
@@ -730,5 +758,112 @@
     "full_daily_systems",
     "multiple_clinical_stations",
     "isolated_log_serialization_cost"
-  ]
+  ],
+  "closure": {
+    "status": "stopped_after_optimization_limit",
+    "final_source_head": "67efd62822d12f66922262d16cece8737f24e7a8",
+    "stopped_population": 320,
+    "completed_optimization_rounds": 3,
+    "optimization_round_limit": 3,
+    "blocking_metric": {
+      "actors": 320,
+      "speed": 1,
+      "name": "sim_step_p95_ms",
+      "measured": 10.135,
+      "target": 10,
+      "excess_ms": 0.135,
+      "excess_percent": 1.35
+    },
+    "gates": [
+      {
+        "actors": 160,
+        "status": "passed_on_earlier_build",
+        "source_head": "4033642ce51b3a8a9a6c13e37fbdd1878115086e",
+        "current_build_matrix": "not_rerun"
+      },
+      {
+        "actors": 320,
+        "status": "failed_final_optimization",
+        "source_head": "67efd62822d12f66922262d16cece8737f24e7a8"
+      },
+      {
+        "actors": 640,
+        "status": "not_started_previous_gate_failed"
+      }
+    ],
+    "full_rebaseline": "not_started_640_has_not_passed",
+    "retention": "final_report_only; raw_capture_evidence_retained"
+  },
+  "repair_validation": {
+    "confirmed_findings_fixed": 4,
+    "kernel_rule_checks": 38,
+    "kernel_rule_failures": [],
+    "replay_exit_codes": {
+      "valid": 0,
+      "missing_confirmation": 2,
+      "overflow_coordinate": 2,
+      "malformed_confirmation": 2
+    },
+    "shape_geometry_cases": 1512,
+    "shape_exact_values_match": true,
+    "route_boundary_cases": 2021,
+    "route_boundaries_match": true,
+    "canonical_facts_and_twelve_rng": {
+      "checkpoints": [
+        {
+          "matched": true,
+          "optimized": "2ab25708f9a94f5a15d3b7f7ae3432e5ef5c389d14796ed5d17578de0457be0c",
+          "original": "2ab25708f9a94f5a15d3b7f7ae3432e5ef5c389d14796ed5d17578de0457be0c",
+          "tick": 80
+        },
+        {
+          "matched": true,
+          "optimized": "2fa1100f5497898390f6962a2db8b943f5461145d1cba8fd5a7ccdb56ecaa6e6",
+          "original": "2fa1100f5497898390f6962a2db8b943f5461145d1cba8fd5a7ccdb56ecaa6e6",
+          "tick": 2630
+        },
+        {
+          "matched": true,
+          "optimized": "2f8b84a1a5a5eb6f4e3fe244f66865c7c1f05e6bcd94b83c85e3004fd14d6962",
+          "original": "2f8b84a1a5a5eb6f4e3fe244f66865c7c1f05e6bcd94b83c85e3004fd14d6962",
+          "tick": 2700
+        }
+      ],
+      "matched": true
+    }
+  },
+  "diagnostic_hot_paths": {
+    "formal_capture": false,
+    "speed": 3,
+    "warmup_real_seconds": 2.001952,
+    "sample_real_seconds": 10.016264,
+    "measurements": {
+      "actor_rect": {
+        "calls": 259322,
+        "usec": 580200
+      },
+      "dynamic_clear": {
+        "calls": 165777,
+        "usec": 826064
+      },
+      "reserve_doors": {
+        "calls": 91945,
+        "usec": 195016
+      },
+      "step_static_clear": {
+        "calls": 91945,
+        "usec": 166607
+      },
+      "sync_actor": {
+        "calls": 93545,
+        "usec": 649442
+      }
+    },
+    "scope": "cumulative instrumented calls include warmup and fixture routing; nested costs overlap; not shares of formal complete-step time"
+  },
+  "post_capture_identity": {
+    "source_mismatches": [],
+    "artifact_mismatches": [],
+    "matched": true
+  }
 }
