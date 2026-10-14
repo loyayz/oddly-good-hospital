@@ -55,6 +55,7 @@ func _run() -> void:
 	_check("target_coordinate_never_wraps",overflow==null)
 	_routing_projection(content)
 	_sweep_boundaries()
+	_shape_refresh(content)
 	session.set_speed(3)
 	session.pause("photo")
 	session.pause("focus")
@@ -135,6 +136,23 @@ func _sweep_boundaries() -> void:
 	_check("retired_sweep_pruned",not index.intersects(1,rect,"") and index._records.is_empty())
 	index.update("new",2,rect)
 	_check("sweep_floor_isolation",not index.intersects(1,rect,"") and index.intersects(2,rect,""))
+
+func _shape_refresh(content: HospitalContent) -> void:
+	var world: WorldState = FeasibilityHospitals.create("shape-refresh",true,content)
+	var space: HospitalSpace = HospitalSpace.new(content)
+	var actor: Dictionary = world.facts.actors.sample_S59
+	var original: Rect2 = space.body_rectangle(actor)
+	actor.posture = "lying"
+	_check("shape_refreshes_posture",space.body_rectangle(actor)==HospitalSpace.new(content).body_rectangle(actor) and space.body_rectangle(actor)!=original)
+	actor.posture = "standing"
+	actor.facing = PI/4.0
+	_check("shape_refreshes_facing",space.body_rectangle(actor)==HospitalSpace.new(content).body_rectangle(actor))
+	actor.location.cell = [41.125,88.375]
+	_check("shape_translates_current_origin",space.body_rectangle(actor)==HospitalSpace.new(content).body_rectangle(actor))
+	var patient: Dictionary = world.facts.actors.patient
+	space.body_rectangle(patient)
+	patient.erase("body_binding_id")
+	_check("shape_refreshes_body_binding",space.body_rectangle(patient)==HospitalSpace.new(content).body_rectangle(patient))
 
 func _canonical(world: WorldState) -> String:
 	return JSON.stringify(world.facts,"",true,true)

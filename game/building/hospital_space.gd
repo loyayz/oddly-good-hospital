@@ -4,6 +4,7 @@ extends RefCounted
 const CELL_METERS: float = 1.5
 var content: HospitalContent
 var _bodies: Dictionary = {}
+var _actor_shapes: Dictionary = {}
 var _actor_index: BodyIndex = BodyIndex.new()
 var _sweep_index: BodyIndex = BodyIndex.new()
 var _indexed_world: WorldState
@@ -21,6 +22,8 @@ func body(actor: Dictionary) -> Dictionary:
 func _ensure_actor_index(world: WorldState) -> void:
 	if world==_indexed_world and world.revision==_indexed_revision:
 		return
+	if world!=_indexed_world:
+		_actor_shapes.clear()
 	_actor_index.clear()
 	_indexed_world = world
 	_indexed_revision = world.revision
@@ -280,16 +283,28 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 	return {"ok":true,"path":reversed,"reason":""}
 
 func _actor_rect(actor: Dictionary, origin: Vector2) -> Rect2:
-	var dimensions: Dictionary = body(actor)
-	var cells: int = ceili(maxf(float(dimensions.width_m),float(dimensions.depth_m))/CELL_METERS)
-	if actor.get("posture","standing") == "lying":
-		var root: Vector2 = origin+Vector2.ONE*cells*0.5
-		return Rect2(root-Vector2(float(dimensions.width_m)*0.5,float(dimensions.height_m))/CELL_METERS,Vector2(float(dimensions.width_m),float(dimensions.height_m))/CELL_METERS)
-	var size: Vector2 = Vector2(float(dimensions.width_m),float(dimensions.depth_m)) / CELL_METERS
-	var cosine: float = absf(cos(float(actor.facing)))
-	var sine: float = absf(sin(float(actor.facing)))
-	size = Vector2(size.x*cosine+size.y*sine,size.x*sine+size.y*cosine)
-	return Rect2(origin + (Vector2.ONE * cells - size) * 0.5, size)
+	var posture: String = actor.get("posture","standing")
+	var binding: String = actor.get("body_binding_id","")
+	var facing: float = float(actor.facing)
+	var shape: Dictionary = _actor_shapes.get(actor.id,{})
+	if shape.is_empty() or shape.species_id!=actor.species_id or shape.binding!=binding or shape.posture!=posture or shape.facing!=facing:
+		var dimensions: Dictionary = body(actor)
+		var cells: int = ceili(maxf(float(dimensions.width_m),float(dimensions.depth_m))/CELL_METERS)
+		shape = {"species_id":actor.species_id,"binding":binding,"posture":posture,"facing":facing}
+		if posture=="lying":
+			shape.center = Vector2.ONE*cells*0.5
+			shape.offset = Vector2(float(dimensions.width_m)*0.5,float(dimensions.height_m))/CELL_METERS
+			shape.size = Vector2(float(dimensions.width_m),float(dimensions.height_m))/CELL_METERS
+		else:
+			var size: Vector2 = Vector2(float(dimensions.width_m),float(dimensions.depth_m))/CELL_METERS
+			var cosine: float = absf(cos(facing))
+			var sine: float = absf(sin(facing))
+			shape.size = Vector2(size.x*cosine+size.y*sine,size.x*sine+size.y*cosine)
+			shape.offset = (Vector2.ONE*cells-shape.size)*0.5
+		_actor_shapes[actor.id] = shape
+	if posture=="lying":
+		return Rect2(origin+shape.center-shape.offset,shape.size)
+	return Rect2(origin+shape.offset,shape.size)
 
 func overlaps_facility(world: WorldState, actor_id: String, facility_id: String) -> bool:
 	var actor: Dictionary = world.facts.actors[actor_id]
