@@ -1,6 +1,6 @@
 #requires -Version 7.0
 [CmdletBinding()]
-param([string]$ProjectPath = '.cache/validation/runtime-r6', [string]$Godot = 'C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe')
+param([string]$ProjectPath = '.cache/validation/runtime-r6', [string]$Godot = 'C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe', [ValidateSet('full','startup')][string]$Case = 'full')
 $ErrorActionPreference = 'Stop'
 $repo = Split-Path -Parent $PSScriptRoot
 $project = [IO.Path]::GetFullPath((Join-Path $repo $ProjectPath))
@@ -16,7 +16,7 @@ $info.WorkingDirectory = $repo
 $info.RedirectStandardOutput = $true
 $info.RedirectStandardError = $true
 $info.Environment['APPDATA'] = $appData
-foreach ($argument in @('--path',$project,'--position','-10000,-10000','--script','res://verify-stage01-ui.gd','--',('--runtime-evidence=' + (Join-Path $project 'runtime-evidence.json')))) { $info.ArgumentList.Add($argument) }
+foreach ($argument in @('--path',$project,'--position','-10000,-10000','--script','res://verify-stage01-ui.gd','--',('--runtime-evidence=' + (Join-Path $project 'runtime-evidence.json')),("--case=$Case"))) { $info.ArgumentList.Add($argument) }
 $process = [Diagnostics.Process]::Start($info)
 $stdout = $process.StandardOutput.ReadToEndAsync()
 $stderr = $process.StandardError.ReadToEndAsync()

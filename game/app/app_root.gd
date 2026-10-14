@@ -195,22 +195,32 @@ func _acquire() -> void:
 		_hospital_ids = [HospitalSnapshots.uuid(),HospitalSnapshots.uuid()]
 		if _activate(FeasibilityHospitals.create(_hospital_ids[0],false,_content)):
 			_status.text = "小帆门诊医院已准备好。开始经营后观察纸巾小帆与治疗小风车。"
-	else:
-		var records: Array[Dictionary] = _snapshots.list_commits(_hospital_ids[0])
+		return
+	var unavailable: PackedStringArray = PackedStringArray()
+	var previous_save: Dictionary = {}
+	for hospital_id: String in _hospital_ids:
+		var records: Array[Dictionary] = _snapshots.list_commits(hospital_id)
 		if records.is_empty():
-			_status.text = "此医院没有完整有效的保存清单，原文件保留。"
-			return
+			unavailable.append("一座医院没有完整有效的保存清单，原文件保留。")
+			continue
 		var restored: Dictionary = _snapshots.load_commit(records[0].hospital_id,records[0].snapshot_id)
 		if not restored.ok:
-			_status.text = "保存点需要恢复："+str(restored.error)
-			for record: Dictionary in records.slice(1):
-				var older: Dictionary = _snapshots.load_commit(record.hospital_id,record.snapshot_id)
-				if older.ok:
-					_button("恢复上一有效保存点",_restore_older.bind(record.hospital_id,record.snapshot_id))
-					break
-			return
+			unavailable.append(str(records[0].display_summary.display_name)+"的保存点需要恢复："+str(restored.error))
+			if previous_save.is_empty():
+				for record: Dictionary in records.slice(1):
+					if _snapshots.load_commit(record.hospital_id,record.snapshot_id).ok:
+						previous_save = record
+						break
+			continue
 		if _activate(restored.world,true):
-			_status.text = "已继续原医院，医院处于暂停。"
+			_status.text = "已继续"+str(restored.world.facts.display_name)+"，医院处于暂停。"
+			if not unavailable.is_empty():
+				_status.text += " 另有医院暂不可用，原文件保留。"
+			return
+		unavailable.append(_status.text)
+	_status.text = "医院资料需要恢复：\n"+"\n".join(unavailable)
+	if not previous_save.is_empty():
+		_button("恢复上一有效保存点",_restore_older.bind(previous_save.hospital_id,previous_save.snapshot_id))
 
 func _activate(world: HospitalWorld, restored: bool = false) -> bool:
 	var prepared: HospitalView = HospitalView.new(_content)

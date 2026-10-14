@@ -383,6 +383,8 @@ func _start(world: HospitalWorld, visit: Dictionary, kind: String, facility_id: 
 	return session
 
 func _complete_service(world: HospitalWorld, session: Dictionary) -> void:
+	if not world.facts.sessions.has(session.id):
+		return
 	var visit: Dictionary = world.facts.visits[session.visit_id]
 	world.facts.sessions.erase(session.id)
 	match session.kind:
@@ -464,6 +466,8 @@ func _start_bed_service(world: HospitalWorld, visit: Dictionary, stay: Dictionar
 func _settle(world: HospitalWorld, visit: Dictionary, attempt: Dictionary) -> void:
 	if world.facts.actors[visit.actor_id].get("posture","standing") == "seated":
 		world.facts.actors[visit.actor_id].posture = "standing"
+	if not attempt.result:
+		visit.anger = minf(100.0,float(visit.anger)+15.0)
 	if attempt.result:
 		world.facts.actors[visit.actor_id].erase("body_binding_id")
 		visit.final_result = "cured"

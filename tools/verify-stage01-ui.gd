@@ -32,6 +32,13 @@ func _run() -> void:
 	if _app.get("_simulation")==null:
 		_finish()
 		return
+	if "--case=startup" in OS.get_cmdline_user_args():
+		await _startup_recovery_cases()
+		_app.get("_guard").call("release")
+		root.remove_child(_app)
+		_app.free()
+		_finish()
+		return
 	_check_control_contrast()
 	_app.call("_notification",MainLoop.NOTIFICATION_APPLICATION_FOCUS_IN)
 	var initial: HospitalSimulation = _app.get("_simulation")
@@ -256,6 +263,70 @@ func _space_captures() -> void:
 			view.camera.size = 18.0
 			await _capture("outpatient-product-follow")
 			break
+
+func _restart_app() -> void:
+	_app.get("_guard").call("release")
+	root.remove_child(_app)
+	_app.free()
+	_app = (load("res://game/app/main.tscn") as PackedScene).instantiate() as Control
+	root.add_child(_app)
+	await process_frame
+	_app.set_process(false)
+
+func _startup_recovery_cases() -> void:
+	var content: HospitalContent = _app.get("_content")
+	var storage: HospitalSnapshots = _app.get("_snapshots")
+	var healthy_id: String = "00000000-0000-4000-8000-000000000002"
+	var interrupted_id: String = "00000000-0000-4000-8000-000000000001"
+	var healthy: HospitalWorld = FeasibilityHospitals.create(healthy_id,true,content)
+	var simulation: HospitalSimulation = HospitalSimulation.new(healthy,content)
+	for tick: int in 137:
+		simulation.step()
+	var before: String = JSON.stringify(healthy.facts,"",true,true)
+	var saved: Dictionary = storage.begin(healthy,"startup-baseline","manual","startup")
+	_check("startup_baseline_save_started",saved.ok)
+	if not saved.ok:
+		return
+	var receipt: Dictionary = await _wait_raw_receipt()
+	_check("startup_baseline_save_committed",receipt.get("ok",false))
+	if not receipt.get("ok",false):
+		return
+	var commits: String = HospitalSnapshots.ROOT.path_join(healthy_id).path_join("commits")
+	var baseline: String = commits.path_join(receipt.snapshot_id)
+	var baseline_hash: String = FileAccess.get_sha256(baseline.path_join("world.json"))
+	var pending: String = HospitalSnapshots.ROOT.path_join(interrupted_id).path_join("commits").path_join(".pending-"+HospitalSnapshots.uuid())
+	DirAccess.make_dir_recursive_absolute(pending)
+	var partial: String = pending.path_join("world.json")
+	HospitalSnapshots._store(partial,"{\"schema_version\":1,".to_utf8_buffer())
+	var partial_hash: String = FileAccess.get_sha256(partial)
+	await _restart_app()
+	var loaded: HospitalSimulation = _app.get("_simulation")
+	_check("startup_skips_first_interrupted_hospital",loaded!=null and loaded.world.facts.hospital_id==healthy_id)
+	_check("startup_preserves_healthy_facts",loaded!=null and JSON.stringify(loaded.world.facts,"",true,true)==before and _app.get("_speed")==0)
+	_check("startup_preserves_interrupted_files",FileAccess.get_sha256(partial)==partial_hash and FileAccess.get_sha256(baseline.path_join("world.json"))==baseline_hash)
+	storage = _app.get("_snapshots")
+	simulation.step()
+	var newer: Dictionary = storage.begin(healthy,"startup-newer","manual","startup")
+	_check("startup_newer_save_started",newer.ok)
+	if not newer.ok:
+		return
+	var newer_receipt: Dictionary = await _wait_raw_receipt()
+	_check("startup_newer_save_committed",newer_receipt.get("ok",false))
+	if not newer_receipt.get("ok",false):
+		return
+	var damaged: String = commits.path_join(newer_receipt.snapshot_id).path_join("world.json")
+	HospitalSnapshots._store(damaged,"{".to_utf8_buffer())
+	await _restart_app()
+	_check("startup_waits_for_older_recovery",_app.get("_simulation")==null)
+	_pressed("恢复上一有效保存点")
+	loaded = _app.get("_simulation")
+	_check("startup_older_recovery_keeps_facts",loaded!=null and JSON.stringify(loaded.world.facts,"",true,true)==before and _app.get("_speed")==0)
+	_check("startup_older_recovery_retains_bad_files",FileAccess.get_file_as_string(damaged)=="{" and FileAccess.get_sha256(partial)==partial_hash)
+	HospitalSnapshots._store(baseline.path_join("COMMITTED"),"invalid".to_utf8_buffer())
+	await _restart_app()
+	_check("startup_no_valid_hospital_keeps_files",_app.get("_simulation")==null and _app.get("_snapshots").hospital_ids().size()==2 and FileAccess.get_sha256(partial)==partial_hash and FileAccess.get_file_as_string(baseline.path_join("COMMITTED"))=="invalid")
+	_check("startup_keeps_native_guard",_app.get("_guard").call("is_held"))
+	_results.startup_recovery = {"healthy_hospital_id":healthy_id,"interrupted_hospital_id":interrupted_id,"saved_tick":137,"partial_world_sha256":partial_hash,"healthy_world_sha256":baseline_hash}
 
 func _check(name: String, passed: bool) -> void:
 	_results[name] = passed

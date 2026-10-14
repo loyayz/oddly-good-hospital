@@ -55,6 +55,7 @@ func _run() -> void:
 	_check("vertical_giant_route",geometry.route(first.world,"sample_S59",2,[35,83]).ok)
 	var storage: HospitalSnapshots = HospitalSnapshots.new(content,_guard)
 	await _space_cases(content,storage)
+	await _saved_floor_cases(content,storage)
 	var started: Dictionary = storage.begin(surgery,"probe-surgery","manual","1")
 	_check("begin_surgery_save",started.ok)
 	var receipt: Dictionary = await _await_save(storage)
@@ -130,8 +131,12 @@ func _run_clinical(world: HospitalWorld, content: HospitalContent, ticks: int, k
 		_check("ward_release_after_departure",world.facts.ward_stays.is_empty())
 		_check("ward_real_care_and_round",world.facts.staff.ward_nurse.practice.care>0 and world.facts.staff.round_doctor.practice.treatment>0)
 	var supplies: int = 0
+	var failures: int = 0
 	for attempt: Dictionary in world.facts.attempts.values():
 		supplies += int(attempt.supply_units)
+		failures += 0 if attempt.result else 1
+	var initial_anger: float = float(content.definition("patient_personalities",visit.personality_id).initial_anger)
+	_check(kind+"_failure_anger",is_equal_approx(float(visit.anger),minf(100.0,initial_anger+15.0*failures)))
 	_check(kind+"_inventory_issued_once",60-int(world.facts.inventory.units)==supplies and world.facts.inventory.issues.size()==world.facts.attempts.size())
 	var cure_entries: int = 0
 	var cure_amount: int = 0
@@ -140,9 +145,10 @@ func _run_clinical(world: HospitalWorld, content: HospitalContent, ticks: int, k
 			cure_entries += 1
 			cure_amount += int(entry.amount)
 	_check(kind+"_single_success_charge",cure_entries==1 and cure_amount==ceili(float(content.definition("diseases",visit.disease_id).cure_fee)*(1.8 if kind=="surgery" else 1.0)))
-	_evidence[kind+"_settlement"] = {"money":world.money(),"packages":world.facts.inventory.units,"attempt_count":world.facts.attempts.size(),"cure_charge":cure_amount,"ledger":world.facts.ledger.entries}
+	_evidence[kind+"_settlement"] = {"money":world.money(),"packages":world.facts.inventory.units,"attempt_count":world.facts.attempts.size(),"cure_charge":cure_amount,"anger":visit.anger,"failed_attempts":failures,"ledger":world.facts.ledger.entries}
 
 func _numerical_cases(content: HospitalContent) -> void:
+	_failure_anger_cases(content)
 	for case: String in ["stock","qualification","bed","research"]:
 		var world: HospitalWorld = FeasibilityHospitals.create(HospitalSnapshots.uuid(),true,content)
 		match case:
@@ -187,7 +193,7 @@ func _numerical_cases(content: HospitalContent) -> void:
 	prepare.facts.facilities.bed.failed = true
 	prepare_sim.step()
 	_check("invalidated_preparation_releases_resources_keeps_ticket",prepare.facts.preparations.is_empty() and prepare.facts.attempts.is_empty() and prepare.facts.visits.values()[0].ticket_id==ticket)
-	for case: String in ["rng_overflow","room_extent","dangling_visit","missing_species","position_conflict","missing_door","dangling_ledger"]:
+	for case: String in ["rng_overflow","room_extent","dangling_visit","missing_species","position_conflict","missing_door","dangling_ledger","missing_floor_overrides","wrong_floor_overrides","wrong_floor_layout"]:
 		var invalid: HospitalWorld = FeasibilityHospitals.create(HospitalSnapshots.uuid(),true,content)
 		match case:
 			"rng_overflow": invalid.facts.rng.treatment.state_decimal = "9223372036854775808"
@@ -197,7 +203,88 @@ func _numerical_cases(content: HospitalContent) -> void:
 			"position_conflict": invalid.facts.actors.patient.location.connector_id = "lift"
 			"missing_door": invalid.facts.floors.overrides["1"].doors[0].definition_id = "missing"
 			"dangling_ledger": invalid.facts.ledger.entries["missing:test"] = {"owner_id":"missing","component":"test","amount":1,"tick":0,"settled":true}
+			"missing_floor_overrides": invalid.facts.floors.erase("overrides")
+			"wrong_floor_overrides": invalid.facts.floors.overrides = []
+			"wrong_floor_layout": invalid.facts.floors.overrides["1"] = []
 		_check("invalid_dto_rejected_"+case,not invalid.validate(content).is_empty())
+
+func _failure_anger_cases(content: HospitalContent) -> void:
+	var selected_seed: int = -1
+	for seed_value: int in 65536:
+		var generator: RandomNumberGenerator = RandomNumberGenerator.new()
+		generator.seed = seed_value
+		if generator.randi_range(0,9999)>=9800 and generator.randi_range(0,9999)>=9800:
+			selected_seed = seed_value
+			break
+	_check("two_failure_seed_available",selected_seed>=0)
+	if selected_seed<0:
+		return
+	_evidence.failure_anger_cases = []
+	for initial_anger: float in [5.0,95.0]:
+		var world: HospitalWorld = FeasibilityHospitals.create(HospitalSnapshots.uuid(),false,content)
+		var generator: RandomNumberGenerator = RandomNumberGenerator.new()
+		generator.seed = selected_seed
+		world.facts.rng.treatment.seed_decimal = str(generator.seed)
+		world.facts.rng.treatment.state_decimal = str(generator.state)
+		var visit: Dictionary = world.facts.visits.values()[0]
+		visit.anger = initial_anger
+		var simulation: HospitalSimulation = HospitalSimulation.new(world,content)
+		var duplicate_readonly: bool = true
+		var completed_count: int = 0
+		for tick: int in 3000:
+			var completion: Dictionary = {}
+			for session: Dictionary in world.facts.sessions.values():
+				if session.kind=="outpatient" and int(session.remaining_ticks)==1:
+					completion = session.duplicate(true)
+			simulation.step()
+			if not completion.is_empty():
+				completed_count += 1
+				var before: String = JSON.stringify(world.facts,"",true,true)
+				simulation.clinic._complete_service(world,completion)
+				duplicate_readonly = duplicate_readonly and before==JSON.stringify(world.facts,"",true,true)
+			if visit.phase=="departed":
+				break
+		var key: String = "failure_anger_"+str(int(initial_anger))
+		var two_failures: bool = world.facts.attempts.size()==2
+		for attempt: Dictionary in world.facts.attempts.values():
+			two_failures = two_failures and not attempt.result
+		_check(key+"_real_two_failures",two_failures and visit.final_result=="referred" and visit.phase=="departed")
+		_check(key+"_applied_and_capped",is_equal_approx(float(visit.anger),minf(100.0,initial_anger+30.0)))
+		_check(key+"_duplicate_completion_readonly",duplicate_readonly and completed_count==2)
+		_evidence.failure_anger_cases.append({"seed":selected_seed,"initial_anger":initial_anger,"final_anger":visit.anger,"phase":visit.phase,"attempts":world.facts.attempts.size(),"duplicate_completion_readonly":duplicate_readonly})
+
+func _saved_floor_cases(content: HospitalContent, storage: HospitalSnapshots) -> void:
+	var world: HospitalWorld = FeasibilityHospitals.create(HospitalSnapshots.uuid(),true,content)
+	var started: Dictionary = storage.begin(world,"invalid-floor","manual","floor-structure")
+	_check("floor_rejection_baseline_save_started",started.ok)
+	if not started.ok:
+		return
+	var receipt: Dictionary = await _await_save(storage)
+	_check("floor_rejection_baseline_save_committed",receipt.get("ok",false))
+	if not receipt.get("ok",false):
+		return
+	var path: String = HospitalSnapshots.ROOT.path_join(world.facts.hospital_id).path_join("commits").path_join(receipt.snapshot_id)
+	var original_world: PackedByteArray = FileAccess.get_file_as_bytes(path.path_join("world.json"))
+	var original_manifest: PackedByteArray = FileAccess.get_file_as_bytes(path.path_join("manifest.json"))
+	var original_marker: PackedByteArray = FileAccess.get_file_as_bytes(path.path_join("COMMITTED"))
+	for case: String in ["missing_overrides","wrong_overrides","wrong_layout"]:
+		var malformed: Dictionary = world.freeze()
+		match case:
+			"missing_overrides": malformed.floors.erase("overrides")
+			"wrong_overrides": malformed.floors.overrides = []
+			"wrong_layout": malformed.floors.overrides["1"] = []
+		var bytes: PackedByteArray = JSON.stringify(malformed,"",true,true).to_utf8_buffer()
+		var manifest: Dictionary = JSON.parse_string(original_manifest.get_string_from_utf8())
+		manifest.world_bytes = bytes.size()
+		manifest.world_sha256 = HospitalSnapshots._sha(bytes)
+		var metadata: PackedByteArray = JSON.stringify(manifest,"",true,true).to_utf8_buffer()
+		var written: bool = HospitalSnapshots._store(path.path_join("world.json"),bytes) and HospitalSnapshots._store(path.path_join("manifest.json"),metadata) and HospitalSnapshots._store(path.path_join("COMMITTED"),HospitalSnapshots._sha(metadata).to_utf8_buffer())
+		var loaded: Dictionary = storage.load_commit(world.facts.hospital_id,receipt.snapshot_id)
+		_check("invalid_saved_floor_rejected_"+case,written and not loaded.ok and "楼层" in str(loaded.get("error","")))
+	HospitalSnapshots._store(path.path_join("world.json"),original_world)
+	HospitalSnapshots._store(path.path_join("manifest.json"),original_manifest)
+	HospitalSnapshots._store(path.path_join("COMMITTED"),original_marker)
+	_check("floor_rejection_baseline_restored",storage.load_commit(world.facts.hospital_id,receipt.snapshot_id).ok)
 
 func _check(name: String, passed: bool) -> void:
 	_evidence.checks[name] = passed

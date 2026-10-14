@@ -3,7 +3,7 @@
   "stage_id": "stage01-technical-feasibility",
   "product_id": "oddly-good-hospital",
   "product_version": "0.1.0-stage01",
-  "recorded_at_utc": "2026-10-14T05:20:41.0348985Z",
+  "recorded_at_utc": "2026-10-14T06:21:52Z",
   "representative_scope_pass": true,
   "full_game_performance_accepted": false,
   "spec": {
@@ -44,8 +44,8 @@
       },
       {
         "path": "oddly-good-hospital.pck",
-        "bytes": 30957068,
-        "sha256": "954c1609bb3b630eb9c3d02fbe65d6a5285759baff59f52912ae9af5f42c7128"
+        "bytes": 30957356,
+        "sha256": "5883d9c148d80fad8e60e440cb6cc8a19c0002f8f457b0fdecd9135652d2aae3"
       },
       {
         "path": "oddly_good_platform.windows.x86_64.dll",
@@ -71,8 +71,8 @@
   },
   "installer": {
     "path": ".build/installer/oddly-good-hospital-stage01-setup.exe",
-    "bytes": 67827727,
-    "sha256": "ceb18c83a0cff8fc6a4bcc8ca20cee99a69a6f16ef9b6850994f006f21cccc59"
+    "bytes": 67828057,
+    "sha256": "21be1029215508030c333d4c3f90cf9ca5010f6e9ef659fe54e8ca90fa77cc0e"
   },
   "source_identity": [
     {
@@ -93,7 +93,7 @@
     },
     {
       "path": "game/sim/world_state.gd",
-      "sha256": "ee77097687a4c4fe4ee20e3b7e18fc59c9ad3edced564ab8097ca34697df07a0"
+      "sha256": "b686ebc4880a5384d68367e8b82986531e178d6c35539379cf65473399d9fd29"
     },
     {
       "path": "game/sim/simulation.gd",
@@ -105,7 +105,7 @@
     },
     {
       "path": "game/clinic/clinical_runtime.gd",
-      "sha256": "848c250307902b44846df90925d43410d15efe497f4dc856a346a2f89c2a0482"
+      "sha256": "056ec1d48227e1020ed40b031a014ba329f87ec42a5c55a7aa9bd6611057b821"
     },
     {
       "path": "game/building/hospital_space.gd",
@@ -125,7 +125,7 @@
     },
     {
       "path": "game/app/app_root.gd",
-      "sha256": "fe1806e639289ac507c400b13428c5f9bab0a3c785e6340d86cc03875a8c8a18"
+      "sha256": "3348cf7842880d7643d8bbd962daabe32861f2de728ef393a1656f341f585da2"
     },
     {
       "path": "game/view/hospital_view.gd",
@@ -182,11 +182,43 @@
     {
       "path": "art-source/gags/build_gags.py",
       "sha256": "3ea672e94fe32e853774096d1fccdda10534fa03f96e1e0a662474959e57bce7"
+    },
+    {
+      "path": "project.godot",
+      "sha256": "fc9e609bb5672ae1a7618e4227825bb6acc16274cdc0812a1cf1cb35ca025368"
+    },
+    {
+      "path": "export_presets.cfg",
+      "sha256": "e27c4d1fee3af8173391807a2b04fef674797718f6f1af31a77b95734951cc4a"
+    },
+    {
+      "path": "tools/verify-stage01-runtime.gd",
+      "sha256": "13f410b394a1f66974125e8c8e0021c13437ab3a7ae59c1fa7dc434e0718f855"
+    },
+    {
+      "path": "tools/verify-stage01-ui.gd",
+      "sha256": "0deb492540fbb5ff3dc330610793fad957b87f5ca3354975942a04bbcc8979e0"
+    },
+    {
+      "path": "tools/verify-stage01-ui.ps1",
+      "sha256": "740867a54d21c90f8ec34138a73a002f5868cd5724d0f9619501fbf7c9d39918"
+    },
+    {
+      "path": "tools/verify-stage01-storage.gd",
+      "sha256": "31f4149a096ca8940049beefe8a6242fa567319f3a019255ff7b458364f6ac23"
+    },
+    {
+      "path": "tools/verify-stage01-storage.ps1",
+      "sha256": "3e4eb47fa200e92020b342218e616b68f8e76e73196368d0d63b835c70abb6b2"
+    },
+    {
+      "path": "tools/verify-stage01-package.ps1",
+      "sha256": "4d90eb48523bed9454753df5d3cb2060a720cdb3e32582f93f1a0947cbd7667a"
     }
   ],
   "runtime": {
     "checks_pass": true,
-    "check_count": 90,
+    "check_count": 108,
     "checks": {
       "actual_transit_body_exclusive": true,
       "adaptation_preview_read_only": true,
@@ -202,6 +234,15 @@
       "expanded_bed_restored_with_reservation": true,
       "expanded_bed_save_committed": true,
       "expanded_bed_save_started": true,
+      "failure_anger_5_applied_and_capped": true,
+      "failure_anger_5_duplicate_completion_readonly": true,
+      "failure_anger_5_real_two_failures": true,
+      "failure_anger_95_applied_and_capped": true,
+      "failure_anger_95_duplicate_completion_readonly": true,
+      "failure_anger_95_real_two_failures": true,
+      "floor_rejection_baseline_restored": true,
+      "floor_rejection_baseline_save_committed": true,
+      "floor_rejection_baseline_save_started": true,
       "ghost_collision_is_real": true,
       "ghost_legal_one_cell_corridor": true,
       "giant_bed_preview_is_three_by_five": true,
@@ -214,10 +255,16 @@
       "invalid_dto_rejected_dangling_ledger": true,
       "invalid_dto_rejected_dangling_visit": true,
       "invalid_dto_rejected_missing_door": true,
+      "invalid_dto_rejected_missing_floor_overrides": true,
       "invalid_dto_rejected_missing_species": true,
       "invalid_dto_rejected_position_conflict": true,
       "invalid_dto_rejected_rng_overflow": true,
       "invalid_dto_rejected_room_extent": true,
+      "invalid_dto_rejected_wrong_floor_layout": true,
+      "invalid_dto_rejected_wrong_floor_overrides": true,
+      "invalid_saved_floor_rejected_missing_overrides": true,
+      "invalid_saved_floor_rejected_wrong_layout": true,
+      "invalid_saved_floor_rejected_wrong_overrides": true,
       "invalidated_preparation_releases_resources_keeps_ticket": true,
       "isolated_guard": true,
       "micro_one_actor": true,
@@ -227,6 +274,7 @@
       "no_unready_attempt_stock": true,
       "outpatient_actual_cure": true,
       "outpatient_departed": true,
+      "outpatient_failure_anger": true,
       "outpatient_inventory_issued_once": true,
       "outpatient_maximum_attempts": true,
       "outpatient_post_clinical_invariants": true,
@@ -262,6 +310,7 @@
       "save_started_wake": true,
       "surgery_actual_cure": true,
       "surgery_departed": true,
+      "surgery_failure_anger": true,
       "surgery_inventory_issued_once": true,
       "surgery_maximum_attempts": true,
       "surgery_post_clinical_invariants": true,
@@ -275,6 +324,7 @@
       "transit_save_committed": true,
       "transit_save_started": true,
       "transparent_body_cannot_cross_wall": true,
+      "two_failure_seed_available": true,
       "vertical_giant_route": true,
       "ward_real_care_and_round": true,
       "ward_release_after_departure": true
@@ -329,7 +379,9 @@
             "settled": true,
             "tick": 277
           }
-        }
+        },
+        "anger": 5.0,
+        "failed_attempts": 0
       },
       {
         "kind": "surgery",
@@ -407,12 +459,14 @@
             "settled": true,
             "tick": 474
           }
-        }
+        },
+        "anger": 20.0,
+        "failed_attempts": 1
       }
     ],
     "evidence": {
-      "path": ".cache/validation/runtime-blue/runtime-evidence.json",
-      "sha256": "9f154c3ed4ce05a322602959f8e5761f337917b183e7c0a6173952020e2f088c"
+      "path": ".cache/validation/runtime-review-fixes/runtime-evidence.json",
+      "sha256": "7ae19cb3fead4f9fc1ac32ead6f6804f2ea3fc5329b1f3672ea75bfd16b63d2a"
     }
   },
   "compatibility": {
@@ -432,9 +486,9 @@
         "name": "independent_work_walk",
         "pass": true,
         "position_max_m": 0.0,
-        "normal_max_degrees": 2.70039624417803E-05,
-        "tangent_max_degrees": 2.92285016206462E-05,
-        "semantic_anchor_max_m": 1.38408950078883E-06,
+        "normal_max_degrees": 2.70039624417803e-05,
+        "tangent_max_degrees": 2.92285016206462e-05,
+        "semantic_anchor_max_m": 1.38408950078883e-06,
         "compared_vertices": 3888,
         "compared_anchors": 14
       },
@@ -442,9 +496,9 @@
         "name": "low_motion",
         "pass": true,
         "position_max_m": 0.0,
-        "normal_max_degrees": 2.17219936036131E-05,
-        "tangent_max_degrees": 3.12998628433869E-05,
-        "semantic_anchor_max_m": 1.2010002592433E-06,
+        "normal_max_degrees": 2.17219936036131e-05,
+        "tangent_max_degrees": 3.12998628433869e-05,
+        "semantic_anchor_max_m": 1.2010002592433e-06,
         "compared_vertices": 3888,
         "compared_anchors": 14
       },
@@ -452,9 +506,9 @@
         "name": "recovery_and_symptom",
         "pass": true,
         "position_max_m": 0.0,
-        "normal_max_degrees": 2.48769182050092E-05,
-        "tangent_max_degrees": 2.88772462505129E-05,
-        "semantic_anchor_max_m": 1.36766357172746E-06,
+        "normal_max_degrees": 2.48769182050092e-05,
+        "tangent_max_degrees": 2.88772462505129e-05,
+        "semantic_anchor_max_m": 1.36766357172746e-06,
         "compared_vertices": 3888,
         "compared_anchors": 14
       }
@@ -587,8 +641,8 @@
     "palette": "Navy, ivory, pale blue, lavender and small coral/gold accents; green reserved for plants",
     "note": "Same-source component UI and actual Windows Compatibility drawing; no frame-rate acceptance",
     "evidence": {
-      "path": ".cache/validation/Stage01 验收 UI/component-023edaea-08ec-4a59-a513-39eba32432f8/APPDATA/evidence/ui-evidence.json",
-      "sha256": "8f34faa8f796a70e7aab5dffa14f828d7227d98162fadeabac1420895938812d"
+      "path": ".cache/validation/Stage01 验收 UI/component-f4197bd8-bec0-45df-a05e-b058147ea837/APPDATA/evidence/ui-evidence.json",
+      "sha256": "5448a68c6c7fafdeea48c6ac604506f5b9c0af8c45e4f88819f2d9347fd9cf16"
     }
   },
   "storage": {
@@ -607,16 +661,8 @@
         "valid_commit_count": 1,
         "evidence": [
           {
-            "path": ".cache/validation/Stage01 验收 storage/96b676a3-1dd1-42af-86d6-483e6d23c3c7/world/writer.json",
-            "sha256": "7d8d586735920581bdb0da29934b69c740dd01bfe175a0046974335dd66d513d"
-          },
-          {
-            "path": ".cache/validation/Stage01 验收 storage/96b676a3-1dd1-42af-86d6-483e6d23c3c7/world/recovery.json",
-            "sha256": "8a9f06a335518f3eaf4d96a444391a28356bcc50ddbeb13dc01a42a81260782f"
-          },
-          {
-            "path": ".cache/validation/Stage01 验收 storage/96b676a3-1dd1-42af-86d6-483e6d23c3c7/world/contention.json",
-            "sha256": "62dbe8388c237eaa2d60846da312e264462eab066ef3c348ae1ba95e4c9ff92f"
+            "path": ".cache/validation/Stage01 验收 storage/22bc5213-bd95-4415-a586-50eaf3b83b91/result.json",
+            "sha256": "a089aee8d5acbb37e98a4eea1ae0c869c9ab462910c6ce8eb2ea158977efc070"
           }
         ]
       },
@@ -633,16 +679,8 @@
         "valid_commit_count": 1,
         "evidence": [
           {
-            "path": ".cache/validation/Stage01 验收 storage/96b676a3-1dd1-42af-86d6-483e6d23c3c7/manifest/writer.json",
-            "sha256": "4ab06342922198d36461627a17b41f1f9502d8846da996b1a37cc823bdaa1eda"
-          },
-          {
-            "path": ".cache/validation/Stage01 验收 storage/96b676a3-1dd1-42af-86d6-483e6d23c3c7/manifest/recovery.json",
-            "sha256": "ba10821e85a3806bddcb7acff7dda9332392ff201db66c3a3cc91e4960b4b65c"
-          },
-          {
-            "path": ".cache/validation/Stage01 验收 storage/96b676a3-1dd1-42af-86d6-483e6d23c3c7/manifest/contention.json",
-            "sha256": "a2b8ff90c7ae1bf01cde951438731a5840a70a07700da7b81dbc0cb9aa4e6693"
+            "path": ".cache/validation/Stage01 验收 storage/22bc5213-bd95-4415-a586-50eaf3b83b91/result.json",
+            "sha256": "a089aee8d5acbb37e98a4eea1ae0c869c9ab462910c6ce8eb2ea158977efc070"
           }
         ]
       },
@@ -659,16 +697,8 @@
         "valid_commit_count": 1,
         "evidence": [
           {
-            "path": ".cache/validation/Stage01 验收 storage/96b676a3-1dd1-42af-86d6-483e6d23c3c7/committed/writer.json",
-            "sha256": "e01eba2f001aeeb5822931b46166272173cd33e66b5079bb6e79734e279c9aa0"
-          },
-          {
-            "path": ".cache/validation/Stage01 验收 storage/96b676a3-1dd1-42af-86d6-483e6d23c3c7/committed/recovery.json",
-            "sha256": "af5616d136ad61bd29c4a383d085f77fecad69408c102d0626b62afdef9c8339"
-          },
-          {
-            "path": ".cache/validation/Stage01 验收 storage/96b676a3-1dd1-42af-86d6-483e6d23c3c7/committed/contention.json",
-            "sha256": "856b1bb937582828cb064880fe29b50d0b762ada814e60a09b0d085d46608349"
+            "path": ".cache/validation/Stage01 验收 storage/22bc5213-bd95-4415-a586-50eaf3b83b91/result.json",
+            "sha256": "a089aee8d5acbb37e98a4eea1ae0c869c9ab462910c6ce8eb2ea158977efc070"
           }
         ]
       },
@@ -685,8 +715,8 @@
         "valid_commit_count": 1,
         "evidence": [
           {
-            "path": ".cache/validation/Stage01 验收 storage/5093b457-1125-42a0-a323-dac199480ae0/result.json",
-            "sha256": "04c5ea1e94062f025063d1be9d0297d8a5fbdc3868038ca32127b3fa4be32fe8"
+            "path": ".cache/validation/Stage01 验收 storage/22bc5213-bd95-4415-a586-50eaf3b83b91/result.json",
+            "sha256": "a089aee8d5acbb37e98a4eea1ae0c869c9ab462910c6ce8eb2ea158977efc070"
           }
         ]
       }
@@ -714,8 +744,8 @@
     "extra_file_retained": true,
     "extra_registration_retained": true,
     "evidence": {
-      "path": ".cache/validation/Stage01 验收 UI/313f15b8-fe36-4a2d-bc0a-196113101c75/result.json",
-      "sha256": "dfc666ff1a1abe0abeebcedea65855feb3aaf68b2ee5bd8fe411d57b553eb239"
+      "path": ".cache/validation/Stage01 验收 UI/c13dea2e-3673-4e53-bc07-6d9b9d56206e/result.json",
+      "sha256": "24e8a0d95af597b68d6018b5c7bd97eb728ae03ea45c7fc4544aef271a337dcd"
     }
   },
   "uncovered": [
@@ -725,5 +755,125 @@
     "Complete save retention-slot, migration, backup, volume-failure and power-loss matrix",
     "Windows 10, other GPU drivers and complete over-260-character path matrix"
   ],
-  "evidence_storage": "Raw reports, screenshots and isolated fault libraries stay in ignored .cache/validation; committed probes reproduce the measurements"
+  "evidence_storage": "Raw reports, screenshots and isolated fault libraries stay in ignored .cache/validation; committed probes reproduce the measurements",
+  "repair_validation": {
+    "baseline_commit": "d760c46a314ca099ac38316397c356fbb4c58742",
+    "pass": true,
+    "closed_issues": [
+      "startup_skips_unusable_hospitals",
+      "floor_shape_checked_before_references",
+      "failed_attempt_anger_applied_once"
+    ],
+    "startup": {
+      "pass": true,
+      "check_count": 14,
+      "checks": {
+        "actual_compatibility": true,
+        "boot_after_native_guard": true,
+        "startup_baseline_save_committed": true,
+        "startup_baseline_save_started": true,
+        "startup_keeps_native_guard": true,
+        "startup_newer_save_committed": true,
+        "startup_newer_save_started": true,
+        "startup_no_valid_hospital_keeps_files": true,
+        "startup_older_recovery_keeps_facts": true,
+        "startup_older_recovery_retains_bad_files": true,
+        "startup_preserves_healthy_facts": true,
+        "startup_preserves_interrupted_files": true,
+        "startup_skips_first_interrupted_hospital": true,
+        "startup_waits_for_older_recovery": true
+      },
+      "facts": {
+        "healthy_hospital_id": "00000000-0000-4000-8000-000000000002",
+        "healthy_world_sha256": "6f15f22bb316bb083e54651f417b8f16b052245e2b88dec498b2e5cd01f21612",
+        "interrupted_hospital_id": "00000000-0000-4000-8000-000000000001",
+        "partial_world_sha256": "ebbecacfdceccedfec6bd11dd4be1820a459258191cb251efcdc632ddc4118bd",
+        "saved_tick": 137
+      },
+      "evidence": {
+        "path": ".cache/validation/Stage01 验收 UI/component-76a5dabc-07b2-491b-a642-2f642087d500/APPDATA/evidence/ui-evidence.json",
+        "sha256": "aac59879ebbb98f950e719c7de16f6e38579fbfcd7c2c5cd68161046a041d874"
+      }
+    },
+    "failure_anger_cases": [
+      {
+        "attempts": 2,
+        "duplicate_completion_readonly": true,
+        "final_anger": 35.0,
+        "initial_anger": 5.0,
+        "phase": "departed",
+        "seed": 3865
+      },
+      {
+        "attempts": 2,
+        "duplicate_completion_readonly": true,
+        "final_anger": 100.0,
+        "initial_anger": 95.0,
+        "phase": "departed",
+        "seed": 3865
+      }
+    ],
+    "validation": [
+      {
+        "scope": "runtime",
+        "command": "& 'C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe' --headless --path .cache/validation/runtime-review-fixes --script res://verify-stage01-runtime.gd",
+        "working_directory": "C:/code/loyayz/oddly-good-hospital",
+        "exit_code": 0,
+        "evidence": {
+          "path": ".cache/validation/runtime-review-fixes/runtime-evidence.json",
+          "sha256": "7ae19cb3fead4f9fc1ac32ead6f6804f2ea3fc5329b1f3672ea75bfd16b63d2a"
+        }
+      },
+      {
+        "scope": "ui",
+        "command": "pwsh -NoProfile -File tools/verify-stage01-ui.ps1 -ProjectPath .cache/validation/runtime-review-fixes -Case full",
+        "working_directory": "C:/code/loyayz/oddly-good-hospital",
+        "exit_code": 0,
+        "evidence": {
+          "path": ".cache/validation/Stage01 验收 UI/component-f4197bd8-bec0-45df-a05e-b058147ea837/APPDATA/evidence/ui-evidence.json",
+          "sha256": "5448a68c6c7fafdeea48c6ac604506f5b9c0af8c45e4f88819f2d9347fd9cf16"
+        }
+      },
+      {
+        "scope": "startup",
+        "command": "pwsh -NoProfile -File tools/verify-stage01-ui.ps1 -ProjectPath .cache/validation/runtime-review-fixes -Case startup",
+        "working_directory": "C:/code/loyayz/oddly-good-hospital",
+        "exit_code": 0,
+        "evidence": {
+          "path": ".cache/validation/Stage01 验收 UI/component-76a5dabc-07b2-491b-a642-2f642087d500/APPDATA/evidence/ui-evidence.json",
+          "sha256": "aac59879ebbb98f950e719c7de16f6e38579fbfcd7c2c5cd68161046a041d874"
+        }
+      },
+      {
+        "scope": "storage",
+        "command": "pwsh -NoProfile -File tools/verify-stage01-storage.ps1 -ProjectPath .cache/validation/runtime-review-fixes",
+        "working_directory": "C:/code/loyayz/oddly-good-hospital",
+        "exit_code": 0,
+        "evidence": {
+          "path": ".cache/validation/Stage01 验收 storage/22bc5213-bd95-4415-a586-50eaf3b83b91/result.json",
+          "sha256": "a089aee8d5acbb37e98a4eea1ae0c869c9ab462910c6ce8eb2ea158977efc070"
+        }
+      },
+      {
+        "scope": "package",
+        "command": "pwsh -NoProfile -File tools/verify-stage01-package.ps1",
+        "working_directory": "C:/code/loyayz/oddly-good-hospital",
+        "exit_code": 0,
+        "evidence": {
+          "path": ".cache/validation/Stage01 验收 UI/c13dea2e-3673-4e53-bc07-6d9b9d56206e/result.json",
+          "sha256": "24e8a0d95af597b68d6018b5c7bd97eb728ae03ea45c7fc4544aef271a337dcd"
+        }
+      }
+    ],
+    "reused_validation": [
+      {
+        "scope": "S49 GPU deformation and shadow equivalence",
+        "basis": "Mesh, import hook, skin adapters, shaders, probe, fixed engine and renderer remain unchanged",
+        "evidence": {
+          "path": ".cache/validation/stage01-render/result.json",
+          "sha256": "8873f930a878fe44a1507e6fbdc5e1aa91df1063b4f4f456b56f96234905da31"
+        }
+      }
+    ]
+  }
 }

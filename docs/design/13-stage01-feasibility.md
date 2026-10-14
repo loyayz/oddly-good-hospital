@@ -49,9 +49,11 @@
 
 两个样板均以资金100000、治疗包60开始。初诊、必要检查、操作、病房及成功治疗收费分别以稳定凭据结算；包耗从已承诺尝试领用。D23两次完整手术分别执行操作、15秒苏醒、护士实际陪同转床、240秒恢复、真实护理及查房，最终结论在查房之后产生。失败不重复收取成功治疗费。
 
+每次实际失败结算增加15点怒气，最高100。D23首次失败后怒气由5变为20；两次失败的门诊样例由5变为35，初始怒气95时夹限为100。重复完成同一已结束会话不再改变怒气、号签、账目或世界事实；保存与恢复保留已发生的结果。
+
 工作消耗、生理积累、维护分类与实践分别由实际工作、移动、设备使用及完成凭据产生。FUR02按工作站磨损，接待台不冒用医疗设备磨损；值守覆盖不增加虚假实践。全日排班、休息和长期培养属于后续完整运营验收。
 
-运行验证共90项，全部通过。缺货、手术资格缺失、病床故障及研究不足均保留原号签，不创建尝试或领包；设备故障停止实际工作余量，恢复继续原承诺。手术准备条件失效释放未开工准备资源。恢复拒绝缺字段、无效随机状态、身体位置冲突、断开的Visit、门及账目引用。
+运行验证共108项，全部通过。缺货、手术资格缺失、病床故障及研究不足均保留原号签，不创建尝试或领包；设备故障停止实际工作余量，恢复继续原承诺。手术准备条件失效释放未开工准备资源。恢复拒绝缺字段、无效随机状态、身体位置冲突、断开的Visit、门及账目引用。楼层容器、布局及门先验型，再检查设施和房间引用；即使JSON、字节数及哈希一致，缺少楼层差异或错误容器类型的世界也返回明确拒绝原因。
 
 ## 5. 空间与身体实测
 
@@ -104,6 +106,8 @@ Godot当前JSON数值解码曾使99.52000000000027改变一个最低有效位。
 
 成功回执逐一匹配医院、加载会话、请求、保存点和冻结revision。较新世界仍为未保存，迟到回执不改变另一医院；切院取消、目标损坏或缺少必要模型保留原世界和未确认草稿。原医院在准备和验证完整候选视图期间保持暂停。
 
+启动按稳定医院顺序查找可接管的完整世界。排序靠前的新院只留下pending目录时，保留其文件并继续进入健康医院，恢复其原tick、账目、人物及随机流。没有可直接接管的医院、但存在上一有效保存点时，保留原恢复入口；全部不可用时显示具体原因并保留资料，不创建替代空院。独立启动验收14项全部通过，覆盖未完成目录、健康医院继续、损坏新保存点、上一有效保存点和资料库占用。
+
 ## 8. 成品与界面验收
 
 Release导出为独立exe+pck+原生DLL，试验安装包只嵌入明确列出的程序及许可文件。普通权限、中文/空格目录下安装成功；重复安装返回2并保留已有安装。卸载实际清除已知文件和入口，保留医院资料、目录内额外文件及非安装登记值。
@@ -126,6 +130,7 @@ pwsh -NoProfile -File tools/prepare-stage01-validation.ps1 -Profile 'OddlyGoodHo
 & 'C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe' --headless --path .cache/validation/runtime-blue --editor --import
 & 'C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe' --headless --path .cache/validation/runtime-blue --script res://verify-stage01-runtime.gd
 pwsh -NoProfile -File tools/verify-stage01-ui.ps1 -ProjectPath .cache/validation/runtime-blue
+pwsh -NoProfile -File tools/verify-stage01-ui.ps1 -ProjectPath .cache/validation/runtime-blue -Case startup
 pwsh -NoProfile -File tools/verify-stage01-storage.ps1 -ProjectPath .cache/validation/runtime-blue
 pwsh -NoProfile -File tools/verify-stage01-package.ps1
 pwsh -NoProfile -File docs/tools/export-design.ps1

@@ -281,6 +281,26 @@ func _validate_shapes() -> String:
 	for value: Variant in facts.research:
 		if not value is String:
 			return "研究引用类型无效"
+	if not facts.floors.get("height_intervals") is Array or not facts.floors.get("overrides") is Dictionary:
+		return "稀疏楼层结构无效"
+	var last_floor: int = 0
+	for interval: Variant in facts.floors.height_intervals:
+		if not interval is Dictionary or not _natural(interval.get("first",-1)) or not _natural(interval.get("last",-1)) or not (interval.get("height_m") is float or interval.get("height_m") is int) or int(interval.first)<=last_floor or int(interval.last)<int(interval.first) or not is_finite(float(interval.height_m)) or float(interval.height_m)<=0:
+			return "结构高度区间无效"
+		last_floor = int(interval.last)
+	for floor_key: String in facts.floors.overrides:
+		if not floor_key.is_valid_int() or int(floor_key)<1 or int(floor_key)>last_floor:
+			return "实际楼层不在结构高度区间内"
+		var layout: Variant = facts.floors.overrides[floor_key]
+		if not layout is Dictionary or not layout.get("plots") is Array or not layout.get("blocked") is Array or not layout.get("doors") is Array:
+			return "实际楼层布局无效"
+		for field: String in ["plots","blocked"]:
+			for point: Variant in layout[field]:
+				if not _grid_point(point):
+					return "楼层坐标类型无效"
+		for door: Variant in layout.doors:
+			if not door is Dictionary or not door.get("id") is String or not door.get("definition_id") is String or not _grid_point(door.get("cell")) or not _natural(door.get("span",-1)) or int(door.span)<1 or not door.get("axis") in ["x","y"] or not facts.rooms.has(door.get("room_id","")):
+				return "门与原墙段的引用无效"
 	var schemas: Dictionary = {
 		"staff":{"id":TYPE_STRING,"role":TYPE_STRING,"title_id":TYPE_STRING,"abilities":TYPE_DICTIONARY,"energy":TYPE_FLOAT,"fatigue":TYPE_FLOAT,"stress_milli":TYPE_INT,"on_shift":TYPE_BOOL,"certificates":TYPE_ARRAY,"practice":TYPE_DICTIONARY,"completed_jobs":TYPE_DICTIONARY},
 		"tickets":{"id":TYPE_STRING,"visit_id":TYPE_STRING,"kind":TYPE_STRING,"enqueued_tick":TYPE_INT},
@@ -374,26 +394,6 @@ func _validate_shapes() -> String:
 	for room: Dictionary in facts.rooms.values():
 		if not _grid_point(room.origin) or not _extent(room.size) or not facts.floors.overrides.has(str(int(room.floor_id))):
 			return "房间实际坐标、范围或楼层无效"
-	if not facts.floors.get("height_intervals") is Array or not facts.floors.get("overrides") is Dictionary:
-		return "稀疏楼层结构无效"
-	var last_floor: int = 0
-	for interval: Variant in facts.floors.height_intervals:
-		if not interval is Dictionary or not _natural(interval.get("first",-1)) or not _natural(interval.get("last",-1)) or not (interval.get("height_m") is float or interval.get("height_m") is int) or int(interval.first)<=last_floor or int(interval.last)<int(interval.first) or not is_finite(float(interval.height_m)) or float(interval.height_m)<=0:
-			return "结构高度区间无效"
-		last_floor = int(interval.last)
-	for floor_key: String in facts.floors.overrides:
-		if not floor_key.is_valid_int() or int(floor_key)<1 or int(floor_key)>last_floor:
-			return "实际楼层不在结构高度区间内"
-		var layout: Variant = facts.floors.overrides[floor_key]
-		if not layout is Dictionary or not layout.get("plots") is Array or not layout.get("blocked") is Array or not layout.get("doors") is Array:
-			return "实际楼层布局无效"
-		for field: String in ["plots","blocked"]:
-			for point: Variant in layout[field]:
-				if not _grid_point(point):
-					return "楼层坐标类型无效"
-		for door: Variant in layout.doors:
-			if not door is Dictionary or not door.get("id") is String or not door.get("definition_id") is String or not _grid_point(door.get("cell")) or not _natural(door.get("span",-1)) or int(door.span)<1 or not door.get("axis") in ["x","y"] or not facts.rooms.has(door.get("room_id","")):
-				return "门与原墙段的引用无效"
 	for connector: Dictionary in facts.connectors.values():
 		if not _grid_point(connector.anchor) or not _grid_point(connector.cell) or not _extent(connector.footprint) or not _natural(connector.remaining_ticks) or not connector.phase in ["idle","empty_riding","boarding","riding","alighting"]:
 			return "竖向连接状态或锚点无效"
