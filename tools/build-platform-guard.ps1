@@ -14,6 +14,11 @@ $zigArchive = Join-Path $cacheRoot "$zigName.zip"
 $zigExe = Join-Path $cacheRoot "$zigName/zig.exe"
 $zigSha256 = '3a0ed1e8799a2f8ce2a6e6290a9ff22e6906f8227865911fb7ddedc3cc14cb0c'
 $outputPath = Join-Path $repoRoot 'game/platform/windows/bin/oddly_good_platform.windows.x86_64.dll'
+$sqliteVersion = '3.54.0'
+$sqliteName = 'sqlite-amalgamation-3540000'
+$sqliteRoot = Join-Path $cacheRoot $sqliteName
+$sqliteArchive = Join-Path $cacheRoot "$sqliteName.zip"
+$sqliteSha256 = '68e913b0fe8ec6b4e5f391c594a28872884e80d6cd042a1e50c957be46b5aa4d'
 
 New-Item -ItemType Directory -Force $cacheRoot, $abiRoot, (Split-Path $outputPath) | Out-Null
 if (-not (Test-Path -LiteralPath $zigExe)) {
@@ -27,6 +32,23 @@ if (-not (Test-Path -LiteralPath $zigExe)) {
 }
 $actualZigVersion = (& $zigExe version | Out-String).Trim()
 if ($LASTEXITCODE -ne 0 -or $actualZigVersion -ne $zigVersion) { throw 'Unexpected Zig compiler version.' }
+if (-not (Test-Path -LiteralPath $sqliteArchive)) {
+    Invoke-WebRequest -Uri "https://sqlite.org/2026/$sqliteName.zip" -OutFile $sqliteArchive
+}
+if ((Get-FileHash -LiteralPath $sqliteArchive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $sqliteSha256) {
+    throw 'SQLite source archive SHA256 mismatch.'
+}
+Expand-Archive -LiteralPath $sqliteArchive -DestinationPath $cacheRoot -Force
+$sqliteObject = Join-Path $abiRoot 'sqlite3.o'
+$sqliteObjectIdentity = "$sqliteObject.sha256"
+$sqliteCompileIdentity = "$sqliteSha256|Zig $zigVersion|x86_64-windows-gnu|O2|THREADSAFE=1|OMIT_LOAD_EXTENSION=1|DQS=0"
+if (-not (Test-Path -LiteralPath $sqliteObject) -or -not (Test-Path -LiteralPath $sqliteObjectIdentity) -or
+    (Get-Content -LiteralPath $sqliteObjectIdentity -Raw).Trim() -ne $sqliteCompileIdentity) {
+    & $zigExe cc -target x86_64-windows-gnu -std=c11 -O2 -DSQLITE_THREADSAFE=1 -DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_DQS=0 `
+        -c (Join-Path $sqliteRoot 'sqlite3.c') -o $sqliteObject
+    if ($LASTEXITCODE -ne 0) { throw 'SQLite compilation failed.' }
+    $sqliteCompileIdentity | Set-Content -LiteralPath $sqliteObjectIdentity -Encoding utf8NoBOM
+}
 $actualGodotVersion = (& $GodotPath --version | Out-String).Trim()
 if ($LASTEXITCODE -ne 0 -or $actualGodotVersion -ne '4.7.2.stable.official.ed1daf0bf') {
     throw 'The platform bridge requires the fixed Godot 4.7.2 standard x86_64 engine.'
@@ -44,7 +66,7 @@ try {
 $api = Get-Content -Raw -LiteralPath (Join-Path $abiRoot 'extension_api.json') | ConvertFrom-Json -Depth 100
 if ($api.header.precision -ne 'single') { throw 'The bridge ABI requires single-precision Godot.' }
 $sizes = ($api.builtin_class_sizes | Where-Object build_configuration -eq 'float_64').sizes
-$expectedSizes = @{ Variant = 24; String = 8; StringName = 8; Dictionary = 8 }
+$expectedSizes = @{ Variant = 24; String = 8; StringName = 8; Dictionary = 8; Array = 8; PackedByteArray = 16 }
 foreach ($name in $expectedSizes.Keys) {
     if (($sizes | Where-Object name -eq $name).size -ne $expectedSizes[$name]) {
         throw "Unexpected engine ABI size for $name."
@@ -52,18 +74,28 @@ foreach ($name in $expectedSizes.Keys) {
 }
 $userDirHash = ($api.classes | Where-Object name -eq 'OS').methods | Where-Object name -eq 'get_user_data_dir' | Select-Object -ExpandProperty hash
 $notificationHash = ($api.classes | Where-Object name -eq 'Object').methods | Where-Object name -eq 'notification' | Select-Object -ExpandProperty hash
+$arrayMethods = ($api.builtin_classes | Where-Object name -eq 'Array').methods
+$byteMethods = ($api.builtin_classes | Where-Object name -eq 'PackedByteArray').methods
+$arraySizeHash = ($arrayMethods | Where-Object name -eq 'size').hash
+$arrayAppendHash = ($arrayMethods | Where-Object name -eq 'append').hash
+$bytesResizeHash = ($byteMethods | Where-Object name -eq 'resize').hash
 if (-not $userDirHash -or -not $notificationHash) { throw 'The required engine method hashes are missing.' }
 @"
 #define OGH_VARIANT_SIZE 24
 #define OGH_STRING_SIZE 8
 #define OGH_STRING_NAME_SIZE 8
 #define OGH_DICTIONARY_SIZE 8
+#define OGH_ARRAY_SIZE 8
+#define OGH_PACKED_BYTE_ARRAY_SIZE 16
+#define OGH_ARRAY_SIZE_HASH $arraySizeHash
+#define OGH_ARRAY_APPEND_HASH $arrayAppendHash
+#define OGH_BYTES_RESIZE_HASH $bytesResizeHash
 #define OGH_USER_DIR_HASH $userDirHash
 #define OGH_NOTIFICATION_HASH $notificationHash
 "@ | Set-Content -LiteralPath (Join-Path $abiRoot 'platform_guard_abi.h') -Encoding utf8NoBOM
 
 & $zigExe cc -target x86_64-windows-gnu -std=c11 -O2 -Wall -Wextra -Werror -shared -s `
-    (Join-Path $repoRoot 'game/platform/windows/platform_session_guard.c') -I $abiRoot -o $outputPath -lkernel32
+    (Join-Path $repoRoot 'game/platform/windows/platform_session_guard.c') $sqliteObject -I $abiRoot -I $sqliteRoot -o $outputPath -lkernel32 -ladvapi32
 if ($LASTEXITCODE -ne 0) { throw 'Platform bridge compilation failed.' }
 [PSCustomObject]@{
     output = $outputPath
@@ -71,4 +103,6 @@ if ($LASTEXITCODE -ne 0) { throw 'Platform bridge compilation failed.' }
     sha256 = (Get-FileHash -LiteralPath $outputPath -Algorithm SHA256).Hash.ToLowerInvariant()
     engine = $actualGodotVersion
     compiler = "Zig $actualZigVersion"
+    sqlite = $sqliteVersion
+    sqlite_source_sha256 = $sqliteSha256
 } | ConvertTo-Json -Compress

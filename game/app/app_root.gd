@@ -174,7 +174,7 @@ func _button(text: String, callback: Callable, primary: bool = false) -> void:
 	_toolbar.add_child(button)
 
 func _acquire() -> void:
-	if not ClassDB.class_exists("PlatformSessionGuard"):
+	if not ClassDB.class_exists("PlatformSessionGuard") or not ClassDB.class_exists("PlatformSQLite"):
 		_status.text = "Windows资料库组件未能加载。请重新安装完整程序。"
 		return
 	_guard = ClassDB.instantiate("PlatformSessionGuard") as RefCounted
@@ -199,9 +199,10 @@ func _acquire() -> void:
 	var unavailable: PackedStringArray = PackedStringArray()
 	var previous_save: Dictionary = {}
 	for hospital_id: String in _hospital_ids:
-		var records: Array[Dictionary] = _snapshots.list_commits(hospital_id)
+		var listing_errors: Dictionary = {}
+		var records: Array[Dictionary] = _snapshots.list_commits(hospital_id,listing_errors)
 		if records.is_empty():
-			unavailable.append("一座医院没有完整有效的保存清单，原文件保留。")
+			unavailable.append("一座医院暂不可用："+str(listing_errors.get(hospital_id,"没有完整有效的保存清单"))+"。原文件保留。")
 			continue
 		var restored: Dictionary = _snapshots.load_commit(records[0].hospital_id,records[0].snapshot_id)
 		if not restored.ok:

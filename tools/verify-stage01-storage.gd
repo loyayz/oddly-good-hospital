@@ -31,11 +31,13 @@ func _run() -> void:
 		var ready: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(control.path_join("ready.json")))
 		var records: Array[Dictionary] = storage.list_commits(ready.hospital_id)
 		var loaded: Dictionary = storage.load_commit(ready.hospital_id,ready.previous_snapshot_id)
+		var expected_count: int = 2 if ready.stage=="after_commit" else 1
+		var latest: Dictionary = storage.load_commit(records[0].hospital_id,records[0].snapshot_id) if not records.is_empty() else {"ok":false}
 		var report: Dictionary = {"stage":ready.stage,"actual_user_directory":OS.get_user_data_dir(),"guard_after_crash":_guard.call("is_held"),
 			"valid_commit_count":records.size(),"previous_world_unchanged":loaded.ok and JSON.stringify(loaded.world.facts,"",true,true).sha256_text()==ready.previous_world_sha256,
-			"old_committed_files_unchanged":FileAccess.get_sha256(ready.previous_path.path_join("world.json"))==ready.previous_file_sha256,
-			"pending_not_published":records.size()==1 and records[0].snapshot_id==ready.previous_snapshot_id}
-		report.ok = report.guard_after_crash and report.previous_world_unchanged and report.old_committed_files_unchanged and report.pending_not_published
+			"database_unchanged_after_rollback":ready.stage=="after_commit" or FileAccess.get_sha256(ready.database_path)==ready.previous_database_sha256,
+			"only_complete_transactions_published":records.size()==expected_count and latest.ok and int(latest.world.facts.sim_tick)==int(ready.previous_tick)+(1 if ready.stage=="after_commit" else 0)}
+		report.ok = report.guard_after_crash and report.previous_world_unchanged and report.database_unchanged_after_rollback and report.only_complete_transactions_published
 		_store(control.path_join("recovery.json"),report)
 		_guard.call("release")
 		quit(0 if report.ok else 1)
@@ -58,18 +60,18 @@ func _run() -> void:
 		quit(5)
 		return
 	var snapshot_id: String = HospitalSnapshots.uuid()
-	var commits: String = OS.get_user_data_dir().path_join("hospitals").path_join(world.facts.hospital_id).path_join("commits")
+	var database_path: String = OS.get_user_data_dir().path_join("hospitals").path_join(world.facts.hospital_id).path_join(HospitalSnapshots.DATABASE_NAME)
 	var ready: Dictionary = {"stage":_arguments.stage,"hospital_id":world.facts.hospital_id,"snapshot_id":snapshot_id,
-		"pending_path":commits.path_join(".pending-"+snapshot_id),"previous_snapshot_id":receipt.snapshot_id,
-		"previous_path":commits.path_join(receipt.snapshot_id),"previous_world_sha256":JSON.stringify(world.facts,"",true,true).sha256_text(),
-		"previous_file_sha256":FileAccess.get_sha256(commits.path_join(receipt.snapshot_id).path_join("world.json")),"actual_user_directory":OS.get_user_data_dir()}
+		"database_path":database_path,"previous_snapshot_id":receipt.snapshot_id,"previous_tick":world.facts.sim_tick,
+		"previous_world_sha256":JSON.stringify(world.facts,"",true,true).sha256_text(),
+		"previous_database_sha256":FileAccess.get_sha256(database_path),"actual_user_directory":OS.get_user_data_dir()}
 	_store(control.path_join("ready.json"),ready)
 	while not FileAccess.file_exists(control.path_join("GO")):
 		await process_frame
 	simulation.step()
 	var request: Dictionary = {"hospital_id":world.facts.hospital_id,"loading_session_id":"fault-boundary","request_id":HospitalSnapshots.uuid(),
 		"snapshot_id":snapshot_id,"world_revision":world.facts.world_revision,"sim_tick":world.facts.sim_tick,"slot_kind":"manual","slot_key":"1"}
-	# Invoke the same writer used by begin(); the fault is an external real Windows share lock.
+	# The controller applies actual Win32 sharing/byte locks or terminates a live SQLite transaction.
 	var thread: Thread = Thread.new()
 	thread.start(storage._write.bind(world.freeze(),request))
 	while thread.is_alive():

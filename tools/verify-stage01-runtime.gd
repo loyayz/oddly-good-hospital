@@ -54,6 +54,7 @@ func _run() -> void:
 	_check("compressed_ten_thousand_floors",first.world.facts.floors.height_intervals.size()==1 and first.world.facts.floors.overrides.size()==2)
 	_check("vertical_giant_route",geometry.route(first.world,"sample_S59",2,[35,83]).ok)
 	var storage: HospitalSnapshots = HospitalSnapshots.new(content,_guard)
+	await _sqlite_cases(content,storage)
 	await _space_cases(content,storage)
 	await _saved_floor_cases(content,storage)
 	var started: Dictionary = storage.begin(surgery,"probe-surgery","manual","1")
@@ -263,10 +264,12 @@ func _saved_floor_cases(content: HospitalContent, storage: HospitalSnapshots) ->
 	_check("floor_rejection_baseline_save_committed",receipt.get("ok",false))
 	if not receipt.get("ok",false):
 		return
-	var path: String = HospitalSnapshots.ROOT.path_join(world.facts.hospital_id).path_join("commits").path_join(receipt.snapshot_id)
-	var original_world: PackedByteArray = FileAccess.get_file_as_bytes(path.path_join("world.json"))
-	var original_manifest: PackedByteArray = FileAccess.get_file_as_bytes(path.path_join("manifest.json"))
-	var original_marker: PackedByteArray = FileAccess.get_file_as_bytes(path.path_join("COMMITTED"))
+	var path: String = HospitalSnapshots.ROOT.path_join(world.facts.hospital_id).path_join(HospitalSnapshots.DATABASE_NAME)
+	var original_database: PackedByteArray = FileAccess.get_file_as_bytes(path)
+	var opened: Dictionary = storage._connect(world.facts.hospital_id)
+	var stored_metadata: Dictionary = opened.database.call("execute","SELECT manifest FROM snapshots WHERE snapshot_id=?",[receipt.snapshot_id])
+	var original_manifest: PackedByteArray = stored_metadata.rows[0].manifest
+	opened.database.call("close")
 	for case: String in ["missing_overrides","wrong_overrides","wrong_layout"]:
 		var malformed: Dictionary = world.freeze()
 		match case:
@@ -278,13 +281,119 @@ func _saved_floor_cases(content: HospitalContent, storage: HospitalSnapshots) ->
 		manifest.world_bytes = bytes.size()
 		manifest.world_sha256 = HospitalSnapshots._sha(bytes)
 		var metadata: PackedByteArray = JSON.stringify(manifest,"",true,true).to_utf8_buffer()
-		var written: bool = HospitalSnapshots._store(path.path_join("world.json"),bytes) and HospitalSnapshots._store(path.path_join("manifest.json"),metadata) and HospitalSnapshots._store(path.path_join("COMMITTED"),HospitalSnapshots._sha(metadata).to_utf8_buffer())
+		opened = storage._connect(world.facts.hospital_id)
+		var database: RefCounted = opened.database
+		var written: bool = database.call("execute","BEGIN IMMEDIATE",[]).ok and database.call("execute","DELETE FROM world_chunks WHERE snapshot_id=?",[receipt.snapshot_id]).ok
+		for index: int in ceili(float(bytes.size())/HospitalJsonStream.CHUNK):
+			written = written and database.call("execute","INSERT INTO world_chunks VALUES(?,?,?)",[receipt.snapshot_id,index,bytes.slice(index*HospitalJsonStream.CHUNK,(index+1)*HospitalJsonStream.CHUNK)]).ok
+		written = written and database.call("execute","UPDATE snapshots SET manifest=?,manifest_sha256=? WHERE snapshot_id=?",[metadata,HospitalSnapshots._sha(metadata),receipt.snapshot_id]).ok
+		written = written and database.call("execute","COMMIT",[]).ok
+		database.call("close")
 		var loaded: Dictionary = storage.load_commit(world.facts.hospital_id,receipt.snapshot_id)
 		_check("invalid_saved_floor_rejected_"+case,written and not loaded.ok and "楼层" in str(loaded.get("error","")))
-	HospitalSnapshots._store(path.path_join("world.json"),original_world)
-	HospitalSnapshots._store(path.path_join("manifest.json"),original_manifest)
-	HospitalSnapshots._store(path.path_join("COMMITTED"),original_marker)
+	HospitalSnapshots._store(path,original_database)
 	_check("floor_rejection_baseline_restored",storage.load_commit(world.facts.hospital_id,receipt.snapshot_id).ok)
+
+func _sqlite_cases(content: HospitalContent, storage: HospitalSnapshots) -> void:
+	var world: HospitalWorld = FeasibilityHospitals.create(HospitalSnapshots.uuid(),false,content)
+	var simulation: HospitalSimulation = HospitalSimulation.new(world,content)
+	for tick: int in 137:
+		simulation.step()
+	for index: int in 1280:
+		simulation.enqueue({"id":"sqlite-history:%04d" % index,"hospital_id":world.facts.hospital_id,"kind":"move_actor","actor_id":"sample_S21","floor_id":1,"cell":[35,66]})
+	simulation.drain_commands()
+	var started_us: int = Time.get_ticks_usec()
+	var started: Dictionary = storage.begin(world,"sqlite-contract","manual","sqlite")
+	var freeze_us: int = Time.get_ticks_usec()-started_us
+	_check("sqlite_save_started",started.ok)
+	if not started.ok:
+		return
+	var receipt: Dictionary = await _await_save(storage)
+	var save_us: int = Time.get_ticks_usec()-started_us
+	_check("sqlite_save_committed",receipt.get("ok",false))
+	if not receipt.get("ok",false):
+		return
+	var path: String = HospitalSnapshots.ROOT.path_join(world.facts.hospital_id).path_join(HospitalSnapshots.DATABASE_NAME)
+	var file: FileAccess = FileAccess.open(path,FileAccess.READ)
+	_check("sqlite_real_file_header",file.get_buffer(16).hex_encode()=="53514c69746520666f726d6174203300")
+	var database_bytes: int = file.get_length()
+	file.close()
+	_check("sqlite_no_new_json_commit_directory",not DirAccess.dir_exists_absolute(HospitalSnapshots.ROOT.path_join(world.facts.hospital_id).path_join("commits")))
+	var opened: Dictionary = storage._connect(world.facts.hospital_id)
+	var database: RefCounted = opened.database
+	var policies: Dictionary = {}
+	for pragma: String in ["journal_mode","synchronous","foreign_keys","cache_size","integrity_check"]:
+		var result: Dictionary = database.call("execute","PRAGMA "+pragma,[])
+		policies[pragma] = result.rows[0].values()[0] if result.ok else "error"
+	_check("sqlite_transaction_policy",policies.journal_mode=="delete" and policies.synchronous==3 and policies.foreign_keys==1 and policies.cache_size==-4096)
+	_check("sqlite_integrity_check",policies.integrity_check=="ok")
+	var numbers: Dictionary = database.call("execute","SELECT ? AS integer_value,? AS decimal_value,? AS text_value,? AS blob_value",[9223372036854775806,99.52000000000027,"医院 数据",PackedByteArray([0,255,128,1])])
+	_check("sqlite_bound_values_preserve_precision",numbers.ok and numbers.rows[0].integer_value==9223372036854775806 and numbers.rows[0].decimal_value==99.52000000000027 and numbers.rows[0].text_value=="医院 数据" and numbers.rows[0].blob_value==PackedByteArray([0,255,128,1]))
+	var chunks: Dictionary = database.call("execute","SELECT count(*) AS count,max(length(data)) AS largest,sum(length(data)) AS bytes FROM world_chunks WHERE snapshot_id=?",[receipt.snapshot_id])
+	var records: Array[Dictionary] = storage.list_commits(world.facts.hospital_id)
+	_check("sqlite_bounded_complete_chunks",chunks.ok and int(chunks.rows[0].largest)<=32768 and int(chunks.rows[0].bytes)==int(records[0].world_bytes))
+	var restored: Dictionary = storage.load_commit(world.facts.hospital_id,receipt.snapshot_id)
+	_check("sqlite_multiple_chunks_restore_exact_world",chunks.rows[0].count>1 and restored.ok and JSON.stringify(restored.world.facts,"",true,true)==JSON.stringify(world.facts,"",true,true))
+	_evidence.sqlite_storage = {"version":opened.version,"database_bytes":database_bytes,"world_bytes":records[0].world_bytes,"chunk_count":chunks.rows[0].count,"command_receipt_count":world.facts.command_receipts.size(),"freeze_and_start_usec":freeze_us,"save_total_usec":save_us,"policies":policies}
+	database.call("execute","PRAGMA user_version=2",[])
+	database.call("close")
+	var unsupported_hash: String = FileAccess.get_sha256(path)
+	_check("sqlite_unknown_version_rejected_without_rewrite",not storage.load_commit(world.facts.hospital_id,receipt.snapshot_id).ok and FileAccess.get_sha256(path)==unsupported_hash)
+	opened = storage._connect(world.facts.hospital_id)
+	opened.database.call("execute","PRAGMA user_version=1",[])
+	opened.database.call("close")
+	var legacy_id: String = HospitalSnapshots.uuid()
+	var snapshot_id: String = HospitalSnapshots.uuid()
+	var legacy_world: HospitalWorld = FeasibilityHospitals.create(legacy_id,true,content)
+	var legacy_simulation: HospitalSimulation = HospitalSimulation.new(legacy_world,content)
+	for tick: int in 137:
+		legacy_simulation.step()
+	var legacy_path: String = HospitalSnapshots.ROOT.path_join(legacy_id).path_join("commits").path_join(snapshot_id)
+	DirAccess.make_dir_recursive_absolute(legacy_path)
+	var encoder: HospitalJsonStream = HospitalJsonStream.new()
+	var encoded: bool = encoder.encode(legacy_path.path_join("world.json"),legacy_world.freeze(),storage._budget)
+	var manifest: Dictionary = {"format":HospitalSnapshots.FORMAT,"schema_version":1,"game_version":"0.1.0-stage01","hospital_id":legacy_id,"snapshot_id":snapshot_id,"sequence":7,"slot_kind":"manual","slot_key":"1","created_utc":"2026-10-14T00:00:00","sim_tick":137,"content_packs":[{"id":"core","version":str(content.catalog.content_version)}],"world_bytes":encoder.bytes,"world_sha256":encoder.digest,"display_summary":{"display_name":legacy_world.facts.display_name,"mode":legacy_world.facts.mode,"present_actor_count":legacy_world.present_actor_count()}}
+	var raw: PackedByteArray = JSON.stringify(manifest,"",true).to_utf8_buffer()
+	HospitalSnapshots._store(legacy_path.path_join("manifest.json"),raw)
+	HospitalSnapshots._store(legacy_path.path_join("COMMITTED"),HospitalSnapshots._sha(raw).to_utf8_buffer())
+	var partial: String = legacy_path.get_base_dir().path_join(".pending-"+HospitalSnapshots.uuid())
+	DirAccess.make_dir_recursive_absolute(partial)
+	HospitalSnapshots._store(partial.path_join("world.json"),"{".to_utf8_buffer())
+	var original_hashes: Dictionary = {}
+	for name: String in ["world.json","manifest.json","COMMITTED"]:
+		original_hashes[name] = FileAccess.get_sha256(legacy_path.path_join(name))
+	var imported: Array[Dictionary] = storage.list_commits(legacy_id)
+	var loaded: Dictionary = storage.load_commit(legacy_id,snapshot_id)
+	_check("sqlite_import_preserves_legacy_identity_sequence_and_facts",encoded and imported.size()==1 and imported[0].sequence==7 and imported[0].snapshot_id==snapshot_id and loaded.ok and JSON.stringify(loaded.world.facts,"",true,true)==JSON.stringify(legacy_world.facts,"",true,true))
+	var originals_kept: bool = FileAccess.get_file_as_string(partial.path_join("world.json"))=="{"
+	for name: String in original_hashes:
+		originals_kept = originals_kept and FileAccess.get_sha256(legacy_path.path_join(name))==original_hashes[name]
+	_check("sqlite_import_keeps_sources_and_ignores_pending",originals_kept)
+	legacy_simulation.step()
+	started = storage.begin(legacy_world,"sqlite-import-continue","manual","1")
+	_check("sqlite_import_continued_save_started",started.ok)
+	if started.ok:
+		receipt = await _await_save(storage)
+		_check("sqlite_import_continues_sequence_without_reimport",receipt.get("ok",false) and receipt.sequence==8 and storage.list_commits(legacy_id).size()==2 and FileAccess.get_sha256(legacy_path.path_join("world.json"))==original_hashes["world.json"])
+	_evidence.sqlite_storage.legacy_import = {"hospital_id":legacy_id,"snapshot_id":snapshot_id,"imported_sequence":7,"source_hashes":original_hashes,"source_preserved":originals_kept}
+	var history_world: HospitalWorld = FeasibilityHospitals.create(HospitalSnapshots.uuid(),false,content)
+	var history_written: bool = true
+	for index: int in 6:
+		started = storage.begin(history_world,"sqlite-history-retention","manual","1")
+		if not started.ok:
+			history_written = false
+			break
+		receipt = await _await_save(storage)
+		if not receipt.get("ok",false):
+			history_written = false
+			break
+	var retained: Array[Dictionary] = storage.list_commits(history_world.facts.hospital_id)
+	opened = storage._connect(history_world.facts.hospital_id)
+	var orphaned: Dictionary = opened.database.call("execute","SELECT count(*) AS count FROM world_chunks LEFT JOIN snapshots USING(snapshot_id) WHERE snapshots.snapshot_id IS NULL",[])
+	var references: Dictionary = opened.database.call("execute","PRAGMA foreign_key_check",[])
+	opened.database.call("close")
+	_check("sqlite_history_retention_cascades_without_orphans",history_written and retained.size()==3 and retained[0].sequence==6 and retained[2].sequence==4 and orphaned.ok and orphaned.rows[0].count==0 and references.ok and references.rows.is_empty())
+	_evidence.sqlite_storage.retention = {"written":6,"retained":retained.size(),"orphan_chunk_count":orphaned.rows[0].count,"foreign_key_errors":references.rows.size()}
 
 func _check(name: String, passed: bool) -> void:
 	_evidence.checks[name] = passed

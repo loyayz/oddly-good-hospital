@@ -356,6 +356,24 @@
       "source_release": "after_successful_swap_and_actual_unbinding"
     },
     "size_policy": "available_resources_no_fixed_world_size_cap",
+    "sqlite": {
+      "version": "3.54.0",
+      "scope": "independent_database_per_hospital",
+      "file": "hospital.sqlite3",
+      "application_id": 1330071635,
+      "database_schema_version": 1,
+      "world_schema_version": 1,
+      "journal_mode": "DELETE",
+      "synchronous": "EXTRA",
+      "foreign_keys": true,
+      "world_chunk_bytes": 32768,
+      "page_cache_kib": 4096,
+      "write_mode": "single_background_transaction",
+      "simulation_reads": "in_memory_world_only",
+      "commit": "validate_seal_commit_reopen",
+      "legacy_import": "validated_complete_json_commits_transactional_source_preserved",
+      "cleanup": "separate_transaction_after_success_no_daily_vacuum"
+    },
     "resource_budget": {
       "world_memory_factor": 4,
       "memory_headroom_bytes": 67108864,
@@ -368,7 +386,7 @@
     "backup_format": {
       "entries": [
         "manifest.json",
-        "world.json",
+        "hospital.sqlite3",
         "thumbnail.png"
       ],
       "optional_entry": "thumbnail.png",
@@ -379,7 +397,11 @@
       "json_max_depth": 64,
       "json_max_string_bytes": 65536,
       "read_mode": "stream_to_private_staging",
-      "export_compression": "store_if_ratio_exceeds_guard"
+      "export_compression": "store_if_ratio_exceeds_guard",
+      "database_manifest_fields": [
+        "database_bytes",
+        "database_sha256"
+      ]
     },
     "browser": {
       "summary_fields": [
@@ -388,7 +410,7 @@
         "present_actor_count"
       ],
       "summary_source": "same_frozen_world_dto",
-      "list_reads": "manifest_and_commit_marker",
+      "list_reads": "sqlite_sealed_manifest_index",
       "world_reads": "selected_snapshot_full_validation",
       "cache": "rebuildable_hospital_snapshot_sequence",
       "thumbnail_max_dimensions": [

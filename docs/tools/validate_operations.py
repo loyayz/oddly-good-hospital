@@ -85,6 +85,15 @@ def validate_dialogue_presentation(b):
 
 def validate_save_growth(b):
     s=b['save']; fmt=s['backup_format']; budget=s['resource_budget']
+    require(s['sqlite']=={
+        'version':'3.54.0','scope':'independent_database_per_hospital','file':'hospital.sqlite3',
+        'application_id':0x4F474853,'database_schema_version':1,'world_schema_version':1,
+        'journal_mode':'DELETE','synchronous':'EXTRA','foreign_keys':True,
+        'world_chunk_bytes':32768,'page_cache_kib':4096,'write_mode':'single_background_transaction',
+        'simulation_reads':'in_memory_world_only','commit':'validate_seal_commit_reopen',
+        'legacy_import':'validated_complete_json_commits_transactional_source_preserved',
+        'cleanup':'separate_transaction_after_success_no_daily_vacuum'},
+        'SQLite storage loses hospital isolation, exact world DTOs or atomic recovery')
     require(s['user_directory_guard']=={
         'scope':'persistent_profile_in_actual_user_directory',
         'primitive':'windows_exclusive_noninheritable_file_handle',
@@ -110,17 +119,18 @@ def validate_save_growth(b):
         'source_release':'after_successful_swap_and_actual_unbinding'},
         'hospital switch destroys the source before validated target publication')
     require(s['browser']=={'summary_fields':['display_name','mode','present_actor_count'],
-        'summary_source':'same_frozen_world_dto','list_reads':'manifest_and_commit_marker',
+        'summary_source':'same_frozen_world_dto','list_reads':'sqlite_sealed_manifest_index',
         'world_reads':'selected_snapshot_full_validation','cache':'rebuildable_hospital_snapshot_sequence',
         'thumbnail_max_dimensions':[640,360],'thumbnail_optional':True},
         'hospital browser loads all worlds or trusts decorative thumbnails')
     require(s['size_policy']=='available_resources_no_fixed_world_size_cap'
             and 'max_snapshot_bytes' not in s and 'max_backup_bytes' not in s,
             'save size blocks hospital growth')
-    require(fmt=={'entries':['manifest.json','world.json','thumbnail.png'],
+    require(fmt=={'entries':['manifest.json','hospital.sqlite3','thumbnail.png'],
             'optional_entry':'thumbnail.png','manifest_max_bytes':65536,'thumbnail_max_bytes':262144,
             'max_entries':3,'max_expansion_ratio':200,'json_max_depth':64,'json_max_string_bytes':65536,
-            'read_mode':'stream_to_private_staging','export_compression':'store_if_ratio_exceeds_guard'},
+            'read_mode':'stream_to_private_staging','export_compression':'store_if_ratio_exceeds_guard',
+            'database_manifest_fields':['database_bytes','database_sha256']},
             'large backup loses bounded metadata or path guards')
     require(budget=={'world_memory_factor':4,'memory_headroom_bytes':67108864,
             'free_memory_fraction':0.5,'staging_disk_world_factor':3,'disk_headroom_bytes':67108864,

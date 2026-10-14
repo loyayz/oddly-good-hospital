@@ -13,40 +13,64 @@ var _buffer: PackedByteArray = PackedByteArray()
 var _cursor: int = 0
 var _hash: HashingContext
 var _budget: Callable
+var _sink: Callable
+var _source: Callable
+var _expected_bytes: int = 0
+var _ended: bool = false
 
 func encode(path: String, value: Dictionary, budget: Callable) -> bool:
-	_budget = budget
 	_file = FileAccess.open(path,FileAccess.WRITE)
 	if _file == null:
 		error = "无法写入世界：%d" % FileAccess.get_open_error()
 		return false
-	_hash = HashingContext.new()
-	_hash.start(HashingContext.HASH_SHA256)
-	_write_value(value,0)
-	_flush()
+	encode_to(value,budget,_file_sink)
 	_file.flush()
 	if _file.get_error() != OK:
 		error = "世界写入失败：%d" % _file.get_error()
 	_file.close()
+	return error.is_empty()
+
+func encode_to(value: Dictionary, budget: Callable, sink: Callable) -> bool:
+	_budget = budget
+	_sink = sink
+	_hash = HashingContext.new()
+	_hash.start(HashingContext.HASH_SHA256)
+	_write_value(value,0)
+	_flush(true)
 	digest = _hash.finish().hex_encode()
 	return error.is_empty()
 
+func _file_sink(chunk: PackedByteArray) -> Dictionary:
+	_file.store_buffer(chunk)
+	return {"ok":_file.get_error()==OK,"error":"世界文件写入失败"}
+
 func decode(path: String, expected_bytes: int, expected_hash: String, budget: Callable) -> Dictionary:
-	_budget = budget
 	_file = FileAccess.open(path,FileAccess.READ)
 	if _file == null:
 		return {"ok":false,"error":"无法读取世界"}
 	if _file.get_length() != expected_bytes:
 		_file.close()
 		return {"ok":false,"error":"世界字节数与清单不符"}
+	var result: Dictionary = decode_from(expected_bytes,expected_hash,budget,_file_source)
+	_file.close()
+	return result
+
+func _file_source() -> Dictionary:
+	return {"ok":true,"data":_file.get_buffer(CHUNK) if _file.get_position()<_file.get_length() else PackedByteArray()}
+
+func decode_from(expected_bytes: int, expected_hash: String, budget: Callable, source: Callable) -> Dictionary:
+	_budget = budget
+	_source = source
+	_expected_bytes = expected_bytes
 	_hash = HashingContext.new()
 	_hash.start(HashingContext.HASH_SHA256)
 	var value: Variant = _read_value(0)
 	_whitespace()
 	if _peek() != -1:
 		error = "JSON末尾存在额外数据"
-	_file.close()
 	digest = _hash.finish().hex_encode()
+	if error.is_empty() and bytes != expected_bytes:
+		error = "世界字节数与清单不符"
 	if error.is_empty() and digest != expected_hash:
 		error = "世界SHA-256与清单不符"
 	if not value is Dictionary and error.is_empty():
@@ -88,32 +112,43 @@ func _emit(value: String) -> void:
 	if _buffer.size() >= CHUNK:
 		_flush()
 
-func _flush() -> void:
-	if _buffer.is_empty() or not error.is_empty():
-		return
-	if not _budget.call(bytes+_buffer.size()):
-		error = "保存资源不足，当前医院与旧提交保留"
-		return
-	_file.store_buffer(_buffer)
-	_hash.update(_buffer)
-	bytes += _buffer.size()
-	_buffer.clear()
+func _flush(finish: bool = false) -> void:
+	while not _buffer.is_empty() and (finish or _buffer.size()>=CHUNK) and error.is_empty():
+		var chunk: PackedByteArray = _buffer.slice(0,mini(CHUNK,_buffer.size()))
+		if not _budget.call(bytes+chunk.size()):
+			error = "保存资源不足，当前医院与旧提交保留"
+			return
+		var result: Dictionary = _sink.call(chunk)
+		if not result.get("ok",false):
+			error = str(result.get("error","世界分段写入失败"))
+			return
+		_hash.update(chunk)
+		bytes += chunk.size()
+		_buffer = _buffer.slice(chunk.size())
 
 func _peek() -> int:
 	if not error.is_empty():
 		return -1
 	if _cursor >= _buffer.size():
-		if _file.get_position() >= _file.get_length():
+		if _ended:
 			return -1
 		if not _budget.call(bytes+CHUNK):
 			error = "载入资源不足，保留当前医院"
 			return -1
-		_buffer = _file.get_buffer(CHUNK)
+		var result: Dictionary = _source.call()
+		if not result.get("ok",false) or not result.get("data") is PackedByteArray:
+			error = str(result.get("error","世界分段读取失败"))
+			return -1
+		_buffer = result.data
+		if _buffer.size()>CHUNK or bytes+_buffer.size()>_expected_bytes:
+			error = "世界分段超出声明字节数"
+			return -1
 		_cursor = 0
+		if _buffer.is_empty():
+			_ended = true
+			return -1
 		_hash.update(_buffer)
 		bytes += _buffer.size()
-		if _buffer.is_empty():
-			return -1
 	return _buffer[_cursor]
 
 func _take() -> int:

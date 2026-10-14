@@ -12,14 +12,14 @@
 | 内容 | 版本化UTF-8 JSON及CSV本地化；发布前校验后装入不可变注册表 |
 | 美术 | Blender 4.5.14 LTS源资产，显式导出glTF 2.0二进制GLB；不要求玩家安装Blender |
 | 声音 | WAV源文件、Ogg Vorbis成品；AudioStreamPlayer与位置音源 |
-| 保存 | 本地JSON快照、SHA-256校验、追加式提交目录；导出为受限ZIP格式 |
-| Windows资料库占用 | 随包x86_64 GDExtension封装Win32独占文件句柄；只处理进程所有权，模拟仍使用GDScript |
+| 保存 | 每医院独立SQLite 3.54.0数据库、事务追加保存点、分段世界DTO及SHA-256校验；导出为受限ZIP格式 |
+| Windows原生桥接 | 随包x86_64 GDExtension封装Win32资料库独占句柄、精确数值解码及SQLite；模拟仍使用GDScript |
 | 测试 | 引擎无窗口模式、项目内SceneTree断言运行器；不引入外部运行时测试框架 |
 | 安装 | NSIS 3.13，按用户安装；Windows x86_64 exe与独立pck资源包 |
 
 以上版本于2026-10-11按官方资料核验：[Godot Windows](https://godotengine.org/download/windows/)、[Blender 4.5 LTS](https://www.blender.org/releases/4-5/)、[NSIS](https://nsis.sourceforge.io/Download)。Godot提供Windows导出和3D导入机制，实际项目仍需完整验证资源打包与运行。[Windows导出](https://docs.godotengine.org/en/stable/tutorials/export/exporting_for_windows.html)、[3D导入](https://docs.godotengine.org/en/stable/tutorials/assets_pipeline/importing_3d_scenes/index.html)。
 
-不建设服务器、账户、数据库服务或网页包装层。基础内容随安装包携带，启动及日常操作不联网。引擎升级是明确的工程变更，需重跑存档、内容和性能验证，不自动追随stable标签。
+SQLite嵌入原生桥接，无数据库服务、账户或后台进程，玩家不另装SQLite。基础内容随安装包携带，启动及日常操作不联网。SQLite使用固定官方源码与构建身份，不自动追随新版本。[SQLite官方源码](https://sqlite.org/download.html)。引擎升级是明确的工程变更，需重跑存档、内容和性能验证，不自动追随stable标签。
 
 医院时间遵循模拟规格§1.1及hospital_clock；0.1模拟秒固定步、1800模拟秒一日和24小时钟面均由hospital-time-v1定义。WorldState.sim_tick仍是唯一推进事实，钟面、日内班次及人类可读剩余量为精确比的投影，不保存clock_hour或第二套分钟进度。工资使用18,000tick日分母、运营使用20×18,000＝360,000分母；原真实tick费率分子、逐人持余、当前费率生效边界及日结凭据保持。日界、到访窗口和假期从同一当前基准派生，内容扩展不能换基准重建旧医院日期。自动保存、资源显示采样、帧率、输入与文件保留继续使用明确现实时间；同一参数不能在UI与模拟侧分别猜单位。
 
@@ -92,9 +92,9 @@ WorldState是唯一模拟事实，不保存到场景节点里。建筑系统拥�
 | TaskService | accept(world: WorldState, definition_id: StringName) -> CommandResult；claim(world: WorldState, instance_id: StringName) -> CommandResult | 记录接取基线，消费一次性事实，领取通过Ledger |
 | SubsidyService | settle(world: WorldState, completed_day: int) -> void | 以周期ID发放，不以读档或系统时间推算 |
 | Ledger | post(world: WorldState, entry: LedgerEntry) -> CommandResult | 使用稳定entry_id幂等记账，不允许未覆盖负余额 |
-| SnapshotCodec | encode_to(snapshot: WorldState, sink: ByteSink) -> CodecResult | 分段序列化只读DTO为UTF-8 JSON，返回实际字节数和哈希 |
+| SnapshotCodec | encode_to(snapshot: WorldState, sink: ByteSink) -> CodecResult | 分段序列化只读DTO为UTF-8 JSON，写入SQLite BLOB分段，返回实际字节数和哈希 |
 | SnapshotCodec | decode_from(source: ByteSource, registry: ContentRegistry) -> DecodeResult | 增量验型和资源检查，全部引用通过后重建世界，不推进时间 |
-| SnapshotStore | write(request: SaveRequest, snapshot: WorldState) -> SaveResult | 调用流式编码、提交文件并返回可恢复的snapshot_id |
+| SnapshotStore | write(request: SaveRequest, snapshot: WorldState) -> SaveResult | 调用流式编码、提交SQLite事务并返回可恢复的snapshot_id |
 | SnapshotStore | recover(hospital_id: StringName) -> RecoveryResult | 扫描有效提交，列出最近候选及失败原因 |
 | ReadModel | inspect(world: WorldState, entity_id: StringName) -> ObjectView | 单一解释模型，生成显示字段与可用动作 |
 
@@ -520,9 +520,8 @@ Noto Sans CJK SC及随包回退字体按内容指纹与资源ID共享只读字�
 user://.session.guard
 user://settings.json
 user://blueprints/<uuid>.json
-user://hospitals/<hospital_uuid>/snapshots/<snapshot_uuid>/manifest.json
-user://hospitals/<hospital_uuid>/snapshots/<snapshot_uuid>/world.json
-user://hospitals/<hospital_uuid>/snapshots/<snapshot_uuid>/COMMITTED
+user://hospitals/<hospital_uuid>/hospital.sqlite3
+user://hospitals/<hospital_uuid>/hospital.sqlite3-journal  # SQLite事务期间及中断恢复时
 user://hospitals/<hospital_uuid>/thumbnails/<snapshot_uuid>.png
 user://trash/<hospital_uuid>-<deleted_utc>/...
 user://migration-backups/<hospital_uuid>/<snapshot_uuid>/...
@@ -536,7 +535,7 @@ user://logs/...
 
 PlatformSessionGuard通过OS.get_user_data_dir()取得实际目录，首次启动仅先创建根目录与固定`.session.guard`入口，然后用CreateFileW以读写访问、dwShareMode=0、OPEN_ALWAYS及不可继承句柄尝试打开该文件。打开成功的句柄是唯一占用凭据；文件内容、存在与否、PID或进程名都不是凭据。已有空文件可以直接重新取得，不删除它来“解锁”，不同快捷方式、安装路径或同一目录的路径别名不能产生第二份所有权。Windows共享模式在句柄关闭前拒绝冲突打开，进程异常终止后由系统关闭该进程的句柄；实际崩溃恢复仍按原提交协议核验。[CreateFileW](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilew)、[文件句柄关闭](https://learn.microsoft.com/en-us/windows/win32/fileio/closing-and-deleting-files)。
 
-原生桥接随标准引擎导出打包，使用匹配固定引擎版本的接口、`.gdextension`声明和Windows x86_64动态库，不要求玩家另装工具、启动脚本或后台服务。桥接仅返回取得、被占用或具体平台错误，提供只读占用状态并持有、最终关闭句柄；固定操作实际user://目录，不接收任意路径或向脚本暴露原始HANDLE/文件API，不编码医院、账目或保存协议。OPEN_ALWAYS返回有效句柄且附带ERROR_ALREADY_EXISTS仍是成功；只有失败的ERROR_SHARING_VIOLATION归类为被占用，其他失败分别报告。缺失、位数错误或加载失败时停留启动错误页，不回退到文件存在检测。GDExtension提供加载原生共享库的机制，具体打包和句柄生命周期仍需发行包验收。[GDExtension](https://docs.godotengine.org/en/stable/engine_details/engine_api/gdextension/what_is_gdextension.html)。
+资料库占用与SQLite原生桥接随标准引擎导出打包，使用匹配固定引擎版本的接口、`.gdextension`声明和Windows x86_64动态库，不要求玩家另装工具、启动脚本或后台服务。PlatformSessionGuard仅返回取得、被占用或具体平台错误，提供只读占用状态并持有、最终关闭句柄；固定操作实际user://目录，不接收任意路径或向脚本暴露原始HANDLE/文件API，不编码医院、账目或保存协议。OPEN_ALWAYS返回有效句柄且附带ERROR_ALREADY_EXISTS仍是成功；只有失败的ERROR_SHARING_VIOLATION归类为被占用，其他失败分别报告。缺失、位数错误或加载失败时停留启动错误页，不回退到文件存在检测。GDExtension提供加载原生共享库的机制，具体打包和句柄生命周期仍需发行包验收。[GDExtension](https://docs.godotengine.org/en/stable/engine_details/engine_api/gdextension/what_is_gdextension.html)。
 
 取得所有权之前不读取医院、玩家设置、蓝图或照片，不扫描/迁移/清理提交、垃圾箱与备份，也不创建产品日志。共享冲突显示“医院资料正在被占用，请回到已打开的游戏或稍后重试”，只提供手动重试与退出，不载入只读医院、不强制关闭已有进程；权限、磁盘或桥接错误显示对应启动原因，不误报医院损坏或创建空医院。静态启动界面从安装资源读取，重试取得后才进入原主菜单流程。
 
@@ -548,21 +547,27 @@ PlatformSessionGuard通过OS.get_user_data_dir()取得实际目录，首次启�
 
 ### 快照提交与恢复
 
-manifest必须包含format="oddly-good-hospital.snapshot"、schema_version=1、game_version、hospital_id、snapshot_id、sequence、slot_kind(manual/auto/checkpoint)、slot_key、created_utc、sim_tick、content_packs及world_bytes、world_sha256、display_summary。display_summary包含同一冻结DTO的display_name、mode与present_actor_count；人数按实际在院Actor去重，包含楼层内和乘梯者，不含未到院名单或院外休整职员。院龄从该保存sim_tick与已锁定规则推导。摘要只用于列表展示，完整载入时必须与世界核对，不成为第二套医院状态。COMMITTED内容为manifest文件原始字节的SHA-256十六进制。manifest仍≤64KiB，world大小随实际医院事实增长，不设32MiB固定上限。world_bytes必须为合法非负整数，实际写入/解压字节数与哈希必须相符，不能只信声明。world采用增量编码、哈希与读取，不能要求先把整个压缩包和原始JSON各复制多份到内存；模拟快照仍取同一完整步边界。
+数据库使用SQLite application_id=0x4F474853及user_version=1；数据库结构版本与世界snapshot schema1独立。hospital表唯一持有数据库所属hospital_id，snapshots表持有snapshot_id、唯一递增sequence、清单原始UTF-8字节、清单SHA-256及sealed提交状态；world_chunks表按(snapshot_id, chunk_index)主键保存≤32KiB的BLOB分段，并以外键关联保存点。索引只加速持久资料读取，不拥有第二份经营事实。SQLite连接只在资料库guard取得后打开，每次后台保存独占自己的连接，连接不跨线程共用；实时模拟只访问WorldState。
+
+清单必须包含format="oddly-good-hospital.snapshot"、schema_version=1、game_version、hospital_id、snapshot_id、sequence、slot_kind(manual/auto/checkpoint)、slot_key、created_utc、sim_tick、content_packs及world_bytes、world_sha256、display_summary。display_summary包含同一冻结DTO的display_name、mode与present_actor_count；人数按实际在院Actor去重，包含楼层内和乘梯者，不含未到院名单或院外休整职员。院龄从该保存sim_tick与已锁定规则推导。摘要只用于列表展示，完整载入时必须与世界核对，不成为第二套医院状态。清单仍≤64KiB，世界大小随实际医院事实增长，不设32MiB固定上限。world_bytes必须为合法非负整数，实际分段字节总数与哈希必须相符，不能只信声明。世界DTO继续增量编码为UTF-8 JSON并存入数据库分段，不形成院外world.json文件，不将JSON配置目录改为SQL业务状态。64位整数、浮点完整精度、随机流和原深度/字符串限制保持；模拟快照仍取同一完整步边界。
+
+连接固定使用journal_mode=DELETE、synchronous=EXTRA、foreign_keys=ON、4MiB页缓存目标与文件暂存。SQLite承担回滚日志和原子事务；恢复不手工删除hospital.sqlite3-journal，不复制正在写的数据库主文件充当备份。[SQLite原子提交](https://sqlite.org/atomiccommit.html)、[同步策略](https://sqlite.org/pragma.html#pragma_synchronous)。
 
 保存步骤：
 
 1. 先按实际世界规模预检副本所需资源；在一个完整模拟步结束后冻结DTO副本，暂停时在全部已确认命令完成后取副本。复制分配失败即保留当前世界并返回可行动错误，不进入提交。生成新snapshot UUID、递增sequence，世界继续运行。
-2. 写入同医院目录下新的.pending-UUID目录，先检查保存所需内存与目标磁盘空间，world.json分段写完并flush/close，再写manifest并关闭；过程中继续检查资源，失败不动已有提交。
-3. 回读验证world大小、哈希、JSON与manifest；写COMMITTED并关闭，随后同卷重命名目录为snapshot UUID。目录名不覆盖任何现有目录。
-4. 再次确认三个文件都有效，返回成功回执。界面此时才显示“已保存”，最近医院索引作为可重建缓存更新。
-5. 清理过期记录在成功之后单独执行。保留各手动槽最新、最近5个自动槽、最近3个检查点，以及全医院额外最近2个有效历史提交。清理失败只增加磁盘占用，不撤销成功保存。
+2. 在同医院数据库开启BEGIN IMMEDIATE事务，在事务内取得下一sequence，以新snapshot UUID追加未sealed记录，再分段写世界和清单；过程中继续检查资源，失败回滚，不改旧保存点。
+3. 从同一事务分段回读，验证连续chunk_index、实际大小、世界和清单哈希、DTO与业务不变量；全部通过才sealed并COMMIT。任何错误保留当前医院，关闭连接时回滚尚未提交的事务。
+4. 重新打开并验证本次已提交保存点，返回携带冻结revision的成功回执。界面此时才显示“已保存”，最近医院索引作为可重建缓存更新。
+5. 清理过期记录在成功之后另开事务执行，以外键级联删除分段。保留各手动槽最新、最近5个自动槽、最近3个检查点，以及全医院额外最近2个有效历史提交。损坏记录不充当有效历史；清理失败只增加磁盘占用，不撤销成功保存。日常保存不执行全库VACUUM，空闲页由SQLite复用。
 
-医院列表分批扫描清单与COMMITTED标记，忽略.pending；先核对清单大小、格式、目录身份及标记中的清单哈希，再按sequence而非系统时钟列出每槽最新提交。浏览列表不读取所有world.json，不将“清单可读”称为世界已完整通过校验。当前选中的载入/恢复才分段核对完整世界大小、哈希、JSON及全部业务不变量；失败时标记该记录需要恢复并列出此前提交，选择后同样完整校验，不把损坏世界部分加载。flush和回读能发现常见写入失败；物理磁盘损坏不作不可证实保证，因此保留多份独立旧提交并提供外部导出。[FileAccess](https://docs.godotengine.org/en/stable/classes/class_fileaccess.html)提供文件写入与flush，完整提交协议由项目实现。
+医院列表分页查询sealed保存点的有界清单；先核对数据库身份、清单大小、格式、保存点身份及清单哈希，再按sequence而非系统时钟列出每槽最新提交。浏览列表不读取全部世界分段，不将“清单可读”称为世界已完整通过校验。当前选中的载入/恢复才分段核对完整世界大小、哈希、DTO及全部业务不变量；失败时标记该记录需要恢复并列出此前提交，选择后同样完整校验，不把损坏世界部分加载。同医院的历史保存点是独立逻辑版本，整个数据库损坏时保留原文件并提供外部备份恢复，不用空数据库替换；启动扫描继续查找其他健康医院。
+
+已有工程验证目录commits中的完整JSON保存点仅作为一次性导入来源。首次建立SQLite时按原manifest/world/COMMITTED身份、哈希和业务校验筛选完整保存点，在同一事务导入并保留原hospital_id、snapshot_id、sequence及全部事实；不导入.pending。来源目录不删除、不双写。数据库已经完成首个事务后，它是唯一当前持久化来源；导入失败保持来源，初次事务中断留下的无表数据库可重试，不能覆盖已存在的未知版本或损坏数据库。
 
 最近医院索引按hospital_id、snapshot_id与sequence缓存清单摘要，属于可丢弃的应用侧缓存；删除、恢复、新提交或外部目录变化后按清单重建。全库扫描允许取消并逐页给出已读取结果，搜索尚未完成时不将未扫描部分说成不存在；不能为了排序名称或人数而先载入每座医院。迟到扫描与缩略图结果使用原界面代次检查，关闭列表、切换医院后不附到别的卡片。医院卡片沿管理列表规则按视口复用，不为全部保存点建立图片节点。
 
-医院缩略图为可选PNG，沿用256KiB编码大小上限，解码前检查宽≤640、高≤360及有效像素尺寸，解码与纹理分配按真实字节纳入缓存预算；不依据小文件大小推断解码内存。它只提供保存附近已呈现的本院场景预览，不负责证明患者数量、层数或业务状态。异步捕获携带医院/保存点身份，不能将后来打开医院的画面写进旧卡片。缺失、不能解码或超出缩略图尺寸时使用默认占位图，不尝试从完整世界渲染一遍补图，也不把仅缺图片的有效医院判为损坏；保存成功回执只取原三个提交文件。备份容器与世界仍遵守既有格式、字节和资源校验。
+医院缩略图为可选PNG，沿用256KiB编码大小上限，解码前检查宽≤640、高≤360及有效像素尺寸，解码与纹理分配按真实字节纳入缓存预算；不依据小文件大小推断解码内存。它只提供保存附近已呈现的本院场景预览，不负责证明患者数量、层数或业务状态。异步捕获携带医院/保存点身份，不能将后来打开医院的画面写进旧卡片。缺失、不能解码或超出缩略图尺寸时使用默认占位图，不尝试从完整世界渲染一遍补图，也不把仅缺图片的有效医院判为损坏；保存成功回执只取完整校验后的SQLite事务。备份容器与世界仍遵守既有格式、字节和资源校验。
 
 自动保存每180现实秒触发，只有模拟或已确认命令造成revision改变才写，最多一项保存作业；未完成时合并为一个待保存请求，不堆积文件。手动20槽，Ctrl+S固定“快速保存”占一个手动槽。自动、手动与退出保存共用同一串行写入器。
 
@@ -586,17 +591,17 @@ SaveRequest与成功回执共同携带hospital_id、加载会话标识、request
 
 ## 8. 备份、迁移与删除
 
-.oghbackup为ZIP，允许且只允许manifest.json、world.json和可选thumbnail.png，文件数≤3；manifest≤64KiB、缩略图≤256KiB。世界与压缩包不设32/64MiB固定总量门槛，按下述真实资源预算准入。拒绝重复条目、绝对路径、..、反斜线逃逸、符号链接、加密条目及单条解压比例>200:1。原生导出遇到压缩率超过该校验边界的合法数据时，对该条目采用存储模式，不生成自己无法导入的备份。
+.oghbackup为ZIP，允许且只允许manifest.json、hospital.sqlite3和可选thumbnail.png，文件数≤3；manifest≤64KiB、缩略图≤256KiB。导出的独立SQLite只含所选完整保存点，通过SQLite连接读取和事务写入临时数据库，完整校验并关闭全部连接后再打包，不包含活跃回滚日志。备份清单另持有database_bytes与database_sha256，内部世界清单继续验证world_bytes与world_sha256；数据库与压缩包不设32/64MiB固定总量门槛，按真实资源预算准入。拒绝重复条目、绝对路径、..、反斜线逃逸、符号链接、加密条目及单条解压比例>200:1。原生导出遇到压缩率超过该校验边界的合法数据时，对该条目采用存储模式，不生成自己无法导入的备份。
 
-先读取有界manifest与ZIP元数据并检查白名单、实际包大小、条目声明和世界字节数，再分段解压到应用生成的唯一pending文件；不使用包内路径创建文件，不一次把整个包载入内存。每段累计真实解压字节、哈希和实际资源使用，超过声明大小、资源预算或比例保护立即拒绝，未完成临时数据不能成为提交。JSON增量解析限制嵌套深度64、单字符串UTF-8最多64KiB，字段仍按快照schema逐一验型；无界医院表现为更多合法实体记录，不是更深的对象套娃或巨型单字段。实体引用、随机流与所有临床/资金不变量全部验证后才建立候选世界，不能用看得见的楼层代替全世界校验。
+先读取有界manifest与ZIP元数据并检查白名单、实际包大小、条目声明及数据库/世界字节数，再分段解压到应用生成的唯一pending文件；不使用包内路径创建文件，不一次把整个包载入内存。每段累计真实解压字节、哈希和实际资源使用，超过声明大小、资源预算或比例保护立即拒绝，未完成临时数据不能成为提交。解压后先核对独立数据库实际大小、SHA-256、结构版本和所选保存点身份，再按分段解码完整世界。世界DTO的JSON增量解析限制嵌套深度64、单字符串UTF-8最多64KiB，字段仍按快照schema逐一验型；无界医院表现为更多合法实体记录，不是更深的对象套娃或巨型单字段。实体引用、随机流与所有临床/资金不变量全部验证后才建立候选世界，不能用看得见的楼层代替全世界校验。
 
-资源预算以world_bytes为输入，初始估算额外内存=4×world_bytes+64MiB，须不超过操作开始时实际可用内存的一半；暂存磁盘需求=3×world_bytes+64MiB，目标卷需有对应可用空间。这是待实现压测校准的保守估算，不是内存安全证明；读写和实例化过程中继续按实际分配检查并保留取消入口。资源状态变化时安全结束本次未提交作业，不删除实体、降低数据精度或覆盖旧记录。一般保存与备份导出同样先检查自己的实际副本与暂存需求，不能只在导入端允许大医院、保存端继续卡32MiB。
+资源预算以world_bytes为输入，初始估算额外内存=4×world_bytes+64MiB，须不超过操作开始时实际可用内存的一半；一般保存暂存磁盘需求=3×world_bytes+64MiB，备份导入/导出以max(world_bytes, database_bytes)替代该磁盘公式的world_bytes，目标卷需有对应可用空间。这是待实现压测校准的保守估算，不是内存安全证明；读写和实例化过程中继续按实际分配检查并保留取消入口。资源状态变化时安全结束本次未提交作业，不删除实体、降低数据精度或覆盖旧记录。一般保存与备份导出同样先检查自己的实际副本与暂存需求，不能只在导入端允许大医院、保存端继续卡32MiB。
 
 导入通过后生成新hospital UUID，只重映射类型为实例ID的字段中的旧医院前缀，禁止全文件字符串替换；定义ID、角色关系与实例引用的相对序号保持一致。跨页引用校验在全部实体可识别后完成，临床收费、工资余数与睡眠时钟原样保留。玩家只看到真实进度、所需空间与可行动错误；不会为增加楼层而被要求切换存档格式。
 
 导入作为新医院，与原医院同名也不覆盖；成功提交新世界后才显示医院卡片。导入期间任何失败清理新pending目录，原始备份和既有医院不动。
 
-schema_version由快照结构拥有，content版本由内容包拥有，两者分别比较。未来格式直接拒绝并说明需要更高游戏版本；旧格式只沿显式的vN_to_vN1纯数据迁移链升级。迁移前复制完整原提交到migration-backups，迁移结果验证与提交完成前不改变旧医院。首次游戏交付snapshot schema1；设计目录和数值表schema100不是已发布存档schema100，起始布局schema9、临床布局schema5、共享蓝图schema1分别拥有结构版本，版本空间独立。保留schema0测试夹具验证迁移框架，但不声称支持未知历史产品格式。
+schema_version由快照结构拥有，content版本由内容包拥有，两者分别比较。未来格式直接拒绝并说明需要更高游戏版本；旧格式只沿显式的vN_to_vN1纯数据迁移链升级。迁移前通过关闭的独立数据库副本保留完整原提交到migration-backups，迁移结果验证与提交完成前不改变旧医院。首次游戏交付snapshot schema1；设计目录和数值表schema100不是已发布存档schema100，起始布局schema9、临床布局schema5、共享蓝图schema1分别拥有结构版本，版本空间独立。保留schema0测试夹具验证迁移框架，但不声称支持未知历史产品格式。
 
 迁移必须检查病症/机器/资格/故事ID的别名与退休定义、事件handler版本、余额与引用不变量。新增字段的迁移必须明确土地所有权、旧门类型、工资余数、设备工单/扫描时间、任务奖励与补助周期的缺省；不存在旧字段时以旧sim_tick推导下一个未来补助周期，不补发历史钱。迁移也须处理医生职称/能力/课程、排班休息债务、病例方案、手术与床位关联；新增社会性格、患者怒气、评分窗口、已付装修、导诊纠正、谢礼凭据和医护休假须显式迁移；不能把原有付费疗程丢成新候诊，或给所有医生凭空最高外科资格。已进行的治疗使用保存参数；迁移不能重新抽随机结果、重放奖励或按现实离线时长推进。
 

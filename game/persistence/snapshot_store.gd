@@ -4,6 +4,9 @@ extends RefCounted
 const FORMAT: String = "oddly-good-hospital.snapshot"
 const ROOT: String = "user://hospitals"
 const HEADROOM: int = 67108864
+const DATABASE_NAME: String = "hospital.sqlite3"
+const APPLICATION_ID: int = 0x4F474853
+const DATABASE_VERSION: int = 1
 
 var content: HospitalContent
 var guard: RefCounted
@@ -11,9 +14,120 @@ var _thread: Thread
 var _request: Dictionary = {}
 var _dirty_auto_pending: bool = false
 
-func _init(database: HospitalContent, platform_guard: RefCounted) -> void:
-	content = database
+func _init(content_registry: HospitalContent, platform_guard: RefCounted) -> void:
+	content = content_registry
 	guard = platform_guard
+
+func _connect(hospital_id: String, create: bool = false) -> Dictionary:
+	if not valid_uuid(hospital_id) or not guard.call("is_held"):
+		return {"ok":false,"error":"医院身份无效或资料库尚未取得独占权限"}
+	if not ClassDB.class_exists("PlatformSQLite"):
+		return {"ok":false,"error":"SQLite原生桥接不可用"}
+	if create and DirAccess.make_dir_recursive_absolute(ROOT.path_join(hospital_id))!=OK:
+		return {"ok":false,"error":"无法创建医院数据库目录"}
+	var database: RefCounted = ClassDB.instantiate("PlatformSQLite") as RefCounted
+	var result: Dictionary = database.call("open",hospital_id,create)
+	if result.ok:
+		result.database = database
+	else:
+		result.error = "无法打开医院数据库："+str(result.get("error",""))
+	return result
+
+func _empty_database(database: RefCounted) -> bool:
+	var result: Dictionary = database.call("execute","SELECT count(*) AS count FROM sqlite_schema",[])
+	var identity: Dictionary = database.call("execute","PRAGMA application_id",[])
+	var version: Dictionary = database.call("execute","PRAGMA user_version",[])
+	return result.ok and identity.ok and version.ok and result.rows[0].count==0 and identity.rows[0].application_id==0 and version.rows[0].user_version==0
+
+func _database_identity(database: RefCounted, hospital_id: String) -> Dictionary:
+	var identity: Dictionary = database.call("execute","PRAGMA application_id",[])
+	var version: Dictionary = database.call("execute","PRAGMA user_version",[])
+	if not identity.ok or not version.ok:
+		return {"ok":false,"error":"医院数据库结构无法读取"}
+	if identity.rows[0].application_id!=APPLICATION_ID or version.rows[0].user_version!=DATABASE_VERSION:
+		return {"ok":false,"error":"医院数据库格式或结构版本不符"}
+	var owner: Dictionary = database.call("execute","SELECT hospital_id FROM hospital",[])
+	if not owner.ok or owner.rows.size()!=1 or owner.rows[0].hospital_id!=hospital_id:
+		return {"ok":false,"error":"医院数据库所属身份不符"}
+	var journal: Dictionary = database.call("execute","PRAGMA journal_mode",[])
+	if not journal.ok or journal.rows[0].journal_mode!="delete":
+		return {"ok":false,"error":"医院数据库回滚日志模式不符"}
+	return {"ok":true}
+
+func _initialize_database(database: RefCounted, hospital_id: String) -> Dictionary:
+	var statements: Array[String] = [
+		"PRAGMA application_id=%d" % APPLICATION_ID,"PRAGMA user_version=1",
+		"CREATE TABLE hospital (singleton INTEGER PRIMARY KEY CHECK(singleton=1), hospital_id TEXT NOT NULL UNIQUE CHECK(length(hospital_id)=36)) STRICT",
+		"CREATE TABLE snapshots (snapshot_id TEXT PRIMARY KEY NOT NULL CHECK(length(snapshot_id)=36), sequence INTEGER NOT NULL UNIQUE CHECK(sequence>0), manifest BLOB NOT NULL CHECK(length(manifest)<=65536), manifest_sha256 TEXT NOT NULL, sealed INTEGER NOT NULL CHECK(sealed IN (0,1))) STRICT",
+		"CREATE TABLE world_chunks (snapshot_id TEXT NOT NULL REFERENCES snapshots(snapshot_id) ON DELETE CASCADE, chunk_index INTEGER NOT NULL CHECK(chunk_index>=0), data BLOB NOT NULL CHECK(length(data)>0 AND length(data)<=32768), PRIMARY KEY(snapshot_id,chunk_index)) STRICT"]
+	for statement: String in statements:
+		var result: Dictionary = database.call("execute",statement,[])
+		if not result.ok:
+			return result
+	return database.call("execute","INSERT INTO hospital VALUES(1,?)",[hospital_id])
+
+func _legacy_import(hospital_id: String) -> Dictionary:
+	var database_path: String = ROOT.path_join(hospital_id).path_join(DATABASE_NAME)
+	if FileAccess.file_exists(database_path):
+		var existing: Dictionary = _connect(hospital_id)
+		if not existing.ok:
+			return existing
+		var identity: Dictionary = _database_identity(existing.database,hospital_id)
+		var empty: bool = _empty_database(existing.database) if not identity.ok else false
+		existing.database.call("close")
+		if identity.ok or not empty:
+			return identity
+	var commits: String = ROOT.path_join(hospital_id).path_join("commits")
+	if not DirAccess.dir_exists_absolute(commits):
+		return {"ok":true}
+	var records: Array[Dictionary] = []
+	for snapshot_id: String in DirAccess.get_directories_at(commits):
+		if not valid_uuid(snapshot_id):
+			continue
+		var path: String = commits.path_join(snapshot_id)
+		var record: Dictionary = _legacy_manifest(path,hospital_id,snapshot_id)
+		if not record.ok:
+			continue
+		var decoder: HospitalJsonStream = HospitalJsonStream.new()
+		var decoded: Dictionary = decoder.decode(path.path_join("world.json"),int(record.manifest.world_bytes),record.manifest.world_sha256,_budget)
+		if decoded.ok and _validate_world(decoded.value,record.manifest).ok:
+			records.append({"manifest":record.manifest,"path":path})
+	if records.is_empty():
+		return {"ok":false,"error":"旧医院没有通过完整校验的保存点，原文件保留"}
+	var opened: Dictionary = _connect(hospital_id,true)
+	if not opened.ok:
+		return opened
+	var database: RefCounted = opened.database
+	var result: Dictionary = database.call("execute","BEGIN IMMEDIATE",[])
+	if result.ok:
+		result = _initialize_database(database,hospital_id)
+	for record: Dictionary in records:
+		if not result.ok:
+			break
+		var manifest: Dictionary = record.manifest
+		var raw: PackedByteArray = FileAccess.get_file_as_bytes(record.path.path_join("manifest.json"))
+		result = database.call("execute","INSERT INTO snapshots VALUES(?,?,?,?,0)",[manifest.snapshot_id,manifest.sequence,raw,_sha(raw)])
+		var file: FileAccess = FileAccess.open(record.path.path_join("world.json"),FileAccess.READ)
+		if file==null:
+			result = {"ok":false,"error":"旧世界读取失败"}
+		var index: int = 0
+		while result.ok and file.get_position()<file.get_length():
+			var chunk: PackedByteArray = file.get_buffer(HospitalJsonStream.CHUNK)
+			if not _budget(index*HospitalJsonStream.CHUNK+chunk.size()):
+				result = {"ok":false,"error":"旧医院导入资源不足"}
+			else:
+				result = database.call("execute","INSERT INTO world_chunks VALUES(?,?,?)",[manifest.snapshot_id,index,chunk])
+			index += 1
+		if file!=null:
+			file.close()
+		if result.ok:
+			result = _read_snapshot(database,hospital_id,manifest.snapshot_id,false)
+		if result.ok:
+			result = database.call("execute","UPDATE snapshots SET sealed=1 WHERE snapshot_id=?",[manifest.snapshot_id])
+	if result.ok:
+		result = database.call("execute","COMMIT",[])
+	database.call("close") # Closing rolls back an unfinished initial/import transaction.
+	return {"ok":result.ok,"error":str(result.get("error",""))}
 
 static func uuid() -> String:
 	var raw: PackedByteArray = Crypto.new().generate_random_bytes(16)
@@ -60,8 +174,10 @@ func take_pending_auto() -> bool:
 	_dirty_auto_pending = false
 	return pending
 
-func list_commits(hospital_id: String = "") -> Array[Dictionary]:
+func list_commits(hospital_id: String = "", errors: Variant = null) -> Array[Dictionary]:
 	var records: Array[Dictionary] = []
+	var issues: Dictionary = errors if errors is Dictionary else {}
+	issues.clear()
 	if not DirAccess.dir_exists_absolute(ROOT):
 		return records
 	var hospitals: PackedStringArray = DirAccess.get_directories_at(ROOT)
@@ -71,81 +187,150 @@ func list_commits(hospital_id: String = "") -> Array[Dictionary]:
 			continue
 		if not hospital_id.is_empty() and id != hospital_id:
 			continue
-		var commits_dir: String = ROOT.path_join(id).path_join("commits")
-		if not DirAccess.dir_exists_absolute(commits_dir):
+		var imported: Dictionary = _legacy_import(id)
+		if not imported.ok:
+			issues[id] = imported.error
 			continue
-		for snapshot_id: String in DirAccess.get_directories_at(commits_dir):
-			if not valid_uuid(snapshot_id):
-				continue
-			var record: Dictionary = _manifest(commits_dir.path_join(snapshot_id),id,snapshot_id)
-			if record.ok:
-				records.append(record.manifest)
+		var opened: Dictionary = _connect(id)
+		if not opened.ok:
+			issues[id] = opened.error
+			continue
+		var database: RefCounted = opened.database
+		var before: int = 9223372036854775807
+		while true:
+			var result: Dictionary = database.call("execute","SELECT snapshot_id,sequence,CASE WHEN length(manifest)<=65536 THEN manifest END AS manifest,manifest_sha256 FROM snapshots WHERE sealed=1 AND sequence<=? ORDER BY sequence DESC LIMIT 256",[before])
+			if not result.ok:
+				issues[id] = result.error
+				break
+			if result.rows.is_empty():
+				break
+			for row: Dictionary in result.rows:
+				var record: Dictionary = _metadata(row,id)
+				if record.ok:
+					records.append(record.manifest)
+				else:
+					issues[id] = record.error
+			before = int(result.rows.back().sequence)-1
+		database.call("close")
 	records.sort_custom(func(a:Dictionary,b:Dictionary) -> bool: return int(a.sequence)>int(b.sequence))
 	return records
 
 func load_commit(hospital_id: String, snapshot_id: String) -> Dictionary:
 	if not valid_uuid(hospital_id) or not valid_uuid(snapshot_id):
 		return {"ok":false,"error":"医院或保存点身份无效"}
-	var path: String = ROOT.path_join(hospital_id).path_join("commits").path_join(snapshot_id)
-	var metadata: Dictionary = _manifest(path,hospital_id,snapshot_id)
+	var imported: Dictionary = _legacy_import(hospital_id)
+	if not imported.ok:
+		return imported
+	var opened: Dictionary = _connect(hospital_id)
+	if not opened.ok:
+		return opened
+	var database: RefCounted = opened.database
+	var result: Dictionary = database.call("execute","BEGIN",[])
+	if result.ok:
+		result = _read_snapshot(database,hospital_id,snapshot_id)
+	database.call("close")
+	return result
+
+func _metadata(row: Dictionary, hospital_id: String) -> Dictionary:
+	if not row.get("manifest") is PackedByteArray or row.manifest.size()>65536 or _sha(row.manifest)!=row.manifest_sha256:
+		return {"ok":false,"error":"保存清单缺失、超限或SHA-256不符"}
+	var result: Dictionary = _parse_manifest(row.manifest,hospital_id,str(row.snapshot_id))
+	if result.ok and int(result.manifest.sequence)!=int(row.sequence):
+		return {"ok":false,"error":"保存点sequence与清单不符"}
+	return result
+
+func _read_snapshot(database: RefCounted, hospital_id: String, snapshot_id: String, sealed: bool = true) -> Dictionary:
+	var result: Dictionary = database.call("execute","SELECT snapshot_id,sequence,CASE WHEN length(manifest)<=65536 THEN manifest END AS manifest,manifest_sha256 FROM snapshots WHERE snapshot_id=? AND sealed=?",[snapshot_id,1 if sealed else 0])
+	if not result.ok:
+		return result
+	if result.rows.size()!=1:
+		return {"ok":false,"error":"保存点不存在或事务尚未提交"}
+	var metadata: Dictionary = _metadata(result.rows[0],hospital_id)
 	if not metadata.ok:
 		return metadata
 	var manifest: Dictionary = metadata.manifest
 	if not _budget(int(manifest.world_bytes)):
 		return {"ok":false,"error":"目标医院所需资源不足，当前医院保持暂停"}
 	var decoder: HospitalJsonStream = HospitalJsonStream.new()
-	var decoded: Dictionary = decoder.decode(path.path_join("world.json"),int(manifest.world_bytes),manifest.world_sha256,_budget)
+	var cursor: Dictionary = {"index":0}
+	var source: Callable = func() -> Dictionary:
+		var chunk: Dictionary = database.call("execute","SELECT chunk_index,CASE WHEN length(data)<=32768 THEN data END AS data FROM world_chunks WHERE snapshot_id=? AND chunk_index>=? ORDER BY chunk_index LIMIT 1",[snapshot_id,cursor.index])
+		if not chunk.ok:
+			return chunk
+		if chunk.rows.is_empty():
+			return {"ok":true,"data":PackedByteArray()}
+		if int(chunk.rows[0].chunk_index)!=int(cursor.index) or not chunk.rows[0].data is PackedByteArray or chunk.rows[0].data.is_empty():
+			return {"ok":false,"error":"世界分段次序、大小或类型无效"}
+		cursor.index += 1
+		return {"ok":true,"data":chunk.rows[0].data}
+	var decoded: Dictionary = decoder.decode_from(int(manifest.world_bytes),manifest.world_sha256,_budget,source)
 	if not decoded.ok:
 		return decoded
-	var world: HospitalWorld = HospitalWorld.new(decoded.value)
+	return _validate_world(decoded.value,manifest)
+
+func _validate_world(value: Dictionary, manifest: Dictionary) -> Dictionary:
+	var world: HospitalWorld = HospitalWorld.new(value)
 	var reason: String = world.validate(content)
 	if not reason.is_empty():
 		return {"ok":false,"error":reason}
-	if world.facts.hospital_id != hospital_id or int(world.facts.sim_tick) != int(manifest.sim_tick) or world.facts.display_name != manifest.display_summary.display_name or world.present_actor_count() != int(manifest.display_summary.present_actor_count):
+	if world.facts.hospital_id != manifest.hospital_id or int(world.facts.sim_tick) != int(manifest.sim_tick) or world.facts.display_name != manifest.display_summary.display_name or world.present_actor_count() != int(manifest.display_summary.present_actor_count):
 		return {"ok":false,"error":"医院身份或清单摘要与世界不符"}
 	return {"ok":true,"world":world,"manifest":manifest}
 
 func _write(frozen: Dictionary, request: Dictionary) -> Dictionary:
 	var receipt: Dictionary = request.duplicate(true)
 	receipt.ok = false
-	var commits: String = ROOT.path_join(request.hospital_id).path_join("commits")
-	var pending: String = commits.path_join(".pending-"+request.snapshot_id)
-	var directory_error: Error = DirAccess.make_dir_recursive_absolute(pending)
-	if directory_error != OK:
-		receipt.error = "无法创建保存目录：%d" % directory_error
+	var imported: Dictionary = _legacy_import(request.hospital_id)
+	if not imported.ok:
+		receipt.error = imported.error
 		return receipt
-	var encoder: HospitalJsonStream = HospitalJsonStream.new()
-	if not encoder.encode(pending.path_join("world.json"),frozen,_budget):
-		receipt.error = encoder.error
+	var opened: Dictionary = _connect(request.hospital_id,true)
+	if not opened.ok:
+		receipt.error = opened.error
 		return receipt
+	var database: RefCounted = opened.database
+	var empty: bool = _empty_database(database)
+	var result: Dictionary = {"ok":true} if empty else _database_identity(database,request.hospital_id)
+	if result.ok:
+		result = database.call("execute","BEGIN IMMEDIATE",[])
+	if result.ok and empty:
+		result = _initialize_database(database,request.hospital_id)
 	var sequence: int = 1
-	for existing: Dictionary in list_commits(request.hospital_id):
-		sequence = maxi(sequence,int(existing.sequence)+1)
-	var manifest: Dictionary = {"format":FORMAT,"schema_version":1,"game_version":"0.1.0-stage01",
-		"hospital_id":request.hospital_id,"snapshot_id":request.snapshot_id,"sequence":sequence,
-		"slot_kind":request.slot_kind,"slot_key":request.slot_key,"created_utc":Time.get_datetime_string_from_system(true),
-		"sim_tick":request.sim_tick,"content_packs":[{"id":"core","version":str(content.catalog.content_version)}],
-		"world_bytes":encoder.bytes,"world_sha256":encoder.digest,
-		"display_summary":{"display_name":frozen.display_name,"mode":frozen.mode,"present_actor_count":HospitalWorld.new(frozen).present_actor_count()}}
-	var manifest_bytes: PackedByteArray = JSON.stringify(manifest,"",true).to_utf8_buffer()
-	if manifest_bytes.size()>65536 or not _store(pending.path_join("manifest.json"),manifest_bytes):
-		receipt.error = "保存清单写入失败"
-		return receipt
-	var decoder: HospitalJsonStream = HospitalJsonStream.new()
-	var readback: Dictionary = decoder.decode(pending.path_join("world.json"),encoder.bytes,encoder.digest,_budget)
-	if not readback.ok or not HospitalWorld.new(readback.get("value",{})).validate(content).is_empty():
-		receipt.error = "保存世界回读校验失败："+str(readback.get("error",""))
-		return receipt
-	if FileAccess.get_file_as_bytes(pending.path_join("manifest.json")) != manifest_bytes:
-		receipt.error = "保存清单回读校验失败"
-		return receipt
-	var committed: PackedByteArray = _sha(manifest_bytes).to_utf8_buffer()
-	if not _store(pending.path_join("COMMITTED"),committed):
-		receipt.error = "保存提交标记写入失败"
-		return receipt
-	var destination: String = commits.path_join(request.snapshot_id)
-	if DirAccess.dir_exists_absolute(destination) or DirAccess.rename_absolute(pending,destination)!=OK:
-		receipt.error = "保存提交目录更名失败，旧提交保留"
+	if result.ok:
+		result = database.call("execute","SELECT coalesce(max(sequence),0)+1 AS next_sequence FROM snapshots",[])
+		if result.ok:
+			sequence = int(result.rows[0].next_sequence)
+			result = database.call("execute","INSERT INTO snapshots VALUES(?,?,?,?,0)",[request.snapshot_id,sequence,PackedByteArray(),""])
+	var encoder: HospitalJsonStream = HospitalJsonStream.new()
+	var cursor: Dictionary = {"index":0}
+	var sink: Callable = func(chunk: PackedByteArray) -> Dictionary:
+		var written: Dictionary = database.call("execute","INSERT INTO world_chunks VALUES(?,?,?)",[request.snapshot_id,cursor.index,chunk])
+		if written.ok:
+			cursor.index += 1
+		return written
+	if result.ok and not encoder.encode_to(frozen,_budget,sink):
+		result = {"ok":false,"error":encoder.error}
+	if result.ok:
+		var manifest: Dictionary = {"format":FORMAT,"schema_version":1,"game_version":"0.1.0-stage01",
+			"hospital_id":request.hospital_id,"snapshot_id":request.snapshot_id,"sequence":sequence,
+			"slot_kind":request.slot_kind,"slot_key":request.slot_key,"created_utc":Time.get_datetime_string_from_system(true),
+			"sim_tick":request.sim_tick,"content_packs":[{"id":"core","version":str(content.catalog.content_version)}],
+			"world_bytes":encoder.bytes,"world_sha256":encoder.digest,
+			"display_summary":{"display_name":frozen.display_name,"mode":frozen.mode,"present_actor_count":HospitalWorld.new(frozen).present_actor_count()}}
+		var raw: PackedByteArray = JSON.stringify(manifest,"",true).to_utf8_buffer()
+		if raw.size()>65536:
+			result = {"ok":false,"error":"保存清单超过64KiB"}
+		else:
+			result = database.call("execute","UPDATE snapshots SET manifest=?,manifest_sha256=? WHERE snapshot_id=?",[raw,_sha(raw),request.snapshot_id])
+	if result.ok:
+		result = _read_snapshot(database,request.hospital_id,request.snapshot_id,false)
+	if result.ok:
+		result = database.call("execute","UPDATE snapshots SET sealed=1 WHERE snapshot_id=?",[request.snapshot_id])
+	if result.ok:
+		result = database.call("execute","COMMIT",[])
+	database.call("close")
+	if not result.ok:
+		receipt.error = "保存失败，旧保存点保留："+str(result.get("error",""))
 		return receipt
 	var final_check: Dictionary = load_commit(request.hospital_id,request.snapshot_id)
 	if not final_check.ok:
@@ -154,10 +339,10 @@ func _write(frozen: Dictionary, request: Dictionary) -> Dictionary:
 	receipt.ok = true
 	receipt.sequence = sequence
 	receipt.error = ""
-	_cleanup(request.hospital_id)
+	_cleanup(request.hospital_id,request.snapshot_id)
 	return receipt
 
-func _manifest(path: String, hospital_id: String, snapshot_id: String) -> Dictionary:
+func _legacy_manifest(path: String, hospital_id: String, snapshot_id: String) -> Dictionary:
 	var file: FileAccess = FileAccess.open(path.path_join("manifest.json"),FileAccess.READ)
 	if file == null or file.get_length()>65536:
 		return {"ok":false,"error":"保存清单缺失或超限"}
@@ -165,6 +350,9 @@ func _manifest(path: String, hospital_id: String, snapshot_id: String) -> Dictio
 	file.close()
 	if FileAccess.get_file_as_string(path.path_join("COMMITTED")) != _sha(raw):
 		return {"ok":false,"error":"保存提交标记缺失或不符"}
+	return _parse_manifest(raw,hospital_id,snapshot_id)
+
+func _parse_manifest(raw: PackedByteArray, hospital_id: String, snapshot_id: String) -> Dictionary:
 	var json: JSON = JSON.new()
 	if json.parse(raw.get_string_from_utf8()) != OK or not json.data is Dictionary:
 		return {"ok":false,"error":"保存清单JSON无效"}
@@ -189,14 +377,14 @@ func _budget(world_bytes: int) -> bool:
 		return false
 	return world_bytes*4+HEADROOM <= int(status.available_physical_bytes)/2 and world_bytes*3+HEADROOM <= int(status.available_disk_bytes)
 
-func _cleanup(hospital_id: String) -> void:
+func _cleanup(hospital_id: String, validated_snapshot_id: String) -> void:
 	var retained: Dictionary = {}
 	var slots: Dictionary = {}
 	var automatic: int = 0
 	var checkpoints: int = 0
 	var records: Array[Dictionary] = []
 	for record: Dictionary in list_commits(hospital_id):
-		if load_commit(hospital_id,record.snapshot_id).ok:
+		if record.snapshot_id==validated_snapshot_id or load_commit(hospital_id,record.snapshot_id).ok:
 			records.append(record)
 	for record: Dictionary in records:
 		var key: String = str(record.slot_kind)+":"+str(record.slot_key)
@@ -214,13 +402,26 @@ func _cleanup(hospital_id: String) -> void:
 		if not retained.has(record.snapshot_id) and extra<2:
 			retained[record.snapshot_id] = true
 			extra += 1
+	var obsolete: Array[Dictionary] = []
+	var cleanup_bytes: int = 0
 	for record: Dictionary in records:
-		if retained.has(record.snapshot_id):
-			continue
-		var path: String = ROOT.path_join(hospital_id).path_join("commits").path_join(record.snapshot_id)
-		for name: String in ["world.json","manifest.json","COMMITTED"]:
-			DirAccess.remove_absolute(path.path_join(name))
-		DirAccess.remove_absolute(path)
+		if not retained.has(record.snapshot_id):
+			obsolete.append(record)
+			cleanup_bytes += int(record.world_bytes)
+	if obsolete.is_empty() or not _budget(cleanup_bytes):
+		return
+	var opened: Dictionary = _connect(hospital_id)
+	if not opened.ok:
+		return
+	var database: RefCounted = opened.database
+	var result: Dictionary = database.call("execute","BEGIN IMMEDIATE",[])
+	for record: Dictionary in obsolete:
+		if not result.ok:
+			break
+		result = database.call("execute","DELETE FROM snapshots WHERE snapshot_id=?",[record.snapshot_id])
+	if result.ok:
+		database.call("execute","COMMIT",[])
+	database.call("close")
 
 static func estimate(value: Variant) -> int:
 	if value is Dictionary:

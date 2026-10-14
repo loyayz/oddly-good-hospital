@@ -1,12 +1,16 @@
-# Windows资料库桥接
+# Windows资料库与SQLite桥接
 
 `PlatformSessionGuard`继承`RefCounted`，由AppRoot持有并管理进程生命周期。桥接使用固定Godot 4.7.2标准版的C ABI；源码不依赖godot-cpp。构建从同一引擎生成接口头文件、内置类型尺寸和方法哈希，使用校验SHA256的Zig 0.15.2 portable生成Windows x86_64 DLL。
+
+`PlatformSQLite`在同一DLL中静态链接SQLite 3.54.0官方amalgamation。源码包SHA256为`68e913b0fe8ec6b4e5f391c594a28872884e80d6cd042a1e50c957be46b5aa4d`，与官方SHA3-256下载记录核对。构建启用线程安全、禁用动态扩展加载及双引号字符串兼容；玩家不安装数据库程序或后台服务。源码地址与公有领域说明随包写入第三方说明。
+
+SQLite连接取得资料库guard后才能打开，只接受规范医院UUID，固定操作实际`user://hospitals/<uuid>/hospital.sqlite3`，不接受任意文件路径。参数使用预编译绑定，整数为64位、浮点为double、世界分段为BLOB；查询结果每批至多256行，由资料层分页读取。每个连接固定于创建线程，关闭连接回滚未完成事务。世界DTO、保存点清单、业务校验及保留策略由GDScript资料层拥有；SQLite负责本地存储与事务。
 
 ```powershell
 pwsh -NoProfile -File tools/build-platform-guard.ps1
 ```
 
-DLL位于`game/platform/windows/bin/oddly_good_platform.windows.x86_64.dll`，属于可重建产物。`.gdextension`声明相同的Windows调试与发行库，Godot发行导出随包携带该DLL。实际PE导入表只包含`KERNEL32.dll`与UCRT的runtime/string/stdio/heap API集。UCRT是项目既定Windows10/11的系统组件，无需另装编译器或C++运行服务。[Microsoft UCRT部署说明](https://learn.microsoft.com/en-us/cpp/windows/universal-crt-deployment)。
+DLL位于`game/platform/windows/bin/oddly_good_platform.windows.x86_64.dll`，属于可重建产物。`.gdextension`声明相同的Windows调试与发行库，Godot发行导出随包携带该DLL。实际PE导入表只包含`KERNEL32.dll`与UCRT API集。UCRT是项目既定Windows10/11的系统组件，无需另装编译器或C++运行服务。[Microsoft UCRT部署说明](https://learn.microsoft.com/en-us/cpp/windows/universal-crt-deployment)。
 
 ## 接口
 

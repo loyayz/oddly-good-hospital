@@ -21,6 +21,7 @@ typedef struct {
 } PlatformSessionGuard;
 
 static GDExtensionClassLibraryPtr library;
+static volatile LONG active_guard_count;
 static StringName guard_class;
 static StringName parent_class;
 static StringName numbers_class;
@@ -213,6 +214,7 @@ static void acquire_guard(PlatformSessionGuard *guard, Dictionary *result) {
     error = guard->handle == INVALID_HANDLE_VALUE ? GetLastError() : ERROR_SUCCESS;
     HeapFree(GetProcessHeap(), 0, path);
     if (error == ERROR_SUCCESS) {
+        InterlockedIncrement(&active_guard_count);
         set_bool(result, "ok", 1);
         set_int(result, "error", ERROR_SUCCESS);
         set_string(result, "message", "");
@@ -230,6 +232,7 @@ static void release_guard(PlatformSessionGuard *guard) {
     if (guard->handle == INVALID_HANDLE_VALUE) return;
     CloseHandle(guard->handle);
     guard->handle = INVALID_HANDLE_VALUE;
+    InterlockedDecrement(&active_guard_count);
 }
 
 static void resource_status(PlatformSessionGuard *guard, Dictionary *result) {
@@ -470,6 +473,8 @@ static void bind_decimal_decoder(void) {
     string_name_destroy(&method_name);
 }
 
+#include "platform_sqlite.h"
+
 static void initialize(void *userdata, GDExtensionInitializationLevel level) {
     (void)userdata;
     if (level != GDEXTENSION_INITIALIZATION_SCENE) return;
@@ -492,6 +497,7 @@ static void initialize(void *userdata, GDExtensionInitializationLevel level) {
     bind_method("is_held", METHOD_IS_HELD, GDEXTENSION_VARIANT_TYPE_BOOL);
     bind_method("get_resource_status", METHOD_RESOURCES, GDEXTENSION_VARIANT_TYPE_DICTIONARY);
     bind_decimal_decoder();
+    bind_sqlite();
     string_name_destroy(&notification_name);
     string_name_destroy(&object_class);
     string_name_destroy(&directory_name);
@@ -503,6 +509,8 @@ static void deinitialize(void *userdata, GDExtensionInitializationLevel level) {
     if (level != GDEXTENSION_INITIALIZATION_SCENE) return;
     unregister_class(library, &guard_class);
     unregister_class(library, &numbers_class);
+    unregister_class(library, &sqlite_class);
+    string_name_destroy(&sqlite_class);
     string_name_destroy(&numbers_class);
     if (numeric_locale) free_numeric_locale(numeric_locale);
     if (numeric_runtime) FreeLibrary(numeric_runtime);
@@ -564,6 +572,7 @@ __declspec(dllexport) GDExtensionBool oddly_good_platform_init(
     variant_from_dictionary = get_from_type(GDEXTENSION_VARIANT_TYPE_DICTIONARY);
     variant_from_float = get_from_type(GDEXTENSION_VARIANT_TYPE_FLOAT);
     string_from_variant = get_to_type(GDEXTENSION_VARIANT_TYPE_STRING);
+    if (!load_sqlite_api(get_proc_address, get_constructor, get_destructor, get_from_type, get_to_type)) return 0;
     initialization->minimum_initialization_level = GDEXTENSION_INITIALIZATION_SCENE;
     initialization->userdata = NULL;
     initialization->initialize = initialize;

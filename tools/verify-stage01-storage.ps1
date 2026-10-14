@@ -3,7 +3,7 @@
 param(
     [string]$GodotPath = 'C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe',
     [string]$ProjectPath = '.cache/validation/runtime-r5',
-    [ValidateSet('world','manifest','committed','rename')][string[]]$Stages = @('world','manifest','committed','rename')
+    [ValidateSet('database','journal','before_commit','after_commit')][string[]]$Stages = @('database','journal','before_commit','after_commit')
 )
 $ErrorActionPreference = 'Stop'
 $repo = Split-Path -Parent $PSScriptRoot
@@ -14,9 +14,15 @@ Add-Type -TypeDefinition @'
 using System;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
-public static class Stage01DirectoryLock {
+public struct Stage01SqliteOverlapped {
+    public UIntPtr Internal, InternalHigh;
+    public uint Offset, OffsetHigh;
+    public IntPtr Event;
+}
+public static class Stage01SqliteLock {
     [DllImport("kernel32.dll", CharSet=CharSet.Unicode, SetLastError=true)]
-    public static extern SafeFileHandle CreateFileW(string name, uint access, uint share, IntPtr security, uint disposition, uint flags, IntPtr template);
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool LockFileEx(SafeFileHandle file, uint flags, uint reserved, uint low, uint high, ref Stage01SqliteOverlapped overlapped);
 }
 '@
 function Start-Probe([string]$mode, [string]$stage, [string]$control, [string]$appData) {
@@ -60,23 +66,38 @@ foreach ($stage in $Stages) {
         if (-not $competitor.Process.WaitForExit(30000)) { Stop-Process -Id $competitor.Process.Id -Force; throw 'Contention probe timeout' }
         Save-ProcessOutput $competitor (Join-Path $control 'contention')
         if ($competitor.Process.ExitCode -ne 0) { throw 'Concurrent process did not return the actual ownership conflict' }
-        $pending = [IO.Path]::GetFullPath($ready.pending_path)
+        $databasePath = [IO.Path]::GetFullPath($ready.database_path)
         $actualUser = [IO.Path]::GetFullPath($ready.actual_user_directory)
         if (-not $actualUser.StartsWith([IO.Path]::GetFullPath($appData)+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)) { throw 'Unexpected user directory' }
-        if (-not $pending.StartsWith($actualUser+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)) { throw 'Pending path escaped isolated user directory' }
-        New-Item -ItemType Directory -Force -Path $pending | Out-Null
-        if ($stage -eq 'rename') {
-            $extendedPending = '\\?\' + $pending
-            $lock = [Stage01DirectoryLock]::CreateFileW($extendedPending,[uint32]2147483648,3,[IntPtr]::Zero,3,0x02000000,[IntPtr]::Zero)
-            if ($lock.IsInvalid) { throw "Cannot acquire real directory lock: $([Runtime.InteropServices.Marshal]::GetLastWin32Error())" }
-        } else {
-            $fileName = @{ world='world.json'; manifest='manifest.json'; committed='COMMITTED' }[$stage]
-            $lock = [IO.File]::Open((Join-Path $pending $fileName),[IO.FileMode]::OpenOrCreate,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None)
+        if (-not $databasePath.StartsWith($actualUser+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)) { throw 'Database path escaped isolated user directory' }
+        if ($stage -eq 'before_commit') {
+            $lock = [IO.File]::Open($databasePath,[IO.FileMode]::Open,[IO.FileAccess]::ReadWrite,[IO.FileShare]::ReadWrite)
+            $overlapped = [Stage01SqliteOverlapped]::new()
+            $overlapped.Offset = 0x40000002 # SQLite Win32 SHARED_FIRST; reserve/intent bytes remain available.
+            if (-not [Stage01SqliteLock]::LockFileEx($lock.SafeFileHandle,1,0,510,0,[ref]$overlapped)) {
+                throw "Cannot acquire actual SQLite reader byte lock: $([Runtime.InteropServices.Marshal]::GetLastWin32Error())"
+            }
+        } elseif ($stage -in @('database','journal')) {
+            $lockedPath = $databasePath + $(if ($stage -eq 'journal') { '-journal' } else { '' })
+            $lock = [IO.File]::Open($lockedPath,[IO.FileMode]::OpenOrCreate,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None)
         }
         'GO' | Set-Content -LiteralPath (Join-Path $control 'GO') -Encoding ascii
-        Await-File (Join-Path $control 'writer.json') $run.Process
-        $writer = Get-Content -Raw -LiteralPath (Join-Path $control 'writer.json') | ConvertFrom-Json
-        if ($writer.ok) { throw "Boundary $stage unexpectedly committed despite real share lock" }
+        if ($stage -eq 'before_commit') {
+            $journalPath = $databasePath + '-journal'
+            Await-File $journalPath $run.Process
+            $deadline = [DateTime]::UtcNow.AddSeconds(10)
+            while ((Get-Item -LiteralPath $journalPath).Length -eq 0) {
+                if ([DateTime]::UtcNow -gt $deadline -or $run.Process.HasExited) { throw 'No actual transaction journal write observed' }
+                Start-Sleep -Milliseconds 5
+            }
+            $writer = [PSCustomObject]@{ ok=$false; error='Process terminated during an actual uncommitted SQLite transaction'; journal_bytes=(Get-Item -LiteralPath $journalPath).Length }
+        } else {
+            Await-File (Join-Path $control 'writer.json') $run.Process
+            $writer = Get-Content -Raw -LiteralPath (Join-Path $control 'writer.json') | ConvertFrom-Json
+            if ($stage -eq 'after_commit') {
+                if (-not $writer.ok) { throw 'The post-commit crash case did not commit' }
+            } elseif ($writer.ok) { throw "Boundary $stage unexpectedly committed despite real share lock" }
+        }
         Stop-Process -Id $run.Process.Id -Force
         $run.Process.WaitForExit()
         Save-ProcessOutput $run (Join-Path $control 'interrupted')
@@ -91,7 +112,7 @@ foreach ($stage in $Stages) {
     $result = Get-Content -Raw -LiteralPath (Join-Path $control 'recovery.json') | ConvertFrom-Json
     $result | Add-Member -NotePropertyName writer_error -NotePropertyValue $writer.error
     $result | Add-Member -NotePropertyName concurrent_process -NotePropertyValue (Get-Content -Raw -LiteralPath (Join-Path $control 'contention.json') | ConvertFrom-Json)
-    $result | Add-Member -NotePropertyName intervention -NotePropertyValue 'Real Windows file/directory share conflict, followed by forced process termination and restart'
+    $result | Add-Member -NotePropertyName intervention -NotePropertyValue 'Actual Windows sharing/SQLite reader byte locks; forced process termination and restart with the same profile'
     $results.Add($result)
 }
 $report = @{ ok=$true; engine=$GodotPath; project=$project; process_identity=[Security.Principal.WindowsIdentity]::GetCurrent().Name; cases=$results; output_directory=$output }

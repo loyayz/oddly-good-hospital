@@ -3,12 +3,12 @@
   "stage_id": "stage01-technical-feasibility",
   "product_id": "oddly-good-hospital",
   "product_version": "0.1.0-stage01",
-  "recorded_at_utc": "2026-10-14T06:21:52Z",
+  "recorded_at_utc": "2026-10-14T08:22:46Z",
   "representative_scope_pass": true,
   "full_game_performance_accepted": false,
   "spec": {
     "path": "docs/specs/26-10/2026-10-14-stage01-technical-feasibility.md",
-    "sha256": "f901dd23b40c7d8f7b2dfd5b6ec1a6882b9a575a1606d704d706ef2d123a701f"
+    "sha256": "a5ade5468271fe5f38d868136a03dd9b0a443639e2e477bccf9f72af3539c3ca"
   },
   "environment": {
     "cpu": {
@@ -44,13 +44,13 @@
       },
       {
         "path": "oddly-good-hospital.pck",
-        "bytes": 30957356,
-        "sha256": "5883d9c148d80fad8e60e440cb6cc8a19c0002f8f457b0fdecd9135652d2aae3"
+        "bytes": 30975340,
+        "sha256": "ba4ea8a24302e6ff0ea7e5d1730a3f79d1969cd92028db2b44db818ea6e1023d"
       },
       {
         "path": "oddly_good_platform.windows.x86_64.dll",
-        "bytes": 30208,
-        "sha256": "6e30712ab3381f21633ebd209bd67a7272e27cf78766a2d8be561fb782398b7b"
+        "bytes": 1178112,
+        "sha256": "90138945d1274ca702728f25c825100c02ed337c827580cefa6a7fade9a1380d"
       },
       {
         "path": "licenses/Godot-MIT.txt",
@@ -64,15 +64,15 @@
       },
       {
         "path": "licenses/THIRD-PARTY-NOTICES.txt",
-        "bytes": 672,
-        "sha256": "d5002e60676a2ce692af17cfd11544c5436ff9b393dde22491f55acbbb848c3e"
+        "bytes": 881,
+        "sha256": "7fedbb4c02360fe47ddf36d11d19d09d3a8d1b605c6d0edd9c995a50abd8a903"
       }
     ]
   },
   "installer": {
     "path": ".build/installer/oddly-good-hospital-stage01-setup.exe",
-    "bytes": 67828057,
-    "sha256": "21be1029215508030c333d4c3f90cf9ca5010f6e9ef659fe54e8ca90fa77cc0e"
+    "bytes": 68444810,
+    "sha256": "00f23e095047e869d58c42422902dde3d1ca34d77ade9c9b9043e422ff8e3543"
   },
   "source_identity": [
     {
@@ -81,7 +81,7 @@
     },
     {
       "path": "docs/data/balance.json",
-      "sha256": "7a49ea19a2a56397d8cdff30c78725662f78b3a3c8fc4e841e90be351c53ec46"
+      "sha256": "d6c0c0d4ccc9a83152bec9551e6579b1d3b584e51ce0d7809c9dff6bb52e1a55"
     },
     {
       "path": "docs/data/clinical-layouts.json",
@@ -113,19 +113,19 @@
     },
     {
       "path": "game/persistence/json_stream.gd",
-      "sha256": "bb283fac8b0d627e5621fb29948a4bd7fb92396ed725aed3d898b73792bac414"
+      "sha256": "92af8351e19b1ee2740a42eb3c9d66b9e2b6e0a028470c7e5bd15e96ccba7299"
     },
     {
       "path": "game/persistence/snapshot_store.gd",
-      "sha256": "4be0dc7b93d9663697ec47abd89222d1b512c18b3d4094d2922f6834dfd0985e"
+      "sha256": "3259b8864790fff087757d9f7c471878213b83fae94d24c4ca216ab5ef5dc45f"
     },
     {
       "path": "game/platform/windows/platform_session_guard.c",
-      "sha256": "052a1359a91444e2c47547be7d20a517ee11ad07e447867b077ca7883445fffc"
+      "sha256": "5b5d8cf956a327024af245ff47f5eadccf1db5acc536d81d764d6a37eb8fd66d"
     },
     {
       "path": "game/app/app_root.gd",
-      "sha256": "3348cf7842880d7643d8bbd962daabe32861f2de728ef393a1656f341f585da2"
+      "sha256": "e559c9ce269e42fb32fa32750b7083e593af95d346e218226dc44c353807474f"
     },
     {
       "path": "game/view/hospital_view.gd",
@@ -189,15 +189,15 @@
     },
     {
       "path": "export_presets.cfg",
-      "sha256": "e27c4d1fee3af8173391807a2b04fef674797718f6f1af31a77b95734951cc4a"
+      "sha256": "5c5156a4269250c813b878c3a5d5748b05331e27e9c816ce8454c12f63199b86"
     },
     {
       "path": "tools/verify-stage01-runtime.gd",
-      "sha256": "13f410b394a1f66974125e8c8e0021c13437ab3a7ae59c1fa7dc434e0718f855"
+      "sha256": "d8e4538d89c04f1044bae3d2ea97ae3262ce1d5f589f0f578edb66b21162547a"
     },
     {
       "path": "tools/verify-stage01-ui.gd",
-      "sha256": "0deb492540fbb5ff3dc330610793fad957b87f5ca3354975942a04bbcc8979e0"
+      "sha256": "3e52541e58006748684b9b3e6ff9383ade9d7d9b977f2934a88d98a7fad3283e"
     },
     {
       "path": "tools/verify-stage01-ui.ps1",
@@ -205,20 +205,32 @@
     },
     {
       "path": "tools/verify-stage01-storage.gd",
-      "sha256": "31f4149a096ca8940049beefe8a6242fa567319f3a019255ff7b458364f6ac23"
+      "sha256": "d9b1f61301107617c72c73ef0dd5e0f2de313c37e90562c2d35044ef3adcf417"
     },
     {
       "path": "tools/verify-stage01-storage.ps1",
-      "sha256": "3e4eb47fa200e92020b342218e616b68f8e76e73196368d0d63b835c70abb6b2"
+      "sha256": "92ee8673247d692f56f64da9c621ebca432460677b89d9ab781a48c7067405bd"
     },
     {
       "path": "tools/verify-stage01-package.ps1",
       "sha256": "4d90eb48523bed9454753df5d3cb2060a720cdb3e32582f93f1a0947cbd7667a"
+    },
+    {
+      "path": "game/platform/windows/platform_sqlite.h",
+      "sha256": "750f46026aabfbfbb4e73182a67615fa12237fd75c1a579831d74a4552666c7c"
+    },
+    {
+      "path": "tools/build-platform-guard.ps1",
+      "sha256": "a50575fe92ea58698f377c5d35daaf613c8b53e4e2523ff0d0b83f787a859ddc"
+    },
+    {
+      "path": "tools/windows/THIRD-PARTY-NOTICES.txt",
+      "sha256": "7fedbb4c02360fe47ddf36d11d19d09d3a8d1b605c6d0edd9c995a50abd8a903"
     }
   ],
   "runtime": {
     "checks_pass": true,
-    "check_count": 108,
+    "check_count": 123,
     "checks": {
       "actual_transit_body_exclusive": true,
       "adaptation_preview_read_only": true,
@@ -308,6 +320,21 @@
       "save_started_surgery": true,
       "save_started_transfer": true,
       "save_started_wake": true,
+      "sqlite_bound_values_preserve_precision": true,
+      "sqlite_bounded_complete_chunks": true,
+      "sqlite_history_retention_cascades_without_orphans": true,
+      "sqlite_import_continued_save_started": true,
+      "sqlite_import_continues_sequence_without_reimport": true,
+      "sqlite_import_keeps_sources_and_ignores_pending": true,
+      "sqlite_import_preserves_legacy_identity_sequence_and_facts": true,
+      "sqlite_integrity_check": true,
+      "sqlite_multiple_chunks_restore_exact_world": true,
+      "sqlite_no_new_json_commit_directory": true,
+      "sqlite_real_file_header": true,
+      "sqlite_save_committed": true,
+      "sqlite_save_started": true,
+      "sqlite_transaction_policy": true,
+      "sqlite_unknown_version_rejected_without_rewrite": true,
       "surgery_actual_cure": true,
       "surgery_departed": true,
       "surgery_failure_anger": true,
@@ -465,8 +492,8 @@
       }
     ],
     "evidence": {
-      "path": ".cache/validation/runtime-review-fixes/runtime-evidence.json",
-      "sha256": "7ae19cb3fead4f9fc1ac32ead6f6804f2ea3fc5329b1f3672ea75bfd16b63d2a"
+      "path": ".cache/validation/runtime-sqlite/runtime-evidence.json",
+      "sha256": "8072c8ce48896ed08e8c726357e3ba96a1693e4b0f622c2d009a2b1443c64645"
     }
   },
   "compatibility": {
@@ -641,88 +668,129 @@
     "palette": "Navy, ivory, pale blue, lavender and small coral/gold accents; green reserved for plants",
     "note": "Same-source component UI and actual Windows Compatibility drawing; no frame-rate acceptance",
     "evidence": {
-      "path": ".cache/validation/Stage01 验收 UI/component-f4197bd8-bec0-45df-a05e-b058147ea837/APPDATA/evidence/ui-evidence.json",
-      "sha256": "5448a68c6c7fafdeea48c6ac604506f5b9c0af8c45e4f88819f2d9347fd9cf16"
+      "path": ".cache/validation/Stage01 验收 UI/component-7b239147-579f-4bdf-bd6e-38b8e8695fb8/APPDATA/evidence/ui-evidence.json",
+      "sha256": "0e1a378f2b22bdaa72cafdbb6b139a52773fc5b4bcdca4d5ec8c1c8ac820aee6"
     }
   },
   "storage": {
     "pass": true,
+    "backend": "SQLite 3.54.0",
     "cases": [
       {
-        "stage": "world",
-        "intervention": "Windows share conflict, then forced process termination and restart",
-        "writer_failed": true,
-        "writer_error": "无法写入世界：12",
-        "other_process_busy_error": 32,
+        "actual_user_directory": "C:/code/loyayz/oddly-good-hospital/.cache/validation/Stage01 验收 storage/cf4fcab4-c91c-4013-9366-2ad42a9bf868/database/APPDATA/OddlyGoodHospital Stage01 验收 SQLite",
+        "database_unchanged_after_rollback": true,
         "guard_after_crash": true,
+        "ok": true,
+        "only_complete_transactions_published": true,
         "previous_world_unchanged": true,
-        "old_committed_files_unchanged": true,
-        "pending_not_published": true,
+        "stage": "database",
         "valid_commit_count": 1,
+        "writer_error": "无法打开医院数据库：无法打开医院资料，请检查文件占用和目录权限",
+        "concurrent_process": {
+          "acquisition": {
+            "busy": true,
+            "error": 32,
+            "message": "医院资料正在被占用，请回到已打开的游戏或稍后重试",
+            "ok": false
+          },
+          "actual_user_directory": "C:/code/loyayz/oddly-good-hospital/.cache/validation/Stage01 验收 storage/cf4fcab4-c91c-4013-9366-2ad42a9bf868/database/APPDATA/OddlyGoodHospital Stage01 验收 SQLite",
+          "ok": true
+        },
+        "intervention": "Actual Windows sharing/SQLite reader byte locks; forced process termination and restart with the same profile",
         "evidence": [
           {
-            "path": ".cache/validation/Stage01 验收 storage/22bc5213-bd95-4415-a586-50eaf3b83b91/result.json",
-            "sha256": "a089aee8d5acbb37e98a4eea1ae0c869c9ab462910c6ce8eb2ea158977efc070"
+            "path": ".cache/validation/Stage01 验收 storage/cf4fcab4-c91c-4013-9366-2ad42a9bf868/result.json",
+            "sha256": "d8e5c8c612fb1ad6647d140772da4cc7a3da764f819bcccbe164ff932a611a5c"
           }
         ]
       },
       {
-        "stage": "manifest",
-        "intervention": "Windows share conflict, then forced process termination and restart",
-        "writer_failed": true,
-        "writer_error": "保存清单写入失败",
-        "other_process_busy_error": 32,
+        "actual_user_directory": "C:/code/loyayz/oddly-good-hospital/.cache/validation/Stage01 验收 storage/cf4fcab4-c91c-4013-9366-2ad42a9bf868/journal/APPDATA/OddlyGoodHospital Stage01 验收 SQLite",
+        "database_unchanged_after_rollback": true,
         "guard_after_crash": true,
+        "ok": true,
+        "only_complete_transactions_published": true,
         "previous_world_unchanged": true,
-        "old_committed_files_unchanged": true,
-        "pending_not_published": true,
+        "stage": "journal",
         "valid_commit_count": 1,
+        "writer_error": "保存失败，旧保存点保留：无法打开医院资料，请检查文件占用和目录权限",
+        "concurrent_process": {
+          "acquisition": {
+            "busy": true,
+            "error": 32,
+            "message": "医院资料正在被占用，请回到已打开的游戏或稍后重试",
+            "ok": false
+          },
+          "actual_user_directory": "C:/code/loyayz/oddly-good-hospital/.cache/validation/Stage01 验收 storage/cf4fcab4-c91c-4013-9366-2ad42a9bf868/journal/APPDATA/OddlyGoodHospital Stage01 验收 SQLite",
+          "ok": true
+        },
+        "intervention": "Actual Windows sharing/SQLite reader byte locks; forced process termination and restart with the same profile",
         "evidence": [
           {
-            "path": ".cache/validation/Stage01 验收 storage/22bc5213-bd95-4415-a586-50eaf3b83b91/result.json",
-            "sha256": "a089aee8d5acbb37e98a4eea1ae0c869c9ab462910c6ce8eb2ea158977efc070"
+            "path": ".cache/validation/Stage01 验收 storage/cf4fcab4-c91c-4013-9366-2ad42a9bf868/result.json",
+            "sha256": "d8e5c8c612fb1ad6647d140772da4cc7a3da764f819bcccbe164ff932a611a5c"
           }
         ]
       },
       {
-        "stage": "committed",
-        "intervention": "Windows share conflict, then forced process termination and restart",
-        "writer_failed": true,
-        "writer_error": "保存提交标记写入失败",
-        "other_process_busy_error": 32,
+        "actual_user_directory": "C:/code/loyayz/oddly-good-hospital/.cache/validation/Stage01 验收 storage/cf4fcab4-c91c-4013-9366-2ad42a9bf868/before_commit/APPDATA/OddlyGoodHospital Stage01 验收 SQLite",
+        "database_unchanged_after_rollback": true,
         "guard_after_crash": true,
+        "ok": true,
+        "only_complete_transactions_published": true,
         "previous_world_unchanged": true,
-        "old_committed_files_unchanged": true,
-        "pending_not_published": true,
+        "stage": "before_commit",
         "valid_commit_count": 1,
+        "writer_error": "Process terminated during an actual uncommitted SQLite transaction",
+        "concurrent_process": {
+          "acquisition": {
+            "busy": true,
+            "error": 32,
+            "message": "医院资料正在被占用，请回到已打开的游戏或稍后重试",
+            "ok": false
+          },
+          "actual_user_directory": "C:/code/loyayz/oddly-good-hospital/.cache/validation/Stage01 验收 storage/cf4fcab4-c91c-4013-9366-2ad42a9bf868/before_commit/APPDATA/OddlyGoodHospital Stage01 验收 SQLite",
+          "ok": true
+        },
+        "intervention": "Actual Windows sharing/SQLite reader byte locks; forced process termination and restart with the same profile",
         "evidence": [
           {
-            "path": ".cache/validation/Stage01 验收 storage/22bc5213-bd95-4415-a586-50eaf3b83b91/result.json",
-            "sha256": "a089aee8d5acbb37e98a4eea1ae0c869c9ab462910c6ce8eb2ea158977efc070"
+            "path": ".cache/validation/Stage01 验收 storage/cf4fcab4-c91c-4013-9366-2ad42a9bf868/result.json",
+            "sha256": "d8e5c8c612fb1ad6647d140772da4cc7a3da764f819bcccbe164ff932a611a5c"
           }
         ]
       },
       {
-        "stage": "rename",
-        "intervention": "GENERIC_READ directory handle denies DELETE sharing, then forced process termination and restart",
-        "writer_failed": true,
-        "writer_error": "保存提交目录更名失败，旧提交保留",
-        "other_process_busy_error": 32,
+        "actual_user_directory": "C:/code/loyayz/oddly-good-hospital/.cache/validation/Stage01 验收 storage/cf4fcab4-c91c-4013-9366-2ad42a9bf868/after_commit/APPDATA/OddlyGoodHospital Stage01 验收 SQLite",
+        "database_unchanged_after_rollback": true,
         "guard_after_crash": true,
+        "ok": true,
+        "only_complete_transactions_published": true,
         "previous_world_unchanged": true,
-        "old_committed_files_unchanged": true,
-        "pending_not_published": true,
-        "valid_commit_count": 1,
+        "stage": "after_commit",
+        "valid_commit_count": 2,
+        "writer_error": "",
+        "concurrent_process": {
+          "acquisition": {
+            "busy": true,
+            "error": 32,
+            "message": "医院资料正在被占用，请回到已打开的游戏或稍后重试",
+            "ok": false
+          },
+          "actual_user_directory": "C:/code/loyayz/oddly-good-hospital/.cache/validation/Stage01 验收 storage/cf4fcab4-c91c-4013-9366-2ad42a9bf868/after_commit/APPDATA/OddlyGoodHospital Stage01 验收 SQLite",
+          "ok": true
+        },
+        "intervention": "Actual Windows sharing/SQLite reader byte locks; forced process termination and restart with the same profile",
         "evidence": [
           {
-            "path": ".cache/validation/Stage01 验收 storage/22bc5213-bd95-4415-a586-50eaf3b83b91/result.json",
-            "sha256": "a089aee8d5acbb37e98a4eea1ae0c869c9ab462910c6ce8eb2ea158977efc070"
+            "path": ".cache/validation/Stage01 验收 storage/cf4fcab4-c91c-4013-9366-2ad42a9bf868/result.json",
+            "sha256": "d8e5c8c612fb1ad6647d140772da4cc7a3da764f819bcccbe164ff932a611a5c"
           }
         ]
       }
     ],
-    "precision": "Full-precision standard JSON and Windows UCRT C-locale decoding; 64-bit RNG seeds and states remain decimal strings",
-    "qualification": "Actual share failure followed by process termination and restart; not a full power-loss or retention-slot matrix"
+    "precision": "Full-precision JSON DTO chunks in SQLite BLOBs; exact 64-bit integer/double bindings and Windows UCRT C-locale decimal decoding",
+    "qualification": "Actual database/journal share conflicts, live uncommitted transaction termination and post-commit termination; complete reports and source identity validated"
   },
   "standalone": {
     "pass": true,
@@ -744,8 +812,8 @@
     "extra_file_retained": true,
     "extra_registration_retained": true,
     "evidence": {
-      "path": ".cache/validation/Stage01 验收 UI/c13dea2e-3673-4e53-bc07-6d9b9d56206e/result.json",
-      "sha256": "24e8a0d95af597b68d6018b5c7bd97eb728ae03ea45c7fc4544aef271a337dcd"
+      "path": ".cache/validation/Stage01 验收 UI/bbfac254-9673-4f68-aa97-bcf620e6c968/result.json",
+      "sha256": "97f2925168dee2ef66ed650bc1681b6aa7554e2e20f7f7dc7140de0ee0258d2e"
     }
   },
   "uncovered": [
@@ -875,5 +943,112 @@
         }
       }
     ]
+  },
+  "sqlite_validation": {
+    "baseline_commit": "155c0a28ad1a476faa8440df7ee7746f4f488805",
+    "pass": true,
+    "storage": {
+      "chunk_count": 5,
+      "command_receipt_count": 1280,
+      "database_bytes": 184320,
+      "freeze_and_start_usec": 5569,
+      "legacy_import": {
+        "hospital_id": "7a249438-eb7b-4bfd-a0de-d4983b58fdce",
+        "imported_sequence": 7,
+        "snapshot_id": "dedf1f6a-adaf-4bf0-90c1-7146058bc6d8",
+        "source_hashes": {
+          "COMMITTED": "31aca09ef039d0a8a1ca0301774463491b8d57a00174c55a8e8b8c6e2f213654",
+          "manifest.json": "3800447ee8012dcafdc57c50375d8d2a4c0b5df8dcebf7a8bfef9faaf71f4683",
+          "world.json": "0723e26e4c8d3d4fcbfad56a6a4a382d75aa5704b9f38c50d9819b42a8126e57"
+        },
+        "source_preserved": true
+      },
+      "policies": {
+        "cache_size": -4096,
+        "foreign_keys": 1,
+        "integrity_check": "ok",
+        "journal_mode": "delete",
+        "synchronous": 3
+      },
+      "retention": {
+        "foreign_key_errors": 0,
+        "orphan_chunk_count": 0,
+        "retained": 3,
+        "written": 6
+      },
+      "save_total_usec": 254606,
+      "version": "3.54.0",
+      "world_bytes": 152004.0
+    },
+    "startup": {
+      "pass": true,
+      "checks": {
+        "actual_compatibility": true,
+        "boot_after_native_guard": true,
+        "startup_baseline_save_committed": true,
+        "startup_baseline_save_started": true,
+        "startup_newer_save_committed": true,
+        "startup_newer_save_started": true,
+        "startup_older_recovery_keeps_facts": true,
+        "startup_older_recovery_retains_bad_files": true,
+        "startup_preserves_healthy_facts": true,
+        "startup_preserves_interrupted_files": true,
+        "startup_skips_first_interrupted_hospital": true,
+        "startup_waits_for_older_recovery": true
+      },
+      "evidence": {
+        "path": ".cache/validation/Stage01 验收 UI/component-d253d0ea-4fb7-468e-baa4-145b751add95/APPDATA/evidence/ui-evidence.json",
+        "sha256": "30b1b785c315e3d7064986f9188195cd3a9ee44fb3ec4775e42c02549913883d"
+      }
+    },
+    "validation": {
+      "qualification_command": "python -X utf8 .cache/finish-sqlite-docs.py",
+      "qualification_exit_code": 0,
+      "qualification": {
+        "path": ".cache/validation/sqlite-qualification.json",
+        "sha256": "67c614565ecf609d50b9c828f2fe7501a8e7b408ec515fee07a4a648f41d9644"
+      },
+      "cwd": "C:/code/loyayz/oddly-good-hospital",
+      "runtime_command": "Godot_v4.7.2-stable_win64_console.exe --headless --path .cache/validation/runtime-sqlite --script res://verify-stage01-runtime.gd",
+      "runtime_exit_code": 0,
+      "runtime_log": {
+        "path": ".cache/validation/sqlite-runtime-final.log",
+        "sha256": "29065fe520809395411dae54f184ea19f5c1ef42ff0b5f80d4bed01dc92d6c39"
+      },
+      "ui_commands": [
+        "tools/verify-stage01-ui.ps1 -ProjectPath .cache/validation/runtime-sqlite -Case full",
+        "tools/verify-stage01-ui.ps1 -ProjectPath .cache/validation/runtime-sqlite -Case startup"
+      ],
+      "ui_exit_codes": [
+        0,
+        0
+      ],
+      "storage_command": "tools/verify-stage01-storage.ps1 -ProjectPath .cache/validation/runtime-sqlite",
+      "storage_reports_pass": true,
+      "storage_log": {
+        "path": ".cache/validation/sqlite-storage.log",
+        "sha256": "5c45d8a483bd6021710e865040c790e30885569c2888178c83411fb56468d3c4"
+      },
+      "build_command": "tools/build-stage01.ps1",
+      "build_exit_code": 0,
+      "build_log": {
+        "path": ".cache/validation/sqlite-release-build.log",
+        "sha256": "e89d165ed2294ccf32f1e0c878d7e411e1e0ede0f4cda2638b6ff0737dab8999"
+      },
+      "package_command": "tools/verify-stage01-package.ps1",
+      "package_report_pass": true,
+      "package_log": {
+        "path": ".cache/validation/sqlite-package.log",
+        "sha256": "bbeedb06b2c4372d02cd824519d19fba5afbd79ce610316182343a58fa0c689a"
+      }
+    },
+    "reused_gpu_validation": {
+      "evidence": {
+        "path": ".cache/validation/stage01-render/result.json",
+        "sha256": "8873f930a878fe44a1507e6fbdc5e1aa91df1063b4f4f456b56f96234905da31"
+      },
+      "component_count": 12,
+      "all_component_hashes_match": true
+    }
   }
 }

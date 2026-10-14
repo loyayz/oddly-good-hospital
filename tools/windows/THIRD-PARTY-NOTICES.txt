@@ -12,4 +12,9 @@ Noto Sans CJK SC Regular / Medium
 随包字体保持原字体名、字形和字体内部版权/许可元数据。
 https://github.com/notofonts/noto-cjk
 
+SQLite 3.54.0
+SQLite原始源码属于公有领域，静态编入Windows原生桥接。
+官方源码：https://sqlite.org/2026/sqlite-amalgamation-3540000.zip
+版权说明：https://sqlite.org/copyright.html
+
 上述许可文本随程序独立提供，不需要打开游戏、解包 pck 或联网阅读。
