@@ -139,7 +139,7 @@ static func uuid() -> String:
 func busy() -> bool:
 	return _thread != null
 
-func begin(world: HospitalWorld, session_id: String, kind: String = "manual", slot: String = "1") -> Dictionary:
+func begin(world: WorldState, session_id: String, kind: String = "manual", slot: String = "1") -> Dictionary:
 	var reason: String = world.validate(content)
 	if not reason.is_empty() or not valid_uuid(str(world.facts.get("hospital_id",""))):
 		return {"ok":false,"error":"医院不能保存："+reason}
@@ -269,7 +269,7 @@ func _read_snapshot(database: RefCounted, hospital_id: String, snapshot_id: Stri
 	return _validate_world(decoded.value,manifest)
 
 func _validate_world(value: Dictionary, manifest: Dictionary) -> Dictionary:
-	var world: HospitalWorld = HospitalWorld.new(value)
+	var world: WorldState = WorldState.new(value)
 	var reason: String = world.validate(content)
 	if not reason.is_empty():
 		return {"ok":false,"error":reason}
@@ -311,12 +311,12 @@ func _write(frozen: Dictionary, request: Dictionary) -> Dictionary:
 	if result.ok and not encoder.encode_to(frozen,_budget,sink):
 		result = {"ok":false,"error":encoder.error}
 	if result.ok:
-		var manifest: Dictionary = {"format":FORMAT,"schema_version":1,"game_version":"0.1.0-stage01",
+		var manifest: Dictionary = {"format":FORMAT,"schema_version":1,"game_version":str(ProjectSettings.get_setting("application/config/version")),
 			"hospital_id":request.hospital_id,"snapshot_id":request.snapshot_id,"sequence":sequence,
 			"slot_kind":request.slot_kind,"slot_key":request.slot_key,"created_utc":Time.get_datetime_string_from_system(true),
 			"sim_tick":request.sim_tick,"content_packs":[{"id":"core","version":str(content.catalog.content_version)}],
 			"world_bytes":encoder.bytes,"world_sha256":encoder.digest,
-			"display_summary":{"display_name":frozen.display_name,"mode":frozen.mode,"present_actor_count":HospitalWorld.new(frozen).present_actor_count()}}
+			"display_summary":{"display_name":frozen.display_name,"mode":frozen.mode,"present_actor_count":WorldState.new(frozen).present_actor_count()}}
 		var raw: PackedByteArray = JSON.stringify(manifest,"",true).to_utf8_buffer()
 		if raw.size()>65536:
 			result = {"ok":false,"error":"保存清单超过64KiB"}
@@ -361,13 +361,13 @@ func _parse_manifest(raw: PackedByteArray, hospital_id: String, snapshot_id: Str
 		if not data.has(field):
 			return {"ok":false,"error":"保存清单缺少字段："+field}
 	var types: Dictionary = {"format":TYPE_STRING,"schema_version":TYPE_INT,"game_version":TYPE_STRING,"hospital_id":TYPE_STRING,"snapshot_id":TYPE_STRING,"sequence":TYPE_INT,"slot_kind":TYPE_STRING,"slot_key":TYPE_STRING,"created_utc":TYPE_STRING,"sim_tick":TYPE_INT,"content_packs":TYPE_ARRAY,"world_bytes":TYPE_INT,"world_sha256":TYPE_STRING,"display_summary":TYPE_DICTIONARY}
-	if not HospitalWorld._fields(data,types).is_empty() or not HospitalWorld._natural(data.sim_tick) or not data.slot_kind in ["manual","auto","checkpoint"] or data.world_sha256.length()!=64:
+	if not WorldState._fields(data,types).is_empty() or not WorldState._natural(data.sim_tick) or not data.slot_kind in ["manual","auto","checkpoint"] or data.world_sha256.length()!=64:
 		return {"ok":false,"error":"保存清单字段类型无效"}
 	if data.content_packs != [{"id":"core","version":str(content.catalog.content_version)}]:
 		return {"ok":false,"error":"保存点需要不同的核心内容版本"}
-	if not HospitalWorld._fields(data.display_summary,{"display_name":TYPE_STRING,"mode":TYPE_STRING,"present_actor_count":TYPE_INT}).is_empty() or not HospitalWorld._natural(data.display_summary.present_actor_count):
+	if not WorldState._fields(data.display_summary,{"display_name":TYPE_STRING,"mode":TYPE_STRING,"present_actor_count":TYPE_INT}).is_empty() or not WorldState._natural(data.display_summary.present_actor_count):
 		return {"ok":false,"error":"保存清单显示摘要无效"}
-	if data.format!=FORMAT or int(data.schema_version)!=1 or data.hospital_id!=hospital_id or data.snapshot_id!=snapshot_id or not HospitalWorld._natural(data.world_bytes) or not HospitalWorld._natural(data.sequence) or int(data.sequence)<1:
+	if data.format!=FORMAT or int(data.schema_version)!=1 or data.hospital_id!=hospital_id or data.snapshot_id!=snapshot_id or not WorldState._natural(data.world_bytes) or not WorldState._natural(data.sequence) or int(data.sequence)<1:
 		return {"ok":false,"error":"保存清单身份或格式无效"}
 	return {"ok":true,"manifest":data}
 

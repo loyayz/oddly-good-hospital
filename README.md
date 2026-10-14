@@ -2,17 +2,35 @@
 
 Windows独立安装、单人离线的轻松医院建造经营游戏。完整设计、内容与数值位于`docs/design`和`docs/data`；离线阅读页为`docs/product-design.html`。
 
-当前工程交付第一阶段技术样板：两座独立验证医院、真实门诊及手术住院、五类身体、两层通行、完整提交保存与Compatibility场景。样板证明关键路径，正式空院成长和全部系统沿[四十二阶段实施路线](docs/design/12-implementation-plan.md)接入。范围、实测与未覆盖项见[第一阶段报告](docs/design/13-stage01-feasibility.md)。
+当前工程包含两座独立验证医院、真实门诊及手术住院、五类身体、两层通行、完整提交保存与Compatibility场景，并交付第三阶段正式模拟内核：类型化命令与事实事件、固定步与暂停控制、幂等账目和独立回放。第二阶段交付基准工具，性能检测跳过；第三阶段独立进行Release内核实测。正式空院成长和全部系统沿[四十二阶段实施路线](docs/design/12-implementation-plan.md)接入。范围与证据见[第一阶段报告](docs/design/13-stage01-feasibility.md)、[第二阶段基准交付](docs/design/14-stage02-benchmark.md)及[第三阶段实测](docs/design/15-stage03-kernel-performance.md)。
 
 ## 构建
 
 ```powershell
-pwsh -NoProfile -File tools/build-stage01.ps1
+pwsh -NoProfile -File tools/build-stage03.ps1
 ```
 
 默认使用`C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe`。固定导出模板、Blender、Zig和NSIS保存在`.cache/tools`并核对SHA256，不成为玩家依赖。居民、设备和道具源资产位于`art-source`，显式导出的GLB及中文字体位于`assets`。
 
-程序输出到`.build/windows`，安装包输出到`.build/installer/oddly-good-hospital-stage01-setup.exe`。exe、同名独立pck、原生DLL及许可文件必须共同分发。试验安装器按用户安装，不覆盖已有安装；卸载保留医院资料。
+程序输出到`.build/stage03/product`。exe、同名独立pck、原生DLL及许可文件必须共同分发。`tools/build-stage01.ps1`保留第一阶段试验安装器构建入口，输出`.build/windows`及`.build/installer/oddly-good-hospital-stage01-setup.exe`；安装器按用户安装，不覆盖已有安装，卸载保留医院资料。第三阶段未重新执行安装器验收。
+
+## 基准与回放
+
+第二阶段生成72组未测量的显示计划；准备Release基准不会启动性能检测：
+
+```powershell
+pwsh -NoProfile -File tools/prepare-performance-plan.ps1
+pwsh -NoProfile -File tools/prepare-kernel-benchmark.ps1
+```
+
+第三阶段已测量160人、1×/3×的完整固定步和真实命令边界。评审修复后按160→320→640人逐档验证；当前人数的1×/3×均通过才进入下一档，每档失败后最多三轮优化、提交与正式复测，三轮仍未达标则停止后续档并记录原因。每组预热60秒、采样600秒，两组约22分钟，完整六组约66分钟。当前完整步预算为P95≤10ms、P99≤15ms、普通最大≤30ms，实际速度≥99%；帧预算分配与历史160人记录另行评估见第三阶段报告。原始记录和OS资源采样位于`.cache/validation/stage03/<RunName>`，基准使用独立资料目录。
+
+```powershell
+pwsh -NoProfile -File tools/measure-kernel.ps1 -Actors 160 -RunName local-kernel
+python -X utf8 tools/report-kernel.py --input .cache/validation/stage03/local-kernel --actors 160 --output .cache/validation/stage03/local-kernel/report.json
+```
+
+真实测量结果、构建身份、目标判定及缺失成本见第三阶段报告。无窗口结果只覆盖模拟内核。独立回放入口为`tools/replay-simulation.gd`，输入为初始世界、带tick的命令记录和目标tick，输出规范化事实及随机流末态；完整参数格式见[实施规格](docs/specs/26-10/2026-10-14-stage02-stage03-simulation-kernel.md)。
 
 ## 运行与保存
 

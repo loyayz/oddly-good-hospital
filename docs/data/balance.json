@@ -2165,6 +2165,13 @@
   },
   "performance_targets": {
     "purpose": "acceptance_targets_not_gameplay_limits",
+    "simulation_budget": {
+      "version": "sim-frame-budget-v2",
+      "basis": "primary_frame_targets",
+      "share_bp": 6000,
+      "rounding": "floor_whole_milliseconds",
+      "validation": "presented_frames_and_real_speed_remain_separate"
+    },
     "hardware_reference": {
       "captured_on": "2026-10-13",
       "cpu": "Intel(R) Core(TM) Ultra 5 125H",
@@ -2245,7 +2252,9 @@
       "frame_p95_ms": 16.7,
       "frame_p99_ms": 25,
       "ordinary_frame_max_ms": 50,
-      "sim_step_p95_ms": 4,
+      "sim_step_p95_ms": 10,
+      "sim_step_p99_ms": 15,
+      "sim_step_ordinary_max_ms": 30,
       "sim_speed_ratio_min": 0.99,
       "input_preview_p95_ms": 100,
       "room_preview_p95_ms": 200,

@@ -3,19 +3,49 @@ extends RefCounted
 
 const CELL_METERS: float = 1.5
 var content: HospitalContent
-var _step_sweeps: Array[Dictionary] = []
+var _bodies: Dictionary = {}
+var _actor_index: BodyIndex = BodyIndex.new()
+var _sweep_index: BodyIndex = BodyIndex.new()
+var _indexed_world: WorldState
+var _indexed_revision: int = -1
 
 func _init(database: HospitalContent) -> void:
 	content = database
 
 func body(actor: Dictionary) -> Dictionary:
-	return content.actor_body(actor)
+	var key: String = str(actor.species_id)+":"+str(actor.get("body_binding_id",""))
+	if not _bodies.has(key):
+		_bodies[key] = content.actor_body(actor)
+	return _bodies[key]
+
+func _ensure_actor_index(world: WorldState) -> void:
+	if world==_indexed_world and world.revision==_indexed_revision:
+		return
+	_actor_index.clear()
+	_indexed_world = world
+	_indexed_revision = world.revision
+	for id: String in world.ids("actors"):
+		_sync_actor(world,id)
+
+func sync_actor(world: WorldState, id: String) -> void:
+	_ensure_actor_index(world)
+	_sync_actor(world,id)
+
+func _sync_actor(world: WorldState, id: String) -> void:
+	var actor: Dictionary = world.facts.actors[id]
+	if actor.location.kind=="floor":
+		_actor_index.update(id,int(actor.location.floor_id),body_rectangle(actor))
+	else:
+		_actor_index.remove(id)
+
+func finish_boundary(world: WorldState) -> void:
+	_indexed_revision = world.revision
 
 func clearance(actor: Dictionary) -> int:
 	var dimensions: Dictionary = body(actor)
 	return ceili(maxf(float(dimensions.width_m), float(dimensions.depth_m)) / CELL_METERS)
 
-func owned(world: HospitalWorld, floor_id: int, cell: Vector2i) -> bool:
+func owned(world: WorldState, floor_id: int, cell: Vector2i) -> bool:
 	var layout: Dictionary = world.facts.floors.overrides.get(str(floor_id), {})
 	if layout.is_empty():
 		return false
@@ -24,7 +54,7 @@ func owned(world: HospitalWorld, floor_id: int, cell: Vector2i) -> bool:
 			return true
 	return false
 
-func static_reason(world: HospitalWorld, actor: Dictionary, floor_id: int, origin: Vector2i, members: Array = [], offsets: Dictionary = {}) -> String:
+func static_reason(world: WorldState, actor: Dictionary, floor_id: int, origin: Vector2i, members: Array = [], offsets: Dictionary = {}) -> String:
 	for member_id: String in members:
 		if member_id == actor.id:
 			continue
@@ -66,7 +96,7 @@ func static_reason(world: HospitalWorld, actor: Dictionary, floor_id: int, origi
 						return "真实展开与岗位预约阻挡："+str(reservation.facility_id)
 	return ""
 
-func route(world: HospitalWorld, actor_id: String, floor_id: int, target: Array) -> Dictionary:
+func route(world: WorldState, actor_id: String, floor_id: int, target: Array) -> Dictionary:
 	var actor: Dictionary = world.facts.actors[actor_id]
 	if actor.location.kind != "floor":
 		return {"ok": false, "reason": "角色正在竖向通行或院外"}
@@ -94,7 +124,7 @@ func route(world: HospitalWorld, actor_id: String, floor_id: int, target: Array)
 		return {"ok":true,"path":path,"reason":""}
 	return {"ok":false,"reason":"没有净宽、净高和出口均合格的竖向连接"}
 
-func request_move(world: HospitalWorld, actor_id: String, floor_id: int, target: Array) -> String:
+func request_move(world: WorldState, actor_id: String, floor_id: int, target: Array) -> String:
 	if world.facts.moves.has(actor_id):
 		return ""
 	var actor: Dictionary = world.facts.actors[actor_id]
@@ -110,11 +140,11 @@ func request_move(world: HospitalWorld, actor_id: String, floor_id: int, target:
 		"travelled":[],"blocked_since":-1,"yielding":false,"target_floor":floor_id,"target_cell":target.duplicate()}
 	return ""
 
-func at(world: HospitalWorld, actor_id: String, floor_id: int, target: Array) -> bool:
+func at(world: WorldState, actor_id: String, floor_id: int, target: Array) -> bool:
 	var location: Dictionary = world.facts.actors[actor_id].location
 	return location.kind == "floor" and int(location.floor_id) == floor_id and Vector2(float(location.cell[0]),float(location.cell[1])).distance_to(Vector2(float(target[0]),float(target[1]))) < 0.001
 
-func request_group_move(world: HospitalWorld, primary_id: String, members: Array, offsets: Dictionary, floor_id: int, target: Array) -> String:
+func request_group_move(world: WorldState, primary_id: String, members: Array, offsets: Dictionary, floor_id: int, target: Array) -> String:
 	if world.facts.moves.has(primary_id):
 		return ""
 	for member_id: String in members:
@@ -129,8 +159,9 @@ func request_group_move(world: HospitalWorld, primary_id: String, members: Array
 		"path":planned.path,"cursor":0,"travelled":[],"blocked_since":-1,"yielding":false,"target_floor":floor_id,"target_cell":target.duplicate()}
 	return ""
 
-func advance(world: HospitalWorld) -> void:
-	_step_sweeps.clear()
+func advance(world: WorldState) -> void:
+	_sweep_index.clear()
+	_ensure_actor_index(world)
 	release_adaptations(world)
 	_advance_connectors(world)
 	for actor_id: String in world.ids("moves"):
@@ -163,10 +194,11 @@ func advance(world: HospitalWorld) -> void:
 		var offsets: Dictionary = movement.get("offsets",{})
 		if members.size()>1:
 			speed = float(content.balance.movement_speeds["2"])
-		var next: Vector2 = start.move_toward(target,speed * HospitalWorld.TICK_SECONDS)
+		var next: Vector2 = start.move_toward(target,speed * WorldState.TICK_SECONDS)
 		if next.distance_to(target)<0.001:
 			next = target
-		var swept: Rect2 = _unit_rect(world,actor,start,members,offsets).merge(_unit_rect(world,actor,next,members,offsets))
+		var initial_rect: Rect2 = _actor_index.rectangle(actor_id) if members.size()==1 else _unit_rect(world,actor,start,members,offsets)
+		var swept: Rect2 = initial_rect.merge(_unit_rect(world,actor,next,members,offsets))
 		if segment.kind!="support_exit" and not _step_static_clear(world,actor,movement,next):
 			continue
 		if not _reserve_doors(world,actor,movement,swept):
@@ -180,7 +212,7 @@ func advance(world: HospitalWorld) -> void:
 		movement.blocked_since = -1
 		actor.location.cell = [next.x,next.y]
 		if segment.kind == "support_exit":
-			actor.location.height_m = move_toward(float(actor.location.get("height_m",0)),0.0,speed*CELL_METERS*HospitalWorld.TICK_SECONDS)
+			actor.location.height_m = move_toward(float(actor.location.get("height_m",0)),0.0,speed*CELL_METERS*WorldState.TICK_SECONDS)
 		actor.facing = atan2(target.x-start.x,target.y-start.y)
 		for member_id: String in members:
 			if member_id == actor_id:
@@ -188,7 +220,8 @@ func advance(world: HospitalWorld) -> void:
 			var offset: Array = offsets[member_id]
 			world.facts.actors[member_id].location.cell = [next.x+float(offset[0]),next.y+float(offset[1])]
 			world.facts.actors[member_id].facing = actor.facing
-		_step_sweeps.append({"actor_id":actor_id,"floor_id":actor.location.floor_id,"rect":swept})
+			_sync_actor(world,member_id)
+		_sweep_index.update(actor_id,int(actor.location.floor_id),swept)
 		if next.is_equal_approx(target):
 			if segment.kind == "support_exit":
 				actor.posture = "standing"
@@ -199,9 +232,11 @@ func advance(world: HospitalWorld) -> void:
 					movement.path.append_array(onward.path)
 			movement.travelled.append({"kind":"floor","floor_id":actor.location.floor_id,"cell":segment.cell.duplicate()})
 			movement.cursor += 1
+		_sync_actor(world,actor_id)
 
-func _floor_route(world: HospitalWorld, actor: Dictionary, floor_id: int, start: Vector2i, goal: Vector2i, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
-	var reason: String = static_reason(world,actor,floor_id,goal,members,offsets)
+func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2i, goal: Vector2i, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
+	var clearance_query: RouteClearance = RouteClearance.new(self,world,actor,floor_id,members,offsets)
+	var reason: String = clearance_query.reason(goal)
 	if not reason.is_empty():
 		return {"ok":false,"reason":reason}
 	var frontier: Array[Vector2i] = [start]
@@ -212,7 +247,7 @@ func _floor_route(world: HospitalWorld, actor: Dictionary, floor_id: int, start:
 		cursor += 1
 		for offset: Vector2i in [Vector2i(0,-1),Vector2i(-1,0),Vector2i(1,0),Vector2i(0,1)]:
 			var next: Vector2i = current + offset
-			if previous.has(next) or not static_reason(world,actor,floor_id,next,members,offsets).is_empty():
+			if previous.has(next) or not clearance_query.reason(next).is_empty():
 				continue
 			if not ignore_people and not _dynamic_clear(world,actor.id,floor_id,_unit_rect(world,actor,Vector2(next),members,offsets),members):
 				continue
@@ -239,7 +274,7 @@ func _actor_rect(actor: Dictionary, origin: Vector2) -> Rect2:
 	size = Vector2(size.x*cosine+size.y*sine,size.x*sine+size.y*cosine)
 	return Rect2(origin + (Vector2.ONE * clearance(actor) - size) * 0.5, size)
 
-func overlaps_facility(world: HospitalWorld, actor_id: String, facility_id: String) -> bool:
+func overlaps_facility(world: WorldState, actor_id: String, facility_id: String) -> bool:
 	var actor: Dictionary = world.facts.actors[actor_id]
 	var facility: Dictionary = facility_layout(world,facility_id)
 	if actor.location.kind != "floor" or int(actor.location.floor_id)!=int(facility.floor_id):
@@ -249,7 +284,7 @@ func overlaps_facility(world: HospitalWorld, actor_id: String, facility_id: Stri
 func body_rectangle(actor: Dictionary) -> Rect2:
 	return _actor_rect(actor,Vector2(float(actor.location.cell[0]),float(actor.location.cell[1])))
 
-func _unit_rect(world: HospitalWorld, actor: Dictionary, origin: Vector2, members: Array, offsets: Dictionary) -> Rect2:
+func _unit_rect(world: WorldState, actor: Dictionary, origin: Vector2, members: Array, offsets: Dictionary) -> Rect2:
 	var rect: Rect2 = _actor_rect(actor,origin)
 	for member_id: String in members:
 		if member_id != actor.id:
@@ -257,26 +292,21 @@ func _unit_rect(world: HospitalWorld, actor: Dictionary, origin: Vector2, member
 			rect = rect.merge(_actor_rect(world.facts.actors[member_id],origin+Vector2(float(offset[0]),float(offset[1]))))
 	return rect
 
-func _dynamic_clear(world: HospitalWorld, actor_id: String, floor_id: int, rect: Rect2, members: Array = []) -> bool:
+func _dynamic_clear(world: WorldState, actor_id: String, floor_id: int, rect: Rect2, members: Array = []) -> bool:
+	_ensure_actor_index(world)
 	for reservation: Dictionary in world.facts.adaptations.values():
 		if int(reservation.floor_id)!=floor_id or actor_id==reservation.actor_id or actor_id in reservation.get("staff_ids",[]) or reservation.actor_id in members:
 			continue
 		for area: Array in reservation.regions:
 			if rect.intersects(Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3])),false):
 				return false
-	for other_id: String in world.ids("actors"):
-		if other_id == actor_id or other_id in members:
-			continue
-		var other: Dictionary = world.facts.actors[other_id]
-		if other.location.kind == "floor" and int(other.location.floor_id) == floor_id:
-			if rect.intersects(_actor_rect(other,Vector2(float(other.location.cell[0]),float(other.location.cell[1]))),false):
-				return false
-	for sweep: Dictionary in _step_sweeps:
-		if sweep.actor_id != actor_id and int(sweep.floor_id) == floor_id and rect.intersects(sweep.rect,false):
-			return false
+	if _actor_index.intersects(floor_id,rect,actor_id,members):
+		return false
+	if _sweep_index.intersects(floor_id,rect,actor_id):
+		return false
 	return true
 
-func facility_layout(world: HospitalWorld, facility_id: String) -> Dictionary:
+func facility_layout(world: WorldState, facility_id: String) -> Dictionary:
 	var facility: Dictionary = world.facts.facilities[facility_id]
 	var layout: Dictionary = facility.duplicate()
 	var reservation: Dictionary = world.facts.adaptations.get(facility_id,{})
@@ -285,14 +315,14 @@ func facility_layout(world: HospitalWorld, facility_id: String) -> Dictionary:
 			layout[field] = reservation[field]
 	return layout
 
-func support_anchor(world: HospitalWorld, facility_id: String) -> Vector3:
+func support_anchor(world: WorldState, facility_id: String) -> Vector3:
 	var facility: Dictionary = world.facts.facilities[facility_id]
 	var anchor: Vector3 = content.asset_anchor(facility.definition_id,"patient_support")
 	var layout: Dictionary = facility_layout(world,facility_id)
 	anchor += Vector3(float(layout.footprint[0])-float(facility.footprint[0]),0,float(layout.footprint[1])-float(facility.footprint[1]))*CELL_METERS*0.5
 	return anchor
 
-func facility_quote(world: HospitalWorld, facility_id: String, actor_id: String, staff_ids: Array = []) -> Dictionary:
+func facility_quote(world: WorldState, facility_id: String, actor_id: String, staff_ids: Array = []) -> Dictionary:
 	var facility: Dictionary = world.facts.facilities[facility_id]
 	var actor: Dictionary = world.facts.actors[actor_id]
 	var definition: Dictionary = content.facility_definition(facility.definition_id)
@@ -341,7 +371,7 @@ func facility_quote(world: HospitalWorld, facility_id: String, actor_id: String,
 			return {"ok":false,"reason":"展开区域与已有实际预约相交"}
 	var quote: Dictionary = {"ok":true,"kind":"facility","facility_id":facility_id,"actor_id":actor_id,"staff_ids":staff_ids.duplicate(),"floor_id":facility.floor_id,
 		"footprint":footprint,"patient_cell":patient_cell,"operator_cells":operators,"repair_cell":repair,"regions":regions}
-	var candidate: HospitalWorld = HospitalWorld.new(world.freeze())
+	var candidate: WorldState = WorldState.new(world.freeze())
 	candidate.facts.adaptations[facility_id] = quote
 	for other: Dictionary in world.facts.actors.values():
 		if other.id in allowed or other.location.kind!="floor" or int(other.location.floor_id)!=int(facility.floor_id):
@@ -352,7 +382,7 @@ func facility_quote(world: HospitalWorld, facility_id: String, actor_id: String,
 			return {"ok":false,"reason":"展开会切断在院角色的安全出口："+str(other.id)}
 	return quote
 
-func reserve_facility(world: HospitalWorld, facility_id: String, actor_id: String, owner_id: String, staff_ids: Array = []) -> String:
+func reserve_facility(world: WorldState, facility_id: String, actor_id: String, owner_id: String, staff_ids: Array = []) -> String:
 	var current: Dictionary = world.facts.adaptations.get(facility_id,{})
 	if not current.is_empty():
 		return "" if current.actor_id==actor_id else "等待原使用者实际离开后收拢"
@@ -366,7 +396,7 @@ func reserve_facility(world: HospitalWorld, facility_id: String, actor_id: Strin
 	world.facts.adaptations[facility_id] = quote
 	return ""
 
-func release_adaptations(world: HospitalWorld) -> void:
+func release_adaptations(world: WorldState) -> void:
 	for id: String in world.ids("adaptations"):
 		var reservation: Dictionary = world.facts.adaptations[id]
 		var actor: Dictionary = world.facts.actors[reservation.actor_id]
@@ -381,7 +411,7 @@ func release_adaptations(world: HospitalWorld) -> void:
 		if not inside:
 			world.facts.adaptations.erase(id)
 
-func door_quote(world: HospitalWorld, actor: Dictionary, floor_id: int, door: Dictionary) -> Dictionary:
+func door_quote(world: WorldState, actor: Dictionary, floor_id: int, door: Dictionary) -> Dictionary:
 	var dimensions: Dictionary = body(actor)
 	var definition: Dictionary = content.definition("doors",door.definition_id)
 	var span: int = maxi(int(door.span),ceili((maxf(float(dimensions.width_m),float(dimensions.depth_m))+0.1)/CELL_METERS))
@@ -422,14 +452,14 @@ func door_quote(world: HospitalWorld, actor: Dictionary, floor_id: int, door: Di
 func _door_rect(door: Dictionary, span: int) -> Rect2:
 	return Rect2(float(door.cell[0]),float(door.cell[1]),float(span) if door.axis=="x" else 1.0,1.0 if door.axis=="x" else float(span))
 
-func _potential_door_opening(world: HospitalWorld, actor: Dictionary, floor_id: int, cell: Vector2i) -> bool:
+func _potential_door_opening(world: WorldState, actor: Dictionary, floor_id: int, cell: Vector2i) -> bool:
 	for door: Dictionary in world.facts.floors.overrides[str(floor_id)].get("doors",[]):
 		var fit: Dictionary = door_quote(world,actor,floor_id,door)
 		if fit.ok and _door_rect(door,int(fit.span)).has_point(Vector2(cell)):
 			return true
 	return false
 
-func _reserve_doors(world: HospitalWorld, actor: Dictionary, movement: Dictionary, swept: Rect2) -> bool:
+func _reserve_doors(world: WorldState, actor: Dictionary, movement: Dictionary, swept: Rect2) -> bool:
 	var floor_id: int = int(actor.location.floor_id)
 	for door: Dictionary in world.facts.floors.overrides[str(floor_id)].get("doors",[]):
 		var quote: Dictionary = door_quote(world,actor,floor_id,door)
@@ -446,7 +476,7 @@ func _reserve_doors(world: HospitalWorld, actor: Dictionary, movement: Dictionar
 			"span":quote.span,"clear_height_m":quote.clear_height_m,"clear_width_m":quote.clear_width_m,"regions":[[rect.position.x,rect.position.y,rect.size.x,rect.size.y]]}
 	return true
 
-func _step_static_clear(world: HospitalWorld, actor: Dictionary, movement: Dictionary, next: Vector2) -> bool:
+func _step_static_clear(world: WorldState, actor: Dictionary, movement: Dictionary, next: Vector2) -> bool:
 	var origin: Vector2i = Vector2i(floori(next.x),floori(next.y))
 	if static_reason(world,actor,int(actor.location.floor_id),origin,movement.get("members",[]),movement.get("offsets",{})).is_empty():
 		return true
@@ -456,7 +486,7 @@ func _step_static_clear(world: HospitalWorld, actor: Dictionary, movement: Dicti
 		movement.cursor = 0
 	return false
 
-func _yield(world: HospitalWorld, actor: Dictionary, movement: Dictionary, swept: Rect2) -> void:
+func _yield(world: WorldState, actor: Dictionary, movement: Dictionary, swept: Rect2) -> void:
 	if movement.yielding or movement.travelled.is_empty():
 		return
 	var partner: String = ""
@@ -499,14 +529,14 @@ func _yield(world: HospitalWorld, actor: Dictionary, movement: Dictionary, swept
 			movement.yield_partner = partner
 			return
 
-func _narrow(world: HospitalWorld, actor: Dictionary, origin: Vector2i) -> bool:
+func _narrow(world: WorldState, actor: Dictionary, origin: Vector2i) -> bool:
 	var available: int = 0
 	for offset: Vector2i in [Vector2i.LEFT,Vector2i.RIGHT,Vector2i.UP,Vector2i.DOWN]:
 		if static_reason(world,actor,int(actor.location.floor_id),origin+offset).is_empty():
 			available += 1
 	return available<=2
 
-func _has_priority(world: HospitalWorld, first_id: String, second_id: String) -> bool:
+func _has_priority(world: WorldState, first_id: String, second_id: String) -> bool:
 	var first: Dictionary = world.facts.moves[first_id]
 	var second: Dictionary = world.facts.moves[second_id]
 	var a: Dictionary = world.facts.actors[first_id]
@@ -521,7 +551,7 @@ func _has_priority(world: HospitalWorld, first_id: String, second_id: String) ->
 		return int(first.blocked_since)<int(second.blocked_since)
 	return first_id<second_id
 
-func _begin_transit(world: HospitalWorld, actor: Dictionary, movement: Dictionary, segment: Dictionary) -> void:
+func _begin_transit(world: WorldState, actor: Dictionary, movement: Dictionary, segment: Dictionary) -> void:
 	var connection: Dictionary = world.facts.connectors[segment.connector_id]
 	if connection.phase != "idle":
 		return
@@ -541,9 +571,10 @@ func _begin_transit(world: HospitalWorld, actor: Dictionary, movement: Dictionar
 		connection.phase = "riding"
 		connection.remaining_ticks = ceili(abs(int(connection.to)-int(connection.from))*float(definition.travel_seconds_per_floor)*10)
 	actor.location = {"kind":"transit","connector_id":connection.id,"from":segment.from,"to":segment.to}
+	_sync_actor(world,actor.id)
 	movement.cursor += 1
 
-func _advance_connectors(world: HospitalWorld) -> void:
+func _advance_connectors(world: WorldState) -> void:
 	for id: String in world.ids("connectors"):
 		var connection: Dictionary = world.facts.connectors[id]
 		if connection.phase == "idle":
@@ -574,6 +605,7 @@ func _advance_connectors(world: HospitalWorld) -> void:
 					continue
 				for actor_id: String in connection.riders:
 					world.facts.actors[actor_id].location = {"kind":"floor","floor_id":connection.to,"cell":connection.anchor.duplicate()}
+					_sync_actor(world,actor_id)
 				connection.floor_id = connection.to
 				connection.phase = "idle"
 				connection.riders = []

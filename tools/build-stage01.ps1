@@ -25,7 +25,8 @@ try {
         $filePath = Join-Path $windowsOutput $relativePath
         [PSCustomObject]@{ path = $relativePath; bytes = (Get-Item -LiteralPath $filePath).Length; sha256 = (Get-FileHash -LiteralPath $filePath -Algorithm SHA256).Hash.ToLowerInvariant() }
     }
-    [PSCustomObject]@{ product_id = 'oddly-good-hospital'; version = '0.1.0-stage01'; engine = '4.7.2.stable.official.ed1daf0bf'; files = @($fileIdentity) } |
+    $gameVersion = [regex]::Match([IO.File]::ReadAllText((Join-Path $repo 'project.godot')),'config/version="([^"]+)"').Groups[1].Value
+    [PSCustomObject]@{ product_id = 'oddly-good-hospital'; version = $gameVersion; engine = '4.7.2.stable.official.ed1daf0bf'; files = @($fileIdentity) } |
         ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $windowsOutput 'build-identity.json') -Encoding utf8NoBOM
     foreach ($previousName in @('OddlyGoodHospital.exe','OddlyGoodHospital.pck')) {
         $previousFile = Join-Path $windowsOutput $previousName

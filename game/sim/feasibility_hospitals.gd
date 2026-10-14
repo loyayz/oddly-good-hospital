@@ -1,9 +1,9 @@
 class_name FeasibilityHospitals
 extends RefCounted
 
-static func create(hospital_id: String, surgical: bool, content: HospitalContent) -> HospitalWorld:
+static func create(hospital_id: String, surgical: bool, content: HospitalContent) -> WorldState:
 	var data: Dictionary = {"hospital_id": hospital_id, "display_name": "云袋手术医院" if surgical else "小帆门诊医院",
-		"mode": "normal", "sim_tick": 0, "world_revision": 0, "clock_version": HospitalWorld.CLOCK_VERSION,
+		"mode": "normal", "sim_tick": 0, "world_revision": 0, "clock_version": WorldState.CLOCK_VERSION,
 		"entity_next": 0, "actors": {}, "staff": {}, "visits": {}, "tickets": {}, "sessions": {}, "attempts": {},
 		"preparations": {}, "ward_stays": {}, "facilities": {}, "adaptations": {}, "moves": {}, "command_receipts": {},
 		"ledger": {"opening_balance": 100000, "entries": {}}, "inventory": {"units": 60, "issues": {}},
@@ -15,7 +15,7 @@ static func create(hospital_id: String, surgical: bool, content: HospitalContent
 				"2": {"plots": [[1,2]], "blocked": [], "doors": []}}},
 		"connectors": {"lift": {"id": "lift", "definition_id": "VC03", "stops": [1,2],
 			"anchor": [54,83], "floor_id": 1, "phase": "idle", "riders": [], "remaining_ticks": 0}}}
-	var world: HospitalWorld = HospitalWorld.new(data)
+	var world: WorldState = WorldState.new(data)
 	var streams: Array[String] = ["arrival","treatment","incident","personality","equipment","task_board","registration","communication","gratitude","patience","recruitment","community_activity"]
 	for index: int in streams.size():
 		var generator: RandomNumberGenerator = RandomNumberGenerator.new()
@@ -81,12 +81,12 @@ static func create(hospital_id: String, surgical: bool, content: HospitalContent
 		_add_actor(world, "sample_" + species_id, species.name, species_id, [35 + index * 6, 65])
 	return world
 
-static func _add_actor(world: HospitalWorld, id: String, name: String, species: String, cell: Array) -> String:
+static func _add_actor(world: WorldState, id: String, name: String, species: String, cell: Array) -> String:
 	world.facts.actors[id] = {"id": id, "name": name, "species_id": species,
 		"location": {"kind": "floor", "floor_id": 1, "cell": cell.duplicate(),"height_m":0.0}, "facing": 0.0,"posture":"standing"}
 	return id
 
-static func _add_staff(world: HospitalWorld, id: String, name: String, role: String, cell: Array,
+static func _add_staff(world: WorldState, id: String, name: String, role: String, cell: Array,
 		title: String, diagnosis: int, treatment: int, care: int, surgery: int) -> void:
 	_add_actor(world, id, name, "S49", cell)
 	world.facts.staff[id] = {"id": id, "role": role, "title_id": title,
@@ -95,7 +95,7 @@ static func _add_staff(world: HospitalWorld, id: String, name: String, role: Str
 		"certificates": (["q_ward"]+(["q_or"] if surgery>0 else [])) if role == "nurse" else [],
 		"practice": {"diagnosis": 0, "treatment": 0, "care": 0, "surgery": 0}, "completed_jobs": {}}
 
-static func _add_facility(world: HospitalWorld, id: String, definition_id: String, cell: Array,
+static func _add_facility(world: WorldState, id: String, definition_id: String, cell: Array,
 		footprint: Array, patient_cell: Array, operator_cells: Array) -> void:
 	world.facts.facilities[id] = {"id": id, "definition_id": definition_id, "floor_id": 1, "cell": cell,
 		"footprint": footprint, "patient_cell": patient_cell, "operator_cells": operator_cells,

@@ -46,15 +46,18 @@ func _run() -> void:
 		_app.call("_set_speed",speed)
 		var before_tick: int = int(initial.world.facts.sim_tick)
 		for frame: int in 10:
-			_app.call("_process",0.1)
+			(_app.get("_session") as GameSession).advance(0.1)
+			_app.call("_process",0.0)
 		_check("actual_speed_"+str(speed),int(initial.world.facts.sim_tick)-before_tick==10*speed)
 	var paused_tick: int = int(initial.world.facts.sim_tick)
 	_app.call("_notification",MainLoop.NOTIFICATION_APPLICATION_FOCUS_OUT)
-	_app.call("_process",0.25)
-	_check("focus_pauses_and_preserves_intent",int(initial.world.facts.sim_tick)==paused_tick and _app.get("_speed")==3)
+	(_app.get("_session") as GameSession).advance(0.25)
+	_app.call("_process",0.0)
+	_check("focus_pauses_and_preserves_intent",int(initial.world.facts.sim_tick)==paused_tick and (_app.get("_session") as GameSession).requested_speed==3)
 	_app.call("_notification",MainLoop.NOTIFICATION_APPLICATION_FOCUS_IN)
-	_app.call("_process",4.0)
-	_check("sleep_delta_does_not_catch_up",int(initial.world.facts.sim_tick)==paused_tick and _app.get("_speed")==3)
+	(_app.get("_session") as GameSession).advance(4.0)
+	_app.call("_process",0.0)
+	_check("sleep_delta_does_not_catch_up",int(initial.world.facts.sim_tick)==paused_tick and (_app.get("_session") as GameSession).requested_speed==3)
 	_app.call("_set_speed",0)
 	var initial_camera: Transform3D = (_app.get("_view") as HospitalView).camera.transform
 	_app.call("_follow_selected")
@@ -73,7 +76,7 @@ func _run() -> void:
 	_pressed("切换医院")
 	await _wait_storage()
 	_check("switch_publishes_other_world",_app.get("_simulation").world.facts.hospital_id!=source_id)
-	_check("switch_target_paused",_app.get("_speed")==0)
+	_check("switch_target_paused",(_app.get("_session") as GameSession).requested_speed==0)
 	var simulation: HospitalSimulation = _app.get("_simulation")
 	for tick: int in 1300:
 		simulation.step()
@@ -99,7 +102,7 @@ func _run() -> void:
 	_pressed("取消切院")
 	await _wait_storage()
 	_check("cancel_keeps_original_world",JSON.stringify(snapshot,"",true,true)==JSON.stringify(_app.get("_simulation").world.facts,"",true,true))
-	_check("cancel_keeps_paused",_app.get("_speed")==0)
+	_check("cancel_keeps_paused",(_app.get("_session") as GameSession).requested_speed==0)
 	await _switch_failure_cases()
 	var newer: Dictionary = _app.call("_begin_save","manual","1")
 	var newer_sim: HospitalSimulation = _app.get("_simulation")
@@ -117,9 +120,9 @@ func _run() -> void:
 	var late_before: int = int(_app.get("_saved_revision"))
 	_app.call("_receipt",old_receipt)
 	_check("late_other_hospital_receipt_ignored",old_request.ok and old_receipt.get("ok",false) and int(_app.get("_saved_revision"))==late_before and _app.get("_leave_operation").is_empty())
-	var valid_candidate: HospitalWorld = HospitalWorld.new((_app.get("_simulation") as HospitalSimulation).world.freeze())
+	var valid_candidate: WorldState = WorldState.new((_app.get("_simulation") as HospitalSimulation).world.freeze())
 	valid_candidate.facts.actors.sample_S21.species_id = "S22"
-	var original_world: HospitalWorld = (_app.get("_simulation") as HospitalSimulation).world
+	var original_world: WorldState = (_app.get("_simulation") as HospitalSimulation).world
 	_check("missing_core_asset_keeps_world",not _app.call("_activate",valid_candidate) and (_app.get("_simulation") as HospitalSimulation).world==original_world)
 	await _space_captures()
 	_results.view_size = str(_app.get("_viewport").size)
@@ -214,7 +217,7 @@ func _switch_failure_cases() -> void:
 	var before: String = JSON.stringify(simulation.world.facts,"",true,true)
 	_pressed("切换医院")
 	await _wait_storage()
-	_check("corrupt_target_keeps_original_and_draft",before==JSON.stringify((_app.get("_simulation") as HospitalSimulation).world.facts,"",true,true) and not _app.get("_drafts").is_empty() and _app.get("_speed")==0)
+	_check("corrupt_target_keeps_original_and_draft",before==JSON.stringify((_app.get("_simulation") as HospitalSimulation).world.facts,"",true,true) and not _app.get("_drafts").is_empty() and (_app.get("_session") as GameSession).requested_speed==0)
 	var repaired: FileAccess = FileAccess.open(path,FileAccess.WRITE)
 	repaired.store_buffer(bytes)
 	repaired.close()
@@ -235,7 +238,7 @@ func _space_captures() -> void:
 		_check("spatial_capture_facts_decoded",false)
 		return
 	for key: String in ["door_world","expanded_bed_world"]:
-		var world: HospitalWorld = HospitalWorld.new(decoded.value.artifacts[key])
+		var world: WorldState = WorldState.new(decoded.value.artifacts[key])
 		_app.set("_observed_floor",2)
 		_app.set("_selected_actor","sample_S59")
 		_check(key+"_view_ready",_app.call("_activate",world))
@@ -245,7 +248,7 @@ func _space_captures() -> void:
 		view.camera.size = 18.0
 		view.update_facts()
 		await _capture(key)
-	var clinic: HospitalWorld = FeasibilityHospitals.create(HospitalSnapshots.uuid(),false,_app.get("_content"))
+	var clinic: WorldState = FeasibilityHospitals.create(HospitalSnapshots.uuid(),false,_app.get("_content"))
 	_app.set("_observed_floor",1)
 	_app.set("_selected_actor","patient")
 	_check("case_capture_view_ready",_app.call("_activate",clinic))
@@ -278,7 +281,7 @@ func _startup_recovery_cases() -> void:
 	var storage: HospitalSnapshots = _app.get("_snapshots")
 	var healthy_id: String = "00000000-0000-4000-8000-000000000002"
 	var interrupted_id: String = "00000000-0000-4000-8000-000000000001"
-	var healthy: HospitalWorld = FeasibilityHospitals.create(healthy_id,true,content)
+	var healthy: WorldState = FeasibilityHospitals.create(healthy_id,true,content)
 	var simulation: HospitalSimulation = HospitalSimulation.new(healthy,content)
 	for tick: int in 137:
 		simulation.step()
@@ -301,7 +304,7 @@ func _startup_recovery_cases() -> void:
 	await _restart_app()
 	var loaded: HospitalSimulation = _app.get("_simulation")
 	_check("startup_skips_first_interrupted_hospital",loaded!=null and loaded.world.facts.hospital_id==healthy_id)
-	_check("startup_preserves_healthy_facts",loaded!=null and JSON.stringify(loaded.world.facts,"",true,true)==before and _app.get("_speed")==0)
+	_check("startup_preserves_healthy_facts",loaded!=null and JSON.stringify(loaded.world.facts,"",true,true)==before and (_app.get("_session") as GameSession).requested_speed==0)
 	_check("startup_preserves_interrupted_files",FileAccess.get_sha256(partial)==partial_hash and FileAccess.get_sha256(baseline)==baseline_hash)
 	storage = _app.get("_snapshots")
 	simulation.step()
@@ -321,7 +324,7 @@ func _startup_recovery_cases() -> void:
 	_check("startup_waits_for_older_recovery",_app.get("_simulation")==null)
 	_pressed("恢复上一有效保存点")
 	loaded = _app.get("_simulation")
-	_check("startup_older_recovery_keeps_facts",loaded!=null and JSON.stringify(loaded.world.facts,"",true,true)==before and _app.get("_speed")==0)
+	_check("startup_older_recovery_keeps_facts",loaded!=null and JSON.stringify(loaded.world.facts,"",true,true)==before and (_app.get("_session") as GameSession).requested_speed==0)
 	_check("startup_older_recovery_retains_bad_files",FileAccess.get_sha256(baseline)==damaged_hash and FileAccess.get_sha256(partial)==partial_hash)
 	opened = storage._connect(healthy_id)
 	opened.database.call("execute","UPDATE snapshots SET manifest_sha256=? WHERE snapshot_id=?",["invalid",receipt.snapshot_id])

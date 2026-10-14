@@ -1,4 +1,4 @@
-class_name HospitalWorld
+class_name WorldState
 extends RefCounted
 
 const TICK_SECONDS: float = 0.1
@@ -6,6 +6,16 @@ const TICKS_PER_DAY: int = 18000
 const CLOCK_VERSION: String = "hospital-time-v1"
 
 var facts: Dictionary
+
+var hospital_id: String:
+	get:
+		return facts.hospital_id
+var sim_tick: int:
+	get:
+		return facts.sim_tick
+var revision: int:
+	get:
+		return facts.world_revision
 
 func _init(dto: Dictionary) -> void:
 	facts = dto
@@ -33,23 +43,6 @@ func draw(stream: String, modulus: int) -> int:
 	var value: int = generator.randi_range(0,modulus-1)
 	record.state_decimal = str(generator.state)
 	return value
-
-func money() -> int:
-	var amount: int = int(facts.ledger.opening_balance)
-	for entry: Dictionary in facts.ledger.entries.values():
-		if entry.get("settled",true):
-			amount += int(entry.amount)
-	return amount
-
-func book(owner_id: String, component: String, amount: int) -> void:
-	var key: String = owner_id + ":" + component
-	if not facts.ledger.entries.has(key):
-		facts.ledger.entries[key] = {"owner_id": owner_id, "component": component,
-			"amount": amount, "tick": facts.sim_tick,"settled":false}
-
-func settle_ledger() -> void:
-	for entry: Dictionary in facts.ledger.entries.values():
-		entry.settled = true
 
 func clock_text() -> String:
 	var tick: int = int(facts.sim_tick)
@@ -117,7 +110,23 @@ func validate(content: HospitalContent) -> String:
 			return "缺少核心设施定义："+definition_id
 	if facts.schema_version!=1 or facts.clock_version != CLOCK_VERSION or not _natural(facts.sim_tick) or not _natural(facts.world_revision):
 		return "医院时钟或版本无效"
-	if money() < 0 or not _natural(facts.inventory.units):
+	for command_id: Variant in facts.command_receipts:
+		var receipt: Variant = facts.command_receipts[command_id]
+		if not command_id is String or str(command_id).is_empty() or not receipt is Dictionary or not _fields(receipt,{"accepted":TYPE_BOOL,"reason":TYPE_STRING,"tick":TYPE_INT}).is_empty() or not _natural(receipt.tick):
+			return "命令回执身份或结构无效"
+		if receipt.has("new_revision") and (not _natural(receipt.new_revision) or int(receipt.new_revision)>revision):
+			return "命令回执修订号无效"
+		if receipt.has("code") and not receipt.code is String:
+			return "命令回执结果类型无效"
+		if receipt.has("changed_ids"):
+			if not receipt.changed_ids is Array:
+				return "命令回执对象集合无效"
+			for changed_id: Variant in receipt.changed_ids:
+				if not changed_id is String:
+					return "命令回执对象身份无效"
+		if receipt.has("command") and (not receipt.command is Dictionary or receipt.command.get("hospital_id")!=hospital_id):
+			return "命令回执属于另一座医院"
+	if HospitalLedger.balance(self) < 0 or not _natural(facts.inventory.units):
 		return "资金或治疗包无效"
 	for stream: String in facts.rng:
 		var record: Variant = facts.rng[stream]

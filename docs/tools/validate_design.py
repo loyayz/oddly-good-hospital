@@ -1527,7 +1527,7 @@ def check_ui_text_examples(b: dict) -> None:
 def validate_performance_targets(c: dict, b: dict) -> None:
     p = b['performance_targets']
     require(c['schema_version'] == b['schema_version'] == 100, 'performance target schema mismatch')
-    require(set(p) == {'purpose','hardware_reference','world_source','quality','display','capture','metrics',
+    require(set(p) == {'purpose','simulation_budget','hardware_reference','world_source','quality','display','capture','metrics',
                       'graphics_accounting','resource_measurement','large_world_samples','spatial_samples','display_workload_samples','changes_simulation','runtime_measurement_available'}
             and p['purpose'] == 'acceptance_targets_not_gameplay_limits'
             and p['world_source'] == 'performance_reference'
@@ -1597,13 +1597,20 @@ def validate_performance_targets(c: dict, b: dict) -> None:
             and capture['power_condition'] == 'ac_record_actual_power_mode_and_background_load',
             'performance sample hides renderer, power or simulation speed')
     m = p['metrics']
-    require(set(m) == {'frame_p95_ms','frame_p99_ms','ordinary_frame_max_ms','sim_step_p95_ms','sim_speed_ratio_min',
+    budget = p['simulation_budget']
+    require(budget == {'version':'sim-frame-budget-v2','basis':'primary_frame_targets','share_bp':6000,
+                       'rounding':'floor_whole_milliseconds','validation':'presented_frames_and_real_speed_remain_separate'},
+            'simulation budget loses its frame allocation or claims full frame validation')
+    require(set(m) == {'frame_p95_ms','frame_p99_ms','ordinary_frame_max_ms','sim_step_p95_ms','sim_step_p99_ms','sim_step_ordinary_max_ms','sim_speed_ratio_min',
                       'input_preview_p95_ms','room_preview_p95_ms','snapshot_copy_p95_ms','save_max_seconds','load_max_seconds',
                       'working_set_target_bytes','graphics_resources_target_bytes'}
             and all(type(v) in (int,float) and math.isfinite(v) and v > 0 for v in m.values())
             and m['frame_p95_ms'] <= 16.7 and m['frame_p95_ms'] <= m['frame_p99_ms'] <= 25
             and m['frame_p99_ms'] <= m['ordinary_frame_max_ms'] <= 50
-            and m['sim_step_p95_ms'] <= 4 and 0.99 <= m['sim_speed_ratio_min'] <= 1
+            and m['sim_step_p95_ms'] == math.floor(m['frame_p95_ms']*budget['share_bp']/10000)
+            and m['sim_step_p99_ms'] == math.floor(m['frame_p99_ms']*budget['share_bp']/10000)
+            and m['sim_step_ordinary_max_ms'] == math.floor(m['ordinary_frame_max_ms']*budget['share_bp']/10000)
+            and 0.99 <= m['sim_speed_ratio_min'] <= 1
             and m['input_preview_p95_ms'] <= 100 and m['room_preview_p95_ms'] <= 200
             and m['snapshot_copy_p95_ms'] <= 25 and m['save_max_seconds'] <= 2 and m['load_max_seconds'] <= 5
             and m['graphics_resources_target_bytes'] <= m['working_set_target_bytes'] < h['installed_memory_bytes'],
@@ -1776,8 +1783,8 @@ def check_machine_feasibility_examples(c: dict, b: dict) -> None:
           and [x['requests_per_second'] for x in three]==[240,480,960]
           and [x['full_floor_node_touch_case'] for x in three]==[2211840,4423680,8847360],
           '本机CPU算例为真实3倍步频下的访问与路径规模，不按14核推算FPS')
-    check([x['whole_step_budget_per_actor_us'] for x in three]==[25,12.5,6.25],
-          '整个4ms均摊每演员上限25/12.5/6.25微秒，未扣其他系统而非已测工时')
+    check([x['whole_step_budget_per_actor_us'] for x in three]==[62.5,31.25,15.625],
+          '整个10ms均摊每演员上限62.5/31.25/15.625微秒，未扣其他系统而非已测工时')
     textures=estimate['textures']; target=b['performance_targets']['metrics']['graphics_resources_target_bytes']
     check(round(textures[0]['payload_bytes']/1024**2)==144 and round(textures[1]['payload_bytes']/1024**2)==240
           and textures[2]['payload_bytes']>target and round(textures[2]['payload_bytes']/1024**2)==597,
@@ -1798,7 +1805,7 @@ def append_machine_feasibility_atlas(lines: list, c: dict, b: dict, table) -> No
         [x['name'],f'{x["actors"]} / {x["stations"]} / {x["props"]}',f'{x["triangles"]:,}',str(x['base_submissions'])]
         for x in estimate['scenes']])
     lines += ['四层均分只为布局假设；三角面未含墙/楼板/阴影。提交假设每常用材质一Surface、每道具一Surface，仅基础pass，不等于实际Surface或draw calls。','']
-    table(lines,['全院演员 / 速度','一轮演员访问 / 现实秒','移动路径额度 / 现实秒','每请求全层节点触达算例 / 秒','整个4ms均摊 / 演员'],[
+    table(lines,['全院演员 / 速度','一轮演员访问 / 现实秒','移动路径额度 / 现实秒','每请求全层节点触达算例 / 秒',f"整个{b['performance_targets']['metrics']['sim_step_p95_ms']}ms均摊 / 演员"],[
         [f'{x["actors"]} / {x["speed"]}×',str(x['actor_visits_per_second']),str(x['requests_per_second']),
          f'{x["full_floor_node_touch_case"]:,}',f'{x["whole_step_budget_per_actor_us"]:g}微秒'] for x in estimate['cpu']])
     lines += ['访问量不是指令或耗时；均摊尚未扣其他系统。14核不乘主线程性能，真实查询/修补/完整日界容量模型仍须实现验证。','']

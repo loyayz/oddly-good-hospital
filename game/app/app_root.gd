@@ -6,7 +6,7 @@ var _guard: RefCounted
 var _content: HospitalContent
 var _snapshots: HospitalSnapshots
 var _simulation: HospitalSimulation
-var _loading_session: String = ""
+var _session: GameSession
 var _view: HospitalView
 var _viewport: SubViewport
 var _world_container: SubViewportContainer
@@ -17,16 +17,15 @@ var _title: Label
 var _header: PanelContainer
 var _toolbar: HFlowContainer
 var _hospital_ids: Array[String] = []
-var _speed: int = 0
-var _accumulator: float = 0.0
 var _auto_deadline_ms: int = 0
-var _pause_tokens: Dictionary = {}
+var _details_deadline_ms: int = 0
+var _last_process_us: int = 0
 var _saved_revision: int = -1
 var _ui_scale: int = 1
 var _observed_floor: int = 1
 var _selected_actor: String = "patient"
 var _leave_operation: Dictionary = {}
-var _candidate: HospitalWorld
+var _candidate: WorldState
 var _drafts: Dictionary = {}
 var _save_requests: Dictionary = {}
 
@@ -223,7 +222,7 @@ func _acquire() -> void:
 	if not previous_save.is_empty():
 		_button("恢复上一有效保存点",_restore_older.bind(previous_save.hospital_id,previous_save.snapshot_id))
 
-func _activate(world: HospitalWorld, restored: bool = false) -> bool:
+func _activate(world: WorldState, restored: bool = false) -> bool:
 	var prepared: HospitalView = HospitalView.new(_content)
 	_viewport.add_child(prepared)
 	prepared.visible = false
@@ -239,9 +238,10 @@ func _activate(world: HospitalWorld, restored: bool = false) -> bool:
 	_view = prepared
 	_view.visible = true
 	_simulation = HospitalSimulation.new(world,_content)
-	_loading_session = HospitalSnapshots.uuid()
-	_accumulator = 0.0
-	_speed = 0
+	_session = GameSession.new(_simulation,HospitalSnapshots.uuid())
+	_last_process_us = Time.get_ticks_usec()
+	if not DisplayServer.window_is_focused():
+		_session.pause("focus")
 	_saved_revision = int(world.facts.world_revision) if restored else -1
 	return true
 
@@ -253,22 +253,20 @@ func _restore_older(hospital_id: String, snapshot_id: String) -> void:
 	if _activate(restored.world,true):
 		_status.text = "已恢复上一有效保存点。原提交保留，医院保持暂停。"
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
+	var now: int = Time.get_ticks_usec()
+	var real_delta: float = float(now-_last_process_us)/1000000.0 if _last_process_us>0 else 0.0
+	_last_process_us = now
 	if _simulation == null:
 		return
-	if delta > 1.0:
-		_accumulator = 0.0
-		delta = 0.0
-	_simulation.drain_commands()
-	var actual_speed: int = 0 if not _pause_tokens.is_empty() or not _leave_operation.is_empty() else _speed
-	_accumulator += minf(delta,0.25)*actual_speed
-	var steps: int = 0
-	while _accumulator >= HospitalWorld.TICK_SECONDS and steps<8:
-		_simulation.step()
-		_accumulator -= HospitalWorld.TICK_SECONDS
-		steps += 1
+	for result: TickResult in _session.advance(real_delta):
+		for event: SimEvent in result.facts:
+			if event.kind=="command_rejected":
+				_status.text = str(event.details.result.reason)
 	_view.update_facts()
-	_update_details()
+	if Time.get_ticks_msec()>=_details_deadline_ms:
+		_details_deadline_ms = Time.get_ticks_msec()+100
+		_update_details()
 	var receipt: Dictionary = _snapshots.poll()
 	if not receipt.is_empty():
 		_receipt(receipt)
@@ -281,8 +279,7 @@ func _process(delta: float) -> void:
 
 func _set_speed(speed: int) -> void:
 	if _simulation != null and _leave_operation.is_empty():
-		_speed = speed
-		_accumulator = 0.0
+		_session.set_speed(speed)
 
 func _save() -> void:
 	if _simulation == null:
@@ -292,7 +289,7 @@ func _save() -> void:
 	_status.text = "正在保存完整医院…" if started.ok else str(started.error)
 
 func _begin_save(kind: String, slot: String) -> Dictionary:
-	var started: Dictionary = _snapshots.begin(_simulation.world,_loading_session,kind,slot)
+	var started: Dictionary = _snapshots.begin(_simulation.world,_session.loading_session_id,kind,slot)
 	if started.ok:
 		_save_requests[started.request.request_id] = started.request.duplicate(true)
 	return started
@@ -310,7 +307,7 @@ func _switch_hospital() -> void:
 	if not started.ok:
 		_status.text = started.error
 		return
-	_leave_operation = {"kind":"switch","id":HospitalSnapshots.uuid(),"source_session":_loading_session,
+	_leave_operation = {"kind":"switch","id":HospitalSnapshots.uuid(),"source_session":_session.loading_session_id,
 		"request_id":started.request.request_id,"target_hospital_id":target}
 	_status.text = "原医院保持暂停，正在保存离院检查点…"
 
@@ -328,7 +325,7 @@ func _receipt(receipt: Dictionary) -> void:
 		if receipt.get(field)!=expected[field]:
 			return
 	_save_requests.erase(receipt.request_id)
-	if receipt.hospital_id == _simulation.world.facts.hospital_id and receipt.loading_session_id == _loading_session:
+	if receipt.hospital_id == _simulation.world.facts.hospital_id and receipt.loading_session_id == _session.loading_session_id:
 		if receipt.ok:
 			_saved_revision = maxi(_saved_revision,int(receipt.world_revision))
 			_status.text = "已保存。" + ("此后还有进展。" if int(_simulation.world.facts.world_revision)>_saved_revision else "")
@@ -381,7 +378,10 @@ func _receipt(receipt: Dictionary) -> void:
 	_view = candidate_view
 	_view.visible = true
 	_simulation = HospitalSimulation.new(_candidate,_content)
-	_loading_session = HospitalSnapshots.uuid()
+	_session = GameSession.new(_simulation,HospitalSnapshots.uuid())
+	_last_process_us = Time.get_ticks_usec()
+	if not DisplayServer.window_is_focused():
+		_session.pause("focus")
 	_saved_revision = int(_candidate.facts.world_revision) if not records.is_empty() else -1
 	_candidate = null
 	_leave_operation = {}
@@ -403,7 +403,7 @@ func _request_quit() -> void:
 	if not started.ok:
 		_status.text = started.error
 		return
-	_leave_operation = {"kind":"quit","source_session":_loading_session,"request_id":started.request.request_id}
+	_leave_operation = {"kind":"quit","source_session":_session.loading_session_id,"request_id":started.request.request_id}
 	_status.text = "正在保存退出检查点…"
 
 func _change_floor(floor_id: int) -> void:
@@ -431,11 +431,11 @@ func _move_selected(floor_id: int) -> void:
 	if _simulation==null or _selected_actor.is_empty() or not _leave_operation.is_empty():
 		return
 	var command_id: String = HospitalSnapshots.uuid()
-	_simulation.enqueue({"id":command_id,"hospital_id":_simulation.world.facts.hospital_id,"kind":"move_actor","actor_id":_selected_actor,
-		"floor_id":floor_id,"cell":[47,93] if floor_id==1 else [35,83]})
-	_simulation.drain_commands()
-	var receipt: Dictionary = _simulation.world.facts.command_receipts.get(command_id,{})
-	_status.text = "已安排实际通行，运行后会沿路线前往目标楼层。" if receipt.get("accepted",false) else str(receipt.get("reason","当前角色不可移动"))
+	var world: WorldState = _simulation.world
+	var target: Vector2i = Vector2i(47,93) if floor_id==1 else Vector2i(35,83)
+	var payload: MoveActorPayload = MoveActorPayload.new(_selected_actor,floor_id,target,world.facts.actors[_selected_actor].location)
+	var result: CommandResult = _session.submit(GameCommand.new(command_id,world.hospital_id,world.revision,"move_actor",payload,_session.loading_session_id))
+	_status.text = "已接收实际通行请求。" if result.accepted else result.reason
 
 func _world_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT and _view != null:
@@ -445,10 +445,18 @@ func _world_input(event: InputEvent) -> void:
 			_view.camera.size = clampf(_view.camera.size+(2.0 if event.button_index==MOUSE_BUTTON_WHEEL_DOWN else -2.0),18.0,90.0)
 
 func _update_details() -> void:
-	var world: HospitalWorld = _simulation.world
-	var paused: bool = _speed==0 or not _pause_tokens.is_empty() or not _leave_operation.is_empty()
-	_clock.text = "%s   %s   %s   资金 %d · 治疗包 %d" % [world.facts.display_name,world.clock_text(),"暂停" if paused else str(_speed)+"×",world.money(),int(world.facts.inventory.units)]
+	var world: WorldState = _simulation.world
+	var actual_speed: int = _session.actual_speed()
+	var playback: String = "暂停" if actual_speed==0 else str(actual_speed)+"×"
+	if _session.running_slow:
+		playback += " · 运行稍慢"
+	_clock.text = "%s   %s   %s   资金 %d · 治疗包 %d" % [world.facts.display_name,world.clock_text(),playback,HospitalLedger.balance(world),int(world.facts.inventory.units)]
 	var lines: PackedStringArray = PackedStringArray(["[b]院内情况[/b]","观察 %dF" % _observed_floor])
+	if not _session.pause_reasons().is_empty():
+		var reasons: PackedStringArray = []
+		for source: String in _session.pause_reasons():
+			reasons.append({"focus":"窗口未聚焦"}.get(source,source))
+		lines.append("暂停原因："+", ".join(reasons))
 	for visit_id: String in world.ids("visits"):
 		var visit: Dictionary = world.facts.visits[visit_id]
 		var evidence: float = 0.0
@@ -482,11 +490,11 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		_request_quit()
 	elif what == NOTIFICATION_APPLICATION_FOCUS_OUT or what == NOTIFICATION_APPLICATION_PAUSED:
-		_pause_tokens["focus"] = true
-		_accumulator = 0.0
+		if _session!=null:
+			_session.pause("focus")
 	elif what == NOTIFICATION_APPLICATION_FOCUS_IN or what == NOTIFICATION_APPLICATION_RESUMED:
-		_pause_tokens.erase("focus")
-		_accumulator = 0.0
+		if _session!=null:
+			_session.resume("focus")
 
 static func _phase_name(phase: String) -> String:
 	return {"arrival":"到院","wait_reception":"等候接待","reception":"正在接待","wait_gp":"等候初诊","gp":"初诊中",

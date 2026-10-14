@@ -5,12 +5,13 @@ var content: HospitalContent
 var space: HospitalSpace
 var _worked_staff: Dictionary = {}
 var _practice_awards: Dictionary = {}
+var _events: Array[SimEvent] = []
 
 func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 	content = database
 	space = geometry
 
-func dispatch(world: HospitalWorld) -> void:
+func dispatch(world: WorldState) -> void:
 	_worked_staff.clear()
 	for visit_id: String in world.ids("visits"):
 		var visit: Dictionary = world.facts.visits[visit_id]
@@ -19,6 +20,7 @@ func dispatch(world: HospitalWorld) -> void:
 		elif visit.phase == "leaving":
 			if space.at(world,visit.actor_id,1,[48,95]):
 				world.facts.actors[visit.actor_id].location = {"kind":"outside"}
+				space.sync_actor(world,visit.actor_id)
 				visit.phase = "departed"
 			else:
 				visit.waiting_reason = space.request_move(world,visit.actor_id,1,[48,95])
@@ -65,7 +67,7 @@ func dispatch(world: HospitalWorld) -> void:
 		elif stay.phase == "round_wait" and not _staff_busy(world,stay.round_doctor_id):
 			_start_bed_service(world,visit,stay,"round",stay.round_doctor_id,float(content.balance.clinical.discharge_round_seconds))
 
-func advance(world: HospitalWorld) -> void:
+func advance(world: WorldState) -> void:
 	for session_id: String in world.ids("sessions"):
 		if not world.facts.sessions.has(session_id):
 			continue
@@ -103,7 +105,7 @@ func advance(world: HospitalWorld) -> void:
 			stay.phase = "round_wait"
 			world.facts.visits[world.facts.attempts[stay.attempt_id].visit_id].phase = "round_wait"
 
-func release_departed(world: HospitalWorld) -> void:
+func release_departed(world: WorldState) -> void:
 	for stay_id: String in world.ids("ward_stays"):
 		var stay: Dictionary = world.facts.ward_stays[stay_id]
 		if stay.phase == "release_wait":
@@ -112,14 +114,15 @@ func release_departed(world: HospitalWorld) -> void:
 			if not space.overlaps_facility(world,visit.actor_id,stay.bed_id):
 				world.facts.ward_stays.erase(stay_id)
 
-func _queue(world: HospitalWorld, visit: Dictionary, kind: String) -> void:
+func _queue(world: WorldState, visit: Dictionary, kind: String) -> void:
 	var ticket_id: String = world.new_id("ticket")
 	world.facts.tickets[ticket_id] = {"id":ticket_id,"visit_id":visit.id,"kind":kind,"enqueued_tick":world.facts.sim_tick}
 	visit.ticket_id = ticket_id
 	visit.phase = "wait_" + kind
 	visit.waiting_reason = ""
+	_events.append(SimEvent.new(world.sim_tick,"service_queued",[visit.id,ticket_id],{"kind":kind}))
 
-func _dispatch_service(world: HospitalWorld, visit: Dictionary, ticket: Dictionary) -> void:
+func _dispatch_service(world: WorldState, visit: Dictionary, ticket: Dictionary) -> void:
 	var kind: String = ticket.kind
 	var facility_id: String = {"reception":"reception_desk","gp":"gp","spectrum":"exam",
 		"resonance":"exam","consult":"gp","outpatient":"treatment"}.get(kind,"")
@@ -185,7 +188,7 @@ func _dispatch_service(world: HospitalWorld, visit: Dictionary, ticket: Dictiona
 	visit.phase = kind
 	visit.waiting_reason = ""
 
-func _gather(world: HospitalWorld, visit: Dictionary, facility: Dictionary, staff_ids: Array) -> bool:
+func _gather(world: WorldState, visit: Dictionary, facility: Dictionary, staff_ids: Array) -> bool:
 	var all_present: bool = space.at(world,visit.actor_id,int(facility.floor_id),facility.patient_cell)
 	if not all_present:
 		visit.waiting_reason = space.request_move(world,visit.actor_id,int(facility.floor_id),facility.patient_cell)
@@ -199,7 +202,7 @@ func _gather(world: HospitalWorld, visit: Dictionary, facility: Dictionary, staf
 				visit.waiting_reason = reason
 	return all_present
 
-func _outpatient_quote(world: HospitalWorld, visit: Dictionary, staff: Dictionary, facility: Dictionary) -> Dictionary:
+func _outpatient_quote(world: WorldState, visit: Dictionary, staff: Dictionary, facility: Dictionary) -> Dictionary:
 	var profile: Dictionary = _profile(visit)
 	if int(world.facts.inventory.units)<int(profile.supply_units):
 		return {"ok":false,"reason":"治疗包不足，保留原票号"}
@@ -223,7 +226,7 @@ func _outpatient_quote(world: HospitalWorld, visit: Dictionary, staff: Dictionar
 		"cure_fee":int(content.definition("diseases",visit.disease_id).cure_fee),"facility_fee":content.facility_fee(facility.definition_id,"outpatient"),
 		"staff_ids":[staff.id],"effective_level":effective}
 
-func _prepare_surgery(world: HospitalWorld, visit: Dictionary, ticket: Dictionary) -> void:
+func _prepare_surgery(world: WorldState, visit: Dictionary, ticket: Dictionary) -> void:
 	var team: Array = ["surgeon","anesthetist","or_nurse"]
 	var quote: Dictionary = _surgery_quote(world,visit,team)
 	if not quote.ok:
@@ -281,7 +284,7 @@ func _prepare_surgery(world: HospitalWorld, visit: Dictionary, ticket: Dictionar
 	visit.phase = "surgery"
 	visit.waiting_reason = ""
 
-func _surgery_quote(world: HospitalWorld, visit: Dictionary, team: Array) -> Dictionary:
+func _surgery_quote(world: WorldState, visit: Dictionary, team: Array) -> Dictionary:
 	var plan: Dictionary = content.definition("treatment_plans",visit.plan_decision.get("plan_id",""))
 	if plan.is_empty():
 		return {"ok":false,"reason":"缺少原手术方案"}
@@ -356,7 +359,7 @@ func _surgery_quote(world: HospitalWorld, visit: Dictionary, team: Array) -> Dic
 		"cure_fee":ceili(float(content.definition("diseases",visit.disease_id).cure_fee)*float(protocol.cure_fee_multiplier)),
 		"facility_fee":content.facility_fee(table.definition_id,"surgery"),"staff_ids":team.duplicate(),"effective_level":effective}
 
-func _commit_attempt(world: HospitalWorld, visit: Dictionary, quote: Dictionary) -> Dictionary:
+func _commit_attempt(world: WorldState, visit: Dictionary, quote: Dictionary) -> Dictionary:
 	var id: String = world.new_id("attempt")
 	var attempt: Dictionary = quote.duplicate(true)
 	attempt.erase("ok")
@@ -368,9 +371,10 @@ func _commit_attempt(world: HospitalWorld, visit: Dictionary, quote: Dictionary)
 	world.facts.inventory.issues[id] = {"attempt_id":id,"units":attempt.supply_units,"tick":world.facts.sim_tick}
 	world.facts.attempts[id] = attempt
 	visit.attempt_ids.append(id)
+	_events.append(SimEvent.new(world.sim_tick,"attempt_committed",[visit.id,id],{"supply_units":attempt.supply_units}))
 	return attempt
 
-func _start(world: HospitalWorld, visit: Dictionary, kind: String, facility_id: String, staff_ids: Array,
+func _start(world: WorldState, visit: Dictionary, kind: String, facility_id: String, staff_ids: Array,
 		ticks: int, extra: Dictionary) -> Dictionary:
 	var id: String = world.new_id("service")
 	var session: Dictionary = {"id":id,"visit_id":visit.id,"kind":kind,"facility_id":facility_id,
@@ -378,23 +382,25 @@ func _start(world: HospitalWorld, visit: Dictionary, kind: String, facility_id: 
 		"total_ticks":ticks,"remaining_ticks":ticks,"start_tick":world.facts.sim_tick}
 	session.merge(extra)
 	world.facts.sessions[id] = session
+	_events.append(SimEvent.new(world.sim_tick,"service_started",[visit.id,id],{"kind":kind}))
 	if world.facts.adaptations.has(facility_id):
 		world.facts.adaptations[facility_id].owner_id = str(extra.get("attempt_id",id))
 	return session
 
-func _complete_service(world: HospitalWorld, session: Dictionary) -> void:
+func _complete_service(world: WorldState, session: Dictionary) -> void:
 	if not world.facts.sessions.has(session.id):
 		return
 	var visit: Dictionary = world.facts.visits[session.visit_id]
 	world.facts.sessions.erase(session.id)
+	_events.append(SimEvent.new(world.sim_tick,"service_completed",[visit.id,session.id],{"kind":session.kind}))
 	match session.kind:
 		"reception":
 			_queue(world,visit,"gp")
 		"gp", "spectrum", "resonance":
 			visit.evidence_by_source[session.kind] = session.evidence
 			if session.kind == "gp":
-				world.book(visit.id,"consultation",int(session.doctor_fee))
-			world.book(visit.id,str(session.kind),int(session.facility_fee))
+				HospitalLedger.post(world,LedgerEntry.new(visit.id,"consultation",int(session.doctor_fee)),false)
+			HospitalLedger.post(world,LedgerEntry.new(visit.id,str(session.kind),int(session.facility_fee)),false)
 			_practice(world,session.staff_ids[0],"diagnosis",session.id)
 			var evidence: float = 0.0
 			for value: Variant in visit.evidence_by_source.values():
@@ -412,7 +418,7 @@ func _complete_service(world: HospitalWorld, session: Dictionary) -> void:
 			_queue(world,visit,str(protocol.kind))
 		"outpatient":
 			var attempt: Dictionary = world.facts.attempts[session.attempt_id]
-			world.book(attempt.id,"outpatient",int(attempt.facility_fee))
+			HospitalLedger.post(world,LedgerEntry.new(attempt.id,"outpatient",int(attempt.facility_fee)),false)
 			_practice(world,session.staff_ids[0],"treatment",session.id)
 			_settle(world,visit,attempt)
 		"surgery":
@@ -420,7 +426,7 @@ func _complete_service(world: HospitalWorld, session: Dictionary) -> void:
 			visit.phase = "wake"
 		"wake":
 			var attempt: Dictionary = world.facts.attempts[session.attempt_id]
-			world.book(attempt.id,"surgery",int(attempt.facility_fee))
+			HospitalLedger.post(world,LedgerEntry.new(attempt.id,"surgery",int(attempt.facility_fee)),false)
 			for staff_id: String in session.staff_ids:
 				_practice(world,staff_id,"surgery",attempt.id)
 			world.facts.ward_stays[attempt.id].phase = "transfer"
@@ -431,14 +437,14 @@ func _complete_service(world: HospitalWorld, session: Dictionary) -> void:
 		"round":
 			var stay: Dictionary = world.facts.ward_stays[session.stay_id]
 			var attempt: Dictionary = world.facts.attempts[stay.attempt_id]
-			world.book(attempt.id,"ward",content.facility_fee("EQ05","ward"))
+			HospitalLedger.post(world,LedgerEntry.new(attempt.id,"ward",content.facility_fee("EQ05","ward")),false)
 			_practice(world,session.staff_ids[0],"treatment",visit.id+":round")
 			stay.phase = "release_wait"
 			_settle(world,visit,attempt)
 			var ward: Dictionary = world.facts.rooms[world.facts.facilities[stay.bed_id].room_id]
 			space.request_move(world,session.staff_ids[0],int(ward.floor_id),[int(ward.origin[0])+int(ward.size[0])-2,int(ward.origin[1])+int(ward.size[1])-2])
 
-func _start_bed_service(world: HospitalWorld, visit: Dictionary, stay: Dictionary, kind: String, staff_id: String, seconds: float) -> void:
+func _start_bed_service(world: WorldState, visit: Dictionary, stay: Dictionary, kind: String, staff_id: String, seconds: float) -> void:
 	var bed: Dictionary = space.facility_layout(world,stay.bed_id)
 	var staff: Dictionary = world.facts.staff[staff_id]
 	if not staff.on_shift or not _can_start(staff) or bed.failed:
@@ -463,15 +469,17 @@ func _start_bed_service(world: HospitalWorld, visit: Dictionary, stay: Dictionar
 		stay.phase = "round"
 		visit.phase = "round"
 
-func _settle(world: HospitalWorld, visit: Dictionary, attempt: Dictionary) -> void:
+func _settle(world: WorldState, visit: Dictionary, attempt: Dictionary) -> void:
 	if world.facts.actors[visit.actor_id].get("posture","standing") == "seated":
 		world.facts.actors[visit.actor_id].posture = "standing"
+		space.sync_actor(world,visit.actor_id)
 	if not attempt.result:
 		visit.anger = minf(100.0,float(visit.anger)+15.0)
 	if attempt.result:
 		world.facts.actors[visit.actor_id].erase("body_binding_id")
+		space.sync_actor(world,visit.actor_id)
 		visit.final_result = "cured"
-		world.book(visit.id,"cure",int(attempt.cure_fee))
+		HospitalLedger.post(world,LedgerEntry.new(visit.id,"cure",int(attempt.cure_fee)),false)
 		visit.phase = "leaving"
 	elif visit.attempt_ids.size() < int(content.balance.max_treatment_attempts):
 		visit.final_result = "retry"
@@ -480,11 +488,12 @@ func _settle(world: HospitalWorld, visit: Dictionary, attempt: Dictionary) -> vo
 		visit.final_result = "referred"
 		visit.phase = "leaving"
 
-func _support(world: HospitalWorld, visit: Dictionary, facility: Dictionary, posture: String) -> void:
+func _support(world: WorldState, visit: Dictionary, facility: Dictionary, posture: String) -> void:
 	var actor: Dictionary = world.facts.actors[visit.actor_id]
 	actor.posture = posture
 	actor.support_facility_id = facility.id
 	if posture != "lying":
+		space.sync_actor(world,actor.id)
 		return
 	var anchor: Vector3 = space.support_anchor(world,facility.id)
 	var dimensions: Dictionary = content.actor_body(actor)
@@ -492,6 +501,7 @@ func _support(world: HospitalWorld, visit: Dictionary, facility: Dictionary, pos
 	actor.location.cell = [float(facility.cell[0])+anchor.x/1.5-center,float(facility.cell[1])+(anchor.z+float(dimensions.height_m)*0.5)/1.5-center]
 	actor.location.height_m = anchor.y+float(dimensions.depth_m)*0.5
 	actor.facing = 0.0
+	space.sync_actor(world,actor.id)
 
 func _profile(visit: Dictionary) -> Dictionary:
 	return content.catalog.profiles[content.definition("diseases",visit.disease_id).profile]
@@ -504,7 +514,7 @@ func _gp_work_ticks(visit: Dictionary, staff: Dictionary, effective: float) -> i
 	seconds /= 1.0+0.05*(int(staff.abilities.diagnosis)-1)+0.15*effective
 	return ceili(clampf(seconds,8.0,60.0)*10)
 
-func _facility_busy(world: HospitalWorld, id: String) -> bool:
+func _facility_busy(world: WorldState, id: String) -> bool:
 	for actor_id: String in world.facts.actors:
 		var actor: Dictionary = world.facts.actors[actor_id]
 		if actor.get("support_facility_id","")==id and space.overlaps_facility(world,actor_id,id):
@@ -517,7 +527,7 @@ func _facility_busy(world: HospitalWorld, id: String) -> bool:
 			return true
 	return false
 
-func _staff_busy(world: HospitalWorld, id: String) -> bool:
+func _staff_busy(world: WorldState, id: String) -> bool:
 	for stay: Dictionary in world.facts.ward_stays.values():
 		if stay.phase=="transfer" and stay.escort_id==id:
 			return true
@@ -529,7 +539,7 @@ func _staff_busy(world: HospitalWorld, id: String) -> bool:
 			return true
 	return false
 
-func _bed_busy(world: HospitalWorld, id: String) -> bool:
+func _bed_busy(world: WorldState, id: String) -> bool:
 	for stay: Dictionary in world.facts.ward_stays.values():
 		if stay.bed_id == id:
 			return true
@@ -538,7 +548,7 @@ func _bed_busy(world: HospitalWorld, id: String) -> bool:
 			return true
 	return false
 
-func _practice(world: HospitalWorld, staff_id: String, track: String, job_id: String) -> void:
+func _practice(world: WorldState, staff_id: String, track: String, job_id: String) -> void:
 	var staff: Dictionary = world.facts.staff[staff_id]
 	if not staff.completed_jobs.has(job_id):
 		_practice_awards[staff_id+":"+job_id] = {"staff_id":staff_id,"track":track,"job_id":job_id}
@@ -546,7 +556,12 @@ func _practice(world: HospitalWorld, staff_id: String, track: String, job_id: St
 func worked_staff() -> Dictionary:
 	return _worked_staff.duplicate()
 
-func settle_practice(world: HospitalWorld) -> void:
+func take_events() -> Array[SimEvent]:
+	var events: Array[SimEvent] = _events
+	_events = []
+	return events
+
+func settle_practice(world: WorldState) -> void:
 	var keys: Array = _practice_awards.keys()
 	keys.sort()
 	for key: String in keys:
@@ -565,7 +580,7 @@ func settle_practice(world: HospitalWorld) -> void:
 func _can_start(staff: Dictionary) -> bool:
 	return float(staff.energy)>15.0 and (staff.role!="doctor" or float(staff.fatigue)<float(content.balance.wellbeing.fatigue_stop_new_work))
 
-func _use(world: HospitalWorld, facility: Dictionary, receipt_id: String) -> void:
+func _use(world: WorldState, facility: Dictionary, receipt_id: String) -> void:
 	facility = world.facts.facilities[facility.id]
 	if not facility.use_receipts.has(receipt_id):
 		facility.use_receipts[receipt_id] = world.facts.sim_tick

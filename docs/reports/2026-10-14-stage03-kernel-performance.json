@@ -1,0 +1,734 @@
+{
+  "schema_version": 1,
+  "stage02_status": "performance_measurement_skipped",
+  "stage03_groups": [
+    {
+      "accepted_commands": 60,
+      "actors": 160,
+      "actual_attempts": 2,
+      "clinical_phase": "surgery",
+      "command_boundary": {
+        "count": 60,
+        "max_ms": 1.103,
+        "mean_ms": 0.39525,
+        "p50_ms": 0.321,
+        "p95_ms": 0.757,
+        "p99_ms": 1.103
+      },
+      "debug_build": false,
+      "executed_ticks": 6000,
+      "final_world_sha256": "893f4160839767a7c57f18653bda2b6f3b1dbb39a7b313f442a5de4c1749b5eb",
+      "first_tick": 599,
+      "fixture": {
+        "active_floors": [
+          3,
+          10,
+          1000,
+          10000
+        ],
+        "actor_records": 160,
+        "clinical_scope": "one real D23 pathway; additional bodies execute real repeated movement",
+        "clinical_visits": 1,
+        "distribution": "four_mobile_floors",
+        "empty_structure_top": 10000,
+        "fixture": "kernel-mobile-and-surgery-v1",
+        "layout": "four actual 96x96 floors plus the stage01 surgical layout",
+        "missing": "multiple simultaneous clinical stations and later daily systems",
+        "mobile_actors": 146,
+        "staff": 9,
+        "target_present_actors": 160
+      },
+      "fixture_dispatch": {
+        "count": 6000,
+        "max_ms": 26.9,
+        "mean_ms": 2.138856,
+        "p50_ms": 0.087,
+        "p95_ms": 14.2,
+        "p99_ms": 19.249
+      },
+      "formal_capture": true,
+      "last_tick": 6599,
+      "measurement_scope": "complete production Simulation.step; fixture dispatch and raw logging are separate, all contribute to real throughput",
+      "missing_metrics": [
+        "presented_frames",
+        "GPU",
+        "graphics_resources",
+        "save_restore",
+        "full_daily_systems",
+        "multiple_clinical_stations"
+      ],
+      "passed": false,
+      "path_refused": 0,
+      "path_requests": 146000,
+      "peak_clinical_sessions": 1,
+      "peak_moves": 148,
+      "present_actors_range": [
+        160,
+        160
+      ],
+      "rejected_commands": 0,
+      "rng_end": {
+        "arrival": {
+          "algorithm": "godot-pcg32-4.7.2",
+          "seed_decimal": "271828",
+          "state_decimal": "6431637502052608982"
+        },
+        "communication": {
+          "algorithm": "godot-pcg32-4.7.2",
+          "seed_decimal": "1004931",
+          "state_decimal": "4831881564040683161"
+        },
+        "community_activity": {
+          "algorithm": "godot-pcg32-4.7.2",
+          "seed_decimal": "1423847",
+          "state_decimal": "9188233620522311725"
+        },
+        "equipment": {
+          "algorithm": "godot-pcg32-4.7.2",
+          "seed_decimal": "690744",
+          "state_decimal": "-7658754515175314070"
+        },
+        "gratitude": {
+          "algorithm": "godot-pcg32-4.7.2",
+          "seed_decimal": "1109660",
+          "state_decimal": "-3302402458693685506"
+        },
+        "incident": {
+          "algorithm": "godot-pcg32-4.7.2",
+          "seed_decimal": "481286",
+          "state_decimal": "8609813530293423264"
+        },
+        "patience": {
+          "algorithm": "godot-pcg32-4.7.2",
+          "seed_decimal": "1214389",
+          "state_decimal": "7010057592281497443"
+        },
+        "personality": {
+          "algorithm": "godot-pcg32-4.7.2",
+          "seed_decimal": "586015",
+          "state_decimal": "475529507559054597"
+        },
+        "recruitment": {
+          "algorithm": "godot-pcg32-4.7.2",
+          "seed_decimal": "1319118",
+          "state_decimal": "-1124226430452871224"
+        },
+        "registration": {
+          "algorithm": "godot-pcg32-4.7.2",
+          "seed_decimal": "900202",
+          "state_decimal": "-5480578486934499788"
+        },
+        "task_board": {
+          "algorithm": "godot-pcg32-4.7.2",
+          "seed_decimal": "795473",
+          "state_decimal": "2653705535799868879"
+        },
+        "treatment": {
+          "algorithm": "godot-pcg32-4.7.2",
+          "seed_decimal": "376557",
+          "state_decimal": "2436677921316883013"
+        }
+      },
+      "sample_real_seconds": 600.002537,
+      "schema_version": 1,
+      "speed": 1,
+      "speed_ratio": 0.9999957716845455,
+      "status": "measured",
+      "step": {
+        "count": 6000,
+        "max_ms": 98.5,
+        "mean_ms": 5.9039605,
+        "p50_ms": 5.667,
+        "p95_ms": 11.039,
+        "p99_ms": 13.762
+      },
+      "targets": {
+        "frame_p95_ms": 16.7,
+        "frame_p99_ms": 25.0,
+        "graphics_resources_target_bytes": 536870912.0,
+        "input_preview_p95_ms": 100.0,
+        "load_max_seconds": 5.0,
+        "ordinary_frame_max_ms": 50.0,
+        "room_preview_p95_ms": 200.0,
+        "save_max_seconds": 2.0,
+        "sim_speed_ratio_min": 0.99,
+        "sim_step_p95_ms": 4.0,
+        "snapshot_copy_p95_ms": 25.0,
+        "working_set_target_bytes": 2147483648.0
+      },
+      "timer_overhead": {
+        "count": 10000,
+        "max_ms": 0.001,
+        "mean_ms": 2.76e-05,
+        "p50_ms": 0.0,
+        "p95_ms": 0.0,
+        "p99_ms": 0.001
+      },
+      "warmup_real_seconds": 60.011665,
+      "evidence_valid": true,
+      "evidence_errors": [],
+      "exit_code": 1,
+      "OS_resources": {
+        "observed_peak_working_set_bytes": 87994368,
+        "observed_peak_private_commit_bytes": 50528256,
+        "lifetime_peak_working_set_bytes": 90128384,
+        "cadence_seconds": 1,
+        "includes_warmup": true,
+        "graphics": null
+      },
+      "raw_sha256": "172294421bcf108a7d40045b1aedcaa9508c3c537b1c3bb713b32b1338dddf0d",
+      "evidence_sha256": {
+        "capture-start.json": "0d1d4245590571997dd1889ea49fb107ffbcbd84f27086ed5d8acd51f781d1f8",
+        "summary.json": "5abb1883f2e6bfe154e0dc65bd48553a975c256ea7f90beac2cee89f6da1cc99",
+        "validation.json": "b9849704bf9b7714a831cc16fb138cabbb564cd4b83a8d40675fdace1cb34ede",
+        "execution.json": "b69724a7f26637236e9740c3011bc2008c3989b60c8573318575b05c78c4340f",
+        "process.ndjson": "23a06fabe9b1e289b642a5d6e4fa6f91089e6b3235c0e579e088da4dbc83b13e",
+        "final-world.json": "00bc737fb2f3eccf52fa5a73d98e84fd96d10922d097f440b2a0373b36416c4e",
+        "stdout.log": "ab84d508f723a1bf8fe1c7d06acbc75f01b07090acde6cda08f9c30e2948d95f",
+        "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "raw_path": ".cache\\validation\\stage03\\formal-v3\\actors-160-speed-1\\raw.ndjson",
+      "evaluation_targets": {
+        "frame_p95_ms": 16.7,
+        "frame_p99_ms": 25,
+        "ordinary_frame_max_ms": 50,
+        "sim_step_p95_ms": 10,
+        "sim_step_p99_ms": 15,
+        "sim_step_ordinary_max_ms": 30,
+        "sim_speed_ratio_min": 0.99,
+        "input_preview_p95_ms": 100,
+        "room_preview_p95_ms": 200,
+        "snapshot_copy_p95_ms": 25,
+        "save_max_seconds": 2,
+        "load_max_seconds": 5,
+        "working_set_target_bytes": 2147483648,
+        "graphics_resources_target_bytes": 536870912
+      },
+      "evaluation_passed": false
+    },
+    {
+      "accepted_commands": 180,
+      "actors": 160,
+      "actual_attempts": 2,
+      "clinical_phase": "departed",
+      "command_boundary": {
+        "count": 180,
+        "max_ms": 0.774,
+        "mean_ms": 0.3282333333333333,
+        "p50_ms": 0.279,
+        "p95_ms": 0.57,
+        "p99_ms": 0.661
+      },
+      "debug_build": false,
+      "executed_ticks": 18000,
+      "final_world_sha256": "42ba049f15463a404bca2d411ad2e8635a5a93f5120172710e11c17c79e44d00",
+      "first_tick": 1799,
+      "fixture": {
+        "active_floors": [
+          3,
+          10,
+          1000,
+          10000
+        ],
+        "actor_records": 161,
+        "clinical_scope": "one real D23 pathway; additional bodies execute real repeated movement",
+        "clinical_visits": 1,
+        "distribution": "four_mobile_floors",
+        "empty_structure_top": 10000,
+        "fixture": "kernel-mobile-and-surgery-v1",
+        "layout": "four actual 96x96 floors plus the stage01 surgical layout",
+        "missing": "multiple simultaneous clinical stations and later daily systems",
+        "mobile_actors": 147,
+        "staff": 9,
+        "target_present_actors": 160
+      },
+      "fixture_dispatch": {
+        "count": 18000,
+        "max_ms": 38.663,
+        "mean_ms": 1.7579555,
+        "p50_ms": 0.065,
+        "p95_ms": 9.881,
+        "p99_ms": 16.622
+      },
+      "formal_capture": true,
+      "last_tick": 19799,
+      "measurement_scope": "complete production Simulation.step; fixture dispatch and raw logging are separate, all contribute to real throughput",
+      "missing_metrics": [
+        "presented_frames",
+        "GPU",
+        "graphics_resources",
+        "save_restore",
+        "full_daily_systems",
+        "multiple_clinical_stations"
+      ],
+      "passed": false,
+      "path_refused": 0,
+      "path_requests": 439582,
+      "peak_clinical_sessions": 1,
+      "peak_moves": 149,
+      "present_actors_range": [
+        159,
+        160
+      ],
+      "rejected_commands": 0,
+      "rng_end": {
+        "arrival": {
+          "algorithm": "godot-pcg32-4.7.2",
+          "seed_decimal": "271828",
+          "state_decimal": "6431637502052608982"
+        },
+        "communication": {
+          "algorithm": "godot-pcg32-4.7.2",
+          "seed_decimal": "1004931",
+          "state_decimal": "4831881564040683161"
+        },
+        "community_activity": {
+          "algorithm": "godot-pcg32-4.7.2",
+          "seed_decimal": "1423847",
+          "state_decimal": "9188233620522311725"
+        },
+        "equipment": {
+          "algorithm": "godot-pcg32-4.7.2",
+          "seed_decimal": "690744",
+          "state_decimal": "-7658754515175314070"
+        },
+        "gratitude": {
+          "algorithm": "godot-pcg32-4.7.2",
+          "seed_decimal": "1109660",
+          "state_decimal": "-3302402458693685506"
+        },
+        "incident": {
+          "algorithm": "godot-pcg32-4.7.2",
+          "seed_decimal": "481286",
+          "state_decimal": "8609813530293423264"
+        },
+        "patience": {
+          "algorithm": "godot-pcg32-4.7.2",
+          "seed_decimal": "1214389",
+          "state_decimal": "7010057592281497443"
+        },
+        "personality": {
+          "algorithm": "godot-pcg32-4.7.2",
+          "seed_decimal": "586015",
+          "state_decimal": "475529507559054597"
+        },
+        "recruitment": {
+          "algorithm": "godot-pcg32-4.7.2",
+          "seed_decimal": "1319118",
+          "state_decimal": "-1124226430452871224"
+        },
+        "registration": {
+          "algorithm": "godot-pcg32-4.7.2",
+          "seed_decimal": "900202",
+          "state_decimal": "-5480578486934499788"
+        },
+        "task_board": {
+          "algorithm": "godot-pcg32-4.7.2",
+          "seed_decimal": "795473",
+          "state_decimal": "2653705535799868879"
+        },
+        "treatment": {
+          "algorithm": "godot-pcg32-4.7.2",
+          "seed_decimal": "376557",
+          "state_decimal": "2436677921316883013"
+        }
+      },
+      "sample_real_seconds": 600.004779,
+      "schema_version": 1,
+      "speed": 3,
+      "speed_ratio": 0.9999920350634408,
+      "status": "measured",
+      "step": {
+        "count": 18000,
+        "max_ms": 66.0,
+        "mean_ms": 4.821029555555556,
+        "p50_ms": 4.881,
+        "p95_ms": 8.915,
+        "p99_ms": 12.341
+      },
+      "targets": {
+        "frame_p95_ms": 16.7,
+        "frame_p99_ms": 25.0,
+        "graphics_resources_target_bytes": 536870912.0,
+        "input_preview_p95_ms": 100.0,
+        "load_max_seconds": 5.0,
+        "ordinary_frame_max_ms": 50.0,
+        "room_preview_p95_ms": 200.0,
+        "save_max_seconds": 2.0,
+        "sim_speed_ratio_min": 0.99,
+        "sim_step_p95_ms": 4.0,
+        "snapshot_copy_p95_ms": 25.0,
+        "working_set_target_bytes": 2147483648.0
+      },
+      "timer_overhead": {
+        "count": 10000,
+        "max_ms": 0.001,
+        "mean_ms": 2.82e-05,
+        "p50_ms": 0.0,
+        "p95_ms": 0.0,
+        "p99_ms": 0.001
+      },
+      "warmup_real_seconds": 60.015861,
+      "evidence_valid": true,
+      "evidence_errors": [],
+      "exit_code": 1,
+      "OS_resources": {
+        "observed_peak_working_set_bytes": 89890816,
+        "observed_peak_private_commit_bytes": 52314112,
+        "lifetime_peak_working_set_bytes": 89890816,
+        "cadence_seconds": 1,
+        "includes_warmup": true,
+        "graphics": null
+      },
+      "raw_sha256": "9162c1a0f92d72903d9a1268581ef8f5e484688fc4d211ce2bccd742778c0f44",
+      "evidence_sha256": {
+        "capture-start.json": "cb9ea73f2d9a76c9f631d600b5896cf2d272aed38c74d5f6ff60811d35fd0636",
+        "summary.json": "cb418a976788c10360da1d96a5004795c8cbd8472b8a97ab254c3663da2c0fba",
+        "validation.json": "b9849704bf9b7714a831cc16fb138cabbb564cd4b83a8d40675fdace1cb34ede",
+        "execution.json": "3f12b87d9452bf03767e974e3f73ea61694aad43d264fd05c5124f5fc0afb711",
+        "process.ndjson": "71edd78437041ea6a7852a7bb64df36da12b252d5c8c3173ad425b4ff8f9c9d8",
+        "final-world.json": "41222804f9522945b50993ab394791bf6e148ec70d4f7869c58095fe27d8e1e0",
+        "stdout.log": "16424e0be273a9734faaa57579207d8f57fa0a1e8b1d1ddc3fe788fd7b8be6fd",
+        "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "raw_path": ".cache\\validation\\stage03\\formal-v3\\actors-160-speed-3\\raw.ndjson",
+      "evaluation_targets": {
+        "frame_p95_ms": 16.7,
+        "frame_p99_ms": 25,
+        "ordinary_frame_max_ms": 50,
+        "sim_step_p95_ms": 10,
+        "sim_step_p99_ms": 15,
+        "sim_step_ordinary_max_ms": 30,
+        "sim_speed_ratio_min": 0.99,
+        "input_preview_p95_ms": 100,
+        "room_preview_p95_ms": 200,
+        "snapshot_copy_p95_ms": 25,
+        "save_max_seconds": 2,
+        "load_max_seconds": 5,
+        "working_set_target_bytes": 2147483648,
+        "graphics_resources_target_bytes": 536870912
+      },
+      "evaluation_passed": false
+    }
+  ],
+  "requested_actors": [
+    160
+  ],
+  "deferred_actors": [
+    320,
+    640
+  ],
+  "requested_matrix_complete": true,
+  "formal_matrix_complete": false,
+  "performance_passed": false,
+  "evaluation_budget": {
+    "version": "sim-frame-budget-v2",
+    "basis": "primary_frame_targets",
+    "share_bp": 6000,
+    "rounding": "floor_whole_milliseconds",
+    "validation": "presented_frames_and_real_speed_remain_separate"
+  },
+  "evaluation_source_sha256": "3f42a9e0666063481fd8959227782b660e394c822c4aea8db641eea21172d79b",
+  "cost_model_status": "insufficient_measured_populations",
+  "cost_models": [],
+  "build_identity": {
+    "version": "0.3.0-stage03",
+    "engine": "4.7.2.stable.official.ed1daf0bf",
+    "source_head": "224fbbe82cc15df7ab9e9cfd3547ade97ded7c7a",
+    "captured_utc": "2026-10-14T13:56:24.6416582Z",
+    "sources": [
+      {
+        "path": "docs/data/balance.json",
+        "sha256": "d6c0c0d4ccc9a83152bec9551e6579b1d3b584e51ce0d7809c9dff6bb52e1a55"
+      },
+      {
+        "path": "docs/data/clinical-layouts.json",
+        "sha256": "9b36802d19faf8d450cbb95ff14515eca5a56b0d0b276d978267708aca74b7e3"
+      },
+      {
+        "path": "docs/data/content-catalog.json",
+        "sha256": "fc7bb47ce5bc72201924bb209aff349fcad58fde0aa190477e4f319d7ff44409"
+      },
+      {
+        "path": "docs/data/stage01-feasibility.json",
+        "sha256": "448b0f86d4b48d11c2c18b66a5ccedb4ae67554f574f69a498fd3e0ecf6d0f7e"
+      },
+      {
+        "path": "docs/data/starter-layout.json",
+        "sha256": "5d915925ab4470862d3ae0876c583b8fb68fcdb27676a931be7b2b95c07b0cd3"
+      },
+      {
+        "path": "game/app/app_root.gd",
+        "sha256": "b1295f7063ab863dbee2c391bc716f9444ed5e8d9d181e802d5c830948fdd827"
+      },
+      {
+        "path": "game/app/game_session.gd",
+        "sha256": "5d555a804a9ea8035429ba5862a924bb0297f4466404bcd93e65032518ed2686"
+      },
+      {
+        "path": "game/app/main.tscn",
+        "sha256": "e1a3ffe5c4423cba6c381ac29a6dca3f98da3b045af9db13120002a88da310e5"
+      },
+      {
+        "path": "game/building/body_index.gd",
+        "sha256": "48e3c53c53784ae2120817e86d5506a2db761a977af07e2e3d014c56ad56b68b"
+      },
+      {
+        "path": "game/building/hospital_space.gd",
+        "sha256": "2207fe8dafc5493a6fa926f4355792e67fde214c7a111f18afd73ca1b67b0b5e"
+      },
+      {
+        "path": "game/clinic/clinical_runtime.gd",
+        "sha256": "dea547d617dcdbcc2535c52f405116843d680b8518fc0ad9f177b3227a4ed3a3"
+      },
+      {
+        "path": "game/content/content_db.gd",
+        "sha256": "f381eb675543f52cf21a2b98ad6a83b6156dc1ecbf9075c542b8535d713c3012"
+      },
+      {
+        "path": "game/economy/ledger_entry.gd",
+        "sha256": "6c610e59dedf13c94618e41f872c875b1cc33446c55aae4f28317008c181b877"
+      },
+      {
+        "path": "game/economy/ledger.gd",
+        "sha256": "5935c7b45f2315b6387950a285cf3aef1198f95282078d42db2b271fa09ebb02"
+      },
+      {
+        "path": "game/persistence/json_stream.gd",
+        "sha256": "92af8351e19b1ee2740a42eb3c9d66b9e2b6e0a028470c7e5bd15e96ccba7299"
+      },
+      {
+        "path": "game/persistence/snapshot_store.gd",
+        "sha256": "d56b68a6da99accf7772794fbdda81a1be96fa680e770f857775605712443b46"
+      },
+      {
+        "path": "game/sim/feasibility_hospitals.gd",
+        "sha256": "5a544a7089ee0e7838a07ac46a3c2caa7e3ffa13d9f754e6496db43562469dcb"
+      },
+      {
+        "path": "game/sim/simulation.gd",
+        "sha256": "a162460464c33409fd6c4838e919bed7ace6da851bf7380724d434b08489f215"
+      },
+      {
+        "path": "game/sim/types/command_result.gd",
+        "sha256": "14bfda9bada0dfb5d33f13d5966c0572f65cc344a685e4caa8b1210fdbab82cb"
+      },
+      {
+        "path": "game/sim/types/game_command.gd",
+        "sha256": "4a8f8654fb6ad2919789977885b403f60112b0e659aafa29a0ea3f97123dcf2a"
+      },
+      {
+        "path": "game/sim/types/move_actor_payload.gd",
+        "sha256": "fbd9b3ca8ba45361291c49cf69cd23cb4275c435f6c3f94b1f7197b98f4d6e0a"
+      },
+      {
+        "path": "game/sim/types/sim_event.gd",
+        "sha256": "97adadfe83e77fb0292ed8b322f2ed1d3f5b3138d772cf3d5b8bc4240ba8a911"
+      },
+      {
+        "path": "game/sim/types/tick_result.gd",
+        "sha256": "113a2e3386f7955e69637630a2d2ca94ebd7be0010758b6d8bf8d639fc53dbd1"
+      },
+      {
+        "path": "game/sim/world_state.gd",
+        "sha256": "0f85a9ed057081d2d0d4f0afa84d1632e59710006410f9bc292fb9ae61855169"
+      },
+      {
+        "path": "game/view/compatibility_skin_input.gd",
+        "sha256": "f0c6b71171c8ea8917b661196152e97f2a6e642fbbdb72b3ae18091eb57f73b8"
+      },
+      {
+        "path": "game/view/hospital_palette.gd",
+        "sha256": "dd24f6999e8c0522cc0e04eb36bf4cd779274ccbb85133d8821daa742e930624"
+      },
+      {
+        "path": "game/view/hospital_view.gd",
+        "sha256": "ce46a921016606f84116dbfbe95ed6f1a3a6b86849607223c07dd5a49af07614"
+      },
+      {
+        "path": "game/view/skinned_pose_batch.gd",
+        "sha256": "aace3d336ffe477136818d06d1d2d7e5dd1ebb3051371069991dc99dcbca7ac0"
+      },
+      {
+        "path": "tools/benchmarks/cost-coverage.json",
+        "sha256": "3c0c5ba5944ff203c4012c8153042221f15634d13d2dad628a7abc68845d2dc7"
+      },
+      {
+        "path": "tools/benchmarks/display_projection.gd",
+        "sha256": "3e7608e114f1781488d46a827f829ef9bee1961f3d438ff136b8f606b5c10993"
+      },
+      {
+        "path": "tools/benchmarks/kernel_capture.gd",
+        "sha256": "02f3e9131592e73992b8478f030273d6b4d01fec3a21fcc3822f40d1eee793bb"
+      },
+      {
+        "path": "tools/benchmarks/kernel_capture.tscn",
+        "sha256": "9a870a5990f6fea60ea683098f82025056c465098d357e54ac0a95c5683e575f"
+      },
+      {
+        "path": "tools/benchmarks/kernel_fixture.gd",
+        "sha256": "ab944c02b8f8dffa565ff3cb710dbc396f52ef8a12b1244b473e96f83a7f1a1e"
+      },
+      {
+        "path": "tools/benchmarks/kernel_replay.gd",
+        "sha256": "18801cf8ff2ea92be43f69f50f95dc7648838d95d15a231cddbd0aec5b68468d"
+      },
+      {
+        "path": "tools/benchmarks/profile_space.gd",
+        "sha256": "c0eca0bbb05eabb3b462f1eb0c07842e64589d71f201736fdd1ce703e9b2993c"
+      },
+      {
+        "path": "tools/benchmarks/timed_simulation.gd",
+        "sha256": "ca199f10c2b8cc8e4e4d6942689fe2a452cf83c702712e6b3219226e8cceade0"
+      }
+    ],
+    "files": [
+      {
+        "path": "kernel-benchmark.exe",
+        "bytes": 109127680,
+        "sha256": "ad20a2b4b63bd65a2c636e89d0665466d7f3cd8495386e2da38285b35acb9474"
+      },
+      {
+        "path": "kernel-benchmark.pck",
+        "bytes": 31026268,
+        "sha256": "48baa3d08bd9156d8f494666f69c2be4a1e60a3309afa2f17992bc8df8297b05"
+      },
+      {
+        "path": "oddly_good_platform.windows.x86_64.dll",
+        "bytes": 1178112,
+        "sha256": "90138945d1274ca702728f25c825100c02ed337c827580cefa6a7fade9a1380d"
+      }
+    ]
+  },
+  "environment": {
+    "captured_utc": "2026-10-14T14:00:27.9911257Z",
+    "cpu": [
+      {
+        "Name": "Intel(R) Core(TM) Ultra 5 125H",
+        "NumberOfCores": 14,
+        "NumberOfLogicalProcessors": 18
+      }
+    ],
+    "os": {
+      "Caption": "Microsoft Windows 11 家庭版 中文版",
+      "Version": "10.0.26300",
+      "TotalVisibleMemorySize": 32987452,
+      "FreePhysicalMemory": 17745012
+    },
+    "adapters": [
+      {
+        "Name": "OrayIddDriver Device",
+        "DriverVersion": "17.50.19.949",
+        "CurrentHorizontalResolution": null,
+        "CurrentVerticalResolution": null,
+        "CurrentRefreshRate": null
+      },
+      {
+        "Name": "MuMu Virtual Display Adapter",
+        "DriverVersion": "20.36.41.498",
+        "CurrentHorizontalResolution": 2560,
+        "CurrentVerticalResolution": 1440,
+        "CurrentRefreshRate": 119
+      },
+      {
+        "Name": "Intel(R) Arc(TM) Graphics",
+        "DriverVersion": "31.0.101.5382",
+        "CurrentHorizontalResolution": 2880,
+        "CurrentVerticalResolution": 1920,
+        "CurrentRefreshRate": 60
+      }
+    ],
+    "power": "电源方案 GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (平衡)",
+    "battery": [
+      {
+        "BatteryStatus": 2,
+        "EstimatedChargeRemaining": 61
+      }
+    ],
+    "background": [
+      {
+        "ProcessName": "CordC",
+        "Id": 16444,
+        "CPU": 4296.921875,
+        "WorkingSet64": 324952064
+      },
+      {
+        "ProcessName": "Weixin",
+        "Id": 12560,
+        "CPU": 922.59375,
+        "WorkingSet64": 289234944
+      },
+      {
+        "ProcessName": "chrome",
+        "Id": 21432,
+        "CPU": 863.140625,
+        "WorkingSet64": 300273664
+      },
+      {
+        "ProcessName": "explorer",
+        "Id": 5104,
+        "CPU": 601.390625,
+        "WorkingSet64": 437137408
+      },
+      {
+        "ProcessName": "jetbrains-toolbox",
+        "Id": 4760,
+        "CPU": 590.96875,
+        "WorkingSet64": 390094848
+      },
+      {
+        "ProcessName": "ChatGPT",
+        "Id": 20808,
+        "CPU": 489.125,
+        "WorkingSet64": 250437632
+      },
+      {
+        "ProcessName": "ChatGPT",
+        "Id": 38564,
+        "CPU": 488.9375,
+        "WorkingSet64": 621551616
+      },
+      {
+        "ProcessName": "chrome",
+        "Id": 18504,
+        "CPU": 414.90625,
+        "WorkingSet64": 307228672
+      },
+      {
+        "ProcessName": "MuMuNxService",
+        "Id": 20724,
+        "CPU": 312.203125,
+        "WorkingSet64": 51888128
+      },
+      {
+        "ProcessName": "ChatGPT",
+        "Id": 23680,
+        "CPU": 137.4375,
+        "WorkingSet64": 384348160
+      },
+      {
+        "ProcessName": "jetbrainsd",
+        "Id": 7920,
+        "CPU": 130.96875,
+        "WorkingSet64": 54071296
+      },
+      {
+        "ProcessName": "ctfmon",
+        "Id": 20124,
+        "CPU": 126.8125,
+        "WorkingSet64": 81154048
+      }
+    ],
+    "scope": "headless Release simulation; no presented frames or GPU measurements",
+    "process_observation_cadence_seconds": 1
+  },
+  "missing": [
+    "presented_frames",
+    "GPU",
+    "graphics_resources",
+    "save_restore",
+    "full_daily_systems",
+    "multiple_clinical_stations",
+    "isolated_log_serialization_cost"
+  ]
+}

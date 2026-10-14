@@ -8,7 +8,7 @@
 
 技术栈：Godot 4.7.2标准版、带类型GDScript、Compatibility/OpenGL 3.3、Blender 4.5.14 LTS/GLB、UTF-8 JSON与CSV、每医院独立SQLite事务快照、Windows x86_64资料库占用桥接、NSIS 3.13。工程选型及公共签名沿用[技术规格](04-technical.md)，产品行为沿用[模拟规格](01-simulation.md)、[内容规格](02-content.md)及各系统章节。
 
-本计划基于设计1.97.0、内容与数值schema100、起始布局schema9、临床布局schema5、产品快照schema1。规划起点为设计、数据、校验工具和离线阅读页。第一阶段已建立代表工程、源资产、Windows技术包及实机验证，范围与后续未覆盖项目见[第一阶段可行性报告](13-stage01-feasibility.md)。各阶段的文件和测试入口按对应成果逐项接入。
+本计划基于设计1.97.0、内容与数值schema100、起始布局schema9、临床布局schema5、产品快照schema1。规划起点为设计、数据、校验工具和离线阅读页。第一阶段已建立代表工程、源资产、Windows技术包及实机验证；第二阶段交付基准准备与成本接入清单，性能检测跳过；第三阶段交付正式内核及独立Release实测。范围与验证状态分别见[第一阶段报告](13-stage01-feasibility.md)、[第二阶段基准交付](14-stage02-benchmark.md)和[第三阶段实测](15-stage03-kernel-performance.md)。各阶段的文件和验证入口按对应成果逐项接入。
 
 ### 全局约束
 
@@ -113,7 +113,7 @@
 | 待建立文件或目录 | 唯一责任 | 正式交付/收口阶段 |
 | --- | --- | --- |
 | `project.godot`、`export_presets.cfg` | 固定引擎/渲染/输入/用户目录/导出 | 01验证，03/07/40收口 |
-| `game/app/game_session.gd`、`game/sim/simulation.gd`、`game/sim/types/world_state.gd` | 命令、固定步与世界唯一事实 | 03 |
+| `game/app/game_session.gd`、`game/sim/simulation.gd`、`game/sim/world_state.gd`、`game/sim/types/` | 命令、固定步与世界唯一事实 | 03 |
 | `game/platform/windows/` | 资料库独占句柄与原生库打包 | 01验证，05/40收口 |
 | `game/content/content_loader.gd`、`content_registry.gd`、`tools/compile-content.ps1` | 发布集合生成、类型、依赖和不可变索引 | 04 |
 | `game/persistence/snapshot_codec.gd`、`snapshot_store.gd`、`library_service.gd` | 流式编解码、完整提交、恢复与多院管理 | 05/06 |
@@ -124,8 +124,8 @@
 | `game/community/` | 研究、关系、事件、活动、任务故事、谢礼和院史 | 25、29至34 |
 | `game/view/`、`game/ui/` | 实体投影、共享资源、镜头/表现、Control输入与操作 | 07底座，各业务同步；35/36收口 |
 | `content/core/`、`assets/`、`art-source/` | 发布数据/中文/成品资源/源资产和导入证据 | 04/07管线，35收口 |
-| `tests/run.gd`、`tests/unit/`、`tests/integration/`、`tests/fixtures/` | SceneTree断言、状态/故障/版本夹具 | 03底座，各业务同步 |
-| `tests/performance/`、`tools/benchmark.ps1`、`tools/build-windows.ps1` | Release、负载/回放、采集/预测与正式验收 | 02起，各业务接入；38收口 |
+| `tools/verify-stage03-kernel.gd`、`tools/replay-simulation.gd` | 正式内核规则运行器、独立命令回放与事实输出 | 03底座，各业务同步 |
+| `tools/benchmarks/`、`tools/prepare-kernel-benchmark.ps1`、`tools/measure-kernel.ps1`、`tools/report-kernel.py`、`tools/build-stage03.ps1` | Release、负载/回放、采集/预测与正式验收 | 02工具，03实测，各业务接入；38收口 |
 | `installer/` | NSIS、发行单元、升级/恢复与元数据 | 01验证，40至42收口 |
 
 世界不持Node、纹理或文件句柄；视图不结算工资、治疗或奖励。原生桥接只拥有平台句柄；确有纯算法瓶颈时另行确定局部原生优化，保留公共接口、固定步顺序和确定性结果。
@@ -147,23 +147,26 @@
 
 ### 3.3 验证入口
 
-第一阶段现有复验入口见[可行性报告](13-stage01-feasibility.md#9-重建与复验)。后续正式工程接入统一套件与基准入口：`tests/run.gd`按`--suite`选择套件，任何断言失败返回非0；`tools/build-windows.ps1`完成固定版本导出和发行单元核验；`tools/benchmark.ps1`只启动Release基准及采集，回传实际缺失证据。以下命令是这些后续统一入口的目标合同。
+第一阶段现有复验入口见[可行性报告](13-stage01-feasibility.md#9-重建与复验)。第三阶段已交付独立规则与回放入口，任何规则断言失败返回非0；Release构建、基准准备和测量分别执行。第二阶段仅生成计划与准备工程，第三阶段测量正式内核。普通规则运行器已交付并通过编译检查，普通规则测试未执行。
 
 ```powershell
 pwsh -NoProfile -File docs/tools/export-design.ps1
-godot --headless --path . --script res://tests/run.gd -- --suite unit
-godot --headless --path . --script res://tests/run.gd -- --suite integration
-pwsh -NoProfile -File tools/build-windows.ps1
-pwsh -NoProfile -File tools/benchmark.ps1 -Case baseline160 -Speed 3
+& 'C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe' --headless --path . --script res://tools/verify-stage03-kernel.gd
+& 'C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe' --headless --path . --script res://tools/replay-simulation.gd -- --input=commands.json --output=facts.json
+pwsh -NoProfile -File tools/build-stage03.ps1
+pwsh -NoProfile -File tools/prepare-performance-plan.ps1
+pwsh -NoProfile -File tools/prepare-kernel-benchmark.ps1
+pwsh -NoProfile -File tools/measure-kernel.ps1 -Actors 160 -RunName local-kernel
+python -X utf8 tools/report-kernel.py --input .cache/validation/stage03/local-kernel --actors 160 --output .cache/validation/stage03/local-kernel/report.json
 ```
 
-`godot`入口绑定本项目固定版本。报告保留工具版本、构建commit、内容/资产哈希、参数、原始输出、退出码和复现步骤。基准世界是专用夹具；保存中断和安装故障在独立验收资料库中注入，其导出配置确定实际user://目录。
+回放输入结构由[第二、第三阶段规格](../specs/26-10/2026-10-14-stage02-stage03-simulation-kernel.md)拥有。报告保留工具版本、构建时HEAD、实际源文件/发行单元哈希、参数、原始输出、退出码和复现步骤；未提交源码由逐文件哈希标识。基准世界是专用夹具；保存中断和安装故障在独立验收资料库中注入，其导出配置确定实际user://目录。未来统一套件接入时保留这些独立入口的失败和取证合同。
 
 ## 4. 第一阶段：最小技术可行性
 
 实施合同见[第一阶段实施规格](../specs/26-10/2026-10-14-stage01-technical-feasibility.md)。
 
-第一阶段代表合同已通过本机验收，成品、实际证据与未覆盖范围见[第一阶段可行性报告](13-stage01-feasibility.md)。完整性能判断由第二阶段建立。
+第一阶段代表合同已通过本机验收，成品、实际证据与未覆盖范围见[第一阶段可行性报告](13-stage01-feasibility.md)。第二阶段提供成本接入与基准工具，第三阶段实测当前内核，完整性能在后续系统接入后收口。
 
 ### 目标与边界
 
@@ -185,6 +188,8 @@ pwsh -NoProfile -File tools/benchmark.ps1 -Case baseline160 -Speed 3
 空间、恢复或表现合同存在阻断时，先修技术路径再扩大制作。第一阶段记录初步耗时，60fps和完整内容通过结论进入第二阶段及后续验收。
 
 ## 5. 第二阶段：游戏性能数据预测及基准验收
+
+**当前交付：** 基准工程、采集/报告工具、72组未测量计划与成本接入表已交付；第二阶段性能检测全部跳过。原显示、资源和存储采样项目保持未执行，详见[第二阶段报告](14-stage02-benchmark.md)。以下目标与测量步骤继续作为后续完整验收合同。
 
 ### 5.1 把配置判断转为测量
 
@@ -220,13 +225,15 @@ pwsh -NoProfile -File tools/benchmark.ps1 -Case baseline160 -Speed 3
 
 ### 5.4 工作步骤与采样顺序
 
-- [ ] **2.1 建立可复现的Release基准。** 用专用夹具生成真实合法布局及身体，固定seed、命令回放和镜头序列。实现固定步、路径、队列/临床推进的真实负载；提取到访容量、临床条件重查、环境、互动候选等高风险查询为可复用组件。每个尚未实现系统明确列出缺失成本及最晚接入阶段，静止模型不代替服务负载。
-- [ ] **2.2 建立采集与报表。** 原始记录覆盖实际呈现间隔、step、真实tick、响应、路径队列/节点、真实实体与可见实例、资源和保存阶段。测试控制与日志位于验收工具，不进入WorldState或新随机流。诊断profiler/额外渲染通道与正式Release计时分开，测量采集自身开销。核验工具对当前OpenGL呈现的字段含义和有效性，未提供的CPU/GPU细分成本保留缺失，恒0字段不视为实测零成本。
+- [x] **2.1 建立当前负载的Release基准。** 专用夹具使用真实合法布局及身体，固定seed、实际移动命令和镜头序列，复用固定步、路径、队列/临床推进。到访容量、环境和互动等未接入查询在`cost-coverage.json`明确标注缺失及接入阶段。
+- [x] **2.2 建立采集与报表。** 原始记录包含完整step、命令、真实tick、路径与病例计数、实体和OS资源；采集控制不进入WorldState或新随机流。诊断profiler与正式Release分离，夹具准备单独计时。显示投影提供现有引擎观察量，实际呈现间隔、GPU和未接入资源/保存成本保持缺失；恒0字段不作为零成本证据。
 - [ ] **2.3 先测默认主要组合。** 对160/320/640、两种窗口尺寸、1×/3×，先以标准75%三维、UI100%运行12组；每组预热60现实秒、采样600现实秒。采集不删除正常自动保存、平移、变焦、切层和资源退场产生的长帧。
 - [ ] **2.4 完成显示组合与密集样本。** 扩到两窗口×三负载×三场景比例×两UI比例×两速度，共72组基础显示组合；每组独立统计。72组的预热加采样净时长为13.2小时，另计启动、诊断、保存、高层和长程试验。空间合法的近景、全层概览与宽高联合样例，分别满足原密集区间至少60现实秒、密度至少90%的要求，记录实际达到的可见量。
 - [ ] **2.5 验证空间、资源和存储峰值。** 加入1000层实际稀疏经营、10000空结构、冷热/强制驱逐、反复切层/切院、UI200%字体/列表、64MiB/128MiB世界和临床中途保存。测当前/候选/退场资源同时存在时的峰值；空楼层不展开成全图。
 - [ ] **2.6 校准预测并优化。** 对照预测与实测差异，优先修最昂贵查询、重复扫描、局部脏区、资源副本、Surface提交、骨采样、透明和列表。每次用相同seed、负载和条件复测，核对固定tick事实等价。算法仍为瓶颈时，按原风险规则评估局部原生优化，再重新验证。
-- [ ] **2.7 发布基准报告与成本接入表。** 对已实现基准判定通过/失败，对待实现和无法测量项注明缺失证据。每阶段接入真实系统和正式资源后替换对应预测，阶段38完成全部游戏重测。
+- [x] **2.7 发布工程准备报告与成本接入表。** 第二阶段报告明确性能检测跳过、72组未测量及成本缺失；第三阶段另列实际内核结果。每阶段接入真实系统和正式资源后替换对应预测，阶段38完成全部游戏重测。
+
+2.3至2.6的第二阶段实测与校准未执行。第三阶段的内核优化及其同tick核对、160人两组真实采集独立记入第三阶段报告。评审修复后按160→320→640人逐档复测；每档1×/3×全部通过才进入下一档，失败后最多三轮优化、提交与正式复测，三轮仍未达标则停止后续档并记录原因。
 
 ### 5.5 引用当前验收目标
 
@@ -235,7 +242,7 @@ pwsh -NoProfile -File tools/benchmark.ps1 -Case baseline160 -Speed 3
 | 指标 | 本机默认基线目标 | 记录要点 |
 | --- | --- | --- |
 | 实际呈现帧 | P95≤16.7ms、P99≤25ms、普通最大≤50ms | 最近秩分位、同一完整帧总体、组间独立；未完成尾帧继续取证或标缺失 |
-| 模拟步与速度 | step P95≤4ms，真实速度≥所选速度99% | 600现实秒1×至少5940tick，3×至少17820tick |
+| 模拟步与速度 | step P95≤10ms、P99≤15ms、普通最大≤30ms，真实速度≥所选速度99% | 帧预算60%并向下取整；600现实秒1×至少5940tick，3×至少17820tick |
 | 输入与建造预览 | 输入/预览P95≤100ms，最大房间完整预览P95≤200ms | 从真实输入计时；轮廓先出现和取消重算均记录 |
 | 保存恢复 | 副本P95≤25ms，160人基线保存≤2秒、载入≤5秒 | 回执确认完整提交；大世界另测实际代价与资源 |
 | 内存 | 工作集目标≤2GiB，图形资源目标≤512MiB | 私有提交、payload、分配及驻留分开；共享分配去重 |
@@ -252,12 +259,14 @@ pwsh -NoProfile -File tools/benchmark.ps1 -Case baseline160 -Speed 3
 
 **阶段目标：** 可独立回放、无窗口验证的正式模拟内核。
 
+**当前交付：** 实施合同见[第二、第三阶段规格](../specs/26-10/2026-10-14-stage02-stage03-simulation-kernel.md)。以下四项实现已交付，评审修复后30项内核规则检查通过，独立回放的合法与非法输入退出码已验证。160人、1×/3×完整步与命令边界的Release结果由[第三阶段报告](15-stage03-kernel-performance.md)单独判定；修复评审问题后按160→320→640人逐档验证，每档最多三轮优化与复测，达标才进入下一档。实现完成与性能通过分别记录。
+
 ### 工作步骤
 
-- [ ] **3.1 建立正式世界类型与事实所有权。** 按技术规格落地WorldState、GameCommand、SimEvent、TickResult及业务数据类型，区分保存事实和可重建索引；世界不引用场景或平台句柄。
-- [ ] **3.2 固化时间与执行顺序。** 实现0.1模拟秒步长、hospital-time-v1、每步十阶段、稳定ID顺序、暂停命令边界、速度意图与多个暂停原因，恢复焦点不补算停机时间。
-- [ ] **3.3 完成命令幂等和原子失败。** 处理医院身份、命令ID、相关已确认值与当前合法性；无关revision变化不反复拒绝，费用或对象等实质变化返回具体原因，失败保持世界。
-- [ ] **3.4 交付回放与规则运行器。** 固定seed和命令记录能运行到指定tick，套件失败非0；回放产出规范化业务事实及独立随机流末态，工具记录不进入医院快照。
+- [x] **3.1 建立正式世界类型与事实所有权。** 落地WorldState、GameCommand、CommandResult、SimEvent、TickResult与账目类型，区分保存事实和可重建空间索引；世界不引用场景或平台句柄。
+- [x] **3.2 固化时间与执行顺序。** 保留0.1模拟秒步长、hospital-time-v1和每步十阶段稳定顺序；GameSession统一暂停命令边界、速度意图和多个暂停来源。应用读取单调现实时间，超过1秒的中断与恢复后的首个间隔不补算，连续运行保留未处理积压。
+- [x] **3.3 完成命令幂等和原子失败。** 现有移动命令处理医院身份、命令ID、相关已确认位置与当前合法性；无关revision变化允许继续核验，实质变化返回具体原因，失败不写快照回执、不增加revision、不改变随机流。后续建造/招聘等命令随所属业务接入。
+- [x] **3.4 交付回放与规则运行器。** 初始世界和带tick的命令记录运行到指定tick，规则断言失败非0；回放产出规范化业务事实及十二条独立随机流末态，工具记录不进入医院快照。运行器已交付，普通规则测试未执行。
 
 ### 成果与通过条件
 

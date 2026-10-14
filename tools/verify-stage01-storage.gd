@@ -42,7 +42,7 @@ func _run() -> void:
 		_guard.call("release")
 		quit(0 if report.ok else 1)
 		return
-	var world: HospitalWorld = FeasibilityHospitals.create(HospitalSnapshots.uuid(),true,content)
+	var world: WorldState = FeasibilityHospitals.create(HospitalSnapshots.uuid(),true,content)
 	var simulation: HospitalSimulation = HospitalSimulation.new(world,content)
 	for tick: int in 1500:
 		simulation.step()

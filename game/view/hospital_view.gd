@@ -3,7 +3,7 @@ extends Node3D
 
 const Palette = preload("res://game/view/hospital_palette.gd")
 
-var world: HospitalWorld
+var world: WorldState
 var content: HospitalContent
 var observed_floor: int = 1
 var low_motion: bool = false
@@ -29,7 +29,7 @@ func _init(database: HospitalContent) -> void:
 	content = database
 	_geometry = HospitalSpace.new(database)
 
-func bind(state: HospitalWorld, floor_id: int = 1) -> void:
+func bind(state: WorldState, floor_id: int = 1) -> void:
 	bind_error = ""
 	world = state
 	observed_floor = floor_id

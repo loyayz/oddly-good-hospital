@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "stage02_measurement_status": "skipped",
+  "models": [
+    {"kind":"simulation_queries","implemented":["fixed_step","command_boundary","body_routes","movement","clinical_readiness","surgical_work","ledger"],"calibration_stage":3,"missing":[{"cost":"arrival_capacity_and_wait_departure","stage":24},{"cost":"environment_dirty_regions","stage":19},{"cost":"interaction_candidates","stage":29},{"cost":"multiple_clinical_stations","stage":10}]},
+    {"kind":"drawing_pose","implemented":["stage01_compatibility_skinning"],"measurement_status":"not_measured","missing":[{"cost":"visible_surfaces_LOD_transparency_and_pose_upload","stage":7},{"cost":"all_formal_assets","stage":35},{"cost":"display_matrix_and_presented_frames","stage":38}]},
+    {"kind":"memory_resources","implemented":["OS_working_set_and_private_commit_capture"],"calibration_stage":3,"missing":[{"cost":"render_targets_graphics_allocation_and_resource_overlap","stage":7},{"cost":"full_world_and_switching_peak","stage":38}]},
+    {"kind":"save_restore","implemented":["stage01_transactional_snapshots"],"measurement_status":"not_measured","missing":[{"cost":"formal_64MiB_and_128MiB_world_encoding_hashing_readback_and_commit","stage":5},{"cost":"multi_hospital_candidate_and_retiring_resources","stage":6},{"cost":"complete_game_storage_peak","stage":38}]}
+  ],
+  "prediction_policy":"Only current measured workloads calibrate costs. Fit mean complete-step cost by actual actor count; use 160/320 for calibration and 640 as a separate holdout. Do not sum module percentiles or extrapolate missing systems."
+}

@@ -23,6 +23,9 @@ $chapters = @(
     @{ File='design/12-implementation-plan.md'; Id='implementation'; Title='实施路线与阶段交付' },
     @{ File='specs/26-10/2026-10-14-stage01-technical-feasibility.md'; Id='stage01-spec'; Title='第一阶段实施规格' },
     @{ File='design/13-stage01-feasibility.md'; Id='stage01-feasibility'; Title='第一阶段可行性实测' },
+    @{ File='specs/26-10/2026-10-14-stage02-stage03-simulation-kernel.md'; Id='stage02-stage03-spec'; Title='第二、第三阶段实施规格' },
+    @{ File='design/14-stage02-benchmark.md'; Id='stage02-benchmark'; Title='第二阶段基准工具' },
+    @{ File='design/15-stage03-kernel-performance.md'; Id='stage03-performance'; Title='第三阶段内核实测' },
     @{ Generated='atlas'; Id='atlas'; Title='完整内容索引' },
     @{ Generated='report'; Id='report'; Title='设计核验报告' }
 )
@@ -130,7 +133,7 @@ input[type=checkbox]{accent-color:#3b5f92;pointer-events:none}
 </style>
 </head>
 <body>
-<aside><p class="brand">怪好的医院</p><p class="edition">Oddly Good Hospital<br>完整产品方案 · $designVersion</p><nav aria-label="文档目录"><ol>$toc</ol></nav><p class="note">全部章节与概念图已包含在本文件中。可离线阅读；源数据链接可另存为JSON。第一阶段技术样板与实机结果已另列，完整游戏和人数负载尚未完成。</p></aside>
+<aside><p class="brand">怪好的医院</p><p class="edition">Oddly Good Hospital<br>完整产品方案 · $designVersion</p><nav aria-label="文档目录"><ol>$toc</ol></nav><p class="note">全部章节与概念图已包含在本文件中。可离线阅读；源数据链接可另存为JSON。阶段报告分别记录技术样板、跳过的第二阶段检测与第三阶段内核实测；完整游戏验收继续随业务接入。</p></aside>
 <main><p class="book-title">轻松经营一座属于人类与奇妙居民的医院</p>$sectionHtml</main>
 </body></html>
 "@
