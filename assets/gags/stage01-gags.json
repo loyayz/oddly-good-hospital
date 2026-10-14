@@ -1,0 +1,719 @@
+{
+  "schema": 1,
+  "source_tool": "Blender 4.5.14 LTS",
+  "generator_sha256": "3ea672e94fe32e853774096d1fccdda10534fa03f96e1e0a662474959e57bce7",
+  "acceptance_tool_sha256": "f4a37701260644d76128ce2e43d317b8e6f38958e0138780531f3830cd1df697",
+  "content_source_sha256": "fc7bb47ce5bc72201924bb209aff349fcad58fde0aa190477e4f319d7ff44409",
+  "units": "metres",
+  "engine_axes": "X right, Y up, Z depth",
+  "assets": [
+    {
+      "name": "case_d37_tissue",
+      "binding_id": "B_S49_D37_M37",
+      "attach_slot": "hand_l",
+      "attachment_engine_m": [
+        0,
+        0,
+        0
+      ],
+      "required_nodes": [
+        "sail",
+        "paper_body",
+        "grip"
+      ],
+      "projection_only": false,
+      "asset_path": "assets/gags/case_d37_tissue.glb",
+      "source_path": "art-source/gags/case_d37_tissue.blend",
+      "sha256": "93b63dffc3847b14efc0bfa4542f24aa88a2db7170592b2fc35a1c4eb3453c3b",
+      "bytes": 19696,
+      "triangle_count": 28,
+      "surface_count": 2,
+      "surfaces": [
+        {
+          "mesh": "paper_body_mesh",
+          "triangles": 24,
+          "material": "gag_vertex_colour",
+          "alpha_mode": "OPAQUE"
+        },
+        {
+          "mesh": "sail_mesh_mesh",
+          "triangles": 4,
+          "material": "gag_vertex_colour",
+          "alpha_mode": "OPAQUE"
+        }
+      ],
+      "node_names": [
+        "grip",
+        "paper_body",
+        "sail_mesh",
+        "sail",
+        "case_d37_tissue"
+      ],
+      "clip_durations_seconds": {
+        "symptom": 2.0,
+        "work": 2.0,
+        "paused": 2.0,
+        "recovery": 1.0,
+        "recovery_hold": 2.0,
+        "low_motion": 2.0,
+        "low_motion_recovery": 2.0,
+        "short_loop": 2.0
+      },
+      "rest_local_bounds_engine_m": {
+        "minimum_m": [
+          0.0,
+          0.0,
+          -0.006000000052154064
+        ],
+        "maximum_m": [
+          0.16782806637712558,
+          0.22058992923537207,
+          0.019500000402331352
+        ]
+      },
+      "clip_envelopes": [
+        {
+          "clip": "symptom",
+          "sample_count": 9,
+          "measured_local_bounds_engine_m": {
+            "minimum_m": [
+              0.0,
+              0.0,
+              -0.006000000052154064
+            ],
+            "maximum_m": [
+              0.16782806641698284,
+              0.22078267766666346,
+              0.019500000402331352
+            ]
+          }
+        },
+        {
+          "clip": "work",
+          "sample_count": 9,
+          "measured_local_bounds_engine_m": {
+            "minimum_m": [
+              0.0,
+              0.0,
+              -0.006000000052154064
+            ],
+            "maximum_m": [
+              0.16782806641698284,
+              0.22078267766666346,
+              0.019500000402331352
+            ]
+          }
+        },
+        {
+          "clip": "paused",
+          "sample_count": 9,
+          "measured_local_bounds_engine_m": {
+            "minimum_m": [
+              0.0,
+              0.0,
+              -0.006000000052154064
+            ],
+            "maximum_m": [
+              0.16782806641698284,
+              0.22058992913279138,
+              0.019500000402331352
+            ]
+          }
+        },
+        {
+          "clip": "recovery",
+          "sample_count": 9,
+          "measured_local_bounds_engine_m": {
+            "minimum_m": [
+              0.0,
+              -0.00041655734139019705,
+              -0.006000000052154064
+            ],
+            "maximum_m": [
+              0.17000000551342964,
+              0.21500000730156898,
+              0.019500000402331352
+            ]
+          }
+        },
+        {
+          "clip": "recovery_hold",
+          "sample_count": 9,
+          "measured_local_bounds_engine_m": {
+            "minimum_m": [
+              0.0,
+              0.0,
+              -0.006000000052154064
+            ],
+            "maximum_m": [
+              0.09000000357627869,
+              0.05000000074505806,
+              0.019500000402331352
+            ]
+          }
+        },
+        {
+          "clip": "low_motion",
+          "sample_count": 9,
+          "measured_local_bounds_engine_m": {
+            "minimum_m": [
+              0.0,
+              0.0,
+              -0.006000000052154064
+            ],
+            "maximum_m": [
+              0.16782806641698284,
+              0.22058992913279138,
+              0.019500000402331352
+            ]
+          }
+        },
+        {
+          "clip": "low_motion_recovery",
+          "sample_count": 9,
+          "measured_local_bounds_engine_m": {
+            "minimum_m": [
+              0.0,
+              0.0,
+              -0.006000000052154064
+            ],
+            "maximum_m": [
+              0.09000000357627869,
+              0.05000000074505806,
+              0.019500000402331352
+            ]
+          }
+        },
+        {
+          "clip": "short_loop",
+          "sample_count": 9,
+          "measured_local_bounds_engine_m": {
+            "minimum_m": [
+              0.0,
+              0.0,
+              -0.006000000052154064
+            ],
+            "maximum_m": [
+              0.16782806641698284,
+              0.22078267766666346,
+              0.019500000402331352
+            ]
+          }
+        }
+      ],
+      "root_motion": false,
+      "simulation_entities": 0
+    },
+    {
+      "name": "device_m37_filter",
+      "binding_id": "B_S49_D37_M37",
+      "attach_definition": "M37",
+      "attachment_engine_m": [
+        1.5,
+        1.3,
+        1.5
+      ],
+      "required_nodes": [
+        "fan",
+        "cloud_bag",
+        "cloud",
+        "filter_seal"
+      ],
+      "projection_only": false,
+      "asset_path": "assets/gags/device_m37_filter.glb",
+      "source_path": "art-source/gags/device_m37_filter.blend",
+      "sha256": "b5a3647f196cf6cdcd9b4b2b984e425f8af2581a31812961cf95ac0d479f2727",
+      "bytes": 70912,
+      "triangle_count": 220,
+      "surface_count": 5,
+      "surfaces": [
+        {
+          "mesh": "bag_body_mesh",
+          "triangles": 60,
+          "material": "gag_vertex_colour",
+          "alpha_mode": "OPAQUE"
+        },
+        {
+          "mesh": "cotton_cloud_mesh",
+          "triangles": 72,
+          "material": "gag_vertex_colour",
+          "alpha_mode": "OPAQUE"
+        },
+        {
+          "mesh": "seal_ribbon_mesh",
+          "triangles": 24,
+          "material": "gag_vertex_colour",
+          "alpha_mode": "OPAQUE"
+        },
+        {
+          "mesh": "fan_blades_mesh",
+          "triangles": 32,
+          "material": "gag_vertex_colour",
+          "alpha_mode": "OPAQUE"
+        },
+        {
+          "mesh": "fan_stand_mesh",
+          "triangles": 32,
+          "material": "gag_vertex_colour",
+          "alpha_mode": "OPAQUE"
+        }
+      ],
+      "node_names": [
+        "bag_body",
+        "cotton_cloud",
+        "cloud",
+        "seal_ribbon",
+        "filter_seal",
+        "cloud_bag",
+        "fan_blades",
+        "fan",
+        "fan_stand",
+        "device_m37_filter"
+      ],
+      "clip_durations_seconds": {
+        "symptom": 2.0,
+        "work": 2.0,
+        "paused": 2.0,
+        "recovery": 2.0,
+        "recovery_hold": 2.0,
+        "safe_finish": 2.0,
+        "low_motion": 2.0,
+        "short_loop": 2.0
+      },
+      "rest_local_bounds_engine_m": {
+        "minimum_m": [
+          -0.8611269946545902,
+          -0.019999995827674866,
+          0.6500000059604645
+        ],
+        "maximum_m": [
+          0.9600000083446503,
+          0.8111269827336612,
+          1.0610000084489584
+        ]
+      },
+      "clip_envelopes": [
+        {
+          "clip": "symptom",
+          "sample_count": 9,
+          "measured_local_bounds_engine_m": {
+            "minimum_m": [
+              -0.8724544051719307,
+              -0.019999995827674866,
+              0.6500000059604645
+            ],
+            "maximum_m": [
+              0.9600000083446503,
+              0.8224543932510018,
+              1.0725375076770782
+            ]
+          }
+        },
+        {
+          "clip": "work",
+          "sample_count": 9,
+          "measured_local_bounds_engine_m": {
+            "minimum_m": [
+              -0.8724544051719307,
+              -0.019999995827674866,
+              0.6500000059604645
+            ],
+            "maximum_m": [
+              0.9600000083446503,
+              0.8224543932510018,
+              1.0725375076770782
+            ]
+          }
+        },
+        {
+          "clip": "paused",
+          "sample_count": 9,
+          "measured_local_bounds_engine_m": {
+            "minimum_m": [
+              -0.8611269737481811,
+              -0.019999995827674866,
+              0.6500000059604645
+            ],
+            "maximum_m": [
+              0.9600000083446503,
+              0.8111269618272522,
+              1.0610000084489584
+            ]
+          }
+        },
+        {
+          "clip": "recovery",
+          "sample_count": 9,
+          "measured_local_bounds_engine_m": {
+            "minimum_m": [
+              -0.8724543954985265,
+              -0.019999995827674866,
+              0.6500000059604645
+            ],
+            "maximum_m": [
+              0.9600000083446503,
+              0.8224543835775976,
+              1.0787500068545341
+            ]
+          }
+        },
+        {
+          "clip": "recovery_hold",
+          "sample_count": 9,
+          "measured_local_bounds_engine_m": {
+            "minimum_m": [
+              -0.8300000131130219,
+              -0.019999995827674866,
+              0.6500000059604645
+            ],
+            "maximum_m": [
+              0.9600000083446503,
+              0.7800000011920929,
+              1.0176249891519547
+            ]
+          }
+        },
+        {
+          "clip": "safe_finish",
+          "sample_count": 9,
+          "measured_local_bounds_engine_m": {
+            "minimum_m": [
+              -0.8724543954985265,
+              -0.019999995827674866,
+              0.6500000059604645
+            ],
+            "maximum_m": [
+              0.9600000083446503,
+              0.8224543835775976,
+              1.0787500068545341
+            ]
+          }
+        },
+        {
+          "clip": "low_motion",
+          "sample_count": 9,
+          "measured_local_bounds_engine_m": {
+            "minimum_m": [
+              -0.8611269737481811,
+              -0.019999995827674866,
+              0.6500000059604645
+            ],
+            "maximum_m": [
+              0.9600000083446503,
+              0.8111269618272522,
+              1.0610000084489584
+            ]
+          }
+        },
+        {
+          "clip": "short_loop",
+          "sample_count": 9,
+          "measured_local_bounds_engine_m": {
+            "minimum_m": [
+              -0.8724544051719307,
+              -0.019999995827674866,
+              0.6500000059604645
+            ],
+            "maximum_m": [
+              0.9600000083446503,
+              0.8224543932510018,
+              1.0725375076770782
+            ]
+          }
+        }
+      ],
+      "root_motion": false,
+      "simulation_entities": 0
+    },
+    {
+      "name": "case_d23_dream",
+      "binding_id": "B_S49_D23_M23",
+      "attach_slot": "head",
+      "attachment_engine_m": [
+        0,
+        0,
+        0
+      ],
+      "required_nodes": [
+        "bubble",
+        "sheep",
+        "sheep_2",
+        "sheep_pillow",
+        "pillow",
+        "dream_fence",
+        "closed_seam"
+      ],
+      "projection_only": true,
+      "asset_path": "assets/gags/case_d23_dream.glb",
+      "source_path": "art-source/gags/case_d23_dream.blend",
+      "sha256": "cf55e02c9cda71c63f1d6152f6492215157192a63ebe514ef7f9a3b47666f13c",
+      "bytes": 165876,
+      "triangle_count": 607,
+      "surface_count": 8,
+      "surfaces": [
+        {
+          "mesh": "bubble_shell_mesh",
+          "triangles": 48,
+          "material": "gag_projection",
+          "alpha_mode": "BLEND"
+        },
+        {
+          "mesh": "dream_gate_mesh",
+          "triangles": 72,
+          "material": "gag_vertex_colour",
+          "alpha_mode": "OPAQUE"
+        },
+        {
+          "mesh": "sheep_wool_mesh",
+          "triangles": 141,
+          "material": "gag_vertex_colour",
+          "alpha_mode": "OPAQUE"
+        },
+        {
+          "mesh": "sheep_2_wool_mesh",
+          "triangles": 141,
+          "material": "gag_vertex_colour",
+          "alpha_mode": "OPAQUE"
+        },
+        {
+          "mesh": "pillow_mesh",
+          "triangles": 24,
+          "material": "gag_vertex_colour",
+          "alpha_mode": "OPAQUE"
+        },
+        {
+          "mesh": "sheep_pillow_wool_mesh",
+          "triangles": 141,
+          "material": "gag_vertex_colour",
+          "alpha_mode": "OPAQUE"
+        },
+        {
+          "mesh": "seam_stars_mesh",
+          "triangles": 4,
+          "material": "gag_vertex_colour",
+          "alpha_mode": "OPAQUE"
+        },
+        {
+          "mesh": "closed_seam_mesh_mesh",
+          "triangles": 36,
+          "material": "gag_vertex_colour",
+          "alpha_mode": "OPAQUE"
+        }
+      ],
+      "node_names": [
+        "bubble_shell",
+        "dream_gate",
+        "dream_fence",
+        "sheep_wool",
+        "sheep",
+        "sheep_2_wool",
+        "sheep_2",
+        "pillow",
+        "sheep_pillow_wool",
+        "sheep_pillow",
+        "seam_stars",
+        "star_stitches",
+        "bubble",
+        "closed_seam_mesh",
+        "closed_seam",
+        "case_d23_dream"
+      ],
+      "clip_durations_seconds": {
+        "symptom": 2.0,
+        "work": 2.0,
+        "paused": 2.0,
+        "awaiting_result": 2.0,
+        "recovery": 1.0,
+        "recovery_hold": 2.0,
+        "low_motion": 2.0,
+        "low_motion_work": 2.0,
+        "low_motion_recovery": 2.0,
+        "short_loop": 2.0
+      },
+      "rest_local_bounds_engine_m": {
+        "minimum_m": [
+          -0.32204293087124825,
+          0.3449999988079071,
+          -0.08500000089406967
+        ],
+        "maximum_m": [
+          0.33324871212244034,
+          0.7049999982118607,
+          0.17599999904632568
+        ]
+      },
+      "clip_envelopes": [
+        {
+          "clip": "symptom",
+          "sample_count": 9,
+          "measured_local_bounds_engine_m": {
+            "minimum_m": [
+              -0.32204293087124825,
+              0.3449999988079071,
+              -0.08500000089406967
+            ],
+            "maximum_m": [
+              0.33324871212244034,
+              0.7049999982118607,
+              0.17599999904632568
+            ]
+          }
+        },
+        {
+          "clip": "work",
+          "sample_count": 9,
+          "measured_local_bounds_engine_m": {
+            "minimum_m": [
+              -0.32204293087124825,
+              0.3449999988079071,
+              -0.08500000089406967
+            ],
+            "maximum_m": [
+              0.33324871212244034,
+              0.7049999982118607,
+              0.17599999904632568
+            ]
+          }
+        },
+        {
+          "clip": "paused",
+          "sample_count": 9,
+          "measured_local_bounds_engine_m": {
+            "minimum_m": [
+              -0.32204293087124825,
+              0.3449999988079071,
+              -0.08500000089406967
+            ],
+            "maximum_m": [
+              0.33324871212244034,
+              0.7049999982118607,
+              0.17599999904632568
+            ]
+          }
+        },
+        {
+          "clip": "awaiting_result",
+          "sample_count": 9,
+          "measured_local_bounds_engine_m": {
+            "minimum_m": [
+              -0.3100000023841858,
+              0.3449999988079071,
+              -0.08500000089406967
+            ],
+            "maximum_m": [
+              0.3100000023841858,
+              0.7049999982118607,
+              0.07799999788403511
+            ]
+          }
+        },
+        {
+          "clip": "recovery",
+          "sample_count": 9,
+          "measured_local_bounds_engine_m": {
+            "minimum_m": [
+              -0.3100000023841858,
+              0.3449999988079071,
+              -0.08500000089406967
+            ],
+            "maximum_m": [
+              0.3100000023841858,
+              0.7049999982118607,
+              0.07799999788403511
+            ]
+          }
+        },
+        {
+          "clip": "recovery_hold",
+          "sample_count": 9,
+          "measured_local_bounds_engine_m": {
+            "minimum_m": [
+              -0.10999999940395355,
+              0.4938000000908971,
+              -0.003399999959766864
+            ],
+            "maximum_m": [
+              0.10999999940395355,
+              0.5450000017881393,
+              0.04437499865889549
+            ]
+          }
+        },
+        {
+          "clip": "low_motion",
+          "sample_count": 9,
+          "measured_local_bounds_engine_m": {
+            "minimum_m": [
+              -0.32204293087124825,
+              0.3449999988079071,
+              -0.08500000089406967
+            ],
+            "maximum_m": [
+              0.33324871212244034,
+              0.7049999982118607,
+              0.17599999904632568
+            ]
+          }
+        },
+        {
+          "clip": "low_motion_work",
+          "sample_count": 9,
+          "measured_local_bounds_engine_m": {
+            "minimum_m": [
+              -0.3100000023841858,
+              0.3449999988079071,
+              -0.08500000089406967
+            ],
+            "maximum_m": [
+              0.3100000023841858,
+              0.7049999982118607,
+              0.07799999788403511
+            ]
+          }
+        },
+        {
+          "clip": "low_motion_recovery",
+          "sample_count": 9,
+          "measured_local_bounds_engine_m": {
+            "minimum_m": [
+              -0.10999999940395355,
+              0.4938000000908971,
+              -0.003399999959766864
+            ],
+            "maximum_m": [
+              0.10999999940395355,
+              0.5450000017881393,
+              0.04437499865889549
+            ]
+          }
+        },
+        {
+          "clip": "short_loop",
+          "sample_count": 9,
+          "measured_local_bounds_engine_m": {
+            "minimum_m": [
+              -0.32204293087124825,
+              0.3449999988079071,
+              -0.08500000089406967
+            ],
+            "maximum_m": [
+              0.33324871212244034,
+              0.7049999982118607,
+              0.17599999904632568
+            ]
+          }
+        }
+      ],
+      "root_motion": false,
+      "simulation_entities": 0
+    }
+  ],
+  "phase_mapping": {
+    "paused": "Pause the current work sample to preserve exact progress; static clip is a readable fallback.",
+    "recovery": "Only select for an actual cured result. Device safe_finish is allowed for every completed attempt.",
+    "awaiting_result": "D23 neutral observation with bubble open, even if its committed result is not revealed yet.",
+    "short_loop": "Secondary display cycle only; clinical milestones use actual progress, never loop completion."
+  },
+  "license_source": "Oddly Good Hospital project-original procedural meshes and vertex colours",
+  "validation_scope": "Actual Blender export and GLB geometry, node, phase and attachment verification; GPU and game integration measured separately."
+}

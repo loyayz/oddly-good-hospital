@@ -1,0 +1,27 @@
+; Oddly Good Hospital — Windows feasibility build
+config_version=5
+
+[application]
+config/name="怪好的医院"
+config/version="0.1.0-stage01"
+run/main_scene="res://game/app/main.tscn"
+config/use_custom_user_dir=true
+config/custom_user_dir_name="oddly-good-hospital"
+
+[display]
+window/size/viewport_width=1440
+window/size/viewport_height=900
+window/size/window_width_override=1440
+window/size/window_height_override=900
+window/stretch/mode="canvas_items"
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/default_filters/use_nearest_mipmap_filter=false
+scaling_3d/scale=0.75
+environment/defaults/default_clear_color=Color(0.70,0.76,0.85,1)
+
+[debug]
+file_logging/enable_file_logging=false
+file_logging/enable_file_logging.pc=false

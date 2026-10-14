@@ -1,0 +1,729 @@
+{
+  "schema_version": 1,
+  "stage_id": "stage01-technical-feasibility",
+  "product_id": "oddly-good-hospital",
+  "product_version": "0.1.0-stage01",
+  "recorded_at_utc": "2026-10-14T05:20:41.0348985Z",
+  "representative_scope_pass": true,
+  "full_game_performance_accepted": false,
+  "spec": {
+    "path": "docs/specs/26-10/2026-10-14-stage01-technical-feasibility.md",
+    "sha256": "f901dd23b40c7d8f7b2dfd5b6ec1a6882b9a575a1606d704d706ef2d123a701f"
+  },
+  "environment": {
+    "cpu": {
+      "Name": "Intel(R) Core(TM) Ultra 5 125H",
+      "NumberOfCores": 14,
+      "NumberOfLogicalProcessors": 18
+    },
+    "physical_memory_bytes": 33779150848,
+    "os": {
+      "Caption": "Microsoft Windows 11 家庭版 中文版",
+      "Version": "10.0.26300",
+      "BuildNumber": "26300"
+    },
+    "actual_adapter": "Intel(R) Arc(TM) Graphics",
+    "actual_adapter_driver": "31.0.101.5382",
+    "graphics_api": "OpenGL 3.3.0",
+    "rendering_method": "gl_compatibility",
+    "rendering_driver": "opengl3",
+    "engine": "4.7.2.stable.official.ed1daf0bf",
+    "blender": "4.5.14 LTS",
+    "zig": "0.15.2",
+    "nsis": "3.13 Unicode"
+  },
+  "build": {
+    "product_id": "oddly-good-hospital",
+    "version": "0.1.0-stage01",
+    "engine": "4.7.2.stable.official.ed1daf0bf",
+    "files": [
+      {
+        "path": "oddly-good-hospital.exe",
+        "bytes": 109127680,
+        "sha256": "a92ef7fa5c33ef89b07d53255179005b56e5d733d16c6f87ab8fbebdba3bfb0c"
+      },
+      {
+        "path": "oddly-good-hospital.pck",
+        "bytes": 30957068,
+        "sha256": "954c1609bb3b630eb9c3d02fbe65d6a5285759baff59f52912ae9af5f42c7128"
+      },
+      {
+        "path": "oddly_good_platform.windows.x86_64.dll",
+        "bytes": 30208,
+        "sha256": "6e30712ab3381f21633ebd209bd67a7272e27cf78766a2d8be561fb782398b7b"
+      },
+      {
+        "path": "licenses/Godot-MIT.txt",
+        "bytes": 1149,
+        "sha256": "b0435e3b3e4e55238f05f4b306f30524a1b2e20147810d436eaa554fa6855c80"
+      },
+      {
+        "path": "licenses/Noto-Sans-CJK-OFL.txt",
+        "bytes": 4301,
+        "sha256": "6a73f9541c2de74158c0e7cf6b0a58ef774f5a780bf191f2d7ec9cc53efe2bf2"
+      },
+      {
+        "path": "licenses/THIRD-PARTY-NOTICES.txt",
+        "bytes": 672,
+        "sha256": "d5002e60676a2ce692af17cfd11544c5436ff9b393dde22491f55acbbb848c3e"
+      }
+    ]
+  },
+  "installer": {
+    "path": ".build/installer/oddly-good-hospital-stage01-setup.exe",
+    "bytes": 67827727,
+    "sha256": "ceb18c83a0cff8fc6a4bcc8ca20cee99a69a6f16ef9b6850994f006f21cccc59"
+  },
+  "source_identity": [
+    {
+      "path": "docs/data/content-catalog.json",
+      "sha256": "fc7bb47ce5bc72201924bb209aff349fcad58fde0aa190477e4f319d7ff44409"
+    },
+    {
+      "path": "docs/data/balance.json",
+      "sha256": "7a49ea19a2a56397d8cdff30c78725662f78b3a3c8fc4e841e90be351c53ec46"
+    },
+    {
+      "path": "docs/data/clinical-layouts.json",
+      "sha256": "9b36802d19faf8d450cbb95ff14515eca5a56b0d0b276d978267708aca74b7e3"
+    },
+    {
+      "path": "game/content/content_db.gd",
+      "sha256": "f381eb675543f52cf21a2b98ad6a83b6156dc1ecbf9075c542b8535d713c3012"
+    },
+    {
+      "path": "game/sim/world_state.gd",
+      "sha256": "ee77097687a4c4fe4ee20e3b7e18fc59c9ad3edced564ab8097ca34697df07a0"
+    },
+    {
+      "path": "game/sim/simulation.gd",
+      "sha256": "137d9ea18a1465e9df144e60280c4b7d94b3e2293c25c73c3e1f49fc7da511e7"
+    },
+    {
+      "path": "game/sim/feasibility_hospitals.gd",
+      "sha256": "7f32df48bfce4132f67da15bfe4722222ae58ee3cd53df8295e215c9181c7eee"
+    },
+    {
+      "path": "game/clinic/clinical_runtime.gd",
+      "sha256": "848c250307902b44846df90925d43410d15efe497f4dc856a346a2f89c2a0482"
+    },
+    {
+      "path": "game/building/hospital_space.gd",
+      "sha256": "444cbdd84074e1e9280cf6098575b8a919d65c8827072b1ad2837643a2089444"
+    },
+    {
+      "path": "game/persistence/json_stream.gd",
+      "sha256": "bb283fac8b0d627e5621fb29948a4bd7fb92396ed725aed3d898b73792bac414"
+    },
+    {
+      "path": "game/persistence/snapshot_store.gd",
+      "sha256": "4be0dc7b93d9663697ec47abd89222d1b512c18b3d4094d2922f6834dfd0985e"
+    },
+    {
+      "path": "game/platform/windows/platform_session_guard.c",
+      "sha256": "052a1359a91444e2c47547be7d20a517ee11ad07e447867b077ca7883445fffc"
+    },
+    {
+      "path": "game/app/app_root.gd",
+      "sha256": "fe1806e639289ac507c400b13428c5f9bab0a3c785e6340d86cc03875a8c8a18"
+    },
+    {
+      "path": "game/view/hospital_view.gd",
+      "sha256": "a827ac1580674f1ed344d703080a071572093fba0b85a367ffa57cd65d495e68"
+    },
+    {
+      "path": "game/view/hospital_palette.gd",
+      "sha256": "dd24f6999e8c0522cc0e04eb36bf4cd779274ccbb85133d8821daa742e930624"
+    },
+    {
+      "path": "game/view/skinned_pose_batch.gd",
+      "sha256": "aace3d336ffe477136818d06d1d2d7e5dd1ebb3051371069991dc99dcbca7ac0"
+    },
+    {
+      "path": "game/view/compatibility_skin_input.gd",
+      "sha256": "f0c6b71171c8ea8917b661196152e97f2a6e642fbbdb72b3ae18091eb57f73b8"
+    },
+    {
+      "path": "assets/models/import_vertex_colours.gd",
+      "sha256": "556fcf845505dca9bfc30f1c8a65466cb9fea4caaf0e73eee4331bc571c0688c"
+    },
+    {
+      "path": "game/view/shaders/skinned_pose.gdshader",
+      "sha256": "f6f8e6b78c4771e64da95c681f9e1e6010c4b8933fd1886cb4f5152fa0c2b6a7"
+    },
+    {
+      "path": "game/view/shaders/skinned_pose_double_sided.gdshader",
+      "sha256": "7e373dc423e76554f486dade8fb9453f9b27420a010b4192319425183d0e6055"
+    },
+    {
+      "path": "game/view/shaders/skinned_pose.gdshaderinc",
+      "sha256": "0d02ebc85dd8c871d5f99d31b735cb91d745844f098e6214d1321a674c429feb"
+    },
+    {
+      "path": "game/view/shaders/skinned_pose_surface.gdshaderinc",
+      "sha256": "19ed00ba18c94787f290481d8d04a77daa434a2e5bfd8ac8c3ff096cc36ed23a"
+    },
+    {
+      "path": "assets/models/core_s49_body.glb",
+      "sha256": "0e6177a4874c51fc1b9b46a3932c7d169665485a5f4a547e6dab212c353b9c08"
+    },
+    {
+      "path": "assets/models/stage01-production.json",
+      "sha256": "9064c45dee4f0c47c6b7d476b2b38eb596ee777efb977bca8b6fac9546345565"
+    },
+    {
+      "path": "assets/gags/stage01-gags.json",
+      "sha256": "91661d4172ad827b5a5be0f43d2523724ef489f2978822d58381bb36089d11f8"
+    },
+    {
+      "path": "art-source/build_stage01.py",
+      "sha256": "109eeda52f51050d40c888f4443de936911107f9fb41f06d1d966913fdcc18c5"
+    },
+    {
+      "path": "art-source/gags/build_gags.py",
+      "sha256": "3ea672e94fe32e853774096d1fccdda10534fa03f96e1e0a662474959e57bce7"
+    }
+  ],
+  "runtime": {
+    "checks_pass": true,
+    "check_count": 90,
+    "checks": {
+      "actual_transit_body_exclusive": true,
+      "adaptation_preview_read_only": true,
+      "begin_surgery_save": true,
+      "blocked_extension_refused": true,
+      "compressed_ten_thousand_floors": true,
+      "door_extent_is_real_reservation": true,
+      "door_real_automatic_span_and_height": true,
+      "duplicate_command_no_effect": true,
+      "equipment_failure_preserves_frozen_attempt": true,
+      "equipment_recovery_continues_original_attempt": true,
+      "expanded_bed_is_actual_obstacle": true,
+      "expanded_bed_restored_with_reservation": true,
+      "expanded_bed_save_committed": true,
+      "expanded_bed_save_started": true,
+      "ghost_collision_is_real": true,
+      "ghost_legal_one_cell_corridor": true,
+      "giant_bed_preview_is_three_by_five": true,
+      "giant_body_physically_supported_without_scale": true,
+      "giant_cannot_use_one_cell_corridor": true,
+      "giant_door_route": true,
+      "human_can_use_same_fixed_stair": true,
+      "initial_outpatient_invariants": true,
+      "initial_surgery_invariants": true,
+      "invalid_dto_rejected_dangling_ledger": true,
+      "invalid_dto_rejected_dangling_visit": true,
+      "invalid_dto_rejected_missing_door": true,
+      "invalid_dto_rejected_missing_species": true,
+      "invalid_dto_rejected_position_conflict": true,
+      "invalid_dto_rejected_rng_overflow": true,
+      "invalid_dto_rejected_room_extent": true,
+      "invalidated_preparation_releases_resources_keeps_ticket": true,
+      "isolated_guard": true,
+      "micro_one_actor": true,
+      "no_unready_attempt_bed": true,
+      "no_unready_attempt_qualification": true,
+      "no_unready_attempt_research": true,
+      "no_unready_attempt_stock": true,
+      "outpatient_actual_cure": true,
+      "outpatient_departed": true,
+      "outpatient_inventory_issued_once": true,
+      "outpatient_maximum_attempts": true,
+      "outpatient_post_clinical_invariants": true,
+      "outpatient_single_success_charge": true,
+      "readonly_route_preview": true,
+      "real_giant_transit_requested": true,
+      "registered_content": true,
+      "restore_exact_world": true,
+      "restore_midway_gp": true,
+      "restore_midway_recovery": true,
+      "restore_midway_round": true,
+      "restore_midway_surgery": true,
+      "restore_midway_transfer": true,
+      "restore_midway_wake": true,
+      "resume_same_tick_gp": true,
+      "resume_same_tick_recovery": true,
+      "resume_same_tick_round": true,
+      "resume_same_tick_surgery": true,
+      "resume_same_tick_transfer": true,
+      "resume_same_tick_wake": true,
+      "same_tick_same_facts_and_rng": true,
+      "save_committed_gp": true,
+      "save_committed_recovery": true,
+      "save_committed_round": true,
+      "save_committed_surgery": true,
+      "save_committed_transfer": true,
+      "save_committed_wake": true,
+      "save_started_gp": true,
+      "save_started_recovery": true,
+      "save_started_round": true,
+      "save_started_surgery": true,
+      "save_started_transfer": true,
+      "save_started_wake": true,
+      "surgery_actual_cure": true,
+      "surgery_departed": true,
+      "surgery_inventory_issued_once": true,
+      "surgery_maximum_attempts": true,
+      "surgery_post_clinical_invariants": true,
+      "surgery_save_committed": true,
+      "surgery_single_success_charge": true,
+      "tall_body_rejected_by_fixed_stair_clear_height": true,
+      "three_cell_giant": true,
+      "transit_real_exit_on_second_floor": true,
+      "transit_restored_exact": true,
+      "transit_resume_same_facts": true,
+      "transit_save_committed": true,
+      "transit_save_started": true,
+      "transparent_body_cannot_cross_wall": true,
+      "vertical_giant_route": true,
+      "ward_real_care_and_round": true,
+      "ward_release_after_departure": true
+    },
+    "same_tick_restore_phases": [
+      "gp",
+      "surgery",
+      "wake",
+      "transfer",
+      "recovery",
+      "round"
+    ],
+    "clinical_cases": [
+      {
+        "kind": "outpatient",
+        "species_id": "S49",
+        "disease_id": "D37",
+        "starting_money": 100000,
+        "starting_packages": 60,
+        "attempts": 1,
+        "end_phase": "departed",
+        "departed_tick": 796,
+        "final_money": 100245,
+        "final_packages": 59,
+        "cure_charge": 200,
+        "ledger": {
+          "attempt_00000009:outpatient": {
+            "amount": 10,
+            "component": "outpatient",
+            "owner_id": "attempt_00000009",
+            "settled": true,
+            "tick": 714
+          },
+          "visit_00000001:consultation": {
+            "amount": 30,
+            "component": "consultation",
+            "owner_id": "visit_00000001",
+            "settled": true,
+            "tick": 277
+          },
+          "visit_00000001:cure": {
+            "amount": 200,
+            "component": "cure",
+            "owner_id": "visit_00000001",
+            "settled": true,
+            "tick": 714
+          },
+          "visit_00000001:gp": {
+            "amount": 5,
+            "component": "gp",
+            "owner_id": "visit_00000001",
+            "settled": true,
+            "tick": 277
+          }
+        }
+      },
+      {
+        "kind": "surgery",
+        "species_id": "S49",
+        "disease_id": "D23",
+        "starting_money": 100000,
+        "starting_packages": 60,
+        "attempts": 2,
+        "end_phase": "departed",
+        "departed_tick": 10311,
+        "final_money": 101426,
+        "final_packages": 40,
+        "cure_charge": 1116,
+        "ledger": {
+          "attempt_00000013:surgery": {
+            "amount": 60,
+            "component": "surgery",
+            "owner_id": "attempt_00000013",
+            "settled": true,
+            "tick": 2582
+          },
+          "attempt_00000013:ward": {
+            "amount": 60,
+            "component": "ward",
+            "owner_id": "attempt_00000013",
+            "settled": true,
+            "tick": 5419
+          },
+          "attempt_00000019:surgery": {
+            "amount": 60,
+            "component": "surgery",
+            "owner_id": "attempt_00000019",
+            "settled": true,
+            "tick": 7323
+          },
+          "attempt_00000019:ward": {
+            "amount": 60,
+            "component": "ward",
+            "owner_id": "attempt_00000019",
+            "settled": true,
+            "tick": 10160
+          },
+          "visit_00000001:consultation": {
+            "amount": 30,
+            "component": "consultation",
+            "owner_id": "visit_00000001",
+            "settled": true,
+            "tick": 277
+          },
+          "visit_00000001:cure": {
+            "amount": 1116,
+            "component": "cure",
+            "owner_id": "visit_00000001",
+            "settled": true,
+            "tick": 10160
+          },
+          "visit_00000001:gp": {
+            "amount": 5,
+            "component": "gp",
+            "owner_id": "visit_00000001",
+            "settled": true,
+            "tick": 277
+          },
+          "visit_00000001:resonance": {
+            "amount": 20,
+            "component": "resonance",
+            "owner_id": "visit_00000001",
+            "settled": true,
+            "tick": 684
+          },
+          "visit_00000001:spectrum": {
+            "amount": 15,
+            "component": "spectrum",
+            "owner_id": "visit_00000001",
+            "settled": true,
+            "tick": 474
+          }
+        }
+      }
+    ],
+    "evidence": {
+      "path": ".cache/validation/runtime-blue/runtime-evidence.json",
+      "sha256": "9f154c3ed4ce05a322602959f8e5761f337917b183e7c0a6173952020e2f088c"
+    }
+  },
+  "compatibility": {
+    "production_path_pass": true,
+    "adapted_original_pass": true,
+    "raw_unadapted_baseline_pass": false,
+    "raw_baseline_tangent_max_degrees": 177.721167033895,
+    "raw_baseline_purpose": "Measurement history and engine-upgrade regression; not a delivered alternative game version",
+    "qualified_species": [
+      "S49"
+    ],
+    "qualified_rig_families": [
+      "biped"
+    ],
+    "samples": [
+      {
+        "name": "independent_work_walk",
+        "pass": true,
+        "position_max_m": 0.0,
+        "normal_max_degrees": 2.70039624417803E-05,
+        "tangent_max_degrees": 2.92285016206462E-05,
+        "semantic_anchor_max_m": 1.38408950078883E-06,
+        "compared_vertices": 3888,
+        "compared_anchors": 14
+      },
+      {
+        "name": "low_motion",
+        "pass": true,
+        "position_max_m": 0.0,
+        "normal_max_degrees": 2.17219936036131E-05,
+        "tangent_max_degrees": 3.12998628433869E-05,
+        "semantic_anchor_max_m": 1.2010002592433E-06,
+        "compared_vertices": 3888,
+        "compared_anchors": 14
+      },
+      {
+        "name": "recovery_and_symptom",
+        "pass": true,
+        "position_max_m": 0.0,
+        "normal_max_degrees": 2.48769182050092E-05,
+        "tangent_max_degrees": 2.88772462505129E-05,
+        "semantic_anchor_max_m": 1.36766357172746E-06,
+        "compared_vertices": 3888,
+        "compared_anchors": 14
+      }
+    ],
+    "matrix_page": {
+      "bones": 21,
+      "cpu_current_and_staging_bytes": 4096,
+      "driver_upload_temporaries": "not exposed by Godot; process/video peaks remain separate evidence",
+      "format": "RGBAF",
+      "full_page_uploaded_bytes_including_initialization": 18432,
+      "gpu_current_and_staging_bytes": 4096,
+      "members": 2,
+      "page_height": 2,
+      "page_width": 64,
+      "prepared_surfaces": 1,
+      "publish_count": 7
+    },
+    "actual_original_resources": {
+      "active_identity_resource": true,
+      "body_payload_unchanged": true,
+      "driver_temporaries": "not exposed by Godot; observe process/video allocation separately",
+      "gpu_buffers": "original and adapted base resources are distinct GPU meshes; same-source payload is retained and must not be counted as freed",
+      "per_original_instance_additional_blend_intermediate_bytes": 108864,
+      "raw_base_payload_retained_bytes": 98952,
+      "raw_source_retained": true,
+      "shared_additional_input_payload_bytes": 38880,
+      "shared_duplicate_base_gpu_payload_bytes": 98952,
+      "surface_count": 1,
+      "vertices": 1944
+    },
+    "local_64_rows": {
+      "custom_channel": "INSTANCE_CUSTOM.x",
+      "failed_rows": [],
+      "instance_channel": "INSTANCE_ID",
+      "missing_position_pixels": 0,
+      "pass": true,
+      "rgba_float_64_row_position_max_m": 0.0,
+      "rgba_float_page_bytes": 65536,
+      "rows": 64
+    },
+    "main_shadow": {
+      "actors": 2,
+      "camera_size": [
+        512,
+        512
+      ],
+      "candidate_viewport_calls": 3,
+      "distinct_current_poses": true,
+      "maximum_colour_difference": 0.00392156839370728,
+      "method": "original visible bodies + real directional shadows vs production visible MultiMesh + shadows; control keeps the same original visible bodies and disables shadow casting",
+      "original_viewport_calls": 5,
+      "pass": true,
+      "pixels_different_by_more_than_2_bytes": 0,
+      "reference_shadow_pixels": 12712,
+      "root_yaw_degrees": [
+        90,
+        270
+      ]
+    },
+    "uncovered": [
+      "other eight rig families",
+      "nonuniform bone scale and blend shapes",
+      "alpha-blend sorting",
+      "multiple surfaces and texture material adapters",
+      "640-person performance and all-world budget",
+      "complete future symptom and support poses"
+    ],
+    "evidence": {
+      "path": ".cache/validation/stage01-render/result.json",
+      "sha256": "8873f930a878fe44a1507e6fbdc5e1aa91df1063b4f4f456b56f96234905da31"
+    }
+  },
+  "ui": {
+    "pass": true,
+    "checks": {
+      "actual_compatibility": true,
+      "actual_speed_1": true,
+      "actual_speed_2": true,
+      "actual_speed_3": true,
+      "boot_after_native_guard": true,
+      "button_boundary_contrast": true,
+      "button_state_text_contrast": true,
+      "cancel_keeps_original_world": true,
+      "cancel_keeps_paused": true,
+      "case_capture_view_ready": true,
+      "corrupt_target_keeps_original_and_draft": true,
+      "door_world_capture": true,
+      "door_world_view_ready": true,
+      "dream-awaiting-actual-result_capture": true,
+      "expanded_bed_world_capture": true,
+      "expanded_bed_world_view_ready": true,
+      "floor2-spatial-widths_capture": true,
+      "focus_pauses_and_preserves_intent": true,
+      "keyboard_focus_contrast": true,
+      "late_other_hospital_receipt_ignored": true,
+      "late_receipt_target_loaded": true,
+      "missing_core_asset_keeps_world": true,
+      "newer_revision_remains_dirty": true,
+      "outpatient-product-follow_capture": true,
+      "product_follow_respects_18_metre_minimum": true,
+      "sleep_delta_does_not_catch_up": true,
+      "surgery-actual-work_capture": true,
+      "switch_publishes_other_world": true,
+      "switch_target_paused": true,
+      "test_target_restored": true,
+      "tissue-and-filter-actual-work_capture": true,
+      "ui100-follow-selected_capture": true,
+      "ui100-outpatient_capture": true,
+      "ui200-outpatient_capture": true,
+      "ui_scale_and_render_are_readonly": true
+    },
+    "window_size": [
+      1440,
+      900
+    ],
+    "view_size_at_100_percent": [
+      1052,
+      694
+    ],
+    "scaling_3d_scale": 0.75,
+    "product_camera_range_m": [
+      18.0,
+      90.0
+    ],
+    "default_camera_size_m": 42,
+    "attachment_probe_camera_size_m": 8.0,
+    "palette_source": "game/view/hospital_palette.gd",
+    "ui_text_contrast_minimum": 5.15,
+    "ui_text_contrast_maximum": 11.14,
+    "palette": "Navy, ivory, pale blue, lavender and small coral/gold accents; green reserved for plants",
+    "note": "Same-source component UI and actual Windows Compatibility drawing; no frame-rate acceptance",
+    "evidence": {
+      "path": ".cache/validation/Stage01 验收 UI/component-023edaea-08ec-4a59-a513-39eba32432f8/APPDATA/evidence/ui-evidence.json",
+      "sha256": "8f34faa8f796a70e7aab5dffa14f828d7227d98162fadeabac1420895938812d"
+    }
+  },
+  "storage": {
+    "pass": true,
+    "cases": [
+      {
+        "stage": "world",
+        "intervention": "Windows share conflict, then forced process termination and restart",
+        "writer_failed": true,
+        "writer_error": "无法写入世界：12",
+        "other_process_busy_error": 32,
+        "guard_after_crash": true,
+        "previous_world_unchanged": true,
+        "old_committed_files_unchanged": true,
+        "pending_not_published": true,
+        "valid_commit_count": 1,
+        "evidence": [
+          {
+            "path": ".cache/validation/Stage01 验收 storage/96b676a3-1dd1-42af-86d6-483e6d23c3c7/world/writer.json",
+            "sha256": "7d8d586735920581bdb0da29934b69c740dd01bfe175a0046974335dd66d513d"
+          },
+          {
+            "path": ".cache/validation/Stage01 验收 storage/96b676a3-1dd1-42af-86d6-483e6d23c3c7/world/recovery.json",
+            "sha256": "8a9f06a335518f3eaf4d96a444391a28356bcc50ddbeb13dc01a42a81260782f"
+          },
+          {
+            "path": ".cache/validation/Stage01 验收 storage/96b676a3-1dd1-42af-86d6-483e6d23c3c7/world/contention.json",
+            "sha256": "62dbe8388c237eaa2d60846da312e264462eab066ef3c348ae1ba95e4c9ff92f"
+          }
+        ]
+      },
+      {
+        "stage": "manifest",
+        "intervention": "Windows share conflict, then forced process termination and restart",
+        "writer_failed": true,
+        "writer_error": "保存清单写入失败",
+        "other_process_busy_error": 32,
+        "guard_after_crash": true,
+        "previous_world_unchanged": true,
+        "old_committed_files_unchanged": true,
+        "pending_not_published": true,
+        "valid_commit_count": 1,
+        "evidence": [
+          {
+            "path": ".cache/validation/Stage01 验收 storage/96b676a3-1dd1-42af-86d6-483e6d23c3c7/manifest/writer.json",
+            "sha256": "4ab06342922198d36461627a17b41f1f9502d8846da996b1a37cc823bdaa1eda"
+          },
+          {
+            "path": ".cache/validation/Stage01 验收 storage/96b676a3-1dd1-42af-86d6-483e6d23c3c7/manifest/recovery.json",
+            "sha256": "ba10821e85a3806bddcb7acff7dda9332392ff201db66c3a3cc91e4960b4b65c"
+          },
+          {
+            "path": ".cache/validation/Stage01 验收 storage/96b676a3-1dd1-42af-86d6-483e6d23c3c7/manifest/contention.json",
+            "sha256": "a2b8ff90c7ae1bf01cde951438731a5840a70a07700da7b81dbc0cb9aa4e6693"
+          }
+        ]
+      },
+      {
+        "stage": "committed",
+        "intervention": "Windows share conflict, then forced process termination and restart",
+        "writer_failed": true,
+        "writer_error": "保存提交标记写入失败",
+        "other_process_busy_error": 32,
+        "guard_after_crash": true,
+        "previous_world_unchanged": true,
+        "old_committed_files_unchanged": true,
+        "pending_not_published": true,
+        "valid_commit_count": 1,
+        "evidence": [
+          {
+            "path": ".cache/validation/Stage01 验收 storage/96b676a3-1dd1-42af-86d6-483e6d23c3c7/committed/writer.json",
+            "sha256": "e01eba2f001aeeb5822931b46166272173cd33e66b5079bb6e79734e279c9aa0"
+          },
+          {
+            "path": ".cache/validation/Stage01 验收 storage/96b676a3-1dd1-42af-86d6-483e6d23c3c7/committed/recovery.json",
+            "sha256": "af5616d136ad61bd29c4a383d085f77fecad69408c102d0626b62afdef9c8339"
+          },
+          {
+            "path": ".cache/validation/Stage01 验收 storage/96b676a3-1dd1-42af-86d6-483e6d23c3c7/committed/contention.json",
+            "sha256": "856b1bb937582828cb064880fe29b50d0b762ada814e60a09b0d085d46608349"
+          }
+        ]
+      },
+      {
+        "stage": "rename",
+        "intervention": "GENERIC_READ directory handle denies DELETE sharing, then forced process termination and restart",
+        "writer_failed": true,
+        "writer_error": "保存提交目录更名失败，旧提交保留",
+        "other_process_busy_error": 32,
+        "guard_after_crash": true,
+        "previous_world_unchanged": true,
+        "old_committed_files_unchanged": true,
+        "pending_not_published": true,
+        "valid_commit_count": 1,
+        "evidence": [
+          {
+            "path": ".cache/validation/Stage01 验收 storage/5093b457-1125-42a0-a323-dac199480ae0/result.json",
+            "sha256": "04c5ea1e94062f025063d1be9d0297d8a5fbdc3868038ca32127b3fa4be32fe8"
+          }
+        ]
+      }
+    ],
+    "precision": "Full-precision standard JSON and Windows UCRT C-locale decoding; 64-bit RNG seeds and states remain decimal strings",
+    "qualification": "Actual share failure followed by process termination and restart; not a full power-loss or retention-slot matrix"
+  },
+  "standalone": {
+    "pass": true,
+    "elevated": false,
+    "install_exit": 0,
+    "repeated_install_exit": 2,
+    "default_release_start_exit": 0,
+    "native_movie_frames": 12,
+    "tested_files_match_build": true,
+    "tcp_endpoints_observed": 0,
+    "udp_endpoints_observed": 0,
+    "host_network_configuration_unchanged": true,
+    "player_path": "Windows system directories only",
+    "movie_fixed_fps_is_not_performance_evidence": true,
+    "uninstall_exit": 0,
+    "known_program_files_removed": true,
+    "shortcuts_removed": true,
+    "user_files_retained": true,
+    "extra_file_retained": true,
+    "extra_registration_retained": true,
+    "evidence": {
+      "path": ".cache/validation/Stage01 验收 UI/313f15b8-fe36-4a2d-bc0a-196113101c75/result.json",
+      "sha256": "dfc666ff1a1abe0abeebcedea65855feb3aaf68b2ee5bd8fe411d57b553eb239"
+    }
+  },
+  "uncovered": [
+    "Release presented-frame performance, 160/320/640 people and complete CPU/GPU/resource peaks",
+    "Complete ordinary hospital start, free building, all simulation systems and long-term numerical operation",
+    "All nine rig families, complete species/symptom/support assets and full visual readability",
+    "Complete save retention-slot, migration, backup, volume-failure and power-loss matrix",
+    "Windows 10, other GPU drivers and complete over-260-character path matrix"
+  ],
+  "evidence_storage": "Raw reports, screenshots and isolated fault libraries stay in ignored .cache/validation; committed probes reproduce the measurements"
+}

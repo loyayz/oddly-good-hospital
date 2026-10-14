@@ -1,0 +1,15 @@
+怪好的医院（Oddly Good Hospital）第三方资源说明
+
+Godot Engine 4.7.2
+Copyright (c) 2014-present Godot Engine contributors (see AUTHORS.md).
+Copyright (c) 2007-2014 Juan Linietsky, Ariel Manzur.
+完整 MIT 许可见同目录 Godot-MIT.txt。
+https://godotengine.org/license/
+
+Noto Sans CJK SC Regular / Medium
+© 2014-2021 Adobe (http://www.adobe.com/).
+字体采用 SIL Open Font License 1.1，完整许可见同目录 Noto-Sans-CJK-OFL.txt。
+随包字体保持原字体名、字形和字体内部版权/许可元数据。
+https://github.com/notofonts/noto-cjk
+
+上述许可文本随程序独立提供，不需要打开游戏、解包 pck 或联网阅读。

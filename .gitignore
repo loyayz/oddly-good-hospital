@@ -1,0 +1,8 @@
+.godot/
+.cache/
+.build/
+game/platform/windows/bin/
+art-source/.godot/
+*.blend1
+__pycache__/
+*.pyc

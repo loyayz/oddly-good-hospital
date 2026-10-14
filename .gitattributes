@@ -1,0 +1,8 @@
+# Retain the byte identity used by feasibility measurements and frozen specs.
+game/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+assets/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+art-source/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+tools/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+docs/specs/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+docs/data/*.json text eol=lf
+docs/data/stage01-feasibility.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

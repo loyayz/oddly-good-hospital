@@ -21,6 +21,8 @@ $chapters = @(
     @{ File='design/05-production.md'; Id='production'; Title='美术与声音制作' },
     @{ File='design/06-validation.md'; Id='validation'; Title='验收标准' },
     @{ File='design/12-implementation-plan.md'; Id='implementation'; Title='实施路线与阶段交付' },
+    @{ File='specs/26-10/2026-10-14-stage01-technical-feasibility.md'; Id='stage01-spec'; Title='第一阶段实施规格' },
+    @{ File='design/13-stage01-feasibility.md'; Id='stage01-feasibility'; Title='第一阶段可行性实测' },
     @{ Generated='atlas'; Id='atlas'; Title='完整内容索引' },
     @{ Generated='report'; Id='report'; Title='设计核验报告' }
 )
@@ -94,12 +96,12 @@ $document = @"
 <meta name="design-source-sha256" content="$digest">
 <title>怪好的医院 · Oddly Good Hospital · 产品设计方案</title>
 <style>
-:root{color-scheme:light;--ink:#243932;--muted:#59695f;--green:#286f5a;--paper:#fffdf7;--line:#dce3d8}
+:root{color-scheme:light;--ink:#293d60;--muted:#53657f;--blue:#3b5f92;--paper:#fffdf7;--line:#d6deeb}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:24px}
-body{margin:0;background:#f5f0e6;color:var(--ink);font:17px/1.85 "Microsoft YaHei","Segoe UI",sans-serif}
-a{color:#21624c;text-underline-offset:3px}a:hover{color:#a44f29}
-aside{position:fixed;inset:0 auto 0 0;width:224px;padding:30px 20px;background:#e7eee3;overflow-y:auto;border-right:1px solid #cdd9cb}
+body{margin:0;background:#eceff4;color:var(--ink);font:17px/1.85 "Microsoft YaHei","Segoe UI",sans-serif}
+a{color:#365988;text-underline-offset:3px}a:hover{color:#985135}
+aside{position:fixed;inset:0 auto 0 0;width:224px;padding:30px 20px;background:#e6ebf5;overflow-y:auto;border-right:1px solid #cbd5e5}
 .brand{font-size:24px;font-weight:700;letter-spacing:-.5px;margin:0 0 4px}
 .edition{font-size:13px;color:var(--muted);margin:0 0 26px}
 nav ol{padding-left:20px;margin:0}nav li{margin:10px 0;padding-left:2px}nav a{text-decoration:none;font-size:14px}
@@ -107,28 +109,28 @@ nav ol{padding-left:20px;margin:0}nav li{margin:10px 0;padding-left:2px}nav a{te
 main{margin-left:224px;padding:30px clamp(24px,4vw,70px) 80px;max-width:1600px}
 .book-title{font-size:16px;color:var(--muted);margin:4px 0 24px}
 .chapter{background:var(--paper);padding:clamp(24px,4vw,54px);margin:0 0 32px;border:1px solid var(--line);border-radius:6px;overflow-wrap:anywhere}
-h1{font-size:30px;line-height:1.4;margin:0 0 24px;color:#254e3c}
-h2{font-size:24px;line-height:1.45;margin:44px 0 18px;border-top:1px solid var(--line);padding-top:26px;color:#286044}
+h1{font-size:30px;line-height:1.4;margin:0 0 24px;color:#243a5c}
+h2{font-size:24px;line-height:1.45;margin:44px 0 18px;border-top:1px solid var(--line);padding-top:26px;color:#325889}
 h3{font-size:20px;margin:28px 0 12px}p{margin:12px 0 18px}
 ul,ol{padding-left:26px}li{margin:7px 0}
 img{display:block;max-width:100%;height:auto;border-radius:4px}
 .table-wrap{overflow-x:auto;margin:18px 0 24px}
 table{border-collapse:collapse;width:100%;font-size:14px;line-height:1.75}
-th{background:#e6eee2;color:#244a36;text-align:left;font-weight:700}
-th,td{border:1px solid #d4ddd0;padding:10px 12px;vertical-align:top;min-width:78px}
-tr:nth-child(even) td{background:#f6f8f1}
-pre{white-space:pre;overflow:auto;background:#edf1e8;border:1px solid var(--line);padding:18px;font-size:13px;line-height:1.6}
+th{background:#e7edf7;color:#30496f;text-align:left;font-weight:700}
+th,td{border:1px solid #ccd6e3;padding:10px 12px;vertical-align:top;min-width:78px}
+tr:nth-child(even) td{background:#f5f7fb}
+pre{white-space:pre;overflow:auto;background:#edf1f7;border:1px solid var(--line);padding:18px;font-size:13px;line-height:1.6}
 code{font-family:Consolas,"Microsoft YaHei",monospace;font-size:.9em}
-:not(pre)>code{background:#edf1e8;padding:2px 5px;border-radius:3px}
-blockquote{border-left:3px solid #8fae98;margin:18px 0;padding:4px 18px;color:#496453}
-input[type=checkbox]{accent-color:#286f5a;pointer-events:none}
-@media(max-width:1050px){aside{position:static;width:100%;padding:18px 24px;border-right:0;border-bottom:1px solid #cdd9cb}nav ol{display:flex;flex-wrap:wrap;gap:4px 24px;list-style:none;padding:0}nav li{margin:0}.edition{margin-bottom:12px}.note{margin-top:12px}main{margin-left:0;padding:20px}.chapter{padding:24px}h1{font-size:26px}}
+:not(pre)>code{background:#edf1f7;padding:2px 5px;border-radius:3px}
+blockquote{border-left:3px solid #8f9fbc;margin:18px 0;padding:4px 18px;color:#496082}
+input[type=checkbox]{accent-color:#3b5f92;pointer-events:none}
+@media(max-width:1050px){aside{position:static;width:100%;padding:18px 24px;border-right:0;border-bottom:1px solid #cbd5e5}nav ol{display:flex;flex-wrap:wrap;gap:4px 24px;list-style:none;padding:0}nav li{margin:0}.edition{margin-bottom:12px}.note{margin-top:12px}main{margin-left:0;padding:20px}.chapter{padding:24px}h1{font-size:26px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 @media print{aside,.book-title{display:none}main{margin:0;padding:0;max-width:none}.chapter{border:0;padding:0;margin:0 0 30px;break-before:page}.chapter:first-child{break-before:auto}body{background:white;font-size:11pt}table{font-size:9pt}h1{font-size:22pt}h2{font-size:16pt}pre{white-space:pre-wrap}.table-wrap{overflow:visible}a{color:inherit}}
 </style>
 </head>
 <body>
-<aside><p class="brand">怪好的医院</p><p class="edition">Oddly Good Hospital<br>完整产品方案 · $designVersion</p><nav aria-label="文档目录"><ol>$toc</ol></nav><p class="note">全部章节与概念图已包含在本文件中。可离线阅读；源数据链接可另存为JSON。游戏实现与实机验收尚未执行。</p></aside>
+<aside><p class="brand">怪好的医院</p><p class="edition">Oddly Good Hospital<br>完整产品方案 · $designVersion</p><nav aria-label="文档目录"><ol>$toc</ol></nav><p class="note">全部章节与概念图已包含在本文件中。可离线阅读；源数据链接可另存为JSON。第一阶段技术样板与实机结果已另列，完整游戏和人数负载尚未完成。</p></aside>
 <main><p class="book-title">轻松经营一座属于人类与奇妙居民的医院</p>$sectionHtml</main>
 </body></html>
 "@
