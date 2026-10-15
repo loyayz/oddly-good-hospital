@@ -219,7 +219,7 @@ func list_commits(hospital_id: String = "", errors: Variant = null) -> Array[Dic
 	var hospitals: PackedStringArray = DirAccess.get_directories_at(ROOT)
 	hospitals.sort()
 	for id: String in hospitals:
-		if not valid_uuid(id):
+		if not valid_uuid(id) or FileAccess.file_exists(ROOT.path_join(id).path_join(".library-pending")):
 			continue
 		if not hospital_id.is_empty() and id != hospital_id:
 			continue
@@ -504,7 +504,7 @@ func hospital_ids() -> Array[String]:
 	if not DirAccess.dir_exists_absolute(ROOT):
 		return ids
 	for id: String in DirAccess.get_directories_at(ROOT):
-		if valid_uuid(id):
+		if valid_uuid(id) and not FileAccess.file_exists(ROOT.path_join(id).path_join(".library-pending")):
 			ids.append(id)
 	ids.sort()
 	return ids

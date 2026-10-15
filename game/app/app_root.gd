@@ -28,6 +28,11 @@ var _leave_operation: Dictionary = {}
 var _candidate: WorldState
 var _drafts: Dictionary = {}
 var _save_requests: Dictionary = {}
+var _library: RefCounted
+var _library_panel: HospitalLibraryPanel
+var _library_thread: Thread
+var _library_job: Dictionary = {}
+var _file_dialog: FileDialog
 
 func _ready() -> void:
 	get_tree().auto_accept_quit = false
@@ -119,6 +124,7 @@ func _build_ui() -> void:
 	for speed: int in [1,2,3]:
 		_button(str(speed)+"×",_set_speed.bind(speed))
 	_button("保存",_save,true)
+	_button("医院资料库",_toggle_library)
 	_button("切换医院",_switch_hospital)
 	_button("取消切院",_cancel_switch)
 	_button("1F",_change_floor.bind(1))
@@ -151,7 +157,15 @@ func _build_ui() -> void:
 	_details.bbcode_enabled = true
 	_details.scroll_active = true
 	_details.add_theme_color_override("default_color",Palette.INK)
-	panel.add_child(_details)
+	var side: VBoxContainer = VBoxContainer.new()
+	panel.add_child(side)
+	_details.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	side.add_child(_details)
+	_library_panel = HospitalLibraryPanel.new()
+	_library_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_library_panel.visible = false
+	_library_panel.action_requested.connect(_library_action)
+	side.add_child(_library_panel)
 	_status = Label.new()
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_status.add_theme_color_override("font_color",Palette.MUTED_INK)
@@ -188,6 +202,7 @@ func _acquire() -> void:
 		_status.text = _content.error
 		return
 	_snapshots = HospitalSnapshots.new(_content,_guard)
+	_library = HospitalLibrary.new(_content,_snapshots)
 	_auto_deadline_ms = Time.get_ticks_msec()+roundi(float(_content.balance.save.autosave_real_seconds)*1000)
 	_hospital_ids = _snapshots.hospital_ids()
 	if _hospital_ids.is_empty():
@@ -232,6 +247,7 @@ func _activate(world: WorldState, restored: bool = false) -> bool:
 	if not DisplayServer.window_is_focused():
 		_session.pause("focus")
 	_saved_revision = int(world.facts.world_revision) if restored else -1
+	_library_panel.attach(_library,world.hospital_id)
 	return true
 
 func _restore_older(hospital_id: String, snapshot_id: String) -> void:
@@ -242,12 +258,102 @@ func _restore_older(hospital_id: String, snapshot_id: String) -> void:
 	if _activate(restored.world,true):
 		_status.text = "已恢复上一有效保存点。原提交保留，医院保持暂停。"
 
+func _toggle_library() -> void:
+	_library_panel.visible = not _library_panel.visible
+	_details.visible = not _library_panel.visible
+	if _library_panel.visible:
+		_library_panel.refresh()
+
+func _library_action(kind: String, payload: Dictionary) -> void:
+	if _library==null or _library_thread!=null or not _leave_operation.is_empty():
+		_status.text = "已有医院资料作业正在进行，完成后可以继续。"
+		return
+	match kind:
+		"create":
+			var hospital_name: String = str(payload.name)
+			if hospital_name.is_empty() or hospital_name.length()>24:
+				_status.text = "请填写1至24字的医院名称。"
+				return
+			var hospital_id: String = HospitalSnapshots.uuid()
+			var new_world: WorldState = FeasibilityHospitals.create(hospital_id,not bool(payload.preset),_content)
+			new_world.facts.display_name = hospital_name
+			_start_switch(hospital_id,"",new_world)
+		"continue":
+			_start_switch(payload.hospital_id,str(payload.get("snapshot_id","")))
+		"export","import":
+			_choose_backup_file(kind,payload)
+		"trash","restore","delete_slot":
+			if _snapshots.busy():
+				_status.text = "正在保存，完成后可以管理医院资料。"
+				return
+			var result: Dictionary
+			if kind=="trash":
+				result = _library.call("trash_hospital",payload.hospital_id,_simulation.world.hospital_id)
+			elif kind=="restore":
+				result = _library.call("restore_hospital",payload.hospital_id)
+			else:
+				result = _library.call("delete_slot",payload.hospital_id,payload.snapshot_id,_simulation.world.hospital_id)
+			_status.text = "医院资料已更新。" if result.get("ok",false) else str(result.get("error","资料操作未完成。"))
+			_hospital_ids = _snapshots.hospital_ids()
+			_library_panel.refresh()
+
+func _choose_backup_file(kind: String, payload: Dictionary) -> void:
+	if _file_dialog!=null:
+		_file_dialog.queue_free()
+	_file_dialog = FileDialog.new()
+	_file_dialog.access = FileDialog.ACCESS_FILESYSTEM
+	_file_dialog.use_native_dialog = true
+	_file_dialog.file_mode = FileDialog.FILE_MODE_SAVE_FILE if kind=="export" else FileDialog.FILE_MODE_OPEN_FILE
+	_file_dialog.title = "导出医院备份" if kind=="export" else "导入医院备份"
+	_file_dialog.filters = PackedStringArray(["*.oghbackup ; 医院备份"])
+	_file_dialog.current_file = "医院备份.oghbackup" if kind=="export" else ""
+	_file_dialog.file_selected.connect(func(path: String) -> void:
+		var selected: Dictionary = payload.duplicate(true)
+		selected.path = path
+		_launch_library_job(kind,selected))
+	add_child(_file_dialog)
+	_file_dialog.popup_centered_ratio(0.7)
+
+func _launch_library_job(kind: String, payload: Dictionary) -> void:
+	if _library_thread!=null or _snapshots.busy() or not _leave_operation.is_empty():
+		_status.text = "已有资料作业正在进行，请完成后重试。"
+		return
+	_library_job = {"kind":kind,"payload":payload.duplicate(true)}
+	_library_thread = Thread.new()
+	var error: Error = _library_thread.start(_perform_library_job.bind(kind,payload.duplicate(true)))
+	if error!=OK:
+		_library_thread = null
+		_library_job = {}
+		_status.text = "无法启动医院备份作业，请重试。"
+		return
+	_status.text = "正在分段校验医院备份…" if kind=="import" else "正在导出独立医院备份…"
+
+func _perform_library_job(kind: String, payload: Dictionary) -> Dictionary:
+	if kind=="import":
+		return _library.call("import_backup",payload.path)
+	return _library.call("export_backup",payload.hospital_id,payload.snapshot_id,payload.path)
+
+func _poll_library_job() -> void:
+	if _library_thread==null or _library_thread.is_alive():
+		return
+	var result: Dictionary = _library_thread.wait_to_finish()
+	_library_thread = null
+	var kind: String = _library_job.kind
+	_library_job = {}
+	if result.get("ok",false):
+		_status.text = "已导入为独立的新医院，可在资料库继续经营。" if kind=="import" else "医院备份已导出。"
+		_hospital_ids = _snapshots.hospital_ids()
+		_library_panel.refresh()
+	else:
+		_status.text = "医院备份未完成，原资料保留："+str(result.get("error","请检查文件与可用空间。"))
+
 func _process(_delta: float) -> void:
 	var now: int = Time.get_ticks_usec()
 	var real_delta: float = float(now-_last_process_us)/1000000.0 if _last_process_us>0 else 0.0
 	_last_process_us = now
 	if _simulation == null:
 		return
+	_poll_library_job()
 	for result: TickResult in _session.advance(real_delta):
 		for event: SimEvent in result.facts:
 			if event.kind=="command_rejected":
@@ -259,11 +365,11 @@ func _process(_delta: float) -> void:
 	var receipt: Dictionary = _snapshots.poll()
 	if not receipt.is_empty():
 		_receipt(receipt)
-	if Time.get_ticks_msec()>=_auto_deadline_ms:
+	if _library_thread==null and Time.get_ticks_msec()>=_auto_deadline_ms:
 		_auto_deadline_ms = Time.get_ticks_msec()+roundi(float(_content.balance.save.autosave_real_seconds)*1000)
 		if int(_simulation.world.facts.world_revision)>_saved_revision:
 			_begin_save("auto",str(int(_simulation.world.facts.sim_tick)%5))
-	if not _snapshots.busy() and _snapshots.take_pending_auto() and int(_simulation.world.facts.world_revision)>_saved_revision:
+	if _library_thread==null and not _snapshots.busy() and _snapshots.take_pending_auto() and int(_simulation.world.facts.world_revision)>_saved_revision:
 		_begin_save("auto",str(int(_simulation.world.facts.sim_tick)%5))
 
 func _set_speed(speed: int) -> void:
@@ -278,6 +384,8 @@ func _save() -> void:
 	_status.text = "正在保存完整医院…" if started.ok else str(started.error)
 
 func _begin_save(kind: String, slot: String) -> Dictionary:
+	if _library_thread!=null:
+		return {"ok":false,"error":"医院备份作业正在进行，完成后可以保存。"}
 	var started: Dictionary = _snapshots.begin(_simulation,_session.loading_session_id,kind,slot)
 	if started.ok:
 		_save_requests[started.request.request_id] = started.request.duplicate(true)
@@ -286,18 +394,26 @@ func _begin_save(kind: String, slot: String) -> Dictionary:
 func _switch_hospital() -> void:
 	if _simulation == null or _snapshots.busy() or not _leave_operation.is_empty():
 		return
-	_set_speed(0)
-	_simulation.drain_commands()
 	if _hospital_ids.size()<2:
-		_hospital_ids.append(HospitalSnapshots.uuid())
+		_toggle_library()
+		return
 	var index: int = _hospital_ids.find(_simulation.world.facts.hospital_id)
 	var target: String = _hospital_ids[(index+1)%_hospital_ids.size()]
+	_start_switch(target)
+
+func _start_switch(target: String, snapshot_id: String = "", new_world: WorldState = null) -> void:
+	if _snapshots.busy() or _library_thread!=null or not _leave_operation.is_empty():
+		_status.text = "已有资料作业正在进行，请等待完成。"
+		return
+	_set_speed(0)
+	_simulation.drain_commands()
 	var started: Dictionary = _begin_save("checkpoint","switch")
 	if not started.ok:
 		_status.text = started.error
 		return
 	_leave_operation = {"kind":"switch","id":HospitalSnapshots.uuid(),"source_session":_session.loading_session_id,
-		"request_id":started.request.request_id,"target_hospital_id":target}
+		"request_id":started.request.request_id,"target_hospital_id":target,"target_snapshot_id":snapshot_id,
+		"stage":"source","new_world":new_world}
 	_status.text = "原医院保持暂停，正在保存离院检查点…"
 
 func _cancel_switch() -> void:
@@ -330,15 +446,23 @@ func _receipt(receipt: Dictionary) -> void:
 		get_tree().quit()
 		return
 	var target: String = _leave_operation.target_hospital_id
-	var records: Array[Dictionary] = _snapshots.list_commits(target)
-	if records.is_empty():
-		if target in _snapshots.hospital_ids():
-			_status.text = "目标医院没有完整有效的保存点，原医院保留。"
+	if _leave_operation.stage=="candidate":
+		_candidate = _leave_operation.new_world
+	elif _leave_operation.new_world!=null:
+		var target_session: String = HospitalSnapshots.uuid()
+		var created: Dictionary = _library.call("create",_leave_operation.new_world,target_session)
+		if not created.ok:
+			_status.text = "新医院创建失败，原医院保留："+str(created.error)
 			_leave_operation = {}
 			return
-		_candidate = FeasibilityHospitals.create(target,true,_content)
+		_save_requests[created.request.request_id] = created.request.duplicate(true)
+		_leave_operation.request_id = created.request.request_id
+		_leave_operation.source_session = target_session
+		_leave_operation.stage = "candidate"
+		_status.text = "原医院已保存，正在提交新医院资料…"
+		return
 	else:
-		var loaded: Dictionary = _snapshots.load_commit(target,records[0].snapshot_id)
+		var loaded: Dictionary = _library.call("continue_hospital",target,_leave_operation.target_snapshot_id)
 		if not loaded.ok:
 			_status.text = "切院失败，原医院保留："+str(loaded.error)
 			_leave_operation = {}
@@ -354,7 +478,8 @@ func _receipt(receipt: Dictionary) -> void:
 	var candidate_view: HospitalView = HospitalView.new(_content)
 	_viewport.add_child(candidate_view)
 	candidate_view.visible = false
-	candidate_view.bind(_candidate,_observed_floor)
+	var target_floor: int = _observed_floor if _candidate.facts.floors.overrides.has(str(_observed_floor)) else 1
+	candidate_view.bind(_candidate,target_floor)
 	if not candidate_view.bind_error.is_empty():
 		_status.text = "切院失败，原医院保留："+candidate_view.bind_error
 		_viewport.remove_child(candidate_view)
@@ -366,18 +491,24 @@ func _receipt(receipt: Dictionary) -> void:
 	_view.queue_free()
 	_view = candidate_view
 	_view.visible = true
+	_observed_floor = target_floor
 	_simulation = HospitalSimulation.new(_candidate,_content)
 	_session = GameSession.new(_simulation,HospitalSnapshots.uuid())
 	_last_process_us = Time.get_ticks_usec()
 	if not DisplayServer.window_is_focused():
 		_session.pause("focus")
-	_saved_revision = int(_candidate.facts.world_revision) if not records.is_empty() else -1
+	_saved_revision = int(_candidate.facts.world_revision)
+	_hospital_ids = _snapshots.hospital_ids()
+	_library_panel.attach(_library,_candidate.hospital_id)
 	_candidate = null
 	_leave_operation = {}
 	_drafts.clear()
 	_status.text = "已进入另一座医院，医院保持暂停。"
 
 func _request_quit() -> void:
+	if _library_thread!=null:
+		_status.text = "医院备份作业正在进行，完成后可以退出。"
+		return
 	if _snapshots == null or _simulation==null:
 		if _guard != null:
 			_guard.call("release")
