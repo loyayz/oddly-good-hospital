@@ -79,7 +79,8 @@ def validate_group(path: Path):
         errors.append("fixture_path_refused")
     if any(not row["result"]["accepted"] for row in commands) or summary["rejected_commands"]:
         errors.append("fixture_command_rejected")
-    if summary["formal_capture"] and (summary["debug_build"] or summary["warmup_real_seconds"] < 60 or summary["sample_real_seconds"] < 600):
+    if summary["formal_capture"] and (summary["debug_build"] or summary.get("diagnostic_start_tick", 0) != 0
+                                      or summary["warmup_real_seconds"] < 60 or summary["sample_real_seconds"] < 600):
         errors.append("formal_conditions_missing")
     calculated_ratio = summary["executed_ticks"] / (summary["sample_real_seconds"] * 10 * summary["speed"])
     if not math.isclose(calculated_ratio, summary["speed_ratio"], rel_tol=1e-12):

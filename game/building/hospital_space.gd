@@ -192,10 +192,10 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 		if next.distance_to(target)<0.001:
 			next = target
 		var initial_rect: Rect2 = _actor_index.rectangle(actor_id) if members.size()==1 else _unit_rect(world,actor,start,members,offsets)
-		var sweeps: Dictionary = _unit_sweeps(world,actor,next,members,offsets,target-start)
+		var sweeps: Array[BodyIndex.Record] = _unit_sweeps(world,actor,next,members,offsets,target-start)
 		var swept: Rect2 = initial_rect
-		for sweep: Dictionary in sweeps.values():
-			swept = swept.merge(sweep.from).merge(sweep.to)
+		for sweep: BodyIndex.Record in sweeps:
+			swept = swept.merge(sweep.sweep_from).merge(sweep.sweep_to)
 		if segment.kind!="support_exit":
 			var query: RouteClearance
 			var floor_id: int = int(actor.location.floor_id)
@@ -228,11 +228,10 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 			var offset: Array = offsets[member_id]
 			world.facts.actors[member_id].location.cell = [next.x+float(offset[0]),next.y+float(offset[1])]
 			world.facts.actors[member_id].facing = actor.facing
-		for id: String in sweeps:
-			var sweep: Dictionary = sweeps[id]
-			_accepted_sweeps[id] = sweep
-			_sweep_index.update(id,int(actor.location.floor_id),(sweep.from as Rect2).merge(sweep.to))
-			_actor_index.update(id,int(actor.location.floor_id),sweep.to)
+		for sweep: BodyIndex.Record in sweeps:
+			_accepted_sweeps[sweep.id] = sweep
+			_sweep_index.update(sweep.id,int(actor.location.floor_id),sweep.sweep_from.merge(sweep.sweep_to))
+			_actor_index.update(sweep.id,int(actor.location.floor_id),sweep.sweep_to)
 		if next.is_equal_approx(target):
 			if segment.kind == "support_exit":
 				actor.posture = "standing"
@@ -419,12 +418,13 @@ func queue_waypoint(world: WorldState, movement: Dictionary, floor_id: int, cell
 	movement.route_waypoint = {"floor_id":floor_id,"cell":cell.duplicate(),"continuation":remaining}
 	_queue_route(world,movement)
 
-func _unit_sweeps(world: WorldState, actor: Dictionary, next: Vector2, members: Array, offsets: Dictionary, direction: Vector2) -> Dictionary:
-	var result: Dictionary = {}
+func _unit_sweeps(world: WorldState, actor: Dictionary, next: Vector2, members: Array, offsets: Dictionary, direction: Vector2) -> Array[BodyIndex.Record]:
+	var result: Array[BodyIndex.Record] = []
 	for id: String in members:
 		var member: Dictionary = world.facts.actors[id]
 		var offset: Array = offsets.get(id,[0,0])
-		var from: Rect2 = _actor_index.rectangle(id)
+		var sweep: BodyIndex.Record = _actor_index.record(id)
+		var from: Rect2 = sweep.rect
 		var position: Vector2 = next+Vector2(float(offset[0]),float(offset[1]))
 		var facing: float = atan2(direction.x,direction.y)
 		var to: Rect2
@@ -434,10 +434,12 @@ func _unit_sweeps(world: WorldState, actor: Dictionary, next: Vector2, members: 
 			var sample: Dictionary = member.duplicate()
 			sample.facing = facing
 			to = _actor_rect(sample,position)
-		result[id] = {"from":from,"to":to}
+		sweep.sweep_from = from
+		sweep.sweep_to = to
+		result.append(sweep)
 	return result
 
-func _movement_clear(world: WorldState, actor_id: String, floor_id: int, broad: Rect2, sweeps: Dictionary, members: Array) -> bool:
+func _movement_clear(world: WorldState, actor_id: String, floor_id: int, broad: Rect2, sweeps: Array[BodyIndex.Record], members: Array) -> bool:
 	_ensure_actor_index(world)
 	if world.facts.adaptations.is_empty() and not _actor_index.intersects(floor_id,broad,actor_id,members) and not _sweep_index.intersects(floor_id,broad,actor_id,members):
 		return true
@@ -448,23 +450,22 @@ func _movement_clear(world: WorldState, actor_id: String, floor_id: int, broad: 
 		candidates[id] = true
 	var ids: Array = candidates.keys()
 	ids.sort()
-	for sweep: Dictionary in sweeps.values():
-		var envelope: Rect2 = (sweep.from as Rect2).merge(sweep.to)
+	for sweep: BodyIndex.Record in sweeps:
+		var envelope: Rect2 = sweep.sweep_from.merge(sweep.sweep_to)
 		for id: String in ids:
 			if id in members:
 				continue
-			var other: Dictionary = _accepted_sweeps.get(id,{})
-			if other.is_empty():
-				var rect: Rect2 = _actor_index.rectangle(id)
-				other = {"from":rect,"to":rect}
-			if envelope.intersects((other.from as Rect2).merge(other.to),false) and BodySweep.intersects(sweep.from,sweep.to,other.from,other.to):
+			var other: BodyIndex.Record = _accepted_sweeps.get(id)
+			var other_from: Rect2 = _actor_index.rectangle(id) if other==null else other.sweep_from
+			var other_to: Rect2 = other_from if other==null else other.sweep_to
+			if envelope.intersects(other_from.merge(other_to),false) and BodySweep.intersects(sweep.sweep_from,sweep.sweep_to,other_from,other_to):
 				return false
 		for reservation: Dictionary in world.facts.adaptations.values():
 			if int(reservation.floor_id)!=floor_id or actor_id==reservation.actor_id or actor_id in reservation.get("staff_ids",[]) or reservation.actor_id in members:
 				continue
 			for area: Array in reservation.regions:
 				var rect: Rect2 = Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3]))
-				if BodySweep.intersects(sweep.from,sweep.to,rect,rect):
+				if BodySweep.intersects(sweep.sweep_from,sweep.sweep_to,rect,rect):
 					return false
 	return true
 

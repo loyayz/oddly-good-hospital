@@ -7,6 +7,7 @@ param(
     [double]$SampleSeconds = 600,
     [string]$RunName = ('formal-' + (Get-Date -Format 'yyyyMMdd-HHmmss')),
     [switch]$Profile,
+    [ValidateRange(0,2147483647)][int]$DiagnosticStartTick = 0,
     [switch]$Display,
     [switch]$Dense,
     [switch]$Visible,
@@ -21,6 +22,7 @@ $exe = Join-Path $release 'kernel-benchmark.exe'
 if (-not (Test-Path -LiteralPath $exe)) { throw 'Build the Release benchmark with prepare-kernel-benchmark.ps1 first.' }
 if ($RunName -notmatch '^[a-zA-Z0-9-]+$') { throw 'RunName must contain only letters, digits and hyphens.' }
 if ($SampleSeconds -le 0 -or $WarmupSeconds -lt 0) { throw 'Invalid capture duration.' }
+if ($DiagnosticStartTick -gt 0 -and -not $Profile) { throw 'DiagnosticStartTick requires Profile and cannot produce formal evidence.' }
 $output = Join-Path $repo ('.cache/validation/stage03/' + $RunName)
 if (Test-Path -LiteralPath $output) { throw "Capture output already exists: $output" }
 New-Item -ItemType Directory -Path $output | Out-Null
@@ -47,6 +49,7 @@ foreach ($count in $Actors) {
         if ($Display) { $arguments += @('--display',"--window=$Window","--scene-scale=$($SceneScale.ToString([Globalization.CultureInfo]::InvariantCulture))","--ui-scale=$UiScale") }
         if ($Dense) { $arguments += '--dense' }
         if ($Profile) { $arguments += '--profile' }
+        if ($DiagnosticStartTick -gt 0) { $arguments += "--diagnostic-start-tick=$DiagnosticStartTick" }
         $windowStyle = if ($Visible) { 'Normal' } else { 'Hidden' }
         $process = Start-Process -FilePath $exe -ArgumentList $arguments -WindowStyle $windowStyle -PassThru -RedirectStandardOutput (Join-Path $group 'stdout.log') -RedirectStandardError (Join-Path $group 'stderr.log')
         $captureClock = [Diagnostics.Stopwatch]::StartNew()

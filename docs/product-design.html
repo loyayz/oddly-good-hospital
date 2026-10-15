@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="design-source-sha256" content="63771737514b0cd78b0547c4b39eb189e31c1a193bbc0dac757813b64d93d777">
+<meta name="design-source-sha256" content="67aa57678cc5f2057c5a55f261839fb61b8533e0e43606536ad7ef565abb31a8">
 <title>怪好的医院 · Oddly Good Hospital · 产品设计方案</title>
 <style>
 :root{color-scheme:light;--ink:#293d60;--muted:#53657f;--blue:#3b5f92;--paper:#fffdf7;--line:#d6deeb}
@@ -11729,7 +11729,7 @@ pwsh -NoProfile -File docs/tools/export-design.ps1
 <p>身体候选按原8×8逻辑桶及真实楼层、完整小数包络登记，包含静止者和实际组成员；跨桶身体、拟走扫掠及本阶段已经接受的历史扫掠不得漏掉。候选去重并沿稳定身份处理，最终使用真实身体与分段同行时序检查，粗桶或大矩形相交不能直接拒绝本可并行的宽路。实际位置、身体、组成员或登离舱提交时同步索引；索引不另拥有位置，当前阶段必要扫掠不能被缓存回收。</p>
 <p>新路径协议允许与旧BFS选择不同等成本路线，仍须验证临床安全、费用/耗材幂等、实际等待和随机流。正式替换后的Release作为新基线，从160人重新按§5执行分档、三轮上限及最终同源六组复测，只保留最终性能报告。原第三阶段测量不得改写成新导航或完整游戏的通过证明；尚未接入的玩法与呈现帧/GPU仍明确未测。</p>
 <h2 id="stage02-stage03-spec--section-9">9. 导航实现与规则证据</h2>
-<p>层内入口为<code>FloorNavigation</code>与<code>NavigationCache</code>，实际通行投影归<code>RouteClearance</code>；<code>HospitalTransit</code>统一持有只读时间报价和实际票序、空返、整组登离舱。<code>HospitalSpace</code>持有请求与移动协调，<code>BodyIndex</code>和<code>BodySweep</code>提供完整候选及分段时序核验。图与索引均可从当前事实重建，移动起点和离舱点随原移动历史保存，以保留首次迎面受阻时的真实退让位置。</p>
+<p>层内入口为<code>FloorNavigation</code>与<code>NavigationCache</code>，实际通行投影归<code>RouteClearance</code>；<code>HospitalTransit</code>统一持有只读时间报价和实际票序、空返、整组登离舱。<code>HospitalSpace</code>持有请求与移动协调，<code>BodyIndex</code>和<code>BodySweep</code>提供完整候选及分段时序核验。拟走包络复用类型化身体记录，本阶段接受集合持有相应扫掠引用，阶段结束后解除。图与索引均可从当前事实重建，移动起点和离舱点随原移动历史保存，以保留首次迎面受阻时的真实退让位置。</p>
 <p>固定Godot4.7.2下规则运行器98项通过，覆盖命令原子性、门诊与手术的真实治愈离院、护理释放、耗材及费用单次结算、不同速度同tick事实和随机流一致，以及导航队列、改建、净高、换乘、巨型出口、整组与JSON恢复。整数格的组偏移通过成员图逐边约束查询，小数格的组偏移使用完整几何投影；两种路径与完整投影一致，借用期间驱逐保持路径及容量记账，查询后解除组约束，身体变化触发活动路线复核。原生AStar邻接协议探针另覆盖80次边恢复、25次点恢复，每次625组查询，规范化后的逐节点路径差异为0。该小图探针不承担完整医院、软代价或性能通过证明。</p>
 <p>当前可运行路径使用单位层内成本，没有新增软代价玩法生产者。导航缓存按保守容量记账驱逐；Release原生容器的精确分配量仍未单独测得。正式性能证据归<a href="#stage03-performance">最终内核报告</a>，按§5判定各档门禁和六组复测，不由规则通过或诊断短跑推导。</p>
 </section>
@@ -11820,6 +11820,7 @@ pwsh -NoProfile -File docs/tools/export-design.ps1
 pwsh -NoProfile -File tools/prepare-kernel-benchmark.ps1
 </code></pre>
 <p>静态计划生成结果为72组、0次测量。正式测量单独使用<code>tools/measure-kernel.ps1</code>，本阶段不执行该入口。</p>
+<p>后期热点诊断可使用<code>-Profile -DiagnosticStartTick 8100 -WarmupSeconds 5 -SampleSeconds 20</code>。工具先逐个执行真实固定步到指定tick，再开始现实预热和采样；预运行不跳过寻路、临床或结算。这种模式始终标为诊断，不能生成正式通过证据。常规正式采集不使用该参数，仍独立执行60秒现实预热与600秒采样。</p>
 <p>已交付当前负载的工程准备及明确成本接入表。完整阶段二显示、资源和存储验收保持未执行；第三阶段报告只判定实际测量的正式内核。</p>
 </section>
 <section class="chapter" id="stage03-performance"><h1 id="stage03-performance--section">第三阶段：内核性能最终报告</h1>

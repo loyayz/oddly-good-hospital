@@ -43,4 +43,6 @@ pwsh -NoProfile -File tools/prepare-kernel-benchmark.ps1
 
 静态计划生成结果为72组、0次测量。正式测量单独使用`tools/measure-kernel.ps1`，本阶段不执行该入口。
 
+后期热点诊断可使用`-Profile -DiagnosticStartTick 8100 -WarmupSeconds 5 -SampleSeconds 20`。工具先逐个执行真实固定步到指定tick，再开始现实预热和采样；预运行不跳过寻路、临床或结算。这种模式始终标为诊断，不能生成正式通过证据。常规正式采集不使用该参数，仍独立执行60秒现实预热与600秒采样。
+
 已交付当前负载的工程准备及明确成本接入表。完整阶段二显示、资源和存储验收保持未执行；第三阶段报告只判定实际测量的正式内核。

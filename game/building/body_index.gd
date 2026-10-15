@@ -6,6 +6,9 @@ class Record:
 	var id: String
 	var floor_id: int
 	var rect: Rect2
+	# Scratch geometry; movement marks which records were actually accepted.
+	var sweep_from: Rect2
+	var sweep_to: Rect2
 	var bucket_keys: Array[Vector2i] = []
 	var low: Vector2i
 	var high: Vector2i
@@ -116,6 +119,9 @@ func candidates(floor_id: int, rect: Rect2, ignored_ids: Array = []) -> Array[St
 
 func rectangle(id: String) -> Rect2:
 	return (_records[id] as Record).rect
+
+func record(id: String) -> Record:
+	return _records[id] as Record
 
 func _keys(rect: Rect2) -> Array[Vector2i]:
 	var result: Array[Vector2i] = []

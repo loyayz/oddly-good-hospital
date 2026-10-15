@@ -17,6 +17,7 @@ var _last_frame: int
 var _first_tick: int
 var _timer_overhead: Dictionary
 var _profile: bool = false
+var _diagnostic_start_tick: int = 0
 var _display: bool = false
 var _dense: bool = false
 var _window: Vector2i = Vector2i(2560,1440)
@@ -28,6 +29,8 @@ func _ready() -> void:
 	for arg: String in OS.get_cmdline_user_args():
 		if arg=="--profile":
 			_profile = true
+		elif arg.begins_with("--diagnostic-start-tick="):
+			_diagnostic_start_tick = arg.get_slice("=",1).to_int()
 		elif arg=="--display":
 			_display = true
 		elif arg=="--dense":
@@ -49,7 +52,7 @@ func _ready() -> void:
 			_sample = arg.get_slice("=",1).to_float()
 		elif arg.begins_with("--output="):
 			_output = arg.trim_prefix("--output=")
-	if _output.is_empty() or not _actors in [160,320,640] or not _speed in [1,3] or _sample<=0 or _warmup<0:
+	if _output.is_empty() or not _actors in [160,320,640] or not _speed in [1,3] or _sample<=0 or _warmup<0 or _diagnostic_start_tick<0 or (_diagnostic_start_tick>0 and not _profile):
 		push_error("Supply output, actors=160/320/640, speed=1/3 and positive capture duration.")
 		get_tree().quit(2)
 		return
@@ -68,6 +71,10 @@ func _ready() -> void:
 		_simulation.clinic.space = _simulation.space
 	_session = GameSession.new(_simulation,"kernel-benchmark")
 	_session.set_speed(_speed)
+	# Diagnostic pre-roll executes every production step, then starts the real
+	# warmup/capture clocks. It cannot create a formal measurement.
+	while _simulation.world.sim_tick<_diagnostic_start_tick:
+		_simulation.step()
 	if _display:
 		_projection = DisplayProjection.new(self,content,fixture.world,_window,_scene_scale,_ui_scale,_output)
 	_timer_overhead = _measure_timer()
@@ -75,7 +82,7 @@ func _ready() -> void:
 	_warm_started = Time.get_ticks_usec()
 	_last_frame = _warm_started
 	_write("capture-start.json",{"engine":Engine.get_version_info(),"debug_build":OS.is_debug_build(),"fixture":fixture.describe(),
-		"warmup_real_seconds":_warmup,"sample_real_seconds":_sample,"speed":_speed,"timer_overhead":_timer_overhead,
+		"warmup_real_seconds":_warmup,"sample_real_seconds":_sample,"speed":_speed,"timer_overhead":_timer_overhead,"diagnostic_start_tick":_diagnostic_start_tick,
 		"renderer":_projection.describe() if _display else {"mode":"headless","presented_frames":"missing","GPU":"missing"},"started_utc":Time.get_datetime_string_from_system(true)})
 
 func _process(_delta: float) -> void:
@@ -107,11 +114,12 @@ func _finish(now: int) -> void:
 	var steps: Dictionary = _statistics(_simulation.step_usec)
 	var commands: Dictionary = _statistics(_simulation.command_usec)
 	var ratio: float = float(ticks)/(real_seconds*10.0*_speed)
-	var formal: bool = not _display and not _profile and not OS.is_debug_build() and _warmup>=60 and _sample>=600
+	var formal: bool = not _display and not _profile and _diagnostic_start_tick==0 and not OS.is_debug_build() and _warmup>=60 and _sample>=600
 	var final: String = JSON.stringify(_simulation.world.facts,"",true,true)
 	_write("final-world.json",_simulation.world.facts)
 	_simulation.raw.close()
 	var report: Dictionary = {"schema_version":1,"status":"measured" if formal else "diagnostic","formal_capture":formal,
+		"diagnostic_start_tick":_diagnostic_start_tick,
 		"debug_build":OS.is_debug_build(),"actors":_actors,"speed":_speed,"fixture":_simulation.fixture.describe(),
 		"warmup_real_seconds":float(_sample_started-_warm_started)/1000000.0,"sample_real_seconds":real_seconds,
 		"first_tick":_first_tick,"last_tick":_simulation.world.sim_tick,"executed_ticks":ticks,"speed_ratio":ratio,

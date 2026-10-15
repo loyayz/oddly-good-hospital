@@ -44,13 +44,13 @@ func _dispatch_routes(world: WorldState, present_at_start: int) -> void:
 	super._dispatch_routes(world,present_at_start)
 	_record("dispatch_routes_inclusive",started,world.sim_tick)
 
-func _unit_sweeps(world: WorldState, actor: Dictionary, next: Vector2, members: Array, offsets: Dictionary, direction: Vector2) -> Dictionary:
+func _unit_sweeps(world: WorldState, actor: Dictionary, next: Vector2, members: Array, offsets: Dictionary, direction: Vector2) -> Array[BodyIndex.Record]:
 	var started: int = Time.get_ticks_usec()
-	var result: Dictionary = super._unit_sweeps(world,actor,next,members,offsets,direction)
+	var result: Array[BodyIndex.Record] = super._unit_sweeps(world,actor,next,members,offsets,direction)
 	_record("unit_sweeps_inclusive",started,world.sim_tick)
 	return result
 
-func _movement_clear(world: WorldState, actor_id: String, floor_id: int, broad: Rect2, sweeps: Dictionary, members: Array) -> bool:
+func _movement_clear(world: WorldState, actor_id: String, floor_id: int, broad: Rect2, sweeps: Array[BodyIndex.Record], members: Array) -> bool:
 	var started: int = Time.get_ticks_usec()
 	var result: bool = super._movement_clear(world,actor_id,floor_id,broad,sweeps,members)
 	_record("movement_clear_inclusive",started,world.sim_tick)
