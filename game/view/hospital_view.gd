@@ -213,9 +213,15 @@ func update_facts(interpolation_alpha: float = 1.0) -> void:
 		model.rotation = Vector3(-PI/2 if actor.get("posture","standing")=="lying" else 0.0,float(actor.facing),0)
 		var pose: Dictionary = _pose(actor_id)
 		wrapper.set_meta("business_pose",pose.name)
+		if world.facts.staff.has(actor_id):
+			var staff_status: Dictionary = _staff_status(actor_id)
+			(_actor_labels[actor_id] as Label3D).text = str(actor.name)+"\n"+str(staff_status.text)
+			wrapper.set_meta("life_attention",staff_status.attention)
 		var player: AnimationPlayer = _animation_player(model)
 		if player != null:
 			var animation_name: StringName = _animation_name(player,pose.name)
+			if animation_name.is_empty() and pose.name in ["sleep","rest","recreation"]:
+				animation_name = _animation_name(player,"sit" if pose.name=="rest" else "pause")
 			if not animation_name.is_empty():
 				if player.current_animation != animation_name:
 					player.play(animation_name)
@@ -275,7 +281,7 @@ func update_facts(interpolation_alpha: float = 1.0) -> void:
 	for label: Label3D in _labels:
 		label.pixel_size = camera.size*18.0/(float(label.font_size)*viewport_height)
 	for actor_id: String in _actor_labels:
-		(_actor_labels[actor_id] as Label3D).visible = actor_id==_selected or actor_id==follow_actor or bool(_actors[actor_id].get_meta("resource_proxy",false))
+		(_actor_labels[actor_id] as Label3D).visible = actor_id==_selected or actor_id==follow_actor or bool(_actors[actor_id].get_meta("resource_proxy",false)) or bool(_actors[actor_id].get_meta("life_attention",false))
 	_update_selection()
 	for batch: SkinnedPoseBatch in _skin_batches:
 		batch.publish(_visible_body_bounds())
@@ -718,6 +724,10 @@ func _pose(actor_id: String) -> Dictionary:
 	for session: Dictionary in world.facts.sessions.values():
 		if (actor_id==world.facts.visits.get(session.get("visit_id",""),{}).get("actor_id","") or actor_id in session.get("staff_ids",[])) and world.facts.facilities.get(session.get("facility_id",""),{}).get("failed",false) and session.kind!="wake":
 			return {"name":"pause","time":0.5}
+	if world.facts.staff.has(actor_id):
+		var phase: String = str(world.facts.staff[actor_id].get("life_task",{}).get("phase","idle"))
+		if phase in ["sleep","rest","recreation"]:
+			return {"name":phase,"time":0.5 if phase!="recreation" else fmod(float(world.sim_tick)*0.1,1.0)}
 	if world.facts.actors[actor_id].get("posture","standing") == "seated":
 		return {"name":"sit","time":0.5}
 	for visit: Dictionary in world.facts.visits.values():
@@ -734,6 +744,25 @@ func _pose(actor_id: String) -> Dictionary:
 		if actor_id in session.staff_ids:
 			return {"name":"work","time":fmod(float(world.facts.sim_tick)*0.1,1.0)}
 	return {"name":"idle","time":fmod(float(world.facts.sim_tick)*0.1,1.0)}
+
+func _staff_status(actor_id: String) -> Dictionary:
+	var staff: Dictionary = world.facts.staff[actor_id]
+	var task: Dictionary = staff.get("life_task",{})
+	var phase: String = str(task.get("phase","idle"))
+	var status: String = str({"sleep":"睡眠中","rest":"休息中","recreation":"放松中","wait_bed":"等可用睡眠床",
+		"wait_safe":"等安全交接后休息","travel":"前往休息点","exiting":"前往院外休整","offsite":"院外休整",
+		"returning":"返回岗位","release":"离开休息设施"}.get(phase,"当班" if staff.get("on_shift",false) else "休班"))
+	var attention: bool = phase not in ["idle","offsite"]
+	var need: String = ""
+	if int(staff.get("sleep_remaining_ticks",0))>0 or int(staff.get("awake_ticks",0))>=ceili(float(content.balance.staff_sleep.awake_limit_seconds)/WorldState.TICK_SECONDS):
+		need = "需要睡眠" if phase!="sleep" else "保留睡眠余量"
+	elif float(staff.get("energy",100))<=float(content.balance.wellbeing.recreation_max_energy_priority):
+		need = "需要休息"
+	elif staff.get("rest_obligation",false) or int(staff.get("rest_debt_ticks",0))>0:
+		need = "需要补休"
+	if not need.is_empty():
+		attention = true
+	return {"text":"%s · 能量%d%s" % [status,roundi(float(staff.get("energy",100)))," · "+need if not need.is_empty() else ""],"attention":attention}
 
 func _cell_position(cell: Array, center: float) -> Vector3:
 	return Vector3((float(cell[0])-32)*1.5+center,0,(float(cell[1])-64)*1.5+center)

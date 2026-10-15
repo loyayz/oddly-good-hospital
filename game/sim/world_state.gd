@@ -96,6 +96,18 @@ func validate(content: HospitalContent) -> String:
 			return "经营状态集合无效：staff_schedule.handoffs"
 		if not facts.staff_schedule.get("applications") is Dictionary:
 			return "经营状态集合无效：staff_schedule.applications"
+	if facts.has("staff_life"):
+		if not facts.staff_life is Dictionary:
+			return "经营状态结构无效：staff_life"
+		if not facts.staff_life.get("reservations") is Dictionary:
+			return "经营状态集合无效：staff_life.reservations"
+		if not facts.staff_life.get("settings") is Dictionary:
+			return "经营状态集合无效：staff_life.settings"
+		if not facts.staff_life.get("pressure_receipts") is Dictionary:
+			return "经营状态集合无效：staff_life.pressure_receipts"
+	for staff: Dictionary in facts.staff.values():
+		if staff.has("life_task") and not staff.life_task is Dictionary:
+			return "员工生活任务结构无效"
 	var geometry: HospitalSpace = HospitalSpace.new(content)
 	if not facts.research is Array or not facts.ledger.get("entries") is Dictionary or not _natural(facts.ledger.get("opening_balance",-1)):
 		return "研究或账目结构无效"
@@ -315,7 +327,7 @@ func validate(content: HospitalContent) -> String:
 		var reservation: Dictionary = facts.adaptations[id]
 		if not facts.actors.has(reservation.actor_id):
 			return "展开预约身体不存在"
-		if reservation.kind=="facility" and (not facts.facilities.has(reservation.facility_id) or not (facts.actors.has(reservation.owner_id) or facts.tickets.has(reservation.owner_id) or facts.preparations.has(reservation.owner_id) or facts.sessions.has(reservation.owner_id) or facts.attempts.has(reservation.owner_id))):
+		if reservation.kind=="facility" and (not facts.facilities.has(reservation.facility_id) or not _reservation_owner_exists(reservation.owner_id)):
 			return "设施展开预约的所有者或主体不存在"
 		if reservation.kind=="door":
 			if not doors.has(id) or reservation.owner_id!=reservation.actor_id:
@@ -338,7 +350,23 @@ func validate(content: HospitalContent) -> String:
 		var error: String = HospitalShiftScheduler.new(content,geometry).validate(self)
 		if not error.is_empty():
 			return error
+	if facts.has("staff_life"):
+		var error: String = HospitalStaffWellbeing.new(content,geometry).validate(self)
+		if not error.is_empty():
+			return error
 	return BuildService.new(content).validate(self)
+
+func _reservation_owner_exists(id: String) -> bool:
+	for collection: String in ["actors","tickets","preparations","sessions","attempts"]:
+		if facts[collection].has(id):
+			return true
+	for staff: Dictionary in facts.staff.values():
+		if staff.get("life_task",{}).get("id","")==id:
+			return true
+	for reservation: Variant in facts.get("staff_life",{}).get("reservations",{}).values():
+		if reservation is Dictionary and reservation.get("id","")==id:
+			return true
+	return false
 
 func _ledger_owner_exists(id: String) -> bool:
 	if id==hospital_id:

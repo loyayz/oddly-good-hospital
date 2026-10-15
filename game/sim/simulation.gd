@@ -25,6 +25,7 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 		_business_handlers[kind] = clinic
 	_register_service("development",HospitalClinicalDevelopment.new(database,space),["train_staff","promote_staff","cancel_training","set_growth_direction"])
 	_register_service("scheduler",HospitalShiftScheduler.new(database,space),["apply_schedule","set_schedule_lock","plan_leave","cancel_leave"])
+	_register_service("wellbeing",HospitalStaffWellbeing.new(database,space),["staff_recreation","set_staff_recreation","interrupt_staff_rest","staff_pressure_event"])
 	if _production():
 		clinic.scheduler = services.scheduler
 	_ensure_services()
@@ -129,12 +130,18 @@ func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickRe
 	drain_commands() # 1: commands and automatic supply orders.
 	if _production(): # 2: schedules and equipment boundaries.
 		services.scheduler.boundaries(world)
+		services.wellbeing.boundaries(world)
 	if _production(): # 3: real arrivals and family requests.
 		clinic.arrivals(world)
 	if _production(): # 4: dispatch against current occupancy.
 		services.scheduler.dispatch(world)
 		services.development.dispatch(world)
 	clinic.dispatch(world)
+	if _production():
+		for staff_id: String in world.ids("staff"):
+			var staff: Dictionary = world.facts.staff[staff_id]
+			staff.dispatch_idle = not HospitalClinicalDevelopment.safe_busy(world,staff_id) and not world.facts.moves.has(staff_id) and staff.get("base_task",{}).is_empty() and str(staff.get("training_job_id","")).is_empty()
+		services.wellbeing.dispatch(world)
 	var before_movement: Dictionary = {}
 	for staff_id: String in world.ids("staff"):
 		before_movement[staff_id] = world.facts.actors[staff_id].location.duplicate(true)
@@ -143,7 +150,13 @@ func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickRe
 	if _production():
 		services.development.advance(world)
 		services.scheduler.advance(world)
-	_integrate_staff(before_movement)
+	if _production(): # 7: integrate each real work/movement source once.
+		var worked: Dictionary = clinic.worked_staff()
+		worked.merge(services.development.worked_staff(),true)
+		worked.merge(services.scheduler.worked_staff(),true)
+		services.wellbeing.advance(world,worked,before_movement)
+	else:
+		_integrate_staff(before_movement)
 	# 8: interaction consequences precede settlement.
 	clinic.release_departed(world) # 9: release only after physical handoff.
 	clinic.settle_practice(world)
