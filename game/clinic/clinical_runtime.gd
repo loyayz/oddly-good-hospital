@@ -6,6 +6,7 @@ var space: HospitalSpace
 var waiting_life: RefCounted
 var departments: RefCounted
 var environment: RefCounted
+var recruitment: RefCounted
 var _worked_staff: Dictionary = {}
 var _practice_awards: Dictionary = {}
 var _events: Array[SimEvent] = []
@@ -86,6 +87,8 @@ func _arrive(world: WorldState, payload: Dictionary) -> CommandResult:
 	var geometry_reason: String = space.static_reason(world,actor,int(entry.floor_id),Vector2i(int(entry.cell[0]),int(entry.cell[1])))
 	if not geometry_reason.is_empty():
 		return CommandResult.new(false,"arrival_blocked",geometry_reason,[],world.revision)
+	if not space._dynamic_clear(world,actor.id,int(entry.floor_id),space.body_rectangle(actor)):
+		return CommandResult.new(false,"arrival_occupied","入口尚未腾出真实身体空间",[],world.revision)
 	var actor_id: String = world.new_id("patient")
 	var visit_id: String = world.new_id("visit")
 	actor.id = actor_id
@@ -97,6 +100,8 @@ func _arrive(world: WorldState, payload: Dictionary) -> CommandResult:
 		"anger":float(personality.initial_anger),"phase":"arrival","evidence_by_source":{},"attempt_ids":[],"plan_decision":{},
 		"complex":bool(payload.get("complex",false)),"final_result":"","waiting_reason":"","ticket_id":"","doctor_fee_quote":-1,
 		"arrived_tick":world.sim_tick,"arrival_key":key}
+	world.facts.visits[visit_id].last_progress_tick = world.sim_tick
+	world.facts.visits[visit_id].last_service_tick = world.sim_tick
 	world.facts.arrival_receipts[key] = visit_id
 	space.sync_actor(world,actor_id)
 	_events.append(SimEvent.new(world.sim_tick,"patient_arrived",[visit_id,actor_id],{"arrival_key":key}))
@@ -133,7 +138,7 @@ func dispatch(world: WorldState) -> void:
 		if visit.phase == "arrival":
 			_queue(world,visit,"reception")
 		elif visit.phase == "leaving":
-			var exit_cell: Array = world.facts.get("entry",{}).get("exit_cell",[48,95])
+			var exit_cell: Array = space.exit_cell(world,world.facts.actors[visit.actor_id])
 			if space.at(world,visit.actor_id,1,exit_cell):
 				world.facts.actors[visit.actor_id].location = {"kind":"outside"}
 				space.sync_actor(world,visit.actor_id)
@@ -197,6 +202,16 @@ func advance(world: WorldState) -> void:
 		for staff_id: String in session.staff_ids:
 			_worked_staff[staff_id] = true
 		session.remaining_ticks -= 1
+		world.facts.visits[session.visit_id].last_progress_tick = world.sim_tick
+		world.facts.visits[session.visit_id].last_service_tick = world.sim_tick
+		if session.kind in ["outpatient","surgery"]:
+			var completed: int = int(session.total_ticks)-int(session.remaining_ticks)
+			var boundaries: Array = world.facts.attempts[session.attempt_id].get("beat_end_ticks",[])
+			var beat: int = 0
+			for boundary: int in boundaries:
+				if completed>=boundary:
+					beat += 1
+			session.clinical_beat = mini(3,beat)
 		if int(session.remaining_ticks) <= 0:
 			_complete_service(world,session)
 	for stay_id: String in world.ids("ward_stays"):
@@ -300,6 +315,10 @@ func _dispatch_service(world: WorldState, visit: Dictionary, ticket: Dictionary)
 		if not _decision_valid(world,visit,ready_quote):
 			return
 		if not world.facts.preparations.has(visit.id):
+			var bundle_reason: String = _reserve_bundle(world,visit,ready_quote,visit.id)
+			if not bundle_reason.is_empty():
+				visit.waiting_reason = bundle_reason
+				return
 			world.facts.preparations[visit.id] = {"id":visit.id,"visit_id":visit.id,"kind":"outpatient","bed_id":str(ready_quote.get("bed_id","")),"facility_id":facility_id,"staff_ids":[staff_id],
 				"supply_units":int(ready_quote.supply_units),"setup_remaining_ticks":0,"deadline_tick":world.sim_tick+int(content.balance.supplies.reservation_seconds)*10}
 			for field: String in ["nurse_id","round_doctor_id","ward_id"]:
@@ -320,9 +339,9 @@ func _dispatch_service(world: WorldState, visit: Dictionary, ticket: Dictionary)
 	var session_data: Dictionary = {"evidence":0.0,"doctor_fee":0,"facility_fee":content.facility_fee(facility.definition_id,kind)}
 	match kind:
 		"reception":
-			ticks = ceili(float(content.balance.reception_seconds)*10)
+			ticks = ceili(float(content.balance.reception_seconds)*10/_talent_rate(world,staff.id,"registration",visit))
 		"gp":
-			ticks = _gp_work_ticks(visit,staff,effective)
+			ticks = ceili(float(_gp_work_ticks(visit,staff,effective))/_talent_rate(world,staff.id,"gp",visit))
 			var profile: Dictionary = _profile(visit)
 			session_data.evidence = minf(100.0,float(profile.gp_confidence)+2.0*(int(staff.abilities.diagnosis)-1)+2.0*effective)
 			if int(visit.doctor_fee_quote) < 0:
@@ -333,7 +352,7 @@ func _dispatch_service(world: WorldState, visit: Dictionary, ticket: Dictionary)
 			var seconds: float = float(test.seconds)
 			if staff.role=="doctor":
 				seconds *= 1.0+float(content.balance.wellbeing.fatigue_work_multiplier_per_point)*float(staff.fatigue)
-			ticks = ceili(seconds/(1.0+0.05*(int(staff.abilities.diagnosis)-1)+0.15*effective)*10)
+			ticks = ceili(seconds/(1.0+0.05*(int(staff.abilities.diagnosis)-1)+0.15*effective)*10/_talent_rate(world,staff.id,"test",visit))
 			session_data.evidence = float(test.confidence)+2.0*(int(staff.abilities.diagnosis)-1)+3.0*effective
 		"consult":
 			ticks = ceili(maxf(4.0,float(content.balance.clinical.consult_seconds)*(1.0+0.003*float(staff.fatigue)))*10)
@@ -433,9 +452,13 @@ func plan_quote(world: WorldState, visit_id: String, plan_id: String, options: D
 	candidate.plan_decision = {"plan_id":plan_id}
 	var structural: bool = bool(options.get("structural_only",false))
 	if protocol.kind=="surgery":
-		var surgery: Dictionary = _surgery_quote(world,candidate,["surgeon","anesthetist","or_nurse"])
+		var structural_options: Dictionary = options.duplicate()
+		structural_options.structural_only = true
+		structural_options.ignore_supplies = true
+		var structural_quote: Dictionary = _surgery_quote(world,candidate,[],structural_options)
+		var surgery: Dictionary = structural_quote if structural else _surgery_quote(world,candidate,[],options)
 		surgery.plan_id = plan_id
-		surgery.structural_ok = bool(surgery.ok)
+		surgery.structural_ok = bool(structural_quote.ok)
 		return surgery
 	var reason: String = "缺少合法门诊设备、医生能力或完整路线"
 	var structural_ok: bool = false
@@ -571,6 +594,10 @@ func _outpatient_quote(world: WorldState, visit: Dictionary, staff: Dictionary, 
 	var probability: float = clampf(base_success+0.02*(int(staff.abilities.treatment)-1)+0.025*effective
 		- (0.03 if float(staff.energy)<35.0 else 0.0) - (0.04 if float(facility.condition)<40.0 else 0.0)
 		+ (float(content.balance.second_attempt_bonus) if not visit.attempt_ids.is_empty() else 0.0) - (float(protocol.complex_penalty) if visit.complex else 0.0),0.70,0.98)
+	if recruitment!=null:
+		var talent: Dictionary = recruitment.call("talent_effect",world,staff.id,"outpatient",visit.actor_id,content.definition("treatment_routines",content.definition("treatment_bindings",visit.binding_id).routine_id).specialty_id)
+		if talent.get("handler_id","")=="treatment_success":
+			probability = clampf(probability+float(talent.value),0.70,0.98)
 	if probability < float(content.balance.clinical.minimum_predicted_success):
 		return {"ok":false,"reason":"预计效果低于原安全底线"}
 	var binding: Dictionary = content.definition("treatment_bindings",visit.binding_id)
@@ -602,7 +629,7 @@ func _compatible_bed(world: WorldState, visit: Dictionary, floor_id: int, exclud
 		if bed.definition_id!="EQ05" or int(bed.floor_id)!=floor_id or not world.facts.rooms.has(bed.get("room_id","")):
 			continue
 		var ward: Dictionary = world.facts.rooms[bed.room_id]
-		if ward.kind!="ward" or (not structural_only and (bed.failed or _bed_busy(world,bed_id,visit.id))):
+		if ward.kind!="ward" or int(ward.size[0])<6 or int(ward.size[1])<6 or (not structural_only and (_facility_unavailable(bed) or _bed_busy(world,bed_id,visit.id))):
 			continue
 		for nurse_id: String in world.ids("staff"):
 			var nurse: Dictionary = world.facts.staff[nurse_id]
@@ -614,6 +641,14 @@ func _compatible_bed(world: WorldState, visit: Dictionary, floor_id: int, exclud
 			var room_rect: Rect2 = Rect2(float(ward.origin[0]),float(ward.origin[1]),float(ward.size[0]),float(ward.size[1]))
 			if not structural_only and (location.kind!="floor" or int(location.floor_id)!=floor_id or not room_rect.has_point(Vector2(float(location.cell[0]),float(location.cell[1])))):
 				continue
+			if int(world.facts.get("gameplay_version",0))>=1:
+				var has_workbench: bool = false
+				for workbench: Dictionary in world.facts.facilities.values():
+					if workbench.definition_id=="SE06" and int(workbench.floor_id)==floor_id and not workbench.failed:
+						var position: Array = workbench.operator_cells[0]
+						has_workbench = has_workbench or bool(space.route(world,nurse_id,floor_id,position,[],{},true).ok)
+				if not has_workbench:
+					continue
 			var load: int = 0
 			for stay: Dictionary in world.facts.ward_stays.values():
 				if stay.nurse_id==nurse_id:
@@ -638,36 +673,38 @@ func _compatible_bed(world: WorldState, visit: Dictionary, floor_id: int, exclud
 	return {"ok":false,"reason":"等待同层兼容床位、真实护理覆盖与出院查房医生"}
 
 func _prepare_surgery(world: WorldState, visit: Dictionary, ticket: Dictionary) -> void:
-	var team: Array = ["surgeon","anesthetist","or_nurse"]
-	var quote: Dictionary = _surgery_quote(world,visit,team)
+	var existing: Dictionary = world.facts.preparations.get(visit.id,{})
+	var quote: Dictionary = _surgery_quote(world,visit,existing.get("staff_ids",[]),{"facility_id":existing.facility_id,"bed_id":existing.bed_id} if not existing.is_empty() else {})
 	if not quote.ok:
 		world.facts.preparations.erase(visit.id)
 		visit.waiting_reason = quote.reason
+		ticket.service_assigned = false
+		ticket.called_tick = -1
 		return
+	if not _decision_valid(world,visit,quote):
+		return
+	var team: Array = quote.staff_ids
 	var preparation: Dictionary = world.facts.preparations.get(visit.id,{})
 	if preparation.is_empty():
-		if _facility_busy(world,"or") or _bed_busy(world,"bed"):
-			visit.waiting_reason = "等待手术台及同层兼容床位"
+		if waiting_life!=null and not waiting_life.call("call_patient",world,visit.id):
 			return
-		for staff_id: String in team:
-			if _staff_busy(world,staff_id):
-				visit.waiting_reason = "等待完整互异团队"
-				return
-		preparation = {"id":visit.id,"visit_id":visit.id,"bed_id":"bed","facility_id":"or","staff_ids":team,
+		var reason: String = _reserve_bundle(world,visit,quote,visit.id)
+		if not reason.is_empty():
+			visit.waiting_reason = reason
+			return
+		preparation = {"id":visit.id,"visit_id":visit.id,"kind":"surgery","bed_id":quote.bed_id,"facility_id":quote.facility_id,"staff_ids":team.duplicate(),
+			"nurse_id":quote.nurse_id,"round_doctor_id":quote.round_doctor_id,"ward_id":quote.ward_id,"supply_units":int(quote.supply_units),
 			"deadline_tick":int(world.facts.sim_tick)+int(content.balance.clinical.bed_reservation_seconds)*10,
-			"setup_remaining_ticks":ceili(float(content.balance.clinical.or_setup_seconds)*10/(1.0+0.05*(int(world.facts.staff.or_nurse.abilities.surgery)-1)))}
+			"setup_remaining_ticks":ceili(float(content.balance.clinical.or_setup_seconds)*10/(1.0+0.05*(int(world.facts.staff[team[2]].abilities.surgery)-1))/_talent_rate(world,team[2],"or_assist",visit))}
 		world.facts.preparations[visit.id] = preparation
-		var table_reason: String = space.reserve_facility(world,"or",visit.actor_id,visit.id,team)
-		var bed_reason: String = space.reserve_facility(world,"bed",visit.actor_id,visit.id,["ward_nurse","round_doctor"]) if table_reason.is_empty() else ""
-		if not table_reason.is_empty() or not bed_reason.is_empty():
-			visit.waiting_reason = table_reason if not table_reason.is_empty() else bed_reason
-			world.facts.preparations.erase(visit.id)
-			return
 	if int(world.facts.sim_tick) >= int(preparation.deadline_tick):
 		world.facts.preparations.erase(visit.id)
 		visit.waiting_reason = "准备超过30秒，原票号保留；资源已释放"
 		return
-	var facility: Dictionary = space.facility_layout(world,"or")
+	ticket.service_assigned = true
+	if int(ticket.get("called_tick",-1))<0:
+		ticket.called_tick = world.sim_tick
+	var facility: Dictionary = space.facility_layout(world,preparation.facility_id)
 	if not _gather(world,visit,facility,team):
 		return
 	if int(preparation.setup_remaining_ticks) > 0:
@@ -676,17 +713,17 @@ func _prepare_surgery(world: WorldState, visit: Dictionary, ticket: Dictionary) 
 		visit.waiting_reason = "护士正在真实器械核对"
 		return
 	# Recheck the entire bundle at the actual start, not a cached authorization.
-	quote = _surgery_quote(world,visit,team)
+	quote = _surgery_quote(world,visit,team,{"facility_id":preparation.facility_id,"bed_id":preparation.bed_id})
 	if not quote.ok:
 		visit.waiting_reason = quote.reason
 		return
 	var attempt: Dictionary = _commit_attempt(world,visit,quote)
-	world.facts.ward_stays[attempt.id] = {"id":attempt.id,"attempt_id":attempt.id,"bed_id":"bed","phase":"reserved",
+	world.facts.ward_stays[attempt.id] = {"id":attempt.id,"attempt_id":attempt.id,"bed_id":quote.bed_id,"phase":"reserved",
 		"remaining_ticks":attempt.recovery_ticks,"work_credit_milli":0,"care_completed":false,
-		"nurse_id":"ward_nurse","round_doctor_id":"round_doctor","escort_id":"or_nurse"}
-	if world.facts.adaptations.has("bed"):
-		world.facts.adaptations.bed.owner_id = attempt.id
-	_start(world,visit,"surgery","or",team,int(attempt.work_ticks),{"attempt_id":attempt.id})
+		"nurse_id":quote.nurse_id,"round_doctor_id":quote.round_doctor_id,"escort_id":team[2],"last_progress_tick":world.sim_tick}
+	if world.facts.adaptations.has(quote.bed_id):
+		world.facts.adaptations[quote.bed_id].owner_id = attempt.id
+	_start(world,visit,"surgery",quote.facility_id,team,int(attempt.work_ticks),{"attempt_id":attempt.id,"clinical_beat":0})
 	_support(world,visit,facility,"lying")
 	_use(world,facility,attempt.id)
 	world.facts.preparations.erase(visit.id)
@@ -695,7 +732,47 @@ func _prepare_surgery(world: WorldState, visit: Dictionary, ticket: Dictionary) 
 	visit.phase = "surgery"
 	visit.waiting_reason = ""
 
-func _surgery_quote(world: WorldState, visit: Dictionary, team: Array) -> Dictionary:
+func _surgery_quote(world: WorldState, visit: Dictionary, requested_team: Array = [], options: Dictionary = {}) -> Dictionary:
+	var plan: Dictionary = content.definition("treatment_plans",visit.plan_decision.get("plan_id",""))
+	if plan.is_empty():
+		return {"ok":false,"structural_ok":false,"reason":"缺少原手术方案"}
+	var protocol: Dictionary = content.definition("treatment_protocols",plan.protocol_id)
+	var pools: Array = [[],[],[]]
+	var structural: bool = bool(options.get("structural_only",false))
+	var requirements: Array = [protocol.min_surgeon_surgery,protocol.min_anesthetist_surgery,protocol.min_nurse_surgery]
+	var titles: Array = [protocol.min_surgeon_title_id,protocol.min_anesthetist_title_id,""]
+	for staff_id: String in world.ids("staff"):
+		var staff: Dictionary = world.facts.staff[staff_id]
+		for index: int in 3:
+			if not requested_team.is_empty() and (requested_team.size()!=3 or staff_id!=requested_team[index]):
+				continue
+			if staff.role!=("nurse" if index==2 else "doctor") or int(staff.abilities.surgery)<int(requirements[index]):
+				continue
+			if index==2 and not "q_or" in staff.certificates:
+				continue
+			if index<2 and int(content.definition("doctor_titles",staff.title_id).rank)<int(content.definition("doctor_titles",titles[index]).rank):
+				continue
+			if not structural and (not staff.on_shift or not _can_start(staff) or _staff_busy(world,staff_id,visit.id)):
+				continue
+			pools[index].append(staff_id)
+	var best: Dictionary = {"ok":false,"structural_ok":false,"reason":"缺少当前可执行的三个互异手术岗位"}
+	for surgeon_id: String in pools[0]:
+		for anesthetist_id: String in pools[1]:
+			if surgeon_id==anesthetist_id:
+				continue
+			for nurse_id: String in pools[2]:
+				for facility_id: String in world.ids("facilities"):
+					var table: Dictionary = world.facts.facilities[facility_id]
+					if table.definition_id!="EQ01" or (options.has("facility_id") and options.facility_id!=facility_id):
+						continue
+					var quote: Dictionary = _surgery_bundle_quote(world,visit,[surgeon_id,anesthetist_id,nurse_id],facility_id,options)
+					if quote.ok and (not best.ok or int(quote.probability_bp)>int(best.probability_bp) or (int(quote.probability_bp)==int(best.probability_bp) and str(quote.staff_ids)+facility_id<str(best.staff_ids)+str(best.facility_id))):
+						best = quote
+					elif not best.ok:
+						best = quote
+	return best
+
+func _surgery_bundle_quote(world: WorldState, visit: Dictionary, team: Array, facility_id: String, options: Dictionary) -> Dictionary:
 	var plan: Dictionary = content.definition("treatment_plans",visit.plan_decision.get("plan_id",""))
 	if plan.is_empty():
 		return {"ok":false,"reason":"缺少原手术方案"}
@@ -713,7 +790,7 @@ func _surgery_quote(world: WorldState, visit: Dictionary, team: Array) -> Dictio
 		if not world.facts.staff.has(staff_id):
 			return {"ok":false,"reason":"手术团队缺员"}
 		var staff: Dictionary = world.facts.staff[staff_id]
-		if not staff.on_shift or not _can_start(staff) or int(staff.abilities.surgery) < int(requirements[index]):
+		if int(staff.abilities.surgery) < int(requirements[index]):
 			return {"ok":false,"reason":"手术人员未在班或资格不足"}
 		if index < 2 and int(content.definition("doctor_titles",staff.title_id).rank) < int(content.definition("doctor_titles",titles[index]).rank):
 			return {"ok":false,"reason":"外科职称不足"}
@@ -722,24 +799,21 @@ func _surgery_quote(world: WorldState, visit: Dictionary, team: Array) -> Dictio
 		utilization_sum += float(content.balance.medical_equipment_effects.utilization_by_level[int(staff.abilities.surgery)])
 	if team[0] == team[1] or team[0] == team[2] or team[1] == team[2]:
 		return {"ok":false,"reason":"手术岗位必须互异"}
-	if not world.facts.facilities.has("or") or not world.facts.facilities.has("bed") or not world.facts.staff.has("ward_nurse"):
-		return {"ok":false,"reason":"手术台、同层床或病房覆盖缺失"}
-	var table: Dictionary = world.facts.facilities["or"]
-	var bed: Dictionary = world.facts.facilities.bed
-	if table.get("room_id","").is_empty() or bed.get("room_id","").is_empty():
-		return {"ok":false,"reason":"手术台与护理床缺少合法房间"}
+	var table: Dictionary = world.facts.facilities[facility_id]
+	var structural: bool = bool(options.get("structural_only",false))
+	if not world.facts.rooms.has(table.get("room_id","")):
+		return {"ok":false,"reason":"手术台缺少合法手术室"}
 	var operating_room: Dictionary = world.facts.rooms[table.room_id]
-	var ward: Dictionary = world.facts.rooms[bed.room_id]
-	if operating_room.kind != "operating_room" or ward.kind != "ward" or int(operating_room.floor_id)!=int(ward.floor_id) or int(operating_room.size[0])<8 or int(operating_room.size[1])<8 or int(ward.size[0])<6 or int(ward.size[1])<6:
-		return {"ok":false,"reason":"临床房间或同层照护不合格"}
-	var cover: Dictionary = world.facts.staff.ward_nurse
-	var cover_location: Dictionary = world.facts.actors.ward_nurse.location
-	var ward_rect: Rect2 = Rect2(float(ward.origin[0]),float(ward.origin[1]),float(ward.size[0]),float(ward.size[1]))
-	if not "q_ward" in cover.certificates or cover.ward_id != ward.id or cover_location.kind != "floor" or int(cover_location.floor_id)!=int(ward.floor_id) or not ward_rect.has_point(Vector2(float(cover_location.cell[0]),float(cover_location.cell[1]))):
-		return {"ok":false,"reason":"护理护士尚未在本病房实际到岗"}
-	if table.failed or bed.failed or not world.facts.staff.ward_nurse.on_shift:
-		return {"ok":false,"reason":"手术台、床或当前病房覆盖不可用"}
-	if int(world.facts.inventory.units) < int(protocol.supply_units):
+	if operating_room.kind!="operating_room" or int(operating_room.size[0])<8 or int(operating_room.size[1])<8:
+		return {"ok":false,"reason":"手术室未满足最小内部8×8"}
+	if not structural and (_facility_unavailable(table) or _facility_busy(world,facility_id,visit.id)):
+		return {"ok":false,"structural_ok":true,"reason":"等待原手术台安全可用"}
+	var bed_bundle: Dictionary = _compatible_bed(world,visit,int(table.floor_id),team,structural)
+	if not bed_bundle.ok:
+		return bed_bundle
+	if options.has("bed_id") and options.bed_id!=bed_bundle.bed_id:
+		return {"ok":false,"reason":"原准备床位已失效，需要重新取得完整资源束"}
+	if not bool(options.get("ignore_supplies",false)) and _available_supplies(world,visit.id) < int(protocol.supply_units):
 		return {"ok":false,"reason":"治疗包不足"}
 	var compatible: bool = false
 	for adapter: Dictionary in content.catalog.surgical_adapters:
@@ -747,10 +821,20 @@ func _surgery_quote(world: WorldState, visit: Dictionary, team: Array) -> Dictio
 			compatible = true
 	if not compatible:
 		return {"ok":false,"reason":"病例缺少合法手术承托适配"}
-	for facility_id: String in ["or","bed"]:
-		var fit: Dictionary = space.facility_quote(world,facility_id,visit.actor_id,team if facility_id=="or" else ["ward_nurse","round_doctor"])
-		if not fit.ok:
-			return fit
+	var fit: Dictionary = space.facility_quote(world,facility_id,visit.actor_id,team)
+	if not fit.ok:
+		return fit
+	var layout: Dictionary = space.facility_layout(world,facility_id) if fit.get("unchanged",false) else fit
+	if layout.operator_cells.size()!=3:
+		return {"ok":false,"reason":"手术台缺少三个互异实际医护站位"}
+	var gathering_ticks: int = 0
+	for index: int in 4:
+		var actor_id: String = visit.actor_id if index==0 else str(team[index-1])
+		var position: Array = layout.patient_cell if index==0 else layout.operator_cells[index-1]
+		var route: Dictionary = space.route(world,actor_id,int(table.floor_id),position,[],{},true)
+		if not route.ok:
+			return route
+		gathering_ticks = maxi(gathering_ticks,int(route.arrival_ticks))
 	var surgeon: Dictionary = world.facts.staff[team[0]]
 	var anesthetist: Dictionary = world.facts.staff[team[1]]
 	var effective: float = float(table.grade)*utilization_sum/3.0
@@ -761,14 +845,34 @@ func _surgery_quote(world: WorldState, visit: Dictionary, team: Array) -> Dictio
 	probability += 0.15 if not visit.attempt_ids.is_empty() else 0.0
 	probability = clampf(probability,0.70,0.98)
 	var seconds: float = float(protocol.work_seconds)/(1.0+0.05*(int(surgeon.abilities.surgery)-int(protocol.min_surgeon_surgery))+0.1*effective)*(1.0+0.003*float(surgeon.fatigue))
+	if departments!=null:
+		seconds *= float(departments.call("focus_multiplier",world,visit.id,team[0],"surgery"))
 	for staff_id: String in team:
 		var consumption: float = float(content.balance.wellbeing.energy_work_per_second)*(seconds+float(content.balance.clinical.wake_seconds)+float(content.balance.clinical.or_setup_seconds))
-		if float(world.facts.staff[staff_id].energy)-consumption<=15.0:
+		if not structural and float(world.facts.staff[staff_id].energy)-consumption<=15.0:
 			return {"ok":false,"reason":"团队体力不足以安全覆盖操作和苏醒全过程"}
-	return {"ok":true,"plan_id":plan.id,"probability_bp":floori(probability*10000),"work_ticks":ceili(seconds*10),
+	var quote: Dictionary = {"ok":true,"structural_ok":true,"plan_id":plan.id,"probability_bp":floori(probability*10000),"work_ticks":ceili(seconds*10),
 		"recovery_ticks":ceili(float(protocol.recovery_seconds)*10),"supply_units":int(protocol.supply_units),
 		"cure_fee":_quoted_fee(int(content.definition("diseases",visit.disease_id).cure_fee),protocol.cure_fee_multiplier),
-		"facility_fee":content.facility_fee(table.definition_id,"surgery"),"staff_ids":team.duplicate(),"effective_level":effective}
+		"facility_fee":content.facility_fee(table.definition_id,"surgery"),"staff_ids":team.duplicate(),"effective_level":effective,"facility_id":facility_id,
+		"gathering_ticks":gathering_ticks,"estimated_total_ticks":gathering_ticks+ceili(seconds*10)+ceili(float(protocol.recovery_seconds)*10)+int(content.balance.clinical.wake_seconds)*10}
+	quote.merge(bed_bundle)
+	return quote
+
+func _reserve_bundle(world: WorldState, visit: Dictionary, quote: Dictionary, owner_id: String) -> String:
+	var candidate: WorldState = WorldState.new(world.freeze())
+	var geometry: HospitalSpace = HospitalSpace.new(content)
+	var reason: String = geometry.reserve_facility(candidate,quote.facility_id,visit.actor_id,owner_id,quote.staff_ids)
+	if not reason.is_empty():
+		return reason
+	if quote.has("bed_id"):
+		reason = geometry.reserve_facility(candidate,quote.bed_id,visit.actor_id,owner_id,[quote.nurse_id,quote.round_doctor_id])
+		if not reason.is_empty():
+			return reason
+	space.reserve_facility(world,quote.facility_id,visit.actor_id,owner_id,quote.staff_ids)
+	if quote.has("bed_id"):
+		space.reserve_facility(world,quote.bed_id,visit.actor_id,owner_id,[quote.nurse_id,quote.round_doctor_id])
+	return ""
 
 func _quoted_fee(amount: int, multiplier: Variant) -> int:
 	var parts: PackedStringArray = str(multiplier).to_lower().split("e")
@@ -791,7 +895,17 @@ func _commit_attempt(world: WorldState, visit: Dictionary, quote: Dictionary) ->
 	attempt.id = id
 	attempt.visit_id = visit.id
 	attempt.result = world.draw("treatment",10000) < int(attempt.probability_bp)
+	if bool(visit.get("tutorial_success_pending",false)) and visit.attempt_ids.is_empty():
+		attempt.result = true
+		attempt.tutorial_protected = true
+		visit.tutorial_success_pending = false
 	attempt.start_tick = world.facts.sim_tick
+	attempt.protocol_id = content.definition("treatment_plans",attempt.plan_id).protocol_id
+	attempt.beat_end_ticks = []
+	var cumulative: int = 0
+	for points: int in content.balance.treatment_presentation.beat_basis_points:
+		cumulative += points
+		attempt.beat_end_ticks.append(ceili(float(attempt.work_ticks)*float(cumulative)/10000.0))
 	world.facts.inventory.units -= int(attempt.supply_units)
 	world.facts.inventory.issues[id] = {"attempt_id":id,"units":attempt.supply_units,"tick":world.facts.sim_tick}
 	if world.facts.inventory.has("usage"):
@@ -809,11 +923,13 @@ func _start(world: WorldState, visit: Dictionary, kind: String, facility_id: Str
 		"total_ticks":ticks,"remaining_ticks":ticks,"start_tick":world.facts.sim_tick}
 	session.merge(extra)
 	world.facts.sessions[id] = session
+	visit.last_service_tick = world.sim_tick
+	visit.last_progress_tick = world.sim_tick
 	if departments != null:
 		departments.call("service_started",world,session)
 	_events.append(SimEvent.new(world.sim_tick,"service_started",[visit.id,id],{"kind":kind}))
 	if world.facts.adaptations.has(facility_id):
-		world.facts.adaptations[facility_id].owner_id = str(extra.get("attempt_id",id))
+		world.facts.adaptations[facility_id].owner_id = str(extra.get("stay_id",id))
 	return session
 
 func _complete_service(world: WorldState, session: Dictionary) -> void:
@@ -823,6 +939,11 @@ func _complete_service(world: WorldState, session: Dictionary) -> void:
 	var reservation: Dictionary = world.facts.adaptations.get(session.facility_id,{})
 	if reservation.get("owner_id","")==session.id:
 		reservation.owner_id = visit.actor_id
+	if recruitment!=null:
+		var action: String = {"reception":"registration","gp":"gp","spectrum":"test","resonance":"test","outpatient":"outpatient","care":"ward_visit"}.get(session.kind,"")
+		if not action.is_empty():
+			for staff_id: String in session.staff_ids:
+				recruitment.call("service_mood",world,staff_id,action,visit.id,session)
 	if departments != null:
 		departments.call("service_completed",world,session)
 	if session.kind in ["gp","outpatient","surgery","round"]:
@@ -898,6 +1019,10 @@ func _complete_service(world: WorldState, session: Dictionary) -> void:
 			HospitalLedger.post(world,LedgerEntry.new(attempt.id,"surgery",int(attempt.facility_fee)),false)
 			for staff_id: String in session.staff_ids:
 				_practice(world,staff_id,"surgery",attempt.id)
+			_record_plan_experience(world,attempt)
+			var room: Dictionary = world.facts.rooms[world.facts.facilities[session.facility_id].room_id]
+			for index: int in 2:
+				space.request_move(world,session.staff_ids[index],int(room.floor_id),[int(room.origin[0])+index*2,int(room.origin[1])])
 			world.facts.ward_stays[attempt.id].phase = "transfer"
 			visit.phase = "transfer"
 		"care":
@@ -1110,6 +1235,9 @@ func _available_supplies(world: WorldState, except_preparation: String = "") -> 
 func _facility_unavailable(facility: Dictionary) -> bool:
 	return bool(facility.failed) or bool(facility.get("pending_failure",false)) or bool(facility.get("stop_new_service",false)) or bool(facility.get("maintenance_block",false)) or bool(facility.get("upgrading_block",false)) or float(facility.condition)<=float(content.balance.equipment.get("stop_new_service_threshold",0.0))
 
+func _talent_rate(world: WorldState, staff_id: String, action: String, visit: Dictionary) -> float:
+	return float(recruitment.call("work_rate",world,staff_id,action,visit.actor_id)) if recruitment!=null else 1.0
+
 func shortage_requests(world: WorldState) -> Array:
 	var result: Array = []
 	var candidate: WorldState = WorldState.new(world.freeze())
@@ -1157,6 +1285,148 @@ func _arrival_candidate(world: WorldState, binding_id: String, complex_case: boo
 	var actor: Dictionary = candidate.facts.actors[actor_id]
 	var reason: String = space.static_reason(candidate,actor,int(entry.floor_id),Vector2i(int(entry.cell[0]),int(entry.cell[1])))
 	return {"ok":reason.is_empty(),"reason":reason,"world":candidate,"visit":candidate.facts.visits[visit_id]}
+
+func reference_demand(world: WorldState, binding_id: String, complex_case: bool = false, _shift: int = 0) -> Dictionary:
+	var reference: Dictionary = _arrival_candidate(world,binding_id,complex_case)
+	if not reference.ok:
+		return {"ok":false,"reason":reference.reason,"bundles":[]}
+	var candidate: WorldState = reference.world
+	var visit: Dictionary = reference.visit
+	# A reference removes temporary contention while retaining the actual built
+	# geometry, bodies, qualifications and the original shift budgets.
+	candidate.facts.sessions = {}
+	candidate.facts.preparations = {}
+	candidate.facts.ward_stays = {}
+	candidate.facts.moves = {}
+	for staff: Dictionary in candidate.facts.staff.values():
+		staff.energy = 100.0
+		staff.fatigue = 0.0
+		staff.on_shift = true
+		staff.block_new_work = false
+		staff.base_prepared = true
+		staff.supply_strike = false
+		staff.life_task = {"phase":"idle"}
+	var receptions: Array = service_candidates(candidate,visit,"reception",true)
+	var diagnostics: Array = service_candidates(candidate,visit,"gp",true)
+	if receptions.is_empty() or diagnostics.is_empty():
+		return {"ok":false,"reason":"缺少实际接待或初诊资源","bundles":[]}
+	var terminal_quotes: Array = []
+	for pair: Dictionary in service_candidates(candidate,visit,"outpatient",true):
+		var preferred: Dictionary = {}
+		for plan: Dictionary in content.catalog.treatment_plans:
+			if plan.disease_id!=visit.disease_id or content.definition("treatment_protocols",plan.protocol_id).kind!="outpatient":
+				continue
+			var allowed: bool = true
+			for research_id: String in plan.requires_research:
+				allowed = allowed and research_id in candidate.facts.research
+			if not allowed:
+				continue
+			var quote: Dictionary = _outpatient_quote(candidate,visit,candidate.facts.staff[pair.staff_id],candidate.facts.facilities[pair.facility_id],plan.id,true,true)
+			if not quote.ok:
+				continue
+			quote.estimated_total_ticks = int(quote.work_ticks)+int(quote.recovery_ticks)
+			quote.score = _reference_score(candidate,visit,quote,pair.staff_id)
+			if preferred.is_empty() or float(quote.score)>float(preferred.score) or (float(quote.score)==float(preferred.score) and str(quote.plan_id)<str(preferred.plan_id)):
+				preferred = quote
+		if not preferred.is_empty():
+			terminal_quotes.append(preferred)
+	for plan: Dictionary in content.catalog.treatment_plans:
+		if plan.disease_id!=visit.disease_id or content.definition("treatment_protocols",plan.protocol_id).kind!="surgery":
+			continue
+		var quote: Dictionary = plan_quote(candidate,visit.id,plan.id,{"structural_only":true,"ignore_supplies":true})
+		if quote.ok:
+			terminal_quotes.append(quote)
+	var bundles: Array = []
+	for terminal: Dictionary in terminal_quotes:
+		for diagnostic: Dictionary in diagnostics:
+			for reception: Dictionary in receptions:
+				var bundle: Dictionary = _reference_bundle(candidate,visit,reception,diagnostic,terminal)
+				if bundle.get("ok",false):
+					bundles.append(bundle)
+	return {"ok":not bundles.is_empty(),"reason":"" if not bundles.is_empty() else "没有完整临床参考资源束","bundles":bundles}
+
+func _reference_score(world: WorldState, _visit: Dictionary, quote: Dictionary, doctor_id: String) -> float:
+	var staff: Dictionary = world.facts.staff[doctor_id]
+	var personality: Dictionary = content.definition("doctor_personalities",str(staff.get("personality_id","DP01")))
+	var protocol: Dictionary = content.definition("treatment_protocols",content.definition("treatment_plans",quote.plan_id).protocol_id)
+	var completed: int = int(staff.get("plan_experience",{}).get(quote.plan_id,0))
+	var weights: Dictionary = personality.weights
+	return float(weights.success)*float(quote.probability_bp)/100.0-float(weights.time)*float(quote.get("estimated_total_ticks",quote.work_ticks))/100.0-float(weights.burden)*float(protocol.burden)+float(weights.familiarity)*mini(5,completed/5)+float(weights.novelty)*(1 if completed==0 else 0)+float(weights.team)
+
+func _reference_bundle(world: WorldState, visit: Dictionary, reception: Dictionary, diagnostic: Dictionary, quote: Dictionary) -> Dictionary:
+	var stages: Dictionary = {}
+	var gp_staff: Dictionary = world.facts.staff[diagnostic.staff_id]
+	var gp_facility: Dictionary = world.facts.facilities[diagnostic.facility_id]
+	var gp_effective: float = float(gp_facility.grade)*float(content.balance.medical_equipment_effects.utilization_by_level[int(gp_staff.abilities.diagnosis)])
+	_reference_stage(stages,"reception",["staff:"+str(reception.staff_id),"facility:"+str(reception.facility_id)],ceili(float(content.balance.reception_seconds)*10/_talent_rate(world,reception.staff_id,"registration",visit)))
+	_reference_stage(stages,"gp",["staff:"+str(diagnostic.staff_id),"facility:"+str(diagnostic.facility_id)],ceili(float(_gp_work_ticks(visit,gp_staff,gp_effective))/_talent_rate(world,gp_staff.id,"gp",visit)))
+	var evidence: float = float(_profile(visit).gp_confidence)+2.0*(int(gp_staff.abilities.diagnosis)-1)+2.0*gp_effective
+	for mode: String in ["spectrum","resonance"]:
+		if evidence>=float(content.balance.diagnosis_threshold):
+			break
+		var test_pairs: Array = service_candidates(world,visit,mode,true)
+		if test_pairs.is_empty():
+			return {"ok":false,"reason":"缺少必要检查资格"}
+		var test_pair: Dictionary = test_pairs[0]
+		var staff: Dictionary = world.facts.staff[test_pair.staff_id]
+		var facility: Dictionary = world.facts.facilities[test_pair.facility_id]
+		var effective: float = float(facility.grade)*float(content.balance.medical_equipment_effects.utilization_by_level[int(staff.abilities.diagnosis)])
+		var seconds: float = float(content.balance.tests[mode].seconds)/(1.0+0.05*(int(staff.abilities.diagnosis)-1)+0.15*effective)
+		_reference_stage(stages,mode,["staff:"+str(staff.id),"facility:"+str(facility.id)],ceili(seconds*10/_talent_rate(world,staff.id,"test",visit)))
+		evidence += float(content.balance.tests[mode].confidence)+2.0*(int(staff.abilities.diagnosis)-1)+3.0*effective
+	if evidence<float(content.balance.diagnosis_threshold):
+		return {"ok":false,"reason":"全部合法检查仍未达到诊断阈值"}
+	var consulting_doctor: String = quote.staff_ids[0]
+	if int(world.facts.staff[consulting_doctor].abilities.treatment)<1:
+		return {"ok":false,"reason":"缺少合格会诊医生"}
+	_reference_stage(stages,"consult",["staff:"+consulting_doctor,"facility:"+str(diagnostic.facility_id)],ceili(float(content.balance.clinical.consult_seconds)*10))
+	var count_n: int = 20000-int(quote.probability_bp)
+	var count_d: int = 10000
+	var protocol: Dictionary = content.definition("treatment_protocols",content.definition("treatment_plans",quote.plan_id).protocol_id)
+	var treatment_ticks: int = int(quote.work_ticks)
+	var wake_ticks: int = int(content.balance.clinical.wake_seconds)*10 if protocol.kind=="surgery" else 0
+	var setup_ticks: int = ceili(float(content.balance.clinical.or_setup_seconds)*10/(1.0+0.05*(int(world.facts.staff[quote.staff_ids[2]].abilities.surgery)-1))) if protocol.kind=="surgery" else 0
+	var work_resources: Array = ["facility:"+str(quote.facility_id)]
+	for staff_id: String in quote.staff_ids:
+		work_resources.append("staff:"+staff_id)
+	_reference_stage(stages,str(protocol.kind),work_resources,treatment_ticks+wake_ticks,count_n,count_d)
+	if setup_ticks>0:
+		_reference_stage(stages,"surgery_setup",["facility:"+str(quote.facility_id),"staff:"+str(quote.staff_ids[2])],setup_ticks,count_n,count_d)
+	var bed_ticks: int = 0
+	if int(quote.recovery_ticks)>0:
+		var nurse: Dictionary = world.facts.staff[quote.nurse_id]
+		var bed: Dictionary = world.facts.facilities[quote.bed_id]
+		var bed_effective: float = float(bed.grade)*float(content.balance.medical_equipment_effects.utilization_by_level[int(nurse.abilities.care)])
+		var recovery_ticks: int = ceili(float(quote.recovery_ticks)/(1.0+0.15*bed_effective))
+		var care_ticks: int = ceili(float(content.balance.clinical.nurse_visit_seconds)*10/(1.0+0.05*(int(nurse.abilities.care)-1)))
+		var round_doctor: Dictionary = world.facts.staff[quote.round_doctor_id]
+		var round_ticks: int = ceili(float(content.balance.clinical.discharge_round_seconds)*10/(1.0+0.05*(int(round_doctor.abilities.treatment)-1)))
+		bed_ticks = setup_ticks+treatment_ticks+wake_ticks+maxi(recovery_ticks,care_ticks)+round_ticks
+		_reference_stage(stages,"bed",["facility:"+str(quote.bed_id),"coverage:"+str(quote.nurse_id)+":"+str(quote.ward_id)],bed_ticks,count_n,count_d)
+		_reference_stage(stages,"care",["staff:"+str(quote.nurse_id)],care_ticks,count_n,count_d)
+		_reference_stage(stages,"round",["staff:"+str(quote.round_doctor_id)],round_ticks,count_n,count_d)
+	var resources: Dictionary = {}
+	var structural: Array = []
+	for stage: Dictionary in stages.values():
+		for resource_id: String in stage:
+			var amount: Dictionary = stage[resource_id]
+			if not resources.has(resource_id):
+				resources[resource_id] = {"n":"0","d":str(count_d)}
+			resources[resource_id].n = str(str(resources[resource_id].n).to_int()+str(amount.n).to_int()*(count_d/str(amount.d).to_int()))
+			if resource_id.begins_with("coverage:") or resource_id=="staff:"+str(reception.staff_id) or resource_id=="facility:"+str(reception.facility_id) or resource_id=="staff:"+str(quote.get("nurse_id","")):
+				continue
+			if not resource_id in structural:
+				structural.append(resource_id)
+	structural.sort()
+	return {"ok":true,"plan_id":quote.plan_id,"resources":resources,"stage_resources":stages,"structural_resources":structural,
+		"reception_id":reception.facility_id,"gp_id":diagnostic.facility_id,"terminal_id":quote.facility_id,"staff_ids":quote.staff_ids.duplicate(),
+		"bed_id":str(quote.get("bed_id","")),"ward_id":str(quote.get("ward_id","")),"coverage_nurse_id":str(quote.get("nurse_id","")),
+		"bed_ticks":{"n":str(bed_ticks*count_n),"d":str(count_d)},"expected_attempts":{"n":str(count_n),"d":str(count_d)},"supply_units":quote.supply_units}
+
+func _reference_stage(stages: Dictionary, kind: String, resources: Array, ticks: int, numerator: int = 1, denominator: int = 1) -> void:
+	stages[kind] = {}
+	for id: String in resources:
+		stages[kind][id] = {"n":str(ticks*numerator),"d":str(denominator)}
 
 func _bed_busy(world: WorldState, id: String, except_preparation: String = "") -> bool:
 	for stay: Dictionary in world.facts.ward_stays.values():
