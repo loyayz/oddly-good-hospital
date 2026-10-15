@@ -41,6 +41,7 @@ var _environment_marks_signature: String = ""
 var _environment_heatmap: MultiMeshInstance3D
 var _heatmap_stamp: String = ""
 var _heatmap_subjects: Array[String] = []
+var _equipment_marks: Dictionary = {}
 
 func _init(database: HospitalContent) -> void:
 	content = database
@@ -73,6 +74,7 @@ func bind(state: WorldState, floor_id: int = 1, session_id: String = "") -> void
 	_environment_heatmap = null
 	_heatmap_stamp = ""
 	_heatmap_subjects.clear()
+	_equipment_marks.clear()
 	var environment: WorldEnvironment = WorldEnvironment.new()
 	environment.environment = Environment.new()
 	environment.environment.background_mode = Environment.BG_COLOR
@@ -248,6 +250,7 @@ func update_facts(interpolation_alpha: float = 1.0) -> void:
 			_update_case_props(actor_id)
 	for facility_id: String in _facilities:
 		(_facilities[facility_id] as Node3D).position = _cell_position(world.facts.facilities[facility_id].cell,0)
+		_update_equipment_mark(facility_id)
 		var player: AnimationPlayer = _animation_player(_facilities[facility_id])
 		if player == null:
 			continue
@@ -483,6 +486,7 @@ func _remove_actor(id: String) -> void:
 		follow_actor = ""
 
 func _remove_facility(id: String) -> void:
+	_equipment_marks.erase(id)
 	_retire(_facilities[id])
 	_facilities.erase(id)
 	_extension_nodes.erase(id)
@@ -762,6 +766,10 @@ func _pose(actor_id: String) -> Dictionary:
 		for unit: Dictionary in order.units:
 			if unit.get("worker_id","")==actor_id and unit.phase=="working":
 				return {"name":"work","time":fmod(float(world.sim_tick)*0.1,1.0)}
+	for collection: String in ["jobs","upgrades"]:
+		for job: Dictionary in world.facts.get("maintenance",{}).get(collection,{}).values():
+			if job.get("worker_id","")==actor_id and job.phase=="working":
+				return {"name":"work","time":fmod(float(world.sim_tick)*0.1,1.0)}
 	return {"name":"idle","time":fmod(float(world.facts.sim_tick)*0.1,1.0)}
 
 func _sync_environment_marks() -> void:
@@ -891,6 +899,79 @@ func _environment_read_stamp() -> String:
 		if int(facility.floor_id)==observed_floor:
 			facilities.append([facility.id,facility.cell,facility.get("rotation",0),facility.get("failed",false)])
 	return JSON.stringify([_geometry_signature,_environment_marks_signature,active,bodies,facilities,world.facts.research],"",true,true)
+
+func _update_equipment_mark(facility_id: String) -> void:
+	var item: Dictionary = world.facts.facilities[facility_id]
+	if not item.definition_id in content.balance.equipment.maintained_definition_ids:
+		return
+	var wrapper: Node3D = _facilities[facility_id]
+	var grade: int = int(item.get("upgrade_level",item.get("grade",0)))
+	var upgradable: bool = false
+	for profile: Dictionary in content.catalog.get("medical_equipment_profiles",[]):
+		if profile.definition_id==item.definition_id:
+			upgradable = true
+	var state: String = "可用"
+	var accent: Color = Palette.SUCCESS
+	if item.get("upgrading_block",false):
+		state = "已付材料，等待升级"
+		accent = Palette.ACTION
+		for order: Dictionary in world.facts.get("maintenance",{}).get("upgrades",{}).values():
+			if order.facility_id==facility_id and order.phase not in ["completed","cancelled"]:
+				state = "升级施工中" if order.phase=="working" else ("升级暂停" if order.paused else "等待升级施工")
+	if item.get("maintenance_block",false):
+		state = "维护暂停"
+		accent = Palette.ACTION
+	var job: Dictionary = world.facts.get("maintenance",{}).get("jobs",{}).get(str(item.get("maintenance_order_id","")),{})
+	if not job.is_empty() and job.phase=="working":
+		state = "维修中" if job.kind=="repair" else "保养中"
+		accent = Palette.ACTION
+	elif item.get("failed",false):
+		state = "设备故障，等待维修"
+		accent = Palette.OAK
+	elif item.get("pending_failure",false):
+		state = "安全完成当前服务后停机"
+		accent = Palette.OAK
+	elif float(item.get("condition",100))<=float(content.balance.equipment.stop_new_service_threshold):
+		state = "状态过低，暂停新预约"
+		accent = Palette.OAK
+	var title: String = str(content.facility_definition(item.definition_id).get("name",item.definition_id))
+	var tier: String = str(["基础型","精修型","奇想型"][clampi(grade,0,2)]) if upgradable else ""
+	for child: Node in wrapper.get_children():
+		if child is Label3D:
+			child.text = title+(" · "+tier if not tier.is_empty() else "")+"\n"+state+" · 状态%d" % roundi(float(item.get("condition",100)))
+	wrapper.set_meta("completed_upgrade_level",grade)
+	wrapper.set_meta("equipment_status",state)
+	var signature: String = str(grade)+":"+accent.to_html()
+	if not _equipment_marks.has(facility_id) or _equipment_marks[facility_id].signature!=signature:
+		if _equipment_marks.has(facility_id):
+			_retire(_equipment_marks[facility_id].node)
+		var marks: Node3D = Node3D.new()
+		var w: float = float(item.footprint[0])*HospitalSpace.CELL_METERS
+		var d: float = float(item.footprint[1])*HospitalSpace.CELL_METERS
+		var rail: MeshInstance3D = _box(Vector3(maxf(0.25,w-0.35),0.055,0.12),Palette.STRUCTURE)
+		rail.position = Vector3(w*0.5,0.22,d*0.5)
+		marks.add_child(rail)
+		var condition: MeshInstance3D = _box(Vector3(maxf(0.25,w-0.35),0.07,0.13),accent)
+		condition.position = rail.position+Vector3.UP*0.015
+		marks.add_child(condition)
+		if upgradable and grade>=1:
+			for z: float in [0.14,d-0.14]:
+				var trim: MeshInstance3D = _box(Vector3(maxf(0.2,w-0.28),0.09,0.09),Palette.SURFACE)
+				trim.position = Vector3(w*0.5,1.12,z)
+				marks.add_child(trim)
+			for x: float in [0.14,w-0.14]:
+				var trim: MeshInstance3D = _box(Vector3(0.09,0.09,maxf(0.2,d-0.28)),Palette.SURFACE)
+				trim.position = Vector3(x,1.12,d*0.5)
+				marks.add_child(trim)
+		if upgradable and grade>=2:
+			for side: float in [-1.0,1.0]:
+				var calibration: MeshInstance3D = _box(Vector3(0.13,0.42,0.13),Palette.FURNITURE)
+				calibration.position = Vector3(w*0.5+side*minf(0.5,w*0.2),1.42,d*0.5)
+				marks.add_child(calibration)
+		wrapper.add_child(marks)
+		_equipment_marks[facility_id] = {"node":marks,"condition":condition,"signature":signature}
+	var meter: MeshInstance3D = _equipment_marks[facility_id].condition
+	meter.scale.x = maxf(0.01,clampf(float(item.get("condition",100))/100.0,0,1))
 
 func _staff_status(actor_id: String) -> Dictionary:
 	var staff: Dictionary = world.facts.staff[actor_id]

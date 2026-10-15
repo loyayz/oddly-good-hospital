@@ -2,7 +2,7 @@ class_name BuildService
 extends RefCounted
 
 const HISTORY_LIMIT: int = 20
-const KINDS: Array[String] = ["build_room","build_facility","build_door","build_move","build_rotate","build_demolish","build_undo","build_land"]
+const KINDS: Array[String] = ["build_room","build_facility","build_store","build_door","build_move","build_rotate","build_demolish","build_undo","build_land"]
 var content: HospitalContent
 var space: HospitalSpace
 var _deferred_checks: bool = false
@@ -90,11 +90,16 @@ func _plan(world: WorldState, kind: String, payload: Dictionary) -> Dictionary:
 	var payload_error: String = _payload_error(payload)
 	if not payload_error.is_empty():
 		return BuildGeometry.failure(payload_error)
-	var candidate: WorldState = _scratch(world)
+	# Moving a working object into or out of inventory also changes its original
+	# work orders and their exclusive worker routes. Keep that whole transaction
+	# isolated until the final spatial and quoted-intent checks have succeeded.
+	var inventory_transfer: bool = kind=="build_store" or kind=="build_facility" and not str(payload.get("inventory_id","")).is_empty()
+	var candidate: WorldState = WorldState.new(world.freeze()) if inventory_transfer else _scratch(world)
 	var result: Dictionary
 	match kind:
 		"build_room": result = _add_room(candidate,payload)
 		"build_facility": result = _add_facility(candidate,payload)
+		"build_store": result = _store_facility(candidate,payload)
 		"build_door": result = _replace_door(candidate,payload)
 		"build_move", "build_rotate": result = _move(candidate,kind,payload)
 		"build_demolish": result = _demolish(candidate,payload)
@@ -287,9 +292,20 @@ func _add_facility(world: WorldState, payload: Dictionary) -> Dictionary:
 	var facility: Dictionary = {"id":id,"definition_id":str(payload.definition_id),"floor_id":floor_id,"cell":payload.get("cell",payload.get("anchor")).duplicate(),"footprint":footprint,"rotation":rotation,
 		"grade":0,"condition":100.0,"failed":false,"pending_failure":false,"use_receipts":{},"paid_cost":int(definition.price),"used":false,"ownership":"purchased"}
 	if not owned_item.is_empty():
-		for field: String in ["paid_cost","ownership","used","use_receipts","completed_upgrade_paid_cost","grade","condition","failed","pending_failure"]:
-			if owned_item.has(field):
-				facility[field] = owned_item[field].duplicate(true) if owned_item[field] is Dictionary else owned_item[field]
+		# The inventory owns this same physical object. Preserve every business
+		# fact, including future content fields, and replace only its placement.
+		for field: String in owned_item:
+			var value: Variant = owned_item[field]
+			facility[field] = value.duplicate(true) if value is Dictionary or value is Array else value
+		facility.id = id
+		facility.definition_id = str(payload.definition_id)
+		facility.floor_id = floor_id
+		facility.cell = payload.get("cell",payload.get("anchor")).duplicate()
+		facility.footprint = footprint
+		facility.rotation = rotation
+		facility.location = "floor"
+		facility.erase("room_id")
+		facility.last_wear_day = world.sim_tick/WorldState.TICKS_PER_DAY
 	var room_id: String = str(payload.get("room_id",""))
 	if not room_id.is_empty():
 		facility.room_id = room_id
@@ -300,7 +316,59 @@ func _add_facility(world: WorldState, payload: Dictionary) -> Dictionary:
 	world.facts.facilities[id] = facility
 	if not inventory_id.is_empty():
 		inventory.erase(inventory_id)
+		for collection: String in ["jobs","upgrades"]:
+			for order: Dictionary in world.facts.get("maintenance",{}).get(collection,{}).values():
+				if order.get("facility_id","")==id and order.get("phase","")=="inventory":
+					order.phase = "queued"
+					order.reason = "设备已重新放置，等待原工单实际接续"
 	return _success(int(definition.price) if inventory_id.is_empty() else 0,0,[id],[floor_id])
+
+func _store_facility(world: WorldState, payload: Dictionary) -> Dictionary:
+	var id: String = str(payload.get("target_id",""))
+	if not world.facts.facilities.has(id):
+		return BuildGeometry.failure("待入库的实际设施不存在")
+	var busy: String = _busy(world,id,true)
+	if not busy.is_empty():
+		return BuildGeometry.failure(busy)
+	for collection: String in ["needs","sessions"]:
+		for reservation: Dictionary in world.facts.get("waiting_life",{}).get(collection,{}).values():
+			if _references(reservation,id):
+				return BuildGeometry.failure("等待生活服务使用者完成并释放实际设施预约")
+	var facility: Dictionary = world.facts.facilities[id]
+	var floor_id: int = int(facility.floor_id)
+	var rectangle: Rect2 = BuildGeometry.rectangle(facility)
+	for actor: Dictionary in world.facts.actors.values():
+		if actor.location.kind=="floor" and int(actor.location.floor_id)==floor_id and space.body_rectangle(actor).intersects(rectangle,false):
+			return BuildGeometry.failure("等待实际身体离开设备主体后再入库",[actor.location.cell])
+	ensure(world)
+	if world.facts.inventory.build_items.has(id):
+		return BuildGeometry.failure("同一设施已经存在另一份库存记录")
+	for collection: String in ["jobs","upgrades"]:
+		for order: Dictionary in world.facts.get("maintenance",{}).get(collection,{}).values():
+			if order.get("facility_id","")==id and order.get("phase","") not in ["completed","cancelled","abandoned"]:
+				_suspend_inventory_work(world,order)
+	facility.location = "inventory"
+	world.facts.inventory.build_items[id] = facility
+	world.facts.facilities.erase(id)
+	return _success(0,0,[id],[floor_id])
+
+func _suspend_inventory_work(world: WorldState, order: Dictionary) -> void:
+	var worker_id: String = str(order.get("worker_id",""))
+	if world.facts.staff.has(worker_id) and world.facts.staff[worker_id].get("active_job_id","")==order.id:
+		var movement: Dictionary = world.facts.moves.get(worker_id,{})
+		var matching_target: bool = not movement.is_empty() and movement.get("target_floor",-1)==order.get("work_floor",-2) and movement.get("target_cell",[])==order.get("work_cell",["no-work-position"])
+		var owned_move: bool = movement.get("owner_job_id","")==order.id or matching_target and str(movement.get("owner_job_id","")).is_empty()
+		var actor: Dictionary = world.facts.actors.get(worker_id,{})
+		# An embarked ride is a separate safe movement commitment. Let it finish;
+		# only an unembarked route owned by this work order can be withdrawn.
+		if owned_move and not actor.is_empty() and actor.location.kind=="floor" and movement.get("members",[]).is_empty():
+			HospitalTransit.cancel_waiting(world,movement)
+			world.facts.moves.erase(worker_id)
+		world.facts.staff[worker_id].active_job_id = ""
+	order.worker_id = ""
+	order.phase = "inventory"
+	order.reason = "设备已入库，保留原工单、实付款和剩余工作"
+	order.resume_not_before_tick = world.sim_tick+1
 
 func _set_anchors(facility: Dictionary, definition: Dictionary) -> void:
 	var w: int = int(facility.footprint[0])
@@ -546,11 +614,11 @@ func _land(world: WorldState, payload: Dictionary) -> Dictionary:
 	world.facts.floors.land_purchases.append({"floor_id":1,"plot":payload.plot.duplicate(),"paid_cost":price,"tick":world.sim_tick})
 	return _success(price,0,["plot:1:%d:%d" % [int(payload.plot[0]),int(payload.plot[1])]],[1])
 
-func _busy(world: WorldState, id: String) -> String:
+func _busy(world: WorldState, id: String, allow_inventory_work: bool = false) -> String:
 	for patch: Dictionary in world.facts.get("environment",{}).get("dirt",{}).values():
 		if patch.get("bin_id","")==id:
 			return "垃圾桶尚未清空，不能搬移或拆除"
-	for collection: String in ["jobs","upgrades"]:
+	for collection: String in ([] if allow_inventory_work else ["jobs","upgrades"]):
 		for order: Dictionary in world.facts.get("maintenance",{}).get(collection,{}).values():
 			if order.get("facility_id","")==id and not order.get("phase","") in ["completed","cancelled","abandoned"]:
 				return "设备存在未完成维护或升级工单，请先安全结束或取消工单"

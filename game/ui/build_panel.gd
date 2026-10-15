@@ -40,7 +40,7 @@ func _ready() -> void:
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	add_child(hint)
 	_mode = OptionButton.new()
-	for entry: Array in [["新建房间","build_room"],["放置设施","build_facility"],["移动对象","build_move"],["旋转对象","build_rotate"],["更换房门","build_door"],["拆除与退款","build_demolish"],["撤销上次建造","build_undo"]]:
+	for entry: Array in [["新建房间","build_room"],["放置设施","build_facility"],["移动对象","build_move"],["旋转对象","build_rotate"],["更换房门","build_door"],["设施收入库存","build_store"],["拆除与退款","build_demolish"],["撤销上次建造","build_undo"]]:
 		_mode.add_item(entry[0])
 		_mode.set_item_metadata(_mode.item_count-1,entry[1])
 	_mode.item_selected.connect(func(_index: int) -> void: _populate())
@@ -153,10 +153,10 @@ func _populate() -> void:
 		_door.set_item_metadata(_door.item_count-1,definition.id)
 	_definition_row.visible = kind in ["build_room","build_facility"]
 	_inventory_row.visible = kind=="build_facility"
-	_target_row.visible = kind in ["build_move","build_rotate","build_door","build_demolish"]
+	_target_row.visible = kind in ["build_move","build_rotate","build_door","build_demolish","build_store"]
 	_size_row.visible = kind=="build_room"
 	_door_row.visible = kind in ["build_room","build_door"]
-	_confirm.text = {"build_demolish":"确认拆除与退款","build_undo":"撤销上次建造","build_move":"确认移动","build_rotate":"确认旋转","build_door":"确认换门"}.get(kind,"确认建造")
+	_confirm.text = {"build_store":"确认收入库存","build_demolish":"确认拆除与退款","build_undo":"撤销上次建造","build_move":"确认移动","build_rotate":"确认旋转","build_door":"确认换门"}.get(kind,"确认建造")
 	_request()
 
 func _request() -> void:
@@ -179,7 +179,7 @@ func _request() -> void:
 			if not inventory_id.is_empty():
 				_draft.inventory_id = inventory_id
 				_draft.definition_id = simulation.world.facts.inventory.build_items[inventory_id].definition_id
-		"build_move","build_rotate","build_demolish","build_door":
+		"build_move","build_rotate","build_demolish","build_door","build_store":
 			if _target.item_count==0:
 				_confirm.disabled = true
 				_reason.text = "这一层还没有可操作的对象。"
