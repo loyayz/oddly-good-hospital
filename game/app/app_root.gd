@@ -205,6 +205,7 @@ func _build_ui() -> void:
 	var ward_panel: HospitalWardPanel = HospitalWardPanel.new()
 	ward_panel.locate_requested.connect(_locate_entity)
 	_add_management_panel("ward","住院与探视",ward_panel)
+	_add_management_panel("training","医护培养",HospitalTrainingPanel.new())
 	_status = Label.new()
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_status.add_theme_color_override("font_color",Palette.MUTED_INK)

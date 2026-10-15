@@ -23,6 +23,7 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 		_business_handlers[kind] = services.building
 	for kind: String in ["clinical_arrive","clinical_refer","clinical_select_plan","clinical_confirm_plan","clinical_auto_plan","clinical_assign_ward","clinical_transfer_bed","clinical_ward_refer","clinical_visit_consent"]:
 		_business_handlers[kind] = clinic
+	_register_service("development",HospitalClinicalDevelopment.new(database,space),["train_staff","promote_staff","cancel_training","set_growth_direction"])
 	_ensure_services()
 
 func _ensure_services() -> void:
@@ -37,7 +38,6 @@ func _register_service(id: String, service: RefCounted, kinds: Array[String]) ->
 		_business_handlers[kind] = service
 
 func dispose() -> void:
-	pass
 	_business_handlers.clear()
 	services.clear()
 
@@ -124,16 +124,22 @@ func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickRe
 	drain_commands() # 1: commands and automatic supply orders.
 	if _production(): # 3: real arrivals and family requests.
 		clinic.arrivals(world)
+	if _production(): # 4: dispatch against current occupancy.
+		services.development.dispatch(world)
 	clinic.dispatch(world)
 	var before_movement: Dictionary = {}
 	for staff_id: String in world.ids("staff"):
 		before_movement[staff_id] = world.facts.actors[staff_id].location.duplicate(true)
 	space.advance(world,present_at_start) # 5: actual routes and vertical transit.
 	clinic.advance(world) # 6: work and safe completion.
+	if _production():
+		services.development.advance(world)
 	_integrate_staff(before_movement)
 	# 8: interaction consequences precede settlement.
 	clinic.release_departed(world) # 9: release only after physical handoff.
 	clinic.settle_practice(world)
+	if _production():
+		services.development.settle(world)
 	var events: Array[SimEvent] = _command_events
 	_command_events = []
 	events.append_array(clinic.take_events())

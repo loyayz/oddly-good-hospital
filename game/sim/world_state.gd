@@ -86,6 +86,9 @@ func validate(content: HospitalContent) -> String:
 			return "经营状态集合无效：visitors.requests"
 		if not facts.visitors.get("stays") is Dictionary:
 			return "经营状态集合无效：visitors.stays"
+	if facts.has("training_jobs"):
+		if not facts.training_jobs is Dictionary:
+			return "经营状态结构无效：training_jobs"
 	var geometry: HospitalSpace = HospitalSpace.new(content)
 	if not facts.research is Array or not facts.ledger.get("entries") is Dictionary or not _natural(facts.ledger.get("opening_balance",-1)):
 		return "研究或账目结构无效"
@@ -320,12 +323,16 @@ func validate(content: HospitalContent) -> String:
 		var error: String = HospitalClinic.new(content,geometry).validate(self)
 		if not error.is_empty():
 			return error
+	if facts.has("training_jobs"):
+		var error: String = HospitalClinicalDevelopment.new(content,geometry).validate(self)
+		if not error.is_empty():
+			return error
 	return BuildService.new(content).validate(self)
 
 func _ledger_owner_exists(id: String) -> bool:
 	if id==hospital_id:
 		return true
-	for collection: String in ["visits","attempts","build_transactions","staff"]:
+	for collection: String in ["visits","attempts","build_transactions","staff","training_jobs"]:
 		if facts.get(collection,{}) is Dictionary and facts.get(collection,{}).has(id):
 			return true
 	return false
