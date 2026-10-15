@@ -21,6 +21,13 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 	services.building = BuildService.new(database,space)
 	for kind: String in BuildService.KINDS:
 		_business_handlers[kind] = services.building
+	for kind: String in ["clinical_arrive","clinical_refer"]:
+		_business_handlers[kind] = clinic
+	if _production():
+		services.building.ensure(world)
+
+func _production() -> bool:
+	return int(world.facts.get("gameplay_version",0))==1
 
 func enqueue(command: Dictionary) -> void:
 	_commands.append(GameCommand.from_record(command))

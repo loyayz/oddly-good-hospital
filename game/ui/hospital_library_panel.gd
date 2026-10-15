@@ -27,8 +27,8 @@ func _ready() -> void:
 	_name.accessibility_name = "新医院名称"
 	add_child(_name)
 	_preset = OptionButton.new()
-	_preset.add_item("门诊样板医院")
-	_preset.add_item("手术住院样板医院")
+	_preset.add_item("预设院区")
+	_preset.add_item("空地开局")
 	add_child(_preset)
 	_action(self,"开一家医院",func() -> void:
 		action_requested.emit("create",{"name":_name.text.strip_edges(),"preset":_preset.selected==0}))

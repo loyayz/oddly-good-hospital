@@ -24,6 +24,7 @@ var _saved_revision: int = -1
 var _ui_scale: int = 1
 var _observed_floor: int = 1
 var _selected_actor: String = "patient"
+var _selected_object: String = ""
 var _leave_operation: Dictionary = {}
 var _candidate: WorldState
 var _drafts: Dictionary = {}
@@ -193,6 +194,9 @@ func _build_ui() -> void:
 	_build_panel = HospitalBuildPanel.new()
 	_build_panel.preview_changed.connect(_show_build_preview)
 	_add_management_panel("building","建造与布置",_build_panel)
+	var clinical_panel: HospitalClinicalPanel = HospitalClinicalPanel.new()
+	clinical_panel.locate_requested.connect(_locate_entity)
+	_add_management_panel("clinical","接诊与病例",clinical_panel)
 	_status = Label.new()
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_status.add_theme_color_override("font_color",Palette.MUTED_INK)
@@ -233,9 +237,9 @@ func _acquire() -> void:
 	_auto_deadline_ms = Time.get_ticks_msec()+roundi(float(_content.balance.save.autosave_real_seconds)*1000)
 	_hospital_ids = _snapshots.hospital_ids()
 	if _hospital_ids.is_empty():
-		_hospital_ids = [HospitalSnapshots.uuid(),HospitalSnapshots.uuid()]
-		if _activate(FeasibilityHospitals.create(_hospital_ids[0],false,_content)):
-			_status.text = "小帆门诊医院已准备好。开始经营后观察纸巾小帆与治疗小风车。"
+		_hospital_ids = [HospitalSnapshots.uuid()]
+		if _activate(HospitalFactory.create(_hospital_ids[0],"奇妙小院",true,_content)):
+			_status.text = "医院已准备好。可以布置院区、查看员工，按1×开始经营。"
 		return
 	var unavailable: PackedStringArray = PackedStringArray()
 	for hospital_id: String in _hospital_ids:
@@ -255,6 +259,8 @@ func _acquire() -> void:
 
 func _activate(world: WorldState, restored: bool = false) -> bool:
 	var session_id: String = HospitalSnapshots.uuid()
+	if not world.facts.floors.overrides.has(str(_observed_floor)):
+		_observed_floor = 1
 	var prepared: HospitalView = HospitalView.new(_content)
 	_viewport.add_child(prepared)
 	prepared.visible = false
@@ -342,6 +348,33 @@ func _show_build_preview(draft: Dictionary, result: Dictionary) -> void:
 			outline.size.reverse()
 	_build_overlay.show_preview(outline,result,_observed_floor)
 
+func _locate_entity(id: String) -> void:
+	if _simulation==null:
+		return
+	var world: WorldState = _simulation.world
+	if world.facts.actors.has(id):
+		_selected_actor = id
+		_selected_object = ""
+		var actor: Dictionary = world.facts.actors[id]
+		if actor.location.kind=="floor":
+			_change_floor(int(actor.location.floor_id))
+			_view.follow_actor = id
+		else:
+			_status.text = "该居民目前已离开现场，保留其病例记录。"
+	elif world.facts.facilities.has(id):
+		_selected_object = id
+		var facility: Dictionary = world.facts.facilities[id]
+		_locate_cell(int(facility.floor_id),facility.cell)
+	elif world.facts.rooms.has(id):
+		_selected_object = id
+		var room: Dictionary = world.facts.rooms[id]
+		_locate_cell(int(room.floor_id),room.origin)
+
+func _locate_cell(floor_id: int, cell: Array) -> void:
+	_change_floor(floor_id)
+	if _view!=null:
+		_view.focus_cell(cell)
+
 func _library_action(kind: String, payload: Dictionary) -> void:
 	if _library==null or _library_thread!=null or not _leave_operation.is_empty():
 		_status.text = "已有医院资料作业正在进行，完成后可以继续。"
@@ -353,8 +386,7 @@ func _library_action(kind: String, payload: Dictionary) -> void:
 				_status.text = "请填写1至24字的医院名称。"
 				return
 			var hospital_id: String = HospitalSnapshots.uuid()
-			var new_world: WorldState = FeasibilityHospitals.create(hospital_id,not bool(payload.preset),_content)
-			new_world.facts.display_name = hospital_name
+			var new_world: WorldState = HospitalFactory.create(hospital_id,hospital_name,bool(payload.preset),_content)
 			_start_switch(hospital_id,"",new_world)
 		"continue":
 			_start_switch(payload.hospital_id,str(payload.get("snapshot_id","")))
@@ -656,7 +688,9 @@ func _world_input(event: InputEvent) -> void:
 					_build_panel.draw_room(_build_drag_start,cell)
 				_build_drag_start = []
 		else:
-			_selected_actor = _view.pick(point)
+			var selection: Dictionary = _view.pick_entity(point)
+			if not selection.is_empty():
+				_locate_entity(str(selection.id))
 	if event is InputEventMouseButton and event.pressed and _view!=null:
 		if event.button_index in [MOUSE_BUTTON_WHEEL_UP,MOUSE_BUTTON_WHEEL_DOWN]:
 			_view.zoom_camera(1.1 if event.button_index==MOUSE_BUTTON_WHEEL_DOWN else 1.0/1.1)
@@ -701,6 +735,11 @@ func _update_details() -> void:
 		var body: Dictionary = _content.definition("species",actor.species_id).body
 		lines.append("\n[b]"+str(actor.name)+"[/b]")
 		lines.append("宽 %.1f米 · 深 %.1f米 · 高 %.1f米" % [float(body.width_m),float(body.depth_m),float(body.height_m)])
+	if world.facts.facilities.has(_selected_object):
+		var facility: Dictionary = world.facts.facilities[_selected_object]
+		lines.append("\n[b]"+str(_content.facility_definition(facility.definition_id).get("name",_selected_object))+"[/b]")
+		lines.append("%dF · 等级%d · 完好度%d%%" % [int(facility.floor_id),int(facility.grade),roundi(facility.condition)])
+		lines.append("当前故障，等待维修" if facility.failed else "按真实岗位与路线接单")
 	_details.text = "\n".join(lines)
 
 func _notification(what: int) -> void:

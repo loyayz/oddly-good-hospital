@@ -622,6 +622,14 @@ func pan_camera(pixels: Vector2) -> void:
 	camera.position += offset
 	_camera_target += offset
 
+func focus_cell(cell: Array) -> void:
+	if camera==null or cell.size()!=2:
+		return
+	follow_actor = ""
+	var target: Vector3 = Vector3((float(cell[0])+0.5-32.0)*1.5,0,(float(cell[1])+0.5-64.0)*1.5)
+	camera.position += target-_camera_target
+	_camera_target = target
+
 func zoom_camera(factor: float) -> void:
 	if camera!=null and factor>0 and is_finite(factor):
 		camera.size = clampf(camera.size*factor,float(content.balance.camera_view.minimum_size_m),maxf(float(content.balance.camera_view.original_max_size_m),_overview_size()))

@@ -149,7 +149,7 @@ func validate(content: HospitalContent) -> String:
 		if not facts.actors.has(id):
 			return "员工身体缺失：" + id
 		var staff: Dictionary = facts.staff[id]
-		if not staff.role in ["doctor","nurse","receptionist"] or (staff.role=="doctor" and content.definition("doctor_titles",staff.title_id).is_empty()):
+		if content.definition("staff_role_profiles","ROLE_"+str(staff.role).to_upper()).is_empty() or (staff.role=="doctor" and content.definition("doctor_titles",staff.title_id).is_empty()):
 			return "员工角色或职称定义无效："+id
 	var visited_actors: Dictionary = {}
 	for id: String in facts.visits:
@@ -208,9 +208,15 @@ func validate(content: HospitalContent) -> String:
 			return "号签与当前就诊不一致："+id
 	for id: String in facts.preparations:
 		var preparation: Dictionary = facts.preparations[id]
-		if not facts.visits.has(preparation.visit_id) or not facts.facilities.has(preparation.facility_id) or not facts.facilities.has(preparation.bed_id) or facts.visits[preparation.visit_id].phase!="wait_surgery" or occupied_beds.has(preparation.bed_id):
-			return "手术准备的原票号、台或床位预留不一致："+id
-		occupied_beds[preparation.bed_id] = id
+		var kind: String = str(preparation.get("kind","surgery"))
+		if not facts.visits.has(preparation.visit_id) or not facts.facilities.has(preparation.facility_id) or not kind in ["surgery","outpatient"] or facts.visits[preparation.visit_id].phase!="wait_"+kind:
+			return "临床准备的原票号或服务位不一致："+id
+		if kind=="surgery" and preparation.bed_id.is_empty():
+			return "手术准备缺少兼容床位承诺："+id
+		if not preparation.bed_id.is_empty():
+			if not facts.facilities.has(preparation.bed_id) or occupied_beds.has(preparation.bed_id):
+				return "临床准备的床位预留不一致："+id
+			occupied_beds[preparation.bed_id] = id
 		for staff_id: String in preparation.staff_ids:
 			if not facts.staff.has(staff_id) or locks.has(staff_id):
 				return "准备人员不存在或被重复占用："+staff_id
@@ -301,7 +307,9 @@ func validate(content: HospitalContent) -> String:
 	return BuildService.new(content).validate(self)
 
 func _ledger_owner_exists(id: String) -> bool:
-	for collection: String in ["visits","attempts","build_transactions"]:
+	if id==hospital_id:
+		return true
+	for collection: String in ["visits","attempts","build_transactions","staff"]:
 		if facts.get(collection,{}) is Dictionary and facts.get(collection,{}).has(id):
 			return true
 	return false
