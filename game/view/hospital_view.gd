@@ -295,8 +295,12 @@ func update_facts(interpolation_alpha: float = 1.0) -> void:
 	var viewport_height: float = maxf(1.0,get_viewport().get_visible_rect().size.y)
 	for label: Label3D in _labels:
 		label.pixel_size = camera.size*18.0/(float(label.font_size)*viewport_height)
+		var logical_id: String = str(label.get_parent().get_meta("logical_entity_id",""))
+		if logical_id.begins_with("facility:"):
+			var facility_id: String = logical_id.trim_prefix("facility:")
+			label.visible = facility_id==_selected or bool(world.facts.facilities.get(facility_id,{}).get("failed",false))
 	for actor_id: String in _actor_labels:
-		(_actor_labels[actor_id] as Label3D).visible = actor_id==_selected or actor_id==follow_actor or bool(_actors[actor_id].get_meta("resource_proxy",false)) or bool(_actors[actor_id].get_meta("life_attention",false))
+		(_actor_labels[actor_id] as Label3D).visible = actor_id==_selected or actor_id==follow_actor or bool(_actors[actor_id].get_meta("life_attention",false))
 	_update_selection()
 	for batch: SkinnedPoseBatch in _skin_batches:
 		batch.publish(_visible_body_bounds())
@@ -325,7 +329,7 @@ func _sync_entities() -> void:
 			var model: Node3D = _body_proxy(dimensions)
 			wrapper.add_child(model)
 			_actor_models[actor_id] = model
-			_actor_labels[actor_id] = _label(wrapper,str(actor.name)+" · 资源代理",Vector3(0,float(dimensions.height_m)+0.35,0))
+			_actor_labels[actor_id] = _label(wrapper,str(actor.name),Vector3(0,float(dimensions.height_m)+0.35,0))
 			_bind_entity(key,signature,wrapper,"res://assets/models/core_"+str(actor.species_id).to_lower()+"_body.glb")
 	for actor_id: String in _actors.keys():
 		if not visible_actors.has(actor_id):
@@ -353,7 +357,7 @@ func _sync_entities() -> void:
 			proxy.position = Vector3(float(facility.footprint[0])*0.75,0.5,float(facility.footprint[1])*0.75)
 			proxy.name = "ResourceProxy"
 			wrapper.add_child(proxy)
-			_label(wrapper,str(content.facility_definition(facility.definition_id).get("name",facility.definition_id))+" · 资源代理",Vector3(1.5,3.0,1.5))
+			_label(wrapper,str(content.facility_definition(facility.definition_id).get("name",facility.definition_id)),Vector3(1.5,3.0,1.5))
 			_bind_entity(key,signature,wrapper,"res://assets/models/core_"+str(facility.definition_id).to_lower()+"_machine.glb")
 	for facility_id: String in _facilities.keys():
 		if not visible_facilities.has(facility_id):

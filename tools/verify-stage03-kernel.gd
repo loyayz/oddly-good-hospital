@@ -8,6 +8,10 @@ func _initialize() -> void:
 
 func _run() -> void:
 	var content: HospitalContent = HospitalContent.new()
+	if "--ward-care-only" in OS.get_cmdline_user_args():
+		_ward_receipt_rules(content)
+		_finish()
+		return
 	if "--navigation-only" in OS.get_cmdline_user_args():
 		_navigation_rules(content)
 		_finish()
@@ -88,13 +92,25 @@ func _run() -> void:
 
 func _finish() -> void:
 	var path: String = "res://.cache/validation/stage03-navigation-rules.json" if "--navigation-only" in OS.get_cmdline_user_args() else "res://.cache/validation/stage03-kernel-rules.json"
+	if "--ward-care-only" in OS.get_cmdline_user_args():
+		path = "res://.cache/validation/stage03-ward-care-rules.json"
+	var directory_error: Error = DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(path.get_base_dir()))
+	if directory_error!=OK:
+		push_error("无法创建规则输出目录："+error_string(directory_error))
+		quit(1)
+		return
 	var output: FileAccess = FileAccess.open(path,FileAccess.WRITE)
+	if output==null:
+		push_error("无法写入规则结果："+error_string(FileAccess.get_open_error()))
+		quit(1)
+		return
 	output.store_string(JSON.stringify({"checks":_checks,"failures":_failures,"engine":Engine.get_version_info()},"\t",true,true))
 	print("KERNEL_RULES="+str(_checks.size())+" failures="+str(_failures.size()))
 	quit(0 if _failures.is_empty() else 1)
 
 func _determinism(content: HospitalContent, surgical: bool) -> void:
 	var states: Array[WorldState] = []
+	var ward_work: Dictionary = {}
 	for index: int in 3:
 		states.append(FeasibilityHospitals.create("replay",surgical,content))
 	var sessions: Array[GameSession] = []
@@ -107,6 +123,8 @@ func _determinism(content: HospitalContent, surgical: bool) -> void:
 		var command: GameCommand = _move(states[index],"replay-move","replay-session")
 		session.submit(command)
 		while states[index].sim_tick<target:
+			if surgical and index==0:
+				_observe_ward_work(states[index],ward_work)
 			var delta: float = 1.0/60.0 if index==0 else (1.0/24.0 if index==1 else 1.0/144.0)
 			delta = minf(delta,float(target-states[index].sim_tick)*WorldState.TICK_SECONDS/session.actual_speed())
 			session.advance(delta)
@@ -127,7 +145,79 @@ func _determinism(content: HospitalContent, surgical: bool) -> void:
 			cure_amount += int(entry.amount)
 	_check(prefix+"_supplies_and_cure_settle_once",60-int(final.facts.inventory.units)==issued and final.facts.inventory.issues.size()==final.facts.attempts.size() and cure_entries==1 and cure_amount==ceili(float(content.definition("diseases",visit.disease_id).cure_fee)*(1.8 if surgical else 1.0)))
 	if surgical:
-		_check("navigation_preserves_real_ward_care_and_release",final.facts.ward_stays.is_empty() and final.facts.staff.ward_nurse.practice.care>0 and final.facts.staff.round_doctor.practice.treatment>0)
+		var evidence: Dictionary = _ward_work_evidence(final,visit,ward_work)
+		_check("navigation_preserves_real_ward_care_and_release",final.facts.ward_stays.is_empty() and evidence.ok,evidence)
+
+func _observe_ward_work(world: WorldState, observed: Dictionary) -> void:
+	for session: Dictionary in world.facts.sessions.values():
+		if not session.kind in ["care","round"] or not world.facts.ward_stays.has(session.get("stay_id","")):
+			continue
+		var stay: Dictionary = world.facts.ward_stays[session.stay_id]
+		observed[session.id] = {"kind":session.kind,"service_id":session.id,"visit_id":session.visit_id,"attempt_id":stay.attempt_id,"staff_id":session.staff_ids[0]}
+
+func _ward_work_evidence(world: WorldState, visit: Dictionary, observed: Dictionary) -> Dictionary:
+	var care: Array = []
+	var rounds: Array = []
+	for receipt: Dictionary in observed.values():
+		var attempt: Dictionary = world.facts.attempts.get(receipt.attempt_id,{})
+		var staff: Dictionary = world.facts.staff.get(receipt.staff_id,{})
+		if receipt.visit_id!=visit.id or not receipt.attempt_id in visit.attempt_ids or attempt.get("visit_id","")!=visit.id or staff.is_empty():
+			continue
+		if receipt.kind=="care" and staff.role=="nurse" and staff.completed_jobs.get(receipt.service_id,"")=="care" and int(staff.practice.care)>0:
+			care.append(receipt.duplicate(true))
+		if receipt.kind=="round" and staff.role=="doctor" and staff.completed_jobs.get(str(visit.id)+":round","")=="treatment" and int(staff.practice.treatment)>0:
+			rounds.append(receipt.duplicate(true))
+	return {"ok":not care.is_empty() and not rounds.is_empty(),"care":care,"round":rounds}
+
+func _ward_receipt_rules(content: HospitalContent) -> void:
+	var paths: Dictionary = {}
+	for argument: String in OS.get_cmdline_user_args():
+		for key: String in ["ward-before","ward-after"]:
+			if argument.begins_with("--"+key+"="):
+				paths[key] = argument.substr(key.length()+3)
+	if not paths.has("ward-before") or not paths.has("ward-after"):
+		_check("frozen_ward_paths_required",false)
+		return
+	var before: WorldState = _read_ward_snapshot(paths["ward-before"])
+	var after: WorldState = _read_ward_snapshot(paths["ward-after"])
+	if before==null or after==null: return
+	_check("frozen_ward_worlds_are_valid",before.validate(content).is_empty() and after.validate(content).is_empty())
+	if before.facts.visits.size()!=1 or before.facts.ward_stays.size()!=1 or before.facts.attempts.size()!=1:
+		_check("single_original_ward_receipt_fixture",false)
+		return
+	var visit: Dictionary = before.facts.visits.values()[0]
+	var stay: Dictionary = before.facts.ward_stays.values()[0]
+	var nurse: Dictionary = before.facts.staff[stay.nurse_id]
+	var care_jobs: Array = []
+	for job: String in nurse.completed_jobs:
+		if job.begins_with("service_") and nurse.completed_jobs[job]=="care": care_jobs.append(job)
+	if not stay.care_completed or stay.phase!="release_wait" or care_jobs.size()!=1:
+		_check("snapshot_has_unambiguous_completed_ward_work",false)
+		return
+	var observed: Dictionary = {
+		care_jobs[0]:{"kind":"care","service_id":care_jobs[0],"visit_id":visit.id,"attempt_id":stay.attempt_id,"staff_id":stay.nurse_id},
+		str(visit.id)+":round":{"kind":"round","service_id":str(visit.id)+":round","visit_id":visit.id,"attempt_id":stay.attempt_id,"staff_id":stay.round_doctor_id}}
+	var evidence: Dictionary = _ward_work_evidence(after,after.facts.visits[visit.id],observed)
+	_check("navigation_preserves_real_ward_care_and_release",after.facts.ward_stays.is_empty() and evidence.ok,evidence)
+	var without_care: WorldState = WorldState.new(after.freeze())
+	without_care.facts.staff[stay.nurse_id].completed_jobs.erase(care_jobs[0])
+	_check("positive_care_practice_without_original_receipt_is_rejected",not _ward_work_evidence(without_care,without_care.facts.visits[visit.id],observed).ok)
+	var without_round: WorldState = WorldState.new(after.freeze())
+	without_round.facts.staff[stay.round_doctor_id].completed_jobs.erase(str(visit.id)+":round")
+	without_round.facts.staff.round_doctor.practice.treatment = 1
+	_check("unrelated_doctor_practice_without_original_round_is_rejected",not _ward_work_evidence(without_round,without_round.facts.visits[visit.id],observed).ok)
+	print("WARD_WORK_EVIDENCE="+JSON.stringify(evidence))
+
+func _read_ward_snapshot(path: String) -> WorldState:
+	var file: FileAccess = FileAccess.open(path,FileAccess.READ)
+	if file==null:
+		_check("frozen_ward_file_opens",false)
+		return null
+	var bytes: int = file.get_length()
+	file.close()
+	var decoded: Dictionary = HospitalJsonStream.new().decode(path,bytes,FileAccess.get_sha256(path),func(_total: int)->bool: return true)
+	_check("frozen_ward_typed_json_decodes",decoded.ok,decoded if not decoded.ok else {})
+	return WorldState.new(decoded.value) if decoded.ok else null
 
 func _move(world: WorldState, id: String, session: String) -> GameCommand:
 	return GameCommand.new(id,world.hospital_id,world.revision,"move_actor",MoveActorPayload.new("sample_S21",1,Vector2i(35,66),world.facts.actors.sample_S21.location),session)

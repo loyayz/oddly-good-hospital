@@ -161,6 +161,13 @@ func validate(content: HospitalContent) -> String:
 			return "经营状态集合无效：recruitment.active_search"
 		if not facts.recruitment.get("searches") is Dictionary:
 			return "经营状态集合无效：recruitment.searches"
+	if facts.has("arrivals"):
+		if not facts.arrivals is Dictionary:
+			return "经营状态结构无效：arrivals"
+		if not facts.arrivals.get("plan") is Dictionary:
+			return "经营状态集合无效：arrivals.plan"
+		if not facts.arrivals.get("daily_stats") is Dictionary:
+			return "经营状态集合无效：arrivals.daily_stats"
 	if facts.inventory.has("orders") and not facts.inventory.orders is Dictionary:
 		return "采购凭据集合无效"
 	for staff: Dictionary in facts.staff.values():
@@ -438,6 +445,10 @@ func validate(content: HospitalContent) -> String:
 			return error
 	if facts.has("recruitment"):
 		var error: String = RecruitmentService.new(content,geometry).validate(self)
+		if not error.is_empty():
+			return error
+	if facts.has("arrivals"):
+		var error: String = HospitalArrivalService.validate_snapshot(facts,content)
 		if not error.is_empty():
 			return error
 	return BuildService.new(content).validate(self)

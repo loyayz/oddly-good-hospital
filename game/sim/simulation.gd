@@ -33,6 +33,7 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 	_register_service("departments",HospitalDepartments.new(database,space),["department_create","department_configure","department_rename","department_set_open","department_set_focus"])
 	_register_service("finance",FinanceService.new(database,space),["finance_note","finance_rescue","finance_return_rescue"])
 	_register_service("recruitment",RecruitmentService.new(database,space),["recruitment_search","recruitment_cancel_search","recruitment_hire","recruitment_bookmark","recruitment_dismiss"])
+	_register_service("arrivals",HospitalArrivalService.new(database,space),["arrivals_intake","set_intake_open","arrivals_preset","arrivals_scale","arrivals_weight","resident_remember","resident_forget","tutorial_skip_request","tutorial_set_enabled"])
 	if _production():
 		clinic.scheduler = services.scheduler
 		clinic.waiting_life = services.waiting
@@ -51,6 +52,8 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 		clinic.recruitment = services.recruitment
 		services.environment.recruitment = services.recruitment
 		services.maintenance.recruitment = services.recruitment
+		services.arrivals.clinic = clinic
+		services.arrivals.departments = services.departments
 	_ensure_services()
 
 func _ensure_services() -> void:
@@ -99,6 +102,10 @@ func dispose() -> void:
 		services.environment.recruitment = null
 	if services.has("maintenance"):
 		services.maintenance.recruitment = null
+	if services.has("arrivals"):
+		services.arrivals.clinic = null
+	if services.has("arrivals"):
+		services.arrivals.departments = null
 	_business_handlers.clear()
 	services.clear()
 
@@ -190,7 +197,9 @@ func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickRe
 		services.wellbeing.boundaries(world)
 		services.maintenance.boundaries(world)
 		services.recruitment.boundaries(world)
+		services.arrivals.boundaries(world)
 	if _production(): # 3: real arrivals and family requests.
+		services.arrivals.arrivals(world)
 		clinic.arrivals(world)
 	if _production(): # 4: dispatch against current occupancy.
 		services.scheduler.dispatch(world)
@@ -227,7 +236,9 @@ func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickRe
 		services.wellbeing.advance(world,worked,before_movement)
 		services.waiting.advance(world)
 		services.supplies.advance(world)
+		services.arrivals.advance_wait(world)
 		services.departments.sample(world)
+		services.arrivals.needs(world)
 	else:
 		_integrate_staff(before_movement)
 	# 8: interaction consequences precede settlement.
@@ -238,9 +249,12 @@ func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickRe
 		services.departments.settle(world)
 		services.finance.settle(world)
 		services.recruitment.settle(world)
+		services.arrivals.settle(world)
 	var events: Array[SimEvent] = _command_events
 	_command_events = []
 	events.append_array(clinic.take_events())
+	if _production():
+		events.append_array(services.arrivals.take_events())
 	events.append_array(HospitalLedger.settle(world))
 	world.facts.sim_tick += 1
 	world.touch() # 10: complete immutable snapshot boundary.

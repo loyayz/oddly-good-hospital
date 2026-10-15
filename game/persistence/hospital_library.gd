@@ -40,9 +40,10 @@ func scan_page(cursor: Dictionary = {},limit: int = 12,query: String = "",recycl
 		_scan_query = query
 		_scan_recycled = recycled
 		var directory: String = TRASH if recycled else HospitalSnapshots.ROOT
-		for id: String in DirAccess.get_directories_at(directory):
-			if HospitalSnapshots.valid_uuid(id) and not FileAccess.file_exists(directory.path_join(id).path_join(PENDING)):
-				_scan_ids.append(id)
+		if DirAccess.dir_exists_absolute(directory):
+			for id: String in DirAccess.get_directories_at(directory):
+				if HospitalSnapshots.valid_uuid(id) and not FileAccess.file_exists(directory.path_join(id).path_join(PENDING)):
+					_scan_ids.append(id)
 		_scan_ids.sort()
 	elif int(cursor.get("generation",-1))!=_scan_generation or query!=_scan_query or recycled!=_scan_recycled:
 		return {"ok":false,"cancelled":true,"error":"原医院扫描已取消，请重新浏览"}
@@ -320,7 +321,7 @@ func _publish_import(source: WorldState) -> Dictionary:
 	return restored
 
 func _remap_hospital(value: Dictionary,old_id: String,new_id: String) -> Dictionary:
-	var ids: Dictionary = {}
+	var ids: Dictionary = {old_id:new_id}
 	_collect_instance_ids(value,old_id,new_id,ids)
 	return _rewrite_ids(value,"",old_id,new_id,ids)
 

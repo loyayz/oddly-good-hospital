@@ -6,3 +6,4 @@ art-source/.godot/
 *.blend1
 __pycache__/
 *.pyc
+content/core/locale/*.translation

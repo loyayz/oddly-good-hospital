@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="design-source-sha256" content="a0265898458017959398396a764f277b300b6d9fe7ee9ae173f3fad5aa48f1fd">
+<meta name="design-source-sha256" content="cc210e16bcedadb198b00af7b6221f0f869660aa7a10722c133eeac98f17ca8d">
 <title>怪好的医院 · Oddly Good Hospital · 产品设计方案</title>
 <style>
 :root{color-scheme:light;--ink:#293d60;--muted:#53657f;--blue:#3b5f92;--paper:#fffdf7;--line:#d6deeb}
@@ -10750,10 +10750,10 @@ python -X utf8 tools/report-kernel.py --input .cache/validation/stage03/local-ke
 <p><strong>阶段目标：</strong> 第一座可自由建造、接诊、收费和保存继续的基础医院，并建立供后续版本持续对比的正式综合性能基准。</p>
 <h3 id="implementation--section-44">工作步骤</h3>
 <ul class="contains-task-list">
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>10.1 完成到院、接待和号签。</strong> 真实患者Actor和Visit建立一次，接待/初诊队列、站点选择、人员占位、叫号和离院使用稳定票号与身份。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>10.2 完成代表门诊流程。</strong> 初诊、必要检查、治疗、结果反馈、结算和离院自动推进；初始真实耗材预留/领用和尝试凭据接入，自动采购在阶段18完成。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>10.3 完成两个开局与基础账目。</strong> starter-layout生成预设院，空院按原购买行为建立；26,000起始资金、建设/招聘/初始耗材、工资/运营和收入退款核对。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>10.4 完成基础操作HUD。</strong> 医院时钟/速度、建造/对象/病例、队列原因定位、资金及保存可用；玩家可完成一次治疗、设施调整和重启继续。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>10.1 完成到院、接待和号签。</strong> 真实患者Actor和Visit建立一次，接待/初诊队列、站点选择、人员占位、叫号和离院使用稳定票号与身份。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>10.2 完成代表门诊流程。</strong> 初诊、必要检查、治疗、结果反馈、结算和离院自动推进；初始真实耗材预留/领用和尝试凭据接入，自动采购在阶段18完成。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>10.3 完成两个开局与基础账目。</strong> starter-layout生成预设院，空院按原购买行为建立；26,000起始资金、建设/招聘/初始耗材、工资/运营和收入退款核对。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>10.4 完成基础操作HUD。</strong> 医院时钟/速度、建造/对象/病例、队列原因定位、资金及保存可用；玩家可完成一次治疗、设施调整和重启继续。</li>
 <li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>10.5 固定正式综合基准负载。</strong> 用真实持续门诊工作替换早期对应样机，固定合法医院布局、随机种子、实际人数与患者/员工构成、多站点工作量、镜头和操作序列；记录接诊、完成病例、队列和移动等实际工作计数。以160人1×/3×及代表视图/操作组建立主要基线，人数扩档沿§5.4逐档通过规则执行；后续版本沿同一负载复测，新增业务成本单独接入并保留原基线。</li>
 <li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>10.6 完成正式综合采集与留档。</strong> 在同一Release构建中让模拟、场景和基础界面共同运行，稳态组各预热60现实秒、采样600现实秒；综合测真实呈现帧、完整step与实际推进速度、输入/建造预览响应、保存/载入/切院耗时及内存/图形资源峰值。正常保存、镜头操作和资源退场产生的长帧保留，首次载入阶段另测；留存构建/源文件哈希、设备与采集条件、原始记录、最终报告和缺失项，优化过程的对照汇入最终报告，工具不支持的字段保持未测。</li>
 </ul>
@@ -10765,10 +10765,10 @@ python -X utf8 tools/report-kernel.py --input .cache/validation/stage03/local-ke
 <p><strong>阶段目标：</strong> 所有临床协议的诊断与方案选择机制完整，失败后有自动下一步。</p>
 <h3 id="implementation--section-47">工作步骤</h3>
 <ul class="contains-task-list">
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>11.1 完成诊断证据与检查模式。</strong> 按来源记录证据、阈值和资格，诊断台自动模式与工时真实推进，诊断结论和显示共用同一原因。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>11.2 完成统一方案评估。</strong> 资格、专业、能力、设备/团队/床位、路线和预计效果决定合法方案；自动评分与手动比较读同一报价，选择不提前锁住全部资源。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>11.3 完成临床就绪重查。</strong> 缺货、缺人/设备/床位使用完整相关依赖，新增候选与时钟边界能唤醒；原票号、耐心和公平保留，开工再次原子复核。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>11.4 完成尝试与接续边界。</strong> 承诺结果/费用/工时/耗材，最多两次实际尝试；安全换设备、失败重评、转诊和结果卡不重复结算或领包。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>11.1 完成诊断证据与检查模式。</strong> 按来源记录证据、阈值和资格，诊断台自动模式与工时真实推进，诊断结论和显示共用同一原因。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>11.2 完成统一方案评估。</strong> 资格、专业、能力、设备/团队/床位、路线和预计效果决定合法方案；自动评分与手动比较读同一报价，选择不提前锁住全部资源。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>11.3 完成临床就绪重查。</strong> 缺货、缺人/设备/床位使用完整相关依赖，新增候选与时钟边界能唤醒；原票号、耐心和公平保留，开工再次原子复核。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>11.4 完成尝试与接续边界。</strong> 承诺结果/费用/工时/耗材，最多两次实际尝试；安全换设备、失败重评、转诊和结果卡不重复结算或领包。</li>
 </ul>
 <h3 id="implementation--section-48">成果与通过条件</h3>
 <p>所有临床协议的诊断与方案选择机制完整，失败后有自动下一步。 常规/舒缓比较可信，缺项改变能复工，两次失败安全终结；缓存驱逐和保存恢复不改变承诺、票号与随机结果。</p>
@@ -10778,10 +10778,10 @@ python -X utf8 tools/report-kernel.py --input .cache/validation/stage03/local-ke
 <p><strong>阶段目标：</strong> 能够正确预约、执行、中断恢复并交付病房的手术系统。</p>
 <h3 id="implementation--section-50">工作步骤</h3>
 <ul class="contains-task-list">
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>12.1 完成手术空间和适配。</strong> 整合手术主体、器械/身体承托、三个互异医护锚点和必要通路，以统一机制支持53手术适配，全量正式承托资源在阶段35关闭。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>12.2 完成准备和原子预约。</strong> 患者、互异医护、设备、兼容床位与治疗包一起检查/预留，准备过期与取消按原凭据释放；开术才创建尝试和领用。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>12.3 完成手术与苏醒。</strong> 四段工作、能力/设备冻结、故障/换班安全处理、苏醒等待与真实转床交接遵守阶段和原剩余工作量。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>12.4 交付手术状态和恢复测试。</strong> 明确准备、操作、苏醒、待转床及真实结果，手术完成不提前标治愈；各阶段保存/断路/故障恢复。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>12.1 完成手术空间和适配。</strong> 整合手术主体、器械/身体承托、三个互异医护锚点和必要通路，以统一机制支持53手术适配，全量正式承托资源在阶段35关闭。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>12.2 完成准备和原子预约。</strong> 患者、互异医护、设备、兼容床位与治疗包一起检查/预留，准备过期与取消按原凭据释放；开术才创建尝试和领用。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>12.3 完成手术与苏醒。</strong> 四段工作、能力/设备冻结、故障/换班安全处理、苏醒等待与真实转床交接遵守阶段和原剩余工作量。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>12.4 交付手术状态和恢复测试。</strong> 明确准备、操作、苏醒、待转床及真实结果，手术完成不提前标治愈；各阶段保存/断路/故障恢复。</li>
 </ul>
 <h3 id="implementation--section-51">成果与通过条件</h3>
 <p>能够正确预约、执行、中断恢复并交付病房的手术系统。 三位必需员工互异、床位不会双订；中断不重抽结果、不增加尝试或费用；床位承诺持续到合法交接或转诊。</p>
@@ -10791,10 +10791,10 @@ python -X utf8 tools/report-kernel.py --input .cache/validation/stage03/local-ke
 <p><strong>阶段目标：</strong> 可恢复、转床、护理、查房和结算的完整住院链。</p>
 <h3 id="implementation--section-53">工作步骤</h3>
 <ul class="contains-task-list">
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>13.1 完成床位与WardStay。</strong> 床的实际包络、承诺/入住/释放、恢复余量和冻结覆盖段归原所有者，无额外收费/效果副本。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>13.2 完成恢复、护理和查房。</strong> 护士覆盖、主动护理、无进展原因、出院查房与最终结算真实推进；操作完成和结论有不同状态。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>13.3 完成转床和安全退出。</strong> 兼容床交接、临床无进展转诊、改建前床位释放及故障恢复保留原尝试/剩余量，不自动移动掩盖空间问题。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>13.4 完成陪诊与探视。</strong> 院外请求、实际入院、乘梯/到床边、停留/回候诊与离开使用真实Actor和关联身份，读档恢复占用。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>13.1 完成床位与WardStay。</strong> 床的实际包络、承诺/入住/释放、恢复余量和冻结覆盖段归原所有者，无额外收费/效果副本。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>13.2 完成恢复、护理和查房。</strong> 护士覆盖、主动护理、无进展原因、出院查房与最终结算真实推进；操作完成和结论有不同状态。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>13.3 完成转床和安全退出。</strong> 兼容床交接、临床无进展转诊、改建前床位释放及故障恢复保留原尝试/剩余量，不自动移动掩盖空间问题。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>13.4 完成陪诊与探视。</strong> 院外请求、实际入院、乘梯/到床边、停留/回候诊与离开使用真实Actor和关联身份，读档恢复占用。</li>
 </ul>
 <h3 id="implementation--section-54">成果与通过条件</h3>
 <p>可恢复、转床、护理、查房和结算的完整住院链。 24床真实工作样本中不双占、不重复恢复/收费；覆盖中断、探视途中和最终查房恢复正确。</p>
@@ -10804,10 +10804,10 @@ python -X utf8 tools/report-kernel.py --input .cache/validation/stage03/local-ke
 <p><strong>阶段目标：</strong> 可通过实践、课程和带教成长的医护团队。</p>
 <h3 id="implementation--section-56">工作步骤</h3>
 <ul class="contains-task-list">
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>14.1 完成能力与职称模型。</strong> 医生的三能力/职称/专业方向和护士适用能力分别拥有，资格由原规则派生；不与通用岗位等级重复保存。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>14.2 完成真实实践归并。</strong> 初诊、治疗、手术和护理实际完成事实按原来源、余数和幂等凭据增加能力，取消/重复反馈不发经验。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>14.3 完成课程、晋级与带教。</strong> 费用、前置、桌位/导师/工作任务、完成和取消遵循原承诺，培养目标和成长片段可定位。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>14.4 完成工作基地和界面。</strong> 医生办公室/护士台的真实准备段、能力用途、当前成长、课程和职称费用清楚显示。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>14.1 完成能力与职称模型。</strong> 医生的三能力/职称/专业方向和护士适用能力分别拥有，资格由原规则派生；不与通用岗位等级重复保存。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>14.2 完成真实实践归并。</strong> 初诊、治疗、手术和护理实际完成事实按原来源、余数和幂等凭据增加能力，取消/重复反馈不发经验。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>14.3 完成课程、晋级与带教。</strong> 费用、前置、桌位/导师/工作任务、完成和取消遵循原承诺，培养目标和成长片段可定位。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>14.4 完成工作基地和界面。</strong> 医生办公室/护士台的真实准备段、能力用途、当前成长、课程和职称费用清楚显示。</li>
 </ul>
 <h3 id="implementation--section-57">成果与通过条件</h3>
 <p>可通过实践、课程和带教成长的医护团队。 同一事实只成长一次，能力/设备对工时和概率的影响与源公式一致，培训中途恢复不重付或重复晋级。</p>
@@ -10817,10 +10817,10 @@ python -X utf8 tools/report-kernel.py --input .cache/validation/stage03/local-ke
 <p><strong>阶段目标：</strong> 可自动建议、手动安排并安全跨日交接的班表系统。</p>
 <h3 id="implementation--section-59">工作步骤</h3>
 <ul class="contains-task-list">
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>15.1 完成三班与覆盖投影。</strong> 工作/休息模板、今日覆盖、跨日连续工作约束、各岗位/设施实际任务需求和休息债读取同一医院时间。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>15.2 完成建议和原子应用。</strong> 保留手动锁定，展示真正受影响的差异与覆盖缺口，无关世界变化不反复拒绝，资格/原班次等相关改变重新核验。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>15.3 完成安全交接与休假。</strong> 当前安全任务先完成，带薪假期和补休不提前释放临床占用；工作分配与返岗按原规则接续。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>15.4 交付班表与故障场景。</strong> 缺岗原因、可用建议、锁定和假期可操作；测试日界、手术中换班、覆盖不足、重复应用与保存恢复。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>15.1 完成三班与覆盖投影。</strong> 工作/休息模板、今日覆盖、跨日连续工作约束、各岗位/设施实际任务需求和休息债读取同一医院时间。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>15.2 完成建议和原子应用。</strong> 保留手动锁定，展示真正受影响的差异与覆盖缺口，无关世界变化不反复拒绝，资格/原班次等相关改变重新核验。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>15.3 完成安全交接与休假。</strong> 当前安全任务先完成，带薪假期和补休不提前释放临床占用；工作分配与返岗按原规则接续。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>15.4 交付班表与故障场景。</strong> 缺岗原因、可用建议、锁定和假期可操作；测试日界、手术中换班、覆盖不足、重复应用与保存恢复。</li>
 </ul>
 <h3 id="implementation--section-60">成果与通过条件</h3>
 <p>可自动建议、手动安排并安全跨日交接的班表系统。 跨日班表正确，当前手术/护理不会被强拆，缺覆盖只停止相应新预约；已确认班表读档一致。</p>
@@ -10830,10 +10830,10 @@ python -X utf8 tools/report-kernel.py --input .cache/validation/stage03/local-ke
 <p><strong>阶段目标：</strong> 七岗位能够自然休息、睡眠和返岗的员工生活系统。</p>
 <h3 id="implementation--section-62">工作步骤</h3>
 <ul class="contains-task-list">
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>16.1 完成能量、劳累与压力。</strong> 按真实工作/休息事实及原采样积分，区分短期能量、长期劳累和压力；快进和显示取整不改变费率。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>16.2 完成错峰短休与找位置。</strong> 原工作安全交接后选择可达真实休息点、等床或院外休整，预约与返回不互相覆盖。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>16.3 完成实际睡眠。</strong> 清醒期限、睡眠过程、床位/院外状态和完成判定按原规则，短休/娱乐不代替睡眠，跨日保存恢复原余量。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>16.4 交付需求与娱乐表现。</strong> 头像突出当前需要，详情显示来源；四类员工娱乐、低动态姿态和拒绝/缺位置原因可理解。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>16.1 完成能量、劳累与压力。</strong> 按真实工作/休息事实及原采样积分，区分短期能量、长期劳累和压力；快进和显示取整不改变费率。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>16.2 完成错峰短休与找位置。</strong> 原工作安全交接后选择可达真实休息点、等床或院外休整，预约与返回不互相覆盖。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>16.3 完成实际睡眠。</strong> 清醒期限、睡眠过程、床位/院外状态和完成判定按原规则，短休/娱乐不代替睡眠，跨日保存恢复原余量。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>16.4 交付需求与娱乐表现。</strong> 头像突出当前需要，详情显示来源；四类员工娱乐、低动态姿态和拒绝/缺位置原因可理解。</li>
 </ul>
 <h3 id="implementation--section-63">成果与通过条件</h3>
 <p>七岗位能够自然休息、睡眠和返岗的员工生活系统。 全岗位不会因无限短休永不睡眠；岗位可在实际休息后恢复，缺床与紧急任务不产生永久死锁或覆盖假象。</p>
@@ -10843,10 +10843,10 @@ python -X utf8 tools/report-kernel.py --input .cache/validation/stage03/local-ke
 <p><strong>阶段目标：</strong> 会选座、饮水、如厕且能接回叫号的候诊生活。</p>
 <h3 id="implementation--section-65">工作步骤</h3>
 <ul class="contains-task-list">
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>17.1 完成座位和生活预约。</strong> 真实身体、空座、公共候诊区域、服务设施与使用位置合法；无合格空座才使用原让位请求。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>17.2 完成四种椅子与性格选座。</strong> 安抚、隔噪、减压/恢复等效果读取真实连续坐姿和效果凭据，附近性格偏好不创造非法目的地。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>17.3 完成暂离与叫号。</strong> 饮水/如厕暂离、生活安全段结束、叫号/回站和票号接续保持原规则，不重复获得效果或丢失临床位置。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>17.4 完成可读表现与试摆。</strong> 真实效果、受阻、选座原因和低动态可见，候诊角落布局能实际改变选择和通行。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>17.1 完成座位和生活预约。</strong> 真实身体、空座、公共候诊区域、服务设施与使用位置合法；无合格空座才使用原让位请求。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>17.2 完成四种椅子与性格选座。</strong> 安抚、隔噪、减压/恢复等效果读取真实连续坐姿和效果凭据，附近性格偏好不创造非法目的地。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>17.3 完成暂离与叫号。</strong> 饮水/如厕暂离、生活安全段结束、叫号/回站和票号接续保持原规则，不重复获得效果或丢失临床位置。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>17.4 完成可读表现与试摆。</strong> 真实效果、受阻、选座原因和低动态可见，候诊角落布局能实际改变选择和通行。</li>
 </ul>
 <h3 id="implementation--section-66">成果与通过条件</h3>
 <p>会选座、饮水、如厕且能接回叫号的候诊生活。 叫号能安全退出生活服务并继续临床；离位重入、探视让位、不同身体和读档不重复领取效果。</p>
@@ -10856,10 +10856,10 @@ python -X utf8 tools/report-kernel.py --input .cache/validation/stage03/local-ke
 <p><strong>阶段目标：</strong> 缺货能自动采购、准备并复工的耗材系统。</p>
 <h3 id="implementation--section-68">工作步骤</h3>
 <ul class="contains-task-list">
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>18.1 完成库存与占用。</strong> SUP01治疗包、总库存/预留/实际领用/取消、库存容量和原尝试凭据保持唯一所有权。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>18.2 完成手动与自动采购。</strong> 同品项/数量/单价和预算在命令边界核验，确定不会下单情况提前排除；自动预算和顺序按源数据执行。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>18.3 完成缺货到复工。</strong> 先补够可继续项目、唤醒临床准备、真实抗议/停工/复工，不取消原票号或再次计算已领耗材。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>18.4 交付库存与采购解释。</strong> 缺项可定位，预算/费用/容量明确；测试并发准备、取消、重复命令、涨价差异和保存恢复。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>18.1 完成库存与占用。</strong> SUP01治疗包、总库存/预留/实际领用/取消、库存容量和原尝试凭据保持唯一所有权。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>18.2 完成手动与自动采购。</strong> 同品项/数量/单价和预算在命令边界核验，确定不会下单情况提前排除；自动预算和顺序按源数据执行。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>18.3 完成缺货到复工。</strong> 先补够可继续项目、唤醒临床准备、真实抗议/停工/复工，不取消原票号或再次计算已领耗材。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>18.4 交付库存与采购解释。</strong> 缺项可定位，预算/费用/容量明确；测试并发准备、取消、重复命令、涨价差异和保存恢复。</li>
 </ul>
 <h3 id="implementation--section-69">成果与通过条件</h3>
 <p>缺货能自动采购、准备并复工的耗材系统。 库存、预留、领用与采购账守恒；失败、转移和读档不重领/重付；合法自动补货后原业务实际继续。</p>
@@ -10869,10 +10869,10 @@ python -X utf8 tools/report-kernel.py --input .cache/validation/stage03/local-ke
 <p><strong>阶段目标：</strong> 布局和工作会真实影响卫生、环境并能被清洁装修改善。</p>
 <h3 id="implementation--section-71">工作步骤</h3>
 <ul class="contains-task-list">
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>19.1 完成环境来源与局部更新。</strong> 实际墙地/装饰/设备/工作来源进入环境采样，脏桶筛选相关区域；噪声与清洁状态有明确源事实。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>19.2 完成持久垃圾和清洁派工。</strong> 垃圾实际生成、位置、可达性、任务/清洁完成与取消正确，演出道具不冒充可出售物或真实垃圾。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>19.3 完成付费装修。</strong> 材料、面积、分格工单、施工/完工、撤销和取消退款按原冻结量，完工才更新环境，玩家可选墙地风格。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>19.4 完成环境阅读。</strong> 热图、受影响区域、当前原因和低动态施工可见；测试大房、局部改建、清洁中途及切层恢复。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>19.1 完成环境来源与局部更新。</strong> 实际墙地/装饰/设备/工作来源进入环境采样，脏桶筛选相关区域；噪声与清洁状态有明确源事实。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>19.2 完成持久垃圾和清洁派工。</strong> 垃圾实际生成、位置、可达性、任务/清洁完成与取消正确，演出道具不冒充可出售物或真实垃圾。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>19.3 完成付费装修。</strong> 材料、面积、分格工单、施工/完工、撤销和取消退款按原冻结量，完工才更新环境，玩家可选墙地风格。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>19.4 完成环境阅读。</strong> 热图、受影响区域、当前原因和低动态施工可见；测试大房、局部改建、清洁中途及切层恢复。</li>
 </ul>
 <h3 id="implementation--section-72">成果与通过条件</h3>
 <p>布局和工作会真实影响卫生、环境并能被清洁装修改善。 环境值能追溯真实来源，清洁实际消除垃圾，装修不未完先生效或重复退款；热图仅读取当前层。</p>
@@ -10882,10 +10882,10 @@ python -X utf8 tools/report-kernel.py --input .cache/validation/stage03/local-ke
 <p><strong>阶段目标：</strong> 会故障、自动维修、保养且可安全升级的设备系统。</p>
 <h3 id="implementation--section-74">工作步骤</h3>
 <ul class="contains-task-list">
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>20.1 完成维护集合。</strong> 六医疗主体及源数据指定设施/电梯有实际磨损和故障，普通免维护家具不生成维修任务；主体和附件不重复计数。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>20.2 完成维修保养派单。</strong> 工具/人员/路径、唯一工单、工作量、自动复工及实际噪声/占位按原合同，重复扫描不重复派单。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>20.3 完成升级与生效。</strong> 付款、施工、取消/退款、已完成等级及外观归唯一设备，临床已承诺量不被中途升级重写，赠机/借用品沿原限制。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>20.4 完成状态与故障矩阵。</strong> 完好、待修、维修、升级及低动态可辨；医疗/电梯使用中故障、缺修理人、转移和读档可接续。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>20.1 完成维护集合。</strong> 六医疗主体及源数据指定设施/电梯有实际磨损和故障，普通免维护家具不生成维修任务；主体和附件不重复计数。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>20.2 完成维修保养派单。</strong> 工具/人员/路径、唯一工单、工作量、自动复工及实际噪声/占位按原合同，重复扫描不重复派单。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>20.3 完成升级与生效。</strong> 付款、施工、取消/退款、已完成等级及外观归唯一设备，临床已承诺量不被中途升级重写，赠机/借用品沿原限制。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>20.4 完成状态与故障矩阵。</strong> 完好、待修、维修、升级及低动态可辨；医疗/电梯使用中故障、缺修理人、转移和读档可接续。</li>
 </ul>
 <h3 id="implementation--section-75">成果与通过条件</h3>
 <p>会故障、自动维修、保养且可安全升级的设备系统。 维护范围正确，同主体不重复磨损/结算，当前安全医疗任务不被销毁，升级只在合法完成后生效。</p>
@@ -10895,10 +10895,10 @@ python -X utf8 tools/report-kernel.py --input .cache/validation/stage03/local-ke
 <p><strong>阶段目标：</strong> 可分区接诊、纠正挂错科并解释患者体验的科室系统。</p>
 <h3 id="implementation--section-77">工作步骤</h3>
 <ul class="contains-task-list">
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>21.1 完成科室归属与接诊。</strong> 房间/公共区/入口/共享设施、专业焦点、接诊范围和原冷却明确，预览读取真实资格和设备。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>21.2 完成导诊纠正。</strong> 真实错误入口、导诊任务、选择和到正确目的地保留原票号/收费与证据，等效目的地变化按原规则复核。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>21.3 完成体验与评分。</strong> 五类评分、等待/环境/服务怒气、角色行为和原有限窗口从实际事实归并，不重复积分。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>21.4 完成小票与原因卡。</strong> 九类原因定位和科室复盘使用同一真实原因，常态提示合并/解决后收起，玩家能看到布局和岗位的影响。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>21.1 完成科室归属与接诊。</strong> 房间/公共区/入口/共享设施、专业焦点、接诊范围和原冷却明确，预览读取真实资格和设备。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>21.2 完成导诊纠正。</strong> 真实错误入口、导诊任务、选择和到正确目的地保留原票号/收费与证据，等效目的地变化按原规则复核。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>21.3 完成体验与评分。</strong> 五类评分、等待/环境/服务怒气、角色行为和原有限窗口从实际事实归并，不重复积分。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>21.4 完成小票与原因卡。</strong> 九类原因定位和科室复盘使用同一真实原因，常态提示合并/解决后收起，玩家能看到布局和岗位的影响。</li>
 </ul>
 <h3 id="implementation--section-78">成果与通过条件</h3>
 <p>可分区接诊、纠正挂错科并解释患者体验的科室系统。 分区与纠正不会重复挂号/收费，评分有真实来源；无关界面切换不改变情绪或体验积累。</p>
@@ -10908,10 +10908,10 @@ python -X utf8 tools/report-kernel.py --input .cache/validation/stage03/local-ke
 <p><strong>阶段目标：</strong> 可解释收入、费用、现金变化和三日展望的财务系统。</p>
 <h3 id="implementation--section-80">工作步骤</h3>
 <ul class="contains-task-list">
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>22.1 完成已实现资金来源。</strong> 诊费、治疗/手术/床费、工资、运营、耗材、建设、退款、培训和维护按原责任接入Ledger；任务/谢礼奖励使用同一入口，阶段32/33产生实际事实后补验。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>22.2 完成周期结算与援助。</strong> 日界持余、补助周期、已领凭据和恢复经营援助正确；读取存档或系统日期不额外发放。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>22.3 完成经营阅读。</strong> 六类账页、盈亏与现金变化、三日结算/预测和存钱便签区分实收及假设，相关页面可定位费用来源。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>22.4 验证守恒与资源不足。</strong> 重复结算、负余额限制、跨日、失败采购/施工和救助条件明确，预设/空院零收入缓冲与源数据一致。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>22.1 完成已实现资金来源。</strong> 诊费、治疗/手术/床费、工资、运营、耗材、建设、退款、培训和维护按原责任接入Ledger；任务/谢礼奖励使用同一入口，阶段32/33产生实际事实后补验。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>22.2 完成周期结算与援助。</strong> 日界持余、补助周期、已领凭据和恢复经营援助正确；读取存档或系统日期不额外发放。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>22.3 完成经营阅读。</strong> 六类账页、盈亏与现金变化、三日结算/预测和存钱便签区分实收及假设，相关页面可定位费用来源。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>22.4 验证守恒与资源不足。</strong> 重复结算、负余额限制、跨日、失败采购/施工和救助条件明确，预设/空院零收入缓冲与源数据一致。</li>
 </ul>
 <h3 id="implementation--section-81">成果与通过条件</h3>
 <p>可解释收入、费用、现金变化和三日展望的财务系统。 每笔资金有唯一来源和凭据，医院现金能与账目核对，补助/援助不因读档重复；预测不显示成已到账。</p>
@@ -10921,10 +10921,10 @@ python -X utf8 tools/report-kernel.py --input .cache/validation/stage03/local-ke
 <p><strong>阶段目标：</strong> 七岗位可主动/被动招聘、上岗并按真实工作成长。</p>
 <h3 id="implementation--section-83">工作步骤</h3>
 <ul class="contains-task-list">
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>23.1 完成招聘来源与筛选。</strong> 主动搜索、被动简历、推荐、标准筛选键/序号或简历身份、到期和工资按原生成与保存规则。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>23.2 完成原子录用。</strong> 候选身份/能力/费率实质变化需刷新，同候选不重复录用，工资从真实录用tick开始，到岗路径与班表建议合法。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>23.3 完成种族职员规则适配。</strong> 天赋由species定义派生，七岗位工具/身体/动作按既有骨架合同接入；代表职员实际运行，全种族正式资产在阶段35逐项收口，未知适配不冒充岗位可用。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>23.4 完成履历与实践。</strong> 工作习惯、传记、首件工作及六岗位适用实践账读取本人真实工作；医生/护士能力与通用岗位经验保持各自归属。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>23.1 完成招聘来源与筛选。</strong> 主动搜索、被动简历、推荐、标准筛选键/序号或简历身份、到期和工资按原生成与保存规则。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>23.2 完成原子录用。</strong> 候选身份/能力/费率实质变化需刷新，同候选不重复录用，工资从真实录用tick开始，到岗路径与班表建议合法。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>23.3 完成种族职员规则适配。</strong> 天赋由species定义派生，七岗位工具/身体/动作按既有骨架合同接入；代表职员实际运行，全种族正式资产在阶段35逐项收口，未知适配不冒充岗位可用。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>23.4 完成履历与实践。</strong> 工作习惯、传记、首件工作及六岗位适用实践账读取本人真实工作；医生/护士能力与通用岗位经验保持各自归属。</li>
 </ul>
 <h3 id="implementation--section-84">成果与通过条件</h3>
 <p>七岗位可主动/被动招聘、上岗并按真实工作成长。 每个合法种族有定义支持的职员路径，七岗位至少一套真实上岗闭环；实践只消费完成事实，过期/重复/读档不改变身份和工资。</p>
@@ -10934,10 +10934,10 @@ python -X utf8 tools/report-kernel.py --input .cache/validation/stage03/local-ke
 <p><strong>阶段目标：</strong> 随医院真实能力增长、有日波动与合理离院的来客系统。</p>
 <h3 id="implementation--section-86">工作步骤</h3>
 <ul class="contains-task-list">
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>24.1 完成完整接诊能力投影。</strong> 实际人员、设备、方案/病例比例、工作/休息/维护时间生成当日名义机会，按原客流档与随机舍入计划。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>24.2 完成实际到院和先决排除。</strong> 到访机会与真实Actor分开，明确无法接诊条件先排除；开诊/保持客流/次日生效和预约名额沿源规则。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>24.3 完成耐心与弃候。</strong> 有效候诊、原耐心期限、到期索引和唯一抽签点真实推进，安全服务/移动段不参加重复离院。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>24.4 完成居民留存与回访。</strong> 原Resident身份、实际离院日期、回访窗口和既有关系保持，统计名义机会/到院/完诊/弃候分别展示。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>24.1 完成完整接诊能力投影。</strong> 实际人员、设备、方案/病例比例、工作/休息/维护时间生成当日名义机会，按原客流档与随机舍入计划。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>24.2 完成实际到院和先决排除。</strong> 到访机会与真实Actor分开，明确无法接诊条件先排除；开诊/保持客流/次日生效和预约名额沿源规则。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>24.3 完成耐心与弃候。</strong> 有效候诊、原耐心期限、到期索引和唯一抽签点真实推进，安全服务/移动段不参加重复离院。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>24.4 完成居民留存与回访。</strong> 原Resident身份、实际离院日期、回访窗口和既有关系保持，统计名义机会/到院/完诊/弃候分别展示。</li>
 </ul>
 <h3 id="implementation--section-87">成果与通过条件</h3>
 <p>随医院真实能力增长、有日波动与合理离院的来客系统。 扩建能改变真实承接能力，机会不是人数保底；保存/切层不重抽当日计划或弃候，熟客来自真实居民。</p>
@@ -12083,7 +12083,7 @@ pwsh -NoProfile -File tools/prepare-kernel-benchmark.ps1
 <p>新增内容索引、医院候选、视图缓存、实际人员与设施均产生真实内存和计算成本；列表与摘要使用有界投影，共享资源不改变实体身份。性能、全量正式资产、完整长期平衡、独立玩家试玩及发行包验收仍分别待对应阶段取得证据。</p>
 </section>
 <section class="chapter" id="stage04-stage24-delivery"><h1 id="stage04-stage24-delivery--section">第04至24阶段交付记录</h1>
-<p>功能与恢复检查使用对应阶段的 Git index 源码导出到独立工程及资料目录，不读取或写入玩家医院。性能检测暂时跳过，既有阶段03性能限制继续保留。未完成的阶段不以局部模块检查代替整合结果。</p>
+<p>功能与恢复检查使用对应阶段 Git index 导出的独立工程及资料目录；临床修复以固定源码快照在同一隔离工程中复验，不读取或写入玩家医院。性能检测暂时跳过，既有阶段03性能限制继续保留。未完成的阶段不以局部模块检查代替整合结果。</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -12193,6 +12193,11 @@ pwsh -NoProfile -File tools/prepare-kernel-benchmark.ps1
 <td>完成</td>
 <td>109项标准候选、筛选序号、寻访、录用实质报价、身体适配、实际岗位实践及保存规则通过。</td>
 </tr>
+<tr>
+<td>24</td>
+<td>完成</td>
+<td>精确分数与三班日计划、实际容量、重试条件工时、耐心唯一抽签、真实离院居民及教学请求规则通过；15面板及真实SQLite冻结回读通过；Windows Release导出通过，全部性能检测跳过。</td>
+</tr>
 </tbody>
 </table></div>
 <h2 id="stage04-stage24-delivery--section-1">内容与版本</h2>
@@ -12200,6 +12205,13 @@ pwsh -NoProfile -File tools/prepare-kernel-benchmark.ps1
 <h2 id="stage04-stage24-delivery--section-2">复验入口</h2>
 <p>内容生成入口为 <code>python -B -X utf8 tools/compile-content.py</code>，字节核对为同入口的 <code>--check</code>；内容规则入口为 <code>tools/verify-stage04-content.py</code> 与Godot脚本 <code>tools/verify-stage04-content.gd</code>。</p>
 <p><code>tools/prepare-functional-validation.ps1 -Stage 4</code> 从暂存区准备独立验证工程；其资料路径含独立验收标识。源码导入和规则退出码同时与日志中的脚本错误核对，不能仅以Godot进程退出0证明通过。</p>
+<h2 id="stage04-stage24-delivery--section-3">整合与交付</h2>
+<p>15个管理面板在实际主场景中完成绑定、逐页刷新和只读事实校验。Compatibility渲染在1440×900/100%和1280×720/200%界面下通过检查；姓名及设施标注按选择、跟随和当前需求显示。医院切换与退出显式解除运营服务的引用，界面验收退出无脚本错误和资源泄漏提示。</p>
+<p>真实预设院、标准接待员录用、命令后立即冻结、原生资料库独占、SQLite检查点写入和回读保持同一员工及全部世界事实。备份导入同步重映射医院所属账目键和所有者；旧医院在正式界面激活时补齐经营版本，独立验证夹具仍保留原模式。</p>
+<p>Windows Release版本为<code>0.24.0-stage24</code>，构建入口为<code>tools/build-game.ps1</code>。产物位于<code>.build/stage24/product</code>，包括程序、内容包、平台库、许可证及<code>build-identity.json</code>；发布内容字节检查、工程导入与Release导出通过，源码身份及各产物SHA-256已封存。</p>
+<p>阶段24精确分数/日计划与实际资源容量规则的隔离证据位于<code>.cache/validation/stage24-20261015075600191</code>；重试条件工时、目标班次、立即保存回读和15面板的最终通过记录位于<code>.cache/validation/stage24-20261015080513594</code>。完整重试既验证待会诊时仍需80tick会诊，也验证已会诊后的门诊号签不再计入该工作量，已完成诊断不重复。</p>
+<p>原内核98项回归中其余97项通过；护理/查房规则改为核对实际执行人的原完成凭据，修订后定向5项通过，包含删除凭据但保留实践值的两个拒绝用例。修订后的98项整组未重跑，不能据此记为整组通过。</p>
+<p>7.5、10.5和10.6性能项保持未勾选，客流引用计算的响应速度也未验收。全量正式美术、长期平衡和后续功能仍沿阶段25至42交付。</p>
 </section>
 <section class="chapter" id="atlas"><h1 id="atlas--section">基础内容完整索引</h1>
 <p>从content-catalog.json和balance.json生成；这里列的是设计内容，不代表正式资产已制作。</p>
