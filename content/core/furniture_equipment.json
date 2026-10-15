@@ -1,0 +1,886 @@
+[
+  {
+    "blocks_movement": true,
+    "definition_id": "FUR01",
+    "environment_function": "",
+    "equipment_class": "workstation",
+    "fit_profile_id": "FF06",
+    "footprint": [
+      2,
+      1
+    ],
+    "initially_available": true,
+    "name": "@zh:core.furniture_equipment.FUR01.name",
+    "passive_decoration": false,
+    "price": 500,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "definition_id": "FUR02",
+    "environment_function": "",
+    "equipment_class": "workstation",
+    "fit_profile_id": "FF06",
+    "footprint": [
+      2,
+      1
+    ],
+    "initially_available": true,
+    "name": "@zh:core.furniture_equipment.FUR02.name",
+    "passive_decoration": false,
+    "price": 800,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "definition_id": "FUR05",
+    "environment_function": "",
+    "equipment_class": "workstation",
+    "fit_profile_id": "FF06",
+    "footprint": [
+      2,
+      1
+    ],
+    "initially_available": true,
+    "name": "@zh:core.furniture_equipment.FUR05.name",
+    "passive_decoration": false,
+    "price": 900,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "definition_id": "FUR06",
+    "environment_function": "",
+    "equipment_class": "comfort",
+    "fit_profile_id": "FF05",
+    "footprint": [
+      2,
+      1
+    ],
+    "initially_available": true,
+    "max_clearance_cells": 3,
+    "max_height_m": 6.5,
+    "name": "@zh:core.furniture_equipment.FUR06.name",
+    "passive_decoration": false,
+    "price": 300,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "definition_id": "FUR07",
+    "environment_function": "",
+    "equipment_class": "utility",
+    "fit_profile_id": "FF05",
+    "footprint": [
+      2,
+      2
+    ],
+    "initially_available": true,
+    "max_clearance_cells": 3,
+    "max_height_m": 6.5,
+    "name": "@zh:core.furniture_equipment.FUR07.name",
+    "passive_decoration": false,
+    "price": 300,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "definition_id": "FUR08",
+    "environment_function": "",
+    "equipment_class": "utility",
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "name": "@zh:core.furniture_equipment.FUR08.name",
+    "passive_decoration": false,
+    "price": 400,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "definition_id": "FUR09",
+    "environment_function": "",
+    "equipment_class": "comfort",
+    "fit_profile_id": "FF05",
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "max_clearance_cells": 3,
+    "max_height_m": 6.5,
+    "name": "@zh:core.furniture_equipment.FUR09.name",
+    "passive_decoration": false,
+    "price": 50,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "definition_id": "FUR10",
+    "environment_function": "",
+    "equipment_class": "comfort",
+    "fit_profile_id": "FF05",
+    "footprint": [
+      2,
+      2
+    ],
+    "initially_available": false,
+    "max_clearance_cells": 3,
+    "max_height_m": 6.5,
+    "name": "@zh:core.furniture_equipment.FUR10.name",
+    "passive_decoration": false,
+    "price": 120,
+    "requires_research": [
+      "R16"
+    ],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "definition_id": "FUR11",
+    "environment_function": "",
+    "equipment_class": "comfort",
+    "fit_profile_id": "FF05",
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "max_clearance_cells": 3,
+    "max_height_m": 6.5,
+    "name": "@zh:core.furniture_equipment.FUR11.name",
+    "passive_decoration": false,
+    "price": 100,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "definition_id": "FUR12",
+    "environment_function": "",
+    "equipment_class": "comfort",
+    "fit_profile_id": "FF05",
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "max_clearance_cells": 3,
+    "max_height_m": 6.5,
+    "name": "@zh:core.furniture_equipment.FUR12.name",
+    "passive_decoration": false,
+    "price": 100,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "definition_id": "FUR13",
+    "environment_function": "",
+    "equipment_class": "comfort",
+    "fit_profile_id": "FF05",
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "max_clearance_cells": 3,
+    "max_height_m": 6.5,
+    "name": "@zh:core.furniture_equipment.FUR13.name",
+    "passive_decoration": false,
+    "price": 100,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "definition_id": "FUR14",
+    "environment_function": "",
+    "equipment_class": "comfort",
+    "fit_profile_id": "FF05",
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "max_clearance_cells": 3,
+    "max_height_m": 6.5,
+    "name": "@zh:core.furniture_equipment.FUR14.name",
+    "passive_decoration": false,
+    "price": 100,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "definition_id": "FUR15",
+    "environment_function": "",
+    "equipment_class": "comfort",
+    "fit_profile_id": "FF05",
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "max_clearance_cells": 3,
+    "max_height_m": 6.5,
+    "name": "@zh:core.furniture_equipment.FUR15.name",
+    "passive_decoration": false,
+    "price": 100,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "definition_id": "FUR16",
+    "environment_function": "",
+    "equipment_class": "comfort",
+    "fit_profile_id": "FF05",
+    "footprint": [
+      2,
+      1
+    ],
+    "initially_available": true,
+    "max_clearance_cells": 3,
+    "max_height_m": 6.5,
+    "name": "@zh:core.furniture_equipment.FUR16.name",
+    "passive_decoration": false,
+    "price": 120,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "definition_id": "FUR17",
+    "environment_function": "water",
+    "equipment_class": "utility",
+    "fit_profile_id": "FF05",
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "max_clearance_cells": 3,
+    "max_height_m": 6.5,
+    "name": "@zh:core.furniture_equipment.FUR17.name",
+    "passive_decoration": false,
+    "price": 120,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "definition_id": "FUR18",
+    "environment_function": "",
+    "equipment_class": "utility",
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "name": "@zh:core.furniture_equipment.FUR18.name",
+    "passive_decoration": false,
+    "price": 80,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "definition_id": "FUR19",
+    "environment_function": "light",
+    "equipment_class": "comfort",
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "name": "@zh:core.furniture_equipment.FUR19.name",
+    "passive_decoration": false,
+    "price": 150,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "definition_id": "FUR20",
+    "environment_function": "",
+    "equipment_class": "utility",
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "name": "@zh:core.furniture_equipment.FUR20.name",
+    "passive_decoration": false,
+    "price": 150,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "definition_id": "FUR21",
+    "environment_function": "",
+    "equipment_class": "utility",
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "name": "@zh:core.furniture_equipment.FUR21.name",
+    "passive_decoration": false,
+    "price": 150,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "definition_id": "FUR22",
+    "environment_function": "",
+    "equipment_class": "utility",
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "name": "@zh:core.furniture_equipment.FUR22.name",
+    "passive_decoration": false,
+    "price": 150,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": false,
+    "definition_id": "FUR23",
+    "environment_function": "noise_barrier",
+    "equipment_class": "comfort",
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "name": "@zh:core.furniture_equipment.FUR23.name",
+    "passive_decoration": false,
+    "price": 120,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "definition_id": "FUR24",
+    "environment_function": "",
+    "equipment_class": "utility",
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": false,
+    "name": "@zh:core.furniture_equipment.FUR24.name",
+    "passive_decoration": false,
+    "price": 300,
+    "requires_research": [
+      "R07"
+    ],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "decoration_category": "@zh:core.furniture_equipment.FUR25.decoration_category",
+    "definition_id": "FUR25",
+    "environment_function": "",
+    "equipment_class": null,
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "name": "@zh:core.furniture_equipment.FUR25.name",
+    "passive_decoration": true,
+    "price": 100,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "decoration_category": "@zh:core.furniture_equipment.FUR26.decoration_category",
+    "definition_id": "FUR26",
+    "environment_function": "",
+    "equipment_class": null,
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "name": "@zh:core.furniture_equipment.FUR26.name",
+    "passive_decoration": true,
+    "price": 100,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": false,
+    "decoration_category": "@zh:core.furniture_equipment.FUR27.decoration_category",
+    "definition_id": "FUR27",
+    "environment_function": "",
+    "equipment_class": null,
+    "footprint": [
+      2,
+      2
+    ],
+    "initially_available": true,
+    "name": "@zh:core.furniture_equipment.FUR27.name",
+    "passive_decoration": true,
+    "price": 80,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": false,
+    "decoration_category": "@zh:core.furniture_equipment.FUR28.decoration_category",
+    "definition_id": "FUR28",
+    "environment_function": "",
+    "equipment_class": null,
+    "footprint": [
+      2,
+      2
+    ],
+    "initially_available": true,
+    "name": "@zh:core.furniture_equipment.FUR28.name",
+    "passive_decoration": true,
+    "price": 80,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": false,
+    "decoration_category": "@zh:core.furniture_equipment.FUR29.decoration_category",
+    "definition_id": "FUR29",
+    "environment_function": "",
+    "equipment_class": "comfort",
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "name": "@zh:core.furniture_equipment.FUR29.name",
+    "passive_decoration": false,
+    "price": 100,
+    "requires_research": [],
+    "wall_mount": true
+  },
+  {
+    "blocks_movement": false,
+    "decoration_category": "@zh:core.furniture_equipment.FUR30.decoration_category",
+    "definition_id": "FUR30",
+    "environment_function": "",
+    "equipment_class": "comfort",
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "name": "@zh:core.furniture_equipment.FUR30.name",
+    "passive_decoration": false,
+    "price": 100,
+    "requires_research": [],
+    "wall_mount": true
+  },
+  {
+    "blocks_movement": false,
+    "decoration_category": "@zh:core.furniture_equipment.FUR31.decoration_category",
+    "definition_id": "FUR31",
+    "environment_function": "",
+    "equipment_class": null,
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "name": "@zh:core.furniture_equipment.FUR31.name",
+    "passive_decoration": true,
+    "price": 100,
+    "requires_research": [],
+    "wall_mount": true
+  },
+  {
+    "blocks_movement": false,
+    "decoration_category": "@zh:core.furniture_equipment.FUR32.decoration_category",
+    "definition_id": "FUR32",
+    "environment_function": "",
+    "equipment_class": null,
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "name": "@zh:core.furniture_equipment.FUR32.name",
+    "passive_decoration": true,
+    "price": 100,
+    "requires_research": [],
+    "wall_mount": true
+  },
+  {
+    "blocks_movement": true,
+    "decoration_category": "@zh:core.furniture_equipment.FUR33.decoration_category",
+    "definition_id": "FUR33",
+    "environment_function": "",
+    "equipment_class": null,
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "name": "@zh:core.furniture_equipment.FUR33.name",
+    "passive_decoration": true,
+    "price": 160,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "decoration_category": "@zh:core.furniture_equipment.FUR34.decoration_category",
+    "definition_id": "FUR34",
+    "environment_function": "",
+    "equipment_class": null,
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "name": "@zh:core.furniture_equipment.FUR34.name",
+    "passive_decoration": true,
+    "price": 160,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "decoration_category": "@zh:core.furniture_equipment.FUR35.decoration_category",
+    "definition_id": "FUR35",
+    "environment_function": "",
+    "equipment_class": "comfort",
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "name": "@zh:core.furniture_equipment.FUR35.name",
+    "passive_decoration": false,
+    "price": 160,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "decoration_category": "@zh:core.furniture_equipment.FUR36.decoration_category",
+    "definition_id": "FUR36",
+    "environment_function": "",
+    "equipment_class": "comfort",
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "name": "@zh:core.furniture_equipment.FUR36.name",
+    "passive_decoration": false,
+    "price": 160,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "decoration_category": "@zh:core.furniture_equipment.FUR37.decoration_category",
+    "definition_id": "FUR37",
+    "environment_function": "light",
+    "equipment_class": null,
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "name": "@zh:core.furniture_equipment.FUR37.name",
+    "passive_decoration": true,
+    "price": 160,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "decoration_category": "@zh:core.furniture_equipment.FUR38.decoration_category",
+    "definition_id": "FUR38",
+    "environment_function": "light",
+    "equipment_class": null,
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "name": "@zh:core.furniture_equipment.FUR38.name",
+    "passive_decoration": true,
+    "price": 160,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "decoration_category": "@zh:core.furniture_equipment.FUR39.decoration_category",
+    "definition_id": "FUR39",
+    "environment_function": "",
+    "equipment_class": null,
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "name": "@zh:core.furniture_equipment.FUR39.name",
+    "passive_decoration": true,
+    "price": 160,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "decoration_category": "@zh:core.furniture_equipment.FUR40.decoration_category",
+    "definition_id": "FUR40",
+    "environment_function": "",
+    "equipment_class": null,
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "name": "@zh:core.furniture_equipment.FUR40.name",
+    "passive_decoration": true,
+    "price": 160,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "decoration_category": "@zh:core.furniture_equipment.FUR41.decoration_category",
+    "definition_id": "FUR41",
+    "environment_function": "",
+    "equipment_class": null,
+    "footprint": [
+      2,
+      1
+    ],
+    "initially_available": false,
+    "name": "@zh:core.furniture_equipment.FUR41.name",
+    "passive_decoration": true,
+    "price": 200,
+    "requires_research": [
+      "R05"
+    ],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "decoration_category": "@zh:core.furniture_equipment.FUR42.decoration_category",
+    "definition_id": "FUR42",
+    "environment_function": "",
+    "equipment_class": "comfort",
+    "footprint": [
+      2,
+      1
+    ],
+    "initially_available": false,
+    "name": "@zh:core.furniture_equipment.FUR42.name",
+    "passive_decoration": false,
+    "price": 200,
+    "requires_research": [
+      "R18"
+    ],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "decoration_category": "@zh:core.furniture_equipment.FUR43.decoration_category",
+    "definition_id": "FUR43",
+    "environment_function": "",
+    "equipment_class": "comfort",
+    "footprint": [
+      2,
+      1
+    ],
+    "initially_available": false,
+    "name": "@zh:core.furniture_equipment.FUR43.name",
+    "passive_decoration": false,
+    "price": 200,
+    "requires_research": [
+      "R15"
+    ],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": false,
+    "decoration_category": "@zh:core.furniture_equipment.FUR44.decoration_category",
+    "definition_id": "FUR44",
+    "environment_function": "",
+    "equipment_class": null,
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": false,
+    "name": "@zh:core.furniture_equipment.FUR44.name",
+    "passive_decoration": true,
+    "price": 200,
+    "requires_research": [
+      "R18"
+    ],
+    "wall_mount": true
+  },
+  {
+    "blocks_movement": true,
+    "decoration_category": "@zh:core.furniture_equipment.FUR45.decoration_category",
+    "definition_id": "FUR45",
+    "environment_function": "",
+    "equipment_class": null,
+    "footprint": [
+      2,
+      1
+    ],
+    "initially_available": true,
+    "name": "@zh:core.furniture_equipment.FUR45.name",
+    "passive_decoration": true,
+    "price": 200,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "decoration_category": "@zh:core.furniture_equipment.FUR46.decoration_category",
+    "definition_id": "FUR46",
+    "environment_function": "",
+    "equipment_class": null,
+    "footprint": [
+      2,
+      1
+    ],
+    "initially_available": true,
+    "name": "@zh:core.furniture_equipment.FUR46.name",
+    "passive_decoration": true,
+    "price": 200,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "decoration_category": "@zh:core.furniture_equipment.FUR47.decoration_category",
+    "definition_id": "FUR47",
+    "environment_function": "",
+    "equipment_class": "utility",
+    "footprint": [
+      2,
+      1
+    ],
+    "initially_available": true,
+    "name": "@zh:core.furniture_equipment.FUR47.name",
+    "passive_decoration": false,
+    "price": 200,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": false,
+    "decoration_category": "@zh:core.furniture_equipment.FUR48.decoration_category",
+    "definition_id": "FUR48",
+    "environment_function": "",
+    "equipment_class": null,
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "name": "@zh:core.furniture_equipment.FUR48.name",
+    "passive_decoration": true,
+    "price": 200,
+    "requires_research": [],
+    "wall_mount": true
+  },
+  {
+    "blocks_movement": true,
+    "definition_id": "FUR49",
+    "environment_function": "",
+    "equipment_class": "comfort",
+    "fit_profile_id": "FF05",
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "max_clearance_cells": 3,
+    "max_height_m": 6.5,
+    "name": "@zh:core.furniture_equipment.FUR49.name",
+    "passive_decoration": false,
+    "price": 180,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "definition_id": "FUR50",
+    "environment_function": "",
+    "equipment_class": "comfort",
+    "fit_profile_id": "FF05",
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "max_clearance_cells": 3,
+    "max_height_m": 6.5,
+    "name": "@zh:core.furniture_equipment.FUR50.name",
+    "passive_decoration": false,
+    "price": 220,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "definition_id": "FUR51",
+    "environment_function": "",
+    "equipment_class": "comfort",
+    "fit_profile_id": "FF05",
+    "footprint": [
+      1,
+      1
+    ],
+    "initially_available": true,
+    "max_clearance_cells": 3,
+    "max_height_m": 6.5,
+    "name": "@zh:core.furniture_equipment.FUR51.name",
+    "passive_decoration": false,
+    "price": 200,
+    "requires_research": [],
+    "wall_mount": false
+  },
+  {
+    "blocks_movement": true,
+    "definition_id": "FUR52",
+    "environment_function": "",
+    "equipment_class": "comfort",
+    "fit_profile_id": "FF05",
+    "footprint": [
+      1,
+      2
+    ],
+    "initially_available": true,
+    "max_clearance_cells": 3,
+    "max_height_m": 6.5,
+    "name": "@zh:core.furniture_equipment.FUR52.name",
+    "passive_decoration": false,
+    "price": 240,
+    "requires_research": [],
+    "wall_mount": false
+  }
+]

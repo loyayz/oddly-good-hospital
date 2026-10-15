@@ -1,0 +1,134 @@
+[
+  {
+    "caption": "@zh:core.history_templates.HT01.caption",
+    "detail_fields": [
+      "resident",
+      "disease",
+      "plan"
+    ],
+    "id": "HT01",
+    "name": "@zh:core.history_templates.HT01.name",
+    "source_captions": {
+      "first_disease_cure": "@zh:core.history_templates.HT01.source_captions.first_disease_cure"
+    },
+    "source_kinds": [
+      "first_disease_cure"
+    ]
+  },
+  {
+    "caption": "@zh:core.history_templates.HT02.caption",
+    "detail_fields": [
+      "location",
+      "completed_day"
+    ],
+    "id": "HT02",
+    "name": "@zh:core.history_templates.HT02.name",
+    "source_captions": {
+      "land_purchased": "@zh:core.history_templates.HT02.source_captions.land_purchased",
+      "new_floor_completed": "@zh:core.history_templates.HT02.source_captions.new_floor_completed"
+    },
+    "source_kinds": [
+      "land_purchased",
+      "new_floor_completed"
+    ]
+  },
+  {
+    "caption": "@zh:core.history_templates.HT03.caption",
+    "detail_fields": [
+      "room",
+      "old_location",
+      "new_location"
+    ],
+    "id": "HT03",
+    "name": "@zh:core.history_templates.HT03.name",
+    "source_captions": {
+      "remodel_applied": "@zh:core.history_templates.HT03.source_captions.remodel_applied"
+    },
+    "source_kinds": [
+      "remodel_applied"
+    ]
+  },
+  {
+    "caption": "@zh:core.history_templates.HT04.caption",
+    "detail_fields": [
+      "research",
+      "staff",
+      "growth_tags"
+    ],
+    "id": "HT04",
+    "name": "@zh:core.history_templates.HT04.name",
+    "source_captions": {
+      "research_completed": "@zh:core.history_templates.HT04.source_captions.research_completed",
+      "staff_growth": "@zh:core.history_templates.HT04.source_captions.staff_growth"
+    },
+    "source_kinds": [
+      "research_completed",
+      "staff_growth"
+    ]
+  },
+  {
+    "caption": "@zh:core.history_templates.HT05.caption",
+    "detail_fields": [
+      "activity",
+      "participant_count",
+      "core_residents",
+      "variation"
+    ],
+    "id": "HT05",
+    "name": "@zh:core.history_templates.HT05.name",
+    "source_captions": {
+      "activity_completed": "@zh:core.history_templates.HT05.source_captions.activity_completed"
+    },
+    "source_kinds": [
+      "activity_completed"
+    ]
+  },
+  {
+    "caption": "@zh:core.history_templates.HT06.caption",
+    "detail_fields": [
+      "resident_pair",
+      "context"
+    ],
+    "id": "HT06",
+    "name": "@zh:core.history_templates.HT06.name",
+    "source_captions": {
+      "relationship_reconciled": "@zh:core.history_templates.HT06.source_captions.relationship_reconciled"
+    },
+    "source_kinds": [
+      "relationship_reconciled"
+    ]
+  },
+  {
+    "caption": "@zh:core.history_templates.HT07.caption",
+    "detail_fields": [
+      "gift",
+      "resident",
+      "credited_staff"
+    ],
+    "id": "HT07",
+    "name": "@zh:core.history_templates.HT07.name",
+    "source_captions": {
+      "gift_received": "@zh:core.history_templates.HT07.source_captions.gift_received"
+    },
+    "source_kinds": [
+      "gift_received"
+    ]
+  },
+  {
+    "caption": "@zh:core.history_templates.HT08.caption",
+    "detail_fields": [
+      "objective",
+      "reward_state"
+    ],
+    "id": "HT08",
+    "name": "@zh:core.history_templates.HT08.name",
+    "source_captions": {
+      "milestone_completed": "@zh:core.history_templates.HT08.source_captions.milestone_completed",
+      "story_completed": "@zh:core.history_templates.HT08.source_captions.story_completed"
+    },
+    "source_kinds": [
+      "story_completed",
+      "milestone_completed"
+    ]
+  }
+]

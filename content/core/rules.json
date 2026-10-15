@@ -1,0 +1,3104 @@
+{
+  "actor_cooldown_seconds": 120,
+  "amenity_flow": {
+    "active_needs_per_visit": 1,
+    "clinical_wait_paused": true,
+    "cooldown_seconds": 180,
+    "fallback_anger": 5,
+    "fallback_seconds": 8,
+    "first_need_seconds": 180,
+    "release_seat": true,
+    "scene_selection": "personality_then_default",
+    "seek_seconds": 45
+  },
+  "anger": {
+    "causes": [
+      {
+        "grace_seconds": 45,
+        "id": "wait_doctor",
+        "one_shot": 0,
+        "per_update": 1
+      },
+      {
+        "grace_seconds": 60,
+        "id": "wait_clinical",
+        "one_shot": 0,
+        "per_update": 0.8
+      },
+      {
+        "grace_seconds": 20,
+        "id": "wait_toilet",
+        "one_shot": 0,
+        "per_update": 2
+      },
+      {
+        "grace_seconds": 20,
+        "id": "wait_guidance",
+        "one_shot": 0,
+        "per_update": 0.6
+      },
+      {
+        "grace_seconds": 15,
+        "id": "no_compatible_seat",
+        "one_shot": 0,
+        "per_update": 0.6
+      },
+      {
+        "grace_seconds": 10,
+        "id": "dirty",
+        "one_shot": 0,
+        "per_update": 0.4
+      },
+      {
+        "grace_seconds": 10,
+        "id": "construction_noise",
+        "one_shot": 0,
+        "per_update": 0.4
+      },
+      {
+        "grace_seconds": 0,
+        "id": "wrong_department",
+        "one_shot": 12,
+        "per_update": 0
+      },
+      {
+        "grace_seconds": 0,
+        "id": "broken_promise",
+        "one_shot": 8,
+        "per_update": 0
+      },
+      {
+        "grace_seconds": 0,
+        "id": "conflict_participant",
+        "one_shot": 18,
+        "per_update": 0
+      },
+      {
+        "grace_seconds": 0,
+        "id": "conflict_observer",
+        "one_shot": 4,
+        "per_update": 0
+      },
+      {
+        "grace_seconds": 0,
+        "id": "failed_treatment",
+        "one_shot": 15,
+        "per_update": 0
+      }
+    ],
+    "continuous_base_cap": 3,
+    "leave_no_progress_seconds": 60,
+    "leave_threshold": 90,
+    "mediation_relief": 12,
+    "natural_decay": 1,
+    "new_service_relief": 6,
+    "nurse_cooldown_seconds": 60,
+    "nurse_relief": 15,
+    "nurse_seconds": 8,
+    "preferred_seat_decay": 0.5,
+    "thresholds": [
+      35,
+      65,
+      85,
+      90
+    ],
+    "update_seconds": 10
+  },
+  "arrival_presets": {
+    "busy": {
+      "active_outpatients_per_scale": 60,
+      "daily_variation_bp": 3000,
+      "target_load_bp": 10000
+    },
+    "festival": {
+      "active_outpatients_per_scale": 120,
+      "daily_variation_bp": 3500,
+      "target_load_bp": 11000
+    },
+    "normal": {
+      "active_outpatients_per_scale": 24,
+      "daily_variation_bp": 2500,
+      "target_load_bp": 9000
+    },
+    "slow": {
+      "active_outpatients_per_scale": 12,
+      "daily_variation_bp": 2500,
+      "target_load_bp": 7500
+    }
+  },
+  "arrivals": {
+    "admission_evaluation": {
+      "active_count_source": "actually_arrived_not_physically_departed_without_valid_inpatient_bed_commitment",
+      "allowance_source": "original_frozen_day_preset_and_scale",
+      "daily_count_and_seed_draws": "original_day_plan_unchanged",
+      "existing_care": "original_intake_controls_new_visits_only",
+      "guard_rejection": "consume_same_slot_without_catchup",
+      "guard_rejection_case_queries": 0,
+      "guard_rejection_patient_draws": 0,
+      "order": [
+        "current_intake_open",
+        "actual_outpatient_count_below_frozen_day_allowance",
+        "original_case_and_body_readiness"
+      ],
+      "passed_guard": "original_complete_readiness_and_atomic_actual_admission",
+      "phase": "phase3_original_arrival_boundary",
+      "readonly_reason_card": "original_complete_cause_query",
+      "runtime_measurement_available": false,
+      "same_tick": "slot_order_reread_after_each_actual_admission",
+      "scope": "current_original_patient_opportunity",
+      "snapshot_counter": false
+    },
+    "capacity_scaling": {
+      "active_allowance_mode": "original_min_current_and_held_structural_scale",
+      "active_clinical_operators": "distinct_from_ward_coverage",
+      "active_count_excludes": "valid_committed_inpatient_bed",
+      "apply": "next_day",
+      "default_mode": "follow_capacity",
+      "hold_mode": "min_current_capacity_and_held_capacity",
+      "reception_pairs_per_station": 3,
+      "reference_shift_pairs": 3,
+      "slot_tie_order": "slot_index",
+      "source": "scheduled_complete_clinical_pairs",
+      "support_readiness": "doctor_office_and_required_nurse_base",
+      "ward_support": "per_nurse_beds_in_one_ward",
+      "zero_capacity_opportunities": 0
+    },
+    "count_sampling": {
+      "algorithm": "arrival-load-count-v1",
+      "count_cap": null,
+      "daily_density_draw": "uniform_integer_signed_basis_points",
+      "draw_stream": "arrival",
+      "fixed_minimum_count": false,
+      "integer_count": "unbiased_fractional_rounding_with_integer_rejection",
+      "zero_capacity": "zero_count_no_count_or_seed_draw"
+    },
+    "load_projection": {
+      "bed_clock": "preparation_reservation_operation_wake_transfer_recovery_rounds_safe_release",
+      "case_weights": "current_disease_weights_then_equal_ready_species_then_original_complexity_ratio",
+      "definition": "maximum_feasible_expected_visit_flow_per_shift",
+      "empty_floor_models": 0,
+      "existing_load": "committed_remaining_and_quotable_existing_queue_before_new_reference_flow",
+      "extra_consultation_behavior": false,
+      "freeze": "complete_original_day_boundary_inputs",
+      "index_scope": "compiled_case_indexes_and_actual_sparse_resources_not_actor_team_cartesian_matrix",
+      "partial_projection_allowed": false,
+      "projection_assignment": "readonly_never_dispatches_or_reserves",
+      "reference_anger": 15,
+      "reference_energy": 100,
+      "reference_expression": "clear",
+      "reference_fatigue": 0,
+      "reference_patient_personality_id": "PP01",
+      "reference_plan": "original_auto_plan_score_with_fixed_reference_context",
+      "resource_clocks": [
+        "reception",
+        "gp",
+        "required_tests_and_consultation",
+        "terminal_device",
+        "each_active_clinician",
+        "bed_commitment",
+        "ward_coverage_and_active_care"
+      ],
+      "retry_work": "probability_weighted_original_auto_retry_without_reading_hidden_results",
+      "runtime_measurement_available": false,
+      "shared_resource_budget": "one_physical_owner_per_original_shift_window",
+      "snapshot_solver_model": false,
+      "source": "original_structural_readiness_roster_and_reference_case_quotes",
+      "temporary_intake_switch_changes_capacity": false,
+      "unknown_future": "no_invented_failures_arrivals_or_future_treatment_results",
+      "ward_coverage": "one_actual_nurse_one_ward_original_eight_beds_distinct_from_active_team"
+    },
+    "manual_patient_invitation": false,
+    "missed_slot": "consume_without_catchup",
+    "preset_change": "next_day",
+    "schedule": {
+      "algorithm": "arrival-load-slot-v1",
+      "digest": "sha256_first_u32_be",
+      "legacy_read_algorithm": "arrival-slot-v1",
+      "mapping": "rejection_then_modulo",
+      "rebuild_consumes_rng": false,
+      "seed_draw": "one_arrival_u64_if_nonzero",
+      "shift_allocation": "capacity_weighted_largest_remainder_seed_hash_ties",
+      "storage": "count_three_shift_counts_seed_cursor",
+      "zero_count_seed": null
+    },
+    "slot_jitter_max": 0.75,
+    "slot_jitter_min": 0.25,
+    "tutorial_fixed_slots": 2
+  },
+  "audio_presentation": {
+    "actor_reaction_voices": 6,
+    "audio_changes_environment": false,
+    "facility_voices": 6,
+    "game_speed_changes_pitch": false,
+    "late_oneshots": "omit_without_replay",
+    "music_voices": 2,
+    "necessary_information": "independent_visual_state",
+    "priority": "observed_then_relevant_event_then_distance_then_id",
+    "scope": "current_floor_camera_audible_sources",
+    "ui_voices": 2
+  },
+  "audio_resources": {
+    "budget_source": "audio_presentation",
+    "business_random_used": false,
+    "business_writes_from_audio": false,
+    "clip_assets": "immutable_shared_by_content_fingerprint_and_resource_id",
+    "codec_validation": "actual_imported_format_and_runtime_decode_cost_not_file_size_only",
+    "count_source": "actual_parallel_playbacks_including_substreams_fading_and_pending_stop",
+    "crossfade": "all_old_and_new_playbacks_count_before_admission",
+    "facility_layers": "offline_premixed_current_stage_clip_one_actual_stream_per_slot",
+    "graphics_memory_includes_audio_pcm": false,
+    "hidden_parallel_substreams": false,
+    "late_clip": "oneshot_omit_loop_requery_current_original_stage_after_binding_check",
+    "memory_scope": "original_working_set_encoded_decode_buffers_idle_loading_and_pending_release",
+    "micro_preview": "reuse_original_scene_audio_no_second_pool",
+    "muted_scene_categories": "stop_decoder_and_admission_no_oneshot_backlog",
+    "playback_state": "private_slot_cursor_parameters_and_decode_buffers",
+    "player_scope": "bounded_original_audio_pools_not_per_entity_or_floor",
+    "release": "explicit_stop_and_unbind_not_wait_for_finished",
+    "release_accounting": "after_actual_playback_stop_pending_resources_still_accounted",
+    "runtime_measurement_available": false,
+    "scene_nodes_per_actor": false,
+    "scene_slot_key": [
+      "hospital_session",
+      "view_id",
+      "view_generation",
+      "floor_id",
+      "pool_kind",
+      "slot_index",
+      "slot_generation",
+      "source_entity_id",
+      "source_binding_key",
+      "clip_resource",
+      "content_fingerprint"
+    ],
+    "scene_slot_polyphony": 1,
+    "slot_reuse": "stop_old_actual_playback_then_unbind_before_current_attach",
+    "snapshot_state": false,
+    "unmute_scene": "current_legal_loops_only_no_missed_state_replay"
+  },
+  "balance_reference": {
+    "arrival_outpatient_example_id": "RB01",
+    "inpatient_examples": [
+      {
+        "anesthetist_surgery": 2,
+        "anesthetist_title_id": "DT02",
+        "binding_id": "B_S01_D01_M01",
+        "complex_case": false,
+        "gp_title_id": "DT01",
+        "id": "RC01",
+        "name": "@zh:core.rules.balance_reference.inpatient_examples.RC01.name",
+        "nurse_surgery": 1,
+        "plan_id": "P_D01_SURGERY",
+        "surgeon_surgery": 2,
+        "surgeon_title_id": "DT02"
+      },
+      {
+        "anesthetist_surgery": 2,
+        "anesthetist_title_id": "DT02",
+        "binding_id": "B_S22_D14_M14",
+        "complex_case": true,
+        "gp_title_id": "DT01",
+        "id": "RC02",
+        "name": "@zh:core.rules.balance_reference.inpatient_examples.RC02.name",
+        "nurse_surgery": 2,
+        "plan_id": "P_D14_SURGERY",
+        "surgeon_surgery": 3,
+        "surgeon_title_id": "DT03"
+      },
+      {
+        "anesthetist_surgery": 3,
+        "anesthetist_title_id": "DT02",
+        "binding_id": "B_S45_D78_M23",
+        "complex_case": true,
+        "gp_title_id": "DT01",
+        "id": "RC03",
+        "name": "@zh:core.rules.balance_reference.inpatient_examples.RC03.name",
+        "nurse_surgery": 3,
+        "plan_id": "P_D78_SURGERY",
+        "surgeon_surgery": 4,
+        "surgeon_title_id": "DT04"
+      },
+      {
+        "binding_id": "B_S22_D14_M14",
+        "complex_case": true,
+        "gp_title_id": "DT01",
+        "id": "RC04",
+        "name": "@zh:core.rules.balance_reference.inpatient_examples.RC04.name",
+        "plan_id": "P_D14_GENTLE",
+        "treatment_level": 3
+      }
+    ],
+    "machine_feasibility": {
+      "assessment": {
+        "baseline": "hardware_feasible_with_existing_culling_sharing_batching_and_caches_not_measured_fps",
+        "dense_near": "high_geometry_submission_and_query_risk_no_fps_promise_or_actor_cap",
+        "memory_storage": "capacity_headroom_plausible_timing_unmeasured"
+      },
+      "changes_simulation": false,
+      "draw_case": "one_surface_per_declared_common_material_plus_one_per_prop_base_pass_only",
+      "geometry_source": "existing_production_triangle_and_material_budget",
+      "hardware_source": "performance_targets.hardware_reference",
+      "maps_per_group": 1,
+      "pose_case": "single_compatible_group_existing_max_bone_full_palette_page_upload_each_target_frame",
+      "prop_surface_assumption": 1,
+      "purpose": "current_hardware_workload_estimate_not_runtime_proof",
+      "render_target_case": "default_scaled_rgba8_color_depth32_plus_native_rgba8_output_single_sample",
+      "renovation_maps": "one_common_atlas_size_map_per_defined_material",
+      "runtime_measurement_available": false,
+      "scene_cases": [
+        {
+          "actor_profile": "common",
+          "actor_source": "reference",
+          "id": "PC01",
+          "name": "@zh:core.rules.balance_reference.machine_feasibility.scene_cases.PC01.name",
+          "partition": "uniform_over_reference_floors",
+          "station_profile": "common"
+        },
+        {
+          "actor_profile": "common",
+          "actor_source": "reference",
+          "id": "PC02",
+          "name": "@zh:core.rules.balance_reference.machine_feasibility.scene_cases.PC02.name",
+          "partition": "whole_reference_on_one_floor",
+          "station_profile": "common"
+        },
+        {
+          "actor_profile": "common",
+          "actor_source": "largest_existing_actor_sample",
+          "id": "PC03",
+          "name": "@zh:core.rules.balance_reference.machine_feasibility.scene_cases.PC03.name",
+          "partition": "whole_reference_on_one_floor",
+          "station_profile": "common"
+        },
+        {
+          "actor_profile": "near",
+          "actor_source": "largest_existing_actor_sample",
+          "id": "PC04",
+          "name": "@zh:core.rules.balance_reference.machine_feasibility.scene_cases.PC04.name",
+          "partition": "whole_reference_on_one_floor",
+          "station_profile": "near"
+        }
+      ],
+      "serialization_world_bytes": [
+        67108864,
+        134217728
+      ],
+      "snapshot_state": false,
+      "texture_bytes": "rgba8_complete_mip_payload_only",
+      "texture_cases": [
+        {
+          "id": "PT01",
+          "medical_size": "common_atlas",
+          "name": "@zh:core.rules.balance_reference.machine_feasibility.texture_cases.PT01.name",
+          "species_maps": "one_per_family"
+        },
+        {
+          "id": "PT02",
+          "medical_size": "closeup_max",
+          "name": "@zh:core.rules.balance_reference.machine_feasibility.texture_cases.PT02.name",
+          "species_maps": "one_per_family"
+        },
+        {
+          "id": "PT03",
+          "medical_size": "closeup_max",
+          "name": "@zh:core.rules.balance_reference.machine_feasibility.texture_cases.PT03.name",
+          "species_maps": "one_per_species"
+        }
+      ],
+      "timing_unknowns": [
+        "single_thread_gdscript_queries",
+        "draw_submission_and_shader_cost",
+        "full_arrival_capacity_model",
+        "json_copy_encode_hash_and_commit",
+        "sustained_shared_cpu_gpu_power"
+      ],
+      "world_source": "performance_reference"
+    },
+    "maintenance_allowance_per_day": 120,
+    "minimum_zero_income_buffer_days": 10,
+    "outpatient_examples": [
+      {
+        "binding_id": "B_S13_D09_M09",
+        "comfort_level": 0,
+        "condition": 100,
+        "gp_title_id": "DT01",
+        "id": "RB01",
+        "name": "@zh:core.rules.balance_reference.outpatient_examples.RB01.name",
+        "plan_id": "P_D09_COMMON",
+        "treatment_level": 1,
+        "upgrade_level": 0
+      },
+      {
+        "binding_id": "B_S13_D09_M09",
+        "comfort_level": 0,
+        "condition": 100,
+        "gp_title_id": "DT01",
+        "id": "RB02",
+        "name": "@zh:core.rules.balance_reference.outpatient_examples.RB02.name",
+        "plan_id": "P_D09_COMMON",
+        "treatment_level": 1,
+        "upgrade_level": 1
+      },
+      {
+        "binding_id": "B_S13_D09_M09",
+        "comfort_level": 0,
+        "condition": 39,
+        "gp_title_id": "DT01",
+        "id": "RB03",
+        "name": "@zh:core.rules.balance_reference.outpatient_examples.RB03.name",
+        "plan_id": "P_D09_COMMON",
+        "treatment_level": 1,
+        "upgrade_level": 0
+      },
+      {
+        "binding_id": "B_S13_D09_M09",
+        "comfort_level": 0,
+        "condition": 100,
+        "gp_title_id": "DT01",
+        "id": "RB04",
+        "name": "@zh:core.rules.balance_reference.outpatient_examples.RB04.name",
+        "plan_id": "P_D09_GENTLE",
+        "treatment_level": 1,
+        "upgrade_level": 0
+      }
+    ],
+    "purpose": "design_calibration_only",
+    "slow_minimum_daily_margin": 200,
+    "starter_case_mix": "equal_initial_diseases",
+    "starter_completed_visits_per_day": [
+      0,
+      12,
+      18,
+      24,
+      30
+    ]
+  },
+  "billing": {
+    "charge_key": "owner_id_and_component",
+    "cure_fee": "once_per_successful_visit",
+    "doctor_charge_at": "gp_completed",
+    "doctor_consultation_fees": [
+      {
+        "amount": 20,
+        "title_id": "DT01"
+      },
+      {
+        "amount": 30,
+        "title_id": "DT02"
+      },
+      {
+        "amount": 45,
+        "title_id": "DT03"
+      },
+      {
+        "amount": 60,
+        "title_id": "DT04"
+      }
+    ],
+    "doctor_quote_at": "first_actual_gp_start",
+    "facility_charge_at": "actual_service_completed",
+    "facility_fees": [
+      {
+        "amount": 5,
+        "equipment_id": "FUR02",
+        "id": "BF_GP",
+        "name": "@zh:core.rules.billing.facility_fees.BF_GP.name",
+        "service_kind": "gp"
+      },
+      {
+        "amount": 15,
+        "equipment_id": "FUR02",
+        "id": "BF_SPECTRUM",
+        "name": "@zh:core.rules.billing.facility_fees.BF_SPECTRUM.name",
+        "service_kind": "spectrum"
+      },
+      {
+        "amount": 20,
+        "equipment_id": "FUR02",
+        "id": "BF_RESONANCE",
+        "name": "@zh:core.rules.billing.facility_fees.BF_RESONANCE.name",
+        "service_kind": "resonance"
+      },
+      {
+        "amount": 10,
+        "equipment_id": "M09",
+        "id": "BF_M09",
+        "name": "@zh:core.rules.billing.facility_fees.BF_M09.name",
+        "service_kind": "outpatient"
+      },
+      {
+        "amount": 20,
+        "equipment_id": "M17",
+        "id": "BF_M17",
+        "name": "@zh:core.rules.billing.facility_fees.BF_M17.name",
+        "service_kind": "outpatient"
+      },
+      {
+        "amount": 10,
+        "equipment_id": "M37",
+        "id": "BF_M37",
+        "name": "@zh:core.rules.billing.facility_fees.BF_M37.name",
+        "service_kind": "outpatient"
+      },
+      {
+        "amount": 60,
+        "equipment_id": "EQ01",
+        "id": "BF_SURGERY",
+        "name": "@zh:core.rules.billing.facility_fees.BF_SURGERY.name",
+        "service_kind": "surgery"
+      },
+      {
+        "amount": 60,
+        "equipment_id": "EQ05",
+        "id": "BF_WARD",
+        "name": "@zh:core.rules.billing.facility_fees.BF_WARD.name",
+        "service_kind": "ward"
+      }
+    ],
+    "facility_quote_at": "service_or_attempt_start",
+    "payment_debt": false,
+    "price_management": false,
+    "retry_facility_fee": "each_completed_attempt",
+    "unfinished_service_fee": 0,
+    "upgrade_fee_multiplier": 1,
+    "ward_fee": "once_per_completed_recovery_in_attempt"
+  },
+  "blueprints": {
+    "inventory_default": true,
+    "inventory_selection": "unfaulted_then_id",
+    "material_execution": "renovation_orders",
+    "placement_limits": "actual_geometry_and_resources",
+    "schema_version": 1,
+    "scope": "single_floor",
+    "upgrade_execution": "upgrade_orders"
+  },
+  "build_tryout": {
+    "charges_cash": false,
+    "creates_actor": false,
+    "default_subject": "selected_actor_or_S49",
+    "operator_source": "actual_roster_or_labelled_example",
+    "reserves_space": false,
+    "scope": "selected_facility_or_room"
+  },
+  "camera_view": {
+    "active_floor_origin": "same_local_zero_no_floor_number_height",
+    "bounds_query": "logical_spatial_records_no_scene_loading",
+    "center": "projected_bounds_center_at_safe_rect_center",
+    "changes_simulation": false,
+    "default_size_m": 42,
+    "default_yaw_degrees": 45,
+    "fit_size_rule": "axis_specific_actual_projection_scale_to_safe_rect",
+    "follow": "overview_cancels_camera_follow_only",
+    "invalid_extent": "retain_camera_and_explain_no_fit_request",
+    "layout_change": "hold_manual_camera_until_explicit_overview_or_zoom",
+    "max_size": "max_original_and_current_floor_overview",
+    "minimum_size_m": 18,
+    "native_projected_cell_metric": "shorter_grid_edge_using_actual_projection_in_native_output",
+    "original_max_size_m": 90,
+    "overview_bounds": "current_floor_legal_plate_corners_and_actual_display_envelopes",
+    "overview_padding_bp": 11000,
+    "overview_trigger": "explicit_current_floor_button_or_home",
+    "pitch_degrees": 35.264,
+    "projection": "orthographic_vertical_size",
+    "runtime_measurement_available": false,
+    "safe_rect": "native_scene_rect_excluding_current_fixed_ui",
+    "snapshot_state": false,
+    "yaw_step_degrees": 90
+  },
+  "care_departments": {
+    "focus_change_cost": 200,
+    "focus_change_seconds": 600,
+    "focus_min_ability": 2,
+    "focus_min_cases": 5,
+    "focus_min_score": 75,
+    "focus_work_multiplier": 0.95,
+    "max_count": null
+  },
+  "case_body": {
+    "active_until": "actual_cure_or_actor_departure",
+    "mid_visit_growth": false,
+    "staff_uses_patient_symptom": false,
+    "symptom_source": "treatment_binding",
+    "task_size_source": "admission_binding_body"
+  },
+  "casual_interaction": {
+    "actor_cooldown_seconds": 30,
+    "chance": 0.25,
+    "max_active": 6,
+    "scan_seconds": 5
+  },
+  "chair_effects": {
+    "maintenance": false,
+    "noise_scope": "noise_anger_component_only",
+    "patient_calm_scope": "once_per_visit",
+    "requires_actual_expansion": true,
+    "scope": "actual_occupant_and_actual_state",
+    "sleep_credit": false,
+    "stacking": "one_current_chair",
+    "staff_recovery": "replace_same_kind_rest_rate"
+  },
+  "cleanup": {
+    "active_patches_per_plot": 64,
+    "aging_seconds": 60,
+    "bin_definition_id": "FUR18",
+    "bin_range_cells": 4,
+    "bin_work_seconds": 4,
+    "blocked_job_keeps_worker": false,
+    "blocks_construction_and_extension": true,
+    "blocks_pedestrian_walk": false,
+    "budget_scope": "actual_floor_plot_of_patch_or_bin",
+    "build_over_dirty": "wait_for_cleaner",
+    "daily_per_equipment": 1,
+    "dispatch_filter": "actual_reachable_work_position",
+    "event_care_scope": "stop_source_only",
+    "event_removal_source": "dirt_patch_work",
+    "ground_work_reach_cells": 1,
+    "overflow": "do_not_spawn_keep_existing",
+    "per_cell": 1,
+    "pinned_jobs": 1,
+    "removal": "cleaner_work_only",
+    "shrink_or_move": "keep_existing_block_new_if_full",
+    "spawn_avoids_reserved_work_areas": true,
+    "yielding_advances_work": false
+  },
+  "clinical": {
+    "bed_reservation_seconds": 30,
+    "beds_per_nurse": 8,
+    "clinic_guard_seconds": 10,
+    "complex_probability": 0.25,
+    "consult_seconds": 8,
+    "discharge_round_seconds": 10,
+    "equipment_no_progress_referral_seconds": 120,
+    "max_beds_per_room": 8,
+    "max_ward_beds": null,
+    "minimum_predicted_success": 0.75,
+    "nurse_visit_seconds": 8,
+    "or_setup_seconds": 8,
+    "outpatient_priority_success": 0.8,
+    "reconsult_probability_delta": 0.05,
+    "safety_strategy_tolerance": 0.02,
+    "score_familiarity_cap": 5,
+    "score_familiarity_cases_per_band": 5,
+    "staff_no_progress_referral_seconds": 300,
+    "staff_shortage_prompt_seconds": 120,
+    "surgery_guard_seconds": 20,
+    "wake_seconds": 15
+  },
+  "clinical_ability_growth": {
+    "auto_level_thresholds": {
+      "2": 20,
+      "3": 50,
+      "4": 100,
+      "5": 180
+    },
+    "doctor_initial_profile": {
+      "diagnosis": 1,
+      "surgery": 0,
+      "treatment": 1
+    },
+    "entry_requires_course": true,
+    "nurse_course_table": "doctor_training.courses",
+    "nurse_initial_profile": {
+      "care": 1,
+      "diagnosis": 1,
+      "surgery": 0
+    },
+    "nurse_or_entry_cost_source": "doctor_training.nurse_or_cost",
+    "nurse_or_entry_seconds_source": "doctor_training.nurse_or_seconds",
+    "practice_advances_during_course": true,
+    "practice_grants_course_fact": false,
+    "practice_source": "completed_actual_work",
+    "practice_total_cap": 180,
+    "promotion_phase": 9,
+    "promotion_requires_paid_courses": false,
+    "settlement_order": "completed_course_then_practice_then_superseded_refund",
+    "superseded_course": "cancel_and_refund_unfinished"
+  },
+  "clinical_readiness_queries": {
+    "atomic_start": "original_full_current_resource_bundle_recheck",
+    "base_proof_kinds": [
+      "supply_shortage",
+      "required_facility_missing",
+      "qualified_team_missing",
+      "compatible_bed_busy"
+    ],
+    "cache_eviction": "full_query_at_next_original_dispatch",
+    "coalesce": "one_dirty_marker_per_current_ticket",
+    "creates_business_entities": false,
+    "dependency_index": "sparse_resource_scope_to_current_tickets",
+    "dependency_source": "all_prerequisites_of_one_proven_false_condition",
+    "during_dispatch": "processed_tickets_next_boundary_no_reverse_insert",
+    "empty_candidates": "watch_definition_role_scope_and_topology",
+    "independent_rules": "original_plan_staff_queue_clock_rules_continue",
+    "memory_scope": "indexes_proofs_deadline_candidates_within_existing_working_set",
+    "order": "original_ticket_priority_and_entity_order",
+    "proof_per_ticket": 1,
+    "readiness_permission_cached": false,
+    "reuse": "validated_failure_certificate_only",
+    "runtime_measurement_available": false,
+    "scope": "not_started_clinical_queue_readiness_only",
+    "shortage_revalidation": {
+      "allowed_update": "existing_inventory_dependency_stamp_only",
+      "deadline": "preserve_and_check_original_tick",
+      "guard": "same_identity_query_scope_and_noninventory_stamps",
+      "handler": "supply_shortage",
+      "otherwise": "original_full_query",
+      "own_preparation": "existing_or_changed_commitment_full_query",
+      "predicate": "current_committed_available_below_current_required_amount",
+      "scope": "same_uncommitted_not_started_ticket",
+      "when": "next_legal_stage_4_original_order"
+    },
+    "snapshot_state": false,
+    "time_source": "original_simulation_deadlines_and_thresholds",
+    "unknown_dependency": "original_full_query",
+    "wake_at": "next_legal_stage_4",
+    "world_clocks_continue": true
+  },
+  "clinical_results": {
+    "added_work_seconds": 0,
+    "alters_body_or_outcome": false,
+    "automatic_retry": "existing_plan_decision_and_queue",
+    "comparison": "prediction_not_failure_cause",
+    "device_scene": "replace_finished_scene",
+    "feedback_behavior_id": "CB15",
+    "feedback_key": "attempt_and_failure_phase",
+    "history_source": "existing_visit_receipt",
+    "manual_plan": "retain_until_explicit_change",
+    "replay_completed": false,
+    "reveal": "actual_settlement_after_required_care",
+    "secondary_budget_source": "treatment_presentation",
+    "selection": "actual_fact_and_current_clinical_phase"
+  },
+  "colleague_moments": {
+    "deferred_replay": false,
+    "extra_work_seconds": 0,
+    "familiar_stress_below": 70,
+    "interrupt_seconds": 1,
+    "relationship_credit": "existing_positive_day",
+    "relationship_storage": "sparse_actual_staff_pairs",
+    "seconds": 2,
+    "species_gate": false,
+    "task_credit": false
+  },
+  "comedy": {
+    "callback_min_return_days": 1,
+    "candidate_query": {
+      "catalog_lookup": "compiled_selector_index",
+      "index_persistence": "rebuild_from_world_and_content",
+      "materialization": "one_anchor_neighbors_and_one_pair_scenes",
+      "pair_order": "circular_actor_id_then_partner_id",
+      "spatial_scope": "same_floor_intersecting_neighbor_buckets",
+      "stop_when": "original_start_or_active_budget_full"
+    },
+    "followup_added_work_seconds": 0,
+    "followup_extra_actor_search": false,
+    "followup_moves_furniture": false,
+    "gag_spawns_residents": false,
+    "major_per_stay_limit": 1,
+    "major_window_caps": {
+      "lively": 4,
+      "quiet": 2,
+      "wild": 7
+    },
+    "major_window_seconds": 1800,
+    "max_new_casual_per_scan": 2,
+    "max_suggestions": 3,
+    "memories_per_regular": 3,
+    "memory_counterpart_binding": "committed_source_fact",
+    "preferred_personality_weight_multiplier": 2,
+    "recent_distinct_scene_count": 3,
+    "recent_scene_start_limit": 144,
+    "recent_weight": 1,
+    "required_object_scope": "same_floor_connected_public_area",
+    "required_object_sessions": 1,
+    "required_object_walk_distance_cells": 3,
+    "response_variant_policy": "bound_actor_personality_then_familiar_then_base",
+    "response_variant_rng": false,
+    "same_scene_zone_cooldown_seconds": 120,
+    "scene_history_seconds": 360,
+    "schedule_proposal_horizon_seconds": 1800,
+    "seen_weight": 4,
+    "unseen_weight": 16,
+    "zone_size_cells": 8
+  },
+  "command_previews": {
+    "material_change": "retain_draft_and_show_difference",
+    "revision_policy": "revalidate_relevant_facts",
+    "stale_session_input": "discard_before_enqueue",
+    "substitute_target": false
+  },
+  "community_activity": {
+    "admission": "reserve_whole_roster",
+    "closing_seconds": 4,
+    "effects": [
+      "play_gag",
+      "designated_pair_positive_day",
+      "story_activity_completed"
+    ],
+    "entry_interval_seconds": 2,
+    "excluded_space_roles": [
+      "clinical_waiting",
+      "clinical_work",
+      "staff_rest",
+      "staff_work",
+      "circulation",
+      "maintenance_access"
+    ],
+    "gather_deadline": {
+      "budget": "max_current_quotes_and_roster_work",
+      "empty_travel": "endpoint_extrema_per_connection",
+      "freeze": "whole_roster_reservation",
+      "prefix": "complete_current_connection_work"
+    },
+    "gather_slack_seconds": 90,
+    "interrupt_seconds": 1,
+    "max_active": 1,
+    "opening_seconds": 4,
+    "participant_role": "visitor",
+    "rng_stream": "community_activity",
+    "seat_use": "activity_only_while_venue_designated",
+    "shrink_roster_to_yield": false,
+    "venue_policy": "dedicated_nonclinical_area"
+  },
+  "community_research_time_multiplier": 2,
+  "consultation": {
+    "behavior_probability": 0.35,
+    "communication_states": [
+      {
+        "id": "clear",
+        "multiplier": 1,
+        "probability": 0.8
+      },
+      {
+        "id": "vague",
+        "multiplier": 1.8,
+        "probability": 0.15
+      },
+      {
+        "id": "tangential",
+        "multiplier": 2.4,
+        "probability": 0.05
+      }
+    ],
+    "firm_style_multiplier": 1.2,
+    "maximum_seconds": 60,
+    "minimum_preparation_multiplier": 0.8,
+    "minimum_seconds": 8,
+    "nurse_assist_seconds": 6,
+    "phase_behavior_probability": 0.35,
+    "stress_style_threshold": 70,
+    "stressed_soothing_multiplier": 0.5,
+    "work_delta_max": 8,
+    "work_delta_min": -4
+  },
+  "currency": "@zh:core.rules.currency",
+  "daily_base_cost": 40,
+  "daily_cost_per_indoor_cell": 0.05,
+  "daily_cost_per_station": 8,
+  "day_seconds": 1800,
+  "diagnosis_threshold": 90,
+  "diagnostic_flow": {
+    "completed_test_limit": "once_per_mode_per_visit",
+    "duplicate_guard": "visit_evidence_by_source",
+    "progress_source": "actual_completed_service",
+    "skip_at_threshold": true,
+    "skipped_service_effects": false
+  },
+  "diagnostic_work_presentation": {
+    "actor_source": "started_service_current_doctor",
+    "added_work_seconds": 0,
+    "dialogue": false,
+    "gameplay_effects": false,
+    "missing_style": "original_generic_working_pose",
+    "mode": "replace_secondary_only",
+    "secondary_budget_source": "treatment_presentation",
+    "selection": "definition_and_doctor_personality",
+    "service_scope": "initial_consultation_only",
+    "state_scope": "working_only"
+  },
+  "dialogue_presentation": {
+    "blocks_work_or_input": false,
+    "calling_lines": false,
+    "clinical_source": "actual_started_medical_communication_of_focused_case",
+    "decorative_language": "pictograms",
+    "default_on": true,
+    "focus_change": "discard_old_card_and_query_current",
+    "late_lines": "omit_no_backlog",
+    "max_lines": 2,
+    "medium": "text_only_no_voice_or_speech_like_audio",
+    "minimum_read_real_seconds": 4,
+    "nonclinical_lines": false,
+    "placement": "current_case_inspection_panel",
+    "visible_cards": 1,
+    "world_bubbles": false,
+    "writes_world_state": false
+  },
+  "doctor_pay": [
+    {
+      "hire": 280,
+      "promotion_cost": 0,
+      "promotion_seconds": 0,
+      "title_id": "DT01",
+      "wage_day": 140
+    },
+    {
+      "hire": 1000,
+      "promotion_cost": 500,
+      "promotion_seconds": 120,
+      "title_id": "DT02",
+      "wage_day": 180
+    },
+    {
+      "hire": 2400,
+      "promotion_cost": 1200,
+      "promotion_seconds": 180,
+      "title_id": "DT03",
+      "wage_day": 230
+    },
+    {
+      "hire": 4800,
+      "promotion_cost": 2400,
+      "promotion_seconds": 240,
+      "title_id": "DT04",
+      "wage_day": 300
+    }
+  ],
+  "doctor_training": {
+    "advanced_research": "R11",
+    "courses": [
+      {
+        "cost": 300,
+        "practice_required": 0,
+        "target_level": 1,
+        "work_seconds": 120
+      },
+      {
+        "cost": 400,
+        "practice_required": 0,
+        "target_level": 2,
+        "work_seconds": 120
+      },
+      {
+        "cost": 600,
+        "practice_required": 20,
+        "target_level": 3,
+        "work_seconds": 180
+      },
+      {
+        "cost": 900,
+        "practice_required": 50,
+        "target_level": 4,
+        "work_seconds": 240
+      },
+      {
+        "cost": 1400,
+        "practice_required": 100,
+        "target_level": 5,
+        "work_seconds": 300
+      }
+    ],
+    "discount_multiplier": 0.5,
+    "discount_research": "R17",
+    "max_level": 5,
+    "mentor_level_gap": 2,
+    "mentor_min_title_id": "DT03",
+    "mentor_time_multiplier": 0.8,
+    "min_diagnosis": 1,
+    "nurse_or_cost": 200,
+    "nurse_or_seconds": 120,
+    "surgical_research": "R34"
+  },
+  "door_safety_margin_m": 0.1,
+  "environment": {
+    "anger_buffer": [
+      {
+        "min_value": 80,
+        "multiplier": 0.5
+      },
+      {
+        "min_value": 60,
+        "multiplier": 0.75
+      },
+      {
+        "min_value": 0,
+        "multiplier": 1
+      }
+    ],
+    "audio_controls_noise": false,
+    "base": 35,
+    "clean_bonus": 8,
+    "comfort2_min_value": 70,
+    "construction_noise_penalty": 15,
+    "construction_noise_work_kinds": [
+      "renovation_unit",
+      "floor_module",
+      "machine_upgrade"
+    ],
+    "decoration_cap": 24,
+    "decoration_per_category": 6,
+    "dirt_cap": 16,
+    "dirt_per_item": 4,
+    "floor_cap": 12,
+    "heatmap_view": {
+      "budget_additive": false,
+      "budget_sources": [
+        "spatial_view.view_build_budget_ms_per_frame",
+        "spatial_view.view_chunk_starts_per_frame"
+      ],
+      "chunk_cells_source": "spatial_view.chunk_cells",
+      "color_bytes_per_cell": 4,
+      "dirty_values": "mask_until_current",
+      "invalidation_source": "complete_local_environment_query_dependencies_not_world_tick",
+      "legend_source": "existing_environment_thresholds",
+      "prefetch": false,
+      "priority": "selected_or_hovered_cell_then_visible_chunks",
+      "publication": "whole_chunk_with_current_complete_query_stamp",
+      "refresh_interval_real_ms": 200,
+      "refresh_scope": "hospital_view_session_across_floor_subject_and_toggle",
+      "rendering": "shared_chunk_color_and_validity_mask_no_per_cell_nodes",
+      "request_key": [
+        "hospital_session",
+        "view_id",
+        "view_generation",
+        "floor_id",
+        "chunk",
+        "subject_identity",
+        "traversal_envelope",
+        "query_options",
+        "environment_query_stamp",
+        "range_version",
+        "content_fingerprint"
+      ],
+      "runtime_measurement_available": false,
+      "scope": "current_floor_visible_legal_cells",
+      "snapshot_state": false,
+      "staging_scope": "one_pending_payload_per_chunk_request",
+      "states": [
+        "current",
+        "updating",
+        "body_no_fit",
+        "outside_owned_floor"
+      ],
+      "status_bytes_per_cell": 1,
+      "subject_key": "current_identity_envelope_and_access_options",
+      "subject_source": "environment.query_policy.heatmap_subject",
+      "tooltip": "current_original_cell_query_not_texture_readback",
+      "value_encoding": "color_lightness_and_pattern_with_single_legend",
+      "value_source": "original_environment_query_at_cell_for_subject",
+      "writes_environment": false
+    },
+    "light_bonus": 7,
+    "machine_noise_definition_ids": [
+      "M09",
+      "M37",
+      "M17",
+      "EQ01"
+    ],
+    "machine_noise_penalty": 10,
+    "noise_activity": "effective_work_segment",
+    "noise_barrier_definition_ids": [
+      "FUR23"
+    ],
+    "query_policy": {
+      "cache_changes_simulation": false,
+      "cache_invalidation": "local_relevant_revisions",
+      "cache_layers": "shared_coverage_then_body_specific_availability",
+      "empty_floors": "no_precomputed_cell_field",
+      "heatmap_subject": "selected_actual_body_or_labeled_example",
+      "water_availability": "actual_body_geometry_with_service_queue_allowed",
+      "water_check_shared_with_comfort": true
+    },
+    "quiet_uses_all_noise_sources": true,
+    "range_cells": 4,
+    "upgraded_range_cells": 5,
+    "upgraded_range_scope": "positive_coverage",
+    "wall_cap": 10,
+    "water_bonus": 4
+  },
+  "equipment": {
+    "classes": [
+      {
+        "base_failure_bp": 40,
+        "id": "medical",
+        "maintenance_parts": 20,
+        "maintenance_seconds": 20,
+        "repair_parts": 40,
+        "repair_seconds": 30,
+        "wear_per_day": 0,
+        "wear_per_use": 2
+      },
+      {
+        "base_failure_bp": 30,
+        "id": "workstation",
+        "maintenance_parts": 12,
+        "maintenance_seconds": 16,
+        "repair_parts": 25,
+        "repair_seconds": 24,
+        "wear_per_day": 1,
+        "wear_per_use": 0.5
+      },
+      {
+        "base_failure_bp": 20,
+        "id": "utility",
+        "maintenance_parts": 10,
+        "maintenance_seconds": 14,
+        "repair_parts": 20,
+        "repair_seconds": 20,
+        "wear_per_day": 2,
+        "wear_per_use": 0.5
+      },
+      {
+        "base_failure_bp": 10,
+        "id": "comfort",
+        "maintenance_parts": 6,
+        "maintenance_seconds": 12,
+        "repair_parts": 12,
+        "repair_seconds": 16,
+        "wear_per_day": 1,
+        "wear_per_use": 0.2
+      },
+      {
+        "base_failure_bp": 10,
+        "id": "door",
+        "maintenance_parts": 8,
+        "maintenance_seconds": 12,
+        "repair_parts": 15,
+        "repair_seconds": 18,
+        "wear_per_day": 1,
+        "wear_per_use": 0.1
+      }
+    ],
+    "maintained_definition_ids": [
+      "FUR02",
+      "FUR05",
+      "SE02",
+      "M09",
+      "M37",
+      "M17",
+      "EQ01",
+      "EQ05",
+      "VC02",
+      "VC03"
+    ],
+    "medical_use_dedup": "service_or_attempt_and_subject",
+    "medical_use_sources": {
+      "EQ01": "first_actual_work_per_attempt",
+      "EQ05": "first_actual_admission_per_attempt",
+      "FUR02": "first_actual_work_per_service",
+      "M09": "first_actual_work_per_attempt",
+      "M17": "first_actual_work_per_attempt",
+      "M37": "first_actual_work_per_attempt"
+    },
+    "post_repair_grace_seconds": 180,
+    "restored_condition": 100,
+    "risk_condition_bounds": [
+      70,
+      40,
+      0
+    ],
+    "risk_multipliers": [
+      1,
+      3,
+      8
+    ],
+    "scan_seconds": 60,
+    "stop_new_service_threshold": 10,
+    "unlisted_policy": "no_wear_failure_or_maintenance"
+  },
+  "event_settings": {
+    "lively": {
+      "global_cooldown": 60,
+      "max_major": 2,
+      "scan_chance": 0.35
+    },
+    "quiet": {
+      "global_cooldown": 120,
+      "max_major": 1,
+      "scan_chance": 0.15
+    },
+    "wild": {
+      "global_cooldown": 35,
+      "max_major": 3,
+      "scan_chance": 0.65
+    }
+  },
+  "facility_magic": {
+    "anchor": "fixed_local_origin",
+    "blocks_navigation": true,
+    "changes_occupied_cells": true,
+    "exit_policy": "reject_if_strands_actor",
+    "extra_cost": 0,
+    "mode": "automatic",
+    "navigation": "actual_body_envelope",
+    "operator_space": "actual_body_envelope",
+    "release": "after_user_and_extension_clear",
+    "requires_free_space": true,
+    "reservation": "atomic_before_use",
+    "restore_from": "saved_adaptation_reservation",
+    "scope": [
+      "doors",
+      "beds",
+      "medical_equipment",
+      "amenities",
+      "staff_workstations",
+      "vertical_connectors"
+    ],
+    "unlocked": "initial",
+    "visual_method": "physical_extension",
+    "works_when_faulted": true
+  },
+  "finance_review": {
+    "closing_days": 3,
+    "forecast_income": "known_grants_only",
+    "forecast_query": {
+      "hidden": "cancel_projection_queries_only",
+      "invalidation": "relevant_financial_changes_and_day_boundary",
+      "publication": "existing_hospital_panel_query_generation",
+      "same_day_fixed_costs": "reuse_only_proven_unchanged_per_owner_settlement",
+      "scope": "visible_three_closing_days",
+      "source": "original_current_owners_and_exact_per_employee_rounding",
+      "unknown_dependencies": "original_complete_visible_query",
+      "world_effects": false
+    },
+    "note_characters": 40,
+    "reference_settled_days": 3,
+    "reserve_cash": false,
+    "saving_notes": 1
+  },
+  "floor_cost_cell": 20,
+  "floors": {
+    "capacity_policy": "actual_services_across_all_floors",
+    "clear_height_m": 7.5,
+    "completed_structure_storage": "top_floor_per_plot",
+    "connector_object_count": "one_per_lift_driver",
+    "construction_role": "decorator",
+    "construction_tool_id": "SE02",
+    "emergency_travel_seconds_per_floor": 4,
+    "floor_view_camera_cache": 32,
+    "ground_floor_number": 1,
+    "landing_storage": "contiguous_range",
+    "lift_ground_floor_required": true,
+    "max_floors": null,
+    "purchase_contract": {
+      "below_building_source": "actual_room_inner_cells_overlap",
+      "initial_lift_stations": "ground_single_station",
+      "new_floor_plot_source": "selected_lift_ground_anchor",
+      "same_floor_expansion": "at_least_one_completed_module",
+      "section_acquisition": "construction_completion"
+    },
+    "requires_completed_below": true,
+    "requires_owned_ground": true,
+    "same_floor_recovery": true,
+    "section_pricing": {
+      "base_material_cost": 3200,
+      "base_work_seconds": 90,
+      "first_upper_floor": 2,
+      "material_increment_per_floor": 1600,
+      "max_material_cost": 8000,
+      "max_work_seconds": 180,
+      "work_increment_per_floor": 30
+    },
+    "section_size_cells": [
+      32,
+      32
+    ],
+    "structural_height_m": 8
+  },
+  "gp_seconds": 12,
+  "gratitude": {
+    "area_effect_anchor": "fixed_public_cell",
+    "area_effect_expiry": "simulated_remaining_ticks",
+    "area_effect_max_per_receipt": 1,
+    "area_effect_propagation": "same_floor_public_four_neighbors_walls_block",
+    "area_effect_radius_cells": 4,
+    "cleanup_hint_max_jobs": 1,
+    "cleanup_hint_requires_active_cleaner": true,
+    "default_animation_seconds": 6,
+    "environment_bonus_cap": 6,
+    "environment_seconds": 180,
+    "gift_probability": 0.5,
+    "maximum_anger": 20,
+    "minimum_experience": 85,
+    "music_anger_relief_per_update": 1,
+    "music_recipient": "present_patient_with_anger",
+    "music_relief_stacking": "max_once_per_anger_sample",
+    "music_seconds": 120,
+    "per_day_cap": 2,
+    "probability": 0.35,
+    "resident_cooldown_days": 3,
+    "work_help_adds_movement": false,
+    "work_help_fraction": 0.1,
+    "work_help_max_seconds": 10,
+    "work_help_min_remaining_ticks": 1,
+    "work_help_range_cells": 4,
+    "work_help_requires_active_worker": true,
+    "work_help_target_order": "distance_then_job_id",
+    "work_help_target_scope": "current_public_position_near_active_job"
+  },
+  "guidance": {
+    "doctor_redirect_seconds": 5,
+    "equivalent_destination": "accept_current_without_redirection",
+    "first_visit_error_probability": 0.18,
+    "help_after_seconds": 20,
+    "max_wrong_registrations_per_visit": 1,
+    "nurse_correction_probability": 0.95,
+    "nurse_seconds": 6,
+    "penalty_source": "actual_mismatched_entry_arrival_once",
+    "recheck_at": "before_correction",
+    "regular_error_probability": 0.08,
+    "self_service_after_seconds": 30,
+    "sign_reduction": 0.1,
+    "staff_credit_source": "actual_guidance_work_completed",
+    "transient_unavailability_is_misregistration": false,
+    "wrong_destination_reason_ids": [
+      "intake_scope_excludes_case",
+      "equipment_has_no_unlocked_plan"
+    ]
+  },
+  "hospital_clock": {
+    "basis_id": "hospital-time-v1",
+    "clock_format": "hospital_day_and_24h_HH_mm",
+    "clock_rounding": "floor_exact_ratio_after_modulo_day_ticks",
+    "day_minutes": 1440,
+    "duration_display": "hospital_hours_minutes_with_simulation_seconds_in_details",
+    "numeric_units": "seconds_simulation_days_hospital_unless_explicit_real",
+    "published_basis_mutable": false,
+    "real_day_paths": [
+      "balance.save.trash_days"
+    ],
+    "realtime_seconds_paths": [
+      "balance.save.autosave_real_seconds",
+      "balance.performance_targets.capture.warmup_real_seconds",
+      "balance.performance_targets.capture.sample_real_seconds",
+      "balance.performance_targets.metrics.save_max_seconds",
+      "balance.performance_targets.metrics.load_max_seconds",
+      "balance.performance_targets.spatial_samples.minimum_dense_sample_real_seconds",
+      "balance.dialogue_presentation.minimum_read_real_seconds"
+    ],
+    "remaining_rounding": "ceil_display_unit_until_actual_completion",
+    "runtime_measurement_available": false,
+    "snapshot_clock_copy": false,
+    "source": "single_sim_tick_and_fixed_day_seconds"
+  },
+  "hospital_growth": {
+    "employee_count_cap": null,
+    "entity_limits": "physical_layout_and_services",
+    "object_count_cap": null,
+    "ordinary_visitors": "one_per_active_visit_and_real_waiting_position",
+    "patient_limit": "scaled_intake_allowance",
+    "room_count_cap": null,
+    "station_count_cap": null
+  },
+  "hospital_situations": {
+    "accessory_preparation_policy": "first_real_need_choose_once_no_stacking",
+    "accessory_scope": "detachable_visual_props_only",
+    "lost_property_creates_inventory": false,
+    "lost_property_interrupt_seconds": 1,
+    "lost_property_requires_cabinet": false,
+    "lost_property_requires_existing_prop": true,
+    "lost_property_requires_idle_staff": true,
+    "lost_property_seconds": 8,
+    "lost_property_staff_role": "receptionist",
+    "machine_fear_self_recovery_seconds": 20,
+    "max_companions_per_patient": 1,
+    "nursing_handoff_seconds": 5,
+    "prepare_accessory_seconds": 10,
+    "same_name_seconds": 2,
+    "visitor_yield_seconds": 2,
+    "ward_visit_seconds": 30,
+    "ward_visits_per_patient_per_day": 2
+  },
+  "incident_scan_seconds": 5,
+  "initial_gift_machines": [
+    "M09"
+  ],
+  "intake_controls": {
+    "closed_opportunity_policy": "consume_without_catchup",
+    "closes_physical_doors": false,
+    "existing_visit_retries": true,
+    "hospital_scope": "new_visits_only",
+    "reopen_resets_facility_intent": false,
+    "stops_staff_work": false,
+    "zero_weight_scope": "new_visits_only"
+  },
+  "journey_review": {
+    "cause_sample_seconds": 10,
+    "closed_receipts": 100,
+    "details_per_visit": 32,
+    "examples_per_metric": 3,
+    "outcome_visibility": "settled_only"
+  },
+  "limits": {
+    "grid_height": 96,
+    "grid_width": 96,
+    "history_entries": 500,
+    "plot_size": 32,
+    "plots": 9,
+    "regulars": 200
+  },
+  "machine_upgrade": {
+    "affects_frozen_attempt": false,
+    "blueprint_execution": "sequential_orders",
+    "borrowed_allowed": false,
+    "condition_reset": false,
+    "paid_cost_commit": "stage_complete",
+    "payment": "confirm_apply",
+    "started_stage_refund": 0,
+    "unstarted_refund": 1,
+    "worker_role": "mechanic"
+  },
+  "maintenance_dispatch": {
+    "auto_thresholds": {
+      "MP01": 30,
+      "MP02": 45,
+      "MP03": 60
+    },
+    "charge_timing": "work_start",
+    "default_policy_id": "MP02",
+    "manual_threshold": 60,
+    "orders_per_equipment": 1,
+    "scene_selection": "lift_then_class"
+  },
+  "max_treatment_attempts": 2,
+  "medical_equipment_effects": {
+    "diagnostic_speed_per_effective_level": 0.15,
+    "equipment_grade_changes_min_skill": false,
+    "freeze_attempt": true,
+    "gp_evidence_per_effective_level": 2,
+    "outpatient_speed_per_effective_level": 0.2,
+    "outpatient_success_per_effective_level": 0.025,
+    "qualification_before_utilization": true,
+    "surgery_aggregation": "one_table_mean_three_operators",
+    "surgery_speed_per_effective_level": 0.1,
+    "surgery_success_per_effective_level": 0.01,
+    "test_evidence_per_effective_level": 3,
+    "test_evidence_per_extra_skill": 2,
+    "utilization_by_level": [
+      0,
+      0.6,
+      0.7,
+      0.8,
+      0.9,
+      1.0
+    ],
+    "ward_aggregation": "one_bed_actual_covering_nurse",
+    "ward_rate_freeze": "coverage_segment",
+    "ward_recovery_speed_per_effective_level": 0.15
+  },
+  "memory_book": {
+    "automatic_capture": false,
+    "caption_characters": 80,
+    "daily_summaries": 30,
+    "photo_limit": null,
+    "photo_max_edge_pixels": 4096,
+    "photos_in_hospital_backup": false,
+    "pinned_entries": 50
+  },
+  "movement_courtesy": {
+    "blocked_before_yield_seconds": 3,
+    "body_overlap": false,
+    "priority": [
+      "inside_narrow_segment",
+      "committed_transfer_group",
+      "blocked_tick",
+      "actor_id"
+    ],
+    "refer_hard_block_seconds": 60,
+    "reselect_hard_block_seconds": 30,
+    "retry_hard_block_seconds": 5,
+    "yield_resets_wait": false,
+    "yield_target": "nearest_reachable_space_on_travelled_route"
+  },
+  "movement_queries": {
+    "actor_motion_rebuilds_static_graph": false,
+    "actor_pair_matrix": false,
+    "bounds_source": "actual_current_complete_body_or_original_group_envelope",
+    "broadphase_is_permission": false,
+    "bucket_cells_source": "pathfinding.local_updates.chunk_cells",
+    "bucket_cover": "include_boundary_touch_all_intersecting_buckets",
+    "candidate_cap": null,
+    "candidate_identity": "original_movement_unit_key",
+    "candidate_order": "deduplicate_then_original_stable_entity_order",
+    "changes_courtesy_or_simulation": false,
+    "empty_floor_records": false,
+    "floor_source": "original_mutually_exclusive_actor_position",
+    "group_policy": "original_complete_group_no_new_actor_or_split",
+    "incomplete_index": "rebuild_requested_floor_or_original_complete_query_with_pinned_sweeps",
+    "membership_source": "original_owner_current_members_and_past_sweep_participants",
+    "memory_scope": "original_working_set_actual_units_step_sweeps_and_temporary_candidates",
+    "narrow_phase": "original_current_body_sweep_reservations_and_courtesy_rules",
+    "query_source": "original_proposed_legal_step_sweeps",
+    "runtime_measurement_available": false,
+    "scope": "original_floor_bodies_and_complete_movement_units",
+    "snapshot_state": false,
+    "step_sweeps": "accepted_original_move_sweeps_pinned_until_stage_5_end",
+    "update": "atomic_before_after_binding_on_actual_source_commit"
+  },
+  "movement_speeds": {
+    "1": 2.0,
+    "2": 1.6,
+    "3": 1.25
+  },
+  "observation": {
+    "changes_simulation_outcome": false,
+    "manual_speed_revokes_restore": true,
+    "pause_stays_paused": true,
+    "persist_session": false,
+    "scope": "current_execution_stage",
+    "stack_limit": 1,
+    "switch_floor_at": "actual_arrival",
+    "temporary_speed": 1
+  },
+  "onboarding": {
+    "active_bubbles": 1,
+    "bubble_cooldown_seconds": 60,
+    "cross_hospital_progress": false,
+    "defer_days": 1,
+    "locks_features": false,
+    "protected_visits_per_seed": 1,
+    "replay_changes_world": false
+  },
+  "operating_notices": {
+    "critical_error_uses_ordinary_quota": false,
+    "deferred_queue": "current_highest_still_valid_only",
+    "ongoing_reason": "update_existing_card",
+    "replay_loaded_problems": false,
+    "second_toast": "first_material_escalation",
+    "toasts_per_reason_episode": 2
+  },
+  "operating_settlement": {
+    "accrual": "current_rate_per_simulation_tick",
+    "commit": "original_daily_settlement_transaction",
+    "owner": "EconomyState.daily_accumulators.operating_numerator",
+    "payer_affects_accrual": false,
+    "settlement": "floor_daily_carry_remainder"
+  },
+  "pair_cooldown_seconds": 300,
+  "path_cost_cell": 10,
+  "pathfinding": {
+    "actors_per_request": 20,
+    "cache_changes_business_result": false,
+    "cache_hits_consume_budget": true,
+    "cache_key": "floor_and_traversal_envelope",
+    "count_at": "tick_start_unique_present_actors",
+    "graph_cache_target_bytes": 134217728,
+    "local_updates": {
+      "active_route_recheck": "remaining_sweeps_and_used_connections_on_related_change",
+      "actor_motion": "movement_contention_only",
+      "cached_results": [
+        "route",
+        "partial",
+        "unreachable",
+        "walking_distance",
+        "connectivity"
+      ],
+      "change_source": "authoritative_before_after_geometry_occupancy_and_soft_cost",
+      "chunk_cells": [
+        8,
+        8
+      ],
+      "coalescing": "union_until_next_query",
+      "connector_change": "index_and_touched_landings_only",
+      "cross_floor_queries": "fresh_search_with_current_transit_quote",
+      "dependency": "actual_envelope_footprint_and_movement_sweep",
+      "dirty_storage": "sparse_derived_discardable",
+      "graph_repair": "affected_nodes_edges_before_query",
+      "history_miss": "rebuild_requested_floor_envelope",
+      "memory_scope": "graphs_dependency_indexes_dirty_history_and_query_results",
+      "result_lifetime": "retire_results_with_floor_cache_record",
+      "runtime_measurement_available": false,
+      "safety_gate": "atomic_current_edge_and_work_start",
+      "single_floor_query_key": [
+        "hospital_session",
+        "floor_id",
+        "start",
+        "goal",
+        "traversal_envelope",
+        "query_kind",
+        "query_options",
+        "nav_revision",
+        "occupancy_revision"
+      ],
+      "snapshot_state": false,
+      "view_changes_revision": false
+    },
+    "minimum_actor_requests_per_tick": 8,
+    "order": "request_sequence",
+    "pending_per_actor": 1,
+    "read_only_queries_use_business_queue": false,
+    "replacement_keeps_sequence": true,
+    "requeue_after_failed_dispatch": "tail"
+  },
+  "patience_schedule": {
+    "changes_wait_probability_or_interval": false,
+    "clock_source": "queue_ticket_effective_wait_ticks",
+    "coincident_budget": "all_due_same_original_step",
+    "current_entries_per_ticket": 1,
+    "due_order": "existing_actor_id_then_current_ticket_id",
+    "entries_for_empty_floors": 0,
+    "entry_update": "replace_or_remove_current_entry",
+    "exit_order": "actual_service_and_safety_then_deterministic_then_probability",
+    "index_identity": "hospital_session_actor_current_ticket_threshold",
+    "memory_scope": "actual_entries_handles_and_temporary_rebuild",
+    "pause_resume": "remaining_effective_wait_from_original_owner",
+    "phase": "after_phase7_wait_and_affect_before_new_interactions",
+    "probability_inputs": "current_original_anger_personality_environment",
+    "readonly_draws": 0,
+    "rebuild": "from_validated_owners_before_next_phase7",
+    "runtime_measurement_available": false,
+    "scope": "active_original_wait_departure_ticket",
+    "snapshot_state": false,
+    "suspended_draws": 0,
+    "threshold_source": "wait_departure_state_next_check_wait_ticks",
+    "unknown_dependency": "original_check_for_affected_ticket"
+  },
+  "patient_behavior": {
+    "actor_cooldown_seconds": 30,
+    "cleaning_request": "reuse_existing_dirt_job",
+    "conflict_probability_cap": 0.75,
+    "context_multipliers": {
+      "misunderstanding": 0.5,
+      "provocation": 1.2,
+      "resource_dispute": 1
+    },
+    "context_ttl_seconds": 10,
+    "crowd_radius_cells": 3,
+    "crowded_neighbors_min": 4,
+    "initiator_scope": "patient_or_ordinary_visitor",
+    "interrupt_seconds": 1,
+    "max_casual_seconds": 8,
+    "max_pending_contexts": 160,
+    "queue_ticket_prop_can_lose_ticket": false,
+    "quiet_seat_improvement": "noise_or_neighbors_without_regression",
+    "reaction_reemits_source": false,
+    "relationship_multipliers": {
+      "friend": 0.25,
+      "neutral": 1,
+      "reconciled": 0,
+      "rival": 1.25
+    },
+    "scan_seconds": 5
+  },
+  "performance_reference": {
+    "floors": 4,
+    "ordinary_visitors": 8,
+    "patients": 120,
+    "props": 1200,
+    "purpose": "benchmark_not_gameplay_limit",
+    "rooms": 64,
+    "staff": 32,
+    "stations": 128,
+    "total_actors": 160,
+    "ward_beds": 24
+  },
+  "performance_targets": {
+    "capture": {
+      "fps_target": 60,
+      "power_condition": "ac_record_actual_power_mode_and_background_load",
+      "record_actual_renderer": true,
+      "record_refresh_and_sync": true,
+      "sample_real_seconds": 600,
+      "speeds": [
+        1,
+        3
+      ],
+      "statistics": {
+        "average_fps_substitutes_tail": false,
+        "cpu_gpu_sum_substitutes_frame": false,
+        "data_scope": "local_acceptance_artifacts_not_world_or_runtime_cache",
+        "dense_segments": "same_rules_separate_population_for_each_dense_segment",
+        "frame_population": "complete_original_ordinary_intervals_with_start_in_capture_window",
+        "frame_source": "actual_distinct_game_frame_display_change",
+        "grouping": "per_world_load_window_scale_ui_speed_and_capture_condition",
+        "incomplete_tail": "continue_to_next_distinct_frame_or_mark_missing_evidence",
+        "maximum": "same_complete_population",
+        "missing_samples": "no_pass_or_synthetic_frames",
+        "percentile": "nearest_rank_ceil_p_times_n",
+        "time_basis": "monotonic_real_time",
+        "tool_record": "version_source_and_actual_process_renderer"
+      },
+      "warmup_real_seconds": 60
+    },
+    "changes_simulation": false,
+    "display": {
+      "automatic_scale_changes": false,
+      "default_scene_scale_bp": 7500,
+      "pixel_rounding": "nearest_even_dimension",
+      "render_scale_changes_ui": false,
+      "scene_scale_options_bp": [
+        10000,
+        7500,
+        6667
+      ],
+      "ui_resolution": "native_window",
+      "window_pixels": [
+        2560,
+        1440
+      ]
+    },
+    "display_workload_samples": {
+      "extrapolate_fps_from_pixel_ratio": false,
+      "load_source": "performance_reference_and_existing_large_world_samples",
+      "metrics_source": "same_primary_frame_simulation_response_and_memory_targets",
+      "record_actual_window_scene_and_ui_extent": true,
+      "resource_cost_basis": "actual_targets_samples_formats_and_unreleased_copies",
+      "scene_scale_source": "display.scene_scale_options_bp",
+      "ui_scale_percent": [
+        100,
+        200
+      ],
+      "unavailable_mode": "record_missing_evidence_without_substitution",
+      "window_sources": [
+        "display.window_pixels",
+        "hardware_reference.reported_gpu_mode"
+      ]
+    },
+    "graphics_accounting": "visible_idle_loading_and_render_targets",
+    "hardware_reference": {
+      "captured_on": "2026-10-13",
+      "cpu": "Intel(R) Core(TM) Ultra 5 125H",
+      "cpu_core_types": {
+        "efficient": 8,
+        "low_power_efficient": 2,
+        "performance": 4
+      },
+      "gpu": "Intel(R) Arc(TM) Graphics",
+      "gpu_driver": "31.0.101.5382",
+      "gpu_xe_cores": 7,
+      "installed_memory_bytes": 34359738368,
+      "logical_processors": 18,
+      "memory_report": {
+        "ConfiguredClockSpeed": 6400,
+        "DataWidth": 64,
+        "SMBIOSMemoryType": 35,
+        "Speed": 7467,
+        "aggregate_bus_width": "not_inferred_from_smbios_entries",
+        "entry_capacity_bytes": 4294967296,
+        "free_bytes_are_future_reservation": false,
+        "free_physical_bytes": 17457348608,
+        "reported_entries": 8,
+        "source": "Win32_PhysicalMemory_and_Win32_OperatingSystem_read_only_snapshot",
+        "usable_memory_bytes": 33779150848
+      },
+      "os": "Windows 11 x64",
+      "physical_cores": 14,
+      "reported_gpu_mode": [
+        2880,
+        1920
+      ],
+      "storage": "NVMe SSD",
+      "vendor_reference": "https://www.intel.com/content/www/us/en/products/sku/236848/intel-core-ultra-5-processor-125h-18m-cache-up-to-4-50-ghz/specifications.html",
+      "virtual_display_is_renderer": false,
+      "wmi_adapter_ram_is_total_budget": false
+    },
+    "large_world_samples": {
+      "actors": [
+        320,
+        640
+      ],
+      "empty_floors": 10000,
+      "metrics_source": "same_primary_frame_and_simulation_targets",
+      "reject_by_count": false
+    },
+    "metrics": {
+      "frame_p95_ms": 16.7,
+      "frame_p99_ms": 25,
+      "graphics_resources_target_bytes": 536870912,
+      "input_preview_p95_ms": 100,
+      "load_max_seconds": 5,
+      "ordinary_frame_max_ms": 50,
+      "room_preview_p95_ms": 200,
+      "save_max_seconds": 2,
+      "sim_speed_ratio_min": 0.99,
+      "sim_step_ordinary_max_ms": 30,
+      "sim_step_p95_ms": 10,
+      "sim_step_p99_ms": 15,
+      "snapshot_copy_p95_ms": 25,
+      "working_set_target_bytes": 2147483648
+    },
+    "purpose": "acceptance_targets_not_gameplay_limits",
+    "quality": "standard",
+    "resource_measurement": {
+      "data_scope": "local_acceptance_report_not_world_or_parallel_runtime_state",
+      "debug_only_monitors": "diagnostic_only_never_zero_as_release_usage",
+      "graphics_source": "original_graphics_scope_with_allocation_basis_and_engine_os_corroboration",
+      "overlapping_counters": "report_separately_do_not_sum",
+      "payload_only": "not_complete_budget_evidence",
+      "peak_record": "observed_peak_cadence_and_process_lifetime_peak_separate",
+      "peak_scope": "same_capture_ordinary_save_and_view_transition_work",
+      "private_commit": "record_separately_not_working_set",
+      "process_source": "release_target_process_os_working_set",
+      "shared_allocation": "once_per_actual_allocation_not_content_fingerprint_or_reference",
+      "size_kinds": [
+        "payload_bytes",
+        "allocated_bytes",
+        "engine_estimate",
+        "os_residency"
+      ],
+      "unknown": "record_missing_evidence_not_zero",
+      "unreleased": "count_current_loading_idle_and_retiring_actual_allocations"
+    },
+    "runtime_measurement_available": false,
+    "simulation_budget": {
+      "basis": "primary_frame_targets",
+      "rounding": "floor_whole_milliseconds",
+      "share_bp": 6000,
+      "validation": "presented_frames_and_real_speed_remain_separate",
+      "version": "sim-frame-budget-v2"
+    },
+    "spatial_samples": {
+      "cache_modes": [
+        "cold",
+        "warm",
+        "forced_eviction"
+      ],
+      "camera_sequence": [
+        "near_full_working_area",
+        "far_whole_floor",
+        "pan_both_axes",
+        "repeated_zoom_thresholds",
+        "switch_active_floors",
+        "edit_local_geometry_during_view_load"
+      ],
+      "count_source": "actual_logical_entities_and_visible_instances_logged_separately",
+      "fake_submesh_counts": false,
+      "metrics_source": "same_primary_frame_simulation_response_and_memory_targets",
+      "minimum_dense_sample_real_seconds": 60,
+      "minimum_density_bp": 9000,
+      "wide_floor": {
+        "active_floor": 1,
+        "actors": [
+          160,
+          640
+        ],
+        "layout_requirement": "actual_entities_with_legal_routes_and_body_fit",
+        "logical_size_cells": [
+          96,
+          96
+        ],
+        "owned_plots": 9,
+        "props": 1200,
+        "rooms": 64,
+        "stations": 128
+      },
+      "wide_tall": {
+        "active_floors": [
+          1,
+          10,
+          1000,
+          10000
+        ],
+        "actors": 640,
+        "completed_top_floor_per_plot": 10000,
+        "structure_expand": "never_all_empty_floors"
+      }
+    },
+    "world_source": "performance_reference"
+  },
+  "plan_reassessment": {
+    "affects_committed_attempt": false,
+    "automatic_owner": "consulting_doctor",
+    "manual_choice": "retain_plan_until_explicit_change",
+    "max_pending_per_visit": 1,
+    "probability_change": "decrease_only",
+    "temporary_resource_wait_reconsults": false,
+    "threshold_source": "clinical.reconsult_probability_delta"
+  },
+  "playback_control": {
+    "automatic_pause": "source_owned_tokens",
+    "cancel_exit_speed": 0,
+    "effective_pause": "manual_pause_or_any_token",
+    "new_session_speed": 0,
+    "observation": "single_temporary_override",
+    "persist_runtime_tokens": false,
+    "speed_owner": "player_intent"
+  },
+  "plot_prices": [
+    0,
+    3000,
+    4500,
+    6000,
+    7500,
+    9000,
+    10500,
+    12000,
+    13500
+  ],
+  "pose_sampling": {
+    "actor_count_cap": null,
+    "binding_budget": "spatial_view.view_build_budget_ms_per_frame",
+    "business_random_used": false,
+    "changes_simulation": false,
+    "clock": "hospital_view_monotonic_real_time",
+    "continuous_cost": "original_full_frame_targets_not_free_work",
+    "discontinuity": "invalidate_before_draw_and_read_current_original_pose",
+    "due_storage": "sparse_current_visible_continuous_bindings_only",
+    "evaluation_owner": "single_pose_sampler_no_parallel_automatic_animation_advance",
+    "far_hz": 15,
+    "independent_actors_share_phase_state": false,
+    "late_binding": "original_visual_identity_check_then_requery_current_pose",
+    "late_samples": "latest_current_pose_once_no_catch_up",
+    "low_motion": "current_authorized_static_pose_on_source_change",
+    "near_hz": 30,
+    "next_due": "next_original_phase_grid_point_strictly_after_now",
+    "paused_or_static": "no_repeated_sampling_until_pose_source_or_camera_input_changes",
+    "phase_bins": 1024,
+    "phase_hash": "sha256_utf8_length_prefixed_identity_first_u64_be_mod_bins",
+    "phase_key": [
+      "hospital_session",
+      "logical_entity_id"
+    ],
+    "pose_source": "original_stage_progress_and_reservation_envelope",
+    "rate_source": "spatial_view_lod_and_selected_visible_detail",
+    "reentry": "current_pose_without_ended_animation_replay",
+    "refresh_coalescing": "one_latest_original_pose_per_binding_per_render_frame",
+    "reuse": "exact_rig_pose_source_mode_and_registered_camera_inputs_only",
+    "reuse_key": [
+      "hospital_session",
+      "logical_entity_id",
+      "rig_resource",
+      "pose_source_key",
+      "pose_mode",
+      "camera_pose_key"
+    ],
+    "root_transform": "per_frame_original_legal_movement_interpolation",
+    "runtime_measurement_available": false,
+    "scope": "current_visible_actor_rig_bindings_and_explicit_previews",
+    "shared_rate": "highest_current_compatible_view_requirement",
+    "snapshot_state": false
+  },
+  "preview_computation": {
+    "atomic_overrun": "record_actual_frame_cost_not_hidden_or_free_operation",
+    "business_queue_used": false,
+    "changes_simulation": false,
+    "coalescing": "latest_semantic_request_in_original_preview_session",
+    "confirmation": "original_explicit_action_then_current_atomic_recheck_no_queued_auto_confirm",
+    "creates_actor_or_reservation": false,
+    "cross_slice_consistency": "same_complete_relevant_facts_or_restart_original_query",
+    "current_jobs": 1,
+    "dependencies": "complete_original_relevant_semantic_facts_not_global_revision",
+    "draw_scope": "current_view_floor_equals_original_draft_target_floor",
+    "empty_region_watch": "new_actual_body_geometry_or_reservation_entering_original_query_scope",
+    "execution": "main_thread_no_worker_reads_of_live_world_or_shared_mutable_graph",
+    "feedback": "current_original_outline_and_explicit_not_ready_until_complete",
+    "memory_scope": "original_working_set_current_result_active_pending_and_retiring_preview_values",
+    "metrics": "original_latency_and_frame_targets_with_pending_superseded_and_overrun_records",
+    "old_ready_state": "revoke_on_semantic_request_or_relevant_fact_change",
+    "pending_requests": 1,
+    "publication": "whole_complete_matching_request_and_current_dependency_proof",
+    "readonly_context": "original_required_values_not_entire_world_deep_copy",
+    "request_key": [
+      "hospital_session",
+      "view_id",
+      "view_generation",
+      "view_floor_id",
+      "preview_session_id",
+      "draft_id",
+      "draft_generation",
+      "source_floor_ids",
+      "target_floor_id",
+      "content_fingerprint",
+      "query_kind",
+      "subject_identity",
+      "traversal_envelope",
+      "query_options"
+    ],
+    "runtime_measurement_available": false,
+    "scope": "original_active_build_move_blueprint_and_tryout_preview",
+    "semantic_generation": "draft_geometry_binding_subject_and_options_changes_not_pointer_pixels_or_world_tick",
+    "snapshot_state": false,
+    "superseded_job": "stop_at_next_safe_slice_and_release_original_references",
+    "unknown_dependencies": "original_complete_main_thread_query_no_ready_claim_from_partial_data",
+    "view_change": "rebind_current_projection_reusing_valid_original_semantic_result",
+    "whole_reachability": "original_full_required_query_domain_not_local_only_permission",
+    "work_budget": "spatial_view.view_build_budget_ms_per_frame"
+  },
+  "quiet_calling": {
+    "audio_announcement": false,
+    "missed_call_penalty": false,
+    "preserve_ticket": true,
+    "requires_confirmation": false,
+    "requires_screen": false,
+    "reroute": "invalid_reservation_only",
+    "source": "active_queue_and_reservation"
+  },
+  "ratings": {
+    "broken_promise_penalty": 10,
+    "care_base": 80,
+    "care_help_bonus": 5,
+    "care_unhandled_penalty": 10,
+    "case_window_limit": 100,
+    "clinical_prior_success": 8,
+    "clinical_prior_total": 10,
+    "flow_seconds_per_point": 6,
+    "job_prior_success": 5,
+    "job_prior_total": 5,
+    "minimum_samples": 5,
+    "outcome_scores": {
+      "cured": 100,
+      "failed_after_attempts": 40,
+      "safe_referral": 65
+    },
+    "scale": 100,
+    "staff_energy_weight": 0.5,
+    "staff_job_limit": 50,
+    "staff_rest_coverage_weight": 0.5,
+    "weights": {
+      "care_department": {
+        "clinical": 25,
+        "environment": 20,
+        "flow": 20,
+        "patient": 35
+      },
+      "doctor": {
+        "duty": 15,
+        "handoff": 20,
+        "personal_feedback": 25,
+        "quality": 40
+      },
+      "hospital": {
+        "clinical": 20,
+        "environment": 15,
+        "flow": 15,
+        "patient": 40,
+        "staff_experience": 10
+      },
+      "patient": {
+        "care": 20,
+        "environment": 20,
+        "flow": 30,
+        "outcome": 30
+      },
+      "staff": {
+        "duty": 15,
+        "handoff": 20,
+        "personal_feedback": 30,
+        "quality": 35
+      }
+    },
+    "window_days": 3,
+    "wrong_department_penalty": 8
+  },
+  "reception_seconds": 6,
+  "recruitment": {
+    "daily_referral_probability": 0.25,
+    "initial_doctor_fatigue": 10,
+    "initial_energy": 100,
+    "initial_stress": 10,
+    "max_active_searches": 1,
+    "max_bookmarked": 4,
+    "max_daily_notices": 1,
+    "max_daily_referrals": 1,
+    "max_passive": 14,
+    "max_targeted_results": 6,
+    "passive_days_retained": 2,
+    "passive_per_day": 7,
+    "preference_weight_multiplier": 2,
+    "result_days_retained": 2,
+    "rng_stream": "recruitment",
+    "search_fee": 100,
+    "search_result_count": 3,
+    "search_seconds": 120,
+    "secondary_ability_probability": 0.3,
+    "standard_fee": 0,
+    "targeted_reserve_on_start": true,
+    "total_candidate_cap": 24,
+    "wage_start": "hire_tick"
+  },
+  "recruitment_aid": {
+    "minimum_count": 1,
+    "pay_hire_shortfall_directly": true,
+    "role": "mechanic"
+  },
+  "refund_unused": 1,
+  "refund_used": 0.8,
+  "remodel": {
+    "application": "manual",
+    "charge_timing": "apply",
+    "max_pending_per_entity": 1,
+    "move_fee": 0,
+    "target_reservation": "none"
+  },
+  "renovation": {
+    "installed_refund": 0.8,
+    "max_units_per_order": 64,
+    "max_workers_per_order": 2,
+    "tool_equipment_id": "SE02",
+    "unused_refund": 1,
+    "work_seconds_per_unit": 8
+  },
+  "research_mail_seconds": 120,
+  "research_workspace": {
+    "jobs_per_research": 1,
+    "mail_requests_per_research": 1,
+    "mode_switch": "cancel_then_restart",
+    "same_tick_source": "diagnosis",
+    "start_mode": "explicit"
+  },
+  "resident_retention": {
+    "history_blocks_release": false,
+    "present_actor_must_exit": true,
+    "protected_references": [
+      "present_actor",
+      "active_visit_or_stay",
+      "unfinished_activity",
+      "story_identity_binding",
+      "active_interaction_or_care"
+    ],
+    "relationship_edge_blocks_release": false,
+    "staff_uses_regular_capacity": false,
+    "unfollow_stops_return_immediately": true
+  },
+  "resident_returns": {
+    "activity_admission": "voluntary_with_reason",
+    "identity_after_case": true,
+    "minimum_absence_days": 2,
+    "ordinary_visitor_purposes": [
+      "companion",
+      "ward_visit"
+    ],
+    "probability": 0.2,
+    "selection": "oldest_departure_then_id",
+    "tutorial_extras": false
+  },
+  "resume_note": {
+    "advances_offline_time": false,
+    "card_limit_source": "comedy.max_suggestions",
+    "performs_commands": false,
+    "persists_checklist": false,
+    "priority": [
+      "care_blocker",
+      "existing_reason_card",
+      "tracked_goal",
+      "oldest_active_project"
+    ],
+    "source": "loaded_hospital_current_facts"
+  },
+  "room_fitout_cost_cell": 20,
+  "save": {
+    "autosave_real_seconds": 180,
+    "autosave_slots": 5,
+    "backup_format": {
+      "database_manifest_fields": [
+        "database_bytes",
+        "database_sha256"
+      ],
+      "entries": [
+        "manifest.json",
+        "hospital.sqlite3",
+        "thumbnail.png"
+      ],
+      "export_compression": "store_if_ratio_exceeds_guard",
+      "json_max_depth": 64,
+      "json_max_string_bytes": 65536,
+      "manifest_max_bytes": 65536,
+      "max_entries": 3,
+      "max_expansion_ratio": 200,
+      "optional_entry": "thumbnail.png",
+      "read_mode": "stream_to_private_staging",
+      "thumbnail_max_bytes": 262144
+    },
+    "browser": {
+      "cache": "rebuildable_hospital_snapshot_sequence",
+      "list_reads": "sqlite_sealed_manifest_index",
+      "summary_fields": [
+        "display_name",
+        "mode",
+        "present_actor_count"
+      ],
+      "summary_source": "same_frozen_world_dto",
+      "thumbnail_max_dimensions": [
+        640,
+        360
+      ],
+      "thumbnail_optional": true,
+      "world_reads": "selected_snapshot_full_validation"
+    },
+    "cancel_exit_keeps_paused": true,
+    "checkpoint_slots": 3,
+    "draft_policy": "confirm_discard_only_after_successful_leave",
+    "exit_checkpoint": "current_operation_frozen_revision",
+    "hospital_switch": {
+      "candidate_simulation": "inactive_no_ticks_commands_or_random_draws",
+      "failure_or_cancel": "discard_candidate_keep_source_paused",
+      "operation_guard": "original_current_leave_operation_and_source_session",
+      "publication": "same_main_thread_boundary_world_session_input_and_view",
+      "resource_accounting": "all_live_source_candidate_save_and_display_allocations",
+      "scope": "switch_to_another_hospital",
+      "source_release": "after_successful_swap_and_actual_unbinding",
+      "source_retention": "paused_world_and_draft_until_target_activation",
+      "target_ready": "full_world_validation_required_indexes_occupancy_and_initial_view"
+    },
+    "manual_slots": 20,
+    "receipt_scope": "hospital_session_request_revision",
+    "resource_budget": {
+      "disk_headroom_bytes": 67108864,
+      "enforcement": "before_and_during",
+      "free_memory_fraction": 0.5,
+      "memory_headroom_bytes": 67108864,
+      "on_shortage": "keep_current_and_previous_commits",
+      "staging_disk_world_factor": 3,
+      "world_memory_factor": 4
+    },
+    "schema_version": 1,
+    "size_policy": "available_resources_no_fixed_world_size_cap",
+    "sqlite": {
+      "application_id": 1330071635,
+      "cleanup": "separate_transaction_after_success_no_daily_vacuum",
+      "commit": "validate_seal_commit_reopen",
+      "database_schema_version": 1,
+      "file": "hospital.sqlite3",
+      "foreign_keys": true,
+      "journal_mode": "DELETE",
+      "legacy_import": "validated_complete_json_commits_transactional_source_preserved",
+      "page_cache_kib": 4096,
+      "scope": "independent_database_per_hospital",
+      "simulation_reads": "in_memory_world_only",
+      "synchronous": "EXTRA",
+      "version": "3.54.0",
+      "world_chunk_bytes": 32768,
+      "world_schema_version": 1,
+      "write_mode": "single_background_transaction"
+    },
+    "trash_days": 30,
+    "user_directory_guard": {
+      "acquire_before": "profile_load_cleanup_and_writes",
+      "authority": "live_handle_not_marker_or_pid",
+      "busy": "startup_manual_retry_or_exit",
+      "engine_cache": "separate_rebuildable_data_not_ownership",
+      "lifetime": "app_root_until_all_profile_io_stopped",
+      "logging": "engine_file_logging_disabled_product_logs_after_acquire",
+      "path": "user://.session.guard",
+      "primitive": "windows_exclusive_noninheritable_file_handle",
+      "scope": "persistent_profile_in_actual_user_directory",
+      "snapshot_state": false,
+      "uninstall": "same_guard_delete_content_keep_empty_guard_and_root"
+    }
+  },
+  "schedule": {
+    "compensatory_rest_target_energy": 90,
+    "max_consecutive_work_shifts": 2,
+    "minimum_rest_shifts": 1,
+    "shift_seconds": 600,
+    "shifts_per_day": 3
+  },
+  "schema_version": 100,
+  "seat_choice": {
+    "automatic_travel_seconds_max": 30,
+    "call_interrupt_source": "patient_behavior.interrupt_seconds",
+    "calm_minimum_anger": 35,
+    "candidate_count_cap": null,
+    "choice_changes_anger": false,
+    "choice_changes_relationship": false,
+    "criteria": {
+      "calm_available": "actual_calm_chair_and_unused_visit_claim",
+      "casual_scene_nearby": "actual_calm_public_casual_session_in_neighbor_query",
+      "clean_ground": "actual_seat_ground_dirt_query",
+      "decor_nearby": "placed_accessible_decoration_in_environment_range",
+      "friendly_neighbor": "present_idle_friend_in_public_neighbor_query",
+      "less_crowded": "patient_behavior_crowd_query",
+      "noise_reduction": "actual_noise_chair_and_positive_noise_anger_component",
+      "quiet": "actual_noise_query"
+    },
+    "entry_scene_adds_actor": false,
+    "entry_scene_creates_session": false,
+    "entry_scene_extra_seconds": 0,
+    "entry_scene_gate": "any_listed_actual_context_or_empty",
+    "environment_tolerance": 10,
+    "existing_legal_seat": "keep_until_original_reselection_trigger",
+    "manual_selection": "physical_legality_and_clinical_priority_only",
+    "nearby_detour_seconds": 12,
+    "runtime_measurement_available": false,
+    "scope": "clinical_waiting_patient",
+    "score_scale": 100,
+    "selection_order": [
+      "physical_legality",
+      "travel_window",
+      "nearby_band",
+      "preference",
+      "environment_band",
+      "personality_score",
+      "environment",
+      "travel",
+      "seat_id"
+    ],
+    "tie_randomness": false,
+    "travel_cost_unit_seconds": 10,
+    "walking_counts_as_clinical_waiting": true
+  },
+  "second_attempt_bonus": 0.15,
+  "skin_pose_instancing": {
+    "adapter_normal_tangent_error_degrees_max": 1,
+    "adapter_position_error_m_max": 0.005,
+    "additional_pose_evaluation": false,
+    "bounds_and_picking": "original_logical_actual_envelope_not_rest_mesh_aabb",
+    "capability_validation_available": false,
+    "changes_simulation": false,
+    "eligibility": "verified_rigid_bone_transforms_four_weights_no_morph_or_alpha_blend",
+    "enable": "after_reference_backend_and_adapter_validation_only",
+    "group_key": "visual_batching_resource_key_plus_skin_adapter_shader_and_palette_page",
+    "late_rows": "reject_mismatched_binding_then_current_pose_or_original_pipeline",
+    "main_shadow_pose": "same_current_palette_and_original_lighting_rules",
+    "member_source": "original_current_visible_unique_parts_no_entity_cap",
+    "memory_scope": "original_cpu_gpu_working_set_current_staging_and_pending_release_pages",
+    "palette": {
+      "bone_limit": 40,
+      "bytes_per_channel": 4,
+      "channels_per_texel": 4,
+      "format": "RGBAF32_linear_data_nearest_no_mip_no_color_conversion",
+      "height": "smallest_power_of_two_for_current_page_members",
+      "instance_row_channel": "INSTANCE_CUSTOM_x_local_exact_row_only",
+      "max_rows_per_page": 64,
+      "texels_per_bone": 3,
+      "weights_per_vertex_limit": 4,
+      "width": "next_power_of_two_at_least_three_times_actual_bones"
+    },
+    "pose_source": "pose_sampling_original_model_local_skin_matrices",
+    "prepared_mesh": "original_rest_geometry_and_validated_bind_attributes_without_automatic_skinning",
+    "publication": "complete_staged_page_and_current_row_bindings_before_draw",
+    "row_key": [
+      "hospital_session",
+      "view_id",
+      "view_generation",
+      "floor_id",
+      "palette_page_key",
+      "page_generation",
+      "row_index",
+      "row_generation",
+      "logical_entity_id",
+      "part_role",
+      "skin_adapter_key",
+      "pose_source_key",
+      "pose_sample_generation",
+      "content_fingerprint"
+    ],
+    "runtime_measurement_available": false,
+    "scope": "verified_opaque_or_cutout_skinned_parts_in_current_view",
+    "shader_deformation": "once_in_model_space_then_original_world_transform_and_render_passes",
+    "snapshot_state": false,
+    "unknown_validation": "original_pipeline_no_equivalence_or_performance_claim",
+    "unverified": "original_current_per_entity_skinning",
+    "upload_accounting": "actual_full_allocated_page_transfers_not_dirty_row_estimate",
+    "validation_key": [
+      "engine_version",
+      "renderer",
+      "device_id",
+      "driver_version",
+      "content_fingerprint",
+      "skin_adapter_key",
+      "shader_fingerprint",
+      "palette_format",
+      "instance_parameter_layout"
+    ],
+    "validation_source": "engine_and_asset_validation_evidence_not_content_flag",
+    "work_budget": "original_frame_cost_and_shared_spatial_view_build_budget"
+  },
+  "spatial_view": {
+    "budget_includes": "instances_bindings_geometry_upload_and_retire",
+    "changes_simulation": false,
+    "chunk_cells": [
+      16,
+      16
+    ],
+    "detail_enter_px": 24,
+    "detail_leave_px": 20,
+    "dynamic_pose_source": "current_world_state_no_static_rebuild",
+    "entity_instance_key": "logical_entity_id_per_view",
+    "interaction_source": "logical_spatial_index_and_real_bounds",
+    "late_result": "discard_unmatched_bindings",
+    "lod_pixels": "camera_view.native_projected_cell_metric",
+    "membership": "actual_display_envelope_overlap",
+    "prefetch_instantiates": false,
+    "prefetch_priority": "after_visible_and_selected",
+    "prefetch_ring_chunks": 1,
+    "request_key": [
+      "hospital_session",
+      "view_id",
+      "view_generation",
+      "floor_id",
+      "chunk",
+      "local_visual_revision",
+      "content_fingerprint",
+      "lod"
+    ],
+    "retire_old_floor": "detach_before_attach_new",
+    "scope": "current_floor_frustum_and_explicit_preview",
+    "selected_visible_detail": true,
+    "single_chunk_work": "incremental_objects_not_atomic_whole_chunk",
+    "snapshot_state": false,
+    "static_revision_source": "relevant_geometry_or_material_commit",
+    "view_build_budget_ms_per_frame": 2,
+    "view_chunk_starts_per_frame": 2
+  },
+  "speed_options": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "staff": [
+    {
+      "hire": 120,
+      "name": "@zh:core.rules.staff.0.name",
+      "role": "receptionist",
+      "wage_day": 60
+    },
+    {
+      "name": "@zh:core.rules.staff.1.name",
+      "pay_source": "doctor_pay",
+      "role": "doctor"
+    },
+    {
+      "hire": 200,
+      "name": "@zh:core.rules.staff.2.name",
+      "role": "nurse",
+      "wage_day": 100
+    },
+    {
+      "hire": 140,
+      "name": "@zh:core.rules.staff.3.name",
+      "role": "cleaner",
+      "wage_day": 70
+    },
+    {
+      "hire": 180,
+      "name": "@zh:core.rules.staff.4.name",
+      "role": "mechanic",
+      "wage_day": 90
+    },
+    {
+      "hire": 240,
+      "name": "@zh:core.rules.staff.5.name",
+      "role": "researcher",
+      "wage_day": 120
+    },
+    {
+      "hire": 160,
+      "name": "@zh:core.rules.staff.6.name",
+      "role": "decorator",
+      "wage_day": 80
+    }
+  ],
+  "staff_growth": {
+    "goals_per_clinical_staff": 1,
+    "interrupt_seconds": 1,
+    "mentor_progress": "joint_work_only",
+    "moment_scope": "once_per_staff_definition",
+    "moment_seconds": 4
+  },
+  "staff_practice": {
+    "advanced_research_id": "R11",
+    "first_job_scope": "once_per_staff",
+    "handoff_credit": "largest_contributor_then_id",
+    "max_level": 5,
+    "research_active_seconds": 120,
+    "speed_per_extra_level": 0.05,
+    "units_per_level": 20
+  },
+  "staff_relaxation": {
+    "energy_and_debt_rest_first": true,
+    "idle_return": "original_schedule_without_new_rest_target",
+    "idle_source": "original_dispatcher_no_assignable_work_or_commitment",
+    "no_slot": "ordinary_rest_or_current_schedule",
+    "pressure_alone_stops_work": false,
+    "priority_stress": 90,
+    "quota_source": "wellbeing",
+    "window": "existing_rest_or_non_doctor_unassigned_idle"
+  },
+  "staff_rest_location": {
+    "fallback": "legal_staff_tea_space_or_actual_exit",
+    "occupied_seat_queue": false,
+    "recovery_while_travelling": false,
+    "seat_candidates": "free_staff_area_compatible_reachable",
+    "selection": "earliest_recovery_including_travel",
+    "switch_after_rest_started": false
+  },
+  "staff_sleep": {
+    "access_area": "real_body_adjacent_to_adapted_bed",
+    "applies_to": "all_staff_roles",
+    "awake_limit_seconds": 1350,
+    "awake_while_qualified_offsite_rest": "zero_until_return_journey",
+    "bed_definition_id": "SE04",
+    "daily_counter": false,
+    "doctor_fatigue_per_second": 0.08,
+    "early_missing_bed": "continue_current_schedule",
+    "early_requires_free_bed": true,
+    "early_sleep_after_seconds": 900,
+    "energy_per_second": 1.25,
+    "interrupt_policy": "safe_wake_keep_remaining",
+    "leave_sleep_credit": "continuous_offsite_rest_for_sleep_seconds",
+    "mandatory_wait_only": true,
+    "manual_wakeup": "safe_relocation_only",
+    "missing_bed_fallback": "actual_exit_paid_rest",
+    "missing_bed_wait_seconds": 45,
+    "player_meter": false,
+    "room_type": "rest",
+    "sharing": "automatic_no_personal_assignment",
+    "sleep_seconds": 450,
+    "stress_per_second": 0.05
+  },
+  "staff_species": {
+    "body_source": "SpeciesDef",
+    "eligibility": "all_loaded_species_all_staff_roles",
+    "operator_max_clearance": 3,
+    "operator_max_height_m": 6.5,
+    "passive_weights": "equal",
+    "standard_species_id": "S49",
+    "talent_changes_wage": false,
+    "talent_grants_qualification": false,
+    "talent_mood_cap_per_visit": 5,
+    "talent_mood_scope": "all_staff_combined",
+    "talent_stacking": "strongest_per_attribute",
+    "targeted_species_filter": "exact_optional"
+  },
+  "staff_work_bases": {
+    "assignment": "nearest_compatible_shared_base",
+    "doctor_equipment_id": "SE05",
+    "emergency_care_preempts": true,
+    "individual_office_assignment": false,
+    "maintenance": false,
+    "nurse_equipment_id": "SE06",
+    "operator_area": "separate_real_body_area",
+    "preparation_frequency": "continuous_work_block",
+    "preparation_seconds": 6,
+    "records_source": "existing_clinical_facts",
+    "ward_handoff": "separate_real_bedside_transfer",
+    "ward_nurse_base": "same_floor_reachable"
+  },
+  "staggered_rest": {
+    "assignment_scope": "existing_roster_and_permissions",
+    "delay_mandatory_rest": false,
+    "early_energy_ceiling": 45,
+    "eligibility": "actual_qualified_coverage",
+    "enabled": true,
+    "recall_early_rest": false,
+    "return_target": "existing_rest_energy_target",
+    "voluntary_per_pool": 1
+  },
+  "starter_purchase": [
+    {
+      "amount": 640,
+      "item": "GP room interior 4x4"
+    },
+    {
+      "amount": 1440,
+      "item": "Physical room interior 6x6"
+    },
+    {
+      "amount": 1000,
+      "item": "Daily care room interior 5x5"
+    },
+    {
+      "amount": 640,
+      "item": "Rest room interior 4x4"
+    },
+    {
+      "amount": 480,
+      "item": "Toilet interior 3x4"
+    },
+    {
+      "amount": 480,
+      "item": "Doors 4 regular and 2 tall-wide"
+    },
+    {
+      "amount": 1400,
+      "item": "M09"
+    },
+    {
+      "amount": 1400,
+      "item": "M37"
+    },
+    {
+      "amount": 800,
+      "item": "GP station"
+    },
+    {
+      "amount": 500,
+      "item": "Reception"
+    },
+    {
+      "amount": 300,
+      "item": "Rest sofa"
+    },
+    {
+      "amount": 300,
+      "item": "Toilet fixture"
+    },
+    {
+      "amount": 300,
+      "item": "Six bench seats"
+    },
+    {
+      "amount": 400,
+      "item": "Warm-air trolley"
+    },
+    {
+      "amount": 200,
+      "item": "Bin and water dispenser"
+    },
+    {
+      "amount": 400,
+      "item": "Paths 40 cells"
+    },
+    {
+      "amount": 640,
+      "item": "Doctor office interior 4x4"
+    },
+    {
+      "amount": 800,
+      "item": "Two staff sleep beds SE04"
+    },
+    {
+      "amount": 300,
+      "item": "Doctor desk SE05"
+    },
+    {
+      "amount": 300,
+      "item": "Nurse workbench SE06"
+    }
+  ],
+  "starting_cash": 26000,
+  "starting_staff": {
+    "cleaner": 1,
+    "decorator": 0,
+    "doctor": 3,
+    "mechanic": 1,
+    "nurse": 1,
+    "receptionist": 1,
+    "researcher": 0
+  },
+  "style_preview": {
+    "automatic_future_rooms": false,
+    "exclude_matching_material": true,
+    "order_source": "renovation",
+    "pay_new_materials_before_old_refund": true,
+    "scope": "explicit_selected_surfaces_on_current_floor",
+    "set_bonus": 0
+  },
+  "subsidy": {
+    "base_amount": 1200,
+    "cap": 2400,
+    "first_payment_day": 3,
+    "interval_days": 3,
+    "per_extra_plot": 200
+  },
+  "supplies": {
+    "aid_orders_per_day": 1,
+    "aid_purchase_units": 20,
+    "auto_check_order": "after_player_commands_once_per_boundary",
+    "auto_evaluation": {
+      "budget_read": "normal_below_actual_reorder_with_free_capacity",
+      "capacity_read": "after_no_order_proofs",
+      "commit": "original_current_facts_and_atomic_order",
+      "extra_saved_state": false,
+      "inputs": "current_original_facts_after_player_commands",
+      "no_order_proofs": [
+        "automatic_disabled",
+        "available_at_or_above_unclamped_reorder",
+        "normal_cash_below_reserve_floor_plus_unit_price"
+      ],
+      "proof_result": "no_order_only_not_shortage_primary_reason",
+      "runtime_measurement_available": false
+    },
+    "auto_order_sizing": "target_capacity_and_affordable_units",
+    "auto_restock_default": true,
+    "capacity_floor": 200,
+    "cash_reserve_floor": 1000,
+    "consume_at": "attempt_start",
+    "definition_id": "SUP01",
+    "delivery": "immediate_after_paid_order",
+    "expiry": false,
+    "funding": {
+      "aid_counter": "community_aid_orders_only",
+      "community_aid": "original_separate_20_unit_order",
+      "creative_auto": "target_and_capacity_hospital_cash_then_creative_fund",
+      "creative_manual": "hospital_cash_then_creative_fund_shortfall",
+      "credits_fund_to_cash": false,
+      "direct_payment_source": "committed_order_source",
+      "normal_auto": "cash_above_original_reserve",
+      "normal_manual": "hospital_cash_full_cost",
+      "receipt": "cost_equals_hospital_paid_plus_direct_paid",
+      "unpaid_inventory": false
+    },
+    "growth": {
+      "capacity_source": "installed_medical_subjects",
+      "cash_reserve_source": "max_floor_and_next_settlement_wages_operations",
+      "demand_denominator": 4,
+      "demand_source": "last_completed_day_actual_consumption",
+      "outpatient_buffer_units": 20,
+      "over_capacity": "keep_existing_no_new_purchase",
+      "reorder_demand_numerator": 1,
+      "rules_derive_only": true,
+      "surgery_buffer_units": 80,
+      "target_demand_numerator": 3
+    },
+    "initial_purchase_units": 60,
+    "quick_purchase_units": 20,
+    "reorder_floor": 20,
+    "reservation": "clinical_preparation",
+    "reservation_seconds": 30,
+    "restock_floor": 60,
+    "restock_stress_relief": 6,
+    "return_to_work_seconds": 30,
+    "shortage_notice_scope": "hospital",
+    "shortage_repeat_seconds": 60,
+    "shortage_stress_per_warning": 6,
+    "shortage_warning_seconds": 60,
+    "storage_building": false,
+    "strike_after_seconds": 180,
+    "strike_safety": "finish_committed_care",
+    "strike_stress_threshold": 50,
+    "top_up": {
+      "auto_requests_community_aid": false,
+      "bypasses_clinical_order": false,
+      "changes_plan": false,
+      "confirmation": "existing_manual_purchase_exact_quantity",
+      "grants_preparation_reservation": false,
+      "manual_uses_auto_cash_reserve": false,
+      "quantity_source": "target_requirement_minus_current_available",
+      "recovery_requirement_source": "existing_episode_close_per_request_max",
+      "recovery_scope": "active_episode_with_striking_participant",
+      "saves_quote": false,
+      "scene_selection": "replace_same_order_purchase_scene",
+      "scope": "current_hospital_supply_shortage_card",
+      "stock_scope": "hospital_shared",
+      "target_change": "refresh_explanation_keep_submitted_quantity",
+      "target_source": "first_ready_case_else_active_strike_recovery",
+      "zero_quantity": "no_purchase_suggestion"
+    },
+    "warnings_per_episode": 3
+  },
+  "task_board_flow": {
+    "fill_mid_period": false,
+    "first_offer_day": 1,
+    "offer_selection": "least_recent_then_id",
+    "paused_counts": false,
+    "paused_uses_commission_slot": true,
+    "pending_reward_uses_slot": false,
+    "resume_backfill": false
+  },
+  "tasks": {
+    "board_refresh_days": 2,
+    "commission_slots": 3,
+    "offer_count": 3,
+    "story_slots": 3,
+    "template_cooldown_days": 3
+  },
+  "tests": {
+    "resonance": {
+      "confidence": 25,
+      "seconds": 22
+    },
+    "spectrum": {
+      "confidence": 35,
+      "seconds": 18
+    }
+  },
+  "tick_seconds": 0.1,
+  "transit": {
+    "after_ticket_choice": "keep_until_goal_or_access_change",
+    "animation_controls_progress": false,
+    "boarding_time_scope": "once_per_group",
+    "cancel_empty_pickup": "release_group_finish_real_empty_segment",
+    "clinical_ticket_preserved": true,
+    "cue_creates_interaction": false,
+    "cue_extra_actor": false,
+    "cue_extra_seconds": 0,
+    "emergency_layer_time_source": "floors.emergency_travel_seconds_per_floor",
+    "future_arrivals_in_estimate": false,
+    "future_failures_in_estimate": false,
+    "initial_cabin_station_source": "floors.ground_floor_number",
+    "layer_time_source": "current_operation_mode",
+    "prefix_cache_key": "connection_operational_revision",
+    "prefix_count_cap": null,
+    "preview_creates_session": false,
+    "projection": "active_remaining_then_ready_fifo_prefix_and_empty_pickup",
+    "queue_admission": "whole_group_ready_at_legal_origin_landing",
+    "queue_order": "ticket_sequence_then_session_id",
+    "queued_reserves_cabin": false,
+    "quote_charges_cash": false,
+    "quote_saved_in_world": false,
+    "return_trip_reserved": false,
+    "runtime_measurement_available": false,
+    "ticket_scope": "one_current_vertical_leg",
+    "walking_overlap": "absolute_arrival_max_prefix_finish"
+  },
+  "transparency_view": {
+    "additional_world_work": false,
+    "bbox_is_measured_coverage": false,
+    "changes_simulation": false,
+    "continuous_diagnostic_maps": false,
+    "coverage_metric": "union_fragment_entry_pixels_over_actual_scene_pixels",
+    "coverage_target_bp": 2000,
+    "degrade_scope": "existing_optional_secondary_detail_only",
+    "diagnostic_capture": "separate_from_primary_timed_run_same_world_pose_camera_and_settings",
+    "hide_body_or_necessary_state": false,
+    "layer_load_limit": null,
+    "layer_load_metric": "fragment_entry_samples_over_actual_scene_sample_capacity",
+    "material_choices": "opaque_or_cutout_only_if_validated_equivalent_current_body_and_state",
+    "material_source": "actual_imported_pipeline_not_species_or_visual_name",
+    "measurement": "matching_actual_pipeline_capture_or_unavailable",
+    "pipeline_scope": "all_actual_transparent_blend_modes_particles_refraction_and_soft_shadows",
+    "quality_changes": "explicit_player_setting_not_automatic_blend_toggle",
+    "required_alpha": "original_current_depth_sorting_and_validated_material",
+    "runtime_measurement_available": false,
+    "sample_normalization": "actual_sample_count_for_each_view",
+    "scope": "current_scene_and_explicit_previews_separately_total_frame_cost",
+    "snapshot_state": false,
+    "unsupported": "retain_original_primary_and_report_cost",
+    "zero_alpha_work_counted": true
+  },
+  "treatment_presentation": {
+    "added_work_seconds": 0,
+    "beat_basis_points": [
+      1500,
+      4500,
+      2500,
+      1500
+    ],
+    "beat_phases": [
+      "preparation",
+      "process",
+      "climax",
+      "safe_closing"
+    ],
+    "device_gag_adds_time": false,
+    "device_gag_context_miss": "generic_function_pose",
+    "device_gag_context_source": "active_routine_specialty",
+    "device_gag_scope": "secondary_prop_inside_reserved_envelope",
+    "finished_cue_means": "source_work_completed_not_cured",
+    "gentle_counts_nurse_help": false,
+    "gentle_creates_affect_fact": false,
+    "gentle_requires_extra_staff": false,
+    "gentle_work_included": true,
+    "missing_secondary": "omit_keep_primary",
+    "outcome_reveal": "actual_settlement",
+    "phase_boundary_rule": "ceil_cumulative_work_ticks",
+    "pose_authority": "saved_logical_stage_and_reserved_envelope",
+    "progress_source": "committed_work",
+    "protocol_mode_scope": "outpatient_work_only",
+    "protocol_mode_source": "attempt_frozen_protocol",
+    "protocol_style_changes_success": false,
+    "recovery_source": "binding_on_actual_cure",
+    "replay_elapsed_beats": false,
+    "result_writes_from_animation": false,
+    "secondary_gag_view_limit": 3,
+    "secondary_offscreen_replay": false,
+    "secondary_standalone_audio": false,
+    "secondary_view_scope": "visible_secondary_medical_props_only",
+    "skill_cue_split_level": 3
+  },
+  "ui_input": {
+    "clear_held_keys_on_session_change": true,
+    "grid_fast_step_cells": 5,
+    "grid_step_cells": 1,
+    "held_key_repeats_purchase": false,
+    "ime_confirmation_passes_through": false,
+    "return_focus": "invoker_or_parent",
+    "text_focus_suppresses_scene_shortcuts": true
+  },
+  "ui_lists": {
+    "command_target": "captured_entity_id_revalidated",
+    "late_results": "discard_wrong_hospital_panel_or_query_generation",
+    "materialization": "visible_rows_with_bounded_overscan",
+    "overscan_viewports_each_side": 1,
+    "portrait_mode": "shared_static_thumbnail",
+    "reorder_during_input": false,
+    "updates": "coalesced_domain_changes",
+    "world_effects": false
+  },
+  "ui_text": {
+    "allocation_accounting": "unique_actual_allocation_not_font_file_bytes",
+    "atomic_work": "actual_frame_cost_no_assumed_slicing",
+    "binding_guard": "existing_hospital_panel_query_entity_generation",
+    "cache_policy": "engine_owned_no_parallel_global_text_or_glyph_cache",
+    "cache_release": "backend_supported_unreferenced_resources_only",
+    "changes_simulation": false,
+    "font_ownership": "shared_readonly_engine_font_resources",
+    "glyph_population": "on_demand_visible_text_no_world_or_unicode_prewarm",
+    "graphics_accounting": "actual_glyph_pages_buffers_loading_and_retained_old_sizes",
+    "input_priority": "immediate_input_ime_focus_and_command_feedback",
+    "layout_dependencies": [
+      "final_text",
+      "font_resource_and_fallback_fingerprint",
+      "effective_font_size_and_ui_scale",
+      "available_width_and_wrap_rules",
+      "language_direction_and_shaping_options"
+    ],
+    "memory_accounting": "font_faces_shaped_runs_layout_temporaries_and_actual_extra_allocations",
+    "missing_glyph": "preserve_text_bundled_fallback_or_visible_missing_glyph",
+    "refresh_source": "existing_coalesced_ui_projection",
+    "runtime_measurement_available": false,
+    "same_text_updates": "retain_nontext_properties_and_source_rebinding",
+    "scope": "existing_visible_controls_and_focused_panel",
+    "snapshot_state": false,
+    "ui_resolution_source": "performance_targets.display.ui_resolution",
+    "unchanged_text": "existing_control_equality_without_shadow_text_copy"
+  },
+  "upgrade_appearance": {
+    "active_motion_source": "current_service_work_and_actual_case",
+    "helpers_replace_staff": false,
+    "inactive_pose": "completed_hardware_safe_idle",
+    "low_motion_progress_source": "current_service_work",
+    "secondary_budget_source": "treatment_presentation",
+    "solid_motion_space": "validated_fit_envelope",
+    "tier_source": "placed_object_upgrade_level"
+  },
+  "visitor_courtesy": {
+    "body_source": "actual_visitor",
+    "extra_visit_seconds": 0,
+    "medical_space_priority": true,
+    "no_space_mood_penalty": 0,
+    "response_seconds_source": "hospital_situations.visitor_yield_seconds",
+    "teleport": false,
+    "vacancy_at": "body_and_extension_clear"
+  },
+  "visual_batching": {
+    "alpha_blend": "independent_current_sorting",
+    "attach_parameters": "requery_current_original_pose_after_binding_check",
+    "budget_source": "spatial_view.view_build_budget_ms_per_frame",
+    "changes_simulation": false,
+    "draw_cost_source": "actual_renderer_stats_not_batch_or_entity_count",
+    "eligibility": "opaque_or_cutout_rigid_parts_or_validated_unskinned_far_pose",
+    "group_key": [
+      "content_fingerprint",
+      "mesh_resource",
+      "material_layout",
+      "lod",
+      "render_state",
+      "prepared_pose_resource"
+    ],
+    "instance_parameters": "current_transform_color_and_allowed_values_only",
+    "late_result": "reject_wrong_binding_or_slot_generation",
+    "membership": "actual_visible_unique_parts",
+    "membership_refresh": "related_visibility_asset_and_pose_binding_change",
+    "memory_scope": "visible_idle_staging_upload_and_allocated_capacity",
+    "part_identity": "logical_entity_id_and_registered_part_role",
+    "position_updates": "original_current_pose_without_resource_rebuild",
+    "replay_missed_state": false,
+    "runtime_measurement_available": false,
+    "scope": "current_view_actual_visible_parts",
+    "selection_transition": "detach_old_drawing_before_attach_current_projection",
+    "shared_material_mutation": false,
+    "skinned_near": "original_per_entity_or_verified_skin_pose_instancing",
+    "slot_binding_key": [
+      "hospital_session",
+      "view_id",
+      "batch_key",
+      "batch_generation",
+      "slot_index",
+      "logical_entity_id",
+      "part_role",
+      "slot_generation"
+    ],
+    "snapshot_state": false,
+    "unsupported": "original_current_primary_projection",
+    "unused_capacity_accounted": true,
+    "visible_layout": "dense_current_prefix"
+  },
+  "visual_resources": {
+    "asset_key": "content_fingerprint_and_resource_id",
+    "attach_pose": "current_logical_stage",
+    "business_effects": false,
+    "idle_cache": "byte_accounted_lru_within_existing_budget",
+    "immutable_assets": "shared_by_reference",
+    "late_binding": "hospital_session_view_entity_visual_generation",
+    "micro_closeup_actor_source": "actual_bound_residents",
+    "micro_closeup_audio": "reuse_original_no_duplicate",
+    "micro_idle_display": "current_state_material_projection",
+    "micro_live_closeup_limit": 1,
+    "other_floors": "simulation_facts_only",
+    "scene_scope": "current_floor_visible_chunks_and_explicit_preview"
+  },
+  "wait_departure": {
+    "anger_threshold": 35,
+    "base_probability": 0.04,
+    "check_interval_seconds": 30,
+    "eligible_stages": [
+      "waiting_reception",
+      "waiting_gp",
+      "waiting_test",
+      "waiting_consultation",
+      "waiting_outpatient",
+      "waiting_surgery"
+    ],
+    "first_check_seconds": 120,
+    "no_progress_seconds": 600,
+    "outcome_rating": 50,
+    "per_extra_anger": 0.003,
+    "per_extra_wait_second": 0.0005,
+    "probability_max": 0.35,
+    "probability_min": 0.01,
+    "rng_stream": "patience"
+  },
+  "ward_care": {
+    "companion_probability": 0.25,
+    "coverage": "physically_in_assigned_ward",
+    "handoff_scope": "one_room_coverage_set",
+    "repeat_intent_roll": false,
+    "scene_completion_source": "actual_stage_completion",
+    "scene_progress_source": "actual_stage_work",
+    "scene_selection": "personality_then_default",
+    "visit_changes_recovery": false,
+    "visit_requires_consent": true,
+    "visitor_budget_per_visit": 1,
+    "visitor_request_scan_seconds": 5,
+    "ward_visit_probability": 0.5,
+    "window_state_owner": "Visit"
+  },
+  "ward_neighbor_presentation": {
+    "gameplay_effects": false,
+    "head_anchor_distance_cells": 3,
+    "max_seconds": 2,
+    "replay_offscreen_or_loaded": false,
+    "selection": "friend_then_neighbor_curiosity_then_default",
+    "source": "actual_nurse_care_completed"
+  },
+  "wellbeing": {
+    "default_simultaneous_recreation": 2,
+    "doctor_initial_fatigue": 10,
+    "energy_rest_per_second": 1,
+    "energy_tea_per_second": 0.4,
+    "energy_walk_per_second": 0.03,
+    "energy_work_per_second": 0.08,
+    "fatigue_leave_per_second": 0.08,
+    "fatigue_leave_suggestion": 70,
+    "fatigue_recreation_per_second": 0.01,
+    "fatigue_rest_per_second": 0.004,
+    "fatigue_stop_new_work": 90,
+    "fatigue_warning": 50,
+    "fatigue_work_multiplier_per_point": 0.003,
+    "fatigue_work_per_second": 0.015,
+    "gratitude_stress_relief": 2,
+    "initial_stress": 10,
+    "leave_day_options": [
+      1,
+      2,
+      3
+    ],
+    "leave_start_options": [
+      "now",
+      "next_day"
+    ],
+    "long_rest_end_fatigue": 55,
+    "max_leave_days": 3,
+    "recreation_cooldown_seconds": 120,
+    "recreation_energy_per_second": 0.4,
+    "recreation_join_at": "session_start",
+    "recreation_max_energy_priority": 35,
+    "recreation_max_per_day": 3,
+    "recreation_min_stress": 25,
+    "recreation_minimum_zone_cells": null,
+    "recreation_seconds": 30,
+    "recreation_solo_allowed": true,
+    "stress_conflict": 6,
+    "stress_frozen": 15,
+    "stress_leave_per_second": 0.1,
+    "stress_overtime_per_second": 0.02,
+    "stress_recreation_per_second": 0.15,
+    "stress_rest_per_second": 0.015,
+    "stress_work_per_second": 0.01
+  },
+  "windup_seconds": 4,
+  "zone_cooldown_seconds": 45
+}

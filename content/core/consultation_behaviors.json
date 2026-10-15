@@ -1,0 +1,461 @@
+[
+  {
+    "allowed_response_ids": [
+      "listen",
+      "soothe",
+      "explain",
+      "nurse_assist"
+    ],
+    "context": "shy_description",
+    "doctor_stress_delta": 0,
+    "eligibility_rule": {
+      "any": [
+        {
+          "communication_state": "vague"
+        },
+        {
+          "social_personality_id": "PP04"
+        }
+      ]
+    },
+    "handler_id": "communication",
+    "id": "CB01",
+    "name": "@zh:core.consultation_behaviors.CB01.name",
+    "once_per_phase": true,
+    "phase": "gp",
+    "response": "@zh:core.consultation_behaviors.CB01.response",
+    "scene": "@zh:core.consultation_behaviors.CB01.scene",
+    "selection_kind": "sampled",
+    "work_delta_seconds": 4
+  },
+  {
+    "allowed_response_ids": [
+      "listen",
+      "checklist",
+      "boundary",
+      "nurse_assist"
+    ],
+    "context": "tangential_description",
+    "doctor_stress_delta": 0,
+    "eligibility_rule": {
+      "any": [
+        {
+          "communication_state": "tangential"
+        },
+        {
+          "social_personality_id": "PP08"
+        }
+      ]
+    },
+    "handler_id": "communication",
+    "id": "CB02",
+    "name": "@zh:core.consultation_behaviors.CB02.name",
+    "once_per_phase": true,
+    "phase": "gp",
+    "response": "@zh:core.consultation_behaviors.CB02.response",
+    "scene": "@zh:core.consultation_behaviors.CB02.scene",
+    "selection_kind": "sampled",
+    "work_delta_seconds": 6
+  },
+  {
+    "allowed_response_ids": [
+      "checklist",
+      "soothe",
+      "boundary"
+    ],
+    "context": "interrupting",
+    "doctor_stress_delta": 0,
+    "eligibility_rule": {
+      "all": [
+        {
+          "social_personality_id": "PP02"
+        },
+        {
+          "anger_gte": 35
+        }
+      ]
+    },
+    "handler_id": "communication",
+    "id": "CB03",
+    "name": "@zh:core.consultation_behaviors.CB03.name",
+    "once_per_phase": true,
+    "phase": "gp",
+    "response": "@zh:core.consultation_behaviors.CB03.response",
+    "scene": "@zh:core.consultation_behaviors.CB03.scene",
+    "selection_kind": "sampled",
+    "work_delta_seconds": 2
+  },
+  {
+    "allowed_response_ids": [
+      "listen",
+      "explain",
+      "nurse_assist"
+    ],
+    "context": "spatial_description",
+    "doctor_stress_delta": 0,
+    "eligibility_rule": {
+      "all": [
+        {
+          "social_personality_id": "PP03"
+        },
+        {
+          "communication_state": "vague"
+        }
+      ]
+    },
+    "handler_id": "communication",
+    "id": "CB04",
+    "name": "@zh:core.consultation_behaviors.CB04.name",
+    "once_per_phase": true,
+    "phase": "gp",
+    "response": "@zh:core.consultation_behaviors.CB04.response",
+    "scene": "@zh:core.consultation_behaviors.CB04.scene",
+    "selection_kind": "sampled",
+    "work_delta_seconds": 4
+  },
+  {
+    "allowed_response_ids": [
+      "listen",
+      "soothe",
+      "explain"
+    ],
+    "context": "embarrassed",
+    "doctor_stress_delta": 0,
+    "eligibility_rule": {
+      "all": [
+        {
+          "social_personality_id": "PP04"
+        },
+        {
+          "communication_state": "vague"
+        }
+      ]
+    },
+    "handler_id": "communication",
+    "id": "CB05",
+    "name": "@zh:core.consultation_behaviors.CB05.name",
+    "once_per_phase": true,
+    "phase": "gp",
+    "response": "@zh:core.consultation_behaviors.CB05.response",
+    "scene": "@zh:core.consultation_behaviors.CB05.scene",
+    "selection_kind": "sampled",
+    "work_delta_seconds": 4
+  },
+  {
+    "allowed_response_ids": [
+      "checklist",
+      "explain"
+    ],
+    "context": "prepared_notes",
+    "doctor_stress_delta": 0,
+    "eligibility_rule": {
+      "all": [
+        {
+          "social_personality_id": "PP07"
+        },
+        {
+          "communication_state": "clear"
+        }
+      ]
+    },
+    "handler_id": "communication",
+    "id": "CB06",
+    "name": "@zh:core.consultation_behaviors.CB06.name",
+    "once_per_phase": true,
+    "phase": "gp",
+    "response": "@zh:core.consultation_behaviors.CB06.response",
+    "scene": "@zh:core.consultation_behaviors.CB06.scene",
+    "selection_kind": "sampled",
+    "work_delta_seconds": -3
+  },
+  {
+    "allowed_response_ids": [
+      "listen",
+      "explain",
+      "boundary"
+    ],
+    "context": "rumor_question",
+    "doctor_stress_delta": 0,
+    "eligibility_rule": {
+      "all": [
+        {
+          "social_personality_id": "PP03"
+        },
+        {
+          "communication_state": "tangential"
+        }
+      ]
+    },
+    "handler_id": "communication",
+    "id": "CB07",
+    "name": "@zh:core.consultation_behaviors.CB07.name",
+    "once_per_phase": true,
+    "phase": "gp",
+    "response": "@zh:core.consultation_behaviors.CB07.response",
+    "scene": "@zh:core.consultation_behaviors.CB07.scene",
+    "selection_kind": "sampled",
+    "work_delta_seconds": 4
+  },
+  {
+    "allowed_response_ids": [
+      "listen",
+      "explain",
+      "checklist",
+      "boundary"
+    ],
+    "context": "figurative_description",
+    "doctor_stress_delta": 0,
+    "eligibility_rule": {
+      "all": [
+        {
+          "social_personality_id": "PP10"
+        },
+        {
+          "anger_lte": 64
+        }
+      ]
+    },
+    "handler_id": "communication",
+    "id": "CB08",
+    "name": "@zh:core.consultation_behaviors.CB08.name",
+    "once_per_phase": true,
+    "phase": "gp",
+    "response": "@zh:core.consultation_behaviors.CB08.response",
+    "scene": "@zh:core.consultation_behaviors.CB08.scene",
+    "selection_kind": "sampled",
+    "work_delta_seconds": 2
+  },
+  {
+    "allowed_response_ids": [
+      "listen",
+      "checklist"
+    ],
+    "context": "regular_greeting",
+    "doctor_stress_delta": -2,
+    "eligibility_rule": {
+      "all": [
+        {
+          "regular": true
+        },
+        {
+          "anger_lte": 34
+        }
+      ]
+    },
+    "handler_id": "communication",
+    "id": "CB09",
+    "name": "@zh:core.consultation_behaviors.CB09.name",
+    "once_per_phase": true,
+    "phase": "gp",
+    "response": "@zh:core.consultation_behaviors.CB09.response",
+    "scene": "@zh:core.consultation_behaviors.CB09.scene",
+    "selection_kind": "sampled",
+    "work_delta_seconds": 2
+  },
+  {
+    "allowed_response_ids": [
+      "soothe",
+      "explain",
+      "nurse_assist"
+    ],
+    "context": "machine_fear",
+    "doctor_stress_delta": 0,
+    "eligibility_rule": {
+      "all": [
+        {
+          "social_personality_id": "PP04"
+        },
+        {
+          "large_machine": true
+        }
+      ]
+    },
+    "handler_id": "communication",
+    "id": "CB10",
+    "name": "@zh:core.consultation_behaviors.CB10.name",
+    "once_per_phase": true,
+    "phase": "preparation",
+    "response": "@zh:core.consultation_behaviors.CB10.response",
+    "scene": "@zh:core.consultation_behaviors.CB10.scene",
+    "selection_kind": "sampled",
+    "work_delta_seconds": 6
+  },
+  {
+    "allowed_response_ids": [
+      "listen",
+      "explain",
+      "checklist"
+    ],
+    "context": "repeat_success_question",
+    "doctor_stress_delta": 0,
+    "eligibility_rule": {
+      "all": [
+        {
+          "anger_gte": 35
+        },
+        {
+          "anger_lte": 79
+        }
+      ]
+    },
+    "handler_id": "communication",
+    "id": "CB11",
+    "name": "@zh:core.consultation_behaviors.CB11.name",
+    "once_per_phase": true,
+    "phase": "consult",
+    "response": "@zh:core.consultation_behaviors.CB11.response",
+    "scene": "@zh:core.consultation_behaviors.CB11.scene",
+    "selection_kind": "sampled",
+    "work_delta_seconds": 4
+  },
+  {
+    "allowed_response_ids": [
+      "explain",
+      "boundary",
+      "nurse_assist"
+    ],
+    "context": "accessory_refusal",
+    "doctor_stress_delta": 0,
+    "eligibility_rule": {
+      "all": [
+        {
+          "accessory_obstructs": true
+        },
+        {
+          "social_personality_id": "PP06"
+        }
+      ]
+    },
+    "handler_id": "communication",
+    "id": "CB12",
+    "name": "@zh:core.consultation_behaviors.CB12.name",
+    "once_per_phase": true,
+    "phase": "preparation",
+    "response": "@zh:core.consultation_behaviors.CB12.response",
+    "scene": "@zh:core.consultation_behaviors.CB12.scene",
+    "selection_kind": "sampled",
+    "work_delta_seconds": 8
+  },
+  {
+    "allowed_response_ids": [
+      "checklist"
+    ],
+    "context": "cooperative",
+    "doctor_stress_delta": 0,
+    "eligibility_rule": {
+      "all": [
+        {
+          "anger_lte": 20
+        },
+        {
+          "communication_state": "clear"
+        }
+      ]
+    },
+    "handler_id": "communication",
+    "id": "CB13",
+    "name": "@zh:core.consultation_behaviors.CB13.name",
+    "once_per_phase": true,
+    "phase": "preparation",
+    "response": "@zh:core.consultation_behaviors.CB13.response",
+    "scene": "@zh:core.consultation_behaviors.CB13.scene",
+    "selection_kind": "sampled",
+    "work_delta_seconds": -4
+  },
+  {
+    "allowed_response_ids": [
+      "listen",
+      "explain"
+    ],
+    "context": "doctor_yawning",
+    "doctor_stress_delta": 0,
+    "eligibility_rule": {
+      "all": [
+        {
+          "doctor_fatigue_gte": 50
+        }
+      ]
+    },
+    "handler_id": "communication",
+    "id": "CB14",
+    "name": "@zh:core.consultation_behaviors.CB14.name",
+    "once_per_phase": true,
+    "phase": "gp",
+    "response": "@zh:core.consultation_behaviors.CB14.response",
+    "scene": "@zh:core.consultation_behaviors.CB14.scene",
+    "selection_kind": "sampled",
+    "work_delta_seconds": 2
+  },
+  {
+    "allowed_response_ids": [
+      "soothe",
+      "explain",
+      "boundary",
+      "nurse_assist"
+    ],
+    "context": "failed_treatment",
+    "doctor_stress_delta": 0,
+    "eligibility_rule": {
+      "all": [
+        {
+          "actual_treatment_failed": true
+        }
+      ]
+    },
+    "handler_id": "failure_feedback",
+    "id": "CB15",
+    "name": "@zh:core.consultation_behaviors.CB15.name",
+    "once_per_phase": true,
+    "phase": "failure",
+    "response": "@zh:core.consultation_behaviors.CB15.response",
+    "scene": "@zh:core.consultation_behaviors.CB15.scene",
+    "selection_kind": "delegated",
+    "work_delta_seconds": 4
+  },
+  {
+    "allowed_response_ids": [],
+    "context": "angry_wait",
+    "doctor_stress_delta": 0,
+    "eligibility_rule": {
+      "all": [
+        {
+          "anger_gte": 80
+        },
+        {
+          "doctor_wait_seconds_gte": 90
+        }
+      ]
+    },
+    "handler_id": "incident_request",
+    "id": "CB16",
+    "incident_id": "E25",
+    "name": "@zh:core.consultation_behaviors.CB16.name",
+    "once_per_phase": true,
+    "phase": "waiting",
+    "response": "@zh:core.consultation_behaviors.CB16.response",
+    "scene": "@zh:core.consultation_behaviors.CB16.scene",
+    "selection_kind": "delegated",
+    "work_delta_seconds": 0
+  },
+  {
+    "allowed_response_ids": [],
+    "context": "successful_discharge",
+    "doctor_stress_delta": 0,
+    "eligibility_rule": {
+      "all": [
+        {
+          "successful_discharge": true
+        }
+      ]
+    },
+    "handler_id": "gratitude_receipt",
+    "id": "CB18",
+    "name": "@zh:core.consultation_behaviors.CB18.name",
+    "once_per_phase": true,
+    "phase": "discharge",
+    "response": "@zh:core.consultation_behaviors.CB18.response",
+    "scene": "@zh:core.consultation_behaviors.CB18.scene",
+    "selection_kind": "delegated",
+    "work_delta_seconds": 0
+  }
+]

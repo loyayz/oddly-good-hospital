@@ -27,6 +27,8 @@ $chapters = @(
     @{ File='specs/26-10/2026-10-14-stage02-stage03-simulation-kernel.md'; Id='stage02-stage03-spec'; Title='第二、第三阶段实施规格' },
     @{ File='design/14-stage02-benchmark.md'; Id='stage02-benchmark'; Title='第二阶段基准工具' },
     @{ File='design/15-stage03-kernel-performance.md'; Id='stage03-performance'; Title='第三阶段内核实测' },
+    @{ File='specs/26-10/2026-10-15-stage04-stage24.md'; Id='stage04-stage24-spec'; Title='第04至24阶段实施规格' },
+    @{ File='reports/2026-10-15-stage04-stage24.md'; Id='stage04-stage24-delivery'; Title='第04至24阶段交付记录' },
     @{ Generated='atlas'; Id='atlas'; Title='完整内容索引' },
     @{ Generated='report'; Id='report'; Title='设计核验报告' }
 )

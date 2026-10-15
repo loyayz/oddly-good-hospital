@@ -1,0 +1,93 @@
+[
+  {
+    "id": "CC01",
+    "interaction_ids": [
+      "I27",
+      "I56"
+    ],
+    "layout_hint": "@zh:core.comedy_corner_guides.CC01.layout_hint",
+    "name": "@zh:core.comedy_corner_guides.CC01.name",
+    "object_refs": [
+      {
+        "collection": "furniture_equipment",
+        "definition_id": "FUR19"
+      },
+      {
+        "collection": "furniture_equipment",
+        "definition_id": "FUR23"
+      },
+      {
+        "collection": "furniture_equipment",
+        "definition_id": "FUR16"
+      }
+    ],
+    "ordinary_use": "@zh:core.comedy_corner_guides.CC01.ordinary_use"
+  },
+  {
+    "id": "CC02",
+    "interaction_ids": [
+      "I17",
+      "I36",
+      "I53",
+      "I64"
+    ],
+    "layout_hint": "@zh:core.comedy_corner_guides.CC02.layout_hint",
+    "name": "@zh:core.comedy_corner_guides.CC02.name",
+    "object_refs": [
+      {
+        "collection": "furniture_equipment",
+        "definition_id": "FUR45"
+      },
+      {
+        "collection": "furniture_equipment",
+        "definition_id": "FUR16"
+      }
+    ],
+    "ordinary_use": "@zh:core.comedy_corner_guides.CC02.ordinary_use"
+  },
+  {
+    "id": "CC03",
+    "interaction_ids": [
+      "I51"
+    ],
+    "layout_hint": "@zh:core.comedy_corner_guides.CC03.layout_hint",
+    "name": "@zh:core.comedy_corner_guides.CC03.name",
+    "object_refs": [
+      {
+        "collection": "furniture_equipment",
+        "definition_id": "FUR24"
+      },
+      {
+        "collection": "furniture_equipment",
+        "definition_id": "FUR11"
+      }
+    ],
+    "ordinary_use": "@zh:core.comedy_corner_guides.CC03.ordinary_use"
+  },
+  {
+    "id": "CC04",
+    "interaction_ids": [
+      "I50",
+      "I54",
+      "I62",
+      "I70"
+    ],
+    "layout_hint": "@zh:core.comedy_corner_guides.CC04.layout_hint",
+    "name": "@zh:core.comedy_corner_guides.CC04.name",
+    "object_refs": [
+      {
+        "collection": "furniture_equipment",
+        "definition_id": "FUR42"
+      },
+      {
+        "collection": "furniture_equipment",
+        "definition_id": "FUR44"
+      },
+      {
+        "collection": "accessibility_equipment",
+        "definition_id": "AE01"
+      }
+    ],
+    "ordinary_use": "@zh:core.comedy_corner_guides.CC04.ordinary_use"
+  }
+]

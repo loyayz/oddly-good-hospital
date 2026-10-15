@@ -1,0 +1,26 @@
+[
+  {
+    "id": "SR01",
+    "low_motion_scene": "@zh:core.supply_reactions.SR01.low_motion_scene",
+    "scene": "@zh:core.supply_reactions.SR01.scene",
+    "stage": "waiting"
+  },
+  {
+    "id": "SR02",
+    "low_motion_scene": "@zh:core.supply_reactions.SR02.low_motion_scene",
+    "scene": "@zh:core.supply_reactions.SR02.scene",
+    "stage": "warning"
+  },
+  {
+    "id": "SR03",
+    "low_motion_scene": "@zh:core.supply_reactions.SR03.low_motion_scene",
+    "scene": "@zh:core.supply_reactions.SR03.scene",
+    "stage": "strike"
+  },
+  {
+    "id": "SR04",
+    "low_motion_scene": "@zh:core.supply_reactions.SR04.low_motion_scene",
+    "scene": "@zh:core.supply_reactions.SR04.scene",
+    "stage": "returning"
+  }
+]

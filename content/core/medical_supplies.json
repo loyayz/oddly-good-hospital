@@ -1,0 +1,42 @@
+[
+  {
+    "description": "@zh:core.medical_supplies.SUP01.description",
+    "id": "SUP01",
+    "name": "@zh:core.medical_supplies.SUP01.name",
+    "opening_scenes": [
+      {
+        "definition_id": "M09",
+        "low_motion_scene": "@zh:core.medical_supplies.SUP01.opening_scenes.M09.low_motion_scene",
+        "scene": "@zh:core.medical_supplies.SUP01.opening_scenes.M09.scene"
+      },
+      {
+        "definition_id": "M37",
+        "low_motion_scene": "@zh:core.medical_supplies.SUP01.opening_scenes.M37.low_motion_scene",
+        "scene": "@zh:core.medical_supplies.SUP01.opening_scenes.M37.scene"
+      },
+      {
+        "definition_id": "M17",
+        "low_motion_scene": "@zh:core.medical_supplies.SUP01.opening_scenes.M17.low_motion_scene",
+        "scene": "@zh:core.medical_supplies.SUP01.opening_scenes.M17.scene"
+      },
+      {
+        "definition_id": "EQ01",
+        "low_motion_scene": "@zh:core.medical_supplies.SUP01.opening_scenes.EQ01.low_motion_scene",
+        "scene": "@zh:core.medical_supplies.SUP01.opening_scenes.EQ01.scene"
+      }
+    ],
+    "purchase_scene": "@zh:core.medical_supplies.SUP01.purchase_scene",
+    "top_up_cues": {
+      "context_template": "@zh:core.medical_supplies.SUP01.top_up_cues.context_template",
+      "label_template": "@zh:core.medical_supplies.SUP01.top_up_cues.label_template",
+      "low_motion_scene": "@zh:core.medical_supplies.SUP01.top_up_cues.low_motion_scene",
+      "purchase_scene": "@zh:core.medical_supplies.SUP01.top_up_cues.purchase_scene",
+      "recovery_context_template": "@zh:core.medical_supplies.SUP01.top_up_cues.recovery_context_template",
+      "recovery_label_template": "@zh:core.medical_supplies.SUP01.top_up_cues.recovery_label_template",
+      "scope_line": "@zh:core.medical_supplies.SUP01.top_up_cues.scope_line",
+      "zero_line": "@zh:core.medical_supplies.SUP01.top_up_cues.zero_line"
+    },
+    "unit": "@zh:core.medical_supplies.SUP01.unit",
+    "unit_price": 20
+  }
+]

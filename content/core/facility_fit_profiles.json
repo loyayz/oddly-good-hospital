@@ -1,0 +1,44 @@
+[
+  {
+    "extent_rule": "max_base_and_standing_body",
+    "id": "FF01",
+    "kind": "door",
+    "pose": "standing"
+  },
+  {
+    "extent_rule": "max_base_and_reclined_body",
+    "id": "FF02",
+    "kind": "bed",
+    "pose": "reclined"
+  },
+  {
+    "extent_rule": "max_base_and_standing_body",
+    "id": "FF03",
+    "kind": "medical",
+    "pose": "supported"
+  },
+  {
+    "extent_rule": "max_base_and_reclined_body",
+    "id": "FF04",
+    "kind": "operating_table",
+    "pose": "reclined"
+  },
+  {
+    "extent_rule": "max_base_and_standing_body",
+    "id": "FF05",
+    "kind": "amenity",
+    "pose": "supported"
+  },
+  {
+    "extent_rule": "base_with_real_operator_areas",
+    "id": "FF06",
+    "kind": "workstation",
+    "pose": "standing"
+  },
+  {
+    "extent_rule": "fixed_structure_expanding_fittings",
+    "id": "FF07",
+    "kind": "vertical_connector",
+    "pose": "standing"
+  }
+]

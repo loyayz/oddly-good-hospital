@@ -1,0 +1,15 @@
+[
+  {
+    "access": "staff_only",
+    "id": "doctor_office",
+    "min_inner_size": [
+      4,
+      4
+    ],
+    "name": "@zh:core.staff_support_rooms.doctor_office.name",
+    "required_equipment_ids": [
+      "SE05"
+    ],
+    "requires_research": []
+  }
+]

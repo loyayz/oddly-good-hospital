@@ -1,0 +1,1080 @@
+[
+  {
+    "cure_fee": 220,
+    "id": "D01",
+    "name": "@zh:core.diseases.D01.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D01.symptom"
+  },
+  {
+    "cure_fee": 360,
+    "id": "D02",
+    "name": "@zh:core.diseases.D02.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D02.symptom"
+  },
+  {
+    "cure_fee": 220,
+    "id": "D03",
+    "name": "@zh:core.diseases.D03.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D03.symptom"
+  },
+  {
+    "cure_fee": 380,
+    "id": "D04",
+    "name": "@zh:core.diseases.D04.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D04.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D05",
+    "name": "@zh:core.diseases.D05.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D05.symptom"
+  },
+  {
+    "cure_fee": 420,
+    "id": "D06",
+    "name": "@zh:core.diseases.D06.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D06.symptom"
+  },
+  {
+    "cure_fee": 420,
+    "id": "D07",
+    "name": "@zh:core.diseases.D07.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D07.symptom"
+  },
+  {
+    "cure_fee": 640,
+    "id": "D08",
+    "name": "@zh:core.diseases.D08.name",
+    "profile": "C",
+    "symptom": "@zh:core.diseases.D08.symptom"
+  },
+  {
+    "cure_fee": 200,
+    "id": "D09",
+    "name": "@zh:core.diseases.D09.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D09.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D10",
+    "name": "@zh:core.diseases.D10.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D10.symptom"
+  },
+  {
+    "cure_fee": 420,
+    "id": "D11",
+    "name": "@zh:core.diseases.D11.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D11.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D12",
+    "name": "@zh:core.diseases.D12.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D12.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D13",
+    "name": "@zh:core.diseases.D13.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D13.symptom"
+  },
+  {
+    "cure_fee": 600,
+    "id": "D14",
+    "name": "@zh:core.diseases.D14.name",
+    "profile": "C",
+    "symptom": "@zh:core.diseases.D14.symptom"
+  },
+  {
+    "cure_fee": 440,
+    "id": "D15",
+    "name": "@zh:core.diseases.D15.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D15.symptom"
+  },
+  {
+    "cure_fee": 380,
+    "id": "D16",
+    "name": "@zh:core.diseases.D16.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D16.symptom"
+  },
+  {
+    "cure_fee": 440,
+    "id": "D17",
+    "name": "@zh:core.diseases.D17.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D17.symptom"
+  },
+  {
+    "cure_fee": 180,
+    "id": "D18",
+    "name": "@zh:core.diseases.D18.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D18.symptom"
+  },
+  {
+    "cure_fee": 420,
+    "id": "D19",
+    "name": "@zh:core.diseases.D19.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D19.symptom"
+  },
+  {
+    "cure_fee": 600,
+    "id": "D20",
+    "name": "@zh:core.diseases.D20.name",
+    "profile": "C",
+    "symptom": "@zh:core.diseases.D20.symptom"
+  },
+  {
+    "cure_fee": 260,
+    "id": "D21",
+    "name": "@zh:core.diseases.D21.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D21.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D22",
+    "name": "@zh:core.diseases.D22.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D22.symptom"
+  },
+  {
+    "cure_fee": 620,
+    "id": "D23",
+    "name": "@zh:core.diseases.D23.name",
+    "profile": "C",
+    "symptom": "@zh:core.diseases.D23.symptom"
+  },
+  {
+    "cure_fee": 380,
+    "id": "D24",
+    "name": "@zh:core.diseases.D24.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D24.symptom"
+  },
+  {
+    "cure_fee": 240,
+    "id": "D25",
+    "name": "@zh:core.diseases.D25.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D25.symptom"
+  },
+  {
+    "cure_fee": 240,
+    "id": "D26",
+    "name": "@zh:core.diseases.D26.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D26.symptom"
+  },
+  {
+    "cure_fee": 240,
+    "id": "D27",
+    "name": "@zh:core.diseases.D27.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D27.symptom"
+  },
+  {
+    "cure_fee": 360,
+    "id": "D28",
+    "name": "@zh:core.diseases.D28.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D28.symptom"
+  },
+  {
+    "cure_fee": 620,
+    "id": "D29",
+    "name": "@zh:core.diseases.D29.name",
+    "profile": "C",
+    "symptom": "@zh:core.diseases.D29.symptom"
+  },
+  {
+    "cure_fee": 420,
+    "id": "D30",
+    "name": "@zh:core.diseases.D30.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D30.symptom"
+  },
+  {
+    "cure_fee": 260,
+    "id": "D31",
+    "name": "@zh:core.diseases.D31.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D31.symptom"
+  },
+  {
+    "cure_fee": 420,
+    "id": "D32",
+    "name": "@zh:core.diseases.D32.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D32.symptom"
+  },
+  {
+    "cure_fee": 380,
+    "id": "D33",
+    "name": "@zh:core.diseases.D33.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D33.symptom"
+  },
+  {
+    "cure_fee": 360,
+    "id": "D34",
+    "name": "@zh:core.diseases.D34.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D34.symptom"
+  },
+  {
+    "cure_fee": 620,
+    "id": "D35",
+    "name": "@zh:core.diseases.D35.name",
+    "profile": "C",
+    "symptom": "@zh:core.diseases.D35.symptom"
+  },
+  {
+    "cure_fee": 600,
+    "id": "D36",
+    "name": "@zh:core.diseases.D36.name",
+    "profile": "C",
+    "symptom": "@zh:core.diseases.D36.symptom"
+  },
+  {
+    "cure_fee": 200,
+    "id": "D37",
+    "name": "@zh:core.diseases.D37.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D37.symptom"
+  },
+  {
+    "cure_fee": 360,
+    "id": "D38",
+    "name": "@zh:core.diseases.D38.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D38.symptom"
+  },
+  {
+    "cure_fee": 220,
+    "id": "D39",
+    "name": "@zh:core.diseases.D39.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D39.symptom"
+  },
+  {
+    "cure_fee": 380,
+    "id": "D40",
+    "name": "@zh:core.diseases.D40.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D40.symptom"
+  },
+  {
+    "cure_fee": 260,
+    "id": "D41",
+    "name": "@zh:core.diseases.D41.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D41.symptom"
+  },
+  {
+    "cure_fee": 380,
+    "id": "D42",
+    "name": "@zh:core.diseases.D42.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D42.symptom"
+  },
+  {
+    "cure_fee": 260,
+    "id": "D43",
+    "name": "@zh:core.diseases.D43.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D43.symptom"
+  },
+  {
+    "cure_fee": 260,
+    "id": "D44",
+    "name": "@zh:core.diseases.D44.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D44.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D45",
+    "name": "@zh:core.diseases.D45.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D45.symptom"
+  },
+  {
+    "cure_fee": 260,
+    "id": "D46",
+    "name": "@zh:core.diseases.D46.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D46.symptom"
+  },
+  {
+    "cure_fee": 260,
+    "id": "D47",
+    "name": "@zh:core.diseases.D47.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D47.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D48",
+    "name": "@zh:core.diseases.D48.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D48.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D49",
+    "name": "@zh:core.diseases.D49.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D49.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D50",
+    "name": "@zh:core.diseases.D50.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D50.symptom"
+  },
+  {
+    "cure_fee": 620,
+    "id": "D51",
+    "name": "@zh:core.diseases.D51.name",
+    "profile": "C",
+    "symptom": "@zh:core.diseases.D51.symptom"
+  },
+  {
+    "cure_fee": 260,
+    "id": "D52",
+    "name": "@zh:core.diseases.D52.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D52.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D53",
+    "name": "@zh:core.diseases.D53.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D53.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D54",
+    "name": "@zh:core.diseases.D54.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D54.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D55",
+    "name": "@zh:core.diseases.D55.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D55.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D56",
+    "name": "@zh:core.diseases.D56.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D56.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D57",
+    "name": "@zh:core.diseases.D57.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D57.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D58",
+    "name": "@zh:core.diseases.D58.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D58.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D59",
+    "name": "@zh:core.diseases.D59.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D59.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D60",
+    "name": "@zh:core.diseases.D60.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D60.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D61",
+    "name": "@zh:core.diseases.D61.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D61.symptom"
+  },
+  {
+    "cure_fee": 260,
+    "id": "D62",
+    "name": "@zh:core.diseases.D62.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D62.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D63",
+    "name": "@zh:core.diseases.D63.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D63.symptom"
+  },
+  {
+    "cure_fee": 260,
+    "id": "D64",
+    "name": "@zh:core.diseases.D64.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D64.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D65",
+    "name": "@zh:core.diseases.D65.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D65.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D66",
+    "name": "@zh:core.diseases.D66.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D66.symptom"
+  },
+  {
+    "cure_fee": 260,
+    "id": "D67",
+    "name": "@zh:core.diseases.D67.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D67.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D68",
+    "name": "@zh:core.diseases.D68.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D68.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D69",
+    "name": "@zh:core.diseases.D69.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D69.symptom"
+  },
+  {
+    "cure_fee": 260,
+    "id": "D70",
+    "name": "@zh:core.diseases.D70.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D70.symptom"
+  },
+  {
+    "cure_fee": 260,
+    "id": "D71",
+    "name": "@zh:core.diseases.D71.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D71.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D72",
+    "name": "@zh:core.diseases.D72.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D72.symptom"
+  },
+  {
+    "cure_fee": 260,
+    "id": "D73",
+    "name": "@zh:core.diseases.D73.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D73.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D74",
+    "name": "@zh:core.diseases.D74.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D74.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D75",
+    "name": "@zh:core.diseases.D75.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D75.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D76",
+    "name": "@zh:core.diseases.D76.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D76.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D77",
+    "name": "@zh:core.diseases.D77.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D77.symptom"
+  },
+  {
+    "cure_fee": 620,
+    "id": "D78",
+    "name": "@zh:core.diseases.D78.name",
+    "profile": "C",
+    "symptom": "@zh:core.diseases.D78.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D79",
+    "name": "@zh:core.diseases.D79.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D79.symptom"
+  },
+  {
+    "cure_fee": 260,
+    "id": "D80",
+    "name": "@zh:core.diseases.D80.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D80.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D81",
+    "name": "@zh:core.diseases.D81.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D81.symptom"
+  },
+  {
+    "cure_fee": 260,
+    "id": "D82",
+    "name": "@zh:core.diseases.D82.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D82.symptom"
+  },
+  {
+    "cure_fee": 260,
+    "id": "D83",
+    "name": "@zh:core.diseases.D83.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D83.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D84",
+    "name": "@zh:core.diseases.D84.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D84.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D85",
+    "name": "@zh:core.diseases.D85.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D85.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D86",
+    "name": "@zh:core.diseases.D86.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D86.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D87",
+    "name": "@zh:core.diseases.D87.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D87.symptom"
+  },
+  {
+    "cure_fee": 260,
+    "id": "D88",
+    "name": "@zh:core.diseases.D88.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D88.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D89",
+    "name": "@zh:core.diseases.D89.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D89.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D90",
+    "name": "@zh:core.diseases.D90.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D90.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D91",
+    "name": "@zh:core.diseases.D91.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D91.symptom"
+  },
+  {
+    "cure_fee": 620,
+    "id": "D92",
+    "name": "@zh:core.diseases.D92.name",
+    "profile": "C",
+    "symptom": "@zh:core.diseases.D92.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D93",
+    "name": "@zh:core.diseases.D93.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D93.symptom"
+  },
+  {
+    "cure_fee": 620,
+    "id": "D94",
+    "name": "@zh:core.diseases.D94.name",
+    "profile": "C",
+    "symptom": "@zh:core.diseases.D94.symptom"
+  },
+  {
+    "cure_fee": 260,
+    "id": "D95",
+    "name": "@zh:core.diseases.D95.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D95.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D96",
+    "name": "@zh:core.diseases.D96.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D96.symptom"
+  },
+  {
+    "cure_fee": 260,
+    "id": "D97",
+    "name": "@zh:core.diseases.D97.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D97.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D98",
+    "name": "@zh:core.diseases.D98.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D98.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D99",
+    "name": "@zh:core.diseases.D99.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D99.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D100",
+    "name": "@zh:core.diseases.D100.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D100.symptom"
+  },
+  {
+    "cure_fee": 260,
+    "id": "D101",
+    "name": "@zh:core.diseases.D101.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D101.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D102",
+    "name": "@zh:core.diseases.D102.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D102.symptom"
+  },
+  {
+    "cure_fee": 260,
+    "id": "D103",
+    "name": "@zh:core.diseases.D103.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D103.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D104",
+    "name": "@zh:core.diseases.D104.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D104.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D105",
+    "name": "@zh:core.diseases.D105.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D105.symptom"
+  },
+  {
+    "cure_fee": 260,
+    "id": "D106",
+    "name": "@zh:core.diseases.D106.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D106.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D107",
+    "name": "@zh:core.diseases.D107.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D107.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D108",
+    "name": "@zh:core.diseases.D108.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D108.symptom"
+  },
+  {
+    "cure_fee": 620,
+    "id": "D109",
+    "name": "@zh:core.diseases.D109.name",
+    "profile": "C",
+    "symptom": "@zh:core.diseases.D109.symptom"
+  },
+  {
+    "cure_fee": 260,
+    "id": "D110",
+    "name": "@zh:core.diseases.D110.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D110.symptom"
+  },
+  {
+    "cure_fee": 260,
+    "id": "D111",
+    "name": "@zh:core.diseases.D111.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D111.symptom"
+  },
+  {
+    "cure_fee": 260,
+    "id": "D112",
+    "name": "@zh:core.diseases.D112.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D112.symptom"
+  },
+  {
+    "cure_fee": 260,
+    "id": "D113",
+    "name": "@zh:core.diseases.D113.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D113.symptom"
+  },
+  {
+    "cure_fee": 400,
+    "id": "D114",
+    "name": "@zh:core.diseases.D114.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D114.symptom"
+  },
+  {
+    "cure_fee": 220,
+    "id": "D115",
+    "name": "@zh:core.diseases.D115.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D115.symptom"
+  },
+  {
+    "cure_fee": 320,
+    "id": "D116",
+    "name": "@zh:core.diseases.D116.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D116.symptom"
+  },
+  {
+    "cure_fee": 220,
+    "id": "D117",
+    "name": "@zh:core.diseases.D117.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D117.symptom"
+  },
+  {
+    "cure_fee": 320,
+    "id": "D118",
+    "name": "@zh:core.diseases.D118.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D118.symptom"
+  },
+  {
+    "cure_fee": 220,
+    "id": "D119",
+    "name": "@zh:core.diseases.D119.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D119.symptom"
+  },
+  {
+    "cure_fee": 320,
+    "id": "D120",
+    "name": "@zh:core.diseases.D120.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D120.symptom"
+  },
+  {
+    "cure_fee": 320,
+    "id": "D121",
+    "name": "@zh:core.diseases.D121.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D121.symptom"
+  },
+  {
+    "cure_fee": 450,
+    "id": "D122",
+    "name": "@zh:core.diseases.D122.name",
+    "profile": "C",
+    "symptom": "@zh:core.diseases.D122.symptom"
+  },
+  {
+    "cure_fee": 320,
+    "id": "D123",
+    "name": "@zh:core.diseases.D123.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D123.symptom"
+  },
+  {
+    "cure_fee": 220,
+    "id": "D124",
+    "name": "@zh:core.diseases.D124.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D124.symptom"
+  },
+  {
+    "cure_fee": 320,
+    "id": "D125",
+    "name": "@zh:core.diseases.D125.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D125.symptom"
+  },
+  {
+    "cure_fee": 320,
+    "id": "D126",
+    "name": "@zh:core.diseases.D126.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D126.symptom"
+  },
+  {
+    "cure_fee": 220,
+    "id": "D127",
+    "name": "@zh:core.diseases.D127.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D127.symptom"
+  },
+  {
+    "cure_fee": 320,
+    "id": "D128",
+    "name": "@zh:core.diseases.D128.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D128.symptom"
+  },
+  {
+    "cure_fee": 320,
+    "id": "D129",
+    "name": "@zh:core.diseases.D129.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D129.symptom"
+  },
+  {
+    "cure_fee": 450,
+    "id": "D130",
+    "name": "@zh:core.diseases.D130.name",
+    "profile": "C",
+    "symptom": "@zh:core.diseases.D130.symptom"
+  },
+  {
+    "cure_fee": 320,
+    "id": "D131",
+    "name": "@zh:core.diseases.D131.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D131.symptom"
+  },
+  {
+    "cure_fee": 220,
+    "id": "D132",
+    "name": "@zh:core.diseases.D132.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D132.symptom"
+  },
+  {
+    "cure_fee": 320,
+    "id": "D133",
+    "name": "@zh:core.diseases.D133.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D133.symptom"
+  },
+  {
+    "cure_fee": 320,
+    "id": "D134",
+    "name": "@zh:core.diseases.D134.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D134.symptom"
+  },
+  {
+    "cure_fee": 320,
+    "id": "D135",
+    "name": "@zh:core.diseases.D135.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D135.symptom"
+  },
+  {
+    "cure_fee": 320,
+    "id": "D136",
+    "name": "@zh:core.diseases.D136.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D136.symptom"
+  },
+  {
+    "cure_fee": 320,
+    "id": "D137",
+    "name": "@zh:core.diseases.D137.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D137.symptom"
+  },
+  {
+    "cure_fee": 220,
+    "id": "D138",
+    "name": "@zh:core.diseases.D138.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D138.symptom"
+  },
+  {
+    "cure_fee": 220,
+    "id": "D139",
+    "name": "@zh:core.diseases.D139.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D139.symptom"
+  },
+  {
+    "cure_fee": 320,
+    "id": "D140",
+    "name": "@zh:core.diseases.D140.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D140.symptom"
+  },
+  {
+    "cure_fee": 220,
+    "id": "D141",
+    "name": "@zh:core.diseases.D141.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D141.symptom"
+  },
+  {
+    "cure_fee": 320,
+    "id": "D142",
+    "name": "@zh:core.diseases.D142.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D142.symptom"
+  },
+  {
+    "cure_fee": 220,
+    "id": "D143",
+    "name": "@zh:core.diseases.D143.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D143.symptom"
+  },
+  {
+    "cure_fee": 320,
+    "id": "D144",
+    "name": "@zh:core.diseases.D144.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D144.symptom"
+  },
+  {
+    "cure_fee": 220,
+    "id": "D145",
+    "name": "@zh:core.diseases.D145.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D145.symptom"
+  },
+  {
+    "cure_fee": 320,
+    "id": "D146",
+    "name": "@zh:core.diseases.D146.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D146.symptom"
+  },
+  {
+    "cure_fee": 320,
+    "id": "D147",
+    "name": "@zh:core.diseases.D147.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D147.symptom"
+  },
+  {
+    "cure_fee": 220,
+    "id": "D148",
+    "name": "@zh:core.diseases.D148.name",
+    "profile": "A",
+    "symptom": "@zh:core.diseases.D148.symptom"
+  },
+  {
+    "cure_fee": 450,
+    "id": "D149",
+    "name": "@zh:core.diseases.D149.name",
+    "profile": "C",
+    "symptom": "@zh:core.diseases.D149.symptom"
+  },
+  {
+    "cure_fee": 320,
+    "id": "D150",
+    "name": "@zh:core.diseases.D150.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D150.symptom"
+  },
+  {
+    "cure_fee": 320,
+    "id": "D151",
+    "name": "@zh:core.diseases.D151.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D151.symptom"
+  },
+  {
+    "cure_fee": 320,
+    "id": "D152",
+    "name": "@zh:core.diseases.D152.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D152.symptom"
+  },
+  {
+    "cure_fee": 320,
+    "id": "D153",
+    "name": "@zh:core.diseases.D153.name",
+    "profile": "B",
+    "symptom": "@zh:core.diseases.D153.symptom"
+  },
+  {
+    "cure_fee": 450,
+    "id": "D154",
+    "name": "@zh:core.diseases.D154.name",
+    "profile": "C",
+    "symptom": "@zh:core.diseases.D154.symptom"
+  }
+]

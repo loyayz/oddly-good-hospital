@@ -1,0 +1,116 @@
+[
+  {
+    "definition_id": "M09",
+    "effect_kind": "outpatient",
+    "id": "MEP_M09",
+    "operator_summary": "@zh:core.medical_equipment_profiles.MEP_M09.operator_summary",
+    "operators": [
+      {
+        "min_level": 1,
+        "requires_research": [],
+        "role": "doctor",
+        "track": "treatment"
+      }
+    ],
+    "upgrade_summary": "@zh:core.medical_equipment_profiles.MEP_M09.upgrade_summary",
+    "upgrade_tier_source": "upgrade_tiers"
+  },
+  {
+    "definition_id": "M17",
+    "effect_kind": "outpatient",
+    "id": "MEP_M17",
+    "operator_summary": "@zh:core.medical_equipment_profiles.MEP_M17.operator_summary",
+    "operators": [
+      {
+        "min_level": 1,
+        "requires_research": [],
+        "role": "doctor",
+        "track": "treatment"
+      }
+    ],
+    "upgrade_summary": "@zh:core.medical_equipment_profiles.MEP_M17.upgrade_summary",
+    "upgrade_tier_source": "upgrade_tiers"
+  },
+  {
+    "definition_id": "M37",
+    "effect_kind": "outpatient",
+    "id": "MEP_M37",
+    "operator_summary": "@zh:core.medical_equipment_profiles.MEP_M37.operator_summary",
+    "operators": [
+      {
+        "min_level": 1,
+        "requires_research": [],
+        "role": "doctor",
+        "track": "treatment"
+      }
+    ],
+    "upgrade_summary": "@zh:core.medical_equipment_profiles.MEP_M37.upgrade_summary",
+    "upgrade_tier_source": "upgrade_tiers"
+  },
+  {
+    "definition_id": "FUR02",
+    "effect_kind": "diagnostic",
+    "id": "MEP_FUR02",
+    "operator_summary": "@zh:core.medical_equipment_profiles.MEP_FUR02.operator_summary",
+    "operators": [
+      {
+        "min_level": 1,
+        "requires_research": [],
+        "role": "doctor",
+        "track": "diagnosis"
+      },
+      {
+        "min_level": 1,
+        "requires_research": [],
+        "role": "nurse",
+        "track": "diagnosis"
+      }
+    ],
+    "upgrade_summary": "@zh:core.medical_equipment_profiles.MEP_FUR02.upgrade_summary",
+    "upgrade_tier_source": "upgrade_tiers"
+  },
+  {
+    "definition_id": "EQ01",
+    "effect_kind": "surgery",
+    "id": "MEP_EQ01",
+    "operator_summary": "@zh:core.medical_equipment_profiles.MEP_EQ01.operator_summary",
+    "operators": [
+      {
+        "min_level": 2,
+        "requires_research": [
+          "R34"
+        ],
+        "role": "doctor",
+        "track": "surgery"
+      },
+      {
+        "min_level": 1,
+        "requires_research": [
+          "R34"
+        ],
+        "role": "nurse",
+        "track": "surgery"
+      }
+    ],
+    "upgrade_summary": "@zh:core.medical_equipment_profiles.MEP_EQ01.upgrade_summary",
+    "upgrade_tier_source": "upgrade_tiers"
+  },
+  {
+    "definition_id": "EQ05",
+    "effect_kind": "ward",
+    "id": "MEP_EQ05",
+    "operator_summary": "@zh:core.medical_equipment_profiles.MEP_EQ05.operator_summary",
+    "operators": [
+      {
+        "min_level": 1,
+        "requires_research": [
+          "R33"
+        ],
+        "role": "nurse",
+        "track": "care"
+      }
+    ],
+    "upgrade_summary": "@zh:core.medical_equipment_profiles.MEP_EQ05.upgrade_summary",
+    "upgrade_tier_source": "upgrade_tiers"
+  }
+]

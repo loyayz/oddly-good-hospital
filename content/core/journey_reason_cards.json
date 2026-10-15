@@ -1,0 +1,68 @@
+[
+  {
+    "evidence": "@zh:core.journey_reason_cards.JC01.evidence",
+    "id": "JC01",
+    "name": "@zh:core.journey_reason_cards.JC01.name",
+    "source": "staff_coverage",
+    "target_panel": "schedule"
+  },
+  {
+    "evidence": "@zh:core.journey_reason_cards.JC02.evidence",
+    "id": "JC02",
+    "name": "@zh:core.journey_reason_cards.JC02.name",
+    "source": "equipment_availability",
+    "target_panel": "maintenance"
+  },
+  {
+    "blocker_panel_overrides": {
+      "dirt_patch": "cleaning"
+    },
+    "evidence": "@zh:core.journey_reason_cards.JC03.evidence",
+    "id": "JC03",
+    "name": "@zh:core.journey_reason_cards.JC03.name",
+    "source": "traversal",
+    "target_panel": "building"
+  },
+  {
+    "evidence": "@zh:core.journey_reason_cards.JC04.evidence",
+    "id": "JC04",
+    "name": "@zh:core.journey_reason_cards.JC04.name",
+    "source": "clinical_readiness",
+    "target_panel": "clinical"
+  },
+  {
+    "evidence": "@zh:core.journey_reason_cards.JC05.evidence",
+    "id": "JC05",
+    "name": "@zh:core.journey_reason_cards.JC05.name",
+    "source": "queue_ticket",
+    "target_panel": "queue"
+  },
+  {
+    "evidence": "@zh:core.journey_reason_cards.JC06.evidence",
+    "id": "JC06",
+    "name": "@zh:core.journey_reason_cards.JC06.name",
+    "source": "need_service",
+    "target_panel": "facilities"
+  },
+  {
+    "evidence": "@zh:core.journey_reason_cards.JC07.evidence",
+    "id": "JC07",
+    "name": "@zh:core.journey_reason_cards.JC07.name",
+    "source": "incident_state",
+    "target_panel": "incident"
+  },
+  {
+    "evidence": "@zh:core.journey_reason_cards.JC08.evidence",
+    "id": "JC08",
+    "name": "@zh:core.journey_reason_cards.JC08.name",
+    "source": "discharge_round",
+    "target_panel": "schedule"
+  },
+  {
+    "evidence": "@zh:core.journey_reason_cards.JC09.evidence",
+    "id": "JC09",
+    "name": "@zh:core.journey_reason_cards.JC09.name",
+    "source": "supply_stock",
+    "target_panel": "supplies"
+  }
+]

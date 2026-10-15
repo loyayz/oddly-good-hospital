@@ -1,0 +1,16 @@
+[
+  {
+    "bind_on": "matching_actual_arrival",
+    "cure_cue": {
+      "condition_caption": "@zh:core.story_patient_bindings.SPB01.cure_cue.condition_caption",
+      "low_motion_scene": "@zh:core.story_patient_bindings.SPB01.cure_cue.low_motion_scene",
+      "scene": "@zh:core.story_patient_bindings.SPB01.cure_cue.scene",
+      "source": "counted_same_visit_patient_condition_completion"
+    },
+    "disease_id": "D42",
+    "id": "SPB01",
+    "name": "@zh:core.story_patient_bindings.SPB01.name",
+    "species_id": "S49",
+    "story_id": "ST01"
+  }
+]

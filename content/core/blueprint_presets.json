@@ -1,0 +1,65 @@
+[
+  {
+    "description": "@zh:core.blueprint_presets.BP01.description",
+    "id": "BP01",
+    "name": "@zh:core.blueprint_presets.BP01.name",
+    "source_id": "room_gp",
+    "source_type": "starter_room"
+  },
+  {
+    "description": "@zh:core.blueprint_presets.BP02.description",
+    "id": "BP02",
+    "name": "@zh:core.blueprint_presets.BP02.name",
+    "source_id": "room_physical",
+    "source_type": "starter_room"
+  },
+  {
+    "description": "@zh:core.blueprint_presets.BP03.description",
+    "id": "BP03",
+    "name": "@zh:core.blueprint_presets.BP03.name",
+    "source_id": "room_daily",
+    "source_type": "starter_room"
+  },
+  {
+    "description": "@zh:core.blueprint_presets.BP04.description",
+    "id": "BP04",
+    "name": "@zh:core.blueprint_presets.BP04.name",
+    "source_id": "or_standard",
+    "source_type": "clinical_layout"
+  },
+  {
+    "description": "@zh:core.blueprint_presets.BP05.description",
+    "id": "BP05",
+    "name": "@zh:core.blueprint_presets.BP05.name",
+    "source_id": "or_giant",
+    "source_type": "clinical_layout"
+  },
+  {
+    "description": "@zh:core.blueprint_presets.BP06.description",
+    "id": "BP06",
+    "name": "@zh:core.blueprint_presets.BP06.name",
+    "source_id": "ward_two_beds",
+    "source_type": "clinical_layout"
+  },
+  {
+    "description": "@zh:core.blueprint_presets.BP07.description",
+    "id": "BP07",
+    "name": "@zh:core.blueprint_presets.BP07.name",
+    "source_id": "ward_giant",
+    "source_type": "clinical_layout"
+  },
+  {
+    "description": "@zh:core.blueprint_presets.BP08.description",
+    "id": "BP08",
+    "name": "@zh:core.blueprint_presets.BP08.name",
+    "source_id": "room_rest",
+    "source_type": "starter_room"
+  },
+  {
+    "description": "@zh:core.blueprint_presets.BP09.description",
+    "id": "BP09",
+    "name": "@zh:core.blueprint_presets.BP09.name",
+    "source_id": "room_doctor_office",
+    "source_type": "starter_room"
+  }
+]

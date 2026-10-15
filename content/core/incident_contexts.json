@@ -1,0 +1,122 @@
+[
+  {
+    "id": "shared_resource_claim",
+    "predicate": "@zh:core.incident_contexts.shared_resource_claim.predicate",
+    "producer_id": "queue_claim"
+  },
+  {
+    "id": "sunshade_prop_misread",
+    "predicate": "@zh:core.incident_contexts.sunshade_prop_misread.predicate",
+    "producer_id": "social_offer"
+  },
+  {
+    "id": "failed_treatment",
+    "predicate": "@zh:core.incident_contexts.failed_treatment.predicate",
+    "producer_id": "treatment_result"
+  },
+  {
+    "id": "wet_seat_invitation",
+    "predicate": "@zh:core.incident_contexts.wet_seat_invitation.predicate",
+    "producer_id": "social_offer"
+  },
+  {
+    "id": "shadow_seat_overlap",
+    "predicate": "@zh:core.incident_contexts.shadow_seat_overlap.predicate",
+    "producer_id": "idle_prop"
+  },
+  {
+    "id": "pocket_overflow",
+    "predicate": "@zh:core.incident_contexts.pocket_overflow.predicate",
+    "producer_id": "idle_prop"
+  },
+  {
+    "id": "sneeze_buildup",
+    "predicate": "@zh:core.incident_contexts.sneeze_buildup.predicate",
+    "producer_id": "idle_prop"
+  },
+  {
+    "id": "tail_prop_contact",
+    "predicate": "@zh:core.incident_contexts.tail_prop_contact.predicate",
+    "producer_id": "prop_contact"
+  },
+  {
+    "id": "magnetic_badge_contact",
+    "predicate": "@zh:core.incident_contexts.magnetic_badge_contact.predicate",
+    "producer_id": "prop_contact"
+  },
+  {
+    "id": "loose_ribbon_borrowed",
+    "predicate": "@zh:core.incident_contexts.loose_ribbon_borrowed.predicate",
+    "producer_id": "idle_prop"
+  },
+  {
+    "id": "decorative_sand_dropped",
+    "predicate": "@zh:core.incident_contexts.decorative_sand_dropped.predicate",
+    "producer_id": "idle_prop"
+  },
+  {
+    "id": "queue_order_dispute",
+    "predicate": "@zh:core.incident_contexts.queue_order_dispute.predicate",
+    "producer_id": "queue_claim"
+  },
+  {
+    "id": "ribbon_handshake",
+    "predicate": "@zh:core.incident_contexts.ribbon_handshake.predicate",
+    "producer_id": "social_offer"
+  },
+  {
+    "id": "greeting_turn_dispute",
+    "predicate": "@zh:core.incident_contexts.greeting_turn_dispute.predicate",
+    "producer_id": "social_offer"
+  },
+  {
+    "id": "ticket_ribbon_contact",
+    "predicate": "@zh:core.incident_contexts.ticket_ribbon_contact.predicate",
+    "producer_id": "prop_contact"
+  },
+  {
+    "id": "spoon_prank_refused",
+    "predicate": "@zh:core.incident_contexts.spoon_prank_refused.predicate",
+    "producer_id": "social_offer"
+  },
+  {
+    "id": "shoulder_rest_request",
+    "predicate": "@zh:core.incident_contexts.shoulder_rest_request.predicate",
+    "producer_id": "social_offer"
+  },
+  {
+    "id": "wet_footprints_overlap",
+    "predicate": "@zh:core.incident_contexts.wet_footprints_overlap.predicate",
+    "producer_id": "prop_contact"
+  },
+  {
+    "id": "warm_greeting",
+    "predicate": "@zh:core.incident_contexts.warm_greeting.predicate",
+    "producer_id": "social_offer"
+  },
+  {
+    "id": "calendar_yawn",
+    "predicate": "@zh:core.incident_contexts.calendar_yawn.predicate",
+    "producer_id": "idle_prop"
+  },
+  {
+    "id": "flower_hat_exchange",
+    "predicate": "@zh:core.incident_contexts.flower_hat_exchange.predicate",
+    "producer_id": "social_offer"
+  },
+  {
+    "id": "bookmark_dropped",
+    "predicate": "@zh:core.incident_contexts.bookmark_dropped.predicate",
+    "producer_id": "idle_prop"
+  },
+  {
+    "id": "water_arc_invitation",
+    "predicate": "@zh:core.incident_contexts.water_arc_invitation.predicate",
+    "producer_id": "social_offer"
+  },
+  {
+    "id": "angry_wait",
+    "predicate": "@zh:core.incident_contexts.angry_wait.predicate",
+    "producer_id": "wait_threshold"
+  }
+]

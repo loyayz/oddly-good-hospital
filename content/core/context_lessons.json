@@ -1,0 +1,74 @@
+[
+  {
+    "help_text": "@zh:core.context_lessons.CL01.help_text",
+    "id": "CL01",
+    "name": "@zh:core.context_lessons.CL01.name",
+    "priority": 3,
+    "target_panel": "building",
+    "trigger": "body_route_blocked"
+  },
+  {
+    "help_text": "@zh:core.context_lessons.CL02.help_text",
+    "id": "CL02",
+    "name": "@zh:core.context_lessons.CL02.name",
+    "priority": 8,
+    "target_panel": "land",
+    "trigger": "land_preview_opened"
+  },
+  {
+    "help_text": "@zh:core.context_lessons.CL03.help_text",
+    "id": "CL03",
+    "name": "@zh:core.context_lessons.CL03.name",
+    "priority": 2,
+    "target_panel": "maintenance",
+    "trigger": "equipment_failed"
+  },
+  {
+    "help_text": "@zh:core.context_lessons.CL04.help_text",
+    "id": "CL04",
+    "name": "@zh:core.context_lessons.CL04.name",
+    "priority": 4,
+    "target_panel": "schedule",
+    "trigger": "shift_coverage_missing"
+  },
+  {
+    "help_text": "@zh:core.context_lessons.CL05.help_text",
+    "id": "CL05",
+    "name": "@zh:core.context_lessons.CL05.name",
+    "priority": 5,
+    "target_panel": "clinical",
+    "trigger": "clinical_resource_missing"
+  },
+  {
+    "help_text": "@zh:core.context_lessons.CL06.help_text",
+    "id": "CL06",
+    "name": "@zh:core.context_lessons.CL06.name",
+    "priority": 6,
+    "target_panel": "remodel",
+    "trigger": "remodel_waiting"
+  },
+  {
+    "help_text": "@zh:core.context_lessons.CL07.help_text",
+    "id": "CL07",
+    "name": "@zh:core.context_lessons.CL07.name",
+    "priority": 7,
+    "target_panel": "facilities",
+    "trigger": "amenity_fallback_active"
+  },
+  {
+    "help_text": "@zh:core.context_lessons.CL08.help_text",
+    "id": "CL08",
+    "name": "@zh:core.context_lessons.CL08.name",
+    "priority": 9,
+    "target_panel": "finance",
+    "trigger": "direct_support_recorded"
+  },
+  {
+    "help_text": "@zh:core.context_lessons.CL09.help_text",
+    "id": "CL09",
+    "name": "@zh:core.context_lessons.CL09.name",
+    "priority": 1,
+    "target_panel": "incident",
+    "trigger": "actor_frozen"
+  }
+]

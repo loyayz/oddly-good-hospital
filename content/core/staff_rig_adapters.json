@@ -1,0 +1,317 @@
+[
+  {
+    "actions": [
+      "operate",
+      "record",
+      "carry",
+      "repair",
+      "clean",
+      "build",
+      "teach",
+      "rest",
+      "sleep",
+      "wake"
+    ],
+    "anchors": [
+      "operator",
+      "tool",
+      "badge",
+      "handoff"
+    ],
+    "id": "SRA_biped",
+    "low_motion_sleep_scene": "@zh:core.staff_rig_adapters.SRA_biped.low_motion_sleep_scene",
+    "rig": "biped",
+    "roles": [
+      "doctor",
+      "nurse",
+      "receptionist",
+      "cleaner",
+      "mechanic",
+      "researcher",
+      "decorator"
+    ],
+    "scene": "@zh:core.staff_rig_adapters.SRA_biped.scene",
+    "sleep_scene": "@zh:core.staff_rig_adapters.SRA_biped.sleep_scene",
+    "wake_scene": "@zh:core.staff_rig_adapters.SRA_biped.wake_scene"
+  },
+  {
+    "actions": [
+      "operate",
+      "record",
+      "carry",
+      "repair",
+      "clean",
+      "build",
+      "teach",
+      "rest",
+      "sleep",
+      "wake"
+    ],
+    "anchors": [
+      "operator",
+      "tool",
+      "badge",
+      "handoff"
+    ],
+    "id": "SRA_blob",
+    "low_motion_sleep_scene": "@zh:core.staff_rig_adapters.SRA_blob.low_motion_sleep_scene",
+    "rig": "blob",
+    "roles": [
+      "doctor",
+      "nurse",
+      "receptionist",
+      "cleaner",
+      "mechanic",
+      "researcher",
+      "decorator"
+    ],
+    "scene": "@zh:core.staff_rig_adapters.SRA_blob.scene",
+    "sleep_scene": "@zh:core.staff_rig_adapters.SRA_blob.sleep_scene",
+    "wake_scene": "@zh:core.staff_rig_adapters.SRA_blob.wake_scene"
+  },
+  {
+    "actions": [
+      "operate",
+      "record",
+      "carry",
+      "repair",
+      "clean",
+      "build",
+      "teach",
+      "rest",
+      "sleep",
+      "wake"
+    ],
+    "anchors": [
+      "operator",
+      "tool",
+      "badge",
+      "handoff"
+    ],
+    "id": "SRA_float",
+    "low_motion_sleep_scene": "@zh:core.staff_rig_adapters.SRA_float.low_motion_sleep_scene",
+    "rig": "float",
+    "roles": [
+      "doctor",
+      "nurse",
+      "receptionist",
+      "cleaner",
+      "mechanic",
+      "researcher",
+      "decorator"
+    ],
+    "scene": "@zh:core.staff_rig_adapters.SRA_float.scene",
+    "sleep_scene": "@zh:core.staff_rig_adapters.SRA_float.sleep_scene",
+    "wake_scene": "@zh:core.staff_rig_adapters.SRA_float.wake_scene"
+  },
+  {
+    "actions": [
+      "operate",
+      "record",
+      "carry",
+      "repair",
+      "clean",
+      "build",
+      "teach",
+      "rest",
+      "sleep",
+      "wake"
+    ],
+    "anchors": [
+      "operator",
+      "tool",
+      "badge",
+      "handoff"
+    ],
+    "id": "SRA_longneck",
+    "low_motion_sleep_scene": "@zh:core.staff_rig_adapters.SRA_longneck.low_motion_sleep_scene",
+    "rig": "longneck",
+    "roles": [
+      "doctor",
+      "nurse",
+      "receptionist",
+      "cleaner",
+      "mechanic",
+      "researcher",
+      "decorator"
+    ],
+    "scene": "@zh:core.staff_rig_adapters.SRA_longneck.scene",
+    "sleep_scene": "@zh:core.staff_rig_adapters.SRA_longneck.sleep_scene",
+    "wake_scene": "@zh:core.staff_rig_adapters.SRA_longneck.wake_scene"
+  },
+  {
+    "actions": [
+      "operate",
+      "record",
+      "carry",
+      "repair",
+      "clean",
+      "build",
+      "teach",
+      "rest",
+      "sleep",
+      "wake"
+    ],
+    "anchors": [
+      "operator",
+      "tool",
+      "badge",
+      "handoff"
+    ],
+    "id": "SRA_micro",
+    "low_motion_sleep_scene": "@zh:core.staff_rig_adapters.SRA_micro.low_motion_sleep_scene",
+    "rig": "micro",
+    "roles": [
+      "doctor",
+      "nurse",
+      "receptionist",
+      "cleaner",
+      "mechanic",
+      "researcher",
+      "decorator"
+    ],
+    "scene": "@zh:core.staff_rig_adapters.SRA_micro.scene",
+    "sleep_scene": "@zh:core.staff_rig_adapters.SRA_micro.sleep_scene",
+    "wake_scene": "@zh:core.staff_rig_adapters.SRA_micro.wake_scene"
+  },
+  {
+    "actions": [
+      "operate",
+      "record",
+      "carry",
+      "repair",
+      "clean",
+      "build",
+      "teach",
+      "rest",
+      "sleep",
+      "wake"
+    ],
+    "anchors": [
+      "operator",
+      "tool",
+      "badge",
+      "handoff"
+    ],
+    "id": "SRA_object",
+    "low_motion_sleep_scene": "@zh:core.staff_rig_adapters.SRA_object.low_motion_sleep_scene",
+    "rig": "object",
+    "roles": [
+      "doctor",
+      "nurse",
+      "receptionist",
+      "cleaner",
+      "mechanic",
+      "researcher",
+      "decorator"
+    ],
+    "scene": "@zh:core.staff_rig_adapters.SRA_object.scene",
+    "sleep_scene": "@zh:core.staff_rig_adapters.SRA_object.sleep_scene",
+    "wake_scene": "@zh:core.staff_rig_adapters.SRA_object.wake_scene"
+  },
+  {
+    "actions": [
+      "operate",
+      "record",
+      "carry",
+      "repair",
+      "clean",
+      "build",
+      "teach",
+      "rest",
+      "sleep",
+      "wake"
+    ],
+    "anchors": [
+      "operator",
+      "tool",
+      "badge",
+      "handoff"
+    ],
+    "id": "SRA_plant",
+    "low_motion_sleep_scene": "@zh:core.staff_rig_adapters.SRA_plant.low_motion_sleep_scene",
+    "rig": "plant",
+    "roles": [
+      "doctor",
+      "nurse",
+      "receptionist",
+      "cleaner",
+      "mechanic",
+      "researcher",
+      "decorator"
+    ],
+    "scene": "@zh:core.staff_rig_adapters.SRA_plant.scene",
+    "sleep_scene": "@zh:core.staff_rig_adapters.SRA_plant.sleep_scene",
+    "wake_scene": "@zh:core.staff_rig_adapters.SRA_plant.wake_scene"
+  },
+  {
+    "actions": [
+      "operate",
+      "record",
+      "carry",
+      "repair",
+      "clean",
+      "build",
+      "teach",
+      "rest",
+      "sleep",
+      "wake"
+    ],
+    "anchors": [
+      "operator",
+      "tool",
+      "badge",
+      "handoff"
+    ],
+    "id": "SRA_quadruped",
+    "low_motion_sleep_scene": "@zh:core.staff_rig_adapters.SRA_quadruped.low_motion_sleep_scene",
+    "rig": "quadruped",
+    "roles": [
+      "doctor",
+      "nurse",
+      "receptionist",
+      "cleaner",
+      "mechanic",
+      "researcher",
+      "decorator"
+    ],
+    "scene": "@zh:core.staff_rig_adapters.SRA_quadruped.scene",
+    "sleep_scene": "@zh:core.staff_rig_adapters.SRA_quadruped.sleep_scene",
+    "wake_scene": "@zh:core.staff_rig_adapters.SRA_quadruped.wake_scene"
+  },
+  {
+    "actions": [
+      "operate",
+      "record",
+      "carry",
+      "repair",
+      "clean",
+      "build",
+      "teach",
+      "rest",
+      "sleep",
+      "wake"
+    ],
+    "anchors": [
+      "operator",
+      "tool",
+      "badge",
+      "handoff"
+    ],
+    "id": "SRA_tentacle",
+    "low_motion_sleep_scene": "@zh:core.staff_rig_adapters.SRA_tentacle.low_motion_sleep_scene",
+    "rig": "tentacle",
+    "roles": [
+      "doctor",
+      "nurse",
+      "receptionist",
+      "cleaner",
+      "mechanic",
+      "researcher",
+      "decorator"
+    ],
+    "scene": "@zh:core.staff_rig_adapters.SRA_tentacle.scene",
+    "sleep_scene": "@zh:core.staff_rig_adapters.SRA_tentacle.sleep_scene",
+    "wake_scene": "@zh:core.staff_rig_adapters.SRA_tentacle.wake_scene"
+  }
+]

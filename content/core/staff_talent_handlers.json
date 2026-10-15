@@ -1,0 +1,42 @@
+[
+  {
+    "attribute": "active_work_rate",
+    "commit": "work_segment_start",
+    "id": "work_speed",
+    "max_value": 0.15,
+    "min_value": 0,
+    "version": 1
+  },
+  {
+    "attribute": "treatment_success",
+    "commit": "attempt_start",
+    "id": "treatment_success",
+    "max_value": 0.02,
+    "min_value": 0,
+    "version": 1
+  },
+  {
+    "attribute": "patient_mood",
+    "commit": "service_completed",
+    "id": "service_mood",
+    "max_value": 5,
+    "min_value": 1,
+    "version": 1
+  },
+  {
+    "attribute": "course_work",
+    "commit": "course_enroll",
+    "id": "training_work",
+    "max_value": 1,
+    "min_value": 0.9,
+    "version": 1
+  },
+  {
+    "attribute": "incident_care_work",
+    "commit": "care_start",
+    "id": "care_work",
+    "max_value": 1,
+    "min_value": 0.75,
+    "version": 1
+  }
+]

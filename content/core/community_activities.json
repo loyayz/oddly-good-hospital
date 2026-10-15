@@ -1,0 +1,279 @@
+[
+  {
+    "beats": [
+      "@zh:core.community_activities.CA01.beats.0",
+      "@zh:core.community_activities.CA01.beats.1",
+      "@zh:core.community_activities.CA01.beats.2"
+    ],
+    "duration_seconds": 20,
+    "id": "CA01",
+    "name": "@zh:core.community_activities.CA01.name",
+    "participant_filter": {},
+    "participants": {
+      "max": 6,
+      "min": 2
+    },
+    "relationship_credit": "designated_pair",
+    "required_objects": [],
+    "requires_research": [],
+    "seating": "compatible_activity",
+    "variations": [
+      {
+        "conditions": {
+          "designated_pair_relationship": "reconciled"
+        },
+        "id": "CA01_V1",
+        "scene": "@zh:core.community_activities.CA01.variations.CA01_V1.scene"
+      },
+      {
+        "conditions": {
+          "personality_all": [
+            "PP05",
+            "PP04"
+          ]
+        },
+        "id": "CA01_V2",
+        "scene": "@zh:core.community_activities.CA01.variations.CA01_V2.scene"
+      },
+      {
+        "conditions": {
+          "personality_all": [
+            "PP03"
+          ]
+        },
+        "id": "CA01_V3",
+        "scene": "@zh:core.community_activities.CA01.variations.CA01_V3.scene"
+      }
+    ]
+  },
+  {
+    "beats": [
+      "@zh:core.community_activities.CA02.beats.0",
+      "@zh:core.community_activities.CA02.beats.1",
+      "@zh:core.community_activities.CA02.beats.2"
+    ],
+    "duration_seconds": 20,
+    "id": "CA02",
+    "name": "@zh:core.community_activities.CA02.name",
+    "participant_filter": {},
+    "participants": {
+      "max": 8,
+      "min": 2
+    },
+    "relationship_credit": "designated_pair",
+    "required_objects": [
+      {
+        "any_of": [
+          "FUR25",
+          "FUR26"
+        ],
+        "count": 2
+      }
+    ],
+    "requires_research": [
+      "R01"
+    ],
+    "seating": "standing",
+    "variations": [
+      {
+        "conditions": {
+          "designated_pair_relationship": "rival"
+        },
+        "id": "CA02_V1",
+        "scene": "@zh:core.community_activities.CA02.variations.CA02_V1.scene"
+      },
+      {
+        "conditions": {
+          "personality_all": [
+            "PP07"
+          ]
+        },
+        "id": "CA02_V2",
+        "scene": "@zh:core.community_activities.CA02.variations.CA02_V2.scene"
+      },
+      {
+        "conditions": {
+          "personality_all": [
+            "PP05"
+          ]
+        },
+        "id": "CA02_V3",
+        "scene": "@zh:core.community_activities.CA02.variations.CA02_V3.scene"
+      }
+    ]
+  },
+  {
+    "beats": [
+      "@zh:core.community_activities.CA03.beats.0",
+      "@zh:core.community_activities.CA03.beats.1",
+      "@zh:core.community_activities.CA03.beats.2"
+    ],
+    "duration_seconds": 20,
+    "id": "CA03",
+    "name": "@zh:core.community_activities.CA03.name",
+    "participant_filter": {
+      "family_id": "F06"
+    },
+    "participants": {
+      "max": 10,
+      "min": 4
+    },
+    "relationship_credit": "none",
+    "required_objects": [
+      {
+        "any_of": [
+          "FUR24"
+        ],
+        "count": 1
+      }
+    ],
+    "requires_research": [
+      "R07"
+    ],
+    "seating": "micro_berth",
+    "variations": [
+      {
+        "conditions": {
+          "personality_all": [
+            "PP09"
+          ]
+        },
+        "id": "CA03_V1",
+        "scene": "@zh:core.community_activities.CA03.variations.CA03_V1.scene"
+      },
+      {
+        "conditions": {
+          "personality_all": [
+            "PP08"
+          ]
+        },
+        "id": "CA03_V2",
+        "scene": "@zh:core.community_activities.CA03.variations.CA03_V2.scene"
+      },
+      {
+        "conditions": {
+          "personality_all": [
+            "PP04"
+          ]
+        },
+        "id": "CA03_V3",
+        "scene": "@zh:core.community_activities.CA03.variations.CA03_V3.scene"
+      }
+    ]
+  },
+  {
+    "beats": [
+      "@zh:core.community_activities.CA04.beats.0",
+      "@zh:core.community_activities.CA04.beats.1",
+      "@zh:core.community_activities.CA04.beats.2"
+    ],
+    "duration_seconds": 30,
+    "id": "CA04",
+    "name": "@zh:core.community_activities.CA04.name",
+    "participant_filter": {},
+    "participants": {
+      "max": 10,
+      "min": 3
+    },
+    "relationship_credit": "none",
+    "required_objects": [
+      {
+        "any_of": [
+          "FUR25",
+          "FUR26"
+        ],
+        "count": 2
+      }
+    ],
+    "requires_research": [
+      "R01"
+    ],
+    "seating": "standing",
+    "variations": [
+      {
+        "conditions": {
+          "personality_all": [
+            "PP03"
+          ]
+        },
+        "id": "CA04_V1",
+        "scene": "@zh:core.community_activities.CA04.variations.CA04_V1.scene"
+      },
+      {
+        "conditions": {
+          "personality_all": [
+            "PP10"
+          ]
+        },
+        "id": "CA04_V2",
+        "scene": "@zh:core.community_activities.CA04.variations.CA04_V2.scene"
+      },
+      {
+        "conditions": {
+          "personality_all": [
+            "PP04"
+          ]
+        },
+        "id": "CA04_V3",
+        "scene": "@zh:core.community_activities.CA04.variations.CA04_V3.scene"
+      }
+    ]
+  },
+  {
+    "beats": [
+      "@zh:core.community_activities.CA06.beats.0",
+      "@zh:core.community_activities.CA06.beats.1",
+      "@zh:core.community_activities.CA06.beats.2"
+    ],
+    "duration_seconds": 20,
+    "id": "CA06",
+    "name": "@zh:core.community_activities.CA06.name",
+    "participant_filter": {},
+    "participants": {
+      "max": 16,
+      "min": 4
+    },
+    "relationship_credit": "none",
+    "required_objects": [
+      {
+        "any_of": [
+          "FUR42"
+        ],
+        "count": 1
+      }
+    ],
+    "requires_research": [
+      "R18"
+    ],
+    "seating": "standing",
+    "variations": [
+      {
+        "conditions": {
+          "personality_all": [
+            "PP08"
+          ]
+        },
+        "id": "CA06_V1",
+        "scene": "@zh:core.community_activities.CA06.variations.CA06_V1.scene"
+      },
+      {
+        "conditions": {
+          "personality_all": [
+            "PP04"
+          ]
+        },
+        "id": "CA06_V2",
+        "scene": "@zh:core.community_activities.CA06.variations.CA06_V2.scene"
+      },
+      {
+        "conditions": {
+          "personality_all": [
+            "PP09"
+          ]
+        },
+        "id": "CA06_V3",
+        "scene": "@zh:core.community_activities.CA06.variations.CA06_V3.scene"
+      }
+    ]
+  }
+]

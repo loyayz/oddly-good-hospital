@@ -1,0 +1,558 @@
+[
+  {
+    "disease_ids": [
+      "D03",
+      "D04",
+      "D25"
+    ],
+    "id": "R01",
+    "name": "@zh:core.research.R01.name",
+    "price": 500,
+    "requires": [],
+    "work_seconds": 180
+  },
+  {
+    "disease_ids": [
+      "D02",
+      "D16",
+      "D24"
+    ],
+    "id": "R02",
+    "name": "@zh:core.research.R02.name",
+    "price": 600,
+    "requires": [],
+    "work_seconds": 180
+  },
+  {
+    "disease_ids": [
+      "D05",
+      "D10",
+      "D27",
+      "D28"
+    ],
+    "id": "R03",
+    "name": "@zh:core.research.R03.name",
+    "price": 900,
+    "requires": [
+      "R02"
+    ],
+    "work_seconds": 240
+  },
+  {
+    "disease_ids": [
+      "D11",
+      "D12",
+      "D29"
+    ],
+    "id": "R04",
+    "name": "@zh:core.research.R04.name",
+    "price": 1000,
+    "requires": [
+      "R02",
+      "R11"
+    ],
+    "work_seconds": 240
+  },
+  {
+    "disease_ids": [
+      "D06",
+      "D17",
+      "D31"
+    ],
+    "id": "R05",
+    "name": "@zh:core.research.R05.name",
+    "price": 800,
+    "requires": [
+      "R01"
+    ],
+    "work_seconds": 240
+  },
+  {
+    "disease_ids": [
+      "D07",
+      "D19",
+      "D20",
+      "D26",
+      "D32"
+    ],
+    "id": "R06",
+    "name": "@zh:core.research.R06.name",
+    "price": 1100,
+    "requires": [
+      "R01",
+      "R11"
+    ],
+    "work_seconds": 300
+  },
+  {
+    "disease_ids": [
+      "D13",
+      "D14"
+    ],
+    "id": "R07",
+    "name": "@zh:core.research.R07.name",
+    "price": 1000,
+    "requires": [
+      "R02",
+      "R11"
+    ],
+    "work_seconds": 240
+  },
+  {
+    "disease_ids": [
+      "D21",
+      "D22",
+      "D33",
+      "D34"
+    ],
+    "id": "R08",
+    "name": "@zh:core.research.R08.name",
+    "price": 900,
+    "requires": [
+      "R01"
+    ],
+    "work_seconds": 240
+  },
+  {
+    "disease_ids": [
+      "D15",
+      "D23",
+      "D30",
+      "D35",
+      "D36"
+    ],
+    "id": "R09",
+    "name": "@zh:core.research.R09.name",
+    "price": 1300,
+    "requires": [
+      "R05",
+      "R11"
+    ],
+    "work_seconds": 300
+  },
+  {
+    "disease_ids": [
+      "D08"
+    ],
+    "id": "R10",
+    "name": "@zh:core.research.R10.name",
+    "price": 900,
+    "requires": [
+      "R03",
+      "R11"
+    ],
+    "work_seconds": 240
+  },
+  {
+    "disease_ids": [],
+    "id": "R11",
+    "name": "@zh:core.research.R11.name",
+    "price": 700,
+    "requires": [
+      "R02"
+    ],
+    "work_seconds": 180
+  },
+  {
+    "disease_ids": [],
+    "id": "R12",
+    "name": "@zh:core.research.R12.name",
+    "price": 600,
+    "requires": [],
+    "work_seconds": 180
+  },
+  {
+    "disease_ids": [],
+    "id": "R13",
+    "name": "@zh:core.research.R13.name",
+    "price": 1200,
+    "requires": [
+      "R12",
+      "R11"
+    ],
+    "work_seconds": 300
+  },
+  {
+    "disease_ids": [],
+    "id": "R14",
+    "name": "@zh:core.research.R14.name",
+    "price": 500,
+    "requires": [],
+    "work_seconds": 180
+  },
+  {
+    "disease_ids": [],
+    "id": "R15",
+    "name": "@zh:core.research.R15.name",
+    "price": 700,
+    "requires": [
+      "R01"
+    ],
+    "work_seconds": 240
+  },
+  {
+    "disease_ids": [],
+    "id": "R16",
+    "name": "@zh:core.research.R16.name",
+    "price": 700,
+    "requires": [
+      "R01"
+    ],
+    "work_seconds": 240
+  },
+  {
+    "disease_ids": [],
+    "id": "R17",
+    "name": "@zh:core.research.R17.name",
+    "price": 800,
+    "requires": [
+      "R11"
+    ],
+    "work_seconds": 240
+  },
+  {
+    "disease_ids": [],
+    "id": "R18",
+    "name": "@zh:core.research.R18.name",
+    "price": 1000,
+    "requires": [
+      "R15",
+      "R14"
+    ],
+    "work_seconds": 300
+  },
+  {
+    "disease_ids": [
+      "D38",
+      "D40",
+      "D41",
+      "D42"
+    ],
+    "id": "R19",
+    "name": "@zh:core.research.R19.name",
+    "price": 500,
+    "requires": [],
+    "work_seconds": 180
+  },
+  {
+    "disease_ids": [
+      "D43",
+      "D44",
+      "D45",
+      "D79",
+      "D80",
+      "D81",
+      "D82"
+    ],
+    "id": "R20",
+    "name": "@zh:core.research.R20.name",
+    "price": 700,
+    "requires": [
+      "R02"
+    ],
+    "work_seconds": 240
+  },
+  {
+    "disease_ids": [
+      "D46",
+      "D47",
+      "D48",
+      "D83",
+      "D84",
+      "D85"
+    ],
+    "id": "R21",
+    "name": "@zh:core.research.R21.name",
+    "price": 850,
+    "requires": [
+      "R01"
+    ],
+    "work_seconds": 300
+  },
+  {
+    "disease_ids": [
+      "D49",
+      "D50",
+      "D51",
+      "D86",
+      "D87",
+      "D88",
+      "D89"
+    ],
+    "id": "R22",
+    "name": "@zh:core.research.R22.name",
+    "price": 1000,
+    "requires": [
+      "R03",
+      "R11"
+    ],
+    "work_seconds": 360
+  },
+  {
+    "disease_ids": [
+      "D52",
+      "D53",
+      "D54",
+      "D90",
+      "D91"
+    ],
+    "id": "R23",
+    "name": "@zh:core.research.R23.name",
+    "price": 1150,
+    "requires": [
+      "R03"
+    ],
+    "work_seconds": 240
+  },
+  {
+    "disease_ids": [
+      "D55",
+      "D56",
+      "D57",
+      "D92",
+      "D93",
+      "D94"
+    ],
+    "id": "R24",
+    "name": "@zh:core.research.R24.name",
+    "price": 700,
+    "requires": [
+      "R04"
+    ],
+    "work_seconds": 300
+  },
+  {
+    "disease_ids": [
+      "D58",
+      "D59",
+      "D60",
+      "D95",
+      "D96"
+    ],
+    "id": "R25",
+    "name": "@zh:core.research.R25.name",
+    "price": 850,
+    "requires": [
+      "R07"
+    ],
+    "work_seconds": 360
+  },
+  {
+    "disease_ids": [
+      "D61",
+      "D62",
+      "D63",
+      "D97",
+      "D98"
+    ],
+    "id": "R26",
+    "name": "@zh:core.research.R26.name",
+    "price": 1000,
+    "requires": [
+      "R09"
+    ],
+    "work_seconds": 240
+  },
+  {
+    "disease_ids": [
+      "D64",
+      "D65",
+      "D66",
+      "D99",
+      "D100"
+    ],
+    "id": "R27",
+    "name": "@zh:core.research.R27.name",
+    "price": 1150,
+    "requires": [
+      "R05"
+    ],
+    "work_seconds": 300
+  },
+  {
+    "disease_ids": [
+      "D67",
+      "D68",
+      "D69",
+      "D101",
+      "D102"
+    ],
+    "id": "R28",
+    "name": "@zh:core.research.R28.name",
+    "price": 700,
+    "requires": [
+      "R06"
+    ],
+    "work_seconds": 360
+  },
+  {
+    "disease_ids": [
+      "D70",
+      "D71",
+      "D72",
+      "D103",
+      "D104"
+    ],
+    "id": "R29",
+    "name": "@zh:core.research.R29.name",
+    "price": 850,
+    "requires": [
+      "R08"
+    ],
+    "work_seconds": 240
+  },
+  {
+    "disease_ids": [
+      "D73",
+      "D74",
+      "D75",
+      "D105",
+      "D106"
+    ],
+    "id": "R30",
+    "name": "@zh:core.research.R30.name",
+    "price": 1000,
+    "requires": [
+      "R08"
+    ],
+    "work_seconds": 300
+  },
+  {
+    "disease_ids": [
+      "D76",
+      "D77",
+      "D78",
+      "D107",
+      "D108",
+      "D109"
+    ],
+    "id": "R31",
+    "name": "@zh:core.research.R31.name",
+    "price": 1150,
+    "requires": [
+      "R09"
+    ],
+    "work_seconds": 360
+  },
+  {
+    "disease_ids": [
+      "D110",
+      "D111",
+      "D112",
+      "D113",
+      "D114"
+    ],
+    "id": "R32",
+    "name": "@zh:core.research.R32.name",
+    "price": 700,
+    "requires": [
+      "R19"
+    ],
+    "work_seconds": 240
+  },
+  {
+    "disease_ids": [],
+    "id": "R33",
+    "name": "@zh:core.research.R33.name",
+    "price": 1500,
+    "requires": [
+      "R11"
+    ],
+    "work_seconds": 300
+  },
+  {
+    "disease_ids": [],
+    "id": "R34",
+    "name": "@zh:core.research.R34.name",
+    "price": 2000,
+    "requires": [
+      "R33",
+      "R12"
+    ],
+    "work_seconds": 420
+  },
+  {
+    "disease_ids": [
+      "D115",
+      "D116",
+      "D117",
+      "D118",
+      "D119",
+      "D120",
+      "D121",
+      "D122",
+      "D123",
+      "D124"
+    ],
+    "id": "R35",
+    "name": "@zh:core.research.R35.name",
+    "price": 1000,
+    "requires": [
+      "R11"
+    ],
+    "work_seconds": 300
+  },
+  {
+    "disease_ids": [
+      "D125",
+      "D126",
+      "D127",
+      "D128",
+      "D129",
+      "D130",
+      "D131",
+      "D132",
+      "D133",
+      "D134"
+    ],
+    "id": "R36",
+    "name": "@zh:core.research.R36.name",
+    "price": 1150,
+    "requires": [
+      "R11"
+    ],
+    "work_seconds": 330
+  },
+  {
+    "disease_ids": [
+      "D135",
+      "D136",
+      "D137",
+      "D138",
+      "D139",
+      "D140",
+      "D141",
+      "D142",
+      "D143",
+      "D144"
+    ],
+    "id": "R37",
+    "name": "@zh:core.research.R37.name",
+    "price": 1300,
+    "requires": [
+      "R11"
+    ],
+    "work_seconds": 360
+  },
+  {
+    "disease_ids": [
+      "D145",
+      "D146",
+      "D147",
+      "D148",
+      "D149",
+      "D150",
+      "D151",
+      "D152",
+      "D153",
+      "D154"
+    ],
+    "id": "R38",
+    "name": "@zh:core.research.R38.name",
+    "price": 1450,
+    "requires": [
+      "R11"
+    ],
+    "work_seconds": 390
+  }
+]

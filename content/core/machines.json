@@ -1,0 +1,50 @@
+[
+  {
+    "adapter_capacity": {
+      "max_clearance_cells": 3,
+      "max_height_m": 6.5
+    },
+    "equipment_class": "medical",
+    "fit_profile_id": "FF03",
+    "footprint": [
+      2,
+      2
+    ],
+    "id": "M09",
+    "name": "@zh:core.machines.M09.name",
+    "price": 1400,
+    "upgrade_levels": 2
+  },
+  {
+    "adapter_capacity": {
+      "max_clearance_cells": 3,
+      "max_height_m": 6.5
+    },
+    "equipment_class": "medical",
+    "fit_profile_id": "FF03",
+    "footprint": [
+      2,
+      2
+    ],
+    "id": "M37",
+    "name": "@zh:core.machines.M37.name",
+    "price": 1400,
+    "upgrade_levels": 2
+  },
+  {
+    "adapter_capacity": {
+      "max_clearance_cells": 3,
+      "max_height_m": 6.5
+    },
+    "equipment_class": "medical",
+    "fit_profile_id": "FF03",
+    "footprint": [
+      2,
+      2
+    ],
+    "id": "M17",
+    "name": "@zh:core.machines.M17.name",
+    "price": 2800,
+    "upgrade_levels": 2
+  }
+]

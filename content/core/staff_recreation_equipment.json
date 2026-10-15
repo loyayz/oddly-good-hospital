@@ -1,0 +1,66 @@
+[
+  {
+    "capacity": 1,
+    "equipment_class": "comfort",
+    "fit_profile_id": "FF05",
+    "footprint": [
+      1,
+      2
+    ],
+    "id": "RC01",
+    "low_motion_scene": "@zh:core.staff_recreation_equipment.RC01.low_motion_scene",
+    "max_clearance_cells": 3,
+    "max_height_m": 6.5,
+    "name": "@zh:core.staff_recreation_equipment.RC01.name",
+    "price": 900,
+    "scene": "@zh:core.staff_recreation_equipment.RC01.scene"
+  },
+  {
+    "capacity": 1,
+    "equipment_class": "comfort",
+    "fit_profile_id": "FF05",
+    "footprint": [
+      2,
+      2
+    ],
+    "id": "RC02",
+    "low_motion_scene": "@zh:core.staff_recreation_equipment.RC02.low_motion_scene",
+    "max_clearance_cells": 3,
+    "max_height_m": 6.5,
+    "name": "@zh:core.staff_recreation_equipment.RC02.name",
+    "price": 700,
+    "scene": "@zh:core.staff_recreation_equipment.RC02.scene"
+  },
+  {
+    "capacity": 2,
+    "equipment_class": "comfort",
+    "fit_profile_id": "FF05",
+    "footprint": [
+      3,
+      2
+    ],
+    "id": "RC03",
+    "low_motion_scene": "@zh:core.staff_recreation_equipment.RC03.low_motion_scene",
+    "max_clearance_cells": 3,
+    "max_height_m": 6.5,
+    "name": "@zh:core.staff_recreation_equipment.RC03.name",
+    "price": 1400,
+    "scene": "@zh:core.staff_recreation_equipment.RC03.scene"
+  },
+  {
+    "capacity": 1,
+    "equipment_class": "comfort",
+    "fit_profile_id": "FF05",
+    "footprint": [
+      4,
+      4
+    ],
+    "id": "RC04",
+    "low_motion_scene": "@zh:core.staff_recreation_equipment.RC04.low_motion_scene",
+    "max_clearance_cells": 3,
+    "max_height_m": 6.5,
+    "name": "@zh:core.staff_recreation_equipment.RC04.name",
+    "price": 1800,
+    "scene": "@zh:core.staff_recreation_equipment.RC04.scene"
+  }
+]

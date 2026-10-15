@@ -1,0 +1,58 @@
+[
+  {
+    "id": "CR01",
+    "name": "@zh:core.community_cast.CR01.name",
+    "profession_id": "gardener",
+    "social_personality_id": "PP04",
+    "species_id": "S09"
+  },
+  {
+    "id": "CR02",
+    "name": "@zh:core.community_cast.CR02.name",
+    "profession_id": "priest",
+    "social_personality_id": "PP01",
+    "species_id": "S49"
+  },
+  {
+    "id": "CR03",
+    "name": "@zh:core.community_cast.CR03.name",
+    "profession_id": "gardener",
+    "social_personality_id": "PP05",
+    "species_id": "S05"
+  },
+  {
+    "id": "CR04",
+    "name": "@zh:core.community_cast.CR04.name",
+    "profession_id": "gardener",
+    "social_personality_id": "PP06",
+    "species_id": "S13"
+  },
+  {
+    "id": "CR05",
+    "name": "@zh:core.community_cast.CR05.name",
+    "profession_id": "performer",
+    "social_personality_id": "PP08",
+    "species_id": "S21"
+  },
+  {
+    "id": "CR06",
+    "name": "@zh:core.community_cast.CR06.name",
+    "profession_id": "performer",
+    "social_personality_id": "PP09",
+    "species_id": "S22"
+  },
+  {
+    "id": "CR07",
+    "name": "@zh:core.community_cast.CR07.name",
+    "profession_id": "performer",
+    "social_personality_id": "PP03",
+    "species_id": "S23"
+  },
+  {
+    "id": "CR08",
+    "name": "@zh:core.community_cast.CR08.name",
+    "profession_id": "performer",
+    "social_personality_id": "PP10",
+    "species_id": "S24"
+  }
+]

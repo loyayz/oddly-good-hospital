@@ -1,0 +1,38 @@
+[
+  {
+    "description": "@zh:core.staff_work_styles.WS01.description",
+    "id": "WS01",
+    "name": "@zh:core.staff_work_styles.WS01.name",
+    "preference": "shift_ready"
+  },
+  {
+    "description": "@zh:core.staff_work_styles.WS02.description",
+    "id": "WS02",
+    "name": "@zh:core.staff_work_styles.WS02.name",
+    "preference": "help"
+  },
+  {
+    "description": "@zh:core.staff_work_styles.WS03.description",
+    "id": "WS03",
+    "name": "@zh:core.staff_work_styles.WS03.name",
+    "preference": "current_task"
+  },
+  {
+    "description": "@zh:core.staff_work_styles.WS04.description",
+    "id": "WS04",
+    "name": "@zh:core.staff_work_styles.WS04.name",
+    "preference": "preventive"
+  },
+  {
+    "description": "@zh:core.staff_work_styles.WS05.description",
+    "id": "WS05",
+    "name": "@zh:core.staff_work_styles.WS05.name",
+    "preference": "group_recreation"
+  },
+  {
+    "description": "@zh:core.staff_work_styles.WS06.description",
+    "id": "WS06",
+    "name": "@zh:core.staff_work_styles.WS06.name",
+    "preference": "quiet_recreation"
+  }
+]

@@ -1,0 +1,100 @@
+[
+  {
+    "biography_id": "BIO01",
+    "certificates": [],
+    "doctor_profile": {
+      "diagnosis_level": 1,
+      "personality_id": "DP04",
+      "surgery_level": 0,
+      "title_id": "DT01",
+      "treatment_level": 1
+    },
+    "id": "REX01",
+    "illustrative_only": true,
+    "name": "@zh:core.recruitment_examples.REX01.name",
+    "non_doctor_skill": null,
+    "role": "doctor",
+    "social_personality_id": "PP01",
+    "species_id": "S49",
+    "work_style_id": "WS01"
+  },
+  {
+    "biography_id": "BIO03",
+    "certificates": [],
+    "id": "REX02",
+    "illustrative_only": true,
+    "name": "@zh:core.recruitment_examples.REX02.name",
+    "non_doctor_skill": null,
+    "nurse_profile": {
+      "care": 1,
+      "diagnosis": 1,
+      "surgery": 0
+    },
+    "role": "nurse",
+    "social_personality_id": "PP05",
+    "species_id": "S08",
+    "work_style_id": "WS02"
+  },
+  {
+    "biography_id": "BIO06",
+    "certificates": [],
+    "id": "REX03",
+    "illustrative_only": true,
+    "name": "@zh:core.recruitment_examples.REX03.name",
+    "non_doctor_skill": 1,
+    "role": "receptionist",
+    "social_personality_id": "PP08",
+    "species_id": "S02",
+    "work_style_id": "WS05"
+  },
+  {
+    "biography_id": "BIO04",
+    "certificates": [],
+    "id": "REX04",
+    "illustrative_only": true,
+    "name": "@zh:core.recruitment_examples.REX04.name",
+    "non_doctor_skill": 1,
+    "role": "cleaner",
+    "social_personality_id": "PP07",
+    "species_id": "S14",
+    "work_style_id": "WS06"
+  },
+  {
+    "biography_id": "BIO02",
+    "certificates": [],
+    "id": "REX05",
+    "illustrative_only": true,
+    "name": "@zh:core.recruitment_examples.REX05.name",
+    "non_doctor_skill": 1,
+    "role": "mechanic",
+    "social_personality_id": "PP03",
+    "species_id": "S10",
+    "work_style_id": "WS04"
+  },
+  {
+    "biography_id": "BIO04",
+    "certificates": [
+      "q_research"
+    ],
+    "id": "REX06",
+    "illustrative_only": true,
+    "name": "@zh:core.recruitment_examples.REX06.name",
+    "non_doctor_skill": 1,
+    "role": "researcher",
+    "social_personality_id": "PP09",
+    "species_id": "S70",
+    "work_style_id": "WS03"
+  },
+  {
+    "biography_id": "BIO08",
+    "certificates": [],
+    "id": "REX07",
+    "illustrative_only": true,
+    "name": "@zh:core.recruitment_examples.REX07.name",
+    "non_doctor_skill": 1,
+    "role": "decorator",
+    "social_personality_id": "PP01",
+    "species_id": "S42",
+    "work_style_id": "WS03"
+  }
+]

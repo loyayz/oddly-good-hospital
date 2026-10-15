@@ -1,0 +1,98 @@
+[
+  {
+    "evidence": "hospital_created",
+    "help_text": "@zh:core.onboarding_steps.OB01.help_text",
+    "id": "OB01",
+    "name": "@zh:core.onboarding_steps.OB01.name",
+    "order": 1,
+    "patient_seed": null,
+    "target_panel": "hospital"
+  },
+  {
+    "evidence": "patient_selected",
+    "help_text": "@zh:core.onboarding_steps.OB02.help_text",
+    "id": "OB02",
+    "name": "@zh:core.onboarding_steps.OB02.name",
+    "order": 2,
+    "patient_seed": null,
+    "target_panel": "patient"
+  },
+  {
+    "evidence": "human_case_cured",
+    "help_text": "@zh:core.onboarding_steps.OB03.help_text",
+    "id": "OB03",
+    "name": "@zh:core.onboarding_steps.OB03.name",
+    "order": 3,
+    "patient_seed": {
+      "disease_id": "D37",
+      "species_id": "S49"
+    },
+    "target_panel": "patient"
+  },
+  {
+    "evidence": "zombie_case_cured",
+    "help_text": "@zh:core.onboarding_steps.OB04.help_text",
+    "id": "OB04",
+    "name": "@zh:core.onboarding_steps.OB04.name",
+    "order": 4,
+    "patient_seed": {
+      "disease_id": "D09",
+      "species_id": "S13"
+    },
+    "target_panel": "patient"
+  },
+  {
+    "evidence": "seat_fit_reviewed_or_layout_committed",
+    "help_text": "@zh:core.onboarding_steps.OB05.help_text",
+    "id": "OB05",
+    "name": "@zh:core.onboarding_steps.OB05.name",
+    "order": 5,
+    "patient_seed": null,
+    "target_panel": "building"
+  },
+  {
+    "evidence": "interaction_finished",
+    "help_text": "@zh:core.onboarding_steps.OB06.help_text",
+    "id": "OB06",
+    "name": "@zh:core.onboarding_steps.OB06.name",
+    "order": 6,
+    "patient_seed": null,
+    "target_panel": "residents"
+  },
+  {
+    "evidence": "research_evidence_received",
+    "help_text": "@zh:core.onboarding_steps.OB07.help_text",
+    "id": "OB07",
+    "name": "@zh:core.onboarding_steps.OB07.name",
+    "order": 7,
+    "patient_seed": null,
+    "target_panel": "research"
+  },
+  {
+    "evidence": "finance_view_opened",
+    "help_text": "@zh:core.onboarding_steps.OB08.help_text",
+    "id": "OB08",
+    "name": "@zh:core.onboarding_steps.OB08.name",
+    "order": 8,
+    "patient_seed": null,
+    "target_panel": "finance"
+  },
+  {
+    "evidence": "milestone_reward_claimed",
+    "help_text": "@zh:core.onboarding_steps.OB09.help_text",
+    "id": "OB09",
+    "name": "@zh:core.onboarding_steps.OB09.name",
+    "order": 9,
+    "patient_seed": null,
+    "target_panel": "tasks"
+  },
+  {
+    "evidence": "manual_save_and_hospital_list",
+    "help_text": "@zh:core.onboarding_steps.OB10.help_text",
+    "id": "OB10",
+    "name": "@zh:core.onboarding_steps.OB10.name",
+    "order": 10,
+    "patient_seed": null,
+    "target_panel": "hospital"
+  }
+]

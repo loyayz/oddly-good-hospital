@@ -1,0 +1,81 @@
+[
+  {
+    "first_job_scene": "@zh:core.staff_practice_profiles.SP01.first_job_scene",
+    "growth_owner": "job_skill",
+    "id": "SP01",
+    "low_motion_first_job_scene": "@zh:core.staff_practice_profiles.SP01.low_motion_first_job_scene",
+    "name": "@zh:core.staff_practice_profiles.SP01.name",
+    "role": "receptionist",
+    "sources": [
+      "registration_completed"
+    ],
+    "unit": "completed_work"
+  },
+  {
+    "first_job_scene": "@zh:core.staff_practice_profiles.SP02.first_job_scene",
+    "growth_owner": "clinical_ability",
+    "id": "SP02",
+    "low_motion_first_job_scene": "@zh:core.staff_practice_profiles.SP02.low_motion_first_job_scene",
+    "name": "@zh:core.staff_practice_profiles.SP02.name",
+    "role": "nurse",
+    "sources": [
+      "test_completed",
+      "guidance_corrected",
+      "incident_care_completed",
+      "ward_visit_completed",
+      "bed_transfer_completed",
+      "or_assistance_completed"
+    ],
+    "unit": "track_completed_work"
+  },
+  {
+    "first_job_scene": "@zh:core.staff_practice_profiles.SP03.first_job_scene",
+    "growth_owner": "job_skill",
+    "id": "SP03",
+    "low_motion_first_job_scene": "@zh:core.staff_practice_profiles.SP03.low_motion_first_job_scene",
+    "name": "@zh:core.staff_practice_profiles.SP03.name",
+    "role": "cleaner",
+    "sources": [
+      "cleanup_completed"
+    ],
+    "unit": "completed_work"
+  },
+  {
+    "first_job_scene": "@zh:core.staff_practice_profiles.SP04.first_job_scene",
+    "growth_owner": "job_skill",
+    "id": "SP04",
+    "low_motion_first_job_scene": "@zh:core.staff_practice_profiles.SP04.low_motion_first_job_scene",
+    "name": "@zh:core.staff_practice_profiles.SP04.name",
+    "role": "mechanic",
+    "sources": [
+      "maintenance_order_completed",
+      "machine_upgrade_completed"
+    ],
+    "unit": "completed_work"
+  },
+  {
+    "first_job_scene": "@zh:core.staff_practice_profiles.SP05.first_job_scene",
+    "growth_owner": "job_skill",
+    "id": "SP05",
+    "low_motion_first_job_scene": "@zh:core.staff_practice_profiles.SP05.low_motion_first_job_scene",
+    "name": "@zh:core.staff_practice_profiles.SP05.name",
+    "role": "researcher",
+    "sources": [
+      "active_research_ticks"
+    ],
+    "unit": "active_time"
+  },
+  {
+    "first_job_scene": "@zh:core.staff_practice_profiles.SP06.first_job_scene",
+    "growth_owner": "job_skill",
+    "id": "SP06",
+    "low_motion_first_job_scene": "@zh:core.staff_practice_profiles.SP06.low_motion_first_job_scene",
+    "name": "@zh:core.staff_practice_profiles.SP06.name",
+    "role": "decorator",
+    "sources": [
+      "surface_unit_completed",
+      "floor_module_completed"
+    ],
+    "unit": "completed_work"
+  }
+]

@@ -1,0 +1,87 @@
+[
+  {
+    "capacity": 1,
+    "card": "@zh:core.chair_variants.CS01.card",
+    "definition_id": "FUR49",
+    "effect": "patient_calm_once",
+    "effect_scene": "@zh:core.chair_variants.CS01.effect_scene",
+    "fit_profile_id": "FF05",
+    "footprint": [
+      1,
+      1
+    ],
+    "id": "CS01",
+    "low_motion_scene": "@zh:core.chair_variants.CS01.low_motion_scene",
+    "name": "@zh:core.chair_variants.CS01.name",
+    "ordinary_scene": "@zh:core.chair_variants.CS01.ordinary_scene",
+    "parameters": {
+      "anger_reduction": 3,
+      "continuous_seated_seconds": 20
+    },
+    "price": 180,
+    "scene": "@zh:core.chair_variants.CS01.scene"
+  },
+  {
+    "capacity": 1,
+    "card": "@zh:core.chair_variants.CS02.card",
+    "definition_id": "FUR50",
+    "effect": "patient_noise_anger_multiplier",
+    "effect_scene": "@zh:core.chair_variants.CS02.effect_scene",
+    "fit_profile_id": "FF05",
+    "footprint": [
+      1,
+      1
+    ],
+    "id": "CS02",
+    "low_motion_scene": "@zh:core.chair_variants.CS02.low_motion_scene",
+    "name": "@zh:core.chair_variants.CS02.name",
+    "ordinary_scene": "@zh:core.chair_variants.CS02.ordinary_scene",
+    "parameters": {
+      "multiplier": 0.5
+    },
+    "price": 220,
+    "scene": "@zh:core.chair_variants.CS02.scene"
+  },
+  {
+    "capacity": 1,
+    "card": "@zh:core.chair_variants.CS03.card",
+    "definition_id": "FUR51",
+    "effect": "staff_rest_stress_rate",
+    "effect_scene": "@zh:core.chair_variants.CS03.effect_scene",
+    "fit_profile_id": "FF05",
+    "footprint": [
+      1,
+      1
+    ],
+    "id": "CS03",
+    "low_motion_scene": "@zh:core.chair_variants.CS03.low_motion_scene",
+    "name": "@zh:core.chair_variants.CS03.name",
+    "ordinary_scene": "@zh:core.chair_variants.CS03.ordinary_scene",
+    "parameters": {
+      "per_second": 0.04
+    },
+    "price": 200,
+    "scene": "@zh:core.chair_variants.CS03.scene"
+  },
+  {
+    "capacity": 1,
+    "card": "@zh:core.chair_variants.CS04.card",
+    "definition_id": "FUR52",
+    "effect": "staff_rest_energy_rate",
+    "effect_scene": "@zh:core.chair_variants.CS04.effect_scene",
+    "fit_profile_id": "FF05",
+    "footprint": [
+      1,
+      2
+    ],
+    "id": "CS04",
+    "low_motion_scene": "@zh:core.chair_variants.CS04.low_motion_scene",
+    "name": "@zh:core.chair_variants.CS04.name",
+    "ordinary_scene": "@zh:core.chair_variants.CS04.ordinary_scene",
+    "parameters": {
+      "per_second": 1.2
+    },
+    "price": 240,
+    "scene": "@zh:core.chair_variants.CS04.scene"
+  }
+]

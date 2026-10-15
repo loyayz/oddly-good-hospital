@@ -6,6 +6,12 @@ Windows独立安装、单人离线的轻松医院建造经营游戏。完整设�
 
 ## 构建
 
+正式内容由唯一入口生成并校验。发布包、中文文本、房型与资源索引位于`content/core`，运行时使用不可变注册表，不直接读取设计数值。第四阶段及后续交付状态见[交付记录](docs/reports/2026-10-15-stage04-stage24.md)。
+
+```powershell
+python -B -X utf8 tools/compile-content.py --check
+```
+
 ```powershell
 pwsh -NoProfile -File tools/build-stage03.ps1
 ```

@@ -1,0 +1,20 @@
+[
+  {
+    "focus": "@zh:core.fit_examples.FE01.focus",
+    "id": "FE01",
+    "label": "@zh:core.fit_examples.FE01.label",
+    "species_id": "S49"
+  },
+  {
+    "focus": "@zh:core.fit_examples.FE02.focus",
+    "id": "FE02",
+    "label": "@zh:core.fit_examples.FE02.label",
+    "species_id": "S01"
+  },
+  {
+    "focus": "@zh:core.fit_examples.FE03.focus",
+    "id": "FE03",
+    "label": "@zh:core.fit_examples.FE03.label",
+    "species_id": "S59"
+  }
+]

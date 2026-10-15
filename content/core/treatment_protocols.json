@@ -1,0 +1,114 @@
+[
+  {
+    "burden": 0,
+    "complex_penalty": 0.18,
+    "cure_fee_multiplier": 1.0,
+    "id": "TP_COMMON",
+    "kind": "outpatient",
+    "name": "@zh:core.treatment_protocols.TP_COMMON.name",
+    "presentation_mode": "standard",
+    "recovery_seconds": 0,
+    "uses_disease_profile": true,
+    "work_multiplier": 1.0
+  },
+  {
+    "burden": 1,
+    "clinical_profiles": {
+      "A": {
+        "base_success": 0.97,
+        "min_treatment": 1,
+        "recovery_seconds": 0,
+        "supply_units": 2
+      },
+      "B": {
+        "base_success": 0.95,
+        "min_treatment": 2,
+        "recovery_seconds": 0,
+        "supply_units": 3
+      },
+      "C": {
+        "base_success": 0.93,
+        "min_treatment": 3,
+        "recovery_seconds": 180,
+        "supply_units": 4
+      }
+    },
+    "complex_penalty": 0.08,
+    "cure_fee_multiplier": 1.1,
+    "id": "TP_GENTLE",
+    "kind": "outpatient",
+    "name": "@zh:core.treatment_protocols.TP_GENTLE.name",
+    "presentation_mode": "gentle",
+    "uses_disease_profile": false,
+    "work_multiplier": 1.8
+  },
+  {
+    "base_success": 0.96,
+    "burden": 3,
+    "complex_penalty": 0,
+    "cure_fee_multiplier": 1.8,
+    "difficulty": 1,
+    "id": "TP_SURGERY1",
+    "kind": "surgery",
+    "min_anesthetist_surgery": 2,
+    "min_anesthetist_title_id": "DT02",
+    "min_nurse_surgery": 1,
+    "min_surgeon_surgery": 2,
+    "min_surgeon_title_id": "DT02",
+    "name": "@zh:core.treatment_protocols.TP_SURGERY1.name",
+    "nurse_certificate": "q_or",
+    "recovery_seconds": 180,
+    "required_equipment_ids": [
+      "EQ01"
+    ],
+    "requires_distinct_staff": true,
+    "supply_units": 8,
+    "work_seconds": 120
+  },
+  {
+    "base_success": 0.96,
+    "burden": 3,
+    "complex_penalty": 0,
+    "cure_fee_multiplier": 1.8,
+    "difficulty": 2,
+    "id": "TP_SURGERY2",
+    "kind": "surgery",
+    "min_anesthetist_surgery": 2,
+    "min_anesthetist_title_id": "DT02",
+    "min_nurse_surgery": 2,
+    "min_surgeon_surgery": 3,
+    "min_surgeon_title_id": "DT03",
+    "name": "@zh:core.treatment_protocols.TP_SURGERY2.name",
+    "nurse_certificate": "q_or",
+    "recovery_seconds": 240,
+    "required_equipment_ids": [
+      "EQ01"
+    ],
+    "requires_distinct_staff": true,
+    "supply_units": 10,
+    "work_seconds": 150
+  },
+  {
+    "base_success": 0.96,
+    "burden": 3,
+    "complex_penalty": 0,
+    "cure_fee_multiplier": 1.8,
+    "difficulty": 3,
+    "id": "TP_SURGERY3",
+    "kind": "surgery",
+    "min_anesthetist_surgery": 3,
+    "min_anesthetist_title_id": "DT02",
+    "min_nurse_surgery": 3,
+    "min_surgeon_surgery": 4,
+    "min_surgeon_title_id": "DT04",
+    "name": "@zh:core.treatment_protocols.TP_SURGERY3.name",
+    "nurse_certificate": "q_or",
+    "recovery_seconds": 300,
+    "required_equipment_ids": [
+      "EQ01"
+    ],
+    "requires_distinct_staff": true,
+    "supply_units": 12,
+    "work_seconds": 180
+  }
+]

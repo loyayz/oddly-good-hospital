@@ -1,0 +1,17 @@
+[
+  {
+    "description": "@zh:core.maintenance_policies.MP01.description",
+    "id": "MP01",
+    "name": "@zh:core.maintenance_policies.MP01.name"
+  },
+  {
+    "description": "@zh:core.maintenance_policies.MP02.description",
+    "id": "MP02",
+    "name": "@zh:core.maintenance_policies.MP02.name"
+  },
+  {
+    "description": "@zh:core.maintenance_policies.MP03.description",
+    "id": "MP03",
+    "name": "@zh:core.maintenance_policies.MP03.name"
+  }
+]

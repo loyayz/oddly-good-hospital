@@ -1,0 +1,57 @@
+[
+  {
+    "ability": "diagnosis",
+    "id": "CPS01",
+    "role": "doctor",
+    "sources": [
+      "gp_completed",
+      "test_completed"
+    ]
+  },
+  {
+    "ability": "treatment",
+    "id": "CPS02",
+    "role": "doctor",
+    "sources": [
+      "outpatient_completed",
+      "discharge_round_completed"
+    ]
+  },
+  {
+    "ability": "surgery",
+    "id": "CPS03",
+    "role": "doctor",
+    "sources": [
+      "surgery_completed",
+      "anesthesia_completed",
+      "observation_completed"
+    ]
+  },
+  {
+    "ability": "diagnosis",
+    "id": "CPS04",
+    "role": "nurse",
+    "sources": [
+      "test_completed"
+    ]
+  },
+  {
+    "ability": "care",
+    "id": "CPS05",
+    "role": "nurse",
+    "sources": [
+      "guidance_corrected",
+      "incident_care_completed",
+      "ward_visit_completed",
+      "bed_transfer_completed"
+    ]
+  },
+  {
+    "ability": "surgery",
+    "id": "CPS06",
+    "role": "nurse",
+    "sources": [
+      "or_assistance_completed"
+    ]
+  }
+]

@@ -1,0 +1,75 @@
+[
+  {
+    "id": "DT01",
+    "name": "@zh:core.doctor_titles.DT01.name",
+    "promotion": null,
+    "rank": 0,
+    "recruitment": {
+      "requires_promoted_chief": false,
+      "requires_research": []
+    }
+  },
+  {
+    "id": "DT02",
+    "name": "@zh:core.doctor_titles.DT02.name",
+    "promotion": {
+      "cured_case_count": 20,
+      "diagnosis_level": 1,
+      "primary_level": 2,
+      "prior_title_id": "DT01",
+      "requires_research": [
+        "R11"
+      ],
+      "secondary_level": 0
+    },
+    "rank": 1,
+    "recruitment": {
+      "requires_promoted_chief": false,
+      "requires_research": [
+        "R11"
+      ]
+    }
+  },
+  {
+    "id": "DT03",
+    "name": "@zh:core.doctor_titles.DT03.name",
+    "promotion": {
+      "cured_case_count": 60,
+      "diagnosis_level": 2,
+      "primary_level": 3,
+      "prior_title_id": "DT02",
+      "requires_research": [
+        "R11"
+      ],
+      "secondary_level": 0
+    },
+    "rank": 2,
+    "recruitment": {
+      "requires_promoted_chief": false,
+      "requires_research": [
+        "R34"
+      ]
+    }
+  },
+  {
+    "id": "DT04",
+    "name": "@zh:core.doctor_titles.DT04.name",
+    "promotion": {
+      "cured_case_count": 140,
+      "diagnosis_level": 3,
+      "primary_level": 4,
+      "prior_title_id": "DT03",
+      "requires_research": [
+        "R11"
+      ],
+      "secondary_level": 2
+    },
+    "rank": 3,
+    "recruitment": {
+      "requires_promoted_chief": true,
+      "requires_research": [
+        "R34"
+      ]
+    }
+  }
+]

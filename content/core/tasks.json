@@ -1,0 +1,525 @@
+[
+  {
+    "deadline_days": null,
+    "eligibility": "@zh:core.tasks.Q01.eligibility",
+    "eligibility_rule": {
+      "required_roles": [],
+      "requires_research": []
+    },
+    "filter": {},
+    "id": "Q01",
+    "kind": "milestone",
+    "metric": "cured_visits",
+    "name": "@zh:core.tasks.Q01.name",
+    "repeatable": false,
+    "reward_cash": 400,
+    "reward_items": [],
+    "target": 5
+  },
+  {
+    "deadline_days": null,
+    "eligibility": "@zh:core.tasks.Q02.eligibility",
+    "eligibility_rule": {
+      "required_roles": [],
+      "requires_research": []
+    },
+    "filter": {},
+    "id": "Q02",
+    "kind": "milestone",
+    "metric": "payroll_days_all_staff_paid",
+    "name": "@zh:core.tasks.Q02.name",
+    "repeatable": false,
+    "reward_cash": 600,
+    "reward_items": [],
+    "target": 3
+  },
+  {
+    "deadline_days": null,
+    "eligibility": "@zh:core.tasks.Q03.eligibility",
+    "eligibility_rule": {
+      "required_roles": [],
+      "requires_research": []
+    },
+    "filter": {},
+    "id": "Q03",
+    "kind": "milestone",
+    "metric": "employed_mechanics",
+    "name": "@zh:core.tasks.Q03.name",
+    "repeatable": false,
+    "reward_cash": 150,
+    "reward_items": [],
+    "target": 1
+  },
+  {
+    "deadline_days": null,
+    "eligibility": "@zh:core.tasks.Q04.eligibility",
+    "eligibility_rule": {
+      "required_roles": [],
+      "requires_research": []
+    },
+    "filter": {},
+    "id": "Q04",
+    "kind": "milestone",
+    "metric": "owned_plots",
+    "name": "@zh:core.tasks.Q04.name",
+    "repeatable": false,
+    "reward_cash": 600,
+    "reward_items": [],
+    "target": 2
+  },
+  {
+    "deadline_days": null,
+    "eligibility": "@zh:core.tasks.Q05.eligibility",
+    "eligibility_rule": {
+      "required_roles": [],
+      "requires_research": []
+    },
+    "filter": {},
+    "id": "Q05",
+    "kind": "milestone",
+    "metric": "cured_clearance2_visits",
+    "name": "@zh:core.tasks.Q05.name",
+    "repeatable": false,
+    "reward_cash": 400,
+    "reward_items": [],
+    "target": 2
+  },
+  {
+    "deadline_days": null,
+    "eligibility": "@zh:core.tasks.Q06.eligibility",
+    "eligibility_rule": {
+      "required_roles": [],
+      "requires_research": []
+    },
+    "filter": {},
+    "id": "Q06",
+    "kind": "milestone",
+    "metric": "completed_research",
+    "name": "@zh:core.tasks.Q06.name",
+    "repeatable": false,
+    "reward_cash": 400,
+    "reward_items": [],
+    "target": 2
+  },
+  {
+    "deadline_days": null,
+    "eligibility": "@zh:core.tasks.Q07.eligibility",
+    "eligibility_rule": {
+      "required_roles": [
+        "mechanic"
+      ],
+      "requires_research": []
+    },
+    "filter": {},
+    "id": "Q07",
+    "kind": "milestone",
+    "metric": "preventive_maintenance_jobs",
+    "name": "@zh:core.tasks.Q07.name",
+    "repeatable": false,
+    "reward_cash": 300,
+    "reward_items": [],
+    "target": 3
+  },
+  {
+    "deadline_days": null,
+    "eligibility": "@zh:core.tasks.Q08.eligibility",
+    "eligibility_rule": {
+      "required_roles": [
+        "mechanic"
+      ],
+      "requires_research": []
+    },
+    "filter": {},
+    "id": "Q08",
+    "kind": "milestone",
+    "metric": "random_fault_repairs",
+    "name": "@zh:core.tasks.Q08.name",
+    "repeatable": false,
+    "reward_cash": 350,
+    "reward_items": [],
+    "target": 2
+  },
+  {
+    "deadline_days": null,
+    "eligibility": "@zh:core.tasks.Q09.eligibility",
+    "eligibility_rule": {
+      "required_roles": [],
+      "requires_research": []
+    },
+    "filter": {},
+    "id": "Q09",
+    "kind": "milestone",
+    "metric": "distinct_cured_species",
+    "name": "@zh:core.tasks.Q09.name",
+    "repeatable": false,
+    "reward_cash": 600,
+    "reward_items": [],
+    "target": 10
+  },
+  {
+    "deadline_days": null,
+    "eligibility": "@zh:core.tasks.Q10.eligibility",
+    "eligibility_rule": {
+      "required_roles": [],
+      "requires_research": []
+    },
+    "filter": {},
+    "id": "Q10",
+    "kind": "milestone",
+    "metric": "comfortable_visits",
+    "name": "@zh:core.tasks.Q10.name",
+    "repeatable": false,
+    "reward_cash": 450,
+    "reward_items": [],
+    "target": 5
+  },
+  {
+    "deadline_days": null,
+    "eligibility": "@zh:core.tasks.Q11.eligibility",
+    "eligibility_rule": {
+      "required_roles": [],
+      "requires_research": []
+    },
+    "filter": {},
+    "id": "Q11",
+    "kind": "milestone",
+    "metric": "completed_stories",
+    "name": "@zh:core.tasks.Q11.name",
+    "repeatable": false,
+    "reward_cash": 600,
+    "reward_items": [],
+    "target": 1
+  },
+  {
+    "deadline_days": null,
+    "eligibility": "@zh:core.tasks.Q12.eligibility",
+    "eligibility_rule": {
+      "required_roles": [],
+      "requires_research": []
+    },
+    "filter": {},
+    "id": "Q12",
+    "kind": "milestone",
+    "metric": "cured_clearance3_visits",
+    "name": "@zh:core.tasks.Q12.name",
+    "repeatable": false,
+    "reward_cash": 800,
+    "reward_items": [],
+    "target": 2
+  },
+  {
+    "deadline_days": null,
+    "eligibility": "R11",
+    "eligibility_rule": {
+      "required_roles": [],
+      "requires_research": [
+        "R11"
+      ]
+    },
+    "filter": {},
+    "id": "Q13",
+    "kind": "milestone",
+    "metric": "doctors_with_two_abilities",
+    "metric_parameters": {
+      "minimum_ability_count": 2,
+      "minimum_ability_level": 2
+    },
+    "name": "@zh:core.tasks.Q13.name",
+    "repeatable": false,
+    "reward_cash": 650,
+    "reward_items": [],
+    "target": 3
+  },
+  {
+    "deadline_days": null,
+    "eligibility": "@zh:core.tasks.Q14.eligibility",
+    "eligibility_rule": {
+      "required_roles": [],
+      "requires_research": []
+    },
+    "filter": {},
+    "id": "Q14",
+    "kind": "milestone",
+    "metric": "owned_plots",
+    "name": "@zh:core.tasks.Q14.name",
+    "repeatable": false,
+    "reward_cash": 1200,
+    "reward_items": [],
+    "target": 4
+  },
+  {
+    "deadline_days": null,
+    "eligibility": "@zh:core.tasks.Q15.eligibility",
+    "eligibility_rule": {
+      "required_roles": [],
+      "requires_research": []
+    },
+    "filter": {},
+    "id": "Q15",
+    "kind": "milestone",
+    "metric": "cured_visits",
+    "name": "@zh:core.tasks.Q15.name",
+    "repeatable": false,
+    "reward_cash": 1000,
+    "reward_items": [],
+    "target": 50
+  },
+  {
+    "deadline_days": null,
+    "eligibility": "@zh:core.tasks.Q16.eligibility",
+    "eligibility_rule": {
+      "required_roles": [],
+      "requires_research": []
+    },
+    "filter": {},
+    "id": "Q16",
+    "kind": "milestone",
+    "metric": "distinct_cured_diseases",
+    "name": "@zh:core.tasks.Q16.name",
+    "repeatable": false,
+    "reward_cash": 800,
+    "reward_items": [],
+    "target": 20
+  },
+  {
+    "deadline_days": null,
+    "eligibility": "@zh:core.tasks.Q17.eligibility",
+    "eligibility_rule": {
+      "ready_offer_filter": {},
+      "required_roles": [],
+      "requires_research": []
+    },
+    "filter": {},
+    "id": "Q17",
+    "kind": "commission",
+    "metric": "cured_visits",
+    "name": "@zh:core.tasks.Q17.name",
+    "repeatable": true,
+    "reward_cash": 360,
+    "reward_items": [],
+    "target": 6
+  },
+  {
+    "deadline_days": null,
+    "eligibility": "@zh:core.tasks.Q18.eligibility",
+    "eligibility_rule": {
+      "ready_offer_filter": {
+        "family": "F13"
+      },
+      "required_roles": [],
+      "requires_research": []
+    },
+    "filter": {
+      "family": "F13"
+    },
+    "id": "Q18",
+    "kind": "commission",
+    "metric": "cured_visits",
+    "name": "@zh:core.tasks.Q18.name",
+    "repeatable": true,
+    "reward_cash": 200,
+    "reward_items": [],
+    "target": 3
+  },
+  {
+    "deadline_days": null,
+    "eligibility": "@zh:core.tasks.Q19.eligibility",
+    "eligibility_rule": {
+      "ready_offer_filter": {
+        "family": "F02"
+      },
+      "required_roles": [],
+      "requires_research": []
+    },
+    "filter": {
+      "family": "F02"
+    },
+    "id": "Q19",
+    "kind": "commission",
+    "metric": "cured_visits",
+    "name": "@zh:core.tasks.Q19.name",
+    "repeatable": true,
+    "reward_cash": 240,
+    "reward_items": [],
+    "target": 3
+  },
+  {
+    "deadline_days": null,
+    "eligibility": "@zh:core.tasks.Q20.eligibility",
+    "eligibility_rule": {
+      "ready_offer_filter": {
+        "family": "F01"
+      },
+      "required_roles": [],
+      "requires_research": []
+    },
+    "filter": {
+      "family": "F01"
+    },
+    "id": "Q20",
+    "kind": "commission",
+    "metric": "cured_visits",
+    "name": "@zh:core.tasks.Q20.name",
+    "repeatable": true,
+    "reward_cash": 240,
+    "reward_items": [],
+    "target": 3
+  },
+  {
+    "deadline_days": null,
+    "eligibility": "@zh:core.tasks.Q21.eligibility",
+    "eligibility_rule": {
+      "ready_offer_filter": {
+        "family": "F07"
+      },
+      "required_roles": [],
+      "requires_research": []
+    },
+    "filter": {
+      "family": "F07"
+    },
+    "id": "Q21",
+    "kind": "commission",
+    "metric": "cured_visits",
+    "name": "@zh:core.tasks.Q21.name",
+    "repeatable": true,
+    "reward_cash": 280,
+    "reward_items": [],
+    "target": 3
+  },
+  {
+    "deadline_days": null,
+    "eligibility": "@zh:core.tasks.Q22.eligibility",
+    "eligibility_rule": {
+      "ready_offer_filter": {
+        "height_gt_m": 2.4
+      },
+      "required_roles": [],
+      "requires_research": []
+    },
+    "filter": {},
+    "id": "Q22",
+    "kind": "commission",
+    "metric": "cured_tall_visits",
+    "name": "@zh:core.tasks.Q22.name",
+    "repeatable": true,
+    "reward_cash": 300,
+    "reward_items": [],
+    "target": 2
+  },
+  {
+    "deadline_days": null,
+    "eligibility": "@zh:core.tasks.Q23.eligibility",
+    "eligibility_rule": {
+      "maintainable_equipment_min": 1,
+      "required_roles": [
+        "mechanic"
+      ],
+      "requires_research": []
+    },
+    "filter": {},
+    "id": "Q23",
+    "kind": "commission",
+    "metric": "preventive_maintenance_jobs",
+    "name": "@zh:core.tasks.Q23.name",
+    "repeatable": true,
+    "reward_cash": 240,
+    "reward_items": [],
+    "target": 3
+  },
+  {
+    "deadline_days": null,
+    "eligibility": "@zh:core.tasks.Q24.eligibility",
+    "eligibility_rule": {
+      "available_residents_min": 2,
+      "required_roles": [],
+      "requires_research": []
+    },
+    "filter": {},
+    "id": "Q24",
+    "kind": "commission",
+    "metric": "positive_interactions",
+    "name": "@zh:core.tasks.Q24.name",
+    "repeatable": true,
+    "reward_cash": 200,
+    "reward_items": [],
+    "target": 4
+  },
+  {
+    "deadline_days": null,
+    "eligibility": "@zh:core.tasks.Q25.eligibility",
+    "eligibility_rule": {
+      "ready_comfort2_seat_min": 1,
+      "required_roles": [],
+      "requires_research": []
+    },
+    "filter": {},
+    "id": "Q25",
+    "kind": "commission",
+    "metric": "comfortable_visits",
+    "name": "@zh:core.tasks.Q25.name",
+    "repeatable": true,
+    "reward_cash": 240,
+    "reward_items": [],
+    "target": 4
+  },
+  {
+    "deadline_days": null,
+    "eligibility": "@zh:core.tasks.Q26.eligibility",
+    "eligibility_rule": {
+      "required_roles": [],
+      "requires_research": [
+        "R11"
+      ],
+      "trainable_doctors_min": 1
+    },
+    "filter": {},
+    "id": "Q26",
+    "kind": "commission",
+    "metric": "completed_ability_courses",
+    "name": "@zh:core.tasks.Q26.name",
+    "repeatable": true,
+    "reward_cash": 250,
+    "reward_items": [],
+    "target": 1
+  },
+  {
+    "deadline_days": null,
+    "eligibility": "@zh:core.tasks.Q27.eligibility",
+    "eligibility_rule": {
+      "required_roles": [
+        "cleaner"
+      ],
+      "requires_research": []
+    },
+    "filter": {},
+    "id": "Q27",
+    "kind": "commission",
+    "metric": "cleanup_jobs",
+    "name": "@zh:core.tasks.Q27.name",
+    "repeatable": true,
+    "reward_cash": 180,
+    "reward_items": [],
+    "target": 8
+  },
+  {
+    "deadline_days": null,
+    "eligibility": "@zh:core.tasks.Q28.eligibility",
+    "eligibility_rule": {
+      "ready_offer_filter": {
+        "profile": "B"
+      },
+      "required_roles": [],
+      "requires_research": []
+    },
+    "filter": {},
+    "id": "Q28",
+    "kind": "commission",
+    "metric": "diagnosed_b_visits",
+    "name": "@zh:core.tasks.Q28.name",
+    "repeatable": true,
+    "reward_cash": 280,
+    "reward_items": [],
+    "target": 4
+  }
+]

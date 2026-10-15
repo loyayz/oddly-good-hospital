@@ -1,0 +1,20 @@
+[
+  {
+    "empty_scene": "@zh:core.staff_base_cues.BC01.empty_scene",
+    "equipment_id": "SE05",
+    "id": "BC01",
+    "low_motion_scene": "@zh:core.staff_base_cues.BC01.low_motion_scene",
+    "name": "@zh:core.staff_base_cues.BC01.name",
+    "role": "doctor",
+    "scene": "@zh:core.staff_base_cues.BC01.scene"
+  },
+  {
+    "empty_scene": "@zh:core.staff_base_cues.BC02.empty_scene",
+    "equipment_id": "SE06",
+    "id": "BC02",
+    "low_motion_scene": "@zh:core.staff_base_cues.BC02.low_motion_scene",
+    "name": "@zh:core.staff_base_cues.BC02.name",
+    "role": "nurse",
+    "scene": "@zh:core.staff_base_cues.BC02.scene"
+  }
+]

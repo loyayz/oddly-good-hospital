@@ -1,0 +1,42 @@
+[
+  {
+    "finishing": "@zh:core.maintenance_scenes.MS01.finishing",
+    "id": "MS01",
+    "low_motion_scene": "@zh:core.maintenance_scenes.MS01.low_motion_scene",
+    "name": "@zh:core.maintenance_scenes.MS01.name",
+    "opening": "@zh:core.maintenance_scenes.MS01.opening",
+    "paused_scene": "@zh:core.maintenance_scenes.MS01.paused_scene",
+    "selector": "class:medical",
+    "working_scene": "@zh:core.maintenance_scenes.MS01.working_scene"
+  },
+  {
+    "finishing": "@zh:core.maintenance_scenes.MS02.finishing",
+    "id": "MS02",
+    "low_motion_scene": "@zh:core.maintenance_scenes.MS02.low_motion_scene",
+    "name": "@zh:core.maintenance_scenes.MS02.name",
+    "opening": "@zh:core.maintenance_scenes.MS02.opening",
+    "paused_scene": "@zh:core.maintenance_scenes.MS02.paused_scene",
+    "selector": "class:workstation",
+    "working_scene": "@zh:core.maintenance_scenes.MS02.working_scene"
+  },
+  {
+    "finishing": "@zh:core.maintenance_scenes.MS03.finishing",
+    "id": "MS03",
+    "low_motion_scene": "@zh:core.maintenance_scenes.MS03.low_motion_scene",
+    "name": "@zh:core.maintenance_scenes.MS03.name",
+    "opening": "@zh:core.maintenance_scenes.MS03.opening",
+    "paused_scene": "@zh:core.maintenance_scenes.MS03.paused_scene",
+    "selector": "class:utility",
+    "working_scene": "@zh:core.maintenance_scenes.MS03.working_scene"
+  },
+  {
+    "finishing": "@zh:core.maintenance_scenes.MS06.finishing",
+    "id": "MS06",
+    "low_motion_scene": "@zh:core.maintenance_scenes.MS06.low_motion_scene",
+    "name": "@zh:core.maintenance_scenes.MS06.name",
+    "opening": "@zh:core.maintenance_scenes.MS06.opening",
+    "paused_scene": "@zh:core.maintenance_scenes.MS06.paused_scene",
+    "selector": "vertical_lift",
+    "working_scene": "@zh:core.maintenance_scenes.MS06.working_scene"
+  }
+]

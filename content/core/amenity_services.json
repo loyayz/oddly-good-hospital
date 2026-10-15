@@ -1,0 +1,24 @@
+[
+  {
+    "body_fit": "automatic",
+    "fallback_low_motion_scene": "@zh:core.amenity_services.ASV01.fallback_low_motion_scene",
+    "fallback_scene": "@zh:core.amenity_services.ASV01.fallback_scene",
+    "id": "ASV01",
+    "name": "@zh:core.amenity_services.ASV01.name",
+    "ordinary_facility_id": "FUR07",
+    "ordinary_seconds": 8,
+    "purpose": "toilet",
+    "universal_facility_id": "AE03"
+  },
+  {
+    "body_fit": "automatic",
+    "fallback_low_motion_scene": "@zh:core.amenity_services.ASV02.fallback_low_motion_scene",
+    "fallback_scene": "@zh:core.amenity_services.ASV02.fallback_scene",
+    "id": "ASV02",
+    "name": "@zh:core.amenity_services.ASV02.name",
+    "ordinary_facility_id": "FUR17",
+    "ordinary_seconds": 8,
+    "purpose": "water",
+    "universal_facility_id": "AE02"
+  }
+]

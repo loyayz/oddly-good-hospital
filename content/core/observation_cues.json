@@ -1,0 +1,22 @@
+[
+  {
+    "id": "OC01",
+    "state": "watching",
+    "text": "@zh:core.observation_cues.OC01.text"
+  },
+  {
+    "id": "OC02",
+    "state": "in_transit",
+    "text": "@zh:core.observation_cues.OC02.text"
+  },
+  {
+    "id": "OC03",
+    "state": "manual_speed",
+    "text": "@zh:core.observation_cues.OC03.text"
+  },
+  {
+    "id": "OC04",
+    "state": "stage_ended",
+    "text": "@zh:core.observation_cues.OC04.text"
+  }
+]

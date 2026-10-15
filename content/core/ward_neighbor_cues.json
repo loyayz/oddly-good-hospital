@@ -1,0 +1,20 @@
+[
+  {
+    "condition": "default",
+    "id": "WN01",
+    "low_motion_scene": "@zh:core.ward_neighbor_cues.WN01.low_motion_scene",
+    "scene": "@zh:core.ward_neighbor_cues.WN01.scene"
+  },
+  {
+    "condition": "neighbor_PP03",
+    "id": "WN02",
+    "low_motion_scene": "@zh:core.ward_neighbor_cues.WN02.low_motion_scene",
+    "scene": "@zh:core.ward_neighbor_cues.WN02.scene"
+  },
+  {
+    "condition": "friend",
+    "id": "WN03",
+    "low_motion_scene": "@zh:core.ward_neighbor_cues.WN03.low_motion_scene",
+    "scene": "@zh:core.ward_neighbor_cues.WN03.scene"
+  }
+]

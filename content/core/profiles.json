@@ -1,0 +1,28 @@
+{
+  "A": {
+    "base_success": 0.92,
+    "gp_confidence": 92,
+    "min_skill": 1,
+    "supply_units": 1,
+    "tests": []
+  },
+  "B": {
+    "base_success": 0.88,
+    "gp_confidence": 62,
+    "min_skill": 1,
+    "supply_units": 2,
+    "tests": [
+      "spectrum"
+    ]
+  },
+  "C": {
+    "base_success": 0.84,
+    "gp_confidence": 42,
+    "min_skill": 2,
+    "supply_units": 3,
+    "tests": [
+      "spectrum",
+      "resonance"
+    ]
+  }
+}

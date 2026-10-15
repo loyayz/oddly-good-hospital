@@ -1,0 +1,185 @@
+[
+  {
+    "evidence": "@zh:core.task_guides.TG01.evidence",
+    "id": "TG01",
+    "metric_labels": {
+      "cured_clearance2_visits": {
+        "text": "@zh:core.task_guides.TG01.metric_labels.cured_clearance2_visits.text",
+        "unit": "@zh:core.task_guides.TG01.metric_labels.cured_clearance2_visits.unit"
+      },
+      "cured_clearance3_visits": {
+        "text": "@zh:core.task_guides.TG01.metric_labels.cured_clearance3_visits.text",
+        "unit": "@zh:core.task_guides.TG01.metric_labels.cured_clearance3_visits.unit"
+      },
+      "cured_tall_visits": {
+        "text": "@zh:core.task_guides.TG01.metric_labels.cured_tall_visits.text",
+        "unit": "@zh:core.task_guides.TG01.metric_labels.cured_tall_visits.unit"
+      },
+      "cured_visits": {
+        "text": "@zh:core.task_guides.TG01.metric_labels.cured_visits.text",
+        "unit": "@zh:core.task_guides.TG01.metric_labels.cured_visits.unit"
+      },
+      "diagnosed_b_visits": {
+        "text": "@zh:core.task_guides.TG01.metric_labels.diagnosed_b_visits.text",
+        "unit": "@zh:core.task_guides.TG01.metric_labels.diagnosed_b_visits.unit"
+      },
+      "distinct_cured_diseases": {
+        "text": "@zh:core.task_guides.TG01.metric_labels.distinct_cured_diseases.text",
+        "unit": "@zh:core.task_guides.TG01.metric_labels.distinct_cured_diseases.unit"
+      },
+      "distinct_cured_species": {
+        "text": "@zh:core.task_guides.TG01.metric_labels.distinct_cured_species.text",
+        "unit": "@zh:core.task_guides.TG01.metric_labels.distinct_cured_species.unit"
+      }
+    },
+    "metrics": [
+      "cured_visits",
+      "cured_clearance2_visits",
+      "cured_clearance3_visits",
+      "cured_tall_visits",
+      "diagnosed_b_visits",
+      "distinct_cured_species",
+      "distinct_cured_diseases"
+    ],
+    "name": "@zh:core.task_guides.TG01.name",
+    "next_step": "@zh:core.task_guides.TG01.next_step",
+    "target_panel": "admissions"
+  },
+  {
+    "evidence": "@zh:core.task_guides.TG02.evidence",
+    "id": "TG02",
+    "metric_labels": {
+      "preventive_maintenance_jobs": {
+        "text": "@zh:core.task_guides.TG02.metric_labels.preventive_maintenance_jobs.text",
+        "unit": "@zh:core.task_guides.TG02.metric_labels.preventive_maintenance_jobs.unit"
+      },
+      "random_fault_repairs": {
+        "text": "@zh:core.task_guides.TG02.metric_labels.random_fault_repairs.text",
+        "unit": "@zh:core.task_guides.TG02.metric_labels.random_fault_repairs.unit"
+      }
+    },
+    "metrics": [
+      "preventive_maintenance_jobs",
+      "random_fault_repairs"
+    ],
+    "name": "@zh:core.task_guides.TG02.name",
+    "next_step": "@zh:core.task_guides.TG02.next_step",
+    "target_panel": "maintenance"
+  },
+  {
+    "evidence": "@zh:core.task_guides.TG03.evidence",
+    "id": "TG03",
+    "metric_labels": {
+      "completed_ability_courses": {
+        "text": "@zh:core.task_guides.TG03.metric_labels.completed_ability_courses.text",
+        "unit": "@zh:core.task_guides.TG03.metric_labels.completed_ability_courses.unit"
+      },
+      "doctors_with_two_abilities": {
+        "text": "@zh:core.task_guides.TG03.metric_labels.doctors_with_two_abilities.text",
+        "unit": "@zh:core.task_guides.TG03.metric_labels.doctors_with_two_abilities.unit"
+      },
+      "employed_mechanics": {
+        "text": "@zh:core.task_guides.TG03.metric_labels.employed_mechanics.text",
+        "unit": "@zh:core.task_guides.TG03.metric_labels.employed_mechanics.unit"
+      }
+    },
+    "metrics": [
+      "employed_mechanics",
+      "doctors_with_two_abilities",
+      "completed_ability_courses"
+    ],
+    "name": "@zh:core.task_guides.TG03.name",
+    "next_step": "@zh:core.task_guides.TG03.next_step",
+    "target_panel": "staff"
+  },
+  {
+    "evidence": "@zh:core.task_guides.TG04.evidence",
+    "id": "TG04",
+    "metric_labels": {
+      "comfortable_visits": {
+        "text": "@zh:core.task_guides.TG04.metric_labels.comfortable_visits.text",
+        "unit": "@zh:core.task_guides.TG04.metric_labels.comfortable_visits.unit"
+      }
+    },
+    "metrics": [
+      "comfortable_visits"
+    ],
+    "name": "@zh:core.task_guides.TG04.name",
+    "next_step": "@zh:core.task_guides.TG04.next_step",
+    "target_panel": "facilities"
+  },
+  {
+    "evidence": "@zh:core.task_guides.TG05.evidence",
+    "id": "TG05",
+    "metric_labels": {
+      "completed_stories": {
+        "text": "@zh:core.task_guides.TG05.metric_labels.completed_stories.text",
+        "unit": "@zh:core.task_guides.TG05.metric_labels.completed_stories.unit"
+      },
+      "positive_interactions": {
+        "text": "@zh:core.task_guides.TG05.metric_labels.positive_interactions.text",
+        "unit": "@zh:core.task_guides.TG05.metric_labels.positive_interactions.unit"
+      }
+    },
+    "metrics": [
+      "positive_interactions",
+      "completed_stories"
+    ],
+    "name": "@zh:core.task_guides.TG05.name",
+    "next_step": "@zh:core.task_guides.TG05.next_step",
+    "target_panel": "residents"
+  },
+  {
+    "evidence": "@zh:core.task_guides.TG06.evidence",
+    "id": "TG06",
+    "metric_labels": {
+      "completed_research": {
+        "text": "@zh:core.task_guides.TG06.metric_labels.completed_research.text",
+        "unit": "@zh:core.task_guides.TG06.metric_labels.completed_research.unit"
+      },
+      "owned_plots": {
+        "text": "@zh:core.task_guides.TG06.metric_labels.owned_plots.text",
+        "unit": "@zh:core.task_guides.TG06.metric_labels.owned_plots.unit"
+      }
+    },
+    "metrics": [
+      "completed_research",
+      "owned_plots"
+    ],
+    "name": "@zh:core.task_guides.TG06.name",
+    "next_step": "@zh:core.task_guides.TG06.next_step",
+    "target_panel": "growth"
+  },
+  {
+    "evidence": "@zh:core.task_guides.TG07.evidence",
+    "id": "TG07",
+    "metric_labels": {
+      "payroll_days_all_staff_paid": {
+        "text": "@zh:core.task_guides.TG07.metric_labels.payroll_days_all_staff_paid.text",
+        "unit": "@zh:core.task_guides.TG07.metric_labels.payroll_days_all_staff_paid.unit"
+      }
+    },
+    "metrics": [
+      "payroll_days_all_staff_paid"
+    ],
+    "name": "@zh:core.task_guides.TG07.name",
+    "next_step": "@zh:core.task_guides.TG07.next_step",
+    "target_panel": "finance"
+  },
+  {
+    "evidence": "@zh:core.task_guides.TG08.evidence",
+    "id": "TG08",
+    "metric_labels": {
+      "cleanup_jobs": {
+        "text": "@zh:core.task_guides.TG08.metric_labels.cleanup_jobs.text",
+        "unit": "@zh:core.task_guides.TG08.metric_labels.cleanup_jobs.unit"
+      }
+    },
+    "metrics": [
+      "cleanup_jobs"
+    ],
+    "name": "@zh:core.task_guides.TG08.name",
+    "next_step": "@zh:core.task_guides.TG08.next_step",
+    "target_panel": "cleaning"
+  }
+]

@@ -1,0 +1,417 @@
+{
+  "files": [
+    {
+      "path": "accessibility_equipment.json",
+      "sha256": "ba2c98faa2087930967db5c38238f5a2ecdf0a8cc7a4c24f3bf031033cc6f1ad"
+    },
+    {
+      "path": "activity_purposes.json",
+      "sha256": "d687caf5af963490084ba2ac582f43d1a585409d4e4361417357b38302c435c8"
+    },
+    {
+      "path": "amenity_scenes.json",
+      "sha256": "5b153d1079b63129c24f50901536df82d3bda84430e0a6ba24b5f4b941c14946"
+    },
+    {
+      "path": "amenity_services.json",
+      "sha256": "e07966ae565f946118c7a3548f758f3a9ace1aad4e0ff0198b870fce0e5e5887"
+    },
+    {
+      "path": "assets/index.json",
+      "sha256": "7b071a4ada79d528160cf3fc9b51246cdf19853e5ce73d230ed27c532cfa9f16"
+    },
+    {
+      "path": "blueprint_presets.json",
+      "sha256": "ceac74f8970ae27f2257ed64f7d193fc1339c8b55d8071681abfa8adf270bc4c"
+    },
+    {
+      "path": "build_room_types.json",
+      "sha256": "016c6698fa3729a43ebf674968aef782c1d24c3dfec297fbc90b3e5cf66caf36"
+    },
+    {
+      "path": "chair_variants.json",
+      "sha256": "590716f92571a1d6de0fb75f939996129fd27410211811e080367f45d2d72329"
+    },
+    {
+      "path": "cleanup_sources.json",
+      "sha256": "7e832bafce01e9b218b7b765be96e82c4bedec7634181f70290348caeeb42960"
+    },
+    {
+      "path": "clinical_abilities.json",
+      "sha256": "ba8e934e3edf292cd7687e240b540695e2e32b3a437cec767e732f083932c192"
+    },
+    {
+      "path": "clinical_equipment.json",
+      "sha256": "13330fdf4f3e2b50d6659ee965b964a84528fe8b3cea2177c3a2fdc46cade9b6"
+    },
+    {
+      "path": "clinical_practice_sources.json",
+      "sha256": "b9bc4c57a6e63f6bfd1d991e4e232cd846bb665d5c1d23ca914ee1d5f7c0b4a2"
+    },
+    {
+      "path": "clinical_room_types.json",
+      "sha256": "a537282e81354acdad36021d2711806e3b0a66b44baa17db4f12fa4f8775e96c"
+    },
+    {
+      "path": "colleague_scenes.json",
+      "sha256": "a98426dbd81ef8b08f52ef33bc3bf6b6e2cfa5283a34fa2ff053ad0ff1267fcf"
+    },
+    {
+      "path": "comedy_corner_guides.json",
+      "sha256": "2006ab33dc432449deb620cb0fa7286eab5c4ed39d0240af24b902ef6d22c4a7"
+    },
+    {
+      "path": "community_activities.json",
+      "sha256": "d943613ee729499760ce2da8f7e4836866d9249f6ff96b50cfdae5522d48f815"
+    },
+    {
+      "path": "community_cast.json",
+      "sha256": "7118170e38965fe94309a0a9e3d4d208fc1fdc537aaa5351ab013cf57b7f86c3"
+    },
+    {
+      "path": "consultation_behaviors.json",
+      "sha256": "20eb66e9e2afac21d475c86cf01ffc19318ce56cafe17160a0239c4e0e19b8d0"
+    },
+    {
+      "path": "context_lessons.json",
+      "sha256": "258de60ec00c163f4553a91c5d00c638b842fc7f011dffbc7ce1e249c19ac070"
+    },
+    {
+      "path": "decor_style_presets.json",
+      "sha256": "a4312a7076752bf99924d6e0fb8f23ea78946aaf5fe55c465697fdaf0e2aa9f5"
+    },
+    {
+      "path": "diagnostic_modes.json",
+      "sha256": "7a4038cc4f6489f50ad4a4b97720b528a7d2601a8eca0e18f6544e19f7ae0d65"
+    },
+    {
+      "path": "diagnostic_work_styles.json",
+      "sha256": "64f6ee22859181e0da7f62df18c262337297d536e82c86935bb47ffca9f46e4d"
+    },
+    {
+      "path": "diseases.json",
+      "sha256": "59aca1c6c8fba6fb392d7ba7b2722a46d0bf9cbbc1e5a518a7332a681c5a2e88"
+    },
+    {
+      "path": "doctor_personalities.json",
+      "sha256": "cd33d0b12b6c6902a30bb91f9a87c2549b9fe6d3585440c3776e7b4edb83d250"
+    },
+    {
+      "path": "doctor_responses.json",
+      "sha256": "cb5f4f6b75df618e8adfbbd70735b9a2e53aea90b55ae49ea550794179db2fba"
+    },
+    {
+      "path": "doctor_titles.json",
+      "sha256": "13211055ec36caf5ef043b20080a3b0673570c5635429cdbf3aefbc2707683bf"
+    },
+    {
+      "path": "doors.json",
+      "sha256": "34f4172d0dee93c463b60b3334ca602e66179d1847526ef36a4762be5aa3db71"
+    },
+    {
+      "path": "ease_rules.json",
+      "sha256": "8ada2c152d1b0ad4f2fdaea2132a33299c8a4f44f971fac177babda2e9333c0d"
+    },
+    {
+      "path": "facility_fit_profiles.json",
+      "sha256": "a90a3407fd87e6808610fa95d413b8bec0244dee73a6804718f5f06c5fd0fbb8"
+    },
+    {
+      "path": "facility_magic_scenes.json",
+      "sha256": "0c5c1205cf2c7d69c058cca397f5a59edcdff406406890769bb3ef639554d28e"
+    },
+    {
+      "path": "families.json",
+      "sha256": "fd9734eb5f3f118a1ab36c08140e3f9c77bff5c58e4cb4ecc365987fcfb8f8c9"
+    },
+    {
+      "path": "finance_views.json",
+      "sha256": "f0cad42f437f8f529f6ffa4486bf20fdc42dcaf202620d5eb204062b49860a31"
+    },
+    {
+      "path": "fit_examples.json",
+      "sha256": "72d4b431fbed081db65bee493684f9d9deeb353fcd0d2b138f10f3955a5ed348"
+    },
+    {
+      "path": "furniture_equipment.json",
+      "sha256": "3d891aee68b48bc8d79fec6bade6d72e8967a011a841260731949d422d458310"
+    },
+    {
+      "path": "gratitude_abilities.json",
+      "sha256": "ba87a41ce781d7807b2647405c846ced4d5a2a7cd1f88a3715028f2849cf9564"
+    },
+    {
+      "path": "gratitude_effects.json",
+      "sha256": "aaaa3181fd9010f3ed617134b13b832586a730aaacf209f676926f25ec4938a3"
+    },
+    {
+      "path": "growth_moments.json",
+      "sha256": "e36fe9cf0e69d9bd5a1e928f4be3004e2921a02b350b8e99c5db0fc8b79b6575"
+    },
+    {
+      "path": "history_templates.json",
+      "sha256": "22cea9c97963a355447c5c6938bd298890ca06fbcef481bf1cc1c11fdb5ffac4"
+    },
+    {
+      "path": "hospital_situations.json",
+      "sha256": "9ec30e5228cc8696bcf9947e097f88801f0a41b73e3099d31f6f6f1cedcd4a7b"
+    },
+    {
+      "path": "incident_contexts.json",
+      "sha256": "98e9f721f81dced46afb7f7ccf9cca233f142c906dc14217de5669ad761b2442"
+    },
+    {
+      "path": "incidents.json",
+      "sha256": "aacb510cd0a4f4bbb1faacd07304bb6447019beae87c52ddc0aad8cad959f7c8"
+    },
+    {
+      "path": "initial_disease_ids.json",
+      "sha256": "adde362a73447b97b3a4297bb0bf2b145805b616d9a729c9c822e03d19de07ad"
+    },
+    {
+      "path": "interactions.json",
+      "sha256": "6dc7bf5d42826565ea21243aab6a8e78023e47bf56654fcd052888c5e6a4bef6"
+    },
+    {
+      "path": "journey_reason_cards.json",
+      "sha256": "d9b006e56fdae89d1cba95795d26a51e32ea954216e8cfe11034754d6128031c"
+    },
+    {
+      "path": "layouts.json",
+      "sha256": "3eac94a284723845042c07001fba3c3153bc30513ea35b1ba0916df92a97524c"
+    },
+    {
+      "path": "locale/zh_CN.csv",
+      "sha256": "b91597dd6615b978f2730372b16f39fcdf56242d158a889201628d330e503068"
+    },
+    {
+      "path": "machines.json",
+      "sha256": "02af50c28d4817cabe770521546ee4f58cf004ea023f9042d65279701f7e396b"
+    },
+    {
+      "path": "maintenance_policies.json",
+      "sha256": "291ddd6e6ec3982eda8810a894fa29c4be50b49d64dc0fea705b4daac0b16a2a"
+    },
+    {
+      "path": "maintenance_scenes.json",
+      "sha256": "9af850ba793137bd287a1bd294a5c2991dc1ff751b25a908846633a417c406f0"
+    },
+    {
+      "path": "medical_equipment_profiles.json",
+      "sha256": "869aa798161a36512eb458c2a95abadbfaf25302ee6ac24e7dcc454a32b3813e"
+    },
+    {
+      "path": "medical_progress_cues.json",
+      "sha256": "f2074bc2777274bca34934b9c57e34c3a1662d9724b58f6a6ba65916b98efe22"
+    },
+    {
+      "path": "medical_supplies.json",
+      "sha256": "2c8b925825a71fc7cc86029df0706993cdcb15a480e1cd2c9a38819433588ba3"
+    },
+    {
+      "path": "memory_callbacks.json",
+      "sha256": "782de776d49b2f952604c2f7eb47f0d6577fc65805c300473a45e80ef9eb177b"
+    },
+    {
+      "path": "movement_cues.json",
+      "sha256": "c885f2694d96ef709ab798e4081b6f73b74b682eeb3e2ac29b3f0cd8bee235f5"
+    },
+    {
+      "path": "observation_cues.json",
+      "sha256": "abdc073a898f89b78f77abc6ca626990ba3e19307c7f69f2471bd3d373c17e48"
+    },
+    {
+      "path": "onboarding_steps.json",
+      "sha256": "de5b9f9ba56099edd64d29ef7164de3d9ec638276af4add7e3bdaefc31aa18ec"
+    },
+    {
+      "path": "patient_behaviors.json",
+      "sha256": "5ba04478cdf9a77ce0bf6503bd11b6851aa394492d14413ee42e26215cb08ed8"
+    },
+    {
+      "path": "patient_personalities.json",
+      "sha256": "67bf45cd659289493079accf8939222c409960f4311889f569564fae0bf57827"
+    },
+    {
+      "path": "preferences.json",
+      "sha256": "f5d1d59c5507fd00028f830fffa30c892a256095bea6b9a8df9b0b02dc7b3147"
+    },
+    {
+      "path": "profiles.json",
+      "sha256": "4eeebb9605e510f6b39534ea5c6b4d3d1c9f8b9fae7cae84970819f573033861"
+    },
+    {
+      "path": "queue_cues.json",
+      "sha256": "4f4f8481da5fa75c1b75c9c04909f0f70121d775fec4a59424a0d00b10e47618"
+    },
+    {
+      "path": "recruitment_examples.json",
+      "sha256": "5aa451ac71f0b6418fd198124b943aaebffa848fa137fb5fce1236ef220cb883"
+    },
+    {
+      "path": "remodel_guides.json",
+      "sha256": "ce4268b3e199f85290a467c8d8523b54f2a166d03d08b525dee8bd9566977839"
+    },
+    {
+      "path": "renovation_materials.json",
+      "sha256": "b880bfd1310b53baa29b071cf4fc63ecdfe8d52303feb2bf8b9d6ebb10580435"
+    },
+    {
+      "path": "research.json",
+      "sha256": "2721a56cbcdfc5f8db506be952c619f1161148c3c2d852712c88b456e81f8a75"
+    },
+    {
+      "path": "research_trails.json",
+      "sha256": "c17def6e3153043c617ac919211236ce041b016fa0c0ee36c0f06c73e4dd78c2"
+    },
+    {
+      "path": "rest_cues.json",
+      "sha256": "0c70cab9973e8712687b8db3e39c91eee4591e41f52762b766e7fbc9b13709fc"
+    },
+    {
+      "path": "resume_note_templates.json",
+      "sha256": "8501af9bc65f95d9807b653aa87130f2f9f5163100d0e7afde26da30a8f4dce1"
+    },
+    {
+      "path": "rules.json",
+      "sha256": "3b4a59fd773e0fcfcea4b2e9426c3487f778d2d040abe704324e0302c9566503"
+    },
+    {
+      "path": "service_equipment.json",
+      "sha256": "ed08e980a818e55cd397cab900c26bf400b308aa5113da4d7b3387662eff3959"
+    },
+    {
+      "path": "specialties.json",
+      "sha256": "c304ea7ce66b6e5a1e264ee0910c2cb8abf3d1f5766a70ae2ffc9aab5ea1b562"
+    },
+    {
+      "path": "species.json",
+      "sha256": "cfa4c06adeb95d7a6479018b0ba6e773c12c6b7ae46b3620f41a3c6826759d90"
+    },
+    {
+      "path": "species_gifts.json",
+      "sha256": "476ffff40e99fed66209f2b9cdc9b6d57cb8889aad34352fbebb9dc40e75edc4"
+    },
+    {
+      "path": "staff_base_cues.json",
+      "sha256": "c12d5f57890cd755d2bd78c4c6e09fba1594c8ae9c35454ed08f62f15b2c1e79"
+    },
+    {
+      "path": "staff_biographies.json",
+      "sha256": "8ff1bbb26d710e5612b151b73b04895dff27930b3f05507d813b4d1495c27a88"
+    },
+    {
+      "path": "staff_practice_profiles.json",
+      "sha256": "6d8702142be19d22d79670bafa7f03fbb930424ddd0d771d7a17ed9aa251936d"
+    },
+    {
+      "path": "staff_recreation_equipment.json",
+      "sha256": "caac910e1255df89b61b009c87cde56de87b108c5525e7501ac1f0361d554134"
+    },
+    {
+      "path": "staff_rig_adapters.json",
+      "sha256": "faae167a7bf67362134c2bf28e076a84ace43d56bd0d431dcd4043e0371c479d"
+    },
+    {
+      "path": "staff_role_profiles.json",
+      "sha256": "b35f32a4e06dcbd7d302fd4b990dad716c3f6a5c18ae45190561c3641fee0e09"
+    },
+    {
+      "path": "staff_support_rooms.json",
+      "sha256": "9e429ab088cef0d09624db9f6f40b7950e1fea882fdbd2a9df72cdf7ae7126e6"
+    },
+    {
+      "path": "staff_talent_handlers.json",
+      "sha256": "9629ec1eff3401ed18c60dce9a01b489707704146b42178b87cf0a898b110869"
+    },
+    {
+      "path": "staff_talents.json",
+      "sha256": "30789aac2d0de77fd917b9305157fa60da7fe8fe8edd53ccf9764556d52042fb"
+    },
+    {
+      "path": "staff_work_styles.json",
+      "sha256": "e64b41e97eafea9c8b5ea8a2b434e17db7b7352373b698a5c4292dd1833b3d66"
+    },
+    {
+      "path": "starter_layout.json",
+      "sha256": "c064bfc29ab3a5bd20556b1cdae97aec10a2840a546988845d2e0e0e099f1075"
+    },
+    {
+      "path": "stories.json",
+      "sha256": "f8cd3a18d99e533275e7e55c7f994be7118f5c179127b727fc792e1d115584bf"
+    },
+    {
+      "path": "story_activity_links.json",
+      "sha256": "a4a40ec65547fa0a9671125961e10a7d0a9170c55547fb8116da5e54634fe422"
+    },
+    {
+      "path": "story_patient_bindings.json",
+      "sha256": "4d77bee91e679e9d69b1bf0c0651b284a54419cca97b6568cd7a6f88693ae70f"
+    },
+    {
+      "path": "supply_reactions.json",
+      "sha256": "c97b40e69c1b63de8134aab4e583fc65f895ddac0725707594bc5cb1ad1f05b2"
+    },
+    {
+      "path": "surgical_adapters.json",
+      "sha256": "bbfa92f2af5f71b7974038ea3931aaacbec90d661e158e5f939d93515d4909de"
+    },
+    {
+      "path": "tags.json",
+      "sha256": "bcbc325d398949f4ee796ee00a0fe9f90496f818569fe5062a2dd1593ed5af1a"
+    },
+    {
+      "path": "task_guides.json",
+      "sha256": "5766b80c76f48d3ff304658c2c95fd9d36d7ac2c02d08720ad465e70f7d0dd4a"
+    },
+    {
+      "path": "tasks.json",
+      "sha256": "3d53eb7d2d640e5dcb9f9925f40d9cd43ccb9a2aeb9001936853ca003e02c618"
+    },
+    {
+      "path": "treatment_bindings.json",
+      "sha256": "f7852103655d47ab103975a8f286cf68a31c76d68fe14ebf58a88476e9cb77b8"
+    },
+    {
+      "path": "treatment_plans.json",
+      "sha256": "904ad231bb7705a95bfcf49c0984adeb127ba7d95445ace4c5d64611f30c8dbf"
+    },
+    {
+      "path": "treatment_protocols.json",
+      "sha256": "0ac7cd27f486f55102b3901f92631134facab69c5179aa8631236b213c8661a1"
+    },
+    {
+      "path": "treatment_routines.json",
+      "sha256": "bfec39f6b7436bed0fb57e6f212dd148f9f858b936f8898205a3d29c314f76f3"
+    },
+    {
+      "path": "upgrade_presentations.json",
+      "sha256": "7df4189f253d2329b93f7273b38544eefc07c537033fff03fef9a7a9a2eabf17"
+    },
+    {
+      "path": "upgrade_tiers.json",
+      "sha256": "d991b46ddd86b1c919bf6023255e547e6c99fa3cf2fb8b1cfe4ef55181b7e955"
+    },
+    {
+      "path": "vertical_connectors.json",
+      "sha256": "ea08f076bbbbdea1d8bd1eaebafa67cb74215bacd27bede12287d6b81fe6a7cd"
+    },
+    {
+      "path": "visitor_cues.json",
+      "sha256": "fcd56a2b860e55054c79621781dd20886257b32f24f85df3fd39f02b5002471b"
+    },
+    {
+      "path": "ward_neighbor_cues.json",
+      "sha256": "f686630d84f18c5fda432b3c0bcb4d4a1e9514b7255961fc13f9df74f1261162"
+    },
+    {
+      "path": "ward_scenes.json",
+      "sha256": "91bedfb76c2b10749f5bfb48926a829fe18bb4b89458cb4c4099937ddd575a16"
+    }
+  ],
+  "min_game_version": "1.97.0",
+  "pack_id": "core",
+  "requires": [],
+  "schema_version": 100,
+  "version": "1.97.0"
+}

@@ -1,0 +1,802 @@
+[
+  {
+    "action": "test",
+    "condition": "tall_patient",
+    "handler_id": "work_speed",
+    "id": "STAL01",
+    "name": "@zh:core.staff_talents.STAL01.name",
+    "scene": "@zh:core.staff_talents.STAL01.scene",
+    "species_id": "S01",
+    "value": 0.1
+  },
+  {
+    "action": "registration",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL02",
+    "name": "@zh:core.staff_talents.STAL02.name",
+    "scene": "@zh:core.staff_talents.STAL02.scene",
+    "species_id": "S02",
+    "value": 0.15
+  },
+  {
+    "action": "ward_visit",
+    "condition": "always",
+    "handler_id": "service_mood",
+    "id": "STAL03",
+    "name": "@zh:core.staff_talents.STAL03.name",
+    "scene": "@zh:core.staff_talents.STAL03.scene",
+    "species_id": "S03",
+    "value": 3.0
+  },
+  {
+    "action": "guidance",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL04",
+    "name": "@zh:core.staff_talents.STAL04.name",
+    "scene": "@zh:core.staff_talents.STAL04.scene",
+    "species_id": "S04",
+    "value": 0.1
+  },
+  {
+    "action": "course",
+    "condition": "always",
+    "handler_id": "training_work",
+    "id": "STAL05",
+    "name": "@zh:core.staff_talents.STAL05.name",
+    "scene": "@zh:core.staff_talents.STAL05.scene",
+    "species_id": "S05",
+    "value": 0.95
+  },
+  {
+    "action": "ward_visit",
+    "condition": "always",
+    "handler_id": "service_mood",
+    "id": "STAL06",
+    "name": "@zh:core.staff_talents.STAL06.name",
+    "scene": "@zh:core.staff_talents.STAL06.scene",
+    "species_id": "S06",
+    "value": 3.0
+  },
+  {
+    "action": "or_assist",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL07",
+    "name": "@zh:core.staff_talents.STAL07.name",
+    "scene": "@zh:core.staff_talents.STAL07.scene",
+    "species_id": "S07",
+    "value": 0.08
+  },
+  {
+    "action": "ward_visit",
+    "condition": "always",
+    "handler_id": "service_mood",
+    "id": "STAL08",
+    "name": "@zh:core.staff_talents.STAL08.name",
+    "scene": "@zh:core.staff_talents.STAL08.scene",
+    "species_id": "S08",
+    "value": 5.0
+  },
+  {
+    "action": "gp",
+    "condition": "late_shift",
+    "handler_id": "work_speed",
+    "id": "STAL09",
+    "name": "@zh:core.staff_talents.STAL09.name",
+    "scene": "@zh:core.staff_talents.STAL09.scene",
+    "species_id": "S09",
+    "value": 0.1
+  },
+  {
+    "action": "maintenance",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL10",
+    "name": "@zh:core.staff_talents.STAL10.name",
+    "scene": "@zh:core.staff_talents.STAL10.scene",
+    "species_id": "S10",
+    "value": 0.1
+  },
+  {
+    "action": "thaw",
+    "condition": "always",
+    "handler_id": "care_work",
+    "id": "STAL11",
+    "name": "@zh:core.staff_talents.STAL11.name",
+    "scene": "@zh:core.staff_talents.STAL11.scene",
+    "species_id": "S11",
+    "value": 0.9
+  },
+  {
+    "action": "guidance",
+    "condition": "late_shift",
+    "handler_id": "work_speed",
+    "id": "STAL12",
+    "name": "@zh:core.staff_talents.STAL12.name",
+    "scene": "@zh:core.staff_talents.STAL12.scene",
+    "species_id": "S12",
+    "value": 0.1
+  },
+  {
+    "action": "or_assist",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL13",
+    "name": "@zh:core.staff_talents.STAL13.name",
+    "scene": "@zh:core.staff_talents.STAL13.scene",
+    "species_id": "S13",
+    "value": 0.08
+  },
+  {
+    "action": "cleanup",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL14",
+    "name": "@zh:core.staff_talents.STAL14.name",
+    "scene": "@zh:core.staff_talents.STAL14.scene",
+    "species_id": "S14",
+    "value": 0.1
+  },
+  {
+    "action": "outpatient",
+    "condition": "T01",
+    "handler_id": "treatment_success",
+    "id": "STAL15",
+    "name": "@zh:core.staff_talents.STAL15.name",
+    "scene": "@zh:core.staff_talents.STAL15.scene",
+    "species_id": "S15",
+    "value": 0.02
+  },
+  {
+    "action": "ward_visit",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL16",
+    "name": "@zh:core.staff_talents.STAL16.name",
+    "scene": "@zh:core.staff_talents.STAL16.scene",
+    "species_id": "S16",
+    "value": 0.1
+  },
+  {
+    "action": "test",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL17",
+    "name": "@zh:core.staff_talents.STAL17.name",
+    "scene": "@zh:core.staff_talents.STAL17.scene",
+    "species_id": "S17",
+    "value": 0.1
+  },
+  {
+    "action": "guidance",
+    "condition": "always",
+    "handler_id": "service_mood",
+    "id": "STAL18",
+    "name": "@zh:core.staff_talents.STAL18.name",
+    "scene": "@zh:core.staff_talents.STAL18.scene",
+    "species_id": "S18",
+    "value": 2.0
+  },
+  {
+    "action": "bed_transfer",
+    "condition": "large_patient",
+    "handler_id": "work_speed",
+    "id": "STAL19",
+    "name": "@zh:core.staff_talents.STAL19.name",
+    "scene": "@zh:core.staff_talents.STAL19.scene",
+    "species_id": "S19",
+    "value": 0.1
+  },
+  {
+    "action": "test",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL20",
+    "name": "@zh:core.staff_talents.STAL20.name",
+    "scene": "@zh:core.staff_talents.STAL20.scene",
+    "species_id": "S20",
+    "value": 0.08
+  },
+  {
+    "action": "course",
+    "condition": "always",
+    "handler_id": "training_work",
+    "id": "STAL21",
+    "name": "@zh:core.staff_talents.STAL21.name",
+    "scene": "@zh:core.staff_talents.STAL21.scene",
+    "species_id": "S21",
+    "value": 0.95
+  },
+  {
+    "action": "ward_visit",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL22",
+    "name": "@zh:core.staff_talents.STAL22.name",
+    "scene": "@zh:core.staff_talents.STAL22.scene",
+    "species_id": "S22",
+    "value": 0.08
+  },
+  {
+    "action": "test",
+    "condition": "micro_patient",
+    "handler_id": "work_speed",
+    "id": "STAL23",
+    "name": "@zh:core.staff_talents.STAL23.name",
+    "scene": "@zh:core.staff_talents.STAL23.scene",
+    "species_id": "S23",
+    "value": 0.12
+  },
+  {
+    "action": "test",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL24",
+    "name": "@zh:core.staff_talents.STAL24.name",
+    "scene": "@zh:core.staff_talents.STAL24.scene",
+    "species_id": "S24",
+    "value": 0.08
+  },
+  {
+    "action": "maintenance",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL25",
+    "name": "@zh:core.staff_talents.STAL25.name",
+    "scene": "@zh:core.staff_talents.STAL25.scene",
+    "species_id": "S25",
+    "value": 0.1
+  },
+  {
+    "action": "registration",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL26",
+    "name": "@zh:core.staff_talents.STAL26.name",
+    "scene": "@zh:core.staff_talents.STAL26.scene",
+    "species_id": "S26",
+    "value": 0.1
+  },
+  {
+    "action": "guidance",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL27",
+    "name": "@zh:core.staff_talents.STAL27.name",
+    "scene": "@zh:core.staff_talents.STAL27.scene",
+    "species_id": "S27",
+    "value": 0.1
+  },
+  {
+    "action": "or_assist",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL28",
+    "name": "@zh:core.staff_talents.STAL28.name",
+    "scene": "@zh:core.staff_talents.STAL28.scene",
+    "species_id": "S28",
+    "value": 0.08
+  },
+  {
+    "action": "maintenance",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL29",
+    "name": "@zh:core.staff_talents.STAL29.name",
+    "scene": "@zh:core.staff_talents.STAL29.scene",
+    "species_id": "S29",
+    "value": 0.08
+  },
+  {
+    "action": "ward_visit",
+    "condition": "always",
+    "handler_id": "service_mood",
+    "id": "STAL30",
+    "name": "@zh:core.staff_talents.STAL30.name",
+    "scene": "@zh:core.staff_talents.STAL30.scene",
+    "species_id": "S30",
+    "value": 3.0
+  },
+  {
+    "action": "test",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL31",
+    "name": "@zh:core.staff_talents.STAL31.name",
+    "scene": "@zh:core.staff_talents.STAL31.scene",
+    "species_id": "S31",
+    "value": 0.1
+  },
+  {
+    "action": "guidance",
+    "condition": "always",
+    "handler_id": "service_mood",
+    "id": "STAL32",
+    "name": "@zh:core.staff_talents.STAL32.name",
+    "scene": "@zh:core.staff_talents.STAL32.scene",
+    "species_id": "S32",
+    "value": 2.0
+  },
+  {
+    "action": "ward_visit",
+    "condition": "always",
+    "handler_id": "service_mood",
+    "id": "STAL33",
+    "name": "@zh:core.staff_talents.STAL33.name",
+    "scene": "@zh:core.staff_talents.STAL33.scene",
+    "species_id": "S33",
+    "value": 3.0
+  },
+  {
+    "action": "thaw",
+    "condition": "always",
+    "handler_id": "care_work",
+    "id": "STAL34",
+    "name": "@zh:core.staff_talents.STAL34.name",
+    "scene": "@zh:core.staff_talents.STAL34.scene",
+    "species_id": "S34",
+    "value": 0.75
+  },
+  {
+    "action": "test",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL35",
+    "name": "@zh:core.staff_talents.STAL35.name",
+    "scene": "@zh:core.staff_talents.STAL35.scene",
+    "species_id": "S35",
+    "value": 0.08
+  },
+  {
+    "action": "cleanup",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL36",
+    "name": "@zh:core.staff_talents.STAL36.name",
+    "scene": "@zh:core.staff_talents.STAL36.scene",
+    "species_id": "S36",
+    "value": 0.1
+  },
+  {
+    "action": "gp",
+    "condition": "always",
+    "handler_id": "service_mood",
+    "id": "STAL37",
+    "name": "@zh:core.staff_talents.STAL37.name",
+    "scene": "@zh:core.staff_talents.STAL37.scene",
+    "species_id": "S37",
+    "value": 2.0
+  },
+  {
+    "action": "ward_visit",
+    "condition": "always",
+    "handler_id": "service_mood",
+    "id": "STAL38",
+    "name": "@zh:core.staff_talents.STAL38.name",
+    "scene": "@zh:core.staff_talents.STAL38.scene",
+    "species_id": "S38",
+    "value": 3.0
+  },
+  {
+    "action": "research",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL39",
+    "name": "@zh:core.staff_talents.STAL39.name",
+    "scene": "@zh:core.staff_talents.STAL39.scene",
+    "species_id": "S39",
+    "value": 0.08
+  },
+  {
+    "action": "registration",
+    "condition": "always",
+    "handler_id": "service_mood",
+    "id": "STAL40",
+    "name": "@zh:core.staff_talents.STAL40.name",
+    "scene": "@zh:core.staff_talents.STAL40.scene",
+    "species_id": "S40",
+    "value": 2.0
+  },
+  {
+    "action": "registration",
+    "condition": "always",
+    "handler_id": "service_mood",
+    "id": "STAL41",
+    "name": "@zh:core.staff_talents.STAL41.name",
+    "scene": "@zh:core.staff_talents.STAL41.scene",
+    "species_id": "S41",
+    "value": 2.0
+  },
+  {
+    "action": "surface_unit",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL42",
+    "name": "@zh:core.staff_talents.STAL42.name",
+    "scene": "@zh:core.staff_talents.STAL42.scene",
+    "species_id": "S42",
+    "value": 0.1
+  },
+  {
+    "action": "course",
+    "condition": "always",
+    "handler_id": "training_work",
+    "id": "STAL43",
+    "name": "@zh:core.staff_talents.STAL43.name",
+    "scene": "@zh:core.staff_talents.STAL43.scene",
+    "species_id": "S43",
+    "value": 0.95
+  },
+  {
+    "action": "or_assist",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL44",
+    "name": "@zh:core.staff_talents.STAL44.name",
+    "scene": "@zh:core.staff_talents.STAL44.scene",
+    "species_id": "S44",
+    "value": 0.1
+  },
+  {
+    "action": "outpatient",
+    "condition": "T07",
+    "handler_id": "treatment_success",
+    "id": "STAL45",
+    "name": "@zh:core.staff_talents.STAL45.name",
+    "scene": "@zh:core.staff_talents.STAL45.scene",
+    "species_id": "S45",
+    "value": 0.01
+  },
+  {
+    "action": "outpatient",
+    "condition": "T03",
+    "handler_id": "treatment_success",
+    "id": "STAL46",
+    "name": "@zh:core.staff_talents.STAL46.name",
+    "scene": "@zh:core.staff_talents.STAL46.scene",
+    "species_id": "S46",
+    "value": 0.01
+  },
+  {
+    "action": "test",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL47",
+    "name": "@zh:core.staff_talents.STAL47.name",
+    "scene": "@zh:core.staff_talents.STAL47.scene",
+    "species_id": "S47",
+    "value": 0.1
+  },
+  {
+    "action": "gp",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL48",
+    "name": "@zh:core.staff_talents.STAL48.name",
+    "scene": "@zh:core.staff_talents.STAL48.scene",
+    "species_id": "S48",
+    "value": 0.1
+  },
+  {
+    "action": "course",
+    "condition": "always",
+    "handler_id": "training_work",
+    "id": "STAL49",
+    "name": "@zh:core.staff_talents.STAL49.name",
+    "scene": "@zh:core.staff_talents.STAL49.scene",
+    "species_id": "S49",
+    "value": 0.9
+  },
+  {
+    "action": "registration",
+    "condition": "always",
+    "handler_id": "service_mood",
+    "id": "STAL50",
+    "name": "@zh:core.staff_talents.STAL50.name",
+    "scene": "@zh:core.staff_talents.STAL50.scene",
+    "species_id": "S50",
+    "value": 2.0
+  },
+  {
+    "action": "maintenance",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL51",
+    "name": "@zh:core.staff_talents.STAL51.name",
+    "scene": "@zh:core.staff_talents.STAL51.scene",
+    "species_id": "S51",
+    "value": 0.08
+  },
+  {
+    "action": "course",
+    "condition": "always",
+    "handler_id": "training_work",
+    "id": "STAL52",
+    "name": "@zh:core.staff_talents.STAL52.name",
+    "scene": "@zh:core.staff_talents.STAL52.scene",
+    "species_id": "S52",
+    "value": 0.95
+  },
+  {
+    "action": "bed_transfer",
+    "condition": "large_patient",
+    "handler_id": "work_speed",
+    "id": "STAL53",
+    "name": "@zh:core.staff_talents.STAL53.name",
+    "scene": "@zh:core.staff_talents.STAL53.scene",
+    "species_id": "S53",
+    "value": 0.12
+  },
+  {
+    "action": "maintenance",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL54",
+    "name": "@zh:core.staff_talents.STAL54.name",
+    "scene": "@zh:core.staff_talents.STAL54.scene",
+    "species_id": "S54",
+    "value": 0.08
+  },
+  {
+    "action": "floor_module",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL55",
+    "name": "@zh:core.staff_talents.STAL55.name",
+    "scene": "@zh:core.staff_talents.STAL55.scene",
+    "species_id": "S55",
+    "value": 0.1
+  },
+  {
+    "action": "or_assist",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL56",
+    "name": "@zh:core.staff_talents.STAL56.name",
+    "scene": "@zh:core.staff_talents.STAL56.scene",
+    "species_id": "S56",
+    "value": 0.1
+  },
+  {
+    "action": "registration",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL57",
+    "name": "@zh:core.staff_talents.STAL57.name",
+    "scene": "@zh:core.staff_talents.STAL57.scene",
+    "species_id": "S57",
+    "value": 0.08
+  },
+  {
+    "action": "ward_visit",
+    "condition": "always",
+    "handler_id": "service_mood",
+    "id": "STAL58",
+    "name": "@zh:core.staff_talents.STAL58.name",
+    "scene": "@zh:core.staff_talents.STAL58.scene",
+    "species_id": "S58",
+    "value": 3.0
+  },
+  {
+    "action": "floor_module",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL59",
+    "name": "@zh:core.staff_talents.STAL59.name",
+    "scene": "@zh:core.staff_talents.STAL59.scene",
+    "species_id": "S59",
+    "value": 0.12
+  },
+  {
+    "action": "guidance",
+    "condition": "always",
+    "handler_id": "service_mood",
+    "id": "STAL60",
+    "name": "@zh:core.staff_talents.STAL60.name",
+    "scene": "@zh:core.staff_talents.STAL60.scene",
+    "species_id": "S60",
+    "value": 2.0
+  },
+  {
+    "action": "test",
+    "condition": "late_shift",
+    "handler_id": "work_speed",
+    "id": "STAL61",
+    "name": "@zh:core.staff_talents.STAL61.name",
+    "scene": "@zh:core.staff_talents.STAL61.scene",
+    "species_id": "S61",
+    "value": 0.12
+  },
+  {
+    "action": "or_assist",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL62",
+    "name": "@zh:core.staff_talents.STAL62.name",
+    "scene": "@zh:core.staff_talents.STAL62.scene",
+    "species_id": "S62",
+    "value": 0.1
+  },
+  {
+    "action": "outpatient",
+    "condition": "T02",
+    "handler_id": "treatment_success",
+    "id": "STAL63",
+    "name": "@zh:core.staff_talents.STAL63.name",
+    "scene": "@zh:core.staff_talents.STAL63.scene",
+    "species_id": "S63",
+    "value": 0.01
+  },
+  {
+    "action": "research",
+    "condition": "late_shift",
+    "handler_id": "work_speed",
+    "id": "STAL64",
+    "name": "@zh:core.staff_talents.STAL64.name",
+    "scene": "@zh:core.staff_talents.STAL64.scene",
+    "species_id": "S64",
+    "value": 0.12
+  },
+  {
+    "action": "course",
+    "condition": "always",
+    "handler_id": "training_work",
+    "id": "STAL65",
+    "name": "@zh:core.staff_talents.STAL65.name",
+    "scene": "@zh:core.staff_talents.STAL65.scene",
+    "species_id": "S65",
+    "value": 0.95
+  },
+  {
+    "action": "test",
+    "condition": "micro_patient",
+    "handler_id": "work_speed",
+    "id": "STAL66",
+    "name": "@zh:core.staff_talents.STAL66.name",
+    "scene": "@zh:core.staff_talents.STAL66.scene",
+    "species_id": "S66",
+    "value": 0.12
+  },
+  {
+    "action": "surface_unit",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL67",
+    "name": "@zh:core.staff_talents.STAL67.name",
+    "scene": "@zh:core.staff_talents.STAL67.scene",
+    "species_id": "S67",
+    "value": 0.1
+  },
+  {
+    "action": "cleanup",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL68",
+    "name": "@zh:core.staff_talents.STAL68.name",
+    "scene": "@zh:core.staff_talents.STAL68.scene",
+    "species_id": "S68",
+    "value": 0.12
+  },
+  {
+    "action": "floor_module",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL69",
+    "name": "@zh:core.staff_talents.STAL69.name",
+    "scene": "@zh:core.staff_talents.STAL69.scene",
+    "species_id": "S69",
+    "value": 0.1
+  },
+  {
+    "action": "course",
+    "condition": "always",
+    "handler_id": "training_work",
+    "id": "STAL70",
+    "name": "@zh:core.staff_talents.STAL70.name",
+    "scene": "@zh:core.staff_talents.STAL70.scene",
+    "species_id": "S70",
+    "value": 0.95
+  },
+  {
+    "action": "test",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL71",
+    "name": "@zh:core.staff_talents.STAL71.name",
+    "scene": "@zh:core.staff_talents.STAL71.scene",
+    "species_id": "S71",
+    "value": 0.1
+  },
+  {
+    "action": "ward_visit",
+    "condition": "always",
+    "handler_id": "service_mood",
+    "id": "STAL72",
+    "name": "@zh:core.staff_talents.STAL72.name",
+    "scene": "@zh:core.staff_talents.STAL72.scene",
+    "species_id": "S72",
+    "value": 3.0
+  },
+  {
+    "action": "cleanup",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL73",
+    "name": "@zh:core.staff_talents.STAL73.name",
+    "scene": "@zh:core.staff_talents.STAL73.scene",
+    "species_id": "S73",
+    "value": 0.1
+  },
+  {
+    "action": "or_assist",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL74",
+    "name": "@zh:core.staff_talents.STAL74.name",
+    "scene": "@zh:core.staff_talents.STAL74.scene",
+    "species_id": "S74",
+    "value": 0.08
+  },
+  {
+    "action": "registration",
+    "condition": "always",
+    "handler_id": "service_mood",
+    "id": "STAL75",
+    "name": "@zh:core.staff_talents.STAL75.name",
+    "scene": "@zh:core.staff_talents.STAL75.scene",
+    "species_id": "S75",
+    "value": 2.0
+  },
+  {
+    "action": "maintenance",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL76",
+    "name": "@zh:core.staff_talents.STAL76.name",
+    "scene": "@zh:core.staff_talents.STAL76.scene",
+    "species_id": "S76",
+    "value": 0.1
+  },
+  {
+    "action": "surface_unit",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL77",
+    "name": "@zh:core.staff_talents.STAL77.name",
+    "scene": "@zh:core.staff_talents.STAL77.scene",
+    "species_id": "S77",
+    "value": 0.1
+  },
+  {
+    "action": "gp",
+    "condition": "always",
+    "handler_id": "work_speed",
+    "id": "STAL78",
+    "name": "@zh:core.staff_talents.STAL78.name",
+    "scene": "@zh:core.staff_talents.STAL78.scene",
+    "species_id": "S78",
+    "value": 0.1
+  },
+  {
+    "action": "course",
+    "condition": "always",
+    "handler_id": "training_work",
+    "id": "STAL79",
+    "name": "@zh:core.staff_talents.STAL79.name",
+    "scene": "@zh:core.staff_talents.STAL79.scene",
+    "species_id": "S79",
+    "value": 0.95
+  },
+  {
+    "action": "research",
+    "condition": "late_shift",
+    "handler_id": "work_speed",
+    "id": "STAL80",
+    "name": "@zh:core.staff_talents.STAL80.name",
+    "scene": "@zh:core.staff_talents.STAL80.scene",
+    "species_id": "S80",
+    "value": 0.1
+  }
+]

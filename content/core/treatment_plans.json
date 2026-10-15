@@ -1,0 +1,2518 @@
+[
+  {
+    "disease_id": "D01",
+    "id": "P_D01_COMMON",
+    "name": "@zh:core.treatment_plans.P_D01_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D01",
+    "id": "P_D01_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D01_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D02",
+    "id": "P_D02_COMMON",
+    "name": "@zh:core.treatment_plans.P_D02_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D02",
+    "id": "P_D02_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D02_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D03",
+    "id": "P_D03_COMMON",
+    "name": "@zh:core.treatment_plans.P_D03_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D03",
+    "id": "P_D03_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D03_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D04",
+    "id": "P_D04_COMMON",
+    "name": "@zh:core.treatment_plans.P_D04_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D04",
+    "id": "P_D04_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D04_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D05",
+    "id": "P_D05_COMMON",
+    "name": "@zh:core.treatment_plans.P_D05_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D05",
+    "id": "P_D05_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D05_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D06",
+    "id": "P_D06_COMMON",
+    "name": "@zh:core.treatment_plans.P_D06_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D06",
+    "id": "P_D06_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D06_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D07",
+    "id": "P_D07_COMMON",
+    "name": "@zh:core.treatment_plans.P_D07_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D07",
+    "id": "P_D07_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D07_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D08",
+    "id": "P_D08_COMMON",
+    "name": "@zh:core.treatment_plans.P_D08_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D08",
+    "id": "P_D08_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D08_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D09",
+    "id": "P_D09_COMMON",
+    "name": "@zh:core.treatment_plans.P_D09_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D09",
+    "id": "P_D09_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D09_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D10",
+    "id": "P_D10_COMMON",
+    "name": "@zh:core.treatment_plans.P_D10_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D10",
+    "id": "P_D10_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D10_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D11",
+    "id": "P_D11_COMMON",
+    "name": "@zh:core.treatment_plans.P_D11_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D11",
+    "id": "P_D11_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D11_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D12",
+    "id": "P_D12_COMMON",
+    "name": "@zh:core.treatment_plans.P_D12_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D12",
+    "id": "P_D12_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D12_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D13",
+    "id": "P_D13_COMMON",
+    "name": "@zh:core.treatment_plans.P_D13_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D13",
+    "id": "P_D13_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D13_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D14",
+    "id": "P_D14_COMMON",
+    "name": "@zh:core.treatment_plans.P_D14_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D14",
+    "id": "P_D14_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D14_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D15",
+    "id": "P_D15_COMMON",
+    "name": "@zh:core.treatment_plans.P_D15_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D15",
+    "id": "P_D15_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D15_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D16",
+    "id": "P_D16_COMMON",
+    "name": "@zh:core.treatment_plans.P_D16_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D16",
+    "id": "P_D16_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D16_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D17",
+    "id": "P_D17_COMMON",
+    "name": "@zh:core.treatment_plans.P_D17_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D17",
+    "id": "P_D17_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D17_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D18",
+    "id": "P_D18_COMMON",
+    "name": "@zh:core.treatment_plans.P_D18_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D18",
+    "id": "P_D18_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D18_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D19",
+    "id": "P_D19_COMMON",
+    "name": "@zh:core.treatment_plans.P_D19_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D19",
+    "id": "P_D19_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D19_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D20",
+    "id": "P_D20_COMMON",
+    "name": "@zh:core.treatment_plans.P_D20_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D20",
+    "id": "P_D20_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D20_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D21",
+    "id": "P_D21_COMMON",
+    "name": "@zh:core.treatment_plans.P_D21_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D21",
+    "id": "P_D21_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D21_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D22",
+    "id": "P_D22_COMMON",
+    "name": "@zh:core.treatment_plans.P_D22_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D22",
+    "id": "P_D22_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D22_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D23",
+    "id": "P_D23_COMMON",
+    "name": "@zh:core.treatment_plans.P_D23_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D23",
+    "id": "P_D23_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D23_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D24",
+    "id": "P_D24_COMMON",
+    "name": "@zh:core.treatment_plans.P_D24_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D24",
+    "id": "P_D24_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D24_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D25",
+    "id": "P_D25_COMMON",
+    "name": "@zh:core.treatment_plans.P_D25_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D25",
+    "id": "P_D25_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D25_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D26",
+    "id": "P_D26_COMMON",
+    "name": "@zh:core.treatment_plans.P_D26_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D26",
+    "id": "P_D26_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D26_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D27",
+    "id": "P_D27_COMMON",
+    "name": "@zh:core.treatment_plans.P_D27_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D27",
+    "id": "P_D27_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D27_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D28",
+    "id": "P_D28_COMMON",
+    "name": "@zh:core.treatment_plans.P_D28_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D28",
+    "id": "P_D28_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D28_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D29",
+    "id": "P_D29_COMMON",
+    "name": "@zh:core.treatment_plans.P_D29_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D29",
+    "id": "P_D29_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D29_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D30",
+    "id": "P_D30_COMMON",
+    "name": "@zh:core.treatment_plans.P_D30_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D30",
+    "id": "P_D30_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D30_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D31",
+    "id": "P_D31_COMMON",
+    "name": "@zh:core.treatment_plans.P_D31_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D31",
+    "id": "P_D31_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D31_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D32",
+    "id": "P_D32_COMMON",
+    "name": "@zh:core.treatment_plans.P_D32_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D32",
+    "id": "P_D32_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D32_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D33",
+    "id": "P_D33_COMMON",
+    "name": "@zh:core.treatment_plans.P_D33_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D33",
+    "id": "P_D33_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D33_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D34",
+    "id": "P_D34_COMMON",
+    "name": "@zh:core.treatment_plans.P_D34_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D34",
+    "id": "P_D34_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D34_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D35",
+    "id": "P_D35_COMMON",
+    "name": "@zh:core.treatment_plans.P_D35_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D35",
+    "id": "P_D35_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D35_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D36",
+    "id": "P_D36_COMMON",
+    "name": "@zh:core.treatment_plans.P_D36_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D36",
+    "id": "P_D36_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D36_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D37",
+    "id": "P_D37_COMMON",
+    "name": "@zh:core.treatment_plans.P_D37_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D37",
+    "id": "P_D37_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D37_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D38",
+    "id": "P_D38_COMMON",
+    "name": "@zh:core.treatment_plans.P_D38_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D38",
+    "id": "P_D38_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D38_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D39",
+    "id": "P_D39_COMMON",
+    "name": "@zh:core.treatment_plans.P_D39_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D39",
+    "id": "P_D39_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D39_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D40",
+    "id": "P_D40_COMMON",
+    "name": "@zh:core.treatment_plans.P_D40_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D40",
+    "id": "P_D40_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D40_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D41",
+    "id": "P_D41_COMMON",
+    "name": "@zh:core.treatment_plans.P_D41_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D41",
+    "id": "P_D41_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D41_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D42",
+    "id": "P_D42_COMMON",
+    "name": "@zh:core.treatment_plans.P_D42_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D42",
+    "id": "P_D42_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D42_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D43",
+    "id": "P_D43_COMMON",
+    "name": "@zh:core.treatment_plans.P_D43_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D43",
+    "id": "P_D43_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D43_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D44",
+    "id": "P_D44_COMMON",
+    "name": "@zh:core.treatment_plans.P_D44_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D44",
+    "id": "P_D44_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D44_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D45",
+    "id": "P_D45_COMMON",
+    "name": "@zh:core.treatment_plans.P_D45_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D45",
+    "id": "P_D45_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D45_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D46",
+    "id": "P_D46_COMMON",
+    "name": "@zh:core.treatment_plans.P_D46_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D46",
+    "id": "P_D46_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D46_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D47",
+    "id": "P_D47_COMMON",
+    "name": "@zh:core.treatment_plans.P_D47_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D47",
+    "id": "P_D47_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D47_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D48",
+    "id": "P_D48_COMMON",
+    "name": "@zh:core.treatment_plans.P_D48_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D48",
+    "id": "P_D48_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D48_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D49",
+    "id": "P_D49_COMMON",
+    "name": "@zh:core.treatment_plans.P_D49_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D49",
+    "id": "P_D49_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D49_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D50",
+    "id": "P_D50_COMMON",
+    "name": "@zh:core.treatment_plans.P_D50_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D50",
+    "id": "P_D50_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D50_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D51",
+    "id": "P_D51_COMMON",
+    "name": "@zh:core.treatment_plans.P_D51_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D51",
+    "id": "P_D51_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D51_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D52",
+    "id": "P_D52_COMMON",
+    "name": "@zh:core.treatment_plans.P_D52_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D52",
+    "id": "P_D52_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D52_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D53",
+    "id": "P_D53_COMMON",
+    "name": "@zh:core.treatment_plans.P_D53_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D53",
+    "id": "P_D53_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D53_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D54",
+    "id": "P_D54_COMMON",
+    "name": "@zh:core.treatment_plans.P_D54_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D54",
+    "id": "P_D54_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D54_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D55",
+    "id": "P_D55_COMMON",
+    "name": "@zh:core.treatment_plans.P_D55_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D55",
+    "id": "P_D55_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D55_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D56",
+    "id": "P_D56_COMMON",
+    "name": "@zh:core.treatment_plans.P_D56_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D56",
+    "id": "P_D56_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D56_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D57",
+    "id": "P_D57_COMMON",
+    "name": "@zh:core.treatment_plans.P_D57_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D57",
+    "id": "P_D57_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D57_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D58",
+    "id": "P_D58_COMMON",
+    "name": "@zh:core.treatment_plans.P_D58_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D58",
+    "id": "P_D58_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D58_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D59",
+    "id": "P_D59_COMMON",
+    "name": "@zh:core.treatment_plans.P_D59_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D59",
+    "id": "P_D59_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D59_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D60",
+    "id": "P_D60_COMMON",
+    "name": "@zh:core.treatment_plans.P_D60_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D60",
+    "id": "P_D60_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D60_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D61",
+    "id": "P_D61_COMMON",
+    "name": "@zh:core.treatment_plans.P_D61_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D61",
+    "id": "P_D61_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D61_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D62",
+    "id": "P_D62_COMMON",
+    "name": "@zh:core.treatment_plans.P_D62_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D62",
+    "id": "P_D62_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D62_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D63",
+    "id": "P_D63_COMMON",
+    "name": "@zh:core.treatment_plans.P_D63_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D63",
+    "id": "P_D63_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D63_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D64",
+    "id": "P_D64_COMMON",
+    "name": "@zh:core.treatment_plans.P_D64_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D64",
+    "id": "P_D64_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D64_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D65",
+    "id": "P_D65_COMMON",
+    "name": "@zh:core.treatment_plans.P_D65_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D65",
+    "id": "P_D65_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D65_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D66",
+    "id": "P_D66_COMMON",
+    "name": "@zh:core.treatment_plans.P_D66_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D66",
+    "id": "P_D66_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D66_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D67",
+    "id": "P_D67_COMMON",
+    "name": "@zh:core.treatment_plans.P_D67_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D67",
+    "id": "P_D67_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D67_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D68",
+    "id": "P_D68_COMMON",
+    "name": "@zh:core.treatment_plans.P_D68_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D68",
+    "id": "P_D68_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D68_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D69",
+    "id": "P_D69_COMMON",
+    "name": "@zh:core.treatment_plans.P_D69_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D69",
+    "id": "P_D69_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D69_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D70",
+    "id": "P_D70_COMMON",
+    "name": "@zh:core.treatment_plans.P_D70_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D70",
+    "id": "P_D70_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D70_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D71",
+    "id": "P_D71_COMMON",
+    "name": "@zh:core.treatment_plans.P_D71_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D71",
+    "id": "P_D71_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D71_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D72",
+    "id": "P_D72_COMMON",
+    "name": "@zh:core.treatment_plans.P_D72_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D72",
+    "id": "P_D72_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D72_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D73",
+    "id": "P_D73_COMMON",
+    "name": "@zh:core.treatment_plans.P_D73_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D73",
+    "id": "P_D73_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D73_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D74",
+    "id": "P_D74_COMMON",
+    "name": "@zh:core.treatment_plans.P_D74_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D74",
+    "id": "P_D74_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D74_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D75",
+    "id": "P_D75_COMMON",
+    "name": "@zh:core.treatment_plans.P_D75_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D75",
+    "id": "P_D75_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D75_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D76",
+    "id": "P_D76_COMMON",
+    "name": "@zh:core.treatment_plans.P_D76_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D76",
+    "id": "P_D76_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D76_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D77",
+    "id": "P_D77_COMMON",
+    "name": "@zh:core.treatment_plans.P_D77_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D77",
+    "id": "P_D77_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D77_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D78",
+    "id": "P_D78_COMMON",
+    "name": "@zh:core.treatment_plans.P_D78_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D78",
+    "id": "P_D78_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D78_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D79",
+    "id": "P_D79_COMMON",
+    "name": "@zh:core.treatment_plans.P_D79_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D79",
+    "id": "P_D79_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D79_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D80",
+    "id": "P_D80_COMMON",
+    "name": "@zh:core.treatment_plans.P_D80_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D80",
+    "id": "P_D80_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D80_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D81",
+    "id": "P_D81_COMMON",
+    "name": "@zh:core.treatment_plans.P_D81_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D81",
+    "id": "P_D81_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D81_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D82",
+    "id": "P_D82_COMMON",
+    "name": "@zh:core.treatment_plans.P_D82_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D82",
+    "id": "P_D82_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D82_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D83",
+    "id": "P_D83_COMMON",
+    "name": "@zh:core.treatment_plans.P_D83_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D83",
+    "id": "P_D83_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D83_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D84",
+    "id": "P_D84_COMMON",
+    "name": "@zh:core.treatment_plans.P_D84_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D84",
+    "id": "P_D84_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D84_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D85",
+    "id": "P_D85_COMMON",
+    "name": "@zh:core.treatment_plans.P_D85_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D85",
+    "id": "P_D85_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D85_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D86",
+    "id": "P_D86_COMMON",
+    "name": "@zh:core.treatment_plans.P_D86_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D86",
+    "id": "P_D86_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D86_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D87",
+    "id": "P_D87_COMMON",
+    "name": "@zh:core.treatment_plans.P_D87_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D87",
+    "id": "P_D87_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D87_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D88",
+    "id": "P_D88_COMMON",
+    "name": "@zh:core.treatment_plans.P_D88_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D88",
+    "id": "P_D88_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D88_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D89",
+    "id": "P_D89_COMMON",
+    "name": "@zh:core.treatment_plans.P_D89_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D89",
+    "id": "P_D89_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D89_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D90",
+    "id": "P_D90_COMMON",
+    "name": "@zh:core.treatment_plans.P_D90_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D90",
+    "id": "P_D90_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D90_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D91",
+    "id": "P_D91_COMMON",
+    "name": "@zh:core.treatment_plans.P_D91_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D91",
+    "id": "P_D91_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D91_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D92",
+    "id": "P_D92_COMMON",
+    "name": "@zh:core.treatment_plans.P_D92_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D92",
+    "id": "P_D92_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D92_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D93",
+    "id": "P_D93_COMMON",
+    "name": "@zh:core.treatment_plans.P_D93_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D93",
+    "id": "P_D93_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D93_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D94",
+    "id": "P_D94_COMMON",
+    "name": "@zh:core.treatment_plans.P_D94_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D94",
+    "id": "P_D94_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D94_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D95",
+    "id": "P_D95_COMMON",
+    "name": "@zh:core.treatment_plans.P_D95_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D95",
+    "id": "P_D95_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D95_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D96",
+    "id": "P_D96_COMMON",
+    "name": "@zh:core.treatment_plans.P_D96_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D96",
+    "id": "P_D96_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D96_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D97",
+    "id": "P_D97_COMMON",
+    "name": "@zh:core.treatment_plans.P_D97_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D97",
+    "id": "P_D97_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D97_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D98",
+    "id": "P_D98_COMMON",
+    "name": "@zh:core.treatment_plans.P_D98_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D98",
+    "id": "P_D98_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D98_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D99",
+    "id": "P_D99_COMMON",
+    "name": "@zh:core.treatment_plans.P_D99_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D99",
+    "id": "P_D99_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D99_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D100",
+    "id": "P_D100_COMMON",
+    "name": "@zh:core.treatment_plans.P_D100_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D100",
+    "id": "P_D100_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D100_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D101",
+    "id": "P_D101_COMMON",
+    "name": "@zh:core.treatment_plans.P_D101_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D101",
+    "id": "P_D101_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D101_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D102",
+    "id": "P_D102_COMMON",
+    "name": "@zh:core.treatment_plans.P_D102_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D102",
+    "id": "P_D102_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D102_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D103",
+    "id": "P_D103_COMMON",
+    "name": "@zh:core.treatment_plans.P_D103_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D103",
+    "id": "P_D103_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D103_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D104",
+    "id": "P_D104_COMMON",
+    "name": "@zh:core.treatment_plans.P_D104_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D104",
+    "id": "P_D104_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D104_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D105",
+    "id": "P_D105_COMMON",
+    "name": "@zh:core.treatment_plans.P_D105_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D105",
+    "id": "P_D105_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D105_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D106",
+    "id": "P_D106_COMMON",
+    "name": "@zh:core.treatment_plans.P_D106_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D106",
+    "id": "P_D106_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D106_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D107",
+    "id": "P_D107_COMMON",
+    "name": "@zh:core.treatment_plans.P_D107_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D107",
+    "id": "P_D107_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D107_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D108",
+    "id": "P_D108_COMMON",
+    "name": "@zh:core.treatment_plans.P_D108_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D108",
+    "id": "P_D108_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D108_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D109",
+    "id": "P_D109_COMMON",
+    "name": "@zh:core.treatment_plans.P_D109_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D109",
+    "id": "P_D109_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D109_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D110",
+    "id": "P_D110_COMMON",
+    "name": "@zh:core.treatment_plans.P_D110_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D110",
+    "id": "P_D110_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D110_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D111",
+    "id": "P_D111_COMMON",
+    "name": "@zh:core.treatment_plans.P_D111_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D111",
+    "id": "P_D111_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D111_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D112",
+    "id": "P_D112_COMMON",
+    "name": "@zh:core.treatment_plans.P_D112_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D112",
+    "id": "P_D112_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D112_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D113",
+    "id": "P_D113_COMMON",
+    "name": "@zh:core.treatment_plans.P_D113_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D113",
+    "id": "P_D113_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D113_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D114",
+    "id": "P_D114_COMMON",
+    "name": "@zh:core.treatment_plans.P_D114_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D114",
+    "id": "P_D114_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D114_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_plans.P_D01_SURGERY.beats.0",
+      "@zh:core.treatment_plans.P_D01_SURGERY.beats.1",
+      "@zh:core.treatment_plans.P_D01_SURGERY.beats.2",
+      "@zh:core.treatment_plans.P_D01_SURGERY.beats.3"
+    ],
+    "disease_id": "D01",
+    "id": "P_D01_SURGERY",
+    "name": "@zh:core.treatment_plans.P_D01_SURGERY.name",
+    "protocol_id": "TP_SURGERY1",
+    "requires_research": [
+      "R34"
+    ]
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_plans.P_D04_SURGERY.beats.0",
+      "@zh:core.treatment_plans.P_D04_SURGERY.beats.1",
+      "@zh:core.treatment_plans.P_D04_SURGERY.beats.2",
+      "@zh:core.treatment_plans.P_D04_SURGERY.beats.3"
+    ],
+    "disease_id": "D04",
+    "id": "P_D04_SURGERY",
+    "name": "@zh:core.treatment_plans.P_D04_SURGERY.name",
+    "protocol_id": "TP_SURGERY1",
+    "requires_research": [
+      "R34"
+    ]
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_plans.P_D06_SURGERY.beats.0",
+      "@zh:core.treatment_plans.P_D06_SURGERY.beats.1",
+      "@zh:core.treatment_plans.P_D06_SURGERY.beats.2",
+      "@zh:core.treatment_plans.P_D06_SURGERY.beats.3"
+    ],
+    "disease_id": "D06",
+    "id": "P_D06_SURGERY",
+    "name": "@zh:core.treatment_plans.P_D06_SURGERY.name",
+    "protocol_id": "TP_SURGERY1",
+    "requires_research": [
+      "R34"
+    ]
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_plans.P_D07_SURGERY.beats.0",
+      "@zh:core.treatment_plans.P_D07_SURGERY.beats.1",
+      "@zh:core.treatment_plans.P_D07_SURGERY.beats.2",
+      "@zh:core.treatment_plans.P_D07_SURGERY.beats.3"
+    ],
+    "disease_id": "D07",
+    "id": "P_D07_SURGERY",
+    "name": "@zh:core.treatment_plans.P_D07_SURGERY.name",
+    "protocol_id": "TP_SURGERY1",
+    "requires_research": [
+      "R34"
+    ]
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_plans.P_D09_SURGERY.beats.0",
+      "@zh:core.treatment_plans.P_D09_SURGERY.beats.1",
+      "@zh:core.treatment_plans.P_D09_SURGERY.beats.2",
+      "@zh:core.treatment_plans.P_D09_SURGERY.beats.3"
+    ],
+    "disease_id": "D09",
+    "id": "P_D09_SURGERY",
+    "name": "@zh:core.treatment_plans.P_D09_SURGERY.name",
+    "protocol_id": "TP_SURGERY1",
+    "requires_research": [
+      "R34"
+    ]
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_plans.P_D14_SURGERY.beats.0",
+      "@zh:core.treatment_plans.P_D14_SURGERY.beats.1",
+      "@zh:core.treatment_plans.P_D14_SURGERY.beats.2",
+      "@zh:core.treatment_plans.P_D14_SURGERY.beats.3"
+    ],
+    "disease_id": "D14",
+    "id": "P_D14_SURGERY",
+    "name": "@zh:core.treatment_plans.P_D14_SURGERY.name",
+    "protocol_id": "TP_SURGERY2",
+    "requires_research": [
+      "R34"
+    ]
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_plans.P_D17_SURGERY.beats.0",
+      "@zh:core.treatment_plans.P_D17_SURGERY.beats.1",
+      "@zh:core.treatment_plans.P_D17_SURGERY.beats.2",
+      "@zh:core.treatment_plans.P_D17_SURGERY.beats.3"
+    ],
+    "disease_id": "D17",
+    "id": "P_D17_SURGERY",
+    "name": "@zh:core.treatment_plans.P_D17_SURGERY.name",
+    "protocol_id": "TP_SURGERY1",
+    "requires_research": [
+      "R34"
+    ]
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_plans.P_D22_SURGERY.beats.0",
+      "@zh:core.treatment_plans.P_D22_SURGERY.beats.1",
+      "@zh:core.treatment_plans.P_D22_SURGERY.beats.2",
+      "@zh:core.treatment_plans.P_D22_SURGERY.beats.3"
+    ],
+    "disease_id": "D22",
+    "id": "P_D22_SURGERY",
+    "name": "@zh:core.treatment_plans.P_D22_SURGERY.name",
+    "protocol_id": "TP_SURGERY1",
+    "requires_research": [
+      "R34"
+    ]
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_plans.P_D23_SURGERY.beats.0",
+      "@zh:core.treatment_plans.P_D23_SURGERY.beats.1",
+      "@zh:core.treatment_plans.P_D23_SURGERY.beats.2",
+      "@zh:core.treatment_plans.P_D23_SURGERY.beats.3"
+    ],
+    "disease_id": "D23",
+    "id": "P_D23_SURGERY",
+    "name": "@zh:core.treatment_plans.P_D23_SURGERY.name",
+    "protocol_id": "TP_SURGERY2",
+    "requires_research": [
+      "R34"
+    ]
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_plans.P_D28_SURGERY.beats.0",
+      "@zh:core.treatment_plans.P_D28_SURGERY.beats.1",
+      "@zh:core.treatment_plans.P_D28_SURGERY.beats.2",
+      "@zh:core.treatment_plans.P_D28_SURGERY.beats.3"
+    ],
+    "disease_id": "D28",
+    "id": "P_D28_SURGERY",
+    "name": "@zh:core.treatment_plans.P_D28_SURGERY.name",
+    "protocol_id": "TP_SURGERY1",
+    "requires_research": [
+      "R34"
+    ]
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_plans.P_D29_SURGERY.beats.0",
+      "@zh:core.treatment_plans.P_D29_SURGERY.beats.1",
+      "@zh:core.treatment_plans.P_D29_SURGERY.beats.2",
+      "@zh:core.treatment_plans.P_D29_SURGERY.beats.3"
+    ],
+    "disease_id": "D29",
+    "id": "P_D29_SURGERY",
+    "name": "@zh:core.treatment_plans.P_D29_SURGERY.name",
+    "protocol_id": "TP_SURGERY2",
+    "requires_research": [
+      "R34"
+    ]
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_plans.P_D33_SURGERY.beats.0",
+      "@zh:core.treatment_plans.P_D33_SURGERY.beats.1",
+      "@zh:core.treatment_plans.P_D33_SURGERY.beats.2",
+      "@zh:core.treatment_plans.P_D33_SURGERY.beats.3"
+    ],
+    "disease_id": "D33",
+    "id": "P_D33_SURGERY",
+    "name": "@zh:core.treatment_plans.P_D33_SURGERY.name",
+    "protocol_id": "TP_SURGERY1",
+    "requires_research": [
+      "R34"
+    ]
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_plans.P_D34_SURGERY.beats.0",
+      "@zh:core.treatment_plans.P_D34_SURGERY.beats.1",
+      "@zh:core.treatment_plans.P_D34_SURGERY.beats.2",
+      "@zh:core.treatment_plans.P_D34_SURGERY.beats.3"
+    ],
+    "disease_id": "D34",
+    "id": "P_D34_SURGERY",
+    "name": "@zh:core.treatment_plans.P_D34_SURGERY.name",
+    "protocol_id": "TP_SURGERY1",
+    "requires_research": [
+      "R34"
+    ]
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_plans.P_D35_SURGERY.beats.0",
+      "@zh:core.treatment_plans.P_D35_SURGERY.beats.1",
+      "@zh:core.treatment_plans.P_D35_SURGERY.beats.2",
+      "@zh:core.treatment_plans.P_D35_SURGERY.beats.3"
+    ],
+    "disease_id": "D35",
+    "id": "P_D35_SURGERY",
+    "name": "@zh:core.treatment_plans.P_D35_SURGERY.name",
+    "protocol_id": "TP_SURGERY2",
+    "requires_research": [
+      "R34"
+    ]
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_plans.P_D40_SURGERY.beats.0",
+      "@zh:core.treatment_plans.P_D40_SURGERY.beats.1",
+      "@zh:core.treatment_plans.P_D40_SURGERY.beats.2",
+      "@zh:core.treatment_plans.P_D40_SURGERY.beats.3"
+    ],
+    "disease_id": "D40",
+    "id": "P_D40_SURGERY",
+    "name": "@zh:core.treatment_plans.P_D40_SURGERY.name",
+    "protocol_id": "TP_SURGERY1",
+    "requires_research": [
+      "R34"
+    ]
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_plans.P_D55_SURGERY.beats.0",
+      "@zh:core.treatment_plans.P_D55_SURGERY.beats.1",
+      "@zh:core.treatment_plans.P_D55_SURGERY.beats.2",
+      "@zh:core.treatment_plans.P_D55_SURGERY.beats.3"
+    ],
+    "disease_id": "D55",
+    "id": "P_D55_SURGERY",
+    "name": "@zh:core.treatment_plans.P_D55_SURGERY.name",
+    "protocol_id": "TP_SURGERY1",
+    "requires_research": [
+      "R34"
+    ]
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_plans.P_D59_SURGERY.beats.0",
+      "@zh:core.treatment_plans.P_D59_SURGERY.beats.1",
+      "@zh:core.treatment_plans.P_D59_SURGERY.beats.2",
+      "@zh:core.treatment_plans.P_D59_SURGERY.beats.3"
+    ],
+    "disease_id": "D59",
+    "id": "P_D59_SURGERY",
+    "name": "@zh:core.treatment_plans.P_D59_SURGERY.name",
+    "protocol_id": "TP_SURGERY1",
+    "requires_research": [
+      "R34"
+    ]
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_plans.P_D62_SURGERY.beats.0",
+      "@zh:core.treatment_plans.P_D62_SURGERY.beats.1",
+      "@zh:core.treatment_plans.P_D62_SURGERY.beats.2",
+      "@zh:core.treatment_plans.P_D62_SURGERY.beats.3"
+    ],
+    "disease_id": "D62",
+    "id": "P_D62_SURGERY",
+    "name": "@zh:core.treatment_plans.P_D62_SURGERY.name",
+    "protocol_id": "TP_SURGERY1",
+    "requires_research": [
+      "R34"
+    ]
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_plans.P_D78_SURGERY.beats.0",
+      "@zh:core.treatment_plans.P_D78_SURGERY.beats.1",
+      "@zh:core.treatment_plans.P_D78_SURGERY.beats.2",
+      "@zh:core.treatment_plans.P_D78_SURGERY.beats.3"
+    ],
+    "disease_id": "D78",
+    "id": "P_D78_SURGERY",
+    "name": "@zh:core.treatment_plans.P_D78_SURGERY.name",
+    "protocol_id": "TP_SURGERY3",
+    "requires_research": [
+      "R34"
+    ]
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_plans.P_D88_SURGERY.beats.0",
+      "@zh:core.treatment_plans.P_D88_SURGERY.beats.1",
+      "@zh:core.treatment_plans.P_D88_SURGERY.beats.2",
+      "@zh:core.treatment_plans.P_D88_SURGERY.beats.3"
+    ],
+    "disease_id": "D88",
+    "id": "P_D88_SURGERY",
+    "name": "@zh:core.treatment_plans.P_D88_SURGERY.name",
+    "protocol_id": "TP_SURGERY1",
+    "requires_research": [
+      "R34"
+    ]
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_plans.P_D92_SURGERY.beats.0",
+      "@zh:core.treatment_plans.P_D92_SURGERY.beats.1",
+      "@zh:core.treatment_plans.P_D92_SURGERY.beats.2",
+      "@zh:core.treatment_plans.P_D92_SURGERY.beats.3"
+    ],
+    "disease_id": "D92",
+    "id": "P_D92_SURGERY",
+    "name": "@zh:core.treatment_plans.P_D92_SURGERY.name",
+    "protocol_id": "TP_SURGERY2",
+    "requires_research": [
+      "R34"
+    ]
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_plans.P_D94_SURGERY.beats.0",
+      "@zh:core.treatment_plans.P_D94_SURGERY.beats.1",
+      "@zh:core.treatment_plans.P_D94_SURGERY.beats.2",
+      "@zh:core.treatment_plans.P_D94_SURGERY.beats.3"
+    ],
+    "disease_id": "D94",
+    "id": "P_D94_SURGERY",
+    "name": "@zh:core.treatment_plans.P_D94_SURGERY.name",
+    "protocol_id": "TP_SURGERY3",
+    "requires_research": [
+      "R34"
+    ]
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_plans.P_D99_SURGERY.beats.0",
+      "@zh:core.treatment_plans.P_D99_SURGERY.beats.1",
+      "@zh:core.treatment_plans.P_D99_SURGERY.beats.2",
+      "@zh:core.treatment_plans.P_D99_SURGERY.beats.3"
+    ],
+    "disease_id": "D99",
+    "id": "P_D99_SURGERY",
+    "name": "@zh:core.treatment_plans.P_D99_SURGERY.name",
+    "protocol_id": "TP_SURGERY1",
+    "requires_research": [
+      "R34"
+    ]
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_plans.P_D108_SURGERY.beats.0",
+      "@zh:core.treatment_plans.P_D108_SURGERY.beats.1",
+      "@zh:core.treatment_plans.P_D108_SURGERY.beats.2",
+      "@zh:core.treatment_plans.P_D108_SURGERY.beats.3"
+    ],
+    "disease_id": "D108",
+    "id": "P_D108_SURGERY",
+    "name": "@zh:core.treatment_plans.P_D108_SURGERY.name",
+    "protocol_id": "TP_SURGERY2",
+    "requires_research": [
+      "R34"
+    ]
+  },
+  {
+    "disease_id": "D115",
+    "id": "P_D115_COMMON",
+    "name": "@zh:core.treatment_plans.P_D115_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D115",
+    "id": "P_D115_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D115_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D116",
+    "id": "P_D116_COMMON",
+    "name": "@zh:core.treatment_plans.P_D116_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D116",
+    "id": "P_D116_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D116_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D117",
+    "id": "P_D117_COMMON",
+    "name": "@zh:core.treatment_plans.P_D117_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D117",
+    "id": "P_D117_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D117_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D118",
+    "id": "P_D118_COMMON",
+    "name": "@zh:core.treatment_plans.P_D118_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D118",
+    "id": "P_D118_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D118_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D119",
+    "id": "P_D119_COMMON",
+    "name": "@zh:core.treatment_plans.P_D119_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D119",
+    "id": "P_D119_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D119_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D120",
+    "id": "P_D120_COMMON",
+    "name": "@zh:core.treatment_plans.P_D120_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D120",
+    "id": "P_D120_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D120_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D121",
+    "id": "P_D121_COMMON",
+    "name": "@zh:core.treatment_plans.P_D121_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D121",
+    "id": "P_D121_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D121_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D122",
+    "id": "P_D122_COMMON",
+    "name": "@zh:core.treatment_plans.P_D122_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D122",
+    "id": "P_D122_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D122_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D123",
+    "id": "P_D123_COMMON",
+    "name": "@zh:core.treatment_plans.P_D123_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D123",
+    "id": "P_D123_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D123_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D124",
+    "id": "P_D124_COMMON",
+    "name": "@zh:core.treatment_plans.P_D124_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D124",
+    "id": "P_D124_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D124_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D125",
+    "id": "P_D125_COMMON",
+    "name": "@zh:core.treatment_plans.P_D125_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D125",
+    "id": "P_D125_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D125_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D126",
+    "id": "P_D126_COMMON",
+    "name": "@zh:core.treatment_plans.P_D126_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D126",
+    "id": "P_D126_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D126_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D127",
+    "id": "P_D127_COMMON",
+    "name": "@zh:core.treatment_plans.P_D127_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D127",
+    "id": "P_D127_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D127_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D128",
+    "id": "P_D128_COMMON",
+    "name": "@zh:core.treatment_plans.P_D128_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D128",
+    "id": "P_D128_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D128_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D129",
+    "id": "P_D129_COMMON",
+    "name": "@zh:core.treatment_plans.P_D129_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D129",
+    "id": "P_D129_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D129_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D130",
+    "id": "P_D130_COMMON",
+    "name": "@zh:core.treatment_plans.P_D130_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D130",
+    "id": "P_D130_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D130_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D131",
+    "id": "P_D131_COMMON",
+    "name": "@zh:core.treatment_plans.P_D131_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D131",
+    "id": "P_D131_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D131_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D132",
+    "id": "P_D132_COMMON",
+    "name": "@zh:core.treatment_plans.P_D132_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D132",
+    "id": "P_D132_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D132_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D133",
+    "id": "P_D133_COMMON",
+    "name": "@zh:core.treatment_plans.P_D133_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D133",
+    "id": "P_D133_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D133_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D134",
+    "id": "P_D134_COMMON",
+    "name": "@zh:core.treatment_plans.P_D134_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D134",
+    "id": "P_D134_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D134_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D135",
+    "id": "P_D135_COMMON",
+    "name": "@zh:core.treatment_plans.P_D135_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D135",
+    "id": "P_D135_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D135_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D136",
+    "id": "P_D136_COMMON",
+    "name": "@zh:core.treatment_plans.P_D136_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D136",
+    "id": "P_D136_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D136_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D137",
+    "id": "P_D137_COMMON",
+    "name": "@zh:core.treatment_plans.P_D137_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D137",
+    "id": "P_D137_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D137_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D138",
+    "id": "P_D138_COMMON",
+    "name": "@zh:core.treatment_plans.P_D138_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D138",
+    "id": "P_D138_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D138_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D139",
+    "id": "P_D139_COMMON",
+    "name": "@zh:core.treatment_plans.P_D139_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D139",
+    "id": "P_D139_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D139_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D140",
+    "id": "P_D140_COMMON",
+    "name": "@zh:core.treatment_plans.P_D140_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D140",
+    "id": "P_D140_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D140_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D141",
+    "id": "P_D141_COMMON",
+    "name": "@zh:core.treatment_plans.P_D141_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D141",
+    "id": "P_D141_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D141_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D142",
+    "id": "P_D142_COMMON",
+    "name": "@zh:core.treatment_plans.P_D142_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D142",
+    "id": "P_D142_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D142_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D143",
+    "id": "P_D143_COMMON",
+    "name": "@zh:core.treatment_plans.P_D143_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D143",
+    "id": "P_D143_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D143_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D144",
+    "id": "P_D144_COMMON",
+    "name": "@zh:core.treatment_plans.P_D144_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D144",
+    "id": "P_D144_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D144_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D145",
+    "id": "P_D145_COMMON",
+    "name": "@zh:core.treatment_plans.P_D145_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D145",
+    "id": "P_D145_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D145_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D146",
+    "id": "P_D146_COMMON",
+    "name": "@zh:core.treatment_plans.P_D146_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D146",
+    "id": "P_D146_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D146_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D147",
+    "id": "P_D147_COMMON",
+    "name": "@zh:core.treatment_plans.P_D147_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D147",
+    "id": "P_D147_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D147_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D148",
+    "id": "P_D148_COMMON",
+    "name": "@zh:core.treatment_plans.P_D148_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D148",
+    "id": "P_D148_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D148_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D149",
+    "id": "P_D149_COMMON",
+    "name": "@zh:core.treatment_plans.P_D149_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D149",
+    "id": "P_D149_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D149_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D150",
+    "id": "P_D150_COMMON",
+    "name": "@zh:core.treatment_plans.P_D150_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D150",
+    "id": "P_D150_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D150_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D151",
+    "id": "P_D151_COMMON",
+    "name": "@zh:core.treatment_plans.P_D151_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D151",
+    "id": "P_D151_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D151_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D152",
+    "id": "P_D152_COMMON",
+    "name": "@zh:core.treatment_plans.P_D152_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D152",
+    "id": "P_D152_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D152_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D153",
+    "id": "P_D153_COMMON",
+    "name": "@zh:core.treatment_plans.P_D153_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D153",
+    "id": "P_D153_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D153_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D154",
+    "id": "P_D154_COMMON",
+    "name": "@zh:core.treatment_plans.P_D154_COMMON.name",
+    "protocol_id": "TP_COMMON",
+    "requires_research": []
+  },
+  {
+    "disease_id": "D154",
+    "id": "P_D154_GENTLE",
+    "name": "@zh:core.treatment_plans.P_D154_GENTLE.name",
+    "protocol_id": "TP_GENTLE",
+    "requires_research": []
+  }
+]

@@ -1,0 +1,642 @@
+[
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S01",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S01.name",
+    "sell_value": 0,
+    "species_id": "S01"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S02",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S02.name",
+    "sell_value": 0,
+    "species_id": "S02"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S03",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S03.name",
+    "sell_value": 0,
+    "species_id": "S03"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S04",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S04.name",
+    "sell_value": 0,
+    "species_id": "S04"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S05",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S05.name",
+    "sell_value": 0,
+    "species_id": "S05"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S06",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S06.name",
+    "sell_value": 0,
+    "species_id": "S06"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S07",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S07.name",
+    "sell_value": 0,
+    "species_id": "S07"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S08",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S08.name",
+    "sell_value": 0,
+    "species_id": "S08"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S09",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S09.name",
+    "sell_value": 0,
+    "species_id": "S09"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S10",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S10.name",
+    "sell_value": 0,
+    "species_id": "S10"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S11",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S11.name",
+    "sell_value": 0,
+    "species_id": "S11"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S12",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S12.name",
+    "sell_value": 0,
+    "species_id": "S12"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S13",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S13.name",
+    "sell_value": 0,
+    "species_id": "S13"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S14",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S14.name",
+    "sell_value": 0,
+    "species_id": "S14"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S15",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S15.name",
+    "sell_value": 0,
+    "species_id": "S15"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S16",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S16.name",
+    "sell_value": 0,
+    "species_id": "S16"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S17",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S17.name",
+    "sell_value": 0,
+    "species_id": "S17"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S18",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S18.name",
+    "sell_value": 0,
+    "species_id": "S18"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S19",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S19.name",
+    "sell_value": 0,
+    "species_id": "S19"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S20",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S20.name",
+    "sell_value": 0,
+    "species_id": "S20"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S21",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S21.name",
+    "sell_value": 0,
+    "species_id": "S21"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S22",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S22.name",
+    "sell_value": 0,
+    "species_id": "S22"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S23",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S23.name",
+    "sell_value": 0,
+    "species_id": "S23"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S24",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S24.name",
+    "sell_value": 0,
+    "species_id": "S24"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S25",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S25.name",
+    "sell_value": 0,
+    "species_id": "S25"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S26",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S26.name",
+    "sell_value": 0,
+    "species_id": "S26"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S27",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S27.name",
+    "sell_value": 0,
+    "species_id": "S27"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S28",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S28.name",
+    "sell_value": 0,
+    "species_id": "S28"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S29",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S29.name",
+    "sell_value": 0,
+    "species_id": "S29"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S30",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S30.name",
+    "sell_value": 0,
+    "species_id": "S30"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S31",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S31.name",
+    "sell_value": 0,
+    "species_id": "S31"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S32",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S32.name",
+    "sell_value": 0,
+    "species_id": "S32"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S33",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S33.name",
+    "sell_value": 0,
+    "species_id": "S33"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S34",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S34.name",
+    "sell_value": 0,
+    "species_id": "S34"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S35",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S35.name",
+    "sell_value": 0,
+    "species_id": "S35"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S36",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S36.name",
+    "sell_value": 0,
+    "species_id": "S36"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S37",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S37.name",
+    "sell_value": 0,
+    "species_id": "S37"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S38",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S38.name",
+    "sell_value": 0,
+    "species_id": "S38"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S39",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S39.name",
+    "sell_value": 0,
+    "species_id": "S39"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S40",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S40.name",
+    "sell_value": 0,
+    "species_id": "S40"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S41",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S41.name",
+    "sell_value": 0,
+    "species_id": "S41"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S42",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S42.name",
+    "sell_value": 0,
+    "species_id": "S42"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S43",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S43.name",
+    "sell_value": 0,
+    "species_id": "S43"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S44",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S44.name",
+    "sell_value": 0,
+    "species_id": "S44"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S45",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S45.name",
+    "sell_value": 0,
+    "species_id": "S45"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S46",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S46.name",
+    "sell_value": 0,
+    "species_id": "S46"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S47",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S47.name",
+    "sell_value": 0,
+    "species_id": "S47"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S48",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S48.name",
+    "sell_value": 0,
+    "species_id": "S48"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S49",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S49.name",
+    "sell_value": 0,
+    "species_id": "S49"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S50",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S50.name",
+    "sell_value": 0,
+    "species_id": "S50"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S51",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S51.name",
+    "sell_value": 0,
+    "species_id": "S51"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S52",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S52.name",
+    "sell_value": 0,
+    "species_id": "S52"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S53",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S53.name",
+    "sell_value": 0,
+    "species_id": "S53"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S54",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S54.name",
+    "sell_value": 0,
+    "species_id": "S54"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S55",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S55.name",
+    "sell_value": 0,
+    "species_id": "S55"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S56",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S56.name",
+    "sell_value": 0,
+    "species_id": "S56"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S57",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S57.name",
+    "sell_value": 0,
+    "species_id": "S57"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S58",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S58.name",
+    "sell_value": 0,
+    "species_id": "S58"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S59",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S59.name",
+    "sell_value": 0,
+    "species_id": "S59"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S60",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S60.name",
+    "sell_value": 0,
+    "species_id": "S60"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S61",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S61.name",
+    "sell_value": 0,
+    "species_id": "S61"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S62",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S62.name",
+    "sell_value": 0,
+    "species_id": "S62"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S63",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S63.name",
+    "sell_value": 0,
+    "species_id": "S63"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S64",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S64.name",
+    "sell_value": 0,
+    "species_id": "S64"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S65",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S65.name",
+    "sell_value": 0,
+    "species_id": "S65"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S66",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S66.name",
+    "sell_value": 0,
+    "species_id": "S66"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S67",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S67.name",
+    "sell_value": 0,
+    "species_id": "S67"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S68",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S68.name",
+    "sell_value": 0,
+    "species_id": "S68"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S69",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S69.name",
+    "sell_value": 0,
+    "species_id": "S69"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S70",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S70.name",
+    "sell_value": 0,
+    "species_id": "S70"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S71",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S71.name",
+    "sell_value": 0,
+    "species_id": "S71"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S72",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S72.name",
+    "sell_value": 0,
+    "species_id": "S72"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S73",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S73.name",
+    "sell_value": 0,
+    "species_id": "S73"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S74",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S74.name",
+    "sell_value": 0,
+    "species_id": "S74"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S75",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S75.name",
+    "sell_value": 0,
+    "species_id": "S75"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S76",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S76.name",
+    "sell_value": 0,
+    "species_id": "S76"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S77",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S77.name",
+    "sell_value": 0,
+    "species_id": "S77"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S78",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S78.name",
+    "sell_value": 0,
+    "species_id": "S78"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S79",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S79.name",
+    "sell_value": 0,
+    "species_id": "S79"
+  },
+  {
+    "decoration_category": "gratitude",
+    "id": "G_S80",
+    "max_display_instances": 1,
+    "name": "@zh:core.species_gifts.G_S80.name",
+    "sell_value": 0,
+    "species_id": "S80"
+  }
+]

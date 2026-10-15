@@ -1,0 +1,101 @@
+[
+  {
+    "equipment_class": "workstation",
+    "footprint": [
+      2,
+      1
+    ],
+    "id": "SE01",
+    "name": "@zh:core.service_equipment.SE01.name",
+    "price": 600
+  },
+  {
+    "equipment_class": "workstation",
+    "footprint": [
+      1,
+      1
+    ],
+    "id": "SE02",
+    "name": "@zh:core.service_equipment.SE02.name",
+    "price": 300
+  },
+  {
+    "equipment_class": "utility",
+    "footprint": [
+      1,
+      1
+    ],
+    "id": "SE03",
+    "name": "@zh:core.service_equipment.SE03.name",
+    "price": 250
+  },
+  {
+    "access_anchor_policy": "adjacent_to_adapted_footprint",
+    "capacity": 1,
+    "equipment_class": "comfort",
+    "fit_profile_id": "FF02",
+    "footprint": [
+      1,
+      2
+    ],
+    "id": "SE04",
+    "low_motion_scene": "@zh:core.service_equipment.SE04.low_motion_scene",
+    "max_clearance_cells": 3,
+    "max_height_m": 6.5,
+    "name": "@zh:core.service_equipment.SE04.name",
+    "operation_anchor": [
+      0,
+      2
+    ],
+    "price": 400,
+    "room_type": "rest",
+    "scene": "@zh:core.service_equipment.SE04.scene",
+    "use": "staff_sleep"
+  },
+  {
+    "capacity": 1,
+    "equipment_class": "workstation",
+    "fit_profile_id": "FF06",
+    "footprint": [
+      2,
+      1
+    ],
+    "id": "SE05",
+    "low_motion_scene": "@zh:core.service_equipment.SE05.low_motion_scene",
+    "max_clearance_cells": 3,
+    "max_height_m": 6.5,
+    "name": "@zh:core.service_equipment.SE05.name",
+    "operation_anchor": [
+      0,
+      1
+    ],
+    "operator_pose": "seated_or_rig_equivalent",
+    "price": 300,
+    "room_type": "doctor_office",
+    "scene": "@zh:core.service_equipment.SE05.scene",
+    "use": "doctor_handoff"
+  },
+  {
+    "capacity": 1,
+    "equipment_class": "workstation",
+    "fit_profile_id": "FF06",
+    "footprint": [
+      2,
+      1
+    ],
+    "id": "SE06",
+    "low_motion_scene": "@zh:core.service_equipment.SE06.low_motion_scene",
+    "max_clearance_cells": 3,
+    "max_height_m": 6.5,
+    "name": "@zh:core.service_equipment.SE06.name",
+    "operation_anchor": [
+      0,
+      1
+    ],
+    "operator_pose": "standing_or_rig_equivalent",
+    "price": 300,
+    "room_type": null,
+    "scene": "@zh:core.service_equipment.SE06.scene",
+    "use": "nurse_handoff"
+  }
+]

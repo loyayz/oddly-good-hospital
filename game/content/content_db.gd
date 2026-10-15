@@ -1,46 +1,70 @@
 class_name HospitalContent
 extends RefCounted
 
-var catalog: Dictionary
-var balance: Dictionary
-var layouts: Dictionary
-var _indexes: Dictionary = {}
-var _assets: Dictionary = {}
+var registry: ContentRegistry
 var error: String = ""
 
-func _init() -> void:
-	catalog = _read("res://docs/data/content-catalog.json")
-	balance = _read("res://docs/data/balance.json")
-	layouts = _read("res://docs/data/clinical-layouts.json")
-	var production: Dictionary = _read("res://assets/models/stage01-production.json")
-	for asset: Dictionary in production.get("assets",[]):
-		_assets[asset.content_id] = asset
-	for collection: String in catalog:
-		if catalog[collection] is Array:
-			var index: Dictionary = {}
-			for entry: Variant in catalog[collection]:
-				if entry is Dictionary:
-					var key: String = str(entry.get("id",entry.get("definition_id","")))
-					if not key.is_empty():
-						index[key] = entry
-			_indexes[collection] = index
+var catalog: Dictionary:
+	get:
+		return registry.legacy_catalog() if registry != null else {}
+var balance: Dictionary:
+	get:
+		return registry.rules() if registry != null else {}
+var layouts: Dictionary:
+	get:
+		return registry.layouts() if registry != null else {}
+var starter_layout: Dictionary:
+	get:
+		return registry.starter_layout() if registry != null else {}
+var assets: Dictionary:
+	get:
+		return registry.assets() if registry != null else {}
+var _assets: Dictionary:
+	get:
+		return assets
+var content_fingerprint: String:
+	get:
+		return registry.fingerprint if registry != null else ""
+var packs: Array:
+	get:
+		return registry.packs() if registry != null else []
+
+func _init(paths: PackedStringArray = PackedStringArray(["res://content/core"])) -> void:
+	load_packs(paths)
+
+func load_packs(paths: PackedStringArray) -> bool:
+	var candidate: ContentLoadResult = ContentLoader.new().load_packs(paths)
+	if not candidate.accepted:
+		error = "；".join(candidate.errors)
+		return false
+	registry = candidate.registry
+	error = ""
+	return true
+
+func snapshot_identity() -> Array[Dictionary]:
+	return registry.snapshot_identity() if registry != null else []
 
 func definition(collection: String, id: String) -> Dictionary:
-	return _indexes.get(collection, {}).get(id, {})
+	return registry.legacy_definition(collection, id) if registry != null else {}
 
 func facility_definition(id: String) -> Dictionary:
-	for collection: String in ["machines","clinical_equipment","furniture_equipment"]:
-		var record: Dictionary = definition(collection,id)
-		if not record.is_empty():
-			return record
-	return {}
+	return registry.facility_definition(id) if registry != null else {}
 
-func asset_anchor(id: String, slot: String) -> Vector3:
-	var point: Array = _assets[id].anchors_engine_local_m[slot]
-	return Vector3(float(point[0]),float(point[1]),float(point[2]))
+func resolve_bindings(species_id: String, disease_id: String) -> Array:
+	return registry.resolve_bindings(species_id, disease_id) if registry != null else []
+
+func asset_anchor(id: String, slot: String, fallback: Vector3 = Vector3.ZERO) -> Vector3:
+	var asset: Dictionary = assets.get(ContentRegistry.legacy_id(id), {})
+	var point: Variant = asset.get("anchors_engine_local_m", {}).get(slot)
+	if not point is Array or point.size() != 3:
+		return fallback
+	return Vector3(float(point[0]), float(point[1]), float(point[2]))
 
 func actor_body(actor: Dictionary) -> Dictionary:
-	var dimensions: Dictionary = definition("species",actor.species_id).body.duplicate()
+	var species: Dictionary = definition("species", actor.species_id)
+	if species.is_empty():
+		return {}
+	var dimensions: Dictionary = species.body.duplicate()
 	var binding: Dictionary = definition("treatment_bindings",actor.get("body_binding_id",""))
 	var symptom: Dictionary = binding.get("symptom_envelope",{})
 	for axis: String in ["width_m","depth_m","height_m"]:
@@ -48,24 +72,13 @@ func actor_body(actor: Dictionary) -> Dictionary:
 	return dimensions
 
 func facility_fee(definition_id: String, kind: String) -> int:
-	for fee: Dictionary in balance.billing.facility_fees:
-		if fee.equipment_id == definition_id and fee.service_kind == kind:
+	for fee: Dictionary in balance.get("billing", {}).get("facility_fees", []):
+		if fee.equipment_id == ContentRegistry.legacy_id(definition_id) and fee.service_kind == kind:
 			return int(fee.amount)
 	return 0
 
 func doctor_fee(title_id: String) -> int:
-	for fee: Dictionary in balance.billing.doctor_consultation_fees:
-		if fee.title_id == title_id:
+	for fee: Dictionary in balance.get("billing", {}).get("doctor_consultation_fees", []):
+		if fee.title_id == ContentRegistry.legacy_id(title_id):
 			return int(fee.amount)
 	return 0
-
-func _read(path: String) -> Dictionary:
-	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
-	if file == null:
-		error = "无法读取核心内容：" + path
-		return {}
-	var json: JSON = JSON.new()
-	if json.parse(file.get_as_text()) != OK or not json.data is Dictionary:
-		error = "核心内容格式错误：" + path
-		return {}
-	return json.data

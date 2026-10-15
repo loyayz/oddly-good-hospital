@@ -1,0 +1,40 @@
+[
+  {
+    "id": "diagnosis",
+    "initial_level": 1,
+    "name": "@zh:core.clinical_abilities.diagnosis.name",
+    "roles": [
+      "doctor",
+      "nurse"
+    ],
+    "work_summary": "@zh:core.clinical_abilities.diagnosis.work_summary"
+  },
+  {
+    "id": "treatment",
+    "initial_level": 1,
+    "name": "@zh:core.clinical_abilities.treatment.name",
+    "roles": [
+      "doctor"
+    ],
+    "work_summary": "@zh:core.clinical_abilities.treatment.work_summary"
+  },
+  {
+    "id": "surgery",
+    "initial_level": 0,
+    "name": "@zh:core.clinical_abilities.surgery.name",
+    "roles": [
+      "doctor",
+      "nurse"
+    ],
+    "work_summary": "@zh:core.clinical_abilities.surgery.work_summary"
+  },
+  {
+    "id": "care",
+    "initial_level": 1,
+    "name": "@zh:core.clinical_abilities.care.name",
+    "roles": [
+      "nurse"
+    ],
+    "work_summary": "@zh:core.clinical_abilities.care.work_summary"
+  }
+]

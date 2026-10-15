@@ -1,0 +1,58 @@
+[
+  {
+    "description": "@zh:core.staff_role_profiles.ROLE_DOCTOR.description",
+    "id": "ROLE_DOCTOR",
+    "name": "@zh:core.staff_role_profiles.ROLE_DOCTOR.name",
+    "pay_source": "doctor_pay",
+    "qualification_note": "@zh:core.staff_role_profiles.ROLE_DOCTOR.qualification_note",
+    "role": "doctor"
+  },
+  {
+    "description": "@zh:core.staff_role_profiles.ROLE_NURSE.description",
+    "id": "ROLE_NURSE",
+    "name": "@zh:core.staff_role_profiles.ROLE_NURSE.name",
+    "pay_source": "staff:nurse",
+    "qualification_note": "@zh:core.staff_role_profiles.ROLE_NURSE.qualification_note",
+    "role": "nurse"
+  },
+  {
+    "description": "@zh:core.staff_role_profiles.ROLE_RECEPTIONIST.description",
+    "id": "ROLE_RECEPTIONIST",
+    "name": "@zh:core.staff_role_profiles.ROLE_RECEPTIONIST.name",
+    "pay_source": "staff:receptionist",
+    "qualification_note": "@zh:core.staff_role_profiles.ROLE_RECEPTIONIST.qualification_note",
+    "role": "receptionist"
+  },
+  {
+    "description": "@zh:core.staff_role_profiles.ROLE_CLEANER.description",
+    "id": "ROLE_CLEANER",
+    "name": "@zh:core.staff_role_profiles.ROLE_CLEANER.name",
+    "pay_source": "staff:cleaner",
+    "qualification_note": "@zh:core.staff_role_profiles.ROLE_CLEANER.qualification_note",
+    "role": "cleaner"
+  },
+  {
+    "description": "@zh:core.staff_role_profiles.ROLE_MECHANIC.description",
+    "id": "ROLE_MECHANIC",
+    "name": "@zh:core.staff_role_profiles.ROLE_MECHANIC.name",
+    "pay_source": "staff:mechanic",
+    "qualification_note": "@zh:core.staff_role_profiles.ROLE_MECHANIC.qualification_note",
+    "role": "mechanic"
+  },
+  {
+    "description": "@zh:core.staff_role_profiles.ROLE_RESEARCHER.description",
+    "id": "ROLE_RESEARCHER",
+    "name": "@zh:core.staff_role_profiles.ROLE_RESEARCHER.name",
+    "pay_source": "staff:researcher",
+    "qualification_note": "@zh:core.staff_role_profiles.ROLE_RESEARCHER.qualification_note",
+    "role": "researcher"
+  },
+  {
+    "description": "@zh:core.staff_role_profiles.ROLE_DECORATOR.description",
+    "id": "ROLE_DECORATOR",
+    "name": "@zh:core.staff_role_profiles.ROLE_DECORATOR.name",
+    "pay_source": "staff:decorator",
+    "qualification_note": "@zh:core.staff_role_profiles.ROLE_DECORATOR.qualification_note",
+    "role": "decorator"
+  }
+]

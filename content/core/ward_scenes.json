@@ -1,0 +1,44 @@
+[
+  {
+    "id": "WS01",
+    "low_motion_scene": "@zh:core.ward_scenes.WS01.low_motion_scene",
+    "personality_id": null,
+    "scene": "@zh:core.ward_scenes.WS01.scene",
+    "stage": "nurse_care"
+  },
+  {
+    "id": "WS02",
+    "low_motion_scene": "@zh:core.ward_scenes.WS02.low_motion_scene",
+    "personality_id": "PP02",
+    "scene": "@zh:core.ward_scenes.WS02.scene",
+    "stage": "nurse_care"
+  },
+  {
+    "id": "WS03",
+    "low_motion_scene": "@zh:core.ward_scenes.WS03.low_motion_scene",
+    "personality_id": "PP04",
+    "scene": "@zh:core.ward_scenes.WS03.scene",
+    "stage": "nurse_care"
+  },
+  {
+    "id": "WS04",
+    "low_motion_scene": "@zh:core.ward_scenes.WS04.low_motion_scene",
+    "personality_id": null,
+    "scene": "@zh:core.ward_scenes.WS04.scene",
+    "stage": "family_visit"
+  },
+  {
+    "id": "WS05",
+    "low_motion_scene": "@zh:core.ward_scenes.WS05.low_motion_scene",
+    "personality_id": "PP03",
+    "scene": "@zh:core.ward_scenes.WS05.scene",
+    "stage": "family_visit"
+  },
+  {
+    "id": "WS06",
+    "low_motion_scene": "@zh:core.ward_scenes.WS06.low_motion_scene",
+    "personality_id": null,
+    "scene": "@zh:core.ward_scenes.WS06.scene",
+    "stage": "discharge_round"
+  }
+]

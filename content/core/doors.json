@@ -1,0 +1,62 @@
+[
+  {
+    "clear_height_m": 2.2,
+    "clear_width_m": 1.2,
+    "equipment_class": "door",
+    "fit_policy": "automatic",
+    "id": "DR01",
+    "name": "@zh:core.doors.DR01.name",
+    "price": 50,
+    "span_cells": 1
+  },
+  {
+    "clear_height_m": 2.4,
+    "clear_width_m": 2.7,
+    "equipment_class": "door",
+    "fit_policy": "automatic",
+    "id": "DR02",
+    "name": "@zh:core.doors.DR02.name",
+    "price": 80,
+    "span_cells": 2
+  },
+  {
+    "clear_height_m": 4.8,
+    "clear_width_m": 1.2,
+    "equipment_class": "door",
+    "fit_policy": "automatic",
+    "id": "DR03",
+    "name": "@zh:core.doors.DR03.name",
+    "price": 90,
+    "span_cells": 1
+  },
+  {
+    "clear_height_m": 5.8,
+    "clear_width_m": 2.7,
+    "equipment_class": "door",
+    "fit_policy": "automatic",
+    "id": "DR04",
+    "name": "@zh:core.doors.DR04.name",
+    "price": 140,
+    "span_cells": 2
+  },
+  {
+    "clear_height_m": 4.2,
+    "clear_width_m": 4.2,
+    "equipment_class": "door",
+    "fit_policy": "automatic",
+    "id": "DR05",
+    "name": "@zh:core.doors.DR05.name",
+    "price": 180,
+    "span_cells": 3
+  },
+  {
+    "clear_height_m": 7.0,
+    "clear_width_m": 4.2,
+    "equipment_class": "door",
+    "fit_policy": "automatic",
+    "id": "DR06",
+    "name": "@zh:core.doors.DR06.name",
+    "price": 240,
+    "span_cells": 3
+  }
+]

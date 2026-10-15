@@ -1,0 +1,1340 @@
+[
+  {
+    "body": {
+      "depth_m": 2.0,
+      "height_m": 4.8,
+      "width_m": 1.7
+    },
+    "family_id": "F01",
+    "id": "S01",
+    "name": "@zh:core.species.S01.name",
+    "preferences": [],
+    "rig": "longneck",
+    "tags": [
+      "tall"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 1.1,
+      "height_m": 1.1,
+      "width_m": 1.1
+    },
+    "family_id": "F01",
+    "id": "S02",
+    "name": "@zh:core.species.S02.name",
+    "preferences": [
+      "moist"
+    ],
+    "rig": "tentacle",
+    "tags": [
+      "aquatic"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 1.1,
+      "height_m": 0.9,
+      "width_m": 0.9
+    },
+    "family_id": "F01",
+    "id": "S03",
+    "name": "@zh:core.species.S03.name",
+    "preferences": [
+      "quiet"
+    ],
+    "rig": "quadruped",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.8,
+      "height_m": 1.3,
+      "width_m": 0.7
+    },
+    "family_id": "F01",
+    "id": "S04",
+    "name": "@zh:core.species.S04.name",
+    "preferences": [
+      "cool"
+    ],
+    "rig": "biped",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.8,
+      "height_m": 1.8,
+      "width_m": 0.9
+    },
+    "family_id": "F02",
+    "id": "S05",
+    "name": "@zh:core.species.S05.name",
+    "preferences": [
+      "light",
+      "moist"
+    ],
+    "rig": "plant",
+    "tags": [
+      "plant"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.9,
+      "height_m": 1.2,
+      "width_m": 1.0
+    },
+    "family_id": "F02",
+    "id": "S06",
+    "name": "@zh:core.species.S06.name",
+    "preferences": [
+      "moist"
+    ],
+    "rig": "plant",
+    "tags": [
+      "fungus",
+      "plant"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.9,
+      "height_m": 1.7,
+      "width_m": 0.9
+    },
+    "family_id": "F02",
+    "id": "S07",
+    "name": "@zh:core.species.S07.name",
+    "preferences": [
+      "light",
+      "dry"
+    ],
+    "rig": "plant",
+    "tags": [
+      "plant",
+      "spiky"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 2.0,
+      "height_m": 4.2,
+      "width_m": 2.2
+    },
+    "family_id": "F02",
+    "id": "S08",
+    "name": "@zh:core.species.S08.name",
+    "preferences": [
+      "moist"
+    ],
+    "rig": "biped",
+    "tags": [
+      "plant",
+      "tall"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.7,
+      "height_m": 1.8,
+      "width_m": 0.7
+    },
+    "family_id": "F03",
+    "id": "S09",
+    "name": "@zh:core.species.S09.name",
+    "preferences": [
+      "shade"
+    ],
+    "rig": "biped",
+    "tags": [
+      "vampire"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.7,
+      "height_m": 1.1,
+      "width_m": 0.7
+    },
+    "family_id": "F03",
+    "id": "S10",
+    "name": "@zh:core.species.S10.name",
+    "preferences": [],
+    "rig": "biped",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 2.5,
+      "height_m": 2.3,
+      "width_m": 2.2
+    },
+    "family_id": "F03",
+    "id": "S11",
+    "name": "@zh:core.species.S11.name",
+    "preferences": [
+      "dry"
+    ],
+    "rig": "quadruped",
+    "tags": [
+      "dragon",
+      "hot"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.9,
+      "height_m": 2.1,
+      "width_m": 1.0
+    },
+    "family_id": "F03",
+    "id": "S12",
+    "name": "@zh:core.species.S12.name",
+    "preferences": [
+      "quiet"
+    ],
+    "rig": "biped",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.8,
+      "height_m": 1.8,
+      "width_m": 0.8
+    },
+    "family_id": "F04",
+    "id": "S13",
+    "name": "@zh:core.species.S13.name",
+    "preferences": [],
+    "rig": "biped",
+    "tags": [
+      "zombie",
+      "undead"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.8,
+      "height_m": 1.7,
+      "width_m": 0.8
+    },
+    "family_id": "F04",
+    "id": "S14",
+    "name": "@zh:core.species.S14.name",
+    "preferences": [
+      "quiet"
+    ],
+    "rig": "float",
+    "tags": [
+      "spirit"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.7,
+      "height_m": 1.8,
+      "width_m": 0.7
+    },
+    "family_id": "F04",
+    "id": "S15",
+    "name": "@zh:core.species.S15.name",
+    "preferences": [],
+    "rig": "biped",
+    "tags": [
+      "undead"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.8,
+      "height_m": 1.8,
+      "width_m": 0.8
+    },
+    "family_id": "F04",
+    "id": "S16",
+    "name": "@zh:core.species.S16.name",
+    "preferences": [
+      "dry"
+    ],
+    "rig": "biped",
+    "tags": [
+      "undead"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.9,
+      "height_m": 1.7,
+      "width_m": 0.9
+    },
+    "family_id": "F05",
+    "id": "S17",
+    "name": "@zh:core.species.S17.name",
+    "preferences": [],
+    "rig": "biped",
+    "tags": [
+      "alien"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.8,
+      "height_m": 1.1,
+      "width_m": 0.8
+    },
+    "family_id": "F05",
+    "id": "S18",
+    "name": "@zh:core.species.S18.name",
+    "preferences": [
+      "quiet"
+    ],
+    "rig": "float",
+    "tags": [
+      "luminous"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 1.0,
+      "height_m": 1.2,
+      "width_m": 1.0
+    },
+    "family_id": "F05",
+    "id": "S19",
+    "name": "@zh:core.species.S19.name",
+    "preferences": [],
+    "rig": "float",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 1.0,
+      "height_m": 1.7,
+      "width_m": 1.0
+    },
+    "family_id": "F05",
+    "id": "S20",
+    "name": "@zh:core.species.S20.name",
+    "preferences": [
+      "moist"
+    ],
+    "rig": "tentacle",
+    "tags": [
+      "aquatic",
+      "alien"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.8,
+      "height_m": 1.0,
+      "width_m": 0.8
+    },
+    "family_id": "F06",
+    "id": "S21",
+    "name": "@zh:core.species.S21.name",
+    "preferences": [
+      "quiet"
+    ],
+    "rig": "micro",
+    "tags": [
+      "micro",
+      "carrier"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.8,
+      "height_m": 1.0,
+      "width_m": 0.8
+    },
+    "family_id": "F06",
+    "id": "S22",
+    "name": "@zh:core.species.S22.name",
+    "preferences": [],
+    "rig": "micro",
+    "tags": [
+      "micro",
+      "carrier"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.8,
+      "height_m": 1.0,
+      "width_m": 0.8
+    },
+    "family_id": "F06",
+    "id": "S23",
+    "name": "@zh:core.species.S23.name",
+    "preferences": [],
+    "rig": "micro",
+    "tags": [
+      "micro",
+      "carrier"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.8,
+      "height_m": 1.0,
+      "width_m": 0.8
+    },
+    "family_id": "F06",
+    "id": "S24",
+    "name": "@zh:core.species.S24.name",
+    "preferences": [
+      "quiet"
+    ],
+    "rig": "micro",
+    "tags": [
+      "micro",
+      "carrier"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.8,
+      "height_m": 1.8,
+      "width_m": 0.8
+    },
+    "family_id": "F07",
+    "id": "S25",
+    "name": "@zh:core.species.S25.name",
+    "preferences": [
+      "dry"
+    ],
+    "rig": "biped",
+    "tags": [
+      "mechanical"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.7,
+      "height_m": 1.0,
+      "width_m": 0.7
+    },
+    "family_id": "F07",
+    "id": "S26",
+    "name": "@zh:core.species.S26.name",
+    "preferences": [],
+    "rig": "object",
+    "tags": [
+      "mechanical"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.6,
+      "height_m": 1.1,
+      "width_m": 0.9
+    },
+    "family_id": "F07",
+    "id": "S27",
+    "name": "@zh:core.species.S27.name",
+    "preferences": [],
+    "rig": "object",
+    "tags": [
+      "mechanical"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 1.6,
+      "height_m": 2.3,
+      "width_m": 1.7
+    },
+    "family_id": "F07",
+    "id": "S28",
+    "name": "@zh:core.species.S28.name",
+    "preferences": [
+      "dry"
+    ],
+    "rig": "object",
+    "tags": [
+      "mechanical"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.7,
+      "height_m": 1.2,
+      "width_m": 0.9
+    },
+    "family_id": "F08",
+    "id": "S29",
+    "name": "@zh:core.species.S29.name",
+    "preferences": [],
+    "rig": "object",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 1.0,
+      "height_m": 2.0,
+      "width_m": 1.0
+    },
+    "family_id": "F08",
+    "id": "S30",
+    "name": "@zh:core.species.S30.name",
+    "preferences": [],
+    "rig": "object",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.7,
+      "height_m": 1.5,
+      "width_m": 0.7
+    },
+    "family_id": "F08",
+    "id": "S31",
+    "name": "@zh:core.species.S31.name",
+    "preferences": [],
+    "rig": "object",
+    "tags": [
+      "luminous"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.8,
+      "height_m": 1.0,
+      "width_m": 0.9
+    },
+    "family_id": "F08",
+    "id": "S32",
+    "name": "@zh:core.species.S32.name",
+    "preferences": [],
+    "rig": "object",
+    "tags": [
+      "steam"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 1.1,
+      "height_m": 1.8,
+      "width_m": 1.1
+    },
+    "family_id": "F09",
+    "id": "S33",
+    "name": "@zh:core.species.S33.name",
+    "preferences": [
+      "moist"
+    ],
+    "rig": "float",
+    "tags": [
+      "wet"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.6,
+      "height_m": 1.2,
+      "width_m": 0.6
+    },
+    "family_id": "F09",
+    "id": "S34",
+    "name": "@zh:core.species.S34.name",
+    "preferences": [
+      "dry"
+    ],
+    "rig": "float",
+    "tags": [
+      "hot"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 1.0,
+      "height_m": 1.9,
+      "width_m": 1.0
+    },
+    "family_id": "F09",
+    "id": "S35",
+    "name": "@zh:core.species.S35.name",
+    "preferences": [
+      "cool"
+    ],
+    "rig": "biped",
+    "tags": [
+      "cold"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.7,
+      "height_m": 1.1,
+      "width_m": 0.7
+    },
+    "family_id": "F09",
+    "id": "S36",
+    "name": "@zh:core.species.S36.name",
+    "preferences": [
+      "moist"
+    ],
+    "rig": "blob",
+    "tags": [
+      "wet"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 1.0,
+      "height_m": 1.0,
+      "width_m": 1.0
+    },
+    "family_id": "F10",
+    "id": "S37",
+    "name": "@zh:core.species.S37.name",
+    "preferences": [
+      "cool"
+    ],
+    "rig": "blob",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.8,
+      "height_m": 1.7,
+      "width_m": 0.8
+    },
+    "family_id": "F10",
+    "id": "S38",
+    "name": "@zh:core.species.S38.name",
+    "preferences": [
+      "dry"
+    ],
+    "rig": "biped",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.8,
+      "height_m": 1.3,
+      "width_m": 0.8
+    },
+    "family_id": "F10",
+    "id": "S39",
+    "name": "@zh:core.species.S39.name",
+    "preferences": [
+      "dry"
+    ],
+    "rig": "object",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.8,
+      "height_m": 1.6,
+      "width_m": 0.8
+    },
+    "family_id": "F10",
+    "id": "S40",
+    "name": "@zh:core.species.S40.name",
+    "preferences": [
+      "cool"
+    ],
+    "rig": "blob",
+    "tags": [
+      "cold"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.8,
+      "height_m": 1.4,
+      "width_m": 0.8
+    },
+    "family_id": "F11",
+    "id": "S41",
+    "name": "@zh:core.species.S41.name",
+    "preferences": [
+      "dry"
+    ],
+    "rig": "biped",
+    "tags": [
+      "soft"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.8,
+      "height_m": 1.5,
+      "width_m": 0.9
+    },
+    "family_id": "F11",
+    "id": "S42",
+    "name": "@zh:core.species.S42.name",
+    "preferences": [],
+    "rig": "biped",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.9,
+      "height_m": 1.1,
+      "width_m": 1.0
+    },
+    "family_id": "F11",
+    "id": "S43",
+    "name": "@zh:core.species.S43.name",
+    "preferences": [
+      "dry"
+    ],
+    "rig": "float",
+    "tags": [
+      "paper"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.9,
+      "height_m": 0.9,
+      "width_m": 0.9
+    },
+    "family_id": "F11",
+    "id": "S44",
+    "name": "@zh:core.species.S44.name",
+    "preferences": [
+      "dry"
+    ],
+    "rig": "blob",
+    "tags": [
+      "soft"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 1.0,
+      "height_m": 1.5,
+      "width_m": 1.0
+    },
+    "family_id": "F12",
+    "id": "S45",
+    "name": "@zh:core.species.S45.name",
+    "preferences": [
+      "quiet"
+    ],
+    "rig": "float",
+    "tags": [
+      "dream"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.7,
+      "height_m": 1.6,
+      "width_m": 0.7
+    },
+    "family_id": "F12",
+    "id": "S46",
+    "name": "@zh:core.species.S46.name",
+    "preferences": [],
+    "rig": "float",
+    "tags": [
+      "musical"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.8,
+      "height_m": 1.8,
+      "width_m": 0.8
+    },
+    "family_id": "F12",
+    "id": "S47",
+    "name": "@zh:core.species.S47.name",
+    "preferences": [
+      "shade"
+    ],
+    "rig": "float",
+    "tags": [
+      "spirit"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.7,
+      "height_m": 1.5,
+      "width_m": 0.7
+    },
+    "family_id": "F12",
+    "id": "S48",
+    "name": "@zh:core.species.S48.name",
+    "preferences": [
+      "quiet"
+    ],
+    "rig": "float",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.7,
+      "height_m": 1.75,
+      "width_m": 0.7
+    },
+    "family_id": "F13",
+    "id": "S49",
+    "name": "@zh:core.species.S49.name",
+    "preferences": [],
+    "rig": "biped",
+    "tags": [
+      "human"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 1.1,
+      "height_m": 1.3,
+      "width_m": 1.0
+    },
+    "family_id": "F01",
+    "id": "S50",
+    "name": "@zh:core.species.S50.name",
+    "preferences": [
+      "quiet"
+    ],
+    "rig": "quadruped",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.8,
+      "height_m": 0.7,
+      "width_m": 0.7
+    },
+    "family_id": "F01",
+    "id": "S51",
+    "name": "@zh:core.species.S51.name",
+    "preferences": [
+      "dry"
+    ],
+    "rig": "quadruped",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 1.8,
+      "height_m": 1.7,
+      "width_m": 1.2
+    },
+    "family_id": "F01",
+    "id": "S52",
+    "name": "@zh:core.species.S52.name",
+    "preferences": [
+      "moist"
+    ],
+    "rig": "blob",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 3.5,
+      "height_m": 3.8,
+      "width_m": 3.1
+    },
+    "family_id": "F01",
+    "id": "S53",
+    "name": "@zh:core.species.S53.name",
+    "preferences": [
+      "moist"
+    ],
+    "rig": "quadruped",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.8,
+      "height_m": 1.5,
+      "width_m": 0.8
+    },
+    "family_id": "F02",
+    "id": "S54",
+    "name": "@zh:core.species.S54.name",
+    "preferences": [
+      "moist"
+    ],
+    "rig": "plant",
+    "tags": [
+      "plant"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.7,
+      "height_m": 3.8,
+      "width_m": 0.7
+    },
+    "family_id": "F02",
+    "id": "S55",
+    "name": "@zh:core.species.S55.name",
+    "preferences": [
+      "light"
+    ],
+    "rig": "biped",
+    "tags": [
+      "plant"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 1.8,
+      "height_m": 2.8,
+      "width_m": 1.8
+    },
+    "family_id": "F02",
+    "id": "S56",
+    "name": "@zh:core.species.S56.name",
+    "preferences": [
+      "moist"
+    ],
+    "rig": "plant",
+    "tags": [
+      "plant"
+    ],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 1.7,
+      "height_m": 1.8,
+      "width_m": 1.7
+    },
+    "family_id": "F03",
+    "id": "S57",
+    "name": "@zh:core.species.S57.name",
+    "preferences": [
+      "dry"
+    ],
+    "rig": "object",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 2.4,
+      "height_m": 2.7,
+      "width_m": 1.6
+    },
+    "family_id": "F03",
+    "id": "S58",
+    "name": "@zh:core.species.S58.name",
+    "preferences": [
+      "quiet"
+    ],
+    "rig": "quadruped",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 3.2,
+      "height_m": 6.2,
+      "width_m": 3.4
+    },
+    "family_id": "F03",
+    "id": "S59",
+    "name": "@zh:core.species.S59.name",
+    "preferences": [
+      "dry"
+    ],
+    "rig": "biped",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 1.0,
+      "height_m": 1.9,
+      "width_m": 1.0
+    },
+    "family_id": "F03",
+    "id": "S60",
+    "name": "@zh:core.species.S60.name",
+    "preferences": [
+      "moist"
+    ],
+    "rig": "biped",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.8,
+      "height_m": 1.6,
+      "width_m": 0.8
+    },
+    "family_id": "F04",
+    "id": "S61",
+    "name": "@zh:core.species.S61.name",
+    "preferences": [
+      "shade"
+    ],
+    "rig": "float",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 1.2,
+      "height_m": 2.7,
+      "width_m": 1.3
+    },
+    "family_id": "F04",
+    "id": "S62",
+    "name": "@zh:core.species.S62.name",
+    "preferences": [
+      "dry"
+    ],
+    "rig": "biped",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 3.5,
+      "height_m": 3.2,
+      "width_m": 3.5
+    },
+    "family_id": "F05",
+    "id": "S63",
+    "name": "@zh:core.species.S63.name",
+    "preferences": [
+      "quiet"
+    ],
+    "rig": "float",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 1.8,
+      "height_m": 1.4,
+      "width_m": 1.2
+    },
+    "family_id": "F05",
+    "id": "S64",
+    "name": "@zh:core.species.S64.name",
+    "preferences": [
+      "quiet"
+    ],
+    "rig": "quadruped",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.9,
+      "height_m": 2.8,
+      "width_m": 0.9
+    },
+    "family_id": "F05",
+    "id": "S65",
+    "name": "@zh:core.species.S65.name",
+    "preferences": [
+      "shade"
+    ],
+    "rig": "biped",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.8,
+      "height_m": 1.0,
+      "width_m": 0.8
+    },
+    "family_id": "F06",
+    "id": "S66",
+    "name": "@zh:core.species.S66.name",
+    "preferences": [
+      "moist"
+    ],
+    "rig": "micro",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.8,
+      "height_m": 1.0,
+      "width_m": 0.8
+    },
+    "family_id": "F06",
+    "id": "S67",
+    "name": "@zh:core.species.S67.name",
+    "preferences": [
+      "light"
+    ],
+    "rig": "micro",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.9,
+      "height_m": 0.6,
+      "width_m": 0.9
+    },
+    "family_id": "F07",
+    "id": "S68",
+    "name": "@zh:core.species.S68.name",
+    "preferences": [
+      "dry"
+    ],
+    "rig": "object",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 2.5,
+      "height_m": 2.0,
+      "width_m": 1.7
+    },
+    "family_id": "F07",
+    "id": "S69",
+    "name": "@zh:core.species.S69.name",
+    "preferences": [
+      "dry"
+    ],
+    "rig": "object",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.7,
+      "height_m": 1.4,
+      "width_m": 0.9
+    },
+    "family_id": "F08",
+    "id": "S70",
+    "name": "@zh:core.species.S70.name",
+    "preferences": [
+      "quiet"
+    ],
+    "rig": "object",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.7,
+      "height_m": 2.0,
+      "width_m": 1.0
+    },
+    "family_id": "F08",
+    "id": "S71",
+    "name": "@zh:core.species.S71.name",
+    "preferences": [
+      "light"
+    ],
+    "rig": "object",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 1.8,
+      "height_m": 2.6,
+      "width_m": 1.8
+    },
+    "family_id": "F09",
+    "id": "S72",
+    "name": "@zh:core.species.S72.name",
+    "preferences": [
+      "light"
+    ],
+    "rig": "float",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 1.0,
+      "height_m": 1.7,
+      "width_m": 1.0
+    },
+    "family_id": "F09",
+    "id": "S73",
+    "name": "@zh:core.species.S73.name",
+    "preferences": [
+      "dry"
+    ],
+    "rig": "blob",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.9,
+      "height_m": 1.4,
+      "width_m": 0.9
+    },
+    "family_id": "F10",
+    "id": "S74",
+    "name": "@zh:core.species.S74.name",
+    "preferences": [
+      "moist"
+    ],
+    "rig": "blob",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.8,
+      "height_m": 1.3,
+      "width_m": 0.8
+    },
+    "family_id": "F10",
+    "id": "S75",
+    "name": "@zh:core.species.S75.name",
+    "preferences": [
+      "cool"
+    ],
+    "rig": "biped",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.9,
+      "height_m": 0.8,
+      "width_m": 0.7
+    },
+    "family_id": "F11",
+    "id": "S76",
+    "name": "@zh:core.species.S76.name",
+    "preferences": [
+      "dry"
+    ],
+    "rig": "object",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.7,
+      "height_m": 1.6,
+      "width_m": 0.7
+    },
+    "family_id": "F11",
+    "id": "S77",
+    "name": "@zh:core.species.S77.name",
+    "preferences": [
+      "dry"
+    ],
+    "rig": "biped",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 1.0,
+      "height_m": 1.8,
+      "width_m": 1.0
+    },
+    "family_id": "F12",
+    "id": "S78",
+    "name": "@zh:core.species.S78.name",
+    "preferences": [
+      "quiet"
+    ],
+    "rig": "float",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 0.8,
+      "height_m": 1.8,
+      "width_m": 0.8
+    },
+    "family_id": "F12",
+    "id": "S79",
+    "name": "@zh:core.species.S79.name",
+    "preferences": [
+      "light"
+    ],
+    "rig": "biped",
+    "tags": [],
+    "variants": 4
+  },
+  {
+    "body": {
+      "depth_m": 1.0,
+      "height_m": 1.6,
+      "width_m": 1.0
+    },
+    "family_id": "F12",
+    "id": "S80",
+    "name": "@zh:core.species.S80.name",
+    "preferences": [
+      "quiet"
+    ],
+    "rig": "float",
+    "tags": [],
+    "variants": 4
+  }
+]

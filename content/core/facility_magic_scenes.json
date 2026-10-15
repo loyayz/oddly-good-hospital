@@ -1,0 +1,44 @@
+[
+  {
+    "blocked_scene": "@zh:core.facility_magic_scenes.FM01.blocked_scene",
+    "id": "FM01",
+    "low_motion_scene": "@zh:core.facility_magic_scenes.FM01.low_motion_scene",
+    "scene": "@zh:core.facility_magic_scenes.FM01.scene",
+    "target": "doors"
+  },
+  {
+    "blocked_scene": "@zh:core.facility_magic_scenes.FM02.blocked_scene",
+    "id": "FM02",
+    "low_motion_scene": "@zh:core.facility_magic_scenes.FM02.low_motion_scene",
+    "scene": "@zh:core.facility_magic_scenes.FM02.scene",
+    "target": "beds"
+  },
+  {
+    "blocked_scene": "@zh:core.facility_magic_scenes.FM03.blocked_scene",
+    "id": "FM03",
+    "low_motion_scene": "@zh:core.facility_magic_scenes.FM03.low_motion_scene",
+    "scene": "@zh:core.facility_magic_scenes.FM03.scene",
+    "target": "medical_equipment"
+  },
+  {
+    "blocked_scene": "@zh:core.facility_magic_scenes.FM04.blocked_scene",
+    "id": "FM04",
+    "low_motion_scene": "@zh:core.facility_magic_scenes.FM04.low_motion_scene",
+    "scene": "@zh:core.facility_magic_scenes.FM04.scene",
+    "target": "amenities"
+  },
+  {
+    "blocked_scene": "@zh:core.facility_magic_scenes.FM05.blocked_scene",
+    "id": "FM05",
+    "low_motion_scene": "@zh:core.facility_magic_scenes.FM05.low_motion_scene",
+    "scene": "@zh:core.facility_magic_scenes.FM05.scene",
+    "target": "staff_workstations"
+  },
+  {
+    "blocked_scene": "@zh:core.facility_magic_scenes.FM06.blocked_scene",
+    "id": "FM06",
+    "low_motion_scene": "@zh:core.facility_magic_scenes.FM06.low_motion_scene",
+    "scene": "@zh:core.facility_magic_scenes.FM06.scene",
+    "target": "vertical_connectors"
+  }
+]

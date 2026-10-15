@@ -1,0 +1,39 @@
+[
+  {
+    "activity_id": "CA01",
+    "eligibility": "cure_fact_or_active_story",
+    "id": "AP01",
+    "participant_reason": "@zh:core.activity_purposes.AP01.participant_reason",
+    "purpose": "@zh:core.activity_purposes.AP01.purpose"
+  },
+  {
+    "activity_id": "CA02",
+    "eligibility": "cure_fact_or_active_story",
+    "id": "AP02",
+    "participant_reason": "@zh:core.activity_purposes.AP02.participant_reason",
+    "purpose": "@zh:core.activity_purposes.AP02.purpose"
+  },
+  {
+    "activity_id": "CA03",
+    "eligibility": "cure_fact_or_active_story",
+    "id": "AP03",
+    "participant_reason": "@zh:core.activity_purposes.AP03.participant_reason",
+    "purpose": "@zh:core.activity_purposes.AP03.purpose"
+  },
+  {
+    "activity_id": "CA04",
+    "eligibility": "completed_celebration_link",
+    "id": "AP04",
+    "participant_reason": "@zh:core.activity_purposes.AP04.participant_reason",
+    "purpose": "@zh:core.activity_purposes.AP04.purpose",
+    "story_activity_link_id": "SAL01"
+  },
+  {
+    "activity_id": "CA06",
+    "eligibility": "cured_subject_or_story_objective",
+    "id": "AP06",
+    "participant_reason": "@zh:core.activity_purposes.AP06.participant_reason",
+    "purpose": "@zh:core.activity_purposes.AP06.purpose",
+    "story_activity_link_id": "SAL06"
+  }
+]

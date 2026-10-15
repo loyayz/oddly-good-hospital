@@ -1,0 +1,224 @@
+[
+  {
+    "blueprint_ids": [
+      "BP02"
+    ],
+    "id": "RG01",
+    "name": "@zh:core.remodel_guides.RG01.name",
+    "problem": "@zh:core.remodel_guides.RG01.problem",
+    "related_content": [
+      {
+        "collection": "doors",
+        "definition_id": "DR04"
+      },
+      {
+        "collection": "machines",
+        "definition_id": "M09"
+      }
+    ],
+    "steps": [
+      "@zh:core.remodel_guides.RG01.steps.0",
+      "@zh:core.remodel_guides.RG01.steps.1",
+      "@zh:core.remodel_guides.RG01.steps.2"
+    ],
+    "watch_for": "@zh:core.remodel_guides.RG01.watch_for"
+  },
+  {
+    "blueprint_ids": [
+      "BP01",
+      "BP02",
+      "BP03"
+    ],
+    "id": "RG02",
+    "name": "@zh:core.remodel_guides.RG02.name",
+    "problem": "@zh:core.remodel_guides.RG02.problem",
+    "related_content": [
+      {
+        "collection": "vertical_connectors",
+        "definition_id": "VC02"
+      },
+      {
+        "collection": "vertical_connectors",
+        "definition_id": "VC03"
+      }
+    ],
+    "steps": [
+      "@zh:core.remodel_guides.RG02.steps.0",
+      "@zh:core.remodel_guides.RG02.steps.1",
+      "@zh:core.remodel_guides.RG02.steps.2"
+    ],
+    "watch_for": "@zh:core.remodel_guides.RG02.watch_for"
+  },
+  {
+    "blueprint_ids": [
+      "BP04",
+      "BP05",
+      "BP06",
+      "BP07"
+    ],
+    "id": "RG03",
+    "name": "@zh:core.remodel_guides.RG03.name",
+    "problem": "@zh:core.remodel_guides.RG03.problem",
+    "related_content": [
+      {
+        "collection": "clinical_equipment",
+        "definition_id": "EQ05"
+      }
+    ],
+    "steps": [
+      "@zh:core.remodel_guides.RG03.steps.0",
+      "@zh:core.remodel_guides.RG03.steps.1",
+      "@zh:core.remodel_guides.RG03.steps.2"
+    ],
+    "watch_for": "@zh:core.remodel_guides.RG03.watch_for"
+  },
+  {
+    "blueprint_ids": [],
+    "id": "RG04",
+    "name": "@zh:core.remodel_guides.RG04.name",
+    "problem": "@zh:core.remodel_guides.RG04.problem",
+    "related_content": [
+      {
+        "collection": "furniture_equipment",
+        "definition_id": "FUR23"
+      },
+      {
+        "collection": "renovation_materials",
+        "definition_id": "MAT04"
+      },
+      {
+        "collection": "furniture_equipment",
+        "definition_id": "FUR50"
+      }
+    ],
+    "steps": [
+      "@zh:core.remodel_guides.RG04.steps.0",
+      "@zh:core.remodel_guides.RG04.steps.1",
+      "@zh:core.remodel_guides.RG04.steps.2"
+    ],
+    "watch_for": "@zh:core.remodel_guides.RG04.watch_for"
+  },
+  {
+    "blueprint_ids": [],
+    "id": "RG05",
+    "name": "@zh:core.remodel_guides.RG05.name",
+    "problem": "@zh:core.remodel_guides.RG05.problem",
+    "related_content": [
+      {
+        "collection": "accessibility_equipment",
+        "definition_id": "AE01"
+      },
+      {
+        "collection": "accessibility_equipment",
+        "definition_id": "AE02"
+      },
+      {
+        "collection": "accessibility_equipment",
+        "definition_id": "AE03"
+      },
+      {
+        "collection": "doors",
+        "definition_id": "DR06"
+      }
+    ],
+    "steps": [
+      "@zh:core.remodel_guides.RG05.steps.0",
+      "@zh:core.remodel_guides.RG05.steps.1",
+      "@zh:core.remodel_guides.RG05.steps.2"
+    ],
+    "watch_for": "@zh:core.remodel_guides.RG05.watch_for"
+  },
+  {
+    "blueprint_ids": [],
+    "id": "RG06",
+    "name": "@zh:core.remodel_guides.RG06.name",
+    "problem": "@zh:core.remodel_guides.RG06.problem",
+    "related_content": [
+      {
+        "collection": "community_activities",
+        "definition_id": "CA03"
+      },
+      {
+        "collection": "community_activities",
+        "definition_id": "CA06"
+      },
+      {
+        "collection": "furniture_equipment",
+        "definition_id": "FUR11"
+      },
+      {
+        "collection": "furniture_equipment",
+        "definition_id": "FUR24"
+      },
+      {
+        "collection": "furniture_equipment",
+        "definition_id": "FUR42"
+      }
+    ],
+    "steps": [
+      "@zh:core.remodel_guides.RG06.steps.0",
+      "@zh:core.remodel_guides.RG06.steps.1",
+      "@zh:core.remodel_guides.RG06.steps.2"
+    ],
+    "watch_for": "@zh:core.remodel_guides.RG06.watch_for"
+  },
+  {
+    "blueprint_ids": [
+      "BP08",
+      "BP09"
+    ],
+    "id": "RG07",
+    "name": "@zh:core.remodel_guides.RG07.name",
+    "problem": "@zh:core.remodel_guides.RG07.problem",
+    "related_content": [
+      {
+        "collection": "service_equipment",
+        "definition_id": "SE04"
+      },
+      {
+        "collection": "service_equipment",
+        "definition_id": "SE05"
+      },
+      {
+        "collection": "service_equipment",
+        "definition_id": "SE06"
+      }
+    ],
+    "steps": [
+      "@zh:core.remodel_guides.RG07.steps.0",
+      "@zh:core.remodel_guides.RG07.steps.1",
+      "@zh:core.remodel_guides.RG07.steps.2"
+    ],
+    "watch_for": "@zh:core.remodel_guides.RG07.watch_for"
+  },
+  {
+    "blueprint_ids": [],
+    "id": "RG08",
+    "name": "@zh:core.remodel_guides.RG08.name",
+    "problem": "@zh:core.remodel_guides.RG08.problem",
+    "related_content": [
+      {
+        "collection": "furniture_equipment",
+        "definition_id": "FUR49"
+      },
+      {
+        "collection": "furniture_equipment",
+        "definition_id": "FUR50"
+      },
+      {
+        "collection": "furniture_equipment",
+        "definition_id": "FUR51"
+      },
+      {
+        "collection": "furniture_equipment",
+        "definition_id": "FUR52"
+      }
+    ],
+    "steps": [
+      "@zh:core.remodel_guides.RG08.steps.0",
+      "@zh:core.remodel_guides.RG08.steps.1",
+      "@zh:core.remodel_guides.RG08.steps.2"
+    ],
+    "watch_for": "@zh:core.remodel_guides.RG08.watch_for"
+  }
+]

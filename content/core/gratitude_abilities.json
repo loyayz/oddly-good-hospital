@@ -1,0 +1,562 @@
+[
+  {
+    "duration_seconds": 6,
+    "effect_id": "carry_materials",
+    "id": "GA_S01",
+    "scene": "@zh:core.gratitude_abilities.GA_S01.scene",
+    "species_id": "S01"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "carry_materials",
+    "id": "GA_S02",
+    "scene": "@zh:core.gratitude_abilities.GA_S02.scene",
+    "species_id": "S02"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "carry_materials",
+    "id": "GA_S03",
+    "scene": "@zh:core.gratitude_abilities.GA_S03.scene",
+    "species_id": "S03"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "carry_materials",
+    "id": "GA_S04",
+    "scene": "@zh:core.gratitude_abilities.GA_S04.scene",
+    "species_id": "S04"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "floral_aura",
+    "id": "GA_S05",
+    "scene": "@zh:core.gratitude_abilities.GA_S05.scene",
+    "species_id": "S05"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "floral_aura",
+    "id": "GA_S06",
+    "scene": "@zh:core.gratitude_abilities.GA_S06.scene",
+    "species_id": "S06"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "floral_aura",
+    "id": "GA_S07",
+    "scene": "@zh:core.gratitude_abilities.GA_S07.scene",
+    "species_id": "S07"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "floral_aura",
+    "id": "GA_S08",
+    "scene": "@zh:core.gratitude_abilities.GA_S08.scene",
+    "species_id": "S08"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "memory_projection",
+    "id": "GA_S09",
+    "scene": "@zh:core.gratitude_abilities.GA_S09.scene",
+    "species_id": "S09"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "repair_hint",
+    "id": "GA_S10",
+    "scene": "@zh:core.gratitude_abilities.GA_S10.scene",
+    "species_id": "S10"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "memory_projection",
+    "id": "GA_S11",
+    "scene": "@zh:core.gratitude_abilities.GA_S11.scene",
+    "species_id": "S11"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "memory_projection",
+    "id": "GA_S12",
+    "scene": "@zh:core.gratitude_abilities.GA_S12.scene",
+    "species_id": "S12"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "cleanup_hint",
+    "id": "GA_S13",
+    "scene": "@zh:core.gratitude_abilities.GA_S13.scene",
+    "species_id": "S13"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "cleanup_hint",
+    "id": "GA_S14",
+    "scene": "@zh:core.gratitude_abilities.GA_S14.scene",
+    "species_id": "S14"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "cleanup_hint",
+    "id": "GA_S15",
+    "scene": "@zh:core.gratitude_abilities.GA_S15.scene",
+    "species_id": "S15"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "cleanup_hint",
+    "id": "GA_S16",
+    "scene": "@zh:core.gratitude_abilities.GA_S16.scene",
+    "species_id": "S16"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "memory_projection",
+    "id": "GA_S17",
+    "scene": "@zh:core.gratitude_abilities.GA_S17.scene",
+    "species_id": "S17"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "memory_projection",
+    "id": "GA_S18",
+    "scene": "@zh:core.gratitude_abilities.GA_S18.scene",
+    "species_id": "S18"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "memory_projection",
+    "id": "GA_S19",
+    "scene": "@zh:core.gratitude_abilities.GA_S19.scene",
+    "species_id": "S19"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "memory_projection",
+    "id": "GA_S20",
+    "scene": "@zh:core.gratitude_abilities.GA_S20.scene",
+    "species_id": "S20"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "cleanup_hint",
+    "id": "GA_S21",
+    "scene": "@zh:core.gratitude_abilities.GA_S21.scene",
+    "species_id": "S21"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "cleanup_hint",
+    "id": "GA_S22",
+    "scene": "@zh:core.gratitude_abilities.GA_S22.scene",
+    "species_id": "S22"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "cleanup_hint",
+    "id": "GA_S23",
+    "scene": "@zh:core.gratitude_abilities.GA_S23.scene",
+    "species_id": "S23"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "soft_music",
+    "id": "GA_S24",
+    "scene": "@zh:core.gratitude_abilities.GA_S24.scene",
+    "species_id": "S24"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "repair_hint",
+    "id": "GA_S25",
+    "scene": "@zh:core.gratitude_abilities.GA_S25.scene",
+    "species_id": "S25"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "repair_hint",
+    "id": "GA_S26",
+    "scene": "@zh:core.gratitude_abilities.GA_S26.scene",
+    "species_id": "S26"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "repair_hint",
+    "id": "GA_S27",
+    "scene": "@zh:core.gratitude_abilities.GA_S27.scene",
+    "species_id": "S27"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "repair_hint",
+    "id": "GA_S28",
+    "scene": "@zh:core.gratitude_abilities.GA_S28.scene",
+    "species_id": "S28"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "soft_music",
+    "id": "GA_S29",
+    "scene": "@zh:core.gratitude_abilities.GA_S29.scene",
+    "species_id": "S29"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "soft_music",
+    "id": "GA_S30",
+    "scene": "@zh:core.gratitude_abilities.GA_S30.scene",
+    "species_id": "S30"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "soft_music",
+    "id": "GA_S31",
+    "scene": "@zh:core.gratitude_abilities.GA_S31.scene",
+    "species_id": "S31"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "soft_music",
+    "id": "GA_S32",
+    "scene": "@zh:core.gratitude_abilities.GA_S32.scene",
+    "species_id": "S32"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "floral_aura",
+    "id": "GA_S33",
+    "scene": "@zh:core.gratitude_abilities.GA_S33.scene",
+    "species_id": "S33"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "floral_aura",
+    "id": "GA_S34",
+    "scene": "@zh:core.gratitude_abilities.GA_S34.scene",
+    "species_id": "S34"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "floral_aura",
+    "id": "GA_S35",
+    "scene": "@zh:core.gratitude_abilities.GA_S35.scene",
+    "species_id": "S35"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "floral_aura",
+    "id": "GA_S36",
+    "scene": "@zh:core.gratitude_abilities.GA_S36.scene",
+    "species_id": "S36"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "soft_music",
+    "id": "GA_S37",
+    "scene": "@zh:core.gratitude_abilities.GA_S37.scene",
+    "species_id": "S37"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "soft_music",
+    "id": "GA_S38",
+    "scene": "@zh:core.gratitude_abilities.GA_S38.scene",
+    "species_id": "S38"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "soft_music",
+    "id": "GA_S39",
+    "scene": "@zh:core.gratitude_abilities.GA_S39.scene",
+    "species_id": "S39"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "soft_music",
+    "id": "GA_S40",
+    "scene": "@zh:core.gratitude_abilities.GA_S40.scene",
+    "species_id": "S40"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "carry_materials",
+    "id": "GA_S41",
+    "scene": "@zh:core.gratitude_abilities.GA_S41.scene",
+    "species_id": "S41"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "carry_materials",
+    "id": "GA_S42",
+    "scene": "@zh:core.gratitude_abilities.GA_S42.scene",
+    "species_id": "S42"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "carry_materials",
+    "id": "GA_S43",
+    "scene": "@zh:core.gratitude_abilities.GA_S43.scene",
+    "species_id": "S43"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "carry_materials",
+    "id": "GA_S44",
+    "scene": "@zh:core.gratitude_abilities.GA_S44.scene",
+    "species_id": "S44"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "memory_projection",
+    "id": "GA_S45",
+    "scene": "@zh:core.gratitude_abilities.GA_S45.scene",
+    "species_id": "S45"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "soft_music",
+    "id": "GA_S46",
+    "scene": "@zh:core.gratitude_abilities.GA_S46.scene",
+    "species_id": "S46"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "memory_projection",
+    "id": "GA_S47",
+    "scene": "@zh:core.gratitude_abilities.GA_S47.scene",
+    "species_id": "S47"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "memory_projection",
+    "id": "GA_S48",
+    "scene": "@zh:core.gratitude_abilities.GA_S48.scene",
+    "species_id": "S48"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "cleanup_hint",
+    "id": "GA_S49",
+    "scene": "@zh:core.gratitude_abilities.GA_S49.scene",
+    "species_id": "S49"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "carry_materials",
+    "id": "GA_S50",
+    "scene": "@zh:core.gratitude_abilities.GA_S50.scene",
+    "species_id": "S50"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "carry_materials",
+    "id": "GA_S51",
+    "scene": "@zh:core.gratitude_abilities.GA_S51.scene",
+    "species_id": "S51"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "carry_materials",
+    "id": "GA_S52",
+    "scene": "@zh:core.gratitude_abilities.GA_S52.scene",
+    "species_id": "S52"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "carry_materials",
+    "id": "GA_S53",
+    "scene": "@zh:core.gratitude_abilities.GA_S53.scene",
+    "species_id": "S53"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "floral_aura",
+    "id": "GA_S54",
+    "scene": "@zh:core.gratitude_abilities.GA_S54.scene",
+    "species_id": "S54"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "floral_aura",
+    "id": "GA_S55",
+    "scene": "@zh:core.gratitude_abilities.GA_S55.scene",
+    "species_id": "S55"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "floral_aura",
+    "id": "GA_S56",
+    "scene": "@zh:core.gratitude_abilities.GA_S56.scene",
+    "species_id": "S56"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "memory_projection",
+    "id": "GA_S57",
+    "scene": "@zh:core.gratitude_abilities.GA_S57.scene",
+    "species_id": "S57"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "memory_projection",
+    "id": "GA_S58",
+    "scene": "@zh:core.gratitude_abilities.GA_S58.scene",
+    "species_id": "S58"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "carry_materials",
+    "id": "GA_S59",
+    "scene": "@zh:core.gratitude_abilities.GA_S59.scene",
+    "species_id": "S59"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "memory_projection",
+    "id": "GA_S60",
+    "scene": "@zh:core.gratitude_abilities.GA_S60.scene",
+    "species_id": "S60"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "cleanup_hint",
+    "id": "GA_S61",
+    "scene": "@zh:core.gratitude_abilities.GA_S61.scene",
+    "species_id": "S61"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "cleanup_hint",
+    "id": "GA_S62",
+    "scene": "@zh:core.gratitude_abilities.GA_S62.scene",
+    "species_id": "S62"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "memory_projection",
+    "id": "GA_S63",
+    "scene": "@zh:core.gratitude_abilities.GA_S63.scene",
+    "species_id": "S63"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "memory_projection",
+    "id": "GA_S64",
+    "scene": "@zh:core.gratitude_abilities.GA_S64.scene",
+    "species_id": "S64"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "memory_projection",
+    "id": "GA_S65",
+    "scene": "@zh:core.gratitude_abilities.GA_S65.scene",
+    "species_id": "S65"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "cleanup_hint",
+    "id": "GA_S66",
+    "scene": "@zh:core.gratitude_abilities.GA_S66.scene",
+    "species_id": "S66"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "cleanup_hint",
+    "id": "GA_S67",
+    "scene": "@zh:core.gratitude_abilities.GA_S67.scene",
+    "species_id": "S67"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "repair_hint",
+    "id": "GA_S68",
+    "scene": "@zh:core.gratitude_abilities.GA_S68.scene",
+    "species_id": "S68"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "repair_hint",
+    "id": "GA_S69",
+    "scene": "@zh:core.gratitude_abilities.GA_S69.scene",
+    "species_id": "S69"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "soft_music",
+    "id": "GA_S70",
+    "scene": "@zh:core.gratitude_abilities.GA_S70.scene",
+    "species_id": "S70"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "soft_music",
+    "id": "GA_S71",
+    "scene": "@zh:core.gratitude_abilities.GA_S71.scene",
+    "species_id": "S71"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "floral_aura",
+    "id": "GA_S72",
+    "scene": "@zh:core.gratitude_abilities.GA_S72.scene",
+    "species_id": "S72"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "floral_aura",
+    "id": "GA_S73",
+    "scene": "@zh:core.gratitude_abilities.GA_S73.scene",
+    "species_id": "S73"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "soft_music",
+    "id": "GA_S74",
+    "scene": "@zh:core.gratitude_abilities.GA_S74.scene",
+    "species_id": "S74"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "soft_music",
+    "id": "GA_S75",
+    "scene": "@zh:core.gratitude_abilities.GA_S75.scene",
+    "species_id": "S75"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "carry_materials",
+    "id": "GA_S76",
+    "scene": "@zh:core.gratitude_abilities.GA_S76.scene",
+    "species_id": "S76"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "carry_materials",
+    "id": "GA_S77",
+    "scene": "@zh:core.gratitude_abilities.GA_S77.scene",
+    "species_id": "S77"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "memory_projection",
+    "id": "GA_S78",
+    "scene": "@zh:core.gratitude_abilities.GA_S78.scene",
+    "species_id": "S78"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "memory_projection",
+    "id": "GA_S79",
+    "scene": "@zh:core.gratitude_abilities.GA_S79.scene",
+    "species_id": "S79"
+  },
+  {
+    "duration_seconds": 6,
+    "effect_id": "memory_projection",
+    "id": "GA_S80",
+    "scene": "@zh:core.gratitude_abilities.GA_S80.scene",
+    "species_id": "S80"
+  }
+]
