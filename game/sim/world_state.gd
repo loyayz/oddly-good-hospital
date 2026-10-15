@@ -145,6 +145,11 @@ func validate(content: HospitalContent) -> String:
 			return "经营状态集合无效：departments.guidance"
 		if not facts.departments.get("experience") is Dictionary:
 			return "经营状态集合无效：departments.experience"
+	if facts.has("economy"):
+		if not facts.economy is Dictionary:
+			return "经营状态结构无效：economy"
+		if not facts.economy.get("daily_accumulators") is Dictionary:
+			return "经营状态集合无效：economy.daily_accumulators"
 	if facts.inventory.has("orders") and not facts.inventory.orders is Dictionary:
 		return "采购凭据集合无效"
 	for staff: Dictionary in facts.staff.values():
@@ -414,6 +419,10 @@ func validate(content: HospitalContent) -> String:
 			return error
 	if facts.has("departments"):
 		var error: String = HospitalDepartments.new(content,geometry).validate(self)
+		if not error.is_empty():
+			return error
+	if facts.has("economy"):
+		var error: String = FinanceService.new(content,geometry).validate(self)
 		if not error.is_empty():
 			return error
 	return BuildService.new(content).validate(self)

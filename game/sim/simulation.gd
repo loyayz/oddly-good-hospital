@@ -31,6 +31,7 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 	_register_service("environment",HospitalEnvironment.new(database,space),["renovate","renovation_order","renovation_pause","renovation_resume","renovation_cancel","cleanup_pin"])
 	_register_service("maintenance",HospitalMaintenance.new(database,space),["maintenance_policy","maintenance_order","maintenance_pin","maintenance_pause","maintenance_resume","maintenance_cancel","machine_upgrade","upgrade_order","upgrade_pause","upgrade_resume","upgrade_cancel","upgrade_abandon"])
 	_register_service("departments",HospitalDepartments.new(database,space),["department_create","department_configure","department_rename","department_set_open","department_set_focus"])
+	_register_service("finance",FinanceService.new(database,space),["finance_note","finance_rescue","finance_return_rescue"])
 	if _production():
 		clinic.scheduler = services.scheduler
 		clinic.waiting_life = services.waiting
@@ -42,6 +43,10 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 		services.departments.clinic = clinic
 		services.departments.waiting_life = services.waiting
 		services.departments.environment = services.environment
+		services.finance.supplies = services.supplies
+		services.finance.maintenance = services.maintenance
+		services.supplies.finance = services.finance
+		services.maintenance.finance = services.finance
 	_ensure_services()
 
 func _ensure_services() -> void:
@@ -76,6 +81,14 @@ func dispose() -> void:
 		services.departments.waiting_life = null
 	if services.has("departments"):
 		services.departments.environment = null
+	if services.has("finance"):
+		services.finance.supplies = null
+	if services.has("finance"):
+		services.finance.maintenance = null
+	if services.has("supplies"):
+		services.supplies.finance = null
+	if services.has("maintenance"):
+		services.maintenance.finance = null
 	_business_handlers.clear()
 	services.clear()
 
@@ -211,6 +224,7 @@ func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickRe
 	if _production():
 		services.development.settle(world)
 		services.departments.settle(world)
+		services.finance.settle(world)
 	var events: Array[SimEvent] = _command_events
 	_command_events = []
 	events.append_array(clinic.take_events())
