@@ -89,6 +89,13 @@ func validate(content: HospitalContent) -> String:
 	if facts.has("training_jobs"):
 		if not facts.training_jobs is Dictionary:
 			return "经营状态结构无效：training_jobs"
+	if facts.has("staff_schedule"):
+		if not facts.staff_schedule is Dictionary:
+			return "经营状态结构无效：staff_schedule"
+		if not facts.staff_schedule.get("handoffs") is Dictionary:
+			return "经营状态集合无效：staff_schedule.handoffs"
+		if not facts.staff_schedule.get("applications") is Dictionary:
+			return "经营状态集合无效：staff_schedule.applications"
 	var geometry: HospitalSpace = HospitalSpace.new(content)
 	if not facts.research is Array or not facts.ledger.get("entries") is Dictionary or not _natural(facts.ledger.get("opening_balance",-1)):
 		return "研究或账目结构无效"
@@ -325,6 +332,10 @@ func validate(content: HospitalContent) -> String:
 			return error
 	if facts.has("training_jobs"):
 		var error: String = HospitalClinicalDevelopment.new(content,geometry).validate(self)
+		if not error.is_empty():
+			return error
+	if facts.has("staff_schedule"):
+		var error: String = HospitalShiftScheduler.new(content,geometry).validate(self)
 		if not error.is_empty():
 			return error
 	return BuildService.new(content).validate(self)

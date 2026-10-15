@@ -24,6 +24,9 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 	for kind: String in ["clinical_arrive","clinical_refer","clinical_select_plan","clinical_confirm_plan","clinical_auto_plan","clinical_assign_ward","clinical_transfer_bed","clinical_ward_refer","clinical_visit_consent"]:
 		_business_handlers[kind] = clinic
 	_register_service("development",HospitalClinicalDevelopment.new(database,space),["train_staff","promote_staff","cancel_training","set_growth_direction"])
+	_register_service("scheduler",HospitalShiftScheduler.new(database,space),["apply_schedule","set_schedule_lock","plan_leave","cancel_leave"])
+	if _production():
+		clinic.scheduler = services.scheduler
 	_ensure_services()
 
 func _ensure_services() -> void:
@@ -38,6 +41,8 @@ func _register_service(id: String, service: RefCounted, kinds: Array[String]) ->
 		_business_handlers[kind] = service
 
 func dispose() -> void:
+	if clinic!=null:
+		clinic.scheduler = null
 	_business_handlers.clear()
 	services.clear()
 
@@ -122,9 +127,12 @@ func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickRe
 	for command: GameCommand in commands:
 		_commands.append(GameCommand.from_record(command.to_record()))
 	drain_commands() # 1: commands and automatic supply orders.
+	if _production(): # 2: schedules and equipment boundaries.
+		services.scheduler.boundaries(world)
 	if _production(): # 3: real arrivals and family requests.
 		clinic.arrivals(world)
 	if _production(): # 4: dispatch against current occupancy.
+		services.scheduler.dispatch(world)
 		services.development.dispatch(world)
 	clinic.dispatch(world)
 	var before_movement: Dictionary = {}
@@ -134,6 +142,7 @@ func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickRe
 	clinic.advance(world) # 6: work and safe completion.
 	if _production():
 		services.development.advance(world)
+		services.scheduler.advance(world)
 	_integrate_staff(before_movement)
 	# 8: interaction consequences precede settlement.
 	clinic.release_departed(world) # 9: release only after physical handoff.

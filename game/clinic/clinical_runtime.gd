@@ -9,6 +9,7 @@ var waiting_life: RefCounted
 var departments: RefCounted
 var environment: RefCounted
 var recruitment: RefCounted
+var scheduler: RefCounted
 var visitors: RefCounted
 var _worked_staff: Dictionary = {}
 var _practice_awards: Dictionary = {}
@@ -362,6 +363,9 @@ func _dispatch_service(world: WorldState, visit: Dictionary, ticket: Dictionary)
 		"resonance":"exam_nurse","consult":"gp_doctor","outpatient":"treat_doctor"}.get(kind,"")
 	if int(world.facts.get("gameplay_version",0)) >= 1:
 		var candidates: Array = service_candidates(world,visit,kind)
+		if kind=="consult" and scheduler!=null:
+			var recommendation: Dictionary = _select_plan(world,visit)
+			candidates = candidates.filter(func(pair: Dictionary)->bool: return pair.staff_id==recommendation.get("consulting_doctor_id",""))
 		if candidates.is_empty():
 			visit.waiting_reason = "等待实际可用设备、合格人员及合法路线"
 			return
@@ -485,6 +489,8 @@ func service_candidates(world: WorldState, visit: Dictionary, kind: String, stru
 				continue
 			if not structural_only and (_staff_busy(world,staff_id,visit.id) or not staff.on_shift or not _can_start(staff)):
 				continue
+			if not structural_only and not _schedule_allows(world,staff_id,kind,visit,facility_id):
+				continue
 			var qualified: bool = staff.role == "receptionist" if kind == "reception" else staff.role == "doctor"
 			if kind in ["spectrum","resonance"]:
 				qualified = false
@@ -563,6 +569,8 @@ func plan_quote(world: WorldState, visit_id: String, plan_id: String, options: D
 				quote = actual_bed
 		if not structural and (_facility_unavailable(facility) or _facility_busy(world,pair.facility_id,visit.id) or _staff_busy(world,pair.staff_id,visit.id) or not staff.on_shift or not _can_start(staff)):
 			availability = "等待原方案的当班医护与设备"
+		if not structural and not _schedule_allows(world,pair.staff_id,"outpatient",visit,pair.facility_id):
+			availability = "等待当前排班服务池内的治疗医生"
 		if not bool(options.get("ignore_supplies",false)) and _available_supplies(world,visit.id)<int(quote.supply_units):
 			availability = "治疗包不足，保留原票号"
 		quote.ok = availability.is_empty()
@@ -578,6 +586,11 @@ func plan_quote(world: WorldState, visit_id: String, plan_id: String, options: D
 
 func _select_plan(world: WorldState, visit: Dictionary, doctor_id: String = "") -> Dictionary:
 	var quotes: Array = []
+	if scheduler!=null and doctor_id.is_empty():
+		for pair: Dictionary in service_candidates(world,visit,"consult"):
+			var recommendation: Dictionary = _select_plan(world,visit,pair.staff_id)
+			if not recommendation.is_empty(): return recommendation
+		return {}
 	var selected_doctor: String = doctor_id
 	if selected_doctor.is_empty():
 		for pair: Dictionary in service_candidates(world,visit,"consult"):
@@ -757,6 +770,8 @@ func _compatible_bed(world: WorldState, visit: Dictionary, floor_id: int, exclud
 					continue
 				if not structural_only and (not doctor.on_shift or not _can_start(doctor)):
 					continue
+				if not structural_only and not _schedule_allows(world,doctor_id,"round",visit,bed_id):
+					continue
 				var fit: Dictionary = space.facility_quote(world,bed_id,visit.actor_id,[nurse_id,doctor_id])
 				if not fit.ok:
 					continue
@@ -894,6 +909,10 @@ func _surgery_bundle_quote(world: WorldState, visit: Dictionary, team: Array, fa
 		return {"ok":false,"reason":"手术岗位必须互异"}
 	var table: Dictionary = world.facts.facilities[facility_id]
 	var structural: bool = bool(options.get("structural_only",false))
+	if not structural:
+		for staff_id: String in team:
+			if not _schedule_allows(world,staff_id,"surgery",visit,facility_id):
+				return {"ok":false,"structural_ok":true,"reason":"等待排班手术池内的完整团队"}
 	if not world.facts.rooms.has(table.get("room_id","")):
 		return {"ok":false,"reason":"手术台缺少合法手术室"}
 	var operating_room: Dictionary = world.facts.rooms[table.room_id]
@@ -1389,6 +1408,8 @@ func _round_candidate(world: WorldState, visit: Dictionary, stay: Dictionary) ->
 		var doctor: Dictionary = world.facts.staff.get(id,{})
 		if doctor.get("role","")!="doctor" or not doctor.on_shift or not _can_start(doctor) or _staff_busy(world,id) or int(doctor.abilities.diagnosis)<2 or int(doctor.abilities.treatment)<1:
 			continue
+		if not _schedule_allows(world,id,"round",visit,stay.bed_id):
+			continue
 		var candidate: WorldState = world
 		var reservation: Dictionary = world.facts.adaptations.get(stay.bed_id,{})
 		if not reservation.is_empty() and not id in reservation.staff_ids:
@@ -1503,6 +1524,30 @@ func _facility_unavailable(facility: Dictionary) -> bool:
 
 func _talent_rate(world: WorldState, staff_id: String, action: String, visit: Dictionary) -> float:
 	return float(recruitment.call("work_rate",world,staff_id,action,visit.actor_id)) if recruitment!=null else 1.0
+
+func _schedule_allows(world: WorldState, staff_id: String, kind: String, visit: Dictionary, facility_id: String) -> bool:
+	if scheduler==null or world.facts.staff[staff_id].role!="doctor":
+		return true
+	var assignment: Dictionary = scheduler.call("assignment",world,staff_id,int(scheduler.call("shift_index",world)))
+	var duty: String = "surgery" if kind=="surgery" else "round" if kind=="round" else "outpatient"
+	if str(assignment.kind)!=duty:
+		if not (kind=="round" and assignment.kind=="outpatient" and bool(world.facts.get("allow_outpatient_rounds",false))):
+			return false
+		return true
+	var pools: Array = assignment.get("pools",[])
+	if pools.is_empty(): return true
+	var facility: Dictionary = world.facts.facilities[facility_id]
+	var targets: Array = [facility_id,str(facility.get("room_id",""))]
+	if kind in ["gp","spectrum","resonance","consult"]:
+		targets.append("diagnosis")
+	if kind in ["outpatient","consult"]:
+		targets.append(content.definition("treatment_routines",content.definition("treatment_bindings",visit.binding_id).routine_id).specialty_id)
+		targets.append(str(visit.get("department_id","")))
+	if kind=="surgery": targets.append("surgery")
+	if kind=="round": targets.append("round")
+	for pool: String in pools:
+		if not pool.is_empty() and pool in targets: return true
+	return false
 
 func shortage_requests(world: WorldState) -> Array:
 	var result: Array = []
