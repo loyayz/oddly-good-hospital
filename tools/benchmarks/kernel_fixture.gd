@@ -27,9 +27,9 @@ func _add_mobile() -> void:
 	var index: int = mobile_ids.size()
 	var floor_id: int = FLOORS[0] if _dense else FLOORS[index%FLOORS.size()]
 	var position_index: int = index if _dense else index/FLOORS.size()
-	var columns: int = 24 if _dense else 12
-	var spacing: int = 3 if _dense else 4
-	var origin: Vector2i = Vector2i(3+(position_index%columns)*spacing,3+(position_index/columns)*spacing)
+	var columns: int = 8 if _dense else 2
+	var spacing: int = 12 if _dense else 48
+	var origin: Vector2i = Vector2i(3+(position_index%columns)*spacing,3+position_index/columns)
 	var id: String = "mobile_%04d" % index
 	world.facts.actors[id] = {"id":id,"name":"基准居民%04d" % index,"species_id":"S49",
 		"location":{"kind":"floor","floor_id":floor_id,"cell":[origin.x,origin.y],"height_m":0.0},"facing":0.0,"posture":"standing"}
@@ -49,7 +49,7 @@ func before_tick(simulation: HospitalSimulation) -> Dictionary:
 			continue
 		var actor: Dictionary = world.facts.actors[id]
 		var origin: Vector2i = origins[id]
-		var x: int = origin.x+1 if roundi(float(actor.location.cell[0]))==origin.x else origin.x
+		var x: int = origin.x+(8 if _dense else 32) if roundi(float(actor.location.cell[0]))==origin.x else origin.x
 		var reason: String = simulation.space.request_move(world,id,int(actor.location.floor_id),[x,origin.y])
 		requests += 1
 		if not reason.is_empty():
@@ -62,9 +62,10 @@ func before_tick(simulation: HospitalSimulation) -> Dictionary:
 	return {"dispatch_usec":Time.get_ticks_usec()-started,"path_requests":requests,"path_refused":refused}
 
 func describe() -> Dictionary:
-	return {"fixture":"kernel-mobile-and-surgery-v1","target_present_actors":_count,"actor_records":world.facts.actors.size(),"mobile_actors":mobile_ids.size(),
+	return {"fixture":"kernel-mobile-and-surgery-v2","target_present_actors":_count,"actor_records":world.facts.actors.size(),"mobile_actors":mobile_ids.size(),
 		"distribution":"dense_mobile_floor" if _dense else "four_mobile_floors",
 		"staff":world.facts.staff.size(),"clinical_visits":world.facts.visits.size(),"active_floors":FLOORS,
 		"empty_structure_top":10000,"layout":"four actual 96x96 floors plus the stage01 surgical layout",
 		"clinical_scope":"one real D23 pathway; additional bodies execute real repeated movement",
+		"movement_leg_cells":8 if _dense else 32,"route_requests":"intent prepared before step; actual search dispatched inside production step",
 		"missing":"multiple simultaneous clinical stations and later daily systems"}

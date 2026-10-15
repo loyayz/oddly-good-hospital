@@ -8,6 +8,35 @@ func _record(method: String, started: int) -> void:
 	row.usec += Time.get_ticks_usec()-started
 	timings[method] = row
 
+func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2i, goal: Vector2i, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
+	var started: int = Time.get_ticks_usec()
+	var result: Dictionary = super._floor_route(world,actor,floor_id,start,goal,members,offsets,ignore_people)
+	_record("floor_route_inclusive",started)
+	return result
+
+func _dispatch_routes(world: WorldState, present_at_start: int) -> void:
+	var started: int = Time.get_ticks_usec()
+	super._dispatch_routes(world,present_at_start)
+	_record("dispatch_routes_inclusive",started)
+
+func _unit_sweeps(world: WorldState, actor: Dictionary, next: Vector2, members: Array, offsets: Dictionary, direction: Vector2) -> Dictionary:
+	var started: int = Time.get_ticks_usec()
+	var result: Dictionary = super._unit_sweeps(world,actor,next,members,offsets,direction)
+	_record("unit_sweeps_inclusive",started)
+	return result
+
+func _movement_clear(world: WorldState, actor_id: String, floor_id: int, broad: Rect2, sweeps: Dictionary, members: Array) -> bool:
+	var started: int = Time.get_ticks_usec()
+	var result: bool = super._movement_clear(world,actor_id,floor_id,broad,sweeps,members)
+	_record("movement_clear_inclusive",started)
+	return result
+
+func _active_route_clear(world: WorldState, actor: Dictionary, movement: Dictionary, versions: Dictionary) -> bool:
+	var started: int = Time.get_ticks_usec()
+	var result: bool = super._active_route_clear(world,actor,movement,versions)
+	_record("active_route_clear",started)
+	return result
+
 func _dynamic_clear(world: WorldState, actor_id: String, floor_id: int, rect: Rect2, members: Array = []) -> bool:
 	var started: int = Time.get_ticks_usec()
 	var result: bool = super._dynamic_clear(world,actor_id,floor_id,rect,members)

@@ -18,6 +18,7 @@ $chapters = @(
     @{ File='design/02-content.md'; Id='content'; Title='内容与后续扩展' },
     @{ File='design/03-experience.md'; Id='experience'; Title='界面与操作' },
     @{ File='design/04-technical.md'; Id='technical'; Title='技术与保存' },
+    @{ File='design/16-navigation-space-selection.md'; Id='navigation-selection'; Title='导航与空间选型' },
     @{ File='design/05-production.md'; Id='production'; Title='美术与声音制作' },
     @{ File='design/06-validation.md'; Id='validation'; Title='验收标准' },
     @{ File='design/12-implementation-plan.md'; Id='implementation'; Title='实施路线与阶段交付' },

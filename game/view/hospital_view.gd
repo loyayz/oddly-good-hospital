@@ -121,7 +121,7 @@ func bind(state: WorldState, floor_id: int = 1) -> void:
 			wrapper.add_child(props)
 			_machine_props[facility_id] = props
 	for connector: Dictionary in world.facts.connectors.values():
-		if observed_floor in connector.stops:
+		if HospitalTransit.has_stop(connector,observed_floor):
 			var definition: Dictionary = content.definition("vertical_connectors",connector.definition_id)
 			var base: Vector3 = _cell_position(connector.cell,0)
 			var w: float = float(connector.footprint[0])*HospitalSpace.CELL_METERS

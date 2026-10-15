@@ -55,6 +55,20 @@ def validate_group(path: Path):
             errors.append("raw_tail_statistics_differ")
         if not math.isclose(sum(durations) / len(durations) / 1000, summary["step"]["mean_ms"], rel_tol=1e-12):
             errors.append("raw_mean_differs")
+        if summary["fixture"]["fixture"] == "kernel-mobile-and-surgery-v2":
+            for field, key in (("walking_bodies", "walking_bodies_per_step"), ("pending_routes", "pending_routes_per_step")):
+                values = [row.get(field) for row in steps]
+                if any(not isinstance(value, int) or value < 0 for value in values):
+                    errors.append(f"{field}_samples_missing")
+                    continue
+                expected = {"count": len(values), "min": min(values), "max": max(values),
+                            "p05": percentile(values, .05), "p50": percentile(values, .5),
+                            "p95": percentile(values, .95), "mean": sum(values) / len(values)}
+                if any(not math.isclose(expected[name], summary.get(key, {}).get(name, math.inf), rel_tol=1e-12)
+                       for name in expected):
+                    errors.append(f"{field}_summary_differs")
+            if any(row.get("walking_bodies", math.inf) > row["present_actors"] or row.get("pending_routes", math.inf) > row["moves"] for row in steps):
+                errors.append("movement_population_inconsistent")
     if not commands or len(commands) != summary["command_boundary"]["count"]:
         errors.append("command_samples_missing")
     elif percentile([row["duration_usec"] for row in commands], .95) / 1000 != summary["command_boundary"]["p95_ms"]:
@@ -149,7 +163,8 @@ def main():
         lines = [f"# 第三阶段：{population_label}人内核Release实测", "", f"第二阶段性能检测未执行。第三阶段本次测量范围为{population_label}人、1×/3×正式内核，采集有效性与性能达标分别判定；本次性能结果：**{result_label}**。", "",
                  "## 实测条件", "", f"原始证据目录：`{args.input.as_posix()}`。构建与源文件哈希、设备、电源和后台进程记录保存在同目录。每组独立预热60现实秒、采样600现实秒；步耗时采用单调时钟和最近秩分位。", "",
                  f"夹具保持{population_label}名实际在院身体，使用四份96×96合法移动楼层和原手术布局，保留10000层稀疏结构。额外居民沿真实路线持续移动，一个D23病例执行原接待、诊断、手术、护理和结算流程；患者实际离院后的下一边界补入一名移动居民。单个病例完成后不持续生成新病例，本次结果不能代表多站点临床满载。逻辑记录数与实际在院数分别记录。", "",
-                 "完整step计时包含全部已接入阶段。额外居民的批量路径请求由夹具在步前准备并单独计时；临床派发与实际移动在正式step中。原始日志和OS观察仍计入实际推进速度；计时探针有独立开销样本，日志序列化和写入开销尚未独立量化。无窗口采集没有呈现帧或GPU指标。", "",
+                 "夹具协议为kernel-mobile-and-surgery-v2：分散场景额外居民沿32格路线往返，密集诊断沿8格路线往返。夹具在步前只提出移动目标，路径搜索由正式step中的全院FIFO队列派发；临床派发、实际移动和安全检查均在完整step内。与旧版1格往返夹具的结果不能直接作为同负载优化对比。", "",
+                 "每步分别记录实际地面位置发生变化的身体数及待寻路请求数，移动记录数包含等待中的请求。人数观察、原始日志和OS观察计入实际推进速度；人数观察与计时探针另记开销，日志序列化和写入开销尚未独立量化。无窗口采集没有呈现帧或GPU指标。", "",
                  f"## {len(groups)}组正式结果", "", "| 在院身体 | 速度 | step P95 / P99（ms） | step最大（ms） | 实际tick | 速度比例 | 命令P95（ms） | 工作集峰值（MiB） | 私有提交峰值（MiB） | 结果 |", "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
         for row in groups:
             result = "通过" if row["evaluation_passed"] else ("未达标" if row["formal_capture"] and row["evidence_valid"] else "证据无效/诊断")
@@ -165,9 +180,15 @@ def main():
         if "sim_step_p99_ms" in metrics:
             budget_text += f'、P99≤{metrics["sim_step_p99_ms"]}ms、普通最大≤{metrics["sim_step_ordinary_max_ms"]}ms'
         lines += ["", budget_text+"；实际速度至少达到所选速度的99%。捕获时目标和退出码保持原值，当前评估另列。表内所有原始step连续、无跳tick且命令样本存在才视为有效证据。未达标组不以实际速度通过代替步耗时通过。工作集和私有提交为每秒OS观察峰值，包含预热与采样；进程生命周期工作集峰值另存结构化报告。", "",
-                  "## 实际工作量与工具开销", "", "| 身体 / 速度 | 步样本 | 命令样本 | 路径请求 | 移动峰值 | 同时临床服务峰值 | 治疗尝试数 | 结束病例阶段 | 夹具准备P95（ms） | 计时探针P95（μs） |", "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
+                  "## 实际工作量与工具开销", "", "| 身体 / 速度 | 步样本 | 命令样本 | 路径请求 | 移动记录峰值 | 实际行走均值 / P05 | 待寻路均值 / 峰值 | 同时临床服务峰值 | 治疗尝试数 | 结束病例阶段 | 夹具准备P95（ms） | 人数观察P95（ms） |", "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
         for row in groups:
-            lines.append(f'| {row["actors"]} / {row["speed"]}× | {row["step"]["count"]} | {row["command_boundary"]["count"]} | {row["path_requests"]} | {row["peak_moves"]} | {row["peak_clinical_sessions"]} | {row["actual_attempts"]} | {row["clinical_phase"]} | {row["fixture_dispatch"]["p95_ms"]:.3f} | {row["timer_overhead"]["p95_ms"] * 1000:.1f} |')
+            walking = row.get("walking_bodies_per_step", {})
+            pending = row.get("pending_routes_per_step", {})
+            walking_text = f'{walking["mean"]:.1f} / {walking["p05"]}' if "mean" in walking else "未测"
+            pending_text = f'{pending["mean"]:.1f} / {pending["max"]}' if "mean" in pending else "未测"
+            observer = row.get("population_observer", {}).get("p95_ms")
+            observer_text = f"{observer:.3f}" if observer is not None else "未测"
+            lines.append(f'| {row["actors"]} / {row["speed"]}× | {row["step"]["count"]} | {row["command_boundary"]["count"]} | {row["path_requests"]} | {row["peak_moves"]} | {walking_text} | {pending_text} | {row["peak_clinical_sessions"]} | {row["actual_attempts"]} | {row["clinical_phase"]} | {row["fixture_dispatch"]["p95_ms"]:.3f} | {observer_text} |')
         lines += ["", "命令表记录实际执行边界的成本，输入到画面反馈的响应时间保持未测。夹具准备分位不与完整step分位相加；它与采集开销均包含在实际速度判定中。计时探针采用微秒分辨率，0表示未分辨出差值，不代表零开销。", "",
                   "## 成本模型与缺失项", ""]
         if models:

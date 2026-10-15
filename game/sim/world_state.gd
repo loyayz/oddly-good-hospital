@@ -220,13 +220,27 @@ func validate(content: HospitalContent) -> String:
 		var movement: Dictionary = facts.moves[id]
 		if not facts.actors.has(id) or movement.actor_id!=id:
 			return "移动角色引用无效："+id
+		var leader: Dictionary = facts.actors[id]
+		if leader.location.kind=="outside":
+			return "院外身体不能保留院内移动"
 		for member_id: Variant in movement.get("members",[id]):
 			if not member_id is String or not facts.actors.has(member_id) or moving_members.has(member_id):
 				return "移动组身体不存在或重复参与"
 			moving_members[member_id] = id
 			if movement.has("members") and not _point(movement.offsets.get(member_id)):
 				return "陪同组实际相对位置无效"
-		for segment: Dictionary in movement.path:
+			if movement.has("members"):
+				var member: Dictionary = facts.actors[member_id]
+				if member.location.kind!=leader.location.kind:
+					return "完整移动组处于不同位置阶段"
+				if leader.location.kind=="floor" and not geometry.at(self,member_id,int(leader.location.floor_id),[float(leader.location.cell[0])+float(movement.offsets[member_id][0]),float(leader.location.cell[1])+float(movement.offsets[member_id][1])]):
+					return "完整移动组没有实际保持原配位"
+				if leader.location.kind=="transit" and member.location.connector_id!=leader.location.connector_id:
+					return "完整移动组不在同一真实连接中"
+		if movement.has("members") and (not id in movement.members or movement.members[0]!=id or float(movement.offsets[id][0])!=0.0 or float(movement.offsets[id][1])!=0.0):
+			return "移动组必须包含原领队与零偏移"
+		var segments: Array = movement.path+movement.get("route_waypoint",{}).get("continuation",[])
+		for segment: Dictionary in segments:
 			if segment.kind=="connector" and not facts.connectors.has(segment.connector_id):
 				return "移动使用的竖向连接不存在"
 	for id: String in facts.connectors:
@@ -234,8 +248,10 @@ func validate(content: HospitalContent) -> String:
 		var definition: Dictionary = content.definition("vertical_connectors",connector.definition_id)
 		if definition.is_empty():
 			return "竖向连接定义不存在："+id
-		if connector.footprint!=definition.footprint or connector.riders.size()>int(definition.max_group_size):
+		if int(connector.footprint[0])!=int(definition.footprint[0]) or int(connector.footprint[1])!=int(definition.footprint[1]) or connector.riders.size()>int(definition.max_group_size):
 			return "竖向结构占地或乘员数量与源定义不符"
+		if definition.kind=="stairs" and (connector.stops.size()!=2 or absi(int(connector.stops[1])-int(connector.stops[0]))!=1):
+			return "楼梯只能连接相邻两个楼层"
 		for stop: Variant in connector.stops:
 			for x: int in range(int(connector.cell[0]),int(connector.cell[0])+int(connector.footprint[0])):
 				for y: int in range(int(connector.cell[1]),int(connector.cell[1])+int(connector.footprint[1])):
@@ -247,6 +263,10 @@ func validate(content: HospitalContent) -> String:
 			var location: Dictionary = facts.actors[actor_id].location
 			if location.kind!="transit" or location.connector_id!=id or connector.phase in ["idle","empty_riding"]:
 				return "乘员与轿厢状态不一致"
+		if not connector.riders.is_empty():
+			var primary: String = connector.get("primary_actor_id",connector.riders[0])
+			if not primary in connector.riders or not facts.moves.has(primary) or facts.moves[primary].get("members",[primary])!=connector.riders:
+				return "真实通行组没有一致的移动拥有者"
 	for id: String in facts.actors:
 		var actor: Dictionary = facts.actors[id]
 		if actor.location.kind=="transit" and not id in facts.connectors[actor.location.connector_id].riders:
@@ -281,6 +301,8 @@ func validate(content: HospitalContent) -> String:
 	return ""
 
 func _validate_shapes() -> String:
+	if not _natural(facts.get("move_request_next",0)):
+		return "移动请求序号无效"
 	if not facts.hospital_id is String or not facts.display_name is String or not facts.mode is String or not _natural(facts.entity_next):
 		return "医院身份或实体序号类型无效"
 	if not facts.inventory.get("issues") is Dictionary or not _natural(facts.inventory.get("units",-1)):
@@ -342,8 +364,12 @@ func _validate_shapes() -> String:
 	for actor: Dictionary in facts.actors.values():
 		if not actor.get("location") is Dictionary:
 			return "身体位置类型无效"
+		if not actor.location.get("kind") is String:
+			return "身体位置结构无效"
 		if actor.location.get("kind")=="transit" and (not actor.location.get("connector_id") is String or actor.location.has("floor_id") or actor.location.has("cell")):
 			return "地面与乘梯位置不能同时存在"
+		if actor.location.has("cabin_cell") and (actor.location.kind!="transit" or not _grid_point(actor.location.cabin_cell) or float(actor.location.cabin_cell[0])<0 or float(actor.location.cabin_cell[1])<0):
+			return "轿厢内实际位置无效"
 		if actor.location.get("kind")=="floor" and actor.location.has("connector_id"):
 			return "地面身体携带了乘梯身份"
 		if not actor.get("facing") is float and not actor.get("facing") is int:
@@ -406,25 +432,70 @@ func _validate_shapes() -> String:
 	for connector: Dictionary in facts.connectors.values():
 		if not _grid_point(connector.anchor) or not _grid_point(connector.cell) or not _extent(connector.footprint) or not _natural(connector.remaining_ticks) or not connector.phase in ["idle","empty_riding","boarding","riding","alighting"]:
 			return "竖向连接状态或锚点无效"
-		if not connector.phase=="idle" and (not connector.get("from") in connector.stops or not connector.get("to") in connector.stops):
+		if not connector.phase=="idle" and (not _natural(connector.get("from",-1)) or not _natural(connector.get("to",-1)) or not HospitalTransit.has_stop(connector,int(connector.from)) or not HospitalTransit.has_stop(connector,int(connector.to))):
 			return "竖向连接起止楼层不在真实停靠点中"
-		if connector.stops.size()<2 or not int(connector.floor_id) in connector.stops or (connector.phase in ["idle","empty_riding"] and not connector.riders.is_empty()):
+		if connector.stops.is_empty() or not HospitalTransit.has_stop(connector,int(connector.floor_id)) or (connector.phase in ["idle","empty_riding"] and not connector.riders.is_empty()):
 			return "竖向连接停靠点或实际乘员无效"
+		if connector.phase in ["boarding","riding","alighting"] and connector.riders.is_empty():
+			return "载客阶段缺少真实通行组"
+		for field: String in ["primary_actor_id","assigned_actor_id"]:
+			if connector.has(field) and (not connector[field] is String or not facts.actors.has(connector[field])):
+				return "交通拥有者身份无效"
+		if connector.has("primary_actor_id") and not connector.primary_actor_id in connector.riders:
+			return "通行组领队不是实际乘员"
+		if not _natural(connector.get("ticket_next",0)) or (connector.has("trip_travel_ticks") and not _natural(connector.trip_travel_ticks)):
+			return "交通票序或已承诺通行时间无效"
+		for field: String in ["failed","pending_failure"]:
+			if connector.has(field) and not connector[field] is bool:
+				return "交通运行模式无效"
 		for stop: Variant in connector.stops:
 			if not _natural(stop) or not facts.floors.overrides.has(str(int(stop))):
 				return "竖向连接停靠点没有实际楼层"
+	var request_sequences: Dictionary = {}
+	var transit_sequences: Dictionary = {}
 	for movement: Dictionary in facts.moves.values():
 		if not _point(movement.target_cell) or not _natural(movement.cursor) or int(movement.cursor)>movement.path.size() or (movement.has("members") and not movement.get("offsets") is Dictionary):
 			return "移动游标、目标或陪同结构无效"
 		if movement.yielding and (not movement.get("yield_partner") is String or not facts.actors.has(movement.yield_partner)):
 			return "让行对象不存在"
-		for segment: Variant in movement.path:
+		if not movement.get("route_pending",false) is bool:
+			return "移动请求状态无效"
+		if movement.has("request_sequence"):
+			var sequence: Variant = movement.request_sequence
+			if not _natural(sequence) or int(sequence)<1 or int(sequence)>int(facts.get("move_request_next",0)) or request_sequences.has(sequence):
+				return "移动请求序号重复或超出原序列"
+			request_sequences[sequence] = true
+		elif movement.get("route_pending",false):
+			return "待处理移动缺少原请求序号"
+		if movement.has("route_retry_tick") and not _natural(movement.route_retry_tick):
+			return "移动重查边界无效"
+		if movement.has("route_waypoint"):
+			var waypoint: Variant = movement.route_waypoint
+			if not waypoint is Dictionary or not _natural(waypoint.get("floor_id",-1)) or not _point(waypoint.get("cell")) or not waypoint.get("continuation") is Array:
+				return "临时让位路线无效"
+		if movement.has("transit_ticket"):
+			var ticket: Variant = movement.transit_ticket
+			if not ticket is Dictionary or not _fields(ticket,{"connector_id":TYPE_STRING,"sequence":TYPE_INT,"from":TYPE_INT,"to":TYPE_INT}).is_empty() or not facts.connectors.has(ticket.get("connector_id","")):
+				return "到站通行票结构或连接引用无效"
+			var connection: Dictionary = facts.connectors[ticket.connector_id]
+			var key: String = ticket.connector_id+":"+str(ticket.sequence)
+			if not _natural(ticket.sequence) or int(ticket.sequence)<1 or int(ticket.sequence)>int(connection.get("ticket_next",0)) or transit_sequences.has(key) or not HospitalTransit.has_stop(connection,int(ticket.from)) or not HospitalTransit.has_stop(connection,int(ticket.to)):
+				return "到站票序、起止站或连接身份无效"
+			transit_sequences[key] = true
+			for id: String in movement.get("members",[movement.actor_id]):
+				var actor: Dictionary = facts.actors.get(id,{})
+				if actor.is_empty() or actor.location.get("kind")!="floor" or not _natural(actor.location.get("floor_id",-1)) or int(actor.location.floor_id)!=int(ticket.from):
+					return "到站通行组没有实际位于起点层"
+		var segments: Array = movement.path+movement.get("route_waypoint",{}).get("continuation",[])
+		for segment: Variant in segments:
 			if not segment is Dictionary or not segment.get("kind") in ["floor","support_exit","connector"]:
 				return "实际路线段类型无效"
 			if segment.kind in ["floor","support_exit"] and (not _point(segment.get("cell")) or not _natural(segment.get("floor_id",-1))):
 				return "实际层内路线段坐标无效"
 			if segment.kind=="connector" and not segment.get("connector_id") is String:
 				return "实际跨层路线段引用无效"
+			if segment.kind=="connector" and (not _natural(segment.get("from",-1)) or not _natural(segment.get("to",-1))):
+				return "实际跨层路线段楼层无效"
 		for segment: Variant in movement.travelled:
 			if not segment is Dictionary or segment.get("kind")!="floor" or not _point(segment.get("cell")) or not _natural(segment.get("floor_id",-1)):
 				return "实际已行路线段无效"

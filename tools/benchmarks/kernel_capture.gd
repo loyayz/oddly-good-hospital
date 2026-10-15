@@ -117,6 +117,10 @@ func _finish(now: int) -> void:
 		"timer_overhead":_timer_overhead,"path_requests":_simulation.path_requests,"path_refused":_simulation.path_refused,
 		"accepted_commands":_simulation.accepted_commands,"rejected_commands":_simulation.rejected_commands,
 		"present_actors_range":[_simulation.min_present,_simulation.max_present],"peak_moves":_simulation.max_moves,
+		"walking_bodies_per_step":_counts(_simulation.walking_bodies),"pending_routes_per_step":_counts(_simulation.pending_routes),
+		"population_observer":_statistics(_simulation.observer_usec),
+		"navigation_cache_at_end":{"graphs":_simulation.space._navigation._entries.size(),"capacity_charge_bytes":_simulation.space._navigation._charged,
+			"target_bytes":int(_simulation.content.balance.pathfinding.graph_cache_target_bytes),"native_allocation_measured":false},
 		"peak_clinical_sessions":_simulation.max_sessions,"actual_attempts":_simulation.world.facts.attempts.size(),
 		"clinical_phase":_simulation.world.facts.visits.values()[0].phase,"final_world_sha256":final.sha256_text(),
 		"rng_end":_simulation.world.facts.rng.duplicate(true),"targets":targets,
@@ -153,3 +157,13 @@ static func _measure_timer() -> Dictionary:
 		var started: int = Time.get_ticks_usec()
 		values.append(Time.get_ticks_usec()-started)
 	return _statistics(values)
+
+static func _counts(values: Array[int]) -> Dictionary:
+	if values.is_empty():
+		return {"status":"missing"}
+	var sorted: Array[int] = values.duplicate()
+	sorted.sort()
+	var total: int = 0
+	for value: int in sorted:
+		total += value
+	return {"count":values.size(),"min":sorted[0],"p05":sorted[ceili(sorted.size()*0.05)-1],"p50":sorted[ceili(sorted.size()*0.5)-1],"p95":sorted[ceili(sorted.size()*0.95)-1],"max":sorted[-1],"mean":float(total)/values.size()}

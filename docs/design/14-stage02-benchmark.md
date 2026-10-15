@@ -9,7 +9,7 @@
 | `tools/prepare-performance-plan.ps1` | 从`balance.performance_targets`生成72组显示参数、空间样本及资源目标；输出`.cache/validation/stage02/baseline-plan.json`，测量数为0 |
 | `tools/prepare-kernel-benchmark.ps1` | 独立复制基准工程，导出固定Godot版本的Release exe/pck及原生库，记录源文件与发行单元哈希；准备过程不启动测量 |
 | `tools/benchmarks/kernel_fixture.gd` | 使用真实身体、合法布局、持续路径请求和D23手术病例；160/320/640目标人数及实际在院人数分别记录，保留10000层稀疏结构 |
-| `tools/benchmarks/timed_simulation.gd` | 对实际完整`step`及命令边界采样；记录真实tick、路径与病例计数，夹具准备单独计时 |
+| `tools/benchmarks/timed_simulation.gd` | 对实际完整`step`及命令边界采样；记录真实tick、路径与病例计数，区分实际行走身体和待寻路请求，夹具准备与人数观察单独计时 |
 | `tools/measure-kernel.ps1` | 分组执行Release；保留参数、stdout/stderr、退出码、原始NDJSON和每秒OS工作集/私有提交；拒绝含脚本错误的记录 |
 | `tools/benchmarks/display_projection.gd` | 接入现有场景投影、平移/变焦/切层及UI尺寸；正值引擎观察量单列，缺少的实际呈现/GPU字段保持空值 |
 | `tools/report-kernel.py` | 从原始记录核对tick连续性、完整步分位和真实命令样本；分组判定目标，校准均值模型并保留缺失成本 |
@@ -20,6 +20,8 @@
 ## 2. 负载与模型边界
 
 模拟夹具使用第一阶段的实际临床流程及身体通行实现。额外居民在四个96×96合法楼层持续移动，命令沿正式边界提交；真实患者离院后在下一边界补入一名移动居民。逻辑记录数、实际在院数、医护和病例数均独立记录。该夹具提供当前机制的真实工作量，多站点经营及其他未接入系统的成本保留缺失。
+
+`kernel-mobile-and-surgery-v2`在步前只提出居民目标，正式固定步中的全院FIFO队列执行真实搜索，缓存命中也占用额度。分散负载使用32格往返，单层密集诊断使用8格往返；移动记录数包含等待，实际行走人数另按本步地面位置变化统计。旧版1格往返负载不用于直接计算新版的同负载优化比例。导航缓存容量记账与128MiB目标单列，Release原生图的精确分配量保持未测。
 
 | 成本模型 | 当前工具可采集的内容 | 后续接入 |
 | --- | --- | --- |

@@ -75,12 +75,16 @@ func _execute(command: GameCommand) -> CommandResult:
 		return CommandResult.new(false,"movement_in_progress","当前通行尚未完成，原移动请求保留",[],world.revision)
 	if payload.floor_id<1 or not world.facts.floors.overrides.has(str(payload.floor_id)):
 		return CommandResult.new(false,"floor_unavailable","目标楼层没有可用通行布局",[],world.revision)
+	var quote: Dictionary = space.route(world,payload.actor_id,payload.floor_id,[payload.cell.x,payload.cell.y])
+	if not quote.ok:
+		return CommandResult.new(false,"route_unavailable",quote.reason,[],world.revision)
 	var reason: String = space.request_move(world,payload.actor_id,payload.floor_id,[payload.cell.x,payload.cell.y])
 	return CommandResult.new(reason.is_empty(),"applied" if reason.is_empty() else "route_unavailable",reason,[payload.actor_id] if reason.is_empty() else [],world.revision)
 
 func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickResult:
 	if state!=null:
 		world = state
+	var present_at_start: int = world.present_actor_count()
 	for command: GameCommand in commands:
 		_commands.append(GameCommand.from_record(command.to_record()))
 	drain_commands() # 1: player commands; future automatic purchasing joins here.
@@ -90,7 +94,7 @@ func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickRe
 	var before_movement: Dictionary = {}
 	for staff_id: String in world.ids("staff"):
 		before_movement[staff_id] = world.facts.actors[staff_id].location.duplicate(true)
-	space.advance(world) # 5: actual movement and vertical transit.
+	space.advance(world,present_at_start) # 5: path FIFO, actual movement and vertical transit.
 	clinic.advance(world) # 6: work and safe completion.
 	_integrate_staff(before_movement) # 7: integrate actual work and movement.
 	# 8: future interactions and event consequences.
