@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="design-source-sha256" content="6ac64589739e90dac809b5cc922bc2abe27bfd5e0ead5e2f2a66cf303a9444d3">
+<meta name="design-source-sha256" content="cd86298261f04d254a27162acaf077d9df125db0b28881fca66ff7177ae435ca">
 <title>怪好的医院 · Oddly Good Hospital · 产品设计方案</title>
 <style>
 :root{color-scheme:light;--ink:#293d60;--muted:#53657f;--blue:#3b5f92;--paper:#fffdf7;--line:#d6deeb}
@@ -10684,10 +10684,10 @@ python -X utf8 tools/report-kernel.py --input .cache/validation/stage03/local-ke
 <p><strong>阶段目标：</strong> 中断后可恢复的正式快照服务。</p>
 <h3 id="implementation--section-29">工作步骤</h3>
 <ul class="contains-task-list">
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>5.1 完成同一步边界副本。</strong> 包含全部已实现业务事实与原承诺，排空已接收命令后冻结；资源预检失败保留活跃世界，复制/编码不读取正在变化的场景节点。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>5.2 完成事务追加。</strong> 分段编码世界DTO并写入SQLite，增量哈希、清单与世界回读通过后sealed并COMMIT；追加保存点不覆盖旧记录，成功回执确认具体冻结revision。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>5.3 完成恢复与串行作业。</strong> 按sequence扫描有效候选，完整验型、哈希、引用和不变量后恢复；自动/手动/退出共用写入器，自动请求合并，清理在成功后独立进行。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>5.4 完成故障注入。</strong> 分别中断世界分段及清单的事务写入、COMMIT前后和提交后的独立清理，模拟数据库/回滚日志被占用、空间不足、权限拒绝、损坏哈希、坏引用与迟到回执；验证进程所有权直到全部资料IO停止才释放。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>5.1 完成同一步边界副本。</strong> 包含全部已实现业务事实与原承诺，排空已接收命令后冻结；资源预检失败保留活跃世界，复制/编码不读取正在变化的场景节点。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>5.2 完成事务追加。</strong> 分段编码世界DTO并写入SQLite，增量哈希、清单与世界回读通过后sealed并COMMIT；追加保存点不覆盖旧记录，成功回执确认具体冻结revision。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>5.3 完成恢复与串行作业。</strong> 按sequence扫描有效候选，完整验型、哈希、引用和不变量后恢复；自动/手动/退出共用写入器，自动请求合并，清理在成功后独立进行。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>5.4 完成故障注入。</strong> 分别中断世界分段及清单的事务写入、COMMIT前后和提交后的独立清理，模拟数据库/回滚日志被占用、空间不足、权限拒绝、损坏哈希、坏引用与迟到回执；验证进程所有权直到全部资料IO停止才释放。</li>
 </ul>
 <h3 id="implementation--section-30">成果与通过条件</h3>
 <p>中断后可恢复的正式快照服务。 每个故障点重启后仍有可恢复有效提交；界面不会将旧副本标成较新进展已保存；损坏世界不被部分载入。</p>
@@ -12097,6 +12097,11 @@ pwsh -NoProfile -File tools/prepare-kernel-benchmark.ps1
 <td>04</td>
 <td>完成</td>
 <td>发布字节核对、21项内容规则及Godot发布包/不可变注册表规则通过；独立工程导入无脚本错误。</td>
+</tr>
+<tr>
+<td>05</td>
+<td>完成</td>
+<td>21项保存/恢复规则通过；4组真实Windows文件锁、SQLite事务中断及重启恢复通过。</td>
 </tr>
 </tbody>
 </table></div>

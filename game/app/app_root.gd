@@ -196,31 +196,20 @@ func _acquire() -> void:
 			_status.text = "小帆门诊医院已准备好。开始经营后观察纸巾小帆与治疗小风车。"
 		return
 	var unavailable: PackedStringArray = PackedStringArray()
-	var previous_save: Dictionary = {}
 	for hospital_id: String in _hospital_ids:
-		var listing_errors: Dictionary = {}
-		var records: Array[Dictionary] = _snapshots.list_commits(hospital_id,listing_errors)
-		if records.is_empty():
-			unavailable.append("一座医院暂不可用："+str(listing_errors.get(hospital_id,"没有完整有效的保存清单"))+"。原文件保留。")
-			continue
-		var restored: Dictionary = _snapshots.load_commit(records[0].hospital_id,records[0].snapshot_id)
+		var restored: Dictionary = _snapshots.recover_latest(hospital_id)
 		if not restored.ok:
-			unavailable.append(str(records[0].display_summary.display_name)+"的保存点需要恢复："+str(restored.error))
-			if previous_save.is_empty():
-				for record: Dictionary in records.slice(1):
-					if _snapshots.load_commit(record.hospital_id,record.snapshot_id).ok:
-						previous_save = record
-						break
+			unavailable.append("一座医院暂不可用："+str(restored.error)+"。原文件保留。")
 			continue
 		if _activate(restored.world,true):
 			_status.text = "已继续"+str(restored.world.facts.display_name)+"，医院处于暂停。"
+			if not restored.get("rejected_candidates",[]).is_empty():
+				_status.text += " 已恢复最近有效的保存点，损坏记录保留。"
 			if not unavailable.is_empty():
 				_status.text += " 另有医院暂不可用，原文件保留。"
 			return
 		unavailable.append(_status.text)
 	_status.text = "医院资料需要恢复：\n"+"\n".join(unavailable)
-	if not previous_save.is_empty():
-		_button("恢复上一有效保存点",_restore_older.bind(previous_save.hospital_id,previous_save.snapshot_id))
 
 func _activate(world: WorldState, restored: bool = false) -> bool:
 	var prepared: HospitalView = HospitalView.new(_content)
@@ -289,7 +278,7 @@ func _save() -> void:
 	_status.text = "正在保存完整医院…" if started.ok else str(started.error)
 
 func _begin_save(kind: String, slot: String) -> Dictionary:
-	var started: Dictionary = _snapshots.begin(_simulation.world,_session.loading_session_id,kind,slot)
+	var started: Dictionary = _snapshots.begin(_simulation,_session.loading_session_id,kind,slot)
 	if started.ok:
 		_save_requests[started.request.request_id] = started.request.duplicate(true)
 	return started

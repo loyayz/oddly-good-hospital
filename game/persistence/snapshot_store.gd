@@ -139,27 +139,63 @@ static func uuid() -> String:
 func busy() -> bool:
 	return _thread != null
 
-func begin(world: WorldState, session_id: String, kind: String = "manual", slot: String = "1") -> Dictionary:
-	var reason: String = world.validate(content)
-	if not reason.is_empty() or not valid_uuid(str(world.facts.get("hospital_id",""))):
-		return {"ok":false,"error":"医院不能保存："+reason}
+func begin(source: RefCounted, session_id: String, kind: String = "manual", slot: String = "1") -> Dictionary:
 	if busy():
 		if kind == "auto":
 			_dirty_auto_pending = true
 		return {"ok":false,"error":"正在保存同一资料库，保留本次未保存进展"}
+	if not guard.call("is_held") or session_id.is_empty():
+		return {"ok":false,"error":"保存缺少有效加载会话或资料库所有权"}
+	if not kind in ["manual","auto","checkpoint"] or slot.is_empty() or slot.to_utf8_buffer().size()>64:
+		return {"ok":false,"error":"保存槽位无效"}
+	var world: WorldState
+	if source is HospitalSimulation:
+		source.drain_commands()
+		world = source.world
+	elif source is WorldState:
+		world = source
+	else:
+		return {"ok":false,"error":"保存来源不是医院世界或模拟会话"}
+	var reason: String = world.validate(content)
+	if not reason.is_empty() or not valid_uuid(str(world.facts.get("hospital_id",""))):
+		return {"ok":false,"error":"医院不能保存："+reason}
 	if not _budget(estimate(world.facts)):
 		return {"ok":false,"error":"快照副本所需内存或磁盘不足"}
 	var snapshot_id: String = uuid()
 	_request = {"hospital_id":world.facts.hospital_id,"loading_session_id":session_id,"request_id":uuid(),
 		"snapshot_id":snapshot_id,"world_revision":world.facts.world_revision,"sim_tick":world.facts.sim_tick,
-		"slot_kind":kind,"slot_key":slot}
+		"slot_kind":kind,"slot_key":slot,"content_packs":_content_identity()}
 	var frozen: Dictionary = world.freeze()
+	if frozen.is_empty():
+		return {"ok":false,"error":"无法冻结医院副本，当前世界保留"}
 	_thread = Thread.new()
 	var start_error: Error = _thread.start(_write.bind(frozen,_request.duplicate(true)))
 	if start_error != OK:
 		_thread = null
 		return {"ok":false,"error":"无法启动保存工作：%d" % start_error}
 	return {"ok":true,"request":_request.duplicate(true)}
+
+func _content_identity() -> Array:
+	return content.snapshot_identity().duplicate(true)
+
+func wait_for_idle() -> Dictionary:
+	if _thread == null:
+		return {}
+	var receipt: Dictionary = _thread.wait_to_finish()
+	_thread = null
+	_request = {}
+	return receipt
+
+func recover_latest(hospital_id: String) -> Dictionary:
+	var issues: Dictionary = {}
+	var rejected: Array[Dictionary] = []
+	for record: Dictionary in list_commits(hospital_id,issues):
+		var candidate: Dictionary = load_commit(hospital_id,record.snapshot_id)
+		if candidate.ok:
+			candidate.rejected_candidates = rejected
+			return candidate
+		rejected.append({"snapshot_id":record.snapshot_id,"error":candidate.error})
+	return {"ok":false,"error":str(issues.get(hospital_id,"医院没有完整有效的保存点")),"rejected_candidates":rejected}
 
 func poll() -> Dictionary:
 	if _thread == null or _thread.is_alive():
@@ -273,13 +309,18 @@ func _validate_world(value: Dictionary, manifest: Dictionary) -> Dictionary:
 	var reason: String = world.validate(content)
 	if not reason.is_empty():
 		return {"ok":false,"error":reason}
-	if world.facts.hospital_id != manifest.hospital_id or int(world.facts.sim_tick) != int(manifest.sim_tick) or world.facts.display_name != manifest.display_summary.display_name or world.present_actor_count() != int(manifest.display_summary.present_actor_count):
+	if world.facts.hospital_id != manifest.hospital_id or int(world.facts.sim_tick) != int(manifest.sim_tick) or world.facts.display_name != manifest.display_summary.display_name or world.facts.mode != manifest.display_summary.mode or world.present_actor_count() != int(manifest.display_summary.present_actor_count) or (manifest.has("world_revision") and int(world.facts.world_revision)!=int(manifest.world_revision)):
 		return {"ok":false,"error":"医院身份或清单摘要与世界不符"}
 	return {"ok":true,"world":world,"manifest":manifest}
 
 func _write(frozen: Dictionary, request: Dictionary) -> Dictionary:
 	var receipt: Dictionary = request.duplicate(true)
 	receipt.ok = false
+	if not request.has("content_packs"):
+		request.content_packs = _content_identity()
+	if frozen.get("hospital_id")!=request.get("hospital_id") or frozen.get("world_revision")!=request.get("world_revision") or frozen.get("sim_tick")!=request.get("sim_tick"):
+		receipt.error = "冻结世界与保存请求身份不符"
+		return receipt
 	var imported: Dictionary = _legacy_import(request.hospital_id)
 	if not imported.ok:
 		receipt.error = imported.error
@@ -314,7 +355,7 @@ func _write(frozen: Dictionary, request: Dictionary) -> Dictionary:
 		var manifest: Dictionary = {"format":FORMAT,"schema_version":1,"game_version":str(ProjectSettings.get_setting("application/config/version")),
 			"hospital_id":request.hospital_id,"snapshot_id":request.snapshot_id,"sequence":sequence,
 			"slot_kind":request.slot_kind,"slot_key":request.slot_key,"created_utc":Time.get_datetime_string_from_system(true),
-			"sim_tick":request.sim_tick,"content_packs":[{"id":"core","version":str(content.catalog.content_version)}],
+			"sim_tick":request.sim_tick,"world_revision":request.world_revision,"content_packs":request.content_packs,
 			"world_bytes":encoder.bytes,"world_sha256":encoder.digest,
 			"display_summary":{"display_name":frozen.display_name,"mode":frozen.mode,"present_actor_count":WorldState.new(frozen).present_actor_count()}}
 		var raw: PackedByteArray = JSON.stringify(manifest,"",true).to_utf8_buffer()
@@ -361,9 +402,10 @@ func _parse_manifest(raw: PackedByteArray, hospital_id: String, snapshot_id: Str
 		if not data.has(field):
 			return {"ok":false,"error":"保存清单缺少字段："+field}
 	var types: Dictionary = {"format":TYPE_STRING,"schema_version":TYPE_INT,"game_version":TYPE_STRING,"hospital_id":TYPE_STRING,"snapshot_id":TYPE_STRING,"sequence":TYPE_INT,"slot_kind":TYPE_STRING,"slot_key":TYPE_STRING,"created_utc":TYPE_STRING,"sim_tick":TYPE_INT,"content_packs":TYPE_ARRAY,"world_bytes":TYPE_INT,"world_sha256":TYPE_STRING,"display_summary":TYPE_DICTIONARY}
-	if not WorldState._fields(data,types).is_empty() or not WorldState._natural(data.sim_tick) or not data.slot_kind in ["manual","auto","checkpoint"] or data.world_sha256.length()!=64:
+	if not WorldState._fields(data,types).is_empty() or not WorldState._natural(data.sim_tick) or not data.slot_kind in ["manual","auto","checkpoint"] or not _valid_sha(data.world_sha256) or data.slot_key.is_empty() or data.slot_key.to_utf8_buffer().size()>64 or (data.has("world_revision") and not WorldState._natural(data.world_revision)):
 		return {"ok":false,"error":"保存清单字段类型无效"}
-	if data.content_packs != [{"id":"core","version":str(content.catalog.content_version)}]:
+	# Engineering fixtures from the first schema1 implementation have only pack/version.
+	if data.content_packs != _content_identity() and data.content_packs != [{"id":"core","version":str(content.catalog.content_version)}]:
 		return {"ok":false,"error":"保存点需要不同的核心内容版本"}
 	if not WorldState._fields(data.display_summary,{"display_name":TYPE_STRING,"mode":TYPE_STRING,"present_actor_count":TYPE_INT}).is_empty() or not WorldState._natural(data.display_summary.present_actor_count):
 		return {"ok":false,"error":"保存清单显示摘要无效"}
@@ -372,10 +414,20 @@ func _parse_manifest(raw: PackedByteArray, hospital_id: String, snapshot_id: Str
 	return {"ok":true,"manifest":data}
 
 func _budget(world_bytes: int) -> bool:
+	if world_bytes<0 or world_bytes>2305843009196916735:
+		return false
 	var status: Dictionary = guard.call("get_resource_status")
 	if not status.get("ok",false):
 		return false
 	return world_bytes*4+HEADROOM <= int(status.available_physical_bytes)/2 and world_bytes*3+HEADROOM <= int(status.available_disk_bytes)
+
+static func _valid_sha(value: String) -> bool:
+	if value.length()!=64:
+		return false
+	for character: String in value:
+		if not character in "0123456789abcdef":
+			return false
+	return true
 
 func _cleanup(hospital_id: String, validated_snapshot_id: String) -> void:
 	var retained: Dictionary = {}

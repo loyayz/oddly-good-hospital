@@ -31,6 +31,7 @@ func encode(path: String, value: Dictionary, budget: Callable) -> bool:
 	return error.is_empty()
 
 func encode_to(value: Dictionary, budget: Callable, sink: Callable) -> bool:
+	_reset()
 	_budget = budget
 	_sink = sink
 	_hash = HashingContext.new()
@@ -59,6 +60,9 @@ func _file_source() -> Dictionary:
 	return {"ok":true,"data":_file.get_buffer(CHUNK) if _file.get_position()<_file.get_length() else PackedByteArray()}
 
 func decode_from(expected_bytes: int, expected_hash: String, budget: Callable, source: Callable) -> Dictionary:
+	_reset()
+	if expected_bytes<0 or not HospitalSnapshots._valid_sha(expected_hash):
+		return {"ok":false,"error":"世界长度或哈希声明无效","value":{}}
 	_budget = budget
 	_source = source
 	_expected_bytes = expected_bytes
@@ -77,6 +81,14 @@ func decode_from(expected_bytes: int, expected_hash: String, budget: Callable, s
 		error = "世界根对象无效"
 	return {"ok":error.is_empty(),"error":error,"value":value if error.is_empty() else {}}
 
+func _reset() -> void:
+	error = ""
+	bytes = 0
+	digest = ""
+	_buffer = PackedByteArray()
+	_cursor = 0
+	_ended = false
+
 func _write_value(value: Variant, depth: int) -> void:
 	if not error.is_empty():
 		return
@@ -84,6 +96,10 @@ func _write_value(value: Variant, depth: int) -> void:
 		error = "JSON嵌套深度超过64"
 		return
 	if value is Dictionary:
+		for key: Variant in value:
+			if not (key is String or key is StringName):
+				error = "世界对象键必须是字符串"
+				return
 		_emit("{")
 		var keys: Array = value.keys()
 		keys.sort()
@@ -102,6 +118,11 @@ func _write_value(value: Variant, depth: int) -> void:
 			_write_value(value[index],depth+1)
 		_emit("]")
 	else:
+		if value is StringName:
+			value = str(value)
+		if not typeof(value) in [TYPE_NIL,TYPE_BOOL,TYPE_INT,TYPE_FLOAT,TYPE_STRING] or (value is float and not is_finite(value)):
+			error = "世界含有不能保存的值或平台句柄"
+			return
 		if value is String and value.to_utf8_buffer().size() > MAX_STRING:
 			error = "JSON字符串超过64KiB"
 			return
@@ -235,6 +256,9 @@ func _read_scalar() -> Variant:
 				error = "JSON标量格式无效"
 				return null
 	var source: String = raw.get_string_from_utf8()
+	if source.to_utf8_buffer()!=raw:
+		error = "JSON包含无效UTF-8"
+		return null
 	var parser: JSON = JSON.new()
 	if parser.parse(source) != OK:
 		error = "JSON标量无效"
