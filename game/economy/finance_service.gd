@@ -192,11 +192,8 @@ func operating_rate(world: WorldState) -> int:
 	for room: Dictionary in world.facts.rooms.values():
 		if room.get("under_construction",false):
 			continue
-		var origin: Array = room.get("origin",room.get("anchor",[0,0]))
-		var size: Array = room.get("size",[0,0])
-		for x: int in range(int(origin[0]),int(origin[0])+int(size[0])):
-			for y: int in range(int(origin[1]),int(origin[1])+int(size[1])):
-				cells["%s:%s:%s"%[room.floor_id,x,y]] = true
+		for cell: Array in BuildGeometry.cells(room):
+			cells["%s:%s:%s"%[room.floor_id,cell[0],cell[1]]] = true
 	# Source rates are expressed as twentieths of a coin per hospital day.
 	return roundi(float(content.balance.daily_base_cost)*20.0)+roundi(float(content.balance.daily_cost_per_station)*20.0)*stations+roundi(float(content.balance.daily_cost_per_indoor_cell)*20.0)*cells.size()
 

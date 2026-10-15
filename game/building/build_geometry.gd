@@ -22,6 +22,14 @@ static func cells(room: Dictionary) -> Array:
 			result.append([x,y])
 	return result
 
+static func room_walls(room: Dictionary) -> Array:
+	if room.has("wall_edges"):
+		return room.wall_edges
+	var occupied: Dictionary = {}
+	for cell: Array in cells(room):
+		occupied[Vector2i(int(cell[0]),int(cell[1]))] = true
+	return walls(occupied)
+
 static func shape(draft: Dictionary, minimum: Array) -> Dictionary:
 	var actual: Array = []
 	if draft.has("cells"):

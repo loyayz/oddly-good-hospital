@@ -256,6 +256,7 @@ func _acquire() -> void:
 		return
 	_snapshots = HospitalSnapshots.new(_content,_guard)
 	_library = HospitalLibrary.new(_content,_snapshots)
+	_library_panel.attach(_library,"")
 	_auto_deadline_ms = Time.get_ticks_msec()+roundi(float(_content.balance.save.autosave_real_seconds)*1000)
 	_hospital_ids = _snapshots.hospital_ids()
 	if _hospital_ids.is_empty():
@@ -278,6 +279,8 @@ func _acquire() -> void:
 			return
 		unavailable.append(_status.text)
 	_status.text = "医院资料需要恢复：\n"+"\n".join(unavailable)
+	_clock.text = "医院资料需要恢复"
+	_show_panel("library")
 
 func _gameplay_world(source: WorldState) -> WorldState:
 	if int(source.facts.get("gameplay_version",0))==1:
@@ -439,12 +442,13 @@ func _library_action(kind: String, payload: Dictionary) -> void:
 				_status.text = "正在保存，完成后可以管理医院资料。"
 				return
 			var result: Dictionary
+			var active_id: String = _simulation.world.hospital_id if _simulation!=null else ""
 			if kind=="trash":
-				result = _library.call("trash_hospital",payload.hospital_id,_simulation.world.hospital_id)
+				result = _library.call("trash_hospital",payload.hospital_id,active_id)
 			elif kind=="restore":
 				result = _library.call("restore_hospital",payload.hospital_id)
 			else:
-				result = _library.call("delete_slot",payload.hospital_id,payload.snapshot_id,_simulation.world.hospital_id)
+				result = _library.call("delete_slot",payload.hospital_id,payload.snapshot_id,active_id)
 			_status.text = "医院资料已更新。" if result.get("ok",false) else str(result.get("error","资料操作未完成。"))
 			_hospital_ids = _snapshots.hospital_ids()
 			_library_panel.refresh()
@@ -503,9 +507,13 @@ func _process(_delta: float) -> void:
 	var now: int = Time.get_ticks_usec()
 	var real_delta: float = float(now-_last_process_us)/1000000.0 if _last_process_us>0 else 0.0
 	_last_process_us = now
+	_poll_library_job()
+	if _snapshots!=null and _library_thread==null:
+		var receipt: Dictionary = _snapshots.poll()
+		if not receipt.is_empty():
+			_receipt(receipt)
 	if _simulation == null:
 		return
-	_poll_library_job()
 	for result: TickResult in _session.advance(real_delta):
 		for event: SimEvent in result.facts:
 			if event.kind=="command_rejected":
@@ -514,9 +522,6 @@ func _process(_delta: float) -> void:
 	if Time.get_ticks_msec()>=_details_deadline_ms:
 		_details_deadline_ms = Time.get_ticks_msec()+100
 		_update_details()
-	var receipt: Dictionary = _snapshots.poll()
-	if not receipt.is_empty():
-		_receipt(receipt)
 	if _library_thread==null and Time.get_ticks_msec()>=_auto_deadline_ms:
 		_auto_deadline_ms = Time.get_ticks_msec()+roundi(float(_content.balance.save.autosave_real_seconds)*1000)
 		if int(_simulation.world.facts.world_revision)>_saved_revision:
@@ -558,12 +563,20 @@ func _start_switch(target: String, snapshot_id: String = "", new_world: WorldSta
 		_status.text = "已有资料作业正在进行，请等待完成。"
 		return
 	_set_speed(0)
+	if _simulation==null:
+		_leave_operation = {"kind":"switch","id":HospitalSnapshots.uuid(),"source_session":"",
+			"origin_session":"",
+			"request_id":"","target_hospital_id":target,"target_snapshot_id":snapshot_id,
+			"stage":"source","new_world":new_world}
+		_prepare_switch_candidate()
+		return
 	_simulation.drain_commands()
 	var started: Dictionary = _begin_save("checkpoint","switch")
 	if not started.ok:
 		_status.text = started.error
 		return
 	_leave_operation = {"kind":"switch","id":HospitalSnapshots.uuid(),"source_session":_session.loading_session_id,
+		"origin_session":_session.loading_session_id,
 		"request_id":started.request.request_id,"target_hospital_id":target,"target_snapshot_id":snapshot_id,
 		"stage":"source","new_world":new_world}
 	_status.text = "原医院保持暂停，正在保存离院检查点…"
@@ -582,7 +595,7 @@ func _receipt(receipt: Dictionary) -> void:
 		if receipt.get(field)!=expected[field]:
 			return
 	_save_requests.erase(receipt.request_id)
-	if receipt.hospital_id == _simulation.world.facts.hospital_id and receipt.loading_session_id == _session.loading_session_id:
+	if _simulation!=null and receipt.hospital_id == _simulation.world.facts.hospital_id and receipt.loading_session_id == _session.loading_session_id:
 		if receipt.ok:
 			_saved_revision = maxi(_saved_revision,int(receipt.world_revision))
 			_status.text = "已保存。" + ("此后还有进展。" if int(_simulation.world.facts.world_revision)>_saved_revision else "")
@@ -590,13 +603,21 @@ func _receipt(receipt: Dictionary) -> void:
 			_status.text = "保存失败："+str(receipt.error)
 	if _leave_operation.is_empty() or receipt.request_id != _leave_operation.request_id or receipt.loading_session_id != _leave_operation.source_session:
 		return
+	if _leave_operation.has("origin_session") and (_session.loading_session_id if _session!=null else "")!=_leave_operation.origin_session:
+		return
+	if _leave_operation.get("stage","")=="source" and (_session==null or _session.loading_session_id!=_leave_operation.source_session):
+		return
 	if not receipt.ok:
+		_status.text = "资料提交失败，原资料保留："+str(receipt.get("error","请重试。"))
 		_leave_operation = {}
 		return
 	if _leave_operation.kind == "quit":
 		_guard.call("release")
 		get_tree().quit()
 		return
+	_prepare_switch_candidate()
+
+func _prepare_switch_candidate() -> void:
 	var target: String = _leave_operation.target_hospital_id
 	if _leave_operation.stage=="candidate":
 		_candidate = _leave_operation.new_world
@@ -611,7 +632,7 @@ func _receipt(receipt: Dictionary) -> void:
 		_leave_operation.request_id = created.request.request_id
 		_leave_operation.source_session = target_session
 		_leave_operation.stage = "candidate"
-		_status.text = "原医院已保存，正在提交新医院资料…"
+		_status.text = "正在提交新医院资料…" if _simulation==null else "原医院已保存，正在提交新医院资料…"
 		return
 	else:
 		var loaded: Dictionary = _library.call("continue_hospital",target,_leave_operation.target_snapshot_id)
@@ -641,8 +662,9 @@ func _receipt(receipt: Dictionary) -> void:
 		_candidate = null
 		_leave_operation = {}
 		return
-	_viewport.remove_child(_view)
-	_view.queue_free()
+	if _view!=null:
+		_viewport.remove_child(_view)
+		_view.queue_free()
 	_view = candidate_view
 	_view.visible = true
 	_observed_floor = target_floor

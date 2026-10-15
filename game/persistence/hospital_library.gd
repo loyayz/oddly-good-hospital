@@ -323,38 +323,59 @@ func _publish_import(source: WorldState) -> Dictionary:
 func _remap_hospital(value: Dictionary,old_id: String,new_id: String) -> Dictionary:
 	var ids: Dictionary = {old_id:new_id}
 	_collect_instance_ids(value,old_id,new_id,ids)
-	return _rewrite_ids(value,"",old_id,new_id,ids)
+	var rewritten: Dictionary = _rewrite_ids(value,"",old_id,new_id,ids)
+	# Rating deduplication keys concatenate two instance identities.
+	var state: Dictionary = value.get("departments",{})
+	if state.has("staff_consumed"):
+		var consumed: Dictionary = {}
+		var staff_ids: Array = value.get("staff",{}).keys()
+		staff_ids.sort_custom(func(a: String,b: String) -> bool: return a.length()>b.length())
+		for key: String in state.staff_consumed:
+			var mapped: String = key
+			for staff_id: String in staff_ids:
+				if key.begins_with(staff_id+":"):
+					var source_id: String = key.substr(staff_id.length()+1)
+					var mapped_source: String = new_id+source_id.substr(old_id.length()) if _hospital_prefix(source_id,old_id) else source_id
+					mapped = str(ids.get(staff_id,staff_id))+":"+mapped_source
+					break
+			consumed[mapped] = state.staff_consumed[key]
+		rewritten.departments.staff_consumed = consumed
+	return rewritten
 
-func _collect_instance_ids(value: Variant,old_id: String,new_id: String,ids: Dictionary,field: String = "") -> void:
+func _collect_instance_ids(value: Variant,old_id: String,new_id: String,ids: Dictionary,field: String = "",path: Array[String] = []) -> void:
 	if value is Dictionary:
 		if value.get("id") is String and _hospital_prefix(value.id,old_id):
 			ids[value.id] = new_id+str(value.id).substr(old_id.length())
 		for key: Variant in value:
-			if field in INSTANCE_KEY_MAPS and _hospital_prefix(str(key),old_id):
+			if (field in INSTANCE_KEY_MAPS or _typed_instance_map(path)) and _hospital_prefix(str(key),old_id):
 				ids[str(key)] = new_id+str(key).substr(old_id.length())
-			_collect_instance_ids(value[key],old_id,new_id,ids,str(key))
+			var child_path: Array[String] = path.duplicate()
+			child_path.append(str(key))
+			_collect_instance_ids(value[key],old_id,new_id,ids,str(key),child_path)
 	elif value is Array:
 		for element: Variant in value:
-			_collect_instance_ids(element,old_id,new_id,ids,field)
+			_collect_instance_ids(element,old_id,new_id,ids,field,path)
 	elif value is String and _instance_field(field) and _hospital_prefix(value,old_id):
 		ids[value] = new_id+str(value).substr(old_id.length())
 
-func _rewrite_ids(value: Variant,field: String,old_id: String,new_id: String,ids: Dictionary) -> Variant:
+func _rewrite_ids(value: Variant,field: String,old_id: String,new_id: String,ids: Dictionary,path: Array[String] = []) -> Variant:
 	if value is Dictionary:
 		var result: Dictionary = {}
 		for key: Variant in value:
 			var original: String = str(key)
 			var rewritten: String = original
-			if field in INSTANCE_KEY_MAPS or (value[key] is Dictionary and value[key].get("id")==original):
+			if field in INSTANCE_KEY_MAPS or _typed_instance_map(path) or (value[key] is Dictionary and value[key].get("id")==original):
 				rewritten = str(ids.get(original,original))
 			if value[key] is Dictionary and value[key].get("owner_id") is String and value[key].get("component") is String and original==str(value[key].owner_id)+":"+str(value[key].component):
 				rewritten = str(ids.get(value[key].owner_id,value[key].owner_id))+":"+str(value[key].component)
-			result[rewritten] = _rewrite_ids(value[key],original,old_id,new_id,ids)
+			var child_path: Array[String] = path.duplicate()
+			child_path.append(original)
+			result[rewritten] = _rewrite_ids(value[key],original,old_id,new_id,ids,child_path)
 		return result
 	if value is Array:
 		var result: Array = []
 		for element: Variant in value:
-			result.append(_rewrite_ids(element,field,old_id,new_id,ids))
+			result.append(_rewrite_ids(element,field,old_id,new_id,ids,path))
 		return result
 	if value is String:
 		if field=="hospital_id" and value==old_id:
@@ -362,6 +383,29 @@ func _rewrite_ids(value: Variant,field: String,old_id: String,new_id: String,ids
 		if _instance_field(field):
 			return ids.get(value,value)
 	return value
+
+static func _typed_instance_map(path: Array[String]) -> bool:
+	# These owners index by actor, visit, room, staff or completed training job.
+	# Other dictionaries (definitions, dates, cells and anger causes) retain their keys.
+	if path.is_empty():
+		return false
+	var owner: String = path[0]
+	var field: String = path.back()
+	if path.size()==1:
+		return owner in ["wait_departures","adaptations"]
+	if owner=="waiting_life" and path.size()==2:
+		return field in ["seats","needs","clocks"]
+	if owner=="departments":
+		return (path.size()==2 and field in ["room_focus","routes","guidance","experience","staff_jobs"]) or (path.size()==3 and path[1]=="staff_days") or (path.size()==4 and path[1]=="experience" and field in ["retired_tickets","started_services","completed_services","staff_names"])
+	if owner=="inventory" and path.size()==3 and path[1]=="shortage":
+		return field=="participants"
+	if owner=="staff_schedule" and path.size()==2:
+		return field=="handoffs"
+	if owner=="staff" and path.size()==3:
+		return field=="completed_courses"
+	if owner=="visits" and path.size()==3:
+		return field=="clinical_participants"
+	return owner in ["maintenance","environment"] and field=="contributions"
 
 static func _instance_field(field: String) -> bool:
 	return not field in DEFINITION_IDS and (field=="id" or field.ends_with("_id") or field.ends_with("_ids") or field in INSTANCE_ARRAYS)

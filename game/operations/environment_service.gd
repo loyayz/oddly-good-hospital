@@ -480,7 +480,7 @@ func _rectangle(facility: Dictionary) -> Rect2:
 
 func _room_at(world: WorldState, floor_id: int, cell: Array) -> String:
 	for room: Dictionary in world.facts.rooms.values():
-		if int(room.floor_id)==floor_id and Rect2(float(room.origin[0]),float(room.origin[1]),float(room.size[0]),float(room.size[1])).has_point(Vector2(float(cell[0]),float(cell[1]))):
+		if int(room.floor_id)==floor_id and BuildGeometry.contains(room,cell):
 			return str(room.id)
 	return ""
 
@@ -489,7 +489,32 @@ func _wall_edge(world: WorldState, floor_id: int, cell: Array, edge: String) -> 
 	if offset.is_empty():
 		return false
 	var other: Array = [int(cell[0])+int(offset[0]),int(cell[1])+int(offset[1])]
-	return other in world.facts.floors.overrides.get(str(floor_id),{}).get("blocked",[]) or not space.owned(world,floor_id,Vector2i(int(other[0]),int(other[1])))
+	return other in world.facts.floors.overrides.get(str(floor_id),{}).get("blocked",[]) or _wall_between(world,floor_id,cell,other)
+
+func _wall_between(world: WorldState, floor_id: int, first: Array, second: Array) -> bool:
+	if first==second:
+		return false
+	var horizontal: bool = int(first[1])!=int(second[1])
+	var axis: String = "x" if horizontal else "y"
+	var line: int = maxi(int(first[1]),int(second[1])) if horizontal else maxi(int(first[0]),int(second[0]))
+	var along: int = int(first[0]) if horizontal else int(first[1])
+	for room: Dictionary in world.facts.rooms.values():
+		if int(room.floor_id)!=floor_id:
+			continue
+		for wall: Dictionary in BuildGeometry.room_walls(room):
+			if wall.axis!=axis or int(wall.line)!=line or along<int(wall.low) or along>=int(wall.high):
+				continue
+			var opening: bool = false
+			for door: Dictionary in world.facts.floors.overrides.get(str(floor_id),{}).get("doors",[]):
+				var door_line: int = int(door.cell[1] if horizontal else door.cell[0])
+				var door_start: int = int(door.cell[0] if horizontal else door.cell[1])
+				var span: int = int(world.facts.adaptations.get(door.id,{}).get("span",door.span))
+				if door.room_id==room.id and door.axis==axis and door_line==line and along>=door_start and along<door_start+span:
+					opening = true
+					break
+			if not opening:
+				return true
+	return false
 
 func _cell_key(cell: Array) -> String:
 	return "%d:%d" % [int(cell[0]),int(cell[1])]
@@ -499,6 +524,8 @@ func _edge_open(world: WorldState, floor_id: int, first: Array, second: Array, n
 	if second in floor_data.get("blocked",[]):
 		return false
 	if not space.owned(world,floor_id,Vector2i(int(second[0]),int(second[1]))):
+		return false
+	if _wall_between(world,floor_id,first,second):
 		return false
 	if noise:
 		for facility: Dictionary in world.facts.facilities.values():
@@ -545,9 +572,17 @@ func environment_at(world: WorldState, floor_id: int, cell: Array, actor_id: Str
 		result.value += mini(int(rules.floor_cap),int(material.environment_value))
 		result.sources.append({"kind":"floor","id":floor_finish.material_id,"value":int(material.environment_value)})
 	var wall_value: int = 0
+	var wall_distance: int = range_cells+1
+	var wall_key: String = ""
 	for surface: Dictionary in surfaces.values():
-		if surface.surface=="wall" and int(surface.floor_id)==floor_id and positive.has(_cell_key(surface.cell)):
-			wall_value = maxi(wall_value,int(content.definition("renovation_materials",surface.material_id).environment_value))
+		if surface.surface!="wall" or int(surface.floor_id)!=floor_id or not positive.has(_cell_key(surface.cell)) or not _wall_edge(world,floor_id,surface.cell,str(surface.edge)):
+			continue
+		var distance: int = int(positive[_cell_key(surface.cell)])
+		var key: String = _surface_key(floor_id,surface.cell,"wall",str(surface.edge))
+		if distance<wall_distance or distance==wall_distance and (wall_key.is_empty() or key<wall_key):
+			wall_distance = distance
+			wall_key = key
+			wall_value = int(content.definition("renovation_materials",surface.material_id).environment_value)
 	result.value += mini(int(rules.wall_cap),wall_value)
 	var categories: Dictionary = {}
 	var light: bool = false

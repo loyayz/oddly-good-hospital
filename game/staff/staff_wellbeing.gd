@@ -408,18 +408,16 @@ func _tea_position(world: WorldState, staff_id: String) -> Dictionary:
 		var room: Dictionary = world.facts.rooms[room_id]
 		if not _is_staff_room(room):
 			continue
-		for y: int in range(int(room.origin[1]),int(room.origin[1])+int(room.size[1])):
-			for x: int in range(int(room.origin[0]),int(room.origin[0])+int(room.size[0])):
-				var target: Array = [x,y]
-				if not _tea_cell(world,staff_id,room,target):
-					continue
-				var route: Dictionary = space.route(world,staff_id,int(room.floor_id),target)
-				if not route.ok:
-					continue
-				var cost: float = _route_ticks(route)
-				if cost<shortest:
-					shortest = cost
-					best = {"floor_id":room.floor_id,"cell":target,"travel_ticks":cost}
+		for target: Array in BuildGeometry.cells(room):
+			if not _tea_cell(world,staff_id,room,target):
+				continue
+			var route: Dictionary = space.route(world,staff_id,int(room.floor_id),target)
+			if not route.ok:
+				continue
+			var cost: float = _route_ticks(route)
+			if cost<shortest:
+				shortest = cost
+				best = {"floor_id":room.floor_id,"cell":target,"travel_ticks":cost}
 	return best
 
 func _go_outside(world: WorldState, staff_id: String) -> void:
@@ -612,8 +610,7 @@ func _tea_cell(world: WorldState, staff_id: String, room: Dictionary, cell: Arra
 	actor.location = {"kind":"floor","floor_id":room.floor_id,"cell":cell}
 	actor.posture = "standing"
 	var area: Rect2 = space.body_rectangle(actor)
-	var interior: Rect2 = Rect2(float(room.origin[0]),float(room.origin[1]),float(room.size[0]),float(room.size[1]))
-	if not interior.encloses(area):
+	if not space.room_contains(room,area):
 		return false
 	for door: Dictionary in world.facts.floors.overrides[str(room.floor_id)].get("doors",[]):
 		if area.grow(1.0).has_point(Vector2(float(door.cell[0]),float(door.cell[1]))):

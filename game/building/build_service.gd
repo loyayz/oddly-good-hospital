@@ -217,7 +217,7 @@ func _add_door(world: WorldState, payload: Dictionary) -> Dictionary:
 	var low: int = int(cell[0] if axis=="x" else cell[1])
 	var line: int = int(cell[1] if axis=="x" else cell[0])
 	var on_wall: bool = false
-	for wall: Dictionary in _walls(room):
+	for wall: Dictionary in BuildGeometry.room_walls(room):
 		if wall.axis==axis and int(wall.line)==line and low>=int(wall.low) and low+span<=int(wall.high):
 			on_wall = true
 	if not on_wall:
@@ -655,14 +655,6 @@ func _door(world: WorldState, id: String) -> Dictionary:
 
 func _exists(world: WorldState, id: String) -> bool:
 	return world.facts.rooms.has(id) or world.facts.facilities.has(id) or not _door(world,id).is_empty()
-
-func _walls(room: Dictionary) -> Array:
-	if room.has("wall_edges"):
-		return room.wall_edges
-	var occupied: Dictionary = {}
-	for cell: Array in BuildGeometry.cells(room):
-		occupied[Vector2i(int(cell[0]),int(cell[1]))] = true
-	return BuildGeometry.walls(occupied)
 
 func _public_door(world: WorldState, room: Dictionary) -> String:
 	var floor_id: int = int(room.floor_id)

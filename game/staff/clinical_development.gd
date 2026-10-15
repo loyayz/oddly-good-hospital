@@ -4,6 +4,7 @@ extends RefCounted
 var content: HospitalContent
 var space: HospitalSpace
 var _worked: Dictionary = {}
+var _mentor_blocks: Dictionary = {}
 
 func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 	content = database
@@ -133,12 +134,13 @@ func preview(world: WorldState, staff_id: String, track: String = "", kind: Stri
 func dispatch(world: WorldState) -> void:
 	ensure(world)
 	_worked.clear()
+	_mentor_blocks.clear()
 	for id: String in world.ids("training_jobs"):
 		var job: Dictionary = world.facts.training_jobs[id]
 		if terminal(job):
 			continue
 		var staff: Dictionary = world.facts.staff[job.staff_id]
-		if not _training_window(staff) or safe_busy(world,job.staff_id) or staff.get("life_task",{}).get("phase","idle")!="idle":
+		if not _training_window(world,staff) or safe_busy(world,job.staff_id) or staff.get("life_task",{}).get("phase","idle")!="idle" or not staff.get("base_task",{}).is_empty():
 			_pause(world,job,"等待培训班或当前安全任务结束")
 			continue
 		staff.block_new_work = true
@@ -161,6 +163,7 @@ func dispatch(world: WorldState) -> void:
 			continue
 		var desk: Dictionary = space.facility_layout(world,job.desk_id)
 		if not space.at(world,job.staff_id,int(desk.floor_id),_operator(desk)):
+			job.erase("work_segment")
 			job.state = "travelling"
 			job.reason = space.request_move(world,job.staff_id,int(desk.floor_id),_operator(desk))
 			continue
@@ -168,13 +171,15 @@ func dispatch(world: WorldState) -> void:
 		job.reason = ""
 		if not str(job.mentor_id).is_empty() and _mentor_available(world,job):
 			var adjacent: Array = [int(_operator(desk)[0])+space.clearance(world.facts.actors[job.staff_id]),int(_operator(desk)[1])]
+			if not space.route(world,job.mentor_id,int(desk.floor_id),adjacent).ok:
+				continue
+			_mentor_blocks[job.mentor_id] = job.id
+			world.facts.staff[job.mentor_id].block_new_work = true
 			if not space.at(world,job.mentor_id,int(desk.floor_id),adjacent):
 				space.request_move(world,job.mentor_id,int(desk.floor_id),adjacent)
-			else:
-				world.facts.staff[job.mentor_id].block_new_work = true
 	for staff_id: String in world.ids("staff"):
 		var staff: Dictionary = world.facts.staff[staff_id]
-		if not staff.role in ["doctor","nurse"] or (not str(staff.get("training_job_id","")).is_empty() and _training_window(staff)):
+		if not staff.role in ["doctor","nurse"] or _mentor_blocks.has(staff_id) or (not str(staff.get("training_job_id","")).is_empty() and _training_window(world,staff)):
 			continue
 		_prepare_base(world,staff_id,staff)
 
@@ -182,14 +187,31 @@ func advance(world: WorldState) -> void:
 	for job: Dictionary in world.facts.get("training_jobs",{}).values():
 		if job.state!="working" or not world.facts.facilities.has(job.desk_id) or world.facts.facilities[job.desk_id].failed:
 			continue
-		var rate: int = 1000
+		if not _training_window(world,world.facts.staff[job.staff_id]) or safe_busy(world,job.staff_id) or world.facts.staff[job.staff_id].get("life_task",{}).get("phase","idle")!="idle" or not world.facts.staff[job.staff_id].get("base_task",{}).is_empty():
+			_pause(world,job,"等待培训班或当前安全任务结束")
+			continue
+		var mentor_present: bool = false
+		var student_desk: Dictionary = space.facility_layout(world,job.desk_id)
+		if not space.at(world,job.staff_id,int(student_desk.floor_id),_operator(student_desk)):
+			_pause(world,job,"学员离开研究桌，培养余量保留")
+			continue
 		if _mentor_available(world,job):
 			var desk: Dictionary = space.facility_layout(world,job.desk_id)
 			var adjacent: Array = [int(_operator(desk)[0])+space.clearance(world.facts.actors[job.staff_id]),int(_operator(desk)[1])]
-			if space.at(world,job.mentor_id,int(desk.floor_id),adjacent):
-				rate = roundi(1000.0/float(content.balance.doctor_training.mentor_time_multiplier))
+			if space.at(world,job.mentor_id,int(desk.floor_id),adjacent) and space.route(world,job.mentor_id,int(desk.floor_id),adjacent).ok:
+				mentor_present = true
 				_worked[job.mentor_id] = true
-		job.remaining_work_milli = maxi(0,int(job.remaining_work_milli)-rate)
+		var segment_mentor: String = str(job.mentor_id) if mentor_present else ""
+		if not job.has("work_segment") or str(job.work_segment.mentor_id)!=segment_mentor:
+			var solo: float = 1.0/_fatigue_multiplier(world.facts.staff[job.staff_id])
+			var rate: float = solo
+			if mentor_present:
+				rate += 0.25*minf(solo,1.0/_fatigue_multiplier(world.facts.staff[job.mentor_id]))
+			job.work_segment = {"mentor_id":segment_mentor,"rate_milli":1000.0*rate}
+		var work: float = float(job.work_segment.rate_milli)+float(job.get("work_fraction_milli",0.0))
+		var whole: int = floori(work)
+		job.work_fraction_milli = work-float(whole)
+		job.remaining_work_milli = maxi(0,int(job.remaining_work_milli)-whole)
 		_worked[job.staff_id] = true
 	for staff_id: String in world.ids("staff"):
 		var staff: Dictionary = world.facts.staff[staff_id]
@@ -255,6 +277,14 @@ func validate(world: WorldState) -> String:
 			return "培养学员、导师或研究桌字段类型无效"
 		if not job.get("remaining_work_milli") is int or not job.get("total_work_milli") is int or int(job.remaining_work_milli)<0 or int(job.remaining_work_milli)>int(job.total_work_milli) or int(job.total_work_milli)<=0:
 			return "培养工时余量无效"
+		if job.has("work_fraction_milli") and (not (job.work_fraction_milli is float or job.work_fraction_milli is int) or not is_finite(float(job.work_fraction_milli)) or float(job.work_fraction_milli)<0.0 or float(job.work_fraction_milli)>=1.0):
+			return "培养工时小数无效"
+		if job.has("work_segment"):
+			var segment: Variant = job.work_segment
+			if not segment is Dictionary or not segment.get("mentor_id") is String or not (segment.get("rate_milli") is float or segment.get("rate_milli") is int) or not is_finite(float(segment.rate_milli)) or float(segment.rate_milli)<=0.0 or float(segment.rate_milli)>1250.0:
+				return "培养工作段无效"
+			if not str(segment.mentor_id).is_empty() and (segment.mentor_id!=job.get("mentor_id","") or not world.facts.staff.has(segment.mentor_id)):
+				return "培养工作段导师引用无效"
 		if not job.get("state") in ["waiting","paused","travelling","working","completed","cancelled","superseded"] or not job.get("cost") is int or int(job.cost)<0:
 			return "培养终态或费用无效"
 		if not str(job.get("mentor_id","")).is_empty() and not world.facts.staff.has(job.mentor_id):
@@ -335,8 +365,13 @@ func _prepare_base(world: WorldState, staff_id: String, staff: Dictionary) -> vo
 	else:
 		staff.growth_reason = space.request_move(world,staff_id,int(base.floor_id),_operator(base))
 
-func _training_window(staff: Dictionary) -> bool:
-	return bool(staff.get("on_shift",true)) and staff.get("scheduled_kind","training")=="training" and not staff.get("supply_strike",false)
+func _training_window(world: WorldState, staff: Dictionary) -> bool:
+	var leave: Dictionary = staff.get("leave_plan",{})
+	var leave_due: bool = not leave.is_empty() and world.sim_tick>=int(leave.get("requested_start_tick",0))
+	return bool(staff.get("on_shift",false)) and staff.get("scheduled_kind","")=="training" and not staff.get("supply_strike",false) and float(staff.get("energy",0))>float(content.balance.wellbeing.recreation_max_energy_priority) and (staff.role!="doctor" or float(staff.get("fatigue",0))<float(content.balance.wellbeing.fatigue_stop_new_work)) and not staff.get("rest_obligation",false) and int(staff.get("sleep_remaining_ticks",0))==0 and int(staff.get("rest_debt_ticks",0))==0 and not leave_due
+
+func _fatigue_multiplier(staff: Dictionary) -> float:
+	return 1.0+float(content.balance.wellbeing.fatigue_work_multiplier_per_point)*float(staff.get("fatigue",0)) if staff.role=="doctor" else 1.0
 
 func _desks(world: WorldState) -> Array:
 	var result: Array = []
@@ -376,7 +411,11 @@ func _mentor_available(world: WorldState, job: Dictionary) -> bool:
 	if str(job.get("mentor_id","")).is_empty() or not _mentor_qualified(world,job.staff_id,job.mentor_id,job.track):
 		return false
 	var mentor: Dictionary = world.facts.staff[job.mentor_id]
-	return bool(mentor.on_shift) and not safe_busy(world,job.mentor_id) and str(mentor.get("training_job_id","")).is_empty() and mentor.get("life_task",{}).get("phase","idle")=="idle"
+	if mentor.get("block_new_work",false) and _mentor_blocks.get(job.mentor_id,"")!=job.id:
+		return false
+	if _mentor_blocks.has(job.mentor_id) and _mentor_blocks[job.mentor_id]!=job.id:
+		return false
+	return _training_window(world,mentor) and not safe_busy(world,job.mentor_id) and str(mentor.get("training_job_id","")).is_empty() and mentor.get("life_task",{}).get("phase","idle")=="idle" and mentor.get("base_task",{}).is_empty()
 
 func _next_title(staff: Dictionary) -> Dictionary:
 	for title: Dictionary in content.catalog.doctor_titles:
@@ -388,6 +427,7 @@ func _pause(_world: WorldState, job: Dictionary, reason: String) -> void:
 	job.state = "paused"
 	job.reason = reason
 	job.desk_id = ""
+	job.erase("work_segment")
 
 func _finish(world: WorldState, job: Dictionary, state: String) -> void:
 	job.state = state
@@ -402,7 +442,8 @@ func _finish(world: WorldState, job: Dictionary, state: String) -> void:
 func _finish_cancel(world: WorldState, job: Dictionary, state: String) -> void:
 	if terminal(job):
 		return
-	var refund: int = int(job.cost)*int(job.remaining_work_milli)/int(job.total_work_milli)
+	var numerator: int = maxi(0,int(job.cost)*int(job.remaining_work_milli)-ceili(float(job.cost)*float(job.get("work_fraction_milli",0.0))))
+	var refund: int = numerator/int(job.total_work_milli)
 	HospitalLedger.post(world,LedgerEntry.new(job.id,"training_refund",refund))
 	job.refund = refund
 	_finish(world,job,state)
