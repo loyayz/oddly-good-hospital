@@ -30,6 +30,7 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 	_register_service("supplies",HospitalSupplies.new(database,space),["set_auto_restock","supply_auto","purchase_supplies","supply_purchase","supply_aid"])
 	_register_service("environment",HospitalEnvironment.new(database,space),["renovate","renovation_order","renovation_pause","renovation_resume","renovation_cancel","cleanup_pin"])
 	_register_service("maintenance",HospitalMaintenance.new(database,space),["maintenance_policy","maintenance_order","maintenance_pin","maintenance_pause","maintenance_resume","maintenance_cancel","machine_upgrade","upgrade_order","upgrade_pause","upgrade_resume","upgrade_cancel","upgrade_abandon"])
+	_register_service("departments",HospitalDepartments.new(database,space),["department_create","department_configure","department_rename","department_set_open","department_set_focus"])
 	if _production():
 		clinic.scheduler = services.scheduler
 		clinic.waiting_life = services.waiting
@@ -37,6 +38,10 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 		clinic.environment = services.environment
 		services.waiting.environment = services.environment
 		services.environment.waiting_life = services.waiting
+		clinic.departments = services.departments
+		services.departments.clinic = clinic
+		services.departments.waiting_life = services.waiting
+		services.departments.environment = services.environment
 	_ensure_services()
 
 func _ensure_services() -> void:
@@ -63,6 +68,14 @@ func dispose() -> void:
 		services.waiting.environment = null
 	if services.has("environment"):
 		services.environment.waiting_life = null
+	if clinic!=null:
+		clinic.departments = null
+	if services.has("departments"):
+		services.departments.clinic = null
+	if services.has("departments"):
+		services.departments.waiting_life = null
+	if services.has("departments"):
+		services.departments.environment = null
 	_business_handlers.clear()
 	services.clear()
 
@@ -159,6 +172,7 @@ func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickRe
 		services.scheduler.dispatch(world)
 		services.development.dispatch(world)
 		services.waiting.dispatch(world)
+		services.departments.dispatch(world)
 		services.environment.dispatch(world)
 		services.maintenance.dispatch(world)
 	clinic.dispatch(world)
@@ -177,15 +191,18 @@ func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickRe
 		services.scheduler.advance(world)
 		services.environment.advance(world)
 		services.maintenance.advance(world)
+		services.departments.advance(world)
 	if _production(): # 7: integrate each real work/movement source once.
 		var worked: Dictionary = clinic.worked_staff()
 		worked.merge(services.development.worked_staff(),true)
 		worked.merge(services.scheduler.worked_staff(),true)
 		worked.merge(services.environment.worked_staff(),true)
 		worked.merge(services.maintenance.worked_staff(),true)
+		worked.merge(services.departments.worked_staff(),true)
 		services.wellbeing.advance(world,worked,before_movement)
 		services.waiting.advance(world)
 		services.supplies.advance(world)
+		services.departments.sample(world)
 	else:
 		_integrate_staff(before_movement)
 	# 8: interaction consequences precede settlement.
@@ -193,6 +210,7 @@ func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickRe
 	clinic.settle_practice(world)
 	if _production():
 		services.development.settle(world)
+		services.departments.settle(world)
 	var events: Array[SimEvent] = _command_events
 	_command_events = []
 	events.append_array(clinic.take_events())

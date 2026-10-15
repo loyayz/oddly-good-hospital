@@ -215,6 +215,7 @@ func _build_ui() -> void:
 	environment_panel.heatmap_requested.connect(_show_environment_heatmap)
 	_add_management_panel("environment","环境与装修",environment_panel)
 	_add_management_panel("maintenance","维护与升级",HospitalMaintenancePanel.new())
+	_add_management_panel("departments","科室与体验",HospitalDepartmentsPanel.new())
 	_status = Label.new()
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_status.add_theme_color_override("font_color",Palette.MUTED_INK)
