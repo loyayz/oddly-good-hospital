@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="design-source-sha256" content="a5add04c3201f67b37e9f176bc4fc21b76b1f5f78e119534f68cbc9405e92a67">
+<meta name="design-source-sha256" content="fd6f394b48967bb1dbe1a3865ed439eb704445723708c6db1d673d936da803cb">
 <title>怪好的医院 · Oddly Good Hospital · 产品设计方案</title>
 <style>
 :root{color-scheme:light;--ink:#293d60;--muted:#53657f;--blue:#3b5f92;--paper:#fffdf7;--line:#d6deeb}
@@ -10737,10 +10737,10 @@ python -X utf8 tools/report-kernel.py --input .cache/validation/stage03/local-ke
 <p><strong>阶段目标：</strong> 所有合法身体能在已建院区移动、排队和使用设施。</p>
 <h3 id="implementation--section-41">工作步骤</h3>
 <ul class="contains-task-list">
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>9.1 完成真实通行包络。</strong> 基础身体与症状的宽深高、1/2/3格足迹、门自动展开及两侧空间一致；相同格数但不同高度仍按真实包络检查。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>9.2 完成全院移动请求。</strong> 按真实人数额度执行FIFO，层内四邻图按完整包络与修订查询，完整/部分/无路结果和缓存驱逐保持原结果与顺序。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>9.3 完成局部争用和设施预约。</strong> 交汇让路、软代价、站位、真实伸展、操作/维修锚点与释放时机统一，预览不占Actor移动队列。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>9.4 验证动态几何和保存。</strong> 局部脏桶更新相关图，活动路线只复核相关变化；格间移动与请求顺序读档恢复，未知/不完整安全查询不放行。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>9.1 完成真实通行包络。</strong> 基础身体与症状的宽深高、1/2/3格足迹、门自动展开及两侧空间一致；相同格数但不同高度仍按真实包络检查。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>9.2 完成全院移动请求。</strong> 按真实人数额度执行FIFO，层内四邻图按完整包络与修订查询，完整/部分/无路结果和缓存驱逐保持原结果与顺序。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>9.3 完成局部争用和设施预约。</strong> 交汇让路、软代价、站位、真实伸展、操作/维修锚点与释放时机统一，预览不占Actor移动队列。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>9.4 验证动态几何和保存。</strong> 局部脏桶更新相关图，活动路线只复核相关变化；格间移动与请求顺序读档恢复，未知/不完整安全查询不放行。</li>
 </ul>
 <h3 id="implementation--section-42">成果与通过条件</h3>
 <p>所有合法身体能在已建院区移动、排队和使用设施。 普通、微观、巨型、瘦高和症状增大身体穿门、交汇、受阻和改道正确；没有永久卡路或重复占位。</p>
@@ -12117,6 +12117,11 @@ pwsh -NoProfile -File tools/prepare-kernel-benchmark.ps1
 <td>08</td>
 <td>完成</td>
 <td>97项房型、L形内格、真实库存、报价付款、退款、条件撤销及分片预览规则通过；支持场景定位/拖框及完整结论前禁止确认。</td>
+</tr>
+<tr>
+<td>09</td>
+<td>完成</td>
+<td>五类身体、动态/L形几何、生活设施、睡眠包络、实际出口及保存通行规则通过；55项既有导航规则回归通过。</td>
 </tr>
 </tbody>
 </table></div>

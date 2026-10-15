@@ -14,9 +14,12 @@ var _members: Array[Dictionary] = []
 var _walls: Array[Dictionary] = []
 var _dependencies: Dictionary = {}
 var _plain: bool = false
+var _height_m: float = 0.0
 
 func _init(space: HospitalSpace, world: WorldState, actor: Dictionary, floor_id: int, members: Array = [], offsets: Dictionary = {}, include_reservations: bool = true, floor_source: Dictionary = {}) -> void:
 	_size = space.clearance(actor)
+	var body: Dictionary = space.body(actor)
+	_height_m = float(body.depth_m if actor.get("posture","standing")=="lying" else body.height_m)
 	source = capture_source(space,world,floor_id) if floor_source.is_empty() else floor_source
 	for member_id: String in members:
 		if member_id!=actor.id:
@@ -27,6 +30,7 @@ func _init(space: HospitalSpace, world: WorldState, actor: Dictionary, floor_id:
 		var cell: Vector2i = Vector2i(int(plot[0]),int(plot[1]))
 		_plots[cell] = true
 		_dependencies["plot:"+str(cell)] = {"rect":Rect2i(cell*32,Vector2i(32,32)),"value":true}
+		_dependencies["height:"+str(cell)] = {"rect":Rect2i(cell*32,Vector2i(32,32)),"value":source.height}
 	for cell: Array in layout.get("blocked",[]):
 		var point: Vector2i = Vector2i(int(cell[0]),int(cell[1]))
 		_blocked[point] = true
@@ -73,6 +77,8 @@ func _plain_geometry() -> bool:
 	return _members.is_empty() and _blocked.is_empty() and _doors.is_empty() and _facilities.is_empty() and _connectors.is_empty() and _reservations.is_empty() and _walls.is_empty()
 
 func reason(origin: Vector2i) -> String:
+	if _height_m>float(source.height):
+		return "真实身体超过本层实际净高"
 	for member: Dictionary in _members:
 		var result: String = member.query.position_reason(Vector2(origin)+member.offset)
 		if not result.is_empty():
@@ -128,6 +134,8 @@ func position_reason(origin: Vector2) -> String:
 	return ""
 
 func sweep_reason(from: Vector2, to: Vector2) -> String:
+	if _height_m>float(source.height):
+		return "真实身体超过本层实际净高"
 	if _plain:
 		var low: Vector2i = Vector2i(floori(minf(from.x,to.x)/32.0),floori(minf(from.y,to.y)/32.0))
 		var high: Vector2i = Vector2i(floori(float(ceili(maxf(from.x,to.x))+_size-1)/32.0),floori(float(ceili(maxf(from.y,to.y))+_size-1)/32.0))
@@ -215,7 +223,14 @@ func dirty_regions(previous: RouteClearance) -> Array[Rect2i]:
 	return result
 
 static func capture_source(space: HospitalSpace, world: WorldState, floor_id: int) -> Dictionary:
-	var result: Dictionary = {"layout":world.facts.floors.overrides.get(str(floor_id),{}).duplicate(true),"rooms":{},"facilities":{},"connectors":{},"height":0.0}
+	var layout: Dictionary = world.facts.floors.overrides.get(str(floor_id),{})
+	var source_layout: Dictionary = {"plots":layout.get("plots",[]).duplicate(true),"blocked":layout.get("blocked",[]).duplicate(true),"doors":[]}
+	for door: Dictionary in layout.get("doors",[]):
+		var shape: Dictionary = {}
+		for field: String in ["id","definition_id","cell","span","axis","room_id"]:
+			shape[field] = door[field].duplicate() if door[field] is Array else door[field]
+		source_layout.doors.append(shape)
+	var result: Dictionary = {"layout":source_layout,"rooms":{},"facilities":{},"connectors":{},"height":0.0,"occupancy":[]}
 	for id: String in world.ids("rooms"):
 		var room: Dictionary = world.facts.rooms[id]
 		if int(room.floor_id)==floor_id:
@@ -225,7 +240,7 @@ static func capture_source(space: HospitalSpace, world: WorldState, floor_id: in
 					result.rooms[id][field] = room[field].duplicate(true)
 	for id: String in world.ids("facilities"):
 		var facility: Dictionary = world.facts.facilities[id]
-		if int(facility.floor_id)==floor_id:
+		if int(facility.floor_id)==floor_id and space.content.facility_definition(facility.definition_id).get("blocks_movement",true):
 			result.facilities[id] = {"cell":facility.cell.duplicate(),"footprint":space.facility_layout(world,id).footprint.duplicate()}
 	for id: String in world.ids("connectors"):
 		var connector: Dictionary = world.facts.connectors[id]
@@ -234,4 +249,8 @@ static func capture_source(space: HospitalSpace, world: WorldState, floor_id: in
 	for interval: Dictionary in world.facts.floors.height_intervals:
 		if floor_id>=int(interval.first) and floor_id<=int(interval.last):
 			result.height = interval.height_m
+	for id: String in world.ids("adaptations"):
+		var reservation: Dictionary = world.facts.adaptations[id]
+		if reservation.kind=="facility" and int(reservation.floor_id)==floor_id:
+			result.occupancy.append([id,reservation.actor_id,reservation.get("staff_ids",[]).duplicate(),reservation.regions.duplicate(true)])
 	return result

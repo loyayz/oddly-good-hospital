@@ -123,14 +123,18 @@ func _populate() -> void:
 		var seen: Dictionary = {}
 		for collection: String in ["machines","clinical_equipment","furniture_equipment","service_equipment","accessibility_equipment","staff_recreation_equipment"]:
 			for item: Variant in database.catalog.get(collection,[]):
-				if item is Dictionary and item.has("id") and not seen.has(item.id):
-					var definition: Dictionary = database.facility_definition(item.id)
+				if item is Dictionary:
+					var identifier: String = str(item.get("id",item.get("definition_id","")))
+					if identifier.is_empty() or seen.has(identifier):
+						continue
+					var definition: Dictionary = database.facility_definition(identifier)
 					if not definition.is_empty():
 						definitions.append(definition)
-						seen[item.id] = true
+						seen[identifier] = true
 	for definition: Dictionary in definitions:
-		_definition.add_item(str(definition.get("name",definition.get("id","设施"))))
-		_definition.set_item_metadata(_definition.item_count-1,definition.id)
+		var identifier: String = str(definition.get("id",definition.get("definition_id","")))
+		_definition.add_item(str(definition.get("name",identifier)))
+		_definition.set_item_metadata(_definition.item_count-1,identifier)
 	for collection: String in ["rooms","facilities"]:
 		for id: String in simulation.world.ids(collection):
 			var record: Dictionary = simulation.world.facts[collection][id]

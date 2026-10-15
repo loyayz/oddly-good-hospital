@@ -433,15 +433,14 @@ func _group_graph_equivalence(content: HospitalContent) -> void:
 		reference = FloorNavigation.new(query).find_path(Vector2i(8,16),Vector2i(20,20),query,Callable(),true)
 		_check("group_graph_local_repair_and_partial_equivalence_"+str(index),repaired.status=="partial" and repaired==reference)
 		if index==0:
-			var original_target: int = int(content.balance.pathfinding.graph_cache_target_bytes)
-			content.balance.pathfinding.graph_cache_target_bytes = 1
 			world.facts.floors.overrides["1"].blocked.clear()
 			world.touch()
 			query = RouteClearance.new(space,world,leader,1,members,offsets,false)
-			var evicted: Dictionary = _cached_group_path(space,world,leader,members,offsets,query)
+			var borrowed: Dictionary = space._navigation.query_graphs(space,world,1,leader,members,offsets)
+			space._navigation._trim(1)
+			var evicted: Dictionary = (borrowed.graph as FloorNavigation).find_path(Vector2i(8,16),Vector2i(20,20),query,Callable(),false,borrowed.bases,borrowed.shifts)
 			reference = FloorNavigation.new(query).find_path(Vector2i(8,16),Vector2i(20,20),query)
 			_check("borrowed_group_eviction_preserves_path_and_capacity_charge",evicted.ok and evicted==reference and space._navigation._charged==0 and space._navigation._entries.is_empty())
-			content.balance.pathfinding.graph_cache_target_bytes = original_target
 			var solo_query: RouteClearance = RouteClearance.new(space,world,leader,1,[],{},false)
 			var solo: FloorNavigation = space._navigation.graph(space,world,1,leader,[],{})
 			var solo_path: Dictionary = solo.find_path(Vector2i(0,16),Vector2i(20,20),solo_query)

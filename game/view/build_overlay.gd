@@ -31,8 +31,8 @@ func show_preview(draft: Dictionary, result: Dictionary, floor_id: int) -> void:
 		color = Color("b85550")
 	for cell: Array in cells:
 		lines.surface_set_color(Color("b85550") if cell in result.get("blocked_cells",[]) else color)
-		var x: float = float(cell[0])*HospitalSpace.CELL_METERS
-		var z: float = float(cell[1])*HospitalSpace.CELL_METERS
+		var x: float = (float(cell[0])-32.0)*HospitalSpace.CELL_METERS
+		var z: float = (float(cell[1])-64.0)*HospitalSpace.CELL_METERS
 		var d: float = HospitalSpace.CELL_METERS
 		var points: Array[Vector3] = [Vector3(x,0.06,z),Vector3(x+d,0.06,z),Vector3(x+d,0.06,z+d),Vector3(x,0.06,z+d)]
 		for i: int in 4:
