@@ -580,7 +580,7 @@ func facility_quote(world: WorldState, facility_id: String, actor_id: String, st
 			for cy: int in range(int(area[1]),int(area[1])+int(area[3])):
 				if not owned(world,int(facility.floor_id),Vector2i(cx,cy)) or [cx,cy] in world.facts.floors.overrides[str(facility.floor_id)].blocked:
 					return {"ok":false,"reason":"展开或退出区域受墙、地块阻挡：%d,%d" % [cx,cy]}
-		if not room.is_empty() and not Rect2(float(room.origin[0]),float(room.origin[1]),float(room.size[0]),float(room.size[1])).encloses(rect):
+		if not room.is_empty() and not room_contains(room,rect):
 			return {"ok":false,"reason":"展开、岗位或出口超出本房间"}
 		for other: Dictionary in world.facts.facilities.values():
 			if other.id!=facility_id and int(other.floor_id)==int(facility.floor_id):
@@ -604,6 +604,15 @@ func facility_quote(world: WorldState, facility_id: String, actor_id: String, st
 		if _floor_route(world,other,int(facility.floor_id),start,exit,[],{},true).ok and not _floor_route(candidate,other,int(facility.floor_id),start,exit,[],{},true).ok:
 			return {"ok":false,"reason":"展开会切断在院角色的安全出口："+str(other.id)}
 	return quote
+
+func room_contains(room: Dictionary, rect: Rect2) -> bool:
+	if not room.has("cells"):
+		return Rect2(float(room.origin[0]),float(room.origin[1]),float(room.size[0]),float(room.size[1])).encloses(rect)
+	for x: int in range(floori(rect.position.x),ceili(rect.end.x)):
+		for y: int in range(floori(rect.position.y),ceili(rect.end.y)):
+			if not [x,y] in room.cells:
+				return false
+	return true
 
 func reserve_facility(world: WorldState, facility_id: String, actor_id: String, owner_id: String, staff_ids: Array = []) -> String:
 	var current: Dictionary = world.facts.adaptations.get(facility_id,{})
@@ -652,7 +661,15 @@ func door_quote(world: WorldState, actor: Dictionary, floor_id: int, door: Dicti
 		return {"ok":false,"reason":"门缺少实际连续墙段"}
 	var opening: Rect2 = _door_rect(door,span)
 	var along: int = 0 if door.axis=="x" else 1
-	if int(door.cell[along])<int(room.origin[along]) or int(door.cell[along])+span>int(room.origin[along])+int(room.size[along]):
+	var continuous: bool = false
+	if room.has("wall_edges"):
+		var door_line: int = int(door.cell[1-along])
+		for edge: Dictionary in room.wall_edges:
+			if edge.axis==door.axis and int(edge.line)==door_line and int(edge.low)<=int(door.cell[along]) and int(edge.high)>=int(door.cell[along])+span:
+				continuous = true
+	else:
+		continuous = int(door.cell[along])>=int(room.origin[along]) and int(door.cell[along])+span<=int(room.origin[along])+int(room.size[along])
+	if not continuous:
 		return {"ok":false,"reason":"门展开越过连续墙段或墙角"}
 	for other: Dictionary in world.facts.floors.overrides[str(floor_id)].doors:
 		if other.id!=door.id and opening.intersects(_door_rect(other,int(other.span)),false):
@@ -662,7 +679,8 @@ func door_quote(world: WorldState, actor: Dictionary, floor_id: int, door: Dicti
 			return {"ok":false,"reason":"门展开区域有实际设施"}
 	var k: int = clearance(actor)
 	var before: Rect2 = Rect2(opening.position-Vector2(0,k),Vector2(span,k)) if door.axis=="x" else Rect2(opening.position-Vector2(k,0),Vector2(k,span))
-	var after: Rect2 = Rect2(opening.position+Vector2(0,1),Vector2(span,k)) if door.axis=="x" else Rect2(opening.position+Vector2(1,0),Vector2(k,span))
+	var wall_depth: int = 0 if room.has("wall_edges") else 1
+	var after: Rect2 = Rect2(opening.position+Vector2(0,wall_depth),Vector2(span,k)) if door.axis=="x" else Rect2(opening.position+Vector2(wall_depth,0),Vector2(k,span))
 	for side: Rect2 in [before,after]:
 		for cx: int in range(int(side.position.x),int(side.end.x)):
 			for cy: int in range(int(side.position.y),int(side.end.y)):

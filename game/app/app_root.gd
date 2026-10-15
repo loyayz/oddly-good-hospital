@@ -33,6 +33,12 @@ var _library_panel: HospitalLibraryPanel
 var _library_thread: Thread
 var _library_job: Dictionary = {}
 var _file_dialog: FileDialog
+var _panel_picker: OptionButton
+var _management_scroll: ScrollContainer
+var _management_panels: VBoxContainer
+var _build_panel: HospitalBuildPanel
+var _build_overlay: HospitalBuildOverlay
+var _build_drag_start: Array = []
 
 func _ready() -> void:
 	get_tree().auto_accept_quit = false
@@ -125,6 +131,7 @@ func _build_ui() -> void:
 		_button(str(speed)+"×",_set_speed.bind(speed))
 	_button("保存",_save,true)
 	_button("医院资料库",_toggle_library)
+	_button("建造布置",func() -> void: _show_panel("building"))
 	_button("切换医院",_switch_hospital)
 	_button("取消切院",_cancel_switch)
 	_button("1F",_change_floor.bind(1))
@@ -162,6 +169,12 @@ func _build_ui() -> void:
 	_details.add_theme_color_override("default_color",Palette.INK)
 	var side: VBoxContainer = VBoxContainer.new()
 	panel.add_child(side)
+	_panel_picker = OptionButton.new()
+	for entry: Array in [["院内情况","details"],["医院资料库","library"]]:
+		_panel_picker.add_item(entry[0])
+		_panel_picker.set_item_metadata(_panel_picker.item_count-1,entry[1])
+	_panel_picker.item_selected.connect(func(index: int) -> void: _show_panel(str(_panel_picker.get_item_metadata(index))))
+	side.add_child(_panel_picker)
 	_details.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	side.add_child(_details)
 	_library_panel = HospitalLibraryPanel.new()
@@ -169,6 +182,17 @@ func _build_ui() -> void:
 	_library_panel.visible = false
 	_library_panel.action_requested.connect(_library_action)
 	side.add_child(_library_panel)
+	_management_scroll = ScrollContainer.new()
+	_management_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_management_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_management_scroll.visible = false
+	side.add_child(_management_scroll)
+	_management_panels = VBoxContainer.new()
+	_management_panels.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_management_scroll.add_child(_management_panels)
+	_build_panel = HospitalBuildPanel.new()
+	_build_panel.preview_changed.connect(_show_build_preview)
+	_add_management_panel("building","建造与布置",_build_panel)
 	_status = Label.new()
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_status.add_theme_color_override("font_color",Palette.MUTED_INK)
@@ -252,6 +276,7 @@ func _activate(world: WorldState, restored: bool = false) -> bool:
 		_session.pause("focus")
 	_saved_revision = int(world.facts.world_revision) if restored else -1
 	_library_panel.attach(_library,world.hospital_id)
+	_bind_management_panels()
 	return true
 
 func _restore_older(hospital_id: String, snapshot_id: String) -> void:
@@ -263,10 +288,59 @@ func _restore_older(hospital_id: String, snapshot_id: String) -> void:
 		_status.text = "已恢复上一有效保存点。原提交保留，医院保持暂停。"
 
 func _toggle_library() -> void:
-	_library_panel.visible = not _library_panel.visible
-	_details.visible = not _library_panel.visible
-	if _library_panel.visible:
+	_show_panel("details" if _library_panel.visible else "library")
+
+func _add_management_panel(id: String, label: String, panel: Control) -> void:
+	panel.name = id
+	panel.visible = false
+	panel.connect("command_requested",_submit_business)
+	_management_panels.add_child(panel)
+	_panel_picker.add_item(label)
+	_panel_picker.set_item_metadata(_panel_picker.item_count-1,id)
+
+func _bind_management_panels() -> void:
+	for panel: Node in _management_panels.get_children():
+		if panel==_build_panel:
+			_build_panel.attach(_simulation,_session,_observed_floor)
+		else:
+			panel.call("attach",_simulation,_session)
+
+func _show_panel(id: String) -> void:
+	_details.visible = id=="details"
+	_library_panel.visible = id=="library"
+	_management_scroll.visible = id not in ["details","library"]
+	for index: int in _panel_picker.item_count:
+		if str(_panel_picker.get_item_metadata(index))==id:
+			_panel_picker.select(index)
+	for panel: Node in _management_panels.get_children():
+		(panel as Control).visible = str(panel.name)==id
+	if id=="library":
 		_library_panel.refresh()
+	if id!="building" and is_instance_valid(_build_overlay):
+		_build_overlay.show_preview({},{},_observed_floor)
+
+func _submit_business(kind: String, payload: Dictionary) -> void:
+	if _simulation==null or not _leave_operation.is_empty():
+		_status.text = "切换医院期间保留当前操作，完成后可以继续。"
+		return
+	var command_id: String = str(payload.get("command_id",HospitalSnapshots.uuid()))
+	var command: GameCommand = GameCommand.new(command_id,_simulation.world.hospital_id,_simulation.world.revision,kind,BusinessPayload.new(payload),_session.loading_session_id)
+	var result: CommandResult = _session.submit(command)
+	_status.text = ("操作已完成。" if result.code!="queued" else result.reason) if result.accepted else result.reason
+
+func _show_build_preview(draft: Dictionary, result: Dictionary) -> void:
+	if _view==null:
+		return
+	if not is_instance_valid(_build_overlay) or _build_overlay.get_parent()!=_view:
+		_build_overlay = HospitalBuildOverlay.new()
+		_view.add_child(_build_overlay)
+	var outline: Dictionary = draft.duplicate(true)
+	if draft.get("kind","")=="build_facility":
+		var definition: Dictionary = _content.facility_definition(str(draft.get("definition_id","")))
+		outline.size = definition.get("footprint",[1,1]).duplicate()
+		if int(draft.get("rotation",0))%2==1:
+			outline.size.reverse()
+	_build_overlay.show_preview(outline,result,_observed_floor)
 
 func _library_action(kind: String, payload: Dictionary) -> void:
 	if _library==null or _library_thread!=null or not _leave_operation.is_empty():
@@ -505,6 +579,7 @@ func _receipt(receipt: Dictionary) -> void:
 	_saved_revision = int(_candidate.facts.world_revision)
 	_hospital_ids = _snapshots.hospital_ids()
 	_library_panel.attach(_library,_candidate.hospital_id)
+	_bind_management_panels()
 	_candidate = null
 	_leave_operation = {}
 	_drafts.clear()
@@ -538,6 +613,7 @@ func _change_floor(floor_id: int) -> void:
 			return
 		_observed_floor = floor_id
 		_view.set_floor(floor_id)
+		_build_panel.set_floor(floor_id)
 
 func _set_ui_scale(scale: int) -> void:
 	_ui_scale = scale
@@ -556,7 +632,7 @@ func _follow_selected() -> void:
 		_view.camera.size = 18.0
 
 func _move_selected(floor_id: int) -> void:
-	if _simulation==null or _selected_actor.is_empty() or not _leave_operation.is_empty():
+	if _simulation==null or not _simulation.world.facts.actors.has(_selected_actor) or not _leave_operation.is_empty():
 		return
 	var command_id: String = HospitalSnapshots.uuid()
 	var world: WorldState = _simulation.world
@@ -568,8 +644,19 @@ func _move_selected(floor_id: int) -> void:
 func _world_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and event.button_mask&MOUSE_BUTTON_MASK_MIDDLE and _view!=null:
 		_view.pan_camera(event.relative)
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT and _view != null:
-		_selected_actor = _view.pick(event.position*Vector2(_viewport.size)/_world_container.size)
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and _view != null:
+		var point: Vector2 = event.position*Vector2(_viewport.size)/_world_container.size
+		if _build_panel.visible:
+			var cell: Array = _view.cell_at_screen(point)
+			if event.pressed:
+				_build_drag_start = cell
+				_build_panel.set_map_cell(cell)
+			elif not _build_drag_start.is_empty() and not cell.is_empty():
+				if cell!=_build_drag_start:
+					_build_panel.draw_room(_build_drag_start,cell)
+				_build_drag_start = []
+		else:
+			_selected_actor = _view.pick(point)
 	if event is InputEventMouseButton and event.pressed and _view!=null:
 		if event.button_index in [MOUSE_BUTTON_WHEEL_UP,MOUSE_BUTTON_WHEEL_DOWN]:
 			_view.zoom_camera(1.1 if event.button_index==MOUSE_BUTTON_WHEEL_DOWN else 1.0/1.1)

@@ -7,6 +7,8 @@ var world: WorldState
 var content: HospitalContent
 var space: HospitalSpace
 var clinic: HospitalClinic
+var services: Dictionary = {}
+var _business_handlers: Dictionary = {}
 var _commands: Array[GameCommand] = []
 var _rejected: Dictionary = {}
 var _command_events: Array[SimEvent] = []
@@ -16,6 +18,9 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 	content = database
 	space = HospitalSpace.new(database)
 	clinic = HospitalClinic.new(database,space)
+	services.building = BuildService.new(database,space)
+	for kind: String in BuildService.KINDS:
+		_business_handlers[kind] = services.building
 
 func enqueue(command: Dictionary) -> void:
 	_commands.append(GameCommand.from_record(command))
@@ -60,6 +65,12 @@ func apply(command: GameCommand) -> CommandResult:
 
 func _execute(command: GameCommand) -> CommandResult:
 	if command.kind!="move_actor":
+		if _business_handlers.has(command.kind):
+			if not command.typed_payload is BusinessPayload:
+				return CommandResult.new(false,"invalid_payload","操作缺少完整的确认内容",[],world.revision)
+			var data: Dictionary = command.typed_payload.to_record()
+			data.command_id = command.id
+			return _business_handlers[command.kind].execute(world,command.kind,data)
 		return CommandResult.new(false,"unknown_command","未知命令类型",[],world.revision)
 	if not command.typed_payload is MoveActorPayload:
 		return CommandResult.new(false,"invalid_payload","移动命令缺少有效的已确认目标",[],world.revision)

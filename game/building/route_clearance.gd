@@ -50,6 +50,10 @@ func _init(space: HospitalSpace, world: WorldState, actor: Dictionary, floor_id:
 		var room: Dictionary = source.rooms[id]
 		var rect: Rect2i = Rect2i(int(room.origin[0]),int(room.origin[1]),int(room.size[0]),int(room.size[1]))
 		_dependencies["room:"+id] = {"rect":rect.grow(1),"value":room}
+		if room.has("wall_edges"):
+			for edge: Dictionary in room.wall_edges:
+				_walls.append({"room_id":id,"axis":edge.axis,"line":edge.line,"low":edge.low,"high":edge.high})
+			continue
 		for y: int in [rect.position.y,rect.end.y]:
 			_walls.append({"room_id":id,"axis":"x","line":y,"low":rect.position.x,"high":rect.end.x})
 		for x: int in [rect.position.x,rect.end.x]:
@@ -216,6 +220,9 @@ static func capture_source(space: HospitalSpace, world: WorldState, floor_id: in
 		var room: Dictionary = world.facts.rooms[id]
 		if int(room.floor_id)==floor_id:
 			result.rooms[id] = {"origin":room.origin.duplicate(),"size":room.size.duplicate()}
+			for field: String in ["cells","wall_edges"]:
+				if room.has(field):
+					result.rooms[id][field] = room[field].duplicate(true)
 	for id: String in world.ids("facilities"):
 		var facility: Dictionary = world.facts.facilities[id]
 		if int(facility.floor_id)==floor_id:

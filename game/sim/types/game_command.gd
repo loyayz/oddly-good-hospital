@@ -31,4 +31,6 @@ static func from_record(record: Dictionary) -> GameCommand:
 			payload = MoveActorPayload.from_record(source)
 			if record.has("typed_payload") and payload!=null and payload.confirmed_location.is_empty():
 				payload = null
+	elif record.get("typed_payload") is Dictionary:
+		payload = BusinessPayload.new(record.typed_payload)
 	return GameCommand.new(str(record.get("id","")),str(record.get("hospital_id","")),int(record.get("expected_revision",-1)),str(record.get("kind","")),payload,str(record.get("loading_session_id","")))

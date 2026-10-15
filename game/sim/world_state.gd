@@ -81,7 +81,7 @@ func validate(content: HospitalContent) -> String:
 		var entry: Variant = facts.ledger.entries[entry_key]
 		if not entry is Dictionary or not _fields(entry,{"owner_id":TYPE_STRING,"component":TYPE_STRING,"amount":TYPE_INT,"tick":TYPE_INT,"settled":TYPE_BOOL}).is_empty() or not _natural(entry.tick) or not is_finite(float(entry.amount)) or abs(int(entry.amount))>1000000000000:
 			return "账目金额无效"
-		if entry_key!=entry.owner_id+":"+entry.component or (not facts.visits.has(entry.owner_id) and not facts.attempts.has(entry.owner_id)):
+		if entry_key!=entry.owner_id+":"+entry.component or not _ledger_owner_exists(entry.owner_id):
 			return "账目凭据所有者或组件身份无效"
 	for actor: Dictionary in facts.actors.values():
 		var reason: String = _fields(actor,{"id":TYPE_STRING,"name":TYPE_STRING,"species_id":TYPE_STRING,"location":TYPE_DICTIONARY,"facing":TYPE_FLOAT})
@@ -106,7 +106,7 @@ func validate(content: HospitalContent) -> String:
 		if not facility.get("definition_id") is String or not _point(facility.get("cell")) or not _point(facility.get("footprint")):
 			return "设施结构无效"
 		var definition_id: String = facility.definition_id
-		if content.definition("machines",definition_id).is_empty() and content.definition("clinical_equipment",definition_id).is_empty() and content.definition("furniture_equipment",definition_id).is_empty():
+		if content.facility_definition(definition_id).is_empty():
 			return "缺少核心设施定义："+definition_id
 	if facts.schema_version!=1 or facts.clock_version != CLOCK_VERSION or not _natural(facts.sim_tick) or not _natural(facts.world_revision):
 		return "医院时钟或版本无效"
@@ -298,7 +298,13 @@ func validate(content: HospitalContent) -> String:
 		for staff_id: Variant in reservation.staff_ids:
 			if not staff_id is String or not facts.actors.has(staff_id):
 				return "展开岗位身体不存在"
-	return ""
+	return BuildService.new(content).validate(self)
+
+func _ledger_owner_exists(id: String) -> bool:
+	for collection: String in ["visits","attempts","build_transactions"]:
+		if facts.get(collection,{}) is Dictionary and facts.get(collection,{}).has(id):
+			return true
+	return false
 
 func _validate_shapes() -> String:
 	if not _natural(facts.get("move_request_next",0)):
