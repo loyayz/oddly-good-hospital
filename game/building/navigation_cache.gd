@@ -32,21 +32,39 @@ func graph(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictio
 	var source: Dictionary = floor_source(space,world,floor_id)
 	var entry: Dictionary = _entries.get(key,{})
 	_used += 1
-	if entry.is_empty():
+	if entry.is_empty() or entry.source!=source:
 		var geometry: RouteClearance = RouteClearance.new(space,world,actor,floor_id,members,offsets,false,source)
-		var graph: FloorNavigation = FloorNavigation.new(geometry)
+		var bases: Array[FloorNavigation] = []
+		var shifts: Array[Vector2i] = []
+		if members.size()>1:
+			var ids: Array = [actor.id]
+			for id: String in members:
+				if id!=actor.id:
+					ids.append(id)
+			for id: String in ids:
+				var offset: Array = offsets.get(id,[0,0])
+				if float(offset[0])!=floor(float(offset[0])) or float(offset[1])!=floor(float(offset[1])) or absf(float(offset[0]))>=96 or absf(float(offset[1]))>=96:
+					shifts.clear()
+					break
+				shifts.append(Vector2i(int(offset[0]),int(offset[1])))
+			if shifts.size()==ids.size():
+				for id: String in ids:
+					bases.append(graph(space,world,floor_id,world.facts.actors[id],[],{}))
+		var floor_graph: FloorNavigation
+		if entry.is_empty():
+			floor_graph = FloorNavigation.new(geometry,bases,shifts)
+		else:
+			floor_graph = entry.graph
+			floor_graph.refresh(geometry,bases,shifts)
+		# Recursive constituent lookups may have evicted this older group entry.
+		if _entries.has(key):
+			_charged -= int(_entries[key].charge)
 		# Capacity charge includes native points/adjacency and projection containers.
 		# This is an eviction allowance, not a measured Release allocation count.
-		var charge: int = graph.get_point_count()*2048+var_to_bytes(source).size()*8+16384
-		entry = {"graph":graph,"source":source,"used":_used,"charge":charge,"world":weakref(world),"floor_key":str(world.get_instance_id())+":"+str(floor_id)}
+		var charge: int = floor_graph.get_point_count()*2048+var_to_bytes(source).size()*8+16384
+		entry = {"graph":floor_graph,"source":source,"used":_used,"charge":charge,"world":weakref(world),"floor_key":str(world.get_instance_id())+":"+str(floor_id)}
 		_entries[key] = entry
 		_charged += charge
-	elif entry.source!=source:
-		entry.graph.refresh(RouteClearance.new(space,world,actor,floor_id,members,offsets,false,source))
-		entry.source = source
-		_charged -= int(entry.charge)
-		entry.charge = entry.graph.get_point_count()*2048+var_to_bytes(source).size()*8+16384
-		_charged += int(entry.charge)
 	entry.used = _used
 	var result: FloorNavigation = entry.graph
 	_trim(int(space.content.balance.pathfinding.graph_cache_target_bytes))

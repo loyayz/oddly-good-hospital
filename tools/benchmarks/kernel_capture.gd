@@ -89,6 +89,8 @@ func _process(_delta: float) -> void:
 		_sample_started = now
 		_first_tick = _simulation.world.sim_tick
 		_last_frame = now
+		if _profile:
+			_simulation.space.call("reset_profile")
 	if _sample_started>=0 and now-_sample_started>=int(_sample*1000000):
 		_finish(now)
 		return

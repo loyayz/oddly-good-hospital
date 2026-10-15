@@ -10,21 +10,21 @@ var _enabled: PackedByteArray = PackedByteArray()
 var _query: RouteClearance
 var _people: Callable
 
-func _init(projection: RouteClearance) -> void:
+func _init(projection: RouteClearance, bases: Array[FloorNavigation] = [], shifts: Array[Vector2i] = []) -> void:
 	geometry = projection
 	_enabled.resize(LIMIT)
 	var regions: Array[Rect2i] = []
 	for plot: Vector2i in projection._plots:
 		regions.append(Rect2i(plot*32,Vector2i(32,32)))
-	_repair(regions)
+	_repair(regions,bases,shifts)
 	neighbor_filter_enabled = true
 
-func refresh(projection: RouteClearance) -> void:
+func refresh(projection: RouteClearance, bases: Array[FloorNavigation] = [], shifts: Array[Vector2i] = []) -> void:
 	var regions: Array[Rect2i] = projection.dirty_regions(geometry)
 	geometry = projection
-	_repair(regions)
+	_repair(regions,bases,shifts)
 
-func _repair(regions: Array[Rect2i]) -> void:
+func _repair(regions: Array[Rect2i], bases: Array[FloorNavigation] = [], shifts: Array[Vector2i] = []) -> void:
 	var affected: Dictionary = {}
 	for region: Rect2i in regions:
 		var clipped: Rect2i = region.intersection(Rect2i(0,0,SIDE,SIDE))
@@ -36,7 +36,7 @@ func _repair(regions: Array[Rect2i]) -> void:
 		var cell: Vector2i = _cell(id)
 		if not has_point(id):
 			add_point(id,Vector2(cell))
-		_enabled[id] = int(geometry.reason(cell).is_empty())
+		_enabled[id] = int(geometry.reason(cell).is_empty() if bases.is_empty() else _composed_node(cell,bases,shifts))
 		set_point_disabled(id,_enabled[id]==0)
 		for offset: Vector2i in NEIGHBOURS:
 			var next: Vector2i = cell+offset
@@ -52,11 +52,28 @@ func _repair(regions: Array[Rect2i]) -> void:
 		var adjacent: Array[int] = []
 		for offset: Vector2i in NEIGHBOURS:
 			var next: Vector2i = _cell(id)+offset
-			if _inside(next) and _enabled[_id(next)]!=0 and geometry.edge_reason(_cell(id),next).is_empty():
-				adjacent.append(_id(next))
+			if _inside(next) and _enabled[_id(next)]!=0:
+				var legal: bool = geometry.edge_reason(_cell(id),next).is_empty() if bases.is_empty() else _composed_edge(_cell(id),next,bases,shifts)
+				if legal:
+					adjacent.append(_id(next))
 		adjacent.sort()
 		for other: int in adjacent:
 			connect_points(id,other,false)
+
+# Integer translations preserve each constituent's complete footprint and edge
+# sweep. Bases are borrowed for this repair only, so eviction does not pin them.
+func _composed_node(cell: Vector2i, bases: Array[FloorNavigation], shifts: Array[Vector2i]) -> bool:
+	for index: int in bases.size():
+		var point: Vector2i = cell+shifts[index]
+		if not _inside(point) or bases[index]._enabled[_id(point)]==0:
+			return false
+	return true
+
+func _composed_edge(from: Vector2i, to: Vector2i, bases: Array[FloorNavigation], shifts: Array[Vector2i]) -> bool:
+	for index: int in bases.size():
+		if not bases[index].are_points_connected(_id(from+shifts[index]),_id(to+shifts[index]),false):
+			return false
+	return true
 
 func find_path(start: Vector2i, goal: Vector2i, query: RouteClearance, people: Callable = Callable(), partial: bool = false) -> Dictionary:
 	if not _inside(start) or not _inside(goal):

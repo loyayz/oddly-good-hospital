@@ -12,6 +12,7 @@ var _indexed_revision: int = -1
 var _navigation: NavigationCache = NavigationCache.new()
 var _accepted_sweeps: Dictionary = {}
 var _route_checks: Dictionary = {}
+var _envelope_next: int = 0
 
 func _init(database: HospitalContent) -> void:
 	content = database
@@ -309,13 +310,16 @@ func _active_route_clear(world: WorldState, actor: Dictionary, movement: Diction
 			else:
 				floors[int(segment.floor_id)] = true
 		record = {"sequence":sequence,"floors":floors.keys(),"connections":connections.keys(),"stamp":[]}
+	for floor_id: int in record.floors:
+		if not versions.has(floor_id):
+			versions[floor_id] = _navigation.floor_version(self,world,floor_id)
+	if record.get("simple",false) and int(record.token)==int(_actor_shapes[actor.id].token) and int(record.version)==int(versions[record.floors[0]]):
+		return true
 	var stamp: Array = []
 	for id: String in movement.get("members",[actor.id]):
 		var member: Dictionary = world.facts.actors[id]
 		stamp.append([member.species_id,member.get("body_binding_id",""),member.get("posture","standing"),movement.get("offsets",{}).get(id,[0,0])])
 	for floor_id: int in record.floors:
-		if not versions.has(floor_id):
-			versions[floor_id] = _navigation.floor_version(self,world,floor_id)
 		stamp.append(versions[floor_id])
 	for id: String in record.connections:
 		var connection: Dictionary = world.facts.connectors.get(id,{})
@@ -349,6 +353,10 @@ func _active_route_clear(world: WorldState, actor: Dictionary, movement: Diction
 			return false
 		current = target
 	record.stamp = stamp.duplicate(true)
+	record.simple = members.size()<=1 and record.connections.is_empty() and record.floors.size()==1
+	if record.simple:
+		record.token = _actor_shapes[actor.id].token
+		record.version = versions[record.floors[0]]
 	_route_checks[actor.id] = record
 	return true
 
@@ -465,9 +473,13 @@ func _actor_rect(actor: Dictionary, origin: Vector2) -> Rect2:
 	var facing: float = float(actor.facing)
 	var shape: Dictionary = _actor_shapes.get(actor.id,{})
 	if shape.is_empty() or shape.species_id!=actor.species_id or shape.binding!=binding or shape.posture!=posture or shape.facing!=facing:
+		var token: int = int(shape.get("token",0))
+		if shape.is_empty() or shape.species_id!=actor.species_id or shape.binding!=binding or shape.posture!=posture:
+			_envelope_next += 1
+			token = _envelope_next
 		var dimensions: Dictionary = body(actor)
 		var cells: int = ceili(maxf(float(dimensions.width_m),float(dimensions.depth_m))/CELL_METERS)
-		shape = {"species_id":actor.species_id,"binding":binding,"posture":posture,"facing":facing}
+		shape = {"species_id":actor.species_id,"binding":binding,"posture":posture,"facing":facing,"token":token}
 		if posture=="lying":
 			shape.center = Vector2.ONE*cells*0.5
 			shape.offset = Vector2(float(dimensions.width_m)*0.5,float(dimensions.height_m))/CELL_METERS

@@ -49,6 +49,8 @@ foreach ($count in $Actors) {
         if ($Profile) { $arguments += '--profile' }
         $windowStyle = if ($Visible) { 'Normal' } else { 'Hidden' }
         $process = Start-Process -FilePath $exe -ArgumentList $arguments -WindowStyle $windowStyle -PassThru -RedirectStandardOutput (Join-Path $group 'stdout.log') -RedirectStandardError (Join-Path $group 'stderr.log')
+        $captureClock = [Diagnostics.Stopwatch]::StartNew()
+        $nextProgressSeconds = 60
         $observations = [IO.StreamWriter]::new((Join-Path $group 'process.ndjson'),$false,[Text.UTF8Encoding]::new($false))
         try {
             while (-not $process.HasExited) {
@@ -57,6 +59,10 @@ foreach ($count in $Actors) {
                     $sample = [ordered]@{real_utc=[DateTime]::UtcNow.ToString('o');process_id=$process.Id;working_set_bytes=$process.WorkingSet64;private_commit_bytes=$process.PrivateMemorySize64;lifetime_peak_working_set_bytes=$process.PeakWorkingSet64;cpu_seconds=$process.TotalProcessorTime.TotalSeconds}
                     $observations.WriteLine(($sample | ConvertTo-Json -Compress))
                     $observations.Flush()
+                    if ($captureClock.Elapsed.TotalSeconds -ge $nextProgressSeconds) {
+                        Write-Output "CAPTURE_PROGRESS=$count/$speed elapsed_s=$([int]$captureClock.Elapsed.TotalSeconds) warmup_s=$WarmupSeconds sample_s=$SampleSeconds"
+                        $nextProgressSeconds += 60
+                    }
                     [Threading.Thread]::Sleep(1000)
                 }
             }

@@ -1,6 +1,16 @@
 extends HospitalSpace
 
+const ProfileNavigationCache = preload("res://tools/benchmarks/profile_navigation_cache.gd")
+
 var timings: Dictionary = {}
+
+func _init(database: HospitalContent) -> void:
+	super(database)
+	_navigation = ProfileNavigationCache.new()
+
+func reset_profile() -> void:
+	timings.clear()
+	(_navigation.get("timings") as Dictionary).clear()
 
 func _record(method: String, started: int) -> void:
 	var row: Dictionary = timings.get(method,{"calls":0,"usec":0})
@@ -67,4 +77,6 @@ func _sync_actor(world: WorldState, id: String) -> void:
 	_record("sync_actor",started)
 
 func profile() -> Dictionary:
-	return timings.duplicate(true)
+	var result: Dictionary = timings.duplicate(true)
+	result.navigation_cache = (_navigation.get("timings") as Dictionary).duplicate(true)
+	return result

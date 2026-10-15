@@ -128,10 +128,12 @@ def main():
     for row in groups:
         row["evaluation_targets"] = evaluation["metrics"] if evaluation else row["targets"]
         row["evaluation_passed"] = row["evidence_valid"] and meets_targets(row, row["evaluation_targets"])
+    fixture_protocols = sorted({row["fixture"]["fixture"] for row in groups})
+    coherent_fixture = len(fixture_protocols) == 1
     models = []
     for speed in (1, 3):
         rows = {r["actors"]: r for r in groups if r["speed"] == speed and r["formal_capture"] and r["evidence_valid"]}
-        if not {160, 320, 640} <= rows.keys():
+        if not coherent_fixture or not {160, 320, 640} <= rows.keys():
             continue
         slope = (rows[320]["step"]["mean_ms"] - rows[160]["step"]["mean_ms"]) / 160
         intercept = rows[160]["step"]["mean_ms"] - 160 * slope
@@ -143,10 +145,11 @@ def main():
                        "holdout_relative_error": (predicted - measured) / measured,
                        "valid_range": [160, 640], "scope": "same mobile-and-surgery fixture only; no percentile prediction"})
     formal_keys = {(r["actors"], r["speed"]) for r in groups if r["formal_capture"] and r["evidence_valid"]}
-    complete = formal_keys == {(count, speed) for count in requested_actors for speed in (1, 3)}
-    full_matrix_complete = formal_keys == {(count, speed) for count in (160, 320, 640) for speed in (1, 3)}
+    complete = coherent_fixture and formal_keys == {(count, speed) for count in requested_actors for speed in (1, 3)}
+    full_matrix_complete = coherent_fixture and formal_keys == {(count, speed) for count in (160, 320, 640) for speed in (1, 3)}
     report = {"schema_version": 1, "stage02_status": "performance_measurement_skipped", "stage03_groups": groups,
               "requested_actors": requested_actors, "deferred_actors": sorted({160, 320, 640} - set(requested_actors)),
+              "fixture_protocols": fixture_protocols, "coherent_fixture": coherent_fixture,
               "requested_matrix_complete": complete, "formal_matrix_complete": full_matrix_complete,
               "performance_passed": complete and all(r["evaluation_passed"] for r in groups),
               "evaluation_budget": evaluation.get("simulation_budget") if evaluation else None,
@@ -160,11 +163,19 @@ def main():
     if args.markdown:
         population_label = "/".join(str(count) for count in requested_actors)
         result_label = "通过" if report["performance_passed"] else "未达标"
+        if fixture_protocols == ["kernel-mobile-and-surgery-v2"]:
+            movement_scope = "夹具协议为kernel-mobile-and-surgery-v2：分散场景额外居民沿32格路线往返，密集诊断沿8格路线往返。夹具在步前只提出移动目标，路径搜索由正式step中的全院FIFO队列派发；临床派发、实际移动和安全检查均在完整step内。与旧版1格往返夹具的结果不能直接作为同负载优化对比。"
+            observation_scope = "每步分别记录实际地面位置发生变化的身体数及待寻路请求数，移动记录数包含等待中的请求。人数观察、原始日志和OS观察计入实际推进速度；人数观察与计时探针另记开销，日志序列化和写入开销尚未独立量化。无窗口采集没有呈现帧或GPU指标。"
+        elif fixture_protocols == ["kernel-mobile-and-surgery-v1"]:
+            movement_scope = "夹具协议为kernel-mobile-and-surgery-v1：额外居民沿1格路线往返，夹具在步前准备路径并单独计时；临床派发和实际移动在完整step内。这份历史记录没有每步实际行走人数及待寻路人数，移动记录数不能作为实际行走人数。"
+            observation_scope = "原始日志、夹具准备和OS观察计入实际推进速度；计时探针另记开销，日志序列化和写入开销尚未独立量化。无窗口采集没有呈现帧或GPU指标。"
+        else:
+            movement_scope = "采集包含不同或未知夹具协议，协议为：" + ", ".join(fixture_protocols) + "。各组结果单列，不作为同负载完整矩阵或成本模型。"
+            observation_scope = "每组工作量与计时范围以其原始capture-start.json和summary.json为准。"
         lines = [f"# 第三阶段：{population_label}人内核Release实测", "", f"第二阶段性能检测未执行。第三阶段本次测量范围为{population_label}人、1×/3×正式内核，采集有效性与性能达标分别判定；本次性能结果：**{result_label}**。", "",
                  "## 实测条件", "", f"原始证据目录：`{args.input.as_posix()}`。构建与源文件哈希、设备、电源和后台进程记录保存在同目录。每组独立预热60现实秒、采样600现实秒；步耗时采用单调时钟和最近秩分位。", "",
                  f"夹具保持{population_label}名实际在院身体，使用四份96×96合法移动楼层和原手术布局，保留10000层稀疏结构。额外居民沿真实路线持续移动，一个D23病例执行原接待、诊断、手术、护理和结算流程；患者实际离院后的下一边界补入一名移动居民。单个病例完成后不持续生成新病例，本次结果不能代表多站点临床满载。逻辑记录数与实际在院数分别记录。", "",
-                 "夹具协议为kernel-mobile-and-surgery-v2：分散场景额外居民沿32格路线往返，密集诊断沿8格路线往返。夹具在步前只提出移动目标，路径搜索由正式step中的全院FIFO队列派发；临床派发、实际移动和安全检查均在完整step内。与旧版1格往返夹具的结果不能直接作为同负载优化对比。", "",
-                 "每步分别记录实际地面位置发生变化的身体数及待寻路请求数，移动记录数包含等待中的请求。人数观察、原始日志和OS观察计入实际推进速度；人数观察与计时探针另记开销，日志序列化和写入开销尚未独立量化。无窗口采集没有呈现帧或GPU指标。", "",
+                 movement_scope, "", observation_scope, "",
                  f"## {len(groups)}组正式结果", "", "| 在院身体 | 速度 | step P95 / P99（ms） | step最大（ms） | 实际tick | 速度比例 | 命令P95（ms） | 工作集峰值（MiB） | 私有提交峰值（MiB） | 结果 |", "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
         for row in groups:
             result = "通过" if row["evaluation_passed"] else ("未达标" if row["formal_capture"] and row["evidence_valid"] else "证据无效/诊断")

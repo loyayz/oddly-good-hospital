@@ -246,6 +246,7 @@ func _navigation_rules(content: HospitalContent) -> void:
 	_active_route_changes(content)
 	_support_departure_floor(content)
 	_first_segment_courtesy(content)
+	_group_graph_equivalence(content)
 	_transport_quotes(content)
 	_transport_groups(content)
 	_transport_transfers(content)
@@ -406,6 +407,45 @@ func _first_segment_courtesy(content: HospitalContent) -> void:
 			retreated = retreated or bool(movement.yielding)
 	_check("first_segment_opposition_retreats_without_overlap",not collided and retreated and simulation.space.at(world,"actor_00",1,[3,4]) and simulation.space.at(world,"actor_01",1,[4,2]),{"actors":world.facts.actors,"moves":world.facts.moves})
 
+func _group_graph_equivalence(content: HospitalContent) -> void:
+	var cases: Array = [["S49","S55",-1],["S59","S49",-1],["S49","S49",-0.5]]
+	for index: int in cases.size():
+		var world: WorldState = _nav_world(content)
+		var leader: Dictionary = world.facts.actors.actor_00
+		leader.species_id = cases[index][0]
+		leader.location.cell = [8,16]
+		world.facts.actors.actor_01.species_id = cases[index][1]
+		world.facts.actors.actor_01.location.cell = [8+float(cases[index][2]),16]
+		for y: int in range(16,24):
+			world.facts.floors.overrides["1"].blocked.append([12,y])
+		var space: HospitalSpace = HospitalSpace.new(content)
+		var members: Array = ["actor_00","actor_01"]
+		var offsets: Dictionary = {"actor_00":[0,0],"actor_01":[cases[index][2],0]}
+		var query: RouteClearance = RouteClearance.new(space,world,leader,1,members,offsets,false)
+		var warm: FloorNavigation = space._navigation.graph(space,world,1,leader,members,offsets)
+		var initial: Dictionary = warm.find_path(Vector2i(8,16),Vector2i(20,20),query)
+		var reference: Dictionary = FloorNavigation.new(query).find_path(Vector2i(8,16),Vector2i(20,20),query)
+		_check("group_graph_full_projection_equivalence_"+str(index),initial.ok and initial==reference)
+		for y: int in 32:
+			world.facts.floors.overrides["1"].blocked.append([12,y])
+		world.touch()
+		query = RouteClearance.new(space,world,leader,1,members,offsets,false)
+		warm = space._navigation.graph(space,world,1,leader,members,offsets)
+		var repaired: Dictionary = warm.find_path(Vector2i(8,16),Vector2i(20,20),query,Callable(),true)
+		reference = FloorNavigation.new(query).find_path(Vector2i(8,16),Vector2i(20,20),query,Callable(),true)
+		_check("group_graph_local_repair_and_partial_equivalence_"+str(index),repaired.status=="partial" and repaired==reference)
+		if index==0:
+			var original_target: int = int(content.balance.pathfinding.graph_cache_target_bytes)
+			content.balance.pathfinding.graph_cache_target_bytes = 1
+			world.facts.floors.overrides["1"].blocked.clear()
+			world.touch()
+			query = RouteClearance.new(space,world,leader,1,members,offsets,false)
+			warm = space._navigation.graph(space,world,1,leader,members,offsets)
+			var evicted: Dictionary = warm.find_path(Vector2i(8,16),Vector2i(20,20),query)
+			reference = FloorNavigation.new(query).find_path(Vector2i(8,16),Vector2i(20,20),query)
+			_check("recursive_group_eviction_preserves_path_and_capacity_charge",evicted.ok and evicted==reference and space._navigation._charged==0 and space._navigation._entries.is_empty())
+			content.balance.pathfinding.graph_cache_target_bytes = original_target
+
 func _active_route_changes(content: HospitalContent) -> void:
 	var world: WorldState = _nav_world(content,1)
 	var space: HospitalSpace = HospitalSpace.new(content)
@@ -430,6 +470,19 @@ func _active_route_changes(content: HospitalContent) -> void:
 	original = transit.facts.actors.actor_00.location.cell.duplicate()
 	transit_space.advance(transit)
 	_check("future_connection_mode_change_rechecks_active_route",transit.facts.moves.actor_00.route_pending and transit.facts.actors.actor_00.location.cell==original)
+	var body_world: WorldState = _nav_world(content,1)
+	body_world.facts.actors.actor_00.location.cell = [2,3]
+	for y: int in 32:
+		if y!=3:
+			body_world.facts.floors.overrides["1"].blocked.append([8,y])
+	var body_space: HospitalSpace = HospitalSpace.new(content)
+	body_space.request_move(body_world,"actor_00",1,[20,3])
+	body_space.advance(body_world)
+	original = body_world.facts.actors.actor_00.location.cell.duplicate()
+	body_world.facts.actors.actor_00.species_id = "S59"
+	body_world.touch()
+	body_space.advance(body_world)
+	_check("body_envelope_change_invalidates_active_route_token",body_world.facts.moves.actor_00.route_pending and body_world.facts.actors.actor_00.location.cell==original)
 
 func _transport_groups(content: HospitalContent) -> void:
 	var world: WorldState = _nav_world(content)
