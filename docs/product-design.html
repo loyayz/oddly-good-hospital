@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="design-source-sha256" content="67aa57678cc5f2057c5a55f261839fb61b8533e0e43606536ad7ef565abb31a8">
+<meta name="design-source-sha256" content="5ef59f0a4638c531fd3751821af943de1c1343386976ad92cc26366cc1e366d2">
 <title>怪好的医院 · Oddly Good Hospital · 产品设计方案</title>
 <style>
 :root{color-scheme:light;--ink:#293d60;--muted:#53657f;--blue:#3b5f92;--paper:#fffdf7;--line:#d6deeb}
@@ -9948,7 +9948,7 @@ user://logs/...
 <p>目标：将现有完整产品设计实现为可独立安装、单人离线运行的Windows医院建造经营游戏，保留同院持续成长、独立保存多院、完整临床与生活系统，以及由性格、关系和实际情境共同产生的喜剧。</p>
 <p>架构：WorldState保存唯一模拟事实，固定步系统执行业务，命令边界完成原子修改；场景与Control界面只投影事实。内容以稳定ID、类型注册表和版本化处理器扩展，医院资料采用追加式完整提交与恢复协议。</p>
 <p>技术栈：Godot 4.7.2标准版、带类型GDScript、Compatibility/OpenGL 3.3、Blender 4.5.14 LTS/GLB、UTF-8 JSON与CSV、每医院独立SQLite事务快照、Windows x86_64资料库占用桥接、NSIS 3.13。工程选型及公共签名沿用<a href="#technical">技术规格</a>，产品行为沿用<a href="#simulation">模拟规格</a>、<a href="#content">内容规格</a>及各系统章节。</p>
-<p>本计划基于设计1.97.0、内容与数值schema100、起始布局schema9、临床布局schema5、产品快照schema1。规划起点为设计、数据、校验工具和离线阅读页。第一阶段已建立代表工程、源资产、Windows技术包及实机验证；第二阶段交付基准准备与成本接入清单，性能检测跳过；第三阶段交付正式内核及独立Release实测。范围与验证状态分别见<a href="#stage01-feasibility">第一阶段报告</a>、<a href="#stage02-benchmark">第二阶段基准交付</a>和<a href="#stage03-performance">第三阶段实测</a>。各阶段的文件和验证入口按对应成果逐项接入。</p>
+<p>本计划基于设计1.97.0、内容与数值schema100、起始布局schema9、临床布局schema5、产品快照schema1。规划起点为设计、数据、校验工具和离线阅读页。第一阶段已建立代表工程、源资产、Windows技术包及实机验证；第二阶段交付基准准备与成本接入清单，性能检测跳过；第三阶段交付正式内核及独立Release实测。阶段7完成显示与资源的针对性检查，阶段10建立正式综合性能基准，阶段38完成完整游戏性能与长时稳定验收。范围与验证状态分别见<a href="#stage01-feasibility">第一阶段报告</a>、<a href="#stage02-benchmark">第二阶段基准交付</a>和<a href="#stage03-performance">第三阶段实测</a>。各阶段的文件和验证入口按对应成果逐项接入。</p>
 <h3 id="implementation--section-2">全局约束</h3>
 <ul>
 <li>最终交付完整设计；第一阶段的代表内容用于证明技术路径，后续阶段补齐系统与全部内容。</li>
@@ -9998,7 +9998,7 @@ user://logs/...
 <tr>
 <td>全量内容接入后成本超过早期预测</td>
 <td>更新实际成本和可行性结论，按原语义优化并以同负载复测</td>
-<td>阶段2建立模型；各阶段接入；阶段38完整验收</td>
+<td>阶段2工具/3内核实测；阶段7显示与资源检查；阶段10综合基准；各阶段增量复测；阶段38完整验收</td>
 </tr>
 </tbody>
 </table></div>
@@ -10054,7 +10054,7 @@ user://logs/...
 <td>07</td>
 <td>正式场景投影与共享资源管线</td>
 <td>阶段3/4的事实/定义已稳定，阶段1/2的表现样板和成本可复用</td>
-<td>能反映真实身体、症状和业务状态的正式表现管线</td>
+<td>正式表现管线及显示、资源的针对性性能检查记录</td>
 </tr>
 <tr>
 <td>08</td>
@@ -10072,7 +10072,7 @@ user://logs/...
 <td>10</td>
 <td>接待与基础门诊经营闭环</td>
 <td>阶段5/7/8/9可保存、显示、建造和通行</td>
-<td>第一座可自由建造、接诊、收费和保存继续的基础医院</td>
+<td>可自由建造、接诊、收费和保存继续的基础医院及正式综合性能基准</td>
 </tr>
 <tr>
 <td>11</td>
@@ -10291,8 +10291,8 @@ user://logs/...
 </tr>
 <tr>
 <td>10</td>
-<td>第一座可建造、接诊、收费、保存的医院</td>
-<td>复杂临床、日常、成长与喜剧</td>
+<td>第一座可建造、接诊、收费、保存的医院及可持续对比的正式综合性能基准</td>
+<td>复杂临床、日常、成长、喜剧与完整游戏性能</td>
 </tr>
 <tr>
 <td>13</td>
@@ -10414,7 +10414,7 @@ user://logs/...
 <tr>
 <td><code>tools/benchmarks/</code>、<code>tools/prepare-kernel-benchmark.ps1</code>、<code>tools/measure-kernel.ps1</code>、<code>tools/report-kernel.py</code>、<code>tools/build-stage03.ps1</code></td>
 <td>Release、负载/回放、采集/预测与正式验收</td>
-<td>02工具，03实测，各业务接入；38收口</td>
+<td>02工具，03内核实测，07显示/资源检查，10综合基准，各业务增量复测；38收口</td>
 </tr>
 <tr>
 <td><code>installer/</code></td>
@@ -10705,17 +10705,18 @@ python -X utf8 tools/report-kernel.py --input .cache/validation/stage03/local-ke
 <p><strong>数值/性能接入：</strong> 测当前/候选/退场世界重叠峰值、多院列表响应及缩略图真实解码资源；列表规模与世界载入成本分开。</p>
 <h2 id="implementation--section-34">10. 第07阶段：正式场景投影与共享资源管线</h2>
 <p><strong>前置条件：</strong> 阶段3/4的事实/定义已稳定，阶段1/2的表现样板和成本可复用。</p>
-<p><strong>阶段目标：</strong> 能反映真实身体、症状和业务状态的正式表现管线。</p>
+<p><strong>阶段目标：</strong> 能反映真实身体、症状和业务状态的正式表现管线，并完成显示与资源的针对性性能检查。</p>
 <h3 id="implementation--section-35">工作步骤</h3>
 <ul class="contains-task-list">
 <li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>7.1 建立实体到视图的只读绑定。</strong> 实例持实体/部件ID与代次，根位置插值、必要离散状态和选择轮廓读取原事实；切层只切观察场景。</li>
 <li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>7.2 完成资产导入合同。</strong> GLB网格、Surface、材质分类、骨序/插槽、姿态、LOD、低动态、包络和共享身份进入资源清单，导入错误可定位到具体资产。</li>
 <li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>7.3 完成按需资源与可见部件。</strong> 视锥块、有限预取、共享图集、加载/空闲/退场资源、合批槽位和回退按原合同执行；兼容骨姿态与原管线进行实际等价对照。</li>
 <li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>7.4 完成镜头与拾取基础。</strong> 正交镜头、切墙、缩放/平移、场景比例与原生UI坐标一致；旧医院/旧层/旧实体迟到加载无法绑定新实例。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>7.5 完成显示与资源的针对性性能检查。</strong> 使用固定Release构建、代表场景和镜头序列，覆盖普通/密集视图、症状/透明/姿态负载、冷/热加载、切层和缓存驱逐；记录显示卡顿、绘制/姿态成本、资源峰值与释放情况，定位问题后以同负载复测。检查范围限于已接入的显示和资源，正式综合性能基准在阶段10建立。</li>
 </ul>
 <h3 id="implementation--section-36">成果与通过条件</h3>
-<p>能反映真实身体、症状和业务状态的正式表现管线。 代表身体的症状、伸展、升级/故障和当前工作阶段可辨；变形/锚点误差满足原生产标准，缓存驱逐和观看顺序不改变业务。</p>
-<p><strong>数值/性能接入：</strong> 测真实Surface提交、可见三角形、姿态采样/上传、透明、加载和未释放副本；建立后续正式资产验收入口。</p>
+<p>能反映真实身体、症状和业务状态的正式表现管线。 代表身体的症状、伸展、升级/故障和当前工作阶段可辨；变形/锚点误差满足原生产标准，缓存驱逐和观看顺序不改变业务。显示与资源检查交付构建身份、实际负载与视图条件、原始记录、问题及未测项；结论仅覆盖本阶段实际接入的管线。</p>
+<p><strong>数值/性能接入：</strong> 针对性检查测真实Surface提交、可见三角形、姿态采样/上传、透明、加载和未释放副本；观察反复加载/退场后的资源收敛，建立后续正式资产验收入口，并将结果接入阶段10综合基准。</p>
 <h2 id="implementation--section-37">11. 第08阶段：院区建造、预览与预算事务</h2>
 <p><strong>前置条件：</strong> 阶段3/4/7具备命令、定义和显示；复用已验证的几何/路线查询。</p>
 <p><strong>阶段目标：</strong> 可画房、放物件、移动、退款和撤销的正式建造系统。</p>
@@ -10744,17 +10745,19 @@ python -X utf8 tools/report-kernel.py --input .cache/validation/stage03/local-ke
 <p><strong>数值/性能接入：</strong> 测队列等待、节点访问、局部修补和失败查询，所有图/索引/结果计入原128MiB路径缓存目标。</p>
 <h2 id="implementation--section-43">13. 第10阶段：接待与基础门诊经营闭环</h2>
 <p><strong>前置条件：</strong> 阶段5/7/8/9可保存、显示、建造和通行；准备合法门诊内容夹具。</p>
-<p><strong>阶段目标：</strong> 第一座可自由建造、接诊、收费和保存继续的基础医院。</p>
+<p><strong>阶段目标：</strong> 第一座可自由建造、接诊、收费和保存继续的基础医院，并建立供后续版本持续对比的正式综合性能基准。</p>
 <h3 id="implementation--section-44">工作步骤</h3>
 <ul class="contains-task-list">
 <li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>10.1 完成到院、接待和号签。</strong> 真实患者Actor和Visit建立一次，接待/初诊队列、站点选择、人员占位、叫号和离院使用稳定票号与身份。</li>
 <li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>10.2 完成代表门诊流程。</strong> 初诊、必要检查、治疗、结果反馈、结算和离院自动推进；初始真实耗材预留/领用和尝试凭据接入，自动采购在阶段18完成。</li>
 <li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>10.3 完成两个开局与基础账目。</strong> starter-layout生成预设院，空院按原购买行为建立；26,000起始资金、建设/招聘/初始耗材、工资/运营和收入退款核对。</li>
 <li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>10.4 完成基础操作HUD。</strong> 医院时钟/速度、建造/对象/病例、队列原因定位、资金及保存可用；玩家可完成一次治疗、设施调整和重启继续。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>10.5 固定正式综合基准负载。</strong> 用真实持续门诊工作替换早期对应样机，固定合法医院布局、随机种子、实际人数与患者/员工构成、多站点工作量、镜头和操作序列；记录接诊、完成病例、队列和移动等实际工作计数。以160人1×/3×及代表视图/操作组建立主要基线，人数扩档沿§5.4逐档通过规则执行；后续版本沿同一负载复测，新增业务成本单独接入并保留原基线。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>10.6 完成正式综合采集与留档。</strong> 在同一Release构建中让模拟、场景和基础界面共同运行，稳态组各预热60现实秒、采样600现实秒；综合测真实呈现帧、完整step与实际推进速度、输入/建造预览响应、保存/载入/切院耗时及内存/图形资源峰值。正常保存、镜头操作和资源退场产生的长帧保留，首次载入阶段另测；留存构建/源文件哈希、设备与采集条件、原始记录、最终报告和缺失项，优化过程的对照汇入最终报告，工具不支持的字段保持未测。</li>
 </ul>
 <h3 id="implementation--section-45">成果与通过条件</h3>
-<p>第一座可自由建造、接诊、收费和保存继续的基础医院。 预设余款10,600、空院采购后24,800；重复服务/命令不多收费，治疗中途恢复能接续，基础医院可持续运转。</p>
-<p><strong>数值/性能接入：</strong> 用真实门诊工作替换阶段2对应样机，测队列/临床/投影增量，明确其他业务尚未接入。</p>
+<p>第一座可自由建造、接诊、收费和保存继续的基础医院。 预设余款10,600、空院采购后24,800；重复服务/命令不多收费，治疗中途恢复能接续，基础医院可持续运转。正式综合基准可重复执行，各已接入指标沿§5.5原目标分别判定；超标按同负载定位、优化和复测，缺少必要证据的指标保持未通过。结论限定于基础门诊及已实现系统，后续临床、生活、社交、全部正式资源与完整游戏性能继续随所属阶段验收。</p>
+<p><strong>数值/性能接入：</strong> 形成模拟、显示、输入、存储和资源并行工作的正式综合性能基准，测队列/临床/投影增量并更新成本模型；阶段7显示与资源检查作为诊断依据，明确其他业务尚未接入，完整显示矩阵与完整产品验收在阶段38完成。</p>
 <h2 id="implementation--section-46">14. 第11阶段：诊断证据、治疗方案与失败接续</h2>
 <p><strong>前置条件：</strong> 阶段10的真实Visit、服务、账目和耗材事实已运行。</p>
 <p><strong>阶段目标：</strong> 所有临床协议的诊断与方案选择机制完整，失败后有自动下一步。</p>
@@ -11216,7 +11219,7 @@ python -X utf8 tools/report-kernel.py --input .cache/validation/stage03/local-ke
 </tbody>
 </table></div>
 <p>阶段05建立的保存服务持续接收新系统状态：本阶段能进行的任务、预留、工作余量、选择与一次性凭据必须在本阶段恢复；无效目标和资源不足沿同一原错误协议保留世界。阶段06的切院、取消退出和迟到回执复核相关新事实。</p>
-<p>新增模拟/空间/查询组件复测原主要1×/3×和相关密集负载，新增资产/界面复测对应视图/缩放/资源条件；全矩阵由阶段38完整重跑。诊断短跑仅用于定位，不标成600秒正式采样通过。文档修改只运行设计校验；规则、性能、资产、安装和试玩的证据分别记录，已有无关通过项不重复制造工作。</p>
+<p>阶段7完成显示与资源的针对性性能检查，阶段10建立正式综合性能基准。新增模拟/空间/查询组件复测原主要1×/3×和相关密集负载，新增资产/界面复测对应视图/缩放/资源条件；阶段10之后保留固定基准供版本对比，并接入各系统实际增量，全矩阵由阶段38完整重跑。诊断短跑仅用于定位，不标成600秒正式采样通过。文档修改只运行设计校验；规则、性能、资产、安装和试玩的证据分别记录，已有无关通过项不重复制造工作。</p>
 <p>阶段未通过时先修本阶段问题，复测受影响条件；规则或技术合同需要改变时先更新对应规格。上游回归失败暂停依赖该成果的后续交付，已验证的无关成果保留。</p>
 <p>每个独立工作包完成feature-spec四步后实施，收尾检查实际责任/事实归属、重复状态、多余转发及达到的结果。P0为存档/恢复/重复结算/安装不可用，P1包括流程死锁、扩展破坏、必要内容缺失和持续性能超标，P2记录实际局部影响。依赖阻断和实际未测项不能以“阶段完成”隐藏。</p>
 <h3 id="implementation--section-144">46.3 预测与验收的接续</h3>
@@ -11243,6 +11246,16 @@ python -X utf8 tools/report-kernel.py --input .cache/validation/stage03/local-ke
 <td>本机组件与基准实测</td>
 <td>02</td>
 <td>已实现负载成本、预测区间及未覆盖风险</td>
+</tr>
+<tr>
+<td>显示与资源针对性检查</td>
+<td>07</td>
+<td>已接入表现管线的绘制/姿态/加载/释放成本及具体问题</td>
+</tr>
+<tr>
+<td>正式综合性能基准</td>
+<td>10</td>
+<td>基础门诊下模拟、显示、输入、存储与资源共同运行的可重复基线及未覆盖范围</td>
 </tr>
 <tr>
 <td>系统增量和正式资源接入</td>
