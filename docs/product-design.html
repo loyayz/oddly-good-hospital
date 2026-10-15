@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="design-source-sha256" content="9eab4644deb769ee38925e083c31ce183936d88318bbd89d40e2b5f9d4b6bfef">
+<meta name="design-source-sha256" content="63771737514b0cd78b0547c4b39eb189e31c1a193bbc0dac757813b64d93d777">
 <title>怪好的医院 · Oddly Good Hospital · 产品设计方案</title>
 <style>
 :root{color-scheme:light;--ink:#293d60;--muted:#53657f;--blue:#3b5f92;--paper:#fffdf7;--line:#d6deeb}
@@ -11730,7 +11730,7 @@ pwsh -NoProfile -File docs/tools/export-design.ps1
 <p>新路径协议允许与旧BFS选择不同等成本路线，仍须验证临床安全、费用/耗材幂等、实际等待和随机流。正式替换后的Release作为新基线，从160人重新按§5执行分档、三轮上限及最终同源六组复测，只保留最终性能报告。原第三阶段测量不得改写成新导航或完整游戏的通过证明；尚未接入的玩法与呈现帧/GPU仍明确未测。</p>
 <h2 id="stage02-stage03-spec--section-9">9. 导航实现与规则证据</h2>
 <p>层内入口为<code>FloorNavigation</code>与<code>NavigationCache</code>，实际通行投影归<code>RouteClearance</code>；<code>HospitalTransit</code>统一持有只读时间报价和实际票序、空返、整组登离舱。<code>HospitalSpace</code>持有请求与移动协调，<code>BodyIndex</code>和<code>BodySweep</code>提供完整候选及分段时序核验。图与索引均可从当前事实重建，移动起点和离舱点随原移动历史保存，以保留首次迎面受阻时的真实退让位置。</p>
-<p>固定Godot4.7.2下规则运行器97项通过，覆盖命令原子性、门诊与手术的真实治愈离院、护理释放、耗材及费用单次结算、不同速度同tick事实和随机流一致，以及导航队列、改建、净高、换乘、巨型出口、整组与JSON恢复。整组图组合与完整几何投影的路径一致，递归驱逐保持容量记账，身体变化触发活动路线复核。原生AStar邻接协议探针另覆盖80次边恢复、25次点恢复，每次625组查询，规范化后的逐节点路径差异为0。该小图探针不承担完整医院、软代价或性能通过证明。</p>
+<p>固定Godot4.7.2下规则运行器98项通过，覆盖命令原子性、门诊与手术的真实治愈离院、护理释放、耗材及费用单次结算、不同速度同tick事实和随机流一致，以及导航队列、改建、净高、换乘、巨型出口、整组与JSON恢复。整数格的组偏移通过成员图逐边约束查询，小数格的组偏移使用完整几何投影；两种路径与完整投影一致，借用期间驱逐保持路径及容量记账，查询后解除组约束，身体变化触发活动路线复核。原生AStar邻接协议探针另覆盖80次边恢复、25次点恢复，每次625组查询，规范化后的逐节点路径差异为0。该小图探针不承担完整医院、软代价或性能通过证明。</p>
 <p>当前可运行路径使用单位层内成本，没有新增软代价玩法生产者。导航缓存按保守容量记账驱逐；Release原生容器的精确分配量仍未单独测得。正式性能证据归<a href="#stage03-performance">最终内核报告</a>，按§5判定各档门禁和六组复测，不由规则通过或诊断短跑推导。</p>
 </section>
 <section class="chapter" id="stage02-benchmark"><h1 id="stage02-benchmark--section">第二阶段：基准工具与成本接入</h1>

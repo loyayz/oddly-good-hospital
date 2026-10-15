@@ -422,16 +422,14 @@ func _group_graph_equivalence(content: HospitalContent) -> void:
 		var members: Array = ["actor_00","actor_01"]
 		var offsets: Dictionary = {"actor_00":[0,0],"actor_01":[cases[index][2],0]}
 		var query: RouteClearance = RouteClearance.new(space,world,leader,1,members,offsets,false)
-		var warm: FloorNavigation = space._navigation.graph(space,world,1,leader,members,offsets)
-		var initial: Dictionary = warm.find_path(Vector2i(8,16),Vector2i(20,20),query)
+		var initial: Dictionary = _cached_group_path(space,world,leader,members,offsets,query)
 		var reference: Dictionary = FloorNavigation.new(query).find_path(Vector2i(8,16),Vector2i(20,20),query)
 		_check("group_graph_full_projection_equivalence_"+str(index),initial.ok and initial==reference)
 		for y: int in 32:
 			world.facts.floors.overrides["1"].blocked.append([12,y])
 		world.touch()
 		query = RouteClearance.new(space,world,leader,1,members,offsets,false)
-		warm = space._navigation.graph(space,world,1,leader,members,offsets)
-		var repaired: Dictionary = warm.find_path(Vector2i(8,16),Vector2i(20,20),query,Callable(),true)
+		var repaired: Dictionary = _cached_group_path(space,world,leader,members,offsets,query,true)
 		reference = FloorNavigation.new(query).find_path(Vector2i(8,16),Vector2i(20,20),query,Callable(),true)
 		_check("group_graph_local_repair_and_partial_equivalence_"+str(index),repaired.status=="partial" and repaired==reference)
 		if index==0:
@@ -440,11 +438,19 @@ func _group_graph_equivalence(content: HospitalContent) -> void:
 			world.facts.floors.overrides["1"].blocked.clear()
 			world.touch()
 			query = RouteClearance.new(space,world,leader,1,members,offsets,false)
-			warm = space._navigation.graph(space,world,1,leader,members,offsets)
-			var evicted: Dictionary = warm.find_path(Vector2i(8,16),Vector2i(20,20),query)
+			var evicted: Dictionary = _cached_group_path(space,world,leader,members,offsets,query)
 			reference = FloorNavigation.new(query).find_path(Vector2i(8,16),Vector2i(20,20),query)
-			_check("recursive_group_eviction_preserves_path_and_capacity_charge",evicted.ok and evicted==reference and space._navigation._charged==0 and space._navigation._entries.is_empty())
+			_check("borrowed_group_eviction_preserves_path_and_capacity_charge",evicted.ok and evicted==reference and space._navigation._charged==0 and space._navigation._entries.is_empty())
 			content.balance.pathfinding.graph_cache_target_bytes = original_target
+			var solo_query: RouteClearance = RouteClearance.new(space,world,leader,1,[],{},false)
+			var solo: FloorNavigation = space._navigation.graph(space,world,1,leader,[],{})
+			var solo_path: Dictionary = solo.find_path(Vector2i(0,16),Vector2i(20,20),solo_query)
+			reference = FloorNavigation.new(solo_query).find_path(Vector2i(0,16),Vector2i(20,20),solo_query)
+			_check("group_constraints_do_not_leak_into_single_queries",solo_path.ok and solo_path==reference)
+
+func _cached_group_path(space: HospitalSpace, world: WorldState, leader: Dictionary, members: Array, offsets: Dictionary, query: RouteClearance, partial: bool = false) -> Dictionary:
+	var navigation: Dictionary = space._navigation.query_graphs(space,world,1,leader,members,offsets)
+	return (navigation.graph as FloorNavigation).find_path(Vector2i(8,16),Vector2i(20,20),query,Callable(),partial,navigation.bases,navigation.shifts)
 
 func _active_route_changes(content: HospitalContent) -> void:
 	var world: WorldState = _nav_world(content,1)

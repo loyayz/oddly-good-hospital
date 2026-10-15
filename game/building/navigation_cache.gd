@@ -27,6 +27,25 @@ func floor_version(space: HospitalSpace, world: WorldState, floor_id: int) -> in
 	floor_source(space,world,floor_id)
 	return int(_sources[str(world.get_instance_id())+":"+str(floor_id)].version)
 
+func query_graphs(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, members: Array, offsets: Dictionary) -> Dictionary:
+	var bases: Array[FloorNavigation] = []
+	var shifts: Array[Vector2i] = []
+	var ids: Array[String] = []
+	if members.size()>1:
+		for id: String in members:
+			if id==actor.id:
+				continue
+			var offset: Array = offsets[id]
+			if float(offset[0])!=floor(float(offset[0])) or float(offset[1])!=floor(float(offset[1])) or absf(float(offset[0]))>=96 or absf(float(offset[1]))>=96:
+				shifts.clear()
+				return {"graph":graph(space,world,floor_id,actor,members,offsets),"bases":bases,"shifts":shifts}
+			ids.append(id)
+			shifts.append(Vector2i(int(offset[0]),int(offset[1])))
+	var primary: FloorNavigation = graph(space,world,floor_id,actor,[],{})
+	for id: String in ids:
+		bases.append(graph(space,world,floor_id,world.facts.actors[id],[],{}))
+	return {"graph":primary,"bases":bases,"shifts":shifts}
+
 func graph(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, members: Array, offsets: Dictionary) -> FloorNavigation:
 	var key: String = str(world.get_instance_id())+":"+str(floor_id)+":"+_envelope(space,world,actor,members,offsets)
 	var source: Dictionary = floor_source(space,world,floor_id)
@@ -34,31 +53,13 @@ func graph(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictio
 	_used += 1
 	if entry.is_empty() or entry.source!=source:
 		var geometry: RouteClearance = RouteClearance.new(space,world,actor,floor_id,members,offsets,false,source)
-		var bases: Array[FloorNavigation] = []
-		var shifts: Array[Vector2i] = []
-		if members.size()>1:
-			var ids: Array = [actor.id]
-			for id: String in members:
-				if id!=actor.id:
-					ids.append(id)
-			for id: String in ids:
-				var offset: Array = offsets.get(id,[0,0])
-				if float(offset[0])!=floor(float(offset[0])) or float(offset[1])!=floor(float(offset[1])) or absf(float(offset[0]))>=96 or absf(float(offset[1]))>=96:
-					shifts.clear()
-					break
-				shifts.append(Vector2i(int(offset[0]),int(offset[1])))
-			if shifts.size()==ids.size():
-				for id: String in ids:
-					bases.append(graph(space,world,floor_id,world.facts.actors[id],[],{}))
 		var floor_graph: FloorNavigation
 		if entry.is_empty():
-			floor_graph = FloorNavigation.new(geometry,bases,shifts)
+			floor_graph = FloorNavigation.new(geometry)
 		else:
 			floor_graph = entry.graph
-			floor_graph.refresh(geometry,bases,shifts)
-		# Recursive constituent lookups may have evicted this older group entry.
-		if _entries.has(key):
-			_charged -= int(_entries[key].charge)
+			floor_graph.refresh(geometry)
+			_charged -= int(entry.charge)
 		# Capacity charge includes native points/adjacency and projection containers.
 		# This is an eviction allowance, not a measured Release allocation count.
 		var charge: int = floor_graph.get_point_count()*2048+var_to_bytes(source).size()*8+16384

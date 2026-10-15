@@ -12,9 +12,11 @@ func graph(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictio
 		category = "repair" if entry.source!=source else "hit"
 	var result: FloorNavigation = super.graph(space,world,floor_id,actor,members,offsets)
 	var elapsed: int = Time.get_ticks_usec()-started
-	var record: Dictionary = timings.get(category,{"calls":0,"usec":0,"max_usec":0})
+	var record: Dictionary = timings.get(category,{"calls":0,"usec":0,"max_usec":0,"max_tick_before_step":-1})
 	record.calls += 1
 	record.usec += elapsed
-	record.max_usec = maxi(int(record.max_usec),elapsed)
+	if elapsed>int(record.max_usec):
+		record.max_usec = elapsed
+		record.max_tick_before_step = world.sim_tick
 	timings[category] = record
 	return result

@@ -249,12 +249,13 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 	_sweep_index.expire_boundary()
 
 func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2i, goal: Vector2i, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
-	var graph: FloorNavigation = _navigation.graph(self,world,floor_id,actor,members,offsets)
+	var navigation: Dictionary = _navigation.query_graphs(self,world,floor_id,actor,members,offsets)
+	var graph: FloorNavigation = navigation.graph
 	var query: RouteClearance = RouteClearance.new(self,world,actor,floor_id,members,offsets,true,graph.geometry.source)
 	var people: Callable = Callable()
 	if not ignore_people:
 		people = func(cell: Vector2i) -> bool: return _dynamic_clear(world,actor.id,floor_id,_unit_rect(world,actor,Vector2(cell),members,offsets),members)
-	var result: Dictionary = graph.find_path(start,goal,query)
+	var result: Dictionary = graph.find_path(start,goal,query,Callable(),false,navigation.bases,navigation.shifts)
 	if result.ok and people.is_valid():
 		var low: Vector2 = Vector2(start)
 		var high: Vector2 = low
@@ -270,7 +271,7 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 					blocked = true
 					break
 			if blocked:
-				var alternative: Dictionary = graph.find_path(start,goal,query,people)
+				var alternative: Dictionary = graph.find_path(start,goal,query,people,false,navigation.bases,navigation.shifts)
 				if alternative.ok:
 					result = alternative
 				else:
