@@ -33,8 +33,13 @@ func build_controls() -> void:
 	memo.custom_minimum_size.y=90
 	memo.wrap_mode=TextEdit.LINE_WRAPPING_BOUNDARY
 	memo.text=info.saving_note
-	field("经营便签",memo)
-	action("保存便签",func() -> void: send("finance_note",{"text":memo.text}))
+	field("存钱便签",memo)
+	var target: SpinBox = number("目标金额",1,1000000000000,maxi(1,int(info.target_amount)))
+	if int(info.target_amount)>0:
+		note("已达到存钱目标" if info.target_reached else "距离目标还差 ¥%s" % info.remaining_to_target)
+	note("便签不圈存资金，必要支出照常结算。")
+	action("保存便签",func() -> void: send("finance_note",{"text":memo.text,"target_amount":int(target.value)}))
+	action("清除便签",func() -> void: send("finance_note",{"text":"","target_amount":0}),not str(info.saving_note).is_empty())
 	note("恢复经营援助在资金与诊疗能力满足条件时提供实际支持。归还借用设备须先结束真实占用。")
 	action("申请恢复经营援助",func() -> void: send("finance_rescue"),info.rescue_available)
 	action("归还援助借用品",func() -> void: send("finance_return_rescue"))

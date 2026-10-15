@@ -55,7 +55,7 @@ func build_controls() -> void:
 	var payload: Callable = func() -> Dictionary: return {"floor_id":floor_id,"material_id":selected(material),"units":_cells.duplicate(true),"allow_waiting":true}
 	action("查看装修报价",func() -> void:
 		var quote: Dictionary = service.renovation_quote(simulation.world,payload.call())
-		quote_label.text="材料 ¥%s / 格 · 共 ¥%s · 工时 %s秒\n%s" % [quote.get("unit_price",0),quote.get("cost",0),quote.get("work_seconds",0),quote.get("reason","")])
+		quote_label.text="材料 ¥%s / 格 · 共 ¥%s · 工时 %s秒\n%s\n%s" % [quote.get("unit_price",0),quote.get("cost",0),quote.get("work_seconds",0),quote.get("reason",""),payment_summary(int(quote.get("cost",0)))])
 	action("确认所选格装修",func() -> void: send("renovation_order",payload.call()))
 	var orders: Array = []
 	for order: Dictionary in simulation.world.facts.get("environment",{}).get("orders",{}).values():

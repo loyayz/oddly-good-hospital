@@ -293,6 +293,8 @@ func validate(content: HospitalContent) -> String:
 			return "尝试承诺或领包凭据缺失：" + id
 		if int(facts.inventory.issues[id].units)!=int(attempt.supply_units) or int(attempt.probability_bp)<0 or int(attempt.probability_bp)>10000:
 			return "尝试领包数量或概率无效"
+		if attempt.has("ward_fee") and not _natural(attempt.ward_fee):
+			return "尝试床位费用快照无效"
 		for staff_id: String in attempt.staff_ids:
 			if not facts.staff.has(staff_id):
 				return "尝试人员引用缺失"
@@ -358,7 +360,7 @@ func validate(content: HospitalContent) -> String:
 			return "竖向连接定义不存在："+id
 		var footprint: Array = definition.footprint.duplicate()
 		if int(connector.get("rotation",0))%2==1: footprint.reverse()
-		if connector.footprint!=footprint or connector.riders.size()>int(definition.max_group_size):
+		if int(connector.footprint[0])!=int(footprint[0]) or int(connector.footprint[1])!=int(footprint[1]) or connector.riders.size()>int(definition.max_group_size):
 			return "竖向结构占地或乘员数量与源定义不符"
 		var ends: Array = HospitalTransit.endpoints(connector)
 		if definition.kind=="stairs" and (ends.size()!=2 or absi(int(ends[1])-int(ends[0]))!=1):

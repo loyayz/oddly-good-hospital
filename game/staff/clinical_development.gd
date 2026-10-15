@@ -136,6 +136,10 @@ func dispatch(world: WorldState) -> void:
 	ensure(world)
 	_worked.clear()
 	_mentor_blocks.clear()
+	for staff: Dictionary in world.facts.staff.values():
+		var existing: Dictionary = staff.get("base_task",{})
+		if not existing.is_empty() and not existing.has("queue_tick"):
+			existing.queue_tick = world.sim_tick
 	var queue: Array = []
 	for id: String in world.ids("training_jobs"):
 		var job: Dictionary = world.facts.training_jobs[id]
@@ -155,11 +159,15 @@ func dispatch(world: WorldState) -> void:
 			research.call("dispatch_job",world,entry.job)
 		else:
 			_dispatch_training_job(world,entry.job)
+	var base_queue: Array = []
 	for staff_id: String in world.ids("staff"):
 		var staff: Dictionary = world.facts.staff[staff_id]
 		if not staff.role in ["doctor","nurse"] or _mentor_blocks.has(staff_id) or (not str(staff.get("training_job_id","")).is_empty() and _training_window(world,staff)):
 			continue
-		_prepare_base(world,staff_id,staff)
+		base_queue.append({"id":staff_id,"queue_tick":_base_order_tick(world,staff),"commitment":2})
+	base_queue.sort_custom(_base_before)
+	for entry: Dictionary in base_queue:
+		_prepare_base(world,entry.id,world.facts.staff[entry.id])
 
 func _dispatch_training_job(world: WorldState, job: Dictionary) -> void:
 	var staff: Dictionary = world.facts.staff[job.staff_id]
@@ -237,6 +245,14 @@ func advance(world: WorldState) -> void:
 		var task: Dictionary = staff.get("base_task",{})
 		if task.get("phase","")!="working":
 			continue
+		if not staff.get("on_shift",false) or staff.get("life_task",{}).get("phase","idle")!="idle" or safe_busy(world,staff_id) or world.facts.moves.has(staff_id) or not world.facts.facilities.has(task.facility_id):
+			continue
+		var base: Dictionary = space.facility_layout(world,task.facility_id)
+		var line: Array = _base_line(world,task.facility_id)
+		if world.facts.facilities[task.facility_id].failed or line.is_empty() or line[0].id!=staff_id or not space.at(world,staff_id,int(base.floor_id),_operator(base)):
+			continue
+		# A preparation already working when an arrangement is confirmed
+		# completes this original segment before remodel dispatch vacates it.
 		task.remaining_ticks = maxi(0,int(task.remaining_ticks)-1)
 		_worked[staff_id] = true
 		if int(task.remaining_ticks)==0:
@@ -325,6 +341,9 @@ func validate(world: WorldState) -> String:
 				return "医护成长事实无效"
 			if not str(staff.get("training_job_id","")).is_empty() and not active.has(staff.id):
 				return "学员活动培养引用无效"
+			var base_task: Variant = staff.get("base_task",{})
+			if base_task is Dictionary and base_task.has("queue_tick") and (not base_task.queue_tick is int or int(base_task.queue_tick)<0):
+				return "工作基地排队起点无效"
 	return ""
 
 static func tracks(staff: Dictionary) -> Array:
@@ -355,21 +374,29 @@ func _prepare_base(world: WorldState, staff_id: String, staff: Dictionary) -> vo
 		staff.base_prepared = false
 		staff.base_task = {}
 		return
-	if staff.get("base_prepared",false) or safe_busy(world,staff_id) or world.facts.moves.has(staff_id):
-		return
 	var task: Dictionary = staff.base_task
+	if not task.is_empty() and world.facts.facilities.has(task.facility_id) and _base_arranged(world,task.facility_id):
+		var arranged_base: Dictionary = space.facility_layout(world,task.facility_id)
+		var working_here: bool = task.get("phase","")=="working" and not world.facts.moves.has(staff_id) and space.at(world,staff_id,int(arranged_base.floor_id),_operator(arranged_base))
+		if not working_here:
+			task.phase = "travel"
+			staff.block_new_work = true
+			staff.growth_reason = "等待原工作基地改建安排结束"
+			var movement: Dictionary = world.facts.moves.get(staff_id,{})
+			if not safe_busy(world,staff_id) and not movement.is_empty() and int(movement.target_floor)==int(arranged_base.floor_id) and movement.target_cell==_operator(arranged_base) and world.facts.actors[staff_id].location.kind=="floor" and movement.get("members",[]).is_empty():
+				HospitalTransit.cancel_waiting(world,movement)
+				world.facts.moves.erase(staff_id)
+			return
+	if safe_busy(world,staff_id) or world.facts.moves.has(staff_id):
+		return
+	if staff.get("base_prepared",false):
+		_yield_prepared_base(world,staff_id)
+		return
 	if task.is_empty():
-		var wanted: String = str(content.balance.staff_work_bases.doctor_equipment_id if staff.role=="doctor" else content.balance.staff_work_bases.nurse_equipment_id)
-		for id: String in world.ids("facilities"):
-			var facility: Dictionary = world.facts.facilities[id]
-			if facility.definition_id!=wanted or facility.failed or _base_taken(world,id,staff_id):
-				continue
-			var layout: Dictionary = space.facility_layout(world,id)
-			if not space.route(world,staff_id,int(layout.floor_id),_operator(layout)).ok:
-				continue
-			task = {"phase":"travel","facility_id":id,"remaining_ticks":ceili(float(content.balance.staff_work_bases.preparation_seconds)/WorldState.TICK_SECONDS)}
+		var selected: String = _select_base(world,staff_id)
+		if not selected.is_empty():
+			task = {"phase":"travel","facility_id":selected,"remaining_ticks":ceili(float(content.balance.staff_work_bases.preparation_seconds)/WorldState.TICK_SECONDS),"queue_tick":_base_order_tick(world,staff)}
 			staff.base_task = task
-			break
 		if task.is_empty():
 			staff.growth_reason = "缺少可达的医生办公桌或护士工作台"
 			return
@@ -378,11 +405,164 @@ func _prepare_base(world: WorldState, staff_id: String, staff: Dictionary) -> vo
 		staff.base_task = {}
 		return
 	var base: Dictionary = space.facility_layout(world,task.facility_id)
+	var line: Array = _base_line(world,task.facility_id)
+	if line[0].id!=staff_id:
+		task.phase = "travel"
+		staff.growth_reason = "等待共享工作位轮用"
+		return
 	if space.at(world,staff_id,int(base.floor_id),_operator(base)):
 		task.phase = "working"
 		staff.growth_reason = "正在整理本段工作记录"
 	else:
+		task.phase = "travel"
 		staff.growth_reason = space.request_move(world,staff_id,int(base.floor_id),_operator(base))
+
+func _base_order_tick(world: WorldState, staff: Dictionary) -> int:
+	var task: Dictionary = staff.get("base_task",{})
+	if not task.is_empty():
+		return int(task.get("queue_tick",world.sim_tick))
+	var day: int = world.sim_tick/WorldState.TICKS_PER_DAY
+	var shift_ticks: int = ceili(float(content.balance.schedule.shift_seconds)/WorldState.TICK_SECONDS)
+	var count: int = int(content.balance.schedule.shifts_per_day)
+	var schedule: Array = staff.get("schedule",[])
+	if schedule.size()!=count:
+		return world.sim_tick
+	var slot: int = (world.sim_tick/shift_ticks)%count
+	var start: int = -1
+	var overrides: Dictionary = staff.get("schedule_overrides",{}) if int(staff.get("schedule_day",-1))==day else {}
+	for previous: int in range(slot,-1,-1):
+		var entry: Dictionary = overrides.get(str(previous),schedule[previous])
+		if entry.kind in ["rest","training"]:
+			start = day*WorldState.TICKS_PER_DAY+(previous+1)*shift_ticks
+			break
+		if previous==0 and day==0:
+			start = day*WorldState.TICKS_PER_DAY
+	# When yesterday's detailed boundary is gone, the first real request
+	# supplies this task's stable order instead of reconstructing history.
+	if start<0 or start>world.sim_tick:
+		return world.sim_tick
+	return maxi(start,maxi(int(staff.get("hired_tick",0)),int(staff.get("last_rest_end_tick",0))))
+
+func _base_before(a: Dictionary, b: Dictionary) -> bool:
+	if a.commitment!=b.commitment:
+		return int(a.commitment)<int(b.commitment)
+	if a.queue_tick!=b.queue_tick:
+		return int(a.queue_tick)<int(b.queue_tick)
+	return str(a.id)<str(b.id)
+
+func _base_line(world: WorldState, facility_id: String, candidate_id: String = "") -> Array:
+	var result: Array = []
+	var base: Dictionary = space.facility_layout(world,facility_id)
+	for staff_id: String in world.ids("staff"):
+		var staff: Dictionary = world.facts.staff[staff_id]
+		var task: Dictionary = staff.get("base_task",{})
+		if task.get("facility_id","")!=facility_id and staff_id!=candidate_id:
+			continue
+		var commitment: int = 2
+		if not safe_busy(world,staff_id) and staff.get("on_shift",false) and staff.get("life_task",{}).get("phase","idle")=="idle":
+			var movement: Dictionary = world.facts.moves.get(staff_id,{})
+			if not movement.is_empty() and int(movement.target_floor)==int(base.floor_id) and movement.target_cell==_operator(base):
+				commitment = 1
+			elif task.get("phase","")=="working" and movement.is_empty() and space.at(world,staff_id,int(base.floor_id),_operator(base)):
+				commitment = 0
+		result.append({"id":staff_id,"queue_tick":_base_order_tick(world,staff),"commitment":commitment})
+	result.sort_custom(_base_before)
+	return result
+
+func _base_start_quote(world: WorldState, staff_id: String, facility_id: String, route: Dictionary) -> int:
+	if not route.ok or int(route.get("arrival_ticks",-1))<0:
+		return -1
+	var ready: int = world.sim_tick
+	var base: Dictionary = space.facility_layout(world,facility_id)
+	for entry: Dictionary in _base_line(world,facility_id,staff_id):
+		if entry.id==staff_id:
+			return maxi(ready,world.sim_tick+int(route.arrival_ticks))
+		var other: Dictionary = world.facts.staff[entry.id]
+		if not other.get("on_shift",false) or other.get("life_task",{}).get("phase","idle")!="idle" or safe_busy(world,entry.id):
+			return -1
+		var arrival: Dictionary = space.route(world,entry.id,int(base.floor_id),_operator(base),[],{},true)
+		if not arrival.ok or int(arrival.get("arrival_ticks",-1))<0:
+			return -1
+		ready = maxi(ready,world.sim_tick+int(arrival.arrival_ticks))+int(other.base_task.remaining_ticks)
+	return -1
+
+func _base_arranged(world: WorldState, facility_id: String) -> bool:
+	var facility: Dictionary = world.facts.facilities.get(facility_id,{})
+	return HospitalRemodel.blocked(world,facility_id) or HospitalRemodel.blocked(world,str(facility.get("room_id","")))
+
+func _select_base(world: WorldState, staff_id: String) -> String:
+	var staff: Dictionary = world.facts.staff[staff_id]
+	var actor: Dictionary = world.facts.actors[staff_id]
+	if actor.location.kind!="floor":
+		return ""
+	var wanted: String = str(content.balance.staff_work_bases.doctor_equipment_id if staff.role=="doctor" else content.balance.staff_work_bases.nurse_equipment_id)
+	var ward: Dictionary = world.facts.rooms.get(staff.get("ward_id",""),{})
+	var nurse_floor: int = int(ward.floor_id) if ward.get("kind","")=="ward" else int(actor.location.floor_id)
+	var choices: Array = []
+	for id: String in world.ids("facilities"):
+		var facility: Dictionary = world.facts.facilities[id]
+		if facility.definition_id!=wanted or facility.failed or _base_arranged(world,id) or (staff.role=="nurse" and int(facility.floor_id)!=nurse_floor):
+			continue
+		var layout: Dictionary = space.facility_layout(world,id)
+		var route: Dictionary = space.route(world,staff_id,int(layout.floor_id),_operator(layout),[],{},true)
+		if not route.ok and route.get("status","")!="estimate_unknown":
+			continue
+		choices.append({"id":id,"start_tick":_base_start_quote(world,staff_id,id,route),"travel_ticks":int(route.get("arrival_ticks",-1))})
+	choices.sort_custom(func(a: Dictionary,b: Dictionary) -> bool:
+		if (int(a.start_tick)<0)!=(int(b.start_tick)<0): return int(a.start_tick)>=0
+		if a.start_tick!=b.start_tick: return int(a.start_tick)<int(b.start_tick)
+		if (int(a.travel_ticks)<0)!=(int(b.travel_ticks)<0): return int(a.travel_ticks)>=0
+		if a.travel_ticks!=b.travel_ticks: return int(a.travel_ticks)<int(b.travel_ticks)
+		return str(a.id)<str(b.id))
+	return "" if choices.is_empty() else str(choices[0].id)
+
+func _yield_prepared_base(world: WorldState, staff_id: String) -> void:
+	var actor: Dictionary = world.facts.actors[staff_id]
+	if actor.location.kind!="floor":
+		return
+	var floor_id: int = int(actor.location.floor_id)
+	var origin: Vector2i = Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
+	for other_id: String in world.ids("staff"):
+		var other: Dictionary = world.facts.staff[other_id]
+		var task: Dictionary = other.get("base_task",{})
+		if other_id==staff_id or task.get("phase","")!="travel" or not other.get("on_shift",false) or other.get("base_prepared",false) or other.get("life_task",{}).get("phase","idle")!="idle" or safe_busy(world,other_id) or not world.facts.facilities.has(task.get("facility_id","")):
+			continue
+		if _base_arranged(world,task.facility_id):
+			continue
+		if _base_line(world,task.facility_id)[0].id!=other_id:
+			continue
+		var base: Dictionary = space.facility_layout(world,task.facility_id)
+		var waiting_actor: Dictionary = world.facts.actors[other_id]
+		var operator_rect: Rect2 = space._actor_rect(waiting_actor,Vector2(float(_operator(base)[0]),float(_operator(base)[1])))
+		if int(base.floor_id)!=floor_id or not space.body_rectangle(actor).intersects(operator_rect,false):
+			continue
+		# A completed preparation releases its reservation, but its body must
+		# also walk clear before the next employee can use this shared place.
+		var incoming: Dictionary = world.facts.moves.get(other_id,{})
+		var path: Array = incoming.get("path",[]).slice(int(incoming.get("cursor",0)))
+		if path.is_empty():
+			var quote: Dictionary = space.route(world,other_id,floor_id,_operator(base))
+			if not quote.ok:
+				continue
+			path = quote.get("path",[])
+		var entry_regions: Array[Rect2] = [operator_rect]
+		for step: Dictionary in path:
+			if step.kind=="floor" and int(step.floor_id)==floor_id:
+				entry_regions.append(space._actor_rect(waiting_actor,Vector2(float(step.cell[0]),float(step.cell[1]))))
+		for distance: int in range(1,5):
+			for delta: Vector2i in [Vector2i(0,-distance),Vector2i(distance,0),Vector2i(0,distance),Vector2i(-distance,0)]:
+				var point: Vector2i = origin+delta
+				var rect: Rect2 = space._actor_rect(actor,Vector2(point))
+				var blocks_entry: bool = false
+				for region: Rect2 in entry_regions:
+					blocks_entry = blocks_entry or rect.intersects(region,false)
+				if blocks_entry or not space.static_reason(world,actor,floor_id,point).is_empty() or space._narrow(world,actor,point) or not space._dynamic_clear(world,staff_id,floor_id,rect):
+					continue
+				var route: Dictionary = space.route(world,staff_id,floor_id,[point.x,point.y])
+				if route.ok and route.get("status","")!="contention":
+					space.request_move(world,staff_id,floor_id,[point.x,point.y])
+					world.facts.staff[staff_id].growth_reason = "让出共享工作位"
+					return
 
 func _training_window(world: WorldState, staff: Dictionary) -> bool:
 	var leave: Dictionary = staff.get("leave_plan",{})
@@ -422,12 +602,6 @@ static func desk_taken(world: WorldState, desk_id: String, except_id: String = "
 			return true
 	return false
 
-func _base_taken(world: WorldState, facility_id: String, except_id: String) -> bool:
-	for staff: Dictionary in world.facts.staff.values():
-		if staff.id!=except_id and staff.get("base_task",{}).get("facility_id","")==facility_id:
-			return true
-	return false
-
 func _mentor_qualified(world: WorldState, student_id: String, mentor_id: String, track: String) -> bool:
 	if mentor_id==student_id or not world.facts.staff.has(mentor_id):
 		return false
@@ -441,8 +615,8 @@ func _mentor_available(world: WorldState, job: Dictionary) -> bool:
 	if str(job.get("mentor_id","")).is_empty() or not _mentor_qualified(world,job.staff_id,job.mentor_id,job.track):
 		return false
 	var mentor: Dictionary = world.facts.staff[job.mentor_id]
-	if mentor.get("block_new_work",false) and _mentor_blocks.get(job.mentor_id,"")!=job.id:
-		return false
+	# This course also sets block_new_work while its mentor is travelling or
+	# teaching. Availability comes from the original obligations below.
 	if _mentor_blocks.has(job.mentor_id) and _mentor_blocks[job.mentor_id]!=job.id:
 		return false
 	return _training_window(world,mentor) and not safe_busy(world,job.mentor_id) and str(mentor.get("training_job_id","")).is_empty() and mentor.get("life_task",{}).get("phase","idle")=="idle" and mentor.get("base_task",{}).is_empty()

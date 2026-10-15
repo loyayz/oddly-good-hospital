@@ -406,7 +406,7 @@ func _tea_position(world: WorldState, staff_id: String) -> Dictionary:
 	var shortest: float = INF
 	for room_id: String in world.ids("rooms"):
 		var room: Dictionary = world.facts.rooms[room_id]
-		if not _is_staff_room(room):
+		if not _is_staff_room(room) or HospitalRemodel.blocked(world,room_id):
 			continue
 		for target: Array in BuildGeometry.cells(room):
 			if not _tea_cell(world,staff_id,room,target):
@@ -525,7 +525,7 @@ func _recreation(world: WorldState, ids: Array, preferred: String) -> CommandRes
 	for facility_id: String in world.ids("facilities"):
 		var facility: Dictionary = world.facts.facilities[facility_id]
 		var definition: Dictionary = content.definition("staff_recreation_equipment",facility.definition_id)
-		if (not preferred.is_empty() and facility_id!=preferred) or definition.is_empty() or facility.failed or not _staff_area(world,facility) or world.facts.staff_life.reservations.has(facility_id) or int(definition.capacity)<ids.size():
+		if HospitalRemodel.blocked(world,facility_id) or (not preferred.is_empty() and facility_id!=preferred) or definition.is_empty() or facility.failed or not _staff_area(world,facility) or world.facts.staff_life.reservations.has(facility_id) or int(definition.capacity)<ids.size():
 			continue
 		var partners: Array = ids.slice(1)
 		var fit: Dictionary = space.facility_quote(world,facility_id,ids[0],partners)
@@ -690,7 +690,7 @@ func _relief_available(world: WorldState, staff_id: String) -> bool:
 	var staff: Dictionary = world.facts.staff[staff_id]
 	for other_id: String in world.ids("staff"):
 		var other: Dictionary = world.facts.staff[other_id]
-		if other_id==staff_id or other.role!=staff.role or not other.get("on_shift",false) or other.get("block_new_work",false) or other.life_task.phase!="idle" or not str(other.get("training_job_id","")).is_empty():
+		if other_id==staff_id or other.role!=staff.role or not other.get("on_shift",false) or other.get("block_new_work",false) or other.life_task.phase!="idle" or world.facts.moves.has(other_id) or other.get("supply_strike",false) or not str(other.get("training_job_id","")).is_empty():
 			continue
 		if other.get("scheduled_kind","")!=staff.get("scheduled_kind","") or (staff.role in ["doctor","nurse"] and not other.get("base_prepared",false)):
 			continue

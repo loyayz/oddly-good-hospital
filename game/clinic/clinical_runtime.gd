@@ -72,8 +72,10 @@ func _change_plan(world: WorldState, kind: String, payload: Dictionary) -> Comma
 	var visit: Dictionary = world.facts.visits.get(id,{})
 	if visit.is_empty() or not str(visit.phase).begins_with("wait_"):
 		return CommandResult.new(false,"clinical_busy","请选择正在候诊且尚未开工的病例",[],world.revision)
+	if world.facts.tickets.get(visit.get("ticket_id",""),{}).has("resume_session_id"):
+		return CommandResult.new(false,"clinical_busy","原疗程已开工，安全暂停期间仍保留原方案",[],world.revision)
 	if kind == "clinical_auto_plan":
-		world.facts.preparations.erase(id)
+		_release_preparation(world,id)
 		visit.plan_decision = {}
 		_retarget_ticket(world,visit,"consult")
 		return CommandResult.new(true,"applied","",[id],world.revision)
@@ -83,7 +85,7 @@ func _change_plan(world: WorldState, kind: String, payload: Dictionary) -> Comma
 		return CommandResult.new(false,"plan_not_ready",quote.reason,[],world.revision)
 	if payload.has("probability_bp") and int(payload.probability_bp)!=int(quote.probability_bp):
 		return CommandResult.new(false,"material_change","当前预计效果已改变，请刷新本次方案",[],world.revision)
-	world.facts.preparations.erase(id)
+	_release_preparation(world,id)
 	visit.requested_plan_id = plan_id
 	visit.plan_decision = {"plan_id":plan_id,"source":"director","doctor_id":str(quote.staff_ids[0]),
 		"revision":int(visit.plan_decision.get("revision",0))+1,"probability_bp":int(quote.probability_bp),"reason":"院长指定当前合法方案","expected_team":quote.staff_ids.duplicate()}
@@ -169,13 +171,22 @@ func depart_visit(world: WorldState, visit_id: String, result: String = "abandon
 			return false
 	for id: String in world.facts.get("clinical_suspensions",{}).keys():
 		if world.facts.clinical_suspensions[id].visit_id==visit_id: world.facts.clinical_suspensions.erase(id)
-	world.facts.preparations.erase(visit_id)
+	_release_preparation(world,visit_id)
 	world.facts.tickets.erase(visit.ticket_id)
 	visit.ticket_id = ""
 	visit.final_result = result
 	visit.phase = "leaving"
 	visit.waiting_reason = ""
 	return true
+
+func _release_preparation(world: WorldState, visit_id: String) -> void:
+	world.facts.preparations.erase(visit_id)
+	for reservation: Dictionary in world.facts.adaptations.values():
+		if reservation.kind=="facility" and reservation.owner_id==visit_id:
+			# Cancelled work no longer owns space. Any body still inside keeps
+			# its physical envelope until it has actually walked clear.
+			reservation.owner_id = reservation.actor_id
+	space.release_adaptations(world)
 
 func dispatch(world: WorldState) -> void:
 	_worked_staff.clear()
@@ -185,7 +196,7 @@ func dispatch(world: WorldState) -> void:
 	for preparation_id: String in world.ids("preparations"):
 		var pending: Dictionary = world.facts.preparations[preparation_id]
 		if pending.get("kind","")=="outpatient" and world.sim_tick>=int(pending.deadline_tick):
-			world.facts.preparations.erase(preparation_id)
+			_release_preparation(world,preparation_id)
 			world.facts.visits[pending.visit_id].waiting_reason = "准备到期，释放原资源并保留票号"
 	for visit_id: String in world.ids("visits"):
 		var visit: Dictionary = world.facts.visits[visit_id]
@@ -266,6 +277,10 @@ func dispatch(world: WorldState) -> void:
 			if not doctor_id.is_empty():
 				stay.round_doctor_id = doctor_id
 				_start_bed_service(world,visit,stay,"round",doctor_id,float(content.balance.clinical.discharge_round_seconds))
+			else:
+				visit.waiting_reason = _ward_staff_wait_reason(world,stay,"round")
+	if int(world.facts.get("gameplay_version",0))>=1:
+		_dispatch_ward_returns(world)
 
 func advance(world: WorldState) -> void:
 	for session_id: String in world.ids("sessions"):
@@ -302,7 +317,7 @@ func advance(world: WorldState) -> void:
 		var bed: Dictionary = world.facts.facilities[stay.bed_id]
 		var nurse: Dictionary = world.facts.staff[stay.nurse_id]
 		if not _ward_covering(world,stay):
-			world.facts.visits[world.facts.attempts[stay.attempt_id].visit_id].waiting_reason = "等待本病房实际护理覆盖"
+			world.facts.visits[world.facts.attempts[stay.attempt_id].visit_id].waiting_reason = _ward_staff_wait_reason(world,stay,"care")
 			continue
 		var effective: float = float(bed.grade) * float(content.balance.medical_equipment_effects.utilization_by_level[int(nurse.abilities.care)])
 		var rate_key: String = stay.bed_id+":"+stay.nurse_id+":"+str(nurse.abilities.care)+":"+str(bed.grade)
@@ -353,11 +368,13 @@ func _dispatch_service(world: WorldState, visit: Dictionary, ticket: Dictionary)
 	if ticket.has("resume_session_id"):
 		_dispatch_suspended(world,visit,ticket)
 		return
+	if _gather_assigned(world,visit,ticket):
+		return
 	var kind: String = ticket.kind
 	if kind=="outpatient" and int(world.facts.get("gameplay_version",0))>=1 and not visit.plan_decision.is_empty():
 		var current_quote: Dictionary = plan_quote(world,visit.id,visit.plan_decision.plan_id)
 		if not current_quote.ok and not current_quote.get("structural_ok",false):
-			world.facts.preparations.erase(visit.id)
+			_release_preparation(world,visit.id)
 			ticket.service_assigned = false
 			ticket.called_tick = -1
 			if visit.plan_decision.get("source","")=="doctor":
@@ -393,7 +410,7 @@ func _dispatch_service(world: WorldState, visit: Dictionary, ticket: Dictionary)
 		visit.waiting_reason = "保留原票号，等待设备与合格人员"
 		return
 	var staff: Dictionary = world.facts.staff[staff_id]
-	if not staff.on_shift or not _can_start(staff):
+	if not staff.on_shift or not _can_start(world,staff):
 		visit.waiting_reason = "等待当班且可以安全接单的职员"
 		return
 	var track: String = "treatment" if kind in ["outpatient","consult"] else "diagnosis"
@@ -406,7 +423,7 @@ func _dispatch_service(world: WorldState, visit: Dictionary, ticket: Dictionary)
 		var ready_quote: Dictionary = _outpatient_quote(world,visit,staff,facility)
 		if not ready_quote.ok:
 			visit.waiting_reason = ready_quote.reason
-			world.facts.preparations.erase(visit.id)
+			_release_preparation(world,visit.id)
 			ticket.service_assigned = false
 			ticket.called_tick = -1
 			return
@@ -478,6 +495,25 @@ func _dispatch_service(world: WorldState, visit: Dictionary, ticket: Dictionary)
 	visit.phase = kind
 	visit.waiting_reason = ""
 
+func _gather_assigned(world: WorldState, visit: Dictionary, ticket: Dictionary) -> bool:
+	if not bool(ticket.get("service_assigned",false)):
+		return false
+	for facility_id: String in world.ids("adaptations"):
+		var held: Dictionary = world.facts.adaptations[facility_id]
+		if held.get("kind","")!="facility" or held.owner_id!=ticket.id or held.actor_id!=visit.actor_id or held.staff_ids.size()!=1:
+			continue
+		var facility: Dictionary = world.facts.facilities.get(facility_id,{})
+		var staff_id: String = str(held.staff_ids[0])
+		var staff: Dictionary = world.facts.staff.get(staff_id,{})
+		if facility.is_empty() or staff.is_empty() or not bool(facility.get("open",true)) or not bool(facility.get("intake_open",true)) or HospitalRemodel.blocked(world,facility_id) or _facility_unavailable(facility) or _facility_busy(world,facility_id,visit.id) or _staff_busy(world,staff_id,visit.id):
+			return false
+		if not staff.on_shift or not _can_start(world,staff) or not _service_qualified(world,staff,ticket.kind) or not _schedule_allows(world,staff_id,ticket.kind,visit,facility_id):
+			return false
+		# The ticket already owns this real reservation. Movement checks its live
+		# route and sweeps; the complete quote is checked again before work starts.
+		return not _gather(world,visit,space.facility_layout(world,facility_id),[staff_id])
+	return false
+
 func service_candidates(world: WorldState, visit: Dictionary, kind: String, structural_only: bool = false) -> Array:
 	var equipment_id: String = "FUR01" if kind == "reception" else "FUR02"
 	if kind == "outpatient":
@@ -501,7 +537,7 @@ func service_candidates(world: WorldState, visit: Dictionary, kind: String, stru
 			var staff: Dictionary = world.facts.staff[staff_id]
 			if not preparation.is_empty() and not staff_id in preparation.staff_ids:
 				continue
-			if not structural_only and (_staff_busy(world,staff_id,visit.id) or not staff.on_shift or not _can_start(staff)):
+			if not structural_only and (_staff_busy(world,staff_id,visit.id) or not staff.on_shift or not _can_start(world,staff)):
 				continue
 			if not structural_only and not _schedule_allows(world,staff_id,kind,visit,facility_id):
 				continue
@@ -513,7 +549,16 @@ func service_candidates(world: WorldState, visit: Dictionary, kind: String, stru
 			var fit: Dictionary = space.facility_quote(world,facility_id,visit.actor_id,[staff_id])
 			if not fit.ok:
 				continue
-			if not space.route(world,visit.actor_id,int(layout.floor_id),layout.patient_cell,[],{},true).ok or not space.route(world,staff_id,int(layout.floor_id),layout.operator_cells[0],[],{},true).ok:
+			var routing_world: WorldState = world
+			var held: Dictionary = world.facts.adaptations.get(facility_id,{})
+			if not held.is_empty() and held.actor_id==visit.actor_id and held.staff_ids!=[staff_id]:
+				routing_world = WorldState.new(world.freeze())
+				var handoff: Dictionary = fit.duplicate(true)
+				handoff.erase("ok")
+				handoff.owner_id = held.owner_id
+				routing_world.facts.adaptations[facility_id] = handoff
+				layout = handoff
+			if not space.route(routing_world,visit.actor_id,int(layout.floor_id),layout.patient_cell,[],{},true).ok or not space.route(routing_world,staff_id,int(layout.floor_id),layout.operator_cells[0],[],{},true).ok:
 				continue
 			candidates.append({"facility_id":facility_id,"staff_id":staff_id})
 	return candidates
@@ -632,7 +677,7 @@ func plan_quote(world: WorldState, visit_id: String, plan_id: String, options: D
 				availability = actual_bed.reason
 			else:
 				quote = actual_bed
-		if not structural and (_facility_unavailable(facility) or _facility_busy(world,pair.facility_id,visit.id) or _staff_busy(world,pair.staff_id,visit.id) or not staff.on_shift or not _can_start(staff)):
+		if not structural and (_facility_unavailable(facility) or _facility_busy(world,pair.facility_id,visit.id) or _staff_busy(world,pair.staff_id,visit.id) or not staff.on_shift or not _can_start(world,staff)):
 			availability = "等待原方案的当班医护与设备"
 		if not structural and not _schedule_allows(world,pair.staff_id,"outpatient",visit,pair.facility_id):
 			availability = "等待当前排班服务池内的治疗医生"
@@ -704,7 +749,7 @@ func _decision_valid(world: WorldState, visit: Dictionary, quote: Dictionary) ->
 	var previous: int = int(decision.get("probability_bp",quote.probability_bp))
 	if previous-int(quote.probability_bp)<=roundi(float(content.balance.clinical.reconsult_probability_delta)*10000) and int(quote.probability_bp)>=roundi(float(content.balance.clinical.minimum_predicted_success)*10000):
 		return true
-	world.facts.preparations.erase(visit.id)
+	_release_preparation(world,visit.id)
 	if decision.get("source","")=="director":
 		decision.pending_reason = "方案条件变化，请确认当前效果或交给医生"
 		visit.waiting_reason = decision.pending_reason
@@ -727,6 +772,12 @@ func _gather(world: WorldState, visit: Dictionary, facility: Dictionary, staff_i
 				visit.waiting_reason = reason
 	return all_present
 
+func _outpatient_minimum(visit: Dictionary, plan_id: String) -> int:
+	var plan: Dictionary = content.definition("treatment_plans",plan_id)
+	var protocol: Dictionary = content.definition("treatment_protocols",plan.protocol_id)
+	if bool(protocol.uses_disease_profile): return int(_profile(visit).min_skill)
+	return int(protocol.clinical_profiles[content.definition("diseases",visit.disease_id).profile].min_treatment)
+
 func _outpatient_quote(world: WorldState, visit: Dictionary, staff: Dictionary, facility: Dictionary, plan_id: String = "", ignore_supplies: bool = false, structural_only: bool = false, reference_schedule: bool = false) -> Dictionary:
 	if plan_id.is_empty():
 		plan_id = str(visit.plan_decision.get("plan_id",visit.requested_plan_id))
@@ -734,13 +785,12 @@ func _outpatient_quote(world: WorldState, visit: Dictionary, staff: Dictionary, 
 	var protocol: Dictionary = content.definition("treatment_protocols",plan.protocol_id)
 	var disease: Dictionary = content.definition("diseases",visit.disease_id)
 	var profile: Dictionary = _profile(visit)
-	var minimum: int = int(profile.min_skill)
+	var minimum: int = _outpatient_minimum(visit,plan_id)
 	var base_success: float = float(profile.base_success)
 	var supply_units: int = int(profile.supply_units)
 	var recovery_seconds: float = 0.0
 	if not bool(protocol.uses_disease_profile):
 		var gentle: Dictionary = protocol.clinical_profiles[disease.profile]
-		minimum = int(gentle.min_treatment)
 		base_success = float(gentle.base_success)
 		supply_units = int(gentle.supply_units)
 		recovery_seconds = float(gentle.recovery_seconds)
@@ -799,7 +849,7 @@ func _compatible_bed(world: WorldState, visit: Dictionary, floor_id: int, exclud
 				continue
 			if reference_schedule and not _reference_assignment_allows(world,nurse_id,"care",visit,bed_id):
 				continue
-			if not structural_only and (not nurse.on_shift or not _can_start(nurse)):
+			if not structural_only and (not nurse.on_shift or not _can_start(world,nurse)):
 				continue
 			if not structural_only and _staff_busy(world,nurse_id):
 				var unrelated_work: bool = false
@@ -835,7 +885,7 @@ func _compatible_bed(world: WorldState, visit: Dictionary, floor_id: int, exclud
 				var doctor: Dictionary = world.facts.staff[doctor_id]
 				if doctor.role!="doctor" or int(doctor.abilities.diagnosis)<2 or int(doctor.abilities.treatment)<1:
 					continue
-				if not structural_only and (not doctor.on_shift or not _can_start(doctor)):
+				if not structural_only and (not doctor.on_shift or not _can_start(world,doctor)):
 					continue
 				if (not structural_only or reference_schedule) and not _schedule_allows(world,doctor_id,"round",visit,bed_id):
 					continue
@@ -851,7 +901,7 @@ func _prepare_surgery(world: WorldState, visit: Dictionary, ticket: Dictionary) 
 	var existing: Dictionary = world.facts.preparations.get(visit.id,{})
 	var quote: Dictionary = _surgery_quote(world,visit,existing.get("staff_ids",[]),{"facility_id":existing.facility_id,"bed_id":existing.bed_id} if not existing.is_empty() else {})
 	if not quote.ok:
-		world.facts.preparations.erase(visit.id)
+		_release_preparation(world,visit.id)
 		visit.waiting_reason = quote.reason
 		ticket.service_assigned = false
 		ticket.called_tick = -1
@@ -873,7 +923,7 @@ func _prepare_surgery(world: WorldState, visit: Dictionary, ticket: Dictionary) 
 			"setup_remaining_ticks":ceili(float(content.balance.clinical.or_setup_seconds)*10/(1.0+0.05*(int(world.facts.staff[team[2]].abilities.surgery)-1))/_talent_rate(world,team[2],"or_assist",visit))}
 		world.facts.preparations[visit.id] = preparation
 	if int(world.facts.sim_tick) >= int(preparation.deadline_tick):
-		world.facts.preparations.erase(visit.id)
+		_release_preparation(world,visit.id)
 		visit.waiting_reason = "准备超过30秒，原票号保留；资源已释放"
 		return
 	ticket.service_assigned = true
@@ -927,7 +977,7 @@ func _surgery_quote(world: WorldState, visit: Dictionary, requested_team: Array 
 				continue
 			if index<2 and int(content.definition("doctor_titles",staff.title_id).rank)<int(content.definition("doctor_titles",titles[index]).rank):
 				continue
-			if not structural and (not staff.on_shift or not _can_start(staff) or _staff_busy(world,staff_id,visit.id)):
+			if not structural and (not staff.on_shift or not _can_start(world,staff) or _staff_busy(world,staff_id,visit.id)):
 				continue
 			pools[index].append(staff_id)
 	var best: Dictionary = {"ok":false,"structural_ok":false,"reason":"缺少当前可执行的三个互异手术岗位"}
@@ -1081,6 +1131,8 @@ func _commit_attempt(world: WorldState, visit: Dictionary, quote: Dictionary) ->
 		visit.tutorial_success_pending = false
 	attempt.start_tick = world.facts.sim_tick
 	attempt.protocol_id = content.definition("treatment_plans",attempt.plan_id).protocol_id
+	if quote.has("bed_id"):
+		attempt.ward_fee = content.facility_fee(world.facts.facilities[quote.bed_id].definition_id,"ward")
 	attempt.beat_end_ticks = []
 	var cumulative: int = 0
 	for points: int in content.balance.treatment_presentation.beat_basis_points:
@@ -1215,7 +1267,8 @@ func _complete_service(world: WorldState, session: Dictionary) -> void:
 		"round":
 			var stay: Dictionary = world.facts.ward_stays[session.stay_id]
 			var attempt: Dictionary = world.facts.attempts[stay.attempt_id]
-			HospitalLedger.post(world,LedgerEntry.new(attempt.id,"ward",content.facility_fee("EQ05","ward")),false)
+			var ward_fee: int = int(attempt.ward_fee) if attempt.has("ward_fee") else content.facility_fee("EQ05","ward")
+			HospitalLedger.post(world,LedgerEntry.new(attempt.id,"ward",ward_fee),false)
 			_practice(world,session.staff_ids[0],"treatment",visit.id+":round")
 			stay.phase = "release_wait"
 			_settle(world,visit,attempt)
@@ -1232,8 +1285,11 @@ func _mark_clinical_release(world: WorldState, visit: Dictionary, session: Dicti
 			continue
 		var staff: Dictionary = world.facts.staff[staff_id]
 		# A qualified continuation by this patient keeps its actual operator.
-		if facility.definition_id=="FUR02" and ticket.get("kind","") in ["gp","consult"] and staff.role=="doctor" and int(staff.abilities.get("diagnosis" if ticket.kind=="gp" else "treatment",0))>=1:
-			continue
+		if facility.definition_id=="FUR02" and staff.role=="doctor":
+			if ticket.get("kind","")=="gp" and int(staff.abilities.get("diagnosis",0))>=1 and _schedule_allows(world,staff_id,"gp",visit,session.facility_id):
+				continue
+			if ticket.get("kind","")=="consult" and int(staff.abilities.get("treatment",0))>=1 and not _select_plan(world,visit,staff_id).is_empty():
+				continue
 		if ticket.get("kind","")=="outpatient" and facility.definition_id==content.definition("treatment_routines",content.definition("treatment_bindings",visit.binding_id).routine_id).equipment_id and staff.role=="doctor":
 			continue
 		staff.clinical_release = {"facility_id":session.facility_id,"visit_id":visit.id,"phase":"seek","reason":""}
@@ -1267,15 +1323,22 @@ func _dispatch_clinical_releases(world: WorldState) -> void:
 			release.reason = space.request_move(world,staff_id,int(release.target_floor),release.target_cell)
 			continue
 		var origin: Vector2i = Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
+		var source: Dictionary = world.facts.facilities.get(release.facility_id,{})
+		var room: Dictionary = world.facts.rooms.get(source.get("room_id",""),{})
+		var search_distance: int = maxi(4,maxi(int(room.size[0]),int(room.size[1]))+space.clearance(actor)+1) if source.get("definition_id","")=="FUR02" and not room.is_empty() else 4
 		var selected: Array = []
-		for distance: int in range(1,5):
+		for distance: int in range(1,search_distance+1):
 			for delta: Vector2i in [Vector2i(0,-distance),Vector2i(distance,0),Vector2i(0,distance),Vector2i(-distance,0)]:
 				var point: Vector2i = origin+delta
 				var rect: Rect2 = space._actor_rect(actor,Vector2(point))
+				# The narrow space beside a GP operator can be a dead end. A doctor
+				# handing over that station leaves the room instead of parking there.
+				if source.get("definition_id","")=="FUR02" and not room.is_empty() and space.room_contains(room,rect):
+					continue
 				var intersects: bool = false
 				for region: Array in reservation.regions:
 					intersects = intersects or rect.intersects(Rect2(float(region[0]),float(region[1]),float(region[2]),float(region[3])),false)
-				if intersects or not space.static_reason(world,actor,int(actor.location.floor_id),point).is_empty() or not space._dynamic_clear(world,staff_id,int(actor.location.floor_id),rect):
+				if intersects or not space.static_reason(world,actor,int(actor.location.floor_id),point).is_empty() or space._narrow(world,actor,point) or not space._dynamic_clear(world,staff_id,int(actor.location.floor_id),rect):
 					continue
 				if space.route(world,staff_id,int(actor.location.floor_id),[point.x,point.y],[],{},true).ok:
 					selected = [point.x,point.y]
@@ -1343,7 +1406,7 @@ func _clear_bed_exit(world: WorldState, visit: Dictionary, stay: Dictionary) -> 
 func _start_bed_service(world: WorldState, visit: Dictionary, stay: Dictionary, kind: String, staff_id: String, seconds: float) -> void:
 	var bed: Dictionary = space.facility_layout(world,stay.bed_id)
 	var staff: Dictionary = world.facts.staff[staff_id]
-	var can_work: bool = _can_start(staff) if kind=="round" else staff.on_shift and float(staff.energy)>15.0 and str(staff.get("life_task",{}).get("phase","idle")) in ["idle","wait_safe"]
+	var can_work: bool = _can_start(world,staff) if kind=="round" else staff.on_shift and float(staff.energy)>15.0 and str(staff.get("life_task",{}).get("phase","idle")) in ["idle","wait_safe"]
 	if not staff.on_shift or not can_work or bed.failed:
 		visit.waiting_reason = "等待可以安全执行床边工作的医护"
 		return
@@ -1416,6 +1479,29 @@ func _support(world: WorldState, visit: Dictionary, facility: Dictionary, postur
 	actor.facing = 0.0
 	space.sync_actor(world,actor.id)
 
+func _dispatch_ward_returns(world: WorldState) -> void:
+	# Real bedside work above keeps priority. A shared workbench can be
+	# outside the ward, so its completed preparation does not mean arrival.
+	for nurse_id: String in world.ids("staff"):
+		var nurse: Dictionary = world.facts.staff[nurse_id]
+		if nurse.role!="nurse" or not nurse.on_shift or not "q_ward" in nurse.certificates or not _can_start(world,nurse) or _staff_busy(world,nurse_id) or HospitalClinicalDevelopment.safe_busy(world,nurse_id) or world.facts.moves.has(nurse_id):
+			continue
+		var training: Dictionary = world.facts.get("training_jobs",{}).get(nurse.get("training_job_id",""),{})
+		if nurse.get("scheduled_kind","")=="training" or training.get("state","") in ["travelling","working"] or not nurse.get("base_task",{}).is_empty():
+			continue
+		var ward: Dictionary = world.facts.rooms.get(nurse.get("ward_id",""),{})
+		var actor: Dictionary = world.facts.actors[nurse_id]
+		if ward.get("kind","")!="ward" or actor.location.kind!="floor":
+			continue
+		var inside: Rect2 = Rect2(float(ward.origin[0]),float(ward.origin[1]),float(ward.size[0]),float(ward.size[1]))
+		if int(actor.location.floor_id)==int(ward.floor_id) and inside.has_point(Vector2(float(actor.location.cell[0]),float(actor.location.cell[1]))):
+			continue
+		var reason: String = space.request_move(world,nurse_id,int(ward.floor_id),_ward_assignment_cell(ward))
+		nurse.growth_reason = "前往所属病房" if reason.is_empty() else reason
+
+func _ward_assignment_cell(ward: Dictionary) -> Array:
+	return [int(ward.origin[0]),int(ward.origin[1])+int(ward.size[1])-1]
+
 func _ward_command(world: WorldState, kind: String, payload: Dictionary) -> CommandResult:
 	if kind=="clinical_assign_ward":
 		var nurse_id: String = str(payload.get("staff_id",""))
@@ -1427,7 +1513,7 @@ func _ward_command(world: WorldState, kind: String, payload: Dictionary) -> Comm
 		for stay: Dictionary in world.facts.ward_stays.values():
 			if stay.nurse_id==nurse_id:
 				return CommandResult.new(false,"ward_coverage_committed","该护士仍有实际床位覆盖，须先完成交接",[],world.revision)
-		var reason: String = space.request_move(world,nurse_id,int(ward.floor_id),[int(ward.origin[0]),int(ward.origin[1])+int(ward.size[1])-1])
+		var reason: String = space.request_move(world,nurse_id,int(ward.floor_id),_ward_assignment_cell(ward))
 		if not reason.is_empty():
 			return CommandResult.new(false,"ward_route_unavailable",reason,[],world.revision)
 		nurse.ward_id = ward_id
@@ -1448,6 +1534,12 @@ func _ward_command(world: WorldState, kind: String, payload: Dictionary) -> Comm
 		var reason: String = _transfer_stay(world,visit,stay,str(payload.get("bed_id","")))
 		return CommandResult.new(reason.is_empty(),"applied" if reason.is_empty() else "transfer_unavailable",reason,[visit_id,stay.id] if reason.is_empty() else [],world.revision)
 	return CommandResult.new(false,"ward_stay_missing","患者当前没有可交接的住院床位",[],world.revision)
+
+func _ward_staff_wait_reason(world: WorldState, stay: Dictionary, kind: String) -> String:
+	var reason: String = "等待本病房实际护理覆盖" if kind=="care" else "等待具备诊断2级、治疗1级的查房医生"
+	if world.sim_tick-int(stay.last_progress_tick)<int(content.balance.clinical.staff_shortage_prompt_seconds)*10:
+		return reason
+	return reason+("；请调整排班、分配合格病房护士或招聘护理人员" if kind=="care" else "；请调整排班、安排合格查房医生或招聘医生")
 
 func _ward_covering(world: WorldState, stay: Dictionary) -> bool:
 	var nurse: Dictionary = world.facts.staff.get(stay.nurse_id,{})
@@ -1477,7 +1569,7 @@ func _round_candidate(world: WorldState, visit: Dictionary, stay: Dictionary) ->
 	var bed: Dictionary = space.facility_layout(world,stay.bed_id)
 	for id: String in order:
 		var doctor: Dictionary = world.facts.staff.get(id,{})
-		if doctor.get("role","")!="doctor" or not doctor.on_shift or not _can_start(doctor) or _staff_busy(world,id) or int(doctor.abilities.diagnosis)<2 or int(doctor.abilities.treatment)<1:
+		if doctor.get("role","")!="doctor" or not doctor.on_shift or not _can_start(world,doctor) or _staff_busy(world,id) or int(doctor.abilities.diagnosis)<2 or int(doctor.abilities.treatment)<1:
 			continue
 		if not _schedule_allows(world,id,"round",visit,stay.bed_id):
 			continue
@@ -1953,8 +2045,8 @@ func settle_practice(world: WorldState) -> void:
 					staff.abilities[award.track] = maxi(level,int(staff.abilities[award.track]))
 	_practice_awards.clear()
 
-func _can_start(staff: Dictionary) -> bool:
-	return not staff.has("clinical_release") and bool(staff.get("base_prepared",true)) and not bool(staff.get("block_new_work",false)) and not bool(staff.get("supply_strike",false)) and str(staff.get("life_task",{}).get("phase","idle"))=="idle" and float(staff.energy)>15.0 and (staff.role!="doctor" or float(staff.fatigue)<float(content.balance.wellbeing.fatigue_stop_new_work))
+func _can_start(world: WorldState, staff: Dictionary) -> bool:
+	return not staff.has("clinical_release") and bool(staff.get("base_prepared",true)) and not bool(staff.get("block_new_work",false)) and not bool(staff.get("supply_strike",false)) and world.sim_tick>=int(staff.get("supply_return_tick",-1)) and str(staff.get("life_task",{}).get("phase","idle"))=="idle" and float(staff.energy)>15.0 and (staff.role!="doctor" or float(staff.fatigue)<float(content.balance.wellbeing.fatigue_stop_new_work))
 
 func _use(world: WorldState, facility: Dictionary, receipt_id: String) -> void:
 	facility = world.facts.facilities[facility.id]
@@ -2000,23 +2092,30 @@ func suspend_outpatient(world: WorldState, facility_id: String) -> void:
 func _dispatch_suspended(world: WorldState, visit: Dictionary, ticket: Dictionary) -> void:
 	var record: Dictionary = world.facts.clinical_suspensions.get(str(ticket.resume_session_id),{})
 	if record.is_empty(): return
+	if not ticket.get("pause_reasons",{}).is_empty(): return
 	var preparation: Dictionary = world.facts.preparations.get(visit.id,{})
 	if not preparation.is_empty() and (world.sim_tick>=int(preparation.deadline_tick) or HospitalRemodel.blocked(world,preparation.facility_id) or world.facts.facilities[preparation.facility_id].failed or not world.facts.staff[preparation.staff_ids[0]].on_shift):
 		if world.facts.adaptations.has(preparation.facility_id): world.facts.adaptations[preparation.facility_id].owner_id = visit.actor_id
 		world.facts.preparations.erase(visit.id)
 		preparation = {}
+		ticket.service_assigned = false
+		ticket.called_tick = -1
 	if preparation.is_empty():
 		for pair: Dictionary in service_candidates(world,visit,str(record.kind),true):
 			var facility: Dictionary = world.facts.facilities[pair.facility_id]
 			var staff: Dictionary = world.facts.staff[pair.staff_id]
-			if facility.definition_id!=record.definition_id or _facility_unavailable(facility) or _facility_busy(world,facility.id) or _staff_busy(world,staff.id) or not staff.on_shift or not _can_start(staff) or not _schedule_allows(world,staff.id,record.kind,visit,facility.id): continue
+			if facility.definition_id!=record.definition_id or _facility_unavailable(facility) or _facility_busy(world,facility.id) or _staff_busy(world,staff.id) or not staff.on_shift or not _can_start(world,staff) or not _schedule_allows(world,staff.id,record.kind,visit,facility.id): continue
 			var attempt: Dictionary = world.facts.attempts.get(record.get("attempt_id",""),{})
+			if record.kind=="outpatient" and int(staff.abilities.treatment)<_outpatient_minimum(visit,attempt.plan_id): continue
 			if attempt.has("bed_id") and int(world.facts.facilities[attempt.bed_id].floor_id)!=int(facility.floor_id): continue
 			var quote: Dictionary = space.facility_quote(world,facility.id,visit.actor_id,[staff.id])
 			if not quote.ok: continue
+			if waiting_life!=null and not waiting_life.call("call_patient",world,visit.id): return
 			if not space.reserve_facility(world,facility.id,visit.actor_id,visit.id,[staff.id]).is_empty(): continue
 			preparation = {"id":visit.id,"visit_id":visit.id,"kind":record.kind,"facility_id":facility.id,"bed_id":"","staff_ids":[staff.id],"resources":[visit.actor_id,facility.id,staff.id],"supply_units":0,"setup_remaining_ticks":0,"deadline_tick":world.sim_tick+int(content.balance.supplies.reservation_seconds)*10}
 			world.facts.preparations[visit.id] = preparation
+			ticket.service_assigned = true
+			ticket.called_tick = world.sim_tick
 			break
 	if preparation.is_empty():
 		visit.waiting_reason = "等待同种可用设备接续原工作，保留票号、承诺和余量"

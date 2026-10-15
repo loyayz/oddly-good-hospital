@@ -2,8 +2,8 @@ param([string]$OutputPath)
 $ErrorActionPreference = 'Stop'
 $docsRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 if (-not $OutputPath) { $OutputPath = Join-Path $docsRoot 'product-design.html' }
-$generatedJson = & python -B -X utf8 (Join-Path $PSScriptRoot 'validate_design.py') --chapters-json
-if ($LASTEXITCODE -ne 0) { throw 'Design validation failed; the existing book was not changed.' }
+$generatedJson = & python -B -X utf8 (Join-Path $PSScriptRoot 'content-atlas.py')
+if ($LASTEXITCODE -ne 0) { throw 'Content atlas generation failed; the existing book was not changed.' }
 $generated = ($generatedJson -join [Environment]::NewLine) | ConvertFrom-Json
 $catalog = [IO.File]::ReadAllText((Join-Path $docsRoot 'data/content-catalog.json')) | ConvertFrom-Json
 $designVersion = [Net.WebUtility]::HtmlEncode($catalog.content_version)
@@ -28,9 +28,10 @@ $chapters = @(
     @{ File='design/14-stage02-benchmark.md'; Id='stage02-benchmark'; Title='第二阶段基准工具' },
     @{ File='design/15-stage03-kernel-performance.md'; Id='stage03-performance'; Title='第三阶段内核实测' },
     @{ File='specs/26-10/2026-10-15-stage04-stage24.md'; Id='stage04-stage24-spec'; Title='第04至24阶段实施规格' },
-    @{ File='reports/2026-10-15-stage04-stage24.md'; Id='stage04-stage24-delivery'; Title='第04至24阶段交付记录' },
+    @{ File='specs/26-10/2026-10-15-stage25-stage28.md'; Id='stage25-stage28-spec'; Title='第25至28阶段实施规格' },
+    @{ File='reports/2026-10-15-stage04-stage24.md'; Id='stage04-stage24-delivery'; Title='第04至28阶段交付记录' },
     @{ Generated='atlas'; Id='atlas'; Title='完整内容索引' },
-    @{ Generated='report'; Id='report'; Title='设计核验报告' }
+    @{ Generated='report'; Id='report'; Title='设计数据与验收状态' }
 )
 $chapterByPath = @{}
 foreach ($chapter in $chapters) {
@@ -136,12 +137,11 @@ input[type=checkbox]{accent-color:#3b5f92;pointer-events:none}
 </style>
 </head>
 <body>
-<aside><p class="brand">怪好的医院</p><p class="edition">Oddly Good Hospital<br>完整产品方案 · $designVersion</p><nav aria-label="文档目录"><ol>$toc</ol></nav><p class="note">全部章节与概念图已包含在本文件中。可离线阅读；源数据链接可另存为JSON。阶段报告分别记录技术样板、跳过的第二阶段检测与第三阶段内核实测；完整游戏验收继续随业务接入。</p></aside>
+<aside><p class="brand">怪好的医院</p><p class="edition">Oddly Good Hospital<br>完整产品方案 · $designVersion</p><nav aria-label="文档目录"><ol>$toc</ol></nav><p class="note">全部章节与概念图已包含在本文件中。可离线阅读；源数据链接可另存为JSON。阶段报告保留历史技术与性能记录；阶段1至28的当前功能结论以需求专项及修复后复验为准，未测性能单独列出。</p></aside>
 <main><p class="book-title">轻松经营一座属于人类与奇妙居民的医院</p>$sectionHtml</main>
 </body></html>
 "@
 [IO.File]::WriteAllText([IO.Path]::GetFullPath($OutputPath), $document, [Text.UTF8Encoding]::new($false))
-Write-Output "DESIGN_CHECKS_PASS=$($generated.checks); LOCAL_LINKS=$($generated.local_links)"
 Write-Output "BOOK_CHAPTERS=$($chapters.Count)"
 Write-Output "BOOK_BYTES=$((Get-Item -LiteralPath $OutputPath).Length)"
 Write-Output "SOURCE_SHA256=$digest"

@@ -115,7 +115,7 @@
 | `project.godot`、`export_presets.cfg` | 固定引擎/渲染/输入/用户目录/导出 | 01验证，03/07/40收口 |
 | `game/app/game_session.gd`、`game/sim/simulation.gd`、`game/sim/world_state.gd`、`game/sim/types/` | 命令、固定步与世界唯一事实 | 03 |
 | `game/platform/windows/` | 资料库独占句柄与原生库打包 | 01验证，05/40收口 |
-| `game/content/content_loader.gd`、`content_registry.gd`、`tools/compile-content.ps1` | 发布集合生成、类型、依赖和不可变索引 | 04 |
+| `game/content/content_loader.gd`、`content_registry.gd`、`tools/compile-content.py` | 发布集合生成、类型、依赖和不可变索引 | 04 |
 | `game/persistence/snapshot_codec.gd`、`snapshot_store.gd`、`library_service.gd` | 流式编解码、完整提交、恢复与多院管理 | 05/06 |
 | `game/building/` | 布局/几何/通路/事务/土地楼板/改建蓝图 | 08/09、26至28 |
 | `game/clinic/` | Visit、诊断方案、尝试、手术、护理、医护培养与排班 | 10至15 |
@@ -124,8 +124,8 @@
 | `game/community/` | 研究、关系、事件、活动、任务故事、谢礼和院史 | 25、29至34 |
 | `game/view/`、`game/ui/` | 实体投影、共享资源、镜头/表现、Control输入与操作 | 07底座，各业务同步；35/36收口 |
 | `content/core/`、`assets/`、`art-source/` | 发布数据/中文/成品资源/源资产和导入证据 | 04/07管线，35收口 |
-| `tools/verify-stage03-kernel.gd`、`tools/replay-simulation.gd` | 正式内核规则运行器、独立命令回放与事实输出 | 03底座，各业务同步 |
-| `tools/benchmarks/`、`tools/prepare-kernel-benchmark.ps1`、`tools/measure-kernel.ps1`、`tools/report-kernel.py`、`tools/build-stage03.ps1` | Release、负载/回放、采集/预测与正式验收 | 02工具，03内核实测，07显示/资源检查，10综合基准，各业务增量复测；38收口 |
+| `tests/acceptance/`、`tests/run-acceptance.ps1` | 按需求条款组织的内核、临床、职员、运营、成长和空间专项 | 已实现阶段1至28，后续按需求扩充 |
+| `tools/build-game.ps1` | Windows Release构建、实际源码与发行文件身份 | 各业务交付；性能测量另行设计 |
 | `installer/` | NSIS、发行单元、升级/恢复与元数据 | 01验证，40至42收口 |
 
 世界不持Node、纹理或文件句柄；视图不结算工资、治疗或奖励。原生桥接只拥有平台句柄；确有纯算法瓶颈时另行确定局部原生优化，保留公共接口、固定步顺序和确定性结果。
@@ -147,20 +147,15 @@
 
 ### 3.3 验证入口
 
-第一阶段现有复验入口见[可行性报告](13-stage01-feasibility.md#9-重建与复验)。第三阶段已交付独立规则与回放入口，任何规则断言失败返回非0；Release构建、基准准备和测量分别执行。第二阶段仅生成计划与准备工程，第三阶段测量正式内核。普通规则运行器38项检查通过，合法与非法回放退出码已验证。
+当前功能入口为[专项用例](../../tests/README.md)。六个专题的预期先由设计、数据和阶段规格确定，再映射正式业务入口；不从当前实现生成预期。旧阶段脚本、基准、独立回放和验证工具已删除，历史报告中的命令不再作为当前执行入口。性能测量与功能专项分别设计、分别记录。
 
 ```powershell
 pwsh -NoProfile -File docs/tools/export-design.ps1
-& 'C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe' --headless --path . --script res://tools/verify-stage03-kernel.gd
-& 'C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe' --headless --path . --script res://tools/replay-simulation.gd -- --input=commands.json --output=facts.json
-pwsh -NoProfile -File tools/build-stage03.ps1
-pwsh -NoProfile -File tools/prepare-performance-plan.ps1
-pwsh -NoProfile -File tools/prepare-kernel-benchmark.ps1
-pwsh -NoProfile -File tools/measure-kernel.ps1 -Actors 160 -RunName local-kernel
-python -X utf8 tools/report-kernel.py --input .cache/validation/stage03/local-kernel --actors 160 --output .cache/validation/stage03/local-kernel/report.json
+pwsh -NoProfile -File tests/run-acceptance.ps1
+pwsh -NoProfile -File tools/build-game.ps1
 ```
 
-回放输入结构由[第二、第三阶段规格](../specs/26-10/2026-10-14-stage02-stage03-simulation-kernel.md)拥有。报告保留工具版本、构建时HEAD、实际源文件/发行单元哈希、参数、原始输出、退出码和复现步骤；未提交源码由逐文件哈希标识。基准世界是专用夹具；保存中断和安装故障在独立验收资料库中注入，其导出配置确定实际user://目录。未来统一套件接入时保留这些独立入口的失败和取证合同。
+每次执行复制实际源码到独立工程并使用独立医院资料目录，记录源码逐文件哈希、引擎及原生库身份、完整参数、导入和测试日志、真实退出码与逐项结果。未完成用例不计通过；脚本错误与进程失败分别核对。保存故障只在隔离资料中注入。发行包排除测试代码；正式输入、内容和存档校验属于运行功能，仍由各自所有者维护。
 
 ## 4. 第一阶段：最小技术可行性
 
@@ -684,10 +679,10 @@ python -X utf8 tools/report-kernel.py --input .cache/validation/stage03/local-ke
 
 ### 工作步骤
 
-- [ ] **25.1 完成资料与简报。** 真实病例资料、柜/邮件、远程简报和到期按原时间保存，缺资料、桌位或人员有具体原因。
-- [ ] **25.2 完成研究工作。** 前置、费用、唯一任务、明确允许等待、桌/人员使用、社区研究、暂停/完成与解锁幂等。
-- [ ] **25.3 完成六条兴趣路线。** 研究依赖、下一步和完成后能否实际接诊使用同一Readiness，不把解锁图标当作医院已具备团队/路线。
-- [ ] **25.4 完成研究管理与恢复。** 规划排序不提前收费，研究途中/来信/培养竞争桌位的保存、取消和切院恢复正确。
+- [x] **25.1 完成资料与简报。** 真实病例资料、柜/邮件、远程简报和到期按原时间保存，缺资料、桌位或人员有具体原因。
+- [x] **25.2 完成研究工作。** 前置、费用、唯一任务、明确允许等待、桌/人员使用、社区研究、暂停/完成与解锁幂等。
+- [x] **25.3 完成六条兴趣路线。** 研究依赖、下一步和完成后能否实际接诊使用同一Readiness，不把解锁图标当作医院已具备团队/路线。
+- [x] **25.4 完成研究管理与恢复。** 规划排序不提前收费，研究途中/来信/培养竞争桌位的保存、取消和切院恢复正确。
 
 ### 成果与通过条件
 
@@ -703,10 +698,10 @@ python -X utf8 tools/report-kernel.py --input .cache/validation/stage03/local-ke
 
 ### 工作步骤
 
-- [ ] **26.1 完成九地块购入。** 邻接、产权/价格和原子付款，1F购地只取得原草地，不自动生成房间或墙。
-- [ ] **26.2 完成上层模块预览。** 选梯/地块、本层来源、下层Room、真实工具人员费用与唯一工单校验，完整空板和房壳分别表示。
-- [ ] **26.3 完成施工交付与取消。** 冻结实付/标准工作量、人员任务、完工原子增加高度、取消退款正确，未完层没有可用楼面。
-- [ ] **26.4 完成稀疏表示与恢复。** 最多九条completed_top_floor与实际布局差异，空层不复制格/Room/后台任务；测试第5/10/100/1000层及10000空结构。
+- [x] **26.1 完成九地块购入。** 邻接、产权/价格和原子付款，1F购地只取得原草地，不自动生成房间或墙。
+- [x] **26.2 完成上层模块预览。** 选梯/地块、本层来源、下层Room、真实工具人员费用与唯一工单校验，完整空板和房壳分别表示。
+- [x] **26.3 完成施工交付与取消。** 冻结实付/标准工作量、人员任务、完工原子增加高度、取消退款正确，未完层没有可用楼面。
+- [x] **26.4 完成稀疏表示与恢复。** 最多九条completed_top_floor与实际布局差异，空层不复制格/Room/后台任务；测试第5/10/100/1000层及10000空结构。
 
 ### 成果与通过条件
 
@@ -722,10 +717,10 @@ python -X utf8 tools/report-kernel.py --input .cache/validation/stage03/local-ke
 
 ### 工作步骤
 
-- [ ] **27.1 完成三竖向设施与连接。** 实际端口、身体宽高、站点区间、舱位/设备和连续合法层查询，不展开全部中间站点或全连接边。
-- [ ] **27.2 完成叫梯与TransitSession。** 报价只读，实际同组到齐后复核/入队，空车接人、乘员上车、实际移动/出舱和排队公平使用同一时间轴。
-- [ ] **27.3 完成故障和恢复。** 乘梯途中、连接变化、手术转床/访客跨层、舱位失效和读档保持原身份/承诺，Actor地面位置和乘梯位置互斥。
-- [ ] **27.4 完成楼层观察与宽高联合。** 楼号跳转只切当前层场景，不按楼号乘世界渲染高度；全层概览、切墙、冷热资源与迟到绑定按阶段7管线。
+- [x] **27.1 完成三竖向设施与连接。** 实际端口、身体宽高、站点区间、舱位/设备和连续合法层查询，不展开全部中间站点或全连接边。
+- [x] **27.2 完成叫梯与TransitSession。** 报价只读，实际同组到齐后复核/入队，空车接人、乘员上车、实际移动/出舱和排队公平使用同一时间轴。
+- [x] **27.3 完成故障和恢复。** 乘梯途中、连接变化、手术转床/访客跨层、舱位失效和读档保持原身份/承诺，Actor地面位置和乘梯位置互斥。
+- [x] **27.4 完成楼层观察与宽高联合。** 楼号跳转只切当前层场景，不按楼号乘世界渲染高度；全层概览、切墙、冷热资源与迟到绑定按阶段7管线。
 
 ### 成果与通过条件
 
@@ -741,10 +736,10 @@ python -X utf8 tools/report-kernel.py --input .cache/validation/stage03/local-ke
 
 ### 工作步骤
 
-- [ ] **28.1 完成改建安排。** 明确确认才停新预约，当前任务安全结束/离开后仍按最新报价由原命令应用；取消只撤本安排原因。
-- [ ] **28.2 完成安全转移和整组搬迁。** 门诊保留票/证据/尝试，手术等苏醒真实转床，床位完成兼容交接；源目标及失败恢复不重复收费。
-- [ ] **28.3 完成九蓝图与库存复用。** 原物件身份/等级/故障/使用状态、库存和新购费用分开，完整占地/身体/路线预览，应用为同一事务。
-- [ ] **28.4 完成八改造引导。** 玩家能理解等待腾空、材料、库存和施工缺口，跨层草稿、试摆、保存/取消/切院保留原状态。
+- [x] **28.1 完成改建安排。** 明确确认才停新预约，当前任务安全结束/离开后仍按最新报价由原命令应用；取消只撤本安排原因。
+- [x] **28.2 完成安全转移和整组搬迁。** 门诊保留票/证据/尝试，手术等苏醒真实转床，床位完成兼容交接；源目标及失败恢复不重复收费。
+- [x] **28.3 完成九蓝图与库存复用。** 原物件身份/等级/故障/使用状态、库存和新购费用分开，完整占地/身体/路线预览，应用为同一事务。
+- [x] **28.4 完成八改造引导。** 玩家能理解等待腾空、材料、库存和施工缺口，跨层草稿、试摆、保存/取消/切院保留原状态。
 
 ### 成果与通过条件
 

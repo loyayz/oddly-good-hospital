@@ -252,7 +252,7 @@
     {
       "anchor": [
         36,
-        81
+        80
       ],
       "definition_id": "SE05",
       "id": "doctor_office_desk",
@@ -495,7 +495,7 @@
     {
       "anchor": [
         36,
-        80
+        79
       ],
       "door": {
         "definition_id": "DR01",

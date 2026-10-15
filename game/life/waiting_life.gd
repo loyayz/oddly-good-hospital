@@ -29,7 +29,7 @@ func dispatch(world: WorldState) -> void:
 			_release_seat(world,visit_id)
 			continue
 		var ticket: Dictionary = world.facts.tickets[visit.ticket_id]
-		if ticket.has("called_tick"):
+		if ticket.get("service_assigned",false) and int(ticket.get("called_tick",-1))>=0:
 			continue
 		if world.sim_tick>=int(world.facts.waiting_life.clocks[visit_id].next_need_tick) and not world.facts.moves.has(visit.actor_id):
 			_begin_need(world,visit)
@@ -69,7 +69,6 @@ func advance(world: WorldState) -> void:
 		if int(seat.continuous_ticks)>=_ticks(variant.parameters.continuous_seated_seconds):
 			visit.chair_calm_claimed = true
 			visit.anger = maxf(0.0,float(visit.anger)-float(variant.parameters.anger_reduction))
-			visit.last_service_tick = world.sim_tick
 	for visit_id: String in world.facts.get("waiting_life",{}).get("needs",{}).keys():
 		var need: Dictionary = world.facts.waiting_life.needs[visit_id]
 		if need.phase in ["using","fallback"]:
@@ -100,7 +99,7 @@ func execute(world: WorldState, kind: String, payload: Dictionary) -> CommandRes
 	if not world.facts.visits.has(visit_id):
 		return _result(world,false,"visit_missing","原就诊不存在")
 	var visit: Dictionary = world.facts.visits[visit_id]
-	if not _waiting(world,visit) or world.facts.waiting_life.needs.has(visit_id) or world.facts.tickets[visit.ticket_id].has("called_tick"):
+	if not _waiting(world,visit) or world.facts.waiting_life.needs.has(visit_id) or world.facts.tickets[visit.ticket_id].get("service_assigned",false) and int(world.facts.tickets[visit.ticket_id].get("called_tick",-1))>=0:
 		return _result(world,false,"clinical_priority","当前临床或生活服务须先安全完成")
 	if kind=="waiting_select_seat":
 		var facility_id: String = str(payload.get("facility_id",""))

@@ -50,6 +50,7 @@ func _refresh_preview(kind: String) -> void:
 		_preview.text = str(_quote.get("reason","请选择医护"))
 		return
 	_preview.text = "%s · 费用 %d · 预计工作 %.1f 秒" % ["职称评估" if kind=="promotion" else "%s %d级" % [TRACK_NAMES.get(_quote.track,_quote.track),_quote.target_level],_quote.cost,float(_quote.work_ticks)*WorldState.TICK_SECONDS]
+	_preview.text += "\n"+payment_summary(int(_quote.cost))
 
 func _confirm() -> void:
 	if not _quote.get("ok",false):

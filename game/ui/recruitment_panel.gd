@@ -32,6 +32,7 @@ func build_controls() -> void:
 	_title.item_selected.connect(func(_index: int) -> void: _refresh())
 	_track.item_selected.connect(func(_index: int) -> void: _refresh())
 	note("寻访费用 %d；未开放的职称或能力会说明原因。" % int(simulation.content.balance.recruitment.search_fee))
+	note(payment_summary(int(simulation.content.balance.recruitment.search_fee)))
 	action("开始定向寻访",func() -> void:
 		var filter: Dictionary = _filter()
 		filter.min_ability = int(_ability.value)
@@ -96,6 +97,16 @@ func _add_button(value: String, callback: Callable) -> void:
 func _add_card(card: Dictionary, filter: Dictionary, standard: bool) -> void:
 	var species: Dictionary = simulation.content.definition("species",str(card.species_id))
 	_add_text("%s · %s · %s\n录用费 %d · 日薪 %d" % [card.name,ROLE_NAMES.get(card.role,card.role),species.get("name",""),card.hire,card.wage_day])
+	var hospital_paid: int = int(card.hire)
+	if standard and card.role=="mechanic":
+		var has_mechanic: bool = false
+		for staff: Dictionary in simulation.world.facts.staff.values():
+			if staff.role=="mechanic" and not staff.get("departed",false):
+				has_mechanic = true
+				break
+		if not has_mechanic:
+			hospital_paid = mini(hospital_paid,HospitalLedger.balance(simulation.world))
+	_add_text(payment_summary(hospital_paid))
 	var abilities: PackedStringArray = []
 	for key: String in card.get("abilities",{}):
 		if int(card.abilities[key])>0:

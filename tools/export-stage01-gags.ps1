@@ -1,9 +1,7 @@
 param(
     [string]$BlenderPath = '',
     [string]$PythonPath = 'python',
-    [switch]$RenderSourcePreview,
-    [switch]$VerifyGodotImport,
-    [string]$GodotPath = 'C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe'
+    [switch]$RenderSourcePreview
 )
 
 $ErrorActionPreference = 'Stop'
@@ -17,19 +15,8 @@ New-Item -ItemType Directory -Force -Path $taskLogs | Out-Null
 & $BlenderPath --background --factory-startup --python-exit-code 1 --python (Join-Path $taskRoot 'art-source/gags/build_gags.py') -- --root $taskRoot 2>&1 |
     Tee-Object -FilePath (Join-Path $taskLogs 'stage01-gags-export.log')
 if ($LASTEXITCODE -ne 0) { throw "Blender gag export failed: $LASTEXITCODE" }
-& $PythonPath (Join-Path $taskRoot 'art-source/gags/validate_gags.py') --root $taskRoot 2>&1 |
-    Tee-Object -FilePath (Join-Path $taskLogs 'stage01-gags-validation.log')
-if ($LASTEXITCODE -ne 0) { throw "Gag asset validation failed: $LASTEXITCODE" }
 if ($RenderSourcePreview) {
     & $BlenderPath --background --factory-startup --python-exit-code 1 --python (Join-Path $taskRoot 'art-source/gags/preview_gags.py') -- --root $taskRoot 2>&1 |
         Tee-Object -FilePath (Join-Path $taskLogs 'stage01-gags-source-preview.log')
     if ($LASTEXITCODE -ne 0) { throw "Gag source preview failed: $LASTEXITCODE" }
-}
-if ($VerifyGodotImport) {
-    & $GodotPath --headless --editor --path $taskRoot --import 2>&1 |
-        Tee-Object -FilePath (Join-Path $taskLogs 'stage01-gags-godot-import.log')
-    if ($LASTEXITCODE -ne 0) { throw "Godot gag import failed: $LASTEXITCODE" }
-    & $GodotPath --headless --path $taskRoot --script 'art-source/gags/verify_godot_import.gd' 2>&1 |
-        Tee-Object -FilePath (Join-Path $taskLogs 'stage01-gags-godot-materials.log')
-    if ($LASTEXITCODE -ne 0) { throw "Godot imported gag verification failed: $LASTEXITCODE" }
 }

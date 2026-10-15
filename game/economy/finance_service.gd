@@ -29,6 +29,8 @@ func validate(world: WorldState) -> String:
 			return "补助周期无效"
 		if not economy.get("saving_note") is String or economy.saving_note.length()>int(content.balance.finance_review.note_characters) or not economy.get("rescue_claimed") is bool:
 			return "财务便签或救援领取事实无效"
+		if economy.has("saving_target_amount") and (not _saved_integer(economy.saving_target_amount) or economy.saving_note.is_empty() and int(economy.saving_target_amount)!=0 or not economy.saving_note.is_empty() and int(economy.saving_target_amount)<1):
+			return "存钱便签的目标金额无效"
 		if economy.rescue_claimed:
 			if not _saved_integer(economy.get("rescue_tick"),0,world.sim_tick) or not economy.get("rescue_blueprint_id") is String or content.definition("blueprint_presets",economy.rescue_blueprint_id).is_empty():
 				return "救援领取时点或蓝图引用无效"
@@ -89,7 +91,7 @@ func ensure(world: WorldState) -> void:
 	if not world.facts.has("economy"):
 		world.facts.economy = {"daily_accumulators":{"operating_numerator":0},"operating_accrued_tick":world.sim_tick-1,
 			"last_settled_day":world.sim_tick/WorldState.TICKS_PER_DAY,"subsidy_next_day":int(content.balance.subsidy.first_payment_day),
-			"last_subsidy_period":0,"saving_note":"","rescue_claimed":false}
+			"last_subsidy_period":0,"saving_note":"","saving_target_amount":0,"rescue_claimed":false}
 	for id: String in world.ids("staff"):
 		var staff: Dictionary = world.facts.staff[id]
 		if not staff.has("hired_tick"):
@@ -248,7 +250,11 @@ func execute(world: WorldState, kind: String, payload: Dictionary) -> CommandRes
 		var note: String = str(payload.get("text",""))
 		if note.length()>int(content.balance.finance_review.note_characters):
 			return _result(world,false,"note_too_long","存钱便签最多40字")
+		var target: Variant = payload.get("target_amount",0)
+		if not _saved_integer(target) or note.is_empty() and int(target)!=0 or not note.is_empty() and int(target)<1:
+			return _result(world,false,"invalid_note_target","填写1至40字和正整数目标金额，或清除便签")
 		world.facts.economy.saving_note = note
+		world.facts.economy.saving_target_amount = int(target)
 		world.touch()
 		return _result(world,true,"applied","")
 	if kind=="finance_rescue":
@@ -418,7 +424,9 @@ func query(world: WorldState, day: int = -1, page: int = 0, page_size: int = 30)
 		var top_up: Dictionary = supplies.call("top_up",world)
 		if not top_up.is_empty():
 			possible_costs.append({"owner_id":"SUP01","kind":"supply_purchase","cost":int(top_up.cost),"forecast":true,"quote":top_up})
-	return {"cash":HospitalLedger.balance(world),"day":selected_day,"views":views,"today":totals,"forecast":forecast(world),
+	var cash: int = HospitalLedger.balance(world)
+	var target: int = int(world.facts.get("economy",{}).get("saving_target_amount",0))
+	return {"cash":cash,"day":selected_day,"views":views,"today":totals,"forecast":forecast(world),"target_amount":target,"remaining_to_target":maxi(0,target-cash),"target_reached":target>0 and cash>=target,
 		"actual_days":actual_days,"possible_costs":possible_costs,"saving_note":world.facts.get("economy",{}).get("saving_note",""),"rescue_available":HospitalLedger.balance(world)<3000 and not world.facts.get("economy",{}).get("rescue_claimed",false) and not _has_service(world),"performance":"暂时跳过"}
 
 func _group(component: String, amount: int) -> String:

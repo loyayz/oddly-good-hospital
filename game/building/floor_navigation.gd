@@ -108,7 +108,7 @@ func _filter_neighbor(from_id: int, to_id: int) -> bool:
 	var cell: Vector2i = _cell(to_id)
 	if not _bases.is_empty() and (not _composed_node(cell,_bases,_shifts) or not _composed_edge(_cell(from_id),cell,_bases,_shifts)):
 		return true
-	return not _query.reservation_reason(cell).is_empty() or (_people.is_valid() and not bool(_people.call(cell)))
+	return not _query.reservation_reason(cell).is_empty() or (_people.is_valid() and not bool(_people.call(_cell(from_id),cell)))
 
 func _estimate_cost(from_id: int, end_id: int) -> float:
 	var delta: Vector2i = _cell(from_id)-_cell(end_id)

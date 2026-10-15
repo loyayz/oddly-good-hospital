@@ -106,6 +106,17 @@ func refresh_choices(picker: OptionButton, entries: Array) -> void:
 func send(kind: String, payload: Dictionary = {}) -> void:
 	command_requested.emit(kind,payload.duplicate(true))
 
+func payment_summary(cost: int, refund: int = 0) -> String:
+	return format_payment_summary(simulation.world,cost,refund)
+
+static func format_payment_summary(world: WorldState, cost: int, refund: int = 0) -> String:
+	var cash_after: int = HospitalLedger.balance(world)-cost+refund
+	var target: int = int(world.facts.get("economy",{}).get("saving_target_amount",0))
+	var text: String = "购买后现金 %d" % cash_after
+	if target>0:
+		text += " · %s便签目标 %d" % ["低于" if cash_after<target else "不低于",target]
+	return text
+
 func report(source: Callable) -> void:
 	_summary_source = source
 	_summary = note(str(source.call()))

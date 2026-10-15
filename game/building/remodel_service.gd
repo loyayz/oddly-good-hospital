@@ -64,7 +64,13 @@ func execute(world: WorldState, kind: String, payload: Dictionary) -> CommandRes
 			if blocked(world,id): return _result(world,false,"成员已经属于另一份改建安排")
 			if world.facts.rooms.has(id):
 				if not id in room_ids: room_ids.append(id)
-			elif not world.facts.facilities.has(id) and services.building._door(world,id).is_empty(): return _result(world,false,"原改建成员已不存在")
+			elif not world.facts.facilities.has(id):
+				var found: Dictionary = services.building._door(world,id)
+				if found.is_empty(): return _result(world,false,"原改建成员已不存在")
+				var room_id: String = found.door.room_id
+				if blocked(world,room_id): return _result(world,false,"房门所属房间已有其他改建安排")
+				if not room_id in room_ids: room_ids.append(room_id)
+				if not room_id in members: members.append(room_id)
 			if not id in members: members.append(id)
 		for facility: Dictionary in world.facts.facilities.values():
 			if facility.get("room_id","") in room_ids and not facility.id in members:
@@ -181,11 +187,23 @@ func dispatch(world: WorldState) -> void:
 				space.request_move(world,actor_id,int(actor.location.floor_id),target)
 
 func _clinical_busy(world: WorldState, actor_id: String) -> bool:
+	var staff: Dictionary = world.facts.staff.get(actor_id,{})
+	if staff.get("life_task",{}).get("phase","idle")!="idle": return true
+	var base_task: Dictionary = staff.get("base_task",{})
+	if base_task.get("phase","")=="working" and int(base_task.get("remaining_ticks",0))>0 and staff.get("on_shift",false) and not world.facts.moves.has(actor_id) and world.facts.facilities.has(base_task.get("facility_id","")):
+		var base: Dictionary = space.facility_layout(world,base_task.facility_id)
+		var operator_cell: Array = base.operator_cells[0] if not base.get("operator_cells",[]).is_empty() else base.patient_cell
+		if space.at(world,actor_id,int(base.floor_id),operator_cell): return true
+	for need: Dictionary in world.facts.get("waiting_life",{}).get("needs",{}).values():
+		if world.facts.visits[need.visit_id].actor_id==actor_id and need.phase=="using": return true
 	if HospitalClinicalDevelopment.safe_busy(world,actor_id): return true
 	for session: Dictionary in world.facts.sessions.values():
 		if actor_id in session.resources: return true
 	for stay: Dictionary in world.facts.ward_stays.values():
 		if world.facts.visits[world.facts.attempts[stay.attempt_id].visit_id].actor_id==actor_id: return true
+		# Coverage and the promised final round remain medical duties between
+		# bedside sessions; evacuation must not take their staff out of service.
+		if stay.phase in ["reserved","transfer","recovery","round_wait","round"] and actor_id in [stay.nurse_id,stay.round_doctor_id]: return true
 	return false
 
 func _source_floor(world: WorldState, order: Dictionary) -> int:
@@ -219,22 +237,45 @@ func _in_affected_area(world: WorldState, order: Dictionary, actor: Dictionary) 
 
 func _evacuation(world: WorldState, order: Dictionary, actor: Dictionary) -> Array:
 	var floor_id: int = int(actor.location.floor_id)
+	var probe: Dictionary = actor.duplicate(true)
+	probe.posture = "standing"
 	for y: int in 96:
 		for x: int in 96:
+			var origin: Vector2i = Vector2i(x,y)
+			if not space.owned(world,floor_id,origin) or not space.static_reason(world,probe,floor_id,origin).is_empty(): continue
 			var point: Array = [x,y]
-			var probe: Dictionary = actor.duplicate(true)
 			probe.location.cell = point
 			if _in_affected_area(world,order,probe): continue
+			var rectangle: Rect2 = space.body_rectangle(probe)
+			if not space._dynamic_clear(world,actor.id,floor_id,rectangle) or not _movement_targets_clear(world,actor.id,floor_id,rectangle): continue
 			var inside: bool = false
 			for room: Dictionary in world.facts.rooms.values():
-				if int(room.floor_id)==floor_id and BuildGeometry.contains(room,point): inside = true
-			if not inside and space.route(world,actor.id,floor_id,point).ok: return point
+				if int(room.floor_id)==floor_id and BuildGeometry.intersects_cells(rectangle,BuildGeometry.cells(room)): inside = true
+			if inside: continue
+			var route: Dictionary = space.route(world,actor.id,floor_id,point)
+			if route.ok and route.get("status","")!="contention": return point
 	return []
+
+func _movement_targets_clear(world: WorldState, actor_id: String, floor_id: int, rectangle: Rect2) -> bool:
+	for movement: Dictionary in world.facts.moves.values():
+		if int(movement.target_floor)!=floor_id: continue
+		var members: Array = movement.get("members",[]).duplicate()
+		if not movement.actor_id in members: members.append(movement.actor_id)
+		for id: String in members:
+			if id==actor_id: continue
+			var offset: Array = [0,0] if id==movement.actor_id else movement.get("offsets",{}).get(id,[0,0])
+			var origin: Vector2 = Vector2(float(movement.target_cell[0])+float(offset[0]),float(movement.target_cell[1])+float(offset[1]))
+			if rectangle.intersects(space._actor_rect(world.facts.actors[id],origin),false): return false
+	return true
 
 func _final_geometry(previous: WorldState, candidate: WorldState, builder: BuildService, floors: Array, affected: Array) -> String:
 	for room_id: String in candidate.ids("rooms"):
 		var room: Dictionary = candidate.facts.rooms[room_id]
 		if not room_id in affected: continue
+		for door: Dictionary in candidate.facts.floors.overrides[str(int(room.floor_id))].doors:
+			if door.room_id==room_id:
+				var wall_error: String = builder._door_wall_error(room,door)
+				if not wall_error.is_empty(): return wall_error
 		var ignored: Array = []
 		for facility: Dictionary in candidate.facts.facilities.values():
 			if facility.get("room_id","")==room_id: ignored.append(facility.id)
@@ -288,6 +329,9 @@ func _move_surfaces(previous: WorldState, candidate: WorldState, order: Dictiona
 		moved.cell = cell
 		var edges: Array = ["north","east","south","west"]
 		if str(moved.get("edge","")) in edges: moved.edge = edges[posmod(edges.find(moved.edge)+turns,4)]
+		if moved.surface=="wall" and not services.environment._wall_edge(candidate,int(moved.floor_id),moved.cell,moved.edge):
+			refund += int(moved.get("paid_cost",0))*80/100
+			continue
 		var target_key: String = services.environment._surface_key(int(moved.floor_id),moved.cell,moved.surface,str(moved.get("edge","")))
 		moves[target_key] = moved
 	for key: String in removals: surfaces.erase(key)

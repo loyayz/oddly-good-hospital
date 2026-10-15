@@ -318,7 +318,7 @@ static func _alight(space: HospitalSpace, world: WorldState, connection: Diction
 	connection.used = true
 	var definition: Dictionary = space.content.definition("vertical_connectors",connection.definition_id)
 	if definition.kind=="lift":
-		var receipt: String = "transit:"+str(connection.get("trip_sequence",connection.get("ticket_next",0)))
+		var receipt: String = "transit:"+str(int(connection.get("trip_sequence",connection.get("ticket_next",0))))
 		if not connection.get("use_receipts",{}).has(receipt):
 			if not connection.has("use_receipts"): connection.use_receipts = {}
 			connection.use_receipts[receipt] = world.sim_tick

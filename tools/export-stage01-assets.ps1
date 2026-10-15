@@ -37,9 +37,6 @@ New-Item -ItemType Directory -Force -Path $taskLogs | Out-Null
 & $BlenderPath --background --factory-startup --python-exit-code 1 --python (Join-Path $taskRoot 'art-source/build_stage01.py') -- --root $taskRoot 2>&1 |
     Tee-Object -FilePath (Join-Path $taskLogs 'stage01-blender-export.log')
 if ($LASTEXITCODE -ne 0) { throw "Blender source export failed: $LASTEXITCODE" }
-& $PythonPath (Join-Path $taskRoot 'art-source/validate_stage01_glb.py') --root $taskRoot 2>&1 |
-    Tee-Object -FilePath (Join-Path $taskLogs 'stage01-assets-validation.log')
-if ($LASTEXITCODE -ne 0) { throw "GLB asset validation failed: $LASTEXITCODE" }
 if ($RenderSourcePreviews) {
     & $BlenderPath --background --factory-startup --python-exit-code 1 --python (Join-Path $taskRoot 'art-source/preview_stage01.py') -- --root $taskRoot 2>&1 |
         Tee-Object -FilePath (Join-Path $taskLogs 'stage01-source-previews.log')

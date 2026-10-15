@@ -116,6 +116,8 @@ func _preview(kind: String, draft: Dictionary) -> void:
 	_quote.erase("candidate")
 	draft_changed.emit(_draft.duplicate(true))
 	_result.text = str(_quote.get("reason","")) if not _quote.ok else "费用 %d，退款 %d。确认后按当前条件执行。" % [int(_quote.get("price",0)),int(_quote.get("refund",0))]
+	if _quote.ok:
+		_result.text += "\n"+payment_summary(int(_quote.get("price",0)),int(_quote.get("refund",0)))
 
 func _confirm() -> void:
 	if not _quote.get("ok",false): return

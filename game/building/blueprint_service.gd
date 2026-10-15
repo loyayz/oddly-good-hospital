@@ -209,7 +209,7 @@ func preview(world: WorldState, payload: Dictionary) -> Dictionary:
 		candidate.facts.facilities[id].style = raw.get("style","")
 		changed.append_array(plan.changed_ids)
 		purchase += int(plan.price)
-		choices.append({"id":id,"definition_id":raw.definition_id,"inventory_id":stock,"failed":candidate.facts.facilities[id].failed,"grade":candidate.facts.facilities[id].grade})
+		choices.append({"local_id":raw.local_id,"definition_id":raw.definition_id,"inventory_id":stock,"failed":candidate.facts.facilities[id].failed,"condition":candidate.facts.facilities[id].condition,"grade":candidate.facts.facilities[id].grade})
 		if stock.is_empty() and int(raw.get("grade",0))>0:
 			var upgrade: Dictionary = services.maintenance.upgrade_quote(candidate,{"facility_id":id,"target_level":int(raw.grade)})
 			if not upgrade.ok: return BuildGeometry.failure(upgrade.reason)

@@ -109,7 +109,10 @@ func dispatch(world: WorldState) -> void:
 			continue
 		if stay.phase in ["to_waiting","yielding"]:
 			if space.at(world,actor.id,int(stay.waiting_floor),stay.waiting_cell):
-				stay.phase = "waiting"
+				if stay.phase=="yielding" and int(stay.remaining_ticks)==0:
+					_end_visit(stay)
+				else:
+					stay.phase = "waiting"
 			elif not world.facts.moves.has(actor.id):
 				space.request_move(world,actor.id,int(stay.waiting_floor),stay.waiting_cell)
 			continue
@@ -159,9 +162,20 @@ func yield_for_care(world: WorldState, visit_id: String) -> bool:
 		visitor.phase = "yielding"
 		visitor.pending_window = ""
 		visitor.yield_requested_tick = world.sim_tick
-		if not world.facts.moves.has(visitor.actor_id):
+	var actor: Dictionary = world.facts.actors[visitor.actor_id]
+	if visitor.phase=="yielding" and actor.location.kind=="floor":
+		var movement: Dictionary = world.facts.moves.get(actor.id,{})
+		if not movement.is_empty() and movement.get("members",[actor.id])==[actor.id] and (int(movement.target_floor)!=int(visitor.waiting_floor) or movement.target_cell!=visitor.waiting_cell):
+			var target: Vector2i = Vector2i(int(visitor.waiting_cell[0]),int(visitor.waiting_cell[1]))
+			if space.static_reason(world,actor,int(visitor.waiting_floor),target).is_empty():
+				HospitalTransit.cancel_waiting(world,movement)
+				world.facts.moves.erase(actor.id)
+		if not world.facts.moves.has(actor.id):
 			space.request_move(world,visitor.actor_id,int(visitor.waiting_floor),visitor.waiting_cell)
-	return space.at(world,visitor.actor_id,int(visitor.waiting_floor),visitor.waiting_cell)
+	var arrived: bool = space.at(world,visitor.actor_id,int(visitor.waiting_floor),visitor.waiting_cell)
+	if arrived and int(visitor.remaining_ticks)==0:
+		_end_visit(visitor)
+	return arrived
 
 func _end_visit(stay: Dictionary) -> void:
 	stay.pending_window = ""

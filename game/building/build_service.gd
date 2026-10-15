@@ -219,14 +219,8 @@ func _add_door(world: WorldState, payload: Dictionary) -> Dictionary:
 	if not BuildGeometry.point(cell):
 		return BuildGeometry.failure("房门墙边坐标无效")
 	var span: int = int(definition.span_cells)
-	var low: int = int(cell[0] if axis=="x" else cell[1])
-	var line: int = int(cell[1] if axis=="x" else cell[0])
-	var on_wall: bool = false
-	for wall: Dictionary in BuildGeometry.room_walls(room):
-		if wall.axis==axis and int(wall.line)==line and low>=int(wall.low) and low+span<=int(wall.high):
-			on_wall = true
-	if not on_wall:
-		return BuildGeometry.failure("门须落在同一段真实连续墙边，不能越墙角",[cell])
+	var wall_error: String = _door_wall_error(room,{"axis":axis,"cell":cell,"span":span})
+	if not wall_error.is_empty(): return BuildGeometry.failure(wall_error,[cell])
 	var id: String = str(payload.get("id",""))
 	if id.is_empty():
 		id = world.new_id("door")
@@ -247,6 +241,13 @@ func _add_door(world: WorldState, payload: Dictionary) -> Dictionary:
 					return BuildGeometry.failure("门口有尚未释放的真实预约",[cell])
 	world.facts.floors.overrides[str(int(room.floor_id))].doors.append(door)
 	return _success(int(definition.price),0,[id],[int(room.floor_id)])
+
+func _door_wall_error(room: Dictionary, door: Dictionary) -> String:
+	var low: int = int(door.cell[0] if door.axis=="x" else door.cell[1])
+	var line: int = int(door.cell[1] if door.axis=="x" else door.cell[0])
+	for wall: Dictionary in BuildGeometry.room_walls(room):
+		if wall.axis==door.axis and int(wall.line)==line and low>=int(wall.low) and low+int(door.span)<=int(wall.high): return ""
+	return "门须落在同一段真实连续墙边，不能越墙角；请在原改建中明确调整房门"
 
 func _replace_door(world: WorldState, payload: Dictionary) -> Dictionary:
 	var id: String = str(payload.get("target_id",""))
@@ -380,6 +381,8 @@ func _set_anchors(facility: Dictionary, definition: Dictionary) -> void:
 	var h: int = int(facility.footprint[1])
 	var patient: Vector2i = _rotate_offset(Vector2i(0,int(definition.footprint[1])),definition.footprint,int(facility.rotation))
 	var operator: Vector2i = _rotate_offset(Vector2i(int(definition.footprint[0]),maxi(0,int(definition.footprint[1])-1)),definition.footprint,int(facility.rotation))
+	if facility.definition_id=="EQ05":
+		operator = _rotate_offset(Vector2i(-1,1),definition.footprint,int(facility.rotation))
 	var repair: Vector2i = _rotate_offset(Vector2i(maxi(0,int(definition.footprint[0])-1),-1),definition.footprint,int(facility.rotation))
 	var origin: Vector2i = Vector2i(int(facility.cell[0]),int(facility.cell[1]))
 	facility.patient_cell = [origin.x+patient.x,origin.y+patient.y]

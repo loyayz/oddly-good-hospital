@@ -188,6 +188,8 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 		if not _active_route_clear(world,actor,movement,floor_versions):
 			_replan_goal(world,movement)
 			continue
+		if int(movement.cursor)==0:
+			movement.cursor = _initial_route_cursor(actor,movement.path)
 		if int(movement.cursor) >= movement.path.size():
 			if movement.yielding:
 				if world.facts.moves.has(movement.get("yield_partner","")):
@@ -274,7 +276,8 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 	var query: RouteClearance = RouteClearance.new(self,world,actor,floor_id,members,offsets,true,graph.geometry.source)
 	var people: Callable = Callable()
 	if not ignore_people:
-		people = func(cell: Vector2i) -> bool: return _dynamic_clear(world,actor.id,floor_id,_unit_rect(world,actor,Vector2(cell),members,offsets),members)
+		people = func(from_cell: Vector2i,to_cell: Vector2i) -> bool:
+			return _unit_step_dynamic_clear(world,actor,floor_id,from_cell,to_cell,members,offsets)
 	var result: Dictionary = graph.find_path(start,goal,query,Callable(),false,navigation.bases,navigation.shifts)
 	if result.ok and people.is_valid():
 		var low: Vector2 = Vector2(start)
@@ -286,10 +289,13 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 		var broad: Rect2 = Rect2(low+shape.position,high-low+shape.size)
 		if not _dynamic_clear(world,actor.id,floor_id,broad,members):
 			var blocked: bool = false
+			var previous: Vector2i = start
 			for cell: Array in result.cells:
-				if not bool(people.call(Vector2i(int(cell[0]),int(cell[1])))):
+				var next: Vector2i = Vector2i(int(cell[0]),int(cell[1]))
+				if not bool(people.call(previous,next)):
 					blocked = true
 					break
+				previous = next
 			if blocked:
 				var alternative: Dictionary = graph.find_path(start,goal,query,people,false,navigation.bases,navigation.shifts)
 				if alternative.ok:
@@ -303,6 +309,27 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 		result.path = path
 		result.erase("cells")
 	return result
+
+func _unit_step_dynamic_clear(world: WorldState, actor: Dictionary, floor_id: int, from: Vector2i, to: Vector2i, members: Array, offsets: Dictionary) -> bool:
+	var unit_ids: Array = [actor.id]
+	for member_id: String in members:
+		if member_id!=actor.id:
+			unit_ids.append(member_id)
+	var actual_floor_start: bool = actor.location.kind=="floor" and int(actor.location.floor_id)==floor_id
+	var start_origin: Vector2 = Vector2(float(actor.location.cell[0]),float(actor.location.cell[1])) if actual_floor_start else Vector2.ZERO
+	var start_cell: Vector2i = Vector2i(roundi(start_origin.x),roundi(start_origin.y))
+	for id: String in unit_ids:
+		var offset: Vector2 = Vector2.ZERO
+		if id!=actor.id:
+			var raw_offset: Array = offsets.get(id,[0,0])
+			offset = Vector2(float(raw_offset[0]),float(raw_offset[1]))
+		var member: Dictionary = world.facts.actors[id]
+		var from_origin: Vector2 = start_origin if actual_floor_start and from==start_cell else Vector2(from)
+		var from_rect: Rect2 = _actor_rect(member,from_origin+offset)
+		var to_rect: Rect2 = _actor_rect(member,Vector2(to)+offset)
+		if not _dynamic_clear(world,actor.id,floor_id,from_rect.merge(to_rect),members):
+			return false
+	return true
 
 func _queue_route(world: WorldState, movement: Dictionary) -> void:
 	world.facts.move_request_next = int(world.facts.get("move_request_next",0))+1
@@ -433,6 +460,18 @@ func _dispatch_routes(world: WorldState, present_at_start: int) -> void:
 		movement.route_pending = false
 		movement.erase("route_retry_tick")
 		movement.erase("waiting_reason")
+
+func _initial_route_cursor(actor: Dictionary, path: Array) -> int:
+	if path.size()<2 or path[0].kind!="floor" or path[1].kind!="floor" or int(path[0].floor_id)!=int(actor.location.floor_id) or int(path[1].floor_id)!=int(actor.location.floor_id):
+		return 0
+	var actual: Vector2 = Vector2(float(actor.location.cell[0]),float(actor.location.cell[1]))
+	var first: Vector2 = Vector2(float(path[0].cell[0]),float(path[0].cell[1]))
+	var next: Vector2 = Vector2(float(path[1].cell[0]),float(path[1].cell[1]))
+	# A retreat can begin between these cells. Returning to the rounded start
+	# would move toward the body being yielded to before moving away from it.
+	if actual.distance_to(first)>0.001 and absf(actual.distance_to(first)+actual.distance_to(next)-first.distance_to(next))<0.001:
+		return 1
+	return 0
 
 func queue_waypoint(world: WorldState, movement: Dictionary, floor_id: int, cell: Array) -> void:
 	var remaining: Array = movement.path.slice(int(movement.cursor))
@@ -584,6 +623,15 @@ func facility_quote(world: WorldState, facility_id: String, actor_id: String, st
 		return {"ok":false,"reason":"设备或实际使用者不存在"}
 	var facility: Dictionary = world.facts.facilities[facility_id]
 	var actor: Dictionary = world.facts.actors[actor_id]
+	var current: Dictionary = world.facts.adaptations.get(facility_id,{})
+	if facility.definition_id=="FUR02" and not current.is_empty() and current.get("staff_ids",[])!=staff_ids:
+		var room: Dictionary = world.facts.rooms.get(facility.get("room_id",""),{})
+		for previous_id: String in current.get("staff_ids",[]):
+			if previous_id in staff_ids:
+				continue
+			var previous: Dictionary = world.facts.actors[previous_id]
+			if previous.location.kind=="floor" and int(previous.location.floor_id)==int(facility.floor_id) and not room.is_empty() and room_contains(room,body_rectangle(previous)):
+				return {"ok":false,"reason":"等待原医生沿实际路线离开诊室后交接岗位"}
 	var definition: Dictionary = content.facility_definition(facility.definition_id)
 	if definition.is_empty():
 		return {"ok":false,"reason":"设备适配定义缺失"}
@@ -619,7 +667,22 @@ func facility_quote(world: WorldState, facility_id: String, actor_id: String, st
 			return {"ok":false,"reason":"操作岗位缺少实际人员"}
 		if index>=operators.size():
 			var staff_size: int = clearance(world.facts.actors[staff_ids[index]])
-			operators.append([x-staff_size,y+1] if index==0 else [x+w,y if index==1 else y+h-staff_size])
+			if facility.definition_id=="EQ05" and operators.is_empty():
+				# Care and the final round use one bedside place in sequence. An
+				# expanded bed needs a place clear for both actual staff bodies.
+				for participant_id: String in staff_ids:
+					if not world.facts.actors.has(participant_id):
+						return {"ok":false,"reason":"操作岗位缺少实际人员"}
+					staff_size = maxi(staff_size,clearance(world.facts.actors[participant_id]))
+				match turns:
+					1: operators.append([x+w-1-staff_size,y-staff_size])
+					2: operators.append([x+w,y+h-1-staff_size])
+					3: operators.append([x+1,y+h])
+					_: operators.append([x-staff_size,y+1])
+			elif facility.definition_id=="EQ05" and index==1 and operators.size()==1:
+				operators.append(operators[0].duplicate())
+			else:
+				operators.append([x-staff_size,y+1] if index==0 else [x+w,y if index==1 else y+h-staff_size])
 	var regions: Array = [[x,y,w,h],[patient_cell[0],patient_cell[1],clearance(actor),clearance(actor)],[repair[0],repair[1],1,1]]
 	for index: int in staff_ids.size():
 		var k: int = clearance(world.facts.actors[staff_ids[index]])
@@ -693,7 +756,11 @@ func exit_cell(world: WorldState, actor: Dictionary, floor_id: int = 1) -> Array
 func reserve_facility(world: WorldState, facility_id: String, actor_id: String, owner_id: String, staff_ids: Array = []) -> String:
 	var current: Dictionary = world.facts.adaptations.get(facility_id,{})
 	if not current.is_empty():
-		return "" if current.actor_id==actor_id else "等待原使用者实际离开后收拢"
+		if current.actor_id!=actor_id:
+			return "等待原使用者实际离开后收拢"
+		if current.staff_ids==staff_ids:
+			current.owner_id = owner_id
+			return ""
 	var quote: Dictionary = facility_quote(world,facility_id,actor_id,staff_ids)
 	if not quote.ok:
 		return quote.reason
@@ -747,7 +814,7 @@ func door_quote(world: WorldState, actor: Dictionary, floor_id: int, door: Dicti
 		continuous = int(door.cell[along])>=int(room.origin[along]) and int(door.cell[along])+span<=int(room.origin[along])+int(room.size[along])
 	if not continuous:
 		return {"ok":false,"reason":"门展开越过连续墙段或墙角"}
-	for other: Dictionary in world.facts.floors.overrides[str(floor_id)].doors:
+	for other: Dictionary in world.facts.floors.overrides.get(str(floor_id),{}).get("doors",[]):
 		if other.id!=door.id and opening.intersects(_door_rect(other,int(other.span)),false):
 			return {"ok":false,"reason":"门展开与另一扇门相交"}
 	for facility: Dictionary in world.facts.facilities.values():
@@ -761,7 +828,7 @@ func door_quote(world: WorldState, actor: Dictionary, floor_id: int, door: Dicti
 	for side: Rect2 in [before,after]:
 		for cx: int in range(int(side.position.x),int(side.end.x)):
 			for cy: int in range(int(side.position.y),int(side.end.y)):
-				if not owned(world,floor_id,Vector2i(cx,cy)) or [cx,cy] in world.facts.floors.overrides[str(floor_id)].blocked:
+				if not owned(world,floor_id,Vector2i(cx,cy)) or [cx,cy] in world.facts.floors.overrides.get(str(floor_id),{}).get("blocked",[]):
 					return {"ok":false,"reason":"门两侧没有容纳真实身体的完整空间"}
 		for facility: Dictionary in world.facts.facilities.values():
 			var layout: Dictionary = facility_layout(world,facility.id)
@@ -773,7 +840,7 @@ func _door_rect(door: Dictionary, span: int) -> Rect2:
 	return Rect2(float(door.cell[0]),float(door.cell[1]),float(span) if door.axis=="x" else 1.0,1.0 if door.axis=="x" else float(span))
 
 func _potential_door_opening(world: WorldState, actor: Dictionary, floor_id: int, cell: Vector2i) -> bool:
-	for door: Dictionary in world.facts.floors.overrides[str(floor_id)].get("doors",[]):
+	for door: Dictionary in world.facts.floors.overrides.get(str(floor_id),{}).get("doors",[]):
 		var fit: Dictionary = door_quote(world,actor,floor_id,door)
 		if fit.ok and _door_rect(door,int(fit.span)).has_point(Vector2(cell)):
 			return true
@@ -781,7 +848,7 @@ func _potential_door_opening(world: WorldState, actor: Dictionary, floor_id: int
 
 func _reserve_doors(world: WorldState, actor: Dictionary, movement: Dictionary, swept: Rect2) -> bool:
 	var floor_id: int = int(actor.location.floor_id)
-	for door: Dictionary in world.facts.floors.overrides[str(floor_id)].get("doors",[]):
+	for door: Dictionary in world.facts.floors.overrides.get(str(floor_id),{}).get("doors",[]):
 		var quote: Dictionary = door_quote(world,actor,floor_id,door)
 		if not quote.ok or not swept.intersects(_door_rect(door,int(quote.span)),false):
 			continue
@@ -826,7 +893,14 @@ func _yield(world: WorldState, actor: Dictionary, movement: Dictionary, swept: R
 		if swept.intersects(rect,false):
 			partner = other_id
 			break
-	if partner.is_empty() or _has_priority(world,actor.id,partner):
+	if partner.is_empty():
+		if _yield_idle_staff(world,actor,movement,swept):
+			return
+		# A body may stop on a route after it was planned. Keep the goal and
+		# request a current detour instead of waiting for a moving partner.
+		_queue_route(world,movement)
+		return
+	if _has_priority(world,actor.id,partner):
 		return
 	# A committed retreat keeps its winner until that winner finishes this move.
 	# Re-evaluating priorities during the retreat creates mutual waiting cycles.
@@ -857,6 +931,81 @@ func _yield(world: WorldState, actor: Dictionary, movement: Dictionary, swept: R
 			movement.yielding = true
 			movement.yield_partner = partner
 			return
+
+func _yield_idle_staff(world: WorldState, actor: Dictionary, movement: Dictionary, swept: Rect2) -> bool:
+	var floor_id: int = int(actor.location.floor_id)
+	var route_cells: Array = []
+	for segment: Dictionary in movement.path.slice(int(movement.cursor)):
+		if segment.get("kind","")=="floor" and int(segment.get("floor_id",-1))==floor_id:
+			route_cells.append(segment.cell)
+	if route_cells.is_empty():
+		route_cells.append(movement.target_cell)
+	var candidates: Array[Dictionary] = []
+	for staff_id: String in world.ids("staff"):
+		if world.facts.moves.has(staff_id) or not world.facts.actors.has(staff_id):
+			continue
+		var staff_actor: Dictionary = world.facts.actors[staff_id]
+		if staff_actor.location.kind!="floor" or int(staff_actor.location.floor_id)!=floor_id or staff_actor.get("posture","standing")!="standing":
+			continue
+		var blocker_rect: Rect2 = _actor_rect(staff_actor,Vector2(float(staff_actor.location.cell[0]),float(staff_actor.location.cell[1])))
+		if not swept.intersects(blocker_rect,false) or _staff_has_movement_responsibility(world,staff_id):
+			continue
+		var origin: Vector2i = Vector2i(roundi(staff_actor.location.cell[0]),roundi(staff_actor.location.cell[1]))
+		for radius: int in range(1,5):
+			for dx: int in range(-radius,radius+1):
+				var dy_abs: int = radius-absi(dx)
+				for dy: int in [-dy_abs,dy_abs]:
+					var goal: Vector2i = origin+Vector2i(dx,dy)
+					if goal==origin or _narrow(world,staff_actor,goal):
+						continue
+					var goal_rect: Rect2 = _actor_rect(staff_actor,Vector2(goal))
+					var requester_path: bool = false
+					for cell: Array in route_cells:
+						if goal_rect.intersects(_actor_rect(actor,Vector2(float(cell[0]),float(cell[1]))),false):
+							requester_path = true
+							break
+					if requester_path or not static_reason(world,staff_actor,floor_id,goal).is_empty():
+						continue
+					if not _dynamic_clear(world,staff_id,floor_id,goal_rect):
+						continue
+					var destination: Dictionary = _floor_route(world,staff_actor,floor_id,origin,goal)
+					if destination.ok and destination.get("status","")!="contention":
+						candidates.append({"id":staff_id,"goal":goal,"distance":float(destination.walking_distance)})
+				if not candidates.is_empty():
+					break
+			if not candidates.is_empty():
+				break
+	candidates.sort_custom(func(a: Dictionary,b: Dictionary) -> bool:
+		if not is_equal_approx(float(a.distance),float(b.distance)):
+			return float(a.distance)<float(b.distance)
+		if str(a.id)!=str(b.id):
+			return str(a.id)<str(b.id)
+		return Vector2i(a.goal).y<Vector2i(b.goal).y or (Vector2i(a.goal).y==Vector2i(b.goal).y and Vector2i(a.goal).x<Vector2i(b.goal).x)
+	)
+	if candidates.is_empty():
+		return false
+	var choice: Dictionary = candidates[0]
+	return request_move(world,str(choice.id),floor_id,[float(choice.goal.x),float(choice.goal.y)]).is_empty()
+
+func _staff_has_movement_responsibility(world: WorldState, staff_id: String) -> bool:
+	var staff: Dictionary = world.facts.staff.get(staff_id,{})
+	if staff.is_empty() or HospitalClinicalDevelopment.safe_busy(world,staff_id):
+		return true
+	if not staff.get("base_task",{}).is_empty() or not str(staff.get("training_job_id","")).is_empty() or staff.get("life_task",{"phase":"idle"}).get("phase","idle")!="idle":
+		return true
+	for stay: Dictionary in world.facts.ward_stays.values():
+		if staff_id in [stay.get("nurse_id",""),stay.get("round_doctor_id",""),stay.get("escort_id","")] and not stay.get("phase","") in ["release_wait","complete"]:
+			return true
+	for reservation: Dictionary in world.facts.adaptations.values():
+		if staff_id in reservation.get("staff_ids",[]) or staff_id==reservation.get("actor_id",""):
+			return true
+	for reservation: Dictionary in world.facts.get("staff_life",{}).get("reservations",{}).values():
+		if staff_id in reservation.get("staff_ids",[]):
+			return true
+	for job: Dictionary in world.facts.get("training_jobs",{}).values():
+		if staff_id in [job.get("staff_id",""),job.get("mentor_id","")] and not HospitalClinicalDevelopment.terminal(job):
+			return true
+	return false
 
 func _narrow(world: WorldState, actor: Dictionary, origin: Vector2i) -> bool:
 	var available: int = 0

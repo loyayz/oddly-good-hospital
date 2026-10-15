@@ -130,6 +130,8 @@ func _refresh_quote() -> void:
 	_quote = simulation.services.research.preview(simulation.world,id,selected(_desk),_community.button_pressed,selected(_worker))
 	var total: float = float(_quote.get("total_work_milli",0))*WorldState.TICK_SECONDS/1000.0
 	_quote_label.text = "本次费用 %d · 冻结标准工作量 %.1f 秒\n%s" % [int(_quote.get("cost",0)),total,str(_quote.get("reason",""))]
+	if _quote.has("cost"):
+		_quote_label.text += "\n"+payment_summary(int(_quote.cost))
 	if not _quote.get("resource_ready",false):
 		_quote_label.text += "\n"+str(_quote.get("resource_reason",""))
 	_community.disabled = not _quote.get("community_available",false) and not _community.button_pressed

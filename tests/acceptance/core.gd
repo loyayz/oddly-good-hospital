@@ -1,0 +1,382 @@
+extends RefCounted
+
+const CASES: Dictionary = {
+	"CORE-01":"模拟规格§8：空院24800、60包、单地块且无员工房间",
+	"CORE-02":"模拟规格§8：预设10600、7员工及合法初始布局",
+	"CORE-03":"阶段02至03规格§2：冻结副本与世界/会话事实分离",
+	"CORE-04":"阶段02至03规格§4：初始暂停及0.1秒固定步",
+	"CORE-05":"阶段02至03规格§4：独立来源暂停令牌",
+	"CORE-06":"阶段02至03规格§4：观看覆盖与手动速度",
+	"CORE-07":"阶段02至03规格§4：停机不补算，正常积压不删步",
+	"CORE-08":"阶段02至03规格§3：医院和会话身份拒绝原子",
+	"CORE-09":"阶段02至03规格§3：暂停命令和恢复后幂等",
+	"CORE-10":"阶段02至03规格§3：同ID不同内容拒绝",
+	"CORE-11":"阶段02至03规格§3：无关修订不锁定，非法目标原子",
+	"CORE-12":"阶段02至03规格§3：运行命令在保存边界排空",
+	"CORE-13":"阶段02至03规格§3：账目幂等及负余额拒绝",
+	"CORE-14":"技术规格§4：十二独立随机流",
+	"CORE-15":"实施路线4.2至4.4：完整基础内容和引用",
+	"CORE-16":"实施路线4.3：注册表不可变",
+	"CORE-17":"实施路线4.4：加载失败保留有效注册表",
+	"CORE-18":"技术规格§5、路线5.1至5.3：真实SQLite保存回读",
+	"CORE-19":"同上：回执属于冻结修订",
+	"CORE-20":"同上：追加序列和旧提交保留",
+	"CORE-21":"路线4.1、5.4：完整内容身份、坏世界不部分载入及旧有效提交恢复",
+	"CORE-22":"路线5.4：事务中断不封存半成品",
+	"CORE-23":"技术规格资料所有权：真实独占与释放",
+	"CORE-24":"路线6.1：清单分页不冒充世界已校验",
+	"CORE-25":"路线6.1：取消旧扫描",
+	"CORE-26":"路线6.3：实际ZIP备份新身份导入",
+	"CORE-27":"技术规格受限ZIP：路径与未知条目拒绝",
+	"CORE-28":"路线6.4：回收和恢复保留身份",
+	"CORE-29":"路线6.4：当前医院不可回收",
+	"CORE-30":"路线6.2：新医院会话暂停且拒绝旧输入",
+	"CORE-31":"路线7.1、7.4：观看高层不改变世界",
+	"CORE-32":"路线7.4：资源票旧身份拒绝",
+	"CORE-33":"路线7.2、7.3：基础资源可加载且观看不造实体",
+	"CORE-34":"阶段04至28规格：18个实际服务面板只读绑定",
+	"CORE-35":"体验规格及路线7.4：200%文字和小窗口可操作",
+	"CORE-36":"路线6.2及阶段25至28规格：取消离开保留草稿",
+	"CORE-37":"路线4.4：新种族复用已有病症与主体",
+	"CORE-38":"路线4.4：新病症复用已有种族与主体",
+	"CORE-39":"路线4.2：重复、错类型与未知内容拒绝",
+	"CORE-40":"路线4.2：缺依赖与依赖环拒绝"
+}
+
+func run(t) -> void:
+	var content: HospitalContent = HospitalContent.new()
+	var empty: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"空地",false,content)
+	var preset: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"预设",true,content)
+	t.check("CORE-01",HospitalLedger.balance(empty)==24800 and int(empty.facts.inventory.units)==60 and empty.facts.rooms.is_empty() and empty.facts.staff.is_empty() and HospitalSpace.floor_plots(empty,1)==[[1,2]])
+	var initial_space: HospitalSpace = HospitalSpace.new(content)
+	var office: Dictionary = initial_space.facility_layout(preset,"doctor_office_desk")
+	var office_route: Dictionary = initial_space.route(preset,"starter_doctor_a",1,office.operator_cells[0])
+	t.check("CORE-02",HospitalLedger.balance(preset)==10600 and preset.facts.staff.size()==7 and preset.validate(content).is_empty() and office_route.ok,{"validation":preset.validate(content),"office_route":office_route})
+	var frozen: Dictionary = empty.freeze()
+	frozen.display_name = "副本"
+	t.check("CORE-03",empty.facts.display_name=="空地" and not empty.facts.has("requested_speed") and not empty.facts.has("scene"))
+	_clock(t,content)
+	_commands(t,content)
+	var original_rng: Dictionary = empty.facts.rng.duplicate(true)
+	empty.draw("treatment",10000)
+	var independent: bool = empty.facts.rng.size()==12 and original_rng.treatment!=empty.facts.rng.treatment
+	for stream: String in original_rng:
+		if stream!="treatment" and original_rng[stream]!=empty.facts.rng[stream]: independent = false
+	t.check("CORE-14",independent)
+	t.check("CORE-15",content.error.is_empty() and content.catalog.species.size()==80 and content.catalog.diseases.size()==154 and content.catalog.research.size()==38 and content.catalog.build_room_types.size()==17,content.error)
+	var species: Dictionary = content.definition("species","S49")
+	var original_name: String = species.name
+	var immutable: bool = species.is_read_only() and species.body.is_read_only()
+	if not species.is_read_only(): species.name = "查询副本"
+	if not species.body.is_read_only(): species.body.width_m = 999.0
+	t.check("CORE-16",immutable or content.definition("species","S49").name==original_name and float(content.definition("species","S49").body.width_m)<999.0)
+	var fingerprint: String = content.content_fingerprint
+	var invalid: bool = content.load_packs(PackedStringArray(["res://acceptance-missing-pack"]))
+	t.check("CORE-17",not invalid and content.content_fingerprint==fingerprint and content.definition("species","S49").name==original_name)
+	content = HospitalContent.new()
+	_extensions(t,content)
+	_storage(t,content)
+	await _view_and_ui(t,content)
+
+func _clock(t, content: HospitalContent) -> void:
+	var rates: bool = true
+	for speed: int in [1,2,3]:
+		var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"时钟",false,content)
+		var sim: HospitalSimulation = HospitalSimulation.new(world,content)
+		var session: GameSession = GameSession.new(sim,"clock")
+		rates = rates and session.actual_speed()==0
+		session.set_speed(speed)
+		session.advance(0.2)
+		rates = rates and world.sim_tick==[2,4,6][speed-1]
+		sim.dispose()
+	t.check("CORE-04",rates)
+	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"暂停",false,content)
+	var sim: HospitalSimulation = HospitalSimulation.new(world,content)
+	var session: GameSession = GameSession.new(sim,"pause")
+	session.set_speed(3)
+	session.pause("focus")
+	session.pause("dialog")
+	session.resume("focus")
+	session.advance(0.2)
+	var held: bool = session.actual_speed()==0 and world.sim_tick==0
+	session.resume("dialog")
+	t.check("CORE-05",held and session.actual_speed()==3)
+	session.set_watching(true)
+	var watching: bool = session.actual_speed()==1
+	session.set_speed(2)
+	t.check("CORE-06",watching and session.actual_speed()==2)
+	session.set_speed(1)
+	session.advance(0.0)
+	session.advance(2.0)
+	var suspended: bool = world.sim_tick==0
+	session.advance(0.9)
+	var bounded: bool = world.sim_tick==8 and session.running_slow
+	session.advance(0.0)
+	t.check("CORE-07",suspended and bounded and world.sim_tick==9)
+	sim.dispose()
+
+func _commands(t, content: HospitalContent) -> void:
+	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"命令",false,content)
+	var sim: HospitalSimulation = HospitalSimulation.new(world,content)
+	var session: GameSession = GameSession.new(sim,"current")
+	var payload: Dictionary = {"floor_id":1,"room_type_id":"gp","origin":[34,66],"size":[4,4]}
+	var before: Dictionary = world.freeze()
+	var old: CommandResult = session.submit(GameCommand.new("old",world.hospital_id,world.revision,"build_room",BusinessPayload.new(payload),"previous"))
+	var other: CommandResult = session.submit(GameCommand.new("other","other-hospital",world.revision,"build_room",BusinessPayload.new(payload),"current"))
+	t.check("CORE-08",not old.accepted and not other.accepted and world.freeze()==before)
+	var command: GameCommand = GameCommand.new("room",world.hospital_id,world.revision,"build_room",BusinessPayload.new(payload),"current")
+	var built: CommandResult = session.submit(command)
+	var after: Dictionary = world.freeze()
+	var duplicate: CommandResult = session.submit(command)
+	var restored: WorldState = WorldState.new(world.freeze())
+	var second: HospitalSimulation = HospitalSimulation.new(restored,content)
+	var resumed: CommandResult = second.apply(command)
+	t.check("CORE-09",built.accepted and duplicate.accepted and resumed.accepted and world.sim_tick==0 and world.freeze()==after and restored.freeze()==after,built.reason)
+	var changed: Dictionary = payload.duplicate(true)
+	changed.origin = [44,66]
+	var conflict: CommandResult = session.submit(GameCommand.new("room",world.hospital_id,world.revision,"build_room",BusinessPayload.new(changed),"current"))
+	t.check("CORE-10",not conflict.accepted and world.freeze()==after)
+	var quoted_revision: int = world.revision
+	world.touch()
+	var unrelated: CommandResult = session.submit(GameCommand.new("second_room",world.hospital_id,quoted_revision,"build_room",BusinessPayload.new(changed),"current"))
+	before = world.freeze()
+	changed.origin = [0,0]
+	var invalid: CommandResult = session.submit(GameCommand.new("invalid",world.hospital_id,world.revision,"build_room",BusinessPayload.new(changed),"current"))
+	t.check("CORE-11",unrelated.accepted and not invalid.accepted and world.freeze()==before,unrelated.reason)
+	session.set_speed(1)
+	var queued: CommandResult = session.submit(GameCommand.new("floor_note",world.hospital_id,world.revision,"finance_note",BusinessPayload.new({"text":"保存边界","target_amount":6000}),"current"))
+	var revision: int = world.revision
+	session.drain_commands()
+	t.check("CORE-12",queued.accepted and queued.code=="queued" and world.facts.command_receipts.has("floor_note") and world.revision>revision and world.sim_tick==0)
+	var balance: int = HospitalLedger.balance(world)
+	var entry: LedgerEntry = LedgerEntry.new(world.hospital_id,"acceptance_payment",-10)
+	var paid: CommandResult = HospitalLedger.post(world,entry)
+	HospitalLedger.post(world,entry)
+	before = world.freeze()
+	var excessive: CommandResult = HospitalLedger.post(world,LedgerEntry.new(world.hospital_id,"excessive",-1000000))
+	t.check("CORE-13",paid.accepted and HospitalLedger.balance(world)==balance-10 and not excessive.accepted and world.freeze()==before)
+	second.dispose()
+	sim.dispose()
+	var new_session: GameSession = GameSession.new(HospitalSimulation.new(HospitalFactory.create(HospitalSnapshots.uuid(),"另一院",false,content),content),"new-session")
+	before = new_session.simulation.world.freeze()
+	t.check("CORE-30",new_session.actual_speed()==0 and not new_session.submit(command).accepted and new_session.simulation.world.freeze()==before)
+	new_session.simulation.dispose()
+
+func _storage(t, content: HospitalContent) -> void:
+	var guard: RefCounted = ClassDB.instantiate("PlatformSessionGuard")
+	var acquired: Dictionary = guard.call("acquire")
+	if not acquired.ok:
+		push_error("Isolated acceptance profile unavailable: "+JSON.stringify(acquired))
+		return
+	var contender: RefCounted = ClassDB.instantiate("PlatformSessionGuard")
+	var denied: Dictionary = contender.call("acquire")
+	var exclusive: bool = not denied.ok and denied.busy
+	var store: HospitalSnapshots = HospitalSnapshots.new(content,guard)
+	var library: HospitalLibrary = HospitalLibrary.new(content,store)
+	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"事务医院",false,content)
+	var sim: HospitalSimulation = HospitalSimulation.new(world,content)
+	var original: Dictionary = world.freeze()
+	var begin: Dictionary = store.begin(sim,"storage-session")
+	world.facts.display_name = "保存后更名"
+	world.touch()
+	var receipt: Dictionary = store.wait_for_idle() if begin.ok else begin
+	var loaded: Dictionary = store.load_commit(world.hospital_id,receipt.snapshot_id) if receipt.ok else receipt
+	t.check("CORE-18",loaded.ok and _same(loaded.world.freeze(),original),loaded.get("error",""))
+	t.check("CORE-19",receipt.ok and int(receipt.world_revision)==int(original.world_revision) and int(world.revision)>int(receipt.world_revision),receipt)
+	if not loaded.ok: sim.dispose(); guard.call("release"); return
+	var first_id: String = receipt.snapshot_id
+	begin = store.begin(world,"storage-session")
+	var second: Dictionary = store.wait_for_idle() if begin.ok else begin
+	t.check("CORE-20",second.ok and int(second.sequence)>int(receipt.sequence) and store.load_commit(world.hospital_id,first_id).ok,second)
+	var opened: Dictionary = store._connect(world.hospital_id)
+	if not opened.ok: sim.dispose(); guard.call("release"); return
+	var database: RefCounted = opened.database
+	var corrupted: Dictionary = database.call("execute","UPDATE world_chunks SET data=? WHERE snapshot_id=? AND chunk_index=0",["broken".to_utf8_buffer(),second.snapshot_id])
+	database.call("close")
+	var bad: Dictionary = store.load_commit(world.hospital_id,second.snapshot_id)
+	var recovered: Dictionary = store.recover_latest(world.hospital_id)
+	var manifest: Dictionary = loaded.manifest.duplicate(true)
+	var valid_manifest: Dictionary = store._parse_manifest(JSON.stringify(manifest).to_utf8_buffer(),world.hospital_id,first_id)
+	manifest.content_packs = [{"id":"core","version":str(content.catalog.content_version)}]
+	var incomplete_identity: Dictionary = store._parse_manifest(JSON.stringify(manifest).to_utf8_buffer(),world.hospital_id,first_id)
+	t.check("CORE-21",corrupted.ok and not bad.ok and recovered.ok and recovered.manifest.snapshot_id==first_id and valid_manifest.ok and not incomplete_identity.ok and str(incomplete_identity.get("error","")).contains("核心内容版本"),{"bad_world":bad.get("error",""),"incomplete_content_identity":incomplete_identity})
+	opened = store._connect(world.hospital_id)
+	database = opened.database
+	var unsealed_id: String = HospitalSnapshots.uuid()
+	database.call("execute","BEGIN IMMEDIATE",[])
+	var unsealed: Dictionary = database.call("execute","INSERT INTO snapshots VALUES(?,?,?,?,0)",[unsealed_id,99,"{}".to_utf8_buffer(),"0".repeat(64)])
+	database.call("close")
+	opened = store._connect(world.hospital_id)
+	database = opened.database
+	var count: Dictionary = database.call("execute","SELECT count(*) AS count FROM snapshots WHERE snapshot_id=?",[unsealed_id])
+	database.call("close")
+	t.check("CORE-22",unsealed.ok and count.ok and int(count.rows[0].count)==0)
+	var another: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"另一座测试院",false,content)
+	begin = library.create(another,"library-session")
+	var created: Dictionary = store.wait_for_idle() if begin.ok else begin
+	var page: Dictionary = library.scan_page({},1)
+	t.check("CORE-24",created.ok and page.ok and page.records.size()==1 and not page.records[0].world_verified and not page.done,page)
+	library.cancel_scan()
+	var cancelled: Dictionary = library.scan_page(page.cursor,1)
+	t.check("CORE-25",not cancelled.ok and cancelled.get("cancelled",false))
+	var backup_path: String = "user://acceptance.oghbackup"
+	var exported: Dictionary = library.export_backup(world.hospital_id,first_id,backup_path)
+	var imported: Dictionary = library.import_backup(backup_path) if exported.ok else exported
+	t.check("CORE-26",imported.ok and imported.world.hospital_id!=world.hospital_id and imported.world.facts.display_name==original.display_name and HospitalLedger.balance(imported.world)==24800 and _same(imported.world.facts.rng,original.rng) and store.load_commit(world.hospital_id,first_id).ok,imported.get("error",""))
+	var rejected: bool = true
+	var source_zip: ZIPReader = ZIPReader.new()
+	var zip_readable: bool = source_zip.open(backup_path)==OK
+	for name: String in ["../outside.txt","unknown.txt"]:
+		var zip: ZIPPacker = ZIPPacker.new()
+		var path: String = "user://rejected.oghbackup"
+		zip.open(path)
+		if zip_readable:
+			for allowed_name: String in source_zip.get_files():
+				zip.start_file(allowed_name)
+				zip.write_file(source_zip.read_file(allowed_name))
+				zip.close_file()
+		zip.start_file(name)
+		zip.write_file("outside".to_utf8_buffer())
+		zip.close_file()
+		zip.close()
+		var inspected: Dictionary = HospitalBackupZip.new().inspect(path)
+		rejected = rejected and not inspected.ok
+	source_zip.close()
+	t.check("CORE-27",zip_readable and rejected and not FileAccess.file_exists("user://outside.txt"))
+	var protected: Dictionary = library.trash_hospital(world.hospital_id,world.hospital_id)
+	t.check("CORE-29",not protected.ok and store.load_commit(world.hospital_id,first_id).ok)
+	var trashed: Dictionary = library.trash_hospital(another.hospital_id,world.hospital_id)
+	var restored: Dictionary = library.restore_hospital(another.hospital_id) if trashed.ok else trashed
+	var continued: Dictionary = library.continue_hospital(another.hospital_id) if restored.ok else restored
+	t.check("CORE-28",continued.ok and continued.world.hospital_id==another.hospital_id and _same(continued.world.freeze(),another.freeze()),continued.get("error",""))
+	sim.dispose()
+	guard.call("release")
+	var retry: Dictionary = contender.call("acquire")
+	t.check("CORE-23",exclusive and retry.ok)
+	contender.call("release")
+
+func _view_and_ui(t, content: HospitalContent) -> void:
+	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"视图",true,content)
+	var view: HospitalView = HospitalView.new(content)
+	t.root.add_child(view)
+	var before: Dictionary = world.freeze()
+	view.bind(world,1,"view-a")
+	view.overview()
+	view.update_facts()
+	var ticket: Dictionary = view.resource_ticket("actor:starter_doctor_1")
+	if ticket.is_empty():
+		for id: String in world.ids("actors"):
+			ticket = view.resource_ticket("actor:"+id)
+			if not ticket.is_empty(): break
+	view.set_floor(10000)
+	view.zoom_camera(1.2)
+	view.overview()
+	view.update_facts()
+	t.check("CORE-31",world.freeze()==before and view.observed_floor==10000)
+	view.bind(HospitalFactory.create(HospitalSnapshots.uuid(),"新视图",true,content),1,"view-b")
+	t.check("CORE-32",not ticket.is_empty() and not view.accepts_resource(ticket))
+	var resources_ready: bool = load("res://assets/fonts/NotoSansCJKsc-Regular.otf")!=null
+	t.check("CORE-33",resources_ready and view.bind_error.is_empty() and world.freeze()==before,view.bind_error)
+	view.queue_free()
+	await t.process_frame
+	var app: Control = load("res://game/app/main.tscn").instantiate()
+	t.root.add_child(app)
+	app.set_process(false)
+	await t.process_frame
+	if app._simulation==null:
+		push_error("Actual application did not activate an isolated hospital")
+		app.queue_free()
+		return
+	before = app._simulation.world.freeze()
+	var panels_ready: bool = app._management_panels.get_child_count()==18
+	for panel: Node in app._management_panels.get_children():
+		app._show_panel(str(panel.name))
+		if panel.has_method("rebuild"): panel.call("rebuild")
+	t.check("CORE-34",panels_ready and app._simulation.world.freeze()==before)
+	app.size = Vector2(1280,720)
+	app._set_ui_scale(2)
+	app._show_panel("research")
+	await t.process_frame
+	t.check("CORE-35",app._ui_scale==2 and app.theme.default_font_size==36 and app._management_scroll.visible and app._management_scroll.get_child_count()>0 and app._simulation.world.freeze()==before)
+	app._drafts["acceptance-draft"] = {"kind":"build_room","origin":[34,66]}
+	var original_drafts: Dictionary = app._drafts.duplicate(true)
+	var prompted: bool = app._confirm_draft_leave(Callable())
+	if prompted:
+		app._draft_confirmation.canceled.emit()
+		app._draft_confirmation.hide()
+	t.check("CORE-36",prompted and app._drafts==original_drafts and app._simulation.world.freeze()==before and app._leave_operation.is_empty())
+	if app._snapshots.busy(): app._snapshots.wait_for_idle()
+	app._guard.call("release")
+	app.queue_free()
+	await t.process_frame
+
+func _same(first: Variant, second: Variant) -> bool:
+	return JSON.parse_string(JSON.stringify(first,"",true,true))==JSON.parse_string(JSON.stringify(second,"",true,true))
+
+func _extensions(t, content: HospitalContent) -> void:
+	var species: Dictionary = content.registry.definition("species","S49").duplicate(true)
+	species.id = "acceptance.species:SAMPLE"
+	var binding: Dictionary = content.registry.definition("treatment_bindings","B_S49_D37_M37").duplicate(true)
+	binding.id = "acceptance.species:B_SAMPLE"
+	binding.species_id = species.id
+	var talent: Dictionary = {}
+	for candidate: Dictionary in content.registry.collection("staff_talents"):
+		if candidate.species_id!="core:S49": continue
+		talent = candidate.duplicate(true)
+		talent.id = "acceptance.species:T_SAMPLE"
+		talent.species_id = species.id
+		break
+	var path: String = _pack("acceptance.species",{"species.json":[species],"staff_talents.json":[talent],"treatment_bindings.json":[binding]})
+	var loaded: ContentLoadResult = ContentLoader.new().load_packs(PackedStringArray(["res://content/core",path]))
+	t.check("CORE-37",loaded.accepted and not loaded.registry.resolve_bindings(species.id,"D37").is_empty(),loaded.errors)
+	var disease: Dictionary = content.registry.definition("diseases","D37").duplicate(true)
+	disease.id = "acceptance.disease:CASE"
+	binding = content.registry.definition("treatment_bindings","B_S49_D37_M37").duplicate(true)
+	binding.id = "acceptance.disease:B_CASE"
+	binding.disease_id = disease.id
+	var plans: Array = []
+	for plan: Dictionary in content.registry.collection("treatment_plans"):
+		if plan.disease_id!="core:D37": continue
+		var copy: Dictionary = plan.duplicate(true)
+		copy.id = "acceptance.disease:"+str(plan.id).trim_prefix("core:")
+		copy.disease_id = disease.id
+		plans.append(copy)
+	var unlock: Dictionary = content.registry.definition("research","R01").duplicate(true)
+	unlock.id = "acceptance.disease:R_CASE"
+	unlock.requires = []
+	unlock.disease_ids = [disease.id]
+	path = _pack("acceptance.disease",{"diseases.json":[disease],"treatment_bindings.json":[binding],"treatment_plans.json":plans,"research.json":[unlock]})
+	loaded = ContentLoader.new().load_packs(PackedStringArray(["res://content/core",path]))
+	t.check("CORE-38",loaded.accepted and not loaded.registry.resolve_bindings("S49",disease.id).is_empty() and not loaded.registry.resolve_bindings("S49","D37").is_empty(),loaded.errors)
+	var all_rejected: bool = not ContentLoader.new().load_packs(PackedStringArray(["res://content/core","res://content/core"])).accepted
+	species.id = "acceptance.duplicate:SAMPLE"
+	var duplicate_path: String = _pack("acceptance.duplicate",{"species.json":[species,species.duplicate(true)]})
+	var wrong_type: String = _pack("acceptance.wrongtype",{"species.json":{}})
+	var unknown: String = _pack("acceptance.unknownfile",{"unregistered.json":[]})
+	var reasons: Dictionary = {}
+	for invalid_path: String in [duplicate_path,wrong_type,unknown]:
+		var invalid: ContentLoadResult = ContentLoader.new().load_packs(PackedStringArray(["res://content/core",invalid_path]))
+		all_rejected = all_rejected and not invalid.accepted
+		reasons[invalid_path] = invalid.errors
+	all_rejected = all_rejected and str(reasons[duplicate_path]).contains("重复") and str(reasons[wrong_type]).contains("数组") and str(reasons[unknown]).contains("未注册")
+	t.check("CORE-39",all_rejected,reasons)
+	var missing: String = _pack("acceptance.missingdep",{},[{"pack_id":"core","version_range":"*"},{"pack_id":"acceptance.absent","version_range":"*"}])
+	var cycle_a: String = _pack("acceptance.cyclea",{},[{"pack_id":"core","version_range":"*"},{"pack_id":"acceptance.cycleb","version_range":"*"}])
+	var cycle_b: String = _pack("acceptance.cycleb",{},[{"pack_id":"core","version_range":"*"},{"pack_id":"acceptance.cyclea","version_range":"*"}])
+	var missing_result: ContentLoadResult = ContentLoader.new().load_packs(PackedStringArray(["res://content/core",missing]))
+	var cycle_result: ContentLoadResult = ContentLoader.new().load_packs(PackedStringArray(["res://content/core",cycle_a,cycle_b]))
+	t.check("CORE-40",not missing_result.accepted and not cycle_result.accepted and str(missing_result.errors).contains("缺少依赖") and str(cycle_result.errors).contains("环"),{"missing":missing_result.errors,"cycle":cycle_result.errors})
+
+func _pack(identity: String, collections: Dictionary, dependencies: Array = [{"pack_id":"core","version_range":"*"}]) -> String:
+	var directory: String = "user://case-packs/"+identity
+	DirAccess.make_dir_recursive_absolute(directory)
+	var files: Array = []
+	for filename: String in collections:
+		var file: FileAccess = FileAccess.open(directory.path_join(filename),FileAccess.WRITE)
+		file.store_string(JSON.stringify(collections[filename],"",true,true))
+		file.close()
+		files.append({"path":filename,"sha256":FileAccess.get_sha256(directory.path_join(filename))})
+	var manifest: FileAccess = FileAccess.open(directory.path_join("manifest.json"),FileAccess.WRITE)
+	manifest.store_string(JSON.stringify({"pack_id":identity,"version":"1.0.0","schema_version":100,"min_game_version":"1.0.0","requires":dependencies,"files":files}))
+	manifest.close()
+	return directory

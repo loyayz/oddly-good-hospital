@@ -208,7 +208,7 @@ func _process(_delta: float) -> void:
 	if not bool(_result.get("ok",false)):
 		_reason.text = str(_result.get("reason","正在检查当前草案…"))
 	else:
-		_reason.text = "费用 %d · 退款 %d\n确认后资金 %d" % [int(_result.get("price",0)),int(_result.get("refund",0)),int(_result.get("balance_after",HospitalLedger.balance(simulation.world)))]
+		_reason.text = "费用 %d · 退款 %d\n%s" % [int(_result.get("price",0)),int(_result.get("refund",0)),HospitalActionPanel.format_payment_summary(simulation.world,int(_result.get("price",0)),int(_result.get("refund",0)))]
 	preview_changed.emit(_draft.duplicate(true),_result.duplicate(true))
 
 func set_map_cell(cell: Array) -> void:

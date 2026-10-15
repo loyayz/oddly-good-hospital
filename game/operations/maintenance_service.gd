@@ -292,7 +292,7 @@ func dispatch(world: WorldState) -> void:
 	var equipment: Dictionary = _equipment(world)
 	var candidates: Array = []
 	for job: Dictionary in world.facts.maintenance.jobs.values():
-		if HospitalRemodel.blocked(world,str(job.facility_id)) and _safe_free(world,str(job.facility_id)):
+		if HospitalRemodel.blocked(world,str(job.facility_id)) and _safe_free(world,str(job.facility_id)) and not (job.kind=="repair" and _needed_for_remodel(world,str(job.facility_id))):
 			_release(world,job)
 			job.reason = "等待改建后原工单接续"
 			continue
@@ -458,6 +458,19 @@ func _arrived(world: WorldState, job: Dictionary, item: Dictionary) -> bool:
 	var movement: Dictionary = world.facts.moves.get(id,{})
 	if movement.get("target_floor",-1)==int(job.work_floor) and movement.get("target_cell",[])==job.work_cell and str(movement.get("owner_job_id",str(job.id)))==str(job.id):
 		movement.owner_job_id = str(job.id)
+	return false
+
+func _needed_for_remodel(world: WorldState, id: String) -> bool:
+	if world.facts.facilities.get(id,{}).get("definition_id","")!=content.balance.renovation.tool_equipment_id: return false
+	for arrangement: Dictionary in world.facts.get("remodels",{}).values():
+		if arrangement.state!="preparing": continue
+		for order: Dictionary in world.facts.get("environment",{}).get("orders",{}).values():
+			if order.phase in ["completed","cancelled"]: continue
+			for unit: Dictionary in order.units:
+				if unit.phase in ["completed","cancelled"]: continue
+				for room_id: String in arrangement.room_ids:
+					var room: Dictionary = world.facts.rooms[room_id]
+					if int(room.floor_id)==int(order.floor_id) and BuildGeometry.contains(room,unit.cell): return true
 	return false
 
 func _safe_free(world: WorldState, id: String) -> bool:

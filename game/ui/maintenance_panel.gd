@@ -24,6 +24,8 @@ func build_controls() -> void:
 	if _facility_id.is_empty(): note("尚无实际设备。家具及免维护附件无需维修。"); return
 	var quote: Dictionary = service.upgrade_quote(simulation.world,{"facility_id":_facility_id})
 	note("下一等级当前报价 ¥%s\n%s" % [quote.cost,quote.reason])
+	var hospital_paid: int = mini(HospitalLedger.balance(simulation.world),int(quote.cost)) if simulation.world.facts.mode=="creative" else int(quote.cost)
+	note(payment_summary(hospital_paid))
 	action("为这台设备安排保养",func() -> void: send("maintenance_order",{"facility_id":_facility_id}))
 	action("确认升级这台设备",func() -> void: send("machine_upgrade",{"facility_id":_facility_id}),quote.ok)
 	var current: Dictionary = service.query(simulation.world,_facility_id)

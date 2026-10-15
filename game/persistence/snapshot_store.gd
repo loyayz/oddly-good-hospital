@@ -404,8 +404,7 @@ func _parse_manifest(raw: PackedByteArray, hospital_id: String, snapshot_id: Str
 	var types: Dictionary = {"format":TYPE_STRING,"schema_version":TYPE_INT,"game_version":TYPE_STRING,"hospital_id":TYPE_STRING,"snapshot_id":TYPE_STRING,"sequence":TYPE_INT,"slot_kind":TYPE_STRING,"slot_key":TYPE_STRING,"created_utc":TYPE_STRING,"sim_tick":TYPE_INT,"content_packs":TYPE_ARRAY,"world_bytes":TYPE_INT,"world_sha256":TYPE_STRING,"display_summary":TYPE_DICTIONARY}
 	if not WorldState._fields(data,types).is_empty() or not WorldState._natural(data.sim_tick) or not data.slot_kind in ["manual","auto","checkpoint"] or not _valid_sha(data.world_sha256) or data.slot_key.is_empty() or data.slot_key.to_utf8_buffer().size()>64 or (data.has("world_revision") and not WorldState._natural(data.world_revision)):
 		return {"ok":false,"error":"保存清单字段类型无效"}
-	# Engineering fixtures from the first schema1 implementation have only pack/version.
-	if data.content_packs != _content_identity() and data.content_packs != [{"id":"core","version":str(content.catalog.content_version)}]:
+	if data.content_packs != _content_identity():
 		return {"ok":false,"error":"保存点需要不同的核心内容版本"}
 	if not WorldState._fields(data.display_summary,{"display_name":TYPE_STRING,"mode":TYPE_STRING,"present_actor_count":TYPE_INT}).is_empty() or not WorldState._natural(data.display_summary.present_actor_count):
 		return {"ok":false,"error":"保存清单显示摘要无效"}

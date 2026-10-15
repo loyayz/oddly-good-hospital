@@ -31,7 +31,7 @@ func ensure(world: WorldState) -> void:
 			else:
 				var duty: String = "outpatient" if staff.role=="doctor" else "work"
 				staff.schedule = [{"kind":duty,"pools":[],"locked":false},{"kind":duty,"pools":[],"locked":false},{"kind":"rest","pools":[],"locked":false}]
-		var defaults: Dictionary = {"schedule_overrides":{},"schedule_day":world.sim_tick/WorldState.TICKS_PER_DAY,"scheduled_kind":"work","rest_debt_ticks":0,
+		var defaults: Dictionary = {"schedule_overrides":{},"schedule_day":world.sim_tick/WorldState.TICKS_PER_DAY,"previous_day_work_tail":0,"scheduled_kind":"work","rest_debt_ticks":0,
 			"leave_plan":{},"block_new_work":false,"schedule_reason":"","last_schedule_slot":-1,"overtime_ticks":0}
 		for key: String in defaults:
 			if not staff.has(key):
@@ -86,9 +86,7 @@ func boundaries(world: WorldState) -> void:
 			staff.on_shift = false
 			staff.block_new_work = true
 			continue
-		if int(staff.schedule_day)!=day:
-			staff.schedule_overrides.clear()
-			staff.schedule_day = day
+		_roll_day(staff,_day_state(world,staff))
 		var schedule: Dictionary = assignment(world,staff_id,slot,day)
 		staff.scheduled_kind = schedule.kind
 		var busy: bool = Development.safe_busy(world,staff_id)
@@ -190,7 +188,7 @@ func suggestion(world: WorldState) -> Dictionary:
 		for slot: int in int(content.balance.schedule.shifts_per_day):
 			if not proposed[slot].locked:
 				proposed[slot] = {"kind":"rest" if slot==rest_slot else "outpatient","pools":proposed[slot].pools.duplicate(),"locked":false}
-		if _template_error(proposed).is_empty() and proposed!=staff.schedule:
+		if _template_error(proposed).is_empty() and _continuity_error(world,staff,proposed).is_empty() and proposed!=staff.schedule:
 			changes.append({"staff_id":id,"schedule":proposed})
 	return {"id":str(hash(basis)),"basis":basis,"changes":changes,"coverage":coverage(world,changes)}
 
@@ -306,6 +304,8 @@ func validate(world: WorldState) -> String:
 			return error
 		if not staff.get("rest_debt_ticks") is int or int(staff.rest_debt_ticks)<0 or not staff.get("schedule_overrides") is Dictionary or not staff.get("leave_plan") is Dictionary:
 			return "排班休息债或休假结构无效"
+		if staff.has("previous_day_work_tail") and (not staff.previous_day_work_tail is int or int(staff.previous_day_work_tail)<0 or int(staff.previous_day_work_tail)>int(content.balance.schedule.max_consecutive_work_shifts)):
+			return "前日连续工作班次统计无效"
 		var leave: Dictionary = staff.leave_plan
 		if not leave.is_empty() and (not leave.get("kind","") in ["voluntary","automatic"] or not leave.get("state","") in ["planned","active","returning"] or not leave.get("requested_start_tick") is int or not leave.get("actual_start_tick") is int or not leave.get("end_tick") is int):
 			return "休假计划无效"
@@ -335,12 +335,20 @@ func _apply(world: WorldState, payload: Dictionary) -> CommandResult:
 		var error: String = _template_error(change.get("schedule",[]))
 		if not error.is_empty():
 			return _result(world,false,"invalid_schedule",error)
+		error = _continuity_error(world,staff,change.schedule)
+		if not error.is_empty():
+			return _result(world,false,"invalid_schedule",error)
 		for slot: int in int(content.balance.schedule.shifts_per_day):
 			if staff.schedule[slot].locked and staff.schedule[slot]!=change.schedule[slot]:
 				return _result(world,false,"locked","手动锁定班次须先解锁")
 		seen[change.staff_id] = true
 	for change: Dictionary in changes:
-		world.facts.staff[change.staff_id].schedule = change.schedule.duplicate(true)
+		var staff: Dictionary = world.facts.staff[change.staff_id]
+		_roll_day(staff,_day_state(world,staff))
+		for slot: int in shift_index(world):
+			if not staff.schedule_overrides.has(str(slot)):
+				staff.schedule_overrides[str(slot)] = staff.schedule[slot].duplicate(true)
+		staff.schedule = change.schedule.duplicate(true)
 	if not str(payload.get("id","")).is_empty():
 		world.facts.staff_schedule.applications[str(payload.id)] = world.sim_tick
 	return _result(world,true,"applied","",seen.keys())
@@ -349,8 +357,53 @@ func _basis(world: WorldState) -> Dictionary:
 	var result: Dictionary = {}
 	for id: String in world.ids("staff"):
 		var staff: Dictionary = world.facts.staff[id]
-		result[id] = {"role":staff.role,"schedule":staff.get("schedule",[]).duplicate(true),"abilities":staff.abilities.duplicate(true),"title_id":staff.title_id,"leave_plan":staff.get("leave_plan",{}).duplicate(true)}
+		var day_state: Dictionary = _day_state(world,staff)
+		result[id] = {"role":staff.role,"schedule":staff.get("schedule",[]).duplicate(true),"schedule_overrides":day_state.overrides.duplicate(true),"schedule_day":day_state.day,"previous_day_work_tail":day_state.previous_day_work_tail,"abilities":staff.abilities.duplicate(true),"title_id":staff.title_id,"leave_plan":staff.get("leave_plan",{}).duplicate(true)}
 	return result
+
+func _day_state(world: WorldState, staff: Dictionary) -> Dictionary:
+	var day: int = world.sim_tick/WorldState.TICKS_PER_DAY
+	if int(staff.schedule_day)==day:
+		return {"day":day,"overrides":staff.schedule_overrides,"previous_day_work_tail":int(staff.previous_day_work_tail)}
+	var tail: int = 0
+	for slot: int in range(int(content.balance.schedule.shifts_per_day)-1,-1,-1):
+		if assignment(world,staff.id,slot,day-1).kind=="rest":
+			break
+		tail += 1
+	return {"day":day,"overrides":{},"previous_day_work_tail":mini(tail,int(content.balance.schedule.max_consecutive_work_shifts))}
+
+func _roll_day(staff: Dictionary, day_state: Dictionary) -> void:
+	if int(staff.schedule_day)==int(day_state.day):
+		return
+	staff.previous_day_work_tail = int(day_state.previous_day_work_tail)
+	staff.schedule_overrides.clear()
+	staff.schedule_day = int(day_state.day)
+
+func _continuity_error(world: WorldState, staff: Dictionary, proposed: Array) -> String:
+	var count: int = int(content.balance.schedule.shifts_per_day)
+	var day_state: Dictionary = _day_state(world,staff)
+	var current: int = shift_index(world)
+	var today: Array = []
+	var rests: int = 0
+	for slot: int in count:
+		var entry: Dictionary
+		if slot<current:
+			entry = day_state.overrides.get(str(slot),staff.schedule[slot])
+		elif day_state.overrides.has(str(slot)):
+			entry = day_state.overrides[str(slot)]
+		else:
+			entry = proposed[slot]
+		today.append(entry)
+		if entry.kind=="rest":
+			rests += 1
+	if rests<int(content.balance.schedule.minimum_rest_shifts):
+		return "今天的实际班次至少保留一个休息班"
+	var consecutive: int = int(day_state.previous_day_work_tail)
+	for entry: Dictionary in today+proposed:
+		consecutive = 0 if entry.kind=="rest" else consecutive+1
+		if consecutive>int(content.balance.schedule.max_consecutive_work_shifts):
+			return "前日、今天覆盖与后续模板连续工作不能超过两个班次"
+	return ""
 
 func _template_error(schedule: Variant) -> String:
 	var count: int = int(content.balance.schedule.shifts_per_day)

@@ -67,6 +67,35 @@ func build_controls() -> void:
 		_result.text = "扩缩目标已冻结，确认安排后等待安全腾空。"
 		_show_commands(_draft.commands)
 		draft_changed.emit(_draft))
+	var door_picker: OptionButton = choice("换门目标",_door_entries())
+	var door_kind: OptionButton = choice("新房门",simulation.content.catalog.doors)
+	var edge: OptionButton = choice("目标墙边",["south","north","east","west"])
+	var offset: SpinBox = number("门沿墙偏移",0,95,1)
+	action("预览换门安排",func() -> void:
+		if selected(door_picker).is_empty(): return
+		_kind = "remodel_prepare"
+		_draft = {"commands":[{"kind":"build_door","target_id":selected(door_picker),"definition_id":selected(door_kind),"edge":selected(edge),"offset":int(offset.value)}],"safe_transfer":_safe_transfer.button_pressed}
+		_result.text = "原房门和所属房间等待安全腾空，最终价款按换门与原门退款核对。"
+		draft_changed.emit(_draft))
+	action("预览所选房间扩缩并换门",func() -> void:
+		var ids: Array = _selected_ids(_rooms)
+		var found: Dictionary = simulation.services.building._door(simulation.world,selected(door_picker))
+		if ids.size()!=1 or found.is_empty() or found.door.room_id!=ids[0]:
+			_result.text = "请选择一间完整房间及其原房门"
+			return
+		_kind = "remodel_prepare"
+		_draft = {"commands":[{"kind":"build_resize","target_id":ids[0],"origin":[int(_x.value),int(_y.value)],"size":[int(width.value),int(depth.value)]},{"kind":"build_door","target_id":selected(door_picker),"definition_id":selected(door_kind),"edge":selected(edge),"offset":int(offset.value)}],"safe_transfer":_safe_transfer.button_pressed}
+		_result.text = "房间扩缩与房门位置作为同一安排核对，安全腾空后原子应用。"
+		_show_commands(_draft.commands)
+		draft_changed.emit(_draft))
+	action("预览拆除所选完整布局",func() -> void:
+		var commands: Array = []
+		for id: String in _selected_ids(_rooms)+_selected_ids(_objects): commands.append({"kind":"build_demolish","target_id":id})
+		if commands.is_empty(): return
+		_kind = "remodel_prepare"
+		_draft = {"commands":commands,"safe_transfer":_safe_transfer.button_pressed}
+		_result.text = "拆除目标已冻结，等待安全腾空后核对原实付与使用状态退款。"
+		draft_changed.emit(_draft))
 	_orders = choice("已确认改建安排",_order_entries())
 	action("核对当前改建报价",_order_preview)
 	action("应用已核对的改建",func() -> void: _confirm("remodel_apply"))
@@ -118,8 +147,8 @@ func build_controls() -> void:
 		clear_draft()
 		_result.text = "草案已取消，已确认安排保持原状态")
 	_result = note("草案不改变医院和资金。")
-	for input: SpinBox in [_floor,_x,_y,width,depth]: input.value_changed.connect(func(_value: float) -> void: _invalidate())
-	for picker: OptionButton in [_rotation,_department]: picker.item_selected.connect(func(_index: int) -> void: _invalidate())
+	for input: SpinBox in [_floor,_x,_y,width,depth,offset]: input.value_changed.connect(func(_value: float) -> void: _invalidate())
+	for picker: OptionButton in [_rotation,_department,door_picker,door_kind,edge]: picker.item_selected.connect(func(_index: int) -> void: _invalidate())
 	for toggle: CheckBox in [_safe_transfer,_inventory,_surfaces]: toggle.toggled.connect(func(_value: bool) -> void: _invalidate())
 	_rooms.multi_selected.connect(func(_index: int,_selected: bool) -> void: _invalidate())
 	_objects.multi_selected.connect(func(_index: int,_selected: bool) -> void: _invalidate())
@@ -145,6 +174,7 @@ func build_controls() -> void:
 		guide_text.text = "")
 	report(func() -> String:
 		refresh_choices(_orders,_order_entries())
+		refresh_choices(door_picker,_door_entries())
 		_fill_selection(_rooms,true)
 		_fill_selection(_objects,false)
 		var lines: PackedStringArray = []
@@ -206,6 +236,13 @@ func _order_entries() -> Array:
 		if order.state=="preparing": result.append({"id":order.id,"name":order.id})
 	return result
 
+func _door_entries() -> Array:
+	var result: Array = []
+	for key: String in simulation.world.facts.floors.overrides:
+		for door: Dictionary in simulation.world.facts.floors.overrides[key].doors:
+			result.append({"id":door.id,"name":key+"F · "+door.room_id+" · "+door.id})
+	return result
+
 func _group_preview() -> void:
 	var result: Dictionary = simulation.services.remodel.group_commands(simulation.world,_selected_ids(_rooms),_selected_ids(_objects),int(_floor.value),[int(_x.value),int(_y.value)],int(selected(_rotation)))
 	if not result.ok:
@@ -227,6 +264,8 @@ func _order_preview() -> void:
 	_preview = simulation.services.remodel.preview(simulation.world,selected(_orders))
 	_preview.erase("candidate")
 	_result.text = "费用 %d，表面及拆除退款 %d。" % [int(_preview.price),int(_preview.refund)] if _preview.ok else _preview.reason
+	if _preview.ok:
+		_result.text += "\n"+payment_summary(int(_preview.price),int(_preview.refund))
 	var order: Dictionary = simulation.world.facts.remodels.get(selected(_orders),{})
 	if not order.is_empty(): _show_commands(order.commands)
 
@@ -295,9 +334,11 @@ func _blueprint_preview() -> void:
 	_kind = "blueprint_place"
 	_draft = {"blueprint":_blueprint.duplicate(true),"floor_id":int(_floor.value),"cell":[int(_x.value),int(_y.value)],"use_inventory":_inventory.button_pressed,"include_surfaces":_surfaces.button_pressed,"department_id":selected(_department)}
 	_preview = simulation.services.blueprints.preview(simulation.world,_draft)
+	var hospital_paid: int = 0
 	if _preview.ok:
 		var cells: Array = []
 		var candidate: WorldState = _preview.candidate
+		hospital_paid = int(_preview.purchase_cost)+HospitalLedger.balance(simulation.world)-HospitalLedger.balance(candidate)
 		for id: String in _preview.changed_ids:
 			if candidate.facts.rooms.has(id): cells.append_array(BuildGeometry.cells(candidate.facts.rooms[id]))
 			elif candidate.facts.facilities.has(id):
@@ -308,6 +349,10 @@ func _blueprint_preview() -> void:
 	else: preview_changed.emit({},{})
 	_preview.erase("candidate")
 	_result.text = "房间家具 %d，升级材料 %d，美化材料 %d；合计 %d。" % [int(_preview.purchase_cost),int(_preview.upgrade_cost),int(_preview.material_cost),int(_preview.price)] if _preview.ok else _preview.reason
+	if _preview.ok:
+		_result.text += "\n"+payment_summary(hospital_paid)
+		for item: Dictionary in _preview.inventory_choices:
+			_result.text += "\n%s · %s · 等级%d · 耐久%.1f%s" % [str(simulation.content.facility_definition(item.definition_id).name),"新购" if item.inventory_id.is_empty() else "库存 "+str(item.inventory_id),int(item.grade),float(item.condition)," · 故障保留" if item.failed else ""]
 	draft_changed.emit(_draft)
 
 func _confirm(kind: String) -> void:
