@@ -197,6 +197,7 @@ func _build_ui() -> void:
 	var clinical_panel: HospitalClinicalPanel = HospitalClinicalPanel.new()
 	clinical_panel.locate_requested.connect(_locate_entity)
 	_add_management_panel("clinical","接诊与病例",clinical_panel)
+	_add_management_panel("plans","治疗方案",HospitalPlansPanel.new())
 	_status = Label.new()
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_status.add_theme_color_override("font_color",Palette.MUTED_INK)

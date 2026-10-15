@@ -24,7 +24,43 @@ func execute(world: WorldState, kind: String, payload: Dictionary) -> CommandRes
 				return CommandResult.new(false,"visit_missing","原病例已不存在",[],world.revision)
 			var departed: bool = depart_visit(world,id,"referred")
 			return CommandResult.new(departed,"applied" if departed else "safe_work_in_progress","" if departed else "患者须先完成当前安全医疗段",[id] if departed else [],world.revision)
+		"clinical_select_plan", "clinical_auto_plan", "clinical_confirm_plan":
+			return _change_plan(world,kind,payload)
 	return CommandResult.new(false,"unknown_command","未知临床命令",[],world.revision)
+
+func _change_plan(world: WorldState, kind: String, payload: Dictionary) -> CommandResult:
+	var id: String = str(payload.get("visit_id",""))
+	var visit: Dictionary = world.facts.visits.get(id,{})
+	if visit.is_empty() or not str(visit.phase).begins_with("wait_"):
+		return CommandResult.new(false,"clinical_busy","请选择正在候诊且尚未开工的病例",[],world.revision)
+	if kind == "clinical_auto_plan":
+		world.facts.preparations.erase(id)
+		visit.plan_decision = {}
+		_retarget_ticket(world,visit,"consult")
+		return CommandResult.new(true,"applied","",[id],world.revision)
+	var plan_id: String = str(payload.get("plan_id",visit.plan_decision.get("plan_id","")))
+	var quote: Dictionary = plan_quote(world,id,plan_id)
+	if not quote.ok:
+		return CommandResult.new(false,"plan_not_ready",quote.reason,[],world.revision)
+	if payload.has("probability_bp") and int(payload.probability_bp)!=int(quote.probability_bp):
+		return CommandResult.new(false,"material_change","当前预计效果已改变，请刷新本次方案",[],world.revision)
+	world.facts.preparations.erase(id)
+	visit.requested_plan_id = plan_id
+	visit.plan_decision = {"plan_id":plan_id,"source":"director","doctor_id":str(quote.staff_ids[0]),
+		"revision":int(visit.plan_decision.get("revision",0))+1,"probability_bp":int(quote.probability_bp),"reason":"院长指定当前合法方案","expected_team":quote.staff_ids.duplicate()}
+	_retarget_ticket(world,visit,str(content.definition("treatment_protocols",content.definition("treatment_plans",plan_id).protocol_id).kind))
+	return CommandResult.new(true,"applied","",[id],world.revision)
+
+func _retarget_ticket(world: WorldState, visit: Dictionary, kind: String) -> void:
+	if not world.facts.tickets.has(visit.ticket_id):
+		_queue(world,visit,kind)
+		return
+	var ticket: Dictionary = world.facts.tickets[visit.ticket_id]
+	ticket.kind = kind
+	ticket.service_assigned = false
+	ticket.called_tick = -1
+	visit.phase = "wait_"+kind
+	visit.waiting_reason = ""
 
 func _arrive(world: WorldState, payload: Dictionary) -> CommandResult:
 	var binding: Dictionary = content.definition("treatment_bindings",str(payload.get("binding_id","")))
@@ -86,6 +122,7 @@ func depart_visit(world: WorldState, visit_id: String, result: String = "abandon
 
 func dispatch(world: WorldState) -> void:
 	_worked_staff.clear()
+	_dispatch_clinical_releases(world)
 	for preparation_id: String in world.ids("preparations"):
 		var pending: Dictionary = world.facts.preparations[preparation_id]
 		if pending.get("kind","")=="outpatient" and world.sim_tick>=int(pending.deadline_tick):
@@ -141,8 +178,8 @@ func dispatch(world: WorldState) -> void:
 				_support(world,visit,bed,"lying")
 				_use(world,bed,stay.attempt_id)
 				_practice(world,stay.escort_id,"care",stay.attempt_id+":escort")
-				var table: Dictionary = world.facts.facilities["or"]
-				space.request_move(world,stay.escort_id,int(table.floor_id),table.operator_cells[2])
+				var ward: Dictionary = world.facts.rooms[bed.room_id]
+				space.request_move(world,stay.escort_id,int(ward.floor_id),[int(ward.origin[0]),int(ward.origin[1])+int(ward.size[1])-1])
 		elif stay.phase == "recovery" and not stay.care_completed and not _staff_busy(world,stay.nurse_id):
 			_start_bed_service(world,visit,stay,"care",stay.nurse_id,float(content.balance.clinical.nurse_visit_seconds))
 		elif stay.phase == "round_wait" and not _staff_busy(world,stay.round_doctor_id):
@@ -154,7 +191,7 @@ func advance(world: WorldState) -> void:
 			continue
 		var session: Dictionary = world.facts.sessions[session_id]
 		var facility: Dictionary = world.facts.facilities[session.facility_id]
-		if facility.failed and session.kind != "wake":
+		if facility.failed and session.kind not in ["wake","surgery"]:
 			world.facts.visits[session.visit_id].waiting_reason = "设备暂停，保留原工作和承诺结果"
 			continue
 		for staff_id: String in session.staff_ids:
@@ -207,6 +244,21 @@ func _queue(world: WorldState, visit: Dictionary, kind: String) -> void:
 
 func _dispatch_service(world: WorldState, visit: Dictionary, ticket: Dictionary) -> void:
 	var kind: String = ticket.kind
+	if kind=="outpatient" and int(world.facts.get("gameplay_version",0))>=1 and not visit.plan_decision.is_empty():
+		var current_quote: Dictionary = plan_quote(world,visit.id,visit.plan_decision.plan_id)
+		if not current_quote.ok and not current_quote.get("structural_ok",false):
+			world.facts.preparations.erase(visit.id)
+			ticket.service_assigned = false
+			ticket.called_tick = -1
+			if visit.plan_decision.get("source","")=="doctor":
+				_retarget_ticket(world,visit,"consult")
+			else:
+				visit.plan_decision.pending_reason = "方案条件变化："+str(current_quote.reason)
+			visit.waiting_reason = str(current_quote.reason)
+			return
+	if kind=="consult" and int(world.facts.get("gameplay_version",0))>=1 and _select_plan(world,visit).is_empty():
+		visit.waiting_reason = "暂无完整可执行方案，保留原票号等待资源与资格"
+		return
 	if kind=="gp" and departments!=null and not departments.call("route_patient",world,visit.id):
 		return
 	var facility_id: String = {"reception":"reception_desk","gp":"gp","spectrum":"exam",
@@ -242,14 +294,24 @@ func _dispatch_service(world: WorldState, visit: Dictionary, ticket: Dictionary)
 		if not ready_quote.ok:
 			visit.waiting_reason = ready_quote.reason
 			world.facts.preparations.erase(visit.id)
+			ticket.service_assigned = false
+			ticket.called_tick = -1
+			return
+		if not _decision_valid(world,visit,ready_quote):
 			return
 		if not world.facts.preparations.has(visit.id):
-			world.facts.preparations[visit.id] = {"id":visit.id,"visit_id":visit.id,"kind":"outpatient","bed_id":"","facility_id":facility_id,"staff_ids":[staff_id],
+			world.facts.preparations[visit.id] = {"id":visit.id,"visit_id":visit.id,"kind":"outpatient","bed_id":str(ready_quote.get("bed_id","")),"facility_id":facility_id,"staff_ids":[staff_id],
 				"supply_units":int(ready_quote.supply_units),"setup_remaining_ticks":0,"deadline_tick":world.sim_tick+int(content.balance.supplies.reservation_seconds)*10}
+			for field: String in ["nurse_id","round_doctor_id","ward_id"]:
+				if ready_quote.has(field):
+					world.facts.preparations[visit.id][field] = ready_quote[field]
 	var fit_reason: String = space.reserve_facility(world,facility_id,visit.actor_id,ticket.id,[staff_id])
 	if not fit_reason.is_empty():
 		visit.waiting_reason = fit_reason
 		return
+	ticket.service_assigned = true
+	if int(ticket.get("called_tick",-1))<0:
+		ticket.called_tick = world.sim_tick
 	facility = space.facility_layout(world,facility_id)
 	if not _gather(world,visit,facility,[staff_id]):
 		return
@@ -267,19 +329,26 @@ func _dispatch_service(world: WorldState, visit: Dictionary, ticket: Dictionary)
 				visit.doctor_fee_quote = content.doctor_fee(staff.title_id)
 			session_data.doctor_fee = visit.doctor_fee_quote
 		"spectrum", "resonance":
-			var seconds: float = 18.0 if kind == "spectrum" else 22.0
+			var test: Dictionary = content.balance.tests[kind]
+			var seconds: float = float(test.seconds)
 			if staff.role=="doctor":
 				seconds *= 1.0+float(content.balance.wellbeing.fatigue_work_multiplier_per_point)*float(staff.fatigue)
 			ticks = ceili(seconds/(1.0+0.05*(int(staff.abilities.diagnosis)-1)+0.15*effective)*10)
-			session_data.evidence = (35.0 if kind == "spectrum" else 25.0)+2.0*(int(staff.abilities.diagnosis)-1)+3.0*effective
+			session_data.evidence = float(test.confidence)+2.0*(int(staff.abilities.diagnosis)-1)+3.0*effective
 		"consult":
 			ticks = ceili(maxf(4.0,float(content.balance.clinical.consult_seconds)*(1.0+0.003*float(staff.fatigue)))*10)
+			if not visit.plan_decision.is_empty():
+				session_data.resume_ticket = ticket.duplicate(true)
 		"outpatient":
 			var quote: Dictionary = _outpatient_quote(world,visit,staff,facility)
 			if not quote.ok:
 				visit.waiting_reason = quote.reason
 				return
 			var attempt: Dictionary = _commit_attempt(world,visit,quote)
+			if int(attempt.recovery_ticks)>0:
+				world.facts.ward_stays[attempt.id] = {"id":attempt.id,"attempt_id":attempt.id,"bed_id":attempt.bed_id,"phase":"reserved",
+					"remaining_ticks":attempt.recovery_ticks,"work_credit_milli":0,"care_completed":false,"nurse_id":attempt.nurse_id,
+					"round_doctor_id":attempt.round_doctor_id,"escort_id":attempt.nurse_id,"last_progress_tick":world.sim_tick}
 			ticks = int(attempt.work_ticks)
 			session_data.attempt_id = attempt.id
 	var session: Dictionary = _start(world,visit,kind,facility_id,[staff_id],ticks,session_data)
@@ -292,7 +361,7 @@ func _dispatch_service(world: WorldState, visit: Dictionary, ticket: Dictionary)
 	visit.phase = kind
 	visit.waiting_reason = ""
 
-func service_candidates(world: WorldState, visit: Dictionary, kind: String) -> Array:
+func service_candidates(world: WorldState, visit: Dictionary, kind: String, structural_only: bool = false) -> Array:
 	var equipment_id: String = "FUR01" if kind == "reception" else "FUR02"
 	if kind == "outpatient":
 		var binding: Dictionary = content.definition("treatment_bindings",visit.binding_id)
@@ -303,13 +372,17 @@ func service_candidates(world: WorldState, visit: Dictionary, kind: String) -> A
 		var facility: Dictionary = world.facts.facilities[facility_id]
 		if not preparation.is_empty() and preparation.facility_id!=facility_id:
 			continue
-		if facility.definition_id != equipment_id or facility.failed or _facility_busy(world,facility_id,visit.id):
+		if facility.definition_id != equipment_id or (not structural_only and (_facility_unavailable(facility) or _facility_busy(world,facility_id,visit.id))):
+			continue
+		var department_id: String = str(visit.get("department_id",""))
+		var department: Dictionary = world.facts.get("departments",{}).get("items",{}).get(department_id,{})
+		if not department.is_empty() and not facility.get("room_id","") in department.get("room_ids",[]):
 			continue
 		for staff_id: String in world.ids("staff"):
 			var staff: Dictionary = world.facts.staff[staff_id]
 			if not preparation.is_empty() and not staff_id in preparation.staff_ids:
 				continue
-			if _staff_busy(world,staff_id,visit.id) or not staff.on_shift or not _can_start(staff):
+			if not structural_only and (_staff_busy(world,staff_id,visit.id) or not staff.on_shift or not _can_start(staff)):
 				continue
 			var qualified: bool = staff.role == "receptionist" if kind == "reception" else staff.role == "doctor"
 			if kind in ["spectrum","resonance"]:
@@ -337,6 +410,126 @@ func service_candidates(world: WorldState, visit: Dictionary, kind: String) -> A
 			candidates.append({"facility_id":facility_id,"staff_id":staff_id})
 	return candidates
 
+func compare_plans(world: WorldState, visit_id: String) -> Array:
+	var visit: Dictionary = world.facts.visits.get(visit_id,{})
+	var results: Array = []
+	if visit.is_empty():
+		return results
+	for plan: Dictionary in content.catalog.treatment_plans:
+		if plan.disease_id==visit.disease_id:
+			results.append(plan_quote(world,visit_id,plan.id))
+	return results
+
+func plan_quote(world: WorldState, visit_id: String, plan_id: String, options: Dictionary = {}) -> Dictionary:
+	var visit: Dictionary = world.facts.visits.get(visit_id,{})
+	var plan: Dictionary = content.definition("treatment_plans",plan_id)
+	if visit.is_empty() or plan.is_empty() or plan.disease_id!=visit.disease_id:
+		return {"ok":false,"structural_ok":false,"plan_id":plan_id,"reason":"方案不属于当前病例"}
+	for research_id: String in plan.requires_research:
+		if not research_id in world.facts.research:
+			return {"ok":false,"structural_ok":false,"plan_id":plan_id,"reason":"方案研究尚未完成"}
+	var protocol: Dictionary = content.definition("treatment_protocols",plan.protocol_id)
+	var candidate: Dictionary = visit.duplicate(true)
+	candidate.plan_decision = {"plan_id":plan_id}
+	var structural: bool = bool(options.get("structural_only",false))
+	if protocol.kind=="surgery":
+		var surgery: Dictionary = _surgery_quote(world,candidate,["surgeon","anesthetist","or_nurse"])
+		surgery.plan_id = plan_id
+		surgery.structural_ok = bool(surgery.ok)
+		return surgery
+	var reason: String = "缺少合法门诊设备、医生能力或完整路线"
+	var structural_ok: bool = false
+	for pair: Dictionary in service_candidates(world,candidate,"outpatient",true):
+		if options.has("doctor_id") and pair.staff_id!=options.doctor_id:
+			continue
+		var staff: Dictionary = world.facts.staff[pair.staff_id]
+		var facility: Dictionary = world.facts.facilities[pair.facility_id]
+		var quote: Dictionary = _outpatient_quote(world,candidate,staff,facility,plan_id,true,true)
+		if not quote.ok:
+			reason = quote.reason
+			continue
+		structural_ok = true
+		var availability: String = ""
+		if not structural and int(quote.recovery_ticks)>0:
+			var actual_bed: Dictionary = _outpatient_quote(world,candidate,staff,facility,plan_id,true,false)
+			if not actual_bed.ok:
+				availability = actual_bed.reason
+			else:
+				quote = actual_bed
+		if not structural and (_facility_unavailable(facility) or _facility_busy(world,pair.facility_id,visit.id) or _staff_busy(world,pair.staff_id,visit.id) or not staff.on_shift or not _can_start(staff)):
+			availability = "等待原方案的当班医护与设备"
+		if not bool(options.get("ignore_supplies",false)) and _available_supplies(world,visit.id)<int(quote.supply_units):
+			availability = "治疗包不足，保留原票号"
+		quote.ok = availability.is_empty()
+		quote.structural_ok = true
+		quote.reason = availability
+		quote.availability_reason = availability
+		quote.facility_id = pair.facility_id
+		quote.estimated_total_ticks = int(quote.work_ticks)+int(quote.recovery_ticks)
+		if quote.ok:
+			return quote
+		reason = availability
+	return {"ok":false,"structural_ok":structural_ok,"plan_id":plan_id,"reason":reason,"availability_reason":reason if structural_ok else ""}
+
+func _select_plan(world: WorldState, visit: Dictionary, doctor_id: String = "") -> Dictionary:
+	var quotes: Array = []
+	var selected_doctor: String = doctor_id
+	if selected_doctor.is_empty():
+		for pair: Dictionary in service_candidates(world,visit,"consult"):
+			selected_doctor = pair.staff_id
+			break
+	if selected_doctor.is_empty():
+		return {}
+	var staff: Dictionary = world.facts.staff[selected_doctor]
+	var personality: Dictionary = content.definition("doctor_personalities",str(staff.get("personality_id","DP01")))
+	var weights: Dictionary = personality.weights
+	for plan: Dictionary in content.catalog.treatment_plans:
+		if plan.disease_id!=visit.disease_id:
+			continue
+		var quote: Dictionary = plan_quote(world,visit.id,plan.id,{"doctor_id":selected_doctor})
+		if not quote.ok:
+			continue
+		var protocol: Dictionary = content.definition("treatment_protocols",plan.protocol_id)
+		if protocol.kind=="surgery" and int(staff.abilities.treatment)<2:
+			continue
+		var completed: int = int(staff.get("plan_experience",{}).get(plan.id,0))
+		quote.score = float(weights.success)*float(quote.probability_bp)/100.0-float(weights.time)*float(quote.get("estimated_total_ticks",quote.work_ticks))/100.0-float(weights.burden)*float(protocol.burden)
+		quote.score += float(weights.familiarity)*mini(int(content.balance.clinical.score_familiarity_cap),completed/int(content.balance.clinical.score_familiarity_cases_per_band))+float(weights.novelty)*(1 if completed==0 else 0)+float(weights.team)
+		quote.consulting_doctor_id = selected_doctor
+		quotes.append(quote)
+	quotes.sort_custom(func(a: Dictionary,b: Dictionary) -> bool:
+		if float(a.score)!=float(b.score): return float(a.score)>float(b.score)
+		if int(a.probability_bp)!=int(b.probability_bp): return int(a.probability_bp)>int(b.probability_bp)
+		if int(a.get("estimated_total_ticks",a.work_ticks))!=int(b.get("estimated_total_ticks",b.work_ticks)): return int(a.get("estimated_total_ticks",a.work_ticks))<int(b.get("estimated_total_ticks",b.work_ticks))
+		return str(a.plan_id)<str(b.plan_id))
+	var strategy: String = str(world.facts.get("plan_strategy","doctor"))
+	if strategy=="outpatient_first":
+		for quote: Dictionary in quotes:
+			if content.definition("treatment_protocols",content.definition("treatment_plans",quote.plan_id).protocol_id).kind=="outpatient" and int(quote.probability_bp)>=roundi(float(content.balance.clinical.outpatient_priority_success)*10000):
+				return quote
+	elif strategy=="safety_first" and not quotes.is_empty():
+		var maximum: int = 0
+		for quote: Dictionary in quotes:
+			maximum = maxi(maximum,int(quote.probability_bp))
+		for quote: Dictionary in quotes:
+			if maximum-int(quote.probability_bp)<=roundi(float(content.balance.clinical.safety_strategy_tolerance)*10000):
+				return quote
+	return quotes[0] if not quotes.is_empty() else {}
+
+func _decision_valid(world: WorldState, visit: Dictionary, quote: Dictionary) -> bool:
+	var decision: Dictionary = visit.plan_decision
+	var previous: int = int(decision.get("probability_bp",quote.probability_bp))
+	if previous-int(quote.probability_bp)<=roundi(float(content.balance.clinical.reconsult_probability_delta)*10000) and int(quote.probability_bp)>=roundi(float(content.balance.clinical.minimum_predicted_success)*10000):
+		return true
+	world.facts.preparations.erase(visit.id)
+	if decision.get("source","")=="director":
+		decision.pending_reason = "方案条件变化，请确认当前效果或交给医生"
+		visit.waiting_reason = decision.pending_reason
+	else:
+		decision.pending_reason = "原预计效果降低，需要实际重新会诊"
+		_retarget_ticket(world,visit,"consult")
+	return false
+
 func _gather(world: WorldState, visit: Dictionary, facility: Dictionary, staff_ids: Array) -> bool:
 	var all_present: bool = space.at(world,visit.actor_id,int(facility.floor_id),facility.patient_cell)
 	if not all_present:
@@ -351,29 +544,98 @@ func _gather(world: WorldState, visit: Dictionary, facility: Dictionary, staff_i
 				visit.waiting_reason = reason
 	return all_present
 
-func _outpatient_quote(world: WorldState, visit: Dictionary, staff: Dictionary, facility: Dictionary) -> Dictionary:
+func _outpatient_quote(world: WorldState, visit: Dictionary, staff: Dictionary, facility: Dictionary, plan_id: String = "", ignore_supplies: bool = false, structural_only: bool = false) -> Dictionary:
+	if plan_id.is_empty():
+		plan_id = str(visit.plan_decision.get("plan_id",visit.requested_plan_id))
+	var plan: Dictionary = content.definition("treatment_plans",plan_id)
+	var protocol: Dictionary = content.definition("treatment_protocols",plan.protocol_id)
+	var disease: Dictionary = content.definition("diseases",visit.disease_id)
 	var profile: Dictionary = _profile(visit)
-	if _available_supplies(world,visit.id)<int(profile.supply_units):
+	var minimum: int = int(profile.min_skill)
+	var base_success: float = float(profile.base_success)
+	var supply_units: int = int(profile.supply_units)
+	var recovery_seconds: float = 0.0
+	if not bool(protocol.uses_disease_profile):
+		var gentle: Dictionary = protocol.clinical_profiles[disease.profile]
+		minimum = int(gentle.min_treatment)
+		base_success = float(gentle.base_success)
+		supply_units = int(gentle.supply_units)
+		recovery_seconds = float(gentle.recovery_seconds)
+	if not ignore_supplies and _available_supplies(world,visit.id)<supply_units:
 		return {"ok":false,"reason":"治疗包不足，保留原票号"}
 	if visit.attempt_ids.size()>=int(content.balance.max_treatment_attempts):
 		return {"ok":false,"reason":"已达到实际治疗次数上限"}
-	if int(staff.abilities.treatment) < int(profile.min_skill):
+	if staff.role!="doctor" or int(staff.abilities.treatment) < minimum:
 		return {"ok":false,"reason":"医生治疗等级不足"}
 	var effective: float = float(facility.grade)*float(content.balance.medical_equipment_effects.utilization_by_level[int(staff.abilities.treatment)])
-	var probability: float = clampf(float(profile.base_success)+0.02*(int(staff.abilities.treatment)-1)+0.025*effective
+	var probability: float = clampf(base_success+0.02*(int(staff.abilities.treatment)-1)+0.025*effective
 		- (0.03 if float(staff.energy)<35.0 else 0.0) - (0.04 if float(facility.condition)<40.0 else 0.0)
-		+ (0.15 if not visit.attempt_ids.is_empty() else 0.0) - (0.18 if visit.complex else 0.0),0.70,0.98)
+		+ (float(content.balance.second_attempt_bonus) if not visit.attempt_ids.is_empty() else 0.0) - (float(protocol.complex_penalty) if visit.complex else 0.0),0.70,0.98)
 	if probability < float(content.balance.clinical.minimum_predicted_success):
 		return {"ok":false,"reason":"预计效果低于原安全底线"}
 	var binding: Dictionary = content.definition("treatment_bindings",visit.binding_id)
 	var routine: Dictionary = content.definition("treatment_routines",binding.routine_id)
 	if routine.equipment_id != facility.definition_id:
 		return {"ok":false,"reason":"病例与医疗主体不适配"}
-	var seconds: float = float(routine.service_seconds)/(1.0+0.05*(int(staff.abilities.treatment)-1)+0.2*effective)*(1.0+0.003*float(staff.fatigue))
-	return {"ok":true,"plan_id":visit.plan_decision.plan_id,"probability_bp":floori(probability*10000),
-		"work_ticks":ceili(seconds*10),"recovery_ticks":0,"supply_units":int(profile.supply_units),
-		"cure_fee":int(content.definition("diseases",visit.disease_id).cure_fee),"facility_fee":content.facility_fee(facility.definition_id,"outpatient"),
-		"staff_ids":[staff.id],"effective_level":effective}
+	var bed_bundle: Dictionary = {}
+	if recovery_seconds>0.0:
+		if not "R33" in world.facts.research:
+			return {"ok":false,"reason":"舒缓观察需要住院照护研究"}
+		bed_bundle = _compatible_bed(world,visit,int(facility.floor_id),[staff.id],structural_only)
+		if not bed_bundle.ok:
+			return bed_bundle
+	var seconds: float = float(routine.service_seconds)*float(protocol.work_multiplier)/(1.0+0.05*(int(staff.abilities.treatment)-1)+0.2*effective)*(1.0+0.003*float(staff.fatigue))
+	if departments!=null:
+		seconds *= float(departments.call("focus_multiplier",world,visit.id,staff.id,"treatment"))
+	var quote: Dictionary = {"ok":true,"plan_id":plan_id,"probability_bp":floori(probability*10000),
+		"work_ticks":ceili(seconds*10),"recovery_ticks":ceili(recovery_seconds*10),"supply_units":supply_units,
+		"cure_fee":_quoted_fee(int(disease.cure_fee),protocol.cure_fee_multiplier),"facility_fee":content.facility_fee(facility.definition_id,"outpatient"),
+		"staff_ids":[staff.id],"effective_level":effective,"facility_id":facility.id}
+	for key: String in ["bed_id","nurse_id","round_doctor_id","ward_id"]:
+		if bed_bundle.has(key):
+			quote[key] = bed_bundle[key]
+	return quote
+
+func _compatible_bed(world: WorldState, visit: Dictionary, floor_id: int, excluded: Array, structural_only: bool = false) -> Dictionary:
+	for bed_id: String in world.ids("facilities"):
+		var bed: Dictionary = world.facts.facilities[bed_id]
+		if bed.definition_id!="EQ05" or int(bed.floor_id)!=floor_id or not world.facts.rooms.has(bed.get("room_id","")):
+			continue
+		var ward: Dictionary = world.facts.rooms[bed.room_id]
+		if ward.kind!="ward" or (not structural_only and (bed.failed or _bed_busy(world,bed_id,visit.id))):
+			continue
+		for nurse_id: String in world.ids("staff"):
+			var nurse: Dictionary = world.facts.staff[nurse_id]
+			if nurse_id in excluded or nurse.role!="nurse" or not "q_ward" in nurse.certificates or str(nurse.get("ward_id",""))!=ward.id:
+				continue
+			if not structural_only and (not nurse.on_shift or not _can_start(nurse)):
+				continue
+			var location: Dictionary = world.facts.actors[nurse_id].location
+			var room_rect: Rect2 = Rect2(float(ward.origin[0]),float(ward.origin[1]),float(ward.size[0]),float(ward.size[1]))
+			if not structural_only and (location.kind!="floor" or int(location.floor_id)!=floor_id or not room_rect.has_point(Vector2(float(location.cell[0]),float(location.cell[1])))):
+				continue
+			var load: int = 0
+			for stay: Dictionary in world.facts.ward_stays.values():
+				if stay.nurse_id==nurse_id:
+					load += 1
+			for preparation: Dictionary in world.facts.preparations.values():
+				if preparation.get("nurse_id","")==nurse_id and preparation.visit_id!=visit.id:
+					load += 1
+			if load>=int(content.balance.clinical.beds_per_nurse):
+				continue
+			for doctor_id: String in world.ids("staff"):
+				var doctor: Dictionary = world.facts.staff[doctor_id]
+				if doctor.role!="doctor" or int(doctor.abilities.diagnosis)<2 or int(doctor.abilities.treatment)<1:
+					continue
+				if not structural_only and (not doctor.on_shift or not _can_start(doctor)):
+					continue
+				var fit: Dictionary = space.facility_quote(world,bed_id,visit.actor_id,[nurse_id,doctor_id])
+				if not fit.ok:
+					continue
+				var layout: Dictionary = fit if not fit.get("unchanged",false) else space.facility_layout(world,bed_id)
+				if space.route(world,visit.actor_id,floor_id,layout.patient_cell,[],{},true).ok and space.route(world,nurse_id,floor_id,layout.operator_cells[0],[],{},true).ok and space.route(world,doctor_id,floor_id,layout.operator_cells[1],[],{},true).ok:
+					return {"ok":true,"bed_id":bed_id,"nurse_id":nurse_id,"round_doctor_id":doctor_id,"ward_id":ward.id}
+	return {"ok":false,"reason":"等待同层兼容床位、真实护理覆盖与出院查房医生"}
 
 func _prepare_surgery(world: WorldState, visit: Dictionary, ticket: Dictionary) -> void:
 	var team: Array = ["surgeon","anesthetist","or_nurse"]
@@ -505,8 +767,22 @@ func _surgery_quote(world: WorldState, visit: Dictionary, team: Array) -> Dictio
 			return {"ok":false,"reason":"团队体力不足以安全覆盖操作和苏醒全过程"}
 	return {"ok":true,"plan_id":plan.id,"probability_bp":floori(probability*10000),"work_ticks":ceili(seconds*10),
 		"recovery_ticks":ceili(float(protocol.recovery_seconds)*10),"supply_units":int(protocol.supply_units),
-		"cure_fee":ceili(float(content.definition("diseases",visit.disease_id).cure_fee)*float(protocol.cure_fee_multiplier)),
+		"cure_fee":_quoted_fee(int(content.definition("diseases",visit.disease_id).cure_fee),protocol.cure_fee_multiplier),
 		"facility_fee":content.facility_fee(table.definition_id,"surgery"),"staff_ids":team.duplicate(),"effective_level":effective}
+
+func _quoted_fee(amount: int, multiplier: Variant) -> int:
+	var parts: PackedStringArray = str(multiplier).to_lower().split("e")
+	var mantissa: String = parts[0]
+	var exponent: int = parts[1].to_int() if parts.size()>1 else 0
+	var decimal_places: int = mantissa.length()-mantissa.find(".")-1 if mantissa.contains(".") else 0
+	var numerator: int = mantissa.replace(".","").to_int()
+	var denominator: int = 1
+	for index: int in absi(decimal_places-exponent):
+		if decimal_places>exponent: denominator *= 10
+		else: numerator *= 10
+	var whole: int = amount/denominator
+	var remainder_product: int = (amount%denominator)*numerator
+	return whole*numerator+remainder_product/denominator+(1 if remainder_product%denominator!=0 else 0)
 
 func _commit_attempt(world: WorldState, visit: Dictionary, quote: Dictionary) -> Dictionary:
 	var id: String = world.new_id("attempt")
@@ -562,7 +838,8 @@ func _complete_service(world: WorldState, session: Dictionary) -> void:
 			visit.registration_receipt = {"id":session.id,"staff_id":session.staff_ids[0],"standard_work_milli":int(session.total_ticks)*100,"completed_tick":world.sim_tick,"practice_awarded":false}
 			_queue(world,visit,"gp")
 		"gp", "spectrum", "resonance":
-			visit.evidence_by_source[session.kind] = session.evidence
+			if not visit.evidence_by_source.has(session.kind):
+				visit.evidence_by_source[session.kind] = session.evidence
 			if session.kind == "gp":
 				HospitalLedger.post(world,LedgerEntry.new(visit.id,"consultation",int(session.doctor_fee)),false)
 			HospitalLedger.post(world,LedgerEntry.new(visit.id,str(session.kind),int(session.facility_fee)),false)
@@ -574,20 +851,45 @@ func _complete_service(world: WorldState, session: Dictionary) -> void:
 				_queue(world,visit,"consult")
 			elif not visit.evidence_by_source.has("spectrum"):
 				_queue(world,visit,"spectrum")
-			else:
+			elif not visit.evidence_by_source.has("resonance"):
 				_queue(world,visit,"resonance")
+			else:
+				visit.waiting_reason = "已完成全部检查但证据未达诊断门槛，友好转诊"
+				visit.final_result = "referred"
+				visit.phase = "leaving"
 		"consult":
-			var plan_id: String = visit.requested_plan_id
+			var selected: Dictionary = _select_plan(world,visit,session.staff_ids[0]) if int(world.facts.get("gameplay_version",0))>=1 else {}
+			if selected.is_empty() and int(world.facts.get("gameplay_version",0))>=1:
+				_queue(world,visit,"consult")
+				visit.waiting_reason = "会诊期间资源变化，保留票号等待完整合法方案"
+				return
+			var plan_id: String = str(selected.get("plan_id",visit.requested_plan_id))
 			var protocol: Dictionary = content.definition("treatment_protocols",content.definition("treatment_plans",plan_id).protocol_id)
-			visit.plan_decision = {"plan_id":plan_id,"source":"director","doctor_id":session.staff_ids[0],"revision":1,"reason":"样板医院既有指定"}
+			visit.plan_decision = {"plan_id":plan_id,"source":"doctor" if int(world.facts.get("gameplay_version",0))>=1 else "director","doctor_id":session.staff_ids[0],
+				"revision":int(visit.plan_decision.get("revision",0))+1,"reason":"医生依据当前合法报价与性格评分选择" if not selected.is_empty() else "样板医院既有指定",
+				"probability_bp":int(selected.get("probability_bp",0)),"expected_team":selected.get("staff_ids",[]).duplicate()}
 			_queue(world,visit,str(protocol.kind))
+			if session.has("resume_ticket"):
+				world.facts.tickets.erase(visit.ticket_id)
+				var original: Dictionary = session.resume_ticket
+				original.kind = str(protocol.kind)
+				original.service_assigned = false
+				original.called_tick = -1
+				world.facts.tickets[original.id] = original
+				visit.ticket_id = original.id
 		"outpatient":
 			var attempt: Dictionary = world.facts.attempts[session.attempt_id]
 			if environment != null:
 				environment.call("record_use",world,"outpatient_completed",session.facility_id,attempt.id)
 			HospitalLedger.post(world,LedgerEntry.new(attempt.id,"outpatient",int(attempt.facility_fee)),false)
 			_practice(world,session.staff_ids[0],"treatment",session.id)
-			_settle(world,visit,attempt)
+			_record_plan_experience(world,attempt)
+			if int(attempt.recovery_ticks)>0:
+				world.facts.ward_stays[attempt.id].phase = "transfer"
+				visit.phase = "transfer"
+				world.facts.actors[visit.actor_id].posture = "standing"
+			else:
+				_settle(world,visit,attempt)
 		"surgery":
 			_start(world,visit,"wake",session.facility_id,session.staff_ids,int(content.balance.clinical.wake_seconds)*10,{"attempt_id":session.attempt_id})
 			visit.phase = "wake"
@@ -610,6 +912,77 @@ func _complete_service(world: WorldState, session: Dictionary) -> void:
 			_settle(world,visit,attempt)
 			var ward: Dictionary = world.facts.rooms[world.facts.facilities[stay.bed_id].room_id]
 			space.request_move(world,session.staff_ids[0],int(ward.floor_id),[int(ward.origin[0])+int(ward.size[0])-2,int(ward.origin[1])+int(ward.size[1])-2])
+
+	_mark_clinical_release(world,visit,session)
+
+func _mark_clinical_release(world: WorldState, visit: Dictionary, session: Dictionary) -> void:
+	if int(world.facts.get("gameplay_version",0))<1 or not world.facts.adaptations.has(session.facility_id):
+		return
+	var ticket: Dictionary = world.facts.tickets.get(visit.get("ticket_id",""),{})
+	var facility: Dictionary = world.facts.facilities[session.facility_id]
+	for staff_id: String in session.staff_ids:
+		if _staff_busy(world,staff_id):
+			continue
+		var staff: Dictionary = world.facts.staff[staff_id]
+		# A qualified continuation by this patient keeps its actual operator.
+		if facility.definition_id=="FUR02" and ticket.get("kind","") in ["gp","consult"] and staff.role=="doctor" and int(staff.abilities.get("diagnosis" if ticket.kind=="gp" else "treatment",0))>=1:
+			continue
+		if ticket.get("kind","")=="outpatient" and facility.definition_id==content.definition("treatment_routines",content.definition("treatment_bindings",visit.binding_id).routine_id).equipment_id and staff.role=="doctor":
+			continue
+		staff.clinical_release = {"facility_id":session.facility_id,"visit_id":visit.id,"phase":"seek","reason":""}
+	_dispatch_clinical_releases(world)
+
+func _dispatch_clinical_releases(world: WorldState) -> void:
+	for staff_id: String in world.ids("staff"):
+		var staff: Dictionary = world.facts.staff[staff_id]
+		if not staff.has("clinical_release"):
+			continue
+		var release: Dictionary = staff.clinical_release
+		var actor: Dictionary = world.facts.actors[staff_id]
+		var reservation: Dictionary = world.facts.adaptations.get(release.facility_id,{})
+		if reservation.is_empty() or actor.location.kind=="outside" or not _inside_release_region(actor,reservation):
+			staff.erase("clinical_release")
+			continue
+		if world.facts.moves.has(staff_id):
+			release.phase = "walking"
+			continue
+		var busy: bool = false
+		for session: Dictionary in world.facts.sessions.values():
+			busy = busy or staff_id in session.staff_ids
+		for preparation: Dictionary in world.facts.preparations.values():
+			busy = busy or staff_id in preparation.staff_ids
+		if busy or actor.location.kind!="floor":
+			continue
+		var origin: Vector2i = Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
+		var selected: Array = []
+		for distance: int in range(1,5):
+			for delta: Vector2i in [Vector2i(0,-distance),Vector2i(distance,0),Vector2i(0,distance),Vector2i(-distance,0)]:
+				var point: Vector2i = origin+delta
+				var rect: Rect2 = space._actor_rect(actor,Vector2(point))
+				var intersects: bool = false
+				for region: Array in reservation.regions:
+					intersects = intersects or rect.intersects(Rect2(float(region[0]),float(region[1]),float(region[2]),float(region[3])),false)
+				if intersects or not space.static_reason(world,actor,int(actor.location.floor_id),point).is_empty() or not space._dynamic_clear(world,staff_id,int(actor.location.floor_id),rect):
+					continue
+				if space.route(world,staff_id,int(actor.location.floor_id),[point.x,point.y],[],{},true).ok:
+					selected = [point.x,point.y]
+					break
+			if not selected.is_empty(): break
+		if selected.is_empty():
+			release.phase = "blocked"
+			release.reason = "等待真实可达的安全离位空间"
+		else:
+			release.phase = "walking"
+			release.reason = space.request_move(world,staff_id,int(actor.location.floor_id),selected)
+
+func _inside_release_region(actor: Dictionary, reservation: Dictionary) -> bool:
+	if actor.location.kind!="floor" or int(actor.location.floor_id)!=int(reservation.floor_id):
+		return false
+	var rect: Rect2 = space.body_rectangle(actor)
+	for region: Array in reservation.regions:
+		if rect.intersects(Rect2(float(region[0]),float(region[1]),float(region[2]),float(region[3])),false):
+			return true
+	return false
 
 func _start_bed_service(world: WorldState, visit: Dictionary, stay: Dictionary, kind: String, staff_id: String, seconds: float) -> void:
 	var bed: Dictionary = space.facility_layout(world,stay.bed_id)
@@ -650,10 +1023,23 @@ func _settle(world: WorldState, visit: Dictionary, attempt: Dictionary) -> void:
 		visit.phase = "leaving"
 	elif visit.attempt_ids.size() < int(content.balance.max_treatment_attempts):
 		visit.final_result = "retry"
-		_queue(world,visit,"surgery" if content.definition("treatment_protocols",content.definition("treatment_plans",attempt.plan_id).protocol_id).kind == "surgery" else "outpatient")
+		if int(world.facts.get("gameplay_version",0))>=1 and visit.plan_decision.get("source","")=="doctor":
+			_queue(world,visit,"consult")
+		else:
+			_queue(world,visit,"surgery" if content.definition("treatment_protocols",content.definition("treatment_plans",attempt.plan_id).protocol_id).kind == "surgery" else "outpatient")
 	else:
 		visit.final_result = "referred"
 		visit.phase = "leaving"
+	visit.result_receipt = {"attempt_id":attempt.id,"result":visit.final_result,"tick":world.sim_tick,"feedback_key":attempt.id+":"+str(visit.attempt_ids.size())}
+
+func _record_plan_experience(world: WorldState, attempt: Dictionary) -> void:
+	for staff_id: String in attempt.staff_ids:
+		var staff: Dictionary = world.facts.staff[staff_id]
+		if not staff.has("plan_experience"):
+			staff.plan_experience = {}
+		if not bool(attempt.get("plan_experience_awarded",false)):
+			staff.plan_experience[attempt.plan_id] = int(staff.plan_experience.get(attempt.plan_id,0))+1
+	attempt.plan_experience_awarded = true
 
 func _support(world: WorldState, visit: Dictionary, facility: Dictionary, posture: String) -> void:
 	var actor: Dictionary = world.facts.actors[visit.actor_id]
@@ -695,6 +1081,8 @@ func _facility_busy(world: WorldState, id: String, except_preparation: String = 
 	return false
 
 func _staff_busy(world: WorldState, id: String, except_preparation: String = "") -> bool:
+	if world.facts.staff.get(id,{}).has("clinical_release"):
+		return true
 	for guidance: Dictionary in world.facts.get("departments",{}).get("guidance",{}).values():
 		if guidance.get("phase","") in ["working","travel"] and id in guidance.get("staff_ids",[]):
 			return true
@@ -719,12 +1107,63 @@ func _available_supplies(world: WorldState, except_preparation: String = "") -> 
 			units -= int(preparation.get("supply_units",0))
 	return units
 
-func _bed_busy(world: WorldState, id: String) -> bool:
+func _facility_unavailable(facility: Dictionary) -> bool:
+	return bool(facility.failed) or bool(facility.get("pending_failure",false)) or bool(facility.get("stop_new_service",false)) or bool(facility.get("maintenance_block",false)) or bool(facility.get("upgrading_block",false)) or float(facility.condition)<=float(content.balance.equipment.get("stop_new_service_threshold",0.0))
+
+func shortage_requests(world: WorldState) -> Array:
+	var result: Array = []
+	var candidate: WorldState = WorldState.new(world.freeze())
+	for staff: Dictionary in candidate.facts.staff.values():
+		staff.supply_strike = false
+	for ticket_id: String in world.ids("tickets"):
+		var ticket: Dictionary = world.facts.tickets[ticket_id]
+		if not ticket.kind in ["outpatient","surgery"]:
+			continue
+		var visit: Dictionary = world.facts.visits[ticket.visit_id]
+		var quote: Dictionary = plan_quote(candidate,visit.id,str(visit.plan_decision.get("plan_id",visit.requested_plan_id)),{"ignore_supplies":true})
+		if quote.ok and _available_supplies(world,visit.id)<int(quote.supply_units):
+			result.append({"ticket_id":ticket_id,"visit_id":visit.id,"staff_ids":quote.staff_ids.duplicate(),"units":int(quote.supply_units)})
+	return result
+
+func arrival_readiness(world: WorldState, binding_id: String, complex_case: bool = false) -> Dictionary:
+	var candidate: Dictionary = _arrival_candidate(world,binding_id,complex_case)
+	if not candidate.get("ok",false):
+		return candidate
+	var quotes: Array = []
+	var executable: bool = false
+	for plan: Dictionary in content.catalog.treatment_plans:
+		if plan.disease_id!=candidate.visit.disease_id:
+			continue
+		var quote: Dictionary = plan_quote(candidate.world,candidate.visit.id,plan.id,{"structural_only":true,"ignore_supplies":true})
+		quotes.append(quote)
+		executable = executable or bool(quote.ok)
+	var diagnostic: bool = not service_candidates(candidate.world,candidate.visit,"gp",true).is_empty() and not service_candidates(candidate.world,candidate.visit,"reception",true).is_empty()
+	for mode: String in _profile(candidate.visit).tests:
+		diagnostic = diagnostic and not service_candidates(candidate.world,candidate.visit,mode,true).is_empty()
+	return {"ok":executable and diagnostic,"reason":"" if executable and diagnostic else "缺少完整诊断及治疗结构资格","plans":quotes}
+
+func _arrival_candidate(world: WorldState, binding_id: String, complex_case: bool) -> Dictionary:
+	var binding: Dictionary = content.definition("treatment_bindings",binding_id)
+	if binding.is_empty():
+		return {"ok":false,"reason":"病例绑定不存在"}
+	var candidate: WorldState = WorldState.new(world.freeze())
+	var entry: Dictionary = world.facts.get("entry",{"floor_id":1,"cell":[47,93]})
+	var actor_id: String = "reference_patient"
+	var visit_id: String = "reference_visit"
+	candidate.facts.actors[actor_id] = {"id":actor_id,"name":"参考患者","species_id":binding.species_id,"body_binding_id":binding.id,
+		"location":{"kind":"floor","floor_id":int(entry.floor_id),"cell":entry.cell.duplicate(),"height_m":0.0},"facing":0.0,"posture":"standing"}
+	candidate.facts.visits[visit_id] = {"id":visit_id,"actor_id":actor_id,"disease_id":binding.disease_id,"binding_id":binding.id,"complex":complex_case,
+		"requested_plan_id":"P_"+str(binding.disease_id)+"_COMMON","plan_decision":{},"attempt_ids":[],"evidence_by_source":{},"expression":"clear","personality_id":"PP01","anger":15.0,"doctor_fee_quote":-1,"phase":"arrival","ticket_id":""}
+	var actor: Dictionary = candidate.facts.actors[actor_id]
+	var reason: String = space.static_reason(candidate,actor,int(entry.floor_id),Vector2i(int(entry.cell[0]),int(entry.cell[1])))
+	return {"ok":reason.is_empty(),"reason":reason,"world":candidate,"visit":candidate.facts.visits[visit_id]}
+
+func _bed_busy(world: WorldState, id: String, except_preparation: String = "") -> bool:
 	for stay: Dictionary in world.facts.ward_stays.values():
 		if stay.bed_id == id:
 			return true
 	for preparation: Dictionary in world.facts.preparations.values():
-		if preparation.bed_id == id:
+		if preparation.bed_id == id and preparation.id!=except_preparation:
 			return true
 	return false
 
@@ -758,7 +1197,7 @@ func settle_practice(world: WorldState) -> void:
 	_practice_awards.clear()
 
 func _can_start(staff: Dictionary) -> bool:
-	return bool(staff.get("base_prepared",true)) and not bool(staff.get("block_new_work",false)) and not bool(staff.get("supply_strike",false)) and str(staff.get("life_task",{}).get("phase","idle"))=="idle" and float(staff.energy)>15.0 and (staff.role!="doctor" or float(staff.fatigue)<float(content.balance.wellbeing.fatigue_stop_new_work))
+	return not staff.has("clinical_release") and bool(staff.get("base_prepared",true)) and not bool(staff.get("block_new_work",false)) and not bool(staff.get("supply_strike",false)) and str(staff.get("life_task",{}).get("phase","idle"))=="idle" and float(staff.energy)>15.0 and (staff.role!="doctor" or float(staff.fatigue)<float(content.balance.wellbeing.fatigue_stop_new_work))
 
 func _use(world: WorldState, facility: Dictionary, receipt_id: String) -> void:
 	facility = world.facts.facilities[facility.id]

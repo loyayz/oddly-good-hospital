@@ -21,7 +21,7 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 	services.building = BuildService.new(database,space)
 	for kind: String in BuildService.KINDS:
 		_business_handlers[kind] = services.building
-	for kind: String in ["clinical_arrive","clinical_refer"]:
+	for kind: String in ["clinical_arrive","clinical_refer","clinical_select_plan","clinical_confirm_plan","clinical_auto_plan"]:
 		_business_handlers[kind] = clinic
 	if _production():
 		services.building.ensure(world)
