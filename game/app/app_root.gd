@@ -209,6 +209,7 @@ func _build_ui() -> void:
 	_add_management_panel("schedule","排班与休假",HospitalSchedulePanel.new())
 	_add_management_panel("staff_life","员工需求",HospitalStaffLifePanel.new())
 	_add_management_panel("waiting","候诊生活",HospitalWaitingPanel.new())
+	_add_management_panel("supplies","治疗包库存",HospitalSuppliesPanel.new())
 	_status = Label.new()
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_status.add_theme_color_override("font_color",Palette.MUTED_INK)

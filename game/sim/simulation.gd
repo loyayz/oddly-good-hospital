@@ -27,9 +27,11 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 	_register_service("scheduler",HospitalShiftScheduler.new(database,space),["apply_schedule","set_schedule_lock","plan_leave","cancel_leave"])
 	_register_service("wellbeing",HospitalStaffWellbeing.new(database,space),["staff_recreation","set_staff_recreation","interrupt_staff_rest","staff_pressure_event"])
 	_register_service("waiting",HospitalWaitingLife.new(database,space),["waiting_select_seat","waiting_release_seat"])
+	_register_service("supplies",HospitalSupplies.new(database,space),["set_auto_restock","supply_auto","purchase_supplies","supply_purchase","supply_aid"])
 	if _production():
 		clinic.scheduler = services.scheduler
 		clinic.waiting_life = services.waiting
+		services.supplies.clinic = clinic
 	_ensure_services()
 
 func _ensure_services() -> void:
@@ -48,6 +50,8 @@ func dispose() -> void:
 		clinic.scheduler = null
 	if clinic!=null:
 		clinic.waiting_life = null
+	if services.has("supplies"):
+		services.supplies.clinic = null
 	_business_handlers.clear()
 	services.clear()
 
@@ -132,6 +136,8 @@ func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickRe
 	for command: GameCommand in commands:
 		_commands.append(GameCommand.from_record(command.to_record()))
 	drain_commands() # 1: commands and automatic supply orders.
+	if _production():
+		services.supplies.boundaries(world)
 	if _production(): # 2: schedules and equipment boundaries.
 		services.scheduler.boundaries(world)
 		services.wellbeing.boundaries(world)
@@ -161,6 +167,7 @@ func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickRe
 		worked.merge(services.scheduler.worked_staff(),true)
 		services.wellbeing.advance(world,worked,before_movement)
 		services.waiting.advance(world)
+		services.supplies.advance(world)
 	else:
 		_integrate_staff(before_movement)
 	# 8: interaction consequences precede settlement.

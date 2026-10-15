@@ -114,6 +114,8 @@ func validate(content: HospitalContent) -> String:
 			return "经营状态集合无效：waiting_life.needs"
 		if not facts.waiting_life.get("clocks") is Dictionary:
 			return "经营状态集合无效：waiting_life.clocks"
+	if facts.inventory.has("orders") and not facts.inventory.orders is Dictionary:
+		return "采购凭据集合无效"
 	for staff: Dictionary in facts.staff.values():
 		if staff.has("life_task") and not staff.life_task is Dictionary:
 			return "员工生活任务结构无效"
@@ -367,6 +369,10 @@ func validate(content: HospitalContent) -> String:
 		var error: String = HospitalWaitingLife.new(content,geometry).validate(self)
 		if not error.is_empty():
 			return error
+	if facts.inventory.has("orders"):
+		var error: String = HospitalSupplies.new(content,geometry).validate(self)
+		if not error.is_empty():
+			return error
 	return BuildService.new(content).validate(self)
 
 func _reservation_owner_exists(id: String) -> bool:
@@ -387,6 +393,8 @@ func _ledger_owner_exists(id: String) -> bool:
 	for collection: String in ["visits","attempts","build_transactions","staff","training_jobs"]:
 		if facts.get(collection,{}) is Dictionary and facts.get(collection,{}).has(id):
 			return true
+	if facts.get("inventory",{}).get("orders",{}) is Dictionary and facts.get("inventory",{}).get("orders",{}).has(id):
+		return true
 	return false
 
 func _validate_shapes() -> String:
