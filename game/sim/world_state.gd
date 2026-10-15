@@ -114,6 +114,17 @@ func validate(content: HospitalContent) -> String:
 			return "经营状态集合无效：waiting_life.needs"
 		if not facts.waiting_life.get("clocks") is Dictionary:
 			return "经营状态集合无效：waiting_life.clocks"
+	if facts.has("environment"):
+		if not facts.environment is Dictionary:
+			return "经营状态结构无效：environment"
+		if not facts.environment.get("dirt") is Dictionary:
+			return "经营状态集合无效：environment.dirt"
+		if not facts.environment.get("orders") is Dictionary:
+			return "经营状态集合无效：environment.orders"
+		if not facts.environment.get("surfaces") is Dictionary:
+			return "经营状态集合无效：environment.surfaces"
+		if not facts.environment.get("receipts") is Dictionary:
+			return "经营状态集合无效：environment.receipts"
 	if facts.inventory.has("orders") and not facts.inventory.orders is Dictionary:
 		return "采购凭据集合无效"
 	for staff: Dictionary in facts.staff.values():
@@ -373,6 +384,10 @@ func validate(content: HospitalContent) -> String:
 		var error: String = HospitalSupplies.new(content,geometry).validate(self)
 		if not error.is_empty():
 			return error
+	if facts.has("environment"):
+		var error: String = HospitalEnvironment.new(content,geometry).validate(self)
+		if not error.is_empty():
+			return error
 	return BuildService.new(content).validate(self)
 
 func _reservation_owner_exists(id: String) -> bool:
@@ -395,6 +410,13 @@ func _ledger_owner_exists(id: String) -> bool:
 			return true
 	if facts.get("inventory",{}).get("orders",{}) is Dictionary and facts.get("inventory",{}).get("orders",{}).has(id):
 		return true
+	if facts.get("environment",{}).get("orders",{}) is Dictionary and facts.get("environment",{}).get("orders",{}).has(id):
+		return true
+	for order: Variant in facts.get("environment",{}).get("orders",{}).values():
+		if order is Dictionary:
+			for unit: Variant in order.get("units",[]):
+				if unit is Dictionary and unit.get("id")==id:
+					return true
 	return false
 
 func _validate_shapes() -> String:

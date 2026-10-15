@@ -28,10 +28,14 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 	_register_service("wellbeing",HospitalStaffWellbeing.new(database,space),["staff_recreation","set_staff_recreation","interrupt_staff_rest","staff_pressure_event"])
 	_register_service("waiting",HospitalWaitingLife.new(database,space),["waiting_select_seat","waiting_release_seat"])
 	_register_service("supplies",HospitalSupplies.new(database,space),["set_auto_restock","supply_auto","purchase_supplies","supply_purchase","supply_aid"])
+	_register_service("environment",HospitalEnvironment.new(database,space),["renovate","renovation_order","renovation_pause","renovation_resume","renovation_cancel","cleanup_pin"])
 	if _production():
 		clinic.scheduler = services.scheduler
 		clinic.waiting_life = services.waiting
 		services.supplies.clinic = clinic
+		clinic.environment = services.environment
+		services.waiting.environment = services.environment
+		services.environment.waiting_life = services.waiting
 	_ensure_services()
 
 func _ensure_services() -> void:
@@ -52,6 +56,12 @@ func dispose() -> void:
 		clinic.waiting_life = null
 	if services.has("supplies"):
 		services.supplies.clinic = null
+	if clinic!=null:
+		clinic.environment = null
+	if services.has("waiting"):
+		services.waiting.environment = null
+	if services.has("environment"):
+		services.environment.waiting_life = null
 	_business_handlers.clear()
 	services.clear()
 
@@ -147,6 +157,7 @@ func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickRe
 		services.scheduler.dispatch(world)
 		services.development.dispatch(world)
 		services.waiting.dispatch(world)
+		services.environment.dispatch(world)
 	clinic.dispatch(world)
 	if _production():
 		for staff_id: String in world.ids("staff"):
@@ -161,10 +172,12 @@ func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickRe
 	if _production():
 		services.development.advance(world)
 		services.scheduler.advance(world)
+		services.environment.advance(world)
 	if _production(): # 7: integrate each real work/movement source once.
 		var worked: Dictionary = clinic.worked_staff()
 		worked.merge(services.development.worked_staff(),true)
 		worked.merge(services.scheduler.worked_staff(),true)
+		worked.merge(services.environment.worked_staff(),true)
 		services.wellbeing.advance(world,worked,before_movement)
 		services.waiting.advance(world)
 		services.supplies.advance(world)

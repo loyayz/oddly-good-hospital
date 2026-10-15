@@ -210,6 +210,10 @@ func _build_ui() -> void:
 	_add_management_panel("staff_life","员工需求",HospitalStaffLifePanel.new())
 	_add_management_panel("waiting","候诊生活",HospitalWaitingPanel.new())
 	_add_management_panel("supplies","治疗包库存",HospitalSuppliesPanel.new())
+	var environment_panel: HospitalEnvironmentPanel = HospitalEnvironmentPanel.new()
+	environment_panel.location_requested.connect(_locate_cell)
+	environment_panel.heatmap_requested.connect(_show_environment_heatmap)
+	_add_management_panel("environment","环境与装修",environment_panel)
 	_status = Label.new()
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_status.add_theme_color_override("font_color",Palette.MUTED_INK)
@@ -334,6 +338,8 @@ func _bind_management_panels() -> void:
 		if panel==_build_panel:
 			_build_panel.attach(_simulation,_session,_observed_floor)
 		else:
+			if panel is HospitalEnvironmentPanel:
+				panel.floor_id = _observed_floor
 			panel.call("attach",_simulation,_session)
 
 func _show_panel(id: String) -> void:
@@ -347,8 +353,14 @@ func _show_panel(id: String) -> void:
 		(panel as Control).visible = str(panel.name)==id
 	if id=="library":
 		_library_panel.refresh()
+	if id!="environment" and _view!=null:
+		_view.show_environment_heatmap([])
 	if id!="building" and is_instance_valid(_build_overlay):
 		_build_overlay.show_preview({},{},_observed_floor)
+
+func _show_environment_heatmap(cells: Array) -> void:
+	if _view!=null and _simulation!=null:
+		_view.show_environment_heatmap(_simulation.services.environment.heatmap(_simulation.world,_observed_floor,cells,_selected_actor))
 
 func _submit_business(kind: String, payload: Dictionary) -> void:
 	if _simulation==null or not _leave_operation.is_empty():
@@ -674,6 +686,9 @@ func _change_floor(floor_id: int) -> void:
 		_observed_floor = floor_id
 		_view.set_floor(floor_id)
 		_build_panel.set_floor(floor_id)
+		var environment_panel: HospitalEnvironmentPanel = _management_panels.get_node("environment")
+		environment_panel.floor_id = floor_id
+		environment_panel.rebuild()
 
 func _set_ui_scale(scale: int) -> void:
 	_ui_scale = scale

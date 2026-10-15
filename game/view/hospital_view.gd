@@ -36,6 +36,11 @@ var _geometry_signature: String = ""
 var _camera_target: Vector3 = Vector3(24,0,24)
 var _retiring: Array[WeakRef] = []
 var _selection_outline: Node3D
+var _environment_marks: Node3D
+var _environment_marks_signature: String = ""
+var _environment_heatmap: MultiMeshInstance3D
+var _heatmap_stamp: String = ""
+var _heatmap_subjects: Array[String] = []
 
 func _init(database: HospitalContent) -> void:
 	content = database
@@ -64,6 +69,10 @@ func bind(state: WorldState, floor_id: int = 1, session_id: String = "") -> void
 	_actor_labels.clear()
 	_bindings.clear()
 	_geometry_signature = ""
+	_environment_marks_signature = ""
+	_environment_heatmap = null
+	_heatmap_stamp = ""
+	_heatmap_subjects.clear()
 	var environment: WorldEnvironment = WorldEnvironment.new()
 	environment.environment = Environment.new()
 	environment.environment.background_mode = Environment.BG_COLOR
@@ -90,6 +99,8 @@ func bind(state: WorldState, floor_id: int = 1, session_id: String = "") -> void
 	add_child(_decorations)
 	_selection_outline = Node3D.new()
 	add_child(_selection_outline)
+	_environment_marks = Node3D.new()
+	add_child(_environment_marks)
 	update_facts()
 
 func set_floor(floor_id: int) -> void:
@@ -187,6 +198,7 @@ func update_facts(interpolation_alpha: float = 1.0) -> void:
 		return
 	_sync_geometry()
 	_sync_entities()
+	_sync_environment_marks()
 	_complete_resources()
 	_labels = _labels.filter(func(label: Variant) -> bool: return is_instance_valid(label) and not label.is_queued_for_deletion())
 	_retiring = _retiring.filter(func(reference: WeakRef) -> bool: return reference.get_ref()!=null)
@@ -743,7 +755,142 @@ func _pose(actor_id: String) -> Dictionary:
 	for session: Dictionary in world.facts.sessions.values():
 		if actor_id in session.staff_ids:
 			return {"name":"work","time":fmod(float(world.facts.sim_tick)*0.1,1.0)}
+	for patch: Dictionary in world.facts.get("environment",{}).get("dirt",{}).values():
+		if patch.get("worker_id","")==actor_id and patch.get("phase","")=="working":
+			return {"name":"work","time":fmod(float(world.sim_tick)*0.1,1.0)}
+	for order: Dictionary in world.facts.get("environment",{}).get("orders",{}).values():
+		for unit: Dictionary in order.units:
+			if unit.get("worker_id","")==actor_id and unit.phase=="working":
+				return {"name":"work","time":fmod(float(world.sim_tick)*0.1,1.0)}
 	return {"name":"idle","time":fmod(float(world.facts.sim_tick)*0.1,1.0)}
+
+func _sync_environment_marks() -> void:
+	var facts: Dictionary = world.facts.get("environment",{})
+	var dirt: Array = []
+	var surfaces: Array = []
+	var units: Array = []
+	for patch: Dictionary in facts.get("dirt",{}).values():
+		if int(patch.floor_id)==observed_floor:
+			dirt.append([patch.id,patch.cell,patch.source_kind,patch.bin_id,patch.phase])
+	for surface: Dictionary in facts.get("surfaces",{}).values():
+		if int(surface.floor_id)==observed_floor:
+			surfaces.append([surface.cell,surface.surface,surface.edge,surface.material_id])
+	for order: Dictionary in facts.get("orders",{}).values():
+		if int(order.floor_id)!=observed_floor:
+			continue
+		for unit: Dictionary in order.units:
+			if unit.phase not in ["completed","cancelled"]:
+				units.append([unit.cell,order.surface,unit.edge,unit.phase,unit.started,order.paused])
+	var signature: String = JSON.stringify([observed_floor,dirt,surfaces,units],"",true,true)
+	if signature!=_environment_marks_signature:
+		_environment_marks_signature = signature
+		for child: Node in _environment_marks.get_children():
+			_retire(child)
+		for surface: Array in surfaces:
+			var mark: MeshInstance3D = _surface_mark(surface[0],str(surface[1]),str(surface[2]),_finish_color(str(surface[3])))
+			mark.set_meta("completed_material_id",surface[3])
+			_environment_marks.add_child(mark)
+		for patch: Array in dirt:
+			var mark: Node3D = Node3D.new()
+			mark.position = _cell_position(patch[1],0.75)+Vector3.UP*(0.9 if not str(patch[3]).is_empty() else 0.07)
+			mark.set_meta("dirt_id",patch[0])
+			var color: Color = Palette.ACTION if str(patch[4])=="working" else Palette.OAK
+			var scrap: MeshInstance3D = _box(Vector3(0.65,0.025,0.43),color if patch[2]!="CL03" else Palette.FURNITURE)
+			scrap.rotation.y = 0.28
+			mark.add_child(scrap)
+			var fold: MeshInstance3D = _box(Vector3(0.22,0.11,0.18),Palette.SURFACE)
+			fold.position = Vector3(0.19,0.04,-0.08)
+			mark.add_child(fold)
+			_environment_marks.add_child(mark)
+			if str(patch[4])=="working":
+				_label(mark,"清扫中",Vector3(0,0.65,0))
+		for unit: Array in units:
+			var working: bool = str(unit[3])=="working" and not bool(unit[5])
+			var mark: MeshInstance3D = _surface_mark(unit[0],str(unit[1]),str(unit[2]),Palette.ACTION if working else Palette.STRUCTURE)
+			mark.scale *= 0.82
+			mark.set_meta("construction_state","working" if working else "waiting")
+			_environment_marks.add_child(mark)
+			_label(mark,"施工中" if working else ("施工暂停" if unit[5] else "待施工"),Vector3(0,0.8,0))
+	if _environment_heatmap!=null and is_instance_valid(_environment_heatmap) and _heatmap_stamp!=_environment_read_stamp():
+		_environment_heatmap.visible = false
+
+func _surface_mark(cell: Array, surface: String, edge: String, color: Color) -> MeshInstance3D:
+	var mark: MeshInstance3D
+	var origin: Vector3 = _cell_position(cell,0)
+	if surface=="wall":
+		mark = _box(Vector3(1.48,0.61,0.035) if edge in ["north","south"] else Vector3(0.035,0.61,1.48),color)
+		mark.position = origin+Vector3(0.75 if edge in ["north","south"] else (0.02 if edge=="west" else 1.48),0.36,0.75 if edge in ["west","east"] else (0.02 if edge=="north" else 1.48))
+	else:
+		mark = _box(Vector3(1.48,0.025,1.48),color)
+		mark.position = origin+Vector3(0.75,0.065,0.75)
+	return mark
+
+func _finish_color(material_id: String) -> Color:
+	return {"MAT01":Palette.SURFACE.lerp(Palette.OAK,0.24),"MAT02":Palette.FLOOR.lerp(Palette.FURNITURE,0.35),
+		"MAT03":Color("aabdad"),"MAT04":Palette.WARD_FLOOR,"MAT05":Palette.SURFACE,
+		"MAT06":Color("b4c9b7"),"MAT07":Palette.STRUCTURE,"MAT08":Palette.FURNITURE}.get(material_id,Palette.WALL)
+
+func show_environment_heatmap(heatmap: Array) -> void:
+	if _environment_heatmap!=null and is_instance_valid(_environment_heatmap):
+		_retire(_environment_heatmap)
+	_environment_heatmap = null
+	_heatmap_subjects.clear()
+	if world==null or heatmap.is_empty():
+		_heatmap_stamp = ""
+		return
+	var samples: Array = []
+	for raw: Variant in heatmap:
+		if not raw is Dictionary or not raw.get("environment") is Dictionary:
+			continue
+		if raw.get("cell") is Array and raw.cell.size()==2 and int(raw.get("floor_id",observed_floor))==observed_floor and raw.environment.get("status","")=="current":
+			samples.append(raw)
+	if samples.is_empty():
+		_heatmap_stamp = ""
+		return
+	var mesh: BoxMesh = BoxMesh.new()
+	mesh.size = Vector3(1.42,0.015,1.42)
+	var material: StandardMaterial3D = StandardMaterial3D.new()
+	material.vertex_color_use_as_albedo = true
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.albedo_color = Color(1,1,1,0.65)
+	mesh.material = material
+	var instances: MultiMesh = MultiMesh.new()
+	instances.transform_format = MultiMesh.TRANSFORM_3D
+	instances.use_colors = true
+	instances.mesh = mesh
+	instances.instance_count = samples.size()
+	for index: int in samples.size():
+		var sample: Dictionary = samples[index]
+		var observation: Dictionary = sample.get("environment",{})
+		var value: float = clampf(float(observation.get("value",0))/100.0,0,1)
+		var color: Color = Palette.OAK.lerp(Palette.SURFACE,value/0.6) if value<0.6 else Palette.SURFACE.lerp(Palette.SUCCESS,(value-0.6)/0.4)
+		instances.set_instance_transform(index,Transform3D(Basis.IDENTITY,_cell_position(sample.cell,0.75)+Vector3.UP*0.11))
+		instances.set_instance_color(index,color)
+		var subject: String = str(observation.get("subject_id",""))
+		if not subject.is_empty() and not subject in _heatmap_subjects:
+			_heatmap_subjects.append(subject)
+	_environment_heatmap = MultiMeshInstance3D.new()
+	_environment_heatmap.multimesh = instances
+	_environment_heatmap.set_meta("observed_floor",observed_floor)
+	add_child(_environment_heatmap)
+	_heatmap_stamp = _environment_read_stamp()
+
+func _environment_read_stamp() -> String:
+	var active: Array = []
+	for session: Dictionary in world.facts.sessions.values():
+		active.append([session.facility_id,session.kind])
+	for item: Dictionary in world.facts.get("maintenance",{}).get("upgrades",{}).values():
+		active.append([item.facility_id,item.phase])
+	var bodies: Array = []
+	if not _heatmap_subjects.is_empty():
+		for actor: Dictionary in world.facts.actors.values():
+			bodies.append([actor.id,actor.location,actor.get("posture","standing"),actor.get("body_binding_id","")])
+	var facilities: Array = []
+	for facility: Dictionary in world.facts.facilities.values():
+		if int(facility.floor_id)==observed_floor:
+			facilities.append([facility.id,facility.cell,facility.get("rotation",0),facility.get("failed",false)])
+	return JSON.stringify([_geometry_signature,_environment_marks_signature,active,bodies,facilities,world.facts.research],"",true,true)
 
 func _staff_status(actor_id: String) -> Dictionary:
 	var staff: Dictionary = world.facts.staff[actor_id]
