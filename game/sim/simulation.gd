@@ -26,8 +26,10 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 	_register_service("development",HospitalClinicalDevelopment.new(database,space),["train_staff","promote_staff","cancel_training","set_growth_direction"])
 	_register_service("scheduler",HospitalShiftScheduler.new(database,space),["apply_schedule","set_schedule_lock","plan_leave","cancel_leave"])
 	_register_service("wellbeing",HospitalStaffWellbeing.new(database,space),["staff_recreation","set_staff_recreation","interrupt_staff_rest","staff_pressure_event"])
+	_register_service("waiting",HospitalWaitingLife.new(database,space),["waiting_select_seat","waiting_release_seat"])
 	if _production():
 		clinic.scheduler = services.scheduler
+		clinic.waiting_life = services.waiting
 	_ensure_services()
 
 func _ensure_services() -> void:
@@ -44,6 +46,8 @@ func _register_service(id: String, service: RefCounted, kinds: Array[String]) ->
 func dispose() -> void:
 	if clinic!=null:
 		clinic.scheduler = null
+	if clinic!=null:
+		clinic.waiting_life = null
 	_business_handlers.clear()
 	services.clear()
 
@@ -136,6 +140,7 @@ func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickRe
 	if _production(): # 4: dispatch against current occupancy.
 		services.scheduler.dispatch(world)
 		services.development.dispatch(world)
+		services.waiting.dispatch(world)
 	clinic.dispatch(world)
 	if _production():
 		for staff_id: String in world.ids("staff"):
@@ -155,6 +160,7 @@ func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickRe
 		worked.merge(services.development.worked_staff(),true)
 		worked.merge(services.scheduler.worked_staff(),true)
 		services.wellbeing.advance(world,worked,before_movement)
+		services.waiting.advance(world)
 	else:
 		_integrate_staff(before_movement)
 	# 8: interaction consequences precede settlement.

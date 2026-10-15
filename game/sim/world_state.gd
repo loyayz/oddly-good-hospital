@@ -105,6 +105,15 @@ func validate(content: HospitalContent) -> String:
 			return "经营状态集合无效：staff_life.settings"
 		if not facts.staff_life.get("pressure_receipts") is Dictionary:
 			return "经营状态集合无效：staff_life.pressure_receipts"
+	if facts.has("waiting_life"):
+		if not facts.waiting_life is Dictionary:
+			return "经营状态结构无效：waiting_life"
+		if not facts.waiting_life.get("seats") is Dictionary:
+			return "经营状态集合无效：waiting_life.seats"
+		if not facts.waiting_life.get("needs") is Dictionary:
+			return "经营状态集合无效：waiting_life.needs"
+		if not facts.waiting_life.get("clocks") is Dictionary:
+			return "经营状态集合无效：waiting_life.clocks"
 	for staff: Dictionary in facts.staff.values():
 		if staff.has("life_task") and not staff.life_task is Dictionary:
 			return "员工生活任务结构无效"
@@ -352,6 +361,10 @@ func validate(content: HospitalContent) -> String:
 			return error
 	if facts.has("staff_life"):
 		var error: String = HospitalStaffWellbeing.new(content,geometry).validate(self)
+		if not error.is_empty():
+			return error
+	if facts.has("waiting_life"):
+		var error: String = HospitalWaitingLife.new(content,geometry).validate(self)
 		if not error.is_empty():
 			return error
 	return BuildService.new(content).validate(self)
