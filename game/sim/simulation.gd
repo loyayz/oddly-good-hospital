@@ -21,10 +21,25 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 	services.building = BuildService.new(database,space)
 	for kind: String in BuildService.KINDS:
 		_business_handlers[kind] = services.building
-	for kind: String in ["clinical_arrive","clinical_refer","clinical_select_plan","clinical_confirm_plan","clinical_auto_plan"]:
+	for kind: String in ["clinical_arrive","clinical_refer","clinical_select_plan","clinical_confirm_plan","clinical_auto_plan","clinical_assign_ward","clinical_transfer_bed","clinical_ward_refer","clinical_visit_consent"]:
 		_business_handlers[kind] = clinic
+	_ensure_services()
+
+func _ensure_services() -> void:
 	if _production():
-		services.building.ensure(world)
+		clinic.ensure(world)
+		for service: RefCounted in services.values():
+			service.call("ensure",world)
+
+func _register_service(id: String, service: RefCounted, kinds: Array[String]) -> void:
+	services[id] = service
+	for kind: String in kinds:
+		_business_handlers[kind] = service
+
+func dispose() -> void:
+	pass
+	_business_handlers.clear()
+	services.clear()
 
 func _production() -> bool:
 	return int(world.facts.get("gameplay_version",0))==1
@@ -60,6 +75,7 @@ func apply(command: GameCommand) -> CommandResult:
 	record.tick = world.sim_tick
 	record.command = command.identity()
 	if result.accepted:
+		_ensure_services()
 		world.touch()
 		result.new_revision = world.revision
 		record.new_revision = world.revision
@@ -105,25 +121,25 @@ func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickRe
 	var present_at_start: int = world.present_actor_count()
 	for command: GameCommand in commands:
 		_commands.append(GameCommand.from_record(command.to_record()))
-	drain_commands() # 1: player commands; future automatic purchasing joins here.
-	# 2: topology, schedules and equipment boundaries.
-	# 3: day plans and arrivals; existing fixtures contain their arrived visits.
-	clinic.dispatch(world) # 4: actors and clinical dispatch.
+	drain_commands() # 1: commands and automatic supply orders.
+	if _production(): # 3: real arrivals and family requests.
+		clinic.arrivals(world)
+	clinic.dispatch(world)
 	var before_movement: Dictionary = {}
 	for staff_id: String in world.ids("staff"):
 		before_movement[staff_id] = world.facts.actors[staff_id].location.duplicate(true)
-	space.advance(world,present_at_start) # 5: path FIFO, actual movement and vertical transit.
+	space.advance(world,present_at_start) # 5: actual routes and vertical transit.
 	clinic.advance(world) # 6: work and safe completion.
-	_integrate_staff(before_movement) # 7: integrate actual work and movement.
-	# 8: future interactions and event consequences.
-	clinic.release_departed(world) # 9: occupancy after physical handoff/departure.
+	_integrate_staff(before_movement)
+	# 8: interaction consequences precede settlement.
+	clinic.release_departed(world) # 9: release only after physical handoff.
 	clinic.settle_practice(world)
 	var events: Array[SimEvent] = _command_events
 	_command_events = []
 	events.append_array(clinic.take_events())
 	events.append_array(HospitalLedger.settle(world))
 	world.facts.sim_tick += 1
-	world.touch() # 10: complete snapshot boundary.
+	world.touch() # 10: complete immutable snapshot boundary.
 	space.finish_boundary(world)
 	events.append(SimEvent.new(world.sim_tick,"tick_completed",[],{"revision":world.revision}))
 	return TickResult.new(world.sim_tick,world.revision,events)

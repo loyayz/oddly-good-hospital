@@ -74,6 +74,18 @@ func validate(content: HospitalContent) -> String:
 	var shape_error: String = _validate_shapes()
 	if not shape_error.is_empty():
 		return shape_error
+	for staff: Dictionary in facts.staff.values():
+		if staff.has("clinical_release"):
+			var release: Variant = staff.clinical_release
+			if not release is Dictionary or not release.get("facility_id") is String or not release.get("visit_id") is String or not release.get("reason") is String or not release.get("phase") in ["seek","walking","blocked"] or not facts.facilities.has(release.facility_id) or not facts.visits.has(release.visit_id):
+				return "临床安全离位义务无效"
+	if facts.has("visitors"):
+		if not facts.visitors is Dictionary:
+			return "经营状态结构无效：visitors"
+		if not facts.visitors.get("requests") is Dictionary:
+			return "经营状态集合无效：visitors.requests"
+		if not facts.visitors.get("stays") is Dictionary:
+			return "经营状态集合无效：visitors.stays"
 	var geometry: HospitalSpace = HospitalSpace.new(content)
 	if not facts.research is Array or not facts.ledger.get("entries") is Dictionary or not _natural(facts.ledger.get("opening_balance",-1)):
 		return "研究或账目结构无效"
@@ -304,6 +316,10 @@ func validate(content: HospitalContent) -> String:
 		for staff_id: Variant in reservation.staff_ids:
 			if not staff_id is String or not facts.actors.has(staff_id):
 				return "展开岗位身体不存在"
+	if facts.has("visitors"):
+		var error: String = HospitalClinic.new(content,geometry).validate(self)
+		if not error.is_empty():
+			return error
 	return BuildService.new(content).validate(self)
 
 func _ledger_owner_exists(id: String) -> bool:

@@ -46,6 +46,10 @@ func _ready() -> void:
 	_build_ui()
 	_acquire()
 
+func _exit_tree() -> void:
+	if _simulation!=null:
+		_simulation.dispose()
+
 func _build_ui() -> void:
 	var theme: Theme = Theme.new()
 	theme.default_font = load("res://assets/fonts/NotoSansCJKsc-Regular.otf")
@@ -198,6 +202,9 @@ func _build_ui() -> void:
 	clinical_panel.locate_requested.connect(_locate_entity)
 	_add_management_panel("clinical","接诊与病例",clinical_panel)
 	_add_management_panel("plans","治疗方案",HospitalPlansPanel.new())
+	var ward_panel: HospitalWardPanel = HospitalWardPanel.new()
+	ward_panel.locate_requested.connect(_locate_entity)
+	_add_management_panel("ward","住院与探视",ward_panel)
 	_status = Label.new()
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_status.add_theme_color_override("font_color",Palette.MUTED_INK)
@@ -258,7 +265,17 @@ func _acquire() -> void:
 		unavailable.append(_status.text)
 	_status.text = "医院资料需要恢复：\n"+"\n".join(unavailable)
 
+func _gameplay_world(source: WorldState) -> WorldState:
+	if int(source.facts.get("gameplay_version",0))==1:
+		return source
+	var upgraded: WorldState = WorldState.new(source.freeze())
+	upgraded.facts.gameplay_version = 1
+	if not upgraded.facts.has("entry"):
+		upgraded.facts.entry = {"floor_id":1,"cell":_content.starter_layout.entry.anchor.duplicate(),"exit_cell":[48,95]}
+	return upgraded
+
 func _activate(world: WorldState, restored: bool = false) -> bool:
+	world = _gameplay_world(world)
 	var session_id: String = HospitalSnapshots.uuid()
 	if not world.facts.floors.overrides.has(str(_observed_floor)):
 		_observed_floor = 1
@@ -276,6 +293,8 @@ func _activate(world: WorldState, restored: bool = false) -> bool:
 		_view.queue_free()
 	_view = prepared
 	_view.visible = true
+	if _simulation!=null:
+		_simulation.dispose()
 	_simulation = HospitalSimulation.new(world,_content)
 	_session = GameSession.new(_simulation,session_id)
 	_last_process_us = Time.get_ticks_usec()
@@ -585,6 +604,7 @@ func _receipt(receipt: Dictionary) -> void:
 		_candidate = null
 		_leave_operation = {}
 		return
+	_candidate = _gameplay_world(_candidate)
 	# Candidate resources are prepared before the main-thread publication boundary.
 	var candidate_view: HospitalView = HospitalView.new(_content)
 	var candidate_session_id: String = HospitalSnapshots.uuid()
@@ -604,6 +624,8 @@ func _receipt(receipt: Dictionary) -> void:
 	_view = candidate_view
 	_view.visible = true
 	_observed_floor = target_floor
+	if _simulation!=null:
+		_simulation.dispose()
 	_simulation = HospitalSimulation.new(_candidate,_content)
 	_session = GameSession.new(_simulation,candidate_session_id)
 	_last_process_us = Time.get_ticks_usec()
