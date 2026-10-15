@@ -1,7 +1,7 @@
 #requires -Version 7.0
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory)][ValidateRange(4,24)][int]$Stage,
+    [Parameter(Mandatory)][ValidateRange(4,28)][int]$Stage,
     [Parameter(Mandatory)][string[]]$Scripts,
     [string[]]$ScriptArguments = @()
 )

@@ -2,9 +2,9 @@
 
 Windows独立安装、单人离线的轻松医院建造经营游戏。完整设计、内容与数值位于`docs/design`和`docs/data`；离线阅读页为`docs/product-design.html`。
 
-当前工程交付到第24阶段：预设院区与空地开局、多院保存及备份、实际门诊/手术/住院、员工培养与排班生活、候诊、耗材、环境装修、设备维护升级、科室体验、财务、招聘及随机来客。操作统一进入固定步模拟，界面、报价和视图读取同一世界事实。功能证据见[第04至24阶段交付记录](docs/reports/2026-10-15-stage04-stage24.md)，后续范围见[四十二阶段实施路线](docs/design/12-implementation-plan.md)。本批次性能检测暂时跳过，既有[第三阶段性能限制](docs/design/15-stage03-kernel-performance.md)继续保留；全量正式美术与长期经营平衡仍按后续阶段交付。
+当前工程实现至第28阶段：预设院区与空地开局、多院保存及备份、实际门诊/手术/住院、员工培养与排班生活、候诊、耗材、环境装修、设备维护升级、科室体验、财务、招聘、随机来客、研究资料、土地与楼板施工、跨层交通、安全改建及共享蓝图。操作统一进入固定步模拟，界面、报价和视图读取同一世界事实。各阶段验证状态见[交付记录](docs/reports/2026-10-15-stage04-stage24.md)，后续范围见[四十二阶段实施路线](docs/design/12-implementation-plan.md)。阶段28后的性能测量与专项优化单独进行，既有[第三阶段性能限制](docs/design/15-stage03-kernel-performance.md)继续保留；全量正式美术与长期经营平衡仍按后续阶段交付。
 
-运行 `pwsh -NoProfile -File tools/build-game.ps1` 生成 Windows Release，产物位于 `.build/stage24/product`。构建检查发布内容并封存程序、内容包、平台库和源码身份，不运行性能检测。`tools/verify-functional-stage.ps1` 从 Git 暂存区创建独立工程与资料目录，用于功能验证。
+运行 `pwsh -NoProfile -File tools/build-game.ps1` 生成 Windows Release，产物位于 `.build/stage28/product`。构建检查发布内容并封存程序、内容包、平台库和源码身份，不运行性能检测。`tools/verify-functional-stage.ps1` 从 Git 暂存区创建独立工程与资料目录，用于功能验证。
 
 ## 构建
 

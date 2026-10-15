@@ -368,7 +368,7 @@ func _select_facility(world: WorldState, staff_id: String, kind: String) -> Dict
 		best_time = float(tea.travel_ticks)*WorldState.TICK_SECONDS+maxf(0,float(content.balance.schedule.compensatory_rest_target_energy)-float(staff.energy))/float(content.balance.wellbeing.energy_tea_per_second)
 	for id: String in world.ids("facilities"):
 		var facility: Dictionary = world.facts.facilities[id]
-		if facility.failed or world.facts.staff_life.reservations.has(id) or _patient_occupies(world,id) or not _staff_area(world,facility):
+		if HospitalRemodel.blocked(world,id) or facility.failed or world.facts.staff_life.reservations.has(id) or _patient_occupies(world,id) or not _staff_area(world,facility):
 			continue
 		if kind=="sleep" and facility.definition_id!=str(content.balance.staff_sleep.bed_definition_id):
 			continue

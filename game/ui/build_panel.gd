@@ -244,6 +244,7 @@ func _submit() -> void:
 	payload.quote = _result.quote.duplicate(true)
 	payload.command_id = _command_id
 	command_requested.emit(str(_draft.kind),payload)
+	if _draft.is_empty(): return
 	_confirm.disabled = true
 	_reason.text = "已提交确认，正在重新检查实际条件。"
 

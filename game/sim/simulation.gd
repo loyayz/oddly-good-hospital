@@ -34,7 +34,21 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 	_register_service("finance",FinanceService.new(database,space),["finance_note","finance_rescue","finance_return_rescue"])
 	_register_service("recruitment",RecruitmentService.new(database,space),["recruitment_search","recruitment_cancel_search","recruitment_hire","recruitment_bookmark","recruitment_dismiss"])
 	_register_service("arrivals",HospitalArrivalService.new(database,space),["arrivals_intake","set_intake_open","arrivals_preset","arrivals_scale","arrivals_weight","resident_remember","resident_forget","tutorial_skip_request","tutorial_set_enabled"])
+	_register_service("research",HospitalResearch.new(database,space),["research_request_mail","research_todo_add","research_todo_remove","research_todo_move","research_start","research_pause","research_resume","research_assign","research_cancel"])
+	_register_service("floors",HospitalFloors.new(database,space),HospitalFloors.KINDS)
+	_register_service("connectors",HospitalConnectors.new(database,space),HospitalConnectors.KINDS)
+	_register_service("remodel",HospitalRemodel.new(database,space),HospitalRemodel.KINDS)
+	_register_service("blueprints",HospitalBlueprints.new(database,space),["blueprint_place"])
 	if _production():
+		services.floors.environment = services.environment
+		services.remodel.services = services
+		services.remodel.clinic = clinic
+		services.blueprints.services = services
+		services.development.research = services.research
+		services.research.recruitment = services.recruitment
+		services.research.scheduler = services.scheduler
+		services.research.clinic = clinic
+		clinic.research = services.research
 		clinic.scheduler = services.scheduler
 		clinic.waiting_life = services.waiting
 		services.supplies.clinic = clinic
@@ -68,6 +82,19 @@ func _register_service(id: String, service: RefCounted, kinds: Array[String]) ->
 		_business_handlers[kind] = service
 
 func dispose() -> void:
+	if services.has("floors"): services.floors.environment = null
+	if services.has("remodel"):
+		services.remodel.services = {}
+		services.remodel.clinic = null
+	if services.has("blueprints"): services.blueprints.services = {}
+	if services.has("development"):
+		services.development.research = null
+	if services.has("research"):
+		services.research.recruitment = null
+		services.research.scheduler = null
+		services.research.clinic = null
+	if clinic!=null:
+		clinic.research = null
 	if clinic!=null:
 		clinic.scheduler = null
 	if clinic!=null:
@@ -175,7 +202,7 @@ func _execute(command: GameCommand) -> CommandResult:
 		return CommandResult.new(false,"clinical_occupancy","当前临床人物按实际工作路线移动",[],world.revision)
 	if world.facts.moves.has(payload.actor_id):
 		return CommandResult.new(false,"movement_in_progress","当前通行尚未完成，原移动请求保留",[],world.revision)
-	if payload.floor_id<1 or not world.facts.floors.overrides.has(str(payload.floor_id)):
+	if payload.floor_id<1 or HospitalSpace.floor_plots(world,payload.floor_id).is_empty():
 		return CommandResult.new(false,"floor_unavailable","目标楼层没有可用通行布局",[],world.revision)
 	var quote: Dictionary = space.route(world,payload.actor_id,payload.floor_id,[payload.cell.x,payload.cell.y])
 	if not quote.ok:
@@ -193,6 +220,7 @@ func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickRe
 	if _production():
 		services.supplies.boundaries(world)
 	if _production(): # 2: schedules and equipment boundaries.
+		services.research.boundaries(world)
 		services.scheduler.boundaries(world)
 		services.wellbeing.boundaries(world)
 		services.maintenance.boundaries(world)
@@ -202,12 +230,14 @@ func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickRe
 		services.arrivals.arrivals(world)
 		clinic.arrivals(world)
 	if _production(): # 4: dispatch against current occupancy.
+		services.remodel.dispatch(world)
 		services.scheduler.dispatch(world)
 		services.development.dispatch(world)
 		services.waiting.dispatch(world)
 		services.departments.dispatch(world)
 		services.environment.dispatch(world)
 		services.maintenance.dispatch(world)
+		services.floors.dispatch(world)
 	clinic.dispatch(world)
 	if _production():
 		for staff_id: String in world.ids("staff"):
@@ -221,18 +251,22 @@ func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickRe
 	clinic.advance(world) # 6: work and safe completion.
 	if _production():
 		services.development.advance(world)
+		services.research.advance(world)
 		services.scheduler.advance(world)
 		services.environment.advance(world)
 		services.maintenance.advance(world)
 		services.departments.advance(world)
 		services.recruitment.advance(world)
+		services.floors.advance(world)
 	if _production(): # 7: integrate each real work/movement source once.
 		var worked: Dictionary = clinic.worked_staff()
 		worked.merge(services.development.worked_staff(),true)
+		worked.merge(services.research.worked_staff(),true)
 		worked.merge(services.scheduler.worked_staff(),true)
 		worked.merge(services.environment.worked_staff(),true)
 		worked.merge(services.maintenance.worked_staff(),true)
 		worked.merge(services.departments.worked_staff(),true)
+		worked.merge(services.floors.worked_staff(),true)
 		services.wellbeing.advance(world,worked,before_movement)
 		services.waiting.advance(world)
 		services.supplies.advance(world)
@@ -245,6 +279,7 @@ func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickRe
 	clinic.release_departed(world) # 9: release only after physical handoff.
 	clinic.settle_practice(world)
 	if _production():
+		services.research.settle(world)
 		services.development.settle(world)
 		services.departments.settle(world)
 		services.finance.settle(world)
@@ -255,6 +290,7 @@ func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickRe
 	events.append_array(clinic.take_events())
 	if _production():
 		events.append_array(services.arrivals.take_events())
+		events.append_array(services.research.take_events())
 	events.append_array(HospitalLedger.settle(world))
 	world.facts.sim_tick += 1
 	world.touch() # 10: complete immutable snapshot boundary.

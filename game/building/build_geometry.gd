@@ -143,7 +143,7 @@ static func occupied_error(world: WorldState, space: HospitalSpace, floor_id: in
 			for y: int in range(floori(rect.position.y),ceili(rect.end.y)):
 				if not space.owned(world,floor_id,Vector2i(x,y)):
 					return failure("占地未购入或楼板尚未完成",[[x,y]])
-				if [x,y] in world.facts.floors.overrides[str(floor_id)].get("blocked",[]):
+				if [x,y] in world.facts.floors.overrides.get(str(floor_id),{}).get("blocked",[]):
 					return failure("占地有真实结构阻挡",[[x,y]])
 		if floor_id==1 and rect.intersects(Rect2(47,93,3,3),false):
 			return failure("入口3×3缓冲区和南侧安全出口必须保留",[[47,93]])
@@ -154,7 +154,7 @@ static func occupied_error(world: WorldState, space: HospitalSpace, floor_id: in
 			if int(facility.floor_id)==floor_id and not facility.id in ignored_ids and rect.intersects(rectangle(space.facility_layout(world,facility.id).merged({"cell":facility.cell})),false):
 				return failure("占地有实际设施："+str(facility.id),[facility.cell])
 		for connector: Dictionary in world.facts.connectors.values():
-			if floor_id in connector.get("stops",[]) and connector.has("cell") and rect.intersects(rectangle(connector),false):
+			if HospitalTransit.has_stop(connector,floor_id) and connector.has("cell") and rect.intersects(rectangle(connector),false):
 				return failure("占地有真实竖向结构："+str(connector.id),[connector.cell])
 		for reservation: Dictionary in world.facts.adaptations.values():
 			if int(reservation.floor_id)!=floor_id:

@@ -1,6 +1,6 @@
 #requires -Version 7.0
 [CmdletBinding()]
-param([Parameter(Mandatory)][ValidateRange(4,24)][int]$Stage)
+param([Parameter(Mandatory)][ValidateRange(4,28)][int]$Stage)
 $ErrorActionPreference = 'Stop'
 $repo = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $name = 'stage{0:d2}-{1}' -f $Stage,[DateTime]::UtcNow.ToString('yyyyMMddHHmmssfff')

@@ -2,11 +2,12 @@ class_name BuildService
 extends RefCounted
 
 const HISTORY_LIMIT: int = 20
-const KINDS: Array[String] = ["build_room","build_facility","build_store","build_door","build_move","build_rotate","build_demolish","build_undo","build_land"]
+const KINDS: Array[String] = ["build_room","build_facility","build_store","build_door","build_move","build_rotate","build_resize","build_demolish","build_undo","build_land"]
 var content: HospitalContent
 var space: HospitalSpace
 var _deferred_checks: bool = false
 var _prepared_shape: Dictionary = {}
+var _remodel_application: bool = false
 
 func _init(database: HospitalContent, geometry: HospitalSpace = null) -> void:
 	content = database
@@ -95,6 +96,9 @@ func _plan(world: WorldState, kind: String, payload: Dictionary) -> Dictionary:
 	# isolated until the final spatial and quoted-intent checks have succeeded.
 	var inventory_transfer: bool = kind=="build_store" or kind=="build_facility" and not str(payload.get("inventory_id","")).is_empty()
 	var candidate: WorldState = WorldState.new(world.freeze()) if inventory_transfer else _scratch(world)
+	var requested_floor: int = int(payload.get("floor_id",1))
+	if not HospitalSpace.floor_plots(candidate,requested_floor).is_empty():
+		HospitalSpace.materialize_layout(candidate,requested_floor)
 	var result: Dictionary
 	match kind:
 		"build_room": result = _add_room(candidate,payload)
@@ -102,6 +106,7 @@ func _plan(world: WorldState, kind: String, payload: Dictionary) -> Dictionary:
 		"build_store": result = _store_facility(candidate,payload)
 		"build_door": result = _replace_door(candidate,payload)
 		"build_move", "build_rotate": result = _move(candidate,kind,payload)
+		"build_resize": result = _resize_room(candidate,payload)
 		"build_demolish": result = _demolish(candidate,payload)
 		"build_undo": result = _undo(candidate)
 		"build_land": result = _land(candidate,payload)
@@ -471,14 +476,50 @@ func _rotate_room(world: WorldState, payload: Dictionary) -> Dictionary:
 	var room: Dictionary = world.facts.rooms[payload.target_id]
 	return _transform_room(world,room,Vector2i.ZERO,posmod(int(payload.get("turns",1)),4),int(room.floor_id))
 
+func _resize_room(world: WorldState, payload: Dictionary) -> Dictionary:
+	if not _remodel_application: return BuildGeometry.failure("请通过安全改建安排调整房间内格")
+	var room: Dictionary = world.facts.rooms.get(str(payload.get("target_id","")),{})
+	if room.is_empty(): return BuildGeometry.failure("原房间已不存在")
+	var busy: String = _busy(world,room.id)
+	if not busy.is_empty(): return BuildGeometry.failure(busy)
+	var shape: Dictionary = BuildGeometry.shape(payload,_room_type(room.kind).min_inner_size)
+	if not shape.ok: return shape
+	var before: Array = BuildGeometry.cells(room)
+	var payments: Dictionary = room.get("cell_payments",{}).duplicate(true)
+	if payments.is_empty():
+		for cell: Array in before: payments["%d:%d" % [int(cell[0]),int(cell[1])]] = {"paid_cost":int(room.get("paid_cost",0))/maxi(1,before.size()),"used":_used(room)}
+	var price: int = 0
+	var refund: int = 0
+	var next_payments: Dictionary = {}
+	for cell: Array in shape.cells:
+		var key: String = "%d:%d" % [int(cell[0]),int(cell[1])]
+		if payments.has(key): next_payments[key] = payments[key]
+		else:
+			var amount: int = int(content.balance.floor_cost_cell)+int(content.balance.room_fitout_cost_cell)
+			next_payments[key] = {"paid_cost":amount,"used":false}
+			price += amount
+	for key: String in payments:
+		if not next_payments.has(key): refund += int(payments[key].paid_cost)*(80 if payments[key].used else 100)/100
+	room.origin = shape.origin
+	room.size = shape.size
+	room.cells = shape.cells
+	room.wall_edges = shape.wall_edges
+	room.cell_payments = next_payments
+	room.paid_cost = 0
+	for payment: Dictionary in next_payments.values(): room.paid_cost += int(payment.paid_cost)
+	return _success(price,refund,[room.id],[int(room.floor_id)])
+
 func _transform_room(world: WorldState, room: Dictionary, delta: Vector2i, turns: int, target_floor: int) -> Dictionary:
 	var previous_floor: int = int(room.floor_id)
 	var old_origin: Vector2i = Vector2i(int(room.origin[0]),int(room.origin[1]))
 	var old_size: Array = room.size.duplicate()
 	var new_cells: Array = []
+	var moved_payments: Dictionary = {}
 	for cell: Array in BuildGeometry.cells(room):
 		var transformed: Vector2i = old_origin+delta+_rotate_offset(Vector2i(int(cell[0]),int(cell[1]))-old_origin,old_size,turns)
 		new_cells.append([transformed.x,transformed.y])
+		var key: String = "%d:%d" % [int(cell[0]),int(cell[1])]
+		if room.get("cell_payments",{}).has(key): moved_payments["%d:%d" % [transformed.x,transformed.y]] = room.cell_payments[key]
 	var shape: Dictionary = BuildGeometry.shape({"cells":new_cells},_room_type(room.kind).get("min_inner_size",[1,1]))
 	if not shape.ok:
 		return shape
@@ -505,6 +546,7 @@ func _transform_room(world: WorldState, room: Dictionary, delta: Vector2i, turns
 	room.cells = shape.cells
 	room.wall_edges = shape.wall_edges
 	room.floor_id = target_floor
+	if room.has("cell_payments"): room.cell_payments = moved_payments
 	var changed: Array = [room.id]
 	for id: String in ignored:
 		var facility: Dictionary = world.facts.facilities[id]
@@ -587,6 +629,10 @@ func _demolish(world: WorldState, payload: Dictionary) -> Dictionary:
 	return _success(0,_refund(found.door),[id],[int(found.floor_id)])
 
 func _refund(record: Dictionary) -> int:
+	if record.has("cell_payments"):
+		var total: int = 0
+		for payment: Dictionary in record.cell_payments.values(): total += int(payment.paid_cost)*(80 if payment.used else 100)/100
+		return total
 	var paid: int = int(record.get("paid_cost",0))+int(record.get("completed_upgrade_paid_cost",0))
 	if record.get("ownership","purchased") in ["gift","borrowed"]:
 		paid = int(record.get("completed_upgrade_paid_cost",0)) if record.get("ownership")=="gift" else 0
@@ -615,10 +661,12 @@ func _land(world: WorldState, payload: Dictionary) -> Dictionary:
 	return _success(price,0,["plot:1:%d:%d" % [int(payload.plot[0]),int(payload.plot[1])]],[1])
 
 func _busy(world: WorldState, id: String, allow_inventory_work: bool = false) -> String:
+	if not _remodel_application and HospitalRemodel.blocked(world,id):
+		return "对象已在改建安排中，请应用或取消原安排"
 	for patch: Dictionary in world.facts.get("environment",{}).get("dirt",{}).values():
 		if patch.get("bin_id","")==id:
 			return "垃圾桶尚未清空，不能搬移或拆除"
-	for collection: String in ([] if allow_inventory_work else ["jobs","upgrades"]):
+	for collection: String in ([] if allow_inventory_work or _remodel_application else ["jobs","upgrades"]):
 		for order: Dictionary in world.facts.get("maintenance",{}).get(collection,{}).values():
 			if order.get("facility_id","")==id and not order.get("phase","") in ["completed","cancelled","abandoned"]:
 				return "设备存在未完成维护或升级工单，请先安全结束或取消工单"
@@ -626,6 +674,7 @@ func _busy(world: WorldState, id: String, allow_inventory_work: bool = false) ->
 		return "等待当前使用者实际离开并释放伸展预约"
 	for collection: String in ["sessions","preparations","ward_stays","tickets","facility_reservations","amenity_reservations","maintenance_orders","upgrade_orders"]:
 		for record: Dictionary in world.facts.get(collection,{}).values():
+			if collection=="tickets" and record.has("resume_session_id"): continue
 			if _references(record,id):
 				return "对象仍被实际服务、床位承诺或工作引用，请等待安全结束"
 	for actor: Dictionary in world.facts.actors.values():

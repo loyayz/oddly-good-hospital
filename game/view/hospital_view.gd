@@ -122,7 +122,7 @@ func _sync_geometry() -> void:
 	for door: Dictionary in world.facts.floors.overrides.get(str(observed_floor),{}).get("doors",[]):
 		var adapted: Dictionary = world.facts.adaptations.get(door.id,{})
 		door_shapes.append([door.id,adapted.get("span",door.span),adapted.get("clear_height_m",0)])
-	var layout: Dictionary = world.facts.floors.overrides.get(str(observed_floor),{})
+	var layout: Dictionary = HospitalSpace.floor_layout(world,observed_floor)
 	var signature: String = JSON.stringify([layout.get("plots",[]),layout.get("blocked",[]),layout.get("doors",[]),rooms,connectors,door_shapes],"",true,true)
 	if signature==_geometry_signature:
 		return
@@ -131,7 +131,7 @@ func _sync_geometry() -> void:
 		_retire(child)
 	_wall_nodes.clear()
 	_door_frames.clear()
-	for plot: Array in world.facts.floors.overrides.get(str(observed_floor),{}).get("plots",[]):
+	for plot: Array in HospitalSpace.floor_plots(world,observed_floor):
 		var floor_mesh: MeshInstance3D = _box(Vector3(48,0.15,48),Palette.FLOOR)
 		floor_mesh.position = _cell_position([int(plot[0])*32,int(plot[1])*32],24)+Vector3(0,-0.075,0)
 		_decorations.add_child(floor_mesh)
@@ -674,7 +674,7 @@ func overview() -> void:
 func _floor_bounds() -> AABB:
 	var bounds: AABB = AABB()
 	var first: bool = true
-	for plot: Array in world.facts.floors.overrides.get(str(observed_floor),{}).get("plots",[]):
+	for plot: Array in HospitalSpace.floor_plots(world,observed_floor):
 		var tile: AABB = AABB(_cell_position([int(plot[0])*32,int(plot[1])*32],0),Vector3(48,0,48))
 		bounds = tile if first else bounds.merge(tile)
 		first = false

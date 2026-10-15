@@ -89,6 +89,9 @@ func validate(content: HospitalContent) -> String:
 	if facts.has("training_jobs"):
 		if not facts.training_jobs is Dictionary:
 			return "经营状态结构无效：training_jobs"
+	if facts.has("research_progress") or facts.has("research_jobs"):
+		if not facts.get("research_progress") is Dictionary or not facts.get("research_jobs") is Dictionary:
+			return "研究进度或任务结构无效"
 	if facts.has("staff_schedule"):
 		if not facts.staff_schedule is Dictionary:
 			return "经营状态结构无效：staff_schedule"
@@ -308,7 +311,7 @@ func validate(content: HospitalContent) -> String:
 	for id: String in facts.preparations:
 		var preparation: Dictionary = facts.preparations[id]
 		var kind: String = str(preparation.get("kind","surgery"))
-		if not facts.visits.has(preparation.visit_id) or not facts.facilities.has(preparation.facility_id) or not kind in ["surgery","outpatient"] or facts.visits[preparation.visit_id].phase!="wait_"+kind:
+		if not facts.visits.has(preparation.visit_id) or not facts.facilities.has(preparation.facility_id) or not kind in ["surgery","outpatient","reception","gp","spectrum","resonance","consult"] or facts.visits[preparation.visit_id].phase!="wait_"+kind:
 			return "临床准备的原票号或服务位不一致："+id
 		if kind=="surgery" and preparation.bed_id.is_empty():
 			return "手术准备缺少兼容床位承诺："+id
@@ -353,11 +356,14 @@ func validate(content: HospitalContent) -> String:
 		var definition: Dictionary = content.definition("vertical_connectors",connector.definition_id)
 		if definition.is_empty():
 			return "竖向连接定义不存在："+id
-		if int(connector.footprint[0])!=int(definition.footprint[0]) or int(connector.footprint[1])!=int(definition.footprint[1]) or connector.riders.size()>int(definition.max_group_size):
+		var footprint: Array = definition.footprint.duplicate()
+		if int(connector.get("rotation",0))%2==1: footprint.reverse()
+		if connector.footprint!=footprint or connector.riders.size()>int(definition.max_group_size):
 			return "竖向结构占地或乘员数量与源定义不符"
-		if definition.kind=="stairs" and (connector.stops.size()!=2 or absi(int(connector.stops[1])-int(connector.stops[0]))!=1):
+		var ends: Array = HospitalTransit.endpoints(connector)
+		if definition.kind=="stairs" and (ends.size()!=2 or absi(int(ends[1])-int(ends[0]))!=1):
 			return "楼梯只能连接相邻两个楼层"
-		for stop: Variant in connector.stops:
+		for stop: Variant in ends:
 			for x: int in range(int(connector.cell[0]),int(connector.cell[0])+int(connector.footprint[0])):
 				for y: int in range(int(connector.cell[1]),int(connector.cell[1])+int(connector.footprint[1])):
 					if not geometry.owned(self,int(stop),Vector2i(x,y)):
@@ -376,7 +382,7 @@ func validate(content: HospitalContent) -> String:
 		var actor: Dictionary = facts.actors[id]
 		if actor.location.kind=="transit" and not id in facts.connectors[actor.location.connector_id].riders:
 			return "乘梯身体没有实际乘员身份"
-		if actor.location.kind=="floor" and not facts.floors.overrides.has(str(int(actor.location.floor_id))):
+		if actor.location.kind=="floor" and HospitalSpace.floor_plots(self,int(actor.location.floor_id)).is_empty():
 			return "身体所在楼层没有实际可用地面"
 		if actor.location.kind=="floor" and not geometry.owned(self,int(actor.location.floor_id),Vector2i(floori(actor.location.cell[0]),floori(actor.location.cell[1]))):
 			return "身体位置不属于实际医院地块"
@@ -409,6 +415,10 @@ func validate(content: HospitalContent) -> String:
 			return error
 	if facts.has("training_jobs"):
 		var error: String = HospitalClinicalDevelopment.new(content,geometry).validate(self)
+		if not error.is_empty():
+			return error
+	if facts.has("research_progress") or facts.has("research_jobs"):
+		var error: String = HospitalResearch.new(content,geometry).validate(self)
 		if not error.is_empty():
 			return error
 	if facts.has("staff_schedule"):
@@ -451,6 +461,20 @@ func validate(content: HospitalContent) -> String:
 		var error: String = HospitalArrivalService.validate_snapshot(facts,content)
 		if not error.is_empty():
 			return error
+	if facts.floors.has("completed_top_floor"):
+		var error: String = HospitalFloors.new(content,geometry).validate(self)
+		if not error.is_empty(): return error
+	if facts.has("remodels"):
+		var service: HospitalRemodel = HospitalRemodel.new(content,geometry)
+		service.services = {"building":BuildService.new(content,geometry)}
+		var error: String = service.validate(self)
+		if not error.is_empty(): return error
+	if facts.has("clinical_suspensions"):
+		if not facts.clinical_suspensions is Dictionary: return "临床接续集合无效"
+		for id: Variant in facts.clinical_suspensions:
+			var record: Variant = facts.clinical_suspensions[id]
+			if not record is Dictionary or record.get("id")!=id or facts.sessions.has(id) or not facts.visits.has(record.get("visit_id","")) or not facts.tickets.has(record.get("suspended_ticket_id","")) or not _natural(record.get("remaining_ticks")) or not _natural(record.get("suspended_tick")) or not record.get("definition_id") is String: return "临床接续身份、原票号或工时无效"
+			if facts.tickets[record.suspended_ticket_id].get("resume_session_id","")!=id: return "临床接续票号拥有者无效"
 	return BuildService.new(content).validate(self)
 
 func _reservation_owner_exists(id: String) -> bool:
@@ -468,11 +492,12 @@ func _reservation_owner_exists(id: String) -> bool:
 func _ledger_owner_exists(id: String) -> bool:
 	if id==hospital_id:
 		return true
-	for collection: String in ["visits","attempts","build_transactions","staff","training_jobs"]:
+	for collection: String in ["visits","attempts","build_transactions","staff","training_jobs","research_jobs","vertical_transactions","blueprint_transactions","remodels"]:
 		if facts.get(collection,{}) is Dictionary and facts.get(collection,{}).has(id):
 			return true
 	if facts.get("inventory",{}).get("orders",{}) is Dictionary and facts.get("inventory",{}).get("orders",{}).has(id):
 		return true
+	if facts.floors.get("orders",{}) is Dictionary and facts.floors.get("orders",{}).has(id): return true
 	if facts.get("environment",{}).get("orders",{}) is Dictionary and facts.get("environment",{}).get("orders",{}).has(id):
 		return true
 	if facts.get("maintenance",{}).get("jobs",{}) is Dictionary and facts.get("maintenance",{}).get("jobs",{}).has(id):
@@ -504,19 +529,30 @@ func _validate_shapes() -> String:
 			return "研究引用类型无效"
 	if not facts.floors.get("height_intervals") is Array or not facts.floors.get("overrides") is Dictionary:
 		return "稀疏楼层结构无效"
+	if not facts.floors.overrides.get("1") is Dictionary or not facts.floors.overrides["1"].get("plots") is Array: return "医院缺少真实地面产权"
+	var ground_plots: Dictionary = {}
+	for plot: Variant in facts.floors.overrides["1"].plots:
+		if not _grid_point(plot) or int(plot[0])<0 or int(plot[0])>2 or int(plot[1])<0 or int(plot[1])>2: return "地面地块坐标无效"
+		var key: String = HospitalSpace.plot_key(plot)
+		if ground_plots.has(key): return "地面地块重复"
+		ground_plots[key] = true
+	if facts.floors.has("completed_top_floor"):
+		if not facts.floors.completed_top_floor is Dictionary: return "实完高度结构无效"
+		for key: Variant in facts.floors.completed_top_floor:
+			if not key is String or not _natural(facts.floors.completed_top_floor[key]) or int(facts.floors.completed_top_floor[key])<1: return "实完高度值无效"
 	var last_floor: int = 0
 	for interval: Variant in facts.floors.height_intervals:
 		if not interval is Dictionary or not _natural(interval.get("first",-1)) or not _natural(interval.get("last",-1)) or not (interval.get("height_m") is float or interval.get("height_m") is int) or int(interval.first)<=last_floor or int(interval.last)<int(interval.first) or not is_finite(float(interval.height_m)) or float(interval.height_m)<=0:
 			return "结构高度区间无效"
 		last_floor = int(interval.last)
 	for floor_key: String in facts.floors.overrides:
-		if not floor_key.is_valid_int() or int(floor_key)<1 or int(floor_key)>last_floor:
+		if not floor_key.is_valid_int() or int(floor_key)<1 or (not facts.floors.has("completed_top_floor") and int(floor_key)>last_floor):
 			return "实际楼层不在结构高度区间内"
 		var layout: Variant = facts.floors.overrides[floor_key]
-		if not layout is Dictionary or not layout.get("plots") is Array or not layout.get("blocked") is Array or not layout.get("doors") is Array:
+		if not layout is Dictionary or (not facts.floors.has("completed_top_floor") or floor_key=="1") and not layout.get("plots") is Array or not layout.get("blocked") is Array or not layout.get("doors") is Array:
 			return "实际楼层布局无效"
 		for field: String in ["plots","blocked"]:
-			for point: Variant in layout[field]:
+			for point: Variant in layout.get(field,[]):
 				if not _grid_point(point):
 					return "楼层坐标类型无效"
 		for door: Variant in layout.doors:
@@ -530,7 +566,7 @@ func _validate_shapes() -> String:
 		"ward_stays":{"id":TYPE_STRING,"attempt_id":TYPE_STRING,"bed_id":TYPE_STRING,"phase":TYPE_STRING,"remaining_ticks":TYPE_INT,"work_credit_milli":TYPE_INT,"care_completed":TYPE_BOOL,"nurse_id":TYPE_STRING,"round_doctor_id":TYPE_STRING,"escort_id":TYPE_STRING},
 		"facilities":{"id":TYPE_STRING,"definition_id":TYPE_STRING,"floor_id":TYPE_INT,"cell":TYPE_ARRAY,"footprint":TYPE_ARRAY,"patient_cell":TYPE_ARRAY,"operator_cells":TYPE_ARRAY,"repair_cell":TYPE_ARRAY,"grade":TYPE_INT,"condition":TYPE_FLOAT,"failed":TYPE_BOOL,"pending_failure":TYPE_BOOL,"use_receipts":TYPE_DICTIONARY},
 		"rooms":{"id":TYPE_STRING,"kind":TYPE_STRING,"floor_id":TYPE_INT,"origin":TYPE_ARRAY,"size":TYPE_ARRAY},
-		"connectors":{"id":TYPE_STRING,"definition_id":TYPE_STRING,"stops":TYPE_ARRAY,"anchor":TYPE_ARRAY,"cell":TYPE_ARRAY,"footprint":TYPE_ARRAY,"floor_id":TYPE_INT,"phase":TYPE_STRING,"riders":TYPE_ARRAY,"remaining_ticks":TYPE_INT},
+		"connectors":{"id":TYPE_STRING,"definition_id":TYPE_STRING,"anchor":TYPE_ARRAY,"cell":TYPE_ARRAY,"footprint":TYPE_ARRAY,"floor_id":TYPE_INT,"phase":TYPE_STRING,"riders":TYPE_ARRAY,"remaining_ticks":TYPE_INT},
 		"moves":{"actor_id":TYPE_STRING,"path":TYPE_ARRAY,"cursor":TYPE_INT,"travelled":TYPE_ARRAY,"blocked_since":TYPE_INT,"yielding":TYPE_BOOL,"target_floor":TYPE_INT,"target_cell":TYPE_ARRAY},
 		"adaptations":{"kind":TYPE_STRING,"owner_id":TYPE_STRING,"actor_id":TYPE_STRING,"staff_ids":TYPE_ARRAY,"floor_id":TYPE_INT,"regions":TYPE_ARRAY}}
 	for collection: String in schemas:
@@ -620,11 +656,14 @@ func _validate_shapes() -> String:
 		if not _grid_point(room.origin) or not _extent(room.size) or not facts.floors.overrides.has(str(int(room.floor_id))):
 			return "房间实际坐标、范围或楼层无效"
 	for connector: Dictionary in facts.connectors.values():
+		if connector.has("first_floor"):
+			if not _natural(connector.first_floor) or not _natural(connector.get("last_floor")) or int(connector.first_floor)<1 or int(connector.last_floor)<int(connector.first_floor): return "竖向连接连续区间无效"
+		elif not connector.get("stops") is Array: return "竖向连接站点结构无效"
 		if not _grid_point(connector.anchor) or not _grid_point(connector.cell) or not _extent(connector.footprint) or not _natural(connector.remaining_ticks) or not connector.phase in ["idle","empty_riding","boarding","riding","alighting"]:
 			return "竖向连接状态或锚点无效"
 		if not connector.phase=="idle" and (not _natural(connector.get("from",-1)) or not _natural(connector.get("to",-1)) or not HospitalTransit.has_stop(connector,int(connector.from)) or not HospitalTransit.has_stop(connector,int(connector.to))):
 			return "竖向连接起止楼层不在真实停靠点中"
-		if connector.stops.is_empty() or not HospitalTransit.has_stop(connector,int(connector.floor_id)) or (connector.phase in ["idle","empty_riding"] and not connector.riders.is_empty()):
+		if HospitalTransit.endpoints(connector).is_empty() or not HospitalTransit.has_stop(connector,int(connector.floor_id)) or (connector.phase in ["idle","empty_riding"] and not connector.riders.is_empty()):
 			return "竖向连接停靠点或实际乘员无效"
 		if connector.phase in ["boarding","riding","alighting"] and connector.riders.is_empty():
 			return "载客阶段缺少真实通行组"
@@ -638,8 +677,8 @@ func _validate_shapes() -> String:
 		for field: String in ["failed","pending_failure"]:
 			if connector.has(field) and not connector[field] is bool:
 				return "交通运行模式无效"
-		for stop: Variant in connector.stops:
-			if not _natural(stop) or not facts.floors.overrides.has(str(int(stop))):
+		for stop: Variant in HospitalTransit.endpoints(connector):
+			if not _natural(stop) or HospitalSpace.floor_plots(self,int(stop)).is_empty():
 				return "竖向连接停靠点没有实际楼层"
 	var request_sequences: Dictionary = {}
 	var transit_sequences: Dictionary = {}

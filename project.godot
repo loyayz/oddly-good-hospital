@@ -3,7 +3,7 @@ config_version=5
 
 [application]
 config/name="怪好的医院"
-config/version="0.24.0-stage24"
+config/version="0.28.0-stage28"
 run/main_scene="res://game/app/main.tscn"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="oddly-good-hospital"

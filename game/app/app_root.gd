@@ -40,6 +40,12 @@ var _management_panels: VBoxContainer
 var _build_panel: HospitalBuildPanel
 var _build_overlay: HospitalBuildOverlay
 var _build_drag_start: Array = []
+var _expansion_panel: HospitalExpansionPanel
+var _remodel_panel: HospitalRemodelPanel
+var _draft_confirmation: ConfirmationDialog
+var _draft_leave: Callable
+var _draft_leave_confirmed: bool = false
+var _draft_commands: Dictionary = {}
 
 func _ready() -> void:
 	get_tree().auto_accept_quit = false
@@ -206,6 +212,23 @@ func _build_ui() -> void:
 	ward_panel.locate_requested.connect(_locate_entity)
 	_add_management_panel("ward","住院与探视",ward_panel)
 	_add_management_panel("training","医护培养",HospitalTrainingPanel.new())
+	var research_panel: HospitalResearchPanel = HospitalResearchPanel.new()
+	research_panel.page_requested.connect(_show_panel)
+	_add_management_panel("research","研究与资料柜",research_panel)
+	_expansion_panel = HospitalExpansionPanel.new()
+	_expansion_panel.floor_requested.connect(_change_floor)
+	_expansion_panel.location_requested.connect(_locate_cell)
+	_expansion_panel.draft_changed.connect(func(draft: Dictionary) -> void:
+		if draft.is_empty(): _drafts.erase("expansion")
+		else: _drafts.expansion = draft.duplicate(true))
+	_add_management_panel("expansion","土地与楼层交通",_expansion_panel)
+	_remodel_panel = HospitalRemodelPanel.new()
+	_remodel_panel.preview_changed.connect(_show_layout_preview)
+	_remodel_panel.page_requested.connect(_show_panel)
+	_remodel_panel.draft_changed.connect(func(draft: Dictionary) -> void:
+		if draft.is_empty(): _drafts.erase("remodel")
+		else: _drafts.remodel = draft.duplicate(true))
+	_add_management_panel("remodel","改建与蓝图",_remodel_panel)
 	_add_management_panel("schedule","排班与休假",HospitalSchedulePanel.new())
 	_add_management_panel("staff_life","员工需求",HospitalStaffLifePanel.new())
 	_add_management_panel("waiting","候诊生活",HospitalWaitingPanel.new())
@@ -294,7 +317,7 @@ func _gameplay_world(source: WorldState) -> WorldState:
 func _activate(world: WorldState, restored: bool = false) -> bool:
 	world = _gameplay_world(world)
 	var session_id: String = HospitalSnapshots.uuid()
-	if not world.facts.floors.overrides.has(str(_observed_floor)):
+	if HospitalSpace.floor_plots(world,_observed_floor).is_empty():
 		_observed_floor = 1
 	var prepared: HospitalView = HospitalView.new(_content)
 	_viewport.add_child(prepared)
@@ -378,8 +401,27 @@ func _submit_business(kind: String, payload: Dictionary) -> void:
 	var command: GameCommand = GameCommand.new(command_id,_simulation.world.hospital_id,_simulation.world.revision,kind,BusinessPayload.new(payload),_session.loading_session_id)
 	var result: CommandResult = _session.submit(command)
 	_status.text = ("操作已完成。" if result.code!="queued" else result.reason) if result.accepted else result.reason
+	if kind in HospitalRemodel.KINDS or kind=="blueprint_place" or kind in BuildService.KINDS or kind=="floor_purchase" or kind in HospitalConnectors.KINDS:
+		if result.accepted and result.code!="queued": _clear_confirmed_draft(kind)
+		elif result.accepted: _draft_commands[command_id] = kind
+
+func _clear_confirmed_draft(kind: String) -> void:
+	if kind in BuildService.KINDS:
+		_drafts.erase("building")
+		_build_panel.cancel_draft()
+	elif kind in ["remodel_prepare","remodel_apply","blueprint_place"]:
+		_drafts.erase("remodel")
+		_remodel_panel.clear_draft()
+	elif kind=="floor_purchase" or kind in HospitalConnectors.KINDS:
+		_drafts.erase("expansion")
+		_expansion_panel.clear_draft()
 
 func _show_build_preview(draft: Dictionary, result: Dictionary) -> void:
+	if draft.is_empty(): _drafts.erase("building")
+	elif _build_panel.is_visible_in_tree(): _drafts.building = draft.duplicate(true)
+	_show_layout_preview(draft,result)
+
+func _show_layout_preview(draft: Dictionary, result: Dictionary) -> void:
 	if _view==null:
 		return
 	if not is_instance_valid(_build_overlay) or _build_overlay.get_parent()!=_view:
@@ -514,6 +556,11 @@ func _process(_delta: float) -> void:
 			_receipt(receipt)
 	if _simulation == null:
 		return
+	for id: String in _draft_commands.keys():
+		var applied: Dictionary = _simulation.receipt(id)
+		if not applied.is_empty():
+			if applied.accepted: _clear_confirmed_draft(str(_draft_commands[id]))
+			_draft_commands.erase(id)
 	for result: TickResult in _session.advance(real_delta):
 		for event: SimEvent in result.facts:
 			if event.kind=="command_rejected":
@@ -559,6 +606,7 @@ func _switch_hospital() -> void:
 	_start_switch(target)
 
 func _start_switch(target: String, snapshot_id: String = "", new_world: WorldState = null) -> void:
+	if _confirm_draft_leave(func() -> void: _start_switch(target,snapshot_id,new_world)): return
 	if _snapshots.busy() or _library_thread!=null or not _leave_operation.is_empty():
 		_status.text = "已有资料作业正在进行，请等待完成。"
 		return
@@ -653,7 +701,7 @@ func _prepare_switch_candidate() -> void:
 	var candidate_session_id: String = HospitalSnapshots.uuid()
 	_viewport.add_child(candidate_view)
 	candidate_view.visible = false
-	var target_floor: int = _observed_floor if _candidate.facts.floors.overrides.has(str(_observed_floor)) else 1
+	var target_floor: int = _observed_floor if not HospitalSpace.floor_plots(_candidate,_observed_floor).is_empty() else 1
 	candidate_view.bind(_candidate,target_floor,candidate_session_id)
 	if not candidate_view.bind_error.is_empty():
 		_status.text = "切院失败，原医院保留："+candidate_view.bind_error
@@ -685,6 +733,7 @@ func _prepare_switch_candidate() -> void:
 	_status.text = "已进入另一座医院，医院保持暂停。"
 
 func _request_quit() -> void:
+	if _confirm_draft_leave(_request_quit): return
 	if _library_thread!=null:
 		_status.text = "医院备份作业正在进行，完成后可以退出。"
 		return
@@ -707,7 +756,7 @@ func _request_quit() -> void:
 
 func _change_floor(floor_id: int) -> void:
 	if _view != null:
-		if not _simulation.world.facts.floors.overrides.has(str(floor_id)):
+		if HospitalSpace.floor_plots(_simulation.world,floor_id).is_empty():
 			_status.text = "这一层还没有可用楼板。"
 			return
 		_observed_floor = floor_id
@@ -716,6 +765,28 @@ func _change_floor(floor_id: int) -> void:
 		var environment_panel: HospitalEnvironmentPanel = _management_panels.get_node("environment")
 		environment_panel.floor_id = floor_id
 		environment_panel.rebuild()
+
+func _confirm_draft_leave(continuation: Callable) -> bool:
+	if _draft_leave_confirmed:
+		_draft_leave_confirmed = false
+		return false
+	if _simulation==null or _drafts.is_empty(): return false
+	_draft_leave = continuation
+	if _draft_confirmation==null:
+		_draft_confirmation = ConfirmationDialog.new()
+		_draft_confirmation.title = "保留已确认的医院进展"
+		_draft_confirmation.dialog_text = "当前有未确认的建造或改建草案。离开时保存已确认进展，并在成功离开后舍弃草案；保存失败会保留当前医院和草案。"
+		_draft_confirmation.ok_button_text = "保存已确认进展并舍弃草案"
+		_draft_confirmation.cancel_button_text = "返回编辑"
+		add_child(_draft_confirmation)
+		_draft_confirmation.confirmed.connect(func() -> void:
+			_draft_leave_confirmed = true
+			var next: Callable = _draft_leave
+			_draft_leave = Callable()
+			if next.is_valid(): next.call())
+		_draft_confirmation.canceled.connect(func() -> void: _draft_leave = Callable())
+	_draft_confirmation.popup_centered(Vector2i(560,210))
+	return true
 
 func _set_ui_scale(scale: int) -> void:
 	_ui_scale = scale

@@ -463,9 +463,9 @@ func _allowed_region(staff: Dictionary, floor_id: int, cell: Array) -> bool:
 		return true
 	return int(zone.get("floor_id",floor_id))==floor_id and Rect2(float(zone.origin[0]),float(zone.origin[1]),float(zone.size[0]),float(zone.size[1])).has_point(Vector2(float(cell[0]),float(cell[1])))
 
-func _work_amount(world: WorldState, staff_id: String) -> int:
+func _work_amount(world: WorldState, staff_id: String, action: String = "") -> int:
 	if recruitment!=null and recruitment.has_method("work_rate"):
-		var action: String = "cleanup" if world.facts.staff[staff_id].role=="cleaner" else "surface_unit"
+		if action.is_empty(): action = "cleanup" if world.facts.staff[staff_id].role=="cleaner" else "surface_unit"
 		return roundi(100.0*float(recruitment.call("work_rate",world,staff_id,action)))
 	var skill: int = int(world.facts.staff[staff_id].get("skill",world.facts.staff[staff_id].get("level",1)))
 	return roundi(100.0*(1.0+float(content.balance.staff_practice.speed_per_extra_level)*maxi(0,skill-1)))

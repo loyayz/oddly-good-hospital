@@ -53,7 +53,7 @@ func dependencies(world: WorldState) -> String:
 				floors.append(int(floor_key))
 	var values: Dictionary = {"hospital_id":world.hospital_id,"content":service.content.content_fingerprint,"floors":{},"rooms":{},"facilities":{},"actors":{},"adaptations":{},"connectors":{},"moves":{},"dirt":{},"target":service._target_basis(world,kind,draft),"busy":service._busy(world,target_id),"target_used":service._used(original),"upgrade_paid":original.get("completed_upgrade_paid_cost",0)}
 	for floor_id: int in floors:
-		var layout: Dictionary = world.facts.floors.overrides.get(str(floor_id),{})
+		var layout: Dictionary = HospitalSpace.floor_layout(world,floor_id)
 		values.floors[str(floor_id)] = {"plots":layout.get("plots",[]),"blocked":layout.get("blocked",[]),"doors":[]}
 		for door: Dictionary in layout.get("doors",[]):
 			values.floors[str(floor_id)].doors.append(_fields(door,["id","definition_id","cell","span","axis","room_id"]))
@@ -75,7 +75,7 @@ func dependencies(world: WorldState) -> String:
 			values.adaptations[key] = world.facts.adaptations[key]
 	for connector: Dictionary in world.facts.connectors.values():
 		for floor_id: int in floors:
-			if floor_id in connector.get("stops",[]):
+			if HospitalTransit.has_stop(connector,floor_id):
 				values.connectors[connector.id] = connector
 	for patch: Dictionary in world.facts.get("environment",{}).get("dirt",{}).values():
 		if int(patch.get("floor_id",1)) in floors:

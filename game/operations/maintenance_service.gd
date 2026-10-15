@@ -68,11 +68,6 @@ func boundaries(world: WorldState) -> void:
 		if day>int(item.last_wear_day):
 			item.condition = maxf(0.0,float(item.condition)-float(category.wear_per_day)*(day-int(item.last_wear_day)))
 			item.last_wear_day = day
-		if world.facts.connectors.has(id):
-			var phase: String = str(item.phase)
-			if phase in ["riding","empty_riding"] and item.get("maintenance_last_phase","")!=phase:
-				item.condition = maxf(0.0,float(item.condition)-float(category.wear_per_use))
-			item.maintenance_last_phase = phase
 		if item.pending_failure and _safe_free(world,id):
 			item.failed = true
 			item.pending_failure = false
@@ -297,6 +292,10 @@ func dispatch(world: WorldState) -> void:
 	var equipment: Dictionary = _equipment(world)
 	var candidates: Array = []
 	for job: Dictionary in world.facts.maintenance.jobs.values():
+		if HospitalRemodel.blocked(world,str(job.facility_id)) and _safe_free(world,str(job.facility_id)):
+			_release(world,job)
+			job.reason = "等待改建后原工单接续"
+			continue
 		if job.phase in ["completed","cancelled","inventory"] or job.paused or not equipment.has(job.facility_id) or world.sim_tick<int(job.get("resume_not_before_tick",0)):
 			continue
 		if not str(job.worker_id).is_empty():
@@ -306,6 +305,10 @@ func dispatch(world: WorldState) -> void:
 				continue
 		candidates.append({"job":job,"priority":_priority(world,job),"upgrade":false})
 	for order: Dictionary in world.facts.maintenance.upgrades.values():
+		if HospitalRemodel.blocked(world,str(order.facility_id)):
+			_release(world,order)
+			order.reason = "等待改建后原升级接续"
+			continue
 		if order.phase in ["completed","cancelled","inventory"] or order.paused or not equipment.has(order.facility_id) or world.sim_tick<int(order.get("resume_not_before_tick",0)):
 			continue
 		if not str(order.worker_id).is_empty():
@@ -462,6 +465,8 @@ func _safe_free(world: WorldState, id: String) -> bool:
 		return false
 	if world.facts.connectors.has(id):
 		return world.facts.connectors[id].phase=="idle" and world.facts.connectors[id].riders.is_empty()
+	if world.facts.facilities.get(id,{}).get("definition_id","")=="FUR05" and HospitalClinicalDevelopment.desk_taken(world,id):
+		return false
 	for session: Dictionary in world.facts.sessions.values():
 		if session.facility_id==id:
 			return false
@@ -486,8 +491,8 @@ func _position(world: WorldState, item: Dictionary, staff_id: String) -> Diction
 	var target: Array = []
 	if world.facts.connectors.has(item.id):
 		var definition: Dictionary = content.definition("vertical_connectors",item.definition_id)
-		floor_id = int(item.stops.min())
-		target = [int(item.cell[0])+int(definition.repair_anchor[0]),int(item.cell[1])+int(definition.repair_anchor[1])]
+		floor_id = int(HospitalTransit.endpoints(item).min())
+		target = item.get("repair_cell",[int(item.cell[0])+int(definition.repair_anchor[0]),int(item.cell[1])+int(definition.repair_anchor[1])])
 	else:
 		target = space.facility_layout(world,str(item.id)).get("repair_cell",[])
 	if target.is_empty():

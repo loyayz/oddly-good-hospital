@@ -223,7 +223,7 @@ func dirty_regions(previous: RouteClearance) -> Array[Rect2i]:
 	return result
 
 static func capture_source(space: HospitalSpace, world: WorldState, floor_id: int) -> Dictionary:
-	var layout: Dictionary = world.facts.floors.overrides.get(str(floor_id),{})
+	var layout: Dictionary = HospitalSpace.floor_layout(world,floor_id)
 	var source_layout: Dictionary = {"plots":layout.get("plots",[]).duplicate(true),"blocked":layout.get("blocked",[]).duplicate(true),"doors":[]}
 	for door: Dictionary in layout.get("doors",[]):
 		var shape: Dictionary = {}
@@ -249,6 +249,8 @@ static func capture_source(space: HospitalSpace, world: WorldState, floor_id: in
 	for interval: Dictionary in world.facts.floors.height_intervals:
 		if floor_id>=int(interval.first) and floor_id<=int(interval.last):
 			result.height = interval.height_m
+	if world.facts.floors.has("completed_top_floor") and not layout.plots.is_empty():
+		result.height = float(space.content.balance.floors.clear_height_m)
 	for id: String in world.ids("adaptations"):
 		var reservation: Dictionary = world.facts.adaptations[id]
 		if reservation.kind=="facility" and int(reservation.floor_id)==floor_id:

@@ -917,13 +917,7 @@ func _choose_case(world: WorldState, candidates: Array) -> Dictionary:
 	return candidate
 
 func _disease_weight(world: WorldState, disease_id: String) -> int:
-	var unlocked: bool = disease_id in content.catalog.get("initial_disease_ids",[])
-	if not unlocked:
-		for research_id: String in world.facts.research:
-			if disease_id in content.definition("research",research_id).get("disease_ids",[]):
-				unlocked = true
-				break
-	if not unlocked:
+	if not HospitalResearch.disease_unlocked(world,content,disease_id):
 		return 0
 	return int(world.facts.get("arrivals",{}).get("disease_weights",{}).get(disease_id,1))
 

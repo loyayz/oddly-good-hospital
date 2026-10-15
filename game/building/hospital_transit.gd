@@ -57,8 +57,7 @@ static func route(space: HospitalSpace, world: WorldState, actor: Dictionary, so
 			var at_landing: int = _add(int(item.tick),walking_ticks(space,actor,members,float(before.walking_distance)))
 			if at_landing<0:
 				continue
-			var stops: Array = connection.stops.duplicate()
-			stops.sort()
+			var stops: Array = routing_stops(connection,world,source_floor,target_floor)
 			for destination: int in stops:
 				if destination==int(node.floor_id):
 					continue
@@ -82,10 +81,29 @@ static func walking_ticks(space: HospitalSpace, actor: Dictionary, members: Arra
 	return ceili(distance/float(space.content.balance.movement_speeds[size])/WorldState.TICK_SECONDS)
 
 static func has_stop(connection: Dictionary, floor_id: int) -> bool:
-	for stop: Variant in connection.stops:
+	if connection.has("first_floor"):
+		return floor_id>=int(connection.first_floor) and floor_id<=int(connection.last_floor)
+	for stop: Variant in connection.get("stops",[]):
 		if (stop is int or stop is float) and float(stop)==float(floor_id):
 			return true
 	return false
+
+static func endpoints(connection: Dictionary) -> Array:
+	if connection.has("first_floor"):
+		return [int(connection.first_floor),int(connection.last_floor)]
+	return connection.get("stops",[])
+
+static func routing_stops(connection: Dictionary, world: WorldState, source: int, target: int) -> Array:
+	if not connection.has("first_floor"): return connection.stops.duplicate()
+	var candidates: Dictionary = {source:true,target:true,int(connection.first_floor):true,int(connection.last_floor):true}
+	for key: String in world.facts.floors.overrides: candidates[int(key)] = true
+	for other: Dictionary in world.facts.connectors.values():
+		for floor_id: int in endpoints(other): candidates[floor_id] = true
+	var result: Array = []
+	for floor_id: int in candidates:
+		if has_stop(connection,floor_id): result.append(floor_id)
+	result.sort()
+	return result
 
 static func fits(space: HospitalSpace, world: WorldState, connection: Dictionary, primary_id: String, members: Array) -> Dictionary:
 	var definition: Dictionary = space.content.definition("vertical_connectors",connection.definition_id)
@@ -235,6 +253,7 @@ static func begin(space: HospitalSpace, world: WorldState, actor: Dictionary, mo
 	connection.to = segment.to
 	connection.remaining_ticks = _boarding(definition)
 	connection.trip_travel_ticks = travel
+	connection.trip_sequence = movement.transit_ticket.sequence
 	if int(connection.remaining_ticks)==0:
 		connection.phase = "riding"
 		connection.remaining_ticks = connection.trip_travel_ticks
@@ -296,11 +315,21 @@ static func _alight(space: HospitalSpace, world: WorldState, connection: Diction
 		world.facts.actors[actor_id].location = {"kind":"floor","floor_id":connection.to,"cell":[float(connection.anchor[0])+float(offset[0]),float(connection.anchor[1])+float(offset[1])]}
 		space._sync_actor(world,actor_id)
 	connection.floor_id = connection.to
+	connection.used = true
+	var definition: Dictionary = space.content.definition("vertical_connectors",connection.definition_id)
+	if definition.kind=="lift":
+		var receipt: String = "transit:"+str(connection.get("trip_sequence",connection.get("ticket_next",0)))
+		if not connection.get("use_receipts",{}).has(receipt):
+			if not connection.has("use_receipts"): connection.use_receipts = {}
+			connection.use_receipts[receipt] = world.sim_tick
+			for category: Dictionary in space.content.balance.equipment.classes:
+				if category.id==definition.equipment_class: connection.condition = maxf(0.0,float(connection.get("condition",100.0))-float(category.wear_per_use))
 	movement.travelled.append(space._checkpoint(world.facts.actors[primary]))
 	connection.phase = "idle"
 	connection.riders = []
 	connection.erase("trip_travel_ticks")
 	connection.erase("primary_actor_id")
+	connection.erase("trip_sequence")
 	_finish_failure(connection)
 
 static func _stand_aside(space: HospitalSpace, world: WorldState, connection: Dictionary, actor: Dictionary, movement: Dictionary, members: Array, offsets: Dictionary) -> void:

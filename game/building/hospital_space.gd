@@ -57,13 +57,33 @@ func clearance(actor: Dictionary) -> int:
 	return ceili(maxf(float(dimensions.width_m), float(dimensions.depth_m)) / CELL_METERS)
 
 func owned(world: WorldState, floor_id: int, cell: Vector2i) -> bool:
-	var layout: Dictionary = world.facts.floors.overrides.get(str(floor_id), {})
-	if layout.is_empty():
+	if floor_id<1 or cell.x<0 or cell.y<0 or cell.x>=96 or cell.y>=96:
 		return false
-	for plot: Array in layout.plots:
+	for plot: Array in floor_plots(world,floor_id):
 		if cell.x >= int(plot[0]) * 32 and cell.x < (int(plot[0]) + 1) * 32 and cell.y >= int(plot[1]) * 32 and cell.y < (int(plot[1]) + 1) * 32:
 			return true
 	return false
+
+static func plot_key(plot: Array) -> String:
+	return "%d:%d" % [int(plot[0]),int(plot[1])]
+
+static func floor_plots(world: WorldState, floor_id: int) -> Array:
+	if not world.facts.floors.has("completed_top_floor"):
+		return world.facts.floors.overrides.get(str(floor_id),{}).get("plots",[])
+	var result: Array = []
+	for plot: Array in world.facts.floors.overrides["1"].plots:
+		if floor_id>=1 and floor_id<=int(world.facts.floors.completed_top_floor.get(plot_key(plot),1)):
+			result.append(plot)
+	return result
+
+static func floor_layout(world: WorldState, floor_id: int) -> Dictionary:
+	var result: Dictionary = world.facts.floors.overrides.get(str(floor_id),{}).duplicate()
+	result.plots = floor_plots(world,floor_id)
+	return result
+
+static func materialize_layout(world: WorldState, floor_id: int) -> void:
+	if not world.facts.floors.overrides.has(str(floor_id)):
+		world.facts.floors.overrides[str(floor_id)] = {"doors":[],"blocked":[],"paths":[]}
 
 func static_reason(world: WorldState, actor: Dictionary, floor_id: int, origin: Vector2i, members: Array = [], offsets: Dictionary = {}) -> String:
 	return RouteClearance.new(self,world,actor,floor_id,members,offsets,true,_navigation.floor_source(self,world,floor_id)).reason(origin)
@@ -326,7 +346,7 @@ func _active_route_clear(world: WorldState, actor: Dictionary, movement: Diction
 		var connection: Dictionary = world.facts.connectors.get(id,{})
 		if connection.is_empty():
 			return false
-		stamp.append([connection.definition_id,connection.stops,connection.anchor,connection.get("failed",false),connection.get("pending_failure",false)])
+		stamp.append([connection.definition_id,HospitalTransit.endpoints(connection),connection.anchor,connection.get("failed",false),connection.get("pending_failure",false)])
 	if record.stamp==stamp:
 		return true
 	var floor_id: int = int(actor.location.floor_id)
@@ -610,7 +630,7 @@ func facility_quote(world: WorldState, facility_id: String, actor_id: String, st
 		var rect: Rect2 = Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3]))
 		for cx: int in range(int(area[0]),int(area[0])+int(area[2])):
 			for cy: int in range(int(area[1]),int(area[1])+int(area[3])):
-				if not owned(world,int(facility.floor_id),Vector2i(cx,cy)) or [cx,cy] in world.facts.floors.overrides[str(facility.floor_id)].blocked:
+				if not owned(world,int(facility.floor_id),Vector2i(cx,cy)) or [cx,cy] in world.facts.floors.overrides.get(str(facility.floor_id),{}).get("blocked",[]):
 					return {"ok":false,"reason":"展开或退出区域受墙、地块阻挡：%d,%d" % [cx,cy]}
 		if not room.is_empty() and not room_contains(room,rect):
 			return {"ok":false,"reason":"展开、岗位或出口超出本房间"}
@@ -706,7 +726,7 @@ func door_quote(world: WorldState, actor: Dictionary, floor_id: int, door: Dicti
 	var definition: Dictionary = content.definition("doors",door.definition_id)
 	var span: int = maxi(int(door.span),ceili((maxf(float(dimensions.width_m),float(dimensions.depth_m))+0.1)/CELL_METERS))
 	var height: float = maxf(float(definition.clear_height_m),float(dimensions.height_m)+0.1)
-	var ceiling: float = 0.0
+	var ceiling: float = float(content.balance.floors.clear_height_m) if world.facts.floors.has("completed_top_floor") and not floor_plots(world,floor_id).is_empty() else 0.0
 	for interval: Dictionary in world.facts.floors.height_intervals:
 		if floor_id>=int(interval.first) and floor_id<=int(interval.last):
 			ceiling = float(interval.height_m)

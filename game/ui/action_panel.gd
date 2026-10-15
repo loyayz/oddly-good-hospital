@@ -90,6 +90,19 @@ func action(text: String, callback: Callable, enabled: bool = true) -> Button:
 func selected(picker: OptionButton) -> String:
 	return str(picker.get_item_metadata(picker.selected)) if picker.item_count>0 else ""
 
+func refresh_choices(picker: OptionButton, entries: Array) -> void:
+	var previous: String = selected(picker)
+	var signature: Array = []
+	for index: int in picker.item_count: signature.append([str(picker.get_item_metadata(index)),picker.get_item_text(index)])
+	var next: Array = []
+	for entry: Dictionary in entries: next.append([str(entry.id),str(entry.get("name",entry.id))])
+	if signature==next: return
+	picker.clear()
+	for entry: Array in next:
+		picker.add_item(entry[1])
+		picker.set_item_metadata(picker.item_count-1,entry[0])
+		if entry[0]==previous: picker.select(picker.item_count-1)
+
 func send(kind: String, payload: Dictionary = {}) -> void:
 	command_requested.emit(kind,payload.duplicate(true))
 

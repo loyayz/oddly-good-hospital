@@ -246,6 +246,7 @@ func _seat_quote(world: WorldState, visit: Dictionary, facility_id: String) -> D
 	return quote
 
 func _facility_quote(world: WorldState, visit: Dictionary, facility_id: String) -> Dictionary:
+	if HospitalRemodel.blocked(world,facility_id): return {"ok":false,"reason":"设施正在准备安全改建"}
 	if _occupied(world,facility_id,visit.actor_id): return {"ok":false,"reason":"已有实际使用者或预约"}
 	var quote: Dictionary = space.facility_quote(world,facility_id,visit.actor_id)
 	if not quote.ok: return quote

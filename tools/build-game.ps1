@@ -9,7 +9,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $project = [IO.Path]::GetFullPath($ProjectPath)
 $productOutput = if ([string]::IsNullOrWhiteSpace($Output)) {
-    Join-Path $project '.build/stage24/product'
+    Join-Path $project '.build/stage28/product'
 } else {
     [IO.Path]::GetFullPath($Output)
 }
