@@ -32,6 +32,7 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 	_register_service("maintenance",HospitalMaintenance.new(database,space),["maintenance_policy","maintenance_order","maintenance_pin","maintenance_pause","maintenance_resume","maintenance_cancel","machine_upgrade","upgrade_order","upgrade_pause","upgrade_resume","upgrade_cancel","upgrade_abandon"])
 	_register_service("departments",HospitalDepartments.new(database,space),["department_create","department_configure","department_rename","department_set_open","department_set_focus"])
 	_register_service("finance",FinanceService.new(database,space),["finance_note","finance_rescue","finance_return_rescue"])
+	_register_service("recruitment",RecruitmentService.new(database,space),["recruitment_search","recruitment_cancel_search","recruitment_hire","recruitment_bookmark","recruitment_dismiss"])
 	if _production():
 		clinic.scheduler = services.scheduler
 		clinic.waiting_life = services.waiting
@@ -47,6 +48,9 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 		services.finance.maintenance = services.maintenance
 		services.supplies.finance = services.finance
 		services.maintenance.finance = services.finance
+		clinic.recruitment = services.recruitment
+		services.environment.recruitment = services.recruitment
+		services.maintenance.recruitment = services.recruitment
 	_ensure_services()
 
 func _ensure_services() -> void:
@@ -89,6 +93,12 @@ func dispose() -> void:
 		services.supplies.finance = null
 	if services.has("maintenance"):
 		services.maintenance.finance = null
+	if clinic!=null:
+		clinic.recruitment = null
+	if services.has("environment"):
+		services.environment.recruitment = null
+	if services.has("maintenance"):
+		services.maintenance.recruitment = null
 	_business_handlers.clear()
 	services.clear()
 
@@ -179,6 +189,7 @@ func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickRe
 		services.scheduler.boundaries(world)
 		services.wellbeing.boundaries(world)
 		services.maintenance.boundaries(world)
+		services.recruitment.boundaries(world)
 	if _production(): # 3: real arrivals and family requests.
 		clinic.arrivals(world)
 	if _production(): # 4: dispatch against current occupancy.
@@ -205,6 +216,7 @@ func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickRe
 		services.environment.advance(world)
 		services.maintenance.advance(world)
 		services.departments.advance(world)
+		services.recruitment.advance(world)
 	if _production(): # 7: integrate each real work/movement source once.
 		var worked: Dictionary = clinic.worked_staff()
 		worked.merge(services.development.worked_staff(),true)
@@ -225,6 +237,7 @@ func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickRe
 		services.development.settle(world)
 		services.departments.settle(world)
 		services.finance.settle(world)
+		services.recruitment.settle(world)
 	var events: Array[SimEvent] = _command_events
 	_command_events = []
 	events.append_array(clinic.take_events())
