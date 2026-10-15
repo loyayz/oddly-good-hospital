@@ -130,6 +130,9 @@ func _build_ui() -> void:
 	_button("1F",_change_floor.bind(1))
 	_button("2F",_change_floor.bind(2))
 	_button("跟随选中",_follow_selected)
+	_button("全层概览",func() -> void:
+		if _view!=null:
+			_view.overview())
 	_button("前往1F",_move_selected.bind(1))
 	_button("前往2F",_move_selected.bind(2))
 	_button("界面100%",_set_ui_scale.bind(1))
@@ -227,10 +230,11 @@ func _acquire() -> void:
 	_status.text = "医院资料需要恢复：\n"+"\n".join(unavailable)
 
 func _activate(world: WorldState, restored: bool = false) -> bool:
+	var session_id: String = HospitalSnapshots.uuid()
 	var prepared: HospitalView = HospitalView.new(_content)
 	_viewport.add_child(prepared)
 	prepared.visible = false
-	prepared.bind(world,_observed_floor)
+	prepared.bind(world,_observed_floor,session_id)
 	if not prepared.bind_error.is_empty():
 		_status.text = prepared.bind_error
 		_viewport.remove_child(prepared)
@@ -242,7 +246,7 @@ func _activate(world: WorldState, restored: bool = false) -> bool:
 	_view = prepared
 	_view.visible = true
 	_simulation = HospitalSimulation.new(world,_content)
-	_session = GameSession.new(_simulation,HospitalSnapshots.uuid())
+	_session = GameSession.new(_simulation,session_id)
 	_last_process_us = Time.get_ticks_usec()
 	if not DisplayServer.window_is_focused():
 		_session.pause("focus")
@@ -358,7 +362,7 @@ func _process(_delta: float) -> void:
 		for event: SimEvent in result.facts:
 			if event.kind=="command_rejected":
 				_status.text = str(event.details.result.reason)
-	_view.update_facts()
+	_view.update_facts(_session.interpolation_alpha())
 	if Time.get_ticks_msec()>=_details_deadline_ms:
 		_details_deadline_ms = Time.get_ticks_msec()+100
 		_update_details()
@@ -476,10 +480,11 @@ func _receipt(receipt: Dictionary) -> void:
 		return
 	# Candidate resources are prepared before the main-thread publication boundary.
 	var candidate_view: HospitalView = HospitalView.new(_content)
+	var candidate_session_id: String = HospitalSnapshots.uuid()
 	_viewport.add_child(candidate_view)
 	candidate_view.visible = false
 	var target_floor: int = _observed_floor if _candidate.facts.floors.overrides.has(str(_observed_floor)) else 1
-	candidate_view.bind(_candidate,target_floor)
+	candidate_view.bind(_candidate,target_floor,candidate_session_id)
 	if not candidate_view.bind_error.is_empty():
 		_status.text = "切院失败，原医院保留："+candidate_view.bind_error
 		_viewport.remove_child(candidate_view)
@@ -493,7 +498,7 @@ func _receipt(receipt: Dictionary) -> void:
 	_view.visible = true
 	_observed_floor = target_floor
 	_simulation = HospitalSimulation.new(_candidate,_content)
-	_session = GameSession.new(_simulation,HospitalSnapshots.uuid())
+	_session = GameSession.new(_simulation,candidate_session_id)
 	_last_process_us = Time.get_ticks_usec()
 	if not DisplayServer.window_is_focused():
 		_session.pause("focus")
@@ -528,8 +533,11 @@ func _request_quit() -> void:
 
 func _change_floor(floor_id: int) -> void:
 	if _view != null:
+		if not _simulation.world.facts.floors.overrides.has(str(floor_id)):
+			_status.text = "这一层还没有可用楼板。"
+			return
 		_observed_floor = floor_id
-		_view.bind(_simulation.world,floor_id)
+		_view.set_floor(floor_id)
 
 func _set_ui_scale(scale: int) -> void:
 	_ui_scale = scale
@@ -558,11 +566,13 @@ func _move_selected(floor_id: int) -> void:
 	_status.text = "已接收实际通行请求。" if result.accepted else result.reason
 
 func _world_input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion and event.button_mask&MOUSE_BUTTON_MASK_MIDDLE and _view!=null:
+		_view.pan_camera(event.relative)
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT and _view != null:
 		_selected_actor = _view.pick(event.position*Vector2(_viewport.size)/_world_container.size)
 	if event is InputEventMouseButton and event.pressed and _view!=null:
 		if event.button_index in [MOUSE_BUTTON_WHEEL_UP,MOUSE_BUTTON_WHEEL_DOWN]:
-			_view.camera.size = clampf(_view.camera.size+(2.0 if event.button_index==MOUSE_BUTTON_WHEEL_DOWN else -2.0),18.0,90.0)
+			_view.zoom_camera(1.1 if event.button_index==MOUSE_BUTTON_WHEEL_DOWN else 1.0/1.1)
 
 func _update_details() -> void:
 	var world: WorldState = _simulation.world

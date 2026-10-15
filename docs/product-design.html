@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="design-source-sha256" content="adac52e320d79eddd0826a63a86ada7f67bbf3dd7151197cc1a53a891ebc72ea">
+<meta name="design-source-sha256" content="290b0b8294b9f745bb2eda614a51b16d974632d0909607536037d2b6c81642df">
 <title>怪好的医院 · Oddly Good Hospital · 产品设计方案</title>
 <style>
 :root{color-scheme:light;--ink:#293d60;--muted:#53657f;--blue:#3b5f92;--paper:#fffdf7;--line:#d6deeb}
@@ -10710,10 +10710,10 @@ python -X utf8 tools/report-kernel.py --input .cache/validation/stage03/local-ke
 <p><strong>阶段目标：</strong> 能反映真实身体、症状和业务状态的正式表现管线，并完成显示与资源的针对性性能检查。</p>
 <h3 id="implementation--section-35">工作步骤</h3>
 <ul class="contains-task-list">
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>7.1 建立实体到视图的只读绑定。</strong> 实例持实体/部件ID与代次，根位置插值、必要离散状态和选择轮廓读取原事实；切层只切观察场景。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>7.2 完成资产导入合同。</strong> GLB网格、Surface、材质分类、骨序/插槽、姿态、LOD、低动态、包络和共享身份进入资源清单，导入错误可定位到具体资产。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>7.3 完成按需资源与可见部件。</strong> 视锥块、有限预取、共享图集、加载/空闲/退场资源、合批槽位和回退按原合同执行；兼容骨姿态与原管线进行实际等价对照。</li>
-<li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>7.4 完成镜头与拾取基础。</strong> 正交镜头、切墙、缩放/平移、场景比例与原生UI坐标一致；旧医院/旧层/旧实体迟到加载无法绑定新实例。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>7.1 建立实体到视图的只读绑定。</strong> 实例持实体/部件ID与代次，根位置插值、必要离散状态和选择轮廓读取原事实；切层只切观察场景。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>7.2 完成资产导入合同。</strong> GLB网格、Surface、材质分类、骨序/插槽、姿态、LOD、低动态、包络和共享身份进入资源清单，导入错误可定位到具体资产。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>7.3 完成按需资源与可见部件。</strong> 视锥块、有限预取、共享图集、加载/空闲/退场资源、合批槽位和回退按原合同执行；兼容骨姿态与原管线进行实际等价对照。</li>
+<li class="task-list-item"><input disabled="disabled" type="checkbox" checked="checked" /> <strong>7.4 完成镜头与拾取基础。</strong> 正交镜头、切墙、缩放/平移、场景比例与原生UI坐标一致；旧医院/旧层/旧实体迟到加载无法绑定新实例。</li>
 <li class="task-list-item"><input disabled="disabled" type="checkbox" /> <strong>7.5 完成显示与资源的针对性性能检查。</strong> 使用固定Release构建、代表场景和镜头序列，覆盖普通/密集视图、症状/透明/姿态负载、冷/热加载、切层和缓存驱逐；记录显示卡顿、绘制/姿态成本、资源峰值与释放情况，定位问题后以同负载复测。检查范围限于已接入的显示和资源，正式综合性能基准在阶段10建立。</li>
 </ul>
 <h3 id="implementation--section-36">成果与通过条件</h3>
@@ -12107,6 +12107,11 @@ pwsh -NoProfile -File tools/prepare-kernel-benchmark.ps1
 <td>06</td>
 <td>完成</td>
 <td>29项多院、分页取消、槽位、受限ZIP、导入新身份及回收恢复规则通过；资料库界面接入同一写入器。</td>
+</tr>
+<tr>
+<td>07</td>
+<td>功能完成，性能跳过</td>
+<td>20项只读场景、80种身体、动态建造、共享资源、代次及迟到结果规则通过。正式全量资产仍由阶段35收口。</td>
 </tr>
 </tbody>
 </table></div>

@@ -20,6 +20,9 @@ func actual_speed() -> int:
 		return 0
 	return 1 if _watching else requested_speed
 
+func interpolation_alpha() -> float:
+	return 1.0 if actual_speed()==0 else clampf(_accumulator/WorldState.TICK_SECONDS,0.0,1.0)
+
 func set_speed(speed: int) -> void:
 	requested_speed = clampi(speed,0,3)
 	if requested_speed>0:
