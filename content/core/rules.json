@@ -2092,7 +2092,7 @@
     "max_passive": 14,
     "max_targeted_results": 6,
     "passive_days_retained": 2,
-    "passive_per_day": 7,
+    "passive_per_day": 6,
     "preference_weight_multiplier": 2,
     "result_days_retained": 2,
     "rng_stream": "recruitment",
@@ -2104,11 +2104,6 @@
     "targeted_reserve_on_start": true,
     "total_candidate_cap": 24,
     "wage_start": "hire_tick"
-  },
-  "recruitment_aid": {
-    "minimum_count": 1,
-    "pay_hire_shortfall_directly": true,
-    "role": "mechanic"
   },
   "refund_unused": 1,
   "refund_used": 0.8,
@@ -2461,20 +2456,14 @@
       "wage_day": 70
     },
     {
-      "hire": 180,
-      "name": "@zh:core.rules.staff.4.name",
-      "role": "mechanic",
-      "wage_day": 90
-    },
-    {
       "hire": 240,
-      "name": "@zh:core.rules.staff.5.name",
+      "name": "@zh:core.rules.staff.4.name",
       "role": "researcher",
       "wage_day": 120
     },
     {
       "hire": 160,
-      "name": "@zh:core.rules.staff.6.name",
+      "name": "@zh:core.rules.staff.5.name",
       "role": "decorator",
       "wage_day": 80
     }
@@ -2662,7 +2651,6 @@
     "cleaner": 1,
     "decorator": 0,
     "doctor": 3,
-    "mechanic": 1,
     "nurse": 1,
     "receptionist": 1,
     "researcher": 0

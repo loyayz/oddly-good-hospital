@@ -1584,7 +1584,7 @@ func _ward_covering(world: WorldState, stay: Dictionary) -> bool:
 	if location.kind!="floor" or int(location.floor_id)!=int(bed.floor_id) or not inside.has_point(Vector2(float(location.cell[0]),float(location.cell[1]))):
 		return false
 	var layout: Dictionary = space.facility_layout(world,stay.bed_id)
-	return bool(space.route(world,stay.nurse_id,int(bed.floor_id),layout.operator_cells[0],[],{},true).ok)
+	return bool(space.travel_quote(world,stay.nurse_id,int(bed.floor_id),layout.operator_cells[0]).ok)
 
 func _round_candidate(world: WorldState, visit: Dictionary, stay: Dictionary) -> String:
 	var order: Array = [stay.round_doctor_id]
@@ -1699,6 +1699,22 @@ func _staff_busy(world: WorldState, id: String, except_preparation: String = "")
 
 func staff_busy(world: WorldState, id: String) -> bool:
 	return _staff_busy(world,id)
+
+static func equipment_use(world: WorldState, facility_id: String) -> Dictionary:
+	var occupied: bool = false
+	var critical_commitment: bool = false
+	for session: Dictionary in world.facts.sessions.values():
+		if session.facility_id==facility_id:
+			occupied = true
+	for preparation: Dictionary in world.facts.preparations.values():
+		if preparation.facility_id==facility_id or preparation.get("bed_id","")==facility_id:
+			occupied = true
+	for stay: Dictionary in world.facts.ward_stays.values():
+		if stay.bed_id==facility_id:
+			occupied = true
+			if stay.phase in ["reserved","transfer","recovery","round_wait","round"]:
+				critical_commitment = true
+	return {"occupied":occupied,"critical_commitment":critical_commitment}
 
 func _available_supplies(world: WorldState, except_preparation: String = "") -> int:
 	var units: int = int(world.facts.inventory.units)

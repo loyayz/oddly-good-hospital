@@ -115,6 +115,9 @@ const PREREQUISITES: Dictionary = {
 		"ward_round",
 		"ward_settled"
 	],
+	"CLIN-29": [
+		"c_diagnosed"
+	],
 	"CLIN-31": [
 		"ward_entered"
 	],
@@ -267,6 +270,7 @@ func _case_08(t) -> void:
 	# existing same-plan command before constructing an unreserved shortage.
 	var released: CommandResult = _command(short,"clinical_select_plan",{"visit_id":short.visit_id,"plan_id":"P_D09_COMMON"})
 	var unreserved: bool = released.accepted and short.world.facts.preparations.is_empty() and short.sim.services.supplies.reserved(short.world)==0
+	_declare_call_ready(short,[short.visit_id])
 	if unreserved: short.world.facts.inventory.units = 0
 	var original_ticket: String = str(_visit(short).ticket_id)
 	var consults: int = int(short.started.get("consult",0))
@@ -717,7 +721,6 @@ func _case_25(t) -> void:
 func _case_26(t) -> void:
 	var fault: Dictionary = _copy("ward_after_care")
 	fault.world.facts.facilities.erase("clin_ward_1")
-	_all_rest(fault.world,"mechanic")
 	var bed_id: String = str(_stay(fault).bed_id)
 	fault.world.facts.facilities[bed_id].failed = true
 	var remaining: int = int(_stay(fault).remaining_ticks)
@@ -787,21 +790,59 @@ func _case_28(t) -> void:
 	t.check("CLIN-28",restored_all and completed and restored_end.ok and round_copy.world.facts.ledger.entries==previous and _income(round_copy,"ward")==60 and _income(round_copy,"cure")==360 and _units_used(round_copy)==8,{"boundaries":observations,"final_restore":restored_end,"state":_state(round_copy)})
 
 func _case_29(t) -> void:
-	var c: Dictionary = _context(true,true)
+	var timing: RefCounted = ClinicalTiming.new()
+	var clock: int = Time.get_ticks_usec()
+	# Completed C-profile diagnostics are input. This case starts before choosing
+	# the gentle plan and still executes its full work, transfer and recovery.
+	var c: Dictionary = _copy("c_diagnosed")
+	# This gentle-plan hospital needs a ward, not an unrelated operating team.
+	# Keep the real completed diagnostic facts and add the legal nearby ward.
+	_add_layout(c.world,"ward_two_beds","clin_ward",[42,72])
+	_add_worker(c.world,"clin_cover","nurse",[43,79],"work",{"diagnosis":1,"treatment":0,"care":1,"surgery":0})
+	c.world.facts.staff.clin_cover.ward_id = "clin_ward"
+	_add_worker(c.world,"clin_round","doctor",[51,79],"round",{"diagnosis":2,"treatment":1,"care":0,"surgery":0})
+	c.world.touch()
+	c.sim._ensure_services()
+	c.clinical_scenario = true
+	_declare_call_ready(c,[c.visit_id])
+	var input_validation: String = c.world.validate(_content)
+	timing.finish("diagnosed_input",clock)
+	if not input_validation.is_empty():
+		t.check("CLIN-29",false,{"input_validation":input_validation,"timing":timing.report()})
+		return
+	clock = Time.get_ticks_usec()
 	c.world.facts.staff[c.doctors[1]].abilities.treatment = 3
 	_seed_stream(c.world,"treatment",true,true,9700,9800)
-	var arrived: bool = _arrive(c,"B_S22_D14_M14","P_D14_GENTLE")
-	var consulted: bool = arrived and await _until(t,c,func()->bool: return _visit(c).get("phase","") in ["wait_outpatient","wait_surgery"],2800)
-	var coverage_wait: Dictionary = {"ok":false,"reason":"consult_missing"}
-	if consulted: coverage_wait = await _wait_ward_nurse_return(t,c)
+	var diagnosed: bool = _visit(c).get("phase","")=="wait_consult" and not _visit(c).evidence_by_source.is_empty()
 	var coverage_at_selection: Dictionary = _ward_nurse_return_state(c)
-	var selected: CommandResult = _command(c,"clinical_select_plan",{"visit_id":c.visit_id,"plan_id":"P_D14_GENTLE"}) if consulted and coverage_wait.ok else CommandResult.new(false,"ward_return_incomplete",str(coverage_wait.reason))
+	var coverage_wait: Dictionary = {"ok":bool(coverage_at_selection.ready),"reason":"ready_ward_input"}
+	timing.finish("ward_coverage_input",clock)
+	clock = Time.get_ticks_usec()
+	var selected: CommandResult = _command(c,"clinical_select_plan",{"visit_id":c.visit_id,"plan_id":"P_D14_GENTLE"}) if diagnosed and coverage_wait.ok else CommandResult.new(false,"ward_coverage_missing",str(coverage_wait.reason))
+	if not selected.accepted:
+		t.check("CLIN-29",false,{"selection":selected.to_record(),"coverage_at_selection":coverage_at_selection,"state":_state(c),"timing":timing.report()})
+		return
 	var began: bool = selected.accepted and await _until(t,c,func()->bool: return _visit(c).get("phase","")=="outpatient",800)
 	var attempt: Dictionary = c.world.facts.attempts.values()[0].duplicate(true) if began else {}
+	timing.finish("select_and_start_outpatient",clock)
+	clock = Time.get_ticks_usec()
 	var operated: bool = began and await _until(t,c,func()->bool: return _visit(c).get("phase","")=="transfer",1300)
+	timing.finish("actual_outpatient_work",clock)
+	clock = Time.get_ticks_usec()
 	var unrevealed: bool = operated and _income(c,"ward")==0 and _income(c,"cure")==0 and _visit(c).get("final_result","").is_empty()
-	var completed: bool = operated and await _until(t,c,func()->bool: return _visit(c).get("final_result","")=="cured",3000)
-	t.check("CLIN-29",unrevealed and completed and int(attempt.get("recovery_ticks",-1))==1800 and int(attempt.get("supply_units",-1))==4 and int(attempt.get("cure_fee",-1))==660 and int(c.started.get("wake",0))==0 and _income(c,"outpatient")==10 and _income(c,"ward")==60 and _income(c,"cure")==660 and _income(c)==790 and _units_used(c)==4 and _visit(c).attempt_ids.size()==1,{"consulted":consulted,"selected":selected.to_record(),"coverage_wait":coverage_wait,"coverage_at_selection":coverage_at_selection,"result_hidden_after_operation":unrevealed,"attempt":attempt,"state":_state(c)})
+	var recovery: Dictionary = {"previous":1800,"work_ticks":0,"advancing_steps":0}
+	var completed: bool = operated and await _until(t,c,func()->bool:
+		var stay: Dictionary = _stay(c)
+		if not stay.is_empty():
+			var remaining: int = int(stay.remaining_ticks)
+			var delta: int = int(recovery.previous)-remaining
+			if delta>0:
+				recovery.work_ticks += delta
+				recovery.advancing_steps += 1
+			recovery.previous = remaining
+		return _visit(c).get("final_result","")=="cured",3000)
+	timing.finish("actual_transfer_recovery_and_round",clock)
+	t.check("CLIN-29",unrevealed and completed and recovery.work_ticks==1800 and recovery.advancing_steps==1800 and int(attempt.get("recovery_ticks",-1))==1800 and int(attempt.get("supply_units",-1))==4 and int(attempt.get("cure_fee",-1))==660 and int(c.started.get("wake",0))==0 and _income(c,"outpatient")==10 and _income(c,"ward")==60 and _income(c,"cure")==660 and _income(c)==790 and _units_used(c)==4 and _visit(c).attempt_ids.size()==1,{"recovery":recovery,"diagnosed":diagnosed,"selected":selected.to_record(),"coverage_wait":coverage_wait,"coverage_at_selection":coverage_at_selection,"result_hidden_after_operation":unrevealed,"attempt":attempt,"state":_state(c),"timing":timing.report()})
 
 func _case_30(t) -> void:
 	await _companion_entry(t,true)
@@ -809,6 +850,10 @@ func _case_30(t) -> void:
 func _case_31(t) -> void:
 	var visiting: Dictionary = await _visitor_bedside(t)
 	var bedside: bool = bool(visiting.bedside_ready)
+	var medical_priority: bool = true
+	for observation: Dictionary in visiting.get("visitor_trace",[]):
+		if observation.phase in ["to_bed","visiting"]:
+			medical_priority = medical_priority and bool(observation.care_completed)
 	var original: Dictionary = _visitor(visiting).duplicate(true)
 	var window: String = str(original.get("started_window",""))
 	var windows: Dictionary = _visit(visiting).get("visitor_windows",{}).duplicate(true)
@@ -824,7 +869,7 @@ func _case_31(t) -> void:
 		await _until(t,visiting,func()->bool: return _visitor(visiting).get("phase","") in ["waiting","to_waiting","leaving"],350)
 		transfer = _command(visiting,"clinical_transfer_bed",{"visit_id":visiting.visit_id,"bed_id":"clin_ward_1"})
 	var transferred: bool = transfer.accepted and await _until(t,visiting,func()->bool: return _stay(visiting).get("phase","")=="recovery",800)
-	t.check("CLIN-31",bedside and legal_point and real_clock and restored.ok and once and windows.get(window,{}).get("intent",false) and windows.get(window,{}).get("started",false) and transferred and _visit(visiting).get("visitor_windows",{})==windows and visiting.world.facts.rng.arrival==arrival_rng and str(_visit(visiting).get("relative_actor_id",""))==str(original.get("actor_id","")) and _income(visiting,"ward")==0 and _income(visiting,"cure")==0,{"actual_bedside_before_timer":legal_point,"exact_30_second_timer":real_clock,"single_intent_after_restore":once,"transfer":transfer.to_record(),"restore":restored,"state":_state(visiting)})
+	t.check("CLIN-31",bedside and medical_priority and legal_point and real_clock and restored.ok and once and windows.get(window,{}).get("intent",false) and windows.get(window,{}).get("started",false) and transferred and _visit(visiting).get("visitor_windows",{})==windows and visiting.world.facts.rng.arrival==arrival_rng and str(_visit(visiting).get("relative_actor_id",""))==str(original.get("actor_id","")) and _income(visiting,"ward")==0 and _income(visiting,"cure")==0,{"initial_care_before_bedside":medical_priority,"actual_bedside_before_timer":legal_point,"exact_30_second_timer":real_clock,"single_intent_after_restore":once,"transfer":transfer.to_record(),"restore":restored,"visitor_trace":visiting.get("visitor_trace",[]),"failure_world":visiting.get("failure_world",{}),"state":_state(visiting)})
 
 func _case_32(t) -> void:
 	var missing: Array = []

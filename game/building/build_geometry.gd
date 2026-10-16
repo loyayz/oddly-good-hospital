@@ -146,6 +146,14 @@ static func intersects_cells(rect: Rect2, inner: Array) -> bool:
 			return true
 	return false
 
+static func intersects_room(rect: Rect2, room: Dictionary) -> bool:
+	var bounds: Rect2 = Rect2(float(room.origin[0]),float(room.origin[1]),float(room.size[0]),float(room.size[1]))
+	if not rect.intersects(bounds,false): return false
+	# Valid room cells are unique and bounded by origin/size. A full rectangle
+	# needs no temporary cell array; irregular rooms retain their exact cells.
+	if not room.has("cells") or room.cells.size()==int(room.size[0])*int(room.size[1]): return true
+	return intersects_cells(rect,room.cells)
+
 static func occupied_error(world: WorldState, space: HospitalSpace, floor_id: int, rects: Array, ignored_ids: Array = []) -> Dictionary:
 	for rect: Rect2 in rects:
 		for x: int in range(floori(rect.position.x),ceili(rect.end.x)):

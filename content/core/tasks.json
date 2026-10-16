@@ -43,7 +43,7 @@
     "filter": {},
     "id": "Q03",
     "kind": "milestone",
-    "metric": "employed_mechanics",
+    "metric": "maintenance_services_purchased",
     "name": "@zh:core.tasks.Q03.name",
     "repeatable": false,
     "reward_cash": 150,
@@ -105,9 +105,7 @@
     "deadline_days": null,
     "eligibility": "@zh:core.tasks.Q07.eligibility",
     "eligibility_rule": {
-      "required_roles": [
-        "mechanic"
-      ],
+      "required_roles": [],
       "requires_research": []
     },
     "filter": {},
@@ -124,9 +122,7 @@
     "deadline_days": null,
     "eligibility": "@zh:core.tasks.Q08.eligibility",
     "eligibility_rule": {
-      "required_roles": [
-        "mechanic"
-      ],
+      "required_roles": [],
       "requires_research": []
     },
     "filter": {},
@@ -412,9 +408,7 @@
     "eligibility": "@zh:core.tasks.Q23.eligibility",
     "eligibility_rule": {
       "maintainable_equipment_min": 1,
-      "required_roles": [
-        "mechanic"
-      ],
+      "required_roles": [],
       "requires_research": []
     },
     "filter": {},

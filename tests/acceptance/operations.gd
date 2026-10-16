@@ -39,7 +39,9 @@ const CASES: Dictionary = {
 	"OPS-34":"docs/design/01-simulation.md §8；第三日首补助与1F地块周期幂等",
 	"OPS-35":"docs/design/01-simulation.md §8/8.1；成本940实付100援助840不算盈利",
 	"OPS-36":"docs/design/01-simulation.md §8.1/8.2；六账页三日展望与目标便签不圈存",
-	"OPS-37":"docs/design/01-simulation.md §8；同院救援箱仅一次且只补缺岗正常付薪"
+	"OPS-37":"docs/design/01-simulation.md §8；同院救援箱仅一次且只补缺岗正常付薪",
+	"OPS-38":"docs/design/08-hospital-life.md §15；派单按设备停机用途分级，同级置顶且不打断已开工单",
+	"OPS-39":"docs/design/01-simulation.md §6；预约与实际占用释放前不得维修，恢复后真实到场开工"
 }
 
 var _content: HospitalContent
@@ -197,14 +199,19 @@ func _outpatient(f: Dictionary, key: String) -> String:
 	return ""
 
 func _diagnosed_outpatient(f: Dictionary, key: String, waiting_cell: Array) -> String:
-	# OPS07–10 begin with an already diagnosed, unpaid-treatment input hospital.
+	# Focused cases begin with a diagnosed, unpaid-treatment patient. Completed
+	# earlier visits retain their actual Attempts, issues and departure facts.
 	# Identity and plan selection remain production commands; only the completed
 	# diagnostic background is supplied, never a reservation, attempt or issue.
-	if not f.w.facts.sessions.is_empty() or not f.w.facts.preparations.is_empty() or not f.w.facts.attempts.is_empty() or not f.w.facts.inventory.issues.is_empty():
-		f.errors.append({"diagnosed_input":key,"reason":"前置医院已经有在途临床或治疗包领用事实"})
+	if not f.w.facts.sessions.is_empty() or not f.w.facts.preparations.is_empty():
+		f.errors.append({"diagnosed_input":key,"reason":"前置医院已有在途临床工作或准备"})
 		return ""
+	for earlier: Dictionary in f.w.facts.visits.values():
+		if not earlier.attempt_ids.is_empty() and earlier.phase!="departed":
+			f.errors.append({"diagnosed_input":key,"reason":"原病例尚未实际离院"})
+			return ""
 	for staff: Dictionary in f.w.facts.staff.values():
-		if staff.role in ["doctor","nurse"] and staff.on_shift:
+		if f.w.facts.attempts.is_empty() and staff.role in ["doctor","nurse"] and staff.on_shift:
 			staff.base_prepared = true
 			staff.base_task = {}
 			staff.block_new_work = false
@@ -639,7 +646,7 @@ func _case_17() -> Dictionary:
 
 func _case_18() -> Dictionary:
 	var f: Dictionary = _new("实际临床噪声",true)
-	var visit_id: String = _outpatient(f,"ops18_work")
+	var visit_id: String = _diagnosed_outpatient(f,"ops18_work",[48,92])
 	if visit_id.is_empty(): return _result(false,f.errors)
 	var before: Dictionary = f.s.services.environment.environment_at(f.w,1,[51,88])
 	for tick: int in 500:
@@ -671,10 +678,9 @@ func _case_18() -> Dictionary:
 	var after_reset: Dictionary = g.s.services.environment.environment_at(g.w,1,[42.25,83.0])
 	return _result(before.noise==0 and running.noise==10 and paused_query.noise==10 and queued.noise==0 and construction.noise==15 and screened.noise==0 and screened_cell.noise==0 and screened_fraction.noise==0 and bypass.noise==15 and moved.accepted and after_move.noise==15 and moved_back.accepted and rotated.accepted and after_rotation.noise==15 and reset_screen.accepted and after_reset.noise==0 and g.errors.is_empty(),{"before":before.noise,"running":running.noise,"queued":queued.noise,"construction":construction.noise,"screened":screened.noise,"screened_cell":screened_cell.noise,"screened_fraction":screened_fraction.noise,"bypass":bypass.noise,"after_move":after_move.noise,"after_rotation":after_rotation.noise,"after_reset":after_reset.noise,"errors":g.errors})
 
-func _machine(label: String, mechanic: bool = false) -> Dictionary:
+func _machine(label: String) -> Dictionary:
 	var f: Dictionary = _new(label,false,10000)
 	_place(f,"ops_machine","M09",[42,80])
-	if mechanic: _staff(f,"ops_mechanic","mechanic",[43,79])
 	return f
 
 func _case_19() -> Dictionary:
@@ -727,19 +733,36 @@ func _case_21() -> Dictionary:
 	var id: String = str(f.w.facts.facilities.ops_machine.maintenance_order_id)
 	if id.is_empty(): return _result(false,f.w.facts.maintenance)
 	var cash: int = HospitalLedger.balance(f.w)
+	var before_quote: Dictionary = f.w.freeze()
+	var quote: Dictionary = f.s.services.maintenance.service_quote(f.w,"ops_machine")
+	var quote_readonly: bool = before_quote==f.w.freeze() and quote.ok and quote.cost==40 and quote.remaining_milli==30000
+	var entry: Array = f.w.facts.entry.cell.duplicate()
+	f.w.facts.floors.overrides["1"].blocked.append(entry)
 	for tick: int in 5: _work_tick(f,"maintenance")
-	var unattended: bool = f.w.facts.facilities.ops_machine.failed and f.w.facts.maintenance.jobs[id].remaining_milli==30000 and HospitalLedger.balance(f.w)==cash
-	_staff(f,"ops_mechanic","mechanic",[43,79])
+	var unattended: bool = f.w.facts.facilities.ops_machine.failed and f.w.facts.maintenance.jobs[id].remaining_milli==30000 and HospitalLedger.balance(f.w)==cash and f.w.facts.maintenance.contractors.is_empty() and f.w.facts.staff.is_empty()
+	f.w.facts.floors.overrides["1"].blocked.erase(entry)
 	for tick: int in 500:
 		_work_tick(f,"maintenance")
 		if f.w.facts.maintenance.jobs[id].phase=="completed": break
 	var job: Dictionary = f.w.facts.maintenance.jobs[id]
 	var item: Dictionary = f.w.facts.facilities.ops_machine
 	var receipt: Dictionary = f.w.facts.maintenance.receipts.get(id+":repair_completed",{})
-	return _result(unattended and job.phase=="completed" and job.completed_milli==30000 and job.paid_parts==40 and HospitalLedger.balance(f.w)==cash-40 and item.condition==100.0 and not item.failed and item.repair_grace_until==int(receipt.get("tick",-2000))+1800 and receipt.get("staff_id")=="ops_mechanic",{"job":job,"item":item,"receipt":receipt})
+	var worker_id: String = str(receipt.get("worker_id",""))
+	var finished_in_hospital: bool = not worker_id.is_empty() and f.w.facts.actors[worker_id].location.kind=="floor" and f.w.facts.maintenance.contractors[worker_id].phase=="leaving" and f.w.facts.staff.is_empty()
+	var restored: Dictionary = _restore(f)
+	var exit: Array = restored.s.space.exit_cell(restored.w,restored.w.facts.actors[worker_id])
+	restored.w.facts.floors.overrides["1"].blocked.append(exit)
+	for tick: int in 5: _work_tick(restored,"maintenance")
+	var held_at_blocked_exit: bool = restored.w.facts.actors[worker_id].location.kind=="floor" and restored.w.facts.maintenance.contractors[worker_id].phase=="leaving"
+	restored.w.facts.floors.overrides["1"].blocked.erase(exit)
+	for tick: int in 500:
+		_work_tick(restored,"maintenance")
+		if restored.w.facts.actors[worker_id].location.kind=="outside": break
+	var departed: bool = restored.w.facts.actors[worker_id].location.kind=="outside" and restored.w.facts.maintenance.contractors[worker_id].phase=="departed" and restored.w.facts.staff.is_empty()
+	return _result(quote_readonly and unattended and job.phase=="completed" and job.completed_milli==30000 and job.paid_parts==40 and HospitalLedger.balance(restored.w)==cash-40 and item.condition==100.0 and not item.failed and item.repair_grace_until==int(receipt.get("tick",-2000))+1800 and receipt.get("staff_id","").is_empty() and finished_in_hospital and held_at_blocked_exit and departed and restored.w.validate(_content).is_empty(),{"quote":quote,"quote_readonly":quote_readonly,"no_worker_before_entry_space":unattended,"job":job,"item":item,"receipt":receipt,"retained_body_at_completion":finished_in_hospital,"blocked_exit_no_teleport":held_at_blocked_exit,"actual_departure":departed,"validation":restored.w.validate(_content)})
 
 func _case_22() -> Dictionary:
-	var f: Dictionary = _machine("保养转故障同单",true)
+	var f: Dictionary = _machine("保养转故障同单")
 	if not f.errors.is_empty(): return _result(false,f.errors)
 	f.w.facts.facilities.ops_machine.condition = 45.0
 	f.s.services.maintenance.boundaries(f.w)
@@ -760,7 +783,7 @@ func _case_22() -> Dictionary:
 	return _result(first and carried and f.w.facts.maintenance.jobs[id].phase=="completed" and f.w.facts.maintenance.jobs[id].paid_parts==40 and HospitalLedger.balance(f.w)==cash-40 and f.w.facts.maintenance.receipts.size()==1,{"promoted":promoted,"final":f.w.facts.maintenance.jobs[id],"receipts":f.w.facts.maintenance.receipts})
 
 func _case_23() -> Dictionary:
-	var f: Dictionary = _machine("维修库存与暂停接续",true)
+	var f: Dictionary = _machine("维修库存与暂停接续")
 	if not f.errors.is_empty(): return _result(false,f.errors)
 	f.w.facts.facilities.ops_machine.failed = true
 	f.s.services.maintenance.boundaries(f.w)
@@ -834,10 +857,12 @@ func _case_26() -> Dictionary:
 			seeded = true
 			break
 	if not seeded: return _result(false,"未建立首试成功的确定性随机输入")
-	var visit_id: String = _outpatient(f,"ops26_visit")
+	var visit_id: String = _diagnosed_outpatient(f,"ops26_visit",[48,92])
 	if visit_id.is_empty(): return _result(false,f.errors)
-	var selected: CommandResult = _command(f,"clinical_select_plan",{"visit_id":visit_id,"plan_id":"P_D37_COMMON"})
-	if not selected.accepted: return _result(false,selected.reason)
+	# Continue the doctor's existing plan while its previous service releases.
+	# Re-selecting it here would recheck readiness before safe handoff completes.
+	if f.w.facts.visits[visit_id].plan_decision.get("plan_id","")!="P_D37_COMMON":
+		return _result(false,{"unexpected_plan":f.w.facts.visits[visit_id].plan_decision})
 	for tick: int in 500:
 		_clinic_tick(f)
 		if not f.w.facts.attempts.is_empty(): break
@@ -880,12 +905,20 @@ func _case_26() -> Dictionary:
 	var level_before: bool = item.grade==0
 	var held_ticks: int = 0
 	var holds_original_work: bool = true
+	var continuation: Dictionary = {}
 	for tick: int in 1800:
 		if order.phase!="completed":
 			var waiting: Dictionary = f.w.facts.clinical_suspensions.get(str(clinical_session.id),{})
 			held_ticks += 1
 			holds_original_work = holds_original_work and waiting.get("attempt_id","")==attempt_id and waiting.get("remaining_ticks",-1)==clinical_session.remaining_ticks and not f.w.facts.sessions.has(clinical_session.id)
 		_clinic_tick(f,true)
+		if order.phase=="completed" and continuation.is_empty():
+			var doctors: Array = []
+			for staff_id: String in f.w.ids("staff"):
+				var staff: Dictionary = f.w.facts.staff[staff_id]
+				if staff.role!="doctor": continue
+				doctors.append({"staff_id":staff_id,"busy":f.s.clinic._staff_busy(f.w,staff_id),"can_start":f.s.clinic._can_start(f.w,staff),"schedule_allows":f.s.clinic._schedule_allows(f.w,staff_id,"outpatient",f.w.facts.visits[visit_id],facility_id),"quote":f.s.space.facility_quote(f.w,facility_id,f.w.facts.visits[visit_id].actor_id,[staff_id])})
+			continuation = {"tick":f.w.sim_tick,"doctors":doctors,"suspensions":f.w.facts.clinical_suspensions.duplicate(true),"preparations":f.w.facts.preparations.duplicate(true),"adaptations":f.w.facts.adaptations.duplicate(true),"candidates":f.s.clinic.service_candidates(f.w,f.w.facts.visits[visit_id],"outpatient",true)}
 		if order.phase!="completed": level_before = level_before and item.grade==0
 		if order.phase=="completed" and f.w.facts.visits[visit_id].phase=="departed": break
 	var upgraded: Dictionary = item.duplicate(true)
@@ -893,16 +926,19 @@ func _case_26() -> Dictionary:
 	# M37 costs 1400; its first upgrade is ceil(1400*30%)=420 and takes 30 standard seconds.
 	var upgraded_safely: bool = retained_work and level_before and held_ticks>0 and holds_original_work and order.phase=="completed" and order.facility_id==facility_id and upgraded.grade==1 and upgraded.get("upgrade_level",0)==1 and upgraded.condition==83.0 and upgraded.get("completed_upgrade_paid_cost",0)==420 and not upgraded.upgrading_block and receipt.get("standard_work_milli")==30000 and receipt.get("facility_id","")==facility_id and f.w.facts.visits[visit_id].phase=="departed" and f.w.facts.visits[visit_id].final_result=="cured" and f.w.facts.visits[visit_id].attempt_ids==[attempt_id] and f.w.facts.inventory.issues[attempt_id]==issue and HospitalLedger.balance(f.w)==cash-420+10+200
 	if not upgraded_safely:
-		return _result(false,{"facility_id":facility_id,"held_ticks":held_ticks,"holds_original_work":holds_original_work,"item":upgraded,"order":order,"receipt":receipt,"visit":f.w.facts.visits[visit_id]})
+		return _result(false,{"facility_id":facility_id,"held_ticks":held_ticks,"holds_original_work":holds_original_work,"item":upgraded,"order":order,"receipt":receipt,"visit":f.w.facts.visits[visit_id],"suspensions":f.w.facts.clinical_suspensions,"preparations":f.w.facts.preparations,"adaptations":f.w.facts.adaptations,"remodels":f.w.facts.remodels,"continuation":continuation})
 	f.s.services.recruitment.settle(f.w)
-	var worker: Dictionary = f.w.facts.staff.get(str(receipt.get("staff_id","")),{})
-	var practice_once: bool = int(worker.get("job_practice",-1))==1
+	var worker_id: String = str(receipt.get("worker_id",""))
+	var external_only: bool = not worker_id.is_empty() and not f.w.facts.staff.has(worker_id) and receipt.get("staff_id","").is_empty()
+	for tick: int in 800:
+		if f.w.facts.maintenance.contractors[worker_id].phase=="departed": break
+		_clinic_tick(f,true)
 	f.s.services.recruitment.settle(f.w)
-	practice_once = practice_once and int(worker.get("job_practice",-1))==1
-	var next_visit: String = _outpatient(f,"ops26_after_upgrade")
+	external_only = external_only and f.w.facts.maintenance.contractors[worker_id].phase=="departed" and f.w.facts.actors[worker_id].location.kind=="outside"
+	var next_visit: String = _diagnosed_outpatient(f,"ops26_after_upgrade",[48,92])
 	if next_visit.is_empty(): return _result(false,f.errors)
-	var next_selected: CommandResult = _command(f,"clinical_select_plan",{"visit_id":next_visit,"plan_id":"P_D37_COMMON"})
-	if not next_selected.accepted: return _result(false,next_selected.reason)
+	var next_selected: bool = f.w.facts.visits[next_visit].plan_decision.get("plan_id","")=="P_D37_COMMON"
+	if not next_selected: return _result(false,{"unexpected_plan":f.w.facts.visits[next_visit].plan_decision})
 	for tick: int in 500:
 		if not f.w.facts.visits[next_visit].attempt_ids.is_empty(): break
 		_clinic_tick(f)
@@ -911,14 +947,14 @@ func _case_26() -> Dictionary:
 	var next_staff: Array = next_attempt.get("staff_ids",[])
 	var level: int = int(f.w.facts.staff[str(next_staff[0])].abilities.treatment) if next_staff.size()==1 else 0
 	var utilization: Dictionary = {1:0.60,2:0.70,3:0.80,4:0.90,5:1.00}
-	var next_uses_grade: bool = next_selected.accepted and utilization.has(level) and next_attempt.get("facility_id","")==facility_id and is_equal_approx(float(next_attempt.get("effective_level",-1.0)),float(utilization.get(level,0.0))) and float(promised.get("effective_level",-1.0))==0.0
+	var next_uses_grade: bool = next_selected and utilization.has(level) and next_attempt.get("facility_id","")==facility_id and is_equal_approx(float(next_attempt.get("effective_level",-1.0)),float(utilization.get(level,0.0))) and float(promised.get("effective_level",-1.0))==0.0
 	var unchanged: bool = true
 	for key: String in promised:
 		unchanged = unchanged and f.w.facts.attempts[attempt_id].get(key)==promised[key]
-	return _result(upgraded_safely and practice_once and next_uses_grade and unchanged and f.w.facts.inventory.issues[attempt_id]==issue and f.w.facts.inventory.issues.size()==2,{"facility_id":facility_id,"item_at_upgrade_completion":upgraded,"order":order,"receipt":receipt,"safe_release":retained_work,"holds_original_work":holds_original_work,"held_ticks":held_ticks,"practice_once":practice_once,"original_attempt":promised,"original_terms_unchanged":unchanged,"next_attempt":next_attempt,"expected_effective_level":utilization.get(level)})
+	return _result(upgraded_safely and external_only and next_uses_grade and unchanged and f.w.facts.inventory.issues[attempt_id]==issue and f.w.facts.inventory.issues.size()==2,{"facility_id":facility_id,"item_at_upgrade_completion":upgraded,"order":order,"receipt":receipt,"safe_release":retained_work,"holds_original_work":holds_original_work,"held_ticks":held_ticks,"external_worker_departed":external_only,"original_attempt":promised,"original_terms_unchanged":unchanged,"next_attempt":next_attempt,"expected_effective_level":utilization.get(level)})
 
 func _case_27() -> Dictionary:
-	var f: Dictionary = _machine("已施工升级库存接续",true)
+	var f: Dictionary = _machine("已施工升级库存接续")
 	if not f.errors.is_empty(): return _result(false,f.errors)
 	f.w.facts.research.append("R12")
 	var applied: CommandResult = _command(f,"upgrade_order",{"facility_id":"ops_machine","target_level":1})
@@ -1106,7 +1142,9 @@ func _case_31() -> Dictionary:
 		_zero_arrivals(f.w)
 		f.w.touch()
 		f.s.space.finish_boundary(f.w)
-		f.s.services.departments.route_patient(f.w,visit_id)
+		# No resource or destination changes occur during this physical walk.
+		# Recheck the business boundary when its current movement has finished.
+		if not f.w.facts.moves.has(visit.actor_id): f.s.services.departments.route_patient(f.w,visit_id)
 		if not f.w.facts.departments.routes[visit_id].actual_mismatched_entry_arrival.is_empty(): break
 	var route: Dictionary = f.w.facts.departments.routes[visit_id]
 	var actual_position: Dictionary = f.w.facts.actors[visit.actor_id].location.duplicate(true)
@@ -1114,12 +1152,16 @@ func _case_31() -> Dictionary:
 	var restored: Dictionary = _restore(f)
 	for repeat: int in 3: restored.s.services.departments.route_patient(restored.w,visit_id)
 	var unique: bool = restored.w.facts.departments.experience[visit_id].wrong_entries.size()==1 and restored.w.facts.visits[visit_id].anger==anger+12.0
+	var self_service_tick: int = int(route.arrived_tick)+roundi(float(_content.balance.guidance.self_service_after_seconds)*10)
+	var held_before_deadline: bool = false
 	for tick: int in 400:
 		_guide_tick(restored)
-		restored.s.services.departments.route_patient(restored.w,visit_id)
+		if restored.w.sim_tick>=self_service_tick-1:
+			restored.s.services.departments.route_patient(restored.w,visit_id)
+			if restored.w.sim_tick==self_service_tick-1: held_before_deadline = not restored.w.facts.departments.routes[visit_id].corrected
 		if restored.w.facts.departments.routes[visit_id].corrected: break
 	var after: Dictionary = restored.w.facts.visits[visit_id]
-	return _result(before_arrival and actual and unique and restored.w.facts.departments.routes[visit_id].corrected and after.ticket_id==ticket_id and after.evidence_by_source==evidence and HospitalLedger.balance(restored.w)==cash and restored.w.facts.departments.experience[visit_id].wrong_entries.size()==1,{"route":restored.w.facts.departments.routes[visit_id],"entry":entry,"actual_position":actual_position,"before_arrival_unchanged":before_arrival,"anger_before":anger,"anger_after_entry":f.w.facts.visits[visit_id].anger,"flow_after_entry":f.s.services.departments.patient_rating(f.w,visit_id).parts.flow,"ticket":after.ticket_id})
+	return _result(before_arrival and actual and unique and held_before_deadline and restored.w.sim_tick==self_service_tick and restored.w.facts.departments.routes[visit_id].corrected and after.ticket_id==ticket_id and after.evidence_by_source==evidence and HospitalLedger.balance(restored.w)==cash and restored.w.facts.departments.experience[visit_id].wrong_entries.size()==1,{"route":restored.w.facts.departments.routes[visit_id],"entry":entry,"actual_position":actual_position,"before_arrival_unchanged":before_arrival,"held_before_deadline":held_before_deadline,"self_service_tick":self_service_tick,"anger_before":anger,"anger_after_entry":f.w.facts.visits[visit_id].anger,"flow_after_entry":f.s.services.departments.patient_rating(f.w,visit_id).parts.flow,"ticket":after.ticket_id})
 
 func _case_32() -> Dictionary:
 	var f: Dictionary = _new("真实完成评分与无数据状态")
@@ -1226,7 +1268,7 @@ func _subsidies(world: WorldState) -> int:
 func _case_35() -> Dictionary:
 	var f: Dictionary = _new("必要支出成本与非现金援助",true,100)
 	# A day-2 checkpoint excludes the new-hospital purchase ledger from today's
-	# result and carries 740 wages plus 200 actually accrued operations.
+	# result and carries 650 wages plus 200 actually accrued operations.
 	f.w.facts.sim_tick = 35999
 	_zero_arrivals(f.w)
 	f.w.facts.economy.last_settled_day = 1
@@ -1248,7 +1290,7 @@ func _case_35() -> Dictionary:
 		aid += int(entry.get("direct_paid",0))
 	var before: Dictionary = f.w.freeze()
 	var denied: CommandResult = _command(f,"build_facility",{"id":"ops35_unfunded","definition_id":"M09","floor_id":1,"cell":[34,66]})
-	return _result(HospitalLedger.balance(f.w)==0 and cost==940 and paid==100 and aid==840 and cost==paid+aid and totals.operating_surplus==-940 and totals.cash_change==-100 and totals.direct_support==840 and not denied.accepted and f.w.freeze()==before,{"cost":cost,"hospital_paid":paid,"direct_paid":aid,"today":totals,"construction_rejection":denied.reason})
+	return _result(HospitalLedger.balance(f.w)==0 and cost==850 and paid==100 and aid==750 and cost==paid+aid and totals.operating_surplus==-850 and totals.cash_change==-100 and totals.direct_support==750 and not denied.accepted and f.w.freeze()==before,{"cost":cost,"hospital_paid":paid,"direct_paid":aid,"today":totals,"construction_rejection":denied.reason})
 
 func _case_36() -> Dictionary:
 	var f: Dictionary = _new("财务投影与目标便签",true,5000)
@@ -1258,7 +1300,7 @@ func _case_36() -> Dictionary:
 	for view: Dictionary in first.views: groups.append(str(view.group))
 	var readonly: bool = before==f.w.freeze()
 	var forecast: Array = first.forecast
-	var estimated: bool = forecast.size()==3 and forecast[0].day==1 and forecast[1].day==2 and forecast[2].day==3 and forecast[0].wages==740 and forecast[0].operations==78 and forecast[0].closing_cash==4182 and forecast[0].forecast and forecast[2].subsidy==1200
+	var estimated: bool = forecast.size()==3 and forecast[0].day==1 and forecast[1].day==2 and forecast[2].day==3 and forecast[0].wages==650 and forecast[0].operations==78 and forecast[0].closing_cash==4272 and forecast[0].forecast and forecast[2].subsidy==1200
 	var note: CommandResult = _command(f,"finance_note",{"text":"扩建诊室","target_amount":6000})
 	var noted: Dictionary = f.s.services.finance.query(f.w)
 	var goal: bool = note.accepted and noted.get("saving_note")=="扩建诊室" and noted.get("target_amount")==6000 and noted.get("remaining_to_target")==1000 and HospitalLedger.balance(f.w)==5000
@@ -1302,7 +1344,7 @@ func _case_37() -> Dictionary:
 	_staff(f,"ops37_existing_doctor","doctor",[42,80])
 	var claimed: CommandResult = _command(f,"finance_rescue",{})
 	if not claimed.accepted: return _result(false,claimed.reason)
-	var counts: Dictionary = {"doctor":0,"receptionist":0,"mechanic":0}
+	var counts: Dictionary = {"doctor":0,"receptionist":0}
 	var paid_staff: bool = true
 	for staff: Dictionary in f.w.facts.staff.values():
 		if counts.has(staff.role): counts[staff.role] += 1
@@ -1317,4 +1359,81 @@ func _case_37() -> Dictionary:
 	var restored: Dictionary = _restore(f)
 	var before: Dictionary = restored.w.freeze()
 	var again: CommandResult = _command(restored,"finance_rescue",{})
-	return _result(counts=={"doctor":2,"receptionist":1,"mechanic":1} and f.w.facts.staff.size()==4 and paid_staff and zero_cost and borrowed==["FUR01","FUR02","M37"] and f.w.facts.economy.get("rescue_blueprint_id")=="BP03" and f.w.facts.facilities.is_empty() and HospitalLedger.balance(f.w)==2500 and not again.accepted and before==restored.w.freeze(),{"counts":counts,"borrowed":borrowed,"staff_count":f.w.facts.staff.size(),"cash":HospitalLedger.balance(f.w),"repeat":again.reason})
+	return _result(counts=={"doctor":2,"receptionist":1} and f.w.facts.staff.size()==3 and paid_staff and zero_cost and borrowed==["FUR01","FUR02","M37"] and f.w.facts.economy.get("rescue_blueprint_id")=="BP03" and f.w.facts.facilities.is_empty() and HospitalLedger.balance(f.w)==2500 and not again.accepted and before==restored.w.freeze(),{"counts":counts,"borrowed":borrowed,"staff_count":f.w.facts.staff.size(),"cash":HospitalLedger.balance(f.w),"repeat":again.reason})
+
+func _case_38() -> Dictionary:
+	var f: Dictionary = _machine("无患者仍按设备停机用途派工")
+	_place(f,"ops_older_tool","SE02",[37,80])
+	if not f.errors.is_empty(): return _result(false,f.errors)
+	f.w.facts.facilities.ops_older_tool.failed = true
+	f.s.services.maintenance.boundaries(f.w)
+	var tool_job: String = str(f.w.facts.facilities.ops_older_tool.maintenance_order_id)
+	var pin_tool: CommandResult = _command(f,"maintenance_pin",{"job_id":tool_job})
+	f.w.facts.facilities.ops_machine.failed = true
+	f.s.services.maintenance.boundaries(f.w)
+	var medical_job: String = str(f.w.facts.facilities.ops_machine.maintenance_order_id)
+	var before: Dictionary = f.w.freeze()
+	var use: Dictionary = HospitalEquipmentUse.query(f.w,"ops_machine")
+	var readonly: bool = before==f.w.freeze() and use.placed and not use.occupied and not use.critical_commitment
+	f.s.services.maintenance.dispatch(f.w)
+	var category_first: bool = pin_tool.accepted and f.w.facts.visits.is_empty() and f.w.facts.maintenance.contractors.size()==1 and not str(f.w.facts.maintenance.jobs[medical_job].worker_id).is_empty() and str(f.w.facts.maintenance.jobs[tool_job].worker_id).is_empty()
+	var g: Dictionary = _machine("同级置顶与已开工保护")
+	_place(g,"ops_second","M09",[50,80])
+	if not g.errors.is_empty(): return _result(false,g.errors)
+	g.w.facts.facilities.ops_machine.failed = true
+	g.s.services.maintenance.boundaries(g.w)
+	var older: String = str(g.w.facts.facilities.ops_machine.maintenance_order_id)
+	g.w.facts.sim_tick += 1
+	g.w.facts.facilities.ops_second.failed = true
+	g.s.services.maintenance.boundaries(g.w)
+	var later: String = str(g.w.facts.facilities.ops_second.maintenance_order_id)
+	var pin_later: CommandResult = _command(g,"maintenance_pin",{"job_id":later})
+	g.s.services.maintenance.dispatch(g.w)
+	var pinned_first: bool = pin_later.accepted and not str(g.w.facts.maintenance.jobs[later].worker_id).is_empty() and str(g.w.facts.maintenance.jobs[older].worker_id).is_empty()
+	for tick: int in 400:
+		_work_tick(g,"maintenance")
+		if g.w.facts.maintenance.jobs[later].started: break
+	var active: Dictionary = g.w.facts.maintenance.jobs[later]
+	var worker_id: String = str(active.worker_id)
+	var remaining: int = int(active.remaining_milli)
+	var change_pin: CommandResult = _command(g,"maintenance_pin",{"job_id":older})
+	g.s.services.maintenance.dispatch(g.w)
+	var uninterrupted: bool = change_pin.accepted and active.started and active.phase=="working" and active.worker_id==worker_id and active.remaining_milli==remaining
+	return _result(readonly and category_first and pinned_first and uninterrupted,{"query":use,"readonly":readonly,"no_patient_category_order":category_first,"same_grade_pin":pinned_first,"started_job_retained":uninterrupted,"first_jobs":f.w.facts.maintenance.jobs,"second_jobs":g.w.facts.maintenance.jobs})
+
+func _case_39() -> Dictionary:
+	var f: Dictionary = _new("治疗预约安全释放后才维修",true)
+	var visit_id: String = _diagnosed_outpatient(f,"ops39_preparation",[48,92])
+	if visit_id.is_empty(): return _result(false,f.errors)
+	f.s.clinic.dispatch(f.w)
+	var preparation: Dictionary = f.w.facts.preparations.get(visit_id,{})
+	if preparation.is_empty(): return _result(false,{"prerequisite":"实际治疗预约未建立","visit":f.w.facts.visits[visit_id]})
+	var facility_id: String = str(preparation.facility_id)
+	var use: Dictionary = HospitalEquipmentUse.query(f.w,facility_id)
+	f.w.facts.facilities[facility_id].pending_failure = true
+	f.s.services.maintenance.boundaries(f.w)
+	var job_id: String = str(f.w.facts.facilities[facility_id].maintenance_order_id)
+	var cash: int = HospitalLedger.balance(f.w)
+	f.s.services.maintenance.dispatch(f.w)
+	var held: bool = use.occupied and not use.critical_commitment and not f.w.facts.facilities[facility_id].failed and f.w.facts.maintenance.contractors.is_empty() and f.w.facts.maintenance.jobs[job_id].remaining_milli==30000 and HospitalLedger.balance(f.w)==cash
+	var restored: Dictionary = _restore(f)
+	var restored_use: Dictionary = HospitalEquipmentUse.query(restored.w,facility_id)
+	var restore_preserved: bool = restored_use==use and restored.w.validate(_content).is_empty()
+	var cancel: CommandResult = _command(restored,"clinical_refer",{"visit_id":visit_id})
+	var no_early_work: bool = true
+	for tick: int in 600:
+		var occupied: bool = bool(HospitalEquipmentUse.query(restored.w,facility_id).occupied)
+		restored.s.services.maintenance.boundaries(restored.w)
+		restored.s.services.maintenance.dispatch(restored.w)
+		if occupied:
+			no_early_work = no_early_work and str(restored.w.facts.maintenance.jobs[job_id].worker_id).is_empty() and not restored.w.facts.facilities[facility_id].failed and HospitalLedger.balance(restored.w)==cash
+		_clinic_tick(restored,true)
+		if restored.w.facts.maintenance.jobs[job_id].started: break
+	var job: Dictionary = restored.w.facts.maintenance.jobs[job_id]
+	var worker_id: String = str(job.worker_id)
+	var released: bool = not HospitalEquipmentUse.query(restored.w,facility_id).occupied
+	var validation: String = restored.w.validate(_content)
+	var invalid: WorldState = WorldState.new(restored.w.freeze())
+	invalid.facts.visits[visit_id].actor_id = worker_id
+	var alias_rejected: bool = not worker_id.is_empty() and invalid.validate(_content)=="患者不能同时充当上门维修人员"
+	return _result(held and restore_preserved and cancel.accepted and no_early_work and released and job.started and job.completed_milli==100 and job.paid_parts==40 and HospitalLedger.balance(restored.w)==cash-40 and restored.w.facts.attempts.is_empty() and restored.w.facts.inventory.issues.is_empty() and alias_rejected and validation.is_empty(),{"initial_use":use,"held":held,"restore_preserved":restore_preserved,"cancel":cancel.to_record(),"no_work_before_release":no_early_work,"released":released,"job":job,"cash_before":cash,"cash_after":HospitalLedger.balance(restored.w),"alias_rejected":alias_rejected,"validation":validation})

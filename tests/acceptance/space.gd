@@ -1,5 +1,7 @@
 extends RefCounted
 
+const ClinicalStep = preload("res://tests/acceptance/clinical_step.gd")
+
 const CASES: Dictionary = {
 	"SPACE-01":"docs/design/12-implementation-plan.md §11 8.1/8.3；合法房壳预览只读，创建与整数付款原子一致",
 	"SPACE-02":"docs/design/12-implementation-plan.md §11 8.1/8.4；未购地、断格、孔洞、小房失败原子",
@@ -44,7 +46,10 @@ const CASES: Dictionary = {
 	"SPACE-41":"docs/design/08-hospital-life.md §12；完整蓝图与相关库存报价检查，失败不部分放置付款",
 	"SPACE-42":"docs/design/08-hospital-life.md §12；美化仍走真实工人工具，每单不超64，布局工单同事务",
 	"SPACE-43":"docs/design/08-hospital-life.md §14；共享蓝图修订原子保存，已确认安排独立于外部蓝图",
-	"SPACE-44":"docs/design/08-hospital-life.md §13/§14；部分保养与改建安排共同恢复，原任务接续且应用不重付"
+	"SPACE-44":"docs/design/08-hospital-life.md §13/§14；部分保养与改建安排共同恢复，原任务接续且应用不重付",
+	"SPACE-45":"docs/design/01-simulation.md §6；上门人员乘梯中取消未开工保养，原乘梯与读档保留，实际返1F离院",
+	"SPACE-46":"docs/design/04-technical.md §6；同体型通行组换成员不继承预约豁免，变更配位与真实阻挡立即生效",
+	"SPACE-47":"docs/design/08-hospital-life.md §11；整备房间按真实格形判断身体相交，不将凹角空白当房间"
 }
 
 var content: HospitalContent
@@ -873,6 +878,9 @@ func _case_35(_t) -> Dictionary:
 	var attempt: Dictionary = sim.world.facts.attempts.get(attempt_id,{}).duplicate(true)
 	var issues: Dictionary = sim.world.facts.inventory.issues.duplicate(true)
 	var original_ticket: Dictionary = session.get("original_ticket",{}).duplicate(true)
+	var before_use: Dictionary = sim.world.freeze()
+	var active_use: Dictionary = HospitalEquipmentUse.query(sim.world,str(session.facility_id))
+	var use_readonly: bool = before_use==sim.world.freeze()
 	var room_id: String = str(sim.world.facts.facilities[session.facility_id].room_id)
 	var prepare: CommandResult = _prepare(sim,[room_id],1,[50,66],true)
 	var order_id: String = str(prepare.changed_ids[0]) if prepare.accepted else ""
@@ -886,18 +894,21 @@ func _case_35(_t) -> Dictionary:
 	var cleared: bool = _wait(sim,func() -> bool: return sim.services.remodel.preview(sim.world,order_id).get("ok",false),500)
 	var actual_after: Array = sim.world.facts.actors[visit.actor_id].location.get("cell",[]).duplicate()
 	var retained: bool = sim.world.facts.attempts.get(attempt_id,{})==attempt and sim.world.facts.inventory.issues==issues
-	return _done(sim,begun and preserved and auto_plan_rejected and cleared and actual_after!=actual_before and retained,{"bed_layouts":bed_layouts,"prepared":prepare.to_record(),"preserved":preserved,"auto_plan":auto_plan.to_record(),"auto_plan_rejected_without_mutation":auto_plan_rejected,"cleared_by_real_movement":cleared,"before":actual_before,"after":actual_after,"remaining":suspension.get("remaining_ticks"),"reason":sim.services.remodel.preview(sim.world,order_id).get("reason","")})
+	var released_use: Dictionary = HospitalEquipmentUse.query(sim.world,str(session.facility_id))
+	var equipment_handoff: bool = use_readonly and active_use.placed and active_use.occupied and not active_use.critical_commitment and released_use.placed and not released_use.occupied
+	return _done(sim,begun and preserved and auto_plan_rejected and cleared and actual_after!=actual_before and retained and equipment_handoff,{"equipment_handoff":equipment_handoff,"active_use":active_use,"released_use":released_use,"bed_layouts":bed_layouts,"prepared":prepare.to_record(),"preserved":preserved,"auto_plan":auto_plan.to_record(),"auto_plan_rejected_without_mutation":auto_plan_rejected,"cleared_by_real_movement":cleared,"before":actual_before,"after":actual_after,"remaining":suspension.get("remaining_ticks"),"reason":sim.services.remodel.preview(sim.world,order_id).get("reason","")})
 
 func _case_36(_t) -> Dictionary:
 	var sim: HospitalSimulation = _surgery_fixture()
-	var required_staff: Array[String] = ["surgeon","anesthetist","or_nurse","ward_nurse","round_doctor","starter_doctor_a","starter_doctor_b"]
+	var clinical_tick: Callable = func() -> void: ClinicalStep.step(sim,true)
+	var required_staff: Array[String] = ["surgeon","anesthetist","or_nurse","ward_nurse","round_doctor","starter_doctor_a"]
 	var preparation_complete: Callable = func() -> bool:
 		for staff_id: String in required_staff:
 			var staff: Dictionary = sim.world.facts.staff[staff_id]
 			if not staff.get("on_shift",false): continue
 			if not staff.get("base_prepared",false) or not staff.get("base_task",{}).is_empty() or staff.get("block_new_work",false) or sim.world.facts.moves.has(staff_id): return false
 		return true
-	var bases_ready: bool = _wait(sim,preparation_complete,1800)
+	var bases_ready: bool = _wait(sim,preparation_complete,1800,clinical_tick)
 	if not bases_ready:
 		var preparation_facts: Dictionary = {}
 		for staff_id: String in required_staff:
@@ -907,8 +918,32 @@ func _case_36(_t) -> Dictionary:
 	var arrival: CommandResult = _command(sim,"clinical_arrive",{"binding_id":"B_S13_D09_M09","arrival_key":"space_actual_surgery","requested_plan_id":"P_D09_SURGERY"})
 	var visit_id: String = str(arrival.changed_ids[0]) if arrival.accepted else ""
 	if not arrival.accepted: return _done(sim,false,{"prerequisite":"合法手术病例实际入院","arrival":arrival.to_record()})
-	var consulted: bool = _wait(sim,func() -> bool: return sim.world.facts.visits[visit_id].get("phase","") in ["wait_outpatient","wait_surgery"],3000)
-	if not consulted: return _done(sim,false,{"prerequisite":"实际接待、初诊及会诊未完成","arrival":arrival.to_record(),"visit":sim.world.facts.visits[visit_id].duplicate(true)})
+	# Diagnosis and base preparation are saved-world inputs, outside this remodel
+	# handoff. The chosen team still operates, wakes and transfers here.
+	_command(sim,"clinical_visit_consent",{"visit_id":visit_id,"allow":false})
+	var input_visit: Dictionary = sim.world.facts.visits[visit_id]
+	var input_actor: Dictionary = sim.world.facts.actors[input_visit.actor_id]
+	input_actor.location.cell = [44,76]
+	sim.space.sync_actor(sim.world,input_actor.id)
+	var diagnostic: Dictionary = sim.world.facts.staff.starter_doctor_a
+	var profile: Dictionary = content.catalog.profiles[content.definition("diseases",input_visit.disease_id).profile]
+	input_visit.evidence_by_source = {"gp":float(profile.gp_confidence)+2.0*(int(diagnostic.abilities.diagnosis)-1)}
+	input_visit.doctor_fee_quote = content.doctor_fee(diagnostic.title_id)
+	input_visit.clinical_participants = {diagnostic.id:true}
+	sim.clinic._queue(sim.world,input_visit,"consult")
+	HospitalLedger.post(sim.world,LedgerEntry.new(visit_id,"consultation",int(input_visit.doctor_fee_quote)))
+	HospitalLedger.post(sim.world,LedgerEntry.new(visit_id,"gp",5))
+	var history_id: String = visit_id+":given_gp"
+	diagnostic.completed_jobs[history_id] = "diagnosis"
+	diagnostic.practice.diagnosis += 1
+	var gp: Dictionary = sim.world.facts.facilities.gp_station
+	gp.used = true
+	gp.use_receipts[history_id] = sim.world.sim_tick
+	gp.condition -= 2.0
+	sim.world.touch()
+	var input_validation: String = sim.world.validate(content)
+	print("CASE_INPUT SPACE-36 "+JSON.stringify({"kind":"diagnosed_waiting_for_surgery_selection","prior_diagnostics_and_base_preparation":"input","validation":input_validation}))
+	if not input_validation.is_empty(): return _done(sim,false,{"prerequisite":"已诊断手术候诊输入无效","validation":input_validation})
 	var bed_roles_ready: bool = true
 	var bed_role_quotes: Array = []
 	for facility_id: String in sim.world.ids("facilities"):
@@ -925,7 +960,25 @@ func _case_36(_t) -> Dictionary:
 		bed_role_quotes.append(row)
 	bed_roles_ready = bed_roles_ready and bed_role_quotes.size()==2
 	var selected: CommandResult = _command(sim,"clinical_select_plan",{"visit_id":visit_id,"plan_id":"P_D09_SURGERY"})
-	var begun: bool = selected.accepted and _wait(sim,func() -> bool: return not _session(sim,"surgery").is_empty(),1800)
+	if selected.accepted:
+		# This scenario starts immediately before the remodel command, with a
+		# gathered team and one setup tick left. CLIN-18 tests the earlier full
+		# gathering/setup; all surgery and recovery work below still executes.
+		sim.clinic.dispatch(sim.world)
+		var preparation: Dictionary = sim.world.facts.preparations.get(visit_id,{})
+		if preparation.is_empty(): return _done(sim,false,{"prerequisite":"手术未取得真实准备束"})
+		var table: Dictionary = sim.space.facility_layout(sim.world,preparation.facility_id)
+		var positions: Dictionary = {input_visit.actor_id:table.patient_cell}
+		for index: int in preparation.staff_ids.size(): positions[preparation.staff_ids[index]] = table.operator_cells[index]
+		for actor_id: String in positions:
+			sim.world.facts.moves.erase(actor_id)
+			sim.world.facts.actors[actor_id].location = {"kind":"floor","floor_id":1,"cell":positions[actor_id].duplicate(),"height_m":0.0}
+		preparation.setup_remaining_ticks = 1
+		sim.world.touch()
+		var ready_validation: String = sim.world.validate(content)
+		print("CASE_INPUT SPACE-36 "+JSON.stringify({"kind":"gathered_surgical_team","setup_remaining_ticks":1,"prior_travel_and_setup":"input","validation":ready_validation}))
+		if not ready_validation.is_empty(): return _done(sim,false,{"prerequisite":"到齐的手术准备输入无效","validation":ready_validation})
+	var begun: bool = selected.accepted and _wait(sim,func() -> bool: return not _session(sim,"surgery").is_empty(),1800,clinical_tick)
 	if not begun:
 		var snapshot_path: String = "res://space36-plan-blocked.json"
 		var encoder: HospitalJsonStream = HospitalJsonStream.new()
@@ -946,11 +999,14 @@ func _case_36(_t) -> Dictionary:
 	var issues: Dictionary = sim.world.facts.inventory.issues.duplicate(true)
 	var bed_id: String = str(attempt.get("bed_id",""))
 	var ward_id: String = str(sim.world.facts.facilities.get(bed_id,{}).get("room_id",""))
+	var before_use: Dictionary = sim.world.freeze()
+	var reserved_use: Dictionary = HospitalEquipmentUse.query(sim.world,bed_id)
+	var equipment_handoff: bool = before_use==sim.world.freeze() and reserved_use.placed and reserved_use.occupied and reserved_use.critical_commitment
 	var operating_id: String = str(sim.world.facts.facilities[session.facility_id].room_id)
 	var prepared: CommandResult = _prepare(sim,[operating_id,ward_id],1,[34,66])
 	var order_id: String = str(prepared.changed_ids[0]) if prepared.accepted else ""
 	var blocked: Dictionary = sim.services.remodel.preview(sim.world,order_id)
-	var transfer: bool = _wait(sim,func() -> bool: return not sim.world.facts.ward_stays.is_empty() and sim.world.facts.ward_stays.values()[0].get("phase")=="recovery",2600)
+	var transfer: bool = _wait(sim,func() -> bool: return not sim.world.facts.ward_stays.is_empty() and sim.world.facts.ward_stays.values()[0].get("phase")=="recovery",2600,clinical_tick)
 	var still_blocked: Dictionary = sim.services.remodel.preview(sim.world,order_id)
 	var stay: Dictionary = sim.world.facts.ward_stays.values()[0] if not sim.world.facts.ward_stays.is_empty() else {}
 	var promise_preserved: bool = true
@@ -959,6 +1015,8 @@ func _case_36(_t) -> Dictionary:
 		promise_preserved = promise_preserved and _canonical(final_attempt.get(field))==_canonical(attempt.get(field))
 	var protected: bool = prepared.accepted and not blocked.get("ok",true) and transfer and not still_blocked.get("ok",true) and stay.get("attempt_id")==attempt_id and stay.get("bed_id")==bed_id and promise_preserved and sim.world.facts.inventory.issues==issues and sim.world.facts.actors[sim.world.facts.visits[visit_id].actor_id].get("support_facility_id")==bed_id
 	var recovery_stay: Dictionary = stay.duplicate(true)
+	var recovery_use: Dictionary = HospitalEquipmentUse.query(sim.world,bed_id)
+	equipment_handoff = equipment_handoff and recovery_use.occupied and recovery_use.critical_commitment
 	var care_tick: int = -1
 	var round_tick: int = -1
 	var round_record: Dictionary = {}
@@ -989,7 +1047,7 @@ func _case_36(_t) -> Dictionary:
 					var doctor_id: String = str(active.staff_ids[0])
 					sequence_legal = sequence_legal and care_tick>=0 and current_stay.get("care_completed",false) and nurse_moved_after_care and layout.operator_cells[0]==layout.operator_cells[1] and sim.space.at(sim.world,doctor_id,1,layout.operator_cells[1]) and not sim.space.at(sim.world,nurse_id,1,layout.operator_cells[1]) and not sim.space.body_rectangle(sim.world.facts.actors[nurse_id]).intersects(sim.space.body_rectangle(sim.world.facts.actors[doctor_id]),false)
 			if round_tick>=0: break
-			sim.step()
+			clinical_tick.call()
 	var completion: Dictionary = {"round_finished":false,"patient_departed":false,"bed_released":false,"arrangement_pending":true,"blocked_until_release":true,"no_early_settlement":true}
 	if round_tick>=0:
 		for index: int in 1200:
@@ -1004,8 +1062,13 @@ func _case_36(_t) -> Dictionary:
 			completion.round_finished = not sim.world.facts.sessions.has(str(round_record.get("id",""))) and int(round_work.get("remaining_ticks",-1))==0 and visit.get("final_result","")=="cured" and visit.get("result_receipt",{}).get("attempt_id","")==attempt_id
 			completion.patient_departed = visit.phase=="departed" and actor.location.kind=="outside"
 			completion.bed_released = not sim.world.facts.ward_stays.has(attempt_id) and not sim.world.facts.adaptations.has(bed_id) and actor.get("support_facility_id","")!=bed_id
+			var current_use: Dictionary = HospitalEquipmentUse.query(sim.world,bed_id)
+			if completion.round_finished:
+				equipment_handoff = equipment_handoff and not current_use.critical_commitment
+			if not completion.bed_released:
+				equipment_handoff = equipment_handoff and current_use.occupied
 			if completion.round_finished and completion.patient_departed and completion.bed_released: break
-			sim.step()
+			clinical_tick.call()
 	var charges: Dictionary = {"surgery":0,"ward":0,"cure":0}
 	var charge_counts: Dictionary = {"surgery":0,"ward":0,"cure":0}
 	var charges_settled: bool = true
@@ -1025,7 +1088,8 @@ func _case_36(_t) -> Dictionary:
 	var same_case: bool = sim.world.facts.visits[visit_id].attempt_ids==[attempt_id] and sim.world.facts.inventory.issues==issues
 	var arrangement_retained: bool = sim.world.facts.remodels.get(order_id,{}).get("state","")=="preparing" and completion.arrangement_pending and completion.blocked_until_release
 	var validation: String = sim.world.validate(content)
-	var passed: bool = protected and bed_roles_ready and care_tick>=0 and round_tick>care_tick and nurse_moved_after_care and sequence_legal and promise_preserved and same_case and arrangement_retained and completion.round_finished and completion.patient_departed and completion.bed_released and completion.no_early_settlement and settlement and unique_settlement and validation.is_empty()
+	equipment_handoff = equipment_handoff and not HospitalEquipmentUse.query(sim.world,bed_id).occupied
+	var passed: bool = equipment_handoff and protected and bed_roles_ready and care_tick>=0 and round_tick>care_tick and nurse_moved_after_care and sequence_legal and promise_preserved and same_case and arrangement_retained and completion.round_finished and completion.patient_departed and completion.bed_released and completion.no_early_settlement and settlement and unique_settlement and validation.is_empty()
 	var final_scene: Dictionary = {}
 	if not passed:
 		var actual_stay: Dictionary = sim.world.facts.ward_stays.get(attempt_id,{}).duplicate(true)
@@ -1044,7 +1108,7 @@ func _case_36(_t) -> Dictionary:
 		var encoder: HospitalJsonStream = HospitalJsonStream.new()
 		var saved: bool = encoder.encode(snapshot_path,sim.world.freeze(),func(_bytes: int) -> bool: return true)
 		final_scene = {"tick":sim.world.sim_tick,"world_path":ProjectSettings.globalize_path(snapshot_path),"world_saved":saved,"world_save_error":encoder.error,"visit":sim.world.facts.visits[visit_id].duplicate(true),"stay":actual_stay,"ward_covering":coverage,"staff":staff_facts,"sessions":sim.world.facts.sessions.duplicate(true),"bed_layout":sim.space.facility_layout(sim.world,bed_id).duplicate(true),"adaptation":sim.world.facts.adaptations.get(bed_id,{}).duplicate(true)}
-	return _done(sim,passed,{"selected_plan":selected.to_record(),"bed_role_quotes":bed_role_quotes,"prepared":prepared.to_record(),"initial_block":blocked.get("reason"),"real_transfer":transfer,"promise_preserved":promise_preserved,"stay_at_transfer":recovery_stay,"final_block":still_blocked.get("reason"),"protected":protected,"care_tick":care_tick,"round_tick":round_tick,"nurse_moved_after_care":nurse_moved_after_care,"sequence_legal":sequence_legal,"completion":completion,"charges":charges,"charge_counts":charge_counts,"unique_settlement":unique_settlement,"same_case":same_case,"arrangement_retained":arrangement_retained,"validation":validation,"final_scene":final_scene})
+	return _done(sim,passed,{"equipment_handoff":equipment_handoff,"reserved_use":reserved_use,"recovery_use":recovery_use,"selected_plan":selected.to_record(),"bed_role_quotes":bed_role_quotes,"prepared":prepared.to_record(),"initial_block":blocked.get("reason"),"real_transfer":transfer,"promise_preserved":promise_preserved,"stay_at_transfer":recovery_stay,"final_block":still_blocked.get("reason"),"protected":protected,"care_tick":care_tick,"round_tick":round_tick,"nurse_moved_after_care":nurse_moved_after_care,"sequence_legal":sequence_legal,"completion":completion,"charges":charges,"charge_counts":charge_counts,"unique_settlement":unique_settlement,"same_case":same_case,"arrangement_retained":arrangement_retained,"validation":validation,"final_scene":final_scene})
 
 func _case_37(_t) -> Dictionary:
 	var sim: HospitalSimulation = _fixture()
@@ -1220,7 +1284,6 @@ func _case_44(_t) -> Dictionary:
 	var tool: CommandResult = _command(sim,"build_facility",{"id":"resume_tool","definition_id":"SE02","floor_id":1,"cell":[43,78]})
 	if not room.accepted or not machine.accepted or not tool.accepted:
 		return _done(sim,false,{"prerequisite":"保养场景未建成","room":room.to_record(),"machine":machine.to_record(),"tool":tool.to_record()})
-	_add_staff(sim,"resume_mechanic","mechanic",[46,80])
 	sim.world.facts.facilities.resume_machine.condition = 45.0
 	var maintenance: CommandResult = _command(sim,"maintenance_order",{"facility_id":"resume_machine"})
 	var job_id: String = str(maintenance.changed_ids[0]) if maintenance.accepted else ""
@@ -1241,7 +1304,7 @@ func _case_44(_t) -> Dictionary:
 	var paused: bool = saved==sim.world.freeze()
 	var restored: HospitalSimulation = HospitalSimulation.new(WorldState.new(saved),content)
 	var saved_job: Dictionary = restored.world.facts.maintenance.jobs.get(job_id,{})
-	var preserved: bool = saved_job==original_job and int(original_job.get("total_milli",0))==20000 and int(original_job.get("paid_parts",0))==20 and original_payment.get("amount",0)==-20 and original_payment.get("settled",false) and original_job.get("contributions",{}).get("resume_mechanic",0)==original_job.get("completed_milli",-1) and restored.world.facts.remodels.get(order_id,{}).get("state","")=="preparing"
+	var preserved: bool = saved_job==original_job and int(original_job.get("total_milli",0))==20000 and int(original_job.get("paid_parts",0))==20 and original_payment.get("amount",0)==-20 and original_payment.get("settled",false) and original_job.get("contributions",{}).get(str(original_job.get("worker_id","")),0)==original_job.get("completed_milli",-1) and restored.world.facts.remodels.get(order_id,{}).get("state","")=="preparing"
 	var cleared: bool = _wait(restored,func() -> bool: return restored.services.remodel.preview(restored.world,order_id).get("ok",false),400)
 	var held: bool = cleared and saved_job.get("remaining_milli",-1)==original_job.remaining_milli and saved_job.get("completed_milli",-1)==original_job.completed_milli and saved_job.get("contributions",{})==original_job.contributions and restored.world.facts.ledger.entries==original_ledger and restored.world.facts.rooms.resume_room.origin==[35,68] and restored.world.facts.remodels[order_id].state=="preparing"
 	var plan: Dictionary = restored.services.remodel.preview(restored.world,order_id)
@@ -1263,7 +1326,7 @@ func _case_44(_t) -> Dictionary:
 	var completed_world: Dictionary = restored.world.freeze()
 	var completed_repeat: CommandResult = _command(restored,"remodel_apply",payload,"space_restored_apply")
 	var same_job: bool = final_job.get("id","")==job_id and final_job.get("facility_id","")=="resume_machine" and final_job.get("total_milli",0)==20000 and final_job.get("completed_milli",0)==20000 and final_job.get("remaining_milli",-1)==0 and final_job.get("paid_parts",0)==20 and restored.world.facts.maintenance.jobs.size()==1
-	var once: bool = receipt.get("standard_work_milli",0)==20000 and receipt.get("staff_id","")=="resume_mechanic" and restored.world.facts.maintenance.receipts.size()==1 and expected_entries==final_entries and restored.world.freeze()==completed_world
+	var once: bool = receipt.get("standard_work_milli",0)==20000 and receipt.get("staff_id","").is_empty() and not str(receipt.get("worker_id","")).is_empty() and restored.world.facts.maintenance.receipts.size()==1 and expected_entries==final_entries and restored.world.freeze()==completed_world
 	var validation: String = restored.world.validate(content)
 	var ok: bool = passive and partial and paused and preserved and held and plan.get("ok",false) and plan.get("price",-1)==0 and plan.get("refund",-1)==0 and applied.accepted and duplicate_safe and progress_at_apply and completed and same_job and once and completed_repeat.accepted and restored.world.facts.rooms.resume_room.origin==[45,68] and restored.world.facts.facilities.resume_machine.cell==[46,69] and restored.world.facts.remodels[order_id].state=="applied" and validation.is_empty()
 	var details: Dictionary = {"guide_count":guides.size(),"partial_job":original_job,"paused":paused,"preserved":preserved,"held_until_apply":held,"apply":applied.to_record(),"repeat":repeated.to_record(),"progress_at_apply":progress_at_apply,"resumed_original_job":final_job.duplicate(true),"receipt":receipt,"paid_once":once,"completed_repeat":completed_repeat.to_record(),"validation":validation}
@@ -1310,9 +1373,61 @@ func _remodel_evacuation_contract() -> Dictionary:
 	var not_applied: bool = order.state=="preparing" and sim.world.facts.rooms.evacuation_source.origin==[35,68]
 	return _done(sim,waiting and assigned and target_legal and arrived and disjoint and clear and applicable.get("ok",false) and not_applied and sim.world.present_actor_count()==2,{"waiting":waiting,"first_move":first,"second_move":second,"target_legal":target_legal,"arrived":arrived,"bodies_disjoint":disjoint,"clear":clear,"applicable":_public_quote(applicable),"not_applied":not_applied,"tick":sim.world.sim_tick})
 
+func _case_46(_t) -> Dictionary:
+	var sim: HospitalSimulation = _fixture()
+	var placed: CommandResult = _command(sim,"build_facility",{"id":"reserved_machine","definition_id":"M37","floor_id":1,"cell":[42,76]})
+	if not placed.accepted: return _done(sim,false,placed.to_record())
+	var point: Array = sim.space.facility_layout(sim.world,"reserved_machine").patient_cell
+	_add_actor(sim,"group_leader","S49",[38,80])
+	_add_actor(sim,"reserved_patient","S49",point)
+	_add_actor(sim,"replacement_patient","S49",[36,80])
+	var reason: String = sim.space.reserve_facility(sim.world,"reserved_machine","reserved_patient","reserved_patient")
+	if not reason.is_empty(): return _done(sim,false,{"reservation":reason})
+	var leader: Dictionary = sim.world.facts.actors.group_leader
+	var original: Array = ["group_leader","reserved_patient"]
+	var replacement: Array = ["group_leader","replacement_patient"]
+	var offsets: Dictionary = {"group_leader":[0,0],"reserved_patient":[1,0],"replacement_patient":[1,0]}
+	var origin: Vector2i = Vector2i(int(point[0]),int(point[1]))
+	var before: Dictionary = sim.world.freeze()
+	var own_clear: bool = sim.space._navigation.clearance(sim.space,sim.world,1,leader,original,offsets).reason(origin).is_empty()
+	var other_blocked: bool = not sim.space._navigation.clearance(sim.space,sim.world,1,leader,replacement,offsets).reason(origin).is_empty()
+	var own_again: bool = sim.space._navigation.clearance(sim.space,sim.world,1,leader,original,offsets).reason(origin).is_empty()
+	var readonly: bool = before==sim.world.freeze()
+	var obstacle: Array = [origin.x+3,origin.y]
+	sim.world.facts.floors.overrides["1"].blocked.append(obstacle)
+	sim.world.touch()
+	var near_clear: bool = sim.space._navigation.clearance(sim.space,sim.world,1,leader,original,offsets).reason(origin).is_empty()
+	offsets.reserved_patient = [3,0]
+	var changed_offset_blocked: bool = not sim.space._navigation.clearance(sim.space,sim.world,1,leader,original,offsets).reason(origin).is_empty()
+	sim.world.facts.floors.overrides["1"].blocked.erase(obstacle)
+	sim.world.touch()
+	var reopened: bool = sim.space._navigation.clearance(sim.space,sim.world,1,leader,original,offsets).reason(origin).is_empty()
+	return _done(sim,own_clear and other_blocked and own_again and readonly and near_clear and changed_offset_blocked and reopened,{"own_reservation":own_clear,"different_patient_blocked":other_blocked,"original_group_restored":own_again,"readonly":readonly,"near_clear":near_clear,"changed_offset_blocked":changed_offset_blocked,"removed_obstacle_reopens":reopened})
+
+func _case_47(_t) -> Dictionary:
+	var rectangle: Dictionary = {"origin":[35,68],"size":[6,6]}
+	var explicit: Dictionary = rectangle.duplicate(true)
+	explicit.cells = BuildGeometry.cells(rectangle)
+	var irregular: Dictionary = {"origin":[35,68],"size":[6,6],"cells":[]}
+	for y: int in range(68,74):
+		for x: int in range(35,41):
+			if x<38 or y<71: irregular.cells.append([x,y])
+	var inside: Rect2 = Rect2(35.5,68.5,1,1)
+	var notch: Rect2 = Rect2(39,72,1,1)
+	var crossing: Rect2 = Rect2(37.5,72,1,1)
+	var touching: Rect2 = Rect2(41,69,1,1)
+	var rectangle_ok: bool = true
+	for room: Dictionary in [rectangle,explicit]:
+		rectangle_ok = rectangle_ok and BuildGeometry.intersects_room(inside,room) and BuildGeometry.intersects_room(notch,room) and not BuildGeometry.intersects_room(touching,room)
+	var exact_shape: bool = BuildGeometry.intersects_room(inside,irregular) and not BuildGeometry.intersects_room(notch,irregular) and BuildGeometry.intersects_room(crossing,irregular) and not BuildGeometry.intersects_room(touching,irregular)
+	return {"ok":rectangle_ok and exact_shape,"details":{"rectangular_rooms":rectangle_ok,"irregular_notch_and_crossing":exact_shape}}
+
 func _fixture(preset: bool = false, cash: int = 1000000) -> HospitalSimulation:
 	_sequence += 1
 	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"空间专项 %04d"%_sequence,preset,content)
+	return _bind_fixture(world,cash)
+
+func _bind_fixture(world: WorldState, cash: int) -> HospitalSimulation:
 	world.facts.ledger.opening_balance = cash+_opening_spend(world)
 	var sim: HospitalSimulation = HospitalSimulation.new(world,content)
 	world.facts.arrivals.intake_open = false
@@ -1340,6 +1455,32 @@ func _floor_fixture() -> HospitalSimulation:
 	_add_staff(sim,"decorator","decorator",[44,76])
 	sim.world.facts.staff.decorator.work_region = {"strict":true,"floor_id":1,"origin":[42,74],"size":[1,1]}
 	return sim
+
+func _case_45(_t) -> Dictionary:
+	var sim: HospitalSimulation = _transit_fixture()
+	var built: CommandResult = _command(sim,"build_facility",{"id":"contractor_upper_machine","definition_id":"M09","floor_id":2,"cell":[45,80]})
+	if not built.accepted: return _done(sim,false,{"build":built.to_record()})
+	sim.world.facts.facilities.contractor_upper_machine.condition = 45.0
+	var ordered: CommandResult = _command(sim,"maintenance_order",{"facility_id":"contractor_upper_machine"})
+	if not ordered.accepted: return _done(sim,false,{"order":ordered.to_record()})
+	var job_id: String = str(ordered.changed_ids[0])
+	var boarded: bool = _wait(sim,func() -> bool:
+		var id: String = str(sim.world.facts.maintenance.jobs[job_id].worker_id)
+		return not id.is_empty() and sim.world.facts.actors[id].location.kind=="transit",500)
+	if not boarded: return _done(sim,false,{"job":sim.world.facts.maintenance.jobs[job_id]})
+	var worker_id: String = str(sim.world.facts.maintenance.jobs[job_id].worker_id)
+	var cancelled: CommandResult = _command(sim,"maintenance_cancel",{"job_id":job_id})
+	var ride_retained: bool = cancelled.accepted and sim.world.facts.actors[worker_id].location.kind=="transit" and sim.world.facts.moves.has(worker_id) and sim.world.facts.connectors[_connection(sim)].riders.has(worker_id)
+	var restored: HospitalSimulation = HospitalSimulation.new(WorldState.new(sim.world.freeze()),content)
+	sim.dispose()
+	sim = restored
+	var restore_valid: String = sim.world.validate(content)
+	var departed: bool = _wait(sim,func() -> bool: return sim.world.facts.maintenance.contractors[worker_id].phase=="departed",800)
+	var job: Dictionary = sim.world.facts.maintenance.jobs[job_id]
+	# The default policy can independently buy a replacement at condition 45.
+	# Its incoming worker must pass the original worker returning to the exit.
+	var not_charged: bool = job.paid_parts==0 and not sim.world.facts.ledger.entries.has(job_id+":maintenance_parts")
+	return _done(sim,ride_retained and restore_valid.is_empty() and departed and sim.world.facts.actors[worker_id].location.kind=="outside" and sim.world.facts.staff.is_empty() and job.phase=="cancelled" and not job.started and job.completed_milli==0 and not_charged and sim.world.validate(content).is_empty(),{"ride_retained":ride_retained,"restore_validation":restore_valid,"actual_departure":departed,"cancelled_order_not_charged":not_charged,"job":job.duplicate(true),"worker":sim.world.facts.maintenance.contractors[worker_id].duplicate(true),"actor":sim.world.facts.actors[worker_id].duplicate(true),"movement":sim.world.facts.moves.get(worker_id,{}).duplicate(true),"connection":sim.world.facts.connectors[_connection(sim)].duplicate(true),"all_moves":sim.world.facts.moves.duplicate(true),"all_contractors":sim.world.facts.maintenance.contractors.duplicate(true),"all_actors":sim.world.facts.actors.duplicate(true),"validation":sim.world.validate(content)})
 
 func _transit_fixture() -> HospitalSimulation:
 	var sim: HospitalSimulation = _fixture()
@@ -1419,12 +1560,16 @@ func _bed_blueprint_contract() -> Dictionary:
 	return {"ok":true,"cases":observations}
 
 func _surgery_fixture() -> HospitalSimulation:
-	var sim: HospitalSimulation = _fixture(true)
+	_sequence += 1
+	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"手术整备专项 %04d"%_sequence,true,content)
+	# The input hospital employs only this scenario's roles. Remove template
+	# hires before constructing services, schedules or any live clinical work.
+	for id: String in ["starter_doctor_b","starter_doctor_c","starter_nurse","starter_cleaner"]:
+		world.facts.staff.erase(id)
+		world.facts.actors.erase(id)
+		world.facts.ledger.entries.erase(id+":hire")
+	var sim: HospitalSimulation = _bind_fixture(world,1000000)
 	sim.clinic.departments = null
-	# Keep the idle starter doctor clear of the real two-cell reception adaptation.
-	sim.world.facts.actors.starter_doctor_b.location.cell = [40,92]
-	sim.world.touch()
-	sim.space.sync_actor(sim.world,"starter_doctor_b")
 	for research: Dictionary in content.catalog.research: sim.world.facts.research.append(research.id)
 	for id: String in sim.world.ids("staff"):
 		var staff: Dictionary = sim.world.facts.staff[id]
@@ -1435,16 +1580,14 @@ func _surgery_fixture() -> HospitalSimulation:
 	var ward: Dictionary = sim.services.blueprints.builtin("BP06").get("blueprint",{})
 	_place_blueprint(sim,table,[33,66])
 	_place_blueprint(sim,ward,[45,66])
-	_command(sim,"build_room",_room("surgical_case_gp",[55,66],[6,6]))
-	_command(sim,"build_facility",{"id":"surgical_gp_station","definition_id":"FUR02","floor_id":1,"cell":[56,68],"room_id":"surgical_case_gp"})
-	for data: Array in [["surgeon",[33,94]],["anesthetist",[35,94]],["round_doctor",[39,94]]]:
+	for data: Array in [["surgeon",[34,76]],["anesthetist",[38,76]],["round_doctor",[51,76]]]:
 		_add_staff(sim,str(data[0]),"doctor",data[1])
 		var staff: Dictionary = sim.world.facts.staff[str(data[0])]
 		staff.title_id = "DT04"
 		staff.abilities = {"diagnosis":4,"treatment":4,"care":0,"surgery":0 if data[0]=="round_doctor" else 4}
 		var duty: String = "round" if data[0]=="round_doctor" else "surgery"
 		staff.schedule = [{"kind":duty,"pools":[],"locked":false},{"kind":duty,"pools":[],"locked":false},{"kind":"rest","pools":[],"locked":false}]
-	_add_staff(sim,"or_nurse","nurse",[33,92])
+	_add_staff(sim,"or_nurse","nurse",[42,76])
 	_add_staff(sim,"ward_nurse","nurse",[45,73])
 	sim.world.facts.staff.or_nurse.certificates = ["q_or","q_ward"]
 	sim.world.facts.staff.or_nurse.abilities.surgery = 3
@@ -1452,6 +1595,9 @@ func _surgery_fixture() -> HospitalSimulation:
 	sim.world.facts.staff.ward_nurse.abilities.care = 4
 	for room: Dictionary in sim.world.facts.rooms.values():
 		if room.kind=="ward": sim.world.facts.staff.ward_nurse.ward_id = room.id
+	for staff: Dictionary in sim.world.facts.staff.values():
+		if staff.role in ["doctor","nurse"]:
+			staff.base_prepared = true
 	sim.world.touch()
 	return sim
 
@@ -1523,10 +1669,11 @@ func _blueprint_quote(plan: Dictionary) -> Dictionary:
 func _object_blueprint(definition_id: String) -> Dictionary:
 	return {"schema_version":1,"id":"","revision":1,"name":"空间验收布局","description":"","thumbnail":"","content_dependencies":[],"rooms":[],"objects":[{"local_id":"object","definition_id":definition_id,"cell":[0,0],"rotation":0,"grade":0,"style":"","room_ref":""}],"surfaces":[],"bed_links":[]}
 
-func _wait(sim: HospitalSimulation, condition: Callable, maximum_ticks: int) -> bool:
+func _wait(sim: HospitalSimulation, condition: Callable, maximum_ticks: int, tick: Callable = Callable()) -> bool:
 	if condition.call(): return true
 	for index: int in maximum_ticks:
-		sim.step()
+		if tick.is_valid(): tick.call()
+		else: sim.step()
 		if condition.call(): return true
 	return false
 

@@ -41,19 +41,6 @@
     "unit": "completed_work"
   },
   {
-    "first_job_scene": "@zh:core.staff_practice_profiles.SP04.first_job_scene",
-    "growth_owner": "job_skill",
-    "id": "SP04",
-    "low_motion_first_job_scene": "@zh:core.staff_practice_profiles.SP04.low_motion_first_job_scene",
-    "name": "@zh:core.staff_practice_profiles.SP04.name",
-    "role": "mechanic",
-    "sources": [
-      "maintenance_order_completed",
-      "machine_upgrade_completed"
-    ],
-    "unit": "completed_work"
-  },
-  {
     "first_job_scene": "@zh:core.staff_practice_profiles.SP05.first_job_scene",
     "growth_owner": "job_skill",
     "id": "SP05",

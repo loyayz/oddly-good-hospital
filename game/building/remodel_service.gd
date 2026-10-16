@@ -222,7 +222,7 @@ func _in_affected_area(world: WorldState, order: Dictionary, actor: Dictionary) 
 	var body: Rect2 = space.body_rectangle(actor)
 	for id: String in order.room_ids:
 		var room: Dictionary = world.facts.rooms.get(id,{})
-		if not room.is_empty() and int(actor.location.floor_id)==int(room.floor_id) and BuildGeometry.intersects_cells(body,BuildGeometry.cells(room)): return true
+		if not room.is_empty() and int(actor.location.floor_id)==int(room.floor_id) and BuildGeometry.intersects_room(body,room): return true
 	for id: String in order.member_ids:
 		var item: Dictionary = world.facts.facilities.get(id,{})
 		if not item.is_empty() and int(actor.location.floor_id)==int(item.floor_id) and body.intersects(BuildGeometry.rectangle(space.facility_layout(world,id).merged({"cell":item.cell})),false): return true
@@ -250,7 +250,7 @@ func _evacuation(world: WorldState, order: Dictionary, actor: Dictionary) -> Arr
 			if not space._dynamic_clear(world,actor.id,floor_id,rectangle) or not _movement_targets_clear(world,actor.id,floor_id,rectangle): continue
 			var inside: bool = false
 			for room: Dictionary in world.facts.rooms.values():
-				if int(room.floor_id)==floor_id and BuildGeometry.intersects_cells(rectangle,BuildGeometry.cells(room)): inside = true
+				if int(room.floor_id)==floor_id and BuildGeometry.intersects_room(rectangle,room): inside = true
 			if inside: continue
 			var route: Dictionary = space.route(world,actor.id,floor_id,point)
 			if route.ok and route.get("status","")!="contention": return point

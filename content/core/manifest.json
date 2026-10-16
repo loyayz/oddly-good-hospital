@@ -182,7 +182,7 @@
     },
     {
       "path": "locale/zh_CN.csv",
-      "sha256": "b91597dd6615b978f2730372b16f39fcdf56242d158a889201628d330e503068"
+      "sha256": "2ade8c67e736aebf5c5fcdea2fd084ebb631d627048fc5db074ff3e7e59058ef"
     },
     {
       "path": "machines.json",
@@ -246,7 +246,7 @@
     },
     {
       "path": "recruitment_examples.json",
-      "sha256": "5aa451ac71f0b6418fd198124b943aaebffa848fa137fb5fce1236ef220cb883"
+      "sha256": "06e0478c1d06a5c71a97864f6e4a292f65bec2bb23ea83d37b1074f963915449"
     },
     {
       "path": "remodel_guides.json",
@@ -274,7 +274,7 @@
     },
     {
       "path": "rules.json",
-      "sha256": "3b4a59fd773e0fcfcea4b2e9426c3487f778d2d040abe704324e0302c9566503"
+      "sha256": "8787d1139a7ba9e9d513c73be3cfb939bc37f6d5c051b3f28e9ff3f0b4424cc1"
     },
     {
       "path": "service_equipment.json",
@@ -302,7 +302,7 @@
     },
     {
       "path": "staff_practice_profiles.json",
-      "sha256": "6d8702142be19d22d79670bafa7f03fbb930424ddd0d771d7a17ed9aa251936d"
+      "sha256": "246f01a3400642a32aacdff6a48e6e888746860936d712af32420a13f6b21c9b"
     },
     {
       "path": "staff_recreation_equipment.json",
@@ -314,7 +314,7 @@
     },
     {
       "path": "staff_role_profiles.json",
-      "sha256": "b35f32a4e06dcbd7d302fd4b990dad716c3f6a5c18ae45190561c3641fee0e09"
+      "sha256": "750b0e26da652ecac2999f2a2ee8081954b61236801be42b6e41d8ebdb734a32"
     },
     {
       "path": "staff_support_rooms.json",
@@ -362,11 +362,11 @@
     },
     {
       "path": "task_guides.json",
-      "sha256": "5766b80c76f48d3ff304658c2c95fd9d36d7ac2c02d08720ad465e70f7d0dd4a"
+      "sha256": "f840aa7111d9bfbceddedf9bea20157a69446738969b6019dbc46e396d7f77c9"
     },
     {
       "path": "tasks.json",
-      "sha256": "3d53eb7d2d640e5dcb9f9925f40d9cd43ccb9a2aeb9001936853ca003e02c618"
+      "sha256": "3b65150da0092ced59164f6fb7cefd118c0b2c6b2b077224f84c053e2a39b2d9"
     },
     {
       "path": "treatment_bindings.json",

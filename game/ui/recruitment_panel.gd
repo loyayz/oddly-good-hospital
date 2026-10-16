@@ -1,7 +1,7 @@
 class_name HospitalRecruitmentPanel
 extends HospitalActionPanel
 
-const ROLE_NAMES: Dictionary = {"receptionist":"接待员","doctor":"医生","nurse":"护士","cleaner":"保洁员","mechanic":"维修员","researcher":"研究员","decorator":"装修员"}
+const ROLE_NAMES: Dictionary = {"receptionist":"接待员","doctor":"医生","nurse":"护士","cleaner":"保洁员","researcher":"研究员","decorator":"装修员"}
 const TRACK_NAMES: Dictionary = {"diagnosis":"诊断","treatment":"治疗","care":"护理","surgery":"手术","skill":"岗位技能"}
 var _role: OptionButton
 var _species: OptionButton
@@ -98,14 +98,6 @@ func _add_card(card: Dictionary, filter: Dictionary, standard: bool) -> void:
 	var species: Dictionary = simulation.content.definition("species",str(card.species_id))
 	_add_text("%s · %s · %s\n录用费 %d · 日薪 %d" % [card.name,ROLE_NAMES.get(card.role,card.role),species.get("name",""),card.hire,card.wage_day])
 	var hospital_paid: int = int(card.hire)
-	if standard and card.role=="mechanic":
-		var has_mechanic: bool = false
-		for staff: Dictionary in simulation.world.facts.staff.values():
-			if staff.role=="mechanic" and not staff.get("departed",false):
-				has_mechanic = true
-				break
-		if not has_mechanic:
-			hospital_paid = mini(hospital_paid,HospitalLedger.balance(simulation.world))
 	_add_text(payment_summary(hospital_paid))
 	var abilities: PackedStringArray = []
 	for key: String in card.get("abilities",{}):

@@ -1,5 +1,7 @@
 extends RefCounted
 
+const ClinicalStep = preload("res://tests/acceptance/clinical_step.gd")
+
 var _cache: RefCounted
 var _content: HospitalContent
 var _simulations: Array[HospitalSimulation] = []
@@ -180,7 +182,7 @@ func _arrive(c: Dictionary, binding: String = "B_S13_D09_M09", plan: String = "P
 func _tick(c: Dictionary) -> void:
 	if not bool(c.get("fixture_ready",true)): return
 	_fixture_arrival_plan(c.world)
-	var result: TickResult = c.sim.step()
+	var result: TickResult = ClinicalStep.step(c.sim) if c.get("clinical_scenario",false) else c.sim.step()
 	for event: SimEvent in result.facts:
 		if event.kind=="service_started":
 			var kind: String = str(event.details.get("kind",""))
@@ -279,7 +281,7 @@ func _ensure_boundary(t, key: String) -> bool:
 		"companion_entered":
 			await _companion_entry(t)
 		"visitor_visiting":
-			if await _ensure_boundary(t,"ward_entered"): await _visitor_bedside(t)
+			if await _ensure_boundary(t,"ward_entered"): c = await _visitor_bedside(t)
 		_:
 			var stages: Dictionary = {
 				"outpatient_queue":["gp_started",2200], "outpatient_started":["outpatient_queue",2200],
@@ -615,9 +617,17 @@ func _visitor_bedside(t) -> Dictionary:
 	var visiting: Dictionary = _copy("ward_entered")
 	_command(visiting,"clinical_visit_consent",{"visit_id":visiting.visit_id,"allow":true})
 	_seed_stream(visiting.world,"arrival",true,false,5000,5000)
-	var bedside: bool = await _until(t,visiting,func()->bool: return _visitor(visiting).get("phase","")=="visiting",1000)
+	var trace: Array = []
+	var bedside: bool = await _until(t,visiting,func()->bool:
+		var visitor: Dictionary = _visitor(visiting)
+		var phase: String = str(visitor.get("phase","absent"))
+		if trace.is_empty() or trace.back().phase!=phase:
+			trace.append({"tick":visiting.world.sim_tick,"phase":phase,"visitor":visitor.duplicate(true),"care_completed":_stay(visiting).get("care_completed",false),"sessions":visiting.world.facts.sessions.duplicate(true)})
+		return phase=="visiting",1000)
 	if bedside: _remember(visiting,"visitor_visiting")
 	visiting.bedside_ready = bedside
+	visiting.visitor_trace = trace
+	if not bedside: visiting.failure_world = _failure_world("visitor_bedside",visiting.world)
 	return visiting
 
 func _diagnosis_state(t, upgraded: bool) -> Dictionary:

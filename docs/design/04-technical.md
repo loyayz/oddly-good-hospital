@@ -74,6 +74,7 @@ WorldState是唯一模拟事实，不保存到场景节点里。建筑系统拥�
 | RecruitmentService | list(world: WorldState, filter: RecruitmentFilter) -> RecruitmentList；search(world: WorldState, filter: RecruitmentFilter, expected_revision: int) -> CommandResult；hire(world: WorldState, source: CandidateSelection, expected_revision: int) -> CommandResult | 简历ID或标准筛选键+序号二选一，原子录用，工资从录用tick起算 |
 | QueueService | enqueue(world: WorldState, visit_id: StringName, service_key: StringName) -> QueueTicket | 分配票号、幂等，当前服务仅一张票 |
 | ClinicService | try_start(world: WorldState, ticket_id: StringName) -> ServiceStartResult | 原子占患者/员工/站点，承诺随机结果和费用 |
+| HospitalEquipmentUse | query(world: WorldState, equipment_id: String) -> Dictionary | 只读返回placed、occupied、critical_commitment；从设备使用方与实际空间占用合并，不保存第二份预约或占用状态 |
 | DepartmentService | assign_rooms(world, department_id: StringName, room_ids: Array[StringName]) -> CommandResult；change_focus(world, department_id: StringName, specialty_id: StringName) -> CommandResult | 区域归属、共享资源、专长冷却与报价 |
 | ExperienceSystem | update(world: WorldState, facts: Array[SimEvent]) -> void | 怒气/等待原因、体验累计与有限评分窗口 |
 | GuidanceService | correct_route(world, visit_id: StringName, guide_id: StringName) -> CommandResult | 按真实接诊范围/设备筛选错误候选并保存一次选择；纠正前重查等效目的地，需转科时保留票号与收费 |
@@ -218,7 +219,7 @@ diagnostic_work_styles由内容注册表建立主体/医生DP性格复合索引�
 
 ## 5. 内容定义的类型约束
 
-SpeciesDef拥有原身体、骨架、家族与外观，StaffTalent通过species_id唯一绑定，StaffRigAdapter按rig覆盖七岗位。ClinicalAbilityDef仅诊断/治疗/手术/护理，ClinicalPracticeSource引用实际工作事实。TreatmentRoutine拥有equipment_id、specialty_id、service_ticks和四段表现；TreatmentBinding引用species_id、disease_id、routine_id、骨架与三种身体表现，并可拥有symptom_envelope；设备从routine派生。MachineDef仅有三类门诊主体的价、占地、适配与状态类别；诊断台、手术台、护理床各有唯一定义，MedicalEquipmentProfile索引六类主体的操作规则，UpgradePresentation提供每主体两级外观。内置检查、麻醉、监护和器械功能不是独立设备实体。
+SpeciesDef拥有原身体、骨架、家族与外观，StaffTalent通过species_id唯一绑定，StaffRigAdapter按rig覆盖六岗位。ClinicalAbilityDef仅诊断/治疗/手术/护理，ClinicalPracticeSource引用实际工作事实。TreatmentRoutine拥有equipment_id、specialty_id、service_ticks和四段表现；TreatmentBinding引用species_id、disease_id、routine_id、骨架与三种身体表现，并可拥有symptom_envelope；设备从routine派生。MachineDef仅有三类门诊主体的价、占地、适配与状态类别；诊断台、手术台、护理床各有唯一定义，MedicalEquipmentProfile索引六类主体的操作规则，UpgradePresentation提供每主体两级外观。内置检查、麻醉、监护和器械功能不是独立设备实体。
 
 DiseaseDef继续拥有病名、症状、临床档位、治愈费与症状资源；DoorDef拥有收起跨度/净宽高、价与自动适配策略。TaskDef拥有kind、metric、target、filter、eligibility_rule及奖励；能力团队指标的metric_parameters拥有所需能力项数和等级，说明文字不执行规则。ResearchDef独占解锁列表，初始病症由initial_disease_ids声明；疾病不另存unlock_id，界面反向索引由注册表派生。TreatmentProtocol拥有方案参数，TreatmentPlan引用病症、协议、额外研究与独特演出；SurgicalAdapter引用binding_id、plan_id、patient_pose、target_description与required_anchors，种族和病症由绑定派生。DoctorTitleDef拥有职称顺序和晋级条件，DoctorPayDef拥有同title_id的工资、招聘费和评估费；BillingPolicy独占各职称初诊诊费及各equipment_id/service_kind的设施单价和收费节点，DoctorPersonalityDef拥有六种评分权重。ClinicalEquipmentDef和ClinicalRoomTypeDef保留临床主体价、尺寸、研究及房间需求；模式资格额外读取DiagnosticMode，不用诊断台通用资格放行护士初诊。
 
@@ -375,6 +376,8 @@ Movement拥有当前行进/退让意图、受阻开始tick、让行对象与实�
 按(floor_id, TraversalEnvelope签名)懒加载层内AStar2D图，签名保留真实格宽和宽高；图及相关派生数据共用128MiB目标做LRU回收，不再用全院16份图限制活跃楼层；实际大小按分配统计，同等最近使用按键排序。单份临时图超过缓存目标时可在本次计算后释放，仍须满足实际内存准入；缓存不是通路存在与否的事实。层内节点ID=y×96+x，跨层用CellRef。k格移动检查k×(k+1)或(k+1)×k扫掠区。门边查询先求实际伸展尺寸、连续墙段及两侧可用空间；既有适配预留与展开占地进入动态阻挡并递增本层occupancy_revision。查询结果持有相关修订号，真正移动/过门/开工前再原子检查，不在旧缓存上穿过伸出的床尾。物件几何、体积/高度和可达性使用同一适配查询，动画不能自行扩大碰撞体。
 
 建筑、门、土地及对查询层生效的楼板几何提交，以及清扫、活动、冲突的真实软绕行范围启停、范围或实际代价变化，增加本层nav_revision；适配预留与真实展开/收拢更新本层occupancy_revision。软成本变化不以同时发生硬占地变化为前提。竖向连接与运行模式由原连接索引及交通修订核验。局部变化在下一次相关查询前修补依赖点边；不能只按收起的3格忽略5格床尾。所有点边按ID排序，四邻、无斜向和部分路径返回。门没有故障状态；适配预留和收拢改变实际墙边及动态占用，安全出口检查与当前伸展尺寸一致。层内[AStar2D](https://docs.godotengine.org/en/stable/classes/class_astar2d.html)图负责明确节点与连接，项目负责实际几何与适配预检；服务可达检查复用同一图与包络，不在UI再算一份。
+
+通行组的逐步静态通行检查复用原导航预算中的查询；几何、实际占用、组成员身份、身体、姿态或配位偏移改变时重新构造。相同体型的另一位成员不继承原患者的预约豁免。复用只省去重复构造，实际移动仍逐步核验当前扫掠、人物争用和门口占用。
 
 ### 行人争用的局部完整候选
 

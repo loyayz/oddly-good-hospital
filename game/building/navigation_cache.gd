@@ -91,20 +91,24 @@ func _trim(target: int) -> void:
 		if _sources[key].world.get_ref()==null or not retained.has(_sources[key].floor_id):
 			_sources.erase(key)
 
-func clearance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary) -> RouteClearance:
+func clearance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, members: Array = [], offsets: Dictionary = {}) -> RouteClearance:
 	graph(space,world,floor_id,actor,[],{})
 	var key: String = str(floor_id)+":"+_envelope(space,world,actor,[],{})
-	if not _entries.has(key): return RouteClearance.new(space,world,actor,floor_id,[],{},true,floor_source(space,world,floor_id))
+	if not _entries.has(key): return RouteClearance.new(space,world,actor,floor_id,members,offsets,true,floor_source(space,world,floor_id))
 	var entry: Dictionary = _entries[key]
 	if not entry.has("queries"): entry.queries = {}
 	var stamp: Array = [world.get_instance_id(),floor_version(space,world,floor_id)]
+	if not members.is_empty():
+		# Identical bodies do not grant another group the same reservation access.
+		stamp.append(members.duplicate())
+		stamp.append(_envelope(space,world,actor,members,offsets))
 	var record: Dictionary = entry.queries.get(actor.id,{})
 	if record.is_empty() or record.stamp!=stamp:
 		var old_charge: int = int(record.get("charge",0))
 		entry.charge -= old_charge
 		_charged -= old_charge
 		var source: Dictionary = floor_source(space,world,floor_id)
-		record = {"stamp":stamp,"query":RouteClearance.new(space,world,actor,floor_id,[],{},true,source),"charge":var_to_bytes(source).size()*8+16384}
+		record = {"stamp":stamp,"query":RouteClearance.new(space,world,actor,floor_id,members,offsets,true,source),"charge":var_to_bytes(source).size()*8*(members.size()+1)+16384}
 		entry.queries[actor.id] = record
 		entry.charge += int(record.charge)
 		_charged += int(record.charge)

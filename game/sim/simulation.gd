@@ -65,7 +65,6 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 		services.maintenance.finance = services.finance
 		clinic.recruitment = services.recruitment
 		services.environment.recruitment = services.recruitment
-		services.maintenance.recruitment = services.recruitment
 		services.arrivals.clinic = clinic
 		services.arrivals.departments = services.departments
 	_ensure_services()
@@ -127,8 +126,6 @@ func dispose() -> void:
 		clinic.recruitment = null
 	if services.has("environment"):
 		services.environment.recruitment = null
-	if services.has("maintenance"):
-		services.maintenance.recruitment = null
 	if services.has("arrivals"):
 		services.arrivals.clinic = null
 	if services.has("arrivals"):

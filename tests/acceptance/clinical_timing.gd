@@ -5,11 +5,14 @@ var stages: Dictionary = {}
 var calls: Dictionary = {}
 var profile_sources: Dictionary = {}
 var profile_errors: Array = []
+var snapshot_path: String = ""
+var _snapshot_written: int = 0
 
 func finish(stage: String, started: int) -> void:
 	var elapsed: int = Time.get_ticks_usec()-started
 	stages[stage] = elapsed
 	print("CASE_STAGE "+JSON.stringify({"stage":stage,"elapsed_us":elapsed}))
+	_snapshot()
 
 func count(operation: String, started: int) -> void:
 	var elapsed: int = Time.get_ticks_usec()-started
@@ -18,6 +21,14 @@ func count(operation: String, started: int) -> void:
 	entry.total_us += elapsed
 	entry.max_us = maxi(entry.max_us,elapsed)
 	calls[operation] = entry
+	if not snapshot_path.is_empty() and operation=="clinical.dispatch" and Time.get_ticks_usec()-_snapshot_written>=2000000:
+		_snapshot()
+
+func _snapshot() -> void:
+	if snapshot_path.is_empty(): return
+	var file: FileAccess = FileAccess.open(snapshot_path,FileAccess.WRITE)
+	if file!=null: file.store_string(JSON.stringify(report(),"\t"))
+	_snapshot_written = Time.get_ticks_usec()
 
 func report() -> Dictionary:
 	return {"stages_us":stages.duplicate(true),"inclusive_calls":calls.duplicate(true),"profile_sources":profile_sources.duplicate(),"profile_errors":profile_errors.duplicate()}
@@ -107,6 +118,11 @@ class TimedClinic extends HospitalClinic:
 		var started: int = Time.get_ticks_usec()
 		super.advance(world)
 		timing.count("clinical.advance",started)
+	func _ward_covering(world: WorldState, stay: Dictionary) -> bool:
+		var started: int = Time.get_ticks_usec()
+		var result: bool = super._ward_covering(world,stay)
+		timing.count("clinical.ward_covering",started)
+		return result
 	func _surgery_quote(world: WorldState, visit: Dictionary, requested_team: Array = [], options: Dictionary = {}) -> Dictionary:
 		var started: int = Time.get_ticks_usec()
 		var result: Dictionary = super._surgery_quote(world,visit,requested_team,options)
@@ -139,6 +155,20 @@ class TimedSpace extends HospitalSpace:
 		var started: int = Time.get_ticks_usec()
 		super.advance(world,present_at_start)
 		timing.count("space.advance",started)
+	func _reserve_doors(world: WorldState, actor: Dictionary, movement: Dictionary, swept: Rect2) -> bool:
+		var started: int = Time.get_ticks_usec()
+		var result: bool = super._reserve_doors(world,actor,movement,swept)
+		timing.count("space.reserve_doors",started)
+		return result
+	func _active_route_clear(world: WorldState, actor: Dictionary, movement: Dictionary, versions: Dictionary) -> bool:
+		var started: int = Time.get_ticks_usec()
+		var result: bool = super._active_route_clear(world,actor,movement,versions)
+		timing.count("space.active_route_clear",started)
+		return result
+	func _dispatch_routes(world: WorldState, present_at_start: int) -> void:
+		var started: int = Time.get_ticks_usec()
+		super._dispatch_routes(world,present_at_start)
+		timing.count("space.dispatch_routes",started)
 	func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
 		var started: int = Time.get_ticks_usec()
 		var result: Dictionary = super.route(world,actor_id,floor_id,target,members,offsets,ignore_people)

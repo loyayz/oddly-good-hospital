@@ -199,6 +199,12 @@ func _waiting_point(world: WorldState, actor_id: String) -> Dictionary:
 	return {}
 
 func _bedside(world: WorldState, actor_id: String, stay: Dictionary) -> Dictionary:
+	# Medical work takes priority; keep an unstarted visit in public waiting.
+	if not bool(stay.care_completed):
+		return {}
+	for session: Dictionary in world.facts.sessions.values():
+		if session.facility_id==stay.bed_id and session.kind in ["care","round"]:
+			return {}
 	var bed: Dictionary = space.facility_layout(world,stay.bed_id)
 	var ward: Dictionary = world.facts.rooms[bed.room_id]
 	var actor: Dictionary = world.facts.actors[actor_id]

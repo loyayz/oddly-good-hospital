@@ -4,8 +4,6 @@ extends RefCounted
 var content: HospitalContent
 var space: HospitalSpace
 var finance: RefCounted
-var recruitment: RefCounted
-var _worked: Dictionary = {}
 
 func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 	content = database
@@ -15,6 +13,8 @@ func ensure(world: WorldState) -> void:
 	if not world.facts.has("maintenance"):
 		world.facts.maintenance = {"jobs":{},"upgrades":{},"receipts":{},"policy_id":content.balance.maintenance_dispatch.default_policy_id,
 			"pinned_job_id":"","next_scan_tick":(world.sim_tick/(int(content.balance.equipment.scan_seconds)*10)+1)*int(content.balance.equipment.scan_seconds)*10}
+	if not world.facts.maintenance.has("contractors"):
+		world.facts.maintenance.contractors = {}
 	for item: Dictionary in _equipment(world).values():
 		if not item.has("condition"):
 			item.condition = float(content.balance.equipment.restored_condition)
@@ -30,7 +30,7 @@ func ensure(world: WorldState) -> void:
 			item.maintenance_order_id = ""
 
 func worked_staff() -> Dictionary:
-	return _worked.duplicate()
+	return {}
 
 func _equipment(world: WorldState) -> Dictionary:
 	var result: Dictionary = {}
@@ -138,6 +138,19 @@ func _promote(world: WorldState, job: Dictionary, item: Dictionary) -> void:
 	job.phase = "queued"
 	_release(world,job)
 
+func service_quote(world: WorldState, facility_id: String) -> Dictionary:
+	var item: Dictionary = _equipment(world).get(facility_id,{})
+	if item.is_empty(): return {"ok":false,"reason":"该物件不属于维护集合","cost":0,"remaining_milli":0}
+	var job: Dictionary = world.facts.maintenance.jobs.get(str(item.get("maintenance_order_id","")),{})
+	var kind: String = "repair" if item.failed or item.pending_failure else "maintenance"
+	if job.is_empty() and kind=="maintenance" and float(item.condition)>float(content.balance.maintenance_dispatch.manual_threshold):
+		return {"ok":false,"reason":"完好设备无需购买保养服务","cost":0,"remaining_milli":0}
+	var category: Dictionary = job.frozen_class if job.get("started",false) else _class(item)
+	var cost: int = int(category.repair_parts if kind=="repair" else category.maintenance_parts)
+	if job.get("started",false): cost = int(job.get("repair_difference_due",0))
+	return {"ok":true,"reason":"实际到场开工时支付服务费；不收招聘费、日薪或额外上门费","kind":kind,"cost":cost,
+		"remaining_milli":int(job.remaining_milli) if not job.is_empty() else int(category.repair_seconds if kind=="repair" else category.maintenance_seconds)*1000}
+
 func upgrade_quote(world: WorldState, payload: Dictionary) -> Dictionary:
 	var id: String = str(payload.get("facility_id",""))
 	var item: Dictionary = world.facts.facilities.get(id,{})
@@ -177,7 +190,7 @@ func upgrade_quote(world: WorldState, payload: Dictionary) -> Dictionary:
 	if reason.is_empty() and not _any_repair_position(world,item):
 		reason = "缺少真实合法维修操作位"
 	return {"ok":reason.is_empty(),"reason":reason,"facility_id":id,"stages":stages,"cost":total,
-		"waiting_for_mechanic":not _has_mechanic(world),"safe_release_pending":not item.is_empty() and not _safe_free(world,id)}
+		"safe_release_pending":not item.is_empty() and not _safe_free(world,id)}
 
 func execute(world: WorldState, kind: String, payload: Dictionary) -> CommandResult:
 	var state: Dictionary = world.facts.maintenance
@@ -190,6 +203,9 @@ func execute(world: WorldState, kind: String, payload: Dictionary) -> CommandRes
 			world.touch()
 			return CommandResult.new(true,"applied","",[],world.revision)
 		"maintenance_order":
+			var quote: Dictionary = service_quote(world,str(payload.get("facility_id","")))
+			if not quote.ok: return _reject(world,str(quote.reason))
+			if payload.has("cost") and int(payload.cost)!=int(quote.cost): return _reject(world,"维护服务报价已经改变，请刷新")
 			var item: Dictionary = _equipment(world).get(str(payload.get("facility_id","")),{})
 			if item.is_empty():
 				return _reject(world,"该物件不属于维护集合")
@@ -245,7 +261,7 @@ func execute(world: WorldState, kind: String, payload: Dictionary) -> CommandRes
 				total_work += int(stage.total_milli)
 			state.upgrades[id] = {"id":id,"facility_id":quote.facility_id,"stages":quote.stages,"created_tick":world.sim_tick,
 				"cost":quote.cost,"hospital_paid":hospital_paid,"direct_paid":int(quote.cost)-hospital_paid,"refunded":0,"phase":"queued","paused":false,
-				"worker_id":"","work_cell":[],"reason":"已付材料，等待维修员" if quote.waiting_for_mechanic else "等待安全释放设备",
+				"worker_id":"","work_cell":[],"reason":"已购买升级施工，等待安全释放设备并安排上门",
 				"remaining_milli":total_work,"worker_rate":1.0,"contributions":{}}
 			world.facts.facilities[quote.facility_id].upgrading_block = true
 			world.touch()
@@ -284,11 +300,7 @@ func execute(world: WorldState, kind: String, payload: Dictionary) -> CommandRes
 	return _reject(world,"未知设备维护操作")
 
 func dispatch(world: WorldState) -> void:
-	_worked.clear()
-	for staff: Dictionary in world.facts.staff.values():
-		if staff.role=="mechanic":
-			staff.dispatch_idle = false
-			staff.dispatch_idle_tick = world.sim_tick
+	_dispatch_departures(world)
 	var equipment: Dictionary = _equipment(world)
 	var candidates: Array = []
 	for job: Dictionary in world.facts.maintenance.jobs.values():
@@ -321,42 +333,20 @@ func dispatch(world: WorldState) -> void:
 			order.reason = "先完成本设备原维修或保养"
 			continue
 		candidates.append({"job":order,"priority":4,"upgrade":true})
-	for staff_id: String in world.ids("staff"):
-		var staff: Dictionary = world.facts.staff[staff_id]
-		if staff.role!="mechanic" or not _worker_ready(world,staff_id) or not _has_tools(world,staff_id):
+	candidates.sort_custom(func(a: Dictionary,b: Dictionary) -> bool:
+		if a.priority!=b.priority: return a.priority<b.priority
+		var first_pinned: bool = world.facts.maintenance.pinned_job_id==a.job.id
+		var second_pinned: bool = world.facts.maintenance.pinned_job_id==b.job.id
+		if first_pinned!=second_pinned: return first_pinned
+		if a.job.created_tick!=b.job.created_tick: return a.job.created_tick<b.job.created_tick
+		return a.job.id<b.job.id)
+	for candidate: Dictionary in candidates:
+		var job: Dictionary = candidate.job
+		var item: Dictionary = equipment[job.facility_id]
+		if _in_inventory(world,str(item.id)) or not _safe_free(world,str(item.id)):
+			job.reason = "等待现有安全服务或实际放置"
 			continue
-		var legal: Array = []
-		for candidate: Dictionary in candidates:
-			var job: Dictionary = candidate.job
-			if not str(job.worker_id).is_empty():
-				continue
-			var item: Dictionary = equipment[job.facility_id]
-			if _in_inventory(world,str(item.id)) or not _safe_free(world,str(item.id)):
-				job.reason = "等待现有安全服务或实际放置"
-				continue
-			var position: Dictionary = _position(world,item,staff_id)
-			if position.is_empty() or not _region_allowed(staff,int(position.floor_id),position.cell):
-				job.reason = "维修操作位不可达或超出员工严格区域"
-				continue
-			legal.append({"job":job,"priority":candidate.priority,"upgrade":candidate.upgrade,"position":position,
-				"pinned":world.facts.maintenance.pinned_job_id==job.id,"preferred":_region_preferred(staff,int(position.floor_id),position.cell)})
-		legal.sort_custom(func(a: Dictionary,b: Dictionary) -> bool:
-			if a.priority!=b.priority: return a.priority<b.priority
-			if a.pinned!=b.pinned: return a.pinned
-			if a.preferred!=b.preferred: return a.preferred
-			if a.job.created_tick!=b.job.created_tick: return a.job.created_tick<b.job.created_tick
-			return a.job.id<b.job.id)
-		if not legal.is_empty():
-			var selected: Dictionary = legal[0]
-			selected.job.worker_id = staff_id
-			selected.job.work_cell = selected.position.cell
-			selected.job.work_floor = selected.position.floor_id
-			selected.job.phase = "travelling"
-			selected.job.reason = ""
-			staff.active_job_id = selected.job.id
-	for staff_id: String in world.ids("staff"):
-		if world.facts.staff[staff_id].role=="mechanic" and _worker_ready(world,staff_id):
-			world.facts.staff[staff_id].dispatch_idle = true
+		_admit_worker(world,job,item)
 
 func advance(world: WorldState) -> void:
 	var equipment: Dictionary = _equipment(world)
@@ -388,12 +378,12 @@ func advance(world: WorldState) -> void:
 			job.paid_parts += int(job.repair_difference_due)
 			job.repair_difference_due = 0
 		job.phase = "working"
+		job.reason = ""
 		job.worker_rate = _work_rate(world,str(job.worker_id),"maintenance")
 		var amount: int = mini(roundi(100.0*float(job.worker_rate)),int(job.remaining_milli))
 		job.completed_milli += amount
 		job.remaining_milli -= amount
 		_contribute(job,str(job.worker_id),amount)
-		_worked[job.worker_id] = true
 		if int(job.remaining_milli)==0:
 			item.condition = float(content.balance.equipment.restored_condition)
 			item.failed = false
@@ -425,12 +415,12 @@ func advance(world: WorldState) -> void:
 			order.worker_rate = _work_rate(world,str(order.worker_id),"machine_upgrade")
 			stage.rate_worker_id = order.worker_id
 		order.phase = "working"
+		order.reason = ""
 		var amount: int = mini(roundi(100.0*float(order.worker_rate)),int(stage.remaining_milli))
 		stage.remaining_milli -= amount
 		stage.completed_milli += amount
 		order.remaining_milli -= amount
 		_contribute(stage,str(order.worker_id),amount)
-		_worked[order.worker_id] = true
 		if int(stage.remaining_milli)==0:
 			stage.completed = true
 			item.upgrade_level = int(stage.level)
@@ -451,7 +441,6 @@ func _arrived(world: WorldState, job: Dictionary, item: Dictionary) -> bool:
 		return space.static_reason(world,world.facts.actors[id],int(job.work_floor),Vector2i(int(job.work_cell[0]),int(job.work_cell[1]))).is_empty()
 	var route: Dictionary = space.route(world,id,int(job.work_floor),job.work_cell)
 	if not route.ok:
-		_release(world,job)
 		job.reason = str(route.get("reason","维修路线被挡住"))
 		return false
 	space.request_move(world,id,int(job.work_floor),job.work_cell)
@@ -474,27 +463,8 @@ func _needed_for_remodel(world: WorldState, id: String) -> bool:
 	return false
 
 func _safe_free(world: WorldState, id: String) -> bool:
-	if _in_inventory(world,id):
-		return false
-	if world.facts.connectors.has(id):
-		return world.facts.connectors[id].phase=="idle" and world.facts.connectors[id].riders.is_empty()
-	if world.facts.facilities.get(id,{}).get("definition_id","")=="FUR05" and HospitalClinicalDevelopment.desk_taken(world,id):
-		return false
-	for session: Dictionary in world.facts.sessions.values():
-		if session.facility_id==id:
-			return false
-	for preparation: Dictionary in world.facts.preparations.values():
-		if preparation.get("facility_id","")==id or preparation.get("bed_id","")==id:
-			return false
-	for stay: Dictionary in world.facts.ward_stays.values():
-		if stay.bed_id==id:
-			return false
-	if world.facts.adaptations.has(id):
-		return false
-	for session: Dictionary in world.facts.get("waiting_life",{}).get("sessions",{}).values():
-		if session.get("facility_id","")==id:
-			return false
-	return true
+	var use: Dictionary = HospitalEquipmentUse.query(world,id)
+	return bool(use.placed) and not bool(use.occupied)
 
 func _in_inventory(world: WorldState, id: String) -> bool:
 	return world.facts.inventory.get("build_items",{}).has(id)
@@ -514,11 +484,7 @@ func _position(world: WorldState, item: Dictionary, staff_id: String) -> Diction
 	return {"floor_id":floor_id,"cell":target,"distance":route.walking_distance} if route.ok else {}
 
 func _any_repair_position(world: WorldState, item: Dictionary) -> bool:
-	for id: String in world.ids("staff"):
-		if world.facts.staff[id].role=="mechanic" and not _position(world,item,id).is_empty():
-			return true
-	# Missing mechanics can create a paid waiting order. The actual position must
-	# still admit the standard recruit's full body; a preview never spawns a worker.
+	# Quotes check the service provider's body without creating an actual person.
 	var actor: Dictionary = {"id":"upgrade_preview","species_id":"S49","location":{"kind":"floor","floor_id":int(item.floor_id),"cell":item.cell},"facing":0.0}
 	var target: Array = item.get("repair_cell",[])
 	return not target.is_empty() and space.static_reason(world,actor,int(item.floor_id),Vector2i(int(target[0]),int(target[1]))).is_empty()
@@ -531,24 +497,67 @@ func _has_tools(world: WorldState, id: String) -> bool:
 	return false
 
 func _worker_ready(world: WorldState, id: String, own_job: String = "") -> bool:
-	if not world.facts.staff.has(id) or not world.facts.actors.has(id):
+	if not world.facts.maintenance.contractors.has(id) or not world.facts.actors.has(id):
 		return false
-	var staff: Dictionary = world.facts.staff[id]
-	return bool(staff.on_shift) and not staff.get("block_new_work",false) and str(staff.get("active_job_id","")) in ["",own_job] and str(staff.get("training_job_id","")).is_empty() and staff.get("life_task",{"phase":"idle"}).get("phase","idle")=="idle" and float(staff.get("energy",100))>15.0
+	var worker: Dictionary = world.facts.maintenance.contractors[id]
+	return worker.phase=="assigned" and (own_job.is_empty() or worker.job_id==own_job)
 
 func _release(world: WorldState, job: Dictionary) -> void:
 	var id: String = str(job.get("worker_id",""))
-	if world.facts.staff.has(id) and world.facts.staff[id].get("active_job_id","")==job.id:
-		world.facts.staff[id].active_job_id = ""
+	if world.facts.maintenance.contractors.has(id):
+		world.facts.maintenance.contractors[id].phase = "leaving"
+		if world.facts.moves.has(id) and world.facts.actors[id].location.kind!="transit":
+			HospitalTransit.cancel_waiting(world,world.facts.moves[id])
+			world.facts.moves.erase(id)
 	job.worker_id = ""
 	if job.phase in ["working","travelling"]:
 		job.phase = "queued"
 
-func _work_rate(world: WorldState, id: String, action: String) -> float:
-	if recruitment!=null and recruitment.has_method("work_rate"):
-		return float(recruitment.call("work_rate",world,id,action))
-	var skill: int = int(world.facts.staff[id].get("skill",world.facts.staff[id].get("level",1)))
-	return 1.0+float(content.balance.staff_practice.speed_per_extra_level)*maxi(0,skill-1)
+func _admit_worker(world: WorldState, job: Dictionary, item: Dictionary) -> void:
+	var entry: Dictionary = world.facts.entry
+	var actor: Dictionary = {"id":"maintenance_probe","name":"上门维修员","species_id":"S49","service_role":"mechanic",
+		"location":{"kind":"floor","floor_id":int(entry.floor_id),"cell":entry.cell.duplicate(),"height_m":0.0},"facing":0.0,"posture":"standing"}
+	if not space.static_reason(world,actor,int(entry.floor_id),Vector2i(int(entry.cell[0]),int(entry.cell[1]))).is_empty() or not space._dynamic_clear(world,actor.id,int(entry.floor_id),space.body_rectangle(actor)):
+		job.reason = "等待入口实际空位，维修员尚未入院"
+		return
+	var candidate: WorldState = WorldState.new(world.freeze())
+	candidate.facts.actors[actor.id] = actor
+	var position: Dictionary = _position(candidate,item,actor.id)
+	if position.is_empty() or not _has_tools(candidate,actor.id):
+		job.reason = "等待可达维修操作位与上门工具适配"
+		return
+	var id: String = world.new_id("maintenance_contractor")
+	actor.id = id
+	world.facts.actors[id] = actor
+	world.facts.maintenance.contractors[id] = {"id":id,"job_id":job.id,"phase":"assigned"}
+	job.worker_id = id
+	job.work_cell = position.cell
+	job.work_floor = position.floor_id
+	job.phase = "travelling"
+	job.reason = "上门维修员正沿实际路线到场"
+	space.sync_actor(world,id)
+
+func _dispatch_departures(world: WorldState) -> void:
+	for id: String in _ordered(world.facts.maintenance.contractors):
+		var worker: Dictionary = world.facts.maintenance.contractors[id]
+		if worker.phase!="leaving": continue
+		var actor: Dictionary = world.facts.actors[id]
+		# Finish an active ride before replacing its route with the departure.
+		if actor.location.kind=="transit": continue
+		var exit: Array = space.exit_cell(world,actor)
+		if space.at(world,id,1,exit):
+			actor.location = {"kind":"outside"}
+			worker.phase = "departed"
+			space.sync_actor(world,id)
+		else:
+			var movement: Dictionary = world.facts.moves.get(id,{})
+			if not movement.is_empty() and (int(movement.target_floor)!=1 or movement.target_cell!=exit):
+				HospitalTransit.cancel_waiting(world,movement)
+				world.facts.moves.erase(id)
+			if not world.facts.moves.has(id): space.request_move(world,id,1,exit)
+
+func _work_rate(_world: WorldState, _id: String, _action: String) -> float:
+	return 1.0
 
 func _pay(world: WorldState, id: String, component: String, cost: int) -> CommandResult:
 	if finance!=null and finance.has_method("pay_necessary"):
@@ -562,15 +571,11 @@ func _pay(world: WorldState, id: String, component: String, cost: int) -> Comman
 func _priority(world: WorldState, job: Dictionary) -> int:
 	if job.kind=="maintenance":
 		return 3
-	for stay: Dictionary in world.facts.ward_stays.values():
-		if stay.bed_id==job.facility_id:
-			return 0
-	for visit: Dictionary in world.facts.visits.values():
-		if not str(visit.get("final_result","")).is_empty() or visit.phase in ["departed","leaving"]:
-			continue
-		var item: Dictionary = world.facts.facilities.get(job.facility_id,{})
-		if not item.is_empty() and _upgradable(item):
-			return 1
+	if HospitalEquipmentUse.query(world,str(job.facility_id)).critical_commitment:
+		return 0
+	var item: Dictionary = world.facts.facilities.get(job.facility_id,{})
+	if not item.is_empty() and _upgradable(item):
+		return 1
 	return 2
 
 func _upgradable(item: Dictionary) -> bool:
@@ -591,19 +596,6 @@ func _current_stage(order: Dictionary) -> Dictionary:
 			return stage
 	return {}
 
-func _has_mechanic(world: WorldState) -> bool:
-	for staff: Dictionary in world.facts.staff.values():
-		if staff.role=="mechanic":
-			return true
-	return false
-
-func _region_preferred(staff: Dictionary, floor_id: int, cell: Array) -> bool:
-	var zone: Dictionary = staff.get("work_region",{})
-	return not zone.is_empty() and int(zone.get("floor_id",floor_id))==floor_id and Rect2(float(zone.origin[0]),float(zone.origin[1]),float(zone.size[0]),float(zone.size[1])).has_point(Vector2(float(cell[0]),float(cell[1])))
-
-func _region_allowed(staff: Dictionary, floor_id: int, cell: Array) -> bool:
-	return not staff.get("work_region",{}).get("strict",false) or _region_preferred(staff,floor_id,cell)
-
 func _contribute(job: Dictionary, id: String, amount: int) -> void:
 	job.contributions[id] = int(job.contributions.get(id,0))+amount
 
@@ -617,9 +609,7 @@ func _receipt(world: WorldState, kind: String, source_id: String, contributions:
 		if int(contributions[staff_id])>largest:
 			winner = staff_id
 			largest = int(contributions[staff_id])
-	if not world.facts.staff.has(winner):
-		winner = ""
-	world.facts.maintenance.receipts[id] = {"id":id,"kind":kind,"source_id":source_id,"facility_id":facility_id,"staff_id":winner,"tick":world.sim_tick,"standard_work_milli":total}
+	world.facts.maintenance.receipts[id] = {"id":id,"kind":kind,"source_id":source_id,"facility_id":facility_id,"staff_id":"","worker_id":winner,"tick":world.sim_tick,"standard_work_milli":total}
 	world.touch()
 
 func query(world: WorldState, facility_id: String = "") -> Dictionary:
@@ -648,6 +638,18 @@ func pending_costs(world: WorldState) -> Array:
 
 func validate(world: WorldState) -> String:
 	var equipment: Dictionary = _equipment(world)
+	var contractors: Variant = world.facts.maintenance.get("contractors",{})
+	if not contractors is Dictionary: return "上门维修人员集合无效"
+	var orders: Dictionary = world.facts.maintenance.jobs.duplicate()
+	orders.merge(world.facts.maintenance.upgrades)
+	for id: Variant in contractors:
+		var worker: Variant = contractors[id]
+		if not worker is Dictionary or worker.get("id")!=id or not worker.get("phase","") in ["assigned","leaving","departed"] or not orders.has(worker.get("job_id","")) or not world.facts.actors.has(id) or world.facts.staff.has(id): return "上门维修人员身份或工单无效"
+		if world.facts.actors[id].get("service_role","")!="mechanic": return "上门人员缺少维修服务身份"
+		if worker.phase=="assigned" and orders[worker.job_id].worker_id!=id: return "上门维修人员重复派单或工单归属无效"
+		if (worker.phase=="departed")!=(world.facts.actors[id].location.kind=="outside"): return "上门维修人员离院事实无效"
+	for order: Dictionary in orders.values():
+		if not str(order.worker_id).is_empty() and (not contractors.has(order.worker_id) or contractors[order.worker_id].get("job_id","")!=order.id or contractors[order.worker_id].get("phase","")!="assigned"): return "维护工单的上门人员不存在或重复占用"
 	var active: Dictionary = {}
 	for job: Dictionary in world.facts.maintenance.jobs.values():
 		if int(job.remaining_milli)<0 or int(job.completed_milli)+int(job.remaining_milli)!=int(job.total_milli):

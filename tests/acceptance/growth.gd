@@ -113,7 +113,9 @@ func _case_05(t) -> void:
 	var held: Dictionary = base.world.facts.arrivals.held_capacity_fraction.duplicate(true)
 	_add_room(base.world,"second_terminal_room","T01",[42,70],[6,6])
 	_add_facility(base.world,"second_terminal","M09","second_terminal_room",[44,71])
-	for source_id: String in ["starter_doctor_a","starter_doctor_b","starter_doctor_c"]:
+	# One additional treatment operator is sufficient to increase C. Duplicating
+	# the whole diagnostic roster adds unrelated interchangeable resource bundles.
+	for source_id: String in ["starter_doctor_b"]:
 		var extra_id: String = "extra_"+source_id
 		base.world.facts.staff[extra_id] = base.world.facts.staff[source_id].duplicate(true)
 		base.world.facts.staff[extra_id].id = extra_id

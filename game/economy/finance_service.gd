@@ -298,7 +298,7 @@ func _rescue(world: WorldState) -> CommandResult:
 	for definition_id: String in ["FUR01","FUR02","M37"]:
 		var id: String = clone.new_id("rescue_item")
 		clone.facts.inventory.build_items[id] = {"id":id,"definition_id":definition_id,"paid_cost":0,"ownership":"borrowed","rotation":0,"completed_upgrade_paid_cost":0}
-	var counts: Dictionary = {"receptionist":0,"doctor":0,"mechanic":0}
+	var counts: Dictionary = {"receptionist":0,"doctor":0}
 	for staff: Dictionary in clone.facts.staff.values():
 		if counts.has(staff.role) and not staff.get("departed",false):
 			counts[staff.role] += 1
@@ -307,8 +307,6 @@ func _rescue(world: WorldState) -> CommandResult:
 		needed.append("receptionist")
 	for index: int in range(maxi(0,2-int(counts.doctor))):
 		needed.append("doctor")
-	if int(counts.mechanic)<1:
-		needed.append("mechanic")
 	var changed: Array = []
 	for role: String in needed:
 		var cell: Array = _rescue_entry(clone)

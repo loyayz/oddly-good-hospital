@@ -49,6 +49,10 @@
     "evidence": "@zh:core.task_guides.TG02.evidence",
     "id": "TG02",
     "metric_labels": {
+      "maintenance_services_purchased": {
+        "text": "@zh:core.task_guides.TG02.metric_labels.maintenance_services_purchased.text",
+        "unit": "@zh:core.task_guides.TG02.metric_labels.maintenance_services_purchased.unit"
+      },
       "preventive_maintenance_jobs": {
         "text": "@zh:core.task_guides.TG02.metric_labels.preventive_maintenance_jobs.text",
         "unit": "@zh:core.task_guides.TG02.metric_labels.preventive_maintenance_jobs.unit"
@@ -59,6 +63,7 @@
       }
     },
     "metrics": [
+      "maintenance_services_purchased",
       "preventive_maintenance_jobs",
       "random_fault_repairs"
     ],
@@ -77,14 +82,9 @@
       "doctors_with_two_abilities": {
         "text": "@zh:core.task_guides.TG03.metric_labels.doctors_with_two_abilities.text",
         "unit": "@zh:core.task_guides.TG03.metric_labels.doctors_with_two_abilities.unit"
-      },
-      "employed_mechanics": {
-        "text": "@zh:core.task_guides.TG03.metric_labels.employed_mechanics.text",
-        "unit": "@zh:core.task_guides.TG03.metric_labels.employed_mechanics.unit"
       }
     },
     "metrics": [
-      "employed_mechanics",
       "doctors_with_two_abilities",
       "completed_ability_courses"
     ],

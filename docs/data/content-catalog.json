@@ -11436,9 +11436,9 @@
     },
     {
       "id": "Q03",
-      "name": "自己的维修班",
+      "name": "预约维修服务",
       "kind": "milestone",
-      "metric": "employed_mechanics",
+      "metric": "maintenance_services_purchased",
       "target": 1,
       "reward_cash": 150,
       "filter": {},
@@ -11510,15 +11510,13 @@
       "target": 3,
       "reward_cash": 300,
       "filter": {},
-      "eligibility": "有维修员",
+      "eligibility": "有实际已放置的维护对象",
       "deadline_days": null,
       "repeatable": false,
       "reward_items": [],
       "eligibility_rule": {
         "requires_research": [],
-        "required_roles": [
-          "mechanic"
-        ]
+        "required_roles": []
       }
     },
     {
@@ -11529,15 +11527,13 @@
       "target": 2,
       "reward_cash": 350,
       "filter": {},
-      "eligibility": "有维修员；没有故障时可稍后完成",
+      "eligibility": "有需要维护的实际设备；没有故障时可稍后完成",
       "deadline_days": null,
       "repeatable": false,
       "reward_items": [],
       "eligibility_rule": {
         "requires_research": [],
-        "required_roles": [
-          "mechanic"
-        ]
+        "required_roles": []
       }
     },
     {
@@ -11816,15 +11812,13 @@
       "target": 3,
       "reward_cash": 240,
       "filter": {},
-      "eligibility": "有维修员且至少放置1件需要维护的设备；完成保养需等待正常使用产生磨损",
+      "eligibility": "至少放置1件需要维护的设备；完成保养需等待正常使用产生磨损",
       "deadline_days": null,
       "repeatable": true,
       "reward_items": [],
       "eligibility_rule": {
         "requires_research": [],
-        "required_roles": [
-          "mechanic"
-        ],
+        "required_roles": [],
         "maintainable_equipment_min": 1
       }
     },
@@ -19063,14 +19057,6 @@
       "pay_source": "staff:cleaner"
     },
     {
-      "id": "ROLE_MECHANIC",
-      "role": "mechanic",
-      "name": "维修员",
-      "description": "设备维修、巡检与电梯地面驱动维护",
-      "qualification_note": "招聘工资与实际维修零件分别计费",
-      "pay_source": "staff:mechanic"
-    },
-    {
       "id": "ROLE_RESEARCHER",
       "role": "researcher",
       "name": "研究员",
@@ -19240,18 +19226,6 @@
       "social_personality_id": "PP07",
       "work_style_id": "WS06",
       "biography_id": "BIO04",
-      "non_doctor_skill": 1,
-      "certificates": [],
-      "illustrative_only": true
-    },
-    {
-      "id": "REX05",
-      "name": "钉钉",
-      "species_id": "S10",
-      "role": "mechanic",
-      "social_personality_id": "PP03",
-      "work_style_id": "WS04",
-      "biography_id": "BIO02",
       "non_doctor_skill": 1,
       "certificates": [],
       "illustrative_only": true
@@ -20510,11 +20484,12 @@
       "id": "TG02",
       "name": "维护清单",
       "metrics": [
+        "maintenance_services_purchased",
         "preventive_maintenance_jobs",
         "random_fault_repairs"
       ],
       "target_panel": "maintenance",
-      "next_step": "按当前目标定位合法保养或故障维修对象及维修员；暂无可保养对象时等正常使用，暂无维修对象时等真实故障。",
+      "next_step": "从设备维护入口购买实际需要的上门维修或保养服务；完工后维修员离院。",
       "evidence": "真实完成的预防保养或随机故障维修单。",
       "metric_labels": {
         "preventive_maintenance_jobs": {
@@ -20524,6 +20499,10 @@
         "random_fault_repairs": {
           "text": "修复实际发生的随机故障",
           "unit": "单"
+        },
+        "maintenance_services_purchased": {
+          "text": "已购买维修服务",
+          "unit": "单"
         }
       }
     },
@@ -20531,7 +20510,6 @@
       "id": "TG03",
       "name": "团队本领",
       "metrics": [
-        "employed_mechanics",
         "doctors_with_two_abilities",
         "completed_ability_courses"
       ],
@@ -20539,10 +20517,6 @@
       "next_step": "打开招聘或医生培养差项，不代付课程。",
       "evidence": "在职人数与本人能力实时查询；两项能力目标要求均达到2级，课程委托只计实际医生结课。",
       "metric_labels": {
-        "employed_mechanics": {
-          "text": "当前在职维修员",
-          "unit": "名"
-        },
         "doctors_with_two_abilities": {
           "text": "当前达到目标能力组合的在职医生",
           "unit": "名"
@@ -20685,19 +20659,6 @@
       "first_job_scene": "看看真正清净的原工作位置，再把软口清洁头的小盖合正，最后一点歪角也被摆齐。",
       "growth_owner": "job_skill",
       "low_motion_first_job_scene": "实际干净位置与合好的清洁工具；不踩上簸箕，不留下新污物。"
-    },
-    {
-      "id": "SP04",
-      "name": "维修员",
-      "role": "mechanic",
-      "sources": [
-        "maintenance_order_completed",
-        "machine_upgrade_completed"
-      ],
-      "unit": "completed_work",
-      "first_job_scene": "完成原工单后把工具按轮廓归位，最后一把小扳手终于和自己的格子对齐。",
-      "growth_owner": "job_skill",
-      "low_motion_first_job_scene": "实际完工标记与整齐工具托；工具不碰饮水杯。"
     },
     {
       "id": "SP05",

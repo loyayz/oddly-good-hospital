@@ -26,7 +26,9 @@ func build_controls() -> void:
 	note("下一等级当前报价 ¥%s\n%s" % [quote.cost,quote.reason])
 	var hospital_paid: int = mini(HospitalLedger.balance(simulation.world),int(quote.cost)) if simulation.world.facts.mode=="creative" else int(quote.cost)
 	note(payment_summary(hospital_paid))
-	action("为这台设备安排保养",func() -> void: send("maintenance_order",{"facility_id":_facility_id}))
+	var service_quote: Dictionary = service.service_quote(simulation.world,_facility_id)
+	note("维修/保养本次待付 ¥%d · 剩余标准工时 %.1f秒\n%s" % [service_quote.cost,float(service_quote.remaining_milli)/1000.0,service_quote.reason])
+	action("购买这台设备的维修或保养服务",func() -> void: send("maintenance_order",{"facility_id":_facility_id,"cost":int(service_quote.cost)}),service_quote.ok)
 	action("确认升级这台设备",func() -> void: send("machine_upgrade",{"facility_id":_facility_id}),quote.ok)
 	var current: Dictionary = service.query(simulation.world,_facility_id)
 	for collection: String in ["jobs","upgrades"]:
@@ -44,5 +46,5 @@ func build_controls() -> void:
 			action(operation.name,func() -> void:
 				var key: String = "job_id" if collection=="jobs" else "order_id"
 				send(("maintenance_" if collection=="jobs" else "upgrade_")+str(operation.id),{key:selected(picker_job)}),not rows.is_empty())
-	note("维修与已开工保养须安全完成。缺维修员、工具或路线时保留剩余工作；解除原因后继续原单。")
+	note("维修、保养与升级按工单购买上门服务，无招聘费或日薪。人员从入口实际到场，完成本单后沿路线离院；工具或路线受阻时保留原单与剩余工作。")
 	action("刷新工单与报价",rebuild)

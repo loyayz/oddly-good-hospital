@@ -60,18 +60,6 @@
     "work_style_id": "WS06"
   },
   {
-    "biography_id": "BIO02",
-    "certificates": [],
-    "id": "REX05",
-    "illustrative_only": true,
-    "name": "@zh:core.recruitment_examples.REX05.name",
-    "non_doctor_skill": 1,
-    "role": "mechanic",
-    "social_personality_id": "PP03",
-    "species_id": "S10",
-    "work_style_id": "WS04"
-  },
-  {
     "biography_id": "BIO04",
     "certificates": [
       "q_research"

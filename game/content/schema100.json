@@ -5041,7 +5041,7 @@
                 ],
                 "type": "object"
               },
-              "employed_mechanics": {
+              "maintenance_services_purchased": {
                 "properties": {
                   "text": {
                     "type": "string"
@@ -5269,7 +5269,7 @@
               "distinct_cured_diseases",
               "distinct_cured_species",
               "doctors_with_two_abilities",
-              "employed_mechanics",
+              "maintenance_services_purchased",
               "owned_plots",
               "payroll_days_all_staff_paid",
               "positive_interactions",
@@ -16864,25 +16864,6 @@
           ],
           "type": "object"
         },
-        "recruitment_aid": {
-          "properties": {
-            "minimum_count": {
-              "type": "integer"
-            },
-            "pay_hire_shortfall_directly": {
-              "type": "boolean"
-            },
-            "role": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "minimum_count",
-            "pay_hire_shortfall_directly",
-            "role"
-          ],
-          "type": "object"
-        },
         "refund_unused": {
           "type": "integer"
         },
@@ -18355,9 +18336,6 @@
             "doctor": {
               "type": "integer"
             },
-            "mechanic": {
-              "type": "integer"
-            },
             "nurse": {
               "type": "integer"
             },
@@ -18372,7 +18350,6 @@
             "cleaner",
             "decorator",
             "doctor",
-            "mechanic",
             "nurse",
             "receptionist",
             "researcher"
@@ -20027,7 +20004,6 @@
         "ratings",
         "reception_seconds",
         "recruitment",
-        "recruitment_aid",
         "refund_unused",
         "refund_used",
         "remodel",
@@ -21669,7 +21645,7 @@
                 ],
                 "type": "object"
               },
-              "employed_mechanics": {
+              "maintenance_services_purchased": {
                 "properties": {
                   "text": {
                     "type": "string"
@@ -21897,7 +21873,7 @@
               "distinct_cured_diseases",
               "distinct_cured_species",
               "doctors_with_two_abilities",
-              "employed_mechanics",
+              "maintenance_services_purchased",
               "owned_plots",
               "payroll_days_all_staff_paid",
               "positive_interactions",

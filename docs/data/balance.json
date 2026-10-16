@@ -218,12 +218,6 @@
       "hire": 140
     },
     {
-      "role": "mechanic",
-      "name": "维修员",
-      "wage_day": 90,
-      "hire": 180
-    },
-    {
       "role": "researcher",
       "name": "研究员",
       "wage_day": 120,
@@ -241,7 +235,6 @@
     "doctor": 3,
     "nurse": 1,
     "cleaner": 1,
-    "mechanic": 1,
     "researcher": 0,
     "decorator": 0
   },
@@ -619,11 +612,6 @@
     "story_slots": 3,
     "offer_count": 3,
     "template_cooldown_days": 3
-  },
-  "recruitment_aid": {
-    "role": "mechanic",
-    "minimum_count": 1,
-    "pay_hire_shortfall_directly": true
   },
   "movement_speeds": {
     "1": 2.0,
@@ -1464,7 +1452,7 @@
     "capacity_policy": "actual_services_across_all_floors"
   },
   "recruitment": {
-    "passive_per_day": 7,
+    "passive_per_day": 6,
     "passive_days_retained": 2,
     "max_passive": 14,
     "max_targeted_results": 6,

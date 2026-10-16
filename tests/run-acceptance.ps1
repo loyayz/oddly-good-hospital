@@ -9,6 +9,7 @@ param(
     [string]$Godot = 'C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe'
 )
 $ErrorActionPreference = 'Stop'
+$OutputEncoding = [Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)
 $runClock = [Diagnostics.Stopwatch]::StartNew()
 $runStartedUtc = [DateTimeOffset]::UtcNow
 $repo = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))

@@ -258,6 +258,8 @@ func validate(content: HospitalContent) -> String:
 		var visit: Dictionary = facts.visits[id]
 		if not facts.actors.has(visit.actor_id) or content.definition("diseases", visit.disease_id).is_empty():
 			return "就诊引用无效：" + id
+		if facts.actors[visit.actor_id].get("service_role","")=="mechanic":
+			return "患者不能同时充当上门维修人员"
 		if visited_actors.has(visit.actor_id):
 			return "同一患者存在重复当前就诊"
 		visited_actors[visit.actor_id] = true

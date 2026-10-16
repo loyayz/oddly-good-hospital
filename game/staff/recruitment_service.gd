@@ -1,8 +1,8 @@
 class_name RecruitmentService
 extends RefCounted
 
-const ROLES: Array[String] = ["receptionist","doctor","nurse","cleaner","mechanic","researcher","decorator"]
-const ORDINARY_ROLES: Array[String] = ["receptionist","cleaner","mechanic","researcher","decorator"]
+const ROLES: Array[String] = ["receptionist","doctor","nurse","cleaner","researcher","decorator"]
+const ORDINARY_ROLES: Array[String] = ["receptionist","cleaner","researcher","decorator"]
 var content: HospitalContent
 var space: HospitalSpace
 
@@ -357,6 +357,8 @@ func _hire(world: WorldState, payload: Dictionary) -> CommandResult:
 		if not state.candidates.has(candidate_id):
 			return _result(world,false,"candidate_missing","简历已过期、关闭或录用")
 		candidate = state.candidates[candidate_id]
+		if not candidate.role in ROLES:
+			return _result(world,false,"external_service","维修通过设备工单购买上门服务")
 		if candidate.pool!="bookmarked" and world.sim_tick/WorldState.TICKS_PER_DAY+1>=int(candidate.expires_day):
 			return _result(world,false,"candidate_expired","简历已到期")
 	if str(payload.get("quote_hash",""))!=_quote_hash(candidate):
@@ -367,8 +369,7 @@ func _hire(world: WorldState, payload: Dictionary) -> CommandResult:
 	if not entry.ok:
 		return _result(world,false,"entry_blocked",entry.reason)
 	var cost: int = int(candidate.hire)
-	var aid: bool = candidate.source=="standard" and candidate.role=="mechanic" and _staff_count(world,"mechanic")==0
-	var paid: int = mini(cost,HospitalLedger.balance(world)) if aid else cost
+	var paid: int = cost
 	if HospitalLedger.balance(world)<paid:
 		return _result(world,false,"insufficient_funds","资金不足，简历保留")
 	var id: String = "staff_"+str(candidate.id)

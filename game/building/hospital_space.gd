@@ -247,12 +247,8 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 		for sweep: BodyIndex.Record in sweeps:
 			swept = swept.merge(sweep.sweep_from).merge(sweep.sweep_to)
 		if segment.kind!="support_exit":
-			var query: RouteClearance
 			var floor_id: int = int(actor.location.floor_id)
-			if members.size()<=1:
-				query = _navigation.clearance(self,world,floor_id,actor)
-			else:
-				query = RouteClearance.new(self,world,actor,floor_id,members,offsets)
+			var query: RouteClearance = _navigation.clearance(self,world,floor_id,actor,members if members.size()>1 else [],offsets)
 			if not _step_static_clear(world,actor,movement,next,query):
 				continue
 		if not _reserve_doors(world,actor,movement,swept):
@@ -876,10 +872,14 @@ func release_adaptations(world: WorldState) -> void:
 			world.facts.adaptations.erase(id)
 			_navigation.invalidate(world,int(reservation.floor_id))
 
+func _door_span(actor: Dictionary, door: Dictionary) -> int:
+	var dimensions: Dictionary = body(actor)
+	return maxi(int(door.span),ceili((maxf(float(dimensions.width_m),float(dimensions.depth_m))+0.1)/CELL_METERS))
+
 func door_quote(world: WorldState, actor: Dictionary, floor_id: int, door: Dictionary) -> Dictionary:
 	var dimensions: Dictionary = body(actor)
 	var definition: Dictionary = content.definition("doors",door.definition_id)
-	var span: int = maxi(int(door.span),ceili((maxf(float(dimensions.width_m),float(dimensions.depth_m))+0.1)/CELL_METERS))
+	var span: int = _door_span(actor,door)
 	var height: float = maxf(float(definition.clear_height_m),float(dimensions.height_m)+0.1)
 	var ceiling: float = float(content.balance.floors.clear_height_m) if world.facts.floors.has("completed_top_floor") and not floor_plots(world,floor_id).is_empty() else 0.0
 	for interval: Dictionary in world.facts.floors.height_intervals:
@@ -937,6 +937,8 @@ func _potential_door_opening(world: WorldState, actor: Dictionary, floor_id: int
 func _reserve_doors(world: WorldState, actor: Dictionary, movement: Dictionary, swept: Rect2) -> bool:
 	var floor_id: int = int(actor.location.floor_id)
 	for door: Dictionary in world.facts.floors.overrides.get(str(floor_id),{}).get("doors",[]):
+		if not swept.intersects(_door_rect(door,_door_span(actor,door)),false):
+			continue
 		var quote: Dictionary = door_quote(world,actor,floor_id,door)
 		if not quote.ok or not swept.intersects(_door_rect(door,int(quote.span)),false):
 			continue
@@ -994,10 +996,15 @@ func _yield(world: WorldState, actor: Dictionary, movement: Dictionary, swept: R
 	# Re-evaluating priorities during the retreat creates mutual waiting cycles.
 	if world.facts.moves[partner].yielding:
 		var other_move: Dictionary = world.facts.moves[partner]
-		if int(other_move.cursor)>=other_move.path.size() and int(movement.target_floor)==int(actor.location.floor_id):
-			var detour: Dictionary = _floor_route(world,actor,int(actor.location.floor_id),
-				Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1])),
-				Vector2i(int(movement.target_cell[0]),int(movement.target_cell[1])),movement.get("members",[]),movement.get("offsets",{}))
+		if int(other_move.cursor)>=other_move.path.size():
+			var detour: Dictionary
+			if int(movement.target_floor)==int(actor.location.floor_id):
+				detour = _floor_route(world,actor,int(actor.location.floor_id),
+					Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1])),
+					Vector2i(int(movement.target_cell[0]),int(movement.target_cell[1])),movement.get("members",[]),movement.get("offsets",{}))
+			else:
+				# A person going upstairs must also route around the parked yielder.
+				detour = route(world,actor.id,int(movement.target_floor),movement.target_cell,movement.get("members",[]),movement.get("offsets",{}))
 			if detour.ok:
 				_queue_route(world,movement)
 		return

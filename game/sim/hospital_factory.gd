@@ -54,7 +54,7 @@ static func create(hospital_id: String, display_name: String, preset: bool, cont
 			if pay.title_id == roster.title_id:
 				HospitalLedger.post(world,LedgerEntry.new(roster.id,"hire",-int(pay.hire)))
 		doctor_index += 1
-	var positions: Dictionary = {"receptionist":[43,91],"nurse":[52,94],"cleaner":[54,94],"mechanic":[56,94]}
+	var positions: Dictionary = {"receptionist":[43,91],"nurse":[52,94],"cleaner":[54,94]}
 	for role: String in positions:
 		_add_staff(world,"starter_"+role,role,role,positions[role],content)
 		for price: Dictionary in content.balance.staff:

@@ -2,7 +2,7 @@ extends RefCounted
 
 const CASES: Dictionary = {
 	"CORE-01":"模拟规格§8：空院24800、60包、单地块且无员工房间",
-	"CORE-02":"模拟规格§8：预设10600、7员工及合法初始布局",
+	"CORE-02":"模拟规格§8：预设10780、6员工及合法初始布局",
 	"CORE-03":"阶段02至03规格§2：冻结副本与世界/会话事实分离",
 	"CORE-04":"阶段02至03规格§4：初始暂停及0.1秒固定步",
 	"CORE-05":"阶段02至03规格§4：独立来源暂停令牌",
@@ -58,7 +58,7 @@ func _case_02(t, content: HospitalContent) -> void:
 	var initial_space: HospitalSpace = HospitalSpace.new(content)
 	var office: Dictionary = initial_space.facility_layout(preset,"doctor_office_desk")
 	var office_route: Dictionary = initial_space.route(preset,"starter_doctor_a",1,office.operator_cells[0])
-	t.check("CORE-02",HospitalLedger.balance(preset)==10600 and preset.facts.staff.size()==7 and preset.validate(content).is_empty() and office_route.ok,{"validation":preset.validate(content),"office_route":office_route})
+	t.check("CORE-02",HospitalLedger.balance(preset)==10780 and preset.facts.staff.size()==6 and preset.validate(content).is_empty() and office_route.ok,{"validation":preset.validate(content),"office_route":office_route})
 
 func _case_03(t, content: HospitalContent) -> void:
 	var empty: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"空地",false,content)

@@ -32,14 +32,6 @@
     "role": "cleaner"
   },
   {
-    "description": "@zh:core.staff_role_profiles.ROLE_MECHANIC.description",
-    "id": "ROLE_MECHANIC",
-    "name": "@zh:core.staff_role_profiles.ROLE_MECHANIC.name",
-    "pay_source": "staff:mechanic",
-    "qualification_note": "@zh:core.staff_role_profiles.ROLE_MECHANIC.qualification_note",
-    "role": "mechanic"
-  },
-  {
     "description": "@zh:core.staff_role_profiles.ROLE_RESEARCHER.description",
     "id": "ROLE_RESEARCHER",
     "name": "@zh:core.staff_role_profiles.ROLE_RESEARCHER.name",
