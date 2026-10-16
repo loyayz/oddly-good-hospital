@@ -15500,8 +15500,28 @@
           "properties": {
             "capture": {
               "properties": {
+                "completion": {
+                  "type": "string"
+                },
+                "extension": {
+                  "type": "string"
+                },
+                "failure": {
+                  "type": "string"
+                },
                 "fps_target": {
                   "type": "integer"
+                },
+                "minimum_frame_samples": {
+                  "minimum": 1000,
+                  "type": "integer"
+                },
+                "minimum_step_samples": {
+                  "minimum": 1000,
+                  "type": "integer"
+                },
+                "ordinary_transitions_are_warmup": {
+                  "type": "boolean"
                 },
                 "power_condition": {
                   "type": "string"
@@ -15511,10 +15531,6 @@
                 },
                 "record_refresh_and_sync": {
                   "type": "boolean"
-                },
-                "sample_real_seconds": {
-                  "minimum": 0,
-                  "type": "integer"
                 },
                 "speeds": {
                   "items": {
@@ -15581,20 +15597,24 @@
                   ],
                   "type": "object"
                 },
-                "warmup_real_seconds": {
-                  "minimum": 0,
-                  "type": "integer"
+                "warmup_completion": {
+                  "type": "string"
                 }
               },
               "required": [
+                "completion",
+                "extension",
+                "failure",
                 "fps_target",
+                "minimum_frame_samples",
+                "minimum_step_samples",
+                "ordinary_transitions_are_warmup",
                 "power_condition",
                 "record_actual_renderer",
                 "record_refresh_and_sync",
-                "sample_real_seconds",
                 "speeds",
                 "statistics",
-                "warmup_real_seconds"
+                "warmup_completion"
               ],
               "type": "object"
             },
@@ -15662,6 +15682,9 @@
                 "scene_scale_source": {
                   "type": "string"
                 },
+                "selection": {
+                  "type": "string"
+                },
                 "ui_scale_percent": {
                   "items": {
                     "type": "integer"
@@ -15685,6 +15708,7 @@
                 "record_actual_window_scene_and_ui_extent",
                 "resource_cost_basis",
                 "scene_scale_source",
+                "selection",
                 "ui_scale_percent",
                 "unavailable_mode",
                 "window_sources"
@@ -16038,15 +16062,14 @@
                 "count_source": {
                   "type": "string"
                 },
+                "dense_sample_requirements_source": {
+                  "type": "string"
+                },
                 "fake_submesh_counts": {
                   "type": "boolean"
                 },
                 "metrics_source": {
                   "type": "string"
-                },
-                "minimum_dense_sample_real_seconds": {
-                  "minimum": 0,
-                  "type": "integer"
                 },
                 "minimum_density_bp": {
                   "type": "integer"
@@ -16127,9 +16150,9 @@
                 "cache_modes",
                 "camera_sequence",
                 "count_source",
+                "dense_sample_requirements_source",
                 "fake_submesh_counts",
                 "metrics_source",
-                "minimum_dense_sample_real_seconds",
                 "minimum_density_bp",
                 "wide_floor",
                 "wide_tall"

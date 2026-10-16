@@ -1368,11 +1368,8 @@
     ],
     "realtime_seconds_paths": [
       "balance.save.autosave_real_seconds",
-      "balance.performance_targets.capture.warmup_real_seconds",
-      "balance.performance_targets.capture.sample_real_seconds",
       "balance.performance_targets.metrics.save_max_seconds",
       "balance.performance_targets.metrics.load_max_seconds",
-      "balance.performance_targets.spatial_samples.minimum_dense_sample_real_seconds",
       "balance.dialogue_presentation.minimum_read_real_seconds"
     ],
     "remaining_rounding": "ceil_display_unit_until_actual_completion",
@@ -1693,11 +1690,16 @@
   },
   "performance_targets": {
     "capture": {
+      "completion": "required_metric_samples_and_scenario_operations_covered",
+      "extension": "additional_independent_window_for_borderline_or_unstable_results_preserve_prior_failures",
+      "failure": "stop_diagnostic_on_reproducible_violation_optimize_and_remeasure_affected_scope",
       "fps_target": 60,
+      "minimum_frame_samples": 1000,
+      "minimum_step_samples": 1000,
+      "ordinary_transitions_are_warmup": false,
       "power_condition": "ac_record_actual_power_mode_and_background_load",
       "record_actual_renderer": true,
       "record_refresh_and_sync": true,
-      "sample_real_seconds": 600,
       "speeds": [
         1,
         3
@@ -1717,7 +1719,7 @@
         "time_basis": "monotonic_real_time",
         "tool_record": "version_source_and_actual_process_renderer"
       },
-      "warmup_real_seconds": 60
+      "warmup_completion": "initial_loading_bindings_and_actual_work_caches_ready_record_evidence_and_elapsed"
     },
     "changes_simulation": false,
     "display": {
@@ -1743,6 +1745,7 @@
       "record_actual_window_scene_and_ui_extent": true,
       "resource_cost_basis": "actual_targets_samples_formats_and_unreleased_copies",
       "scene_scale_source": "display.scene_scale_options_bp",
+      "selection": "representative_costs_and_display_boundaries_not_cartesian_product",
       "ui_scale_percent": [
         100,
         200
@@ -1861,9 +1864,9 @@
         "edit_local_geometry_during_view_load"
       ],
       "count_source": "actual_logical_entities_and_visible_instances_logged_separately",
+      "dense_sample_requirements_source": "capture.minimum_frame_samples_and_minimum_step_samples",
       "fake_submesh_counts": false,
       "metrics_source": "same_primary_frame_simulation_response_and_memory_targets",
-      "minimum_dense_sample_real_seconds": 60,
       "minimum_density_bp": 9000,
       "wide_floor": {
         "active_floor": 1,
