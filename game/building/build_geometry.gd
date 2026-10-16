@@ -25,6 +25,15 @@ static func cells(room: Dictionary) -> Array:
 static func room_walls(room: Dictionary) -> Array:
 	if room.has("wall_edges"):
 		return room.wall_edges
+	if not room.has("cells"):
+		var x: int = int(room.origin[0])
+		var y: int = int(room.origin[1])
+		var width: int = int(room.size[0])
+		var height: int = int(room.size[1])
+		if width<=0 or height<=0: return []
+		var result: Array = [{"axis":"x","line":y,"low":x,"high":x+width},{"axis":"x","line":y+height,"low":x,"high":x+width},{"axis":"y","line":x,"low":y,"high":y+height},{"axis":"y","line":x+width,"low":y,"high":y+height}]
+		result.sort_custom(func(first: Dictionary,second: Dictionary)->bool: return str(first.axis)+":"+str(first.line)<str(second.axis)+":"+str(second.line))
+		return result
 	var occupied: Dictionary = {}
 	for cell: Array in cells(room):
 		occupied[Vector2i(int(cell[0]),int(cell[1]))] = true

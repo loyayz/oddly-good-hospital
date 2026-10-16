@@ -27,10 +27,11 @@ python -B -X utf8 tools/compile-content.py --check
 [测试目录](tests/README.md)维护阶段1至28的需求条款、业务前提、操作和明确预期。六个专题覆盖内核与资料、临床、员工生活、运营、来客研究和空间改建。
 
 ```powershell
-pwsh -NoProfile -File tests/run-acceptance.ps1
+pwsh -NoProfile -File tests/run-acceptance.ps1 -ListCases
+pwsh -NoProfile -File tests/run-acceptance.ps1 -Case 'CORE-04,CLIN-06'
 ```
 
-测试使用独立工程与唯一资料目录，记录实际源文件、引擎、命令、退出码及逐项结果。旧阶段验证、设计验算、基准与回放工具已移除；历史报告只保留当时构建的结果，不能作为当前代码的通过证据。
+六个专题的231例均支持独立选择及跨专题组合，耗时前提按业务边界复用；完整功能库须显式使用 `-All`。回归范围和停止条件见 [AGENTS.md](AGENTS.md)。测试使用独立工程与唯一资料目录，记录实际源文件、引擎、命令、退出码及逐项结果。旧阶段验证、设计验算、基准与回放工具已移除；历史报告只保留当时构建的结果，不能作为当前代码的通过证据。
 
 阶段28后的性能测量与优化单独进行。[第三阶段性能限制](docs/design/15-stage03-kernel-performance.md)继续保留；全量正式美术、长期经营平衡、完整性能和发行验收按后续阶段交付。
 

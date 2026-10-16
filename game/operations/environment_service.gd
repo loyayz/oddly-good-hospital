@@ -6,6 +6,7 @@ var space: HospitalSpace
 var recruitment: RefCounted
 var waiting_life: RefCounted
 var _worked: Dictionary = {}
+var _coverage_cache: Dictionary = {}
 
 func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 	content = database
@@ -519,7 +520,53 @@ func _wall_between(world: WorldState, floor_id: int, first: Array, second: Array
 func _cell_key(cell: Array) -> String:
 	return "%d:%d" % [int(cell[0]),int(cell[1])]
 
-func _edge_open(world: WorldState, floor_id: int, first: Array, second: Array, noise: bool) -> bool:
+func _coverage_edge_key(first: Array, second: Array) -> Vector3i:
+	var horizontal: bool = int(first[1])!=int(second[1])
+	return Vector3i(0 if horizontal else 1,maxi(int(first[1]),int(second[1])) if horizontal else maxi(int(first[0]),int(second[0])),int(first[0]) if horizontal else int(first[1]))
+
+func _coverage_edges(world: WorldState, floor_id: int) -> Dictionary:
+	var layout: Dictionary = world.facts.floors.overrides.get(str(floor_id),{})
+	var source: Dictionary = {"floor_id":floor_id,"blocked":layout.get("blocked",[]),"rooms":[],"doors":[],"screens":[]}
+	for room: Dictionary in world.facts.rooms.values():
+		if int(room.floor_id)!=floor_id: continue
+		var shape: Dictionary = {"id":room.id,"origin":room.origin,"size":room.size}
+		for field: String in ["cells","wall_edges"]:
+			if room.has(field): shape[field] = room[field]
+		source.rooms.append(shape)
+	for door: Dictionary in layout.get("doors",[]):
+		source.doors.append({"room_id":door.room_id,"axis":door.axis,"cell":door.cell,"span":int(world.facts.adaptations.get(door.id,{}).get("span",door.span))})
+	for facility: Dictionary in world.facts.facilities.values():
+		if int(facility.floor_id)!=floor_id or not facility.definition_id in content.balance.environment.noise_barrier_definition_ids: continue
+		var facing: int = int(facility.get("rotation",0))%4
+		var across: Array = [int(facility.cell[0])+(1 if facing in [1,3] else 0),int(facility.cell[1])+(1 if facing in [0,2] else 0)]
+		source.screens.append(_coverage_edge_key(facility.cell,across))
+	# This single-entry cache contains geometry only. Dirt, working noise sources,
+	# facilities, water availability and actual nearby bodies remain live queries.
+	if _coverage_cache.get("source",{})==source: return _coverage_cache.edges
+	var edges: Dictionary = {"walls":{},"noise":{},"blocked":{}}
+	for cell: Array in source.blocked: edges.blocked[Vector2i(int(cell[0]),int(cell[1]))] = true
+	for room: Dictionary in source.rooms:
+		for wall: Dictionary in BuildGeometry.room_walls(room):
+			for along: int in range(int(wall.low),int(wall.high)):
+				var opening: bool = false
+				for door: Dictionary in source.doors:
+					var line: int = int(door.cell[1] if wall.axis=="x" else door.cell[0])
+					var begin: int = int(door.cell[0] if wall.axis=="x" else door.cell[1])
+					var span: int = int(door.span)
+					if door.room_id==room.id and door.axis==wall.axis and line==int(wall.line) and along>=begin and along<begin+span:
+						opening = true
+						break
+				if not opening: edges.walls[Vector3i(0 if wall.axis=="x" else 1,int(wall.line),along)] = true
+	for edge: Vector3i in source.screens: edges.noise[edge] = true
+	_coverage_cache = {"source":source.duplicate(true),"edges":edges}
+	return edges
+
+func _edge_open(world: WorldState, floor_id: int, first: Array, second: Array, noise: bool, edges: Dictionary = {}) -> bool:
+	if not edges.is_empty() and float(first[0])==float(int(first[0])) and float(first[1])==float(int(first[1])):
+		var cell: Vector2i = Vector2i(int(second[0]),int(second[1]))
+		if edges.blocked.has(cell) or not space.owned(world,floor_id,cell): return false
+		var key: Vector3i = _coverage_edge_key(first,second)
+		return not edges.walls.has(key) and (not noise or not edges.noise.has(key))
 	var floor_data: Dictionary = world.facts.floors.overrides.get(str(floor_id),{})
 	if second in floor_data.get("blocked",[]):
 		return false
@@ -536,9 +583,10 @@ func _edge_open(world: WorldState, floor_id: int, first: Array, second: Array, n
 					return false
 	return true
 
-func _coverage(world: WorldState, floor_id: int, origin: Array, radius: int, noise: bool) -> Dictionary:
-	var visited: Dictionary = {_cell_key(origin):0}
-	var queue: Array = [origin]
+func _coverage(world: WorldState, floor_id: int, origin: Array, radius: int, noise: bool, edges: Dictionary = {}) -> Dictionary:
+	var origin_cell: Array = [int(origin[0]),int(origin[1])]
+	var visited: Dictionary = {_cell_key(origin_cell):0}
+	var queue: Array = [origin_cell]
 	var cursor: int = 0
 	while cursor<queue.size():
 		var cell: Array = queue[cursor]
@@ -549,7 +597,7 @@ func _coverage(world: WorldState, floor_id: int, origin: Array, radius: int, noi
 		for offset: Array in [[-1,0],[0,-1],[0,1],[1,0]]:
 			var next: Array = [int(cell[0])+int(offset[0]),int(cell[1])+int(offset[1])]
 			var key: String = _cell_key(next)
-			if not visited.has(key) and _edge_open(world,floor_id,cell,next,noise):
+			if not visited.has(key) and _edge_open(world,floor_id,cell,next,noise,edges):
 				visited[key] = distance+1
 				queue.append(next)
 	return visited
@@ -561,9 +609,14 @@ func environment_at(world: WorldState, floor_id: int, cell: Array, actor_id: Str
 		result.status = "outside_owned_floor"
 		return result
 	var range_cells: int = int(rules.upgraded_range_cells if "R15" in world.facts.research else rules.range_cells)
-	var positive: Dictionary = _coverage(world,floor_id,cell,range_cells,false)
-	var negative: Dictionary = _coverage(world,floor_id,cell,int(rules.range_cells),false)
-	var noise_cells: Dictionary = _coverage(world,floor_id,cell,int(rules.range_cells),true)
+	var edges: Dictionary = _coverage_edges(world,floor_id)
+	var positive: Dictionary = _coverage(world,floor_id,cell,range_cells,false,edges)
+	var negative: Dictionary = positive
+	if range_cells!=int(rules.range_cells):
+		negative = {}
+		for key: String in positive:
+			if int(positive[key])<=int(rules.range_cells): negative[key] = positive[key]
+	var noise_cells: Dictionary = negative if edges.noise.is_empty() else _coverage(world,floor_id,cell,int(rules.range_cells),true,edges)
 	var environment: Dictionary = world.facts.get("environment",{})
 	var surfaces: Dictionary = environment.get("surfaces",{})
 	var floor_finish: Dictionary = surfaces.get(_surface_key(floor_id,cell,"floor"),{})

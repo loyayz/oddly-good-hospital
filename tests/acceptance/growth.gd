@@ -1,7 +1,5 @@
-extends RefCounted
+extends "res://tests/acceptance/growth_fixtures.gd"
 
-const F = preload("res://game/arrivals/exact_fraction.gd")
-const DayPlan = preload("res://game/arrivals/day_plan.gd")
 const CASES: Dictionary = {
 	"GROW-01":"docs/design/11-growth-arrivals-recruitment.md §1.1.1/1.2；零能力零机会且不抽签",
 	"GROW-02":"docs/design/11-growth-arrivals-recruitment.md §1.1/1.1.1；完整组合要求互异实际操作者",
@@ -43,83 +41,25 @@ const CASES: Dictionary = {
 	"GROW-38":"docs/design/04-technical.md §4研究进度；资料简报排序与任务恢复"
 }
 
-# This observer counts real production queries without substituting a result.
-class AdmissionObserver extends HospitalClinic:
-	var readiness_queries: int = 0
-	func arrival_readiness(world: WorldState, binding_id: String, complex_case: bool = false) -> Dictionary:
-		readiness_queries += 1
-		return super.arrival_readiness(world,binding_id,complex_case)
-
-var _content: HospitalContent
-var _simulations: Array[HospitalSimulation] = []
-var _opened_snapshot: Dictionary = {}
-var _fixture_errors: Array = []
-
 func run(t) -> void:
 	_content = HospitalContent.new()
-	_arrival_cases(t)
-	_patience_cases(t)
-	_resident_cases(t)
-	_prepare_opened_snapshot()
-	_research_cases(t)
-	for simulation: HospitalSimulation in _simulations:
-		simulation.dispose()
+	_cache = t.checkpoints(_content,"res://tests/acceptance/growth_fixtures.gd")
+	for case_id: String in CASES:
+		if not t.wants(case_id): continue
+		t.begin_case(case_id)
+		if not _content.error.is_empty():
+			t.check(case_id,false,{"content_error":_content.error})
+			continue
+		if int(case_id.right(2))>=21:
+			var started: int = Time.get_ticks_msec()
+			_prepare_opened_snapshot()
+			t.preparation_elapsed(started)
+		await call("_case_"+case_id.right(2),t)
+	for simulation: HospitalSimulation in _simulations: simulation.dispose()
 	_simulations.clear()
 
-func _context(preset: bool = true, opened: bool = false) -> Dictionary:
-	var world: WorldState = WorldState.new(_opened_snapshot.duplicate(true)) if opened and not _opened_snapshot.is_empty() else HospitalFactory.create(HospitalSnapshots.uuid(),"来客与研究专项医院",preset,_content)
-	var simulation: HospitalSimulation = HospitalSimulation.new(world,_content)
-	_simulations.append(simulation)
-	var arrivals: HospitalArrivalService = simulation.services.arrivals
-	arrivals.execute(world,"tutorial_set_enabled",{"enabled":false})
-	# Non-capacity cases start inside an already frozen day. Manual patients and
-	# actual research/clinical work must not trigger an unrelated whole-case solver.
-	world.facts.arrivals.plan = _plan(world,0,[0,0,0],[F.make(),F.make(),F.make()])
-	arrivals.execute(world,"arrivals_intake",{"open":false})
-	return {"world":world,"simulation":simulation,"space":simulation.space,"clinic":simulation.clinic,
-		"arrivals":arrivals,"research":simulation.services.research,"development":simulation.services.development}
 
-func _single_case(ctx: Dictionary, disease_id: String = "D09") -> void:
-	for disease: Dictionary in _content.catalog.diseases:
-		ctx.arrivals.execute(ctx.world,"arrivals_weight",{"disease_id":disease.id,"weight":1 if disease.id==disease_id else 0})
-	ctx.arrivals.execute(ctx.world,"arrivals_intake",{"open":true})
-
-func _plan(world: WorldState, count: int, counts: Array, capacities: Array = []) -> Dictionary:
-	return {"day_index":world.sim_tick/18000+1,"preset":"normal","scale_numerator":3,
-		"shift_capacities":capacities if not capacities.is_empty() else [F.make(1),F.make(),F.make()],
-		"opportunity_count":count,"shift_opportunity_counts":counts.duplicate(),"schedule_seed":"321" if count>0 else null,
-		"schedule_algorithm":"arrival-load-slot-v1","next_slot_index":0,"held_capacity_fraction":F.make(),"held_scale_numerator":0}
-
-func _slot_ticks(plan: Dictionary) -> Array:
-	var result: Array = []
-	for index: int in int(plan.opportunity_count):
-		result.append(DayPlan.slot_tick(plan,index))
-	return result
-
-func _add_room(world: WorldState, id: String, kind: String, origin: Array, size: Array) -> void:
-	HospitalFactory._add_room(world,{"id":id,"type":kind,"anchor":origin,"size":size,"door":{"offset":1,"definition_id":"DR04"}},_content)
-	world.touch()
-
-func _add_facility(world: WorldState, id: String, definition_id: String, room_id: Variant, cell: Array) -> void:
-	var definition: Dictionary = _content.facility_definition(definition_id)
-	HospitalFactory._add_facility(world,{"id":id,"definition_id":definition_id,"room_id":room_id,"anchor":cell,"size":definition.footprint.duplicate()},_content)
-	world.touch()
-
-func _fresh_space(ctx: Dictionary) -> void:
-	var geometry: HospitalSpace = HospitalSpace.new(_content)
-	ctx.space = geometry
-	ctx.clinic.space = geometry
-	ctx.arrivals.space = geometry
-	ctx.arrivals.clinic.space = geometry
-	ctx.research.space = geometry
-	ctx.development.space = geometry
-
-func _observer(ctx: Dictionary) -> AdmissionObserver:
-	var observer: AdmissionObserver = AdmissionObserver.new(_content,ctx.space)
-	ctx.arrivals.clinic = observer
-	return observer
-
-func _arrival_cases(t) -> void:
+func _case_01(t) -> void:
 	var empty: Dictionary = _context(false)
 	# This case, unlike the fixed-day fixtures, exercises real plan generation.
 	empty.world.facts.arrivals.plan.clear()
@@ -128,6 +68,7 @@ func _arrival_cases(t) -> void:
 	var zero: Dictionary = empty.world.facts.arrivals.plan
 	t.check("GROW-01",not zero.is_empty() and zero.opportunity_count==0 and zero.shift_opportunity_counts==[0,0,0] and zero.schedule_seed==null and zero.shift_capacities==[F.make(),F.make(),F.make()] and empty.world.facts.rng==rng_before,zero)
 
+func _case_02(t) -> void:
 	var base: Dictionary = _context()
 	_single_case(base)
 	var capacity: Dictionary = base.arrivals.capacity(base.world,false)
@@ -142,13 +83,28 @@ func _arrival_cases(t) -> void:
 	_fresh_space(no_team)
 	var unmanned: Dictionary = no_team.arrivals.capacity(no_team.world,false)
 	t.check("GROW-02",capacity.get("complete",false) and F.compare(capacity.get("capacity",F.make()),F.make())>0 and absent.get("capacity",{})==F.make() and unmanned.get("capacity",{})==F.make() and int(unmanned.get("scale_numerator",-1))==0,{"base":capacity,"missing_team":absent,"unmanned":unmanned})
+
+func _case_03(t) -> void:
+	var base: Dictionary = _context()
+	_single_case(base)
+	var capacity: Dictionary = base.arrivals.capacity(base.world,false)
 	var frozen: Dictionary = base.world.freeze()
 	var repeated: Dictionary = base.arrivals.capacity(base.world,false)
 	t.check("GROW-03",capacity==repeated and base.world.freeze()==frozen,{"same_projection":capacity==repeated,"world_unchanged":base.world.freeze()==frozen})
+
+func _case_04(t) -> void:
+	var base: Dictionary = _context()
+	_single_case(base)
+	var capacity: Dictionary = base.arrivals.capacity(base.world,false)
 	base.arrivals.execute(base.world,"arrivals_intake",{"open":false})
 	var closed_capacity: Dictionary = base.arrivals.capacity(base.world,false)
 	t.check("GROW-04",closed_capacity.get("capacity",{})==capacity.get("capacity",{}) and closed_capacity.get("shift_pairs",[])==capacity.get("shift_pairs",[]),closed_capacity)
 
+func _case_05(t) -> void:
+	var base: Dictionary = _context()
+	_single_case(base)
+	var capacity: Dictionary = base.arrivals.capacity(base.world,false)
+	base.arrivals.execute(base.world,"arrivals_intake",{"open":false})
 	# Today is already frozen; real capacity was calculated above and is still
 	# recalculated by hold selection and the later new-day boundaries below.
 	base.arrivals.boundaries(base.world)
@@ -178,16 +134,24 @@ func _arrival_cases(t) -> void:
 	base.arrivals.boundaries(base.world)
 	t.check("GROW-05",held_result.accepted and held==capacity.get("capacity",{}) and F.compare(grown.get("capacity",F.make()),held)>0 and unchanged_today and held_total==held and base.world.facts.arrivals.plan.opportunity_count==0,{"held":held,"grown":grown,"held_day":held_day,"declined":base.world.facts.arrivals.plan})
 
+func _case_06(t) -> void:
+	var empty: Dictionary = _context(false)
 	var vector_world: WorldState = empty.world
 	var allocation: Array = DayPlan.allocate_shifts(1,"321",8,[F.make(1),F.make(1),F.make(1)])
 	var vector: Dictionary = _plan(vector_world,8,allocation,[F.make(3),F.make(3),F.make(3)])
 	t.check("GROW-06",allocation==[3,2,3] and _slot_ticks(vector)==[1156,2815,5438,8035,11156,12853,15397,16553],{"allocation":allocation,"ticks":_slot_ticks(vector)})
+
+func _case_07(t) -> void:
+	var vector_world: WorldState = _context(false).world
 	var gap_counts: Array = DayPlan.allocate_shifts(1,"321",8,[F.make(1),F.make(),F.make(1)])
 	var gap: Dictionary = _plan(vector_world,8,gap_counts,[F.make(5),F.make(),F.make(5)])
 	var no_middle: bool = true
 	for tick: int in _slot_ticks(gap):
 		no_middle = no_middle and (tick<6000 or tick>=12000)
 	t.check("GROW-07",gap_counts==[4,0,4] and no_middle,{"counts":gap_counts,"ticks":_slot_ticks(gap)})
+
+func _case_08(t) -> void:
+	var vector: Dictionary = _vector_plan(_context(false).world)
 	var restore: Dictionary = _context()
 	restore.world.facts.arrivals.plan = vector.duplicate(true)
 	var restore_rng: Dictionary = restore.world.facts.rng.duplicate(true)
@@ -196,6 +160,10 @@ func _arrival_cases(t) -> void:
 	restored.facts.staff.starter_doctor_a.schedule[0].kind = "rest"
 	var restored_ticks: Array = _slot_ticks(restored.facts.arrivals.plan)
 	t.check("GROW-08",restored_ticks==_slot_ticks(vector) and restored.facts.arrivals.plan==vector and restored.facts.rng==restore_rng and not vector.has("slot_ticks") and DayPlan.validate(vector).is_empty(),restored.facts.arrivals.plan)
+
+func _case_09(t) -> void:
+	var restore: Dictionary = _context()
+	restore.world.facts.arrivals.plan = _vector_plan(restore.world)
 	var before_settings: Dictionary = restore.world.facts.arrivals.plan.duplicate(true)
 	restore.arrivals.execute(restore.world,"arrivals_intake",{"open":true})
 	restore.arrivals.execute(restore.world,"arrivals_preset",{"preset":"busy"})
@@ -204,6 +172,7 @@ func _arrival_cases(t) -> void:
 	restore.arrivals.execute(restore.world,"arrivals_intake",{"open":true})
 	t.check("GROW-09",immediate and restore.world.facts.arrivals.intake_open and restore.world.facts.arrivals.preset=="normal" and restore.world.facts.arrivals.next_preset=="busy" and restore.world.facts.arrivals.plan==before_settings,restore.arrivals.daystats(restore.world))
 
+func _case_10(t) -> void:
 	var excluded: Dictionary = _context()
 	var observed: AdmissionObserver = _observer(excluded)
 	excluded.world.facts.arrivals.plan = _plan(excluded.world,1,[1,0,0])
@@ -213,6 +182,7 @@ func _arrival_cases(t) -> void:
 	excluded.arrivals.arrivals(excluded.world)
 	t.check("GROW-10",observed.readiness_queries==0 and excluded.world.facts.arrivals.plan.next_slot_index==1 and excluded.world.facts.rng==excluded_before.rng and excluded.world.facts.actors==excluded_before.actors and excluded.world.facts.visits==excluded_before.visits and excluded.world.facts.tickets==excluded_before.tickets and excluded.world.facts.preparations==excluded_before.preparations,excluded.arrivals.daystats(excluded.world))
 
+func _case_11(t) -> void:
 	var counting: Dictionary = _context()
 	var first: Dictionary = _patient(counting,[34,76],"B_S44_D01_M01")
 	var second: Dictionary = _patient(counting,[46,76])
@@ -252,6 +222,7 @@ func _arrival_cases(t) -> void:
 		count_details = {"before":before_bed,"with_bed":with_bed,"cancelled":restored_count}
 	t.check("GROW-11",count_passed,count_details)
 
+func _case_12(t) -> void:
 	var batch: Dictionary = _context()
 	_single_case(batch,"D37")
 	for index: int in 23:
@@ -264,6 +235,7 @@ func _arrival_cases(t) -> void:
 	var batch_stats: Dictionary = batch.arrivals.daystats(batch.world)
 	t.check("GROW-12",batch.arrivals.outpatient_count(batch.world)==24 and batch.world.facts.arrivals.plan.next_slot_index==3 and batch_stats.days.get("1",{}).get("arrived",0)==1 and batch_stats.days.get("1",{}).get("full",0)==2 and batch_observer.readiness_queries==3,{"stats":batch_stats,"readiness_queries":batch_observer.readiness_queries,"fixture_errors":_fixture_errors})
 
+func _case_13(t) -> void:
 	var unready: Dictionary = _context()
 	_single_case(unready,"D37")
 	unready.world.facts.facilities.cold_machine.failed = true
@@ -274,64 +246,7 @@ func _arrival_cases(t) -> void:
 	unready.arrivals.arrivals(unready.world)
 	t.check("GROW-13",unready.world.facts.arrivals.plan.next_slot_index==1 and unready.world.facts.visits.is_empty() and unready.world.facts.rng==unready_rng and unready.arrivals.daystats(unready.world).days.get("1",{}).get("unready",0)==1,unready.arrivals.daystats(unready.world))
 
-func _sum(values: Array) -> Dictionary:
-	var result: Dictionary = F.make()
-	for value: Dictionary in values:
-		result = F.add(result,value)
-	return result
-
-# Fixture setup uses production admission and queue creation. The chosen cell is
-# the initial position of this focused saved-world input, not a movement result.
-func _patient(ctx: Dictionary, cell: Array, binding: String = "B_S49_D37_M37", personality: String = "PP01", resident: Dictionary = {}) -> Dictionary:
-	var payload: Dictionary = {"arrival_key":ctx.world.new_id("acceptance_arrival"),"binding_id":binding,"personality_id":personality,"complex":false}
-	if not resident.is_empty():
-		payload.resident_id = resident.id
-		payload.name = resident.name
-		payload.personality_id = resident.personality_id
-	var result: CommandResult = ctx.clinic.execute(ctx.world,"clinical_arrive",payload)
-	ctx.last_admission = result.to_record()
-	if not result.accepted:
-		_fixture_errors.append({"code":result.code,"reason":result.reason,"binding":binding})
-		return {}
-	var visit: Dictionary = ctx.world.facts.visits[result.changed_ids[0]]
-	ctx.world.facts.actors[visit.actor_id].location.cell = cell.duplicate()
-	if not resident.is_empty():
-		ctx.world.facts.actors[visit.actor_id].appearance = resident.appearance.duplicate(true)
-		resident.current_actor_id = visit.actor_id
-		ctx.world.facts.residents[resident.id] = resident
-	ctx.world.touch()
-	ctx.space.sync_actor(ctx.world,visit.actor_id)
-	ctx.clinic._queue(ctx.world,visit,"reception")
-	var ticket: Dictionary = ctx.world.facts.tickets[visit.ticket_id]
-	ticket.waited_ticks = 0
-	ticket.wait_accounted_tick = ctx.world.sim_tick
-	return visit
-
-func _wait_ctx(personality: String = "PP01") -> Dictionary:
-	var ctx: Dictionary = _context()
-	ctx.visit = _patient(ctx,[45,76],"B_S49_D37_M37",personality)
-	ctx.ticket = ctx.world.facts.tickets.get(ctx.visit.get("ticket_id",""),{})
-	_seed_survival(ctx.world)
-	return ctx
-
-func _seed_survival(world: WorldState) -> void:
-	for seed: int in range(1,65):
-		var generator: RandomNumberGenerator = RandomNumberGenerator.new()
-		generator.seed = seed
-		var initial: String = str(generator.state)
-		if generator.randi_range(0,9999)>=3500 and generator.randi_range(0,9999)>=3500:
-			world.facts.rng.patience.seed_decimal = str(seed)
-			world.facts.rng.patience.state_decimal = initial
-			return
-
-func _patience_events(service: HospitalArrivalService) -> int:
-	var count: int = 0
-	for event: SimEvent in service.take_events():
-		if event.kind=="patience_evaluated":
-			count += 1
-	return count
-
-func _patience_cases(t) -> void:
+func _case_14(t) -> void:
 	var probability: Dictionary = _wait_ctx("PP02")
 	probability.ticket.waited_ticks = 1200
 	probability.visit.anger = 15.0
@@ -352,6 +267,7 @@ func _patience_cases(t) -> void:
 	var capped: int = probability.arrivals.patience_probability(probability.world,probability.visit,probability.ticket)
 	t.check("GROW-14",quick==600 and slow==260 and buffered==300 and capped==3500 and mini(quick,mini(slow,buffered))>=100,{"quick":quick,"slow":slow,"buffered":buffered,"capped":capped})
 
+func _case_15(t) -> void:
 	var clock: Dictionary = _wait_ctx()
 	clock.world.facts.sim_tick = 1199
 	clock.ticket.waited_ticks = 1199
@@ -371,6 +287,7 @@ func _patience_cases(t) -> void:
 	clock.arrivals.needs(clock.world)
 	t.check("GROW-15",before_threshold and before!=at_first and first_events==1 and unique_first and int(clock.world.facts.wait_departures[clock.visit.actor_id].next_check_wait_ticks)==1800 and _patience_events(clock.arrivals)==1,{"state":clock.world.facts.wait_departures.get(clock.visit.actor_id,{}),"unique_first":unique_first})
 
+func _case_16(t) -> void:
 	var paused: Dictionary = _wait_ctx()
 	paused.world.facts.sim_tick = 1200
 	paused.ticket.waited_ticks = 1200
@@ -395,6 +312,7 @@ func _patience_cases(t) -> void:
 	paused.arrivals.needs(paused.world)
 	t.check("GROW-16",held_wait and not_yet and paused.ticket.waited_ticks==1500 and paused.world.sim_tick==1900 and paused.world.facts.rng.patience.state_decimal!=pause_rng and paused.visit.ticket_id==paused.ticket.id,{"held":held_wait,"not_yet":not_yet,"waited_ticks":paused.ticket.waited_ticks,"sim_tick":paused.world.sim_tick})
 
+func _case_17(t) -> void:
 	var safe: Dictionary = _wait_ctx()
 	safe.world.facts.sim_tick = 1200
 	safe.ticket.waited_ticks = 1200
@@ -424,6 +342,7 @@ func _patience_cases(t) -> void:
 	stalled.arrivals.needs(stalled.world)
 	t.check("GROW-17",no_walking_draw and no_service_draw and deterministic and stalled.world.facts.wait_departures.get(stalled.visit.actor_id,{}).get("selected",false) and stalled.world.facts.rng.patience.state_decimal==stalled_rng,{"walking":no_walking_draw,"service":no_service_draw,"anger_exit":deterministic,"stalled":stalled.world.facts.wait_departures.get(stalled.visit.actor_id,{})})
 
+func _case_18(t) -> void:
 	var saved: Dictionary = _wait_ctx()
 	saved.world.facts.sim_tick = 1200
 	saved.ticket.waited_ticks = 1200
@@ -436,38 +355,7 @@ func _patience_cases(t) -> void:
 	var restored_patience_error: String = HospitalArrivalService.validate_snapshot(reconstructed.facts,_content)
 	t.check("GROW-18",restored_patience_error.is_empty() and reconstructed.facts.rng==saved_facts.rng and reconstructed.facts.tickets==saved_facts.tickets and reconstructed.facts.wait_departures==saved_facts.wait_departures and _patience_events(rebuilt)==0,{"state":reconstructed.facts.wait_departures,"valid":restored_patience_error})
 
-func _resident(ctx: Dictionary, cell: Array) -> Dictionary:
-	var resident: Dictionary = ctx.arrivals._new_identity(ctx.world,"S49")
-	resident.remembered = true
-	var visit: Dictionary = _patient(ctx,cell,"B_S49_D37_M37","PP01",resident)
-	return {"resident":resident,"visit":visit}
-
-func _actual_departure(ctx: Dictionary, visit: Dictionary) -> bool:
-	if not ctx.clinic.depart_visit(ctx.world,visit.id,"referred"):
-		return false
-	for index: int in 600:
-		ctx.clinic.dispatch(ctx.world)
-		ctx.space.advance(ctx.world)
-		ctx.arrivals.settle(ctx.world)
-		if visit.phase=="departed":
-			return true
-		ctx.world.facts.sim_tick += 1
-		ctx.world.touch()
-		ctx.space.finish_boundary(ctx.world)
-	return false
-
-func _return_hit(world: WorldState) -> void:
-	for seed: int in range(1,65):
-		var generator: RandomNumberGenerator = RandomNumberGenerator.new()
-		generator.seed = seed
-		var initial: String = str(generator.state)
-		var value: int = generator.randi()
-		if value<4294960000 and value%10000<2000:
-			world.facts.rng.arrival.seed_decimal = str(seed)
-			world.facts.rng.arrival.state_decimal = initial
-			return
-
-func _resident_cases(t) -> void:
+func _case_19(t) -> void:
 	var ctx: Dictionary = _context()
 	var person: Dictionary = _resident(ctx,[46,93])
 	ctx.clinic.depart_visit(ctx.world,person.visit.id,"referred")
@@ -485,6 +373,11 @@ func _resident_cases(t) -> void:
 	var restored: WorldState = WorldState.new(ctx.world.freeze())
 	t.check("GROW-19",before_exit and exited and departure>=0 and person.visit.get("departure_recorded",false) and early.is_empty() and no_early_draw and eligible.get("id","")==person.resident.id and restored.facts.residents[person.resident.id].last_departure_tick==departure,{"departure":departure,"eligible":eligible.get("id",""),"before_exit":before_exit,"exited":exited})
 
+func _case_20(t) -> void:
+	var ctx: Dictionary = _context()
+	var person: Dictionary = _resident(ctx,[46,93])
+	ctx.clinic.depart_visit(ctx.world,person.visit.id,"referred")
+	_actual_departure(ctx,person.visit)
 	var another: Dictionary = _resident(ctx,[44,93])
 	var second_exited: bool = _actual_departure(ctx,another.visit)
 	ctx.world.facts.sim_tick = maxi(int(person.resident.last_departure_tick),int(another.resident.last_departure_tick))+36000
@@ -513,107 +406,8 @@ func _resident_cases(t) -> void:
 	var none: Dictionary = ctx.arrivals._returning_resident(ctx.world,"S49","B_S49_D37_M37")
 	t.check("GROW-20",second_exited and oldest.get("id","")==person.resident.id and tie_choice.get("id","")==expected_tie and occupied.get("id","")==another.resident.id and none.is_empty() and ctx.world.facts.rng.arrival.state_decimal==none_rng and not returned_visit.is_empty() and returned_visit.id!=retained.last_visit_id and returned_visit.evidence_by_source.is_empty() and returned_visit.attempt_ids.is_empty() and returned_visit.personality_id==retained.personality_id and returned_visit.anger==float(_content.definition("patient_personalities",retained.personality_id).initial_anger) and ctx.world.facts.actors[returned_visit.actor_id].appearance==retained.appearance and person.resident.name==retained.name,{"oldest":oldest.get("id",""),"tie":tie_choice.get("id",""),"occupied":occupied.get("id",""),"none":none,"fixture_errors":_fixture_errors})
 
-func mini_string(first: String, second: String) -> String:
-	return first if first<second else second
-
-func _prepare_opened_snapshot() -> void:
-	var ctx: Dictionary = _context()
-	# _context supplies the frozen current day; full steps here only need the
-	# original manually admitted patient's real first GP, with no new arrivals.
-	ctx.arrivals.execute(ctx.world,"arrivals_intake",{"open":false})
-	var result: CommandResult = ctx.clinic.execute(ctx.world,"clinical_arrive",{"arrival_key":"research_opening_patient","binding_id":"B_S49_D37_M37","personality_id":"PP01"})
-	if not result.accepted:
-		_fixture_errors.append({"opening":result.reason})
-		return
-	for index: int in 1200:
-		ctx.simulation.step()
-		if index%100==99:
-			print("GROWTH_OPENING_PROGRESS tick="+str(ctx.world.sim_tick)+" visits="+JSON.stringify(ctx.world.facts.visits))
-		if ctx.research.opened(ctx.world):
-			_opened_snapshot = ctx.world.freeze()
-			return
-	_fixture_errors.append({"opening":"First actual GP did not finish within its necessary 120-second boundary"})
-
-func _research_context(desk: bool = true, worker: bool = true) -> Dictionary:
-	var ctx: Dictionary = _context(true,true)
-	if desk:
-		_add_room(ctx.world,"research_room","research",[42,69],[6,6])
-		_add_facility(ctx.world,"research_desk","FUR05","research_room",[43,70])
-	if worker:
-		HospitalFactory._add_staff(ctx.world,"research_worker","研究员","researcher",[45,70],_content)
-		ctx.simulation.services.scheduler.ensure(ctx.world)
-		ctx.simulation.services.recruitment.ensure(ctx.world)
-	_fresh_space(ctx)
-	return ctx
-
-func _finish_opening_handoff(ctx: Dictionary) -> Dictionary:
-	var opening: Dictionary = {}
-	for visit: Dictionary in ctx.world.facts.visits.values():
-		if visit.arrival_key=="research_opening_patient":
-			opening = visit
-			break
-	if opening.is_empty():
-		return {"cleared":false,"reason":"Actual first-GP visit is missing"}
-	var referral: CommandResult = ctx.clinic.execute(ctx.world,"clinical_refer",{"visit_id":opening.id})
-	var state: Dictionary = {"referral":referral.to_record(),"started_tick":ctx.world.sim_tick,"cleared":false}
-	if referral.accepted:
-		ctx.world.touch()
-		# First GP opens research before its bodies and station have handed over.
-		# Only the original patient's real exit and the GP's physical release are
-		# needed before the next actual admission; no clinical facts are replaced.
-		for index: int in 600:
-			ctx.simulation.step()
-			var gp_release: bool = false
-			for staff: Dictionary in ctx.world.facts.staff.values():
-				gp_release = gp_release or staff.get("clinical_release",{}).get("facility_id","")=="gp_station"
-			if opening.phase=="departed" and ctx.world.facts.actors[opening.actor_id].location.kind=="outside" and not ctx.world.facts.adaptations.has("gp_station") and not gp_release:
-				state.cleared = true
-				break
-	state.finished_tick = ctx.world.sim_tick
-	state.visit_phase = opening.phase
-	state.patient_location = ctx.world.facts.actors[opening.actor_id].location.duplicate(true)
-	state.gp_adaptation = ctx.world.facts.adaptations.get("gp_station",{}).duplicate(true)
-	state.gp_releases = {}
-	for staff: Dictionary in ctx.world.facts.staff.values():
-		if staff.get("clinical_release",{}).get("facility_id","")=="gp_station":
-			state.gp_releases[staff.id] = {"release":staff.clinical_release.duplicate(true),"location":ctx.world.facts.actors[staff.id].location.duplicate(true),"move":ctx.world.facts.moves.get(staff.id,{}).duplicate(true)}
-	return state
-
-func _research_tick(ctx: Dictionary) -> void:
-	ctx.research.boundaries(ctx.world)
-	ctx.development.dispatch(ctx.world)
-	ctx.space.advance(ctx.world)
-	ctx.research.advance(ctx.world)
-	ctx.research.settle(ctx.world)
-	ctx.world.facts.sim_tick += 1
-	ctx.world.touch()
-	ctx.space.finish_boundary(ctx.world)
-
-func _start(ctx: Dictionary, research_id: String = "R12", extra: Dictionary = {}) -> CommandResult:
-	var payload: Dictionary = {"research_id":research_id}
-	payload.merge(extra,true)
-	return ctx.research.execute(ctx.world,"research_start",payload)
-
-func _finish_research(ctx: Dictionary, research_id: String) -> bool:
-	var job: Dictionary = ctx.research.active_job(ctx.world,research_id)
-	if job.is_empty():
-		return false
-	# Only this original job's quoted work boundary is advanced.
-	var limit: int = int(job.total_work_milli)/1000+300
-	for index: int in limit:
-		_research_tick(ctx)
-		if HospitalResearch.terminal(job):
-			return job.state=="completed"
-	return false
-
-func _material(ctx: Dictionary, research_id: String) -> void:
-	ctx.research.execute(ctx.world,"research_request_mail",{"research_id":research_id})
-	var due: int = int(ctx.world.facts.research_progress.mail.get(research_id,ctx.world.sim_tick))
-	ctx.world.facts.sim_tick = due
-	ctx.research.boundaries(ctx.world)
-	ctx.research.settle(ctx.world)
-
-func _research_cases(t) -> void:
+func _case_21(t) -> void:
+	_prepare_opened_snapshot()
 	var fresh: Dictionary = _context()
 	var initial_materials: Dictionary = fresh.world.facts.research_progress.materials
 	var initial_ok: bool = not fresh.research.opened(fresh.world)
@@ -634,6 +428,7 @@ func _research_cases(t) -> void:
 		actual_gp = actual_gp or visit.evidence_by_source.has("gp")
 	t.check("GROW-21",initial_ok and reachable.size()==38 and _content.catalog.research.size()==38 and actual_gp and int(_opened_snapshot.get("research_progress",{}).get("opened_tick",-1))>=0,{"initial":initial_ok,"reachable":reachable.size(),"actual_gp":actual_gp,"fixture_errors":_fixture_errors})
 
+func _case_22(t) -> void:
 	var mail: Dictionary = _research_context(false,false)
 	var cash: int = HospitalLedger.balance(mail.world)
 	var first_request: CommandResult = mail.research.execute(mail.world,"research_request_mail",{"research_id":"R03"})
@@ -644,6 +439,12 @@ func _research_cases(t) -> void:
 	mail.research.execute(mail.world,"research_todo_add",{"research_id":"R03"})
 	mail.research.execute(mail.world,"research_todo_remove",{"research_id":"R03"})
 	t.check("GROW-22",first_request.accepted and due==requested_at+1200 and mail.world.facts.research_progress.mail.get("R03",-1)==due and HospitalLedger.balance(mail.world)==cash and not "R02" in mail.world.facts.research,{"due":due,"requested_at":requested_at,"cash":HospitalLedger.balance(mail.world)})
+
+func _case_23(t) -> void:
+	var mail: Dictionary = _research_context(false,false)
+	var cash: int = HospitalLedger.balance(mail.world)
+	mail.research.execute(mail.world,"research_request_mail",{"research_id":"R03"})
+	var due: int = int(mail.world.facts.research_progress.mail.get("R03",-1))
 	mail.world.facts.sim_tick = due-1
 	mail.research.boundaries(mail.world)
 	mail.research.settle(mail.world)
@@ -660,6 +461,7 @@ func _research_cases(t) -> void:
 	mail.research.settle(mail.world)
 	t.check("GROW-23",not_early and paused_same and mail.world.facts.research_progress.materials.get("R03",{}).get("kind","")=="mail" and mail.world.facts.research_progress.materials==arrived_materials and not mail.world.facts.research_progress.mail.has("R03") and HospitalLedger.balance(mail.world)==cash,{"not_early":not_early,"paused_same":paused_same,"material":mail.world.facts.research_progress.materials.get("R03",{})})
 
+func _case_24(t) -> void:
 	var diagnosis: Dictionary = _research_context()
 	# The input hospital has this prior unlock, but no research-progress cache for
 	# its next actual diagnosis. This is also a valid migration evidence boundary.
@@ -699,6 +501,7 @@ func _research_cases(t) -> void:
 	diagnosis_details.admission = diagnosis.get("last_admission",{}).duplicate(true)
 	t.check("GROW-24",evidence_ready and diagnosis.world.facts.research_progress.materials.get("R19",{}).get("kind","")=="diagnosis" and diagnosis.world.facts.research_progress.materials.size()==diagnosis_count and not diagnosis.world.facts.research_progress.mail.has("R19"),diagnosis_details)
 
+func _case_25(t) -> void:
 	var planning: Dictionary = _research_context()
 	var planning_cash: int = HospitalLedger.balance(planning.world)
 	for topic: String in ["R03","R12","R12","R14"]:
@@ -710,6 +513,7 @@ func _research_cases(t) -> void:
 	var completed_add: CommandResult = planning.research.execute(planning.world,"research_todo_add",{"research_id":"R14"})
 	t.check("GROW-25",after_plan and not completed_add.accepted and not "R14" in planning.world.facts.research_progress.todo,{"todo":planning.world.facts.research_progress.todo,"cash":HospitalLedger.balance(planning.world)})
 
+func _case_26(t) -> void:
 	var unique: Dictionary = _research_context()
 	var unique_cash: int = HospitalLedger.balance(unique.world)
 	_material(unique,"R04")
@@ -722,6 +526,7 @@ func _research_cases(t) -> void:
 	var unique_job: Dictionary = unique.research.active_job(unique.world,"R12")
 	t.check("GROW-26",failed_clean and started.accepted and not twice.accepted and unique.world.facts.research_jobs.size()==1 and HospitalLedger.balance(unique.world)==unique_cash-600 and unique_job.get("cost",-1)==600 and unique_job.get("total_work_milli",0)==1800000,{"first":started.accepted,"second":twice.accepted,"job":unique_job})
 
+func _case_27(t) -> void:
 	var waiting: Dictionary = _research_context(false,false)
 	var waiting_cash: int = HospitalLedger.balance(waiting.world)
 	var default_wait: CommandResult = _start(waiting)
@@ -732,6 +537,7 @@ func _research_cases(t) -> void:
 	_research_tick(waiting)
 	t.check("GROW-27",default_clean and allowed_wait.accepted and HospitalLedger.balance(waiting.world)==waiting_cash-600 and paid_wait.get("state","")=="waiting" and paid_wait.get("remaining_work_milli",-2)==paid_remaining and str(paid_wait.get("worker_id","x")).is_empty(),{"default_clean":default_clean,"job":paid_wait})
 
+func _case_28(t) -> void:
 	var community: Dictionary = _research_context()
 	var rich_community: CommandResult = _start(community,"R12",{"community":true})
 	community.world.facts.ledger.opening_balance -= HospitalLedger.balance(community.world)
@@ -742,6 +548,7 @@ func _research_cases(t) -> void:
 	community.research.execute(community.world,"research_cancel",{"research_id":"R12"})
 	t.check("GROW-28",not rich_community.accepted and low_cash==0 and community_start.accepted and doubled and community_job.get("refund",-1)==0 and HospitalLedger.balance(community.world)==0,{"rich_rejected":not rich_community.accepted,"job":community_job})
 
+func _case_29(t) -> void:
 	var working: Dictionary = _research_context()
 	working.world.facts.actors.research_worker.location.cell = [47,74]
 	working.world.touch()
@@ -766,6 +573,7 @@ func _research_cases(t) -> void:
 	working.research.advance(working.world)
 	t.check("GROW-29",not_present and at_desk and off_still and int(active.get("remaining_work_milli",on_before))==on_before-1000 and working.research.worked_staff().has("research_worker"),{"not_present":not_present,"at_desk":at_desk,"off_still":off_still,"job":active})
 
+func _case_30(t) -> void:
 	var sharing: Dictionary = _research_context()
 	sharing.world.facts.research.append("R11")
 	var opening_doctor_busy: bool = HospitalClinicalDevelopment.safe_busy(sharing.world,"starter_doctor_a")
@@ -800,6 +608,7 @@ func _research_cases(t) -> void:
 	var two_job: Dictionary = parallel.research.active_job(parallel.world,"R14")
 	t.check("GROW-30",course.accepted and shared_start.accepted and exclusive and retained_desk and one.accepted and two.accepted and one_job.get("state","")=="working" and two_job.get("state","")=="working" and one_job.get("desk_id","")!=two_job.get("desk_id","") and not _start(parallel,"R12",{"allow_waiting":true}).accepted,{"exclusive":exclusive,"retained":retained_desk,"original_gp_doctor_busy":opening_doctor_busy,"course_accepted":course.accepted,"course_reason":course.reason,"course":course_job,"shared":shared_job,"first":one_job,"second":two_job})
 
+func _case_31(t) -> void:
 	var pausing: Dictionary = _research_context()
 	_start(pausing)
 	_research_tick(pausing)
@@ -814,6 +623,7 @@ func _research_cases(t) -> void:
 	_research_tick(pausing)
 	t.check("GROW-31",partial<1800000 and released and int(pause_job.get("remaining_work_milli",-2))==partial and pause_job.get("state","")=="waiting" and HospitalLedger.balance(pausing.world)==pause_cash,{"released":released,"job":pause_job})
 
+func _case_32(t) -> void:
 	var failure: Dictionary = _research_context()
 	_start(failure)
 	_research_tick(failure)
@@ -828,6 +638,7 @@ func _research_cases(t) -> void:
 	_research_tick(failure)
 	t.check("GROW-32",no_failed_work and reassigned.accepted and int(failure_job.get("remaining_work_milli",failure_remaining))<failure_remaining and int(failure_job.get("total_work_milli",0))==1800000 and failure_job.get("mode","")=="cash" and HospitalLedger.balance(failure.world)==failure_cash,{"no_failed_work":no_failed_work,"job":failure_job})
 
+func _case_33(t) -> void:
 	var cancel: Dictionary = _research_context()
 	_start(cancel)
 	for index: int in 7:
@@ -842,6 +653,7 @@ func _research_cases(t) -> void:
 	var cancelled_resume: CommandResult = cancel.research.execute(cancel.world,"research_resume",{"research_id":"R12"})
 	t.check("GROW-33",cancelled.get("state","")=="cancelled" and int(cancelled.get("refund",-1))==expected_refund and first_refund_cash==cancellation_cash+expected_refund and HospitalLedger.balance(cancel.world)==first_refund_cash and not cancelled_resume.accepted and not "R12" in cancel.world.facts.research and cancel.world.facts.research_progress.materials.has("R12"),{"expected_refund":expected_refund,"job":cancelled})
 
+func _case_34(t) -> void:
 	var freezing: Dictionary = _research_context()
 	_start(freezing)
 	_research_tick(freezing)
@@ -870,6 +682,7 @@ func _research_cases(t) -> void:
 	var new_preview: Dictionary = changed_service.preview(freezing.world,"R12")
 	t.check("GROW-34",unchanged_terms and frozen_job.rewards.disease_ids.is_empty() and new_preview.get("cost",0)==999 and new_preview.get("total_work_milli",0)==3600000 and new_preview.get("basis",{}).get("rewards",{}).get("disease_ids",[])==["D37"] and int(frozen_job.get("refund",-1))==int(frozen_terms.cost)*int(frozen_terms.remaining_work_milli)/int(frozen_terms.total_work_milli),{"old":frozen_terms,"new_quote":new_preview,"cancelled":frozen_job})
 
+func _case_35(t) -> void:
 	var completion: Dictionary = _research_context()
 	var completion_start: CommandResult = _start(completion)
 	var completed_job: Dictionary = completion.research.active_job(completion.world,"R12")
@@ -881,6 +694,7 @@ func _research_cases(t) -> void:
 	var restart: CommandResult = _start(completion)
 	t.check("GROW-35",completion_start.accepted and finished and completed_job.get("remaining_work_milli",-1)==0 and str(completed_job.get("worker_id","x")).is_empty() and str(completed_job.get("desk_id","x")).is_empty() and "R12" in completed_research and completion.world.facts.research==completed_research and not restart.accepted and HospitalLedger.balance(completion.world)==completed_cash and not completion.world.facts.ledger.entries.has(str(completed_job.get("id",""))+":research_refund"),{"finished":finished,"job":completed_job})
 
+func _case_36(t) -> void:
 	var routes: Dictionary = _research_context()
 	var route_world: Dictionary = routes.world.freeze()
 	var targets: Array = [["R19","R32"],["R01","R21","R15"],["R07","R25"],["R16","R33","R34"],["R09","R31","R38"],["R11","R12","R13","R17"]]
@@ -898,6 +712,7 @@ func _research_cases(t) -> void:
 		routes.research.trail_research(route_id)
 	t.check("GROW-36",route_ok and routes.world.freeze()==route_world,{"valid_routes":route_ok,"world_unchanged":routes.world.freeze()==route_world})
 
+func _case_37(t) -> void:
 	var unlocking: Dictionary = _research_context()
 	_material(unlocking,"R01")
 	var unlock_start: CommandResult = _start(unlocking,"R01")
@@ -913,6 +728,7 @@ func _research_cases(t) -> void:
 	var ordinary_ready: Dictionary = ordinary.clinic.arrival_readiness(ordinary.world,"B_S49_D37_M37")
 	t.check("GROW-37",unlock_start.accepted and unlock_finished and "R01" in unlocking.world.facts.research and unlock_rewards.get("disease_ids",[])==["D03","D04","D25"] and missing_real_resources and unlocking.world.facts.actors==actual_before.actors and unlocking.world.facts.facilities==actual_before.facilities and unlocking.world.facts.staff==actual_before.staff and unlocking.world.facts.arrivals.intake_open==actual_before.intake and ordinary_ready.get("ok",false),{"finished":unlock_finished,"missing":unbuilt,"ordinary_ready":ordinary_ready})
 
+func _case_38(t) -> void:
 	var restoring: Dictionary = _research_context()
 	_start(restoring)
 	for index: int in 7:

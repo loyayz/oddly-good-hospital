@@ -28,7 +28,7 @@ const CASES: Dictionary = {
 	"OPS-23":"docs/design/08-hospital-life.md §15；维护暂停库存接续不重付零件",
 	"OPS-24":"docs/design/08-hospital-life.md §21；研究资金借用品限制失败原子",
 	"OPS-25":"docs/design/08-hospital-life.md §21；M09一级420待工与未开工取消全退一次",
-	"OPS-26":"docs/design/08-hospital-life.md §21；实际30秒完成才升级且不恢复状态",
+	"OPS-26":"docs/design/08-hospital-life.md §21；原病例设备安全释放后实际升级，旧承诺不变且后续服务读取新等级",
 	"OPS-27":"docs/design/08-hospital-life.md §21；已开工12秒升级保留18秒不退材料",
 	"OPS-28":"docs/design/08-hospital-life.md §5；一房一科与200币600秒专注过渡",
 	"OPS-29":"docs/design/08-hospital-life.md §5；能力2/5病例/75分专注仅操作乘0.95",
@@ -52,6 +52,7 @@ func run(t) -> void:
 	for id: String in CASES:
 		if not t.wants(id): continue
 		_current_case = id
+		t.begin_case(id)
 		var result: Dictionary = {"ok":false,"details":"发布内容未加载："+_content.error}
 		if _content.error.is_empty():
 			result = call("_case_"+id.right(2))
@@ -126,19 +127,22 @@ func _work_tick(f: Dictionary, service: String) -> void:
 	f.w.touch()
 	f.s.space.finish_boundary(f.w)
 
-func _clinic_tick(f: Dictionary) -> void:
+func _clinic_tick(f: Dictionary, maintenance: bool = false) -> void:
 	# Advance the real waiting, shift and clinical phases. OPS07–10 supply their
 	# completed diagnostic and work-base history before entering this driver.
 	f.s.services.scheduler.boundaries(f.w)
+	if maintenance: f.s.services.remodel.dispatch(f.w)
 	f.s.services.scheduler.dispatch(f.w)
 	f.s.services.development.dispatch(f.w)
 	f.s.services.waiting.dispatch(f.w)
 	f.s.services.departments.dispatch(f.w)
+	if maintenance: f.s.services.maintenance.dispatch(f.w)
 	f.s.clinic.dispatch(f.w)
 	f.s.space.advance(f.w,f.w.present_actor_count())
 	f.s.clinic.advance(f.w)
 	f.s.services.development.advance(f.w)
 	f.s.services.scheduler.advance(f.w)
+	if maintenance: f.s.services.maintenance.advance(f.w)
 	f.s.services.departments.advance(f.w)
 	f.s.services.waiting.advance(f.w)
 	f.s.clinic.release_departed(f.w)
@@ -403,12 +407,34 @@ func _case_08() -> Dictionary:
 	if requests.is_empty(): return _result(false,{"request_missing":f.w.facts.visits[visit_id]})
 	var worker_id: String = str(requests[0].staff_ids[0])
 	f.w.facts.staff[worker_id].stress_milli = 32000
-	var thresholds: Array = []
-	for tick: int in 1800:
+	var started_tick: int = f.w.sim_tick
+	for tick: int in 2:
 		f.s.services.supplies.advance(f.w)
 		f.w.facts.sim_tick += 1
-		if tick in [599,1199,1799]: thresholds.append(int(f.w.facts.staff[worker_id].stress_milli))
 	var episode_id: String = str(f.w.facts.inventory.shortage.id)
+	var participant: Dictionary = f.w.facts.inventory.shortage.participants.get(worker_id,{})
+	var accumulated: bool = not episode_id.is_empty() and int(participant.get("blocked_ticks",-1))==2 and int(participant.get("warnings",-1))==0 and int(f.w.facts.staff[worker_id].stress_milli)==32000
+	if not accumulated: return _result(false,{"accumulation":participant})
+	var thresholds: Array = []
+	var boundary_inputs: Array = []
+	var warning_once: bool = true
+	for index: int in 3:
+		# Legal historical input immediately before the next 60-second boundary.
+		# The production service performs the actual increment and warning.
+		var threshold: int = (index+1)*600
+		participant.blocked_ticks = threshold-1
+		f.w.facts.sim_tick = started_tick+threshold-1
+		f.w.touch()
+		var validation: String = f.w.validate(_content)
+		boundary_inputs.append({"blocked_ticks":participant.blocked_ticks,"warnings":participant.warnings,"validation":validation})
+		if not validation.is_empty(): return _result(false,{"boundary_inputs":boundary_inputs})
+		f.s.services.supplies.advance(f.w)
+		f.w.facts.sim_tick += 1
+		var pressure_after: int = int(f.w.facts.staff[worker_id].stress_milli)
+		thresholds.append(pressure_after)
+		f.s.services.supplies.advance(f.w)
+		f.w.facts.sim_tick += 1
+		warning_once = warning_once and int(f.w.facts.staff[worker_id].stress_milli)==pressure_after and int(participant.warnings)==index+1 and str(f.w.facts.inventory.shortage.id)==episode_id
 	var striking: bool = f.w.facts.staff[worker_id].get("supply_strike",false)
 	var buy: CommandResult = _command(f,"purchase_supplies",{"units":1,"unit_price":20})
 	f.s.services.supplies.advance(f.w)
@@ -426,7 +452,7 @@ func _case_08() -> Dictionary:
 	for tick: int in 500:
 		_clinic_tick(restored)
 		if not restored.w.facts.attempts.is_empty(): break
-	return _result(quiet and thresholds==[38000,44000,50000] and striking and buy.accepted and closed and no_repeat and not before_return.get("ok",true) and after_return.get("ok",false) and restored.w.facts.attempts.size()==1,{"thresholds":thresholds,"strike":striking,"return_tick":until,"closed":f.w.facts.inventory.shortage,"before_return":before_return,"after_return":after_return,"attempts_after_return":restored.w.facts.attempts.size()})
+	return _result(quiet and accumulated and warning_once and thresholds==[38000,44000,50000] and striking and buy.accepted and closed and no_repeat and not before_return.get("ok",true) and after_return.get("ok",false) and restored.w.facts.attempts.size()==1,{"boundary_inputs":boundary_inputs,"accumulated":accumulated,"warning_once":warning_once,"thresholds":thresholds,"strike":striking,"return_tick":until,"closed":f.w.facts.inventory.shortage,"before_return":before_return,"after_return":after_return,"attempts_after_return":restored.w.facts.attempts.size()})
 
 func _case_09() -> Dictionary:
 	var f: Dictionary = _new("先补首项准备",true,5000)
@@ -471,7 +497,15 @@ func _case_11() -> Dictionary:
 	for index: int in 4:
 		ids.append(f.s.services.environment.spawn_dirt(f.w,"CL01","ops11_spill_%d"%index,"ops11_fact_%d"%index,1,[43+index,81]))
 	var dirty: Dictionary = f.s.services.environment.environment_at(f.w,1,[44,80])
-	return _result(f.errors.is_empty() and clean.value==43 and once.value==49 and twice.value==49 and ids.size()==4 and not "" in ids and dirty.dirt==4 and not dirty.clean and dirty.value==25 and int(twice.value)-int(dirty.value)==24,{"base":clean,"one_category":once,"duplicate_category":twice,"dirty":dirty,"errors":f.errors})
+	var ranges: Dictionary = _new("R15仅扩大正面覆盖")
+	_place(ranges,"range_plant","FUR25",[44,80])
+	var far_dirt: String = ranges.s.services.environment.spawn_dirt(ranges.w,"CL01","ops11_far_spill","ops11_far_fact",1,[43,81])
+	var original_range: Dictionary = ranges.s.services.environment.environment_at(ranges.w,1,[44,85])
+	ranges.w.facts.research.append("R15")
+	var before: Dictionary = ranges.w.freeze()
+	var upgraded_range: Dictionary = ranges.s.services.environment.environment_at(ranges.w,1,[44,85])
+	var exact_ranges: bool = not far_dirt.is_empty() and ranges.w.facts.environment.dirt[far_dirt].cell==[43,81] and original_range.value==43 and upgraded_range.value==49 and upgraded_range.dirt==0 and upgraded_range.clean and before==ranges.w.freeze()
+	return _result(exact_ranges and f.errors.is_empty() and ranges.errors.is_empty() and clean.value==43 and once.value==49 and twice.value==49 and ids.size()==4 and not "" in ids and dirty.dirt==4 and not dirty.clean and dirty.value==25 and int(twice.value)-int(dirty.value)==24,{"base":clean,"one_category":once,"duplicate_category":twice,"dirty":dirty,"original_range":original_range,"upgraded_range":upgraded_range,"exact_ranges":exact_ranges,"errors":f.errors})
 
 func _case_12() -> Dictionary:
 	var f: Dictionary = _new("暂停付费装修")
@@ -625,8 +659,17 @@ func _case_18() -> Dictionary:
 	var construction: Dictionary = g.s.services.environment.environment_at(g.w,1,[42,84])
 	_place(g,"ops_noise_screen","FUR23",[42,82])
 	var screened: Dictionary = g.s.services.environment.environment_at(g.w,1,[42,84])
+	var screened_cell: Dictionary = g.s.services.environment.environment_at(g.w,1,[42,83])
+	var screened_fraction: Dictionary = g.s.services.environment.environment_at(g.w,1,[42.25,83.0])
 	var bypass: Dictionary = g.s.services.environment.environment_at(g.w,1,[43,82])
-	return _result(before.noise==0 and running.noise==10 and paused_query.noise==10 and queued.noise==0 and construction.noise==15 and screened.noise==0 and bypass.noise==15 and g.errors.is_empty(),{"before":before.noise,"running":running.noise,"queued":queued.noise,"construction":construction.noise,"screened":screened.noise,"bypass":bypass.noise,"errors":g.errors})
+	var moved: CommandResult = _command(g,"build_move",{"target_id":"ops_noise_screen","floor_id":1,"cell":[46,82]})
+	var after_move: Dictionary = g.s.services.environment.environment_at(g.w,1,[42.25,83.0])
+	var moved_back: CommandResult = _command(g,"build_move",{"target_id":"ops_noise_screen","floor_id":1,"cell":[42,82]})
+	var rotated: CommandResult = _command(g,"build_rotate",{"target_id":"ops_noise_screen","rotation":1})
+	var after_rotation: Dictionary = g.s.services.environment.environment_at(g.w,1,[42.25,83.0])
+	var reset_screen: CommandResult = _command(g,"build_rotate",{"target_id":"ops_noise_screen","rotation":0})
+	var after_reset: Dictionary = g.s.services.environment.environment_at(g.w,1,[42.25,83.0])
+	return _result(before.noise==0 and running.noise==10 and paused_query.noise==10 and queued.noise==0 and construction.noise==15 and screened.noise==0 and screened_cell.noise==0 and screened_fraction.noise==0 and bypass.noise==15 and moved.accepted and after_move.noise==15 and moved_back.accepted and rotated.accepted and after_rotation.noise==15 and reset_screen.accepted and after_reset.noise==0 and g.errors.is_empty(),{"before":before.noise,"running":running.noise,"queued":queued.noise,"construction":construction.noise,"screened":screened.noise,"screened_cell":screened_cell.noise,"screened_fraction":screened_fraction.noise,"bypass":bypass.noise,"after_move":after_move.noise,"after_rotation":after_rotation.noise,"after_reset":after_reset.noise,"errors":g.errors})
 
 func _machine(label: String, mechanic: bool = false) -> Dictionary:
 	var f: Dictionary = _new(label,false,10000)
@@ -780,27 +823,99 @@ func _case_25() -> Dictionary:
 
 func _case_26() -> Dictionary:
 	var f: Dictionary = _new("完成升级不改临床承诺",true)
+	# Select a reproducible successful input before the first real Attempt exists.
+	var seeded: bool = false
+	for seed_value: int in range(1,1000):
+		var generator: RandomNumberGenerator = RandomNumberGenerator.new()
+		generator.seed = seed_value
+		var initial: int = generator.state
+		if generator.randi_range(0,9999)<100:
+			f.w.facts.rng.treatment = {"algorithm":"godot-pcg32-4.7.2","seed_decimal":str(seed_value),"state_decimal":str(initial)}
+			seeded = true
+			break
+	if not seeded: return _result(false,"未建立首试成功的确定性随机输入")
 	var visit_id: String = _outpatient(f,"ops26_visit")
 	if visit_id.is_empty(): return _result(false,f.errors)
+	var selected: CommandResult = _command(f,"clinical_select_plan",{"visit_id":visit_id,"plan_id":"P_D37_COMMON"})
+	if not selected.accepted: return _result(false,selected.reason)
 	for tick: int in 500:
 		_clinic_tick(f)
 		if not f.w.facts.attempts.is_empty(): break
 	if f.w.facts.attempts.is_empty(): return _result(false,"未形成实际Attempt")
 	var attempt_id: String = str(f.w.facts.attempts.keys()[0])
 	var promised: Dictionary = f.w.facts.attempts[attempt_id].duplicate(true)
-	f.w.facts.facilities.zombie_machine.condition = 83.0
+	var facility_id: String = str(promised.get("facility_id",""))
+	var item: Dictionary = f.w.facts.facilities.get(facility_id,{})
+	if item.get("definition_id","")!="M37" or not promised.get("result",false):
+		return _result(false,{"prerequisite":"D37常规首试必须在实际M37上成功开工","attempt":promised})
+	var clinical_session: Dictionary = {}
+	for session: Dictionary in f.w.facts.sessions.values():
+		if session.get("attempt_id","")==attempt_id: clinical_session = session.duplicate(true)
+	if clinical_session.is_empty(): return _result(false,"原病例没有实际治疗会话")
+	var issue: Dictionary = f.w.facts.inventory.issues[attempt_id].duplicate(true)
+	item.condition = 83.0
 	f.w.facts.research.append("R12")
 	var cash: int = HospitalLedger.balance(f.w)
-	var applied: CommandResult = _command(f,"upgrade_order",{"facility_id":"zombie_machine","target_level":1})
+	# Stop at the existing safe-transfer boundary before upgrading this same asset.
+	var prepare: CommandResult = _command(f,"remodel_prepare",{"commands":[{"kind":"build_move","target_id":facility_id,"floor_id":int(item.floor_id),"cell":item.cell.duplicate()}],"safe_transfer":true})
+	if not prepare.accepted: return _result(false,prepare.reason)
+	var arrangement_id: String = str(prepare.changed_ids[0])
+	var released: bool = false
+	for tick: int in 400:
+		_clinic_tick(f,true)
+		if f.s.services.remodel._waiting(f.w,f.w.facts.remodels[arrangement_id]).is_empty():
+			released = true
+			break
+	var suspended: Dictionary = f.w.facts.clinical_suspensions.get(str(clinical_session.id),{})
+	var retained_work: bool = released and suspended.get("attempt_id","")==attempt_id and suspended.get("remaining_ticks",-1)==clinical_session.remaining_ticks and not f.w.facts.adaptations.has(facility_id) and not f.w.facts.sessions.has(clinical_session.id)
+	if not retained_work: return _result(false,{"prerequisite":"原治疗未安全停靠并释放实际设备占用","released":released,"session":clinical_session,"suspended":suspended})
+	var arrangement_quote: Dictionary = f.s.services.remodel.preview(f.w,arrangement_id)
+	var release: CommandResult = _command(f,"remodel_apply",{"order_id":arrangement_id,"quote":{"price":arrangement_quote.get("price",-1),"refund":arrangement_quote.get("refund",-1),"layout":arrangement_quote.get("layout",[])}})
+	if not release.accepted: return _result(false,release.reason)
+	item = f.w.facts.facilities[facility_id]
+	var applied: CommandResult = _command(f,"upgrade_order",{"facility_id":facility_id,"target_level":1})
 	if not applied.accepted: return _result(false,applied.reason)
 	var id: String = applied.changed_ids[0]
-	var level_before: bool = f.w.facts.facilities.zombie_machine.grade==0
-	for tick: int in 900:
-		_work_tick(f,"maintenance")
-		if f.w.facts.maintenance.upgrades[id].phase=="completed": break
-	var item: Dictionary = f.w.facts.facilities.zombie_machine
+	var order: Dictionary = f.w.facts.maintenance.upgrades[id]
+	var level_before: bool = item.grade==0
+	var held_ticks: int = 0
+	var holds_original_work: bool = true
+	for tick: int in 1800:
+		if order.phase!="completed":
+			var waiting: Dictionary = f.w.facts.clinical_suspensions.get(str(clinical_session.id),{})
+			held_ticks += 1
+			holds_original_work = holds_original_work and waiting.get("attempt_id","")==attempt_id and waiting.get("remaining_ticks",-1)==clinical_session.remaining_ticks and not f.w.facts.sessions.has(clinical_session.id)
+		_clinic_tick(f,true)
+		if order.phase!="completed": level_before = level_before and item.grade==0
+		if order.phase=="completed" and f.w.facts.visits[visit_id].phase=="departed": break
+	var upgraded: Dictionary = item.duplicate(true)
 	var receipt: Dictionary = f.w.facts.maintenance.receipts.get(id+":1:upgrade_completed",{})
-	return _result(level_before and item.grade==1 and item.get("upgrade_level",0)==1 and item.condition==83.0 and item.get("completed_upgrade_paid_cost",0)==420 and HospitalLedger.balance(f.w)==cash-420 and receipt.get("standard_work_milli")==30000 and f.w.facts.attempts[attempt_id]==promised and not item.upgrading_block,{"item":item,"order":f.w.facts.maintenance.upgrades[id],"receipt":receipt,"attempt_unchanged":f.w.facts.attempts[attempt_id]==promised})
+	# M37 costs 1400; its first upgrade is ceil(1400*30%)=420 and takes 30 standard seconds.
+	var upgraded_safely: bool = retained_work and level_before and held_ticks>0 and holds_original_work and order.phase=="completed" and order.facility_id==facility_id and upgraded.grade==1 and upgraded.get("upgrade_level",0)==1 and upgraded.condition==83.0 and upgraded.get("completed_upgrade_paid_cost",0)==420 and not upgraded.upgrading_block and receipt.get("standard_work_milli")==30000 and receipt.get("facility_id","")==facility_id and f.w.facts.visits[visit_id].phase=="departed" and f.w.facts.visits[visit_id].final_result=="cured" and f.w.facts.visits[visit_id].attempt_ids==[attempt_id] and f.w.facts.inventory.issues[attempt_id]==issue and HospitalLedger.balance(f.w)==cash-420+10+200
+	if not upgraded_safely:
+		return _result(false,{"facility_id":facility_id,"held_ticks":held_ticks,"holds_original_work":holds_original_work,"item":upgraded,"order":order,"receipt":receipt,"visit":f.w.facts.visits[visit_id]})
+	f.s.services.recruitment.settle(f.w)
+	var worker: Dictionary = f.w.facts.staff.get(str(receipt.get("staff_id","")),{})
+	var practice_once: bool = int(worker.get("job_practice",-1))==1
+	f.s.services.recruitment.settle(f.w)
+	practice_once = practice_once and int(worker.get("job_practice",-1))==1
+	var next_visit: String = _outpatient(f,"ops26_after_upgrade")
+	if next_visit.is_empty(): return _result(false,f.errors)
+	var next_selected: CommandResult = _command(f,"clinical_select_plan",{"visit_id":next_visit,"plan_id":"P_D37_COMMON"})
+	if not next_selected.accepted: return _result(false,next_selected.reason)
+	for tick: int in 500:
+		if not f.w.facts.visits[next_visit].attempt_ids.is_empty(): break
+		_clinic_tick(f)
+	var next_ids: Array = f.w.facts.visits[next_visit].attempt_ids
+	var next_attempt: Dictionary = f.w.facts.attempts.get(str(next_ids[0]),{}) if next_ids.size()==1 else {}
+	var next_staff: Array = next_attempt.get("staff_ids",[])
+	var level: int = int(f.w.facts.staff[str(next_staff[0])].abilities.treatment) if next_staff.size()==1 else 0
+	var utilization: Dictionary = {1:0.60,2:0.70,3:0.80,4:0.90,5:1.00}
+	var next_uses_grade: bool = next_selected.accepted and utilization.has(level) and next_attempt.get("facility_id","")==facility_id and is_equal_approx(float(next_attempt.get("effective_level",-1.0)),float(utilization.get(level,0.0))) and float(promised.get("effective_level",-1.0))==0.0
+	var unchanged: bool = true
+	for key: String in promised:
+		unchanged = unchanged and f.w.facts.attempts[attempt_id].get(key)==promised[key]
+	return _result(upgraded_safely and practice_once and next_uses_grade and unchanged and f.w.facts.inventory.issues[attempt_id]==issue and f.w.facts.inventory.issues.size()==2,{"facility_id":facility_id,"item_at_upgrade_completion":upgraded,"order":order,"receipt":receipt,"safe_release":retained_work,"holds_original_work":holds_original_work,"held_ticks":held_ticks,"practice_once":practice_once,"original_attempt":promised,"original_terms_unchanged":unchanged,"next_attempt":next_attempt,"expected_effective_level":utilization.get(level)})
 
 func _case_27() -> Dictionary:
 	var f: Dictionary = _machine("已施工升级库存接续",true)

@@ -13,6 +13,15 @@ var _navigation: NavigationCache = NavigationCache.new()
 var _accepted_sweeps: Dictionary = {}
 var _route_checks: Dictionary = {}
 var _envelope_next: int = 0
+var _route_queries: Array[Dictionary] = []
+
+# These scopes contain synchronous, read-only enumeration only. Results never
+# survive an actual reservation, movement or subsequent clinical quote.
+func begin_route_query(world: WorldState) -> void:
+	_route_queries.append({"world":world,"routes":{}})
+
+func end_route_query() -> void:
+	_route_queries.pop_back()
 
 func _init(database: HospitalContent) -> void:
 	content = database
@@ -98,7 +107,7 @@ func route(world: WorldState, actor_id: String, floor_id: int, target: Array, me
 	var actual: Vector2 = Vector2(float(actor.location.cell[0]),float(actor.location.cell[1]))
 	var stub: float = actual.distance_to(Vector2(start))
 	if stub>0.0:
-		var query: RouteClearance = RouteClearance.new(self,world,actor,source_floor,members,offsets,true,_navigation.floor_source(self,world,source_floor))
+		var query: RouteClearance = _navigation.clearance(self,world,source_floor,actor) if members.is_empty() else RouteClearance.new(self,world,actor,source_floor,members,offsets,true,_navigation.floor_source(self,world,source_floor))
 		var reason: String = query.sweep_reason(actual,Vector2(start))
 		if not reason.is_empty():
 			return {"ok":false,"status":"unreachable","reason":reason}
@@ -106,6 +115,30 @@ func route(world: WorldState, actor_id: String, floor_id: int, target: Array, me
 	if result.ok and stub>0.0:
 		result.path.push_front({"kind":"floor","floor_id":source_floor,"cell":[start.x,start.y]})
 		result.walking_distance += stub
+	return result
+
+func travel_quote(world: WorldState, actor_id: String, floor_id: int, target: Array) -> Dictionary:
+	# Clinical estimates ignore people, like the original read-only route.
+	# Connectors and actual movement continue through the complete path query.
+	var actor: Dictionary = world.facts.actors[actor_id]
+	if actor.location.kind!="floor" or int(actor.location.floor_id)!=floor_id or not world.facts.connectors.is_empty():
+		return route(world,actor_id,floor_id,target,[],{},true)
+	var start: Vector2i = Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
+	var goal: Vector2i = Vector2i(int(target[0]),int(target[1]))
+	var actual: Vector2 = Vector2(float(actor.location.cell[0]),float(actor.location.cell[1]))
+	var stub: float = actual.distance_to(Vector2(start))
+	if stub>0.0:
+		var query: RouteClearance = _navigation.clearance(self,world,floor_id,actor)
+		var reason: String = query.sweep_reason(actual,Vector2(start))
+		if not reason.is_empty(): return {"ok":false,"status":"unreachable","reason":reason}
+	var result: Dictionary = _navigation.travel_distance(self,world,floor_id,actor,start,goal)
+	if not result.ready: return route(world,actor_id,floor_id,target,[],{},true)
+	result.erase("ready")
+	result.status = "complete" if result.ok else "unreachable"
+	if result.ok:
+		result.walking_distance = float(result.distance)+stub
+		result.arrival_ticks = HospitalTransit.walking_ticks(self,actor,[],stub)+HospitalTransit.walking_ticks(self,actor,[],float(result.distance))
+		result.quoted_tick = world.sim_tick
 	return result
 
 func request_move(world: WorldState, actor_id: String, floor_id: int, target: Array) -> String:
@@ -172,12 +205,7 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 	for id: String in _route_checks.keys():
 		if not world.facts.moves.has(id):
 			_route_checks.erase(id)
-	var clearance_queries: Dictionary = {}
 	var floor_versions: Dictionary = {}
-	var reserved_floors: Dictionary = {}
-	for reservation: Dictionary in world.facts.adaptations.values():
-		if reservation.kind=="facility":
-			reserved_floors[int(reservation.floor_id)] = true
 	for actor_id: String in world.ids("moves"):
 		if not world.facts.moves.has(actor_id):
 			continue
@@ -221,12 +249,8 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 		if segment.kind!="support_exit":
 			var query: RouteClearance
 			var floor_id: int = int(actor.location.floor_id)
-			if members.size()<=1 and not reserved_floors.has(floor_id):
-				var key: String = str(floor_id)+":"+str(actor.species_id)+":"+str(actor.get("body_binding_id",""))
-				query = clearance_queries.get(key)
-				if query==null:
-					query = RouteClearance.new(self,world,actor,floor_id)
-					clearance_queries[key] = query
+			if members.size()<=1:
+				query = _navigation.clearance(self,world,floor_id,actor)
 			else:
 				query = RouteClearance.new(self,world,actor,floor_id,members,offsets)
 			if not _step_static_clear(world,actor,movement,next,query):
@@ -270,10 +294,18 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 	_accepted_sweeps.clear()
 	_sweep_index.expire_boundary()
 
-func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2i, goal: Vector2i, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
-	var navigation: Dictionary = _navigation.query_graphs(self,world,floor_id,actor,members,offsets)
+func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2i, goal: Vector2i, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, navigation: Dictionary = {}) -> Dictionary:
+	var routes: Dictionary = {}
+	var key: String = ""
+	if ignore_people and navigation.is_empty() and not _route_queries.is_empty() and _route_queries.back().world==world:
+		routes = _route_queries.back().routes
+		key = JSON.stringify([actor.id,floor_id,start.x,start.y,goal.x,goal.y,members,offsets])
+		if routes.has(key):
+			return routes[key].duplicate(true)
+	if navigation.is_empty():
+		navigation = _navigation.query_graphs(self,world,floor_id,actor,members,offsets)
 	var graph: FloorNavigation = navigation.graph
-	var query: RouteClearance = RouteClearance.new(self,world,actor,floor_id,members,offsets,true,graph.geometry.source)
+	var query: RouteClearance = _navigation.clearance(self,world,floor_id,actor) if members.is_empty() else RouteClearance.new(self,world,actor,floor_id,members,offsets,true,graph.geometry.source)
 	var people: Callable = Callable()
 	if not ignore_people:
 		people = func(from_cell: Vector2i,to_cell: Vector2i) -> bool:
@@ -308,6 +340,8 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 			path.append({"kind":"floor","floor_id":floor_id,"cell":cell})
 		result.path = path
 		result.erase("cells")
+	if not key.is_empty():
+		routes[key] = result.duplicate(true)
 	return result
 
 func _unit_step_dynamic_clear(world: WorldState, actor: Dictionary, floor_id: int, from: Vector2i, to: Vector2i, members: Array, offsets: Dictionary) -> bool:
@@ -709,17 +743,63 @@ func facility_quote(world: WorldState, facility_id: String, actor_id: String, st
 			return {"ok":false,"reason":"展开区域与已有实际预约相交"}
 	var quote: Dictionary = {"ok":true,"kind":"facility","facility_id":facility_id,"actor_id":actor_id,"staff_ids":staff_ids.duplicate(),"floor_id":facility.floor_id,
 		"footprint":footprint,"patient_cell":patient_cell,"operator_cells":operators,"repair_cell":repair,"regions":regions}
-	var candidate: WorldState = WorldState.new(world.freeze())
-	candidate.facts.adaptations[facility_id] = quote
+	var same_reservation: bool = current.get("kind","")=="facility" and current.get("actor_id","")==actor_id and current.get("staff_ids",[])==staff_ids
+	for field: String in ["floor_id","footprint","patient_cell","operator_cells","repair_cell","regions"]:
+		same_reservation = same_reservation and current.get(field)!=null and current[field]==quote[field]
+	# All current fit/occupancy checks above still run. An identical reservation
+	# cannot newly cut another actor's exit: the candidate changes no geometry.
+	if same_reservation: return quote
+	var candidate: WorldState
+	var same_footprint: bool = footprint==facility_layout(world,facility_id).footprint
 	for other: Dictionary in world.facts.actors.values():
 		if other.id in allowed or other.location.kind!="floor" or int(other.location.floor_id)!=int(facility.floor_id):
 			continue
 		var start: Vector2i = Vector2i(roundi(other.location.cell[0]),roundi(other.location.cell[1]))
 		var target: Array = exit_cell(world,other,int(facility.floor_id))
 		var exit: Vector2i = Vector2i(int(target[0]),int(target[1]))
-		if _floor_route(world,other,int(facility.floor_id),start,exit,[],{},true).ok and not _floor_route(candidate,other,int(facility.floor_id),start,exit,[],{},true).ok:
+		var before: Dictionary = _exit_witness(world,other,int(facility.floor_id),start,exit)
+		if not before.ok:
+			continue
+		if same_footprint and _route_avoids_regions(before.path,start,clearance(other),regions):
+			continue
+		if candidate==null:
+			candidate = WorldState.new(world.freeze())
+			candidate.facts.adaptations[facility_id] = quote
+		# An unchanged footprint has the same static geometry. The candidate
+		# still supplies all current reservation regions and identity exceptions.
+		var navigation: Dictionary = _navigation.query_graphs(self,world,int(facility.floor_id),other,[],{}) if same_footprint else {}
+		if not _floor_route(candidate,other,int(facility.floor_id),start,exit,[],{},true,navigation).ok:
 			return {"ok":false,"reason":"展开会切断在院角色的安全出口："+str(other.id)}
 	return quote
+
+func _exit_witness(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2i, exit: Vector2i) -> Dictionary:
+	# Exit proofs may use any complete legal path. Actual movement keeps its
+	# original path selection and FIFO; proposed reservations still get checked.
+	var result: Dictionary = _navigation.travel_distance(self,world,floor_id,actor,start,exit,true)
+	return result if result.ready else _floor_route(world,actor,floor_id,start,exit,[],{},true)
+
+func _route_avoids_regions(path: Array, start: Vector2i, size: int, regions: Array) -> bool:
+	var low: Vector2 = Vector2(start)
+	var high: Vector2 = low
+	for segment: Dictionary in path:
+		var point: Vector2 = Vector2(float(segment.cell[0]),float(segment.cell[1]))
+		low = low.min(point)
+		high = high.max(point)
+	var broad: Rect2 = Rect2(low,high-low+Vector2.ONE*size)
+	var nearby: Array[Rect2] = []
+	for area: Array in regions:
+		var obstacle: Rect2 = Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3]))
+		if broad.intersects(obstacle,false): nearby.append(obstacle)
+	if nearby.is_empty(): return true
+	var previous: Rect2 = Rect2(Vector2(start),Vector2.ONE*size)
+	for obstacle: Rect2 in nearby:
+		if previous.intersects(obstacle,false): return false
+	for segment: Dictionary in path:
+		var current: Rect2 = Rect2(Vector2(float(segment.cell[0]),float(segment.cell[1])),Vector2.ONE*size)
+		for obstacle: Rect2 in nearby:
+			if previous.merge(current).intersects(obstacle,false): return false
+		previous = current
+	return true
 
 func _adapted_front(facility: Dictionary, footprint: Array, k: int) -> Array:
 	var x: int = int(facility.cell[0])
@@ -771,6 +851,14 @@ func reserve_facility(world: WorldState, facility_id: String, actor_id: String, 
 	world.facts.adaptations[facility_id] = quote
 	_navigation.invalidate(world,int(quote.floor_id))
 	return ""
+
+func commit_facility_reservations(world: WorldState, validated: Dictionary, facility_ids: Array) -> void:
+	# The complete bundle was checked on a clone in this synchronous command.
+	# Publish only its facility reservations; no world or service state is copied.
+	for facility_id: String in facility_ids:
+		if validated.has(facility_id):
+			world.facts.adaptations[facility_id] = validated[facility_id].duplicate(true)
+			_navigation.invalidate(world,int(validated[facility_id].floor_id))
 
 func release_adaptations(world: WorldState) -> void:
 	for id: String in world.ids("adaptations"):

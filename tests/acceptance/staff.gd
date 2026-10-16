@@ -1,4 +1,4 @@
-extends RefCounted
+extends "res://tests/acceptance/staff_fixtures.gd"
 
 const CASES: Dictionary = {
 	"STAFF-01":"docs/design/07-clinical-team.md §1；医生与护士各三能力，五岗位单技能，资格不混用",
@@ -43,331 +43,20 @@ const CASES: Dictionary = {
 	"STAFF-40":"docs/design/11-growth-arrivals-recruitment.md §6.5、§6.6；真实完成与研究120秒余数成长，贡献最大者唯一领取，护士不发通用等级"
 }
 
-# Fixed observations isolate the published seat-scoring example. Geometry,
-# body fit, paths, reservations, personalities and selection remain production code.
-class SeatObservations extends RefCounted:
-	var cells: Dictionary = {}
-	var fallback: Dictionary = {"value":50.0,"noise":0.0,"clean":true,"water":false}
-	func environment_at(_world: WorldState, _floor: int, cell: Array, _actor: String = "") -> Dictionary:
-		return cells.get("%d:%d" % [roundi(cell[0]),roundi(cell[1])],fallback).duplicate(true)
-
-var _content: HospitalContent
-var _next: int = 0
-
 func run(t) -> void:
 	_content = HospitalContent.new()
-	if not _content.error.is_empty():
-		for id: String in CASES:
-			t.check(id,false,{"content_error":_content.error})
-		return
-	_growth_cases(t)
-	_schedule_cases(t)
-	_wellbeing_cases(t)
-	_waiting_cases(t)
-	_recruitment_cases(t)
+	_recorder = t
+	_cache = t.checkpoints(_content,"res://tests/acceptance/staff_fixtures.gd")
+	for case_id: String in CASES:
+		if not t.wants(case_id): continue
+		t.begin_case(case_id)
+		if not _content.error.is_empty():
+			t.check(case_id,false,{"content_error":_content.error})
+			continue
+		await call("_case_"+case_id.right(2),t)
 
-func _fixture(roles: Dictionary = {}) -> Dictionary:
-	_next += 1
-	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"员工专项%d" % _next,false,_content)
-	var index: int = 0
-	for id: String in roles:
-		HospitalFactory._add_staff(world,id,id,str(roles[id]),[36+index*3,92],_content)
-		index += 1
-	return _bind(world)
 
-func _bind(world: WorldState) -> Dictionary:
-	var space: HospitalSpace = HospitalSpace.new(_content)
-	var x: Dictionary = {"world":world,"space":space,
-		"d":HospitalClinicalDevelopment.new(_content,space),"s":HospitalShiftScheduler.new(_content,space),
-		"w":HospitalStaffWellbeing.new(_content,space),"l":HospitalWaitingLife.new(_content,space),
-		"r":RecruitmentService.new(_content,space),"c":HospitalClinic.new(_content,space),
-		"f":FinanceService.new(_content,space),"e":HospitalEnvironment.new(_content,space),
-		"p":HospitalDepartments.new(_content,space),"m":HospitalMaintenance.new(_content,space),
-		"a":HospitalArrivalService.new(_content,space)}
-	for key: String in ["r","d","s","w","l","c","f","e","p","m","a"]:
-		x[key].ensure(world)
-	x.c.recruitment = x.r
-	x.l.environment = x.e
-	x.p.environment = x.e
-	x.p.waiting_life = x.l
-	return x
-
-func _restore(x: Dictionary) -> Dictionary:
-	return _bind(WorldState.new(x.world.freeze()))
-
-func _room(x: Dictionary, kind: String = "rest") -> String:
-	var id: String = "support_room"
-	HospitalFactory._add_room(x.world,{"id":id,"type":kind,"anchor":[34,66],"size":[26,24],
-		"door":{"definition_id":"DR06","offset":12}},_content)
-	return id
-
-func _facility(x: Dictionary, id: String, definition_id: String, cell: Array, room_id: String = "") -> void:
-	var definition: Dictionary = _content.facility_definition(definition_id)
-	HospitalFactory._add_facility(x.world,{"id":id,"definition_id":definition_id,"anchor":cell,
-		"size":definition.get("footprint",[1,1]),"room_id":room_id if not room_id.is_empty() else null},_content)
-
-func _position(x: Dictionary, id: String, cell: Array) -> void:
-	x.world.facts.actors[id].location = {"kind":"floor","floor_id":1,"cell":cell.duplicate(),"height_m":0.0}
-	x.space.sync_actor(x.world,id)
-
-func _cash(x: Dictionary, amount: int) -> void:
-	x.world.facts.ledger.opening_balance += amount-HospitalLedger.balance(x.world)
-
-func _near(a: float, b: float, epsilon: float = 0.00001) -> bool:
-	return absf(a-b)<=epsilon
-
-func _training_fixture() -> Dictionary:
-	var x: Dictionary = _fixture({"doctor":"doctor","nurse":"nurse"})
-	var room: String = _room(x,"research")
-	_facility(x,"desk","FUR05",[43,74],room)
-	x.world.facts.research = ["R11","R34"]
-	for id: String in ["doctor","nurse"]:
-		x.world.facts.staff[id].scheduled_kind = "training"
-		x.world.facts.staff[id].on_shift = true
-	_position(x,"doctor",x.space.facility_layout(x.world,"desk").operator_cells[0])
-	_position(x,"nurse",[50,80])
-	return x
-
-func _enroll(x: Dictionary, id: String = "doctor", track: String = "treatment", mentor: String = "") -> Dictionary:
-	var result: CommandResult = x.d.execute(x.world,"train_staff",{"staff_id":id,"track":track,"mentor_id":mentor,"desk_id":"desk"})
-	if not result.accepted:
-		return {}
-	return x.world.facts.training_jobs[x.world.facts.staff[id].training_job_id]
-
-func _training_ticks(x: Dictionary, ticks: int) -> void:
-	for _tick: int in ticks:
-		x.world.facts.sim_tick += 1
-		x.d.advance(x.world)
-		x.d.settle(x.world)
-
-func _life_ticks(x: Dictionary, ticks: int, move: bool = false) -> void:
-	for _tick: int in ticks:
-		x.world.facts.sim_tick += 1
-		var previous: Dictionary = {}
-		if move:
-			for id: String in x.world.ids("staff"):
-				previous[id] = x.world.facts.actors[id].location.duplicate(true)
-			x.space.advance(x.world)
-		x.w.advance(x.world,{},previous)
-
-func _reach_life_phase(x: Dictionary, id: String, phase: String, maximum_ticks: int = 600) -> bool:
-	for _tick: int in maximum_ticks:
-		if x.world.facts.staff[id].life_task.phase==phase:
-			return true
-		x.w.dispatch(x.world)
-		if x.world.facts.staff[id].life_task.phase==phase:
-			return true
-		_life_ticks(x,1,true)
-	return x.world.facts.staff[id].life_task.phase==phase
-
-func _visit(x: Dictionary, id: String = "visit", cell: Array = [38,76], personality: String = "PP01") -> Dictionary:
-	var binding: Dictionary = {}
-	for candidate: Dictionary in _content.catalog.treatment_bindings:
-		if candidate.species_id=="S49":
-			binding = candidate
-			break
-	var actor_id: String = "patient_"+id
-	x.world.facts.actors[actor_id] = {"id":actor_id,"name":"候诊患者","species_id":binding.species_id,"body_binding_id":binding.id,
-		"location":{"kind":"floor","floor_id":1,"cell":cell.duplicate(),"height_m":0.0},"facing":0.0,"posture":"standing"}
-	var visit: Dictionary = {"id":id,"actor_id":actor_id,"disease_id":binding.disease_id,"binding_id":binding.id,
-		"requested_plan_id":"P_"+binding.disease_id+"_COMMON","expression":"clear","personality_id":personality,"anger":50.0,
-		"phase":"arrival","evidence_by_source":{},"attempt_ids":[],"plan_decision":{},"complex":false,"final_result":"",
-		"waiting_reason":"","ticket_id":"","doctor_fee_quote":-1,"arrival_tick":0,"arrived_tick":0,
-		"last_progress_tick":0,"last_service_tick":0,"arrival_key":"arrival_"+id}
-	x.world.facts.visits[id] = visit
-	x.c._queue(x.world,visit,"gp")
-	var ticket: Dictionary = x.world.facts.tickets[visit.ticket_id]
-	ticket.waited_ticks = 900
-	ticket.pause_reasons = {}
-	ticket.service_assigned = false
-	ticket.called_tick = -1
-	x.l.ensure(x.world)
-	x.p.ensure(x.world)
-	return visit
-
-func _seat_checkpoint(x: Dictionary, visit: Dictionary, facility_id: String) -> bool:
-	var reason: String = x.space.reserve_facility(x.world,facility_id,visit.actor_id,visit.ticket_id)
-	if not reason.is_empty():
-		return false
-	var layout: Dictionary = x.space.facility_layout(x.world,facility_id)
-	_position(x,visit.actor_id,layout.patient_cell)
-	x.world.facts.actors[visit.actor_id].posture = "seated"
-	x.world.facts.actors[visit.actor_id].support_facility_id = facility_id
-	x.world.facts.waiting_life.seats[visit.id] = {"facility_id":facility_id,"actor_id":visit.actor_id,"ticket_id":visit.ticket_id,
-		"phase":"seated","continuous_ticks":0}
-	x.space.sync_actor(x.world,visit.actor_id)
-	return true
-
-func _hire_payload(card: Dictionary, filter: Dictionary) -> Dictionary:
-	return {"standard_key":card.standard_key,"ordinal":card.ordinal,"quote_hash":card.quote_hash,"filter":filter.duplicate(true)}
-
-func _base_selection_examples() -> Dictionary:
-	var reversed_ids: Array = []
-	var nearest_ok: bool = true
-	for reverse: bool in [false,true]:
-		var x: Dictionary = _fixture({"nurse":"nurse"})
-		var near_id: String = "a" if reverse else "b"
-		var far_id: String = "b" if reverse else "a"
-		_facility(x,near_id,"SE06",[42,80])
-		_facility(x,far_id,"SE06",[52,80])
-		_position(x,"nurse",[44,79])
-		var near_route: Dictionary = x.space.route(x.world,"nurse",1,[44,80])
-		var far_route: Dictionary = x.space.route(x.world,"nurse",1,[54,80])
-		x.d.dispatch(x.world)
-		var selected: String = str(x.world.facts.staff.nurse.base_task.get("facility_id",""))
-		var before_save: Dictionary = x.world.freeze()
-		x = _restore(x)
-		var kept: bool = x.world.freeze()==before_save
-		nearest_ok = nearest_ok and near_route.ok and far_route.ok and int(near_route.arrival_ticks)<int(far_route.arrival_ticks) and selected==near_id and kept
-		reversed_ids.append({"near_id":near_id,"selected":selected,"near_ticks":near_route.get("arrival_ticks",-1),"far_ticks":far_route.get("arrival_ticks",-1),"saved":kept})
-	var occupied: Dictionary = _fixture({"holder":"nurse"})
-	_facility(occupied,"a_far","SE06",[60,90])
-	_facility(occupied,"z_near","SE06",[42,80])
-	_position(occupied,"holder",[44,80])
-	occupied.d.dispatch(occupied.world)
-	_training_ticks(occupied,55)
-	occupied.world.facts.staff.holder.base_task.erase("queue_tick")
-	var legacy_task: Dictionary = occupied.world.facts.staff.holder.base_task.duplicate(true)
-	var legacy_valid: bool = occupied.d.validate(occupied.world).is_empty() and occupied.world.facts.staff.holder.base_task==legacy_task
-	HospitalFactory._add_staff(occupied.world,"z_earlier","先到护士","nurse",[44,79],_content)
-	occupied = _bind(occupied.world)
-	occupied.d.dispatch(occupied.world)
-	var first_queued: bool = occupied.world.facts.staff.z_earlier.base_task.get("facility_id","")=="z_near" and not occupied.world.facts.moves.has("z_earlier") and occupied.world.facts.staff.holder.base_task.get("remaining_ticks",-1)==5 and occupied.world.facts.staff.holder.base_task.get("queue_tick",-1)==occupied.world.sim_tick
-	_training_ticks(occupied,1)
-	HospitalFactory._add_staff(occupied.world,"a_later","后到护士","nurse",[46,79],_content)
-	occupied = _bind(occupied.world)
-	occupied.d.dispatch(occupied.world)
-	var both_queued: bool = occupied.world.facts.staff.a_later.base_task.get("facility_id","")=="z_near" and not occupied.world.facts.moves.has("a_later") and int(occupied.world.facts.staff.z_earlier.base_task.get("queue_tick",-1))<int(occupied.world.facts.staff.a_later.base_task.get("queue_tick",-1))
-	var queue_snapshot: Dictionary = occupied.world.freeze()
-	occupied = _restore(occupied)
-	var saved_queue: bool = occupied.world.freeze()==queue_snapshot
-	_training_ticks(occupied,3)
-	var last_occupied_tick: bool = not occupied.world.facts.staff.holder.base_prepared and occupied.world.facts.staff.holder.base_task.get("remaining_ticks",-1)==1 and occupied.world.facts.staff.z_earlier.base_task.get("remaining_ticks",-1)==60 and occupied.world.facts.staff.a_later.base_task.get("remaining_ticks",-1)==60
-	_training_ticks(occupied,1)
-	var earliest_arrived: bool = false
-	var later_waits: bool = true
-	for _tick: int in 60:
-		occupied.d.dispatch(occupied.world)
-		later_waits = later_waits and not occupied.world.facts.moves.has("a_later") and occupied.world.facts.staff.a_later.base_task.get("remaining_ticks",-1)==60
-		if occupied.world.facts.staff.z_earlier.base_task.get("phase","")=="working":
-			earliest_arrived = occupied.space.at(occupied.world,"z_earlier",1,[44,80])
-			break
-		occupied.world.facts.sim_tick += 1
-		occupied.space.advance(occupied.world)
-		occupied.d.advance(occupied.world)
-		occupied.d.settle(occupied.world)
-	_training_ticks(occupied,60)
-	var earlier_complete: bool = occupied.world.facts.staff.holder.base_prepared and occupied.world.facts.staff.z_earlier.base_prepared and not occupied.world.facts.staff.a_later.base_prepared and occupied.world.facts.staff.a_later.base_task.get("remaining_ticks",-1)==60
-	var short_occupation: bool = legacy_valid and first_queued and both_queued and saved_queue and last_occupied_tick and earliest_arrived and later_waits and earlier_complete
-	return {"ok":nearest_ok and short_occupation,"reversed_ids":reversed_ids,"short_occupation":{"legacy_valid":legacy_valid,"first_queued":first_queued,"both_queued":both_queued,"saved":saved_queue,"last_occupied_tick":last_occupied_tick,"earliest_arrived":earliest_arrived,"later_waits":later_waits,"earlier_complete":earlier_complete}}
-
-func _base_arrangement_command(sim: HospitalSimulation, kind: String, payload: Dictionary, id: String) -> CommandResult:
-	return sim.apply(GameCommand.new("staff_base_"+id,sim.world.hospital_id,sim.world.revision,kind,BusinessPayload.new(payload)))
-
-func _base_arrangement_ticks(sim: HospitalSimulation, ticks: int) -> void:
-	for _tick: int in ticks:
-		sim.world.facts.sim_tick += 1
-		sim.services.remodel.dispatch(sim.world)
-		sim.services.development.dispatch(sim.world)
-		sim.space.advance(sim.world)
-		sim.services.development.advance(sim.world)
-		sim.services.development.settle(sim.world)
-		sim.world.touch()
-		sim.space.finish_boundary(sim.world)
-
-func _base_arrangement_examples() -> Dictionary:
-	var x: Dictionary = _fixture({"doctor":"doctor"})
-	HospitalFactory._add_room(x.world,{"id":"base_office","type":"doctor_office","anchor":[36,79],"size":[4,4],"door":{"definition_id":"DR01","offset":1}},_content)
-	_facility(x,"base","SE05",[36,80],"base_office")
-	_position(x,"doctor",[38,80])
-	var working: HospitalSimulation = HospitalSimulation.new(x.world,_content)
-	working.services.development.dispatch(working.world)
-	_base_arrangement_ticks(working,30)
-	var cash: int = HospitalLedger.balance(working.world)
-	var prepare_room: CommandResult = _base_arrangement_command(working,"remodel_prepare",{"commands":[{"kind":"build_move","target_id":"base_office","cell":[45,79],"floor_id":1}]},"prepare_working")
-	var room_order: String = str(prepare_room.changed_ids[0]) if prepare_room.accepted else ""
-	working.services.remodel.dispatch(working.world)
-	working.services.development.dispatch(working.world)
-	var work_held: bool = not working.world.facts.moves.has("doctor") and working.world.facts.staff.doctor.base_task.get("remaining_ticks",-1)==30
-	_base_arrangement_ticks(working,29)
-	work_held = work_held and not working.world.facts.moves.has("doctor") and not working.world.facts.staff.doctor.base_prepared and working.world.facts.staff.doctor.base_task.get("remaining_ticks",-1)==1
-	_base_arrangement_ticks(working,1)
-	var completed_safely: bool = working.world.facts.staff.doctor.base_prepared and working.world.facts.staff.doctor.base_task.is_empty() and not working.world.facts.moves.has("doctor") and HospitalLedger.balance(working.world)==cash
-	working.services.remodel.dispatch(working.world)
-	var evacuation: Dictionary = working.world.facts.moves.get("doctor",{}).duplicate(true)
-	working.services.development.dispatch(working.world)
-	var leaving_after_work: bool = not evacuation.is_empty() and working.world.facts.moves.get("doctor",{})==evacuation
-	for _tick: int in 200:
-		if not working.world.facts.moves.has("doctor"): break
-		_base_arrangement_ticks(working,1)
-	var vacated: bool = prepare_room.accepted and not working.world.facts.moves.has("doctor") and working.world.facts.actors.doctor.location.cell!=[38,80] and working.world.facts.staff.doctor.base_prepared and not working.services.remodel._in_affected_area(working.world,working.world.facts.remodels[room_order],working.world.facts.actors.doctor)
-	var rest: CommandResult = _base_arrangement_command(working,"apply_schedule",{"changes":[{"staff_id":"doctor","schedule":_schedule(["rest","outpatient","outpatient"])}]},"new_rest_boundary")
-	working.services.scheduler.boundaries(working.world)
-	working.services.development.dispatch(working.world)
-	var work: CommandResult = _base_arrangement_command(working,"apply_schedule",{"changes":[{"staff_id":"doctor","schedule":_schedule(["outpatient","rest","outpatient"])}]},"new_work_boundary")
-	working.services.scheduler.boundaries(working.world)
-	working.services.development.dispatch(working.world)
-	var excludes_new: bool = rest.accepted and work.accepted and not working.world.facts.staff.doctor.base_prepared and working.world.facts.staff.doctor.base_task.is_empty() and not working.world.facts.moves.has("doctor")
-	var cancelled_room: CommandResult = _base_arrangement_command(working,"remodel_cancel",{"order_id":room_order},"cancel_room")
-	working.services.development.dispatch(working.world)
-	var cancel_reopens: bool = cancelled_room.accepted and working.world.facts.staff.doctor.base_task.get("facility_id","")=="base" and working.world.facts.moves.has("doctor") and not working.world.facts.staff.doctor.base_prepared
-	var working_ok: bool = prepare_room.accepted and work_held and completed_safely and leaving_after_work and vacated and excludes_new and cancel_reopens
-	var working_details: Dictionary = {"prepare":prepare_room.code,"protected":work_held,"completed_safely":completed_safely,"leaving_after_work":leaving_after_work,"vacated":vacated,"excludes_new":excludes_new,"cancel_reopens":cancel_reopens}
-	working.dispose()
-	x = _fixture({"nurse":"nurse"})
-	_facility(x,"base","SE06",[42,80])
-	_position(x,"nurse",[44,79])
-	var travelling: HospitalSimulation = HospitalSimulation.new(x.world,_content)
-	travelling.services.development.dispatch(travelling.world)
-	_base_arrangement_ticks(travelling,1)
-	var original_task: Dictionary = travelling.world.facts.staff.nurse.base_task.duplicate(true)
-	var first: CommandResult = _base_arrangement_command(travelling,"remodel_prepare",{"commands":[{"kind":"build_move","target_id":"base","cell":[44,79],"floor_id":1}]},"prepare_travel_cancel")
-	var first_order: String = str(first.changed_ids[0]) if first.accepted else ""
-	travelling.services.remodel.dispatch(travelling.world)
-	travelling.services.development.dispatch(travelling.world)
-	var paused: bool = not travelling.world.facts.moves.has("nurse") and travelling.world.facts.staff.nurse.base_task==original_task and not travelling.world.facts.staff.nurse.base_prepared
-	var cancelled: CommandResult = _base_arrangement_command(travelling,"remodel_cancel",{"order_id":first_order},"cancel_travel")
-	var before_resume: Dictionary = travelling.world.facts.actors.nurse.location.duplicate(true)
-	travelling.services.development.dispatch(travelling.world)
-	var cancel_resumes: bool = cancelled.accepted and travelling.world.facts.staff.nurse.base_task==original_task and travelling.world.facts.moves.has("nurse") and travelling.world.facts.actors.nurse.location==before_resume
-	var second: CommandResult = _base_arrangement_command(travelling,"remodel_prepare",{"commands":[{"kind":"build_move","target_id":"base","cell":[44,79],"floor_id":1}]},"prepare_travel_apply")
-	var second_order: String = str(second.changed_ids[0]) if second.accepted else ""
-	travelling.services.remodel.dispatch(travelling.world)
-	travelling.services.development.dispatch(travelling.world)
-	travelling.services.remodel.dispatch(travelling.world)
-	var vacating_move: Dictionary = travelling.world.facts.moves.get("nurse",{}).duplicate(true)
-	travelling.services.development.dispatch(travelling.world)
-	var preserves_evacuation: bool = not vacating_move.is_empty() and vacating_move.get("target_cell",[])!=[44,80] and travelling.world.facts.moves.get("nurse",{})==vacating_move
-	var keeps_task: bool = true
-	for _tick: int in 200:
-		keeps_task = keeps_task and travelling.world.facts.staff.nurse.base_task==original_task
-		if not travelling.world.facts.moves.has("nurse"): break
-		_base_arrangement_ticks(travelling,1)
-	var paused_snapshot: Dictionary = travelling.world.freeze()
-	travelling.dispose()
-	travelling = HospitalSimulation.new(WorldState.new(paused_snapshot),_content)
-	var restored: bool = travelling.world.facts.staff.nurse.base_task==original_task and travelling.world.facts.remodels.get(second_order,{}).get("state","")=="preparing"
-	var plan: Dictionary = travelling.services.remodel.preview(travelling.world,second_order)
-	var applied: CommandResult = _base_arrangement_command(travelling,"remodel_apply",{"order_id":second_order,"quote":{"price":plan.get("price",-1),"refund":plan.get("refund",-1),"layout":plan.get("layout",[])}},"apply_travel_base")
-	var applied_location: Dictionary = travelling.world.facts.actors.nurse.location.duplicate(true)
-	travelling.services.development.dispatch(travelling.world)
-	var moved_base: Dictionary = travelling.space.facility_layout(travelling.world,"base")
-	var resumes_new_position: bool = applied.accepted and travelling.world.facts.facilities.base.cell==[44,79] and moved_base.operator_cells[0]!=[44,80] and travelling.world.facts.staff.nurse.base_task==original_task and travelling.world.facts.moves.get("nurse",{}).get("target_cell",[])==moved_base.operator_cells[0] and travelling.world.facts.actors.nurse.location==applied_location
-	var arrived: bool = false
-	for _tick: int in 200:
-		travelling.services.development.dispatch(travelling.world)
-		if travelling.world.facts.staff.nurse.base_task.get("phase","")=="working":
-			arrived = travelling.space.at(travelling.world,"nurse",int(moved_base.floor_id),moved_base.operator_cells[0]) and travelling.world.facts.staff.nurse.base_task.get("remaining_ticks",-1)==60
-			break
-		_base_arrangement_ticks(travelling,1)
-	_base_arrangement_ticks(travelling,60)
-	var completed_original: bool = travelling.world.facts.staff.nurse.base_prepared and travelling.world.facts.staff.nurse.base_task.is_empty()
-	var travel_ok: bool = first.accepted and paused and cancel_resumes and second.accepted and preserves_evacuation and keeps_task and restored and plan.get("ok",false) and resumes_new_position and arrived and completed_original
-	var travel_details: Dictionary = {"first_prepare":first.code,"paused":paused,"cancel_resumes":cancel_resumes,"second_prepare":second.code,"preserves_evacuation":preserves_evacuation,"keeps_task":keeps_task,"restored":restored,"plan":plan.get("reason",""),"apply":applied.code,"resumes_new_position":resumes_new_position,"arrived":arrived,"completed_original":completed_original}
-	travelling.dispose()
-	return {"ok":working_ok and travel_ok,"working":working_details,"travelling":travel_details}
-
-func _growth_cases(t) -> void:
+func _case_01(t) -> void:
 	var x: Dictionary = _fixture({"doctor":"doctor","nurse":"nurse","reception":"receptionist","cleaner":"cleaner","mechanic":"mechanic","researcher":"researcher","decorator":"decorator"})
 	var doctor: Dictionary = x.world.facts.staff.doctor
 	var nurse: Dictionary = x.world.facts.staff.nurse
@@ -378,7 +67,8 @@ func _growth_cases(t) -> void:
 	model_ok = model_ok and not nurse.certificates.has("q_gp") and not nurse.certificates.has("q_or") and not doctor.has("job_practice") and not nurse.has("job_practice")
 	t.check("STAFF-01",model_ok,{"doctor":doctor,"nurse":nurse})
 
-	x = _fixture({"doctor":"doctor","nurse":"nurse"})
+func _case_02(t) -> void:
+	var x: Dictionary = _fixture({"doctor":"doctor","nurse":"nurse"})
 	_facility(x,"diagnosis","FUR02",[42,76])
 	var visit: Dictionary = _visit(x)
 	var session: Dictionary = x.c._start(x.world,visit,"gp","diagnosis",["doctor"],200,{"evidence":90.0,"doctor_fee":12,"facility_fee":8})
@@ -402,12 +92,13 @@ func _growth_cases(t) -> void:
 	x.c.advance(x.world)
 	x.c.settle_practice(x.world)
 	x.c.settle_practice(x.world)
-	doctor = x.world.facts.staff.doctor
-	nurse = x.world.facts.staff.nurse
+	var doctor: Dictionary = x.world.facts.staff.doctor
+	var nurse: Dictionary = x.world.facts.staff.nurse
 	t.check("STAFF-02",doctor.practice.diagnosis==1 and doctor.practice.treatment==1 and nurse.practice.diagnosis==1 and nurse.practice.care==0 and nurse.completed_jobs.size()==1 and doctor.completed_jobs.size()==2,{"doctor_practice":doctor.practice,"nurse_practice":nurse.practice})
 
-	x = _fixture({"doctor":"doctor"})
-	doctor = x.world.facts.staff.doctor
+func _case_03(t) -> void:
+	var x: Dictionary = _fixture({"doctor":"doctor"})
+	var doctor: Dictionary = x.world.facts.staff.doctor
 	doctor.practice.treatment = 20
 	doctor.practice.surgery = 180
 	x.d.settle(x.world)
@@ -423,7 +114,8 @@ func _growth_cases(t) -> void:
 	thresholds_ok = thresholds_ok and doctor.practice.treatment==180 and doctor.title_id=="DT01" and doctor.abilities.surgery==0 and doctor.completed_courses.is_empty()
 	t.check("STAFF-03",thresholds_ok,{"abilities":doctor.abilities,"practice":doctor.practice})
 
-	x = _training_fixture()
+func _case_04(t) -> void:
+	var x: Dictionary = _training_fixture()
 	x.world.facts.research.clear()
 	var cash_before: int = HospitalLedger.balance(x.world)
 	var gate_ok: bool = not x.d.execute(x.world,"train_staff",{"staff_id":"doctor","track":"treatment","desk_id":"desk"}).accepted
@@ -437,7 +129,8 @@ func _growth_cases(t) -> void:
 	gate_ok = gate_ok and not x.d.execute(x.world,"train_staff",{"staff_id":"doctor","track":"treatment","desk_id":"desk"}).accepted and HospitalLedger.balance(x.world)==399 and x.world.facts.training_jobs.is_empty()
 	t.check("STAFF-04",gate_ok,{"cash":HospitalLedger.balance(x.world),"jobs":x.world.facts.training_jobs})
 
-	x = _training_fixture()
+func _case_05(t) -> void:
+	var x: Dictionary = _training_fixture()
 	var normal: Dictionary = x.d.preview(x.world,"doctor","treatment")
 	var nurse_entry: Dictionary = x.d.preview(x.world,"nurse","surgery")
 	var job: Dictionary = _enroll(x)
@@ -447,8 +140,9 @@ func _growth_cases(t) -> void:
 	quote_ok = quote_ok and not job.is_empty() and job.cost==400 and job.total_work_milli==1080000 and HospitalLedger.balance(x.world)==24400
 	t.check("STAFF-05",quote_ok,{"normal":normal,"nurse_entry":nurse_entry,"discounted":discounted,"frozen":job})
 
-	x = _training_fixture()
-	job = _enroll(x)
+func _case_06(t) -> void:
+	var x: Dictionary = _training_fixture()
+	var job: Dictionary = _enroll(x)
 	var busy: CommandResult = x.d.execute(x.world,"train_staff",{"staff_id":"doctor","track":"diagnosis","desk_id":"desk"})
 	var second: Dictionary = _enroll(x,"nurse","care")
 	x.d.dispatch(x.world)
@@ -490,10 +184,9 @@ func _growth_cases(t) -> void:
 	desk_ok = desk_ok and teacher_at_desk and solo_delta==1000 and joint_delta==1250 and absent_delta==1000 and taught.get("total_work_milli",0)==1080000
 	t.check("STAFF-06",desk_ok,{"course":job,"second_course":second,"completed":trained.completed_courses,"teacher_at_desk":teacher_at_desk,"solo_work":solo_delta,"joint_work":joint_delta,"absent_work":absent_delta})
 
-	x = _training_fixture()
-	job = _enroll(x)
-	x.d.dispatch(x.world)
-	_training_ticks(x,540)
+func _case_07(t) -> void:
+	var x: Dictionary = _training_checkpoint(540)
+	var job: Dictionary = x.world.facts.training_jobs[x.world.facts.staff.doctor.training_job_id]
 	var saved_id: String = str(job.get("id",""))
 	var remaining: int = int(job.get("remaining_work_milli",-1))
 	x.d.suspend_facility(x.world,"desk","移动研究桌")
@@ -506,31 +199,30 @@ func _growth_cases(t) -> void:
 	var again: CommandResult = x.d.execute(x.world,"cancel_training",{"staff_id":"doctor"})
 	t.check("STAFF-07",remaining==540000 and frozen_remaining==remaining and cancel.accepted and not again.accepted and job.get("refund",-1)==200 and job.state=="cancelled" and HospitalLedger.balance(x.world)==balance_after and balance_after==24600 and x.world.facts.staff.doctor.abilities.treatment==1 and x.d.validate(x.world).is_empty(),{"remaining":frozen_remaining,"job":job,"cash":balance_after})
 
-	x = _training_fixture()
-	job = _enroll(x)
-	x.d.dispatch(x.world)
-	_training_ticks(x,540)
+func _case_08(t) -> void:
+	var x: Dictionary = _training_checkpoint(540)
+	var job: Dictionary = x.world.facts.training_jobs[x.world.facts.staff.doctor.training_job_id]
 	x.world.facts.staff.doctor.practice.treatment = 20
 	x.d.settle(x.world)
-	saved_id = job.id
+	var saved_id: String = job.id
 	x = _restore(x)
 	x.d.settle(x.world)
 	job = x.world.facts.training_jobs[saved_id]
-	doctor = x.world.facts.staff.doctor
+	var doctor: Dictionary = x.world.facts.staff.doctor
 	t.check("STAFF-08",doctor.abilities.treatment==2 and job.state=="superseded" and job.refund==200 and doctor.completed_courses.is_empty() and doctor.training_job_id.is_empty() and HospitalLedger.balance(x.world)==24600 and doctor.growth_history.size()==1 and doctor.growth_history[0].source=="practice",{"job":job,"history":doctor.growth_history})
 
-	x = _training_fixture()
-	job = _enroll(x)
-	x.d.dispatch(x.world)
-	_training_ticks(x,1079)
+func _case_09(t) -> void:
+	var x: Dictionary = _training_checkpoint(1079)
+	var job: Dictionary = x.world.facts.training_jobs[x.world.facts.staff.doctor.training_job_id]
 	x.world.facts.staff.doctor.practice.treatment = 20
 	_training_ticks(x,1)
 	x.d.settle(x.world)
-	doctor = x.world.facts.staff.doctor
+	var doctor: Dictionary = x.world.facts.staff.doctor
 	t.check("STAFF-09",job.state=="completed" and job.refund==0 and doctor.abilities.treatment==2 and doctor.completed_courses.size()==1 and doctor.growth_history.size()==1 and HospitalLedger.balance(x.world)==24400,{"job":job,"history":doctor.growth_history})
 
-	x = _training_fixture()
-	doctor = x.world.facts.staff.doctor
+func _case_10(t) -> void:
+	var x: Dictionary = _training_fixture()
+	var doctor: Dictionary = x.world.facts.staff.doctor
 	var premature: CommandResult = x.d.execute(x.world,"promote_staff",{"staff_id":"doctor","desk_id":"desk"})
 	doctor.cured_cases = 20
 	doctor.abilities.treatment = 2
@@ -547,24 +239,26 @@ func _growth_cases(t) -> void:
 	var promotion_ok: bool = not premature.accepted and promotion.accepted and promotion_quote.cost==500 and promotion_quote.work_ticks==1200 and old_title=="DT01" and doctor.title_id=="DT02" and doctor.title_rate_changed_tick==x.world.sim_tick and int(doctor.wage_numerator)-old_wages==180 and x.f.wage(doctor)==180
 	t.check("STAFF-10",promotion_ok,{"quote":promotion_quote,"title":doctor.title_id,"rate_tick":doctor.title_rate_changed_tick,"wage_delta":int(doctor.wage_numerator)-old_wages})
 
-	x = _training_fixture()
-	job = _enroll(x)
-	doctor = x.world.facts.staff.doctor
+func _case_11(t) -> void:
+	var x: Dictionary = _training_fixture()
+	var job: Dictionary = _enroll(x)
+	var doctor: Dictionary = x.world.facts.staff.doctor
 	doctor.practice.diagnosis = 7
-	cash_before = HospitalLedger.balance(x.world)
+	var cash_before: int = HospitalLedger.balance(x.world)
 	var changed: CommandResult = x.d.execute(x.world,"set_growth_direction",{"staff_id":"doctor","track":"diagnosis"})
 	var invalid_goal: CommandResult = x.d.execute(x.world,"set_growth_direction",{"staff_id":"nurse","track":"treatment"})
 	var nurse_promotion: Dictionary = x.d.preview(x.world,"nurse","care","promotion")
 	t.check("STAFF-11",changed.accepted and not invalid_goal.accepted and not nurse_promotion.ok and doctor.growth_direction=="diagnosis" and doctor.practice.diagnosis==7 and doctor.training_job_id==job.id and job.track=="treatment" and job.state=="waiting" and HospitalLedger.balance(x.world)==cash_before and job.desk_id.is_empty(),{"goal":doctor.growth_goal,"course":job})
 
-	x = _fixture({"doctor":"doctor"})
+func _case_12(t) -> void:
+	var x: Dictionary = _fixture({"doctor":"doctor"})
 	var office: String = _room(x,"doctor_office")
 	_facility(x,"base","SE05",[43,74],office)
 	_position(x,"doctor",x.space.facility_layout(x.world,"base").operator_cells[0])
 	x.d.dispatch(x.world)
 	_training_ticks(x,30)
 	x = _restore(x)
-	doctor = x.world.facts.staff.doctor
+	var doctor: Dictionary = x.world.facts.staff.doctor
 	var half_base: bool = not doctor.base_prepared and doctor.base_task.remaining_ticks==30
 	_training_ticks(x,30)
 	x.d.dispatch(x.world)
@@ -664,13 +358,7 @@ func _growth_cases(t) -> void:
 	var base_arrangement: Dictionary = _base_arrangement_examples()
 	t.check("STAFF-12",half_base and once and new_block and first_prepared and second_waits and requested_without_teleport and travel_preserves_work and first_keeps_preparation and second_arrived and actually_yielded and shared_half and shared_complete and ward_return_ok and base_selection.ok and base_arrangement.ok,{"base_task":doctor.base_task,"prepared":doctor.base_prepared,"shared":{"first_prepared":first_prepared,"second_waits":second_waits,"move_without_teleport":requested_without_teleport,"travel_preserves_work":travel_preserves_work,"first_keeps_preparation":first_keeps_preparation,"second_arrived":second_arrived,"actually_yielded":actually_yielded,"restored_half":shared_half,"both_prepared":shared_complete},"ward_return":{"assignment":ward_assignment.code,"external_workbench":reached_workbench,"prepared_outside":prepared_outside,"requested_without_teleport":return_requested,"preserves_move":preserves_move,"outside_steps":outside_steps,"outside_has_no_coverage":outside_has_no_coverage,"keeps_preparation":keeps_preparation,"returned_to_cover":returned_to_cover,"location":ward_case.world.facts.actors.nurse.location},"base_selection":base_selection,"base_arrangement":base_arrangement})
 
-func _schedule(kinds: Array) -> Array:
-	var result: Array = []
-	for kind: String in kinds:
-		result.append({"kind":kind,"pools":[],"locked":false})
-	return result
-
-func _schedule_cases(t) -> void:
+func _case_13(t) -> void:
 	var x: Dictionary = _fixture({"doctor":"doctor"})
 	var clock_ok: bool = true
 	for item: Array in [[0,0],[5999,0],[6000,1],[11999,1],[12000,2],[17999,2],[18000,0]]:
@@ -679,7 +367,8 @@ func _schedule_cases(t) -> void:
 		clock_ok = clock_ok and x.s.shift_index(x.world)==item[1] and int(x.world.facts.staff_schedule.day)==int(item[0])/18000
 	t.check("STAFF-13",clock_ok,{"tick":x.world.sim_tick,"shift":x.s.shift_index(x.world)})
 
-	x = _fixture({"doctor":"doctor"})
+func _case_14(t) -> void:
+	var x: Dictionary = _fixture({"doctor":"doctor"})
 	var original: Array = x.world.facts.staff.doctor.schedule.duplicate(true)
 	var no_rest: CommandResult = x.s.execute(x.world,"apply_schedule",{"changes":[{"staff_id":"doctor","schedule":_schedule(["outpatient","outpatient","outpatient"])}]})
 	var atomic: bool = not no_rest.accepted and x.world.facts.staff.doctor.schedule==original
@@ -749,7 +438,8 @@ func _schedule_cases(t) -> void:
 	var legacy_ok: bool = legacy_error.is_empty() and legacy_readonly and default_only and legacy_continues
 	t.check("STAFF-14",atomic and applied.accepted and x.world.facts.staff.doctor.schedule==legal and x.s.validate(x.world).is_empty() and previous_day_ok and legacy_ok,{"no_rest":no_rest.code,"across_day":across_day.code,"schedule":x.world.facts.staff.doctor.schedule,"previous_day":previous_day_results,"legacy":{"validation_error":legacy_error,"validation_readonly":legacy_readonly,"default_only":default_only,"continues":legacy_continues}})
 
-	x = _fixture({"doctor":"doctor"})
+func _case_15(t) -> void:
+	var x: Dictionary = _fixture({"doctor":"doctor"})
 	var locked: CommandResult = x.s.execute(x.world,"set_schedule_lock",{"staff_id":"doctor","shift":0,"locked":true})
 	var locked_value: Dictionary = x.world.facts.staff.doctor.schedule[0].duplicate(true)
 	var proposal: Dictionary = x.s.suggestion(x.world)
@@ -767,7 +457,8 @@ func _schedule_cases(t) -> void:
 	var stale_result: CommandResult = x.s.execute(x.world,"apply_schedule",stale)
 	t.check("STAFF-15",lock_ok and accepted.accepted and duplicate_safe and not stale_result.accepted and stale_result.code=="material_change" and x.world.facts.staff.doctor.schedule==after,{"proposal":proposal,"applied":accepted.code,"stale":stale_result.code})
 
-	x = _fixture({"doctor":"doctor","anesthetist":"doctor","nurse":"nurse"})
+func _case_16(t) -> void:
+	var x: Dictionary = _fixture({"doctor":"doctor","anesthetist":"doctor","nurse":"nurse"})
 	_facility(x,"diagnosis","FUR02",[43,75])
 	var visit: Dictionary = _visit(x)
 	var current: Dictionary = x.c._start(x.world,visit,"gp","diagnosis",["doctor"],200,{"evidence":90.0,"doctor_fee":12,"facility_fee":8})
@@ -795,7 +486,8 @@ func _schedule_cases(t) -> void:
 	safety_ok = safety_ok and HospitalClinicalDevelopment.safe_busy(x.world,"nurse") and x.world.facts.staff.nurse.block_new_work
 	t.check("STAFF-16",safety_ok,{"team":operation.staff_ids,"current_service_completed":not x.world.facts.sessions.has(current.id),"nurse_blocked":x.world.facts.staff.nurse.block_new_work})
 
-	x = _fixture({"doctor":"doctor"})
+func _case_17(t) -> void:
+	var x: Dictionary = _fixture({"doctor":"doctor"})
 	var room: String = _room(x)
 	_facility(x,"rest_chair","FUR06",[43,75],room)
 	_position(x,"doctor",x.space.facility_layout(x.world,"rest_chair").patient_cell)
@@ -817,10 +509,11 @@ func _schedule_cases(t) -> void:
 	_life_ticks(x,1)
 	t.check("STAFF-17",debt==2 and time_not_energy and x.world.facts.staff.doctor.rest_debt_ticks==0 and x.world.facts.staff.doctor.energy>=90.0 and x.world.facts.staff.doctor.life_task.phase=="returning",{"original_debt":debt,"staff":x.world.facts.staff.doctor})
 
-	x = _fixture({"doctor":"doctor"})
+func _case_18(t) -> void:
+	var x: Dictionary = _fixture({"doctor":"doctor"})
 	_facility(x,"diagnosis","FUR02",[43,75])
-	visit = _visit(x)
-	current = x.c._start(x.world,visit,"gp","diagnosis",["doctor"],200,{"evidence":90.0,"doctor_fee":12,"facility_fee":8})
+	var visit: Dictionary = _visit(x)
+	var current: Dictionary = x.c._start(x.world,visit,"gp","diagnosis",["doctor"],200,{"evidence":90.0,"doctor_fee":12,"facility_fee":8})
 	current.remaining_ticks = 2
 	var requested_tick: int = x.world.sim_tick
 	var leave: CommandResult = x.s.execute(x.world,"plan_leave",{"staff_id":"doctor","days":1,"start":"now"})
@@ -847,7 +540,8 @@ func _schedule_cases(t) -> void:
 	leave_ok = leave_ok and cancelled.accepted and y.world.facts.staff.doctor.leave_plan.is_empty() and HospitalLedger.balance(y.world)==original_cash
 	t.check("STAFF-18",leave_ok,{"plan_after_recall":plan,"requested_tick":requested_tick,"left":left,"paid_delta":paid_delta})
 
-	x = _fixture({"doctor":"doctor"})
+func _case_19(t) -> void:
+	var x: Dictionary = _fixture({"doctor":"doctor"})
 	x.world.facts.staff.doctor.fatigue = 90.0
 	x.world.facts.staff.doctor.active_job_id = "safe_current_task"
 	x.s.boundaries(x.world)
@@ -868,21 +562,7 @@ func _schedule_cases(t) -> void:
 	long_rest_ok = long_rest_ok and outside and x.world.facts.staff.doctor.fatigue<=55.00001 and x.world.facts.staff.doctor.life_task.phase=="returning" and x.world.facts.staff.doctor.abilities.treatment==1 and x.world.facts.staff.doctor.cured_cases==0
 	t.check("STAFF-19",long_rest_ok,{"plan":automatic,"staff":x.world.facts.staff.doctor})
 
-func _sleep_fixture(role: String) -> Dictionary:
-	var x: Dictionary = _fixture({"sleeper":role})
-	var room: String = _room(x)
-	_facility(x,"bed","SE04",[43,75],room)
-	_position(x,"sleeper",x.space.facility_layout(x.world,"bed").patient_cell)
-	var staff: Dictionary = x.world.facts.staff.sleeper
-	staff.awake_ticks = 13500
-	staff.energy = 50.0
-	staff.stress_milli = 50000
-	staff.fatigue = 10.0 if role=="doctor" else 0.0
-	x.w.dispatch(x.world)
-	x.w.dispatch(x.world)
-	return x
-
-func _wellbeing_cases(t) -> void:
+func _case_20(t) -> void:
 	var x: Dictionary = _fixture({"doctor":"doctor","nurse":"nurse"})
 	for staff: Dictionary in x.world.facts.staff.values():
 		staff.energy = 50.0
@@ -914,7 +594,8 @@ func _wellbeing_cases(t) -> void:
 	rates_ok = rates_ok and _near(doctor.energy,rest_energy+1.0) and _near(doctor.fatigue,rest_fatigue-0.004) and doctor.stress_milli==rest_stress-15
 	t.check("STAFF-20",rates_ok,{"doctor":doctor,"nurse_fatigue":nurse.fatigue})
 
-	x = _fixture({"first":"doctor","second":"doctor","relief":"doctor"})
+func _case_21(t) -> void:
+	var x: Dictionary = _fixture({"first":"doctor","second":"doctor","relief":"doctor"})
 	_room(x)
 	for staff: Dictionary in x.world.facts.staff.values():
 		staff.base_prepared = true
@@ -943,12 +624,13 @@ func _wellbeing_cases(t) -> void:
 	stagger_ok = stagger_ok and y.world.facts.staff.low.life_task.phase=="idle"
 	t.check("STAFF-21",stagger_ok,{"one_pool_count":one_early,"selected":x.world.facts.staff.first.life_task,"unavailable_relief":y.world.facts.staff.low.life_task})
 
-	x = _fixture({"doctor":"doctor"})
-	room = _room(x)
+func _case_22(t) -> void:
+	var x: Dictionary = _fixture({"doctor":"doctor"})
+	var room: String = _room(x)
 	_facility(x,"ordinary","FUR06",[40,70],room)
 	_facility(x,"vitality","FUR52",[50,70],room)
 	_position(x,"doctor",[36,70])
-	doctor = x.world.facts.staff.doctor
+	var doctor: Dictionary = x.world.facts.staff.doctor
 	doctor.energy = 35.0
 	x.w.dispatch(x.world)
 	var selected: String = str(doctor.life_task.get("facility_id",""))
@@ -966,9 +648,10 @@ func _wellbeing_cases(t) -> void:
 	reservation_ok = reservation_ok and doctor.life_task.phase=="returning" and _near(doctor.energy,original_recovery) and doctor.rest_obligation
 	t.check("STAFF-22",reservation_ok,{"chosen":selected,"energy_before":travel_before,"energy_after_walk":travelling_energy,"task":doctor.life_task})
 
+func _case_23(t) -> void:
 	var roles: Dictionary = {"reception":"receptionist","doctor":"doctor","nurse":"nurse","cleaner":"cleaner","mechanic":"mechanic","researcher":"researcher","decorator":"decorator"}
-	x = _fixture(roles)
-	room = _room(x)
+	var x: Dictionary = _fixture(roles)
+	var room: String = _room(x)
 	for staff: Dictionary in x.world.facts.staff.values():
 		staff.awake_ticks = 9000
 		staff.on_shift = false
@@ -978,7 +661,8 @@ func _wellbeing_cases(t) -> void:
 		no_bed_early = no_bed_early and staff.life_task.phase=="idle" and staff.sleep_remaining_ticks==0 and x.world.facts.actors[staff.id].location.kind=="floor"
 	t.check("STAFF-23",no_bed_early,{"roles":roles.keys(),"reservations":x.world.facts.staff_life.reservations})
 
-	x = _fixture({"doctor":"doctor"})
+func _case_24(t) -> void:
+	var x: Dictionary = _fixture({"doctor":"doctor"})
 	_room(x)
 	_position(x,"doctor",[38,75])
 	x.world.facts.staff.doctor.awake_ticks = 13500
@@ -992,7 +676,7 @@ func _wellbeing_cases(t) -> void:
 	var leaving: bool = x.world.facts.staff.doctor.life_task.phase=="exiting" and x.world.facts.actors.doctor.location.kind=="floor" and x.world.facts.staff.doctor.sleep_remaining_ticks==4500
 	var reached_exit: bool = _reach_life_phase(x,"doctor","offsite")
 	var starts_outside: bool = reached_exit and x.world.facts.staff.doctor.life_task.offsite_ticks==0 and x.world.facts.actors.doctor.location.kind=="outside"
-	y = _fixture({"doctor":"doctor"})
+	var y: Dictionary = _fixture({"doctor":"doctor"})
 	y.world.facts.staff.doctor.awake_ticks = 13500
 	y.world.facts.floors.overrides["1"].blocked.append([48,95])
 	y.w.dispatch(y.world)
@@ -1002,8 +686,9 @@ func _wellbeing_cases(t) -> void:
 	var no_teleport: bool = y.world.facts.actors.doctor.location.kind=="floor" and y.world.facts.staff.doctor.life_task.phase=="exiting" and y.world.facts.staff.doctor.sleep_remaining_ticks==4500
 	t.check("STAFF-24",waiting and leaving and starts_outside and no_teleport,{"waited":449,"exit_reached":reached_exit,"blocked_task":y.world.facts.staff.doctor.life_task})
 
-	x = _sleep_fixture("doctor")
-	doctor = x.world.facts.staff.sleeper
+func _case_25(t) -> void:
+	var x: Dictionary = _sleep_fixture("doctor")
+	var doctor: Dictionary = x.world.facts.staff.sleeper
 	var was_sleeping: bool = doctor.life_task.phase=="sleep"
 	_life_ticks(x,250)
 	var energy_slept: float = doctor.energy
@@ -1016,6 +701,8 @@ func _wellbeing_cases(t) -> void:
 	doctor = x.world.facts.staff.sleeper
 	t.check("STAFF-25",was_sleeping and interrupted.accepted and remaining_sleep==4250 and restored_sleep==4250 and resumed and doctor.sleep_remaining_ticks==4250 and doctor.energy<=energy_slept+0.00001 and x.world.facts.staff_life.reservations.size()==1 and x.w.validate(x.world).is_empty(),{"remaining_after_move":remaining_sleep,"remaining_after_resume":doctor.sleep_remaining_ticks,"resumed":resumed})
 
+func _case_26(t) -> void:
+	var x: Dictionary
 	var sleep_ok: bool = true
 	var sleep_details: Dictionary = {}
 	for role: String in ["receptionist","doctor","nurse","cleaner","mechanic","researcher","decorator"]:
@@ -1030,7 +717,7 @@ func _wellbeing_cases(t) -> void:
 		var completed: bool = sleeper.sleep_remaining_ticks==0 and sleeper.awake_ticks==0 and sleeper.life_task.phase=="returning"
 		sleep_ok = sleep_ok and entered and one_second and not_early and completed
 		sleep_details[role] = {"entered":entered,"rates":one_second,"last_tick":not_early,"completed":completed}
-	y = _fixture({"doctor":"doctor"})
+	var y: Dictionary = _fixture({"doctor":"doctor"})
 	y.s.execute(y.world,"plan_leave",{"staff_id":"doctor","days":1,"start":"now"})
 	var real_offsite: bool = _reach_life_phase(y,"doctor","offsite")
 	var offsite: Dictionary = y.world.facts.staff.doctor
@@ -1047,8 +734,9 @@ func _wellbeing_cases(t) -> void:
 		sleep_ok = sleep_ok and offsite.awake_ticks==0
 	t.check("STAFF-26",sleep_ok and real_offsite,{"roles":sleep_details,"offsite_credit":real_offsite})
 
-	x = _fixture({"doctor":"doctor","partner":"nurse"})
-	room = _room(x)
+func _case_27(t) -> void:
+	var x: Dictionary = _fixture({"doctor":"doctor","partner":"nurse"})
+	var room: String = _room(x)
 	_facility(x,"game","RC03",[43,75],room)
 	var game_layout: Dictionary = x.space.facility_layout(x.world,"game")
 	_position(x,"doctor",game_layout.patient_cell)
@@ -1064,9 +752,9 @@ func _wellbeing_cases(t) -> void:
 	x.w.dispatch(x.world)
 	var started: bool = x.world.facts.staff.doctor.life_task.phase=="recreation" and x.world.facts.staff.doctor.recreation_count==1 and x.world.facts.staff.partner.recreation_count==1
 	_life_ticks(x,300)
-	doctor = x.world.facts.staff.doctor
+	var doctor: Dictionary = x.world.facts.staff.doctor
 	var recreation_ok: bool = recreation.accepted and count_before_start and started and _near(doctor.energy,72.0) and doctor.stress_milli==45500 and _near(doctor.fatigue,9.7) and doctor.recreation_cooldown_tick==1200 and x.world.facts.staff_life.reservations.get("game",{}).get("remaining_ticks",-1)==0 and HospitalLedger.balance(x.world)==cash_before
-	y = _fixture({"idle":"cleaner"})
+	var y: Dictionary = _fixture({"idle":"cleaner"})
 	var idle: Dictionary = y.world.facts.staff.idle
 	idle.energy = 60.0
 	idle.stress_milli = 50000
@@ -1083,7 +771,8 @@ func _wellbeing_cases(t) -> void:
 	var capped: bool = not y.w._can_recreate(y.world,"idle")
 	t.check("STAFF-27",recreation_ok and cooling and cooled and capped,{"start":started,"count_before_start":count_before_start,"doctor":doctor,"cooldown_gate":cooling,"daily_cap":capped})
 
-	x = _fixture({"idle":"cleaner","doctor":"doctor","nurse":"nurse"})
+func _case_28(t) -> void:
+	var x: Dictionary = _fixture({"idle":"cleaner","doctor":"doctor","nurse":"nurse"})
 	for staff: Dictionary in x.world.facts.staff.values():
 		staff.energy = 60.0
 		staff.stress_milli = 50000
@@ -1092,7 +781,7 @@ func _wellbeing_cases(t) -> void:
 	var gates: bool = x.w._can_recreate(x.world,"idle") and not x.w._can_recreate(x.world,"doctor")
 	x.world.facts.ward_stays["actual_coverage"] = {"nurse_id":"nurse","phase":"recovery"}
 	gates = gates and not x.w._can_recreate(x.world,"nurse")
-	idle = x.world.facts.staff.idle
+	var idle: Dictionary = x.world.facts.staff.idle
 	idle.rest_debt_ticks = 1
 	gates = gates and not x.w._can_recreate(x.world,"idle")
 	idle.rest_debt_ticks = 0
@@ -1106,7 +795,7 @@ func _wellbeing_cases(t) -> void:
 	gates = gates and not no_slot.accepted and no_slot.code=="no_recreation_slot" and idle.life_task.phase=="idle" and not idle.rest_obligation and idle.energy==60.0
 	t.check("STAFF-28",gates,{"no_slot":no_slot.code,"idle_task":idle.life_task,"rest_obligation":idle.rest_obligation})
 
-func _waiting_cases(t) -> void:
+func _case_29(t) -> void:
 	var x: Dictionary = _fixture()
 	HospitalFactory._add_room(x.world,{"id":"staff_corner","type":"rest","anchor":[54,82],"size":[5,5],"door":{"definition_id":"DR01","offset":2}},_content)
 	HospitalFactory._add_room(x.world,{"id":"activity_corner","type":"rest","anchor":[54,70],"size":[5,5],"door":{"definition_id":"DR01","offset":2}},_content)
@@ -1124,9 +813,10 @@ func _waiting_cases(t) -> void:
 	var forbidden: CommandResult = x.l.execute(x.world,"waiting_select_seat",{"visit_id":visit.id,"facility_id":"staff_seat"})
 	t.check("STAFF-29",legal_only and chosen.accepted and not forbidden.accepted and x.world.facts.waiting_life.seats.size()==1 and x.world.facts.waiting_life.seats[visit.id].facility_id=="public_free" and x.world.facts.actors.visitor.support_facility_id=="public_occupied",{"candidates":choices,"chosen":chosen.code,"forbidden":forbidden.code})
 
-	x = _fixture()
+func _case_30(t) -> void:
+	var x: Dictionary = _fixture()
 	x.world.facts.floors.overrides["1"].plots.append([2,2])
-	visit = _visit(x,"choice",[32,70],"PP02")
+	var visit: Dictionary = _visit(x,"choice",[32,70],"PP02")
 	for item: Array in [["A",36],["B",48],["C",80],["D",94]]:
 		_facility(x,item[0],"FUR06",[item[1],69])
 		x.world.facts.facilities[item[0]].patient_cell = [item[1],70]
@@ -1153,10 +843,11 @@ func _waiting_cases(t) -> void:
 	var manual: CommandResult = x.l.execute(x.world,"waiting_select_seat",{"visit_id":visit.id,"facility_id":"D"})
 	t.check("STAFF-30",bounded and manual.accepted and x.world.facts.rng==random_before and x.world.facts.waiting_life.seats[visit.id].facility_id=="D",{"impatient":impatient,"shy":shy,"manual":manual.code})
 
-	x = _fixture()
+func _case_31(t) -> void:
+	var x: Dictionary = _fixture()
 	_facility(x,"calm","FUR49",[42,75])
 	_facility(x,"calm_again","FUR49",[47,75])
-	visit = _visit(x)
+	var visit: Dictionary = _visit(x)
 	var original_ticket: String = visit.ticket_id
 	var waited: int = x.world.facts.tickets[original_ticket].waited_ticks
 	var original_service_tick: int = visit.last_service_tick
@@ -1185,6 +876,11 @@ func _waiting_cases(t) -> void:
 	calm_ok = calm_ok and visit.last_service_tick==original_service_tick
 	t.check("STAFF-31",calm_ok,{"anger":visit.anger,"claimed":visit.get("chair_calm_claimed",false),"last_service_tick":visit.last_service_tick,"original_service_tick":original_service_tick})
 
+func _case_32(t) -> void:
+	var x: Dictionary
+	var visit: Dictionary
+	var observations: SeatObservations
+	var seated: bool
 	var noise_results: Dictionary = {}
 	var raw_observations: Dictionary = {}
 	for chair_type: String in ["FUR06","FUR50"]:
@@ -1210,6 +906,8 @@ func _waiting_cases(t) -> void:
 	noise_ok = noise_ok and _near(x.l.noise_multiplier(x.world,visit.id),1.0)
 	t.check("STAFF-32",noise_ok,{"ordinary":noise_results.FUR06,"shield":noise_results.FUR50,"environment":raw_observations})
 
+func _case_33(t) -> void:
+	var x: Dictionary
 	var chair_results: Dictionary = {}
 	for chair_type: String in ["FUR06","FUR51","FUR52"]:
 		x = _fixture({"doctor":"doctor"})
@@ -1228,9 +926,10 @@ func _waiting_cases(t) -> void:
 		chair_ok = chair_ok and result.awake==10 and result.phase=="rest"
 	t.check("STAFF-33",chair_ok,chair_results)
 
-	x = _fixture()
-	visit = _visit(x)
-	original_ticket = visit.ticket_id
+func _case_34(t) -> void:
+	var x: Dictionary = _fixture()
+	var visit: Dictionary = _visit(x)
+	var original_ticket: String = visit.ticket_id
 	x.world.facts.sim_tick = 1799
 	x.l.dispatch(x.world)
 	var before_due: bool = x.world.facts.waiting_life.needs.is_empty()
@@ -1253,13 +952,14 @@ func _waiting_cases(t) -> void:
 	var temporary: bool = not need.is_empty() and need.purpose=="toilet" and ticket.pause_reasons.has("need_service") and visit.ticket_id==original_ticket and ticket.waited_ticks==original_wait and x.world.facts.rng.patience==random_patience and not x.l.call_patient(x.world,visit.id)
 	t.check("STAFF-34",before_due and clinical_first and temporary,{"before_due":before_due,"clinical_first":clinical_first,"need":need,"ticket":ticket})
 
-	x = _fixture()
-	visit = _visit(x)
+func _case_35(t) -> void:
+	var x: Dictionary = _fixture()
+	var visit: Dictionary = _visit(x)
 	x.world.facts.sim_tick = 1800
 	x.l.dispatch(x.world)
-	need = x.world.facts.waiting_life.needs.get(visit.id,{})
+	var need: Dictionary = x.world.facts.waiting_life.needs.get(visit.id,{})
 	var no_facility_fallback: bool = need.get("phase","")=="fallback" and need.get("remaining_ticks",-1)==80
-	ticket = x.world.facts.tickets[visit.ticket_id]
+	var ticket: Dictionary = x.world.facts.tickets[visit.ticket_id]
 	ticket.pause_reasons.event = "independent_event"
 	for _tick: int in 79:
 		x.world.facts.sim_tick += 1
@@ -1305,7 +1005,7 @@ func _waiting_cases(t) -> void:
 	var timeout: bool = timeout_need.phase=="fallback" and timeout_need.remaining_ticks==80 and timeout_need.facility_id.is_empty()
 	t.check("STAFF-35",no_facility_fallback and safe_until_eight and once_fallback and facility_started and quote_kept and use_safe and facility_done and timeout,{"fallback_once":once_fallback,"actual_started":facility_started,"actual_safe":use_safe,"deadline_fallback":timeout})
 
-func _recruitment_cases(t) -> void:
+func _case_36(t) -> void:
 	var x: Dictionary = _fixture()
 	x.world.facts.sim_tick = 123
 	var doctor_filter: Dictionary = {"role":"doctor","title_id":"DT01","primary_track":"treatment"}
@@ -1328,10 +1028,12 @@ func _recruitment_cases(t) -> void:
 	standard_ok = standard_ok and nurse_card.ok and nurse_card.hire==200 and nurse_card.wage_day==100 and nurse_card.abilities.diagnosis==1 and nurse_card.abilities.care==1 and nurse_card.abilities.surgery==0
 	t.check("STAFF-36",standard_ok,{"card":card,"hired":hired.code,"duplicate":duplicate.code,"next_id":next_card.get("id",""),"cash":HospitalLedger.balance(x.world)})
 
-	x = _fixture()
+func _case_37(t) -> void:
+	var doctor_filter: Dictionary = {"role":"doctor","title_id":"DT01","primary_track":"treatment"}
+	var x: Dictionary = _fixture()
 	x.world.facts.sim_tick = 321
-	card = x.r.standard_preview(x.world,doctor_filter)
-	payload = _hire_payload(card,doctor_filter)
+	var card: Dictionary = x.r.standard_preview(x.world,doctor_filter)
+	var payload: Dictionary = _hire_payload(card,doctor_filter)
 	_cash(x,279)
 	var no_cash: CommandResult = x.r.execute(x.world,"recruitment_hire",payload)
 	var fail_atomic: bool = not no_cash.accepted and x.world.facts.staff.is_empty() and x.world.facts.actors.is_empty() and HospitalLedger.balance(x.world)==279 and x.world.facts.recruitment.standard_ordinals.is_empty()
@@ -1345,9 +1047,9 @@ func _recruitment_cases(t) -> void:
 	x.world.facts.floors.overrides["1"].blocked.clear()
 	x.world.touch()
 	# The workplace can be absent; a legal entrance permits paid employment.
-	hired = x.r.execute(x.world,"recruitment_hire",payload)
-	doctor_id = "staff_"+str(card.get("id",""))
-	staff = x.world.facts.staff.get(doctor_id,{})
+	var hired: CommandResult = x.r.execute(x.world,"recruitment_hire",payload)
+	var doctor_id: String = "staff_"+str(card.get("id",""))
+	var staff: Dictionary = x.world.facts.staff.get(doctor_id,{})
 	x.f.ensure(x.world)
 	x.f.settle(x.world)
 	var first_wage: int = int(staff.get("wage_numerator",0))
@@ -1356,14 +1058,15 @@ func _recruitment_cases(t) -> void:
 	var hired_at_entrance: bool = hired.accepted and staff.get("hired_tick",-1)==321 and staff.get("wage_accrued_tick",-1)==321 and first_wage==140 and staff.wage_numerator==first_wage and location.get("kind","")=="floor" and location.get("floor_id",-1)==1 and x.world.facts.facilities.is_empty() and HospitalLedger.balance(x.world)==720
 	t.check("STAFF-37",fail_atomic and hired_at_entrance,{"funds_rejection":no_cash.code,"entry_rejection":no_entry.code,"hired":hired.code,"staff":staff,"location":location})
 
-	x = _fixture()
+func _case_38(t) -> void:
+	var x: Dictionary = _fixture()
 	var filter: Dictionary = {"role":"nurse","species_id":"S49","ability":"care","min_ability":1}
-	cash = HospitalLedger.balance(x.world)
+	var cash: int = HospitalLedger.balance(x.world)
 	var search: CommandResult = x.r.execute(x.world,"recruitment_search",{"filter":filter})
 	var frozen: Dictionary = x.world.facts.recruitment.active_search.duplicate(true)
 	var second_search: CommandResult = x.r.execute(x.world,"recruitment_search",{"filter":filter})
 	var search_ok: bool = search.accepted and not second_search.accepted and frozen.get("candidates",[]).size()==3 and frozen.get("remaining_ticks",-1)==1200 and HospitalLedger.balance(x.world)==cash-100
-	rng = x.world.facts.rng.recruitment.duplicate(true)
+	var rng: Dictionary = x.world.facts.rng.recruitment.duplicate(true)
 	x = _restore(x)
 	search_ok = search_ok and x.world.facts.recruitment.active_search==frozen and x.world.facts.rng.recruitment==rng
 	for _tick: int in 1199:
@@ -1390,8 +1093,9 @@ func _recruitment_cases(t) -> void:
 	search_ok = search_ok and x.world.facts.recruitment.candidates.size()==6 and not full.accepted and full.code=="candidate_capacity" and not impossible.accepted and HospitalLedger.balance(x.world)==before_rejected
 	t.check("STAFF-38",search_ok,{"started":search.code,"published":published_ids.keys(),"cancel":cancel.code,"capacity":full.code,"impossible":impossible.code,"cash":HospitalLedger.balance(x.world)})
 
-	x = _fixture()
-	cash = HospitalLedger.balance(x.world)
+func _case_39(t) -> void:
+	var x: Dictionary = _fixture()
+	var cash: int = HospitalLedger.balance(x.world)
 	x.r.boundaries(x.world)
 	var candidates: Dictionary = x.world.facts.recruitment.candidates
 	var roles: Dictionary = {}
@@ -1426,7 +1130,8 @@ func _recruitment_cases(t) -> void:
 	passive_ok = passive_ok and not fifth.accepted and fifth.code=="bookmark_capacity" and candidates==before_repeat and candidates.size()<=24 and HospitalLedger.balance(x.world)==cash
 	t.check("STAFF-39",passive_ok,{"day_two_count":day_two_count,"day_three_passive":passive_count,"fifth_bookmark":fifth.code,"candidate_count":candidates.size()})
 
-	x = _fixture({"reception":"receptionist","cleaner":"cleaner","mechanic":"mechanic","mechanic_b":"mechanic","researcher":"researcher","decorator":"decorator","nurse":"nurse"})
+func _case_40(t) -> void:
+	var x: Dictionary = _fixture({"reception":"receptionist","cleaner":"cleaner","mechanic":"mechanic","mechanic_b":"mechanic","researcher":"researcher","decorator":"decorator","nurse":"nurse"})
 	var practice_ok: bool = true
 	var sources: Dictionary = {"reception":"registration_completed","cleaner":"cleanup_completed","mechanic":"maintenance_order_completed","decorator":"surface_unit_completed"}
 	for id: String in sources:

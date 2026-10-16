@@ -15,8 +15,16 @@ var _walls: Array[Dictionary] = []
 var _dependencies: Dictionary = {}
 var _plain: bool = false
 var _height_m: float = 0.0
+var _indexed_static: bool = false
+var _facility_cells: Dictionary = {}
+var _connector_cells: Dictionary = {}
+var _open_door_cells: Dictionary = {}
+var _closed_door_cells: Dictionary = {}
+var _horizontal_walls: Dictionary = {}
+var _vertical_walls: Dictionary = {}
 
 func _init(space: HospitalSpace, world: WorldState, actor: Dictionary, floor_id: int, members: Array = [], offsets: Dictionary = {}, include_reservations: bool = true, floor_source: Dictionary = {}) -> void:
+	_indexed_static = not include_reservations
 	_size = space.clearance(actor)
 	var body: Dictionary = space.body(actor)
 	_height_m = float(body.depth_m if actor.get("posture","standing")=="lying" else body.height_m)
@@ -39,16 +47,21 @@ func _init(space: HospitalSpace, world: WorldState, actor: Dictionary, floor_id:
 		var fit: Dictionary = space.door_quote(world,actor,floor_id,door)
 		var record: Dictionary = {"original":space._door_rect(door,int(door.span)),"opening":space._door_rect(door,int(fit.span)) if fit.ok else Rect2(),"ok":fit.ok,"reason":fit.get("reason",""),"room_id":door.room_id,"axis":door.axis}
 		_doors.append(record)
+		if _indexed_static:
+			if record.ok: _index_rectangle(record.opening,_open_door_cells,true)
+			else: _index_rectangle(record.original,_closed_door_cells,record.reason)
 		_dependencies["door:"+str(door.id)] = {"rect":Rect2i(record.original.merge(record.opening)),"value":record}
 	for id: String in source.facilities:
 		var facility: Dictionary = source.facilities[id]
 		var rect: Rect2i = Rect2i(int(facility.cell[0]),int(facility.cell[1]),int(facility.footprint[0]),int(facility.footprint[1]))
 		_facilities.append({"rect":rect,"id":id})
+		if _indexed_static: _index_rectangle(Rect2(rect),_facility_cells,id)
 		_dependencies["facility:"+id] = {"rect":rect,"value":facility}
 	for id: String in source.connectors:
 		var connector: Dictionary = source.connectors[id]
 		var rect: Rect2i = Rect2i(int(connector.cell[0]),int(connector.cell[1]),int(connector.footprint[0]),int(connector.footprint[1]))
 		_connectors.append({"rect":rect,"id":id})
+		if _indexed_static: _index_rectangle(Rect2(rect),_connector_cells,id)
 		_dependencies["connector:"+id] = {"rect":rect,"value":connector}
 	for id: String in source.rooms:
 		var room: Dictionary = source.rooms[id]
@@ -63,6 +76,11 @@ func _init(space: HospitalSpace, world: WorldState, actor: Dictionary, floor_id:
 		for x: int in [rect.position.x,rect.end.x]:
 			_walls.append({"room_id":id,"axis":"y","line":x,"low":rect.position.y,"high":rect.end.y})
 	if not include_reservations:
+		for wall: Dictionary in _walls:
+			var lines: Dictionary = _horizontal_walls if wall.axis=="x" else _vertical_walls
+			var line: int = int(wall.line)
+			if not lines.has(line): lines[line] = []
+			lines[line].append(wall)
 		_plain = _plain_geometry()
 		return
 	for reservation: Dictionary in world.facts.adaptations.values():
@@ -75,6 +93,12 @@ func _init(space: HospitalSpace, world: WorldState, actor: Dictionary, floor_id:
 
 func _plain_geometry() -> bool:
 	return _members.is_empty() and _blocked.is_empty() and _doors.is_empty() and _facilities.is_empty() and _connectors.is_empty() and _reservations.is_empty() and _walls.is_empty()
+
+func _index_rectangle(rect: Rect2, cells: Dictionary, value: Variant) -> void:
+	for y: int in range(maxi(0,ceili(rect.position.y)),mini(FloorNavigation.SIDE,ceili(rect.end.y))):
+		for x: int in range(maxi(0,ceili(rect.position.x)),mini(FloorNavigation.SIDE,ceili(rect.end.x))):
+			var cell: Vector2i = Vector2i(x,y)
+			if not cells.has(cell): cells[cell] = value
 
 func reason(origin: Vector2i) -> String:
 	if _height_m>float(source.height):
@@ -96,22 +120,28 @@ func reason(origin: Vector2i) -> String:
 			if not _plots.has(Vector2i(floori(float(x)/32.0),floori(float(y)/32.0))):
 				return "身体超出已取得地块"
 			if _blocked.has(cell):
-				var opening: bool = false
-				for door: Dictionary in _doors:
-					if door.ok and door.opening.has_point(point):
-						opening = true
-						break
+				var opening: bool = _open_door_cells.has(cell) if _indexed_static else false
+				if not _indexed_static:
+					for door: Dictionary in _doors:
+						if door.ok and door.opening.has_point(point):
+							opening = true
+							break
 				if not opening:
 					return "通路不足%d格" % _size
-			for door: Dictionary in _doors:
-				if door.original.has_point(point) and not door.ok:
-					return door.reason
-			for facility: Dictionary in _facilities:
-				if facility.rect.has_point(cell):
-					return "设备真实占地受阻："+str(facility.id)
-			for connector: Dictionary in _connectors:
-				if connector.rect.has_point(cell):
-					return "竖向结构真实占地受阻："+str(connector.id)
+			if _indexed_static:
+				if _closed_door_cells.has(cell): return str(_closed_door_cells[cell])
+				if _facility_cells.has(cell): return "设备真实占地受阻："+str(_facility_cells[cell])
+				if _connector_cells.has(cell): return "竖向结构真实占地受阻："+str(_connector_cells[cell])
+			else:
+				for door: Dictionary in _doors:
+					if door.original.has_point(point) and not door.ok:
+						return door.reason
+				for facility: Dictionary in _facilities:
+					if facility.rect.has_point(cell):
+						return "设备真实占地受阻："+str(facility.id)
+				for connector: Dictionary in _connectors:
+					if connector.rect.has_point(cell):
+						return "竖向结构真实占地受阻："+str(connector.id)
 			for reservation: Dictionary in _reservations:
 				for region: Rect2 in reservation.regions:
 					if region.has_point(point):
@@ -179,7 +209,14 @@ func _reservation_at(origin: Vector2) -> String:
 	return ""
 
 func _wall_reason(rect: Rect2) -> String:
-	for wall: Dictionary in _walls:
+	var walls: Array = _walls
+	if _indexed_static:
+		walls = []
+		for line: int in range(floori(rect.position.y)+1,ceili(rect.end.y)):
+			walls.append_array(_horizontal_walls.get(line,[]))
+		for line: int in range(floori(rect.position.x)+1,ceili(rect.end.x)):
+			walls.append_array(_vertical_walls.get(line,[]))
+	for wall: Dictionary in walls:
 		var low: float = maxf(rect.position.x if wall.axis=="x" else rect.position.y,float(wall.low))
 		var high: float = minf(rect.end.x if wall.axis=="x" else rect.end.y,float(wall.high))
 		var before: float = rect.position.y if wall.axis=="x" else rect.position.x
@@ -230,7 +267,7 @@ static func capture_source(space: HospitalSpace, world: WorldState, floor_id: in
 		for field: String in ["id","definition_id","cell","span","axis","room_id"]:
 			shape[field] = door[field].duplicate() if door[field] is Array else door[field]
 		source_layout.doors.append(shape)
-	var result: Dictionary = {"layout":source_layout,"rooms":{},"facilities":{},"connectors":{},"height":0.0,"occupancy":[]}
+	var result: Dictionary = {"layout":source_layout,"rooms":{},"facilities":{},"connectors":{},"height":0.0,"door_height":float(space.content.balance.floors.clear_height_m) if world.facts.floors.has("completed_top_floor") and not layout.plots.is_empty() else 0.0,"occupancy":[]}
 	for id: String in world.ids("rooms"):
 		var room: Dictionary = world.facts.rooms[id]
 		if int(room.floor_id)==floor_id:
@@ -249,6 +286,7 @@ static func capture_source(space: HospitalSpace, world: WorldState, floor_id: in
 	for interval: Dictionary in world.facts.floors.height_intervals:
 		if floor_id>=int(interval.first) and floor_id<=int(interval.last):
 			result.height = interval.height_m
+			result.door_height = interval.height_m
 	if world.facts.floors.has("completed_top_floor") and not layout.plots.is_empty():
 		result.height = float(space.content.balance.floors.clear_height_m)
 	for id: String in world.ids("adaptations"):

@@ -44,41 +44,29 @@ const CASES: Dictionary = {
 }
 
 func run(t) -> void:
-	var content: HospitalContent = HospitalContent.new()
+	for case_id: String in CASES:
+		if not t.wants(case_id): continue
+		t.begin_case(case_id)
+		await call("_case_"+case_id.right(2),t,HospitalContent.new())
+
+func _case_01(t, content: HospitalContent) -> void:
 	var empty: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"空地",false,content)
-	var preset: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"预设",true,content)
 	t.check("CORE-01",HospitalLedger.balance(empty)==24800 and int(empty.facts.inventory.units)==60 and empty.facts.rooms.is_empty() and empty.facts.staff.is_empty() and HospitalSpace.floor_plots(empty,1)==[[1,2]])
+
+func _case_02(t, content: HospitalContent) -> void:
+	var preset: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"预设",true,content)
 	var initial_space: HospitalSpace = HospitalSpace.new(content)
 	var office: Dictionary = initial_space.facility_layout(preset,"doctor_office_desk")
 	var office_route: Dictionary = initial_space.route(preset,"starter_doctor_a",1,office.operator_cells[0])
 	t.check("CORE-02",HospitalLedger.balance(preset)==10600 and preset.facts.staff.size()==7 and preset.validate(content).is_empty() and office_route.ok,{"validation":preset.validate(content),"office_route":office_route})
+
+func _case_03(t, content: HospitalContent) -> void:
+	var empty: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"空地",false,content)
 	var frozen: Dictionary = empty.freeze()
 	frozen.display_name = "副本"
 	t.check("CORE-03",empty.facts.display_name=="空地" and not empty.facts.has("requested_speed") and not empty.facts.has("scene"))
-	_clock(t,content)
-	_commands(t,content)
-	var original_rng: Dictionary = empty.facts.rng.duplicate(true)
-	empty.draw("treatment",10000)
-	var independent: bool = empty.facts.rng.size()==12 and original_rng.treatment!=empty.facts.rng.treatment
-	for stream: String in original_rng:
-		if stream!="treatment" and original_rng[stream]!=empty.facts.rng[stream]: independent = false
-	t.check("CORE-14",independent)
-	t.check("CORE-15",content.error.is_empty() and content.catalog.species.size()==80 and content.catalog.diseases.size()==154 and content.catalog.research.size()==38 and content.catalog.build_room_types.size()==17,content.error)
-	var species: Dictionary = content.definition("species","S49")
-	var original_name: String = species.name
-	var immutable: bool = species.is_read_only() and species.body.is_read_only()
-	if not species.is_read_only(): species.name = "查询副本"
-	if not species.body.is_read_only(): species.body.width_m = 999.0
-	t.check("CORE-16",immutable or content.definition("species","S49").name==original_name and float(content.definition("species","S49").body.width_m)<999.0)
-	var fingerprint: String = content.content_fingerprint
-	var invalid: bool = content.load_packs(PackedStringArray(["res://acceptance-missing-pack"]))
-	t.check("CORE-17",not invalid and content.content_fingerprint==fingerprint and content.definition("species","S49").name==original_name)
-	content = HospitalContent.new()
-	_extensions(t,content)
-	_storage(t,content)
-	await _view_and_ui(t,content)
 
-func _clock(t, content: HospitalContent) -> void:
+func _case_04(t, content: HospitalContent) -> void:
 	var rates: bool = true
 	for speed: int in [1,2,3]:
 		var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"时钟",false,content)
@@ -90,6 +78,8 @@ func _clock(t, content: HospitalContent) -> void:
 		rates = rates and world.sim_tick==[2,4,6][speed-1]
 		sim.dispose()
 	t.check("CORE-04",rates)
+
+func _case_05(t, content: HospitalContent) -> void:
 	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"暂停",false,content)
 	var sim: HospitalSimulation = HospitalSimulation.new(world,content)
 	var session: GameSession = GameSession.new(sim,"pause")
@@ -101,10 +91,23 @@ func _clock(t, content: HospitalContent) -> void:
 	var held: bool = session.actual_speed()==0 and world.sim_tick==0
 	session.resume("dialog")
 	t.check("CORE-05",held and session.actual_speed()==3)
+	sim.dispose()
+
+func _case_06(t, content: HospitalContent) -> void:
+	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"观看",false,content)
+	var sim: HospitalSimulation = HospitalSimulation.new(world,content)
+	var session: GameSession = GameSession.new(sim,"watch")
+	session.set_speed(3)
 	session.set_watching(true)
 	var watching: bool = session.actual_speed()==1
 	session.set_speed(2)
 	t.check("CORE-06",watching and session.actual_speed()==2)
+	sim.dispose()
+
+func _case_07(t, content: HospitalContent) -> void:
+	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"停机",false,content)
+	var sim: HospitalSimulation = HospitalSimulation.new(world,content)
+	var session: GameSession = GameSession.new(sim,"backlog")
 	session.set_speed(1)
 	session.advance(0.0)
 	session.advance(2.0)
@@ -115,7 +118,7 @@ func _clock(t, content: HospitalContent) -> void:
 	t.check("CORE-07",suspended and bounded and world.sim_tick==9)
 	sim.dispose()
 
-func _commands(t, content: HospitalContent) -> void:
+func _case_08(t, content: HospitalContent) -> void:
 	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"命令",false,content)
 	var sim: HospitalSimulation = HospitalSimulation.new(world,content)
 	var session: GameSession = GameSession.new(sim,"current")
@@ -124,6 +127,14 @@ func _commands(t, content: HospitalContent) -> void:
 	var old: CommandResult = session.submit(GameCommand.new("old",world.hospital_id,world.revision,"build_room",BusinessPayload.new(payload),"previous"))
 	var other: CommandResult = session.submit(GameCommand.new("other","other-hospital",world.revision,"build_room",BusinessPayload.new(payload),"current"))
 	t.check("CORE-08",not old.accepted and not other.accepted and world.freeze()==before)
+	sim.dispose()
+
+func _case_09(t, content: HospitalContent) -> void:
+	var x: Dictionary = _command_fixture(content)
+	var world: WorldState = x.world
+	var sim: HospitalSimulation = x.sim
+	var session: GameSession = x.session
+	var payload: Dictionary = x.payload
 	var command: GameCommand = GameCommand.new("room",world.hospital_id,world.revision,"build_room",BusinessPayload.new(payload),"current")
 	var built: CommandResult = session.submit(command)
 	var after: Dictionary = world.freeze()
@@ -132,62 +143,134 @@ func _commands(t, content: HospitalContent) -> void:
 	var second: HospitalSimulation = HospitalSimulation.new(restored,content)
 	var resumed: CommandResult = second.apply(command)
 	t.check("CORE-09",built.accepted and duplicate.accepted and resumed.accepted and world.sim_tick==0 and world.freeze()==after and restored.freeze()==after,built.reason)
+	sim.dispose()
+	second.dispose()
+
+func _case_10(t, content: HospitalContent) -> void:
+	var x: Dictionary = _command_fixture(content,true)
+	var world: WorldState = x.world
+	var sim: HospitalSimulation = x.sim
+	var session: GameSession = x.session
+	var payload: Dictionary = x.payload
+	var after: Dictionary = world.freeze()
 	var changed: Dictionary = payload.duplicate(true)
 	changed.origin = [44,66]
 	var conflict: CommandResult = session.submit(GameCommand.new("room",world.hospital_id,world.revision,"build_room",BusinessPayload.new(changed),"current"))
 	t.check("CORE-10",not conflict.accepted and world.freeze()==after)
+	sim.dispose()
+
+func _case_11(t, content: HospitalContent) -> void:
+	var x: Dictionary = _command_fixture(content,true)
+	var world: WorldState = x.world
+	var sim: HospitalSimulation = x.sim
+	var session: GameSession = x.session
+	var changed: Dictionary = x.payload.duplicate(true)
+	changed.origin = [44,66]
 	var quoted_revision: int = world.revision
 	world.touch()
 	var unrelated: CommandResult = session.submit(GameCommand.new("second_room",world.hospital_id,quoted_revision,"build_room",BusinessPayload.new(changed),"current"))
-	before = world.freeze()
+	var before: Dictionary = world.freeze()
 	changed.origin = [0,0]
 	var invalid: CommandResult = session.submit(GameCommand.new("invalid",world.hospital_id,world.revision,"build_room",BusinessPayload.new(changed),"current"))
 	t.check("CORE-11",unrelated.accepted and not invalid.accepted and world.freeze()==before,unrelated.reason)
+	sim.dispose()
+
+func _case_12(t, content: HospitalContent) -> void:
+	var x: Dictionary = _command_fixture(content)
+	var world: WorldState = x.world
+	var sim: HospitalSimulation = x.sim
+	var session: GameSession = x.session
 	session.set_speed(1)
 	var queued: CommandResult = session.submit(GameCommand.new("floor_note",world.hospital_id,world.revision,"finance_note",BusinessPayload.new({"text":"保存边界","target_amount":6000}),"current"))
 	var revision: int = world.revision
 	session.drain_commands()
 	t.check("CORE-12",queued.accepted and queued.code=="queued" and world.facts.command_receipts.has("floor_note") and world.revision>revision and world.sim_tick==0)
+	sim.dispose()
+
+func _case_13(t, content: HospitalContent) -> void:
+	var x: Dictionary = _command_fixture(content)
+	var world: WorldState = x.world
+	var sim: HospitalSimulation = x.sim
 	var balance: int = HospitalLedger.balance(world)
 	var entry: LedgerEntry = LedgerEntry.new(world.hospital_id,"acceptance_payment",-10)
 	var paid: CommandResult = HospitalLedger.post(world,entry)
 	HospitalLedger.post(world,entry)
-	before = world.freeze()
+	var before: Dictionary = world.freeze()
 	var excessive: CommandResult = HospitalLedger.post(world,LedgerEntry.new(world.hospital_id,"excessive",-1000000))
 	t.check("CORE-13",paid.accepted and HospitalLedger.balance(world)==balance-10 and not excessive.accepted and world.freeze()==before)
-	second.dispose()
 	sim.dispose()
-	var new_session: GameSession = GameSession.new(HospitalSimulation.new(HospitalFactory.create(HospitalSnapshots.uuid(),"另一院",false,content),content),"new-session")
-	before = new_session.simulation.world.freeze()
-	t.check("CORE-30",new_session.actual_speed()==0 and not new_session.submit(command).accepted and new_session.simulation.world.freeze()==before)
-	new_session.simulation.dispose()
 
-func _storage(t, content: HospitalContent) -> void:
-	var guard: RefCounted = ClassDB.instantiate("PlatformSessionGuard")
-	var acquired: Dictionary = guard.call("acquire")
-	if not acquired.ok:
-		push_error("Isolated acceptance profile unavailable: "+JSON.stringify(acquired))
-		return
-	var contender: RefCounted = ClassDB.instantiate("PlatformSessionGuard")
-	var denied: Dictionary = contender.call("acquire")
-	var exclusive: bool = not denied.ok and denied.busy
-	var store: HospitalSnapshots = HospitalSnapshots.new(content,guard)
-	var library: HospitalLibrary = HospitalLibrary.new(content,store)
-	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"事务医院",false,content)
-	var sim: HospitalSimulation = HospitalSimulation.new(world,content)
-	var original: Dictionary = world.freeze()
-	var begin: Dictionary = store.begin(sim,"storage-session")
-	world.facts.display_name = "保存后更名"
-	world.touch()
-	var receipt: Dictionary = store.wait_for_idle() if begin.ok else begin
-	var loaded: Dictionary = store.load_commit(world.hospital_id,receipt.snapshot_id) if receipt.ok else receipt
+func _case_14(t, content: HospitalContent) -> void:
+	var empty: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"空地",false,content)
+	var original_rng: Dictionary = empty.facts.rng.duplicate(true)
+	empty.draw("treatment",10000)
+	var independent: bool = empty.facts.rng.size()==12 and original_rng.treatment!=empty.facts.rng.treatment
+	for stream: String in original_rng:
+		if stream!="treatment" and original_rng[stream]!=empty.facts.rng[stream]: independent = false
+	t.check("CORE-14",independent)
+
+func _case_15(t, content: HospitalContent) -> void:
+	t.check("CORE-15",content.error.is_empty() and content.catalog.species.size()==80 and content.catalog.diseases.size()==154 and content.catalog.research.size()==38 and content.catalog.build_room_types.size()==17,content.error)
+
+func _case_16(t, content: HospitalContent) -> void:
+	var species: Dictionary = content.definition("species","S49")
+	var original_name: String = species.name
+	var immutable: bool = species.is_read_only() and species.body.is_read_only()
+	if not species.is_read_only(): species.name = "查询副本"
+	if not species.body.is_read_only(): species.body.width_m = 999.0
+	t.check("CORE-16",immutable or content.definition("species","S49").name==original_name and float(content.definition("species","S49").body.width_m)<999.0)
+
+func _case_17(t, content: HospitalContent) -> void:
+	var original_name: String = content.definition("species","S49").name
+	var fingerprint: String = content.content_fingerprint
+	var invalid: bool = content.load_packs(PackedStringArray(["res://acceptance-missing-pack"]))
+	t.check("CORE-17",not invalid and content.content_fingerprint==fingerprint and content.definition("species","S49").name==original_name)
+
+func _case_18(t, content: HospitalContent) -> void:
+	var x: Dictionary = _storage_fixture(content)
+	if x.is_empty(): return
+	var world: WorldState = x.world
+	var original: Dictionary = x.original
+	var loaded: Dictionary = x.loaded
 	t.check("CORE-18",loaded.ok and _same(loaded.world.freeze(),original),loaded.get("error",""))
+	_close_storage(x)
+
+func _case_19(t, content: HospitalContent) -> void:
+	var x: Dictionary = _storage_fixture(content)
+	if x.is_empty(): return
+	var world: WorldState = x.world
+	var original: Dictionary = x.original
+	var receipt: Dictionary = x.receipt
 	t.check("CORE-19",receipt.ok and int(receipt.world_revision)==int(original.world_revision) and int(world.revision)>int(receipt.world_revision),receipt)
+	_close_storage(x)
+
+func _case_20(t, content: HospitalContent) -> void:
+	var x: Dictionary = _storage_fixture(content)
+	if x.is_empty(): return
+	var world: WorldState = x.world
+	var sim: HospitalSimulation = x.sim
+	var guard: RefCounted = x.guard
+	var store: HospitalSnapshots = x.store
+	var receipt: Dictionary = x.receipt
+	var loaded: Dictionary = x.loaded
 	if not loaded.ok: sim.dispose(); guard.call("release"); return
 	var first_id: String = receipt.snapshot_id
-	begin = store.begin(world,"storage-session")
+	var begin: Dictionary = store.begin(world,"storage-session")
 	var second: Dictionary = store.wait_for_idle() if begin.ok else begin
 	t.check("CORE-20",second.ok and int(second.sequence)>int(receipt.sequence) and store.load_commit(world.hospital_id,first_id).ok,second)
+	_close_storage(x)
+
+func _case_21(t, content: HospitalContent) -> void:
+	var x: Dictionary = _storage_fixture(content)
+	if x.is_empty(): return
+	var begin: Dictionary = x.store.begin(x.world,"storage-session")
+	var second: Dictionary = x.store.wait_for_idle() if begin.ok else begin
+	var world: WorldState = x.world
+	var sim: HospitalSimulation = x.sim
+	var guard: RefCounted = x.guard
+	var store: HospitalSnapshots = x.store
+	var loaded: Dictionary = x.loaded
+	var first_id: String = x.first_id
 	var opened: Dictionary = store._connect(world.hospital_id)
 	if not opened.ok: sim.dispose(); guard.call("release"); return
 	var database: RefCounted = opened.database
@@ -200,8 +283,15 @@ func _storage(t, content: HospitalContent) -> void:
 	manifest.content_packs = [{"id":"core","version":str(content.catalog.content_version)}]
 	var incomplete_identity: Dictionary = store._parse_manifest(JSON.stringify(manifest).to_utf8_buffer(),world.hospital_id,first_id)
 	t.check("CORE-21",corrupted.ok and not bad.ok and recovered.ok and recovered.manifest.snapshot_id==first_id and valid_manifest.ok and not incomplete_identity.ok and str(incomplete_identity.get("error","")).contains("核心内容版本"),{"bad_world":bad.get("error",""),"incomplete_content_identity":incomplete_identity})
-	opened = store._connect(world.hospital_id)
-	database = opened.database
+	_close_storage(x)
+
+func _case_22(t, content: HospitalContent) -> void:
+	var x: Dictionary = _storage_fixture(content)
+	if x.is_empty(): return
+	var world: WorldState = x.world
+	var store: HospitalSnapshots = x.store
+	var opened: Dictionary = store._connect(world.hospital_id)
+	var database: RefCounted = opened.database
 	var unsealed_id: String = HospitalSnapshots.uuid()
 	database.call("execute","BEGIN IMMEDIATE",[])
 	var unsealed: Dictionary = database.call("execute","INSERT INTO snapshots VALUES(?,?,?,?,0)",[unsealed_id,99,"{}".to_utf8_buffer(),"0".repeat(64)])
@@ -211,18 +301,61 @@ func _storage(t, content: HospitalContent) -> void:
 	var count: Dictionary = database.call("execute","SELECT count(*) AS count FROM snapshots WHERE snapshot_id=?",[unsealed_id])
 	database.call("close")
 	t.check("CORE-22",unsealed.ok and count.ok and int(count.rows[0].count)==0)
+	_close_storage(x)
+
+func _case_23(t, content: HospitalContent) -> void:
+	var guard: RefCounted = ClassDB.instantiate("PlatformSessionGuard")
+	var acquired: Dictionary = guard.call("acquire")
+	var contender: RefCounted = ClassDB.instantiate("PlatformSessionGuard")
+	var denied: Dictionary = contender.call("acquire")
+	var exclusive: bool = acquired.ok and not denied.ok and denied.busy
+	guard.call("release")
+	var retry: Dictionary = contender.call("acquire")
+	t.check("CORE-23",exclusive and retry.ok)
+	contender.call("release")
+
+func _case_24(t, content: HospitalContent) -> void:
+	var x: Dictionary = _storage_fixture(content)
+	if x.is_empty(): return
+	var store: HospitalSnapshots = x.store
+	var library: HospitalLibrary = x.library
 	var another: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"另一座测试院",false,content)
-	begin = library.create(another,"library-session")
+	var begin: Dictionary = library.create(another,"library-session")
 	var created: Dictionary = store.wait_for_idle() if begin.ok else begin
 	var page: Dictionary = library.scan_page({},1)
 	t.check("CORE-24",created.ok and page.ok and page.records.size()==1 and not page.records[0].world_verified and not page.done,page)
+	_close_storage(x)
+
+func _case_25(t, content: HospitalContent) -> void:
+	var x: Dictionary = _storage_fixture(content)
+	if x.is_empty(): return
+	var another: WorldState = _another_hospital(x,content)
+	var page: Dictionary = x.library.scan_page({},1)
+	var library: HospitalLibrary = x.library
 	library.cancel_scan()
 	var cancelled: Dictionary = library.scan_page(page.cursor,1)
 	t.check("CORE-25",not cancelled.ok and cancelled.get("cancelled",false))
+	_close_storage(x)
+
+func _case_26(t, content: HospitalContent) -> void:
+	var x: Dictionary = _storage_fixture(content)
+	if x.is_empty(): return
+	var world: WorldState = x.world
+	var store: HospitalSnapshots = x.store
+	var library: HospitalLibrary = x.library
+	var original: Dictionary = x.original
+	var first_id: String = x.first_id
 	var backup_path: String = "user://acceptance.oghbackup"
 	var exported: Dictionary = library.export_backup(world.hospital_id,first_id,backup_path)
 	var imported: Dictionary = library.import_backup(backup_path) if exported.ok else exported
 	t.check("CORE-26",imported.ok and imported.world.hospital_id!=world.hospital_id and imported.world.facts.display_name==original.display_name and HospitalLedger.balance(imported.world)==24800 and _same(imported.world.facts.rng,original.rng) and store.load_commit(world.hospital_id,first_id).ok,imported.get("error",""))
+	_close_storage(x)
+
+func _case_27(t, content: HospitalContent) -> void:
+	var x: Dictionary = _storage_fixture(content)
+	if x.is_empty(): return
+	var backup_path: String = "user://acceptance.oghbackup"
+	x.library.export_backup(x.world.hospital_id,x.first_id,backup_path)
 	var rejected: bool = true
 	var source_zip: ZIPReader = ZIPReader.new()
 	var zip_readable: bool = source_zip.open(backup_path)==OK
@@ -243,19 +376,40 @@ func _storage(t, content: HospitalContent) -> void:
 		rejected = rejected and not inspected.ok
 	source_zip.close()
 	t.check("CORE-27",zip_readable and rejected and not FileAccess.file_exists("user://outside.txt"))
-	var protected: Dictionary = library.trash_hospital(world.hospital_id,world.hospital_id)
-	t.check("CORE-29",not protected.ok and store.load_commit(world.hospital_id,first_id).ok)
+	_close_storage(x)
+
+func _case_28(t, content: HospitalContent) -> void:
+	var x: Dictionary = _storage_fixture(content)
+	if x.is_empty(): return
+	var another: WorldState = _another_hospital(x,content)
+	var world: WorldState = x.world
+	var library: HospitalLibrary = x.library
 	var trashed: Dictionary = library.trash_hospital(another.hospital_id,world.hospital_id)
 	var restored: Dictionary = library.restore_hospital(another.hospital_id) if trashed.ok else trashed
 	var continued: Dictionary = library.continue_hospital(another.hospital_id) if restored.ok else restored
 	t.check("CORE-28",continued.ok and continued.world.hospital_id==another.hospital_id and _same(continued.world.freeze(),another.freeze()),continued.get("error",""))
-	sim.dispose()
-	guard.call("release")
-	var retry: Dictionary = contender.call("acquire")
-	t.check("CORE-23",exclusive and retry.ok)
-	contender.call("release")
+	_close_storage(x)
 
-func _view_and_ui(t, content: HospitalContent) -> void:
+func _case_29(t, content: HospitalContent) -> void:
+	var x: Dictionary = _storage_fixture(content)
+	if x.is_empty(): return
+	var world: WorldState = x.world
+	var store: HospitalSnapshots = x.store
+	var library: HospitalLibrary = x.library
+	var first_id: String = x.first_id
+	var protected: Dictionary = library.trash_hospital(world.hospital_id,world.hospital_id)
+	t.check("CORE-29",not protected.ok and store.load_commit(world.hospital_id,first_id).ok)
+	_close_storage(x)
+
+func _case_30(t, content: HospitalContent) -> void:
+	var previous: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"原医院",false,content)
+	var command: GameCommand = GameCommand.new("old-input",previous.hospital_id,previous.revision,"finance_note",BusinessPayload.new({"text":"旧输入","target_amount":1}),"previous-session")
+	var new_session: GameSession = GameSession.new(HospitalSimulation.new(HospitalFactory.create(HospitalSnapshots.uuid(),"另一院",false,content),content),"new-session")
+	var before: Dictionary = new_session.simulation.world.freeze()
+	t.check("CORE-30",new_session.actual_speed()==0 and not new_session.submit(command).accepted and new_session.simulation.world.freeze()==before)
+	new_session.simulation.dispose()
+
+func _case_31(t, content: HospitalContent) -> void:
 	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"视图",true,content)
 	var view: HospitalView = HospitalView.new(content)
 	t.root.add_child(view)
@@ -273,12 +427,30 @@ func _view_and_ui(t, content: HospitalContent) -> void:
 	view.overview()
 	view.update_facts()
 	t.check("CORE-31",world.freeze()==before and view.observed_floor==10000)
+	view.queue_free()
+	await t.process_frame
+
+func _case_32(t, content: HospitalContent) -> void:
+	var x: Dictionary = _view_fixture(t,content)
+	var world: WorldState = x.world
+	var view: HospitalView = x.view
+	var ticket: Dictionary = x.ticket
 	view.bind(HospitalFactory.create(HospitalSnapshots.uuid(),"新视图",true,content),1,"view-b")
 	t.check("CORE-32",not ticket.is_empty() and not view.accepts_resource(ticket))
+	view.queue_free()
+	await t.process_frame
+
+func _case_33(t, content: HospitalContent) -> void:
+	var x: Dictionary = _view_fixture(t,content)
+	var world: WorldState = x.world
+	var view: HospitalView = x.view
+	var before: Dictionary = x.before
 	var resources_ready: bool = load("res://assets/fonts/NotoSansCJKsc-Regular.otf")!=null
 	t.check("CORE-33",resources_ready and view.bind_error.is_empty() and world.freeze()==before,view.bind_error)
 	view.queue_free()
 	await t.process_frame
+
+func _case_34(t, content: HospitalContent) -> void:
 	var app: Control = load("res://game/app/main.tscn").instantiate()
 	t.root.add_child(app)
 	app.set_process(false)
@@ -287,17 +459,29 @@ func _view_and_ui(t, content: HospitalContent) -> void:
 		push_error("Actual application did not activate an isolated hospital")
 		app.queue_free()
 		return
-	before = app._simulation.world.freeze()
+	var before: Dictionary = app._simulation.world.freeze()
 	var panels_ready: bool = app._management_panels.get_child_count()==18
 	for panel: Node in app._management_panels.get_children():
 		app._show_panel(str(panel.name))
 		if panel.has_method("rebuild"): panel.call("rebuild")
 	t.check("CORE-34",panels_ready and app._simulation.world.freeze()==before)
+	await _close_app(t,app)
+
+func _case_35(t, content: HospitalContent) -> void:
+	var app: Control = await _app_fixture(t)
+	if app==null: return
+	var before: Dictionary = app._simulation.world.freeze()
 	app.size = Vector2(1280,720)
 	app._set_ui_scale(2)
 	app._show_panel("research")
 	await t.process_frame
 	t.check("CORE-35",app._ui_scale==2 and app.theme.default_font_size==36 and app._management_scroll.visible and app._management_scroll.get_child_count()>0 and app._simulation.world.freeze()==before)
+	await _close_app(t,app)
+
+func _case_36(t, content: HospitalContent) -> void:
+	var app: Control = await _app_fixture(t)
+	if app==null: return
+	var before: Dictionary = app._simulation.world.freeze()
 	app._drafts["acceptance-draft"] = {"kind":"build_room","origin":[34,66]}
 	var original_drafts: Dictionary = app._drafts.duplicate(true)
 	var prompted: bool = app._confirm_draft_leave(Callable())
@@ -305,15 +489,9 @@ func _view_and_ui(t, content: HospitalContent) -> void:
 		app._draft_confirmation.canceled.emit()
 		app._draft_confirmation.hide()
 	t.check("CORE-36",prompted and app._drafts==original_drafts and app._simulation.world.freeze()==before and app._leave_operation.is_empty())
-	if app._snapshots.busy(): app._snapshots.wait_for_idle()
-	app._guard.call("release")
-	app.queue_free()
-	await t.process_frame
+	await _close_app(t,app)
 
-func _same(first: Variant, second: Variant) -> bool:
-	return JSON.parse_string(JSON.stringify(first,"",true,true))==JSON.parse_string(JSON.stringify(second,"",true,true))
-
-func _extensions(t, content: HospitalContent) -> void:
+func _case_37(t, content: HospitalContent) -> void:
 	var species: Dictionary = content.registry.definition("species","S49").duplicate(true)
 	species.id = "acceptance.species:SAMPLE"
 	var binding: Dictionary = content.registry.definition("treatment_bindings","B_S49_D37_M37").duplicate(true)
@@ -329,9 +507,11 @@ func _extensions(t, content: HospitalContent) -> void:
 	var path: String = _pack("acceptance.species",{"species.json":[species],"staff_talents.json":[talent],"treatment_bindings.json":[binding]})
 	var loaded: ContentLoadResult = ContentLoader.new().load_packs(PackedStringArray(["res://content/core",path]))
 	t.check("CORE-37",loaded.accepted and not loaded.registry.resolve_bindings(species.id,"D37").is_empty(),loaded.errors)
+
+func _case_38(t, content: HospitalContent) -> void:
 	var disease: Dictionary = content.registry.definition("diseases","D37").duplicate(true)
 	disease.id = "acceptance.disease:CASE"
-	binding = content.registry.definition("treatment_bindings","B_S49_D37_M37").duplicate(true)
+	var binding: Dictionary = content.registry.definition("treatment_bindings","B_S49_D37_M37").duplicate(true)
 	binding.id = "acceptance.disease:B_CASE"
 	binding.disease_id = disease.id
 	var plans: Array = []
@@ -345,9 +525,12 @@ func _extensions(t, content: HospitalContent) -> void:
 	unlock.id = "acceptance.disease:R_CASE"
 	unlock.requires = []
 	unlock.disease_ids = [disease.id]
-	path = _pack("acceptance.disease",{"diseases.json":[disease],"treatment_bindings.json":[binding],"treatment_plans.json":plans,"research.json":[unlock]})
-	loaded = ContentLoader.new().load_packs(PackedStringArray(["res://content/core",path]))
+	var path: String = _pack("acceptance.disease",{"diseases.json":[disease],"treatment_bindings.json":[binding],"treatment_plans.json":plans,"research.json":[unlock]})
+	var loaded: ContentLoadResult = ContentLoader.new().load_packs(PackedStringArray(["res://content/core",path]))
 	t.check("CORE-38",loaded.accepted and not loaded.registry.resolve_bindings("S49",disease.id).is_empty() and not loaded.registry.resolve_bindings("S49","D37").is_empty(),loaded.errors)
+
+func _case_39(t, content: HospitalContent) -> void:
+	var species: Dictionary = content.registry.definition("species","S49").duplicate(true)
 	var all_rejected: bool = not ContentLoader.new().load_packs(PackedStringArray(["res://content/core","res://content/core"])).accepted
 	species.id = "acceptance.duplicate:SAMPLE"
 	var duplicate_path: String = _pack("acceptance.duplicate",{"species.json":[species,species.duplicate(true)]})
@@ -360,12 +543,86 @@ func _extensions(t, content: HospitalContent) -> void:
 		reasons[invalid_path] = invalid.errors
 	all_rejected = all_rejected and str(reasons[duplicate_path]).contains("重复") and str(reasons[wrong_type]).contains("数组") and str(reasons[unknown]).contains("未注册")
 	t.check("CORE-39",all_rejected,reasons)
+
+func _case_40(t, content: HospitalContent) -> void:
 	var missing: String = _pack("acceptance.missingdep",{},[{"pack_id":"core","version_range":"*"},{"pack_id":"acceptance.absent","version_range":"*"}])
 	var cycle_a: String = _pack("acceptance.cyclea",{},[{"pack_id":"core","version_range":"*"},{"pack_id":"acceptance.cycleb","version_range":"*"}])
 	var cycle_b: String = _pack("acceptance.cycleb",{},[{"pack_id":"core","version_range":"*"},{"pack_id":"acceptance.cyclea","version_range":"*"}])
 	var missing_result: ContentLoadResult = ContentLoader.new().load_packs(PackedStringArray(["res://content/core",missing]))
 	var cycle_result: ContentLoadResult = ContentLoader.new().load_packs(PackedStringArray(["res://content/core",cycle_a,cycle_b]))
 	t.check("CORE-40",not missing_result.accepted and not cycle_result.accepted and str(missing_result.errors).contains("缺少依赖") and str(cycle_result.errors).contains("环"),{"missing":missing_result.errors,"cycle":cycle_result.errors})
+
+func _command_fixture(content: HospitalContent, built: bool = false) -> Dictionary:
+	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"命令输入",false,content)
+	var sim: HospitalSimulation = HospitalSimulation.new(world,content)
+	var session: GameSession = GameSession.new(sim,"current")
+	var payload: Dictionary = {"floor_id":1,"room_type_id":"gp","origin":[34,66],"size":[4,4]}
+	var command: GameCommand = GameCommand.new("room",world.hospital_id,world.revision,"build_room",BusinessPayload.new(payload),"current")
+	if built: session.submit(command)
+	return {"world":world,"sim":sim,"session":session,"payload":payload}
+
+func _storage_fixture(content: HospitalContent) -> Dictionary:
+	var guard: RefCounted = ClassDB.instantiate("PlatformSessionGuard")
+	if not guard.call("acquire").ok:
+		push_error("Isolated acceptance profile unavailable")
+		return {}
+	var store: HospitalSnapshots = HospitalSnapshots.new(content,guard)
+	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"事务医院",false,content)
+	var sim: HospitalSimulation = HospitalSimulation.new(world,content)
+	var original: Dictionary = world.freeze()
+	var begin: Dictionary = store.begin(sim,"storage-session")
+	world.facts.display_name = "保存后更名"
+	world.touch()
+	var receipt: Dictionary = store.wait_for_idle() if begin.ok else begin
+	var loaded: Dictionary = store.load_commit(world.hospital_id,receipt.snapshot_id) if receipt.ok else receipt
+	if not loaded.ok:
+		push_error("Cannot prepare SQLite input: "+JSON.stringify(loaded))
+		sim.dispose()
+		guard.call("release")
+		return {}
+	return {"world":world,"sim":sim,"guard":guard,"store":store,"library":HospitalLibrary.new(content,store),"original":original,"receipt":receipt,"loaded":loaded,"first_id":receipt.snapshot_id}
+
+func _another_hospital(x: Dictionary, content: HospitalContent) -> WorldState:
+	var another: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"另一座测试院",false,content)
+	var begin: Dictionary = x.library.create(another,"library-session")
+	if begin.ok: x.store.wait_for_idle()
+	return another
+
+func _close_storage(x: Dictionary) -> void:
+	x.sim.dispose()
+	x.guard.call("release")
+
+func _view_fixture(t, content: HospitalContent) -> Dictionary:
+	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"视图输入",true,content)
+	var view: HospitalView = HospitalView.new(content)
+	t.root.add_child(view)
+	var before: Dictionary = world.freeze()
+	view.bind(world,1,"view-a")
+	view.update_facts()
+	var ticket: Dictionary = {}
+	for id: String in world.ids("actors"):
+		ticket = view.resource_ticket("actor:"+id)
+		if not ticket.is_empty(): break
+	return {"world":world,"view":view,"before":before,"ticket":ticket}
+
+func _app_fixture(t) -> Control:
+	var app: Control = load("res://game/app/main.tscn").instantiate()
+	t.root.add_child(app)
+	app.set_process(false)
+	await t.process_frame
+	if app._simulation!=null: return app
+	push_error("Actual application did not activate an isolated hospital")
+	app.queue_free()
+	return null
+
+func _close_app(t, app: Control) -> void:
+	if app._snapshots.busy(): app._snapshots.wait_for_idle()
+	app._guard.call("release")
+	app.queue_free()
+	await t.process_frame
+
+func _same(first: Variant, second: Variant) -> bool:
+	return JSON.parse_string(JSON.stringify(first,"",true,true))==JSON.parse_string(JSON.stringify(second,"",true,true))
 
 func _pack(identity: String, collections: Dictionary, dependencies: Array = [{"pack_id":"core","version_range":"*"}]) -> String:
 	var directory: String = "user://case-packs/"+identity

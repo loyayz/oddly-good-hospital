@@ -151,11 +151,13 @@
 
 ```powershell
 pwsh -NoProfile -File docs/tools/export-design.ps1
-pwsh -NoProfile -File tests/run-acceptance.ps1
+pwsh -NoProfile -File tests/run-acceptance.ps1 -ListCases
 pwsh -NoProfile -File tools/build-game.ps1
 ```
 
 每次执行复制实际源码到独立工程并使用独立医院资料目录，记录源码逐文件哈希、引擎及原生库身份、完整参数、导入和测试日志、真实退出码与逐项结果。未完成用例不计通过；脚本错误与进程失败分别核对。保存故障只在隔离资料中注入。发行包排除测试代码；正式输入、内容和存档校验属于运行功能，仍由各自所有者维护。
+
+回归按变化的业务规则和实际交接点选择 `-Case`，支持跨专题组合与分段前置状态复用；专题和完整库分别通过 `-Suite`、`-All` 显式执行，不带范围不运行测试。范围选择、证据复用和停止条件见根目录 [AGENTS.md](../../AGENTS.md)。
 
 ## 4. 第一阶段：最小技术可行性
 
