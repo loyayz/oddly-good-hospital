@@ -1,0 +1,1190 @@
+{
+  "diagnostic_only": true,
+  "background_environment_controlled": false,
+  "background_note": "Background CPU load was not controlled. Other agents were restricted to read-only work or ignored drafts; no other engine was scheduled during this batch.",
+  "project": "C:/code/loyayz/oddly-good-hospital/.cache/performance/cycle2-quick-r1",
+  "evidence": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle2-quick-r1",
+  "head": "2f03731eef1df25e357ed54b5f085fac709b063b",
+  "source_identity_head": "2f03731eef1df25e357ed54b5f085fac709b063b",
+  "source_identity": {
+    "path": "C:/code/loyayz/oddly-good-hospital/.cache/performance/cycle2-quick-r1/source-identity.json",
+    "sha256": "b7d10867a57e8ac118a69158d885325ea3796545182b54303c437f67ae65e90e",
+    "bytes": 52684
+  },
+  "native": {
+    "path": "C:/code/loyayz/oddly-good-hospital/.cache/performance/cycle2-quick-r1/game/platform/windows/bin/oddly_good_platform.windows.x86_64.dll",
+    "sha256": "fcddcc3c48e0d4e7d541a2729608b4e388991ef08d3712a2f73f6c6dfee37b32",
+    "bytes": 14872576
+  },
+  "inputs": [
+    {
+      "path": "C:/code/loyayz/oddly-good-hospital/.cache/performance/review5-tools-r1/capture.json.input.bin",
+      "sha256": "f447da9fa40c65c7effe6c4099da58de4736484da3478b985942b10b91aa4f03",
+      "bytes": 1289000
+    },
+    {
+      "path": "C:/code/loyayz/oddly-good-hospital/.cache/performance/native-step-v5/steps.json.after.bin",
+      "sha256": "2a1ef0b04534ed69687576900e4a9a4aee9ff02b63ee69fd389e7d74169832b0",
+      "bytes": 1456660
+    },
+    {
+      "path": "C:/code/loyayz/oddly-good-hospital/.cache/performance/review5-tools-r1/reference-small.json.input.bin",
+      "sha256": "9bb50b2fc55c0ddc30ea4a6d05824499740af03acc240d578ce4ee0ce1ca81ee",
+      "bytes": 48808
+    }
+  ],
+  "engine": "4.7.2-stable (official)",
+  "content_fingerprint": "70ef833fb44c1682824534528697df4a55d011f10121f15f8e83f0b5b7b6d433",
+  "cpu": [
+    {
+      "Name": "Intel(R) Core(TM) Ultra 5 125H",
+      "NumberOfCores": 14,
+      "NumberOfLogicalProcessors": 18
+    }
+  ],
+  "physical_memory_bytes": 33779150848,
+  "power_plan": [
+    "电源方案 GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (平衡)"
+  ],
+  "percentile_method": "nearest rank: sorted[ceil(p*N)-1]",
+  "processes": [
+    {
+      "item": 1,
+      "name": "capture",
+      "executable": "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+      "arguments": [
+        "--headless",
+        "--path",
+        "C:/code/loyayz/oddly-good-hospital/.cache/performance/cycle2-quick-r1",
+        "--script",
+        "res://tools/performance/diagnose.gd",
+        "--",
+        "--operation=capture",
+        "--steps=5",
+        "--input=C:/code/loyayz/oddly-good-hospital/.cache/performance/review5-tools-r1/capture.json.input.bin",
+        "--output=res://quick-capture.json"
+      ],
+      "pid": 34876,
+      "started": "2026-10-18T01:54:25.6925159+08:00",
+      "ended": "2026-10-18T01:54:28.6044167+08:00",
+      "wall_seconds": 2.9106708,
+      "timeout": false,
+      "exit_code": 0,
+      "stdout": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle2-quick-r1/capture.stdout.txt",
+      "stderr": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle2-quick-r1/capture.stderr.txt",
+      "report": "C:/code/loyayz/oddly-good-hospital/.cache/performance/cycle2-quick-r1/quick-capture.json",
+      "report_exists": true,
+      "fixture": [
+        {
+          "description": {
+            "actors": 160,
+            "beds": 24,
+            "boundary": "built hospital; admitted patients before reception; actual production services thereafter",
+            "errors": [],
+            "facilities": 1328,
+            "floors": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "patients": 120,
+            "rooms": 64,
+            "staff": 32,
+            "visitors": 8
+          },
+          "elapsed_ms": 395.922,
+          "validation": ""
+        }
+      ],
+      "stderr_error_lines": [],
+      "status": "completed",
+      "observed_peak_working_set_bytes": null
+    },
+    {
+      "item": 2,
+      "name": "history",
+      "executable": "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+      "arguments": [
+        "--headless",
+        "--path",
+        "C:/code/loyayz/oddly-good-hospital/.cache/performance/cycle2-quick-r1",
+        "--script",
+        "res://tools/performance/history.gd",
+        "--",
+        "--steps=30",
+        "--output=res://quick-history.json"
+      ],
+      "pid": 33160,
+      "started": "2026-10-18T01:54:38.6777546+08:00",
+      "ended": "2026-10-18T01:54:40.9379395+08:00",
+      "wall_seconds": 2.258945,
+      "timeout": false,
+      "exit_code": 0,
+      "stdout": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle2-quick-r1/history.stdout.txt",
+      "stderr": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle2-quick-r1/history.stderr.txt",
+      "report": "C:/code/loyayz/oddly-good-hospital/.cache/performance/cycle2-quick-r1/quick-history.json",
+      "report_exists": true,
+      "fixture": [],
+      "stderr_error_lines": [],
+      "status": "completed",
+      "observed_peak_working_set_bytes": null
+    },
+    {
+      "item": 3,
+      "name": "steps",
+      "executable": "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+      "arguments": [
+        "--headless",
+        "--path",
+        "C:/code/loyayz/oddly-good-hospital/.cache/performance/cycle2-quick-r1",
+        "--script",
+        "res://tools/performance/diagnose.gd",
+        "--",
+        "--operation=step",
+        "--steps=5",
+        "--input=C:/code/loyayz/oddly-good-hospital/.cache/performance/native-step-v5/steps.json.after.bin",
+        "--output=res://quick-steps.json",
+        "--profile"
+      ],
+      "pid": 18148,
+      "started": "2026-10-18T01:54:52.2597279+08:00",
+      "ended": "2026-10-18T01:54:56.0873201+08:00",
+      "wall_seconds": 3.8263078,
+      "timeout": false,
+      "exit_code": 0,
+      "stdout": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle2-quick-r1/steps.stdout.txt",
+      "stderr": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle2-quick-r1/steps.stderr.txt",
+      "report": "C:/code/loyayz/oddly-good-hospital/.cache/performance/cycle2-quick-r1/quick-steps.json",
+      "report_exists": true,
+      "fixture": [
+        {
+          "description": {
+            "actors": 160,
+            "beds": 24,
+            "boundary": "built hospital; admitted patients before reception; actual production services thereafter",
+            "errors": [],
+            "facilities": 1328,
+            "floors": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "patients": 120,
+            "rooms": 64,
+            "staff": 32,
+            "visitors": 8
+          },
+          "elapsed_ms": 398.987,
+          "validation": ""
+        }
+      ],
+      "stderr_error_lines": [],
+      "status": "completed",
+      "observed_peak_working_set_bytes": null
+    },
+    {
+      "item": 4,
+      "name": "prepared",
+      "executable": "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+      "arguments": [
+        "--headless",
+        "--path",
+        "C:/code/loyayz/oddly-good-hospital/.cache/performance/cycle2-quick-r1",
+        "--script",
+        "res://tools/performance/diagnose.gd",
+        "--",
+        "--operation=prepared",
+        "--input=C:/code/loyayz/oddly-good-hospital/.cache/performance/review5-tools-r1/reference-small.json.input.bin",
+        "--output=res://quick-prepared.json",
+        "--profile"
+      ],
+      "pid": 13912,
+      "started": "2026-10-18T01:55:07.0803568+08:00",
+      "ended": "2026-10-18T01:55:09.4326735+08:00",
+      "wall_seconds": 2.3510603,
+      "timeout": false,
+      "exit_code": 0,
+      "stdout": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle2-quick-r1/prepared.stdout.txt",
+      "stderr": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle2-quick-r1/prepared.stderr.txt",
+      "report": "C:/code/loyayz/oddly-good-hospital/.cache/performance/cycle2-quick-r1/quick-prepared.json",
+      "report_exists": true,
+      "fixture": [
+        {
+          "description": {
+            "actors": 6,
+            "beds": 0,
+            "boundary": "built hospital; admitted patients before reception; actual production services thereafter",
+            "errors": [],
+            "facilities": 19,
+            "floors": [
+              1
+            ],
+            "patients": 0,
+            "rooms": 6,
+            "staff": 6,
+            "visitors": 0
+          },
+          "elapsed_ms": 339.503,
+          "validation": ""
+        }
+      ],
+      "stderr_error_lines": [],
+      "status": "completed",
+      "observed_peak_working_set_bytes": null
+    },
+    {
+      "item": 5,
+      "name": "reference",
+      "executable": "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+      "arguments": [
+        "--headless",
+        "--path",
+        "C:/code/loyayz/oddly-good-hospital/.cache/performance/cycle2-quick-r1",
+        "--script",
+        "res://tools/performance/diagnose.gd",
+        "--",
+        "--operation=reference",
+        "--binding=B_S13_D09_M09",
+        "--input=C:/code/loyayz/oddly-good-hospital/.cache/performance/review5-tools-r1/capture.json.input.bin",
+        "--output=res://quick-reference.json",
+        "--profile"
+      ],
+      "pid": 32000,
+      "started": "2026-10-18T01:55:16.3837855+08:00",
+      "ended": "2026-10-18T01:56:16.4120442+08:00",
+      "wall_seconds": 60.0253306,
+      "timeout": true,
+      "exit_code": -1,
+      "stdout": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle2-quick-r1/reference.stdout.txt",
+      "stderr": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle2-quick-r1/reference.stderr.txt",
+      "report": "C:/code/loyayz/oddly-good-hospital/.cache/performance/cycle2-quick-r1/quick-reference.json",
+      "report_exists": false,
+      "fixture": [
+        {
+          "description": {
+            "actors": 160,
+            "beds": 24,
+            "boundary": "built hospital; admitted patients before reception; actual production services thereafter",
+            "errors": [],
+            "facilities": 1328,
+            "floors": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "patients": 120,
+            "rooms": 64,
+            "staff": 32,
+            "visitors": 8
+          },
+          "elapsed_ms": 401.978,
+          "validation": ""
+        }
+      ],
+      "stderr_error_lines": [],
+      "status": "incomplete_timeout",
+      "observed_peak_working_set_bytes": null
+    }
+  ],
+  "capture": {
+    "readonly": true,
+    "samples": [
+      {
+        "capture_us": 8812,
+        "ownership_us": 7202,
+        "extraction_us": 1610
+      },
+      {
+        "capture_us": 4300,
+        "ownership_us": 3439,
+        "extraction_us": 861
+      },
+      {
+        "capture_us": 4625,
+        "ownership_us": 3934,
+        "extraction_us": 691
+      },
+      {
+        "capture_us": 4431,
+        "ownership_us": 3760,
+        "extraction_us": 671
+      },
+      {
+        "capture_us": 4572,
+        "ownership_us": 3851,
+        "extraction_us": 721
+      }
+    ],
+    "metrics": {
+      "capture_us": 26224,
+      "captures": 5,
+      "copied_records": 1526,
+      "cpu_measured_jobs": 0,
+      "deep_compares": 6100,
+      "jobs": 0,
+      "latest_worker_us": 0,
+      "layout_reuses": 15,
+      "main_us": 0,
+      "max_main_us": 0,
+      "requests": 0,
+      "reused": 0,
+      "reused_records": 6104,
+      "scanned_records": 7630,
+      "source_tick": 0,
+      "superseded": 0,
+      "target_tick": 0,
+      "worker_cpu_us": 0,
+      "worker_wall_us": 0
+    }
+  },
+  "history": {
+    "valid": true,
+    "steps_per_scale": 30,
+    "input_sha256": "0925b166c37765256d7ca9e9e12e6186751491c557030c9c33179e653e63427c",
+    "native_sha256": "fcddcc3c48e0d4e7d541a2729608b4e388991ef08d3712a2f73f6c6dfee37b32",
+    "observations": [
+      {
+        "history": 16,
+        "active": 1,
+        "samples": 30,
+        "load_us": 335,
+        "p50_us": 1343,
+        "p95_us": 1933,
+        "p99_us": 31595,
+        "max_us": 31595,
+        "initial_validation": "",
+        "final_validation": "",
+        "live_facts_and_rng_equal": true
+      },
+      {
+        "history": 64,
+        "active": 1,
+        "samples": 30,
+        "load_us": 1042,
+        "p50_us": 1448,
+        "p95_us": 2289,
+        "p99_us": 32872,
+        "max_us": 32872,
+        "initial_validation": "",
+        "final_validation": "",
+        "live_facts_and_rng_equal": true
+      },
+      {
+        "history": 256,
+        "active": 1,
+        "samples": 30,
+        "load_us": 950,
+        "p50_us": 1653,
+        "p95_us": 2681,
+        "p99_us": 32422,
+        "max_us": 32422,
+        "initial_validation": "",
+        "final_validation": "",
+        "live_facts_and_rng_equal": true
+      }
+    ]
+  },
+  "steps": {
+    "samples": [
+      {
+        "tick": 5,
+        "elapsed_ms": 1093.097,
+        "present": 160,
+        "moves": 5,
+        "preparations": 0,
+        "sessions": 0,
+        "events": 1
+      },
+      {
+        "tick": 6,
+        "elapsed_ms": 36.514,
+        "present": 160,
+        "moves": 5,
+        "preparations": 0,
+        "sessions": 0,
+        "events": 1
+      },
+      {
+        "tick": 7,
+        "elapsed_ms": 35.32,
+        "present": 160,
+        "moves": 5,
+        "preparations": 0,
+        "sessions": 0,
+        "events": 1
+      },
+      {
+        "tick": 8,
+        "elapsed_ms": 40.35,
+        "present": 160,
+        "moves": 5,
+        "preparations": 0,
+        "sessions": 0,
+        "events": 1
+      },
+      {
+        "tick": 9,
+        "elapsed_ms": 35.921,
+        "present": 160,
+        "moves": 5,
+        "preparations": 0,
+        "sessions": 0,
+        "events": 1
+      }
+    ],
+    "total_ms": 1241.2019999999998,
+    "profile_errors": []
+  },
+  "prepared": {
+    "valid": true,
+    "reference_ms": 130.014,
+    "solve_ms": 15.128,
+    "warm_ms": [
+      0.742,
+      0.437
+    ],
+    "classes": 10,
+    "resources": 7,
+    "tracked_bytes": 91710911,
+    "initial": {
+      "bottleneck": "staff:starter_doctor_b",
+      "bottleneck_kind": "exhausted_resource",
+      "bundle_count": 10,
+      "capacity": {
+        "d": "75737",
+        "n": "800000"
+      },
+      "certificate_nonzeros": 23,
+      "coefficient_count": 50,
+      "columns_per_round": [
+        0
+      ],
+      "edge_count": 75,
+      "lp_rounds": 1,
+      "node_count": 50,
+      "pricing_calls": 2,
+      "resolution_count": 1,
+      "resource_count": 7,
+      "solver_kind": "lp",
+      "structural_pairs": 1,
+      "timing_us": {
+        "certificate_build_us": 278,
+        "lock_wait_us": 1,
+        "lp_optimize_us": 1277,
+        "model_build_us": 865,
+        "node_intern_us": 126,
+        "pricing_us": 43,
+        "variant_and_graph_input_us": 739
+      },
+      "used_resource_count": 7
+    },
+    "profile_errors": [],
+    "profile_top": [
+      {
+        "method": "service.arrivals._reference_classes",
+        "calls": 3,
+        "total_us": 130941,
+        "max_us": 130002
+      },
+      {
+        "method": "clinical.reference_demand",
+        "calls": 12,
+        "total_us": 122301,
+        "max_us": 21402
+      },
+      {
+        "method": "clinical.reference_options.first",
+        "calls": 12,
+        "total_us": 94870,
+        "max_us": 19479
+      },
+      {
+        "method": "clinical.arrival_candidate",
+        "calls": 12,
+        "total_us": 76541,
+        "max_us": 19471
+      },
+      {
+        "method": "space.route",
+        "calls": 198,
+        "total_us": 55351,
+        "max_us": 729
+      },
+      {
+        "method": "navigation.graph",
+        "calls": 512,
+        "total_us": 50463,
+        "max_us": 13370
+      },
+      {
+        "method": "space.floor_route",
+        "calls": 281,
+        "total_us": 48759,
+        "max_us": 679
+      },
+      {
+        "method": "clinical.service_candidates.outpatient",
+        "calls": 23,
+        "total_us": 43384,
+        "max_us": 2790
+      },
+      {
+        "method": "clinical.reference_model",
+        "calls": 10,
+        "total_us": 27094,
+        "max_us": 5549
+      },
+      {
+        "method": "navigation.graph_reuse_or_refresh",
+        "calls": 510,
+        "total_us": 25065,
+        "max_us": 400
+      }
+    ]
+  },
+  "reference": null,
+  "tracked_worktree_status": [],
+  "limits": [
+    "Bounded simple diagnostic batch; this is not full Release acceptance.",
+    "The five diagnostic processes ran once, sequentially, hidden, each with a 60-second deadline.",
+    "Process peak working set was unavailable after exit; no rerun was performed to recover it.",
+    "Input content identity checks and initial validation used the existing diagnostic tools.",
+    "No production implementation, native build, repeated sampling, presentation-frame or ETW measurement was performed in this batch."
+  ],
+  "cycle": 2,
+  "report": "C:/code/loyayz/oddly-good-hospital/docs/reports/2026-10-18-performance-cycle-2-evidence.json",
+  "preflight": {
+    "time": "2026-10-18T01:54:09.296723+08:00",
+    "head": "2f03731eef1df25e357ed54b5f085fac709b063b",
+    "status": [],
+    "hashes": [
+      {
+        "Path": "C:\\code\\loyayz\\oddly-good-hospital\\game\\platform\\windows\\bin\\oddly_good_platform.windows.x86_64.dll",
+        "Hash": "FCDDCC3C48E0D4E7D541A2729608B4E388991EF08D3712A2F73F6C6DFEE37B32"
+      },
+      {
+        "Path": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance\\review5-tools-r1\\capture.json.input.bin",
+        "Hash": "F447DA9FA40C65C7EFFE6C4099DA58DE4736484DA3478B985942B10B91AA4F03"
+      },
+      {
+        "Path": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance\\native-step-v5\\steps.json.after.bin",
+        "Hash": "2A1EF0B04534ED69687576900E4A9A4AEE9FF02B63EE69FD389E7D74169832B0"
+      },
+      {
+        "Path": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance\\review5-tools-r1\\reference-small.json.input.bin",
+        "Hash": "9BB50B2FC55C0DDC30EA4A6D05824499740AF03ACC240D578CE4EE0CE1CA81EE"
+      }
+    ]
+  },
+  "prepare_process": {
+    "pid": 27496,
+    "started": "2026-10-18T01:54:09.448156+08:00",
+    "ended": "2026-10-18T01:54:17.4244626+08:00",
+    "wall_seconds": 7.9721056,
+    "timeout": false,
+    "exit_code": 0,
+    "stdout": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle2-quick-r1/prepare.stdout.txt",
+    "stderr": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle2-quick-r1/prepare.stderr.txt"
+  },
+  "history_raw": {
+    "content_fingerprint": "70ef833fb44c1682824534528697df4a55d011f10121f15f8e83f0b5b7b6d433",
+    "diagnostic": true,
+    "engine": "4.7.2-stable (official)",
+    "input_sha256": "0925b166c37765256d7ca9e9e12e6186751491c557030c9c33179e653e63427c",
+    "native_sha256": "fcddcc3c48e0d4e7d541a2729608b4e388991ef08d3712a2f73f6c6dfee37b32",
+    "observations": [
+      {
+        "active": 1,
+        "complete_step_us": [
+          31595,
+          1508,
+          1257,
+          1320,
+          1343,
+          1528,
+          1699,
+          1279,
+          1449,
+          1337,
+          1525,
+          1428,
+          1353,
+          1345,
+          1243,
+          1527,
+          1387,
+          1369,
+          1284,
+          1933,
+          1812,
+          1834,
+          1137,
+          1097,
+          1080,
+          1274,
+          1128,
+          1080,
+          1083,
+          1081
+        ],
+        "final_validation": "",
+        "history": 16,
+        "initial_validation": "",
+        "live_facts_and_rng_equal": true,
+        "load_us": 335
+      },
+      {
+        "active": 1,
+        "complete_step_us": [
+          32872,
+          1631,
+          1524,
+          1448,
+          1488,
+          1961,
+          1500,
+          1383,
+          1511,
+          1278,
+          1603,
+          1320,
+          1526,
+          1336,
+          1484,
+          2123,
+          1307,
+          1406,
+          1476,
+          1343,
+          2045,
+          2289,
+          1406,
+          1207,
+          1539,
+          1235,
+          1171,
+          1201,
+          1183,
+          1331
+        ],
+        "final_validation": "",
+        "history": 64,
+        "initial_validation": "",
+        "live_facts_and_rng_equal": true,
+        "load_us": 1042
+      },
+      {
+        "active": 1,
+        "complete_step_us": [
+          32422,
+          2107,
+          1906,
+          1653,
+          1646,
+          2533,
+          1884,
+          1649,
+          1609,
+          2271,
+          1914,
+          1528,
+          1513,
+          1928,
+          1739,
+          1870,
+          1673,
+          1563,
+          1827,
+          2036,
+          2681,
+          2616,
+          1528,
+          1534,
+          1338,
+          1420,
+          1438,
+          1595,
+          1382,
+          1357
+        ],
+        "final_validation": "",
+        "history": 256,
+        "initial_validation": "",
+        "live_facts_and_rng_equal": true,
+        "load_us": 950
+      }
+    ],
+    "operation": "fixed_active_history",
+    "steps_per_scale": 30,
+    "valid": true
+  },
+  "step_profile_differences": [
+    {
+      "method": "clinical.advance",
+      "cold_calls": 1,
+      "cold_ms": 0.019,
+      "warm_calls": 4,
+      "warm_total_ms": 0.049,
+      "warm_per_step_ms": 0.01225
+    },
+    {
+      "method": "clinical.dispatch",
+      "cold_calls": 1,
+      "cold_ms": 8.171,
+      "warm_calls": 4,
+      "warm_total_ms": 28.49,
+      "warm_per_step_ms": 7.1225
+    },
+    {
+      "method": "clinical.service_candidates.reception",
+      "cold_calls": 116,
+      "cold_ms": 6.858,
+      "warm_calls": 464,
+      "warm_total_ms": 22.765,
+      "warm_per_step_ms": 5.69125
+    },
+    {
+      "method": "navigation.build",
+      "cold_calls": 4,
+      "cold_ms": 951.752,
+      "warm_calls": 0,
+      "warm_total_ms": 0,
+      "warm_per_step_ms": 0
+    },
+    {
+      "method": "navigation.graph",
+      "cold_calls": 11,
+      "cold_ms": 952.159,
+      "warm_calls": 20,
+      "warm_total_ms": 0.429,
+      "warm_per_step_ms": 0.10725
+    },
+    {
+      "method": "navigation.graph_new",
+      "cold_calls": 4,
+      "cold_ms": 952.007,
+      "warm_calls": 0,
+      "warm_total_ms": 0,
+      "warm_per_step_ms": 0
+    },
+    {
+      "method": "navigation.graph_reuse_or_refresh",
+      "cold_calls": 7,
+      "cold_ms": 0.128,
+      "warm_calls": 20,
+      "warm_total_ms": 0.394,
+      "warm_per_step_ms": 0.0985
+    },
+    {
+      "method": "navigation.trim",
+      "cold_calls": 22,
+      "cold_ms": 0.022,
+      "warm_calls": 40,
+      "warm_total_ms": 0.025,
+      "warm_per_step_ms": 0.00625
+    },
+    {
+      "method": "service.arrivals.advance_wait",
+      "cold_calls": 1,
+      "cold_ms": 0.659,
+      "warm_calls": 4,
+      "warm_total_ms": 2.742,
+      "warm_per_step_ms": 0.6855
+    },
+    {
+      "method": "service.arrivals.arrivals",
+      "cold_calls": 1,
+      "cold_ms": 0.038,
+      "warm_calls": 4,
+      "warm_total_ms": 0.099,
+      "warm_per_step_ms": 0.02475
+    },
+    {
+      "method": "service.arrivals.boundaries",
+      "cold_calls": 1,
+      "cold_ms": 0.01,
+      "warm_calls": 4,
+      "warm_total_ms": 0.036,
+      "warm_per_step_ms": 0.009
+    },
+    {
+      "method": "service.arrivals.needs",
+      "cold_calls": 1,
+      "cold_ms": 1.411,
+      "warm_calls": 4,
+      "warm_total_ms": 5.135,
+      "warm_per_step_ms": 1.28375
+    },
+    {
+      "method": "service.arrivals.settle",
+      "cold_calls": 1,
+      "cold_ms": 0.179,
+      "warm_calls": 4,
+      "warm_total_ms": 0.532,
+      "warm_per_step_ms": 0.133
+    },
+    {
+      "method": "service.departments.advance",
+      "cold_calls": 1,
+      "cold_ms": 0.005,
+      "warm_calls": 4,
+      "warm_total_ms": 0.013,
+      "warm_per_step_ms": 0.00325
+    },
+    {
+      "method": "service.departments.dispatch",
+      "cold_calls": 1,
+      "cold_ms": 0.068,
+      "warm_calls": 4,
+      "warm_total_ms": 0.276,
+      "warm_per_step_ms": 0.069
+    },
+    {
+      "method": "service.departments.sample",
+      "cold_calls": 1,
+      "cold_ms": 95.991,
+      "warm_calls": 4,
+      "warm_total_ms": 50.52,
+      "warm_per_step_ms": 12.63
+    },
+    {
+      "method": "service.departments.settle",
+      "cold_calls": 1,
+      "cold_ms": 0.541,
+      "warm_calls": 4,
+      "warm_total_ms": 0.68,
+      "warm_per_step_ms": 0.17
+    },
+    {
+      "method": "service.development.advance",
+      "cold_calls": 1,
+      "cold_ms": 0.047,
+      "warm_calls": 4,
+      "warm_total_ms": 0.095,
+      "warm_per_step_ms": 0.02375
+    },
+    {
+      "method": "service.development.dispatch",
+      "cold_calls": 1,
+      "cold_ms": 1.137,
+      "warm_calls": 4,
+      "warm_total_ms": 3.625,
+      "warm_per_step_ms": 0.90625
+    },
+    {
+      "method": "service.development.settle",
+      "cold_calls": 1,
+      "cold_ms": 0.561,
+      "warm_calls": 4,
+      "warm_total_ms": 2.301,
+      "warm_per_step_ms": 0.57525
+    },
+    {
+      "method": "service.environment._coverage",
+      "cold_calls": 240,
+      "cold_ms": 58.963,
+      "warm_calls": 960,
+      "warm_total_ms": 3.345,
+      "warm_per_step_ms": 0.83625
+    },
+    {
+      "method": "service.environment._coverage_edges",
+      "cold_calls": 120,
+      "cold_ms": 23.547,
+      "warm_calls": 480,
+      "warm_total_ms": 2.44,
+      "warm_per_step_ms": 0.61
+    },
+    {
+      "method": "service.environment.advance",
+      "cold_calls": 1,
+      "cold_ms": 0.006,
+      "warm_calls": 4,
+      "warm_total_ms": 0.023,
+      "warm_per_step_ms": 0.00575
+    },
+    {
+      "method": "service.environment.dispatch",
+      "cold_calls": 1,
+      "cold_ms": 0.102,
+      "warm_calls": 4,
+      "warm_total_ms": 0.309,
+      "warm_per_step_ms": 0.07725
+    },
+    {
+      "method": "service.environment.environment_at",
+      "cold_calls": 120,
+      "cold_ms": 93.787,
+      "warm_calls": 480,
+      "warm_total_ms": 43.512,
+      "warm_per_step_ms": 10.878
+    },
+    {
+      "method": "service.finance.settle",
+      "cold_calls": 1,
+      "cold_ms": 4.042,
+      "warm_calls": 4,
+      "warm_total_ms": 6.873,
+      "warm_per_step_ms": 1.71825
+    },
+    {
+      "method": "service.floors.advance",
+      "cold_calls": 1,
+      "cold_ms": 0.003,
+      "warm_calls": 4,
+      "warm_total_ms": 0.012,
+      "warm_per_step_ms": 0.003
+    },
+    {
+      "method": "service.floors.dispatch",
+      "cold_calls": 1,
+      "cold_ms": 0.004,
+      "warm_calls": 4,
+      "warm_total_ms": 0.015,
+      "warm_per_step_ms": 0.00375
+    },
+    {
+      "method": "service.maintenance.advance",
+      "cold_calls": 1,
+      "cold_ms": 0.003,
+      "warm_calls": 4,
+      "warm_total_ms": 0.013,
+      "warm_per_step_ms": 0.00325
+    },
+    {
+      "method": "service.maintenance.boundaries",
+      "cold_calls": 1,
+      "cold_ms": 1.707,
+      "warm_calls": 4,
+      "warm_total_ms": 6.49,
+      "warm_per_step_ms": 1.6225
+    },
+    {
+      "method": "service.maintenance.dispatch",
+      "cold_calls": 1,
+      "cold_ms": 0.007,
+      "warm_calls": 4,
+      "warm_total_ms": 0.025,
+      "warm_per_step_ms": 0.00625
+    },
+    {
+      "method": "service.recruitment.advance",
+      "cold_calls": 1,
+      "cold_ms": 0.043,
+      "warm_calls": 4,
+      "warm_total_ms": 0.108,
+      "warm_per_step_ms": 0.027
+    },
+    {
+      "method": "service.recruitment.boundaries",
+      "cold_calls": 1,
+      "cold_ms": 0.046,
+      "warm_calls": 4,
+      "warm_total_ms": 0.145,
+      "warm_per_step_ms": 0.03625
+    },
+    {
+      "method": "service.recruitment.settle",
+      "cold_calls": 1,
+      "cold_ms": 0.112,
+      "warm_calls": 4,
+      "warm_total_ms": 0.393,
+      "warm_per_step_ms": 0.09825
+    },
+    {
+      "method": "service.remodel.dispatch",
+      "cold_calls": 1,
+      "cold_ms": 0.002,
+      "warm_calls": 4,
+      "warm_total_ms": 0.011,
+      "warm_per_step_ms": 0.00275
+    },
+    {
+      "method": "service.research.advance",
+      "cold_calls": 1,
+      "cold_ms": 0.005,
+      "warm_calls": 4,
+      "warm_total_ms": 0.021,
+      "warm_per_step_ms": 0.00525
+    },
+    {
+      "method": "service.research.boundaries",
+      "cold_calls": 1,
+      "cold_ms": 0.005,
+      "warm_calls": 4,
+      "warm_total_ms": 0.02,
+      "warm_per_step_ms": 0.005
+    },
+    {
+      "method": "service.research.settle",
+      "cold_calls": 1,
+      "cold_ms": 0.007,
+      "warm_calls": 4,
+      "warm_total_ms": 0.026,
+      "warm_per_step_ms": 0.0065
+    },
+    {
+      "method": "service.scheduler.advance",
+      "cold_calls": 1,
+      "cold_ms": 0.003,
+      "warm_calls": 4,
+      "warm_total_ms": 0.013,
+      "warm_per_step_ms": 0.00325
+    },
+    {
+      "method": "service.scheduler.boundaries",
+      "cold_calls": 1,
+      "cold_ms": 0.487,
+      "warm_calls": 4,
+      "warm_total_ms": 2.021,
+      "warm_per_step_ms": 0.50525
+    },
+    {
+      "method": "service.scheduler.dispatch",
+      "cold_calls": 1,
+      "cold_ms": 0.008,
+      "warm_calls": 4,
+      "warm_total_ms": 0.021,
+      "warm_per_step_ms": 0.00525
+    },
+    {
+      "method": "service.supplies.advance",
+      "cold_calls": 1,
+      "cold_ms": 0.12,
+      "warm_calls": 4,
+      "warm_total_ms": 0.839,
+      "warm_per_step_ms": 0.20975
+    },
+    {
+      "method": "service.supplies.boundaries",
+      "cold_calls": 1,
+      "cold_ms": 0.032,
+      "warm_calls": 4,
+      "warm_total_ms": 0.13,
+      "warm_per_step_ms": 0.0325
+    },
+    {
+      "method": "service.waiting.advance",
+      "cold_calls": 1,
+      "cold_ms": 0.006,
+      "warm_calls": 4,
+      "warm_total_ms": 0.024,
+      "warm_per_step_ms": 0.006
+    },
+    {
+      "method": "service.waiting.dispatch",
+      "cold_calls": 1,
+      "cold_ms": 0.848,
+      "warm_calls": 4,
+      "warm_total_ms": 3.186,
+      "warm_per_step_ms": 0.7965
+    },
+    {
+      "method": "service.wellbeing.advance",
+      "cold_calls": 1,
+      "cold_ms": 0.118,
+      "warm_calls": 4,
+      "warm_total_ms": 0.236,
+      "warm_per_step_ms": 0.059
+    },
+    {
+      "method": "service.wellbeing.boundaries",
+      "cold_calls": 1,
+      "cold_ms": 0.197,
+      "warm_calls": 4,
+      "warm_total_ms": 0.878,
+      "warm_per_step_ms": 0.2195
+    },
+    {
+      "method": "service.wellbeing.dispatch",
+      "cold_calls": 1,
+      "cold_ms": 0.751,
+      "warm_calls": 4,
+      "warm_total_ms": 3.126,
+      "warm_per_step_ms": 0.7815
+    },
+    {
+      "method": "space.active_route_clear",
+      "cold_calls": 5,
+      "cold_ms": 967.44,
+      "warm_calls": 20,
+      "warm_total_ms": 0.235,
+      "warm_per_step_ms": 0.05875
+    },
+    {
+      "method": "space.advance",
+      "cold_calls": 1,
+      "cold_ms": 969.96,
+      "warm_calls": 4,
+      "warm_total_ms": 3.432,
+      "warm_per_step_ms": 0.858
+    },
+    {
+      "method": "space.dispatch_routes",
+      "cold_calls": 1,
+      "cold_ms": 0.015,
+      "warm_calls": 4,
+      "warm_total_ms": 0.066,
+      "warm_per_step_ms": 0.0165
+    },
+    {
+      "method": "space.reserve_doors",
+      "cold_calls": 5,
+      "cold_ms": 0.217,
+      "warm_calls": 20,
+      "warm_total_ms": 0.792,
+      "warm_per_step_ms": 0.198
+    }
+  ],
+  "raw_outputs": [
+    {
+      "name": "capture",
+      "stdout_path": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle2-quick-r1/capture.stdout.txt",
+      "stderr_path": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle2-quick-r1/capture.stderr.txt",
+      "stdout_sha256": "bad1692f617e3542feeabcf9600c7337a36401ec2968011cde8626a63a3e2ef7",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org\r\n\r\nPERFORMANCE_FIXTURE={\"description\":{\"actors\":160,\"beds\":24,\"boundary\":\"built hospital; admitted patients before reception; actual production services thereafter\",\"errors\":[],\"facilities\":1328,\"floors\":[1,2,3,4],\"patients\":120,\"rooms\":64,\"staff\":32,\"visitors\":8},\"elapsed_ms\":395.922,\"validation\":\"\"}\r\nPERFORMANCE_CAPTURE={\"output\":\"res://quick-capture.json\",\"readonly\":true,\"samples\":5}\r\n",
+      "stderr": ""
+    },
+    {
+      "name": "history",
+      "stdout_path": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle2-quick-r1/history.stdout.txt",
+      "stderr_path": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle2-quick-r1/history.stderr.txt",
+      "stdout_sha256": "ba5a89c36a11d0f665cfa6e593c6a7ac5b7d38136e7bda88fca802a6b66cd38f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org\r\n\r\nPERFORMANCE_HISTORY={\"output\":\"res://quick-history.json\",\"scales\":3,\"steps\":30,\"valid\":true}\r\n",
+      "stderr": ""
+    },
+    {
+      "name": "steps",
+      "stdout_path": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle2-quick-r1/steps.stdout.txt",
+      "stderr_path": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle2-quick-r1/steps.stderr.txt",
+      "stdout_sha256": "8b53b2f950458c893603d383040d0fd89d5cd610bd336fb484669914eff879a9",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org\r\n\r\nPERFORMANCE_FIXTURE={\"description\":{\"actors\":160,\"beds\":24,\"boundary\":\"built hospital; admitted patients before reception; actual production services thereafter\",\"errors\":[],\"facilities\":1328,\"floors\":[1,2,3,4],\"patients\":120,\"rooms\":64,\"staff\":32,\"visitors\":8},\"elapsed_ms\":398.987,\"validation\":\"\"}\r\nPERFORMANCE_STEP={\"elapsed_ms\":1093.097,\"events\":1,\"moves\":5,\"preparations\":0,\"present\":160,\"profile\":{\"call_distributions\":{\"clinical.advance\":{\"complete\":true,\"p50_us\":19,\"p95_us\":19,\"p99_us\":19,\"samples\":1},\"clinical.dispatch\":{\"complete\":true,\"p50_us\":8171,\"p95_us\":8171,\"p99_us\":8171,\"samples\":1},\"clinical.service_candidates.reception\":{\"complete\":true,\"p50_us\":46,\"p95_us\":58,\"p99_us\":70,\"samples\":116},\"navigation.build\":{\"complete\":true,\"p50_us\":237271,\"p95_us\":241288,\"p99_us\":241288,\"samples\":4},\"navigation.graph\":{\"complete\":true,\"p50_us\":23,\"p95_us\":241352,\"p99_us\":241352,\"samples\":11},\"navigation.graph_new\":{\"complete\":true,\"p50_us\":237328,\"p95_us\":241349,\"p99_us\":241349,\"samples\":4},\"navigation.graph_reuse_or_refresh\":{\"complete\":true,\"p50_us\":18,\"p95_us\":22,\"p99_us\":22,\"samples\":7},\"navigation.trim\":{\"complete\":true,\"p50_us\":1,\"p95_us\":3,\"p99_us\":3,\"samples\":22},\"service.arrivals.advance_wait\":{\"complete\":true,\"p50_us\":659,\"p95_us\":659,\"p99_us\":659,\"samples\":1},\"service.arrivals.arrivals\":{\"complete\":true,\"p50_us\":38,\"p95_us\":38,\"p99_us\":38,\"samples\":1},\"service.arrivals.boundaries\":{\"complete\":true,\"p50_us\":10,\"p95_us\":10,\"p99_us\":10,\"samples\":1},\"service.arrivals.needs\":{\"complete\":true,\"p50_us\":1411,\"p95_us\":1411,\"p99_us\":1411,\"samples\":1},\"service.arrivals.settle\":{\"complete\":true,\"p50_us\":179,\"p95_us\":179,\"p99_us\":179,\"samples\":1},\"service.departments.advance\":{\"complete\":true,\"p50_us\":5,\"p95_us\":5,\"p99_us\":5,\"samples\":1},\"service.departments.dispatch\":{\"complete\":true,\"p50_us\":68,\"p95_us\":68,\"p99_us\":68,\"samples\":1},\"service.departments.sample\":{\"complete\":true,\"p50_us\":95991,\"p95_us\":95991,\"p99_us\":95991,\"samples\":1},\"service.departments.settle\":{\"complete\":true,\"p50_us\":541,\"p95_us\":541,\"p99_us\":541,\"samples\":1},\"service.development.advance\":{\"complete\":true,\"p50_us\":47,\"p95_us\":47,\"p99_us\":47,\"samples\":1},\"service.development.dispatch\":{\"complete\":true,\"p50_us\":1137,\"p95_us\":1137,\"p99_us\":1137,\"samples\":1},\"service.development.settle\":{\"complete\":true,\"p50_us\":561,\"p95_us\":561,\"p99_us\":561,\"samples\":1},\"service.environment._coverage\":{\"complete\":true,\"p50_us\":222,\"p95_us\":402,\"p99_us\":453,\"samples\":240},\"service.environment._coverage_edges\":{\"complete\":true,\"p50_us\":1,\"p95_us\":3,\"p99_us\":5957,\"samples\":120},\"service.environment.advance\":{\"complete\":true,\"p50_us\":6,\"p95_us\":6,\"p99_us\":6,\"samples\":1},\"service.environment.dispatch\":{\"complete\":true,\"p50_us\":102,\"p95_us\":102,\"p99_us\":102,\"samples\":1},\"service.environment.environment_at\":{\"complete\":true,\"p50_us\":594,\"p95_us\":1028,\"p99_us\":6653,\"samples\":120},\"service.finance.settle\":{\"complete\":true,\"p50_us\":4042,\"p95_us\":4042,\"p99_us\":4042,\"samples\":1},\"service.floors.advance\":{\"complete\":true,\"p50_us\":3,\"p95_us\":3,\"p99_us\":3,\"samples\":1},\"service.floors.dispatch\":{\"complete\":true,\"p50_us\":4,\"p95_us\":4,\"p99_us\":4,\"samples\":1},\"service.maintenance.advance\":{\"complete\":true,\"p50_us\":3,\"p95_us\":3,\"p99_us\":3,\"samples\":1},\"service.maintenance.boundaries\":{\"complete\":true,\"p50_us\":1707,\"p95_us\":1707,\"p99_us\":1707,\"samples\":1},\"service.maintenance.dispatch\":{\"complete\":true,\"p50_us\":7,\"p95_us\":7,\"p99_us\":7,\"samples\":1},\"service.recruitment.advance\":{\"complete\":true,\"p50_us\":43,\"p95_us\":43,\"p99_us\":43,\"samples\":1},\"service.recruitment.boundaries\":{\"complete\":true,\"p50_us\":46,\"p95_us\":46,\"p99_us\":46,\"samples\":1},\"service.recruitment.settle\":{\"complete\":true,\"p50_us\":112,\"p95_us\":112,\"p99_us\":112,\"samples\":1},\"service.remodel.dispatch\":{\"complete\":true,\"p50_us\":2,\"p95_us\":2,\"p99_us\":2,\"samples\":1},\"service.research.advance\":{\"complete\":true,\"p50_us\":5,\"p95_us\":5,\"p99_us\":5,\"samples\":1},\"service.research.boundaries\":{\"complete\":true,\"p50_us\":5,\"p95_us\":5,\"p99_us\":5,\"samples\":1},\"service.research.settle\":{\"complete\":true,\"p50_us\":7,\"p95_us\":7,\"p99_us\":7,\"samples\":1},\"service.scheduler.advance\":{\"complete\":true,\"p50_us\":3,\"p95_us\":3,\"p99_us\":3,\"samples\":1},\"service.scheduler.boundaries\":{\"complete\":true,\"p50_us\":487,\"p95_us\":487,\"p99_us\":487,\"samples\":1},\"service.scheduler.dispatch\":{\"complete\":true,\"p50_us\":8,\"p95_us\":8,\"p99_us\":8,\"samples\":1},\"service.supplies.advance\":{\"complete\":true,\"p50_us\":120,\"p95_us\":120,\"p99_us\":120,\"samples\":1},\"service.supplies.boundaries\":{\"complete\":true,\"p50_us\":32,\"p95_us\":32,\"p99_us\":32,\"samples\":1},\"service.waiting.advance\":{\"complete\":true,\"p50_us\":6,\"p95_us\":6,\"p99_us\":6,\"samples\":1},\"service.waiting.dispatch\":{\"complete\":true,\"p50_us\":848,\"p95_us\":848,\"p99_us\":848,\"samples\":1},\"service.wellbeing.advance\":{\"complete\":true,\"p50_us\":118,\"p95_us\":118,\"p99_us\":118,\"samples\":1},\"service.wellbeing.boundaries\":{\"complete\":true,\"p50_us\":197,\"p95_us\":197,\"p99_us\":197,\"samples\":1},\"service.wellbeing.dispatch\":{\"complete\":true,\"p50_us\":751,\"p95_us\":751,\"p99_us\":751,\"samples\":1},\"space.active_route_clear\":{\"complete\":true,\"p50_us\":241059,\"p95_us\":244969,\"p99_us\":244969,\"samples\":5},\"space.advance\":{\"complete\":true,\"p50_us\":969960,\"p95_us\":969960,\"p99_us\":969960,\"samples\":1},\"space.dispatch_routes\":{\"complete\":true,\"p50_us\":15,\"p95_us\":15,\"p99_us\":15,\"samples\":1},\"space.reserve_doors\":{\"complete\":true,\"p50_us\":45,\"p95_us\":45,\"p99_us\":45,\"samples\":5}},\"inclusive_calls\":{\"clinical.advance\":{\"calls\":1,\"max_us\":19,\"total_us\":19},\"clinical.dispatch\":{\"calls\":1,\"max_us\":8171,\"total_us\":8171},\"clinical.service_candidates.reception\":{\"calls\":116,\"max_us\":1498,\"total_us\":6858},\"navigation.build\":{\"calls\":4,\"max_us\":241288,\"total_us\":951752},\"navigation.graph\":{\"calls\":11,\"max_us\":241352,\"total_us\":952159},\"navigation.graph_new\":{\"calls\":4,\"max_us\":241349,\"total_us\":952007},\"navigation.graph_reuse_or_refresh\":{\"calls\":7,\"max_us\":22,\"total_us\":128},\"navigation.trim\":{\"calls\":22,\"max_us\":3,\"total_us\":22},\"service.arrivals.advance_wait\":{\"calls\":1,\"max_us\":659,\"total_us\":659},\"service.arrivals.arrivals\":{\"calls\":1,\"max_us\":38,\"total_us\":38},\"service.arrivals.boundaries\":{\"calls\":1,\"max_us\":10,\"total_us\":10},\"service.arrivals.needs\":{\"calls\":1,\"max_us\":1411,\"total_us\":1411},\"service.arrivals.settle\":{\"calls\":1,\"max_us\":179,\"total_us\":179},\"service.departments.advance\":{\"calls\":1,\"max_us\":5,\"total_us\":5},\"service.departments.dispatch\":{\"calls\":1,\"max_us\":68,\"total_us\":68},\"service.departments.sample\":{\"calls\":1,\"max_us\":95991,\"total_us\":95991},\"service.departments.settle\":{\"calls\":1,\"max_us\":541,\"total_us\":541},\"service.development.advance\":{\"calls\":1,\"max_us\":47,\"total_us\":47},\"service.development.dispatch\":{\"calls\":1,\"max_us\":1137,\"total_us\":1137},\"service.development.settle\":{\"calls\":1,\"max_us\":561,\"total_us\":561},\"service.environment._coverage\":{\"calls\":240,\"max_us\":593,\"total_us\":58963},\"service.environment._coverage_edges\":{\"calls\":120,\"max_us\":6118,\"total_us\":23547},\"service.environment.advance\":{\"calls\":1,\"max_us\":6,\"total_us\":6},\"service.environment.dispatch\":{\"calls\":1,\"max_us\":102,\"total_us\":102},\"service.environment.environment_at\":{\"calls\":120,\"max_us\":6721,\"total_us\":93787},\"service.finance.settle\":{\"calls\":1,\"max_us\":4042,\"total_us\":4042},\"service.floors.advance\":{\"calls\":1,\"max_us\":3,\"total_us\":3},\"service.floors.dispatch\":{\"calls\":1,\"max_us\":4,\"total_us\":4},\"service.maintenance.advance\":{\"calls\":1,\"max_us\":3,\"total_us\":3},\"service.maintenance.boundaries\":{\"calls\":1,\"max_us\":1707,\"total_us\":1707},\"service.maintenance.dispatch\":{\"calls\":1,\"max_us\":7,\"total_us\":7},\"service.recruitment.advance\":{\"calls\":1,\"max_us\":43,\"total_us\":43},\"service.recruitment.boundaries\":{\"calls\":1,\"max_us\":46,\"total_us\":46},\"service.recruitment.settle\":{\"calls\":1,\"max_us\":112,\"total_us\":112},\"service.remodel.dispatch\":{\"calls\":1,\"max_us\":2,\"total_us\":2},\"service.research.advance\":{\"calls\":1,\"max_us\":5,\"total_us\":5},\"service.research.boundaries\":{\"calls\":1,\"max_us\":5,\"total_us\":5},\"service.research.settle\":{\"calls\":1,\"max_us\":7,\"total_us\":7},\"service.scheduler.advance\":{\"calls\":1,\"max_us\":3,\"total_us\":3},\"service.scheduler.boundaries\":{\"calls\":1,\"max_us\":487,\"total_us\":487},\"service.scheduler.dispatch\":{\"calls\":1,\"max_us\":8,\"total_us\":8},\"service.supplies.advance\":{\"calls\":1,\"max_us\":120,\"total_us\":120},\"service.supplies.boundaries\":{\"calls\":1,\"max_us\":32,\"total_us\":32},\"service.waiting.advance\":{\"calls\":1,\"max_us\":6,\"total_us\":6},\"service.waiting.dispatch\":{\"calls\":1,\"max_us\":848,\"total_us\":848},\"service.wellbeing.advance\":{\"calls\":1,\"max_us\":118,\"total_us\":118},\"service.wellbeing.boundaries\":{\"calls\":1,\"max_us\":197,\"total_us\":197},\"service.wellbeing.dispatch\":{\"calls\":1,\"max_us\":751,\"total_us\":751},\"space.active_route_clear\":{\"calls\":5,\"max_us\":244969,\"total_us\":967440},\"space.advance\":{\"calls\":1,\"max_us\":969960,\"total_us\":969960},\"space.dispatch_routes\":{\"calls\":1,\"max_us\":15,\"total_us\":15},\"space.reserve_doors\":{\"calls\":5,\"max_us\":45,\"total_us\":217}},\"profile_errors\":[],\"profile_sources\":{\"arrivals\":\"ca95e60121cccce73fba3f977b4774a6a52766c313dd790992246b9d0a188e0b\",\"departments\":\"09655464694246cbddbc09387a671fff6e4c436c7fa5e5ff401a5185f5764b02\",\"development\":\"0d907497266c7788f46916a8653e59c0646facb17ee04d65bf3b41e59e682d2c\",\"environment\":\"bb8c27d3005657a0fa8fb5b659bb7e7dbc867078e033f18a9358458e9dc1f831\",\"finance\":\"cc822b1d57492146a2b8bbeb150ddd5d5f63718696de43db57291fd4aadae638\",\"floors\":\"835b4f2dfe69f701c964c4e2fa6a15198922569bb3c854f74b019083dddea253\",\"maintenance\":\"110c2378990b1289cc9c39a003d67bfad9cb15b74c7910856af0f46ee7b3c7d0\",\"recruitment\":\"86cbd76f587140eed15c6b247e11679a1464e2fba620c81650fc1afa8eca9425\",\"remodel\":\"fee0f66e1192edd7aac212ea8273452434c91cfe843b8b5aeadfed68fa4ca937\",\"research\":\"84baaf24f558174ea48d8a6e9c57cc09a4ff579e0c533f996bdad17ddcd20e86\",\"scheduler\":\"f8896fd984a25ffd3c426d014680053f44964ec534610ecfc76800b0ee3fc496\",\"supplies\":\"99bcba0662fcae3eabcc7521a09ca76e1a73ec078768db17188b39e28a43b839\",\"waiting\":\"6c37fd52bea737f8a7dff84609d16e988c5f7e337ca80a4d919a42ac9bdf0c07\",\"wellbeing\":\"ed1aae8a0340535211764c6a9dac34cc2992346af26e157a3a71cd4ea286b1b8\"},\"stages_us\":{}},\"sessions\":0,\"tick\":5}\r\nPERFORMANCE_STEP={\"elapsed_ms\":36.514,\"events\":1,\"moves\":5,\"preparations\":0,\"present\":160,\"profile\":{\"call_distributions\":{\"clinical.advance\":{\"complete\":true,\"p50_us\":11,\"p95_us\":19,\"p99_us\":19,\"samples\":2},\"clinical.dispatch\":{\"complete\":true,\"p50_us\":6693,\"p95_us\":8171,\"p99_us\":8171,\"samples\":2},\"clinical.service_candidates.reception\":{\"complete\":true,\"p50_us\":46,\"p95_us\":52,\"p99_us\":69,\"samples\":232},\"navigation.build\":{\"complete\":true,\"p50_us\":237271,\"p95_us\":241288,\"p99_us\":241288,\"samples\":4},\"navigation.graph\":{\"complete\":true,\"p50_us\":21,\"p95_us\":241352,\"p99_us\":241352,\"samples\":16},\"navigation.graph_new\":{\"complete\":true,\"p50_us\":237328,\"p95_us\":241349,\"p99_us\":241349,\"samples\":4},\"navigation.graph_reuse_or_refresh\":{\"complete\":true,\"p50_us\":18,\"p95_us\":34,\"p99_us\":34,\"samples\":12},\"navigation.trim\":{\"complete\":true,\"p50_us\":1,\"p95_us\":3,\"p99_us\":3,\"samples\":32},\"service.arrivals.advance_wait\":{\"complete\":true,\"p50_us\":659,\"p95_us\":686,\"p99_us\":686,\"samples\":2},\"service.arrivals.arrivals\":{\"complete\":true,\"p50_us\":27,\"p95_us\":38,\"p99_us\":38,\"samples\":2},\"service.arrivals.boundaries\":{\"complete\":true,\"p50_us\":10,\"p95_us\":10,\"p99_us\":10,\"samples\":2},\"service.arrivals.needs\":{\"complete\":true,\"p50_us\":1277,\"p95_us\":1411,\"p99_us\":1411,\"samples\":2},\"service.arrivals.settle\":{\"complete\":true,\"p50_us\":129,\"p95_us\":179,\"p99_us\":179,\"samples\":2},\"service.departments.advance\":{\"complete\":true,\"p50_us\":3,\"p95_us\":5,\"p99_us\":5,\"samples\":2},\"service.departments.dispatch\":{\"complete\":true,\"p50_us\":68,\"p95_us\":74,\"p99_us\":74,\"samples\":2},\"service.departments.sample\":{\"complete\":true,\"p50_us\":12953,\"p95_us\":95991,\"p99_us\":95991,\"samples\":2},\"service.departments.settle\":{\"complete\":true,\"p50_us\":173,\"p95_us\":541,\"p99_us\":541,\"samples\":2},\"service.development.advance\":{\"complete\":true,\"p50_us\":23,\"p95_us\":47,\"p99_us\":47,\"samples\":2},\"service.development.dispatch\":{\"complete\":true,\"p50_us\":903,\"p95_us\":1137,\"p99_us\":1137,\"samples\":2},\"service.development.settle\":{\"complete\":true,\"p50_us\":561,\"p95_us\":606,\"p99_us\":606,\"samples\":2},\"service.environment._coverage\":{\"complete\":true,\"p50_us\":97,\"p95_us\":348,\"p99_us\":438,\"samples\":480},\"service.environment._coverage_edges\":{\"complete\":true,\"p50_us\":1,\"p95_us\":3,\"p99_us\":5721,\"samples\":240},\"service.environment.advance\":{\"complete\":true,\"p50_us\":6,\"p95_us\":6,\"p99_us\":6,\"samples\":2},\"service.environment.dispatch\":{\"complete\":true,\"p50_us\":76,\"p95_us\":102,\"p99_us\":102,\"samples\":2},\"service.environment.environment_at\":{\"complete\":true,\"p50_us\":306,\"p95_us\":768,\"p99_us\":6262,\"samples\":240},\"service.finance.settle\":{\"complete\":true,\"p50_us\":1747,\"p95_us\":4042,\"p99_us\":4042,\"samples\":2},\"service.floors.advance\":{\"complete\":true,\"p50_us\":3,\"p95_us\":3,\"p99_us\":3,\"samples\":2},\"service.floors.dispatch\":{\"complete\":true,\"p50_us\":4,\"p95_us\":4,\"p99_us\":4,\"samples\":2},\"service.maintenance.advance\":{\"complete\":true,\"p50_us\":3,\"p95_us\":3,\"p99_us\":3,\"samples\":2},\"service.maintenance.boundaries\":{\"complete\":true,\"p50_us\":1683,\"p95_us\":1707,\"p99_us\":1707,\"samples\":2},\"service.maintenance.dispatch\":{\"complete\":true,\"p50_us\":6,\"p95_us\":7,\"p99_us\":7,\"samples\":2},\"service.recruitment.advance\":{\"complete\":true,\"p50_us\":28,\"p95_us\":43,\"p99_us\":43,\"samples\":2},\"service.recruitment.boundaries\":{\"complete\":true,\"p50_us\":36,\"p95_us\":46,\"p99_us\":46,\"samples\":2},\"service.recruitment.settle\":{\"complete\":true,\"p50_us\":101,\"p95_us\":112,\"p99_us\":112,\"samples\":2},\"service.remodel.dispatch\":{\"complete\":true,\"p50_us\":2,\"p95_us\":3,\"p99_us\":3,\"samples\":2},\"service.research.advance\":{\"complete\":true,\"p50_us\":5,\"p95_us\":6,\"p99_us\":6,\"samples\":2},\"service.research.boundaries\":{\"complete\":true,\"p50_us\":5,\"p95_us\":5,\"p99_us\":5,\"samples\":2},\"service.research.settle\":{\"complete\":true,\"p50_us\":7,\"p95_us\":7,\"p99_us\":7,\"samples\":2},\"service.scheduler.advance\":{\"complete\":true,\"p50_us\":3,\"p95_us\":5,\"p99_us\":5,\"samples\":2},\"service.scheduler.boundaries\":{\"complete\":true,\"p50_us\":487,\"p95_us\":511,\"p99_us\":511,\"samples\":2},\"service.scheduler.dispatch\":{\"complete\":true,\"p50_us\":6,\"p95_us\":8,\"p99_us\":8,\"samples\":2},\"service.supplies.advance\":{\"complete\":true,\"p50_us\":92,\"p95_us\":120,\"p99_us\":120,\"samples\":2},\"service.supplies.boundaries\":{\"complete\":true,\"p50_us\":31,\"p95_us\":32,\"p99_us\":32,\"samples\":2},\"service.waiting.advance\":{\"complete\":true,\"p50_us\":6,\"p95_us\":6,\"p99_us\":6,\"samples\":2},\"service.waiting.dispatch\":{\"complete\":true,\"p50_us\":815,\"p95_us\":848,\"p99_us\":848,\"samples\":2},\"service.wellbeing.advance\":{\"complete\":true,\"p50_us\":57,\"p95_us\":118,\"p99_us\":118,\"samples\":2},\"service.wellbeing.boundaries\":{\"complete\":true,\"p50_us\":197,\"p95_us\":207,\"p99_us\":207,\"samples\":2},\"service.wellbeing.dispatch\":{\"complete\":true,\"p50_us\":751,\"p95_us\":783,\"p99_us\":783,\"samples\":2},\"space.active_route_clear\":{\"complete\":true,\"p50_us\":20,\"p95_us\":244969,\"p99_us\":244969,\"samples\":10},\"space.advance\":{\"complete\":true,\"p50_us\":890,\"p95_us\":969960,\"p99_us\":969960,\"samples\":2},\"space.dispatch_routes\":{\"complete\":true,\"p50_us\":15,\"p95_us\":15,\"p99_us\":15,\"samples\":2},\"space.reserve_doors\":{\"complete\":true,\"p50_us\":41,\"p95_us\":50,\"p99_us\":50,\"samples\":10}},\"inclusive_calls\":{\"clinical.advance\":{\"calls\":2,\"max_us\":19,\"total_us\":30},\"clinical.dispatch\":{\"calls\":2,\"max_us\":8171,\"total_us\":14864},\"clinical.service_candidates.reception\":{\"calls\":232,\"max_us\":1498,\"total_us\":12298},\"navigation.build\":{\"calls\":4,\"max_us\":241288,\"total_us\":951752},\"navigation.graph\":{\"calls\":16,\"max_us\":241352,\"total_us\":952266},\"navigation.graph_new\":{\"calls\":4,\"max_us\":241349,\"total_us\":952007},\"navigation.graph_reuse_or_refresh\":{\"calls\":12,\"max_us\":34,\"total_us\":226},\"navigation.trim\":{\"calls\":32,\"max_us\":3,\"total_us\":29},\"service.arrivals.advance_wait\":{\"calls\":2,\"max_us\":686,\"total_us\":1345},\"service.arrivals.arrivals\":{\"calls\":2,\"max_us\":38,\"total_us\":65},\"service.arrivals.boundaries\":{\"calls\":2,\"max_us\":10,\"total_us\":20},\"service.arrivals.needs\":{\"calls\":2,\"max_us\":1411,\"total_us\":2688},\"service.arrivals.settle\":{\"calls\":2,\"max_us\":179,\"total_us\":308},\"service.departments.advance\":{\"calls\":2,\"max_us\":5,\"total_us\":8},\"service.departments.dispatch\":{\"calls\":2,\"max_us\":74,\"total_us\":142},\"service.departments.sample\":{\"calls\":2,\"max_us\":95991,\"total_us\":108944},\"service.departments.settle\":{\"calls\":2,\"max_us\":541,\"total_us\":714},\"service.development.advance\":{\"calls\":2,\"max_us\":47,\"total_us\":70},\"service.development.dispatch\":{\"calls\":2,\"max_us\":1137,\"total_us\":2040},\"service.development.settle\":{\"calls\":2,\"max_us\":606,\"total_us\":1167},\"service.environment._coverage\":{\"calls\":480,\"max_us\":593,\"total_us\":59904},\"service.environment._coverage_edges\":{\"calls\":240,\"max_us\":6118,\"total_us\":24208},\"service.environment.advance\":{\"calls\":2,\"max_us\":6,\"total_us\":12},\"service.environment.dispatch\":{\"calls\":2,\"max_us\":102,\"total_us\":178},\"service.environment.environment_at\":{\"calls\":240,\"max_us\":6721,\"total_us\":104929},\"service.finance.settle\":{\"calls\":2,\"max_us\":4042,\"total_us\":5789},\"service.floors.advance\":{\"calls\":2,\"max_us\":3,\"total_us\":6},\"service.floors.dispatch\":{\"calls\":2,\"max_us\":4,\"total_us\":8},\"service.maintenance.advance\":{\"calls\":2,\"max_us\":3,\"total_us\":6},\"service.maintenance.boundaries\":{\"calls\":2,\"max_us\":1707,\"total_us\":3390},\"service.maintenance.dispatch\":{\"calls\":2,\"max_us\":7,\"total_us\":13},\"service.recruitment.advance\":{\"calls\":2,\"max_us\":43,\"total_us\":71},\"service.recruitment.boundaries\":{\"calls\":2,\"max_us\":46,\"total_us\":82},\"service.recruitment.settle\":{\"calls\":2,\"max_us\":112,\"total_us\":213},\"service.remodel.dispatch\":{\"calls\":2,\"max_us\":3,\"total_us\":5},\"service.research.advance\":{\"calls\":2,\"max_us\":6,\"total_us\":11},\"service.research.boundaries\":{\"calls\":2,\"max_us\":5,\"total_us\":10},\"service.research.settle\":{\"calls\":2,\"max_us\":7,\"total_us\":14},\"service.scheduler.advance\":{\"calls\":2,\"max_us\":5,\"total_us\":8},\"service.scheduler.boundaries\":{\"calls\":2,\"max_us\":511,\"total_us\":998},\"service.scheduler.dispatch\":{\"calls\":2,\"max_us\":8,\"total_us\":14},\"service.supplies.advance\":{\"calls\":2,\"max_us\":120,\"total_us\":212},\"service.supplies.boundaries\":{\"calls\":2,\"max_us\":32,\"total_us\":63},\"service.waiting.advance\":{\"calls\":2,\"max_us\":6,\"total_us\":12},\"service.waiting.dispatch\":{\"calls\":2,\"max_us\":848,\"total_us\":1663},\"service.wellbeing.advance\":{\"calls\":2,\"max_us\":118,\"total_us\":175},\"service.wellbeing.boundaries\":{\"calls\":2,\"max_us\":207,\"total_us\":404},\"service.wellbeing.dispatch\":{\"calls\":2,\"max_us\":783,\"total_us\":1534},\"space.active_route_clear\":{\"calls\":10,\"max_us\":244969,\"total_us\":967500},\"space.advance\":{\"calls\":2,\"max_us\":969960,\"total_us\":970850},\"space.dispatch_routes\":{\"calls\":2,\"max_us\":15,\"total_us\":30},\"space.reserve_doors\":{\"calls\":10,\"max_us\":50,\"total_us\":417}},\"profile_errors\":[],\"profile_sources\":{\"arrivals\":\"ca95e60121cccce73fba3f977b4774a6a52766c313dd790992246b9d0a188e0b\",\"departments\":\"09655464694246cbddbc09387a671fff6e4c436c7fa5e5ff401a5185f5764b02\",\"development\":\"0d907497266c7788f46916a8653e59c0646facb17ee04d65bf3b41e59e682d2c\",\"environment\":\"bb8c27d3005657a0fa8fb5b659bb7e7dbc867078e033f18a9358458e9dc1f831\",\"finance\":\"cc822b1d57492146a2b8bbeb150ddd5d5f63718696de43db57291fd4aadae638\",\"floors\":\"835b4f2dfe69f701c964c4e2fa6a15198922569bb3c854f74b019083dddea253\",\"maintenance\":\"110c2378990b1289cc9c39a003d67bfad9cb15b74c7910856af0f46ee7b3c7d0\",\"recruitment\":\"86cbd76f587140eed15c6b247e11679a1464e2fba620c81650fc1afa8eca9425\",\"remodel\":\"fee0f66e1192edd7aac212ea8273452434c91cfe843b8b5aeadfed68fa4ca937\",\"research\":\"84baaf24f558174ea48d8a6e9c57cc09a4ff579e0c533f996bdad17ddcd20e86\",\"scheduler\":\"f8896fd984a25ffd3c426d014680053f44964ec534610ecfc76800b0ee3fc496\",\"supplies\":\"99bcba0662fcae3eabcc7521a09ca76e1a73ec078768db17188b39e28a43b839\",\"waiting\":\"6c37fd52bea737f8a7dff84609d16e988c5f7e337ca80a4d919a42ac9bdf0c07\",\"wellbeing\":\"ed1aae8a0340535211764c6a9dac34cc2992346af26e157a3a71cd4ea286b1b8\"},\"stages_us\":{}},\"sessions\":0,\"tick\":6}\r\nPERFORMANCE_STEP={\"elapsed_ms\":35.32,\"events\":1,\"moves\":5,\"preparations\":0,\"present\":160,\"profile\":{\"call_distributions\":{\"clinical.advance\":{\"complete\":true,\"p50_us\":13,\"p95_us\":19,\"p99_us\":19,\"samples\":3},\"clinical.dispatch\":{\"complete\":true,\"p50_us\":7406,\"p95_us\":8171,\"p99_us\":8171,\"samples\":3},\"clinical.service_candidates.reception\":{\"complete\":true,\"p50_us\":46,\"p95_us\":59,\"p99_us\":104,\"samples\":348},\"navigation.build\":{\"complete\":true,\"p50_us\":237271,\"p95_us\":241288,\"p99_us\":241288,\"samples\":4},\"navigation.graph\":{\"complete\":true,\"p50_us\":21,\"p95_us\":239515,\"p99_us\":241352,\"samples\":21},\"navigation.graph_new\":{\"complete\":true,\"p50_us\":237328,\"p95_us\":241349,\"p99_us\":241349,\"samples\":4},\"navigation.graph_reuse_or_refresh\":{\"complete\":true,\"p50_us\":18,\"p95_us\":34,\"p99_us\":34,\"samples\":17},\"navigation.trim\":{\"complete\":true,\"p50_us\":1,\"p95_us\":3,\"p99_us\":3,\"samples\":42},\"service.arrivals.advance_wait\":{\"complete\":true,\"p50_us\":659,\"p95_us\":686,\"p99_us\":686,\"samples\":3},\"service.arrivals.arrivals\":{\"complete\":true,\"p50_us\":27,\"p95_us\":38,\"p99_us\":38,\"samples\":3},\"service.arrivals.boundaries\":{\"complete\":true,\"p50_us\":10,\"p95_us\":10,\"p99_us\":10,\"samples\":3},\"service.arrivals.needs\":{\"complete\":true,\"p50_us\":1277,\"p95_us\":1411,\"p99_us\":1411,\"samples\":3},\"service.arrivals.settle\":{\"complete\":true,\"p50_us\":136,\"p95_us\":179,\"p99_us\":179,\"samples\":3},\"service.departments.advance\":{\"complete\":true,\"p50_us\":3,\"p95_us\":5,\"p99_us\":5,\"samples\":3},\"service.departments.dispatch\":{\"complete\":true,\"p50_us\":68,\"p95_us\":74,\"p99_us\":74,\"samples\":3},\"service.departments.sample\":{\"complete\":true,\"p50_us\":12953,\"p95_us\":95991,\"p99_us\":95991,\"samples\":3},\"service.departments.settle\":{\"complete\":true,\"p50_us\":173,\"p95_us\":541,\"p99_us\":541,\"samples\":3},\"service.development.advance\":{\"complete\":true,\"p50_us\":23,\"p95_us\":47,\"p99_us\":47,\"samples\":3},\"service.development.dispatch\":{\"complete\":true,\"p50_us\":912,\"p95_us\":1137,\"p99_us\":1137,\"samples\":3},\"service.development.settle\":{\"complete\":true,\"p50_us\":561,\"p95_us\":606,\"p99_us\":606,\"samples\":3},\"service.environment._coverage\":{\"complete\":true,\"p50_us\":4,\"p95_us\":336,\"p99_us\":414,\"samples\":720},\"service.environment._coverage_edges\":{\"complete\":true,\"p50_us\":1,\"p95_us\":2,\"p99_us\":5597,\"samples\":360},\"service.environment.advance\":{\"complete\":true,\"p50_us\":6,\"p95_us\":6,\"p99_us\":6,\"samples\":3},\"service.environment.dispatch\":{\"complete\":true,\"p50_us\":76,\"p95_us\":102,\"p99_us\":102,\"samples\":3},\"service.environment.environment_at\":{\"complete\":true,\"p50_us\":93,\"p95_us\":726,\"p99_us\":6100,\"samples\":360},\"service.finance.settle\":{\"complete\":true,\"p50_us\":1747,\"p95_us\":4042,\"p99_us\":4042,\"samples\":3},\"service.floors.advance\":{\"complete\":true,\"p50_us\":3,\"p95_us\":3,\"p99_us\":3,\"samples\":3},\"service.floors.dispatch\":{\"complete\":true,\"p50_us\":4,\"p95_us\":4,\"p99_us\":4,\"samples\":3},\"service.maintenance.advance\":{\"complete\":true,\"p50_us\":3,\"p95_us\":3,\"p99_us\":3,\"samples\":3},\"service.maintenance.boundaries\":{\"complete\":true,\"p50_us\":1683,\"p95_us\":1707,\"p99_us\":1707,\"samples\":3},\"service.maintenance.dispatch\":{\"complete\":true,\"p50_us\":6,\"p95_us\":7,\"p99_us\":7,\"samples\":3},\"service.recruitment.advance\":{\"complete\":true,\"p50_us\":28,\"p95_us\":43,\"p99_us\":43,\"samples\":3},\"service.recruitment.boundaries\":{\"complete\":true,\"p50_us\":36,\"p95_us\":46,\"p99_us\":46,\"samples\":3},\"service.recruitment.settle\":{\"complete\":true,\"p50_us\":101,\"p95_us\":112,\"p99_us\":112,\"samples\":3},\"service.remodel.dispatch\":{\"complete\":true,\"p50_us\":3,\"p95_us\":3,\"p99_us\":3,\"samples\":3},\"service.research.advance\":{\"complete\":true,\"p50_us\":5,\"p95_us\":6,\"p99_us\":6,\"samples\":3},\"service.research.boundaries\":{\"complete\":true,\"p50_us\":5,\"p95_us\":5,\"p99_us\":5,\"samples\":3},\"service.research.settle\":{\"complete\":true,\"p50_us\":7,\"p95_us\":7,\"p99_us\":7,\"samples\":3},\"service.scheduler.advance\":{\"complete\":true,\"p50_us\":3,\"p95_us\":5,\"p99_us\":5,\"samples\":3},\"service.scheduler.boundaries\":{\"complete\":true,\"p50_us\":487,\"p95_us\":511,\"p99_us\":511,\"samples\":3},\"service.scheduler.dispatch\":{\"complete\":true,\"p50_us\":6,\"p95_us\":8,\"p99_us\":8,\"samples\":3},\"service.supplies.advance\":{\"complete\":true,\"p50_us\":98,\"p95_us\":120,\"p99_us\":120,\"samples\":3},\"service.supplies.boundaries\":{\"complete\":true,\"p50_us\":32,\"p95_us\":35,\"p99_us\":35,\"samples\":3},\"service.waiting.advance\":{\"complete\":true,\"p50_us\":6,\"p95_us\":6,\"p99_us\":6,\"samples\":3},\"service.waiting.dispatch\":{\"complete\":true,\"p50_us\":815,\"p95_us\":848,\"p99_us\":848,\"samples\":3},\"service.wellbeing.advance\":{\"complete\":true,\"p50_us\":57,\"p95_us\":118,\"p99_us\":118,\"samples\":3},\"service.wellbeing.boundaries\":{\"complete\":true,\"p50_us\":199,\"p95_us\":207,\"p99_us\":207,\"samples\":3},\"service.wellbeing.dispatch\":{\"complete\":true,\"p50_us\":770,\"p95_us\":783,\"p99_us\":783,\"samples\":3},\"space.active_route_clear\":{\"complete\":true,\"p50_us\":16,\"p95_us\":244969,\"p99_us\":244969,\"samples\":15},\"space.advance\":{\"complete\":true,\"p50_us\":890,\"p95_us\":969960,\"p99_us\":969960,\"samples\":3},\"space.dispatch_routes\":{\"complete\":true,\"p50_us\":15,\"p95_us\":15,\"p99_us\":15,\"samples\":3},\"space.reserve_doors\":{\"complete\":true,\"p50_us\":41,\"p95_us\":50,\"p99_us\":50,\"samples\":15}},\"inclusive_calls\":{\"clinical.advance\":{\"calls\":3,\"max_us\":19,\"total_us\":43},\"clinical.dispatch\":{\"calls\":3,\"max_us\":8171,\"total_us\":22270},\"clinical.service_candidates.reception\":{\"calls\":348,\"max_us\":1498,\"total_us\":18154},\"navigation.build\":{\"calls\":4,\"max_us\":241288,\"total_us\":951752},\"navigation.graph\":{\"calls\":21,\"max_us\":241352,\"total_us\":952374},\"navigation.graph_new\":{\"calls\":4,\"max_us\":241349,\"total_us\":952007},\"navigation.graph_reuse_or_refresh\":{\"calls\":17,\"max_us\":34,\"total_us\":326},\"navigation.trim\":{\"calls\":42,\"max_us\":3,\"total_us\":34},\"service.arrivals.advance_wait\":{\"calls\":3,\"max_us\":686,\"total_us\":1983},\"service.arrivals.arrivals\":{\"calls\":3,\"max_us\":38,\"total_us\":88},\"service.arrivals.boundaries\":{\"calls\":3,\"max_us\":10,\"total_us\":28},\"service.arrivals.needs\":{\"calls\":3,\"max_us\":1411,\"total_us\":3959},\"service.arrivals.settle\":{\"calls\":3,\"max_us\":179,\"total_us\":444},\"service.departments.advance\":{\"calls\":3,\"max_us\":5,\"total_us\":11},\"service.departments.dispatch\":{\"calls\":3,\"max_us\":74,\"total_us\":209},\"service.departments.sample\":{\"calls\":3,\"max_us\":95991,\"total_us\":121112},\"service.departments.settle\":{\"calls\":3,\"max_us\":541,\"total_us\":873},\"service.development.advance\":{\"calls\":3,\"max_us\":47,\"total_us\":92},\"service.development.dispatch\":{\"calls\":3,\"max_us\":1137,\"total_us\":2952},\"service.development.settle\":{\"calls\":3,\"max_us\":606,\"total_us\":1710},\"service.environment._coverage\":{\"calls\":720,\"max_us\":593,\"total_us\":60696},\"service.environment._coverage_edges\":{\"calls\":360,\"max_us\":6118,\"total_us\":24767},\"service.environment.advance\":{\"calls\":3,\"max_us\":6,\"total_us\":18},\"service.environment.dispatch\":{\"calls\":3,\"max_us\":102,\"total_us\":254},\"service.environment.environment_at\":{\"calls\":360,\"max_us\":6721,\"total_us\":115416},\"service.finance.settle\":{\"calls\":3,\"max_us\":4042,\"total_us\":7366},\"service.floors.advance\":{\"calls\":3,\"max_us\":3,\"total_us\":9},\"service.floors.dispatch\":{\"calls\":3,\"max_us\":4,\"total_us\":11},\"service.maintenance.advance\":{\"calls\":3,\"max_us\":3,\"total_us\":9},\"service.maintenance.boundaries\":{\"calls\":3,\"max_us\":1707,\"total_us\":4943},\"service.maintenance.dispatch\":{\"calls\":3,\"max_us\":7,\"total_us\":19},\"service.recruitment.advance\":{\"calls\":3,\"max_us\":43,\"total_us\":97},\"service.recruitment.boundaries\":{\"calls\":3,\"max_us\":46,\"total_us\":114},\"service.recruitment.settle\":{\"calls\":3,\"max_us\":112,\"total_us\":304},\"service.remodel.dispatch\":{\"calls\":3,\"max_us\":3,\"total_us\":8},\"service.research.advance\":{\"calls\":3,\"max_us\":6,\"total_us\":16},\"service.research.boundaries\":{\"calls\":3,\"max_us\":5,\"total_us\":15},\"service.research.settle\":{\"calls\":3,\"max_us\":7,\"total_us\":20},\"service.scheduler.advance\":{\"calls\":3,\"max_us\":5,\"total_us\":10},\"service.scheduler.boundaries\":{\"calls\":3,\"max_us\":511,\"total_us\":1468},\"service.scheduler.dispatch\":{\"calls\":3,\"max_us\":8,\"total_us\":19},\"service.supplies.advance\":{\"calls\":3,\"max_us\":120,\"total_us\":310},\"service.supplies.boundaries\":{\"calls\":3,\"max_us\":35,\"total_us\":98},\"service.waiting.advance\":{\"calls\":3,\"max_us\":6,\"total_us\":17},\"service.waiting.dispatch\":{\"calls\":3,\"max_us\":848,\"total_us\":2392},\"service.wellbeing.advance\":{\"calls\":3,\"max_us\":118,\"total_us\":230},\"service.wellbeing.boundaries\":{\"calls\":3,\"max_us\":207,\"total_us\":603},\"service.wellbeing.dispatch\":{\"calls\":3,\"max_us\":783,\"total_us\":2304},\"space.active_route_clear\":{\"calls\":15,\"max_us\":244969,\"total_us\":967555},\"space.advance\":{\"calls\":3,\"max_us\":969960,\"total_us\":971677},\"space.dispatch_routes\":{\"calls\":3,\"max_us\":15,\"total_us\":45},\"space.reserve_doors\":{\"calls\":15,\"max_us\":50,\"total_us\":612}},\"profile_errors\":[],\"profile_sources\":{\"arrivals\":\"ca95e60121cccce73fba3f977b4774a6a52766c313dd790992246b9d0a188e0b\",\"departments\":\"09655464694246cbddbc09387a671fff6e4c436c7fa5e5ff401a5185f5764b02\",\"development\":\"0d907497266c7788f46916a8653e59c0646facb17ee04d65bf3b41e59e682d2c\",\"environment\":\"bb8c27d3005657a0fa8fb5b659bb7e7dbc867078e033f18a9358458e9dc1f831\",\"finance\":\"cc822b1d57492146a2b8bbeb150ddd5d5f63718696de43db57291fd4aadae638\",\"floors\":\"835b4f2dfe69f701c964c4e2fa6a15198922569bb3c854f74b019083dddea253\",\"maintenance\":\"110c2378990b1289cc9c39a003d67bfad9cb15b74c7910856af0f46ee7b3c7d0\",\"recruitment\":\"86cbd76f587140eed15c6b247e11679a1464e2fba620c81650fc1afa8eca9425\",\"remodel\":\"fee0f66e1192edd7aac212ea8273452434c91cfe843b8b5aeadfed68fa4ca937\",\"research\":\"84baaf24f558174ea48d8a6e9c57cc09a4ff579e0c533f996bdad17ddcd20e86\",\"scheduler\":\"f8896fd984a25ffd3c426d014680053f44964ec534610ecfc76800b0ee3fc496\",\"supplies\":\"99bcba0662fcae3eabcc7521a09ca76e1a73ec078768db17188b39e28a43b839\",\"waiting\":\"6c37fd52bea737f8a7dff84609d16e988c5f7e337ca80a4d919a42ac9bdf0c07\",\"wellbeing\":\"ed1aae8a0340535211764c6a9dac34cc2992346af26e157a3a71cd4ea286b1b8\"},\"stages_us\":{}},\"sessions\":0,\"tick\":7}\r\nPERFORMANCE_STEP={\"elapsed_ms\":40.35,\"events\":1,\"moves\":5,\"preparations\":0,\"present\":160,\"profile\":{\"call_distributions\":{\"clinical.advance\":{\"complete\":true,\"p50_us\":13,\"p95_us\":19,\"p99_us\":19,\"samples\":4},\"clinical.dispatch\":{\"complete\":true,\"p50_us\":7058,\"p95_us\":8171,\"p99_us\":8171,\"samples\":4},\"clinical.service_candidates.reception\":{\"complete\":true,\"p50_us\":46,\"p95_us\":60,\"p99_us\":97,\"samples\":464},\"navigation.build\":{\"complete\":true,\"p50_us\":237271,\"p95_us\":241288,\"p99_us\":241288,\"samples\":4},\"navigation.graph\":{\"complete\":true,\"p50_us\":20,\"p95_us\":239515,\"p99_us\":241352,\"samples\":26},\"navigation.graph_new\":{\"complete\":true,\"p50_us\":237328,\"p95_us\":241349,\"p99_us\":241349,\"samples\":4},\"navigation.graph_reuse_or_refresh\":{\"complete\":true,\"p50_us\":17,\"p95_us\":34,\"p99_us\":34,\"samples\":22},\"navigation.trim\":{\"complete\":true,\"p50_us\":1,\"p95_us\":3,\"p99_us\":3,\"samples\":52},\"service.arrivals.advance_wait\":{\"complete\":true,\"p50_us\":659,\"p95_us\":763,\"p99_us\":763,\"samples\":4},\"service.arrivals.arrivals\":{\"complete\":true,\"p50_us\":24,\"p95_us\":38,\"p99_us\":38,\"samples\":4},\"service.arrivals.boundaries\":{\"complete\":true,\"p50_us\":8,\"p95_us\":10,\"p99_us\":10,\"samples\":4},\"service.arrivals.needs\":{\"complete\":true,\"p50_us\":1277,\"p95_us\":1411,\"p99_us\":1411,\"samples\":4},\"service.arrivals.settle\":{\"complete\":true,\"p50_us\":136,\"p95_us\":179,\"p99_us\":179,\"samples\":4},\"service.departments.advance\":{\"complete\":true,\"p50_us\":3,\"p95_us\":5,\"p99_us\":5,\"samples\":4},\"service.departments.dispatch\":{\"complete\":true,\"p50_us\":67,\"p95_us\":74,\"p99_us\":74,\"samples\":4},\"service.departments.sample\":{\"complete\":true,\"p50_us\":12953,\"p95_us\":95991,\"p99_us\":95991,\"samples\":4},\"service.departments.settle\":{\"complete\":true,\"p50_us\":173,\"p95_us\":541,\"p99_us\":541,\"samples\":4},\"service.development.advance\":{\"complete\":true,\"p50_us\":23,\"p95_us\":47,\"p99_us\":47,\"samples\":4},\"service.development.dispatch\":{\"complete\":true,\"p50_us\":907,\"p95_us\":1137,\"p99_us\":1137,\"samples\":4},\"service.development.settle\":{\"complete\":true,\"p50_us\":561,\"p95_us\":614,\"p99_us\":614,\"samples\":4},\"service.environment._coverage\":{\"complete\":true,\"p50_us\":3,\"p95_us\":322,\"p99_us\":412,\"samples\":960},\"service.environment._coverage_edges\":{\"complete\":true,\"p50_us\":1,\"p95_us\":2,\"p99_us\":169,\"samples\":480},\"service.environment.advance\":{\"complete\":true,\"p50_us\":6,\"p95_us\":6,\"p99_us\":6,\"samples\":4},\"service.environment.dispatch\":{\"complete\":true,\"p50_us\":76,\"p95_us\":102,\"p99_us\":102,\"samples\":4},\"service.environment.environment_at\":{\"complete\":true,\"p50_us\":93,\"p95_us\":680,\"p99_us\":1258,\"samples\":480},\"service.finance.settle\":{\"complete\":true,\"p50_us\":1747,\"p95_us\":4042,\"p99_us\":4042,\"samples\":4},\"service.floors.advance\":{\"complete\":true,\"p50_us\":3,\"p95_us\":3,\"p99_us\":3,\"samples\":4},\"service.floors.dispatch\":{\"complete\":true,\"p50_us\":4,\"p95_us\":4,\"p99_us\":4,\"samples\":4},\"service.maintenance.advance\":{\"complete\":true,\"p50_us\":3,\"p95_us\":4,\"p99_us\":4,\"samples\":4},\"service.maintenance.boundaries\":{\"complete\":true,\"p50_us\":1625,\"p95_us\":1707,\"p99_us\":1707,\"samples\":4},\"service.maintenance.dispatch\":{\"complete\":true,\"p50_us\":6,\"p95_us\":7,\"p99_us\":7,\"samples\":4},\"service.recruitment.advance\":{\"complete\":true,\"p50_us\":27,\"p95_us\":43,\"p99_us\":43,\"samples\":4},\"service.recruitment.boundaries\":{\"complete\":true,\"p50_us\":36,\"p95_us\":46,\"p99_us\":46,\"samples\":4},\"service.recruitment.settle\":{\"complete\":true,\"p50_us\":101,\"p95_us\":112,\"p99_us\":112,\"samples\":4},\"service.remodel.dispatch\":{\"complete\":true,\"p50_us\":2,\"p95_us\":3,\"p99_us\":3,\"samples\":4},\"service.research.advance\":{\"complete\":true,\"p50_us\":5,\"p95_us\":6,\"p99_us\":6,\"samples\":4},\"service.research.boundaries\":{\"complete\":true,\"p50_us\":5,\"p95_us\":5,\"p99_us\":5,\"samples\":4},\"service.research.settle\":{\"complete\":true,\"p50_us\":7,\"p95_us\":7,\"p99_us\":7,\"samples\":4},\"service.scheduler.advance\":{\"complete\":true,\"p50_us\":3,\"p95_us\":5,\"p99_us\":5,\"samples\":4},\"service.scheduler.boundaries\":{\"complete\":true,\"p50_us\":487,\"p95_us\":511,\"p99_us\":511,\"samples\":4},\"service.scheduler.dispatch\":{\"complete\":true,\"p50_us\":5,\"p95_us\":8,\"p99_us\":8,\"samples\":4},\"service.supplies.advance\":{\"complete\":true,\"p50_us\":98,\"p95_us\":552,\"p99_us\":552,\"samples\":4},\"service.supplies.boundaries\":{\"complete\":true,\"p50_us\":32,\"p95_us\":35,\"p99_us\":35,\"samples\":4},\"service.waiting.advance\":{\"complete\":true,\"p50_us\":6,\"p95_us\":6,\"p99_us\":6,\"samples\":4},\"service.waiting.dispatch\":{\"complete\":true,\"p50_us\":791,\"p95_us\":848,\"p99_us\":848,\"samples\":4},\"service.wellbeing.advance\":{\"complete\":true,\"p50_us\":57,\"p95_us\":118,\"p99_us\":118,\"samples\":4},\"service.wellbeing.boundaries\":{\"complete\":true,\"p50_us\":199,\"p95_us\":211,\"p99_us\":211,\"samples\":4},\"service.wellbeing.dispatch\":{\"complete\":true,\"p50_us\":770,\"p95_us\":796,\"p99_us\":796,\"samples\":4},\"space.active_route_clear\":{\"complete\":true,\"p50_us\":14,\"p95_us\":243211,\"p99_us\":244969,\"samples\":20},\"space.advance\":{\"complete\":true,\"p50_us\":857,\"p95_us\":969960,\"p99_us\":969960,\"samples\":4},\"space.dispatch_routes\":{\"complete\":true,\"p50_us\":15,\"p95_us\":16,\"p99_us\":16,\"samples\":4},\"space.reserve_doors\":{\"complete\":true,\"p50_us\":41,\"p95_us\":47,\"p99_us\":50,\"samples\":20}},\"inclusive_calls\":{\"clinical.advance\":{\"calls\":4,\"max_us\":19,\"total_us\":56},\"clinical.dispatch\":{\"calls\":4,\"max_us\":8171,\"total_us\":29328},\"clinical.service_candidates.reception\":{\"calls\":464,\"max_us\":1498,\"total_us\":23769},\"navigation.build\":{\"calls\":4,\"max_us\":241288,\"total_us\":951752},\"navigation.graph\":{\"calls\":26,\"max_us\":241352,\"total_us\":952480},\"navigation.graph_new\":{\"calls\":4,\"max_us\":241349,\"total_us\":952007},\"navigation.graph_reuse_or_refresh\":{\"calls\":22,\"max_us\":34,\"total_us\":423},\"navigation.trim\":{\"calls\":52,\"max_us\":3,\"total_us\":41},\"service.arrivals.advance_wait\":{\"calls\":4,\"max_us\":763,\"total_us\":2746},\"service.arrivals.arrivals\":{\"calls\":4,\"max_us\":38,\"total_us\":112},\"service.arrivals.boundaries\":{\"calls\":4,\"max_us\":10,\"total_us\":36},\"service.arrivals.needs\":{\"calls\":4,\"max_us\":1411,\"total_us\":5318},\"service.arrivals.settle\":{\"calls\":4,\"max_us\":179,\"total_us\":601},\"service.departments.advance\":{\"calls\":4,\"max_us\":5,\"total_us\":15},\"service.departments.dispatch\":{\"calls\":4,\"max_us\":74,\"total_us\":275},\"service.departments.sample\":{\"calls\":4,\"max_us\":95991,\"total_us\":134249},\"service.departments.settle\":{\"calls\":4,\"max_us\":541,\"total_us\":1062},\"service.development.advance\":{\"calls\":4,\"max_us\":47,\"total_us\":116},\"service.development.dispatch\":{\"calls\":4,\"max_us\":1137,\"total_us\":3859},\"service.development.settle\":{\"calls\":4,\"max_us\":614,\"total_us\":2324},\"service.environment._coverage\":{\"calls\":960,\"max_us\":593,\"total_us\":61516},\"service.environment._coverage_edges\":{\"calls\":480,\"max_us\":6118,\"total_us\":25407},\"service.environment.advance\":{\"calls\":4,\"max_us\":6,\"total_us\":24},\"service.environment.dispatch\":{\"calls\":4,\"max_us\":102,\"total_us\":331},\"service.environment.environment_at\":{\"calls\":480,\"max_us\":6721,\"total_us\":126713},\"service.finance.settle\":{\"calls\":4,\"max_us\":4042,\"total_us\":9224},\"service.floors.advance\":{\"calls\":4,\"max_us\":3,\"total_us\":12},\"service.floors.dispatch\":{\"calls\":4,\"max_us\":4,\"total_us\":15},\"service.maintenance.advance\":{\"calls\":4,\"max_us\":4,\"total_us\":13},\"service.maintenance.boundaries\":{\"calls\":4,\"max_us\":1707,\"total_us\":6568},\"service.maintenance.dispatch\":{\"calls\":4,\"max_us\":7,\"total_us\":26},\"service.recruitment.advance\":{\"calls\":4,\"max_us\":43,\"total_us\":124},\"service.recruitment.boundaries\":{\"calls\":4,\"max_us\":46,\"total_us\":150},\"service.recruitment.settle\":{\"calls\":4,\"max_us\":112,\"total_us\":413},\"service.remodel.dispatch\":{\"calls\":4,\"max_us\":3,\"total_us\":10},\"service.research.advance\":{\"calls\":4,\"max_us\":6,\"total_us\":21},\"service.research.boundaries\":{\"calls\":4,\"max_us\":5,\"total_us\":20},\"service.research.settle\":{\"calls\":4,\"max_us\":7,\"total_us\":27},\"service.scheduler.advance\":{\"calls\":4,\"max_us\":5,\"total_us\":13},\"service.scheduler.boundaries\":{\"calls\":4,\"max_us\":511,\"total_us\":1963},\"service.scheduler.dispatch\":{\"calls\":4,\"max_us\":8,\"total_us\":24},\"service.supplies.advance\":{\"calls\":4,\"max_us\":552,\"total_us\":862},\"service.supplies.boundaries\":{\"calls\":4,\"max_us\":35,\"total_us\":131},\"service.waiting.advance\":{\"calls\":4,\"max_us\":6,\"total_us\":23},\"service.waiting.dispatch\":{\"calls\":4,\"max_us\":848,\"total_us\":3183},\"service.wellbeing.advance\":{\"calls\":4,\"max_us\":118,\"total_us\":292},\"service.wellbeing.boundaries\":{\"calls\":4,\"max_us\":211,\"total_us\":814},\"service.wellbeing.dispatch\":{\"calls\":4,\"max_us\":796,\"total_us\":3100},\"space.active_route_clear\":{\"calls\":20,\"max_us\":244969,\"total_us\":967616},\"space.advance\":{\"calls\":4,\"max_us\":969960,\"total_us\":972534},\"space.dispatch_routes\":{\"calls\":4,\"max_us\":16,\"total_us\":61},\"space.reserve_doors\":{\"calls\":20,\"max_us\":50,\"total_us\":811}},\"profile_errors\":[],\"profile_sources\":{\"arrivals\":\"ca95e60121cccce73fba3f977b4774a6a52766c313dd790992246b9d0a188e0b\",\"departments\":\"09655464694246cbddbc09387a671fff6e4c436c7fa5e5ff401a5185f5764b02\",\"development\":\"0d907497266c7788f46916a8653e59c0646facb17ee04d65bf3b41e59e682d2c\",\"environment\":\"bb8c27d3005657a0fa8fb5b659bb7e7dbc867078e033f18a9358458e9dc1f831\",\"finance\":\"cc822b1d57492146a2b8bbeb150ddd5d5f63718696de43db57291fd4aadae638\",\"floors\":\"835b4f2dfe69f701c964c4e2fa6a15198922569bb3c854f74b019083dddea253\",\"maintenance\":\"110c2378990b1289cc9c39a003d67bfad9cb15b74c7910856af0f46ee7b3c7d0\",\"recruitment\":\"86cbd76f587140eed15c6b247e11679a1464e2fba620c81650fc1afa8eca9425\",\"remodel\":\"fee0f66e1192edd7aac212ea8273452434c91cfe843b8b5aeadfed68fa4ca937\",\"research\":\"84baaf24f558174ea48d8a6e9c57cc09a4ff579e0c533f996bdad17ddcd20e86\",\"scheduler\":\"f8896fd984a25ffd3c426d014680053f44964ec534610ecfc76800b0ee3fc496\",\"supplies\":\"99bcba0662fcae3eabcc7521a09ca76e1a73ec078768db17188b39e28a43b839\",\"waiting\":\"6c37fd52bea737f8a7dff84609d16e988c5f7e337ca80a4d919a42ac9bdf0c07\",\"wellbeing\":\"ed1aae8a0340535211764c6a9dac34cc2992346af26e157a3a71cd4ea286b1b8\"},\"stages_us\":{}},\"sessions\":0,\"tick\":8}\r\nPERFORMANCE_STEP={\"elapsed_ms\":35.921,\"events\":1,\"moves\":5,\"preparations\":0,\"present\":160,\"profile\":{\"call_distributions\":{\"clinical.advance\":{\"complete\":true,\"p50_us\":13,\"p95_us\":19,\"p99_us\":19,\"samples\":5},\"clinical.dispatch\":{\"complete\":true,\"p50_us\":7333,\"p95_us\":8171,\"p99_us\":8171,\"samples\":5},\"clinical.service_candidates.reception\":{\"complete\":true,\"p50_us\":46,\"p95_us\":60,\"p99_us\":97,\"samples\":580},\"navigation.build\":{\"complete\":true,\"p50_us\":237271,\"p95_us\":241288,\"p99_us\":241288,\"samples\":4},\"navigation.graph\":{\"complete\":true,\"p50_us\":20,\"p95_us\":239515,\"p99_us\":241352,\"samples\":31},\"navigation.graph_new\":{\"complete\":true,\"p50_us\":237328,\"p95_us\":241349,\"p99_us\":241349,\"samples\":4},\"navigation.graph_reuse_or_refresh\":{\"complete\":true,\"p50_us\":17,\"p95_us\":34,\"p99_us\":34,\"samples\":27},\"navigation.trim\":{\"complete\":true,\"p50_us\":1,\"p95_us\":2,\"p99_us\":3,\"samples\":62},\"service.arrivals.advance_wait\":{\"complete\":true,\"p50_us\":659,\"p95_us\":763,\"p99_us\":763,\"samples\":5},\"service.arrivals.arrivals\":{\"complete\":true,\"p50_us\":25,\"p95_us\":38,\"p99_us\":38,\"samples\":5},\"service.arrivals.boundaries\":{\"complete\":true,\"p50_us\":10,\"p95_us\":10,\"p99_us\":10,\"samples\":5},\"service.arrivals.needs\":{\"complete\":true,\"p50_us\":1277,\"p95_us\":1411,\"p99_us\":1411,\"samples\":5},\"service.arrivals.settle\":{\"complete\":true,\"p50_us\":136,\"p95_us\":179,\"p99_us\":179,\"samples\":5},\"service.departments.advance\":{\"complete\":true,\"p50_us\":3,\"p95_us\":5,\"p99_us\":5,\"samples\":5},\"service.departments.dispatch\":{\"complete\":true,\"p50_us\":68,\"p95_us\":74,\"p99_us\":74,\"samples\":5},\"service.departments.sample\":{\"complete\":true,\"p50_us\":12953,\"p95_us\":95991,\"p99_us\":95991,\"samples\":5},\"service.departments.settle\":{\"complete\":true,\"p50_us\":173,\"p95_us\":541,\"p99_us\":541,\"samples\":5},\"service.development.advance\":{\"complete\":true,\"p50_us\":24,\"p95_us\":47,\"p99_us\":47,\"samples\":5},\"service.development.dispatch\":{\"complete\":true,\"p50_us\":907,\"p95_us\":1137,\"p99_us\":1137,\"samples\":5},\"service.development.settle\":{\"complete\":true,\"p50_us\":561,\"p95_us\":614,\"p99_us\":614,\"samples\":5},\"service.environment._coverage\":{\"complete\":true,\"p50_us\":3,\"p95_us\":303,\"p99_us\":402,\"samples\":1200},\"service.environment._coverage_edges\":{\"complete\":true,\"p50_us\":1,\"p95_us\":2,\"p99_us\":147,\"samples\":600},\"service.environment.advance\":{\"complete\":true,\"p50_us\":6,\"p95_us\":6,\"p99_us\":6,\"samples\":5},\"service.environment.dispatch\":{\"complete\":true,\"p50_us\":77,\"p95_us\":102,\"p99_us\":102,\"samples\":5},\"service.environment.environment_at\":{\"complete\":true,\"p50_us\":92,\"p95_us\":658,\"p99_us\":1028,\"samples\":600},\"service.finance.settle\":{\"complete\":true,\"p50_us\":1747,\"p95_us\":4042,\"p99_us\":4042,\"samples\":5},\"service.floors.advance\":{\"complete\":true,\"p50_us\":3,\"p95_us\":3,\"p99_us\":3,\"samples\":5},\"service.floors.dispatch\":{\"complete\":true,\"p50_us\":4,\"p95_us\":4,\"p99_us\":4,\"samples\":5},\"service.maintenance.advance\":{\"complete\":true,\"p50_us\":3,\"p95_us\":4,\"p99_us\":4,\"samples\":5},\"service.maintenance.boundaries\":{\"complete\":true,\"p50_us\":1629,\"p95_us\":1707,\"p99_us\":1707,\"samples\":5},\"service.maintenance.dispatch\":{\"complete\":true,\"p50_us\":6,\"p95_us\":7,\"p99_us\":7,\"samples\":5},\"service.recruitment.advance\":{\"complete\":true,\"p50_us\":27,\"p95_us\":43,\"p99_us\":43,\"samples\":5},\"service.recruitment.boundaries\":{\"complete\":true,\"p50_us\":36,\"p95_us\":46,\"p99_us\":46,\"samples\":5},\"service.recruitment.settle\":{\"complete\":true,\"p50_us\":101,\"p95_us\":112,\"p99_us\":112,\"samples\":5},\"service.remodel.dispatch\":{\"complete\":true,\"p50_us\":3,\"p95_us\":3,\"p99_us\":3,\"samples\":5},\"service.research.advance\":{\"complete\":true,\"p50_us\":5,\"p95_us\":6,\"p99_us\":6,\"samples\":5},\"service.research.boundaries\":{\"complete\":true,\"p50_us\":5,\"p95_us\":5,\"p99_us\":5,\"samples\":5},\"service.research.settle\":{\"complete\":true,\"p50_us\":7,\"p95_us\":7,\"p99_us\":7,\"samples\":5},\"service.scheduler.advance\":{\"complete\":true,\"p50_us\":3,\"p95_us\":5,\"p99_us\":5,\"samples\":5},\"service.scheduler.boundaries\":{\"complete\":true,\"p50_us\":495,\"p95_us\":545,\"p99_us\":545,\"samples\":5},\"service.scheduler.dispatch\":{\"complete\":true,\"p50_us\":5,\"p95_us\":8,\"p99_us\":8,\"samples\":5},\"service.supplies.advance\":{\"complete\":true,\"p50_us\":98,\"p95_us\":552,\"p99_us\":552,\"samples\":5},\"service.supplies.boundaries\":{\"complete\":true,\"p50_us\":32,\"p95_us\":35,\"p99_us\":35,\"samples\":5},\"service.waiting.advance\":{\"complete\":true,\"p50_us\":6,\"p95_us\":7,\"p99_us\":7,\"samples\":5},\"service.waiting.dispatch\":{\"complete\":true,\"p50_us\":815,\"p95_us\":851,\"p99_us\":851,\"samples\":5},\"service.wellbeing.advance\":{\"complete\":true,\"p50_us\":62,\"p95_us\":118,\"p99_us\":118,\"samples\":5},\"service.wellbeing.boundaries\":{\"complete\":true,\"p50_us\":207,\"p95_us\":261,\"p99_us\":261,\"samples\":5},\"service.wellbeing.dispatch\":{\"complete\":true,\"p50_us\":777,\"p95_us\":796,\"p99_us\":796,\"samples\":5},\"space.active_route_clear\":{\"complete\":true,\"p50_us\":14,\"p95_us\":243211,\"p99_us\":244969,\"samples\":25},\"space.advance\":{\"complete\":true,\"p50_us\":858,\"p95_us\":969960,\"p99_us\":969960,\"samples\":5},\"space.dispatch_routes\":{\"complete\":true,\"p50_us\":15,\"p95_us\":20,\"p99_us\":20,\"samples\":5},\"space.reserve_doors\":{\"complete\":true,\"p50_us\":41,\"p95_us\":47,\"p99_us\":50,\"samples\":25}},\"inclusive_calls\":{\"clinical.advance\":{\"calls\":5,\"max_us\":19,\"total_us\":68},\"clinical.dispatch\":{\"calls\":5,\"max_us\":8171,\"total_us\":36661},\"clinical.service_candidates.reception\":{\"calls\":580,\"max_us\":1498,\"total_us\":29623},\"navigation.build\":{\"calls\":4,\"max_us\":241288,\"total_us\":951752},\"navigation.graph\":{\"calls\":31,\"max_us\":241352,\"total_us\":952588},\"navigation.graph_new\":{\"calls\":4,\"max_us\":241349,\"total_us\":952007},\"navigation.graph_reuse_or_refresh\":{\"calls\":27,\"max_us\":34,\"total_us\":522},\"navigation.trim\":{\"calls\":62,\"max_us\":3,\"total_us\":47},\"service.arrivals.advance_wait\":{\"calls\":5,\"max_us\":763,\"total_us\":3401},\"service.arrivals.arrivals\":{\"calls\":5,\"max_us\":38,\"total_us\":137},\"service.arrivals.boundaries\":{\"calls\":5,\"max_us\":10,\"total_us\":46},\"service.arrivals.needs\":{\"calls\":5,\"max_us\":1411,\"total_us\":6546},\"service.arrivals.settle\":{\"calls\":5,\"max_us\":179,\"total_us\":711},\"service.departments.advance\":{\"calls\":5,\"max_us\":5,\"total_us\":18},\"service.departments.dispatch\":{\"calls\":5,\"max_us\":74,\"total_us\":344},\"service.departments.sample\":{\"calls\":5,\"max_us\":95991,\"total_us\":146511},\"service.departments.settle\":{\"calls\":5,\"max_us\":541,\"total_us\":1221},\"service.development.advance\":{\"calls\":5,\"max_us\":47,\"total_us\":142},\"service.development.dispatch\":{\"calls\":5,\"max_us\":1137,\"total_us\":4762},\"service.development.settle\":{\"calls\":5,\"max_us\":614,\"total_us\":2862},\"service.environment._coverage\":{\"calls\":1200,\"max_us\":593,\"total_us\":62308},\"service.environment._coverage_edges\":{\"calls\":600,\"max_us\":6118,\"total_us\":25987},\"service.environment.advance\":{\"calls\":5,\"max_us\":6,\"total_us\":29},\"service.environment.dispatch\":{\"calls\":5,\"max_us\":102,\"total_us\":411},\"service.environment.environment_at\":{\"calls\":600,\"max_us\":6721,\"total_us\":137299},\"service.finance.settle\":{\"calls\":5,\"max_us\":4042,\"total_us\":10915},\"service.floors.advance\":{\"calls\":5,\"max_us\":3,\"total_us\":15},\"service.floors.dispatch\":{\"calls\":5,\"max_us\":4,\"total_us\":19},\"service.maintenance.advance\":{\"calls\":5,\"max_us\":4,\"total_us\":16},\"service.maintenance.boundaries\":{\"calls\":5,\"max_us\":1707,\"total_us\":8197},\"service.maintenance.dispatch\":{\"calls\":5,\"max_us\":7,\"total_us\":32},\"service.recruitment.advance\":{\"calls\":5,\"max_us\":43,\"total_us\":151},\"service.recruitment.boundaries\":{\"calls\":5,\"max_us\":46,\"total_us\":191},\"service.recruitment.settle\":{\"calls\":5,\"max_us\":112,\"total_us\":505},\"service.remodel.dispatch\":{\"calls\":5,\"max_us\":3,\"total_us\":13},\"service.research.advance\":{\"calls\":5,\"max_us\":6,\"total_us\":26},\"service.research.boundaries\":{\"calls\":5,\"max_us\":5,\"total_us\":25},\"service.research.settle\":{\"calls\":5,\"max_us\":7,\"total_us\":33},\"service.scheduler.advance\":{\"calls\":5,\"max_us\":5,\"total_us\":16},\"service.scheduler.boundaries\":{\"calls\":5,\"max_us\":545,\"total_us\":2508},\"service.scheduler.dispatch\":{\"calls\":5,\"max_us\":8,\"total_us\":29},\"service.supplies.advance\":{\"calls\":5,\"max_us\":552,\"total_us\":959},\"service.supplies.boundaries\":{\"calls\":5,\"max_us\":35,\"total_us\":162},\"service.waiting.advance\":{\"calls\":5,\"max_us\":7,\"total_us\":30},\"service.waiting.dispatch\":{\"calls\":5,\"max_us\":851,\"total_us\":4034},\"service.wellbeing.advance\":{\"calls\":5,\"max_us\":118,\"total_us\":354},\"service.wellbeing.boundaries\":{\"calls\":5,\"max_us\":261,\"total_us\":1075},\"service.wellbeing.dispatch\":{\"calls\":5,\"max_us\":796,\"total_us\":3877},\"space.active_route_clear\":{\"calls\":25,\"max_us\":244969,\"total_us\":967675},\"space.advance\":{\"calls\":5,\"max_us\":969960,\"total_us\":973392},\"space.dispatch_routes\":{\"calls\":5,\"max_us\":20,\"total_us\":81},\"space.reserve_doors\":{\"calls\":25,\"max_us\":50,\"total_us\":1009}},\"profile_errors\":[],\"profile_sources\":{\"arrivals\":\"ca95e60121cccce73fba3f977b4774a6a52766c313dd790992246b9d0a188e0b\",\"departments\":\"09655464694246cbddbc09387a671fff6e4c436c7fa5e5ff401a5185f5764b02\",\"development\":\"0d907497266c7788f46916a8653e59c0646facb17ee04d65bf3b41e59e682d2c\",\"environment\":\"bb8c27d3005657a0fa8fb5b659bb7e7dbc867078e033f18a9358458e9dc1f831\",\"finance\":\"cc822b1d57492146a2b8bbeb150ddd5d5f63718696de43db57291fd4aadae638\",\"floors\":\"835b4f2dfe69f701c964c4e2fa6a15198922569bb3c854f74b019083dddea253\",\"maintenance\":\"110c2378990b1289cc9c39a003d67bfad9cb15b74c7910856af0f46ee7b3c7d0\",\"recruitment\":\"86cbd76f587140eed15c6b247e11679a1464e2fba620c81650fc1afa8eca9425\",\"remodel\":\"fee0f66e1192edd7aac212ea8273452434c91cfe843b8b5aeadfed68fa4ca937\",\"research\":\"84baaf24f558174ea48d8a6e9c57cc09a4ff579e0c533f996bdad17ddcd20e86\",\"scheduler\":\"f8896fd984a25ffd3c426d014680053f44964ec534610ecfc76800b0ee3fc496\",\"supplies\":\"99bcba0662fcae3eabcc7521a09ca76e1a73ec078768db17188b39e28a43b839\",\"waiting\":\"6c37fd52bea737f8a7dff84609d16e988c5f7e337ca80a4d919a42ac9bdf0c07\",\"wellbeing\":\"ed1aae8a0340535211764c6a9dac34cc2992346af26e157a3a71cd4ea286b1b8\"},\"stages_us\":{}},\"sessions\":0,\"tick\":9}\r\n",
+      "stderr": ""
+    },
+    {
+      "name": "prepared",
+      "stdout_path": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle2-quick-r1/prepared.stdout.txt",
+      "stderr_path": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle2-quick-r1/prepared.stderr.txt",
+      "stdout_sha256": "a89d8352ed9badf8c167c7650fdec1a9bed49c7097785658137664ce9672724c",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org\r\n\r\nPERFORMANCE_FIXTURE={\"description\":{\"actors\":6,\"beds\":0,\"boundary\":\"built hospital; admitted patients before reception; actual production services thereafter\",\"errors\":[],\"facilities\":19,\"floors\":[1],\"patients\":0,\"rooms\":6,\"staff\":6,\"visitors\":0},\"elapsed_ms\":339.503,\"validation\":\"\"}\r\nPERFORMANCE_PREPARED={\"classes\":10,\"diagnostic\":true,\"initial\":{\"bottleneck\":\"staff:starter_doctor_b\",\"bottleneck_kind\":\"exhausted_resource\",\"bundle_count\":10,\"capacity\":{\"d\":\"75737\",\"n\":\"800000\"},\"certificate_nonzeros\":23,\"coefficient_count\":50,\"columns_per_round\":[0],\"edge_count\":75,\"lp_rounds\":1,\"node_count\":50,\"pricing_calls\":2,\"resolution_count\":1,\"resource_count\":7,\"solver_kind\":\"lp\",\"structural_pairs\":1,\"timing_us\":{\"certificate_build_us\":278,\"lock_wait_us\":1,\"lp_optimize_us\":1277,\"model_build_us\":865,\"node_intern_us\":126,\"pricing_us\":43,\"variant_and_graph_input_us\":739},\"used_resource_count\":7},\"profile\":{\"call_distributions\":{\"clinical.arrival_candidate\":{\"complete\":true,\"p50_us\":4591,\"p95_us\":19471,\"p99_us\":19471,\"samples\":12},\"clinical.reference_bundle\":{\"complete\":true,\"p50_us\":447,\"p95_us\":3803,\"p99_us\":3803,\"samples\":10},\"clinical.reference_demand\":{\"complete\":true,\"p50_us\":8817,\"p95_us\":21402,\"p99_us\":21402,\"samples\":12},\"clinical.reference_model\":{\"complete\":true,\"p50_us\":2125,\"p95_us\":5549,\"p99_us\":5549,\"samples\":10},\"clinical.reference_options.first\":{\"complete\":true,\"p50_us\":5724,\"p95_us\":19479,\"p99_us\":19479,\"samples\":12},\"clinical.reference_options.retry\":{\"complete\":true,\"p50_us\":191,\"p95_us\":233,\"p99_us\":233,\"samples\":10},\"clinical.reference_terminal_bundle\":{\"complete\":true,\"p50_us\":482,\"p95_us\":3754,\"p99_us\":3770,\"samples\":30},\"clinical.reference_with_retry\":{\"complete\":true,\"p50_us\":133,\"p95_us\":172,\"p99_us\":172,\"samples\":10},\"clinical.service_candidates.consult\":{\"complete\":true,\"p50_us\":1300,\"p95_us\":1669,\"p99_us\":1669,\"samples\":4},\"clinical.service_candidates.gp\":{\"complete\":true,\"p50_us\":736,\"p95_us\":894,\"p99_us\":894,\"samples\":4},\"clinical.service_candidates.outpatient\":{\"complete\":true,\"p50_us\":2046,\"p95_us\":2543,\"p99_us\":2790,\"samples\":23},\"clinical.service_candidates.reception\":{\"complete\":true,\"p50_us\":841,\"p95_us\":874,\"p99_us\":874,\"samples\":4},\"navigation.build\":{\"complete\":true,\"p50_us\":10821,\"p95_us\":13094,\"p99_us\":13094,\"samples\":2},\"navigation.distance_field\":{\"complete\":true,\"p50_us\":1743,\"p95_us\":1853,\"p99_us\":1853,\"samples\":4},\"navigation.graph\":{\"complete\":true,\"p50_us\":15,\"p95_us\":207,\"p99_us\":285,\"samples\":512},\"navigation.graph_new\":{\"complete\":true,\"p50_us\":11187,\"p95_us\":13368,\"p99_us\":13368,\"samples\":2},\"navigation.graph_reuse_or_refresh\":{\"complete\":true,\"p50_us\":13,\"p95_us\":204,\"p99_us\":257,\"samples\":510},\"navigation.trim\":{\"complete\":true,\"p50_us\":1,\"p95_us\":1,\"p99_us\":2,\"samples\":804},\"service.arrivals._capacity_part\":{\"complete\":true,\"p50_us\":13,\"p95_us\":20,\"p99_us\":63,\"samples\":60},\"service.arrivals._capacity_reference_world\":{\"complete\":true,\"p50_us\":43,\"p95_us\":43,\"p99_us\":43,\"samples\":1},\"service.arrivals._case_experience\":{\"complete\":true,\"p50_us\":134,\"p95_us\":153,\"p99_us\":153,\"samples\":5},\"service.arrivals._normalize_bundle\":{\"complete\":true,\"p50_us\":10,\"p95_us\":17,\"p99_us\":25,\"samples\":60},\"service.arrivals._reference_basis\":{\"complete\":true,\"p50_us\":360,\"p95_us\":469,\"p99_us\":469,\"samples\":3},\"service.arrivals._reference_classes\":{\"complete\":true,\"p50_us\":592,\"p95_us\":130002,\"p99_us\":130002,\"samples\":3},\"service.arrivals._reference_geometry_basis\":{\"complete\":true,\"p50_us\":31,\"p95_us\":217,\"p99_us\":217,\"samples\":9},\"service.arrivals._reference_variant\":{\"complete\":true,\"p50_us\":404,\"p95_us\":583,\"p99_us\":583,\"samples\":12},\"service.arrivals._resource_budgets\":{\"complete\":true,\"p50_us\":76,\"p95_us\":85,\"p99_us\":85,\"samples\":3},\"service.arrivals._solve_roles\":{\"complete\":true,\"p50_us\":47,\"p95_us\":15123,\"p99_us\":15123,\"samples\":3},\"service.arrivals._structural_pairs\":{\"complete\":true,\"p50_us\":10977,\"p95_us\":10977,\"p99_us\":10977,\"samples\":1},\"space.facility_quote\":{\"complete\":true,\"p50_us\":19,\"p95_us\":382,\"p99_us\":502,\"samples\":77},\"space.floor_route\":{\"complete\":true,\"p50_us\":130,\"p95_us\":468,\"p99_us\":625,\"samples\":281},\"space.route\":{\"complete\":true,\"p50_us\":234,\"p95_us\":647,\"p99_us\":707,\"samples\":198}},\"inclusive_calls\":{\"clinical.arrival_candidate\":{\"calls\":12,\"max_us\":19471,\"total_us\":76541},\"clinical.reference_bundle\":{\"calls\":10,\"max_us\":3803,\"total_us\":10618},\"clinical.reference_demand\":{\"calls\":12,\"max_us\":21402,\"total_us\":122301},\"clinical.reference_model\":{\"calls\":10,\"max_us\":5549,\"total_us\":27094},\"clinical.reference_options.first\":{\"calls\":12,\"max_us\":19479,\"total_us\":94870},\"clinical.reference_options.retry\":{\"calls\":10,\"max_us\":233,\"total_us\":1989},\"clinical.reference_terminal_bundle\":{\"calls\":30,\"max_us\":3770,\"total_us\":20215},\"clinical.reference_with_retry\":{\"calls\":10,\"max_us\":172,\"total_us\":1392},\"clinical.service_candidates.consult\":{\"calls\":4,\"max_us\":1669,\"total_us\":5587},\"clinical.service_candidates.gp\":{\"calls\":4,\"max_us\":894,\"total_us\":3110},\"clinical.service_candidates.outpatient\":{\"calls\":23,\"max_us\":2790,\"total_us\":43384},\"clinical.service_candidates.reception\":{\"calls\":4,\"max_us\":874,\"total_us\":3350},\"navigation.build\":{\"calls\":2,\"max_us\":13094,\"total_us\":23915},\"navigation.distance_field\":{\"calls\":4,\"max_us\":1853,\"total_us\":7122},\"navigation.graph\":{\"calls\":512,\"max_us\":13370,\"total_us\":50463},\"navigation.graph_new\":{\"calls\":2,\"max_us\":13368,\"total_us\":24555},\"navigation.graph_reuse_or_refresh\":{\"calls\":510,\"max_us\":400,\"total_us\":25065},\"navigation.trim\":{\"calls\":804,\"max_us\":3,\"total_us\":443},\"service.arrivals._capacity_part\":{\"calls\":60,\"max_us\":63,\"total_us\":865},\"service.arrivals._capacity_reference_world\":{\"calls\":1,\"max_us\":43,\"total_us\":43},\"service.arrivals._case_experience\":{\"calls\":5,\"max_us\":153,\"total_us\":601},\"service.arrivals._normalize_bundle\":{\"calls\":60,\"max_us\":25,\"total_us\":688},\"service.arrivals._reference_basis\":{\"calls\":3,\"max_us\":469,\"total_us\":1126},\"service.arrivals._reference_classes\":{\"calls\":3,\"max_us\":130002,\"total_us\":130941},\"service.arrivals._reference_geometry_basis\":{\"calls\":9,\"max_us\":217,\"total_us\":649},\"service.arrivals._reference_variant\":{\"calls\":12,\"max_us\":583,\"total_us\":4439},\"service.arrivals._resource_budgets\":{\"calls\":3,\"max_us\":85,\"total_us\":214},\"service.arrivals._solve_roles\":{\"calls\":3,\"max_us\":15123,\"total_us\":15196},\"service.arrivals._structural_pairs\":{\"calls\":1,\"max_us\":10977,\"total_us\":10977},\"space.facility_quote\":{\"calls\":77,\"max_us\":502,\"total_us\":4653},\"space.floor_route\":{\"calls\":281,\"max_us\":679,\"total_us\":48759},\"space.route\":{\"calls\":198,\"max_us\":729,\"total_us\":55351}},\"profile_errors\":[],\"profile_sources\":{\"arrivals\":\"ca95e60121cccce73fba3f977b4774a6a52766c313dd790992246b9d0a188e0b\",\"departments\":\"09655464694246cbddbc09387a671fff6e4c436c7fa5e5ff401a5185f5764b02\",\"development\":\"0d907497266c7788f46916a8653e59c0646facb17ee04d65bf3b41e59e682d2c\",\"environment\":\"bb8c27d3005657a0fa8fb5b659bb7e7dbc867078e033f18a9358458e9dc1f831\",\"finance\":\"cc822b1d57492146a2b8bbeb150ddd5d5f63718696de43db57291fd4aadae638\",\"floors\":\"835b4f2dfe69f701c964c4e2fa6a15198922569bb3c854f74b019083dddea253\",\"maintenance\":\"110c2378990b1289cc9c39a003d67bfad9cb15b74c7910856af0f46ee7b3c7d0\",\"recruitment\":\"86cbd76f587140eed15c6b247e11679a1464e2fba620c81650fc1afa8eca9425\",\"remodel\":\"fee0f66e1192edd7aac212ea8273452434c91cfe843b8b5aeadfed68fa4ca937\",\"research\":\"84baaf24f558174ea48d8a6e9c57cc09a4ff579e0c533f996bdad17ddcd20e86\",\"scheduler\":\"f8896fd984a25ffd3c426d014680053f44964ec534610ecfc76800b0ee3fc496\",\"supplies\":\"99bcba0662fcae3eabcc7521a09ca76e1a73ec078768db17188b39e28a43b839\",\"waiting\":\"6c37fd52bea737f8a7dff84609d16e988c5f7e337ca80a4d919a42ac9bdf0c07\",\"wellbeing\":\"ed1aae8a0340535211764c6a9dac34cc2992346af26e157a3a71cd4ea286b1b8\"},\"stages_us\":{}},\"reference_ms\":130.014,\"resources\":7,\"solve_ms\":15.128,\"tracked_bytes\":91710911,\"valid\":true,\"warm\":[{\"elapsed_ms\":0.742,\"result\":{\"bottleneck\":\"staff:starter_doctor_b\",\"bottleneck_kind\":\"exhausted_resource\",\"bundle_count\":10,\"capacity\":{\"d\":\"75737\",\"n\":\"800000\"},\"certificate_nonzeros\":23,\"coefficient_count\":50,\"columns_per_round\":[0],\"edge_count\":75,\"lp_rounds\":1,\"node_count\":50,\"pricing_calls\":2,\"resolution_count\":1,\"resource_count\":7,\"solver_kind\":\"lp\",\"structural_pairs\":1,\"timing_us\":{\"certificate_build_us\":278,\"lock_wait_us\":1,\"lp_optimize_us\":1277,\"model_build_us\":865,\"node_intern_us\":126,\"pricing_us\":43,\"variant_and_graph_input_us\":739},\"used_resource_count\":7}},{\"elapsed_ms\":0.437,\"result\":{\"bottleneck\":\"staff:starter_doctor_b\",\"bottleneck_kind\":\"exhausted_resource\",\"bundle_count\":10,\"capacity\":{\"d\":\"75737\",\"n\":\"800000\"},\"certificate_nonzeros\":23,\"coefficient_count\":50,\"columns_per_round\":[0],\"edge_count\":75,\"lp_rounds\":1,\"node_count\":50,\"pricing_calls\":2,\"resolution_count\":1,\"resource_count\":7,\"solver_kind\":\"lp\",\"structural_pairs\":1,\"timing_us\":{\"certificate_build_us\":278,\"lock_wait_us\":1,\"lp_optimize_us\":1277,\"model_build_us\":865,\"node_intern_us\":126,\"pricing_us\":43,\"variant_and_graph_input_us\":739},\"used_resource_count\":7}}]}\r\n",
+      "stderr": ""
+    },
+    {
+      "name": "reference",
+      "stdout_path": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle2-quick-r1/reference.stdout.txt",
+      "stderr_path": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle2-quick-r1/reference.stderr.txt",
+      "stdout_sha256": "0db5235bea7dba04f6a68ae3dff5b0b4e51f4c3b53c22bfcbdddcabadc025449",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org\r\n\r\nPERFORMANCE_FIXTURE={\"description\":{\"actors\":160,\"beds\":24,\"boundary\":\"built hospital; admitted patients before reception; actual production services thereafter\",\"errors\":[],\"facilities\":1328,\"floors\":[1,2,3,4],\"patients\":120,\"rooms\":64,\"staff\":32,\"visitors\":8},\"elapsed_ms\":401.978,\"validation\":\"\"}\r\n",
+      "stderr": ""
+    }
+  ],
+  "post_run_head": "2f03731eef1df25e357ed54b5f085fac709b063b"
+}
