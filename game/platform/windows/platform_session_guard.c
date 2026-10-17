@@ -10,6 +10,15 @@
 #include "gdextension_interface.h"
 #include "platform_guard_abi.h"
 
+uint64_t ogh_current_thread_cpu_us(void) {
+    FILETIME created, exited, kernel, user;
+    if (!GetThreadTimes(GetCurrentThread(), &created, &exited, &kernel, &user)) return UINT64_MAX;
+    ULARGE_INTEGER k, u;
+    k.LowPart = kernel.dwLowDateTime; k.HighPart = kernel.dwHighDateTime;
+    u.LowPart = user.dwLowDateTime; u.HighPart = user.dwHighDateTime;
+    return (k.QuadPart + u.QuadPart) / 10;
+}
+
 /* Sizes and method hashes come from this build's engine-generated API. */
 typedef struct { uint64_t words[OGH_VARIANT_SIZE / 8]; } Variant;
 typedef struct { uint64_t words[OGH_STRING_SIZE / 8]; } String;

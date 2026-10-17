@@ -6,7 +6,6 @@ var calls: Dictionary = {}
 var profile_sources: Dictionary = {}
 var profile_errors: Array = []
 var snapshot_path: String = ""
-var _snapshot_written: int = 0
 
 func finish(stage: String, started: int) -> void:
 	var elapsed: int = Time.get_ticks_usec()-started
@@ -21,14 +20,13 @@ func count(operation: String, started: int) -> void:
 	entry.total_us += elapsed
 	entry.max_us = maxi(entry.max_us,elapsed)
 	calls[operation] = entry
-	if not snapshot_path.is_empty() and Time.get_ticks_usec()-_snapshot_written>=2000000:
-		_snapshot()
+	# Hot-path counters remain in memory. Serialization belongs to an explicit
+	# diagnostic boundary, outside measured execution.
 
 func _snapshot() -> void:
 	if snapshot_path.is_empty(): return
 	var file: FileAccess = FileAccess.open(snapshot_path,FileAccess.WRITE)
 	if file!=null: file.store_string(JSON.stringify(report(),"\t"))
-	_snapshot_written = Time.get_ticks_usec()
 
 func report() -> Dictionary:
 	return {"stages_us":stages.duplicate(true),"inclusive_calls":calls.duplicate(true),"profile_sources":profile_sources.duplicate(),"profile_errors":profile_errors.duplicate()}
@@ -50,16 +48,11 @@ func solver() -> RefCounted:
 		var arguments: PackedStringArray = []
 		for argument: Dictionary in method.args: arguments.append(str(argument.name))
 		wrappers += header+"\n\tvar started: int = Time.get_ticks_usec()\n"
-		var macro: bool = name in ["solve","_maximize","_coalesce_cases"]
-		if macro: wrappers += "\tprint(\"SOLVER_ENTER "+name+"\")\n"
 		var returns: bool = int(method["return"].type)!=TYPE_NIL
 		wrappers += "\t"+("var result: "+type_string(int(method["return"].type))+" = " if returns else "")+"_performance_original_"+name+"("+",".join(arguments)+")\n"
-		if name=="_eliminate": wrappers += "\tif Time.get_ticks_usec()-_performance_timing._snapshot_written>=2000000:\n\t\tvar digits: int = 0\n\t\tfor fraction: Dictionary in row.a.values(): digits = maxi(digits,maxi(str(fraction.n).length(),str(fraction.d).length()))\n\t\tprint(\"SOLVER_ROW=\"+JSON.stringify({\"coefficients\":row.a.size(),\"digits\":digits}))\n"
 		wrappers += "\t_performance_timing.count(\"solver."+name+"\",started)\n"
-		if name=="_coalesce_cases": wrappers += "\tprint(\"SOLVER_CASE_CLASSES=\"+str(result.get(\"cases\",[]).size()))\n"
-		if macro: wrappers += "\tprint(\"SOLVER_EXIT "+name+" elapsed_us=\"+str(Time.get_ticks_usec()-started))\n"
 		if returns: wrappers += "\treturn result\n"
-	source = source.replace("\t\tfor addition: Dictionary in additions:","\t\tprint(\"SOLVER_ADD_COLUMNS=\"+str(additions.size()))\n\t\tfor addition: Dictionary in additions:")+wrappers
+	source += wrappers
 	var file: FileAccess = FileAccess.open("res://performance-solver-profile.gd",FileAccess.WRITE)
 	file.store_string(source)
 	var script: GDScript = GDScript.new()
@@ -111,8 +104,6 @@ func _profile_service(simulation: HospitalSimulation, key: String) -> void:
 		var returns_value: bool = int(method["return"].type)!=TYPE_NIL
 		var assignment: String = "var result: "+type_string(int(method["return"].type))+" = " if returns_value else ""
 		source += header.get_string()+"\n\tvar started: int = Time.get_ticks_usec()\n\t"+assignment+"super."+name+"("+",".join(arguments)+")\n\t_acceptance_timing.count(\"service."+key+"."+name+"\",started)\n"
-		if key=="arrivals" and name in ["capacity","_reference_classes","_solve_roles","_existing_workload","_structural_pairs"]:
-			source = source.replace(header.get_string()+"\n\tvar started",header.get_string()+"\n\tprint(\"PROFILE_ENTER service."+key+"."+name+"\")\n\tvar started")
 		if returns_value: source += "\treturn result\n"
 		wrapped += 1
 	if wrapped==0: return
@@ -165,9 +156,9 @@ class TimedClinic extends HospitalClinic:
 		var result: Dictionary = super.reference_demand(world,binding_id,complex_case,shift,query)
 		timing.count("clinical.reference_demand",started)
 		return result
-	func service_candidates(world: WorldState, visit: Dictionary, kind: String, structural_only: bool = false, reference_schedule: bool = false) -> Array:
+	func service_candidates(world: WorldState, visit: Dictionary, kind: String, structural_only: bool = false, reference_schedule: bool = false, selection: Dictionary = {}) -> Array:
 		var started: int = Time.get_ticks_usec()
-		var result: Array = super.service_candidates(world,visit,kind,structural_only,reference_schedule)
+		var result: Array = super.service_candidates(world,visit,kind,structural_only,reference_schedule,selection)
 		timing.count("clinical.service_candidates."+kind,started)
 		return result
 	func _reference_bundle(world: WorldState, visit: Dictionary, reception: Dictionary, diagnostic: Dictionary, quote: Dictionary, tests: Dictionary, consultation: Dictionary = {}) -> Dictionary:

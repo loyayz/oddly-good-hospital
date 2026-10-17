@@ -512,6 +512,7 @@ func _case_11() -> Dictionary:
 	var before: Dictionary = ranges.w.freeze()
 	var upgraded_range: Dictionary = ranges.s.services.environment.environment_at(ranges.w,1,[44,85])
 	var exact_ranges: bool = not far_dirt.is_empty() and ranges.w.facts.environment.dirt[far_dirt].cell==[43,81] and original_range.value==43 and upgraded_range.value==49 and upgraded_range.dirt==0 and upgraded_range.clean and before==ranges.w.freeze()
+	exact_ranges = exact_ranges and _sampling_matches(f,[[44,80],[44.25,80.0]]) and _sampling_matches(ranges,[[44,85]])
 	return _result(exact_ranges and f.errors.is_empty() and ranges.errors.is_empty() and clean.value==43 and once.value==49 and twice.value==49 and ids.size()==4 and not "" in ids and dirty.dirt==4 and not dirty.clean and dirty.value==25 and int(twice.value)-int(dirty.value)==24,{"base":clean,"one_category":once,"duplicate_category":twice,"dirty":dirty,"original_range":original_range,"upgraded_range":upgraded_range,"exact_ranges":exact_ranges,"errors":f.errors})
 
 func _case_12() -> Dictionary:
@@ -676,7 +677,24 @@ func _case_18() -> Dictionary:
 	var after_rotation: Dictionary = g.s.services.environment.environment_at(g.w,1,[42.25,83.0])
 	var reset_screen: CommandResult = _command(g,"build_rotate",{"target_id":"ops_noise_screen","rotation":0})
 	var after_reset: Dictionary = g.s.services.environment.environment_at(g.w,1,[42.25,83.0])
+	if not _sampling_matches(f,[[51,88]]) or not _sampling_matches(g,[[42,84],[42,83],[42.25,83.0],[43,82]]): return _result(false,{"sampling_index":"与同一观察边界的逐项来源结果不一致"})
 	return _result(before.noise==0 and running.noise==10 and paused_query.noise==10 and queued.noise==0 and construction.noise==15 and screened.noise==0 and screened_cell.noise==0 and screened_fraction.noise==0 and bypass.noise==15 and moved.accepted and after_move.noise==15 and moved_back.accepted and rotated.accepted and after_rotation.noise==15 and reset_screen.accepted and after_reset.noise==0 and g.errors.is_empty(),{"before":before.noise,"running":running.noise,"queued":queued.noise,"construction":construction.noise,"screened":screened.noise,"screened_cell":screened_cell.noise,"screened_fraction":screened_fraction.noise,"bypass":bypass.noise,"after_move":after_move.noise,"after_rotation":after_rotation.noise,"after_reset":after_reset.noise,"errors":g.errors})
+
+func _sampling_matches(f: Dictionary, cells: Array) -> bool:
+	var service: RefCounted = f.s.services.environment
+	var expected: Array = []
+	var before: Dictionary = f.w.freeze()
+	for cell: Array in cells: expected.append(service.environment_at(f.w,1,cell))
+	service.begin_query(f.w)
+	var equal: bool = true
+	for index: int in cells.size():
+		var current: Dictionary = service.environment_at(f.w,1,cells[index])
+		# Source order is explanatory; compare the same complete source records.
+		for result: Dictionary in [expected[index],current]:
+			result.sources.sort_custom(func(a: Dictionary,b: Dictionary)->bool: return JSON.stringify(a)<JSON.stringify(b))
+		equal = equal and current==expected[index]
+	service.end_query()
+	return equal and before==f.w.freeze()
 
 func _machine(label: String) -> Dictionary:
 	var f: Dictionary = _new(label,false,10000)

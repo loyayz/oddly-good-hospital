@@ -12,15 +12,22 @@
 #include <iterator>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <set>
 #include <stdexcept>
 #include <string>
 #include <tuple>
 #include <vector>
 
+extern "C" uint64_t ogh_current_thread_cpu_us(void);
+
 namespace {
 using Q = soplex::Rational;
 using Z = soplex::Integer;
+// SCIP 10.1 RECTLU uses process-global GMP scratch, initialized/freed by
+// each transformed factorization. Original problems may persist; transformed
+// solves must neither overlap nor outlive the native call that owns them.
+std::recursive_mutex discrete_mutex;
 struct Raw { alignas(8) unsigned char data[OGH_VARIANT_SIZE]; };
 struct Builtin { alignas(8) unsigned char data[8]; };
 GDExtensionInterfaceVariantNewNil new_nil;
@@ -159,7 +166,7 @@ struct PackingProgram {
     std::vector<SCIP_VAR*> variables;
     std::vector<Q> bounds;
     std::vector<bool> integral;
-    struct Row { std::vector<std::pair<int, Q>> terms; Q upper; };
+    struct Row { std::vector<std::pair<int, Q>> terms; Q upper; SCIP_CONS* constraint; };
     std::vector<Row> rows;
     PackingProgram() {
         try {
@@ -205,7 +212,7 @@ struct PackingProgram {
         for (auto& term : terms) term.second = -term.second;
         less_equal(std::move(terms), Q(0));
     }
-    void less_equal(std::vector<std::pair<int, Q>> terms, const Q& upper) {
+    int less_equal(std::vector<std::pair<int, Q>> terms, const Q& upper) {
         std::map<int, Q> compact;
         for (const auto& term : terms) compact[term.first] += term.second;
         terms.clear();
@@ -221,10 +228,35 @@ struct PackingProgram {
         SCIP_CONS* constraint = nullptr;
         scip_check(SCIPcreateConsBasicExactLinear(scip, &constraint, ("r" + std::to_string(rows.size())).c_str(), static_cast<int>(vars.size()), vars.data(), coefficients.data(), lower.value, higher.value));
         auto status = SCIPaddCons(scip, constraint);
+        auto* original = constraint; // The original problem retains this constraint.
         SCIPreleaseCons(scip, &constraint); scip_check(status);
-        rows.push_back({std::move(terms), upper});
+        rows.push_back({std::move(terms), upper, original});
+        return static_cast<int>(rows.size()) - 1;
+    }
+    void reopen() { scip_check(SCIPfreeTransform(scip)); }
+    void change_bound(int variable, const Q& upper) {
+        Exact value(upper);
+        scip_check(SCIPchgVarUbExact(scip, variables.at(variable), value.value));
+        bounds.at(variable) = upper;
+    }
+    void change_upper(int row, const Q& upper) {
+        Exact value(upper);
+        scip_check(SCIPchgRhsExactLinear(scip, rows.at(row).constraint, value.value));
+        rows.at(row).upper = upper;
+    }
+    void change_coefficient(int row, int variable, const Q& coefficient) {
+        Exact value(coefficient);
+        scip_check(SCIPchgCoefExactLinear(scip, rows.at(row).constraint, variables.at(variable), value.value));
+        auto& terms = rows.at(row).terms;
+        for (auto& term : terms) if (term.first == variable) { term.second = coefficient; return; }
+        terms.emplace_back(variable, coefficient);
     }
     std::vector<Q> solve_rational() {
+        struct TransformScope {
+            SCIP* problem;
+            ~TransformScope() { if (problem) SCIPfreeTransform(problem); }
+            void release() { scip_check(SCIPfreeTransform(problem)); problem = nullptr; }
+        } transform{scip};
         scip_check(SCIPsolve(scip));
         if (SCIPgetStatus(scip) != SCIP_STATUS_OPTIMAL || !SCIPisExact(scip)) throw std::runtime_error("结构规模尚未得到精确最优解");
         SCIP_SOL* solution = SCIPgetBestSol(scip);
@@ -244,6 +276,7 @@ struct PackingProgram {
             for (const auto& term : row.terms) total += term.second * values[term.first];
             if (total > row.upper) throw std::runtime_error("结构配置违反原始资源约束");
         }
+        transform.release();
         return values;
     }
     std::vector<int> solve() {
@@ -451,6 +484,12 @@ struct Model {
     std::vector<int> certificate_basis;
     std::vector<Resources> certificate_inverse;
     std::vector<Q> certificate_prices;
+    std::unique_ptr<PackingProgram> role_program;
+    int role_total = -1;
+    std::vector<int> role_flow, role_budget_rows;
+    std::vector<std::pair<int, Q>> role_bounds, role_rhs;
+    struct ScaledCoefficient { int row, variable; Q factor; };
+    std::vector<ScaledCoefficient> role_coefficients;
 
     std::string signature(const Resources& values) const {
         std::string result;
@@ -635,71 +674,97 @@ struct Model {
         }
         if (demand <= 0) throw std::runtime_error("岗位容量缺少有限资源上界");
         Q limit = budget / demand;
-        std::vector<Q> upper(nodes.size(), Q(0));
-        for (const Case& item : cases) upper[item.root] += item.probability * limit;
+        std::vector<Q> factors(nodes.size(), Q(0));
+        for (const Case& item : cases) factors[item.root] += item.probability;
         for (size_t i = nodes.size(); i-- > 0;)
-            for (int child : nodes[i].children) upper[child] += upper[i];
+            for (int child : nodes[i].children) factors[child] += factors[i];
+        std::vector<Q> upper;
+        for (const Q& factor : factors) upper.push_back(factor * limit);
 
-        PackingProgram mip;
-        int total = mip.continuous(limit, true);
-        std::vector<int> flow;
-        for (const Q& bound : upper) flow.push_back(mip.continuous(bound));
-        std::vector<std::vector<std::pair<int, Q>>> incoming(nodes.size()), usage(resources.size());
-        for (size_t i = 0; i < nodes.size(); ++i) {
-            const Node& node = nodes[i];
-            incoming[i].emplace_back(flow[i], Q(-1));
-            if (node.choice) {
-                std::vector<std::pair<int, Q>> outgoing{{flow[i], Q(-1)}};
-                for (int child : node.children) {
-                    int edge = mip.continuous(upper[i]);
-                    outgoing.emplace_back(edge, Q(1)); incoming[child].emplace_back(edge, Q(1));
+        if (!role_program) {
+            role_program.reset(new PackingProgram);
+            PackingProgram& mip = *role_program;
+            role_total = mip.continuous(limit, true);
+            int total = role_total;
+            role_bounds.emplace_back(total, Q(1));
+            std::vector<int> flow;
+            for (size_t i = 0; i < upper.size(); ++i) {
+                flow.push_back(mip.continuous(upper[i]));
+                role_bounds.emplace_back(flow.back(), factors[i]);
+            }
+            role_flow = flow;
+            std::vector<std::vector<std::pair<int, Q>>> incoming(nodes.size()), usage(resources.size());
+            for (size_t i = 0; i < nodes.size(); ++i) {
+                const Node& node = nodes[i];
+                incoming[i].emplace_back(flow[i], Q(-1));
+                if (node.choice) {
+                    std::vector<std::pair<int, Q>> outgoing{{flow[i], Q(-1)}};
+                    for (int child : node.children) {
+                        int edge = mip.continuous(upper[i]);
+                        role_bounds.emplace_back(edge, factors[i]);
+                        outgoing.emplace_back(edge, Q(1)); incoming[child].emplace_back(edge, Q(1));
+                    }
+                    mip.equal_rational(std::move(outgoing));
+                } else {
+                    for (int child : node.children) incoming[child].emplace_back(flow[i], Q(1));
                 }
-                mip.equal_rational(std::move(outgoing));
-            } else {
-                for (int child : node.children) incoming[child].emplace_back(flow[i], Q(1));
+                for (const auto& item : node.resources) usage[item.first].emplace_back(flow[i], item.second);
             }
-            for (const auto& item : node.resources) usage[item.first].emplace_back(flow[i], item.second);
-        }
-        for (const Case& item : cases) incoming[item.root].emplace_back(total, item.probability);
-        for (auto& row : incoming) mip.equal_rational(std::move(row));
-        for (size_t i = 0; i < resources.size(); ++i) mip.less_equal(std::move(usage[i]), budgets[i]);
+            for (const Case& item : cases) incoming[item.root].emplace_back(total, item.probability);
+            for (auto& row : incoming) mip.equal_rational(std::move(row));
+            for (size_t i = 0; i < resources.size(); ++i) role_budget_rows.push_back(mip.less_equal(std::move(usage[i]), budgets[i]));
 
-        std::map<int, int> coverage;
-        std::map<std::string, std::vector<int>> nurses;
-        std::map<int, std::string> owners;
-        for (size_t i = 0; i < resources.size(); ++i) {
-            const std::string& name = resources[i];
-            if (name.compare(0, 9, "coverage:") != 0) continue;
-            auto separator = name.find(':', 9);
-            if (separator == std::string::npos) throw std::runtime_error("护理岗位缺少病房身份");
-            std::string nurse = name.substr(9, separator - 9);
-            int role = mip.binary(); coverage[static_cast<int>(i)] = role;
-            nurses[nurse].push_back(role); owners[static_cast<int>(i)] = nurse;
-        }
-        for (const auto& nurse : nurses) {
-            std::vector<std::pair<int, int>> roles;
-            for (int role : nurse.second) roles.emplace_back(role, 1);
-            mip.at_most(std::move(roles), 1);
-        }
-        for (size_t i = 0; i < nodes.size(); ++i) {
-            std::set<std::string> own;
-            for (const auto& item : nodes[i].resources) {
-                auto role = coverage.find(item.first);
-                if (role == coverage.end()) continue;
-                own.insert(owners.at(item.first));
-                mip.less_equal({{flow[i], Q(1)}, {role->second, -upper[i]}}, Q(0));
+            std::map<int, int> coverage;
+            std::map<std::string, std::vector<int>> nurses;
+            std::map<int, std::string> owners;
+            for (size_t i = 0; i < resources.size(); ++i) {
+                const std::string& name = resources[i];
+                if (name.compare(0, 9, "coverage:") != 0) continue;
+                auto separator = name.find(':', 9);
+                if (separator == std::string::npos) throw std::runtime_error("护理岗位缺少病房身份");
+                std::string nurse = name.substr(9, separator - 9);
+                int role = mip.binary(); coverage[static_cast<int>(i)] = role;
+                nurses[nurse].push_back(role); owners[static_cast<int>(i)] = nurse;
             }
-            for (const auto& item : nodes[i].resources) {
-                const std::string& name = resources[item.first];
-                if (name.compare(0, 6, "staff:") != 0) continue;
-                std::string id = name.substr(6);
-                auto nurse = nurses.find(id);
-                if (nurse == nurses.end() || own.count(id)) continue;
-                std::vector<std::pair<int, Q>> exclusive{{flow[i], Q(1)}};
-                for (int role : nurse->second) exclusive.emplace_back(role, upper[i]);
-                mip.less_equal(std::move(exclusive), upper[i]);
+            for (const auto& nurse : nurses) {
+                std::vector<std::pair<int, int>> roles;
+                for (int role : nurse.second) roles.emplace_back(role, 1);
+                mip.at_most(std::move(roles), 1);
             }
+            for (size_t i = 0; i < nodes.size(); ++i) {
+                std::set<std::string> own;
+                for (const auto& item : nodes[i].resources) {
+                    auto role = coverage.find(item.first);
+                    if (role == coverage.end()) continue;
+                    own.insert(owners.at(item.first));
+                    int row = mip.less_equal({{flow[i], Q(1)}, {role->second, -upper[i]}}, Q(0));
+                    role_coefficients.push_back({row, role->second, -factors[i]});
+                }
+                for (const auto& item : nodes[i].resources) {
+                    const std::string& name = resources[item.first];
+                    if (name.compare(0, 6, "staff:") != 0) continue;
+                    std::string id = name.substr(6);
+                    auto nurse = nurses.find(id);
+                    if (nurse == nurses.end() || own.count(id)) continue;
+                    std::vector<std::pair<int, Q>> exclusive{{flow[i], Q(1)}};
+                    for (int role : nurse->second) exclusive.emplace_back(role, upper[i]);
+                    int row = mip.less_equal(std::move(exclusive), upper[i]);
+                    role_rhs.emplace_back(row, factors[i]);
+                    for (int role : nurse->second) role_coefficients.push_back({row, role, factors[i]});
+                }
+            }
+        } else {
+            // Keep the original exact model. SCIP's transformed search state
+            // belongs to the old RHS; discard it before changing original data.
+            role_program->reopen();
+            for (const auto& bound : role_bounds) role_program->change_bound(bound.first, bound.second * limit);
+            for (size_t i = 0; i < budgets.size(); ++i) role_program->change_upper(role_budget_rows[i], budgets[i]);
+            for (const auto& row : role_rhs) role_program->change_upper(row.first, row.second * limit);
+            for (const auto& term : role_coefficients) role_program->change_coefficient(term.row, term.variable, term.factor * limit);
         }
+        PackingProgram& mip = *role_program;
+        const auto& flow = role_flow;
+        int total = role_total;
         auto values = mip.solve_rational();
         std::vector<Q> amounts, used(resources.size(), Q(0));
         for (const Case& item : cases) amounts.push_back(values[flow[item.root]]);
@@ -824,6 +889,25 @@ V calculate_integer(int operation, const V& first, const V& second) {
     D output; output.set("value", V::text(result.str())); output.set("remainder", V::text(remainder.str())); return output.value();
 }
 struct CapacityInstance { std::unique_ptr<Model> model; };
+V aggregate_stages(const V& raw_stages, const V& raw_weight) {
+    D stages(raw_stages), output, weighted, totals;
+    Q weight = rational(raw_weight);
+    std::map<std::string, Q> resources;
+    A names(stages.keys());
+    for (int64_t i = 0; i < names.size(); ++i) {
+        V name = names.at(i); D stage(stages.get(name)), values;
+        A ids(stage.keys());
+        for (int64_t j = 0; j < ids.size(); ++j) {
+            V id = ids.at(j); Q amount = rational(stage.get(id)) * weight;
+            resources[id.text()] += amount;
+            values.set(id.text().c_str(), fraction(amount));
+        }
+        weighted.set(name.text().c_str(), values.value());
+    }
+    for (const auto& item : resources) totals.set(item.first.c_str(), fraction(item.second));
+    output.set("stage_resources", weighted.value()); output.set("resources", totals.value());
+    return output.value();
+}
 GDExtensionObjectPtr create_model(void*, GDExtensionBool notify) {
     auto* instance = new CapacityInstance;
     auto object = construct_object(&ref_class);
@@ -834,22 +918,36 @@ GDExtensionObjectPtr create_model(void*, GDExtensionBool notify) {
     }
     return object;
 }
-void free_model(void*, GDExtensionClassInstancePtr instance) { delete static_cast<CapacityInstance*>(instance); }
-enum Method { SOLVE, FRACTION, INTEGER, STRUCTURE, PREPARE_MODEL, SOLVE_MODEL };
+void free_model(void*, GDExtensionClassInstancePtr instance) {
+    std::lock_guard<std::recursive_mutex> guard(discrete_mutex);
+    delete static_cast<CapacityInstance*>(instance);
+}
+enum Method { SOLVE, FRACTION, INTEGER, STRUCTURE, AGGREGATE, THREAD_CPU, PREPARE_MODEL, SOLVE_MODEL };
 struct MethodInfo { const char* name; Method method; std::vector<GDExtensionVariantType> arguments; };
 MethodInfo methods[] = {
     {"solve", SOLVE, {GDEXTENSION_VARIANT_TYPE_ARRAY, GDEXTENSION_VARIANT_TYPE_DICTIONARY}},
     {"fraction", FRACTION, {GDEXTENSION_VARIANT_TYPE_INT, GDEXTENSION_VARIANT_TYPE_DICTIONARY, GDEXTENSION_VARIANT_TYPE_DICTIONARY}},
     {"integer", INTEGER, {GDEXTENSION_VARIANT_TYPE_INT, GDEXTENSION_VARIANT_TYPE_STRING, GDEXTENSION_VARIANT_TYPE_STRING}},
     {"structure", STRUCTURE, {GDEXTENSION_VARIANT_TYPE_ARRAY, GDEXTENSION_VARIANT_TYPE_DICTIONARY, GDEXTENSION_VARIANT_TYPE_DICTIONARY, GDEXTENSION_VARIANT_TYPE_INT}},
+    {"aggregate_stages", AGGREGATE, {GDEXTENSION_VARIANT_TYPE_DICTIONARY, GDEXTENSION_VARIANT_TYPE_DICTIONARY}},
+    {"thread_cpu", THREAD_CPU, {}},
     {"prepare", PREPARE_MODEL, {GDEXTENSION_VARIANT_TYPE_ARRAY, GDEXTENSION_VARIANT_TYPE_DICTIONARY}},
     {"solve", SOLVE_MODEL, {GDEXTENSION_VARIANT_TYPE_DICTIONARY}}
 };
 V invoke(Method method, const std::vector<V>& args, GDExtensionClassInstancePtr instance) {
     try {
+        std::unique_lock<std::recursive_mutex> discrete_guard(discrete_mutex, std::defer_lock);
+        if (method == SOLVE || method == STRUCTURE || method >= PREPARE_MODEL) discrete_guard.lock();
         if (method == SOLVE) return Model(args[0], args[1]).solve();
         if (method == FRACTION) return calculate_fraction(static_cast<int>(args[0].number()), args[1], args[2]);
         if (method == STRUCTURE) return structure(args[0], args[1], args[2], args[3].number());
+        if (method == AGGREGATE) return aggregate_stages(args[0], args[1]);
+        if (method == THREAD_CPU) {
+            uint64_t elapsed = ogh_current_thread_cpu_us();
+            if (elapsed == UINT64_MAX) return failure("线程 CPU 时间不可用");
+            D result; result.set("cpu_us", V::number(static_cast<int64_t>(elapsed)));
+            return result.value();
+        }
         if (method >= PREPARE_MODEL) {
             auto& capacity = *static_cast<CapacityInstance*>(instance);
             if (method == PREPARE_MODEL) capacity.model.reset(new Model(args[0], args[1]));

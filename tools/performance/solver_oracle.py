@@ -213,7 +213,9 @@ for index in range(256):
     raw = {"n": str(a.numerator * scale), "d": str(a.denominator * scale)}
     arithmetic.append({"a": fraction(a), "b": fraction(b), "uncanonical": raw, "add": fraction(a + b),
                        "sub": fraction(a - b), "mul": fraction(a * b), "div": fraction(a / b),
-                       "compare": (a > b) - (a < b)})
+                       "compare": (a > b) - (a < b),
+                       "aggregate": {"stage_resources": {"first": {"a": fraction(a*b), "b": fraction(b*b)}, "second": {"a": fraction(b*b)}},
+                                     "resources": {"a": fraction((a+b)*b), "b": fraction(b*b)}}})
 Path(sys.argv[1]).with_name("fraction-vectors.json").write_text(json.dumps(arithmetic), encoding="utf-8")
 integers = []
 for index in range(256):
@@ -314,6 +316,14 @@ for mode, expected in [("own_care", 5), ("cross_ward", 0), ("extra_active", 0), 
     changed = dict(manual_budgets, **{"staff:n0": 6})
     role_vectors.append({"index": len(role_vectors), "cases": cases,
                          "budgets": {name: fraction(value) for name, value in manual_budgets.items()}, "expected": fraction(expected),
+                         "changed_budgets": {name: fraction(value) for name, value in changed.items()},
+                         "changed_expected": fraction(role_optimum(cases, changed))})
+closed_budgets = {name: 0 for name in manual_budgets}
+for initial, changed in [(manual_budgets, closed_budgets), (closed_budgets, manual_budgets)]:
+    cases = [{"probability": fraction(1), "bundles": [deepcopy(cover)]}]
+    role_vectors.append({"index": len(role_vectors), "cases": cases,
+                         "budgets": {name: fraction(value) for name, value in initial.items()},
+                         "expected": fraction(role_optimum(cases, initial)),
                          "changed_budgets": {name: fraction(value) for name, value in changed.items()},
                          "changed_expected": fraction(role_optimum(cases, changed))})
 Path(sys.argv[1]).with_name("role-vectors.json").write_text(json.dumps(role_vectors), encoding="utf-8")

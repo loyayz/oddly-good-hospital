@@ -343,7 +343,7 @@ func step_nonblocking() -> TickResult:
 		events.append_array(services.research.take_events())
 	events.append_array(HospitalLedger.settle(world))
 	world.facts.sim_tick += 1
-	world.touch() # 10: complete immutable snapshot boundary.
+	world.touch(false) # 10: complete immutable snapshot boundary; movement/work do not edit floor geometry.
 	space.finish_boundary(world)
 	events.append(SimEvent.new(world.sim_tick,"tick_completed",[],{"revision":world.revision}))
 	var result: TickResult = TickResult.new(world.sim_tick,world.revision,events)

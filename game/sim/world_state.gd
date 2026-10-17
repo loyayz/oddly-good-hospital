@@ -5,7 +5,17 @@ const TICK_SECONDS: float = 0.1
 const TICKS_PER_DAY: int = 18000
 const CLOCK_VERSION: String = "hospital-time-v1"
 
-var facts: Dictionary
+var facts: Dictionary:
+	set(value):
+		facts = value
+		_facility_definitions.clear()
+		_facility_count = -1
+		invalidate_geometry()
+
+# Rebuildable observation identities; none of these values enter freeze().
+var geometry_revision: int = 0
+var _facility_definitions: Dictionary = {}
+var _facility_count: int = -1
 
 var hospital_id: String:
 	get:
@@ -24,8 +34,22 @@ func new_id(prefix: String) -> String:
 	facts.entity_next += 1
 	return "%s_%08d" % [prefix, int(facts.entity_next)]
 
-func touch() -> void:
+func touch(geometry_changed: bool = true) -> void:
 	facts.world_revision += 1
+	if geometry_changed: invalidate_geometry()
+
+func invalidate_geometry() -> void:
+	geometry_revision += 1
+
+func facility_ids(definition_id: String) -> Array:
+	if _facility_count!=facts.facilities.size():
+		_facility_definitions.clear()
+		for id: String in ids("facilities"):
+			var definition: String = str(facts.facilities[id].definition_id)
+			if not _facility_definitions.has(definition): _facility_definitions[definition] = []
+			_facility_definitions[definition].append(id)
+		_facility_count = facts.facilities.size()
+	return _facility_definitions.get(definition_id,[])
 
 func freeze() -> Dictionary:
 	return facts.duplicate(true)

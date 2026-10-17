@@ -217,6 +217,18 @@ static func reference_movements(world: WorldState) -> Dictionary:
 		result[primary] = {"members":movement.get("members",[]),"offsets":movement.get("offsets",{})}
 	return result
 
+static func reference_conditions(world: WorldState) -> Dictionary:
+	# Quote dependencies only. Wear receipts, historical tickets and completed
+	# uses do not change geometry, lowering rules or the known transport prefix.
+	var result: Dictionary = {}
+	for id: String in world.facts.connectors:
+		var connection: Dictionary = world.facts.connectors[id]
+		var record: Dictionary = {}
+		for field: String in ["id","definition_id","first_floor","last_floor","stops","cell","footprint","anchor","failed","pending_failure","floor_id","phase","remaining_ticks","from","to","trip_travel_ticks","riders","primary_actor_id"]:
+			if connection.has(field): record[field] = connection[field]
+		result[id] = record
+	return result
+
 static func begin(space: HospitalSpace, world: WorldState, actor: Dictionary, movement: Dictionary, segment: Dictionary) -> void:
 	var connection: Dictionary = world.facts.connectors[segment.connector_id]
 	var members: Array = movement.get("members",[actor.id])

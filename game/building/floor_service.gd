@@ -179,6 +179,7 @@ func advance(world: WorldState) -> void:
 
 func _complete(world: WorldState, order: Dictionary) -> void:
 	world.facts.floors.completed_top_floor[HospitalSpace.plot_key(order.plot)] = int(order.floor_id)
+	world.invalidate_geometry()
 	order.remaining_milli = 0
 	order.phase = "completed"
 	order.completed_tick = world.sim_tick

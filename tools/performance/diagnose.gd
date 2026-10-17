@@ -45,7 +45,7 @@ func _run() -> void:
 			quit(2)
 			return
 	var samples: Array = []
-	if operation=="preparation":
+	if operation in ["preparation","session"]:
 		var begin: int = Time.get_ticks_usec()
 		var session: GameSession = GameSession.new(simulation,"preparation-diagnostic")
 		var main_us: int = Time.get_ticks_usec()-begin
@@ -53,17 +53,21 @@ func _run() -> void:
 		session.set_speed(1)
 		var completed: Array[TickResult] = []
 		var polls: int = 0
-		while completed.is_empty() and simulation.preparing_error().is_empty():
+		var requested_steps: int = steps if operation=="session" else 1
+		while completed.size()<requested_steps and simulation.preparing_error().is_empty():
 			var poll_started: int = Time.get_ticks_usec()
-			completed = session.advance(0.1 if polls==0 else 0.0)
+			var batch: Array[TickResult] = session.advance(0.1 if not simulation.pending() else 0.0)
+			completed.append_array(batch)
 			var elapsed: int = Time.get_ticks_usec()-poll_started
 			main_us += elapsed
 			max_main_us = maxi(max_main_us,elapsed)
 			polls += 1
-			if completed.is_empty(): await create_timer(0.005).timeout
+			if batch.is_empty(): await create_timer(0.005).timeout
 		var evidence: Dictionary = {"diagnostic":true,"operation":operation,"wall_ms":(Time.get_ticks_usec()-begin)/1000.0,
 			"main_ms":main_us/1000.0,"max_main_slice_ms":max_main_us/1000.0,"polls":polls,
 			"step_ms":completed[0].elapsed_us/1000.0 if not completed.is_empty() else null,
+			"completed_steps":completed.size(),"requested_steps":requested_steps,
+			"kernel_steps_ms":completed.map(func(step: TickResult)->float: return step.elapsed_us/1000.0),
 			"metrics":simulation.services.arrivals.preparation_metrics(),"plan":fixture.world.facts.arrivals.plan,
 			"error":simulation.preparing_error(),"tracked_bytes":OS.get_static_memory_usage(),"profile":timing.report()}
 		fixture.store_input(output+".after.bin")
@@ -71,7 +75,7 @@ func _run() -> void:
 		report.store_string(JSON.stringify(evidence,"\t"))
 		print("PERFORMANCE_PREPARATION="+JSON.stringify(evidence.merged({"profile":{}})))
 		simulation.dispose()
-		quit(0 if completed.size()==1 else 1)
+		quit(0 if completed.size()==requested_steps else 1)
 		return
 	if operation in ["solve","solver","pairs"]:
 		var file: FileAccess = FileAccess.open(constraints,FileAccess.READ)

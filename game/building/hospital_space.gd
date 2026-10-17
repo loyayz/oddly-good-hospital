@@ -34,15 +34,7 @@ func nominal_query(world: WorldState) -> bool:
 
 func _blocking_facility(world: WorldState, floor_id: int, rect: Rect2, except_id: String = "") -> String:
 	if not _route_queries.is_empty() and _route_queries.back().world==world:
-		var scope: Dictionary = _route_queries.back()
-		if not scope.has("facilities"):
-			var index: BodyIndex = BodyIndex.new()
-			for facility: Dictionary in world.facts.facilities.values():
-				if not content.facility_definition(facility.definition_id).get("blocks_movement",true): continue
-				var layout: Dictionary = facility_layout(world,facility.id)
-				index.update(facility.id,int(facility.floor_id),Rect2(float(facility.cell[0]),float(facility.cell[1]),float(layout.footprint[0]),float(layout.footprint[1])))
-			scope.facilities = index
-		var hits: Array[String] = scope.facilities.candidates(floor_id,rect,[except_id])
+		var hits: Array[String] = _navigation.facility_index(self,world,floor_id).candidates(floor_id,rect,[except_id])
 		return "" if hits.is_empty() else hits[0]
 	for facility: Dictionary in world.facts.facilities.values():
 		if facility.id==except_id or int(facility.floor_id)!=floor_id or not content.facility_definition(facility.definition_id).get("blocks_movement",true): continue
@@ -698,6 +690,31 @@ func support_anchor(world: WorldState, facility_id: String) -> Vector3:
 	var anchor: Vector3 = content.asset_anchor(facility.definition_id,"patient_support")
 	anchor += Vector3(float(layout.footprint[0])-float(facility.footprint[0]),0,float(layout.footprint[1])-float(facility.footprint[1]))*CELL_METERS*0.5
 	return anchor
+
+func support_location(world: WorldState, actor: Dictionary, facility: Dictionary) -> Dictionary:
+	var anchor: Vector3 = support_anchor(world,facility.id)
+	var dimensions: Dictionary = content.actor_body(actor)
+	var center: float = float(clearance(actor))*0.5
+	return {"kind":"floor","floor_id":int(facility.floor_id),"cell":[float(facility.cell[0])+anchor.x/CELL_METERS-center,float(facility.cell[1])+(anchor.z+float(dimensions.height_m)*0.5)/CELL_METERS-center],"height_m":anchor.y+float(dimensions.depth_m)*0.5}
+
+func support_exit_ticks(actor: Dictionary, facility: Dictionary, until_clear: bool = false) -> int:
+	# The same straight support-exit movement and speed as advance(). This is
+	# a forecast of known geometry, never a movement of the actual actor.
+	var moving: Dictionary = actor.duplicate(true)
+	var start: Vector2 = Vector2(float(actor.location.cell[0]),float(actor.location.cell[1]))
+	var target: Vector2 = Vector2(float(facility.patient_cell[0]),float(facility.patient_cell[1]))
+	var speed: float = float(content.balance.movement_speeds[str(clearance(actor))])*WorldState.TICK_SECONDS
+	var ticks: int = maxi(1,ceili(start.distance_to(target)/speed))
+	if not until_clear: return ticks
+	var rectangle: Rect2 = Rect2(float(facility.cell[0]),float(facility.cell[1]),float(facility.footprint[0]),float(facility.footprint[1]))
+	if not body_rectangle(moving).intersects(rectangle,false): return 0
+	for elapsed: int in range(1,ticks+1):
+		var next: Vector2 = start.move_toward(target,speed*elapsed)
+		moving.facing = atan2(target.x-start.x,target.y-start.y)
+		moving.location.cell = [next.x,next.y]
+		if elapsed==ticks: moving.posture = "standing"
+		if not body_rectangle(moving).intersects(rectangle,false): return elapsed
+	return ticks
 
 func facility_quote(world: WorldState, facility_id: String, actor_id: String, staff_ids: Array = []) -> Dictionary:
 	if not world.facts.facilities.has(facility_id) or not world.facts.actors.has(actor_id):

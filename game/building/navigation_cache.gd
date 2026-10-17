@@ -5,6 +5,7 @@ var _entries: Dictionary = {}
 var _sources: Dictionary = {}
 var _used: int = 0
 var _charged: int = 0
+var _query_charged: int = 0
 var _source_version: int = 0
 
 func invalidate(world: WorldState, floor_id: int) -> void:
@@ -14,7 +15,7 @@ func invalidate(world: WorldState, floor_id: int) -> void:
 func floor_source(space: HospitalSpace, world: WorldState, floor_id: int) -> Dictionary:
 	var key: String = str(world.get_instance_id())+":"+str(floor_id)
 	var entry: Dictionary = _sources.get(key,{})
-	if entry.is_empty() or entry.revision!=world.revision:
+	if entry.is_empty() or entry.revision!=world.geometry_revision:
 		if entry.is_empty(): _prune_sources(floor_id)
 		var current: Dictionary = RouteClearance.capture_source(space,world,floor_id)
 		if entry.is_empty() or entry.source!=current:
@@ -26,10 +27,23 @@ func floor_source(space: HospitalSpace, world: WorldState, floor_id: int) -> Dic
 			if shared.is_empty():
 				_source_version += 1
 				shared = {"source":current,"version":_source_version,"graphs":{}}
+			var previous: Dictionary = entry
 			entry = {"source":shared.source,"world":weakref(world),"floor_id":floor_id,"version":shared.version,"graphs":shared.graphs}
-		entry.revision = world.revision
+			if previous.has("facility_index") and previous.source.facilities==current.facilities: entry.facility_index = previous.facility_index
+		entry.revision = world.geometry_revision
 		_sources[key] = entry
 	return entry.source
+
+func facility_index(space: HospitalSpace, world: WorldState, floor_id: int) -> BodyIndex:
+	var source: Dictionary = floor_source(space,world,floor_id)
+	var entry: Dictionary = _sources[str(world.get_instance_id())+":"+str(floor_id)]
+	if not entry.has("facility_index"):
+		var index: BodyIndex = BodyIndex.new()
+		for id: String in source.facilities:
+			var facility: Dictionary = source.facilities[id]
+			index.update(id,floor_id,Rect2(float(facility.cell[0]),float(facility.cell[1]),float(facility.footprint[0]),float(facility.footprint[1])))
+		entry.facility_index = index
+	return entry.facility_index
 
 func floor_version(space: HospitalSpace, world: WorldState, floor_id: int) -> int:
 	floor_source(space,world,floor_id)
@@ -83,6 +97,7 @@ func _refresh_graph(space: HospitalSpace, world: WorldState, floor_id: int, acto
 		floor_graph = entry.graph
 		floor_graph.refresh(geometry)
 		_charged -= int(entry.charge)
+		_query_charged -= int(entry.get("query_charge",0))
 	# Capacity charge includes native points/adjacency and projection containers.
 	# This is an eviction allowance, not a measured Release allocation count.
 	var charge: int = floor_graph.get_point_count()*1024+var_to_bytes(source).size()*8+16384
@@ -91,15 +106,22 @@ func _refresh_graph(space: HospitalSpace, world: WorldState, floor_id: int, acto
 	return entry
 
 func _trim(target: int) -> void:
-	if _charged<=target: return
+	if _charged+_query_charged<=target and _query_charged<=target/4: return
 	var keys: Array = _entries.keys()
 	keys.sort_custom(func(a: String,b: String) -> bool:
 		return int(_entries[a].used)<int(_entries[b].used) if _entries[a].used!=_entries[b].used else a<b)
 	for key: String in keys:
 		var entry: Dictionary = _entries[key]
-		if _charged<=target:
-			continue
+		if _query_charged>target/4:
+			_query_charged -= int(entry.get("query_charge",0))
+			entry.query_charge = 0
+			entry.erase("queries")
+			entry.erase("estimates")
+	for key: String in keys:
+		var entry: Dictionary = _entries[key]
+		if _charged+_query_charged<=target: break
 		_charged -= int(entry.charge)
+		_query_charged -= int(entry.get("query_charge",0))
 		_entries.erase(key)
 	_prune_sources()
 
@@ -117,6 +139,14 @@ func clearance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Di
 	if not _entries.has(key): return RouteClearance.new(space,world,actor,floor_id,members,offsets,true,floor_source(space,world,floor_id),current.geometry)
 	var entry: Dictionary = _entries[key]
 	if not entry.has("queries"): entry.queries = {}
+	# Query lifetime follows current actors, never the history of actor IDs.
+	if entry.get("query_boundary",[])!=[world.get_instance_id(),world.revision]:
+		for id: String in entry.queries.keys():
+			if not world.facts.actors.has(id) or world.facts.actors[id].location.kind=="outside":
+				_query_charged -= int(entry.queries[id].charge)
+				entry.query_charge = int(entry.get("query_charge",0))-int(entry.queries[id].charge)
+				entry.queries.erase(id)
+		entry.query_boundary = [world.get_instance_id(),world.revision]
 	var stamp: Array = [floor_version(space,world,floor_id)]
 	if not members.is_empty():
 		# Identical bodies do not grant another group the same reservation access.
@@ -125,15 +155,15 @@ func clearance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Di
 	var record: Dictionary = entry.queries.get(actor.id,{})
 	if record.is_empty() or record.stamp!=stamp:
 		var old_charge: int = int(record.get("charge",0))
-		entry.charge -= old_charge
-		_charged -= old_charge
+		entry.query_charge = int(entry.get("query_charge",0))-old_charge
+		_query_charged -= old_charge
 		var source: Dictionary = floor_source(space,world,floor_id)
 		# Static geometry is shared with the graph, not copied per identity.
-		var charge: int = var_to_bytes(source.occupancy).size()*8*(members.size()+1)+16384
+		var charge: int = (source.occupancy.size()*256+16384)*(members.size()+1)
 		record = {"stamp":stamp,"query":RouteClearance.new(space,world,actor,floor_id,members,offsets,true,source,current.geometry),"charge":charge}
 		entry.queries[actor.id] = record
-		entry.charge += int(record.charge)
-		_charged += int(record.charge)
+		entry.query_charge += int(record.charge)
+		_query_charged += int(record.charge)
 	_trim(int(space.content.balance.pathfinding.graph_cache_target_bytes))
 	return record.query
 
@@ -153,12 +183,12 @@ func travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, act
 	var record: Dictionary = entry.estimates.get(destination,{})
 	if record.is_empty() or record.stamp!=stamp:
 		var old_charge: int = int(record.get("charge",0))
-		entry.charge -= old_charge
-		_charged -= old_charge
+		entry.query_charge = int(entry.get("query_charge",0))-old_charge
+		_query_charged -= old_charge
 		record = {"stamp":stamp,"hits":0,"ready":false,"charge":512+destination.length()*8}
 		entry.estimates[destination] = record
-		entry.charge += int(record.charge)
-		_charged += int(record.charge)
+		entry.query_charge += int(record.charge)
+		_query_charged += int(record.charge)
 	record.hits += 1
 	# One-off quotes retain A*. Repeated destinations amortize a reverse field;
 	# only integer distance is reused, never a route or permission to reserve.
@@ -171,8 +201,8 @@ func travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, act
 		record.ready = true
 		var charge: int = ((record.distances as PackedInt32Array).size()+(record.successors as PackedInt32Array).size())*16
 		record.charge += charge
-		entry.charge += charge
-		_charged += charge
+		entry.query_charge = int(entry.get("query_charge",0))+charge
+		_query_charged += charge
 	_trim(int(space.content.balance.pathfinding.graph_cache_target_bytes))
 	if not record.ready: return {"ready":false}
 	if not FloorNavigation._inside(start) or not FloorNavigation._inside(goal):

@@ -7,6 +7,7 @@ var recruitment: RefCounted
 var waiting_life: RefCounted
 var _worked: Dictionary = {}
 var _coverage_cache: Dictionary = {}
+var _coverage_used: int = 0
 var _query: Dictionary = {}
 
 func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
@@ -16,7 +17,7 @@ func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 # A synchronous observation batch changes experience records only. Geometry and
 # coverage can be shared; water, noise, dirt and nearby people are still read live.
 func begin_query(world: WorldState) -> void:
-	_query = {"world":world,"edges":{},"coverage":{},"facilities":{},"screens":{},"actors":{}}
+	_query = {"world":world,"edges":{},"coverage":{},"facilities":{},"screens":{},"actors":{},"samples":{"walls":{},"dirt":{},"machines":{},"construction":{}}}
 	for facility: Dictionary in world.facts.facilities.values():
 		var floor_id: int = int(facility.floor_id)
 		if facility.definition_id in content.balance.environment.noise_barrier_definition_ids:
@@ -33,16 +34,47 @@ func begin_query(world: WorldState) -> void:
 		var bucket: Vector2i = Vector2i(floori(float(actor.location.cell[0])/4.0),floori(float(actor.location.cell[1])/4.0))
 		if not _query.actors[floor_id].has(bucket): _query.actors[floor_id][bucket] = []
 		_query.actors[floor_id][bucket].append(actor)
+	for surface: Dictionary in world.facts.get("environment",{}).get("surfaces",{}).values():
+		if surface.surface=="wall": _index_sample("walls",int(surface.floor_id),surface.cell,surface)
+	for patch: Dictionary in world.facts.get("environment",{}).get("dirt",{}).values():
+		if str(patch.bin_id).is_empty(): _index_sample("dirt",int(patch.floor_id),patch.cell,patch)
+	for session: Dictionary in world.facts.sessions.values():
+		var facility: Dictionary = world.facts.facilities[session.facility_id]
+		if facility.definition_id in content.balance.environment.machine_noise_definition_ids and session.kind in ["outpatient","surgery","operate"] and not facility.get("failed",false):
+			_index_noise(world,"machines",facility)
+	for order: Dictionary in world.facts.get("environment",{}).get("orders",{}).values():
+		if order.paused: continue
+		for unit: Dictionary in order.units:
+			if unit.phase=="working" and not str(unit.worker_id).is_empty(): _index_sample("construction",int(order.floor_id),unit.cell,unit)
+	for order: Dictionary in world.facts.get("maintenance",{}).get("upgrades",{}).values():
+		if order.get("phase","")=="working" and world.facts.facilities.has(order.facility_id): _index_noise(world,"construction",world.facts.facilities[order.facility_id])
+
+func _index_sample(kind: String, floor_id: int, cell: Array, record: Dictionary) -> void:
+	var floors: Dictionary = _query.samples[kind]
+	if not floors.has(floor_id): floors[floor_id] = {}
+	var key: String = _cell_key(cell)
+	if not floors[floor_id].has(key): floors[floor_id][key] = []
+	floors[floor_id][key].append(record)
+
+func _index_noise(world: WorldState, kind: String, facility: Dictionary) -> void:
+	var layout: Dictionary = space.facility_layout(world,facility.id)
+	for x: int in range(int(facility.cell[0]),int(facility.cell[0])+int(layout.footprint[0])):
+		for y: int in range(int(facility.cell[1]),int(facility.cell[1])+int(layout.footprint[1])): _index_sample(kind,int(facility.floor_id),[x,y],facility)
+
+func _sample_records(kind: String, floor_id: int, coverage: Dictionary) -> Array:
+	var cells: Dictionary = _query.samples[kind].get(floor_id,{})
+	var result: Array = []
+	for key: String in coverage: result.append_array(cells.get(key,[]))
+	return result
 
 func end_query() -> void:
-	# Retain only the preceding batch's requested floors and origins. Moving
-	# subjects and changing views cannot accumulate an all-hospital coverage map.
-	var retained: Dictionary = {}
+	# Preserve static coverage across consumers; each floor retains a bounded
+	# set of origins. Viewing another floor cannot evict the operating batch.
 	for floor_id: int in _query.get("edges",{}):
+		if not _coverage_cache.has(floor_id): continue
 		var entry: Dictionary = _coverage_cache[floor_id]
-		entry.coverage = _query.coverage.get(floor_id,{})
-		retained[floor_id] = entry
-	_coverage_cache = retained
+		entry.coverage.merge(_query.coverage.get(floor_id,{}))
+		while entry.coverage.size()>128: entry.coverage.erase(entry.coverage.keys()[0])
 	_query.clear()
 
 func ensure(world: WorldState) -> void:
@@ -578,6 +610,8 @@ func _coverage_edges(world: WorldState, floor_id: int) -> Dictionary:
 		source.screens.append(_coverage_edge_key(facility.cell,across))
 	var cached: Dictionary = _coverage_cache.get(floor_id,{})
 	if cached.get("source",{})==source:
+		_coverage_used += 1
+		cached.used = _coverage_used
 		if _query.get("world")==world: _query.edges[floor_id] = cached.edges
 		return cached.edges
 	var edges: Dictionary = {"walls":{},"noise":{},"blocked":{},"owned":{}}
@@ -596,9 +630,13 @@ func _coverage_edges(world: WorldState, floor_id: int) -> Dictionary:
 						break
 				if not opening: edges.walls[Vector3i(0 if wall.axis=="x" else 1,int(wall.line),along)] = true
 	for edge: Vector3i in source.screens: edges.noise[edge] = true
-	var entry: Dictionary = {"source":source.duplicate(true),"edges":edges,"coverage":{}}
-	if _query.get("world")!=world: _coverage_cache.clear()
+	_coverage_used += 1
+	var entry: Dictionary = {"source":source.duplicate(true),"edges":edges,"coverage":{},"used":_coverage_used}
 	_coverage_cache[floor_id] = entry
+	if _coverage_cache.size()>8:
+		var floors: Array = _coverage_cache.keys()
+		floors.sort_custom(func(a: int,b: int)->bool: return int(_coverage_cache[a].used)<int(_coverage_cache[b].used))
+		while _coverage_cache.size()>8: _coverage_cache.erase(floors.pop_front())
 	if _query.get("world")==world: _query.edges[floor_id] = edges
 	return edges
 
@@ -631,7 +669,7 @@ func _coverage(world: WorldState, floor_id: int, origin: Array, radius: int, noi
 	if scoped:
 		if not _query.coverage.has(floor_id): _query.coverage[floor_id] = {}
 		if _query.coverage[floor_id].has(key): return _query.coverage[floor_id][key]
-		var previous: Dictionary = _coverage_cache[floor_id].coverage
+		var previous: Dictionary = _coverage_cache.get(floor_id,{}).get("coverage",{})
 		if previous.has(key):
 			_query.coverage[floor_id][key] = previous[key]
 			return previous[key]
@@ -695,7 +733,7 @@ func environment_at(world: WorldState, floor_id: int, cell: Array, actor_id: Str
 	var wall_value: int = 0
 	var wall_distance: int = range_cells+1
 	var wall_key: String = ""
-	for surface: Dictionary in surfaces.values():
+	for surface: Dictionary in (_sample_records("walls",floor_id,positive) if _query.get("world")==world else surfaces.values()):
 		if surface.surface!="wall" or int(surface.floor_id)!=floor_id or not positive.has(_cell_key(surface.cell)) or not _wall_edge(world,floor_id,surface.cell,str(surface.edge)):
 			continue
 		var distance: int = int(positive[_cell_key(surface.cell)])
@@ -724,17 +762,31 @@ func environment_at(world: WorldState, floor_id: int, cell: Array, actor_id: Str
 		result.value += int(rules.light_bonus)
 	if result.water:
 		result.value += int(rules.water_bonus)
-	for patch: Dictionary in environment.get("dirt",{}).values():
+	for patch: Dictionary in (_sample_records("dirt",floor_id,negative) if _query.get("world")==world else environment.get("dirt",{}).values()):
 		if int(patch.floor_id)==floor_id and str(patch.bin_id).is_empty() and negative.has(_cell_key(patch.cell)):
 			result.dirt += 1
 			result.sources.append({"kind":"dirt","id":patch.id,"value":-int(rules.dirt_per_item)})
 	result.clean = int(result.dirt)==0
 	result.value += int(rules.clean_bonus) if result.clean else -mini(int(rules.dirt_cap),int(result.dirt)*int(rules.dirt_per_item))
+	if _query.get("world")==world:
+		if not _sample_records("machines",floor_id,noise_cells).is_empty(): result.noise = maxi(int(result.noise),int(rules.machine_noise_penalty))
+		if not _sample_records("construction",floor_id,noise_cells).is_empty(): result.noise = maxi(int(result.noise),int(rules.construction_noise_penalty))
+	else:
+		_sample_noise(world,floor_id,noise_cells,result)
+	for actor: Dictionary in _nearby_actors(world,floor_id,cell):
+		if actor.location.kind=="floor" and int(actor.location.floor_id)==floor_id and str(actor.id)!=actor_id and Vector2(float(actor.location.cell[0]),float(actor.location.cell[1])).distance_to(Vector2(float(cell[0]),float(cell[1])))<=3.0:
+			result.nearby_count += 1
+	result.value = clampi(int(result.value)-int(result.noise),0,100)
+	result.status = "current"
+	return result
+
+func _sample_noise(world: WorldState, floor_id: int, noise_cells: Dictionary, result: Dictionary) -> void:
+	var rules: Dictionary = content.balance.environment
 	for session: Dictionary in world.facts.sessions.values():
 		var facility: Dictionary = world.facts.facilities[session.facility_id]
 		if int(facility.floor_id)==floor_id and facility.definition_id in rules.machine_noise_definition_ids and session.kind in ["outpatient","surgery","operate"] and not facility.get("failed",false) and _facility_in_coverage(world,facility,noise_cells):
 			result.noise = maxi(int(result.noise),int(rules.machine_noise_penalty))
-	for order: Dictionary in environment.get("orders",{}).values():
+	for order: Dictionary in world.facts.get("environment",{}).get("orders",{}).values():
 		if int(order.floor_id)!=floor_id or order.paused:
 			continue
 		for unit: Dictionary in order.units:
@@ -745,12 +797,6 @@ func environment_at(world: WorldState, floor_id: int, cell: Array, actor_id: Str
 			var facility: Dictionary = world.facts.facilities[order.facility_id]
 			if int(facility.floor_id)==floor_id and _facility_in_coverage(world,facility,noise_cells):
 				result.noise = maxi(int(result.noise),int(rules.construction_noise_penalty))
-	for actor: Dictionary in _nearby_actors(world,floor_id,cell):
-		if actor.location.kind=="floor" and int(actor.location.floor_id)==floor_id and str(actor.id)!=actor_id and Vector2(float(actor.location.cell[0]),float(actor.location.cell[1])).distance_to(Vector2(float(cell[0]),float(cell[1])))<=3.0:
-			result.nearby_count += 1
-	result.value = clampi(int(result.value)-int(result.noise),0,100)
-	result.status = "current"
-	return result
 
 func _is_water(definition_id: String) -> bool:
 	for amenity: Dictionary in content.catalog.get("amenity_services",[]):

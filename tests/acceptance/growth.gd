@@ -41,7 +41,14 @@ const CASES: Dictionary = {
 	"GROW-38":"docs/design/04-technical.md §4研究进度；资料简报排序与任务恢复",
 	"GROW-39":"docs/design/11-growth-arrivals-recruitment.md §1.1；两套术组、两床及独立共享护理覆盖",
 	"GROW-40":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；日界与保持命令封闭输入、暂停续接和一次提交",
-	"GROW-41":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；待续步骤保存与请求命令水位、冻结计划恢复"
+	"GROW-41":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；待续步骤保存与请求命令水位、冻结计划恢复",
+	"GROW-42":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；关闭旧患者病种不清空模型身份或遗漏旧需求",
+	"GROW-43":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；苏醒承诺、恢复信用及并行床边工作去重",
+	"GROW-44":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；准备中的第二套资源按原身份和准备余量扣减",
+	"GROW-45":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；既有护理覆盖排除另一病房与术组主动岗位",
+	"GROW-46":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；必要检查保留全部合法资源及证据条件分支",
+	"GROW-47":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；运输回执不改变参考依据，已知余量仍使依据变化",
+	"GROW-48":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；同床不同护理护士的门诊转床需求保持各自身份"
 }
 
 func run(t) -> void:
@@ -193,17 +200,222 @@ func _case_39(t) -> void:
 			beds[bundle.bed_id] = true
 	var structure: Dictionary = ctx.arrivals._structural_pairs(nominal,[variant],0)
 	var budgets: Dictionary = ctx.arrivals._resource_budgets(nominal,[variant],0)
-	var capacity: Dictionary = ctx.arrivals._solve_roles(nominal,[variant],budgets,0)
+	var model_key: Array = [JSON.stringify(variant).sha256_text()]
+	var capacity: Dictionary = ctx.arrivals._solve_roles(nominal,[variant],budgets,0,model_key)
 	# Exhausted care time removes new Visit capacity, while the independent
 	# built structural maximum still has both complete teams.
+	var coverage_budget: Dictionary = budgets["coverage:parallel_cover:parallel_ward"]
 	budgets["coverage:parallel_cover:parallel_ward"] = F.make()
-	var exhausted: Dictionary = ctx.arrivals._solve_roles(nominal,[variant],budgets,0)
+	var exhausted: Dictionary = ctx.arrivals._solve_roles(nominal,[variant],budgets,0,model_key)
+	budgets["coverage:parallel_cover:parallel_ward"] = coverage_budget
+	var restored: Dictionary = ctx.arrivals._solve_roles(nominal,[variant],budgets,0,model_key)
+	if restored.get("capacity",{})!=capacity.get("capacity",{}):
+		t.check("GROW-39",false,{"restored":restored,"capacity":capacity})
+		return
 	# Both independent teams fit. Removing the only independent cover removes
 	# every surgery group; the two operating nurses cannot cover their own work.
 	nominal.facts.staff = nominal.facts.staff.duplicate(true)
 	nominal.facts.staff.parallel_cover.schedule = builder._schedule("rest")
 	var uncovered: Dictionary = ctx.arrivals._structural_pairs(nominal,[variant],0)
 	t.check("GROW-39",valid.is_empty() and ctx.world.freeze()==frozen and quote.get("ok",false) and tables.size()==2 and beds.size()==2 and int(structure.get("pairs",-1))==2 and int(uncovered.get("pairs",-1))==0 and not capacity.has("error") and F.compare(capacity.get("capacity",F.make()),F.make())>0 and exhausted.get("capacity",{})==F.make() and int(exhausted.get("structural_pairs",-1))==2,{"validation":valid,"tables":tables.keys(),"beds":beds.keys(),"structure":structure,"uncovered":uncovered,"capacity":capacity,"exhausted":exhausted,"reference_reason":quote.get("reason","")})
+
+func _case_42(t) -> void:
+	var ctx: Dictionary = _context()
+	_single_case(ctx)
+	var visit: Dictionary = _patient(ctx,[45,76],"B_S13_D09_M09")
+	if visit.is_empty():
+		t.check("GROW-42",false,ctx.get("last_admission",{}))
+		return
+	_single_case(ctx,"D37")
+	var before: Dictionary = ctx.world.freeze()
+	var query: Dictionary = {}
+	ctx.arrivals._reference_classes(ctx.world,0,query)
+	var identity: Dictionary = query.duplicate(true)
+	var workload: Dictionary = ctx.arrivals._existing_workload(ctx.world,0,query)
+	var projection: Dictionary = ctx.arrivals.capacity(ctx.world)
+	t.check("GROW-42",query==identity and not workload.is_empty() and projection.get("complete",false) and ctx.world.freeze()==before,{"query_preserved":query==identity,"workload":workload,"projection":projection})
+
+func _commitment_context() -> Dictionary:
+	var builder: RefCounted = load("res://tests/acceptance/clinical_fixtures.gd").new()
+	builder._content = _content
+	var ctx: Dictionary = builder._context(true)
+	_simulations.append(ctx.sim)
+	ctx.builder = builder
+	ctx.ready = builder._arrive(ctx,"B_S13_D09_M09","P_D09_SURGERY")
+	if ctx.ready:
+		ctx.visit = ctx.world.facts.visits[ctx.visit_id]
+		ctx.visit.plan_decision = {"plan_id":"P_D09_SURGERY","source":"director","revision":1}
+	return ctx
+
+func _case_43(t) -> void:
+	# Calculation inputs start at legal service boundaries; this case does not
+	# claim to verify the preceding travel, surgery or bedside execution.
+	var ctx: Dictionary = _commitment_context()
+	if not ctx.ready:
+		t.check("GROW-43",false,ctx.errors)
+		return
+	var clinic: HospitalClinic = ctx.sim.clinic
+	var quote: Dictionary = clinic._surgery_quote(ctx.world,ctx.visit,["clin_surgeon","clin_anesthesia","clin_or_nurse"],{"structural_only":true,"ignore_supplies":true})
+	if not quote.ok:
+		t.check("GROW-43",false,quote)
+		return
+	var attempt: Dictionary = clinic._commit_attempt(ctx.world,ctx.visit,quote)
+	var stay: Dictionary = {"id":attempt.id,"attempt_id":attempt.id,"bed_id":quote.bed_id,"phase":"reserved","remaining_ticks":109,"work_credit_milli":0,"care_completed":false,"nurse_id":"clin_cover","round_doctor_id":"clin_round","escort_id":"clin_or_nurse","last_progress_tick":ctx.world.sim_tick}
+	ctx.world.facts.ward_stays[stay.id] = stay
+	ctx.world.facts.facilities[stay.bed_id].grade = 1
+	ctx.world.facts.staff.clin_round.fatigue = 0.0
+	var session: Dictionary = clinic._start(ctx.world,ctx.visit,"surgery",quote.facility_id,quote.staff_ids,50,{"attempt_id":attempt.id})
+	var before: Dictionary = ctx.world.freeze()
+	var surgery: Dictionary = clinic.remaining_commitments(ctx.world).resources
+	attempt.result = not attempt.result
+	var hidden_independent: bool = clinic.remaining_commitments(ctx.world).resources==surgery
+	attempt.result = not attempt.result
+	var readonly: bool = ctx.world.freeze()==before
+	session.kind = "wake"
+	var wake: Dictionary = clinic.remaining_commitments(ctx.world).resources
+	ctx.world.facts.sessions.clear()
+	stay.phase = "recovery"
+	clinic._start(ctx.world,ctx.visit,"care",stay.bed_id,[stay.nurse_id],50,{"stay_id":stay.id})
+	var care: Dictionary = clinic.remaining_commitments(ctx.world).resources
+	ctx.world.facts.sessions.clear()
+	stay.phase = "round"
+	stay.remaining_ticks = 0
+	stay.care_completed = true
+	clinic._start(ctx.world,ctx.visit,"round",stay.bed_id,[stay.round_doctor_id],50,{"stay_id":stay.id})
+	var round_work: Dictionary = clinic.remaining_commitments(ctx.world).resources
+	var bed_key: String = "facility:"+str(stay.bed_id)
+	# Grade 1 / care 1 gives rate 1090; 109 standard ticks need 100
+	# wall ticks. Care 50 overlaps recovery; a started round has only its 50.
+	t.check("GROW-43",readonly and hidden_independent and surgery.get("facility:"+str(quote.facility_id))-wake.get("facility:"+str(quote.facility_id))==150 and surgery.get("staff:clin_surgeon")==200 and surgery.get(bed_key)-wake.get(bed_key)==150 and wake.get(bed_key)>250 and care.get(bed_key)-round_work.get(bed_key)==150 and care.get("staff:clin_cover")==50 and round_work.get(bed_key)>50 and round_work.get("staff:clin_round")==50 and clinic._recovery_ticks(ctx.world,stay.bed_id,stay.nurse_id,12,500)==11,{"surgery":surgery,"wake":wake,"care":care,"round":round_work,"readonly":readonly,"hidden_independent":hidden_independent})
+
+func _case_44(t) -> void:
+	var ctx: Dictionary = _commitment_context()
+	if not ctx.ready:
+		t.check("GROW-44",false,ctx.errors)
+		return
+	ctx.builder._add_layout(ctx.world,"or_standard","second_committed_or",[55,65])
+	for index: int in 3:
+		ctx.builder._add_worker(ctx.world,"second_team_"+str(index),"nurse" if index==2 else "doctor",[54+index*3,75],"work" if index==2 else "surgery",{"diagnosis":1,"treatment":1,"care":1,"surgery":2},"DT02")
+	ctx.world.facts.staff.second_team_2.certificates = ["q_or","q_ward"]
+	var table_id: String = ""
+	for facility: Dictionary in ctx.world.facts.facilities.values():
+		if facility.get("room_id","")=="second_committed_or" and facility.definition_id=="EQ01": table_id = facility.id
+	var clinic: HospitalClinic = ctx.sim.clinic
+	var quote: Dictionary = clinic._surgery_quote(ctx.world,ctx.visit,["second_team_0","second_team_1","second_team_2"],{"facility_id":table_id,"structural_only":true,"ignore_supplies":true})
+	if not quote.ok:
+		t.check("GROW-44",false,quote)
+		return
+	ctx.world.facts.preparations[ctx.visit.id] = {"id":ctx.visit.id,"visit_id":ctx.visit.id,"kind":"surgery","facility_id":table_id,"staff_ids":quote.staff_ids,"bed_id":quote.bed_id,"nurse_id":quote.nurse_id,"round_doctor_id":quote.round_doctor_id,"ward_id":quote.ward_id,"supply_units":quote.supply_units,"setup_remaining_ticks":7,"deadline_tick":ctx.world.sim_tick+300}
+	var before: Dictionary = ctx.world.freeze()
+	var projection: Dictionary = clinic.remaining_commitments(ctx.world).resources
+	var work: int = int(quote.work_ticks)+150
+	var doctor_ticks: int = int(projection.get("staff:second_team_0",0))
+	var nurse_ticks: int = int(projection.get("staff:second_team_2",0))
+	var readonly: bool = ctx.world.freeze()==before
+	ctx.world.facts.preparations[ctx.visit.id].setup_remaining_ticks = 0
+	var ready: Dictionary = clinic.remaining_commitments(ctx.world).resources
+	t.check("GROW-44",readonly and doctor_ticks>=work+7 and doctor_ticks-int(ready.get("staff:second_team_0",0))==7 and int(projection.get("facility:"+table_id,0))-int(ready.get("facility:"+table_id,0))==7 and nurse_ticks-int(ready.get("staff:second_team_2",0))==7 and nurse_ticks>doctor_ticks and not projection.has("staff:clin_surgeon"),{"projection":projection,"without_setup":ready,"expected_work":work,"original_table":table_id})
+
+func _case_45(t) -> void:
+	var ctx: Dictionary = _context()
+	var cases: Array = [{"probability":F.make(1),"bundles":[
+		{"resources":{"staff:n":F.make(1),"coverage:n:w1":F.make(1)},"coverage_roles":{"n":["w1"]}},
+		{"resources":{"staff:n":F.make(1),"coverage:n:w2":F.make(1)},"coverage_roles":{"n":["w2"]}},
+		{"resources":{"staff:n":F.make(1),"facility:or":F.make(1)}}]}]
+	var budgets: Dictionary = {"staff:n":F.make(100),"coverage:n:w1":F.make(2),"coverage:n:w2":F.make(20),"facility:or":F.make(100)}
+	var before: Array = cases.duplicate(true)
+	var backend: RefCounted = ClassDB.instantiate("PlatformArrivalCapacity")
+	var free: Dictionary = backend.call("prepare",cases,budgets)
+	var locked: Dictionary = backend.call("prepare",ctx.arrivals._restrict_roles(cases,{"n":"w1"}),budgets)
+	t.check("GROW-45",free.get("capacity",{})==F.make(100) and locked.get("capacity",{})==F.make(2) and before==cases,{"free":free,"locked":locked})
+
+func _case_46(t) -> void:
+	var builder: RefCounted = load("res://tests/acceptance/clinical_fixtures.gd").new()
+	builder._content = _content
+	var ctx: Dictionary = builder._context(false,true)
+	_simulations.append(ctx.sim)
+	_add_room(ctx.world,"second_diagnostic","gp",[42,65],[6,6])
+	_add_facility(ctx.world,"second_exam","FUR02","second_diagnostic",[44,67])
+	ctx.world.facts.facilities.second_exam.grade = 5
+	builder._add_worker(ctx.world,"strong_exam_nurse","nurse",[48,75],"work",{"diagnosis":5,"treatment":0,"care":1,"surgery":0})
+	var nominal: WorldState = ctx.sim.services.arrivals._capacity_reference_world(ctx.world)
+	var candidate: Dictionary = ctx.sim.clinic._arrival_candidate(nominal,"B_S22_D14_M14",false)
+	var world: WorldState = candidate.world
+	var query: Dictionary = {"candidates":{},"diagnostic_stages":{}}
+	ctx.sim.space.begin_route_query(world,{"nominal":true})
+	var diagnostic: Dictionary = {}
+	for pair: Dictionary in ctx.sim.clinic._reference_candidates(world,candidate.visit,"gp",query):
+		if int(world.facts.staff[pair.staff_id].abilities.diagnosis)==1:
+			diagnostic = pair
+			break
+	var result: Dictionary = ctx.sim.clinic._build_reference_diagnostic_stages(world,candidate.visit,diagnostic,query) if not diagnostic.is_empty() else {"ok":false}
+	ctx.sim.space.end_route_query()
+	var machines: Dictionary = {}
+	var short_path: bool = false
+	var long_path: bool = false
+	for stages: Dictionary in result.get("variants",[]):
+		if not stages.has("spectrum"): continue
+		for id: String in stages.spectrum:
+			if id.begins_with("facility:"): machines[id] = true
+		short_path = short_path or not stages.has("resonance")
+		long_path = long_path or stages.has("resonance")
+	t.check("GROW-46",result.ok and machines.has("facility:second_exam") and machines.size()>=2 and short_path and long_path,{"machines":machines,"short_path":short_path,"long_path":long_path,"variants":result.get("variants",[]).size()})
+
+func _case_47(t) -> void:
+	var builder: RefCounted = load("res://tests/acceptance/space.gd").new()
+	builder.content = _content
+	var sim: HospitalSimulation = builder._transit_fixture()
+	_simulations.append(sim)
+	var id: String = builder._connection(sim)
+	builder._add_actor(sim,"projection_rider","S49",[36,76])
+	sim.space.request_move(sim.world,"projection_rider",2,[46,80])
+	var boarding: bool = builder._wait(sim,func()->bool: return sim.world.facts.connectors[id].phase=="boarding",30)
+	var connection: Dictionary = sim.world.facts.connectors[id]
+	var first: Dictionary = HospitalTransit.reference_conditions(sim.world).duplicate(true)
+	connection.use_receipts = {"completed_trip":sim.world.sim_tick}
+	connection.condition = 90.0
+	var receipts_ignored: bool = HospitalTransit.reference_conditions(sim.world)==first
+	builder._movement_tick(sim)
+	t.check("GROW-47",boarding and receipts_ignored and HospitalTransit.reference_conditions(sim.world)!=first,{"boarding":boarding,"receipts_ignored":receipts_ignored,"remainder_retained":HospitalTransit.reference_conditions(sim.world)!=first})
+
+func _case_48(t) -> void:
+	# A legal quote input, before treatment starts. Both qualified nurses can
+	# cover each bed; their escort work belongs to the selected nurse only.
+	var builder: RefCounted = load("res://tests/acceptance/clinical_fixtures.gd").new()
+	builder._content = _content
+	var ctx: Dictionary = builder._context(false,true)
+	_simulations.append(ctx.sim)
+	builder._add_layout(ctx.world,"ward_two_beds","clin_ward",[42,72])
+	for index: int in 2:
+		var id: String = "transfer_nurse_"+str(index)
+		builder._add_worker(ctx.world,id,"nurse",[43+index,79],"work",{"diagnosis":1,"treatment":0,"care":1,"surgery":0})
+		ctx.world.facts.staff[id].ward_id = "clin_ward"
+	builder._add_worker(ctx.world,"clin_round","doctor",[51,79],"round",{"diagnosis":2,"treatment":1,"care":0,"surgery":0})
+	ctx.world.facts.staff[ctx.doctors[1]].abilities.treatment = 3
+	ctx.world.touch()
+	var before: Dictionary = ctx.world.freeze()
+	var nominal: WorldState = ctx.sim.services.arrivals._capacity_reference_world(ctx.world)
+	var candidate: Dictionary = ctx.sim.clinic._arrival_candidate(nominal,"B_S22_D14_M14",false)
+	var world: WorldState = candidate.world
+	var query: Dictionary = {"candidates":{}}
+	ctx.sim.space.begin_route_query(world,{"nominal":true})
+	var receptions: Array = ctx.sim.clinic._reference_candidates(world,candidate.visit,"reception",query)
+	var diagnostics: Array = ctx.sim.clinic._reference_candidates(world,candidate.visit,"gp",query)
+	var terminal: String = str(world.facility_ids("M09")[0])
+	var quote: Dictionary = ctx.sim.clinic._outpatient_quote(world,candidate.visit,world.facts.staff[ctx.doctors[1]],world.facts.facilities[terminal],"P_D14_GENTLE",true,true,true)
+	var alternatives: Array = ctx.sim.clinic._reference_terminal_beds(world,candidate.visit,quote,{}) if quote.get("ok",false) else []
+	var nurses: Dictionary = {}
+	var correct: bool = not receptions.is_empty() and not diagnostics.is_empty()
+	for alternative: Dictionary in alternatives:
+		if not correct: break
+		var bundle: Dictionary = ctx.sim.clinic._reference_terminal_bundle(world,candidate.visit,receptions[0],diagnostics[0],alternative,{},query)
+		var staff: Array = []
+		for id: String in bundle.get("stage_resources",{}).get("transfer",{}):
+			if id.begins_with("staff:"): staff.append(id)
+		correct = bundle.get("ok",false) and staff==["staff:"+str(alternative.nurse_id)]
+		nurses[alternative.nurse_id] = true
+	ctx.sim.space.end_route_query()
+	t.check("GROW-48",correct and nurses.size()==2 and ctx.world.freeze()==before,{"alternatives":alternatives.size(),"nurses":nurses.keys(),"correct_escort":correct,"quote":quote})
 
 func _case_40(t) -> void:
 	var ctx: Dictionary = _context()
