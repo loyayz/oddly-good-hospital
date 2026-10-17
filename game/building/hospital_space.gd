@@ -44,7 +44,16 @@ func begin_route_query(world: WorldState, reference: Dictionary = {}) -> void:
 	_route_queries.append({"world":world,"routes":reference.get("routes",{}),"exits":{},"views":views,"reference":reference,"journeys_allowed":journeys_allowed})
 
 func end_route_query() -> void:
-	_route_queries.pop_back()
+	var finished: Dictionary = _route_queries.pop_back()
+	if _route_queries.is_empty(): return
+	var child: Dictionary = finished.reference
+	var parent: Dictionary = _route_queries.back().reference
+	if not child.is_empty() and not parent.is_empty() and not is_same(child,parent) and child.get("transport_dependent",false):
+		_mark_transport_dependency(parent)
+
+func _mark_transport_dependency(reference: Dictionary) -> void:
+	reference.transport_dependent = true
+	reference.dependency_revision = int(reference.get("dependency_revision",0))+1
 
 func read_view(world: WorldState, name: String, build: Callable) -> Dictionary:
 	if _route_queries.is_empty() or _route_queries.back().world!=world: return build.call()
@@ -60,7 +69,7 @@ func transport_search(world: WorldState) -> void:
 	if not _route_queries.is_empty() and _route_queries.back().world==world:
 		var reference: Dictionary = _route_queries.back().reference
 		if not reference.is_empty():
-			reference.transport_dependent = true
+			_mark_transport_dependency(reference)
 			reference.transport_searches = int(reference.get("transport_searches",0))+1
 
 func _blocking_facility(world: WorldState, floor_id: int, rect: Rect2, except_id: String = "") -> String:
@@ -172,7 +181,7 @@ func route(world: WorldState, actor_id: String, floor_id: int, target: Array, me
 		if reference.journeys.has(key):
 			query_counts.journey_hits += 1
 			var retained: Dictionary = reference.journeys[key]
-			if retained.transport_dependent: reference.transport_dependent = true
+			if retained.transport_dependent: _mark_transport_dependency(reference)
 			return retained.quote.duplicate()
 	var start: Vector2i = Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
 	var goal: Vector2i = Vector2i(int(target[0]),int(target[1]))
@@ -184,12 +193,12 @@ func route(world: WorldState, actor_id: String, floor_id: int, target: Array, me
 		var reason: String = query.sweep_reason(actual,Vector2(start))
 		if not reason.is_empty():
 			return {"ok":false,"status":"unreachable","reason":reason}
-	var searches: int = int(reference.get("transport_searches",0))
+	var dependency: int = int(reference.get("dependency_revision",0))
 	var result: Dictionary = HospitalTransit.route(self,world,actor,source_floor,start,floor_id,goal,members,offsets,ignore_people,HospitalTransit.walking_ticks(self,actor,members,stub))
 	if result.ok and stub>0.0:
 		result.path.push_front({"kind":"floor","floor_id":source_floor,"cell":[start.x,start.y]})
 		result.walking_distance += stub
-	if not key.is_empty(): reference.journeys[key] = {"quote":result.duplicate(),"transport_dependent":int(reference.get("transport_searches",0))>searches}
+	if not key.is_empty(): reference.journeys[key] = {"quote":result.duplicate(),"transport_dependent":int(reference.get("dependency_revision",0))>dependency}
 	return result
 
 func travel_quote(world: WorldState, actor_id: String, floor_id: int, target: Array) -> Dictionary:

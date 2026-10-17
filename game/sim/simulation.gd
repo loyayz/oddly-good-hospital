@@ -263,11 +263,14 @@ func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickRe
 	return result
 
 func step_nonblocking() -> TickResult:
+	var main_started: int = Time.get_ticks_usec()
 	if _step_context.is_empty():
-		_step_context = {"phase":"commands","present":world.present_actor_count(),"started_us":Time.get_ticks_usec()}
+		_step_context = {"phase":"commands","present":world.present_actor_count(),"started_us":main_started,"main_us":0}
 	if _step_context.phase=="commands":
 		drain_commands() # 1: the original command boundary is sealed once.
-		if not _command_boundary.is_empty(): return null
+		if not _command_boundary.is_empty():
+			_step_context.main_us += Time.get_ticks_usec()-main_started
+			return null
 		if _production():
 			services.supplies.boundaries(world)
 			services.research.boundaries(world) # 2: schedules and equipment.
@@ -276,7 +279,9 @@ func step_nonblocking() -> TickResult:
 			services.maintenance.boundaries(world)
 			services.recruitment.boundaries(world)
 		_step_context.phase = "plan"
-	if _production() and not services.arrivals.boundaries(world): return null
+	if _production() and not services.arrivals.boundaries(world):
+		_step_context.main_us += Time.get_ticks_usec()-main_started
+		return null
 	var present_at_start: int = int(_step_context.present)
 	if _production(): # 3: real arrivals and family requests.
 		services.arrivals.arrivals(world)
@@ -352,7 +357,11 @@ func step_nonblocking() -> TickResult:
 	space.finish_boundary(world)
 	events.append(SimEvent.new(world.sim_tick,"tick_completed",[],{"revision":world.revision}))
 	var result: TickResult = TickResult.new(world.sim_tick,world.revision,events)
-	result.elapsed_us = Time.get_ticks_usec()-int(_step_context.started_us)
+	var finished: int = Time.get_ticks_usec()
+	result.started_engine_us = int(_step_context.started_us)
+	result.completed_engine_us = finished
+	result.elapsed_us = finished-result.started_engine_us
+	result.main_elapsed_us = int(_step_context.main_us)+finished-main_started
 	_step_context = {}
 	return result
 

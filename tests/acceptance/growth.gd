@@ -74,7 +74,8 @@ const CASES: Dictionary = {
 	"GROW-71":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；整批组件与逐组件的完整模型、概率和选择一致",
 	"GROW-72":"docs/design/08-hospital-life.md §4；弃候与常驻环境使用同一本人可用性且报价只读",
 	"GROW-73":"docs/design/07-clinical-team.md §6；重试经验边界与完整未共享模型一致",
-	"GROW-74":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；专业评分输入按需隔离且撤销专业移除后继历史层"
+	"GROW-74":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；专业评分输入按需隔离且撤销专业移除后继历史层",
+	"GROW-75":"docs/design/08-hospital-life.md §4；定义分类等价且到期怒气复用同一次主体观察"
 }
 
 func run(t) -> void:
@@ -1079,7 +1080,24 @@ func _case_70(t) -> void:
 		var equal: bool = hot==cold and hot_query==cold_query
 		correct = correct and equal and (recalculated>0 or change in ["idle_stop","failure"])
 		observations.append({"change":change,"full_model_equal":equal,"recalculated":recalculated})
-	t.check("GROW-70",correct and ctx.world.freeze()==source,{"observations":observations,"readonly":ctx.world.freeze()==source})
+	var child_world: WorldState = WorldState.new(source.duplicate(true))
+	var child_reference: Dictionary = {"nominal":true}
+	var journeys: Array = []
+	var propagated: bool = true
+	for index: int in 2:
+		var parent: Dictionary = {"nominal":true}
+		child_reference.transport_dependent = false
+		var searches: int = ctx.space.query_counts.transport_searches
+		ctx.space.begin_route_query(ctx.world,parent)
+		ctx.space.begin_route_query(child_world,child_reference)
+		var journey: Dictionary = ctx.space.route(child_world,"starter_doctor_a",2,[49,90],[],{},true)
+		ctx.space.end_route_query()
+		propagated = propagated and parent.get("transport_dependent",false) and int(parent.get("dependency_revision",0))>0
+		ctx.space.end_route_query()
+		journeys.append(journey)
+		if index==1: propagated = propagated and ctx.space.query_counts.transport_searches==searches
+	correct = correct and propagated and journeys[0]==journeys[1] and journeys[0].ok and ctx.space._route_queries.is_empty()
+	t.check("GROW-70",correct and ctx.world.freeze()==source,{"observations":observations,"nested_cached_dependency":propagated,"journey_ok":journeys[0].ok,"scope_balanced":ctx.space._route_queries.is_empty(),"readonly":ctx.world.freeze()==source})
 
 class ScalarComponents extends HospitalClinic:
 	func _reference_component(full: Dictionary, stages: Array, weight: Dictionary = {"n":"1","d":"1"}, _batch: Variant = null) -> Dictionary:
@@ -1120,6 +1138,30 @@ class UncachedReference extends HospitalClinic:
 		var fresh: Dictionary = shared.duplicate()
 		fresh.erase("physical")
 		return super._reference_options(world,binding_id,complex_case,shift,prior_quote,fresh,query)
+
+func _case_75(t) -> void:
+	var ctx: Dictionary = _context()
+	var visit: Dictionary = _patient(ctx,[45,76])
+	var environment: EnvironmentObserver = EnvironmentObserver.new(_content,ctx.space)
+	environment.waiting_life = ctx.simulation.services.waiting
+	var correct: bool = true
+	var seen_water: Dictionary = {}
+	for amenity: Dictionary in _content.catalog.get("amenity_services",[]):
+		if amenity.get("purpose","")=="water":
+			for field: String in ["ordinary_facility_id","universal_facility_id"]:
+				if not str(amenity.get(field,"")).is_empty(): seen_water[str(amenity[field])] = true
+	for id: String in ctx.world.facts.facilities:
+		var definition_id: String = ctx.world.facts.facilities[id].definition_id
+		var original: Dictionary = _content.facility_definition(definition_id)
+		var classified: Dictionary = environment._positive_definition(definition_id)
+		correct = correct and classified.decoration==original.get("passive_decoration",false) and classified.light==(original.get("environment","")=="light" or original.get("environment_function","")=="light") and classified.has("category")==original.has("decoration_category") and environment._is_water(definition_id)==seen_water.has(definition_id)
+	for id: String in seen_water: correct = correct and environment._is_water(id)
+	var department: HospitalDepartments = ctx.simulation.services.departments
+	department.environment = environment
+	department.ensure(ctx.world)
+	ctx.world.facts.departments.experience[visit.id].next_anger_tick = ctx.world.sim_tick
+	department.sample(ctx.world)
+	t.check("GROW-75",correct and environment.calls==1 and environment._query.is_empty(),{"classification_equal":correct,"environment_calls":environment.calls,"scope_balanced":environment._query.is_empty()})
 
 class EnvironmentObserver extends HospitalEnvironment:
 	var calls: int = 0
@@ -1214,6 +1256,8 @@ func _case_40(t) -> void:
 	ctx.arrivals.execute(ctx.world,"arrivals_intake",{"open":false})
 	ctx.world.facts.arrivals.plan.clear()
 	var session: GameSession = GameSession.new(ctx.simulation,"sealed-day")
+	var observed: Array = []
+	session.tick_completed.connect(func(result: TickResult) -> void: observed.append({"result":result,"complete":not ctx.simulation.step_in_progress() and ctx.world.sim_tick==result.sim_tick}))
 	# Change a real dependency after preparation starts. The original candidate
 	# cannot satisfy the sealed input, irrespective of worker scheduling speed.
 	ctx.arrivals.execute(ctx.world,"arrivals_weight",{"disease_id":"D09","weight":2})
@@ -1231,6 +1275,8 @@ func _case_40(t) -> void:
 		if completed.is_empty(): waiting = waiting and ctx.world.freeze()==sealed_world
 		results.append_array(completed)
 		await t.process_frame
+	var notification: bool = observed.size()==1 and observed[0].complete and results.size()==1 and observed[0].result==results[0] and results[0].elapsed_us>=results[0].main_elapsed_us and results[0].main_elapsed_us>=0 and results[0].completed_engine_us-results[0].started_engine_us==results[0].elapsed_us
+	waiting = waiting and notification
 	var plan: Dictionary = ctx.world.facts.arrivals.plan.duplicate(true)
 	var sealed: bool = results.size()==1 and ctx.world.sim_tick==1 and int(plan.get("opportunity_count",0))>0 and not ctx.world.facts.command_receipts.has("late-weight") and int(ctx.world.facts.arrivals.disease_weights.D09)==2
 	session.advance(0.4)

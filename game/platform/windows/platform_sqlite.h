@@ -3,7 +3,7 @@
 
 typedef struct { uint64_t words[OGH_ARRAY_SIZE / 8]; } SqlArray;
 typedef struct { uint64_t words[OGH_PACKED_BYTE_ARRAY_SIZE / 8]; } SqlBytes;
-typedef struct { sqlite3 *connection; DWORD owner_thread; } PlatformSQLite;
+typedef struct { sqlite3 *connection; DWORD owner_thread; sqlite3_stmt *chunk_read, *chunk_write; } PlatformSQLite;
 
 static StringName sqlite_class;
 static GDExtensionInterfaceArrayOperatorIndexConst sql_array_index;
@@ -41,6 +41,9 @@ static char *sql_utf8(const String *source, int64_t *length) {
 }
 
 static void sql_close(PlatformSQLite *database) {
+	if (database->chunk_read) sqlite3_finalize(database->chunk_read);
+	if (database->chunk_write) sqlite3_finalize(database->chunk_write);
+	database->chunk_read = database->chunk_write = NULL;
     if (database->connection) sqlite3_close_v2(database->connection);
     database->connection = NULL;
 }
@@ -197,13 +200,17 @@ static void sql_execute(PlatformSQLite *database, const String *query, const Sql
     }
     int64_t length; char *text = sql_utf8(query, &length);
     if (!text) { sql_error(result, SQLITE_NOMEM, "SQL语句所需内存不足"); return; }
-    sqlite3_stmt *statement = NULL;
+    sqlite3_stmt **slot = NULL;
+    if (!strcmp(text, "SELECT chunk_index,CASE WHEN length(data)<=32768 THEN data END AS data FROM world_chunks WHERE snapshot_id=? AND chunk_index>=? ORDER BY chunk_index LIMIT 1")) slot = &database->chunk_read;
+    else if (!strcmp(text, "INSERT INTO world_chunks VALUES(?,?,?)")) slot = &database->chunk_write;
+    sqlite3_stmt *statement = slot ? *slot : NULL;
     const char *tail = NULL;
-    int code = sqlite3_prepare_v3(database->connection, text, (int)length, 0, &statement, &tail);
+    int code = statement ? SQLITE_OK : sqlite3_prepare_v3(database->connection, text, (int)length, slot ? SQLITE_PREPARE_PERSISTENT : 0, &statement, &tail);
     if (code == SQLITE_OK) {
         while (tail && (*tail == ' ' || *tail == '\r' || *tail == '\n' || *tail == '\t')) ++tail;
         if (!statement || (tail && *tail)) code = SQLITE_MISUSE;
     }
+    if (code == SQLITE_OK && slot) *slot = statement;
     int64_t count = 0;
     sql_array_size((void *)parameters, NULL, &count, 0);
     if (code == SQLITE_OK && count != sqlite3_bind_parameter_count(statement)) code = SQLITE_RANGE;
@@ -234,7 +241,17 @@ static void sql_execute(PlatformSQLite *database, const String *query, const Sql
         sql_error(result, code, code == SQLITE_RANGE ? "SQL参数数量不符" :
                 code == SQLITE_TOOBIG ? "SQLite结果需要分页读取" : sqlite3_errmsg(database->connection));
     }
-    sqlite3_finalize(statement);
+    if (slot && code == SQLITE_DONE) {
+        int reset_code = sqlite3_reset(statement);
+        int clear_code = sqlite3_clear_bindings(statement);
+        if (reset_code != SQLITE_OK || clear_code != SQLITE_OK) {
+            sql_error(result, reset_code != SQLITE_OK ? reset_code : clear_code, "SQLite分段语句释放失败");
+            sqlite3_finalize(statement); *slot = NULL;
+        }
+    } else {
+        sqlite3_finalize(statement);
+        if (slot) *slot = NULL;
+    }
     sql_array_destroy(&rows);
     HeapFree(GetProcessHeap(), 0, text);
 }

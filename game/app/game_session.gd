@@ -1,6 +1,9 @@
 class_name GameSession
 extends RefCounted
 
+signal tick_completed(result: TickResult)
+signal playback_changed()
+
 var simulation: HospitalSimulation
 var loading_session_id: String
 var requested_speed: int = 0
@@ -31,6 +34,7 @@ func set_speed(speed: int) -> void:
 		last_running_speed = requested_speed
 	_watching = false
 	_accumulator = 0.0
+	playback_changed.emit()
 
 func pause(source: String) -> void:
 	if _pause_tokens.has(source):
@@ -38,6 +42,7 @@ func pause(source: String) -> void:
 	_pause_tokens[source] = true
 	_accumulator = 0.0
 	_skip_next_delta = true
+	playback_changed.emit()
 
 func resume(source: String) -> void:
 	if not _pause_tokens.has(source):
@@ -45,6 +50,7 @@ func resume(source: String) -> void:
 	_pause_tokens.erase(source)
 	_accumulator = 0.0
 	_skip_next_delta = true
+	playback_changed.emit()
 
 func pause_reasons() -> Array:
 	var sources: Array = _pause_tokens.keys()
@@ -54,6 +60,7 @@ func pause_reasons() -> Array:
 func set_watching(enabled: bool) -> void:
 	_watching = enabled
 	_accumulator = 0.0
+	playback_changed.emit()
 
 func submit(command: GameCommand) -> CommandResult:
 	if command.loading_session_id!=loading_session_id:
@@ -85,6 +92,7 @@ func advance(real_delta: float) -> Array[TickResult]:
 		_accumulator = 0.0
 		if resumed!=null:
 			results.append(resumed)
+			tick_completed.emit(resumed)
 			if not simulation.saving_boundary(): simulation.services.arrivals.prepare_next_day(simulation.world)
 		running_slow = resumed==null
 		return results
@@ -106,6 +114,7 @@ func advance(real_delta: float) -> Array[TickResult]:
 			_accumulator = 0.0
 			break
 		results.append(result)
+		tick_completed.emit(result)
 		if int(simulation.world.facts.get("gameplay_version",0))==1: simulation.services.arrivals.prepare_next_day(simulation.world)
 	running_slow = simulation.pending() or _accumulator>=WorldState.TICK_SECONDS
 	return results

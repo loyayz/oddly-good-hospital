@@ -42,6 +42,7 @@ var _environment_heatmap: MultiMeshInstance3D
 var _heatmap_stamp: String = ""
 var _heatmap_subjects: Array[String] = []
 var _equipment_marks: Dictionary = {}
+var _entity_frustum: Array[Plane] = []
 
 func _init(database: HospitalContent) -> void:
 	content = database
@@ -306,6 +307,7 @@ func update_facts(interpolation_alpha: float = 1.0) -> void:
 		batch.publish(_visible_body_bounds())
 
 func _sync_entities() -> void:
+	_entity_frustum = camera.get_frustum() if camera!=null and is_inside_tree() else []
 	var visible_actors: Dictionary = {}
 	for actor_id: String in world.ids("actors"):
 		var actor: Dictionary = world.facts.actors[actor_id]
@@ -362,6 +364,7 @@ func _sync_entities() -> void:
 	for facility_id: String in _facilities.keys():
 		if not visible_facilities.has(facility_id):
 			_remove_facility(facility_id)
+	_entity_frustum = []
 
 func _bind_entity(key: String, signature: String, wrapper: Node3D, path: String) -> void:
 	_binding_next += 1
@@ -530,7 +533,7 @@ func _in_view(bounds: AABB) -> bool:
 		return true
 	var center: Vector3 = bounds.get_center()
 	var half: Vector3 = bounds.size*0.5
-	for plane: Plane in camera.get_frustum():
+	for plane: Plane in (_entity_frustum if not _entity_frustum.is_empty() else camera.get_frustum()):
 		if plane.distance_to(center)>absf(plane.normal.x)*half.x+absf(plane.normal.y)*half.y+absf(plane.normal.z)*half.z:
 			return false
 	return true

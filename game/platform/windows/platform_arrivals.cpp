@@ -22,6 +22,7 @@
 #include <vector>
 
 extern "C" uint64_t ogh_current_thread_cpu_us(void);
+extern "C" int ogh_monotonic_clock(int64_t* ticks, int64_t* frequency);
 
 namespace {
 using Q = soplex::Rational;
@@ -1161,7 +1162,7 @@ void free_model(void*, GDExtensionClassInstancePtr instance) {
     std::lock_guard<std::recursive_mutex> guard(discrete_mutex);
     delete static_cast<CapacityInstance*>(instance);
 }
-enum Method { SOLVE, FRACTION, INTEGER, STRUCTURE, AGGREGATE, AGGREGATE_COMPONENTS, THREAD_CPU, PREPARE_MODEL, SOLVE_MODEL, PREPARE_ROLES, SOLVE_ROLES };
+enum Method { SOLVE, FRACTION, INTEGER, STRUCTURE, AGGREGATE, AGGREGATE_COMPONENTS, THREAD_CPU, MONOTONIC_CLOCK, PREPARE_MODEL, SOLVE_MODEL, PREPARE_ROLES, SOLVE_ROLES };
 struct MethodInfo { const char* name; Method method; std::vector<GDExtensionVariantType> arguments; };
 MethodInfo methods[] = {
     {"solve", SOLVE, {GDEXTENSION_VARIANT_TYPE_ARRAY, GDEXTENSION_VARIANT_TYPE_DICTIONARY}},
@@ -1171,6 +1172,7 @@ MethodInfo methods[] = {
     {"aggregate_stages", AGGREGATE, {GDEXTENSION_VARIANT_TYPE_DICTIONARY, GDEXTENSION_VARIANT_TYPE_DICTIONARY}},
     {"aggregate_components", AGGREGATE_COMPONENTS, {GDEXTENSION_VARIANT_TYPE_ARRAY}},
     {"thread_cpu", THREAD_CPU, {}},
+    {"monotonic_clock", MONOTONIC_CLOCK, {}},
     {"prepare", PREPARE_MODEL, {GDEXTENSION_VARIANT_TYPE_ARRAY, GDEXTENSION_VARIANT_TYPE_DICTIONARY}},
     {"solve", SOLVE_MODEL, {GDEXTENSION_VARIANT_TYPE_DICTIONARY}},
     {"prepare_with_roles", PREPARE_ROLES, {GDEXTENSION_VARIANT_TYPE_ARRAY, GDEXTENSION_VARIANT_TYPE_DICTIONARY, GDEXTENSION_VARIANT_TYPE_DICTIONARY}},
@@ -1193,6 +1195,12 @@ V invoke(Method method, const std::vector<V>& args, GDExtensionClassInstancePtr 
                 results.append(aggregate_stages(request.get("stages"), request.get("weight")));
             }
             D output; output.set("components", results.value()); return output.value();
+        }
+        if (method == MONOTONIC_CLOCK) {
+            int64_t ticks, frequency;
+            if (!ogh_monotonic_clock(&ticks, &frequency)) return failure("单调时钟不可用");
+            D result; result.set("qpc_ticks", V::number(ticks)); result.set("qpc_frequency", V::number(frequency));
+            return result.value();
         }
         if (method == THREAD_CPU) {
             uint64_t elapsed = ogh_current_thread_cpu_us();

@@ -380,6 +380,7 @@ func _show_panel(id: String) -> void:
 		_status.text = "正在完成当前接诊边界，面板将在完成后提供最新结果。"
 		return
 	_details.visible = id=="details"
+	if _details.visible and _simulation!=null and _session!=null: _update_details()
 	_library_panel.visible = id=="library"
 	_management_scroll.visible = id not in ["details","library"]
 	for index: int in _panel_picker.item_count:
@@ -754,6 +755,7 @@ func _prepare_switch_candidate() -> void:
 	_leave_operation = {}
 	_drafts.clear()
 	_status.text = "已进入另一座医院，医院保持暂停。"
+	_update_details()
 
 func _request_quit() -> void:
 	if _confirm_draft_leave(_request_quit): return

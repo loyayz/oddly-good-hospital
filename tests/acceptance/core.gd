@@ -41,7 +41,8 @@ const CASES: Dictionary = {
 	"CORE-38":"路线4.4：新病症复用已有种族与主体",
 	"CORE-39":"路线4.2：重复、错类型与未知内容拒绝",
 	"CORE-40":"路线4.2：缺依赖与依赖环拒绝",
-	"CORE-41":"技术规格账目结算：待结索引、幂等、原子失败、恢复及医院隔离"
+	"CORE-41":"技术规格账目结算：待结索引、幂等、原子失败、恢复及医院隔离",
+	"CORE-42":"技术规格分段SQLite：固定语句复用、空结果、错误恢复与回滚原子性"
 }
 
 func run(t) -> void:
@@ -264,6 +265,40 @@ func _case_18(t, content: HospitalContent) -> void:
 	var original: Dictionary = x.original
 	var loaded: Dictionary = x.loaded
 	t.check("CORE-18",loaded.ok and _same(loaded.world.freeze(),original),loaded.get("error",""))
+	_close_storage(x)
+
+func _case_42(t, content: HospitalContent) -> void:
+	var x: Dictionary = _storage_fixture(content)
+	if x.is_empty(): return
+	var opened: Dictionary = x.store._connect(x.world.hospital_id)
+	if not opened.ok:
+		t.check("CORE-42",false,opened)
+		_close_storage(x)
+		return
+	var database: RefCounted = opened.database
+	var sql: String = "SELECT chunk_index,CASE WHEN length(data)<=32768 THEN data END AS data FROM world_chunks WHERE snapshot_id=? AND chunk_index>=? ORDER BY chunk_index LIMIT 1"
+	var source: Dictionary = database.call("execute",sql,[x.first_id,0])
+	var correct: bool = source.ok and source.rows.size()==1
+	if not correct:
+		database.call("close")
+		t.check("CORE-42",false,source)
+		_close_storage(x)
+		return
+	for index: int in 3:
+		var repeated: Dictionary = database.call("execute",sql,[x.first_id,0])
+		correct = correct and repeated.ok and repeated.rows==source.rows
+	var empty: Dictionary = database.call("execute",sql,[HospitalSnapshots.uuid(),0])
+	var bad_read: Dictionary = database.call("execute",sql,[x.first_id])
+	var recovered: Dictionary = database.call("execute",sql,[x.first_id,0])
+	var begin: Dictionary = database.call("execute","BEGIN IMMEDIATE",[])
+	var bad_write: Dictionary = database.call("execute","INSERT INTO world_chunks VALUES(?,?,?)",[x.first_id,0])
+	var duplicate: Dictionary = database.call("execute","INSERT INTO world_chunks VALUES(?,?,?)",[x.first_id,0,source.rows[0].data])
+	var inserted: Dictionary = database.call("execute","INSERT INTO world_chunks VALUES(?,?,?)",[x.first_id,999999,source.rows[0].data])
+	var rollback: Dictionary = database.call("execute","ROLLBACK",[])
+	database.call("close")
+	var restored: Dictionary = x.store.load_commit(x.world.hospital_id,x.first_id)
+	correct = correct and empty.ok and empty.rows.is_empty() and not bad_read.ok and recovered.ok and recovered.rows==source.rows and begin.ok and not bad_write.ok and not duplicate.ok and inserted.ok and rollback.ok and restored.ok and restored.world.freeze()==x.original
+	t.check("CORE-42",correct,{"repeated_and_recovered":recovered.ok and recovered.rows==source.rows,"empty_result":empty.ok and empty.rows.is_empty(),"bad_read_rejected":not bad_read.ok,"bad_write_rejected":not bad_write.ok,"duplicate_rejected":not duplicate.ok,"rollback":rollback.ok,"restored":restored.ok})
 	_close_storage(x)
 
 func _case_19(t, content: HospitalContent) -> void:

@@ -405,6 +405,7 @@ func _write(frozen: Dictionary, request: Dictionary) -> Dictionary:
 	if not final_check.ok:
 		receipt.error = "完整提交最终校验失败："+str(final_check.error)
 		return receipt
+	final_check.erase("world")
 	receipt.ok = true
 	receipt.sequence = sequence
 	receipt.error = ""

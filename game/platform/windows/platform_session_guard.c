@@ -19,6 +19,13 @@ uint64_t ogh_current_thread_cpu_us(void) {
     return (k.QuadPart + u.QuadPart) / 10;
 }
 
+int ogh_monotonic_clock(int64_t *ticks, int64_t *frequency) {
+    LARGE_INTEGER value, rate;
+    if (!QueryPerformanceCounter(&value) || !QueryPerformanceFrequency(&rate) || rate.QuadPart <= 0) return 0;
+    *ticks = value.QuadPart; *frequency = rate.QuadPart;
+    return 1;
+}
+
 /* Sizes and method hashes come from this build's engine-generated API. */
 typedef struct { uint64_t words[OGH_VARIANT_SIZE / 8]; } Variant;
 typedef struct { uint64_t words[OGH_STRING_SIZE / 8]; } String;

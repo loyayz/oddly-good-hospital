@@ -7,6 +7,7 @@ func _initialize() -> void:
 	var vectors: Array = JSON.parse_string(FileAccess.get_file_as_string("res://solver-vectors.json"))
 	var failures: Array = []
 	var cpu_started: Dictionary = PlatformArrivalMath.thread_cpu()
+	var first_clock: Dictionary = PlatformArrivalMath.monotonic_clock()
 	var roles: Array = JSON.parse_string(FileAccess.get_file_as_string("res://role-vectors.json"))
 	for vector: Dictionary in roles:
 		var backend: RefCounted = ClassDB.instantiate("PlatformArrivalCapacity")
@@ -124,6 +125,8 @@ func _initialize() -> void:
 		result = backend.call("solve",vector.budgets)
 		if not _valid_solution(vector.cases,vector.budgets,vector.expected,result): failures.append({"index":vector.index,"phase":"restored","actual":result})
 	var cpu_finished: Dictionary = PlatformArrivalMath.thread_cpu()
+	var second_clock: Dictionary = PlatformArrivalMath.monotonic_clock()
+	if int(first_clock.get("qpc_frequency",0))<=0 or first_clock.get("qpc_frequency")!=second_clock.get("qpc_frequency") or int(second_clock.get("qpc_ticks",-1))<int(first_clock.get("qpc_ticks",0)): failures.append({"monotonic_clock":first_clock,"second":second_clock})
 	var empty_backend: RefCounted = ClassDB.instantiate("PlatformArrivalCapacity")
 	var empty_prepared: Dictionary = empty_backend.call("prepare",[],{})
 	var empty_reused: Dictionary = empty_backend.call("solve",{})
@@ -139,6 +142,7 @@ func _initialize() -> void:
 	report.batch_aggregate_checks = arithmetic.size()
 	report.empty_summary_checks = 2
 	report.coverage_max_checks = max_bound_checks
+	report.monotonic_clock_checks = 1
 	var file: FileAccess = FileAccess.open("res://solver-check.json",FileAccess.WRITE)
 	file.store_string(JSON.stringify(report,"\t"))
 	print("EXACT_VERTEX_CHECK="+JSON.stringify({"checks":vectors.size(),"failed":failures.size()}))

@@ -1328,8 +1328,11 @@ func _bed_transport(world: WorldState, visit: Dictionary, source: Dictionary, be
 	patient.posture = "standing"
 	patient.erase("support_facility_id")
 	var alongside: Array = [float(patient.location.cell[0])-1,float(patient.location.cell[1])]
+	var nominal: bool = space.nominal_query(world)
+	if nominal: space.begin_route_query(candidate)
 	var gathering: Dictionary = space.travel_quote(candidate,escort_id,int(bed.floor_id),alongside)
 	var transfer: Dictionary = space.route(candidate,visit.actor_id,int(bed.floor_id),bed.patient_cell,[visit.actor_id,escort_id],{visit.actor_id:[0,0],escort_id:[-1,0]},true)
+	if nominal: space.end_route_query()
 	if not gathering.ok or not transfer.ok: return {"ok":false,"exit_ticks":source_ticks,"source_id":source_id,"escort_id":escort_id,"gathering":gathering,"transfer":transfer}
 	return {"ok":true,"ticks":exit_ticks+int(gathering.arrival_ticks)+int(transfer.arrival_ticks),"exit_ticks":source_ticks,"source_id":source_id,"escort_id":escort_id}
 
@@ -2080,11 +2083,11 @@ func _arrival_candidate(world: WorldState, binding_id: String, complex_case: boo
 	var actor: Dictionary = candidate.facts.actors[actor_id]
 	space.begin_route_query(candidate)
 	var reason: String = space.static_reason(candidate,actor,int(entry.floor_id),Vector2i(int(entry.cell[0]),int(entry.cell[1])))
-	space.end_route_query()
 	if reason.is_empty() and departments!=null:
 		var eligible: Array = departments.call("eligible_departments",candidate,visit_id,true)
 		if eligible.is_empty(): reason = "没有具备本病例完整路线的开放科室"
 		else: candidate.facts.visits[visit_id].department_id = eligible[0].id
+	space.end_route_query()
 	return {"ok":reason.is_empty(),"reason":reason,"world":candidate,"visit":candidate.facts.visits[visit_id]}
 
 func reference_demand(world: WorldState, binding_id: String, complex_case: bool = false, _shift: int = 0, query: Variant = null) -> Dictionary:
@@ -2104,7 +2107,11 @@ func reference_demand(world: WorldState, binding_id: String, complex_case: bool 
 	query.consultations = {}
 	space.begin_route_query(world,query.geometry)
 	var options: Dictionary = _reference_options(world,binding_id,complex_case,_shift,{},{},query)
-	var result: Dictionary = _reference_model(options,binding_id,complex_case,_shift) if options.ok else {"ok":false,"reason":options.reason,"bundles":[]}
+	var result: Dictionary = {"ok":false,"reason":options.get("reason",""),"bundles":[]}
+	if options.ok:
+		space.begin_route_query(options.world,query.geometry)
+		result = _reference_model(options,binding_id,complex_case,_shift)
+		space.end_route_query()
 	result.transport_dependent = bool(query.geometry.get("transport_dependent",false))
 	space.end_route_query()
 	return result
@@ -2170,11 +2177,13 @@ func _reference_options(world: WorldState, binding_id: String, complex_case: boo
 	# One sealed case/shift owns both attempts' complete physical quotes.
 	# First-team experience changes recommendation scores, not these quotes.
 	var physical: Dictionary = shared.get("physical",{"outpatient":{},"surgery":{}})
+	space.begin_route_query(candidate,query.get("geometry",{}))
 	if shared.is_empty():
 		receptions = _reference_candidates(candidate,visit,"reception",query)
 		diagnostics = _reference_candidates(candidate,visit,"gp",query)
 		consultations = _reference_candidates(candidate,visit,"consult",query)
 	if receptions.is_empty() or diagnostics.is_empty():
+		space.end_route_query()
 		return {"ok":false,"reason":"缺少实际接待或初诊资源","bundles":[]}
 	if shared.is_empty(): outpatient = _reference_candidates(candidate,visit,"outpatient",query)
 	var terminal_quotes: Array = []
@@ -2237,6 +2246,7 @@ func _reference_options(world: WorldState, binding_id: String, complex_case: boo
 	var selected_terminals: Array = []
 	for terminal: Dictionary in terminal_quotes: selected_terminals.append_array(_reference_terminal_beds(candidate,visit,terminal,bed_quotes))
 	terminal_quotes = selected_terminals
+	space.end_route_query()
 	return {"ok":not terminal_quotes.is_empty(),"reason":"没有完整临床参考资源束" if terminal_quotes.is_empty() else "",
 		"world":candidate,"visit":visit,"terminals":terminal_quotes,"receptions":receptions,"diagnostics":diagnostics,"consultations":consultations,"outpatient":outpatient,"bed_quotes":bed_quotes,"physical":physical,"query":query}
 
@@ -2478,6 +2488,12 @@ func _build_reference_diagnostic_stages(world: WorldState, visit: Dictionary, di
 	return {"ok":true,"stages":complete[0],"variants":complete}
 
 func _reference_terminal_bundle(world: WorldState, visit: Dictionary, reception: Dictionary, diagnostic: Dictionary, quote: Dictionary, stages: Dictionary, query: Dictionary = {}) -> Dictionary:
+	space.begin_route_query(world,query.get("geometry",{}))
+	var result: Dictionary = _build_reference_terminal_bundle(world,visit,reception,diagnostic,quote,stages,query)
+	space.end_route_query()
+	return result
+
+func _build_reference_terminal_bundle(world: WorldState, visit: Dictionary, reception: Dictionary, diagnostic: Dictionary, quote: Dictionary, stages: Dictionary, query: Dictionary) -> Dictionary:
 	var count_n: int = 1
 	var count_d: int = 1
 	var protocol: Dictionary = content.definition("treatment_protocols",content.definition("treatment_plans",quote.plan_id).protocol_id)

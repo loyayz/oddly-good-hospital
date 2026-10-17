@@ -134,6 +134,7 @@ func export_backup(hospital_id: String,snapshot_id: String,destination: String) 
 	_io_busy = true
 	_cancel_io = false
 	var candidate: Dictionary = snapshots.load_commit(hospital_id,snapshot_id)
+	candidate.erase("world")
 	var staging: String = ""
 	var result: Dictionary = candidate
 	if candidate.ok:
@@ -297,7 +298,7 @@ func _publish_import(source: WorldState) -> Dictionary:
 	if _cancel_io:
 		return _error("备份导入已取消，原文件保留")
 	var new_id: String = HospitalSnapshots.uuid()
-	var world: WorldState = WorldState.new(_remap_hospital(source.freeze(),source.hospital_id,new_id))
+	var world: WorldState = WorldState.new(_remap_hospital(source.facts,source.hospital_id,new_id))
 	var reason: String = world.validate(content)
 	if not reason.is_empty():
 		return _error("新医院引用校验失败："+reason)

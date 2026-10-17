@@ -11,10 +11,24 @@ var _coverage_used: int = 0
 var _query: Dictionary = {}
 var _query_depth: int = 0
 var query_builds: int = 0
+var _water_ids: Dictionary = {}
+var _positive_definitions: Dictionary = {}
 
 func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 	content = database
 	space = geometry
+	for amenity: Dictionary in content.catalog.get("amenity_services",[]):
+		if amenity.get("purpose","")=="water":
+			for field: String in ["ordinary_facility_id","universal_facility_id"]: _water_ids[str(amenity.get(field,""))] = true
+	_water_ids.erase("")
+
+func _positive_definition(id: String) -> Dictionary:
+	if not _positive_definitions.has(id):
+		var definition: Dictionary = content.facility_definition(id)
+		var record: Dictionary = {"decoration":definition.get("passive_decoration",false),"light":definition.get("environment","")=="light" or definition.get("environment_function","")=="light"}
+		if definition.has("decoration_category"): record.category = definition.decoration_category
+		_positive_definitions[id] = record
+	return _positive_definitions[id]
 
 # A synchronous observation batch changes experience records only. Geometry and
 # coverage can be shared; water, noise, dirt and nearby people are still read live.
@@ -765,10 +779,10 @@ func environment_at(world: WorldState, floor_id: int, cell: Array, actor_id: Str
 			continue
 		if not positive.has(_cell_key(facility.cell)):
 			continue
-		var definition: Dictionary = content.facility_definition(str(facility.definition_id))
-		if definition.get("passive_decoration",false):
-			categories[str(definition.get("decoration_category",facility.get("decoration_category",facility.definition_id)))] = true
-		if definition.get("environment","")=="light" or definition.get("environment_function","")=="light":
+		var definition: Dictionary = _positive_definition(str(facility.definition_id))
+		if definition.decoration:
+			categories[str(definition.get("category",facility.get("decoration_category",facility.definition_id)))] = true
+		if definition.light:
 			light = true
 		if not result.water and _is_water(str(facility.definition_id)) and _water_usable(world,facility,actor_id):
 			result.water = true
@@ -814,10 +828,7 @@ func _sample_noise(world: WorldState, floor_id: int, noise_cells: Dictionary, re
 				result.noise = maxi(int(result.noise),int(rules.construction_noise_penalty))
 
 func _is_water(definition_id: String) -> bool:
-	for amenity: Dictionary in content.catalog.get("amenity_services",[]):
-		if amenity.get("purpose","")=="water" and definition_id in [str(amenity.get("ordinary_facility_id","")),str(amenity.get("universal_facility_id",""))]:
-			return true
-	return false
+	return _water_ids.has(definition_id)
 
 func _facility_in_coverage(world: WorldState, facility: Dictionary, coverage: Dictionary) -> bool:
 	var layout: Dictionary = space.facility_layout(world,str(facility.id))

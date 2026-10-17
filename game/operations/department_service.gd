@@ -115,14 +115,15 @@ func sample(world: WorldState) -> void:
 		if int(experience.closed_tick)>=0: continue
 		_track_phase(world,visit,experience)
 		var actor: Dictionary = world.facts.actors[visit.actor_id]
+		var observation: Dictionary = {}
 		if actor.location.kind=="floor":
-			var observation: Dictionary = _environment(world,visit.actor_id,int(actor.location.floor_id),actor.location.cell)
+			observation = _environment(world,visit.actor_id,int(actor.location.floor_id),actor.location.cell)
 			experience.environment_total += float(observation.value)
 			experience.environment_ticks += 1
 			_update_cause_clocks(world,visit,experience,observation)
 		if world.sim_tick>=int(experience.next_anger_tick):
 			experience.next_anger_tick = world.sim_tick+_ticks(content.balance.anger.update_seconds)
-			_sample_anger(world,visit,experience)
+			_sample_anger(world,visit,experience,observation)
 			var reasons: Array = reason_cards(world,visit_id)
 			if not reasons.is_empty(): _detail(world,experience,{"kind":"cause","tick":world.sim_tick,"cause_id":reasons[0].id,"text":reasons[0].reason})
 	if environment!=null: environment.end_query()
@@ -302,6 +303,7 @@ func readiness(world: WorldState, department_id: String, visit_id: String, struc
 		facts.visits[visit_id] = visit.duplicate(true)
 		var candidate: WorldState = WorldState.new(facts)
 		candidate.facts.visits[visit_id].department_id = department_id
+		space.begin_route_query(candidate)
 		if structural_only:
 			for plan: Dictionary in content.catalog.treatment_plans:
 				if plan.disease_id!=visit.disease_id: continue
@@ -309,6 +311,7 @@ func readiness(world: WorldState, department_id: String, visit_id: String, struc
 				quotes.append(quote)
 				if quote.get("structural_ok",quote.get("ok",false)): break
 		else: quotes = clinic.compare_plans(candidate,visit_id)
+		space.end_route_query()
 	var ready: bool = false
 	var structurally_compatible: bool = clinic==null
 	for quote: Dictionary in quotes:
@@ -709,10 +712,10 @@ func _correct(world: WorldState, visit_id: String, source: String, target: Strin
 	world.facts.departments.guidance.erase(visit_id)
 	visit.waiting_reason = "已指向可接诊科室，原票号与证据保留"
 
-func _sample_anger(world: WorldState, visit: Dictionary, data: Dictionary) -> void:
+func _sample_anger(world: WorldState, visit: Dictionary, data: Dictionary, provided: Variant = null) -> void:
 	var active: Dictionary = {}
 	var actor: Dictionary = world.facts.actors[visit.actor_id]
-	var observation: Dictionary = _environment(world,visit.actor_id,int(actor.location.floor_id),actor.location.cell) if actor.location.kind=="floor" else {}
+	var observation: Dictionary = provided if provided!=null else (_environment(world,visit.actor_id,int(actor.location.floor_id),actor.location.cell) if actor.location.kind=="floor" else {})
 	var need: Dictionary = world.facts.get("waiting_life",{}).get("needs",{}).get(visit.id,{})
 	var ticket: Dictionary = world.facts.tickets.get(visit.get("ticket_id",""),{})
 	if not need.is_empty():
