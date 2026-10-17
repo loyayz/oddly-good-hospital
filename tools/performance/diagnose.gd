@@ -160,7 +160,14 @@ func _run() -> void:
 				var repeated_budgets: Dictionary = service._resource_budgets(fixture.world,repeated,shift,repeated_query.resource_ids)
 				var updated: Dictionary = service._solve_roles(fixture.world,repeated,repeated_budgets,shift,repeated_query.model_key)
 				warm.append({"elapsed_ms":(Time.get_ticks_usec()-begin)/1000.0,"result":updated})
-				valid = valid and repeated.size()==classes.size() and updated==initial
+				# Cumulative timing and proof counters may change on a warm call.
+				# Compare the complete numerical/model summary separately.
+				var stable: Dictionary = initial.duplicate()
+				var current: Dictionary = updated.duplicate()
+				for field: String in ["timing_us","nursing_timing_us","proof_reuses"]:
+					stable.erase(field)
+					current.erase(field)
+				valid = valid and repeated==classes and current==stable
 			var evidence: Dictionary = {"diagnostic":true,"reference_ms":reference_ms,"solve_ms":solve_ms,"initial":initial,"warm":warm,"valid":valid,"classes":classes.size(),"resources":budgets.size(),"tracked_bytes":OS.get_static_memory_usage(),"profile":timing.report()}
 			var report: FileAccess = FileAccess.open(output,FileAccess.WRITE)
 			report.store_string(JSON.stringify(evidence,"\t"))

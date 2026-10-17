@@ -64,7 +64,14 @@ const CASES: Dictionary = {
 	"GROW-61":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；在途组偏移与身体姿态进入名义运输缓存身份",
 	"GROW-62":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；完整候选组件与按需队列代表分离",
 	"GROW-63":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；几何投影只保留数值依赖且隔离源记录",
-	"GROW-64":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；结构存在性短路不改变详细方案解释"
+	"GROW-64":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；结构存在性短路不改变详细方案解释",
+	"GROW-65":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；分层完整输入、布局复用与恢复隔离",
+	"GROW-66":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；科室原所有者记录更新与旧快照隔离",
+	"GROW-67":"docs/design/07-clinical-team.md；活动病例索引、归档与恢复",
+	"GROW-68":"docs/design/07-clinical-team.md §5；只读占用视图边界与实际新预约可见",
+	"GROW-69":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；精确资源驻留身份与顺序独立",
+	"GROW-70":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；运输依赖变化与冷热完整模型一致",
+	"GROW-71":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；整批组件与逐组件的完整模型、概率和选择一致"
 }
 
 func run(t) -> void:
@@ -580,8 +587,9 @@ func _case_54(t) -> void:
 	var ctx: Dictionary = _context(false)
 	var preparation: ArrivalPreparation = ArrivalPreparation.new(_content)
 	var input: Dictionary = preparation._capture(ctx.world,false,-1)
-	var other: Dictionary = input.duplicate(true)
-	other.facts.plan_strategy = "safety_first"
+	var changed: Dictionary = ctx.world.freeze()
+	changed.plan_strategy = "safety_first"
+	var other: Dictionary = preparation._capture(WorldState.new(changed),false,-1)
 	preparation._completed = {"input":input,"projection":{"complete":true,"marker":"A"}}
 	preparation._completed_id = 7
 	preparation._sequence = 8
@@ -846,12 +854,198 @@ func _case_64(t) -> void:
 class QuoteCounts extends HospitalClinic:
 	var full_calls: int = 0
 	var plan_calls: int = 0
+	var availability_calls: int = 0
+	func _build_availability(world: WorldState) -> Dictionary:
+		availability_calls += 1
+		return super._build_availability(world)
 	func _reference_bundle(world: WorldState, visit: Dictionary, reception: Dictionary, diagnostic: Dictionary, quote: Dictionary, query: Dictionary, consultation: Dictionary = {}) -> Dictionary:
 		full_calls += 1
 		return super._reference_bundle(world,visit,reception,diagnostic,quote,query,consultation)
 	func plan_quote(world: WorldState, visit_id: String, plan_id: String, options: Dictionary = {}) -> Dictionary:
 		plan_calls += 1
 		return super.plan_quote(world,visit_id,plan_id,options)
+
+func _case_65(t) -> void:
+	var ctx: Dictionary = _context()
+	var preparation: ArrivalPreparation = ArrivalPreparation.new(_content)
+	var first: Dictionary = preparation._capture(ctx.world,true,-1)
+	var second: Dictionary = preparation._capture(ctx.world,true,-1)
+	var correct: bool = preparation._same_input(first,second) and is_same(first.facts.rooms,second.facts.rooms)
+	ctx.world.facts.staff.starter_doctor_a.abilities.diagnosis += 1
+	var changed: Dictionary = preparation._capture(ctx.world,true,-1)
+	correct = correct and not preparation._same_input(first,changed) and first.layers.layout==changed.layers.layout and first.layers.current==changed.layers.current and first.layers.reference!=changed.layers.reference
+	var next_day: Dictionary = preparation._capture(ctx.world,true,WorldState.TICKS_PER_DAY)
+	correct = correct and next_day.layers.reference==changed.layers.reference and next_day.layers.current!=changed.layers.current
+	var before: Dictionary = ctx.world.freeze()
+	var restored: WorldState = WorldState.new(before.duplicate(true))
+	var restored_input: Dictionary = preparation._capture(restored,true,-1)
+	correct = correct and preparation._same_input(restored_input,changed) and ctx.world.freeze()==before
+	preparation.dispose()
+	t.check("GROW-65",correct,{"layout_shared":is_same(first.facts.rooms,second.facts.rooms),"restored_equal":restored_input==changed,"readonly":ctx.world.freeze()==before})
+
+func _case_66(t) -> void:
+	var ctx: Dictionary = _context()
+	var department: HospitalDepartments = ctx.simulation.services.departments
+	var first: Dictionary = ctx.world.department_records()
+	var again: Dictionary = ctx.world.department_records()
+	var renamed: CommandResult = department.execute(ctx.world,"department_rename",{"department_id":"general","name":"隔离科室"})
+	var second: Dictionary = ctx.world.department_records()
+	var closed: CommandResult = department.execute(ctx.world,"department_set_open",{"department_id":"general","open":false})
+	var third: Dictionary = ctx.world.department_records()
+	var restored: WorldState = WorldState.new(ctx.world.freeze())
+	t.check("GROW-66",is_same(first,again) and renamed.accepted and closed.accepted and first.general.name!="隔离科室" and second.general.name=="隔离科室" and second.general.open and not third.general.open and restored.department_records()==third,{"initial_reused":is_same(first,again),"old_open":second.general.open,"new_open":third.general.open})
+
+func _case_67(t) -> void:
+	var ctx: Dictionary = _context()
+	var visit: Dictionary = _patient(ctx,[45,76])
+	if visit.is_empty():
+		t.check("GROW-67",false,ctx.last_admission)
+		return
+	var correct: bool = true
+	var counts: Array = []
+	ctx.world.facts.sim_tick = 1000
+	for index: int in 256:
+		var id: String = "archived_%04d"%index
+		var actor_id: String = id+"_actor"
+		var archived: Dictionary = visit.duplicate(true)
+		archived.merge({"id":id,"actor_id":actor_id,"arrival_key":id,"phase":"departed","ticket_id":"","final_result":"referred","departed_tick":0,"departure_recorded":true},true)
+		var actor: Dictionary = ctx.world.facts.actors[visit.actor_id].duplicate(true)
+		actor.merge({"id":actor_id,"location":{"kind":"outside"}},true)
+		ctx.world.facts.visits[id] = archived
+		ctx.world.facts.actors[actor_id] = actor
+		ctx.world.facts.arrival_receipts[id] = id
+		if index+1 in [16,64,256]:
+			var before: Dictionary = ctx.world.freeze()
+			var ids: Array = ctx.world.active_visit_ids()
+			var restored: WorldState = WorldState.new(before.duplicate(true))
+			correct = correct and ids==[visit.id] and restored.active_visit_ids()==ids and ctx.world.freeze()==before and ctx.world.validate(_content).is_empty()
+			counts.append({"history":index+1,"active":ids.size()})
+	# A same-sized replacement must invalidate ordered IDs even inside one tick.
+	var ids_before: Array = ctx.world.ids("arrival_receipts")
+	ctx.world.facts.arrival_receipts.erase("archived_0000")
+	ctx.world.facts.arrival_receipts.replacement = "archived_0000"
+	ctx.world.facts.visits.archived_0000.arrival_key = "replacement"
+	var ids_after: Array = ctx.world.ids("arrival_receipts")
+	correct = correct and ids_before!=ids_after and "replacement" in ids_after and not "archived_0000" in ids_after
+	ids_after.clear()
+	correct = correct and not ctx.world.ids("arrival_receipts").is_empty() and ctx.world.validate(_content).is_empty()
+	t.check("GROW-67",correct,{"scales":counts,"validation":ctx.world.validate(_content)})
+
+func _case_68(t) -> void:
+	var ctx: Dictionary = _context()
+	var visit: Dictionary = _patient(ctx,[45,76])
+	var observer: QuoteCounts = QuoteCounts.new(_content,ctx.space)
+	ctx.space.begin_route_query(ctx.world)
+	var first: Dictionary = observer._availability(ctx.world)
+	var second: Dictionary = observer._availability(ctx.world)
+	ctx.space.end_route_query()
+	var shared: bool = observer.availability_calls==1 and is_same(first,second)
+	# Registration reserves space first. Walk and start the real service before
+	# checking the clinical owners; no preparation exists for registration.
+	var ticks: int = 0
+	while ctx.world.facts.sessions.is_empty() and ticks<500:
+		ctx.simulation.step()
+		ticks += 1
+	var next: Dictionary = observer._availability(ctx.world)
+	var fresh: Dictionary = observer._build_availability(ctx.world)
+	var environment: HospitalEnvironment = ctx.simulation.services.environment
+	var builds: int = environment.query_builds
+	var before: Dictionary = ctx.world.freeze()
+	environment.begin_query(ctx.world)
+	environment.begin_query(ctx.world)
+	var a: Dictionary = environment.environment_at(ctx.world,1,[45,76],visit.actor_id)
+	environment.end_query()
+	var b: Dictionary = environment.environment_at(ctx.world,1,[45,76],visit.actor_id)
+	environment.end_query()
+	var readonly: bool = ctx.world.freeze()==before
+	var uses: Dictionary = HospitalClinic.equipment_uses(ctx.world)
+	var use_equal: bool = true
+	for id: String in ctx.world.facts.facilities:
+		use_equal = use_equal and HospitalEquipmentUse.query(ctx.world,id,uses)==HospitalEquipmentUse.query(ctx.world,id)
+	t.check("GROW-68",shared and next==fresh and not ctx.world.facts.sessions.is_empty() and next!=first and a==b and environment.query_builds==builds+1 and environment._query.is_empty() and readonly and use_equal,{"shared":shared,"new_sessions":ctx.world.facts.sessions.size(),"ticks":ticks,"new_occupancy_seen":next!=first,"environment_builds":environment.query_builds-builds,"readonly":readonly})
+
+func _case_69(t) -> void:
+	var ctx: Dictionary = _context()
+	var query: Dictionary = {}
+	var a: Dictionary = {"resources":{"staff:starter_doctor_a":F.make(1,2),"facility:reception_desk":F.make(2,3)},"structural_resources":["staff:starter_doctor_a"]}
+	var b: Dictionary = {"resources":{"facility:reception_desk":F.make(4,6),"staff:starter_doctor_a":F.make(2,4)},"structural_resources":["staff:starter_doctor_a"]}
+	var first: Dictionary = ctx.arrivals._capacity_part(a,query,true)
+	var second: Dictionary = ctx.arrivals._capacity_part(b,query,true)
+	var c: Dictionary = b.duplicate(true)
+	c.resources["staff:starter_doctor_a"] = F.make(2,5)
+	var third: Dictionary = ctx.arrivals._capacity_part(c,query,true)
+	t.check("GROW-69",is_same(first,second) and is_same(first.resources,second.resources) and not is_same(first,third) and first.resources["staff:starter_doctor_a"]==F.make(1,2),{"equal_parts_shared":is_same(first,second),"unequal_distinct":not is_same(first,third),"maps":query.resource_maps.size()})
+
+func _case_70(t) -> void:
+	var ctx: Dictionary = _context()
+	_single_case(ctx)
+	var builder: RefCounted = load("res://tests/acceptance/space.gd").new()
+	builder.content = _content
+	builder._history_height(ctx.simulation,2)
+	var built: CommandResult = builder._command(ctx.simulation,"connector_build",{"definition_id":"VC02","floor_id":1,"cell":[36,72]})
+	var id: String = builder._connection(ctx.simulation)
+	var extended: CommandResult = builder._command(ctx.simulation,"connector_extend",{"connection_id":id,"floor_id":2}) if built.accepted else built
+	if not extended.accepted:
+		t.check("GROW-70",false,extended.to_record())
+		return
+	var source: Dictionary = ctx.world.freeze()
+	var correct: bool = true
+	var observations: Array = []
+	for change: String in ["idle_stop","failure","new_connection","deleted_connection","ability","schedule","department"]:
+		ctx.arrivals._reference_cache.clear()
+		ctx.arrivals._reference_classes(WorldState.new(source.duplicate(true)),0,{})
+		var facts: Dictionary = source.duplicate(true)
+		match change:
+			"idle_stop": facts.connectors[id].floor_id = 2
+			"failure": facts.connectors[id].failed = true
+			"new_connection":
+				var alternative: HospitalSimulation = HospitalSimulation.new(WorldState.new(facts),_content)
+				_simulations.append(alternative)
+				var extra: CommandResult = builder._command(alternative,"connector_build",{"definition_id":"VC02","floor_id":1,"cell":[48,70]})
+				var extra_stop: CommandResult = builder._command(alternative,"connector_extend",{"connection_id":extra.changed_ids[0],"floor_id":2}) if extra.accepted else extra
+				correct = correct and extra_stop.accepted
+				facts = alternative.world.freeze()
+			"deleted_connection": facts.connectors.erase(id)
+			"ability": facts.staff.starter_doctor_a.abilities.diagnosis += 1
+			"schedule": facts.staff.starter_doctor_a.schedule[0] = {"kind":"rest","pools":[],"locked":false}
+			"department": facts.departments.units.general.open = false
+		var changed: WorldState = WorldState.new(facts)
+		var quotes: int = ctx.arrivals.reference_counts.case_quotes
+		var hot_query: Dictionary = {}
+		var hot: Array = ctx.arrivals._reference_classes(changed,0,hot_query)
+		var recalculated: int = ctx.arrivals.reference_counts.case_quotes-quotes
+		ctx.arrivals._reference_cache.clear()
+		var cold_query: Dictionary = {}
+		var cold: Array = ctx.arrivals._reference_classes(changed,0,cold_query)
+		hot_query.erase("model_key")
+		cold_query.erase("model_key")
+		var equal: bool = hot==cold and hot_query==cold_query
+		correct = correct and equal and (recalculated>0 or change in ["idle_stop","failure"])
+		observations.append({"change":change,"full_model_equal":equal,"recalculated":recalculated})
+	t.check("GROW-70",correct and ctx.world.freeze()==source,{"observations":observations,"readonly":ctx.world.freeze()==source})
+
+class ScalarComponents extends HospitalClinic:
+	func _reference_component(full: Dictionary, stages: Array, weight: Dictionary = {"n":"1","d":"1"}, _batch: Variant = null) -> Dictionary:
+		return super._reference_component(full,stages,weight)
+
+func _case_71(t) -> void:
+	var ctx: Dictionary = _context()
+	_add_room(ctx.world,"batch_terminal","T01",[42,70],[6,6])
+	_add_facility(ctx.world,"batch_treatment","M09","batch_terminal",[44,71])
+	var scalar: ScalarComponents = ScalarComponents.new(_content,ctx.space)
+	for property: Dictionary in ctx.clinic.get_property_list():
+		if (int(property.usage)&PROPERTY_USAGE_SCRIPT_VARIABLE)!=0: scalar.set(property.name,ctx.clinic.get(property.name))
+	var correct: bool = true
+	var observations: Array = []
+	var before: Dictionary = ctx.world.freeze()
+	for binding: String in ["B_S49_D37_M37","B_S13_D09_M09"]:
+		for complex_case: bool in [false,true]:
+			var nominal: WorldState = ctx.arrivals._capacity_reference_world(ctx.world)
+			var batch: Dictionary = ctx.clinic.reference_demand(nominal,binding,complex_case,0)
+			var single: Dictionary = scalar.reference_demand(nominal,binding,complex_case,0)
+			correct = correct and batch.ok and batch==single
+			observations.append({"binding":binding,"complex":complex_case,"complete_model_equal":batch==single,"terminals":batch.get("model",{}).get("bundles",[]).size()})
+	t.check("GROW-71",correct and ctx.world.freeze()==before,{"observations":observations,"readonly":ctx.world.freeze()==before})
 
 func _case_40(t) -> void:
 	var ctx: Dictionary = _context()

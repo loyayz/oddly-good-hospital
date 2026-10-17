@@ -3,8 +3,8 @@ extends RefCounted
 
 # Read-only handoff between equipment users and maintenance. The users retain
 # their reservations; this projection is neither a new lock nor saved state.
-static func query(world: WorldState, equipment_id: String) -> Dictionary:
-	var use: Dictionary = HospitalClinic.equipment_use(world,equipment_id)
+static func query(world: WorldState, equipment_id: String, clinical_uses: Variant = null) -> Dictionary:
+	var use: Dictionary = HospitalClinic.equipment_use(world,equipment_id) if clinical_uses==null else clinical_uses.get(equipment_id,{"occupied":false,"critical_commitment":false})
 	var occupied: bool = bool(use.occupied) or world.facts.adaptations.has(equipment_id)
 	var connector: Dictionary = world.facts.connectors.get(equipment_id,{})
 	if not connector.is_empty():

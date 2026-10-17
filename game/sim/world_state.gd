@@ -10,12 +10,27 @@ var facts: Dictionary:
 		facts = value
 		_facility_definitions.clear()
 		_facility_count = -1
+		_ordered_ids.clear()
+		_active_visits.clear()
+		_active_visit_count = -1
+		_layout_projection.clear()
+		_department_versions.clear()
+		_department_records.clear()
+		_department_snapshot.clear()
 		invalidate_geometry()
 
 # Rebuildable observation identities; none of these values enter freeze().
 var geometry_revision: int = 0
 var _facility_definitions: Dictionary = {}
 var _facility_count: int = -1
+var _ordered_ids: Dictionary = {}
+var _active_visits: Dictionary = {}
+var _active_visit_count: int = -1
+var _layout_projection: Dictionary = {}
+var _layout_revision: int = -1
+var _department_versions: Dictionary = {}
+var _department_records: Dictionary = {}
+var _department_snapshot: Dictionary = {}
 
 var hospital_id: String:
 	get:
@@ -56,8 +71,69 @@ func freeze() -> Dictionary:
 
 func ids(collection: String) -> Array:
 	var keys: Array = facts[collection].keys()
-	keys.sort()
-	return keys
+	var cached: Dictionary = _ordered_ids.get(collection,{})
+	# Direct writes still exist in legacy owners. Compare membership rather
+	# than trusting count/revision (a remove+add may keep both unchanged).
+	if cached.is_empty() or cached.members!=keys:
+		var ordered: Array = keys.duplicate()
+		ordered.sort()
+		cached = {"members":keys,"ordered":ordered}
+		_ordered_ids[collection] = cached
+	return cached.ordered.duplicate()
+
+func register_visit(id: String) -> void:
+	if _active_visit_count<0: return
+	_active_visits[id] = true
+	_active_visit_count = facts.visits.size()
+	_ordered_ids.erase("visits")
+
+func active_visit_ids() -> Array:
+	if _active_visit_count!=facts.visits.size():
+		_active_visits.clear()
+		for id: String in facts.visits:
+			var visit: Dictionary = facts.visits[id]
+			if visit.phase!="departed" or not visit.get("departure_recorded",false): _active_visits[id] = true
+		_active_visit_count = facts.visits.size()
+	var result: Array = _active_visits.keys()
+	result.sort()
+	return result
+
+func finish_visits() -> void:
+	# All clinical, department and resident settlements have consumed departure
+	# before this complete-step boundary. History itself remains untouched.
+	for id: String in _active_visits.keys():
+		if not facts.visits.has(id) or facts.visits[id].phase=="departed" and facts.visits[id].get("departure_recorded",false): _active_visits.erase(id)
+
+func capacity_layout() -> Dictionary:
+	# Layout writes commit through facts replacement or geometry invalidation.
+	# Values here are owned immutable input, never aliases of player facts.
+	if _layout_projection.is_empty() or _layout_revision!=geometry_revision:
+		_layout_projection = {}
+		for field: String in ["rooms","floors","entry"]:
+			if facts.has(field): _layout_projection[field] = facts[field].duplicate(true)
+		_layout_revision = geometry_revision
+	return _layout_projection
+
+func department_changed(id: String, initialize: bool = false) -> void:
+	if initialize and _department_versions.has(id): return
+	_department_versions[id] = int(_department_versions.get(id,0))+1
+
+func department_records() -> Dictionary:
+	var records: Dictionary = facts.get("departments",{}).get("units",{})
+	var result: Dictionary = {}
+	var unchanged: bool = records.size()==_department_snapshot.size()
+	var retained: Dictionary = {}
+	for id: String in records:
+		var version: int = int(_department_versions.get(id,-1))
+		var cached: Dictionary = _department_records.get(id,{})
+		if cached.is_empty() or cached.geometry!=geometry_revision or cached.version!=version or version<0 and cached.value!=records[id]:
+			cached = {"value":records[id].duplicate(true),"version":version,"geometry":geometry_revision}
+			unchanged = false
+		retained[id] = cached
+		result[id] = cached.value
+	_department_records = retained
+	if not unchanged: _department_snapshot = result
+	return _department_snapshot
 
 func draw(stream: String, modulus: int) -> int:
 	var record: Dictionary = facts.rng[stream]

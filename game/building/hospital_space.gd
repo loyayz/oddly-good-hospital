@@ -14,10 +14,12 @@ var _accepted_sweeps: Dictionary = {}
 var _route_checks: Dictionary = {}
 var _envelope_next: int = 0
 var _route_queries: Array[Dictionary] = []
+var query_counts: Dictionary = {"routes":0,"journey_hits":0,"journey_invalidations":0,"transport_builds":0,"transport_searches":0,"candidate_connections":0}
 
 # These scopes contain synchronous, read-only enumeration only. Results never
 # survive an actual reservation, movement or subsequent clinical quote.
 func begin_route_query(world: WorldState, reference: Dictionary = {}) -> void:
+	var views: Dictionary = _route_queries.back().views if not _route_queries.is_empty() and _route_queries.back().world==world else {}
 	if reference.is_empty() and not _route_queries.is_empty():
 		reference = _route_queries.back().reference
 	if not reference.is_empty() and not reference.has("routes"):
@@ -26,24 +28,40 @@ func begin_route_query(world: WorldState, reference: Dictionary = {}) -> void:
 		reference.journeys = {}
 	if not _route_queries.is_empty() and not reference.is_empty() and is_same(reference,_route_queries.back().reference):
 		# Nested scopes belong to the same sealed read-only transport batch.
-		_route_queries.append({"world":world,"routes":reference.routes,"exits":{},"reference":reference,"journeys_allowed":_route_queries.back().journeys_allowed})
+		_route_queries.append({"world":world,"routes":reference.routes,"exits":{},"views":views,"reference":reference,"journeys_allowed":_route_queries.back().journeys_allowed})
 		return
 	var journeys_allowed: bool = not reference.is_empty()
 	for movement: Dictionary in world.facts.moves.values():
 		if movement.has("transit_ticket"): journeys_allowed = false
 	if journeys_allowed:
 		reference.transport_builds = int(reference.get("transport_builds",0))+1
-		var transport: Dictionary = HospitalTransit.reference_basis(self,world)
+		var transport: Dictionary = reference.transport_basis if reference.has("transport_basis") else HospitalTransit.reference_basis(self,world)
+		if not reference.has("transport_basis"): query_counts.transport_builds += 1
 		if reference.get("journey_transport",{})!=transport:
+			query_counts.journey_invalidations += 1
 			reference.journeys.clear()
 			reference.journey_transport = transport.duplicate(true)
-	_route_queries.append({"world":world,"routes":reference.get("routes",{}),"exits":{},"reference":reference,"journeys_allowed":journeys_allowed})
+	_route_queries.append({"world":world,"routes":reference.get("routes",{}),"exits":{},"views":views,"reference":reference,"journeys_allowed":journeys_allowed})
 
 func end_route_query() -> void:
 	_route_queries.pop_back()
 
+func read_view(world: WorldState, name: String, build: Callable) -> Dictionary:
+	if _route_queries.is_empty() or _route_queries.back().world!=world: return build.call()
+	var views: Dictionary = _route_queries.back().views
+	if not views.has(name): views[name] = build.call()
+	return views[name]
+
 func nominal_query(world: WorldState) -> bool:
 	return not _route_queries.is_empty() and _route_queries.back().world==world and not _route_queries.back().reference.is_empty()
+
+func transport_search(world: WorldState) -> void:
+	query_counts.transport_searches += 1
+	if not _route_queries.is_empty() and _route_queries.back().world==world:
+		var reference: Dictionary = _route_queries.back().reference
+		if not reference.is_empty():
+			reference.transport_dependent = true
+			reference.transport_searches = int(reference.get("transport_searches",0))+1
 
 func _blocking_facility(world: WorldState, floor_id: int, rect: Rect2, except_id: String = "") -> String:
 	if not _route_queries.is_empty() and _route_queries.back().world==world:
@@ -141,6 +159,7 @@ func static_reason(world: WorldState, actor: Dictionary, floor_id: int, origin: 
 	return RouteClearance.new(self,world,actor,floor_id,members,offsets,true,_navigation.floor_source(self,world,floor_id)).reason(origin)
 
 func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
+	query_counts.routes += 1
 	var actor: Dictionary = world.facts.actors[actor_id]
 	if actor.location.kind != "floor":
 		return {"ok": false, "reason": "角色正在竖向通行或院外"}
@@ -150,7 +169,11 @@ func route(world: WorldState, actor_id: String, floor_id: int, target: Array, me
 		# Reference actors have no transport tickets. A complete journey depends
 		# on the body, endpoints and this sealed clock, rather than actor identity.
 		key = JSON.stringify([body(actor),actor.get("posture","standing"),actor.facing,actor.location.floor_id,actor.location.cell,floor_id,target,world.sim_tick])
-		if reference.journeys.has(key): return reference.journeys[key].duplicate()
+		if reference.journeys.has(key):
+			query_counts.journey_hits += 1
+			var retained: Dictionary = reference.journeys[key]
+			if retained.transport_dependent: reference.transport_dependent = true
+			return retained.quote.duplicate()
 	var start: Vector2i = Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
 	var goal: Vector2i = Vector2i(int(target[0]),int(target[1]))
 	var source_floor: int = int(actor.location.floor_id)
@@ -161,11 +184,12 @@ func route(world: WorldState, actor_id: String, floor_id: int, target: Array, me
 		var reason: String = query.sweep_reason(actual,Vector2(start))
 		if not reason.is_empty():
 			return {"ok":false,"status":"unreachable","reason":reason}
+	var searches: int = int(reference.get("transport_searches",0))
 	var result: Dictionary = HospitalTransit.route(self,world,actor,source_floor,start,floor_id,goal,members,offsets,ignore_people,HospitalTransit.walking_ticks(self,actor,members,stub))
 	if result.ok and stub>0.0:
 		result.path.push_front({"kind":"floor","floor_id":source_floor,"cell":[start.x,start.y]})
 		result.walking_distance += stub
-	if not key.is_empty(): reference.journeys[key] = result.duplicate()
+	if not key.is_empty(): reference.journeys[key] = {"quote":result.duplicate(),"transport_dependent":int(reference.get("transport_searches",0))>searches}
 	return result
 
 func travel_quote(world: WorldState, actor_id: String, floor_id: int, target: Array) -> Dictionary:

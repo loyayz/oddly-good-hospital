@@ -9,6 +9,8 @@ var _worked: Dictionary = {}
 var _coverage_cache: Dictionary = {}
 var _coverage_used: int = 0
 var _query: Dictionary = {}
+var _query_depth: int = 0
+var query_builds: int = 0
 
 func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 	content = database
@@ -17,6 +19,11 @@ func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 # A synchronous observation batch changes experience records only. Geometry and
 # coverage can be shared; water, noise, dirt and nearby people are still read live.
 func begin_query(world: WorldState) -> void:
+	if _query_depth>0 and _query.get("world")==world:
+		_query_depth += 1
+		return
+	_query_depth = 1
+	query_builds += 1
 	_query = {"world":world,"edges":{},"coverage":{},"facilities":{},"screens":{},"actors":{},"samples":{"walls":{},"dirt":{},"machines":{},"construction":{}}}
 	for facility: Dictionary in world.facts.facilities.values():
 		var floor_id: int = int(facility.floor_id)
@@ -68,6 +75,8 @@ func _sample_records(kind: String, floor_id: int, coverage: Dictionary) -> Array
 	return result
 
 func end_query() -> void:
+	_query_depth -= 1
+	if _query_depth>0: return
 	# Preserve static coverage across consumers; each floor retains a bounded
 	# set of origins. Viewing another floor cannot evict the operating batch.
 	for floor_id: int in _query.get("edges",{}):

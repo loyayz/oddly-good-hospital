@@ -31,15 +31,32 @@ func _initialize() -> void:
 		var before_reuses: int = int(proof_result.get("proof_reuses",0))
 		proof_result = proof.call("solve",{"coverage:proof:ward":F.make(amount)})
 		if proof_result.get("capacity")!=F.make(amount,3) or (amount!=6 and int(proof_result.get("proof_reuses",0))!=before_reuses+1): failures.append({"proof_budget":amount,"actual":proof_result})
-	# The unit-price bound can be loose after redistribution. Reaching it
-	# would violate the other original row, so the proof must be rejected.
+	# A single current resource price can tighten the unit-price bound. When
+	# neither tested bound is attainable, the original exact search still runs.
 	var restricted: Array = [{"probability":F.make(1),"bundles":[{"resources":{"coverage:proof:ward":F.make(3),"facility:proof":F.make(2)}}]}]
 	var fallback: RefCounted = ClassDB.instantiate("PlatformArrivalCapacity")
 	var fallback_result: Dictionary = fallback.call("prepare",restricted,{"coverage:proof:ward":F.make(12),"facility:proof":F.make(8)})
 	if fallback_result.get("capacity")!=F.make(4): failures.append({"proof_fallback_initial":fallback_result})
-	for amounts: Array in [[18,8,4],[6,8,2],[6,14,2]]:
+	for amounts: Array in [[18,8,4,0],[6,8,2,0],[6,14,2,1]]:
 		fallback_result = fallback.call("solve",{"coverage:proof:ward":F.make(amounts[0]),"facility:proof":F.make(amounts[1])})
-		if fallback_result.get("capacity")!=F.make(amounts[2]) or int(fallback_result.get("proof_reuses",0))!=0: failures.append({"proof_fallback":amounts,"actual":fallback_result})
+		if fallback_result.get("capacity")!=F.make(amounts[2]) or int(fallback_result.get("proof_reuses",0))!=amounts[3]: failures.append({"proof_fallback":amounts,"actual":fallback_result})
+	var role_model: Array = [{"probability":F.make(1),"bundles":[{"resources":{"coverage:n:w1":F.make(1)}},{"resources":{"coverage:n:w2":F.make(1)}}]}]
+	var role_budget: Dictionary = {"coverage:n:w1":F.make(4),"coverage:n:w2":F.make(8)}
+	var role_backend: RefCounted = ClassDB.instantiate("PlatformArrivalCapacity")
+	var role_result: Dictionary = role_backend.call("prepare_with_roles",role_model,role_budget,{"n":"w1"})
+	if role_result.get("capacity")!=F.make(4): failures.append({"restriction_initial":role_result})
+	var variables: int = int(role_result.get("mip_variables",0))
+	for item: Array in [[{"n":"w2"},8],[{},8],[{"n":"w1"},4]]:
+		role_result = role_backend.call("solve_with_roles",role_budget,item[0])
+		if role_result.get("capacity")!=F.make(item[1]) or int(role_result.get("mip_variables",0))!=variables: failures.append({"restriction_change":item,"actual":role_result})
+	var lp_roles: RefCounted = ClassDB.instantiate("PlatformArrivalCapacity")
+	var lp_model: Array = [{"probability":F.make(1),"bundles":[{"resources":{"staff:n":F.make(1)}},{"resources":{"facility:other":F.make(2)}}]}]
+	var lp_budget: Dictionary = {"staff:n":F.make(10),"facility:other":F.make(12)}
+	var lp_result: Dictionary = lp_roles.call("prepare_with_roles",lp_model,lp_budget,{})
+	if lp_result.get("capacity")!=F.make(16): failures.append({"lp_restriction_initial":lp_result})
+	for item: Array in [[{"n":"w1"},6],[{},16]]:
+		lp_result = lp_roles.call("solve_with_roles",lp_budget,item[0])
+		if lp_result.get("capacity")!=F.make(item[1]): failures.append({"lp_restriction_change":item,"actual":lp_result})
 	var recovery: RefCounted = ClassDB.instantiate("PlatformArrivalCapacity")
 	var prepared: Dictionary = recovery.call("prepare",roles[0].cases,roles[0].budgets)
 	var invalid: Array = roles[0].cases.duplicate(true)
@@ -67,6 +84,8 @@ func _initialize() -> void:
 		var valid: bool = F.make(vector.uncanonical.n,vector.uncanonical.d)==vector.a and F.add(vector.a,vector.b)==vector.add and F.sub(vector.a,vector.b)==vector.sub and F.mul(vector.a,vector.b)==vector.mul and F.div(vector.a,vector.b)==vector.div and F.compare(vector.a,vector.b)==int(vector.compare)
 		var aggregated: Dictionary = PlatformArrivalMath.aggregate_stages({"first":{"a":vector.a,"b":vector.b},"second":{"a":vector.b}},vector.b)
 		valid = valid and aggregated==vector.aggregate
+		var batch: Dictionary = PlatformArrivalMath.aggregate_components([{"stages":{"first":{"a":vector.a,"b":vector.b},"second":{"a":vector.b}},"weight":vector.b}])
+		valid = valid and not batch.has("error") and batch.components==[vector.aggregate]
 		if not valid: failures.append({"arithmetic":vector})
 	for vector: Dictionary in vectors:
 		var result: Dictionary = Solver.solve(vector.cases,vector.budgets)
@@ -94,6 +113,8 @@ func _initialize() -> void:
 	report.unused_resource_checks = vectors.size()*2
 	report.aggregate_checks = arithmetic.size()
 	report.proof_checks = 9
+	report.role_restriction_checks = 7
+	report.batch_aggregate_checks = arithmetic.size()
 	var file: FileAccess = FileAccess.open("res://solver-check.json",FileAccess.WRITE)
 	file.store_string(JSON.stringify(report,"\t"))
 	print("EXACT_VERTEX_CHECK="+JSON.stringify({"checks":vectors.size(),"failed":failures.size()}))

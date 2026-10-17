@@ -17,7 +17,7 @@ func arrivals(world: WorldState) -> void:
 	if world.sim_tick<int(world.facts.visitors.next_scan_tick):
 		return
 	world.facts.visitors.next_scan_tick = world.sim_tick+_ticks(content.balance.ward_care.visitor_request_scan_seconds)
-	for visit_id: String in world.ids("visits"):
+	for visit_id: String in world.active_visit_ids():
 		var visit: Dictionary = world.facts.visits[visit_id]
 		if not visit.has("companion_intent"):
 			visit.companion_intent = world.draw("arrival",10000)<roundi(float(content.balance.ward_care.companion_probability)*10000)

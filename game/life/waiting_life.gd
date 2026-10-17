@@ -12,7 +12,7 @@ func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 func ensure(world: WorldState) -> void:
 	if not world.facts.has("waiting_life"):
 		world.facts.waiting_life = {"seats":{},"needs":{},"clocks":{}}
-	for visit_id: String in world.ids("visits"):
+	for visit_id: String in world.active_visit_ids():
 		var visit: Dictionary = world.facts.visits[visit_id]
 		if not world.facts.waiting_life.clocks.has(visit_id):
 			world.facts.waiting_life.clocks[visit_id] = {"sequence":0,"next_purpose":"toilet",
@@ -20,7 +20,7 @@ func ensure(world: WorldState) -> void:
 
 func dispatch(world: WorldState) -> void:
 	ensure(world)
-	for visit_id: String in world.ids("visits"):
+	for visit_id: String in world.active_visit_ids():
 		var visit: Dictionary = world.facts.visits[visit_id]
 		if world.facts.waiting_life.needs.has(visit_id):
 			_dispatch_need(world,visit,world.facts.waiting_life.needs[visit_id])

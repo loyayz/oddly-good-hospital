@@ -1,6 +1,10 @@
 class_name HospitalMaintenance
 extends RefCounted
 
+# Clinical owners do not change during one maintenance observation. Adaptation,
+# placement and contractor state are still read live by EquipmentUse.query.
+var _clinical_uses: Variant = null
+
 var content: HospitalContent
 var space: HospitalSpace
 var finance: RefCounted
@@ -56,6 +60,7 @@ func _class(item: Dictionary) -> Dictionary:
 
 func boundaries(world: WorldState) -> void:
 	ensure(world)
+	_clinical_uses = HospitalClinic.equipment_uses(world)
 	var equipment: Dictionary = _equipment(world)
 	var day: int = world.sim_tick/WorldState.TICKS_PER_DAY
 	for id: String in equipment:
@@ -113,6 +118,8 @@ func boundaries(world: WorldState) -> void:
 		if not equipment.has(job.facility_id) and job.phase not in ["completed","cancelled"]:
 			_release(world,job)
 			job.phase = "cancelled"
+
+	_clinical_uses = null
 
 func _ensure_job(world: WorldState, item: Dictionary, kind: String, automatic: bool) -> Dictionary:
 	var jobs: Dictionary = world.facts.maintenance.jobs
@@ -300,6 +307,7 @@ func execute(world: WorldState, kind: String, payload: Dictionary) -> CommandRes
 	return _reject(world,"未知设备维护操作")
 
 func dispatch(world: WorldState) -> void:
+	_clinical_uses = HospitalClinic.equipment_uses(world)
 	_dispatch_departures(world)
 	var equipment: Dictionary = _equipment(world)
 	var candidates: Array = []
@@ -348,7 +356,10 @@ func dispatch(world: WorldState) -> void:
 			continue
 		_admit_worker(world,job,item)
 
+	_clinical_uses = null
+
 func advance(world: WorldState) -> void:
+	_clinical_uses = HospitalClinic.equipment_uses(world)
 	var equipment: Dictionary = _equipment(world)
 	for id: String in _ordered(world.facts.maintenance.jobs):
 		var job: Dictionary = world.facts.maintenance.jobs[id]
@@ -432,6 +443,8 @@ func advance(world: WorldState) -> void:
 				order.phase = "completed"
 				item.upgrading_block = false
 
+	_clinical_uses = null
+
 func _arrived(world: WorldState, job: Dictionary, item: Dictionary) -> bool:
 	if not _worker_ready(world,str(job.worker_id),str(job.id)) or not _safe_free(world,str(item.id)):
 		_release(world,job)
@@ -463,7 +476,7 @@ func _needed_for_remodel(world: WorldState, id: String) -> bool:
 	return false
 
 func _safe_free(world: WorldState, id: String) -> bool:
-	var use: Dictionary = HospitalEquipmentUse.query(world,id)
+	var use: Dictionary = HospitalEquipmentUse.query(world,id,_clinical_uses)
 	return bool(use.placed) and not bool(use.occupied)
 
 func _in_inventory(world: WorldState, id: String) -> bool:

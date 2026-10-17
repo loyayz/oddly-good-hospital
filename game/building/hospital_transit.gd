@@ -16,6 +16,7 @@ static func route(space: HospitalSpace, world: WorldState, actor: Dictionary, so
 			direct.arrival_ticks = _add(initial_ticks,walking_ticks(space,actor,members,float(direct.walking_distance)))
 			direct.quoted_tick = world.sim_tick
 			return direct
+	space.transport_search(world)
 	var nodes: Dictionary = {"start":{"floor_id":source_floor,"cell":start},"goal":{"floor_id":target_floor,"cell":goal}}
 	var arrival: Dictionary = {"start":initial_ticks}
 	var previous: Dictionary = {}
@@ -47,6 +48,7 @@ static func route(space: HospitalSpace, world: WorldState, actor: Dictionary, so
 			if finish.ok:
 				_relax(heap,arrival,previous,id,"goal",_add(int(item.tick),walking_ticks(space,actor,members,float(finish.walking_distance))),finish.path,float(finish.walking_distance))
 		for connector_id: String in world.ids("connectors"):
+			space.query_counts.candidate_connections += 1
 			var connection: Dictionary = world.facts.connectors[connector_id]
 			if not has_stop(connection,int(node.floor_id)) or not fits(space,world,connection,actor.id,members).ok:
 				continue

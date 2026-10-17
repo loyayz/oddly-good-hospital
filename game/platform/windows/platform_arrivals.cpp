@@ -9,6 +9,7 @@
 #include "scip/rational.h"
 #include "scip/rationalgmp.h"
 #include <algorithm>
+#include <chrono>
 #include <functional>
 #include <iterator>
 #include <map>
@@ -29,6 +30,14 @@ using Z = soplex::Integer;
 // each transformed factorization. Original problems may persist; transformed
 // solves must neither overlap nor outlive the native call that owns them.
 std::recursive_mutex discrete_mutex;
+int64_t micros() { return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count(); }
+struct Timer {
+    std::map<std::string, int64_t>& values; const char* name; int64_t started = micros();
+    Timer(std::map<std::string, int64_t>& target, const char* key) : values(target), name(key) {}
+    ~Timer() { values[name] += micros() - started; }
+};
+struct V;
+V timing_values(const std::map<std::string, int64_t>& values);
 struct Raw { alignas(8) unsigned char data[OGH_VARIANT_SIZE]; };
 struct Builtin { alignas(8) unsigned char data[8]; };
 GDExtensionInterfaceVariantNewNil new_nil;
@@ -132,6 +141,9 @@ V fraction(const Q& value) {
     result.set("d", V::text(denominator(value).str()));
     return result.value();
 }
+V timing_values(const std::map<std::string, int64_t>& values) {
+    D result; for (const auto& value : values) result.set(value.first.c_str(), V::number(value.second)); return result.value();
+}
 V failure(const std::string& reason) {
     D result;
     result.set("error", V::text("invalid_resource_model"));
@@ -171,6 +183,8 @@ struct PackingProgram {
     struct Row { std::vector<std::pair<int, Q>> terms; Q upper; bool equality; SCIP_CONS* constraint; };
     std::vector<Row> rows;
     int64_t exact_polishes = 0;
+    mutable std::map<std::string, int64_t> timing;
+    std::vector<soplex::DSVectorRational> polish_columns;
     PackingProgram() {
         try {
             scip_check(SCIPcreate(&scip));
@@ -251,6 +265,7 @@ struct PackingProgram {
         rows.at(row).upper = upper;
     }
     void change_coefficient(int row, int variable, const Q& coefficient) {
+        polish_columns.clear();
         Exact value(coefficient);
         scip_check(SCIPchgCoefExactLinear(scip, rows.at(row).constraint, variables.at(variable), value.value));
         auto& terms = rows.at(row).terms;
@@ -258,6 +273,8 @@ struct PackingProgram {
         terms.emplace_back(variable, coefficient);
     }
     std::vector<Q> polish_fixed(const std::vector<Q>& incumbent) {
+        Timer whole(timing, "fixed_lp_total_us");
+        int64_t started = micros();
         using namespace soplex;
         // SCIP's search has already released its transformed factorization.
         // Fix only the integral choices and optimize continuous flows exactly.
@@ -268,16 +285,22 @@ struct PackingProgram {
         lp.setIntParam(SoPlex::SOLVEMODE, SoPlex::SOLVEMODE_RATIONAL);
         lp.setIntParam(SoPlex::CHECKMODE, SoPlex::CHECKMODE_RATIONAL);
         lp.setRealParam(SoPlex::FEASTOL, 0.0); lp.setRealParam(SoPlex::OPTTOL, 0.0);
-        std::vector<DSVectorRational> columns(variables.size());
+        if (polish_columns.empty()) {
+            polish_columns.resize(variables.size());
+            for (size_t i = 0; i < rows.size(); ++i)
+                for (const auto& term : rows[i].terms) polish_columns[term.first].add(static_cast<int>(i), term.second);
+        }
         for (size_t i = 0; i < rows.size(); ++i) {
             const Row& row = rows[i];
             lp.addRowRational(LPRowRational(row.equality ? row.upper : Q(-infinity), DSVectorRational(), row.upper));
-            for (const auto& term : row.terms) columns[term.first].add(static_cast<int>(i), term.second);
         }
         for (size_t i = 0; i < variables.size(); ++i)
-            lp.addColRational(LPColRational(objectives[i] ? 1 : 0, columns[i], integral[i] ? incumbent[i] : bounds[i], integral[i] ? incumbent[i] : Q(0)));
+            lp.addColRational(LPColRational(objectives[i] ? 1 : 0, polish_columns[i], integral[i] ? incumbent[i] : bounds[i], integral[i] ? incumbent[i] : Q(0)));
+        timing["fixed_lp_assembly_us"] += micros() - started;
+        started = micros();
         ++exact_polishes;
         if (lp.optimize() != SPxSolver::OPTIMAL) throw std::runtime_error("离散配置未取得精确可行流");
+        timing["fixed_lp_solve_us"] += micros() - started;
         VectorRational primal(static_cast<int>(variables.size()));
         if (!lp.getPrimalRational(primal)) throw std::runtime_error("离散配置缺少精确原始解");
         std::vector<Q> result;
@@ -285,6 +308,7 @@ struct PackingProgram {
         return result;
     }
     bool valid_values(const std::vector<Q>& values) const {
+        Timer timer(timing, "original_validation_us");
         if (values.size() != variables.size()) return false;
         for (size_t i = 0; i < values.size(); ++i)
             if (values[i] < 0 || values[i] > bounds[i] || (integral[i] && mpz_cmp_ui(mpq_denref(values[i].backend().data()), 1) != 0)) return false;
@@ -296,12 +320,15 @@ struct PackingProgram {
         return true;
     }
     std::vector<Q> solve_rational() {
+        Timer timer(timing, "discrete_total_us");
         struct TransformScope {
             SCIP* problem;
             ~TransformScope() { if (problem) SCIPfreeTransform(problem); }
             void release() { scip_check(SCIPfreeTransform(problem)); problem = nullptr; }
         } transform{scip};
+        int64_t search_started = micros();
         scip_check(SCIPsolve(scip));
+        timing["scip_search_us"] += micros() - search_started;
         if (SCIPgetStatus(scip) != SCIP_STATUS_OPTIMAL || !SCIPisExact(scip)) throw std::runtime_error("结构规模尚未得到精确最优解");
         SCIP_SOL* solution = SCIPgetBestSol(scip);
         if (!solution) throw std::runtime_error("结构规模缺少完整解");
@@ -522,6 +549,11 @@ V structure(const V& raw_cases, const V& raw_blocked, const V& raw_reception, in
 }
 
 struct Model {
+    mutable std::map<std::string, int64_t> timing;
+    std::map<std::string, std::string> locked_roles;
+    std::vector<bool> enabled;
+    mutable int64_t pricing_calls = 0;
+    std::vector<int64_t> columns_per_round;
     std::vector<std::string> resources;
     std::map<std::string, int> resource_ids;
     std::vector<Q> budgets;
@@ -539,6 +571,8 @@ struct Model {
     std::vector<int> certificate_basis;
     std::vector<Resources> certificate_inverse;
     std::vector<Q> certificate_prices;
+    std::vector<Q> certificate_budgets, certificate_values;
+    Q certificate_bound = 0;
     std::unique_ptr<PackingProgram> role_program;
     int role_total = -1;
     std::vector<int> role_flow, role_budget_rows;
@@ -557,6 +591,7 @@ struct Model {
         return result;
     }
     int intern(Node node) {
+        Timer timer(timing, "node_intern_us");
         std::sort(node.children.begin(), node.children.end());
         if (node.choice) node.children.erase(std::unique(node.children.begin(), node.children.end()), node.children.end());
         std::string key = node.choice ? "o" : "a" + signature(node.resources);
@@ -599,6 +634,7 @@ struct Model {
         return intern(std::move(node));
     }
     Model(const V& raw_cases, const V& raw_budgets) {
+        Timer timer(timing, "model_build_us");
         D amounts(raw_budgets); A keys(amounts.keys());
         for (int64_t i = 0; i < keys.size(); ++i) resources.push_back(keys.at(i).text());
         std::sort(resources.begin(), resources.end());
@@ -629,15 +665,49 @@ struct Model {
             for (int child : nodes[id].children) visit(child);
         };
         for (const Case& item : cases) if (item.probability > 0) visit(item.root);
+        enabled.assign(nodes.size(), true);
+    }
+    void update_roles(const V& input) {
+        D source(input); A ids(source.keys()); std::map<std::string, std::string> next;
+        for (int64_t i = 0; i < ids.size(); ++i) next[ids.at(i).text()] = source.get(ids.at(i)).text();
+        if (next == locked_roles) return;
+        locked_roles = std::move(next); dirty = true; role_demand = 0;
+        for (size_t i = 0; i < nodes.size(); ++i) {
+            const Node& node = nodes[i]; bool valid = true;
+            for (const auto& role : locked_roles) {
+                bool own = false, active = false;
+                for (const auto& term : node.resources) {
+                    const auto& name = resources[term.first];
+                    const std::string prefix = "coverage:" + role.first + ":";
+                    if (name.compare(0, prefix.size(), prefix) == 0) {
+                        if (name.substr(prefix.size()) != role.second) valid = false;
+                        else own = true;
+                    }
+                    if (name == "staff:" + role.first) active = true;
+                }
+                if (active && !own) valid = false;
+            }
+            bool children = !node.choice;
+            for (int child : node.children) {
+                if (node.choice) children = children || enabled[child];
+                else children = children && enabled[child];
+            }
+            enabled[i] = valid && children;
+        }
+        // LP columns encode old legal choices. Retain the graph, but rebuild
+        // only this relaxation when role restrictions change. MIP rows persist.
+        program.reset(); columns.clear(); known.clear(); certificate_basis.clear(); certificate_inverse.clear();
     }
     // Nodes are interned after their children. One exact DP prices every legal
     // implicit AND/OR combination; no Cartesian expansion or column cutoff.
     void price(const std::vector<Q>& prices, std::vector<Q>& costs, std::vector<int>& choices) const {
+        Timer timer(timing, "pricing_us"); ++pricing_calls;
         costs.assign(nodes.size(), Q(0)); choices.assign(nodes.size(), -1);
         for (size_t i = 0; i < nodes.size(); ++i) {
+            if (!enabled[i]) continue;
             const Node& node = nodes[i];
             if (node.choice) {
-                for (int child : node.children) if (choices[i] < 0 || costs[child] < costs[i]) {
+                for (int child : node.children) if (enabled[child] && (choices[i] < 0 || costs[child] < costs[i])) {
                     choices[i] = child; costs[i] = costs[child];
                 }
             } else {
@@ -681,6 +751,15 @@ struct Model {
         for (const Node& node : nodes) { edges += node.children.size(); coefficients += node.resources.size(); }
         result.set("edge_count", V::number(edges)); result.set("coefficient_count", V::number(coefficients));
         result.set("resolution_count", V::number(solve_count));
+        result.set("pricing_calls", V::number(pricing_calls));
+        auto measured = timing;
+        measured["variant_and_graph_input_us"] = measured["model_build_us"] - measured["node_intern_us"];
+        result.set("timing_us", timing_values(measured));
+        A rounds; for (int64_t count : columns_per_round) rounds.append(V::number(count));
+        result.set("columns_per_round", rounds.value());
+        result.set("lp_rounds", V::number(columns_per_round.size()));
+        size_t inverse_nonzeros = 0; for (const auto& column : certificate_inverse) inverse_nonzeros += column.size();
+        result.set("certificate_nonzeros", V::number(inverse_nonzeros));
         result.set("solver_kind", V::text(role_program ? "nursing_mip" : "lp"));
         if (role_program) {
             result.set("mip_variables", V::number(role_program->variables.size()));
@@ -688,6 +767,7 @@ struct Model {
             result.set("mip_integral_variables", V::number(std::count(role_program->integral.begin(), role_program->integral.end(), true)));
             result.set("exact_polishes", V::number(role_program->exact_polishes));
             result.set("proof_reuses", V::number(role_proof_reuses));
+            result.set("nursing_timing_us", timing_values(role_program->timing));
         }
         return result.value();
     }
@@ -703,6 +783,7 @@ struct Model {
         dirty = false;
     }
     void retain_certificate(const std::vector<Q>& prices) {
+        Timer timer(timing, "certificate_build_us");
         soplex::DataArray<int> basis;
         certificate_basis.clear(); certificate_inverse.clear();
         if (!program->getBasisIndRational(basis)) return;
@@ -717,17 +798,29 @@ struct Model {
                 if (column[static_cast<int>(row)] != 0) certificate_inverse[i][static_cast<int>(row)] = column[static_cast<int>(row)];
         }
         certificate_prices = prices;
+        certificate_budgets = budgets;
+        certificate_values.assign(certificate_basis.size(), Q(0)); certificate_bound = 0;
+        for (size_t i = 0; i < resources.size(); ++i) {
+            certificate_bound += budgets[i] * prices[i];
+            for (const auto& entry : certificate_inverse[i]) certificate_values[entry.first] += entry.second * budgets[i];
+        }
     }
     bool reuse_certificate() {
+        Timer timer(timing, "certificate_check_us");
         if (certificate_basis.empty()) return false;
         // RHS changes leave A, the objective and all implicit-choice dual
         // inequalities unchanged. SoPlex supplies the exact inverse columns.
         // A feasible B^-1*b matching that dual bound proves the new optimum.
-        std::vector<Q> values(certificate_basis.size(), Q(0));
-        for (size_t i = 0; i < resources.size(); ++i) if (budgets[i] != 0)
-            for (const auto& item : certificate_inverse[i]) values[item.first] += item.second * budgets[i];
+        std::vector<Q> values = certificate_values;
+        Q bound = certificate_bound;
+        for (size_t i = 0; i < resources.size(); ++i) {
+            Q delta = budgets[i] - certificate_budgets[i];
+            if (delta == 0) continue;
+            bound += delta * certificate_prices[i];
+            for (const auto& item : certificate_inverse[i]) values[item.first] += item.second * delta;
+        }
         std::vector<Q> amounts(cases.size(), Q(0)), used(resources.size(), Q(0));
-        Q capacity = 0, bound = 0;
+        Q capacity = 0;
         for (size_t i = 0; i < values.size(); ++i) {
             if (values[i] < 0) return false;
             int variable = certificate_basis[i];
@@ -738,19 +831,21 @@ struct Model {
                 for (const auto& item : column.resources) used[item.first] += values[i] * item.second;
             }
         }
-        for (size_t i = 0; i < resources.size(); ++i) bound += budgets[i] * certificate_prices[i];
         if (!feasible(capacity, amounts, used) || capacity != bound) return false;
+        certificate_values = values; certificate_budgets = budgets; certificate_bound = bound;
         publish(capacity, used); return true;
     }
     V solve_roles() {
         // A unit-priced complete path gives a true lower bound on total demand
         // per Visit. It derives all flow bounds from this hospital's budgets;
         // there is no arbitrary Visit, branch or candidate limit.
-        if (role_factors.empty()) {
+        if (role_demand == 0) {
             std::vector<Q> prices(resources.size(), Q(1)), costs;
             std::vector<int> choices;
             price(prices, costs, choices);
             for (const Case& item : cases) role_demand += item.probability * costs[item.root];
+        }
+        if (role_factors.empty()) {
             role_factors.assign(nodes.size(), Q(0));
             for (const Case& item : cases) role_factors[item.root] += item.probability;
             for (size_t i = nodes.size(); i-- > 0;)
@@ -764,6 +859,22 @@ struct Model {
         }
         if (role_demand <= 0) throw std::runtime_error("岗位容量缺少有限资源上界");
         Q limit = budget / role_demand;
+        // Every nonnegative price vector prices the complete implicit graph.
+        // These bounds remain valid after redistribution and role changes.
+        auto tighten = [&](const std::vector<Q>& prices) {
+            std::vector<Q> costs; std::vector<int> choices; price(prices, costs, choices);
+            Q demand = 0, value = 0;
+            for (const Case& item : cases) demand += item.probability * costs[item.root];
+            for (int resource : used_resources) value += prices[resource] * budgets[resource];
+            if (demand > 0) { Q bound = value / demand; if (bound < limit) limit = bound; }
+        };
+        std::vector<Q> prices(resources.size(), Q(0));
+        for (int resource : used_resources) prices[resource] = budgets[resource] > 0 ? Q(1) / budgets[resource] : Q(1);
+        tighten(prices);
+        auto bottleneck = resource_ids.find(verified_bottleneck);
+        if (bottleneck != resource_ids.end()) {
+            std::fill(prices.begin(), prices.end(), Q(0)); prices[bottleneck->second] = 1; tighten(prices);
+        }
         const auto& factors = role_factors;
 
         if (!role_program) {
@@ -853,6 +964,7 @@ struct Model {
         }
         role_limit = limit;
         PackingProgram& mip = *role_program;
+        for (size_t i = 0; i < role_flow.size(); ++i) mip.change_bound(role_flow[i], enabled[i] ? factors[i] * limit : Q(0));
         const auto& flow = role_flow;
         int total = role_total;
         std::vector<Q> values;
@@ -878,7 +990,9 @@ struct Model {
     }
     V solve(bool allocations = true) {
         if (cases.empty()) return empty();
-        for (const Case& item : cases) if (nodes[item.root].children.empty()) return empty();
+        for (const Case& item : cases) if (item.probability > 0 && (nodes[item.root].children.empty() || !enabled[item.root])) {
+            publish(Q(0), std::vector<Q>(resources.size(), Q(0))); return summary();
+        }
         if (!allocations && !dirty) return summary();
         ++solve_count;
         if (!allocations) for (int resource : used_resources)
@@ -915,17 +1029,19 @@ struct Model {
         }
         VectorRational dual(static_cast<int>(cases.size() + resources.size()));
         for (;;) {
-            auto status = lp.optimize();
+            int status;
+            { Timer timer(timing, "lp_optimize_us"); status = lp.optimize(); }
             if (status != SPxSolver::OPTIMAL) throw std::runtime_error("精确容量LP未取得最优解，状态=" + std::to_string(status));
             if (!lp.getDualRational(dual)) throw std::runtime_error("精确容量LP缺少对偶解");
             for (size_t i = 0; i < resources.size(); ++i) prices[i] = dual[static_cast<int>(cases.size() + i)];
-            price(prices, costs, choices); bool added = false;
+            price(prices, costs, choices); int64_t added = 0;
             for (size_t i = 0; i < cases.size(); ++i) {
                 if (dual[static_cast<int>(i)] + costs[cases[i].root] >= 0) continue;
                 Resources values; expand(cases[i].root, choices, values);
                 if (known[i].count(signature(values))) throw std::runtime_error("重复资源束仍有负约化成本");
-                add_column(static_cast<int>(i), values); added = true;
+                add_column(static_cast<int>(i), values); ++added;
             }
+            columns_per_round.push_back(added);
             if (!added) break;
         }
         VectorRational primal(lp.numColsRational());
@@ -1025,7 +1141,7 @@ void free_model(void*, GDExtensionClassInstancePtr instance) {
     std::lock_guard<std::recursive_mutex> guard(discrete_mutex);
     delete static_cast<CapacityInstance*>(instance);
 }
-enum Method { SOLVE, FRACTION, INTEGER, STRUCTURE, AGGREGATE, THREAD_CPU, PREPARE_MODEL, SOLVE_MODEL };
+enum Method { SOLVE, FRACTION, INTEGER, STRUCTURE, AGGREGATE, AGGREGATE_COMPONENTS, THREAD_CPU, PREPARE_MODEL, SOLVE_MODEL, PREPARE_ROLES, SOLVE_ROLES };
 struct MethodInfo { const char* name; Method method; std::vector<GDExtensionVariantType> arguments; };
 MethodInfo methods[] = {
     {"solve", SOLVE, {GDEXTENSION_VARIANT_TYPE_ARRAY, GDEXTENSION_VARIANT_TYPE_DICTIONARY}},
@@ -1033,18 +1149,31 @@ MethodInfo methods[] = {
     {"integer", INTEGER, {GDEXTENSION_VARIANT_TYPE_INT, GDEXTENSION_VARIANT_TYPE_STRING, GDEXTENSION_VARIANT_TYPE_STRING}},
     {"structure", STRUCTURE, {GDEXTENSION_VARIANT_TYPE_ARRAY, GDEXTENSION_VARIANT_TYPE_DICTIONARY, GDEXTENSION_VARIANT_TYPE_DICTIONARY, GDEXTENSION_VARIANT_TYPE_INT}},
     {"aggregate_stages", AGGREGATE, {GDEXTENSION_VARIANT_TYPE_DICTIONARY, GDEXTENSION_VARIANT_TYPE_DICTIONARY}},
+    {"aggregate_components", AGGREGATE_COMPONENTS, {GDEXTENSION_VARIANT_TYPE_ARRAY}},
     {"thread_cpu", THREAD_CPU, {}},
     {"prepare", PREPARE_MODEL, {GDEXTENSION_VARIANT_TYPE_ARRAY, GDEXTENSION_VARIANT_TYPE_DICTIONARY}},
-    {"solve", SOLVE_MODEL, {GDEXTENSION_VARIANT_TYPE_DICTIONARY}}
+    {"solve", SOLVE_MODEL, {GDEXTENSION_VARIANT_TYPE_DICTIONARY}},
+    {"prepare_with_roles", PREPARE_ROLES, {GDEXTENSION_VARIANT_TYPE_ARRAY, GDEXTENSION_VARIANT_TYPE_DICTIONARY, GDEXTENSION_VARIANT_TYPE_DICTIONARY}},
+    {"solve_with_roles", SOLVE_ROLES, {GDEXTENSION_VARIANT_TYPE_DICTIONARY, GDEXTENSION_VARIANT_TYPE_DICTIONARY}}
 };
 V invoke(Method method, const std::vector<V>& args, GDExtensionClassInstancePtr instance) {
     try {
         std::unique_lock<std::recursive_mutex> discrete_guard(discrete_mutex, std::defer_lock);
+        int64_t lock_started = micros();
         if (method == SOLVE || method == STRUCTURE || method >= PREPARE_MODEL) discrete_guard.lock();
+        int64_t lock_wait = micros() - lock_started;
         if (method == SOLVE) return Model(args[0], args[1]).solve();
         if (method == FRACTION) return calculate_fraction(static_cast<int>(args[0].number()), args[1], args[2]);
         if (method == STRUCTURE) return structure(args[0], args[1], args[2], args[3].number());
         if (method == AGGREGATE) return aggregate_stages(args[0], args[1]);
+        if (method == AGGREGATE_COMPONENTS) {
+            A requests(args[0]), results;
+            for (int64_t i = 0; i < requests.size(); ++i) {
+                D request(requests.at(i));
+                results.append(aggregate_stages(request.get("stages"), request.get("weight")));
+            }
+            D output; output.set("components", results.value()); return output.value();
+        }
         if (method == THREAD_CPU) {
             uint64_t elapsed = ogh_current_thread_cpu_us();
             if (elapsed == UINT64_MAX) return failure("线程 CPU 时间不可用");
@@ -1053,12 +1182,18 @@ V invoke(Method method, const std::vector<V>& args, GDExtensionClassInstancePtr 
         }
         if (method >= PREPARE_MODEL) {
             auto& capacity = *static_cast<CapacityInstance*>(instance);
-            if (method == PREPARE_MODEL) capacity.model.reset(new Model(args[0], args[1]));
+            if (method == PREPARE_MODEL || method == PREPARE_ROLES) {
+                capacity.model.reset(new Model(args[0], args[1]));
+                if (method == PREPARE_ROLES) capacity.model->update_roles(args[2]);
+            }
             else {
                 if (!capacity.model) throw std::runtime_error("容量模型尚未准备");
                 capacity.model->update_budgets(args[0]);
+                if (method == SOLVE_ROLES) capacity.model->update_roles(args[1]);
             }
-            return capacity.model->solve(false);
+            capacity.model->timing["lock_wait_us"] += lock_wait;
+            capacity.model->solve(false);
+            return capacity.model->summary();
         }
         return calculate_integer(static_cast<int>(args[0].number()), args[1], args[2]);
     } catch (const std::exception& error) {

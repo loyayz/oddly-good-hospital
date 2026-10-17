@@ -320,9 +320,11 @@ func step_nonblocking() -> TickResult:
 		services.wellbeing.advance(world,worked,before_movement)
 		services.waiting.advance(world)
 		services.supplies.advance(world)
+		services.environment.begin_query(world)
 		services.arrivals.advance_wait(world)
 		services.departments.sample(world)
 		services.arrivals.needs(world)
+		services.environment.end_query()
 	else:
 		_integrate_staff(before_movement)
 	# 8: interaction consequences precede settlement.
@@ -342,6 +344,7 @@ func step_nonblocking() -> TickResult:
 		events.append_array(services.arrivals.take_events())
 		events.append_array(services.research.take_events())
 	events.append_array(HospitalLedger.settle(world))
+	world.finish_visits()
 	world.facts.sim_tick += 1
 	world.touch(false) # 10: complete immutable snapshot boundary; movement/work do not edit floor geometry.
 	space.finish_boundary(world)

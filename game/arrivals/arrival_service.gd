@@ -20,6 +20,9 @@ var _basis_records: Dictionary = {}
 var _budget_scheduler: HospitalShiftScheduler
 var _preparation: ArrivalPreparation
 var preparation_error: String = ""
+var reference_counts: Dictionary = {"basis_changes":0,"case_quotes":0,"case_hits":0,"transport_independent_hits":0,"basis_us":0,"basis_change_fields":{}}
+var _admission_bindings: Dictionary = {}
+var _admission_content: String = ""
 
 func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 	content = database
@@ -322,7 +325,7 @@ func _departure_state(world: WorldState, visit: Dictionary, ticket: Dictionary) 
 
 func settle(world: WorldState) -> void:
 	ensure(world)
-	for visit_id: String in world.ids("visits"):
+	for visit_id: String in world.active_visit_ids():
 		var visit: Dictionary = world.facts.visits[visit_id]
 		var actor: Dictionary = world.facts.actors[visit.actor_id]
 		if actor.location.kind != "outside" or visit.get("departure_recorded",false) or visit.phase != "departed":
@@ -367,7 +370,8 @@ func outpatient_count(world: WorldState) -> int:
 			if world.facts.facilities.has(visit.get("reserved_bed_id","")):
 				bed_visits[session.visit_id] = true
 	var counted_actors: Dictionary = {}
-	for visit: Dictionary in world.facts.visits.values():
+	for visit_id: String in world.active_visit_ids():
+		var visit: Dictionary = world.facts.visits[visit_id]
 		var actor: Dictionary = world.facts.actors.get(visit.actor_id,{})
 		if not actor.is_empty() and actor.location.kind != "outside" and not bed_visits.has(visit.id):
 			counted_actors[visit.actor_id] = true
@@ -467,13 +471,14 @@ func _prepared_projection(projection: Dictionary) -> Dictionary:
 func _solve_roles(world: WorldState, classes: Array, budgets: Dictionary, shift: int, model_key: Variant = null, locked_roles: Dictionary = {}) -> Dictionary:
 	var cached: Dictionary = _role_models.get(shift,{})
 	var same_model: bool = model_key!=null and cached.get("key") == model_key
-	if same_model and cached.roles==locked_roles:
-		var updated: Dictionary = cached.backend.call("solve",budgets)
+	if same_model:
+		var updated: Dictionary = cached.backend.call("solve_with_roles",budgets,locked_roles)
 		if updated.has("error"): _role_models.erase(shift)
+		else: cached.roles = locked_roles.duplicate()
 		updated.structural_pairs = cached.pairs
 		return updated
 	var backend: RefCounted = ClassDB.instantiate("PlatformArrivalCapacity")
-	var result: Dictionary = backend.call("prepare",_restrict_roles(classes,locked_roles),budgets)
+	var result: Dictionary = backend.call("prepare_with_roles",classes,budgets,locked_roles)
 	if result.has("error"): return result
 	var structure: Dictionary = {"pairs":cached.pairs} if same_model else _structural_pairs(world,classes,shift)
 	if structure.has("error"): return structure
@@ -528,9 +533,15 @@ func _reference_classes(world: WorldState, shift: int, query: Variant = null) ->
 	if world.facts.staff.is_empty():
 		query.merge({"resource_ids":[],"model_key":[],"references":{}},true)
 		return []
+	var basis_started: int = Time.get_ticks_usec()
 	var basis: Dictionary = _reference_basis(world,shift)
+	reference_counts.basis_us += Time.get_ticks_usec()-basis_started
 	if not _reference_cache.has(shift) or _reference_cache[shift].basis!=basis:
+		reference_counts.basis_changes += 1
 		var previous: Dictionary = _reference_cache.get(shift,{})
+		var old_basis: Dictionary = previous.get("basis",{})
+		for field: String in basis:
+			if old_basis.get(field)!=basis[field]: reference_counts.basis_change_fields[field] = int(reference_counts.basis_change_fields.get(field,0))+1
 		var stable: Dictionary = basis.duplicate()
 		stable.erase("transport")
 		var prior: Dictionary = previous.get("basis",{}).duplicate()
@@ -566,7 +577,14 @@ func _reference_classes(world: WorldState, shift: int, query: Variant = null) ->
 		var experience: Dictionary = experience_by_disease[binding.disease_id]
 		for complex_case: bool in [false,true]:
 			var case_key: String = JSON.stringify([binding.id,complex_case])
-			if not cached_cases.has(case_key) or cached_cases[case_key].experience!=experience or cached_cases[case_key].transport!=basis.transport:
+			var retained: Dictionary = cached_cases.get(case_key,{})
+			var transport_changed: bool = not retained.is_empty() and retained.transport!=basis.transport
+			if not retained.is_empty() and transport_changed and not retained.get("transport_dependent",true):
+				retained.transport = cached.basis.transport
+				reference_counts.transport_independent_hits += 1
+			if retained.is_empty() or retained.experience!=experience or retained.transport!=basis.transport:
+				reference_counts.case_quotes += 1
+				query.transport_basis = basis.transport
 				var quote: Dictionary = clinic.call("reference_demand",world,str(binding.id),complex_case,shift,query)
 				var variant: Dictionary = _reference_variant(world,binding,complex_case,shift,quote,query)
 				var resources: Dictionary = {}
@@ -578,7 +596,8 @@ func _reference_classes(world: WorldState, shift: int, query: Variant = null) ->
 				if previous.get("variant",{})!=variant:
 					_reference_version += 1
 					version = _reference_version
-				cached_cases[case_key] = {"experience":experience.duplicate(true),"transport":cached.basis.transport,"variant":variant,"version":version,"resources":resources.keys(),"reference":remaining}
+				cached_cases[case_key] = {"experience":experience.duplicate(true),"transport":cached.basis.transport,"transport_dependent":quote.get("transport_dependent",true),"variant":variant,"version":version,"resources":resources.keys(),"reference":remaining}
+			else: reference_counts.case_hits += 1
 			var prepared: Dictionary = cached_cases[case_key]
 			var variant: Dictionary = prepared.variant.duplicate()
 			references[case_key] = prepared.reference
@@ -670,6 +689,13 @@ func _reference_basis(world: WorldState, shift: int) -> Dictionary:
 	for field: String in ["gameplay_version","entry","research","allow_outpatient_rounds","plan_strategy","remodels"]:
 		result[field] = world.facts.get(field)
 	result.transport = HospitalTransit.reference_basis(space,world)
+	result.transport_layout = {}
+	for id: String in result.transport.connections:
+		var connection: Dictionary = result.transport.connections[id]
+		var layout: Dictionary = {}
+		for field: String in ["id","definition_id","first_floor","last_floor","stops","cell","footprint","anchor"]:
+			if connection.has(field): layout[field] = connection[field]
+		result.transport_layout[id] = layout
 	result.floors = {}
 	for field: String in ["overrides","completed_top_floor","height_intervals"]: result.floors[field] = world.facts.floors.get(field)
 	result.departments = _reference_geometry_basis("departments",world.facts.get("departments",{}).get("units",{}),["id","room_ids","shared_room_ids","public_cells","entry","focus_id","intake_disease_ids","open"])
@@ -753,11 +779,22 @@ func _capacity_part(bundle: Dictionary, query: Dictionary, structural: bool) -> 
 		var value: String = str(fraction.n)+"/"+str(fraction.d)
 		if not query.fractions.has(value): query.fractions[value] = fraction
 		result.resources[resource] = query.fractions[value]
-	var key: String = JSON.stringify(result.resources,"",true,true)
-	if not query.resource_maps.has(key): query.resource_maps[key] = result.resources
-	result.resources = query.resource_maps[key]
+	var key: Array = []
+	var names: Array = result.resources.keys()
+	names.sort()
+	for resource: String in names:
+		var amount: Dictionary = result.resources[resource]
+		key.append_array([resource,amount.n,amount.d])
+	if not query.resource_maps.has(key): query.resource_maps[key] = {"id":query.resource_maps.size(),"values":result.resources}
+	var shared: Dictionary = query.resource_maps[key]
+	result.resources = shared.values
 	if not query.has("parts"): query.parts = {}
-	var part_key: String = JSON.stringify(result,"",true,true)
+	var part_key: Array = [shared.id]
+	var fields: Array = result.keys()
+	fields.sort()
+	for field: String in fields:
+		if field!="resources": part_key.append_array([field,result[field]])
+	part_key = part_key.duplicate(true)
 	if not query.parts.has(part_key): query.parts[part_key] = result
 	return query.parts[part_key]
 
@@ -1092,22 +1129,28 @@ func _admission_candidates(world: WorldState) -> Array:
 	var candidates: Array = []
 	if not clinic.has_method("arrival_readiness"):
 		return candidates
-	var seen: Dictionary = {}
-	for binding: Dictionary in content.catalog.get("treatment_bindings",[]):
-		if _disease_weight(world,str(binding.disease_id)) == 0:
-			continue
-		var key: String = str(binding.species_id)+"|"+str(binding.disease_id)
-		if seen.has(key):
-			continue
-		var variants: Array = []
-		for complex_case: bool in [false,true]:
-			var ready: Dictionary = clinic.call("arrival_readiness",world,str(binding.id),complex_case,false)
-			if ready.get("ok",false):
-				variants.append(complex_case)
-		if variants.is_empty():
-			continue
-		seen[key] = true
-		candidates.append({"binding_id":binding.id,"disease_id":binding.disease_id,"species_id":binding.species_id,"variants":variants})
+	if _admission_content!=content.content_fingerprint:
+		_admission_bindings.clear()
+		var ordinal: int = 0
+		for binding: Dictionary in content.catalog.get("treatment_bindings",[]):
+			var key: String = str(binding.species_id)+"|"+str(binding.disease_id)
+			if not _admission_bindings.has(key): _admission_bindings[key] = []
+			_admission_bindings[key].append({"binding":binding,"ordinal":ordinal})
+			ordinal += 1
+		_admission_content = content.content_fingerprint
+	for bindings: Array in _admission_bindings.values():
+		if _disease_weight(world,str(bindings[0].binding.disease_id))==0: continue
+		for item: Dictionary in bindings:
+			var binding: Dictionary = item.binding
+			var variants: Array = []
+			for complex_case: bool in [false,true]:
+				var ready: Dictionary = clinic.call("arrival_readiness",world,str(binding.id),complex_case,false)
+				if ready.get("ok",false): variants.append(complex_case)
+			if variants.is_empty(): continue
+			candidates.append({"binding_id":binding.id,"disease_id":binding.disease_id,"species_id":binding.species_id,"variants":variants,"ordinal":item.ordinal})
+			break
+	candidates.sort_custom(func(a: Dictionary,b: Dictionary)->bool: return a.ordinal<b.ordinal)
+	for candidate: Dictionary in candidates: candidate.erase("ordinal")
 	return candidates
 
 func _choose_case(world: WorldState, candidates: Array) -> Dictionary:

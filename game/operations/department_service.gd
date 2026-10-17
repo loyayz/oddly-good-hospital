@@ -29,7 +29,8 @@ func ensure(world: WorldState) -> void:
 		if world.facts.facilities.has("reception_desk"):
 			entry = {"floor_id":world.facts.facilities.reception_desk.floor_id,"cell":world.facts.facilities.reception_desk.patient_cell.duplicate()}
 		state.units.general = {"id":"general","name":"综合诊疗科","room_ids":rooms,"shared_room_ids":shared,"public_cells":[],"entry":entry,"focus_id":"","focus_ready_tick":0,"intake_disease_ids":[],"open":true}
-	for visit_id: String in world.ids("visits"):
+	for id: String in state.units: world.department_changed(id,true)
+	for visit_id: String in world.active_visit_ids():
 		if not state.experience.has(visit_id):
 			var visit: Dictionary = world.facts.visits[visit_id]
 			if visit.phase=="departed": continue
@@ -107,7 +108,7 @@ func worked_staff() -> Dictionary:
 func sample(world: WorldState) -> void:
 	ensure(world)
 	if environment!=null: environment.begin_query(world)
-	for visit_id: String in world.ids("visits"):
+	for visit_id: String in world.active_visit_ids():
 		var visit: Dictionary = world.facts.visits[visit_id]
 		if not world.facts.departments.experience.has(visit_id): continue
 		var experience: Dictionary = world.facts.departments.experience[visit_id]
@@ -139,7 +140,7 @@ func sample(world: WorldState) -> void:
 
 func settle(world: WorldState) -> void:
 	ensure(world)
-	for visit_id: String in world.ids("visits"):
+	for visit_id: String in world.active_visit_ids():
 		var visit: Dictionary = world.facts.visits[visit_id]
 		if not world.facts.departments.experience.has(visit_id): continue
 		var experience: Dictionary = world.facts.departments.experience[visit_id]
@@ -900,4 +901,7 @@ func _ticks(seconds: Variant) -> int:
 	return ceili(float(seconds)/WorldState.TICK_SECONDS)
 
 func _result(world: WorldState, ok: bool, code: String, reason: String, changed: Array = []) -> CommandResult:
+	if ok:
+		for id: String in changed:
+			if world.facts.departments.units.has(id): world.department_changed(id)
 	return CommandResult.new(ok,code,reason,changed,world.revision)

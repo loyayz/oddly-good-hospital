@@ -17,6 +17,7 @@ var _completed_id: int = -1
 var _sealed_id: int = -1
 var _worker: HospitalArrivalService
 var _capture_base: Dictionary = {}
+var _layout_values: Dictionary = {}
 var _metrics: Dictionary = {"jobs":0,"worker_wall_us":0,"worker_cpu_us":0,"cpu_measured_jobs":0,"latest_worker_us":0,"main_us":0,"max_main_us":0,"requests":0,"captures":0,"capture_us":0,"copied_records":0,"reused_records":0,"reused":0,"superseded":0}
 
 func _init(database: HospitalContent) -> void:
@@ -36,6 +37,9 @@ func poll(dispatch: bool = true) -> void:
 		if finished.has("cpu_us"):
 			_metrics.worker_cpu_us += int(finished.cpu_us)
 			_metrics.cpu_measured_jobs += 1
+		if not _latest.is_empty() and not _same_input(_active,_latest) and (_sealed.is_empty() or not _same_input(_active,_sealed)):
+			_metrics.obsolete_jobs = int(_metrics.get("obsolete_jobs",0))+1
+			_metrics.obsolete_cpu_us = int(_metrics.get("obsolete_cpu_us",0))+int(finished.get("cpu_us",0))
 		_thread = null
 		_active = {}
 		_active_id = -1
@@ -84,22 +88,36 @@ func _select_request(input: Dictionary) -> int:
 	# Collect completion before selecting the newest/sealed input. Dispatching
 	# the old queued request here would put stale work ahead of this boundary.
 	poll(false)
-	if not _completed.is_empty() and _completed.input==input:
+	if not _completed.is_empty() and _same_input(_completed.input,input):
 		_metrics.reused += 1
 		_latest = {}
 		_latest_id = -1
 		return _completed_id
-	if not _active.is_empty() and _active==input:
+	if not _active.is_empty() and _same_input(_active,input):
 		_metrics.reused += 1
 		_latest = {}
 		_latest_id = -1
 		return _active_id
-	if not _latest.is_empty() and _latest==input: return _latest_id
+	if not _latest.is_empty() and _same_input(_latest,input): return _latest_id
 	if not _latest.is_empty(): _metrics.superseded += 1
 	_sequence += 1
 	_latest = input
 	_latest_id = _sequence
 	return _latest_id
+
+func _same_input(first: Dictionary, second: Dictionary) -> bool:
+	if not first.has("layers") or not second.has("layers"): return first==second
+	if first.subtract_existing!=second.subtract_existing: return false
+	if first.layers.size()!=second.layers.size(): return false
+	for layer: String in first.layers:
+		if not second.layers.has(layer): return false
+		var a: Dictionary = first.layers[layer]
+		var b: Dictionary = second.layers[layer]
+		if a.size()!=b.size(): return false
+		for field: String in a:
+			if not b.has(field): return false
+			if not is_same(a[field],b[field]) and a[field]!=b[field]: return false
+	return true
 
 func _poll_request(request_id: int) -> Dictionary:
 	if request_id==_sealed_id and not _sealed_result.is_empty(): return _sealed_result
@@ -150,6 +168,7 @@ func dispose() -> void:
 	_active = {}
 	_active_id = -1
 	_capture_base = {}
+	_layout_values = {}
 
 func _compute(input: Dictionary) -> Dictionary:
 	var started: int = Time.get_ticks_usec()
@@ -174,8 +193,9 @@ func _capture(world: WorldState, subtract_existing: bool, target_tick: int) -> D
 	var clock: int = world.sim_tick if subtract_existing else world.sim_tick/WorldState.TICKS_PER_DAY*WorldState.TICKS_PER_DAY
 	var facts: Dictionary = {"hospital_id":world.hospital_id,"world_revision":0,"entity_next":0,
 		"sim_tick":target_tick if target_tick>=0 else clock}
+	_layout_values = world.capacity_layout()
 	for field: String in ["gameplay_version","entry","facilities","rooms","floors","remodels","research","allow_outpatient_rounds","plan_strategy"]:
-		if world.facts.has(field): facts[field] = world.facts[field]
+		if world.facts.has(field): facts[field] = _layout_values.get(field,world.facts[field])
 	facts.connectors = HospitalTransit.reference_conditions(world)
 	facts.staff = {}
 	for id: String in world.facts.staff:
@@ -186,7 +206,7 @@ func _capture(world: WorldState, subtract_existing: bool, target_tick: int) -> D
 			if staff.has(field): record[field] = staff[field]
 		facts.staff[id] = record
 	facts.arrivals = {"disease_weights":world.facts.arrivals.disease_weights,"next_preset":world.facts.arrivals.next_preset}
-	facts.departments = {"units":world.facts.get("departments",{}).get("units",{})}
+	facts.departments = {"units":world.department_records()}
 	for unit: Dictionary in facts.departments.units.values():
 		if not str(unit.get("focus_id","")).is_empty():
 			facts.departments.cases = world.facts.get("departments",{}).get("cases",[])
@@ -245,7 +265,11 @@ func _capture(world: WorldState, subtract_existing: bool, target_tick: int) -> D
 	_metrics.capture_us += Time.get_ticks_usec()-started
 	_metrics.source_tick = world.sim_tick
 	_metrics.target_tick = facts.sim_tick
-	return {"facts":owned,"subtract_existing":subtract_existing}
+	var layers: Dictionary = {"layout":{},"reference":{},"current":{}}
+	for field: String in owned:
+		var layer: String = "layout" if _layout_values.has(field) else ("reference" if field in ["gameplay_version","facilities","staff","research","arrivals","departments","allow_outpatient_rounds","plan_strategy","remodels"] else "current")
+		layers[layer][field] = owned[field]
+	return {"facts":owned,"layers":layers,"subtract_existing":subtract_existing}
 
 func _own_capture(facts: Dictionary) -> Dictionary:
 	# Each request is a complete snapshot. Unchanged values can share the last
@@ -254,18 +278,26 @@ func _own_capture(facts: Dictionary) -> Dictionary:
 	var owned: Dictionary = {}
 	for field: String in facts:
 		var value: Variant = facts[field]
+		if _layout_values.has(field) and is_same(value,_layout_values[field]):
+			owned[field] = value
+			_metrics.layout_reuses = int(_metrics.get("layout_reuses",0))+1
+			continue
 		if value is Dictionary:
 			var previous: Dictionary = _capture_base.get(field,{})
 			var records: Dictionary = {}
+			var unchanged: bool = previous.size()==value.size()
 			for id: Variant in value:
+				_metrics.scanned_records = int(_metrics.get("scanned_records",0))+1
+				if previous.has(id) and (value[id] is Dictionary or value[id] is Array): _metrics.deep_compares = int(_metrics.get("deep_compares",0))+1
 				if previous.has(id) and previous[id]==value[id]:
 					records[id] = previous[id]
 					_metrics.reused_records += 1
 				else:
+					unchanged = false
 					var record: Variant = value[id]
 					records[id] = record.duplicate(true) if record is Dictionary or record is Array else record
 					_metrics.copied_records += 1
-			owned[field] = records
+			owned[field] = previous if unchanged else records
 		else: owned[field] = value.duplicate(true) if value is Array else value
 	_capture_base = owned
 	return owned
