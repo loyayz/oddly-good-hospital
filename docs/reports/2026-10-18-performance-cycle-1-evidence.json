@@ -1,0 +1,1042 @@
+{
+  "diagnostic_only": true,
+  "background_environment_controlled": false,
+  "background_note": "后台环境未控制；本批游戏进程顺序执行，其他工作限只读代码分析。",
+  "project": "C:/code/loyayz/oddly-good-hospital/.cache/performance/cycle1-quick-r1",
+  "evidence": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle1-quick-r1",
+  "head": "08391328262def174adfab5ffc05a69786bcd56e",
+  "source_identity_head": "08391328262def174adfab5ffc05a69786bcd56e",
+  "source_identity": {
+    "path": "C:/code/loyayz/oddly-good-hospital/.cache/performance/cycle1-quick-r1/source-identity.json",
+    "sha256": "e743c9d6d64384cb25c402f60361d8a312c605eeceed3717d8177a9614f62458",
+    "bytes": 52684
+  },
+  "native": {
+    "path": "C:/code/loyayz/oddly-good-hospital/.cache/performance/cycle1-quick-r1/game/platform/windows/bin/oddly_good_platform.windows.x86_64.dll",
+    "sha256": "fcddcc3c48e0d4e7d541a2729608b4e388991ef08d3712a2f73f6c6dfee37b32",
+    "bytes": 14872576
+  },
+  "inputs": [
+    {
+      "path": "C:/code/loyayz/oddly-good-hospital/.cache/performance/review5-tools-r1/capture.json.input.bin",
+      "sha256": "f447da9fa40c65c7effe6c4099da58de4736484da3478b985942b10b91aa4f03",
+      "bytes": 1289000
+    },
+    {
+      "path": "C:/code/loyayz/oddly-good-hospital/.cache/performance/native-step-v5/steps.json.after.bin",
+      "sha256": "2a1ef0b04534ed69687576900e4a9a4aee9ff02b63ee69fd389e7d74169832b0",
+      "bytes": 1456660
+    },
+    {
+      "path": "C:/code/loyayz/oddly-good-hospital/.cache/performance/review5-tools-r1/reference-small.json.input.bin",
+      "sha256": "9bb50b2fc55c0ddc30ea4a6d05824499740af03acc240d578ce4ee0ce1ca81ee",
+      "bytes": 48808
+    }
+  ],
+  "engine": "4.7.2-stable (official)",
+  "content_fingerprint": "70ef833fb44c1682824534528697df4a55d011f10121f15f8e83f0b5b7b6d433",
+  "cpu": [
+    {
+      "Name": "Intel(R) Core(TM) Ultra 5 125H",
+      "NumberOfCores": 14,
+      "NumberOfLogicalProcessors": 18
+    }
+  ],
+  "physical_memory_bytes": 33779150848,
+  "power_plan": [
+    "电源方案 GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (平衡)"
+  ],
+  "percentile_method": "nearest rank: sorted[ceil(p*N)-1]",
+  "processes": [
+    {
+      "item": 1,
+      "name": "capture",
+      "executable": "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+      "arguments": [
+        "--headless",
+        "--path",
+        "C:/code/loyayz/oddly-good-hospital/.cache/performance/cycle1-quick-r1",
+        "--script",
+        "res://tools/performance/diagnose.gd",
+        "--",
+        "--operation=capture",
+        "--steps=5",
+        "--input=C:/code/loyayz/oddly-good-hospital/.cache/performance/review5-tools-r1/capture.json.input.bin",
+        "--output=res://quick-capture.json"
+      ],
+      "pid": 35656,
+      "started": "2026-10-18T01:35:14.4387129+08:00",
+      "ended": "2026-10-18T01:35:16.5155152+08:00",
+      "wall_seconds": 2.0756297,
+      "timeout": false,
+      "exit_code": 0,
+      "stdout": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle1-quick-r1/capture.stdout.txt",
+      "stderr": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle1-quick-r1/capture.stderr.txt",
+      "report": "C:/code/loyayz/oddly-good-hospital/.cache/performance/cycle1-quick-r1/quick-capture.json",
+      "report_exists": true,
+      "fixture": [
+        {
+          "description": {
+            "actors": 160,
+            "beds": 24,
+            "boundary": "built hospital; admitted patients before reception; actual production services thereafter",
+            "errors": [],
+            "facilities": 1328,
+            "floors": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "patients": 120,
+            "rooms": 64,
+            "staff": 32,
+            "visitors": 8
+          },
+          "elapsed_ms": 400.821,
+          "validation": ""
+        }
+      ],
+      "stderr_error_lines": [],
+      "status": "completed",
+      "observed_peak_working_set_bytes": null
+    },
+    {
+      "item": 2,
+      "name": "history",
+      "executable": "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+      "arguments": [
+        "--headless",
+        "--path",
+        "C:/code/loyayz/oddly-good-hospital/.cache/performance/cycle1-quick-r1",
+        "--script",
+        "res://tools/performance/history.gd",
+        "--",
+        "--steps=30",
+        "--output=res://quick-history.json"
+      ],
+      "pid": 30220,
+      "started": "2026-10-18T01:35:29.6775659+08:00",
+      "ended": "2026-10-18T01:35:31.9365766+08:00",
+      "wall_seconds": 2.257748,
+      "timeout": false,
+      "exit_code": 0,
+      "stdout": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle1-quick-r1/history.stdout.txt",
+      "stderr": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle1-quick-r1/history.stderr.txt",
+      "report": "C:/code/loyayz/oddly-good-hospital/.cache/performance/cycle1-quick-r1/quick-history.json",
+      "report_exists": true,
+      "fixture": [],
+      "stderr_error_lines": [],
+      "status": "completed",
+      "observed_peak_working_set_bytes": null
+    },
+    {
+      "item": 3,
+      "name": "steps",
+      "executable": "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+      "arguments": [
+        "--headless",
+        "--path",
+        "C:/code/loyayz/oddly-good-hospital/.cache/performance/cycle1-quick-r1",
+        "--script",
+        "res://tools/performance/diagnose.gd",
+        "--",
+        "--operation=step",
+        "--steps=5",
+        "--input=C:/code/loyayz/oddly-good-hospital/.cache/performance/native-step-v5/steps.json.after.bin",
+        "--output=res://quick-steps.json",
+        "--profile"
+      ],
+      "pid": 30928,
+      "started": "2026-10-18T01:35:47.5562796+08:00",
+      "ended": "2026-10-18T01:35:52.2243213+08:00",
+      "wall_seconds": 4.6666411,
+      "timeout": false,
+      "exit_code": 0,
+      "stdout": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle1-quick-r1/steps.stdout.txt",
+      "stderr": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle1-quick-r1/steps.stderr.txt",
+      "report": "C:/code/loyayz/oddly-good-hospital/.cache/performance/cycle1-quick-r1/quick-steps.json",
+      "report_exists": true,
+      "fixture": [
+        {
+          "description": {
+            "actors": 160,
+            "beds": 24,
+            "boundary": "built hospital; admitted patients before reception; actual production services thereafter",
+            "errors": [],
+            "facilities": 1328,
+            "floors": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "patients": 120,
+            "rooms": 64,
+            "staff": 32,
+            "visitors": 8
+          },
+          "elapsed_ms": 393.104,
+          "validation": ""
+        }
+      ],
+      "stderr_error_lines": [],
+      "status": "completed",
+      "observed_peak_working_set_bytes": null
+    },
+    {
+      "item": 4,
+      "name": "prepared",
+      "executable": "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+      "arguments": [
+        "--headless",
+        "--path",
+        "C:/code/loyayz/oddly-good-hospital/.cache/performance/cycle1-quick-r1",
+        "--script",
+        "res://tools/performance/diagnose.gd",
+        "--",
+        "--operation=prepared",
+        "--input=C:/code/loyayz/oddly-good-hospital/.cache/performance/review5-tools-r1/reference-small.json.input.bin",
+        "--output=res://quick-prepared.json",
+        "--profile"
+      ],
+      "pid": 36252,
+      "started": "2026-10-18T01:36:20.0122941+08:00",
+      "ended": "2026-10-18T01:36:22.3646515+08:00",
+      "wall_seconds": 2.3504292,
+      "timeout": false,
+      "exit_code": 0,
+      "stdout": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle1-quick-r1/prepared.stdout.txt",
+      "stderr": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle1-quick-r1/prepared.stderr.txt",
+      "report": "C:/code/loyayz/oddly-good-hospital/.cache/performance/cycle1-quick-r1/quick-prepared.json",
+      "report_exists": true,
+      "fixture": [
+        {
+          "description": {
+            "actors": 6,
+            "beds": 0,
+            "boundary": "built hospital; admitted patients before reception; actual production services thereafter",
+            "errors": [],
+            "facilities": 19,
+            "floors": [
+              1
+            ],
+            "patients": 0,
+            "rooms": 6,
+            "staff": 6,
+            "visitors": 0
+          },
+          "elapsed_ms": 333.387,
+          "validation": ""
+        }
+      ],
+      "stderr_error_lines": [],
+      "status": "completed",
+      "observed_peak_working_set_bytes": null
+    },
+    {
+      "item": 5,
+      "name": "reference",
+      "executable": "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+      "arguments": [
+        "--headless",
+        "--path",
+        "C:/code/loyayz/oddly-good-hospital/.cache/performance/cycle1-quick-r1",
+        "--script",
+        "res://tools/performance/diagnose.gd",
+        "--",
+        "--operation=reference",
+        "--binding=B_S13_D09_M09",
+        "--input=C:/code/loyayz/oddly-good-hospital/.cache/performance/review5-tools-r1/capture.json.input.bin",
+        "--output=res://quick-reference.json",
+        "--profile"
+      ],
+      "pid": 35268,
+      "started": "2026-10-18T01:36:35.5643472+08:00",
+      "ended": "2026-10-18T01:37:35.5934357+08:00",
+      "wall_seconds": 60.0256845,
+      "timeout": true,
+      "exit_code": -1,
+      "stdout": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle1-quick-r1/reference.stdout.txt",
+      "stderr": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/cycle1-quick-r1/reference.stderr.txt",
+      "report": "C:/code/loyayz/oddly-good-hospital/.cache/performance/cycle1-quick-r1/quick-reference.json",
+      "report_exists": false,
+      "fixture": [
+        {
+          "description": {
+            "actors": 160,
+            "beds": 24,
+            "boundary": "built hospital; admitted patients before reception; actual production services thereafter",
+            "errors": [],
+            "facilities": 1328,
+            "floors": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "patients": 120,
+            "rooms": 64,
+            "staff": 32,
+            "visitors": 8
+          },
+          "elapsed_ms": 393.221,
+          "validation": ""
+        }
+      ],
+      "stderr_error_lines": [],
+      "status": "incomplete_timeout",
+      "observed_peak_working_set_bytes": null
+    }
+  ],
+  "capture": {
+    "readonly": true,
+    "samples": [
+      {
+        "capture_us": 9701,
+        "ownership_us": 8075,
+        "extraction_us": 1626
+      },
+      {
+        "capture_us": 4997,
+        "ownership_us": 4180,
+        "extraction_us": 817
+      },
+      {
+        "capture_us": 4972,
+        "ownership_us": 4190,
+        "extraction_us": 782
+      },
+      {
+        "capture_us": 4957,
+        "ownership_us": 4129,
+        "extraction_us": 828
+      },
+      {
+        "capture_us": 4569,
+        "ownership_us": 3787,
+        "extraction_us": 782
+      }
+    ],
+    "metrics": {
+      "capture_us": 28636,
+      "captures": 5,
+      "copied_records": 1526,
+      "cpu_measured_jobs": 0,
+      "deep_compares": 6100,
+      "jobs": 0,
+      "latest_worker_us": 0,
+      "layout_reuses": 15,
+      "main_us": 0,
+      "max_main_us": 0,
+      "requests": 0,
+      "reused": 0,
+      "reused_records": 6104,
+      "scanned_records": 7630,
+      "source_tick": 0,
+      "superseded": 0,
+      "target_tick": 0,
+      "worker_cpu_us": 0,
+      "worker_wall_us": 0
+    }
+  },
+  "history": {
+    "valid": true,
+    "steps_per_scale": 30,
+    "input_sha256": "0925b166c37765256d7ca9e9e12e6186751491c557030c9c33179e653e63427c",
+    "native_sha256": "fcddcc3c48e0d4e7d541a2729608b4e388991ef08d3712a2f73f6c6dfee37b32",
+    "observations": [
+      {
+        "history": 16,
+        "active": 1,
+        "samples": 30,
+        "load_us": 357,
+        "p50_us": 1476,
+        "p95_us": 2453,
+        "p99_us": 41859,
+        "max_us": 41859,
+        "initial_validation": "",
+        "final_validation": "",
+        "live_facts_and_rng_equal": true
+      },
+      {
+        "history": 64,
+        "active": 1,
+        "samples": 30,
+        "load_us": 752,
+        "p50_us": 1503,
+        "p95_us": 2071,
+        "p99_us": 42723,
+        "max_us": 42723,
+        "initial_validation": "",
+        "final_validation": "",
+        "live_facts_and_rng_equal": true
+      },
+      {
+        "history": 256,
+        "active": 1,
+        "samples": 30,
+        "load_us": 1353,
+        "p50_us": 1921,
+        "p95_us": 2768,
+        "p99_us": 42301,
+        "max_us": 42301,
+        "initial_validation": "",
+        "final_validation": "",
+        "live_facts_and_rng_equal": true
+      }
+    ]
+  },
+  "steps": {
+    "samples": [
+      {
+        "tick": 5,
+        "elapsed_ms": 1974.244,
+        "present": 160,
+        "moves": 5,
+        "preparations": 0,
+        "sessions": 0,
+        "events": 1
+      },
+      {
+        "tick": 6,
+        "elapsed_ms": 45.569,
+        "present": 160,
+        "moves": 5,
+        "preparations": 0,
+        "sessions": 0,
+        "events": 1
+      },
+      {
+        "tick": 7,
+        "elapsed_ms": 47.141,
+        "present": 160,
+        "moves": 5,
+        "preparations": 0,
+        "sessions": 0,
+        "events": 1
+      },
+      {
+        "tick": 8,
+        "elapsed_ms": 52.28,
+        "present": 160,
+        "moves": 5,
+        "preparations": 0,
+        "sessions": 0,
+        "events": 1
+      },
+      {
+        "tick": 9,
+        "elapsed_ms": 49.567,
+        "present": 160,
+        "moves": 5,
+        "preparations": 0,
+        "sessions": 0,
+        "events": 1
+      }
+    ],
+    "total_ms": 2168.801
+  },
+  "prepared": {
+    "valid": true,
+    "reference_ms": 129.78,
+    "solve_ms": 13.514,
+    "warm_ms": [
+      0.59,
+      0.348
+    ],
+    "classes": 10,
+    "resources": 7,
+    "tracked_bytes": 91643863,
+    "initial": {
+      "bottleneck": "staff:starter_doctor_b",
+      "bottleneck_kind": "exhausted_resource",
+      "bundle_count": 10,
+      "capacity": {
+        "d": "75737",
+        "n": "800000"
+      },
+      "certificate_nonzeros": 23,
+      "coefficient_count": 50,
+      "columns_per_round": [
+        0
+      ],
+      "edge_count": 75,
+      "lp_rounds": 1,
+      "node_count": 50,
+      "pricing_calls": 2,
+      "resolution_count": 1,
+      "resource_count": 7,
+      "solver_kind": "lp",
+      "structural_pairs": 1,
+      "timing_us": {
+        "certificate_build_us": 199,
+        "lock_wait_us": 0,
+        "lp_optimize_us": 1068,
+        "model_build_us": 535,
+        "node_intern_us": 97,
+        "pricing_us": 27,
+        "variant_and_graph_input_us": 438
+      },
+      "used_resource_count": 7
+    }
+  },
+  "reference": null,
+  "tracked_worktree_status": [],
+  "limits": [
+    "No presentation-frame, ETW, Release full-acceptance or optimization conclusion.",
+    "All five game processes were launched once in the requested sequence, hidden, each with a 60-second deadline.",
+    "Peak working set unavailable for first three items; last two attempted without rerunning.",
+    "Input content identity checks and initial validation are existing diagnostic-tool behavior; no new game probe added."
+  ],
+  "history_raw": {
+    "content_fingerprint": "70ef833fb44c1682824534528697df4a55d011f10121f15f8e83f0b5b7b6d433",
+    "diagnostic": true,
+    "engine": "4.7.2-stable (official)",
+    "input_sha256": "0925b166c37765256d7ca9e9e12e6186751491c557030c9c33179e653e63427c",
+    "native_sha256": "fcddcc3c48e0d4e7d541a2729608b4e388991ef08d3712a2f73f6c6dfee37b32",
+    "observations": [
+      {
+        "active": 1,
+        "complete_step_us": [
+          41859,
+          1853,
+          1596,
+          1446,
+          1522,
+          2453,
+          1563,
+          1430,
+          1355,
+          1479,
+          1832,
+          1506,
+          1366,
+          1476,
+          1345,
+          1778,
+          1415,
+          1351,
+          1515,
+          1382,
+          2079,
+          2014,
+          1235,
+          1230,
+          1198,
+          1252,
+          1981,
+          1513,
+          1262,
+          1391
+        ],
+        "final_validation": "",
+        "history": 16,
+        "initial_validation": "",
+        "live_facts_and_rng_equal": true,
+        "load_us": 357
+      },
+      {
+        "active": 1,
+        "complete_step_us": [
+          42723,
+          1600,
+          1680,
+          1485,
+          1545,
+          1857,
+          1435,
+          1494,
+          1678,
+          1611,
+          1680,
+          1585,
+          1416,
+          1427,
+          1762,
+          1681,
+          1503,
+          1397,
+          1406,
+          1482,
+          2071,
+          2040,
+          1253,
+          1234,
+          1625,
+          1522,
+          1327,
+          1282,
+          1294,
+          1289
+        ],
+        "final_validation": "",
+        "history": 64,
+        "initial_validation": "",
+        "live_facts_and_rng_equal": true,
+        "load_us": 752
+      },
+      {
+        "active": 1,
+        "complete_step_us": [
+          42301,
+          2731,
+          1983,
+          1858,
+          1986,
+          2487,
+          2003,
+          2154,
+          1820,
+          1925,
+          1921,
+          1747,
+          2674,
+          2359,
+          1758,
+          1963,
+          2126,
+          1932,
+          1720,
+          1869,
+          2768,
+          2569,
+          1498,
+          1764,
+          1635,
+          1578,
+          1559,
+          1767,
+          1790,
+          1509
+        ],
+        "final_validation": "",
+        "history": 256,
+        "initial_validation": "",
+        "live_facts_and_rng_equal": true,
+        "load_us": 1353
+      }
+    ],
+    "operation": "fixed_active_history",
+    "steps_per_scale": 30,
+    "valid": true
+  },
+  "step_profile_differences": [
+    {
+      "method": "clinical.advance",
+      "cold_calls": 1,
+      "cold_ms": 0.019,
+      "warm_calls": 4,
+      "warm_total_ms": 0.055,
+      "warm_per_step_ms": 0.01375
+    },
+    {
+      "method": "clinical.dispatch",
+      "cold_calls": 1,
+      "cold_ms": 7.661,
+      "warm_calls": 4,
+      "warm_total_ms": 28.485,
+      "warm_per_step_ms": 7.12125
+    },
+    {
+      "method": "clinical.service_candidates.reception",
+      "cold_calls": 116,
+      "cold_ms": 6.272,
+      "warm_calls": 464,
+      "warm_total_ms": 22.82,
+      "warm_per_step_ms": 5.705
+    },
+    {
+      "method": "navigation.build",
+      "cold_calls": 4,
+      "cold_ms": 948.941,
+      "warm_calls": 0,
+      "warm_total_ms": 0,
+      "warm_per_step_ms": 0
+    },
+    {
+      "method": "navigation.graph",
+      "cold_calls": 5,
+      "cold_ms": 949.3,
+      "warm_calls": 20,
+      "warm_total_ms": 0.441,
+      "warm_per_step_ms": 0.11025
+    },
+    {
+      "method": "navigation.graph_new",
+      "cold_calls": 4,
+      "cold_ms": 949.246,
+      "warm_calls": 0,
+      "warm_total_ms": 0,
+      "warm_per_step_ms": 0
+    },
+    {
+      "method": "navigation.graph_reuse_or_refresh",
+      "cold_calls": 1,
+      "cold_ms": 0.041,
+      "warm_calls": 20,
+      "warm_total_ms": 0.399,
+      "warm_per_step_ms": 0.09975
+    },
+    {
+      "method": "navigation.trim",
+      "cold_calls": 10,
+      "cold_ms": 0.017,
+      "warm_calls": 40,
+      "warm_total_ms": 0.03,
+      "warm_per_step_ms": 0.0075
+    },
+    {
+      "method": "service.arrivals.advance_wait",
+      "cold_calls": 1,
+      "cold_ms": 0.689,
+      "warm_calls": 4,
+      "warm_total_ms": 2.89,
+      "warm_per_step_ms": 0.7225
+    },
+    {
+      "method": "service.arrivals.arrivals",
+      "cold_calls": 1,
+      "cold_ms": 0.041,
+      "warm_calls": 4,
+      "warm_total_ms": 0.106,
+      "warm_per_step_ms": 0.0265
+    },
+    {
+      "method": "service.arrivals.boundaries",
+      "cold_calls": 1,
+      "cold_ms": 0.01,
+      "warm_calls": 4,
+      "warm_total_ms": 0.037,
+      "warm_per_step_ms": 0.00925
+    },
+    {
+      "method": "service.arrivals.needs",
+      "cold_calls": 1,
+      "cold_ms": 1.439,
+      "warm_calls": 4,
+      "warm_total_ms": 5.089,
+      "warm_per_step_ms": 1.27225
+    },
+    {
+      "method": "service.arrivals.settle",
+      "cold_calls": 1,
+      "cold_ms": 0.148,
+      "warm_calls": 4,
+      "warm_total_ms": 0.58,
+      "warm_per_step_ms": 0.145
+    },
+    {
+      "method": "service.departments.advance",
+      "cold_calls": 1,
+      "cold_ms": 0.004,
+      "warm_calls": 4,
+      "warm_total_ms": 0.017,
+      "warm_per_step_ms": 0.00425
+    },
+    {
+      "method": "service.departments.dispatch",
+      "cold_calls": 1,
+      "cold_ms": 0.064,
+      "warm_calls": 4,
+      "warm_total_ms": 0.273,
+      "warm_per_step_ms": 0.06825
+    },
+    {
+      "method": "service.departments.sample",
+      "cold_calls": 1,
+      "cold_ms": 76.921,
+      "warm_calls": 4,
+      "warm_total_ms": 70.905,
+      "warm_per_step_ms": 17.72625
+    },
+    {
+      "method": "service.departments.settle",
+      "cold_calls": 1,
+      "cold_ms": 0.274,
+      "warm_calls": 4,
+      "warm_total_ms": 0.747,
+      "warm_per_step_ms": 0.18675
+    },
+    {
+      "method": "service.development.advance",
+      "cold_calls": 1,
+      "cold_ms": 0.057,
+      "warm_calls": 4,
+      "warm_total_ms": 0.104,
+      "warm_per_step_ms": 0.026
+    },
+    {
+      "method": "service.development.dispatch",
+      "cold_calls": 1,
+      "cold_ms": 0.937,
+      "warm_calls": 4,
+      "warm_total_ms": 3.799,
+      "warm_per_step_ms": 0.94975
+    },
+    {
+      "method": "service.development.settle",
+      "cold_calls": 1,
+      "cold_ms": 0.574,
+      "warm_calls": 4,
+      "warm_total_ms": 2.35,
+      "warm_per_step_ms": 0.5875
+    },
+    {
+      "method": "service.environment._coverage",
+      "cold_calls": 120,
+      "cold_ms": 35.074,
+      "warm_calls": 480,
+      "warm_total_ms": 1.833,
+      "warm_per_step_ms": 0.45825
+    },
+    {
+      "method": "service.environment._coverage_edges",
+      "cold_calls": 120,
+      "cold_ms": 24.068,
+      "warm_calls": 480,
+      "warm_total_ms": 2.529,
+      "warm_per_step_ms": 0.63225
+    },
+    {
+      "method": "service.environment.advance",
+      "cold_calls": 1,
+      "cold_ms": 0.006,
+      "warm_calls": 4,
+      "warm_total_ms": 0.023,
+      "warm_per_step_ms": 0.00575
+    },
+    {
+      "method": "service.environment.dispatch",
+      "cold_calls": 1,
+      "cold_ms": 0.082,
+      "warm_calls": 4,
+      "warm_total_ms": 0.339,
+      "warm_per_step_ms": 0.08475
+    },
+    {
+      "method": "service.environment.environment_at",
+      "cold_calls": 120,
+      "cold_ms": 74.854,
+      "warm_calls": 480,
+      "warm_total_ms": 63.791,
+      "warm_per_step_ms": 15.94775
+    },
+    {
+      "method": "service.finance.settle",
+      "cold_calls": 1,
+      "cold_ms": 3.751,
+      "warm_calls": 4,
+      "warm_total_ms": 6.896,
+      "warm_per_step_ms": 1.724
+    },
+    {
+      "method": "service.floors.advance",
+      "cold_calls": 1,
+      "cold_ms": 0.003,
+      "warm_calls": 4,
+      "warm_total_ms": 0.012,
+      "warm_per_step_ms": 0.003
+    },
+    {
+      "method": "service.floors.dispatch",
+      "cold_calls": 1,
+      "cold_ms": 0.004,
+      "warm_calls": 4,
+      "warm_total_ms": 0.017,
+      "warm_per_step_ms": 0.00425
+    },
+    {
+      "method": "service.maintenance.advance",
+      "cold_calls": 1,
+      "cold_ms": 1.817,
+      "warm_calls": 4,
+      "warm_total_ms": 8.017,
+      "warm_per_step_ms": 2.00425
+    },
+    {
+      "method": "service.maintenance.boundaries",
+      "cold_calls": 1,
+      "cold_ms": 4.254,
+      "warm_calls": 4,
+      "warm_total_ms": 17.992,
+      "warm_per_step_ms": 4.498
+    },
+    {
+      "method": "service.maintenance.dispatch",
+      "cold_calls": 1,
+      "cold_ms": 1.622,
+      "warm_calls": 4,
+      "warm_total_ms": 7.1,
+      "warm_per_step_ms": 1.775
+    },
+    {
+      "method": "service.recruitment.advance",
+      "cold_calls": 1,
+      "cold_ms": 0.048,
+      "warm_calls": 4,
+      "warm_total_ms": 0.142,
+      "warm_per_step_ms": 0.0355
+    },
+    {
+      "method": "service.recruitment.boundaries",
+      "cold_calls": 1,
+      "cold_ms": 0.04,
+      "warm_calls": 4,
+      "warm_total_ms": 0.168,
+      "warm_per_step_ms": 0.042
+    },
+    {
+      "method": "service.recruitment.settle",
+      "cold_calls": 1,
+      "cold_ms": 0.102,
+      "warm_calls": 4,
+      "warm_total_ms": 0.432,
+      "warm_per_step_ms": 0.108
+    },
+    {
+      "method": "service.remodel.dispatch",
+      "cold_calls": 1,
+      "cold_ms": 0.003,
+      "warm_calls": 4,
+      "warm_total_ms": 0.01,
+      "warm_per_step_ms": 0.0025
+    },
+    {
+      "method": "service.research.advance",
+      "cold_calls": 1,
+      "cold_ms": 0.006,
+      "warm_calls": 4,
+      "warm_total_ms": 0.02,
+      "warm_per_step_ms": 0.005
+    },
+    {
+      "method": "service.research.boundaries",
+      "cold_calls": 1,
+      "cold_ms": 0.004,
+      "warm_calls": 4,
+      "warm_total_ms": 0.019,
+      "warm_per_step_ms": 0.00475
+    },
+    {
+      "method": "service.research.settle",
+      "cold_calls": 1,
+      "cold_ms": 0.006,
+      "warm_calls": 4,
+      "warm_total_ms": 0.024,
+      "warm_per_step_ms": 0.006
+    },
+    {
+      "method": "service.scheduler.advance",
+      "cold_calls": 1,
+      "cold_ms": 0.003,
+      "warm_calls": 4,
+      "warm_total_ms": 0.011,
+      "warm_per_step_ms": 0.00275
+    },
+    {
+      "method": "service.scheduler.boundaries",
+      "cold_calls": 1,
+      "cold_ms": 0.483,
+      "warm_calls": 4,
+      "warm_total_ms": 2.04,
+      "warm_per_step_ms": 0.51
+    },
+    {
+      "method": "service.scheduler.dispatch",
+      "cold_calls": 1,
+      "cold_ms": 0.008,
+      "warm_calls": 4,
+      "warm_total_ms": 0.025,
+      "warm_per_step_ms": 0.00625
+    },
+    {
+      "method": "service.supplies.advance",
+      "cold_calls": 1,
+      "cold_ms": 0.107,
+      "warm_calls": 4,
+      "warm_total_ms": 0.449,
+      "warm_per_step_ms": 0.11225
+    },
+    {
+      "method": "service.supplies.boundaries",
+      "cold_calls": 1,
+      "cold_ms": 0.029,
+      "warm_calls": 4,
+      "warm_total_ms": 0.123,
+      "warm_per_step_ms": 0.03075
+    },
+    {
+      "method": "service.waiting.advance",
+      "cold_calls": 1,
+      "cold_ms": 0.006,
+      "warm_calls": 4,
+      "warm_total_ms": 0.025,
+      "warm_per_step_ms": 0.00625
+    },
+    {
+      "method": "service.waiting.dispatch",
+      "cold_calls": 1,
+      "cold_ms": 0.798,
+      "warm_calls": 4,
+      "warm_total_ms": 3.413,
+      "warm_per_step_ms": 0.85325
+    },
+    {
+      "method": "service.wellbeing.advance",
+      "cold_calls": 1,
+      "cold_ms": 0.126,
+      "warm_calls": 4,
+      "warm_total_ms": 0.372,
+      "warm_per_step_ms": 0.093
+    },
+    {
+      "method": "service.wellbeing.boundaries",
+      "cold_calls": 1,
+      "cold_ms": 0.197,
+      "warm_calls": 4,
+      "warm_total_ms": 0.809,
+      "warm_per_step_ms": 0.20225
+    },
+    {
+      "method": "service.wellbeing.dispatch",
+      "cold_calls": 1,
+      "cold_ms": 0.725,
+      "warm_calls": 4,
+      "warm_total_ms": 3.661,
+      "warm_per_step_ms": 0.91525
+    },
+    {
+      "method": "space.active_route_clear",
+      "cold_calls": 5,
+      "cold_ms": 913.334,
+      "warm_calls": 20,
+      "warm_total_ms": 0.248,
+      "warm_per_step_ms": 0.062
+    },
+    {
+      "method": "space.advance",
+      "cold_calls": 1,
+      "cold_ms": 1865.795,
+      "warm_calls": 4,
+      "warm_total_ms": 3.462,
+      "warm_per_step_ms": 0.8655
+    },
+    {
+      "method": "space.dispatch_routes",
+      "cold_calls": 1,
+      "cold_ms": 0.016,
+      "warm_calls": 4,
+      "warm_total_ms": 0.075,
+      "warm_per_step_ms": 0.01875
+    },
+    {
+      "method": "space.reserve_doors",
+      "cold_calls": 5,
+      "cold_ms": 0.239,
+      "warm_calls": 20,
+      "warm_total_ms": 0.772,
+      "warm_per_step_ms": 0.193
+    }
+  ]
+}
