@@ -113,7 +113,7 @@ func _profile_service(simulation: HospitalSimulation, key: String) -> void:
 	var wrapped: int = 0
 	for method: Dictionary in base.get_script_method_list():
 		var name: String = str(method.name)
-		if not name in ["boundaries","arrivals","dispatch","advance","advance_wait","needs","sample","settle"] and not (key=="arrivals" and name in ["capacity","_reference_basis","_reference_geometry_basis","_capacity_reference_world","_case_experience","_reference_classes","_reference_variant","_normalize_bundle","_capacity_part","_resource_budgets","_solve_roles","_existing_workload","_structural_pairs"]) and not (key=="environment" and name in ["environment_at","_coverage_edges","_coverage","_water_usable"]): continue
+		if not name in ["boundaries","arrivals","dispatch","advance","advance_wait","needs","sample","settle"] and not (key=="arrivals" and name in ["capacity","_reference_basis","_reference_geometry_basis","_capacity_reference_world","_case_experience","_reference_classes","_reference_variant","_normalize_bundle","_capacity_part","_resource_budgets","_solve_roles","_existing_workload","_structural_pairs"]) and not (key=="environment" and name in ["environment_at","sample_at","begin_query","_positive_facilities","_nearby_actors","_coverage_edges","_coverage","_water_usable"]): continue
 		var expression: RegEx = RegEx.new()
 		expression.compile("(?m)^func "+name+"\\([^\\r\\n]*\\)[^\\r\\n]*:[ \\t]*$")
 		var header: RegExMatch = expression.search(base.source_code)

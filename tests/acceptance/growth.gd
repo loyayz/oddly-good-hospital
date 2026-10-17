@@ -75,7 +75,9 @@ const CASES: Dictionary = {
 	"GROW-72":"docs/design/08-hospital-life.md §4；弃候与常驻环境使用同一本人可用性且报价只读",
 	"GROW-73":"docs/design/07-clinical-team.md §6；重试经验边界与完整未共享模型一致",
 	"GROW-74":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；专业评分输入按需隔离且撤销专业移除后继历史层",
-	"GROW-75":"docs/design/08-hospital-life.md §4；定义分类等价且到期怒气复用同一次主体观察"
+	"GROW-75":"docs/design/08-hospital-life.md §4；正向来源分类、数值采样等价与同次主体观察",
+	"GROW-76":"docs/design/07-clinical-team.md §5；候选早排除不装配占用或员工ID，实际接待预约立即对后票生效",
+	"GROW-77":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；退出在完整计算边界取消任务且不发布部分结果"
 }
 
 func run(t) -> void:
@@ -879,6 +881,12 @@ func _case_64(t) -> void:
 		if plan.disease_id==candidate.visit.disease_id: count += 1
 	t.check("GROW-64",structural.structurally_compatible and detailed.structurally_compatible and calls==1 and detailed.plans.size()==count,{"structural_quotes":calls,"detailed_quotes":detailed.plans.size(),"legal_catalog_plans":count})
 
+class CandidateIdCounts extends WorldState:
+	var staff_id_reads: int = 0
+	func ids(collection: String) -> Array:
+		if collection=="staff": staff_id_reads += 1
+		return super.ids(collection)
+
 class QuoteCounts extends HospitalClinic:
 	var full_calls: int = 0
 	var plan_calls: int = 0
@@ -1022,6 +1030,51 @@ func _case_68(t) -> void:
 		use_equal = use_equal and HospitalEquipmentUse.query(ctx.world,id,uses)==HospitalEquipmentUse.query(ctx.world,id)
 	t.check("GROW-68",shared and next==fresh and not ctx.world.facts.sessions.is_empty() and next!=first and a==b and environment.query_builds==builds+1 and environment._query.is_empty() and readonly and use_equal,{"shared":shared,"new_sessions":ctx.world.facts.sessions.size(),"ticks":ticks,"new_occupancy_seen":next!=first,"environment_builds":environment.query_builds-builds,"readonly":readonly})
 
+func _case_77(t) -> void:
+	await load("res://tests/acceptance/arrival_cancellation.gd").new().run_case(t,_content)
+
+func _case_76(t) -> void:
+	var ctx: Dictionary = _context()
+	var first: Dictionary = _patient(ctx,[45,76])
+	var second: Dictionary = _patient(ctx,[46,76])
+	if first.is_empty() or second.is_empty():
+		t.check("GROW-76",false,{"admission":ctx.get("last_admission",{})})
+		return
+	# This snapshot is the legal before-dispatch input. The counter delegates
+	# every ID query to WorldState and does not replace any production result.
+	var world: CandidateIdCounts = CandidateIdCounts.new(ctx.world.freeze())
+	ctx.world = world
+	ctx.simulation.world = world
+	first = world.facts.visits[first.id]
+	second = world.facts.visits[second.id]
+	var validation: String = world.validate(_content)
+	var observer: QuoteCounts = QuoteCounts.new(_content,ctx.space)
+	var before: Dictionary = world.freeze()
+	var all: Array = observer.service_candidates(world,first,"reception")
+	var first_only: Array = observer.service_candidates(world,second,"reception",false,false,{"first_only":true})
+	var independent: bool = all.size()==1 and first_only==all and observer.availability_calls==2 and world.staff_id_reads==2 and ctx.space._route_queries.is_empty() and world.freeze()==before
+	observer.availability_calls = 0
+	world.staff_id_reads = 0
+	var structural: Array = observer.service_candidates(world,second,"reception",true,false,{"staff_id":"starter_receptionist","first_only":true})
+	var structural_readonly: bool = structural==all and observer.availability_calls==0 and world.staff_id_reads==0 and ctx.space._route_queries.is_empty() and world.freeze()==before
+	var first_ticket: Dictionary = world.facts.tickets[first.ticket_id]
+	var second_ticket: Dictionary = world.facts.tickets[second.ticket_id]
+	var second_identity: Array = [second_ticket.id,second_ticket.enqueued_tick]
+	# The first real dispatcher, rather than an injected busy fact, reserves
+	# the sole reception point and requests actual patient/staff movement.
+	ctx.clinic._dispatch_service(world,first,first_ticket)
+	var held: Dictionary = world.facts.adaptations.get(str(all[0].facility_id) if not all.is_empty() else "",{})
+	var reserved: bool = first_ticket.get("service_assigned",false) and held.get("owner_id","")==first_ticket.id and held.get("actor_id","")==first.actor_id and world.facts.moves.has(first.actor_id)
+	before = world.freeze()
+	observer.availability_calls = 0
+	world.staff_id_reads = 0
+	var blocked: Array = observer.service_candidates(world,second,"reception",false,false,{"first_only":true})
+	var early: bool = blocked.is_empty() and observer.availability_calls==0 and world.staff_id_reads==0 and ctx.space._route_queries.is_empty() and world.freeze()==before
+	ctx.clinic._dispatch_service(world,second,second_ticket)
+	var original_ticket: bool = [second_ticket.id,second_ticket.enqueued_tick]==second_identity and second.ticket_id==second_ticket.id and not second_ticket.get("service_assigned",false) and world.facts.adaptations==before.adaptations and world.facts.ledger==before.ledger and world.facts.rng==before.rng
+	validation += world.validate(_content)
+	t.check("GROW-76",independent and structural_readonly and reserved and early and original_ticket and validation.is_empty(),{"independent_queries":independent,"structural_readonly":structural_readonly,"actual_reservation":reserved,"blocked_without_views":early,"blocked_availability_builds":observer.availability_calls,"blocked_staff_id_reads":world.staff_id_reads,"original_ticket":original_ticket,"validation":validation})
+
 func _case_69(t) -> void:
 	var ctx: Dictionary = _context()
 	var query: Dictionary = {}
@@ -1142,6 +1195,9 @@ class UncachedReference extends HospitalClinic:
 func _case_75(t) -> void:
 	var ctx: Dictionary = _context()
 	var visit: Dictionary = _patient(ctx,[45,76])
+	_add_facility(ctx.world,"environment_plant","FUR25",null,[42,79])
+	_add_facility(ctx.world,"environment_light","FUR19",null,[46,80])
+	_add_facility(ctx.world,"environment_screen","FUR23",null,[44,82])
 	var environment: EnvironmentObserver = EnvironmentObserver.new(_content,ctx.space)
 	environment.waiting_life = ctx.simulation.services.waiting
 	var correct: bool = true
@@ -1156,18 +1212,50 @@ func _case_75(t) -> void:
 		var classified: Dictionary = environment._positive_definition(definition_id)
 		correct = correct and classified.decoration==original.get("passive_decoration",false) and classified.light==(original.get("environment","")=="light" or original.get("environment_function","")=="light") and classified.has("category")==original.has("decoration_category") and environment._is_water(definition_id)==seen_water.has(definition_id)
 	for id: String in seen_water: correct = correct and environment._is_water(id)
+	var before: Dictionary = ctx.world.freeze()
+	var complete: Dictionary = environment.environment_at(ctx.world,1,[44,80],visit.actor_id)
+	var brief: Dictionary = environment.environment_at(ctx.world,1,[44,80],visit.actor_id,false)
+	var expected_brief: Dictionary = complete.duplicate(true)
+	expected_brief.sources = []
+	environment.begin_query(ctx.world)
+	var positive_ids: Dictionary = {}
+	for cells: Dictionary in environment._query.facilities.values():
+		for facilities: Array in cells.values():
+			for facility: Dictionary in facilities: positive_ids[facility.id] = true
+	var filtered: bool = positive_ids.has("environment_plant") and positive_ids.has("environment_light") and positive_ids.has("water")
+	filtered = filtered and not positive_ids.has("bin") and not positive_ids.has("environment_screen") and ctx.world.facts.facilities.environment_screen in environment._query.screens.get(1,[])
+	var indexed: Dictionary = environment.environment_at(ctx.world,1,[44,80],visit.actor_id)
+	var nearby_before: int = environment.nearby_queries
+	var sample: Dictionary = environment.sample_at(ctx.world,1,[44,80],visit.actor_id)
+	var expected_sample: Dictionary = expected_brief.duplicate(true)
+	expected_sample.erase("nearby_count")
+	var sampling: bool = brief==expected_brief and indexed==complete and sample==expected_sample and environment.nearby_queries==nearby_before
+	environment.end_query()
+	var readonly: bool = ctx.world.freeze()==before
+	environment.calls = 0
+	environment.sample_calls = 0
+	environment.nearby_queries = 0
 	var department: HospitalDepartments = ctx.simulation.services.departments
 	department.environment = environment
 	department.ensure(ctx.world)
 	ctx.world.facts.departments.experience[visit.id].next_anger_tick = ctx.world.sim_tick
 	department.sample(ctx.world)
-	t.check("GROW-75",correct and environment.calls==1 and environment._query.is_empty(),{"classification_equal":correct,"environment_calls":environment.calls,"scope_balanced":environment._query.is_empty()})
+	t.check("GROW-75",correct and filtered and sampling and readonly and environment.calls==1 and environment.sample_calls==1 and environment.nearby_queries==0 and environment._query.is_empty(),{"classification_equal":correct,"filtered_sources":filtered,"sampling_equal":sampling,"readonly":readonly,"environment_calls":environment.calls,"sample_calls":environment.sample_calls,"nearby_queries":environment.nearby_queries,"scope_balanced":environment._query.is_empty()})
 
 class EnvironmentObserver extends HospitalEnvironment:
 	var calls: int = 0
+	var sample_calls: int = 0
+	var nearby_queries: int = 0
 	func environment_at(world: WorldState, floor_id: int, cell: Array, actor_id: String = "", explain: bool = true) -> Dictionary:
 		calls += 1
 		return super.environment_at(world,floor_id,cell,actor_id,explain)
+	func sample_at(world: WorldState, floor_id: int, cell: Array, actor_id: String = "") -> Dictionary:
+		calls += 1
+		sample_calls += 1
+		return super.sample_at(world,floor_id,cell,actor_id)
+	func _nearby_actors(world: WorldState, floor_id: int, cell: Array) -> Array:
+		nearby_queries += 1
+		return super._nearby_actors(world,floor_id,cell)
 
 func _case_73(t) -> void:
 	var ctx: Dictionary = _context()
@@ -1225,11 +1313,15 @@ func _case_72(t) -> void:
 	var before: Dictionary = ctx.world.freeze()
 	observation.begin_query(ctx.world)
 	var expected: Dictionary = observation.environment_at(ctx.world,int(actor.location.floor_id),actor.location.cell,actor.id)
+	var sampled: Dictionary = observation.sample_at(ctx.world,int(actor.location.floor_id),actor.location.cell,actor.id)
+	var expected_sample: Dictionary = expected.duplicate(true)
+	expected_sample.sources = []
+	expected_sample.erase("nearby_count")
 	var actual: float = ctx.arrivals._environment_score(ctx.world,visit)
 	observation.end_query()
 	var standalone: HospitalArrivalService = HospitalArrivalService.new(_content,ctx.space)
 	var independent: float = standalone._environment_score(ctx.world,visit)
-	t.check("GROW-72",injected and observation.calls==2 and actual==float(expected.value) and independent==actual and ctx.world.freeze()==before,{"injected":injected,"calls":observation.calls,"shared":actual,"standalone":independent,"readonly":ctx.world.freeze()==before})
+	t.check("GROW-72",injected and observation.calls==3 and observation.sample_calls==1 and sampled==expected_sample and actual==float(expected.value) and independent==actual and ctx.world.freeze()==before,{"injected":injected,"calls":observation.calls,"sampling_equal":sampled==expected_sample,"shared":actual,"standalone":independent,"readonly":ctx.world.freeze()==before})
 
 func _case_71(t) -> void:
 	var ctx: Dictionary = _context()

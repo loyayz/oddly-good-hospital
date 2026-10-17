@@ -525,10 +525,11 @@ func service_candidates(world: WorldState, visit: Dictionary, kind: String, stru
 	# This enumeration is synchronous and read-only. Rebuild from the owners
 	# after every dispatch, so an earlier ticket's new reservation is visible.
 	var preparation: Dictionary = world.facts.preparations.get(visit.id,{})
-	var staff_ids: Array = [str(selection.staff_id)] if selection.has("staff_id") else world.ids("staff")
+	var staff_ids: Array = []
+	var staff_ids_ready: bool = false
 	var facility_ids: Array = world.facility_ids(equipment_id)
 	space.begin_route_query(world)
-	var availability: Dictionary = {} if structural_only else _availability(world)
+	var availability: Dictionary = {}
 	for facility_id: String in facility_ids:
 		var facility: Dictionary = world.facts.facilities[facility_id]
 		if facility.definition_id!=equipment_id:
@@ -539,12 +540,21 @@ func service_candidates(world: WorldState, visit: Dictionary, kind: String, stru
 			continue
 		if not structural_only and not space.facility_reservation_reason(world,facility_id,visit.actor_id).is_empty():
 			continue
-		if not structural_only and (_facility_unavailable(facility) or _facility_busy(world,facility_id,visit.id,availability)):
+		if not structural_only and _facility_unavailable(facility):
 			continue
 		var department_id: String = str(visit.get("department_id",""))
 		var department: Dictionary = world.facts.get("departments",{}).get("units",{}).get(department_id,{})
 		if kind!="reception" and department_id!="general" and not department.is_empty() and not facility.get("room_id","") in department.get("room_ids",[])+department.get("shared_room_ids",[]):
 			continue
+		var base_layout: Dictionary = space.facility_layout(world,facility_id)
+		if base_layout.operator_cells.is_empty():
+			continue
+		if not structural_only:
+			if availability.is_empty(): availability = _availability(world)
+			if _facility_busy(world,facility_id,visit.id,availability): continue
+		if not staff_ids_ready:
+			staff_ids = [str(selection.staff_id)] if selection.has("staff_id") else world.ids("staff")
+			staff_ids_ready = true
 		for staff_id: String in staff_ids:
 			if not world.facts.staff.has(staff_id): continue
 			var staff: Dictionary = world.facts.staff[staff_id]
@@ -558,9 +568,7 @@ func service_candidates(world: WorldState, visit: Dictionary, kind: String, stru
 				continue
 			if reference_schedule and not _reference_assignment_allows(world,staff_id,kind,visit,facility_id):
 				continue
-			var layout: Dictionary = space.facility_layout(world,facility_id)
-			if layout.operator_cells.is_empty():
-				continue
+			var layout: Dictionary = base_layout
 			var fit: Dictionary = space.facility_quote(world,facility_id,visit.actor_id,[staff_id])
 			if not fit.ok:
 				continue

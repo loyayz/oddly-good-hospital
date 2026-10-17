@@ -44,6 +44,8 @@ func begin_query(world: WorldState) -> void:
 		if facility.definition_id in content.balance.environment.noise_barrier_definition_ids:
 			if not _query.screens.has(floor_id): _query.screens[floor_id] = []
 			_query.screens[floor_id].append(facility)
+		var definition: Dictionary = _positive_definition(str(facility.definition_id))
+		if not definition.decoration and not definition.light and not _is_water(str(facility.definition_id)): continue
 		if not _query.facilities.has(floor_id): _query.facilities[floor_id] = {}
 		var key: String = _cell_key(facility.cell)
 		if not _query.facilities[floor_id].has(key): _query.facilities[floor_id][key] = []
@@ -740,8 +742,16 @@ func _nearby_actors(world: WorldState, floor_id: int, cell: Array) -> Array:
 	return result
 
 func environment_at(world: WorldState, floor_id: int, cell: Array, actor_id: String = "", explain: bool = true) -> Dictionary:
+	return _observe_at(world,floor_id,cell,actor_id,explain,true)
+
+# Experience and anger consume environmental values without nearby-person detail.
+func sample_at(world: WorldState, floor_id: int, cell: Array, actor_id: String = "") -> Dictionary:
+	return _observe_at(world,floor_id,cell,actor_id,false,false)
+
+func _observe_at(world: WorldState, floor_id: int, cell: Array, actor_id: String, explain: bool, nearby: bool) -> Dictionary:
 	var rules: Dictionary = content.balance.environment
-	var result: Dictionary = {"value":int(rules.base),"noise":0,"dirt":0,"clean":true,"water":false,"nearby_count":0,"sources":[],"subject_id":actor_id,"reference":actor_id.is_empty()}
+	var result: Dictionary = {"value":int(rules.base),"noise":0,"dirt":0,"clean":true,"water":false,"sources":[],"subject_id":actor_id,"reference":actor_id.is_empty()}
+	if nearby: result.nearby_count = 0
 	if not space.owned(world,floor_id,Vector2i(int(cell[0]),int(cell[1]))):
 		result.status = "outside_owned_floor"
 		return result
@@ -802,9 +812,10 @@ func environment_at(world: WorldState, floor_id: int, cell: Array, actor_id: Str
 		if _has_sample("construction",floor_id,noise_cells): result.noise = maxi(int(result.noise),int(rules.construction_noise_penalty))
 	else:
 		_sample_noise(world,floor_id,noise_cells,result)
-	for actor: Dictionary in _nearby_actors(world,floor_id,cell):
-		if actor.location.kind=="floor" and int(actor.location.floor_id)==floor_id and str(actor.id)!=actor_id and Vector2(float(actor.location.cell[0]),float(actor.location.cell[1])).distance_to(Vector2(float(cell[0]),float(cell[1])))<=3.0:
-			result.nearby_count += 1
+	if nearby:
+		for actor: Dictionary in _nearby_actors(world,floor_id,cell):
+			if actor.location.kind=="floor" and int(actor.location.floor_id)==floor_id and str(actor.id)!=actor_id and Vector2(float(actor.location.cell[0]),float(actor.location.cell[1])).distance_to(Vector2(float(cell[0]),float(cell[1])))<=3.0:
+				result.nearby_count += 1
 	result.value = clampi(int(result.value)-int(result.noise),0,100)
 	result.status = "current"
 	return result

@@ -1,10 +1,24 @@
 class_name ArrivalPreparation
 extends RefCounted
 
+class Cancellation extends RefCounted:
+	var _mutex: Mutex = Mutex.new()
+	var _requested: bool = false
+	func request() -> void:
+		_mutex.lock()
+		_requested = true
+		_mutex.unlock()
+	func requested() -> bool:
+		_mutex.lock()
+		var value: bool = _requested
+		_mutex.unlock()
+		return value
+
 # The main thread owns requests. The worker owns its geometry, quote caches and
 # native models; only fully owned fact inputs and completed values cross over.
 var content: HospitalContent
 var _thread: Thread
+var _active_cancellation: Cancellation
 var _active: Dictionary = {}
 var _latest: Dictionary = {}
 var _completed: Dictionary = {}
@@ -28,9 +42,10 @@ func poll(dispatch: bool = true) -> void:
 		var finished: Variant = _thread.wait_to_finish()
 		if not finished is Dictionary or not finished.has("projection"):
 			finished = {"projection":{"complete":false,"reason":"接诊能力准备任务异常结束"},"elapsed_us":0}
-		_completed = {"input":_active,"projection":finished.projection}
-		_completed_id = _active_id
-		if _completed_id==_sealed_id: _sealed_result = _completed.projection
+		if not finished.projection.get("cancelled",false):
+			_completed = {"input":_active,"projection":finished.projection}
+			_completed_id = _active_id
+			if _completed_id==_sealed_id: _sealed_result = _completed.projection
 		_metrics.jobs += 1
 		_metrics.latest_worker_us = finished.elapsed_us
 		_metrics.worker_wall_us += finished.elapsed_us
@@ -41,6 +56,7 @@ func poll(dispatch: bool = true) -> void:
 			_metrics.obsolete_jobs = int(_metrics.get("obsolete_jobs",0))+1
 			_metrics.obsolete_cpu_us = int(_metrics.get("obsolete_cpu_us",0))+int(finished.get("cpu_us",0))
 		_thread = null
+		_active_cancellation = null
 		_active = {}
 		_active_id = -1
 	if dispatch and _thread==null and not _latest.is_empty():
@@ -49,12 +65,14 @@ func poll(dispatch: bool = true) -> void:
 		_latest = {}
 		_latest_id = -1
 		_thread = Thread.new()
-		var error: Error = _thread.start(_compute.bind(_active))
+		_active_cancellation = Cancellation.new()
+		var error: Error = _thread.start(_compute.bind(_active,_active_cancellation))
 		if error!=OK:
 			_completed = {"input":_active,"projection":{"complete":false,"reason":"无法启动接诊能力准备：%d" % error}}
 			_completed_id = _active_id
 			if _completed_id==_sealed_id: _sealed_result = _completed.projection
 			_thread = null
+			_active_cancellation = null
 			_active = {}
 			_active_id = -1
 
@@ -159,8 +177,12 @@ func retry() -> void:
 func dispose() -> void:
 	_latest = {}
 	if _thread!=null:
+		# Finish the current case or native call normally, then stop before the
+		# next unit. Replacing latest or retaining a sealed consumer never cancels.
+		if _active_cancellation!=null: _active_cancellation.request()
 		_thread.wait_to_finish()
 		_thread = null
+	_active_cancellation = null
 	_worker = null
 	release_sealed()
 	_completed = {}
@@ -170,7 +192,7 @@ func dispose() -> void:
 	_capture_base = {}
 	_layout_values = {}
 
-func _compute(input: Dictionary) -> Dictionary:
+func _compute(input: Dictionary, cancellation: Cancellation = null) -> Dictionary:
 	var started: int = Time.get_ticks_usec()
 	var cpu_started: Dictionary = PlatformArrivalMath.thread_cpu()
 	if _worker==null:
@@ -180,7 +202,8 @@ func _compute(input: Dictionary) -> Dictionary:
 		_worker.clinic.recruitment = RecruitmentService.new(content,geometry)
 		_worker.clinic.departments = HospitalDepartments.new(content,geometry)
 		_worker.departments = _worker.clinic.departments
-	var projection: Dictionary = _worker.capacity(WorldState.new(input.facts),input.subtract_existing)
+	var stop: Callable = cancellation.requested if cancellation!=null else Callable()
+	var projection: Dictionary = _worker.capacity(WorldState.new(input.facts),input.subtract_existing,stop)
 	var result: Dictionary = {"projection":projection,"elapsed_us":Time.get_ticks_usec()-started}
 	var cpu_finished: Dictionary = PlatformArrivalMath.thread_cpu()
 	if cpu_started.has("cpu_us") and cpu_finished.has("cpu_us"): result.cpu_us = int(cpu_finished.cpu_us)-int(cpu_started.cpu_us)

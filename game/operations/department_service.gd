@@ -866,7 +866,8 @@ func _prune(world: WorldState) -> void:
 		state.staff_jobs[staff_id] = state.staff_jobs[staff_id].filter(func(record: Dictionary) -> bool: return int(record.tick)/WorldState.TICKS_PER_DAY>=oldest_day)
 
 func _environment(world: WorldState, actor_id: String, floor_id: int, cell: Array) -> Dictionary:
-	return environment.environment_at(world,floor_id,cell,actor_id,false) if environment!=null else {"value":float(content.balance.environment.base)+float(content.balance.environment.clean_bonus),"noise":0.0,"clean":true}
+	if environment==null: return {"value":float(content.balance.environment.base)+float(content.balance.environment.clean_bonus),"noise":0.0,"clean":true}
+	return environment.sample_at(world,floor_id,cell,actor_id) if environment.has_method("sample_at") else environment.environment_at(world,floor_id,cell,actor_id,false)
 
 func _grace_ticks(kind: String) -> int:
 	return _ticks(_cause("wait_doctor" if kind in ["gp","consult","outpatient","round"] else "wait_clinical").grace_seconds)

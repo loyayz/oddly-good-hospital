@@ -419,7 +419,8 @@ func take_events() -> Array[SimEvent]:
 	_events = []
 	return result
 
-func capacity(world: WorldState, subtract_existing: bool = true) -> Dictionary:
+func capacity(world: WorldState, subtract_existing: bool = true, cancellation: Callable = Callable()) -> Dictionary:
+	if _capacity_cancelled(cancellation): return {"complete":false,"cancelled":true}
 	if _preparation!=null and not world.facts.staff.is_empty():
 		return _prepared_projection(_preparation.projection(world,subtract_existing))
 	preparation_error = ""
@@ -435,8 +436,10 @@ func capacity(world: WorldState, subtract_existing: bool = true) -> Dictionary:
 	var total: Dictionary = F.make()
 	var commitments: Dictionary = clinic.remaining_commitments(world) if subtract_existing else {}
 	for shift: int in 3:
+		if _capacity_cancelled(cancellation): return {"complete":false,"cancelled":true}
 		var query: Dictionary = {}
-		var classes: Array = _reference_classes(world,shift,query)
+		var classes: Array = _reference_classes(world,shift,query,cancellation)
+		if query.get("cancelled",false): return {"complete":false,"cancelled":true}
 		var budgets: Dictionary = _resource_budgets(world,classes,shift,query.resource_ids)
 		var locked_roles: Dictionary = {}
 		if subtract_existing:
@@ -447,7 +450,9 @@ func capacity(world: WorldState, subtract_existing: bool = true) -> Dictionary:
 					locked_roles[parts[1]] = parts[2]
 				if budgets.has(resource_id):
 					budgets[resource_id] = F.maximum(F.make(),F.sub(F.from_value(budgets[resource_id]),F.from_value(workload[resource_id])))
+		if _capacity_cancelled(cancellation): return {"complete":false,"cancelled":true}
 		var solved: Dictionary = _solve_roles(world,classes,budgets,shift,query.model_key,locked_roles)
+		if _capacity_cancelled(cancellation): return {"complete":false,"cancelled":true}
 		if solved.has("error"):
 			preparation_error = str(solved.bottleneck)
 			return {"complete":false,"reason":solved.bottleneck}
@@ -464,6 +469,9 @@ func capacity(world: WorldState, subtract_existing: bool = true) -> Dictionary:
 	return {"complete":true,"capacity":total,"shift_capacities":shift_capacities,"shift_pairs":shift_pairs,
 		"scale_numerator":int(shift_pairs[0])+int(shift_pairs[1])+int(shift_pairs[2]),"shifts":explanations,
 		"reference_average":F.mul(total,F.make(preset.target_load_bp,10000)),"tomorrow_range":Plan.count_range(total,preset)}
+
+func _capacity_cancelled(cancellation: Callable) -> bool:
+	return cancellation.is_valid() and bool(cancellation.call())
 
 func _prepared_projection(projection: Dictionary) -> Dictionary:
 	preparation_error = str(projection.get("reason","")) if not projection.get("complete",false) and not projection.get("pending",false) else ""
@@ -528,7 +536,7 @@ func _choices_available(case: Dictionary, bundle: Dictionary) -> bool:
 		if case.choice_groups.get(group,[]).is_empty(): return false
 	return true
 
-func _reference_classes(world: WorldState, shift: int, query: Variant = null) -> Array:
+func _reference_classes(world: WorldState, shift: int, query: Variant = null, cancellation: Callable = Callable()) -> Array:
 	if query==null: query = {}
 	# No clinical operator can form a legal case in an unstaffed hospital.
 	if world.facts.staff.is_empty():
@@ -577,6 +585,12 @@ func _reference_classes(world: WorldState, shift: int, query: Variant = null) ->
 		if not experience_by_disease.has(binding.disease_id): experience_by_disease[binding.disease_id] = _case_experience(world,str(binding.disease_id))
 		var experience: Dictionary = experience_by_disease[binding.disease_id]
 		for complex_case: bool in [false,true]:
+			# Cache only a complete case. Clinical scopes and native component
+			# assembly have returned before cancellation is observed here.
+			if _capacity_cancelled(cancellation):
+				query.clear()
+				query.cancelled = true
+				return []
 			var case_key: String = JSON.stringify([binding.id,complex_case])
 			var retained: Dictionary = cached_cases.get(case_key,{})
 			var transport_changed: bool = not retained.is_empty() and retained.transport!=basis.transport
@@ -608,6 +622,10 @@ func _reference_classes(world: WorldState, shift: int, query: Variant = null) ->
 				for resource: String in prepared.resources: resource_ids[resource] = true
 		if not variants.is_empty():
 			species[key] = variants
+	if _capacity_cancelled(cancellation):
+		query.clear()
+		query.cancelled = true
+		return []
 	var total_weight: int = 0
 	for disease_id: String in by_disease.keys():
 		if by_disease[disease_id].is_empty():
