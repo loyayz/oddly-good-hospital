@@ -326,5 +326,18 @@ for initial, changed in [(manual_budgets, closed_budgets), (closed_budgets, manu
                          "expected": fraction(role_optimum(cases, initial)),
                          "changed_budgets": {name: fraction(value) for name, value in changed.items()},
                          "changed_expected": fraction(role_optimum(cases, changed))})
+for vector in role_vectors:
+    budgets = {name: Q(value["n"]) / Q(value["d"]) for name, value in vector["budgets"].items()}
+    changed = dict(budgets)
+    source = next((name for name, value in budgets.items() if value > 0), None)
+    if source is not None:
+        target = next(name for name in budgets if name != source)
+        delta = budgets[source] / 2
+        changed[source] -= delta
+        changed[target] += delta
+    vector["redistributed_budgets"] = {name: fraction(value) for name, value in changed.items()}
+    vector["redistributed_expected"] = fraction(role_optimum(vector["cases"], changed))
+    vector["grown_budgets"] = {name: fraction(value * 2) for name, value in budgets.items()}
+    vector["grown_expected"] = fraction(role_optimum(vector["cases"], {name: value * 2 for name, value in budgets.items()}))
 Path(sys.argv[1]).with_name("role-vectors.json").write_text(json.dumps(role_vectors), encoding="utf-8")
 print(f"EXACT_ROLE_VECTORS={len(role_vectors)}")

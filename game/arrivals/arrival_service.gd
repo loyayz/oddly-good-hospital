@@ -428,13 +428,14 @@ func capacity(world: WorldState, subtract_existing: bool = true) -> Dictionary:
 	var shift_pairs: Array = []
 	var explanations: Array = []
 	var total: Dictionary = F.make()
+	var commitments: Dictionary = clinic.remaining_commitments(world) if subtract_existing else {}
 	for shift: int in 3:
 		var query: Dictionary = {}
 		var classes: Array = _reference_classes(world,shift,query)
 		var budgets: Dictionary = _resource_budgets(world,classes,shift,query.resource_ids)
 		var locked_roles: Dictionary = {}
 		if subtract_existing:
-			var workload: Dictionary = _existing_workload(world,shift,query)
+			var workload: Dictionary = _existing_workload(world,shift,query,commitments)
 			for resource_id: String in workload:
 				if resource_id.begins_with("coverage:") and F.compare(workload[resource_id],F.make())>0:
 					var parts: PackedStringArray = resource_id.split(":")
@@ -468,6 +469,7 @@ func _solve_roles(world: WorldState, classes: Array, budgets: Dictionary, shift:
 	var same_model: bool = model_key!=null and cached.get("key") == model_key
 	if same_model and cached.roles==locked_roles:
 		var updated: Dictionary = cached.backend.call("solve",budgets)
+		if updated.has("error"): _role_models.erase(shift)
 		updated.structural_pairs = cached.pairs
 		return updated
 	var backend: RefCounted = ClassDB.instantiate("PlatformArrivalCapacity")
@@ -528,7 +530,12 @@ func _reference_classes(world: WorldState, shift: int, query: Variant = null) ->
 		return []
 	var basis: Dictionary = _reference_basis(world,shift)
 	if not _reference_cache.has(shift) or _reference_cache[shift].basis!=basis:
-		_reference_cache[shift] = {"basis":basis.duplicate(true),"cases":{}}
+		var previous: Dictionary = _reference_cache.get(shift,{})
+		var stable: Dictionary = basis.duplicate()
+		stable.erase("connectors")
+		var prior: Dictionary = previous.get("basis",{}).duplicate()
+		prior.erase("connectors")
+		_reference_cache[shift] = {"basis":basis.duplicate(true),"cases":previous.cases if prior==stable else {}}
 	var cached: Dictionary = _reference_cache[shift]
 	var experience_basis: Dictionary = {}
 	for staff_id: String in world.facts.staff:
@@ -559,14 +566,19 @@ func _reference_classes(world: WorldState, shift: int, query: Variant = null) ->
 		var experience: Dictionary = experience_by_disease[binding.disease_id]
 		for complex_case: bool in [false,true]:
 			var case_key: String = JSON.stringify([binding.id,complex_case])
-			if not cached_cases.has(case_key) or cached_cases[case_key].experience!=experience:
+			if not cached_cases.has(case_key) or cached_cases[case_key].experience!=experience or cached_cases[case_key].transport!=basis.connectors:
 				var quote: Dictionary = clinic.call("reference_demand",world,str(binding.id),complex_case,shift,query)
 				var variant: Dictionary = _reference_variant(world,binding,complex_case,shift,quote,query)
 				var resources: Dictionary = {}
 				for part: Dictionary in _model_parts(variant):
 					for resource: String in part.resources: resources[resource] = true
-				_reference_version += 1
-				cached_cases[case_key] = {"experience":experience.duplicate(true),"variant":variant,"version":_reference_version,"resources":resources.keys(),"reference":_remaining_reference(quote)}
+				var remaining: Dictionary = _remaining_reference(quote)
+				var previous: Dictionary = cached_cases.get(case_key,{})
+				var version: int = int(previous.get("version",-1))
+				if previous.get("variant",{})!=variant or previous.get("reference",{})!=remaining:
+					_reference_version += 1
+					version = _reference_version
+				cached_cases[case_key] = {"experience":experience.duplicate(true),"transport":cached.basis.connectors,"variant":variant,"version":version,"resources":resources.keys(),"reference":remaining}
 			var prepared: Dictionary = cached_cases[case_key]
 			var variant: Dictionary = prepared.variant.duplicate()
 			references[case_key] = prepared.reference
@@ -655,7 +667,7 @@ func _case_experience(world: WorldState, disease_id: String) -> Dictionary:
 
 func _reference_basis(world: WorldState, shift: int) -> Dictionary:
 	var result: Dictionary = {"hospital":world.hospital_id,"content":content.content_fingerprint,"clinic":clinic.get_instance_id(),"shift":shift,"staff":{},"actors":{},"facilities":{},"rooms":{}}
-	for field: String in ["entry","research","allow_outpatient_rounds","plan_strategy","remodels"]:
+	for field: String in ["gameplay_version","entry","research","allow_outpatient_rounds","plan_strategy","remodels"]:
 		result[field] = world.facts.get(field)
 	result.connectors = HospitalTransit.reference_conditions(world)
 	result.floors = {}
@@ -923,13 +935,15 @@ func _maintenance_remaining(world: WorldState, facility_id: String, shift: int) 
 			remaining += ceili(float(job.get("remaining_milli",0))/1000.0/rate/WorldState.TICK_SECONDS)
 	return _shift_remainder(remaining,shift)
 
-func _existing_workload(world: WorldState, shift: int, query: Variant = null) -> Dictionary:
+func _existing_workload(world: WorldState, shift: int, query: Variant = null, commitments: Dictionary = {}) -> Dictionary:
 	var result: Dictionary = {}
-	var reference: WorldState = _capacity_reference_world(world)
-	var commitments: Dictionary = clinic.remaining_commitments(world)
-	var committed_visits: Dictionary = commitments.visits
+	var reference: WorldState
+	if commitments.is_empty(): commitments = clinic.remaining_commitments(world)
+	var committed_visits: Dictionary = commitments.visits.duplicate()
 	for resource_id: String in commitments.resources:
-		_add_existing(result,resource_id,commitments.resources[resource_id],shift)
+		if not resource_id.begins_with("coverage:"): _add_existing(result,resource_id,commitments.resources[resource_id],shift)
+	for resource_id: String in commitments.coverage:
+		for ticks: int in commitments.coverage[resource_id]: _add_existing(result,resource_id,ticks,shift)
 	var references: Dictionary = query.get("references",{}).duplicate() if query!=null else {}
 	var reference_query: Dictionary = {}
 	for ticket: Dictionary in world.facts.tickets.values():
@@ -937,7 +951,9 @@ func _existing_workload(world: WorldState, shift: int, query: Variant = null) ->
 			continue
 		var visit: Dictionary = world.facts.visits[ticket.visit_id]
 		var key: String = JSON.stringify([visit.binding_id,visit.complex])
-		if not references.has(key): references[key] = clinic.call("reference_demand",reference,visit.binding_id,visit.complex,shift,reference_query)
+		if not references.has(key):
+			if reference==null: reference = _capacity_reference_world(world)
+			references[key] = clinic.call("reference_demand",reference,visit.binding_id,visit.complex,shift,reference_query)
 		var quote: Dictionary = clinic.call("reference_remaining_demand",world,visit.id,shift) if clinic.has_method("reference_remaining_demand") else references[key]
 		if not quote.get("ok",false) or quote.get("bundles",[]).is_empty():
 			continue
@@ -1016,15 +1032,8 @@ func _structural_pairs(world: WorldState, classes: Array, shift: int) -> Diction
 		elif facility.definition_id=="FUR01": reception.desks["facility:"+id] = true
 	var shape: Array = []
 	for case: Dictionary in classes:
-		var current: Dictionary = {"bundles":[],"choice_groups":{}}
-		for part: Dictionary in case.bundles: current.bundles.append(_structural_part(part))
-		for group: String in case.get("choice_groups",{}):
-			current.choice_groups[group] = []
-			for part: Dictionary in case.choice_groups[group]: current.choice_groups[group].append(_structural_part(part))
-		if case.has("reception_bundles"):
-			current.reception_bundles = []
-			for part: Dictionary in case.reception_bundles: current.reception_bundles.append(_structural_part(part))
-		shape.append(current)
+		shape.append(_structural_case(case,reception))
+	shape = _unique_structural_parts(shape)
 	var basis: Array = [shape,blocked,reception,int(content.balance.clinical.beds_per_nurse)]
 	var cached: Dictionary = _structure_cache.get(shift,{})
 	if not cached.is_empty() and cached.basis==basis: return cached.result.duplicate()
@@ -1032,13 +1041,51 @@ func _structural_pairs(world: WorldState, classes: Array, shift: int) -> Diction
 	if not result.has("error"): _structure_cache[shift] = {"basis":basis.duplicate(true),"result":result.duplicate()}
 	return result
 
-func _structural_part(part: Dictionary) -> Dictionary:
-	# K reads resource identities and structural choices, never C's time or
-	# probability coefficients. Preserve exactly that independent input.
-	var result: Dictionary = {"resources":{}}
-	for resource: String in part.get("resources",{}): result.resources[resource] = {"n":"1","d":"1"}
-	for field: String in ["structural_resources","coverage_nurse_id","ward_id","structural_choices","structural_group"]:
-		if part.has(field): result[field] = part[field]
+func _structural_case(case: Dictionary, reception: Dictionary) -> Dictionary:
+	# Mirror only K's actual reads. Group identities derive from their structural
+	# options, so C-only retry names/probabilities cannot invalidate this input.
+	var result: Dictionary = {"bundles":[],"choice_groups":{},"reception_bundles":[]}
+	var groups: Dictionary = case.get("choice_groups",{})
+	for part: Dictionary in case.bundles:
+		var root: Dictionary = {"structural_resources":_structural_resources(part),"structural_choices":[]}
+		for field: String in ["coverage_nurse_id","ward_id"]:
+			if not str(part.get(field,"")).is_empty(): root[field] = part[field]
+		var choices: Array = part.get("structural_choices",[part.structural_group] if part.has("structural_group") else [])
+		for group: String in choices:
+			var options: Array = []
+			for option: Dictionary in groups[group]: options.append({"structural_resources":_structural_resources(option)})
+			options = _unique_structural_parts(options)
+			var identity: String = JSON.stringify(options,"",true,true)
+			result.choice_groups[identity] = options
+			root.structural_choices.append(identity)
+		root.structural_choices.sort()
+		result.bundles.append(root)
+	result.bundles = _unique_structural_parts(result.bundles)
+	var registration: Array = case.get("reception_bundles",case.bundles).duplicate()
+	if not case.has("reception_bundles"):
+		for options: Array in groups.values(): registration.append_array(options)
+	for part: Dictionary in registration:
+		var resources: Dictionary = {}
+		for resource: String in part.get("resources",{}):
+			if reception.people.has(resource) or reception.desks.has(resource): resources[resource] = {"n":"1","d":"1"}
+		if not resources.is_empty(): result.reception_bundles.append({"resources":resources})
+	result.reception_bundles = _unique_structural_parts(result.reception_bundles)
+	return result
+
+func _structural_resources(part: Dictionary) -> Array:
+	var unique: Dictionary = {}
+	for resource: String in part.get("structural_resources",[]): unique[resource] = true
+	var result: Array = unique.keys()
+	result.sort()
+	return result
+
+func _unique_structural_parts(parts: Array) -> Array:
+	var unique: Dictionary = {}
+	for part: Dictionary in parts: unique[JSON.stringify(part,"",true,true)] = part
+	var identities: Array = unique.keys()
+	identities.sort()
+	var result: Array = []
+	for identity: String in identities: result.append(unique[identity])
 	return result
 
 func _admission_candidates(world: WorldState) -> Array:

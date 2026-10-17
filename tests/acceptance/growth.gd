@@ -48,7 +48,12 @@ const CASES: Dictionary = {
 	"GROW-45":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；既有护理覆盖排除另一病房与术组主动岗位",
 	"GROW-46":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；必要检查保留全部合法资源及证据条件分支",
 	"GROW-47":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；运输回执不改变参考依据，已知余量仍使依据变化",
-	"GROW-48":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；同床不同护理护士的门诊转床需求保持各自身份"
+	"GROW-48":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；同床不同护理护士的门诊转床需求保持各自身份",
+	"GROW-49":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；两床及八床覆盖贡献逐项切班，不转移到错误班次",
+	"GROW-50":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；后台保留业务版本和实际承诺适配，名义资格一致",
+	"GROW-51":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；查房授权即时失效，冷热几何与权限一致",
+	"GROW-52":"docs/design/11-growth-arrivals-recruitment.md §1.1；K仅依赖首尝试实际结构及接待匹配",
+	"GROW-53":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；无关运输变化不递增等价病例版本"
 }
 
 func run(t) -> void:
@@ -416,6 +421,145 @@ func _case_48(t) -> void:
 		nurses[alternative.nurse_id] = true
 	ctx.sim.space.end_route_query()
 	t.check("GROW-48",correct and nurses.size()==2 and ctx.world.freeze()==before,{"alternatives":alternatives.size(),"nurses":nurses.keys(),"correct_escort":correct,"quote":quote})
+
+func _case_49(t) -> void:
+	# Coverage-slot arithmetic consumes per-bed durations, not serial nurse
+	# work. These inputs do not claim an eight-patient clinical flow run.
+	var ctx: Dictionary = _context()
+	var key: String = "coverage:starter_nurse:ward"
+	var examples: Array = [
+		{"durations":[4000,4000],"expected":[8000,0,0]},
+		{"durations":[4000,4000,4000,4000,4000,4000,4000,4000],"expected":[32000,0,0]},
+		{"durations":[1000,7000],"expected":[7000,1000,0]},
+		{"durations":[1000,2000,3000,4000,5000,6000,7000,13000],"expected":[33000,7000,1000]}]
+	var correct: bool = true
+	for example: Dictionary in examples:
+		var projected: Dictionary = {"resources":{},"coverage":{key:example.durations},"visits":{}}
+		for shift: int in 3:
+			var work: Dictionary = ctx.arrivals._existing_workload(ctx.world,shift,{},projected)
+			correct = correct and work.get(key,F.make())==F.make(example.expected[shift])
+	t.check("GROW-49",correct,{"examples":examples})
+
+func _case_50(t) -> void:
+	var ctx: Dictionary = _commitment_context()
+	var clinic: HospitalClinic = ctx.sim.clinic
+	var quote: Dictionary = clinic._surgery_quote(ctx.world,ctx.visit,["clin_surgeon","clin_anesthesia","clin_or_nurse"],{"structural_only":true,"ignore_supplies":true}) if ctx.ready else {"ok":false}
+	if not quote.ok:
+		t.check("GROW-50",false,quote)
+		return
+	var reason: String = clinic._reserve_bundle(ctx.world,ctx.visit,quote,ctx.visit.id)
+	if not reason.is_empty():
+		t.check("GROW-50",false,{"reservation":reason})
+		return
+	var preparation: ArrivalPreparation = ArrivalPreparation.new(_content)
+	ctx.world.facts.preparations[ctx.visit.id] = {"id":ctx.visit.id,"visit_id":ctx.visit.id,"kind":"surgery","facility_id":quote.facility_id,"staff_ids":quote.staff_ids,"bed_id":quote.bed_id,"nurse_id":quote.nurse_id,"round_doctor_id":quote.round_doctor_id,"ward_id":quote.ward_id,"supply_units":quote.supply_units,"setup_remaining_ticks":7,"deadline_tick":ctx.world.sim_tick+300}
+	var before: Dictionary = ctx.world.freeze()
+	var input: Dictionary = preparation._capture(ctx.world,true,-1)
+	var captured: WorldState = WorldState.new(input.facts)
+	var actual: Dictionary = clinic.remaining_commitments(ctx.world)
+	var copied: Dictionary = clinic.remaining_commitments(captured)
+	var correct: bool = actual==copied and input.facts.gameplay_version==ctx.world.facts.gameplay_version and captured.facts.adaptations==ctx.world.facts.adaptations and not captured.facts.adaptations.is_empty() and before==ctx.world.freeze()
+	# Mutating an isolated input cannot alter the original reservation.
+	captured.facts.adaptations[quote.bed_id].staff_ids.clear()
+	correct = correct and ctx.world.freeze()==before
+	ctx.world.facts.preparations.clear()
+	for id: String in ctx.world.facility_ids("SE06"): ctx.world.facts.facilities[id].failed = true
+	var missing: Dictionary = preparation._capture(ctx.world,false,-1)
+	var arrivals: HospitalArrivalService = ctx.sim.services.arrivals
+	var direct: Dictionary = clinic._arrival_candidate(arrivals._capacity_reference_world(ctx.world),ctx.visit.binding_id,false)
+	var copied_input: Dictionary = clinic._arrival_candidate(arrivals._capacity_reference_world(WorldState.new(missing.facts)),ctx.visit.binding_id,false)
+	ctx.sim.space.begin_route_query(direct.world,{"nominal":true})
+	var sync: Dictionary = clinic._surgery_quote(direct.world,direct.visit,quote.staff_ids,{"structural_only":true,"ignore_supplies":true})
+	ctx.sim.space.end_route_query()
+	ctx.sim.space.begin_route_query(copied_input.world,{"nominal":true})
+	var background: Dictionary = clinic._surgery_quote(copied_input.world,copied_input.visit,quote.staff_ids,{"structural_only":true,"ignore_supplies":true})
+	ctx.sim.space.end_route_query()
+	correct = correct and not sync.ok and not background.ok and sync.reason==background.reason
+	preparation.dispose()
+	t.check("GROW-50",correct,{"commitments_equal":actual==copied,"sync_without_workbench":sync,"background_without_workbench":background})
+
+func _case_51(t) -> void:
+	var ctx: Dictionary = _commitment_context()
+	var clinic: HospitalClinic = ctx.sim.clinic
+	var quote: Dictionary = clinic._surgery_quote(ctx.world,ctx.visit,["clin_surgeon","clin_anesthesia","clin_or_nurse"],{"structural_only":true,"ignore_supplies":true}) if ctx.ready else {"ok":false}
+	if not quote.ok or not clinic._reserve_bundle(ctx.world,ctx.visit,quote,ctx.visit.id).is_empty():
+		t.check("GROW-51",false,quote)
+		return
+	ctx.builder._add_worker(ctx.world,"new_round_doctor","doctor",[52,75],"round",{"diagnosis":2,"treatment":1,"care":0,"surgery":0})
+	var stay: Dictionary = {"bed_id":quote.bed_id,"round_doctor_id":"new_round_doctor"}
+	var bed: Dictionary = ctx.sim.space.facility_layout(ctx.world,quote.bed_id)
+	var doctor: Dictionary = ctx.world.facts.actors.new_round_doctor
+	var target: Vector2i = Vector2i(int(bed.operator_cells[1][0]),int(bed.operator_cells[1][1]))
+	ctx.sim.space.begin_route_query(ctx.world)
+	var before: String = ctx.sim.space.static_reason(ctx.world,doctor,int(bed.floor_id),target)
+	ctx.sim.space.end_route_query()
+	var selected: String = clinic._round_candidate(ctx.world,ctx.visit,stay)
+	ctx.sim.space.begin_route_query(ctx.world)
+	var hot: String = ctx.sim.space.static_reason(ctx.world,doctor,int(bed.floor_id),target)
+	ctx.sim.space.end_route_query()
+	var cold: String = HospitalSpace.new(_content).static_reason(ctx.world,doctor,int(bed.floor_id),target)
+	var reset: String = ctx.sim.space.reserve_facility(ctx.world,quote.bed_id,ctx.visit.actor_id,ctx.visit.id,[quote.nurse_id,quote.round_doctor_id])
+	ctx.sim.space.begin_route_query(ctx.world)
+	var withdrawn: String = ctx.sim.space.static_reason(ctx.world,doctor,int(bed.floor_id),target)
+	ctx.sim.space.end_route_query()
+	t.check("GROW-51",not before.is_empty() and selected==doctor.id and hot.is_empty() and hot==cold and reset.is_empty() and not withdrawn.is_empty(),{"before":before,"selected":selected,"hot":hot,"cold":cold,"withdrawn":withdrawn,"reset":reset})
+
+func _case_52(t) -> void:
+	var ctx: Dictionary = _context()
+	_single_case(ctx)
+	var query: Dictionary = {}
+	var classes: Array = ctx.arrivals._reference_classes(ctx.world,0,query)
+	var first: Dictionary = ctx.arrivals._structural_pairs(ctx.world,classes,0)
+	var retained: Dictionary = ctx.arrivals._structure_cache[0]
+	var changed: Array = classes.duplicate(true)
+	for case: Dictionary in changed:
+		case.probability = F.make(1,7)
+		case.choice_groups["unused-retry:9600"] = [{"resources":{"staff:unused":F.make(123)}}]
+		case.bundles.append(case.bundles[0].duplicate(true))
+	var next: Dictionary = ctx.arrivals._structural_pairs(ctx.world,changed,0)
+	var reused: bool = is_same(retained,ctx.arrivals._structure_cache[0])
+	# A real structural root must affect the identity even if K's maximum ties.
+	changed[0].bundles[0].structural_resources.append("facility:new_terminal")
+	ctx.arrivals._structural_pairs(ctx.world,changed,0)
+	t.check("GROW-52",first==next and reused and not is_same(retained,ctx.arrivals._structure_cache[0]),{"first":first,"same_K":next,"reused":reused})
+
+func _case_53(t) -> void:
+	var builder: RefCounted = load("res://tests/acceptance/space.gd").new()
+	builder.content = _content
+	var ctx: Dictionary = _context()
+	_single_case(ctx)
+	var sim: HospitalSimulation = ctx.simulation
+	builder._history_height(sim,2)
+	var built: CommandResult = builder._command(sim,"connector_build",{"definition_id":"VC02","floor_id":1,"cell":[36,72]})
+	var extended: CommandResult = builder._command(sim,"connector_extend",{"connection_id":builder._connection(sim),"floor_id":2}) if built.accepted else built
+	if not extended.accepted:
+		t.check("GROW-53",false,extended.to_record())
+		return
+	var arrivals: HospitalArrivalService = sim.services.arrivals
+	for disease: Dictionary in _content.catalog.diseases: arrivals.execute(sim.world,"arrivals_weight",{"disease_id":disease.id,"weight":1 if disease.id=="D09" else 0})
+	var first: Dictionary = {}
+	arrivals._reference_classes(sim.world,0,first)
+	var connection: Dictionary = sim.world.facts.connectors[builder._connection(sim)]
+	connection.use_receipts = {"old":0}
+	var receipts: Dictionary = {}
+	arrivals._reference_classes(sim.world,0,receipts)
+	# This hospital's clinical resources remain on floor 1. Changing this
+	# connector's idle stop cannot improve their routes via the same anchor.
+	connection.floor_id = 2 if int(connection.floor_id)==1 else 1
+	var changed: Dictionary = {}
+	arrivals._reference_classes(sim.world,0,changed)
+	builder._add_actor(sim,"shared_quote_rider","S49",[36,76])
+	sim.space.request_move(sim.world,"shared_quote_rider",2,[46,80])
+	var boarding: bool = builder._wait(sim,func()->bool: return connection.phase=="boarding",80)
+	var facts: Dictionary = sim.world.freeze()
+	facts.moves = HospitalTransit.reference_movements(sim.world)
+	var nominal: WorldState = WorldState.new(facts)
+	var reference: Dictionary = {"nominal":true}
+	sim.space.begin_route_query(nominal,reference)
+	var route: Dictionary = sim.space.route(nominal,"starter_doctor_a",1,[47,93],[],{},true)
+	var reused: Dictionary = sim.space.route(nominal,"starter_doctor_a",1,[47,93],[],{},true)
+	sim.space.end_route_query()
+	t.check("GROW-53",not first.model_key.is_empty() and first.model_key==receipts.model_key and first.model_key==changed.model_key and boarding and not facts.moves.is_empty() and route==reused and reference.journeys.size()==1,{"same_model":first.model_key==changed.model_key,"boarding":boarding,"journeys":reference.journeys.size(),"route":route})
 
 func _case_40(t) -> void:
 	var ctx: Dictionary = _context()

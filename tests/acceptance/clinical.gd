@@ -710,13 +710,31 @@ func _case_25(t) -> void:
 	var old_progress: int = int(_stay(transfer).last_progress_tick)
 	var switched: CommandResult = _command(transfer,"clinical_transfer_bed",{"visit_id":transfer.visit_id,"bed_id":"clin_ward_1"})
 	var preserved_immediately: bool = switched.accepted and int(_stay(transfer).remaining_ticks)==old_remaining and int(_stay(transfer).last_progress_tick)==old_progress and bool(_stay(transfer).care_completed)
-	var arrived: bool = switched.accepted and await _until(t,transfer,func()->bool: return _stay(transfer).get("phase","")=="recovery",800)
+	var projection: Dictionary = {"initial":_transfer_projection(transfer,original_bed),"exit":false}
+	var initial_cell: Array = transfer.world.facts.actors[_visit(transfer).actor_id].location.cell.duplicate()
+	var arrived: bool = switched.accepted and await _until(t,transfer,func()->bool:
+		if not projection.exit and transfer.world.facts.actors[_visit(transfer).actor_id].location.cell!=initial_cell and transfer.sim.space.overlaps_facility(transfer.world,_visit(transfer).actor_id,original_bed):
+			projection.exit = _transfer_projection(transfer,original_bed)
+		return _stay(transfer).get("phase","")=="recovery",800)
+	projection.released = arrived and _transfer_projection(transfer,original_bed)
 	var no_transfer_work: bool = arrived and int(_stay(transfer).remaining_ticks)>=old_remaining-1
 	await _until(t,transfer,func()->bool: return not transfer.sim.clinic.staff_busy(transfer.world,str(_stay(transfer).nurse_id)),200)
 	var return_remaining: int = int(_stay(transfer).get("remaining_ticks",-1))
 	var returned: CommandResult = _command(transfer,"clinical_transfer_bed",{"visit_id":transfer.visit_id,"bed_id":original_bed})
 	var back: bool = returned.accepted and await _until(t,transfer,func()->bool: return _stay(transfer).get("phase","")=="recovery",800)
-	t.check("CLIN-25",preserved_immediately and no_transfer_work and back and str(_stay(transfer).attempt_id)==original_attempt and bool(_stay(transfer).care_completed) and int(_stay(transfer).remaining_ticks)>=return_remaining-1 and is_equal_approx(float(transfer.world.facts.facilities[original_bed].condition),old_condition) and transfer.world.facts.facilities[original_bed].use_receipts.size()==1 and _units_used(transfer)==8 and _income(transfer,"ward")==0 and _income(transfer,"cure")==0,{"immediate_preservation":preserved_immediately,"no_work_while_transferring":no_transfer_work,"outward":switched.to_record(),"return":returned.to_record(),"state":_state(transfer)})
+	t.check("CLIN-25",projection.initial and projection.exit and projection.released and preserved_immediately and no_transfer_work and back and str(_stay(transfer).attempt_id)==original_attempt and bool(_stay(transfer).care_completed) and int(_stay(transfer).remaining_ticks)>=return_remaining-1 and is_equal_approx(float(transfer.world.facts.facilities[original_bed].condition),old_condition) and transfer.world.facts.facilities[original_bed].use_receipts.size()==1 and _units_used(transfer)==8 and _income(transfer,"ward")==0 and _income(transfer,"cure")==0,{"projection":projection,"immediate_preservation":preserved_immediately,"no_work_while_transferring":no_transfer_work,"outward":switched.to_record(),"return":returned.to_record(),"state":_state(transfer)})
+
+func _transfer_projection(c: Dictionary, old_bed: String) -> bool:
+	var facts: Dictionary = c.world.freeze()
+	var stay: Dictionary = _stay(c)
+	var actual: Dictionary = c.sim.clinic.remaining_commitments(c.world)
+	var capture: ArrivalPreparation = ArrivalPreparation.new(_content)
+	var input: Dictionary = capture._capture(c.world,true,-1)
+	var copied: Dictionary = c.sim.clinic.remaining_commitments(WorldState.new(input.facts))
+	capture.dispose()
+	var table_id: String = c.world.facts.attempts[stay.attempt_id].facility_id
+	var overlapping: bool = c.sim.space.overlaps_facility(c.world,_visit(c).actor_id,old_bed)
+	return actual==copied and c.world.freeze()==facts and int(actual.resources.get("facility:"+table_id,0))==0 and (int(actual.resources.get("facility:"+old_bed,0))>0)==overlapping and int(actual.resources.get("facility:"+str(stay.bed_id),0))>0
 
 func _case_26(t) -> void:
 	var fault: Dictionary = _copy("ward_after_care")

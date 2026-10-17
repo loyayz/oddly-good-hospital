@@ -16,6 +16,26 @@ func _initialize() -> void:
 		if not _valid_solution(vector.cases,vector.changed_budgets,vector.changed_expected,result): failures.append({"role_index":vector.index,"phase":"changed","expected":vector.changed_expected,"actual":result})
 		result = backend.call("solve",vector.budgets)
 		if not _valid_solution(vector.cases,vector.budgets,vector.expected,result): failures.append({"role_index":vector.index,"phase":"restored","expected":vector.expected,"actual":result})
+		result = backend.call("solve",vector.redistributed_budgets)
+		if not _valid_solution(vector.cases,vector.redistributed_budgets,vector.redistributed_expected,result): failures.append({"role_index":vector.index,"phase":"same_total","actual":result})
+		result = backend.call("solve",vector.grown_budgets)
+		var cold: RefCounted = ClassDB.instantiate("PlatformArrivalCapacity")
+		var rebuilt: Dictionary = cold.call("prepare",vector.cases,vector.grown_budgets)
+		if not _valid_solution(vector.cases,vector.grown_budgets,vector.grown_expected,result) or result.get("capacity")!=rebuilt.get("capacity"): failures.append({"role_index":vector.index,"phase":"growth","actual":result,"cold":rebuilt})
+	var recovery: RefCounted = ClassDB.instantiate("PlatformArrivalCapacity")
+	var prepared: Dictionary = recovery.call("prepare",roles[0].cases,roles[0].budgets)
+	var invalid: Array = roles[0].cases.duplicate(true)
+	invalid[0].bundles[0].choices = ["missing_group"]
+	var rejected: Dictionary = recovery.call("prepare",invalid,roles[0].budgets)
+	var unavailable: Dictionary = recovery.call("solve",roles[0].budgets)
+	var retried: Dictionary = recovery.call("prepare",roles[0].cases,roles[0].budgets)
+	if not _valid_solution(roles[0].cases,roles[0].budgets,roles[0].expected,prepared) or not rejected.has("error") or not unavailable.has("error") or not _valid_solution(roles[0].cases,roles[0].budgets,roles[0].expected,retried): failures.append({"model_recovery":retried,"prepared":prepared,"rejected":rejected,"unavailable":unavailable})
+	var invalid_budgets: Dictionary = roles[0].budgets.duplicate(true)
+	invalid_budgets[invalid_budgets.keys()[0]] = F.make(-1)
+	var rejected_update: Dictionary = recovery.call("solve",invalid_budgets)
+	var unavailable_update: Dictionary = recovery.call("solve",roles[0].budgets)
+	var retried_update: Dictionary = recovery.call("prepare",roles[0].cases,roles[0].budgets)
+	if not rejected_update.has("error") or not unavailable_update.has("error") or not _valid_solution(roles[0].cases,roles[0].budgets,roles[0].expected,retried_update): failures.append({"update_recovery":retried_update,"rejected":rejected_update,"unavailable":unavailable_update})
 	var structure_vectors: Array = JSON.parse_string(FileAccess.get_file_as_string("res://structure-vectors.json"))
 	for vector: Dictionary in structure_vectors:
 		var actual: Dictionary = PlatformArrivalMath.structure(vector.cases,vector.blocked,vector.reception,int(vector.bed_limit))
@@ -43,7 +63,8 @@ func _initialize() -> void:
 	var cpu_finished: Dictionary = PlatformArrivalMath.thread_cpu()
 	if not cpu_started.has("cpu_us") or not cpu_finished.has("cpu_us") or int(cpu_finished.cpu_us)<int(cpu_started.cpu_us): failures.append({"thread_cpu":"CPU 时间不可用或不单调"})
 	var report: Dictionary = {"checks":vectors.size(),"warm_checks":vectors.size()*3,"arithmetic_checks":arithmetic.size(),"integer_checks":integers.size(),"structure_checks":structure_vectors.size(),"failures":failures,"solver_sha256":FileAccess.get_sha256("res://game/arrivals/capacity_solver.gd"),"fractions_sha256":FileAccess.get_sha256("res://game/arrivals/exact_fraction.gd"),"vectors_sha256":FileAccess.get_sha256("res://solver-vectors.json"),"native_sha256":FileAccess.get_sha256("res://game/platform/windows/bin/oddly_good_platform.windows.x86_64.dll"),"gmp_sha256":FileAccess.get_sha256("res://game/platform/windows/bin/libgmp-10.dll"),"mpfr_sha256":FileAccess.get_sha256("res://game/platform/windows/bin/libmpfr-6.dll")}
-	report.role_checks = roles.size()*3
+	report.role_checks = roles.size()*6
+	report.recovery_checks = 7
 	report.aggregate_checks = arithmetic.size()
 	var file: FileAccess = FileAccess.open("res://solver-check.json",FileAccess.WRITE)
 	file.store_string(JSON.stringify(report,"\t"))

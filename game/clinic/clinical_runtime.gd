@@ -866,7 +866,26 @@ func _outpatient_work_ticks(world: WorldState, visit: Dictionary, staff: Diction
 	return ceili(seconds*10)
 
 func _compatible_bed(world: WorldState, visit: Dictionary, floor_id: int, excluded: Array, structural_only: bool = false, preferred_bed: String = "", reference_schedule: bool = false, alternatives: Variant = null) -> Dictionary:
-	for bed_id: String in world.ids("facilities"):
+	var nurses: Dictionary = {}
+	var doctors: Array = []
+	var loads: Dictionary = {}
+	var availability: Dictionary = {} if structural_only else _availability(world)
+	for id: String in world.ids("staff"):
+		var staff: Dictionary = world.facts.staff[id]
+		if staff.role=="nurse" and "q_ward" in staff.certificates and not id in excluded:
+			var ward_id: String = str(staff.get("ward_id",""))
+			if not nurses.has(ward_id): nurses[ward_id] = []
+			nurses[ward_id].append(id)
+		elif staff.role=="doctor" and int(staff.abilities.diagnosis)>=2 and int(staff.abilities.treatment)>=1:
+			doctors.append(id)
+	for stay: Dictionary in world.facts.ward_stays.values(): loads[stay.nurse_id] = int(loads.get(stay.nurse_id,0))+1
+	for preparation: Dictionary in world.facts.preparations.values():
+		if preparation.visit_id!=visit.id:
+			var id: String = str(preparation.get("nurse_id",""))
+			loads[id] = int(loads.get(id,0))+1
+	var workbenches: Array = world.facility_ids("SE06").filter(func(id: String)->bool:
+		return int(world.facts.facilities[id].floor_id)==floor_id and not world.facts.facilities[id].failed)
+	for bed_id: String in world.facility_ids("EQ05"):
 		if not preferred_bed.is_empty() and bed_id!=preferred_bed:
 			continue
 		var bed: Dictionary = world.facts.facilities[bed_id]
@@ -875,7 +894,7 @@ func _compatible_bed(world: WorldState, visit: Dictionary, floor_id: int, exclud
 		var ward: Dictionary = world.facts.rooms[bed.room_id]
 		if ward.kind!="ward" or bed.failed or not bool(ward.get("open",true)) or int(ward.size[0])<6 or int(ward.size[1])<6 or (not structural_only and (_facility_unavailable(bed) or _bed_busy(world,bed_id,visit.id))):
 			continue
-		for nurse_id: String in world.ids("staff"):
+		for nurse_id: String in nurses.get(ward.id,[]):
 			var nurse: Dictionary = world.facts.staff[nurse_id]
 			if nurse_id in excluded or nurse.role!="nurse" or not "q_ward" in nurse.certificates or str(nurse.get("ward_id",""))!=ward.id:
 				continue
@@ -883,7 +902,7 @@ func _compatible_bed(world: WorldState, visit: Dictionary, floor_id: int, exclud
 				continue
 			if not structural_only and (not nurse.on_shift or not _can_start(world,nurse)):
 				continue
-			if not structural_only and _staff_busy(world,nurse_id):
+			if not structural_only and _staff_busy(world,nurse_id,"",availability):
 				var unrelated_work: bool = false
 				for session: Dictionary in world.facts.sessions.values():
 					if nurse_id in session.staff_ids and (session.kind!="care" or world.facts.facilities[session.facility_id].get("room_id","")!=ward.id):
@@ -898,22 +917,17 @@ func _compatible_bed(world: WorldState, visit: Dictionary, floor_id: int, exclud
 				continue
 			if int(world.facts.get("gameplay_version",0))>=1:
 				var has_workbench: bool = false
-				for workbench: Dictionary in world.facts.facilities.values():
-					if workbench.definition_id=="SE06" and int(workbench.floor_id)==floor_id and not workbench.failed:
-						var position: Array = workbench.operator_cells[0]
-						has_workbench = has_workbench or bool(space.travel_quote(world,nurse_id,floor_id,position).ok)
+				for id: String in workbenches:
+					var position: Array = world.facts.facilities[id].operator_cells[0]
+					if space.travel_quote(world,nurse_id,floor_id,position).ok:
+						has_workbench = true
+						break
 				if not has_workbench:
 					continue
-			var load: int = 0
-			for stay: Dictionary in world.facts.ward_stays.values():
-				if stay.nurse_id==nurse_id:
-					load += 1
-			for preparation: Dictionary in world.facts.preparations.values():
-				if preparation.get("nurse_id","")==nurse_id and preparation.visit_id!=visit.id:
-					load += 1
+			var load: int = int(loads.get(nurse_id,0))
 			if load>=int(content.balance.clinical.beds_per_nurse):
 				continue
-			for doctor_id: String in world.ids("staff"):
+			for doctor_id: String in doctors:
 				var doctor: Dictionary = world.facts.staff[doctor_id]
 				if doctor.role!="doctor" or int(doctor.abilities.diagnosis)<2 or int(doctor.abilities.treatment)<1:
 					continue
@@ -1187,7 +1201,7 @@ func _recovery_ticks(world: WorldState, bed_id: String, nurse_id: String, work: 
 # Actual promises are read independently of the new-admission case pool. The
 # projection never reads Attempt.result or changes the original work owners.
 func remaining_commitments(world: WorldState) -> Dictionary:
-	var result: Dictionary = {"resources":{},"visits":{}}
+	var result: Dictionary = {"resources":{},"coverage":{},"visits":{}}
 	var sessions: Dictionary = {}
 	var prefixes: Dictionary = {}
 	for session: Dictionary in world.facts.sessions.values():
@@ -1243,8 +1257,8 @@ func _commitment_bed(world: WorldState, visit: Dictionary, owner: Dictionary, re
 	if phase in ["reserved","transfer"]:
 		transfer = _bed_transport(world,visit,source,owner,phase=="transfer")
 		if not transfer.ok:
-			transfer = {"ticks":WorldState.TICKS_PER_DAY,"exit_ticks":WorldState.TICKS_PER_DAY,"escort_id":owner.get("escort_id",owner.nurse_id)}
-		_commitment_add(result,"facility:"+str(source.facility_id),int(transfer.exit_ticks))
+			transfer = {"ticks":WorldState.TICKS_PER_DAY,"exit_ticks":WorldState.TICKS_PER_DAY,"source_id":owner.get("transfer_from_bed_id",source.facility_id),"escort_id":owner.get("escort_id",owner.nurse_id)}
+		_commitment_add(result,"facility:"+str(transfer.source_id),int(transfer.exit_ticks))
 		_commitment_add(result,"staff:"+str(transfer.escort_id),int(transfer.ticks))
 	var bed: Dictionary = space.facility_layout(world,owner.bed_id)
 	var patient: Dictionary = world.facts.actors[visit.actor_id].duplicate(true)
@@ -1257,7 +1271,9 @@ func _commitment_bed(world: WorldState, visit: Dictionary, owner: Dictionary, re
 	elif phase in ["release_wait","referral_release"]: bed_ticks = space.support_exit_ticks(world.facts.actors[visit.actor_id],bed,true)
 	_commitment_add(result,"facility:"+str(owner.bed_id),bed_ticks)
 	var ward_id: String = str(world.facts.facilities[owner.bed_id].room_id)
-	_commitment_add(result,"coverage:"+nurse_id+":"+ward_id,bed_ticks)
+	var coverage_id: String = "coverage:"+nurse_id+":"+ward_id
+	if not result.coverage.has(coverage_id): result.coverage[coverage_id] = []
+	result.coverage[coverage_id].append(bed_ticks)
 	if not active.has("care") and care>0 and not phase in ["round","round_wait","release_wait","referral_release"]:
 		_commitment_add(result,"staff:"+nurse_id,care)
 	if not active.has("round") and not phase in ["release_wait","referral_release"]:
@@ -1294,8 +1310,10 @@ func _bed_transport(world: WorldState, visit: Dictionary, source: Dictionary, be
 		if surgery: escort.location = {"kind":"floor","floor_id":int(table.floor_id),"cell":table.operator_cells[-1].duplicate(),"height_m":0.0}
 	var exit_ticks: int = 0
 	var source_ticks: int = 0
+	var source_id: String = str(bed_owner.get("transfer_from_bed_id",source.facility_id)) if current else str(source.facility_id)
 	if patient.get("posture","standing")=="lying":
 		var support: Dictionary = space.facility_layout(candidate,str(patient.get("support_facility_id",table.id))) if current else table
+		source_id = str(support.id)
 		exit_ticks = space.support_exit_ticks(patient,support)
 		source_ticks = space.support_exit_ticks(patient,support,true)
 		patient.location = {"kind":"floor","floor_id":int(support.floor_id),"cell":support.patient_cell.duplicate(),"height_m":0.0}
@@ -1305,7 +1323,7 @@ func _bed_transport(world: WorldState, visit: Dictionary, source: Dictionary, be
 	var gathering: Dictionary = space.travel_quote(candidate,escort_id,int(bed.floor_id),alongside)
 	var transfer: Dictionary = space.route(candidate,visit.actor_id,int(bed.floor_id),bed.patient_cell,[visit.actor_id,escort_id],{visit.actor_id:[0,0],escort_id:[-1,0]},true)
 	if not gathering.ok or not transfer.ok: return {"ok":false}
-	return {"ok":true,"ticks":exit_ticks+int(gathering.arrival_ticks)+int(transfer.arrival_ticks),"exit_ticks":source_ticks,"escort_id":escort_id}
+	return {"ok":true,"ticks":exit_ticks+int(gathering.arrival_ticks)+int(transfer.arrival_ticks),"exit_ticks":source_ticks,"source_id":source_id,"escort_id":escort_id}
 
 func _quoted_fee(amount: int, multiplier: Variant) -> int:
 	var parts: PackedStringArray = str(multiplier).to_lower().split("e")
@@ -1321,8 +1339,22 @@ func _quoted_fee(amount: int, multiplier: Variant) -> int:
 	var remainder_product: int = (amount%denominator)*numerator
 	return whole*numerator+remainder_product/denominator+(1 if remainder_product%denominator!=0 else 0)
 
+func _reservation_candidate(world: WorldState, facility_ids: Array, actor_ids: Array = []) -> WorldState:
+	# Synchronous quote validation writes only these reservation records and
+	# projected actors. Ledger, history and unrelated owners remain read-only.
+	var facts: Dictionary = world.facts.duplicate()
+	facts.adaptations = world.facts.adaptations.duplicate()
+	for id: String in facility_ids:
+		if facts.adaptations.has(id): facts.adaptations[id] = facts.adaptations[id].duplicate(true)
+	if not actor_ids.is_empty():
+		facts.actors = world.facts.actors.duplicate()
+		for id: String in actor_ids: facts.actors[id] = facts.actors[id].duplicate(true)
+	return WorldState.new(facts)
+
 func _reserve_bundle(world: WorldState, visit: Dictionary, quote: Dictionary, owner_id: String) -> String:
-	var candidate: WorldState = WorldState.new(world.freeze())
+	var facility_ids: Array = [quote.facility_id]
+	if quote.has("bed_id"): facility_ids.append(quote.bed_id)
+	var candidate: WorldState = _reservation_candidate(world,facility_ids)
 	var geometry: HospitalSpace = HospitalSpace.new(content)
 	geometry._navigation = space._navigation
 	var reason: String = geometry.reserve_facility(candidate,quote.facility_id,visit.actor_id,owner_id,quote.staff_ids)
@@ -1332,8 +1364,6 @@ func _reserve_bundle(world: WorldState, visit: Dictionary, quote: Dictionary, ow
 		reason = geometry.reserve_facility(candidate,quote.bed_id,visit.actor_id,owner_id,[quote.nurse_id,quote.round_doctor_id])
 		if not reason.is_empty():
 			return reason
-	var facility_ids: Array = [quote.facility_id]
-	if quote.has("bed_id"): facility_ids.append(quote.bed_id)
 	space.commit_facility_reservations(world,candidate.facts.adaptations,facility_ids)
 	return ""
 
@@ -1788,12 +1818,11 @@ func _round_candidate(world: WorldState, visit: Dictionary, stay: Dictionary) ->
 		var candidate: WorldState = world
 		var reservation: Dictionary = world.facts.adaptations.get(stay.bed_id,{})
 		if not reservation.is_empty() and not id in reservation.staff_ids:
-			candidate = WorldState.new(world.freeze())
-			candidate.facts.adaptations[stay.bed_id].staff_ids.append(id)
+			candidate = _reservation_candidate(world,[stay.bed_id])
+			space.grant_facility_access(candidate,stay.bed_id,id)
 		var route: Dictionary = space.route(candidate,id,int(bed.floor_id),bed.operator_cells[1])
 		if route.ok and route.get("status","")!="contention":
-			if not reservation.is_empty() and not id in reservation.staff_ids:
-				reservation.staff_ids.append(id)
+			space.grant_facility_access(world,stay.bed_id,id)
 			return id
 	visit.waiting_reason = "等待实际可到床边的合格出院查房医生"
 	return ""
@@ -1802,7 +1831,7 @@ func _transfer_stay(world: WorldState, visit: Dictionary, stay: Dictionary, pref
 	if not visitors.call("yield_for_care",world,visit.id):
 		return "等待家属实际让开转床通路"
 	var old_bed: Dictionary = space.facility_layout(world,stay.bed_id)
-	var candidate: WorldState = WorldState.new(world.freeze())
+	var candidate: WorldState = _reservation_candidate(world,[],[visit.actor_id])
 	var actor: Dictionary = candidate.facts.actors[visit.actor_id]
 	actor.posture = "standing"
 	actor.location.cell = old_bed.patient_cell.duplicate()

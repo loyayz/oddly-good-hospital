@@ -24,7 +24,18 @@ func begin_route_query(world: WorldState, reference: Dictionary = {}) -> void:
 		reference.routes = {}
 		reference.fits = {}
 		reference.journeys = {}
-	_route_queries.append({"world":world,"routes":reference.get("routes",{}),"exits":{},"reference":reference})
+	var journeys_allowed: bool = not reference.is_empty()
+	for movement: Dictionary in world.facts.moves.values():
+		if movement.has("transit_ticket"): journeys_allowed = false
+	if journeys_allowed:
+		var riders: Dictionary = {}
+		for connection: Dictionary in world.facts.connectors.values():
+			for id: String in connection.get("riders",[]): riders[id] = body(world.facts.actors[id])
+		var transport: Array = [HospitalTransit.reference_conditions(world),HospitalTransit.reference_movements(world),riders]
+		if reference.get("journey_transport",[])!=transport:
+			reference.journeys.clear()
+			reference.journey_transport = transport.duplicate(true)
+	_route_queries.append({"world":world,"routes":reference.get("routes",{}),"exits":{},"reference":reference,"journeys_allowed":journeys_allowed})
 
 func end_route_query() -> void:
 	_route_queries.pop_back()
@@ -133,10 +144,10 @@ func route(world: WorldState, actor_id: String, floor_id: int, target: Array, me
 		return {"ok": false, "reason": "角色正在竖向通行或院外"}
 	var reference: Dictionary = _route_queries.back().reference if not _route_queries.is_empty() and _route_queries.back().world==world else {}
 	var key: String = ""
-	if not reference.is_empty() and ignore_people and members.is_empty() and offsets.is_empty() and world.facts.moves.is_empty():
+	if not reference.is_empty() and ignore_people and members.is_empty() and offsets.is_empty() and _route_queries.back().journeys_allowed:
 		# Reference actors have no transport tickets. A complete journey depends
 		# on the body, endpoints and this sealed clock, rather than actor identity.
-		key = JSON.stringify([body(actor),actor.location.floor_id,actor.location.cell,floor_id,target,world.sim_tick])
+		key = JSON.stringify([body(actor),actor.get("posture","standing"),actor.facing,actor.location.floor_id,actor.location.cell,floor_id,target,world.sim_tick])
 		if reference.journeys.has(key): return reference.journeys[key].duplicate()
 	var start: Vector2i = Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
 	var goal: Vector2i = Vector2i(int(target[0]),int(target[1]))
@@ -159,7 +170,7 @@ func travel_quote(world: WorldState, actor_id: String, floor_id: int, target: Ar
 	# Clinical estimates ignore people, like the original read-only route.
 	# Connectors and actual movement continue through the complete path query.
 	var actor: Dictionary = world.facts.actors[actor_id]
-	if actor.location.kind!="floor" or int(actor.location.floor_id)!=floor_id or not world.facts.connectors.is_empty():
+	if actor.location.kind!="floor" or int(actor.location.floor_id)!=floor_id:
 		return route(world,actor_id,floor_id,target,[],{},true)
 	var start: Vector2i = Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
 	var goal: Vector2i = Vector2i(int(target[0]),int(target[1]))
@@ -171,6 +182,9 @@ func travel_quote(world: WorldState, actor_id: String, floor_id: int, target: Ar
 		if not reason.is_empty(): return {"ok":false,"status":"unreachable","reason":reason}
 	var result: Dictionary = _navigation.travel_distance(self,world,floor_id,actor,start,goal)
 	if not result.ready: return route(world,actor_id,floor_id,target,[],{},true)
+	var delta: Vector2i = goal-start
+	if not world.facts.connectors.is_empty() and (not result.ok or int(result.distance)!=absi(delta.x)+absi(delta.y)):
+		return route(world,actor_id,floor_id,target,[],{},true)
 	result.erase("ready")
 	result.status = "complete" if result.ok else "unreachable"
 	if result.ok:
@@ -971,6 +985,12 @@ func commit_facility_reservations(world: WorldState, validated: Dictionary, faci
 		if validated.has(facility_id):
 			world.facts.adaptations[facility_id] = validated[facility_id].duplicate(true)
 			_navigation.invalidate(world,int(validated[facility_id].floor_id))
+
+func grant_facility_access(world: WorldState, facility_id: String, staff_id: String) -> void:
+	var reservation: Dictionary = world.facts.adaptations.get(facility_id,{})
+	if reservation.is_empty() or staff_id in reservation.staff_ids: return
+	reservation.staff_ids.append(staff_id)
+	_navigation.invalidate(world,int(reservation.floor_id))
 
 func release_adaptations(world: WorldState) -> void:
 	for id: String in world.ids("adaptations"):

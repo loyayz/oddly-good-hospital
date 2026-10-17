@@ -166,6 +166,7 @@ struct PackingProgram {
     std::vector<SCIP_VAR*> variables;
     std::vector<Q> bounds;
     std::vector<bool> integral;
+    std::vector<bool> objectives;
     struct Row { std::vector<std::pair<int, Q>> terms; Q upper; SCIP_CONS* constraint; };
     std::vector<Row> rows;
     PackingProgram() {
@@ -174,6 +175,7 @@ struct PackingProgram {
             scip_check(SCIPenableExactSolving(scip, TRUE));
             if (!SCIPisExact(scip)) throw std::runtime_error("SCIP 未启用精确求解");
             scip_check(SCIPincludeDefaultPlugins(scip));
+            scip_check(SCIPsetCharParam(scip, "exact/safedbmethod", 'e'));
             SCIPsetMessagehdlrQuiet(scip, TRUE);
             scip_check(SCIPcreateProbBasic(scip, "hospital_structure"));
             scip_check(SCIPsetObjsense(scip, SCIP_OBJSENSE_MAXIMIZE));
@@ -189,6 +191,7 @@ struct PackingProgram {
         variables.push_back(variable);
         bounds.push_back(upper);
         integral.push_back(kind != SCIP_VARTYPE_CONTINUOUS);
+        objectives.push_back(objective);
         Exact lower, higher(upper);
         scip_check(SCIPaddVarExactData(scip, variable, lower.value, higher.value, nullptr));
         scip_check(SCIPaddVar(scip, variable));
@@ -235,11 +238,13 @@ struct PackingProgram {
     }
     void reopen() { scip_check(SCIPfreeTransform(scip)); }
     void change_bound(int variable, const Q& upper) {
+        if (bounds.at(variable) == upper) return;
         Exact value(upper);
         scip_check(SCIPchgVarUbExact(scip, variables.at(variable), value.value));
         bounds.at(variable) = upper;
     }
     void change_upper(int row, const Q& upper) {
+        if (rows.at(row).upper == upper) return;
         Exact value(upper);
         scip_check(SCIPchgRhsExactLinear(scip, rows.at(row).constraint, value.value));
         rows.at(row).upper = upper;
@@ -276,6 +281,12 @@ struct PackingProgram {
             for (const auto& term : row.terms) total += term.second * values[term.first];
             if (total > row.upper) throw std::runtime_error("结构配置违反原始资源约束");
         }
+        Q objective = 0;
+        for (size_t i = 0; i < values.size(); ++i) if (objectives[i]) objective += values[i];
+        Exact dual;
+        SCIPgetDualboundExact(scip, dual.value);
+        Q bound; mpq_set(bound.backend().data(), *SCIPrationalGetGMP(dual.value));
+        if (objective != bound) throw std::runtime_error("精确目标与证明界不一致: " + objective.str() + " != " + bound.str());
         transform.release();
         return values;
     }
@@ -487,6 +498,8 @@ struct Model {
     std::unique_ptr<PackingProgram> role_program;
     int role_total = -1;
     std::vector<int> role_flow, role_budget_rows;
+    std::vector<Q> role_factors;
+    Q role_demand = 0, role_limit = -1;
     std::vector<std::pair<int, Q>> role_bounds, role_rhs;
     struct ScaledCoefficient { int row, variable; Q factor; };
     std::vector<ScaledCoefficient> role_coefficients;
@@ -663,25 +676,28 @@ struct Model {
         // A unit-priced complete path gives a true lower bound on total demand
         // per Visit. It derives all flow bounds from this hospital's budgets;
         // there is no arbitrary Visit, branch or candidate limit.
-        std::vector<Q> prices(resources.size(), Q(1)), costs;
-        std::vector<int> choices;
-        price(prices, costs, choices);
-        Q demand = 0, budget = 0;
-        for (const Case& item : cases) demand += item.probability * costs[item.root];
+        if (role_factors.empty()) {
+            std::vector<Q> prices(resources.size(), Q(1)), costs;
+            std::vector<int> choices;
+            price(prices, costs, choices);
+            for (const Case& item : cases) role_demand += item.probability * costs[item.root];
+            role_factors.assign(nodes.size(), Q(0));
+            for (const Case& item : cases) role_factors[item.root] += item.probability;
+            for (size_t i = nodes.size(); i-- > 0;)
+                for (int child : nodes[i].children) role_factors[child] += role_factors[i];
+        }
+        Q budget = 0;
         for (const Q& amount : budgets) {
             if (amount < 0) throw std::runtime_error("资源预算不能为负");
             budget += amount;
         }
-        if (demand <= 0) throw std::runtime_error("岗位容量缺少有限资源上界");
-        Q limit = budget / demand;
-        std::vector<Q> factors(nodes.size(), Q(0));
-        for (const Case& item : cases) factors[item.root] += item.probability;
-        for (size_t i = nodes.size(); i-- > 0;)
-            for (int child : nodes[i].children) factors[child] += factors[i];
-        std::vector<Q> upper;
-        for (const Q& factor : factors) upper.push_back(factor * limit);
+        if (role_demand <= 0) throw std::runtime_error("岗位容量缺少有限资源上界");
+        Q limit = budget / role_demand;
+        const auto& factors = role_factors;
 
         if (!role_program) {
+            std::vector<Q> upper;
+            for (const Q& factor : factors) upper.push_back(factor * limit);
             role_program.reset(new PackingProgram);
             PackingProgram& mip = *role_program;
             role_total = mip.continuous(limit, true);
@@ -757,11 +773,14 @@ struct Model {
             // Keep the original exact model. SCIP's transformed search state
             // belongs to the old RHS; discard it before changing original data.
             role_program->reopen();
-            for (const auto& bound : role_bounds) role_program->change_bound(bound.first, bound.second * limit);
             for (size_t i = 0; i < budgets.size(); ++i) role_program->change_upper(role_budget_rows[i], budgets[i]);
-            for (const auto& row : role_rhs) role_program->change_upper(row.first, row.second * limit);
-            for (const auto& term : role_coefficients) role_program->change_coefficient(term.row, term.variable, term.factor * limit);
+            if (role_limit != limit) {
+                for (const auto& bound : role_bounds) role_program->change_bound(bound.first, bound.second * limit);
+                for (const auto& row : role_rhs) role_program->change_upper(row.first, row.second * limit);
+                for (const auto& term : role_coefficients) role_program->change_coefficient(term.row, term.variable, term.factor * limit);
+            }
         }
+        role_limit = limit;
         PackingProgram& mip = *role_program;
         const auto& flow = role_flow;
         int total = role_total;
@@ -958,7 +977,13 @@ V invoke(Method method, const std::vector<V>& args, GDExtensionClassInstancePtr 
             return capacity.model->solve(false);
         }
         return calculate_integer(static_cast<int>(args[0].number()), args[1], args[2]);
-    } catch (const std::exception& error) { return failure(error.what()); }
+    } catch (const std::exception& error) {
+        if (method >= PREPARE_MODEL) {
+            std::lock_guard<std::recursive_mutex> guard(discrete_mutex);
+            static_cast<CapacityInstance*>(instance)->model.reset();
+        }
+        return failure(error.what());
+    }
 }
 void call(void* userdata, GDExtensionClassInstancePtr instance, const GDExtensionConstVariantPtr* args,
           GDExtensionInt count, GDExtensionVariantPtr returned, GDExtensionCallError* error) {

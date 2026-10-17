@@ -157,7 +157,7 @@ func _capture(world: WorldState, subtract_existing: bool, target_tick: int) -> D
 	var clock: int = world.sim_tick if subtract_existing else world.sim_tick/WorldState.TICKS_PER_DAY*WorldState.TICKS_PER_DAY
 	var facts: Dictionary = {"hospital_id":world.hospital_id,"world_revision":0,"entity_next":0,
 		"sim_tick":target_tick if target_tick>=0 else clock}
-	for field: String in ["entry","facilities","rooms","floors","remodels","research","allow_outpatient_rounds","plan_strategy"]:
+	for field: String in ["gameplay_version","entry","facilities","rooms","floors","remodels","research","allow_outpatient_rounds","plan_strategy"]:
 		if world.facts.has(field): facts[field] = world.facts[field]
 	facts.connectors = HospitalTransit.reference_conditions(world)
 	facts.staff = {}
@@ -184,11 +184,15 @@ func _capture(world: WorldState, subtract_existing: bool, target_tick: int) -> D
 		var actor: Dictionary = world.facts.actors[id]
 		facts.actors[id] = {"id":id,"species_id":actor.species_id,"body_binding_id":actor.get("body_binding_id",""),
 			"location":actor.location if subtract_existing else {"kind":"outside"},"facing":actor.facing,"posture":actor.get("posture","standing")}
+		if subtract_existing and actor.has("support_facility_id"): facts.actors[id].support_facility_id = actor.support_facility_id
 	facts.moves = HospitalTransit.reference_movements(world)
 	for connection: Dictionary in world.facts.connectors.values():
 		for id: String in connection.get("riders",[]): facts.actors[id] = world.facts.actors[id]
 	for field: String in ["sessions","preparations","ward_stays","tickets","visits","attempts","adaptations"]: facts[field] = {}
 	if subtract_existing:
+		# The nominal reference removes these later; actual promises require the
+		# currently expanded anchors, participants and release envelope.
+		facts.adaptations = world.facts.adaptations
 		var visits: Dictionary = {}
 		for field: String in ["sessions","preparations","ward_stays","tickets"]:
 			facts[field] = world.facts[field]
