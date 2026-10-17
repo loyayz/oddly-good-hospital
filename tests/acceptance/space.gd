@@ -1392,6 +1392,12 @@ func _case_46(_t) -> Dictionary:
 	var own_clear: bool = sim.space._navigation.clearance(sim.space,sim.world,1,leader,original,offsets).reason(origin).is_empty()
 	var other_blocked: bool = not sim.space._navigation.clearance(sim.space,sim.world,1,leader,replacement,offsets).reason(origin).is_empty()
 	var own_again: bool = sim.space._navigation.clearance(sim.space,sim.world,1,leader,original,offsets).reason(origin).is_empty()
+	var own_distance: Dictionary = {}
+	var other_distance: Dictionary = {}
+	for index: int in 13:
+		own_distance = sim.space._navigation.travel_distance(sim.space,sim.world,1,sim.world.facts.actors.reserved_patient,origin,origin)
+		other_distance = sim.space._navigation.travel_distance(sim.space,sim.world,1,sim.world.facts.actors.replacement_patient,origin,origin)
+	var individual_exemptions: bool = own_distance.get("ok",false) and not other_distance.get("ok",true)
 	var readonly: bool = before==sim.world.freeze()
 	var obstacle: Array = [origin.x+3,origin.y]
 	sim.world.facts.floors.overrides["1"].blocked.append(obstacle)
@@ -1402,7 +1408,7 @@ func _case_46(_t) -> Dictionary:
 	sim.world.facts.floors.overrides["1"].blocked.erase(obstacle)
 	sim.world.touch()
 	var reopened: bool = sim.space._navigation.clearance(sim.space,sim.world,1,leader,original,offsets).reason(origin).is_empty()
-	return _done(sim,own_clear and other_blocked and own_again and readonly and near_clear and changed_offset_blocked and reopened,{"own_reservation":own_clear,"different_patient_blocked":other_blocked,"original_group_restored":own_again,"readonly":readonly,"near_clear":near_clear,"changed_offset_blocked":changed_offset_blocked,"removed_obstacle_reopens":reopened})
+	return _done(sim,own_clear and other_blocked and own_again and individual_exemptions and readonly and near_clear and changed_offset_blocked and reopened,{"own_reservation":own_clear,"different_patient_blocked":other_blocked,"original_group_restored":own_again,"individual_exemptions":individual_exemptions,"readonly":readonly,"near_clear":near_clear,"changed_offset_blocked":changed_offset_blocked,"removed_obstacle_reopens":reopened})
 
 func _case_47(_t) -> Dictionary:
 	var rectangle: Dictionary = {"origin":[35,68],"size":[6,6]}

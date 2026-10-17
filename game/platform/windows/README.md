@@ -10,7 +10,25 @@ SQLite连接取得资料库guard后才能打开，只接受规范医院UUID，�
 pwsh -NoProfile -File tools/build-platform-guard.ps1
 ```
 
-DLL位于`game/platform/windows/bin/oddly_good_platform.windows.x86_64.dll`，属于可重建产物。`.gdextension`声明相同的Windows调试与发行库，Godot发行导出随包携带该DLL。实际PE导入表只包含`KERNEL32.dll`与UCRT API集。UCRT是项目既定Windows10/11的系统组件，无需另装编译器或C++运行服务。[Microsoft UCRT部署说明](https://learn.microsoft.com/en-us/cpp/windows/universal-crt-deployment)。
+DLL位于`game/platform/windows/bin/oddly_good_platform.windows.x86_64.dll`，属于可重建产物。`.gdextension`声明相同的Windows调试与发行库及GMP、MPFR、libgcc、winpthreads动态依赖，Godot发行导出携带五个DLL。C++标准库静态编入桥接，MPFR经libgcc使用winpthreads；实际导入链在隔离工程加载前检查。UCRT是项目既定Windows10/11的系统组件，无需另装编译器或后台服务。[Microsoft UCRT部署说明](https://learn.microsoft.com/en-us/cpp/windows/universal-crt-deployment)。
+
+## 精确容量与大整数
+
+纯计算后端使用SoPlex 8.1.0、GMP 6.3.0和Boost.Multiprecision 1.92.0的GMP头文件后端。SoPlex固定提交为`a00610534e044f35aa298059eb963312336c4c9c`；GMP与Boost使用固定MSYS2 UCRT64包。构建脚本校验源码/包SHA256，使用同一Zig 0.15.2的C++17编译；不依赖godot-cpp、.NET、外部求解进程或玩家联网下载。GMP保持独立动态链接，随包保留许可证、对应源码、补丁与构建脚本。
+
+`PlatformArrivalMath`提供批量`solve(cases,budgets)`及分数/整数运算。Godot数组与字典在调用边界转换为原生稀疏模型；求解、共享AND/OR选择图的完整精确定价及原始/对偶校验都在同一调用内完成，不逐次矩阵消元跨语言。连续LP使用精确有理数同步、零最终容差和精确校验；只有覆盖全部隐式合法组合且预算、病例比例、非负分配与原始/对偶目标一致时才返回容量。失败保留明确错误，不能当作0能力生成日计划。
+
+`PlatformArrivalCapacity`由单个任务独占，`prepare(cases,budgets)`准备模型、已生成列及求解基；`solve(budgets)`更新预算并热启动，变化后重新证明完整可行性和最优性，输入未变时复用已验证结果。该接口只返回容量、瓶颈和模型计数，不为医院创建假想Visit分配对象；完整分配接口仍由静态`solve`提供。对象析构释放这些可重建资源，不保存进医院快照，不持有医院事实、随机流或资源承诺。并发任务不同时操作同一实例。
+
+仅预算右端项变化时，使用SoPlex提供的精确求解基及逆列计算新基本解。所有基本变量非负、实际病例比例与资源约束成立，且新原始目标等于仍覆盖全部隐式资源选择的旧对偶界时，直接接受已证明的新最优值；任一条件不成立则回到SoPlex精确求解与完整定价。复用不执行自研矩阵消元，不以预算比例近似容量。
+
+存在护理覆盖时，容量投影使用SCIP精确混合整数流模型。同一隐式AND/OR资源图保留全部合法选择，病例根流严格按原概率分配；岗位二元变量约束同一护士只覆盖一个病房，覆盖岗位与其他主动工作互斥，原自身护理仍使用同一份实际工时预算。流量上界由全部资源预算及完整资源束的最小总需求精确推导，不设置任意候选或Visit上限。返回前复核原始有理数约束、变量边界与岗位整数性；没有护理岗位的模型继续使用SoPlex路径。该容量最大值与下面的结构K分别求得。
+
+结构规模使用SCIP 10.1.0精确整数模式，依赖启用GMP、MPFR和精确SoPlex接口。`structure(cases,blocked,reception,bed_limit)`对完整初诊/终点组合建立二元配置，约束主动操作者和设施互异、每名覆盖护士只服务一个实际病房、同房最多8床以及接待配对上限。相同资源而覆盖者或病房不同的组合分别保留。仅在精确最优状态及原约束的整数解复核通过后返回K；错误不能返回假零值。医院模型提供真实资格、开放状态和组合，SCIP不定义业务规则。
+
+GMP从十进制字符串赋值后显式约分；返回分数始终为互素分子/正分母，0为0/1。整数除法取向0截断，非负divmod、负分数floor/ceil及原随机拒绝采样语义由既有适配接口保持。真实岗位、班次、PlanScore、已有负荷、护士互斥与K的业务规则仍由医院模型拥有，数值库不替代这些规则。
+
+依赖来源和全部许可证见`tools/windows/THIRD-PARTY-NOTICES.txt`；构建生成的独立许可文本与GMP对应源码位于`bin/licenses`，正式构建复制到发行目录的`licenses`。源码/头文件及构建中间对象不进入游戏资源包。构建和数学/功能验证不构成完整模拟步或画面性能通过证据。
 
 ## 接口
 

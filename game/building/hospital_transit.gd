@@ -197,6 +197,7 @@ static func egress_clear(space: HospitalSpace, world: WorldState, connection: Di
 	var anchor: Vector2i = Vector2i(int(connection.anchor[0]),int(connection.anchor[1]))
 	if not space.static_reason(world,actor,floor_id,anchor,members,offsets).is_empty():
 		return false
+	if space.nominal_query(world): return true
 	var ignored: Array = members if not members.is_empty() else [actor_id]
 	for id: String in ignored:
 		var offset: Array = offsets.get(id,[0,0])
@@ -204,6 +205,17 @@ static func egress_clear(space: HospitalSpace, world: WorldState, connection: Di
 		if not space._dynamic_clear(world,actor_id,floor_id,rect,ignored):
 			return false
 	return true
+
+static func reference_movements(world: WorldState) -> Dictionary:
+	# An in-flight group still owns its known transport remainder and body
+	# envelope. Nominal queries remove queued contention, not these inputs.
+	var result: Dictionary = {}
+	for connection: Dictionary in world.facts.connectors.values():
+		if not connection.phase in ["boarding","riding","alighting"]: continue
+		var primary: String = str(connection.get("primary_actor_id",connection.riders[0]))
+		var movement: Dictionary = world.facts.moves.get(primary,{})
+		result[primary] = {"members":movement.get("members",[]),"offsets":movement.get("offsets",{})}
+	return result
 
 static func begin(space: HospitalSpace, world: WorldState, actor: Dictionary, movement: Dictionary, segment: Dictionary) -> void:
 	var connection: Dictionary = world.facts.connectors[segment.connector_id]

@@ -17,4 +17,41 @@ SQLite原始源码属于公有领域，静态编入Windows原生桥接。
 官方源码：https://sqlite.org/2026/sqlite-amalgamation-3540000.zip
 版权说明：https://sqlite.org/copyright.html
 
-上述许可文本随程序独立提供，不需要打开游戏、解包 pck 或联网阅读。
+SoPlex 8.1.0
+Copyright (c) 1996-2026 Zuse Institute Berlin (ZIB).
+采用 Apache License 2.0，完整许可见 SoPlex-Apache-2.0.txt。
+固定源码：https://github.com/scipopt/soplex/tree/a00610534e044f35aa298059eb963312336c4c9c
+随库的 fmt 采用 MIT 许可，完整版权及许可见 fmt-MIT.txt。
+
+Boost 1.92.0
+使用 Boost.Multiprecision 的 GMP 后端头文件；采用 Boost Software License 1.0。
+完整许可见 Boost-1.0.txt。https://www.boost.org/
+
+SCIP 10.1.0
+Copyright (c) 2002-2026 Zuse Institute Berlin (ZIB).
+采用 Apache License 2.0，静态编入Windows原生桥接，完整许可见 SCIP-Apache-2.0.txt。
+固定源码：https://scipopt.org/download/release/scip-10.1.0.tgz
+
+MPFR 4.2.2，MSYS2 UCRT64 构建 4.2.2-3
+libmpfr-6.dll 为独立动态库，采用 GNU Lesser General Public License 3.0 或更新版本。
+完整许可见 MPFR-LGPL-3.0.txt 及其引用的 GNU-GPL-3.0.txt。
+对应源码和构建脚本随包提供于 mpfr-4.2.2-3-source.tar.zst。
+该库可用接口兼容的修改版替换；不限制为调试此类修改而进行的反向工程。
+https://www.mpfr.org/ https://packages.msys2.org/packages/mingw-w64-ucrt-x86_64-mpfr
+
+GCC libgcc 16.2.0-6 / winpthreads 14.0.0.r426.g4564ee4b5-2
+MPFR 的动态依赖 libgcc_s_seh-1.dll、libwinpthread-1.dll 随包提供。
+libgcc 使用 GPL 3.0 或更新版本及 GCC Runtime Library Exception 3.1，许可见 GNU-GPL-3.0.txt 和 GCC-Runtime-Exception-3.1.txt；对应源码及构建脚本见 gcc-16.2.0-6-source.tar.zst。
+winpthreads 使用 MIT 与 BSD-3-Clause，完整版权和许可见 winpthreads-MIT-BSD.txt。
+https://packages.msys2.org/packages/mingw-w64-ucrt-x86_64-libgcc
+https://packages.msys2.org/packages/mingw-w64-ucrt-x86_64-libwinpthread
+
+GNU MP (GMP) 6.3.0，MSYS2 UCRT64 构建 6.3.0-2
+libgmp-10.dll 为独立动态库，使用 GNU Lesser General Public License 3.0 或更新版本。
+完整许可见 GMP-LGPL-3.0.txt 及其引用的 GNU-GPL-3.0.txt。
+对应源码、补丁和构建脚本随包提供于 gmp-6.3.0-2-source.tar.zst。
+该库可用接口兼容的修改版替换；不限制为调试此类修改而进行的反向工程。
+项目医院规则代码未并入 GMP，GMP 不读取医院或玩家数据。
+https://gmplib.org/ https://packages.msys2.org/packages/mingw-w64-ucrt-x86_64-gmp
+
+上述许可文本及 GMP、MPFR 对应源码随程序独立提供，不需要打开游戏、解包 pck 或联网阅读。

@@ -7,10 +7,43 @@ var recruitment: RefCounted
 var waiting_life: RefCounted
 var _worked: Dictionary = {}
 var _coverage_cache: Dictionary = {}
+var _query: Dictionary = {}
 
 func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 	content = database
 	space = geometry
+
+# A synchronous observation batch changes experience records only. Geometry and
+# coverage can be shared; water, noise, dirt and nearby people are still read live.
+func begin_query(world: WorldState) -> void:
+	_query = {"world":world,"edges":{},"coverage":{},"facilities":{},"screens":{},"actors":{}}
+	for facility: Dictionary in world.facts.facilities.values():
+		var floor_id: int = int(facility.floor_id)
+		if facility.definition_id in content.balance.environment.noise_barrier_definition_ids:
+			if not _query.screens.has(floor_id): _query.screens[floor_id] = []
+			_query.screens[floor_id].append(facility)
+		if not _query.facilities.has(floor_id): _query.facilities[floor_id] = {}
+		var key: String = _cell_key(facility.cell)
+		if not _query.facilities[floor_id].has(key): _query.facilities[floor_id][key] = []
+		_query.facilities[floor_id][key].append(facility)
+	for actor: Dictionary in world.facts.actors.values():
+		if actor.location.kind!="floor": continue
+		var floor_id: int = int(actor.location.floor_id)
+		if not _query.actors.has(floor_id): _query.actors[floor_id] = {}
+		var bucket: Vector2i = Vector2i(floori(float(actor.location.cell[0])/4.0),floori(float(actor.location.cell[1])/4.0))
+		if not _query.actors[floor_id].has(bucket): _query.actors[floor_id][bucket] = []
+		_query.actors[floor_id][bucket].append(actor)
+
+func end_query() -> void:
+	# Retain only the preceding batch's requested floors and origins. Moving
+	# subjects and changing views cannot accumulate an all-hospital coverage map.
+	var retained: Dictionary = {}
+	for floor_id: int in _query.get("edges",{}):
+		var entry: Dictionary = _coverage_cache[floor_id]
+		entry.coverage = _query.coverage.get(floor_id,{})
+		retained[floor_id] = entry
+	_coverage_cache = retained
+	_query.clear()
 
 func ensure(world: WorldState) -> void:
 	if not world.facts.has("environment"):
@@ -525,8 +558,10 @@ func _coverage_edge_key(first: Array, second: Array) -> Vector3i:
 	return Vector3i(0 if horizontal else 1,maxi(int(first[1]),int(second[1])) if horizontal else maxi(int(first[0]),int(second[0])),int(first[0]) if horizontal else int(first[1]))
 
 func _coverage_edges(world: WorldState, floor_id: int) -> Dictionary:
+	if _query.get("world")==world and _query.edges.has(floor_id):
+		return _query.edges[floor_id]
 	var layout: Dictionary = world.facts.floors.overrides.get(str(floor_id),{})
-	var source: Dictionary = {"floor_id":floor_id,"blocked":layout.get("blocked",[]),"rooms":[],"doors":[],"screens":[]}
+	var source: Dictionary = {"floor_id":floor_id,"plots":space.floor_plots(world,floor_id),"blocked":layout.get("blocked",[]),"rooms":[],"doors":[],"screens":[]}
 	for room: Dictionary in world.facts.rooms.values():
 		if int(room.floor_id)!=floor_id: continue
 		var shape: Dictionary = {"id":room.id,"origin":room.origin,"size":room.size}
@@ -535,15 +570,18 @@ func _coverage_edges(world: WorldState, floor_id: int) -> Dictionary:
 		source.rooms.append(shape)
 	for door: Dictionary in layout.get("doors",[]):
 		source.doors.append({"room_id":door.room_id,"axis":door.axis,"cell":door.cell,"span":int(world.facts.adaptations.get(door.id,{}).get("span",door.span))})
-	for facility: Dictionary in world.facts.facilities.values():
+	var screens: Array = _query.screens.get(floor_id,[]) if _query.get("world")==world else world.facts.facilities.values()
+	for facility: Dictionary in screens:
 		if int(facility.floor_id)!=floor_id or not facility.definition_id in content.balance.environment.noise_barrier_definition_ids: continue
 		var facing: int = int(facility.get("rotation",0))%4
 		var across: Array = [int(facility.cell[0])+(1 if facing in [1,3] else 0),int(facility.cell[1])+(1 if facing in [0,2] else 0)]
 		source.screens.append(_coverage_edge_key(facility.cell,across))
-	# This single-entry cache contains geometry only. Dirt, working noise sources,
-	# facilities, water availability and actual nearby bodies remain live queries.
-	if _coverage_cache.get("source",{})==source: return _coverage_cache.edges
-	var edges: Dictionary = {"walls":{},"noise":{},"blocked":{}}
+	var cached: Dictionary = _coverage_cache.get(floor_id,{})
+	if cached.get("source",{})==source:
+		if _query.get("world")==world: _query.edges[floor_id] = cached.edges
+		return cached.edges
+	var edges: Dictionary = {"walls":{},"noise":{},"blocked":{},"owned":{}}
+	for plot: Array in source.plots: edges.owned[Vector2i(int(plot[0]),int(plot[1]))] = true
 	for cell: Array in source.blocked: edges.blocked[Vector2i(int(cell[0]),int(cell[1]))] = true
 	for room: Dictionary in source.rooms:
 		for wall: Dictionary in BuildGeometry.room_walls(room):
@@ -558,13 +596,16 @@ func _coverage_edges(world: WorldState, floor_id: int) -> Dictionary:
 						break
 				if not opening: edges.walls[Vector3i(0 if wall.axis=="x" else 1,int(wall.line),along)] = true
 	for edge: Vector3i in source.screens: edges.noise[edge] = true
-	_coverage_cache = {"source":source.duplicate(true),"edges":edges}
+	var entry: Dictionary = {"source":source.duplicate(true),"edges":edges,"coverage":{}}
+	if _query.get("world")!=world: _coverage_cache.clear()
+	_coverage_cache[floor_id] = entry
+	if _query.get("world")==world: _query.edges[floor_id] = edges
 	return edges
 
 func _edge_open(world: WorldState, floor_id: int, first: Array, second: Array, noise: bool, edges: Dictionary = {}) -> bool:
 	if not edges.is_empty() and float(first[0])==float(int(first[0])) and float(first[1])==float(int(first[1])):
 		var cell: Vector2i = Vector2i(int(second[0]),int(second[1]))
-		if edges.blocked.has(cell) or not space.owned(world,floor_id,cell): return false
+		if cell.x<0 or cell.y<0 or cell.x>=96 or cell.y>=96 or edges.blocked.has(cell) or not edges.owned.has(Vector2i(cell.x/32,cell.y/32)): return false
 		var key: Vector3i = _coverage_edge_key(first,second)
 		return not edges.walls.has(key) and (not noise or not edges.noise.has(key))
 	var floor_data: Dictionary = world.facts.floors.overrides.get(str(floor_id),{})
@@ -585,6 +626,15 @@ func _edge_open(world: WorldState, floor_id: int, first: Array, second: Array, n
 
 func _coverage(world: WorldState, floor_id: int, origin: Array, radius: int, noise: bool, edges: Dictionary = {}) -> Dictionary:
 	var origin_cell: Array = [int(origin[0]),int(origin[1])]
+	var key: String = "%d:%d:%d:%d:%d" % [floor_id,origin_cell[0],origin_cell[1],radius,int(noise)]
+	var scoped: bool = _query.get("world")==world and not edges.is_empty()
+	if scoped:
+		if not _query.coverage.has(floor_id): _query.coverage[floor_id] = {}
+		if _query.coverage[floor_id].has(key): return _query.coverage[floor_id][key]
+		var previous: Dictionary = _coverage_cache[floor_id].coverage
+		if previous.has(key):
+			_query.coverage[floor_id][key] = previous[key]
+			return previous[key]
 	var visited: Dictionary = {_cell_key(origin_cell):0}
 	var queue: Array = [origin_cell]
 	var cursor: int = 0
@@ -596,11 +646,29 @@ func _coverage(world: WorldState, floor_id: int, origin: Array, radius: int, noi
 			continue
 		for offset: Array in [[-1,0],[0,-1],[0,1],[1,0]]:
 			var next: Array = [int(cell[0])+int(offset[0]),int(cell[1])+int(offset[1])]
-			var key: String = _cell_key(next)
-			if not visited.has(key) and _edge_open(world,floor_id,cell,next,noise,edges):
-				visited[key] = distance+1
+			var next_key: String = _cell_key(next)
+			if not visited.has(next_key) and _edge_open(world,floor_id,cell,next,noise,edges):
+				visited[next_key] = distance+1
 				queue.append(next)
+	if scoped: _query.coverage[floor_id][key] = visited
 	return visited
+
+func _positive_facilities(world: WorldState, floor_id: int, coverage: Dictionary) -> Array:
+	if _query.get("world")!=world: return world.facts.facilities.values()
+	var result: Array = []
+	var cells: Dictionary = _query.facilities.get(floor_id,{})
+	for key: String in coverage:
+		result.append_array(cells.get(key,[]))
+	return result
+
+func _nearby_actors(world: WorldState, floor_id: int, cell: Array) -> Array:
+	if _query.get("world")!=world: return world.facts.actors.values()
+	var buckets: Dictionary = _query.actors.get(floor_id,{})
+	var result: Array = []
+	for y: int in range(floori((float(cell[1])-3.0)/4.0),floori((float(cell[1])+3.0)/4.0)+1):
+		for x: int in range(floori((float(cell[0])-3.0)/4.0),floori((float(cell[0])+3.0)/4.0)+1):
+			result.append_array(buckets.get(Vector2i(x,y),[]))
+	return result
 
 func environment_at(world: WorldState, floor_id: int, cell: Array, actor_id: String = "") -> Dictionary:
 	var rules: Dictionary = content.balance.environment
@@ -639,7 +707,7 @@ func environment_at(world: WorldState, floor_id: int, cell: Array, actor_id: Str
 	result.value += mini(int(rules.wall_cap),wall_value)
 	var categories: Dictionary = {}
 	var light: bool = false
-	for facility: Dictionary in world.facts.facilities.values():
+	for facility: Dictionary in _positive_facilities(world,floor_id,positive):
 		if int(facility.get("floor_id",-1))!=floor_id or facility.get("location","floor")=="inventory" or bool(facility.get("failed",false)):
 			continue
 		if not positive.has(_cell_key(facility.cell)):
@@ -677,7 +745,7 @@ func environment_at(world: WorldState, floor_id: int, cell: Array, actor_id: Str
 			var facility: Dictionary = world.facts.facilities[order.facility_id]
 			if int(facility.floor_id)==floor_id and _facility_in_coverage(world,facility,noise_cells):
 				result.noise = maxi(int(result.noise),int(rules.construction_noise_penalty))
-	for actor: Dictionary in world.facts.actors.values():
+	for actor: Dictionary in _nearby_actors(world,floor_id,cell):
 		if actor.location.kind=="floor" and int(actor.location.floor_id)==floor_id and str(actor.id)!=actor_id and Vector2(float(actor.location.cell[0]),float(actor.location.cell[1])).distance_to(Vector2(float(cell[0]),float(cell[1])))<=3.0:
 			result.nearby_count += 1
 	result.value = clampi(int(result.value)-int(result.noise),0,100)

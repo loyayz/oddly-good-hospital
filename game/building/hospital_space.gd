@@ -17,11 +17,47 @@ var _route_queries: Array[Dictionary] = []
 
 # These scopes contain synchronous, read-only enumeration only. Results never
 # survive an actual reservation, movement or subsequent clinical quote.
-func begin_route_query(world: WorldState) -> void:
-	_route_queries.append({"world":world,"routes":{}})
+func begin_route_query(world: WorldState, reference: Dictionary = {}) -> void:
+	if reference.is_empty() and not _route_queries.is_empty():
+		reference = _route_queries.back().reference
+	if not reference.is_empty() and not reference.has("routes"):
+		reference.routes = {}
+		reference.fits = {}
+		reference.journeys = {}
+	_route_queries.append({"world":world,"routes":reference.get("routes",{}),"exits":{},"reference":reference})
 
 func end_route_query() -> void:
 	_route_queries.pop_back()
+
+func nominal_query(world: WorldState) -> bool:
+	return not _route_queries.is_empty() and _route_queries.back().world==world and not _route_queries.back().reference.is_empty()
+
+func _blocking_facility(world: WorldState, floor_id: int, rect: Rect2, except_id: String = "") -> String:
+	if not _route_queries.is_empty() and _route_queries.back().world==world:
+		var scope: Dictionary = _route_queries.back()
+		if not scope.has("facilities"):
+			var index: BodyIndex = BodyIndex.new()
+			for facility: Dictionary in world.facts.facilities.values():
+				if not content.facility_definition(facility.definition_id).get("blocks_movement",true): continue
+				var layout: Dictionary = facility_layout(world,facility.id)
+				index.update(facility.id,int(facility.floor_id),Rect2(float(facility.cell[0]),float(facility.cell[1]),float(layout.footprint[0]),float(layout.footprint[1])))
+			scope.facilities = index
+		var hits: Array[String] = scope.facilities.candidates(floor_id,rect,[except_id])
+		return "" if hits.is_empty() else hits[0]
+	for facility: Dictionary in world.facts.facilities.values():
+		if facility.id==except_id or int(facility.floor_id)!=floor_id or not content.facility_definition(facility.definition_id).get("blocks_movement",true): continue
+		var layout: Dictionary = facility_layout(world,facility.id)
+		if rect.intersects(Rect2(float(facility.cell[0]),float(facility.cell[1]),float(layout.footprint[0]),float(layout.footprint[1])),false): return facility.id
+	return ""
+
+func _blocking_actor(world: WorldState, floor_id: int, rect: Rect2, allowed: Array) -> String:
+	if not _route_queries.is_empty() and _route_queries.back().world==world:
+		_ensure_actor_index(world)
+		var hits: Array[String] = _actor_index.candidates(floor_id,rect,allowed)
+		return "" if hits.is_empty() else hits[0]
+	for actor: Dictionary in world.facts.actors.values():
+		if not actor.id in allowed and actor.location.kind=="floor" and int(actor.location.floor_id)==floor_id and rect.intersects(body_rectangle(actor),false): return actor.id
+	return ""
 
 func _init(database: HospitalContent) -> void:
 	content = database
@@ -95,12 +131,21 @@ static func materialize_layout(world: WorldState, floor_id: int) -> void:
 		world.facts.floors.overrides[str(floor_id)] = {"doors":[],"blocked":[],"paths":[]}
 
 func static_reason(world: WorldState, actor: Dictionary, floor_id: int, origin: Vector2i, members: Array = [], offsets: Dictionary = {}) -> String:
+	if members.is_empty() and not _route_queries.is_empty() and _route_queries.back().world==world:
+		return _navigation.clearance(self,world,floor_id,actor).reason(origin)
 	return RouteClearance.new(self,world,actor,floor_id,members,offsets,true,_navigation.floor_source(self,world,floor_id)).reason(origin)
 
 func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
 	var actor: Dictionary = world.facts.actors[actor_id]
 	if actor.location.kind != "floor":
 		return {"ok": false, "reason": "角色正在竖向通行或院外"}
+	var reference: Dictionary = _route_queries.back().reference if not _route_queries.is_empty() and _route_queries.back().world==world else {}
+	var key: String = ""
+	if not reference.is_empty() and ignore_people and members.is_empty() and offsets.is_empty() and world.facts.moves.is_empty():
+		# Reference actors have no transport tickets. A complete journey depends
+		# on the body, endpoints and this sealed clock, rather than actor identity.
+		key = JSON.stringify([body(actor),actor.location.floor_id,actor.location.cell,floor_id,target,world.sim_tick])
+		if reference.journeys.has(key): return reference.journeys[key].duplicate()
 	var start: Vector2i = Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
 	var goal: Vector2i = Vector2i(int(target[0]),int(target[1]))
 	var source_floor: int = int(actor.location.floor_id)
@@ -115,6 +160,7 @@ func route(world: WorldState, actor_id: String, floor_id: int, target: Array, me
 	if result.ok and stub>0.0:
 		result.path.push_front({"kind":"floor","floor_id":source_floor,"cell":[start.x,start.y]})
 		result.walking_distance += stub
+	if not key.is_empty(): reference.journeys[key] = result.duplicate()
 	return result
 
 func travel_quote(world: WorldState, actor_id: String, floor_id: int, target: Array) -> Dictionary:
@@ -295,18 +341,23 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 	var key: String = ""
 	if ignore_people and navigation.is_empty() and not _route_queries.is_empty() and _route_queries.back().world==world:
 		routes = _route_queries.back().routes
-		key = JSON.stringify([actor.id,floor_id,start.x,start.y,goal.x,goal.y,members,offsets])
+		var identity: Variant = actor.id
+		if not _route_queries.back().reference.is_empty() and members.is_empty() and offsets.is_empty():
+			identity = body(actor)
+		key = JSON.stringify([identity,floor_id,start.x,start.y,goal.x,goal.y,members,offsets])
 		if routes.has(key):
 			return routes[key].duplicate(true)
 	if navigation.is_empty():
 		navigation = _navigation.query_graphs(self,world,floor_id,actor,members,offsets)
 	var graph: FloorNavigation = navigation.graph
-	var query: RouteClearance = _navigation.clearance(self,world,floor_id,actor) if members.is_empty() else RouteClearance.new(self,world,actor,floor_id,members,offsets,true,graph.geometry.source)
+	var query: RouteClearance
+	if navigation.has("query"): query = navigation.query
+	else: query = _navigation.clearance(self,world,floor_id,actor) if members.is_empty() else RouteClearance.new(self,world,actor,floor_id,members,offsets,true,graph.geometry.source)
 	var people: Callable = Callable()
 	if not ignore_people:
 		people = func(from_cell: Vector2i,to_cell: Vector2i) -> bool:
 			return _unit_step_dynamic_clear(world,actor,floor_id,from_cell,to_cell,members,offsets)
-	var result: Dictionary = graph.find_path(start,goal,query,Callable(),false,navigation.bases,navigation.shifts)
+	var result: Dictionary = graph.find_path(start,goal,query,Callable(),false,navigation.bases,navigation.shifts,bool(navigation.get("overlay",false)))
 	if result.ok and people.is_valid():
 		var low: Vector2 = Vector2(start)
 		var high: Vector2 = low
@@ -325,7 +376,7 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 					break
 				previous = next
 			if blocked:
-				var alternative: Dictionary = graph.find_path(start,goal,query,people,false,navigation.bases,navigation.shifts)
+				var alternative: Dictionary = graph.find_path(start,goal,query,people,false,navigation.bases,navigation.shifts,bool(navigation.get("overlay",false)))
 				if alternative.ok:
 					result = alternative
 				else:
@@ -653,8 +704,20 @@ func facility_quote(world: WorldState, facility_id: String, actor_id: String, st
 		return {"ok":false,"reason":"设备或实际使用者不存在"}
 	var facility: Dictionary = world.facts.facilities[facility_id]
 	var actor: Dictionary = world.facts.actors[actor_id]
+	var reference: Dictionary = _route_queries.back().reference if not _route_queries.is_empty() and _route_queries.back().world==world else {}
+	var reference_key: String = ""
+	if not reference.is_empty():
+		var bodies: Array = [body(actor)]
+		for staff_id: String in staff_ids:
+			bodies.append(body(world.facts.actors[staff_id]))
+		reference_key = JSON.stringify([facility_id,bodies])
+		if reference.fits.has(reference_key):
+			var saved: Dictionary = reference.fits[reference_key].duplicate(true)
+			saved.actor_id = actor_id
+			saved.staff_ids = staff_ids.duplicate()
+			return saved
 	var current: Dictionary = world.facts.adaptations.get(facility_id,{})
-	if facility.definition_id=="FUR02" and not current.is_empty() and current.get("staff_ids",[])!=staff_ids:
+	if reference.is_empty() and facility.definition_id=="FUR02" and not current.is_empty() and current.get("staff_ids",[])!=staff_ids:
 		var room: Dictionary = world.facts.rooms.get(facility.get("room_id",""),{})
 		for previous_id: String in current.get("staff_ids",[]):
 			if previous_id in staff_ids:
@@ -727,18 +790,20 @@ func facility_quote(world: WorldState, facility_id: String, actor_id: String, st
 					return {"ok":false,"reason":"展开或退出区域受墙、地块阻挡：%d,%d" % [cx,cy]}
 		if not room.is_empty() and not room_contains(room,rect):
 			return {"ok":false,"reason":"展开、岗位或出口超出本房间"}
-		for other: Dictionary in world.facts.facilities.values():
-			if other.id!=facility_id and int(other.floor_id)==int(facility.floor_id) and content.facility_definition(other.definition_id).get("blocks_movement",true):
-				var layout: Dictionary = facility_layout(world,other.id)
-				if rect.intersects(Rect2(float(other.cell[0]),float(other.cell[1]),float(layout.footprint[0]),float(layout.footprint[1])),false):
-					return {"ok":false,"reason":"展开区域有其他实际设施："+str(other.id)}
-		for other: Dictionary in world.facts.actors.values():
-			if not other.id in allowed and other.location.kind=="floor" and int(other.location.floor_id)==int(facility.floor_id) and rect.intersects(body_rectangle(other),false):
-				return {"ok":false,"reason":"展开或操作区域有实际身体："+str(other.id)}
-		if not _dynamic_clear(world,actor_id,int(facility.floor_id),rect,allowed):
-			return {"ok":false,"reason":"展开区域与已有实际预约相交"}
+		var other_facility: String = _blocking_facility(world,int(facility.floor_id),rect,facility_id)
+		if not other_facility.is_empty(): return {"ok":false,"reason":"展开区域有其他实际设施："+other_facility}
+		if reference.is_empty():
+			var other_actor: String = _blocking_actor(world,int(facility.floor_id),rect,allowed)
+			if not other_actor.is_empty(): return {"ok":false,"reason":"展开或操作区域有实际身体："+other_actor}
+			if not _dynamic_clear(world,actor_id,int(facility.floor_id),rect,allowed):
+				return {"ok":false,"reason":"展开区域与已有实际预约相交"}
 	var quote: Dictionary = {"ok":true,"kind":"facility","facility_id":facility_id,"actor_id":actor_id,"staff_ids":staff_ids.duplicate(),"floor_id":facility.floor_id,
 		"footprint":footprint,"patient_cell":patient_cell,"operator_cells":operators,"repair_cell":repair,"regions":regions}
+	# Nominal capacity proves built geometry and bodies. Occupancy, reservations
+	# and preservation of each real actor's exit belong to actual service start.
+	if not reference.is_empty():
+		reference.fits[reference_key] = quote
+		return quote
 	var same_reservation: bool = current.get("kind","")=="facility" and current.get("actor_id","")==actor_id and current.get("staff_ids",[])==staff_ids
 	for field: String in ["floor_id","footprint","patient_cell","operator_cells","repair_cell","regions"]:
 		same_reservation = same_reservation and current.get(field)!=null and current[field]==quote[field]
@@ -746,7 +811,11 @@ func facility_quote(world: WorldState, facility_id: String, actor_id: String, st
 	# cannot newly cut another actor's exit: the candidate changes no geometry.
 	if same_reservation: return quote
 	var candidate: WorldState
-	var same_footprint: bool = footprint==facility_layout(world,facility_id).footprint
+	var previous_footprint: Array = facility_layout(world,facility_id).footprint
+	var same_footprint: bool = footprint==previous_footprint
+	var expands: bool = int(footprint[0])>=int(previous_footprint[0]) and int(footprint[1])>=int(previous_footprint[1])
+	var candidate_source: Dictionary = {}
+	var geometries: Dictionary = {}
 	for other: Dictionary in world.facts.actors.values():
 		if other.id in allowed or other.location.kind!="floor" or int(other.location.floor_id)!=int(facility.floor_id):
 			continue
@@ -756,14 +825,30 @@ func facility_quote(world: WorldState, facility_id: String, actor_id: String, st
 		var before: Dictionary = _exit_witness(world,other,int(facility.floor_id),start,exit)
 		if not before.ok:
 			continue
-		if same_footprint and _route_avoids_regions(before.path,start,clearance(other),regions):
+		if same_footprint and _route_avoids_regions(before,regions):
 			continue
 		if candidate==null:
-			candidate = WorldState.new(world.freeze())
+			var facts: Dictionary = world.facts.duplicate()
+			facts.adaptations = world.facts.adaptations.duplicate()
+			candidate = WorldState.new(facts)
 			candidate.facts.adaptations[facility_id] = quote
-		# An unchanged footprint has the same static geometry. The candidate
-		# still supplies all current reservation regions and identity exceptions.
-		var navigation: Dictionary = _navigation.query_graphs(self,world,int(facility.floor_id),other,[],{}) if same_footprint else {}
+		var navigation: Dictionary = {}
+		if expands:
+			# Expansion can only remove routes. Search the original graph with
+			# all candidate nodes/edges checked, without replacing the shared
+			# live graph for each hypothetical fit. Shrinkage uses a fresh graph.
+			navigation = _navigation.query_graphs(self,world,int(facility.floor_id),other,[],{})
+			var geometry: RouteClearance = navigation.graph.geometry
+			if not same_footprint:
+				var id: int = geometry.get_instance_id()
+				if not geometries.has(id):
+					if candidate_source.is_empty(): candidate_source = RouteClearance.capture_source(self,candidate,int(facility.floor_id))
+					begin_route_query(candidate)
+					geometries[id] = RouteClearance.new(self,candidate,other,int(facility.floor_id),[],{},false,candidate_source)
+					end_route_query()
+				geometry = geometries[id]
+			navigation.query = RouteClearance.new(self,candidate,other,int(facility.floor_id),[],{},true,geometry.source,geometry)
+			navigation.overlay = not same_footprint
 		if not _floor_route(candidate,other,int(facility.floor_id),start,exit,[],{},true,navigation).ok:
 			return {"ok":false,"reason":"展开会切断在院角色的安全出口："+str(other.id)}
 	return quote
@@ -771,30 +856,39 @@ func facility_quote(world: WorldState, facility_id: String, actor_id: String, st
 func _exit_witness(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2i, exit: Vector2i) -> Dictionary:
 	# Exit proofs may use any complete legal path. Actual movement keeps its
 	# original path selection and FIFO; proposed reservations still get checked.
+	var exits: Dictionary = {}
+	var key: String = ""
+	if not _route_queries.is_empty() and _route_queries.back().world==world:
+		exits = _route_queries.back().exits
+		key = JSON.stringify([actor.id,floor_id,start.x,start.y,exit.x,exit.y])
+		if exits.has(key): return exits[key]
 	var result: Dictionary = _navigation.travel_distance(self,world,floor_id,actor,start,exit,true)
-	return result if result.ready else _floor_route(world,actor,floor_id,start,exit,[],{},true)
+	if not result.ready: result = _floor_route(world,actor,floor_id,start,exit,[],{},true)
+	if result.ok:
+		var size: int = clearance(actor)
+		var previous: Rect2 = Rect2(Vector2(start),Vector2.ONE*size)
+		var bounds: Rect2 = previous
+		var sweeps: Array[Rect2] = [previous]
+		var direction: Vector2 = Vector2.ZERO
+		for segment: Dictionary in result.path:
+			var current: Rect2 = Rect2(Vector2(float(segment.cell[0]),float(segment.cell[1])),Vector2.ONE*size)
+			var step: Vector2 = current.position-previous.position
+			if step==direction: sweeps[-1] = sweeps[-1].merge(current)
+			else: sweeps.append(previous.merge(current))
+			direction = step
+			bounds = bounds.merge(current)
+			previous = current
+		result.bounds = bounds
+		result.sweeps = sweeps
+	if not key.is_empty(): exits[key] = result
+	return result
 
-func _route_avoids_regions(path: Array, start: Vector2i, size: int, regions: Array) -> bool:
-	var low: Vector2 = Vector2(start)
-	var high: Vector2 = low
-	for segment: Dictionary in path:
-		var point: Vector2 = Vector2(float(segment.cell[0]),float(segment.cell[1]))
-		low = low.min(point)
-		high = high.max(point)
-	var broad: Rect2 = Rect2(low,high-low+Vector2.ONE*size)
-	var nearby: Array[Rect2] = []
+func _route_avoids_regions(witness: Dictionary, regions: Array) -> bool:
 	for area: Array in regions:
 		var obstacle: Rect2 = Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3]))
-		if broad.intersects(obstacle,false): nearby.append(obstacle)
-	if nearby.is_empty(): return true
-	var previous: Rect2 = Rect2(Vector2(start),Vector2.ONE*size)
-	for obstacle: Rect2 in nearby:
-		if previous.intersects(obstacle,false): return false
-	for segment: Dictionary in path:
-		var current: Rect2 = Rect2(Vector2(float(segment.cell[0]),float(segment.cell[1])),Vector2.ONE*size)
-		for obstacle: Rect2 in nearby:
-			if previous.merge(current).intersects(obstacle,false): return false
-		previous = current
+		if not witness.bounds.intersects(obstacle,false): continue
+		for sweep: Rect2 in witness.sweeps:
+			if sweep.intersects(obstacle,false): return false
 	return true
 
 func _adapted_front(facility: Dictionary, footprint: Array, k: int) -> Array:
@@ -829,11 +923,16 @@ func exit_cell(world: WorldState, actor: Dictionary, floor_id: int = 1) -> Array
 			return [clampi(int(target[0]),origin.x,origin.x+32-k),clampi(int(target[1]),origin.y,origin.y+32-k)]
 	return target
 
+func facility_reservation_reason(world: WorldState, facility_id: String, actor_id: String) -> String:
+	var current: Dictionary = world.facts.adaptations.get(facility_id,{})
+	return "等待原使用者实际离开后收拢" if not current.is_empty() and current.actor_id!=actor_id else ""
+
 func reserve_facility(world: WorldState, facility_id: String, actor_id: String, owner_id: String, staff_ids: Array = []) -> String:
+	var reason: String = facility_reservation_reason(world,facility_id,actor_id)
+	if not reason.is_empty():
+		return reason
 	var current: Dictionary = world.facts.adaptations.get(facility_id,{})
 	if not current.is_empty():
-		if current.actor_id!=actor_id:
-			return "等待原使用者实际离开后收拢"
 		if current.staff_ids==staff_ids:
 			current.owner_id = owner_id
 			return ""
@@ -905,10 +1004,8 @@ func door_quote(world: WorldState, actor: Dictionary, floor_id: int, door: Dicti
 	for other: Dictionary in world.facts.floors.overrides.get(str(floor_id),{}).get("doors",[]):
 		if other.id!=door.id and opening.intersects(_door_rect(other,int(other.span)),false):
 			return {"ok":false,"reason":"门展开与另一扇门相交"}
-	for facility: Dictionary in world.facts.facilities.values():
-		var actual: Dictionary = facility_layout(world,facility.id)
-		if int(facility.floor_id)==floor_id and content.facility_definition(facility.definition_id).get("blocks_movement",true) and opening.intersects(Rect2(float(facility.cell[0]),float(facility.cell[1]),float(actual.footprint[0]),float(actual.footprint[1])),false):
-			return {"ok":false,"reason":"门展开区域有实际设施"}
+	if not _blocking_facility(world,floor_id,opening).is_empty():
+		return {"ok":false,"reason":"门展开区域有实际设施"}
 	var k: int = clearance(actor)
 	var before: Rect2 = Rect2(opening.position-Vector2(0,k),Vector2(span,k)) if door.axis=="x" else Rect2(opening.position-Vector2(k,0),Vector2(k,span))
 	var wall_depth: int = 0 if room.has("wall_edges") else 1
@@ -918,10 +1015,8 @@ func door_quote(world: WorldState, actor: Dictionary, floor_id: int, door: Dicti
 			for cy: int in range(int(side.position.y),int(side.end.y)):
 				if not owned(world,floor_id,Vector2i(cx,cy)) or [cx,cy] in world.facts.floors.overrides.get(str(floor_id),{}).get("blocked",[]):
 					return {"ok":false,"reason":"门两侧没有容纳真实身体的完整空间"}
-		for facility: Dictionary in world.facts.facilities.values():
-			var layout: Dictionary = facility_layout(world,facility.id)
-			if int(facility.floor_id)==floor_id and content.facility_definition(facility.definition_id).get("blocks_movement",true) and side.intersects(Rect2(float(facility.cell[0]),float(facility.cell[1]),float(layout.footprint[0]),float(layout.footprint[1])),false):
-				return {"ok":false,"reason":"门两侧通路有实际设施"}
+		if not _blocking_facility(world,floor_id,side).is_empty():
+			return {"ok":false,"reason":"门两侧通路有实际设施"}
 	return {"ok":true,"span":span,"clear_height_m":height,"clear_width_m":maxf(float(definition.clear_width_m),maxf(float(dimensions.width_m),float(dimensions.depth_m))+0.1)}
 
 func _door_rect(door: Dictionary, span: int) -> Rect2:

@@ -6,6 +6,8 @@ var content: HospitalContent
 var space: HospitalSpace
 var supplies: RefCounted
 var maintenance: RefCounted
+var _indoor_geometry: Dictionary = {}
+var _indoor_count: int = 0
 
 func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 	content = database
@@ -190,14 +192,24 @@ func operating_rate(world: WorldState) -> int:
 		var id: String = str(facility.definition_id)
 		if id.begins_with("M") or id in ["FUR01","FUR02","EQ01","EQ05","FUR05"]:
 			stations += int(facility.get("capacity",1)) if id=="EQ05" else 1
-	var cells: Dictionary = {}
-	for room: Dictionary in world.facts.rooms.values():
-		if room.get("under_construction",false):
-			continue
-		for cell: Array in BuildGeometry.cells(room):
-			cells["%s:%s:%s"%[room.floor_id,cell[0],cell[1]]] = true
 	# Source rates are expressed as twentieths of a coin per hospital day.
-	return roundi(float(content.balance.daily_base_cost)*20.0)+roundi(float(content.balance.daily_cost_per_station)*20.0)*stations+roundi(float(content.balance.daily_cost_per_indoor_cell)*20.0)*cells.size()
+	return roundi(float(content.balance.daily_base_cost)*20.0)+roundi(float(content.balance.daily_cost_per_station)*20.0)*stations+roundi(float(content.balance.daily_cost_per_indoor_cell)*20.0)*_indoor_cells(world)
+
+func _indoor_cells(world: WorldState) -> int:
+	var geometry: Dictionary = {}
+	for id: String in world.facts.rooms:
+		var room: Dictionary = world.facts.rooms[id]
+		if not room.get("under_construction",false):
+			geometry[id] = [room.floor_id,room.origin,room.size,room.get("cells")]
+	if geometry==_indoor_geometry: return _indoor_count
+	var cells: Dictionary = {}
+	for id: String in geometry:
+		var room: Dictionary = world.facts.rooms[id]
+		for cell: Array in BuildGeometry.cells(room):
+			cells[Vector3i(int(room.floor_id),int(cell[0]),int(cell[1]))] = true
+	_indoor_geometry = geometry.duplicate(true)
+	_indoor_count = cells.size()
+	return _indoor_count
 
 func subsidy_amount(world: WorldState) -> int:
 	var plots: int = world.facts.floors.overrides.get("1",{}).get("plots",[]).size()

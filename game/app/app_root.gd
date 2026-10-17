@@ -46,6 +46,8 @@ var _draft_confirmation: ConfirmationDialog
 var _draft_leave: Callable
 var _draft_leave_confirmed: bool = false
 var _draft_commands: Dictionary = {}
+var _capacity_dialog: ConfirmationDialog
+var _pending_floor: int = -1
 
 func _ready() -> void:
 	get_tree().auto_accept_quit = false
@@ -374,6 +376,9 @@ func _bind_management_panels() -> void:
 			panel.call("attach",_simulation,_session)
 
 func _show_panel(id: String) -> void:
+	if _simulation!=null and _simulation.pending():
+		_status.text = "正在完成当前接诊边界，面板将在完成后提供最新结果。"
+		return
 	_details.visible = id=="details"
 	_library_panel.visible = id=="library"
 	_management_scroll.visible = id not in ["details","library"]
@@ -390,6 +395,7 @@ func _show_panel(id: String) -> void:
 		_build_overlay.show_preview({},{},_observed_floor)
 
 func _show_environment_heatmap(cells: Array) -> void:
+	if _simulation!=null and _simulation.pending(): return
 	if _view!=null and _simulation!=null:
 		_view.show_environment_heatmap(_simulation.services.environment.heatmap(_simulation.world,_observed_floor,cells,_selected_actor))
 
@@ -437,6 +443,9 @@ func _show_layout_preview(draft: Dictionary, result: Dictionary) -> void:
 
 func _locate_entity(id: String) -> void:
 	if _simulation==null:
+		return
+	if _simulation.pending():
+		_status.text = "正在完成当前接诊边界，完成后可以查询人物与设施。"
 		return
 	var world: WorldState = _simulation.world
 	if world.facts.actors.has(id):
@@ -556,17 +565,30 @@ func _process(_delta: float) -> void:
 			_receipt(receipt)
 	if _simulation == null:
 		return
-	for id: String in _draft_commands.keys():
-		var applied: Dictionary = _simulation.receipt(id)
-		if not applied.is_empty():
-			if applied.accepted: _clear_confirmed_draft(str(_draft_commands[id]))
-			_draft_commands.erase(id)
+	if not _simulation.pending():
+		for id: String in _draft_commands.keys():
+			var applied: Dictionary = _simulation.receipt(id)
+			if not applied.is_empty():
+				if applied.accepted: _clear_confirmed_draft(str(_draft_commands[id]))
+				_draft_commands.erase(id)
 	for result: TickResult in _session.advance(real_delta):
 		for event: SimEvent in result.facts:
 			if event.kind=="command_rejected":
 				_status.text = str(event.details.result.reason)
-	_view.update_facts(_session.interpolation_alpha())
-	if Time.get_ticks_msec()>=_details_deadline_ms:
+	var pending: bool = _simulation.pending()
+	_view.process_mode = Node.PROCESS_MODE_DISABLED if pending else Node.PROCESS_MODE_INHERIT
+	_management_panels.process_mode = Node.PROCESS_MODE_DISABLED if pending else Node.PROCESS_MODE_INHERIT
+	if pending:
+		_clock.text = "正在完成当前接诊边界…"
+		var error: String = _simulation.preparing_error()
+		if not error.is_empty(): _show_capacity_error(error)
+	else:
+		if _pending_floor>=0:
+			var floor_id: int = _pending_floor
+			_pending_floor = -1
+			_change_floor(floor_id)
+		_view.update_facts(_session.interpolation_alpha())
+	if not pending and Time.get_ticks_msec()>=_details_deadline_ms:
 		_details_deadline_ms = Time.get_ticks_msec()+100
 		_update_details()
 	if _library_thread==null and Time.get_ticks_msec()>=_auto_deadline_ms:
@@ -639,9 +661,10 @@ func _receipt(receipt: Dictionary) -> void:
 	var expected: Dictionary = _save_requests.get(receipt.get("request_id",""),{})
 	if expected.is_empty():
 		return
-	for field: String in ["hospital_id","loading_session_id","request_id","snapshot_id","world_revision"]:
+	for field: String in ["hospital_id","loading_session_id","request_id","snapshot_id"]:
 		if receipt.get(field)!=expected[field]:
 			return
+	if not expected.get("pending",false) and receipt.get("world_revision")!=expected.world_revision: return
 	_save_requests.erase(receipt.request_id)
 	if _simulation!=null and receipt.hospital_id == _simulation.world.facts.hospital_id and receipt.loading_session_id == _session.loading_session_id:
 		if receipt.ok:
@@ -755,6 +778,9 @@ func _request_quit() -> void:
 	_status.text = "正在保存退出检查点…"
 
 func _change_floor(floor_id: int) -> void:
+	if _simulation!=null and _simulation.pending():
+		_pending_floor = floor_id
+		return
 	if _view != null:
 		if HospitalSpace.floor_plots(_simulation.world,floor_id).is_empty():
 			_status.text = "这一层还没有可用楼板。"
@@ -800,6 +826,7 @@ func _toggle_motion() -> void:
 		_view.low_motion = not _view.low_motion
 
 func _follow_selected() -> void:
+	if _simulation!=null and _simulation.pending(): return
 	if _view!=null and _simulation.world.facts.actors.has(_selected_actor):
 		_view.follow_actor = _selected_actor
 		_view.camera.size = 18.0
@@ -817,6 +844,11 @@ func _move_selected(floor_id: int) -> void:
 func _world_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and event.button_mask&MOUSE_BUTTON_MASK_MIDDLE and _view!=null:
 		_view.pan_camera(event.relative)
+	if _simulation!=null and _simulation.pending():
+		if event is InputEventMouseButton and event.pressed and _view!=null:
+			if event.button_index in [MOUSE_BUTTON_WHEEL_UP,MOUSE_BUTTON_WHEEL_DOWN]:
+				_view.zoom_camera(1.1 if event.button_index==MOUSE_BUTTON_WHEEL_DOWN else 1.0/1.1)
+		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and _view != null:
 		var point: Vector2 = event.position*Vector2(_viewport.size)/_world_container.size
 		if _build_panel.visible:
@@ -882,6 +914,23 @@ func _update_details() -> void:
 		lines.append("%dF · 等级%d · 完好度%d%%" % [int(facility.floor_id),int(facility.grade),roundi(facility.condition)])
 		lines.append("当前故障，等待维修" if facility.failed else "按真实岗位与路线接单")
 	_details.text = "\n".join(lines)
+
+func _show_capacity_error(reason: String) -> void:
+	if _capacity_dialog==null:
+		_capacity_dialog = ConfirmationDialog.new()
+		_capacity_dialog.title = "接诊能力准备未完成"
+		_capacity_dialog.ok_button_text = "按相同输入重试"
+		_capacity_dialog.get_cancel_button().hide()
+		_capacity_dialog.add_button("不保存退出",false,"exit")
+		_capacity_dialog.confirmed.connect(func() -> void: _simulation.retry_preparation())
+		_capacity_dialog.custom_action.connect(func(action: StringName) -> void:
+			if action=="exit":
+				_guard.call("release")
+				get_tree().quit())
+		add_child(_capacity_dialog)
+	if not _capacity_dialog.visible:
+		_capacity_dialog.dialog_text = reason+"\n当前输入与随机状态已保留，尚未生成新的当日计划。"
+		_capacity_dialog.popup_centered(Vector2i(560,210))
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:

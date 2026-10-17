@@ -105,6 +105,7 @@ func worked_staff() -> Dictionary:
 
 func sample(world: WorldState) -> void:
 	ensure(world)
+	if environment!=null: environment.begin_query(world)
 	for visit_id: String in world.ids("visits"):
 		var visit: Dictionary = world.facts.visits[visit_id]
 		if not world.facts.departments.experience.has(visit_id): continue
@@ -122,6 +123,7 @@ func sample(world: WorldState) -> void:
 			_sample_anger(world,visit,experience)
 			var reasons: Array = reason_cards(world,visit_id)
 			if not reasons.is_empty(): _detail(world,experience,{"kind":"cause","tick":world.sim_tick,"cause_id":reasons[0].id,"text":reasons[0].reason})
+	if environment!=null: environment.end_query()
 	for staff_id: String in world.ids("staff"):
 		var day_key: String = str(world.sim_tick/WorldState.TICKS_PER_DAY)
 		if not world.facts.departments.staff_days.has(day_key): world.facts.departments.staff_days[day_key] = {}

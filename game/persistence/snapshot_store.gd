@@ -13,6 +13,7 @@ var guard: RefCounted
 var _thread: Thread
 var _request: Dictionary = {}
 var _dirty_auto_pending: bool = false
+var _deferred_source: HospitalSimulation
 
 func _init(content_registry: HospitalContent, platform_guard: RefCounted) -> void:
 	content = content_registry
@@ -137,7 +138,7 @@ static func uuid() -> String:
 	return "%s-%s-%s-%s-%s" % [hex.substr(0,8),hex.substr(8,4),hex.substr(12,4),hex.substr(16,4),hex.substr(20,12)]
 
 func busy() -> bool:
-	return _thread != null
+	return _thread != null or _deferred_source!=null
 
 func begin(source: RefCounted, session_id: String, kind: String = "manual", slot: String = "1") -> Dictionary:
 	if busy():
@@ -150,19 +151,29 @@ func begin(source: RefCounted, session_id: String, kind: String = "manual", slot
 		return {"ok":false,"error":"保存槽位无效"}
 	var world: WorldState
 	if source is HospitalSimulation:
-		source.drain_commands()
+		source.hold_save_boundary()
+		if not source.save_boundary_ready():
+			_deferred_source = source
+			_request = {"hospital_id":source.world.hospital_id,"loading_session_id":session_id,"request_id":uuid(),
+				"snapshot_id":uuid(),"world_revision":source.world.revision,"slot_kind":kind,"slot_key":slot,"pending":true}
+			return {"ok":true,"request":_request.duplicate(true)}
 		world = source.world
 	elif source is WorldState:
 		world = source
 	else:
 		return {"ok":false,"error":"保存来源不是医院世界或模拟会话"}
+	var started: Dictionary = _begin_world(world,session_id,kind,slot)
+	if source is HospitalSimulation: source.release_save_boundary()
+	return started
+
+func _begin_world(world: WorldState, session_id: String, kind: String, slot: String, identity: Dictionary = {}) -> Dictionary:
 	var reason: String = world.validate(content)
 	if not reason.is_empty() or not valid_uuid(str(world.facts.get("hospital_id",""))):
 		return {"ok":false,"error":"医院不能保存："+reason}
 	if not _budget(estimate(world.facts)):
 		return {"ok":false,"error":"快照副本所需内存或磁盘不足"}
-	var snapshot_id: String = uuid()
-	_request = {"hospital_id":world.facts.hospital_id,"loading_session_id":session_id,"request_id":uuid(),
+	var snapshot_id: String = str(identity.get("snapshot_id",uuid()))
+	_request = {"hospital_id":world.facts.hospital_id,"loading_session_id":session_id,"request_id":str(identity.get("request_id",uuid())),
 		"snapshot_id":snapshot_id,"world_revision":world.facts.world_revision,"sim_tick":world.facts.sim_tick,
 		"slot_kind":kind,"slot_key":slot,"content_packs":_content_identity()}
 	var frozen: Dictionary = world.freeze()
@@ -179,6 +190,11 @@ func _content_identity() -> Array:
 	return content.snapshot_identity().duplicate(true)
 
 func wait_for_idle() -> Dictionary:
+	while _deferred_source!=null:
+		if _deferred_source.step_in_progress(): _deferred_source.step_nonblocking()
+		var receipt: Dictionary = poll()
+		if not receipt.is_empty(): return receipt
+		if _deferred_source!=null: OS.delay_usec(1000)
 	if _thread == null:
 		return {}
 	var receipt: Dictionary = _thread.wait_to_finish()
@@ -198,6 +214,18 @@ func recover_latest(hospital_id: String) -> Dictionary:
 	return {"ok":false,"error":str(issues.get(hospital_id,"医院没有完整有效的保存点")),"rejected_candidates":rejected}
 
 func poll() -> Dictionary:
+	if _deferred_source!=null:
+		if not _deferred_source.save_boundary_ready(): return {}
+		var source: HospitalSimulation = _deferred_source
+		var identity: Dictionary = _request
+		_deferred_source = null
+		var started: Dictionary = _begin_world(source.world,identity.loading_session_id,identity.slot_kind,identity.slot_key,identity)
+		source.release_save_boundary()
+		if not started.ok:
+			identity.ok = false
+			identity.error = started.error
+			_request = {}
+			return identity
 	if _thread == null or _thread.is_alive():
 		return {}
 	var receipt: Dictionary = _thread.wait_to_finish()

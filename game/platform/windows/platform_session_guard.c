@@ -21,6 +21,9 @@ typedef struct {
 } PlatformSessionGuard;
 
 static GDExtensionClassLibraryPtr library;
+static GDExtensionInterfaceGetProcAddress platform_api;
+void ogh_math_initialize(GDExtensionInterfaceGetProcAddress api, GDExtensionClassLibraryPtr owner);
+void ogh_math_deinitialize(GDExtensionInterfaceGetProcAddress api);
 static volatile LONG active_guard_count;
 static StringName guard_class;
 static StringName parent_class;
@@ -498,6 +501,7 @@ static void initialize(void *userdata, GDExtensionInitializationLevel level) {
     bind_method("get_resource_status", METHOD_RESOURCES, GDEXTENSION_VARIANT_TYPE_DICTIONARY);
     bind_decimal_decoder();
     bind_sqlite();
+    ogh_math_initialize(platform_api, library);
     string_name_destroy(&notification_name);
     string_name_destroy(&object_class);
     string_name_destroy(&directory_name);
@@ -507,6 +511,7 @@ static void initialize(void *userdata, GDExtensionInitializationLevel level) {
 static void deinitialize(void *userdata, GDExtensionInitializationLevel level) {
     (void)userdata;
     if (level != GDEXTENSION_INITIALIZATION_SCENE) return;
+    ogh_math_deinitialize(platform_api);
     unregister_class(library, &guard_class);
     unregister_class(library, &numbers_class);
     unregister_class(library, &sqlite_class);
@@ -531,6 +536,7 @@ __declspec(dllexport) GDExtensionBool oddly_good_platform_init(
         GDExtensionInterfaceGetProcAddress get_proc_address,
         GDExtensionClassLibraryPtr class_library, GDExtensionInitialization *initialization) {
     library = class_library;
+    platform_api = get_proc_address;
     GDExtensionInterfaceGetGodotVersion2 get_version;
     LOAD_INTERFACE(GDExtensionInterfaceGetGodotVersion2, get_version, "get_godot_version2");
     GDExtensionGodotVersion2 version;

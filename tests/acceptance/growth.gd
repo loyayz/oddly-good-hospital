@@ -38,7 +38,10 @@ const CASES: Dictionary = {
 	"GROW-35":"docs/design/01-simulation.md §9.2/9.4；实际完成一次解锁并释放",
 	"GROW-36":"docs/design/01-simulation.md §9.3；六兴趣路线只筛原依赖图",
 	"GROW-37":"docs/design/01-simulation.md §9.4；研究开放选项仍查真实接诊缺项",
-	"GROW-38":"docs/design/04-technical.md §4研究进度；资料简报排序与任务恢复"
+	"GROW-38":"docs/design/04-technical.md §4研究进度；资料简报排序与任务恢复",
+	"GROW-39":"docs/design/11-growth-arrivals-recruitment.md §1.1；两套术组、两床及独立共享护理覆盖",
+	"GROW-40":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；日界与保持命令封闭输入、暂停续接和一次提交",
+	"GROW-41":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；待续步骤保存与请求命令水位、冻结计划恢复"
 }
 
 func run(t) -> void:
@@ -50,7 +53,7 @@ func run(t) -> void:
 		if not _content.error.is_empty():
 			t.check(case_id,false,{"content_error":_content.error})
 			continue
-		if int(case_id.right(2))>=21:
+		if int(case_id.right(2))>=21 and int(case_id.right(2))<=38:
 			var started: int = Time.get_ticks_msec()
 			_prepare_opened_snapshot()
 			t.preparation_elapsed(started)
@@ -82,7 +85,47 @@ func _case_02(t) -> void:
 	_add_facility(no_team.world,"unmanned_terminal","M09","spare_terminal",[44,71])
 	_fresh_space(no_team)
 	var unmanned: Dictionary = no_team.arrivals.capacity(no_team.world,false)
-	t.check("GROW-02",capacity.get("complete",false) and F.compare(capacity.get("capacity",F.make()),F.make())>0 and absent.get("capacity",{})==F.make() and unmanned.get("capacity",{})==F.make() and int(unmanned.get("scale_numerator",-1))==0,{"base":capacity,"missing_team":absent,"unmanned":unmanned})
+	var flow: bool = _shared_clock_contract()
+	t.check("GROW-02",flow and capacity.get("complete",false) and F.compare(capacity.get("capacity",F.make()),F.make())>0 and absent.get("capacity",{})==F.make() and unmanned.get("capacity",{})==F.make() and int(unmanned.get("scale_numerator",-1))==0,{"base":capacity,"missing_team":absent,"unmanned":unmanned,"shared_clocks":flow})
+
+func _shared_clock_contract() -> bool:
+	# Two doctors rotate 100-tick diagnostics and 200-tick treatment. A
+	# quarter-probability 100-tick retry adds 25 ticks, not another budget.
+	# Each complete visit uses 325 doctor-ticks: 12000/325 = 480/13.
+	var model: Dictionary = {"probability":F.make(1),"bundles":[
+		{"resources":{"doctor_a":F.make(200)},"choices":["diagnosis_a","reception","retry_a"]},
+		{"resources":{"doctor_b":F.make(200)},"choices":["diagnosis_b","reception","retry_b"]}],
+		"choice_groups":{
+			"diagnosis_a":[{"resources":{"doctor_b":F.make(100)}}],
+			"diagnosis_b":[{"resources":{"doctor_a":F.make(100)}}],
+			"reception":[{"resources":{"receptionist":F.make(25)}}],
+			"retry_a":[{"resources":{"doctor_a":F.make(25)},"choices":["retry_round"]}],
+			"retry_b":[{"resources":{"doctor_b":F.make(25)},"choices":["retry_round"]}],
+			"retry_round":[{"resources":{"round":F.make(10)}}]}}
+	var budgets: Dictionary = {"doctor_a":F.make(6000),"doctor_b":F.make(6000),"receptionist":F.make(6000),"round":F.make(6000)}
+	var result: Dictionary = ArrivalCapacitySolver.solve([model],budgets)
+	if result.get("capacity",{})!=F.make(480,13): return false
+	budgets.receptionist = F.make(500)
+	result = ArrivalCapacitySolver.solve([model],budgets)
+	if result.get("capacity",{})!=F.make(20): return false
+	budgets.round = F.make(100)
+	result = ArrivalCapacitySolver.solve([model],budgets)
+	if result.get("capacity",{})!=F.make(10): return false
+	# One third of Visits use six ticks; two thirds use three. Both real
+	# resources have 180 ticks, so 360/(6/3+3*2/3) = 90 Visits exactly.
+	var mixed: Array = []
+	for index: int in 2:
+		var ticks: int = 6 if index==0 else 3
+		mixed.append({"probability":F.make(index+1,3),"bundles":[{"resources":{},"choices":["operator"]}],"choice_groups":{"operator":[{"resources":{"a":F.make(ticks)}},{"resources":{"b":F.make(ticks)}}]}})
+	result = ArrivalCapacitySolver.solve(mixed,{"a":F.make(180),"b":F.make(180)})
+	if result.get("capacity",{})!=F.make(90): return false
+	var visits: Array = [F.make(),F.make()]
+	var used: Dictionary = {"a":F.make(),"b":F.make()}
+	for assignment: Dictionary in result.assignments:
+		visits[assignment.case_index] = F.add(visits[assignment.case_index],assignment.amount)
+		for resource: String in assignment.resources:
+			used[resource] = F.add(used[resource],F.mul(assignment.amount,assignment.resources[resource]))
+	return visits==[F.make(30),F.make(60)] and used.a==F.make(180) and used.b==F.make(180)
 
 func _case_03(t) -> void:
 	var base: Dictionary = _context()
@@ -90,7 +133,154 @@ func _case_03(t) -> void:
 	var capacity: Dictionary = base.arrivals.capacity(base.world,false)
 	var frozen: Dictionary = base.world.freeze()
 	var repeated: Dictionary = base.arrivals.capacity(base.world,false)
-	t.check("GROW-03",capacity==repeated and base.world.freeze()==frozen,{"same_projection":capacity==repeated,"world_unchanged":base.world.freeze()==frozen})
+	var unchanged: bool = base.world.freeze()==frozen
+	# Actual whereabouts do not remove a scheduled, qualified nominal resource.
+	# This calculation input does not execute or skip any actual movement.
+	for staff_id: String in base.world.ids("staff"):
+		base.world.facts.actors[staff_id].location = {"kind":"outside"}
+	var outside_input: Dictionary = base.world.freeze()
+	var outside: Dictionary = base.arrivals.capacity(base.world,false)
+	var outside_unchanged: bool = base.world.freeze()==outside_input
+	base.arrivals.execute(base.world,"arrivals_weight",{"disease_id":"D09","weight":0})
+	var no_cases: Dictionary = base.arrivals.capacity(base.world,false)
+	base.arrivals.execute(base.world,"arrivals_weight",{"disease_id":"D09","weight":1})
+	var restored: Dictionary = base.arrivals.capacity(base.world,false)
+	t.check("GROW-03",capacity==repeated and unchanged and outside==capacity and outside_unchanged and no_cases.get("capacity",{})==F.make() and restored==capacity,{"same_projection":capacity==repeated,"world_unchanged":unchanged,"temporary_positions_independent":outside==capacity,"empty_weighted_pool":no_cases.get("capacity",{}),"restored_weights":restored==capacity})
+
+func _case_39(t) -> void:
+	# A legal calculation input; no patient movement or clinical work is skipped.
+	var ctx: Dictionary = _context()
+	var builder: RefCounted = load("res://tests/acceptance/clinical_fixtures.gd").new()
+	builder._content = _content
+	builder._add_layout(ctx.world,"or_standard","parallel_or_a",[33,65])
+	builder._add_layout(ctx.world,"or_standard","parallel_or_b",[43,65])
+	builder._add_layout(ctx.world,"ward_two_beds","parallel_ward",[53,65])
+	_add_room(ctx.world,"parallel_gp","gp",[43,76],[4,4])
+	_add_facility(ctx.world,"parallel_gp_desk","FUR02","parallel_gp",[43,77])
+	for id: String in ["starter_doctor_a","starter_doctor_b"]:
+		ctx.world.facts.staff[id].abilities.treatment = 2
+		ctx.world.facts.staff[id].schedule = builder._schedule("outpatient")
+		for slot: int in 2: ctx.world.facts.staff[id].schedule[slot].pools = ["diagnosis"]
+	ctx.world.facts.staff.starter_doctor_c.schedule = builder._schedule("rest")
+	for index: int in 4:
+		builder._add_worker(ctx.world,"parallel_surgeon_"+str(index),"doctor",[34+index*4,75],"surgery",{"diagnosis":1,"treatment":1,"care":0,"surgery":2},"DT02")
+	for index: int in 2:
+		var id: String = "parallel_or_nurse_"+str(index)
+		builder._add_worker(ctx.world,id,"nurse",[50+index*2,75],"work",{"diagnosis":1,"treatment":0,"care":1,"surgery":1})
+		ctx.world.facts.staff[id].certificates = ["q_or","q_ward"]
+	builder._add_worker(ctx.world,"parallel_cover","nurse",[54,75],"work",{"diagnosis":1,"treatment":0,"care":1,"surgery":0})
+	ctx.world.facts.staff.parallel_cover.ward_id = "parallel_ward"
+	for index: int in 2:
+		builder._add_worker(ctx.world,"parallel_round_"+str(index),"doctor",[58+index*2,75],"round",{"diagnosis":2,"treatment":1,"care":0,"surgery":0})
+	for definition: Dictionary in _content.catalog.research:
+		if not definition.id in ctx.world.facts.research: ctx.world.facts.research.append(definition.id)
+	ctx.simulation._ensure_services()
+	ctx.world.touch()
+	_fresh_space(ctx)
+	var valid: String = ctx.world.validate(_content)
+	var frozen: Dictionary = ctx.world.freeze()
+	var nominal: WorldState = ctx.arrivals._capacity_reference_world(ctx.world)
+	var query: Dictionary = {}
+	var binding: Dictionary = _content.definition("treatment_bindings","B_S13_D09_M09")
+	var quote: Dictionary = ctx.clinic.reference_demand(nominal,binding.id,false,0,query)
+	var variant: Dictionary = ctx.arrivals._reference_variant(nominal,binding,false,0,quote,query)
+	variant.probability = F.make(1)
+	var tables: Dictionary = {}
+	var beds: Dictionary = {}
+	for bundle: Dictionary in quote.get("bundles",[]):
+		if bundle.plan_id=="P_D09_SURGERY":
+			tables[bundle.terminal_id] = true
+			beds[bundle.bed_id] = true
+	var structure: Dictionary = ctx.arrivals._structural_pairs(nominal,[variant],0)
+	var budgets: Dictionary = ctx.arrivals._resource_budgets(nominal,[variant],0)
+	var capacity: Dictionary = ctx.arrivals._solve_roles(nominal,[variant],budgets,0)
+	# Exhausted care time removes new Visit capacity, while the independent
+	# built structural maximum still has both complete teams.
+	budgets["coverage:parallel_cover:parallel_ward"] = F.make()
+	var exhausted: Dictionary = ctx.arrivals._solve_roles(nominal,[variant],budgets,0)
+	# Both independent teams fit. Removing the only independent cover removes
+	# every surgery group; the two operating nurses cannot cover their own work.
+	nominal.facts.staff = nominal.facts.staff.duplicate(true)
+	nominal.facts.staff.parallel_cover.schedule = builder._schedule("rest")
+	var uncovered: Dictionary = ctx.arrivals._structural_pairs(nominal,[variant],0)
+	t.check("GROW-39",valid.is_empty() and ctx.world.freeze()==frozen and quote.get("ok",false) and tables.size()==2 and beds.size()==2 and int(structure.get("pairs",-1))==2 and int(uncovered.get("pairs",-1))==0 and not capacity.has("error") and F.compare(capacity.get("capacity",F.make()),F.make())>0 and exhausted.get("capacity",{})==F.make() and int(exhausted.get("structural_pairs",-1))==2,{"validation":valid,"tables":tables.keys(),"beds":beds.keys(),"structure":structure,"uncovered":uncovered,"capacity":capacity,"exhausted":exhausted,"reference_reason":quote.get("reason","")})
+
+func _case_40(t) -> void:
+	var ctx: Dictionary = _context()
+	_single_case(ctx)
+	ctx.arrivals.execute(ctx.world,"arrivals_intake",{"open":false})
+	ctx.world.facts.arrivals.plan.clear()
+	var session: GameSession = GameSession.new(ctx.simulation,"sealed-day")
+	# Change a real dependency after preparation starts. The original candidate
+	# cannot satisfy the sealed input, irrespective of worker scheduling speed.
+	ctx.arrivals.execute(ctx.world,"arrivals_weight",{"disease_id":"D09","weight":2})
+	var rng: Dictionary = ctx.world.facts.rng.duplicate(true)
+	session.set_speed(1)
+	var first: Array[TickResult] = session.advance(0.1)
+	var waiting: bool = first.is_empty() and ctx.simulation.pending() and ctx.world.sim_tick==0 and ctx.world.facts.arrivals.plan.is_empty() and ctx.world.facts.rng.arrival==rng.arrival
+	var sealed_world: Dictionary = ctx.world.freeze()
+	var late: CommandResult = session.submit(GameCommand.new("late-weight",ctx.world.hospital_id,ctx.world.revision,"arrivals_weight",BusinessPayload.new({"disease_id":"D09","weight":0}),"sealed-day"))
+	session.set_speed(0)
+	var results: Array[TickResult] = []
+	var deadline: int = Time.get_ticks_msec()+15000
+	while ctx.simulation.pending() and ctx.simulation.preparing_error().is_empty() and Time.get_ticks_msec()<deadline:
+		var completed: Array[TickResult] = session.advance(0.4)
+		if completed.is_empty(): waiting = waiting and ctx.world.freeze()==sealed_world
+		results.append_array(completed)
+		await t.process_frame
+	var plan: Dictionary = ctx.world.facts.arrivals.plan.duplicate(true)
+	var sealed: bool = results.size()==1 and ctx.world.sim_tick==1 and int(plan.get("opportunity_count",0))>0 and not ctx.world.facts.command_receipts.has("late-weight") and int(ctx.world.facts.arrivals.disease_weights.D09)==2
+	session.advance(0.4)
+	var frozen: bool = ctx.world.facts.arrivals.plan==plan and ctx.world.sim_tick==1 and ctx.world.facts.command_receipts.has("late-weight")
+	var held: CommandResult = session.submit(GameCommand.new("hold",ctx.world.hospital_id,ctx.world.revision,"arrivals_scale",BusinessPayload.new({"mode":"hold_capacity"}),"sealed-day"))
+	session.submit(GameCommand.new("after-hold",ctx.world.hospital_id,ctx.world.revision,"arrivals_weight",BusinessPayload.new({"disease_id":"D09","weight":1}),"sealed-day"))
+	deadline = Time.get_ticks_msec()+15000
+	while ctx.simulation.pending() and ctx.simulation.preparing_error().is_empty() and Time.get_ticks_msec()<deadline:
+		session.advance(0.4)
+		await t.process_frame
+	var held_input: bool = ctx.world.facts.command_receipts.has("hold") and ctx.world.facts.arrivals.held_capacity_fraction==F.make() and not ctx.world.facts.command_receipts.has("after-hold")
+	session.advance(0.4)
+	t.check("GROW-40",waiting and late.code=="queued" and sealed and frozen and held.code=="queued" and held_input and int(ctx.world.facts.arrivals.disease_weights.D09)==1 and ctx.world.sim_tick==1 and ctx.world.facts.arrivals.plan==plan,{"waiting":waiting,"sealed":sealed,"frozen":frozen,"held_input":held_input,"error":ctx.simulation.preparing_error()})
+
+func _case_41(t) -> void:
+	var ctx: Dictionary = _context()
+	_single_case(ctx)
+	ctx.arrivals.execute(ctx.world,"arrivals_intake",{"open":false})
+	ctx.world.facts.arrivals.plan.clear()
+	var session: GameSession = GameSession.new(ctx.simulation,"save-boundary")
+	ctx.arrivals.execute(ctx.world,"arrivals_weight",{"disease_id":"D09","weight":2})
+	session.set_speed(1)
+	session.advance(0.1)
+	var pending: bool = ctx.simulation.pending()
+	session.set_speed(0)
+	session.submit(GameCommand.new("before-save",ctx.world.hospital_id,ctx.world.revision,"finance_note",BusinessPayload.new({"text":"保存前接收","target_amount":6000}),"save-boundary"))
+	var guard: RefCounted = ClassDB.instantiate("PlatformSessionGuard")
+	var acquired: Dictionary = guard.call("acquire")
+	if not acquired.ok:
+		t.check("GROW-41",false,acquired)
+		return
+	var store: HospitalSnapshots = HospitalSnapshots.new(_content,guard)
+	var started: Dictionary = store.begin(ctx.simulation,"save-boundary")
+	session.submit(GameCommand.new("after-save",ctx.world.hospital_id,ctx.world.revision,"finance_note",BusinessPayload.new({"text":"保存后接收","target_amount":7000}),"save-boundary"))
+	var receipt: Dictionary = {}
+	var deadline: int = Time.get_ticks_msec()+15000
+	while started.ok and receipt.is_empty() and ctx.simulation.preparing_error().is_empty() and Time.get_ticks_msec()<deadline:
+		receipt = store.poll()
+		if not receipt.is_empty(): break
+		session.advance(0.4)
+		await t.process_frame
+	var loaded: Dictionary = store.load_commit(ctx.world.hospital_id,receipt.snapshot_id) if receipt.get("ok",false) else {"ok":false}
+	var watermark: bool = loaded.ok and loaded.world.sim_tick==1 and loaded.world.facts.command_receipts.has("before-save") and not loaded.world.facts.command_receipts.has("after-save")
+	var restored: bool = false
+	if loaded.ok:
+		var saved: Dictionary = loaded.world.freeze()
+		var kernel: HospitalSimulation = HospitalSimulation.new(loaded.world,_content)
+		var resumed: GameSession = GameSession.new(kernel,"restored-plan")
+		resumed.advance(0.4)
+		restored = loaded.world.freeze()==saved
+		kernel.dispose()
+	guard.call("release")
+	t.check("GROW-41",pending and started.ok and started.request.get("pending",false) and watermark and restored,{"pending":pending,"started":started,"receipt":receipt,"watermark":watermark,"restored":restored,"error":ctx.simulation.preparing_error()})
 
 func _case_04(t) -> void:
 	var base: Dictionary = _context()
@@ -161,7 +351,12 @@ func _case_08(t) -> void:
 	restored.facts.arrivals.next_preset = "festival"
 	restored.facts.staff.starter_doctor_a.schedule[0].kind = "rest"
 	var restored_ticks: Array = _slot_ticks(restored.facts.arrivals.plan)
-	t.check("GROW-08",restored_ticks==_slot_ticks(vector) and restored.facts.arrivals.plan==vector and restored.facts.rng==restore_rng and not vector.has("slot_ticks") and DayPlan.validate(vector).is_empty(),restored.facts.arrivals.plan)
+	var wide: Dictionary = F.make("18446744073709551616","3")
+	var exact: bool = F.add(wide,F.make(2,3))==F.make("6148914691236517206")
+	exact = exact and F.add(F.make("999999999999999999"),F.make("999999999999999999"))==F.make("1999999999999999998")
+	exact = exact and F.make("999999999999999999",7)==F.make("142857142857142857")
+	exact = exact and F.floor_value(wide)==6148914691236517205 and F.ceil_value(wide)==6148914691236517206
+	t.check("GROW-08",exact and restored_ticks==_slot_ticks(vector) and restored.facts.arrivals.plan==vector and restored.facts.rng==restore_rng and not vector.has("slot_ticks") and DayPlan.validate(vector).is_empty(),{"plan":restored.facts.arrivals.plan,"wide_exact_fractions":exact})
 
 func _case_09(t) -> void:
 	var restore: Dictionary = _context()

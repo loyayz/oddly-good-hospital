@@ -11,6 +11,7 @@ var _query: RouteClearance
 var _people: Callable
 var _bases: Array[FloorNavigation] = []
 var _shifts: Array[Vector2i] = []
+var _overlay: bool = false
 
 func _init(projection: RouteClearance) -> void:
 	geometry = projection
@@ -76,7 +77,7 @@ func _composed_edge(from: Vector2i, to: Vector2i, bases: Array[FloorNavigation],
 			return false
 	return true
 
-func find_path(start: Vector2i, goal: Vector2i, query: RouteClearance, people: Callable = Callable(), partial: bool = false, bases: Array[FloorNavigation] = [], shifts: Array[Vector2i] = []) -> Dictionary:
+func find_path(start: Vector2i, goal: Vector2i, query: RouteClearance, people: Callable = Callable(), partial: bool = false, bases: Array[FloorNavigation] = [], shifts: Array[Vector2i] = [], overlay: bool = false) -> Dictionary:
 	if not _inside(start) or not _inside(goal):
 		return {"ok":false,"status":"unreachable","reason":"目标超出96×96真实楼面"}
 	var reason: String = query.reason(goal)
@@ -88,12 +89,14 @@ func find_path(start: Vector2i, goal: Vector2i, query: RouteClearance, people: C
 	_people = people
 	_bases = bases
 	_shifts = shifts
-	neighbor_filter_enabled = not bases.is_empty() or people.is_valid() or query.has_reservations()
+	_overlay = overlay
+	neighbor_filter_enabled = overlay or not bases.is_empty() or people.is_valid() or query.has_reservations()
 	var ids: PackedInt64Array = get_id_path(_id(start),_id(goal),partial)
 	_query = null
 	_people = Callable()
 	_bases = []
 	_shifts = []
+	_overlay = false
 	neighbor_filter_enabled = false
 	if ids.is_empty():
 		return {"ok":false,"status":"unreachable","reason":"真实身体无法到达目标"}
@@ -106,6 +109,8 @@ func find_path(start: Vector2i, goal: Vector2i, query: RouteClearance, people: C
 
 func _filter_neighbor(from_id: int, to_id: int) -> bool:
 	var cell: Vector2i = _cell(to_id)
+	if _overlay and (not _query.reason(cell).is_empty() or not _query.edge_reason(_cell(from_id),cell).is_empty()):
+		return true
 	if not _bases.is_empty() and (not _composed_node(cell,_bases,_shifts) or not _composed_edge(_cell(from_id),cell,_bases,_shifts)):
 		return true
 	return not _query.reservation_reason(cell).is_empty() or (_people.is_valid() and not bool(_people.call(_cell(from_id),cell)))

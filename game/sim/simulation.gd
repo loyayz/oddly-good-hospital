@@ -12,6 +12,10 @@ var _business_handlers: Dictionary = {}
 var _commands: Array[GameCommand] = []
 var _rejected: Dictionary = {}
 var _command_events: Array[SimEvent] = []
+var _command_boundary: Array[GameCommand] = []
+var _step_context: Dictionary = {}
+var _save_boundary: bool = false
+var _save_commands: Array[GameCommand] = []
 
 func _init(state: WorldState, database: HospitalContent) -> void:
 	world = state
@@ -81,6 +85,7 @@ func _register_service(id: String, service: RefCounted, kinds: Array[String]) ->
 		_business_handlers[kind] = service
 
 func dispose() -> void:
+	if services.has("arrivals"): services.arrivals.dispose()
 	if services.has("floors"): services.floors.environment = null
 	if services.has("remodel"):
 		services.remodel.services = {}
@@ -141,10 +146,47 @@ func enqueue(command: Dictionary) -> void:
 
 func drain_commands() -> Array[CommandResult]:
 	var results: Array[CommandResult] = []
-	for command: GameCommand in _commands:
+	if not _step_context.is_empty() and _step_context.phase!="commands": return results
+	if _command_boundary.is_empty():
+		_command_boundary = _save_commands if _save_boundary else _commands
+		if _save_boundary: _save_commands = []
+		else: _commands = []
+	while not _command_boundary.is_empty():
+		var command: GameCommand = _command_boundary[0]
+		var hold: bool = _production() and receipt(command.id).is_empty() and command.kind=="arrivals_scale" and command.typed_payload is BusinessPayload and command.typed_payload.to_record().get("mode","")=="hold_capacity"
+		if hold and not services.arrivals.seal_capacity(world,false).get("complete",false): break
+		_command_boundary.pop_front()
 		results.append(apply(command))
-	_commands.clear()
+		if hold: services.arrivals.release_preparation()
 	return results
+
+func pending() -> bool:
+	return not _step_context.is_empty() or not _command_boundary.is_empty()
+
+func step_in_progress() -> bool:
+	return not _step_context.is_empty()
+
+func preparing_error() -> String:
+	return services.arrivals.preparation_error if _production() else ""
+
+func retry_preparation() -> void:
+	if _production(): services.arrivals.retry_preparation()
+
+func hold_save_boundary() -> void:
+	_save_boundary = true
+	_save_commands.append_array(_commands)
+	_commands = []
+
+func save_boundary_ready() -> bool:
+	if not _step_context.is_empty(): return false
+	drain_commands()
+	return _command_boundary.is_empty() and _save_commands.is_empty()
+
+func release_save_boundary() -> void:
+	_save_boundary = false
+
+func saving_boundary() -> bool:
+	return _save_boundary
 
 func receipt(command_id: String) -> Dictionary:
 	return world.facts.command_receipts.get(command_id,_rejected.get(command_id,{})).duplicate(true)
@@ -210,19 +252,30 @@ func _execute(command: GameCommand) -> CommandResult:
 func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickResult:
 	if state!=null:
 		world = state
-	var present_at_start: int = world.present_actor_count()
 	for command: GameCommand in commands:
 		_commands.append(GameCommand.from_record(command.to_record()))
-	drain_commands() # 1: commands and automatic supply orders.
-	if _production():
-		services.supplies.boundaries(world)
-	if _production(): # 2: schedules and equipment boundaries.
-		services.research.boundaries(world)
-		services.scheduler.boundaries(world)
-		services.wellbeing.boundaries(world)
-		services.maintenance.boundaries(world)
-		services.recruitment.boundaries(world)
-		services.arrivals.boundaries(world)
+	var result: TickResult = step_nonblocking()
+	while result==null and preparing_error().is_empty():
+		OS.delay_usec(1000)
+		result = step_nonblocking()
+	return result
+
+func step_nonblocking() -> TickResult:
+	if _step_context.is_empty():
+		_step_context = {"phase":"commands","present":world.present_actor_count(),"started_us":Time.get_ticks_usec()}
+	if _step_context.phase=="commands":
+		drain_commands() # 1: the original command boundary is sealed once.
+		if not _command_boundary.is_empty(): return null
+		if _production():
+			services.supplies.boundaries(world)
+			services.research.boundaries(world) # 2: schedules and equipment.
+			services.scheduler.boundaries(world)
+			services.wellbeing.boundaries(world)
+			services.maintenance.boundaries(world)
+			services.recruitment.boundaries(world)
+		_step_context.phase = "plan"
+	if _production() and not services.arrivals.boundaries(world): return null
+	var present_at_start: int = int(_step_context.present)
 	if _production(): # 3: real arrivals and family requests.
 		services.arrivals.arrivals(world)
 		clinic.arrivals(world)
@@ -293,7 +346,10 @@ func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickRe
 	world.touch() # 10: complete immutable snapshot boundary.
 	space.finish_boundary(world)
 	events.append(SimEvent.new(world.sim_tick,"tick_completed",[],{"revision":world.revision}))
-	return TickResult.new(world.sim_tick,world.revision,events)
+	var result: TickResult = TickResult.new(world.sim_tick,world.revision,events)
+	result.elapsed_us = Time.get_ticks_usec()-int(_step_context.started_us)
+	_step_context = {}
+	return result
 
 func take_command_events() -> Array[SimEvent]:
 	var events: Array[SimEvent] = _command_events

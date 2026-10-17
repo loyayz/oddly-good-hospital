@@ -10,8 +10,9 @@ $cacheRoot = Join-Path $repoRoot '.cache/tools'
 $abiRoot = Join-Path $repoRoot '.cache/platform-guard/abi'
 $zigVersion = '0.15.2'
 $zigName = "zig-x86_64-windows-$zigVersion"
-$zigArchive = Join-Path $cacheRoot "$zigName.zip"
-$zigExe = Join-Path $cacheRoot "$zigName/zig.exe"
+$zigRoot = Join-Path $repoRoot '.cache/native-math'
+$zigArchive = Join-Path $zigRoot 'zig.zip'
+$zigExe = Join-Path $zigRoot "$zigName/zig.exe"
 $zigSha256 = '3a0ed1e8799a2f8ce2a6e6290a9ff22e6906f8227865911fb7ddedc3cc14cb0c'
 $outputPath = Join-Path $repoRoot 'game/platform/windows/bin/oddly_good_platform.windows.x86_64.dll'
 $sqliteVersion = '3.54.0'
@@ -20,7 +21,7 @@ $sqliteRoot = Join-Path $cacheRoot $sqliteName
 $sqliteArchive = Join-Path $cacheRoot "$sqliteName.zip"
 $sqliteSha256 = '68e913b0fe8ec6b4e5f391c594a28872884e80d6cd042a1e50c957be46b5aa4d'
 
-New-Item -ItemType Directory -Force $cacheRoot, $abiRoot, (Split-Path $outputPath) | Out-Null
+New-Item -ItemType Directory -Force $cacheRoot, $zigRoot, $abiRoot, (Split-Path $outputPath) | Out-Null
 if (-not (Test-Path -LiteralPath $zigExe)) {
     if (-not (Test-Path -LiteralPath $zigArchive)) {
         Invoke-WebRequest -Uri "https://ziglang.org/download/$zigVersion/$zigName.zip" -OutFile $zigArchive
@@ -28,7 +29,7 @@ if (-not (Test-Path -LiteralPath $zigExe)) {
     if ((Get-FileHash -LiteralPath $zigArchive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $zigSha256) {
         throw 'Zig archive SHA256 mismatch. Remove the incomplete cache archive before rebuilding.'
     }
-    Expand-Archive -LiteralPath $zigArchive -DestinationPath $cacheRoot -Force
+    Expand-Archive -LiteralPath $zigArchive -DestinationPath $zigRoot -Force
 }
 $actualZigVersion = (& $zigExe version | Out-String).Trim()
 if ($LASTEXITCODE -ne 0 -or $actualZigVersion -ne $zigVersion) { throw 'Unexpected Zig compiler version.' }
@@ -79,6 +80,8 @@ $byteMethods = ($api.builtin_classes | Where-Object name -eq 'PackedByteArray').
 $arraySizeHash = ($arrayMethods | Where-Object name -eq 'size').hash
 $arrayAppendHash = ($arrayMethods | Where-Object name -eq 'append').hash
 $bytesResizeHash = ($byteMethods | Where-Object name -eq 'resize').hash
+$dictionaryKeysHash = (($api.builtin_classes | Where-Object name -eq 'Dictionary').methods | Where-Object name -eq 'keys').hash
+$dictionaryGetHash = (($api.builtin_classes | Where-Object name -eq 'Dictionary').methods | Where-Object name -eq 'get').hash
 if (-not $userDirHash -or -not $notificationHash) { throw 'The required engine method hashes are missing.' }
 @"
 #define OGH_VARIANT_SIZE 24
@@ -90,12 +93,18 @@ if (-not $userDirHash -or -not $notificationHash) { throw 'The required engine m
 #define OGH_ARRAY_SIZE_HASH $arraySizeHash
 #define OGH_ARRAY_APPEND_HASH $arrayAppendHash
 #define OGH_BYTES_RESIZE_HASH $bytesResizeHash
+#define OGH_DICTIONARY_KEYS_HASH $dictionaryKeysHash
+#define OGH_DICTIONARY_GET_HASH $dictionaryGetHash
 #define OGH_USER_DIR_HASH $userDirHash
 #define OGH_NOTIFICATION_HASH $notificationHash
 "@ | Set-Content -LiteralPath (Join-Path $abiRoot 'platform_guard_abi.h') -Encoding utf8NoBOM
 
-& $zigExe cc -target x86_64-windows-gnu -std=c11 -O2 -Wall -Wextra -Werror -shared -s `
-    (Join-Path $repoRoot 'game/platform/windows/platform_session_guard.c') $sqliteObject -I $abiRoot -I $sqliteRoot -o $outputPath -lkernel32 -ladvapi32
+$math = & (Join-Path $PSScriptRoot 'build-arrival-math.ps1') -Zig $zigExe -AbiRoot $abiRoot
+$platformObject = Join-Path $abiRoot 'platform_session_guard.o'
+& $zigExe cc -target x86_64-windows-gnu -std=c11 -O2 -Wall -Wextra -Werror -c `
+    (Join-Path $repoRoot 'game/platform/windows/platform_session_guard.c') -I $abiRoot -I $sqliteRoot -o $platformObject
+if ($LASTEXITCODE -ne 0) { throw 'Platform binding compilation failed.' }
+& $zigExe c++ -target x86_64-windows-gnu -O2 -shared -s $platformObject $sqliteObject @($math.objects) @($math.libraries) -o $outputPath -lkernel32 -ladvapi32
 if ($LASTEXITCODE -ne 0) { throw 'Platform bridge compilation failed.' }
 [PSCustomObject]@{
     output = $outputPath
@@ -105,4 +114,5 @@ if ($LASTEXITCODE -ne 0) { throw 'Platform bridge compilation failed.' }
     compiler = "Zig $actualZigVersion"
     sqlite = $sqliteVersion
     sqlite_source_sha256 = $sqliteSha256
+    arrival_math = $math
 } | ConvertTo-Json -Compress

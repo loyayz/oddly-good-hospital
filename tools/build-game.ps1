@@ -98,7 +98,8 @@ if (($source | ConvertTo-Json -Depth 8 -Compress) -ne ($sourceAfterExport | Conv
 $licenses = Join-Path $productOutput 'licenses'
 New-Item -ItemType Directory -Force -Path $licenses | Out-Null
 Copy-Item -LiteralPath (Join-Path $project 'assets/licenses/Godot-MIT.txt'),(Join-Path $project 'assets/fonts/OFL.txt'),(Join-Path $project 'tools/windows/THIRD-PARTY-NOTICES.txt') -Destination $licenses -Force
-$files = foreach ($name in @('oddly-good-hospital.exe','oddly-good-hospital.pck','oddly_good_platform.windows.x86_64.dll')) {
+Copy-Item -Path (Join-Path $project 'game/platform/windows/bin/licenses/*') -Destination $licenses -Force
+$files = foreach ($name in @('oddly-good-hospital.exe','oddly-good-hospital.pck','oddly_good_platform.windows.x86_64.dll','libgmp-10.dll','libmpfr-6.dll','libgcc_s_seh-1.dll','libwinpthread-1.dll')) {
     $path = Join-Path $productOutput $name
     if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Release artifact missing: $path" }
     [ordered]@{path=$name;bytes=(Get-Item -LiteralPath $path).Length;sha256=(Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant()}

@@ -23,7 +23,7 @@ var _closed_door_cells: Dictionary = {}
 var _horizontal_walls: Dictionary = {}
 var _vertical_walls: Dictionary = {}
 
-func _init(space: HospitalSpace, world: WorldState, actor: Dictionary, floor_id: int, members: Array = [], offsets: Dictionary = {}, include_reservations: bool = true, floor_source: Dictionary = {}) -> void:
+func _init(space: HospitalSpace, world: WorldState, actor: Dictionary, floor_id: int, members: Array = [], offsets: Dictionary = {}, include_reservations: bool = true, floor_source: Dictionary = {}, static_geometry: RouteClearance = null) -> void:
 	_indexed_static = not include_reservations
 	_size = space.clearance(actor)
 	var body: Dictionary = space.body(actor)
@@ -33,6 +33,24 @@ func _init(space: HospitalSpace, world: WorldState, actor: Dictionary, floor_id:
 		if member_id!=actor.id:
 			var offset: Array = offsets[member_id]
 			_members.append({"query":RouteClearance.new(space,world,world.facts.actors[member_id],floor_id,[],{},include_reservations,source),"offset":Vector2(float(offset[0]),float(offset[1]))})
+	if static_geometry==null:
+		_build_static(space,world,actor,floor_id)
+	else:
+		# The graph owns immutable geometry for this complete body envelope.
+		# Only reservations depend on the current actor's identity.
+		_indexed_static = static_geometry._indexed_static
+		for field: String in ["_plots","_blocked","_doors","_facilities","_connectors","_walls","_dependencies","_facility_cells","_connector_cells","_open_door_cells","_closed_door_cells","_horizontal_walls","_vertical_walls"]:
+			set(field,static_geometry.get(field))
+	if include_reservations:
+		for reservation: Dictionary in world.facts.adaptations.values():
+			if reservation.kind=="facility" and int(reservation.floor_id)==floor_id and actor.id!=reservation.actor_id and not actor.id in reservation.staff_ids and not reservation.actor_id in members:
+				var regions: Array[Rect2] = []
+				for area: Array in reservation.regions:
+					regions.append(Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3])))
+				_reservations.append({"regions":regions,"id":reservation.facility_id})
+	_plain = _plain_geometry()
+
+func _build_static(space: HospitalSpace, world: WorldState, actor: Dictionary, floor_id: int) -> void:
 	var layout: Dictionary = source.layout
 	for plot: Array in layout.get("plots",[]):
 		var cell: Vector2i = Vector2i(int(plot[0]),int(plot[1]))
@@ -75,21 +93,12 @@ func _init(space: HospitalSpace, world: WorldState, actor: Dictionary, floor_id:
 			_walls.append({"room_id":id,"axis":"x","line":y,"low":rect.position.x,"high":rect.end.x})
 		for x: int in [rect.position.x,rect.end.x]:
 			_walls.append({"room_id":id,"axis":"y","line":x,"low":rect.position.y,"high":rect.end.y})
-	if not include_reservations:
+	if _indexed_static:
 		for wall: Dictionary in _walls:
 			var lines: Dictionary = _horizontal_walls if wall.axis=="x" else _vertical_walls
 			var line: int = int(wall.line)
 			if not lines.has(line): lines[line] = []
 			lines[line].append(wall)
-		_plain = _plain_geometry()
-		return
-	for reservation: Dictionary in world.facts.adaptations.values():
-		if reservation.kind=="facility" and int(reservation.floor_id)==floor_id and actor.id!=reservation.actor_id and not actor.id in reservation.staff_ids and not reservation.actor_id in members:
-			var regions: Array[Rect2] = []
-			for area: Array in reservation.regions:
-				regions.append(Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3])))
-			_reservations.append({"regions":regions,"id":reservation.facility_id})
-	_plain = _plain_geometry()
 
 func _plain_geometry() -> bool:
 	return _members.is_empty() and _blocked.is_empty() and _doors.is_empty() and _facilities.is_empty() and _connectors.is_empty() and _reservations.is_empty() and _walls.is_empty()
@@ -278,7 +287,8 @@ static func capture_source(space: HospitalSpace, world: WorldState, floor_id: in
 	for id: String in world.ids("facilities"):
 		var facility: Dictionary = world.facts.facilities[id]
 		if int(facility.floor_id)==floor_id and space.content.facility_definition(facility.definition_id).get("blocks_movement",true):
-			result.facilities[id] = {"cell":facility.cell.duplicate(),"footprint":space.facility_layout(world,id).footprint.duplicate()}
+			var footprint: Array = world.facts.adaptations.get(id,{}).get("footprint",facility.footprint)
+			result.facilities[id] = {"cell":facility.cell.duplicate(),"footprint":footprint.duplicate()}
 	for id: String in world.ids("connectors"):
 		var connector: Dictionary = world.facts.connectors[id]
 		if HospitalTransit.has_stop(connector,floor_id):

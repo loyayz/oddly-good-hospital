@@ -20,7 +20,9 @@ try {
     Copy-Item -LiteralPath (Join-Path $repo 'assets/licenses/Godot-MIT.txt') -Destination (Join-Path $licenses 'Godot-MIT.txt')
     Copy-Item -LiteralPath (Join-Path $repo 'assets/fonts/OFL.txt') -Destination (Join-Path $licenses 'Noto-Sans-CJK-OFL.txt')
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'windows/THIRD-PARTY-NOTICES.txt') -Destination (Join-Path $licenses 'THIRD-PARTY-NOTICES.txt')
-    $packageFiles = @('oddly-good-hospital.exe','oddly-good-hospital.pck','oddly_good_platform.windows.x86_64.dll','licenses/Godot-MIT.txt','licenses/Noto-Sans-CJK-OFL.txt','licenses/THIRD-PARTY-NOTICES.txt')
+    Copy-Item -Path (Join-Path $repo 'game/platform/windows/bin/licenses/*') -Destination $licenses -Force
+    $packageFiles = @('oddly-good-hospital.exe','oddly-good-hospital.pck','oddly_good_platform.windows.x86_64.dll','libgmp-10.dll','libmpfr-6.dll','libgcc_s_seh-1.dll','libwinpthread-1.dll')
+    $packageFiles += @(Get-ChildItem -LiteralPath $licenses -File | ForEach-Object { 'licenses/'+$_.Name })
     $fileIdentity = foreach ($relativePath in $packageFiles) {
         $filePath = Join-Path $windowsOutput $relativePath
         [PSCustomObject]@{ path = $relativePath; bytes = (Get-Item -LiteralPath $filePath).Length; sha256 = (Get-FileHash -LiteralPath $filePath -Algorithm SHA256).Hash.ToLowerInvariant() }

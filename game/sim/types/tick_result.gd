@@ -4,6 +4,7 @@ extends RefCounted
 var sim_tick: int
 var revision: int
 var facts: Array[SimEvent]
+var elapsed_us: int = 0
 
 func _init(tick: int = 0, world_revision: int = 0, events: Array[SimEvent] = []) -> void:
 	sim_tick = tick

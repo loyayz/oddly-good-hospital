@@ -133,9 +133,9 @@ class TimedClinic extends HospitalClinic:
 		var result: Dictionary = super._surgery_bundle_quote(world,visit,team,facility_id,options,bed_quotes)
 		timing.count("clinical.bundle_quote",started)
 		return result
-	func _compatible_bed(world: WorldState, visit: Dictionary, floor_id: int, excluded: Array, structural_only: bool = false, preferred_bed: String = "", reference_schedule: bool = false) -> Dictionary:
+	func _compatible_bed(world: WorldState, visit: Dictionary, floor_id: int, excluded: Array, structural_only: bool = false, preferred_bed: String = "", reference_schedule: bool = false, alternatives: Variant = null) -> Dictionary:
 		var started: int = Time.get_ticks_usec()
-		var result: Dictionary = super._compatible_bed(world,visit,floor_id,excluded,structural_only,preferred_bed,reference_schedule)
+		var result: Dictionary = super._compatible_bed(world,visit,floor_id,excluded,structural_only,preferred_bed,reference_schedule,alternatives)
 		timing.count("clinical.compatible_bed",started)
 		return result
 	func _reserve_bundle(world: WorldState, visit: Dictionary, quote: Dictionary, owner_id: String) -> String:

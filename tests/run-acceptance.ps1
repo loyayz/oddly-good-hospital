@@ -56,6 +56,16 @@ if (-not (Test-Path -LiteralPath $native -PathType Leaf)) { throw 'Build the pla
 $nativeTarget = Join-Path $target 'game/platform/windows/bin'
 New-Item -ItemType Directory -Force -Path $nativeTarget,(Join-Path $target '.godot/imported') | Out-Null
 Copy-Item -LiteralPath $native -Destination $nativeTarget
+$mathNative = Join-Path (Split-Path -Parent $native) 'libgmp-10.dll'
+Copy-Item -LiteralPath $mathNative -Destination $nativeTarget
+$mpfrNative = Join-Path (Split-Path -Parent $native) 'libmpfr-6.dll'
+Copy-Item -LiteralPath $mpfrNative -Destination $nativeTarget
+$runtimeHashes = @{}
+foreach ($name in 'libgcc_s_seh-1.dll','libwinpthread-1.dll') {
+    $runtimePath = Join-Path (Split-Path -Parent $native) $name
+    Copy-Item -LiteralPath $runtimePath -Destination $nativeTarget
+    $runtimeHashes[$name] = (Get-FileHash -LiteralPath $runtimePath).Hash
+}
 # Reuse imported immutable assets; editor state and hospital data are never copied.
 Get-ChildItem -LiteralPath (Join-Path $repo '.godot/imported') -File | ForEach-Object {
     Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $target '.godot/imported')
@@ -69,11 +79,13 @@ $arguments = @('--headless','--path',$target,'--script','res://tests/acceptance/
 foreach ($selectedCase in $CaseId) { $arguments += '--case=' + $selectedCase }
 $engineHash = (Get-FileHash -LiteralPath $Godot -Algorithm SHA256).Hash
 $nativeHash = (Get-FileHash -LiteralPath $native -Algorithm SHA256).Hash
+$mathNativeHash = (Get-FileHash -LiteralPath $mathNative -Algorithm SHA256).Hash
+$mpfrNativeHash = (Get-FileHash -LiteralPath $mpfrNative -Algorithm SHA256).Hash
 # Real prefix generation steps all simulation services. Their source, content,
 # assets and runtime identities invalidate generated states; unrelated docs and
 # case assertions do not. Each fixture builder adds its own identity in Godot.
 $fixtureSources = @($identity | Where-Object { $_.path -match '^(game/|content/|assets/|project\.godot$)' })
-$fixtureIdentity = [ordered]@{ source=$fixtureSources; engine=$engineHash; native=$nativeHash }
+$fixtureIdentity = [ordered]@{ source=$fixtureSources; engine=$engineHash; native=$nativeHash; gmp=$mathNativeHash; mpfr=$mpfrNativeHash; runtime=$runtimeHashes }
 $fixtureBytes = [Text.Encoding]::UTF8.GetBytes(($fixtureIdentity | ConvertTo-Json -Depth 8 -Compress))
 $fixtureHash = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($fixtureBytes)).ToLowerInvariant()
 [ordered]@{ directory=(Join-Path $repo '.cache/acceptance-checkpoints'); identity=$fixtureHash; rebuild=[bool]$RebuildFixtures } |
@@ -81,7 +93,7 @@ $fixtureHash = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($
 [ordered]@{
     head=(& git -C $repo rev-parse HEAD); cwd=$repo; project=$target; profile=$profile
     engine=$Godot; engine_sha256=$engineHash
-    native_sha256=$nativeHash; fixture_identity=$fixtureHash; rebuild_fixtures=[bool]$RebuildFixtures
+    native_sha256=$nativeHash; gmp_sha256=$mathNativeHash; mpfr_sha256=$mpfrNativeHash; runtime_sha256=$runtimeHashes; fixture_identity=$fixtureHash; rebuild_fixtures=[bool]$RebuildFixtures
     import_arguments=$importArguments; test_arguments=$arguments; source=$identity
 } | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $target 'source-identity.json') -Encoding utf8NoBOM
 Write-Output "ACCEPTANCE_PROJECT=$target"

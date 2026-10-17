@@ -14,7 +14,8 @@ if ($LASTEXITCODE -ne 0 -or (Select-String -LiteralPath (Join-Path $logs 'export
 $licenses = Join-Path $output 'licenses'
 New-Item -ItemType Directory -Force -Path $licenses | Out-Null
 Copy-Item -LiteralPath (Join-Path $repo 'assets/licenses/Godot-MIT.txt'),(Join-Path $repo 'assets/fonts/OFL.txt'),(Join-Path $PSScriptRoot 'windows/THIRD-PARTY-NOTICES.txt') -Destination $licenses -Force
-$files = foreach ($name in @('oddly-good-hospital.exe','oddly-good-hospital.pck','oddly_good_platform.windows.x86_64.dll')) {
+Copy-Item -Path (Join-Path $repo 'game/platform/windows/bin/licenses/*') -Destination $licenses -Force
+$files = foreach ($name in @('oddly-good-hospital.exe','oddly-good-hospital.pck','oddly_good_platform.windows.x86_64.dll','libgmp-10.dll','libmpfr-6.dll','libgcc_s_seh-1.dll','libwinpthread-1.dll')) {
     $file = Join-Path $output $name
     [ordered]@{path=$name;bytes=(Get-Item -LiteralPath $file).Length;sha256=(Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash.ToLowerInvariant()}
 }
