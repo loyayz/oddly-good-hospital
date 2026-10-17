@@ -24,10 +24,15 @@ func begin_route_query(world: WorldState, reference: Dictionary = {}) -> void:
 		reference.routes = {}
 		reference.fits = {}
 		reference.journeys = {}
+	if not _route_queries.is_empty() and not reference.is_empty() and is_same(reference,_route_queries.back().reference):
+		# Nested scopes belong to the same sealed read-only transport batch.
+		_route_queries.append({"world":world,"routes":reference.routes,"exits":{},"reference":reference,"journeys_allowed":_route_queries.back().journeys_allowed})
+		return
 	var journeys_allowed: bool = not reference.is_empty()
 	for movement: Dictionary in world.facts.moves.values():
 		if movement.has("transit_ticket"): journeys_allowed = false
 	if journeys_allowed:
+		reference.transport_builds = int(reference.get("transport_builds",0))+1
 		var riders: Dictionary = {}
 		for connection: Dictionary in world.facts.connectors.values():
 			for id: String in connection.get("riders",[]): riders[id] = body(world.facts.actors[id])

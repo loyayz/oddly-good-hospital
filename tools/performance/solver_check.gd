@@ -53,6 +53,14 @@ func _initialize() -> void:
 	for vector: Dictionary in vectors:
 		var result: Dictionary = Solver.solve(vector.cases,vector.budgets)
 		if not _valid_solution(vector.cases,vector.budgets,vector.expected,result): failures.append({"index":vector.index,"phase":"cold","actual":result})
+		var irrelevant: Dictionary = vector.budgets.duplicate(true)
+		irrelevant["coverage:unused_nurse:unused_ward"] = F.make()
+		var unchanged_model: RefCounted = ClassDB.instantiate("PlatformArrivalCapacity")
+		var unchanged: Dictionary = unchanged_model.call("prepare",vector.cases,irrelevant)
+		if not _valid_solution(vector.cases,irrelevant,vector.expected,unchanged) or unchanged.get("solver_kind","")!="lp" or unchanged.get("bottleneck","")=="coverage:unused_nurse:unused_ward": failures.append({"index":vector.index,"phase":"unused_coverage","actual":unchanged})
+		irrelevant["coverage:unused_nurse:unused_ward"] = F.make(98765)
+		var reused: Dictionary = unchanged_model.call("solve",irrelevant)
+		if not _valid_solution(vector.cases,irrelevant,vector.expected,reused) or reused.get("resolution_count")!=unchanged.get("resolution_count"): failures.append({"index":vector.index,"phase":"unused_update","actual":reused})
 		var backend: RefCounted = ClassDB.instantiate("PlatformArrivalCapacity")
 		result = backend.call("prepare",vector.cases,vector.budgets)
 		if not _valid_solution(vector.cases,vector.budgets,vector.expected,result): failures.append({"index":vector.index,"phase":"prepare","actual":result})
@@ -65,6 +73,7 @@ func _initialize() -> void:
 	var report: Dictionary = {"checks":vectors.size(),"warm_checks":vectors.size()*3,"arithmetic_checks":arithmetic.size(),"integer_checks":integers.size(),"structure_checks":structure_vectors.size(),"failures":failures,"solver_sha256":FileAccess.get_sha256("res://game/arrivals/capacity_solver.gd"),"fractions_sha256":FileAccess.get_sha256("res://game/arrivals/exact_fraction.gd"),"vectors_sha256":FileAccess.get_sha256("res://solver-vectors.json"),"native_sha256":FileAccess.get_sha256("res://game/platform/windows/bin/oddly_good_platform.windows.x86_64.dll"),"gmp_sha256":FileAccess.get_sha256("res://game/platform/windows/bin/libgmp-10.dll"),"mpfr_sha256":FileAccess.get_sha256("res://game/platform/windows/bin/libmpfr-6.dll")}
 	report.role_checks = roles.size()*6
 	report.recovery_checks = 7
+	report.unused_resource_checks = vectors.size()*2
 	report.aggregate_checks = arithmetic.size()
 	var file: FileAccess = FileAccess.open("res://solver-check.json",FileAccess.WRITE)
 	file.store_string(JSON.stringify(report,"\t"))

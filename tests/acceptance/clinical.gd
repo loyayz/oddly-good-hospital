@@ -2,6 +2,11 @@ extends "res://tests/acceptance/clinical_fixtures.gd"
 
 const ClinicalTiming = preload("res://tests/acceptance/clinical_timing.gd")
 
+class UnknownTransferEstimate extends HospitalSpace:
+	func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
+		if members.size()>1: return {"ok":false,"status":"estimate_unknown","reason":"controlled downstream estimate failure"}
+		return super.route(world,actor_id,floor_id,target,members,offsets,ignore_people)
+
 const CASES: Dictionary = {
 	"CLIN-01":"docs/design/12-implementation-plan.md §10.1–10.2；真实接待6秒，Actor/Visit/原票只建一次",
 	"CLIN-02":"docs/design/07-clinical-team.md §9、§14、§17；诊断池与治疗池由不同实际医生安全交接，D09首试成功实收235",
@@ -710,11 +715,13 @@ func _case_25(t) -> void:
 	var old_progress: int = int(_stay(transfer).last_progress_tick)
 	var switched: CommandResult = _command(transfer,"clinical_transfer_bed",{"visit_id":transfer.visit_id,"bed_id":"clin_ward_1"})
 	var preserved_immediately: bool = switched.accepted and int(_stay(transfer).remaining_ticks)==old_remaining and int(_stay(transfer).last_progress_tick)==old_progress and bool(_stay(transfer).care_completed)
-	var projection: Dictionary = {"initial":_transfer_projection(transfer,original_bed),"exit":false}
+	var projection: Dictionary = {"initial":_transfer_projection(transfer,original_bed),"exit":false,"freed":false}
 	var initial_cell: Array = transfer.world.facts.actors[_visit(transfer).actor_id].location.cell.duplicate()
 	var arrived: bool = switched.accepted and await _until(t,transfer,func()->bool:
 		if not projection.exit and transfer.world.facts.actors[_visit(transfer).actor_id].location.cell!=initial_cell and transfer.sim.space.overlaps_facility(transfer.world,_visit(transfer).actor_id,original_bed):
 			projection.exit = _transfer_projection(transfer,original_bed)
+		if not projection.freed and _stay(transfer).get("phase","")=="transfer" and not transfer.sim.space.overlaps_facility(transfer.world,_visit(transfer).actor_id,original_bed):
+			projection.freed = _transfer_projection(transfer,original_bed)
 		return _stay(transfer).get("phase","")=="recovery",800)
 	projection.released = arrived and _transfer_projection(transfer,original_bed)
 	var no_transfer_work: bool = arrived and int(_stay(transfer).remaining_ticks)>=old_remaining-1
@@ -722,7 +729,7 @@ func _case_25(t) -> void:
 	var return_remaining: int = int(_stay(transfer).get("remaining_ticks",-1))
 	var returned: CommandResult = _command(transfer,"clinical_transfer_bed",{"visit_id":transfer.visit_id,"bed_id":original_bed})
 	var back: bool = returned.accepted and await _until(t,transfer,func()->bool: return _stay(transfer).get("phase","")=="recovery",800)
-	t.check("CLIN-25",projection.initial and projection.exit and projection.released and preserved_immediately and no_transfer_work and back and str(_stay(transfer).attempt_id)==original_attempt and bool(_stay(transfer).care_completed) and int(_stay(transfer).remaining_ticks)>=return_remaining-1 and is_equal_approx(float(transfer.world.facts.facilities[original_bed].condition),old_condition) and transfer.world.facts.facilities[original_bed].use_receipts.size()==1 and _units_used(transfer)==8 and _income(transfer,"ward")==0 and _income(transfer,"cure")==0,{"projection":projection,"immediate_preservation":preserved_immediately,"no_work_while_transferring":no_transfer_work,"outward":switched.to_record(),"return":returned.to_record(),"state":_state(transfer)})
+	t.check("CLIN-25",projection.initial and projection.exit and projection.freed and projection.released and preserved_immediately and no_transfer_work and back and str(_stay(transfer).attempt_id)==original_attempt and bool(_stay(transfer).care_completed) and int(_stay(transfer).remaining_ticks)>=return_remaining-1 and is_equal_approx(float(transfer.world.facts.facilities[original_bed].condition),old_condition) and transfer.world.facts.facilities[original_bed].use_receipts.size()==1 and _units_used(transfer)==8 and _income(transfer,"ward")==0 and _income(transfer,"cure")==0,{"projection":projection,"immediate_preservation":preserved_immediately,"no_work_while_transferring":no_transfer_work,"outward":switched.to_record(),"return":returned.to_record(),"state":_state(transfer)})
 
 func _transfer_projection(c: Dictionary, old_bed: String) -> bool:
 	var facts: Dictionary = c.world.freeze()
@@ -734,7 +741,14 @@ func _transfer_projection(c: Dictionary, old_bed: String) -> bool:
 	capture.dispose()
 	var table_id: String = c.world.facts.attempts[stay.attempt_id].facility_id
 	var overlapping: bool = c.sim.space.overlaps_facility(c.world,_visit(c).actor_id,old_bed)
-	return actual==copied and c.world.freeze()==facts and int(actual.resources.get("facility:"+table_id,0))==0 and (int(actual.resources.get("facility:"+old_bed,0))>0)==overlapping and int(actual.resources.get("facility:"+str(stay.bed_id),0))>0
+	var failure_preserved: bool = true
+	if stay.phase=="transfer":
+		var geometry: HospitalSpace = c.sim.clinic.space
+		c.sim.clinic.space = UnknownTransferEstimate.new(_content)
+		var failed: Dictionary = c.sim.clinic.remaining_commitments(c.world)
+		c.sim.clinic.space = geometry
+		failure_preserved = int(failed.resources.get("facility:"+old_bed,0))==int(actual.resources.get("facility:"+old_bed,0)) and int(failed.resources.get("facility:"+table_id,0))==0 and int(failed.resources.get("facility:"+str(stay.bed_id),0))>=WorldState.TICKS_PER_DAY
+	return failure_preserved and actual==copied and c.world.freeze()==facts and int(actual.resources.get("facility:"+table_id,0))==0 and (int(actual.resources.get("facility:"+old_bed,0))>0)==overlapping and int(actual.resources.get("facility:"+str(stay.bed_id),0))>0
 
 func _case_26(t) -> void:
 	var fault: Dictionary = _copy("ward_after_care")

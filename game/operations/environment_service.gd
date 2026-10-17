@@ -708,7 +708,7 @@ func _nearby_actors(world: WorldState, floor_id: int, cell: Array) -> Array:
 			result.append_array(buckets.get(Vector2i(x,y),[]))
 	return result
 
-func environment_at(world: WorldState, floor_id: int, cell: Array, actor_id: String = "") -> Dictionary:
+func environment_at(world: WorldState, floor_id: int, cell: Array, actor_id: String = "", explain: bool = true) -> Dictionary:
 	var rules: Dictionary = content.balance.environment
 	var result: Dictionary = {"value":int(rules.base),"noise":0,"dirt":0,"clean":true,"water":false,"nearby_count":0,"sources":[],"subject_id":actor_id,"reference":actor_id.is_empty()}
 	if not space.owned(world,floor_id,Vector2i(int(cell[0]),int(cell[1]))):
@@ -729,7 +729,7 @@ func environment_at(world: WorldState, floor_id: int, cell: Array, actor_id: Str
 	if not floor_finish.is_empty():
 		var material: Dictionary = content.definition("renovation_materials",floor_finish.material_id)
 		result.value += mini(int(rules.floor_cap),int(material.environment_value))
-		result.sources.append({"kind":"floor","id":floor_finish.material_id,"value":int(material.environment_value)})
+		if explain: result.sources.append({"kind":"floor","id":floor_finish.material_id,"value":int(material.environment_value)})
 	var wall_value: int = 0
 	var wall_distance: int = range_cells+1
 	var wall_key: String = ""
@@ -765,7 +765,7 @@ func environment_at(world: WorldState, floor_id: int, cell: Array, actor_id: Str
 	for patch: Dictionary in (_sample_records("dirt",floor_id,negative) if _query.get("world")==world else environment.get("dirt",{}).values()):
 		if int(patch.floor_id)==floor_id and str(patch.bin_id).is_empty() and negative.has(_cell_key(patch.cell)):
 			result.dirt += 1
-			result.sources.append({"kind":"dirt","id":patch.id,"value":-int(rules.dirt_per_item)})
+			if explain: result.sources.append({"kind":"dirt","id":patch.id,"value":-int(rules.dirt_per_item)})
 	result.clean = int(result.dirt)==0
 	result.value += int(rules.clean_bonus) if result.clean else -mini(int(rules.dirt_cap),int(result.dirt)*int(rules.dirt_per_item))
 	if _query.get("world")==world:

@@ -8,9 +8,9 @@ const DayPlan = preload("res://game/arrivals/day_plan.gd")
 # This observer counts real production queries without substituting a result.
 class AdmissionObserver extends HospitalClinic:
 	var readiness_queries: int = 0
-	func arrival_readiness(world: WorldState, binding_id: String, complex_case: bool = false) -> Dictionary:
+	func arrival_readiness(world: WorldState, binding_id: String, complex_case: bool = false, explain: bool = true) -> Dictionary:
 		readiness_queries += 1
-		return super.arrival_readiness(world,binding_id,complex_case)
+		return super.arrival_readiness(world,binding_id,complex_case,explain)
 
 var _content: HospitalContent
 var _simulations: Array[HospitalSimulation] = []

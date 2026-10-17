@@ -7,6 +7,7 @@ var clinic: RefCounted
 var waiting_life: RefCounted
 var environment: RefCounted
 var _worked: Dictionary = {}
+var _pruned_boundary: Array = []
 
 func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 	content = database
@@ -268,7 +269,7 @@ func route_patient(world: WorldState, visit_id: String) -> bool:
 	visit.waiting_reason = "等待导诊核对" if waited<_ticks(content.balance.guidance.help_after_seconds) else "已请求导诊，保留原号；可沿公共路线自助纠正"
 	return false
 
-func readiness(world: WorldState, department_id: String, visit_id: String) -> Dictionary:
+func readiness(world: WorldState, department_id: String, visit_id: String, structural_only: bool = false) -> Dictionary:
 	var department: Dictionary = world.facts.get("departments",{}).get("units",{}).get(department_id,{})
 	var visit: Dictionary = world.facts.visits.get(visit_id,{})
 	if department.is_empty() or visit.is_empty(): return {"ok":false,"reachable":false,"structurally_compatible":false,"reason_id":"department_missing","reason":"科室或就诊不存在"}
@@ -295,9 +296,15 @@ func readiness(world: WorldState, department_id: String, visit_id: String) -> Di
 	if not unlocked: return {"ok":false,"reachable":true,"structurally_compatible":false,"reason_id":"equipment_has_no_unlocked_plan","reason":"实际设备没有对应已解锁方案"}
 	var quotes: Array = []
 	if clinic!=null and clinic.has_method("compare_plans"):
-		var candidate: WorldState = WorldState.new(world.freeze())
+		var facts: Dictionary = world.facts.duplicate()
+		facts.visits = world.facts.visits.duplicate()
+		facts.visits[visit_id] = visit.duplicate(true)
+		var candidate: WorldState = WorldState.new(facts)
 		candidate.facts.visits[visit_id].department_id = department_id
-		quotes = clinic.compare_plans(candidate,visit_id)
+		if structural_only:
+			for plan: Dictionary in content.catalog.treatment_plans:
+				if plan.disease_id==visit.disease_id: quotes.append(clinic.plan_quote(candidate,visit_id,plan.id,{"structural_only":true,"ignore_supplies":true}))
+		else: quotes = clinic.compare_plans(candidate,visit_id)
 	var ready: bool = false
 	var structurally_compatible: bool = clinic==null
 	for quote: Dictionary in quotes:
@@ -305,11 +312,11 @@ func readiness(world: WorldState, department_id: String, visit_id: String) -> Di
 		if quote.get("structural_ok",quote.get("ok",false)): structurally_compatible = true
 	return {"ok":department.open and ready,"reachable":true,"structurally_compatible":structurally_compatible,"reason_id":"" if ready else "clinical_readiness","reason":"" if ready else "等待本病例实际岗位、设备、床位与物资就绪","plans":quotes,"department_id":department_id,"entry":department.entry.duplicate(true)}
 
-func eligible_departments(world: WorldState, visit_id: String) -> Array:
+func eligible_departments(world: WorldState, visit_id: String, structural_only: bool = false) -> Array:
 	var values: Array = []
 	for id: String in _sorted(world.facts.get("departments",{}).get("units",{})):
 		var department: Dictionary = world.facts.departments.units[id]
-		var status: Dictionary = readiness(world,id,visit_id)
+		var status: Dictionary = readiness(world,id,visit_id,structural_only)
 		if department.open and status.reachable and status.structurally_compatible:
 			values.append({"id":id,"name":department.name,"status":status})
 	return values
@@ -818,18 +825,24 @@ func _staff_experience(world: WorldState) -> Variant:
 
 func _prune(world: WorldState) -> void:
 	var state: Dictionary = world.facts.departments
-	var oldest_day: int = maxi(0,world.sim_tick/WorldState.TICKS_PER_DAY-int(content.balance.ratings.window_days))
+	var today: int = world.sim_tick/WorldState.TICKS_PER_DAY
+	var boundary: Array = [world.get_instance_id(),today,state.cases.size()]
+	if _pruned_boundary==boundary: return
+	var oldest_day: int = maxi(0,today-int(content.balance.ratings.window_days))
 	state.cases = state.cases.filter(func(record: Dictionary) -> bool: return int(record.day)>=oldest_day)
 	var retained: Dictionary = {}
 	var counts: Dictionary = {}
+	var published: Dictionary = {}
 	for index: int in range(state.cases.size()-1,-1,-1):
 		var record: Dictionary = state.cases[index]
-		var department_id: String = str(record.department_id)
-		if int(counts.get("hospital",0))<int(content.balance.ratings.case_window_limit): retained[record.visit_id] = true
-		counts.hospital = int(counts.get("hospital",0))+1
-		if int(counts.get(department_id,0))<int(content.balance.ratings.case_window_limit): retained[record.visit_id] = true
-		counts[department_id] = int(counts.get(department_id,0))+1
+		for key: String in ["hospital","department:"+str(record.department_id)]:
+			if int(counts.get(key,0))<int(content.balance.ratings.case_window_limit): retained[record.visit_id] = true
+			counts[key] = int(counts.get(key,0))+1
+			if int(record.day)<today:
+				if int(published.get(key,0))<int(content.balance.ratings.case_window_limit): retained[record.visit_id] = true
+				published[key] = int(published.get(key,0))+1
 	state.cases = state.cases.filter(func(record: Dictionary) -> bool: return retained.has(record.visit_id))
+	_pruned_boundary = [world.get_instance_id(),today,state.cases.size()]
 	var closed: Array = []
 	for id: String in state.experience:
 		if int(state.experience[id].closed_tick)>=0: closed.append({"id":id,"tick":state.experience[id].closed_tick})
@@ -843,7 +856,7 @@ func _prune(world: WorldState) -> void:
 		state.staff_jobs[staff_id] = state.staff_jobs[staff_id].filter(func(record: Dictionary) -> bool: return int(record.tick)/WorldState.TICKS_PER_DAY>=oldest_day)
 
 func _environment(world: WorldState, actor_id: String, floor_id: int, cell: Array) -> Dictionary:
-	return environment.environment_at(world,floor_id,cell,actor_id) if environment!=null else {"value":float(content.balance.environment.base)+float(content.balance.environment.clean_bonus),"noise":0.0,"clean":true}
+	return environment.environment_at(world,floor_id,cell,actor_id,false) if environment!=null else {"value":float(content.balance.environment.base)+float(content.balance.environment.clean_bonus),"noise":0.0,"clean":true}
 
 func _grace_ticks(kind: String) -> int:
 	return _ticks(_cause("wait_doctor" if kind in ["gp","consult","outpatient","round"] else "wait_clinical").grace_seconds)

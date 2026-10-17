@@ -53,7 +53,14 @@ const CASES: Dictionary = {
 	"GROW-50":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；后台保留业务版本和实际承诺适配，名义资格一致",
 	"GROW-51":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；查房授权即时失效，冷热几何与权限一致",
 	"GROW-52":"docs/design/11-growth-arrivals-recruitment.md §1.1；K仅依赖首尝试实际结构及接待匹配",
-	"GROW-53":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；无关运输变化不递增等价病例版本"
+	"GROW-53":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；无关运输变化不递增等价病例版本",
+	"GROW-54":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；A到B到A封闭结果保留与原输入重试",
+	"GROW-55":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；记录共享保持输入隔离、删除与后继完整性",
+	"GROW-56":"docs/design/07-clinical-team.md §10；同身体不同专业的会诊候选与遍历顺序无关",
+	"GROW-57":"docs/design/07-clinical-team.md §6；完整方案集上的三种策略与实际选择一致",
+	"GROW-58":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；实际交通票序和出口保留，名义模型排除排队",
+	"GROW-59":"docs/design/07-clinical-team.md §14；已足够证据不枚举后续检查，入院布尔与解释一致",
+	"GROW-60":"docs/design/07-clinical-team.md §5；候选使用已证明的适配站位且不修改实际预约"
 }
 
 func run(t) -> void:
@@ -199,10 +206,12 @@ func _case_39(t) -> void:
 	variant.probability = F.make(1)
 	var tables: Dictionary = {}
 	var beds: Dictionary = {}
-	for bundle: Dictionary in quote.get("bundles",[]):
-		if bundle.plan_id=="P_D09_SURGERY":
-			tables[bundle.terminal_id] = true
-			beds[bundle.bed_id] = true
+	for bundle: Dictionary in quote.get("model",{}).get("bundles",[]):
+		for resource: String in bundle.resources:
+			if not resource.begins_with("facility:"): continue
+			var id: String = resource.trim_prefix("facility:")
+			if ctx.world.facts.facilities[id].definition_id=="EQ01": tables[id] = true
+			elif ctx.world.facts.facilities[id].definition_id=="EQ05": beds[id] = true
 	var structure: Dictionary = ctx.arrivals._structural_pairs(nominal,[variant],0)
 	var budgets: Dictionary = ctx.arrivals._resource_budgets(nominal,[variant],0)
 	var model_key: Array = [JSON.stringify(variant).sha256_text()]
@@ -557,9 +566,166 @@ func _case_53(t) -> void:
 	var reference: Dictionary = {"nominal":true}
 	sim.space.begin_route_query(nominal,reference)
 	var route: Dictionary = sim.space.route(nominal,"starter_doctor_a",1,[47,93],[],{},true)
+	sim.space.begin_route_query(nominal)
 	var reused: Dictionary = sim.space.route(nominal,"starter_doctor_a",1,[47,93],[],{},true)
 	sim.space.end_route_query()
-	t.check("GROW-53",not first.model_key.is_empty() and first.model_key==receipts.model_key and first.model_key==changed.model_key and boarding and not facts.moves.is_empty() and route==reused and reference.journeys.size()==1,{"same_model":first.model_key==changed.model_key,"boarding":boarding,"journeys":reference.journeys.size(),"route":route})
+	sim.space.end_route_query()
+	t.check("GROW-53",not first.model_key.is_empty() and first.model_key==receipts.model_key and first.model_key==changed.model_key and boarding and not facts.moves.is_empty() and route==reused and reference.journeys.size()==1 and reference.transport_builds==1,{"same_model":first.model_key==changed.model_key,"boarding":boarding,"journeys":reference.journeys.size(),"route":route})
+
+func _case_54(t) -> void:
+	var ctx: Dictionary = _context(false)
+	var preparation: ArrivalPreparation = ArrivalPreparation.new(_content)
+	var input: Dictionary = preparation._capture(ctx.world,false,-1)
+	var other: Dictionary = input.duplicate(true)
+	other.facts.plan_strategy = "safety_first"
+	preparation._completed = {"input":input,"projection":{"complete":true,"marker":"A"}}
+	preparation._completed_id = 7
+	preparation._sequence = 8
+	preparation._active = other
+	preparation._active_id = 8
+	var gate: Semaphore = Semaphore.new()
+	preparation._thread = Thread.new()
+	preparation._thread.start(func()->Dictionary:
+		gate.wait()
+		return {"projection":{"complete":true,"marker":"B"},"elapsed_us":0})
+	var first: Dictionary = preparation.sealed_projection(ctx.world,false)
+	gate.post()
+	while preparation._thread.is_alive(): await t.process_frame
+	preparation.poll(false)
+	var retained: Dictionary = preparation.sealed_projection(ctx.world,false)
+	var correct: bool = first.get("marker")=="A" and retained==first and preparation._completed_id==8
+	preparation._sealed_result = {"complete":false,"reason":"controlled_failure"}
+	preparation.retry()
+	while preparation._thread!=null and preparation._thread.is_alive(): await t.process_frame
+	preparation.poll(false)
+	correct = correct and preparation._completed.input==input and preparation.sealed_projection(ctx.world,false).get("complete",false)
+	preparation.dispose()
+	t.check("GROW-54",correct,{"first":first,"retained":retained})
+
+func _case_55(t) -> void:
+	var ctx: Dictionary = _context()
+	var preparation: ArrivalPreparation = ArrivalPreparation.new(_content)
+	var first: Dictionary = preparation._capture(ctx.world,true,-1)
+	var copied: int = preparation.metrics().copied_records
+	var second: Dictionary = preparation._capture(ctx.world,true,-1)
+	var unchanged: bool = first==second and preparation.metrics().copied_records==copied
+	var id: String = ctx.world.ids("facilities")[0]
+	var old: Dictionary = first.facts.facilities[id].duplicate(true)
+	ctx.world.facts.facilities[id].grade = 2
+	var changed: Dictionary = preparation._capture(ctx.world,true,-1)
+	ctx.world.facts.facilities.erase(id)
+	var removed: Dictionary = preparation._capture(ctx.world,true,-1)
+	ctx.world.facts.facilities[id] = old.duplicate(true)
+	var restored: Dictionary = preparation._capture(ctx.world,true,-1)
+	var correct: bool = unchanged and is_same(first.facts.facilities[id],second.facts.facilities[id]) and first.facts.facilities[id]==old and changed.facts.facilities[id].grade==2 and not removed.facts.facilities.has(id) and restored==first
+	preparation.dispose()
+	t.check("GROW-55",correct,{"unchanged_records_reused":unchanged,"restored":restored==first})
+
+func _case_56(t) -> void:
+	var ctx: Dictionary = _context()
+	var first_binding: Dictionary = _content.definition("treatment_bindings","B_S49_D37_M37")
+	var specialty: String = _content.definition("treatment_routines",first_binding.routine_id).specialty_id
+	var second_binding: Dictionary = {}
+	for binding: Dictionary in _content.catalog.treatment_bindings:
+		if binding.species_id==first_binding.species_id and _content.definition("treatment_routines",binding.routine_id).specialty_id!=specialty:
+			second_binding = binding
+			break
+	var candidate: Dictionary = ctx.clinic._arrival_candidate(ctx.arrivals._capacity_reference_world(ctx.world),first_binding.id,false)
+	if not candidate.ok or second_binding.is_empty():
+		t.check("GROW-56",false,{"candidate":candidate.get("reason",""),"second":second_binding})
+		return
+	var world: WorldState = candidate.world
+	var a: Dictionary = candidate.visit
+	var b: Dictionary = a.duplicate(true)
+	b.binding_id = second_binding.id
+	b.disease_id = second_binding.disease_id
+	for id: String in world.ids("staff"):
+		if world.facts.staff[id].role!="doctor": continue
+		world.facts.staff[id] = world.facts.staff[id].duplicate(true)
+		world.facts.staff[id].schedule = [{"kind":"rest","pools":[],"locked":false},{"kind":"rest","pools":[],"locked":false},{"kind":"rest","pools":[],"locked":false}]
+	world.facts.staff.starter_doctor_a.schedule[0] = {"kind":"outpatient","pools":[specialty],"locked":false}
+	world.facts.staff.starter_doctor_b.schedule[0] = {"kind":"outpatient","pools":[_content.definition("treatment_routines",second_binding.routine_id).specialty_id],"locked":false}
+	var query: Dictionary = {"candidates":{}}
+	var ac: Array = ctx.clinic._reference_candidates(world,a,"consult",query)
+	var bc: Array = ctx.clinic._reference_candidates(world,b,"consult",query)
+	var reverse: Dictionary = {"candidates":{}}
+	var br: Array = ctx.clinic._reference_candidates(world,b,"consult",reverse)
+	var ar: Array = ctx.clinic._reference_candidates(world,a,"consult",reverse)
+	var cold: Array = ctx.clinic._reference_candidates(world,b,"consult",{"candidates":{}})
+	t.check("GROW-56",not ac.is_empty() and not bc.is_empty() and ac!=bc and ac==ar and bc==br and bc==cold,{"A":ac,"B":bc,"second":second_binding.id})
+
+func _case_57(t) -> void:
+	var ctx: Dictionary = _context()
+	var quotes: Array = [{"plan_id":"P_D09_COMMON","score":100.0,"probability_bp":7900,"work_ticks":100},{"plan_id":"P_D09_GENTLE","score":90.0,"probability_bp":8300,"work_ticks":200}]
+	var correct: bool = ctx.clinic._choose_plan(quotes,"doctor").plan_id=="P_D09_COMMON" and ctx.clinic._choose_plan(quotes,"safety_first").plan_id=="P_D09_GENTLE" and ctx.clinic._choose_plan(quotes,"outpatient_first").plan_id=="P_D09_GENTLE"
+	quotes[0].probability_bp = 8000
+	correct = correct and ctx.clinic._choose_plan(quotes,"outpatient_first").plan_id=="P_D09_COMMON"
+	var detailed: Array = []
+	for strategy: String in ["doctor","safety_first","outpatient_first"]:
+		ctx.world.facts.plan_strategy = strategy
+		var nominal: WorldState = ctx.arrivals._capacity_reference_world(ctx.world)
+		var options: Dictionary = ctx.clinic._reference_options(nominal,"B_S13_D09_M09",false,0,{},{},{"candidates":{}})
+		correct = correct and options.ok
+		for terminal: Dictionary in options.get("terminals",[]):
+			var selected: Dictionary = ctx.clinic._select_plan(options.world,options.visit,terminal.consulting_doctor_id)
+			correct = correct and selected.get("plan_id","")==terminal.plan_id
+			detailed.append([strategy,terminal.plan_id,selected.get("plan_id","")])
+	t.check("GROW-57",correct,detailed)
+
+func _case_58(t) -> void:
+	var builder: RefCounted = load("res://tests/acceptance/space.gd").new()
+	builder.content = _content
+	var sim: HospitalSimulation = builder._transit_fixture()
+	_simulations.append(sim)
+	var id: String = builder._connection(sim)
+	for index: int in 3:
+		var actor_id: String = "capture_queue_"+str(index)
+		builder._add_actor(sim,actor_id,"S49",[[36,76],[32,76],[45,84]][index])
+	sim.space.request_move(sim.world,"capture_queue_0",2,[46,80])
+	var boarded: bool = builder._wait(sim,func()->bool: return sim.world.facts.actors.capture_queue_0.location.kind=="transit",30)
+	sim.space.request_move(sim.world,"capture_queue_1",2,[42,82])
+	var queued: bool = boarded and builder._wait(sim,func()->bool: return sim.world.facts.moves.get("capture_queue_1",{}).has("transit_ticket"),90)
+	var preparation: ArrivalPreparation = ArrivalPreparation.new(_content)
+	var actual: Dictionary = preparation._capture(sim.world,true,-1)
+	var captured: WorldState = WorldState.new(actual.facts)
+	var first: Dictionary = HospitalTransit._prefix(sim.space,sim.world,sim.world.facts.connectors[id],"capture_queue_2")
+	var copied: Dictionary = HospitalTransit._prefix(HospitalSpace.new(_content),captured,captured.facts.connectors[id],"capture_queue_2")
+	var nominal: Dictionary = preparation._capture(sim.world,false,-1)
+	var stripped: bool = true
+	for movement: Dictionary in nominal.facts.moves.values(): stripped = stripped and not movement.has("transit_ticket")
+	var before: Dictionary = sim.world.freeze()
+	builder._add_actor(sim,"capture_exit_blocker","S49",[36,76],2)
+	var blocked: WorldState = WorldState.new(preparation._capture(sim.world,true,-1).facts)
+	var blocked_source: Dictionary = HospitalTransit._prefix(sim.space,sim.world,sim.world.facts.connectors[id],"capture_queue_2")
+	var blocked_copy: Dictionary = HospitalTransit._prefix(HospitalSpace.new(_content),blocked,blocked.facts.connectors[id],"capture_queue_2")
+	preparation.dispose()
+	t.check("GROW-58",queued and first==copied and stripped and blocked_source==blocked_copy and not blocked_source.ok and not before.is_empty(),{"queued":queued,"source":first,"captured":copied,"blocked":blocked_source})
+
+func _case_59(t) -> void:
+	var ctx: Dictionary = _context()
+	var candidate: Dictionary = ctx.clinic._arrival_candidate(ctx.arrivals._capacity_reference_world(ctx.world),"B_S49_D37_M37",false)
+	var query: Dictionary = {"candidates":{}}
+	var pairs: Array = ctx.clinic.service_candidates(candidate.world,candidate.visit,"gp",true)
+	var result: Dictionary = ctx.clinic._build_reference_diagnostic_stages(candidate.world,candidate.visit,pairs[0],query) if not pairs.is_empty() else {"ok":false}
+	var full: Dictionary = ctx.clinic.arrival_readiness(ctx.world,"B_S49_D37_M37",false,true)
+	var brief: Dictionary = ctx.clinic.arrival_readiness(ctx.world,"B_S49_D37_M37",false,false)
+	t.check("GROW-59",result.ok and query.candidates.is_empty() and full.ok and brief.ok==full.ok,{"diagnostic":result,"candidate_queries":query.candidates.size(),"detailed":full.ok,"brief":brief.ok})
+
+func _case_60(t) -> void:
+	var ctx: Dictionary = _context()
+	var candidate: Dictionary = ctx.clinic._arrival_candidate(ctx.arrivals._capacity_reference_world(ctx.world),"B_S13_D09_M09",false)
+	var world: WorldState = candidate.world
+	var before: Dictionary = world.freeze()
+	var pairs: Array = ctx.clinic.service_candidates(world,candidate.visit,"gp",true)
+	var checked: int = 0
+	var correct: bool = not pairs.is_empty()
+	for pair: Dictionary in pairs:
+		var copy: WorldState = WorldState.new(world.freeze())
+		var reason: String = ctx.space.reserve_facility(copy,pair.facility_id,candidate.visit.actor_id,candidate.visit.id,[pair.staff_id])
+		var layout: Dictionary = ctx.space.facility_layout(copy,pair.facility_id)
+		correct = correct and reason.is_empty() and ctx.space.route(copy,candidate.visit.actor_id,int(layout.floor_id),layout.patient_cell,[],{},true).ok and ctx.space.route(copy,pair.staff_id,int(layout.floor_id),layout.operator_cells[0],[],{},true).ok
+		checked += 1
+	t.check("GROW-60",correct and checked>0 and world.freeze()==before,{"checked":checked,"readonly":world.freeze()==before})
 
 func _case_40(t) -> void:
 	var ctx: Dictionary = _context()

@@ -9,6 +9,7 @@
 #include "scip/rational.h"
 #include "scip/rationalgmp.h"
 #include <algorithm>
+#include <functional>
 #include <iterator>
 #include <map>
 #include <memory>
@@ -167,8 +168,9 @@ struct PackingProgram {
     std::vector<Q> bounds;
     std::vector<bool> integral;
     std::vector<bool> objectives;
-    struct Row { std::vector<std::pair<int, Q>> terms; Q upper; SCIP_CONS* constraint; };
+    struct Row { std::vector<std::pair<int, Q>> terms; Q upper; bool equality; SCIP_CONS* constraint; };
     std::vector<Row> rows;
+    int64_t exact_polishes = 0;
     PackingProgram() {
         try {
             scip_check(SCIPcreate(&scip));
@@ -201,9 +203,9 @@ struct PackingProgram {
     int continuous(const Q& upper, bool objective = false) { return variable(upper, SCIP_VARTYPE_CONTINUOUS, objective); }
     int binary(bool objective = false) { return integer(1, objective); }
     void equal(std::vector<std::pair<int, int>> terms) {
-        at_most(terms, 0);
-        for (auto& term : terms) term.second = -term.second;
-        at_most(std::move(terms), 0);
+        std::vector<std::pair<int, Q>> exact;
+        for (const auto& term : terms) exact.emplace_back(term.first, Q(term.second));
+        equal_rational(std::move(exact));
     }
     void at_most(std::vector<std::pair<int, int>> terms, int upper) {
         std::vector<std::pair<int, Q>> exact;
@@ -211,11 +213,9 @@ struct PackingProgram {
         less_equal(std::move(exact), Q(upper));
     }
     void equal_rational(std::vector<std::pair<int, Q>> terms) {
-        less_equal(terms, Q(0));
-        for (auto& term : terms) term.second = -term.second;
-        less_equal(std::move(terms), Q(0));
+        less_equal(std::move(terms), Q(0), true);
     }
-    int less_equal(std::vector<std::pair<int, Q>> terms, const Q& upper) {
+    int less_equal(std::vector<std::pair<int, Q>> terms, const Q& upper, bool equality = false) {
         std::map<int, Q> compact;
         for (const auto& term : terms) compact[term.first] += term.second;
         terms.clear();
@@ -227,13 +227,14 @@ struct PackingProgram {
             vars.push_back(variables.at(term.first));
             owned.emplace_back(new Exact(term.second)); coefficients.push_back(owned.back()->value);
         }
-        Exact lower, higher(upper); SCIPrationalSetNegInfinity(lower.value);
+        Exact lower(upper), higher(upper);
+        if (!equality) SCIPrationalSetNegInfinity(lower.value);
         SCIP_CONS* constraint = nullptr;
         scip_check(SCIPcreateConsBasicExactLinear(scip, &constraint, ("r" + std::to_string(rows.size())).c_str(), static_cast<int>(vars.size()), vars.data(), coefficients.data(), lower.value, higher.value));
         auto status = SCIPaddCons(scip, constraint);
         auto* original = constraint; // The original problem retains this constraint.
         SCIPreleaseCons(scip, &constraint); scip_check(status);
-        rows.push_back({std::move(terms), upper, original});
+        rows.push_back({std::move(terms), upper, equality, original});
         return static_cast<int>(rows.size()) - 1;
     }
     void reopen() { scip_check(SCIPfreeTransform(scip)); }
@@ -256,6 +257,33 @@ struct PackingProgram {
         for (auto& term : terms) if (term.first == variable) { term.second = coefficient; return; }
         terms.emplace_back(variable, coefficient);
     }
+    std::vector<Q> polish_fixed(const std::vector<Q>& incumbent) {
+        using namespace soplex;
+        // SCIP's search has already released its transformed factorization.
+        // Fix only the integral choices and optimize continuous flows exactly.
+        SoPlex lp;
+        lp.setIntParam(SoPlex::VERBOSITY, 0);
+        lp.setIntParam(SoPlex::OBJSENSE, SoPlex::OBJSENSE_MAXIMIZE);
+        lp.setIntParam(SoPlex::SYNCMODE, SoPlex::SYNCMODE_AUTO);
+        lp.setIntParam(SoPlex::SOLVEMODE, SoPlex::SOLVEMODE_RATIONAL);
+        lp.setIntParam(SoPlex::CHECKMODE, SoPlex::CHECKMODE_RATIONAL);
+        lp.setRealParam(SoPlex::FEASTOL, 0.0); lp.setRealParam(SoPlex::OPTTOL, 0.0);
+        std::vector<DSVectorRational> columns(variables.size());
+        for (size_t i = 0; i < rows.size(); ++i) {
+            const Row& row = rows[i];
+            lp.addRowRational(LPRowRational(row.equality ? row.upper : Q(-infinity), DSVectorRational(), row.upper));
+            for (const auto& term : row.terms) columns[term.first].add(static_cast<int>(i), term.second);
+        }
+        for (size_t i = 0; i < variables.size(); ++i)
+            lp.addColRational(LPColRational(objectives[i] ? 1 : 0, columns[i], integral[i] ? incumbent[i] : bounds[i], integral[i] ? incumbent[i] : Q(0)));
+        ++exact_polishes;
+        if (lp.optimize() != SPxSolver::OPTIMAL) throw std::runtime_error("离散配置未取得精确可行流");
+        VectorRational primal(static_cast<int>(variables.size()));
+        if (!lp.getPrimalRational(primal)) throw std::runtime_error("离散配置缺少精确原始解");
+        std::vector<Q> result;
+        for (size_t i = 0; i < variables.size(); ++i) result.push_back(primal[static_cast<int>(i)]);
+        return result;
+    }
     std::vector<Q> solve_rational() {
         struct TransformScope {
             SCIP* problem;
@@ -276,18 +304,25 @@ struct PackingProgram {
                 throw std::runtime_error("精确离散求解违反变量范围或整数约束");
             values.push_back(std::move(number));
         }
-        for (const auto& row : rows) {
-            Q total = 0;
-            for (const auto& term : row.terms) total += term.second * values[term.first];
-            if (total > row.upper) throw std::runtime_error("结构配置违反原始资源约束");
-        }
         Q objective = 0;
         for (size_t i = 0; i < values.size(); ++i) if (objectives[i]) objective += values[i];
         Exact dual;
         SCIPgetDualboundExact(scip, dual.value);
         Q bound; mpq_set(bound.backend().data(), *SCIPrationalGetGMP(dual.value));
-        if (objective != bound) throw std::runtime_error("精确目标与证明界不一致: " + objective.str() + " != " + bound.str());
         transform.release();
+        if (objective != bound) values = polish_fixed(values);
+        objective = 0;
+        for (size_t i = 0; i < values.size(); ++i) {
+            const Q& number = values[i];
+            if (number < 0 || number > bounds[i] || (integral[i] && mpz_cmp_ui(mpq_denref(number.backend().data()), 1) != 0)) throw std::runtime_error("精确离散求解违反变量范围或整数约束");
+            if (objectives[i]) objective += number;
+        }
+        for (const auto& row : rows) {
+            Q total = 0;
+            for (const auto& term : row.terms) total += term.second * values[term.first];
+            if (total > row.upper || (row.equality && total < row.upper)) throw std::runtime_error("结构配置违反原始资源约束");
+        }
+        if (objective != bound) throw std::runtime_error("精确目标与证明界不一致: " + objective.str() + " != " + bound.str());
         return values;
     }
     std::vector<int> solve() {
@@ -490,6 +525,8 @@ struct Model {
     std::vector<Column> columns;
     std::vector<std::set<std::string>> known;
     bool dirty = true;
+    std::set<int> used_resources;
+    int64_t solve_count = 0;
     Q verified_capacity = 0;
     std::string verified_bottleneck;
     std::vector<int> certificate_basis;
@@ -576,6 +613,13 @@ struct Model {
             Case& target = cases[found->second]; target.probability += probability;
             target.members.push_back(Member{static_cast<int>(i), probability});
         }
+        std::set<int> reachable;
+        std::function<void(int)> visit = [&](int id) {
+            if (!reachable.insert(id).second) return;
+            for (const auto& value : nodes[id].resources) if (value.second != 0) used_resources.insert(value.first);
+            for (int child : nodes[id].children) visit(child);
+        };
+        for (const Case& item : cases) if (item.probability > 0) visit(item.root);
     }
     // Nodes are interned after their children. One exact DP prices every legal
     // implicit AND/OR combination; no Cartesian expansion or column cutoff.
@@ -610,16 +654,32 @@ struct Model {
         D input(values);
         for (size_t i = 0; i < resources.size(); ++i) {
             Q next = rational(input.get(resources[i].c_str()));
+            if (next < 0) throw std::runtime_error("资源预算不能为负");
             if (next == budgets[i]) continue;
-            if (program) program->changeRhsRational(static_cast<int>(cases.size() + i), next);
+            if (program && used_resources.count(static_cast<int>(i))) program->changeRhsRational(static_cast<int>(cases.size() + i), next);
             budgets[i] = next;
-            dirty = true;
+            if (used_resources.count(static_cast<int>(i))) dirty = true;
         }
     }
     V summary() const {
         D result; result.set("capacity", fraction(verified_capacity));
         result.set("bottleneck", V::text(verified_bottleneck)); result.set("resource_count", V::number(resources.size()));
-        result.set("bundle_count", V::number(columns.size())); return result.value();
+        result.set("bundle_count", V::number(columns.size()));
+        result.set("bottleneck_kind", V::text("exhausted_resource"));
+        result.set("used_resource_count", V::number(used_resources.size()));
+        result.set("node_count", V::number(nodes.size()));
+        size_t edges = 0, coefficients = 0;
+        for (const Node& node : nodes) { edges += node.children.size(); coefficients += node.resources.size(); }
+        result.set("edge_count", V::number(edges)); result.set("coefficient_count", V::number(coefficients));
+        result.set("resolution_count", V::number(solve_count));
+        result.set("solver_kind", V::text(role_program ? "nursing_mip" : "lp"));
+        if (role_program) {
+            result.set("mip_variables", V::number(role_program->variables.size()));
+            result.set("mip_constraints", V::number(role_program->rows.size()));
+            result.set("mip_integral_variables", V::number(std::count(role_program->integral.begin(), role_program->integral.end(), true)));
+            result.set("exact_polishes", V::number(role_program->exact_polishes));
+        }
+        return result.value();
     }
     bool feasible(const Q& capacity, const std::vector<Q>& amounts, const std::vector<Q>& used) const {
         if (capacity < 0) return false;
@@ -629,7 +689,7 @@ struct Model {
     }
     void publish(const Q& capacity, const std::vector<Q>& used) {
         verified_capacity = capacity; verified_bottleneck.clear();
-        for (size_t i = 0; i < resources.size(); ++i) if (used[i] == budgets[i]) { verified_bottleneck = resources[i]; break; }
+        for (size_t i = 0; i < resources.size(); ++i) if (used_resources.count(static_cast<int>(i)) && used[i] > 0 && used[i] == budgets[i]) { verified_bottleneck = resources[i]; break; }
         dirty = false;
     }
     void retain_certificate(const std::vector<Q>& prices) {
@@ -687,7 +747,8 @@ struct Model {
                 for (int child : nodes[i].children) role_factors[child] += role_factors[i];
         }
         Q budget = 0;
-        for (const Q& amount : budgets) {
+        for (int resource : used_resources) {
+            const Q& amount = budgets[resource];
             if (amount < 0) throw std::runtime_error("资源预算不能为负");
             budget += amount;
         }
@@ -735,7 +796,7 @@ struct Model {
             std::map<int, std::string> owners;
             for (size_t i = 0; i < resources.size(); ++i) {
                 const std::string& name = resources[i];
-                if (name.compare(0, 9, "coverage:") != 0) continue;
+                if (!used_resources.count(static_cast<int>(i)) || name.compare(0, 9, "coverage:") != 0) continue;
                 auto separator = name.find(':', 9);
                 if (separator == std::string::npos) throw std::runtime_error("护理岗位缺少病房身份");
                 std::string nurse = name.substr(9, separator - 9);
@@ -797,8 +858,9 @@ struct Model {
         if (cases.empty()) return empty();
         for (const Case& item : cases) if (nodes[item.root].children.empty()) return empty();
         if (!allocations && !dirty) return summary();
-        if (!allocations) for (const auto& resource : resources)
-            if (resource.compare(0, 9, "coverage:") == 0) return solve_roles();
+        ++solve_count;
+        if (!allocations) for (int resource : used_resources)
+            if (resources[resource].compare(0, 9, "coverage:") == 0) return solve_roles();
         if (!allocations && program && reuse_certificate()) return summary();
         using namespace soplex;
         bool initialize = !program;

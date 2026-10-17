@@ -41,7 +41,8 @@ const CASES: Dictionary = {
 	"OPS-36":"docs/design/01-simulation.md §8.1/8.2；六账页三日展望与目标便签不圈存",
 	"OPS-37":"docs/design/01-simulation.md §8；同院救援箱仅一次且只补缺岗正常付薪",
 	"OPS-38":"docs/design/08-hospital-life.md §15；派单按设备停机用途分级，同级置顶且不打断已开工单",
-	"OPS-39":"docs/design/01-simulation.md §6；预约与实际占用释放前不得维修，恢复后真实到场开工"
+	"OPS-39":"docs/design/01-simulation.md §6；预约与实际占用释放前不得维修，恢复后真实到场开工",
+	"OPS-40":"docs/design/08-hospital-life.md §18；评价回收保护已发布窗口和下一日候选"
 }
 
 var _content: HospitalContent
@@ -504,6 +505,9 @@ func _case_11() -> Dictionary:
 	for index: int in 4:
 		ids.append(f.s.services.environment.spawn_dirt(f.w,"CL01","ops11_spill_%d"%index,"ops11_fact_%d"%index,1,[43+index,81]))
 	var dirty: Dictionary = f.s.services.environment.environment_at(f.w,1,[44,80])
+	var brief: Dictionary = f.s.services.environment.environment_at(f.w,1,[44,80],"",false)
+	var expected_brief: Dictionary = dirty.duplicate(true)
+	expected_brief.sources = []
 	var ranges: Dictionary = _new("R15仅扩大正面覆盖")
 	_place(ranges,"range_plant","FUR25",[44,80])
 	var far_dirt: String = ranges.s.services.environment.spawn_dirt(ranges.w,"CL01","ops11_far_spill","ops11_far_fact",1,[43,81])
@@ -511,7 +515,7 @@ func _case_11() -> Dictionary:
 	ranges.w.facts.research.append("R15")
 	var before: Dictionary = ranges.w.freeze()
 	var upgraded_range: Dictionary = ranges.s.services.environment.environment_at(ranges.w,1,[44,85])
-	var exact_ranges: bool = not far_dirt.is_empty() and ranges.w.facts.environment.dirt[far_dirt].cell==[43,81] and original_range.value==43 and upgraded_range.value==49 and upgraded_range.dirt==0 and upgraded_range.clean and before==ranges.w.freeze()
+	var exact_ranges: bool = brief==expected_brief and not far_dirt.is_empty() and ranges.w.facts.environment.dirt[far_dirt].cell==[43,81] and original_range.value==43 and upgraded_range.value==49 and upgraded_range.dirt==0 and upgraded_range.clean and before==ranges.w.freeze()
 	exact_ranges = exact_ranges and _sampling_matches(f,[[44,80],[44.25,80.0]]) and _sampling_matches(ranges,[[44,85]])
 	return _result(exact_ranges and f.errors.is_empty() and ranges.errors.is_empty() and clean.value==43 and once.value==49 and twice.value==49 and ids.size()==4 and not "" in ids and dirty.dirt==4 and not dirty.clean and dirty.value==25 and int(twice.value)-int(dirty.value)==24,{"base":clean,"one_category":once,"duplicate_category":twice,"dirty":dirty,"original_range":original_range,"upgraded_range":upgraded_range,"exact_ranges":exact_ranges,"errors":f.errors})
 
@@ -1030,6 +1034,50 @@ func _visit_stage(f: Dictionary, key: String, target: String) -> String:
 	f.errors.append({"target_not_reached":target,"visit":f.w.facts.visits[visit_id]})
 	return ""
 
+func _case_40() -> Dictionary:
+	var f: Dictionary = _new("已发布评价窗口回收",true)
+	var departments: HospitalDepartments = f.s.services.departments
+	var limit: int = int(_content.balance.ratings.case_window_limit)
+	var admitted: CommandResult = _command(f,"clinical_arrive",{"arrival_key":"rating_template","binding_id":"B_S49_D37_M37","personality_id":"PP01"})
+	if not admitted.accepted: return _result(false,admitted.reason)
+	var prototype: Dictionary = f.w.facts.visits[admitted.changed_ids[0]]
+	# Archived rating facts are calculation inputs, not newly executed Visits.
+	for index: int in limit:
+		_rating_input(f,prototype,"past_"+str(index),1000+index,75.0)
+	f.w.facts.sim_tick = 18000
+	var published: Dictionary = departments.aggregate_rating(f.w,"general")
+	for index: int in limit+3:
+		_rating_input(f,prototype,"today_"+str(index),18000+index,25.0)
+		departments._prune(f.w)
+	_zero_arrivals(f.w)
+	var validation: String = f.w.validate(_content)
+	var current: Dictionary = departments.aggregate_rating(f.w,"general")
+	var hospital: Dictionary = departments.aggregate_rating(f.w)
+	var restored: WorldState = WorldState.new(f.w.freeze())
+	var restored_current: Dictionary = HospitalDepartments.new(_content,f.s.space).aggregate_rating(restored,"general")
+	f.w.facts.sim_tick = 36000
+	departments._prune(f.w)
+	var next: Dictionary = departments.aggregate_rating(f.w,"general")
+	return _result(validation.is_empty() and current==published and current==restored_current and int(current.samples)==limit and int(hospital.samples)==limit and int(next.samples)==limit and float(next.parts.patient)==25.0,{"validation":validation,"published":published,"current":current,"next":next,"retained":f.w.facts.departments.cases.size()})
+
+func _rating_input(f: Dictionary, prototype: Dictionary, id: String, tick: int, score: float) -> void:
+	f.w.facts.sim_tick = tick
+	var actor: Dictionary = f.w.facts.actors[prototype.actor_id].duplicate(true)
+	actor.id = id+"_actor"
+	actor.location = {"kind":"outside"}
+	var visit: Dictionary = prototype.duplicate(true)
+	visit.id = id
+	visit.actor_id = actor.id
+	visit.arrival_key = id
+	visit.phase = "departed"
+	visit.final_result = "referred"
+	visit.ticket_id = ""
+	visit.departed_tick = tick
+	f.w.facts.actors[actor.id] = actor
+	f.w.facts.visits[id] = visit
+	f.w.facts.arrival_receipts[id] = id
+	f.w.facts.departments.cases.append({"visit_id":id,"tick":tick,"day":tick/WorldState.TICKS_PER_DAY,"department_id":"general","result":"referred","treated":false,"rating":{"score":score,"parts":{"flow":score,"environment":score}}})
+
 func _case_29() -> Dictionary:
 	var f: Dictionary = _new("专注门槛边界",true,10000)
 	var visit_id: String = _visit_stage(f,"ops29_active","wait_gp")
@@ -1061,6 +1109,12 @@ func _case_29() -> Dictionary:
 	var low_ability: float = f.s.services.departments.focus_multiplier(f.w,visit_id,"starter_doctor_b","treatment")
 	f.w.facts.staff.starter_doctor_b.abilities.treatment = 2
 	var eligible: float = f.s.services.departments.focus_multiplier(f.w,visit_id,"starter_doctor_b","treatment")
+	var arrivals: HospitalArrivalService = f.s.services.arrivals
+	var reference: Dictionary = f.s.clinic._arrival_candidate(arrivals._capacity_reference_world(f.w),"B_S49_D37_M37",false)
+	var reference_focus: float = f.s.services.departments.focus_multiplier(reference.world,reference.visit.id,"starter_doctor_b","treatment") if reference.ok else 1.0
+	var basis: Dictionary = arrivals._reference_basis(f.w,0)
+	f.w.facts.departments.units.ops29_focus.name = "科室新显示名"
+	var rename_stable: bool = basis==arrivals._reference_basis(f.w,0)
 	var last: Dictionary = f.w.facts.departments.cases.pop_back()
 	var four: float = f.s.services.departments.focus_multiplier(f.w,visit_id,"starter_doctor_b","treatment")
 	f.w.facts.departments.cases.append(last)
@@ -1078,7 +1132,7 @@ func _case_29() -> Dictionary:
 	f.w.facts.departments.units.ops29_focus.focus_ready_tick = 18000
 	f.w.facts.departments.units.ops29_focus.focus_id = "T01"
 	var mismatch: float = f.s.services.departments.focus_multiplier(f.w,visit_id,"starter_doctor_b","treatment")
-	return _result(low_ability==1.0 and is_equal_approx(eligible,0.95) and four==1.0 and low_score==1.0 and transition==1.0 and mismatch==1.0,{"ability1":low_ability,"eligible":eligible,"four_cases":four,"score74":low_score,"transition":transition,"mismatch":mismatch})
+	return _result(low_ability==1.0 and is_equal_approx(eligible,0.95) and reference.ok and reference.visit.department_id=="ops29_focus" and reference_focus==eligible and rename_stable and four==1.0 and low_score==1.0 and transition==1.0 and mismatch==1.0,{"ability1":low_ability,"eligible":eligible,"reference_focus":reference_focus,"rename_stable":rename_stable,"four_cases":four,"score74":low_score,"transition":transition,"mismatch":mismatch})
 
 func _route_fixture(label: String) -> Dictionary:
 	var f: Dictionary = _new(label,true,20000)

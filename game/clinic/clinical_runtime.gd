@@ -542,7 +542,7 @@ func service_candidates(world: WorldState, visit: Dictionary, kind: String, stru
 			continue
 		var department_id: String = str(visit.get("department_id",""))
 		var department: Dictionary = world.facts.get("departments",{}).get("units",{}).get(department_id,{})
-		if department_id!="general" and not department.is_empty() and not facility.get("room_id","") in department.get("room_ids",[])+department.get("shared_room_ids",[]):
+		if kind!="reception" and department_id!="general" and not department.is_empty() and not facility.get("room_id","") in department.get("room_ids",[])+department.get("shared_room_ids",[]):
 			continue
 		for staff_id: String in staff_ids:
 			if not world.facts.staff.has(staff_id): continue
@@ -564,15 +564,17 @@ func service_candidates(world: WorldState, visit: Dictionary, kind: String, stru
 			if not fit.ok:
 				continue
 			var routing_world: WorldState = world
-			var held: Dictionary = world.facts.adaptations.get(facility_id,{})
-			if not held.is_empty() and held.actor_id==visit.actor_id and held.staff_ids!=[staff_id]:
-				routing_world = WorldState.new(world.freeze())
+			if not fit.get("unchanged",false):
+				routing_world = _reservation_candidate(world,[facility_id])
 				var handoff: Dictionary = fit.duplicate(true)
 				handoff.erase("ok")
-				handoff.owner_id = held.owner_id
+				handoff.owner_id = visit.id
 				routing_world.facts.adaptations[facility_id] = handoff
 				layout = handoff
-			if not space.route(routing_world,visit.actor_id,int(layout.floor_id),layout.patient_cell,[],{},true).ok or not space.route(routing_world,staff_id,int(layout.floor_id),layout.operator_cells[0],[],{},true).ok:
+				space.begin_route_query(routing_world,{"nominal":true} if space.nominal_query(world) else {})
+			var reachable: bool = space.route(routing_world,visit.actor_id,int(layout.floor_id),layout.patient_cell,[],{},true).ok and space.route(routing_world,staff_id,int(layout.floor_id),layout.operator_cells[0],[],{},true).ok
+			if routing_world!=world: space.end_route_query()
+			if not reachable:
 				continue
 			candidates.append({"facility_id":facility_id,"staff_id":staff_id})
 			if selection.get("first_only",false):
@@ -743,12 +745,15 @@ func _select_plan(world: WorldState, visit: Dictionary, doctor_id: String = "") 
 		quote.score += float(weights.familiarity)*mini(int(content.balance.clinical.score_familiarity_cap),completed/int(content.balance.clinical.score_familiarity_cases_per_band))+float(weights.novelty)*(1 if completed==0 else 0)+float(weights.team)
 		quote.consulting_doctor_id = selected_doctor
 		quotes.append(quote)
+	return _choose_plan(quotes,str(world.facts.get("plan_strategy","doctor")))
+
+func _choose_plan(legal_quotes: Array, strategy: String) -> Dictionary:
+	var quotes: Array = legal_quotes.duplicate()
 	quotes.sort_custom(func(a: Dictionary,b: Dictionary) -> bool:
 		if float(a.score)!=float(b.score): return float(a.score)>float(b.score)
 		if int(a.probability_bp)!=int(b.probability_bp): return int(a.probability_bp)>int(b.probability_bp)
 		if int(a.get("estimated_total_ticks",a.work_ticks))!=int(b.get("estimated_total_ticks",b.work_ticks)): return int(a.get("estimated_total_ticks",a.work_ticks))<int(b.get("estimated_total_ticks",b.work_ticks))
 		return str(a.plan_id)<str(b.plan_id))
-	var strategy: String = str(world.facts.get("plan_strategy","doctor"))
 	if strategy=="outpatient_first":
 		for quote: Dictionary in quotes:
 			if content.definition("treatment_protocols",content.definition("treatment_plans",quote.plan_id).protocol_id).kind=="outpatient" and int(quote.probability_bp)>=roundi(float(content.balance.clinical.outpatient_priority_success)*10000):
@@ -1257,7 +1262,7 @@ func _commitment_bed(world: WorldState, visit: Dictionary, owner: Dictionary, re
 	if phase in ["reserved","transfer"]:
 		transfer = _bed_transport(world,visit,source,owner,phase=="transfer")
 		if not transfer.ok:
-			transfer = {"ticks":WorldState.TICKS_PER_DAY,"exit_ticks":WorldState.TICKS_PER_DAY,"source_id":owner.get("transfer_from_bed_id",source.facility_id),"escort_id":owner.get("escort_id",owner.nurse_id)}
+			transfer.ticks = WorldState.TICKS_PER_DAY
 		_commitment_add(result,"facility:"+str(transfer.source_id),int(transfer.exit_ticks))
 		_commitment_add(result,"staff:"+str(transfer.escort_id),int(transfer.ticks))
 	var bed: Dictionary = space.facility_layout(world,owner.bed_id)
@@ -1322,7 +1327,7 @@ func _bed_transport(world: WorldState, visit: Dictionary, source: Dictionary, be
 	var alongside: Array = [float(patient.location.cell[0])-1,float(patient.location.cell[1])]
 	var gathering: Dictionary = space.travel_quote(candidate,escort_id,int(bed.floor_id),alongside)
 	var transfer: Dictionary = space.route(candidate,visit.actor_id,int(bed.floor_id),bed.patient_cell,[visit.actor_id,escort_id],{visit.actor_id:[0,0],escort_id:[-1,0]},true)
-	if not gathering.ok or not transfer.ok: return {"ok":false}
+	if not gathering.ok or not transfer.ok: return {"ok":false,"exit_ticks":source_ticks,"source_id":source_id,"escort_id":escort_id,"gathering":gathering,"transfer":transfer}
 	return {"ok":true,"ticks":exit_ticks+int(gathering.arrival_ticks)+int(transfer.arrival_ticks),"exit_ticks":source_ticks,"source_id":source_id,"escort_id":escort_id}
 
 func _quoted_fee(amount: int, multiplier: Variant) -> int:
@@ -2018,7 +2023,7 @@ func shortage_requests(world: WorldState) -> Array:
 			result.append({"ticket_id":ticket_id,"visit_id":visit.id,"staff_ids":quote.staff_ids.duplicate(),"units":int(quote.supply_units)})
 	return result
 
-func arrival_readiness(world: WorldState, binding_id: String, complex_case: bool = false) -> Dictionary:
+func arrival_readiness(world: WorldState, binding_id: String, complex_case: bool = false, explain: bool = true) -> Dictionary:
 	var candidate: Dictionary = _arrival_candidate(world,binding_id,complex_case)
 	if not candidate.get("ok",false):
 		return candidate
@@ -2033,9 +2038,17 @@ func arrival_readiness(world: WorldState, binding_id: String, complex_case: bool
 		var quote: Dictionary = plan_quote(candidate.world,candidate.visit.id,plan.id,{"structural_only":true,"ignore_supplies":true})
 		quotes.append(quote)
 		executable = executable or bool(quote.ok)
-	for kind: String in ["reception","gp"]+_profile(candidate.visit).tests:
+		if executable and not explain: break
+	for kind: String in ["reception","gp"]:
 		if service_candidates(candidate.world,candidate.visit,kind,true).is_empty():
 			reasons.append(_missing_service_reason(candidate.world,candidate.visit,kind))
+	var diagnostics_ok: bool = false
+	var diagnostic_query: Dictionary = {"candidates":{},"reference_schedule":false}
+	for pair: Dictionary in service_candidates(candidate.world,candidate.visit,"gp",true):
+		if _build_reference_diagnostic_stages(candidate.world,candidate.visit,pair,diagnostic_query).ok:
+			diagnostics_ok = true
+			break
+	if not diagnostics_ok: reasons.append("全部合法检查仍未达到诊断阈值")
 	if not executable:
 		for quote: Dictionary in quotes:
 			var plan_name: String = str(content.definition("treatment_plans",quote.plan_id).get("name",quote.plan_id))
@@ -2063,6 +2076,10 @@ func _arrival_candidate(world: WorldState, binding_id: String, complex_case: boo
 	space.begin_route_query(candidate)
 	var reason: String = space.static_reason(candidate,actor,int(entry.floor_id),Vector2i(int(entry.cell[0]),int(entry.cell[1])))
 	space.end_route_query()
+	if reason.is_empty() and departments!=null:
+		var eligible: Array = departments.call("eligible_departments",candidate,visit_id,true)
+		if eligible.is_empty(): reason = "没有具备本病例完整路线的开放科室"
+		else: candidate.facts.visits[visit_id].department_id = eligible[0].id
 	return {"ok":reason.is_empty(),"reason":reason,"world":candidate,"visit":candidate.facts.visits[visit_id]}
 
 func reference_demand(world: WorldState, binding_id: String, complex_case: bool = false, _shift: int = 0, query: Variant = null) -> Dictionary:
@@ -2156,7 +2173,6 @@ func _reference_options(world: WorldState, binding_id: String, complex_case: boo
 			continue
 		if not _reference_assignment_allows(candidate,pair.staff_id,"outpatient",visit,pair.facility_id):
 			continue
-		var preferred: Dictionary = {}
 		for plan: Dictionary in query.plans[visit.disease_id].outpatient:
 			var allowed: bool = true
 			for research_id: String in plan.requires_research:
@@ -2168,11 +2184,8 @@ func _reference_options(world: WorldState, binding_id: String, complex_case: boo
 				continue
 			quote.estimated_total_ticks = int(quote.work_ticks)+int(quote.recovery_ticks)
 			quote.score = _reference_score(candidate,visit,quote,pair.staff_id)
-			if preferred.is_empty() or float(quote.score)>float(preferred.score) or (float(quote.score)==float(preferred.score) and str(quote.plan_id)<str(preferred.plan_id)):
-				preferred = quote
-		if not preferred.is_empty():
-			preferred.consulting_doctor_id = pair.staff_id
-			terminal_quotes.append(preferred)
+			quote.consulting_doctor_id = pair.staff_id
+			terminal_quotes.append(quote)
 	var consulting_doctors: Dictionary = {}
 	for pair: Dictionary in consultations:
 		if int(candidate.facts.staff[pair.staff_id].abilities.treatment)<2: continue
@@ -2196,25 +2209,7 @@ func _reference_options(world: WorldState, binding_id: String, complex_case: boo
 	var selected_plans: Dictionary = {}
 	for doctor_id: String in grouped:
 		var options: Array = grouped[doctor_id]
-		options.sort_custom(func(a: Dictionary,b: Dictionary)->bool:
-			if float(a.score)!=float(b.score): return float(a.score)>float(b.score)
-			if int(a.probability_bp)!=int(b.probability_bp): return int(a.probability_bp)>int(b.probability_bp)
-			if int(a.get("estimated_total_ticks",a.work_ticks))!=int(b.get("estimated_total_ticks",b.work_ticks)): return int(a.get("estimated_total_ticks",a.work_ticks))<int(b.get("estimated_total_ticks",b.work_ticks))
-			return str(a.plan_id)<str(b.plan_id))
-		var selection: Dictionary = options[0]
-		var strategy: String = str(world.facts.get("plan_strategy","doctor"))
-		if strategy=="outpatient_first":
-			for quote: Dictionary in options:
-				if content.definition("treatment_protocols",content.definition("treatment_plans",quote.plan_id).protocol_id).kind=="outpatient" and int(quote.probability_bp)>=roundi(float(content.balance.clinical.outpatient_priority_success)*10000):
-					selection = quote
-					break
-		elif strategy=="safety_first":
-			var best_probability: int = 0
-			for quote: Dictionary in options: best_probability = maxi(best_probability,int(quote.probability_bp))
-			for quote: Dictionary in options:
-				if best_probability-int(quote.probability_bp)<=roundi(float(content.balance.clinical.safety_strategy_tolerance)*10000):
-					selection = quote
-					break
+		var selection: Dictionary = _choose_plan(options,str(world.facts.get("plan_strategy","doctor")))
 		selected_plans[doctor_id] = selection.plan_id
 	terminal_quotes = terminal_quotes.filter(func(terminal: Dictionary) -> bool:
 		return selected_plans.get(str(terminal.consulting_doctor_id),"")==terminal.plan_id)
@@ -2246,15 +2241,16 @@ func _reference_terminal_beds(world: WorldState, visit: Dictionary, quote: Dicti
 
 func _reference_candidates(world: WorldState, visit: Dictionary, kind: String, query: Dictionary) -> Array:
 	var routine: Dictionary = content.definition("treatment_routines",content.definition("treatment_bindings",visit.binding_id).routine_id)
-	var key: String = JSON.stringify([space.body(world.facts.actors[visit.actor_id]),kind,
-		routine.equipment_id if kind=="outpatient" else "",routine.specialty_id if kind=="outpatient" else ""])
-	if not query.candidates.has(key): query.candidates[key] = service_candidates(world,visit,kind,true,true)
+	var key: String = JSON.stringify([space.body(world.facts.actors[visit.actor_id]),kind,visit.get("department_id","") if kind!="reception" else "",
+			routine.equipment_id if kind=="outpatient" else "",routine.specialty_id if kind in ["outpatient","consult"] else "",query.get("reference_schedule",true)])
+	if not query.candidates.has(key): query.candidates[key] = service_candidates(world,visit,kind,true,bool(query.get("reference_schedule",true)))
 	return query.candidates[key]
 
 func _reference_model(options: Dictionary, binding_id: String, complex_case: bool, shift: int) -> Dictionary:
 	var groups: Dictionary = {}
 	var bases: Array = []
 	var concrete: Array = []
+	var representatives: Dictionary = {}
 	var retries: Dictionary = {}
 	var terminal_stages: Array = ["outpatient","surgery","surgery_setup","transfer","bed","care","round"]
 	for terminal: Dictionary in options.terminals:
@@ -2277,9 +2273,10 @@ func _reference_model(options: Dictionary, binding_id: String, complex_case: boo
 		if not groups.has("reception"):
 			groups.reception = []
 			for reception: Dictionary in options.receptions:
-				var registration: Dictionary = _reference_bundle(options.world,options.visit,reception,first_diagnostic,terminal,options.query,groups[first_consult_group][0].consultation)
+				var registration: Dictionary = {"stage_resources":{},"staff_ids":terminal.staff_ids,"structural_resources":[]}
+				_reference_stage(registration.stage_resources,"reception",["staff:"+str(reception.staff_id),"facility:"+str(reception.facility_id)],ceili(float(content.balance.reception_seconds)*10/_talent_rate(options.world,reception.staff_id,"registration",options.visit)))
 				groups.reception.append(_reference_component(registration,["reception"]))
-		var example: Dictionary = first
+		var representative_retry: Dictionary = {}
 		if int(content.balance.max_treatment_attempts)>1:
 			var retry_key: String = JSON.stringify([terminal.plan_id,terminal.staff_ids,terminal.consulting_doctor_id])
 			if not retries.has(retry_key):
@@ -2303,9 +2300,12 @@ func _reference_model(options: Dictionary, binding_id: String, complex_case: boo
 						groups[retry_group].append(retry_part)
 				if not groups[retry_group].is_empty():
 					base.choices.append(retry_group)
-					example = _reference_with_retry(first,groups[retry_group][0].full,int(terminal.probability_bp))
+					representative_retry = groups[retry_group][0].full
 		bases.append(base)
-		concrete.append(example)
+		var representative_key: String = JSON.stringify([first.plan_id,representative_retry.get("plan_id",first.plan_id)])
+		if not representatives.has(representative_key):
+			representatives[representative_key] = true
+			concrete.append(_reference_with_retry(first,representative_retry,int(terminal.probability_bp)) if not representative_retry.is_empty() else first)
 	# Equal-flow equations in the capacity solver join these independent
 	# choices. No legal alternative is truncated or replaced by a faster plan.
 	return {"ok":not bases.is_empty(),"reason":"" if not bases.is_empty() else "没有完整临床参考资源束","bundles":concrete,"model":{"bundles":bases,"choice_groups":groups}}
@@ -2371,7 +2371,7 @@ func _reference_score(world: WorldState, _visit: Dictionary, quote: Dictionary, 
 	var protocol: Dictionary = content.definition("treatment_protocols",content.definition("treatment_plans",quote.plan_id).protocol_id)
 	var completed: int = int(staff.get("plan_experience",{}).get(quote.plan_id,0))
 	var weights: Dictionary = personality.weights
-	return float(weights.success)*float(quote.probability_bp)/100.0-float(weights.time)*float(quote.get("estimated_total_ticks",quote.work_ticks))/100.0-float(weights.burden)*float(protocol.burden)+float(weights.familiarity)*mini(5,completed/5)+float(weights.novelty)*(1 if completed==0 else 0)+float(weights.team)
+	return float(weights.success)*float(quote.probability_bp)/100.0-float(weights.time)*float(quote.get("estimated_total_ticks",quote.work_ticks))/100.0-float(weights.burden)*float(protocol.burden)+float(weights.familiarity)*mini(int(content.balance.clinical.score_familiarity_cap),completed/int(content.balance.clinical.score_familiarity_cases_per_band))+float(weights.novelty)*(1 if completed==0 else 0)+float(weights.team)
 
 func _reference_bundle(world: WorldState, visit: Dictionary, reception: Dictionary, diagnostic: Dictionary, quote: Dictionary, query: Dictionary, consultation: Dictionary = {}) -> Dictionary:
 	var stages: Dictionary = {}
@@ -2402,12 +2402,16 @@ func _build_reference_diagnostic_stages(world: WorldState, visit: Dictionary, di
 	var pending: Array = [{"stages":stages,"evidence":evidence}]
 	var complete: Array = []
 	for mode: String in ["spectrum","resonance"]:
-		var test_pairs: Array = _reference_candidates(world,visit,mode,query)
-		var next: Array = []
+		var needed: Array = []
 		for branch: Dictionary in pending:
 			if float(branch.evidence)>=float(content.balance.diagnosis_threshold):
 				complete.append(branch.stages)
-				continue
+			else: needed.append(branch)
+		pending = []
+		if needed.is_empty(): break
+		var test_pairs: Array = _reference_candidates(world,visit,mode,query)
+		var next: Array = []
+		for branch: Dictionary in needed:
 			for test_pair: Dictionary in test_pairs:
 				var staff: Dictionary = world.facts.staff[test_pair.staff_id]
 				var facility: Dictionary = world.facts.facilities[test_pair.facility_id]

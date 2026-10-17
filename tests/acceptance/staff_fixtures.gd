@@ -8,7 +8,7 @@ var _recorder: Object
 class SeatObservations extends RefCounted:
 	var cells: Dictionary = {}
 	var fallback: Dictionary = {"value":50.0,"noise":0.0,"clean":true,"water":false}
-	func environment_at(_world: WorldState, _floor: int, cell: Array, _actor: String = "") -> Dictionary:
+	func environment_at(_world: WorldState, _floor: int, cell: Array, _actor: String = "", _explain: bool = true) -> Dictionary:
 		return cells.get("%d:%d" % [roundi(cell[0]),roundi(cell[1])],fallback).duplicate(true)
 
 var _content: HospitalContent

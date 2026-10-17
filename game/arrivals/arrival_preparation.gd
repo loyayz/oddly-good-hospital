@@ -9,13 +9,15 @@ var _active: Dictionary = {}
 var _latest: Dictionary = {}
 var _completed: Dictionary = {}
 var _sealed: Dictionary = {}
+var _sealed_result: Dictionary = {}
 var _sequence: int = 0
 var _active_id: int = -1
 var _latest_id: int = -1
 var _completed_id: int = -1
 var _sealed_id: int = -1
 var _worker: HospitalArrivalService
-var _metrics: Dictionary = {"jobs":0,"worker_wall_us":0,"worker_cpu_us":0,"cpu_measured_jobs":0,"latest_worker_us":0,"main_us":0,"max_main_us":0,"requests":0,"captures":0,"capture_us":0,"reused":0,"superseded":0}
+var _capture_base: Dictionary = {}
+var _metrics: Dictionary = {"jobs":0,"worker_wall_us":0,"worker_cpu_us":0,"cpu_measured_jobs":0,"latest_worker_us":0,"main_us":0,"max_main_us":0,"requests":0,"captures":0,"capture_us":0,"copied_records":0,"reused_records":0,"reused":0,"superseded":0}
 
 func _init(database: HospitalContent) -> void:
 	content = database
@@ -27,6 +29,7 @@ func poll(dispatch: bool = true) -> void:
 			finished = {"projection":{"complete":false,"reason":"接诊能力准备任务异常结束"},"elapsed_us":0}
 		_completed = {"input":_active,"projection":finished.projection}
 		_completed_id = _active_id
+		if _completed_id==_sealed_id: _sealed_result = _completed.projection
 		_metrics.jobs += 1
 		_metrics.latest_worker_us = finished.elapsed_us
 		_metrics.worker_wall_us += finished.elapsed_us
@@ -46,6 +49,7 @@ func poll(dispatch: bool = true) -> void:
 		if error!=OK:
 			_completed = {"input":_active,"projection":{"complete":false,"reason":"无法启动接诊能力准备：%d" % error}}
 			_completed_id = _active_id
+			if _completed_id==_sealed_id: _sealed_result = _completed.projection
 			_thread = null
 			_active = {}
 			_active_id = -1
@@ -66,6 +70,7 @@ func sealed_projection(world: WorldState, subtract_existing: bool) -> Dictionary
 	if _sealed.is_empty():
 		_sealed = _capture(world,subtract_existing,-1)
 		_sealed_id = _select_request(_sealed)
+		if _sealed_id==_completed_id: _sealed_result = _completed.projection
 	var result: Dictionary = _poll_request(_sealed_id)
 	_record_main(started)
 	return result
@@ -73,6 +78,7 @@ func sealed_projection(world: WorldState, subtract_existing: bool) -> Dictionary
 func release_sealed() -> void:
 	_sealed = {}
 	_sealed_id = -1
+	_sealed_result = {}
 
 func _select_request(input: Dictionary) -> int:
 	# Collect completion before selecting the newest/sealed input. Dispatching
@@ -96,7 +102,10 @@ func _select_request(input: Dictionary) -> int:
 	return _latest_id
 
 func _poll_request(request_id: int) -> Dictionary:
+	if request_id==_sealed_id and not _sealed_result.is_empty(): return _sealed_result
+	if request_id==_completed_id: return _completed.projection
 	poll()
+	if request_id==_sealed_id and not _sealed_result.is_empty(): return _sealed_result
 	if request_id==_completed_id: return _completed.projection
 	return {"complete":false,"pending":true,"reason":"接诊能力准备中"}
 
@@ -118,11 +127,13 @@ func prepare_next_day(world: WorldState) -> void:
 	projection(world,true,(world.sim_tick/WorldState.TICKS_PER_DAY+1)*WorldState.TICKS_PER_DAY)
 
 func retry() -> void:
-	if not _completed.is_empty():
-		_latest = _completed.input
+	if not _sealed.is_empty() or not _completed.is_empty():
+		_latest = _sealed if not _sealed.is_empty() else _completed.input
 		_sequence += 1
 		_latest_id = _sequence
-		if not _sealed.is_empty(): _sealed_id = _sequence
+		if not _sealed.is_empty():
+			_sealed_id = _sequence
+			_sealed_result = {}
 		_completed = {}
 		_completed_id = -1
 	poll()
@@ -133,6 +144,12 @@ func dispose() -> void:
 		_thread.wait_to_finish()
 		_thread = null
 	_worker = null
+	release_sealed()
+	_completed = {}
+	_completed_id = -1
+	_active = {}
+	_active_id = -1
+	_capture_base = {}
 
 func _compute(input: Dictionary) -> Dictionary:
 	var started: int = Time.get_ticks_usec()
@@ -186,6 +203,21 @@ func _capture(world: WorldState, subtract_existing: bool, target_tick: int) -> D
 			"location":actor.location if subtract_existing else {"kind":"outside"},"facing":actor.facing,"posture":actor.get("posture","standing")}
 		if subtract_existing and actor.has("support_facility_id"): facts.actors[id].support_facility_id = actor.support_facility_id
 	facts.moves = HospitalTransit.reference_movements(world)
+	if subtract_existing:
+		for id: String in world.facts.connectors:
+			if world.facts.connectors[id].has("assigned_actor_id"): facts.connectors[id].assigned_actor_id = world.facts.connectors[id].assigned_actor_id
+		for id: String in world.facts.moves:
+			var movement: Dictionary = world.facts.moves[id]
+			if movement.has("transit_ticket"):
+				facts.moves[id] = {"members":movement.get("members",[]),"offsets":movement.get("offsets",{}),"transit_ticket":movement.transit_ticket}
+		# Dynamic exit occupancy is read by the original transit estimator.
+		for id: String in world.facts.actors:
+			var actor: Dictionary = world.facts.actors[id]
+			if actor.location.kind=="floor":
+				facts.actors[id] = {"id":id,"species_id":actor.species_id,"body_binding_id":actor.get("body_binding_id",""),"location":actor.location,"facing":actor.facing,"posture":actor.get("posture","standing")}
+				if actor.has("support_facility_id"): facts.actors[id].support_facility_id = actor.support_facility_id
+		for id: String in facts.moves:
+			for member: String in facts.moves[id].get("members",[id]): facts.actors[member] = world.facts.actors[member]
 	for connection: Dictionary in world.facts.connectors.values():
 		for id: String in connection.get("riders",[]): facts.actors[id] = world.facts.actors[id]
 	for field: String in ["sessions","preparations","ward_stays","tickets","visits","attempts","adaptations"]: facts[field] = {}
@@ -208,7 +240,32 @@ func _capture(world: WorldState, subtract_existing: bool, target_tick: int) -> D
 			for attempt_id: String in visit.attempt_ids:
 				var attempt: Dictionary = world.facts.attempts[attempt_id]
 				facts.attempts[attempt_id] = {"visit_id":attempt.visit_id,"bed_id":attempt.get("bed_id",""),"facility_id":attempt.facility_id,"staff_ids":attempt.staff_ids}
-	var owned: Dictionary = facts.duplicate(true)
+	var owned: Dictionary = _own_capture(facts)
 	_metrics.captures += 1
 	_metrics.capture_us += Time.get_ticks_usec()-started
+	_metrics.source_tick = world.sim_tick
+	_metrics.target_tick = facts.sim_tick
 	return {"facts":owned,"subtract_existing":subtract_existing}
+
+func _own_capture(facts: Dictionary) -> Dictionary:
+	# Each request is a complete snapshot. Unchanged values can share the last
+	# owned read-only records; replacing latest never discards an unapplied delta.
+	if _capture_base.get("hospital_id")!=facts.hospital_id: _capture_base = {}
+	var owned: Dictionary = {}
+	for field: String in facts:
+		var value: Variant = facts[field]
+		if value is Dictionary:
+			var previous: Dictionary = _capture_base.get(field,{})
+			var records: Dictionary = {}
+			for id: Variant in value:
+				if previous.has(id) and previous[id]==value[id]:
+					records[id] = previous[id]
+					_metrics.reused_records += 1
+				else:
+					var record: Variant = value[id]
+					records[id] = record.duplicate(true) if record is Dictionary or record is Array else record
+					_metrics.copied_records += 1
+			owned[field] = records
+		else: owned[field] = value.duplicate(true) if value is Array else value
+	_capture_base = owned
+	return owned

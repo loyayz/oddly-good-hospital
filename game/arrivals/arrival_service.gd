@@ -575,7 +575,7 @@ func _reference_classes(world: WorldState, shift: int, query: Variant = null) ->
 				var remaining: Dictionary = _remaining_reference(quote)
 				var previous: Dictionary = cached_cases.get(case_key,{})
 				var version: int = int(previous.get("version",-1))
-				if previous.get("variant",{})!=variant or previous.get("reference",{})!=remaining:
+				if previous.get("variant",{})!=variant:
 					_reference_version += 1
 					version = _reference_version
 				cached_cases[case_key] = {"experience":experience.duplicate(true),"transport":cached.basis.connectors,"variant":variant,"version":version,"resources":resources.keys(),"reference":remaining}
@@ -672,12 +672,12 @@ func _reference_basis(world: WorldState, shift: int) -> Dictionary:
 	result.connectors = HospitalTransit.reference_conditions(world)
 	result.floors = {}
 	for field: String in ["overrides","completed_top_floor","height_intervals"]: result.floors[field] = world.facts.floors.get(field)
-	result.departments = world.facts.get("departments",{}).get("units",{})
+	result.departments = _reference_geometry_basis("departments",world.facts.get("departments",{}).get("units",{}),["id","room_ids","shared_room_ids","public_cells","entry","focus_id","intake_disease_ids","open"])
 	result.focus_active = {}
 	result.focus_ratings = {}
 	var clock: int = world.sim_tick/WorldState.TICKS_PER_DAY*WorldState.TICKS_PER_DAY+shift*_ticks(content.balance.schedule.shift_seconds)
 	for id: String in result.departments:
-		result.focus_active[id] = clock>=int(result.departments[id].get("focus_ready_tick",0))
+		result.focus_active[id] = clock>=int(world.facts.departments.units[id].get("focus_ready_tick",0))
 		if departments!=null and not str(result.departments[id].get("focus_id","")).is_empty(): result.focus_ratings[id] = departments.call("aggregate_rating",world,id)
 	result.talents = clinic.recruitment!=null
 	result.department_effects = clinic.departments!=null
@@ -728,6 +728,7 @@ func _capacity_reference_world(world: WorldState) -> WorldState:
 	for collection: String in ["visits","sessions","preparations","ward_stays","moves","adaptations"]:
 		facts[collection] = {}
 	facts.moves = HospitalTransit.reference_movements(world)
+	facts.connectors = HospitalTransit.reference_conditions(world)
 	for connection: Dictionary in world.facts.connectors.values():
 		for actor_id: String in connection.get("riders",[]):
 			if not facts.actors.has(actor_id): facts.actors[actor_id] = world.facts.actors[actor_id]
@@ -1101,7 +1102,7 @@ func _admission_candidates(world: WorldState) -> Array:
 			continue
 		var variants: Array = []
 		for complex_case: bool in [false,true]:
-			var ready: Dictionary = clinic.call("arrival_readiness",world,str(binding.id),complex_case)
+			var ready: Dictionary = clinic.call("arrival_readiness",world,str(binding.id),complex_case,false)
 			if ready.get("ok",false):
 				variants.append(complex_case)
 		if variants.is_empty():
