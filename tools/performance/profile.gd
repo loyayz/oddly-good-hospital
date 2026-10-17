@@ -418,11 +418,6 @@ class PhaseSpace extends TimedSpace:
 		var result: String = super.static_reason(world,actor,floor_id,origin,members,offsets)
 		timing.trace_phase("space.static_reason",world,"return",result)
 		return result
-	func facility_layout(world: WorldState, facility_id: String) -> Dictionary:
-		timing.trace_phase("space.facility_layout",world,"enter")
-		var result: Dictionary = super.facility_layout(world,facility_id)
-		timing.trace_phase("space.facility_layout",world,"return",result)
-		return result
 	func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
 		timing.trace_phase("space.route",world,"enter")
 		var result: Dictionary = super.route(world,actor_id,floor_id,target,members,offsets,ignore_people)
