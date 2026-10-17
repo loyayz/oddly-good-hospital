@@ -583,6 +583,9 @@ struct Model {
     std::vector<ScaledCoefficient> role_coefficients;
     std::vector<Q> role_values;
     int64_t role_proof_reuses = 0;
+    int64_t role_searches = 0;
+    std::map<int, std::string> coverage_owners;
+    bool coverage_owners_ready = false;
 
     std::string signature(const Resources& values) const {
         std::string result;
@@ -767,6 +770,7 @@ struct Model {
             result.set("mip_integral_variables", V::number(std::count(role_program->integral.begin(), role_program->integral.end(), true)));
             result.set("exact_polishes", V::number(role_program->exact_polishes));
             result.set("proof_reuses", V::number(role_proof_reuses));
+            result.set("mip_searches", V::number(role_searches));
             result.set("nursing_timing_us", timing_values(role_program->timing));
         }
         return result.value();
@@ -835,7 +839,29 @@ struct Model {
         certificate_values = values; certificate_budgets = budgets; certificate_bound = bound;
         publish(capacity, used); return true;
     }
+    Q role_priced_budget(const std::vector<Q>& prices) const {
+        Q result = 0;
+        std::map<std::string, Q> coverage_max;
+        for (int resource : used_resources) {
+            Q weighted = prices[resource] * budgets[resource];
+            auto owner = coverage_owners.find(resource);
+            if (owner == coverage_owners.end()) result += weighted;
+            else if (weighted > coverage_max[owner->second]) coverage_max[owner->second] = weighted;
+        }
+        for (const auto& item : coverage_max) result += item.second;
+        return result;
+    }
     V solve_roles() {
+        if (!coverage_owners_ready) {
+            for (int resource : used_resources) {
+                const std::string& name = resources[resource];
+                if (name.compare(0, 9, "coverage:") != 0) continue;
+                auto separator = name.find(':', 9);
+                if (separator == std::string::npos) throw std::runtime_error("护理岗位缺少病房身份");
+                coverage_owners[resource] = name.substr(9, separator - 9);
+            }
+            coverage_owners_ready = true;
+        }
         // A unit-priced complete path gives a true lower bound on total demand
         // per Visit. It derives all flow bounds from this hospital's budgets;
         // there is no arbitrary Visit, branch or candidate limit.
@@ -863,9 +889,9 @@ struct Model {
         // These bounds remain valid after redistribution and role changes.
         auto tighten = [&](const std::vector<Q>& prices) {
             std::vector<Q> costs; std::vector<int> choices; price(prices, costs, choices);
-            Q demand = 0, value = 0;
+            Q demand = 0;
             for (const Case& item : cases) demand += item.probability * costs[item.root];
-            for (int resource : used_resources) value += prices[resource] * budgets[resource];
+            Q value = role_priced_budget(prices);
             if (demand > 0) { Q bound = value / demand; if (bound < limit) limit = bound; }
         };
         std::vector<Q> prices(resources.size(), Q(0));
@@ -914,15 +940,9 @@ struct Model {
 
             std::map<int, int> coverage;
             std::map<std::string, std::vector<int>> nurses;
-            std::map<int, std::string> owners;
-            for (size_t i = 0; i < resources.size(); ++i) {
-                const std::string& name = resources[i];
-                if (!used_resources.count(static_cast<int>(i)) || name.compare(0, 9, "coverage:") != 0) continue;
-                auto separator = name.find(':', 9);
-                if (separator == std::string::npos) throw std::runtime_error("护理岗位缺少病房身份");
-                std::string nurse = name.substr(9, separator - 9);
-                int role = mip.binary(); coverage[static_cast<int>(i)] = role;
-                nurses[nurse].push_back(role); owners[static_cast<int>(i)] = nurse;
+            for (const auto& owner : coverage_owners) {
+                int role = mip.binary(); coverage[owner.first] = role;
+                nurses[owner.second].push_back(role);
             }
             for (const auto& nurse : nurses) {
                 std::vector<std::pair<int, int>> roles;
@@ -934,7 +954,7 @@ struct Model {
                 for (const auto& item : nodes[i].resources) {
                     auto role = coverage.find(item.first);
                     if (role == coverage.end()) continue;
-                    own.insert(owners.at(item.first));
+                    own.insert(coverage_owners.at(item.first));
                     int row = mip.less_equal({{flow[i], Q(1)}, {role->second, -upper[i]}}, Q(0));
                     role_coefficients.push_back({row, role->second, -factors[i]});
                 }
@@ -978,7 +998,7 @@ struct Model {
             if (values[total] != limit || !mip.valid_values(values)) values.clear();
             else ++role_proof_reuses;
         }
-        if (values.empty()) values = mip.solve_rational();
+        if (values.empty()) { ++role_searches; values = mip.solve_rational(); }
         std::vector<Q> amounts, used(resources.size(), Q(0));
         for (const Case& item : cases) amounts.push_back(values[flow[item.root]]);
         for (size_t i = 0; i < nodes.size(); ++i)

@@ -2299,7 +2299,6 @@ func _reference_model(options: Dictionary, binding_id: String, complex_case: boo
 				groups.reception.append(_reference_component(registration,["reception"],{"n":"1","d":"1"},options.query.component_batch))
 		var representative_retry: Dictionary = {}
 		if int(content.balance.max_treatment_attempts)>1:
-			var retry_key: String = JSON.stringify([terminal.plan_id,terminal.staff_ids,terminal.consulting_doctor_id])
 			# Only the continuing doctor's experience is read by PlanScore.
 			# Keep graph IDs/probability weights independent of this options key.
 			var option_key: Array = _reference_retry_context(terminal)
@@ -2307,7 +2306,7 @@ func _reference_model(options: Dictionary, binding_id: String, complex_case: boo
 				retries[option_key] = _reference_options(options.world,binding_id,complex_case,shift,terminal,options,options.query)
 			var retry_options: Dictionary = retries[option_key]
 			if retry_options.ok:
-				var retry_group: String = "retry:"+retry_key+":"+str(terminal.probability_bp)
+				var retry_group: String = _reference_retry_group(terminal)
 				if not groups.has(retry_group):
 					groups[retry_group] = []
 					var weight: Dictionary = ReferenceFraction.make(10000-int(terminal.probability_bp),10000)
@@ -2412,6 +2411,9 @@ func _reference_component(full: Dictionary, stages: Array, weight: Dictionary = 
 
 func _reference_retry_context(terminal: Dictionary) -> Array:
 	return [terminal.plan_id,terminal.consulting_doctor_id,terminal.consulting_doctor_id in terminal.staff_ids]
+
+func _reference_retry_group(terminal: Dictionary) -> String:
+	return "retry:"+JSON.stringify([_reference_retry_context(terminal),terminal.probability_bp])
 
 func _reference_score(world: WorldState, _visit: Dictionary, quote: Dictionary, doctor_id: String) -> float:
 	var staff: Dictionary = world.facts.staff[doctor_id]

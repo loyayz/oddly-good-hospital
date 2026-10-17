@@ -231,8 +231,14 @@ func _case_39(t) -> void:
 		if (int(property.usage)&PROPERTY_USAGE_SCRIPT_VARIABLE)!=0: uncached.set(property.name,ctx.clinic.get(property.name))
 	ctx.space._navigation = NavigationCache.new()
 	var independent: Dictionary = uncached.reference_demand(nominal,binding.id,false,0)
-	if quote!=independent or not distinct_weights:
-		t.check("GROW-39",false,{"complete_uncached_model_equal":quote==independent,"same_context_distinct_probabilities":distinct_weights})
+	var shared_groups: Dictionary = {}
+	var original_groups: Dictionary = {}
+	for pair: Array in [[quote,shared_groups],[independent,original_groups]]:
+		for root: Dictionary in pair[0].get("model",{}).get("bundles",[]):
+			for group: String in root.get("choices",[]):
+				if group.begins_with("retry:"): pair[1][group] = true
+	if _reference_observables(quote)!=_reference_observables(independent) or not distinct_weights or shared_groups.size()>=original_groups.size():
+		t.check("GROW-39",false,{"complete_uncached_model_equal":_reference_observables(quote)==_reference_observables(independent),"same_context_distinct_probabilities":distinct_weights,"shared_retry_groups":shared_groups.size(),"original_retry_groups":original_groups.size()})
 		return
 	var variant: Dictionary = ctx.arrivals._reference_variant(nominal,binding,false,0,quote,query)
 	variant.probability = F.make(1)
@@ -1079,7 +1085,35 @@ class ScalarComponents extends HospitalClinic:
 	func _reference_component(full: Dictionary, stages: Array, weight: Dictionary = {"n":"1","d":"1"}, _batch: Variant = null) -> Dictionary:
 		return super._reference_component(full,stages,weight)
 
+func _reference_observables(quote: Dictionary) -> Dictionary:
+	var result: Dictionary = quote.duplicate(true)
+	if not result.has("model"): return result
+	var model: Dictionary = result.model
+	var groups: Dictionary = model.get("choice_groups",{})
+	var memo: Dictionary = {}
+	var roots: Array = []
+	for part: Dictionary in model.bundles: roots.append(_reference_expanded_part(part,groups,memo))
+	model.bundles = roots
+	model.erase("choice_groups")
+	return result
+
+func _reference_expanded_part(part: Dictionary, groups: Dictionary, memo: Dictionary) -> Dictionary:
+	var result: Dictionary = part.duplicate(true)
+	for field: String in ["choices","structural_choices"]:
+		if not result.has(field): continue
+		var expanded: Array = []
+		for group: String in result[field]:
+			if not memo.has(group):
+				var options: Array = []
+				for option: Dictionary in groups[group]: options.append(_reference_expanded_part(option,groups,memo))
+				memo[group] = options
+			expanded.append(memo[group])
+		result[field] = expanded
+	return result
+
 class UncachedReference extends HospitalClinic:
+	func _reference_retry_group(terminal: Dictionary) -> String:
+		return "retry:"+JSON.stringify([terminal.plan_id,terminal.staff_ids,terminal.consulting_doctor_id])+":"+str(terminal.probability_bp)
 	func _reference_retry_context(terminal: Dictionary) -> Array:
 		return [terminal.plan_id,terminal.staff_ids,terminal.consulting_doctor_id]
 	func _reference_options(world: WorldState, binding_id: String, complex_case: bool, shift: int, prior_quote: Dictionary = {}, shared: Dictionary = {}, query: Dictionary = {}) -> Dictionary:
@@ -1109,8 +1143,9 @@ func _case_73(t) -> void:
 			var nominal: WorldState = ctx.arrivals._capacity_reference_world(ctx.world)
 			var cached: Dictionary = ctx.clinic.reference_demand(nominal,"B_S49_D37_M37",complex_case,0)
 			var fresh: Dictionary = independent.reference_demand(nominal,"B_S49_D37_M37",complex_case,0)
-			correct = correct and cached.ok and cached==fresh
-			observations.append({"experience":experience,"complex":complex_case,"complete_model_equal":cached==fresh})
+			var equal: bool = _reference_observables(cached)==_reference_observables(fresh)
+			correct = correct and cached.ok and equal
+			observations.append({"experience":experience,"complex":complex_case,"complete_model_equal":equal})
 		correct = correct and ctx.world.freeze()==before
 	for boundary: Array in [["DP01",4,1.0],["DP01",24,1.0],["DP01",25,0.0],["DP03",0,-8.0]]:
 		for staff: Dictionary in ctx.world.facts.staff.values():

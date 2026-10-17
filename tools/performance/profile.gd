@@ -7,6 +7,12 @@ var _call_samples: Dictionary = {}
 var profile_sources: Dictionary = {}
 var profile_errors: Array = []
 var snapshot_path: String = ""
+var checkpoints: Array = []
+var snapshot_overhead_us: int = 0
+
+func checkpoint(stage: String) -> void:
+	checkpoints.append({"stage":stage,"ticks_us":Time.get_ticks_usec()})
+	_snapshot()
 
 func finish(stage: String, started: int) -> void:
 	var elapsed: int = Time.get_ticks_usec()-started
@@ -28,8 +34,10 @@ func count(operation: String, started: int) -> void:
 
 func _snapshot() -> void:
 	if snapshot_path.is_empty(): return
+	var started: int = Time.get_ticks_usec()
 	var file: FileAccess = FileAccess.open(snapshot_path,FileAccess.WRITE)
 	if file!=null: file.store_string(JSON.stringify(report(),"\t"))
+	snapshot_overhead_us += Time.get_ticks_usec()-started
 
 func report() -> Dictionary:
 	var distributions: Dictionary = {}
@@ -40,7 +48,7 @@ func report() -> Dictionary:
 		distributions[operation] = {"samples":values.size(),"complete":complete}
 		if complete and not values.is_empty():
 			for percentile: int in [50,95,99]: distributions[operation]["p%d_us"%percentile] = values[ceili(values.size()*percentile/100.0)-1]
-	return {"stages_us":stages.duplicate(true),"inclusive_calls":calls.duplicate(true),"call_distributions":distributions,"profile_sources":profile_sources.duplicate(),"profile_errors":profile_errors.duplicate()}
+	return {"stages_us":stages.duplicate(true),"inclusive_calls":calls.duplicate(true),"call_distributions":distributions,"profile_sources":profile_sources.duplicate(),"profile_errors":profile_errors.duplicate(),"checkpoints":checkpoints.duplicate(),"previous_snapshot_overhead_us":snapshot_overhead_us}
 
 func solver() -> RefCounted:
 	var base: GDScript = preload("res://game/arrivals/capacity_solver.gd")
@@ -160,6 +168,7 @@ class TimedClinic extends HospitalClinic:
 		var started: int = Time.get_ticks_usec()
 		var result: Dictionary = super._reference_options(world,binding_id,complex_case,shift,prior_quote,shared,query)
 		timing.count("clinical.reference_options.retry" if not prior_quote.is_empty() else "clinical.reference_options.first",started)
+		timing.checkpoint("reference_options.retry" if not prior_quote.is_empty() else "reference_options.first")
 		return result
 	func _reference_terminal_bundle(world: WorldState, visit: Dictionary, reception: Dictionary, diagnostic: Dictionary, quote: Dictionary, stages: Dictionary, query: Dictionary = {}) -> Dictionary:
 		var started: int = Time.get_ticks_usec()

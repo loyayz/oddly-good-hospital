@@ -1084,18 +1084,21 @@ func _structural_case(case: Dictionary, reception: Dictionary) -> Dictionary:
 	# options, so C-only retry names/probabilities cannot invalidate this input.
 	var result: Dictionary = {"bundles":[],"choice_groups":{},"reception_bundles":[]}
 	var groups: Dictionary = case.get("choice_groups",{})
+	var translated: Dictionary = {}
 	for part: Dictionary in case.bundles:
 		var root: Dictionary = {"structural_resources":_structural_resources(part),"structural_choices":[]}
 		for field: String in ["coverage_nurse_id","ward_id"]:
 			if not str(part.get(field,"")).is_empty(): root[field] = part[field]
 		var choices: Array = part.get("structural_choices",[part.structural_group] if part.has("structural_group") else [])
 		for group: String in choices:
-			var options: Array = []
-			for option: Dictionary in groups[group]: options.append({"structural_resources":_structural_resources(option)})
-			options = _unique_structural_parts(options)
-			var identity: String = JSON.stringify(options,"",true,true)
-			result.choice_groups[identity] = options
-			root.structural_choices.append(identity)
+			if not translated.has(group):
+				var options: Array = []
+				for option: Dictionary in groups[group]: options.append({"structural_resources":_structural_resources(option)})
+				options = _unique_structural_parts(options)
+				var identity: String = JSON.stringify(options,"",true,true)
+				result.choice_groups[identity] = options
+				translated[group] = identity
+			root.structural_choices.append(translated[group])
 		root.structural_choices.sort()
 		result.bundles.append(root)
 	result.bundles = _unique_structural_parts(result.bundles)

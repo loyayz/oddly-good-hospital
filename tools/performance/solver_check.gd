@@ -41,6 +41,24 @@ func _initialize() -> void:
 		fallback_result = fallback.call("solve",{"coverage:proof:ward":F.make(amounts[0]),"facility:proof":F.make(amounts[1])})
 		if fallback_result.get("capacity")!=F.make(amounts[2]) or int(fallback_result.get("proof_reuses",0))!=amounts[3]: failures.append({"proof_fallback":amounts,"actual":fallback_result})
 	var role_model: Array = [{"probability":F.make(1),"bundles":[{"resources":{"coverage:n:w1":F.make(1)}},{"resources":{"coverage:n:w2":F.make(1)}}]}]
+	var max_bound_checks: int = 0
+	var cases_and_budgets: Array = [{"cases":role_model,"budget":{"coverage:n:w1":F.make(4),"coverage:n:w2":F.make(8)},"updates":[[3,{},F.make(8),true],[3,{"n":"w1"},F.make(3),false],[3,{},F.make(8),false],[0,{"n":"w1"},F.make(),false],[4,{},F.make(8),false]],"initial":F.make(8)},
+		{"cases":[{"probability":F.make(1,2),"bundles":[{"resources":{},"choices":["g"]}],"choice_groups":{"g":[{"resources":{"staff:n":F.make(1),"coverage:n:w1":F.make(2)}},{"resources":{"staff:n":F.make(1),"coverage:n:w2":F.make(2)}},{"resources":{"staff:n":F.make(1),"coverage:n:w0":F.make(2)}}]}},{"probability":F.make(1,2),"bundles":[{"resources":{},"choices":["g","g"]}],"choice_groups":{"g":[{"resources":{"staff:n":F.make(1),"coverage:n:w1":F.make(2)}},{"resources":{"staff:n":F.make(1),"coverage:n:w2":F.make(2)}},{"resources":{"staff:n":F.make(1),"coverage:n:w0":F.make(2)}}]}}],"budget":{"staff:n":F.make(6),"coverage:n:w1":F.make(8),"coverage:n:w2":F.make(12),"coverage:n:w0":F.make()},"updates":[[7,{},F.make(4),true],[7,{"n":"w1"},F.make(7,3),false],[7,{"n":"w0"},F.make(),false],[7,{},F.make(4),false]],"initial":F.make(4)}]
+	# Independent exact expectations: at most one ward per nurse; G is used
+	# 3/2 times per Visit, so staff6 and coverage12/2 both bound capacity at4.
+	for vector: Dictionary in cases_and_budgets:
+		var backend: RefCounted = ClassDB.instantiate("PlatformArrivalCapacity")
+		var budget: Dictionary = vector.budget.duplicate(true)
+		var result: Dictionary = backend.call("prepare_with_roles",vector.cases,budget,{})
+		max_bound_checks += 1
+		if result.get("capacity")!=vector.initial: failures.append({"max_bound_initial":vector.initial,"actual":result})
+		for update: Array in vector.updates:
+			var searches: int = int(result.get("mip_searches",-1))
+			var reuses: int = int(result.get("proof_reuses",0))
+			budget["coverage:n:w1"] = F.make(update[0])
+			result = backend.call("solve_with_roles",budget,update[1])
+			max_bound_checks += 1
+			if result.get("capacity")!=update[2] or update[3] and (int(result.get("mip_searches",-1))!=searches or int(result.get("proof_reuses",0))!=reuses+1): failures.append({"max_bound_update":update,"actual":result,"previous_searches":searches})
 	var role_budget: Dictionary = {"coverage:n:w1":F.make(4),"coverage:n:w2":F.make(8)}
 	var role_backend: RefCounted = ClassDB.instantiate("PlatformArrivalCapacity")
 	var role_result: Dictionary = role_backend.call("prepare_with_roles",role_model,role_budget,{"n":"w1"})
@@ -120,6 +138,7 @@ func _initialize() -> void:
 	report.role_restriction_checks = 7
 	report.batch_aggregate_checks = arithmetic.size()
 	report.empty_summary_checks = 2
+	report.coverage_max_checks = max_bound_checks
 	var file: FileAccess = FileAccess.open("res://solver-check.json",FileAccess.WRITE)
 	file.store_string(JSON.stringify(report,"\t"))
 	print("EXACT_VERTEX_CHECK="+JSON.stringify({"checks":vectors.size(),"failed":failures.size()}))

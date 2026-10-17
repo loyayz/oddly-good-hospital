@@ -164,7 +164,7 @@ func _run() -> void:
 				# Compare the complete numerical/model summary separately.
 				var stable: Dictionary = initial.duplicate()
 				var current: Dictionary = updated.duplicate()
-				for field: String in ["timing_us","nursing_timing_us","proof_reuses"]:
+				for field: String in ["timing_us","nursing_timing_us","proof_reuses","mip_searches"]:
 					stable.erase(field)
 					current.erase(field)
 				valid = valid and repeated==classes and current==stable
