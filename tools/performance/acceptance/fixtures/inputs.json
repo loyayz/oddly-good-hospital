@@ -1,0 +1,213 @@
+{
+  "schema_version": 1,
+  "envelope": "Fixture.store_input: content_fingerprint, facts, floors, visitor_ids",
+  "preparation_status": "Sources only; each generated input requires its successful runtime manifest and independent consumer validation.",
+  "inputs": [
+    {
+      "id": "160four",
+      "input_file": "160four.input.bin",
+      "manifest_file": "160four.manifest.json",
+      "mode": "base",
+      "actors": 160,
+      "layout": "four_floors",
+      "floors": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "population": {
+        "patients": 120,
+        "staff": 32,
+        "visitors": 8,
+        "visitor_profile": "HospitalVisitors companion"
+      },
+      "boundary": "actual_companion_admissions_and_complete_steps",
+      "required_original_layout": {
+        "rooms": 64,
+        "service_objects": 128,
+        "props": 1200
+      },
+      "minimal_layout_adjustment": "Original Factory initial built-layout boundary: bounded bottom public corridor FUR09 seats, original narrow placement/actual waiting-cell checks and original admission routes; retain all original rooms, objects and props.",
+      "status": "requires_generation"
+    },
+    {
+      "id": "320four",
+      "input_file": "320four.input.bin",
+      "manifest_file": "320four.manifest.json",
+      "mode": "base",
+      "actors": 320,
+      "layout": "four_floors",
+      "floors": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "population": {
+        "patients": 240,
+        "staff": 64,
+        "visitors": 16,
+        "visitor_profile": "HospitalVisitors companion"
+      },
+      "boundary": "actual_companion_admissions_and_complete_steps",
+      "required_original_layout": {
+        "rooms": 64,
+        "service_objects": 128,
+        "props": 1200
+      },
+      "minimal_layout_adjustment": "Original Factory initial built-layout boundary: bounded bottom public corridor FUR09 seats, original narrow placement/actual waiting-cell checks and original admission routes; retain all original rooms, objects and props.",
+      "status": "requires_generation"
+    },
+    {
+      "id": "640wide",
+      "input_file": "640wide.input.bin",
+      "manifest_file": "640wide.manifest.json",
+      "mode": "base",
+      "actors": 640,
+      "layout": "wide",
+      "floors": [
+        1
+      ],
+      "population": {
+        "patients": 480,
+        "staff": 128,
+        "visitors": 32,
+        "visitor_profile": "HospitalVisitors companion"
+      },
+      "boundary": "actual_companion_admissions_and_complete_steps",
+      "required_original_layout": {
+        "rooms": 64,
+        "service_objects": 128,
+        "props": 1200
+      },
+      "minimal_layout_adjustment": "Original Factory initial built-layout boundary: bounded bottom public corridor FUR09 seats, original narrow placement/actual waiting-cell checks and original admission routes; retain all original rooms, objects and props.",
+      "status": "requires_generation"
+    },
+    {
+      "id": "wide160",
+      "input_file": "wide160.input.bin",
+      "manifest_file": "wide160.manifest.json",
+      "mode": "base",
+      "actors": 160,
+      "layout": "wide",
+      "floors": [
+        1
+      ],
+      "population": {
+        "patients": 120,
+        "staff": 32,
+        "visitors": 8,
+        "visitor_profile": "HospitalVisitors companion"
+      },
+      "boundary": "actual_companion_admissions_and_complete_steps",
+      "required_original_layout": {
+        "rooms": 64,
+        "service_objects": 128,
+        "props": 1200
+      },
+      "minimal_layout_adjustment": "Original Factory initial built-layout boundary: bounded bottom public corridor FUR09 seats, original narrow placement/actual waiting-cell checks and original admission routes; retain all original rooms, objects and props.",
+      "status": "requires_generation"
+    },
+    {
+      "id": "tall640",
+      "input_file": "tall640.input.bin",
+      "manifest_file": "tall640.manifest.json",
+      "mode": "base",
+      "actors": 640,
+      "layout": "tall",
+      "floors": [
+        1,
+        10,
+        1000,
+        10000
+      ],
+      "population": {
+        "patients": 480,
+        "staff": 128,
+        "visitors": 32,
+        "visitor_profile": "HospitalVisitors companion"
+      },
+      "boundary": "actual_companion_admissions_and_complete_steps",
+      "required_original_layout": {
+        "rooms": 64,
+        "service_objects": 128,
+        "props": 1200
+      },
+      "minimal_layout_adjustment": "Original Factory initial built-layout boundary: bounded bottom public corridor FUR09 seats, original narrow placement/actual waiting-cell checks and original admission routes; retain all original rooms, objects and props.",
+      "status": "requires_generation"
+    },
+    {
+      "id": "clinical_midstep",
+      "input_file": "clinical_midstep.input.bin",
+      "manifest_file": "clinical_midstep.input.bin.manifest.json",
+      "mode": "clinical_midstep",
+      "source": "160four",
+      "population": "Record actual generated population; do not relabel it as 160 if natural departures occurred.",
+      "boundary": "Original outpatient/surgery session: 64 <= remaining_ticks < total_ticks, full previous step complete.",
+      "status": "requires_generation"
+    },
+    {
+      "id": "day_boundary_before",
+      "input_file": "day_boundary_before.input.bin",
+      "manifest_file": "day_boundary_before.input.bin.manifest.json",
+      "mode": "day_boundary_before",
+      "source": "160four",
+      "boundary": "Actual advance to next day source tick minus 64, retaining the original day plan and RNG.",
+      "manifest_fields": [
+        "target_executed_tick",
+        "target_completed_tick",
+        "target_day_index",
+        "pre_boundary_margin_ticks"
+      ],
+      "status": "requires_generation"
+    },
+    {
+      "id": "dual_a",
+      "input_file": "dual_a.input.bin",
+      "manifest_file": "dual-plan.json",
+      "mode": "copy_valid_input",
+      "source": "160four",
+      "hospital_identity": "Keep original UUID and all references unchanged.",
+      "status": "requires_source"
+    },
+    {
+      "id": "dual_b",
+      "input_file": "dual_b.input.bin",
+      "manifest_file": "dual-plan.json",
+      "mode": "copy_valid_input",
+      "source": "320four",
+      "hospital_identity": "Different original factory UUID from dual_a; no ID rewrite.",
+      "status": "requires_source"
+    },
+    {
+      "id": "history_64mib",
+      "input_file": "history_64mib.input.bin",
+      "manifest_file": "history-generation.json",
+      "world_json_file": "history_64mib.world.json",
+      "mode": "legal_history",
+      "source": "160four",
+      "minimum_canonical_world_json_bytes": 67108864,
+      "boundary": "Same active world, RNG, ledger, identities and commitments; only legal archived Visit/Actor/arrival_receipts added.",
+      "status": "requires_generation"
+    },
+    {
+      "id": "history_128mib",
+      "input_file": "history_128mib.input.bin",
+      "manifest_file": "history-generation.json",
+      "world_json_file": "history_128mib.world.json",
+      "mode": "legal_history",
+      "source": "160four",
+      "minimum_canonical_world_json_bytes": 134217728,
+      "boundary": "Same active world, RNG, ledger, identities and commitments; only legal archived Visit/Actor/arrival_receipts added.",
+      "status": "requires_generation"
+    }
+  ],
+  "limitations": [
+    "Original diagnostic bare visitor Actors are not accepted formal load. The base preparer invokes the real companion admission owner and never fabricates stays.",
+    "No clock rewrite, simulated completion, artificial actor hold, clinical-work shortcut or user-field padding.",
+    "Reused actual-step sources preserve every original intention, RNG and pending request; consume only existing legal companion requests through original _admit in original queue order, retaining all others. Only a fresh pre-step Fixture boundary may specify known intentions and call original _request. Preparation does not prove random selection probability or scan cadence.",
+    "Public-seat route failure, solver failure, watchdog or changed population prevents output. It is not a smaller successful fixture.",
+    "Input binaries are preparation envelopes. Real Library/Snapshots import, save/reload, runtime density and displayed-frame evidence remain separate."
+  ]
+}

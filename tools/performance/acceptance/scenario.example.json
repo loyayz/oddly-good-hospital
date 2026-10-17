@@ -1,0 +1,33 @@
+{
+  "name": "B1-160-four-1x",
+  "run_id": "collector-generates-fresh-identity",
+  "input_path": "REPLACE_WITH_INPUT_DIRECTORY/160four.input.bin",
+  "actors": 160,
+  "layout": "four_floors",
+  "workload_kind": "reference",
+  "dense_target_actors": 0,
+  "floor_id": 1,
+  "window_pixels": [2560, 1440],
+  "scene_scale_bp": 7500,
+  "ui_scale_percent": 100,
+  "speed": 1,
+  "minimum_frame_samples": 1000,
+  "minimum_step_samples": 1000,
+  "minimum_capture_real_seconds": 180,
+  "boundary_step_margin": 20,
+  "warmup_minimum_actual_steps": 32,
+  "maximum_real_seconds": 900,
+  "initial_panel": "details",
+  "operations": [
+    {"id":"clinical-panel","after_real_seconds":2,"action":"panel","panel":"clinical"},
+    {"id":"details-panel","after_real_seconds":4,"action":"panel","panel":"details"},
+    {"id":"whole-floor","after_real_seconds":6,"action":"overview"},
+    {"id":"pan-x","after_real_seconds":8,"action":"pan","pixels":[120,0]},
+    {"id":"pan-y","after_real_seconds":10,"action":"pan","pixels":[0,120]},
+    {"id":"zoom-in","after_real_seconds":12,"action":"zoom","factor":0.75},
+    {"id":"zoom-out","after_real_seconds":14,"action":"zoom","factor":1.333333333333},
+    {"id":"floor-2","after_real_seconds":16,"action":"floor","floor_id":2},
+    {"id":"floor-1","after_real_seconds":18,"action":"floor","floor_id":1},
+    {"id":"manual-save","after_real_seconds":20,"action":"save"}
+  ]
+}

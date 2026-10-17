@@ -1,0 +1,426 @@
+{
+  "schema_version": 1,
+  "contract": "docs/design/04-technical.md section 9; seven joint groups, never a Cartesian product",
+  "input_manifest": "inputs.json",
+  "defaults": {
+    "floor_id": 1,
+    "initial_panel": "clinical",
+    "dense_target_actors": 0,
+    "minimum_frame_samples": 1000,
+    "minimum_step_samples": 1000,
+    "warmup_minimum_actual_steps": 32,
+    "minimum_capture_real_seconds": 0,
+    "maximum_real_seconds": 1800
+  },
+  "groups": [
+    {
+      "id": "B1",
+      "name": "baseline-160-four-1x",
+      "input_id": "160four",
+      "input_file": "160four.input.bin",
+      "actors": 160,
+      "layout": "four_floors",
+      "speed": 1,
+      "window_pixels": [
+        2560,
+        1440
+      ],
+      "scene_scale_bp": 7500,
+      "ui_scale_percent": 100,
+      "minimum_capture_real_seconds": 190,
+      "operations": [
+        {
+          "id": "clinical",
+          "after_real_seconds": 2,
+          "action": "panel",
+          "panel": "clinical"
+        },
+        {
+          "id": "details",
+          "after_real_seconds": 4,
+          "action": "panel",
+          "panel": "details"
+        },
+        {
+          "id": "hide-details",
+          "after_real_seconds": 6,
+          "action": "panel",
+          "panel": "clinical"
+        },
+        {
+          "id": "whole-floor",
+          "after_real_seconds": 8,
+          "action": "overview"
+        },
+        {
+          "id": "pan-x",
+          "after_real_seconds": 10,
+          "action": "pan",
+          "pixels": [
+            120,
+            0
+          ]
+        },
+        {
+          "id": "pan-y",
+          "after_real_seconds": 12,
+          "action": "pan",
+          "pixels": [
+            0,
+            120
+          ]
+        },
+        {
+          "id": "near",
+          "after_real_seconds": 14,
+          "action": "zoom",
+          "factor": 0.75
+        },
+        {
+          "id": "far",
+          "after_real_seconds": 16,
+          "action": "zoom",
+          "factor": 1.333333333333
+        },
+        {
+          "id": "floor-two",
+          "after_real_seconds": 18,
+          "action": "floor",
+          "floor_id": 2
+        },
+        {
+          "id": "floor-one",
+          "after_real_seconds": 20,
+          "action": "floor",
+          "floor_id": 1
+        },
+        {
+          "id": "manual-save",
+          "after_real_seconds": 30,
+          "action": "save"
+        }
+      ],
+      "responsibilities": [
+        "default-main-target",
+        "actual-clinical-work",
+        "ordinary-panel-and-camera",
+        "manual-save-and-original-180s-autosave"
+      ]
+    },
+    {
+      "id": "B3",
+      "name": "baseline-160-four-3x",
+      "input_id": "160four",
+      "input_file": "160four.input.bin",
+      "actors": 160,
+      "layout": "four_floors",
+      "speed": 3,
+      "window_pixels": [
+        2560,
+        1440
+      ],
+      "scene_scale_bp": 7500,
+      "ui_scale_percent": 100,
+      "operations": [
+        {
+          "id": "overview",
+          "after_real_seconds": 4,
+          "action": "overview"
+        },
+        {
+          "id": "pan-x",
+          "after_real_seconds": 8,
+          "action": "pan",
+          "pixels": [
+            120,
+            0
+          ]
+        },
+        {
+          "id": "floor-two",
+          "after_real_seconds": 12,
+          "action": "floor",
+          "floor_id": 2
+        },
+        {
+          "id": "floor-one",
+          "after_real_seconds": 16,
+          "action": "floor",
+          "floor_id": 1
+        }
+      ],
+      "responsibilities": [
+        "default-3x",
+        "same-immutable-input-as-B1"
+      ]
+    },
+    {
+      "id": "D1",
+      "name": "dense-640-wide-1x",
+      "input_id": "640wide",
+      "input_file": "640wide.input.bin",
+      "actors": 640,
+      "layout": "wide",
+      "speed": 1,
+      "window_pixels": [
+        2560,
+        1440
+      ],
+      "scene_scale_bp": 7500,
+      "ui_scale_percent": 100,
+      "dense_target_actors": 640,
+      "operations": [
+        {
+          "id": "whole-floor",
+          "after_real_seconds": 1,
+          "action": "overview"
+        },
+        {
+          "id": "near",
+          "after_real_seconds": 8,
+          "action": "zoom",
+          "factor": 0.75
+        },
+        {
+          "id": "far",
+          "after_real_seconds": 12,
+          "action": "zoom",
+          "factor": 1.333333333333
+        }
+      ],
+      "responsibilities": [
+        "wide-640",
+        "dense-640-only-with-576-actual-visible-actors-and-sufficient-separate-segment-samples"
+      ]
+    },
+    {
+      "id": "D3",
+      "name": "dense-640-wide-3x",
+      "input_id": "640wide",
+      "input_file": "640wide.input.bin",
+      "actors": 640,
+      "layout": "wide",
+      "speed": 3,
+      "window_pixels": [
+        2560,
+        1440
+      ],
+      "scene_scale_bp": 7500,
+      "ui_scale_percent": 100,
+      "dense_target_actors": 640,
+      "operations": [
+        {
+          "id": "whole-floor",
+          "after_real_seconds": 1,
+          "action": "overview"
+        },
+        {
+          "id": "near",
+          "after_real_seconds": 8,
+          "action": "zoom",
+          "factor": 0.75
+        },
+        {
+          "id": "far",
+          "after_real_seconds": 12,
+          "action": "zoom",
+          "factor": 1.333333333333
+        }
+      ],
+      "responsibilities": [
+        "wide-640",
+        "dense-640-only-with-576-actual-visible-actors-and-sufficient-separate-segment-samples"
+      ]
+    },
+    {
+      "id": "C320",
+      "name": "growth-320-four-high-pixels",
+      "input_id": "320four",
+      "input_file": "320four.input.bin",
+      "actors": 320,
+      "layout": "four_floors",
+      "speed": 3,
+      "window_pixels": [
+        2880,
+        1920
+      ],
+      "scene_scale_bp": 10000,
+      "ui_scale_percent": 200,
+      "operations": [
+        {
+          "id": "details",
+          "after_real_seconds": 4,
+          "action": "panel",
+          "panel": "details"
+        },
+        {
+          "id": "clinical",
+          "after_real_seconds": 8,
+          "action": "panel",
+          "panel": "clinical"
+        },
+        {
+          "id": "whole-floor",
+          "after_real_seconds": 12,
+          "action": "overview"
+        }
+      ],
+      "responsibilities": [
+        "growth-320",
+        "2880x1920",
+        "scene100",
+        "ui200"
+      ]
+    },
+    {
+      "id": "W160",
+      "name": "wide-160-reduced-scene",
+      "input_id": "wide160",
+      "input_file": "wide160.input.bin",
+      "actors": 160,
+      "layout": "wide",
+      "speed": 1,
+      "window_pixels": [
+        2880,
+        1920
+      ],
+      "scene_scale_bp": 6667,
+      "ui_scale_percent": 200,
+      "dense_target_actors": 160,
+      "operations": [
+        {
+          "id": "whole-floor",
+          "after_real_seconds": 1,
+          "action": "overview"
+        },
+        {
+          "id": "pan-x",
+          "after_real_seconds": 8,
+          "action": "pan",
+          "pixels": [
+            120,
+            0
+          ]
+        },
+        {
+          "id": "pan-y",
+          "after_real_seconds": 12,
+          "action": "pan",
+          "pixels": [
+            0,
+            120
+          ]
+        }
+      ],
+      "responsibilities": [
+        "wide-160",
+        "scene67",
+        "ui200",
+        "dense-160-only-with-144-actual-visible-actors"
+      ]
+    },
+    {
+      "id": "T640",
+      "name": "tall-640-active-floors",
+      "input_id": "tall640",
+      "input_file": "tall640.input.bin",
+      "actors": 640,
+      "layout": "tall",
+      "speed": 3,
+      "window_pixels": [
+        2880,
+        1920
+      ],
+      "scene_scale_bp": 7500,
+      "ui_scale_percent": 100,
+      "operations": [
+        {
+          "id": "floor-ten",
+          "after_real_seconds": 5,
+          "action": "floor",
+          "floor_id": 10
+        },
+        {
+          "id": "floor-thousand",
+          "after_real_seconds": 10,
+          "action": "floor",
+          "floor_id": 1000
+        },
+        {
+          "id": "floor-ten-thousand",
+          "after_real_seconds": 15,
+          "action": "floor",
+          "floor_id": 10000
+        },
+        {
+          "id": "floor-one",
+          "after_real_seconds": 20,
+          "action": "floor",
+          "floor_id": 1
+        },
+        {
+          "id": "interval-save",
+          "after_real_seconds": 25,
+          "action": "save"
+        }
+      ],
+      "responsibilities": [
+        "10000-contiguous-structure",
+        "only-1-10-1000-10000-active",
+        "same-xy-isolation",
+        "interval-save-and-resource-retirement"
+      ]
+    }
+  ],
+  "extra_named_responsibilities": [
+    {
+      "id": "clinical-in-progress",
+      "input_id": "clinical_midstep",
+      "required": "Verify the same witness session is still partial at operation start; actual save/load and frozen promise checks.",
+      "status": "input-generation-and-original-operation-required"
+    },
+    {
+      "id": "real-day-boundary",
+      "input_id": "day_boundary_before",
+      "required": "Capture must start before manifest target_executed_tick after actual warmup. Keep original waiting step and single new plan submission.",
+      "status": "input-generation-and-original-operation-required"
+    },
+    {
+      "id": "dual-hospital",
+      "input_ids": [
+        "dual_a",
+        "dual_b"
+      ],
+      "required": "Original Library.create/Snapshots commits in isolated profile, original source checkpoint -> target load -> return; no direct candidate injection.",
+      "status": "original-library-seeding-and-switch-required"
+    },
+    {
+      "id": "large-save-recovery",
+      "input_ids": [
+        "history_64mib",
+        "history_128mib"
+      ],
+      "required": "Original canonical JSON size at least target; real Snapshot/Library save and restore, extra peak, exact current facts/RNG verification.",
+      "status": "large-input-generation-and-save-required"
+    },
+    {
+      "id": "maximum-room-preview-and-loading-remodel",
+      "required": "Prequalify an actual successful maximum-room request and an actual alternative layout on the chosen world. Existing full layouts alone do not establish it; input geometry/funds/owner/exact quote and original prepare/evacuate/apply are required.",
+      "status": "specific-layout-and-command-prerequisite-not-yet-built"
+    },
+    {
+      "id": "two-hour-stability",
+      "input_ids": [
+        "dual_a",
+        "dual_b"
+      ],
+      "required": "One continuous 7200-real-second run, actual eight room changes and four original hospital switches plus receipts/tails. Seven short groups do not substitute.",
+      "status": "actual-operation-plan-and-continuous-run-required"
+    }
+  ],
+  "qualification_notes": [
+    "Each group is independent; never pool frames or complete-step populations across groups or disjoint dense fragments.",
+    "If dense visible-count/sample criteria fail, add a separate legal dense group. Do not lower denominator or freeze departures.",
+    "These are preparation plans; no input or performance metric is marked passed until generated and independently observed."
+  ]
+}

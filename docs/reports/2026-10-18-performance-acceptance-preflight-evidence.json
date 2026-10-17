@@ -1,0 +1,408 @@
+{
+  "schema_version": 1,
+  "kind": "release_acceptance_preflight",
+  "formal_acceptance_pass": false,
+  "build_identity": {
+    "product_id": "oddly-good-hospital",
+    "version": "0.28.0-stage28",
+    "version_source": "ProjectSettings:application/config/version",
+    "engine": "4.7.2-stable (official)",
+    "source": {
+      "kind": "working_tree",
+      "head": "ddc9aea50b94a36511496f1ea9580c7ea50f6727",
+      "head_tree": "87b20e1fed561d3a4622ceeebe464878f0129a55",
+      "staged_tree": "87b20e1fed561d3a4622ceeebe464878f0129a55",
+      "tracked_working_tree_matches_index": true,
+      "unstaged_paths": [],
+      "untracked_paths": [
+        "tests/acceptance/arrival_cancellation.gd.uid",
+        "tools/performance/history.gd.uid"
+      ],
+      "working_files": [
+        {
+          "path": "tests/acceptance/arrival_cancellation.gd.uid",
+          "sha256": "50d5d171b87a6326244760c90902d930dede2079248a3e41f8df03fecca012c3"
+        },
+        {
+          "path": "tools/performance/history.gd.uid",
+          "sha256": "a3811640acd6df137e1c36d9f4c0d912656c3b645710228af10f7f769dd93348"
+        }
+      ]
+    },
+    "files": [
+      {
+        "path": "oddly-good-hospital.exe",
+        "bytes": 109127680,
+        "sha256": "54cee456aef4e3d1dde929790c4e371849215e610ef41cfbe8323e5935680c5b"
+      },
+      {
+        "path": "oddly-good-hospital.pck",
+        "bytes": 35444768,
+        "sha256": "aa8a8646d429bd89e6a9121d5f5023163de4afd66e5337cc1b2eaf9829fca5ff"
+      },
+      {
+        "path": "oddly_good_platform.windows.x86_64.dll",
+        "bytes": 14875648,
+        "sha256": "02fbe7c7be685ba3115d277904ff5333d9b07a2f3d43f38b02adfd2b1ea19e0b"
+      },
+      {
+        "path": "libgmp-10.dll",
+        "bytes": 681231,
+        "sha256": "c2567ccf3f410c3411ba7cd4b7ba14f393a0e70a1d0c0593297df6706b5fba96"
+      },
+      {
+        "path": "libmpfr-6.dll",
+        "bytes": 713692,
+        "sha256": "b881beb5ed7e3413283ab94f24ab25cd47ed27127774867ae105642ff2fc2e47"
+      },
+      {
+        "path": "libgcc_s_seh-1.dll",
+        "bytes": 150537,
+        "sha256": "791ebf66e99c7c1b4ed3666468cec45a0172b4c8942ac6c84c3e9cab3e1b5270"
+      },
+      {
+        "path": "libwinpthread-1.dll",
+        "bytes": 64574,
+        "sha256": "e765ee6109a0080a7c42848911f4349099b3c15aa734d845cb0e438f6f5a91b5"
+      }
+    ]
+  },
+  "export_probe": {
+    "disable_project_settings_override": false,
+    "display_server": "Windows",
+    "engine": {
+      "build": "official",
+      "hash": "ed1daf0bf001b61586d9930840f2f1394092c079",
+      "hex": 263938,
+      "major": 4,
+      "minor": 7,
+      "patch": 2,
+      "status": "stable",
+      "string": "4.7.2-stable (official)",
+      "timestamp": 0
+    },
+    "executable": "C:/code/loyayz/oddly-good-hospital/.build/formal-ddc9aea/probe-override-product/oddly-good-hospital.exe",
+    "external_script": "C:/code/loyayz/oddly-good-hospital/.cache/performance/formal-release-probe-r3/probe_node.gd",
+    "external_script_sha256": "80127e0f86ef21a5df3fdaa92bcc39c4f6de6923d752c4e7b66e7c34b868ecde",
+    "features": {
+      "debug": false,
+      "editor": false,
+      "release": true,
+      "template": true
+    },
+    "global_classes": 79,
+    "loaded": {
+      "GameSession.tick_completed": true,
+      "PlatformArrivalMath": true,
+      "PlatformArrivalMath.monotonic_clock": {
+        "available": true,
+        "first": {
+          "qpc_frequency": 10000000,
+          "qpc_ticks": 987191451807
+        },
+        "second": {
+          "qpc_frequency": 10000000,
+          "qpc_ticks": 987191452111
+        }
+      },
+      "PlatformSQLite": true,
+      "PlatformSessionGuard": true,
+      "TickResult.completed_engine_us": true,
+      "TickResult.elapsed_us": true,
+      "TickResult.main_elapsed_us": true,
+      "TickResult.started_engine_us": true,
+      "res://game/app/app_root.gd": true,
+      "res://game/app/game_session.gd": true,
+      "res://game/app/main.tscn": true,
+      "res://game/content/content_db.gd": true,
+      "res://game/sim/types/tick_result.gd": true,
+      "res://game/sim/world_state.gd": true
+    },
+    "renderer": "gl_compatibility",
+    "valid": true
+  },
+  "probe_attempts": [
+    {
+      "id": 1,
+      "process": {
+        "exit": 1,
+        "timeout": false,
+        "pid": 17160,
+        "arguments": [
+          "--main-pack",
+          "C:/code/loyayz/oddly-good-hospital/.build/formal-ddc9aea/product/oddly-good-hospital.pck",
+          "--script",
+          "C:/code/loyayz/oddly-good-hospital/tools/performance/acceptance/probe.gd",
+          "--",
+          "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance\\formal-release-probe-r1/probe.json"
+        ]
+      },
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "ERROR: `--main-pack` was specified on the command line, but this Godot binary was compiled without support for path overrides. Aborting.\r\nTo be able to use it, use the `disable_path_overrides=no` SCons option when compiling Godot.\r\n\r\n   at: setup (main/main.cpp:1892)\r\n"
+    },
+    {
+      "id": 2,
+      "process": {
+        "exit": -1,
+        "timeout": true,
+        "pid": 3420,
+        "arguments": [
+          "--script",
+          "C:/code/loyayz/oddly-good-hospital/tools/performance/acceptance/probe.gd",
+          "--",
+          "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance\\formal-release-probe-r2/probe.json"
+        ]
+      },
+      "stdout_sha256": "413f4d2dded2467d206598545592bebf8bfed59b9ddadd48a06f921ae92b9a18",
+      "stderr": ""
+    },
+    {
+      "id": 3,
+      "process": {
+        "exit": 0,
+        "timeout": false,
+        "pid": 30072,
+        "arguments": [
+          "--",
+          "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance\\formal-release-probe-r3/probe.json"
+        ]
+      },
+      "stdout_sha256": "96d7d1dd65c0d0dd8c4190571defeb4eacc0be893c44943c1ca166a6c68aa6ef",
+      "stderr": ""
+    }
+  ],
+  "tool_parser_check": {
+    "directory": ".cache/performance/formal-tool-check-r2",
+    "count": 8,
+    "all_exit_zero": true,
+    "errors": []
+  },
+  "input_attempt": {
+    "classification": "incomplete_tool_preparation",
+    "formal_input_generated": false,
+    "performance_result": false,
+    "project": "C:/code/loyayz/oddly-good-hospital/.cache/performance/formal-tools-ddc9aea-r1",
+    "output_directory": "C:/code/loyayz/oddly-good-hospital/.cache/performance/formal-inputs-ddc9aea-r1",
+    "source_identity": "C:/code/loyayz/oddly-good-hospital/.cache/performance/formal-tools-ddc9aea-r1/source-identity.json",
+    "source_identity_sha256": "86a0540476de65f9715e50727d49ea330ca51daa5f8e9e709469e2e934a3606e",
+    "fixture_snapshot_sha256": "c559a7a8620f68c2ac603ef3d73dfad7f84a2afedf5255ae1bd03720e687a0a1",
+    "input_sha256": "2a1ef0b04534ed69687576900e4a9a4aee9ff02b63ee69fd389e7d74169832b0",
+    "prepare": {
+      "pid": 13704,
+      "started": "2026-10-18T02:42:46.0234822+08:00",
+      "ended": "2026-10-18T02:42:54.0056789+08:00",
+      "wall_seconds": 7.9756286,
+      "timeout": false,
+      "exit_code": 0,
+      "stdout": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/formal-inputs-ddc9aea-r1/prepare.stdout.txt",
+      "stderr": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/formal-inputs-ddc9aea-r1/prepare.stderr.txt"
+    },
+    "check_only": {
+      "mode": "check-only",
+      "executable": "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+      "arguments": [
+        "--headless",
+        "--path",
+        "C:/code/loyayz/oddly-good-hospital/.cache/performance/formal-tools-ddc9aea-r1",
+        "--script",
+        "res://tools/performance/acceptance/fixtures/prepare_inputs.gd",
+        "--check-only"
+      ],
+      "pid": 24968,
+      "started": "2026-10-18T02:43:16.1535614+08:00",
+      "stdout": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/formal-inputs-ddc9aea-r1/check-only.stdout.txt",
+      "stderr": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/formal-inputs-ddc9aea-r1/check-only.stderr.txt",
+      "deadline_policy": "Observe after 60 seconds; no automatic process kill. Preparation owns its 4000-step and 1800-second watchdog.",
+      "project": "C:/code/loyayz/oddly-good-hospital/.cache/performance/formal-tools-ddc9aea-r1",
+      "source_identity": "C:/code/loyayz/oddly-good-hospital/.cache/performance/formal-tools-ddc9aea-r1/source-identity.json",
+      "ended": "2026-10-18T02:43:17.7034719+08:00",
+      "wall_seconds": 1.5499929,
+      "exit_code": 0,
+      "stdout_bytes": 75,
+      "stderr_bytes": 0
+    },
+    "generation": {
+      "mode": "generate",
+      "executable": "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+      "arguments": [
+        "--headless",
+        "--path",
+        "C:/code/loyayz/oddly-good-hospital/.cache/performance/formal-tools-ddc9aea-r1",
+        "--script",
+        "res://tools/performance/acceptance/fixtures/prepare_inputs.gd",
+        "--",
+        "--case=160four",
+        "--source-input=C:/code/loyayz/oddly-good-hospital/.cache/performance/native-step-v5/steps.json.after.bin",
+        "--output-dir=C:/code/loyayz/oddly-good-hospital/.cache/performance/formal-inputs-ddc9aea-r1",
+        "--maximum-steps=4000",
+        "--maximum-real-seconds=1800"
+      ],
+      "pid": 23132,
+      "started": "2026-10-18T02:43:59.9581346+08:00",
+      "stdout": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/formal-inputs-ddc9aea-r1/generate.stdout.txt",
+      "stderr": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/formal-inputs-ddc9aea-r1/generate.stderr.txt",
+      "deadline_policy": "Observe after 60 seconds; no automatic process kill. Preparation owns its 4000-step and 1800-second watchdog.",
+      "project": "C:/code/loyayz/oddly-good-hospital/.cache/performance/formal-tools-ddc9aea-r1",
+      "source_identity": "C:/code/loyayz/oddly-good-hospital/.cache/performance/formal-tools-ddc9aea-r1/source-identity.json",
+      "ended": "2026-10-18T02:46:48.550242+08:00",
+      "wall_seconds": 168.5900663,
+      "exit_code": -1,
+      "stdout_bytes": 75,
+      "stderr_bytes": 0
+    },
+    "interruption": {
+      "classification": "incomplete_tool_preparation",
+      "reason": "The preparation snapshot has no actual watchdog or stage observation inside public-seat search. Each candidate repeats whole-hospital BuildService safety work; the configured maximum-real-seconds check is reached only in _advance. This attempt is incomplete tool preparation, not a performance timeout failure.",
+      "observed": "2026-10-18T02:46:46.1200298+08:00",
+      "elapsed_seconds": 166.1638034,
+      "launcher": {
+        "ProcessId": 23132,
+        "ParentProcessId": 21232,
+        "Name": "Godot_v4.7.2-stable_win64_console.exe",
+        "CreationDate": "2026-10-18T02:43:59.970947+08:00",
+        "ExecutablePath": "C:\\programs\\godot\\Godot_v4.7.2-stable_win64_console.exe",
+        "CommandLine": "\"C:\\programs\\godot\\Godot_v4.7.2-stable_win64_console.exe\" --headless --path C:/code/loyayz/oddly-good-hospital/.cache/performance/formal-tools-ddc9aea-r1 --script res://tools/performance/acceptance/fixtures/prepare_inputs.gd -- --case=160four --source-input=C:/code/loyayz/oddly-good-hospital/.cache/performance/native-step-v5/steps.json.after.bin --output-dir=C:/code/loyayz/oddly-good-hospital/.cache/performance/formal-inputs-ddc9aea-r1 --maximum-steps=4000 --maximum-real-seconds=1800"
+      },
+      "owned_children": [
+        {
+          "ProcessId": 5888,
+          "ParentProcessId": 23132,
+          "Name": "conhost.exe",
+          "CreationDate": "2026-10-18T02:43:59.981422+08:00",
+          "ExecutablePath": "C:\\Windows\\system32\\conhost.exe",
+          "CommandLine": "\\??\\C:\\Windows\\system32\\conhost.exe 0x4"
+        },
+        {
+          "ProcessId": 36548,
+          "ParentProcessId": 23132,
+          "Name": "Godot_v4.7.2-stable_win64.exe",
+          "CreationDate": "2026-10-18T02:44:00.013374+08:00",
+          "ExecutablePath": "C:\\programs\\godot\\Godot_v4.7.2-stable_win64.exe",
+          "CommandLine": "C:\\programs\\godot\\Godot_v4.7.2-stable_win64.exe --headless --path C:/code/loyayz/oddly-good-hospital/.cache/performance/formal-tools-ddc9aea-r1 --script res://tools/performance/acceptance/fixtures/prepare_inputs.gd -- --case=160four --source-input=C:/code/loyayz/oddly-good-hospital/.cache/performance/native-step-v5/steps.json.after.bin --output-dir=C:/code/loyayz/oddly-good-hospital/.cache/performance/formal-inputs-ddc9aea-r1 --maximum-steps=4000 --maximum-real-seconds=1800"
+        }
+      ],
+      "engine": {
+        "pid": 36548,
+        "start_time": "2026-10-18T02:44:00.0133746+08:00",
+        "cpu_seconds": 163.34375,
+        "working_set_bytes": 211869696,
+        "peak_working_set_bytes": 231239680
+      },
+      "stdout": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/formal-inputs-ddc9aea-r1/generate.stdout.txt",
+      "stderr": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/formal-inputs-ddc9aea-r1/generate.stderr.txt",
+      "stdout_bytes": 75,
+      "stderr_bytes": 0,
+      "output_files": [],
+      "identity_rechecked_before_stop": true,
+      "stop": {
+        "engine_close_main_window": false,
+        "launcher_close_main_window": false,
+        "normal_exit": false,
+        "verified_owned_tree_kill": true,
+        "ended": "2026-10-18T02:46:48.5568634+08:00",
+        "launcher_still_running": false,
+        "engine_still_running": false
+      }
+    },
+    "engine_released": true,
+    "notes": [
+      "No input or successful runtime manifest was generated.",
+      "Public-seat candidate search had no active time watchdog or stage logs; each BuildService candidate repeated whole-hospital safety work.",
+      "The 1800-second watchdog was only checked by _advance and did not bound public-seat construction.",
+      "Normal window close was unavailable for the hidden/headless processes. Exact PID/start/command-line identity was rechecked before terminating only this owned process tree.",
+      "The frozen isolated snapshot and raw stdout/stderr remain unchanged; no retries or production edits were performed."
+    ]
+  },
+  "accepted_input": {
+    "actors": 160,
+    "actual_layout_after": {
+      "facilities": 1336,
+      "props": 1200,
+      "rooms": 64,
+      "service_objects": 136
+    },
+    "actual_layout_before": {
+      "facilities": 1328,
+      "props": 1200,
+      "rooms": 64,
+      "service_objects": 128
+    },
+    "actual_steps": 21,
+    "added_public_seat_ids": [
+      "acceptance_public_seat_0000",
+      "acceptance_public_seat_0001",
+      "acceptance_public_seat_0002",
+      "acceptance_public_seat_0003",
+      "acceptance_public_seat_0004",
+      "acceptance_public_seat_0005",
+      "acceptance_public_seat_0006",
+      "acceptance_public_seat_0007"
+    ],
+    "boundary": "original_companion_admissions_and_complete_steps",
+    "companion_intention_origin": "preserved_original_source_requests",
+    "companion_profiles_valid": true,
+    "content_fingerprint": "70ef833fb44c1682824534528697df4a55d011f10121f15f8e83f0b5b7b6d433",
+    "engine": "4.7.2-stable (official)",
+    "floors": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "hospital_id": "00000000-0000-4000-8000-000000000160",
+    "id": "160four",
+    "input_file": "160four.input.bin",
+    "input_sha256": "6595dda287f5a82cf725ce3b1cd77b8da8d73bc242da7f2c13aa97e0b5ea822e",
+    "layout": "four_floors",
+    "ok": true,
+    "original_object_ids_and_definitions_preserved": true,
+    "original_prop_count": 1200,
+    "original_rooms": 64,
+    "original_service_objects": 128,
+    "pending_visitor_requests_after": 30,
+    "pending_visitor_requests_before": 38,
+    "population": {
+      "patients": 120,
+      "present": 160,
+      "staff": 32,
+      "unowned": [],
+      "visitors": 8
+    },
+    "preparation_us": 10774990,
+    "source_input": "C:/code/loyayz/oddly-good-hospital/.cache/performance/native-step-v5/steps.json.after.bin",
+    "source_input_sha256": "2a1ef0b04534ed69687576900e4a9a4aee9ff02b63ee69fd389e7d74169832b0",
+    "source_tick": 25,
+    "validation": "",
+    "visitor_profile": "HospitalVisitors companion; original admission owner, actual entrance and public waiting route"
+  },
+  "offline_tools": {
+    "kind": "offline_tool_validation",
+    "python_self_check_exit": 0,
+    "utc": "2026-10-17T18:50:19.5297496Z",
+    "gpu_sampling": false,
+    "ps_scripts": [
+      "capture-dxgkrnl.ps1",
+      "capture.ps1",
+      "decode-dxgkrnl.ps1",
+      "sample-gpu.ps1"
+    ],
+    "etw_capture": false,
+    "csharp_compile": [
+      "trace-status.cs",
+      "input-driver.cs"
+    ],
+    "game_run": false,
+    "ps_ast": "passed",
+    "native_build": false,
+    "python_self_check_count": 18
+  },
+  "final_changed_tool_checks": {
+    "all_exit_zero": true,
+    "files": [
+      "visible_capture.gd",
+      "operation_driver.gd"
+    ],
+    "errors": [],
+    "directory": ".cache/performance/formal-tool-check-r3"
+  }
+}
