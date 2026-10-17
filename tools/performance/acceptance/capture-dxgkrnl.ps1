@@ -28,7 +28,8 @@ $keywordText='0x'+$mask.ToString('x16')
 @($events | Select-Object Id,Version,Task,Opcode,Keywords,Template) | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $destination 'provider-schema.json') -Encoding utf8NoBOM
 try {
     if(-not ('HospitalTraceStatus' -as [type])){Add-Type -Path (Join-Path $PSScriptRoot 'trace-status.cs')}
-    $arguments=@('start',$session,'-ets','-o',(Join-Path $destination 'dxgkrnl.etl'),'-p',$provider.Id.ToString(),$keywordText,'5','-ct','perf','-bs','64','-nb','64','256')
+    $arguments=@('start',$session,'-ets','-o',(Join-Path $destination 'dxgkrnl.etl'),'-p',$provider.Id.ToString('B'),$keywordText,'5','-ct','perf','-bs','64','-nb','64','256')
+    @{executable='logman.exe';arguments=$arguments}|ConvertTo-Json -Depth 4|Set-Content -LiteralPath (Join-Path $destination 'command.json') -Encoding utf8NoBOM
     & logman @arguments *> (Join-Path $destination 'logman-start.log')
     if($LASTEXITCODE -ne 0){throw "Owned allocation trace could not start; logman exit $LASTEXITCODE"}
     $started=$true;$begin=[Diagnostics.Stopwatch]::GetTimestamp()
