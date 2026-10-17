@@ -28,6 +28,8 @@ OS窗口观测工作集/私有提交、实际轮询间隔、进程生命周期�
 
 图形证据不会由PID总计或payload推导。graphics-evidence.json只有明确verified、相同PID/完整窗口覆盖、已保留且哈希一致的allocation_identity_sources、shared_dedup_verified、unreleased_included与实际peak_allocated_bytes才参与图形预算判断。这些字段应由真实事件/资源所有者核查结果生成，不能手填通过来绕过ledger缺项。gpu-ledger.py当前能力和状态由它自己的实际证据决定；缺失rawQPC、rundown或驻留/后端语义时不升为完整图形验收。
 
+已有ETL通过[原始事件解码器](DECODING.md)读取真实Header.TimeStamp和PerfFreq，Get-WinEvent的SystemTime继续只作旁证。解码成功只证明所选记录可读取；未知模板、动态布局或文件丢失保留incomplete，不推导资源验收。所有者与共享分配仍按同场设备/全局allocation生命周期联结。
+
 input-preview的callback完成与真实呈现、保存begin_world包围时间与纯DTO复制、切院主线程包围时间与完整载入分别保留。未取得正确最终画面的输入关联或纯复制计时，不能用较小的其他指标代替。对应操作的真实回执/不变量由运行器保存，报告只接受本工况已完成的操作证据。
 
 ## 结论与退出码
