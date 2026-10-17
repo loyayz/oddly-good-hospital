@@ -78,7 +78,8 @@ const CASES: Dictionary = {
 	"GROW-75":"docs/design/08-hospital-life.md §4；正向来源交集、按来源覆盖与同次主体观察",
 	"GROW-76":"docs/design/07-clinical-team.md §5；候选早排除不装配占用或员工ID，实际接待预约立即对后票生效",
 	"GROW-77":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；退出在完整计算边界取消任务且不发布部分结果",
-	"GROW-78":"docs/design/04-technical.md §6；参考路线按完整主体与组包络区分且冷热一致"
+	"GROW-78":"docs/design/04-technical.md §6；参考路线按完整主体与组包络区分且冷热一致",
+	"GROW-79":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；参考数值复用保留独立候选、有界批次与失败原子性"
 }
 
 func run(t) -> void:
@@ -1030,6 +1031,9 @@ func _case_68(t) -> void:
 	for id: String in ctx.world.facts.facilities:
 		use_equal = use_equal and HospitalEquipmentUse.query(ctx.world,id,uses)==HospitalEquipmentUse.query(ctx.world,id)
 	t.check("GROW-68",shared and next==fresh and not ctx.world.facts.sessions.is_empty() and next!=first and a==b and environment.query_builds==builds+1 and environment._query.is_empty() and readonly and use_equal,{"shared":shared,"new_sessions":ctx.world.facts.sessions.size(),"ticks":ticks,"new_occupancy_seen":next!=first,"environment_builds":environment.query_builds-builds,"readonly":readonly})
+
+func _case_79(t) -> void:
+	load("res://tests/acceptance/reference_component_batch.gd").new().run_case(t,_content)
 
 func _case_78(t) -> void:
 	load("res://tests/acceptance/reference_route_envelope.gd").new().run_case(t,_content)

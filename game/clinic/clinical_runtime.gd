@@ -3,6 +3,8 @@ extends RefCounted
 
 const Visitors = preload("res://game/clinic/hospital_visitors.gd")
 const ReferenceFraction = preload("res://game/arrivals/exact_fraction.gd")
+const REFERENCE_COMPONENT_REQUEST_LIMIT: int = 256
+const REFERENCE_COMPONENT_TARGET_LIMIT: int = 4096
 
 var content: HospitalContent
 var space: HospitalSpace
@@ -16,6 +18,8 @@ var _worked_staff: Dictionary = {}
 var _practice_awards: Dictionary = {}
 var _events: Array[SimEvent] = []
 var research: RefCounted
+# Rebuildable observations only; neither facts nor returned clinical models.
+var reference_component_counts: Dictionary = {"batches":0,"components":0,"unique_inputs":0,"memo_hits":0,"native_calls":0,"native_requests":0,"max_pending_requests":0,"max_waiting_targets":0,"failed_batches":0}
 
 func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 	content = database
@@ -2284,7 +2288,17 @@ func _reference_candidates(world: WorldState, visit: Dictionary, kind: String, q
 	return query.candidates[key]
 
 func _reference_model(options: Dictionary, binding_id: String, complex_case: bool, shift: int) -> Dictionary:
-	options.query.component_batch = []
+	var batch: Dictionary = _new_reference_component_batch()
+	options.query.component_batch = batch
+	var result: Dictionary = _build_reference_model(options,binding_id,complex_case,shift)
+	# A completed empty model still has fully assembled choice groups. Early
+	# business failures return no model and discard their private pending work.
+	var error: String = _finish_reference_component_batch(batch,result.has("model"))
+	options.query.erase("component_batch")
+	if not error.is_empty(): return {"ok":false,"reason":error,"bundles":[]}
+	return result
+
+func _build_reference_model(options: Dictionary, binding_id: String, complex_case: bool, shift: int) -> Dictionary:
 	var groups: Dictionary = {}
 	var bases: Array = []
 	var concrete: Array = []
@@ -2293,6 +2307,7 @@ func _reference_model(options: Dictionary, binding_id: String, complex_case: boo
 	var retries: Dictionary = {}
 	var terminal_stages: Array = ["outpatient","surgery","surgery_setup","transfer","bed","care","round"]
 	for terminal: Dictionary in options.terminals:
+		if not str(options.query.component_batch.error).is_empty(): return {"ok":false,"reason":options.query.component_batch.error,"bundles":[]}
 		var team_key: String = JSON.stringify(terminal.staff_ids)
 		var diagnostic_group: String = "diagnostic:"+team_key
 		if not groups.has(diagnostic_group):
@@ -2360,13 +2375,6 @@ func _reference_model(options: Dictionary, binding_id: String, complex_case: boo
 	# Equal-flow equations in the capacity solver join these independent
 	# choices. No legal alternative is truncated or replaced by a faster plan.
 	for part: Dictionary in representative_parts: part.erase("representative")
-	var batch: Array = options.query.component_batch
-	var requests: Array = []
-	for item: Dictionary in batch: requests.append({"stages":item.stages,"weight":item.weight})
-	var assembled: Dictionary = PlatformArrivalMath.aggregate_components(requests)
-	options.query.erase("component_batch")
-	if assembled.has("error"): return {"ok":false,"reason":assembled.error,"bundles":[]}
-	for index: int in batch.size(): batch[index].target.merge(assembled.components[index],true)
 	return {"ok":not bases.is_empty(),"reason":"" if not bases.is_empty() else "没有完整临床参考资源束","bundles":concrete,"model":{"bundles":bases,"choice_groups":groups}}
 
 func _reference_diagnostics(options: Dictionary, terminal: Dictionary) -> Array:
@@ -2412,10 +2420,7 @@ func _reference_component(full: Dictionary, stages: Array, weight: Dictionary = 
 	var selected: Dictionary = {}
 	for stage: String in stages:
 		if full.stage_resources.has(stage): selected[stage] = full.stage_resources[stage]
-	# One numerical boundary per component: GMP parses each amount once and
-	# retains exact intermediate values through weighting and aggregation.
 	var result: Dictionary = PlatformArrivalMath.aggregate_stages(selected,weight) if batch==null else {"stage_resources":selected}
-	if batch!=null: batch.append({"stages":selected,"weight":weight,"target":result})
 	result.structural_resources = []
 	result.staff_ids = full.staff_ids
 	if "bed" in stages:
@@ -2425,6 +2430,95 @@ func _reference_component(full: Dictionary, stages: Array, weight: Dictionary = 
 		for resource_id: String in stage:
 			if resource_id in full.structural_resources and not resource_id in result.structural_resources: result.structural_resources.append(resource_id)
 	result.structural_resources.sort()
+	if batch!=null: _queue_reference_component(batch,selected,weight,result)
+	return result
+
+func _new_reference_component_batch() -> Dictionary:
+	reference_component_counts.batches += 1
+	return {"memo":{},"pending":[],"waiting_targets":0,"error":""}
+
+func _queue_reference_component(batch: Dictionary, stages: Dictionary, weight: Dictionary, target: Dictionary) -> void:
+	reference_component_counts.components += 1
+	if not str(batch.error).is_empty(): return
+	# Ordered primitive keys retain full stage boundaries and exact fractions;
+	# neither dictionary insertion order nor a finite hash defines equality.
+	var key: Array = _reference_component_key(stages,weight)
+	var entry: Dictionary = batch.memo.get(key,{})
+	if entry.is_empty():
+		entry = {"stages":stages.duplicate(true),"weight":weight.duplicate(),"targets":[]}
+		batch.memo[key] = entry
+		batch.pending.append(entry)
+		reference_component_counts.unique_inputs += 1
+	else: reference_component_counts.memo_hits += 1
+	if entry.has("values"):
+		target.resources = entry.values.resources
+		target.stage_resources = entry.values.stage_resources
+	else:
+		# Pending prefixes expose their unweighted source stages. A unit-weight
+		# prefix has identical values before/after flush, so retry weighting reads
+		# the same original amounts whichever batch boundary it follows.
+		target.stage_resources = entry.stages
+		entry.targets.append(target)
+		batch.waiting_targets += 1
+		reference_component_counts.max_pending_requests = maxi(int(reference_component_counts.max_pending_requests),batch.pending.size())
+		reference_component_counts.max_waiting_targets = maxi(int(reference_component_counts.max_waiting_targets),int(batch.waiting_targets))
+	if batch.pending.size()>=REFERENCE_COMPONENT_REQUEST_LIMIT or int(batch.waiting_targets)>=REFERENCE_COMPONENT_TARGET_LIMIT:
+		_flush_reference_components(batch)
+
+func _reference_component_key(stages: Dictionary, weight: Dictionary) -> Array:
+	var key: Array = [weight.n,weight.d]
+	var names: Array = stages.keys()
+	names.sort()
+	for name: String in names:
+		var terms: Array = []
+		var resources: Array = stages[name].keys()
+		resources.sort()
+		for resource: String in resources:
+			var amount: Variant = stages[name][resource]
+			terms.append([resource,amount.n,amount.d] if amount is Dictionary else [resource,amount])
+		key.append([name,terms])
+	return key
+
+func _flush_reference_components(batch: Dictionary) -> void:
+	if not str(batch.error).is_empty() or batch.pending.is_empty(): return
+	var pending: Array = batch.pending
+	batch.pending = []
+	var requests: Array = []
+	for entry: Dictionary in pending: requests.append({"stages":entry.stages,"weight":entry.weight})
+	reference_component_counts.native_calls += 1
+	reference_component_counts.native_requests += requests.size()
+	var assembled: Dictionary = PlatformArrivalMath.aggregate_components(requests)
+	if assembled.has("error"):
+		batch.error = str(assembled.error)
+		return
+	for index: int in pending.size():
+		var entry: Dictionary = pending[index]
+		entry.values = assembled.components[index]
+		# Business targets remain distinct. Only these immutable numerical fields
+		# are shared; choices, staff, structure, bed ownership and order stay local.
+		for target: Dictionary in entry.targets:
+			target.resources = entry.values.resources
+			target.stage_resources = entry.values.stage_resources
+		entry.targets.clear()
+		entry.erase("stages")
+		entry.erase("weight")
+	batch.waiting_targets = 0
+
+func _finish_reference_component_batch(batch: Dictionary, complete: bool = true) -> String:
+	if complete: _flush_reference_components(batch)
+	var error: String = str(batch.error)
+	if not error.is_empty(): reference_component_counts.failed_batches += 1
+	batch.memo.clear()
+	batch.pending.clear()
+	batch.waiting_targets = 0
+	return error
+
+func reference_component_observation(query: Variant = null) -> Dictionary:
+	var result: Dictionary = reference_component_counts.duplicate()
+	var batch: Dictionary = query.get("component_batch",{}) if query is Dictionary else {}
+	result.active_unique_inputs = batch.get("memo",{}).size()
+	result.pending_requests = batch.get("pending",[]).size()
+	result.waiting_targets = int(batch.get("waiting_targets",0))
 	return result
 
 func _reference_retry_context(terminal: Dictionary) -> Array:

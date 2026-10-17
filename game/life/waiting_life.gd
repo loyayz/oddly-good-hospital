@@ -127,10 +127,12 @@ func seat_candidates(world: WorldState, visit_id: String) -> Array:
 	for definition_id: String in PUBLIC_SEAT_DEFINITIONS:
 		facility_ids.append_array(world.facility_ids(definition_id))
 	facility_ids.sort()
+	var maximum_travel_ticks: int = _ticks(content.balance.seat_choice.automatic_travel_seconds_max)
 	space.begin_route_query(world,{},space.nominal_query(world))
 	for facility_id: String in facility_ids:
+		if space.facility_travel_lower_bound_ticks(world,facility_id,visit.actor_id)>maximum_travel_ticks: continue
 		var quote: Dictionary = _seat_quote(world,visit,facility_id)
-		if quote.ok and int(quote.travel_ticks)<=_ticks(content.balance.seat_choice.automatic_travel_seconds_max):
+		if quote.ok and int(quote.travel_ticks)<=maximum_travel_ticks:
 			candidates.append(quote)
 	space.end_route_query()
 	if candidates.is_empty():

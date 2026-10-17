@@ -11,6 +11,27 @@ class LayoutCountingSpace:
 		layout_calls += 1
 		return super.facility_layout(world,facility_id)
 
+class SeatCountingSpace:
+	extends HospitalSpace
+	var bypass_lower_bound: bool = false
+	var route_calls: int = 0
+	func _init(database: HospitalContent) -> void:
+		super(database)
+	func facility_travel_lower_bound_ticks(world: WorldState, facility_id: String, actor_id: String) -> int:
+		return 0 if bypass_lower_bound else super.facility_travel_lower_bound_ticks(world,facility_id,actor_id)
+	func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
+		route_calls += 1
+		return super.route(world,actor_id,floor_id,target,members,offsets,ignore_people)
+
+class SeatCountingLife:
+	extends HospitalWaitingLife
+	var quote_calls: int = 0
+	func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
+		super(database,geometry)
+	func _seat_quote(world: WorldState, visit: Dictionary, facility_id: String) -> Dictionary:
+		quote_calls += 1
+		return super._seat_quote(world,visit,facility_id)
+
 const CASES: Dictionary = {
 	"SPACE-01":"docs/design/12-implementation-plan.md §11 8.1/8.3；合法房壳预览只读，创建与整数付款原子一致",
 	"SPACE-02":"docs/design/12-implementation-plan.md §11 8.1/8.4；未购地、断格、孔洞、小房失败原子",
@@ -60,7 +81,8 @@ const CASES: Dictionary = {
 	"SPACE-46":"docs/design/04-technical.md §6；同体型通行组换成员不继承预约豁免，变更配位与真实阻挡立即生效",
 	"SPACE-47":"docs/design/08-hospital-life.md §11；整备房间按真实格形判断身体相交，不将凹角空白当房间",
 	"SPACE-48":"docs/design/04-technical.md §6/§13；设施阻挡查询复用真实展开索引，候选隔离且实际预约立即失效",
-	"SPACE-49":"docs/design/08-hospital-life.md 候诊与家属；只读候选保原定义、票序与随机流，失败入院不生成身份"
+	"SPACE-49":"docs/design/08-hospital-life.md 候诊与家属；只读候选保原定义、票序与随机流，失败入院不生成身份",
+	"SPACE-50":"docs/data/balance.json seat_choice；自动候诊只以保守路程下界严格排除超30秒座位，完整报价与手动选择不变"
 }
 
 var content: HospitalContent
@@ -1529,10 +1551,73 @@ func _case_49(_t) -> Dictionary:
 	var reserved_visible: bool = first_quote.get("ok",false) and chosen.accepted and not second_quote.get("ok",true) and sim.world.freeze()==before
 	return _done(sim,readonly and nominal_preserved and candidate_isolated and indexed_definitions and admitted and actual_arrival and next_refused and reserved_visible and sim.space._route_queries.is_empty(),{"queries_readonly":readonly,"same_world_nominal_preserved":nominal_preserved,"different_body_candidate_is_actual":candidate_isolated,"visitor_definition_set":indexed_definitions,"admitted":admitted,"actual_waiting_arrival":actual_arrival,"failed_probe_preserves_all_facts":next_refused,"next_ticket_sees_reservation":reserved_visible,"second_quote":second_quote})
 
-func _waiting_visit(sim: HospitalSimulation, id: String, cell: Array) -> Dictionary:
-	var binding: Dictionary = {}
+func _case_50(_t) -> Dictionary:
+	var sim: HospitalSimulation = _fixture()
+	var middle: CommandResult = _command(sim,"build_land",{"plot":[1,1],"floor_id":1})
+	var upper: CommandResult = _command(sim,"build_land",{"plot":[1,0],"floor_id":1})
+	var built: CommandResult = _command(sim,"build_facility",{"id":"bounded_seat","definition_id":"FUR06","floor_id":1,"cell":[42,75]})
+	if not middle.accepted or not upper.accepted or not built.accepted: return _done(sim,false,{"middle":middle.to_record(),"upper":upper.to_record(),"seat":built.to_record()})
+	var visit: Dictionary = _waiting_visit(sim,"bounded",[42,30])
+	sim.services.waiting.ensure(sim.world)
+	var rows: Array = []
+	var ok: bool = true
+	# The conservative front rectangle starts at y=74: these lower bounds
+	# are 30.5s, exactly 30s and 22s at the defined one-cell speed of 2.
+	for sample: Array in [[13,305,0],[14,300,1],[30,220,1]]:
+		var world: WorldState = WorldState.new(sim.world.freeze())
+		world.facts.actors[visit.actor_id].location.cell = [42,sample[0]]
+		world.touch()
+		var before: Dictionary = world.freeze()
+		var actual_space: SeatCountingSpace = SeatCountingSpace.new(content)
+		var actual: SeatCountingLife = SeatCountingLife.new(content,actual_space)
+		var baseline_space: SeatCountingSpace = SeatCountingSpace.new(content)
+		baseline_space.bypass_lower_bound = true
+		var baseline: SeatCountingLife = SeatCountingLife.new(content,baseline_space)
+		var bound: int = actual_space.facility_travel_lower_bound_ticks(world,"bounded_seat",visit.actor_id)
+		var expected: Array = baseline.seat_candidates(world,visit.id)
+		var choices: Array = actual.seat_candidates(world,visit.id)
+		var calls: int = actual.quote_calls
+		var routes: int = actual_space.route_calls
+		var manual: Dictionary = actual._seat_quote(world,world.facts.visits[visit.id],"bounded_seat")
+		var row_ok: bool = bound==int(sample[1]) and calls==int(sample[2]) and choices==expected and manual.get("ok",false) and world.freeze()==before
+		row_ok = row_ok and (routes==0 if calls==0 else routes==2) and baseline_space.route_calls==2
+		if int(sample[0])==30: row_ok = row_ok and choices.size()==1
+		else: row_ok = row_ok and choices.is_empty() and int(manual.get("travel_ticks",0))>300
+		ok = ok and row_ok
+		rows.append({"y":sample[0],"bound_ticks":bound,"full_quotes":calls,"routes_before_manual":routes,"same_complete_candidates":choices==expected,"manual_travel_ticks":manual.get("travel_ticks",-1),"ok":row_ok})
+	var symptom: Dictionary = _waiting_visit(sim,"symptom",[35,82],"B_S08_D04_M04")
+	sim.services.waiting.ensure(sim.world)
+	var shapes: Array = []
+	for turn: int in 4:
+		var world: WorldState = WorldState.new(sim.world.freeze())
+		world.facts.facilities.bounded_seat.rotation = turn
+		if turn%2==1: world.facts.facilities.bounded_seat.footprint = [1,2]
+		# Custom fractional targets must be bounded after route's int() conversion.
+		world.facts.facilities.bounded_seat.patient_cell = [60.75,65.75]
+		world.touch()
+		var geometry: SeatCountingSpace = SeatCountingSpace.new(content)
+		var life: SeatCountingLife = SeatCountingLife.new(content,geometry)
+		var full_geometry: SeatCountingSpace = SeatCountingSpace.new(content)
+		full_geometry.bypass_lower_bound = true
+		var full_life: SeatCountingLife = SeatCountingLife.new(content,full_geometry)
+		var before: Dictionary = world.freeze()
+		var fit: Dictionary = geometry.facility_quote(world,"bounded_seat",symptom.actor_id)
+		var quote: Dictionary = life._facility_quote(world,symptom,"bounded_seat")
+		var bound: int = geometry.facility_travel_lower_bound_ticks(world,"bounded_seat",symptom.actor_id)
+		var same: bool = life.seat_candidates(world,symptom.id)==full_life.seat_candidates(world,symptom.id)
+		var shape_ok: bool = fit.get("ok",false) and quote.get("ok",false) and bound<=int(quote.get("travel_ticks",-1)) and same and before==world.freeze()
+		if fit.get("ok",false):
+			world.facts.adaptations.bounded_seat = fit
+			world.touch()
+			shape_ok = shape_ok and geometry.facility_travel_lower_bound_ticks(world,"bounded_seat",symptom.actor_id)<=int(quote.get("travel_ticks",-1))
+		ok = ok and shape_ok
+		shapes.append({"rotation":turn,"symptom_clearance":geometry.clearance(world.facts.actors[symptom.actor_id]),"patient_cell":fit.get("patient_cell",[]),"bound_ticks":bound,"outward_ticks":quote.get("travel_ticks",-1),"same_complete_candidates":same,"ok":shape_ok})
+	return _done(sim,ok,{"strict_budget_boundary_and_return":rows,"symptom_rotation_custom_and_current_targets":shapes})
+
+func _waiting_visit(sim: HospitalSimulation, id: String, cell: Array, binding_id: String = "") -> Dictionary:
+	var binding: Dictionary = content.definition("treatment_bindings",binding_id) if not binding_id.is_empty() else {}
 	for candidate: Dictionary in content.catalog.treatment_bindings:
-		if candidate.species_id=="S49":
+		if binding.is_empty() and candidate.species_id=="S49":
 			binding = candidate
 			break
 	_add_actor(sim,"patient_"+id,str(binding.species_id),cell)

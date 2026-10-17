@@ -735,6 +735,40 @@ func facility_layout(world: WorldState, facility_id: String) -> Dictionary:
 			layout[field] = reservation[field]
 	return layout
 
+func facility_travel_lower_bound_ticks(world: WorldState, facility_id: String, actor_id: String) -> int:
+	if not world.facts.facilities.has(facility_id) or not world.facts.actors.has(actor_id): return 0
+	var actor: Dictionary = world.facts.actors[actor_id]
+	if actor.location.kind!="floor": return 0
+	var dimensions: Dictionary = body(actor)
+	var longest: float = 0.0
+	for axis: String in ["width_m","depth_m","height_m"]:
+		var extent: Variant = dimensions.get(axis)
+		if not (extent is int or extent is float) or not is_finite(float(extent)) or float(extent)<=0.0: return 0
+		longest = maxf(longest,float(extent))
+	var k: int = clearance(actor)
+	var speed: Variant = content.balance.get("movement_speeds",{}).get(str(k))
+	if not (speed is int or speed is float) or not is_finite(float(speed)) or float(speed)<=0.0: return 0
+	var facility: Dictionary = world.facts.facilities[facility_id]
+	var layout: Dictionary = facility_layout(world,facility_id)
+	for point: Variant in [actor.location.get("cell"),facility.get("cell"),facility.get("footprint"),layout.get("footprint"),facility.get("patient_cell"),layout.get("patient_cell")]:
+		if not point is Array or point.size()!=2: return 0
+		for coordinate: Variant in point:
+			if not (coordinate is int or coordinate is float) or not is_finite(float(coordinate)): return 0
+	var maximum: int = ceili(longest/CELL_METERS)
+	var width: int = maxi(maxi(int(facility.footprint[0]),int(layout.footprint[0])),maximum)
+	var depth: int = maxi(maxi(int(facility.footprint[1]),int(layout.footprint[1])),maximum)
+	var x: int = int(facility.cell[0])
+	var y: int = int(facility.cell[1])
+	# Include custom/base/current targets and every rotated adapted front.
+	# route() truncates targets and rounds its start; use the same grid here.
+	var low: Vector2i = Vector2i(x-k,y-k).min(Vector2i(int(facility.patient_cell[0]),int(facility.patient_cell[1]))).min(Vector2i(int(layout.patient_cell[0]),int(layout.patient_cell[1])))
+	var high: Vector2i = Vector2i(x+width,y+depth).max(Vector2i(int(facility.patient_cell[0]),int(facility.patient_cell[1]))).max(Vector2i(int(layout.patient_cell[0]),int(layout.patient_cell[1])))
+	var start: Vector2i = Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
+	var distance: int = maxi(maxi(low.x-start.x,start.x-high.x),0)+maxi(maxi(low.y-start.y,start.y-high.y),0)
+	# Floor edges are orthogonal and connectors retain their anchor XY. Stub,
+	# boarding, waiting and vertical travel only add nonnegative time.
+	return HospitalTransit.walking_ticks(self,actor,[],float(distance))
+
 func support_anchor(world: WorldState, facility_id: String) -> Vector3:
 	var facility: Dictionary = world.facts.facilities[facility_id]
 	var layout: Dictionary = facility_layout(world,facility_id)

@@ -92,11 +92,17 @@ class Trace extends RefCounted:
 			record.qpc_ticks = clock.qpc_ticks
 			record.qpc_frequency = clock.qpc_frequency
 		if query is Dictionary:
-			for name: String in ["candidates","plans","bed_transport","diagnostics","diagnostic_stages","consultations","component_batch","resource_maps","parts","fractions","normalized_fractions","references"]:
+			for name: String in ["candidates","plans","bed_transport","diagnostics","diagnostic_stages","consultations","resource_maps","parts","fractions","normalized_fractions","references"]:
 				record["query_"+name] = query.get(name,{}).size()
+			var batch: Variant = query.get("component_batch",[])
+			record.query_pending_component_requests = batch.pending.size() if batch is Dictionary else batch.size()
+			record.query_waiting_component_targets = int(batch.waiting_targets) if batch is Dictionary else batch.size()
 			var reference: Dictionary = query.get("geometry",{})
 			for name: String in ["routes","fits","journeys"]: record["geometry_"+name] = reference.get(name,{}).size()
 		if service!=null:
+			if service.clinic.has_method("reference_component_observation"):
+				var numbers: Dictionary = service.clinic.call("reference_component_observation",query)
+				for name: String in numbers: record["numeric_"+name] = numbers[name]
 			for index: int in 3: record["cached_cases_"+str(index)] = service._reference_cache.get(index,{}).get("cases",{}).size()
 			record.retained_role_models = service._role_models.size()
 			record.retained_structure_models = service._structure_cache.size()
@@ -184,32 +190,38 @@ class TracedClinic extends HospitalClinic:
 		super(database,geometry)
 		trace = observer
 
+	func _emit(operation: String, edge: String, fields: Dictionary = {}, query: Variant = null) -> void:
+		if has_method("reference_component_observation"):
+			var numbers: Dictionary = call("reference_component_observation",query)
+			for name: String in numbers: fields["numeric_"+name] = numbers[name]
+		trace.emit(operation,edge,fields,query,null,space)
+
 	func reference_demand(world: WorldState, binding_id: String, complex_case: bool = false, shift: int = 0, query: Variant = null) -> Dictionary:
 		trace.binding = binding_id
 		trace.complex_case = complex_case
 		trace.shift = shift
 		trace.reference_calls += 1
-		trace.emit("reference_demand","enter",{},query,null,space)
+		_emit("reference_demand","enter",{},query)
 		var result: Dictionary = super.reference_demand(world,binding_id,complex_case,shift,query)
 		var fields: Dictionary = trace.model_counts(result.get("model",{}))
 		fields.ok = result.get("ok",false)
 		fields.queue_representatives = result.get("bundles",[]).size()
-		trace.emit("reference_demand","return",fields,query,null,space)
+		_emit("reference_demand","return",fields,query)
 		return result
 
 	func _reference_options(world: WorldState, binding_id: String, complex_case: bool, shift: int, prior_quote: Dictionary = {}, shared: Dictionary = {}, query: Dictionary = {}) -> Dictionary:
 		var operation: String = "reference_options_retry" if not prior_quote.is_empty() else "reference_options_first"
-		trace.emit(operation,"enter",{},query,null,space)
+		_emit(operation,"enter",{},query)
 		var result: Dictionary = super._reference_options(world,binding_id,complex_case,shift,prior_quote,shared,query)
 		var fields: Dictionary = {"ok":result.get("ok",false),"terminals":result.get("terminals",[]).size(),"bed_quotes":result.get("bed_quotes",{}).size()}
 		for kind: String in ["outpatient","surgery"]: fields["physical_"+kind] = result.get("physical",{}).get(kind,{}).size()
-		trace.emit(operation,"return",fields,query,null,space)
+		_emit(operation,"return",fields,query)
 		return result
 
 	func _reference_model(options: Dictionary, binding_id: String, complex_case: bool, shift: int) -> Dictionary:
-		trace.emit("reference_model","enter",{"terminals":options.terminals.size()},options.query,null,space)
+		_emit("reference_model","enter",{"terminals":options.terminals.size()},options.query)
 		var result: Dictionary = super._reference_model(options,binding_id,complex_case,shift)
-		trace.emit("reference_model","return",trace.model_counts(result.get("model",{})),options.query,null,space)
+		_emit("reference_model","return",trace.model_counts(result.get("model",{})),options.query)
 		return result
 
 	func _reference_component(full: Dictionary, stages: Array, weight: Dictionary = {"n":"1","d":"1"}, batch: Variant = null) -> Dictionary:
