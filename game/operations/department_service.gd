@@ -584,7 +584,9 @@ func _configure(world: WorldState, payload: Dictionary, create: bool) -> Command
 		if not paid.accepted: return paid
 	for other: Dictionary in world.facts.departments.units.values():
 		if other.id==id: continue
+		var previous_rooms: int = other.room_ids.size()
 		for room_id: String in rooms: other.room_ids.erase(room_id)
+		if previous_rooms!=other.room_ids.size(): world.department_changed(other.id)
 	world.facts.departments.units[id] = {"id":id,"name":label,"room_ids":rooms.duplicate(),"shared_room_ids":shared.duplicate(),"public_cells":public_cells.duplicate(true),"entry":entry.duplicate(true),"intake_disease_ids":scope.duplicate(),"open":old.get("open",true),"focus_id":focus,"focus_ready_tick":focus_quote.ready_tick}
 	_apply_focus(world,rooms,focus,focus_quote)
 	return _result(world,true,"applied","",[id])

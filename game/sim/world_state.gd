@@ -16,7 +16,8 @@ var facts: Dictionary:
 		_layout_projection.clear()
 		_department_versions.clear()
 		_department_records.clear()
-		_department_snapshot.clear()
+		_department_snapshot = {}
+		_pending_ledger = null
 		invalidate_geometry()
 
 # Rebuildable observation identities; none of these values enter freeze().
@@ -31,6 +32,22 @@ var _layout_revision: int = -1
 var _department_versions: Dictionary = {}
 var _department_records: Dictionary = {}
 var _department_snapshot: Dictionary = {}
+var _pending_ledger: Variant = null
+
+func pending_ledger_ids() -> Array:
+	if _pending_ledger==null:
+		_pending_ledger = {}
+		for id: String in facts.ledger.entries:
+			if not facts.ledger.entries[id].settled: _pending_ledger[id] = true
+	var result: Array = _pending_ledger.keys()
+	result.sort()
+	return result
+
+func register_pending_ledger(id: String) -> void:
+	if _pending_ledger!=null: _pending_ledger[id] = true
+
+func ledger_settled(id: String) -> void:
+	if _pending_ledger!=null: _pending_ledger.erase(id)
 
 var hospital_id: String:
 	get:

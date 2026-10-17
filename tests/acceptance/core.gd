@@ -40,7 +40,8 @@ const CASES: Dictionary = {
 	"CORE-37":"路线4.4：新种族复用已有病症与主体",
 	"CORE-38":"路线4.4：新病症复用已有种族与主体",
 	"CORE-39":"路线4.2：重复、错类型与未知内容拒绝",
-	"CORE-40":"路线4.2：缺依赖与依赖环拒绝"
+	"CORE-40":"路线4.2：缺依赖与依赖环拒绝",
+	"CORE-41":"技术规格账目结算：待结索引、幂等、原子失败、恢复及医院隔离"
 }
 
 func run(t) -> void:
@@ -199,6 +200,36 @@ func _case_13(t, content: HospitalContent) -> void:
 	var excessive: CommandResult = HospitalLedger.post(world,LedgerEntry.new(world.hospital_id,"excessive",-1000000))
 	t.check("CORE-13",paid.accepted and HospitalLedger.balance(world)==balance-10 and not excessive.accepted and world.freeze()==before)
 	sim.dispose()
+
+func _case_41(t, content: HospitalContent) -> void:
+	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"账目索引",false,content)
+	var original: Dictionary = world.freeze()
+	var empty: bool = HospitalLedger.settle(world).is_empty() and world.freeze()==original
+	var z: LedgerEntry = LedgerEntry.new(world.hospital_id,"z_pending",25)
+	var a: LedgerEntry = LedgerEntry.new(world.hospital_id,"a_pending",-10)
+	var posted: bool = HospitalLedger.post(world,z,false).accepted and HospitalLedger.post(world,a,false).accepted
+	var pending: Dictionary = world.freeze()
+	var duplicate: CommandResult = HospitalLedger.post(world,z,true)
+	var conflict: CommandResult = HospitalLedger.post(world,LedgerEntry.new(world.hospital_id,"z_pending",26),false)
+	var funds: CommandResult = HospitalLedger.post(world,LedgerEntry.new(world.hospital_id,"fail_pending",-1000000),false)
+	var atomic: bool = duplicate.accepted and duplicate.code=="duplicate" and not conflict.accepted and not funds.accepted and world.freeze()==pending and HospitalLedger.balance(world)==24800
+	var restored: WorldState = WorldState.new(pending.duplicate(true))
+	var events: Array[SimEvent] = HospitalLedger.settle(world)
+	var event_ids: Array = []
+	for event: SimEvent in events: event_ids.append_array(event.changed_ids)
+	var ordered: bool = event_ids==[a.entry_id,z.entry_id] and HospitalLedger.balance(world)==24815 and HospitalLedger.settle(world).is_empty()
+	var other: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"另一医院",false,content)
+	var other_entry: LedgerEntry = LedgerEntry.new(other.hospital_id,"pending",7)
+	HospitalLedger.post(other,other_entry,false)
+	var replacement: Dictionary = other.freeze()
+	world.facts = replacement.duplicate(true)
+	var replacement_events: Array[SimEvent] = HospitalLedger.settle(world)
+	var rebuilt: bool = replacement_events.size()==1 and replacement_events[0].changed_ids==[other_entry.entry_id] and HospitalLedger.balance(world)==24807 and not other.facts.ledger.entries[other_entry.entry_id].settled
+	var recovered_events: Array[SimEvent] = HospitalLedger.settle(restored)
+	var recovered: bool = recovered_events.size()==2 and HospitalLedger.balance(restored)==24815
+	var instant: bool = HospitalLedger.post(world,LedgerEntry.new(world.hospital_id,"instant_payment",-1),true).accepted and HospitalLedger.settle(world).is_empty() and HospitalLedger.balance(world)==24806
+	var validation: String = world.validate(content)+restored.validate(content)+other.validate(content)
+	t.check("CORE-41",empty and posted and atomic and ordered and rebuilt and recovered and instant and validation.is_empty(),{"empty_readonly":empty,"atomic":atomic,"event_order":event_ids,"replacement_rebuilt":rebuilt,"restored":recovered,"instant":instant,"validation":validation})
 
 func _case_14(t, content: HospitalContent) -> void:
 	var empty: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"空地",false,content)

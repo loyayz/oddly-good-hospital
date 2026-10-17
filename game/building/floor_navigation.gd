@@ -16,11 +16,29 @@ var _overlay: bool = false
 func _init(projection: RouteClearance) -> void:
 	geometry = projection
 	_enabled.resize(LIMIT)
-	var regions: Array[Rect2i] = []
-	for plot: Vector2i in projection._plots:
-		regions.append(Rect2i(plot*32,Vector2i(32,32)))
-	_repair(regions)
+	_build()
 	neighbor_filter_enabled = true
+
+func _build() -> void:
+	var ids: Array[int] = []
+	for plot: Vector2i in geometry._plots:
+		for y: int in range(plot.y*32,(plot.y+1)*32):
+			for x: int in range(plot.x*32,(plot.x+1)*32): ids.append(y*SIDE+x)
+	ids.sort()
+	reserve_space(ids.size())
+	for id: int in ids:
+		var cell: Vector2i = _cell(id)
+		add_point(id,Vector2(cell))
+		_enabled[id] = int(geometry.reason(cell).is_empty())
+		if _enabled[id]==0: set_point_disabled(id,true)
+	for id: int in ids:
+		if _enabled[id]==0: continue
+		var cell: Vector2i = _cell(id)
+		# These target IDs are already ascending; retain directed edge order.
+		for offset: Vector2i in NEIGHBOURS:
+			var next: Vector2i = cell+offset
+			if _inside(next) and _enabled[_id(next)]!=0 and geometry.edge_reason(cell,next).is_empty():
+				connect_points(id,_id(next),false)
 
 func refresh(projection: RouteClearance) -> void:
 	var regions: Array[Rect2i] = projection.dirty_regions(geometry)

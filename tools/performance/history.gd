@@ -80,10 +80,38 @@ func _run() -> void:
 		valid = valid and initial_validation.is_empty() and final_validation.is_empty() and same
 		observations.append({"history":history,"active":world.active_visit_ids().size(),"load_us":load_us,"complete_step_us":samples,"initial_validation":initial_validation,"final_validation":final_validation,"live_facts_and_rng_equal":same})
 		simulation.dispose()
+	# Separate fixed operation: settled ledger history grows, pending remains 0
+	# for the warm samples and exactly one for the final settlement.
+	var ledger_observations: Array = []
+	for history: int in [16,1024,8192]:
+		var facts: Dictionary = input.duplicate(true)
+		for index: int in history:
+			var component: String = "history_%08d"%index
+			facts.ledger.entries[facts.hospital_id+":"+component] = {"owner_id":facts.hospital_id,"component":component,"amount":0,"tick":0,"settled":true}
+		var world: WorldState = WorldState.new(facts)
+		var before: Dictionary = world.freeze()
+		var started: int = Time.get_ticks_usec()
+		var first: Array[SimEvent] = HospitalLedger.settle(world)
+		var rebuild_us: int = Time.get_ticks_usec()-started
+		var samples: Array = []
+		for index: int in steps:
+			started = Time.get_ticks_usec()
+			var events: Array[SimEvent] = HospitalLedger.settle(world)
+			samples.append(Time.get_ticks_usec()-started)
+			valid = valid and events.is_empty()
+		var readonly: bool = world.freeze()==before and first.is_empty()
+		var posted: CommandResult = HospitalLedger.post(world,LedgerEntry.new(world.hospital_id,"diagnostic_pending",1),false)
+		started = Time.get_ticks_usec()
+		var settled: Array[SimEvent] = HospitalLedger.settle(world)
+		var one_pending_us: int = Time.get_ticks_usec()-started
+		var validation: String = world.validate(content)
+		valid = valid and readonly and posted.accepted and settled.size()==1 and validation.is_empty()
+		ledger_observations.append({"settled_history":history,"pending_rebuild_us":rebuild_us,"zero_pending_settle_us":samples,"one_pending_settle_us":one_pending_us,"readonly":readonly,"validation":validation})
 	var digest: HashingContext = HashingContext.new()
 	digest.start(HashingContext.HASH_SHA256)
 	digest.update(var_to_bytes(input))
 	var report: Dictionary = {"diagnostic":true,"operation":"fixed_active_history","steps_per_scale":steps,"observations":observations,"valid":valid,"engine":Engine.get_version_info().string,"content_fingerprint":content.content_fingerprint,"input_sha256":digest.finish().hex_encode(),"native_sha256":FileAccess.get_sha256("res://game/platform/windows/bin/oddly_good_platform.windows.x86_64.dll")}
+	report.ledger_observations = ledger_observations
 	var file: FileAccess = FileAccess.open(output,FileAccess.WRITE)
 	file.store_string(JSON.stringify(report,"\t"))
 	print("PERFORMANCE_HISTORY="+JSON.stringify({"valid":valid,"scales":observations.size(),"steps":steps,"output":output}))

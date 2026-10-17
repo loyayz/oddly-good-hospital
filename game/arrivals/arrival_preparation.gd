@@ -282,19 +282,30 @@ func _own_capture(facts: Dictionary) -> Dictionary:
 			owned[field] = value
 			_metrics.layout_reuses = int(_metrics.get("layout_reuses",0))+1
 			continue
+		if field=="departments":
+			# Units are already isolated immutable values owned by WorldState.
+			# Only the optional focus-history input still needs content ownership.
+			owned[field] = {"units":value.units}
+			if value.has("cases"):
+				var previous_cases: Array = _capture_base.get(field,{}).get("cases",[])
+				owned[field].cases = previous_cases if previous_cases==value.cases else value.cases.duplicate(true)
+			continue
 		if value is Dictionary:
 			var previous: Dictionary = _capture_base.get(field,{})
 			var records: Dictionary = {}
 			var unchanged: bool = previous.size()==value.size()
 			for id: Variant in value:
+				var record: Variant = value[id]
+				if field=="facilities" and not record.get("use_receipts",{}).is_empty():
+					record = record.duplicate()
+					record.use_receipts = {}
 				_metrics.scanned_records = int(_metrics.get("scanned_records",0))+1
-				if previous.has(id) and (value[id] is Dictionary or value[id] is Array): _metrics.deep_compares = int(_metrics.get("deep_compares",0))+1
-				if previous.has(id) and previous[id]==value[id]:
+				if previous.has(id) and (record is Dictionary or record is Array): _metrics.deep_compares = int(_metrics.get("deep_compares",0))+1
+				if previous.has(id) and previous[id]==record:
 					records[id] = previous[id]
 					_metrics.reused_records += 1
 				else:
 					unchanged = false
-					var record: Variant = value[id]
 					records[id] = record.duplicate(true) if record is Dictionary or record is Array else record
 					_metrics.copied_records += 1
 			owned[field] = previous if unchanged else records

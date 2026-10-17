@@ -24,15 +24,17 @@ static func post(world: WorldState, entry: LedgerEntry, settled: bool = true) ->
 	entries[entry.entry_id] = {"owner_id":entry.owner_id,"component":entry.component,"amount":entry.amount,"tick":world.facts.sim_tick,"settled":settled}
 	if settled:
 		world.touch()
+	else:
+		world.register_pending_ledger(entry.entry_id)
 	return CommandResult.new(true,"applied","",[entry.entry_id],world.facts.world_revision)
 
 static func settle(world: WorldState) -> Array[SimEvent]:
 	var events: Array[SimEvent] = []
-	var keys: Array = world.facts.ledger.entries.keys()
-	keys.sort()
+	var keys: Array = world.pending_ledger_ids()
 	for key: String in keys:
 		var entry: Dictionary = world.facts.ledger.entries[key]
 		if not entry.settled:
 			entry.settled = true
 			events.append(SimEvent.new(world.facts.sim_tick,"ledger_settled",[key],{"amount":entry.amount}))
+		world.ledger_settled(key)
 	return events

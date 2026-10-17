@@ -73,7 +73,8 @@ const CASES: Dictionary = {
 	"GROW-70":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；运输依赖变化与冷热完整模型一致",
 	"GROW-71":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；整批组件与逐组件的完整模型、概率和选择一致",
 	"GROW-72":"docs/design/08-hospital-life.md §4；弃候与常驻环境使用同一本人可用性且报价只读",
-	"GROW-73":"docs/design/07-clinical-team.md §6；重试经验边界与完整未共享模型一致"
+	"GROW-73":"docs/design/07-clinical-team.md §6；重试经验边界与完整未共享模型一致",
+	"GROW-74":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；专业评分输入按需隔离且撤销专业移除后继历史层"
 }
 
 func run(t) -> void:
@@ -891,9 +892,17 @@ func _case_65(t) -> void:
 	var first: Dictionary = preparation._capture(ctx.world,true,-1)
 	var second: Dictionary = preparation._capture(ctx.world,true,-1)
 	var correct: bool = preparation._same_input(first,second) and is_same(first.facts.rooms,second.facts.rooms)
+	correct = correct and is_same(second.facts.departments.units,ctx.world.department_records())
+	ctx.world.facts.facilities.water.use_receipts.history_only = 0
+	var source_receipts: Dictionary = ctx.world.freeze()
+	var with_receipts: Dictionary = preparation._capture(ctx.world,true,-1)
+	correct = correct and preparation._same_input(second,with_receipts) and ctx.world.freeze()==source_receipts and with_receipts.facts.facilities.water.use_receipts.is_empty()
+	ctx.world.facts.facilities.water.condition -= 1.0
+	var equipment_changed: Dictionary = preparation._capture(ctx.world,true,-1)
+	correct = correct and not preparation._same_input(with_receipts,equipment_changed) and second.facts.facilities.water.condition!=equipment_changed.facts.facilities.water.condition
 	ctx.world.facts.staff.starter_doctor_a.abilities.diagnosis += 1
 	var changed: Dictionary = preparation._capture(ctx.world,true,-1)
-	correct = correct and not preparation._same_input(first,changed) and first.layers.layout==changed.layers.layout and first.layers.current==changed.layers.current and first.layers.reference!=changed.layers.reference
+	correct = correct and not preparation._same_input(equipment_changed,changed) and equipment_changed.layers.layout==changed.layers.layout and equipment_changed.layers.current==changed.layers.current and equipment_changed.layers.reference!=changed.layers.reference
 	var next_day: Dictionary = preparation._capture(ctx.world,true,WorldState.TICKS_PER_DAY)
 	correct = correct and next_day.layers.reference==changed.layers.reference and next_day.layers.current!=changed.layers.current
 	var before: Dictionary = ctx.world.freeze()
@@ -902,6 +911,20 @@ func _case_65(t) -> void:
 	correct = correct and preparation._same_input(restored_input,changed) and ctx.world.freeze()==before
 	preparation.dispose()
 	t.check("GROW-65",correct,{"layout_shared":is_same(first.facts.rooms,second.facts.rooms),"restored_equal":restored_input==changed,"readonly":ctx.world.freeze()==before})
+
+func _case_74(t) -> void:
+	var ctx: Dictionary = _context()
+	var department: HospitalDepartments = ctx.simulation.services.departments
+	var preparation: ArrivalPreparation = ArrivalPreparation.new(_content)
+	var initial: Dictionary = preparation._capture(ctx.world,true,-1)
+	var focused: CommandResult = department.execute(ctx.world,"department_set_focus",{"department_id":"general","focus_id":"T01"})
+	var first: Dictionary = preparation._capture(ctx.world,true,-1)
+	var sealed: Dictionary = first.facts.departments.duplicate(true)
+	var cleared: CommandResult = department.execute(ctx.world,"department_set_focus",{"department_id":"general","focus_id":""})
+	var next: Dictionary = preparation._capture(ctx.world,true,-1)
+	var independent: bool = first.facts.departments==sealed and not is_same(first.facts.departments.get("cases"),ctx.world.facts.departments.cases)
+	preparation.dispose()
+	t.check("GROW-74",focused.accepted and cleared.accepted and not initial.facts.departments.has("cases") and first.facts.departments.has("cases") and not next.facts.departments.has("cases") and independent,{"focused":focused.to_record(),"cleared":cleared.to_record(),"old_input_retained":independent})
 
 func _case_66(t) -> void:
 	var ctx: Dictionary = _context()
@@ -913,7 +936,15 @@ func _case_66(t) -> void:
 	var closed: CommandResult = department.execute(ctx.world,"department_set_open",{"department_id":"general","open":false})
 	var third: Dictionary = ctx.world.department_records()
 	var restored: WorldState = WorldState.new(ctx.world.freeze())
-	t.check("GROW-66",is_same(first,again) and renamed.accepted and closed.accepted and first.general.name!="隔离科室" and second.general.name=="隔离科室" and second.general.open and not third.general.open and restored.department_records()==third,{"initial_reused":is_same(first,again),"old_open":second.general.open,"new_open":third.general.open})
+	var restored_equal: bool = restored.department_records()==third
+	var room_id: String = third.general.room_ids[0]
+	var room: Dictionary = ctx.world.facts.rooms[room_id]
+	var handover: CommandResult = department.execute(ctx.world,"department_create",{"department_id":"handover","name":"接管科室","room_ids":[room_id],"entry":{"floor_id":room.floor_id,"cell":[int(room.origin[0])+1,int(room.origin[1])+1]}})
+	var transferred: Dictionary = ctx.world.department_records()
+	var prior: Dictionary = transferred.duplicate(true)
+	ctx.world.facts = ctx.world.freeze()
+	var reset_keeps_sealed: bool = transferred==prior and not transferred.is_empty()
+	t.check("GROW-66",is_same(first,again) and renamed.accepted and closed.accepted and first.general.name!="隔离科室" and second.general.name=="隔离科室" and second.general.open and not third.general.open and restored_equal and handover.accepted and room_id in third.general.room_ids and not room_id in transferred.general.room_ids and room_id in transferred.handover.room_ids and reset_keeps_sealed and ctx.world.department_records()==prior,{"initial_reused":is_same(first,again),"old_open":second.general.open,"new_open":third.general.open,"handover":handover.to_record(),"old_snapshot_retained":reset_keeps_sealed})
 
 func _case_67(t) -> void:
 	var ctx: Dictionary = _context()
