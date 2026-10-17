@@ -9,6 +9,35 @@ var profile_errors: Array = []
 var snapshot_path: String = ""
 var checkpoints: Array = []
 var snapshot_overhead_us: int = 0
+var trace_phases: bool = false
+var phase_trace_path: String = ""
+var _phase_trace: FileAccess
+
+func enable_phase_trace(path: String) -> bool:
+	_phase_trace = FileAccess.open(path,FileAccess.WRITE)
+	if _phase_trace==null:
+		profile_errors.append({"error":"cannot open phase trace","path":path})
+		return false
+	phase_trace_path = path
+	trace_phases = true
+	return true
+
+func trace_phase(operation: String, world: WorldState, edge: String, result: Variant = null) -> void:
+	if not trace_phases: return
+	# Diagnostic only: flush each small record so a blocked original call leaves
+	# its enter event on disk. Never serialize a world, path or profile here.
+	var record: Dictionary = {"engine_us":Time.get_ticks_usec(),"tick":world.sim_tick,"op":operation,"pid":OS.get_process_id(),"edge":edge}
+	if edge=="return":
+		record.return_type = type_string(typeof(result))
+		if result==null or result is bool or result is int or result is float: record["return"] = result
+		elif result is String: record["return"] = result.left(160)
+		elif result is Array: record.return_count = result.size()
+		elif result is Dictionary:
+			for key: String in ["ok","status","reason"]:
+				if result.has(key) and (result[key] is bool or result[key] is int or result[key] is String):
+					record["return_"+key] = str(result[key]).left(160) if result[key] is String else result[key]
+	_phase_trace.store_line(JSON.stringify(record))
+	_phase_trace.flush()
 
 func checkpoint(stage: String) -> void:
 	checkpoints.append({"stage":stage,"ticks_us":Time.get_ticks_usec()})
@@ -88,8 +117,8 @@ func attach(simulation: HospitalSimulation) -> bool:
 	var before: Dictionary = simulation.world.freeze()
 	var old_space: HospitalSpace = simulation.space
 	var old_clinic: HospitalClinic = simulation.clinic
-	var geometry: HospitalSpace = TimedSpace.new(simulation.content,self)
-	var clinic: HospitalClinic = TimedClinic.new(simulation.content,geometry,self)
+	var geometry: HospitalSpace = PhaseSpace.new(simulation.content,self) if trace_phases else TimedSpace.new(simulation.content,self)
+	var clinic: HospitalClinic = PhaseClinic.new(simulation.content,geometry,self) if trace_phases else TimedClinic.new(simulation.content,geometry,self)
 	for property: Dictionary in old_clinic.get_property_list():
 		if (int(property.usage)&PROPERTY_USAGE_SCRIPT_VARIABLE)!=0:
 			clinic.set(property.name,old_clinic.get(property.name))
@@ -97,6 +126,11 @@ func attach(simulation: HospitalSimulation) -> bool:
 	simulation.clinic = clinic
 	_redirect(clinic,old_space,geometry,old_clinic,clinic)
 	_redirect(clinic.visitors,old_space,geometry,old_clinic,clinic)
+	if trace_phases:
+		var visitors: HospitalVisitors = PhaseVisitors.new(simulation.content,geometry,self)
+		for property: Dictionary in clinic.visitors.get_property_list():
+			if (int(property.usage)&PROPERTY_USAGE_SCRIPT_VARIABLE)!=0: visitors.set(property.name,clinic.visitors.get(property.name))
+		clinic.visitors = visitors
 	for service: RefCounted in simulation.services.values():
 		_redirect(service,old_space,geometry,old_clinic,clinic)
 	for kind: String in simulation._business_handlers:
@@ -113,7 +147,7 @@ func _profile_service(simulation: HospitalSimulation, key: String) -> void:
 	var wrapped: int = 0
 	for method: Dictionary in base.get_script_method_list():
 		var name: String = str(method.name)
-		if not name in ["boundaries","arrivals","dispatch","advance","advance_wait","needs","sample","settle"] and not (key=="arrivals" and name in ["capacity","_reference_basis","_reference_geometry_basis","_capacity_reference_world","_case_experience","_reference_classes","_reference_variant","_normalize_bundle","_capacity_part","_resource_budgets","_solve_roles","_existing_workload","_structural_pairs"]) and not (key=="environment" and name in ["environment_at","sample_at","begin_query","_positive_facilities","_nearby_actors","_coverage_edges","_coverage","_water_usable"]): continue
+		if not name in ["boundaries","arrivals","dispatch","advance","advance_wait","needs","sample","settle"] and not (key=="arrivals" and name in ["capacity","_reference_basis","_reference_geometry_basis","_capacity_reference_world","_case_experience","_reference_classes","_reference_variant","_normalize_bundle","_capacity_part","_resource_budgets","_solve_roles","_existing_workload","_structural_pairs"]) and not (key=="environment" and name in ["environment_at","sample_at","begin_query","_positive_facilities","_nearby_actors","_coverage_edges","_coverage","_water_usable"]) and not (trace_phases and key=="waiting" and name in ["seat_candidates","_seat_quote"]): continue
 		var expression: RegEx = RegEx.new()
 		expression.compile("(?m)^func "+name+"\\([^\\r\\n]*\\)[^\\r\\n]*:[ \\t]*$")
 		var header: RegExMatch = expression.search(base.source_code)
@@ -122,7 +156,13 @@ func _profile_service(simulation: HospitalSimulation, key: String) -> void:
 		for argument: Dictionary in method.args: arguments.append(str(argument.name))
 		var returns_value: bool = int(method["return"].type)!=TYPE_NIL
 		var assignment: String = "var result: "+type_string(int(method["return"].type))+" = " if returns_value else ""
-		source += header.get_string()+"\n\tvar started: int = Time.get_ticks_usec()\n\t"+assignment+"super."+name+"("+",".join(arguments)+")\n\t_acceptance_timing.count(\"service."+key+"."+name+"\",started)\n"
+		var phase: bool = trace_phases and (name in ["boundaries","arrivals","dispatch","advance","advance_wait","needs","sample","settle"] or key=="waiting" and name in ["seat_candidates","_seat_quote"])
+		var operation: String = "service."+key+"."+name
+		source += header.get_string()+"\n\tvar started: int = Time.get_ticks_usec()\n"
+		if phase: source += "\t_acceptance_timing.trace_phase(\""+operation+"\",world,\"enter\")\n"
+		source += "\t"+assignment+"super."+name+"("+",".join(arguments)+")\n"
+		if phase: source += "\t_acceptance_timing.trace_phase(\""+operation+"\",world,\"return\""+(",result" if returns_value else "")+")\n"
+		source += "\t_acceptance_timing.count(\""+operation+"\",started)\n"
 		if returns_value: source += "\treturn result\n"
 		wrapped += 1
 	if wrapped==0: return
@@ -309,4 +349,107 @@ class TimedNavigation extends NavigationCache:
 		var started: int = Time.get_ticks_usec()
 		var result: Dictionary = super._distance_field(graph,query,goal)
 		timing.count("navigation.distance_field",started)
+		return result
+
+# These subclasses are installed only for --trace-phases. Default timed
+# overrides retain their existing call path and counters without trace I/O.
+class PhaseClinic extends TimedClinic:
+	func _init(database: HospitalContent, geometry: HospitalSpace, observer: RefCounted) -> void:
+		super(database,geometry,observer)
+	func arrivals(world: WorldState) -> void:
+		timing.trace_phase("clinical.arrivals",world,"enter")
+		super.arrivals(world)
+		timing.trace_phase("clinical.arrivals",world,"return")
+	func dispatch(world: WorldState) -> void:
+		timing.trace_phase("clinical.dispatch",world,"enter")
+		super.dispatch(world)
+		timing.trace_phase("clinical.dispatch",world,"return")
+	func advance(world: WorldState) -> void:
+		timing.trace_phase("clinical.advance",world,"enter")
+		super.advance(world)
+		timing.trace_phase("clinical.advance",world,"return")
+	func release_departed(world: WorldState) -> void:
+		timing.trace_phase("clinical.release_departed",world,"enter")
+		super.release_departed(world)
+		timing.trace_phase("clinical.release_departed",world,"return")
+	func settle_practice(world: WorldState) -> void:
+		timing.trace_phase("clinical.settle_practice",world,"enter")
+		super.settle_practice(world)
+		timing.trace_phase("clinical.settle_practice",world,"return")
+
+class PhaseVisitors extends HospitalVisitors:
+	var timing: RefCounted
+	func _init(database: HospitalContent, geometry: HospitalSpace, observer: RefCounted) -> void:
+		super(database,geometry)
+		timing = observer
+	func arrivals(world: WorldState) -> void:
+		timing.trace_phase("visitor.arrivals",world,"enter")
+		super.arrivals(world)
+		timing.trace_phase("visitor.arrivals",world,"return")
+	func _admit(world: WorldState, visit: Dictionary, request: Dictionary) -> bool:
+		timing.trace_phase("visitor._admit",world,"enter")
+		var result: bool = super._admit(world,visit,request)
+		timing.trace_phase("visitor._admit",world,"return",result)
+		return result
+	func _waiting_point(world: WorldState, actor_id: String) -> Dictionary:
+		timing.trace_phase("visitor._waiting_point",world,"enter")
+		var result: Dictionary = super._waiting_point(world,actor_id)
+		timing.trace_phase("visitor._waiting_point",world,"return",result)
+		return result
+	func dispatch(world: WorldState) -> void:
+		timing.trace_phase("visitor.dispatch",world,"enter")
+		super.dispatch(world)
+		timing.trace_phase("visitor.dispatch",world,"return")
+	func advance(world: WorldState) -> void:
+		timing.trace_phase("visitor.advance",world,"enter")
+		super.advance(world)
+		timing.trace_phase("visitor.advance",world,"return")
+
+class PhaseSpace extends TimedSpace:
+	func _init(database: HospitalContent, observer: RefCounted) -> void:
+		super(database,observer)
+		_navigation = PhaseNavigation.new(observer)
+	func advance(world: WorldState, present_at_start: int = -1) -> void:
+		timing.trace_phase("space.advance",world,"enter")
+		super.advance(world,present_at_start)
+		timing.trace_phase("space.advance",world,"return")
+	func static_reason(world: WorldState, actor: Dictionary, floor_id: int, origin: Vector2i, members: Array = [], offsets: Dictionary = {}) -> String:
+		timing.trace_phase("space.static_reason",world,"enter")
+		var result: String = super.static_reason(world,actor,floor_id,origin,members,offsets)
+		timing.trace_phase("space.static_reason",world,"return",result)
+		return result
+	func facility_layout(world: WorldState, facility_id: String) -> Dictionary:
+		timing.trace_phase("space.facility_layout",world,"enter")
+		var result: Dictionary = super.facility_layout(world,facility_id)
+		timing.trace_phase("space.facility_layout",world,"return",result)
+		return result
+	func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
+		timing.trace_phase("space.route",world,"enter")
+		var result: Dictionary = super.route(world,actor_id,floor_id,target,members,offsets,ignore_people)
+		timing.trace_phase("space.route",world,"return",result)
+		return result
+	func facility_quote(world: WorldState, facility_id: String, actor_id: String, staff_ids: Array = []) -> Dictionary:
+		timing.trace_phase("space.facility_quote",world,"enter")
+		var result: Dictionary = super.facility_quote(world,facility_id,actor_id,staff_ids)
+		timing.trace_phase("space.facility_quote",world,"return",result)
+		return result
+	func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2i, goal: Vector2i, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, navigation: Dictionary = {}) -> Dictionary:
+		timing.trace_phase("space.floor_route",world,"enter")
+		var result: Dictionary = super._floor_route(world,actor,floor_id,start,goal,members,offsets,ignore_people,navigation)
+		timing.trace_phase("space.floor_route",world,"return",result)
+		return result
+
+class PhaseNavigation extends TimedNavigation:
+	func _init(observer: RefCounted) -> void:
+		super(observer)
+	func graph(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, members: Array, offsets: Dictionary) -> FloorNavigation:
+		timing.trace_phase("navigation.graph",world,"enter")
+		var result: FloorNavigation = super.graph(space,world,floor_id,actor,members,offsets)
+		timing.trace_phase("navigation.graph",world,"return",result)
+		return result
+	func _refresh_graph(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, members: Array, offsets: Dictionary, source: Dictionary, entry: Dictionary) -> Dictionary:
+		var operation: String = "navigation.build" if entry.is_empty() else "navigation.refresh"
+		timing.trace_phase(operation,world,"enter")
+		var result: Dictionary = super._refresh_graph(space,world,floor_id,actor,members,offsets,source,entry)
+		timing.trace_phase(operation,world,"return",result)
 		return result

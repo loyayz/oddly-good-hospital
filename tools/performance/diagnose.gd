@@ -12,6 +12,7 @@ func _run() -> void:
 	var output: String = "res://diagnostic.json"
 	var layout: String = "four_floors"
 	var profile: bool = false
+	var trace_phases: bool = false
 	var input: String = ""
 	var operation: String = "step"
 	var binding: String = "B_S13_D09_M09"
@@ -23,6 +24,7 @@ func _run() -> void:
 		if argument.begins_with("--output="): output = argument.trim_prefix("--output=")
 		if argument.begins_with("--layout="): layout = argument.get_slice("=",1)
 		if argument=="--profile": profile = true
+		if argument=="--trace-phases": trace_phases = true
 		if argument.begins_with("--input="): input = argument.trim_prefix("--input=")
 		if argument.begins_with("--operation="): operation = argument.get_slice("=",1)
 		if argument.begins_with("--binding="): binding = argument.get_slice("=",1)
@@ -39,8 +41,15 @@ func _run() -> void:
 		return
 	fixture.store_input(output+".input.bin")
 	var timing: RefCounted = Timing.new()
+	if trace_phases:
+		if not timing.enable_phase_trace(output+".phases.ndjson"):
+			push_error("Cannot open phase trace: "+output+".phases.ndjson")
+			quit(2)
+			return
+		print("PERFORMANCE_PHASE_TRACE="+JSON.stringify({"path":timing.phase_trace_path,"pid":OS.get_process_id(),"diagnostic_only":true,"flush_each_event":true,"step_includes_trace_io":true}))
 	if profile:
 		timing.snapshot_path = output+".profile.json"
+	if profile or trace_phases:
 		if not timing.attach(simulation):
 			quit(2)
 			return
@@ -210,7 +219,9 @@ func _run() -> void:
 		return
 	for index: int in steps:
 		var begin: int = Time.get_ticks_usec()
+		if trace_phases: timing.trace_phase("simulation.step",fixture.world,"enter")
 		var result: TickResult = simulation.step()
+		if trace_phases: timing.trace_phase("simulation.step",fixture.world,"return")
 		var sample: Dictionary = {"tick":fixture.world.sim_tick,"elapsed_ms":(Time.get_ticks_usec()-begin)/1000.0,"present":fixture.world.present_actor_count(),"moves":fixture.world.facts.moves.size(),"preparations":fixture.world.facts.preparations.size(),"sessions":fixture.world.facts.sessions.size(),"events":result.facts.size()}
 		if profile: sample.profile = timing.report()
 		samples.append(sample)
