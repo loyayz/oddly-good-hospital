@@ -248,7 +248,7 @@ finally {
     foreach($item in $owned){
         if(-not $item.process.HasExited){
             if($item -eq $game -and $exceptionText){[void]$item.process.CloseMainWindow()}
-            if(-not $item.process.WaitForExit($(if($item -eq $allocation){10000}else{3000}))){$forced.Add($item.stem);$item.process.Kill();$item.process.WaitForExit()}
+            if(-not $item.process.WaitForExit($(if($item -eq $allocation -or $item -eq $gpu){10000}else{3000}))){$forced.Add($item.stem);$item.process.Kill();$item.process.WaitForExit()}
         }
         $drainDeadline=[DateTime]::UtcNow.AddSeconds(5)
         while((-not $item.out_done -or -not $item.err_done) -and [DateTime]::UtcNow -lt $drainDeadline){Pump $item;Start-Sleep -Milliseconds 5}

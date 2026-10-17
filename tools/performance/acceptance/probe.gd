@@ -37,6 +37,11 @@ func _ready() -> void:
 	var has_clock: bool = first_clock.get("qpc_ticks")!=null and second_clock.get("qpc_ticks")!=null and int(first_clock.get("qpc_frequency", 0))>0 and first_clock.get("qpc_frequency")==second_clock.get("qpc_frequency") and int(first_clock.get("qpc_ticks", -1))<=int(second_clock.get("qpc_ticks", -1))
 	loaded["PlatformArrivalMath.monotonic_clock"] = {"available":has_clock,"first":first_clock,"second":second_clock}
 	valid = valid and has_clock
+	var content_script: Script = ResourceLoader.load("res://game/content/content_db.gd")
+	var content: RefCounted = content_script.new() if content_script!=null else null
+	var content_error: String = str(content.error) if content!=null else "Content script unavailable"
+	valid = valid and content_error.is_empty()
+	loaded["HospitalContent.initialized"] = {"error":content_error,"fingerprint":str(content.content_fingerprint) if content!=null else "","locale_csv_sha256":FileAccess.get_sha256("res://content/core/locale/zh_CN.csv")}
 	var result: Dictionary = {"valid":valid,"engine":Engine.get_version_info(),"executable":OS.get_executable_path(),"features":{"template":OS.has_feature("template"),"release":OS.has_feature("release"),"debug":OS.has_feature("debug"),"editor":OS.has_feature("editor")},"disable_project_settings_override":ProjectSettings.get_setting("application/config/disable_project_settings_override",false),"loaded":loaded,"external_script":get_script().resource_path,"external_script_sha256":FileAccess.get_sha256(get_script().resource_path),"renderer":RenderingServer.get_current_rendering_method(),"display_server":DisplayServer.get_name(),"global_classes":ProjectSettings.get_global_class_list().size()}
 	if not out.is_empty():
 		var file: FileAccess = FileAccess.open(out, FileAccess.WRITE)
