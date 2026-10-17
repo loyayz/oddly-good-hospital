@@ -1,0 +1,1039 @@
+{
+  "schema_version": 1,
+  "kind": "bounded_headless_diagnostic",
+  "source_commit": "3c5a00a4b9b03fd7857fec3f77fb4cfc3f1d8e4b",
+  "source_identity": {
+    "path": "C:/code/loyayz/oddly-good-hospital/.cache/performance/closure-quick-r1/source-identity.json",
+    "sha256": "d8126815220a5244177da5950c818ef5c275016805f9f679a99771789e2cc505",
+    "bytes": 52686
+  },
+  "engine": "4.7.2-stable (official)",
+  "native": {
+    "path": "C:/code/loyayz/oddly-good-hospital/.cache/performance/closure-quick-r1/game/platform/windows/bin/oddly_good_platform.windows.x86_64.dll",
+    "sha256": "f51f9a7a10ae4722f29522f4c81a9d9e0bfd04ab13236f518b23fb33b416f735",
+    "bytes": 14872576
+  },
+  "content_fingerprint": "70ef833fb44c1682824534528697df4a55d011f10121f15f8e83f0b5b7b6d433",
+  "cpu": [
+    {
+      "Name": "Intel(R) Core(TM) Ultra 5 125H",
+      "NumberOfCores": 14,
+      "NumberOfLogicalProcessors": 18
+    }
+  ],
+  "physical_memory_bytes": 33779150848,
+  "power_plan": [
+    "电源方案 GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (平衡)"
+  ],
+  "background_environment_controlled": false,
+  "background_note": "Main agent and nine read-only source-analysis agents may consume CPU; no other authorized game/build/test process was run by this task. This is not a controlled Release acceptance sample.",
+  "inputs": [
+    {
+      "path": "C:/code/loyayz/oddly-good-hospital/.cache/performance/review5-tools-r1/capture.json.input.bin",
+      "sha256": "f447da9fa40c65c7effe6c4099da58de4736484da3478b985942b10b91aa4f03",
+      "bytes": 1289000
+    },
+    {
+      "path": "C:/code/loyayz/oddly-good-hospital/.cache/performance/native-step-v5/steps.json.after.bin",
+      "sha256": "2a1ef0b04534ed69687576900e4a9a4aee9ff02b63ee69fd389e7d74169832b0",
+      "bytes": 1456660
+    },
+    {
+      "path": "C:/code/loyayz/oddly-good-hospital/.cache/performance/review5-tools-r1/reference-small.json.input.bin",
+      "sha256": "9bb50b2fc55c0ddc30ea4a6d05824499740af03acc240d578ce4ee0ce1ca81ee",
+      "bytes": 48808
+    }
+  ],
+  "processes": [
+    {
+      "item": 1,
+      "name": "capture",
+      "executable": "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+      "arguments": [
+        "--headless",
+        "--path",
+        "C:/code/loyayz/oddly-good-hospital/.cache/performance/closure-quick-r1",
+        "--script",
+        "res://tools/performance/diagnose.gd",
+        "--",
+        "--operation=capture",
+        "--steps=5",
+        "--input=C:/code/loyayz/oddly-good-hospital/.cache/performance/review5-tools-r1/capture.json.input.bin",
+        "--output=res://quick-capture.json"
+      ],
+      "pid": 26488,
+      "started": "2026-10-18T01:15:57.3819208+08:00",
+      "ended": "2026-10-18T01:15:59.8367808+08:00",
+      "wall_seconds": 2.4524622,
+      "timeout": false,
+      "exit_code": 0,
+      "stdout": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/closure-quick-r1/capture.stdout.txt",
+      "stderr": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/closure-quick-r1/capture.stderr.txt",
+      "report": "C:/code/loyayz/oddly-good-hospital/.cache/performance/closure-quick-r1/quick-capture.json",
+      "report_exists": true,
+      "fixture": [
+        {
+          "description": {
+            "actors": 160,
+            "beds": 24,
+            "boundary": "built hospital; admitted patients before reception; actual production services thereafter",
+            "errors": [],
+            "facilities": 1328,
+            "floors": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "patients": 120,
+            "rooms": 64,
+            "staff": 32,
+            "visitors": 8
+          },
+          "elapsed_ms": 396.773,
+          "validation": ""
+        }
+      ],
+      "stderr_error_lines": [],
+      "status": "completed"
+    },
+    {
+      "item": 2,
+      "name": "history",
+      "executable": "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+      "arguments": [
+        "--headless",
+        "--path",
+        "C:/code/loyayz/oddly-good-hospital/.cache/performance/closure-quick-r1",
+        "--script",
+        "res://tools/performance/history.gd",
+        "--",
+        "--steps=30",
+        "--output=res://quick-history.json"
+      ],
+      "pid": 6712,
+      "started": "2026-10-18T01:16:19.0865823+08:00",
+      "ended": "2026-10-18T01:16:21.9994118+08:00",
+      "wall_seconds": 2.9076569,
+      "timeout": false,
+      "exit_code": 0,
+      "stdout": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/closure-quick-r1/history.stdout.txt",
+      "stderr": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/closure-quick-r1/history.stderr.txt",
+      "report": "C:/code/loyayz/oddly-good-hospital/.cache/performance/closure-quick-r1/quick-history.json",
+      "report_exists": true,
+      "fixture": [],
+      "stderr_error_lines": [],
+      "status": "completed"
+    },
+    {
+      "item": 3,
+      "name": "steps",
+      "executable": "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+      "arguments": [
+        "--headless",
+        "--path",
+        "C:/code/loyayz/oddly-good-hospital/.cache/performance/closure-quick-r1",
+        "--script",
+        "res://tools/performance/diagnose.gd",
+        "--",
+        "--operation=step",
+        "--steps=5",
+        "--input=C:/code/loyayz/oddly-good-hospital/.cache/performance/native-step-v5/steps.json.after.bin",
+        "--output=res://quick-steps.json",
+        "--profile"
+      ],
+      "pid": 35212,
+      "started": "2026-10-18T01:16:41.0147396+08:00",
+      "ended": "2026-10-18T01:16:46.1422721+08:00",
+      "wall_seconds": 5.1260951,
+      "timeout": false,
+      "exit_code": 0,
+      "stdout": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/closure-quick-r1/steps.stdout.txt",
+      "stderr": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/closure-quick-r1/steps.stderr.txt",
+      "report": "C:/code/loyayz/oddly-good-hospital/.cache/performance/closure-quick-r1/quick-steps.json",
+      "report_exists": true,
+      "fixture": [
+        {
+          "description": {
+            "actors": 160,
+            "beds": 24,
+            "boundary": "built hospital; admitted patients before reception; actual production services thereafter",
+            "errors": [],
+            "facilities": 1328,
+            "floors": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "patients": 120,
+            "rooms": 64,
+            "staff": 32,
+            "visitors": 8
+          },
+          "elapsed_ms": 426.743,
+          "validation": ""
+        }
+      ],
+      "stderr_error_lines": [],
+      "status": "completed"
+    },
+    {
+      "item": 4,
+      "name": "prepared",
+      "executable": "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+      "arguments": [
+        "--headless",
+        "--path",
+        "C:/code/loyayz/oddly-good-hospital/.cache/performance/closure-quick-r1",
+        "--script",
+        "res://tools/performance/diagnose.gd",
+        "--",
+        "--operation=prepared",
+        "--input=C:/code/loyayz/oddly-good-hospital/.cache/performance/review5-tools-r1/reference-small.json.input.bin",
+        "--output=res://quick-prepared.json",
+        "--profile"
+      ],
+      "pid": 15956,
+      "started": "2026-10-18T01:17:07.7504198+08:00",
+      "ended": "2026-10-18T01:17:10.1952405+08:00",
+      "wall_seconds": 2.4435739,
+      "timeout": false,
+      "exit_code": 0,
+      "stdout": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/closure-quick-r1/prepared.stdout.txt",
+      "stderr": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/closure-quick-r1/prepared.stderr.txt",
+      "report": "C:/code/loyayz/oddly-good-hospital/.cache/performance/closure-quick-r1/quick-prepared.json",
+      "report_exists": true,
+      "fixture": [
+        {
+          "description": {
+            "actors": 6,
+            "beds": 0,
+            "boundary": "built hospital; admitted patients before reception; actual production services thereafter",
+            "errors": [],
+            "facilities": 19,
+            "floors": [
+              1
+            ],
+            "patients": 0,
+            "rooms": 6,
+            "staff": 6,
+            "visitors": 0
+          },
+          "elapsed_ms": 341.931,
+          "validation": ""
+        }
+      ],
+      "stderr_error_lines": [],
+      "status": "completed",
+      "observed_peak_working_set_bytes": null
+    },
+    {
+      "item": 5,
+      "name": "reference",
+      "executable": "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+      "arguments": [
+        "--headless",
+        "--path",
+        "C:/code/loyayz/oddly-good-hospital/.cache/performance/closure-quick-r1",
+        "--script",
+        "res://tools/performance/diagnose.gd",
+        "--",
+        "--operation=reference",
+        "--binding=B_S13_D09_M09",
+        "--input=C:/code/loyayz/oddly-good-hospital/.cache/performance/review5-tools-r1/capture.json.input.bin",
+        "--output=res://quick-reference.json",
+        "--profile"
+      ],
+      "pid": 26108,
+      "started": "2026-10-18T01:17:22.1873281+08:00",
+      "ended": "2026-10-18T01:18:22.2182367+08:00",
+      "wall_seconds": 60.0265701,
+      "timeout": true,
+      "exit_code": -1,
+      "stdout": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/closure-quick-r1/reference.stdout.txt",
+      "stderr": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/closure-quick-r1/reference.stderr.txt",
+      "report": "C:/code/loyayz/oddly-good-hospital/.cache/performance/closure-quick-r1/quick-reference.json",
+      "report_exists": false,
+      "fixture": [
+        {
+          "description": {
+            "actors": 160,
+            "beds": 24,
+            "boundary": "built hospital; admitted patients before reception; actual production services thereafter",
+            "errors": [],
+            "facilities": 1328,
+            "floors": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "patients": 120,
+            "rooms": 64,
+            "staff": 32,
+            "visitors": 8
+          },
+          "elapsed_ms": 528.275,
+          "validation": ""
+        }
+      ],
+      "stderr_error_lines": [],
+      "status": "incomplete_timeout",
+      "observed_peak_working_set_bytes": null
+    }
+  ],
+  "capture": {
+    "fixture": {
+      "actors": 160,
+      "beds": 24,
+      "boundary": "built hospital; admitted patients before reception; actual production services thereafter",
+      "errors": [],
+      "facilities": 1328,
+      "floors": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "patients": 120,
+      "rooms": 64,
+      "staff": 32,
+      "visitors": 8
+    },
+    "samples": [
+      {
+        "capture_us": 9171,
+        "ownership_us": 7635,
+        "extraction_us": 1536
+      },
+      {
+        "capture_us": 4474,
+        "ownership_us": 3692,
+        "extraction_us": 782
+      },
+      {
+        "capture_us": 4044,
+        "ownership_us": 3361,
+        "extraction_us": 683
+      },
+      {
+        "capture_us": 4338,
+        "ownership_us": 3616,
+        "extraction_us": 722
+      },
+      {
+        "capture_us": 4411,
+        "ownership_us": 3677,
+        "extraction_us": 734
+      }
+    ],
+    "metrics": {
+      "capture_us": 25971,
+      "captures": 5,
+      "copied_records": 1526,
+      "cpu_measured_jobs": 0,
+      "deep_compares": 6100,
+      "jobs": 0,
+      "latest_worker_us": 0,
+      "layout_reuses": 15,
+      "main_us": 0,
+      "max_main_us": 0,
+      "requests": 0,
+      "reused": 0,
+      "reused_records": 6104,
+      "scanned_records": 7630,
+      "source_tick": 0,
+      "superseded": 0,
+      "target_tick": 0,
+      "worker_cpu_us": 0,
+      "worker_wall_us": 0
+    },
+    "readonly": true,
+    "bytes_kind": "serialized_payload_estimate"
+  },
+  "history": {
+    "content_fingerprint": "70ef833fb44c1682824534528697df4a55d011f10121f15f8e83f0b5b7b6d433",
+    "diagnostic": true,
+    "engine": "4.7.2-stable (official)",
+    "input_sha256": "0925b166c37765256d7ca9e9e12e6186751491c557030c9c33179e653e63427c",
+    "native_sha256": "f51f9a7a10ae4722f29522f4c81a9d9e0bfd04ab13236f518b23fb33b416f735",
+    "observations": [
+      {
+        "active": 1,
+        "complete_step_us": [
+          54770,
+          2024,
+          2340,
+          2106,
+          2484,
+          3198,
+          2864,
+          2776,
+          2169,
+          2176,
+          2451,
+          1601,
+          1596,
+          1726,
+          1976,
+          1975,
+          1644,
+          1763,
+          1878,
+          1741,
+          2228,
+          2470,
+          1498,
+          1978,
+          1768,
+          2092,
+          1724,
+          1803,
+          1936,
+          1909
+        ],
+        "final_validation": "",
+        "history": 16,
+        "initial_validation": "",
+        "live_facts_and_rng_equal": true,
+        "load_us": 360
+      },
+      {
+        "active": 1,
+        "complete_step_us": [
+          48899,
+          1994,
+          1941,
+          1831,
+          1708,
+          2161,
+          2207,
+          1969,
+          2614,
+          2685,
+          2132,
+          1915,
+          2079,
+          2110,
+          1718,
+          2328,
+          4694,
+          2687,
+          2577,
+          2597,
+          3490,
+          3593,
+          2207,
+          1991,
+          1815,
+          1591,
+          1711,
+          3656,
+          2414,
+          2434
+        ],
+        "final_validation": "",
+        "history": 64,
+        "initial_validation": "",
+        "live_facts_and_rng_equal": true,
+        "load_us": 1108
+      },
+      {
+        "active": 1,
+        "complete_step_us": [
+          44936,
+          3315,
+          2060,
+          2066,
+          2319,
+          2132,
+          1841,
+          2716,
+          2080,
+          1813,
+          2037,
+          1837,
+          2194,
+          1887,
+          2026,
+          2211,
+          1964,
+          1758,
+          1772,
+          1785,
+          2519,
+          2978,
+          1560,
+          1547,
+          1527,
+          1551,
+          1568,
+          1571,
+          1590,
+          1958
+        ],
+        "final_validation": "",
+        "history": 256,
+        "initial_validation": "",
+        "live_facts_and_rng_equal": true,
+        "load_us": 1785
+      }
+    ],
+    "operation": "fixed_active_history",
+    "steps_per_scale": 30,
+    "valid": true
+  },
+  "steps": {
+    "fixture": {
+      "actors": 160,
+      "beds": 24,
+      "boundary": "built hospital; admitted patients before reception; actual production services thereafter",
+      "errors": [],
+      "facilities": 1328,
+      "floors": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "patients": 120,
+      "rooms": 64,
+      "staff": 32,
+      "visitors": 8
+    },
+    "samples": [
+      {
+        "elapsed_ms": 2186.892,
+        "events": 1,
+        "moves": 5,
+        "preparations": 0,
+        "present": 160,
+        "sessions": 0,
+        "tick": 5
+      },
+      {
+        "elapsed_ms": 48.146,
+        "events": 1,
+        "moves": 5,
+        "preparations": 0,
+        "present": 160,
+        "sessions": 0,
+        "tick": 6
+      },
+      {
+        "elapsed_ms": 50.379,
+        "events": 1,
+        "moves": 5,
+        "preparations": 0,
+        "present": 160,
+        "sessions": 0,
+        "tick": 7
+      },
+      {
+        "elapsed_ms": 51.947,
+        "events": 1,
+        "moves": 5,
+        "preparations": 0,
+        "present": 160,
+        "sessions": 0,
+        "tick": 8
+      },
+      {
+        "elapsed_ms": 50.194,
+        "events": 1,
+        "moves": 5,
+        "preparations": 0,
+        "present": 160,
+        "sessions": 0,
+        "tick": 9
+      }
+    ],
+    "inclusive_profile": [
+      {
+        "operation": "clinical.advance",
+        "first_calls": 1,
+        "first_us": 19,
+        "following_four_calls": 4,
+        "following_four_us": 52
+      },
+      {
+        "operation": "clinical.dispatch",
+        "first_calls": 1,
+        "first_us": 21573,
+        "following_four_calls": 4,
+        "following_four_us": 28235
+      },
+      {
+        "operation": "clinical.service_candidates.reception",
+        "first_calls": 116,
+        "first_us": 17771,
+        "following_four_calls": 464,
+        "following_four_us": 22419
+      },
+      {
+        "operation": "navigation.build",
+        "first_calls": 4,
+        "first_us": 1044068,
+        "following_four_calls": 0,
+        "following_four_us": 0
+      },
+      {
+        "operation": "navigation.graph",
+        "first_calls": 5,
+        "first_us": 1044429,
+        "following_four_calls": 20,
+        "following_four_us": 437
+      },
+      {
+        "operation": "navigation.graph_new",
+        "first_calls": 4,
+        "first_us": 1044372,
+        "following_four_calls": 0,
+        "following_four_us": 0
+      },
+      {
+        "operation": "navigation.graph_reuse_or_refresh",
+        "first_calls": 1,
+        "first_us": 42,
+        "following_four_calls": 20,
+        "following_four_us": 392
+      },
+      {
+        "operation": "navigation.trim",
+        "first_calls": 10,
+        "first_us": 15,
+        "following_four_calls": 40,
+        "following_four_us": 26
+      },
+      {
+        "operation": "service.arrivals.advance_wait",
+        "first_calls": 1,
+        "first_us": 717,
+        "following_four_calls": 4,
+        "following_four_us": 2713
+      },
+      {
+        "operation": "service.arrivals.arrivals",
+        "first_calls": 1,
+        "first_us": 37,
+        "following_four_calls": 4,
+        "following_four_us": 109
+      },
+      {
+        "operation": "service.arrivals.boundaries",
+        "first_calls": 1,
+        "first_us": 10,
+        "following_four_calls": 4,
+        "following_four_us": 39
+      },
+      {
+        "operation": "service.arrivals.needs",
+        "first_calls": 1,
+        "first_us": 2226,
+        "following_four_calls": 4,
+        "following_four_us": 5612
+      },
+      {
+        "operation": "service.arrivals.settle",
+        "first_calls": 1,
+        "first_us": 147,
+        "following_four_calls": 4,
+        "following_four_us": 704
+      },
+      {
+        "operation": "service.departments.advance",
+        "first_calls": 1,
+        "first_us": 4,
+        "following_four_calls": 4,
+        "following_four_us": 16
+      },
+      {
+        "operation": "service.departments.dispatch",
+        "first_calls": 1,
+        "first_us": 69,
+        "following_four_calls": 4,
+        "following_four_us": 284
+      },
+      {
+        "operation": "service.departments.sample",
+        "first_calls": 1,
+        "first_us": 78817,
+        "following_four_calls": 4,
+        "following_four_us": 77263
+      },
+      {
+        "operation": "service.departments.settle",
+        "first_calls": 1,
+        "first_us": 375,
+        "following_four_calls": 4,
+        "following_four_us": 747
+      },
+      {
+        "operation": "service.development.advance",
+        "first_calls": 1,
+        "first_us": 47,
+        "following_four_calls": 4,
+        "following_four_us": 113
+      },
+      {
+        "operation": "service.development.dispatch",
+        "first_calls": 1,
+        "first_us": 1031,
+        "following_four_calls": 4,
+        "following_four_us": 3927
+      },
+      {
+        "operation": "service.development.settle",
+        "first_calls": 1,
+        "first_us": 597,
+        "following_four_calls": 4,
+        "following_four_us": 2472
+      },
+      {
+        "operation": "service.environment._coverage",
+        "first_calls": 120,
+        "first_us": 36551,
+        "following_four_calls": 480,
+        "following_four_us": 1924
+      },
+      {
+        "operation": "service.environment._coverage_edges",
+        "first_calls": 120,
+        "first_us": 23543,
+        "following_four_calls": 480,
+        "following_four_us": 3355
+      },
+      {
+        "operation": "service.environment.advance",
+        "first_calls": 1,
+        "first_us": 6,
+        "following_four_calls": 4,
+        "following_four_us": 25
+      },
+      {
+        "operation": "service.environment.dispatch",
+        "first_calls": 1,
+        "first_us": 84,
+        "following_four_calls": 4,
+        "following_four_us": 350
+      },
+      {
+        "operation": "service.environment.environment_at",
+        "first_calls": 120,
+        "first_us": 76546,
+        "following_four_calls": 480,
+        "following_four_us": 69210
+      },
+      {
+        "operation": "service.finance.settle",
+        "first_calls": 1,
+        "first_us": 3895,
+        "following_four_calls": 4,
+        "following_four_us": 7795
+      },
+      {
+        "operation": "service.floors.advance",
+        "first_calls": 1,
+        "first_us": 3,
+        "following_four_calls": 4,
+        "following_four_us": 13
+      },
+      {
+        "operation": "service.floors.dispatch",
+        "first_calls": 1,
+        "first_us": 7,
+        "following_four_calls": 4,
+        "following_four_us": 17
+      },
+      {
+        "operation": "service.maintenance.advance",
+        "first_calls": 1,
+        "first_us": 2019,
+        "following_four_calls": 4,
+        "following_four_us": 7766
+      },
+      {
+        "operation": "service.maintenance.boundaries",
+        "first_calls": 1,
+        "first_us": 4664,
+        "following_four_calls": 4,
+        "following_four_us": 17359
+      },
+      {
+        "operation": "service.maintenance.dispatch",
+        "first_calls": 1,
+        "first_us": 3080,
+        "following_four_calls": 4,
+        "following_four_us": 7680
+      },
+      {
+        "operation": "service.recruitment.advance",
+        "first_calls": 1,
+        "first_us": 50,
+        "following_four_calls": 4,
+        "following_four_us": 122
+      },
+      {
+        "operation": "service.recruitment.boundaries",
+        "first_calls": 1,
+        "first_us": 46,
+        "following_four_calls": 4,
+        "following_four_us": 164
+      },
+      {
+        "operation": "service.recruitment.settle",
+        "first_calls": 1,
+        "first_us": 107,
+        "following_four_calls": 4,
+        "following_four_us": 469
+      },
+      {
+        "operation": "service.remodel.dispatch",
+        "first_calls": 1,
+        "first_us": 3,
+        "following_four_calls": 4,
+        "following_four_us": 13
+      },
+      {
+        "operation": "service.research.advance",
+        "first_calls": 1,
+        "first_us": 6,
+        "following_four_calls": 4,
+        "following_four_us": 20
+      },
+      {
+        "operation": "service.research.boundaries",
+        "first_calls": 1,
+        "first_us": 5,
+        "following_four_calls": 4,
+        "following_four_us": 19
+      },
+      {
+        "operation": "service.research.settle",
+        "first_calls": 1,
+        "first_us": 7,
+        "following_four_calls": 4,
+        "following_four_us": 25
+      },
+      {
+        "operation": "service.scheduler.advance",
+        "first_calls": 1,
+        "first_us": 3,
+        "following_four_calls": 4,
+        "following_four_us": 11
+      },
+      {
+        "operation": "service.scheduler.boundaries",
+        "first_calls": 1,
+        "first_us": 537,
+        "following_four_calls": 4,
+        "following_four_us": 2379
+      },
+      {
+        "operation": "service.scheduler.dispatch",
+        "first_calls": 1,
+        "first_us": 7,
+        "following_four_calls": 4,
+        "following_four_us": 25
+      },
+      {
+        "operation": "service.supplies.advance",
+        "first_calls": 1,
+        "first_us": 124,
+        "following_four_calls": 4,
+        "following_four_us": 396
+      },
+      {
+        "operation": "service.supplies.boundaries",
+        "first_calls": 1,
+        "first_us": 37,
+        "following_four_calls": 4,
+        "following_four_us": 131
+      },
+      {
+        "operation": "service.waiting.advance",
+        "first_calls": 1,
+        "first_us": 5,
+        "following_four_calls": 4,
+        "following_four_us": 21
+      },
+      {
+        "operation": "service.waiting.dispatch",
+        "first_calls": 1,
+        "first_us": 834,
+        "following_four_calls": 4,
+        "following_four_us": 3498
+      },
+      {
+        "operation": "service.wellbeing.advance",
+        "first_calls": 1,
+        "first_us": 126,
+        "following_four_calls": 4,
+        "following_four_us": 310
+      },
+      {
+        "operation": "service.wellbeing.boundaries",
+        "first_calls": 1,
+        "first_us": 209,
+        "following_four_calls": 4,
+        "following_four_us": 959
+      },
+      {
+        "operation": "service.wellbeing.dispatch",
+        "first_calls": 1,
+        "first_us": 1561,
+        "following_four_calls": 4,
+        "following_four_us": 3199
+      },
+      {
+        "operation": "space.active_route_clear",
+        "first_calls": 5,
+        "first_us": 1008539,
+        "following_four_calls": 20,
+        "following_four_us": 231
+      },
+      {
+        "operation": "space.advance",
+        "first_calls": 1,
+        "first_us": 2058401,
+        "following_four_calls": 4,
+        "following_four_us": 3482
+      },
+      {
+        "operation": "space.dispatch_routes",
+        "first_calls": 1,
+        "first_us": 28,
+        "following_four_calls": 4,
+        "following_four_us": 63
+      },
+      {
+        "operation": "space.reserve_doors",
+        "first_calls": 5,
+        "first_us": 231,
+        "following_four_calls": 20,
+        "following_four_us": 821
+      }
+    ],
+    "profile_errors": []
+  },
+  "prepared": {
+    "reference_ms": 138.596,
+    "solve_ms": 14.685,
+    "initial": {
+      "bottleneck": "staff:starter_doctor_b",
+      "bottleneck_kind": "exhausted_resource",
+      "bundle_count": 10,
+      "capacity": {
+        "d": "75737",
+        "n": "800000"
+      },
+      "certificate_nonzeros": 23,
+      "coefficient_count": 50,
+      "columns_per_round": [
+        0
+      ],
+      "edge_count": 75,
+      "lp_rounds": 1,
+      "node_count": 50,
+      "pricing_calls": 2,
+      "resolution_count": 1,
+      "resource_count": 7,
+      "solver_kind": "lp",
+      "structural_pairs": 1,
+      "timing_us": {
+        "certificate_build_us": 209,
+        "lock_wait_us": 1,
+        "lp_optimize_us": 1079,
+        "model_build_us": 397,
+        "node_intern_us": 66,
+        "pricing_us": 30,
+        "variant_and_graph_input_us": 331
+      },
+      "used_resource_count": 7
+    },
+    "warm": [
+      {
+        "elapsed_ms": 0.669,
+        "result": {
+          "bottleneck": "staff:starter_doctor_b",
+          "bottleneck_kind": "exhausted_resource",
+          "bundle_count": 10,
+          "capacity": {
+            "d": "75737",
+            "n": "800000"
+          },
+          "certificate_nonzeros": 23,
+          "coefficient_count": 50,
+          "columns_per_round": [
+            0
+          ],
+          "edge_count": 75,
+          "lp_rounds": 1,
+          "node_count": 50,
+          "pricing_calls": 2,
+          "resolution_count": 1,
+          "resource_count": 7,
+          "solver_kind": "lp",
+          "structural_pairs": 1,
+          "timing_us": {
+            "certificate_build_us": 209,
+            "lock_wait_us": 1,
+            "lp_optimize_us": 1079,
+            "model_build_us": 397,
+            "node_intern_us": 66,
+            "pricing_us": 30,
+            "variant_and_graph_input_us": 331
+          },
+          "used_resource_count": 7
+        }
+      },
+      {
+        "elapsed_ms": 0.393,
+        "result": {
+          "bottleneck": "staff:starter_doctor_b",
+          "bottleneck_kind": "exhausted_resource",
+          "bundle_count": 10,
+          "capacity": {
+            "d": "75737",
+            "n": "800000"
+          },
+          "certificate_nonzeros": 23,
+          "coefficient_count": 50,
+          "columns_per_round": [
+            0
+          ],
+          "edge_count": 75,
+          "lp_rounds": 1,
+          "node_count": 50,
+          "pricing_calls": 2,
+          "resolution_count": 1,
+          "resource_count": 7,
+          "solver_kind": "lp",
+          "structural_pairs": 1,
+          "timing_us": {
+            "certificate_build_us": 209,
+            "lock_wait_us": 1,
+            "lp_optimize_us": 1079,
+            "model_build_us": 397,
+            "node_intern_us": 66,
+            "pricing_us": 30,
+            "variant_and_graph_input_us": 331
+          },
+          "used_resource_count": 7
+        }
+      }
+    ],
+    "valid": true,
+    "classes": 10,
+    "resources": 7,
+    "tracked_bytes": 91637456,
+    "profile_errors": []
+  },
+  "limits": [
+    "No presentation-frame, ETW, Release full-acceptance or optimization conclusion.",
+    "All five game processes were launched once in the requested sequence, hidden, each with a 60-second deadline.",
+    "Peak working set unavailable for first three items; last two attempted without rerunning.",
+    "Input content identity checks and initial validation are existing diagnostic-tool behavior; no new game probe added."
+  ]
+}
