@@ -71,8 +71,16 @@ func _index_noise(world: WorldState, kind: String, facility: Dictionary) -> void
 func _sample_records(kind: String, floor_id: int, coverage: Dictionary) -> Array:
 	var cells: Dictionary = _query.samples[kind].get(floor_id,{})
 	var result: Array = []
+	if cells.is_empty(): return result
 	for key: String in coverage: result.append_array(cells.get(key,[]))
 	return result
+
+func _has_sample(kind: String, floor_id: int, coverage: Dictionary) -> bool:
+	var cells: Dictionary = _query.samples[kind].get(floor_id,{})
+	if cells.is_empty(): return false
+	for key: String in coverage:
+		if cells.has(key) and not cells[key].is_empty(): return true
+	return false
 
 func end_query() -> void:
 	_query_depth -= 1
@@ -728,9 +736,7 @@ func environment_at(world: WorldState, floor_id: int, cell: Array, actor_id: Str
 	var positive: Dictionary = _coverage(world,floor_id,cell,range_cells,false,edges)
 	var negative: Dictionary = positive
 	if range_cells!=int(rules.range_cells):
-		negative = {}
-		for key: String in positive:
-			if int(positive[key])<=int(rules.range_cells): negative[key] = positive[key]
+		negative = _coverage(world,floor_id,cell,int(rules.range_cells),false,edges)
 	var noise_cells: Dictionary = negative if edges.noise.is_empty() else _coverage(world,floor_id,cell,int(rules.range_cells),true,edges)
 	var environment: Dictionary = world.facts.get("environment",{})
 	var surfaces: Dictionary = environment.get("surfaces",{})
@@ -778,8 +784,8 @@ func environment_at(world: WorldState, floor_id: int, cell: Array, actor_id: Str
 	result.clean = int(result.dirt)==0
 	result.value += int(rules.clean_bonus) if result.clean else -mini(int(rules.dirt_cap),int(result.dirt)*int(rules.dirt_per_item))
 	if _query.get("world")==world:
-		if not _sample_records("machines",floor_id,noise_cells).is_empty(): result.noise = maxi(int(result.noise),int(rules.machine_noise_penalty))
-		if not _sample_records("construction",floor_id,noise_cells).is_empty(): result.noise = maxi(int(result.noise),int(rules.construction_noise_penalty))
+		if _has_sample("machines",floor_id,noise_cells): result.noise = maxi(int(result.noise),int(rules.machine_noise_penalty))
+		if _has_sample("construction",floor_id,noise_cells): result.noise = maxi(int(result.noise),int(rules.construction_noise_penalty))
 	else:
 		_sample_noise(world,floor_id,noise_cells,result)
 	for actor: Dictionary in _nearby_actors(world,floor_id,cell):

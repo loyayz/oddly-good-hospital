@@ -8,18 +8,20 @@ var _clinical_uses: Variant = null
 var content: HospitalContent
 var space: HospitalSpace
 var finance: RefCounted
+var _maintained_ids: Dictionary = {}
 
 func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 	content = database
 	space = geometry
+	for id: String in content.balance.equipment.maintained_definition_ids: _maintained_ids[id] = true
 
-func ensure(world: WorldState) -> void:
+func ensure(world: WorldState, equipment: Variant = null) -> void:
 	if not world.facts.has("maintenance"):
 		world.facts.maintenance = {"jobs":{},"upgrades":{},"receipts":{},"policy_id":content.balance.maintenance_dispatch.default_policy_id,
 			"pinned_job_id":"","next_scan_tick":(world.sim_tick/(int(content.balance.equipment.scan_seconds)*10)+1)*int(content.balance.equipment.scan_seconds)*10}
 	if not world.facts.maintenance.has("contractors"):
 		world.facts.maintenance.contractors = {}
-	for item: Dictionary in _equipment(world).values():
+	for item: Dictionary in (_equipment(world) if equipment==null else equipment).values():
 		if not item.has("condition"):
 			item.condition = float(content.balance.equipment.restored_condition)
 		if not item.has("failed"):
@@ -41,11 +43,11 @@ func _equipment(world: WorldState) -> Dictionary:
 	for collection: String in ["facilities","connectors"]:
 		for id: String in world.ids(collection):
 			var item: Dictionary = world.facts[collection][id]
-			if item.definition_id in content.balance.equipment.maintained_definition_ids:
+			if _maintained_ids.has(item.definition_id):
 				result[id] = item
 	for id: String in world.facts.inventory.get("build_items",{}):
 		var item: Dictionary = world.facts.inventory.build_items[id]
-		if item.definition_id in content.balance.equipment.maintained_definition_ids:
+		if _maintained_ids.has(item.definition_id):
 			result[id] = item
 	return result
 
@@ -59,9 +61,9 @@ func _class(item: Dictionary) -> Dictionary:
 	return {}
 
 func boundaries(world: WorldState) -> void:
-	ensure(world)
-	_clinical_uses = HospitalClinic.equipment_uses(world)
 	var equipment: Dictionary = _equipment(world)
+	ensure(world,equipment)
+	_clinical_uses = HospitalClinic.equipment_uses(world)
 	var day: int = world.sim_tick/WorldState.TICKS_PER_DAY
 	for id: String in equipment:
 		var item: Dictionary = equipment[id]
@@ -307,8 +309,9 @@ func execute(world: WorldState, kind: String, payload: Dictionary) -> CommandRes
 	return _reject(world,"未知设备维护操作")
 
 func dispatch(world: WorldState) -> void:
-	_clinical_uses = HospitalClinic.equipment_uses(world)
 	_dispatch_departures(world)
+	if world.facts.maintenance.jobs.is_empty() and world.facts.maintenance.upgrades.is_empty(): return
+	_clinical_uses = HospitalClinic.equipment_uses(world)
 	var equipment: Dictionary = _equipment(world)
 	var candidates: Array = []
 	for job: Dictionary in world.facts.maintenance.jobs.values():
@@ -359,6 +362,7 @@ func dispatch(world: WorldState) -> void:
 	_clinical_uses = null
 
 func advance(world: WorldState) -> void:
+	if world.facts.maintenance.jobs.is_empty() and world.facts.maintenance.upgrades.is_empty(): return
 	_clinical_uses = HospitalClinic.equipment_uses(world)
 	var equipment: Dictionary = _equipment(world)
 	for id: String in _ordered(world.facts.maintenance.jobs):

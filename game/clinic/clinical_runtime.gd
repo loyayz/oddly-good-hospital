@@ -2167,6 +2167,9 @@ func _reference_options(world: WorldState, binding_id: String, complex_case: boo
 	var consultations: Array = shared.get("consultations",[])
 	var outpatient: Array = shared.get("outpatient",[])
 	var bed_quotes: Dictionary = shared.get("bed_quotes",{})
+	# One sealed case/shift owns both attempts' complete physical quotes.
+	# First-team experience changes recommendation scores, not these quotes.
+	var physical: Dictionary = shared.get("physical",{"outpatient":{},"surgery":{}})
 	if shared.is_empty():
 		receptions = _reference_candidates(candidate,visit,"reception",query)
 		diagnostics = _reference_candidates(candidate,visit,"gp",query)
@@ -2188,7 +2191,10 @@ func _reference_options(world: WorldState, binding_id: String, complex_case: boo
 				allowed = allowed and research_id in candidate.facts.research
 			if not allowed:
 				continue
-			var quote: Dictionary = _outpatient_quote(candidate,visit,candidate.facts.staff[pair.staff_id],candidate.facts.facilities[pair.facility_id],plan.id,true,true,true,bed_quotes)
+			var physical_key: Array = [not prior_quote.is_empty(),pair.staff_id,pair.facility_id,plan.id]
+			if not physical.outpatient.has(physical_key):
+				physical.outpatient[physical_key] = _outpatient_quote(candidate,visit,candidate.facts.staff[pair.staff_id],candidate.facts.facilities[pair.facility_id],plan.id,true,true,true,bed_quotes)
+			var quote: Dictionary = physical.outpatient[physical_key].duplicate()
 			if not quote.ok:
 				continue
 			quote.estimated_total_ticks = int(quote.work_ticks)+int(quote.recovery_ticks)
@@ -2201,8 +2207,12 @@ func _reference_options(world: WorldState, binding_id: String, complex_case: boo
 		if not prior_quote.is_empty() and pair.staff_id!=prior_quote.get("consulting_doctor_id",prior_quote.staff_ids[0]): continue
 		consulting_doctors[pair.staff_id] = true
 	for plan: Dictionary in query.plans[visit.disease_id].surgery:
-		var alternatives: Array = []
-		plan_quote(candidate,visit.id,plan.id,{"structural_only":true,"ignore_supplies":true,"reference_schedule":true,"bed_quotes":bed_quotes,"alternatives":alternatives})
+		var physical_key: Array = [not prior_quote.is_empty(),plan.id]
+		if not physical.surgery.has(physical_key):
+			var quotes: Array = []
+			plan_quote(candidate,visit.id,plan.id,{"structural_only":true,"ignore_supplies":true,"reference_schedule":true,"bed_quotes":bed_quotes,"alternatives":quotes})
+			physical.surgery[physical_key] = quotes
+		var alternatives: Array = physical.surgery[physical_key]
 		for quote: Dictionary in alternatives:
 			quote.plan_id = plan.id
 			for doctor_id: String in consulting_doctors:
@@ -2228,7 +2238,7 @@ func _reference_options(world: WorldState, binding_id: String, complex_case: boo
 	for terminal: Dictionary in terminal_quotes: selected_terminals.append_array(_reference_terminal_beds(candidate,visit,terminal,bed_quotes))
 	terminal_quotes = selected_terminals
 	return {"ok":not terminal_quotes.is_empty(),"reason":"没有完整临床参考资源束" if terminal_quotes.is_empty() else "",
-		"world":candidate,"visit":visit,"terminals":terminal_quotes,"receptions":receptions,"diagnostics":diagnostics,"consultations":consultations,"outpatient":outpatient,"bed_quotes":bed_quotes,"query":query}
+		"world":candidate,"visit":visit,"terminals":terminal_quotes,"receptions":receptions,"diagnostics":diagnostics,"consultations":consultations,"outpatient":outpatient,"bed_quotes":bed_quotes,"physical":physical,"query":query}
 
 func _reference_terminal_beds(world: WorldState, visit: Dictionary, quote: Dictionary, cache: Dictionary) -> Array:
 	if int(quote.recovery_ticks)==0: return [quote]
@@ -2290,9 +2300,12 @@ func _reference_model(options: Dictionary, binding_id: String, complex_case: boo
 		var representative_retry: Dictionary = {}
 		if int(content.balance.max_treatment_attempts)>1:
 			var retry_key: String = JSON.stringify([terminal.plan_id,terminal.staff_ids,terminal.consulting_doctor_id])
-			if not retries.has(retry_key):
-				retries[retry_key] = _reference_options(options.world,binding_id,complex_case,shift,terminal,options,options.query)
-			var retry_options: Dictionary = retries[retry_key]
+			# Only the continuing doctor's experience is read by PlanScore.
+			# Keep graph IDs/probability weights independent of this options key.
+			var option_key: Array = _reference_retry_context(terminal)
+			if not retries.has(option_key):
+				retries[option_key] = _reference_options(options.world,binding_id,complex_case,shift,terminal,options,options.query)
+			var retry_options: Dictionary = retries[option_key]
 			if retry_options.ok:
 				var retry_group: String = "retry:"+retry_key+":"+str(terminal.probability_bp)
 				if not groups.has(retry_group):
@@ -2396,6 +2409,9 @@ func _reference_component(full: Dictionary, stages: Array, weight: Dictionary = 
 			if resource_id in full.structural_resources and not resource_id in result.structural_resources: result.structural_resources.append(resource_id)
 	result.structural_resources.sort()
 	return result
+
+func _reference_retry_context(terminal: Dictionary) -> Array:
+	return [terminal.plan_id,terminal.consulting_doctor_id,terminal.consulting_doctor_id in terminal.staff_ids]
 
 func _reference_score(world: WorldState, _visit: Dictionary, quote: Dictionary, doctor_id: String) -> float:
 	var staff: Dictionary = world.facts.staff[doctor_id]

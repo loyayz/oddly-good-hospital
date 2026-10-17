@@ -72,7 +72,8 @@ const CASES: Dictionary = {
 	"GROW-69":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；精确资源驻留身份与顺序独立",
 	"GROW-70":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；运输依赖变化与冷热完整模型一致",
 	"GROW-71":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；整批组件与逐组件的完整模型、概率和选择一致",
-	"GROW-72":"docs/design/08-hospital-life.md §4；弃候与常驻环境使用同一本人可用性且报价只读"
+	"GROW-72":"docs/design/08-hospital-life.md §4；弃候与常驻环境使用同一本人可用性且报价只读",
+	"GROW-73":"docs/design/07-clinical-team.md §6；重试经验边界与完整未共享模型一致"
 }
 
 func run(t) -> void:
@@ -195,6 +196,7 @@ func _case_39(t) -> void:
 	ctx.world.facts.staff.starter_doctor_c.schedule = builder._schedule("rest")
 	for index: int in 4:
 		builder._add_worker(ctx.world,"parallel_surgeon_"+str(index),"doctor",[34+index*4,75],"surgery",{"diagnosis":1,"treatment":1,"care":0,"surgery":2},"DT02")
+	ctx.world.facts.staff.parallel_surgeon_0.abilities.surgery = 3
 	for index: int in 2:
 		var id: String = "parallel_or_nurse_"+str(index)
 		builder._add_worker(ctx.world,id,"nurse",[50+index*2,75],"work",{"diagnosis":1,"treatment":0,"care":1,"surgery":1})
@@ -213,7 +215,24 @@ func _case_39(t) -> void:
 	var nominal: WorldState = ctx.arrivals._capacity_reference_world(ctx.world)
 	var query: Dictionary = {}
 	var binding: Dictionary = _content.definition("treatment_bindings","B_S13_D09_M09")
+	ctx.space._navigation = NavigationCache.new()
 	var quote: Dictionary = ctx.clinic.reference_demand(nominal,binding.id,false,0,query)
+	var options: Dictionary = ctx.clinic._reference_options(nominal,binding.id,false,0,{}, {},query)
+	var probabilities: Dictionary = {}
+	for terminal: Dictionary in options.get("terminals",[]):
+		var context: Array = ctx.clinic._reference_retry_context(terminal)
+		if not probabilities.has(context): probabilities[context] = {}
+		probabilities[context][terminal.probability_bp] = true
+	var distinct_weights: bool = false
+	for values: Dictionary in probabilities.values(): distinct_weights = distinct_weights or values.size()>1
+	var uncached: UncachedReference = UncachedReference.new(_content,ctx.space)
+	for property: Dictionary in ctx.clinic.get_property_list():
+		if (int(property.usage)&PROPERTY_USAGE_SCRIPT_VARIABLE)!=0: uncached.set(property.name,ctx.clinic.get(property.name))
+	ctx.space._navigation = NavigationCache.new()
+	var independent: Dictionary = uncached.reference_demand(nominal,binding.id,false,0)
+	if quote!=independent or not distinct_weights:
+		t.check("GROW-39",false,{"complete_uncached_model_equal":quote==independent,"same_context_distinct_probabilities":distinct_weights})
+		return
 	var variant: Dictionary = ctx.arrivals._reference_variant(nominal,binding,false,0,quote,query)
 	variant.probability = F.make(1)
 	var tables: Dictionary = {}
@@ -1029,11 +1048,63 @@ class ScalarComponents extends HospitalClinic:
 	func _reference_component(full: Dictionary, stages: Array, weight: Dictionary = {"n":"1","d":"1"}, _batch: Variant = null) -> Dictionary:
 		return super._reference_component(full,stages,weight)
 
+class UncachedReference extends HospitalClinic:
+	func _reference_retry_context(terminal: Dictionary) -> Array:
+		return [terminal.plan_id,terminal.staff_ids,terminal.consulting_doctor_id]
+	func _reference_options(world: WorldState, binding_id: String, complex_case: bool, shift: int, prior_quote: Dictionary = {}, shared: Dictionary = {}, query: Dictionary = {}) -> Dictionary:
+		var fresh: Dictionary = shared.duplicate()
+		fresh.erase("physical")
+		return super._reference_options(world,binding_id,complex_case,shift,prior_quote,fresh,query)
+
 class EnvironmentObserver extends HospitalEnvironment:
 	var calls: int = 0
 	func environment_at(world: WorldState, floor_id: int, cell: Array, actor_id: String = "", explain: bool = true) -> Dictionary:
 		calls += 1
 		return super.environment_at(world,floor_id,cell,actor_id,explain)
+
+func _case_73(t) -> void:
+	var ctx: Dictionary = _context()
+	var independent: UncachedReference = UncachedReference.new(_content,ctx.space)
+	for property: Dictionary in ctx.clinic.get_property_list():
+		if (int(property.usage)&PROPERTY_USAGE_SCRIPT_VARIABLE)!=0: independent.set(property.name,ctx.clinic.get(property.name))
+	var correct: bool = true
+	var observations: Array = []
+	for experience: int in [0,4,5,24,25]:
+		for staff: Dictionary in ctx.world.facts.staff.values():
+			staff.plan_experience = {}
+			for plan: Dictionary in _content.catalog.treatment_plans: staff.plan_experience[plan.id] = experience
+		var before: Dictionary = ctx.world.freeze()
+		for complex_case: bool in [false,true]:
+			var nominal: WorldState = ctx.arrivals._capacity_reference_world(ctx.world)
+			var cached: Dictionary = ctx.clinic.reference_demand(nominal,"B_S49_D37_M37",complex_case,0)
+			var fresh: Dictionary = independent.reference_demand(nominal,"B_S49_D37_M37",complex_case,0)
+			correct = correct and cached.ok and cached==fresh
+			observations.append({"experience":experience,"complex":complex_case,"complete_model_equal":cached==fresh})
+		correct = correct and ctx.world.freeze()==before
+	for boundary: Array in [["DP01",4,1.0],["DP01",24,1.0],["DP01",25,0.0],["DP03",0,-8.0]]:
+		for staff: Dictionary in ctx.world.facts.staff.values():
+			staff.personality_id = boundary[0]
+			for plan: Dictionary in _content.catalog.treatment_plans: staff.plan_experience[plan.id] = boundary[1]
+		var nominal: WorldState = ctx.arrivals._capacity_reference_world(ctx.world)
+		var query: Dictionary = {}
+		ctx.clinic.reference_demand(nominal,"B_S49_D37_M37",false,0,query)
+		var options: Dictionary = ctx.clinic._reference_options(nominal,"B_S49_D37_M37",false,0,{}, {},query)
+		if not options.ok:
+			correct = false
+			continue
+		var terminal: Dictionary = options.terminals[0]
+		var retry: Dictionary = ctx.clinic._reference_options(options.world,"B_S49_D37_M37",false,0,terminal,options,query)
+		var doctor: String = terminal.consulting_doctor_id
+		var delta: float = ctx.clinic._reference_score(retry.world,retry.visit,terminal,doctor)-ctx.clinic._reference_score(options.world,options.visit,terminal,doctor)
+		correct = correct and is_equal_approx(delta,boundary[2])
+		observations.append({"personality":boundary[0],"before_experience":boundary[1],"score_delta":delta,"expected":boundary[2]})
+	var first: Dictionary = {"plan_id":"example","consulting_doctor_id":"doctor","staff_ids":["doctor","nurse_a"]}
+	var other_team: Dictionary = first.duplicate(true)
+	other_team.staff_ids = ["doctor","nurse_b"]
+	var outside: Dictionary = first.duplicate(true)
+	outside.staff_ids = ["surgeon","nurse_b"]
+	correct = correct and ctx.clinic._reference_retry_context(first)==ctx.clinic._reference_retry_context(other_team) and ctx.clinic._reference_retry_context(first)!=ctx.clinic._reference_retry_context(outside)
+	t.check("GROW-73",correct,{"observations":observations,"membership_distinguished":ctx.clinic._reference_retry_context(first)!=ctx.clinic._reference_retry_context(outside)})
 
 func _case_72(t) -> void:
 	var ctx: Dictionary = _context()

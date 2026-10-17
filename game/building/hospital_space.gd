@@ -509,7 +509,7 @@ func _active_route_clear(world: WorldState, actor: Dictionary, movement: Diction
 			return false
 		var target: Vector2 = Vector2(float(segment.cell[0]),float(segment.cell[1]))
 		if not queries.has(floor_id):
-			queries[floor_id] = RouteClearance.new(self,world,actor,floor_id,members,offsets,true,_navigation.floor_source(self,world,floor_id))
+			queries[floor_id] = _navigation.clearance(self,world,floor_id,actor) if members.is_empty() else RouteClearance.new(self,world,actor,floor_id,members,offsets,true,_navigation.floor_source(self,world,floor_id))
 		if not (queries[floor_id] as RouteClearance).sweep_reason(current,target).is_empty():
 			return false
 		current = target
