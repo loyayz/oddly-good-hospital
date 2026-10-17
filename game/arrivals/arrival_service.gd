@@ -701,12 +701,11 @@ func _reference_geometry_basis(collection: String, sources: Dictionary, fields: 
 	var result: Dictionary = {}
 	for id: String in sources:
 		var cached: Dictionary = previous.get(id,{})
-		if cached.is_empty() or cached.source!=sources[id]:
-			var owned: Dictionary = sources[id].duplicate(true)
-			var record: Dictionary = {}
-			for field: String in fields: record[field] = owned.get(field)
-			if collection=="facilities": record.low_condition = float(owned.condition)<40.0
-			cached = {"source":owned,"value":record}
+		var record: Dictionary = {}
+		for field: String in fields: record[field] = sources[id].get(field)
+		if collection=="facilities": record.low_condition = float(sources[id].condition)<40.0
+		if cached.is_empty() or cached.value!=record:
+			cached = {"value":record.duplicate(true)}
 		current[id] = cached
 		result[id] = cached.value
 	_basis_records[collection] = current

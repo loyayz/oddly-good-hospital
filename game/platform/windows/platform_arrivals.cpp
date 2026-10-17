@@ -284,6 +284,17 @@ struct PackingProgram {
         for (size_t i = 0; i < variables.size(); ++i) result.push_back(primal[static_cast<int>(i)]);
         return result;
     }
+    bool valid_values(const std::vector<Q>& values) const {
+        if (values.size() != variables.size()) return false;
+        for (size_t i = 0; i < values.size(); ++i)
+            if (values[i] < 0 || values[i] > bounds[i] || (integral[i] && mpz_cmp_ui(mpq_denref(values[i].backend().data()), 1) != 0)) return false;
+        for (const auto& row : rows) {
+            Q total = 0;
+            for (const auto& term : row.terms) total += term.second * values[term.first];
+            if (total > row.upper || (row.equality && total < row.upper)) return false;
+        }
+        return true;
+    }
     std::vector<Q> solve_rational() {
         struct TransformScope {
             SCIP* problem;
@@ -317,11 +328,7 @@ struct PackingProgram {
             if (number < 0 || number > bounds[i] || (integral[i] && mpz_cmp_ui(mpq_denref(number.backend().data()), 1) != 0)) throw std::runtime_error("精确离散求解违反变量范围或整数约束");
             if (objectives[i]) objective += number;
         }
-        for (const auto& row : rows) {
-            Q total = 0;
-            for (const auto& term : row.terms) total += term.second * values[term.first];
-            if (total > row.upper || (row.equality && total < row.upper)) throw std::runtime_error("结构配置违反原始资源约束");
-        }
+        if (!valid_values(values)) throw std::runtime_error("结构配置违反原始资源约束");
         if (objective != bound) throw std::runtime_error("精确目标与证明界不一致: " + objective.str() + " != " + bound.str());
         return values;
     }
@@ -540,6 +547,8 @@ struct Model {
     std::vector<std::pair<int, Q>> role_bounds, role_rhs;
     struct ScaledCoefficient { int row, variable; Q factor; };
     std::vector<ScaledCoefficient> role_coefficients;
+    std::vector<Q> role_values;
+    int64_t role_proof_reuses = 0;
 
     std::string signature(const Resources& values) const {
         std::string result;
@@ -678,6 +687,7 @@ struct Model {
             result.set("mip_constraints", V::number(role_program->rows.size()));
             result.set("mip_integral_variables", V::number(std::count(role_program->integral.begin(), role_program->integral.end(), true)));
             result.set("exact_polishes", V::number(role_program->exact_polishes));
+            result.set("proof_reuses", V::number(role_proof_reuses));
         }
         return result.value();
     }
@@ -845,12 +855,24 @@ struct Model {
         PackingProgram& mip = *role_program;
         const auto& flow = role_flow;
         int total = role_total;
-        auto values = mip.solve_rational();
+        std::vector<Q> values;
+        if (!role_values.empty() && role_values[total] > 0) {
+            // Unit-priced complete-path demand is a current global upper bound.
+            // Scale continuous flow only; keep every integer role unchanged.
+            // Feasibility at that bound is a complete L=U proof, otherwise search.
+            values = role_values;
+            const Q factor = limit / role_values[total];
+            for (size_t i = 0; i < values.size(); ++i) if (!mip.integral[i]) values[i] *= factor;
+            if (values[total] != limit || !mip.valid_values(values)) values.clear();
+            else ++role_proof_reuses;
+        }
+        if (values.empty()) values = mip.solve_rational();
         std::vector<Q> amounts, used(resources.size(), Q(0));
         for (const Case& item : cases) amounts.push_back(values[flow[item.root]]);
         for (size_t i = 0; i < nodes.size(); ++i)
             for (const auto& item : nodes[i].resources) used[item.first] += values[flow[i]] * item.second;
         if (!feasible(values[total], amounts, used)) throw std::runtime_error("精确岗位流违反病例或资源约束");
+        role_values = values;
         publish(values[total], used);
         return summary();
     }

@@ -61,7 +61,10 @@ const CASES: Dictionary = {
 	"GROW-58":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；实际交通票序和出口保留，名义模型排除排队",
 	"GROW-59":"docs/design/07-clinical-team.md §14；已足够证据不枚举后续检查，入院布尔与解释一致",
 	"GROW-60":"docs/design/07-clinical-team.md §5；候选使用已证明的适配站位且不修改实际预约",
-	"GROW-61":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；在途组偏移与身体姿态进入名义运输缓存身份"
+	"GROW-61":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；在途组偏移与身体姿态进入名义运输缓存身份",
+	"GROW-62":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；完整候选组件与按需队列代表分离",
+	"GROW-63":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；几何投影只保留数值依赖且隔离源记录",
+	"GROW-64":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；结构存在性短路不改变详细方案解释"
 }
 
 func run(t) -> void:
@@ -786,6 +789,69 @@ func _case_61(t) -> void:
 		correct = correct and expected!=original and rebound and hot_classes==cold_classes and hot==cold and invalidated
 		observations.append({"change":change,"rebound":rebound,"cold_equal":hot_classes==cold_classes and hot==cold,"journeys_invalidated":invalidated})
 	t.check("GROW-61",correct and sim.world.freeze()==source,{"boarded":boarded,"observations":observations,"readonly":sim.world.freeze()==source})
+
+func _case_62(t) -> void:
+	var ctx: Dictionary = _context()
+	# Two legal terminals for the same treating doctor and selected plan must
+	# remain distinct model choices while sharing one queue representative.
+	_add_room(ctx.world,"alternative_terminal","T01",[42,70],[6,6])
+	_add_facility(ctx.world,"alternative_treatment","M09","alternative_terminal",[44,71])
+	var observer: QuoteCounts = QuoteCounts.new(_content,ctx.space)
+	observer.scheduler = ctx.clinic.scheduler
+	observer.recruitment = ctx.clinic.recruitment
+	observer.departments = ctx.clinic.departments
+	var world: WorldState = ctx.arrivals._capacity_reference_world(ctx.world)
+	var before: Dictionary = world.freeze()
+	var quote: Dictionary = observer.reference_demand(world,"B_S13_D09_M09",false,0)
+	var components: int = quote.get("model",{}).get("bundles",[]).size()
+	var representatives: int = quote.get("bundles",[]).size()
+	var correct: bool = quote.ok and components>representatives and observer.full_calls==representatives
+	for group: Array in quote.model.choice_groups.values():
+		for part: Dictionary in group: correct = correct and not part.has("full") and not part.has("representative")
+	t.check("GROW-62",correct and world.freeze()==before,{"components":components,"representatives":representatives,"full_calls":observer.full_calls,"readonly":world.freeze()==before})
+
+func _case_63(t) -> void:
+	var ctx: Dictionary = _context()
+	var id: String = ctx.world.ids("facilities")[0]
+	ctx.arrivals._reference_basis(ctx.world,0)
+	var first: Dictionary = ctx.arrivals._basis_records.facilities[id].value
+	var original: Dictionary = first.duplicate(true)
+	ctx.world.facts.facilities[id].condition = 80.0
+	ctx.arrivals._reference_basis(ctx.world,0)
+	var reused: bool = is_same(first,ctx.arrivals._basis_records.facilities[id].value)
+	ctx.world.facts.facilities[id].condition = 39.0
+	ctx.arrivals._reference_basis(ctx.world,0)
+	var changed: Dictionary = ctx.arrivals._basis_records.facilities[id]
+	t.check("GROW-63",reused and first==original and not changed.has("source") and changed.value.low_condition and not first.low_condition,{"unrelated_wear_reused":reused,"threshold":changed.value.low_condition,"source_isolated":first==original})
+
+func _case_64(t) -> void:
+	var ctx: Dictionary = _context()
+	var candidate: Dictionary = ctx.clinic._arrival_candidate(ctx.arrivals._capacity_reference_world(ctx.world),"B_S13_D09_M09",false)
+	var observer: QuoteCounts = QuoteCounts.new(_content,ctx.space)
+	observer.scheduler = ctx.clinic.scheduler
+	observer.recruitment = ctx.clinic.recruitment
+	observer.departments = ctx.clinic.departments
+	var departments: HospitalDepartments = ctx.simulation.services.departments
+	departments.clinic = observer
+	ctx.space.begin_route_query(candidate.world,{"nominal":true})
+	var structural: Dictionary = departments.readiness(candidate.world,"general",candidate.visit.id,true)
+	var calls: int = observer.plan_calls
+	var detailed: Dictionary = departments.readiness(candidate.world,"general",candidate.visit.id)
+	ctx.space.end_route_query()
+	var count: int = 0
+	for plan: Dictionary in _content.catalog.treatment_plans:
+		if plan.disease_id==candidate.visit.disease_id: count += 1
+	t.check("GROW-64",structural.structurally_compatible and detailed.structurally_compatible and calls==1 and detailed.plans.size()==count,{"structural_quotes":calls,"detailed_quotes":detailed.plans.size(),"legal_catalog_plans":count})
+
+class QuoteCounts extends HospitalClinic:
+	var full_calls: int = 0
+	var plan_calls: int = 0
+	func _reference_bundle(world: WorldState, visit: Dictionary, reception: Dictionary, diagnostic: Dictionary, quote: Dictionary, query: Dictionary, consultation: Dictionary = {}) -> Dictionary:
+		full_calls += 1
+		return super._reference_bundle(world,visit,reception,diagnostic,quote,query,consultation)
+	func plan_quote(world: WorldState, visit_id: String, plan_id: String, options: Dictionary = {}) -> Dictionary:
+		plan_calls += 1
+		return super.plan_quote(world,visit_id,plan_id,options)
 
 func _case_40(t) -> void:
 	var ctx: Dictionary = _context()

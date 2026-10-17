@@ -303,7 +303,10 @@ func readiness(world: WorldState, department_id: String, visit_id: String, struc
 		candidate.facts.visits[visit_id].department_id = department_id
 		if structural_only:
 			for plan: Dictionary in content.catalog.treatment_plans:
-				if plan.disease_id==visit.disease_id: quotes.append(clinic.plan_quote(candidate,visit_id,plan.id,{"structural_only":true,"ignore_supplies":true}))
+				if plan.disease_id!=visit.disease_id: continue
+				var quote: Dictionary = clinic.plan_quote(candidate,visit_id,plan.id,{"structural_only":true,"ignore_supplies":true})
+				quotes.append(quote)
+				if quote.get("structural_ok",quote.get("ok",false)): break
 		else: quotes = clinic.compare_plans(candidate,visit_id)
 	var ready: bool = false
 	var structurally_compatible: bool = clinic==null
@@ -316,6 +319,7 @@ func eligible_departments(world: WorldState, visit_id: String, structural_only: 
 	var values: Array = []
 	for id: String in _sorted(world.facts.get("departments",{}).get("units",{})):
 		var department: Dictionary = world.facts.departments.units[id]
+		if not department.open: continue
 		var status: Dictionary = readiness(world,id,visit_id,structural_only)
 		if department.open and status.reachable and status.structurally_compatible:
 			values.append({"id":id,"name":department.name,"status":status})

@@ -22,6 +22,24 @@ func _initialize() -> void:
 		var cold: RefCounted = ClassDB.instantiate("PlatformArrivalCapacity")
 		var rebuilt: Dictionary = cold.call("prepare",vector.cases,vector.grown_budgets)
 		if not _valid_solution(vector.cases,vector.grown_budgets,vector.grown_expected,result) or result.get("capacity")!=rebuilt.get("capacity"): failures.append({"role_index":vector.index,"phase":"growth","actual":result,"cold":rebuilt})
+	# One coverage resource gives the independent exact bound budget / 3.
+	var proof_case: Array = [{"probability":F.make(1),"bundles":[{"resources":{"coverage:proof:ward":F.make(3)}}]}]
+	var proof: RefCounted = ClassDB.instantiate("PlatformArrivalCapacity")
+	var proof_result: Dictionary = proof.call("prepare",proof_case,{"coverage:proof:ward":F.make(12)})
+	if proof_result.get("capacity")!=F.make(4): failures.append({"proof_initial":proof_result})
+	for amount: int in [18,3,0,6]:
+		var before_reuses: int = int(proof_result.get("proof_reuses",0))
+		proof_result = proof.call("solve",{"coverage:proof:ward":F.make(amount)})
+		if proof_result.get("capacity")!=F.make(amount,3) or (amount!=6 and int(proof_result.get("proof_reuses",0))!=before_reuses+1): failures.append({"proof_budget":amount,"actual":proof_result})
+	# The unit-price bound can be loose after redistribution. Reaching it
+	# would violate the other original row, so the proof must be rejected.
+	var restricted: Array = [{"probability":F.make(1),"bundles":[{"resources":{"coverage:proof:ward":F.make(3),"facility:proof":F.make(2)}}]}]
+	var fallback: RefCounted = ClassDB.instantiate("PlatformArrivalCapacity")
+	var fallback_result: Dictionary = fallback.call("prepare",restricted,{"coverage:proof:ward":F.make(12),"facility:proof":F.make(8)})
+	if fallback_result.get("capacity")!=F.make(4): failures.append({"proof_fallback_initial":fallback_result})
+	for amounts: Array in [[18,8,4],[6,8,2],[6,14,2]]:
+		fallback_result = fallback.call("solve",{"coverage:proof:ward":F.make(amounts[0]),"facility:proof":F.make(amounts[1])})
+		if fallback_result.get("capacity")!=F.make(amounts[2]) or int(fallback_result.get("proof_reuses",0))!=0: failures.append({"proof_fallback":amounts,"actual":fallback_result})
 	var recovery: RefCounted = ClassDB.instantiate("PlatformArrivalCapacity")
 	var prepared: Dictionary = recovery.call("prepare",roles[0].cases,roles[0].budgets)
 	var invalid: Array = roles[0].cases.duplicate(true)
@@ -75,6 +93,7 @@ func _initialize() -> void:
 	report.recovery_checks = 7
 	report.unused_resource_checks = vectors.size()*2
 	report.aggregate_checks = arithmetic.size()
+	report.proof_checks = 9
 	var file: FileAccess = FileAccess.open("res://solver-check.json",FileAccess.WRITE)
 	file.store_string(JSON.stringify(report,"\t"))
 	print("EXACT_VERTEX_CHECK="+JSON.stringify({"checks":vectors.size(),"failed":failures.size()}))

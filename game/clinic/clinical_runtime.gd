@@ -2251,6 +2251,7 @@ func _reference_model(options: Dictionary, binding_id: String, complex_case: boo
 	var bases: Array = []
 	var concrete: Array = []
 	var representatives: Dictionary = {}
+	var representative_parts: Array = []
 	var retries: Dictionary = {}
 	var terminal_stages: Array = ["outpatient","surgery","surgery_setup","transfer","bed","care","round"]
 	for terminal: Dictionary in options.terminals:
@@ -2263,9 +2264,9 @@ func _reference_model(options: Dictionary, binding_id: String, complex_case: boo
 		if not groups.has(first_consult_group): groups[first_consult_group] = _reference_consultations(options,terminal)
 		if groups[first_consult_group].is_empty(): continue
 		var first_diagnostic: Dictionary = groups[diagnostic_group][0].diagnostic
-		# Rebuild this terminal's full quote once, not once per independent
-		# reception/diagnostic/retry combination.
-		var first: Dictionary = _reference_bundle(options.world,options.visit,options.receptions[0],first_diagnostic,terminal,options.query,groups[first_consult_group][0].consultation)
+		# The model consumes terminal work; diagnostic, registration and
+		# consultation work already have independent complete choice groups.
+		var first: Dictionary = _reference_terminal_bundle(options.world,options.visit,options.receptions[0],first_diagnostic,terminal,{},options.query)
 		if not first.ok: continue
 		var base: Dictionary = _reference_component(first,terminal_stages)
 		base.choices = ["reception",diagnostic_group,first_consult_group]
@@ -2292,22 +2293,33 @@ func _reference_model(options: Dictionary, binding_id: String, complex_case: boo
 						if not groups.has(consult_group):
 							groups[consult_group] = _reference_consultations(retry_options,retry_terminal,weight)
 						if groups[consult_group].is_empty(): continue
-						var retry_full: Dictionary = _reference_bundle(retry_options.world,retry_options.visit,retry_options.receptions[0],retry_options.diagnostics[0],retry_terminal,retry_options.query,groups[consult_group][0].consultation)
-						if not retry_full.ok: continue
-						var retry_part: Dictionary = _reference_component(retry_full,terminal_stages,weight)
+						var retry_core: Dictionary = _reference_terminal_bundle(retry_options.world,retry_options.visit,retry_options.receptions[0],retry_options.diagnostics[0],retry_terminal,{},retry_options.query)
+						if not retry_core.ok: continue
+						var retry_part: Dictionary = _reference_component(retry_core,terminal_stages,weight)
 						retry_part.choices = [consult_group]
-						retry_part.full = retry_full
+						if groups[retry_group].is_empty():
+							retry_part.representative = {"core":retry_core,"consultation":groups[consult_group][0].consultation}
+							representative_parts.append(retry_part)
 						groups[retry_group].append(retry_part)
 				if not groups[retry_group].is_empty():
 					base.choices.append(retry_group)
-					representative_retry = groups[retry_group][0].full
+					representative_retry = groups[retry_group][0].representative
 		bases.append(base)
-		var representative_key: String = JSON.stringify([first.plan_id,representative_retry.get("plan_id",first.plan_id)])
+		var representative_key: String = JSON.stringify([first.plan_id,representative_retry.get("core",{}).get("plan_id",first.plan_id)])
 		if not representatives.has(representative_key):
+			var full: Dictionary = _reference_bundle(options.world,options.visit,options.receptions[0],first_diagnostic,terminal,options.query,groups[first_consult_group][0].consultation)
+			if not full.ok: return {"ok":false,"reason":full.reason,"bundles":[]}
 			representatives[representative_key] = true
-			concrete.append(_reference_with_retry(first,representative_retry,int(terminal.probability_bp)) if not representative_retry.is_empty() else first)
+			if representative_retry.is_empty(): concrete.append(full)
+			else:
+				var retry: Dictionary = representative_retry.core.duplicate()
+				retry.stage_resources = retry.stage_resources.duplicate()
+				var consultation: Dictionary = representative_retry.consultation
+				_reference_stage(retry.stage_resources,"consult",["staff:"+str(consultation.staff_id),"facility:"+str(consultation.facility_id)],ceili(float(content.balance.clinical.consult_seconds)*10))
+				concrete.append(_reference_with_retry(full,retry,int(terminal.probability_bp)))
 	# Equal-flow equations in the capacity solver join these independent
 	# choices. No legal alternative is truncated or replaced by a faster plan.
+	for part: Dictionary in representative_parts: part.erase("representative")
 	return {"ok":not bases.is_empty(),"reason":"" if not bases.is_empty() else "没有完整临床参考资源束","bundles":concrete,"model":{"bundles":bases,"choice_groups":groups}}
 
 func _reference_diagnostics(options: Dictionary, terminal: Dictionary) -> Array:
