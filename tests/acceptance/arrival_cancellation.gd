@@ -33,6 +33,32 @@ class ShiftArrival extends HospitalArrivalService:
 		if shifts==1: cancellation.request()
 		return result
 
+class QueueClinic extends HospitalClinic:
+	var cancellation: ArrivalPreparation.Cancellation
+	var old_bindings: Dictionary = {}
+	var old_quotes: int = 0
+	var stop_after_reference: bool = true
+	func reference_demand(world: WorldState, binding_id: String, complex_case: bool = false, shift: int = 0, query: Variant = null) -> Dictionary:
+		var result: Dictionary = super.reference_demand(world,binding_id,complex_case,shift,query)
+		if old_bindings.has(binding_id):
+			old_quotes += 1
+			if stop_after_reference: cancellation.request()
+		return result
+
+class QueueArrival extends HospitalArrivalService:
+	var cancellation: ArrivalPreparation.Cancellation
+	var stop_after_ticket: bool = false
+	var tickets: int = 0
+	var solves: int = 0
+	func _remaining_bundle(world: WorldState, visit: Dictionary, source: Dictionary) -> Dictionary:
+		var result: Dictionary = super._remaining_bundle(world,visit,source)
+		tickets += 1
+		if stop_after_ticket: cancellation.request()
+		return result
+	func _solve_roles(world: WorldState, classes: Array, budgets: Dictionary, shift: int, model_key: Variant = null, locked_roles: Dictionary = {}) -> Dictionary:
+		solves += 1
+		return super._solve_roles(world,classes,budgets,shift,model_key,locked_roles)
+
 func _configure(service: HospitalArrivalService) -> void:
 	service.clinic.scheduler = HospitalShiftScheduler.new(_content,service.space)
 	service.clinic.recruitment = RecruitmentService.new(_content,service.space)
@@ -116,6 +142,48 @@ func run_case(t, database: HospitalContent) -> void:
 	worker.dispose()
 	fresh.dispose()
 	shift_worker.dispose()
+	var old_queue: Dictionary = _old_queue_cancellation()
 	for simulation: HospitalSimulation in _simulations: simulation.dispose()
 	_simulations.clear()
-	t.check("GROW-77",started==OK and stopped and sealed_preserved and release_preserved and complete_entries and reusable and shift_boundary and unpublished and ctx.world.freeze()==before,{"started":started,"reached_case_boundary":reached,"cases_before_stop":1 if stopped else worker.cases,"sealed_preserved":sealed_preserved,"release_preserved":release_preserved,"complete_cache_entries":complete_entries,"reuse_matches_cold":reusable,"native_shift_boundary":shift_boundary,"cancelled_result_unpublished":unpublished,"readonly":ctx.world.freeze()==before})
+	t.check("GROW-77",started==OK and stopped and sealed_preserved and release_preserved and complete_entries and reusable and shift_boundary and unpublished and old_queue.passed and ctx.world.freeze()==before,{"started":started,"reached_case_boundary":reached,"cases_before_stop":1 if stopped else worker.cases,"sealed_preserved":sealed_preserved,"release_preserved":release_preserved,"complete_cache_entries":complete_entries,"reuse_matches_cold":reusable,"native_shift_boundary":shift_boundary,"cancelled_result_unpublished":unpublished,"old_queue":old_queue,"readonly":ctx.world.freeze()==before})
+
+func _old_queue_cancellation() -> Dictionary:
+	var ctx: Dictionary = _context()
+	_single_case(ctx)
+	var first: Dictionary = _patient(ctx,[45,76],"B_S13_D09_M09")
+	_single_case(ctx,"D37")
+	var second: Dictionary = _patient(ctx,[47,76],"B_S49_D37_M37")
+	# Both real reception tickets remain, but neither binding is in the new pool.
+	_single_case(ctx,"D14")
+	var validation: String = ctx.world.validate(_content)
+	if first.is_empty() or second.is_empty() or not validation.is_empty():
+		return {"passed":false,"validation":validation,"admission":ctx.get("last_admission",{}),"fixture_errors":_fixture_errors}
+	var before: Dictionary = ctx.world.freeze()
+	var worker: QueueArrival = QueueArrival.new(_content,HospitalSpace.new(_content))
+	var observer: QueueClinic = QueueClinic.new(_content,worker.space)
+	worker.clinic = observer
+	_configure(worker)
+	worker.cancellation = ArrivalPreparation.Cancellation.new()
+	observer.cancellation = worker.cancellation
+	observer.old_bindings = {first.binding_id:true,second.binding_id:true}
+	var cancelled: Dictionary = worker.capacity(ctx.world,true,worker.cancellation.requested)
+	var reference_boundary: bool = cancelled.get("cancelled",false) and not cancelled.has("capacity") and not cancelled.has("shift_capacities") and observer.old_quotes==1 and worker.tickets==0 and worker.solves==0 and worker.space._route_queries.is_empty()
+	observer.stop_after_reference = false
+	worker.cancellation = ArrivalPreparation.Cancellation.new()
+	observer.cancellation = worker.cancellation
+	worker.stop_after_ticket = true
+	var query: Dictionary = {}
+	var partial: Dictionary = worker._existing_workload(ctx.world,0,query,{},worker.cancellation.requested)
+	var ticket_boundary: bool = query.get("cancelled",false) and partial.is_empty() and worker.tickets==1 and worker.solves==0 and worker.space._route_queries.is_empty()
+	worker.stop_after_ticket = false
+	var full_work: Dictionary = worker._existing_workload(ctx.world,0)
+	var resumed: Dictionary = worker.capacity(ctx.world,true)
+	var fresh: HospitalArrivalService = HospitalArrivalService.new(_content,HospitalSpace.new(_content))
+	_configure(fresh)
+	var cold_work: Dictionary = fresh._existing_workload(ctx.world,0)
+	var independent: Dictionary = fresh.capacity(ctx.world,true)
+	var reused: bool = not full_work.is_empty() and full_work==cold_work and resumed.get("complete",false) and resumed==independent and worker.space._route_queries.is_empty()
+	worker.dispose()
+	fresh.dispose()
+	var readonly: bool = ctx.world.freeze()==before
+	return {"passed":reference_boundary and ticket_boundary and reused and readonly,"reference_boundary":reference_boundary,"ticket_boundary":ticket_boundary,"resume_matches_cold":reused,"readonly":readonly,"validation":validation}

@@ -443,7 +443,8 @@ func capacity(world: WorldState, subtract_existing: bool = true, cancellation: C
 		var budgets: Dictionary = _resource_budgets(world,classes,shift,query.resource_ids)
 		var locked_roles: Dictionary = {}
 		if subtract_existing:
-			var workload: Dictionary = _existing_workload(world,shift,query,commitments)
+			var workload: Dictionary = _existing_workload(world,shift,query,commitments,cancellation)
+			if query.get("cancelled",false): return {"complete":false,"cancelled":true}
 			for resource_id: String in workload:
 				if resource_id.begins_with("coverage:") and F.compare(workload[resource_id],F.make())>0:
 					var parts: PackedStringArray = resource_id.split(":")
@@ -991,7 +992,11 @@ func _maintenance_remaining(world: WorldState, facility_id: String, shift: int) 
 			remaining += ceili(float(job.get("remaining_milli",0))/1000.0/rate/WorldState.TICK_SECONDS)
 	return _shift_remainder(remaining,shift)
 
-func _existing_workload(world: WorldState, shift: int, query: Variant = null, commitments: Dictionary = {}) -> Dictionary:
+func _existing_workload(world: WorldState, shift: int, query: Variant = null, commitments: Dictionary = {}, cancellation: Callable = Callable()) -> Dictionary:
+	if query==null: query = {}
+	if _capacity_cancelled(cancellation):
+		query.cancelled = true
+		return {}
 	var result: Dictionary = {}
 	var reference: WorldState
 	if commitments.is_empty(): commitments = clinic.remaining_commitments(world)
@@ -1000,9 +1005,12 @@ func _existing_workload(world: WorldState, shift: int, query: Variant = null, co
 		if not resource_id.begins_with("coverage:"): _add_existing(result,resource_id,commitments.resources[resource_id],shift)
 	for resource_id: String in commitments.coverage:
 		for ticks: int in commitments.coverage[resource_id]: _add_existing(result,resource_id,ticks,shift)
-	var references: Dictionary = query.get("references",{}).duplicate() if query!=null else {}
+	var references: Dictionary = query.get("references",{}).duplicate()
 	var reference_query: Dictionary = {}
 	for ticket: Dictionary in world.facts.tickets.values():
+		if _capacity_cancelled(cancellation):
+			query.cancelled = true
+			return {}
 		if committed_visits.has(ticket.visit_id):
 			continue
 		var visit: Dictionary = world.facts.visits[ticket.visit_id]
@@ -1010,7 +1018,15 @@ func _existing_workload(world: WorldState, shift: int, query: Variant = null, co
 		if not references.has(key):
 			if reference==null: reference = _capacity_reference_world(world)
 			references[key] = clinic.call("reference_demand",reference,visit.binding_id,visit.complex,shift,reference_query)
+			# A whole old-case quote has released its clinical scopes. Stop before
+			# another quote or ticket, without exposing accumulated partial work.
+			if _capacity_cancelled(cancellation):
+				query.cancelled = true
+				return {}
 		var quote: Dictionary = clinic.call("reference_remaining_demand",world,visit.id,shift) if clinic.has_method("reference_remaining_demand") else references[key]
+		if _capacity_cancelled(cancellation):
+			query.cancelled = true
+			return {}
 		if not quote.get("ok",false) or quote.get("bundles",[]).is_empty():
 			continue
 		committed_visits[ticket.visit_id] = true
@@ -1025,6 +1041,9 @@ func _existing_workload(world: WorldState, shift: int, query: Variant = null, co
 		var bundle: Dictionary = _remaining_bundle(world,visit,source)
 		for resource_id: String in bundle.resources:
 			_add_existing(result,resource_id,bundle.resources[resource_id],shift)
+	if _capacity_cancelled(cancellation):
+		query.cancelled = true
+		return {}
 	for resource_id: String in result:
 		if not resource_id.begins_with("coverage:"):
 			result[resource_id] = _shift_fraction(result[resource_id],shift)
