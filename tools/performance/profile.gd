@@ -3,6 +3,7 @@ extends RefCounted
 # Root stages are disjoint. Call totals are inclusive and can be nested.
 var stages: Dictionary = {}
 var calls: Dictionary = {}
+var _call_samples: Dictionary = {}
 var profile_sources: Dictionary = {}
 var profile_errors: Array = []
 var snapshot_path: String = ""
@@ -20,6 +21,8 @@ func count(operation: String, started: int) -> void:
 	entry.total_us += elapsed
 	entry.max_us = maxi(entry.max_us,elapsed)
 	calls[operation] = entry
+	if not _call_samples.has(operation): _call_samples[operation] = []
+	if _call_samples[operation].size()<10000: _call_samples[operation].append(elapsed)
 	# Hot-path counters remain in memory. Serialization belongs to an explicit
 	# diagnostic boundary, outside measured execution.
 
@@ -29,7 +32,15 @@ func _snapshot() -> void:
 	if file!=null: file.store_string(JSON.stringify(report(),"\t"))
 
 func report() -> Dictionary:
-	return {"stages_us":stages.duplicate(true),"inclusive_calls":calls.duplicate(true),"profile_sources":profile_sources.duplicate(),"profile_errors":profile_errors.duplicate()}
+	var distributions: Dictionary = {}
+	for operation: String in _call_samples:
+		var values: Array = _call_samples[operation].duplicate()
+		values.sort()
+		var complete: bool = values.size()==int(calls[operation].calls)
+		distributions[operation] = {"samples":values.size(),"complete":complete}
+		if complete and not values.is_empty():
+			for percentile: int in [50,95,99]: distributions[operation]["p%d_us"%percentile] = values[ceili(values.size()*percentile/100.0)-1]
+	return {"stages_us":stages.duplicate(true),"inclusive_calls":calls.duplicate(true),"call_distributions":distributions,"profile_sources":profile_sources.duplicate(),"profile_errors":profile_errors.duplicate()}
 
 func solver() -> RefCounted:
 	var base: GDScript = preload("res://game/arrivals/capacity_solver.gd")
@@ -94,7 +105,7 @@ func _profile_service(simulation: HospitalSimulation, key: String) -> void:
 	var wrapped: int = 0
 	for method: Dictionary in base.get_script_method_list():
 		var name: String = str(method.name)
-		if not name in ["boundaries","arrivals","dispatch","advance","advance_wait","needs","sample","settle"] and not (key=="arrivals" and name in ["capacity","_reference_classes","_reference_variant","_capacity_part","_solve_roles","_existing_workload","_structural_pairs"]) and not (key=="environment" and name in ["environment_at","_coverage_edges","_coverage","_water_usable"]): continue
+		if not name in ["boundaries","arrivals","dispatch","advance","advance_wait","needs","sample","settle"] and not (key=="arrivals" and name in ["capacity","_reference_basis","_reference_geometry_basis","_capacity_reference_world","_case_experience","_reference_classes","_reference_variant","_normalize_bundle","_capacity_part","_resource_budgets","_solve_roles","_existing_workload","_structural_pairs"]) and not (key=="environment" and name in ["environment_at","_coverage_edges","_coverage","_water_usable"]): continue
 		var expression: RegEx = RegEx.new()
 		expression.compile("(?m)^func "+name+"\\([^\\r\\n]*\\)[^\\r\\n]*:[ \\t]*$")
 		var header: RegExMatch = expression.search(base.source_code)
@@ -146,10 +157,14 @@ class TimedClinic extends HospitalClinic:
 		timing.count("clinical.arrival_candidate",started)
 		return result
 	func _reference_options(world: WorldState, binding_id: String, complex_case: bool, shift: int, prior_quote: Dictionary = {}, shared: Dictionary = {}, query: Dictionary = {}) -> Dictionary:
-		print("PROFILE_REFERENCE "+JSON.stringify({"binding":binding_id,"complex":complex_case,"retry":not prior_quote.is_empty()}))
 		var started: int = Time.get_ticks_usec()
 		var result: Dictionary = super._reference_options(world,binding_id,complex_case,shift,prior_quote,shared,query)
-		timing.count("clinical.reference_options",started)
+		timing.count("clinical.reference_options.retry" if not prior_quote.is_empty() else "clinical.reference_options.first",started)
+		return result
+	func _reference_terminal_bundle(world: WorldState, visit: Dictionary, reception: Dictionary, diagnostic: Dictionary, quote: Dictionary, stages: Dictionary, query: Dictionary = {}) -> Dictionary:
+		var started: int = Time.get_ticks_usec()
+		var result: Dictionary = super._reference_terminal_bundle(world,visit,reception,diagnostic,quote,stages,query)
+		timing.count("clinical.reference_terminal_bundle",started)
 		return result
 	func reference_demand(world: WorldState, binding_id: String, complex_case: bool = false, shift: int = 0, query: Variant = null) -> Dictionary:
 		var started: int = Time.get_ticks_usec()

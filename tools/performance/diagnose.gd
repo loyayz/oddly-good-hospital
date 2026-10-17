@@ -45,6 +45,42 @@ func _run() -> void:
 			quit(2)
 			return
 	var samples: Array = []
+	if operation=="capture":
+		var preparation: CaptureTiming = CaptureTiming.new(content)
+		var previous: Dictionary = {}
+		var before: Dictionary = fixture.world.freeze()
+		for repeat: int in steps:
+			var begin: int = Time.get_ticks_usec()
+			var captured: Dictionary = preparation._capture(fixture.world,true,-1)
+			var elapsed: int = Time.get_ticks_usec()-begin
+			var collections: Dictionary = {}
+			# Scan/count/serialization observations are outside capture timing.
+			# Serialized bytes estimate payload, never allocation or residency.
+			for field: String in captured.facts:
+				if not captured.facts[field] is Dictionary: continue
+				var values: Dictionary = captured.facts[field]
+				var prior: Dictionary = previous.get(field,{})
+				var counters: Dictionary = {"records_scanned":values.size(),"records_compared":0,"deep_compare_count":0,"records_changed":0,"records_reused":0,"copied_payload_bytes_estimate":0}
+				for id: Variant in values:
+					var nested: bool = values[id] is Dictionary or values[id] is Array
+					if prior.has(id):
+						counters.records_compared += 1
+						if nested: counters.deep_compare_count += 1
+					if prior.has(id) and (is_same(values[id],prior[id]) if nested else values[id]==prior[id]): counters.records_reused += 1
+					else:
+						counters.records_changed += 1
+						counters.copied_payload_bytes_estimate += var_to_bytes(values[id]).size()
+				collections[field] = counters
+			samples.append({"capture_us":elapsed,"ownership_us":preparation.ownership_us,"extraction_us":elapsed-preparation.ownership_us,"collections":collections})
+			previous = captured.facts
+		var evidence: Dictionary = {"diagnostic":true,"operation":operation,"fixture":fixture.describe(),"samples":samples,"metrics":preparation.metrics(),"readonly":fixture.world.freeze()==before,"bytes_kind":"serialized_payload_estimate"}
+		var report: FileAccess = FileAccess.open(output,FileAccess.WRITE)
+		report.store_string(JSON.stringify(evidence,"\t"))
+		preparation.dispose()
+		simulation.dispose()
+		print("PERFORMANCE_CAPTURE="+JSON.stringify({"samples":samples.size(),"readonly":evidence.readonly,"output":output}))
+		quit(0 if evidence.readonly else 1)
+		return
 	if operation in ["preparation","session"]:
 		var begin: int = Time.get_ticks_usec()
 		var session: GameSession = GameSession.new(simulation,"preparation-diagnostic")
@@ -178,3 +214,11 @@ func _run() -> void:
 		file.close()
 	simulation.dispose()
 	quit(0)
+
+class CaptureTiming extends ArrivalPreparation:
+	var ownership_us: int = 0
+	func _own_capture(facts: Dictionary) -> Dictionary:
+		var started: int = Time.get_ticks_usec()
+		var result: Dictionary = super._own_capture(facts)
+		ownership_us = Time.get_ticks_usec()-started
+		return result
