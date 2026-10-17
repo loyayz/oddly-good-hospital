@@ -233,7 +233,7 @@ func _poll_remodel(now: int) -> Dictionary:
 	if applied.is_empty(): return {"pending":true}
 	if not applied.accepted: return _failure("Original remodel apply rejected; no automatic re-quote/retry: "+JSON.stringify(applied))
 	var committed: Dictionary = world.facts.remodels.get(str(state.order_id),{})
-	var entry: Dictionary = world.facts.ledger.entries.get(str(state.order_id),{})
+	var entry: Dictionary = world.facts.ledger.entries.get(str(state.order_id)+":remodel",{})
 	if committed.get("state","")!="applied" or entry.is_empty() or int(entry.amount)!=int(state.quote.refund)-int(state.quote.price): return _failure("Remodel final state/ledger does not match the original exact quote")
 	return _success({"prepare_receipt":state.prepare_receipt,"apply_receipt":applied,"order_id":state.order_id,"quote":state.quote,"ledger_entry":entry,"actual_tick":world.sim_tick})
 

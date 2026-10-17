@@ -12,6 +12,7 @@ param(
     [ValidateRange(10,18000)][int]$TimeoutSeconds = 900,
     [ValidateRange(1,60)][int]$TailTimeoutSeconds = 15,
     [ValidateRange(10,1800)][int]$ExitTimeoutSeconds = 300,
+    [ValidateRange(0,9223372036854775807)][long]$AbortWorkingSetBytes = 0,
     [switch]$NoGpuCounters,
     [switch]$AllocationTrace
 )
@@ -211,6 +212,10 @@ try {
         $sample=@{kind='process';pid=$game.process.Id;qpc_ticks=(Qpc);working_set_bytes=$nativeMemory.working_set_bytes;private_commit_bytes=$nativeMemory.private_commit_bytes;lifetime_peak_working_set_bytes=$nativeMemory.lifetime_peak_working_set_bytes;lifetime_peak_private_commit_bytes=$nativeMemory.lifetime_peak_private_commit_bytes;cpu_seconds=$game.process.TotalProcessorTime.TotalSeconds}
         $sample.poll_work_us=((Qpc)-$pollStarted)*1000000.0/$frequency
         $memory.WriteLine(($sample | ConvertTo-Json -Compress));$memory.Flush()
+        if($AbortWorkingSetBytes -gt 0 -and ([long]$sample.working_set_bytes -ge $AbortWorkingSetBytes -or [long]$sample.lifetime_peak_working_set_bytes -ge $AbortWorkingSetBytes)){
+            Save-Json (Join-Path $outputRoot 'resource-abort.json') @{reason='working_set_stop_limit';limit_bytes=$AbortWorkingSetBytes;sample=$sample;target_start_utc_ticks=$game.start_utc_ticks;scope='bounded failure stop; not a completed acceptance window'}
+            throw 'Owned game working set reached the configured failure stop limit; no complete result.'
+        }
         $ready=$null
         if(Test-Path -LiteralPath $readyPath){try{$ready=Get-Content -LiteralPath $readyPath -Raw | ConvertFrom-Json -AsHashtable}catch{}}
         if($phase -eq 'launch' -and $null -ne $csvHeader){[void](Send-Control 'armed');$phase='armed'}
@@ -269,7 +274,7 @@ finally {
     $metadata=@{
         schema_version=2;kind='formal_capture';scenario=$scenarioData.name
         qpc_frequency=$frequency;pid=if($game){$game.process.Id}else{$null}
-        poll_requested_ms=$PollMs;session_name=$sessionName;presentmon_mode='v1_qpc_raw'
+        poll_requested_ms=$PollMs;abort_working_set_bytes=$AbortWorkingSetBytes;session_name=$sessionName;presentmon_mode='v1_qpc_raw'
         presentmon_version=[Diagnostics.FileVersionInfo]::GetVersionInfo($presentPath).ProductVersion
         selected_swapchain=$selectedChain;window_start_qpc=$windowStart;window_end_qpc=$windowEnd
         stop_request_qpc=$stopRequestQpc;start_ack=$startAck;stop_ack=$stopAck
