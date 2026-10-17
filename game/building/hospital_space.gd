@@ -33,11 +33,8 @@ func begin_route_query(world: WorldState, reference: Dictionary = {}) -> void:
 		if movement.has("transit_ticket"): journeys_allowed = false
 	if journeys_allowed:
 		reference.transport_builds = int(reference.get("transport_builds",0))+1
-		var riders: Dictionary = {}
-		for connection: Dictionary in world.facts.connectors.values():
-			for id: String in connection.get("riders",[]): riders[id] = body(world.facts.actors[id])
-		var transport: Array = [HospitalTransit.reference_conditions(world),HospitalTransit.reference_movements(world),riders]
-		if reference.get("journey_transport",[])!=transport:
+		var transport: Dictionary = HospitalTransit.reference_basis(self,world)
+		if reference.get("journey_transport",{})!=transport:
 			reference.journeys.clear()
 			reference.journey_transport = transport.duplicate(true)
 	_route_queries.append({"world":world,"routes":reference.get("routes",{}),"exits":{},"reference":reference,"journeys_allowed":journeys_allowed})

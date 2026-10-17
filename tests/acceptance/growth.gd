@@ -60,7 +60,8 @@ const CASES: Dictionary = {
 	"GROW-57":"docs/design/07-clinical-team.md §6；完整方案集上的三种策略与实际选择一致",
 	"GROW-58":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；实际交通票序和出口保留，名义模型排除排队",
 	"GROW-59":"docs/design/07-clinical-team.md §14；已足够证据不枚举后续检查，入院布尔与解释一致",
-	"GROW-60":"docs/design/07-clinical-team.md §5；候选使用已证明的适配站位且不修改实际预约"
+	"GROW-60":"docs/design/07-clinical-team.md §5；候选使用已证明的适配站位且不修改实际预约",
+	"GROW-61":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；在途组偏移与身体姿态进入名义运输缓存身份"
 }
 
 func run(t) -> void:
@@ -726,6 +727,65 @@ func _case_60(t) -> void:
 		correct = correct and reason.is_empty() and ctx.space.route(copy,candidate.visit.actor_id,int(layout.floor_id),layout.patient_cell,[],{},true).ok and ctx.space.route(copy,pair.staff_id,int(layout.floor_id),layout.operator_cells[0],[],{},true).ok
 		checked += 1
 	t.check("GROW-60",correct and checked>0 and world.freeze()==before,{"checked":checked,"readonly":world.freeze()==before})
+
+func _case_61(t) -> void:
+	var builder: RefCounted = load("res://tests/acceptance/space.gd").new()
+	builder.content = _content
+	var ctx: Dictionary = _context()
+	_single_case(ctx)
+	var sim: HospitalSimulation = ctx.simulation
+	builder._history_height(sim,2)
+	var built: CommandResult = builder._command(sim,"connector_build",{"definition_id":"VC02","floor_id":1,"cell":[36,72]})
+	var extended: CommandResult = builder._command(sim,"connector_extend",{"connection_id":builder._connection(sim),"floor_id":2}) if built.accepted else built
+	if not extended.accepted:
+		t.check("GROW-61",false,extended.to_record())
+		return
+	builder._add_actor(sim,"prefix_primary","S49",[36,76])
+	builder._add_actor(sim,"prefix_companion","S49",[37,76])
+	var move: String = sim.space.request_group_move(sim.world,"prefix_primary",["prefix_primary","prefix_companion"],{"prefix_primary":[0,0],"prefix_companion":[1,0]},2,[46,80])
+	var boarded: bool = move.is_empty() and builder._wait(sim,func()->bool: return sim.world.facts.actors.prefix_primary.location.kind=="transit",100)
+	if not boarded:
+		t.check("GROW-61",false,{"move":move,"boarded":boarded})
+		return
+	var source: Dictionary = sim.world.freeze()
+	var original: Dictionary = HospitalTransit.reference_basis(ctx.space,sim.world).duplicate(true)
+	var before: Dictionary = {}
+	ctx.arrivals._reference_classes(sim.world,0,before)
+	var observations: Array = []
+	var correct: bool = not before.model_key.is_empty()
+	for change: String in ["offset","posture","facing"]:
+		# Complete boundary inputs own their records; no in-flight simulation is
+		# advanced or moved by the alternative-envelope query.
+		var facts: Dictionary = source.duplicate(true)
+		if change=="offset": facts.moves.prefix_primary.offsets.prefix_companion = [0,1]
+		elif change=="posture": facts.actors.prefix_companion.posture = "lying"
+		else: facts.actors.prefix_companion.facing = PI/2
+		var changed: WorldState = WorldState.new(facts)
+		var hot: Dictionary = {}
+		var hot_classes: Array = ctx.arrivals._reference_classes(changed,0,hot)
+		# The collection may be retained, but every transport-dependent case
+		# must now carry the new complete prefix identity.
+		var expected: Dictionary = HospitalTransit.reference_basis(ctx.space,changed)
+		var rebound: bool = not ctx.arrivals._reference_cache[0].cases.is_empty()
+		for item: Dictionary in ctx.arrivals._reference_cache[0].cases.values(): rebound = rebound and item.transport==expected
+		ctx.arrivals._reference_cache.clear()
+		var cold: Dictionary = {}
+		var cold_classes: Array = ctx.arrivals._reference_classes(changed,0,cold)
+		# Local version counters are observation identities, not model values.
+		hot.erase("model_key")
+		cold.erase("model_key")
+		var reference: Dictionary = {"nominal":true}
+		var nominal: WorldState = ctx.arrivals._capacity_reference_world(sim.world)
+		ctx.space.begin_route_query(nominal,reference)
+		ctx.space.route(nominal,"starter_doctor_a",1,[47,93],[],{},true)
+		ctx.space.end_route_query()
+		var primed: bool = reference.journeys.size()==1
+		ctx.space.begin_route_query(ctx.arrivals._capacity_reference_world(changed),reference)
+		var invalidated: bool = primed and reference.journeys.is_empty()
+		ctx.space.end_route_query()
+		correct = correct and expected!=original and rebound and hot_classes==cold_classes and hot==cold and invalidated
+		observations.append({"change":change,"rebound":rebound,"cold_equal":hot_classes==cold_classes and hot==cold,"journeys_invalidated":invalidated})
+	t.check("GROW-61",correct and sim.world.freeze()==source,{"boarded":boarded,"observations":observations,"readonly":sim.world.freeze()==source})
 
 func _case_40(t) -> void:
 	var ctx: Dictionary = _context()

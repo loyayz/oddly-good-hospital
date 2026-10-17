@@ -229,6 +229,17 @@ static func reference_conditions(world: WorldState) -> Dictionary:
 		result[id] = record
 	return result
 
+static func reference_basis(space: HospitalSpace, world: WorldState) -> Dictionary:
+	# A known in-flight prefix also reads its complete group's exit envelope.
+	# Queue tickets and dynamic occupancy belong only to actual commitments.
+	var movements: Dictionary = reference_movements(world)
+	var bodies: Dictionary = {}
+	for connection: Dictionary in world.facts.connectors.values():
+		for id: String in connection.get("riders",[]):
+			var actor: Dictionary = world.facts.actors[id]
+			bodies[id] = {"body":space.body(actor),"posture":actor.get("posture","standing"),"facing":actor.facing}
+	return {"connections":reference_conditions(world),"movements":movements,"bodies":bodies}
+
 static func begin(space: HospitalSpace, world: WorldState, actor: Dictionary, movement: Dictionary, segment: Dictionary) -> void:
 	var connection: Dictionary = world.facts.connectors[segment.connector_id]
 	var members: Array = movement.get("members",[actor.id])

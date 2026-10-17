@@ -532,9 +532,9 @@ func _reference_classes(world: WorldState, shift: int, query: Variant = null) ->
 	if not _reference_cache.has(shift) or _reference_cache[shift].basis!=basis:
 		var previous: Dictionary = _reference_cache.get(shift,{})
 		var stable: Dictionary = basis.duplicate()
-		stable.erase("connectors")
+		stable.erase("transport")
 		var prior: Dictionary = previous.get("basis",{}).duplicate()
-		prior.erase("connectors")
+		prior.erase("transport")
 		_reference_cache[shift] = {"basis":basis.duplicate(true),"cases":previous.cases if prior==stable else {}}
 	var cached: Dictionary = _reference_cache[shift]
 	var experience_basis: Dictionary = {}
@@ -566,7 +566,7 @@ func _reference_classes(world: WorldState, shift: int, query: Variant = null) ->
 		var experience: Dictionary = experience_by_disease[binding.disease_id]
 		for complex_case: bool in [false,true]:
 			var case_key: String = JSON.stringify([binding.id,complex_case])
-			if not cached_cases.has(case_key) or cached_cases[case_key].experience!=experience or cached_cases[case_key].transport!=basis.connectors:
+			if not cached_cases.has(case_key) or cached_cases[case_key].experience!=experience or cached_cases[case_key].transport!=basis.transport:
 				var quote: Dictionary = clinic.call("reference_demand",world,str(binding.id),complex_case,shift,query)
 				var variant: Dictionary = _reference_variant(world,binding,complex_case,shift,quote,query)
 				var resources: Dictionary = {}
@@ -578,7 +578,7 @@ func _reference_classes(world: WorldState, shift: int, query: Variant = null) ->
 				if previous.get("variant",{})!=variant:
 					_reference_version += 1
 					version = _reference_version
-				cached_cases[case_key] = {"experience":experience.duplicate(true),"transport":cached.basis.connectors,"variant":variant,"version":version,"resources":resources.keys(),"reference":remaining}
+				cached_cases[case_key] = {"experience":experience.duplicate(true),"transport":cached.basis.transport,"variant":variant,"version":version,"resources":resources.keys(),"reference":remaining}
 			var prepared: Dictionary = cached_cases[case_key]
 			var variant: Dictionary = prepared.variant.duplicate()
 			references[case_key] = prepared.reference
@@ -669,7 +669,7 @@ func _reference_basis(world: WorldState, shift: int) -> Dictionary:
 	var result: Dictionary = {"hospital":world.hospital_id,"content":content.content_fingerprint,"clinic":clinic.get_instance_id(),"shift":shift,"staff":{},"actors":{},"facilities":{},"rooms":{}}
 	for field: String in ["gameplay_version","entry","research","allow_outpatient_rounds","plan_strategy","remodels"]:
 		result[field] = world.facts.get(field)
-	result.connectors = HospitalTransit.reference_conditions(world)
+	result.transport = HospitalTransit.reference_basis(space,world)
 	result.floors = {}
 	for field: String in ["overrides","completed_top_floor","height_intervals"]: result.floors[field] = world.facts.floors.get(field)
 	result.departments = _reference_geometry_basis("departments",world.facts.get("departments",{}).get("units",{}),["id","room_ids","shared_room_ids","public_cells","entry","focus_id","intake_disease_ids","open"])
