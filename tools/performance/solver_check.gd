@@ -106,6 +106,10 @@ func _initialize() -> void:
 		result = backend.call("solve",vector.budgets)
 		if not _valid_solution(vector.cases,vector.budgets,vector.expected,result): failures.append({"index":vector.index,"phase":"restored","actual":result})
 	var cpu_finished: Dictionary = PlatformArrivalMath.thread_cpu()
+	var empty_backend: RefCounted = ClassDB.instantiate("PlatformArrivalCapacity")
+	var empty_prepared: Dictionary = empty_backend.call("prepare",[],{})
+	var empty_reused: Dictionary = empty_backend.call("solve",{})
+	if empty_prepared.get("capacity",{})!=F.make() or empty_reused.get("capacity",{})!=F.make() or empty_prepared.has("assignments") or empty_reused.has("assignments"): failures.append({"empty_persistent_summary":empty_reused})
 	if not cpu_started.has("cpu_us") or not cpu_finished.has("cpu_us") or int(cpu_finished.cpu_us)<int(cpu_started.cpu_us): failures.append({"thread_cpu":"CPU 时间不可用或不单调"})
 	var report: Dictionary = {"checks":vectors.size(),"warm_checks":vectors.size()*3,"arithmetic_checks":arithmetic.size(),"integer_checks":integers.size(),"structure_checks":structure_vectors.size(),"failures":failures,"solver_sha256":FileAccess.get_sha256("res://game/arrivals/capacity_solver.gd"),"fractions_sha256":FileAccess.get_sha256("res://game/arrivals/exact_fraction.gd"),"vectors_sha256":FileAccess.get_sha256("res://solver-vectors.json"),"native_sha256":FileAccess.get_sha256("res://game/platform/windows/bin/oddly_good_platform.windows.x86_64.dll"),"gmp_sha256":FileAccess.get_sha256("res://game/platform/windows/bin/libgmp-10.dll"),"mpfr_sha256":FileAccess.get_sha256("res://game/platform/windows/bin/libmpfr-6.dll")}
 	report.role_checks = roles.size()*6
@@ -115,6 +119,7 @@ func _initialize() -> void:
 	report.proof_checks = 9
 	report.role_restriction_checks = 7
 	report.batch_aggregate_checks = arithmetic.size()
+	report.empty_summary_checks = 2
 	var file: FileAccess = FileAccess.open("res://solver-check.json",FileAccess.WRITE)
 	file.store_string(JSON.stringify(report,"\t"))
 	print("EXACT_VERTEX_CHECK="+JSON.stringify({"checks":vectors.size(),"failed":failures.size()}))

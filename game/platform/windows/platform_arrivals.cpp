@@ -989,7 +989,7 @@ struct Model {
         return summary();
     }
     V solve(bool allocations = true) {
-        if (cases.empty()) return empty();
+        if (cases.empty()) return allocations ? empty() : summary();
         for (const Case& item : cases) if (item.probability > 0 && (nodes[item.root].children.empty() || !enabled[item.root])) {
             publish(Q(0), std::vector<Q>(resources.size(), Q(0))); return summary();
         }
@@ -1192,8 +1192,7 @@ V invoke(Method method, const std::vector<V>& args, GDExtensionClassInstancePtr 
                 if (method == SOLVE_ROLES) capacity.model->update_roles(args[1]);
             }
             capacity.model->timing["lock_wait_us"] += lock_wait;
-            capacity.model->solve(false);
-            return capacity.model->summary();
+            return capacity.model->solve(false);
         }
         return calculate_integer(static_cast<int>(args[0].number()), args[1], args[2]);
     } catch (const std::exception& error) {

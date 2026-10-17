@@ -379,7 +379,7 @@ func _select_facility(world: WorldState, staff_id: String, kind: String) -> Dict
 			continue
 		var layout: Dictionary = space.facility_layout(world,id)
 		var target: Array = fit.get("patient_cell",layout.patient_cell)
-		var candidate: WorldState = _adapted_candidate(world,id,fit)
+		var candidate: WorldState = _adapted_candidate(world,id,fit,staff_id)
 		var candidate_space: HospitalSpace = HospitalSpace.new(content)
 		var route: Dictionary = candidate_space.route(candidate,staff_id,int(layout.floor_id),target)
 		var origin: Dictionary = world.facts.actors[staff_id].location
@@ -542,7 +542,7 @@ func _recreation(world: WorldState, ids: Array, preferred: String) -> CommandRes
 		if positions.size()!=ids.size():
 			continue
 		var all_reachable: bool = true
-		var candidate: WorldState = _adapted_candidate(world,facility_id,fit)
+		var candidate: WorldState = _adapted_candidate(world,facility_id,fit,ids[0])
 		var candidate_space: HospitalSpace = HospitalSpace.new(content)
 		for index: int in ids.size():
 			if not candidate_space.route(candidate,ids[index],int(layout.floor_id),positions[index]).ok:
@@ -596,8 +596,12 @@ func _dispatch_recreation(world: WorldState) -> void:
 			staff.recreation_cooldown_tick = world.sim_tick+_ticks(float(content.balance.wellbeing.recreation_cooldown_seconds))
 			staff.last_recreation_tick = world.sim_tick
 
-func _adapted_candidate(world: WorldState, facility_id: String, fit: Dictionary) -> WorldState:
-	var candidate: WorldState = WorldState.new(world.freeze())
+func _adapted_candidate(world: WorldState, facility_id: String, fit: Dictionary, actor_id: String) -> WorldState:
+	var facts: Dictionary = world.facts.duplicate()
+	facts.adaptations = world.facts.adaptations.duplicate()
+	facts.actors = world.facts.actors.duplicate()
+	facts.actors[actor_id] = world.facts.actors[actor_id].duplicate(true)
+	var candidate: WorldState = WorldState.new(facts)
 	if not fit.get("unchanged",false):
 		var reservation: Dictionary = fit.duplicate(true)
 		reservation.erase("ok")

@@ -71,7 +71,8 @@ const CASES: Dictionary = {
 	"GROW-68":"docs/design/07-clinical-team.md §5；只读占用视图边界与实际新预约可见",
 	"GROW-69":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；精确资源驻留身份与顺序独立",
 	"GROW-70":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；运输依赖变化与冷热完整模型一致",
-	"GROW-71":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；整批组件与逐组件的完整模型、概率和选择一致"
+	"GROW-71":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；整批组件与逐组件的完整模型、概率和选择一致",
+	"GROW-72":"docs/design/08-hospital-life.md §4；弃候与常驻环境使用同一本人可用性且报价只读"
 }
 
 func run(t) -> void:
@@ -1027,6 +1028,29 @@ func _case_70(t) -> void:
 class ScalarComponents extends HospitalClinic:
 	func _reference_component(full: Dictionary, stages: Array, weight: Dictionary = {"n":"1","d":"1"}, _batch: Variant = null) -> Dictionary:
 		return super._reference_component(full,stages,weight)
+
+class EnvironmentObserver extends HospitalEnvironment:
+	var calls: int = 0
+	func environment_at(world: WorldState, floor_id: int, cell: Array, actor_id: String = "", explain: bool = true) -> Dictionary:
+		calls += 1
+		return super.environment_at(world,floor_id,cell,actor_id,explain)
+
+func _case_72(t) -> void:
+	var ctx: Dictionary = _context()
+	var visit: Dictionary = _patient(ctx,ctx.world.facts.facilities.water.patient_cell)
+	var injected: bool = ctx.arrivals.environment==ctx.simulation.services.environment
+	var observation: EnvironmentObserver = EnvironmentObserver.new(_content,ctx.space)
+	observation.waiting_life = ctx.simulation.services.waiting
+	ctx.arrivals.environment = observation
+	var actor: Dictionary = ctx.world.facts.actors[visit.actor_id]
+	var before: Dictionary = ctx.world.freeze()
+	observation.begin_query(ctx.world)
+	var expected: Dictionary = observation.environment_at(ctx.world,int(actor.location.floor_id),actor.location.cell,actor.id)
+	var actual: float = ctx.arrivals._environment_score(ctx.world,visit)
+	observation.end_query()
+	var standalone: HospitalArrivalService = HospitalArrivalService.new(_content,ctx.space)
+	var independent: float = standalone._environment_score(ctx.world,visit)
+	t.check("GROW-72",injected and observation.calls==2 and actual==float(expected.value) and independent==actual and ctx.world.freeze()==before,{"injected":injected,"calls":observation.calls,"shared":actual,"standalone":independent,"readonly":ctx.world.freeze()==before})
 
 func _case_71(t) -> void:
 	var ctx: Dictionary = _context()

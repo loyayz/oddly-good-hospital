@@ -252,17 +252,26 @@ func _facility_quote(world: WorldState, visit: Dictionary, facility_id: String) 
 	var layout: Dictionary = space.facility_layout(world,facility_id)
 	var candidate: WorldState = world
 	if not quote.get("unchanged",false):
-		candidate = WorldState.new(world.freeze())
+		candidate = _route_candidate(world,visit.actor_id)
 		candidate.facts.adaptations[facility_id] = quote
 		layout = space.facility_layout(candidate,facility_id)
 	var route: Dictionary = space.route(candidate,visit.actor_id,int(layout.floor_id),layout.patient_cell)
 	if not route.ok or not route.has("arrival_ticks"): return {"ok":false,"reason":route.get("reason","无法估计实际设施路程")}
-	var reverse: WorldState = WorldState.new(candidate.freeze())
+	var reverse: WorldState = _route_candidate(candidate,visit.actor_id)
 	var origin: Dictionary = world.facts.actors[visit.actor_id].location
 	reverse.facts.actors[visit.actor_id].location = {"kind":"floor","floor_id":layout.floor_id,"cell":layout.patient_cell.duplicate(),"height_m":0.0}
 	var back: Dictionary = space.route(reverse,visit.actor_id,int(origin.floor_id),origin.cell)
 	if not back.ok: return {"ok":false,"reason":"设施没有合法返回路线："+str(back.get("reason",""))}
 	return {"ok":true,"travel_ticks":int(route.arrival_ticks),"patient_cell":layout.patient_cell.duplicate(),"floor_id":int(layout.floor_id)}
+
+func _route_candidate(world: WorldState, actor_id: String) -> WorldState:
+	# Only prospective adaptation and the returning actor may be written.
+	# Every other fact is read synchronously through the original owners.
+	var facts: Dictionary = world.facts.duplicate()
+	facts.adaptations = world.facts.adaptations.duplicate()
+	facts.actors = world.facts.actors.duplicate()
+	facts.actors[actor_id] = world.facts.actors[actor_id].duplicate(true)
+	return WorldState.new(facts)
 
 func _occupied(world: WorldState, facility_id: String, actor_id: String) -> bool:
 	for actor: Dictionary in world.facts.actors.values():

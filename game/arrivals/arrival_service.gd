@@ -8,6 +8,7 @@ var content: HospitalContent
 var space: HospitalSpace
 var clinic: HospitalClinic
 var departments: RefCounted
+var environment: RefCounted
 var _scheduled: Dictionary = {}
 var _next_due: int = -1
 var _indexed_world: int = 0
@@ -1358,12 +1359,12 @@ func _environment_score(world: WorldState, visit: Dictionary) -> float:
 	var actor: Dictionary = world.facts.actors[visit.actor_id]
 	if actor.location.kind != "floor":
 		return 0.0
-	var path: String = "res://game/operations/environment_service.gd"
-	if ResourceLoader.exists(path):
-		var environment: RefCounted = load(path).new(content,space)
-		var sample: Dictionary = environment.call("environment_at",world,int(actor.location.floor_id),actor.location.cell,str(actor.id))
-		return float(sample.get("value",0))
-	return float(content.balance.environment.base)
+	var query: HospitalEnvironment = environment as HospitalEnvironment
+	if query==null:
+		# Standalone numerical callers use the same personal water contract.
+		query = HospitalEnvironment.new(content,space)
+		query.waiting_life = HospitalWaitingLife.new(content,space)
+	return float(query.environment_at(world,int(actor.location.floor_id),actor.location.cell,str(actor.id)).value)
 
 func _schedule(ticket_id: String, actor_id: String, tick: int, threshold: int) -> void:
 	if _scheduled.has(ticket_id) and int(_scheduled[ticket_id].due_tick) == tick and int(_scheduled[ticket_id].threshold) == threshold:

@@ -875,6 +875,7 @@ func _update_details() -> void:
 	if _session.running_slow:
 		playback += " · 运行稍慢"
 	_clock.text = "%s   %s   %s   资金 %d · 治疗包 %d" % [world.facts.display_name,world.clock_text(),playback,HospitalLedger.balance(world),int(world.facts.inventory.units)]
+	if not _details.visible: return
 	var lines: PackedStringArray = PackedStringArray(["[b]院内情况[/b]","观察 %dF" % _observed_floor])
 	if not _session.pause_reasons().is_empty():
 		var reasons: PackedStringArray = []
@@ -913,7 +914,8 @@ func _update_details() -> void:
 		lines.append("\n[b]"+str(_content.facility_definition(facility.definition_id).get("name",_selected_object))+"[/b]")
 		lines.append("%dF · 等级%d · 完好度%d%%" % [int(facility.floor_id),int(facility.grade),roundi(facility.condition)])
 		lines.append("当前故障，等待维修" if facility.failed else "按真实岗位与路线接单")
-	_details.text = "\n".join(lines)
+	var text: String = "\n".join(lines)
+	if _details.text!=text: _details.text = text
 
 func _show_capacity_error(reason: String) -> void:
 	if _capacity_dialog==null:

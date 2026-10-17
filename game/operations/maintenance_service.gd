@@ -584,7 +584,7 @@ func _pay(world: WorldState, id: String, component: String, cost: int) -> Comman
 func _priority(world: WorldState, job: Dictionary) -> int:
 	if job.kind=="maintenance":
 		return 3
-	if HospitalEquipmentUse.query(world,str(job.facility_id)).critical_commitment:
+	if HospitalEquipmentUse.query(world,str(job.facility_id),_clinical_uses).critical_commitment:
 		return 0
 	var item: Dictionary = world.facts.facilities.get(job.facility_id,{})
 	if not item.is_empty() and _upgradable(item):

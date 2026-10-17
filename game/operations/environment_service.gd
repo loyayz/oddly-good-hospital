@@ -764,7 +764,7 @@ func environment_at(world: WorldState, floor_id: int, cell: Array, actor_id: Str
 			categories[str(definition.get("decoration_category",facility.get("decoration_category",facility.definition_id)))] = true
 		if definition.get("environment","")=="light" or definition.get("environment_function","")=="light":
 			light = true
-		if _is_water(str(facility.definition_id)) and _water_usable(world,facility,actor_id):
+		if not result.water and _is_water(str(facility.definition_id)) and _water_usable(world,facility,actor_id):
 			result.water = true
 	result.value += mini(int(rules.decoration_cap),categories.size()*int(rules.decoration_per_category))
 	if light:
