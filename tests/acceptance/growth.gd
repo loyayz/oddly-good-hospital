@@ -75,9 +75,10 @@ const CASES: Dictionary = {
 	"GROW-72":"docs/design/08-hospital-life.md §4；弃候与常驻环境使用同一本人可用性且报价只读",
 	"GROW-73":"docs/design/07-clinical-team.md §6；重试经验边界与完整未共享模型一致",
 	"GROW-74":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；专业评分输入按需隔离且撤销专业移除后继历史层",
-	"GROW-75":"docs/design/08-hospital-life.md §4；正向来源分类、数值采样等价与同次主体观察",
+	"GROW-75":"docs/design/08-hospital-life.md §4；正向来源交集、按来源覆盖与同次主体观察",
 	"GROW-76":"docs/design/07-clinical-team.md §5；候选早排除不装配占用或员工ID，实际接待预约立即对后票生效",
-	"GROW-77":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；退出在完整计算边界取消任务且不发布部分结果"
+	"GROW-77":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；退出在完整计算边界取消任务且不发布部分结果",
+	"GROW-78":"docs/design/04-technical.md §6；参考路线按完整主体与组包络区分且冷热一致"
 }
 
 func run(t) -> void:
@@ -1030,6 +1031,9 @@ func _case_68(t) -> void:
 		use_equal = use_equal and HospitalEquipmentUse.query(ctx.world,id,uses)==HospitalEquipmentUse.query(ctx.world,id)
 	t.check("GROW-68",shared and next==fresh and not ctx.world.facts.sessions.is_empty() and next!=first and a==b and environment.query_builds==builds+1 and environment._query.is_empty() and readonly and use_equal,{"shared":shared,"new_sessions":ctx.world.facts.sessions.size(),"ticks":ticks,"new_occupancy_seen":next!=first,"environment_builds":environment.query_builds-builds,"readonly":readonly})
 
+func _case_78(t) -> void:
+	load("res://tests/acceptance/reference_route_envelope.gd").new().run_case(t,_content)
+
 func _case_77(t) -> void:
 	await load("res://tests/acceptance/arrival_cancellation.gd").new().run_case(t,_content)
 
@@ -1198,6 +1202,7 @@ func _case_75(t) -> void:
 	_add_facility(ctx.world,"environment_plant","FUR25",null,[42,79])
 	_add_facility(ctx.world,"environment_light","FUR19",null,[46,80])
 	_add_facility(ctx.world,"environment_screen","FUR23",null,[44,82])
+	ctx.world.facts.research.append("R15")
 	var environment: EnvironmentObserver = EnvironmentObserver.new(_content,ctx.space)
 	environment.waiting_life = ctx.simulation.services.waiting
 	var correct: bool = true
@@ -1224,14 +1229,24 @@ func _case_75(t) -> void:
 			for facility: Dictionary in facilities: positive_ids[facility.id] = true
 	var filtered: bool = positive_ids.has("environment_plant") and positive_ids.has("environment_light") and positive_ids.has("water")
 	filtered = filtered and not positive_ids.has("bin") and not positive_ids.has("environment_screen") and ctx.world.facts.facilities.environment_screen in environment._query.screens.get(1,[])
+	var edges: Dictionary = environment._coverage_edges(ctx.world,1)
+	var sparse_ids: Array = []
+	for facility: Dictionary in environment._positive_facilities(ctx.world,1,environment._coverage(ctx.world,1,[44,80],5,false,edges)): sparse_ids.append(facility.id)
+	sparse_ids.sort()
+	var dense: Array = environment._positive_facilities(ctx.world,1,environment._coverage(ctx.world,1,[42,79],0,false,edges))
+	var intersections: bool = sparse_ids==["environment_light","environment_plant"] and dense.size()==1 and dense[0].id=="environment_plant"
+	environment.coverage_queries.clear()
 	var indexed: Dictionary = environment.environment_at(ctx.world,1,[44,80],visit.actor_id)
 	var nearby_before: int = environment.nearby_queries
 	var sample: Dictionary = environment.sample_at(ctx.world,1,[44,80],visit.actor_id)
 	var expected_sample: Dictionary = expected_brief.duplicate(true)
 	expected_sample.erase("nearby_count")
 	var sampling: bool = brief==expected_brief and indexed==complete and sample==expected_sample and environment.nearby_queries==nearby_before
+	var positive_only: bool = environment.coverage_queries.size()==2
+	for query: Dictionary in environment.coverage_queries: positive_only = positive_only and query.radius==5 and not query.noise
 	environment.end_query()
 	var readonly: bool = ctx.world.freeze()==before
+	var empty_sources: bool = _empty_environment_sources()
 	environment.calls = 0
 	environment.sample_calls = 0
 	environment.nearby_queries = 0
@@ -1240,12 +1255,33 @@ func _case_75(t) -> void:
 	department.ensure(ctx.world)
 	ctx.world.facts.departments.experience[visit.id].next_anger_tick = ctx.world.sim_tick
 	department.sample(ctx.world)
-	t.check("GROW-75",correct and filtered and sampling and readonly and environment.calls==1 and environment.sample_calls==1 and environment.nearby_queries==0 and environment._query.is_empty(),{"classification_equal":correct,"filtered_sources":filtered,"sampling_equal":sampling,"readonly":readonly,"environment_calls":environment.calls,"sample_calls":environment.sample_calls,"nearby_queries":environment.nearby_queries,"scope_balanced":environment._query.is_empty()})
+	t.check("GROW-75",correct and filtered and intersections and sampling and positive_only and empty_sources and readonly and environment.calls==1 and environment.sample_calls==1 and environment.nearby_queries==0 and environment._query.is_empty(),{"classification_equal":correct,"filtered_sources":filtered,"intersections":intersections,"sampling_equal":sampling,"positive_coverage_only":positive_only,"empty_sources":empty_sources,"readonly":readonly,"environment_calls":environment.calls,"sample_calls":environment.sample_calls,"nearby_queries":environment.nearby_queries,"scope_balanced":environment._query.is_empty()})
+
+func _empty_environment_sources() -> bool:
+	var ctx: Dictionary = _context(false)
+	var environment: EnvironmentObserver = EnvironmentObserver.new(_content,ctx.space)
+	var before: Dictionary = ctx.world.freeze()
+	environment.begin_query(ctx.world)
+	var clean: Dictionary = environment.sample_at(ctx.world,1,[44,80])
+	var absent: bool = clean.value==43 and clean.clean and clean.dirt==0 and clean.noise==0 and not clean.water and environment.coverage_queries.is_empty() and environment.edge_queries==0
+	environment.end_query()
+	absent = absent and ctx.world.freeze()==before
+	var patch: String = environment.spawn_dirt(ctx.world,"CL01","environment_spill","environment_spill_once",1,[44,80])
+	before = ctx.world.freeze()
+	environment.coverage_queries.clear()
+	environment.begin_query(ctx.world)
+	var dirty: Dictionary = environment.sample_at(ctx.world,1,[44,80])
+	var negative_only: bool = not patch.is_empty() and dirty.value==31 and not dirty.clean and dirty.dirt==1 and dirty.noise==0 and environment.coverage_queries.size()==1
+	if not environment.coverage_queries.is_empty(): negative_only = negative_only and environment.coverage_queries[0].radius==4 and not environment.coverage_queries[0].noise
+	environment.end_query()
+	return absent and negative_only and ctx.world.freeze()==before and environment._query.is_empty()
 
 class EnvironmentObserver extends HospitalEnvironment:
 	var calls: int = 0
 	var sample_calls: int = 0
 	var nearby_queries: int = 0
+	var edge_queries: int = 0
+	var coverage_queries: Array = []
 	func environment_at(world: WorldState, floor_id: int, cell: Array, actor_id: String = "", explain: bool = true) -> Dictionary:
 		calls += 1
 		return super.environment_at(world,floor_id,cell,actor_id,explain)
@@ -1256,6 +1292,12 @@ class EnvironmentObserver extends HospitalEnvironment:
 	func _nearby_actors(world: WorldState, floor_id: int, cell: Array) -> Array:
 		nearby_queries += 1
 		return super._nearby_actors(world,floor_id,cell)
+	func _coverage_edges(world: WorldState, floor_id: int) -> Dictionary:
+		edge_queries += 1
+		return super._coverage_edges(world,floor_id)
+	func _coverage(world: WorldState, floor_id: int, origin: Array, radius: int, noise: bool, edges: Dictionary = {}) -> Dictionary:
+		coverage_queries.append({"radius":radius,"noise":noise})
+		return super._coverage(world,floor_id,origin,radius,noise,edges)
 
 func _case_73(t) -> void:
 	var ctx: Dictionary = _context()
@@ -1313,7 +1355,9 @@ func _case_72(t) -> void:
 	var before: Dictionary = ctx.world.freeze()
 	observation.begin_query(ctx.world)
 	var expected: Dictionary = observation.environment_at(ctx.world,int(actor.location.floor_id),actor.location.cell,actor.id)
+	var coverage_before: int = observation.coverage_queries.size()
 	var sampled: Dictionary = observation.sample_at(ctx.world,int(actor.location.floor_id),actor.location.cell,actor.id)
+	var sampled_coverages: int = observation.coverage_queries.size()-coverage_before
 	var expected_sample: Dictionary = expected.duplicate(true)
 	expected_sample.sources = []
 	expected_sample.erase("nearby_count")
@@ -1321,7 +1365,7 @@ func _case_72(t) -> void:
 	observation.end_query()
 	var standalone: HospitalArrivalService = HospitalArrivalService.new(_content,ctx.space)
 	var independent: float = standalone._environment_score(ctx.world,visit)
-	t.check("GROW-72",injected and observation.calls==3 and observation.sample_calls==1 and sampled==expected_sample and actual==float(expected.value) and independent==actual and ctx.world.freeze()==before,{"injected":injected,"calls":observation.calls,"sampling_equal":sampled==expected_sample,"shared":actual,"standalone":independent,"readonly":ctx.world.freeze()==before})
+	t.check("GROW-72",injected and observation.calls==3 and observation.sample_calls==1 and sampled_coverages==1 and sampled==expected_sample and actual==float(expected.value) and independent==actual and ctx.world.freeze()==before,{"injected":injected,"calls":observation.calls,"sampled_coverages":sampled_coverages,"sampling_equal":sampled==expected_sample,"shared":actual,"standalone":independent,"readonly":ctx.world.freeze()==before})
 
 func _case_71(t) -> void:
 	var ctx: Dictionary = _context()

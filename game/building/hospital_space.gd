@@ -18,9 +18,9 @@ var query_counts: Dictionary = {"routes":0,"journey_hits":0,"journey_invalidatio
 
 # These scopes contain synchronous, read-only enumeration only. Results never
 # survive an actual reservation, movement or subsequent clinical quote.
-func begin_route_query(world: WorldState, reference: Dictionary = {}) -> void:
+func begin_route_query(world: WorldState, reference: Dictionary = {}, inherit_reference: bool = true) -> void:
 	var views: Dictionary = _route_queries.back().views if not _route_queries.is_empty() and _route_queries.back().world==world else {}
-	if reference.is_empty() and not _route_queries.is_empty():
+	if inherit_reference and reference.is_empty() and not _route_queries.is_empty():
 		reference = _route_queries.back().reference
 	if not reference.is_empty() and not reference.has("routes"):
 		reference.routes = {}
@@ -73,13 +73,13 @@ func transport_search(world: WorldState) -> void:
 			reference.transport_searches = int(reference.get("transport_searches",0))+1
 
 func _blocking_facility(world: WorldState, floor_id: int, rect: Rect2, except_id: String = "") -> String:
-	if not _route_queries.is_empty() and _route_queries.back().world==world:
-		var hits: Array[String] = _navigation.facility_index(self,world,floor_id).candidates(floor_id,rect,[except_id])
-		return "" if hits.is_empty() else hits[0]
-	for facility: Dictionary in world.facts.facilities.values():
-		if facility.id==except_id or int(facility.floor_id)!=floor_id or not content.facility_definition(facility.definition_id).get("blocks_movement",true): continue
-		var layout: Dictionary = facility_layout(world,facility.id)
-		if rect.intersects(Rect2(float(facility.cell[0]),float(facility.cell[1]),float(layout.footprint[0]),float(layout.footprint[1])),false): return facility.id
+	var hits: Array[String] = _navigation.facility_index(self,world,floor_id).candidates(floor_id,rect,[except_id])
+	if hits.is_empty(): return ""
+	if hits.size()==1 or not _route_queries.is_empty() and _route_queries.back().world==world: return hits[0]
+	# The unscoped diagnostic keeps the original facts order when several
+	# facilities block. Clear paths never scan the full collection or layouts.
+	for id: String in world.facts.facilities:
+		if id in hits: return id
 	return ""
 
 func _blocking_actor(world: WorldState, floor_id: int, rect: Rect2, allowed: Array) -> String:
@@ -385,7 +385,7 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 		var identity: Variant = actor.id
 		if not _route_queries.back().reference.is_empty() and members.is_empty() and offsets.is_empty():
 			identity = body(actor)
-		key = JSON.stringify([identity,floor_id,start.x,start.y,goal.x,goal.y,members,offsets])
+		key = JSON.stringify([identity,floor_id,start.x,start.y,goal.x,goal.y,members,offsets,_route_envelope(world,actor,members,offsets)])
 		if routes.has(key):
 			return routes[key].duplicate(true)
 	if navigation.is_empty():
@@ -430,6 +430,14 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 		result.erase("cells")
 	if not key.is_empty():
 		routes[key] = result.duplicate(true)
+	return result
+
+func _route_envelope(world: WorldState, actor: Dictionary, members: Array, offsets: Dictionary) -> Array:
+	var result: Array = [[body(actor),actor.get("posture","standing"),float(actor.get("facing",0.0)),[0,0]]]
+	for member_id: String in members:
+		if member_id==actor.id: continue
+		var member: Dictionary = world.facts.actors[member_id]
+		result.append([body(member),member.get("posture","standing"),float(member.get("facing",0.0)),offsets[member_id]])
 	return result
 
 func _unit_step_dynamic_clear(world: WorldState, actor: Dictionary, floor_id: int, from: Vector2i, to: Vector2i, members: Array, offsets: Dictionary) -> bool:

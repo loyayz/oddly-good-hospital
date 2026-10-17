@@ -72,6 +72,7 @@ func touch(geometry_changed: bool = true) -> void:
 
 func invalidate_geometry() -> void:
 	geometry_revision += 1
+	_facility_count = -1
 
 func facility_ids(definition_id: String) -> Array:
 	if _facility_count!=facts.facilities.size():

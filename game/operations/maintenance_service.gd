@@ -40,11 +40,17 @@ func worked_staff() -> Dictionary:
 
 func _equipment(world: WorldState) -> Dictionary:
 	var result: Dictionary = {}
-	for collection: String in ["facilities","connectors"]:
-		for id: String in world.ids(collection):
-			var item: Dictionary = world.facts[collection][id]
-			if _maintained_ids.has(item.definition_id):
-				result[id] = item
+	var facility_ids: Array = []
+	for definition_id: String in _maintained_ids:
+		facility_ids.append_array(world.facility_ids(definition_id))
+	# Fault draws and automatic orders follow the global facility ID order.
+	facility_ids.sort()
+	for id: String in facility_ids:
+		result[id] = world.facts.facilities[id]
+	for id: String in world.ids("connectors"):
+		var item: Dictionary = world.facts.connectors[id]
+		if _maintained_ids.has(item.definition_id):
+			result[id] = item
 	for id: String in world.facts.inventory.get("build_items",{}):
 		var item: Dictionary = world.facts.inventory.build_items[id]
 		if _maintained_ids.has(item.definition_id):

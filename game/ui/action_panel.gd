@@ -8,19 +8,27 @@ var session: GameSession
 var _summary: Label
 var _summary_source: Callable
 var _next_summary_ms: int = 0
+var _rebuild_pending: bool = true
 
 func attach(kernel: HospitalSimulation, active_session: GameSession) -> void:
 	simulation = kernel
 	session = active_session
-	if is_node_ready():
-		rebuild()
+	rebuild()
 
 func _ready() -> void:
 	add_theme_constant_override("separation",10)
-	if simulation!=null:
-		rebuild()
+	visibility_changed.connect(_build_if_visible)
+	_build_if_visible()
 
 func rebuild() -> void:
+	_rebuild_pending = true
+	if is_node_ready():
+		_build_if_visible()
+
+func _build_if_visible() -> void:
+	if not _rebuild_pending or simulation==null or not is_visible_in_tree():
+		return
+	_rebuild_pending = false
 	for child: Node in get_children():
 		remove_child(child)
 		child.queue_free()

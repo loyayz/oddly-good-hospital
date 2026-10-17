@@ -1,6 +1,8 @@
 class_name HospitalWaitingLife
 extends RefCounted
 
+const PUBLIC_SEAT_DEFINITIONS: Array[String] = ["FUR06","FUR09","FUR10","FUR11","FUR12","FUR13","FUR14","FUR15","FUR16","FUR49","FUR50","FUR51","FUR52","AE01"]
+
 var content: HospitalContent
 var space: HospitalSpace
 var environment: RefCounted
@@ -121,10 +123,16 @@ func seat_candidates(world: WorldState, visit_id: String) -> Array:
 	if visit.is_empty() or not _waiting(world,visit):
 		return []
 	var candidates: Array = []
-	for facility_id: String in world.ids("facilities"):
+	var facility_ids: Array = []
+	for definition_id: String in PUBLIC_SEAT_DEFINITIONS:
+		facility_ids.append_array(world.facility_ids(definition_id))
+	facility_ids.sort()
+	space.begin_route_query(world,{},space.nominal_query(world))
+	for facility_id: String in facility_ids:
 		var quote: Dictionary = _seat_quote(world,visit,facility_id)
 		if quote.ok and int(quote.travel_ticks)<=_ticks(content.balance.seat_choice.automatic_travel_seconds_max):
 			candidates.append(quote)
+	space.end_route_query()
 	if candidates.is_empty():
 		return []
 	var closest: int = 2147483647
@@ -226,6 +234,12 @@ func _waiting(world: WorldState, visit: Dictionary) -> bool:
 	return str(visit.get("phase","")).begins_with("wait_") and world.facts.tickets.has(visit.get("ticket_id","")) and world.facts.tickets[visit.ticket_id].get("pause_reasons",{}).is_empty() and world.facts.actors[visit.actor_id].location.kind=="floor"
 
 func _seat_quote(world: WorldState, visit: Dictionary, facility_id: String) -> Dictionary:
+	space.begin_route_query(world,{},space.nominal_query(world))
+	var result: Dictionary = _seat_quote_in_query(world,visit,facility_id)
+	space.end_route_query()
+	return result
+
+func _seat_quote_in_query(world: WorldState, visit: Dictionary, facility_id: String) -> Dictionary:
 	if not world.facts.facilities.has(facility_id) or not _public_seat(world,world.facts.facilities[facility_id]): return {"ok":false,"reason":"目标不是实际公共候诊座位"}
 	var quote: Dictionary = _facility_quote(world,visit,facility_id)
 	if not quote.ok: return quote
@@ -245,6 +259,12 @@ func _seat_quote(world: WorldState, visit: Dictionary, facility_id: String) -> D
 	return quote
 
 func _facility_quote(world: WorldState, visit: Dictionary, facility_id: String) -> Dictionary:
+	space.begin_route_query(world,{},space.nominal_query(world))
+	var result: Dictionary = _facility_quote_in_query(world,visit,facility_id)
+	space.end_route_query()
+	return result
+
+func _facility_quote_in_query(world: WorldState, visit: Dictionary, facility_id: String) -> Dictionary:
 	if HospitalRemodel.blocked(world,facility_id): return {"ok":false,"reason":"设施正在准备安全改建"}
 	if _occupied(world,facility_id,visit.actor_id): return {"ok":false,"reason":"已有实际使用者或预约"}
 	var quote: Dictionary = space.facility_quote(world,facility_id,visit.actor_id)
@@ -255,12 +275,18 @@ func _facility_quote(world: WorldState, visit: Dictionary, facility_id: String) 
 		candidate = _route_candidate(world,visit.actor_id)
 		candidate.facts.adaptations[facility_id] = quote
 		layout = space.facility_layout(candidate,facility_id)
+	# A changed fit and the reverse location are distinct actual worlds. They
+	# must not inherit a parent's nominal routes or another world's views.
+	if candidate!=world: space.begin_route_query(candidate,{},false)
 	var route: Dictionary = space.route(candidate,visit.actor_id,int(layout.floor_id),layout.patient_cell)
+	if candidate!=world: space.end_route_query()
 	if not route.ok or not route.has("arrival_ticks"): return {"ok":false,"reason":route.get("reason","无法估计实际设施路程")}
 	var reverse: WorldState = _route_candidate(candidate,visit.actor_id)
 	var origin: Dictionary = world.facts.actors[visit.actor_id].location
 	reverse.facts.actors[visit.actor_id].location = {"kind":"floor","floor_id":layout.floor_id,"cell":layout.patient_cell.duplicate(),"height_m":0.0}
+	space.begin_route_query(reverse,{},false)
 	var back: Dictionary = space.route(reverse,visit.actor_id,int(origin.floor_id),origin.cell)
+	space.end_route_query()
 	if not back.ok: return {"ok":false,"reason":"设施没有合法返回路线："+str(back.get("reason",""))}
 	return {"ok":true,"travel_ticks":int(route.arrival_ticks),"patient_cell":layout.patient_cell.duplicate(),"floor_id":int(layout.floor_id)}
 
@@ -285,7 +311,7 @@ func _occupied(world: WorldState, facility_id: String, actor_id: String) -> bool
 	return world.facts.get("staff_life",{}).get("reservations",{}).has(facility_id)
 
 func _public_seat(world: WorldState, facility: Dictionary) -> bool:
-	if not facility.definition_id in ["FUR06","FUR09","FUR10","FUR11","FUR12","FUR13","FUR14","FUR15","FUR16","FUR49","FUR50","FUR51","FUR52","AE01"]: return false
+	if not facility.definition_id in PUBLIC_SEAT_DEFINITIONS: return false
 	for room: Dictionary in world.facts.rooms.values():
 		if int(room.floor_id)!=int(facility.floor_id): continue
 		if Rect2(float(room.origin[0]),float(room.origin[1]),float(room.size[0]),float(room.size[1])).has_point(Vector2(float(facility.cell[0]),float(facility.cell[1]))):
@@ -353,12 +379,14 @@ func _dispatch_need(world: WorldState, visit: Dictionary, need: Dictionary) -> v
 		need.phase = "seek"
 	var candidates: Array = []
 	var service: Dictionary = _amenity(need.purpose)
+	space.begin_route_query(world,{},space.nominal_query(world))
 	for facility_id: String in world.ids("facilities"):
 		if not world.facts.facilities[facility_id].definition_id in [service.ordinary_facility_id,service.universal_facility_id]: continue
 		var quote: Dictionary = _facility_quote(world,visit,facility_id)
 		if quote.ok and world.sim_tick+int(quote.travel_ticks)<=int(need.started_tick)+_ticks(content.balance.amenity_flow.seek_seconds):
 			quote.facility_id = facility_id
 			candidates.append(quote)
+	space.end_route_query()
 	candidates.sort_custom(func(a: Dictionary,b: Dictionary) -> bool: return a.travel_ticks<b.travel_ticks if a.travel_ticks!=b.travel_ticks else a.facility_id<b.facility_id)
 	if candidates.is_empty():
 		_start_fallback(world,visit,need)

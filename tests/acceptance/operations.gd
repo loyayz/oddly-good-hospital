@@ -42,7 +42,8 @@ const CASES: Dictionary = {
 	"OPS-37":"docs/design/01-simulation.md §8；同院救援箱仅一次且只补缺岗正常付薪",
 	"OPS-38":"docs/design/08-hospital-life.md §15；派单按设备停机用途分级，同级置顶且不打断已开工单",
 	"OPS-39":"docs/design/01-simulation.md §6；预约与实际占用释放前不得维修，恢复后真实到场开工",
-	"OPS-40":"docs/design/08-hospital-life.md §18；评价回收保护已发布窗口和下一日候选"
+	"OPS-40":"docs/design/08-hospital-life.md §18；评价回收保护已发布窗口和下一日候选",
+	"OPS-41":"docs/design/01-simulation.md §6；维护设备索引随几何和事实失效，保留原设备顺序、当前状态及随机流"
 }
 
 var _content: HospitalContent
@@ -1509,3 +1510,84 @@ func _case_39() -> Dictionary:
 	invalid.facts.visits[visit_id].actor_id = worker_id
 	var alias_rejected: bool = not worker_id.is_empty() and invalid.validate(_content)=="患者不能同时充当上门维修人员"
 	return _result(held and restore_preserved and cancel.accepted and no_early_work and released and job.started and job.completed_milli==100 and job.paid_parts==40 and HospitalLedger.balance(restored.w)==cash-40 and restored.w.facts.attempts.is_empty() and restored.w.facts.inventory.issues.is_empty() and alias_rejected and validation.is_empty(),{"initial_use":use,"held":held,"restore_preserved":restore_preserved,"cancel":cancel.to_record(),"no_work_before_release":no_early_work,"released":released,"job":job,"cash_before":cash,"cash_after":HospitalLedger.balance(restored.w),"alias_rejected":alias_rejected,"validation":validation})
+
+func _case_41() -> Dictionary:
+	var f: Dictionary = _new("维护设备定义索引",false,100000)
+	_place(f,"ops41_z_tool","SE02",[37,80])
+	_place(f,"ops41_a_machine","M09",[42,80])
+	_place(f,"ops41_middle_bin","FUR18",[60,92])
+	_place(f,"ops41_inventory","M37",[52,80])
+	var stored: CommandResult = _command(f,"build_store",{"target_id":"ops41_inventory"})
+	var first: CommandResult = _command(f,"connector_build",{"definition_id":"VC02","floor_id":1,"cell":[36,72]})
+	var second: CommandResult = _command(f,"connector_build",{"definition_id":"VC02","floor_id":1,"cell":[48,70]})
+	if not f.errors.is_empty() or not stored.accepted or not first.accepted or not second.accepted:
+		return _result(false,{"errors":f.errors,"stored":stored.to_record(),"connectors":[first.to_record(),second.to_record()]})
+	var service: HospitalMaintenance = f.s.services.maintenance
+	service.ensure(f.w)
+	var connector_ids: Array = f.w.facts.connectors.keys()
+	connector_ids.sort()
+	# Dictionary insertion order is not connector scan order. Keep the original
+	# legal records while presenting the reverse insertion order as input.
+	var reordered: Dictionary = f.w.freeze()
+	reordered.connectors = {}
+	for index: int in range(connector_ids.size()-1,-1,-1):
+		var id: String = connector_ids[index]
+		reordered.connectors[id] = f.w.facts.connectors[id].duplicate(true)
+	f.w.facts = reordered
+	var inventory_ids: Array = ["starter_gift_M09","ops41_inventory"]
+	var expected: Array = ["ops41_a_machine","ops41_z_tool"]+connector_ids+inventory_ids
+	var before: Dictionary = f.w.freeze()
+	var equipment: Dictionary = service._equipment(f.w)
+	var ordered: bool = equipment.keys()==expected
+	var readonly: bool = before==f.w.freeze()
+	var live: bool = is_same(equipment.get("ops41_a_machine"),f.w.facts.facilities.ops41_a_machine) and is_same(equipment.get(connector_ids[0]),f.w.facts.connectors[connector_ids[0]]) and is_same(equipment.get("ops41_inventory"),f.w.facts.inventory.build_items.ops41_inventory)
+	f.w.facts.facilities.ops41_a_machine.condition = 73.0
+	f.w.facts.facilities.ops41_a_machine.failed = true
+	var current: Dictionary = service._equipment(f.w)
+	live = live and current.get("ops41_a_machine",{}).get("condition")==73.0 and current.get("ops41_a_machine",{}).get("failed")==true
+	# Reuse a legal placed record at the same location. Only the public geometry
+	# invalidation boundary, not a collection-size change, can invalidate this index.
+	var count: int = f.w.facts.facilities.size()
+	var replacement: Dictionary = f.w.facts.facilities.ops41_a_machine.duplicate(true)
+	replacement.id = "ops41_b_machine"
+	f.w.facts.facilities.erase("ops41_a_machine")
+	f.w.facts.facilities[replacement.id] = replacement
+	f.w.invalidate_geometry()
+	var after_geometry: Dictionary = service._equipment(f.w)
+	var geometry_invalidated: bool = f.w.facts.facilities.size()==count and after_geometry.keys()==["ops41_b_machine","ops41_z_tool"]+connector_ids+inventory_ids
+	var replaced: Dictionary = f.w.freeze()
+	replacement = replaced.facilities.ops41_b_machine
+	replaced.facilities.erase("ops41_b_machine")
+	replacement.id = "ops41_c_machine"
+	replaced.facilities[replacement.id] = replacement
+	f.w.facts = replaced
+	var after_facts: Dictionary = service._equipment(f.w)
+	var facts_invalidated: bool = f.w.facts.facilities.size()==count and after_facts.keys()==["ops41_c_machine","ops41_z_tool"]+connector_ids+inventory_ids and is_same(after_facts.get("ops41_c_machine"),f.w.facts.facilities.ops41_c_machine) and not is_same(after_facts.get("ops41_c_machine"),after_geometry.get("ops41_b_machine"))
+	var placed_ids: Array = ["ops41_c_machine","ops41_z_tool"]+connector_ids
+	for id: String in placed_ids:
+		after_facts[id].condition = 35.0
+		after_facts[id].failed = false
+		after_facts[id].pending_failure = false
+	f.w.facts.maintenance.next_scan_tick = f.w.sim_tick
+	var reference: WorldState = WorldState.new(f.w.freeze())
+	var expected_faults: Dictionary = {}
+	for id: String in placed_ids:
+		var item: Dictionary = after_facts[id]
+		var definition: Dictionary = _content.facility_definition(item.definition_id)
+		if definition.is_empty(): definition = _content.definition("vertical_connectors",item.definition_id)
+		var base_failure: int = 0
+		for category: Dictionary in _content.balance.equipment.classes:
+			if category.id==definition.get("equipment_class",""): base_failure = int(category.base_failure_bp)
+		# Condition 35 is below 40: the content risk multiplier is 8. Consume one
+		# independent draw per placed device in the required order; inventory skips it.
+		expected_faults[id] = reference.draw("equipment",10000)<base_failure*8
+	service.boundaries(f.w)
+	var rolls_match: bool = reference.facts.rng==f.w.facts.rng
+	for id: String in placed_ids:
+		var item: Dictionary = after_facts[id]
+		rolls_match = rolls_match and item.get("last_fault_roll_tick",-1)==f.w.sim_tick and (bool(item.failed) or bool(item.pending_failure))==expected_faults[id]
+	var job_order: Array = []
+	for job: Dictionary in f.w.facts.maintenance.jobs.values(): job_order.append(str(job.facility_id))
+	var inventory_unchanged: bool = true
+	for id: String in inventory_ids: inventory_unchanged = inventory_unchanged and not after_facts[id].has("last_fault_roll_tick")
+	return _result(ordered and readonly and live and geometry_invalidated and facts_invalidated and rolls_match and job_order==placed_ids and inventory_unchanged,{"initial_order":equipment.keys(),"expected_order":expected,"readonly":readonly,"live_references":live,"geometry_invalidated":geometry_invalidated,"facts_invalidated":facts_invalidated,"expected_faults":expected_faults,"rng_matches":rolls_match,"job_order":job_order,"inventory_skipped_scan":inventory_unchanged})

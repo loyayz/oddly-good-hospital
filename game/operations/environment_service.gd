@@ -728,8 +728,12 @@ func _positive_facilities(world: WorldState, floor_id: int, coverage: Dictionary
 	if _query.get("world")!=world: return world.facts.facilities.values()
 	var result: Array = []
 	var cells: Dictionary = _query.facilities.get(floor_id,{})
-	for key: String in coverage:
-		result.append_array(cells.get(key,[]))
+	if cells.is_empty(): return result
+	if cells.size()<coverage.size():
+		for key: String in cells:
+			if coverage.has(key): result.append_array(cells[key])
+	else:
+		for key: String in coverage: result.append_array(cells.get(key,[]))
 	return result
 
 func _nearby_actors(world: WorldState, floor_id: int, cell: Array) -> Array:
@@ -756,12 +760,18 @@ func _observe_at(world: WorldState, floor_id: int, cell: Array, actor_id: String
 		result.status = "outside_owned_floor"
 		return result
 	var range_cells: int = int(rules.upgraded_range_cells if "R15" in world.facts.research else rules.range_cells)
-	var edges: Dictionary = _coverage_edges(world,floor_id)
-	var positive: Dictionary = _coverage(world,floor_id,cell,range_cells,false,edges)
-	var negative: Dictionary = positive
-	if range_cells!=int(rules.range_cells):
-		negative = _coverage(world,floor_id,cell,int(rules.range_cells),false,edges)
-	var noise_cells: Dictionary = negative if edges.noise.is_empty() else _coverage(world,floor_id,cell,int(rules.range_cells),true,edges)
+	var scoped: bool = _query.get("world")==world
+	# Only this read-only scope proves a field has no sources on the floor.
+	var need_positive: bool = not scoped or not _query.facilities.get(floor_id,{}).is_empty() or not _query.samples.walls.get(floor_id,{}).is_empty()
+	var need_dirt: bool = not scoped or not _query.samples.dirt.get(floor_id,{}).is_empty()
+	var need_noise: bool = not scoped or not _query.samples.machines.get(floor_id,{}).is_empty() or not _query.samples.construction.get(floor_id,{}).is_empty()
+	var edges: Dictionary = _coverage_edges(world,floor_id) if need_positive or need_dirt or need_noise else {}
+	var positive: Dictionary = _coverage(world,floor_id,cell,range_cells,false,edges) if need_positive else {}
+	var negative: Dictionary = {}
+	if need_dirt or (need_noise and edges.noise.is_empty()):
+		negative = positive if need_positive and range_cells==int(rules.range_cells) else _coverage(world,floor_id,cell,int(rules.range_cells),false,edges)
+	var noise_cells: Dictionary = {}
+	if need_noise: noise_cells = negative if edges.noise.is_empty() else _coverage(world,floor_id,cell,int(rules.range_cells),true,edges)
 	var environment: Dictionary = world.facts.get("environment",{})
 	var surfaces: Dictionary = environment.get("surfaces",{})
 	var floor_finish: Dictionary = surfaces.get(_surface_key(floor_id,cell,"floor"),{})

@@ -2,6 +2,15 @@ extends RefCounted
 
 const ClinicalStep = preload("res://tests/acceptance/clinical_step.gd")
 
+class LayoutCountingSpace:
+	extends HospitalSpace
+	var layout_calls: int = 0
+	func _init(database: HospitalContent) -> void:
+		super(database)
+	func facility_layout(world: WorldState, facility_id: String) -> Dictionary:
+		layout_calls += 1
+		return super.facility_layout(world,facility_id)
+
 const CASES: Dictionary = {
 	"SPACE-01":"docs/design/12-implementation-plan.md §11 8.1/8.3；合法房壳预览只读，创建与整数付款原子一致",
 	"SPACE-02":"docs/design/12-implementation-plan.md §11 8.1/8.4；未购地、断格、孔洞、小房失败原子",
@@ -49,7 +58,9 @@ const CASES: Dictionary = {
 	"SPACE-44":"docs/design/08-hospital-life.md §13/§14；部分保养与改建安排共同恢复，原任务接续且应用不重付",
 	"SPACE-45":"docs/design/01-simulation.md §6；上门人员乘梯中取消未开工保养，原乘梯与读档保留，实际返1F离院",
 	"SPACE-46":"docs/design/04-technical.md §6；同体型通行组换成员不继承预约豁免，变更配位与真实阻挡立即生效",
-	"SPACE-47":"docs/design/08-hospital-life.md §11；整备房间按真实格形判断身体相交，不将凹角空白当房间"
+	"SPACE-47":"docs/design/08-hospital-life.md §11；整备房间按真实格形判断身体相交，不将凹角空白当房间",
+	"SPACE-48":"docs/design/04-technical.md §6/§13；设施阻挡查询复用真实展开索引，候选隔离且实际预约立即失效",
+	"SPACE-49":"docs/design/08-hospital-life.md 候诊与家属；只读候选保原定义、票序与随机流，失败入院不生成身份"
 }
 
 var content: HospitalContent
@@ -1427,6 +1438,114 @@ func _case_47(_t) -> Dictionary:
 		rectangle_ok = rectangle_ok and BuildGeometry.intersects_room(inside,room) and BuildGeometry.intersects_room(notch,room) and not BuildGeometry.intersects_room(touching,room)
 	var exact_shape: bool = BuildGeometry.intersects_room(inside,irregular) and not BuildGeometry.intersects_room(notch,irregular) and BuildGeometry.intersects_room(crossing,irregular) and not BuildGeometry.intersects_room(touching,irregular)
 	return {"ok":rectangle_ok and exact_shape,"details":{"rectangular_rooms":rectangle_ok,"irregular_notch_and_crossing":exact_shape}}
+
+func _case_48(_t) -> Dictionary:
+	var sim: HospitalSimulation = _fixture()
+	var seat: CommandResult = _command(sim,"build_facility",{"id":"z_seat","definition_id":"FUR06","floor_id":1,"cell":[44,72]})
+	var tool: CommandResult = _command(sim,"build_facility",{"id":"a_tool","definition_id":"SE02","floor_id":1,"cell":[49,72]})
+	if not seat.accepted or not tool.accepted: return _done(sim,false,{"seat":seat.to_record(),"tool":tool.to_record()})
+	_add_actor(sim,"index_user","S53",[35,82])
+	_add_actor(sim,"next_user","S49",[39,82])
+	var space: LayoutCountingSpace = LayoutCountingSpace.new(content)
+	var broad: Rect2 = Rect2(43,71,10,5)
+	var before: Dictionary = sim.world.freeze()
+	var ordered: bool = true
+	for index: int in 32:
+		ordered = ordered and space._blocking_facility(sim.world,1,broad)=="z_seat" and space._blocking_facility(sim.world,1,broad,"z_seat")=="a_tool" and space._blocking_facility(sim.world,2,broad).is_empty()
+	space.begin_route_query(sim.world)
+	var scoped_order: bool = space._blocking_facility(sim.world,1,broad)=="a_tool"
+	space.end_route_query()
+	var indexed_without_layouts: bool = space.layout_calls==0
+	var quote: Dictionary = space.facility_quote(sim.world,"z_seat","index_user")
+	if not quote.get("ok",false): return _done(sim,false,{"quote":quote})
+	var extra: Rect2 = Rect2(46,72,1,1)
+	var facts: Dictionary = sim.world.facts.duplicate()
+	facts.adaptations = sim.world.facts.adaptations.duplicate()
+	var candidate: WorldState = WorldState.new(facts)
+	candidate.facts.adaptations.z_seat = quote
+	var isolated: bool = quote.footprint==[3,3] and space._blocking_facility(candidate,1,extra)=="z_seat" and space._blocking_facility(sim.world,1,extra).is_empty() and sim.world.freeze()==before
+	var reserved: String = space.reserve_facility(sim.world,"z_seat","index_user","index_user")
+	var immediate: bool = reserved.is_empty() and space._blocking_facility(sim.world,1,extra)=="z_seat"
+	var reserved_facts: Dictionary = sim.world.freeze()
+	var refused: String = space.reserve_facility(sim.world,"z_seat","next_user","next_user")
+	var atomic: bool = not refused.is_empty() and reserved_facts==sim.world.freeze()
+	space.release_adaptations(sim.world)
+	var released: bool = not sim.world.facts.adaptations.has("z_seat") and space._blocking_facility(sim.world,1,extra).is_empty()
+	return _done(sim,ordered and scoped_order and indexed_without_layouts and isolated and immediate and atomic and released and space._route_queries.is_empty(),{"original_error_order":ordered,"scoped_error_order":scoped_order,"lookup_layout_calls":0 if indexed_without_layouts else space.layout_calls,"candidate_isolated":isolated,"reservation_visible":immediate,"next_user_refused_atomically":atomic,"released_index":released})
+
+func _case_49(_t) -> Dictionary:
+	var sim: HospitalSimulation = _fixture()
+	var seat: CommandResult = _command(sim,"build_facility",{"id":"a_patient_only","definition_id":"FUR06","floor_id":1,"cell":[42,75]})
+	var tool: CommandResult = _command(sim,"build_facility",{"id":"irrelevant_tool","definition_id":"SE02","floor_id":1,"cell":[50,75]})
+	if not seat.accepted or not tool.accepted: return _done(sim,false,{"seat":seat.to_record(),"tool":tool.to_record()})
+	var first: Dictionary = _waiting_visit(sim,"first",[35,82])
+	var second: Dictionary = _waiting_visit(sim,"second",[38,82])
+	var waiting: HospitalWaitingLife = HospitalWaitingLife.new(content,sim.space)
+	waiting.ensure(sim.world)
+	var visitors: HospitalVisitors = HospitalVisitors.new(content,sim.space)
+	visitors.ensure(sim.world)
+	var request: Dictionary = {"id":"first:companion:","visit_id":first.id,"purpose":"companion","window":"","request_tick":sim.world.sim_tick}
+	sim.world.facts.visitors.requests[request.id] = request
+	var before: Dictionary = sim.world.freeze()
+	var readonly: bool = true
+	for index: int in 3:
+		var choices: Array = waiting.seat_candidates(sim.world,first.id)
+		readonly = readonly and choices.size()==1 and choices[0].facility_id=="a_patient_only" and visitors._waiting_point(sim.world,first.actor_id).is_empty()
+	var no_waiting: bool = not visitors._admit(sim.world,first,request) and sim.world.freeze()==before
+	readonly = readonly and no_waiting and sim.space._route_queries.is_empty()
+	var reference: Dictionary = {"waiting_contract":true}
+	sim.space.begin_route_query(sim.world,reference)
+	var nominal: Dictionary = waiting._facility_quote(sim.world,first,"a_patient_only")
+	var nominal_preserved: bool = nominal.get("ok",false) and not reference.fits.is_empty() and sim.space.nominal_query(sim.world)
+	var retained_fits: int = reference.fits.size()
+	var candidate: WorldState = waiting._route_candidate(sim.world,first.actor_id)
+	candidate.facts.actors[first.actor_id].species_id = "S53"
+	candidate.facts.actors[first.actor_id].erase("body_binding_id")
+	candidate.facts.actors[second.actor_id] = candidate.facts.actors[second.actor_id].duplicate(true)
+	candidate.facts.actors[second.actor_id].location.cell = [44,75]
+	var actual_candidate: Dictionary = waiting._facility_quote(candidate,first,"a_patient_only")
+	var candidate_isolated: bool = not actual_candidate.get("ok",true) and reference.fits.size()==retained_fits and sim.space.nominal_query(sim.world)
+	sim.space.end_route_query()
+	var cold_candidate: Dictionary = waiting._facility_quote(candidate,first,"a_patient_only")
+	candidate_isolated = candidate_isolated and actual_candidate==cold_candidate and before==sim.world.freeze()
+	var visitor_seat: CommandResult = _command(sim,"build_facility",{"id":"z_family_seat","definition_id":"FUR09","floor_id":1,"cell":[44,72]})
+	if not visitor_seat.accepted: return _done(sim,false,{"visitor_seat":visitor_seat.to_record()})
+	var point: Dictionary = visitors._waiting_point(sim.world,first.actor_id)
+	var indexed_definitions: bool = point.get("cell",[])==sim.world.facts.facilities.z_family_seat.patient_cell
+	var admitted: bool = visitors._admit(sim.world,first,request)
+	var actual_arrival: bool = false
+	if admitted:
+		actual_arrival = _wait(sim,func() -> bool: return visitors._present(sim.world,first.id).get("phase","")=="waiting",1000,func() -> void:
+			visitors.dispatch(sim.world)
+			_movement_tick(sim))
+	var second_request: Dictionary = {"id":"second:companion:","visit_id":second.id,"purpose":"companion","window":"","request_tick":sim.world.sim_tick}
+	sim.world.facts.visitors.requests[second_request.id] = second_request
+	before = sim.world.freeze()
+	var next_refused: bool = not visitors._admit(sim.world,second,second_request) and sim.world.freeze()==before
+	var first_quote: Dictionary = waiting._seat_quote(sim.world,first,"a_patient_only")
+	var chosen: CommandResult = waiting.execute(sim.world,"waiting_select_seat",{"visit_id":first.id,"facility_id":"a_patient_only"})
+	before = sim.world.freeze()
+	var second_quote: Dictionary = waiting._seat_quote(sim.world,second,"a_patient_only")
+	var reserved_visible: bool = first_quote.get("ok",false) and chosen.accepted and not second_quote.get("ok",true) and sim.world.freeze()==before
+	return _done(sim,readonly and nominal_preserved and candidate_isolated and indexed_definitions and admitted and actual_arrival and next_refused and reserved_visible and sim.space._route_queries.is_empty(),{"queries_readonly":readonly,"same_world_nominal_preserved":nominal_preserved,"different_body_candidate_is_actual":candidate_isolated,"visitor_definition_set":indexed_definitions,"admitted":admitted,"actual_waiting_arrival":actual_arrival,"failed_probe_preserves_all_facts":next_refused,"next_ticket_sees_reservation":reserved_visible,"second_quote":second_quote})
+
+func _waiting_visit(sim: HospitalSimulation, id: String, cell: Array) -> Dictionary:
+	var binding: Dictionary = {}
+	for candidate: Dictionary in content.catalog.treatment_bindings:
+		if candidate.species_id=="S49":
+			binding = candidate
+			break
+	_add_actor(sim,"patient_"+id,str(binding.species_id),cell)
+	sim.world.facts.actors["patient_"+id].body_binding_id = binding.id
+	var visit: Dictionary = {"id":id,"actor_id":"patient_"+id,"disease_id":binding.disease_id,"binding_id":binding.id,
+		"requested_plan_id":"P_"+str(binding.disease_id)+"_COMMON","expression":"clear","personality_id":"PP01","anger":50.0,
+		"phase":"arrival","evidence_by_source":{},"attempt_ids":[],"plan_decision":{},"complex":false,"final_result":"",
+		"waiting_reason":"","ticket_id":"","doctor_fee_quote":-1,"arrival_tick":sim.world.sim_tick,"arrived_tick":sim.world.sim_tick,
+		"last_progress_tick":sim.world.sim_tick,"last_service_tick":sim.world.sim_tick,"arrival_key":"arrival_"+id}
+	sim.world.facts.visits[id] = visit
+	sim.world.register_visit(id)
+	sim.clinic._queue(sim.world,visit,"gp")
+	return visit
 
 func _fixture(preset: bool = false, cash: int = 1000000) -> HospitalSimulation:
 	_sequence += 1

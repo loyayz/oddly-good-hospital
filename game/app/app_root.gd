@@ -36,6 +36,7 @@ var _library_job: Dictionary = {}
 var _file_dialog: FileDialog
 var _panel_picker: OptionButton
 var _management_scroll: ScrollContainer
+var _panel_scroll_positions: Dictionary = {}
 var _management_panels: VBoxContainer
 var _build_panel: HospitalBuildPanel
 var _build_overlay: HospitalBuildOverlay
@@ -367,6 +368,8 @@ func _add_management_panel(id: String, label: String, panel: Control) -> void:
 	_panel_picker.set_item_metadata(_panel_picker.item_count-1,id)
 
 func _bind_management_panels() -> void:
+	_panel_scroll_positions.clear()
+	_management_scroll.scroll_vertical = 0
 	for panel: Node in _management_panels.get_children():
 		if panel==_build_panel:
 			_build_panel.attach(_simulation,_session,_observed_floor)
@@ -379,6 +382,10 @@ func _show_panel(id: String) -> void:
 	if _simulation!=null and _simulation.pending():
 		_status.text = "正在完成当前接诊边界，面板将在完成后提供最新结果。"
 		return
+	for panel: Control in _management_panels.get_children():
+		if panel.visible and _management_scroll.visible:
+			_panel_scroll_positions[str(panel.name)] = _management_scroll.scroll_vertical
+		if str(panel.name)!=id: panel.hide()
 	_details.visible = id=="details"
 	if _details.visible and _simulation!=null and _session!=null: _update_details()
 	_library_panel.visible = id=="library"
@@ -388,12 +395,20 @@ func _show_panel(id: String) -> void:
 			_panel_picker.select(index)
 	for panel: Node in _management_panels.get_children():
 		(panel as Control).visible = str(panel.name)==id
+	if _management_scroll.visible:
+		_restore_panel_scroll.call_deferred(id,_session)
 	if id=="library":
 		_library_panel.refresh()
 	if id!="environment" and _view!=null:
 		_view.show_environment_heatmap([])
 	if id!="building" and is_instance_valid(_build_overlay):
 		_build_overlay.show_preview({},{},_observed_floor)
+
+func _restore_panel_scroll(id: String, active_session: GameSession) -> void:
+	if _session!=active_session or not _management_scroll.visible: return
+	var panel: Control = _management_panels.get_node_or_null(id)
+	if panel!=null and panel.is_visible_in_tree():
+		_management_scroll.scroll_vertical = int(_panel_scroll_positions.get(id,0))
 
 func _show_environment_heatmap(cells: Array) -> void:
 	if _simulation!=null and _simulation.pending(): return

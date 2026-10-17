@@ -1,6 +1,8 @@
 class_name HospitalVisitors
 extends RefCounted
 
+const WAITING_SEAT_DEFINITIONS: Array[String] = ["FUR09","FUR10","FUR11","FUR12","FUR13","FUR14","FUR15","FUR16","FUR49","FUR50","FUR51","FUR52"]
+
 var content: HospitalContent
 var space: HospitalSpace
 
@@ -69,9 +71,16 @@ func _admit(world: WorldState, visit: Dictionary, request: Dictionary) -> bool:
 	var original_id: String = str(visit.get("relative_actor_id",""))
 	var actor: Dictionary = {"id":original_id if not original_id.is_empty() else "relative_probe","name":str(patient.name)+"的家属","species_id":patient.species_id,"relative_of":visit.actor_id,
 		"location":{"kind":"floor","floor_id":int(entry.floor_id),"cell":entry.cell.duplicate(),"height_m":0.0},"facing":0.0,"posture":"standing"}
-	if not space.static_reason(world,actor,int(entry.floor_id),Vector2i(int(entry.cell[0]),int(entry.cell[1]))).is_empty() or not space._dynamic_clear(world,actor.id,int(entry.floor_id),space.body_rectangle(actor)):
+	space.begin_route_query(world,{},space.nominal_query(world))
+	var entry_clear: bool = space.static_reason(world,actor,int(entry.floor_id),Vector2i(int(entry.cell[0]),int(entry.cell[1]))).is_empty() and space._dynamic_clear(world,actor.id,int(entry.floor_id),space.body_rectangle(actor))
+	space.end_route_query()
+	if not entry_clear:
 		return false
-	var candidate: WorldState = WorldState.new(world.freeze())
+	# Admission only adds its own probe; waiting and route queries read all
+	# other facts synchronously without changing their owners.
+	var facts: Dictionary = world.facts.duplicate()
+	facts.actors = world.facts.actors.duplicate()
+	var candidate: WorldState = WorldState.new(facts)
 	candidate.facts.actors[actor.id] = actor
 	var waiting: Dictionary = _waiting_point(candidate,actor.id)
 	if waiting.is_empty():
@@ -182,9 +191,19 @@ func _end_visit(stay: Dictionary) -> void:
 	stay.phase = "to_waiting" if stay.purpose=="companion" else "leaving"
 
 func _waiting_point(world: WorldState, actor_id: String) -> Dictionary:
-	for facility_id: String in world.ids("facilities"):
+	space.begin_route_query(world,{},space.nominal_query(world))
+	var result: Dictionary = _waiting_point_in_query(world,actor_id)
+	space.end_route_query()
+	return result
+
+func _waiting_point_in_query(world: WorldState, actor_id: String) -> Dictionary:
+	var facility_ids: Array = []
+	for definition_id: String in WAITING_SEAT_DEFINITIONS:
+		facility_ids.append_array(world.facility_ids(definition_id))
+	facility_ids.sort()
+	for facility_id: String in facility_ids:
 		var facility: Dictionary = world.facts.facilities[facility_id]
-		if not facility.definition_id in ["FUR09","FUR10","FUR11","FUR12","FUR13","FUR14","FUR15","FUR16","FUR49","FUR50","FUR51","FUR52"]:
+		if not facility.definition_id in WAITING_SEAT_DEFINITIONS:
 			continue
 		if not str(facility.get("room_id","")).is_empty() and not world.facts.rooms[facility.room_id].kind in ["waiting","public","lobby","garden"]:
 			continue
@@ -199,6 +218,12 @@ func _waiting_point(world: WorldState, actor_id: String) -> Dictionary:
 	return {}
 
 func _bedside(world: WorldState, actor_id: String, stay: Dictionary) -> Dictionary:
+	space.begin_route_query(world,{},space.nominal_query(world))
+	var result: Dictionary = _bedside_in_query(world,actor_id,stay)
+	space.end_route_query()
+	return result
+
+func _bedside_in_query(world: WorldState, actor_id: String, stay: Dictionary) -> Dictionary:
 	# Medical work takes priority; keep an unstarted visit in public waiting.
 	if not bool(stay.care_completed):
 		return {}

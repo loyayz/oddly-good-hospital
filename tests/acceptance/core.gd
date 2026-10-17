@@ -469,11 +469,31 @@ func _case_29(t, content: HospitalContent) -> void:
 
 func _case_30(t, content: HospitalContent) -> void:
 	var previous: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"原医院",false,content)
+	var previous_simulation: HospitalSimulation = HospitalSimulation.new(previous,content)
+	var previous_session: GameSession = GameSession.new(previous_simulation,"previous-session")
 	var command: GameCommand = GameCommand.new("old-input",previous.hospital_id,previous.revision,"finance_note",BusinessPayload.new({"text":"旧输入","target_amount":1}),"previous-session")
 	var new_session: GameSession = GameSession.new(HospitalSimulation.new(HospitalFactory.create(HospitalSnapshots.uuid(),"另一院",false,content),content),"new-session")
 	var before: Dictionary = new_session.simulation.world.freeze()
-	t.check("CORE-30",new_session.actual_speed()==0 and not new_session.submit(command).accepted and new_session.simulation.world.freeze()==before)
+	var panels_rebound: bool = true
+	for panel: HospitalActionPanel in [HospitalExpansionPanel.new(),HospitalRemodelPanel.new()]:
+		panel.hide()
+		panel.attach(previous_simulation,previous_session)
+		t.root.add_child(panel)
+		panel.set("_draft",{"editing":true})
+		panel.attach(new_session.simulation,new_session)
+		panels_rebound = panels_rebound and panel.get_child_count()==0 and panel.get("_draft").is_empty() and panel.simulation==new_session.simulation and panel.session==new_session
+		panel.show()
+		if panel.get_child_count()==0:
+			panels_rebound = false
+		else:
+			var first_control: int = panel.get_child(0).get_instance_id()
+			panel.attach(previous_simulation,previous_session)
+			panels_rebound = panels_rebound and panel.get_child_count()>0 and panel.get_child(0).get_instance_id()!=first_control and panel.session==previous_session
+		panel.queue_free()
+	t.check("CORE-30",panels_rebound and new_session.actual_speed()==0 and not new_session.submit(command).accepted and new_session.simulation.world.freeze()==before)
+	previous_simulation.dispose()
 	new_session.simulation.dispose()
+	await t.process_frame
 
 func _case_31(t, content: HospitalContent) -> void:
 	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"视图",true,content)
@@ -517,20 +537,46 @@ func _case_33(t, content: HospitalContent) -> void:
 	await t.process_frame
 
 func _case_34(t, content: HospitalContent) -> void:
-	var app: Control = load("res://game/app/main.tscn").instantiate()
-	t.root.add_child(app)
-	app.set_process(false)
-	await t.process_frame
-	if app._simulation==null:
-		push_error("Actual application did not activate an isolated hospital")
-		app.queue_free()
-		return
-	var before: Dictionary = app._simulation.world.freeze()
+	var app: Control = await _app_fixture(t)
+	if app==null: return
 	var panels_ready: bool = app._management_panels.get_child_count()==18
+	for panel: Node in app._management_panels.get_children():
+		if panel is HospitalActionPanel:
+			panels_ready = panels_ready and panel.get_child_count()==0 and panel.simulation==app._simulation and panel.session==app._session
+	var environment: HospitalActionPanel = app._management_panels.get_node("environment")
+	environment.rebuild()
+	panels_ready = panels_ready and environment.get_child_count()==0
+	app._submit_business("finance_note",{"text":"首次打开前的便签","target_amount":1})
+	app._show_panel("finance")
+	await t.process_frame
+	var finance: HospitalActionPanel = app._management_panels.get_node("finance")
+	var memo: TextEdit = finance.find_children("*","TextEdit",true,false)[0]
+	var picker: OptionButton = finance.find_children("*","OptionButton",true,false)[0]
+	var current_on_first_open: bool = memo.text=="首次打开前的便签"
+	memo.text = "尚未保存的编辑"
+	picker.select(picker.item_count-1)
+	var selected_id: String = finance.selected(picker)
+	app._management_scroll.scroll_vertical = int(app._management_scroll.get_v_scroll_bar().max_value)
+	await t.process_frame
+	var scroll_position: int = app._management_scroll.scroll_vertical
+	app._show_panel("details")
+	await t.process_frame
+	app._show_panel("finance")
+	await t.process_frame
+	var retained: bool = is_instance_valid(memo) and is_instance_valid(picker) and memo.text=="尚未保存的编辑" and finance.selected(picker)==selected_id and scroll_position>0 and app._management_scroll.scroll_vertical==scroll_position
+	app._show_panel("details")
+	app._submit_business("finance_note",{"text":"显式刷新后的便签","target_amount":1})
+	finance.rebuild()
+	var deferred_refresh: bool = is_instance_valid(memo) and memo.is_inside_tree()
+	app._show_panel("finance")
+	var refreshed_memo: TextEdit = finance.find_children("*","TextEdit",true,false)[0]
+	deferred_refresh = deferred_refresh and refreshed_memo!=memo and refreshed_memo.text=="显式刷新后的便签"
+	var before: Dictionary = app._simulation.world.freeze()
 	for panel: Node in app._management_panels.get_children():
 		app._show_panel(str(panel.name))
 		if panel.has_method("rebuild"): panel.call("rebuild")
-	t.check("CORE-34",panels_ready and app._simulation.world.freeze()==before)
+		panels_ready = panels_ready and panel.get_child_count()>0
+	t.check("CORE-34",panels_ready and current_on_first_open and retained and deferred_refresh and app._simulation.world.freeze()==before,{"hidden_bindings":panels_ready,"first_open_current":current_on_first_open,"editing_and_scroll_retained":retained,"hidden_refresh_deferred":deferred_refresh,"scroll_position":scroll_position})
 	await _close_app(t,app)
 
 func _case_35(t, content: HospitalContent) -> void:
@@ -548,13 +594,19 @@ func _case_36(t, content: HospitalContent) -> void:
 	var app: Control = await _app_fixture(t)
 	if app==null: return
 	var before: Dictionary = app._simulation.world.freeze()
-	app._drafts["acceptance-draft"] = {"kind":"build_room","origin":[34,66]}
+	app._show_panel("expansion")
+	app._expansion_panel._preview("build_land",{"floor_id":1,"plot":[0,2]})
+	var panel_draft: Dictionary = app._expansion_panel._draft.duplicate(true)
+	var preview_label: Label = app._expansion_panel._result
 	var original_drafts: Dictionary = app._drafts.duplicate(true)
+	app._show_panel("details")
+	await t.process_frame
+	app._show_panel("expansion")
 	var prompted: bool = app._confirm_draft_leave(Callable())
 	if prompted:
 		app._draft_confirmation.canceled.emit()
 		app._draft_confirmation.hide()
-	t.check("CORE-36",prompted and app._drafts==original_drafts and app._simulation.world.freeze()==before and app._leave_operation.is_empty())
+	t.check("CORE-36",prompted and not panel_draft.is_empty() and is_instance_valid(preview_label) and app._expansion_panel._result==preview_label and app._expansion_panel._draft==panel_draft and app._drafts==original_drafts and app._simulation.world.freeze()==before and app._leave_operation.is_empty())
 	await _close_app(t,app)
 
 func _case_37(t, content: HospitalContent) -> void:
