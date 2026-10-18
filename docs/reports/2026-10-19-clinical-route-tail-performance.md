@@ -104,4 +104,4 @@ CLIN-34对192组输入比较完整报价、事实及随机流；对照先物化�
 
 [指标与阶段摘要](evidence/2026-10-19-clinical-route-tail/quick-summary.json)、[功能批次及前提/测试耗时](evidence/2026-10-19-clinical-route-tail/functional-summary.json)、[最终源码身份](evidence/2026-10-19-clinical-route-tail/final-source-identity.json)、[原始证据包](evidence/2026-10-19-clinical-route-tail/raw-evidence.zip)、[逐项清单](evidence/2026-10-19-clinical-route-tail/evidence-manifest.json)。原始包包含全部中间版、失败/无收益记录、原输入、最终完整事实、命令、超时参数、日志、逐步数据、独立对照源、剖析生成源和冻结实现。
 
-证据包6,467,310字节，692项；SHA-256为 `1563f86df506c7873737126cc63d6ffeb67e36f5e5768c19ee7f046f2b1fef09`。ZIP CRC及全部条目SHA已核对。源代码已完成引擎导入与相关回归，未单独执行正式Release构建或实机画面检查。
+证据包6,467,432字节，692项；SHA-256为 `49c2be66e60e1673d991b0080b7c21922a2f56dd45cf085fcd8efb83d145e0b6`。ZIP CRC及全部条目SHA已核对。源代码已完成引擎导入与相关回归，未单独执行正式Release构建或实机画面检查。
