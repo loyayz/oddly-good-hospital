@@ -1,0 +1,677 @@
+[
+  {
+    "path": "game/building/blueprint_service.gd",
+    "line_count": 254,
+    "kind": "gdscript",
+    "sha256": "d0cb708b7f11851601a455d6999abcc577d64871a5373a675d334c10f5228126",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "成组候选、一次最终安全检查；OP-A05 的调用边界，保留事务隔离。",
+    "finding_ids": [
+      "OP-A05"
+    ],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/building/blueprint_service.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "51cbeb0c80b2ffd9d3326adaa13054a9bce4044e84565ac9d13f89a91982a81c",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  },
+  {
+    "path": "game/building/body_index.gd",
+    "line_count": 131,
+    "kind": "gdscript",
+    "sha256": "42cbd98bd9f8fca72c15a72a797f95411577fec6639bb7edf13d16cb3c55326c",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "楼层桶索引、去重候选与边界清理已覆盖；无独立全院重复候选。",
+    "finding_ids": [],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/building/body_index.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "b29a33133f415757c8e5ed0f08d407b997fc05d761a3cff4bb810b665955adf0",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  },
+  {
+    "path": "game/building/body_sweep.gd",
+    "line_count": 24,
+    "kind": "gdscript",
+    "sha256": "e8a1374f84984314c1965695b103c03d0bfd18a498322f160374f7496db69ccc",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "固定矩形连续扫掠计算；必要精确检查。",
+    "finding_ids": [],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/building/body_sweep.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "ae1465b8741b328c2c18241ab132562f461be644a84123d6a52bf0311c7c2a88",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  },
+  {
+    "path": "game/building/build_geometry.gd",
+    "line_count": 218,
+    "kind": "gdscript",
+    "sha256": "c3cb4db3bd31bf801fc7a6d4dd099243742b80fe8a0bdba2e5b8f72337bb8f4b",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "occupancy view 复用及矩形精确检查；见排除项。",
+    "finding_ids": [],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/building/build_geometry.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "e0cfc816c799996408780b2ac960447cb152e0a9f6110d8b679f19185eae5b03",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  },
+  {
+    "path": "game/building/build_preview_job.gd",
+    "line_count": 344,
+    "kind": "gdscript",
+    "sha256": "51039d580ec136a158fd81dfae48f4ee13ca8a5b68b57d311da795df0301b795",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "切片/依赖/occupancy view 已覆盖；OP-A05 checker 生命周期。",
+    "finding_ids": [
+      "OP-A05"
+    ],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/building/build_preview_job.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "6a972583b2419e1e93cf6eb3ffafa475a913c32123238b67b935efb3d430bc63",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  },
+  {
+    "path": "game/building/build_preview.gd",
+    "line_count": 107,
+    "kind": "gdscript",
+    "sha256": "0f1e01a4dcf2f363a0234b36ba50ab665d827eb63a50802d5846737755d99851",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "语义去重、有效完成边界与取消/重绑；无新增独立项。",
+    "finding_ids": [],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/building/build_preview.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "46615ba9d945b0584ee93f80ff4aa26147d4adb67e5e137aed86c55a0fb09e63",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  },
+  {
+    "path": "game/building/build_service.gd",
+    "line_count": 951,
+    "kind": "gdscript",
+    "sha256": "9c0e64ad1ffdc5cc83852173d15673cf6007c8a307cb6b5c16fda79ea5fd5613",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "OP-A05；目标几何、库存选择及原子规划审查，未把必要精确检查另立项。",
+    "finding_ids": [
+      "OP-A05"
+    ],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/building/build_service.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "d20c9a79609414157ed84817c98d44f0713e0096cdcf7c4f7a9906d1c3c0ef0c",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  },
+  {
+    "path": "game/building/connector_service.gd",
+    "line_count": 119,
+    "kind": "gdscript",
+    "sha256": "8bb5a6e663f0cec7c50e73f99404a076b84a30d859314ceb684201a350143319",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "OP-A05 逐实际人物安全；连接资格/层间路线必须保留。",
+    "finding_ids": [
+      "OP-A05"
+    ],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/building/connector_service.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "dc339d8eb8bcb1fd44a506c36deb751120ecf11816f0b26efcef1a4d991e27b4",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  },
+  {
+    "path": "game/building/floor_navigation.gd",
+    "line_count": 147,
+    "kind": "gdscript",
+    "sha256": "c749ff514af42ea9166a7763fde9614282dacd84be242aca862396050bddc1af",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "局部 repair、实际路线/组合图；无重复全院枚举。",
+    "finding_ids": [],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/building/floor_navigation.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "093736871b033e11aa70459b2402106ff5cc628644bc558521fea3028fd9aa83",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  },
+  {
+    "path": "game/building/floor_service.gd",
+    "line_count": 231,
+    "kind": "gdscript",
+    "sha256": "42253ef9497901fabfffbd9cb01f7feaf58ca95793390041f94b3a34ea17bec8",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "OP-A01 工具候选、OP-A04 终态历史；工作点稳定搜索必要。",
+    "finding_ids": [
+      "OP-A01",
+      "OP-A04"
+    ],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/building/floor_service.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "8d233fd11a3672cb48c154ec90b468249feb7a60a25829195344b6a1c2cd32bd",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  },
+  {
+    "path": "game/building/hospital_space.gd",
+    "line_count": 1340,
+    "kind": "gdscript",
+    "sha256": "2450262a6eb6d7da290cfb3846c5e14edf6a28444fb95ea1755f426fa0cb8c2c",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "OP-A09 预约 broadphase；read/query/身体索引与实际路线语义已覆盖。",
+    "finding_ids": [
+      "OP-A09",
+      "OP-A12"
+    ],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/building/hospital_space.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "5d0cbaa0ed27304035734876113fcc679345967c5250dc6a876a8e911ff70991",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  },
+  {
+    "path": "game/building/hospital_transit.gd",
+    "line_count": 507,
+    "kind": "gdscript",
+    "sha256": "f9b7d4caf98824b854414c3381c4d62a01160a828989c4ca8e883b3a38bdf3df",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "journey 内复用；当前 moves/FIFO 重取列低优先机会，非已证热点。",
+    "finding_ids": [
+      "OP-A12"
+    ],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/building/hospital_transit.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "1fa81c6513d1e3dbad2cdbf1e606a5f19d5ca75f3dafde2c96ed4bd807f68e05",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  },
+  {
+    "path": "game/building/navigation_cache.gd",
+    "line_count": 265,
+    "kind": "gdscript",
+    "sha256": "9f5b08b436629d2da58dd62315d8c968f1ee7a46442cabf089ae4b75d146a5e7",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "同世界 source/graph 复用、局部刷新、charge/LRU/weakref 清理；原型已撤回。",
+    "finding_ids": [],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/building/navigation_cache.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "cf0d5ad54e1ab317d1dbddbcfa9abf7f2770505e6520a45cc8b5d9caae08aa91",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  },
+  {
+    "path": "game/building/remodel_service.gd",
+    "line_count": 362,
+    "kind": "gdscript",
+    "sha256": "26a203282aa96a275d34b42164a49499b036b90ae824b150d72a222b36e396ad",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "OP-A08；成组最终校验与真实撤离保留。",
+    "finding_ids": [
+      "OP-A08"
+    ],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/building/remodel_service.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "8cff815992583887b4a4cc61e5f9c2b6fbacbc73e82435867e2963dfff8c3eb6",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  },
+  {
+    "path": "game/building/route_clearance.gd",
+    "line_count": 319,
+    "kind": "gdscript",
+    "sha256": "9c2e650c95fd9f64b700b72677cfe470cbc13961530efbcf7f9504e401d00a0c",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "静态源捕获/格墙索引/动态预约身份；现有导航 cache 覆盖普通同世界重复调用。",
+    "finding_ids": [],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/building/route_clearance.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "f1b0af50e12c22a7441fe1bb1cef89adeae052d2d4ed907bd7a7e8ce8774ada2",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  },
+  {
+    "path": "game/economy/finance_service.gd",
+    "line_count": 486,
+    "kind": "gdscript",
+    "sha256": "2fd67e9d2dc6279902e2609421e9d3b773f41abe708bdb186af7f8bfe6f57b42",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "OP-A03；室内几何缓存、一次 forecast rate 及固定工资目录已覆盖。",
+    "finding_ids": [
+      "OP-A03"
+    ],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/economy/finance_service.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "09064ea51dd89f90d2eef1f66e95b0c3f824f1ba45f4424f08df8adf9db4e5fd",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  },
+  {
+    "path": "game/economy/ledger_entry.gd",
+    "line_count": 14,
+    "kind": "gdscript",
+    "sha256": "6c610e59dedf13c94618e41f872c875b1cc33446c55aae4f28317008c181b877",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "14 行账目值类型；无集合遍历。",
+    "finding_ids": [],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/economy/ledger_entry.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "a03075b29679d08490ea278f89fbe6bd60bce606f7bcfaab9d0044cbc31baaee",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  },
+  {
+    "path": "game/economy/ledger.gd",
+    "line_count": 32,
+    "kind": "gdscript",
+    "sha256": "024370d1aacce142495b63b72d4ba52a059888fa74f030bbcaeb4b5848da6bc3",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "待结 ID 索引结算，余额派生索引；无全历史逐步重算。",
+    "finding_ids": [],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/economy/ledger.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "d79ef85f9b3a956d8343d784581bf123ce0f67af7efe4da3fae424f278507abf",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  },
+  {
+    "path": "game/operations/department_service.gd",
+    "line_count": 913,
+    "kind": "gdscript",
+    "sha256": "6687b1f67f43b35fcc3870c7bb1b9d829bc3f0b5f49cbb5c0cd6fee90b9e6949",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "OP-A02、07、11，UI 历史查询与采样批次另有明确排除。",
+    "finding_ids": [
+      "OP-A02",
+      "OP-A07",
+      "OP-A11"
+    ],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/operations/department_service.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "8b24e05e935251b47be67d4f5107360767d93c22a37412d29fc20b4d5a232462",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  },
+  {
+    "path": "game/operations/environment_service.gd",
+    "line_count": 972,
+    "kind": "gdscript",
+    "sha256": "51551729324470818d5077cdfd93ecc7ceb3d2d22ff08830d96d56c8a44db704",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "OP-A01、06；OP-A02 生产凭据、OP-A04 终态历史；批次采样已有索引。",
+    "finding_ids": [
+      "OP-A01",
+      "OP-A02",
+      "OP-A04",
+      "OP-A06",
+      "OP-A12"
+    ],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/operations/environment_service.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "7d3b425b1b3e468be5491a7f011ab53d40cd8b29155e5dec19a4d0f45e966e7e",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  },
+  {
+    "path": "game/operations/maintenance_service.gd",
+    "line_count": 702,
+    "kind": "gdscript",
+    "sha256": "2d96744ec86ca7b044cf52f5f701c0e520154f2ae6f15de877bb9261bb3a4edf",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "OP-A04；OP-A02 非员工维修凭据；维护定义索引和分阶段使用快照已有覆盖。",
+    "finding_ids": [
+      "OP-A02",
+      "OP-A04"
+    ],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/operations/maintenance_service.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "7917d490085c45ea605438fcd30c0f9abecaae37e8b81db2d10bd565c6bc9ffb",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  },
+  {
+    "path": "game/operations/supply_service.gd",
+    "line_count": 288,
+    "kind": "gdscript",
+    "sha256": "3846f0aa50aef8b5f1c2f10b09a7d3daeef7bf792b3bbee4c23df96cda50919f",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "健康库存早退、预留语义；同查询 reserved 重取是小型机会，未扩大为缓存改造。",
+    "finding_ids": [],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/operations/supply_service.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "a4c13e6ff91e9bcce5a01765391c922eb78210ec59ed3f5d0ebfa0738fe1bf4b",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  },
+  {
+    "path": "game/sim/equipment_use.gd",
+    "line_count": 15,
+    "kind": "gdscript",
+    "sha256": "b2c0001a0ea8640ea4f42f7d86ec59e1c7cf63bad032f78946295918a8620210",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "临床使用只读接口，可传已建使用投影；无独立全院嵌套。",
+    "finding_ids": [],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/sim/equipment_use.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "bb476f19404bae15df749e61d8f1279c89859e4d0a0e63ac1927bd784f8672fa",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  },
+  {
+    "path": "game/sim/hospital_factory.gd",
+    "line_count": 119,
+    "kind": "gdscript",
+    "sha256": "aab6e9695c2e33658f969cbe4754fc4bd6dbc8d520df23a715ac5292e2aa8b93",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "一次性新院初始化、固定内容目录；不属于每步负载。",
+    "finding_ids": [],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/sim/hospital_factory.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "9d16d22ec626f8eef1045b6cbb79c47bd68dc78c5437be7a4e33dde5ab7f3a6f",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  },
+  {
+    "path": "game/sim/simulation.gd",
+    "line_count": 391,
+    "kind": "gdscript",
+    "sha256": "f89ea839cd36ea64c87d28e933a7330f0eefd74ab5e4237659957191dbce7304",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "阶段真实链路和 query 批次覆盖；不得跨中间事实变化合并阶段。",
+    "finding_ids": [],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/sim/simulation.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "e18198247468017f75ef00db54e921e7b22f6fdbacac273151e433667cbb7895",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  },
+  {
+    "path": "game/sim/types/business_payload.gd",
+    "line_count": 10,
+    "kind": "gdscript",
+    "sha256": "e6be2f738ce0077f3a6b3ec023965fef20785f8d2d941eeff68b40dfdd450fad",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "自身载荷拷贝；无全院扫描。",
+    "finding_ids": [],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/sim/types/business_payload.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "bb9ad35435d4a1e28602bf15c7e357739fbc24ec03d9a19f8f7a2ebfa2d89425",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  },
+  {
+    "path": "game/sim/types/command_result.gd",
+    "line_count": 23,
+    "kind": "gdscript",
+    "sha256": "14bfda9bada0dfb5d33f13d5966c0572f65cc344a685e4caa8b1210fdbab82cb",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "自身结果记录；无全院扫描。",
+    "finding_ids": [],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/sim/types/command_result.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "dd7b0e8e1ad42a6be154b5836e4a276fed1cd1e5ddb3c7c98b773d0e72a34319",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  },
+  {
+    "path": "game/sim/types/game_command.gd",
+    "line_count": 36,
+    "kind": "gdscript",
+    "sha256": "c5d933fa960dab22d4a8c94d1727726a05d3596a1c171e33c28fbafe68d1d7a5",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "命令身份/记录转换；无全院扫描。",
+    "finding_ids": [],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/sim/types/game_command.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "8496fefe09ded244f13a6de4632110c5161a9f54d394bb71b1d47d74f308ef96",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  },
+  {
+    "path": "game/sim/types/move_actor_payload.gd",
+    "line_count": 45,
+    "kind": "gdscript",
+    "sha256": "f9ced5a3b5649af68128e5cb1effe4d6ee516d18327eedfced56da7de6c03fcc",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "点/确认载荷合法性，固定少量元素；无全院扫描。",
+    "finding_ids": [],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/sim/types/move_actor_payload.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "24e3a2c9670582b9bca90cea87c94b4610b2f49da1e55731c600a36ffde89ef3",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  },
+  {
+    "path": "game/sim/types/sim_event.gd",
+    "line_count": 16,
+    "kind": "gdscript",
+    "sha256": "97adadfe83e77fb0292ed8b322f2ed1d3f5b3138d772cf3d5b8bc4240ba8a911",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "自身事件记录；无全院扫描。",
+    "finding_ids": [],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/sim/types/sim_event.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "6fd132e37b5fa8ca17460770320fb5aeacb9ce3149de11023c726cee7c1572ae",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  },
+  {
+    "path": "game/sim/types/tick_result.gd",
+    "line_count": 15,
+    "kind": "gdscript",
+    "sha256": "21253c3043fef847fa707f77955c5d650fec072b48feb4060d6b79b320d938c1",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "单步结果容器；无全院扫描。",
+    "finding_ids": [],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/sim/types/tick_result.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "d1304dd41e06695e9c88d41d5899729731074fd2649d75c93727bf3afbc80aa0",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  },
+  {
+    "path": "game/sim/world_state.gd",
+    "line_count": 942,
+    "kind": "gdscript",
+    "sha256": "df95d335d96abce56dfe0d6ecfc6eabed2c77e9befd3e73272cb8a355997eee9",
+    "review_basis": "函数、循环及关键调用清单全覆盖；候选与现有索引的语义链路核对。",
+    "coverage": "OP-A10；账本、ID排序、active visits 派生索引均已覆盖。",
+    "finding_ids": [
+      "OP-A10"
+    ],
+    "evidence_status": "static_only_no_engine_or_tests"
+  },
+  {
+    "path": "game/sim/world_state.gd.uid",
+    "line_count": 1,
+    "kind": "uid",
+    "sha256": "402c9491175a093eebd14fa3ee6438c97adbd5875db50891971e4498bead1190",
+    "review_basis": "资源身份元数据登记。",
+    "coverage": "UID 资源身份元数据；不包含运行时查询或循环。",
+    "finding_ids": [],
+    "evidence_status": "metadata_only"
+  }
+]

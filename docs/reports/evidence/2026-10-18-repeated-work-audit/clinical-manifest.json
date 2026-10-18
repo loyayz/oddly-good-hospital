@@ -1,0 +1,3081 @@
+{
+  "schema": "same-class-performance-static-audit-v1",
+  "generated_at": "2026-10-18T19:03:36.1058341+08:00",
+  "partition": [
+    "game/clinic",
+    "game/arrivals",
+    "game/staff",
+    "game/community",
+    "game/life"
+  ],
+  "scope_file_count": 26,
+  "gdscript_count": 13,
+  "uid_count": 13,
+  "godot_runs": 0,
+  "production_edits": 0,
+  "test_edits": 0,
+  "findings": [
+    {
+      "path": "game/clinic/clinical_runtime.gd",
+      "title": "指定医生报价先应用医生约束",
+      "related_cases": [
+        "CLIN-34"
+      ],
+      "status": "measured_and_fixed",
+      "production_edits_in_this_audit": false,
+      "function": "plan_quote",
+      "id": "CL-FIX01",
+      "separate_from_residual_count": true
+    },
+    {
+      "id": "CL-A01",
+      "functions": [
+        "_select_plan",
+        "arrival_readiness"
+      ],
+      "title": "同一次只读报价重复枚举或重复医生推荐",
+      "paths": [
+        "game/clinic/clinical_runtime.gd"
+      ],
+      "status": "static_confirmed_unmeasured",
+      "trigger_classification": [
+        "per_step",
+        "event",
+        "ui"
+      ],
+      "implementation_status": "not_implemented",
+      "performance_status": "individual_cost_and_benefit_unmeasured"
+    },
+    {
+      "id": "CL-A02",
+      "functions": [
+        "_select_facility",
+        "_dispatch_training_job",
+        "_desks"
+      ],
+      "title": "已知设施类型或指定桌位晚过滤",
+      "paths": [
+        "game/staff/staff_wellbeing.gd",
+        "game/staff/clinical_development.gd"
+      ],
+      "status": "static_confirmed_unmeasured",
+      "trigger_classification": [
+        "per_step",
+        "event"
+      ],
+      "implementation_status": "not_implemented",
+      "performance_status": "individual_cost_and_benefit_unmeasured"
+    },
+    {
+      "id": "CL-A03",
+      "functions": [
+        "_occupied",
+        "_public_seat",
+        "_ward_stay",
+        "_present",
+        "_waiting_point_in_query",
+        "desk_taken",
+        "safe_busy"
+      ],
+      "title": "候选逐个重扫同批归属与占用事实",
+      "paths": [
+        "game/life/waiting_life.gd",
+        "game/clinic/hospital_visitors.gd",
+        "game/staff/clinical_development.gd"
+      ],
+      "status": "static_confirmed_unmeasured",
+      "trigger_classification": [
+        "per_step",
+        "event"
+      ],
+      "implementation_status": "not_implemented",
+      "performance_status": "individual_cost_and_benefit_unmeasured"
+    },
+    {
+      "id": "CL-A04",
+      "functions": [
+        "_base_line",
+        "_yield_prepared_base",
+        "_base_start_quote"
+      ],
+      "title": "共享工作基地队列重复构建排序",
+      "paths": [
+        "game/staff/clinical_development.gd"
+      ],
+      "status": "static_confirmed_unmeasured",
+      "trigger_classification": [
+        "per_step"
+      ],
+      "implementation_status": "not_implemented",
+      "performance_status": "individual_cost_and_benefit_unmeasured"
+    },
+    {
+      "id": "CL-A05",
+      "functions": [
+        "settle",
+        "_settle_cases"
+      ],
+      "title": "幂等完成结算仍每步扫描全部历史",
+      "paths": [
+        "game/staff/recruitment_service.gd",
+        "game/staff/clinical_development.gd"
+      ],
+      "status": "static_confirmed_unmeasured",
+      "trigger_classification": [
+        "per_step"
+      ],
+      "implementation_status": "not_implemented",
+      "performance_status": "individual_cost_and_benefit_unmeasured"
+    },
+    {
+      "id": "CL-A06",
+      "functions": [
+        "shortage_requests",
+        "facility_availability",
+        "_search"
+      ],
+      "title": "少量假设写入触发整个世界深拷贝",
+      "paths": [
+        "game/clinic/clinical_runtime.gd",
+        "game/life/waiting_life.gd",
+        "game/staff/recruitment_service.gd"
+      ],
+      "status": "static_confirmed_unmeasured",
+      "trigger_classification": [
+        "per_step",
+        "event",
+        "ui"
+      ],
+      "implementation_status": "not_implemented",
+      "performance_status": "individual_cost_and_benefit_unmeasured"
+    },
+    {
+      "id": "CL-A07",
+      "functions": [
+        "_resource_budgets",
+        "_maintenance_remaining"
+      ],
+      "title": "容量预算逐设施重扫维修升级工单",
+      "paths": [
+        "game/arrivals/arrival_service.gd"
+      ],
+      "status": "static_confirmed_unmeasured",
+      "trigger_classification": [
+        "capacity"
+      ],
+      "implementation_status": "not_implemented",
+      "performance_status": "individual_cost_and_benefit_unmeasured"
+    },
+    {
+      "paths": [
+        "game/staff/recruitment_service.gd",
+        "game/ui/recruitment_panel.gd"
+      ],
+      "title": "招聘状态栏重建完整候选卡片查询",
+      "functions": [
+        "query",
+        "standard_preview",
+        "card",
+        "_search_status"
+      ],
+      "status": "static_confirmed_unmeasured",
+      "dedup_owner": "CL-A08 is the canonical root cause; PRES-06 is an alias and is not counted separately",
+      "id": "CL-A08",
+      "trigger_classification": [
+        "ui"
+      ],
+      "implementation_status": "not_implemented",
+      "performance_status": "individual_cost_and_benefit_unmeasured",
+      "cross_partition_aliases": [
+        "PRES-06"
+      ]
+    },
+    {
+      "id": "CL-A09",
+      "functions": [
+        "disease_unlocked",
+        "rewards",
+        "active_job"
+      ],
+      "title": "研究解锁按已知身份反复扫描任务历史",
+      "paths": [
+        "game/community/research_service.gd"
+      ],
+      "status": "static_confirmed_unmeasured",
+      "trigger_classification": [
+        "event",
+        "ui",
+        "capacity"
+      ],
+      "implementation_status": "not_implemented",
+      "performance_status": "individual_cost_and_benefit_unmeasured"
+    },
+    {
+      "id": "CL-A10",
+      "title": "无员工椅时同次休息派单重复完整茶位搜索",
+      "paths": [
+        "game/staff/staff_wellbeing.gd"
+      ],
+      "functions": [
+        "_dispatch_task",
+        "_select_facility",
+        "_tea_position"
+      ],
+      "status": "static_confirmed_unmeasured",
+      "trigger_classification": [
+        "per_step",
+        "event"
+      ],
+      "implementation_status": "not_implemented",
+      "performance_status": "individual_cost_and_benefit_unmeasured",
+      "related_cases": [
+        "STAFF-22",
+        "STAFF-41"
+      ],
+      "evidence": {
+        "tick": 1151,
+        "operations_input_sha256": "de7910789ad8405de0a3f88a1613ede60653422856c42b084df09532550e0247",
+        "source_input_sha256": "f7e184d2c2ff4a5b3047f6d9bbaffe7221d1028a56156743bfd1bf0230af0ca8",
+        "setup_sha256": "7a81a723e256a9110553057534d6e04da259d577f2eb7d0a2e1e0a79dc6a2cf1",
+        "wellbeing_source_sha256": "5336687e79a03dc8426e18ece5775051392cac6c7507a1c5012b9a88334de855",
+        "fixture_source_sha256": "f99efd9dd5cf8afa2f7ca89f221edbcc54c2e080b1d0339d4b7de80874145189",
+        "staff_rest_rooms": 8,
+        "room_size": [8, 8],
+        "staff_beds": 16,
+        "staff_rest_seats": 0,
+        "layout_count_basis": "Original fixture construction plus saved setup facilities-preserved assertion; no engine recount",
+        "first_step_watchdog_seconds": 55.345099300000584,
+        "completed_steps": 0,
+        "watchdog_attribution": "No completed function/phase result; timeout has not been attributed to tea search",
+        "distinct_from": "OP-A12 owns repeated dynamic prefixes inside each route; CL-A10 owns repeating the whole tea search"
+      }
+    }
+  ],
+  "files": [
+    {
+      "path": "game/arrivals/arrival_preparation.gd",
+      "kind": "gdscript",
+      "sha256": "e53762d0f4156ea5003e5aa32c15b5a8f2214b739616408522f7fad96bc90a81",
+      "lines": 355,
+      "function_count": 17,
+      "loop_count": 24,
+      "coverage_status": "same_class_static_audit_complete",
+      "review": "Capture/sealed requests/poll/worker/cancellation/restore and record reuse; full inventory",
+      "functions": [
+        {
+          "name": "_init",
+          "line": 44,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "poll",
+          "line": 47,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "projection",
+          "line": 81,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "sealed_projection",
+          "line": 92,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "release_sealed",
+          "line": 102,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_select_request",
+          "line": 107,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_same_input",
+          "line": 128,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_poll_request",
+          "line": 142,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "metrics",
+          "line": 150,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_record_worker",
+          "line": 153,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_record_main",
+          "line": 165,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "prepare_next_day",
+          "line": 171,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "retry",
+          "line": 179,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "dispose",
+          "line": 191,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_compute",
+          "line": 212,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_capture",
+          "line": 230,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_own_capture",
+          "line": 315,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        }
+      ]
+    },
+    {
+      "path": "game/arrivals/arrival_preparation.gd.uid",
+      "kind": "godot_uid",
+      "sha256": "4a5846543cb77492aa01294e0d8dfcefb41a4df8ed513f3239f2d7a91b387982",
+      "lines": 1,
+      "function_count": 0,
+      "loop_count": 0,
+      "coverage_status": "metadata_reviewed_no_execution",
+      "review": "Resource identity only, no executable code",
+      "functions": []
+    },
+    {
+      "path": "game/arrivals/arrival_service.gd",
+      "kind": "gdscript",
+      "sha256": "8fc7b7e5fbc9c72c07018166a0a12119e69c04a9a2327d0009fddccfb497d8f5",
+      "lines": 1617,
+      "function_count": 82,
+      "loop_count": 149,
+      "coverage_status": "same_class_static_audit_complete",
+      "review": "Opportunity admission, waiting/departure/residents, capacity/reference models/budgets/cache ownership; full inventory",
+      "functions": [
+        {
+          "name": "_init",
+          "line": 28,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "ensure",
+          "line": 33,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "execute",
+          "line": 50,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "enable_preparation",
+          "line": 101,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "prepare_next_day",
+          "line": 109,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "retry_preparation",
+          "line": 112,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "preparation_metrics",
+          "line": 116,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "seal_capacity",
+          "line": 119,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "release_preparation",
+          "line": 123,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "dispose",
+          "line": 126,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "boundaries",
+          "line": 130,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "arrivals",
+          "line": 166,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "advance_wait",
+          "line": 242,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "needs",
+          "line": 258,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_departure_state",
+          "line": 320,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "settle",
+          "line": 327,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "outpatient_count",
+          "line": 362,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "outpatient_allowance",
+          "line": 384,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "patience_probability",
+          "line": 389,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "daystats",
+          "line": 402,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "residents",
+          "line": 409,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "take_events",
+          "line": 420,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "capacity",
+          "line": 425,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_capacity_cancelled",
+          "line": 483,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_prepared_projection",
+          "line": 486,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_solve_roles",
+          "line": 490,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_restrict_roles",
+          "line": 508,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_committed_role_allows",
+          "line": 521,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_model_parts",
+          "line": 529,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_prune_choices",
+          "line": 534,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_choices_available",
+          "line": 544,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reference_classes",
+          "line": 549,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reference_variant",
+          "line": 681,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_remaining_reference",
+          "line": 703,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_case_experience",
+          "line": 715,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reference_basis",
+          "line": 723,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reference_geometry_basis",
+          "line": 760,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_capacity_reference_world",
+          "line": 776,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_capacity_part",
+          "line": 798,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_bundle_available",
+          "line": 837,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_schedule_bundle_allowed",
+          "line": 851,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_stage_facilities",
+          "line": 889,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_schedule_visit_contexts",
+          "line": 896,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_normalize_bundle",
+          "line": 914,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_resource_budgets",
+          "line": 970,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_staff_budget",
+          "line": 994,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_maintenance_remaining",
+          "line": 999,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_existing_workload",
+          "line": 1011,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_remaining_bundle",
+          "line": 1076,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_add_demand",
+          "line": 1107,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_add_existing",
+          "line": 1110,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_shift_remainder",
+          "line": 1113,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_shift_fraction",
+          "line": 1117,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_structural_pairs",
+          "line": 1121,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_structural_case",
+          "line": 1143,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_structural_group",
+          "line": 1170,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_structural_resources",
+          "line": 1190,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_unique_structural_parts",
+          "line": 1197,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_admission_candidates",
+          "line": 1206,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_choose_case",
+          "line": 1234,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_disease_weight",
+          "line": 1260,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_tutorial_request",
+          "line": 1265,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_new_identity",
+          "line": 1278,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_personality",
+          "line": 1288,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_expression",
+          "line": 1300,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_returning_resident",
+          "line": 1308,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_remember",
+          "line": 1333,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_resident_protection",
+          "line": 1354,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_protected_reasons",
+          "line": 1379,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_release_identity",
+          "line": 1409,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_eligible_wait",
+          "line": 1421,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_deterministic_exit",
+          "line": 1443,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_depart_wait",
+          "line": 1452,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_environment_score",
+          "line": 1468,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_schedule",
+          "line": 1479,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_unschedule",
+          "line": 1488,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_stat",
+          "line": 1500,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_result_visit",
+          "line": 1506,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reject",
+          "line": 1512,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_ticks",
+          "line": 1515,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_natural",
+          "line": 1518,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "validate_snapshot",
+          "line": 1521,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        }
+      ]
+    },
+    {
+      "path": "game/arrivals/arrival_service.gd.uid",
+      "kind": "godot_uid",
+      "sha256": "f7d19bd548b72b4ed76505ca97d7d7a528861a2a86f9146329bf769b8de7d019",
+      "lines": 1,
+      "function_count": 0,
+      "loop_count": 0,
+      "coverage_status": "metadata_reviewed_no_execution",
+      "review": "Resource identity only, no executable code",
+      "functions": []
+    },
+    {
+      "path": "game/arrivals/capacity_solver.gd",
+      "kind": "gdscript",
+      "sha256": "97f010473f1b4bed516e92088eb23f4e51c01a1c60d4c66af7915511d754ca5f",
+      "lines": 7,
+      "function_count": 1,
+      "loop_count": 0,
+      "coverage_status": "same_class_static_audit_complete",
+      "review": "Entire native wrapper; native implementation outside this partition",
+      "functions": [
+        {
+          "name": "solve",
+          "line": 6,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        }
+      ]
+    },
+    {
+      "path": "game/arrivals/capacity_solver.gd.uid",
+      "kind": "godot_uid",
+      "sha256": "74aaf26a918caf75fa5bbb58085a0e6d8f21cad26d6ffd807ba9251ffdc7ec02",
+      "lines": 1,
+      "function_count": 0,
+      "loop_count": 0,
+      "coverage_status": "metadata_reviewed_no_execution",
+      "review": "Resource identity only, no executable code",
+      "functions": []
+    },
+    {
+      "path": "game/arrivals/day_plan.gd",
+      "kind": "gdscript",
+      "sha256": "c29a801a9394879454ea37a8ffaec698e50962bb513780a41e0bac37176527bc",
+      "lines": 161,
+      "function_count": 11,
+      "loop_count": 11,
+      "coverage_status": "same_class_static_audit_complete",
+      "review": "Entire deterministic plan/exact sampling/slot generation and validation",
+      "functions": [
+        {
+          "name": "allocate_shifts",
+          "line": 8,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "slot_tick",
+          "line": 30,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "sample_count",
+          "line": 47,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "draw_seed",
+          "line": 59,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "uniform_decimal",
+          "line": 66,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "count_range",
+          "line": 87,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "validate",
+          "line": 92,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "hash32",
+          "line": 128,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_window_tick",
+          "line": 132,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_generator",
+          "line": 154,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_natural",
+          "line": 160,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        }
+      ]
+    },
+    {
+      "path": "game/arrivals/day_plan.gd.uid",
+      "kind": "godot_uid",
+      "sha256": "5f2aaceef955eb39bbd64a2572b2bc15a9bde000b33c1fe71a0dc8c08d7268d5",
+      "lines": 1,
+      "function_count": 0,
+      "loop_count": 0,
+      "coverage_status": "metadata_reviewed_no_execution",
+      "review": "Resource identity only, no executable code",
+      "functions": []
+    },
+    {
+      "path": "game/arrivals/exact_fraction.gd",
+      "kind": "gdscript",
+      "sha256": "78dbb754096d5b6b49dcd1fa4d9988f165dea95a95bbd9232693ddedfeef012a",
+      "lines": 105,
+      "function_count": 24,
+      "loop_count": 2,
+      "coverage_status": "same_class_static_audit_complete",
+      "review": "Entire exact arithmetic/validation wrapper; native arithmetic outside this partition",
+      "functions": [
+        {
+          "name": "integer",
+          "line": 6,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "valid_integer",
+          "line": 13,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "make",
+          "line": 22,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "from_value",
+          "line": 33,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "valid",
+          "line": 38,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "add",
+          "line": 41,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "sub",
+          "line": 46,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "mul",
+          "line": 49,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "div",
+          "line": 55,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "negate",
+          "line": 59,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "compare",
+          "line": 62,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "minimum",
+          "line": 65,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "maximum",
+          "line": 68,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "floor_value",
+          "line": 71,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "ceil_value",
+          "line": 75,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "to_float",
+          "line": 78,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "absolute",
+          "line": 81,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "negate_integer",
+          "line": 84,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "compare_integer",
+          "line": 87,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "add_integer",
+          "line": 90,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "multiply_integer",
+          "line": 93,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "divide_integer",
+          "line": 96,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "divmod",
+          "line": 99,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "gcd",
+          "line": 104,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        }
+      ]
+    },
+    {
+      "path": "game/arrivals/exact_fraction.gd.uid",
+      "kind": "godot_uid",
+      "sha256": "e80b179de4fc1b4c9e6e32314d28d47ee0d313e72af3abdd86e3d70ed373c297",
+      "lines": 1,
+      "function_count": 0,
+      "loop_count": 0,
+      "coverage_status": "metadata_reviewed_no_execution",
+      "review": "Resource identity only, no executable code",
+      "functions": []
+    },
+    {
+      "path": "game/clinic/clinical_runtime.gd",
+      "kind": "gdscript",
+      "sha256": "b7eb9407c5062b73a40a6de654a6e1994f758853d5e51f14b7cc7bcbeb513ff0",
+      "lines": 2944,
+      "function_count": 125,
+      "loop_count": 190,
+      "coverage_status": "same_class_static_audit_complete",
+      "review": "Dispatch/candidates, plans, beds/surgery, releases, availability, supplies, readiness and reference pipeline; full function and scan/copy inventory",
+      "functions": [
+        {
+          "name": "_init",
+          "line": 25,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "ensure",
+          "line": 30,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "arrivals",
+          "line": 34,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "validate",
+          "line": 38,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "execute",
+          "line": 59,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_change_plan",
+          "line": 75,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_retarget_ticket",
+          "line": 100,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_arrive",
+          "line": 111,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "depart_visit",
+          "line": 162,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_release_preparation",
+          "line": 188,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "dispatch",
+          "line": 197,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "advance",
+          "line": 291,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "release_departed",
+          "line": 345,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_queue",
+          "line": 362,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_dispatch_service",
+          "line": 372,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_gather_assigned",
+          "line": 505,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "service_candidates",
+          "line": 524,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reference_routing_unchanged",
+          "line": 600,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_service_qualified",
+          "line": 615,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_missing_service_reason",
+          "line": 633,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "compare_plans",
+          "line": 679,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "plan_quote",
+          "line": 691,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_select_plan",
+          "line": 749,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_choose_plan",
+          "line": 782,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_decision_valid",
+          "line": 802,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_gather",
+          "line": 816,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_outpatient_minimum",
+          "line": 830,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_required_supplies",
+          "line": 836,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_outpatient_quote",
+          "line": 843,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_outpatient_work_ticks",
+          "line": 902,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_compatible_bed",
+          "line": 909,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_prepare_surgery",
+          "line": 992,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_surgery_quote",
+          "line": 1052,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_surgery_probability",
+          "line": 1133,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_surgery_bundle_quote",
+          "line": 1147,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_qualified_surgery_bundle_quote",
+          "line": 1172,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_surgery_work_seconds",
+          "line": 1236,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_bed_service_ticks",
+          "line": 1242,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_recovery_rate",
+          "line": 1249,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_recovery_ticks",
+          "line": 1255,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "remaining_commitments",
+          "line": 1261,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_commitment_bed",
+          "line": 1306,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_commitment_add",
+          "line": 1340,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_gathering_ticks",
+          "line": 1343,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_bed_transport",
+          "line": 1354,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_quoted_fee",
+          "line": 1389,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reservation_candidate",
+          "line": 1403,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reserve_bundle",
+          "line": 1415,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_commit_attempt",
+          "line": 1431,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_start",
+          "line": 1460,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_complete_service",
+          "line": 1478,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_mark_clinical_release",
+          "line": 1588,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_dispatch_clinical_releases",
+          "line": 1608,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_inside_release_region",
+          "line": 1664,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_release_ward_operator",
+          "line": 1673,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_clear_bed_exit",
+          "line": 1701,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_start_bed_service",
+          "line": 1716,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_settle",
+          "line": 1742,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_record_plan_experience",
+          "line": 1765,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_support",
+          "line": 1774,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_dispatch_ward_returns",
+          "line": 1785,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_ward_assignment_cell",
+          "line": 1805,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_ward_command",
+          "line": 1808,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_ward_staff_wait_reason",
+          "line": 1841,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_ward_covering",
+          "line": 1847,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_round_candidate",
+          "line": 1867,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_transfer_stay",
+          "line": 1891,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_pause_bed_sessions",
+          "line": 1920,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_begin_ward_referral",
+          "line": 1927,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_profile",
+          "line": 1934,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_gp_work_ticks",
+          "line": 1937,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_availability",
+          "line": 1945,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_build_availability",
+          "line": 1948,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_gathering_visit",
+          "line": 1972,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_facility_busy",
+          "line": 1985,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_staff_busy",
+          "line": 1999,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "staff_busy",
+          "line": 2025,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "equipment_uses",
+          "line": 2028,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "equipment_use",
+          "line": 2040,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_available_supplies",
+          "line": 2043,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_facility_unavailable",
+          "line": 2050,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_talent_rate",
+          "line": 2053,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_schedule_allows",
+          "line": 2056,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reference_assignment_allows",
+          "line": 2080,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "shortage_requests",
+          "line": 2087,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "arrival_readiness",
+          "line": 2109,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_arrival_candidate",
+          "line": 2141,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "reference_demand",
+          "line": 2168,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reference_options",
+          "line": 2197,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reference_terminal_beds",
+          "line": 2331,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reference_bed_alternatives",
+          "line": 2341,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reference_candidates",
+          "line": 2355,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reference_model",
+          "line": 2362,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_build_reference_model",
+          "line": 2373,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reference_diagnostics",
+          "line": 2453,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reference_consultations",
+          "line": 2481,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reference_component",
+          "line": 2503,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_new_reference_component_batch",
+          "line": 2520,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_queue_reference_component",
+          "line": 2524,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reference_component_key",
+          "line": 2563,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_flush_reference_components",
+          "line": 2577,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_finish_reference_component_batch",
+          "line": 2605,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "reference_component_observation",
+          "line": 2616,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reference_retry_context",
+          "line": 2625,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reference_retry_group",
+          "line": 2628,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reference_score",
+          "line": 2631,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reference_bundle",
+          "line": 2639,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reference_diagnostic_stages",
+          "line": 2651,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_build_reference_diagnostic_stages",
+          "line": 2658,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reference_test_choices",
+          "line": 2672,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reference_terminal_bundle",
+          "line": 2714,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_build_reference_terminal_bundle",
+          "line": 2720,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reference_resource_maps",
+          "line": 2762,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reference_stage",
+          "line": 2777,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reference_retry_stages",
+          "line": 2782,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reference_with_retry",
+          "line": 2789,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_bed_busy",
+          "line": 2814,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_practice",
+          "line": 2823,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "worked_staff",
+          "line": 2828,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "take_events",
+          "line": 2831,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "settle_practice",
+          "line": 2836,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_can_start",
+          "line": 2852,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_use",
+          "line": 2855,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "suspend_outpatient",
+          "line": 2870,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_dispatch_suspended",
+          "line": 2896,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        }
+      ]
+    },
+    {
+      "path": "game/clinic/clinical_runtime.gd.uid",
+      "kind": "godot_uid",
+      "sha256": "368fec0d4e2d9da38006d89d7925eefc70104a000425633d259d3724a1a554f1",
+      "lines": 1,
+      "function_count": 0,
+      "loop_count": 0,
+      "coverage_status": "metadata_reviewed_no_execution",
+      "review": "Resource identity only, no executable code",
+      "functions": []
+    },
+    {
+      "path": "game/clinic/hospital_visitors.gd",
+      "kind": "gdscript",
+      "sha256": "6fa00ff35a5b887888c2b7b9143997a034ce0b0ea81906182abbf76814d59610",
+      "lines": 301,
+      "function_count": 21,
+      "loop_count": 14,
+      "coverage_status": "same_class_static_audit_complete",
+      "review": "Arrival scan/request/admission, waiting points, ward lookup, bedside/medical yield/departure and validation; full inventory",
+      "functions": [
+        {
+          "name": "_init",
+          "line": 9,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "ensure",
+          "line": 13,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "arrivals",
+          "line": 17,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_request",
+          "line": 61,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_admit",
+          "line": 66,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "dispatch",
+          "line": 100,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "advance",
+          "line": 158,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "yield_for_care",
+          "line": 166,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_end_visit",
+          "line": 190,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_waiting_point",
+          "line": 194,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_waiting_facility_ids",
+          "line": 202,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_waiting_point_in_query",
+          "line": 209,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_bedside",
+          "line": 226,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_bedside_in_query",
+          "line": 232,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_point_clear",
+          "line": 256,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_ward_stay",
+          "line": 260,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_present",
+          "line": 266,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_stay_ids",
+          "line": 272,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_window",
+          "line": 277,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_ticks",
+          "line": 280,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "validate",
+          "line": 283,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        }
+      ]
+    },
+    {
+      "path": "game/clinic/hospital_visitors.gd.uid",
+      "kind": "godot_uid",
+      "sha256": "6e0bdaae581decfd807432c8671206b905b7e8da84b053442ec5b9df2a01c99e",
+      "lines": 1,
+      "function_count": 0,
+      "loop_count": 0,
+      "coverage_status": "metadata_reviewed_no_execution",
+      "review": "Resource identity only, no executable code",
+      "functions": []
+    },
+    {
+      "path": "game/community/research_service.gd",
+      "kind": "gdscript",
+      "sha256": "b910600188a27caae3d233c3c60944b7885e3c018db0ed19787307f795b76fd1",
+      "lines": 573,
+      "function_count": 35,
+      "loop_count": 39,
+      "coverage_status": "same_class_static_audit_complete",
+      "review": "Prerequisites/materials/jobs, shared desks/workers, advance/completion/refund, frozen rewards/unlocks/readiness and validation; full inventory",
+      "functions": [
+        {
+          "name": "_init",
+          "line": 15,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "ensure",
+          "line": 19,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "opened",
+          "line": 40,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "execute",
+          "line": 43,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "preview",
+          "line": 115,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_start",
+          "line": 151,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "record_diagnostic_work",
+          "line": 174,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_collect_diagnosis",
+          "line": 180,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "boundaries",
+          "line": 186,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "dispatch_job",
+          "line": 202,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "advance",
+          "line": 229,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "settle",
+          "line": 258,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "suspend_facility",
+          "line": 289,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "active_job",
+          "line": 296,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "terminal",
+          "line": 302,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "worked_staff",
+          "line": 305,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "take_events",
+          "line": 308,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "desk_reason",
+          "line": 313,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_worker_ready",
+          "line": 327,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_find_pair",
+          "line": 347,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_resource_reason",
+          "line": 369,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_selection_reason",
+          "line": 386,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_release",
+          "line": 395,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_use_desk",
+          "line": 407,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reward_snapshot",
+          "line": 419,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "trail_research",
+          "line": 428,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_expand_dependencies",
+          "line": 434,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "reception_readiness",
+          "line": 441,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "rewards",
+          "line": 461,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "disease_unlocked",
+          "line": 467,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_evidence",
+          "line": 480,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_in_region",
+          "line": 486,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "validate",
+          "line": 491,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_saved_integer",
+          "line": 569,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_result",
+          "line": 572,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        }
+      ]
+    },
+    {
+      "path": "game/community/research_service.gd.uid",
+      "kind": "godot_uid",
+      "sha256": "b41ff1df0124c6cde40405679cb63fbd028c3608a05dc223492d0f1c3bc254f9",
+      "lines": 1,
+      "function_count": 0,
+      "loop_count": 0,
+      "coverage_status": "metadata_reviewed_no_execution",
+      "review": "Resource identity only, no executable code",
+      "functions": []
+    },
+    {
+      "path": "game/life/waiting_life.gd",
+      "kind": "gdscript",
+      "sha256": "f33f53ff7570ef2475ba5ccd130fe256e5cea792b53f3489a0d53aa1e644a2e7",
+      "lines": 520,
+      "function_count": 36,
+      "loop_count": 29,
+      "coverage_status": "same_class_static_audit_complete",
+      "review": "Seat candidates/manual commit, conditions/local actors, occupancy, needs/return/call-patient/water projection and validation; full inventory",
+      "functions": [
+        {
+          "name": "_init",
+          "line": 10,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "ensure",
+          "line": 14,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "dispatch",
+          "line": 23,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "advance",
+          "line": 59,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "call_patient",
+          "line": 84,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "execute",
+          "line": 98,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "seat_candidates",
+          "line": 121,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "patient_summary",
+          "line": 159,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "noise_multiplier",
+          "line": 184,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "facility_availability",
+          "line": 195,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "validate",
+          "line": 209,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_waiting",
+          "line": 236,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_seat_quote",
+          "line": 239,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_seat_quote_in_query",
+          "line": 245,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_facility_quote",
+          "line": 264,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_facility_quote_in_query",
+          "line": 270,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_route_candidate",
+          "line": 296,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_occupied",
+          "line": 305,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_public_seat",
+          "line": 316,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reserve_seat",
+          "line": 324,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_release_seat",
+          "line": 332,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_begin_need",
+          "line": 342,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_dispatch_need",
+          "line": 355,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_start_fallback",
+          "line": 408,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_complete_need",
+          "line": 416,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_condition_actor_index",
+          "line": 431,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_condition_actors",
+          "line": 446,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_conditions",
+          "line": 465,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_preferred",
+          "line": 484,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_environment",
+          "line": 491,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_chair",
+          "line": 495,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_amenity",
+          "line": 500,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_scene",
+          "line": 505,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_ticks",
+          "line": 513,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_natural",
+          "line": 516,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_result",
+          "line": 519,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        }
+      ]
+    },
+    {
+      "path": "game/life/waiting_life.gd.uid",
+      "kind": "godot_uid",
+      "sha256": "d22afe73a6bc0e1ff4096c65c27d4c98f91bee5c1413eb96c9d0f6cb8954ecfd",
+      "lines": 1,
+      "function_count": 0,
+      "loop_count": 0,
+      "coverage_status": "metadata_reviewed_no_execution",
+      "review": "Resource identity only, no executable code",
+      "functions": []
+    },
+    {
+      "path": "game/staff/clinical_development.gd",
+      "kind": "gdscript",
+      "sha256": "7cdf4c5bc839bb091b676b045b1642e84b20d65d3b5117d40d6806e4f125a3a4",
+      "lines": 688,
+      "function_count": 38,
+      "loop_count": 46,
+      "coverage_status": "same_class_static_audit_complete",
+      "review": "Training/shared desks/mentors, dispatch/advance/settle, safe_busy, bases/queues/yield, practice/refunds; full inventory",
+      "functions": [
+        {
+          "name": "_init",
+          "line": 10,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "ensure",
+          "line": 14,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "execute",
+          "line": 26,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "preview",
+          "line": 76,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "dispatch",
+          "line": 135,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_dispatch_training_job",
+          "line": 172,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "advance",
+          "line": 213,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "settle",
+          "line": 263,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "worked_staff",
+          "line": 299,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "validate",
+          "line": 302,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "tracks",
+          "line": 349,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "terminal",
+          "line": 352,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "safe_busy",
+          "line": 355,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_prepare_base",
+          "line": 372,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_base_order_tick",
+          "line": 420,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_base_before",
+          "line": 446,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_base_line",
+          "line": 453,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_base_start_quote",
+          "line": 472,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_base_arranged",
+          "line": 489,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_select_base",
+          "line": 493,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_yield_prepared_base",
+          "line": 519,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_training_window",
+          "line": 567,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_fatigue_multiplier",
+          "line": 572,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_desks",
+          "line": 575,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_desk_available",
+          "line": 582,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "training_desk_taken",
+          "line": 588,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "desk_taken",
+          "line": 594,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_mentor_qualified",
+          "line": 605,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_mentor_available",
+          "line": 614,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_next_title",
+          "line": 624,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "suspend_facility",
+          "line": 630,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_pause",
+          "line": 635,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_finish",
+          "line": 646,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_finish_cancel",
+          "line": 657,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_history",
+          "line": 666,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_settle_cases",
+          "line": 671,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_operator",
+          "line": 684,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_result",
+          "line": 687,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        }
+      ]
+    },
+    {
+      "path": "game/staff/clinical_development.gd.uid",
+      "kind": "godot_uid",
+      "sha256": "242f660a5bb4d3ebe212105fcb8b49b1e0bc9b0f2c6d13d8d75b7dff8702e43a",
+      "lines": 1,
+      "function_count": 0,
+      "loop_count": 0,
+      "coverage_status": "metadata_reviewed_no_execution",
+      "review": "Resource identity only, no executable code",
+      "functions": []
+    },
+    {
+      "path": "game/staff/recruitment_service.gd",
+      "kind": "gdscript",
+      "sha256": "83d1c379a4d75d87ec38e9041eb450e4b3b569956743114888ab7cd90032f654",
+      "lines": 750,
+      "function_count": 45,
+      "loop_count": 44,
+      "coverage_status": "same_class_static_audit_complete",
+      "review": "Queries/card/entry, standard and daily candidates, search/hire/payment, practice/receipts/first jobs and validation; full inventory",
+      "functions": [
+        {
+          "name": "_init",
+          "line": 9,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "validate",
+          "line": 13,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_validate_saved_filter",
+          "line": 116,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_validate_saved_candidate",
+          "line": 130,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_saved_integer",
+          "line": 167,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "ensure",
+          "line": 170,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "standard_key",
+          "line": 184,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "standard_preview",
+          "line": 188,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "card",
+          "line": 205,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "query",
+          "line": 218,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "execute",
+          "line": 233,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "boundaries",
+          "line": 257,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "advance",
+          "line": 289,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_search",
+          "line": 308,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_cancel_search",
+          "line": 335,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_hire",
+          "line": 344,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_bookmark",
+          "line": 406,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_filter_error",
+          "line": 426,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_titles",
+          "line": 454,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_generate",
+          "line": 469,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_doctor_maximum",
+          "line": 522,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_doctor_choices",
+          "line": 530,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_pay",
+          "line": 541,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_draw",
+          "line": 547,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_preference",
+          "line": 550,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_quote_hash",
+          "line": 556,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_ordered",
+          "line": 563,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_candidate_from_card",
+          "line": 578,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_pool_count",
+          "line": 584,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_staff_count",
+          "line": 593,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_entry",
+          "line": 600,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_certificates",
+          "line": 621,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "adapter",
+          "line": 626,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "talent",
+          "line": 630,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "talent_effect",
+          "line": 636,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "work_rate",
+          "line": 650,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "service_mood",
+          "line": 658,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "settle",
+          "line": 671,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "consume_completion",
+          "line": 689,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "research_work",
+          "line": 706,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_award_practice",
+          "line": 722,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_convert_practice",
+          "line": 728,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_practice_profile",
+          "line": 734,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_first_job",
+          "line": 740,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_result",
+          "line": 749,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        }
+      ]
+    },
+    {
+      "path": "game/staff/recruitment_service.gd.uid",
+      "kind": "godot_uid",
+      "sha256": "814b6d17659a547710f29b5585b801693bd4407075b7d44d00683c6f1dd945be",
+      "lines": 1,
+      "function_count": 0,
+      "loop_count": 0,
+      "coverage_status": "metadata_reviewed_no_execution",
+      "review": "Resource identity only, no executable code",
+      "functions": []
+    },
+    {
+      "path": "game/staff/shift_scheduler.gd",
+      "kind": "gdscript",
+      "sha256": "a9d61fe58bf7802e54207cc3ea689c978182075c46f297ab595854a39ee238a3",
+      "lines": 484,
+      "function_count": 24,
+      "loop_count": 34,
+      "coverage_status": "same_class_static_audit_complete",
+      "review": "Shift/leave boundaries, actual ward handoffs, coverage/suggestions/budgets/apply/restore; full inventory",
+      "functions": [
+        {
+          "name": "_init",
+          "line": 10,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "ensure",
+          "line": 14,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "execute",
+          "line": 40,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "boundaries",
+          "line": 77,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "dispatch",
+          "line": 114,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_handoff_candidate",
+          "line": 185,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "advance",
+          "line": 199,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "suggestion",
+          "line": 219,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "coverage",
+          "line": 237,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "assignment",
+          "line": 276,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "available_ticks",
+          "line": 284,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "window_ticks",
+          "line": 319,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "shift_index",
+          "line": 331,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "worked_staff",
+          "line": 334,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "validate",
+          "line": 337,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_apply",
+          "line": 365,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_basis",
+          "line": 398,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_day_state",
+          "line": 406,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_roll_day",
+          "line": 417,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_continuity_error",
+          "line": 424,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_template_error",
+          "line": 450,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_has_facility",
+          "line": 474,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_bedside",
+          "line": 480,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_result",
+          "line": 483,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        }
+      ]
+    },
+    {
+      "path": "game/staff/shift_scheduler.gd.uid",
+      "kind": "godot_uid",
+      "sha256": "0f7b4b2fd71b34550410f03dcdce9419aa16b5a9d9bbee13605d44beab18e6de",
+      "lines": 1,
+      "function_count": 0,
+      "loop_count": 0,
+      "coverage_status": "metadata_reviewed_no_execution",
+      "review": "Resource identity only, no executable code",
+      "functions": []
+    },
+    {
+      "path": "game/staff/staff_wellbeing.gd",
+      "kind": "gdscript",
+      "sha256": "5336687e79a03dc8426e18ece5775051392cac6c7507a1c5012b9a88334de855",
+      "lines": 799,
+      "function_count": 43,
+      "loop_count": 44,
+      "coverage_status": "same_class_static_audit_complete",
+      "review": "Safety/relief/sleep/rest/recreation, facility/tea/roundtrip queries, occupancy and restore; full inventory",
+      "functions": [
+        {
+          "name": "_init",
+          "line": 9,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "ensure",
+          "line": 13,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "execute",
+          "line": 24,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "dispatch",
+          "line": 60,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "boundaries",
+          "line": 118,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "advance",
+          "line": 129,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "validate",
+          "line": 194,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_begin",
+          "line": 225,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_dispatch_task",
+          "line": 238,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_reserve",
+          "line": 340,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_select_facility",
+          "line": 362,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_tea_position",
+          "line": 407,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_go_outside",
+          "line": 428,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_return_from_outside",
+          "line": 437,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_begin_return",
+          "line": 455,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_interrupt",
+          "line": 472,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_release_if_clear",
+          "line": 485,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_can_recreate",
+          "line": 500,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_recreation",
+          "line": 520,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_dispatch_recreation",
+          "line": 584,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_adapted_candidate",
+          "line": 604,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_tea_obstacles",
+          "line": 617,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_tea_cell",
+          "line": 642,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_lie_down",
+          "line": 662,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_integral",
+          "line": 678,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_recover",
+          "line": 690,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_rest_energy_rate",
+          "line": 693,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_rest_stress_rate",
+          "line": 702,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_other_commitment",
+          "line": 709,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_relief_available",
+          "line": 721,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_pool_resting",
+          "line": 738,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_ward_responsibility",
+          "line": 745,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_patient_occupies",
+          "line": 751,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_staff_area",
+          "line": 763,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_is_staff_room",
+          "line": 766,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_is_seat",
+          "line": 769,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_recreation_count",
+          "line": 772,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_route_ticks",
+          "line": 779,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_entry",
+          "line": 782,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_at_target",
+          "line": 786,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_move_target",
+          "line": 789,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_ticks",
+          "line": 795,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        },
+        {
+          "name": "_result",
+          "line": 798,
+          "coverage": "function/loop/copy inventory reviewed; detailed relevant call-chain coverage in file review"
+        }
+      ]
+    },
+    {
+      "path": "game/staff/staff_wellbeing.gd.uid",
+      "kind": "godot_uid",
+      "sha256": "cf82722d03b7b98f6d21a20d3313529721ae34201b78aef8387ceab3f55f853d",
+      "lines": 1,
+      "function_count": 0,
+      "loop_count": 0,
+      "coverage_status": "metadata_reviewed_no_execution",
+      "review": "Resource identity only, no executable code",
+      "functions": []
+    }
+  ],
+  "exclusions": [
+    "native arrival capacity and GMP internals owned by platform audit",
+    "spatial/environment/supplies/UI follow only verified interface boundary",
+    "GPU/full capacity/formal matrix/two hour stability remain paused"
+  ],
+  "report": "clinical.md",
+  "manifest": "clinical-manifest.json",
+  "residual_root_cause_count": 10,
+  "cross_partition_dedup": [
+    {
+      "canonical_id": "CL-A08",
+      "alias": "PRES-06",
+      "count_as": 1,
+      "scope": "Recruitment status UI calls full recruitment query; caller and backend are the same root cause"
+    }
+  ]
+}

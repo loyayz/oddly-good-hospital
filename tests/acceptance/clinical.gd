@@ -39,7 +39,9 @@ const CASES: Dictionary = {
 	"CLIN-29":"docs/design/07-clinical-team.md §5、§8、§14；C舒缓真实180秒恢复和查房后收60+660，领4包",
 	"CLIN-30":"docs/design/07-clinical-team.md §8.2；无等候点仅有请求，条件齐备后独立亲友从入口真实到院",
 	"CLIN-31":"docs/design/07-clinical-team.md §8.2；每窗口意向一次，换床/恢复不重抽，实际床边才起30秒",
-	"CLIN-32":"docs/design/07-clinical-team.md §8.2；拒绝/医疗让位/出院安全退出，原停留不重启且空间不早释放"
+	"CLIN-32":"docs/design/07-clinical-team.md §8.2；拒绝/医疗让位/出院安全退出，原停留不重启且空间不早释放",
+	"CLIN-33":"docs/design/01-simulation.md §3、07-clinical-team.md §1、§6；接待/初诊到齐预约独占职员，原票接续，床通行权限不冒充工作，路线失败不占资源",
+	"CLIN-34":"docs/design/07-clinical-team.md §6；指定医生报价保留其全部合法设备与原序，无指定仍全量；结构/实际限制及完整事实随机流不变"
 }
 
 const PREREQUISITES: Dictionary = {
@@ -166,6 +168,12 @@ func _declare_call_ready(c: Dictionary, visit_ids: Array) -> void:
 		c.world.facts.moves.erase(actor_id)
 		if c.world.facts.adaptations.get(chair_id,{}).get("actor_id","")==actor_id:
 			c.world.facts.adaptations.erase(chair_id)
+
+func _case_33(t) -> void:
+	load("res://tests/acceptance/clinical_gathering.gd").new().run_case(t,_content)
+
+func _case_34(t) -> void:
+	load("res://tests/acceptance/clinical_selected_doctor.gd").new().run_case(t,_content)
 
 func _validate_rule_input(c: Dictionary, case_id: String, kind: String) -> String:
 	c.world.touch()

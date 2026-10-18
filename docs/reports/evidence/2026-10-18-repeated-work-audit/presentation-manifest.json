@@ -1,0 +1,1868 @@
+{
+  "recorded_at": "2026-10-18T11:02:45.093463+00:00",
+  "scope": "presentation/application/content/persistence/platform plus own source assets",
+  "evidence": "static source only; no engine, test, UI or performance runs",
+  "head": "dba8612cef21668cbd7b38560c19f9f40b0e3847",
+  "inventory_command": "rg --files game addons art-source assets content; game limited to app/ui/view/platform/content/persistence",
+  "code_file_count": 55,
+  "code_lines": 12422,
+  "inventory_file_count": 284,
+  "other_game_dirs_owned_elsewhere": [
+    "arrivals",
+    "building",
+    "clinic",
+    "community",
+    "economy",
+    "life",
+    "operations",
+    "sim",
+    "staff"
+  ],
+  "excluded_roots": [
+    "tools",
+    "tests",
+    "docs/tools",
+    ".godot",
+    ".cache",
+    ".build",
+    "third-party implementations and precompiled native libraries"
+  ],
+  "files": [
+    {
+      "path": "addons/source_assets/plugin.cfg",
+      "bytes": 183,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "addons/source_assets/plugin.gd",
+      "bytes": 1685,
+      "kind": "own_code_static_review",
+      "sha256": "cbaebc604ad09665db1a3ec6ce0d923319d3f17c148227aea7634d5713c157cd",
+      "lines": 43,
+      "review_entry": "manifest indexed once/export matched source hash once"
+    },
+    {
+      "path": "addons/source_assets/plugin.gd.uid",
+      "bytes": 19,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "art-source/README.md",
+      "bytes": 2200,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "art-source/build_stage01.py",
+      "bytes": 29374,
+      "kind": "own_code_static_review",
+      "sha256": "109eeda52f51050d40c888f4443de936911107f9fb41f06d1d966913fdcc18c5",
+      "lines": 543,
+      "review_entry": "offline geometry/bone/keyframe build/fixed nine asset catalog lookup"
+    },
+    {
+      "path": "art-source/core_eq01_machine.blend",
+      "bytes": 98224,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "art-source/core_eq05_machine.blend",
+      "bytes": 94040,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "art-source/core_m17_machine.blend",
+      "bytes": 96984,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "art-source/core_m37_machine.blend",
+      "bytes": 97125,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "art-source/core_s14_body.blend",
+      "bytes": 96880,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "art-source/core_s21_body.blend",
+      "bytes": 99263,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "art-source/core_s49_body.blend",
+      "bytes": 101356,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "art-source/core_s55_body.blend",
+      "bytes": 100522,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "art-source/core_s59_body.blend",
+      "bytes": 101927,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "art-source/gags/README.md",
+      "bytes": 2492,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "art-source/gags/build_gags.py",
+      "bytes": 13909,
+      "kind": "own_code_static_review",
+      "sha256": "3ea672e94fe32e853774096d1fccdda10534fa03f96e1e0a662474959e57bce7",
+      "lines": 295,
+      "review_entry": "offline fixed three prop assets/keyframes/export"
+    },
+    {
+      "path": "art-source/gags/case_d23_dream.blend",
+      "bytes": 125492,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "art-source/gags/case_d37_tissue.blend",
+      "bytes": 91138,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "art-source/gags/device_m37_filter.blend",
+      "bytes": 102224,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "art-source/gags/preview/case_d23_dream-recovery.png",
+      "bytes": 554299,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "art-source/gags/preview/case_d23_dream-symptom.png",
+      "bytes": 597748,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "art-source/gags/preview/case_d23_dream-work.png",
+      "bytes": 602873,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "art-source/gags/preview/case_d37_tissue-recovery.png",
+      "bytes": 556219,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "art-source/gags/preview/case_d37_tissue-symptom.png",
+      "bytes": 569879,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "art-source/gags/preview/device_m37_filter-work.png",
+      "bytes": 577957,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "art-source/gags/preview_gags.py",
+      "bytes": 3163,
+      "kind": "own_code_static_review",
+      "sha256": "e5eb116abb822d3e7118abd400918a2b66ff148a7a10c85120d8ab78c8fe05e1",
+      "lines": 74,
+      "review_entry": "offline fixed prop/clip preview list"
+    },
+    {
+      "path": "art-source/preview/stage01-bodies.png",
+      "bytes": 1485667,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "art-source/preview/stage01-machines.png",
+      "bytes": 1561930,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "art-source/preview_stage01.py",
+      "bytes": 3207,
+      "kind": "own_code_static_review",
+      "sha256": "48e3814d8dd06cffa03d80a1d9b041bb5c26e9d16337e995771f3aeed50e8e59",
+      "lines": 76,
+      "review_entry": "offline fixed body/machine preview list"
+    },
+    {
+      "path": "assets/fonts/NotoSansCJKsc-Medium.otf",
+      "bytes": 16523632,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "assets/fonts/NotoSansCJKsc-Medium.otf.import",
+      "bytes": 798,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "assets/fonts/NotoSansCJKsc-Regular.otf",
+      "bytes": 16437364,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "assets/fonts/NotoSansCJKsc-Regular.otf.import",
+      "bytes": 801,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "assets/fonts/OFL.txt",
+      "bytes": 4301,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "assets/gags/case_d23_dream.glb",
+      "bytes": 165876,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "assets/gags/case_d23_dream.glb.import",
+      "bytes": 1216,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "assets/gags/case_d37_tissue.glb",
+      "bytes": 19696,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "assets/gags/case_d37_tissue.glb.import",
+      "bytes": 1219,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "assets/gags/device_m37_filter.glb",
+      "bytes": 70912,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "assets/gags/device_m37_filter.glb.import",
+      "bytes": 1225,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "assets/gags/stage01-gags.json",
+      "bytes": 19955,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "assets/licenses/Godot-MIT.txt",
+      "bytes": 1149,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "assets/models/core_eq01_machine.glb",
+      "bytes": 191072,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "assets/models/core_eq01_machine.glb.import",
+      "bytes": 1224,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "assets/models/core_eq05_machine.glb",
+      "bytes": 133528,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "assets/models/core_eq05_machine.glb.import",
+      "bytes": 1224,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "assets/models/core_m17_machine.glb",
+      "bytes": 172632,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "assets/models/core_m17_machine.glb.import",
+      "bytes": 1221,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "assets/models/core_m37_machine.glb",
+      "bytes": 178524,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "assets/models/core_m37_machine.glb.import",
+      "bytes": 1219,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "assets/models/core_s14_body.glb",
+      "bytes": 306012,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "assets/models/core_s14_body.glb.import",
+      "bytes": 1212,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "assets/models/core_s21_body.glb",
+      "bytes": 347228,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "assets/models/core_s21_body.glb.import",
+      "bytes": 1212,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "assets/models/core_s49_body.glb",
+      "bytes": 403888,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "assets/models/core_s49_body.glb.import",
+      "bytes": 1212,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "assets/models/core_s55_body.glb",
+      "bytes": 381332,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "assets/models/core_s55_body.glb.import",
+      "bytes": 1212,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "assets/models/core_s59_body.glb",
+      "bytes": 407720,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "assets/models/core_s59_body.glb.import",
+      "bytes": 1212,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "assets/models/import_vertex_colours.gd",
+      "bytes": 1176,
+      "kind": "own_code_static_review",
+      "sha256": "556fcf845505dca9bfc30f1c8a65466cb9fea4caaf0e73eee4331bc571c0688c",
+      "lines": 31,
+      "review_entry": "import tree traversal/original mesh preparation map"
+    },
+    {
+      "path": "assets/models/import_vertex_colours.gd.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "assets/models/stage01-production.json",
+      "bytes": 277853,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/accessibility_equipment.json",
+      "bytes": 1591,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/activity_purposes.json",
+      "bytes": 1284,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/amenity_scenes.json",
+      "bytes": 1544,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/amenity_services.json",
+      "bytes": 802,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/assets/index.json",
+      "bytes": 264602,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/blueprint_presets.json",
+      "bytes": 1914,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/build_room_types.json",
+      "bytes": 2681,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/chair_variants.json",
+      "bytes": 2501,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/cleanup_sources.json",
+      "bytes": 1795,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/clinical_abilities.json",
+      "bytes": 907,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/clinical_equipment.json",
+      "bytes": 936,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/clinical_practice_sources.json",
+      "bytes": 970,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/clinical_room_types.json",
+      "bytes": 610,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/colleague_scenes.json",
+      "bytes": 1524,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/comedy_corner_guides.json",
+      "bytes": 2215,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/community_activities.json",
+      "bytes": 6410,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/community_cast.json",
+      "bytes": 1365,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/consultation_behaviors.json",
+      "bytes": 11290,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/context_lessons.json",
+      "bytes": 2029,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/decor_style_presets.json",
+      "bytes": 863,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/diagnostic_modes.json",
+      "bytes": 1286,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/diagnostic_work_styles.json",
+      "bytes": 1401,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/diseases.json",
+      "bytes": 24192,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/doctor_personalities.json",
+      "bytes": 2363,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/doctor_responses.json",
+      "bytes": 2045,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/doctor_titles.json",
+      "bytes": 1500,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/doors.json",
+      "bytes": 1320,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/ease_rules.json",
+      "bytes": 1560,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/facility_fit_profiles.json",
+      "bytes": 886,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/facility_magic_scenes.json",
+      "bytes": 1611,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/families.json",
+      "bytes": 874,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/finance_views.json",
+      "bytes": 1505,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/fit_examples.json",
+      "bytes": 450,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/furniture_equipment.json",
+      "bytes": 21908,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/gratitude_abilities.json",
+      "bytes": 13775,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/gratitude_effects.json",
+      "bytes": 1023,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/growth_moments.json",
+      "bytes": 1659,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/history_templates.json",
+      "bytes": 3566,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/hospital_situations.json",
+      "bytes": 6338,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/incident_contexts.json",
+      "bytes": 3622,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/incidents.json",
+      "bytes": 29653,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/initial_disease_ids.json",
+      "bytes": 48,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/interactions.json",
+      "bytes": 44175,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/journey_reason_cards.json",
+      "bytes": 1950,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/layouts.json",
+      "bytes": 5086,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/locale/zh_CN.csv",
+      "bytes": 479215,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/locale/zh_CN.csv.import",
+      "bytes": 25,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/machines.json",
+      "bytes": 930,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/maintenance_policies.json",
+      "bytes": 453,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/maintenance_scenes.json",
+      "bytes": 1811,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/manifest.json",
+      "bytes": 13877,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/medical_equipment_profiles.json",
+      "bytes": 3103,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/medical_progress_cues.json",
+      "bytes": 13440,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/medical_supplies.json",
+      "bytes": 1968,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/memory_callbacks.json",
+      "bytes": 4313,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/movement_cues.json",
+      "bytes": 468,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/observation_cues.json",
+      "bytes": 420,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/onboarding_steps.json",
+      "bytes": 2650,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/patient_behaviors.json",
+      "bytes": 4455,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/patient_personalities.json",
+      "bytes": 11103,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/preferences.json",
+      "bytes": 438,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/profiles.json",
+      "bytes": 438,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/queue_cues.json",
+      "bytes": 1073,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/recruitment_examples.json",
+      "bytes": 2146,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/remodel_guides.json",
+      "bytes": 5625,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/renovation_materials.json",
+      "bytes": 1258,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/research.json",
+      "bytes": 8617,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/research_trails.json",
+      "bytes": 1532,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/rest_cues.json",
+      "bytes": 778,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/resume_note_templates.json",
+      "bytes": 446,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/rules.json",
+      "bytes": 106339,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/service_equipment.json",
+      "bytes": 2235,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/specialties.json",
+      "bytes": 1613,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/species.json",
+      "bytes": 22576,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/species_gifts.json",
+      "bytes": 15523,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/staff_base_cues.json",
+      "bytes": 634,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/staff_biographies.json",
+      "bytes": 1899,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/staff_practice_profiles.json",
+      "bytes": 2230,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/staff_recreation_equipment.json",
+      "bytes": 1741,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/staff_rig_adapters.json",
+      "bytes": 6876,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/staff_role_profiles.json",
+      "bytes": 1963,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/staff_support_rooms.json",
+      "bytes": 258,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/staff_talent_handlers.json",
+      "bytes": 815,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/staff_talents.json",
+      "bytes": 20817,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/staff_work_styles.json",
+      "bytes": 1068,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/starter_layout.json",
+      "bytes": 8390,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/stories.json",
+      "bytes": 2775,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/story_activity_links.json",
+      "bytes": 1732,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/story_patient_bindings.json",
+      "bytes": 554,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/supply_reactions.json",
+      "bytes": 716,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/surgical_adapters.json",
+      "bytes": 19724,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/tags.json",
+      "bytes": 1193,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/task_guides.json",
+      "bytes": 6733,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/tasks.json",
+      "bytes": 12140,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/treatment_bindings.json",
+      "bytes": 198103,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/treatment_plans.json",
+      "bytes": 65820,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/treatment_protocols.json",
+      "bytes": 2881,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/treatment_routines.json",
+      "bytes": 32007,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/upgrade_presentations.json",
+      "bytes": 2019,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/upgrade_tiers.json",
+      "bytes": 371,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/vertical_connectors.json",
+      "bytes": 3412,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/visitor_cues.json",
+      "bytes": 532,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/ward_neighbor_cues.json",
+      "bytes": 566,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "content/core/ward_scenes.json",
+      "bytes": 1212,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "game/app/app_root.gd",
+      "bytes": 47183,
+      "kind": "own_code_static_review",
+      "sha256": "92747797915dc0ade61e72402f309a456dd485194f8fdd0c3e06e6efedd4abbd",
+      "lines": 1007,
+      "review_entry": "frame advance/view refresh/details grouping/save-switch publication boundaries"
+    },
+    {
+      "path": "game/app/app_root.gd.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/app/game_session.gd",
+      "bytes": 4559,
+      "kind": "own_code_static_review",
+      "sha256": "a22ec31241d16b66a607db6f1a5cb7aec70dcab625160c2a5072a7baaede2675",
+      "lines": 120,
+      "review_entry": "pending resume/fixed-step loop cap/paused command boundary"
+    },
+    {
+      "path": "game/app/game_session.gd.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/app/main.tscn",
+      "bytes": 265,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "game/content/content_db.gd",
+      "bytes": 3063,
+      "kind": "own_code_static_review",
+      "sha256": "658bef312d445be223af4cb7b55254160cd884105a863ee280d16fe0733f803a",
+      "lines": 84,
+      "review_entry": "indexed definitions/body values/8 facility and 4 doctor fee rows"
+    },
+    {
+      "path": "game/content/content_db.gd.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/content/content_load_result.gd",
+      "bytes": 189,
+      "kind": "own_code_static_review",
+      "sha256": "ca8ff6780a30f9dee0e5254df360103117735175d2d207df47a1c824d9f8c3b5",
+      "lines": 9,
+      "review_entry": "load result container"
+    },
+    {
+      "path": "game/content/content_load_result.gd.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/content/content_loader.gd",
+      "bytes": 24381,
+      "kind": "own_code_static_review",
+      "sha256": "60289da8dd877645ac07eb31cb98afb1dd3b4ab65b1057d6134e29f7c50dfe9b",
+      "lines": 544,
+      "review_entry": "pack load dependency/reference loops and grouped protocols; cold path"
+    },
+    {
+      "path": "game/content/content_loader.gd.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/content/content_pipeline.py",
+      "bytes": 33378,
+      "kind": "own_code_static_review",
+      "sha256": "2ed8831fa9f63c22ada1666c6f665340d9055288ce3c9627f63f69d932205aa7",
+      "lines": 552,
+      "review_entry": "offline pack validate/build/grouping/index loops"
+    },
+    {
+      "path": "game/content/content_registry.gd",
+      "bytes": 4440,
+      "kind": "own_code_static_review",
+      "sha256": "2bc1c8a0cc1c38d15438e97fcafeb5230a7a3a044dd361355476679a789077f4",
+      "lines": 123,
+      "review_entry": "immutable per-collection and pair indexes/fixed 8 collection facility membership"
+    },
+    {
+      "path": "game/content/content_registry.gd.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/content/schema100.json",
+      "bytes": 584750,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "game/persistence/backup_zip.gd",
+      "bytes": 18888,
+      "kind": "own_code_static_review",
+      "sha256": "5859b6be7d1472798ce50392c8c2dd4869c8a4114d7ce989b44dcca082bd8261",
+      "lines": 439,
+      "review_entry": "max three entries/bounded streaming/hash CRC Adler"
+    },
+    {
+      "path": "game/persistence/backup_zip.gd.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/persistence/blueprint_library.gd",
+      "bytes": 4421,
+      "kind": "own_code_static_review",
+      "sha256": "aea8b917af5575789c1ec16f8780ca91f1b114661714fc67a254c22dab0ec497",
+      "lines": 88,
+      "review_entry": "filename enumeration and bounded validated page"
+    },
+    {
+      "path": "game/persistence/blueprint_library.gd.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/persistence/hospital_library.gd",
+      "bytes": 25888,
+      "kind": "own_code_static_review",
+      "sha256": "218f96b31dadd9127c4fbb30bcd13a0f7f53044972fea0bf21fd238535d925de",
+      "lines": 526,
+      "review_entry": "manifest page cache/import-export boundaries/identity remap nested prefix scan"
+    },
+    {
+      "path": "game/persistence/hospital_library.gd.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/persistence/json_stream.gd",
+      "bytes": 8689,
+      "kind": "own_code_static_review",
+      "sha256": "f3a3eef718a74003228a7c03a1151820a542f1f992efaa601ca0d41fc24e27c6",
+      "lines": 292,
+      "review_entry": "canonical keys/chunk fast paths/UTF-8 and numeric decode"
+    },
+    {
+      "path": "game/persistence/json_stream.gd.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/persistence/snapshot_store.gd",
+      "bytes": 27604,
+      "kind": "own_code_static_review",
+      "sha256": "78566573c6bdb50efc8dd6945d27c69f5f0578d93752fb961c99c0d585bcef25",
+      "lines": 562,
+      "review_entry": "freeze/encode/full durable validation/cleanup/chunk paging"
+    },
+    {
+      "path": "game/persistence/snapshot_store.gd.uid",
+      "bytes": 19,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/platform/windows/README.md",
+      "bytes": 13887,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "game/platform/windows/bin/libgcc_s_seh-1.dll",
+      "bytes": 150537,
+      "kind": "binary_or_vendor_excluded",
+      "review_entry": "not own executable source; no vendor internals audited"
+    },
+    {
+      "path": "game/platform/windows/bin/libgmp-10.dll",
+      "bytes": 681231,
+      "kind": "binary_or_vendor_excluded",
+      "review_entry": "not own executable source; no vendor internals audited"
+    },
+    {
+      "path": "game/platform/windows/bin/libmpfr-6.dll",
+      "bytes": 713692,
+      "kind": "binary_or_vendor_excluded",
+      "review_entry": "not own executable source; no vendor internals audited"
+    },
+    {
+      "path": "game/platform/windows/bin/libwinpthread-1.dll",
+      "bytes": 64574,
+      "kind": "binary_or_vendor_excluded",
+      "review_entry": "not own executable source; no vendor internals audited"
+    },
+    {
+      "path": "game/platform/windows/bin/licenses/Boost-1.0.txt",
+      "bytes": 1338,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "game/platform/windows/bin/licenses/GCC-Runtime-Exception-3.1.txt",
+      "bytes": 3324,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "game/platform/windows/bin/licenses/GMP-LGPL-3.0.txt",
+      "bytes": 7639,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "game/platform/windows/bin/licenses/GNU-GPL-3.0.txt",
+      "bytes": 35150,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "game/platform/windows/bin/licenses/MPFR-LGPL-3.0.txt",
+      "bytes": 7652,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "game/platform/windows/bin/licenses/SCIP-Apache-2.0.txt",
+      "bytes": 11358,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "game/platform/windows/bin/licenses/SoPlex-Apache-2.0.txt",
+      "bytes": 11358,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "game/platform/windows/bin/licenses/fmt-MIT.txt",
+      "bytes": 1467,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "game/platform/windows/bin/licenses/gcc-16.2.0-6-source.tar.zst",
+      "bytes": 107229138,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "game/platform/windows/bin/licenses/gmp-6.3.0-2-source.tar.zst",
+      "bytes": 2097066,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "game/platform/windows/bin/licenses/mpfr-4.2.2-3-source.tar.zst",
+      "bytes": 1507413,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "game/platform/windows/bin/licenses/winpthreads-MIT-BSD.txt",
+      "bytes": 2883,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "game/platform/windows/bin/oddly_good_platform.windows.x86_64.dll",
+      "bytes": 14966784,
+      "kind": "binary_or_vendor_excluded",
+      "review_entry": "not own executable source; no vendor internals audited"
+    },
+    {
+      "path": "game/platform/windows/bin/platform_session_guard.lib",
+      "bytes": 1756,
+      "kind": "binary_or_vendor_excluded",
+      "review_entry": "not own executable source; no vendor internals audited"
+    },
+    {
+      "path": "game/platform/windows/oddly_good_platform.gdextension",
+      "bytes": 575,
+      "kind": "asset_data_or_configuration_inventory",
+      "review_entry": "input/asset/binding inventory only; not executable loop review"
+    },
+    {
+      "path": "game/platform/windows/oddly_good_platform.gdextension.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/platform/windows/platform_arrivals.cpp",
+      "bytes": 114318,
+      "kind": "own_code_static_review",
+      "sha256": "bf0a811f826bb6f6ece64d5dd77ae27afe01959a4e957777cc50c6a04bd31745",
+      "lines": 1910,
+      "review_entry": "own graph assembly/intern memo/structural proof/LP-MIP exact reuse/role loop; vendor internals excluded"
+    },
+    {
+      "path": "game/platform/windows/platform_session_guard.c",
+      "bytes": 28125,
+      "kind": "own_code_static_review",
+      "sha256": "b8b211f98327d1e292cbb114d880f043d778dd99377d3854cacddffe8095e8cb",
+      "lines": 603,
+      "review_entry": "handle/path/resource checks/decimal locale lifetime/extension bindings"
+    },
+    {
+      "path": "game/platform/windows/platform_sqlite.h",
+      "bytes": 20552,
+      "kind": "own_code_static_review",
+      "sha256": "4cf27eb9149fe233cc38303f373ccc07510f1101f26c811350f7c2e48d710a95",
+      "lines": 376,
+      "review_entry": "connection ownership/cached chunk statements/bounded parameter and row loops"
+    },
+    {
+      "path": "game/ui/action_panel.gd",
+      "bytes": 4706,
+      "kind": "own_code_static_review",
+      "sha256": "e69f7581747e4277987c3a5945a7d146ddf86909f7012dae1e75dee816740310",
+      "lines": 142,
+      "review_entry": "visible-only deferred build/500ms summaries/selection helpers"
+    },
+    {
+      "path": "game/ui/action_panel.gd.uid",
+      "bytes": 19,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/ui/arrivals_panel.gd",
+      "bytes": 3266,
+      "kind": "own_code_static_review",
+      "sha256": "3a63b207f5c3b3b61c418f853b909019eff0d6e9fcbe61a3a70fc518744ec864",
+      "lines": 40,
+      "review_entry": "resident pages/day statistics caller/explicit scale controls"
+    },
+    {
+      "path": "game/ui/arrivals_panel.gd.uid",
+      "bytes": 19,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/ui/build_panel.gd",
+      "bytes": 11119,
+      "kind": "own_code_static_review",
+      "sha256": "a6b3e0684604c9a5ace5602bf75ffe231886becf5de8c034f1a1c413ed7afc0a",
+      "lines": 268,
+      "review_entry": "cached preview caller/deep copied per-frame signal"
+    },
+    {
+      "path": "game/ui/build_panel.gd.uid",
+      "bytes": 19,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/ui/clinical_panel.gd",
+      "bytes": 3649,
+      "kind": "own_code_static_review",
+      "sha256": "68b53895b879a40494635c6642e9b9d4f36be38a902e7cabdf6b6e30192dbe8a",
+      "lines": 70,
+      "review_entry": "linear visit summary and selected action"
+    },
+    {
+      "path": "game/ui/clinical_panel.gd.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/ui/departments_panel.gd",
+      "bytes": 3265,
+      "kind": "own_code_static_review",
+      "sha256": "7e70538c5c65ae11937ff9b116cb9e59e778a1e843ea4f361c9a6e71b03cfd15",
+      "lines": 48,
+      "review_entry": "one service summary/list builders; service owner operations"
+    },
+    {
+      "path": "game/ui/departments_panel.gd.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/ui/environment_panel.gd",
+      "bytes": 4940,
+      "kind": "own_code_static_review",
+      "sha256": "4076755346b70f8b6b1e26d9c9a3c79bad908e9de93e8d067be30e269256313e",
+      "lines": 68,
+      "review_entry": "single-cell status/explicit heatmap/material controls"
+    },
+    {
+      "path": "game/ui/environment_panel.gd.uid",
+      "bytes": 19,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/ui/expansion_panel.gd",
+      "bytes": 7375,
+      "kind": "own_code_static_review",
+      "sha256": "04e6ca9d15ad7f3427bd809716f00ad247fbd185eaa670d3137bae4158732457",
+      "lines": 129,
+      "review_entry": "connector/order list projections/selected quote"
+    },
+    {
+      "path": "game/ui/expansion_panel.gd.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/ui/finance_panel.gd",
+      "bytes": 3102,
+      "kind": "own_code_static_review",
+      "sha256": "f4b329680176b85e72ff096ca95d3d60f9e7183a0a3c69cfe2b5e99fd5b7b479",
+      "lines": 46,
+      "review_entry": "one explicit model query/12 rows/bounded forecasts"
+    },
+    {
+      "path": "game/ui/finance_panel.gd.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/ui/hospital_library_panel.gd",
+      "bytes": 6437,
+      "kind": "own_code_static_review",
+      "sha256": "704e1a0bc4a73be0f003c7699944c0d61ce58e4143c84f49155f4d5076bdb287",
+      "lines": 152,
+      "review_entry": "12 cards/28 slot UI/explicit paging-refresh"
+    },
+    {
+      "path": "game/ui/hospital_library_panel.gd.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/ui/maintenance_panel.gd",
+      "bytes": 3630,
+      "kind": "own_code_static_review",
+      "sha256": "3cbf02b09e9b30761c0615837a07dca754ce340d8e6f01d7a56af5336145c30f",
+      "lines": 50,
+      "review_entry": "16 facility page/selected quotes/status"
+    },
+    {
+      "path": "game/ui/maintenance_panel.gd.uid",
+      "bytes": 19,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/ui/plans_panel.gd",
+      "bytes": 3773,
+      "kind": "own_code_static_review",
+      "sha256": "ef6cbab742fa43cc5fb5481c014104ed7af9f808ac30faa40dace4af94586574",
+      "lines": 70,
+      "review_entry": "duplicate initial compare/500ms details/submit recheck"
+    },
+    {
+      "path": "game/ui/plans_panel.gd.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/ui/recruitment_panel.gd",
+      "bytes": 6001,
+      "kind": "own_code_static_review",
+      "sha256": "91b8f6086e9a915ae51c91c5ac745e6ecb182bebd3fa807b949e4c0f0d63f260",
+      "lines": 125,
+      "review_entry": "full list query reused for status-only timer; shared clinical finding"
+    },
+    {
+      "path": "game/ui/recruitment_panel.gd.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/ui/remodel_panel.gd",
+      "bytes": 20228,
+      "kind": "own_code_static_review",
+      "sha256": "980775f56b263eab1008b9be6819c58b7a8abc01c890468b5d3b71f7e9b0ddf7",
+      "lines": 401,
+      "review_entry": "500ms per-preparing-order wait query; shared operations finding/explicit blueprint list"
+    },
+    {
+      "path": "game/ui/remodel_panel.gd.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/ui/research_panel.gd",
+      "bytes": 11558,
+      "kind": "own_code_static_review",
+      "sha256": "e258fdeee328083f555d369ed3e0907682da5c2cb59f6faed23bd5756201b396",
+      "lines": 219,
+      "review_entry": "opened frame predicate/selected preview/explicit readiness"
+    },
+    {
+      "path": "game/ui/research_panel.gd.uid",
+      "bytes": 18,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/ui/schedule_panel.gd",
+      "bytes": 3962,
+      "kind": "own_code_static_review",
+      "sha256": "8ad29541c473d24d4b0e2422409f4094110b014dab3413725dae2f98a8113c43",
+      "lines": 82,
+      "review_entry": "staff list/fixed 3x6 slots/explicit coverage"
+    },
+    {
+      "path": "game/ui/schedule_panel.gd.uid",
+      "bytes": 19,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/ui/staff_life_panel.gd",
+      "bytes": 1819,
+      "kind": "own_code_static_review",
+      "sha256": "c2132a23b6eeb071df7b9763a19c3e99fc05d796a15e956b7306f6348b29494b",
+      "lines": 28,
+      "review_entry": "facility x four recreation definitions at build/selected status"
+    },
+    {
+      "path": "game/ui/staff_life_panel.gd.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/ui/supplies_panel.gd",
+      "bytes": 2456,
+      "kind": "own_code_static_review",
+      "sha256": "99d43f0f2070e1597d4b85762c6567a88d3dc4dd43cbf31e9c4219f53b954cf4",
+      "lines": 33,
+      "review_entry": "selected purchase/budget/status"
+    },
+    {
+      "path": "game/ui/supplies_panel.gd.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/ui/training_panel.gd",
+      "bytes": 3455,
+      "kind": "own_code_static_review",
+      "sha256": "283b9d0c91f753cb79ba445fc41b098c90cce2e18e64f046bdc6d6c127a73be1",
+      "lines": 70,
+      "review_entry": "selected worker/course preview and submit"
+    },
+    {
+      "path": "game/ui/training_panel.gd.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/ui/waiting_panel.gd",
+      "bytes": 2490,
+      "kind": "own_code_static_review",
+      "sha256": "773b273e1c8d8a106402c013b24caf615118a2c25863754a7b8e7b4257fc86e4",
+      "lines": 41,
+      "review_entry": "explicit once candidate model/no per-row requery"
+    },
+    {
+      "path": "game/ui/waiting_panel.gd.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/ui/ward_panel.gd",
+      "bytes": 8480,
+      "kind": "own_code_static_review",
+      "sha256": "3015b74a9fa1868401354b6edae65e6c0b302d534a6623ac57183a91c457bdd0",
+      "lines": 134,
+      "review_entry": "selected visit sequential ticket/session/stay/preparation scans"
+    },
+    {
+      "path": "game/ui/ward_panel.gd.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/view/build_overlay.gd",
+      "bytes": 2893,
+      "kind": "own_code_static_review",
+      "sha256": "e27775de514db5ca98852ef7dc6dc2340a829d2f5982d85aa7bc04219f62a47d",
+      "lines": 59,
+      "review_entry": "basis equality/linear rectangle/irregular cell x blocked membership"
+    },
+    {
+      "path": "game/view/build_overlay.gd.uid",
+      "bytes": 19,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/view/compatibility_skin_input.gd",
+      "bytes": 4507,
+      "kind": "own_code_static_review",
+      "sha256": "f0c6b71171c8ea8917b661196152e97f2a6e642fbbdb72b3ae18091eb57f73b8",
+      "lines": 87,
+      "review_entry": "once prepare and bind identity validation/no full-array per publish compare"
+    },
+    {
+      "path": "game/view/compatibility_skin_input.gd.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/view/hospital_palette.gd",
+      "bytes": 1174,
+      "kind": "own_code_static_review",
+      "sha256": "dd24f6999e8c0522cc0e04eb36bf4cd779274ccbb85133d8821daa742e930624",
+      "lines": 31,
+      "review_entry": "constant palette"
+    },
+    {
+      "path": "game/view/hospital_palette.gd.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/view/hospital_view.gd",
+      "bytes": 59466,
+      "kind": "own_code_static_review",
+      "sha256": "cf92a6253ebe5490849c4c92f0de8fc47e31df71d4ddcd5fc22afbdc0d10e1a4",
+      "lines": 1235,
+      "review_entry": "full update pipeline/root callers/signature builds/one-update indexes/resource publication/pose/tree lookup/batches/pick and overview"
+    },
+    {
+      "path": "game/view/hospital_view.gd.uid",
+      "bytes": 18,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/view/shaders/skin_readback.gdshader",
+      "bytes": 599,
+      "kind": "own_code_static_review",
+      "sha256": "72b74920b52fcfe944da7c6694945f8527734b0f86542fe43362683223ae0318",
+      "lines": 14,
+      "review_entry": "own shader/include: formal four-weight skin or diagnostic readback fixed work; no runtime/GPU measurement"
+    },
+    {
+      "path": "game/view/shaders/skin_readback.gdshader.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/view/shaders/skin_readback_original.gdshader",
+      "bytes": 582,
+      "kind": "own_code_static_review",
+      "sha256": "d498a17891628be38e3b2543ce6123267bef11320e7004d6bd1aa74ee94582d7",
+      "lines": 15,
+      "review_entry": "own shader/include: formal four-weight skin or diagnostic readback fixed work; no runtime/GPU measurement"
+    },
+    {
+      "path": "game/view/shaders/skin_readback_original.gdshader.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/view/shaders/skin_readback_output.gdshaderinc",
+      "bytes": 1784,
+      "kind": "own_code_static_review",
+      "sha256": "80a3e9478ca9bf9f3294a1065dddbcfb32ffff97de9908c161cb4494c2cf1231",
+      "lines": 48,
+      "review_entry": "own shader/include: formal four-weight skin or diagnostic readback fixed work; no runtime/GPU measurement"
+    },
+    {
+      "path": "game/view/shaders/skin_readback_output.gdshaderinc.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/view/shaders/skinned_pose.gdshader",
+      "bytes": 151,
+      "kind": "own_code_static_review",
+      "sha256": "f6f8e6b78c4771e64da95c681f9e1e6010c4b8933fd1886cb4f5152fa0c2b6a7",
+      "lines": 4,
+      "review_entry": "own shader/include: formal four-weight skin or diagnostic readback fixed work; no runtime/GPU measurement"
+    },
+    {
+      "path": "game/view/shaders/skinned_pose.gdshader.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/view/shaders/skinned_pose.gdshaderinc",
+      "bytes": 620,
+      "kind": "own_code_static_review",
+      "sha256": "0d02ebc85dd8c871d5f99d31b735cb91d745844f098e6214d1321a674c429feb",
+      "lines": 16,
+      "review_entry": "own shader/include: formal four-weight skin or diagnostic readback fixed work; no runtime/GPU measurement"
+    },
+    {
+      "path": "game/view/shaders/skinned_pose.gdshaderinc.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/view/shaders/skinned_pose_double_sided.gdshader",
+      "bytes": 155,
+      "kind": "own_code_static_review",
+      "sha256": "7e373dc423e76554f486dade8fb9453f9b27420a010b4192319425183d0e6055",
+      "lines": 4,
+      "review_entry": "own shader/include: formal four-weight skin or diagnostic readback fixed work; no runtime/GPU measurement"
+    },
+    {
+      "path": "game/view/shaders/skinned_pose_double_sided.gdshader.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/view/shaders/skinned_pose_surface.gdshaderinc",
+      "bytes": 789,
+      "kind": "own_code_static_review",
+      "sha256": "19ed00ba18c94787f290481d8d04a77daa434a2e5bfd8ac8c3ff096cc36ed23a",
+      "lines": 23,
+      "review_entry": "own shader/include: formal four-weight skin or diagnostic readback fixed work; no runtime/GPU measurement"
+    },
+    {
+      "path": "game/view/shaders/skinned_pose_surface.gdshaderinc.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/view/skinned_pose_batch.gd",
+      "bytes": 9903,
+      "kind": "own_code_static_review",
+      "sha256": "aace3d336ffe477136818d06d1d2d7e5dd1ebb3051371069991dc99dcbca7ac0",
+      "lines": 209,
+      "review_entry": "source validation/64 row 40 bone pages/actual current matrices"
+    },
+    {
+      "path": "game/view/skinned_pose_batch.gd.uid",
+      "bytes": 19,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/view/view_resources.gd",
+      "bytes": 5778,
+      "kind": "own_code_static_review",
+      "sha256": "52fd8ad69760d5e74a10d9cc7ec4ccb318b44f307a74712350e8822ab324a670",
+      "lines": 136,
+      "review_entry": "manifest index/shared PackedScene/hash and first path validation lifetime"
+    },
+    {
+      "path": "game/view/view_resources.gd.uid",
+      "bytes": 19,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    },
+    {
+      "path": "game/view/view_work_budget.gd",
+      "bytes": 1080,
+      "kind": "own_code_static_review",
+      "sha256": "7accce896aab177ff50f3d82ed2988128728bbfbf195d5b04e55c71de0e6c5d2",
+      "lines": 28,
+      "review_entry": "frame ID and remaining work budget constant access"
+    },
+    {
+      "path": "game/view/view_work_budget.gd.uid",
+      "bytes": 20,
+      "kind": "generated_identity",
+      "review_entry": "identity metadata; no executable loops"
+    }
+  ],
+  "publication": {
+    "report": "presentation.md",
+    "manifest": "presentation-manifest.json",
+    "finding_ids": [
+      "PRES01",
+      "PRES02",
+      "PRES03",
+      "PRES04",
+      "PRES05",
+      "PRES06",
+      "PRES07",
+      "PRES08",
+      "PRES09",
+      "PRES10",
+      "PRES11",
+      "CAP01"
+    ],
+    "shared_root_causes": {
+      "PRES06": "CL-A08"
+    },
+    "scope_note": "Partition inventory includes own offline asset and plugin files; project-wide totals deduplicate overlapping partitions."
+  }
+}

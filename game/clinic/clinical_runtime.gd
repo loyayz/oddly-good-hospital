@@ -711,7 +711,8 @@ func plan_quote(world: WorldState, visit_id: String, plan_id: String, options: D
 		return surgery
 	var reason: String = "缺少合法门诊设备、医生能力或完整路线"
 	var structural_ok: bool = false
-	for pair: Dictionary in service_candidates(world,candidate,"outpatient",true):
+	var selection: Dictionary = {"staff_id":options.doctor_id} if options.has("doctor_id") else {}
+	for pair: Dictionary in service_candidates(world,candidate,"outpatient",true,false,selection):
 		if options.has("doctor_id") and pair.staff_id!=options.doctor_id:
 			continue
 		var staff: Dictionary = world.facts.staff[pair.staff_id]
@@ -1945,7 +1946,7 @@ func _availability(world: WorldState) -> Dictionary:
 	return space.read_view(world,"clinical_availability",_build_availability.bind(world))
 
 func _build_availability(world: WorldState) -> Dictionary:
-	var result: Dictionary = {"staff":{},"facilities":{},"preparations":{},"preparation_staff":{}}
+	var result: Dictionary = {"staff":{},"facilities":{},"preparations":{},"preparation_staff":{},"gathering_staff":{}}
 	for actor: Dictionary in world.facts.actors.values():
 		var id: String = str(actor.get("support_facility_id",""))
 		if not id.is_empty() and space.overlaps_facility(world,actor.id,id): result.facilities[id] = true
@@ -1960,7 +1961,26 @@ func _build_availability(world: WorldState) -> Dictionary:
 	for preparation: Dictionary in world.facts.preparations.values():
 		result.preparations[preparation.facility_id] = preparation.id
 		for id: String in preparation.staff_ids: result.preparation_staff[id] = preparation.id
+	for reservation: Dictionary in world.facts.adaptations.values():
+		var visit_id: String = _gathering_visit(world,reservation)
+		if visit_id.is_empty(): continue
+		for id: String in reservation.staff_ids:
+			if not result.gathering_staff.has(id): result.gathering_staff[id] = {}
+			result.gathering_staff[id][visit_id] = true
 	return result
+
+func _gathering_visit(world: WorldState, reservation: Dictionary) -> String:
+	# Ticket-owned gathering holds reserve active work. Bed access, completed
+	# service exit permissions and orphan holds do not own the employee's time.
+	if reservation.get("kind","")!="facility" or reservation.get("staff_ids",[]).size()!=1: return ""
+	var ticket_id: String = str(reservation.get("owner_id",""))
+	var ticket: Dictionary = world.facts.tickets.get(ticket_id,{})
+	if not bool(ticket.get("service_assigned",false)) or not ticket.get("kind","") in ["reception","gp","spectrum","resonance","consult","outpatient"]: return ""
+	var visit: Dictionary = world.facts.visits.get(str(ticket.get("visit_id","")),{})
+	if visit.get("ticket_id","")!=ticket_id or visit.get("phase","")!="wait_"+str(ticket.kind) or visit.get("actor_id","")!=reservation.get("actor_id",""): return ""
+	var facility: Dictionary = world.facts.facilities.get(str(reservation.get("facility_id",reservation.get("id",""))),{})
+	if facility.is_empty() or facility.get("definition_id","")=="EQ05": return ""
+	return str(visit.get("id",""))
 
 func _facility_busy(world: WorldState, id: String, except_preparation: String = "", availability: Dictionary = {}) -> bool:
 	if not availability.is_empty(): return availability.facilities.has(id) or availability.preparations.has(id) and availability.preparations[id]!=except_preparation
@@ -1981,7 +2001,9 @@ func _staff_busy(world: WorldState, id: String, except_preparation: String = "",
 		return true
 	if not str(world.facts.staff.get(id,{}).get("active_job_id","")).is_empty():
 		return true
-	if not availability.is_empty(): return availability.staff.has(id) or availability.preparation_staff.has(id) and availability.preparation_staff[id]!=except_preparation
+	if not availability.is_empty():
+		var gathering: Dictionary = availability.get("gathering_staff",{}).get(id,{})
+		return availability.staff.has(id) or availability.preparation_staff.has(id) and availability.preparation_staff[id]!=except_preparation or not gathering.is_empty() and (gathering.size()>1 or not gathering.has(except_preparation))
 	for guidance: Dictionary in world.facts.get("departments",{}).get("guidance",{}).values():
 		if guidance.get("phase","") in ["working","travel"] and id in guidance.get("staff_ids",[]):
 			return true
@@ -1994,6 +2016,10 @@ func _staff_busy(world: WorldState, id: String, except_preparation: String = "",
 	for preparation: Dictionary in world.facts.preparations.values():
 		if id in preparation.staff_ids and preparation.id != except_preparation:
 			return true
+	for reservation: Dictionary in world.facts.adaptations.values():
+		if not id in reservation.get("staff_ids",[]): continue
+		var visit_id: String = _gathering_visit(world,reservation)
+		if not visit_id.is_empty() and visit_id!=except_preparation: return true
 	return false
 
 func staff_busy(world: WorldState, id: String) -> bool:

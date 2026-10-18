@@ -1,0 +1,6 @@
+--- a/game/clinic/clinical_runtime.gd
++++ b/game/clinic/clinical_runtime.gd
+@@ -714 +714,2 @@
+-	for pair: Dictionary in service_candidates(world,candidate,"outpatient",true):
++	var selection: Dictionary = {"staff_id":options.doctor_id} if options.has("doctor_id") else {}
++	for pair: Dictionary in service_candidates(world,candidate,"outpatient",true,false,selection):

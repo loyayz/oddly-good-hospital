@@ -1,0 +1,3101 @@
+{
+  "before": {
+    "metrics": {
+      "cold_first_us": 420052,
+      "count": 80,
+      "following_mean_us": 373838.417721519,
+      "max_us": 13985627,
+      "mean_us": 374416.0875,
+      "p50_us": 27068,
+      "p95_us": 46480,
+      "p99_us": 13985627,
+      "total_us": 29953287
+    },
+    "qualified": true,
+    "input_sha256": "903364846fdfb6db19c30992ef0e76b01673179513b6f8a8ebf22093dde13a1f",
+    "final_binary_sha256": "60989f796d6d08e3c4a2a0881f609a5d35fb0ac2b9837d4d919faa4b73131ad8",
+    "profile": {
+      "complete_steps": 80,
+      "disjoint_root_stage_us": 28879165,
+      "errors": [],
+      "incomplete_steps": 0,
+      "nested_calls": [
+        {
+          "calls": 117361,
+          "exclusive_profiled_whole_share": 0.332318219366042,
+          "exclusive_us": 9954023,
+          "inclusive_us": 9954023,
+          "max_inclusive_us": 8132,
+          "name": "navigation.floor_source"
+        },
+        {
+          "calls": 10440,
+          "exclusive_profiled_whole_share": 0.310926076326782,
+          "exclusive_us": 9313258,
+          "inclusive_us": 12677249,
+          "max_inclusive_us": 23873,
+          "name": "space._floor_route"
+        },
+        {
+          "calls": 1612,
+          "exclusive_profiled_whole_share": 0.0931990535796622,
+          "exclusive_us": 2791618,
+          "inclusive_us": 22953486,
+          "max_inclusive_us": 45381,
+          "name": "space.route"
+        },
+        {
+          "calls": 1050,
+          "exclusive_profiled_whole_share": 0.0740626896807686,
+          "exclusive_us": 2218421,
+          "inclusive_us": 3242500,
+          "max_inclusive_us": 45334,
+          "name": "space.facility_quote"
+        },
+        {
+          "calls": 32540,
+          "exclusive_profiled_whole_share": 0.0307949842032362,
+          "exclusive_us": 922411,
+          "inclusive_us": 8899117,
+          "max_inclusive_us": 78902,
+          "name": "navigation.clearance"
+        },
+        {
+          "calls": 43354,
+          "exclusive_profiled_whole_share": 0.0214134762572134,
+          "exclusive_us": 641404,
+          "inclusive_us": 10793648,
+          "max_inclusive_us": 78778,
+          "name": "navigation.graph"
+        },
+        {
+          "calls": 8966,
+          "exclusive_profiled_whole_share": 0.0126991738836542,
+          "exclusive_us": 380382,
+          "inclusive_us": 26597394,
+          "max_inclusive_us": 6579810,
+          "name": "clinic.service_candidates"
+        },
+        {
+          "calls": 4,
+          "exclusive_profiled_whole_share": 0.00972721290988865,
+          "exclusive_us": 291362,
+          "inclusive_us": 298999,
+          "max_inclusive_us": 75820,
+          "name": "navigation._refresh_graph"
+        },
+        {
+          "calls": 160,
+          "exclusive_profiled_whole_share": 0.00952743516930212,
+          "exclusive_us": 285378,
+          "inclusive_us": 285378,
+          "max_inclusive_us": 4570,
+          "name": "environment.begin_query"
+        },
+        {
+          "calls": 9600,
+          "exclusive_profiled_whole_share": 0.00861594922787606,
+          "exclusive_us": 258076,
+          "inclusive_us": 452189,
+          "max_inclusive_us": 5800,
+          "name": "environment._observe_at"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.00477343271207597,
+          "exclusive_us": 142980,
+          "inclusive_us": 142980,
+          "max_inclusive_us": 3962,
+          "name": "finance.settle"
+        },
+        {
+          "calls": 31712,
+          "exclusive_profiled_whole_share": 0.00452451178396548,
+          "exclusive_us": 135524,
+          "inclusive_us": 371412,
+          "max_inclusive_us": 24381,
+          "name": "space._exit_witness"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.00414655660328698,
+          "exclusive_us": 124203,
+          "inclusive_us": 589721,
+          "max_inclusive_us": 64513,
+          "name": "departments.sample"
+        },
+        {
+          "calls": 9600,
+          "exclusive_profiled_whole_share": 0.00359376251427765,
+          "exclusive_us": 107645,
+          "inclusive_us": 107645,
+          "max_inclusive_us": 814,
+          "name": "environment._coverage"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.00345284308863999,
+          "exclusive_us": 103424,
+          "inclusive_us": 103424,
+          "max_inclusive_us": 2529,
+          "name": "arrivals.needs"
+        },
+        {
+          "calls": 4,
+          "exclusive_profiled_whole_share": 0.00301245736402819,
+          "exclusive_us": 90233,
+          "inclusive_us": 90233,
+          "max_inclusive_us": 24146,
+          "name": "navigation._distance_field"
+        },
+        {
+          "calls": 9600,
+          "exclusive_profiled_whole_share": 0.00236605084443654,
+          "exclusive_us": 70871,
+          "inclusive_us": 70871,
+          "max_inclusive_us": 5523,
+          "name": "environment._coverage_edges"
+        },
+        {
+          "calls": 750,
+          "exclusive_profiled_whole_share": 0.00231500469380873,
+          "exclusive_us": 69342,
+          "inclusive_us": 176208,
+          "max_inclusive_us": 24335,
+          "name": "navigation.travel_distance"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.00225307492963961,
+          "exclusive_us": 67487,
+          "inclusive_us": 67487,
+          "max_inclusive_us": 1182,
+          "name": "development.dispatch"
+        },
+        {
+          "calls": 9521,
+          "exclusive_profiled_whole_share": 0.00220459944846788,
+          "exclusive_us": 66035,
+          "inclusive_us": 70784,
+          "max_inclusive_us": 285,
+          "name": "clinic._gather_assigned"
+        },
+        {
+          "calls": 76644,
+          "exclusive_profiled_whole_share": 0.00202201514645121,
+          "exclusive_us": 60566,
+          "inclusive_us": 60566,
+          "max_inclusive_us": 284,
+          "name": "navigation._trim"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.00182868077216367,
+          "exclusive_us": 54775,
+          "inclusive_us": 54775,
+          "max_inclusive_us": 1132,
+          "name": "arrivals.advance_wait"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.00180370855459035,
+          "exclusive_us": 54027,
+          "inclusive_us": 86575,
+          "max_inclusive_us": 17894,
+          "name": "waiting.dispatch"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.00176688454926499,
+          "exclusive_us": 52924,
+          "inclusive_us": 53174,
+          "max_inclusive_us": 1221,
+          "name": "wellbeing.dispatch"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.0015320522251865,
+          "exclusive_us": 45890,
+          "inclusive_us": 45890,
+          "max_inclusive_us": 923,
+          "name": "development.settle"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.00150016924686763,
+          "exclusive_us": 44935,
+          "inclusive_us": 474390,
+          "max_inclusive_us": 330046,
+          "name": "space.advance"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.00144184509700054,
+          "exclusive_us": 43188,
+          "inclusive_us": 43188,
+          "max_inclusive_us": 1115,
+          "name": "maintenance.boundaries"
+        },
+        {
+          "calls": 9521,
+          "exclusive_profiled_whole_share": 0.00143810594142806,
+          "exclusive_us": 43076,
+          "inclusive_us": 13749045,
+          "max_inclusive_us": 13514202,
+          "name": "clinic._dispatch_service"
+        },
+        {
+          "calls": 10064,
+          "exclusive_profiled_whole_share": 0.00135711316090284,
+          "exclusive_us": 40650,
+          "inclusive_us": 2977746,
+          "max_inclusive_us": 7157,
+          "name": "navigation.query_graphs"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.00123826143020631,
+          "exclusive_us": 37090,
+          "inclusive_us": 37090,
+          "max_inclusive_us": 915,
+          "name": "scheduler.boundaries"
+        },
+        {
+          "calls": 224,
+          "exclusive_profiled_whole_share": 0.00108662531761539,
+          "exclusive_us": 32548,
+          "inclusive_us": 32548,
+          "max_inclusive_us": 407,
+          "name": "waiting.seat_candidates"
+        },
+        {
+          "calls": 800,
+          "exclusive_profiled_whole_share": 0.000938160810197559,
+          "exclusive_us": 28101,
+          "inclusive_us": 28101,
+          "max_inclusive_us": 130,
+          "name": "space._reserve_doors"
+        },
+        {
+          "calls": 800,
+          "exclusive_profiled_whole_share": 0.000894058805632918,
+          "exclusive_us": 26780,
+          "inclusive_us": 348284,
+          "max_inclusive_us": 164080,
+          "name": "space._active_route_clear"
+        },
+        {
+          "calls": 4376,
+          "exclusive_profiled_whole_share": 0.00074789788513027,
+          "exclusive_us": 22402,
+          "inclusive_us": 33580,
+          "max_inclusive_us": 1841,
+          "name": "navigation.facility_index"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.000734042978321545,
+          "exclusive_us": 21987,
+          "inclusive_us": 13784957,
+          "max_inclusive_us": 13517431,
+          "name": "clinic.dispatch"
+        },
+        {
+          "calls": 806,
+          "exclusive_profiled_whole_share": 0.000696217413467844,
+          "exclusive_us": 20854,
+          "inclusive_us": 20854,
+          "max_inclusive_us": 324,
+          "name": "clinic._reservation_candidate"
+        },
+        {
+          "calls": 800,
+          "exclusive_profiled_whole_share": 0.000604441175354144,
+          "exclusive_us": 18105,
+          "inclusive_us": 18105,
+          "max_inclusive_us": 307,
+          "name": "space._movement_clear"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.000532929825030555,
+          "exclusive_us": 15963,
+          "inclusive_us": 15963,
+          "max_inclusive_us": 397,
+          "name": "wellbeing.boundaries"
+        },
+        {
+          "calls": 9600,
+          "exclusive_profiled_whole_share": 0.000520710798784788,
+          "exclusive_us": 15597,
+          "inclusive_us": 15597,
+          "max_inclusive_us": 274,
+          "name": "environment._positive_facilities"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.000465558254090778,
+          "exclusive_us": 13945,
+          "inclusive_us": 13945,
+          "max_inclusive_us": 451,
+          "name": "departments.settle"
+        },
+        {
+          "calls": 9600,
+          "exclusive_profiled_whole_share": 0.000434810376570692,
+          "exclusive_us": 13024,
+          "inclusive_us": 465213,
+          "max_inclusive_us": 5802,
+          "name": "environment.sample_at"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.000348142092051533,
+          "exclusive_us": 10428,
+          "inclusive_us": 10428,
+          "max_inclusive_us": 326,
+          "name": "clinic._dispatch_ward_returns"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.000348108706733922,
+          "exclusive_us": 10427,
+          "inclusive_us": 10427,
+          "max_inclusive_us": 299,
+          "name": "arrivals.settle"
+        },
+        {
+          "calls": 128,
+          "exclusive_profiled_whole_share": 0.000295593602131212,
+          "exclusive_us": 8854,
+          "inclusive_us": 9196,
+          "max_inclusive_us": 261,
+          "name": "clinic._compatible_bed"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.000285578006847796,
+          "exclusive_us": 8554,
+          "inclusive_us": 8554,
+          "max_inclusive_us": 277,
+          "name": "recruitment.settle"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.000251057588437623,
+          "exclusive_us": 7520,
+          "inclusive_us": 7520,
+          "max_inclusive_us": 181,
+          "name": "supplies.advance"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.00024544885507891,
+          "exclusive_us": 7352,
+          "inclusive_us": 7352,
+          "max_inclusive_us": 573,
+          "name": "environment.dispatch"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.000198075089388353,
+          "exclusive_us": 5933,
+          "inclusive_us": 5933,
+          "max_inclusive_us": 147,
+          "name": "wellbeing.advance"
+        },
+        {
+          "calls": 561,
+          "exclusive_profiled_whole_share": 0.000158847341194975,
+          "exclusive_us": 4758,
+          "inclusive_us": 4758,
+          "max_inclusive_us": 61,
+          "name": "clinic._gather"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.000146862012172487,
+          "exclusive_us": 4399,
+          "inclusive_us": 4399,
+          "max_inclusive_us": 106,
+          "name": "departments.dispatch"
+        },
+        {
+          "calls": 160,
+          "exclusive_profiled_whole_share": 0.000129501647014566,
+          "exclusive_us": 3879,
+          "inclusive_us": 3879,
+          "max_inclusive_us": 83,
+          "name": "environment.end_query"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 7.66860745533537e-05,
+          "exclusive_us": 2297,
+          "inclusive_us": 2297,
+          "max_inclusive_us": 52,
+          "name": "visitors.dispatch"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 7.57512856602349e-05,
+          "exclusive_us": 2269,
+          "inclusive_us": 2269,
+          "max_inclusive_us": 344,
+          "name": "arrivals.arrivals"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 6.99756257134651e-05,
+          "exclusive_us": 2096,
+          "inclusive_us": 2096,
+          "max_inclusive_us": 46,
+          "name": "development.advance"
+        },
+        {
+          "calls": 4,
+          "exclusive_profiled_whole_share": 6.66037086347151e-05,
+          "exclusive_us": 1995,
+          "inclusive_us": 11191,
+          "max_inclusive_us": 3524,
+          "name": "clinic._surgery_quote"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 6.30982502855196e-05,
+          "exclusive_us": 1890,
+          "inclusive_us": 1890,
+          "max_inclusive_us": 45,
+          "name": "recruitment.advance"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 6.00935717004948e-05,
+          "exclusive_us": 1800,
+          "inclusive_us": 1800,
+          "max_inclusive_us": 40,
+          "name": "recruitment.boundaries"
+        },
+        {
+          "calls": 3,
+          "exclusive_profiled_whole_share": 5.7422746291584e-05,
+          "exclusive_us": 1720,
+          "inclusive_us": 39347736,
+          "max_inclusive_us": 13507219,
+          "name": "clinic._select_plan"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 5.07122974516954e-05,
+          "exclusive_us": 1519,
+          "inclusive_us": 1519,
+          "max_inclusive_us": 40,
+          "name": "supplies.boundaries"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 4.67394446559404e-05,
+          "exclusive_us": 1400,
+          "inclusive_us": 12978248,
+          "max_inclusive_us": 12976081,
+          "name": "clinic.advance"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 4.14311791557301e-05,
+          "exclusive_us": 1241,
+          "inclusive_us": 1241,
+          "max_inclusive_us": 32,
+          "name": "space._dispatch_routes"
+        },
+        {
+          "calls": 81,
+          "exclusive_profiled_whole_share": 4.06633168506682e-05,
+          "exclusive_us": 1218,
+          "inclusive_us": 1218,
+          "max_inclusive_us": 43,
+          "name": "clinic._dispatch_clinical_releases"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 2.71088779004455e-05,
+          "exclusive_us": 812,
+          "inclusive_us": 812,
+          "max_inclusive_us": 17,
+          "name": "visitors.advance"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 2.23347774820173e-05,
+          "exclusive_us": 669,
+          "inclusive_us": 669,
+          "max_inclusive_us": 135,
+          "name": "visitors.arrivals"
+        },
+        {
+          "calls": 4,
+          "exclusive_profiled_whole_share": 2.08658235071163e-05,
+          "exclusive_us": 625,
+          "inclusive_us": 625,
+          "max_inclusive_us": 165,
+          "name": "clinic._outpatient_quote"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 1.96639520731064e-05,
+          "exclusive_us": 589,
+          "inclusive_us": 589,
+          "max_inclusive_us": 18,
+          "name": "arrivals.boundaries"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 1.7560677063589e-05,
+          "exclusive_us": 526,
+          "inclusive_us": 526,
+          "max_inclusive_us": 10,
+          "name": "scheduler.dispatch"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 1.68595853937499e-05,
+          "exclusive_us": 505,
+          "inclusive_us": 505,
+          "max_inclusive_us": 22,
+          "name": "research.settle"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 1.48230810194554e-05,
+          "exclusive_us": 444,
+          "inclusive_us": 444,
+          "max_inclusive_us": 37,
+          "name": "research.advance"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 1.46227691137871e-05,
+          "exclusive_us": 438,
+          "inclusive_us": 438,
+          "max_inclusive_us": 9,
+          "name": "clinic.release_departed"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 1.41887599848391e-05,
+          "exclusive_us": 425,
+          "inclusive_us": 425,
+          "max_inclusive_us": 10,
+          "name": "environment.advance"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 1.41219893496163e-05,
+          "exclusive_us": 423,
+          "inclusive_us": 423,
+          "max_inclusive_us": 9,
+          "name": "waiting.advance"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 1.31872004564975e-05,
+          "exclusive_us": 395,
+          "inclusive_us": 703,
+          "max_inclusive_us": 24,
+          "name": "maintenance.dispatch"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 1.29535032332178e-05,
+          "exclusive_us": 388,
+          "inclusive_us": 1057,
+          "max_inclusive_us": 139,
+          "name": "clinic.arrivals"
+        },
+        {
+          "calls": 4,
+          "exclusive_profiled_whole_share": 1.21856409281559e-05,
+          "exclusive_us": 365,
+          "inclusive_us": 365,
+          "max_inclusive_us": 106,
+          "name": "clinic._build_availability"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 1.06165310004208e-05,
+          "exclusive_us": 318,
+          "inclusive_us": 318,
+          "max_inclusive_us": 8,
+          "name": "research.boundaries"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 1.02826778243069e-05,
+          "exclusive_us": 308,
+          "inclusive_us": 308,
+          "max_inclusive_us": 10,
+          "name": "maintenance._dispatch_departures"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 9.91543933058165e-06,
+          "exclusive_us": 297,
+          "inclusive_us": 297,
+          "max_inclusive_us": 8,
+          "name": "floors.dispatch"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 9.44804488402224e-06,
+          "exclusive_us": 283,
+          "inclusive_us": 283,
+          "max_inclusive_us": 6,
+          "name": "departments.advance"
+        },
+        {
+          "calls": 1,
+          "exclusive_profiled_whole_share": 8.81372384940591e-06,
+          "exclusive_us": 264,
+          "inclusive_us": 12976036,
+          "max_inclusive_us": 12976036,
+          "name": "clinic._complete_service"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 8.41310003806928e-06,
+          "exclusive_us": 252,
+          "inclusive_us": 252,
+          "max_inclusive_us": 5,
+          "name": "maintenance.advance"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 8.34632940284651e-06,
+          "exclusive_us": 250,
+          "inclusive_us": 250,
+          "max_inclusive_us": 5,
+          "name": "wellbeing._dispatch_recreation"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 7.91232027389849e-06,
+          "exclusive_us": 237,
+          "inclusive_us": 237,
+          "max_inclusive_us": 4,
+          "name": "remodel.dispatch"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 7.8789349562871e-06,
+          "exclusive_us": 236,
+          "inclusive_us": 236,
+          "max_inclusive_us": 10,
+          "name": "scheduler.advance"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 7.24461392167077e-06,
+          "exclusive_us": 217,
+          "inclusive_us": 217,
+          "max_inclusive_us": 11,
+          "name": "clinic.settle_practice"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 6.64367820466582e-06,
+          "exclusive_us": 199,
+          "inclusive_us": 199,
+          "max_inclusive_us": 4,
+          "name": "floors.advance"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 6.61029288705443e-06,
+          "exclusive_us": 198,
+          "inclusive_us": 198,
+          "max_inclusive_us": 7,
+          "name": "space.finish_boundary"
+        },
+        {
+          "calls": 66,
+          "exclusive_profiled_whole_share": 4.97441232409652e-06,
+          "exclusive_us": 149,
+          "inclusive_us": 514,
+          "max_inclusive_us": 117,
+          "name": "clinic._availability"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 4.67394446559404e-06,
+          "exclusive_us": 140,
+          "inclusive_us": 140,
+          "max_inclusive_us": 4,
+          "name": "clinic.take_events"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 4.57378851275989e-06,
+          "exclusive_us": 137,
+          "inclusive_us": 137,
+          "max_inclusive_us": 45,
+          "name": "environment.worked_staff"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 4.40686192470295e-06,
+          "exclusive_us": 132,
+          "inclusive_us": 132,
+          "max_inclusive_us": 3,
+          "name": "clinic.worked_staff"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 4.37347660709157e-06,
+          "exclusive_us": 131,
+          "inclusive_us": 131,
+          "max_inclusive_us": 3,
+          "name": "research.take_events"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 3.70577025486385e-06,
+          "exclusive_us": 111,
+          "inclusive_us": 111,
+          "max_inclusive_us": 3,
+          "name": "arrivals.take_events"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 3.53884366680692e-06,
+          "exclusive_us": 106,
+          "inclusive_us": 106,
+          "max_inclusive_us": 2,
+          "name": "research.worked_staff"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 3.03806390263613e-06,
+          "exclusive_us": 91,
+          "inclusive_us": 91,
+          "max_inclusive_us": 2,
+          "name": "floors.worked_staff"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 3.00467858502474e-06,
+          "exclusive_us": 90,
+          "inclusive_us": 90,
+          "max_inclusive_us": 2,
+          "name": "departments.worked_staff"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 2.83775199696781e-06,
+          "exclusive_us": 85,
+          "inclusive_us": 85,
+          "max_inclusive_us": 2,
+          "name": "development.worked_staff"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 2.83775199696781e-06,
+          "exclusive_us": 85,
+          "inclusive_us": 85,
+          "max_inclusive_us": 2,
+          "name": "maintenance.worked_staff"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 2.80436667935643e-06,
+          "exclusive_us": 84,
+          "inclusive_us": 84,
+          "max_inclusive_us": 2,
+          "name": "scheduler.worked_staff"
+        }
+      ],
+      "observer_handler_us": 1071841,
+      "observer_profiled_whole_share": 0.0357837522139056,
+      "partition_check_us": 0,
+      "profiled_whole_us": 29953287,
+      "residual_profiled_whole_share": 7.61519094715715e-05,
+      "residual_us": 2281,
+      "root_stage_profiled_whole_share": 0.964140095876623,
+      "root_stages": [
+        {
+          "calls": 80,
+          "max_us": 13517437,
+          "name": "clinic.dispatch",
+          "profiled_whole_share": 0.460227920895627,
+          "total_us": 13785339
+        },
+        {
+          "calls": 80,
+          "max_us": 12976089,
+          "name": "clinic.advance",
+          "profiled_whole_share": 0.433292613261443,
+          "total_us": 12978538
+        },
+        {
+          "calls": 80,
+          "max_us": 64519,
+          "name": "sample.departments",
+          "profiled_whole_share": 0.0196985726474694,
+          "total_us": 590037
+        },
+        {
+          "calls": 80,
+          "max_us": 330051,
+          "name": "movement.space",
+          "profiled_whole_share": 0.015845339444716,
+          "total_us": 474620
+        },
+        {
+          "calls": 80,
+          "max_us": 4573,
+          "name": "begin_query.environment",
+          "profiled_whole_share": 0.00952830318756002,
+          "total_us": 285404
+        },
+        {
+          "calls": 80,
+          "max_us": 3968,
+          "name": "settle.finance",
+          "profiled_whole_share": 0.00478441648157012,
+          "total_us": 143309
+        },
+        {
+          "calls": 80,
+          "max_us": 2533,
+          "name": "needs.arrivals",
+          "profiled_whole_share": 0.00346209082161834,
+          "total_us": 103701
+        },
+        {
+          "calls": 80,
+          "max_us": 17899,
+          "name": "dispatch.waiting",
+          "profiled_whole_share": 0.00289914759605515,
+          "total_us": 86839
+        },
+        {
+          "calls": 80,
+          "max_us": 1185,
+          "name": "dispatch.development",
+          "profiled_whole_share": 0.00226001907570278,
+          "total_us": 67695
+        },
+        {
+          "calls": 80,
+          "max_us": 1137,
+          "name": "advance_wait.arrivals",
+          "profiled_whole_share": 0.00183832912895336,
+          "total_us": 55064
+        },
+        {
+          "calls": 80,
+          "max_us": 1224,
+          "name": "dispatch.wellbeing",
+          "profiled_whole_share": 0.00178347705211785,
+          "total_us": 53421
+        },
+        {
+          "calls": 80,
+          "max_us": 927,
+          "name": "settle.development",
+          "profiled_whole_share": 0.00153953053633146,
+          "total_us": 46114
+        },
+        {
+          "calls": 80,
+          "max_us": 1119,
+          "name": "boundaries.maintenance",
+          "profiled_whole_share": 0.00144962387600399,
+          "total_us": 43421
+        },
+        {
+          "calls": 80,
+          "max_us": 920,
+          "name": "boundaries.scheduler",
+          "profiled_whole_share": 0.00124590666793931,
+          "total_us": 37319
+        },
+        {
+          "calls": 80,
+          "max_us": 400,
+          "name": "boundaries.wellbeing",
+          "profiled_whole_share": 0.00054004089768178,
+          "total_us": 16176
+        },
+        {
+          "calls": 80,
+          "max_us": 459,
+          "name": "settle.departments",
+          "profiled_whole_share": 0.000473604115635122,
+          "total_us": 14186
+        },
+        {
+          "calls": 80,
+          "max_us": 302,
+          "name": "settle.arrivals",
+          "profiled_whole_share": 0.000355319935337981,
+          "total_us": 10643
+        },
+        {
+          "calls": 80,
+          "max_us": 283,
+          "name": "settle.recruitment",
+          "profiled_whole_share": 0.000294491886650036,
+          "total_us": 8821
+        },
+        {
+          "calls": 80,
+          "max_us": 196,
+          "name": "dispatch.staff_idle",
+          "profiled_whole_share": 0.000278366778243737,
+          "total_us": 8338
+        },
+        {
+          "calls": 80,
+          "max_us": 185,
+          "name": "advance.supplies",
+          "profiled_whole_share": 0.000257534340054232,
+          "total_us": 7714
+        },
+        {
+          "calls": 80,
+          "max_us": 578,
+          "name": "dispatch.environment",
+          "profiled_whole_share": 0.000252693469000581,
+          "total_us": 7569
+        },
+        {
+          "calls": 80,
+          "max_us": 152,
+          "name": "advance.wellbeing",
+          "profiled_whole_share": 0.000204885694181076,
+          "total_us": 6137
+        },
+        {
+          "calls": 80,
+          "max_us": 111,
+          "name": "dispatch.departments",
+          "profiled_whole_share": 0.000154240167364603,
+          "total_us": 4620
+        },
+        {
+          "calls": 80,
+          "max_us": 143,
+          "name": "settlement.finish_visits",
+          "profiled_whole_share": 0.000136946572841905,
+          "total_us": 4102
+        },
+        {
+          "calls": 80,
+          "max_us": 88,
+          "name": "end_query.environment",
+          "profiled_whole_share": 0.000133507885127933,
+          "total_us": 3999
+        },
+        {
+          "calls": 80,
+          "max_us": 177,
+          "name": "step.setup",
+          "profiled_whole_share": 0.000133174031951819,
+          "total_us": 3989
+        },
+        {
+          "calls": 80,
+          "max_us": 293,
+          "name": "movement.capture_staff_locations",
+          "profiled_whole_share": 0.000129301335108898,
+          "total_us": 3873
+        },
+        {
+          "calls": 80,
+          "max_us": 347,
+          "name": "arrivals.arrivals",
+          "profiled_whole_share": 8.09260098899997e-05,
+          "total_us": 2424
+        },
+        {
+          "calls": 80,
+          "max_us": 50,
+          "name": "advance.development",
+          "profiled_whole_share": 7.73871662231928e-05,
+          "total_us": 2318
+        },
+        {
+          "calls": 80,
+          "max_us": 49,
+          "name": "advance.recruitment",
+          "profiled_whole_share": 6.91743780907918e-05,
+          "total_us": 2072
+        },
+        {
+          "calls": 80,
+          "max_us": 45,
+          "name": "boundaries.recruitment",
+          "profiled_whole_share": 6.80392772920047e-05,
+          "total_us": 2038
+        },
+        {
+          "calls": 80,
+          "max_us": 46,
+          "name": "boundaries.supplies",
+          "profiled_whole_share": 5.97263332067696e-05,
+          "total_us": 1789
+        },
+        {
+          "calls": 80,
+          "max_us": 101,
+          "name": "integrate.worked_staff",
+          "profiled_whole_share": 5.83241498670914e-05,
+          "total_us": 1747
+        },
+        {
+          "calls": 80,
+          "max_us": 31,
+          "name": "snapshot.tick_result",
+          "profiled_whole_share": 5.3449893495829e-05,
+          "total_us": 1601
+        },
+        {
+          "calls": 80,
+          "max_us": 43,
+          "name": "events.collect",
+          "profiled_whole_share": 4.44358577407548e-05,
+          "total_us": 1331
+        },
+        {
+          "calls": 80,
+          "max_us": 142,
+          "name": "clinic.arrivals",
+          "profiled_whole_share": 4.27665918601855e-05,
+          "total_us": 1281
+        },
+        {
+          "calls": 80,
+          "max_us": 23,
+          "name": "boundaries.arrivals",
+          "profiled_whole_share": 3.19497489540964e-05,
+          "total_us": 957
+        },
+        {
+          "calls": 80,
+          "max_us": 26,
+          "name": "dispatch.maintenance",
+          "profiled_whole_share": 2.94792354508539e-05,
+          "total_us": 883
+        },
+        {
+          "calls": 80,
+          "max_us": 25,
+          "name": "settle.research",
+          "profiled_whole_share": 2.46717497148143e-05,
+          "total_us": 739
+        },
+        {
+          "calls": 80,
+          "max_us": 13,
+          "name": "dispatch.scheduler",
+          "profiled_whole_share": 2.23347774820173e-05,
+          "total_us": 669
+        },
+        {
+          "calls": 80,
+          "max_us": 14,
+          "name": "clinic.release_departed",
+          "profiled_whole_share": 2.18673830354578e-05,
+          "total_us": 655
+        },
+        {
+          "calls": 80,
+          "max_us": 42,
+          "name": "advance.research",
+          "profiled_whole_share": 2.14333739065098e-05,
+          "total_us": 642
+        },
+        {
+          "calls": 80,
+          "max_us": 28,
+          "name": "settlement.ledger",
+          "profiled_whole_share": 2.12330620008415e-05,
+          "total_us": 636
+        },
+        {
+          "calls": 80,
+          "max_us": 14,
+          "name": "advance.environment",
+          "profiled_whole_share": 2.06988969190593e-05,
+          "total_us": 620
+        },
+        {
+          "calls": 80,
+          "max_us": 13,
+          "name": "advance.waiting",
+          "profiled_whole_share": 2.05987409662252e-05,
+          "total_us": 617
+        },
+        {
+          "calls": 80,
+          "max_us": 25,
+          "name": "clinic.settle_practice",
+          "profiled_whole_share": 1.90630163561014e-05,
+          "total_us": 571
+        },
+        {
+          "calls": 80,
+          "max_us": 14,
+          "name": "dispatch.floors",
+          "profiled_whole_share": 1.74605211107549e-05,
+          "total_us": 523
+        },
+        {
+          "calls": 80,
+          "max_us": 14,
+          "name": "boundaries.research",
+          "profiled_whole_share": 1.73603651579207e-05,
+          "total_us": 520
+        },
+        {
+          "calls": 80,
+          "max_us": 10,
+          "name": "advance.departments",
+          "profiled_whole_share": 1.52570901484034e-05,
+          "total_us": 457
+        },
+        {
+          "calls": 80,
+          "max_us": 8,
+          "name": "dispatch.remodel",
+          "profiled_whole_share": 1.49900076075123e-05,
+          "total_us": 449
+        },
+        {
+          "calls": 80,
+          "max_us": 11,
+          "name": "advance.floors",
+          "profiled_whole_share": 1.48230810194554e-05,
+          "total_us": 444
+        },
+        {
+          "calls": 80,
+          "max_us": 9,
+          "name": "advance.maintenance",
+          "profiled_whole_share": 1.45559984785643e-05,
+          "total_us": 436
+        },
+        {
+          "calls": 80,
+          "max_us": 12,
+          "name": "advance.scheduler",
+          "profiled_whole_share": 1.43223012552846e-05,
+          "total_us": 429
+        },
+        {
+          "calls": 80,
+          "max_us": 34,
+          "name": "commands.drain",
+          "profiled_whole_share": 1.3921677443948e-05,
+          "total_us": 417
+        },
+        {
+          "calls": 80,
+          "max_us": 10,
+          "name": "snapshot.space_boundary",
+          "profiled_whole_share": 1.3320741726943e-05,
+          "total_us": 399
+        },
+        {
+          "calls": 80,
+          "max_us": 6,
+          "name": "snapshot.bookkeeping",
+          "profiled_whole_share": 1.10505401293688e-05,
+          "total_us": 331
+        },
+        {
+          "calls": 80,
+          "max_us": 5,
+          "name": "snapshot.world_boundary",
+          "profiled_whole_share": 6.07612780527226e-06,
+          "total_us": 182
+        }
+      ],
+      "semantics": {
+        "business_validation": "Driver must compare frozen world, RNG and semantic event output against the plain same-input run.",
+        "denominator": "Externally measured full ordinary Simulation.step elapsed, including its pending wait loop.",
+        "nested_calls": "Inclusive and exclusive selected dynamic calls; exclusive subtracts timed descendants. Never add inclusive rows or add nested rows to root rows.",
+        "observer_handler_us": "Measured handler bodies only; wrapper dispatch and timer read overhead are not fully isolatable. Quantify total perturbation against a paired plain same-input window.",
+        "residual_us": "Full step minus root spans and observed handlers: outer step setup, pending sleeps, call/return gaps and timer precision.",
+        "root_stages": "Disjoint spans in the original step_nonblocking phase order; observed handler time removed."
+      },
+      "sources": {
+        "arrivals": {
+          "compile_error": 0,
+          "generated_sha256": "1730789c81a22a65287fa7882b0cd32ff54d2c95fa324c35ea4efa5040a121b1",
+          "methods": [
+            "boundaries",
+            "arrivals",
+            "advance_wait",
+            "needs",
+            "settle",
+            "take_events",
+            "capacity",
+            "_case_experience",
+            "_reference_basis",
+            "_resource_budgets",
+            "_existing_workload"
+          ],
+          "production_path": "res://game/arrivals/arrival_service.gd",
+          "production_sha256": "8fc7b7e5fbc9c72c07018166a0a12119e69c04a9a2327d0009fddccfb497d8f5"
+        },
+        "attach_world_unchanged": true,
+        "clinic": {
+          "compile_error": 0,
+          "generated_sha256": "ffa092803aa93890852fcecea7f1ab2ca7a000d11197e9e0eed2dd9a10a588b0",
+          "methods": [
+            "arrivals",
+            "dispatch",
+            "advance",
+            "release_departed",
+            "_dispatch_service",
+            "_gather_assigned",
+            "service_candidates",
+            "_select_plan",
+            "_gather",
+            "_outpatient_quote",
+            "_compatible_bed",
+            "_prepare_surgery",
+            "_surgery_quote",
+            "_surgery_bundle_quote",
+            "_qualified_surgery_bundle_quote",
+            "_reservation_candidate",
+            "_reserve_bundle",
+            "_complete_service",
+            "_dispatch_clinical_releases",
+            "_dispatch_ward_returns",
+            "_ward_covering",
+            "_round_candidate",
+            "_availability",
+            "_build_availability",
+            "arrival_readiness",
+            "reference_demand",
+            "_reference_options",
+            "worked_staff",
+            "take_events",
+            "settle_practice"
+          ],
+          "production_path": "res://game/clinic/clinical_runtime.gd",
+          "production_sha256": "a07d3578800c9602a983239cb3291a2ba1fa967a690c951e9873dc8ee81afdb0"
+        },
+        "departments": {
+          "compile_error": 0,
+          "generated_sha256": "28c16a72e58e5708836ece626c11b6a56dcac88785957f960d8855105fa237b1",
+          "methods": [
+            "dispatch",
+            "advance",
+            "worked_staff",
+            "sample",
+            "settle"
+          ],
+          "production_path": "res://game/operations/department_service.gd",
+          "production_sha256": "6687b1f67f43b35fcc3870c7bb1b9d829bc3f0b5f49cbb5c0cd6fee90b9e6949"
+        },
+        "development": {
+          "compile_error": 0,
+          "generated_sha256": "39056782c5035c0d6a9cd9224641e4559b9aa8ddd3eb24d5ffb9e957950d49e9",
+          "methods": [
+            "dispatch",
+            "advance",
+            "settle",
+            "worked_staff"
+          ],
+          "production_path": "res://game/staff/clinical_development.gd",
+          "production_sha256": "7cdf4c5bc839bb091b676b045b1642e84b20d65d3b5117d40d6806e4f125a3a4"
+        },
+        "environment": {
+          "compile_error": 0,
+          "generated_sha256": "e8dbc00599a52a544b12d38b5c328130744376bb790f396a7cac5744d0ba8228",
+          "methods": [
+            "begin_query",
+            "end_query",
+            "worked_staff",
+            "dispatch",
+            "advance",
+            "_work_position",
+            "_safety_query",
+            "_coverage_edges",
+            "_coverage",
+            "_positive_facilities",
+            "_nearby_actors",
+            "environment_at",
+            "sample_at",
+            "_observe_at",
+            "_water_usable"
+          ],
+          "production_path": "res://game/operations/environment_service.gd",
+          "production_sha256": "51551729324470818d5077cdfd93ecc7ceb3d2d22ff08830d96d56c8a44db704"
+        },
+        "finance": {
+          "compile_error": 0,
+          "generated_sha256": "2eab2cc4edc611da80b6ad68c2fddd485df613327b495bf77a466b5e253a2807",
+          "methods": [
+            "settle"
+          ],
+          "production_path": "res://game/economy/finance_service.gd",
+          "production_sha256": "2fd67e9d2dc6279902e2609421e9d3b773f41abe708bdb186af7f8bfe6f57b42"
+        },
+        "floors": {
+          "compile_error": 0,
+          "generated_sha256": "1db56ceeb5c08e5ab0d2ffa22c858d0384cf75ee661f3c30eab36af3988e22f4",
+          "methods": [
+            "dispatch",
+            "advance",
+            "worked_staff"
+          ],
+          "production_path": "res://game/building/floor_service.gd",
+          "production_sha256": "42253ef9497901fabfffbd9cb01f7feaf58ca95793390041f94b3a34ea17bec8"
+        },
+        "maintenance": {
+          "compile_error": 0,
+          "generated_sha256": "9aca30b10641ac5f7324ce876a21e23e46962a79a0fd1bff13a173c92fe1276b",
+          "methods": [
+            "worked_staff",
+            "boundaries",
+            "dispatch",
+            "advance",
+            "_position",
+            "_any_repair_position",
+            "_worker_ready",
+            "_dispatch_departures"
+          ],
+          "production_path": "res://game/operations/maintenance_service.gd",
+          "production_sha256": "2d96744ec86ca7b044cf52f5f701c0e520154f2ae6f15de877bb9261bb3a4edf"
+        },
+        "navigation": {
+          "compile_error": 0,
+          "generated_sha256": "9fce1aefd0d2024c48ce2eb49cb951420c9d2cc6f8efa399460a239d84b32a6c",
+          "methods": [
+            "floor_source",
+            "facility_index",
+            "query_graphs",
+            "graph",
+            "_refresh_graph",
+            "_trim",
+            "clearance",
+            "travel_distance",
+            "_distance_field"
+          ],
+          "production_path": "res://game/building/navigation_cache.gd",
+          "production_sha256": "9f5b08b436629d2da58dd62315d8c968f1ee7a46442cabf089ae4b75d146a5e7"
+        },
+        "nested_enabled": true,
+        "recruitment": {
+          "compile_error": 0,
+          "generated_sha256": "d0f2b84f5e75ea92006881922d3907b23f76f8608d68d8c582b35c218fb4ef06",
+          "methods": [
+            "boundaries",
+            "advance",
+            "settle"
+          ],
+          "production_path": "res://game/staff/recruitment_service.gd",
+          "production_sha256": "83d1c379a4d75d87ec38e9041eb450e4b3b569956743114888ab7cd90032f654"
+        },
+        "remodel": {
+          "compile_error": 0,
+          "generated_sha256": "850cede7e9688fffe6c994da08a6892f8a9dc60fcbe9f16f71b25e0ac398a4a9",
+          "methods": [
+            "dispatch"
+          ],
+          "production_path": "res://game/building/remodel_service.gd",
+          "production_sha256": "26a203282aa96a275d34b42164a49499b036b90ae824b150d72a222b36e396ad"
+        },
+        "research": {
+          "compile_error": 0,
+          "generated_sha256": "bc7a1cd480733cf92003b7ca6577e0daaaafde2629efcb40c46d7576e0d53f4a",
+          "methods": [
+            "boundaries",
+            "advance",
+            "settle",
+            "worked_staff",
+            "take_events"
+          ],
+          "production_path": "res://game/community/research_service.gd",
+          "production_sha256": "b910600188a27caae3d233c3c60944b7885e3c018db0ed19787307f795b76fd1"
+        },
+        "root_markers": 58,
+        "root_method_original_sha256": "7e0386a50cad8a3bce758e5aa313cca0e832a81af2b3a78055b6f34d9e335ccf",
+        "root_method_preserved": true,
+        "scheduler": {
+          "compile_error": 0,
+          "generated_sha256": "a32a0a0d220bfb884a3a5836d8bd47fb18cbe7d6e3bb85f7ba6d88f8fa4c6e7a",
+          "methods": [
+            "boundaries",
+            "dispatch",
+            "advance",
+            "worked_staff"
+          ],
+          "production_path": "res://game/staff/shift_scheduler.gd",
+          "production_sha256": "a9d61fe58bf7802e54207cc3ea689c978182075c46f297ab595854a39ee238a3"
+        },
+        "simulation": {
+          "compile_error": 0,
+          "generated_sha256": "02f9018637149ff982721938ba19dfb549ceb10808c75e8992a70fc9c7b5eb55",
+          "production_path": "res://game/sim/simulation.gd",
+          "production_sha256": "f89ea839cd36ea64c87d28e933a7330f0eefd74ab5e4237659957191dbce7304"
+        },
+        "space": {
+          "compile_error": 0,
+          "generated_sha256": "572f57e281a5047ad637a87b9da6d33d8796558b6393a5d322585ea9a3044a08",
+          "methods": [
+            "finish_boundary",
+            "route",
+            "travel_quote",
+            "advance",
+            "_floor_route",
+            "_active_route_clear",
+            "_dispatch_routes",
+            "_movement_clear",
+            "facility_quote",
+            "_exit_witness",
+            "_reserve_doors",
+            "_yield",
+            "_yield_idle_staff"
+          ],
+          "production_path": "res://game/building/hospital_space.gd",
+          "production_sha256": "2450262a6eb6d7da290cfb3846c5e14edf6a28444fb95ea1755f426fa0cb8c2c"
+        },
+        "supplies": {
+          "compile_error": 0,
+          "generated_sha256": "7fe1442e0b1aabcb9e90169568df7422c977a992685ecdde2ca90f632af4393f",
+          "methods": [
+            "boundaries",
+            "advance"
+          ],
+          "production_path": "res://game/operations/supply_service.gd",
+          "production_sha256": "3846f0aa50aef8b5f1c2f10b09a7d3daeef7bf792b3bbee4c23df96cda50919f"
+        },
+        "visitors": {
+          "compile_error": 0,
+          "generated_sha256": "79ce2c5efeb3730afe6d7df7a48aa1800a4498f162362864189ab552c93bc540",
+          "methods": [
+            "arrivals",
+            "dispatch",
+            "advance",
+            "_waiting_point",
+            "_waiting_point_in_query",
+            "_bedside",
+            "_bedside_in_query"
+          ],
+          "production_path": "res://game/clinic/hospital_visitors.gd",
+          "production_sha256": "6fa00ff35a5b887888c2b7b9143997a034ce0b0ea81906182abbf76814d59610"
+        },
+        "waiting": {
+          "compile_error": 0,
+          "generated_sha256": "c299dfc886ba8b515c2c6c809107758986fd078b4227f781235add4109f0d03e",
+          "methods": [
+            "dispatch",
+            "advance",
+            "seat_candidates",
+            "facility_availability",
+            "_seat_quote",
+            "_facility_quote",
+            "_facility_quote_in_query",
+            "_condition_actor_index",
+            "_conditions",
+            "_environment"
+          ],
+          "production_path": "res://game/life/waiting_life.gd",
+          "production_sha256": "f33f53ff7570ef2475ba5ccd130fe256e5cea792b53f3489a0d53aa1e644a2e7"
+        },
+        "wellbeing": {
+          "compile_error": 0,
+          "generated_sha256": "2739599b05d9d562e69116f264904d87a0cf011519ce862c6ac0ded5974898ab",
+          "methods": [
+            "dispatch",
+            "boundaries",
+            "advance",
+            "_dispatch_task",
+            "_select_facility",
+            "_tea_position",
+            "_dispatch_recreation",
+            "_adapted_candidate",
+            "_tea_obstacles"
+          ],
+          "production_path": "res://game/staff/staff_wellbeing.gd",
+          "production_sha256": "5336687e79a03dc8426e18ece5775051392cac6c7507a1c5012b9a88334de855"
+        }
+      },
+      "step_records_complete": true,
+      "steps": 80
+    },
+    "sources": {
+      "res://game/building/hospital_space.gd": "2450262a6eb6d7da290cfb3846c5e14edf6a28444fb95ea1755f426fa0cb8c2c",
+      "res://game/building/navigation_cache.gd": "9f5b08b436629d2da58dd62315d8c968f1ee7a46442cabf089ae4b75d146a5e7",
+      "res://game/clinic/clinical_runtime.gd": "a07d3578800c9602a983239cb3291a2ba1fa967a690c951e9873dc8ee81afdb0",
+      "res://game/life/waiting_life.gd": "f33f53ff7570ef2475ba5ccd130fe256e5cea792b53f3489a0d53aa1e644a2e7",
+      "res://tools/performance/representative.gd": "918be8bb4491dc1010e5716272fd2cadd83742fe690224c1062349d2e47b2746",
+      "res://tools/performance/representative_clinical.gd": "463e2370de3a9d9ec22a9fbf7a6e64fd4809256920f8194e323bdb4ae18e52e0",
+      "res://tools/performance/representative_operations.gd": "2bfdfe6ad39fec3fc72c73ead2f5be264d1445eaec816dc14279b3641a4af8ba",
+      "res://tools/performance/step_profile.gd": "cf2f216e66c165bb9e2aaa2b5d7fd29d7ca1f9f556db816d843d32f3888392c7"
+    }
+  },
+  "after": {
+    "metrics": {
+      "cold_first_us": 430636,
+      "count": 80,
+      "following_mean_us": 60465.3291139241,
+      "max_us": 1564124,
+      "mean_us": 65092.4625,
+      "p50_us": 27258,
+      "p95_us": 46581,
+      "p99_us": 1564124,
+      "total_us": 5207397
+    },
+    "qualified": true,
+    "input_sha256": "903364846fdfb6db19c30992ef0e76b01673179513b6f8a8ebf22093dde13a1f",
+    "final_binary_sha256": "60989f796d6d08e3c4a2a0881f609a5d35fb0ac2b9837d4d919faa4b73131ad8",
+    "profile": {
+      "complete_steps": 80,
+      "disjoint_root_stage_us": 4893632,
+      "errors": [],
+      "incomplete_steps": 0,
+      "nested_calls": [
+        {
+          "calls": 15841,
+          "exclusive_profiled_whole_share": 0.162532259399466,
+          "exclusive_us": 846370,
+          "inclusive_us": 846370,
+          "max_inclusive_us": 5212,
+          "name": "navigation.floor_source"
+        },
+        {
+          "calls": 952,
+          "exclusive_profiled_whole_share": 0.162067343818802,
+          "exclusive_us": 843949,
+          "inclusive_us": 1134983,
+          "max_inclusive_us": 20647,
+          "name": "space._floor_route"
+        },
+        {
+          "calls": 4,
+          "exclusive_profiled_whole_share": 0.0565814359842355,
+          "exclusive_us": 294642,
+          "inclusive_us": 301645,
+          "max_inclusive_us": 78327,
+          "name": "navigation._refresh_graph"
+        },
+        {
+          "calls": 160,
+          "exclusive_profiled_whole_share": 0.055607436882573,
+          "exclusive_us": 289570,
+          "inclusive_us": 289570,
+          "max_inclusive_us": 6364,
+          "name": "environment.begin_query"
+        },
+        {
+          "calls": 9600,
+          "exclusive_profiled_whole_share": 0.0506846318803809,
+          "exclusive_us": 263935,
+          "inclusive_us": 461383,
+          "max_inclusive_us": 7028,
+          "name": "environment._observe_at"
+        },
+        {
+          "calls": 140,
+          "exclusive_profiled_whole_share": 0.0442186374497662,
+          "exclusive_us": 230264,
+          "inclusive_us": 1926502,
+          "max_inclusive_us": 38182,
+          "name": "space.route"
+        },
+        {
+          "calls": 90,
+          "exclusive_profiled_whole_share": 0.0360154987222983,
+          "exclusive_us": 187547,
+          "inclusive_us": 487511,
+          "max_inclusive_us": 47001,
+          "name": "space.facility_quote"
+        },
+        {
+          "calls": 8966,
+          "exclusive_profiled_whole_share": 0.0318654406414568,
+          "exclusive_us": 165936,
+          "inclusive_us": 2582101,
+          "max_inclusive_us": 596941,
+          "name": "clinic.service_candidates"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.0278089033734129,
+          "exclusive_us": 144812,
+          "inclusive_us": 144812,
+          "max_inclusive_us": 5512,
+          "name": "finance.settle"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.02421113658129,
+          "exclusive_us": 126077,
+          "inclusive_us": 601061,
+          "max_inclusive_us": 68827,
+          "name": "departments.sample"
+        },
+        {
+          "calls": 9600,
+          "exclusive_profiled_whole_share": 0.0208543731157813,
+          "exclusive_us": 108597,
+          "inclusive_us": 108597,
+          "max_inclusive_us": 834,
+          "name": "environment._coverage"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.0196626068648117,
+          "exclusive_us": 102391,
+          "inclusive_us": 102391,
+          "max_inclusive_us": 2032,
+          "name": "arrivals.needs"
+        },
+        {
+          "calls": 3608,
+          "exclusive_profiled_whole_share": 0.017312296335386,
+          "exclusive_us": 90152,
+          "inclusive_us": 1037144,
+          "max_inclusive_us": 78511,
+          "name": "navigation.clearance"
+        },
+        {
+          "calls": 4,
+          "exclusive_profiled_whole_share": 0.0172944371247285,
+          "exclusive_us": 90059,
+          "inclusive_us": 90059,
+          "max_inclusive_us": 24536,
+          "name": "navigation._distance_field"
+        },
+        {
+          "calls": 5278,
+          "exclusive_profiled_whole_share": 0.0142153555797647,
+          "exclusive_us": 74025,
+          "inclusive_us": 1195484,
+          "max_inclusive_us": 78382,
+          "name": "navigation.graph"
+        },
+        {
+          "calls": 9600,
+          "exclusive_profiled_whole_share": 0.0141070481086808,
+          "exclusive_us": 73461,
+          "inclusive_us": 73461,
+          "max_inclusive_us": 6627,
+          "name": "environment._coverage_edges"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.0130362636073263,
+          "exclusive_us": 67885,
+          "inclusive_us": 67885,
+          "max_inclusive_us": 1687,
+          "name": "development.dispatch"
+        },
+        {
+          "calls": 9521,
+          "exclusive_profiled_whole_share": 0.0127816258295651,
+          "exclusive_us": 66559,
+          "inclusive_us": 71284,
+          "max_inclusive_us": 344,
+          "name": "clinic._gather_assigned"
+        },
+        {
+          "calls": 746,
+          "exclusive_profiled_whole_share": 0.0121457995232551,
+          "exclusive_us": 63248,
+          "inclusive_us": 168612,
+          "max_inclusive_us": 24737,
+          "name": "navigation.travel_distance"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.0108566717690239,
+          "exclusive_us": 56535,
+          "inclusive_us": 56535,
+          "max_inclusive_us": 1381,
+          "name": "arrivals.advance_wait"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.0107514368503112,
+          "exclusive_us": 55987,
+          "inclusive_us": 56251,
+          "max_inclusive_us": 1795,
+          "name": "wellbeing.dispatch"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.0106577240029904,
+          "exclusive_us": 55499,
+          "inclusive_us": 88992,
+          "max_inclusive_us": 18476,
+          "name": "waiting.dispatch"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.00883435620522115,
+          "exclusive_us": 46004,
+          "inclusive_us": 46004,
+          "max_inclusive_us": 1055,
+          "name": "development.settle"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.00867400737835045,
+          "exclusive_us": 45169,
+          "inclusive_us": 476826,
+          "max_inclusive_us": 333701,
+          "name": "space.advance"
+        },
+        {
+          "calls": 9521,
+          "exclusive_profiled_whole_share": 0.00843146777555082,
+          "exclusive_us": 43906,
+          "inclusive_us": 1716275,
+          "max_inclusive_us": 1476398,
+          "name": "clinic._dispatch_service"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.00830414888667025,
+          "exclusive_us": 43243,
+          "inclusive_us": 43243,
+          "max_inclusive_us": 958,
+          "name": "maintenance.boundaries"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.00695933112071156,
+          "exclusive_us": 36240,
+          "inclusive_us": 36240,
+          "max_inclusive_us": 1043,
+          "name": "scheduler.boundaries"
+        },
+        {
+          "calls": 224,
+          "exclusive_profiled_whole_share": 0.00643181228548544,
+          "exclusive_us": 33493,
+          "inclusive_us": 33493,
+          "max_inclusive_us": 363,
+          "name": "waiting.seat_candidates"
+        },
+        {
+          "calls": 2652,
+          "exclusive_profiled_whole_share": 0.00607289976162755,
+          "exclusive_us": 31624,
+          "inclusive_us": 251416,
+          "max_inclusive_us": 24788,
+          "name": "space._exit_witness"
+        },
+        {
+          "calls": 800,
+          "exclusive_profiled_whole_share": 0.00554518889187823,
+          "exclusive_us": 28876,
+          "inclusive_us": 28876,
+          "max_inclusive_us": 153,
+          "name": "space._reserve_doors"
+        },
+        {
+          "calls": 800,
+          "exclusive_profiled_whole_share": 0.00521412137388411,
+          "exclusive_us": 27152,
+          "inclusive_us": 351092,
+          "max_inclusive_us": 161286,
+          "name": "space._active_route_clear"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.00439221361459478,
+          "exclusive_us": 22872,
+          "inclusive_us": 1753724,
+          "max_inclusive_us": 1479835,
+          "name": "clinic.dispatch"
+        },
+        {
+          "calls": 800,
+          "exclusive_profiled_whole_share": 0.00347793724964699,
+          "exclusive_us": 18111,
+          "inclusive_us": 18111,
+          "max_inclusive_us": 157,
+          "name": "space._movement_clear"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.00305853385098159,
+          "exclusive_us": 15927,
+          "inclusive_us": 15927,
+          "max_inclusive_us": 406,
+          "name": "wellbeing.boundaries"
+        },
+        {
+          "calls": 9600,
+          "exclusive_profiled_whole_share": 0.00295541131202403,
+          "exclusive_us": 15390,
+          "inclusive_us": 15390,
+          "max_inclusive_us": 49,
+          "name": "environment._positive_facilities"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.00279967131371009,
+          "exclusive_us": 14579,
+          "inclusive_us": 14579,
+          "max_inclusive_us": 645,
+          "name": "departments.settle"
+        },
+        {
+          "calls": 9600,
+          "exclusive_profiled_whole_share": 0.00255559543472487,
+          "exclusive_us": 13308,
+          "inclusive_us": 474691,
+          "max_inclusive_us": 7032,
+          "name": "environment.sample_at"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.00211141958256688,
+          "exclusive_us": 10995,
+          "inclusive_us": 10995,
+          "max_inclusive_us": 474,
+          "name": "clinic._dispatch_ward_returns"
+        },
+        {
+          "calls": 128,
+          "exclusive_profiled_whole_share": 0.00196585741398246,
+          "exclusive_us": 10237,
+          "inclusive_us": 10643,
+          "max_inclusive_us": 704,
+          "name": "clinic._compatible_bed"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.00196220875804169,
+          "exclusive_us": 10218,
+          "inclusive_us": 10218,
+          "max_inclusive_us": 309,
+          "name": "arrivals.settle"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.00158236447115517,
+          "exclusive_us": 8240,
+          "inclusive_us": 8240,
+          "max_inclusive_us": 168,
+          "name": "recruitment.settle"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.00153589211654114,
+          "exclusive_us": 7998,
+          "inclusive_us": 7998,
+          "max_inclusive_us": 457,
+          "name": "supplies.advance"
+        },
+        {
+          "calls": 536,
+          "exclusive_profiled_whole_share": 0.00150689490353818,
+          "exclusive_us": 7847,
+          "inclusive_us": 9132,
+          "max_inclusive_us": 1667,
+          "name": "navigation.facility_index"
+        },
+        {
+          "calls": 9632,
+          "exclusive_profiled_whole_share": 0.00134251335168031,
+          "exclusive_us": 6991,
+          "inclusive_us": 6991,
+          "max_inclusive_us": 15,
+          "name": "navigation._trim"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.00130314627442463,
+          "exclusive_us": 6786,
+          "inclusive_us": 6786,
+          "max_inclusive_us": 209,
+          "name": "environment.dispatch"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.00109824543817189,
+          "exclusive_us": 5719,
+          "inclusive_us": 5719,
+          "max_inclusive_us": 232,
+          "name": "wellbeing.advance"
+        },
+        {
+          "calls": 561,
+          "exclusive_profiled_whole_share": 0.000908899398298229,
+          "exclusive_us": 4733,
+          "inclusive_us": 4733,
+          "max_inclusive_us": 25,
+          "name": "clinic._gather"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.000829013036647676,
+          "exclusive_us": 4317,
+          "inclusive_us": 4317,
+          "max_inclusive_us": 128,
+          "name": "departments.dispatch"
+        },
+        {
+          "calls": 160,
+          "exclusive_profiled_whole_share": 0.000766025713038587,
+          "exclusive_us": 3989,
+          "inclusive_us": 3989,
+          "max_inclusive_us": 100,
+          "name": "environment.end_query"
+        },
+        {
+          "calls": 924,
+          "exclusive_profiled_whole_share": 0.000684795109725646,
+          "exclusive_us": 3566,
+          "inclusive_us": 255129,
+          "max_inclusive_us": 4910,
+          "name": "navigation.query_graphs"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.000468948305650597,
+          "exclusive_us": 2442,
+          "inclusive_us": 2442,
+          "max_inclusive_us": 51,
+          "name": "visitors.dispatch"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.000429965297441313,
+          "exclusive_us": 2239,
+          "inclusive_us": 2239,
+          "max_inclusive_us": 309,
+          "name": "arrivals.arrivals"
+        },
+        {
+          "calls": 4,
+          "exclusive_profiled_whole_share": 0.000424396296268558,
+          "exclusive_us": 2210,
+          "inclusive_us": 12853,
+          "max_inclusive_us": 4986,
+          "name": "clinic._surgery_quote"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.000408457430843087,
+          "exclusive_us": 2127,
+          "inclusive_us": 2127,
+          "max_inclusive_us": 105,
+          "name": "development.advance"
+        },
+        {
+          "calls": 70,
+          "exclusive_profiled_whole_share": 0.00037850004522413,
+          "exclusive_us": 1971,
+          "inclusive_us": 1971,
+          "max_inclusive_us": 88,
+          "name": "clinic._reservation_candidate"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.000359296592904286,
+          "exclusive_us": 1871,
+          "inclusive_us": 1871,
+          "max_inclusive_us": 78,
+          "name": "recruitment.advance"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.000330875483470916,
+          "exclusive_us": 1723,
+          "inclusive_us": 1723,
+          "max_inclusive_us": 47,
+          "name": "recruitment.boundaries"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.000300918097851959,
+          "exclusive_us": 1567,
+          "inclusive_us": 1567,
+          "max_inclusive_us": 158,
+          "name": "supplies.boundaries"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.00026135898607308,
+          "exclusive_us": 1361,
+          "inclusive_us": 998422,
+          "max_inclusive_us": 996308,
+          "name": "clinic.advance"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.000239467050428458,
+          "exclusive_us": 1247,
+          "inclusive_us": 1247,
+          "max_inclusive_us": 27,
+          "name": "space._dispatch_routes"
+        },
+        {
+          "calls": 81,
+          "exclusive_profiled_whole_share": 0.000221607839771003,
+          "exclusive_us": 1154,
+          "inclusive_us": 1154,
+          "max_inclusive_us": 26,
+          "name": "clinic._dispatch_clinical_releases"
+        },
+        {
+          "calls": 6,
+          "exclusive_profiled_whole_share": 0.000183200935131314,
+          "exclusive_us": 954,
+          "inclusive_us": 1867844,
+          "max_inclusive_us": 559453,
+          "name": "clinic.plan_quote"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.000152283376896365,
+          "exclusive_us": 793,
+          "inclusive_us": 793,
+          "max_inclusive_us": 16,
+          "name": "visitors.advance"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.000130775510298139,
+          "exclusive_us": 681,
+          "inclusive_us": 681,
+          "max_inclusive_us": 138,
+          "name": "visitors.arrivals"
+        },
+        {
+          "calls": 4,
+          "exclusive_profiled_whole_share": 0.000123862267462995,
+          "exclusive_us": 645,
+          "inclusive_us": 645,
+          "max_inclusive_us": 204,
+          "name": "clinic._outpatient_quote"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.000113108334163883,
+          "exclusive_us": 589,
+          "inclusive_us": 589,
+          "max_inclusive_us": 13,
+          "name": "arrivals.boundaries"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 0.000101394228248778,
+          "exclusive_us": 528,
+          "inclusive_us": 528,
+          "max_inclusive_us": 13,
+          "name": "scheduler.dispatch"
+        },
+        {
+          "calls": 3,
+          "exclusive_profiled_whole_share": 9.96659175399917e-05,
+          "exclusive_us": 519,
+          "inclusive_us": 3337648,
+          "max_inclusive_us": 1469309,
+          "name": "clinic._select_plan"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 9.81296413544041e-05,
+          "exclusive_us": 511,
+          "inclusive_us": 511,
+          "max_inclusive_us": 80,
+          "name": "environment.advance"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 9.33287782744431e-05,
+          "exclusive_us": 486,
+          "inclusive_us": 486,
+          "max_inclusive_us": 25,
+          "name": "research.settle"
+        },
+        {
+          "calls": 4,
+          "exclusive_profiled_whole_share": 8.08465342665443e-05,
+          "exclusive_us": 421,
+          "inclusive_us": 421,
+          "max_inclusive_us": 131,
+          "name": "clinic._build_availability"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 8.06544997433459e-05,
+          "exclusive_us": 420,
+          "inclusive_us": 420,
+          "max_inclusive_us": 10,
+          "name": "clinic.release_departed"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 8.00783961737505e-05,
+          "exclusive_us": 417,
+          "inclusive_us": 1098,
+          "max_inclusive_us": 143,
+          "name": "clinic.arrivals"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 7.91182235577583e-05,
+          "exclusive_us": 412,
+          "inclusive_us": 412,
+          "max_inclusive_us": 11,
+          "name": "waiting.advance"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 7.52775330937895e-05,
+          "exclusive_us": 392,
+          "inclusive_us": 392,
+          "max_inclusive_us": 11,
+          "name": "research.advance"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 6.81722557354471e-05,
+          "exclusive_us": 355,
+          "inclusive_us": 675,
+          "max_inclusive_us": 18,
+          "name": "maintenance.dispatch"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 6.14510474235016e-05,
+          "exclusive_us": 320,
+          "inclusive_us": 320,
+          "max_inclusive_us": 9,
+          "name": "maintenance._dispatch_departures"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 6.12590129003032e-05,
+          "exclusive_us": 319,
+          "inclusive_us": 319,
+          "max_inclusive_us": 8,
+          "name": "research.boundaries"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 5.93386676683187e-05,
+          "exclusive_us": 309,
+          "inclusive_us": 309,
+          "max_inclusive_us": 10,
+          "name": "floors.dispatch"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 5.43457700651592e-05,
+          "exclusive_us": 283,
+          "inclusive_us": 283,
+          "max_inclusive_us": 5,
+          "name": "departments.advance"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 5.06971141243888e-05,
+          "exclusive_us": 264,
+          "inclusive_us": 264,
+          "max_inclusive_us": 18,
+          "name": "wellbeing._dispatch_recreation"
+        },
+        {
+          "calls": 1,
+          "exclusive_profiled_whole_share": 4.97369415083966e-05,
+          "exclusive_us": 259,
+          "inclusive_us": 996268,
+          "max_inclusive_us": 996268,
+          "name": "clinic._complete_service"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 4.8584734369206e-05,
+          "exclusive_us": 253,
+          "inclusive_us": 253,
+          "max_inclusive_us": 18,
+          "name": "clinic.settle_practice"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 4.57042165212293e-05,
+          "exclusive_us": 238,
+          "inclusive_us": 238,
+          "max_inclusive_us": 5,
+          "name": "remodel.dispatch"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 4.55121819980309e-05,
+          "exclusive_us": 237,
+          "inclusive_us": 237,
+          "max_inclusive_us": 4,
+          "name": "maintenance.advance"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 4.30157331964511e-05,
+          "exclusive_us": 224,
+          "inclusive_us": 224,
+          "max_inclusive_us": 6,
+          "name": "scheduler.advance"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 4.12874224876651e-05,
+          "exclusive_us": 215,
+          "inclusive_us": 215,
+          "max_inclusive_us": 4,
+          "name": "floors.advance"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 3.57184213149103e-05,
+          "exclusive_us": 186,
+          "inclusive_us": 186,
+          "max_inclusive_us": 3,
+          "name": "space.finish_boundary"
+        },
+        {
+          "calls": 66,
+          "exclusive_profiled_whole_share": 3.18777308509415e-05,
+          "exclusive_us": 166,
+          "inclusive_us": 587,
+          "max_inclusive_us": 145,
+          "name": "clinic._availability"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 2.91892475261633e-05,
+          "exclusive_us": 152,
+          "inclusive_us": 152,
+          "max_inclusive_us": 12,
+          "name": "clinic.worked_staff"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 2.86131439565679e-05,
+          "exclusive_us": 149,
+          "inclusive_us": 149,
+          "max_inclusive_us": 3,
+          "name": "clinic.take_events"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 2.57326261085913e-05,
+          "exclusive_us": 134,
+          "inclusive_us": 134,
+          "max_inclusive_us": 4,
+          "name": "research.take_events"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 2.1699901121424e-05,
+          "exclusive_us": 113,
+          "inclusive_us": 113,
+          "max_inclusive_us": 4,
+          "name": "arrivals.take_events"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 1.92034523198443e-05,
+          "exclusive_us": 100,
+          "inclusive_us": 100,
+          "max_inclusive_us": 5,
+          "name": "maintenance.worked_staff"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 1.92034523198443e-05,
+          "exclusive_us": 100,
+          "inclusive_us": 100,
+          "max_inclusive_us": 3,
+          "name": "environment.worked_staff"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 1.88193832734474e-05,
+          "exclusive_us": 98,
+          "inclusive_us": 98,
+          "max_inclusive_us": 2,
+          "name": "research.worked_staff"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 1.74751416110583e-05,
+          "exclusive_us": 91,
+          "inclusive_us": 91,
+          "max_inclusive_us": 2,
+          "name": "departments.worked_staff"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 1.68990380414629e-05,
+          "exclusive_us": 88,
+          "inclusive_us": 88,
+          "max_inclusive_us": 2,
+          "name": "floors.worked_staff"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 1.67070035182645e-05,
+          "exclusive_us": 87,
+          "inclusive_us": 87,
+          "max_inclusive_us": 2,
+          "name": "development.worked_staff"
+        },
+        {
+          "calls": 80,
+          "exclusive_profiled_whole_share": 1.59388654254707e-05,
+          "exclusive_us": 83,
+          "inclusive_us": 83,
+          "max_inclusive_us": 2,
+          "name": "scheduler.worked_staff"
+        }
+      ],
+      "observer_handler_us": 311312,
+      "observer_profiled_whole_share": 0.0597826514859535,
+      "partition_check_us": 0,
+      "profiled_whole_us": 5207397,
+      "residual_profiled_whole_share": 0.00047106068540578,
+      "residual_us": 2453,
+      "root_stage_profiled_whole_share": 0.939746287828641,
+      "root_stages": [
+        {
+          "calls": 80,
+          "max_us": 1479841,
+          "name": "clinic.dispatch",
+          "profiled_whole_share": 0.336846989004295,
+          "total_us": 1754096
+        },
+        {
+          "calls": 80,
+          "max_us": 996315,
+          "name": "clinic.advance",
+          "profiled_whole_share": 0.191788526974225,
+          "total_us": 998719
+        },
+        {
+          "calls": 80,
+          "max_us": 68833,
+          "name": "sample.departments",
+          "profiled_whole_share": 0.115489754286067,
+          "total_us": 601401
+        },
+        {
+          "calls": 80,
+          "max_us": 333706,
+          "name": "movement.space",
+          "profiled_whole_share": 0.0916141020168042,
+          "total_us": 477071
+        },
+        {
+          "calls": 80,
+          "max_us": 6371,
+          "name": "begin_query.environment",
+          "profiled_whole_share": 0.0556162704706401,
+          "total_us": 289616
+        },
+        {
+          "calls": 80,
+          "max_us": 5522,
+          "name": "settle.finance",
+          "profiled_whole_share": 0.0278720827315451,
+          "total_us": 145141
+        },
+        {
+          "calls": 80,
+          "max_us": 2036,
+          "name": "needs.arrivals",
+          "profiled_whole_share": 0.0197213694289105,
+          "total_us": 102697
+        },
+        {
+          "calls": 80,
+          "max_us": 18481,
+          "name": "dispatch.waiting",
+          "profiled_whole_share": 0.0171427298514018,
+          "total_us": 89269
+        },
+        {
+          "calls": 80,
+          "max_us": 1690,
+          "name": "dispatch.development",
+          "profiled_whole_share": 0.0130775510298139,
+          "total_us": 68100
+        },
+        {
+          "calls": 80,
+          "max_us": 1386,
+          "name": "advance_wait.arrivals",
+          "profiled_whole_share": 0.0109165865402619,
+          "total_us": 56847
+        },
+        {
+          "calls": 80,
+          "max_us": 1799,
+          "name": "dispatch.wellbeing",
+          "profiled_whole_share": 0.0108543673547456,
+          "total_us": 56523
+        },
+        {
+          "calls": 80,
+          "max_us": 1059,
+          "name": "settle.development",
+          "profiled_whole_share": 0.00888198076697436,
+          "total_us": 46252
+        },
+        {
+          "calls": 80,
+          "max_us": 962,
+          "name": "boundaries.maintenance",
+          "profiled_whole_share": 0.00835273362103946,
+          "total_us": 43496
+        },
+        {
+          "calls": 80,
+          "max_us": 1050,
+          "name": "boundaries.scheduler",
+          "profiled_whole_share": 0.00700657161341837,
+          "total_us": 36486
+        },
+        {
+          "calls": 80,
+          "max_us": 411,
+          "name": "boundaries.wellbeing",
+          "profiled_whole_share": 0.00310481417107242,
+          "total_us": 16168
+        },
+        {
+          "calls": 80,
+          "max_us": 651,
+          "name": "settle.departments",
+          "profiled_whole_share": 0.00284422332309213,
+          "total_us": 14811
+        },
+        {
+          "calls": 80,
+          "max_us": 313,
+          "name": "settle.arrivals",
+          "profiled_whole_share": 0.00200349618052935,
+          "total_us": 10433
+        },
+        {
+          "calls": 80,
+          "max_us": 174,
+          "name": "settle.recruitment",
+          "profiled_whole_share": 0.00163805448288271,
+          "total_us": 8530
+        },
+        {
+          "calls": 80,
+          "max_us": 213,
+          "name": "dispatch.staff_idle",
+          "profiled_whole_share": 0.00161808289247008,
+          "total_us": 8426
+        },
+        {
+          "calls": 80,
+          "max_us": 463,
+          "name": "advance.supplies",
+          "profiled_whole_share": 0.0015785237806912,
+          "total_us": 8220
+        },
+        {
+          "calls": 80,
+          "max_us": 213,
+          "name": "dispatch.environment",
+          "profiled_whole_share": 0.00134750624928347,
+          "total_us": 7017
+        },
+        {
+          "calls": 80,
+          "max_us": 239,
+          "name": "advance.wellbeing",
+          "profiled_whole_share": 0.00113799658447397,
+          "total_us": 5926
+        },
+        {
+          "calls": 80,
+          "max_us": 134,
+          "name": "dispatch.departments",
+          "profiled_whole_share": 0.000869724355565746,
+          "total_us": 4529
+        },
+        {
+          "calls": 80,
+          "max_us": 177,
+          "name": "movement.capture_staff_locations",
+          "profiled_whole_share": 0.00079655920222714,
+          "total_us": 4148
+        },
+        {
+          "calls": 80,
+          "max_us": 105,
+          "name": "end_query.environment",
+          "profiled_whole_share": 0.000790414097484789,
+          "total_us": 4116
+        },
+        {
+          "calls": 80,
+          "max_us": 113,
+          "name": "settlement.finish_visits",
+          "profiled_whole_share": 0.000730115257200479,
+          "total_us": 3802
+        },
+        {
+          "calls": 80,
+          "max_us": 126,
+          "name": "step.setup",
+          "profiled_whole_share": 0.000642163445575592,
+          "total_us": 3344
+        },
+        {
+          "calls": 80,
+          "max_us": 311,
+          "name": "arrivals.arrivals",
+          "profiled_whole_share": 0.000464147442570636,
+          "total_us": 2417
+        },
+        {
+          "calls": 80,
+          "max_us": 110,
+          "name": "advance.development",
+          "profiled_whole_share": 0.000453009440225126,
+          "total_us": 2359
+        },
+        {
+          "calls": 80,
+          "max_us": 82,
+          "name": "advance.recruitment",
+          "profiled_whole_share": 0.000398087566590371,
+          "total_us": 2073
+        },
+        {
+          "calls": 80,
+          "max_us": 52,
+          "name": "boundaries.recruitment",
+          "profiled_whole_share": 0.000375427492852955,
+          "total_us": 1955
+        },
+        {
+          "calls": 80,
+          "max_us": 164,
+          "name": "boundaries.supplies",
+          "profiled_whole_share": 0.000354111660777928,
+          "total_us": 1844
+        },
+        {
+          "calls": 80,
+          "max_us": 39,
+          "name": "integrate.worked_staff",
+          "profiled_whole_share": 0.000329531241808527,
+          "total_us": 1716
+        },
+        {
+          "calls": 80,
+          "max_us": 43,
+          "name": "snapshot.tick_result",
+          "profiled_whole_share": 0.000319737481125407,
+          "total_us": 1665
+        },
+        {
+          "calls": 80,
+          "max_us": 28,
+          "name": "events.collect",
+          "profiled_whole_share": 0.000267312056292232,
+          "total_us": 1392
+        },
+        {
+          "calls": 80,
+          "max_us": 146,
+          "name": "clinic.arrivals",
+          "profiled_whole_share": 0.000253869639668341,
+          "total_us": 1322
+        },
+        {
+          "calls": 80,
+          "max_us": 21,
+          "name": "boundaries.arrivals",
+          "profiled_whole_share": 0.000185313314886497,
+          "total_us": 965
+        },
+        {
+          "calls": 80,
+          "max_us": 20,
+          "name": "dispatch.maintenance",
+          "profiled_whole_share": 0.000167262069705843,
+          "total_us": 871
+        },
+        {
+          "calls": 80,
+          "max_us": 48,
+          "name": "settle.research",
+          "profiled_whole_share": 0.00014306571978284,
+          "total_us": 745
+        },
+        {
+          "calls": 80,
+          "max_us": 82,
+          "name": "advance.environment",
+          "profiled_whole_share": 0.000136536545994093,
+          "total_us": 711
+        },
+        {
+          "calls": 80,
+          "max_us": 16,
+          "name": "dispatch.scheduler",
+          "profiled_whole_share": 0.000130583475774941,
+          "total_us": 680
+        },
+        {
+          "calls": 80,
+          "max_us": 53,
+          "name": "clinic.settle_practice",
+          "profiled_whole_share": 0.000128663130542956,
+          "total_us": 670
+        },
+        {
+          "calls": 80,
+          "max_us": 14,
+          "name": "clinic.release_departed",
+          "profiled_whole_share": 0.00012078971509182,
+          "total_us": 629
+        },
+        {
+          "calls": 80,
+          "max_us": 21,
+          "name": "advance.research",
+          "profiled_whole_share": 0.000118869369859836,
+          "total_us": 619
+        },
+        {
+          "calls": 80,
+          "max_us": 17,
+          "name": "advance.waiting",
+          "profiled_whole_share": 0.000118101231767042,
+          "total_us": 615
+        },
+        {
+          "calls": 80,
+          "max_us": 26,
+          "name": "settlement.ledger",
+          "profiled_whole_share": 0.000117909197243844,
+          "total_us": 614
+        },
+        {
+          "calls": 80,
+          "max_us": 14,
+          "name": "boundaries.research",
+          "profiled_whole_share": 0.000100626090155984,
+          "total_us": 524
+        },
+        {
+          "calls": 80,
+          "max_us": 14,
+          "name": "dispatch.floors",
+          "profiled_whole_share": 9.88977794471979e-05,
+          "total_us": 515
+        },
+        {
+          "calls": 80,
+          "max_us": 9,
+          "name": "dispatch.remodel",
+          "profiled_whole_share": 9.29447092280462e-05,
+          "total_us": 484
+        },
+        {
+          "calls": 80,
+          "max_us": 8,
+          "name": "advance.departments",
+          "profiled_whole_share": 8.77597771016882e-05,
+          "total_us": 457
+        },
+        {
+          "calls": 80,
+          "max_us": 10,
+          "name": "advance.floors",
+          "profiled_whole_share": 8.73757080552913e-05,
+          "total_us": 455
+        },
+        {
+          "calls": 80,
+          "max_us": 8,
+          "name": "advance.maintenance",
+          "profiled_whole_share": 8.39190866377194e-05,
+          "total_us": 437
+        },
+        {
+          "calls": 80,
+          "max_us": 12,
+          "name": "advance.scheduler",
+          "profiled_whole_share": 8.00783961737505e-05,
+          "total_us": 417
+        },
+        {
+          "calls": 80,
+          "max_us": 10,
+          "name": "commands.drain",
+          "profiled_whole_share": 7.47014295241941e-05,
+          "total_us": 389
+        },
+        {
+          "calls": 80,
+          "max_us": 7,
+          "name": "snapshot.space_boundary",
+          "profiled_whole_share": 7.31651533386066e-05,
+          "total_us": 381
+        },
+        {
+          "calls": 80,
+          "max_us": 8,
+          "name": "snapshot.bookkeeping",
+          "profiled_whole_share": 6.27952890858907e-05,
+          "total_us": 327
+        },
+        {
+          "calls": 80,
+          "max_us": 3,
+          "name": "snapshot.world_boundary",
+          "profiled_whole_share": 3.84069046396885e-05,
+          "total_us": 200
+        }
+      ],
+      "semantics": {
+        "business_validation": "Driver must compare frozen world, RNG and semantic event output against the plain same-input run.",
+        "denominator": "Externally measured full ordinary Simulation.step elapsed, including its pending wait loop.",
+        "nested_calls": "Inclusive and exclusive selected dynamic calls; exclusive subtracts timed descendants. Never add inclusive rows or add nested rows to root rows.",
+        "observer_handler_us": "Measured handler bodies only; wrapper dispatch and timer read overhead are not fully isolatable. Quantify total perturbation against a paired plain same-input window.",
+        "residual_us": "Full step minus root spans and observed handlers: outer step setup, pending sleeps, call/return gaps and timer precision.",
+        "root_stages": "Disjoint spans in the original step_nonblocking phase order; observed handler time removed."
+      },
+      "sources": {
+        "arrivals": {
+          "compile_error": 0,
+          "generated_sha256": "1730789c81a22a65287fa7882b0cd32ff54d2c95fa324c35ea4efa5040a121b1",
+          "methods": [
+            "boundaries",
+            "arrivals",
+            "advance_wait",
+            "needs",
+            "settle",
+            "take_events",
+            "capacity",
+            "_case_experience",
+            "_reference_basis",
+            "_resource_budgets",
+            "_existing_workload"
+          ],
+          "production_path": "res://game/arrivals/arrival_service.gd",
+          "production_sha256": "8fc7b7e5fbc9c72c07018166a0a12119e69c04a9a2327d0009fddccfb497d8f5"
+        },
+        "attach_world_unchanged": true,
+        "clinic": {
+          "compile_error": 0,
+          "generated_sha256": "cd28ac3128021b7d4315b83af782cc36c1398f88a7ef74bbadd8773fc4845f24",
+          "methods": [
+            "arrivals",
+            "dispatch",
+            "advance",
+            "release_departed",
+            "_dispatch_service",
+            "_gather_assigned",
+            "service_candidates",
+            "plan_quote",
+            "_select_plan",
+            "_gather",
+            "_outpatient_quote",
+            "_compatible_bed",
+            "_prepare_surgery",
+            "_surgery_quote",
+            "_surgery_bundle_quote",
+            "_qualified_surgery_bundle_quote",
+            "_reservation_candidate",
+            "_reserve_bundle",
+            "_complete_service",
+            "_dispatch_clinical_releases",
+            "_dispatch_ward_returns",
+            "_ward_covering",
+            "_round_candidate",
+            "_availability",
+            "_build_availability",
+            "arrival_readiness",
+            "reference_demand",
+            "_reference_options",
+            "worked_staff",
+            "take_events",
+            "settle_practice"
+          ],
+          "production_path": "res://game/clinic/clinical_runtime.gd",
+          "production_sha256": "b7eb9407c5062b73a40a6de654a6e1994f758853d5e51f14b7cc7bcbeb513ff0"
+        },
+        "departments": {
+          "compile_error": 0,
+          "generated_sha256": "28c16a72e58e5708836ece626c11b6a56dcac88785957f960d8855105fa237b1",
+          "methods": [
+            "dispatch",
+            "advance",
+            "worked_staff",
+            "sample",
+            "settle"
+          ],
+          "production_path": "res://game/operations/department_service.gd",
+          "production_sha256": "6687b1f67f43b35fcc3870c7bb1b9d829bc3f0b5f49cbb5c0cd6fee90b9e6949"
+        },
+        "development": {
+          "compile_error": 0,
+          "generated_sha256": "39056782c5035c0d6a9cd9224641e4559b9aa8ddd3eb24d5ffb9e957950d49e9",
+          "methods": [
+            "dispatch",
+            "advance",
+            "settle",
+            "worked_staff"
+          ],
+          "production_path": "res://game/staff/clinical_development.gd",
+          "production_sha256": "7cdf4c5bc839bb091b676b045b1642e84b20d65d3b5117d40d6806e4f125a3a4"
+        },
+        "environment": {
+          "compile_error": 0,
+          "generated_sha256": "e8dbc00599a52a544b12d38b5c328130744376bb790f396a7cac5744d0ba8228",
+          "methods": [
+            "begin_query",
+            "end_query",
+            "worked_staff",
+            "dispatch",
+            "advance",
+            "_work_position",
+            "_safety_query",
+            "_coverage_edges",
+            "_coverage",
+            "_positive_facilities",
+            "_nearby_actors",
+            "environment_at",
+            "sample_at",
+            "_observe_at",
+            "_water_usable"
+          ],
+          "production_path": "res://game/operations/environment_service.gd",
+          "production_sha256": "51551729324470818d5077cdfd93ecc7ceb3d2d22ff08830d96d56c8a44db704"
+        },
+        "finance": {
+          "compile_error": 0,
+          "generated_sha256": "2eab2cc4edc611da80b6ad68c2fddd485df613327b495bf77a466b5e253a2807",
+          "methods": [
+            "settle"
+          ],
+          "production_path": "res://game/economy/finance_service.gd",
+          "production_sha256": "2fd67e9d2dc6279902e2609421e9d3b773f41abe708bdb186af7f8bfe6f57b42"
+        },
+        "floors": {
+          "compile_error": 0,
+          "generated_sha256": "1db56ceeb5c08e5ab0d2ffa22c858d0384cf75ee661f3c30eab36af3988e22f4",
+          "methods": [
+            "dispatch",
+            "advance",
+            "worked_staff"
+          ],
+          "production_path": "res://game/building/floor_service.gd",
+          "production_sha256": "42253ef9497901fabfffbd9cb01f7feaf58ca95793390041f94b3a34ea17bec8"
+        },
+        "maintenance": {
+          "compile_error": 0,
+          "generated_sha256": "9aca30b10641ac5f7324ce876a21e23e46962a79a0fd1bff13a173c92fe1276b",
+          "methods": [
+            "worked_staff",
+            "boundaries",
+            "dispatch",
+            "advance",
+            "_position",
+            "_any_repair_position",
+            "_worker_ready",
+            "_dispatch_departures"
+          ],
+          "production_path": "res://game/operations/maintenance_service.gd",
+          "production_sha256": "2d96744ec86ca7b044cf52f5f701c0e520154f2ae6f15de877bb9261bb3a4edf"
+        },
+        "navigation": {
+          "compile_error": 0,
+          "generated_sha256": "9fce1aefd0d2024c48ce2eb49cb951420c9d2cc6f8efa399460a239d84b32a6c",
+          "methods": [
+            "floor_source",
+            "facility_index",
+            "query_graphs",
+            "graph",
+            "_refresh_graph",
+            "_trim",
+            "clearance",
+            "travel_distance",
+            "_distance_field"
+          ],
+          "production_path": "res://game/building/navigation_cache.gd",
+          "production_sha256": "9f5b08b436629d2da58dd62315d8c968f1ee7a46442cabf089ae4b75d146a5e7"
+        },
+        "nested_enabled": true,
+        "recruitment": {
+          "compile_error": 0,
+          "generated_sha256": "d0f2b84f5e75ea92006881922d3907b23f76f8608d68d8c582b35c218fb4ef06",
+          "methods": [
+            "boundaries",
+            "advance",
+            "settle"
+          ],
+          "production_path": "res://game/staff/recruitment_service.gd",
+          "production_sha256": "83d1c379a4d75d87ec38e9041eb450e4b3b569956743114888ab7cd90032f654"
+        },
+        "remodel": {
+          "compile_error": 0,
+          "generated_sha256": "850cede7e9688fffe6c994da08a6892f8a9dc60fcbe9f16f71b25e0ac398a4a9",
+          "methods": [
+            "dispatch"
+          ],
+          "production_path": "res://game/building/remodel_service.gd",
+          "production_sha256": "26a203282aa96a275d34b42164a49499b036b90ae824b150d72a222b36e396ad"
+        },
+        "research": {
+          "compile_error": 0,
+          "generated_sha256": "bc7a1cd480733cf92003b7ca6577e0daaaafde2629efcb40c46d7576e0d53f4a",
+          "methods": [
+            "boundaries",
+            "advance",
+            "settle",
+            "worked_staff",
+            "take_events"
+          ],
+          "production_path": "res://game/community/research_service.gd",
+          "production_sha256": "b910600188a27caae3d233c3c60944b7885e3c018db0ed19787307f795b76fd1"
+        },
+        "root_markers": 58,
+        "root_method_original_sha256": "7e0386a50cad8a3bce758e5aa313cca0e832a81af2b3a78055b6f34d9e335ccf",
+        "root_method_preserved": true,
+        "scheduler": {
+          "compile_error": 0,
+          "generated_sha256": "a32a0a0d220bfb884a3a5836d8bd47fb18cbe7d6e3bb85f7ba6d88f8fa4c6e7a",
+          "methods": [
+            "boundaries",
+            "dispatch",
+            "advance",
+            "worked_staff"
+          ],
+          "production_path": "res://game/staff/shift_scheduler.gd",
+          "production_sha256": "a9d61fe58bf7802e54207cc3ea689c978182075c46f297ab595854a39ee238a3"
+        },
+        "simulation": {
+          "compile_error": 0,
+          "generated_sha256": "02f9018637149ff982721938ba19dfb549ceb10808c75e8992a70fc9c7b5eb55",
+          "production_path": "res://game/sim/simulation.gd",
+          "production_sha256": "f89ea839cd36ea64c87d28e933a7330f0eefd74ab5e4237659957191dbce7304"
+        },
+        "space": {
+          "compile_error": 0,
+          "generated_sha256": "572f57e281a5047ad637a87b9da6d33d8796558b6393a5d322585ea9a3044a08",
+          "methods": [
+            "finish_boundary",
+            "route",
+            "travel_quote",
+            "advance",
+            "_floor_route",
+            "_active_route_clear",
+            "_dispatch_routes",
+            "_movement_clear",
+            "facility_quote",
+            "_exit_witness",
+            "_reserve_doors",
+            "_yield",
+            "_yield_idle_staff"
+          ],
+          "production_path": "res://game/building/hospital_space.gd",
+          "production_sha256": "2450262a6eb6d7da290cfb3846c5e14edf6a28444fb95ea1755f426fa0cb8c2c"
+        },
+        "supplies": {
+          "compile_error": 0,
+          "generated_sha256": "7fe1442e0b1aabcb9e90169568df7422c977a992685ecdde2ca90f632af4393f",
+          "methods": [
+            "boundaries",
+            "advance"
+          ],
+          "production_path": "res://game/operations/supply_service.gd",
+          "production_sha256": "3846f0aa50aef8b5f1c2f10b09a7d3daeef7bf792b3bbee4c23df96cda50919f"
+        },
+        "visitors": {
+          "compile_error": 0,
+          "generated_sha256": "79ce2c5efeb3730afe6d7df7a48aa1800a4498f162362864189ab552c93bc540",
+          "methods": [
+            "arrivals",
+            "dispatch",
+            "advance",
+            "_waiting_point",
+            "_waiting_point_in_query",
+            "_bedside",
+            "_bedside_in_query"
+          ],
+          "production_path": "res://game/clinic/hospital_visitors.gd",
+          "production_sha256": "6fa00ff35a5b887888c2b7b9143997a034ce0b0ea81906182abbf76814d59610"
+        },
+        "waiting": {
+          "compile_error": 0,
+          "generated_sha256": "c299dfc886ba8b515c2c6c809107758986fd078b4227f781235add4109f0d03e",
+          "methods": [
+            "dispatch",
+            "advance",
+            "seat_candidates",
+            "facility_availability",
+            "_seat_quote",
+            "_facility_quote",
+            "_facility_quote_in_query",
+            "_condition_actor_index",
+            "_conditions",
+            "_environment"
+          ],
+          "production_path": "res://game/life/waiting_life.gd",
+          "production_sha256": "f33f53ff7570ef2475ba5ccd130fe256e5cea792b53f3489a0d53aa1e644a2e7"
+        },
+        "wellbeing": {
+          "compile_error": 0,
+          "generated_sha256": "2739599b05d9d562e69116f264904d87a0cf011519ce862c6ac0ded5974898ab",
+          "methods": [
+            "dispatch",
+            "boundaries",
+            "advance",
+            "_dispatch_task",
+            "_select_facility",
+            "_tea_position",
+            "_dispatch_recreation",
+            "_adapted_candidate",
+            "_tea_obstacles"
+          ],
+          "production_path": "res://game/staff/staff_wellbeing.gd",
+          "production_sha256": "5336687e79a03dc8426e18ece5775051392cac6c7507a1c5012b9a88334de855"
+        }
+      },
+      "step_records_complete": true,
+      "steps": 80
+    },
+    "sources": {
+      "res://game/building/hospital_space.gd": "2450262a6eb6d7da290cfb3846c5e14edf6a28444fb95ea1755f426fa0cb8c2c",
+      "res://game/building/navigation_cache.gd": "9f5b08b436629d2da58dd62315d8c968f1ee7a46442cabf089ae4b75d146a5e7",
+      "res://game/clinic/clinical_runtime.gd": "b7eb9407c5062b73a40a6de654a6e1994f758853d5e51f14b7cc7bcbeb513ff0",
+      "res://game/life/waiting_life.gd": "f33f53ff7570ef2475ba5ccd130fe256e5cea792b53f3489a0d53aa1e644a2e7",
+      "res://tools/performance/representative.gd": "918be8bb4491dc1010e5716272fd2cadd83742fe690224c1062349d2e47b2746",
+      "res://tools/performance/representative_clinical.gd": "463e2370de3a9d9ec22a9fbf7a6e64fd4809256920f8194e323bdb4ae18e52e0",
+      "res://tools/performance/representative_operations.gd": "2bfdfe6ad39fec3fc72c73ead2f5be264d1445eaec816dc14279b3641a4af8ba",
+      "res://tools/performance/step_profile.gd": "afa8749ee4082d4dbf707c8c14656f37d756eb8ebaf0126b84ca19f4ef1eec4c"
+    }
+  },
+  "limits": {
+    "diagnostic_only": true,
+    "nested_whole_time_is_not_benefit_proof": true,
+    "before_after_helper_coverage_identical": false,
+    "difference": "after wraps plan_quote; before does not; both preserve original method bodies and full facts/events/RNG",
+    "partition_check_is_residual_identity": true,
+    "observer_handler_is_not_total_perturbation": true
+  }
+}

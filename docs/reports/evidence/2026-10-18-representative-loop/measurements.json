@@ -1,0 +1,213 @@
+{
+  "diagnostic_only": true,
+  "formal_pass": false,
+  "formal_acceptance_paused": true,
+  "scenes": {
+    "gp": {
+      "steps_per_window": 80,
+      "pairs": 3,
+      "runs": [
+        {
+          "pair": 1,
+          "side": "before",
+          "name": "gp-before-plain-p1",
+          "input_sha256": "903364846fdfb6db19c30992ef0e76b01673179513b6f8a8ebf22093dde13a1f",
+          "final_binary_sha256": "60989f796d6d08e3c4a2a0881f609a5d35fb0ac2b9837d4d919faa4b73131ad8",
+          "metrics": {
+            "cold_first_us": 421018,
+            "count": 80,
+            "following_mean_us": 566756.556962025,
+            "max_us": 21307333,
+            "mean_us": 564934.825,
+            "p50_us": 23065,
+            "p95_us": 45574,
+            "p99_us": 21307333,
+            "total_us": 45194786
+          },
+          "spikes": {
+            "878": 21307333,
+            "879": 21303062
+          },
+          "qualification": {
+            "actual_clinical_work": true,
+            "all_steps_complete": true,
+            "present_160_throughout": true,
+            "same_actor_ids": true,
+            "world_valid": true
+          }
+        },
+        {
+          "pair": 1,
+          "side": "after",
+          "name": "gp-after-plain-p1",
+          "input_sha256": "903364846fdfb6db19c30992ef0e76b01673179513b6f8a8ebf22093dde13a1f",
+          "final_binary_sha256": "60989f796d6d08e3c4a2a0881f609a5d35fb0ac2b9837d4d919faa4b73131ad8",
+          "metrics": {
+            "cold_first_us": 410479,
+            "count": 80,
+            "following_mean_us": 82750.2911392405,
+            "max_us": 2339010,
+            "mean_us": 86846.9,
+            "p50_us": 30172,
+            "p95_us": 60990,
+            "p99_us": 2339010,
+            "total_us": 6947752
+          },
+          "spikes": {
+            "878": 1722777,
+            "879": 2339010
+          },
+          "qualification": {
+            "actual_clinical_work": true,
+            "all_steps_complete": true,
+            "present_160_throughout": true,
+            "same_actor_ids": true,
+            "world_valid": true
+          }
+        },
+        {
+          "pair": 2,
+          "side": "after",
+          "name": "gp-after-plain-p2",
+          "input_sha256": "903364846fdfb6db19c30992ef0e76b01673179513b6f8a8ebf22093dde13a1f",
+          "final_binary_sha256": "60989f796d6d08e3c4a2a0881f609a5d35fb0ac2b9837d4d919faa4b73131ad8",
+          "metrics": {
+            "cold_first_us": 407794,
+            "count": 80,
+            "following_mean_us": 76730.7215189873,
+            "max_us": 2063539,
+            "mean_us": 80869.0125,
+            "p50_us": 25265,
+            "p95_us": 52981,
+            "p99_us": 2063539,
+            "total_us": 6469521
+          },
+          "spikes": {
+            "878": 1672726,
+            "879": 2063539
+          },
+          "qualification": {
+            "actual_clinical_work": true,
+            "all_steps_complete": true,
+            "present_160_throughout": true,
+            "same_actor_ids": true,
+            "world_valid": true
+          }
+        },
+        {
+          "pair": 2,
+          "side": "before",
+          "name": "gp-before-plain-p2",
+          "input_sha256": "903364846fdfb6db19c30992ef0e76b01673179513b6f8a8ebf22093dde13a1f",
+          "final_binary_sha256": "60989f796d6d08e3c4a2a0881f609a5d35fb0ac2b9837d4d919faa4b73131ad8",
+          "metrics": {
+            "cold_first_us": 473463,
+            "count": 80,
+            "following_mean_us": 573523.481012658,
+            "max_us": 21678516,
+            "mean_us": 572272.725,
+            "p50_us": 30739,
+            "p95_us": 54764,
+            "p99_us": 21678516,
+            "total_us": 45781818
+          },
+          "spikes": {
+            "878": 20946862,
+            "879": 21678516
+          },
+          "qualification": {
+            "actual_clinical_work": true,
+            "all_steps_complete": true,
+            "present_160_throughout": true,
+            "same_actor_ids": true,
+            "world_valid": true
+          }
+        },
+        {
+          "pair": 3,
+          "side": "before",
+          "name": "gp-before-plain-p3",
+          "input_sha256": "903364846fdfb6db19c30992ef0e76b01673179513b6f8a8ebf22093dde13a1f",
+          "final_binary_sha256": "60989f796d6d08e3c4a2a0881f609a5d35fb0ac2b9837d4d919faa4b73131ad8",
+          "metrics": {
+            "cold_first_us": 425675,
+            "count": 80,
+            "following_mean_us": 364629.518987342,
+            "max_us": 13617705,
+            "mean_us": 365392.5875,
+            "p50_us": 23194,
+            "p95_us": 41148,
+            "p99_us": 13617705,
+            "total_us": 29231407
+          },
+          "spikes": {
+            "878": 13617705,
+            "879": 13312378
+          },
+          "qualification": {
+            "actual_clinical_work": true,
+            "all_steps_complete": true,
+            "present_160_throughout": true,
+            "same_actor_ids": true,
+            "world_valid": true
+          }
+        },
+        {
+          "pair": 3,
+          "side": "after",
+          "name": "gp-after-plain-p3",
+          "input_sha256": "903364846fdfb6db19c30992ef0e76b01673179513b6f8a8ebf22093dde13a1f",
+          "final_binary_sha256": "60989f796d6d08e3c4a2a0881f609a5d35fb0ac2b9837d4d919faa4b73131ad8",
+          "metrics": {
+            "cold_first_us": 427766,
+            "count": 80,
+            "following_mean_us": 92729.1265822785,
+            "max_us": 2658078,
+            "mean_us": 96917.0875,
+            "p50_us": 41188,
+            "p95_us": 72516,
+            "p99_us": 2658078,
+            "total_us": 7753367
+          },
+          "spikes": {
+            "878": 1585105,
+            "879": 2658078
+          },
+          "qualification": {
+            "actual_clinical_work": true,
+            "all_steps_complete": true,
+            "present_160_throughout": true,
+            "same_actor_ids": true,
+            "world_valid": true
+          }
+        }
+      ],
+      "median_window_metrics": {
+        "before": {
+          "mean_us": 564934.825,
+          "p50_us": 23194,
+          "p95_us": 45574,
+          "p99_us": 21307333,
+          "max_us": 21307333,
+          "cold_first_us": 425675,
+          "following_mean_us": 566756.556962025,
+          "total_us": 45194786
+        },
+        "after": {
+          "mean_us": 86846.9,
+          "p50_us": 30172,
+          "p95_us": 60990,
+          "p99_us": 2339010,
+          "max_us": 2339010,
+          "cold_first_us": 410479,
+          "following_mean_us": 82750.2911392405,
+          "total_us": 6947752
+        }
+      },
+      "mean_reduction": 0.8462709393070253,
+      "all_full_facts_events_rng_binary_identical": true,
+      "input_sha256": "903364846fdfb6db19c30992ef0e76b01673179513b6f8a8ebf22093dde13a1f",
+      "final_binary_sha256": "60989f796d6d08e3c4a2a0881f609a5d35fb0ac2b9837d4d919faa4b73131ad8"
+    }
+  }
+}
