@@ -9,7 +9,7 @@ var _simulation: HospitalSimulation
 var _session: GameSession
 var _view: HospitalView
 var _viewport: SubViewport
-var _world_container: SubViewportContainer
+var _world_container: TextureRect
 var _details: RichTextLabel
 var _status: Label
 var _clock: Label
@@ -49,6 +49,7 @@ var _draft_leave_confirmed: bool = false
 var _draft_commands: Dictionary = {}
 var _capacity_dialog: ConfirmationDialog
 var _pending_floor: int = -1
+var _view_work_budget: ViewWorkBudget
 
 func _ready() -> void:
 	get_tree().auto_accept_quit = false
@@ -163,8 +164,9 @@ func _build_ui() -> void:
 	var split: HSplitContainer = HSplitContainer.new()
 	split.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	column.add_child(split)
-	_world_container = SubViewportContainer.new()
-	_world_container.stretch = true
+	_world_container = TextureRect.new()
+	_world_container.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_world_container.stretch_mode = TextureRect.STRETCH_SCALE
 	_world_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_world_container.custom_minimum_size = Vector2(400,260)
 	_world_container.gui_input.connect(_world_input)
@@ -174,6 +176,10 @@ func _build_ui() -> void:
 	_viewport.scaling_3d_scale = 0.75
 	_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	_world_container.add_child(_viewport)
+	_world_container.texture = _viewport.get_texture()
+	_world_container.resized.connect(_sync_scene_pixels)
+	get_viewport().size_changed.connect(_sync_scene_pixels)
+	call_deferred("_sync_scene_pixels")
 	var panel: PanelContainer = PanelContainer.new()
 	panel.custom_minimum_size = Vector2(340,0)
 	split.add_child(panel)
@@ -280,6 +286,7 @@ func _acquire() -> void:
 	if not _content.error.is_empty():
 		_status.text = _content.error
 		return
+	_view_work_budget = ViewWorkBudget.new(int(float(_content.balance.spatial_view.view_build_budget_ms_per_frame)*1000.0))
 	_snapshots = HospitalSnapshots.new(_content,_guard)
 	_library = HospitalLibrary.new(_content,_snapshots)
 	_library_panel.attach(_library,"")
@@ -323,6 +330,7 @@ func _activate(world: WorldState, restored: bool = false) -> bool:
 	if HospitalSpace.floor_plots(world,_observed_floor).is_empty():
 		_observed_floor = 1
 	var prepared: HospitalView = HospitalView.new(_content)
+	prepared.work_budget = _view_work_budget
 	_viewport.add_child(prepared)
 	prepared.visible = false
 	prepared.bind(world,_observed_floor,session_id)
@@ -368,11 +376,14 @@ func _add_management_panel(id: String, label: String, panel: Control) -> void:
 	_panel_picker.set_item_metadata(_panel_picker.item_count-1,id)
 
 func _bind_management_panels() -> void:
+	if _view_work_budget==null:
+		_view_work_budget = ViewWorkBudget.new(int(float(_content.balance.spatial_view.view_build_budget_ms_per_frame)*1000.0))
+	_view.work_budget = _view_work_budget
 	_panel_scroll_positions.clear()
 	_management_scroll.scroll_vertical = 0
 	for panel: Node in _management_panels.get_children():
 		if panel==_build_panel:
-			_build_panel.attach(_simulation,_session,_observed_floor)
+			_build_panel.attach(_simulation,_session,_observed_floor,_view_work_budget)
 		else:
 			if panel is HospitalEnvironmentPanel:
 				panel.floor_id = _observed_floor
@@ -446,6 +457,7 @@ func _show_build_preview(draft: Dictionary, result: Dictionary) -> void:
 func _show_layout_preview(draft: Dictionary, result: Dictionary) -> void:
 	if _view==null:
 		return
+	var started: int = Time.get_ticks_usec()
 	if not is_instance_valid(_build_overlay) or _build_overlay.get_parent()!=_view:
 		_build_overlay = HospitalBuildOverlay.new()
 		_view.add_child(_build_overlay)
@@ -456,6 +468,7 @@ func _show_layout_preview(draft: Dictionary, result: Dictionary) -> void:
 		if int(draft.get("rotation",0))%2==1:
 			outline.size.reverse()
 	_build_overlay.show_preview(outline,result,_observed_floor)
+	if _view_work_budget!=null: _view_work_budget.spend(Time.get_ticks_usec()-started)
 
 func _locate_entity(id: String) -> void:
 	if _simulation==null:
@@ -571,6 +584,7 @@ func _poll_library_job() -> void:
 		_status.text = "医院备份未完成，原资料保留："+str(result.get("error","请检查文件与可用空间。"))
 
 func _process(_delta: float) -> void:
+	_sync_scene_pixels()
 	var now: int = Time.get_ticks_usec()
 	var real_delta: float = float(now-_last_process_us)/1000000.0 if _last_process_us>0 else 0.0
 	_last_process_us = now
@@ -737,6 +751,7 @@ func _prepare_switch_candidate() -> void:
 	_candidate = _gameplay_world(_candidate)
 	# Candidate resources are prepared before the main-thread publication boundary.
 	var candidate_view: HospitalView = HospitalView.new(_content)
+	candidate_view.work_budget = _view_work_budget
 	var candidate_session_id: String = HospitalSnapshots.uuid()
 	_viewport.add_child(candidate_view)
 	candidate_view.visible = false
@@ -858,9 +873,17 @@ func _move_selected(floor_id: int) -> void:
 	var result: CommandResult = _session.submit(GameCommand.new(command_id,world.hospital_id,world.revision,"move_actor",payload,_session.loading_session_id))
 	_status.text = "已接收实际通行请求。" if result.accepted else result.reason
 
+func _sync_scene_pixels() -> void:
+	if _viewport==null or _world_container==null: return
+	# canvas_items rasterizes 2D at window resolution. The nested 3D texture
+	# likewise owns the physical pixels occupied by its control, before 3D scale.
+	var screen: Transform2D = _world_container.get_screen_transform()
+	var pixels: Vector2i = Vector2i(maxi(2,ceili(_world_container.size.x*screen.x.length())),maxi(2,ceili(_world_container.size.y*screen.y.length())))
+	if _viewport.size!=pixels: _viewport.size = pixels
+
 func _world_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and event.button_mask&MOUSE_BUTTON_MASK_MIDDLE and _view!=null:
-		_view.pan_camera(event.relative)
+		_view.pan_camera(event.relative*Vector2(_viewport.size)/_world_container.size)
 	if _simulation!=null and _simulation.pending():
 		if event is InputEventMouseButton and event.pressed and _view!=null:
 			if event.button_index in [MOUSE_BUTTON_WHEEL_UP,MOUSE_BUTTON_WHEEL_DOWN]:

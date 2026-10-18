@@ -23,6 +23,19 @@ var _closed_door_cells: Dictionary = {}
 var _horizontal_walls: Dictionary = {}
 var _vertical_walls: Dictionary = {}
 
+# Only these original reservation exceptions change query-level clearance.
+# Sorted facility identities preserve sharing between equally authorized actors.
+static func reservation_exemptions(world: WorldState, actor_id: String, floor_id: int = 0) -> Array:
+	var result: Array = []
+	for id: String in world.ids("adaptations"):
+		var reservation: Dictionary = world.facts.adaptations[id]
+		if reservation.kind=="facility" and (floor_id==0 or int(reservation.floor_id)==floor_id) and reservation_allows(reservation,actor_id):
+			result.append(id)
+	return result
+
+static func reservation_allows(reservation: Dictionary, actor_id: String, members: Array = []) -> bool:
+	return actor_id==reservation.actor_id or actor_id in reservation.staff_ids or reservation.actor_id in members
+
 func _init(space: HospitalSpace, world: WorldState, actor: Dictionary, floor_id: int, members: Array = [], offsets: Dictionary = {}, include_reservations: bool = true, floor_source: Dictionary = {}, static_geometry: RouteClearance = null) -> void:
 	_indexed_static = not include_reservations
 	_size = space.clearance(actor)
@@ -43,7 +56,7 @@ func _init(space: HospitalSpace, world: WorldState, actor: Dictionary, floor_id:
 			set(field,static_geometry.get(field))
 	if include_reservations:
 		for reservation: Dictionary in world.facts.adaptations.values():
-			if reservation.kind=="facility" and int(reservation.floor_id)==floor_id and actor.id!=reservation.actor_id and not actor.id in reservation.staff_ids and not reservation.actor_id in members:
+			if reservation.kind=="facility" and int(reservation.floor_id)==floor_id and not reservation_allows(reservation,actor.id,members):
 				var regions: Array[Rect2] = []
 				for area: Array in reservation.regions:
 					regions.append(Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3])))

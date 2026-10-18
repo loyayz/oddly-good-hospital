@@ -94,6 +94,20 @@ for index in range(80):
                     "budgets": {r: fraction(b) for r, b in zip(("a", "b"), budgets)}, "expected": fraction(expected),
                     "changed_budgets": {r: fraction(b) for r, b in zip(("a", "b"), changed)},
                     "changed_expected": fraction(optimum(explicit, probabilities, changed))})
+for index in range(12):
+    first = (1 + index % 3, 2)
+    tails = [(1, 0), (0, 1 + index % 2)]
+    standalone = (3, 1)
+    explicit = [[standalone] + [(first[0] + tail[0], first[1] + tail[1]) for tail in tails]]
+    budgets = [7 + index, 11 + index % 4]
+    changed = [budgets[0] // 2, budgets[1] + 3]
+    case = {"probability": fraction(1), "bundles": [{"resources": {}, "choices": ["start"]}],
+            "choice_groups": {"start": [{"resources": resources(standalone)}, {"resources": resources(first), "choices": ["tail"]}],
+                              "tail": [{"resources": resources(tail)} for tail in tails]}}
+    vectors.append({"index": len(vectors), "cases": [case], "budgets": {r: fraction(b) for r, b in zip(("a", "b"), budgets)},
+                    "expected": fraction(optimum(explicit, [Q(1)], budgets)),
+                    "changed_budgets": {r: fraction(b) for r, b in zip(("a", "b"), changed)},
+                    "changed_expected": fraction(optimum(explicit, [Q(1)], changed))})
 Path(sys.argv[1]).write_text(json.dumps(vectors, ensure_ascii=False), encoding="utf-8")
 print(f"EXACT_VERTEX_VECTORS={len(vectors)}")
 
@@ -106,14 +120,16 @@ def structure_optimum(cases, blocked, reception, bed_limit):
         for part in parts:
             resources = set(part.get("resources", {})) - set(blocked)
             edges.update(product(resources & set(reception["people"]), resources & set(reception["desks"])))
+        def expand(part):
+            names = part.get("structural_choices", [part["structural_group"]] if "structural_group" in part else [])
+            variants = [frozenset(part.get("structural_resources", []))]
+            for name in names:
+                options = [resources for option in case.get("choice_groups", {}).get(name, []) for resources in expand(option)]
+                variants = [base | option for base, option in product(variants, options)]
+            return variants
+
         for base in case["bundles"]:
-            if "structural_choices" in base:
-                prefixes = [{"structural_resources": list(set(resource for part in selection for resource in part.get("structural_resources", [])))}
-                            for selection in product(*(case.get("choice_groups", {}).get(group, []) for group in base["structural_choices"]))]
-            else:
-                prefixes = case.get("choice_groups", {}).get(base.get("structural_group"), [{}])
-            for prefix in prefixes:
-                resources = frozenset(base.get("structural_resources", []) + prefix.get("structural_resources", []))
+            for resources in expand(base):
                 nurse, ward = base.get("coverage_nurse_id", ""), base.get("ward_id", "")
                 if resources and not resources.intersection(blocked) and (not nurse or (ward and "staff:" + nurse not in blocked and "staff:" + nurse not in resources)):
                     patterns.add((resources, nurse, ward))
@@ -198,6 +214,20 @@ for index in range(16):
                                 "consult": [{"structural_resources": ["staff:g" + str(rng.randrange(2)), "facility:g" + str(j)], "resources": {}} for j in range(2)]},
               "reception_bundles": [registration]}]
     blocked = {"staff:g0": True} if index % 4 == 0 else {}
+    packing.append({"index": len(packing), "cases": cases, "blocked": blocked, "reception": reception, "bed_limit": 8,
+                    "expected": structure_optimum(cases, blocked, reception, 8)})
+for index in range(24):
+    reception = {"people": {"staff:r": True}, "desks": {"facility:d": True}, "ratio": 3}
+    registration = {"resources": {"staff:r": fraction(1), "facility:d": fraction(1)}}
+    cases = [{"bundles": [{"structural_resources": ["staff:t" + str(j)], "structural_choices": ["gp"]} for j in range(2)],
+              "choice_groups": {"gp": [{"structural_resources": ["staff:g0"], "structural_choices": ["spectrum"]},
+                                         {"structural_resources": ["staff:g1"]}],
+                                "spectrum": [{"structural_resources": ["staff:g0", "facility:s0"], "structural_choices": ["resonance"]},
+                                             {"structural_resources": ["staff:g1", "facility:s1"]}],
+                                "resonance": [{"structural_resources": ["staff:g" + str(index % 2), "facility:r0"]},
+                                              {"structural_resources": ["staff:g1", "facility:r1"]}]},
+              "reception_bundles": [registration]}]
+    blocked = {rng.choice(["staff:g0", "facility:s1", "facility:r0", "staff:t0"]): True} if index % 3 else {}
     packing.append({"index": len(packing), "cases": cases, "blocked": blocked, "reception": reception, "bed_limit": 8,
                     "expected": structure_optimum(cases, blocked, reception, 8)})
 Path(sys.argv[1]).with_name("structure-vectors.json").write_text(json.dumps(packing), encoding="utf-8")

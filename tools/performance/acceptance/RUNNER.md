@@ -31,7 +31,7 @@ config/custom_user_dir_name="OddlyGoodHospital Formal RUN_ID"
 
 场景必须包含 `run_id/output_dir/input_path/actors/layout/floor_id/window_pixels/scene_scale_bp/ui_scale_percent/speed/minimum_frame_samples/minimum_step_samples`。可选字段和七组代表矩阵见 [fixtures](fixtures/README.md)、[DENSE_MATRIX.md](DENSE_MATRIX.md)及采集器场景示例。帧/步最低样本必须与原 balance 合同一致，当前各为 1000；速度只用真实 1×/3×，场景比例使用 10000/7500/6667，UI 使用 100/200。
 
-运行器设置原视口三维比例和原 UI 方法，记录实际窗口像素、逻辑视口、canvas 变换、SubViewport 尺寸、UI 倍率、渲染方法/驱动、GPU、刷新率、vsync 和帧上限；实际设置与请求不符会失败。实际后端分配尺寸和完整图形驻留仍由外部证据确认，不能用标称比例乘像素代填。若产品现有 canvas stretch 使逻辑 UI 范围与物理窗口不同，保留原行为并写 `coverage_gap`，不通过采集工具另改界面来制造原生 UI 结论。
+运行器设置原视口三维比例和原 UI 方法，记录实际窗口像素、逻辑视口、canvas/screen 变换、根光栅纹理、控件物理显示范围、SubViewport与其输出纹理尺寸、UI 倍率、渲染方法/驱动、GPU、刷新率、vsync 和帧上限；实际设置与请求不符会失败。`canvas_items`在实际窗口像素上光栅化二维内容，逻辑1440×900与窗口像素不同不构成低分辨率文字证据。嵌套三维输出匹配原控件物理显示区域，再应用独立三维比例；侧栏和其他二维区域不计为三维范围。实际后端三维绘制附件尺寸由[独立RenderDoc显示采集](DISPLAY.md)核对，不能用标称比例乘像素代填；完整图形分配与OS内存视图仍由无注入正式采集证明。
 
 ## 预热、门闩与退出
 

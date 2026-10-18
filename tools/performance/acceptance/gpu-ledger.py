@@ -59,6 +59,7 @@ class Allocation:
     recorded: bool = False
     metadata: dict = field(default_factory=dict)
     created_clock: tuple | None = None
+    stopped_clock: tuple | None = None
     target_backing: bool = False
     first_target_backing_sequence: int | None = None
     backing_active: dict | None = None
@@ -71,6 +72,7 @@ class Ledger:
         self.current = {}
         self.globals_by_handle = defaultdict(dict)
         self.records = []
+        self.all_records = []
         self.generations = Counter()
         self.aliases = {}
         self.devices = {}
@@ -124,6 +126,7 @@ class Ledger:
         if found is None or not found.alive:
             self.generations[key] += 1
             found = Allocation(adapter, handle, self.generations[key])
+            self.all_records.append(found)
             self.current[key] = found
             self.globals_by_handle[handle][adapter] = found
         return found
@@ -227,6 +230,7 @@ class Ledger:
             def stop():
                 allocation.alive = False
                 allocation.stopped_sequence = self.sequence
+                allocation.stopped_clock = self.current_clock
                 self.finish_backing(allocation, "global_stop")
             self.changed(allocation, stop)
             self.current.pop(key, None)
@@ -299,7 +303,7 @@ class Ledger:
             found = list(self.globals_by_handle.get(handle, {}).values())
             process = number(data["hProcessId"]) if event == 364 else None
             if len(found) != 1:
-                if process == self.target:
+                if process == self.target or any(self.interested(a) for a in found):
                     self.issue("target_backing_global_identity_unresolved", allocation=hex(handle), candidates=len(found))
                 return
             allocation = found[0]
@@ -315,13 +319,14 @@ class Ledger:
                 raise ValueError("backing event native header TID missing")
             if allocation.backing_active is None:
                 allocation.backing_active = {"page_count": 0, "events": 0, "zero_page_events": 0,
-                    "pids": set(), "tids": set(), "first_sequence": self.sequence, "last_sequence": self.sequence}
+                    "pids": set(), "tids": set(), "pages": set(), "first_sequence": self.sequence, "last_sequence": self.sequence}
             cycle = allocation.backing_active
             cycle["page_count"] += count
             cycle["events"] += 1
             cycle["zero_page_events"] += count == 0
             cycle["pids"].add(process)
             cycle["tids"].add(self.current_tid)
+            cycle["pages"].update(number(page) for page in pages)
             cycle["last_sequence"] = self.sequence
             self.counts["backing_records"] += 1
             if process == self.target:
@@ -427,9 +432,9 @@ class Ledger:
             current += positive + negative
         coverage_timed = defaultdict(lambda: [0, 0], {stamp: amounts.copy() for stamp, amounts in timed.items()})
         for created, created_clock, linked, linked_clock, size in coverage_early_starts:
-            if created_clock is not None:
+            if created_clock is not None and all(v is not None for v in created_clock):
                 coverage_timed[created_clock][0] += size
-            if linked_clock is not None:
+            if linked_clock is not None and all(v is not None for v in linked_clock):
                 coverage_timed[linked_clock][0] -= size
         current = creation_upper_peak = 0
         for stamp in sorted(coverage_timed):
@@ -497,6 +502,24 @@ class Ledger:
         raw_qpc_verified = all(raw_qpc_checks.values())
         if not raw_qpc_verified:
             missing.append("complete raw-QPC decode with matching trace header, frequency and zero loss")
+        # A PID4/global object without a target alias/backing link may still be
+        # renderer overhead. Do not turn an observed target graph into backend
+        # coverage by silently dropping these objects. Bound all such objects
+        # on target adapters, even if some belong to unrelated processes.
+        target_adapters = {a.adapter for a in relevant}
+        unattributed = [a for a in self.all_records if a.adapter in target_adapters and not a.recorded and a.creator in (None, 0, 4)]
+        kernel_details = [{"adapter_pointer": hex(a.adapter), "global_allocation": hex(a.handle),
+            "generation": a.generation, "allocated_bytes": a.size,
+            "target_intervals_sequence": [(a.created_sequence, a.stopped_sequence or self.sequence+1)],
+            "target_intervals_clock": [[a.created_clock, a.stopped_clock]]} for a in unattributed]
+        kernel_window = window_summary(kernel_details, capture, self.target, trace, decode_meta, self.qpc_frequencies)
+        kernel_known = all(a.size is not None and a.created_clock is not None for a in unattributed)
+        kernel_upper = kernel_window.get("known_same_timestamp_upper_peak_alloc_size_bytes") if unattributed else 0
+        kernel_bound = {"status": "bounded" if kernel_known and kernel_window.get("verified") else "incomplete",
+            "lifetimes": len(unattributed), "unknown_size_lifetimes": sum(a.size is None for a in unattributed),
+            "formal_upper_bound_bytes": kernel_upper if kernel_known else None,
+            "scope": "all unassociated PID0/PID4/unknown-origin globals on target adapters, including unrelated kernel storage; conservative coverage, never added as exact target ownership",
+            "allocations": kernel_details}
         return {"schema_version": 2, "kind": "dxgkrnl_allocation_ledger", "status": "incomplete",
                 "target_pid": self.target, "target_start_utc_ticks": trace.get("target_start_utc_ticks"),
                 "scope": "observed target-origin/device/explicit-owner global allocation graph; full backend coverage and physical residency not established",
@@ -515,6 +538,7 @@ class Ledger:
                 "known_same_timestamp_upper_peak_allocated_bytes": max(timestamp_upper_peak, creation_upper_peak) if relevant else None,
                 "known_creation_association_upper_peak_allocated_bytes": creation_upper_peak if relevant else None,
                 "backing_size_corroboration": backing,
+                "unattributed_kernel_global_bound": kernel_bound,
                 "peak_coverage_complete": False, "shared_dedup_verified": False, "residency_verified": False,
                 "allocation_accounting": {"status": "incomplete", "byte_basis": "AdapterAllocation 33/35 allocSize, once per adapter/global/lifetime",
                     "physical_resident_bytes": None, "backend_coverage_verified": False,
@@ -554,9 +578,11 @@ def backing_cycles(allocation):
     for cycle in cycles:
         observed = cycle["page_count"] * BACKING_PAGE_BYTES
         matched = allocation.size is not None and allocation.size > 0 and observed == allocation.size
-        unambiguous = len(cycle["pids"]) == 1 and len(cycle["tids"]) == 1
-        result.append({**{name: value for name, value in cycle.items() if name not in ("pids", "tids")},
+        unique = len(cycle["pages"])
+        unambiguous = len(cycle["pids"]) == 1 and len(cycle["tids"]) == 1 and unique == cycle["page_count"]
+        result.append({**{name: value for name, value in cycle.items() if name not in ("pids", "tids", "pages")},
                        "pids": sorted(cycle["pids"]), "tids": sorted(cycle["tids"]),
+                       "unique_pfn_count": unique, "repeated_pfn_entries": cycle["page_count"]-unique,
                        "observed_page_extent_bytes": observed,
                        "extent_status": "matched" if matched and unambiguous else "pending_or_ambiguous",
                        "basis": "sum of emitted chunks for one global lifetime/lock interval; not resident bytes or a PFN uniqueness assertion"})
@@ -692,7 +718,219 @@ def counter_window(counter, window):
             "start_qpc": start, "end_qpc": end, "scope": "exact emitted OS counter changes; not allocation or physical page dedup"}
 
 
+def qualify_accounting(report, trace, schema_versions):
+    """Qualify a conservative emitted-global extent bound, never physical residency.
+
+    Unknown flag bits do not remove storage. All observed bytes, including page
+    tables and unreleased objects, remain in the bound. Global objects may share
+    physical pages, so an excessive bound cannot establish a physical-byte excess.
+    """
+    allocations, window = report.get("allocations", []), report.get("formal_window", {})
+    selected = set(trace.get("events_selected", []))
+    required = {f"{event}:{version}" for event, version in VERSIONS.items()}
+    sizes = bool(allocations) and all(type(a.get("allocated_bytes")) is int and a["allocated_bytes"] >= 0
+        and a.get("size_source_event") in (33, 35) and a.get("adapter_identity")
+        and type(a.get("physical_adapter_index")) is int for a in allocations)
+    target_upper = window.get("known_same_timestamp_upper_peak_alloc_size_bytes")
+    kernel = report.get("unattributed_kernel_global_bound", {})
+    kernel_upper = kernel.get("formal_upper_bound_bytes")
+    upper = target_upper + kernel_upper if type(target_upper) is int and type(kernel_upper) is int else None
+    checks = {
+        "preserved_raw_event_provenance": report.get("input_provenance", {}).get("verified") is True,
+        "complete_raw_qpc_decode": report.get("raw_qpc_verified") is True,
+        "target_identity_and_alias_join": report.get("allocation_identity", {}).get("status") == "verified",
+        "all_process_alias_capture": trace.get("all_processes_for_shared_aliases") is True,
+        "all_required_event_families_armed": required <= selected,
+        "saved_schema_covers_interpreted_versions": schema_versions is not None and set(VERSIONS.items()) <= schema_versions,
+        "formal_actual_display_window": window.get("verified") is True
+            and window.get("window_resolution", {}).get("verified") is True,
+        "all_target_global_sizes_joined": bool(sizes),
+        "no_event_or_identity_gaps": not report.get("issues"),
+        "backing_extent_records_unambiguous": report.get("backing_size_corroboration", {}).get("pending_or_ambiguous_cycles") == 0,
+        "unreleased_globals_included": report.get("allocation_accounting", {}).get("unreleased_observed_globals_included") is True,
+        "positive_formal_extent_upper_bound": type(upper) is int and upper > 0,
+        "unattributed_kernel_extents_bounded": kernel.get("status") == "bounded" and type(kernel_upper) is int and kernel_upper >= 0,
+    }
+    qualified = all(checks.values())
+    accounting = report["allocation_accounting"]
+    accounting.update(status="verified" if qualified else "incomplete", qualification_checks=checks,
+        backend_coverage_verified=qualified,
+        coverage_scope="lossless pre-target, all-process WDDM global-allocation event graph; target graph plus conservative unattributed kernel bound on target adapters; no undocumented flag exclusions",
+        peak_allocated_bytes=None, upper_bound_allocated_bytes=upper if qualified else None,
+        exact_physical_or_deduplicated_page_peak=False,
+        bound_semantics="sum of canonical global object allocSize extents; physical-page overlap can only make this conservative; upper-bound excess alone is inconclusive")
+    report["peak_coverage_complete"] = qualified
+    report["shared_dedup_verified"] = qualified
+    report["shared_dedup_scope"] = "device/process aliases of one adapter/global/lifetime counted once; physical pages across distinct global objects not claimed disjoint"
+    report["missing"].extend("allocation accounting qualification: " + name for name, valid in checks.items() if not valid)
+    # A qualified allocation bound still needs its independent OS memory view.
+    target_domains = {(a.get("adapter_pointer"), a.get("physical_adapter_index")) for a in allocations}
+    observed_domains = {(c.get("adapter_pointer"), c.get("physical_adapter_index"))
+        for c in report.get("os_aggregate_counters", []) if c.get("kind") == "usage" and c.get("continuous") is True
+        and c.get("adapter_identity") and type(c.get("memory_segment_group")) is int
+        and c.get("formal_window", {}).get("verified") is True}
+    os_view = bool(target_domains) and target_domains <= observed_domains
+    report["os_process_usage_view"] = {"status": "observed_with_window" if os_view else "incomplete",
+        "node_scope": "physical-adapter memory domain across GPU engine nodes; no per-engine-node residency attribution",
+        "physical_resident_bytes": None, "added_to_allocation_bytes": False}
+    if os_view:
+        report["missing"] = [m for m in report["missing"] if m != "OS residency view with explicit per-process/adapter/node/segment semantics and window coverage"]
+    report["status"] = "verified" if qualified and os_view else "incomplete"
+    return report
+
+
 class OfflineChecks(unittest.TestCase):
+    def qualified_fixture(self):
+        report = {"allocations": [{"allocated_bytes": 4096, "size_source_event": 33,
+            "adapter_identity": {"AdapterLuid": "0x1"}, "physical_adapter_index": 0}],
+            "formal_window": {"verified": True, "window_resolution": {"verified": True},
+                "known_same_timestamp_upper_peak_alloc_size_bytes": 4096},
+            "input_provenance": {"verified": True}, "raw_qpc_verified": True,
+            "allocation_identity": {"status": "verified"}, "issues": {},
+            "backing_size_corroboration": {"pending_or_ambiguous_cycles": 0},
+            "unattributed_kernel_global_bound": {"status": "bounded", "formal_upper_bound_bytes": 0},
+            "allocation_accounting": {"unreleased_observed_globals_included": True}, "missing": []}
+        trace = {"events_selected": [f"{event}:{version}" for event, version in VERSIONS.items()],
+                 "all_processes_for_shared_aliases": True}
+        return report, trace
+
+    def test_allocation_qualification_is_a_bound_not_physical_residency(self):
+        report, trace = self.qualified_fixture()
+        qualify_accounting(report, trace, set(VERSIONS.items()))
+        self.assertEqual(report["allocation_accounting"]["status"], "verified")
+        self.assertIsNone(report["allocation_accounting"]["peak_allocated_bytes"])
+        self.assertEqual(report["allocation_accounting"]["upper_bound_allocated_bytes"], 4096)
+        self.assertEqual(report["status"], "incomplete")  # OS view still absent.
+
+    def test_unassociated_kernel_storage_is_not_implicitly_free(self):
+        ledger = Ledger(42)
+        self.create(ledger, handle=7, size=4096, owner=4)
+        self.create(ledger, handle=8, size=8192, owner=42)
+        report = ledger.report()
+        bound = report["unattributed_kernel_global_bound"]
+        self.assertEqual(bound["lifetimes"], 1)
+        self.assertEqual(bound["allocations"][0]["allocated_bytes"], 4096)
+        self.assertEqual(report["known_sequence_peak_allocated_bytes"], 8192)
+        fixture, trace = self.qualified_fixture()
+        fixture["unattributed_kernel_global_bound"]["formal_upper_bound_bytes"] = 4096
+        qualify_accounting(fixture, trace, set(VERSIONS.items()))
+        self.assertEqual(fixture["allocation_accounting"]["upper_bound_allocated_bytes"], 8192)
+
+    def test_qualification_rejects_each_missing_proof_condition(self):
+        corruptions = [lambda r, t: r["input_provenance"].update(verified=False),
+            lambda r, t: r.update(raw_qpc_verified=False),
+            lambda r, t: r["allocation_identity"].update(status="incomplete"),
+            lambda r, t: t.update(all_processes_for_shared_aliases=False),
+            lambda r, t: t["events_selected"].remove("364:0"),
+            lambda r, t: r["formal_window"]["window_resolution"].update(verified=False),
+            lambda r, t: r["allocations"][0].update(allocated_bytes=None),
+            lambda r, t: r["issues"].update(unknown=1),
+            lambda r, t: r["backing_size_corroboration"].update(pending_or_ambiguous_cycles=1),
+            lambda r, t: r["allocation_accounting"].update(unreleased_observed_globals_included=False),
+            lambda r, t: r["formal_window"].update(known_same_timestamp_upper_peak_alloc_size_bytes=None)]
+        corruptions.append(lambda r, t: r["unattributed_kernel_global_bound"].update(status="incomplete"))
+        for index, corrupt in enumerate(corruptions):
+            with self.subTest(condition=index):
+                report, trace = self.qualified_fixture()
+                corrupt(report, trace)
+                qualify_accounting(report, trace, set(VERSIONS.items()))
+                self.assertEqual(report["allocation_accounting"]["status"], "incomplete")
+                self.assertFalse(report["peak_coverage_complete"])
+        report, trace = self.qualified_fixture()
+        qualify_accounting(report, trace, set())
+        self.assertEqual(report["allocation_accounting"]["status"], "incomplete")
+
+    def backing(self, ledger, pages, handle=7, process=42, tid=19):
+        ledger.consume({"event_id": 364, "version": 0, "header_tid": tid,
+                        "data": {"hVidMmGlobalAlloc": handle, "hProcessId": process,
+                                 "PageCount": len(pages), "Pages": pages}})
+
+    def test_backing_chunks_attribute_kernel_storage_once_until_global_stop(self):
+        ledger = Ledger(42)
+        self.create(ledger, size=12288, owner=4)
+        self.backing(ledger, [101, 102])
+        self.backing(ledger, [103])
+        self.event(ledger, 365, hVidMmGlobalAlloc=7)
+        report = ledger.report()
+        allocation = report["allocations"][0]
+        self.assertEqual(report["known_sequence_peak_allocated_bytes"], 12288)
+        self.assertEqual(allocation["backing_cycles"][0]["extent_status"], "matched")
+        self.assertTrue(allocation["alive_at_trace_end"])
+        self.assertIsNone(report["allocation_accounting"]["physical_resident_bytes"])
+        self.event(ledger, 34, pDxgAdapter=1, hVidMmGlobalAlloc=7, hProcessId=4)
+        self.assertEqual(ledger.report()["known_live_at_trace_end_bytes"], 0)
+
+    def test_backing_relocks_are_separate_not_added_as_storage(self):
+        ledger = Ledger(42)
+        self.create(ledger, size=8192, owner=4)
+        self.backing(ledger, [101, 102])
+        self.event(ledger, 365, hVidMmGlobalAlloc=7)
+        self.backing(ledger, [201, 202])
+        report = ledger.report()
+        self.assertEqual(report["known_sequence_peak_allocated_bytes"], 8192)
+        self.assertEqual(report["backing_size_corroboration"]["matched_cycles"], 2)
+        self.assertFalse(report["residency_verified"])
+
+    def test_zero_pages_and_missing_backing_never_mean_zero_allocation(self):
+        ledger = Ledger(42)
+        self.create(ledger, size=8192)
+        self.backing(ledger, [])
+        self.create(ledger, handle=8, size=4096)
+        report = ledger.report()
+        self.assertEqual(report["known_sequence_peak_allocated_bytes"], 12288)
+        self.assertEqual(report["backing_size_corroboration"]["lifetimes_without_backing_lock_records"], 1)
+        self.assertEqual(report["backing_size_corroboration"]["pending_or_ambiguous_cycles"], 1)
+        self.assertEqual(report["allocation_accounting"]["status"], "incomplete")
+
+    def test_duplicate_pages_cannot_make_a_complete_extent(self):
+        ledger = Ledger(42)
+        self.create(ledger, size=8192)
+        self.backing(ledger, [101])
+        self.backing(ledger, [101])
+        cycle = ledger.report()["allocations"][0]["backing_cycles"][0]
+        self.assertEqual(cycle["observed_page_extent_bytes"], 8192)
+        self.assertEqual(cycle["unique_pfn_count"], 1)
+        self.assertEqual(cycle["extent_status"], "pending_or_ambiguous")
+
+    def test_mixed_pid_or_thread_chunks_cannot_confirm_extent(self):
+        for process, tid in ((99, 19), (42, 20)):
+            with self.subTest(process=process, tid=tid):
+                ledger = Ledger(42)
+                self.create(ledger, size=8192)
+                self.backing(ledger, [101])
+                self.backing(ledger, [102], process=process, tid=tid)
+                self.assertEqual(ledger.report()["allocations"][0]["backing_cycles"][0]["extent_status"], "pending_or_ambiguous")
+
+    def test_same_global_handle_on_two_adapters_cannot_attribute_backing(self):
+        ledger = Ledger(42)
+        self.create(ledger, size=4096)
+        self.event(ledger, 33, pDxgAdapter=2, hVidMmGlobalAlloc=7, allocSize=4096, hProcessId=4, PhysicalAdapterIndex=0)
+        self.backing(ledger, [101])
+        self.event(ledger, 365, hVidMmGlobalAlloc=7)
+        self.assertEqual(ledger.issues["target_backing_global_identity_unresolved"], 2)
+        self.assertFalse(ledger.records[0].backing_cycles)
+
+    def test_backing_handle_reuse_keeps_lifetime_generations_separate(self):
+        ledger = Ledger(42)
+        self.create(ledger, size=4096, owner=4)
+        self.backing(ledger, [101])
+        self.event(ledger, 34, pDxgAdapter=1, hVidMmGlobalAlloc=7, hProcessId=4)
+        self.create(ledger, size=8192, owner=4)
+        self.backing(ledger, [201, 202])
+        report = ledger.report()
+        self.assertEqual(report["known_sequence_peak_allocated_bytes"], 8192)
+        self.assertEqual([a["generation"] for a in report["allocations"]], [1, 2])
+        self.assertEqual(report["backing_size_corroboration"]["matched_cycles"], 2)
+
+    def test_malformed_backing_count_and_absent_tid_are_evidence_gaps(self):
+        for count, pages, tid in ((2, [1], 3), (1, [2**64], 3), (1, [1], None)):
+            with self.subTest(count=count, pages=pages, tid=tid):
+                ledger = Ledger(42)
+                self.create(ledger, size=4096)
+                ledger.consume({"event_id": 364, "version": 0, "header_tid": tid,
+                                "data": {"hVidMmGlobalAlloc": 7, "hProcessId": 42, "PageCount": count, "Pages": pages}})
+                self.assertEqual(ledger.issues["undecodable_required_field"], 1)
+
     def event(self, ledger, event, **data):
         ledger.consume({"event_id": event, "version": VERSIONS[event], "system_time": f"2026-10-18T00:00:{ledger.sequence:02d}Z", "data": data})
 
@@ -960,6 +1198,7 @@ def main():
     report["allocation_identity"] = {"status": "verified" if identity_verified else "incomplete",
         "scope": "observed target graph only; identity join and device/process alias dedup, not complete backend coverage or physical page dedup",
         "dedup_key": report["dedup_key"], "unreleased_observed_globals_included": True}
+    qualify_accounting(report, trace, read_schema(schema) if schema.is_file() else None)
     report["tool"] = {"path": str(Path(__file__).resolve()), "sha256": digest(Path(__file__))}
     with args.output.open("x", encoding="utf-8", newline="\n") as stream:
         json.dump(report, stream, indent=2)

@@ -94,6 +94,19 @@ func _initialize() -> void:
 	for vector: Dictionary in structure_vectors:
 		var actual: Dictionary = PlatformArrivalMath.structure(vector.cases,vector.blocked,vector.reception,int(vector.bed_limit))
 		if actual.has("error") or int(actual.get("pairs",-1))!=int(vector.expected): failures.append({"structure_index":vector.index,"expected":vector.expected,"actual":actual})
+	var fraction_input_checks: int = 0
+	for bad: Variant in [{"n":"1","d":"0"},{"n":"1","d":"-000"},{"n":1,"d":"1"},{"n":"one","d":"2"},[],"1/2"]:
+		var guarded: RefCounted = ClassDB.instantiate("PlatformArrivalCapacity")
+		var invalid_fraction: Array = [{"probability":F.make(1),"bundles":[{"resources":{"a":bad}}]}]
+		var refused: Dictionary = guarded.call("prepare",invalid_fraction,{"a":F.make(1)})
+		var missing: Dictionary = guarded.call("solve",{"a":F.make(1)})
+		var recovered_fraction: Dictionary = guarded.call("prepare",[{"probability":F.make(1),"bundles":[{"resources":{"a":{"n":"2","d":"4"}}}]}],{"a":F.make(1)})
+		fraction_input_checks += 1
+		if not refused.has("error") or not missing.has("error") or recovered_fraction.get("capacity")!=F.make(2): failures.append({"invalid_fraction":bad,"refused":refused,"missing":missing,"recovered":recovered_fraction})
+	var maximum_integer: RefCounted = ClassDB.instantiate("PlatformArrivalCapacity")
+	var maximum_result: Dictionary = maximum_integer.call("prepare",[{"probability":F.make(1),"bundles":[{"resources":{"a":1}}]}],{"a":9223372036854775807})
+	fraction_input_checks += 1
+	if maximum_result.get("capacity")!={"n":"9223372036854775807","d":"1"}: failures.append({"maximum_integer_input":maximum_result})
 	var integers: Array = JSON.parse_string(FileAccess.get_file_as_string("res://integer-vectors.json"))
 	for vector: Dictionary in integers:
 		var valid: bool = F.add_integer(vector.a,vector.b)==vector.sum and F.add_integer(vector.a,"-"+str(vector.b))==vector.difference and F.multiply_integer(vector.a,vector.b)==vector.product and F.divmod(vector.a,vector.b)==[vector.quotient,vector.remainder] and F.gcd(vector.a,vector.b)==vector.gcd
@@ -143,6 +156,7 @@ func _initialize() -> void:
 	report.empty_summary_checks = 2
 	report.coverage_max_checks = max_bound_checks
 	report.monotonic_clock_checks = 1
+	report.fraction_input_checks = fraction_input_checks
 	var file: FileAccess = FileAccess.open("res://solver-check.json",FileAccess.WRITE)
 	file.store_string(JSON.stringify(report,"\t"))
 	print("EXACT_VERTEX_CHECK="+JSON.stringify({"checks":vectors.size(),"failed":failures.size()}))

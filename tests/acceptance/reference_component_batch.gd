@@ -3,6 +3,20 @@ extends "res://tests/acceptance/growth_fixtures.gd"
 class ScalarComponents extends HospitalClinic:
 	func _reference_component(full: Dictionary, stages: Array, weight: Dictionary = {"n":"1","d":"1"}, _batch: Variant = null) -> Dictionary:
 		return super._reference_component(full,stages,weight)
+	func _reference_bed_alternatives(world: WorldState, visit: Dictionary, floor_id: int, excluded: Array, _cache: Dictionary) -> Array:
+		var beds: Array = []
+		_compatible_bed(world,visit,floor_id,excluded,true,"",true,beds)
+		return beds
+
+class FailedReference extends HospitalClinic:
+	var fail: bool = true
+	var failed_binding: String = ""
+	var failures: int = 0
+	func reference_demand(world: WorldState, binding_id: String, complex_case: bool = false, shift: int = 0, query: Variant = null) -> Dictionary:
+		if fail and (failed_binding.is_empty() or failed_binding==binding_id):
+			failures += 1
+			return {"ok":false,"error":"reference_component_failure","reason":"injected numerical failure","bundles":[]}
+		return super.reference_demand(world,binding_id,complex_case,shift,query)
 
 # Fault injection tests the private numerical handoff, not a hospital process or
 # an accepted clinical commitment. Every input below is an exact stage amount.
@@ -12,6 +26,7 @@ class FailureProbe extends HospitalClinic:
 	var early_failure: bool = false
 	var empty_model: bool = false
 	var first_target: Dictionary = {}
+	var amount_count: int = REFERENCE_COMPONENT_REQUEST_LIMIT+1
 	func _flush_reference_components(batch: Dictionary) -> void:
 		flushes += 1
 		if flushes==fail_on_flush:
@@ -20,7 +35,7 @@ class FailureProbe extends HospitalClinic:
 		super._flush_reference_components(batch)
 	func _build_reference_model(options: Dictionary, _binding_id: String, _complex_case: bool, _shift: int) -> Dictionary:
 		var targets: Array = []
-		for amount: int in range(1,REFERENCE_COMPONENT_REQUEST_LIMIT+2):
+		for amount: int in range(1,amount_count+1):
 			var full: Dictionary = {"stage_resources":{"consult":{"staff:doctor":{"n":str(amount),"d":"1"}}},"structural_resources":[],"staff_ids":[]}
 			var target: Dictionary = _reference_component(full,["consult"],{"n":"1","d":"1"},options.query.component_batch)
 			target.choices = ["choice_"+str(amount)]
@@ -33,7 +48,7 @@ class FailureProbe extends HospitalClinic:
 func run_case(t, database: HospitalContent) -> void:
 	_content = database
 	var observations: Dictionary = {"exact_inputs":_exact_inputs(),"unique_boundary":_unique_boundary(),"target_boundary":_target_boundary(),
-		"prefix_weighting":_prefix_weighting(),"failure_cleanup":_failure_cleanup(),"complete_models":_complete_models()}
+		"memo_bound":_memo_bound(),"prefix_weighting":_prefix_weighting(),"failure_cleanup":_failure_cleanup(),"capacity_failure":_capacity_failure(),"complete_models":_complete_models()}
 	var correct: bool = true
 	for name: String in observations: correct = correct and bool(observations[name].passed)
 	for simulation: HospitalSimulation in _simulations: simulation.dispose()
@@ -126,6 +141,24 @@ func _target_boundary() -> Dictionary:
 	var bounded: bool = observed.unique_inputs==1 and observed.native_calls==1 and observed.native_requests==1 and observed.max_waiting_targets==HospitalClinic.REFERENCE_COMPONENT_TARGET_LIMIT and observed.waiting_targets==0
 	return {"passed":error.is_empty() and independent and bounded and not is_same(targets[0],targets[1]) and is_same(targets[0].resources,targets[-1].resources),"independent_targets":independent,"counts":observed}
 
+func _memo_bound() -> Dictionary:
+	var clinic: HospitalClinic = _clinic()
+	var batch: Dictionary = clinic._new_reference_component_batch()
+	var targets: Array = []
+	var count: int = HospitalClinic.REFERENCE_COMPONENT_MEMO_LIMIT+HospitalClinic.REFERENCE_COMPONENT_REQUEST_LIMIT+1
+	for amount: int in range(1,count+1):
+		targets.append(clinic._reference_component(_full({"care":{"staff:nurse":{"n":str(amount),"d":"1"}}}),["care"],{"n":"1","d":"1"},batch))
+	var retained: Dictionary = clinic._reference_component(_full({"care":{"staff:nurse":{"n":str(count-1),"d":"1"}}}),["care"],{"n":"1","d":"1"},batch)
+	var evicted: Dictionary = clinic._reference_component(_full({"care":{"staff:nurse":{"n":"1","d":"1"}}}),["care"],{"n":"1","d":"1"},batch)
+	var before: Dictionary = clinic.reference_component_observation({"component_batch":batch})
+	var error: String = clinic._finish_reference_component_batch(batch)
+	var equal: bool = error.is_empty()
+	for index: int in targets.size(): equal = equal and targets[index].resources["staff:nurse"]==F.make(index+1)
+	var observed: Dictionary = clinic.reference_component_observation()
+	var reuse: bool = is_same(retained.resources,targets[count-2].resources) and evicted==targets[0] and not is_same(evicted.resources,targets[0].resources)
+	var bounded: bool = before.active_unique_inputs==HospitalClinic.REFERENCE_COMPONENT_MEMO_LIMIT and before.active_completed_entries<=HospitalClinic.REFERENCE_COMPONENT_MEMO_LIMIT and observed.max_memo_entries==HospitalClinic.REFERENCE_COMPONENT_MEMO_LIMIT and observed.max_completed_entries<=HospitalClinic.REFERENCE_COMPONENT_MEMO_LIMIT and observed.memo_evictions==count+1-HospitalClinic.REFERENCE_COMPONENT_MEMO_LIMIT and observed.native_requests==count+1
+	return {"passed":equal and reuse and bounded and batch.memo.is_empty() and batch.completed.is_empty(),"all_targets_exact":equal,"retained_hit_and_evicted_recompute":reuse,"bounded":bounded,"before_finish":before,"counts":observed}
+
 func _prefix_weighting() -> Dictionary:
 	var observations: Array = []
 	var correct: bool = true
@@ -156,7 +189,7 @@ func _failure_cleanup() -> Dictionary:
 	var failed: Dictionary = clinic._reference_model({"query":query},"",false,0)
 	var prior: Dictionary = clinic.first_target
 	var snapshot: Dictionary = prior.duplicate(true)
-	var atomic: bool = not failed.ok and failed.bundles.is_empty() and not failed.has("model") and prior.has("resources") and not query.has("component_batch")
+	var atomic: bool = not failed.ok and failed.has("error") and failed.bundles.is_empty() and not failed.has("model") and prior.has("resources") and not query.has("component_batch")
 	atomic = atomic and clinic.reference_component_observation().failed_batches==1
 	clinic.fail_on_flush = 0
 	clinic.flushes = 0
@@ -176,7 +209,51 @@ func _failure_cleanup() -> Dictionary:
 	var empty_query: Dictionary = {}
 	var no_root: Dictionary = empty._reference_model({"query":empty_query},"",false,0)
 	var empty_complete: bool = not no_root.ok and no_root.has("model") and no_root.model.bundles.is_empty() and no_root.model.choice_groups.diagnostic[-1].resources["staff:doctor"]=={"n":str(HospitalClinic.REFERENCE_COMPONENT_REQUEST_LIMIT+1),"d":"1"} and not empty_query.has("component_batch")
-	return {"passed":atomic and recovered and early_clean and empty_complete,"later_batch_atomic":atomic,"retry_matches_cold":recovered,"early_return_cleanup":early_clean,"empty_model_fully_assembled":empty_complete}
+	var bounded_failure: FailureProbe = FailureProbe.new(_content,HospitalSpace.new(_content))
+	bounded_failure.amount_count = HospitalClinic.REFERENCE_COMPONENT_MEMO_LIMIT+HospitalClinic.REFERENCE_COMPONENT_REQUEST_LIMIT+1
+	bounded_failure.fail_on_flush = HospitalClinic.REFERENCE_COMPONENT_MEMO_LIMIT/HospitalClinic.REFERENCE_COMPONENT_REQUEST_LIMIT+1
+	var bounded_query: Dictionary = {}
+	var rejected_after_eviction: Dictionary = bounded_failure._reference_model({"query":bounded_query},"",false,0)
+	var eviction_atomic: bool = not rejected_after_eviction.ok and not rejected_after_eviction.has("model") and not bounded_query.has("component_batch") and bounded_failure.first_target.resources["staff:doctor"]==F.make(1) and bounded_failure.reference_component_observation().memo_evictions>0
+	return {"passed":atomic and recovered and early_clean and empty_complete and eviction_atomic,"later_batch_atomic":atomic,"retry_matches_cold":recovered,"early_return_cleanup":early_clean,"empty_model_fully_assembled":empty_complete,"failure_after_eviction_atomic":eviction_atomic}
+
+func _configure(service: HospitalArrivalService) -> void:
+	service.clinic.scheduler = HospitalShiftScheduler.new(_content,service.space)
+	service.clinic.recruitment = RecruitmentService.new(_content,service.space)
+	service.clinic.departments = HospitalDepartments.new(_content,service.space)
+	service.departments = service.clinic.departments
+
+func _capacity_failure() -> Dictionary:
+	var ctx: Dictionary = _context()
+	_single_case(ctx)
+	var worker: HospitalArrivalService = HospitalArrivalService.new(_content,HospitalSpace.new(_content))
+	var failing: FailedReference = FailedReference.new(_content,worker.space)
+	worker.clinic = failing
+	_configure(worker)
+	var frozen: Dictionary = ctx.world.freeze()
+	var failed: Dictionary = worker.capacity(ctx.world,false)
+	var not_cached: bool = worker._reference_cache.get(0,{}).get("cases",{}).is_empty() and not worker._reference_cache.get(0,{}).has("outputs")
+	failing.fail = false
+	var resumed: Dictionary = worker.capacity(ctx.world,false)
+	var cold: HospitalArrivalService = HospitalArrivalService.new(_content,HospitalSpace.new(_content))
+	_configure(cold)
+	var independent: Dictionary = cold.capacity(ctx.world,false)
+	var new_atomic: bool = not failed.get("complete",true) and failed.has("error") and not failed.has("capacity") and not failed.has("shift_capacities") and not_cached and resumed.get("complete",false) and resumed==independent and ctx.world.freeze()==frozen
+	var patient: Dictionary = _patient(ctx,[45,76],"B_S13_D09_M09")
+	_single_case(ctx,"D37")
+	frozen = ctx.world.freeze()
+	failing.failed_binding = str(patient.get("binding_id",""))
+	failing.failures = 0
+	failing.fail = true
+	var failed_old: Dictionary = worker.capacity(ctx.world,true)
+	var old_error: bool = not patient.is_empty() and not failed_old.get("complete",true) and failed_old.has("error") and not failed_old.has("capacity") and not failed_old.has("shift_capacities") and failing.failures==1
+	failing.fail = false
+	var resumed_old: Dictionary = worker.capacity(ctx.world,true)
+	var independent_old: Dictionary = cold.capacity(ctx.world,true)
+	var old_atomic: bool = old_error and resumed_old.get("complete",false) and resumed_old==independent_old and ctx.world.freeze()==frozen
+	worker.dispose()
+	cold.dispose()
+	return {"passed":new_atomic and old_atomic,"new_case_failure_not_cached":new_atomic,"old_queue_failure_discards_workload":old_atomic,"new_failure":failed,"old_failure":failed_old}
 
 func _complete_models() -> Dictionary:
 	var ctx: Dictionary = _context()

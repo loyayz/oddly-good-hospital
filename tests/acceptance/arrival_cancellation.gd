@@ -102,6 +102,8 @@ func run_case(t, database: HospitalContent) -> void:
 	preparation.release_sealed()
 	var release_preserved: bool = not cancellation.requested() and preparation._latest_id==2
 	preparation.dispose()
+	var cancellation_metrics: Dictionary = preparation.metrics()
+	var measured: bool = cancellation_metrics.jobs==1 and cancellation_metrics.get("cancelled_jobs",0)==1 and int(cancellation_metrics.get("cancel_response_us",0))>0 and int(cancellation_metrics.get("dispose_wait_us",0))>=int(cancellation_metrics.get("cancel_response_us",0)) and int(cancellation_metrics.worker_wall_us)>=int(cancellation_metrics.get("cancel_response_us",0))
 	var stopped: bool = reached and cancellation.requested() and worker.cases==1 and preparation._thread==null and preparation._worker==null and preparation._completed.is_empty() and preparation._sealed_result.is_empty()
 	var retained: Dictionary = worker._reference_cache.get(0,{})
 	var complete_entries: bool = retained.get("cases",{}).size()==1 and not retained.has("outputs") and worker.space._route_queries.is_empty()
@@ -145,7 +147,7 @@ func run_case(t, database: HospitalContent) -> void:
 	var old_queue: Dictionary = _old_queue_cancellation()
 	for simulation: HospitalSimulation in _simulations: simulation.dispose()
 	_simulations.clear()
-	t.check("GROW-77",started==OK and stopped and sealed_preserved and release_preserved and complete_entries and reusable and shift_boundary and unpublished and old_queue.passed and ctx.world.freeze()==before,{"started":started,"reached_case_boundary":reached,"cases_before_stop":1 if stopped else worker.cases,"sealed_preserved":sealed_preserved,"release_preserved":release_preserved,"complete_cache_entries":complete_entries,"reuse_matches_cold":reusable,"native_shift_boundary":shift_boundary,"cancelled_result_unpublished":unpublished,"old_queue":old_queue,"readonly":ctx.world.freeze()==before})
+	t.check("GROW-77",started==OK and stopped and measured and sealed_preserved and release_preserved and complete_entries and reusable and shift_boundary and unpublished and old_queue.passed and ctx.world.freeze()==before,{"started":started,"reached_case_boundary":reached,"cases_before_stop":1 if stopped else worker.cases,"cancellation_metrics":cancellation_metrics,"cancellation_measured":measured,"sealed_preserved":sealed_preserved,"release_preserved":release_preserved,"complete_cache_entries":complete_entries,"reuse_matches_cold":reusable,"native_shift_boundary":shift_boundary,"cancelled_result_unpublished":unpublished,"old_queue":old_queue,"readonly":ctx.world.freeze()==before})
 
 func _old_queue_cancellation() -> Dictionary:
 	var ctx: Dictionary = _context()

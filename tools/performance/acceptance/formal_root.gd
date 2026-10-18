@@ -11,6 +11,7 @@ func _ready() -> void:
 
 func mount_fixture(world: WorldState, database: HospitalContent, floor_id: int) -> bool:
 	_content = database
+	_view_work_budget = ViewWorkBudget.new(int(float(_content.balance.spatial_view.view_build_budget_ms_per_frame)*1000.0))
 	_guard = ClassDB.instantiate("PlatformSessionGuard") as RefCounted
 	var ownership: Dictionary = _guard.call("acquire")
 	if not bool(ownership.get("ok", false)): return false
@@ -21,6 +22,7 @@ func mount_fixture(world: WorldState, database: HospitalContent, floor_id: int) 
 	_observed_floor = floor_id
 	var session_id: String = HospitalSnapshots.uuid()
 	_view = HospitalView.new(_content)
+	_view.work_budget = _view_work_budget
 	_viewport.add_child(_view)
 	_view.bind(world, _observed_floor, session_id)
 	if not _view.bind_error.is_empty(): return false

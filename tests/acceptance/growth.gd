@@ -79,7 +79,8 @@ const CASES: Dictionary = {
 	"GROW-76":"docs/design/07-clinical-team.md §5；候选早排除不装配占用或员工ID，实际接待预约立即对后票生效",
 	"GROW-77":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；退出在完整计算边界取消任务且不发布部分结果",
 	"GROW-78":"docs/design/04-technical.md §6；参考路线按完整主体与组包络区分且冷热一致",
-	"GROW-79":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；参考数值复用保留独立候选、有界批次与失败原子性"
+	"GROW-79":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；参考数值复用保留独立候选、有界批次与失败原子性",
+	"GROW-80":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；分层诊断保留完整合法分支、精确C和独立结构K"
 }
 
 func run(t) -> void:
@@ -410,13 +411,37 @@ func _case_46(t) -> void:
 	var machines: Dictionary = {}
 	var short_path: bool = false
 	var long_path: bool = false
-	for stages: Dictionary in result.get("variants",[]):
+	var variants: Array = _diagnostic_variants(result,query) if result.ok else []
+	for stages: Dictionary in variants:
 		if not stages.has("spectrum"): continue
 		for id: String in stages.spectrum:
 			if id.begins_with("facility:"): machines[id] = true
 		short_path = short_path or not stages.has("resonance")
 		long_path = long_path or stages.has("resonance")
-	t.check("GROW-46",result.ok and machines.has("facility:second_exam") and machines.size()>=2 and short_path and long_path,{"machines":machines,"short_path":short_path,"long_path":long_path,"variants":result.get("variants",[]).size()})
+	t.check("GROW-46",result.ok and machines.has("facility:second_exam") and machines.size()>=2 and short_path and long_path,{"machines":machines,"short_path":short_path,"long_path":long_path,"variants":variants.size()})
+
+func _diagnostic_variants(result: Dictionary, query: Dictionary) -> Array:
+	if str(result.get("next_group","")).is_empty(): return [result.gp_stages]
+	var variants: Array = []
+	for tail: Dictionary in _diagnostic_group_variants(result.next_group,query.diagnostic_groups):
+		var stages: Dictionary = result.gp_stages.duplicate()
+		stages.merge(tail)
+		variants.append(stages)
+	return variants
+
+func _diagnostic_group_variants(group: String, groups: Dictionary) -> Array:
+	var variants: Array = []
+	for part: Dictionary in groups[group]:
+		if not part.has("choices"): variants.append(part.stage_resources)
+		else:
+			for tail: Dictionary in _diagnostic_group_variants(part.choices[0],groups):
+				var stages: Dictionary = part.stage_resources.duplicate()
+				stages.merge(tail)
+				variants.append(stages)
+	return variants
+
+func _case_80(t) -> void:
+	load("res://tests/acceptance/diagnostic_graph.gd").new().run_case(t,_content)
 
 func _case_47(t) -> void:
 	var builder: RefCounted = load("res://tests/acceptance/space.gd").new()
@@ -1191,6 +1216,10 @@ func _reference_expanded_part(part: Dictionary, groups: Dictionary, memo: Dictio
 	return result
 
 class UncachedReference extends HospitalClinic:
+	func _reference_bed_alternatives(world: WorldState, visit: Dictionary, floor_id: int, excluded: Array, _cache: Dictionary) -> Array:
+		var beds: Array = []
+		_compatible_bed(world,visit,floor_id,excluded,true,"",true,beds)
+		return beds
 	func _reference_retry_group(terminal: Dictionary) -> String:
 		return "retry:"+JSON.stringify([terminal.plan_id,terminal.staff_ids,terminal.consulting_doctor_id])+":"+str(terminal.probability_bp)
 	func _reference_retry_context(terminal: Dictionary) -> Array:

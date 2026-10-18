@@ -170,7 +170,7 @@ class TracedArrivalService extends HospitalArrivalService:
 		trace.emit("solve_roles","enter",{"binding":"","classes":classes.size(),"budgets":budgets.size(),"locked_roles":locked_roles.size(),"has_cached_backend":_role_models.has(shift)},null,self,space)
 		var result: Dictionary = super._solve_roles(world,classes,budgets,shift,model_key,locked_roles)
 		var fields: Dictionary = {"binding":"","error":str(result.get("error","")),"reason":str(result.get("bottleneck","")).left(240)}
-		for key: String in ["node_count","edge_count","coefficient_count","bundle_count","mip_variables","mip_constraints","lp_rounds","certificate_nonzeros","structural_pairs"]:
+		for key: String in ["node_count","edge_count","coefficient_count","bundle_count","mip_variables","mip_constraints","lp_rounds","certificate_nonzeros","structural_pairs","prepare_fraction_requests","prepare_fraction_hits","pricing_calls","timing_us","nursing_timing_us"]:
 			if result.has(key): fields[key] = result[key]
 		trace.emit("solve_roles","return",fields,null,self,space)
 		return result
@@ -180,7 +180,10 @@ class TracedArrivalService extends HospitalArrivalService:
 		# super may reuse K's structural cache or call the original native K.
 		trace.emit("structural_pairs","enter",{"binding":"","native_c_returned":true},null,self,space)
 		var result: Dictionary = super._structural_pairs(world,classes,shift)
-		trace.emit("structural_pairs","return",{"binding":"","pairs":result.get("pairs",0),"error":str(result.get("error",""))},null,self,space)
+		var fields: Dictionary = {"binding":"","pairs":result.get("pairs",0),"error":str(result.get("error",""))}
+		for key: String in ["terminals","structure_encoding","structural_nodes","structural_slots","structural_variables","structural_constraints"]:
+			if result.has(key): fields[key] = result[key]
+		trace.emit("structural_pairs","return",fields,null,self,space)
 		return result
 
 class TracedClinic extends HospitalClinic:

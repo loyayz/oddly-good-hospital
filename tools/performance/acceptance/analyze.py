@@ -352,12 +352,24 @@ def allocation_evidence(root, meta, start, end, frequency, target_bytes):
                 "lifecycle_observed_peak_bytes":counter.get("observed_peak_bytes"), "window_observed_peak_bytes":cw.get("observed_peak_bytes"),
                 "added_to_allocated_bytes":False})
         out["os_aggregate_counters"] = counters
-        os_view = any(c["window_evidence_valid"] and c["kind"] == "usage" for c in counters)
+        target_domains = {(a.get("adapter_pointer"), a.get("physical_adapter_index")) for a in ledger.get("allocations", [])}
+        usage_domains = {(c.get("adapter_pointer"), c.get("physical_adapter_index"))
+            for c in counters if c["window_evidence_valid"] and c["kind"] == "usage"}
+        os_view = bool(target_domains) and target_domains <= usage_domains
         out["os_residency_view_status"] = "observed_with_window" if os_view else "incomplete"
+        out["os_memory_semantics"] = "continuous process charge by adapter LUID, physical adapter and memory segment group across engine nodes; not unique physical residency; never added to allocation bound"
+        qualification = accounting.get("qualification_checks", {})
+        qualification_keys = ("preserved_raw_event_provenance", "complete_raw_qpc_decode", "target_identity_and_alias_join",
+            "all_process_alias_capture", "all_required_event_families_armed", "saved_schema_covers_interpreted_versions",
+            "formal_actual_display_window", "all_target_global_sizes_joined", "no_event_or_identity_gaps",
+            "backing_extent_records_unambiguous", "unreleased_globals_included", "positive_formal_extent_upper_bound", "unattributed_kernel_extents_bounded")
+        qualification_valid = all(qualification.get(name) is True for name in qualification_keys)
         complete = (source_valid and identity.get("status") == "verified" and accounting.get("status") == "verified"
             and accounting.get("backend_coverage_verified") is True and accounting.get("unreleased_observed_globals_included") is True
-            and ledger.get("peak_coverage_complete") is True and ledger.get("shared_dedup_verified") is True)
-        upper = window.get("known_same_timestamp_upper_peak_alloc_size_bytes")
+            and ledger.get("peak_coverage_complete") is True and ledger.get("shared_dedup_verified") is True and qualification_valid)
+        graph_upper = window.get("known_same_timestamp_upper_peak_alloc_size_bytes")
+        backend_upper = accounting.get("upper_bound_allocated_bytes")
+        upper = max(graph_upper, backend_upper) if integer(graph_upper) and integer(backend_upper) else None
         exact_peak = accounting.get("peak_allocated_bytes")
         if complete and integer(upper) and integer(exact_peak) and exact_peak > upper:
             complete = False

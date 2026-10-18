@@ -127,10 +127,23 @@ struct D : B<GDEXTENSION_VARIANT_TYPE_DICTIONARY> {
     V keys() const { A keys; dictionary_keys(const_cast<Builtin*>(&raw), nullptr, &keys.raw, 0); return keys.value(); }
 };
 
+std::string rational_input(const V& value) {
+    if (type(&value.raw) == GDEXTENSION_VARIANT_TYPE_INT) return std::to_string(value.number());
+    if (type(&value.raw) != GDEXTENSION_VARIANT_TYPE_DICTIONARY) throw std::runtime_error("精确分数必须是整数或分数字典");
+    D fraction(value); V numerator = fraction.get("n"), denominator = fraction.get("d");
+    if (type(&numerator.raw) != GDEXTENSION_VARIANT_TYPE_STRING || type(&denominator.raw) != GDEXTENSION_VARIANT_TYPE_STRING)
+        throw std::runtime_error("精确分数需要十进制文本");
+    std::string n = numerator.text(), d = denominator.text();
+    auto decimal = [](const std::string& text) {
+        size_t first = !text.empty() && (text[0] == '-' || text[0] == '+') ? 1 : 0;
+        return first < text.size() && std::all_of(text.begin() + first, text.end(), [](char digit) { return digit >= '0' && digit <= '9'; });
+    };
+    if (!decimal(n) || !decimal(d)) throw std::runtime_error("精确分数不是十进制整数");
+    if (d.find_first_not_of("+-0") == std::string::npos) throw std::runtime_error("精确分数分母不能为零");
+    return n + "/" + d;
+}
 Q rational(const V& value) {
-    if (type(&value.raw) == GDEXTENSION_VARIANT_TYPE_INT) return Q(std::to_string(value.number()).c_str());
-    D fraction(value);
-    Q result((fraction.get("n").text() + "/" + fraction.get("d").text()).c_str());
+    Q result(rational_input(value).c_str());
     // GMP's string assignment does not reduce fractions. Arithmetic assumes
     // canonical operands, and the saved decimal protocol requires them too.
     mpq_canonicalize(result.backend().data());
@@ -386,7 +399,10 @@ std::set<std::string> dictionary_names(const D& source) {
     for (int64_t i = 0; i < keys.size(); ++i) result.insert(keys.at(i).text());
     return result;
 }
-V structure(const V& raw_cases, const V& raw_blocked, const V& raw_reception, int64_t bed_limit) {
+// Exact small-set encoding; a bound selects the implicit encoding without
+// dropping any candidate or retaining a partial expansion.
+struct StructureExpansionLimit {};
+V structure_flat(const V& raw_cases, const V& raw_blocked, const V& raw_reception, int64_t bed_limit) {
     if (bed_limit < 1 || bed_limit > INT32_MAX) throw std::runtime_error("无效的病房覆盖上限");
     D blocked(raw_blocked), reception(raw_reception);
     D people(reception.get("people")), desks(reception.get("desks"));
@@ -424,6 +440,37 @@ V structure(const V& raw_cases, const V& raw_blocked, const V& raw_reception, in
             for (int64_t j = 0; j < parts.size(); ++j) reception_part(D(parts.at(j)));
         }
         std::map<std::string, int> prefixes;
+        std::map<std::string, Options> expanded;
+        std::set<std::string> expansion_visiting;
+        std::function<Options(const D&)> expand_part;
+        std::function<const Options&(const std::string&)> expand_group;
+        expand_group = [&](const std::string& name) -> const Options& {
+            auto found = expanded.find(name); if (found != expanded.end()) return found->second;
+            if (!expansion_visiting.insert(name).second) throw std::runtime_error("结构选择依赖存在循环");
+            V raw = groups.get(V::text(name)); if (raw.nil()) throw std::runtime_error("结构配置缺少初诊选项");
+            A options(raw); Options values;
+            for (int64_t k = 0; k < options.size(); ++k) {
+                auto next = expand_part(D(options.at(k))); values.insert(next.begin(), next.end());
+                if (values.size() > 4096) throw StructureExpansionLimit();
+            }
+            expansion_visiting.erase(name); return expanded.emplace(name, std::move(values)).first->second;
+        };
+        expand_part = [&](const D& part) {
+            Options values{structural_resources(part)};
+            std::vector<std::string> names; V raw = part.get("structural_choices");
+            if (raw.nil()) { auto name = optional_text(part, "structural_group"); if (!name.empty()) names.push_back(name); }
+            else { A choices(raw); for (int64_t k = 0; k < choices.size(); ++k) names.push_back(choices.at(k).text()); }
+            for (const auto& name : names) {
+                Options next;
+                for (const auto& own : values) for (const auto& tail : expand_group(name)) {
+                    std::vector<std::string> resources;
+                    std::set_union(own.begin(), own.end(), tail.begin(), tail.end(), std::back_inserter(resources));
+                    next.insert(std::move(resources)); if (next.size() > 4096) throw StructureExpansionLimit();
+                }
+                values = std::move(next);
+            }
+            return values;
+        };
         if (reception_bundles.nil()) {
             A group_names(groups.keys());
             for (int64_t j = 0; j < group_names.size(); ++j) {
@@ -452,12 +499,9 @@ V structure(const V& raw_cases, const V& raw_blocked, const V& raw_reception, in
             for (const auto& group : choices) {
                 auto found = prefixes.find(group);
                 if (found == prefixes.end()) {
-                    V raw = groups.get(V::text(group));
-                    if (raw.nil()) throw std::runtime_error("结构配置缺少初诊选项");
-                    A options(raw); Options unique;
-                    for (int64_t j = 0; j < options.size(); ++j) unique.insert(structural_resources(D(options.at(j))));
+                    const Options& unique = expand_group(group);
                     auto interned = factor_ids.emplace(unique, static_cast<int>(factors.size()));
-                    if (interned.second) factors.push_back(std::move(unique));
+                    if (interned.second) factors.push_back(unique);
                     found = prefixes.emplace(group, interned.first->second).first;
                 }
                 factor_key.push_back(found->second);
@@ -482,6 +526,7 @@ V structure(const V& raw_cases, const V& raw_blocked, const V& raw_reception, in
                         std::vector<std::string> resources;
                         std::set_union(current.begin(), current.end(), prefix.begin(), prefix.end(), std::back_inserter(resources));
                         next.insert(std::move(resources));
+                        if (next.size() > 4096) throw StructureExpansionLimit();
                     }
                     values = std::move(next);
                 }
@@ -545,8 +590,211 @@ V structure(const V& raw_cases, const V& raw_blocked, const V& raw_reception, in
     auto values = program.solve(); int count = 0;
     for (int id : groups) count += values[id];
     result.set("pairs", V::number(count)); result.set("patterns", V::number(pattern_count));
+    result.set("structure_encoding", V::text("flat")); result.set("structural_variables", V::number(program.variables.size()));
+    result.set("structural_constraints", V::number(program.rows.size()));
     result.set("terminals", V::number(static_cast<int64_t>(terminals.size()))); result.set("prefix_groups", V::number(static_cast<int64_t>(prefix_groups.size())));
     return result.value();
+}
+
+struct StructuralGraph {
+    struct Node { bool choice; std::vector<std::string> resources; std::vector<int> children; };
+    std::vector<Node> nodes;
+    std::map<std::string, int> shapes;
+    int intern(Node node) {
+        std::sort(node.children.begin(), node.children.end());
+        node.children.erase(std::unique(node.children.begin(), node.children.end()), node.children.end());
+        std::string key = node.choice ? "o" : "a";
+        for (const auto& resource : node.resources) key += std::to_string(resource.size()) + ":" + resource;
+        key += "[";
+        for (int child : node.children) key += std::to_string(child) + ",";
+        key += "]";
+        auto found = shapes.find(key);
+        if (found != shapes.end()) return found->second;
+        int id = static_cast<int>(nodes.size()); shapes.emplace(std::move(key), id); nodes.push_back(std::move(node)); return id;
+    }
+    int part(const D& source, const D& groups, std::map<std::string, int>& memo, std::set<std::string>& visiting) {
+        Node node{false, structural_resources(source), {}};
+        std::vector<std::string> names;
+        V raw = source.get("structural_choices");
+        if (raw.nil()) {
+            auto name = optional_text(source, "structural_group"); if (!name.empty()) names.push_back(name);
+        } else {
+            A choices(raw); for (int64_t i = 0; i < choices.size(); ++i) names.push_back(choices.at(i).text());
+        }
+        for (const auto& name : names) {
+            auto found = memo.find(name);
+            if (found == memo.end()) {
+                if (!visiting.insert(name).second) throw std::runtime_error("结构选择依赖存在循环");
+                V raw_options = groups.get(V::text(name));
+                if (raw_options.nil()) throw std::runtime_error("结构配置缺少初诊选项");
+                A options(raw_options); Node choice{true, {}, {}};
+                for (int64_t i = 0; i < options.size(); ++i) choice.children.push_back(part(D(options.at(i)), groups, memo, visiting));
+                visiting.erase(name); found = memo.emplace(name, intern(std::move(choice))).first;
+            }
+            node.children.push_back(found->second);
+        }
+        return intern(std::move(node));
+    }
+};
+V structure_graph(const V& raw_cases, const V& raw_blocked, const V& raw_reception, int64_t bed_limit) {
+    if (bed_limit < 1 || bed_limit > INT32_MAX) throw std::runtime_error("无效的病房覆盖上限");
+    D blocked(raw_blocked), reception(raw_reception), people(reception.get("people")), desks(reception.get("desks"));
+    const auto blocked_ids = dictionary_names(blocked), people_ids = dictionary_names(people), desk_ids = dictionary_names(desks);
+    int64_t ratio = reception.get("ratio").number();
+    if (ratio < 1 || ratio > INT32_MAX) throw std::runtime_error("无效的接待结构比例");
+    StructuralGraph graph;
+    std::map<Pattern, std::set<int>> terminals;
+    std::set<std::pair<std::string, std::string>> reception_edges;
+    auto reception_part = [&](const D& part) {
+        V raw = part.get("resources"); if (raw.nil()) return;
+        D values(raw); A keys(values.keys()); std::vector<std::string> local_people, local_desks;
+        for (int64_t i = 0; i < keys.size(); ++i) {
+            auto name = keys.at(i).text(); if (blocked_ids.count(name)) continue;
+            if (people_ids.count(name)) local_people.push_back(name);
+            if (desk_ids.count(name)) local_desks.push_back(name);
+        }
+        for (const auto& person : local_people) for (const auto& desk : local_desks) reception_edges.emplace(person, desk);
+    };
+    A cases(raw_cases);
+    for (int64_t i = 0; i < cases.size(); ++i) {
+        D current(cases.at(i)); A bases(current.get("bundles"));
+        V raw_groups = current.get("choice_groups"); D groups = raw_groups.nil() ? D() : D(raw_groups);
+        V raw_receptions = current.get("reception_bundles");
+        if (!raw_receptions.nil()) {
+            A parts(raw_receptions); for (int64_t j = 0; j < parts.size(); ++j) reception_part(D(parts.at(j)));
+        } else {
+            A names(groups.keys());
+            for (int64_t j = 0; j < names.size(); ++j) {
+                A parts(groups.get(names.at(j))); for (int64_t k = 0; k < parts.size(); ++k) reception_part(D(parts.at(k)));
+            }
+        }
+        std::map<std::string, int> memo; std::set<std::string> visiting;
+        for (int64_t j = 0; j < bases.size(); ++j) {
+            D base(bases.at(j)); if (raw_receptions.nil()) reception_part(base);
+            auto nurse = optional_text(base, "coverage_nurse_id"), ward = optional_text(base, "ward_id");
+            if (!nurse.empty() && (ward.empty() || blocked_ids.count("staff:" + nurse))) continue;
+            terminals[Pattern(structural_resources(base), nurse, ward)].insert(graph.part(base, groups, memo, visiting));
+        }
+    }
+    D result;
+    if (terminals.empty() || reception_edges.empty()) { result.set("pairs", V::number(0)); return result.value(); }
+    std::set<std::string> all_resources;
+    for (const auto& node : graph.nodes) all_resources.insert(node.resources.begin(), node.resources.end());
+    if (all_resources.size() > INT32_MAX) throw std::runtime_error("结构资源规模超出原生索引范围");
+    PackingProgram program;
+    std::map<std::string, std::vector<std::pair<int, int>>> exclusivity;
+    std::map<std::pair<std::string, std::string>, std::vector<int>> coverage;
+    std::vector<int> objectives;
+    std::vector<std::pair<Pattern, int>> roots;
+    std::set<int> reachable;
+    std::function<void(int)> visit = [&](int id) {
+        if (!reachable.insert(id).second) return;
+        for (int child : graph.nodes[id].children) visit(child);
+    };
+    std::set<std::string> staff_anchors, facility_anchors;
+    bool every_staff = true, every_facility = true;
+    for (const auto& terminal : terminals) {
+        int root = graph.intern({true, {}, std::vector<int>(terminal.second.begin(), terminal.second.end())});
+        roots.emplace_back(terminal.first, root); visit(root);
+        bool has_staff = false, has_facility = false;
+        for (const auto& resource : std::get<0>(terminal.first)) {
+            if (resource.compare(0, 6, "staff:") == 0) { staff_anchors.insert(resource); has_staff = true; }
+            if (resource.compare(0, 9, "facility:") == 0) { facility_anchors.insert(resource); has_facility = true; }
+        }
+        every_staff = every_staff && has_staff; every_facility = every_facility && has_facility;
+    }
+    // Each complete group consumes a nonempty resource set. If every terminal
+    // consumes a staff/facility anchor, those disjoint anchors give a tighter
+    // proven slot bound. This changes the encoding, never the legal candidates.
+    size_t slots = all_resources.size();
+    if (every_staff) slots = std::min(slots, staff_anchors.size());
+    if (every_facility) slots = std::min(slots, facility_anchors.size());
+    std::set<std::string> reception_people, reception_desks;
+    for (const auto& edge : reception_edges) { reception_people.insert(edge.first); reception_desks.insert(edge.second); }
+    slots = std::min(slots, std::min(reception_people.size(), reception_desks.size()) * static_cast<size_t>(ratio));
+    std::vector<std::pair<int, int>> previous_order;
+    for (size_t slot = 0; slot < slots; ++slot) {
+        int selected = program.binary(true); objectives.push_back(selected);
+        if (slot) program.at_most({{selected, 1}, {objectives[slot - 1], -1}}, 0);
+        std::map<int, int> active;
+        std::map<int, std::vector<std::pair<int, int>>> incoming;
+        std::map<std::string, std::vector<int>> resource_nodes;
+        for (int id : reachable) {
+            int variable = program.binary(); active[id] = variable;
+            for (const auto& resource : graph.nodes[id].resources) {
+                if (blocked_ids.count(resource)) program.at_most({{variable, 1}}, 0);
+                resource_nodes[resource].push_back(variable);
+            }
+        }
+        std::vector<std::pair<int, int>> choose{{selected, -1}}, order;
+        for (size_t i = 0; i < roots.size(); ++i) {
+            int flag = program.binary(); choose.emplace_back(flag, 1); order.emplace_back(flag, static_cast<int>(i + 1));
+            incoming[roots[i].second].emplace_back(flag, -1);
+            program.at_most({{flag, 1}, {active[roots[i].second], -1}}, 0);
+            const auto& pattern = roots[i].first;
+            if (!std::get<1>(pattern).empty()) coverage[{std::get<1>(pattern), std::get<2>(pattern)}].push_back(flag);
+        }
+        program.equal(std::move(choose));
+        if (slot) {
+            auto symmetry = previous_order;
+            for (const auto& item : order) symmetry.emplace_back(item.first, -item.second);
+            symmetry.emplace_back(selected, static_cast<int>(roots.size()));
+            program.at_most(std::move(symmetry), static_cast<int>(roots.size()));
+        }
+        previous_order = order;
+        for (int id : reachable) {
+            const auto& node = graph.nodes[id];
+            std::vector<std::pair<int, int>> outgoing{{active[id], -1}};
+            for (int child : node.children) {
+                int edge = node.choice ? program.binary() : active[id];
+                if (node.choice) outgoing.emplace_back(edge, 1);
+                incoming[child].emplace_back(edge, -1);
+                program.at_most({{edge, 1}, {active[child], -1}}, 0);
+            }
+            if (node.choice) program.equal(std::move(outgoing));
+        }
+        for (const auto& item : incoming) {
+            auto row = item.second; row.emplace_back(active[item.first], 1); program.at_most(std::move(row), 0);
+        }
+        std::vector<std::pair<int, int>> nonempty{{selected, 1}};
+        for (const auto& item : resource_nodes) {
+            int used = program.binary(); exclusivity[item.first].emplace_back(used, 1); nonempty.emplace_back(used, -1);
+            for (int variable : item.second) program.at_most({{variable, 1}, {used, -1}}, 0);
+            std::vector<std::pair<int, int>> justified{{used, 1}};
+            for (int variable : item.second) justified.emplace_back(variable, -1);
+            program.at_most(std::move(justified), 0);
+        }
+        // A slot owns one entire group's resource union. Shared subgraphs do
+        // not make one doctor available to different simultaneous groups.
+        program.at_most(std::move(nonempty), 0);
+    }
+    for (const auto& item : coverage) {
+        int cover = program.binary(); exclusivity["staff:" + item.first.first].emplace_back(cover, 1);
+        std::vector<std::pair<int, int>> beds{{cover, -static_cast<int>(bed_limit)}};
+        for (int id : item.second) { program.at_most({{id, 1}, {cover, -1}}, 0); beds.emplace_back(id, 1); }
+        program.at_most(std::move(beds), 0);
+    }
+    for (const auto& row : exclusivity) program.at_most(row.second, 1);
+    std::map<std::string, std::vector<std::pair<int, int>>> reception_matching;
+    std::vector<std::pair<int, int>> limit;
+    for (int id : objectives) limit.emplace_back(id, 1);
+    for (const auto& edge : reception_edges) {
+        int id = program.binary(); limit.emplace_back(id, -static_cast<int>(ratio));
+        reception_matching[edge.first].emplace_back(id, 1); reception_matching[edge.second].emplace_back(id, 1);
+    }
+    for (const auto& row : reception_matching) program.at_most(row.second, 1);
+    program.at_most(std::move(limit), 0);
+    auto values = program.solve(); int count = 0;
+    for (int id : objectives) count += values[id];
+    result.set("pairs", V::number(count)); result.set("terminals", V::number(terminals.size()));
+    result.set("structure_encoding", V::text("implicit")); result.set("structural_nodes", V::number(graph.nodes.size())); result.set("structural_slots", V::number(slots)); result.set("structural_variables", V::number(program.variables.size()));
+    result.set("structural_constraints", V::number(program.rows.size()));
+    return result.value();
+}
+
+V structure(const V& raw_cases, const V& raw_blocked, const V& raw_reception, int64_t bed_limit) {
+    try { return structure_flat(raw_cases, raw_blocked, raw_reception, bed_limit); }
+    catch (const StructureExpansionLimit&) { return structure_graph(raw_cases, raw_blocked, raw_reception, bed_limit); }
 }
 
 struct Model {
@@ -561,6 +809,9 @@ struct Model {
     std::vector<Node> nodes;
     std::map<std::string, int> shapes;
     std::vector<Case> cases;
+    std::map<std::string, Q> preparation_fractions;
+    int64_t fraction_requests = 0, fraction_hits = 0;
+    size_t edge_count = 0, coefficient_count = 0;
     std::unique_ptr<soplex::SoPlex> program;
     std::vector<Column> columns;
     std::vector<std::set<std::string>> known;
@@ -588,6 +839,15 @@ struct Model {
     std::map<int, std::string> coverage_owners;
     bool coverage_owners_ready = false;
 
+    Q preparation_fraction(const V& value) {
+        ++fraction_requests;
+        std::string text = rational_input(value);
+        auto found = preparation_fractions.find(text);
+        if (found != preparation_fractions.end()) { ++fraction_hits; return found->second; }
+        Q parsed(text.c_str()); mpq_canonicalize(parsed.backend().data());
+        preparation_fractions.emplace(std::move(text), parsed); return parsed;
+    }
+
     std::string signature(const Resources& values) const {
         std::string result;
         for (const auto& item : values) if (item.second != 0)
@@ -604,6 +864,7 @@ struct Model {
         key += "]";
         auto found = shapes.find(key);
         if (found != shapes.end()) return found->second;
+        edge_count += node.children.size(); coefficient_count += node.resources.size();
         int id = static_cast<int>(nodes.size()); shapes[key] = id; nodes.push_back(std::move(node)); return id;
     }
     int part(const V& input, const D& groups, std::map<std::string, int>& memo, std::set<std::string>& visiting) {
@@ -614,7 +875,7 @@ struct Model {
             for (int64_t i = 0; i < keys.size(); ++i) {
                 V key = keys.at(i); auto resource = resource_ids.find(key.text());
                 if (resource == resource_ids.end()) throw std::runtime_error("资源束缺少真实预算");
-                Q amount = rational(values.get(key));
+                Q amount = preparation_fraction(values.get(key));
                 if (amount != 0) node.resources[resource->second] = amount;
             }
         }
@@ -644,7 +905,7 @@ struct Model {
         std::sort(resources.begin(), resources.end());
         for (const std::string& resource : resources) {
             resource_ids[resource] = static_cast<int>(budgets.size());
-            budgets.push_back(rational(amounts.get(resource.c_str())));
+            budgets.push_back(preparation_fraction(amounts.get(resource.c_str())));
         }
         A inputs(raw_cases); std::map<int, int> compact;
         for (int64_t i = 0; i < inputs.size(); ++i) {
@@ -653,7 +914,7 @@ struct Model {
             std::map<std::string, int> memo; std::set<std::string> visiting;
             A bundles(input.get("bundles")); Node root{true, {}, {}};
             for (int64_t j = 0; j < bundles.size(); ++j) root.children.push_back(part(bundles.at(j), groups, memo, visiting));
-            int id = intern(std::move(root)); Q probability = rational(input.get("probability"));
+            int id = intern(std::move(root)); Q probability = preparation_fraction(input.get("probability"));
             auto found = compact.find(id);
             if (found == compact.end()) {
                 int index = static_cast<int>(cases.size()); compact[id] = index;
@@ -670,6 +931,9 @@ struct Model {
         };
         for (const Case& item : cases) if (item.probability > 0) visit(item.root);
         enabled.assign(nodes.size(), true);
+        // Parsing reuse owns no hospital model or global state and ends with
+        // this complete prepare. Every distinct representation is canonicalized.
+        preparation_fractions.clear();
     }
     void update_roles(const V& input) {
         D source(input); A ids(source.keys()); std::map<std::string, std::string> next;
@@ -751,9 +1015,8 @@ struct Model {
         result.set("bottleneck_kind", V::text("exhausted_resource"));
         result.set("used_resource_count", V::number(used_resources.size()));
         result.set("node_count", V::number(nodes.size()));
-        size_t edges = 0, coefficients = 0;
-        for (const Node& node : nodes) { edges += node.children.size(); coefficients += node.resources.size(); }
-        result.set("edge_count", V::number(edges)); result.set("coefficient_count", V::number(coefficients));
+        result.set("edge_count", V::number(edge_count)); result.set("coefficient_count", V::number(coefficient_count));
+        result.set("prepare_fraction_requests", V::number(fraction_requests)); result.set("prepare_fraction_hits", V::number(fraction_hits));
         result.set("resolution_count", V::number(solve_count));
         result.set("pricing_calls", V::number(pricing_calls));
         auto measured = timing;
@@ -1037,16 +1300,16 @@ struct Model {
             lp.addColRational(LPColRational(1, q_column, infinity, 0));
             known.resize(cases.size());
         }
-        auto add_column = [&](int index, const Resources& values) {
+        auto add_column = [&](int index, const Resources& values, const std::string& key) {
             DSVectorRational column; column.add(index, Q(1));
             for (const auto& item : values) if (item.second != 0) column.add(static_cast<int>(cases.size()) + item.first, item.second);
             lp.addColRational(LPColRational(0, column, infinity, 0));
-            known[index].insert(signature(values)); columns.push_back(Column{index, values});
+            known[index].insert(key); columns.push_back(Column{index, values});
         };
         std::vector<Q> prices(resources.size(), Q(0)), costs; std::vector<int> choices;
         if (initialize) {
             price(prices, costs, choices);
-            for (size_t i = 0; i < cases.size(); ++i) { Resources values; expand(cases[i].root, choices, values); add_column(static_cast<int>(i), values); }
+            for (size_t i = 0; i < cases.size(); ++i) { Resources values; expand(cases[i].root, choices, values); add_column(static_cast<int>(i), values, signature(values)); }
         }
         VectorRational dual(static_cast<int>(cases.size() + resources.size()));
         for (;;) {
@@ -1059,8 +1322,9 @@ struct Model {
             for (size_t i = 0; i < cases.size(); ++i) {
                 if (dual[static_cast<int>(i)] + costs[cases[i].root] >= 0) continue;
                 Resources values; expand(cases[i].root, choices, values);
-                if (known[i].count(signature(values))) throw std::runtime_error("重复资源束仍有负约化成本");
-                add_column(static_cast<int>(i), values); ++added;
+                auto key = signature(values);
+                if (known[i].count(key)) throw std::runtime_error("重复资源束仍有负约化成本");
+                add_column(static_cast<int>(i), values, key); ++added;
             }
             columns_per_round.push_back(added);
             if (!added) break;

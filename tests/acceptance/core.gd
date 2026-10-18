@@ -42,7 +42,8 @@ const CASES: Dictionary = {
 	"CORE-39":"路线4.2：重复、错类型与未知内容拒绝",
 	"CORE-40":"路线4.2：缺依赖与依赖环拒绝",
 	"CORE-41":"技术规格账目结算：待结索引、幂等、原子失败、恢复及医院隔离",
-	"CORE-42":"技术规格分段SQLite：固定语句复用、空结果、错误恢复与回滚原子性"
+	"CORE-42":"技术规格分段SQLite：固定语句复用、空结果、错误恢复与回滚原子性",
+	"CORE-43":"性能规格显示边界：实际物理3D视口、原生2D、比例切换和原坐标拾取"
 }
 
 func run(t) -> void:
@@ -50,6 +51,9 @@ func run(t) -> void:
 		if not t.wants(case_id): continue
 		t.begin_case(case_id)
 		await call("_case_"+case_id.right(2),t,HospitalContent.new())
+
+func _case_43(t, content: HospitalContent) -> void:
+	await preload("res://tests/acceptance/scene_pixels.gd").new().run(t,content)
 
 func _case_01(t, content: HospitalContent) -> void:
 	var empty: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"空地",false,content)

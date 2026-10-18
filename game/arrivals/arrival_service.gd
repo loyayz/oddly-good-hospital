@@ -440,11 +440,17 @@ func capacity(world: WorldState, subtract_existing: bool = true, cancellation: C
 		var query: Dictionary = {}
 		var classes: Array = _reference_classes(world,shift,query,cancellation)
 		if query.get("cancelled",false): return {"complete":false,"cancelled":true}
+		if query.has("error"):
+			preparation_error = str(query.reason)
+			return {"complete":false,"error":query.error,"reason":query.reason}
 		var budgets: Dictionary = _resource_budgets(world,classes,shift,query.resource_ids)
 		var locked_roles: Dictionary = {}
 		if subtract_existing:
 			var workload: Dictionary = _existing_workload(world,shift,query,commitments,cancellation)
 			if query.get("cancelled",false): return {"complete":false,"cancelled":true}
+			if query.has("error"):
+				preparation_error = str(query.reason)
+				return {"complete":false,"error":query.error,"reason":query.reason}
 			for resource_id: String in workload:
 				if resource_id.begins_with("coverage:") and F.compare(workload[resource_id],F.make())>0:
 					var parts: PackedStringArray = resource_id.split(":")
@@ -602,6 +608,13 @@ func _reference_classes(world: WorldState, shift: int, query: Variant = null, ca
 				reference_counts.case_quotes += 1
 				query.transport_basis = basis.transport
 				var quote: Dictionary = clinic.call("reference_demand",world,str(binding.id),complex_case,shift,query)
+				if quote.has("error"):
+					query.clear()
+					if _capacity_cancelled(cancellation):
+						query.cancelled = true
+						return []
+					query.merge({"error":quote.error,"reason":quote.reason})
+					return []
 				var variant: Dictionary = _reference_variant(world,binding,complex_case,shift,quote,query)
 				var resources: Dictionary = {}
 				for part: Dictionary in _model_parts(variant):
@@ -670,7 +683,7 @@ func _reference_variant(world: WorldState, binding: Dictionary, complex_case: bo
 		for source: Dictionary in model.choice_groups[group]:
 			var option: Dictionary = _normalize_bundle(world,source,query)
 			option.binding_id = str(binding.id)
-			if option.valid and _bundle_available(world,option,shift,query): groups[group].append(_capacity_part(option,query,group.begins_with("diagnostic:") or group.begins_with("consult:")))
+			if option.valid and _bundle_available(world,option,shift,query): groups[group].append(_capacity_part(option,query,group.begins_with("diagnostic") or group.begins_with("consult:")))
 	var bundles: Array = []
 	for source: Dictionary in model.bundles:
 		var bundle: Dictionary = _normalize_bundle(world,source,query)
@@ -1023,9 +1036,17 @@ func _existing_workload(world: WorldState, shift: int, query: Variant = null, co
 			if _capacity_cancelled(cancellation):
 				query.cancelled = true
 				return {}
+			if references[key].has("error"):
+				query.error = references[key].error
+				query.reason = references[key].reason
+				return {}
 		var quote: Dictionary = clinic.call("reference_remaining_demand",world,visit.id,shift) if clinic.has_method("reference_remaining_demand") else references[key]
 		if _capacity_cancelled(cancellation):
 			query.cancelled = true
+			return {}
+		if quote.has("error"):
+			query.error = quote.error
+			query.reason = quote.reason
 			return {}
 		if not quote.get("ok",false) or quote.get("bundles",[]).is_empty():
 			continue
@@ -1128,14 +1149,7 @@ func _structural_case(case: Dictionary, reception: Dictionary) -> Dictionary:
 			if not str(part.get(field,"")).is_empty(): root[field] = part[field]
 		var choices: Array = part.get("structural_choices",[part.structural_group] if part.has("structural_group") else [])
 		for group: String in choices:
-			if not translated.has(group):
-				var options: Array = []
-				for option: Dictionary in groups[group]: options.append({"structural_resources":_structural_resources(option)})
-				options = _unique_structural_parts(options)
-				var identity: String = JSON.stringify(options,"",true,true)
-				result.choice_groups[identity] = options
-				translated[group] = identity
-			root.structural_choices.append(translated[group])
+			root.structural_choices.append(_structural_group(group,groups,translated,result.choice_groups))
 		root.structural_choices.sort()
 		result.bundles.append(root)
 	result.bundles = _unique_structural_parts(result.bundles)
@@ -1149,6 +1163,26 @@ func _structural_case(case: Dictionary, reception: Dictionary) -> Dictionary:
 		if not resources.is_empty(): result.reception_bundles.append({"resources":resources})
 	result.reception_bundles = _unique_structural_parts(result.reception_bundles)
 	return result
+
+func _structural_group(group: String, groups: Dictionary, translated: Dictionary, output: Dictionary) -> String:
+	if translated.has(group): return translated[group]
+	var options: Array = []
+	for part: Dictionary in groups[group]:
+		var option: Dictionary = {"structural_resources":_structural_resources(part)}
+		var children: Array = []
+		for child: String in part.get("structural_choices",[]): children.append(_structural_group(child,groups,translated,output))
+		if not children.is_empty():
+			children.sort()
+			option.structural_choices = children
+		options.append(option)
+	options = _unique_structural_parts(options)
+	var identity: String = str(translated.get(options,""))
+	if identity.is_empty():
+		identity = "group:"+str(output.size())
+		output[identity] = options
+		translated[options] = identity
+	translated[group] = identity
+	return identity
 
 func _structural_resources(part: Dictionary) -> Array:
 	var unique: Dictionary = {}

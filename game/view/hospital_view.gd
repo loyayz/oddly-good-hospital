@@ -17,6 +17,7 @@ var _selected: String = "patient"
 var _geometry: HospitalSpace
 var _skin_batches: Array[SkinnedPoseBatch] = []
 var bind_error: String = ""
+var work_budget: ViewWorkBudget
 var follow_actor: String = ""
 var _case_props: Dictionary = {}
 var _machine_props: Dictionary = {}
@@ -127,6 +128,7 @@ func _sync_geometry() -> void:
 	var signature: String = JSON.stringify([layout.get("plots",[]),layout.get("blocked",[]),layout.get("doors",[]),rooms,connectors,door_shapes],"",true,true)
 	if signature==_geometry_signature:
 		return
+	var started: int = Time.get_ticks_usec()
 	_geometry_signature = signature
 	for child: Node in _decorations.get_children():
 		_retire(child)
@@ -195,6 +197,7 @@ func _sync_geometry() -> void:
 			header.position = opening+Vector3(net_width*0.5,net_height+0.1,0)
 			_decorations.add_child(header)
 			_label(header,str(definition.name),Vector3(0,0.5,0))
+	if work_budget!=null: work_budget.spend(Time.get_ticks_usec()-started)
 
 func update_facts(interpolation_alpha: float = 1.0) -> void:
 	if world == null:
@@ -324,6 +327,7 @@ func _sync_entities() -> void:
 		if _bindings.has(key) and _bindings[key].signature!=signature:
 			_remove_actor(actor_id)
 		if not _actors.has(actor_id):
+			var started: int = Time.get_ticks_usec()
 			var wrapper: Node3D = Node3D.new()
 			wrapper.position = projection.position
 			add_child(wrapper)
@@ -333,6 +337,7 @@ func _sync_entities() -> void:
 			_actor_models[actor_id] = model
 			_actor_labels[actor_id] = _label(wrapper,str(actor.name),Vector3(0,float(dimensions.height_m)+0.35,0))
 			_bind_entity(key,signature,wrapper,"res://assets/models/core_"+str(actor.species_id).to_lower()+"_body.glb")
+			if work_budget!=null: work_budget.spend(Time.get_ticks_usec()-started)
 	for actor_id: String in _actors.keys():
 		if not visible_actors.has(actor_id):
 			_remove_actor(actor_id)
@@ -351,6 +356,7 @@ func _sync_entities() -> void:
 		if _bindings.has(key) and _bindings[key].signature!=signature:
 			_remove_facility(facility_id)
 		if not _facilities.has(facility_id):
+			var started: int = Time.get_ticks_usec()
 			var wrapper: Node3D = Node3D.new()
 			wrapper.position = _cell_position(facility.cell,0)
 			_facilities[facility_id] = wrapper
@@ -361,6 +367,7 @@ func _sync_entities() -> void:
 			wrapper.add_child(proxy)
 			_label(wrapper,str(content.facility_definition(facility.definition_id).get("name",facility.definition_id)),Vector3(1.5,3.0,1.5))
 			_bind_entity(key,signature,wrapper,"res://assets/models/core_"+str(facility.definition_id).to_lower()+"_machine.glb")
+			if work_budget!=null: work_budget.spend(Time.get_ticks_usec()-started)
 	for facility_id: String in _facilities.keys():
 		if not visible_facilities.has(facility_id):
 			_remove_facility(facility_id)
@@ -404,6 +411,7 @@ func _complete_resources() -> void:
 	var started: int = Time.get_ticks_usec()
 	var count: int = 0
 	var budget: int = int(content.balance.spatial_view.view_build_budget_ms_per_frame)*1000
+	if work_budget!=null: budget = work_budget.remaining_usec()
 	var limit: int = int(content.balance.spatial_view.view_chunk_starts_per_frame)
 	while not _pending_resources.is_empty() and count<limit and Time.get_ticks_usec()-started<budget:
 		var ticket: Dictionary = _pending_resources.pop_front()
@@ -413,6 +421,7 @@ func _complete_resources() -> void:
 		if model!=null:
 			publish_resource(ticket,model)
 		count += 1
+	if work_budget!=null: work_budget.spend(Time.get_ticks_usec()-started)
 
 func publish_resource(ticket: Dictionary, model: Node3D) -> bool:
 	if not accepts_resource(ticket):
@@ -480,6 +489,7 @@ func _bind_case_props(actor_id: String) -> void:
 			_case_props[actor_id] = {"node":props,"visit_id":visit.id,"slot":slot}
 
 func _remove_actor(id: String) -> void:
+	var started: int = Time.get_ticks_usec()
 	_clear_batches()
 	_retire(_actors[id])
 	_actors.erase(id)
@@ -491,14 +501,17 @@ func _remove_actor(id: String) -> void:
 		_selected = ""
 	if follow_actor==id:
 		follow_actor = ""
+	if work_budget!=null: work_budget.spend(Time.get_ticks_usec()-started)
 
 func _remove_facility(id: String) -> void:
+	var started: int = Time.get_ticks_usec()
 	_equipment_marks.erase(id)
 	_retire(_facilities[id])
 	_facilities.erase(id)
 	_extension_nodes.erase(id)
 	_machine_props.erase(id)
 	_bindings.erase("facility:"+id)
+	if work_budget!=null: work_budget.spend(Time.get_ticks_usec()-started)
 
 func _clear_batches() -> void:
 	for batch: SkinnedPoseBatch in _skin_batches:
@@ -518,6 +531,7 @@ func resource_usage() -> Dictionary:
 	result.pending_bindings = _pending_resources.size()
 	result.active_bindings = _bindings.size()
 	result.retiring_nodes = _retiring.size()
+	if work_budget!=null: result.view_work_budget = work_budget.observation()
 	return result
 
 func _body_proxy(dimensions: Dictionary) -> Node3D:
@@ -798,6 +812,7 @@ func _sync_environment_marks() -> void:
 				units.append([unit.cell,order.surface,unit.edge,unit.phase,unit.started,order.paused])
 	var signature: String = JSON.stringify([observed_floor,dirt,surfaces,units],"",true,true)
 	if signature!=_environment_marks_signature:
+		var started: int = Time.get_ticks_usec()
 		_environment_marks_signature = signature
 		for child: Node in _environment_marks.get_children():
 			_retire(child)
@@ -826,6 +841,7 @@ func _sync_environment_marks() -> void:
 			mark.set_meta("construction_state","working" if working else "waiting")
 			_environment_marks.add_child(mark)
 			_label(mark,"施工中" if working else ("施工暂停" if unit[5] else "待施工"),Vector3(0,0.8,0))
+		if work_budget!=null: work_budget.spend(Time.get_ticks_usec()-started)
 	if _environment_heatmap!=null and is_instance_valid(_environment_heatmap) and _heatmap_stamp!=_environment_read_stamp():
 		_environment_heatmap.visible = false
 
@@ -846,12 +862,14 @@ func _finish_color(material_id: String) -> Color:
 		"MAT06":Color("b4c9b7"),"MAT07":Palette.STRUCTURE,"MAT08":Palette.FURNITURE}.get(material_id,Palette.WALL)
 
 func show_environment_heatmap(heatmap: Array) -> void:
+	var started: int = Time.get_ticks_usec()
 	if _environment_heatmap!=null and is_instance_valid(_environment_heatmap):
 		_retire(_environment_heatmap)
 	_environment_heatmap = null
 	_heatmap_subjects.clear()
 	if world==null or heatmap.is_empty():
 		_heatmap_stamp = ""
+		if work_budget!=null: work_budget.spend(Time.get_ticks_usec()-started)
 		return
 	var samples: Array = []
 	for raw: Variant in heatmap:
@@ -861,6 +879,7 @@ func show_environment_heatmap(heatmap: Array) -> void:
 			samples.append(raw)
 	if samples.is_empty():
 		_heatmap_stamp = ""
+		if work_budget!=null: work_budget.spend(Time.get_ticks_usec()-started)
 		return
 	var mesh: BoxMesh = BoxMesh.new()
 	mesh.size = Vector3(1.42,0.015,1.42)
@@ -890,6 +909,7 @@ func show_environment_heatmap(heatmap: Array) -> void:
 	_environment_heatmap.set_meta("observed_floor",observed_floor)
 	add_child(_environment_heatmap)
 	_heatmap_stamp = _environment_read_stamp()
+	if work_budget!=null: work_budget.spend(Time.get_ticks_usec()-started)
 
 func _environment_read_stamp() -> String:
 	var active: Array = []

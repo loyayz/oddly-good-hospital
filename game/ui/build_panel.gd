@@ -88,11 +88,12 @@ func _ready() -> void:
 		number.value_changed.connect(func(_value: float) -> void: _request())
 	_populate()
 
-func attach(kernel: HospitalSimulation, active_session: GameSession, observed_floor: int) -> void:
+func attach(kernel: HospitalSimulation, active_session: GameSession, observed_floor: int, work_budget: ViewWorkBudget = null) -> void:
 	simulation = kernel
 	session = active_session
 	floor_id = observed_floor
 	_preview = BuildPreview.new(simulation.services.building)
+	_preview.work_budget = work_budget
 	if is_node_ready():
 		_populate()
 
@@ -197,9 +198,9 @@ func _binding() -> Dictionary:
 	return {"hospital_id":simulation.world.hospital_id,"loading_session_id":session.loading_session_id,"view_floor_id":floor_id}
 
 func _process(_delta: float) -> void:
-	if not is_visible_in_tree() or _preview==null or _draft.is_empty():
+	if not is_visible_in_tree() or _preview==null or _draft.is_empty() or simulation.pending():
 		return
-	_result = _preview.update(simulation.world)
+	_result = _preview.update(simulation.world,0,[simulation.world,simulation.world.revision])
 	_confirm.disabled = not bool(_result.get("ready",false)) or not bool(_result.get("ok",false))
 	if not bool(_result.get("draw_on_current_floor",true)):
 		_confirm.disabled = true

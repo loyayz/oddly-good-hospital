@@ -5,6 +5,7 @@ const Visitors = preload("res://game/clinic/hospital_visitors.gd")
 const ReferenceFraction = preload("res://game/arrivals/exact_fraction.gd")
 const REFERENCE_COMPONENT_REQUEST_LIMIT: int = 256
 const REFERENCE_COMPONENT_TARGET_LIMIT: int = 4096
+const REFERENCE_COMPONENT_MEMO_LIMIT: int = 4096
 
 var content: HospitalContent
 var space: HospitalSpace
@@ -19,7 +20,7 @@ var _practice_awards: Dictionary = {}
 var _events: Array[SimEvent] = []
 var research: RefCounted
 # Rebuildable observations only; neither facts nor returned clinical models.
-var reference_component_counts: Dictionary = {"batches":0,"components":0,"unique_inputs":0,"memo_hits":0,"native_calls":0,"native_requests":0,"max_pending_requests":0,"max_waiting_targets":0,"failed_batches":0}
+var reference_component_counts: Dictionary = {"batches":0,"components":0,"unique_inputs":0,"memo_hits":0,"memo_evictions":0,"max_memo_entries":0,"max_completed_entries":0,"native_calls":0,"native_requests":0,"max_pending_requests":0,"max_waiting_targets":0,"failed_batches":0}
 
 func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 	content = database
@@ -865,7 +866,11 @@ func _outpatient_quote(world: WorldState, visit: Dictionary, staff: Dictionary, 
 		var preferred: String = str(world.facts.preparations.get(visit.id,{}).get("bed_id",""))
 		var key: String = JSON.stringify([int(facility.floor_id),[],structural_only,preferred,reference_schedule])
 		if bed_quotes==null: bed_quotes = {}
-		if not bed_quotes.has(key): bed_quotes[key] = _compatible_bed(world,visit,int(facility.floor_id),[staff.id],structural_only,preferred,reference_schedule)
+		if not bed_quotes.has(key):
+			if structural_only and reference_schedule and preferred.is_empty():
+				var beds: Array = _reference_bed_alternatives(world,visit,int(facility.floor_id),[staff.id],bed_quotes)
+				bed_quotes[key] = beds[0] if not beds.is_empty() else {"ok":false,"reason":"等待同层兼容床位、真实护理覆盖与出院查房医生"}
+			else: bed_quotes[key] = _compatible_bed(world,visit,int(facility.floor_id),[staff.id],structural_only,preferred,reference_schedule)
 		bed_bundle = bed_quotes[key]
 		if not bed_bundle.ok:
 			return bed_bundle
@@ -905,6 +910,7 @@ func _compatible_bed(world: WorldState, visit: Dictionary, floor_id: int, exclud
 			loads[id] = int(loads.get(id,0))+1
 	var workbenches: Array = world.facility_ids("SE06").filter(func(id: String)->bool:
 		return int(world.facts.facilities[id].floor_id)==floor_id and not world.facts.facilities[id].failed)
+	var workbench_reachable: Dictionary = {}
 	for bed_id: String in world.facility_ids("EQ05"):
 		if not preferred_bed.is_empty() and bed_id!=preferred_bed:
 			continue
@@ -936,13 +942,14 @@ func _compatible_bed(world: WorldState, visit: Dictionary, floor_id: int, exclud
 			if not structural_only and (location.kind!="floor" or int(location.floor_id)!=floor_id or not room_rect.has_point(Vector2(float(location.cell[0]),float(location.cell[1])))):
 				continue
 			if int(world.facts.get("gameplay_version",0))>=1:
-				var has_workbench: bool = false
-				for id: String in workbenches:
-					var position: Array = world.facts.facilities[id].operator_cells[0]
-					if space.travel_quote(world,nurse_id,floor_id,position).ok:
-						has_workbench = true
-						break
-				if not has_workbench:
+				if not workbench_reachable.has(nurse_id):
+					workbench_reachable[nurse_id] = false
+					for id: String in workbenches:
+						var position: Array = world.facts.facilities[id].operator_cells[0]
+						if space.travel_quote(world,nurse_id,floor_id,position).ok:
+							workbench_reachable[nurse_id] = true
+							break
+				if not workbench_reachable[nurse_id]:
 					continue
 			var load: int = int(loads.get(nurse_id,0))
 			if load>=int(content.balance.clinical.beds_per_nurse):
@@ -1071,7 +1078,10 @@ func _surgery_quote(world: WorldState, visit: Dictionary, requested_team: Array 
 			for nurse_id: String in pools[2]:
 				var key: String = JSON.stringify([int(table.floor_id),nurse_id,structural,str(options.get("bed_id","")),bool(options.get("reference_schedule",false))])
 				if not bed_quotes.has(key):
-					bed_quotes[key] = _compatible_bed(world,visit,int(table.floor_id),[nurse_id],structural,str(options.get("bed_id","")),bool(options.get("reference_schedule",false)))
+					if structural and bool(options.get("reference_schedule",false)) and str(options.get("bed_id","")).is_empty():
+						var beds: Array = _reference_bed_alternatives(world,visit,int(table.floor_id),[nurse_id],bed_quotes)
+						bed_quotes[key] = beds[0] if not beds.is_empty() else {"ok":false,"reason":"等待同层兼容床位、真实护理覆盖与出院查房医生"}
+					else: bed_quotes[key] = _compatible_bed(world,visit,int(table.floor_id),[nurse_id],structural,str(options.get("bed_id","")),bool(options.get("reference_schedule",false)))
 				has_bed = has_bed or bool(bed_quotes[key].ok)
 				best = bed_quotes[key]
 		if not has_bed:
@@ -1152,7 +1162,10 @@ func _surgery_bundle_quote(world: WorldState, visit: Dictionary, team: Array, fa
 		return {"ok":false,"structural_ok":true,"reason":"等待原手术台安全可用"}
 	var bed_key: String = JSON.stringify([int(table.floor_id),team[2],structural,str(options.get("bed_id","")),bool(options.get("reference_schedule",false))])
 	if not bed_quotes.has(bed_key):
-		bed_quotes[bed_key] = _compatible_bed(world,visit,int(table.floor_id),team,structural,str(options.get("bed_id","")),bool(options.get("reference_schedule",false)))
+		if structural and bool(options.get("reference_schedule",false)) and str(options.get("bed_id","")).is_empty():
+			var beds: Array = _reference_bed_alternatives(world,visit,int(table.floor_id),team,bed_quotes)
+			bed_quotes[bed_key] = beds[0] if not beds.is_empty() else {"ok":false,"reason":"等待同层兼容床位、真实护理覆盖与出院查房医生"}
+		else: bed_quotes[bed_key] = _compatible_bed(world,visit,int(table.floor_id),team,structural,str(options.get("bed_id","")),bool(options.get("reference_schedule",false)))
 	var bed_bundle: Dictionary = bed_quotes[bed_key]
 	if not bed_bundle.ok:
 		return bed_bundle
@@ -2116,6 +2129,9 @@ func reference_demand(world: WorldState, binding_id: String, complex_case: bool 
 	# Diagnostic prefixes are shared by this case and its retries only.
 	query.diagnostics = {}
 	query.diagnostic_stages = {}
+	query.diagnostic_steps = {}
+	query.diagnostic_groups = {}
+	query.diagnostic_components = {}
 	query.consultations = {}
 	space.begin_route_query(world,query.geometry)
 	var options: Dictionary = _reference_options(world,binding_id,complex_case,_shift,{},{},query)
@@ -2265,19 +2281,25 @@ func _reference_options(world: WorldState, binding_id: String, complex_case: boo
 func _reference_terminal_beds(world: WorldState, visit: Dictionary, quote: Dictionary, cache: Dictionary) -> Array:
 	if int(quote.recovery_ticks)==0: return [quote]
 	var floor_id: int = int(world.facts.facilities[quote.facility_id].floor_id)
-	var nurses: Array = []
-	for id: String in quote.staff_ids:
-		if world.facts.staff[id].role=="nurse": nurses.append(id)
-	var key: String = JSON.stringify(["alternatives",floor_id,nurses])
-	if not cache.has(key):
-		var beds: Array = []
-		_compatible_bed(world,visit,floor_id,quote.staff_ids,true,"",true,beds)
-		cache[key] = beds
 	var result: Array = []
-	for bed: Dictionary in cache[key]:
+	for bed: Dictionary in _reference_bed_alternatives(world,visit,floor_id,quote.staff_ids,cache):
 		var alternative: Dictionary = quote.duplicate()
 		alternative.merge(bed,true)
 		result.append(alternative)
+	return result
+
+func _reference_bed_alternatives(world: WorldState, visit: Dictionary, floor_id: int, excluded: Array, cache: Dictionary) -> Array:
+	# Experience and the first attempt do not change physical bed/care tuples.
+	# Keep their original bed/nurse/doctor order; only the operating nurse is
+	# excluded by _compatible_bed, after all physical checks have been shared.
+	var key: Array = ["reference_beds",floor_id]
+	if not cache.has(key):
+		var beds: Array = []
+		_compatible_bed(world,visit,floor_id,[],true,"",true,beds)
+		cache[key] = beds
+	var result: Array = []
+	for bed: Dictionary in cache[key]:
+		if not bed.nurse_id in excluded: result.append(bed)
 	return result
 
 func _reference_candidates(world: WorldState, visit: Dictionary, kind: String, query: Dictionary) -> Array:
@@ -2295,7 +2317,7 @@ func _reference_model(options: Dictionary, binding_id: String, complex_case: boo
 	# business failures return no model and discard their private pending work.
 	var error: String = _finish_reference_component_batch(batch,result.has("model"))
 	options.query.erase("component_batch")
-	if not error.is_empty(): return {"ok":false,"reason":error,"bundles":[]}
+	if not error.is_empty(): return {"ok":false,"error":"reference_component_failure","reason":error,"bundles":[]}
 	return result
 
 func _build_reference_model(options: Dictionary, binding_id: String, complex_case: bool, shift: int) -> Dictionary:
@@ -2375,6 +2397,7 @@ func _build_reference_model(options: Dictionary, binding_id: String, complex_cas
 	# Equal-flow equations in the capacity solver join these independent
 	# choices. No legal alternative is truncated or replaced by a faster plan.
 	for part: Dictionary in representative_parts: part.erase("representative")
+	groups.merge(options.query.get("diagnostic_components",{}))
 	return {"ok":not bases.is_empty(),"reason":"" if not bases.is_empty() else "没有完整临床参考资源束","bundles":concrete,"model":{"bundles":bases,"choice_groups":groups}}
 
 func _reference_diagnostics(options: Dictionary, terminal: Dictionary) -> Array:
@@ -2385,12 +2408,23 @@ func _reference_diagnostics(options: Dictionary, terminal: Dictionary) -> Array:
 			if diagnostic.staff_id in terminal.staff_ids: continue
 			var initial: Dictionary = _reference_diagnostic_stages(options.world,options.visit,diagnostic,options.query)
 			if not initial.ok: continue
-			for stages: Dictionary in initial.variants:
-				var full: Dictionary = {"staff_ids":terminal.staff_ids,"stage_resources":stages}
-				full.merge(_reference_resource_maps(stages,[]))
-				var prefix: Dictionary = _reference_component(full,["gp","spectrum","resonance"],{"n":"1","d":"1"},options.query.component_batch)
-				prefix.diagnostic = diagnostic
-				prefixes.append(prefix)
+			var full: Dictionary = {"staff_ids":terminal.staff_ids,"stage_resources":initial.gp_stages}
+			full.merge(_reference_resource_maps(initial.gp_stages,[]))
+			var prefix: Dictionary = _reference_component(full,["gp"],{"n":"1","d":"1"},options.query.component_batch)
+			if not str(initial.get("next_group","")).is_empty():
+				prefix.choices = [initial.next_group]
+				prefix.structural_choices = [initial.next_group]
+			prefix.diagnostic = diagnostic
+			prefixes.append(prefix)
+		for group: String in options.query.get("diagnostic_groups",{}):
+			if options.query.diagnostic_components.has(group): continue
+			var parts: Array = []
+			for source: Dictionary in options.query.diagnostic_groups[group]:
+				var part: Dictionary = _reference_component(source,["spectrum","resonance"],{"n":"1","d":"1"},options.query.component_batch)
+				for field: String in ["choices","structural_choices"]:
+					if source.has(field): part[field] = source[field]
+				parts.append(part)
+			options.query.diagnostic_components[group] = parts
 		options.query.diagnostics[key] = prefixes
 	return options.query.diagnostics[key]
 
@@ -2435,7 +2469,7 @@ func _reference_component(full: Dictionary, stages: Array, weight: Dictionary = 
 
 func _new_reference_component_batch() -> Dictionary:
 	reference_component_counts.batches += 1
-	return {"memo":{},"pending":[],"waiting_targets":0,"error":""}
+	return {"memo":{},"completed":[],"completed_head":0,"pending":[],"waiting_targets":0,"error":""}
 
 func _queue_reference_component(batch: Dictionary, stages: Dictionary, weight: Dictionary, target: Dictionary) -> void:
 	reference_component_counts.components += 1
@@ -2445,10 +2479,21 @@ func _queue_reference_component(batch: Dictionary, stages: Dictionary, weight: D
 	var key: Array = _reference_component_key(stages,weight)
 	var entry: Dictionary = batch.memo.get(key,{})
 	if entry.is_empty():
-		entry = {"stages":stages.duplicate(true),"weight":weight.duplicate(),"targets":[]}
+		# Only completed memo entries can be evicted. Returned business targets
+		# own their numerical values, and a miss simply recomputes exact input.
+		if batch.memo.size()>=REFERENCE_COMPONENT_MEMO_LIMIT:
+			batch.memo.erase(batch.completed[int(batch.completed_head)])
+			batch.completed[int(batch.completed_head)] = null
+			batch.completed_head += 1
+			reference_component_counts.memo_evictions += 1
+			if int(batch.completed_head)>=REFERENCE_COMPONENT_REQUEST_LIMIT:
+				batch.completed = batch.completed.slice(int(batch.completed_head))
+				batch.completed_head = 0
+		entry = {"key":key,"stages":stages.duplicate(true),"weight":weight.duplicate(),"targets":[]}
 		batch.memo[key] = entry
 		batch.pending.append(entry)
 		reference_component_counts.unique_inputs += 1
+		reference_component_counts.max_memo_entries = maxi(int(reference_component_counts.max_memo_entries),batch.memo.size())
 	else: reference_component_counts.memo_hits += 1
 	if entry.has("values"):
 		target.resources = entry.values.resources
@@ -2500,8 +2545,11 @@ func _flush_reference_components(batch: Dictionary) -> void:
 			target.resources = entry.values.resources
 			target.stage_resources = entry.values.stage_resources
 		entry.targets.clear()
+		batch.completed.append(entry.key)
+		entry.erase("key")
 		entry.erase("stages")
 		entry.erase("weight")
+	reference_component_counts.max_completed_entries = maxi(int(reference_component_counts.max_completed_entries),batch.completed.size()-int(batch.completed_head))
 	batch.waiting_targets = 0
 
 func _finish_reference_component_batch(batch: Dictionary, complete: bool = true) -> String:
@@ -2509,6 +2557,8 @@ func _finish_reference_component_batch(batch: Dictionary, complete: bool = true)
 	var error: String = str(batch.error)
 	if not error.is_empty(): reference_component_counts.failed_batches += 1
 	batch.memo.clear()
+	batch.completed.clear()
+	batch.completed_head = 0
 	batch.pending.clear()
 	batch.waiting_targets = 0
 	return error
@@ -2517,6 +2567,7 @@ func reference_component_observation(query: Variant = null) -> Dictionary:
 	var result: Dictionary = reference_component_counts.duplicate()
 	var batch: Dictionary = query.get("component_batch",{}) if query is Dictionary else {}
 	result.active_unique_inputs = batch.get("memo",{}).size()
+	result.active_completed_entries = batch.get("completed",[]).size()-int(batch.get("completed_head",0))
 	result.pending_requests = batch.get("pending",[]).size()
 	result.waiting_targets = int(batch.get("waiting_targets",0))
 	return result
@@ -2561,33 +2612,54 @@ func _build_reference_diagnostic_stages(world: WorldState, visit: Dictionary, di
 	var gp_effective: float = float(gp_facility.grade)*float(content.balance.medical_equipment_effects.utilization_by_level[int(gp_staff.abilities.diagnosis)])
 	_reference_stage(stages,"gp",["staff:"+str(diagnostic.staff_id),"facility:"+str(diagnostic.facility_id)],ceili(float(_gp_work_ticks(visit,gp_staff,gp_effective))/_talent_rate(world,gp_staff.id,"gp",visit)))
 	var evidence: float = float(_profile(visit).gp_confidence)+2.0*(int(gp_staff.abilities.diagnosis)-1)+2.0*gp_effective
-	var pending: Array = [{"stages":stages,"evidence":evidence}]
-	var complete: Array = []
-	for mode: String in ["spectrum","resonance"]:
-		var needed: Array = []
-		for branch: Dictionary in pending:
-			if float(branch.evidence)>=float(content.balance.diagnosis_threshold):
-				complete.append(branch.stages)
-			else: needed.append(branch)
-		pending = []
-		if needed.is_empty(): break
-		var test_pairs: Array = _reference_candidates(world,visit,mode,query)
-		var next: Array = []
-		for branch: Dictionary in needed:
-			for test_pair: Dictionary in test_pairs:
-				var staff: Dictionary = world.facts.staff[test_pair.staff_id]
-				var facility: Dictionary = world.facts.facilities[test_pair.facility_id]
-				var effective: float = float(facility.grade)*float(content.balance.medical_equipment_effects.utilization_by_level[int(staff.abilities.diagnosis)])
-				var seconds: float = float(content.balance.tests[mode].seconds)/(1.0+0.05*(int(staff.abilities.diagnosis)-1)+0.15*effective)
-				var selected: Dictionary = branch.stages.duplicate()
-				_reference_stage(selected,mode,["staff:"+str(staff.id),"facility:"+str(facility.id)],ceili(seconds*10/_talent_rate(world,staff.id,"test",visit)))
-				next.append({"stages":selected,"evidence":float(branch.evidence)+float(content.balance.tests[mode].confidence)+2.0*(int(staff.abilities.diagnosis)-1)+3.0*effective})
-		pending = next
-	for branch: Dictionary in pending:
-		if float(branch.evidence)>=float(content.balance.diagnosis_threshold): complete.append(branch.stages)
-	if complete.is_empty():
-		return {"ok":false,"reason":"全部合法检查仍未达到诊断阈值"}
-	return {"ok":true,"stages":complete[0],"variants":complete}
+	if evidence>=float(content.balance.diagnosis_threshold): return {"ok":true,"stages":stages,"gp_stages":stages,"next_group":""}
+	var next: Dictionary = _reference_test_choices(world,visit,0,evidence,query)
+	if not next.ok: return {"ok":false,"reason":"全部合法检查仍未达到诊断阈值"}
+	var representative: Dictionary = stages.duplicate()
+	representative.merge(next.stages)
+	return {"ok":true,"stages":representative,"gp_stages":stages,"next_group":next.group}
+
+func _reference_test_choices(world: WorldState, visit: Dictionary, index: int, evidence: float, query: Dictionary) -> Dictionary:
+	if not query.has("diagnostic_steps"): query.diagnostic_steps = {}
+	if not query.has("diagnostic_groups"): query.diagnostic_groups = {}
+	var key: Array = [index,evidence]
+	if query.diagnostic_steps.has(key): return query.diagnostic_steps[key]
+	var mode: String = ["spectrum","resonance"][index]
+	var immediate: Array = []
+	var continued: Array = []
+	var representatives: Dictionary = {}
+	for pair: Dictionary in _reference_candidates(world,visit,mode,query):
+		var staff: Dictionary = world.facts.staff[pair.staff_id]
+		var facility: Dictionary = world.facts.facilities[pair.facility_id]
+		var effective: float = float(facility.grade)*float(content.balance.medical_equipment_effects.utilization_by_level[int(staff.abilities.diagnosis)])
+		var after: float = evidence+float(content.balance.tests[mode].confidence)+2.0*(int(staff.abilities.diagnosis)-1)+3.0*effective
+		var next: Dictionary = {}
+		if after<float(content.balance.diagnosis_threshold):
+			if index==1: continue
+			next = _reference_test_choices(world,visit,index+1,after,query)
+			if not next.ok: continue
+		var seconds: float = float(content.balance.tests[mode].seconds)/(1.0+0.05*(int(staff.abilities.diagnosis)-1)+0.15*effective)
+		var stages: Dictionary = {}
+		_reference_stage(stages,mode,["staff:"+str(staff.id),"facility:"+str(facility.id)],ceili(seconds*10/_talent_rate(world,staff.id,"test",visit)))
+		var part: Dictionary = {"staff_ids":[],"stage_resources":stages}
+		part.merge(_reference_resource_maps(stages,[]))
+		if next.is_empty(): immediate.append(part)
+		else:
+			part.choices = [next.group]
+			part.structural_choices = [next.group]
+			continued.append(part)
+			var representative: Dictionary = stages.duplicate()
+			representative.merge(next.stages)
+			representatives[continued.size()-1] = representative
+	var parts: Array = immediate+continued
+	var result: Dictionary = {"ok":not parts.is_empty()}
+	if result.ok:
+		var group: String = "diagnostic-step:"+str(query.diagnostic_groups.size())
+		query.diagnostic_groups[group] = parts
+		result.group = group
+		result.stages = immediate[0].stage_resources if not immediate.is_empty() else representatives[0]
+	query.diagnostic_steps[key] = result
+	return result
 
 func _reference_terminal_bundle(world: WorldState, visit: Dictionary, reception: Dictionary, diagnostic: Dictionary, quote: Dictionary, stages: Dictionary, query: Dictionary = {}) -> Dictionary:
 	space.begin_route_query(world,query.get("geometry",{}))

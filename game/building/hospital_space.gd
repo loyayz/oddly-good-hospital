@@ -176,8 +176,8 @@ func route(world: WorldState, actor_id: String, floor_id: int, target: Array, me
 	var key: String = ""
 	if not reference.is_empty() and ignore_people and members.is_empty() and offsets.is_empty() and _route_queries.back().journeys_allowed:
 		# Reference actors have no transport tickets. A complete journey depends
-		# on the body, endpoints and this sealed clock, rather than actor identity.
-		key = JSON.stringify([body(actor),actor.get("posture","standing"),actor.facing,actor.location.floor_id,actor.location.cell,floor_id,target,world.sim_tick])
+		# on the body, reservation access, endpoints and this sealed clock.
+		key = JSON.stringify([body(actor),RouteClearance.reservation_exemptions(world,actor_id),actor.get("posture","standing"),actor.facing,actor.location.floor_id,actor.location.cell,floor_id,target,world.sim_tick])
 		if reference.journeys.has(key):
 			query_counts.journey_hits += 1
 			var retained: Dictionary = reference.journeys[key]
@@ -384,7 +384,7 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 		routes = _route_queries.back().routes
 		var identity: Variant = actor.id
 		if not _route_queries.back().reference.is_empty() and members.is_empty() and offsets.is_empty():
-			identity = body(actor)
+			identity = [body(actor),RouteClearance.reservation_exemptions(world,actor.id,floor_id)]
 		key = JSON.stringify([identity,floor_id,start.x,start.y,goal.x,goal.y,members,offsets,_route_envelope(world,actor,members,offsets)])
 		if routes.has(key):
 			return routes[key].duplicate(true)

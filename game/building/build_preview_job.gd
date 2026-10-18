@@ -67,7 +67,7 @@ func dependencies(world: WorldState) -> String:
 				values.facilities[facility.id].busy = service._busy(world,facility.id)
 	for actor: Dictionary in world.facts.actors.values():
 		if actor.location.kind=="floor" and int(actor.location.floor_id) in floors:
-			values.actors[actor.id] = _fields(actor,["id","species_id","body_binding_id","location","posture","support_facility_id"])
+			values.actors[actor.id] = _fields(actor,["id","species_id","body_binding_id","location","posture","facing","support_facility_id"])
 			if world.facts.moves.has(actor.id):
 				values.moves[actor.id] = _fields(world.facts.moves[actor.id],["target_floor","target_cell","members","offsets"])
 	for key: String in world.facts.adaptations:
@@ -89,10 +89,10 @@ func dependencies(world: WorldState) -> String:
 		values.retry_cash = HospitalLedger.balance(world)
 	return JSON.stringify(values,"",true,true).sha256_text()
 
-func advance(world: WorldState, budget_usec: int, maximum_units: int = 128) -> void:
+func advance(world: WorldState, budget_usec: int, maximum_units: int = 0) -> void:
 	var start: int = Time.get_ticks_usec()
 	var count: int = 0
-	while not complete and count<maximum_units and (count==0 or Time.get_ticks_usec()-start<budget_usec):
+	while not complete and (maximum_units<=0 or count<maximum_units) and (count==0 or Time.get_ticks_usec()-start<budget_usec):
 		var unit_start: int = Time.get_ticks_usec()
 		_step(world)
 		if Time.get_ticks_usec()-unit_start>budget_usec:
@@ -125,10 +125,36 @@ func _step(world: WorldState) -> void:
 				if not BuildGeometry.point(draft.get("origin")) or not BuildGeometry.point(draft.get("size"),true) or int(draft.size[0])>96 or int(draft.size[1])>96:
 					_fail("房间原点或尺寸无效")
 					return
+				_low = Vector2i(int(draft.origin[0]),int(draft.origin[1]))
+				_high = _low+Vector2i(int(draft.size[0]),int(draft.size[1]))-Vector2i.ONE
+				if _low.x<0 or _low.y<0 or _high.x>=96 or _high.y>=96:
+					_fail("房间内格超出本层96×96范围")
+					return
+				if not _minimum_rectangle(_high-_low+Vector2i.ONE): return
+				# An integer origin/positive size already proves every generated
+				# row is unique, connected and hole-free. Materialize in bounded
+				# rows without per-cell hashing or a second flood of the same box.
+				_phase = "collect_rectangle"
+				return
 			_phase = "collect"
+		"collect_rectangle":
+			if _cursor>=int(draft.size[1]):
+				_finish_rectangle()
+				return
+			for x: int in range(_low.x,_high.x+1):
+				_actual.append([x,_low.y+_cursor])
+			_cursor += 1
 		"collect":
 			var total: int = draft.cells.size() if draft.has("cells") else int(draft.size[0])*int(draft.size[1])
 			if _cursor>=total:
+				# Collection already proved unique in-bounds cells. Filling the
+				# bounding rectangle proves continuity, no holes and the minimum.
+				var dimensions: Vector2i = _high-_low+Vector2i.ONE
+				if _actual.size()==dimensions.x*dimensions.y:
+					if not _minimum_rectangle(dimensions): return
+					_actual.sort_custom(func(a: Array,b: Array) -> bool: return a[1]<b[1] or (a[1]==b[1] and a[0]<b[0]))
+					_finish_rectangle()
+					return
 				_queue = [Vector2i(int(_actual[0][0]),int(_actual[0][1]))]
 				_seen[_queue[0]] = true
 				_cursor = 0
@@ -190,7 +216,10 @@ func _step(world: WorldState) -> void:
 				_finish(_plan,world)
 				return
 			_candidate = _plan.candidate
-			_source = service._scratch(world)
+			# Occupancy and previous-layout safety are read-only. The next slice
+			# revalidates all dependencies before reading this original source;
+			# only the candidate owns edited layout, never a second deep copy.
+			_source = world
 			dependency_key = dependencies(world)
 			var ignored: Array = []
 			for id: String in _plan.changed_ids:
@@ -199,8 +228,14 @@ func _step(world: WorldState) -> void:
 			for id: String in _plan.changed_ids:
 				if _candidate.facts.rooms.has(id):
 					var room: Dictionary = _candidate.facts.rooms[id]
-					for cell: Array in BuildGeometry.cells(room):
-						_room_checks.append({"room_id":id,"floor_id":int(room.floor_id),"cell":cell,"ignored":ignored})
+					if not room.has("cells") or room.cells.size()==int(room.size[0])*int(room.size[1]):
+						# A complete row has exactly the union of its unit cells;
+						# keep each row as a bounded occupancy/safety work unit.
+						for y: int in range(int(room.origin[1]),int(room.origin[1])+int(room.size[1])):
+							_room_checks.append({"room_id":id,"floor_id":int(room.floor_id),"rect":Rect2(float(room.origin[0]),y,float(room.size[0]),1),"ignored":ignored})
+					else:
+						for cell: Array in BuildGeometry.cells(room):
+							_room_checks.append({"room_id":id,"floor_id":int(room.floor_id),"rect":Rect2(float(cell[0]),float(cell[1]),1,1),"ignored":ignored})
 				if _candidate.facts.facilities.has(id):
 					_facility_checks.append(id)
 			for room: Dictionary in _candidate.facts.rooms.values():
@@ -218,12 +253,12 @@ func _step(world: WorldState) -> void:
 				return
 			var check: Dictionary = _room_checks[_cursor]
 			_cursor += 1
-			var collision: Dictionary = BuildGeometry.occupied_error(_source,service.space,check.floor_id,[Rect2(float(check.cell[0]),float(check.cell[1]),1,1)],check.ignored)
+			var collision: Dictionary = BuildGeometry.occupied_error(_source,service.space,check.floor_id,[check.rect],check.ignored)
 			if not collision.ok:
 				_finish(collision,world)
 				return
 			for other: Dictionary in _candidate.facts.rooms.values():
-				if other.id!=check.room_id and int(other.floor_id)==int(check.floor_id) and BuildGeometry.contains(other,check.cell):
+				if other.id!=check.room_id and int(other.floor_id)==int(check.floor_id) and BuildGeometry.intersects_room(check.rect,other):
 					_fail("房间内格与实际房间重叠")
 					return
 		"facility_occupancy":
@@ -255,6 +290,16 @@ func _step(world: WorldState) -> void:
 			var safety: Dictionary = service.actor_safety(_source,_candidate,_candidate.facts.actors[id])
 			if not safety.ok:
 				_finish(safety,world)
+
+func _minimum_rectangle(dimensions: Vector2i) -> bool:
+	if dimensions.x>=int(_minimum[0]) and dimensions.y>=int(_minimum[1]) or dimensions.x>=int(_minimum[1]) and dimensions.y>=int(_minimum[0]): return true
+	_fail("房型需要至少%d×%d的完整内接矩形" % [int(_minimum[0]),int(_minimum[1])])
+	return false
+
+func _finish_rectangle() -> void:
+	var dimensions: Array = [_high.x-_low.x+1,_high.y-_low.y+1]
+	_shape = {"ok":true,"cells":_actual,"origin":[_low.x,_low.y],"size":dimensions,"wall_edges":BuildGeometry.room_walls({"origin":[_low.x,_low.y],"size":dimensions})}
+	_phase = "prepare"
 
 func _flood_unit(filled: bool, low: Vector2i, high: Vector2i) -> void:
 	var current: Vector2i = _queue[_cursor]

@@ -14,7 +14,7 @@ pwsh -NoProfile -File tools/performance/acceptance/decode-raw-etl.ps1 -Etl '<场
 大型trace可只展开需要的事件ID，减少JSON体积；C#仍读完该ETL并保留所有DxgKrnl回调的原序号，筛选不会重编号：
 
 ```powershell
-pwsh -NoProfile -File tools/performance/acceptance/decode-raw-etl.ps1 -Etl '<场次>/allocation/dxgkrnl.etl' -Schema '<场次>/allocation/provider-schema.json' -EventIds '27,28,29,33,34,35,36,37,38,39,78,110,320,321,367,371,373,374' -Output '<新目录>/allocation-events.ndjson'
+pwsh -NoProfile -File tools/performance/acceptance/decode-raw-etl.ps1 -Etl '<场次>/allocation/dxgkrnl.etl' -Schema '<场次>/allocation/provider-schema.json' -EventIds '27,28,29,33,34,35,36,37,38,39,78,110,320,321,364,365,367,371,373,374' -Output '<新目录>/allocation-events.ndjson'
 ```
 
 EventIds为逗号分隔的十进制ID字符串；缺省时输出所有DxgKrnl记录。输出目录必须已存在，NDJSON及`.meta.json`均不可覆盖。自检只编译C#和处理合成字节；可用`-Output '<新文件>.json'`保存自检结果，默认不向工具目录写文件。
@@ -38,5 +38,7 @@ schema以精确ID+Version匹配，已知Task/Opcode必须一致。字段按ETW p
 - 参数、schema格式或编译错误可能在创建输出前终止；缺少最终meta同样按未完成处理，不能仅凭已有NDJSON判成功。
 
 原始QPC可与同一捕获、同boot的原生QPC联结，仍须核对该场次PID/启动身份、频率、窗口、提前armed和完整tail。27/29提供设备映射，28/39为生命周期线索；解码器仅提供原字段。33的creator、36/37的hProcessId或header_pid都不能自动替代设备所属进程；39也不能替代34释放全局bytes。实际所有权、共享去重、代次、rundown及驻留由ledger另行核对。
+
+364按原PageCount读取有界UInt64 PFN数组，365结束当前backing区段；重锁形成新周期，不累加为新全局分配。相同全局handle跨适配器、混合PID/TID、重复PFN、缺少TID、数组长度不符或未知extent均保留歧义。没有lock记录不表示分配为0；backing字节匹配不证明唯一物理页驻留。完整资格还要求真实Present边界、全部事件族、原始来源和生命周期覆盖，不能由backing局部verified提升。
 
 真实B1-r3故障trace已用该接口有界验证27/28/29/39/110共1615条全部解码，文件读取/关闭成功、clock=1、PerfFreq=10000000、文件loss为0。该场未进入正式窗口，此验证只证明解码接口，不构成图形预算或正式性能通过。最初的完整raw reader还完成了短probe与该实际ETL的全文件读取；未知事件保持incomplete。

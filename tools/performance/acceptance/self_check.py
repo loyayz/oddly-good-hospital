@@ -166,11 +166,14 @@ class OfflineChecks(unittest.TestCase):
             "result":{"RawFileReadComplete":True,"ProcessStatus":0,"CloseStatus":0,"FirstRawTimestamp":0,"LastRawTimestamp":106000000,
                       "TraceHeader":{"reserved_flags_clock_type":1,"perf_frequency":1000000,"events_lost":0,"buffers_lost":0,"end_time_filetime":1}}})
         value = {"schema_version":2,"kind":"dxgkrnl_allocation_ledger","status":"incomplete","target_pid":7,"target_start_utc_ticks":123,"qpc_frequency":1000000,
-            "allocation_identity":{"status":"verified"},"allocation_accounting":{"status":"verified" if complete else "incomplete","backend_coverage_verified":complete,"unreleased_observed_globals_included":True},
+            "allocation_identity":{"status":"verified"},"allocation_accounting":{"status":"verified" if complete else "incomplete","backend_coverage_verified":complete,"unreleased_observed_globals_included":True,
+                "upper_bound_allocated_bytes":100,
+                "qualification_checks":dict.fromkeys(("preserved_raw_event_provenance","complete_raw_qpc_decode","target_identity_and_alias_join","all_process_alias_capture","all_required_event_families_armed","saved_schema_covers_interpreted_versions","formal_actual_display_window","all_target_global_sizes_joined","no_event_or_identity_gaps","backing_extent_records_unambiguous","unreleased_globals_included","positive_formal_extent_upper_bound","unattributed_kernel_extents_bounded"),complete)},
+            "allocations":[{"adapter_pointer":"0x1","physical_adapter_index":0}],
             "peak_coverage_complete":complete,"shared_dedup_verified":complete,"formal_window":window,"raw_qpc_verified":True,
             "raw_qpc_checks":dict.fromkeys(("decoder_raw_qpc_valid","full_etl_read_complete","process_and_close_succeeded","qpc_header_clock","zero_file_loss","all_interpreted_events_have_raw_qpc","one_matching_positive_frequency"),True),
             "input_provenance":{"verified":True,"checks":dict.fromkeys(("events_hash_matches_decode_output","schema_hash_matches_decode_input","etl_input_unchanged_during_decode","supplemental_provenance_verified","required_event_families_in_decode_selection"),True)},
-            "os_aggregate_counters":[{"kind":"usage","continuous":True,"samples":1,"adapter_identity":{"AdapterLuid":"0x1","VendorID":32902,"DeviceID":32085},
+            "os_aggregate_counters":[{"kind":"usage","adapter_pointer":"0x1","continuous":True,"samples":1,"adapter_identity":{"AdapterLuid":"0x1","VendorID":32902,"DeviceID":32085},
                 "physical_adapter_index":0,"memory_segment_group":0,"observed_peak_bytes":90,"formal_window":{**window,"observed_peak_bytes":80}}],
             "sources":[{"path":name,"sha256":digest(name)} for name in ("capture.json","allocation/trace.json","allocation/provider-schema.json","raw-events.ndjson","raw-events.ndjson.meta.json")]}
         write("allocation-ledger.json",value)
@@ -266,6 +269,18 @@ class OfflineChecks(unittest.TestCase):
         self.assertFalse(result["verified"])
         self.assertEqual(result["os_residency_view_status"],"incomplete")
         self.assertFalse(result["os_aggregate_counters"][0]["added_to_allocated_bytes"])
+
+    def test_one_adapter_usage_does_not_cover_another_target_adapter(self):
+        root = self.full_fixture(); ledger = self.ledger_fixture(root,True)
+        ledger["allocations"].append({"adapter_pointer":"0x2","physical_adapter_index":1})
+        self.save_ledger(root,ledger)
+        self.assertFalse(self.graphics(root)["verified"])
+
+    def test_summary_flags_cannot_replace_accounting_qualification_checks(self):
+        root = self.full_fixture(); ledger = self.ledger_fixture(root,True)
+        ledger["allocation_accounting"]["qualification_checks"].pop("all_required_event_families_armed")
+        self.save_ledger(root,ledger)
+        self.assertFalse(self.graphics(root)["verified"])
 
     def test_decoder_header_clock_and_loss_are_independently_rechecked(self):
         for field, value in (("reserved_flags_clock_type",2),("events_lost",1)):

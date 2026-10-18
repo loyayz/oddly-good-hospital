@@ -82,7 +82,9 @@ const CASES: Dictionary = {
 	"SPACE-47":"docs/design/08-hospital-life.md §11；整备房间按真实格形判断身体相交，不将凹角空白当房间",
 	"SPACE-48":"docs/design/04-technical.md §6/§13；设施阻挡查询复用真实展开索引，候选隔离且实际预约立即失效",
 	"SPACE-49":"docs/design/08-hospital-life.md 候诊与家属；只读候选保原定义、票序与随机流，失败入院不生成身份",
-	"SPACE-50":"docs/data/balance.json seat_choice；自动候诊只以保守路程下界严格排除超30秒座位，完整报价与手动选择不变"
+	"SPACE-50":"docs/data/balance.json seat_choice；自动候诊只以保守路程下界严格排除超30秒座位，完整报价与手动选择不变",
+	"SPACE-51":"docs/design/04-technical.md §6；参考层内与完整旅程缓存按预约通行权限隔离，同权限跨主体共享",
+	"SPACE-52":"docs/design/04-technical.md §3大面积预览；完整合法最大矩形、井道失败、相关重启与取消、共享原帧预算"
 }
 
 var content: HospitalContent
@@ -1614,6 +1616,11 @@ func _case_50(_t) -> Dictionary:
 		shapes.append({"rotation":turn,"symptom_clearance":geometry.clearance(world.facts.actors[symptom.actor_id]),"patient_cell":fit.get("patient_cell",[]),"bound_ticks":bound,"outward_ticks":quote.get("travel_ticks",-1),"same_complete_candidates":same,"ok":shape_ok})
 	return _done(sim,ok,{"strict_budget_boundary_and_return":rows,"symptom_rotation_custom_and_current_targets":shapes})
 
+func _case_51(_t) -> Dictionary:
+	var sim: HospitalSimulation = _fixture()
+	var result: Dictionary = preload("res://tests/acceptance/reference_route_permissions.gd").new().run_case(sim,content)
+	return _done(sim,result.ok,result.details)
+
 func _waiting_visit(sim: HospitalSimulation, id: String, cell: Array, binding_id: String = "") -> Dictionary:
 	var binding: Dictionary = content.definition("treatment_bindings",binding_id) if not binding_id.is_empty() else {}
 	for candidate: Dictionary in content.catalog.treatment_bindings:
@@ -1631,6 +1638,9 @@ func _waiting_visit(sim: HospitalSimulation, id: String, cell: Array, binding_id
 	sim.world.register_visit(id)
 	sim.clinic._queue(sim.world,visit,"gp")
 	return visit
+
+func _case_52(_t) -> Dictionary:
+	return preload("res://tests/acceptance/preview_computation.gd").run(content)
 
 func _fixture(preset: bool = false, cash: int = 1000000) -> HospitalSimulation:
 	_sequence += 1

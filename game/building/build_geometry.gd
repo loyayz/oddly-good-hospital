@@ -155,12 +155,19 @@ static func intersects_room(rect: Rect2, room: Dictionary) -> bool:
 	return intersects_cells(rect,room.cells)
 
 static func occupied_error(world: WorldState, space: HospitalSpace, floor_id: int, rects: Array, ignored_ids: Array = []) -> Dictionary:
+	# One read-only occupancy query uses one view of the floor's completed plots.
+	# Rebuilding that list for every cell repeats interval/plot ID work on large
+	# rectangles; the ownership predicate and full cell coverage stay exact.
+	var owned_plots: Dictionary = {}
+	for plot: Array in HospitalSpace.floor_plots(world,floor_id):
+		owned_plots[Vector2i(int(plot[0]),int(plot[1]))] = true
+	var blocked: Array = world.facts.floors.overrides.get(str(floor_id),{}).get("blocked",[])
 	for rect: Rect2 in rects:
 		for x: int in range(floori(rect.position.x),ceili(rect.end.x)):
 			for y: int in range(floori(rect.position.y),ceili(rect.end.y)):
-				if not space.owned(world,floor_id,Vector2i(x,y)):
+				if floor_id<1 or x<0 or y<0 or x>=96 or y>=96 or not owned_plots.has(Vector2i(x/32,y/32)):
 					return failure("占地未购入或楼板尚未完成",[[x,y]])
-				if [x,y] in world.facts.floors.overrides.get(str(floor_id),{}).get("blocked",[]):
+				if [x,y] in blocked:
 					return failure("占地有真实结构阻挡",[[x,y]])
 		if floor_id==1 and rect.intersects(Rect2(47,93,3,3),false):
 			return failure("入口3×3缓冲区和南侧安全出口必须保留",[[47,93]])

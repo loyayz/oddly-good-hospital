@@ -26,7 +26,9 @@ clock_sample实际执行native QPC→engine_us→native QPC。对历史engine端
 
 OS窗口观测工作集/私有提交、实际轮询间隔、进程生命周期内核峰值分别报告。窗口后同PID的内核生命周期峰值覆盖窗口内的瞬时工作集/提交峰值，能提供上界；它不能改名为窗口局部精确峰值。生命周期峰值超目标而窗口轮询未超时，需定位峰值归属，不能直接说该窗口失败或忽略它。
 
-图形证据不会由PID总计或payload推导。graphics-evidence.json只有明确verified、相同PID/完整窗口覆盖、已保留且哈希一致的allocation_identity_sources、shared_dedup_verified、unreleased_included与实际peak_allocated_bytes才参与图形预算判断。这些字段应由真实事件/资源所有者核查结果生成，不能手填通过来绕过ledger缺项。gpu-ledger.py当前能力和状态由它自己的实际证据决定；缺失rawQPC、rundown或驻留/后端语义时不升为完整图形验收。
+图形证据不会由PID总计或payload推导。`allocation-ledger.json`的schema2区分已观测身份、完整资格、正式窗口和OS内存视图。`gpu-ledger.py`只有在原始来源、完整rawQPC、目标生命周期、全进程别名事件族、保存的schema、实际Present窗口、全部目标大小、无身份缺口、无歧义backing及未释放分配保留均成立时，才给出全局分配extent的保守上界资格。目标adapter上缺少目标alias/backing关联的PID0/PID4/未知来源global单列为未归属kernel范围，不能默认成本为0；其完整extent峰上界与目标图峰上界相加作为更保守的backend界。任一未知大小或边界缺失继续incomplete。未知flag不用于排除分配，页表同样计入；同一adapter/global/lifetime的进程/设备别名只算一次，其他global之间的物理页不声称互不重叠。该上界≤预算可证明资源在目标内；上界超过预算不能据此断言精确物理驻留超标。物理驻留值继续为null，不把分配、backing、commitment、usage、工作集相加。
+
+`analyze.py`重新核对原ETL、decode/schema/capture哈希、进程启动身份、QPC及全部资格字段，并要求每个目标adapter/physical-adapter内存域都有同窗口连续usage视图。该OS视图按LUID、physical-adapter、memory-segment-group报告，跨GPU engine node统计，不冒充逐engine-node物理驻留。仅有commitment或另一个适配器的usage不满足该条件。旧场次没有正式窗口时继续incomplete，已知序列峰值不参与512MiB结论。
 
 已有ETL通过[原始事件解码器](DECODING.md)读取真实Header.TimeStamp和PerfFreq，Get-WinEvent的SystemTime继续只作旁证。解码成功只证明所选记录可读取；未知模板、动态布局或文件丢失保留incomplete，不推导资源验收。所有者与共享分配仍按同场设备/全局allocation生命周期联结。
 

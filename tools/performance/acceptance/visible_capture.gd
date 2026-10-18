@@ -354,8 +354,9 @@ func _verify_settings() -> bool:
 	if config.has("render_driver") and str(actual.render_driver)!=str(config.render_driver):
 		_fail("Actual render driver differs from scenario")
 		return false
-	if actual.root_logical_extent!=actual.window_pixels:
-		_emit("coverage_gap", {"metric":"native unscaled UI extent","reason":"product canvas stretch retains a logical extent different from physical window; actual settings preserved","settings":actual})
+	if not actual.native_2d_output or not actual.scene_output_matches_control:
+		_fail("Actual 2D output or nested scene texture differs from physical display region: "+JSON.stringify(actual))
+		return false
 	return true
 
 func _screenshot(name: String) -> bool:
@@ -537,7 +538,14 @@ func _settings() -> Dictionary:
 	var window: Vector2i = DisplayServer.window_get_size()
 	var scene: Vector2i = app._viewport.size
 	var logical: Vector2 = app.get_viewport_rect().size
-	return {"window_pixels":[window.x,window.y],"root_logical_extent":[logical.x,logical.y],"content_scale_size":[root.content_scale_size.x,root.content_scale_size.y],"content_scale_mode":root.content_scale_mode,"canvas_transform":str(app.get_global_transform_with_canvas()),"scene_viewport_pixels":[scene.x,scene.y],"scene_scale":app._viewport.scaling_3d_scale,"scene_allocated_pixels":"unavailable_without_actual_backend_corroboration","ui_scale_percent":app._ui_scale*100,"renderer":RenderingServer.get_current_rendering_method(),"render_driver":RenderingServer.get_current_rendering_driver_name(),"gpu":RenderingServer.get_video_adapter_name(),"refresh_hz":DisplayServer.screen_get_refresh_rate(),"vsync":DisplayServer.window_get_vsync_mode(),"max_fps":Engine.max_fps,"observed_floor":app._observed_floor,"camera_size":app._view.camera.size,"camera_transform":str(app._view.camera.global_transform)}
+	var screen: Transform2D = app._world_container.get_screen_transform()
+	var physical: Vector2 = app._world_container.size*Vector2(screen.x.length(),screen.y.length())
+	var expected: Vector2i = Vector2i(ceili(physical.x),ceili(physical.y))
+	var root_texture: Vector2i = Vector2i(root.get_texture().get_size())
+	var scene_texture: Vector2i = Vector2i(app._viewport.get_texture().get_size())
+	var root_stretch: Transform2D = root.get_stretch_transform()
+	var root_physical: Vector2i = Vector2i((logical*Vector2(root_stretch.x.length(),root_stretch.y.length())).ceil())
+	return {"window_pixels":[window.x,window.y],"root_logical_extent":[logical.x,logical.y],"content_scale_size":[root.content_scale_size.x,root.content_scale_size.y],"content_scale_mode":root.content_scale_mode,"canvas_transform":str(app.get_global_transform_with_canvas()),"root_raster_texture_pixels":[root_texture.x,root_texture.y],"root_canvas_physical_extent":[root_physical.x,root_physical.y],"native_2d_output":root.content_scale_mode==Window.CONTENT_SCALE_MODE_CANVAS_ITEMS and root_texture==root_physical,"scene_control_logical_extent":[app._world_container.size.x,app._world_container.size.y],"scene_control_physical_extent":[physical.x,physical.y],"scene_control_screen_transform":str(screen),"scene_viewport_pixels":[scene.x,scene.y],"scene_output_texture_pixels":[scene_texture.x,scene_texture.y],"scene_output_matches_control":scene==expected and scene_texture==scene,"scene_scale":app._viewport.scaling_3d_scale,"scene_allocated_pixels":"unavailable_without_actual_backend_corroboration","ui_scale_percent":app._ui_scale*100,"renderer":RenderingServer.get_current_rendering_method(),"render_driver":RenderingServer.get_current_rendering_driver_name(),"gpu":RenderingServer.get_video_adapter_name(),"refresh_hz":DisplayServer.screen_get_refresh_rate(),"vsync":DisplayServer.window_get_vsync_mode(),"max_fps":Engine.max_fps,"observed_floor":app._observed_floor,"camera_size":app._view.camera.size,"camera_transform":str(app._view.camera.global_transform)}
 
 func _ack(state: String) -> void:
 	var sampled: Dictionary = _clock()

@@ -4,13 +4,20 @@ extends RefCounted
 class Cancellation extends RefCounted:
 	var _mutex: Mutex = Mutex.new()
 	var _requested: bool = false
+	var _requested_us: int = 0
 	func request() -> void:
 		_mutex.lock()
+		if not _requested: _requested_us = Time.get_ticks_usec()
 		_requested = true
 		_mutex.unlock()
 	func requested() -> bool:
 		_mutex.lock()
 		var value: bool = _requested
+		_mutex.unlock()
+		return value
+	func requested_at_us() -> int:
+		_mutex.lock()
+		var value: int = _requested_us
 		_mutex.unlock()
 		return value
 
@@ -46,12 +53,7 @@ func poll(dispatch: bool = true) -> void:
 			_completed = {"input":_active,"projection":finished.projection}
 			_completed_id = _active_id
 			if _completed_id==_sealed_id: _sealed_result = _completed.projection
-		_metrics.jobs += 1
-		_metrics.latest_worker_us = finished.elapsed_us
-		_metrics.worker_wall_us += finished.elapsed_us
-		if finished.has("cpu_us"):
-			_metrics.worker_cpu_us += int(finished.cpu_us)
-			_metrics.cpu_measured_jobs += 1
+		_record_worker(finished)
 		if not _latest.is_empty() and not _same_input(_active,_latest) and (_sealed.is_empty() or not _same_input(_active,_sealed)):
 			_metrics.obsolete_jobs = int(_metrics.get("obsolete_jobs",0))+1
 			_metrics.obsolete_cpu_us = int(_metrics.get("obsolete_cpu_us",0))+int(finished.get("cpu_us",0))
@@ -148,6 +150,18 @@ func _poll_request(request_id: int) -> Dictionary:
 func metrics() -> Dictionary:
 	return _metrics.duplicate()
 
+func _record_worker(finished: Dictionary) -> void:
+	_metrics.jobs += 1
+	_metrics.latest_worker_us = finished.elapsed_us
+	_metrics.worker_wall_us += finished.elapsed_us
+	if finished.has("cpu_us"):
+		_metrics.worker_cpu_us += int(finished.cpu_us)
+		_metrics.cpu_measured_jobs += 1
+	if finished.projection.get("cancelled",false):
+		_metrics.cancelled_jobs = int(_metrics.get("cancelled_jobs",0))+1
+		_metrics.cancel_response_us = int(finished.get("cancel_response_us",0))
+		_metrics.max_cancel_response_us = maxi(int(_metrics.get("max_cancel_response_us",0)),int(_metrics.cancel_response_us))
+
 func _record_main(started: int) -> void:
 	var elapsed: int = Time.get_ticks_usec()-started
 	_metrics.requests += 1
@@ -179,8 +193,11 @@ func dispose() -> void:
 	if _thread!=null:
 		# Finish the current case or native call normally, then stop before the
 		# next unit. Replacing latest or retaining a sealed consumer never cancels.
+		var started: int = Time.get_ticks_usec()
 		if _active_cancellation!=null: _active_cancellation.request()
-		_thread.wait_to_finish()
+		var finished: Variant = _thread.wait_to_finish()
+		_metrics.dispose_wait_us = Time.get_ticks_usec()-started
+		if finished is Dictionary and finished.has("projection") and finished.has("elapsed_us"): _record_worker(finished)
 		_thread = null
 	_active_cancellation = null
 	_worker = null
@@ -205,6 +222,7 @@ func _compute(input: Dictionary, cancellation: Cancellation = null) -> Dictionar
 	var stop: Callable = cancellation.requested if cancellation!=null else Callable()
 	var projection: Dictionary = _worker.capacity(WorldState.new(input.facts),input.subtract_existing,stop)
 	var result: Dictionary = {"projection":projection,"elapsed_us":Time.get_ticks_usec()-started}
+	if cancellation!=null and cancellation.requested(): result.cancel_response_us = Time.get_ticks_usec()-cancellation.requested_at_us()
 	var cpu_finished: Dictionary = PlatformArrivalMath.thread_cpu()
 	if cpu_started.has("cpu_us") and cpu_finished.has("cpu_us"): result.cpu_us = int(cpu_finished.cpu_us)-int(cpu_started.cpu_us)
 	return result
