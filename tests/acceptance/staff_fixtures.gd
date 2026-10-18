@@ -42,6 +42,7 @@ func _bind(world: WorldState) -> Dictionary:
 		x[key].ensure(world)
 	x.c.recruitment = x.r
 	x.l.environment = x.e
+	x.l.visitors = x.c.visitors
 	x.p.environment = x.e
 	x.p.waiting_life = x.l
 	return x
@@ -155,7 +156,7 @@ func _visit(x: Dictionary, id: String = "visit", cell: Array = [38,76], personal
 	return visit
 
 func _seat_checkpoint(x: Dictionary, visit: Dictionary, facility_id: String) -> bool:
-	var reason: String = x.space.reserve_facility(x.world,facility_id,visit.actor_id,visit.ticket_id)
+	var reason: String = x.space.reserve_facility(x.world,facility_id,visit.actor_id,visit.actor_id)
 	if not reason.is_empty():
 		return false
 	var layout: Dictionary = x.space.facility_layout(x.world,facility_id)
@@ -163,7 +164,7 @@ func _seat_checkpoint(x: Dictionary, visit: Dictionary, facility_id: String) -> 
 	x.world.facts.actors[visit.actor_id].posture = "seated"
 	x.world.facts.actors[visit.actor_id].support_facility_id = facility_id
 	x.world.facts.waiting_life.seats[visit.id] = {"facility_id":facility_id,"actor_id":visit.actor_id,"ticket_id":visit.ticket_id,
-		"phase":"seated","continuous_ticks":0}
+		"phase":"seated","continuous_ticks":0,"id":"seat_"+visit.id,"public_purpose":"seat","mode":"manual","manual_facility_id":facility_id,"area":x.space.public_areas.for_facility(x.world,facility_id),"arrived_tick":x.world.sim_tick,"started_tick":x.world.sim_tick,"area_travel_ticks":0}
 	x.space.sync_actor(x.world,visit.actor_id)
 	return true
 

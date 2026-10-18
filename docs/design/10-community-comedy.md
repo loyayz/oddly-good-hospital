@@ -96,7 +96,7 @@ InteractionContext来自模拟层的类型化信号，目录predicate是可读�
 
 | producer_id | 何时产生事实 | 使用的上下文 |
 | --- | --- | --- |
-| queue_claim | 队列询问或同tick座位请求仲裁产生分歧；不撤销合法胜者的预约 | shared_resource_claim、queue_order_dispute |
+| queue_claim | 队列询问或同tick到场取位仲裁产生分歧；不撤销合法胜者的实际使用权 | shared_resource_claim、queue_order_dispute |
 | social_offer | 候诊邀请动作被对方接受或拒绝时 | sunshade_prop_misread、wet_seat_invitation、ribbon_handshake、greeting_turn_dispute、spoon_prank_refused、shoulder_rest_request、warm_greeting、flower_hat_exchange、water_arc_invitation |
 | idle_prop | 获准日常动作在模拟工作阶段完成其指定道具动作 | shadow_seat_overlap、pocket_overflow、sneeze_buildup、loose_ribbon_borrowed、decorative_sand_dropped、calendar_yawn、bookmark_dropped |
 | prop_contact | 移动后检查两个已存在演出道具的注册包络，身体仍由正常避让负责 | tail_prop_contact、magnetic_badge_contact、ticket_ribbon_contact、wet_footprints_overlap |

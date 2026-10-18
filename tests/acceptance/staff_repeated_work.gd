@@ -20,12 +20,6 @@ class Wellbeing extends HospitalStaffWellbeing:
 		occupancy_calls += 1
 		return super._patient_occupies(world,facility_id,view)
 
-# This control discards only the caller's tea result, reproducing the former
-# second enumeration. All cells, routes, selection and movement stay real.
-class DoubleTea extends Wellbeing:
-	func _select_facility(world: WorldState, staff_id: String, kind: String, _query: Dictionary = {}) -> Dictionary:
-		return super._select_facility(world,staff_id,kind,{})
-
 class Recruitment extends RecruitmentService:
 	var card_calls: int = 0
 	var preview_calls: int = 0
@@ -65,24 +59,15 @@ func _tea() -> Dictionary:
 	_facility(x,"public_chair","FUR09",[44,80])
 	x.world.facts.staff.searcher.energy = 35.0
 	x.world.touch()
-	var input: Dictionary = x.world.freeze()
-	var current_space: Routes = Routes.new(_content)
-	var old_space: Routes = Routes.new(_content)
-	var current: Wellbeing = Wellbeing.new(_content,current_space)
-	var old: DoubleTea = DoubleTea.new(_content,old_space)
-	var control: WorldState = WorldState.new(input.duplicate(true))
+	var geometry: Routes = Routes.new(_content)
+	var current: Wellbeing = Wellbeing.new(_content,geometry)
+	current.ensure(x.world)
 	current._begin(x.world,"searcher","rest")
-	old._begin(control,"searcher","rest")
 	var actual: Dictionary = x.world.facts.staff.searcher.life_task
-	var equal: bool = x.world.freeze()==control.freeze()
-	var one: bool = current.tea_calls==1 and old.tea_calls==2 and current_space.dynamic_batches==1 and old_space.dynamic_batches==2
-	var actual_move: bool = actual.get("tea",false) and actual.phase=="travel" and x.world.facts.moves.has("searcher")
-	var eligibility_world: WorldState = WorldState.new(input.duplicate(true))
-	var eligible: Wellbeing = Wellbeing.new(_content,HospitalSpace.new(_content))
-	var before: Dictionary = eligibility_world.freeze()
-	eligible._select_facility(eligibility_world,"searcher","sleep")
-	var filtered: bool = eligible.occupancy_calls==1 and eligibility_world.facts.facilities.size()==2 and before==eligibility_world.freeze()
-	return {"ok":equal and one and actual_move and filtered,"whole_facts_rng_equal":equal,"real_move_requested":actual_move,"tea_calls":current.tea_calls,"control_tea_calls":old.tea_calls,"route_calls":current_space.route_calls,"control_route_calls":old_space.route_calls,"dynamic_batches":current_space.dynamic_batches,"sleep_occupancy_queries":eligible.occupancy_calls,"all_facilities":eligibility_world.facts.facilities.size(),"sleep_query_readonly":before==eligibility_world.freeze()}
+	var no_remote: bool = actual.phase=="area_travel" and actual.facility_id=="" and x.world.facts.staff_life.reservations.is_empty() and current.tea_calls==0
+	var before: Dictionary = x.world.freeze()
+	var bed: Dictionary = current._select_facility(x.world,"searcher","sleep")
+	return {"ok":no_remote and not bed.is_empty() and before==x.world.freeze() and current.occupancy_calls==1,"area_travel_without_global_tea_search":no_remote,"tea_calls_before_arrival":current.tea_calls,"sleep_only_own_bed":bed,"sleep_occupancy_queries":current.occupancy_calls,"sleep_query_readonly":before==x.world.freeze()}
 
 func _status() -> Dictionary:
 	var x: Dictionary = _fixture()
@@ -130,9 +115,9 @@ func _occupancy_expected(world: WorldState, facility_id: String, actor_id: Strin
 	for actor: Dictionary in world.facts.actors.values():
 		if actor.id!=actor_id and actor.get("support_facility_id","")==facility_id: return true
 	for seat: Dictionary in world.facts.waiting_life.seats.values():
-		if seat.facility_id==facility_id and seat.actor_id!=actor_id: return true
+		if seat.phase=="seated" and seat.facility_id==facility_id and seat.actor_id!=actor_id: return true
 	for need: Dictionary in world.facts.waiting_life.needs.values():
-		if need.get("facility_id","")==facility_id and world.facts.visits[need.visit_id].actor_id!=actor_id: return true
+		if need.phase in ["using","returning"] and need.get("facility_id","")==facility_id and world.facts.visits[need.visit_id].actor_id!=actor_id: return true
 	for session: Dictionary in world.facts.sessions.values():
 		if session.facility_id==facility_id: return true
 	return world.facts.staff_life.reservations.has(facility_id)
@@ -149,9 +134,11 @@ func _occupancy() -> Dictionary:
 		actual.append(x.l._occupied(x.world,"chair",id))
 	x.space.end_route_query()
 	var self_free: bool = not actual[0] and actual[1]
-	x.world.facts.waiting_life.seats.other = {"facility_id":"chair","actor_id":"other"}
+	x.world.facts.waiting_life.seats.other = {"facility_id":"chair","actor_id":"other","phase":"local_travel"}
+	var unclaimed: bool = not x.l._occupied(x.world,"chair","owner")
+	x.world.facts.waiting_life.seats.other.phase = "seated"
 	var changed: bool = x.l._occupied(x.world,"chair","owner")
-	return {"ok":expected==actual and self_free and changed,"comparisons":actual.size(),"own_reservation_exemption":self_free,"next_query_observes_second_owner":changed}
+	return {"ok":expected==actual and self_free and unclaimed and changed,"comparisons":actual.size(),"own_reservation_exemption":self_free,"travelling_intent_has_no_occupancy":unclaimed,"next_query_observes_second_owner":changed}
 
 func _base_expected(x: Dictionary, facility_id: String, candidate: String = "") -> Array:
 	var result: Array = []

@@ -400,6 +400,8 @@ static func _typed_instance_map(path: Array[String]) -> bool:
 		return owner in ["wait_departures","adaptations"]
 	if owner=="waiting_life" and path.size()==2:
 		return field in ["seats","needs","clocks"]
+	if owner=="staff_life" and path.size()==2:
+		return field in ["personal_beds","reservations"]
 	if owner=="departments":
 		return (path.size()==2 and field in ["room_focus","routes","guidance","experience","staff_jobs"]) or (path.size()==3 and path[1]=="staff_days") or (path.size()==4 and path[1]=="experience" and field in ["retired_tickets","started_services","completed_services","staff_names"])
 	if owner=="inventory" and path.size()==3 and path[1]=="shortage":

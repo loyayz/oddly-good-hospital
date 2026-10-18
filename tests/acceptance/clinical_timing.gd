@@ -85,6 +85,7 @@ func _profile_service(simulation: HospitalSimulation, key: String) -> void:
 	var replacement: RefCounted = script.new(simulation.content,simulation.space)
 	for property: Dictionary in original.get_property_list():
 		if (int(property.usage)&PROPERTY_USAGE_SCRIPT_VARIABLE)!=0: replacement.set(property.name,original.get(property.name))
+	if key=="wellbeing": replacement.personal_beds._owner = weakref(replacement)
 	replacement.set("_acceptance_timing",self)
 	simulation.services[key] = replacement
 	var objects: Array = [simulation.clinic,simulation.clinic.visitors]+simulation.services.values()

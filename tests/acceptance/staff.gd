@@ -42,9 +42,33 @@ const CASES: Dictionary = {
 	"STAFF-39":"docs/design/11-growth-arrivals-recruitment.md §6.2、§6.4；六岗位每日简历、两日到期与关注互斥，未录用不收费",
 	"STAFF-40":"docs/design/11-growth-arrivals-recruitment.md §6.5、§6.6；真实完成与研究120秒余数成长，贡献最大者唯一领取，护士不发通用等级",
 	"STAFF-41":"docs/design/09-consultation-wellbeing.md §4；休息选址完整去返程与当前障碍，护理交接保持床位上限及实时排他",
-	"STAFF-42":"docs/design/08-hospital-life.md §17.2、§17.4；选座邻居查询保留真实路线、朋友关系、全部候选顺序与连续预约",
+	"STAFF-42":"docs/design/08-hospital-life.md §17.2、§17.4；选座邻居查询保留真实路线、朋友关系与候选顺序，手动目标到场竞争",
 	"STAFF-43":"docs/design/07-clinical-team.md §3、§11；岗位候选、结算回执、茶位及招聘窄投影保留实时资格与唯一成长",
-	"STAFF-44":"docs/design/07-clinical-team.md §8、§11；等候占用、共享桌位与基地队列复用保留实时预约与独占"
+	"STAFF-44":"docs/design/07-clinical-team.md §8、§11；等候占用、共享桌位与基地队列复用保留实时预约与独占",
+	"STAFF-45":"公共设施区域寻址规格 §2、§3；双区域自动出发无具体设施预约，真实到场本区取位",
+	"STAFF-46":"公共设施区域寻址规格 §4、§5；手动固定繁忙设施，真实释放后接续",
+	"STAFF-47":"公共设施区域寻址规格 §4；厕所短时排队、实际退出与精确45秒开用边界",
+	"STAFF-48":"公共设施区域寻址规格 §4；最后空位到场互斥，临床原票优先",
+	"STAFF-49":"公共设施区域寻址规格 §5；双人最后到场前无预约收费，必要任务取消整组",
+	"STAFF-50":"公共设施区域寻址规格 §7；公共意图保存恢复不刷新目标、起时或队序",
+	"STAFF-51":"公共设施区域寻址规格 §3；手动目标移除停止，不静默改用另一设施",
+	"STAFF-52":"公共设施区域寻址规格 §3、§4；员工区域短休，实际走路无恢复，到场本区取位",
+	"STAFF-53":"公共设施区域寻址规格 §6；个人床自动分配、长期独占与新结构恢复",
+	"STAFF-54":"公共设施区域寻址规格 §6；兼容最大匹配、缺床员工优先和稳定行程择优",
+	"STAFF-55":"公共设施区域寻址规格 §6；同身份库存保归属，正式移除释放",
+	"STAFF-56":"公共设施区域寻址规格 §6、§7；导入重映射床主、手动目标和区域身份",
+	"STAFF-57":"公共设施区域寻址规格 §4；亲友真实退出后患者取位，不同时占椅或穿身",
+	"STAFF-58":"公共设施区域寻址规格 §5；新清扫工作使未开场娱乐安全取消，完成原离位后接单",
+	"STAFF-59":"公共设施区域寻址规格 §5；开场前重核压力和同时娱乐人数，失去资格整组取消且不消费",
+	"STAFF-60":"公共设施区域寻址规格 §6；新人缺床不借，原主人离职结清且无实际使用后自动分配释放床",
+	"STAFF-61":"公共设施区域寻址规格 §3；跨层入口下界与全部合法入口的精确行程一致，预算边界不丢候选",
+	"STAFF-62":"公共设施区域寻址规格 §2、§7；实际占用与意图结束/保存后的身体退出保持合法所有者",
+	"STAFF-63":"公共设施区域寻址规格 §4；厕所连续排队20秒怒气边界，走路/使用清零，饮水不叠排队怒气",
+	"STAFF-64":"公共设施区域寻址规格 §3、§4；走向A的队首只竞争A，B可真实并行取位",
+	"STAFF-65":"公共设施区域寻址规格 §3；本区固定几何全不适配时自动换区，原起点与累计额度保持",
+	"STAFF-66":"docs/design/08-hospital-life.md §20；清洁行程由真实移动推进，途中不重复整程报价且不提前施工",
+	"STAFF-67":"公共设施区域寻址规格 §6；无主床暂受身体阻挡，实际让出后在几何不变时重试分配",
+	"STAFF-68":"公共设施区域寻址规格 §4；生活服务实际使用和返回期间不重算临床选址，真实返回后接续原票"
 }
 
 func run(t) -> void:
@@ -56,6 +80,9 @@ func run(t) -> void:
 		t.begin_case(case_id)
 		if not _content.error.is_empty():
 			t.check(case_id,false,{"content_error":_content.error})
+			continue
+		if int(case_id.right(2))>=45:
+			preload("res://tests/acceptance/public_area_use.gd").new().run(t,_content,case_id)
 			continue
 		await call("_case_"+case_id.right(2),t)
 
@@ -657,7 +684,8 @@ func _case_22(t) -> void:
 	var travelling_energy: float = doctor.energy
 	x = _restore(x)
 	doctor = x.world.facts.staff.doctor
-	var reservation_ok: bool = selected=="vitality" and no_early_recovery and travelling_energy<travel_before and doctor.life_task.facility_id==selected and x.world.facts.staff_life.reservations.size()==1
+	var reached: bool = _reach_life_phase(x,"doctor","rest")
+	var reservation_ok: bool = selected=="vitality" and no_early_recovery and travelling_energy<travel_before and reached and doctor.life_task.facility_id==selected and x.world.facts.staff_life.reservations.size()==1
 	var original_recovery: float = doctor.energy
 	x.world.facts.facilities.erase("vitality")
 	x.w.dispatch(x.world)
@@ -764,7 +792,7 @@ func _case_27(t) -> void:
 		staff.on_shift = false
 	var cash_before: int = HospitalLedger.balance(x.world)
 	var recreation: CommandResult = x.w.execute(x.world,"staff_recreation",{"staff_ids":["doctor","partner"],"facility_id":"game"})
-	var count_before_start: bool = x.world.facts.staff.doctor.recreation_count==0 and x.world.facts.staff.partner.recreation_count==0
+	var count_before_start: bool = x.world.facts.staff.doctor.recreation_count==1 and x.world.facts.staff.partner.recreation_count==1 # Both are already at their true use positions.
 	x.w.dispatch(x.world)
 	var started: bool = x.world.facts.staff.doctor.life_task.phase=="recreation" and x.world.facts.staff.doctor.recreation_count==1 and x.world.facts.staff.partner.recreation_count==1
 	_life_ticks(x,300)
@@ -827,7 +855,7 @@ func _case_29(t) -> void:
 	var legal_only: bool = choices.size()==1 and choices[0].facility_id=="public_free"
 	var chosen: CommandResult = x.l.execute(x.world,"waiting_select_seat",{"visit_id":visit.id,"facility_id":"public_free"})
 	var forbidden: CommandResult = x.l.execute(x.world,"waiting_select_seat",{"visit_id":visit.id,"facility_id":"staff_seat"})
-	t.check("STAFF-29",legal_only and chosen.accepted and not forbidden.accepted and x.world.facts.waiting_life.seats.size()==1 and x.world.facts.waiting_life.seats[visit.id].facility_id=="public_free" and x.world.facts.actors.visitor.support_facility_id=="public_occupied",{"candidates":choices,"chosen":chosen.code,"forbidden":forbidden.code})
+	t.check("STAFF-29",legal_only and chosen.accepted and not forbidden.accepted and x.world.facts.waiting_life.seats.size()==1 and x.world.facts.waiting_life.seats[visit.id].manual_facility_id=="public_free" and x.world.facts.actors.visitor.support_facility_id=="public_occupied",{"candidates":choices,"chosen":chosen.code,"forbidden":forbidden.code})
 
 func _case_30(t) -> void:
 	var x: Dictionary = _fixture()
@@ -857,7 +885,7 @@ func _case_30(t) -> void:
 	for candidate: Dictionary in shy:
 		bounded = bounded and candidate.facility_id in ["A","B"] and int(candidate.travel_ticks)<=300
 	var manual: CommandResult = x.l.execute(x.world,"waiting_select_seat",{"visit_id":visit.id,"facility_id":"D"})
-	t.check("STAFF-30",bounded and manual.accepted and x.world.facts.rng==random_before and x.world.facts.waiting_life.seats[visit.id].facility_id=="D",{"impatient":impatient,"shy":shy,"manual":manual.code})
+	t.check("STAFF-30",bounded and manual.accepted and x.world.facts.rng==random_before and x.world.facts.waiting_life.seats[visit.id].manual_facility_id=="D",{"impatient":impatient,"shy":shy,"manual":manual.code})
 
 func _case_31(t) -> void:
 	var x: Dictionary = _fixture()

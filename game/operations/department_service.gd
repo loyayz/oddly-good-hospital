@@ -657,6 +657,7 @@ func _start_guidance(world: WorldState, visit_id: String) -> bool:
 		if staff.role!="nurse" or not "q_guide" in staff.get("certificates",[]) or not staff.on_shift or staff.get("block_new_work",false) or _staff_busy(world,staff_id) or world.facts.moves.has(staff_id): continue
 		var destination: Array = _guide_position(world,visit_id,staff_id)
 		if destination.is_empty(): continue
+		if HospitalStaffWellbeing.yield_for_work(world,content,space,[staff_id]): continue
 		if waiting_life!=null and not waiting_life.call_patient(world,visit_id): return false
 		_start_guide_job(world,visit_id,staff_id,"nurse")
 		return true
@@ -690,7 +691,7 @@ func _guide_position(world: WorldState, visit_id: String, nurse_id: String) -> A
 
 func _staff_busy(world: WorldState, staff_id: String) -> bool:
 	var staff: Dictionary = world.facts.staff[staff_id]
-	if str(staff.get("life_task",{}).get("phase","idle"))!="idle" or float(staff.energy)<=15.0 or not str(staff.get("active_job_id","")).is_empty() or staff.get("block_new_work",false): return true
+	if not HospitalStaffWellbeing.work_window(staff) or float(staff.energy)<=15.0 or not str(staff.get("active_job_id","")).is_empty() or staff.get("block_new_work",false): return true
 	for session: Dictionary in world.facts.sessions.values():
 		if staff_id in session.staff_ids: return true
 	for preparation: Dictionary in world.facts.preparations.values():
@@ -730,7 +731,7 @@ func _sample_anger(world: WorldState, visit: Dictionary, data: Dictionary, provi
 	var need: Dictionary = world.facts.get("waiting_life",{}).get("needs",{}).get(visit.id,{})
 	var ticket: Dictionary = world.facts.tickets.get(visit.get("ticket_id",""),{})
 	if not need.is_empty():
-		if need.purpose=="toilet" and need.phase=="seek": active.wait_toilet = int(need.queued_ticks)
+		if need.purpose=="toilet" and need.phase=="local_wait" and not world.facts.moves.has(visit.actor_id): active.wait_toilet = int(need.queued_ticks)
 	elif world.facts.departments.guidance.has(visit.id):
 		active.wait_guidance = world.sim_tick-int(world.facts.departments.routes[visit.id].started_tick)
 	elif not ticket.is_empty() and ticket.get("pause_reasons",{}).is_empty():

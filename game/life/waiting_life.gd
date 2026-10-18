@@ -6,6 +6,7 @@ const PUBLIC_SEAT_DEFINITIONS: Array[String] = ["FUR06","FUR09","FUR10","FUR11",
 var content: HospitalContent
 var space: HospitalSpace
 var environment: RefCounted
+var visitors: HospitalVisitors
 
 func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 	content = database
@@ -38,23 +39,14 @@ func dispatch(world: WorldState) -> void:
 			continue
 		var seat: Dictionary = world.facts.waiting_life.seats.get(visit_id,{})
 		if not seat.is_empty():
-			if not world.facts.facilities.has(seat.facility_id) or not _public_seat(world,world.facts.facilities[seat.facility_id]):
-				_release_seat(world,visit_id)
-			elif not world.facts.moves.has(visit.actor_id):
-				var layout: Dictionary = space.facility_layout(world,seat.facility_id)
-				if space.at(world,visit.actor_id,int(layout.floor_id),layout.patient_cell):
-					seat.phase = "seated"
-					var actor: Dictionary = world.facts.actors[visit.actor_id]
-					actor.posture = "seated"
-					actor.support_facility_id = seat.facility_id
-					space.sync_actor(world,visit.actor_id)
-				else:
-					_release_seat(world,visit_id)
+			_dispatch_public_seat(world,visit,seat)
 			continue
 		if world.sim_tick%_ticks(content.balance.patient_behavior.scan_seconds)==0 and not world.facts.moves.has(visit.actor_id):
-			var choices: Array = seat_candidates(world,visit_id)
-			if not choices.is_empty():
-				_reserve_seat(world,visit,choices[0].facility_id)
+			var area: Dictionary = space.public_areas.select(world,visit.actor_id,PUBLIC_SEAT_DEFINITIONS,["waiting","waiting_area","public","lobby","garden",""],"seat",[],_ticks(content.balance.seat_choice.automatic_travel_seconds_max))
+			if not area.is_empty() and int(area.travel_ticks)<=_ticks(content.balance.seat_choice.automatic_travel_seconds_max):
+				var intent: Dictionary = {"id":"seat_"+visit.id,"actor_id":visit.actor_id,"ticket_id":visit.ticket_id,"facility_id":"","public_purpose":"seat","mode":"auto","area":area.area,"phase":"area_travel","continuous_ticks":0,"arrived_tick":-1,"area_travel_ticks":int(area.travel_ticks),"started_tick":world.sim_tick,"floor_id":area.floor_id,"cell":area.cell}
+				world.facts.waiting_life.seats[visit.id] = intent
+				_dispatch_public_seat(world,visit,intent)
 
 func advance(world: WorldState) -> void:
 	for visit_id: String in world.facts.get("waiting_life",{}).get("seats",{}).keys():
@@ -90,6 +82,7 @@ func call_patient(world: WorldState, visit_id: String) -> bool:
 	if not ticket.get("pause_reasons",{}).is_empty(): return false
 	if not ticket.is_empty():
 		ticket.called_tick = world.sim_tick
+	if world.facts.waiting_life.seats.get(visit_id,{}).get("phase","")!="seated": _release_seat(world,visit_id)
 	if world.facts.moves.has(visit.actor_id):
 		return false
 	_release_seat(world,visit_id)
@@ -107,12 +100,15 @@ func execute(world: WorldState, kind: String, payload: Dictionary) -> CommandRes
 		var facility_id: String = str(payload.get("facility_id",""))
 		if world.facts.moves.has(visit.actor_id):
 			return _result(world,false,"movement_in_progress","先完成当前真实移动")
-		var quote: Dictionary = _seat_quote(world,visit,facility_id)
+		var quote: Dictionary = _manual_seat_quote(world,visit,facility_id)
 		if not quote.ok:
 			return _result(world,false,"seat_unavailable",quote.reason)
 		_release_seat(world,visit_id)
-		var reason: String = _reserve_seat(world,visit,facility_id)
-		return _result(world,reason.is_empty(),"applied" if reason.is_empty() else "seat_unavailable",reason,[visit_id,facility_id])
+		var area: Dictionary = space.public_areas.for_facility(world,facility_id)
+		if area.is_empty(): return _result(world,false,"seat_unavailable","指定设施没有合法公共使用区域")
+		world.facts.waiting_life.seats[visit_id] = {"id":"seat_"+visit_id,"actor_id":visit.actor_id,"ticket_id":visit.ticket_id,"facility_id":"","manual_facility_id":facility_id,"public_purpose":"seat","mode":"manual","area":area,"phase":"area_travel","continuous_ticks":0,"arrived_tick":-1,"area_travel_ticks":0,"started_tick":world.sim_tick,"floor_id":quote.floor_id,"cell":quote.patient_cell}
+		_dispatch_public_seat(world,visit,world.facts.waiting_life.seats[visit_id])
+		return _result(world,true,"applied","",[visit_id,facility_id])
 	if kind=="waiting_release_seat":
 		_release_seat(world,visit_id)
 		return _result(world,true,"applied","",[visit_id])
@@ -126,6 +122,9 @@ func seat_candidates(world: WorldState, visit_id: String) -> Array:
 	var facility_ids: Array = []
 	for definition_id: String in PUBLIC_SEAT_DEFINITIONS:
 		facility_ids.append_array(world.facility_ids(definition_id))
+	var intent: Dictionary = world.facts.get("waiting_life",{}).get("seats",{}).get(visit_id,{})
+	if intent.has("public_purpose"):
+		facility_ids = space.public_areas.facilities(world,intent.get("area",{}),PUBLIC_SEAT_DEFINITIONS)
 	facility_ids.sort()
 	var maximum_travel_ticks: int = _ticks(content.balance.seat_choice.automatic_travel_seconds_max)
 	var actor_index: Dictionary = {}
@@ -133,7 +132,7 @@ func seat_candidates(world: WorldState, visit_id: String) -> Array:
 	for facility_id: String in facility_ids:
 		if space.facility_travel_lower_bound_ticks(world,facility_id,visit.actor_id)>maximum_travel_ticks: continue
 		var quote: Dictionary = _seat_quote(world,visit,facility_id,actor_index)
-		if quote.ok and int(quote.travel_ticks)<=maximum_travel_ticks:
+		if quote.ok and int(quote.travel_ticks)+int(intent.get("area_travel_ticks",0))<=maximum_travel_ticks:
 			candidates.append(quote)
 	space.end_route_query()
 	if candidates.is_empty():
@@ -156,6 +155,91 @@ func seat_candidates(world: WorldState, visit_id: String) -> Array:
 		return a.facility_id<b.facility_id)
 	return candidates
 
+func _manual_seat_quote(world: WorldState, visit: Dictionary, facility_id: String) -> Dictionary:
+	if not world.facts.facilities.has(facility_id) or not _public_seat(world,world.facts.facilities[facility_id]): return {"ok":false,"reason":"目标不是实际公共候诊座位"}
+	if not _occupied(world,facility_id,visit.actor_id): return _seat_quote(world,visit,facility_id)
+	# A manual target may be busy. Only its eventual former public user is
+	# projected away to validate body fit; this grants no live use or reservation.
+	var candidate: WorldState = WorldState.new(world.freeze())
+	for actor: Dictionary in candidate.facts.actors.values():
+		if actor.get("support_facility_id","")==facility_id:
+			actor.location = {"kind":"outside"}
+			actor.erase("support_facility_id")
+	for seat: Dictionary in candidate.facts.waiting_life.seats.values():
+		if seat.get("facility_id","")==facility_id:
+			candidate.facts.actors[seat.actor_id].location = {"kind":"outside"}
+			seat.facility_id = ""
+	candidate.facts.staff_life.reservations.erase(facility_id)
+	candidate.facts.adaptations.erase(facility_id)
+	return _seat_quote(candidate,visit,facility_id)
+
+func _dispatch_public_seat(world: WorldState, visit: Dictionary, intent: Dictionary) -> void:
+	if intent.phase=="seated":
+		if not world.facts.facilities.has(intent.facility_id) or not _public_seat(world,world.facts.facilities[intent.facility_id]) or world.facts.facilities[intent.facility_id].get("failed",false) or HospitalRemodel.blocked(world,intent.facility_id): _release_seat(world,visit.id)
+		return
+	var actor_id: String = str(visit.actor_id)
+	if world.facts.moves.has(actor_id) or world.facts.actors[actor_id].location.kind!="floor": return
+	var area: Dictionary = space.public_areas.region(world,intent.area)
+	if intent.mode=="manual" and (not world.facts.facilities.has(intent.manual_facility_id) or not _public_seat(world,world.facts.facilities[intent.manual_facility_id]) or world.facts.facilities[intent.manual_facility_id].get("failed",false) or HospitalRemodel.blocked(world,intent.manual_facility_id)):
+		visit.waiting_reason = "指定设施已不可用"
+		_release_seat(world,visit.id)
+		return
+	if area.is_empty() or space.public_areas.facilities(world,intent.area,PUBLIC_SEAT_DEFINITIONS).is_empty() or (space.public_areas.contains(world,intent.area,actor_id) and not space.public_areas.compatible_geometry(world,intent.area,PUBLIC_SEAT_DEFINITIONS,[actor_id])):
+		if intent.mode=="manual":
+			_release_seat(world,visit.id)
+			return
+		var selected: Dictionary = space.public_areas.select(world,actor_id,PUBLIC_SEAT_DEFINITIONS,["waiting","waiting_area","public","lobby","garden",""],"seat",[],maxi(0,_ticks(content.balance.seat_choice.automatic_travel_seconds_max)-int(intent.area_travel_ticks)))
+		if selected.is_empty(): return
+		intent.area = selected.area
+		intent.arrived_tick = -1
+		intent.area_travel_ticks += int(selected.travel_ticks)
+		intent.facility_id = ""
+	if not space.public_areas.contains(world,intent.area,actor_id):
+		if intent.mode=="manual":
+			var exact: Dictionary = _seat_quote(world,visit,intent.manual_facility_id)
+			if exact.ok:
+				space.request_move(world,actor_id,int(exact.floor_id),exact.patient_cell)
+				return
+		var point: Dictionary = space.public_areas.waiting_point(world,actor_id,intent.area)
+		if not point.is_empty(): space.request_move(world,actor_id,int(point.floor_id),point.cell)
+		return
+	if int(intent.arrived_tick)<0: intent.arrived_tick = world.sim_tick
+	intent.phase = "manual_wait" if intent.mode=="manual" else "local_wait"
+	var choices: Array = []
+	if intent.mode=="manual":
+		var quote: Dictionary = _seat_quote(world,visit,intent.manual_facility_id)
+		if quote.ok:
+			quote.facility_id = intent.manual_facility_id
+			choices.append(quote)
+	else: choices = seat_candidates(world,visit.id)
+	for choice: Dictionary in choices:
+		if not space.public_areas.turn(world,intent,choice.facility_id): continue
+		intent.facility_id = choice.facility_id
+		if not space.at(world,actor_id,int(choice.floor_id),choice.patient_cell):
+			intent.phase = "local_travel"
+			space.request_move(world,actor_id,int(choice.floor_id),choice.patient_cell)
+			return
+		if not space._dynamic_clear(world,actor_id,int(choice.floor_id),space.body_rectangle(world.facts.actors[actor_id])): continue
+		var reason: String = space.reserve_facility(world,choice.facility_id,actor_id,actor_id)
+		if not reason.is_empty(): continue
+		intent.phase = "seated"
+		var actor: Dictionary = world.facts.actors[actor_id]
+		actor.posture = "seated"
+		actor.support_facility_id = choice.facility_id
+		space.sync_actor(world,actor_id)
+		return
+	intent.facility_id = ""
+	visit.waiting_reason = "等待指定设施" if intent.mode=="manual" else "本区等待候诊位"
+	if visitors!=null:
+		var targets: Array = [intent.manual_facility_id] if intent.mode=="manual" else space.public_areas.facilities(world,intent.area,PUBLIC_SEAT_DEFINITIONS)
+		for id: String in visitors.seated_facilities(world):
+			if not id in targets: continue
+			if not _manual_seat_quote(world,visit,id).get("ok",false): continue
+			if visitors.yield_seat(world,id): break
+	if not space.public_areas.safe_wait(world,actor_id,int(world.facts.actors[actor_id].location.floor_id),world.facts.actors[actor_id].location.cell):
+		var point: Dictionary = space.public_areas.waiting_point(world,actor_id,intent.area)
+		if not point.is_empty(): space.request_move(world,actor_id,int(point.floor_id),point.cell)
+
 func patient_summary(world: WorldState, visit_id: String, low_motion: bool = false) -> Dictionary:
 	var state: Dictionary = world.facts.get("waiting_life",{})
 	var visit: Dictionary = world.facts.visits.get(visit_id,{})
@@ -164,13 +248,15 @@ func patient_summary(world: WorldState, visit_id: String, low_motion: bool = fal
 	var need: Dictionary = state.get("needs",{}).get(visit_id,{})
 	var summary: Dictionary = {"ticket_id":visit.get("ticket_id",""),"seat":seat.duplicate(true),"need":need.duplicate(true),"reasons":[]}
 	if not need.is_empty():
-		summary.reason = "正在生活服务，保留原票号" if need.phase!="returning" else "正沿原路线返回候诊"
+		summary.reason = "正沿原路线返回候诊" if need.phase=="returning" else "正在生活服务，保留原票号" if need.phase in ["using","fallback"] else "本区等待生活设施" if int(need.get("arrived_tick",-1))>=0 else "前往生活区"
 		var service: Dictionary = _amenity(need.purpose)
 		if need.phase=="fallback":
 			summary.scene = service.get("fallback_low_motion_scene" if low_motion else "fallback_scene","")
 		else:
 			var scene: Dictionary = content.definition("amenity_scenes",need.get("scene_id",""))
 			summary.scene = scene.get("low_motion_scene" if low_motion else "scene","")
+	elif not seat.is_empty() and seat.get("phase","")!="seated" and seat.has("public_purpose"):
+		summary.reason = ("等待指定设施" if int(seat.arrived_tick)>=0 else "前往指定设施") if seat.mode=="manual" else ("本区等待候诊位" if int(seat.arrived_tick)>=0 else "前往候诊区")
 	elif not seat.is_empty() and world.facts.facilities.has(seat.facility_id):
 		var quote: Dictionary = _seat_quote(world,visit,seat.facility_id)
 		summary.reasons = quote.get("reasons",[]).slice(0,2)
@@ -224,17 +310,21 @@ func validate(world: WorldState) -> String:
 	for visit_id: Variant in state.seats:
 		var seat: Variant = state.seats[visit_id]
 		if not visit_id is String or not world.facts.visits.has(visit_id) or not world.facts.visits[visit_id] is Dictionary or not seat is Dictionary: return "候诊座位就诊引用无效"
-		if not seat.get("facility_id") is String or not seat.get("actor_id") is String or not seat.get("ticket_id") is String or not seat.get("phase") is String or not world.facts.facilities.has(seat.get("facility_id","")) or not world.facts.facilities[seat.facility_id] is Dictionary or seat.actor_id!=world.facts.visits[visit_id].get("actor_id","") or not seat.get("phase") in ["walking","seated"] or not _natural(seat.get("continuous_ticks")): return "候诊座位占用无效"
+		if seat.has("public_purpose"):
+			if not seat.get("phase","") in ["area_travel","local_wait","local_travel","manual_wait","seated"] or not seat.get("area") is Dictionary or seat.actor_id!=world.facts.visits[visit_id].actor_id or seat.ticket_id!=world.facts.visits[visit_id].ticket_id or not seat.get("mode","") in ["auto","manual"] or not _natural(seat.get("continuous_ticks")): return "公共候诊意图无效"
+			if seat.mode=="manual" and not seat.get("manual_facility_id") is String: return "指定候诊设施引用无效"
+			if seat.phase!="seated": continue
+		if not seat.get("facility_id") is String or not seat.get("actor_id") is String or not seat.get("ticket_id") is String or not seat.get("phase") is String or not world.facts.facilities.has(seat.get("facility_id","")) or not world.facts.facilities[seat.facility_id] is Dictionary or seat.actor_id!=world.facts.visits[visit_id].get("actor_id","") or seat.get("phase")!="seated" or not _natural(seat.get("continuous_ticks")): return "候诊座位占用无效"
 		if not world.facts.tickets.has(seat.get("ticket_id","")) or not world.facts.tickets[seat.ticket_id] is Dictionary or occupied.has(seat.facility_id): return "候诊座位票号或互斥无效"
 		occupied[seat.facility_id] = true
 	for visit_id: Variant in state.needs:
 		var need: Variant = state.needs[visit_id]
 		if not visit_id is String or not world.facts.visits.has(visit_id) or not world.facts.visits[visit_id] is Dictionary or not need is Dictionary or state.seats.has(visit_id): return "生活需求就诊或座位互斥无效"
-		if not need.get("id") is String or not need.get("phase") is String or not need.get("phase") in ["seek","walking","using","fallback","returning"] or not need.get("purpose") is String or not need.get("purpose") in ["water","toilet"] or not need.get("ticket_id") is String or not need.get("facility_id","") is String or not _natural(need.get("started_tick")) or not _natural(need.get("remaining_ticks")) or not _natural(need.get("queued_ticks")): return "生活需求进度无效"
+		if not need.get("id") is String or not need.get("phase") is String or not need.get("phase") in ["seek","walking","using","fallback","returning","area_travel","local_wait","local_travel"] or not need.get("purpose") is String or not need.get("purpose") in ["water","toilet"] or not need.get("ticket_id") is String or not need.get("facility_id","") is String or not _natural(need.get("started_tick")) or not _natural(need.get("remaining_ticks")) or not _natural(need.get("queued_ticks")): return "生活需求进度无效"
 		if not need.get("return_to") is Dictionary or not need.return_to.get("cell") is Array or need.return_to.cell.size()!=2 or not need.return_to.get("floor_id") is int: return "生活需求返回位置无效"
 		if not world.facts.tickets.has(need.get("ticket_id","")) or world.facts.visits[visit_id].get("ticket_id","")!=need.ticket_id: return "生活需求原票号无效"
 		if not world.facts.tickets[need.ticket_id] is Dictionary or not world.facts.tickets[need.ticket_id].get("pause_reasons") is Dictionary or world.facts.tickets[need.ticket_id].pause_reasons.get("need_service","")!=need.id: return "生活需求暂离来源无效"
-		if not str(need.get("facility_id","")).is_empty():
+		if not str(need.get("facility_id","")).is_empty() and (need.phase in ["using","returning"]):
 			if not world.facts.facilities.has(need.facility_id) or not world.facts.facilities[need.facility_id] is Dictionary or occupied.has(need.facility_id): return "生活设施引用或互斥无效"
 			occupied[need.facility_id] = true
 	for visit_id: Variant in state.clocks:
@@ -325,9 +415,9 @@ func _occupancy_view(world: WorldState) -> Dictionary:
 	for actor: Dictionary in world.facts.actors.values():
 		_occupancy_owner(result,str(actor.get("support_facility_id","")),str(actor.id))
 	for seat: Dictionary in world.facts.get("waiting_life",{}).get("seats",{}).values():
-		_occupancy_owner(result,str(seat.facility_id),str(seat.actor_id))
+		if seat.phase=="seated": _occupancy_owner(result,str(seat.facility_id),str(seat.actor_id))
 	for need: Dictionary in world.facts.get("waiting_life",{}).get("needs",{}).values():
-		_occupancy_owner(result,str(need.get("facility_id","")),str(world.facts.visits[need.visit_id].actor_id))
+		if need.phase in ["using","returning"]: _occupancy_owner(result,str(need.get("facility_id","")),str(world.facts.visits[need.visit_id].actor_id))
 	for session: Dictionary in world.facts.sessions.values():
 		result.blocked[session.facility_id] = true
 	for id: String in world.facts.get("staff_life",{}).get("reservations",{}): result.blocked[id] = true
@@ -363,14 +453,6 @@ func _public_seat(world: WorldState, facility: Dictionary) -> bool:
 	view.seats[facility.id] = available
 	return available
 
-func _reserve_seat(world: WorldState, visit: Dictionary, facility_id: String) -> String:
-	var quote: Dictionary = _seat_quote(world,visit,facility_id)
-	if not quote.ok: return quote.reason
-	var reason: String = space.reserve_facility(world,facility_id,visit.actor_id,visit.ticket_id)
-	if not reason.is_empty(): return reason
-	world.facts.waiting_life.seats[visit.id] = {"facility_id":facility_id,"actor_id":visit.actor_id,"ticket_id":visit.ticket_id,"phase":"walking","continuous_ticks":0}
-	return space.request_move(world,visit.actor_id,int(quote.floor_id),quote.patient_cell)
-
 func _release_seat(world: WorldState, visit_id: String) -> void:
 	var seats: Dictionary = world.facts.get("waiting_life",{}).get("seats",{})
 	if not seats.has(visit_id): return
@@ -387,7 +469,7 @@ func _begin_need(world: WorldState, visit: Dictionary) -> void:
 	_release_seat(world,visit.id)
 	var need: Dictionary = {"id":visit.id+":life:"+str(clock.sequence),"visit_id":visit.id,"ticket_id":visit.ticket_id,"purpose":clock.next_purpose,
 		"started_tick":world.sim_tick,"queued_ticks":0,"phase":"seek","facility_id":"","remaining_ticks":0,
-		"return_to":world.facts.actors[visit.actor_id].location.duplicate(true),"scene_id":""}
+		"return_to":world.facts.actors[visit.actor_id].location.duplicate(true),"scene_id":"","public_purpose":clock.next_purpose,"actor_id":visit.actor_id,"mode":"auto","area":{},"arrived_tick":-1}
 	var ticket: Dictionary = world.facts.tickets[visit.ticket_id]
 	if not ticket.has("pause_reasons"): ticket.pause_reasons = {}
 	ticket.pause_reasons.need_service = need.id
@@ -395,60 +477,86 @@ func _begin_need(world: WorldState, visit: Dictionary) -> void:
 	_dispatch_need(world,visit,need)
 
 func _dispatch_need(world: WorldState, visit: Dictionary, need: Dictionary) -> void:
-	var actor: Dictionary = world.facts.actors[visit.actor_id]
 	if need.phase in ["using","fallback"]: return
-	if need.phase=="returning":
-		if actor.location.kind!="floor" or world.facts.moves.has(actor.id): return
-		if not space.at(world,actor.id,int(need.return_to.floor_id),need.return_to.cell):
-			visit.waiting_reason = space.request_move(world,actor.id,int(need.return_to.floor_id),need.return_to.cell)
-			return
-		world.facts.tickets[need.ticket_id].pause_reasons.erase("need_service")
-		world.facts.waiting_life.needs.erase(visit.id)
+	if need.phase!="returning":
+		_dispatch_public_need(world,visit,need)
 		return
-	if actor.location.kind!="floor": return
-	if world.facts.moves.has(actor.id):
+	var actor: Dictionary = world.facts.actors[visit.actor_id]
+	if not str(need.facility_id).is_empty() and not space.overlaps_facility(world,actor.id,need.facility_id): need.facility_id = ""
+	if actor.location.kind!="floor" or world.facts.moves.has(actor.id): return
+	if not space.at(world,actor.id,int(need.return_to.floor_id),need.return_to.cell):
+		visit.waiting_reason = space.request_move(world,actor.id,int(need.return_to.floor_id),need.return_to.cell)
+		return
+	world.facts.tickets[need.ticket_id].pause_reasons.erase("need_service")
+	world.facts.waiting_life.needs.erase(visit.id)
+
+func _dispatch_public_need(world: WorldState, visit: Dictionary, need: Dictionary) -> void:
+	var actor: Dictionary = world.facts.actors[visit.actor_id]
+	if actor.location.kind!="floor" or world.facts.moves.has(actor.id):
 		need.queued_ticks = 0
 		return
-	if world.sim_tick-int(need.started_tick)>=_ticks(content.balance.amenity_flow.seek_seconds):
+	var deadline: int = int(need.started_tick)+_ticks(content.balance.amenity_flow.seek_seconds)
+	if world.sim_tick>deadline:
 		_start_fallback(world,visit,need)
 		return
-	if need.phase=="walking":
-		if world.facts.facilities.has(need.facility_id):
-			var layout: Dictionary = space.facility_layout(world,need.facility_id)
-			if space.at(world,actor.id,int(layout.floor_id),layout.patient_cell):
-				need.phase = "using"
-				need.remaining_ticks = _ticks(_amenity(need.purpose).ordinary_seconds)
-				need.scene_id = _scene(need.purpose,visit.personality_id)
-				return
-		need.facility_id = ""
-		need.phase = "seek"
-	var candidates: Array = []
 	var service: Dictionary = _amenity(need.purpose)
-	space.begin_route_query(world,{},space.nominal_query(world))
-	var facility_ids: Array = world.facility_ids(str(service.ordinary_facility_id)).duplicate()
-	for id: String in world.facility_ids(str(service.universal_facility_id)):
-		if not id in facility_ids: facility_ids.append(id)
-	facility_ids.sort()
-	for facility_id: String in facility_ids:
-		var quote: Dictionary = _facility_quote(world,visit,facility_id)
-		if quote.ok and world.sim_tick+int(quote.travel_ticks)<=int(need.started_tick)+_ticks(content.balance.amenity_flow.seek_seconds):
-			quote.facility_id = facility_id
-			candidates.append(quote)
+	var definitions: Array = [str(service.ordinary_facility_id),str(service.universal_facility_id)]
+	if space.public_areas.region(world,need.area).is_empty() or space.public_areas.facilities(world,need.area,definitions).is_empty() or (space.public_areas.contains(world,need.area,actor.id) and not space.public_areas.compatible_geometry(world,need.area,definitions,[actor.id])):
+		var room_kinds: Array = [""]
+		for room: Dictionary in world.facts.rooms.values():
+			var kind: String = str(room.get("kind",room.get("type","")))
+			if not kind in room_kinds: room_kinds.append(kind)
+		var selected: Dictionary = space.public_areas.select(world,actor.id,definitions,room_kinds,need.purpose)
+		if selected.is_empty() or int(selected.start_ticks)>deadline-world.sim_tick:
+			_start_fallback(world,visit,need)
+			return
+		need.area = selected.area
+		need.arrived_tick = -1
+		need.phase = "area_travel"
+	if not space.public_areas.contains(world,need.area,actor.id):
+		need.queued_ticks = 0
+		var point: Dictionary = space.public_areas.waiting_point(world,actor.id,need.area)
+		if not point.is_empty(): visit.waiting_reason = space.request_move(world,actor.id,int(point.floor_id),point.cell)
+		elif world.sim_tick==deadline: _start_fallback(world,visit,need)
+		return
+	if int(need.arrived_tick)<0: need.arrived_tick = world.sim_tick
+	need.phase = "local_wait"
+	var choices: Array = []
+	space.begin_dynamic_route_query(world)
+	for id: String in space.public_areas.facilities(world,need.area,definitions):
+		if not space.public_areas.turn(world,need,id): continue
+		var quote: Dictionary = _facility_quote(world,visit,id)
+		if quote.ok and world.sim_tick+int(quote.travel_ticks)<=deadline:
+			quote.facility_id = id
+			choices.append(quote)
 	space.end_route_query()
-	candidates.sort_custom(func(a: Dictionary,b: Dictionary) -> bool: return a.travel_ticks<b.travel_ticks if a.travel_ticks!=b.travel_ticks else a.facility_id<b.facility_id)
-	if candidates.is_empty():
+	choices.sort_custom(func(a: Dictionary,b: Dictionary)->bool: return a.travel_ticks<b.travel_ticks if a.travel_ticks!=b.travel_ticks else a.facility_id<b.facility_id)
+	for choice: Dictionary in choices:
+		if not space.public_areas.turn(world,need,choice.facility_id): continue
+		need.facility_id = choice.facility_id
+		if not space.at(world,actor.id,int(choice.floor_id),choice.patient_cell):
+			need.queued_ticks = 0
+			need.phase = "local_travel"
+			visit.waiting_reason = space.request_move(world,actor.id,int(choice.floor_id),choice.patient_cell)
+			return
+		if not space._dynamic_clear(world,actor.id,int(choice.floor_id),space.body_rectangle(actor)): continue
+		var reason: String = space.reserve_facility(world,choice.facility_id,actor.id,actor.id)
+		if not reason.is_empty(): continue
+		need.phase = "using"
+		need.queued_ticks = 0
+		need.remaining_ticks = _ticks(service.ordinary_seconds)
+		need.scene_id = _scene(need.purpose,visit.personality_id)
+		return
+	need.facility_id = ""
+	if world.sim_tick==deadline:
 		_start_fallback(world,visit,need)
 		return
-	var choice: Dictionary = candidates[0]
-	var reason: String = space.reserve_facility(world,choice.facility_id,actor.id,visit.ticket_id)
-	if not reason.is_empty():
-		visit.waiting_reason = reason
-		need.queued_ticks += 1
-		return
-	need.facility_id = choice.facility_id
-	need.phase = "walking"
-	need.queued_ticks = 0
-	visit.waiting_reason = space.request_move(world,actor.id,int(choice.floor_id),choice.patient_cell)
+	need.queued_ticks += 1
+	visit.waiting_reason = "本区等待生活设施"
+	if not space.public_areas.safe_wait(world,actor.id,int(actor.location.floor_id),actor.location.cell):
+		var point: Dictionary = space.public_areas.waiting_point(world,actor.id,need.area)
+		if not point.is_empty(): space.request_move(world,actor.id,int(point.floor_id),point.cell)
+		if world.facts.moves.has(actor.id): need.queued_ticks = 0
 
 func _start_fallback(world: WorldState, visit: Dictionary, need: Dictionary) -> void:
 	if world.facts.moves.has(visit.actor_id) or world.facts.actors[visit.actor_id].location.kind!="floor": return

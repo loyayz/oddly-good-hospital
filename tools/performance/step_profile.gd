@@ -7,12 +7,14 @@ const SIMULATION = preload("res://game/sim/simulation.gd")
 const COMMON_METHODS: Array[String] = ["boundaries","arrivals","dispatch","advance","advance_wait","needs","sample","settle","worked_staff","take_events"]
 const HOT_METHODS: Dictionary = {
 	"clinic":["arrivals","dispatch","advance","release_departed","settle_practice","service_candidates","_dispatch_service","_gather_assigned","_prepare_surgery","_surgery_quote","_surgery_bundle_quote","_qualified_surgery_bundle_quote","_compatible_bed","_ward_covering","_round_candidate","_select_plan","plan_quote","_outpatient_quote","_availability","_build_availability","_gather","_complete_service","_dispatch_clinical_releases","_dispatch_ward_returns","_reserve_bundle","_reservation_candidate","arrival_readiness","reference_demand","_reference_options"],
-	"space":["advance","route","travel_quote","facility_quote","_floor_route","_exit_witness","_dispatch_routes","_active_route_clear","_reserve_doors","_movement_clear","_yield","_yield_idle_staff","finish_boundary"],
+	"space":["advance","route","travel_quote","facility_quote","facility_geometry_quote","_floor_route","_exit_witness","_dispatch_routes","_active_route_clear","_reserve_doors","_movement_clear","_yield","_yield_idle_staff","finish_boundary"],
 	"navigation":["floor_source","facility_index","query_graphs","graph","_refresh_graph","_trim","clearance","travel_distance","_distance_field"],
-	"visitors":["arrivals","dispatch","advance","_waiting_point","_waiting_point_in_query","_bedside","_bedside_in_query"],
-	"environment":["begin_query","end_query","environment_at","sample_at","_observe_at","_coverage_edges","_coverage","_positive_facilities","_nearby_actors","_water_usable","_work_position","_safety_query","_tool"],
-	"waiting":["seat_candidates","_seat_quote","_conditions","_condition_actor_index","_environment","facility_availability","_facility_quote","_facility_quote_in_query"],
-	"wellbeing":["_dispatch_task","_select_facility","_tea_position","_tea_obstacles","_dispatch_recreation","_adapted_candidate"],
+	"visitors":["arrivals","dispatch","advance","_waiting_point","_public_waiting","yield_seat","_bedside","_bedside_in_query"],
+	"public_areas":["_ensure","select","waiting_point","_waiting_point","safe_wait","_wait_constraints","facilities","compatible_geometry","turn"],
+	"personal_beds":["sync","bed_for"],
+	"environment":["begin_query","end_query","environment_at","sample_at","_observe_at","_coverage_edges","_coverage","_positive_facilities","_nearby_actors","_water_usable","_work_position","_safety_query","_tool","_arrive"],
+	"waiting":["_dispatch_public_seat","_dispatch_public_need","seat_candidates","_seat_quote","_conditions","_condition_actor_index","_environment","facility_availability","_facility_quote","_facility_quote_in_query"],
+	"wellbeing":["_dispatch_task","_dispatch_public_rest","_dispatch_public_recreation","_recreation_choice","_select_facility","_tea_position","_dispatch_recreation","_adapted_candidate"],
 	"maintenance":["_position","_any_repair_position","_dispatch_departures","_worker_ready"],
 	"arrivals":["capacity","_reference_basis","_existing_workload","_case_experience","_resource_budgets"]
 }
@@ -279,6 +281,15 @@ func _attach_nested(simulation: HospitalSimulation) -> bool:
 	if navigation==null: return false
 	geometry._navigation = navigation
 	redirects[old_space] = geometry
+	var extra: Array = []
+	for property: Dictionary in old_space.get_property_list():
+		if property.name!="public_areas": continue
+		var original: RefCounted = old_space.get(property.name)
+		var replacement: RefCounted = _wrap(original,"public_areas",[geometry])
+		if replacement==null: return false
+		redirects[original] = replacement
+		geometry.set(property.name,replacement)
+		extra.append(replacement)
 	var old_clinic: HospitalClinic = simulation.clinic
 	var clinic: HospitalClinic = _wrap(old_clinic,"clinic",[simulation.content,geometry])
 	if clinic==null: return false
@@ -295,11 +306,21 @@ func _attach_nested(simulation: HospitalSimulation) -> bool:
 		if replacement==null: return false
 		redirects[original] = replacement
 		simulation.services[key] = replacement
-	var objects: Array = [simulation,geometry,navigation,clinic,visitors]+simulation.services.values()
+		if key=="wellbeing":
+			for property: Dictionary in original.get_property_list():
+				if property.name!="personal_beds": continue
+				var beds: RefCounted = original.get(property.name)
+				var wrapped: RefCounted = _wrap(beds,"personal_beds",[replacement])
+				if wrapped==null: return false
+				redirects[beds] = wrapped
+				replacement.set(property.name,wrapped)
+				extra.append(wrapped)
+	var objects: Array = [simulation,geometry,navigation,clinic,visitors]+simulation.services.values()+extra
 	for object: Object in objects:
 		for property: Dictionary in object.get_property_list():
 			if int(property.type)!=TYPE_OBJECT or (int(property.usage)&PROPERTY_USAGE_SCRIPT_VARIABLE)==0: continue
 			var value: Variant = object.get(property.name)
+			if value is WeakRef and value.get_ref()!=null and redirects.has(value.get_ref()): object.set(property.name,weakref(redirects[value.get_ref()])); continue
 			if value!=null and redirects.has(value): object.set(property.name,redirects[value])
 	for kind: String in simulation._business_handlers:
 		var original: RefCounted = simulation._business_handlers[kind]
@@ -311,6 +332,7 @@ func _attach_nested(simulation: HospitalSimulation) -> bool:
 		if original==redirects[original]: continue
 		for property: Dictionary in original.get_property_list():
 			if (int(property.usage)&PROPERTY_USAGE_SCRIPT_VARIABLE)==0: continue
+			if property.name=="space" and original.get_script().resource_path.ends_with("/public_areas.gd"): continue
 			var value: Variant = original.get(property.name)
 			if int(property.type)==TYPE_OBJECT and value!=null and redirects.has(value): original.set(property.name,null)
 			elif str(property.name)=="services" and value is Dictionary and is_same(value,simulation.services): original.set(property.name,{})
@@ -367,5 +389,6 @@ func _compile(group: String, base: GDScript, source: String) -> GDScript:
 
 func _copy_script_properties(original: Object, replacement: Object) -> void:
 	for property: Dictionary in original.get_property_list():
+		if property.name=="space" and original.get_script().resource_path.ends_with("/public_areas.gd"): continue
 		if (int(property.usage)&PROPERTY_USAGE_SCRIPT_VARIABLE)!=0:
 			replacement.set(property.name,original.get(property.name))

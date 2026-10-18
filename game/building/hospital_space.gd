@@ -15,6 +15,7 @@ var _route_checks: Dictionary = {}
 var _envelope_next: int = 0
 var _route_queries: Array[Dictionary] = []
 var _movement_reservations: Dictionary = {}
+var public_areas: HospitalPublicAreas
 var query_counts: Dictionary = {"routes":0,"journey_hits":0,"journey_invalidations":0,"transport_builds":0,"transport_searches":0,"candidate_connections":0,"floor_route_hits":0,"floor_route_builds":0}
 
 # These scopes contain synchronous, read-only enumeration only. Results never
@@ -108,6 +109,7 @@ func _blocking_actor(world: WorldState, floor_id: int, rect: Rect2, allowed: Arr
 
 func _init(database: HospitalContent) -> void:
 	content = database
+	public_areas = HospitalPublicAreas.new(self)
 	var cells: Array = content.balance.pathfinding.local_updates.chunk_cells
 	_actor_index = BodyIndex.new(Vector2(float(cells[0]),float(cells[1])))
 	_sweep_index = BodyIndex.new(Vector2(float(cells[0]),float(cells[1])))
@@ -859,11 +861,22 @@ func support_exit_ticks(actor: Dictionary, facility: Dictionary, until_clear: bo
 	return ticks
 
 func facility_quote(world: WorldState, facility_id: String, actor_id: String, staff_ids: Array = []) -> Dictionary:
+	return _facility_quote(world,facility_id,actor_id,staff_ids,false)
+
+# Read only built geometry and body dimensions. This grants no occupancy or
+# route: actual arrival must still pass the complete facility_quote.
+func facility_geometry_quote(world: WorldState, facility_id: String, actor_id: String, staff_ids: Array = []) -> Dictionary:
+	return _facility_quote(world,facility_id,actor_id,staff_ids,true)
+
+func _facility_quote(world: WorldState, facility_id: String, actor_id: String, staff_ids: Array, geometry_only: bool) -> Dictionary:
 	if not world.facts.facilities.has(facility_id) or not world.facts.actors.has(actor_id):
 		return {"ok":false,"reason":"设备或实际使用者不存在"}
+	var bed_owner: Dictionary = world.facts.get("staff_life",{}).get("personal_beds",{}).get(facility_id,{})
+	if not bed_owner.is_empty() and bed_owner.staff_id!=actor_id: return {"ok":false,"reason":"他人个人床"}
 	var facility: Dictionary = world.facts.facilities[facility_id]
 	var actor: Dictionary = world.facts.actors[actor_id]
 	var reference: Dictionary = _route_queries.back().reference if not _route_queries.is_empty() and _route_queries.back().world==world else {}
+	if geometry_only: reference = {"fits":{}}
 	var reference_key: String = ""
 	if not reference.is_empty():
 		var bodies: Array = [body(actor)]
@@ -1083,8 +1096,38 @@ func exit_cell(world: WorldState, actor: Dictionary, floor_id: int = 1) -> Array
 	return target
 
 func facility_reservation_reason(world: WorldState, facility_id: String, actor_id: String) -> String:
+	var owner: Dictionary = world.facts.get("staff_life",{}).get("personal_beds",{}).get(facility_id,{})
+	if not owner.is_empty() and owner.staff_id!=actor_id: return "他人个人床"
 	var current: Dictionary = world.facts.adaptations.get(facility_id,{})
 	return "等待原使用者实际离开后收拢" if not current.is_empty() and current.actor_id!=actor_id else ""
+
+func facility_trip_quote(world: WorldState, facility_id: String, actor_id: String, staff_ids: Array = []) -> Dictionary:
+	var fit: Dictionary = facility_quote(world,facility_id,actor_id,staff_ids)
+	if not fit.ok: return fit
+	var layout: Dictionary = facility_layout(world,facility_id)
+	var facts: Dictionary = world.facts.duplicate()
+	facts.adaptations = world.facts.adaptations.duplicate()
+	facts.actors = world.facts.actors.duplicate()
+	facts.actors[actor_id] = world.facts.actors[actor_id].duplicate(true)
+	var candidate: WorldState = WorldState.new(facts)
+	if not fit.get("unchanged",false):
+		var adaptation: Dictionary = fit.duplicate(true)
+		adaptation.erase("ok")
+		adaptation.owner_id = "public_trip_preview"
+		candidate.facts.adaptations[facility_id] = adaptation
+		layout = facility_layout(candidate,facility_id)
+	begin_dynamic_route_query(candidate)
+	var forward: Dictionary = route(candidate,actor_id,int(layout.floor_id),layout.patient_cell)
+	end_route_query()
+	if not forward.ok or not forward.has("arrival_ticks"): return {"ok":false,"reason":forward.get("reason","实际设施行程无法估计")}
+	var origin: Dictionary = world.facts.actors[actor_id].location
+	candidate.facts.actors[actor_id].location = {"kind":"floor","floor_id":int(layout.floor_id),"cell":layout.patient_cell.duplicate(),"height_m":0.0}
+	sync_actor(candidate,actor_id)
+	begin_dynamic_route_query(candidate)
+	var back: Dictionary = route(candidate,actor_id,int(origin.floor_id),origin.cell)
+	end_route_query()
+	if not back.ok: return {"ok":false,"reason":"设施没有合法返回路线"}
+	return {"ok":true,"facility_id":facility_id,"floor_id":int(layout.floor_id),"cell":layout.patient_cell.duplicate(),"patient_cell":layout.patient_cell.duplicate(),"travel_ticks":int(forward.arrival_ticks),"fit":fit}
 
 func reserve_facility(world: WorldState, facility_id: String, actor_id: String, owner_id: String, staff_ids: Array = []) -> String:
 	var reason: String = facility_reservation_reason(world,facility_id,actor_id)
@@ -1102,8 +1145,10 @@ func reserve_facility(world: WorldState, facility_id: String, actor_id: String, 
 		return ""
 	quote.erase("ok")
 	quote.owner_id = owner_id
+	var before: Dictionary = facility_layout(world,facility_id)
 	world.facts.adaptations[facility_id] = quote
 	_navigation.invalidate(world,int(quote.floor_id))
+	public_areas.facility_changed(before,quote)
 	return ""
 
 func commit_facility_reservations(world: WorldState, validated: Dictionary, facility_ids: Array) -> void:
@@ -1111,8 +1156,10 @@ func commit_facility_reservations(world: WorldState, validated: Dictionary, faci
 	# Publish only its facility reservations; no world or service state is copied.
 	for facility_id: String in facility_ids:
 		if validated.has(facility_id):
+			var before: Dictionary = facility_layout(world,facility_id)
 			world.facts.adaptations[facility_id] = validated[facility_id].duplicate(true)
 			_navigation.invalidate(world,int(validated[facility_id].floor_id))
+			public_areas.facility_changed(before,validated[facility_id])
 
 func grant_facility_access(world: WorldState, facility_id: String, staff_id: String) -> void:
 	var reservation: Dictionary = world.facts.adaptations.get(facility_id,{})
@@ -1135,6 +1182,7 @@ func release_adaptations(world: WorldState) -> void:
 		if not inside:
 			world.facts.adaptations.erase(id)
 			_navigation.invalidate(world,int(reservation.floor_id))
+			if reservation.kind=="facility" and world.facts.facilities.has(id): public_areas.facility_changed(reservation,world.facts.facilities[id])
 
 func _door_span(actor: Dictionary, door: Dictionary) -> int:
 	var dimensions: Dictionary = body(actor)

@@ -215,7 +215,22 @@ func dispatch(world: WorldState) -> void:
 		var affected: Dictionary = _affected_view(world,order)
 		for actor_id: String in world.ids("actors"):
 			var actor: Dictionary = world.facts.actors[actor_id]
-			if actor.location.kind!="floor" or not _in_affected_area(world,order,actor,affected) or world.facts.moves.has(actor_id) or _clinical_busy(world,actor_id): continue
+			if actor.location.kind!="floor" or not _in_affected_area(world,order,actor,affected) or world.facts.moves.has(actor_id): continue
+			var life: Dictionary = world.facts.staff.get(actor_id,{}).get("life_task",{})
+			if life.get("kind","") in ["rest","sleep","recreation"] and life.get("phase","") in ["returning","release"]:
+				var safe: Array = _evacuation(world,order,actor)
+				if not safe.is_empty():
+					life.floor_id = int(actor.location.floor_id)
+					life.cell = safe.duplicate()
+					space.request_move(world,actor_id,int(life.floor_id),life.cell)
+				continue
+			if life.get("phase","idle")!="idle" and life.get("kind","") in ["rest","sleep","recreation"] and not life.phase in ["returning","release","offsite","exiting"]:
+				var safe: Array = _evacuation(world,order,actor)
+				if not safe.is_empty():
+					life.return_location = {"kind":"floor","floor_id":int(actor.location.floor_id),"cell":safe.duplicate(),"height_m":0.0}
+					services.wellbeing._interrupt(world,actor_id)
+				continue
+			if _clinical_busy(world,actor_id): continue
 			var target: Array = _evacuation(world,order,actor)
 			if not target.is_empty():
 				actor.posture = "standing"

@@ -13,43 +13,17 @@ func tea_rules() -> Dictionary:
 	var x: Dictionary = _fixture({"searcher":"doctor","other":"nurse"})
 	var room_id: String = _room(x)
 	_facility(x,"chair","FUR06",[43,75],room_id)
-	x.world.facts.staff.other.life_task = {"phase":"travel","floor_id":1,"cell":[40,72]}
-	var expected: Array = []
-	var actual: Array = []
-	var before: Dictionary = x.world.freeze()
+	x.world.touch()
+	var checks: Array = []
+	var immutable: bool = true
 	for species_id: String in ["S49","S01","S08"]:
 		x.world.facts.actors.searcher.species_id = species_id
-		var obstacles: Dictionary = x.w._tea_obstacles(x.world,"searcher")
-		var room: Dictionary = x.world.facts.rooms[room_id]
-		for cell: Array in BuildGeometry.cells(room):
-			expected.append(_tea_expected(x,"searcher",room,cell))
-			actual.append(x.w._tea_cell(x.world,"searcher",room,cell,obstacles))
-	x.world.facts.actors.searcher.species_id = before.actors.searcher.species_id
-	var immutable: bool = before==x.world.freeze()
-	var room: Dictionary = x.world.facts.rooms[room_id]
-	var occupied: bool = not x.w._tea_cell(x.world,"searcher",room,[40,72])
-	x.world.facts.staff.other.life_task.cell = [41,72]
-	var refreshed: bool = x.w._tea_cell(x.world,"searcher",room,[40,72]) and not x.w._tea_cell(x.world,"searcher",room,[41,72])
-	x.world.facts.staff.other.life_task.cell = [40.000001,72]
-	var exact_cell: bool = x.w._tea_cell(x.world,"searcher",room,[40,72])
-	return {"ok":expected==actual and immutable and occupied and refreshed and exact_cell,"cells_checked":actual.size(),"immutable":immutable,"task_change_observed":refreshed,"exact_task_cell":exact_cell}
-
-func _tea_expected(x: Dictionary, staff_id: String, room: Dictionary, cell: Array) -> bool:
-	var actor: Dictionary = x.world.facts.actors[staff_id].duplicate(true)
-	actor.location = {"kind":"floor","floor_id":room.floor_id,"cell":cell}
-	actor.posture = "standing"
-	var bounds: Rect2 = x.space.body_rectangle(actor)
-	if not x.space.room_contains(room,bounds): return false
-	for door: Dictionary in x.world.facts.floors.overrides[str(room.floor_id)].get("doors",[]):
-		if bounds.grow(1.0).has_point(Vector2(float(door.cell[0]),float(door.cell[1]))): return false
-	for facility: Dictionary in x.world.facts.facilities.values():
-		if int(facility.floor_id)!=int(room.floor_id): continue
-		for point: Array in [facility.get("patient_cell",[])]+facility.get("operator_cells",[]):
-			if not point.is_empty() and bounds.has_point(Vector2(float(point[0]),float(point[1]))): return false
-	for staff: Dictionary in x.world.facts.staff.values():
-		var task: Dictionary = staff.get("life_task",{})
-		if staff.id!=staff_id and task.get("phase","idle")!="idle" and int(task.get("floor_id",-1))==int(room.floor_id) and task.get("cell",[])==cell: return false
-	return true
+		var before: Dictionary = x.world.freeze()
+		var point: Dictionary = x.w._tea_position(x.world,"searcher")
+		var legal: bool = not point.is_empty() and x.space.static_reason(x.world,x.world.facts.actors.searcher,1,Vector2i(point.cell[0],point.cell[1])).is_empty() and x.space.route(x.world,"searcher",1,point.cell).ok and x.space.public_areas.safe_wait(x.world,"searcher",1,point.cell)
+		checks.append(legal)
+		immutable = immutable and before==x.world.freeze()
+	return {"ok":not false in checks and immutable,"three_real_bodies":checks,"readonly":immutable}
 
 func facility_rules() -> Dictionary:
 	var x: Dictionary = _fixture({"searcher":"doctor","reserved":"nurse"})
@@ -57,6 +31,7 @@ func facility_rules() -> Dictionary:
 	_facility(x,"a_bed","SE04",[40,75],room_id)
 	_facility(x,"b_bed","SE04",[48,75],room_id)
 	_position(x,"searcher",[38,79])
+	x.w.ensure(x.world)
 	var before: Dictionary = x.world.freeze()
 	var selected: Dictionary = x.w._select_facility(x.world,"searcher","sleep")
 	var immutable: bool = before==x.world.freeze()
@@ -68,11 +43,11 @@ func facility_rules() -> Dictionary:
 		candidate.facts.actors.searcher.location = {"kind":"floor","floor_id":selected.floor_id,"cell":selected.cell.duplicate(),"height_m":0.0}
 		var back: Dictionary = HospitalSpace.new(_content).route(candidate,"searcher",1,before.actors.searcher.location.cell)
 		route_ok = outward.ok and back.ok
-	x.w._begin(x.world,"reserved","sleep",selected)
-	var reserved: Dictionary = x.w._select_facility(x.world,"searcher","sleep")
-	x.world.facts.facilities.b_bed.failed = true
+	var own_bed: String = str(selected.get("facility_id",""))
+	var refused: String = x.space.reserve_facility(x.world,own_bed,"reserved","other_sleep") if not own_bed.is_empty() else "missing"
+	if not own_bed.is_empty(): x.world.facts.facilities[own_bed].failed = true
 	var none: Dictionary = x.w._select_facility(x.world,"searcher","sleep")
-	return {"ok":selected.get("facility_id","")=="a_bed" and immutable and route_ok and reserved.get("facility_id","")=="b_bed" and none.is_empty(),"selected":selected,"reservation_excluded":reserved,"immutable":immutable,"independent_round_trip":route_ok}
+	return {"ok":not selected.is_empty() and immutable and route_ok and refused=="他人个人床" and none.is_empty(),"selected":selected,"other_owner_refused":refused,"immutable":immutable,"independent_round_trip":route_ok}
 
 func handoff_rules(t) -> Dictionary:
 	var fixture = ClinicalFixtures.new()

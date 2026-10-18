@@ -24,4 +24,9 @@ func _status() -> String:
 		return "暂无员工"
 	var task: Dictionary = staff.get("life_task",{})
 	var activity: Dictionary = {"rest":"休息","sleep":"睡眠","leave":"休假","recreation":"娱乐"}
-	return "精力 %.0f · 疲劳 %.0f · 压力 %.0f\n睡眠待补 %.1f 秒\n%s\n%s" % [float(staff.get("energy",0)),float(staff.get("fatigue",0)),float(staff.get("stress",0)),float(staff.get("sleep_remaining_ticks",0))*WorldState.TICK_SECONDS,activity.get(task.get("kind",""),"目前没有生活安排"),str(staff.get("life_reason",""))]
+	var own_bed: String = simulation.services.wellbeing.personal_beds.bed_for(simulation.world,selected(_staff))
+	var bed_status: String = "未分配个人床" if own_bed.is_empty() else ("个人床："+own_bed if simulation.world.facts.facilities.has(own_bed) and not simulation.world.facts.facilities[own_bed].get("failed",false) else "本人床暂不可用")
+	if task.get("phase","") in ["area_travel","local_wait","local_travel","manual_wait"]:
+		var intent: Dictionary = simulation.world.facts.staff.get(task.get("group_leader_id",""),{}).get("life_task",task)
+		activity[task.kind] = ("等待指定设施" if int(intent.get("arrived_tick",-1))>=0 else "前往指定设施") if intent.get("mode","auto")=="manual" else ("本区等待" if int(intent.get("arrived_tick",-1))>=0 else "前往娱乐区" if task.kind=="recreation" else "前往休息区")
+	return "精力 %.0f · 疲劳 %.0f · 压力 %.0f\n睡眠待补 %.1f 秒\n%s\n%s\n%s" % [float(staff.get("energy",0)),float(staff.get("fatigue",0)),float(staff.get("stress",0)),float(staff.get("sleep_remaining_ticks",0))*WorldState.TICK_SECONDS,bed_status,activity.get(task.get("kind",""),"目前没有生活安排"),str(staff.get("life_reason",""))]

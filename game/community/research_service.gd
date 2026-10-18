@@ -217,6 +217,10 @@ func dispatch_job(world: WorldState, job: Dictionary, desks: Dictionary = {}) ->
 			job.state = "waiting"
 			job.reason = _resource_reason(world,job.preferred_desk_id,job.preferred_worker_id)
 			return
+		if HospitalStaffWellbeing.yield_for_work(world,content,space,[str(pair.worker_id)]):
+			job.state = "waiting"
+			job.reason = "等待公共娱乐候位者安全返回"
+			return
 		job.desk_id = pair.desk_id
 		job.worker_id = pair.worker_id
 		world.facts.staff[job.worker_id].active_job_id = job.id
@@ -359,7 +363,7 @@ func _worker_ready(world: WorldState, worker_id: String, own_job: String = "", u
 		return false
 	var location_kind: String = str(world.facts.actors[worker_id].location.kind)
 	var travelling: bool = location_kind=="transit" and not own_job.is_empty() and world.facts.moves.get(worker_id,{}).get("owner_job_id","")==own_job
-	return str(staff.get("active_job_id","")) in ["",own_job] and staff.get("life_task",{}).get("phase","idle")=="idle" and (location_kind=="floor" or travelling)
+	return str(staff.get("active_job_id","")) in ["",own_job] and HospitalStaffWellbeing.work_window(staff) and (location_kind=="floor" or travelling)
 
 func _find_pair(world: WorldState, preferred_desk: String = "", preferred_worker: String = "", own_job: String = "", desks: Dictionary = {}) -> Dictionary:
 	if desks.is_empty(): desks = HospitalClinicalDevelopment.desk_view(world)

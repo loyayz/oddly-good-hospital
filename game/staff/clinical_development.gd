@@ -185,6 +185,9 @@ func dispatch(world: WorldState) -> void:
 func _dispatch_training_job(world: WorldState, job: Dictionary, desks: Dictionary = {}) -> void:
 	if desks.is_empty(): desks = desk_view(world)
 	var staff: Dictionary = world.facts.staff[job.staff_id]
+	if _training_window(world,staff) and HospitalStaffWellbeing.yield_for_work(world,content,space,[str(job.staff_id)]):
+		_pause(world,job,"等待公共娱乐候位者安全返回培训")
+		return
 	if not _training_window(world,staff) or _busy(world,job.staff_id) or staff.get("life_task",{}).get("phase","idle")!="idle" or not staff.get("base_task",{}).is_empty():
 		_pause(world,job,"等待培训班或当前安全任务结束")
 		return
@@ -394,6 +397,9 @@ func _busy(world: WorldState, staff_id: String) -> bool:
 	return safe_busy(world,staff_id,_busy_query)
 
 func _prepare_base(world: WorldState, staff_id: String, staff: Dictionary) -> void:
+	if HospitalStaffWellbeing.waiting_recreation(staff):
+		if staff.get("on_shift",true) and not staff.get("base_prepared",false): HospitalStaffWellbeing.yield_for_work(world,content,space,[staff_id])
+		return
 	if not staff.get("on_shift",true) or staff.get("life_task",{}).get("phase","idle")!="idle":
 		staff.base_prepared = false
 		staff.base_task = {}

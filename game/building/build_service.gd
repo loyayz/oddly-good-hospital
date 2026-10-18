@@ -338,7 +338,7 @@ func _store_facility(world: WorldState, payload: Dictionary) -> Dictionary:
 		return BuildGeometry.failure(busy)
 	for collection: String in ["needs","sessions"]:
 		for reservation: Dictionary in world.facts.get("waiting_life",{}).get(collection,{}).values():
-			if _references(reservation,id):
+			if reservation.get("phase","") in ["using","returning"] and _references(reservation,id):
 				return BuildGeometry.failure("等待生活服务使用者完成并释放实际设施预约")
 	var facility: Dictionary = world.facts.facilities[id]
 	var floor_id: int = int(facility.floor_id)

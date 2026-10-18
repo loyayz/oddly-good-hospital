@@ -58,6 +58,7 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 		services.supplies.clinic = clinic
 		clinic.environment = services.environment
 		services.waiting.environment = services.environment
+		services.waiting.visitors = clinic.visitors
 		services.environment.waiting_life = services.waiting
 		clinic.departments = services.departments
 		services.departments.clinic = clinic
@@ -111,6 +112,7 @@ func dispose() -> void:
 		clinic.environment = null
 	if services.has("waiting"):
 		services.waiting.environment = null
+		services.waiting.visitors = null
 	if services.has("environment"):
 		services.environment.waiting_life = null
 	if clinic!=null:

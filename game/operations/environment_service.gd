@@ -383,6 +383,7 @@ func dispatch(world: WorldState) -> void:
 			return a.patch.id<b.patch.id)
 		if not candidates.is_empty():
 			var selected: Dictionary = candidates[0]
+			if HospitalStaffWellbeing.yield_for_work(world,content,space,[staff_id]): continue
 			selected.patch.worker_id = staff_id
 			selected.patch.work_cell = selected.place.cell
 			selected.patch.phase = "travelling"
@@ -426,6 +427,7 @@ func dispatch(world: WorldState) -> void:
 				var tool_position: Dictionary = _work_position(world,staff_id,int(tool.floor_id),tool.cell,true)
 				if place.is_empty() or tool_position.is_empty():
 					continue
+				if HospitalStaffWellbeing.yield_for_work(world,content,space,[staff_id]): continue
 				unit.worker_id = staff_id
 				unit.work_cell = place.cell
 				unit.tool_id = tool_id
@@ -504,6 +506,9 @@ func _arrive(world: WorldState, job: Dictionary, floor_id: int, cell: Array) -> 
 		if world.facts.moves.has(worker_id) or not space.static_reason(world,world.facts.actors[worker_id],floor_id,Vector2i(int(cell[0]),int(cell[1]))).is_empty():
 			return false
 		return true
+	# The movement service owns this real journey and rechecks its next segment.
+	# Requoting the whole trip cannot advance an already travelling worker.
+	if world.facts.moves.has(worker_id): return false
 	var route: Dictionary = space.route(world,worker_id,floor_id,cell)
 	if not route.ok:
 		_release(world,job)
@@ -516,7 +521,7 @@ func _worker_ready(world: WorldState, id: String, own_job: String = "") -> bool:
 	if not world.facts.staff.has(id) or not world.facts.actors.has(id):
 		return false
 	var staff: Dictionary = world.facts.staff[id]
-	return bool(staff.on_shift) and not staff.get("block_new_work",false) and not staff.get("supply_strike",false) and world.sim_tick>=int(staff.get("supply_return_tick",0)) and str(staff.get("training_job_id","")).is_empty() and staff.get("life_task",{"phase":"idle"}).get("phase","idle")=="idle" and str(staff.get("active_job_id","")) in ["",own_job] and float(staff.get("energy",100))>15.0
+	return bool(staff.on_shift) and not staff.get("block_new_work",false) and not staff.get("supply_strike",false) and world.sim_tick>=int(staff.get("supply_return_tick",0)) and str(staff.get("training_job_id","")).is_empty() and HospitalStaffWellbeing.work_window(staff) and str(staff.get("active_job_id","")) in ["",own_job] and float(staff.get("energy",100))>15.0
 
 func _release(world: WorldState, job: Dictionary) -> void:
 	var worker_id: String = str(job.get("worker_id",""))

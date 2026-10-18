@@ -969,6 +969,9 @@ func _update_details() -> void:
 		lines.append("\n[b]"+str(_content.facility_definition(facility.definition_id).get("name",_selected_object))+"[/b]")
 		lines.append("%dF · 等级%d · 完好度%d%%" % [int(facility.floor_id),int(facility.grade),roundi(facility.condition)])
 		lines.append("当前故障，等待维修" if facility.failed else "按真实岗位与路线接单")
+		if facility.definition_id=="SE04":
+			var owner: Dictionary = world.facts.get("staff_life",{}).get("personal_beds",{}).get(facility.id,{})
+			lines.append("未分配个人床" if owner.is_empty() else "个人床主人："+str(world.facts.actors[owner.staff_id].name)+" · 仅本人使用")
 	var text: String = "\n".join(lines)
 	if _details.text!=text: _details.text = text
 

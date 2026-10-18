@@ -35,28 +35,15 @@ class SeatCountingLife:
 class VisitorCandidateObservation:
 	extends HospitalVisitors
 	var provided_queries: int = 0
-	var empty_queries: int = 0
-	var candidate_index_untouched: bool = true
-	var cold_equivalent: bool = true
-	var source_ids_complete: bool = true
 	var candidate_readonly: bool = true
-	func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
-		super(database,geometry)
-	func _waiting_point(world: WorldState, actor_id: String, facility_ids: Variant = null, waiting: Variant = null) -> Dictionary:
-		if facility_ids==null:
-			return super._waiting_point(world,actor_id,facility_ids,waiting)
+	var cold_equivalent: bool = true
+	func _waiting_point(world: WorldState, actor_id: String) -> Dictionary:
 		provided_queries += 1
-		if facility_ids.is_empty(): empty_queries += 1
-		var ids_before: Array = facility_ids.duplicate()
 		var before: Dictionary = world.freeze()
-		var initial_index: int = world._facility_count
-		var result: Dictionary = super._waiting_point(world,actor_id,facility_ids,waiting)
-		candidate_index_untouched = candidate_index_untouched and initial_index==-1 and world._facility_count==-1
-		candidate_readonly = candidate_readonly and before==world.freeze() and facility_ids==ids_before
-		var cold_world: WorldState = WorldState.new(before)
+		var result: Dictionary = super._waiting_point(world,actor_id)
+		candidate_readonly = candidate_readonly and before==world.freeze()
 		var cold: HospitalVisitors = HospitalVisitors.new(content,HospitalSpace.new(content))
-		source_ids_complete = source_ids_complete and facility_ids==cold._waiting_facility_ids(cold_world)
-		cold_equivalent = cold_equivalent and result==cold._waiting_point(cold_world,actor_id)
+		cold_equivalent = cold_equivalent and result==cold._waiting_point(WorldState.new(before),actor_id)
 		return result
 
 const CASES: Dictionary = {
@@ -1563,7 +1550,7 @@ func _case_49(_t) -> Dictionary:
 	var visitor_seat: CommandResult = _command(sim,"build_facility",{"id":"z_family_seat","definition_id":"FUR09","floor_id":1,"cell":[44,72]})
 	if not visitor_seat.accepted: return _done(sim,false,{"visitor_seat":visitor_seat.to_record()})
 	var point: Dictionary = visitors._waiting_point(sim.world,first.actor_id)
-	var indexed_definitions: bool = point.get("cell",[])==sim.world.facts.facilities.z_family_seat.patient_cell
+	var indexed_definitions: bool = "z_family_seat" in sim.space.public_areas.region(sim.world,point.get("area",{})).get("facilities",[])
 	var admitted: bool = visitors._admit(sim.world,first,request)
 	var actual_arrival: bool = false
 	if admitted:
@@ -1573,14 +1560,14 @@ func _case_49(_t) -> Dictionary:
 	var second_request: Dictionary = {"id":"second:companion:","visit_id":second.id,"purpose":"companion","window":"","request_tick":sim.world.sim_tick}
 	sim.world.facts.visitors.requests[second_request.id] = second_request
 	before = sim.world.freeze()
-	var next_refused: bool = not visitors._admit(sim.world,second,second_request) and sim.world.freeze()==before
+	var next_queued: bool = visitors._admit(sim.world,second,second_request) and not sim.world.facts.visitors.stays.is_empty()
 	var first_quote: Dictionary = waiting._seat_quote(sim.world,first,"a_patient_only")
 	var chosen: CommandResult = waiting.execute(sim.world,"waiting_select_seat",{"visit_id":first.id,"facility_id":"a_patient_only"})
 	before = sim.world.freeze()
 	var second_quote: Dictionary = waiting._seat_quote(sim.world,second,"a_patient_only")
-	var reserved_visible: bool = first_quote.get("ok",false) and chosen.accepted and not second_quote.get("ok",true) and sim.world.freeze()==before
-	var source_view: bool = visitors.provided_queries==3 and visitors.empty_queries==1 and visitors.candidate_index_untouched and visitors.cold_equivalent and visitors.source_ids_complete and visitors.candidate_readonly
-	return _done(sim,readonly and nominal_preserved and candidate_isolated and indexed_definitions and admitted and actual_arrival and next_refused and reserved_visible and source_view and sim.space._route_queries.is_empty(),{"queries_readonly":readonly,"same_world_nominal_preserved":nominal_preserved,"different_body_candidate_is_actual":candidate_isolated,"visitor_definition_set":indexed_definitions,"admitted":admitted,"actual_waiting_arrival":actual_arrival,"failed_probe_preserves_all_facts":next_refused,"next_ticket_sees_reservation":reserved_visible,"source_candidate_view":{"queries":visitors.provided_queries,"empty_queries":visitors.empty_queries,"complete_ordered_ids":visitors.source_ids_complete,"candidate_index_not_built":visitors.candidate_index_untouched,"independent_cold_equivalent":visitors.cold_equivalent,"candidate_and_ids_readonly":visitors.candidate_readonly},"second_quote":second_quote})
+	var target_unowned: bool = first_quote.get("ok",false) and chosen.accepted and second_quote.get("ok",false) and sim.world.freeze()==before and not sim.world.facts.adaptations.has("a_patient_only")
+	var source_view: bool = visitors.provided_queries>=2 and visitors.cold_equivalent and visitors.candidate_readonly
+	return _done(sim,readonly and nominal_preserved and candidate_isolated and indexed_definitions and admitted and actual_arrival and next_queued and target_unowned and source_view and sim.space._route_queries.is_empty(),{"queries_readonly":readonly,"same_world_nominal_preserved":nominal_preserved,"different_body_candidate_is_actual":candidate_isolated,"visitor_area_definition_set":indexed_definitions,"admitted":admitted,"actual_waiting_arrival":actual_arrival,"next_visitor_can_queue":next_queued,"manual_target_not_owned_enroute":target_unowned,"regional_probe_readonly_and_cold_equal":source_view})
 
 func _case_50(_t) -> Dictionary:
 	var sim: HospitalSimulation = _fixture()

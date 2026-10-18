@@ -3,6 +3,7 @@ extends SceneTree
 const Clinical = preload("res://tools/performance/representative_clinical.gd")
 const Operations = preload("res://tools/performance/representative_operations.gd")
 const StepProfile = preload("res://tools/performance/step_profile.gd")
+const Public = preload("res://tools/performance/representative_public.gd")
 
 func _initialize() -> void:
 	call_deferred("_run")
@@ -26,13 +27,17 @@ func _run() -> void:
 			quit(2)
 			return
 	var content: HospitalContent = HospitalContent.new()
+	var initialization_started: int = Time.get_ticks_usec()
 	var clinical: RefCounted = Clinical.new(content,str(options.input))
+	var initialization_elapsed: int = Time.get_ticks_usec()-initialization_started
 	var ops: RefCounted = Operations.new()
 	var operation_metadata: Dictionary = {}
+	var public_metadata: Dictionary = {}
 	var source: FileAccess = FileAccess.open(str(options.input),FileAccess.READ)
 	if source!=null:
 		var payload: Dictionary = source.get_var()
 		operation_metadata = payload.get("representative_clinical",{}).get("metadata",{}).get("operations",{})
+		public_metadata = payload.get("representative_clinical",{}).get("metadata",{}).get("public_input",{})
 	if not clinical.errors.is_empty():
 		_write(str(options.output),{"complete":false,"errors":clinical.errors})
 		quit(2)
@@ -48,6 +53,7 @@ func _run() -> void:
 	var report: Dictionary = {"diagnostic_only":true,"formal_pass":false,"formal_acceptance_paused":true,
 		"source_input":str(options.input),"source_input_sha256":clinical.source_sha256,
 		"engine":Engine.get_version_info(),"mode":str(options.profile),"requested_steps":int(options.steps),
+		"initialization_elapsed_us":initialization_elapsed,"public_input":public_metadata,
 		"execution":{"platform":OS.get_name(),"processor":OS.get_processor_name(),"debug_build":OS.is_debug_build(),
 			"editor_binary":OS.has_feature("editor"),"display_server":DisplayServer.get_name(),
 			"scope":"ordinary HospitalSimulation.step; frozen legal day plan; no GameSession background capacity preparation, rendering or persistence IO"},
@@ -68,11 +74,16 @@ func _run() -> void:
 		var replacement: HospitalSimulation = profiler.attach(clinical.simulation,str(options.profile)=="nested")
 		if replacement==null: clinical.errors.append_array(profiler.errors)
 		else: clinical.simulation = replacement
+	var public_observer: RefCounted = Public.new(clinical.simulation.space)
 	print("REPRESENTATIVE_START="+JSON.stringify({"input_sha256":clinical.source_sha256,"mode":options.profile,
 		"tick":clinical.world.sim_tick,"present":clinical.world.present_actor_count(),"steps":options.steps,"pid":OS.get_process_id()}))
 	var progress: FileAccess = FileAccess.open(str(options.output)+".steps.ndjson",FileAccess.WRITE)
 	for index: int in int(options.steps):
 		if not clinical.errors.is_empty(): break
+		if public_metadata.has("manual_command") and index==int(public_metadata.get("manual_command_step",0)):
+			var command: Dictionary = public_metadata.manual_command.duplicate(true)
+			command.expected_revision = clinical.world.revision
+			clinical.simulation.enqueue(command)
 		# Enter/complete markers are outside the measured operation. A watchdog
 		# preserves the last marker and labels a stopped run incomplete.
 		progress.store_line(JSON.stringify({"kind":"enter","index":index,"tick":clinical.world.sim_tick}))
@@ -88,6 +99,7 @@ func _run() -> void:
 			report.samples.append({"index":index,"elapsed_us":elapsed,"complete":false,"profile":step_record})
 			break
 		var observation: Dictionary = clinical.observe(result)
+		public_observer.observe(clinical.world,clinical.simulation.space)
 		for event: SimEvent in result.facts: report.event_records.append(event.to_record())
 		report.samples.append({"index":index,"tick":result.sim_tick,"elapsed_us":elapsed,"complete":true,
 			"present":clinical.world.present_actor_count(),"sessions":observation.sessions.size(),"moves":clinical.world.facts.moves.size(),
@@ -96,6 +108,11 @@ func _run() -> void:
 		progress.flush()
 		if index==0 or (index+1)%20==0: print("REPRESENTATIVE_COMPLETE="+JSON.stringify(report.samples.back()))
 	report.final = clinical.inspect(true)
+	report.public = public_observer.report(clinical.simulation.space)
+	if public_metadata.has("manual_command"):
+		report.public.manual_receipt = clinical.simulation.receipt(str(public_metadata.manual_command.id))
+	if public_metadata.get("contention_scene",false):
+		report.public_checks = {"manual_request_accepted":report.public.manual_receipt.get("accepted",false),"actual_queue_observed":report.public.queue_peak>0,"actual_uses_observed":report.public.actual_use_starts.size()>=2,"two_actual_use_regions":report.public.used_regions.size()>=2,"actual_completion_observed":report.public.actual_use_completions.size()>0,"prior_actual_exit_before_reuse":report.public.actual_exit_then_reuse_count>0,"no_observer_rule_errors":report.public.errors.is_empty()}
 	report.operations = ops.assess(clinical.world,operation_metadata,operation_start) if not operation_metadata.is_empty() else {}
 	if profiler!=null:
 		report.profile = profiler.report()

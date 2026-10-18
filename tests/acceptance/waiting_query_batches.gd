@@ -223,25 +223,25 @@ func _release_bound(bound: Dictionary) -> void:
 func _reservation_case() -> Dictionary:
 	var x: Dictionary = _fixture()
 	_facility(x,"last_seat","FUR06",[42,75])
-	_visit(x,"first",[38,78])
+	_visit(x,"first",[38,79])
 	_visit(x,"second",[46,79])
 	x.world.touch()
-	var before_world: WorldState = WorldState.new(x.world.freeze())
-	var after_world: WorldState = WorldState.new(x.world.freeze())
-	var before: Dictionary = _bind_life(before_world,true)
-	var after: Dictionary = _bind_life(after_world,false)
-	var first_equal: bool = before.life.seat_candidates(before_world,"first")==after.life.seat_candidates(after_world,"first")
-	var old_result: CommandResult = before.life.execute(before_world,"waiting_select_seat",{"visit_id":"first","facility_id":"last_seat"})
-	var result: CommandResult = after.life.execute(after_world,"waiting_select_seat",{"visit_id":"first","facility_id":"last_seat"})
-	var facts: Dictionary = after_world.freeze()
-	var old_next: Array = before.life.seat_candidates(before_world,"second")
-	var next: Array = after.life.seat_candidates(after_world,"second")
-	var second_result: CommandResult = after.life.execute(after_world,"waiting_select_seat",{"visit_id":"second","facility_id":"last_seat"})
-	var occupied: Dictionary = compare(after_world,"second")
-	var passed: bool = first_equal and old_result.accepted and result.accepted and old_next==next and next.is_empty() and before_world.freeze()==after_world.freeze() and not second_result.accepted and after_world.freeze()==facts and after_world.facts.waiting_life.seats.size()==1 and occupied.equal and occupied.after_metrics.index_build_actor_records==0
-	_release_bound(before)
-	_release_bound(after)
-	return {"passed":passed,"first_full_candidates_equal":first_equal,"first_reserved":result.accepted,"second_full_candidates_equal":old_next==next,"second_rejected_without_mutation":not second_result.accepted and after_world.freeze()==facts,"all_facts_and_rng_equal":before_world.freeze()==after_world.freeze(),"occupied_seat_does_not_build_index":occupied.after_metrics.index_build_actor_records==0}
+	var compared: Dictionary = compare(x.world,"first")
+	var service: HospitalWaitingLife = HospitalWaitingLife.new(_content,x.space)
+	var first: CommandResult = service.execute(x.world,"waiting_select_seat",{"visit_id":"first","facility_id":"last_seat"})
+	var second: CommandResult = service.execute(x.world,"waiting_select_seat",{"visit_id":"second","facility_id":"last_seat"})
+	var no_remote: bool = x.world.facts.adaptations.is_empty()
+	var seated: int = 0
+	for tick: int in 300:
+		x.world.facts.sim_tick += 1
+		service.dispatch(x.world)
+		x.space.advance(x.world)
+		seated = 0
+		for seat: Dictionary in x.world.facts.waiting_life.seats.values():
+			if seat.phase=="seated": seated += 1
+		if seated>0: break
+	var occupied: Dictionary = compare(x.world,"second")
+	return {"passed":compared.equal and first.accepted and second.accepted and no_remote and seated==1 and occupied.equal,"full_conditions_equal":compared.equal,"two_manual_requests":first.accepted and second.accepted,"no_remote_ownership":no_remote,"actual_seated":seated,"live_occupancy_conditions_equal":occupied.equal}
 
 func _empty_bound_case() -> Dictionary:
 	var x: Dictionary = _fixture()

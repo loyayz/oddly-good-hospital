@@ -226,6 +226,10 @@ func dispatch(world: WorldState) -> void:
 			continue
 		var ticket: Dictionary = world.facts.tickets[ticket_id]
 		var visit: Dictionary = world.facts.visits[ticket.visit_id]
+		# The life service keeps its original ticket until the real return ends.
+		# No clinical candidate can be called in that interval; preparation
+		# expiry and other safety boundaries above still run normally.
+		if world.facts.get("waiting_life",{}).get("needs",{}).has(visit.id) and not ticket.get("service_assigned",false) and not world.facts.preparations.has(visit.id) and not ticket.has("resume_session_id"): continue
 		if ticket.kind == "surgery":
 			_prepare_surgery(world,visit,ticket)
 		else:
@@ -426,6 +430,9 @@ func _dispatch_service(world: WorldState, visit: Dictionary, ticket: Dictionary)
 	var track: String = "treatment" if kind in ["outpatient","consult"] else "diagnosis"
 	if kind != "reception" and int(staff.abilities[track]) < 1:
 		visit.waiting_reason = "职员缺少对应能力资格"
+		return
+	if HospitalStaffWellbeing.yield_for_work(world,content,space,[staff_id]):
+		visit.waiting_reason = "公共娱乐尚未开始，等待整组安全离位后接单"
 		return
 	if waiting_life != null and not waiting_life.call("call_patient",world,visit.id):
 		return
@@ -1419,6 +1426,10 @@ func _reservation_candidate(world: WorldState, facility_ids: Array, actor_ids: A
 	return WorldState.new(facts)
 
 func _reserve_bundle(world: WorldState, visit: Dictionary, quote: Dictionary, owner_id: String) -> String:
+	var workers: Array = quote.staff_ids.duplicate()
+	for field: String in ["nurse_id","round_doctor_id"]:
+		if quote.has(field) and not quote[field] in workers: workers.append(quote[field])
+	if HospitalStaffWellbeing.yield_for_work(world,content,space,workers): return "公共娱乐尚未开始，等待原整组安全离位"
 	var facility_ids: Array = [quote.facility_id]
 	if quote.has("bed_id"): facility_ids.append(quote.bed_id)
 	var candidate: WorldState = _reservation_candidate(world,facility_ids)
@@ -2863,7 +2874,7 @@ func settle_practice(world: WorldState) -> void:
 	_practice_awards.clear()
 
 func _can_start(world: WorldState, staff: Dictionary) -> bool:
-	return not staff.has("clinical_release") and bool(staff.get("base_prepared",true)) and not bool(staff.get("block_new_work",false)) and not bool(staff.get("supply_strike",false)) and world.sim_tick>=int(staff.get("supply_return_tick",-1)) and str(staff.get("life_task",{}).get("phase","idle"))=="idle" and float(staff.energy)>15.0 and (staff.role!="doctor" or float(staff.fatigue)<float(content.balance.wellbeing.fatigue_stop_new_work))
+	return not staff.has("clinical_release") and bool(staff.get("base_prepared",true)) and not bool(staff.get("block_new_work",false)) and not bool(staff.get("supply_strike",false)) and world.sim_tick>=int(staff.get("supply_return_tick",-1)) and HospitalStaffWellbeing.work_window(staff) and float(staff.energy)>15.0 and (staff.role!="doctor" or float(staff.fatigue)<float(content.balance.wellbeing.fatigue_stop_new_work))
 
 func _use(world: WorldState, facility: Dictionary, receipt_id: String) -> void:
 	facility = world.facts.facilities[facility.id]
