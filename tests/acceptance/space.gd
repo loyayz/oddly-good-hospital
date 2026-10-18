@@ -32,6 +32,33 @@ class SeatCountingLife:
 		quote_calls += 1
 		return super._seat_quote(world,visit,facility_id)
 
+class VisitorCandidateObservation:
+	extends HospitalVisitors
+	var provided_queries: int = 0
+	var empty_queries: int = 0
+	var candidate_index_untouched: bool = true
+	var cold_equivalent: bool = true
+	var source_ids_complete: bool = true
+	var candidate_readonly: bool = true
+	func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
+		super(database,geometry)
+	func _waiting_point(world: WorldState, actor_id: String, facility_ids: Variant = null) -> Dictionary:
+		if facility_ids==null:
+			return super._waiting_point(world,actor_id)
+		provided_queries += 1
+		if facility_ids.is_empty(): empty_queries += 1
+		var ids_before: Array = facility_ids.duplicate()
+		var before: Dictionary = world.freeze()
+		var initial_index: int = world._facility_count
+		var result: Dictionary = super._waiting_point(world,actor_id,facility_ids)
+		candidate_index_untouched = candidate_index_untouched and initial_index==-1 and world._facility_count==-1
+		candidate_readonly = candidate_readonly and before==world.freeze() and facility_ids==ids_before
+		var cold_world: WorldState = WorldState.new(before)
+		var cold: HospitalVisitors = HospitalVisitors.new(content,HospitalSpace.new(content))
+		source_ids_complete = source_ids_complete and facility_ids==cold._waiting_facility_ids(cold_world)
+		cold_equivalent = cold_equivalent and result==cold._waiting_point(cold_world,actor_id)
+		return result
+
 const CASES: Dictionary = {
 	"SPACE-01":"docs/design/12-implementation-plan.md §11 8.1/8.3；合法房壳预览只读，创建与整数付款原子一致",
 	"SPACE-02":"docs/design/12-implementation-plan.md §11 8.1/8.4；未购地、断格、孔洞、小房失败原子",
@@ -81,7 +108,7 @@ const CASES: Dictionary = {
 	"SPACE-46":"docs/design/04-technical.md §6；同体型通行组换成员不继承预约豁免，变更配位与真实阻挡立即生效",
 	"SPACE-47":"docs/design/08-hospital-life.md §11；整备房间按真实格形判断身体相交，不将凹角空白当房间",
 	"SPACE-48":"docs/design/04-technical.md §6/§13；设施阻挡查询复用真实展开索引，候选隔离且实际预约立即失效",
-	"SPACE-49":"docs/design/08-hospital-life.md 候诊与家属；只读候选保原定义、票序与随机流，失败入院不生成身份",
+	"SPACE-49":"docs/design/08-hospital-life.md 候诊与家属；完整有序设施候选与独立冷计算等价，失败不生成身份，成功真实移动且新预约立即可见",
 	"SPACE-50":"docs/data/balance.json seat_choice；自动候诊只以保守路程下界严格排除超30秒座位，完整报价与手动选择不变",
 	"SPACE-51":"docs/design/04-technical.md §6；参考层内与完整旅程缓存按预约通行权限隔离，同权限跨主体共享",
 	"SPACE-52":"docs/design/04-technical.md §3大面积预览；完整合法最大矩形、井道失败、相关重启与取消、共享原帧预算"
@@ -1506,7 +1533,7 @@ func _case_49(_t) -> Dictionary:
 	var second: Dictionary = _waiting_visit(sim,"second",[38,82])
 	var waiting: HospitalWaitingLife = HospitalWaitingLife.new(content,sim.space)
 	waiting.ensure(sim.world)
-	var visitors: HospitalVisitors = HospitalVisitors.new(content,sim.space)
+	var visitors: VisitorCandidateObservation = VisitorCandidateObservation.new(content,sim.space)
 	visitors.ensure(sim.world)
 	var request: Dictionary = {"id":"first:companion:","visit_id":first.id,"purpose":"companion","window":"","request_tick":sim.world.sim_tick}
 	sim.world.facts.visitors.requests[request.id] = request
@@ -1551,7 +1578,8 @@ func _case_49(_t) -> Dictionary:
 	before = sim.world.freeze()
 	var second_quote: Dictionary = waiting._seat_quote(sim.world,second,"a_patient_only")
 	var reserved_visible: bool = first_quote.get("ok",false) and chosen.accepted and not second_quote.get("ok",true) and sim.world.freeze()==before
-	return _done(sim,readonly and nominal_preserved and candidate_isolated and indexed_definitions and admitted and actual_arrival and next_refused and reserved_visible and sim.space._route_queries.is_empty(),{"queries_readonly":readonly,"same_world_nominal_preserved":nominal_preserved,"different_body_candidate_is_actual":candidate_isolated,"visitor_definition_set":indexed_definitions,"admitted":admitted,"actual_waiting_arrival":actual_arrival,"failed_probe_preserves_all_facts":next_refused,"next_ticket_sees_reservation":reserved_visible,"second_quote":second_quote})
+	var source_view: bool = visitors.provided_queries==3 and visitors.empty_queries==1 and visitors.candidate_index_untouched and visitors.cold_equivalent and visitors.source_ids_complete and visitors.candidate_readonly
+	return _done(sim,readonly and nominal_preserved and candidate_isolated and indexed_definitions and admitted and actual_arrival and next_refused and reserved_visible and source_view and sim.space._route_queries.is_empty(),{"queries_readonly":readonly,"same_world_nominal_preserved":nominal_preserved,"different_body_candidate_is_actual":candidate_isolated,"visitor_definition_set":indexed_definitions,"admitted":admitted,"actual_waiting_arrival":actual_arrival,"failed_probe_preserves_all_facts":next_refused,"next_ticket_sees_reservation":reserved_visible,"source_candidate_view":{"queries":visitors.provided_queries,"empty_queries":visitors.empty_queries,"complete_ordered_ids":visitors.source_ids_complete,"candidate_index_not_built":visitors.candidate_index_untouched,"independent_cold_equivalent":visitors.cold_equivalent,"candidate_and_ids_readonly":visitors.candidate_readonly},"second_quote":second_quote})
 
 func _case_50(_t) -> Dictionary:
 	var sim: HospitalSimulation = _fixture()

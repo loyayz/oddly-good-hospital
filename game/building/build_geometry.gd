@@ -155,13 +155,38 @@ static func intersects_room(rect: Rect2, room: Dictionary) -> bool:
 	return intersects_cells(rect,room.cells)
 
 static func occupied_error(world: WorldState, space: HospitalSpace, floor_id: int, rects: Array, ignored_ids: Array = []) -> Dictionary:
+	return occupied_view_error(occupancy_view(world,space,floor_id,ignored_ids),floor_id,rects)
+
+# The preview owns this read-only projection only while its full dependency
+# check is current. Ordinary callers create a fresh view for each query.
+static func occupancy_view(world: WorldState, space: HospitalSpace, floor_id: int, ignored_ids: Array = []) -> Dictionary:
+	var view: Dictionary = {"owned_plots":{},"blocked":world.facts.floors.overrides.get(str(floor_id),{}).get("blocked",[]),"actors":[],"facilities":[],"connectors":[],"adaptations":[],"dirt":[]}
+	for plot: Array in HospitalSpace.floor_plots(world,floor_id):
+		view.owned_plots[Vector2i(int(plot[0]),int(plot[1]))] = true
+	for actor: Dictionary in world.facts.actors.values():
+		if actor.location.kind=="floor" and int(actor.location.floor_id)==floor_id:
+			view.actors.append({"id":actor.id,"cell":actor.location.cell,"rect":space.body_rectangle(actor)})
+	for facility: Dictionary in world.facts.facilities.values():
+		if int(facility.floor_id)==floor_id and not facility.id in ignored_ids:
+			view.facilities.append({"id":facility.id,"cell":facility.cell,"rect":rectangle(space.facility_layout(world,facility.id).merged({"cell":facility.cell}))})
+	for connector: Dictionary in world.facts.connectors.values():
+		if HospitalTransit.has_stop(connector,floor_id) and connector.has("cell"):
+			view.connectors.append({"id":connector.id,"cell":connector.cell,"rect":rectangle(connector)})
+	for reservation: Dictionary in world.facts.adaptations.values():
+		if int(reservation.floor_id)==floor_id: view.adaptations.append(reservation)
+	for collection: String in ["dirt_patches","dirt"]:
+		for patch: Dictionary in world.facts.get(collection,{}).values():
+			if int(patch.get("floor_id",1))==floor_id and patch.has("cell"): view.dirt.append(patch)
+	for patch: Dictionary in world.facts.get("environment",{}).get("dirt",{}).values():
+		if int(patch.get("floor_id",1))==floor_id and str(patch.get("bin_id","")).is_empty() and patch.has("cell"): view.dirt.append(patch)
+	return view
+
+static func occupied_view_error(view: Dictionary, floor_id: int, rects: Array) -> Dictionary:
 	# One read-only occupancy query uses one view of the floor's completed plots.
 	# Rebuilding that list for every cell repeats interval/plot ID work on large
 	# rectangles; the ownership predicate and full cell coverage stay exact.
-	var owned_plots: Dictionary = {}
-	for plot: Array in HospitalSpace.floor_plots(world,floor_id):
-		owned_plots[Vector2i(int(plot[0]),int(plot[1]))] = true
-	var blocked: Array = world.facts.floors.overrides.get(str(floor_id),{}).get("blocked",[])
+	var owned_plots: Dictionary = view.owned_plots
+	var blocked: Array = view.blocked
 	for rect: Rect2 in rects:
 		for x: int in range(floori(rect.position.x),ceili(rect.end.x)):
 			for y: int in range(floori(rect.position.y),ceili(rect.end.y)):
@@ -171,27 +196,21 @@ static func occupied_error(world: WorldState, space: HospitalSpace, floor_id: in
 					return failure("占地有真实结构阻挡",[[x,y]])
 		if floor_id==1 and rect.intersects(Rect2(47,93,3,3),false):
 			return failure("入口3×3缓冲区和南侧安全出口必须保留",[[47,93]])
-		for actor: Dictionary in world.facts.actors.values():
-			if actor.location.kind=="floor" and int(actor.location.floor_id)==floor_id and rect.intersects(space.body_rectangle(actor),false):
-				return failure("占地有实际身体："+str(actor.id),[actor.location.cell])
-		for facility: Dictionary in world.facts.facilities.values():
-			if int(facility.floor_id)==floor_id and not facility.id in ignored_ids and rect.intersects(rectangle(space.facility_layout(world,facility.id).merged({"cell":facility.cell})),false):
+		for actor: Dictionary in view.actors:
+			if rect.intersects(actor.rect,false):
+				return failure("占地有实际身体："+str(actor.id),[actor.cell])
+		for facility: Dictionary in view.facilities:
+			if rect.intersects(facility.rect,false):
 				return failure("占地有实际设施："+str(facility.id),[facility.cell])
-		for connector: Dictionary in world.facts.connectors.values():
-			if HospitalTransit.has_stop(connector,floor_id) and connector.has("cell") and rect.intersects(rectangle(connector),false):
+		for connector: Dictionary in view.connectors:
+			if rect.intersects(connector.rect,false):
 				return failure("占地有真实竖向结构："+str(connector.id),[connector.cell])
-		for reservation: Dictionary in world.facts.adaptations.values():
-			if int(reservation.floor_id)!=floor_id:
-				continue
+		for reservation: Dictionary in view.adaptations:
 			for area: Array in reservation.regions:
 				if rect.intersects(Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3])),false):
 					return failure("占地有尚未释放的真实身体或岗位预约",[[area[0],area[1]]])
-		for collection: String in ["dirt_patches","dirt"]:
-			for patch: Dictionary in world.facts.get(collection,{}).values():
-				if int(patch.get("floor_id",1))==floor_id and patch.has("cell") and rect.has_point(Vector2(float(patch.cell[0]),float(patch.cell[1]))):
-					return failure("占地有尚未清洁的真实垃圾："+str(patch.get("id","")),[patch.cell])
-		for patch: Dictionary in world.facts.get("environment",{}).get("dirt",{}).values():
-			if int(patch.get("floor_id",1))==floor_id and str(patch.get("bin_id","")).is_empty() and rect.has_point(Vector2(float(patch.cell[0]),float(patch.cell[1]))):
+		for patch: Dictionary in view.dirt:
+			if rect.has_point(Vector2(float(patch.cell[0]),float(patch.cell[1]))):
 				return failure("占地有尚未清洁的真实垃圾："+str(patch.get("id","")),[patch.cell])
 	return {"ok":true}
 

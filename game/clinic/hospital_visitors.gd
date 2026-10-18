@@ -76,13 +76,14 @@ func _admit(world: WorldState, visit: Dictionary, request: Dictionary) -> bool:
 	space.end_route_query()
 	if not entry_clear:
 		return false
+	var facility_ids: Array = _waiting_facility_ids(world)
 	# Admission only adds its own probe; waiting and route queries read all
 	# other facts synchronously without changing their owners.
 	var facts: Dictionary = world.facts.duplicate()
 	facts.actors = world.facts.actors.duplicate()
 	var candidate: WorldState = WorldState.new(facts)
 	candidate.facts.actors[actor.id] = actor
-	var waiting: Dictionary = _waiting_point(candidate,actor.id)
+	var waiting: Dictionary = _waiting_point(candidate,actor.id,facility_ids)
 	if waiting.is_empty():
 		return false
 	var actor_id: String = original_id if not original_id.is_empty() else world.new_id("relative")
@@ -190,17 +191,22 @@ func _end_visit(stay: Dictionary) -> void:
 	stay.pending_window = ""
 	stay.phase = "to_waiting" if stay.purpose=="companion" else "leaving"
 
-func _waiting_point(world: WorldState, actor_id: String) -> Dictionary:
+func _waiting_point(world: WorldState, actor_id: String, facility_ids: Variant = null) -> Dictionary:
 	space.begin_route_query(world,{},space.nominal_query(world))
-	var result: Dictionary = _waiting_point_in_query(world,actor_id)
+	# A supplied empty list is complete, just like a nonempty source view.
+	var candidates: Array = _waiting_facility_ids(world) if facility_ids==null else facility_ids
+	var result: Dictionary = _waiting_point_in_query(world,actor_id,candidates)
 	space.end_route_query()
 	return result
 
-func _waiting_point_in_query(world: WorldState, actor_id: String) -> Dictionary:
+func _waiting_facility_ids(world: WorldState) -> Array:
 	var facility_ids: Array = []
 	for definition_id: String in WAITING_SEAT_DEFINITIONS:
 		facility_ids.append_array(world.facility_ids(definition_id))
 	facility_ids.sort()
+	return facility_ids
+
+func _waiting_point_in_query(world: WorldState, actor_id: String, facility_ids: Array) -> Dictionary:
 	for facility_id: String in facility_ids:
 		var facility: Dictionary = world.facts.facilities[facility_id]
 		if not facility.definition_id in WAITING_SEAT_DEFINITIONS:

@@ -26,6 +26,7 @@ var _room_checks: Array = []
 var _facility_checks: Array = []
 var _public_checks: Array = []
 var _actor_checks: Array = []
+var _occupancy_views: Dictionary = {}
 
 func _init(building: BuildService, world: WorldState, request: Dictionary) -> void:
 	service = building
@@ -77,9 +78,15 @@ func dependencies(world: WorldState) -> String:
 		for floor_id: int in floors:
 			if HospitalTransit.has_stop(connector,floor_id):
 				values.connectors[connector.id] = connector
+	values.dirt = {"environment":{},"dirt_patches":{},"dirt":{}}
 	for patch: Dictionary in world.facts.get("environment",{}).get("dirt",{}).values():
 		if int(patch.get("floor_id",1)) in floors:
-			values.dirt[patch.id] = _fields(patch,["id","floor_id","cell","bin_id"])
+			values.dirt.environment[patch.id] = _fields(patch,["id","floor_id","cell","bin_id"])
+	for collection: String in ["dirt_patches","dirt"]:
+		for patch_id: String in world.facts.get(collection,{}):
+			var patch: Dictionary = world.facts[collection][patch_id]
+			if int(patch.get("floor_id",1)) in floors:
+				values.dirt[collection][patch_id] = _fields(patch,["id","floor_id","cell"])
 	if kind=="build_undo":
 		values.history = world.facts.get("build_history",[])
 		values.settlements = service._settlement_marker(world)
@@ -253,7 +260,9 @@ func _step(world: WorldState) -> void:
 				return
 			var check: Dictionary = _room_checks[_cursor]
 			_cursor += 1
-			var collision: Dictionary = BuildGeometry.occupied_error(_source,service.space,check.floor_id,[check.rect],check.ignored)
+			if not _occupancy_views.has(check.floor_id):
+				_occupancy_views[check.floor_id] = BuildGeometry.occupancy_view(_source,service.space,check.floor_id,check.ignored)
+			var collision: Dictionary = BuildGeometry.occupied_view_error(_occupancy_views[check.floor_id],check.floor_id,[check.rect])
 			if not collision.ok:
 				_finish(collision,world)
 				return

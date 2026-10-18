@@ -62,7 +62,10 @@ static func run(content: HospitalContent) -> Dictionary:
 	var first_floor_draft: Dictionary = _draft(85)
 	first_floor_draft.floor_id = 1
 	turning.request(first_floor_draft,{"hospital_id":world.hospital_id,"view_floor_id":1})
-	turning.update(world,1)
+	for slice: int in 1000:
+		turning.update(world,1,[world,world.revision])
+		if not turning.job._occupancy_views.is_empty() or turning.job.complete: break
+	var cached_occupancy: bool = not turning.job._occupancy_views.is_empty()
 	var rotating_actor: Dictionary = {}
 	for actor: Dictionary in world.facts.actors.values():
 		if actor.location.kind=="floor" and int(actor.location.floor_id)==1:
@@ -93,7 +96,7 @@ static func run(content: HospitalContent) -> Dictionary:
 	overlay.free()
 	world.facts.floors.overrides["2"].blocked.clear()
 	preview.cancel()
-	return {"ok":ok and unchanged and restarted and facing_restart and cancelled and shared and outline,"details":{"maximum_requests":observations,"irrelevant_change_and_rebind":unchanged,"relevant_restart":restarted,"facing_restart_without_revision":facing_restart,"cancelled":cancelled,"shared_budget":shared,"complete_outline_bounds_and_floor":outline,"metric_scope":"headless complete preview computation; update calls are not displayed frames or OS input latency"}}
+	return {"ok":ok and unchanged and restarted and cached_occupancy and facing_restart and cancelled and shared and outline,"details":{"maximum_requests":observations,"irrelevant_change_and_rebind":unchanged,"relevant_restart":restarted,"cached_occupancy_before_facing_change":cached_occupancy,"facing_restart_without_revision":facing_restart,"cancelled":cancelled,"shared_budget":shared,"complete_outline_bounds_and_floor":outline,"metric_scope":"headless complete preview computation; update calls are not displayed frames or OS input latency"}}
 
 static func _draft(width: int) -> Dictionary:
 	return {"kind":"build_room","room_type_id":"gp","floor_id":2,"origin":[0,0],"size":[width,95],"door":{"definition_id":"DR01","edge":"south","offset":1}}

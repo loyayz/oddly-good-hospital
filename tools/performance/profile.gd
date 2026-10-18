@@ -391,9 +391,9 @@ class PhaseVisitors extends HospitalVisitors:
 		var result: bool = super._admit(world,visit,request)
 		timing.trace_phase("visitor._admit",world,"return",result)
 		return result
-	func _waiting_point(world: WorldState, actor_id: String) -> Dictionary:
+	func _waiting_point(world: WorldState, actor_id: String, facility_ids: Variant = null) -> Dictionary:
 		timing.trace_phase("visitor._waiting_point",world,"enter")
-		var result: Dictionary = super._waiting_point(world,actor_id)
+		var result: Dictionary = super._waiting_point(world,actor_id,facility_ids)
 		timing.trace_phase("visitor._waiting_point",world,"return",result)
 		return result
 	func dispatch(world: WorldState) -> void:

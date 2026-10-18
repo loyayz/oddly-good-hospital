@@ -80,7 +80,8 @@ const CASES: Dictionary = {
 	"GROW-77":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；退出在完整计算边界取消任务且不发布部分结果",
 	"GROW-78":"docs/design/04-technical.md §6；参考路线按完整主体与组包络区分且冷热一致",
 	"GROW-79":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；参考数值复用保留独立候选、有界批次与失败原子性",
-	"GROW-80":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；分层诊断保留完整合法分支、精确C和独立结构K"
+	"GROW-80":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；分层诊断保留完整合法分支、精确C和独立结构K",
+	"GROW-81":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；名义相同适配布局的完整候选与独立预约世界一致"
 }
 
 func run(t) -> void:
@@ -442,6 +443,9 @@ func _diagnostic_group_variants(group: String, groups: Dictionary) -> Array:
 
 func _case_80(t) -> void:
 	load("res://tests/acceptance/diagnostic_graph.gd").new().run_case(t,_content)
+
+func _case_81(t) -> void:
+	load("res://tests/acceptance/reference_routing.gd").new().run_case(t,_content)
 
 func _case_47(t) -> void:
 	var builder: RefCounted = load("res://tests/acceptance/space.gd").new()

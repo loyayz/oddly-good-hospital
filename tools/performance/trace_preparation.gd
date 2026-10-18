@@ -14,16 +14,24 @@ func _run() -> void:
 	var output: String = ""
 	var subtract_existing: bool = true
 	var target: String = "next_day"
+	var single_binding: String = ""
+	var fine: bool = false
+	var reserved_world: bool = false
 	for argument: String in OS.get_cmdline_user_args():
 		if argument.begins_with("--input="): source = argument.trim_prefix("--input=")
 		if argument.begins_with("--output="): output = argument.trim_prefix("--output=")
 		if argument=="--subtract-existing=false": subtract_existing = false
 		if argument.begins_with("--target="): target = argument.trim_prefix("--target=")
+		if argument.begins_with("--binding="): single_binding = argument.trim_prefix("--binding=")
+		if argument=="--fine": fine = true
+		if argument=="--reserved-world": reserved_world = true
 	if source.is_empty() or not FileAccess.file_exists(source) or output.is_empty() or FileAccess.file_exists(output) or not target in ["current","next_day"]:
 		push_error("Expected existing --input, new --output NDJSON, optional --target=current|next_day and --subtract-existing=false.")
 		quit(2)
 		return
 	var trace: Trace = Trace.new(output)
+	trace.fine = fine
+	trace.reserved_world = reserved_world
 	if trace.file==null:
 		push_error("Cannot open preparation trace: "+output)
 		quit(2)
@@ -46,7 +54,7 @@ func _run() -> void:
 	trace.emit("capture","enter",{"subtract_existing":subtract_existing,"target_tick":target_tick})
 	var input: Dictionary = preparation._capture(fixture.world,subtract_existing,target_tick)
 	trace.emit("capture","return",{"captured_tick":input.facts.sim_tick,"captured_actors":input.facts.actors.size(),"captured_visits":input.facts.visits.size(),"captured_facilities":input.facts.facilities.size()})
-	var geometry: HospitalSpace = HospitalSpace.new(content)
+	var geometry: HospitalSpace = TracedSpace.new(content) if fine else HospitalSpace.new(content)
 	var worker: TracedArrivalService = TracedArrivalService.new(content,geometry,trace)
 	worker.clinic = TracedClinic.new(content,geometry,trace)
 	worker.clinic.scheduler = HospitalShiftScheduler.new(content,geometry)
@@ -54,9 +62,21 @@ func _run() -> void:
 	worker.clinic.departments = HospitalDepartments.new(content,geometry)
 	worker.departments = worker.clinic.departments
 	trace.emit("worker","enter",{},null,worker,geometry)
-	# All original cases, shifts, candidates, C and K remain in this call.
-	var projection: Dictionary = worker.capacity(WorldState.new(input.facts),input.subtract_existing)
-	trace.emit("worker","return",{"complete":projection.get("complete",false),"cancelled":projection.get("cancelled",false),"reason":str(projection.get("reason","")).left(240)},null,worker,geometry)
+	# The optional single case is a complete-candidate localization probe. It
+	# cannot establish full-catalog C/K or Release acceptance.
+	var projection: Dictionary
+	if single_binding.is_empty():
+		projection = worker.capacity(WorldState.new(input.facts),input.subtract_existing)
+	else:
+		var nominal: WorldState = worker._capacity_reference_world(WorldState.new(input.facts))
+		trace.emit("single_case_probe","enter",{"single_binding":single_binding,"full_capacity":false,"nominal_reference_world":true,"reserved_world":reserved_world,"adaptations":nominal.facts.adaptations.size()})
+		var quote: Dictionary = worker.clinic.reference_demand(nominal,single_binding,false,0,{})
+		projection = {"complete":quote.get("ok",false),"reason":quote.get("reason","")}
+		trace.emit("single_case_probe","return",{"single_binding":single_binding,"full_capacity":false,"ok":quote.get("ok",false)})
+	var final_fields: Dictionary = {"complete":projection.get("complete",false),"cancelled":projection.get("cancelled",false),"reason":str(projection.get("reason","")).left(240)}
+	for key: String in ["capacity","shift_capacities","shift_pairs","bottleneck"]:
+		if projection.has(key): final_fields[key] = projection[key]
+	trace.emit("worker","return",final_fields,null,worker,geometry)
 	var complete: bool = projection.get("complete",false)
 	worker = null
 	geometry = null
@@ -78,6 +98,8 @@ class Trace extends RefCounted:
 	var capacity_parts: int = 0
 	var clinical_components: int = 0
 	var sequence: int = 0
+	var fine: bool = false
+	var reserved_world: bool = false
 
 	func _init(path: String) -> void:
 		file = FileAccess.open(path,FileAccess.WRITE)
@@ -199,6 +221,23 @@ class TracedClinic extends HospitalClinic:
 			for name: String in numbers: fields["numeric_"+name] = numbers[name]
 		trace.emit(operation,edge,fields,query,null,space)
 
+	func _arrival_candidate(world: WorldState, binding_id: String, complex_case: bool) -> Dictionary:
+		var started: int = Time.get_ticks_usec()
+		var result: Dictionary = super._arrival_candidate(world,binding_id,complex_case)
+		if trace.fine: _emit("arrival_candidate","return",{"elapsed_us":Time.get_ticks_usec()-started,"ok":result.get("ok",false),"reason":result.get("reason","")})
+		return result
+
+	func _reference_routing_unchanged(world: WorldState, layout: Dictionary, fit: Dictionary) -> bool:
+		return false if trace.reserved_world else super._reference_routing_unchanged(world,layout,fit)
+
+	func service_candidates(world: WorldState, visit: Dictionary, kind: String, structural_only: bool = false, reference_schedule: bool = false, selection: Dictionary = {}) -> Array:
+		var started: int = Time.get_ticks_usec()
+		var before: Dictionary = (space as TracedSpace).snapshot() if space is TracedSpace else {}
+		var result: Array = super.service_candidates(world,visit,kind,structural_only,reference_schedule,selection)
+		if trace.fine:
+			_emit("service_candidates","return",{"kind":kind,"structural_only":structural_only,"reference_schedule":reference_schedule,"selection":selection,"elapsed_us":Time.get_ticks_usec()-started,"candidates":result.size(),"geometry_delta":(space as TracedSpace).delta(before)})
+		return result
+
 	func reference_demand(world: WorldState, binding_id: String, complex_case: bool = false, shift: int = 0, query: Variant = null) -> Dictionary:
 		trace.binding = binding_id
 		trace.complex_case = complex_case
@@ -208,6 +247,7 @@ class TracedClinic extends HospitalClinic:
 		var result: Dictionary = super.reference_demand(world,binding_id,complex_case,shift,query)
 		var fields: Dictionary = trace.model_counts(result.get("model",{}))
 		fields.ok = result.get("ok",false)
+		fields.reason = result.get("reason","")
 		fields.queue_representatives = result.get("bundles",[]).size()
 		_emit("reference_demand","return",fields,query)
 		return result
@@ -230,4 +270,69 @@ class TracedClinic extends HospitalClinic:
 	func _reference_component(full: Dictionary, stages: Array, weight: Dictionary = {"n":"1","d":"1"}, batch: Variant = null) -> Dictionary:
 		var result: Dictionary = super._reference_component(full,stages,weight,batch)
 		trace.clinical_components += 1
+		return result
+
+class TracedSpace extends HospitalSpace:
+	# Cumulative inclusive timings; nested route/floor times must not be added.
+	var observations: Dictionary = {}
+
+	func _init(database: HospitalContent) -> void:
+		super(database)
+		_navigation = TracedNavigation.new(observations)
+
+	func _add(operation: String, elapsed: int) -> void:
+		observations[operation+"_calls"] = int(observations.get(operation+"_calls",0))+1
+		observations[operation+"_us"] = int(observations.get(operation+"_us",0))+elapsed
+
+	func snapshot() -> Dictionary:
+		return observations.duplicate()
+
+	func delta(before: Dictionary) -> Dictionary:
+		var result: Dictionary = {}
+		for key: String in observations: result[key] = int(observations[key])-int(before.get(key,0))
+		return result
+
+	func facility_quote(world: WorldState, facility_id: String, actor_id: String, staff_ids: Array = []) -> Dictionary:
+		var started: int = Time.get_ticks_usec()
+		var result: Dictionary = super.facility_quote(world,facility_id,actor_id,staff_ids)
+		_add("facility_quote",Time.get_ticks_usec()-started)
+		if result.get("ok",false) and not result.get("unchanged",false):
+			var base: Dictionary = facility_layout(world,facility_id)
+			var same: bool = true
+			for key: String in ["floor_id","footprint","patient_cell","operator_cells","repair_cell"]: same = same and base.get(key,[])==result.get(key,[])
+			_add("fit_navigation_equal" if same else "fit_navigation_changed",0)
+		return result
+
+	func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
+		var started: int = Time.get_ticks_usec()
+		var result: Dictionary = super.route(world,actor_id,floor_id,target,members,offsets,ignore_people)
+		_add("route",Time.get_ticks_usec()-started)
+		return result
+
+	func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2i, goal: Vector2i, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, navigation: Dictionary = {}) -> Dictionary:
+		var started: int = Time.get_ticks_usec()
+		var result: Dictionary = super._floor_route(world,actor,floor_id,start,goal,members,offsets,ignore_people,navigation)
+		_add("floor_route",Time.get_ticks_usec()-started)
+		return result
+
+class TracedNavigation extends NavigationCache:
+	var observations: Dictionary
+
+	func _init(counters: Dictionary) -> void:
+		observations = counters
+
+	func _add(operation: String, elapsed: int) -> void:
+		observations[operation+"_calls"] = int(observations.get(operation+"_calls",0))+1
+		observations[operation+"_us"] = int(observations.get(operation+"_us",0))+elapsed
+
+	func floor_source(space: HospitalSpace, world: WorldState, floor_id: int) -> Dictionary:
+		var started: int = Time.get_ticks_usec()
+		var result: Dictionary = super.floor_source(space,world,floor_id)
+		_add("floor_source",Time.get_ticks_usec()-started)
+		return result
+
+	func graph(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, members: Array, offsets: Dictionary) -> FloorNavigation:
+		var started: int = Time.get_ticks_usec()
+		var result: FloorNavigation = super.graph(space,world,floor_id,actor,members,offsets)
+		_add("navigation_graph",Time.get_ticks_usec()-started)
 		return result

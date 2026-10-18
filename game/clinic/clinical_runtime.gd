@@ -578,7 +578,7 @@ func service_candidates(world: WorldState, visit: Dictionary, kind: String, stru
 			if not fit.ok:
 				continue
 			var routing_world: WorldState = world
-			if not fit.get("unchanged",false):
+			if not fit.get("unchanged",false) and not _reference_routing_unchanged(world,base_layout,fit):
 				routing_world = _reservation_candidate(world,[facility_id])
 				var handoff: Dictionary = fit.duplicate(true)
 				handoff.erase("ok")
@@ -596,6 +596,21 @@ func service_candidates(world: WorldState, visit: Dictionary, kind: String, stru
 				return candidates
 	space.end_route_query()
 	return candidates
+
+func _reference_routing_unchanged(world: WorldState, layout: Dictionary, fit: Dictionary) -> bool:
+	# A nominal reference without reservations adds only the proposed patient's
+	# and operator's own reservation. Both queried actors are exempt from it.
+	# With identical built footprint and goals, their complete routing inputs
+	# therefore remain the same. Actual handoffs and changed layouts retain the
+	# hypothetical reservation world and its permission/exit checks.
+	if not space.nominal_query(world) or not world.facts.adaptations.is_empty(): return false
+	# A known in-flight group's egress is a third actor query. Its reservation
+	# permission can differ, so keep the original proposed world in that case.
+	for connection: Dictionary in world.facts.connectors.values():
+		if connection.phase in ["boarding","riding","alighting"]: return false
+	for field: String in ["floor_id","footprint","patient_cell","operator_cells","repair_cell"]:
+		if layout.get(field)!=fit.get(field): return false
+	return true
 
 func _service_qualified(world: WorldState, staff: Dictionary, kind: String) -> bool:
 	if staff.get("departed",false):
