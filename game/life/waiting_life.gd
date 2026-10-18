@@ -128,10 +128,11 @@ func seat_candidates(world: WorldState, visit_id: String) -> Array:
 		facility_ids.append_array(world.facility_ids(definition_id))
 	facility_ids.sort()
 	var maximum_travel_ticks: int = _ticks(content.balance.seat_choice.automatic_travel_seconds_max)
+	var actor_index: Dictionary = {}
 	space.begin_route_query(world,{},space.nominal_query(world))
 	for facility_id: String in facility_ids:
 		if space.facility_travel_lower_bound_ticks(world,facility_id,visit.actor_id)>maximum_travel_ticks: continue
-		var quote: Dictionary = _seat_quote(world,visit,facility_id)
+		var quote: Dictionary = _seat_quote(world,visit,facility_id,actor_index)
 		if quote.ok and int(quote.travel_ticks)<=maximum_travel_ticks:
 			candidates.append(quote)
 	space.end_route_query()
@@ -235,19 +236,19 @@ func validate(world: WorldState) -> String:
 func _waiting(world: WorldState, visit: Dictionary) -> bool:
 	return str(visit.get("phase","")).begins_with("wait_") and world.facts.tickets.has(visit.get("ticket_id","")) and world.facts.tickets[visit.ticket_id].get("pause_reasons",{}).is_empty() and world.facts.actors[visit.actor_id].location.kind=="floor"
 
-func _seat_quote(world: WorldState, visit: Dictionary, facility_id: String) -> Dictionary:
+func _seat_quote(world: WorldState, visit: Dictionary, facility_id: String, actor_index: Variant = null) -> Dictionary:
 	space.begin_route_query(world,{},space.nominal_query(world))
-	var result: Dictionary = _seat_quote_in_query(world,visit,facility_id)
+	var result: Dictionary = _seat_quote_in_query(world,visit,facility_id,actor_index)
 	space.end_route_query()
 	return result
 
-func _seat_quote_in_query(world: WorldState, visit: Dictionary, facility_id: String) -> Dictionary:
+func _seat_quote_in_query(world: WorldState, visit: Dictionary, facility_id: String, actor_index: Variant = null) -> Dictionary:
 	if not world.facts.facilities.has(facility_id) or not _public_seat(world,world.facts.facilities[facility_id]): return {"ok":false,"reason":"目标不是实际公共候诊座位"}
 	var quote: Dictionary = _facility_quote(world,visit,facility_id)
 	if not quote.ok: return quote
 	var facility: Dictionary = world.facts.facilities[facility_id]
 	var observation: Dictionary = _environment(world,visit.actor_id,int(facility.floor_id),quote.patient_cell)
-	var conditions: Dictionary = _conditions(world,visit,facility,quote.patient_cell,observation)
+	var conditions: Dictionary = _conditions(world,visit,facility,quote.patient_cell,observation,actor_index)
 	var personality: Dictionary = content.definition("patient_personalities",visit.personality_id)
 	var score: int = 0
 	var reasons: Array = []
@@ -425,11 +426,47 @@ func _complete_need(world: WorldState, visit: Dictionary, need: Dictionary) -> v
 	visit.waiting_reason = "生活服务结束，沿真实路线返回候诊"
 	_dispatch_need(world,visit,need)
 
-func _conditions(world: WorldState, visit: Dictionary, facility: Dictionary, cell: Array, observation: Dictionary) -> Dictionary:
+# Each automatic selection is read-only until its eventual reservation. Keep this
+# index local to that selection, so the next visitor sees current actors and seats.
+func _condition_actor_index(world: WorldState) -> Dictionary:
+	var size: float = maxf(1.0,float(content.balance.patient_behavior.crowd_radius_cells))
+	var floors: Dictionary = {}
+	var order: int = 0
+	for actor: Dictionary in world.facts.actors.values():
+		order += 1
+		if world.facts.staff.has(actor.id) or actor.location.kind!="floor": continue
+		var floor_id: int = int(actor.location.floor_id)
+		if not floors.has(floor_id): floors[floor_id] = {}
+		var point: Vector2 = Vector2(float(actor.location.cell[0]),float(actor.location.cell[1]))
+		var bucket: Vector2i = Vector2i(floori(point.x/size),floori(point.y/size))
+		if not floors[floor_id].has(bucket): floors[floor_id][bucket] = []
+		floors[floor_id][bucket].append({"order":order,"actor":actor})
+	return {"bucket_size":size,"floors":floors}
+
+func _condition_actors(world: WorldState, floor_id: int, cell: Array, actor_index: Variant) -> Array:
+	if actor_index==null: return world.facts.actors.values()
+	if actor_index.is_empty(): actor_index.merge(_condition_actor_index(world))
+	var buckets: Dictionary = actor_index.floors.get(floor_id,{})
+	var radius: float = float(content.balance.patient_behavior.crowd_radius_cells)
+	var size: float = float(actor_index.bucket_size)
+	var center: Vector2 = Vector2(float(cell[0]),float(cell[1]))
+	var rows: Array = []
+	# Match the Vector2 precision used by the exact distance check. Raw doubles
+	# just below a bucket edge may round onto its three-cell radius boundary.
+	for y: int in range(floori((center.y-radius)/size),floori((center.y+radius)/size)+1):
+		for x: int in range(floori((center.x-radius)/size),floori((center.x+radius)/size)+1):
+			rows.append_array(buckets.get(Vector2i(x,y),[]))
+	# Spatial bucket traversal must not change the original fact iteration order.
+	rows.sort_custom(func(a: Dictionary,b: Dictionary) -> bool: return int(a.order)<int(b.order))
+	var actors: Array = []
+	for row: Dictionary in rows: actors.append(row.actor)
+	return actors
+
+func _conditions(world: WorldState, visit: Dictionary, facility: Dictionary, cell: Array, observation: Dictionary, actor_index: Variant = null) -> Dictionary:
 	var nearby: int = 0
 	var friendly: bool = false
 	var radius: float = float(content.balance.patient_behavior.crowd_radius_cells)
-	for actor: Dictionary in world.facts.actors.values():
+	for actor: Dictionary in _condition_actors(world,int(facility.floor_id),cell,actor_index):
 		if actor.id==visit.actor_id or world.facts.staff.has(actor.id) or actor.location.kind!="floor" or int(actor.location.floor_id)!=int(facility.floor_id): continue
 		if Vector2(float(actor.location.cell[0]),float(actor.location.cell[1])).distance_to(Vector2(float(cell[0]),float(cell[1])))>radius: continue
 		var nearby_route: Dictionary = space._floor_route(world,world.facts.actors[visit.actor_id],int(facility.floor_id),Vector2i(int(cell[0]),int(cell[1])),Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1])),[],{},true)

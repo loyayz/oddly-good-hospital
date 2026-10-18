@@ -28,9 +28,9 @@ class SeatCountingLife:
 	var quote_calls: int = 0
 	func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 		super(database,geometry)
-	func _seat_quote(world: WorldState, visit: Dictionary, facility_id: String) -> Dictionary:
+	func _seat_quote(world: WorldState, visit: Dictionary, facility_id: String, actor_index: Variant = null) -> Dictionary:
 		quote_calls += 1
-		return super._seat_quote(world,visit,facility_id)
+		return super._seat_quote(world,visit,facility_id,actor_index)
 
 class VisitorCandidateObservation:
 	extends HospitalVisitors

@@ -113,6 +113,11 @@ func boundaries(world: WorldState) -> void:
 
 func dispatch(world: WorldState) -> void:
 	# Coverage transfers are real bedside work. Missing relief pauses recovery.
+	var query_ready: bool = false
+	var related_stays: Dictionary = {}
+	var nurses_by_ward: Dictionary = {}
+	var candidates_by_ward: Dictionary = {}
+	var nurse_busy: Dictionary = {}
 	for stay_id: String in world.ids("ward_stays"):
 		var stay: Dictionary = world.facts.ward_stays[stay_id]
 		if not stay.get("phase","") in ["recovery","round_wait"]:
@@ -127,23 +132,46 @@ func dispatch(world: WorldState) -> void:
 		var ward_id: String = str(bed.get("room_id",""))
 		if world.facts.staff_schedule.handoffs.has(ward_id):
 			continue
-		for candidate_id: String in world.ids("staff"):
-			var candidate: Dictionary = world.facts.staff[candidate_id]
-			if candidate_id==old_id or candidate.role!="nurse" or not candidate.on_shift or candidate.block_new_work or Development.safe_busy(world,candidate_id) or int(candidate.abilities.get("care",0))<1:
-				continue
-			if not str(candidate.get("ward_id","")).is_empty() and candidate.ward_id!=ward_id:
-				continue
-			var layout: Dictionary = space.facility_layout(world,stay.bed_id)
-			var position: Array = _bedside(layout)
-			if not space.route(world,candidate_id,int(layout.floor_id),position).ok:
-				continue
-			var stay_ids: Array = []
+		if not query_ready:
+			# These collections are read-only until the final movement loop.
+			# A newly accepted handoff still blocks its nurse immediately below.
 			for related_id: String in world.ids("ward_stays"):
 				var related: Dictionary = world.facts.ward_stays[related_id]
-				if related.nurse_id==old_id and world.facts.facilities[related.bed_id].get("room_id","")==ward_id and stay_ids.size()<int(content.balance.clinical.beds_per_nurse):
-					stay_ids.append(related_id)
+				var related_ward: String = str(world.facts.facilities[related.bed_id].get("room_id",""))
+				if not related_stays.has(related_ward): related_stays[related_ward] = {}
+				if not related_stays[related_ward].has(related.nurse_id): related_stays[related_ward][related.nurse_id] = []
+				if related_stays[related_ward][related.nurse_id].size()<int(content.balance.clinical.beds_per_nurse):
+					related_stays[related_ward][related.nurse_id].append(related_id)
+			for candidate_id: String in world.ids("staff"):
+				var candidate: Dictionary = world.facts.staff[candidate_id]
+				if candidate.role!="nurse" or not candidate.on_shift or candidate.block_new_work or int(candidate.abilities.get("care",0))<1: continue
+				var candidate_ward: String = str(candidate.get("ward_id",""))
+				if not nurses_by_ward.has(candidate_ward): nurses_by_ward[candidate_ward] = []
+				nurses_by_ward[candidate_ward].append(candidate_id)
+			query_ready = true
+		if not candidates_by_ward.has(ward_id):
+			var candidates: Array = nurses_by_ward.get("",[]).duplicate()
+			if not ward_id.is_empty(): candidates.append_array(nurses_by_ward.get(ward_id,[]))
+			candidates.sort()
+			candidates_by_ward[ward_id] = candidates
+		var layout: Dictionary = space.facility_layout(world,stay.bed_id)
+		var position: Array = _bedside(layout)
+		var stay_ids: Array = related_stays[ward_id][old_id]
+		for candidate_id: String in candidates_by_ward[ward_id]:
+			var candidate: Dictionary = world.facts.staff[candidate_id]
+			if candidate_id==old_id or candidate.block_new_work:
+				continue
+			if not nurse_busy.has(candidate_id): nurse_busy[candidate_id] = Development.safe_busy(world,candidate_id)
+			if nurse_busy[candidate_id]: continue
+			# Bed reservations still belong to their patients and original team.
+			# Prove the replacement's access on isolated reservations first.
+			var candidate_world: WorldState = _handoff_candidate(world,stay_ids,candidate_id)
+			if not space.route(candidate_world,candidate_id,int(layout.floor_id),position).ok:
+				continue
+			for related_id: String in stay_ids:
+				space.grant_facility_access(world,str(world.facts.ward_stays[related_id].bed_id),candidate_id)
 			world.facts.staff_schedule.handoffs[ward_id] = {"id":"handoff_"+ward_id+"_"+str(world.sim_tick),"old_id":old_id,"new_id":candidate_id,"ward_id":ward_id,
-				"stay_ids":stay_ids,"floor_id":layout.floor_id,"cell":position,"remaining_ticks":ceili(float(content.balance.hospital_situations.nursing_handoff_seconds)/WorldState.TICK_SECONDS),"phase":"travel"}
+				"stay_ids":stay_ids.duplicate(),"floor_id":layout.floor_id,"cell":position,"remaining_ticks":ceili(float(content.balance.hospital_situations.nursing_handoff_seconds)/WorldState.TICK_SECONDS),"phase":"travel"}
 			candidate.block_new_work = true
 			break
 	for handoff: Dictionary in world.facts.staff_schedule.handoffs.values():
@@ -153,6 +181,20 @@ func dispatch(world: WorldState) -> void:
 			space.request_move(world,handoff.new_id,int(handoff.floor_id),handoff.cell)
 		else:
 			handoff.phase = "working"
+
+func _handoff_candidate(world: WorldState, stay_ids: Array, staff_id: String) -> WorldState:
+	var candidate: WorldState = world
+	for stay_id: String in stay_ids:
+		var bed_id: String = str(world.facts.ward_stays[stay_id].bed_id)
+		var reservation: Dictionary = world.facts.adaptations.get(bed_id,{})
+		if reservation.is_empty() or staff_id in reservation.staff_ids: continue
+		if candidate==world:
+			var facts: Dictionary = world.facts.duplicate()
+			facts.adaptations = world.facts.adaptations.duplicate()
+			candidate = WorldState.new(facts)
+		candidate.facts.adaptations[bed_id] = reservation.duplicate(true)
+		space.grant_facility_access(candidate,bed_id,staff_id)
+	return candidate
 
 func advance(world: WorldState) -> void:
 	for ward_id: String in world.facts.staff_schedule.handoffs.keys():

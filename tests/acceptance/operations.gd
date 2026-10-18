@@ -43,7 +43,8 @@ const CASES: Dictionary = {
 	"OPS-38":"docs/design/08-hospital-life.md §15；派单按设备停机用途分级，同级置顶且不打断已开工单",
 	"OPS-39":"docs/design/01-simulation.md §6；预约与实际占用释放前不得维修，恢复后真实到场开工",
 	"OPS-40":"docs/design/08-hospital-life.md §18；评价回收保护已发布窗口和下一日候选",
-	"OPS-41":"docs/design/01-simulation.md §6；维护设备索引随几何和事实失效，保留原设备顺序、当前状态及随机流"
+	"OPS-41":"docs/design/01-simulation.md §6；维护设备索引随几何和事实失效，保留原设备顺序、当前状态及随机流",
+	"OPS-42":"docs/design/08-hospital-life.md §4、§20；施工安全查询读取当前完整身体与临床边界，清扫派工保留区域、优先级和竞争"
 }
 
 var _content: HospitalContent
@@ -64,6 +65,9 @@ func run(t) -> void:
 	for simulation: HospitalSimulation in _live:
 		simulation.dispose()
 	_live.clear()
+
+func _case_42() -> Dictionary:
+	return preload("res://tests/acceptance/environment_query_batches.gd").new().run(_content)
 
 func _result(ok: bool, details: Variant = null) -> Dictionary:
 	return {"ok":ok,"details":details}

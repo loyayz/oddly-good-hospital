@@ -366,6 +366,9 @@ func _select_facility(world: WorldState, staff_id: String, kind: String) -> Dict
 	var tea: Dictionary = _tea_position(world,staff_id) if kind=="rest" else {}
 	if not tea.is_empty():
 		best_time = float(tea.travel_ticks)*WorldState.TICK_SECONDS+maxf(0,float(content.balance.schedule.compensatory_rest_target_energy)-float(staff.energy))/float(content.balance.wellbeing.energy_tea_per_second)
+	# Each candidate has its own immutable adaptation projection. The space
+	# caches compare world identity and captured geometry before sharing graphs.
+	var candidate_space: HospitalSpace
 	for id: String in world.ids("facilities"):
 		var facility: Dictionary = world.facts.facilities[id]
 		if HospitalRemodel.blocked(world,id) or facility.failed or world.facts.staff_life.reservations.has(id) or _patient_occupies(world,id) or not _staff_area(world,facility):
@@ -380,11 +383,11 @@ func _select_facility(world: WorldState, staff_id: String, kind: String) -> Dict
 		var layout: Dictionary = space.facility_layout(world,id)
 		var target: Array = fit.get("patient_cell",layout.patient_cell)
 		var candidate: WorldState = _adapted_candidate(world,id,fit,staff_id)
-		var candidate_space: HospitalSpace = HospitalSpace.new(content)
+		if candidate_space==null: candidate_space = HospitalSpace.new(content)
 		var route: Dictionary = candidate_space.route(candidate,staff_id,int(layout.floor_id),target)
 		var origin: Dictionary = world.facts.actors[staff_id].location
 		candidate.facts.actors[staff_id].location = {"kind":"floor","floor_id":layout.floor_id,"cell":target.duplicate(),"height_m":0.0}
-		candidate_space = HospitalSpace.new(content)
+		candidate_space.sync_actor(candidate,staff_id)
 		var back: Dictionary = candidate_space.route(candidate,staff_id,int(origin.get("floor_id",layout.floor_id)),origin.get("cell",target))
 		if not route.ok or not back.ok:
 			continue
@@ -404,12 +407,14 @@ func _select_facility(world: WorldState, staff_id: String, kind: String) -> Dict
 func _tea_position(world: WorldState, staff_id: String) -> Dictionary:
 	var best: Dictionary = {}
 	var shortest: float = INF
+	var obstacles: Dictionary = {}
 	for room_id: String in world.ids("rooms"):
 		var room: Dictionary = world.facts.rooms[room_id]
 		if not _is_staff_room(room) or HospitalRemodel.blocked(world,room_id):
 			continue
 		for target: Array in BuildGeometry.cells(room):
-			if not _tea_cell(world,staff_id,room,target):
+			if obstacles.is_empty(): obstacles = _tea_obstacles(world,staff_id)
+			if not _tea_cell(world,staff_id,room,target,obstacles):
 				continue
 			var route: Dictionary = space.route(world,staff_id,int(room.floor_id),target)
 			if not route.ok:
@@ -609,7 +614,32 @@ func _adapted_candidate(world: WorldState, facility_id: String, fit: Dictionary,
 		candidate.facts.adaptations[facility_id] = reservation
 	return candidate
 
-func _tea_cell(world: WorldState, staff_id: String, room: Dictionary, cell: Array) -> bool:
+func _tea_obstacles(world: WorldState, staff_id: String) -> Dictionary:
+	# This index lasts only for one synchronous search, before any reservation
+	# or life task is committed. Points retain exact has_point boundary checks.
+	var points: Dictionary = {}
+	var occupied: Dictionary = {}
+	for facility: Dictionary in world.facts.facilities.values():
+		var floor_id: int = int(facility.floor_id)
+		if not points.has(floor_id): points[floor_id] = {}
+		for raw: Array in [facility.get("patient_cell",[])]+facility.get("operator_cells",[]):
+			if raw.is_empty(): continue
+			var point: Vector2 = Vector2(float(raw[0]),float(raw[1]))
+			var bucket: Vector2i = Vector2i(floori(point.x/8.0),floori(point.y/8.0))
+			if not points[floor_id].has(bucket): points[floor_id][bucket] = []
+			points[floor_id][bucket].append(point)
+	for other: Dictionary in world.facts.staff.values():
+		var task: Dictionary = other.get("life_task",{})
+		var raw: Array = task.get("cell",[])
+		if other.id==staff_id or task.get("phase","idle")=="idle" or raw.is_empty(): continue
+		var floor_id: int = int(task.get("floor_id",-1))
+		if not occupied.has(floor_id): occupied[floor_id] = {}
+		var key: Vector2 = Vector2(float(raw[0]),float(raw[1]))
+		if not occupied[floor_id].has(key): occupied[floor_id][key] = []
+		occupied[floor_id][key].append(raw)
+	return {"points":points,"occupied":occupied}
+
+func _tea_cell(world: WorldState, staff_id: String, room: Dictionary, cell: Array, obstacles: Dictionary = {}) -> bool:
 	var actor: Dictionary = world.facts.actors[staff_id].duplicate(true)
 	actor.location = {"kind":"floor","floor_id":room.floor_id,"cell":cell}
 	actor.posture = "standing"
@@ -619,16 +649,14 @@ func _tea_cell(world: WorldState, staff_id: String, room: Dictionary, cell: Arra
 	for door: Dictionary in world.facts.floors.overrides[str(room.floor_id)].get("doors",[]):
 		if area.grow(1.0).has_point(Vector2(float(door.cell[0]),float(door.cell[1]))):
 			return false
-	for facility: Dictionary in world.facts.facilities.values():
-		if int(facility.floor_id)!=int(room.floor_id):
-			continue
-		for point: Array in [facility.get("patient_cell",[])]+facility.get("operator_cells",[]):
-			if not point.is_empty() and area.has_point(Vector2(float(point[0]),float(point[1]))):
-				return false
-	for other: Dictionary in world.facts.staff.values():
-		var task: Dictionary = other.get("life_task",{})
-		if other.id!=staff_id and task.get("phase","idle")!="idle" and int(task.get("floor_id",-1))==int(room.floor_id) and task.get("cell",[])==cell:
-			return false
+	if obstacles.is_empty(): obstacles = _tea_obstacles(world,staff_id)
+	var points: Dictionary = obstacles.points.get(int(room.floor_id),{})
+	for x: int in range(floori(area.position.x/8.0),floori(area.end.x/8.0)+1):
+		for y: int in range(floori(area.position.y/8.0),floori(area.end.y/8.0)+1):
+			for point: Vector2 in points.get(Vector2i(x,y),[]):
+				if area.has_point(point): return false
+	for raw: Array in obstacles.occupied.get(int(room.floor_id),{}).get(Vector2(float(cell[0]),float(cell[1])),[]):
+		if raw==cell: return false
 	return true
 
 func _lie_down(world: WorldState, staff_id: String, facility_id: String) -> void:

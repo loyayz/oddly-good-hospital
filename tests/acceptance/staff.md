@@ -44,5 +44,7 @@
 | STAFF-38 | `docs/design/11-growth-arrivals-recruitment.md` §6.1、§6.4；`docs/data/balance.json` recruitment | 发起合法定向寻访，保存恢复到120秒公布边界；另取消未公布寻访，检查重复提交、容量不足及不可能条件。 | 开始扣100币并冻结占3个名额，最多一项并发；120秒返回3个不同合格身份，恢复不重抽；取消不退寻访费但释放未公布名额，容量不足/不可能条件不收费，录用仍另扣招聘费。 |
 | STAFF-39 | `docs/design/11-growth-arrivals-recruitment.md` §6.2、§6.4；`docs/data/balance.json` recruitment | 新日第一tick生成自然简历，关注一份，推进至入池日+2第一tick后取消关注并重复刷新。 | 每日7份且六岗位各一，未关注保留两批最多14；关注移出原池且最多4，寻访最多6，共24且candidate_id不重复；到期静默归档，取消关注按原期限立即归档，未录用不扣钱。 |
 | STAFF-40 | `docs/design/11-growth-arrivals-recruitment.md` §6.5、§6.6；`docs/data/balance.json` staff_practice | 五非医护岗位消费各自真实完成单位；研究员跨课题累计119.9秒再0.1秒；交接贡献不同/相等/最大者离职及重复通知。 | 每20次实践扣20升一级，R11未开保留上限、最高5；研究实际120秒才一份且余数保存，加速不折算时间；完成单位仅最大实际贡献者一次，平手按ID，最大者离职不转赠；护士实践只归三能力，不发通用等级或结课事实。 |
+| STAFF-41 | `docs/design/09-consultation-wellbeing.md` §4；`docs/design/07-clinical-team.md` §9 | 比较完整休息设施去返程、三种身体的茶歇格、设施预约和当前任务变化；从真实住院前提建立护理交接，保存恢复后实际到场完成。 | 保持完整候选与独立往返合法性，茶歇门/设施/任务边界不变；每病区交接排他、床位上限和原护士责任保留，到位前不计工，实际50tick后才移交，再次离班取消不转归属。 |
+| STAFF-42 | `docs/design/08-hospital-life.md` §17.2、§17.4；`docs/data/balance.json` seat_choice、patient_behavior | 同一选座输入分别设置墙体、移动朋友、较大身体和邻域半径边界；两个患者连续预订唯一座位，另查严格路程下界排除场景。 | 全部报价、条件、候选顺序及世界事实与独立旧查询相同；保留真实路线判断和当前朋友/移动状态；后来的患者立即看见预约，失败不改事实；全被下界排除时不建立邻居索引。 |
 
 阶段责任依据：`docs/design/12-implementation-plan.md` §17至20、§26；`docs/specs/26-10/2026-10-15-stage04-stage24.md` 的阶段14、15、16、17、23合同及恢复与一致性条款。

@@ -40,7 +40,9 @@ const CASES: Dictionary = {
 	"STAFF-37":"docs/design/11-growth-arrivals-recruitment.md §6.2、§6.5；资金入口失败不收费，成功从1F真实录用tick付薪",
 	"STAFF-38":"docs/design/11-growth-arrivals-recruitment.md §6.1、§6.4；寻访100币120秒三身份，冻结名额与随机结果，取消不退款",
 	"STAFF-39":"docs/design/11-growth-arrivals-recruitment.md §6.2、§6.4；六岗位每日简历、两日到期与关注互斥，未录用不收费",
-	"STAFF-40":"docs/design/11-growth-arrivals-recruitment.md §6.5、§6.6；真实完成与研究120秒余数成长，贡献最大者唯一领取，护士不发通用等级"
+	"STAFF-40":"docs/design/11-growth-arrivals-recruitment.md §6.5、§6.6；真实完成与研究120秒余数成长，贡献最大者唯一领取，护士不发通用等级",
+	"STAFF-41":"docs/design/09-consultation-wellbeing.md §4；休息选址完整去返程与当前障碍，护理交接保持床位上限及实时排他",
+	"STAFF-42":"docs/design/08-hospital-life.md §17.2、§17.4；选座邻居查询保留真实路线、朋友关系、全部候选顺序与连续预约"
 }
 
 func run(t) -> void:
@@ -55,6 +57,12 @@ func run(t) -> void:
 			continue
 		await call("_case_"+case_id.right(2),t)
 
+
+func _case_41(t) -> void:
+	await preload("res://tests/acceptance/staff_query_batches.gd").new().run(t,_content)
+
+func _case_42(t) -> void:
+	preload("res://tests/acceptance/waiting_query_batches.gd").new().run(t,_content)
 
 func _case_01(t) -> void:
 	var x: Dictionary = _fixture({"doctor":"doctor","nurse":"nurse","reception":"receptionist","cleaner":"cleaner","researcher":"researcher","decorator":"decorator"})

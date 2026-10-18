@@ -327,13 +327,30 @@ func dispatch(world: WorldState) -> void:
 	for patch: Dictionary in world.facts.environment.dirt.values():
 		if not str(patch.worker_id).is_empty() and not _worker_ready(world,str(patch.worker_id),str(patch.id)):
 			_release(world,patch)
+	var pending: Dictionary = {}
+	var pending_floors: Dictionary = {}
+	var cleanup_indexed: bool = false
 	for staff_id: String in world.ids("staff"):
 		var staff: Dictionary = world.facts.staff[staff_id]
 		if staff.role!="cleaner" or not _worker_ready(world,staff_id):
 			continue
+		if not cleanup_indexed:
+			for patch: Dictionary in world.facts.environment.dirt.values():
+				if not str(patch.worker_id).is_empty(): continue
+				pending[patch.id] = patch
+				var floor_id: int = int(patch.floor_id)
+				if not pending_floors.has(floor_id): pending_floors[floor_id] = {}
+				pending_floors[floor_id][patch.id] = patch
+			cleanup_indexed = true
 		var candidates: Array = []
-		for patch: Dictionary in world.facts.environment.dirt.values():
-			if not str(patch.worker_id).is_empty() or not _allowed_region(staff,int(patch.floor_id),patch.cell):
+		var zone: Dictionary = staff.get("work_region",{})
+		var available: Dictionary = pending_floors.get(int(zone.floor_id),{}) if zone.get("strict",false) and zone.has("floor_id") else pending
+		if available.is_empty(): continue
+		# Selection only reads routes. Commit the winning task after closing the
+		# scope, so the next worker sees every earlier assignment immediately.
+		space.begin_route_query(world)
+		for patch: Dictionary in available.values():
+			if not _allowed_region(staff,int(patch.floor_id),patch.cell):
 				continue
 			var place: Dictionary = _work_position(world,staff_id,int(patch.floor_id),patch.cell,not str(patch.bin_id).is_empty())
 			if place.is_empty():
@@ -341,6 +358,7 @@ func dispatch(world: WorldState) -> void:
 				continue
 			candidates.append({"patch":patch,"place":place,"aged":world.sim_tick-int(patch.generated_tick)>=int(content.balance.cleanup.aging_seconds)*10,
 				"pinned":str(world.facts.environment.pinned_dirt_id)==str(patch.id)})
+		space.end_route_query()
 		candidates.sort_custom(func(a: Dictionary,b: Dictionary) -> bool:
 			if a.aged!=b.aged: return a.aged
 			if a.pinned!=b.pinned: return a.pinned
@@ -354,6 +372,9 @@ func dispatch(world: WorldState) -> void:
 			selected.patch.phase = "travelling"
 			selected.patch.reason = ""
 			staff.active_job_id = selected.patch.id
+			pending.erase(selected.patch.id)
+			pending_floors[int(selected.patch.floor_id)].erase(selected.patch.id)
+	var safety: Dictionary = {}
 	for order_id: String in _ordered(world.facts.environment.orders):
 		var order: Dictionary = world.facts.environment.orders[order_id]
 		if order.phase in ["completed","cancelled"] or order.paused:
@@ -372,7 +393,7 @@ func dispatch(world: WorldState) -> void:
 			if tool_id.is_empty():
 				order.reason = "等待正常装修工具台"
 				break
-			if not _unit_safe(world,order,unit):
+			if not _unit_safe(world,order,unit,safety):
 				order.reason = "等待施工单元无人占用及临床安全边界"
 				continue
 			for staff_id: String in world.ids("staff"):
@@ -416,6 +437,7 @@ func advance(world: WorldState) -> void:
 			world.facts.environment.dirt.erase(id)
 			if world.facts.environment.pinned_dirt_id==id:
 				world.facts.environment.pinned_dirt_id = ""
+	var safety: Dictionary = {}
 	for id: String in _ordered(world.facts.environment.orders):
 		var order: Dictionary = world.facts.environment.orders[id]
 		if order.paused or order.phase in ["completed","cancelled"]:
@@ -424,7 +446,7 @@ func advance(world: WorldState) -> void:
 			if str(unit.worker_id).is_empty() or unit.phase in ["completed","cancelled"]:
 				continue
 			var tool: Dictionary = world.facts.facilities.get(unit.tool_id,{})
-			if tool.is_empty() or bool(tool.get("failed",false)) or not _unit_safe(world,order,unit):
+			if tool.is_empty() or bool(tool.get("failed",false)) or not _unit_safe(world,order,unit,safety):
 				_release(world,unit)
 				continue
 			if not unit.tool_collected:
@@ -494,22 +516,59 @@ func _work_position(world: WorldState, staff_id: String, floor_id: int, target: 
 			best = {"cell":cell,"distance":path.walking_distance}
 	return best
 
-func _unit_safe(world: WorldState, order: Dictionary, unit: Dictionary) -> bool:
+func _safety_query(world: WorldState) -> Dictionary:
+	# Dispatch and advance do not move actors or change clinical commitments.
+	# Rebuild from their live facts at each boundary, including direct writes;
+	# no safety result or geometry survives the local synchronous phase.
+	var occupied: BodyIndex = BodyIndex.new()
+	var rooms: Dictionary = {}
+	for actor_id: String in world.facts.actors:
+		var actor: Dictionary = world.facts.actors[actor_id]
+		if actor.location.kind=="floor": occupied.update("actor:"+actor_id,int(actor.location.floor_id),space.body_rectangle(actor))
+	for stay_id: String in world.facts.ward_stays:
+		var stay: Dictionary = world.facts.ward_stays[stay_id]
+		var bed: Dictionary = world.facts.facilities[stay.bed_id]
+		occupied.update("bed:"+stay_id,int(bed.floor_id),_rectangle(bed).grow(1))
+	for session_id: String in world.facts.sessions:
+		var session: Dictionary = world.facts.sessions[session_id]
+		var facility: Dictionary = world.facts.facilities[session.facility_id]
+		var floor_id: int = int(facility.floor_id)
+		occupied.update("session:"+session_id,floor_id,_rectangle(facility).grow(1))
+		if session.kind in ["surgery","operate","wake"]:
+			if not rooms.has(floor_id): rooms[floor_id] = {}
+			rooms[floor_id][str(facility.get("room_id",""))] = true
+	return {"occupied":occupied,"rooms":rooms}
+
+func _unit_safe(world: WorldState, order: Dictionary, unit: Dictionary, safety: Variant = null) -> bool:
+	# A lone query or a run of occupied cells keeps the cheap early exit.
+	# Build the batch only after a complete successful scan was necessary.
+	if safety==null: return _unit_safe_direct(world,order,unit)
+	if not safety.get("ready",false):
+		var clear: bool = _unit_safe_direct(world,order,unit)
+		if clear: safety.ready = true
+		return clear
+	if not safety.has("occupied"): safety.merge(_safety_query(world))
+	var floor_id: int = int(order.floor_id)
+	var rectangle: Rect2 = Rect2(float(unit.cell[0]),float(unit.cell[1]),1,1)
+	# BodyIndex retains the original full Rect2 intersection, not just an
+	# anchor-cell test. Excluding this worker never excludes beds or sessions.
+	if safety.occupied.intersects(floor_id,rectangle,"actor:"+str(unit.worker_id)): return false
+	if safety.rooms.has(floor_id) and safety.rooms[floor_id].has(_room_at(world,floor_id,unit.cell)): return false
+	return true
+
+func _unit_safe_direct(world: WorldState, order: Dictionary, unit: Dictionary) -> bool:
 	var rectangle: Rect2 = Rect2(float(unit.cell[0]),float(unit.cell[1]),1,1)
 	for actor_id: String in world.facts.actors:
 		var actor: Dictionary = world.facts.actors[actor_id]
-		if actor_id==str(unit.worker_id) or actor.location.kind!="floor" or int(actor.location.floor_id)!=int(order.floor_id):
-			continue
-		if space.body_rectangle(actor).intersects(rectangle):
-			return false
+		if actor_id!=str(unit.worker_id) and actor.location.kind=="floor" and int(actor.location.floor_id)==int(order.floor_id) and space.body_rectangle(actor).intersects(rectangle): return false
 	for stay: Dictionary in world.facts.ward_stays.values():
 		var bed: Dictionary = world.facts.facilities[stay.bed_id]
-		if int(bed.floor_id)==int(order.floor_id) and _rectangle(bed).grow(1).intersects(rectangle):
-			return false
+		if int(bed.floor_id)==int(order.floor_id) and _rectangle(bed).grow(1).intersects(rectangle): return false
 	for session: Dictionary in world.facts.sessions.values():
 		var facility: Dictionary = world.facts.facilities[session.facility_id]
-		if int(facility.floor_id)==int(order.floor_id) and (facility.get("room_id","")==_room_at(world,int(order.floor_id),unit.cell) and session.kind in ["surgery","operate","wake"] or _rectangle(facility).grow(1).intersects(rectangle)):
-			return false
+		if int(facility.floor_id)!=int(order.floor_id): continue
+		if _rectangle(facility).grow(1).intersects(rectangle): return false
+		if session.kind in ["surgery","operate","wake"] and facility.get("room_id","")==_room_at(world,int(order.floor_id),unit.cell): return false
 	return true
 
 func _tool(world: WorldState) -> String:
