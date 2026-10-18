@@ -1,0 +1,3537 @@
+{
+  "scope": "29 affected cases only; final v2 run includes independent full geometry capture and unknown/finite landing controls",
+  "distinct_cases": 29,
+  "passed": 29,
+  "unresolved": [],
+  "batches": [
+    {
+      "log": "v1-regression.console.log",
+      "project": "2a53dd6fc5244194ad921ee81fb6d8b4",
+      "checks": 29,
+      "failed": 0,
+      "completed": true,
+      "status": {
+        "import_exit": 0,
+        "test_exit": 0,
+        "script_errors": false,
+        "log": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\acceptance\\2a53dd6fc5244194ad921ee81fb6d8b4\\execution.log"
+      },
+      "timing": {
+        "started_at_utc": "2026-10-18T16:29:43.7804604+00:00",
+        "ended_at_utc": "2026-10-18T16:30:05.9679680+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 2993,
+        "import_ms": 6394,
+        "tests_ms": 12789,
+        "total_ms": 22190
+      }
+    },
+    {
+      "log": "v2-regression.console.log",
+      "project": "20389fe320b3441eb6f41fa993f88e76",
+      "checks": 29,
+      "failed": 0,
+      "completed": true,
+      "status": {
+        "import_exit": 0,
+        "test_exit": 0,
+        "script_errors": false,
+        "log": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\acceptance\\20389fe320b3441eb6f41fa993f88e76\\execution.log"
+      },
+      "timing": {
+        "started_at_utc": "2026-10-18T16:43:46.6865497+00:00",
+        "ended_at_utc": "2026-10-18T16:44:08.8360954+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 2972,
+        "import_ms": 6458,
+        "tests_ms": 12707,
+        "total_ms": 22151
+      }
+    }
+  ],
+  "cases": {
+    "CLIN-15": {
+      "body_ms": 63,
+      "details": {
+        "enough_requests": [],
+        "preparation": {
+          "bed_id": "clin_ward_0",
+          "deadline_tick": 791,
+          "facility_id": "clin_or_0",
+          "id": "visit_00000008",
+          "kind": "surgery",
+          "nurse_id": "clin_cover",
+          "round_doctor_id": "clin_round",
+          "setup_remaining_ticks": 80,
+          "staff_ids": [
+            "clin_anesthesia",
+            "clin_surgeon",
+            "clin_or_nurse"
+          ],
+          "supply_units": 8,
+          "visit_id": "visit_00000008",
+          "ward_id": "clin_ward"
+        },
+        "short_requests": [
+          {
+            "staff_ids": [
+              "clin_anesthesia",
+              "clin_surgeon",
+              "clin_or_nurse"
+            ],
+            "ticket_id": "ticket_00000015",
+            "units": 8,
+            "visit_id": "visit_00000008"
+          }
+        ],
+        "state": {
+          "errors": [],
+          "participants": [
+            {
+              "base": {},
+              "id": "clin_anesthesia",
+              "location": {
+                "cell": [
+                  38.0,
+                  74.8000030517578
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "move": {
+                "blocked_since": -1,
+                "cursor": 0,
+                "next": [
+                  {
+                    "cell": [
+                      38,
+                      74
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  },
+                  {
+                    "cell": [
+                      37,
+                      74
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  },
+                  {
+                    "cell": [
+                      37,
+                      73
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  }
+                ],
+                "pending": false,
+                "target": [
+                  34,
+                  68
+                ],
+                "yielding": false
+              },
+              "release": {}
+            },
+            {
+              "base": {},
+              "id": "clin_cover",
+              "location": {
+                "cell": [
+                  46,
+                  72
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "move": {
+                "blocked_since": -1,
+                "cursor": -1,
+                "next": [],
+                "pending": false,
+                "target": [],
+                "yielding": false
+              },
+              "release": {}
+            },
+            {
+              "base": {},
+              "id": "clin_or_nurse",
+              "location": {
+                "cell": [
+                  42.0,
+                  74.8000030517578
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "move": {
+                "blocked_since": -1,
+                "cursor": 0,
+                "next": [
+                  {
+                    "cell": [
+                      42,
+                      74
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  },
+                  {
+                    "cell": [
+                      41,
+                      74
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  },
+                  {
+                    "cell": [
+                      40,
+                      74
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  }
+                ],
+                "pending": false,
+                "target": [
+                  38,
+                  69
+                ],
+                "yielding": false
+              },
+              "release": {}
+            },
+            {
+              "base": {},
+              "id": "clin_round",
+              "location": {
+                "cell": [
+                  51,
+                  72
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "move": {
+                "blocked_since": -1,
+                "cursor": -1,
+                "next": [],
+                "pending": false,
+                "target": [],
+                "yielding": false
+              },
+              "release": {}
+            },
+            {
+              "base": {},
+              "id": "clin_surgeon",
+              "location": {
+                "cell": [
+                  34.0,
+                  74.8000030517578
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "move": {
+                "blocked_since": -1,
+                "cursor": 0,
+                "next": [
+                  {
+                    "cell": [
+                      34,
+                      74
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  },
+                  {
+                    "cell": [
+                      35,
+                      74
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  },
+                  {
+                    "cell": [
+                      36,
+                      74
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  }
+                ],
+                "pending": false,
+                "target": [
+                  38,
+                  67
+                ],
+                "yielding": false
+              },
+              "release": {}
+            },
+            {
+              "base": {},
+              "id": "patient_00000007",
+              "location": {
+                "cell": [
+                  37.0,
+                  88.0
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "move": {
+                "blocked_since": -1,
+                "cursor": 1,
+                "next": [
+                  {
+                    "cell": [
+                      37,
+                      89
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  },
+                  {
+                    "cell": [
+                      37,
+                      90
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  },
+                  {
+                    "cell": [
+                      37,
+                      91
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  }
+                ],
+                "pending": false,
+                "target": [
+                  35,
+                  71
+                ],
+                "yielding": false
+              },
+              "release": {}
+            },
+            {
+              "base": {},
+              "id": "starter_cleaner",
+              "location": {
+                "cell": [
+                  54,
+                  94
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "move": {
+                "blocked_since": -1,
+                "cursor": -1,
+                "next": [],
+                "pending": false,
+                "target": [],
+                "yielding": false
+              },
+              "release": {}
+            },
+            {
+              "base": {},
+              "id": "starter_doctor_a",
+              "location": {
+                "cell": [
+                  34.0,
+                  86.0
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "move": {
+                "blocked_since": -1,
+                "cursor": -1,
+                "next": [],
+                "pending": false,
+                "target": [],
+                "yielding": false
+              },
+              "release": {}
+            },
+            {
+              "base": {},
+              "id": "starter_doctor_b",
+              "location": {
+                "cell": [
+                  37.2000007629395,
+                  86.0
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "move": {
+                "blocked_since": -1,
+                "cursor": 1,
+                "next": [
+                  {
+                    "cell": [
+                      38,
+                      86
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  },
+                  {
+                    "cell": [
+                      38,
+                      87
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  },
+                  {
+                    "cell": [
+                      38,
+                      88
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  }
+                ],
+                "pending": false,
+                "target": [
+                  33,
+                  86
+                ],
+                "yielding": false
+              },
+              "release": {}
+            },
+            {
+              "base": {},
+              "id": "starter_doctor_c",
+              "location": {
+                "cell": [
+                  46,
+                  94
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "move": {
+                "blocked_since": -1,
+                "cursor": -1,
+                "next": [],
+                "pending": false,
+                "target": [],
+                "yielding": false
+              },
+              "release": {}
+            },
+            {
+              "base": {},
+              "id": "starter_nurse",
+              "location": {
+                "cell": [
+                  52,
+                  94
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "move": {
+                "blocked_since": -1,
+                "cursor": -1,
+                "next": [],
+                "pending": false,
+                "target": [],
+                "yielding": false
+              },
+              "release": {}
+            },
+            {
+              "base": {},
+              "id": "starter_receptionist",
+              "location": {
+                "cell": [
+                  44.0,
+                  91.0
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "move": {
+                "blocked_since": -1,
+                "cursor": -1,
+                "next": [],
+                "pending": false,
+                "target": [],
+                "yielding": false
+              },
+              "release": {}
+            }
+          ],
+          "preparations": {
+            "visit_00000008": {
+              "bed_id": "clin_ward_0",
+              "deadline_tick": 791,
+              "facility_id": "clin_or_0",
+              "id": "visit_00000008",
+              "kind": "surgery",
+              "nurse_id": "clin_cover",
+              "round_doctor_id": "clin_round",
+              "setup_remaining_ticks": 80,
+              "staff_ids": [
+                "clin_anesthesia",
+                "clin_surgeon",
+                "clin_or_nurse"
+              ],
+              "supply_units": 8,
+              "visit_id": "visit_00000008",
+              "ward_id": "clin_ward"
+            }
+          },
+          "sessions": {},
+          "stays": {},
+          "tick": 492,
+          "visit": {
+            "actor_id": "patient_00000007",
+            "anger": 0.0,
+            "arrival_key": "patient-3",
+            "arrived_tick": 1,
+            "attempt_ids": [],
+            "binding_id": "B_S13_D09_M09",
+            "clinical_participants": {
+              "starter_doctor_a": true
+            },
+            "companion_intent": false,
+            "complex": false,
+            "disease_id": "D09",
+            "doctor_fee_quote": 20,
+            "evidence_by_source": {
+              "gp": 92.0
+            },
+            "expression": "clear",
+            "final_result": "",
+            "id": "visit_00000008",
+            "last_progress_tick": 485,
+            "last_service_tick": 485,
+            "personality_id": "PP01",
+            "phase": "wait_surgery",
+            "plan_decision": {
+              "doctor_id": "clin_anesthesia",
+              "expected_team": [
+                "clin_anesthesia",
+                "clin_surgeon",
+                "clin_or_nurse"
+              ],
+              "plan_id": "P_D09_SURGERY",
+              "probability_bp": 9600,
+              "reason": "院长指定当前合法方案",
+              "revision": 2,
+              "source": "director"
+            },
+            "registration_receipt": {
+              "completed_tick": 81,
+              "id": "service_00000010",
+              "practice_awarded": true,
+              "staff_id": "starter_receptionist",
+              "standard_work_milli": 6000
+            },
+            "requested_plan_id": "P_D09_SURGERY",
+            "ticket_id": "ticket_00000015",
+            "visitor_consent": false,
+            "waiting_reason": ""
+          }
+        },
+        "supply_boundary": true,
+        "timing": {
+          "inclusive_calls": {},
+          "profile_errors": [],
+          "profile_sources": {},
+          "stages_us": {
+            "call_ready_input": 9803,
+            "real_reservation": 27989,
+            "supply_boundary": 24768
+          }
+        }
+      },
+      "elapsed_ms": 1478,
+      "fixtures": [
+        {
+          "builder": "res://tests/acceptance/clinical_fixtures.gd",
+          "elapsed_ms": 417,
+          "identity": "4d392b4da41d59b14a72b4579adfed509eb2d343f1346ea5e6d6fbfdbee4016e",
+          "key": "gp_started",
+          "source": "built"
+        },
+        {
+          "builder": "res://tests/acceptance/clinical_fixtures.gd",
+          "elapsed_ms": 1365,
+          "identity": "86713292a5995c2a7b3e6a5f12b45d053a4ddd596ca9081aa18c3380d9020085",
+          "key": "outpatient_queue",
+          "source": "built"
+        },
+        {
+          "builder": "res://tests/acceptance/clinical_fixtures.gd",
+          "elapsed_ms": 0,
+          "identity": "86713292a5995c2a7b3e6a5f12b45d053a4ddd596ca9081aa18c3380d9020085",
+          "key": "outpatient_queue",
+          "source": "memory"
+        },
+        {
+          "builder": "res://tests/acceptance/clinical_fixtures.gd",
+          "elapsed_ms": 1413,
+          "identity": "6d7ec8ab2fee47de4f9eaa70fcec5d6f9070e15face21e289fcb81489af40c1a",
+          "key": "surgery_queue",
+          "source": "built"
+        }
+      ],
+      "passed": true,
+      "requirement": "docs/design/07-clinical-team.md §8；准备原子预留8包/床/团队，开术前不领包、不计尝试",
+      "setup_ms": 1415,
+      "suite": "clinical",
+      "batch": "v2-regression.console.log"
+    },
+    "CLIN-30": {
+      "body_ms": 250,
+      "details": {
+        "actor": {
+          "facing": -1.5707963267949,
+          "id": "relative_00000012",
+          "location": {
+            "cell": [
+              46.7999992370605,
+              93.0
+            ],
+            "floor_id": 1,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "name": "僵尸的家属",
+          "personality_id": "PP05",
+          "posture": "standing",
+          "relative_of": "patient_00000007",
+          "species_id": "S13"
+        },
+        "entered_from_real_entry": true,
+        "no_actor_before_space": true,
+        "state": {
+          "errors": [],
+          "participants": [
+            {
+              "base": {},
+              "id": "patient_00000007",
+              "location": {
+                "cell": [
+                  41.1999969482422,
+                  91.0
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "move": {
+                "blocked_since": -1,
+                "cursor": 3,
+                "next": [
+                  {
+                    "cell": [
+                      41,
+                      91
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  },
+                  {
+                    "cell": [
+                      40,
+                      91
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  },
+                  {
+                    "cell": [
+                      39,
+                      91
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  }
+                ],
+                "pending": false,
+                "target": [
+                  37,
+                  88
+                ],
+                "yielding": false
+              },
+              "release": {}
+            },
+            {
+              "base": {},
+              "id": "relative_00000012",
+              "location": {
+                "cell": [
+                  46.7999992370605,
+                  93.0
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "move": {
+                "blocked_since": -1,
+                "cursor": 0,
+                "next": [
+                  {
+                    "cell": [
+                      46,
+                      93
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  },
+                  {
+                    "cell": [
+                      45,
+                      93
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  },
+                  {
+                    "cell": [
+                      44,
+                      93
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  }
+                ],
+                "pending": false,
+                "target": [
+                  34,
+                  93
+                ],
+                "yielding": false
+              },
+              "release": {}
+            },
+            {
+              "base": {},
+              "id": "starter_cleaner",
+              "location": {
+                "cell": [
+                  54,
+                  94
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "move": {
+                "blocked_since": -1,
+                "cursor": -1,
+                "next": [],
+                "pending": false,
+                "target": [],
+                "yielding": false
+              },
+              "release": {}
+            },
+            {
+              "base": {},
+              "id": "starter_doctor_a",
+              "location": {
+                "cell": [
+                  41.0,
+                  91.8000030517578
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "move": {
+                "blocked_since": -1,
+                "cursor": 3,
+                "next": [
+                  {
+                    "cell": [
+                      41,
+                      91
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  },
+                  {
+                    "cell": [
+                      40,
+                      91
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  },
+                  {
+                    "cell": [
+                      39,
+                      91
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  }
+                ],
+                "pending": false,
+                "target": [
+                  36,
+                  86
+                ],
+                "yielding": false
+              },
+              "release": {}
+            },
+            {
+              "base": {},
+              "id": "starter_doctor_b",
+              "location": {
+                "cell": [
+                  44,
+                  94
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "move": {
+                "blocked_since": -1,
+                "cursor": -1,
+                "next": [],
+                "pending": false,
+                "target": [],
+                "yielding": false
+              },
+              "release": {}
+            },
+            {
+              "base": {},
+              "id": "starter_doctor_c",
+              "location": {
+                "cell": [
+                  46,
+                  94
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "move": {
+                "blocked_since": -1,
+                "cursor": -1,
+                "next": [],
+                "pending": false,
+                "target": [],
+                "yielding": false
+              },
+              "release": {}
+            },
+            {
+              "base": {},
+              "id": "starter_nurse",
+              "location": {
+                "cell": [
+                  52,
+                  94
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "move": {
+                "blocked_since": -1,
+                "cursor": -1,
+                "next": [],
+                "pending": false,
+                "target": [],
+                "yielding": false
+              },
+              "release": {}
+            },
+            {
+              "base": {},
+              "id": "starter_receptionist",
+              "location": {
+                "cell": [
+                  44.0,
+                  91.0
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "move": {
+                "blocked_since": -1,
+                "cursor": -1,
+                "next": [],
+                "pending": false,
+                "target": [],
+                "yielding": false
+              },
+              "release": {}
+            }
+          ],
+          "preparations": {},
+          "sessions": {},
+          "stays": {},
+          "tick": 101,
+          "visit": {
+            "actor_id": "patient_00000007",
+            "anger": 5.0,
+            "arrival_key": "patient-3",
+            "arrived_tick": 1,
+            "attempt_ids": [],
+            "binding_id": "B_S13_D09_M09",
+            "companion_intent": true,
+            "complex": false,
+            "disease_id": "D09",
+            "doctor_fee_quote": -1,
+            "evidence_by_source": {},
+            "expression": "clear",
+            "final_result": "",
+            "id": "visit_00000008",
+            "last_progress_tick": 81,
+            "last_service_tick": 81,
+            "personality_id": "PP01",
+            "phase": "wait_gp",
+            "plan_decision": {},
+            "registration_receipt": {
+              "completed_tick": 81,
+              "id": "service_00000010",
+              "practice_awarded": true,
+              "staff_id": "starter_receptionist",
+              "standard_work_milli": 6000
+            },
+            "relative_actor_id": "relative_00000012",
+            "requested_plan_id": "P_D09_COMMON",
+            "ticket_id": "ticket_00000011",
+            "waiting_reason": ""
+          }
+        },
+        "visitor": {
+          "actor_id": "relative_00000012",
+          "id": "visitor_00000013",
+          "pending_window": "",
+          "phase": "to_waiting",
+          "public_use": {
+            "actor_id": "relative_00000012",
+            "area": {
+              "anchor": [
+                32,
+                64
+              ],
+              "floor_id": 1,
+              "room_id": ""
+            },
+            "arrived_tick": 100,
+            "facility_id": "family_waiting_seat",
+            "id": "visitor_00000013",
+            "mode": "auto",
+            "phase": "local_travel",
+            "public_purpose": "seat",
+            "started_tick": 100
+          },
+          "purpose": "companion",
+          "remaining_ticks": 0,
+          "started_window": "",
+          "visit_id": "visit_00000008",
+          "waiting_cell": [
+            47,
+            93
+          ],
+          "waiting_floor": 1
+        }
+      },
+      "elapsed_ms": 250,
+      "fixtures": [],
+      "passed": true,
+      "requirement": "docs/design/07-clinical-team.md §8.2；无等候点仅有请求，条件齐备后独立亲友从入口真实到院",
+      "setup_ms": 0,
+      "suite": "clinical",
+      "batch": "v2-regression.console.log"
+    },
+    "CLIN-33": {
+      "body_ms": 399,
+      "details": {
+        "competition": [
+          {
+            "actual_steps": 121,
+            "first_reservation_created": true,
+            "input_validation": "",
+            "kind": "reception",
+            "original_service_started_after_real_walk": true,
+            "passed": true,
+            "scalar_busy_and_own_exemption": true,
+            "second_keeps_ticket_unassigned": true,
+            "structural_candidates_retained_readonly": true,
+            "view_busy_and_own_exemption": true
+          },
+          {
+            "actual_steps": 116,
+            "first_reservation_created": true,
+            "input_validation": "",
+            "kind": "gp",
+            "original_service_started_after_real_walk": true,
+            "passed": true,
+            "scalar_busy_and_own_exemption": true,
+            "second_keeps_ticket_unassigned": true,
+            "structural_candidates_retained_readonly": true,
+            "view_busy_and_own_exemption": true
+          }
+        ],
+        "failed_route": {
+          "no_assignment_or_resource_effect": true,
+          "passed": true,
+          "rejected_real_operator_route_checks": 2
+        },
+        "permissions": {
+          "bed_passage_permission_not_active_work": true,
+          "bed_reason": "",
+          "inactive_ticket_not_busy": true,
+          "orphan_not_busy": true,
+          "passed": true,
+          "released_permission_not_busy": true
+        }
+      },
+      "elapsed_ms": 399,
+      "fixtures": [],
+      "passed": true,
+      "requirement": "docs/design/01-simulation.md §3、07-clinical-team.md §1、§6；接待/初诊到齐预约独占职员，原票接续，床通行权限不冒充工作，路线失败不占资源",
+      "setup_ms": 0,
+      "suite": "clinical",
+      "batch": "v2-regression.console.log"
+    },
+    "CLIN-35": {
+      "body_ms": 87,
+      "details": {
+        "CL-A01": {
+          "control_gp_calls": 2,
+          "gp_calls": 1,
+          "readiness_equal": true,
+          "recommendation": {
+            "consult_pairs": 2,
+            "no_executable_plan": true,
+            "quote_calls_by_doctor_plan": {
+              "gather_worker:P_D09_COMMON": 1,
+              "gather_worker:P_D09_GENTLE": 1,
+              "gather_worker:P_D09_SURGERY": 1
+            },
+            "readonly": true
+          }
+        },
+        "CL-A06": {
+          "isolated_written_path_shared_readonly_facts": true,
+          "readonly": true
+        },
+        "elapsed_usec": 86964,
+        "input_validation": ""
+      },
+      "elapsed_ms": 87,
+      "fixtures": [],
+      "passed": true,
+      "requirement": "docs/design/07-clinical-team.md §6；推荐与短缺查询批次复用保留全部合法方案、顺序与只读事实",
+      "setup_ms": 0,
+      "suite": "clinical",
+      "batch": "v2-regression.console.log"
+    },
+    "OPS-44": {
+      "body_ms": 261,
+      "details": {
+        "complete_route_and_facts_rng_equal": true,
+        "dynamic_leg_computations_reduced": true,
+        "variants": [
+          {
+            "actual_counts": {
+              "candidate_connections": 2,
+              "floor_route_builds": 6,
+              "floor_route_hits": 10,
+              "journey_hits": 0,
+              "journey_invalidations": 0,
+              "routes": 4,
+              "transport_builds": 0,
+              "transport_searches": 4
+            },
+            "actual_query_us": 18019,
+            "actual_scope_build_us": 56,
+            "actual_total_query_us": 18075,
+            "condition": "clear",
+            "control_counts": {
+              "candidate_connections": 8,
+              "floor_route_builds": 16,
+              "floor_route_hits": 0,
+              "journey_hits": 0,
+              "journey_invalidations": 0,
+              "routes": 4,
+              "transport_builds": 0,
+              "transport_searches": 4
+            },
+            "control_query_us": 18950,
+            "equal": true,
+            "route_queries": 4
+          },
+          {
+            "actual_counts": {
+              "candidate_connections": 1,
+              "floor_route_builds": 1,
+              "floor_route_hits": 3,
+              "journey_hits": 0,
+              "journey_invalidations": 0,
+              "routes": 4,
+              "transport_builds": 0,
+              "transport_searches": 4
+            },
+            "actual_query_us": 17085,
+            "actual_scope_build_us": 63,
+            "actual_total_query_us": 17148,
+            "condition": "egress_occupied",
+            "control_counts": {
+              "candidate_connections": 4,
+              "floor_route_builds": 4,
+              "floor_route_hits": 0,
+              "journey_hits": 0,
+              "journey_invalidations": 0,
+              "routes": 4,
+              "transport_builds": 0,
+              "transport_searches": 4
+            },
+            "control_query_us": 7956,
+            "equal": true,
+            "route_queries": 4
+          },
+          {
+            "actual_counts": {
+              "candidate_connections": 2,
+              "floor_route_builds": 6,
+              "floor_route_hits": 10,
+              "journey_hits": 0,
+              "journey_invalidations": 0,
+              "routes": 4,
+              "transport_builds": 0,
+              "transport_searches": 4
+            },
+            "actual_query_us": 18161,
+            "actual_scope_build_us": 70,
+            "actual_total_query_us": 18231,
+            "condition": "reservation",
+            "control_counts": {
+              "candidate_connections": 8,
+              "floor_route_builds": 16,
+              "floor_route_hits": 0,
+              "journey_hits": 0,
+              "journey_invalidations": 0,
+              "routes": 4,
+              "transport_builds": 0,
+              "transport_searches": 4
+            },
+            "control_query_us": 16994,
+            "equal": true,
+            "route_queries": 4
+          },
+          {
+            "actual_counts": {
+              "candidate_connections": 2,
+              "floor_route_builds": 6,
+              "floor_route_hits": 10,
+              "journey_hits": 0,
+              "journey_invalidations": 0,
+              "routes": 4,
+              "transport_builds": 0,
+              "transport_searches": 4
+            },
+            "actual_query_us": 16766,
+            "actual_scope_build_us": 62,
+            "actual_total_query_us": 16828,
+            "condition": "authorized",
+            "control_counts": {
+              "candidate_connections": 8,
+              "floor_route_builds": 16,
+              "floor_route_hits": 0,
+              "journey_hits": 0,
+              "journey_invalidations": 0,
+              "routes": 4,
+              "transport_builds": 0,
+              "transport_searches": 4
+            },
+            "control_query_us": 18342,
+            "equal": true,
+            "route_queries": 4
+          },
+          {
+            "actual_counts": {
+              "candidate_connections": 2,
+              "floor_route_builds": 6,
+              "floor_route_hits": 10,
+              "journey_hits": 0,
+              "journey_invalidations": 0,
+              "routes": 4,
+              "transport_builds": 0,
+              "transport_searches": 4
+            },
+            "actual_query_us": 16432,
+            "actual_scope_build_us": 62,
+            "actual_total_query_us": 16494,
+            "condition": "fractional",
+            "control_counts": {
+              "candidate_connections": 8,
+              "floor_route_builds": 16,
+              "floor_route_hits": 0,
+              "journey_hits": 0,
+              "journey_invalidations": 0,
+              "routes": 4,
+              "transport_builds": 0,
+              "transport_searches": 4
+            },
+            "control_query_us": 17526,
+            "equal": true,
+            "route_queries": 4
+          },
+          {
+            "actual_counts": {
+              "candidate_connections": 4,
+              "floor_route_builds": 9,
+              "floor_route_hits": 7,
+              "journey_hits": 0,
+              "journey_invalidations": 0,
+              "routes": 4,
+              "transport_builds": 0,
+              "transport_searches": 4
+            },
+            "actual_query_us": 17765,
+            "actual_scope_build_us": 83,
+            "actual_total_query_us": 17848,
+            "condition": "other_actor",
+            "control_counts": {
+              "candidate_connections": 8,
+              "floor_route_builds": 16,
+              "floor_route_hits": 0,
+              "journey_hits": 0,
+              "journey_invalidations": 0,
+              "routes": 4,
+              "transport_builds": 0,
+              "transport_searches": 4
+            },
+            "control_query_us": 16948,
+            "equal": true,
+            "route_queries": 4
+          }
+        ]
+      },
+      "elapsed_ms": 261,
+      "fixtures": [],
+      "passed": true,
+      "requirement": "实际动态路线批次：完整碰撞、出口授权、批次失效及公共前缀复用",
+      "setup_ms": 0,
+      "suite": "operations",
+      "batch": "v2-regression.console.log"
+    },
+    "SPACE-08": {
+      "body_ms": 221,
+      "details": {
+        "approached": true,
+        "exit_safety": {
+          "details": {
+            "before_route_ok": true,
+            "detour": {
+              "actor_id": "user",
+              "facility_id": "seat",
+              "floor_id": 1,
+              "footprint": [
+                2,
+                1
+              ],
+              "kind": "facility",
+              "ok": true,
+              "operator_cells": [
+                [
+                  46,
+                  72
+                ]
+              ],
+              "patient_cell": [
+                44,
+                73
+              ],
+              "regions": [
+                [
+                  44,
+                  72,
+                  2,
+                  1
+                ],
+                [
+                  44,
+                  73,
+                  1,
+                  1
+                ],
+                [
+                  45,
+                  71,
+                  1,
+                  1
+                ]
+              ],
+              "repair_cell": [
+                45,
+                71
+              ],
+              "staff_ids": []
+            },
+            "readonly": true,
+            "trapped": {
+              "ok": false,
+              "reason": "展开会切断在院角色的安全出口：bystander"
+            },
+            "warm_detour": true,
+            "warm_trapped": true
+          },
+          "ok": true
+        },
+        "obstructed": {
+          "ok": false,
+          "reason": "展开区域有其他实际设施：blocker"
+        },
+        "quote": {
+          "actor_id": "user",
+          "facility_id": "seat",
+          "floor_id": 1,
+          "footprint": [
+            3,
+            3
+          ],
+          "kind": "facility",
+          "ok": true,
+          "operator_cells": [
+            [
+              42,
+              73
+            ]
+          ],
+          "patient_cell": [
+            44,
+            75
+          ],
+          "regions": [
+            [
+              44,
+              72,
+              3,
+              3
+            ],
+            [
+              44,
+              75,
+              3,
+              3
+            ],
+            [
+              45,
+              71,
+              1,
+              1
+            ],
+            [
+              42,
+              73,
+              2,
+              2
+            ]
+          ],
+          "repair_cell": [
+            45,
+            71
+          ],
+          "staff_ids": [
+            "operator"
+          ]
+        },
+        "released": true,
+        "reservation": "",
+        "retained": true
+      },
+      "elapsed_ms": 221,
+      "fixtures": [],
+      "passed": true,
+      "requirement": "docs/design/04-technical.md §13；身体、工具、伸展和真实离位共同决定设施占用",
+      "setup_ms": 0,
+      "suite": "space",
+      "batch": "v2-regression.console.log"
+    },
+    "SPACE-48": {
+      "body_ms": 15,
+      "details": {
+        "candidate_isolated": true,
+        "lookup_layout_calls": 0,
+        "next_user_refused_atomically": true,
+        "original_error_order": true,
+        "projection_expansion_reverse_shrink_and_new_owner_equal_full_capture": true,
+        "released_index": true,
+        "reservation_visible": true,
+        "scoped_error_order": true
+      },
+      "elapsed_ms": 15,
+      "fixtures": [],
+      "passed": true,
+      "requirement": "docs/design/04-technical.md §6/§13；设施阻挡查询复用真实展开索引，候选隔离且实际预约立即失效",
+      "setup_ms": 0,
+      "suite": "space",
+      "batch": "v2-regression.console.log"
+    },
+    "SPACE-49": {
+      "body_ms": 127,
+      "details": {
+        "actual_waiting_arrival": true,
+        "admitted": true,
+        "different_body_candidate_is_actual": true,
+        "manual_target_not_owned_enroute": true,
+        "next_visitor_can_queue": true,
+        "queries_readonly": true,
+        "regional_probe_readonly_and_cold_equal": true,
+        "same_world_nominal_preserved": true,
+        "visitor_area_definition_set": true
+      },
+      "elapsed_ms": 127,
+      "fixtures": [],
+      "passed": true,
+      "requirement": "docs/design/08-hospital-life.md 候诊与家属；完整有序设施候选与独立冷计算等价，失败不生成身份，成功真实移动且新预约立即可见",
+      "setup_ms": 0,
+      "suite": "space",
+      "batch": "v2-regression.console.log"
+    },
+    "SPACE-50": {
+      "body_ms": 703,
+      "details": {
+        "strict_budget_boundary_and_return": [
+          {
+            "bound_ticks": 305,
+            "full_quotes": 0,
+            "manual_travel_ticks": 325,
+            "ok": true,
+            "routes_before_manual": 0,
+            "same_complete_candidates": true,
+            "y": 13
+          },
+          {
+            "bound_ticks": 300,
+            "full_quotes": 1,
+            "manual_travel_ticks": 320,
+            "ok": true,
+            "routes_before_manual": 2,
+            "same_complete_candidates": true,
+            "y": 14
+          },
+          {
+            "bound_ticks": 220,
+            "full_quotes": 1,
+            "manual_travel_ticks": 240,
+            "ok": true,
+            "routes_before_manual": 2,
+            "same_complete_candidates": true,
+            "y": 30
+          }
+        ],
+        "symptom_rotation_custom_and_current_targets": [
+          {
+            "bound_ticks": 56,
+            "ok": true,
+            "outward_ticks": 96,
+            "patient_cell": [
+              42,
+              77
+            ],
+            "rotation": 0,
+            "same_complete_candidates": true,
+            "symptom_clearance": 3
+          },
+          {
+            "bound_ticks": 56,
+            "ok": true,
+            "outward_ticks": 88,
+            "patient_cell": [
+              39,
+              75
+            ],
+            "rotation": 1,
+            "same_complete_candidates": true,
+            "symptom_clearance": 3
+          },
+          {
+            "bound_ticks": 56,
+            "ok": true,
+            "outward_ticks": 136,
+            "patient_cell": [
+              42,
+              72
+            ],
+            "rotation": 2,
+            "same_complete_candidates": true,
+            "symptom_clearance": 3
+          },
+          {
+            "bound_ticks": 56,
+            "ok": true,
+            "outward_ticks": 128,
+            "patient_cell": [
+              44,
+              75
+            ],
+            "rotation": 3,
+            "same_complete_candidates": true,
+            "symptom_clearance": 3
+          }
+        ]
+      },
+      "elapsed_ms": 703,
+      "fixtures": [],
+      "passed": true,
+      "requirement": "docs/data/balance.json seat_choice；自动候诊只以保守路程下界严格排除超30秒座位，完整报价与手动选择不变",
+      "setup_ms": 0,
+      "suite": "space",
+      "batch": "v2-regression.console.log"
+    },
+    "SPACE-53": {
+      "body_ms": 195,
+      "details": {
+        "observations": [
+          {
+            "checks": 5,
+            "complete_cold_equal": true,
+            "expected_behavior": true,
+            "goal_checks": 1,
+            "original_checks": 1988,
+            "original_validation": "",
+            "result": {
+              "ok": true,
+              "path": [
+                {
+                  "cell": [
+                    39,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    40,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    41,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    42,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                }
+              ],
+              "reason": "",
+              "status": "contention",
+              "walking_distance": 4
+            },
+            "valid": true,
+            "validation": "",
+            "variant": "goal_body"
+          },
+          {
+            "complete_cold_equal": true,
+            "expected_behavior": true,
+            "variant": "goal_released"
+          },
+          {
+            "checks": 22,
+            "complete_cold_equal": true,
+            "expected_behavior": true,
+            "goal_checks": 1,
+            "original_checks": 21,
+            "original_validation": "",
+            "result": {
+              "ok": true,
+              "path": [
+                {
+                  "cell": [
+                    39,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    39,
+                    79
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    40,
+                    79
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    41,
+                    79
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    42,
+                    79
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    42,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                }
+              ],
+              "reason": "",
+              "status": "complete",
+              "walking_distance": 6
+            },
+            "valid": true,
+            "validation": "",
+            "variant": "middle_detour"
+          },
+          {
+            "checks": 5,
+            "complete_cold_equal": true,
+            "expected_behavior": true,
+            "goal_checks": 1,
+            "original_checks": 1862,
+            "original_validation": "",
+            "result": {
+              "ok": true,
+              "path": [
+                {
+                  "cell": [
+                    39,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    40,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    41,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    42,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                }
+              ],
+              "reason": "",
+              "status": "contention",
+              "walking_distance": 4
+            },
+            "valid": true,
+            "validation": "",
+            "variant": "group_member_goal"
+          },
+          {
+            "checks": 23,
+            "complete_cold_equal": true,
+            "expected_behavior": true,
+            "goal_checks": 1,
+            "original_checks": 22,
+            "original_validation": "",
+            "result": {
+              "ok": true,
+              "path": [
+                {
+                  "cell": [
+                    39,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    40,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    40,
+                    79
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    41,
+                    79
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    42,
+                    79
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    42,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                }
+              ],
+              "reason": "",
+              "status": "complete",
+              "walking_distance": 6
+            },
+            "valid": true,
+            "validation": "",
+            "variant": "group_gap"
+          },
+          {
+            "checks": 21,
+            "complete_cold_equal": true,
+            "expected_behavior": true,
+            "goal_checks": 0,
+            "original_checks": 21,
+            "original_validation": "",
+            "result": {
+              "ok": true,
+              "path": [
+                {
+                  "cell": [
+                    39,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    39,
+                    79
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    40,
+                    79
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    41,
+                    79
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    42,
+                    79
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    42,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                }
+              ],
+              "reason": "",
+              "status": "complete",
+              "walking_distance": 6
+            },
+            "valid": true,
+            "validation": "",
+            "variant": "actual_fractional_start"
+          },
+          {
+            "checks": 0,
+            "complete_cold_equal": true,
+            "expected_behavior": true,
+            "goal_checks": 0,
+            "original_checks": 0,
+            "original_validation": "",
+            "result": {
+              "ok": true,
+              "path": [],
+              "reason": "",
+              "status": "complete",
+              "walking_distance": 0
+            },
+            "valid": true,
+            "validation": "",
+            "variant": "zero_path"
+          },
+          {
+            "checks": 5,
+            "complete_cold_equal": true,
+            "expected_behavior": true,
+            "goal_checks": 1,
+            "original_checks": 1988,
+            "original_validation": "",
+            "result": {
+              "ok": true,
+              "path": [
+                {
+                  "cell": [
+                    39,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    40,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    41,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    42,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                }
+              ],
+              "reason": "",
+              "status": "contention",
+              "walking_distance": 4
+            },
+            "valid": true,
+            "validation": "",
+            "variant": "accepted_sweep"
+          }
+        ],
+        "scope": "exact original complete dynamic A* comparison; computation only; real transport lifecycle covered separately"
+      },
+      "elapsed_ms": 195,
+      "fixtures": [],
+      "passed": true,
+      "requirement": "docs/design/16-navigation-space-selection.md §7；目标完整身体被阻挡时保留原争用结果，组配位、小数起点、扫掠与可绕行完整冷对照",
+      "setup_ms": 0,
+      "suite": "space",
+      "batch": "v2-regression.console.log"
+    },
+    "STAFF-30": {
+      "body_ms": 47,
+      "details": {
+        "impatient": [
+          {
+            "conditions": {
+              "calm_available": false,
+              "casual_scene_nearby": false,
+              "clean_ground": false,
+              "decor_nearby": false,
+              "friendly_neighbor": false,
+              "less_crowded": false,
+              "noise_reduction": false,
+              "quiet": false
+            },
+            "environment": 80.0,
+            "facility_id": "A",
+            "floor_id": 1,
+            "ok": true,
+            "patient_cell": [
+              36,
+              70
+            ],
+            "preferred": true,
+            "reasons": [],
+            "score": -300,
+            "travel_ticks": 20
+          },
+          {
+            "conditions": {
+              "calm_available": false,
+              "casual_scene_nearby": false,
+              "clean_ground": false,
+              "decor_nearby": false,
+              "friendly_neighbor": false,
+              "less_crowded": true,
+              "noise_reduction": false,
+              "quiet": true
+            },
+            "environment": 78.0,
+            "facility_id": "B",
+            "floor_id": 1,
+            "ok": true,
+            "patient_cell": [
+              48,
+              70
+            ],
+            "preferred": true,
+            "reasons": [
+              "这里比较安静"
+            ],
+            "score": -1100,
+            "travel_ticks": 80
+          }
+        ],
+        "manual": "applied",
+        "shy": [
+          {
+            "conditions": {
+              "calm_available": false,
+              "casual_scene_nearby": false,
+              "clean_ground": false,
+              "decor_nearby": false,
+              "friendly_neighbor": false,
+              "less_crowded": true,
+              "noise_reduction": false,
+              "quiet": true
+            },
+            "environment": 78.0,
+            "facility_id": "B",
+            "floor_id": 1,
+            "ok": true,
+            "patient_cell": [
+              48,
+              70
+            ],
+            "preferred": true,
+            "reasons": [
+              "这里不拥挤",
+              "这里比较安静"
+            ],
+            "score": 600,
+            "travel_ticks": 80
+          },
+          {
+            "conditions": {
+              "calm_available": false,
+              "casual_scene_nearby": false,
+              "clean_ground": false,
+              "decor_nearby": false,
+              "friendly_neighbor": false,
+              "less_crowded": false,
+              "noise_reduction": false,
+              "quiet": false
+            },
+            "environment": 80.0,
+            "facility_id": "A",
+            "floor_id": 1,
+            "ok": true,
+            "patient_cell": [
+              36,
+              70
+            ],
+            "preferred": true,
+            "reasons": [],
+            "score": -100,
+            "travel_ticks": 20
+          }
+        ]
+      },
+      "elapsed_ms": 47,
+      "fixtures": [],
+      "passed": true,
+      "requirement": "docs/design/08-hospital-life.md §17.4；30秒窗口、附近12秒、环境差10与性格定点选择，手选不受自动窗口限制",
+      "setup_ms": 0,
+      "suite": "staff",
+      "batch": "v2-regression.console.log"
+    },
+    "STAFF-41": {
+      "body_ms": 2885,
+      "details": {
+        "facilities": {
+          "immutable": true,
+          "independent_round_trip": true,
+          "ok": true,
+          "other_owner_refused": "他人个人床",
+          "selected": {
+            "cell": [
+              40,
+              77
+            ],
+            "facility_id": "a_bed",
+            "floor_id": 1
+          }
+        },
+        "handoff": {
+          "actual_work_ticks": 50,
+          "before_arrival": true,
+          "blocked_failure_atomic": true,
+          "cancelled_on_shift_change": true,
+          "completed_after_restore": true,
+          "final_new_location": {
+            "cell": [
+              45.0,
+              67.0
+            ],
+            "floor_id": 1,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "ok": true,
+          "old_departure": true,
+          "remaining_handoff": {},
+          "remaining_move": {},
+          "route_before_handoff_permission": {
+            "ok": false,
+            "reason": "真实展开与岗位预约阻挡：clin_ward_0",
+            "status": "unreachable"
+          },
+          "started": true
+        },
+        "tea": {
+          "ok": true,
+          "readonly": true,
+          "three_real_bodies": [
+            true,
+            true,
+            true
+          ]
+        }
+      },
+      "elapsed_ms": 2885,
+      "fixtures": [
+        {
+          "builder": "res://tests/acceptance/clinical_fixtures.gd",
+          "elapsed_ms": 8,
+          "identity": "6d7ec8ab2fee47de4f9eaa70fcec5d6f9070e15face21e289fcb81489af40c1a",
+          "key": "surgery_queue",
+          "source": "disk"
+        },
+        {
+          "builder": "res://tests/acceptance/clinical_fixtures.gd",
+          "elapsed_ms": 807,
+          "identity": "988249c880ee2d8953ddfb57dfee2b562697ad26cf51cb0a03b82ada852882c6",
+          "key": "surgery_prepared",
+          "source": "built"
+        },
+        {
+          "builder": "res://tests/acceptance/clinical_fixtures.gd",
+          "elapsed_ms": 844,
+          "identity": "8e686fe59a50b44ea95c9920796b3953e926c94ae7da28a607823cebc6459cc4",
+          "key": "surgery_started",
+          "source": "built"
+        },
+        {
+          "builder": "res://tests/acceptance/clinical_fixtures.gd",
+          "elapsed_ms": 869,
+          "identity": "011e56553d0a297a3824faba6ec1820bf279da661a8a6a02a7b23acbd110c02d",
+          "key": "surgery_wake",
+          "source": "built"
+        },
+        {
+          "builder": "res://tests/acceptance/clinical_fixtures.gd",
+          "elapsed_ms": 894,
+          "identity": "3af989fbd13ecdea94395beabbcd46fbe045d05a72e612537126b9dce33ceba0",
+          "key": "surgery_transfer",
+          "source": "built"
+        },
+        {
+          "builder": "res://tests/acceptance/clinical_fixtures.gd",
+          "elapsed_ms": 2041,
+          "identity": "a742300bc95ee3cb3e72275d67731d5413d3691404a089ce648e01fd0c769045",
+          "key": "ward_entered",
+          "source": "built"
+        },
+        {
+          "builder": "res://tests/acceptance/clinical_fixtures.gd",
+          "elapsed_ms": 2442,
+          "identity": "5fbf426a671daff440711b770d13277d49601475e742b3b074488728706ebe5e",
+          "key": "ward_care",
+          "source": "built"
+        },
+        {
+          "builder": "res://tests/acceptance/clinical_fixtures.gd",
+          "elapsed_ms": 2496,
+          "identity": "d70b8c090addd5594351bae2b4698c29e85bcb2042b19cc96a75b4a70c85f2d5",
+          "key": "ward_after_care",
+          "source": "built"
+        }
+      ],
+      "passed": true,
+      "requirement": "docs/design/09-consultation-wellbeing.md §4；休息选址完整去返程与当前障碍，护理交接保持床位上限及实时排他",
+      "setup_ms": 0,
+      "suite": "staff",
+      "batch": "v2-regression.console.log"
+    },
+    "STAFF-42": {
+      "body_ms": 313,
+      "details": {
+        "live_last_seat": {
+          "actual_seated": 1,
+          "full_conditions_equal": true,
+          "live_occupancy_conditions_equal": true,
+          "no_remote_ownership": true,
+          "passed": true,
+          "two_manual_requests": true
+        },
+        "neighborhoods": [
+          {
+            "after": {
+              "actor_records": 3,
+              "actor_records_total": 8,
+              "conditions": 2,
+              "facility_route_us": 2451,
+              "facility_routes": 4,
+              "full_quotes": 2,
+              "index_build_actor_records": 5,
+              "neighbor_route_trace": [
+                [
+                  1,
+                  42,
+                  76,
+                  44,
+                  76
+                ],
+                [
+                  1,
+                  42,
+                  76,
+                  42,
+                  78
+                ],
+                [
+                  1,
+                  42,
+                  76,
+                  40,
+                  77
+                ]
+              ],
+              "neighbor_route_us": 238,
+              "neighbor_routes": 3
+            },
+            "before": {
+              "actor_records": 10,
+              "actor_records_total": 10,
+              "conditions": 2,
+              "facility_route_us": 2608,
+              "facility_routes": 4,
+              "full_quotes": 2,
+              "index_build_actor_records": 0,
+              "neighbor_route_trace": [
+                [
+                  1,
+                  42,
+                  76,
+                  44,
+                  76
+                ],
+                [
+                  1,
+                  42,
+                  76,
+                  42,
+                  78
+                ],
+                [
+                  1,
+                  42,
+                  76,
+                  40,
+                  77
+                ]
+              ],
+              "neighbor_route_us": 262,
+              "neighbor_routes": 3
+            },
+            "complete_candidates_and_quotes_equal": true,
+            "conditions": {
+              "calm_available": false,
+              "casual_scene_nearby": false,
+              "clean_ground": true,
+              "decor_nearby": false,
+              "friendly_neighbor": true,
+              "less_crowded": true,
+              "noise_reduction": false,
+              "quiet": true
+            },
+            "expected_conditions": true,
+            "facts_and_rng_readonly": true,
+            "kind": "open_friend",
+            "passed": true,
+            "validation": ""
+          },
+          {
+            "after": {
+              "actor_records": 2,
+              "actor_records_total": 7,
+              "conditions": 2,
+              "facility_route_us": 6374,
+              "facility_routes": 4,
+              "full_quotes": 2,
+              "index_build_actor_records": 5,
+              "neighbor_route_trace": [
+                [
+                  1,
+                  42,
+                  76,
+                  45,
+                  76
+                ],
+                [
+                  1,
+                  48,
+                  76,
+                  45,
+                  76
+                ]
+              ],
+              "neighbor_route_us": 290,
+              "neighbor_routes": 2
+            },
+            "before": {
+              "actor_records": 10,
+              "actor_records_total": 10,
+              "conditions": 2,
+              "facility_route_us": 6289,
+              "facility_routes": 4,
+              "full_quotes": 2,
+              "index_build_actor_records": 0,
+              "neighbor_route_trace": [
+                [
+                  1,
+                  42,
+                  76,
+                  45,
+                  76
+                ],
+                [
+                  1,
+                  48,
+                  76,
+                  45,
+                  76
+                ]
+              ],
+              "neighbor_route_us": 297,
+              "neighbor_routes": 2
+            },
+            "complete_candidates_and_quotes_equal": true,
+            "conditions": {
+              "calm_available": false,
+              "casual_scene_nearby": false,
+              "clean_ground": true,
+              "decor_nearby": false,
+              "friendly_neighbor": false,
+              "less_crowded": true,
+              "noise_reduction": false,
+              "quiet": true
+            },
+            "expected_conditions": true,
+            "facts_and_rng_readonly": true,
+            "kind": "wall",
+            "passed": true,
+            "validation": ""
+          },
+          {
+            "after": {
+              "actor_records": 3,
+              "actor_records_total": 8,
+              "conditions": 2,
+              "facility_route_us": 2444,
+              "facility_routes": 4,
+              "full_quotes": 2,
+              "index_build_actor_records": 5,
+              "neighbor_route_trace": [
+                [
+                  1,
+                  42,
+                  76,
+                  44,
+                  76
+                ],
+                [
+                  1,
+                  42,
+                  76,
+                  42,
+                  78
+                ],
+                [
+                  1,
+                  42,
+                  76,
+                  40,
+                  77
+                ]
+              ],
+              "neighbor_route_us": 235,
+              "neighbor_routes": 3
+            },
+            "before": {
+              "actor_records": 10,
+              "actor_records_total": 10,
+              "conditions": 2,
+              "facility_route_us": 2515,
+              "facility_routes": 4,
+              "full_quotes": 2,
+              "index_build_actor_records": 0,
+              "neighbor_route_trace": [
+                [
+                  1,
+                  42,
+                  76,
+                  44,
+                  76
+                ],
+                [
+                  1,
+                  42,
+                  76,
+                  42,
+                  78
+                ],
+                [
+                  1,
+                  42,
+                  76,
+                  40,
+                  77
+                ]
+              ],
+              "neighbor_route_us": 231,
+              "neighbor_routes": 3
+            },
+            "complete_candidates_and_quotes_equal": true,
+            "conditions": {
+              "calm_available": false,
+              "casual_scene_nearby": false,
+              "clean_ground": true,
+              "decor_nearby": false,
+              "friendly_neighbor": false,
+              "less_crowded": true,
+              "noise_reduction": false,
+              "quiet": true
+            },
+            "expected_conditions": true,
+            "facts_and_rng_readonly": true,
+            "kind": "moving_friend",
+            "passed": true,
+            "validation": ""
+          },
+          {
+            "after": {
+              "actor_records": 0,
+              "actor_records_total": 2,
+              "conditions": 2,
+              "facility_route_us": 16571,
+              "facility_routes": 4,
+              "full_quotes": 2,
+              "index_build_actor_records": 2,
+              "neighbor_route_trace": [],
+              "neighbor_route_us": 0,
+              "neighbor_routes": 0
+            },
+            "before": {
+              "actor_records": 4,
+              "actor_records_total": 4,
+              "conditions": 2,
+              "facility_route_us": 17720,
+              "facility_routes": 4,
+              "full_quotes": 2,
+              "index_build_actor_records": 0,
+              "neighbor_route_trace": [],
+              "neighbor_route_us": 0,
+              "neighbor_routes": 0
+            },
+            "complete_candidates_and_quotes_equal": true,
+            "conditions": {
+              "calm_available": false,
+              "casual_scene_nearby": false,
+              "clean_ground": true,
+              "decor_nearby": false,
+              "friendly_neighbor": false,
+              "less_crowded": true,
+              "noise_reduction": false,
+              "quiet": true
+            },
+            "expected_conditions": true,
+            "facts_and_rng_readonly": true,
+            "kind": "large_body",
+            "passed": true,
+            "validation": ""
+          },
+          {
+            "after": {
+              "actor_records": 3,
+              "actor_records_total": 8,
+              "conditions": 2,
+              "facility_route_us": 3244,
+              "facility_routes": 4,
+              "full_quotes": 2,
+              "index_build_actor_records": 5,
+              "neighbor_route_trace": [
+                [
+                  1,
+                  42,
+                  76,
+                  44,
+                  76
+                ],
+                [
+                  1,
+                  42,
+                  76,
+                  39,
+                  76
+                ],
+                [
+                  1,
+                  42,
+                  76,
+                  40,
+                  77
+                ]
+              ],
+              "neighbor_route_us": 250,
+              "neighbor_routes": 3
+            },
+            "before": {
+              "actor_records": 10,
+              "actor_records_total": 10,
+              "conditions": 2,
+              "facility_route_us": 3356,
+              "facility_routes": 4,
+              "full_quotes": 2,
+              "index_build_actor_records": 0,
+              "neighbor_route_trace": [
+                [
+                  1,
+                  42,
+                  76,
+                  44,
+                  76
+                ],
+                [
+                  1,
+                  42,
+                  76,
+                  39,
+                  76
+                ],
+                [
+                  1,
+                  42,
+                  76,
+                  40,
+                  77
+                ]
+              ],
+              "neighbor_route_us": 257,
+              "neighbor_routes": 3
+            },
+            "complete_candidates_and_quotes_equal": true,
+            "conditions": {
+              "calm_available": false,
+              "casual_scene_nearby": false,
+              "clean_ground": true,
+              "decor_nearby": false,
+              "friendly_neighbor": true,
+              "less_crowded": true,
+              "noise_reduction": false,
+              "quiet": true
+            },
+            "expected_conditions": true,
+            "facts_and_rng_readonly": true,
+            "kind": "radius_boundary",
+            "passed": true,
+            "validation": ""
+          },
+          {
+            "after": {
+              "actor_records": 2,
+              "actor_records_total": 7,
+              "conditions": 2,
+              "facility_route_us": 1188,
+              "facility_routes": 4,
+              "full_quotes": 2,
+              "index_build_actor_records": 5,
+              "neighbor_route_trace": [
+                [
+                  1,
+                  39,
+                  76,
+                  36,
+                  76
+                ]
+              ],
+              "neighbor_route_us": 123,
+              "neighbor_routes": 1
+            },
+            "before": {
+              "actor_records": 10,
+              "actor_records_total": 10,
+              "conditions": 2,
+              "facility_route_us": 956,
+              "facility_routes": 4,
+              "full_quotes": 2,
+              "index_build_actor_records": 0,
+              "neighbor_route_trace": [
+                [
+                  1,
+                  39,
+                  76,
+                  36,
+                  76
+                ]
+              ],
+              "neighbor_route_us": 99,
+              "neighbor_routes": 1
+            },
+            "complete_candidates_and_quotes_equal": true,
+            "conditions": {
+              "calm_available": false,
+              "casual_scene_nearby": false,
+              "clean_ground": true,
+              "decor_nearby": false,
+              "friendly_neighbor": true,
+              "less_crowded": true,
+              "noise_reduction": false,
+              "quiet": true
+            },
+            "expected_conditions": true,
+            "facts_and_rng_readonly": true,
+            "kind": "bucket_float_boundary",
+            "passed": true,
+            "validation": ""
+          }
+        ],
+        "passed": true,
+        "strict_rejected_bound": {
+          "after": {
+            "actor_records": 0,
+            "actor_records_total": 0,
+            "conditions": 0,
+            "facility_route_us": 0,
+            "facility_routes": 0,
+            "full_quotes": 0,
+            "index_build_actor_records": 0,
+            "neighbor_route_trace": [],
+            "neighbor_route_us": 0,
+            "neighbor_routes": 0
+          },
+          "before": {
+            "actor_records": 0,
+            "actor_records_total": 0,
+            "conditions": 0,
+            "facility_route_us": 0,
+            "facility_routes": 0,
+            "full_quotes": 0,
+            "index_build_actor_records": 0,
+            "neighbor_route_trace": [],
+            "neighbor_route_us": 0,
+            "neighbor_routes": 0
+          },
+          "facts_and_rng_readonly": true,
+          "full_candidates_equal": true,
+          "passed": true
+        },
+        "water_query_boundaries": {
+          "available_before_arrival": {
+            "cell": [
+              42,
+              76
+            ],
+            "floor_id": 1,
+            "ok": true,
+            "patient_cell": [
+              42,
+              76
+            ],
+            "travel_ticks": 35
+          },
+          "cold_quote_equal": true,
+          "facts_and_rng_readonly": true,
+          "new_body_observed": {
+            "ok": false,
+            "reason": "展开或操作区域有实际身体：new_water_user"
+          },
+          "passed": true,
+          "projected_world_separate": true,
+          "same_query_equal": true
+        }
+      },
+      "elapsed_ms": 313,
+      "fixtures": [],
+      "passed": true,
+      "requirement": "docs/design/08-hospital-life.md §17.2、§17.4；选座邻居查询保留真实路线、朋友关系与候选顺序，手动目标到场竞争",
+      "setup_ms": 0,
+      "suite": "staff",
+      "batch": "v2-regression.console.log"
+    },
+    "STAFF-45": {
+      "body_ms": 34,
+      "details": {
+        "departure": true,
+        "intent": {
+          "actor_id": "patient_regional",
+          "area": {
+            "anchor": [
+              34,
+              66
+            ],
+            "floor_id": 1,
+            "room_id": "west"
+          },
+          "area_travel_ticks": 70,
+          "arrived_tick": 122,
+          "cell": [
+            38,
+            76
+          ],
+          "continuous_ticks": 0,
+          "facility_id": "west_chair",
+          "floor_id": 1,
+          "id": "seat_regional",
+          "mode": "auto",
+          "phase": "seated",
+          "public_purpose": "seat",
+          "started_tick": 50,
+          "ticket_id": "ticket_00000001"
+        },
+        "seated": true,
+        "validation": ""
+      },
+      "elapsed_ms": 34,
+      "fixtures": [],
+      "passed": true,
+      "requirement": "公共设施区域寻址规格 §2、§3；双区域自动出发无具体设施预约，真实到场本区取位",
+      "setup_ms": 0,
+      "suite": "staff",
+      "batch": "v2-regression.console.log"
+    },
+    "STAFF-46": {
+      "body_ms": 113,
+      "details": {
+        "fixed": true,
+        "intent": {
+          "actor_id": "patient_manual",
+          "area": {
+            "anchor": [
+              34,
+              66
+            ],
+            "floor_id": 1,
+            "room_id": "west"
+          },
+          "area_travel_ticks": 0,
+          "arrived_tick": 107,
+          "cell": [
+            36,
+            69
+          ],
+          "continuous_ticks": 0,
+          "facility_id": "west_chair",
+          "floor_id": 1,
+          "id": "seat_manual",
+          "manual_facility_id": "west_chair",
+          "mode": "manual",
+          "phase": "seated",
+          "public_purpose": "seat",
+          "started_tick": 0,
+          "ticket_id": "ticket_00000002"
+        },
+        "request": {
+          "accepted": true,
+          "changed_ids": [
+            "manual",
+            "west_chair"
+          ],
+          "code": "applied",
+          "new_revision": 2,
+          "reason": ""
+        },
+        "seated": true
+      },
+      "elapsed_ms": 113,
+      "fixtures": [],
+      "passed": true,
+      "requirement": "公共设施区域寻址规格 §4、§5；手动固定繁忙设施，真实释放后接续",
+      "setup_ms": 0,
+      "suite": "staff",
+      "batch": "v2-regression.console.log"
+    },
+    "STAFF-47": {
+      "body_ms": 104,
+      "details": {
+        "exact_45_seconds": true,
+        "first_started": true,
+        "prior_physically_left": true,
+        "queued": true,
+        "second": {
+          "actor_id": "patient_second",
+          "area": {
+            "anchor": [
+              34,
+              66
+            ],
+            "floor_id": 1,
+            "room_id": "west"
+          },
+          "arrived_tick": 1822,
+          "facility_id": "toilet",
+          "id": "second:life:2",
+          "mode": "auto",
+          "phase": "using",
+          "public_purpose": "toilet",
+          "purpose": "toilet",
+          "queued_ticks": 0,
+          "remaining_ticks": 79,
+          "return_to": {
+            "cell": [
+              40,
+              73
+            ],
+            "floor_id": 1,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "scene_id": "ASC01",
+          "started_tick": 1822,
+          "ticket_id": "ticket_00000002",
+          "visit_id": "second"
+        },
+        "second_started": true
+      },
+      "elapsed_ms": 104,
+      "fixtures": [],
+      "passed": true,
+      "requirement": "公共设施区域寻址规格 §4；厕所短时排队、实际退出与精确45秒开用边界",
+      "setup_ms": 0,
+      "suite": "staff",
+      "batch": "v2-regression.console.log"
+    },
+    "STAFF-48": {
+      "body_ms": 81,
+      "details": {
+        "clinical_called": true,
+        "first_seated": true,
+        "no_remote_claim": true,
+        "second_seated": false
+      },
+      "elapsed_ms": 81,
+      "fixtures": [],
+      "passed": true,
+      "requirement": "公共设施区域寻址规格 §4；最后空位到场互斥，临床原票优先",
+      "setup_ms": 0,
+      "suite": "staff",
+      "batch": "v2-regression.console.log"
+    },
+    "STAFF-49": {
+      "body_ms": 59,
+      "details": {
+        "cancelled_before_start": true,
+        "request": {
+          "accepted": true,
+          "changed_ids": [
+            "first",
+            "second"
+          ],
+          "code": "applied",
+          "new_revision": 3,
+          "reason": ""
+        },
+        "travelling": true,
+        "waited_for_last_member": true
+      },
+      "elapsed_ms": 59,
+      "fixtures": [],
+      "passed": true,
+      "requirement": "公共设施区域寻址规格 §5；双人最后到场前无预约收费，必要任务取消整组",
+      "setup_ms": 0,
+      "suite": "staff",
+      "batch": "v2-regression.console.log"
+    },
+    "STAFF-50": {
+      "body_ms": 50,
+      "details": {
+        "intent": {
+          "actor_id": "patient_saved",
+          "area": {
+            "anchor": [
+              48,
+              66
+            ],
+            "floor_id": 1,
+            "room_id": "east"
+          },
+          "area_travel_ticks": 0,
+          "arrived_tick": 157,
+          "cell": [
+            50,
+            69
+          ],
+          "continuous_ticks": 0,
+          "facility_id": "east_chair",
+          "floor_id": 1,
+          "id": "seat_saved",
+          "manual_facility_id": "east_chair",
+          "mode": "manual",
+          "phase": "seated",
+          "public_purpose": "seat",
+          "started_tick": 0,
+          "ticket_id": "ticket_00000001"
+        },
+        "restore_equal": true,
+        "seated": true,
+        "validation": ""
+      },
+      "elapsed_ms": 50,
+      "fixtures": [],
+      "passed": true,
+      "requirement": "公共设施区域寻址规格 §7；公共意图保存恢复不刷新目标、起时或队序",
+      "setup_ms": 0,
+      "suite": "staff",
+      "batch": "v2-regression.console.log"
+    },
+    "STAFF-51": {
+      "body_ms": 21,
+      "details": {
+        "reason": "指定设施已不可用",
+        "stopped_invalid_exact_target": true
+      },
+      "elapsed_ms": 21,
+      "fixtures": [],
+      "passed": true,
+      "requirement": "公共设施区域寻址规格 §3；手动目标移除停止，不静默改用另一设施",
+      "setup_ms": 0,
+      "suite": "staff",
+      "batch": "v2-regression.console.log"
+    },
+    "STAFF-52": {
+      "body_ms": 50,
+      "details": {
+        "energy": 35.655,
+        "no_remote_claim": true,
+        "rested": true,
+        "task": {
+          "actor_id": "resting",
+          "area": {
+            "anchor": [
+              34,
+              66
+            ],
+            "floor_id": 1,
+            "room_id": "west"
+          },
+          "arrived_tick": 71,
+          "cell": [
+            36,
+            69
+          ],
+          "early": false,
+          "facility_id": "west_chair",
+          "floor_id": 1,
+          "id": "life_resting_0",
+          "kind": "rest",
+          "mode": "auto",
+          "offsite_sleep_satisfied": false,
+          "offsite_ticks": 0,
+          "phase": "rest",
+          "public_purpose": "rest",
+          "required_offsite_ticks": 0,
+          "return_location": {
+            "cell": [
+              38,
+              90
+            ],
+            "floor_id": 1,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "selection": {},
+          "started_tick": 0,
+          "waited_ticks": 0
+        },
+        "walking_did_not_recover": true
+      },
+      "elapsed_ms": 50,
+      "fixtures": [],
+      "passed": true,
+      "requirement": "公共设施区域寻址规格 §3、§4；员工区域短休，实际走路无恢复，到场本区取位",
+      "setup_ms": 0,
+      "suite": "staff",
+      "batch": "v2-regression.console.log"
+    },
+    "STAFF-53": {
+      "body_ms": 16,
+      "details": {
+        "fixed": true,
+        "other_employee": {
+          "ok": false,
+          "reason": "他人个人床"
+        },
+        "owners": {
+          "bed_a": {
+            "staff_id": "second"
+          },
+          "bed_b": {
+            "staff_id": "first"
+          }
+        },
+        "validation": ""
+      },
+      "elapsed_ms": 16,
+      "fixtures": [],
+      "passed": true,
+      "requirement": "公共设施区域寻址规格 §6；个人床自动分配、长期独占与新结构恢复",
+      "setup_ms": 0,
+      "suite": "staff",
+      "batch": "v2-regression.console.log"
+    },
+    "STAFF-57": {
+      "body_ms": 169,
+      "details": {
+        "adaptations": {
+          "east_chair": {
+            "actor_id": "patient_owner",
+            "facility_id": "east_chair",
+            "floor_id": 1,
+            "footprint": [
+              1,
+              1
+            ],
+            "kind": "facility",
+            "operator_cells": [
+              [
+                51,
+                68
+              ]
+            ],
+            "owner_id": "patient_owner",
+            "patient_cell": [
+              50,
+              69
+            ],
+            "regions": [
+              [
+                50,
+                68,
+                1,
+                1
+              ],
+              [
+                50,
+                69,
+                1,
+                1
+              ],
+              [
+                49,
+                68,
+                1,
+                1
+              ]
+            ],
+            "repair_cell": [
+              49,
+              68
+            ],
+            "staff_ids": []
+          },
+          "west_chair": {
+            "actor_id": "patient_priority",
+            "facility_id": "west_chair",
+            "floor_id": 1,
+            "footprint": [
+              1,
+              1
+            ],
+            "kind": "facility",
+            "operator_cells": [
+              [
+                37,
+                68
+              ]
+            ],
+            "owner_id": "patient_priority",
+            "patient_cell": [
+              36,
+              69
+            ],
+            "regions": [
+              [
+                36,
+                68,
+                1,
+                1
+              ],
+              [
+                36,
+                69,
+                1,
+                1
+              ],
+              [
+                35,
+                68,
+                1,
+                1
+              ]
+            ],
+            "repair_cell": [
+              35,
+              68
+            ],
+            "staff_ids": []
+          }
+        },
+        "other_seats": {
+          "owner": {
+            "actor_id": "patient_owner",
+            "area": {
+              "anchor": [
+                48,
+                66
+              ],
+              "floor_id": 1,
+              "room_id": "east"
+            },
+            "area_travel_ticks": 0,
+            "arrived_tick": 50,
+            "cell": [
+              53,
+              74
+            ],
+            "continuous_ticks": 0,
+            "facility_id": "east_chair",
+            "floor_id": 1,
+            "id": "seat_owner",
+            "mode": "auto",
+            "phase": "seated",
+            "public_purpose": "seat",
+            "started_tick": 50,
+            "ticket_id": "ticket_00000001"
+          },
+          "priority": {
+            "actor_id": "patient_priority",
+            "area": {
+              "anchor": [
+                34,
+                66
+              ],
+              "floor_id": 1,
+              "room_id": "west"
+            },
+            "area_travel_ticks": 0,
+            "arrived_tick": 118,
+            "cell": [
+              36,
+              69
+            ],
+            "continuous_ticks": 0,
+            "facility_id": "west_chair",
+            "floor_id": 1,
+            "id": "seat_priority",
+            "manual_facility_id": "west_chair",
+            "mode": "manual",
+            "phase": "seated",
+            "public_purpose": "seat",
+            "started_tick": 118,
+            "ticket_id": "ticket_00000004"
+          }
+        },
+        "patient_actor": {
+          "body_binding_id": "B_S49_D23_M23",
+          "facing": -1.5707963267949,
+          "id": "patient_priority",
+          "location": {
+            "cell": [
+              36.0,
+              69.0
+            ],
+            "floor_id": 1,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "name": "候诊患者",
+          "posture": "seated",
+          "species_id": "S49",
+          "support_facility_id": "west_chair"
+        },
+        "patient_intent": {
+          "actor_id": "patient_priority",
+          "area": {
+            "anchor": [
+              34,
+              66
+            ],
+            "floor_id": 1,
+            "room_id": "west"
+          },
+          "area_travel_ticks": 0,
+          "arrived_tick": 118,
+          "cell": [
+            36,
+            69
+          ],
+          "continuous_ticks": 0,
+          "facility_id": "west_chair",
+          "floor_id": 1,
+          "id": "seat_priority",
+          "manual_facility_id": "west_chair",
+          "mode": "manual",
+          "phase": "seated",
+          "public_purpose": "seat",
+          "started_tick": 118,
+          "ticket_id": "ticket_00000004"
+        },
+        "patient_request": {
+          "accepted": true,
+          "changed_ids": [
+            "priority",
+            "west_chair"
+          ],
+          "code": "applied",
+          "new_revision": 120,
+          "reason": ""
+        },
+        "patient_seated": true,
+        "quote": {
+          "conditions": {
+            "calm_available": false,
+            "casual_scene_nearby": false,
+            "clean_ground": true,
+            "decor_nearby": false,
+            "friendly_neighbor": false,
+            "less_crowded": true,
+            "noise_reduction": false,
+            "quiet": true
+          },
+          "environment": 43.0,
+          "facility_id": "west_chair",
+          "floor_id": 1,
+          "ok": true,
+          "patient_cell": [
+            36,
+            69
+          ],
+          "preferred": true,
+          "reasons": [
+            "脚下干净",
+            "这里不拥挤",
+            "这里比较安静"
+          ],
+          "score": 400,
+          "travel_ticks": 0
+        },
+        "visitor": {
+          "actor_id": "relative_00000002",
+          "id": "visitor_00000003",
+          "pending_window": "",
+          "phase": "waiting",
+          "public_use": {
+            "actor_id": "relative_00000002",
+            "area": {
+              "anchor": [
+                34,
+                66
+              ],
+              "floor_id": 1,
+              "room_id": "west"
+            },
+            "arrived_tick": 125,
+            "facility_id": "",
+            "id": "visitor_00000003",
+            "mode": "auto",
+            "phase": "local_wait",
+            "public_purpose": "seat",
+            "started_tick": 0
+          },
+          "purpose": "companion",
+          "remaining_ticks": 0,
+          "started_window": "",
+          "visit_id": "owner",
+          "waiting_cell": [
+            35.0,
+            69.0
+          ],
+          "waiting_floor": 1
+        },
+        "visitor_actually_clear": true,
+        "visitor_actually_seated": true,
+        "visitor_admitted": true
+      },
+      "elapsed_ms": 169,
+      "fixtures": [],
+      "passed": true,
+      "requirement": "公共设施区域寻址规格 §4；亲友真实退出后患者取位，不同时占椅或穿身",
+      "setup_ms": 0,
+      "suite": "staff",
+      "batch": "v2-regression.console.log"
+    },
+    "STAFF-61": {
+      "body_ms": 392,
+      "details": {
+        "actual_body_departure": "",
+        "all_legal_entries_independently_failed": true,
+        "below_boundary_empty": true,
+        "exact_all_legal_entries": 112,
+        "exact_boundary": {
+          "cell": [
+            38,
+            76
+          ],
+          "floor_id": 1,
+          "travel_ticks": 323
+        },
+        "expected_ticks": 323,
+        "failed_lift_downward_retained": true,
+        "failed_lift_upward_refused": true,
+        "finite_landing_retained_with_unknown": true,
+        "fractional_origin_lower_bound_valid": true,
+        "optimized": {
+          "cell": [
+            38,
+            76
+          ],
+          "floor_id": 1,
+          "travel_ticks": 323
+        },
+        "readonly": true,
+        "restored_after_real_exit": {
+          "cell": [
+            38,
+            76
+          ],
+          "floor_id": 1,
+          "travel_ticks": 323
+        },
+        "unknown_landings": {
+          "landings": [],
+          "unknown": true
+        },
+        "unknown_result": {}
+      },
+      "elapsed_ms": 392,
+      "fixtures": [],
+      "passed": true,
+      "requirement": "公共设施区域寻址规格 §3；跨层入口下界与全部合法入口的精确行程一致，预算边界不丢候选",
+      "setup_ms": 0,
+      "suite": "staff",
+      "batch": "v2-regression.console.log"
+    },
+    "STAFF-62": {
+      "body_ms": 32,
+      "details": {
+        "adapter_released": true,
+        "adapter_retained_after_intent_end": true,
+        "final_validation": "",
+        "real_move": "",
+        "release_validation": "",
+        "save_equal": true,
+        "seated": true,
+        "while_seated_validation": ""
+      },
+      "elapsed_ms": 32,
+      "fixtures": [],
+      "passed": true,
+      "requirement": "公共设施区域寻址规格 §2、§7；实际占用与意图结束/保存后的身体退出保持合法所有者",
+      "setup_ms": 0,
+      "suite": "staff",
+      "batch": "v2-regression.console.log"
+    },
+    "STAFF-63": {
+      "body_ms": 1,
+      "details": {
+        "actual_move_requested": "",
+        "continuous_queue_cleared_while_moving": true,
+        "expected_original_personality_applied": [
+          0.0,
+          1.4,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "toilet_19_9_seconds_toilet_20_seconds_walking_using_water": [
+          0.0,
+          1.4,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "elapsed_ms": 1,
+      "fixtures": [],
+      "passed": true,
+      "requirement": "公共设施区域寻址规格 §4；厕所连续排队20秒怒气边界，走路/使用清零，饮水不叠排队怒气",
+      "setup_ms": 0,
+      "suite": "staff",
+      "batch": "v2-regression.console.log"
+    },
+    "STAFF-64": {
+      "body_ms": 27,
+      "details": {
+        "both_actually_seated": true,
+        "first": {
+          "accepted": true,
+          "changed_ids": [
+            "first_device",
+            "west_chair"
+          ],
+          "code": "applied",
+          "new_revision": 3,
+          "reason": ""
+        },
+        "first_actor": {
+          "body_binding_id": "B_S49_D23_M23",
+          "facing": 3.14159265358979,
+          "id": "patient_first_device",
+          "location": {
+            "cell": [
+              36.0,
+              69.0
+            ],
+            "floor_id": 1,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "name": "候诊患者",
+          "posture": "seated",
+          "species_id": "S49",
+          "support_facility_id": "west_chair"
+        },
+        "intents": {
+          "first_device": {
+            "actor_id": "patient_first_device",
+            "area": {
+              "anchor": [
+                34,
+                66
+              ],
+              "floor_id": 1,
+              "room_id": "west"
+            },
+            "area_travel_ticks": 0,
+            "arrived_tick": 0,
+            "cell": [
+              36,
+              69
+            ],
+            "continuous_ticks": 0,
+            "facility_id": "west_chair",
+            "floor_id": 1,
+            "id": "seat_first_device",
+            "manual_facility_id": "west_chair",
+            "mode": "manual",
+            "phase": "seated",
+            "public_purpose": "seat",
+            "started_tick": 0,
+            "ticket_id": "ticket_00000001"
+          },
+          "second_device": {
+            "actor_id": "patient_second_device",
+            "area": {
+              "anchor": [
+                34,
+                66
+              ],
+              "floor_id": 1,
+              "room_id": "west"
+            },
+            "area_travel_ticks": 0,
+            "arrived_tick": 0,
+            "cell": [
+              39,
+              69
+            ],
+            "continuous_ticks": 0,
+            "facility_id": "west_second",
+            "floor_id": 1,
+            "id": "seat_second_device",
+            "manual_facility_id": "west_second",
+            "mode": "manual",
+            "phase": "seated",
+            "public_purpose": "seat",
+            "started_tick": 0,
+            "ticket_id": "ticket_00000002"
+          }
+        },
+        "moves": {},
+        "second": {
+          "accepted": true,
+          "changed_ids": [
+            "second_device",
+            "west_second"
+          ],
+          "code": "applied",
+          "new_revision": 3,
+          "reason": ""
+        },
+        "second_actor": {
+          "body_binding_id": "B_S49_D23_M23",
+          "facing": 3.14159265358979,
+          "id": "patient_second_device",
+          "location": {
+            "cell": [
+              39.0,
+              69.0
+            ],
+            "floor_id": 1,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "name": "候诊患者",
+          "posture": "seated",
+          "species_id": "S49",
+          "support_facility_id": "west_second"
+        },
+        "two_real_unreserved_journeys": true
+      },
+      "elapsed_ms": 27,
+      "fixtures": [],
+      "passed": true,
+      "requirement": "公共设施区域寻址规格 §3、§4；走向A的队首只竞争A，B可真实并行取位",
+      "setup_ms": 0,
+      "suite": "staff",
+      "batch": "v2-regression.console.log"
+    },
+    "STAFF-65": {
+      "body_ms": 92,
+      "details": {
+        "actually_seated": true,
+        "changed_to_legal_area": true,
+        "cumulative_area_ticks": 157,
+        "fixed_geometry_unfit": true,
+        "geometry_change_rechecks_fit": true,
+        "original_started_tick": 50,
+        "readonly": true
+      },
+      "elapsed_ms": 92,
+      "fixtures": [],
+      "passed": true,
+      "requirement": "公共设施区域寻址规格 §3；本区固定几何全不适配时自动换区，原起点与累计额度保持",
+      "setup_ms": 0,
+      "suite": "staff",
+      "batch": "v2-regression.console.log"
+    },
+    "STAFF-68": {
+      "body_ms": 52,
+      "details": {
+        "real_life_handoff": [
+          {
+            "actual_return_journey": true,
+            "actual_using": true,
+            "kind": "gp",
+            "no_selection_while_returning": true,
+            "no_selection_while_using": true,
+            "same_original_ticket": true,
+            "selection_resumed_once_after_real_return": true
+          },
+          {
+            "actual_return_journey": true,
+            "actual_using": true,
+            "kind": "surgery",
+            "no_selection_while_returning": true,
+            "no_selection_while_using": true,
+            "same_original_ticket": true,
+            "selection_resumed_once_after_real_return": true
+          }
+        ]
+      },
+      "elapsed_ms": 52,
+      "fixtures": [],
+      "passed": true,
+      "requirement": "公共设施区域寻址规格 §4；生活服务实际使用和返回期间不重算临床选址，真实返回后接续原票",
+      "setup_ms": 0,
+      "suite": "staff",
+      "batch": "v2-regression.console.log"
+    }
+  }
+}

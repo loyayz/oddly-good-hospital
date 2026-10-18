@@ -312,8 +312,13 @@ static func capture_source(space: HospitalSpace, world: WorldState, floor_id: in
 			result.door_height = interval.height_m
 	if world.facts.floors.has("completed_top_floor") and not layout.plots.is_empty():
 		result.height = float(space.content.balance.floors.clear_height_m)
+	result.occupancy = capture_occupancy(world,floor_id)
+	return result
+
+static func capture_occupancy(world: WorldState, floor_id: int) -> Array:
+	var result: Array = []
 	for id: String in world.ids("adaptations"):
 		var reservation: Dictionary = world.facts.adaptations[id]
 		if reservation.kind=="facility" and int(reservation.floor_id)==floor_id:
-			result.occupancy.append([id,reservation.actor_id,reservation.get("staff_ids",[]).duplicate(),reservation.regions.duplicate(true)])
+			result.append([id,reservation.actor_id,reservation.get("staff_ids",[]).duplicate(),reservation.regions.duplicate(true)])
 	return result

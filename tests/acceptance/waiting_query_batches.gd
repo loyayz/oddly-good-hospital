@@ -141,8 +141,35 @@ func run_cases(database: HospitalContent) -> Dictionary:
 		rows.append({"kind":kind,"passed":ok,"validation":validation,"complete_candidates_and_quotes_equal":compared.equal,"expected_conditions":expected,"facts_and_rng_readonly":readonly,"before":compared.before_metrics,"after":compared.after_metrics,"conditions":conditions})
 	var reservation: Dictionary = _reservation_case()
 	var empty: Dictionary = _empty_bound_case()
-	valid = valid and reservation.passed and empty.passed
-	return {"passed":valid,"neighborhoods":rows,"live_last_seat":reservation,"strict_rejected_bound":empty}
+	var water: Dictionary = _water_view_case()
+	valid = valid and reservation.passed and empty.passed and water.passed
+	return {"passed":valid,"neighborhoods":rows,"live_last_seat":reservation,"strict_rejected_bound":empty,"water_query_boundaries":water}
+
+func _water_view_case() -> Dictionary:
+	var x: Dictionary = _fixture()
+	_facility(x,"water","FUR17",[42,75])
+	var visit: Dictionary = _visit(x,"water_observer",[38,79])
+	x.world.touch()
+	var service: HospitalWaitingLife = x.l
+	var before: Dictionary = x.world.freeze()
+	x.space.begin_dynamic_route_query(x.world)
+	var first: Dictionary = service.facility_availability(x.world,visit.actor_id,"water")
+	var repeated: Dictionary = service.facility_availability(x.world,visit.actor_id,"water")
+	# A different projected body must not borrow the real body's query result.
+	var projected: WorldState = service._route_candidate(x.world,visit.actor_id)
+	projected.facts.actors[visit.actor_id].location = {"kind":"outside"}
+	var isolated: Dictionary = service.facility_availability(projected,visit.actor_id,"water")
+	x.space.end_route_query()
+	var readonly: bool = x.world.freeze()==before
+	var cell: Array = x.space.facility_layout(x.world,"water").patient_cell
+	x.world.facts.actors.new_water_user = {"id":"new_water_user","name":"饮水处来人","species_id":"S49","location":{"kind":"floor","floor_id":1,"cell":cell.duplicate(),"height_m":0.0},"facing":0.0,"posture":"standing"}
+	# Dynamic facts can change between batches without a geometry revision.
+	x.space.begin_dynamic_route_query(x.world)
+	var blocked: Dictionary = service.facility_availability(x.world,visit.actor_id,"water")
+	x.space.end_route_query()
+	var cold: HospitalWaitingLife = HospitalWaitingLife.new(_content,HospitalSpace.new(_content))
+	var expected: Dictionary = cold.facility_availability(x.world,visit.actor_id,"water")
+	return {"passed":first.get("ok",false) and repeated==first and not isolated.get("ok",true) and not blocked.get("ok",true) and blocked==expected and readonly and x.space._route_queries.is_empty(),"available_before_arrival":first,"same_query_equal":repeated==first,"projected_world_separate":not isolated.get("ok",true),"new_body_observed":blocked,"cold_quote_equal":blocked==expected,"facts_and_rng_readonly":readonly}
 
 func _input(kind: String) -> Dictionary:
 	var x: Dictionary = _fixture({"excluded_staff":"doctor"})

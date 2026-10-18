@@ -10,10 +10,10 @@ const HOT_METHODS: Dictionary = {
 	"space":["advance","route","travel_quote","facility_quote","facility_geometry_quote","_floor_route","_exit_witness","_dispatch_routes","_active_route_clear","_reserve_doors","_movement_clear","_yield","_yield_idle_staff","finish_boundary"],
 	"navigation":["floor_source","facility_index","query_graphs","graph","_refresh_graph","_trim","clearance","travel_distance","_distance_field"],
 	"visitors":["arrivals","dispatch","advance","_waiting_point","_public_waiting","yield_seat","_bedside","_bedside_in_query"],
-	"public_areas":["_ensure","select","waiting_point","_waiting_point","safe_wait","_wait_constraints","facilities","compatible_geometry","turn"],
+	"public_areas":["_ensure","select","waiting_point","_waiting_point","safe_wait","_wait_constraints","facilities","compatible_geometry","turn","_queue_fit","_wait_estimate","_entry_landings"],
 	"personal_beds":["sync","bed_for"],
 	"environment":["begin_query","end_query","environment_at","sample_at","_observe_at","_coverage_edges","_coverage","_positive_facilities","_nearby_actors","_water_usable","_work_position","_safety_query","_tool","_arrive"],
-	"waiting":["_dispatch_public_seat","_dispatch_public_need","seat_candidates","_seat_quote","_conditions","_condition_actor_index","_environment","facility_availability","_facility_quote","_facility_quote_in_query"],
+	"waiting":["_dispatch_public_seat","_dispatch_public_need","seat_candidates","_seat_quote","_manual_seat_quote","_conditions","_condition_actor_index","_environment","facility_availability","_facility_quote","_facility_quote_in_query"],
 	"wellbeing":["_dispatch_task","_dispatch_public_rest","_dispatch_public_recreation","_recreation_choice","_select_facility","_tea_position","_dispatch_recreation","_adapted_candidate"],
 	"maintenance":["_position","_any_repair_position","_dispatch_departures","_worker_ready"],
 	"arrivals":["capacity","_reference_basis","_existing_workload","_case_experience","_resource_budgets"]

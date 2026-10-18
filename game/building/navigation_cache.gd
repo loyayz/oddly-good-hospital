@@ -12,6 +12,30 @@ func invalidate(world: WorldState, floor_id: int) -> void:
 	var key: String = str(world.get_instance_id())+":"+str(floor_id)
 	if _sources.has(key): _sources[key].revision = -1
 
+# A synchronous projection changes only actors and the listed adaptations.
+# Built floors, rooms, facilities and connectors retain their original owners.
+# Copy the exact footprint delta and current permission records; never inherit
+# actor indices, transport prefixes, exit witnesses or route results.
+func inherit_projection(space: HospitalSpace, world: WorldState, projected: WorldState, facility_ids: Array = []) -> void:
+	_prune_sources()
+	for original: Dictionary in _sources.values():
+		if original.world.get_ref()!=world or original.revision!=world.geometry_revision: continue
+		var floor_id: int = int(original.floor_id)
+		var current: Dictionary = original.source.duplicate()
+		for id: String in facility_ids:
+			if not current.facilities.has(id): continue
+			var facility: Dictionary = projected.facts.facilities[id]
+			var footprint: Array = projected.facts.adaptations.get(id,{}).get("footprint",facility.footprint)
+			if current.facilities[id].footprint==footprint: continue
+			if is_same(current.facilities,original.source.facilities): current.facilities = current.facilities.duplicate()
+			current.facilities[id] = {"cell":facility.cell.duplicate(),"footprint":footprint.duplicate()}
+		current.occupancy = RouteClearance.capture_occupancy(projected,floor_id)
+		var identical: bool = current==original.source
+		if not identical: _source_version += 1
+		var entry: Dictionary = {"source":original.source if identical else current,"world":weakref(projected),"floor_id":floor_id,"revision":projected.geometry_revision,"version":original.version if identical else _source_version,"graphs":original.graphs if identical else {}}
+		if original.has("facility_index") and current.facilities==original.source.facilities: entry.facility_index = original.facility_index
+		_sources[str(projected.get_instance_id())+":"+str(floor_id)] = entry
+
 func floor_source(space: HospitalSpace, world: WorldState, floor_id: int) -> Dictionary:
 	var key: String = str(world.get_instance_id())+":"+str(floor_id)
 	var entry: Dictionary = _sources.get(key,{})

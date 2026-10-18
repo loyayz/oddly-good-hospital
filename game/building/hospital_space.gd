@@ -21,7 +21,9 @@ var query_counts: Dictionary = {"routes":0,"journey_hits":0,"journey_invalidatio
 # These scopes contain synchronous, read-only enumeration only. Results never
 # survive an actual reservation, movement or subsequent clinical quote.
 func begin_route_query(world: WorldState, reference: Dictionary = {}, inherit_reference: bool = true) -> void:
-	var views: Dictionary = _route_queries.back().views if not _route_queries.is_empty() and _route_queries.back().world==world else {}
+	var parent: Dictionary = _route_queries.back() if not _route_queries.is_empty() and _route_queries.back().world==world else {}
+	var views: Dictionary = parent.get("views",{})
+	var exits: Dictionary = parent.get("exits",{})
 	if inherit_reference and reference.is_empty() and not _route_queries.is_empty():
 		reference = _route_queries.back().reference
 	if not reference.is_empty() and not reference.has("routes"):
@@ -30,7 +32,12 @@ func begin_route_query(world: WorldState, reference: Dictionary = {}, inherit_re
 		reference.journeys = {}
 	if not _route_queries.is_empty() and not reference.is_empty() and is_same(reference,_route_queries.back().reference):
 		# Nested scopes belong to the same sealed read-only transport batch.
-		_route_queries.append({"world":world,"routes":reference.routes,"exits":{},"views":views,"reference":reference,"journeys_allowed":_route_queries.back().journeys_allowed})
+		_route_queries.append({"world":world,"routes":reference.routes,"exits":exits,"views":views,"reference":reference,"journeys_allowed":_route_queries.back().journeys_allowed})
+		return
+	if not parent.is_empty() and parent.get("dynamic",false) and reference.is_empty():
+		# Child helpers are part of this same sealed enumeration. A projected
+		# world has no parent here and must build its own access/occupancy views.
+		_route_queries.append({"world":world,"routes":parent.routes,"exits":exits,"views":views,"reference":reference,"journeys_allowed":false,"dynamic":true,"transport":parent.transport})
 		return
 	var journeys_allowed: bool = not reference.is_empty()
 	for movement: Dictionary in world.facts.moves.values():
@@ -43,7 +50,7 @@ func begin_route_query(world: WorldState, reference: Dictionary = {}, inherit_re
 			query_counts.journey_invalidations += 1
 			reference.journeys.clear()
 			reference.journey_transport = transport.duplicate(true)
-	_route_queries.append({"world":world,"routes":reference.get("routes",{}),"exits":{},"views":views,"reference":reference,"journeys_allowed":journeys_allowed})
+	_route_queries.append({"world":world,"routes":reference.get("routes",{}),"exits":exits,"views":views,"reference":reference,"journeys_allowed":journeys_allowed})
 
 func end_route_query() -> void:
 	var finished: Dictionary = _route_queries.pop_back()
@@ -76,6 +83,9 @@ func read_view(world: WorldState, name: String, build: Callable) -> Dictionary:
 	var views: Dictionary = _route_queries.back().views
 	if not views.has(name): views[name] = build.call()
 	return views[name]
+
+func prepare_projection(world: WorldState, projected: WorldState, facility_ids: Array = []) -> void:
+	_navigation.inherit_projection(self,world,projected,facility_ids)
 
 func nominal_query(world: WorldState) -> bool:
 	return not _route_queries.is_empty() and _route_queries.back().world==world and not _route_queries.back().reference.is_empty()
@@ -1116,6 +1126,7 @@ func facility_trip_quote(world: WorldState, facility_id: String, actor_id: Strin
 		adaptation.owner_id = "public_trip_preview"
 		candidate.facts.adaptations[facility_id] = adaptation
 		layout = facility_layout(candidate,facility_id)
+	prepare_projection(world,candidate,[facility_id])
 	begin_dynamic_route_query(candidate)
 	var forward: Dictionary = route(candidate,actor_id,int(layout.floor_id),layout.patient_cell)
 	end_route_query()

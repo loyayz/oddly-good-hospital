@@ -595,6 +595,7 @@ func service_candidates(world: WorldState, visit: Dictionary, kind: String, stru
 				handoff.owner_id = visit.id
 				routing_world.facts.adaptations[facility_id] = handoff
 				layout = handoff
+				space.prepare_projection(world,routing_world,[facility_id])
 				space.begin_route_query(routing_world,{"nominal":true} if space.nominal_query(world) else {})
 			var reachable: bool = space.route(routing_world,visit.actor_id,int(layout.floor_id),layout.patient_cell,[],{},true).ok and space.route(routing_world,staff_id,int(layout.floor_id),layout.operator_cells[0],[],{},true).ok
 			if routing_world!=world: space.end_route_query()

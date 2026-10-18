@@ -1502,6 +1502,27 @@ func _case_48(_t) -> Dictionary:
 	facts.adaptations = sim.world.facts.adaptations.duplicate()
 	var candidate: WorldState = WorldState.new(facts)
 	candidate.facts.adaptations.z_seat = quote
+	space.prepare_projection(sim.world,candidate,["z_seat"])
+	var projection_exact: bool = space._navigation.floor_source(space,candidate,1)==RouteClearance.capture_source(HospitalSpace.new(content),candidate,1)
+	var reverse_facts: Dictionary = candidate.facts.duplicate()
+	reverse_facts.actors = candidate.facts.actors.duplicate()
+	reverse_facts.actors.index_user = candidate.facts.actors.index_user.duplicate(true)
+	reverse_facts.actors.index_user.location.cell = [44,72]
+	var reverse: WorldState = WorldState.new(reverse_facts)
+	space.prepare_projection(candidate,reverse)
+	projection_exact = projection_exact and space._navigation.floor_source(space,reverse,1)==RouteClearance.capture_source(HospitalSpace.new(content),reverse,1)
+	var shrunk_facts: Dictionary = candidate.facts.duplicate()
+	shrunk_facts.adaptations = candidate.facts.adaptations.duplicate()
+	shrunk_facts.adaptations.erase("z_seat")
+	var shrunk: WorldState = WorldState.new(shrunk_facts)
+	space.prepare_projection(candidate,shrunk,["z_seat"])
+	projection_exact = projection_exact and space._navigation.floor_source(space,shrunk,1)==RouteClearance.capture_source(HospitalSpace.new(content),shrunk,1)
+	var reassigned_facts: Dictionary = candidate.facts.duplicate()
+	reassigned_facts.adaptations = candidate.facts.adaptations.duplicate(true)
+	reassigned_facts.adaptations.z_seat.actor_id = "next_user"
+	var reassigned: WorldState = WorldState.new(reassigned_facts)
+	space.prepare_projection(candidate,reassigned,["z_seat"])
+	projection_exact = projection_exact and space._navigation.floor_source(space,reassigned,1)==RouteClearance.capture_source(HospitalSpace.new(content),reassigned,1) and space._navigation.floor_source(space,reassigned,1).occupancy!=space._navigation.floor_source(space,candidate,1).occupancy
 	var isolated: bool = quote.footprint==[3,3] and space._blocking_facility(candidate,1,extra)=="z_seat" and space._blocking_facility(sim.world,1,extra).is_empty() and sim.world.freeze()==before
 	var reserved: String = space.reserve_facility(sim.world,"z_seat","index_user","index_user")
 	var immediate: bool = reserved.is_empty() and space._blocking_facility(sim.world,1,extra)=="z_seat"
@@ -1510,7 +1531,7 @@ func _case_48(_t) -> Dictionary:
 	var atomic: bool = not refused.is_empty() and reserved_facts==sim.world.freeze()
 	space.release_adaptations(sim.world)
 	var released: bool = not sim.world.facts.adaptations.has("z_seat") and space._blocking_facility(sim.world,1,extra).is_empty()
-	return _done(sim,ordered and scoped_order and indexed_without_layouts and isolated and immediate and atomic and released and space._route_queries.is_empty(),{"original_error_order":ordered,"scoped_error_order":scoped_order,"lookup_layout_calls":0 if indexed_without_layouts else space.layout_calls,"candidate_isolated":isolated,"reservation_visible":immediate,"next_user_refused_atomically":atomic,"released_index":released})
+	return _done(sim,ordered and scoped_order and indexed_without_layouts and projection_exact and isolated and immediate and atomic and released and space._route_queries.is_empty(),{"original_error_order":ordered,"scoped_error_order":scoped_order,"lookup_layout_calls":0 if indexed_without_layouts else space.layout_calls,"projection_expansion_reverse_shrink_and_new_owner_equal_full_capture":projection_exact,"candidate_isolated":isolated,"reservation_visible":immediate,"next_user_refused_atomically":atomic,"released_index":released})
 
 func _case_49(_t) -> Dictionary:
 	var sim: HospitalSimulation = _fixture()

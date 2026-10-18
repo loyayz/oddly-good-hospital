@@ -153,18 +153,30 @@ func select(world: WorldState, actor_id: String, definitions: Array, room_kinds:
 				if space.clearance(body)>int(capacity.get("max_clearance_cells",96)) or float(space.body(body).height_m)>float(capacity.get("max_height_m",INF)): return false
 			return true)
 		if local.is_empty() and purpose!="rest": continue
-		var point: Dictionary = waiting_point(world,actor_id,area.ref,maximum_travel_ticks)
+		var inside: bool = contains(world,area.ref,actor_id)
+		var waiting: int = _wait_estimate(world,area.ref,local,purpose)
+		var travel_limit: int = maximum_travel_ticks
+		if not best.is_empty():
+			if purpose in ["water","toilet"]:
+				if waiting>int(best.start_ticks): continue
+				travel_limit = mini(travel_limit,int(best.start_ticks)-waiting)
+			else:
+				if best.inside and not inside: continue
+				if inside==bool(best.inside): travel_limit = mini(travel_limit,int(best.travel_ticks))
+		# Equal bounds remain candidates: the original stable area tie-break
+		# and the slowest member's actual journey still decide the winner.
+		var point: Dictionary = waiting_point(world,actor_id,area.ref,travel_limit)
 		if point.is_empty(): continue
 		var all_reachable: bool = true
 		for member: String in travellers:
 			if member==actor_id: continue
-			var entry: Dictionary = waiting_point(world,member,area.ref,maximum_travel_ticks)
+			var entry: Dictionary = waiting_point(world,member,area.ref,travel_limit)
 			if entry.is_empty(): all_reachable = false; break
 			point.travel_ticks = maxi(int(point.travel_ticks),int(entry.travel_ticks))
 		if not all_reachable: continue
 		point.area = area.ref.duplicate(true)
-		point.inside = contains(world,area.ref,actor_id)
-		point.start_ticks = int(point.travel_ticks)+_wait_estimate(world,area.ref,local,purpose)
+		point.inside = inside
+		point.start_ticks = int(point.travel_ticks)+waiting
 		if best.is_empty() or _earlier(point,best,purpose): best = point
 	space.end_route_query()
 	return best
@@ -190,7 +202,11 @@ func _waiting_point(world: WorldState, actor_id: String, reference: Dictionary, 
 		return {"floor_id":floor_id,"cell":actor.location.cell.duplicate(),"travel_ticks":0}
 	var origin: Vector2 = Vector2(float(actor.location.cell[0]),float(actor.location.cell[1]))
 	var bounds: Dictionary = space.read_view(world,"public_entry_landings:"+actor_id+":"+str(floor_id),_entry_landings.bind(world,actor_id,floor_id))
-	if int(actor.location.floor_id)!=floor_id and bounds.landings.is_empty() and not bounds.unknown: return {}
+	# Every complete cross-floor estimate must first reach a connector anchor
+	# on this floor. With no complete landing estimate, trying every area cell
+	# cannot produce one either, even when the common prefix is unknown.
+	# This rejects only this read-only query; a later exit change is rechecked.
+	if int(actor.location.floor_id)!=floor_id and bounds.landings.is_empty(): return {}
 	if not bounds.landings.is_empty() and not bounds.unknown:
 		var earliest: int = 9223372036854775807
 		for landing: Dictionary in bounds.landings: earliest = mini(earliest,int(landing.ticks))

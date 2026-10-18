@@ -130,7 +130,11 @@ func run_routes(content: HospitalContent) -> Dictionary:
 		for goal: Array in [[40,80],[41,80],[40,80],[42,80]]:
 			var id: String = "route_other" if condition=="other_actor" and goal==[42,80] else "route_cleaner"
 			var query_started: int = Time.get_ticks_usec()
+			# Public entry/fit helpers nest actual queries inside one actor's
+			# sealed enumeration. These must preserve current body permissions.
+			actual.begin_route_query(world,{},false)
 			quotes.append(actual.route(world,id,2,goal))
+			actual.end_route_query()
 			actual_us += Time.get_ticks_usec()-query_started
 			query_started = Time.get_ticks_usec()
 			expected.append(control.route(world,id,2,goal))
