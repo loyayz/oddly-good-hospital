@@ -405,17 +405,17 @@
     },
     {
       "id": "maximum-room-preview-and-loading-remodel",
-      "required": "Prequalify an actual successful maximum-room request and an actual alternative layout on the chosen world. Existing full layouts alone do not establish it; input geometry/funds/owner/exact quote and original prepare/evacuate/apply are required.",
-      "status": "specific-layout-and-command-prerequisite-not-yet-built"
+      "required": "extra_scenarios.json provides retained-tall640 85x95 success/96x95 real-shaft failure and an original-construction empty fifth-floor 96x95 success. Actual external input, terminal/displayed result and adequate request population remain required; clinical/loading remodel is separate.",
+      "status": "operation-configurations-implemented-input-generation-and-real-capture-required"
     },
     {
       "id": "two-hour-stability",
       "input_ids": [
-        "dual_a",
-        "dual_b"
+        "stability_a",
+        "stability_b"
       ],
       "required": "One continuous 7200-real-second run, actual eight room changes and four original hospital switches plus receipts/tails. Seven short groups do not substitute.",
-      "status": "actual-operation-plan-and-continuous-run-required"
+      "status": "eight-rotations-four-original-switches-plan-in-extra_scenarios-input-generation-and-continuous-run-required"
     }
   ],
   "qualification_notes": [

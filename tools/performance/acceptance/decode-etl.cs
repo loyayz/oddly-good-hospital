@@ -111,11 +111,12 @@ public static class HospitalRawEtlReader {
                     if(name.Length==0 || !names.Add(name)) throw new InvalidDataException("missing or duplicate field name");
                     string countFrom=null;
                     if(count.Length>0 && count!="1") {
-                        // DpiReportAdapter.ConfigSpace is packed UInt8[count],
-                        // bounded by an already decoded UInt32 field. Other
-                        // dynamic layouts remain unsupported.
+                        // Saved templates use packed ConfigSpace UInt8[count]
+                        // and backing-store Pages UInt64[count]. Both require
+                        // an already decoded scalar UInt32 count and stay
+                        // bounded by EVENT_RECORD's USHORT payload length.
                         Field source=Fields.Find(f=>f.Name==count && f.Type=="win:UInt32" && f.CountFrom==null);
-                        if(type!="win:UInt8" || source==null || length.Length>0) throw new InvalidDataException("unsupported array/count: "+name);
+                        if((type!="win:UInt8" && type!="win:UInt64") || source==null || length.Length>0) throw new InvalidDataException("unsupported array/count: "+name);
                         countFrom=count;
                     }
                     int binaryLength=-1;
@@ -201,6 +202,7 @@ public static class HospitalRawEtlReader {
     public static Decoded DecodePayload(EventSchema schema,byte[] payload,ushort headerFlags,int tracePointerSize) {
         Decoded result=new Decoded();
         try {
+            if(payload==null || payload.Length>65535) throw new InvalidDataException("payload exceeds EVENT_RECORD USHORT length");
             if(!BitConverter.IsLittleEndian) throw new PlatformNotSupportedException("little-endian payload reader required");
             if(schema==null) throw new InvalidDataException("event schema unavailable");
             if(schema.Error!=null) throw new InvalidDataException(schema.Error);
@@ -212,15 +214,24 @@ public static class HospitalRawEtlReader {
             int offset=0;
             foreach(Field field in schema.Fields) {
                 int begin=offset;
-                string value;
+                object value;
                 Dictionary<string,object> detail=new Dictionary<string,object>{{"name",field.Name},{"in_type",field.Type},{"offset",begin}};
                 if(field.CountFrom!=null) {
                     object source;uint count;
-                    if(!result.Data.TryGetValue(field.CountFrom,out source) || !UInt32.TryParse((string)source,NumberStyles.None,CultureInfo.InvariantCulture,out count) || count>65535)
-                        throw new InvalidDataException("invalid bounded UInt8 array count: "+field.Name);
-                    Require(payload,offset,(int)count);
-                    value=Convert.ToBase64String(payload,offset,(int)count);offset+=(int)count;
-                    detail.Add("count_from",field.CountFrom);detail.Add("count",count);detail.Add("encoding","base64");
+                    int elementBytes=field.Type=="win:UInt64"?8:1;
+                    if(!result.Data.TryGetValue(field.CountFrom,out source) || !UInt32.TryParse(source as string,NumberStyles.None,CultureInfo.InvariantCulture,out count) || count>65535/elementBytes)
+                        throw new InvalidDataException("invalid bounded array count: "+field.Name);
+                    int byteCount=checked((int)count*elementBytes);
+                    Require(payload,offset,byteCount);
+                    if(elementBytes==1) value=Convert.ToBase64String(payload,offset,byteCount);
+                    else {
+                        string[] values=new string[count];
+                        for(int index=0;index<values.Length;index++) values[index]=BitConverter.ToUInt64(payload,offset+index*8).ToString(CultureInfo.InvariantCulture);
+                        value=values;
+                    }
+                    offset+=byteCount;
+                    detail.Add("count_from",field.CountFrom);detail.Add("count",count);
+                    detail.Add("encoding",elementBytes==1?"base64":"uint64_decimal_strings");
                 } else value=Scalar(field,payload,ref offset,pointers);
                 detail.Add("value",value);detail.Add("bytes",offset-begin);
                 result.Fields.Add(detail);

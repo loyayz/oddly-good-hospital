@@ -257,6 +257,131 @@ def evidence_sources(root, sources):
     return True
 
 
+def allocation_evidence(root, meta, start, end, frequency, target_bytes):
+    """Validate ledger provenance before interpreting its separate proof scopes."""
+    root = Path(root)
+    path = root/"allocation-ledger.json"
+    out = {"present": path.is_file(), "verified": False, "status": "incomplete", "checks": {}, "missing": [], "errors": [],
+           "allocation_identity": {"status": "missing"}, "allocation_accounting": {"status": "missing"},
+           "formal_window": {"verified": False}, "os_aggregate_counters": [], "budget": {"status": "incomplete", "target_bytes": target_bytes}}
+    if not path.is_file():
+        out["missing"].append("graphics allocation ledger with complete accounting and OS residency view")
+        return out
+    checks = out["checks"]
+    def integer(value): return type(value) is int and value >= 0
+    def bounds(a, b): return type(a) in (int, float) and type(b) in (int, float) and math.isfinite(a) and math.isfinite(b) and a > 0 and a < b
+    def resolve(value):
+        value = Path(value)
+        return (value if value.is_absolute() else root/value).resolve()
+    try:
+        ledger = load(path)
+        if not isinstance(ledger, dict): raise ValueError("ledger must be a JSON object")
+        out.update(ledger_source={"path":str(path.resolve()), "sha256":sha256_file(path)},
+                   allocation_identity=ledger.get("allocation_identity", {}), allocation_accounting=ledger.get("allocation_accounting", {}),
+                   formal_window=ledger.get("formal_window", {}), ledger_status=ledger.get("status"), ledger_missing=ledger.get("missing", []),
+                   lifecycle_observed_graph_peak_alloc_size_bytes=ledger.get("known_sequence_peak_allocated_bytes"),
+                   lifecycle_observed_graph_upper_peak_alloc_size_bytes=ledger.get("known_same_timestamp_upper_peak_allocated_bytes"))
+        checks["schema2"] = ledger.get("schema_version") == 2 and ledger.get("kind") == "dxgkrnl_allocation_ledger"
+        games = [p for p in meta.get("processes", []) if p.get("stem") == "game" and p.get("pid") == meta.get("pid")]
+        checks["same_pid_and_lifetime"] = (ledger.get("target_pid") == meta.get("pid") and len(games) == 1
+            and integer(games[0].get("start_utc_ticks")) and games[0]["start_utc_ticks"] > 0
+            and ledger.get("target_start_utc_ticks") == games[0]["start_utc_ticks"])
+        checks["matching_positive_frequency"] = type(frequency) is int and frequency > 0 and ledger.get("qpc_frequency") == frequency
+        required_provenance = ("events_hash_matches_decode_output", "schema_hash_matches_decode_input", "etl_input_unchanged_during_decode", "supplemental_provenance_verified", "required_event_families_in_decode_selection")
+        provenance = ledger.get("input_provenance", {})
+        checks["ledger_input_provenance"] = provenance.get("verified") is True and all(provenance.get("checks", {}).get(k) is True for k in required_provenance)
+        raw_keys = ("decoder_raw_qpc_valid", "full_etl_read_complete", "process_and_close_succeeded", "qpc_header_clock", "zero_file_loss", "all_interpreted_events_have_raw_qpc", "one_matching_positive_frequency")
+        checks["ledger_raw_qpc"] = ledger.get("raw_qpc_verified") is True and all(ledger.get("raw_qpc_checks", {}).get(k) is True for k in raw_keys)
+        sources, sources_ok = {}, isinstance(ledger.get("sources"), list) and bool(ledger.get("sources"))
+        for source in ledger.get("sources", []):
+            source_path = resolve(source["path"])
+            actual = sha256_file(source_path) if source_path.is_file() else None
+            sources_ok = sources_ok and source_path not in sources and actual == source.get("sha256")
+            sources[source_path] = actual
+        checks["preserved_source_hashes"] = sources_ok
+        trace_path, schema_path, capture_path = (root/"allocation/trace.json").resolve(), (root/"allocation/provider-schema.json").resolve(), (root/"capture.json").resolve()
+        checks["same_capture_trace_schema_sources"] = all(p in sources and sources[p] is not None for p in (trace_path, schema_path, capture_path))
+        trace = load(trace_path)
+        checks["trace_pid_lifetime_frequency"] = (trace.get("target_pid") == meta.get("pid") and trace.get("target_start_utc_ticks") == ledger.get("target_start_utc_ticks")
+            and trace.get("qpc_frequency") == frequency and trace.get("started_before_target") is True and trace.get("error") is None)
+        final = trace.get("trace_final") or {}
+        checks["zero_trace_loss"] = final.get("code") == 0 and all(final.get(k) == 0 for k in ("events_lost", "log_buffers_lost", "realtime_buffers_lost"))
+        candidates = [load(p) for p in sources if p.name.endswith(".meta.json") and p.is_file()]
+        decodes = [d for d in candidates if isinstance(d, dict) and d.get("kind") == "offline_raw_etl_decode"]
+        checks["one_raw_decode_meta"] = len(decodes) == 1
+        decode = decodes[0] if len(decodes) == 1 else {}
+        result, header = decode.get("result", {}), decode.get("result", {}).get("TraceHeader", {})
+        etl_path = (root/"allocation/dxgkrnl.etl").resolve()
+        etl_hash = sha256_file(etl_path) if etl_path.is_file() else None
+        checks["same_original_etl"] = (bool(etl_hash) and resolve(decode.get("etl_path", ".")) == etl_path
+            and etl_hash == decode.get("etl_sha256") == decode.get("etl_sha256_after"))
+        output_path = resolve(decode.get("output", "."))
+        checks["raw_output_schema_hashes"] = (output_path in sources and bool(sources[output_path]) and sources[output_path] == decode.get("output_sha256")
+            and resolve(decode.get("schema_path", ".")) == schema_path and bool(sources.get(schema_path))
+            and sources[schema_path] == decode.get("schema_sha256") == decode.get("schema_sha256_after"))
+        checks["decode_clock_api_loss"] = (decode.get("raw_qpc_valid") is True and decode.get("tool_error") is None and result.get("RawFileReadComplete") is True
+            and decode.get("process_trace_mode_bits") == "0x10001000" and decode.get("qpc_ticks_are_raw_header_timestamp") is True
+            and decode.get("raw_timestamp_is_unconverted_header_timestamp") is True and decode.get("qpc_frequency") == frequency
+            and result.get("ProcessStatus") == 0 and result.get("CloseStatus") == 0 and header.get("reserved_flags_clock_type") == 1
+            and header.get("perf_frequency") == frequency and header.get("events_lost") == 0 and header.get("buffers_lost") == 0
+            and integer(header.get("end_time_filetime")) and header["end_time_filetime"] > 0)
+        window = out["formal_window"]
+        ws, we = window.get("start_qpc"), window.get("end_qpc")
+        checks["formal_window_covers_actual"] = window.get("verified") is True and bounds(start, end) and bounds(ws, we) and ws <= start and we >= end
+        first, last = result.get("FirstRawTimestamp"), result.get("LastRawTimestamp")
+        checks["etl_covers_ledger_and_actual_window"] = integer(first) and integer(last) and bounds(ws, we) and first <= ws < we <= last
+        out["formal_window"] = {**window, "actual_analysis_window":{"start_qpc":start, "end_qpc":end},
+            "same_actual_window": ws == start and we == end, "covers_actual_window":checks["formal_window_covers_actual"]}
+        source_valid = all(checks.values())
+        intrinsic_sources_valid = all(valid for name, valid in checks.items() if name not in ("formal_window_covers_actual", "etl_covers_ledger_and_actual_window"))
+        identity, accounting = out["allocation_identity"], out["allocation_accounting"]
+        out["allocation_identity"] = {**identity, "source_validated":intrinsic_sources_valid}
+        out["allocation_accounting"] = {**accounting, "source_validated":intrinsic_sources_valid}
+        counters = []
+        for counter in ledger.get("os_aggregate_counters", []):
+            cw, adapter = counter.get("formal_window", {}), counter.get("adapter_identity", {})
+            lifecycle_valid = (intrinsic_sources_valid and counter.get("continuous") is True and integer(counter.get("samples")) and counter["samples"] > 0
+                and counter.get("kind") in ("usage", "commitment") and adapter.get("AdapterLuid") is not None
+                and adapter.get("VendorID") is not None and adapter.get("DeviceID") is not None
+                and integer(counter.get("physical_adapter_index")) and integer(counter.get("memory_segment_group"))
+                and integer(counter.get("observed_peak_bytes")))
+            valid = (lifecycle_valid and source_valid and cw.get("verified") is True and bounds(cw.get("start_qpc"), cw.get("end_qpc"))
+                and cw["start_qpc"] <= start and cw["end_qpc"] >= end and integer(cw.get("observed_peak_bytes")))
+            counters.append({**counter, "status":"observed_with_window" if valid else "observed_lifecycle_only" if lifecycle_valid else "incomplete",
+                "window_evidence_valid":valid, "lifecycle_evidence_valid":lifecycle_valid,
+                "lifecycle_observed_peak_bytes":counter.get("observed_peak_bytes"), "window_observed_peak_bytes":cw.get("observed_peak_bytes"),
+                "added_to_allocated_bytes":False})
+        out["os_aggregate_counters"] = counters
+        os_view = any(c["window_evidence_valid"] and c["kind"] == "usage" for c in counters)
+        out["os_residency_view_status"] = "observed_with_window" if os_view else "incomplete"
+        complete = (source_valid and identity.get("status") == "verified" and accounting.get("status") == "verified"
+            and accounting.get("backend_coverage_verified") is True and accounting.get("unreleased_observed_globals_included") is True
+            and ledger.get("peak_coverage_complete") is True and ledger.get("shared_dedup_verified") is True)
+        upper = window.get("known_same_timestamp_upper_peak_alloc_size_bytes")
+        exact_peak = accounting.get("peak_allocated_bytes")
+        if complete and integer(upper) and integer(exact_peak) and exact_peak > upper:
+            complete = False
+            out["missing"].append("graphics allocation peak contradicts its supplied upper bound")
+        if complete and integer(upper) and upper <= target_bytes:
+            out["budget"] = {"status":"verified_within_target", "target_bytes":target_bytes, "upper_bound_allocated_bytes":upper,
+                "scope":"same window" if ws == start and we == end else "complete wider-window upper bound covers actual window"}
+        elif complete and integer(exact_peak) and ws == start and we == end:
+            out["budget"] = {"status":"failed" if exact_peak > target_bytes else "verified_within_target", "target_bytes":target_bytes, "peak_allocated_bytes":exact_peak, "scope":"verified actual-window allocation peak"}
+            if exact_peak > target_bytes: out["errors"].append("graphics allocation target exceeded")
+        elif complete:
+            out["missing"].append("graphics allocation upper bound above target or unavailable; actual-window excess not established")
+        if not source_valid:
+            out["missing"].extend("graphics allocation evidence: " + key for key, valid in checks.items() if not valid)
+        if identity.get("status") != "verified": out["missing"].append("graphics observed allocation identity join")
+        if not complete: out["missing"].append("graphics complete allocation accounting: backend/size semantics, shared coverage and unreleased allocation peak")
+        if not os_view: out["missing"].append("graphics OS residency view with same PID/LUID/node/segment/window")
+        out["verified"] = complete and os_view and out["budget"]["status"] == "verified_within_target"
+        out["status"] = "failed" if out["errors"] else "verified" if out["verified"] else "incomplete"
+    except (OSError, ValueError, KeyError, TypeError, AttributeError, OverflowError) as error:
+        out["missing"].append("graphics allocation ledger malformed or unavailable: " + str(error))
+    return out
+
+
 def analyze(root, balance):
     root, balance = Path(root), Path(balance)
     meta, config = load(root/"capture.json"), load(root/"scenario.json")
@@ -378,11 +503,10 @@ def analyze(root, balance):
     memory["kernel_peak_scope"] = "OS lifetime peaks sampled after window; upper bound for this window, not its exact local peak"
     if not process: missing.append("OS process memory samples")
     elif config.get("actors") == 160 and not config.get("large_world") and memory["observed_peak_working_set_bytes"] > targets["metrics"]["working_set_target_bytes"]: errors.append("baseline working set observed above target")
-    graphics = load(root/"graphics-evidence.json") if (root/"graphics-evidence.json").exists() else {}
-    graphics_valid = graphics.get("status") == "verified" and graphics.get("pid") == meta["pid"] and graphics.get("window_start_qpc", end) <= start and graphics.get("window_end_qpc", 0) >= end and evidence_sources(root, graphics.get("allocation_identity_sources")) and graphics.get("shared_dedup_verified") is True and graphics.get("unreleased_included") is True
-    if not graphics_valid: missing.append("actual graphics allocation/residency/shared-dedup evidence")
-    elif graphics.get("peak_allocated_bytes") is None: missing.append("complete graphics allocation peak")
-    elif graphics["peak_allocated_bytes"] > targets["metrics"]["graphics_resources_target_bytes"]: errors.append("graphics allocation target exceeded")
+    graphics = allocation_evidence(root, meta, start, end, frequency, targets["metrics"]["graphics_resources_target_bytes"])
+    graphics_valid = graphics["verified"]
+    missing.extend(graphics["missing"])
+    errors.extend(graphics["errors"])
     if not memory["kernel_lifetime_peaks_cover_window"]: missing.append("transient process allocation peak coverage beyond polling")
     elif config.get("actors") == 160 and not config.get("large_world") and memory["lifetime_peak_working_set_bytes"] > targets["metrics"]["working_set_target_bytes"] and not any("working set" in e for e in errors):
         missing.append("lifetime working-set peak exceeds target; exact window peak attribution required")
@@ -435,7 +559,7 @@ def analyze(root, balance):
               "gpu_pid_aggregate_samples":sum(r.get("status")=="observed" for r in rows(root/"gpu-process-memory.ndjson")),
               "presentmon_quality":{"etw_loss":trace,"dropped_not_displayed":skipped["not_displayed"],"internal_lost_present_count":internal_loss,
                   "internal_loss_scope":"diagnostic unavailable in standard CSV when null; not inferred zero; frame validity uses ETW loss, actual distinct display fields, chain continuity and complete tail"},
-              "graphics_evidence_verified":graphics_valid,"operations":operations,"save_totals":saves,
+              "graphics_evidence_verified":graphics_valid,"graphics":graphics,"operations":operations,"save_totals":saves,
               "snapshot_main_inclusive_ms":copy_stats,"snapshot_copy_evidence":"upper bound only when whole inclusive span meets copy target; excess requires isolated evidence",
               "preview_targets":previews,"main_phases":[r for r in telemetry if r.get("kind")=="main_phase"],
               "errors":sorted(set(errors)),"missing":sorted(set(missing)),"timing_pass":not errors and not timing_missing,
@@ -455,6 +579,13 @@ def main():
         code = 1 if report["errors"] else 2 if report["missing"] else 0
     except (ValueError, KeyError, OSError, csv.Error, TypeError, OverflowError) as error:
         report = {"status":"incomplete","formal_pass":False,"tool_error":str(error)}; code = 2
+        if (args.run/"allocation-ledger.json").is_file():
+            try:
+                meta = load(args.run/"capture.json")
+                report["graphics"] = allocation_evidence(args.run, meta, None, None, meta.get("qpc_frequency"), load(args.balance)["performance_targets"]["metrics"]["graphics_resources_target_bytes"])
+                report["graphics_evidence_verified"] = False
+            except (ValueError, KeyError, OSError, TypeError) as graphics_error:
+                report["graphics_tool_error"] = str(graphics_error)
     output = args.output or args.run/"analysis.json"
     output.write_text(json.dumps(report, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
     print(json.dumps({"status":report["status"],"formal_pass":report["formal_pass"],"output":str(output)},ensure_ascii=False))

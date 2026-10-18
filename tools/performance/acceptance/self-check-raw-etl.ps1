@@ -40,6 +40,25 @@ $excessResult=[HospitalRawEtlReader]::DecodePayload($bounded,$excessArray,0x40,8
 Check 'array count beyond payload bound clears parsed prefix' ($excessResult.Status -eq 'incomplete' -and $excessResult.Data.Count -eq 0)
 $forward=New-FixedSchema '<data name="ConfigSpace" inType="win:UInt8" count="ConfigSpaceSize"/><data name="ConfigSpaceSize" inType="win:UInt32"/>'
 Check 'forward array count is unsupported' ($null -ne $forward.Error)
+$pages=New-FixedSchema '<data name="hProcessId" inType="win:UInt64"/><data name="hVidMmGlobalAlloc" inType="win:UInt64"/><data name="PageCount" inType="win:UInt32"/><data name="Pages" inType="win:UInt64" count="PageCount"/>'
+$pageBytes=[byte[]]([BitConverter]::GetBytes([uint64]20784)+[BitConverter]::GetBytes([uint64]17)+[BitConverter]::GetBytes([uint32]2)+[BitConverter]::GetBytes([uint64]9007199254740993)+[BitConverter]::GetBytes([uint64]::MaxValue))
+$pageResult=[HospitalRawEtlReader]::DecodePayload($pages,$pageBytes,0x40,8)
+Check 'bounded UInt64 pages keep exact decimal strings and packed offset' ($pageResult.Status -eq 'decoded' -and $pageResult.Consumed -eq 36 -and $pageResult.Data['Pages'][0] -ceq '9007199254740993' -and $pageResult.Data['Pages'][1] -ceq '18446744073709551615' -and $pageResult.Fields[3]['offset'] -eq 20 -and $pageResult.Fields[3]['bytes'] -eq 16 -and $pageResult.Fields[3]['encoding'] -eq 'uint64_decimal_strings')
+$zeroPages=[byte[]]([BitConverter]::GetBytes([uint64]20784)+[BitConverter]::GetBytes([uint64]17)+[BitConverter]::GetBytes([uint32]0))
+$zeroResult=[HospitalRawEtlReader]::DecodePayload($pages,$zeroPages,0x40,8)
+Check 'zero PageCount is an empty list without invented storage bytes' ($zeroResult.Status -eq 'decoded' -and $zeroResult.Data['Pages'].Count -eq 0 -and $zeroResult.Consumed -eq 20)
+$shortPages=[HospitalRawEtlReader]::DecodePayload($pages,$pageBytes[0..34],0x40,8)
+Check 'truncated UInt64 array clears all published scalar prefix' ($shortPages.Status -eq 'incomplete' -and $shortPages.Data.Count -eq 0)
+$extraPages=[HospitalRawEtlReader]::DecodePayload($pages,[byte[]]($pageBytes+[byte]0),0x40,8)
+Check 'trailing UInt64 array payload stays incomplete' ($extraPages.Status -eq 'incomplete' -and $extraPages.Data.Count -eq 0)
+$overflowPages=[byte[]]([BitConverter]::GetBytes([uint64]20784)+[BitConverter]::GetBytes([uint64]17)+[BitConverter]::GetBytes([uint32]::MaxValue))
+Check 'UInt64 count multiplication is bounded before allocation' ([HospitalRawEtlReader]::DecodePayload($pages,$overflowPages,0x40,8).Status -eq 'incomplete')
+$wideCount=New-FixedSchema '<data name="PageCount" inType="win:UInt64"/><data name="Pages" inType="win:UInt64" count="PageCount"/>'
+Check 'UInt64 count source is unsupported rather than truncated to UInt32' ($null -ne $wideCount.Error)
+$forwardPages=New-FixedSchema '<data name="Pages" inType="win:UInt64" count="PageCount"/><data name="PageCount" inType="win:UInt32"/>'
+Check 'forward UInt64 array count remains unsupported' ($null -ne $forwardPages.Error)
+$pageJson=[HospitalRawEtlReader]::SyntheticRecordJson($pages,$pageBytes,0x40,9007199254740993,1,8)|ConvertFrom-Json -AsHashtable
+Check 'UInt64 array JSON retains string precision and complete raw payload' ($pageJson.data.Pages[1] -is [string] -and $pageJson.data.Pages[1] -ceq '18446744073709551615' -and $pageJson.user_data_base64 -ceq [Convert]::ToBase64String($pageBytes))
 $duplicate=New-FixedSchema '<data name="x" inType="win:UInt32"/><data name="x" inType="win:UInt32"/>'
 Check 'duplicate schema keys rejected' ($null -ne $duplicate.Error)
 $utf=New-FixedSchema '<data name="text" inType="win:UnicodeString"/>'

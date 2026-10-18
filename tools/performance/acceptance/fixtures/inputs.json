@@ -4,6 +4,39 @@
   "preparation_status": "Sources only; each generated input requires its successful runtime manifest and independent consumer validation.",
   "inputs": [
     {
+      "id": "stability_a",
+      "input_file": "stability_a.input.bin",
+      "manifest_file": "stability_a.manifest.json",
+      "mode": "stability",
+      "source": "160four",
+      "actors": 160,
+      "layout": "four_floors",
+      "boundary": "Original exact-quote build_room adds a real 65th empty GP at [15,81], 8x8, DR04 south. All original entities, active clinical facts and RNG preserved. Separate clone preflights two original 180-degree remodel rotations.",
+      "status": "requires_generation"
+    },
+    {
+      "id": "stability_b",
+      "input_file": "stability_b.input.bin",
+      "manifest_file": "stability_b.manifest.json",
+      "mode": "stability",
+      "source": "320four",
+      "actors": 320,
+      "layout": "four_floors",
+      "boundary": "Same genuine 65-room preparation on the distinct original 320 factory UUID; never rewrite a live hospital identity. Seed the complete prepared world through original Library.create and wait its real snapshot receipt.",
+      "status": "requires_generation"
+    },
+    {
+      "id": "maximum_upper",
+      "input_file": "maximum_upper.input.bin",
+      "manifest_file": "maximum_upper.manifest.json",
+      "mode": "maximum_upper",
+      "source": "160four",
+      "layout": "four_floors",
+      "population": "Actual post-construction population; original normal arrivals/departures and one genuinely hired decorator remain active.",
+      "boundary": "Original standard decorator hire, SE02 purchase, nine actual floor_purchase orders built from 4F to 5F. Preserve original lift through 4F and all original identities; no fifth-floor traffic or actors invented. Complete original 96x95 GP/DR01 preview is read-only and costs 364850.",
+      "status": "requires_original_construction_generation"
+    },
+    {
       "id": "160four",
       "input_file": "160four.input.bin",
       "manifest_file": "160four.manifest.json",

@@ -3,6 +3,7 @@ import csv
 import hashlib
 import importlib.util
 import json
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -12,6 +13,10 @@ REPO = HERE.parents[2]
 spec = importlib.util.spec_from_file_location("acceptance_analyze", HERE/"analyze.py")
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
+ledger_spec = importlib.util.spec_from_file_location("acceptance_gpu_ledger", HERE/"gpu-ledger.py")
+ledger_module = importlib.util.module_from_spec(ledger_spec)
+sys.modules[ledger_spec.name] = ledger_module
+ledger_spec.loader.exec_module(ledger_module)
 LIMITS = {"p95_ms":16.7,"p99_ms":25,"max_ms":50}
 
 
@@ -114,7 +119,7 @@ class OfflineChecks(unittest.TestCase):
             for end in range(0,106001,16):
                 writer.writerow([7,"0x0",(end-1)*1000,0,1,16 if end else 0])
         write("capture.json",{"qpc_frequency":1000000,"pid":7,"selected_swapchain":"0x0","window_start_qpc":1000000,"window_end_qpc":104000000,"poll_requested_ms":100,
-            "processes":[{"stem":"game","exit_code":0}],"trace_final":{"code":0,"events_lost":0,"log_buffers_lost":0,"realtime_buffers_lost":0}})
+            "processes":[{"stem":"game","pid":7,"start_utc_ticks":123,"exit_code":0}],"trace_final":{"code":0,"events_lost":0,"log_buffers_lost":0,"realtime_buffers_lost":0}})
         write("scenario.json",{"name":"synthetic","actors":160,"speed":1,"window_pixels":[2560,1440],"operations":[]})
         telemetry = [{"kind":"clock_sample","engine_us":v,"qpc_before_ticks":v,"qpc_after_ticks":v+2,"qpc_frequency":1000000,"valid":True} for v in range(0,106000001,500000)]
         telemetry += [{"kind":"step","tick":tick,"started_engine_us":tick*100000-5000,"completed_engine_us":tick*100000,"elapsed_us":5000,"main_elapsed_us":4000,"between_slices_wall_us":1000,"completion_qpc_ticks":tick*100000+2,"qpc_frequency":1000000,"hospital_session":"a","capture_step":True} for tick in range(1,1060)]
@@ -129,17 +134,190 @@ class OfflineChecks(unittest.TestCase):
         self.assertTrue(report["timing_pass"],report["missing"]+report["errors"])
         self.assertGreaterEqual(report["steps"]["definite_samples"],1000)
         self.assertFalse(report["formal_pass"])
-        self.assertIn("actual graphics allocation/residency/shared-dedup evidence",report["missing"])
+        self.assertTrue(any("graphics allocation ledger" in item for item in report["missing"]))
         self.assertIsNone(report["presentmon_quality"]["internal_lost_present_count"])
 
     def test_formal_pass_is_evidence_driven_not_hardcoded_false(self):
         root = self.full_fixture()
-        source = root/"synthetic-allocation-proof.json"
-        source.write_text("synthetic test data only",encoding="utf-8")
-        proof = {"path":source.name,"sha256":hashlib.sha256(source.read_bytes()).hexdigest()}
-        (root/"graphics-evidence.json").write_text(json.dumps({"status":"verified","pid":7,"window_start_qpc":0,"window_end_qpc":106000000,"allocation_identity_sources":[proof],"shared_dedup_verified":True,"unreleased_included":True,"peak_allocated_bytes":100,"transient_process_peak_covered":True}),encoding="utf-8")
+        self.ledger_fixture(root, complete=True)
         report = module.analyze(root,REPO/"docs/data/balance.json")
         self.assertTrue(report["formal_pass"],report["missing"]+report["errors"])
+
+    def ledger_fixture(self, root, complete=False):
+        """Synthetic proof records; no ETL APIs, process or counters are invoked."""
+        meta = module.load(root/"capture.json")
+        chains, _, _, _ = module.displayed_intervals(root/"presentmon.csv",7,1000000)
+        start = min(f["start_ms"]*1000000/1000 for f in chains["0x0"] if f["start_ms"]*1000000/1000 >= meta["window_start_qpc"])
+        window = {"verified":True,"start_qpc":start,"end_qpc":meta["window_end_qpc"],"qpc_frequency":1000000,
+                  "known_sequence_peak_alloc_size_bytes":100,"known_same_timestamp_upper_peak_alloc_size_bytes":100}
+        (root/"allocation").mkdir()
+        def write(name, value): (root/name).write_text(json.dumps(value),encoding="utf-8")
+        (root/"allocation/dxgkrnl.etl").write_bytes(b"synthetic ETL identity only; never opened as ETL")
+        (root/"raw-events.ndjson").write_text('{"synthetic":true}\n',encoding="utf-8")
+        write("allocation/trace.json",{"target_pid":7,"target_start_utc_ticks":123,"qpc_frequency":1000000,"started_before_target":True,"error":None,
+              "trace_final":{"code":0,"events_lost":0,"log_buffers_lost":0,"realtime_buffers_lost":0}})
+        write("allocation/provider-schema.json",[])
+        digest = lambda name: module.sha256_file(root/name)
+        write("raw-events.ndjson.meta.json",{"kind":"offline_raw_etl_decode","raw_qpc_valid":True,"tool_error":None,
+            "process_trace_mode_bits":"0x10001000","qpc_ticks_are_raw_header_timestamp":True,"raw_timestamp_is_unconverted_header_timestamp":True,"qpc_frequency":1000000,
+            "etl_path":"allocation/dxgkrnl.etl","etl_sha256":digest("allocation/dxgkrnl.etl"),"etl_sha256_after":digest("allocation/dxgkrnl.etl"),
+            "schema_path":"allocation/provider-schema.json","schema_sha256":digest("allocation/provider-schema.json"),"schema_sha256_after":digest("allocation/provider-schema.json"),
+            "output":"raw-events.ndjson","output_sha256":digest("raw-events.ndjson"),
+            "result":{"RawFileReadComplete":True,"ProcessStatus":0,"CloseStatus":0,"FirstRawTimestamp":0,"LastRawTimestamp":106000000,
+                      "TraceHeader":{"reserved_flags_clock_type":1,"perf_frequency":1000000,"events_lost":0,"buffers_lost":0,"end_time_filetime":1}}})
+        value = {"schema_version":2,"kind":"dxgkrnl_allocation_ledger","status":"incomplete","target_pid":7,"target_start_utc_ticks":123,"qpc_frequency":1000000,
+            "allocation_identity":{"status":"verified"},"allocation_accounting":{"status":"verified" if complete else "incomplete","backend_coverage_verified":complete,"unreleased_observed_globals_included":True},
+            "peak_coverage_complete":complete,"shared_dedup_verified":complete,"formal_window":window,"raw_qpc_verified":True,
+            "raw_qpc_checks":dict.fromkeys(("decoder_raw_qpc_valid","full_etl_read_complete","process_and_close_succeeded","qpc_header_clock","zero_file_loss","all_interpreted_events_have_raw_qpc","one_matching_positive_frequency"),True),
+            "input_provenance":{"verified":True,"checks":dict.fromkeys(("events_hash_matches_decode_output","schema_hash_matches_decode_input","etl_input_unchanged_during_decode","supplemental_provenance_verified","required_event_families_in_decode_selection"),True)},
+            "os_aggregate_counters":[{"kind":"usage","continuous":True,"samples":1,"adapter_identity":{"AdapterLuid":"0x1","VendorID":32902,"DeviceID":32085},
+                "physical_adapter_index":0,"memory_segment_group":0,"observed_peak_bytes":90,"formal_window":{**window,"observed_peak_bytes":80}}],
+            "sources":[{"path":name,"sha256":digest(name)} for name in ("capture.json","allocation/trace.json","allocation/provider-schema.json","raw-events.ndjson","raw-events.ndjson.meta.json")]}
+        write("allocation-ledger.json",value)
+        return value
+
+    def graphics(self, root):
+        value = module.load(root/"allocation-ledger.json")
+        return module.allocation_evidence(root,module.load(root/"capture.json"),value["formal_window"].get("start_qpc"),104000000,1000000,512*1024*1024)
+
+    def save_ledger(self, root, ledger):
+        (root/"allocation-ledger.json").write_text(json.dumps(ledger),encoding="utf-8")
+
+    def test_local_identity_verified_never_upgrades_incomplete_accounting(self):
+        root = self.full_fixture()
+        ledger = self.ledger_fixture(root)
+        ledger["known_sequence_peak_allocated_bytes"] = 600*1024*1024
+        self.save_ledger(root,ledger)
+        result = self.graphics(root)
+        self.assertEqual(result["allocation_identity"]["status"],"verified")
+        self.assertEqual(result["allocation_accounting"]["status"],"incomplete")
+        self.assertFalse(result["verified"])
+        self.assertFalse(result["errors"])
+        self.assertFalse(module.analyze(root,REPO/"docs/data/balance.json")["formal_pass"])
+
+    def test_bad_raw_source_hash_is_not_a_verified_proof(self):
+        root = self.full_fixture(); self.ledger_fixture(root,True)
+        (root/"raw-events.ndjson").write_text("changed",encoding="utf-8")
+        result = self.graphics(root)
+        self.assertFalse(result["checks"]["preserved_source_hashes"])
+        self.assertFalse(result["verified"])
+
+    def test_same_etl_is_rehashed_not_only_trusted_from_flags(self):
+        root = self.full_fixture(); self.ledger_fixture(root,True)
+        (root/"allocation/dxgkrnl.etl").write_bytes(b"another ETL")
+        result = self.graphics(root)
+        self.assertFalse(result["checks"]["same_original_etl"])
+        self.assertFalse(result["verified"])
+
+    def test_graphics_pid_start_and_frequency_are_bound(self):
+        for key, value, check in (("target_pid",8,"same_pid_and_lifetime"),("target_start_utc_ticks",124,"same_pid_and_lifetime"),("qpc_frequency",1000,"matching_positive_frequency")):
+            with self.subTest(key=key):
+                root = self.full_fixture(); ledger = self.ledger_fixture(root,True)
+                ledger[key] = value; self.save_ledger(root,ledger)
+                self.assertFalse(self.graphics(root)["checks"][check])
+                self.assertFalse(self.graphics(root)["verified"])
+
+    def test_graphics_raw_clock_and_loss_are_required(self):
+        root = self.full_fixture(); ledger = self.ledger_fixture(root,True)
+        ledger["raw_qpc_checks"]["qpc_header_clock"] = False
+        self.save_ledger(root,ledger)
+        self.assertFalse(self.graphics(root)["checks"]["ledger_raw_qpc"])
+        trace = module.load(root/"allocation/trace.json"); trace["trace_final"]["events_lost"] = 1
+        (root/"allocation/trace.json").write_text(json.dumps(trace),encoding="utf-8")
+        self.assertFalse(self.graphics(root)["checks"]["zero_trace_loss"])
+
+    def test_uncovered_actual_window_cannot_pass_graphics(self):
+        root = self.full_fixture(); ledger = self.ledger_fixture(root,True)
+        ledger["formal_window"]["end_qpc"] -= 1; self.save_ledger(root,ledger)
+        self.assertFalse(self.graphics(root)["checks"]["formal_window_covers_actual"])
+        self.assertFalse(self.graphics(root)["verified"])
+
+    def test_complete_wider_window_below_target_is_a_valid_upper_bound(self):
+        root = self.full_fixture(); ledger = self.ledger_fixture(root,True)
+        ledger["formal_window"]["start_qpc"] -= 1000; self.save_ledger(root,ledger)
+        actual = ledger["os_aggregate_counters"][0]["formal_window"]["start_qpc"]
+        result = module.allocation_evidence(root,module.load(root/"capture.json"),actual,104000000,1000000,512*1024*1024)
+        self.assertTrue(result["verified"],result)
+        self.assertIn("wider-window",result["budget"]["scope"])
+
+    def test_wider_window_excess_is_not_actual_window_failure(self):
+        root = self.full_fixture(); ledger = self.ledger_fixture(root,True)
+        actual = ledger["formal_window"]["start_qpc"]
+        ledger["formal_window"]["start_qpc"] -= 1000
+        ledger["formal_window"]["known_same_timestamp_upper_peak_alloc_size_bytes"] = 600*1024*1024
+        ledger["allocation_accounting"]["peak_allocated_bytes"] = 600*1024*1024
+        self.save_ledger(root,ledger)
+        result = module.allocation_evidence(root,module.load(root/"capture.json"),actual,104000000,1000000,512*1024*1024)
+        self.assertFalse(result["verified"])
+        self.assertFalse(result["errors"])
+
+    def test_verified_exact_allocation_peak_can_fail_budget(self):
+        root = self.full_fixture(); ledger = self.ledger_fixture(root,True)
+        ledger["formal_window"]["known_same_timestamp_upper_peak_alloc_size_bytes"] = 600*1024*1024
+        ledger["allocation_accounting"]["peak_allocated_bytes"] = 600*1024*1024
+        self.save_ledger(root,ledger)
+        self.assertIn("graphics allocation target exceeded",self.graphics(root)["errors"])
+
+    def test_commitment_does_not_substitute_for_os_usage_or_allocation(self):
+        root = self.full_fixture(); ledger = self.ledger_fixture(root,True)
+        ledger["os_aggregate_counters"][0]["kind"] = "commitment"
+        self.save_ledger(root,ledger)
+        result = self.graphics(root)
+        self.assertFalse(result["verified"])
+        self.assertEqual(result["os_residency_view_status"],"incomplete")
+        self.assertFalse(result["os_aggregate_counters"][0]["added_to_allocated_bytes"])
+
+    def test_decoder_header_clock_and_loss_are_independently_rechecked(self):
+        for field, value in (("reserved_flags_clock_type",2),("events_lost",1)):
+            with self.subTest(field=field):
+                root = self.full_fixture(); ledger = self.ledger_fixture(root,True)
+                path = root/"raw-events.ndjson.meta.json"
+                decode = module.load(path); decode["result"]["TraceHeader"][field] = value
+                path.write_text(json.dumps(decode),encoding="utf-8")
+                next(s for s in ledger["sources"] if s["path"] == path.name)["sha256"] = module.sha256_file(path)
+                self.save_ledger(root,ledger)
+                result = self.graphics(root)
+                self.assertTrue(result["checks"]["preserved_source_hashes"])
+                self.assertFalse(result["checks"]["decode_clock_api_loss"])
+                self.assertFalse(result["verified"])
+
+    def test_actual_display_window_reuses_analyzer_and_preserves_ack(self):
+        root = self.full_fixture()
+        capture = module.load(root/"capture.json")
+        resolved = ledger_module.resolve_capture_window(capture,root/"capture.json")
+        report = module.analyze(root,REPO/"docs/data/balance.json")
+        self.assertTrue(resolved["window_resolution"]["verified"])
+        self.assertEqual(resolved["window_start_qpc"],report["window"]["start_qpc"])
+        self.assertGreater(resolved["window_start_qpc"],capture["window_start_qpc"])
+        self.assertEqual(resolved["acknowledged_window"]["start_qpc"],capture["window_start_qpc"])
+        self.assertEqual(len(resolved["window_resolution"]["sources"]),3)
+
+    def test_failed_display_resolution_cannot_claim_ack_is_actual_window(self):
+        root = self.full_fixture()
+        (root/"presentmon.csv").write_text("wrong,columns\n1,2\n",encoding="utf-8")
+        resolved = ledger_module.resolve_capture_window(module.load(root/"capture.json"),root/"capture.json")
+        self.assertFalse(resolved["window_resolution"]["verified"])
+        window = ledger_module.window_summary([],resolved,7,{"target_start_utc_ticks":123},
+                    {"result":{"FirstRawTimestamp":0,"LastRawTimestamp":106000000}},{1000000})
+        self.assertFalse(window["verified"])
+
+    def test_legacy_graphics_flag_cannot_bypass_schema2_accounting(self):
+        root = self.full_fixture()
+        (root/"graphics-evidence.json").write_text(json.dumps({"status":"verified","pid":7,"peak_allocated_bytes":0}),encoding="utf-8")
+        report = module.analyze(root,REPO/"docs/data/balance.json")
+        self.assertFalse(report["graphics_evidence_verified"])
+        self.assertFalse(report["formal_pass"])
+
+    def test_no_formal_window_preserves_local_identity_and_os_lifecycle_only(self):
+        root = self.full_fixture(); ledger = self.ledger_fixture(root)
+        ledger["formal_window"] = {"verified":False}
+        self.save_ledger(root,ledger)
+        result = module.allocation_evidence(root,module.load(root/"capture.json"),None,None,1000000,512*1024*1024)
+        self.assertEqual(result["allocation_identity"]["status"],"verified")
+        self.assertTrue(result["allocation_identity"]["source_validated"])
+        self.assertEqual(result["os_aggregate_counters"][0]["status"],"observed_lifecycle_only")
+        self.assertEqual(result["os_aggregate_counters"][0]["lifecycle_observed_peak_bytes"],90)
+        self.assertFalse(result["verified"])
 
     def test_missing_tail_stays_incomplete(self):
         root = self.full_fixture()

@@ -7,11 +7,14 @@ Raw-QPC input and converted wall-time input remain distinct. A trace without a
 formal capture window is startup/lifecycle corroboration, never a formal pass.
 """
 import argparse
+import csv
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 import hashlib
 import heapq
+import importlib.util
 import json
+import math
 from pathlib import Path
 import sys
 import unittest
@@ -19,7 +22,8 @@ import xml.etree.ElementTree as ET
 
 
 VERSIONS = {27: 2, 28: 2, 29: 2, 33: 3, 34: 3, 35: 3, 36: 2, 37: 2, 38: 2, 39: 0, 78: 1,
-            110: 1, 320: 0, 321: 0, 367: 0, 371: 0, 373: 0, 374: 0}
+            110: 1, 320: 0, 321: 0, 364: 0, 365: 0, 367: 0, 371: 0, 373: 0, 374: 0}
+BACKING_PAGE_BYTES = 4096  # WDDM system-memory PFNs on Windows x64; not a resident-byte sum.
 
 
 def number(value):
@@ -54,12 +58,18 @@ class Allocation:
     stopped_sequence: int | None = None
     recorded: bool = False
     metadata: dict = field(default_factory=dict)
+    created_clock: tuple | None = None
+    target_backing: bool = False
+    first_target_backing_sequence: int | None = None
+    backing_active: dict | None = None
+    backing_cycles: list = field(default_factory=list)
 
 
 class Ledger:
     def __init__(self, target_pid):
         self.target = target_pid
         self.current = {}
+        self.globals_by_handle = defaultdict(dict)
         self.records = []
         self.generations = Counter()
         self.aliases = {}
@@ -80,6 +90,7 @@ class Ledger:
         self.previous_qpc = None
         self.previous_sequence = None
         self.non_qpc_events = 0
+        self.current_tid = None
 
     def issue(self, reason, **details):
         self.issues[reason] += 1
@@ -87,7 +98,8 @@ class Ledger:
             self.examples.append({"reason": reason, "sequence": self.sequence, **details})
 
     def interested(self, allocation):
-        return allocation.alive and (allocation.creator == self.target or allocation.owner == self.target or allocation.target_aliases > 0)
+        return allocation.alive and (allocation.creator == self.target or allocation.owner == self.target
+                                     or allocation.target_aliases > 0 or allocation.target_backing)
 
     def changed(self, allocation, change):
         before = self.interested(allocation)
@@ -113,6 +125,7 @@ class Ledger:
             self.generations[key] += 1
             found = Allocation(adapter, handle, self.generations[key])
             self.current[key] = found
+            self.globals_by_handle[handle][adapter] = found
         return found
 
     def consume(self, row):
@@ -125,6 +138,7 @@ class Ledger:
         if self.previous_sequence is not None and self.sequence <= self.previous_sequence:
             self.issue("interpreted_event_sequence_not_increasing")
         self.previous_sequence = self.sequence
+        self.current_tid = row.get("header_tid")
         self.counts[str(event) + ":" + str(version)] += 1
         if row.get("clock_domain") == "windows_qpc" and row.get("qpc_ticks") is not None:
             stamp, frequency = number(row["qpc_ticks"]), number(row["qpc_frequency"])
@@ -193,6 +207,7 @@ class Ledger:
                 allocation.size, allocation.creator = size, owner
                 allocation.physical_adapter = physical
                 allocation.source_event, allocation.created_sequence = event, self.sequence
+                allocation.created_clock = self.current_clock
                 # The saved template has no Flags value map. Preserve the exact
                 # fields without treating undocumented bits as DDI bit fields.
                 allocation.metadata = {name: data[name] for name in (
@@ -212,8 +227,12 @@ class Ledger:
             def stop():
                 allocation.alive = False
                 allocation.stopped_sequence = self.sequence
+                self.finish_backing(allocation, "global_stop")
             self.changed(allocation, stop)
             self.current.pop(key, None)
+            self.globals_by_handle[key[1]].pop(key[0], None)
+            if not self.globals_by_handle[key[1]]:
+                self.globals_by_handle.pop(key[1])
         elif event in (36, 37, 38):
             process = number(data["hProcessId"])
             adapter = number(data["pDxgAdapter"])
@@ -266,7 +285,7 @@ class Ledger:
         elif event == 373:
             handle = number(data["hVidmmGlobalAlloc"])
             previous, following = number(data["OldOwnerPid"]), number(data["NewOwnerPid"])
-            found = [a for a in self.current.values() if a.alive and a.handle == handle]
+            found = list(self.globals_by_handle.get(handle, {}).values())
             if len(found) != 1:
                 if self.target in (previous, following):
                     self.issue("target_ownership_global_identity_unresolved", allocation=hex(handle), candidates=len(found))
@@ -275,6 +294,41 @@ class Ledger:
             if allocation.owner is not None and allocation.owner != previous:
                 self.issue("ownership_previous_pid_mismatch", allocation=hex(handle))
             self.changed(allocation, lambda: setattr(allocation, "owner", following))
+        elif event in (364, 365):
+            handle = number(data["hVidMmGlobalAlloc"])
+            found = list(self.globals_by_handle.get(handle, {}).values())
+            process = number(data["hProcessId"]) if event == 364 else None
+            if len(found) != 1:
+                if process == self.target:
+                    self.issue("target_backing_global_identity_unresolved", allocation=hex(handle), candidates=len(found))
+                return
+            allocation = found[0]
+            if event == 365:
+                self.finish_backing(allocation, "unlock")
+                return
+            count, pages = number(data["PageCount"]), data["Pages"]
+            if not isinstance(pages, list) or not 0 <= count <= 65535 // 8 or len(pages) != count:
+                raise ValueError("backing PageCount/list is missing, inconsistent or exceeds payload bound")
+            if any(not 0 <= number(page) <= 2**64 - 1 for page in pages):
+                raise ValueError("backing PFN is not an exact UInt64")
+            if type(self.current_tid) is not int or self.current_tid < 0:
+                raise ValueError("backing event native header TID missing")
+            if allocation.backing_active is None:
+                allocation.backing_active = {"page_count": 0, "events": 0, "zero_page_events": 0,
+                    "pids": set(), "tids": set(), "first_sequence": self.sequence, "last_sequence": self.sequence}
+            cycle = allocation.backing_active
+            cycle["page_count"] += count
+            cycle["events"] += 1
+            cycle["zero_page_events"] += count == 0
+            cycle["pids"].add(process)
+            cycle["tids"].add(self.current_tid)
+            cycle["last_sequence"] = self.sequence
+            self.counts["backing_records"] += 1
+            if process == self.target:
+                self.counts["target_backing_records"] += 1
+                if allocation.first_target_backing_sequence is None:
+                    allocation.first_target_backing_sequence = self.sequence
+                self.changed(allocation, lambda: setattr(allocation, "target_backing", True))
         elif event in (320, 321, 374):
             handle, count = number(data["pVidMmAlloc"]), number(data["ResidencyCount"])
             candidates = {id(a) for alias, (a, process, record) in self.aliases.items() if alias[2] == handle}
@@ -295,13 +349,19 @@ class Ledger:
             value["observed_peak_bytes"] = max(value["observed_peak_bytes"], old, new)
             value["changes"].append((self.current_clock, old, new))
 
+    def finish_backing(self, allocation, reason):
+        if allocation.backing_active is not None:
+            allocation.backing_cycles.append({**allocation.backing_active, "end_reason": reason, "end_sequence": self.sequence})
+            allocation.backing_active = None
+
     def report(self, trace=None, schema_versions=None, decode_meta=None, capture=None):
         trace = trace or {}
         decode_meta = decode_meta or {}
         capture = capture or {}
         relevant = [a for a in self.records if a.intervals or a.opened is not None]
         deltas, timed = Counter(), defaultdict(lambda: [0, 0])
-        details = []
+        details, coverage_details = [], []
+        coverage_early_starts = []
         for a in relevant:
             intervals = a.intervals + ([(a.opened, self.sequence + 1)] if a.opened is not None else [])
             if a.size is None:
@@ -317,7 +377,7 @@ class Ledger:
             identity = self.adapters.get(a.adapter)
             if identity is None:
                 self.issue("target_adapter_luid_unresolved", adapter=hex(a.adapter))
-            details.append({"adapter_pointer": hex(a.adapter), "global_allocation": hex(a.handle),
+            detail = {"adapter_pointer": hex(a.adapter), "global_allocation": hex(a.handle),
                             "generation": a.generation, "physical_adapter_index": a.physical_adapter,
                             "adapter_identity": identity, "allocated_bytes": a.size,
                             "allocation_event_metadata": a.metadata,
@@ -326,7 +386,20 @@ class Ledger:
                             "aliases": a.alias_history,
                             "target_intervals_sequence": intervals,
                             "target_intervals_clock": [[self.times.get(begin), self.times.get(end)] for begin, end in intervals],
-                            "created_sequence": a.created_sequence, "stopped_sequence": a.stopped_sequence})
+                            "created_sequence": a.created_sequence, "stopped_sequence": a.stopped_sequence,
+                            "first_target_backing_sequence": a.first_target_backing_sequence,
+                            "backing_cycles": backing_cycles(a)}
+            details.append(detail)
+            cover = dict(detail)
+            if (a.first_target_backing_sequence == intervals[0][0] and a.source_event == 33
+                    and a.created_sequence < intervals[0][0] and a.size is not None):
+                # Kernel-created objects can be linked to the target later by
+                # 364. Keep that association factual; additionally bound the
+                # entire creation-to-association gap without calling it exact.
+                cover["target_intervals_sequence"] = [(a.created_sequence, intervals[0][1])] + intervals[1:]
+                cover["target_intervals_clock"] = [[a.created_clock, detail["target_intervals_clock"][0][1]]] + detail["target_intervals_clock"][1:]
+                coverage_early_starts.append((a.created_sequence, a.created_clock, intervals[0][0], self.times.get(intervals[0][0]), a.size))
+            coverage_details.append(cover)
         current = sequence_peak = 0
         peak_sequence = None
         for sequence in sorted(deltas):
@@ -352,7 +425,35 @@ class Ledger:
             positive, negative = timed[stamp]
             timestamp_upper_peak = max(timestamp_upper_peak, current + positive)
             current += positive + negative
+        coverage_timed = defaultdict(lambda: [0, 0], {stamp: amounts.copy() for stamp, amounts in timed.items()})
+        for created, created_clock, linked, linked_clock, size in coverage_early_starts:
+            if created_clock is not None:
+                coverage_timed[created_clock][0] += size
+            if linked_clock is not None:
+                coverage_timed[linked_clock][0] -= size
+        current = creation_upper_peak = 0
+        for stamp in sorted(coverage_timed):
+            positive, negative = coverage_timed[stamp]
+            creation_upper_peak = max(creation_upper_peak, current + positive)
+            current += positive + negative
         window = window_summary(details, capture, self.target, trace, decode_meta, self.qpc_frequencies)
+        coverage_window = window_summary(coverage_details, capture, self.target, trace, decode_meta, self.qpc_frequencies)
+        if window["verified"] and coverage_window["verified"]:
+            window["known_same_timestamp_upper_peak_alloc_size_bytes"] = coverage_window["known_same_timestamp_upper_peak_alloc_size_bytes"]
+        window["creation_to_backing_association_bound"] = {"lifetimes": len(coverage_early_starts),
+            "scope": "upper bound additionally retains kernel/global storage from its 33 creation before first target 364 association"}
+        cycles = [cycle for a in details for cycle in a["backing_cycles"]]
+        backing = {"status": "verified" if cycles and all(c["extent_status"] == "matched" for c in cycles) else "incomplete",
+            "page_bytes": BACKING_PAGE_BYTES, "page_byte_basis": "WDDM Windows x64 system-memory PFN granularity",
+            "target_backing_records": self.counts["target_backing_records"],
+            "lifetimes_with_backing_records": sum(bool(a["backing_cycles"]) for a in details),
+            "lifetimes_without_backing_lock_records": sum(not a["backing_cycles"] for a in details),
+            "target_kernel_page_table_lifetimes": sum(a["first_target_backing_sequence"] is not None and a["allocation_event_metadata"].get("PageTableOrDirectory") == "true" for a in details),
+            "matched_cycles": sum(c["extent_status"] == "matched" for c in cycles),
+            "pending_or_ambiguous_cycles": sum(c["extent_status"] != "matched" for c in cycles),
+            "zero_page_events": sum(c["zero_page_events"] for c in cycles),
+            "cycles_by_end_reason": dict(Counter(c["end_reason"] for c in cycles)),
+            "scope": "364 page chunks between 365/global stop/trace end corroborate immutable allocation extent; not unique PFN accounting or resident bytes; no lock event does not mean zero allocation"}
         groups = defaultdict(lambda: {"lifetimes": 0, "known_peak_live_allocations": 0, "known_peak_alloc_size_bytes": 0})
         for a in details:
             metadata = a["allocation_event_metadata"]
@@ -363,8 +464,7 @@ class Ledger:
                 value["known_peak_live_allocations"] += 1
                 if a["allocated_bytes"] is not None:
                     value["known_peak_alloc_size_bytes"] += a["allocated_bytes"]
-        missing = ["OS residency view with explicit per-process/adapter/node/segment semantics and window coverage",
-                   "initial live shared allocation rundown completeness", "backend coverage and allocation-size semantics corroboration"]
+        missing = ["OS residency view with explicit per-process/adapter/node/segment semantics and window coverage"]
         if not window["verified"]:
             missing.append("formal window not verified: " + "; ".join(window["missing"]))
         if not relevant:
@@ -406,13 +506,15 @@ class Ledger:
                 "interpreted_event_qpc_range": [self.first_qpc, self.last_qpc], "interpreted_events": self.processed,
                 "interpreted_events_without_raw_qpc": self.non_qpc_events,
                 "retained_target_interval_clock_points": len(self.times),
-                "attribution": "target-origin global allocations until global stop, explicit transferred ownership, or live aliases on target-owned devices; creation-associated PID is not assumed to be current owner",
+                "attribution": "target-origin global allocations until global stop, explicit transferred ownership, live target-device aliases, or target 364 backing links retained until global stop; creation-associated PID is not current ownership",
                 "dedup_key": "adapter pointer + global allocation handle + lifetime generation; resource/content hashes and alias handles do not create storage",
                 "known_sequence_peak_allocated_bytes": sequence_peak if relevant else None,
                 "known_peak_sequence": peak_sequence, "known_peak_clock": self.times.get(peak_sequence),
                 "known_peak_plateaus_qpc": plateaus,
                 "known_live_at_trace_end_bytes": sum(a.size for a in relevant if self.interested(a) and a.size is not None),
-                "known_same_timestamp_upper_peak_allocated_bytes": timestamp_upper_peak if relevant else None,
+                "known_same_timestamp_upper_peak_allocated_bytes": max(timestamp_upper_peak, creation_upper_peak) if relevant else None,
+                "known_creation_association_upper_peak_allocated_bytes": creation_upper_peak if relevant else None,
+                "backing_size_corroboration": backing,
                 "peak_coverage_complete": False, "shared_dedup_verified": False, "residency_verified": False,
                 "allocation_accounting": {"status": "incomplete", "byte_basis": "AdapterAllocation 33/35 allocSize, once per adapter/global/lifetime",
                     "physical_resident_bytes": None, "backend_coverage_verified": False,
@@ -445,6 +547,22 @@ def read_rows(path):
                 yield json.loads(line)
 
 
+def backing_cycles(allocation):
+    cycles = allocation.backing_cycles + ([{**allocation.backing_active, "end_reason": "trace_end", "end_sequence": None}]
+                                           if allocation.backing_active is not None else [])
+    result = []
+    for cycle in cycles:
+        observed = cycle["page_count"] * BACKING_PAGE_BYTES
+        matched = allocation.size is not None and allocation.size > 0 and observed == allocation.size
+        unambiguous = len(cycle["pids"]) == 1 and len(cycle["tids"]) == 1
+        result.append({**{name: value for name, value in cycle.items() if name not in ("pids", "tids")},
+                       "pids": sorted(cycle["pids"]), "tids": sorted(cycle["tids"]),
+                       "observed_page_extent_bytes": observed,
+                       "extent_status": "matched" if matched and unambiguous else "pending_or_ambiguous",
+                       "basis": "sum of emitted chunks for one global lifetime/lock interval; not resident bytes or a PFN uniqueness assertion"})
+    return result
+
+
 def read_schema(path):
     value = json.loads(path.read_text(encoding="utf-8-sig"))
     entries = value if isinstance(value, list) else [value]
@@ -456,13 +574,50 @@ def read_schema(path):
     return result
 
 
+def resolve_capture_window(capture, capture_path):
+    """Use the analyzer's display intervals; keep the original ACK separately."""
+    value = dict(capture)
+    value["acknowledged_window"] = {"start_qpc": capture.get("window_start_qpc"), "end_qpc": capture.get("window_end_qpc")}
+    resolution = {"verified": False, "sources": []}
+    value["window_resolution"] = resolution
+    start, end, frequency = capture.get("window_start_qpc"), capture.get("window_end_qpc"), capture.get("qpc_frequency")
+    if type(start) is not int or type(end) is not int or start <= 0 or end <= start:
+        resolution["missing"] = "complete acknowledged capture bounds unavailable"
+        return value
+    try:
+        directory = Path(capture_path).resolve().parent
+        analyzer = Path(__file__).with_name("analyze.py")
+        definition = importlib.util.spec_from_file_location("hospital_acceptance_analyze", analyzer)
+        module = importlib.util.module_from_spec(definition)
+        definition.loader.exec_module(module)
+        config_path, present_path = directory / "scenario.json", directory / "presentmon.csv"
+        config = module.load(config_path)
+        chains, _, errors, _ = module.displayed_intervals(present_path, capture["pid"], frequency)
+        selected = config.get("swapchain_address") or capture.get("selected_swapchain")
+        selected = module.swapchain(selected) if selected else None
+        if errors or (len(chains) != 1 and not config.get("swapchain_address")):
+            raise ValueError("display chain quality or primary swapchain attribution unavailable")
+        starts = [frame["start_ms"] * frequency / 1000 for frame in chains.get(selected, []) if frame["start_ms"] * frequency / 1000 >= start]
+        if not starts or min(starts) >= end:
+            raise ValueError("no actual display interval start inside acknowledged window")
+        value["window_start_qpc"] = min(starts)
+        resolution.update(verified=True, start_kind="first distinct display boundary after native started ACK", end_kind="native complete-boundary stopped ACK",
+                          sources=[{"path": str(path), "sha256": digest(path)} for path in (analyzer, config_path, present_path)])
+    except (OSError, ValueError, KeyError, TypeError, csv.Error) as error:
+        resolution["missing"] = str(error)
+    return value
+
+
 def window_summary(allocations, capture, target, trace, decode_meta, frequencies):
     """Compute an observed-graph window peak; this does not assert backend coverage."""
     missing = []
     start, end = capture.get("window_start_qpc"), capture.get("window_end_qpc")
-    if type(start) is not int or type(end) is not int or start <= 0 or start >= end:
+    if type(start) not in (int, float) or type(end) not in (int, float) or not math.isfinite(start) or not math.isfinite(end) or start <= 0 or start >= end:
         return {"verified": False, "missing": ["positive, ordered raw-QPC capture bounds unavailable"],
+                "acknowledged_window": capture.get("acknowledged_window"), "window_resolution": capture.get("window_resolution"),
                 "known_sequence_peak_alloc_size_bytes": None, "known_same_timestamp_upper_peak_alloc_size_bytes": None}
+    if capture.get("window_resolution", {}).get("verified") is False:
+        missing.append("actual display-window resolution failed: " + capture["window_resolution"].get("missing", "unknown"))
     if capture.get("pid") != target:
         missing.append("capture PID differs from trace target")
     game = [p for p in capture.get("processes", []) if p.get("pid") == target and p.get("stem") == "game"]
@@ -506,6 +661,7 @@ def window_summary(allocations, capture, target, trace, decode_meta, frequencies
         upper_peak = max(upper_peak, current + positive)
         current += positive + negative
     return {"verified": not missing, "missing": sorted(set(missing)), "start_qpc": start, "end_qpc": end,
+            "acknowledged_window": capture.get("acknowledged_window"), "window_resolution": capture.get("window_resolution"),
             "qpc_frequency": frequency, "membership": "[start,end); same-QPC callback order and conservative upper bound both reported",
             "known_sequence_peak_alloc_size_bytes": sequence_peak if allocations else None,
             "known_same_timestamp_upper_peak_alloc_size_bytes": upper_peak if allocations else None,
@@ -730,6 +886,7 @@ def main():
     decode_meta = json.loads(decode_path.read_text(encoding="utf-8-sig")) if decode_path.is_file() else {}
     capture_path = args.capture or args.trace.parent.parent / "capture.json"
     capture = json.loads(capture_path.read_text(encoding="utf-8-sig")) if capture_path.is_file() else {}
+    capture = resolve_capture_window(capture, capture_path)
     ledger = Ledger(target)
     adapter_replacements = {}
     if args.adapter_events:
@@ -753,6 +910,7 @@ def main():
         ledger.issue("supplemental_adapter_sequence_absent_from_original_events", sequences=sorted(adapter_replacements))
     report = ledger.report(trace, read_schema(schema) if schema.is_file() else None, decode_meta, capture)
     paths = [args.events, args.trace] + [path for path in (schema, decode_path, capture_path, args.selection_meta, args.adapter_events, args.lifecycle_events) if path and path.is_file()]
+    paths.extend(Path(source["path"]) for source in capture["window_resolution"]["sources"])
     report["supplemental_source_validation"] = []
     for path in (args.adapter_events, args.lifecycle_events):
         if not path:

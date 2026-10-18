@@ -1,0 +1,899 @@
+{
+  "status": "formal_acceptance_incomplete",
+  "production_commit": "4839856",
+  "functional_results": {
+    "checks": 16,
+    "completed": true,
+    "declared": 16,
+    "elapsed_ms": 10483,
+    "engine": "4.7.2-stable (official)",
+    "failed": 0,
+    "profile": "C:/Users/cong/AppData/Roaming/OddlyGoodHospital Acceptance aa6392e3997042a080a193127bd628e5",
+    "requested_cases": [
+      "GROW-39",
+      "GROW-46",
+      "GROW-48",
+      "GROW-52",
+      "GROW-59",
+      "GROW-62",
+      "GROW-69",
+      "GROW-71",
+      "GROW-73",
+      "GROW-77",
+      "GROW-79",
+      "SPACE-49",
+      "SPACE-50",
+      "STAFF-29",
+      "STAFF-34",
+      "STAFF-35"
+    ],
+    "results": {
+      "GROW-39": {
+        "body_ms": 6580,
+        "details": {
+          "beds": [
+            "parallel_ward_0",
+            "parallel_ward_1"
+          ],
+          "capacity": {
+            "bottleneck": "facility:parallel_ward_0",
+            "bottleneck_kind": "exhausted_resource",
+            "bundle_count": 0,
+            "capacity": {
+              "d": "12669369",
+              "n": "39776000"
+            },
+            "certificate_nonzeros": 0,
+            "coefficient_count": 9258,
+            "columns_per_round": [],
+            "edge_count": 3189,
+            "exact_polishes": 0,
+            "lp_rounds": 0,
+            "mip_constraints": 2380,
+            "mip_integral_variables": 1,
+            "mip_searches": 1,
+            "mip_variables": 2365,
+            "node_count": 1190,
+            "nursing_timing_us": {
+              "discrete_total_us": 391649,
+              "original_validation_us": 1503,
+              "scip_search_us": 361878
+            },
+            "pricing_calls": 2,
+            "proof_reuses": 0,
+            "resolution_count": 1,
+            "resource_count": 20,
+            "solver_kind": "nursing_mip",
+            "structural_pairs": 2,
+            "timing_us": {
+              "lock_wait_us": 1,
+              "model_build_us": 23686,
+              "node_intern_us": 4105,
+              "pricing_us": 6038,
+              "variant_and_graph_input_us": 19581
+            },
+            "used_resource_count": 20
+          },
+          "exhausted": {
+            "bottleneck": "",
+            "bottleneck_kind": "exhausted_resource",
+            "bundle_count": 0,
+            "capacity": {
+              "d": "1",
+              "n": "0"
+            },
+            "certificate_nonzeros": 0,
+            "coefficient_count": 9258,
+            "columns_per_round": [],
+            "edge_count": 3189,
+            "exact_polishes": 0,
+            "lp_rounds": 0,
+            "mip_constraints": 2380,
+            "mip_integral_variables": 1,
+            "mip_searches": 2,
+            "mip_variables": 2365,
+            "node_count": 1190,
+            "nursing_timing_us": {
+              "discrete_total_us": 556831,
+              "original_validation_us": 3393,
+              "scip_search_us": 510202
+            },
+            "pricing_calls": 4,
+            "proof_reuses": 0,
+            "resolution_count": 2,
+            "resource_count": 20,
+            "solver_kind": "nursing_mip",
+            "structural_pairs": 2,
+            "timing_us": {
+              "lock_wait_us": 2,
+              "model_build_us": 23686,
+              "node_intern_us": 4105,
+              "pricing_us": 10350,
+              "variant_and_graph_input_us": 19581
+            },
+            "used_resource_count": 20
+          },
+          "reference_reason": "",
+          "structure": {
+            "pairs": 2,
+            "patterns": 864,
+            "prefix_groups": 1,
+            "terminals": 96
+          },
+          "tables": [
+            "parallel_or_a_0",
+            "parallel_or_b_0"
+          ],
+          "uncovered": {
+            "pairs": 0
+          },
+          "validation": ""
+        },
+        "elapsed_ms": 6580,
+        "fixtures": [],
+        "passed": true,
+        "requirement": "docs/design/11-growth-arrivals-recruitment.md §1.1；两套术组、两床及独立共享护理覆盖",
+        "setup_ms": 0,
+        "suite": "growth"
+      },
+      "GROW-46": {
+        "body_ms": 22,
+        "details": {
+          "long_path": true,
+          "machines": {
+            "facility:gp_station": true,
+            "facility:second_exam": true
+          },
+          "short_path": true,
+          "variants": 13
+        },
+        "elapsed_ms": 22,
+        "fixtures": [],
+        "passed": true,
+        "requirement": "docs/design/11-growth-arrivals-recruitment.md §1.1.1；必要检查保留全部合法资源及证据条件分支",
+        "setup_ms": 0,
+        "suite": "growth"
+      },
+      "GROW-48": {
+        "body_ms": 42,
+        "details": {
+          "alternatives": 4,
+          "correct_escort": true,
+          "nurses": [
+            "transfer_nurse_0",
+            "transfer_nurse_1"
+          ],
+          "quote": {
+            "bed_id": "clin_ward_0",
+            "cure_fee": 660,
+            "effective_level": 0.0,
+            "facility_fee": 10,
+            "facility_id": "zombie_machine",
+            "nurse_id": "transfer_nurse_0",
+            "ok": true,
+            "plan_id": "P_D14_GENTLE",
+            "probability_bp": 9700,
+            "recovery_ticks": 1800,
+            "round_doctor_id": "clin_round",
+            "staff_ids": [
+              "starter_doctor_b"
+            ],
+            "supply_units": 4,
+            "ward_id": "clin_ward",
+            "work_ticks": 851
+          }
+        },
+        "elapsed_ms": 42,
+        "fixtures": [],
+        "passed": true,
+        "requirement": "docs/design/11-growth-arrivals-recruitment.md §1.1.1；同床不同护理护士的门诊转床需求保持各自身份",
+        "setup_ms": 0,
+        "suite": "growth"
+      },
+      "GROW-52": {
+        "body_ms": 40,
+        "details": {
+          "first": {
+            "pairs": 1,
+            "patterns": 1,
+            "prefix_groups": 1,
+            "terminals": 1
+          },
+          "reused": true,
+          "same_K": {
+            "pairs": 1,
+            "patterns": 1,
+            "prefix_groups": 1,
+            "terminals": 1
+          }
+        },
+        "elapsed_ms": 40,
+        "fixtures": [],
+        "passed": true,
+        "requirement": "docs/design/11-growth-arrivals-recruitment.md §1.1；K仅依赖首尝试实际结构及接待匹配",
+        "setup_ms": 0,
+        "suite": "growth"
+      },
+      "GROW-59": {
+        "body_ms": 46,
+        "details": {
+          "brief": true,
+          "candidate_queries": 0,
+          "detailed": true,
+          "diagnostic": {
+            "ok": true,
+            "stages": {
+              "gp": {
+                "facility:gp_station": {
+                  "d": "1",
+                  "n": "129"
+                },
+                "staff:starter_doctor_a": {
+                  "d": "1",
+                  "n": "129"
+                }
+              }
+            },
+            "variants": [
+              {
+                "gp": {
+                  "facility:gp_station": {
+                    "d": "1",
+                    "n": "129"
+                  },
+                  "staff:starter_doctor_a": {
+                    "d": "1",
+                    "n": "129"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "elapsed_ms": 46,
+        "fixtures": [],
+        "passed": true,
+        "requirement": "docs/design/07-clinical-team.md §14；已足够证据不枚举后续检查，入院布尔与解释一致",
+        "setup_ms": 0,
+        "suite": "growth"
+      },
+      "GROW-62": {
+        "body_ms": 27,
+        "details": {
+          "components": 2,
+          "full_calls": 1,
+          "readonly": true,
+          "representatives": 1
+        },
+        "elapsed_ms": 27,
+        "fixtures": [],
+        "passed": true,
+        "requirement": "docs/design/11-growth-arrivals-recruitment.md §1.1.1；完整候选组件与按需队列代表分离",
+        "setup_ms": 0,
+        "suite": "growth"
+      },
+      "GROW-69": {
+        "body_ms": 2,
+        "details": {
+          "equal_parts_shared": true,
+          "maps": 2,
+          "unequal_distinct": true
+        },
+        "elapsed_ms": 2,
+        "fixtures": [],
+        "passed": true,
+        "requirement": "docs/design/11-growth-arrivals-recruitment.md §1.1.1；精确资源驻留身份与顺序独立",
+        "setup_ms": 0,
+        "suite": "growth"
+      },
+      "GROW-71": {
+        "body_ms": 130,
+        "details": {
+          "observations": [
+            {
+              "binding": "B_S49_D37_M37",
+              "complete_model_equal": true,
+              "complex": false,
+              "terminals": 1
+            },
+            {
+              "binding": "B_S49_D37_M37",
+              "complete_model_equal": true,
+              "complex": true,
+              "terminals": 1
+            },
+            {
+              "binding": "B_S13_D09_M09",
+              "complete_model_equal": true,
+              "complex": false,
+              "terminals": 2
+            },
+            {
+              "binding": "B_S13_D09_M09",
+              "complete_model_equal": true,
+              "complex": true,
+              "terminals": 2
+            }
+          ],
+          "readonly": true
+        },
+        "elapsed_ms": 130,
+        "fixtures": [],
+        "passed": true,
+        "requirement": "docs/design/11-growth-arrivals-recruitment.md §1.1.1；整批组件与逐组件的完整模型、概率和选择一致",
+        "setup_ms": 0,
+        "suite": "growth"
+      },
+      "GROW-73": {
+        "body_ms": 274,
+        "details": {
+          "membership_distinguished": true,
+          "observations": [
+            {
+              "complete_model_equal": true,
+              "complex": false,
+              "experience": 0
+            },
+            {
+              "complete_model_equal": true,
+              "complex": true,
+              "experience": 0
+            },
+            {
+              "complete_model_equal": true,
+              "complex": false,
+              "experience": 4
+            },
+            {
+              "complete_model_equal": true,
+              "complex": true,
+              "experience": 4
+            },
+            {
+              "complete_model_equal": true,
+              "complex": false,
+              "experience": 5
+            },
+            {
+              "complete_model_equal": true,
+              "complex": true,
+              "experience": 5
+            },
+            {
+              "complete_model_equal": true,
+              "complex": false,
+              "experience": 24
+            },
+            {
+              "complete_model_equal": true,
+              "complex": true,
+              "experience": 24
+            },
+            {
+              "complete_model_equal": true,
+              "complex": false,
+              "experience": 25
+            },
+            {
+              "complete_model_equal": true,
+              "complex": true,
+              "experience": 25
+            },
+            {
+              "before_experience": 4,
+              "expected": 1.0,
+              "personality": "DP01",
+              "score_delta": 1.0
+            },
+            {
+              "before_experience": 24,
+              "expected": 1.0,
+              "personality": "DP01",
+              "score_delta": 1.0
+            },
+            {
+              "before_experience": 25,
+              "expected": 0.0,
+              "personality": "DP01",
+              "score_delta": 0.0
+            },
+            {
+              "before_experience": 0,
+              "expected": -8.0,
+              "personality": "DP03",
+              "score_delta": -8.0
+            }
+          ]
+        },
+        "elapsed_ms": 274,
+        "fixtures": [],
+        "passed": true,
+        "requirement": "docs/design/07-clinical-team.md §6；重试经验边界与完整未共享模型一致",
+        "setup_ms": 0,
+        "suite": "growth"
+      },
+      "GROW-77": {
+        "body_ms": 395,
+        "details": {
+          "cancelled_result_unpublished": true,
+          "cases_before_stop": 1,
+          "complete_cache_entries": true,
+          "native_shift_boundary": true,
+          "old_queue": {
+            "passed": true,
+            "readonly": true,
+            "reference_boundary": true,
+            "resume_matches_cold": true,
+            "ticket_boundary": true,
+            "validation": ""
+          },
+          "reached_case_boundary": true,
+          "readonly": true,
+          "release_preserved": true,
+          "reuse_matches_cold": true,
+          "sealed_preserved": true,
+          "started": 0
+        },
+        "elapsed_ms": 395,
+        "fixtures": [],
+        "passed": true,
+        "requirement": "docs/design/11-growth-arrivals-recruitment.md §1.1.2；退出在完整计算边界取消任务且不发布部分结果",
+        "setup_ms": 0,
+        "suite": "growth"
+      },
+      "GROW-79": {
+        "body_ms": 185,
+        "details": {
+          "complete_models": {
+            "cases": [
+              {
+                "binding": "B_S13_D09_M09",
+                "complete_scalar_equal": true,
+                "complex": false
+              },
+              {
+                "binding": "B_S49_D37_M37",
+                "complete_scalar_equal": true,
+                "complex": true
+              },
+              {
+                "binding": "B_S13_D09_M09",
+                "complete_scalar_equal": true,
+                "complex": false
+              }
+            ],
+            "counts": {
+              "active_unique_inputs": 0,
+              "batches": 3,
+              "components": 22,
+              "failed_batches": 0,
+              "max_pending_requests": 8,
+              "max_waiting_targets": 8,
+              "memo_hits": 0,
+              "native_calls": 3,
+              "native_requests": 22,
+              "pending_requests": 0,
+              "unique_inputs": 22,
+              "waiting_targets": 0
+            },
+            "passed": true,
+            "readonly": true
+          },
+          "exact_inputs": {
+            "counts": {
+              "active_unique_inputs": 0,
+              "batches": 1,
+              "components": 12,
+              "failed_batches": 0,
+              "max_pending_requests": 10,
+              "max_waiting_targets": 12,
+              "memo_hits": 2,
+              "native_calls": 1,
+              "native_requests": 10,
+              "pending_requests": 0,
+              "unique_inputs": 10,
+              "waiting_targets": 0
+            },
+            "exact_scalar_equal": true,
+            "independent_metadata": true,
+            "passed": true
+          },
+          "failure_cleanup": {
+            "early_return_cleanup": true,
+            "empty_model_fully_assembled": true,
+            "later_batch_atomic": true,
+            "passed": true,
+            "retry_matches_cold": true
+          },
+          "prefix_weighting": {
+            "passed": true,
+            "paths": [
+              {
+                "counts": {
+                  "active_unique_inputs": 0,
+                  "batches": 1,
+                  "components": 3,
+                  "failed_batches": 0,
+                  "max_pending_requests": 3,
+                  "max_waiting_targets": 3,
+                  "memo_hits": 0,
+                  "native_calls": 1,
+                  "native_requests": 3,
+                  "pending_requests": 0,
+                  "unique_inputs": 3,
+                  "waiting_targets": 0
+                },
+                "early_flush": false,
+                "exact_weighting": true,
+                "prefix_previously_assembled": false
+              },
+              {
+                "counts": {
+                  "active_unique_inputs": 0,
+                  "batches": 1,
+                  "components": 258,
+                  "failed_batches": 0,
+                  "max_pending_requests": 256,
+                  "max_waiting_targets": 256,
+                  "memo_hits": 0,
+                  "native_calls": 2,
+                  "native_requests": 258,
+                  "pending_requests": 0,
+                  "unique_inputs": 258,
+                  "waiting_targets": 0
+                },
+                "early_flush": true,
+                "exact_weighting": true,
+                "prefix_previously_assembled": true
+              }
+            ]
+          },
+          "target_boundary": {
+            "counts": {
+              "active_unique_inputs": 0,
+              "batches": 1,
+              "components": 4097,
+              "failed_batches": 0,
+              "max_pending_requests": 1,
+              "max_waiting_targets": 4096,
+              "memo_hits": 4096,
+              "native_calls": 1,
+              "native_requests": 1,
+              "pending_requests": 0,
+              "unique_inputs": 1,
+              "waiting_targets": 0
+            },
+            "independent_targets": true,
+            "passed": true
+          },
+          "unique_boundary": {
+            "counts": {
+              "active_unique_inputs": 0,
+              "batches": 1,
+              "components": 514,
+              "failed_batches": 0,
+              "max_pending_requests": 256,
+              "max_waiting_targets": 256,
+              "memo_hits": 1,
+              "native_calls": 3,
+              "native_requests": 513,
+              "pending_requests": 0,
+              "unique_inputs": 513,
+              "waiting_targets": 0
+            },
+            "cross_batch_reuse": true,
+            "order_and_amounts": true,
+            "passed": true
+          }
+        },
+        "elapsed_ms": 185,
+        "fixtures": [],
+        "passed": true,
+        "requirement": "docs/design/11-growth-arrivals-recruitment.md §1.1.1；参考数值复用保留独立候选、有界批次与失败原子性",
+        "setup_ms": 0,
+        "suite": "growth"
+      },
+      "SPACE-49": {
+        "body_ms": 54,
+        "details": {
+          "actual_waiting_arrival": true,
+          "admitted": true,
+          "different_body_candidate_is_actual": true,
+          "failed_probe_preserves_all_facts": true,
+          "next_ticket_sees_reservation": true,
+          "queries_readonly": true,
+          "same_world_nominal_preserved": true,
+          "second_quote": {
+            "ok": false,
+            "reason": "已有实际使用者或预约"
+          },
+          "visitor_definition_set": true
+        },
+        "elapsed_ms": 54,
+        "fixtures": [],
+        "passed": true,
+        "requirement": "docs/design/08-hospital-life.md 候诊与家属；只读候选保原定义、票序与随机流，失败入院不生成身份",
+        "setup_ms": 0,
+        "suite": "space"
+      },
+      "SPACE-50": {
+        "body_ms": 687,
+        "details": {
+          "strict_budget_boundary_and_return": [
+            {
+              "bound_ticks": 305,
+              "full_quotes": 0,
+              "manual_travel_ticks": 325,
+              "ok": true,
+              "routes_before_manual": 0,
+              "same_complete_candidates": true,
+              "y": 13
+            },
+            {
+              "bound_ticks": 300,
+              "full_quotes": 1,
+              "manual_travel_ticks": 320,
+              "ok": true,
+              "routes_before_manual": 2,
+              "same_complete_candidates": true,
+              "y": 14
+            },
+            {
+              "bound_ticks": 220,
+              "full_quotes": 1,
+              "manual_travel_ticks": 240,
+              "ok": true,
+              "routes_before_manual": 2,
+              "same_complete_candidates": true,
+              "y": 30
+            }
+          ],
+          "symptom_rotation_custom_and_current_targets": [
+            {
+              "bound_ticks": 56,
+              "ok": true,
+              "outward_ticks": 96,
+              "patient_cell": [
+                42,
+                77
+              ],
+              "rotation": 0,
+              "same_complete_candidates": true,
+              "symptom_clearance": 3
+            },
+            {
+              "bound_ticks": 56,
+              "ok": true,
+              "outward_ticks": 88,
+              "patient_cell": [
+                39,
+                75
+              ],
+              "rotation": 1,
+              "same_complete_candidates": true,
+              "symptom_clearance": 3
+            },
+            {
+              "bound_ticks": 56,
+              "ok": true,
+              "outward_ticks": 136,
+              "patient_cell": [
+                42,
+                72
+              ],
+              "rotation": 2,
+              "same_complete_candidates": true,
+              "symptom_clearance": 3
+            },
+            {
+              "bound_ticks": 56,
+              "ok": true,
+              "outward_ticks": 128,
+              "patient_cell": [
+                44,
+                75
+              ],
+              "rotation": 3,
+              "same_complete_candidates": true,
+              "symptom_clearance": 3
+            }
+          ]
+        },
+        "elapsed_ms": 687,
+        "fixtures": [],
+        "passed": true,
+        "requirement": "docs/data/balance.json seat_choice；自动候诊只以保守路程下界严格排除超30秒座位，完整报价与手动选择不变",
+        "setup_ms": 0,
+        "suite": "space"
+      },
+      "STAFF-29": {
+        "body_ms": 13,
+        "details": {
+          "candidates": [
+            {
+              "conditions": {
+                "calm_available": false,
+                "casual_scene_nearby": false,
+                "clean_ground": true,
+                "decor_nearby": false,
+                "friendly_neighbor": false,
+                "less_crowded": true,
+                "noise_reduction": false,
+                "quiet": true
+              },
+              "environment": 43.0,
+              "facility_id": "public_free",
+              "floor_id": 1,
+              "ok": true,
+              "patient_cell": [
+                42,
+                76
+              ],
+              "preferred": true,
+              "reasons": [
+                "脚下干净",
+                "这里不拥挤",
+                "这里比较安静"
+              ],
+              "score": 300,
+              "travel_ticks": 20
+            }
+          ],
+          "chosen": "applied",
+          "forbidden": "movement_in_progress"
+        },
+        "elapsed_ms": 13,
+        "fixtures": [],
+        "passed": true,
+        "requirement": "docs/design/08-hospital-life.md §17.2、§17.4；公共兼容空座优先，员工活动占用位不得被预占",
+        "setup_ms": 0,
+        "suite": "staff"
+      },
+      "STAFF-34": {
+        "body_ms": 0,
+        "details": {
+          "before_due": true,
+          "clinical_first": true,
+          "need": {
+            "facility_id": "",
+            "id": "visit:life:1",
+            "phase": "fallback",
+            "purpose": "toilet",
+            "queued_ticks": 0,
+            "remaining_ticks": 80,
+            "return_to": {
+              "cell": [
+                38,
+                76
+              ],
+              "floor_id": 1,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "scene_id": "",
+            "started_tick": 1800,
+            "ticket_id": "ticket_00000001",
+            "visit_id": "visit"
+          },
+          "ticket": {
+            "called_tick": -1,
+            "enqueued_tick": 0,
+            "id": "ticket_00000001",
+            "kind": "gp",
+            "pause_reasons": {
+              "need_service": "visit:life:1"
+            },
+            "service_assigned": false,
+            "visit_id": "visit",
+            "waited_ticks": 900
+          }
+        },
+        "elapsed_ms": 0,
+        "fixtures": [],
+        "passed": true,
+        "requirement": "docs/design/08-hospital-life.md §17；180秒生活需求仅真实候诊触发，临床预约优先，暂离保留票序等时",
+        "setup_ms": 0,
+        "suite": "staff"
+      },
+      "STAFF-35": {
+        "body_ms": 13,
+        "details": {
+          "actual_safe": true,
+          "actual_started": true,
+          "deadline_fallback": true,
+          "fallback_once": true
+        },
+        "elapsed_ms": 13,
+        "fixtures": [],
+        "passed": true,
+        "requirement": "docs/design/08-hospital-life.md §17.1、§17.2；8秒安全使用或兜底，45秒寻找上限，需求效果与暂离原因唯一",
+        "setup_ms": 0,
+        "suite": "staff"
+      }
+    },
+    "suite_results": {
+      "growth": {
+        "checks": 11,
+        "elapsed_ms": 8148,
+        "failed": 0
+      },
+      "space": {
+        "checks": 2,
+        "elapsed_ms": 1070,
+        "failed": 0
+      },
+      "staff": {
+        "checks": 3,
+        "elapsed_ms": 369,
+        "failed": 0
+      }
+    },
+    "suites": [
+      "staff",
+      "growth",
+      "space"
+    ]
+  },
+  "functional_timing": {
+    "started_at_utc": "2026-10-17T19:40:47.1411165+00:00",
+    "ended_at_utc": "2026-10-17T19:41:07.8454745+00:00",
+    "phase": "finished",
+    "completed": true,
+    "preparation_ms": 2404,
+    "import_ms": 6224,
+    "tests_ms": 12065,
+    "total_ms": 20706
+  },
+  "offline_checks": {
+    "gpu_ledger": 15,
+    "analyze": 33,
+    "raw_etl": 28,
+    "fixture_powershell_ast": 2,
+    "fixture_json": "passed",
+    "new_fixture_gdscript_runtime": "not_executed"
+  },
+  "latest_performance_replay": "not_started_only_source_identity_prepared",
+  "gpu_lifecycle_corroboration": {
+    "path": ".cache\\formal-draft\\gpu-raw\\B1-r3-ledger-handoff.json",
+    "sha256": "06bc0592045649706b882e4f5c3b8133cbfad7571d711e52552b8701b9cf6235",
+    "status": "incomplete",
+    "target_allocation_lifetimes": 1529,
+    "known_sequence_peak_allocated_bytes": 542400512,
+    "allocation_accounting": {
+      "status": "incomplete",
+      "byte_basis": "AdapterAllocation 33/35 allocSize, once per adapter/global/lifetime",
+      "physical_resident_bytes": null,
+      "backend_coverage_verified": false,
+      "flags_semantics": "raw UInt32 without a saved manifest value map; no DDI flag decoding assumed",
+      "excluded_from_sum": [
+        "device/process aliases",
+        "GPU virtual address reservations and mappings",
+        "heap/process allocation totals",
+        "OS usage/commitment counters"
+      ],
+      "unreleased_observed_globals_included": true
+    },
+    "backing_size_corroboration": {
+      "status": "verified",
+      "page_bytes": 4096,
+      "page_byte_basis": "WDDM Windows x64 system-memory PFN granularity",
+      "target_backing_records": 2766,
+      "lifetimes_with_backing_records": 1241,
+      "lifetimes_without_backing_lock_records": 288,
+      "target_kernel_page_table_lifetimes": 455,
+      "matched_cycles": 1244,
+      "pending_or_ambiguous_cycles": 0,
+      "zero_page_events": 0,
+      "cycles_by_end_reason": {
+        "unlock": 993,
+        "trace_end": 251
+      },
+      "scope": "364 page chunks between 365/global stop/trace end corroborate immutable allocation extent; not unique PFN accounting or resident bytes; no lock event does not mean zero allocation"
+    },
+    "issues": {},
+    "missing": [
+      "OS residency view with explicit per-process/adapter/node/segment semantics and window coverage",
+      "formal window not verified: positive, ordered raw-QPC capture bounds unavailable"
+    ]
+  }
+}

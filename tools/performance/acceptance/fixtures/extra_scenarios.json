@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "defaults": {
+    "floor_id": 1,
+    "initial_panel": "clinical",
+    "dense_target_actors": 0,
+    "window_pixels": [2560, 1440],
+    "scene_scale_bp": 7500,
+    "ui_scale_percent": 100,
+    "speed": 1,
+    "minimum_frame_samples": 1000,
+    "minimum_step_samples": 1000,
+    "warmup_minimum_actual_steps": 32,
+    "minimum_capture_real_seconds": 0,
+    "maximum_real_seconds": 1800
+  },
+  "groups": [
+    {
+      "id": "STABILITY",
+      "name": "two-real-hours-eight-original-room-rotations-four-switches",
+      "input_id": "stability_a",
+      "layout": "four_floors",
+      "workload_kind": "reference",
+      "minimum_capture_real_seconds": 7200,
+      "maximum_real_seconds": 10800,
+      "operations": [
+        {"id":"initial-source-save","action":"save","after_real_seconds":0},
+        {"id":"seed-original-second-hospital","action":"seed_hospital","seed_input_id":"stability_b","after_real_seconds":0,"timeout_real_seconds":900},
+        {"id":"first-original-auto-receipt","action":"wait_autosave","after_real_seconds":180,"include_previous_in_capture":true,"timeout_real_seconds":900},
+        {"id":"rotation-1-a-north","action":"remodel","after_real_seconds":900,"safe_transfer":false,"commands":[{"kind":"build_rotate","target_id":"formal_stability_room","turns":2}],"expected_door_cell":[20,81],"timeout_real_seconds":900},
+        {"id":"rotation-2-a-south","action":"remodel","after_real_seconds":1800,"safe_transfer":false,"commands":[{"kind":"build_rotate","target_id":"formal_stability_room","turns":2}],"expected_door_cell":[16,89],"timeout_real_seconds":900},
+        {"id":"switch-1-a-to-b","action":"switch","after_real_seconds":1800,"hospital_input_id":"stability_b","resume_speed":1,"timeout_real_seconds":900},
+        {"id":"rotation-3-b-north","action":"remodel","after_real_seconds":2700,"safe_transfer":false,"commands":[{"kind":"build_rotate","target_id":"formal_stability_room","turns":2}],"expected_door_cell":[20,81],"timeout_real_seconds":900},
+        {"id":"rotation-4-b-south","action":"remodel","after_real_seconds":3600,"safe_transfer":false,"commands":[{"kind":"build_rotate","target_id":"formal_stability_room","turns":2}],"expected_door_cell":[16,89],"timeout_real_seconds":900},
+        {"id":"switch-2-b-to-a","action":"switch","after_real_seconds":3600,"hospital_input_id":"stability_a","resume_speed":1,"timeout_real_seconds":900},
+        {"id":"rotation-5-a-north","action":"remodel","after_real_seconds":4500,"safe_transfer":false,"commands":[{"kind":"build_rotate","target_id":"formal_stability_room","turns":2}],"expected_door_cell":[20,81],"timeout_real_seconds":900},
+        {"id":"rotation-6-a-south","action":"remodel","after_real_seconds":5400,"safe_transfer":false,"commands":[{"kind":"build_rotate","target_id":"formal_stability_room","turns":2}],"expected_door_cell":[16,89],"timeout_real_seconds":900},
+        {"id":"switch-3-a-to-b","action":"switch","after_real_seconds":5400,"hospital_input_id":"stability_b","resume_speed":1,"timeout_real_seconds":900},
+        {"id":"rotation-7-b-north","action":"remodel","after_real_seconds":6300,"safe_transfer":false,"commands":[{"kind":"build_rotate","target_id":"formal_stability_room","turns":2}],"expected_door_cell":[20,81],"timeout_real_seconds":900},
+        {"id":"rotation-8-b-south","action":"remodel","after_real_seconds":7200,"safe_transfer":false,"commands":[{"kind":"build_rotate","target_id":"formal_stability_room","turns":2}],"expected_door_cell":[16,89],"timeout_real_seconds":900},
+        {"id":"switch-4-b-to-a","action":"switch","after_real_seconds":7200,"hospital_input_id":"stability_a","resume_speed":1,"timeout_real_seconds":900},
+        {"id":"final-source-save","action":"save","after_real_seconds":7200}
+      ],
+      "responsibilities": ["one-continuous-7200-real-second-run-plus-last-operation-and-tail", "original-180-second-autosaves-and-all-eight-rotations-four-switches", "65-real-rooms-in-each-active-hospital-original-160-and-320-source-loads-retained", "empty-shell-rotations-do-not-prove-occupied-clinical-handoff", "all-actual-conditions-and-sessions-reported-separately"]
+    },
+    {
+      "id": "PREVIEW85",
+      "name": "retained-640-tall-largest-current-ui-successful-rectangle",
+      "input_id": "tall640",
+      "layout": "tall",
+      "workload_kind": "reference",
+      "operations": [
+        {"id":"actual-empty-second-floor","action":"floor","floor_id":2,"after_real_seconds":0},
+        {"id":"maximum-under-real-shaft","action":"preview_input","after_real_seconds":1,"room_type_id":"gp","door_id":"DR01","origin":[0,0],"size":[85,95],"field":"height","initial_value":4,"expected_ok":true,"cancel_after":true,"timeout_real_seconds":600},
+        {"id":"return-active-floor","action":"floor","floor_id":1,"after_real_seconds":1}
+      ],
+      "responsibilities": ["8075-cells-full-success-price323050-retaining-real-shaft-and-all-640-load", "actual-external-spinbox-input-and-original-complete-feedback", "one-complete-request-is-prerequisite-evidence-not-sufficient-preview-P95-population"]
+    },
+    {
+      "id": "PREVIEW96FAIL",
+      "name": "retained-640-tall-complete-failure-at-real-shaft",
+      "input_id": "tall640",
+      "layout": "tall",
+      "workload_kind": "reference",
+      "operations": [
+        {"id":"actual-empty-second-floor","action":"floor","floor_id":2,"after_real_seconds":0},
+        {"id":"maximum-domain-real-shaft-failure","action":"preview_input","after_real_seconds":1,"room_type_id":"gp","door_id":"DR01","origin":[0,0],"size":[96,95],"field":"height","initial_value":4,"expected_ok":false,"cancel_after":true,"timeout_real_seconds":600},
+        {"id":"return-active-floor","action":"floor","floor_id":1,"after_real_seconds":1}
+      ],
+      "responsibilities": ["9120-cell-complete-failure-real-4x4-shaft-at85-40", "failed-request-is-not-substitute-for-maximum-success", "actual-world-and-RNG-unchanged-by-preview-on-separate-paused-correctness-check"]
+    },
+    {
+      "id": "PREVIEW96UPPER",
+      "name": "original-construction-new-empty-fifth-floor-maximum-success",
+      "input_id": "maximum_upper",
+      "layout": "four_floors",
+      "workload_kind": "boundary",
+      "operations": [
+        {"id":"original-switch-to-built-fifth-floor","action":"floor","floor_id":5,"after_real_seconds":0},
+        {"id":"absolute-maximum-rectangle-success","action":"preview_input","after_real_seconds":1,"room_type_id":"gp","door_id":"DR01","origin":[0,0],"size":[96,95],"field":"height","initial_value":4,"expected_ok":true,"cancel_after":true,"timeout_real_seconds":600},
+        {"id":"return-original-active-floor","action":"floor","floor_id":1,"after_real_seconds":1}
+      ],
+      "responsibilities": ["nine-real-original-floor-orders-completed-by-hired-decorator", "9120-cell-success-price364850-no-fifth-floor-shaft-original-traffic-retained", "actual-post-construction-population-read-from-manifest", "current-normal-capture-still-requires-real-progressing-session-for-warmup"]
+    }
+  ],
+  "execution_notes": [
+    "Expand only from successful original input manifests and matching binaries; no template path or UUID is a playable substitute.",
+    "Stability's setup save and Library.create remain real captured operations; latest committed hospitals are used on every return.",
+    "The current operation driver consumes commands, safe_transfer, seed input_path, hospital_id, resume_speed, preview fields and timeout_real_seconds. expected_door_cell is an external audit expectation until the driver explicitly validates returned geometry.",
+    "A standalone preview gate is absent: normal capture requires positive actual population, 32 real complete steps, a progressing Session, ready bindings and correct speed. If maximum_upper has no actual Session, retain the input but mark capture blocked; never fabricate warmup_work_seen, Session progress or actors.",
+    "A preview-only runner would need original AppRoot/view/build-panel boot, true content/world validation, owned-floor selection, ready-binding/complete-boundary gate, original external input observer and displayed-frame endpoint; it must not reuse normal-clinical warmup by pretending work occurred. No such runner is added here."
+  ]
+}

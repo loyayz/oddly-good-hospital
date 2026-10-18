@@ -91,8 +91,56 @@ D1/D3只有同屏真实绑定人物至少576且该独立密集段样本充分时
 - `dual_a`、`dual_b` 分别按字节复制已验证的160和320输入，保持两座原厂医院不同UUID及全部引用；不改ID。`dual-plan.json` 只记录来源。正式切换前还须通过原 `HospitalLibrary.create` 和 `HospitalSnapshots` 在隔离资料库写入两院，按原检查点、载入和返回流程操作；两个准备信封不等于已有双医院快照。
 - `history_64mib`、`history_128mib` 保留160基础输入的所有活动事实、原身份、账目、承诺、进度和RNG，仅新增合法已离院 Visit、在院外 Actor 与 `arrival_receipts`。模板必须无住院居民、无支持设施、无尝试/证据/方案/收费承诺/家属；不满足时明确失败，可用 `--template-visit` 指定已有合格原Visit。每次验证原事实逐项还原相等、原活动Visit序列及实际在院人数不变，再由原 `HospitalJsonStream` 输出至少64/128MiB的规范世界JSON，并单独记录二进制长度及两个哈希。增加的是合法历史输入，不是声称真实发生过的模拟历史；不添加未定义字段或padding，不把历史人物计为活跃负载。离线编码预算不证明游戏保存准入或内存余量，正式验收仍须真实快照保存/恢复、额外峰值和事实/RNG核对。
 
-## 尚需实际建立的操作前提
+## 稳定性与最大预览的操作前提
 
-现有满64房布局并不证明“最大成功房间预览”或“载入中改建”。仍需在选定合法世界给出可成功的最大房间请求和替代布局，核实几何、资金、原资源所有者及当前精确报价，再执行原整备、真实撤离、等待和显式应用。未建立该命令与布局前，此职责保持未完成。
+`prepare_operations.gd` 的两个模式均从成功的原四层输入开始，不删原负载、交通或历史，不改随机流、时间和工时。`Prepare-Operations.ps1` 检查来源manifest与哈希，保留失败日志；`--maximum-steps`和`--maximum-real-seconds`限制实际准备过程。源文件已提供，生成、预检及正式采集仍分别记录，未运行不能标为通过。
 
-两小时稳定性还需一个连续7200真实秒的实际操作计划和运行，包含八次房间变更、四次原医院切换及对应回执、尾部资源。七组短采集、边界输入和两院信封不能替代此证据。工具源文件、静态检查、前置状态生成、正式Release测量分别记录；没有运行结果的输入保持“待生成”。
+### 稳定性两院
+
+`stability_a`读取160基础，`stability_b`读取320基础，保持各自原厂不同UUID和75/20/5组成。原建房报价与命令真实支付2700，增加 `formal_stability_room`：1F `[15,81]`、8×8空GP、`formal_stability_door`为DR04南门offset1。原64间房及全部设施保留，稳定性明确为65房；空房是需求允许的真实房壳，不生成假服务或演员。
+
+来源通过实际身体、拥有地、门口、原预约及全院安全出口检查才提交；原实体、临床事实和RNG须保持。两个布局同一占地，原 `build_rotate turns=2` 将门从南侧 `[16,89]` 移到北侧 `[20,81]`，再转回南侧。准备器在独立克隆上执行两次完整原 `remodel_prepare`、真实0.1秒腾空步骤、当前完整报价和显式 `remodel_apply`，核验门坐标、原身份、零金额唯一凭据及世界。发布输入仍在第一次旋转之前，克隆预检步骤单列，不能冒充已在发布医院旋转。
+
+`extra_scenarios.json` 的STABILITY先真实保存A，再通过原 `Library.create` 写入B并等待回执。捕获保持原180秒自动保存，不改周期；900、1800秒修改A，切B；2700、3600秒修改B，切A；4500、5400秒修改A，切B；6300、7200秒修改B，切回A并保存。八次操作均由原改建安排执行，四次切院均走源检查点、原载入、暂停及显式恢复1×。返回使用最新已提交保存点，不重新加载初始种子。7200秒后的末次操作和显示尾部仍须完整结束，10800秒只是独立停止保护。逾期操作串行保留实际延迟，不删除或伪称完成。
+
+空壳旋转不证明临床占用安全交接。真实中途Session的身份、剩余工时、原Attempt/票号/耗材与安全交接另用对应命名输入和SPACE-35等实际流程；载入中改建还须实测当时确有待绑定资源。运行中阻碍或报价失败保留原安排，不自动重新报价成成功。
+
+### 最大成功与完整失败
+
+- `PREVIEW85`保留原tall640完整世界，初始1F经原切层观察2F，真实外部输入85×95 GP/DR01矩形，origin `[0,0]`。8075格报价323050；右侧保留 `[85,40]` 4×4区间井道及公共空间、底行95为门外公共区。这是当前世界及原南门UI约束下的最大成功矩形，不能称为全输入域上限。
+- `PREVIEW96FAIL`在同一未修改来源的2F输入96×95，等待原完整失败结果；阻碍为原真实井道，不把此失败当最大成功证据。两个配置是独立场景，实际完整请求不足时不能从帧样本数推导预览P95通过。
+- `preflight_maximum_tall.gd`在独立准备进程对同一来源的两个克隆执行原同步完整报价，要求85×95成功且价323050、96×95因真实井道失败、两个完整世界事实及RNG不变。报告为 `maximum_tall.preflight.json`；展开器核对报告来源哈希。同步报价是正确性预检，不能冒充真实外部输入、原分片UI计算或显示延迟，也不会把预检进程缓存带进正式采集。
+- `maximum_upper`从原160四层世界，通过原标准装修工简历及精确招聘报价录用一名真实员工，在4F购买SE02工具台；首块沿原电梯主锚点地块 `[2,1]` 购买5F，其余八块在该层实际有完工模块后按原 `floor_purchase` 逐块购买。原装修工实际到工具台、乘梯到4F、走到各地块正下方工作点并完成原冻结工时。九份原工单、真实贡献、付款、完成tick和实际总步骤均保留；不足前提、缺人/工具/路线、故障或看门狗耗尽都输出未完成，不能写 `completed_top_floor` 或工单剩余量补齐。
+- 5F完成后仍保留原电梯的1…4F范围，不扩站、不删交通；5F没有井道、房屋、设施或演员。原64房及全部原实体的身份、布局和交通范围保持，正常经营期间人口、账目、随机和工作自然推进，实际生成后人数写manifest，不能继续硬标160。准备器通过原完整只读报价核验5F的96×95矩形成功、报价364850，且世界不变。`PREVIEW96UPPER`再通过原切5F和真实SpinBox输入测量该9120格最大矩形。
+
+当前普通采集门仍要求实际正人口、32完整步骤、真实有进度的Session、绑定就绪和实际速度。5F施工可能跨日；若完工输入没有实际Session，输入可合法生成，但普通采集无法进入捕获。必须保留这一证据缺口。独立预览门需原AppRoot/视图/建造面板启动、内容和世界验证、原拥有楼层选择、真实完整边界及绑定就绪、外部OS输入与原完整结果/实际显示端点，不应伪造 `warmup_work_seen` 或Session。本目录没有修改其他工具以绕过该门。
+
+### 最短操作命令
+
+```powershell
+# 首个稳定性前提；b对应320four，仍须独立合法来源。
+pwsh -File tools/performance/acceptance/fixtures/Prepare-Operations.ps1 `
+  -Godot C:/tools/Godot.exe -Project C:/prepared/tool-project `
+  -InputDirectory C:/evidence/formal-inputs -OutputDirectory C:/evidence/operation-inputs `
+  -CaseId stability_a
+
+# 原九块5F施工，可能跨日；不在脚本中缩短任何工时。
+pwsh -File tools/performance/acceptance/fixtures/Prepare-Operations.ps1 `
+  -Godot C:/tools/Godot.exe -Project C:/prepared/tool-project `
+  -InputDirectory C:/evidence/formal-inputs -OutputDirectory C:/evidence/operation-inputs `
+  -CaseId maximum_upper -MaximumSteps 40000 -MaximumRealSeconds 3600
+
+# 原tall640两个最大矩形的独立完整正确性预检，不采集性能。
+pwsh -File tools/performance/acceptance/fixtures/Prepare-Operations.ps1 `
+  -Godot C:/tools/Godot.exe -Project C:/prepared/tool-project `
+  -InputDirectory C:/evidence/formal-inputs -OutputDirectory C:/evidence/operation-inputs `
+  -CaseId preview_tall
+
+# 展开某一当前可用场景；STABILITY另需已成功生成的stability_b。
+pwsh -File tools/performance/acceptance/fixtures/Expand-Extra-Scenarios.ps1 `
+  -InputDirectory C:/evidence/operation-inputs -BaseInputDirectory C:/evidence/formal-inputs `
+  -ScenarioDirectory C:/evidence/extra-scenarios -EvidenceDirectory C:/evidence/formal-captures `
+  -GroupId STABILITY
+```
+
+`Prepare-Operations.ps1 -CaseId all`依次生成三个输入并执行tall完整预检，`-Plan`仅打印启动参数。展开器从成功manifest取得实际人口、原UUID及哈希，填入原操作驱动的 `input_path`、`hospital_id`、`resume_speed`、`commands`、`safe_transfer`和预览参数，不改世界或原种子。`expected_door_cell`是明确的外部核验预期，当前驱动若未验证门结果，不得仅凭配置宣称通过。SPACE-01/32/33/37及CORE-09/18/19/30/31覆盖相应建造、改建、身份、保存与观看交接；临床占用、维护接续和失败原子性按实际责任追加选例。
