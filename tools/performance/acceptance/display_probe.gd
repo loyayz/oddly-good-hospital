@@ -66,11 +66,22 @@ func _run() -> void:
 		var physical: Vector2 = app._world_container.size*Vector2(screen.x.length(),screen.y.length())
 		var record: Dictionary = {"index":index,"condition":condition,"pid":OS.get_process_id(),"exe_sha256":FileAccess.get_sha256(OS.get_executable_path()),"engine":Engine.get_version_info(),"features":{"template":OS.has_feature("template"),"release":OS.has_feature("release"),"debug":OS.has_feature("debug")},"renderer":RenderingServer.get_current_rendering_method(),"driver":RenderingServer.get_current_rendering_driver_name(),"window_pixels":[DisplayServer.window_get_size().x,DisplayServer.window_get_size().y],"root_raster_pixels":[get_window().get_texture().get_width(),get_window().get_texture().get_height()],"native_2d_mode":get_window().content_scale_mode,"ui_scale_percent":app._ui_scale*100,"scene_control_physical_extent":[physical.x,physical.y],"scene_output_pixels":[app._viewport.size.x,app._viewport.size.y],"scene_output_gl_handle":RenderingServer.texture_get_native_handle(app._viewport.get_texture().get_rid()),"scene_scale":app._viewport.scaling_3d_scale,"world_unchanged_tick":app._view.world.sim_tick,"scope":"display-only legal preset; no simulation speed, allocation budget or stability conclusion"}
 		record.root_viewport_texture_declared_pixels = record.root_raster_pixels
+		record.gpu = RenderingServer.get_video_adapter_name()
 		record.root_raster_pixels = [root_image.get_width(),root_image.get_height()]
 		record.root_png = {"path":screenshot,"sha256":FileAccess.get_sha256(screenshot),"pixels":record.root_raster_pixels}
-		var file: FileAccess = FileAccess.open(output.path_join("display-%02d.json" % index),FileAccess.WRITE)
+		var root_logical: Vector2 = app.get_viewport_rect().size
+		var root_stretch: Transform2D = get_window().get_stretch_transform()
+		var root_physical: Vector2i = Vector2i((root_logical*Vector2(root_stretch.x.length(),root_stretch.y.length())).ceil())
+		record.root_canvas_physical_extent = [root_physical.x,root_physical.y]
+		record.native_2d_raster_matches_canvas = root_image.get_size()==root_physical
+		var ready: String = output.path_join("display-%02d.json" % index)
+		var file: FileAccess = FileAccess.open(ready+".next",FileAccess.WRITE)
 		file.store_string(JSON.stringify(record))
 		file.close()
+		if DirAccess.rename_absolute(ready+".next",ready)!=OK:
+			push_error("Display metadata could not be published")
+			get_tree().quit(2)
+			return
 		while not FileAccess.file_exists(output.path_join("display-%02d.ack" % index)):
 			if FileAccess.file_exists(output.path_join("display.abort")) or Time.get_ticks_msec()-started>120000:
 				push_error("Renderer capture did not acknowledge condition")

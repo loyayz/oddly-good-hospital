@@ -94,13 +94,18 @@ try {
             $ownedGame.Refresh()
             if(-not $ownedGame.HasExited -and -not $ownedGame.WaitForExit(5000)){
                 if($ownedGame.StartTime.ToUniversalTime().Ticks -ne $ownedGameStart -or $ownedGame.MainModule.FileName -ine (Join-Path $runtime (Split-Path -Leaf $exePath))){throw 'Owned display process identity changed; no foreign process stopped.'}
-                $ownedGame.Kill();$ownedGame.WaitForExit()
-                @{pid=$ownedGame.Id;start_utc_ticks=$ownedGameStart;forced=$true;reason='display abort did not finish in 5 seconds'} | ConvertTo-Json | Set-Content (Join-Path $destination 'forced-display-stop.json') -Encoding utf8NoBOM
+                $ownedGame.Kill()
+                $stopped=$ownedGame.WaitForExit(5000)
+                @{pid=$ownedGame.Id;start_utc_ticks=$ownedGameStart;forced=$true;exited=$stopped;reason='display abort did not finish in 5 seconds'} | ConvertTo-Json | Set-Content (Join-Path $destination 'forced-display-stop.json') -Encoding utf8NoBOM
+                if(-not $stopped){throw 'Owned display process has not finished after forced stop.'}
             }
         }
     } finally {
-        if($process){$process.Refresh();if(-not $process.HasExited){$process.Kill();$process.WaitForExit()}}
-        if($existed){[IO.File]::WriteAllBytes($profilePath,$originalBytes)}
-        elseif(Test-Path -LiteralPath $profilePath){Remove-Item -LiteralPath $profilePath}
+        try {
+            if($process){$process.Refresh();if(-not $process.HasExited){$process.Kill();if(-not $process.WaitForExit(5000)){throw 'Owned RenderDoc process has not finished after forced stop.'}}}
+        } finally {
+            if($existed){[IO.File]::WriteAllBytes($profilePath,$originalBytes)}
+            elseif(Test-Path -LiteralPath $profilePath){Remove-Item -LiteralPath $profilePath}
+        }
     }
 }

@@ -47,9 +47,9 @@ stop前同时要求真实帧数量、运行器步骤门闩、操作完成和场�
 
 ## 真正Windows输入
 
-运行器的 input-request.json 使用 `{id,status:'armed',pid,fields:[{name,screen_point:[x,y],text}]}`。screen_point须是物理屏幕坐标。采集器编译 input-driver.cs，逐字段调用原Windows SendInput：真实点击、Ctrl+A、UTF-16 Unicode键入、Enter。每次检查前台窗口归属owned PID、点击点在实际物理client范围；不强抢前台，不发窗口消息，不调用Godot伪输入。
+运行器的 input-request.json 使用 `{id,status:'armed',pid,fields:[{name,client_point:[x,y],text}]}`。client_point为控件 `viewport_transform * global_transform` 所得的物理客户区坐标，包含根窗口content stretch。不能使用在嵌入子窗口模式下省略根stretch的 `get_screen_transform()`。采集器编译 input-driver.cs，在DPI感知作用域内逐字段核验owned前台窗口和物理client边界，调用Windows `ClientToScreen`后执行原SendInput：真实点击、Ctrl+A、UTF-16 Unicode键入、Enter。不强抢前台，不发窗口消息，不调用Godot伪输入。
 
-input-ack.json保留send_begin_qpc/send_end_qpc/frequency及失败原因。前台不符或坐标错误时本次操作失败，不能转用脚本赋值代填。运行器的预览完成callback仍不是已显示画面的精确时刻；报告区分真实输入、完整结果callback和外部显示候选，缺少正确画面关联时保留对应缺项。
+input-ack.json保留send_begin_qpc/send_end_qpc/frequency、实际client/screen坐标及失败原因。前台不符或坐标错误时本次操作失败，不能转用脚本赋值代填。运行器的预览完成callback仍不是已显示画面的精确时刻；报告区分真实输入、完整结果callback和外部显示候选，缺少正确画面关联时保留对应缺项。
 
 ## Arc资源探针
 

@@ -3,6 +3,7 @@ extends RefCounted
 # Scenario operations use original owners. Polling never advances simulation,
 # completes work, edits actors, or changes a preparation worker's policy.
 const ACTIONS: Array[String] = ["view_rebind","navigation_evict","wait_autosave","wait_boundary","seed_hospital","switch","remodel","command","playback","preview_input","cancel_build_preview"]
+const SnapshotWitness = preload("snapshot_witness.gd")
 var app
 var observer: Object
 var current: Dictionary = {}
@@ -80,7 +81,13 @@ func start(operation: Dictionary) -> Dictionary:
 			if not app._drafts.is_empty(): return _failure("Resolve the original draft confirmation before a measured switch")
 			var target: String = str(current.get("hospital_id",""))
 			if not HospitalSnapshots.valid_uuid(target) or target==app._simulation.world.hospital_id: return _failure("Switch needs a distinct valid committed hospital UUID")
-			app._library_action("continue",{"hospital_id":target,"snapshot_id":str(current.get("snapshot_id",""))})
+			var snapshot_id: String = str(current.get("snapshot_id",""))
+			if current.has("snapshot_operation_id"):
+				var saved: Dictionary = observer.completed_save_operations.get(str(current.snapshot_operation_id),{})
+				if not bool(saved.get("ok",false)) or str(saved.get("hospital_id",""))!=target: return _failure("Named original save operation has no successful target snapshot receipt")
+				snapshot_id = str(saved.snapshot_id)
+			state.expected_snapshot_id = snapshot_id
+			app._library_action("continue",{"hospital_id":target,"snapshot_id":snapshot_id})
 			if app._leave_operation.is_empty(): return _failure("Original switch did not start")
 			state.target_hospital_id = target
 		"remodel":
@@ -141,8 +148,17 @@ func poll(now: int) -> Dictionary:
 				if not usage.errors.is_empty(): return _failure("Target view resource load failed")
 				var paused: bool = app._session.requested_speed==0 and app._session.actual_speed()==0
 				if not paused: return _failure("Original switch did not preserve paused playback")
+				var witness: Dictionary = observer.loaded_snapshot_checks.get(str(state.target_hospital_id),{})
+				if bool(current.get("verify_snapshot_witness",false)):
+					if not bool(witness.get("verified",false)): return _failure("Original target snapshot lacks a matching source identity/RNG/clinical witness")
+					if not str(state.expected_snapshot_id).is_empty() and str(witness.get("snapshot_id",""))!=str(state.expected_snapshot_id): return _failure("Original loader restored a different snapshot than the named save receipt")
+					var source: Dictionary = observer.snapshot_sources.get(str(witness.snapshot_id),{})
+					var published: Dictionary = SnapshotWitness.capture(app._simulation.world,source.witness.required_session)
+					if published!=source.witness: return _failure("Published target session changed the source snapshot identity/RNG/clinical witness before resume")
+					witness = witness.duplicate(true)
+					witness.published_before_resume_equal = true
 				if current.has("resume_speed"): app._set_speed(int(current.resume_speed))
-				return _success({"hospital_id":app._simulation.world.hospital_id,"hospital_session":app._session.loading_session_id,"tick":app._simulation.world.sim_tick,"original_paused_after_load":paused,"resources":usage,"displayed_endpoint":"external first correct target frame still required"})
+				return _success({"hospital_id":app._simulation.world.hospital_id,"hospital_session":app._session.loading_session_id,"tick":app._simulation.world.sim_tick,"original_paused_after_load":paused,"snapshot_witness":witness,"resources":usage,"displayed_endpoint":"external first correct target frame still required"})
 			if app._leave_operation.is_empty():
 				if bool(current.get("expect_failure",false)) and app._session.loading_session_id==str(state.hospital_session) and app._session.requested_speed==0:
 					return _success({"expected_failed_load":true,"source_session_preserved":true,"source_hospital_id":state.hospital_id,"error_text":app._status.text})
@@ -318,11 +334,14 @@ func _poll_preview() -> Dictionary:
 		if observer.engine_callbacks<int(state.ready_after_frame): return {"pending":true}
 		var measured: SpinBox = app._build_panel._height if state.field=="height" else app._build_panel._width
 		var field: LineEdit = measured.get_line_edit()
-		var point: Vector2 = field.get_screen_transform()*(field.size*0.5)
+		# Root windows can embed subwindows while still applying content stretch.
+		# get_screen_transform() then omits that stretch and the window offset.
+		# Keep client raster coordinates here; Windows owns client-to-screen mapping.
+		var point: Vector2 = field.get_viewport_transform()*field.get_global_transform()*(field.size*0.5)
 		var armed: Dictionary = current.duplicate(true)
 		armed.expected_draft = {"kind":"build_room","floor_id":app._observed_floor,"origin":current.origin,"size":current.size,"room_type_id":current.room_type_id}
 		preview_observer.arm(armed)
-		var request: Dictionary = {"id":str(current.id),"status":"armed","pid":OS.get_process_id(),"hospital_session":app._session.loading_session_id,"fields":[{"name":state.field,"screen_point":[point.x,point.y],"text":str(state.value)}],"coordinate_source":"CanvasItem.get_screen_transform local LineEdit center; external owned-PID/client rectangle verification required","expected_draft":armed.expected_draft}
+		var request: Dictionary = {"id":str(current.id),"status":"armed","pid":OS.get_process_id(),"hospital_session":app._session.loading_session_id,"fields":[{"name":state.field,"client_point":[point.x,point.y],"text":str(state.value)}],"coordinate_source":"CanvasItem viewport_transform * global_transform local LineEdit center in physical client pixels; Windows ClientToScreen on foreground owned PID","expected_draft":armed.expected_draft}
 		if not _write_json("input-request.json",request): return _failure("Cannot publish external real-input request")
 		observer._emit("input_request", request)
 		state.stage = "wait_input"

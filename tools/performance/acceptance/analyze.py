@@ -362,19 +362,44 @@ def allocation_evidence(root, meta, start, end, frequency, target_bytes):
         qualification_keys = ("preserved_raw_event_provenance", "complete_raw_qpc_decode", "target_identity_and_alias_join",
             "all_process_alias_capture", "all_required_event_families_armed", "saved_schema_covers_interpreted_versions",
             "formal_actual_display_window", "all_target_global_sizes_joined", "no_event_or_identity_gaps",
-            "backing_extent_records_unambiguous", "unreleased_globals_included", "positive_formal_extent_upper_bound", "unattributed_kernel_extents_bounded")
+            "backing_extent_records_unambiguous", "unreleased_globals_included", "positive_formal_extent_upper_bound", "backend_target_scope_bounded")
         qualification_valid = all(qualification.get(name) is True for name in qualification_keys)
+        method = accounting.get("coverage_method")
+        owner_coverage = accounting.get("owner_coverage", {})
+        owner_valid = (method == "owner_bridged_target_graph" and owner_coverage.get("status") == "verified"
+            and owner_coverage.get("unresolved_kernel_lifetimes") == 0)
+        fallback = ledger.get("unattributed_kernel_global_bound", {})
+        fallback_valid = (method == "adapter_kernel_fallback_upper_bound" and fallback.get("status") == "bounded"
+            and integer(fallback.get("formal_upper_bound_bytes")) and fallback["formal_upper_bound_bytes"] >= 0)
         complete = (source_valid and identity.get("status") == "verified" and accounting.get("status") == "verified"
             and accounting.get("backend_coverage_verified") is True and accounting.get("unreleased_observed_globals_included") is True
-            and ledger.get("peak_coverage_complete") is True and ledger.get("shared_dedup_verified") is True and qualification_valid)
+            and ledger.get("peak_coverage_complete") is True and ledger.get("shared_dedup_verified") is True and qualification_valid
+            and (owner_valid or fallback_valid))
         graph_upper = window.get("known_same_timestamp_upper_peak_alloc_size_bytes")
         backend_upper = accounting.get("upper_bound_allocated_bytes")
+        if fallback_valid and (not integer(graph_upper) or not integer(backend_upper)
+                or backend_upper < graph_upper + fallback["formal_upper_bound_bytes"]):
+            complete = False
+            out["missing"].append("graphics adapter/kernel fallback does not bound its observed components")
         upper = max(graph_upper, backend_upper) if integer(graph_upper) and integer(backend_upper) else None
-        exact_peak = accounting.get("peak_allocated_bytes")
+        exact_peak = accounting.get("peak_allocated_bytes") if owner_valid else None
+        lower = accounting.get("lower_bound_allocated_bytes")
+        lower_checks = accounting.get("lower_bound_qualification", {})
+        lower_valid = (source_valid and identity.get("status") == "verified" and integer(lower) and lower >= 0
+            and ws == start and we == end and accounting.get("lower_bound_scope") == "target_allocations"
+            and all(lower_checks.get(name) is True for name in ("actual_target_allocation_scope",
+                "canonical_allocation_identity_deduplicated", "extent_size_semantics_verified", "simultaneous_actual_window_observation")))
         if complete and integer(upper) and integer(exact_peak) and exact_peak > upper:
             complete = False
             out["missing"].append("graphics allocation peak contradicts its supplied upper bound")
-        if complete and integer(upper) and upper <= target_bytes:
+        if lower_valid and integer(upper) and complete and lower > upper:
+            complete = lower_valid = False
+            out["missing"].append("graphics target allocation lower bound contradicts its supplied upper bound")
+        if lower_valid and lower > target_bytes:
+            out["budget"] = {"status":"failed", "target_bytes":target_bytes, "lower_bound_allocated_bytes":lower,
+                "scope":"proven simultaneous target allocation lower bound in actual window; not adapter-wide kernel or resident bytes"}
+            out["errors"].append("graphics allocation target exceeded")
+        elif complete and integer(upper) and upper <= target_bytes:
             out["budget"] = {"status":"verified_within_target", "target_bytes":target_bytes, "upper_bound_allocated_bytes":upper,
                 "scope":"same window" if ws == start and we == end else "complete wider-window upper bound covers actual window"}
         elif complete and integer(exact_peak) and ws == start and we == end:

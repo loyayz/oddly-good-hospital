@@ -1,6 +1,7 @@
 extends Node
 
 const OperationDriver = preload("operation_driver.gd")
+const SnapshotWitness = preload("snapshot_witness.gd")
 
 # Engine callbacks are diagnostic samples, never presented frames.
 # Notification QPC is sampled natively; original engine step endpoints retain
@@ -55,8 +56,12 @@ var failure_reason: String = ""
 var profile_path: String = ""
 var operation_driver: RefCounted
 var save_requests: Dictionary = {}
+var completed_save_operations: Dictionary = {}
+var snapshot_sources: Dictionary = {}
+var loaded_snapshot_checks: Dictionary = {}
 var last_auto_deadline: int = -1
 var root: Window
+var initial_hospital_id: String = ""
 
 func _ready() -> void:
 	root = get_tree().root
@@ -156,6 +161,7 @@ func _boot() -> void:
 		_fail("Fixture floors differ from declared layout/observed floor")
 		return
 	var world: RefCounted = world_script.new(saved.facts)
+	initial_hospital_id = world.hospital_id
 	var reason: String = world.validate(content)
 	if not reason.is_empty() or world.present_actor_count()!=int(config.actors):
 		_fail("Invalid/incorrect Fixture: "+reason)
@@ -217,7 +223,7 @@ func _validate_config() -> String:
 
 func _observer_hashes(folder: String) -> Dictionary:
 	var result: Dictionary = {}
-	for name: String in ["visible_capture.gd","formal_root.gd","native_clock.gd","observed_library.gd","observed_snapshots.gd","preview_input_observer.gd","operation_driver.gd","launch.tscn","probe.gd","probe.tscn"]:
+	for name: String in ["visible_capture.gd","formal_root.gd","native_clock.gd","observed_library.gd","observed_snapshots.gd","snapshot_witness.gd","preview_input_observer.gd","operation_driver.gd","launch.tscn","probe.gd","probe.tscn"]:
 		result[name] = FileAccess.get_sha256(folder.path_join(name))
 	return result
 
@@ -449,6 +455,10 @@ func _operations(now: int) -> void:
 		"pan": app._view.pan_camera(Vector2(float(operation.pixels[0]), float(operation.pixels[1])))
 		"zoom": app._view.zoom_camera(float(operation.factor))
 		"save":
+			var prerequisite: String = operation_driver._check_work_prerequisite(operation.get("required_session",{}))
+			if not prerequisite.is_empty():
+				_fail(prerequisite)
+				return
 			var started: Dictionary = app._begin_save("manual", "formal-"+str(operation.id))
 			if not started.get("ok", false):
 				_fail("Save operation could not start")
@@ -486,10 +496,38 @@ func on_receipt(receipt: Dictionary) -> void:
 	if not receipt.get("ok", false):
 		_fail("Production save failed")
 		return
-	_emit("operation_complete", {"operation":waiting_operation,"elapsed_us":Time.get_ticks_usec()-operation_begin_us,"completion_kind":"original asynchronous save receipt"})
+	completed_save_operations[str(waiting_operation.id)] = receipt.duplicate(true)
+	_emit("operation_complete", {"operation":waiting_operation,"receipt":receipt,"elapsed_us":Time.get_ticks_usec()-operation_begin_us,"completion_kind":"original asynchronous save receipt"})
 	waiting_save = ""
 	waiting_operation = {}
 	operation_index += 1
+
+func on_snapshot_source(request: Dictionary, world: WorldState) -> void:
+	var begin: int = Time.get_ticks_usec()
+	var required: Dictionary = config.get("required_session",{}) if world.hospital_id==initial_hospital_id else {}
+	var witness: Dictionary = SnapshotWitness.capture(world,required)
+	var snapshot_id: String = str(request.snapshot_id)
+	var identity: bool = witness.hospital_id==request.hospital_id and witness.sim_tick==request.sim_tick and witness.world_revision==request.world_revision
+	snapshot_sources[snapshot_id] = {"witness":witness,"identity_matches_request":identity,"request":request.duplicate(true)}
+	_emit("snapshot_source_witness", {"snapshot_id":snapshot_id,"request":request,"identity_matches_request":identity,"witness":witness,"observation_us":Time.get_ticks_usec()-begin,"scope":"identity/RNG plus named clinical owner only; whole canonical payload verified by original loader"})
+	if not identity: _fail("Snapshot source witness differs from the original freeze request identity")
+
+func on_snapshot_loaded(result: Dictionary) -> void:
+	var begin: int = Time.get_ticks_usec()
+	var manifest: Dictionary = result.get("manifest",{})
+	var snapshot_id: String = str(manifest.get("snapshot_id",""))
+	var source: Dictionary = snapshot_sources.get(snapshot_id,{})
+	var check: Dictionary = {"snapshot_id":snapshot_id,"hospital_id":manifest.get("hospital_id",""),"source_witness_present":not source.is_empty(),"original_payload_hash_verified":bool(result.get("ok",false)),"verified":false}
+	if not source.is_empty():
+		var actual: Dictionary = SnapshotWitness.capture(result.world,source.witness.required_session)
+		check.verified = bool(source.identity_matches_request) and actual==source.witness and str(manifest.hospital_id)==str(source.request.hospital_id) and int(manifest.sim_tick)==int(source.request.sim_tick) and int(manifest.world_revision)==int(source.request.world_revision)
+		check.source_tick = source.request.sim_tick
+		check.loaded_tick = result.world.sim_tick
+		check.rng_and_named_clinical_equal = actual==source.witness
+	check.observation_us = Time.get_ticks_usec()-begin
+	loaded_snapshot_checks[str(check.hospital_id)] = check
+	_emit("snapshot_loaded_witness",check)
+	if not source.is_empty() and not bool(check.verified): _fail("Original loaded snapshot differs from its captured identity/RNG/clinical witness")
 
 func _operations_complete() -> bool:
 	return operation_index>=config.get("operations", []).size() and waiting_save.is_empty() and (operation_driver==null or not operation_driver.active())
@@ -542,7 +580,11 @@ func _settings() -> Dictionary:
 	var logical: Vector2 = app.get_viewport_rect().size
 	var screen: Transform2D = app._world_container.get_viewport_transform()*app._world_container.get_global_transform()
 	var physical: Vector2 = app._world_container.size*Vector2(screen.x.length(),screen.y.length())
-	var expected: Vector2i = Vector2i(ceili(physical.x),ceili(physical.y))
+	var scene_scale: float = app._viewport.scaling_3d_scale
+	var expected_internal: Vector2i = Vector2i(roundi(physical.x*scene_scale/2.0)*2,roundi(physical.y*scene_scale/2.0)*2)
+	var product: PackedFloat32Array = PackedFloat32Array([float(scene.x)*scene_scale,float(scene.y)*scene_scale])
+	var predicted_internal: Vector2i = Vector2i(floori(product[0]),floori(product[1]))
+	var output_matches: bool = absf(float(scene.x)-physical.x)<3.001 and absf(float(scene.y)-physical.y)<3.001 and predicted_internal==expected_internal
 	# ViewportTexture.get_size multiplies Window's already physical viewport
 	# size by stretch again in this engine. Only a real image establishes raster.
 	var root_texture_declared: Vector2i = Vector2i(root.get_texture().get_size())
@@ -550,7 +592,7 @@ func _settings() -> Dictionary:
 	var scene_texture: Vector2i = Vector2i(app._viewport.get_texture().get_size())
 	var root_stretch: Transform2D = root.get_stretch_transform()
 	var root_physical: Vector2i = Vector2i((logical*Vector2(root_stretch.x.length(),root_stretch.y.length())).ceil())
-	return {"window_pixels":[window.x,window.y],"root_logical_extent":[logical.x,logical.y],"content_scale_size":[root.content_scale_size.x,root.content_scale_size.y],"content_scale_mode":root.content_scale_mode,"canvas_transform":str(app.get_global_transform_with_canvas()),"root_raster_texture_pixels":[root_texture.x,root_texture.y],"root_viewport_texture_declared_pixels":[root_texture_declared.x,root_texture_declared.y],"root_raster_source":"actual image readback outside formal window; zero until first screenshot","root_canvas_physical_extent":[root_physical.x,root_physical.y],"native_2d_output":root.content_scale_mode==Window.CONTENT_SCALE_MODE_CANVAS_ITEMS and root_texture==root_physical,"scene_control_logical_extent":[app._world_container.size.x,app._world_container.size.y],"scene_control_physical_extent":[physical.x,physical.y],"scene_control_screen_transform":str(screen),"scene_viewport_pixels":[scene.x,scene.y],"scene_output_texture_pixels":[scene_texture.x,scene_texture.y],"scene_output_matches_control":scene==expected and scene_texture==scene,"scene_scale":app._viewport.scaling_3d_scale,"scene_allocated_pixels":"unavailable_without_actual_backend_corroboration","ui_scale_percent":app._ui_scale*100,"renderer":RenderingServer.get_current_rendering_method(),"render_driver":RenderingServer.get_current_rendering_driver_name(),"gpu":RenderingServer.get_video_adapter_name(),"refresh_hz":DisplayServer.screen_get_refresh_rate(),"vsync":DisplayServer.window_get_vsync_mode(),"max_fps":Engine.max_fps,"observed_floor":app._observed_floor,"camera_size":app._view.camera.size,"camera_transform":str(app._view.camera.global_transform)}
+	return {"window_pixels":[window.x,window.y],"root_logical_extent":[logical.x,logical.y],"content_scale_size":[root.content_scale_size.x,root.content_scale_size.y],"content_scale_mode":root.content_scale_mode,"canvas_transform":str(app.get_global_transform_with_canvas()),"root_raster_texture_pixels":[root_texture.x,root_texture.y],"root_viewport_texture_declared_pixels":[root_texture_declared.x,root_texture_declared.y],"root_raster_source":"actual image readback outside formal window; zero until first screenshot","root_canvas_physical_extent":[root_physical.x,root_physical.y],"native_2d_output":root.content_scale_mode==Window.CONTENT_SCALE_MODE_CANVAS_ITEMS and root_texture==root_physical,"scene_control_logical_extent":[app._world_container.size.x,app._world_container.size.y],"scene_control_physical_extent":[physical.x,physical.y],"scene_control_screen_transform":str(screen),"scene_viewport_pixels":[scene.x,scene.y],"scene_output_texture_pixels":[scene_texture.x,scene_texture.y],"scene_output_matches_control":output_matches and scene_texture==scene,"scene_nearest_even_internal_pixels":[expected_internal.x,expected_internal.y],"scene_predicted_float32_internal_pixels":[predicted_internal.x,predicted_internal.y],"scene_output_rounding":"nearby native output extent yields nearest even internal 3D pixels; actual GPU corroboration is separate","scene_scale":app._viewport.scaling_3d_scale,"scene_allocated_pixels":"unavailable_without_actual_backend_corroboration","ui_scale_percent":app._ui_scale*100,"renderer":RenderingServer.get_current_rendering_method(),"render_driver":RenderingServer.get_current_rendering_driver_name(),"gpu":RenderingServer.get_video_adapter_name(),"refresh_hz":DisplayServer.screen_get_refresh_rate(),"vsync":DisplayServer.window_get_vsync_mode(),"max_fps":Engine.max_fps,"observed_floor":app._observed_floor,"camera_size":app._view.camera.size,"camera_transform":str(app._view.camera.global_transform)}
 
 func _ack(state: String) -> void:
 	var sampled: Dictionary = _clock()

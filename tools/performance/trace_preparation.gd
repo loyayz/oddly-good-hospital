@@ -32,14 +32,14 @@ func _run() -> void:
 	var trace: Trace = Trace.new(output)
 	trace.fine = fine
 	trace.reserved_world = reserved_world
-	# This standalone diagnostic records native model size before a potentially
-	# long solve. The environment flag controls logging only, never the model.
-	OS.set_environment("OGH_CAPACITY_DIAGNOSTIC","1")
+	# Native CRT getenv reads the process startup environment on Windows. The
+	# diagnostic launcher supplies this flag before process creation; changing
+	# the Windows environment here would not establish the native log setting.
 	if trace.file==null:
 		push_error("Cannot open preparation trace: "+output)
 		quit(2)
 		return
-	trace.emit("diagnostic","enter",{"input":source,"input_sha256":FileAccess.get_sha256(source),"synchronous_owner":true,"game_session":false,"flush_each_event":true,"tracked_memory_is_os_memory":false})
+	trace.emit("diagnostic","enter",{"input":source,"input_sha256":FileAccess.get_sha256(source),"synchronous_owner":true,"game_session":false,"flush_each_event":true,"tracked_memory_is_os_memory":false,"native_diagnostic_environment":OS.get_environment("OGH_CAPACITY_DIAGNOSTIC")})
 	var content: HospitalContent = HospitalContent.new()
 	if not content.error.is_empty():
 		trace.emit("content","failure",{"reason":content.error.left(240)})
@@ -150,6 +150,13 @@ class Trace extends RefCounted:
 
 class TracedArrivalService extends HospitalArrivalService:
 	var trace: Trace
+	var structural_tracing: bool = false
+	var structural_expected: int = 0
+	var structural_cases: int = 0
+	var structural_case_us: int = 0
+	var structural_unique_calls: int = 0
+	var structural_unique_us: int = 0
+	var structural_group_calls: int = 0
 
 	func _init(database: HospitalContent, geometry: HospitalSpace, observer: Trace) -> void:
 		super(database,geometry)
@@ -201,14 +208,83 @@ class TracedArrivalService extends HospitalArrivalService:
 		return result
 
 	func _structural_pairs(world: WorldState, classes: Array, shift: int) -> Dictionary:
-		# On a cold role solve this enter event is after native C has returned;
-		# super may reuse K's structural cache or call the original native K.
 		trace.emit("structural_pairs","enter",{"binding":"","native_c_returned":true},null,self,space)
-		var result: Dictionary = super._structural_pairs(world,classes,shift)
+		structural_tracing = true
+		structural_expected = classes.size()
+		structural_cases = 0
+		structural_case_us = 0
+		structural_unique_calls = 0
+		structural_unique_us = 0
+		structural_group_calls = 0
+		var result: Dictionary = _traced_structural_pairs(world,classes,shift)
+		structural_tracing = false
 		var fields: Dictionary = {"binding":"","pairs":result.get("pairs",0),"error":str(result.get("error",""))}
 		for key: String in ["terminals","structure_encoding","structural_nodes","structural_slots","structural_variables","structural_constraints","structural_input_cases","structural_input_bases","structural_input_group_parts","structural_alternatives_before","structural_alternatives_after","structural_dominated_alternatives","structural_interned_nodes","structural_flat_attempt_us","structural_presolve_us","structural_assembly_us","structural_solve_us","structural_subset_proof_pairs"]:
 			if result.has(key): fields[key] = result[key]
 		trace.emit("structural_pairs","return",fields,null,self,space)
+		return result
+
+	func _structural_observation() -> Dictionary:
+		return {"binding":"","case_count":structural_cases,"expected_cases":structural_expected,"case_inclusive_us":structural_case_us,"group_calls":structural_group_calls,"unique_calls":structural_unique_calls,"unique_us":structural_unique_us}
+
+	func _structural_case(case: Dictionary, reception: Dictionary) -> Dictionary:
+		if not structural_tracing: return super._structural_case(case,reception)
+		var started: int = Time.get_ticks_usec()
+		if structural_cases==0 or (structural_cases+1)%32==0: trace.emit("structural_case","enter",_structural_observation(),null,self,space)
+		var result: Dictionary = super._structural_case(case,reception)
+		structural_case_us += Time.get_ticks_usec()-started
+		structural_cases += 1
+		if structural_cases==1 or structural_cases%32==0 or structural_cases==structural_expected: trace.emit("structural_case","return",_structural_observation(),null,self,space)
+		return result
+
+	func _structural_group(group: String, groups: Dictionary, translated: Dictionary, output: Dictionary) -> String:
+		if structural_tracing: structural_group_calls += 1
+		return super._structural_group(group,groups,translated,output)
+
+	func _unique_structural_parts(parts: Array) -> Array:
+		var started: int = Time.get_ticks_usec()
+		var result: Array = super._unique_structural_parts(parts)
+		if structural_tracing:
+			structural_unique_calls += 1
+			structural_unique_us += Time.get_ticks_usec()-started
+		return result
+
+	func _traced_structural_pairs(world: WorldState, classes: Array, shift: int) -> Dictionary:
+		# Diagnostic adapter of the original K handoff. Qualification, complete
+		# projection, canonicalization, cache identity and the native solve use
+		# the original owners. This separates their actual call boundaries; its
+		# observation cost is not Release acceptance timing.
+		var blocked: Dictionary = {}
+		var reception: Dictionary = {"people":{},"desks":{},"ratio":int(content.balance.arrivals.capacity_scaling.reception_pairs_per_station)}
+		for id: String in world.facts.staff:
+			if _staff_budget(world,id,shift)==0: blocked["staff:"+id] = true
+			elif world.facts.staff[id].role=="receptionist": reception.people["staff:"+id] = true
+		for id: String in world.facts.facilities:
+			var facility: Dictionary = world.facts.facilities[id]
+			if facility.get("failed",false) or not facility.get("open",true) or not facility.get("intake_open",true) or facility.get("stop_new_service",false): blocked["facility:"+id] = true
+			elif facility.definition_id=="FUR01": reception.desks["facility:"+id] = true
+		trace.emit("structural_projection","enter",_structural_observation(),null,self,space)
+		var shape: Array = []
+		for case: Dictionary in classes: shape.append(_structural_case(case,reception))
+		trace.emit("structural_projection","return",_structural_observation(),null,self,space)
+		trace.emit("structural_shape_dedup","enter",{"binding":"","input_cases":shape.size()},null,self,space)
+		var started: int = Time.get_ticks_usec()
+		shape = _unique_structural_parts(shape)
+		trace.emit("structural_shape_dedup","return",{"binding":"","cases":shape.size(),"elapsed_us":Time.get_ticks_usec()-started},null,self,space)
+		var basis: Array = [shape,blocked,reception,int(content.balance.clinical.beds_per_nurse)]
+		var cached: Dictionary = _structure_cache.get(shift,{})
+		if not cached.is_empty() and cached.basis==basis:
+			trace.emit("structural_cache","return",{"binding":"","hit":true},null,self,space)
+			return cached.result.duplicate()
+		trace.emit("structural_native","enter",{"binding":"","cases":shape.size(),"blocked":blocked.size(),"reception_people":reception.people.size(),"reception_desks":reception.desks.size(),"reception_ratio":reception.ratio},null,self,space)
+		started = Time.get_ticks_usec()
+		var result: Dictionary = PlatformArrivalMath.structure(shape,blocked,reception,int(content.balance.clinical.beds_per_nurse))
+		trace.emit("structural_native","return",{"binding":"","elapsed_us":Time.get_ticks_usec()-started,"error":str(result.get("error","")),"pairs":result.get("pairs",0)},null,self,space)
+		if not result.has("error"):
+			trace.emit("structural_cache_copy","enter",{"binding":""},null,self,space)
+			started = Time.get_ticks_usec()
+			_structure_cache[shift] = {"basis":basis.duplicate(true),"result":result.duplicate()}
+			trace.emit("structural_cache_copy","return",{"binding":"","elapsed_us":Time.get_ticks_usec()-started},null,self,space)
 		return result
 
 class TracedClinic extends HospitalClinic:

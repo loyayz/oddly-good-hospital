@@ -876,11 +876,21 @@ func _move_selected(floor_id: int) -> void:
 func _sync_scene_pixels() -> void:
 	if _viewport==null or _world_container==null: return
 	# canvas_items rasterizes 2D at window resolution. The nested 3D texture
-	# likewise owns the physical pixels occupied by its control, before 3D scale.
+	# covers its control, with an output extent chosen for even 3D pixels.
 	# CanvasItem.get_screen_transform omits Window stretch while subwindows are
 	# embedded. The viewport transform maps the control to its actual raster.
 	var screen: Transform2D = _world_container.get_viewport_transform()*_world_container.get_global_transform()
-	var pixels: Vector2i = Vector2i(maxi(2,ceili(_world_container.size.x*screen.x.length())),maxi(2,ceili(_world_container.size.y*screen.y.length())))
+	var physical: Vector2 = _world_container.size*Vector2(screen.x.length(),screen.y.length())
+	var scene_scale: float = _viewport.scaling_3d_scale
+	var internal: Vector2i = Vector2i(maxi(2,roundi(physical.x*scene_scale/2.0)*2),maxi(2,roundi(physical.y*scene_scale/2.0)*2))
+	var pixels: Vector2i = Vector2i(ceili(float(internal.x)/scene_scale),ceili(float(internal.y)/scene_scale))
+	# Godot truncates a float32 product for internal 3D size. Select the nearby
+	# output extent that yields the nearest even pixels at the original scale.
+	for axis: int in 2:
+		for _attempt: int in 3:
+			var actual: int = floori(PackedFloat32Array([float(pixels[axis])*scene_scale])[0])
+			if actual==internal[axis]: break
+			pixels[axis] += 1 if actual<internal[axis] else -1
 	if _viewport.size!=pixels: _viewport.size = pixels
 
 func _world_input(event: InputEvent) -> void:

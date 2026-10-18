@@ -168,7 +168,8 @@ class OfflineChecks(unittest.TestCase):
         value = {"schema_version":2,"kind":"dxgkrnl_allocation_ledger","status":"incomplete","target_pid":7,"target_start_utc_ticks":123,"qpc_frequency":1000000,
             "allocation_identity":{"status":"verified"},"allocation_accounting":{"status":"verified" if complete else "incomplete","backend_coverage_verified":complete,"unreleased_observed_globals_included":True,
                 "upper_bound_allocated_bytes":100,
-                "qualification_checks":dict.fromkeys(("preserved_raw_event_provenance","complete_raw_qpc_decode","target_identity_and_alias_join","all_process_alias_capture","all_required_event_families_armed","saved_schema_covers_interpreted_versions","formal_actual_display_window","all_target_global_sizes_joined","no_event_or_identity_gaps","backing_extent_records_unambiguous","unreleased_globals_included","positive_formal_extent_upper_bound","unattributed_kernel_extents_bounded"),complete)},
+                "coverage_method":"owner_bridged_target_graph", "owner_coverage":{"status":"verified","unresolved_kernel_lifetimes":0},
+                "qualification_checks":dict.fromkeys(("preserved_raw_event_provenance","complete_raw_qpc_decode","target_identity_and_alias_join","all_process_alias_capture","all_required_event_families_armed","saved_schema_covers_interpreted_versions","formal_actual_display_window","all_target_global_sizes_joined","no_event_or_identity_gaps","backing_extent_records_unambiguous","unreleased_globals_included","positive_formal_extent_upper_bound","backend_target_scope_bounded"),complete)},
             "allocations":[{"adapter_pointer":"0x1","physical_adapter_index":0}],
             "peak_coverage_complete":complete,"shared_dedup_verified":complete,"formal_window":window,"raw_qpc_verified":True,
             "raw_qpc_checks":dict.fromkeys(("decoder_raw_qpc_valid","full_etl_read_complete","process_and_close_succeeded","qpc_header_clock","zero_file_loss","all_interpreted_events_have_raw_qpc","one_matching_positive_frequency"),True),
@@ -260,6 +261,35 @@ class OfflineChecks(unittest.TestCase):
         ledger["allocation_accounting"]["peak_allocated_bytes"] = 600*1024*1024
         self.save_ledger(root,ledger)
         self.assertIn("graphics allocation target exceeded",self.graphics(root)["errors"])
+
+    def test_adapter_kernel_upper_above_target_is_incomplete_not_target_failure(self):
+        root = self.full_fixture(); ledger = self.ledger_fixture(root,True)
+        ledger["unattributed_kernel_global_bound"] = {"status":"bounded","formal_upper_bound_bytes":1024**3}
+        ledger["allocation_accounting"].update(coverage_method="adapter_kernel_fallback_upper_bound",
+            upper_bound_allocated_bytes=1024**3+100,peak_allocated_bytes=1024**3)
+        self.save_ledger(root,ledger)
+        result = self.graphics(root)
+        self.assertEqual(result["status"],"incomplete")
+        self.assertFalse(result["errors"])
+
+    def test_large_diagnostic_foreign_kernel_does_not_change_owner_target_budget(self):
+        root = self.full_fixture(); ledger = self.ledger_fixture(root,True)
+        ledger["unattributed_kernel_global_bound"] = {"status":"bounded","formal_upper_bound_bytes":1024**3}
+        self.save_ledger(root,ledger)
+        self.assertTrue(self.graphics(root)["verified"])
+
+    def test_proven_target_lower_bound_can_fail_without_complete_backend_upper(self):
+        root = self.full_fixture(); ledger = self.ledger_fixture(root)
+        ledger["allocation_accounting"].update(lower_bound_allocated_bytes=600*1024**2,lower_bound_scope="target_allocations",
+            lower_bound_qualification=dict.fromkeys(("actual_target_allocation_scope","canonical_allocation_identity_deduplicated",
+                "extent_size_semantics_verified","simultaneous_actual_window_observation"),True))
+        self.save_ledger(root,ledger)
+        result = self.graphics(root)
+        self.assertEqual(result["status"],"failed")
+        self.assertIn("graphics allocation target exceeded",result["errors"])
+        ledger["allocation_accounting"]["lower_bound_scope"] = "adapter_kernel_fallback"
+        self.save_ledger(root,ledger)
+        self.assertFalse(self.graphics(root)["errors"])
 
     def test_commitment_does_not_substitute_for_os_usage_or_allocation(self):
         root = self.full_fixture(); ledger = self.ledger_fixture(root,True)

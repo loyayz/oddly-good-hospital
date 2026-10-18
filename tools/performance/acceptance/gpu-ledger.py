@@ -45,6 +45,9 @@ class Allocation:
     size: int | None = None
     physical_adapter: int | None = None
     creator: int | None = None
+    creation_device: int | None = None
+    creation_device_pid: int | None = None
+    creation_device_source_sequence: int | None = None
     owner: int | None = None
     source_event: int | None = None
     alive: bool = True
@@ -101,6 +104,7 @@ class Ledger:
 
     def interested(self, allocation):
         return allocation.alive and (allocation.creator == self.target or allocation.owner == self.target
+                                     or allocation.creation_device_pid == self.target
                                      or allocation.target_aliases > 0 or allocation.target_backing)
 
     def changed(self, allocation, change):
@@ -208,6 +212,10 @@ class Ledger:
                 return
             def fill():
                 allocation.size, allocation.creator = size, owner
+                allocation.creation_device = number(data["hDevice"]) if "hDevice" in data else None
+                binding = self.devices.get((key[0], allocation.creation_device))
+                if binding is not None:
+                    allocation.creation_device_pid, allocation.creation_device_source_sequence = binding
                 allocation.physical_adapter = physical
                 allocation.source_event, allocation.created_sequence = event, self.sequence
                 allocation.created_clock = self.current_clock
@@ -387,6 +395,9 @@ class Ledger:
                             "adapter_identity": identity, "allocated_bytes": a.size,
                             "allocation_event_metadata": a.metadata,
                             "size_source_event": a.source_event, "creator_pid": a.creator, "last_owner_pid": a.owner,
+                            "creation_device": hex(a.creation_device) if a.creation_device is not None else None,
+                            "creation_device_pid": a.creation_device_pid,
+                            "creation_device_pid_source_sequence": a.creation_device_source_sequence,
                             "alias_pids": sorted(a.alias_processes), "creation_associated_pids": sorted(a.associated_processes), "alive_at_trace_end": a.alive,
                             "aliases": a.alias_history,
                             "target_intervals_sequence": intervals,
@@ -502,12 +513,22 @@ class Ledger:
         raw_qpc_verified = all(raw_qpc_checks.values())
         if not raw_qpc_verified:
             missing.append("complete raw-QPC decode with matching trace header, frequency and zero loss")
-        # A PID4/global object without a target alias/backing link may still be
-        # renderer overhead. Do not turn an observed target graph into backend
-        # coverage by silently dropping these objects. Bound all such objects
-        # on target adapters, even if some belong to unrelated processes.
+        # A kernel-created global is excluded only by a concrete device/PID
+        # bridge from its creation event. Merely being unlinked to this target,
+        # a page table or PID4 is not ownership evidence. Any unresolved objects
+        # form an optional broad bound, never actual target allocation bytes.
         target_adapters = {a.adapter for a in relevant}
-        unattributed = [a for a in self.all_records if a.adapter in target_adapters and not a.recorded and a.creator in (None, 0, 4)]
+        unassociated = [a for a in self.all_records if a.adapter in target_adapters and not a.recorded]
+        foreign = [a for a in unassociated if a.creation_device_pid not in (None, 0, 4, self.target)]
+        foreign_ids = {id(a) for a in foreign}
+        unattributed = [a for a in unassociated if id(a) not in foreign_ids]
+        owner_coverage = {"status":"verified" if not unattributed else "incomplete",
+            "unresolved_kernel_lifetimes":len(unattributed),
+            "foreign_device_exclusions":[{"adapter_pointer":hex(a.adapter),"global_allocation":hex(a.handle),
+                "generation":a.generation,"creation_event":a.source_event,"creation_sequence":a.created_sequence,
+                "device":hex(a.creation_device),"device_pid":a.creation_device_pid,
+                "device_pid_source_sequence":a.creation_device_source_sequence} for a in foreign],
+            "scope":"lossless all-process provider lifecycle plus creation device/PID bridges; includes foreign-created objects with no device ownership bridge; no target alias/backing/ownership interval is excluded"}
         kernel_details = [{"adapter_pointer": hex(a.adapter), "global_allocation": hex(a.handle),
             "generation": a.generation, "allocated_bytes": a.size,
             "target_intervals_sequence": [(a.created_sequence, a.stopped_sequence or self.sequence+1)],
@@ -518,7 +539,7 @@ class Ledger:
         kernel_bound = {"status": "bounded" if kernel_known and kernel_window.get("verified") else "incomplete",
             "lifetimes": len(unattributed), "unknown_size_lifetimes": sum(a.size is None for a in unattributed),
             "formal_upper_bound_bytes": kernel_upper if kernel_known else None,
-            "scope": "all unassociated PID0/PID4/unknown-origin globals on target adapters, including unrelated kernel storage; conservative coverage, never added as exact target ownership",
+            "scope": "unassociated globals on target adapters without an explicit foreign creation-device/PID bridge, including kernel and foreign-created unknown ownership; optional broad coverage, never actual target bytes",
             "allocations": kernel_details}
         return {"schema_version": 2, "kind": "dxgkrnl_allocation_ledger", "status": "incomplete",
                 "target_pid": self.target, "target_start_utc_ticks": trace.get("target_start_utc_ticks"),
@@ -529,7 +550,7 @@ class Ledger:
                 "interpreted_event_qpc_range": [self.first_qpc, self.last_qpc], "interpreted_events": self.processed,
                 "interpreted_events_without_raw_qpc": self.non_qpc_events,
                 "retained_target_interval_clock_points": len(self.times),
-                "attribution": "target-origin global allocations until global stop, explicit transferred ownership, live target-device aliases, or target 364 backing links retained until global stop; creation-associated PID is not current ownership",
+                "attribution": "target-origin or creation-device/PID-bridged globals until global stop, explicit transferred ownership, live target-device aliases, or target 364 backing links; creation-associated PID alone is not current ownership",
                 "dedup_key": "adapter pointer + global allocation handle + lifetime generation; resource/content hashes and alias handles do not create storage",
                 "known_sequence_peak_allocated_bytes": sequence_peak if relevant else None,
                 "known_peak_sequence": peak_sequence, "known_peak_clock": self.times.get(peak_sequence),
@@ -539,6 +560,7 @@ class Ledger:
                 "known_creation_association_upper_peak_allocated_bytes": creation_upper_peak if relevant else None,
                 "backing_size_corroboration": backing,
                 "unattributed_kernel_global_bound": kernel_bound,
+                "backend_owner_coverage": owner_coverage,
                 "peak_coverage_complete": False, "shared_dedup_verified": False, "residency_verified": False,
                 "allocation_accounting": {"status": "incomplete", "byte_basis": "AdapterAllocation 33/35 allocSize, once per adapter/global/lifetime",
                     "physical_resident_bytes": None, "backend_coverage_verified": False,
@@ -734,7 +756,11 @@ def qualify_accounting(report, trace, schema_versions):
     target_upper = window.get("known_same_timestamp_upper_peak_alloc_size_bytes")
     kernel = report.get("unattributed_kernel_global_bound", {})
     kernel_upper = kernel.get("formal_upper_bound_bytes")
-    upper = target_upper + kernel_upper if type(target_upper) is int and type(kernel_upper) is int else None
+    owner_coverage = report.get("backend_owner_coverage", {})
+    owner_complete = owner_coverage.get("status") == "verified" and owner_coverage.get("unresolved_kernel_lifetimes") == 0
+    fallback_valid = kernel.get("status") == "bounded" and type(kernel_upper) is int and kernel_upper >= 0
+    fallback_upper = target_upper + kernel_upper if type(target_upper) is int and fallback_valid else None
+    upper = target_upper if owner_complete else fallback_upper
     checks = {
         "preserved_raw_event_provenance": report.get("input_provenance", {}).get("verified") is True,
         "complete_raw_qpc_decode": report.get("raw_qpc_verified") is True,
@@ -749,14 +775,19 @@ def qualify_accounting(report, trace, schema_versions):
         "backing_extent_records_unambiguous": report.get("backing_size_corroboration", {}).get("pending_or_ambiguous_cycles") == 0,
         "unreleased_globals_included": report.get("allocation_accounting", {}).get("unreleased_observed_globals_included") is True,
         "positive_formal_extent_upper_bound": type(upper) is int and upper > 0,
-        "unattributed_kernel_extents_bounded": kernel.get("status") == "bounded" and type(kernel_upper) is int and kernel_upper >= 0,
+        "backend_target_scope_bounded": owner_complete or fallback_valid,
     }
     qualified = all(checks.values())
     accounting = report["allocation_accounting"]
     accounting.update(status="verified" if qualified else "incomplete", qualification_checks=checks,
         backend_coverage_verified=qualified,
-        coverage_scope="lossless pre-target, all-process WDDM global-allocation event graph; target graph plus conservative unattributed kernel bound on target adapters; no undocumented flag exclusions",
+        coverage_method="owner_bridged_target_graph" if owner_complete else "adapter_kernel_fallback_upper_bound" if fallback_valid else "incomplete",
+        owner_coverage=owner_coverage,
+        coverage_scope="lossless pre-target all-process WDDM lifecycle; owner-bridged target graph or optional wider adapter/kernel upper bound; no undocumented flag exclusions",
         peak_allocated_bytes=None, upper_bound_allocated_bytes=upper if qualified else None,
+        target_scope_upper_bound_allocated_bytes=target_upper if qualified and owner_complete else None,
+        adapter_kernel_fallback_upper_bound_bytes=fallback_upper,
+        unattributed_kernel_extents_bounded=fallback_valid,
         exact_physical_or_deduplicated_page_peak=False,
         bound_semantics="sum of canonical global object allocSize extents; physical-page overlap can only make this conservative; upper-bound excess alone is inconclusive")
     report["peak_coverage_complete"] = qualified
@@ -815,6 +846,39 @@ class OfflineChecks(unittest.TestCase):
         fixture["unattributed_kernel_global_bound"]["formal_upper_bound_bytes"] = 4096
         qualify_accounting(fixture, trace, set(VERSIONS.items()))
         self.assertEqual(fixture["allocation_accounting"]["upper_bound_allocated_bytes"], 8192)
+
+    def test_owner_bridged_target_scope_does_not_require_adapter_kernel_fallback(self):
+        report, trace = self.qualified_fixture()
+        report["backend_owner_coverage"] = {"status":"verified","unresolved_kernel_lifetimes":0,
+            "foreign_device_exclusions":[{"device_pid":99,"device_pid_source_sequence":1,"creation_sequence":2}]}
+        report["unattributed_kernel_global_bound"] = {"status":"incomplete","formal_upper_bound_bytes":None}
+        qualify_accounting(report, trace, set(VERSIONS.items()))
+        self.assertEqual(report["allocation_accounting"]["status"], "verified")
+        self.assertEqual(report["allocation_accounting"]["coverage_method"], "owner_bridged_target_graph")
+        self.assertEqual(report["allocation_accounting"]["upper_bound_allocated_bytes"], 4096)
+
+    def test_only_actual_foreign_creation_device_bridge_excludes_kernel_global(self):
+        for creator,device in ((4,None),(4,5),(99,None),(99,5)):
+            with self.subTest(creator=creator,creation_device=device):
+                ledger = Ledger(42)
+                self.create(ledger, handle=7, size=4096, owner=42)
+                self.event(ledger,27,pDxgAdapter=1,hDevice=5,hProcessId=99)
+                fields = {"pDxgAdapter":1,"hVidMmGlobalAlloc":8,"allocSize":1024**3,"hProcessId":creator,"PhysicalAdapterIndex":0}
+                if device is not None: fields["hDevice"] = device
+                self.event(ledger,33,**fields)
+                report = ledger.report()
+                self.assertEqual(report["unattributed_kernel_global_bound"]["lifetimes"], 1 if device is None else 0)
+                self.assertEqual(report["backend_owner_coverage"]["status"], "incomplete" if device is None else "verified")
+                self.assertEqual(report["known_sequence_peak_allocated_bytes"], 4096)
+
+    def test_target_creation_device_bridge_counts_global_without_later_alias(self):
+        ledger = Ledger(42)
+        self.event(ledger,27,pDxgAdapter=1,hDevice=5,hProcessId=42)
+        self.event(ledger,33,pDxgAdapter=1,hDevice=5,hVidMmGlobalAlloc=7,allocSize=8192,hProcessId=4,PhysicalAdapterIndex=0)
+        report = ledger.report()
+        self.assertEqual(report["known_sequence_peak_allocated_bytes"],8192)
+        self.assertEqual(report["allocations"][0]["creation_device_pid"],42)
+        self.assertEqual(report["unattributed_kernel_global_bound"]["lifetimes"],0)
 
     def test_qualification_rejects_each_missing_proof_condition(self):
         corruptions = [lambda r, t: r["input_provenance"].update(verified=False),

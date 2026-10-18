@@ -5,6 +5,7 @@ performance population, allocation ledger, OS residency measurement or GPU budge
 """
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import subprocess
@@ -139,15 +140,21 @@ def main(config):
         depth_draws = [group for group in replay["draw_target_groups"] if group["depth_pixels"]
             and all(abs(group["viewport_pixels"][i] - expected[i]) <= 1 for i in (0, 1))
             and all(abs(group["output_pixels"][i] - expected[i]) <= 1 for i in (0, 1))]
-        native = all(0 <= output_size[i] - physical[i] < 1.001 for i in (0, 1))
+        native = all(abs(output_size[i] - physical[i]) < 3.001 for i in (0, 1))
+        nearest_even = [2*math.floor(value*record["scene_scale"]/2+0.5) for value in physical]
+        even_draws = [group for group in depth_draws if group["output_pixels"] == nearest_even
+            and group["depth_pixels"] == nearest_even and group["viewport_pixels"] == nearest_even]
         root_draws = [group for group in replay["draw_target_groups"]
             if group["output_pixels"] == record["root_raster_pixels"]]
         release = record["features"].get("template") is True and record["features"].get("release") is True and record["features"].get("debug") is False
-        requested = record["window_pixels"] == record["condition"]["window_pixels"] and record["ui_scale_percent"] == record["condition"]["ui_scale_percent"]
+        requested = (record["window_pixels"] == record["condition"]["window_pixels"]
+            and record["ui_scale_percent"] == record["condition"]["ui_scale_percent"]
+            and abs(record["scene_scale"]-record["condition"]["scene_scale_bp"]/10000) < 1e-5)
         conditions.append({**capture, "backend": replay, "geometry_matches_control": native,
             "actual_3d_depth_draw_targets": depth_draws, "actual_root_draw_targets": root_draws,
+            "nearest_even_3d_policy_pixels": nearest_even, "nearest_even_3d_policy_satisfied": bool(even_draws),
             "actual_release": release, "requested_display_matches": requested,
-            "verified": native and bool(depth_draws) and bool(root_draws) and release and requested and record["native_2d_mode"] == 1})
+            "verified": native and bool(depth_draws) and bool(root_draws) and bool(even_draws) and release and requested and record["native_2d_mode"] == 1})
     report = {"kind": "renderdoc_display_boundaries", "status": "verified" if all(c["verified"] for c in conditions) else "incomplete",
         "condition_count": len(conditions), "conditions": conditions,
         "sources": [source(config["exe"]), source(config["pack"]), source(__file__), source(config["scenario"])],

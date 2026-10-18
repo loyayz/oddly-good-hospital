@@ -11,6 +11,7 @@ func _begin_world(world: WorldState, session_id: String, kind: String, slot: Str
 	var result: Dictionary = super._begin_world(world, session_id, kind, slot, identity)
 	var request: Dictionary = result.get("request",{})
 	_record("snapshot_begin_world_main_inclusive", begin, {"hospital_id":world.hospital_id,"session":session_id,"slot_kind":kind,"slot":slot,"ok":result.get("ok",false),"request_id":request.get("request_id",""),"snapshot_id":request.get("snapshot_id",""),"scope":"validate, estimate, freeze, thread launch; not isolated freeze-copy time"})
+	if bool(result.get("ok",false)) and OS.get_thread_caller_id()==OS.get_main_thread_id(): observer.on_snapshot_source(request,world)
 	return result
 
 func _read_snapshot(database: RefCounted, hospital_id: String, snapshot_id: String, sealed: bool = true) -> Dictionary:

@@ -163,17 +163,18 @@ function Pump-Input {
     if(-not (Test-Path -LiteralPath $path)){return}
     try{$request=Get-Content -LiteralPath $path -Raw|ConvertFrom-Json -AsHashtable}catch{return}
     if($request.status -ne 'armed' -or -not $request.id -or -not $inputRequests.Add([string]$request.id)){return}
-    $before=Qpc;$ok=$true;$failure=$null
+    $before=Qpc;$ok=$true;$failure=$null;$actualFields=@()
     try {
         if($request.pid -ne $game.process.Id){throw 'Input request PID is not the owned game.'}
         if(-not $request.fields -or $request.fields.Count -gt 8){throw 'Expected 1..8 bounded input fields.'}
         foreach($field in $request.fields){
-            if($field.screen_point.Count -ne 2){throw 'Physical screen point must have two coordinates.'}
-            [HospitalInput]::Click($game.process.Id,[int]$field.screen_point[0],[int]$field.screen_point[1])
+            if($field.client_point.Count -ne 2){throw 'Physical client point must have two coordinates.'}
+            $screenPoint=[HospitalInput]::ClickClient($game.process.Id,[int]$field.client_point[0],[int]$field.client_point[1])
+            $actualFields+=@{name=$field.name;client_point=$field.client_point;screen_point=$screenPoint}
             [HospitalInput]::ReplaceText($game.process.Id,[string]$field.text)
         }
     } catch {$ok=$false;$failure=$_.Exception.Message}
-    $ack=@{id=$request.id;ok=$ok;error=$failure;pid=$game.process.Id;send_begin_qpc=$before;send_end_qpc=(Qpc);qpc_frequency=$frequency;source='Windows SendInput; foreground owned PID and physical client bounds checked'}
+    $ack=@{id=$request.id;ok=$ok;error=$failure;pid=$game.process.Id;send_begin_qpc=$before;send_end_qpc=(Qpc);qpc_frequency=$frequency;actual_fields=$actualFields;source='Windows ClientToScreen and SendInput; foreground owned PID and physical client bounds checked'}
     $next=Join-Path $outputRoot 'input-ack.json.next';Save-Json $next $ack
     [IO.File]::Move($next,(Join-Path $outputRoot 'input-ack.json'),$true)
     $anchors.WriteLine((@{kind='input_ack';details=$ack}|ConvertTo-Json -Depth 8 -Compress));$anchors.Flush()

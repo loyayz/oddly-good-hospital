@@ -115,6 +115,63 @@ D1/D3只有同屏真实绑定人物至少576且该独立密集段样本充分时
 
 当前普通采集门仍要求实际正人口、32完整步骤、真实有进度的Session、绑定就绪和实际速度。5F施工可能跨日；若完工输入没有实际Session，输入可合法生成，但普通采集无法进入捕获。必须保留这一证据缺口。独立预览门需原AppRoot/视图/建造面板启动、内容和世界验证、原拥有楼层选择、真实完整边界及绑定就绪、外部OS输入与原完整结果/实际显示端点，不应伪造 `warmup_work_seen` 或Session。本目录没有修改其他工具以绕过该门。
 
+四组预览各展开21个独立 `preview_input`：最大成功、最大完整失败、第五层最大成功和 `PREVIEWNORMAL` 的8×8普通尺寸。普通尺寸沿原tall640空2F和相同原UI操作，保留全院640人来源；其100ms目标来自`performance_targets.metrics.input_preview_p95_ms`，最大房间的200ms目标来自`room_preview_p95_ms`，不混用。
+
+每次先由原控件准备其他字段，将被测height置4，再等待外部Windows真实输入将它改为目标8或95；原完整反馈及匹配ACK返回后执行原cancel。重复值不是未发生编辑，控件的实际初值与目标必须不同。每次拥有独立operation ID、OS输入QPC、原草案generation及完整结果，不能把同一结果逐帧重复计数。外部实际显示端点、完整请求数量和最近秩统计仍须由采集产物证明，配置中21不等于21个成功样本。
+
+`BuildPreview.cancel()`确实清除pending/current/result/job及完整边界token，因此所有这些请求都是新的冷job；它不清除原空间几何、导航、内容和图形的全部进程缓存。首个进程内被测请求单独标为`first_process_request`，后20个为`later_process_reuse_job_cold`。原driver在OS编辑之前已准备初始尺寸的预览，因此首个被测请求也不能称为“从未执行过预览代码的进程冷启动”。报告分别保留首个请求原始延迟、后续20个请求和全部冷job；首个请求超标不能由后续较快请求稀释，单个首请求不构成进程首次请求的P95分布。如需该分布，使用独立进程窗口，不拼接成一个伪冷样本集。
+
+## 额外正式场景
+
+`extra_scenarios.json`与`Expand-Extra-Scenarios.ps1`只使用原可执行操作接口，不写世界事实。每组仍取得原`capture.minimum_frame_samples`与`minimum_step_samples`，当前分别为1000帧和1000个真实完整步；预览、载入或日界配置不降低正常经营暖机门，也不把暂停切片或pending轮询当作完整步。
+
+| 组 | 原始来源 | 操作与证据责任 |
+| --- | --- | --- |
+| STABILITY | operation / stability_a、stability_b | 连续两现实小时、八次原房间旋转、四次原切院及原180秒自动保存。返回使用最新原检查点，不固定回初始seed。 |
+| PREVIEW85、PREVIEW96FAIL | base / tall640 | 分别完成85×95成功和96×95真实井道失败，逐次真实OS输入、取消及显示端点。 |
+| PREVIEW96UPPER | operation / maximum_upper | 九份原施工订单形成的空5F，完成96×95成功；实际生成人口和正常暖机门单独核验。 |
+| PREVIEWNORMAL | base / tall640 | 原空2F的8×8普通尺寸输入，单独适用100ms目标。 |
+| HISTORY64、HISTORY128 | history / 对应history输出 | 暂停于原完整边界，真实保存、原Library.create独立320医院、原switch载入并返回前次手动保存的明确snapshot_id，再按原接口恢复速度。记录额外副本、候选/旧世界重叠、工作集与实际分配峰值。 |
+| CLINICALSAVE | boundary / clinical_midstep | 暖机后确认同一个真实未完成Session，暂停、保存、切至原320医院，再按该保存回执的snapshot_id返回并继续原工作。核验命名Session、Visit、全部Attempt、票及资源承诺。 |
+| DAYBOUNDARY | boundary / day_boundary_before | 在manifest指明的真实执行tick观察唯一原日计划提交及完整步；等待时间留在原步中。 |
+| DAYPAUSE、DAYSAVE | boundary / day_boundary_before的独立恢复 | 分别只在实际step_in_progress时发原暂停/保存意图。没有真实pending即失败，不能把普通日界完成当等待覆盖。 |
+| RESOURCES160 | base / 160four | 原view.bind重建、原navigation._trim(0)、实际32步后继业务和冷暖观察。原退场代、加载代、实际显示及到达/收费/预约所有权核验另有证据。 |
+
+临床输入的manifest.witness填入组根及save的`required_session`，指定源身份而非冻结预热前剩余工时；保存前须仍为同一id/visit/facility且真实in-progress。原观察器在保存时读取当前完整边界的冻结承诺，以实际snapshot_id记录，原loader成功后、新Simulation建立前核验。跨院时仅对所属原医院应用命名Session条件，不借同名ID串用另一医院事实。`verify_snapshot_witness:true`要求真实载入快照存在来源见证且相等，字段本身不是通过证明。
+
+大历史和临床返回操作的`snapshot_operation_id`引用本场已完成的手动save操作ID，由driver从其真实成功保存receipt提取明确snapshot_id；展开器不伪造该运行时身份。稳定性没有该字段，沿最新原检查点返回。源快照的规范JSON完整hash验证继续由原loader执行，完整facts/RNG往返相等由另一次已暂停完整边界正确性对照验证；低成本tick/RNG/命名承诺见证不冒充全世界逐字段比较。定时保存、切院及观察器成本仍进入帧和资源采集。
+
+三个日界场景使用同一合法命名输入的独立进程恢复。展开器读取原manifest的`target_executed_tick`、`target_completed_tick`、`target_day_index`及64tick预留，保留32真实步暖机要求；如果实际暖机越过目标，运行必须失败。`require_pending:true`只接受原等待事实，不能为得到暂停或保存样本关闭后台任务、插入延迟、清空计划、改时钟或伪造pending。日计划提交、暂停和保存三项责任分别记录，不以其中一项代替另外两项。
+
+RESOURCES160使用原view_rebind进行完整当前视图重建，不能称为不存在的“窄范围驱逐仍被引用的活动模型”。navigation_evict只调用原_trim(0)，不清活动路线、事实预约、版本或请求队列。32后继完整步只证明真实继续推进，实际路线到达、安全交接、收费及承诺不变仍须对应观察或独立正确性断言；缓存allowance记账不是分配或驻留证据。冷重建成本保留在普通捕获窗口，不重新标为暖机。
+
+### 原报告格式与目录
+
+展开器按`source_kind`选择目录，不根据文件名猜测另一种manifest：
+
+| source_kind | 默认目录 | 原报告格式与身份校验 |
+| --- | --- | --- |
+| base | BaseInputDirectory，缺省InputDirectory | `<id>.manifest.json`；ok、完整原对象保留、实际人口/布局、hospital_id、content_fingerprint和input_sha256。 |
+| operation | InputDirectory | `<id>.manifest.json`；另验证原base源hash、UUID和内容相同，以及真实旋转预检或九份施工订单/完整最大报价。 |
+| boundary | BoundaryInputDirectory，缺省base目录 | `<id>.input.bin.manifest.json`；不是base格式，按mode、原source_sha256、实际population、Session witness或日界目标读取；layout由已核同源base契约取得，运行仍独立验证二进制完整事实。 |
+| history | HistoryInputDirectory，缺省base目录 | 直接读取原`history-generation.json.outputs`中唯一对应target_mib成功项；该原格式没有ok、input_sha256或hospital_id，不能伪造同名manifest替代。 |
+
+历史校验同时核对原report.source_sha256与成功160four源、相同内容指纹、original_facts_and_rng_preserved、空validation、活动及在院计数。逐文件核对原binary SHA/长度、规范world JSON SHA/实际长度及至少64/128MiB；原UUID和患者/员工/家属组成来自已验证且原事实未变的base manifest，出处写入配置。历史Actor/Visit不计为在院负载。原始报告路径和entry保留为证据，输出的配置归一化字段不是新的准备成功manifest。正式消费者仍独立校验UUID、内容和完整世界，不能仅信配置人口。
+
+```powershell
+# 在PowerShell 7会话执行；各目录可不同，只选择当前已生成并成功核验的正式组。
+& ./tools/performance/acceptance/fixtures/Expand-Extra-Scenarios.ps1 `
+  -InputDirectory C:/evidence/operation-inputs `
+  -BaseInputDirectory C:/evidence/formal-inputs `
+  -BoundaryInputDirectory C:/evidence/named-boundaries `
+  -HistoryInputDirectory C:/evidence/legal-history `
+  -ScenarioDirectory C:/evidence/extra-scenarios-new `
+  -EvidenceDirectory C:/evidence/formal-captures `
+  -GroupId @('HISTORY64','HISTORY128','CLINICALSAVE','DAYBOUNDARY','DAYPAUSE','DAYSAVE','RESOURCES160')
+```
+
+从现有PowerShell会话调用脚本时，`-GroupId`使用数组；通过`pwsh -File`启动时只传一个组，或省略该参数展开全部12组，避免原生参数传递把逗号字面量当一个ID。展开成功只表示原输入与配置引用通过静态/哈希校验；不运行游戏、构建或采集。目标配置与extra-index已存在时拒绝覆盖；所有选定来源先验证完成再输出，不把残留或缺报告输入当作可执行成功场景。完整Release同源身份、实际运行结果、样本、显示端点、冻结承诺、资源和阈值判定仍分别记录。
+
 ### 最短操作命令
 
 ```powershell

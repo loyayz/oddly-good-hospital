@@ -19,6 +19,7 @@ public static class HospitalInput {
     [DllImport("user32.dll")] private static extern uint GetWindowThreadProcessId(IntPtr window,out uint process);
     [DllImport("user32.dll",SetLastError=true)] private static extern bool GetClientRect(IntPtr window,out Rect rect);
     [DllImport("user32.dll",SetLastError=true)] private static extern bool ScreenToClient(IntPtr window,ref Point point);
+    [DllImport("user32.dll",SetLastError=true)] private static extern bool ClientToScreen(IntPtr window,ref Point point);
     [DllImport("user32.dll",SetLastError=true)] private static extern bool SetCursorPos(int x,int y);
     [DllImport("user32.dll",SetLastError=true)] private static extern uint SendInput(uint count,Input[] inputs,int size);
     [DllImport("user32.dll")] private static extern IntPtr SetThreadDpiAwarenessContext(IntPtr context);
@@ -48,6 +49,18 @@ public static class HospitalInput {
             if(!SetCursorPos(physicalX,physicalY)) throw new Win32Exception(Marshal.GetLastWin32Error());
             Input down=new Input(),up=new Input(); down.Data.Mouse.Flags=2; up.Data.Mouse.Flags=4;
             Send(pid,new[]{down,up});
+        } finally { if(previous!=IntPtr.Zero) SetThreadDpiAwarenessContext(previous); }
+    }
+    public static int[] ClickClient(int pid,int clientX,int clientY) {
+        IntPtr previous=SetThreadDpiAwarenessContext(new IntPtr(-4));
+        try {
+            IntPtr window=Owned(pid); Rect rect; Point point=new Point{X=clientX,Y=clientY};
+            if(!GetClientRect(window,out rect)) throw new Win32Exception(Marshal.GetLastWin32Error());
+            if(point.X<rect.Left || point.X>=rect.Right || point.Y<rect.Top || point.Y>=rect.Bottom)
+                throw new InvalidOperationException("Input point is outside the owned game's physical client rectangle.");
+            if(!ClientToScreen(window,ref point)) throw new Win32Exception(Marshal.GetLastWin32Error());
+            Click(pid,point.X,point.Y);
+            return new[]{point.X,point.Y};
         } finally { if(previous!=IntPtr.Zero) SetThreadDpiAwarenessContext(previous); }
     }
     public static void ReplaceText(int pid,string text) {

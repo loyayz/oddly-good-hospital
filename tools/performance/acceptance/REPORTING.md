@@ -26,7 +26,7 @@ clock_sample实际执行native QPC→engine_us→native QPC。对历史engine端
 
 OS窗口观测工作集/私有提交、实际轮询间隔、进程生命周期内核峰值分别报告。窗口后同PID的内核生命周期峰值覆盖窗口内的瞬时工作集/提交峰值，能提供上界；它不能改名为窗口局部精确峰值。生命周期峰值超目标而窗口轮询未超时，需定位峰值归属，不能直接说该窗口失败或忽略它。
 
-图形证据不会由PID总计或payload推导。`allocation-ledger.json`的schema2区分已观测身份、完整资格、正式窗口和OS内存视图。`gpu-ledger.py`只有在原始来源、完整rawQPC、目标生命周期、全进程别名事件族、保存的schema、实际Present窗口、全部目标大小、无身份缺口、无歧义backing及未释放分配保留均成立时，才给出全局分配extent的保守上界资格。目标adapter上缺少目标alias/backing关联的PID0/PID4/未知来源global单列为未归属kernel范围，不能默认成本为0；其完整extent峰上界与目标图峰上界相加作为更保守的backend界。任一未知大小或边界缺失继续incomplete。未知flag不用于排除分配，页表同样计入；同一adapter/global/lifetime的进程/设备别名只算一次，其他global之间的物理页不声称互不重叠。该上界≤预算可证明资源在目标内；上界超过预算不能据此断言精确物理驻留超标。物理驻留值继续为null，不把分配、backing、commitment、usage、工作集相加。
+图形证据不会由PID总计或payload推导。`allocation-ledger.json`的schema2区分已观测身份、完整资格、正式窗口和OS内存视图。`gpu-ledger.py`只有在原始来源、完整rawQPC、目标生命周期、全进程别名事件族、保存的schema、实际Present窗口、全部目标大小、无身份缺口、无歧义backing及未释放分配保留均成立时，才给出全局分配extent的保守上界资格。完整范围有两条资格路径：全部全局对象已通过实际创建device/PID桥、target别名、backing和所有权生命周期完成归属时，使用完整目标图的上界；其余同适配器对象没有明确外国device桥时保留在未归属范围，可选用目标图上界加未归属extent上界的更宽保守界。外国creator PID、PID4、页表或未知flag本身都不能排除对象。后一条是可选fallback，不把整适配器未知对象默认为目标实际分配；owner桥已闭合的路径不强制该fallback。所选路径有未知大小或边界缺失时继续incomplete。未知flag不用于排除分配，页表同样计入；同一adapter/global/lifetime的进程/设备别名只算一次，其他global之间的物理页不声称互不重叠。完整上界≤预算且同窗口OS佐证齐全时可通过；已证明同一正式窗口内目标实际分配下界>预算时判分配失败；只有偏大的保守上界且没有有效目标下界时保持incomplete，不能判实际分配或物理驻留超标。下界必须有目标范围、去重身份、真实extent大小与同时存在的独立资格，adapter-wide界不能充当下界。物理驻留值继续为null，不把分配、backing、commitment、usage、工作集相加。
 
 `analyze.py`重新核对原ETL、decode/schema/capture哈希、进程启动身份、QPC及全部资格字段，并要求每个目标adapter/physical-adapter内存域都有同窗口连续usage视图。该OS视图按LUID、physical-adapter、memory-segment-group报告，跨GPU engine node统计，不冒充逐engine-node物理驻留。仅有commitment或另一个适配器的usage不满足该条件。旧场次没有正式窗口时继续incomplete，已知序列峰值不参与512MiB结论。
 

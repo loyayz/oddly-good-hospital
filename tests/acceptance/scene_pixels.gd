@@ -40,12 +40,18 @@ func run(t, _content: HospitalContent) -> void:
 			var origin: Vector2 = transform*Vector2.ZERO
 			var width: float = origin.distance_to(transform*Vector2(control.size.x,0))
 			var height: float = origin.distance_to(transform*Vector2(0,control.size.y))
-			var expected: Vector2i = Vector2i(ceili(width),ceili(height))
-			valid = valid and app._viewport.size==expected and window.content_scale_mode==Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+			valid = valid and window.content_scale_mode==Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 			if dimensions.x==2560:
 				valid = valid and not is_equal_approx(window.get_stretch_transform().x.length(),1.0)
 			for scale: float in [1.0,0.75,0.6667]:
 				app._viewport.scaling_3d_scale = scale
+				app._sync_scene_pixels()
+				var expected: Vector2i = app._viewport.size
+				var actual_scale: float = app._viewport.scaling_3d_scale
+				var intended: Vector2i = Vector2i(roundi(width*actual_scale/2.0)*2,roundi(height*actual_scale/2.0)*2)
+				var product: PackedFloat32Array = PackedFloat32Array([float(expected.x)*actual_scale,float(expected.y)*actual_scale])
+				var internal: Vector2i = Vector2i(floori(product[0]),floori(product[1]))
+				valid = valid and absf(float(expected.x)-width)<3.001 and absf(float(expected.y)-height)<3.001 and internal==intended
 				app._view.overview()
 				var bounds: AABB = app._view._floor_bounds()
 				var safe: bool = true
@@ -68,7 +74,7 @@ func run(t, _content: HospitalContent) -> void:
 				var pan_ok: bool = app._view.camera.position.is_equal_approx(camera+offset)
 				valid = valid and safe and recovered==cell and pan_ok and is_equal_approx(app._viewport.scaling_3d_scale,scale)
 				valid = valid and app._world_container.texture==texture and app._viewport.get_viewport_rid()==viewport_rid
-				observations.append({"window":dimensions,"parent_canvas_scale":app.scale,"window_stretch":window.get_stretch_transform(),"embedded_subwindows":window.gui_embed_subwindows,"ui":ui,"scene_scale":scale,"control_physical_extent":Vector2(width,height),"viewport":app._viewport.size,"overview_safe":safe,"picked_cell":recovered,"pan":pan_ok})
+				observations.append({"window":dimensions,"parent_canvas_scale":app.scale,"window_stretch":window.get_stretch_transform(),"embedded_subwindows":window.gui_embed_subwindows,"ui":ui,"scene_scale":scale,"control_physical_extent":Vector2(width,height),"viewport":app._viewport.size,"predicted_float32_internal":internal,"nearest_even_internal":intended,"overview_safe":safe,"picked_cell":recovered,"pan":pan_ok})
 	window.size = original_size
 	window.content_scale_size = original_scale_size
 	window.content_scale_mode = original_scale_mode
