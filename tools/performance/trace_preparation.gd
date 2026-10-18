@@ -219,7 +219,7 @@ class TracedArrivalService extends HospitalArrivalService:
 		var result: Dictionary = _traced_structural_pairs(world,classes,shift)
 		structural_tracing = false
 		var fields: Dictionary = {"binding":"","pairs":result.get("pairs",0),"error":str(result.get("error",""))}
-		for key: String in ["terminals","structure_encoding","structural_nodes","structural_slots","structural_variables","structural_constraints","structural_input_cases","structural_input_bases","structural_input_group_parts","structural_alternatives_before","structural_alternatives_after","structural_dominated_alternatives","structural_interned_nodes","structural_flat_attempt_us","structural_presolve_us","structural_assembly_us","structural_solve_us","structural_subset_proof_pairs"]:
+		for key: String in ["terminals","structure_encoding","structural_nodes","structural_original_slots","structural_slots","structural_variables","structural_constraints","structural_input_cases","structural_input_bases","structural_input_group_parts","structural_alternatives_before","structural_alternatives_after","structural_dominated_alternatives","structural_interned_nodes","structural_flat_attempt_us","structural_presolve_us","structural_assembly_us","structural_solve_us","structural_subset_proof_pairs","structural_certificate_status","structural_certificate_us","structural_staff_resources","structural_staff_minimum","structural_certificate_upper","structural_certificate_lower","structural_reception_matching"]:
 			if result.has(key): fields[key] = result[key]
 		trace.emit("structural_pairs","return",fields,null,self,space)
 		return result

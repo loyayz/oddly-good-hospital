@@ -36,11 +36,30 @@ func run_case(t, _database: HospitalContent) -> void:
 	invalid[0].bundles[0].structural_choices = ["missing"]
 	var rejected: Dictionary = _solve(invalid,reception)
 	var recovered: Dictionary = _solve(simple,reception)
+	var four: Array = []
+	for index: int in 4: four.append(_case("a"+str(index),[index],false))
+	var certificate: Dictionary = _solve(four,{"people":{"staff:r":true},"desks":{"facility:d":true},"ratio":6})
+	# Greedy first chooses {a,b}, which blocks both members of the optimal
+	# {a,c}+{b,d} packing. The bound stays two and the full MILP must recover it.
+	var trap: Dictionary = _solve([_fixed(["staff:a","staff:b"]),_fixed(["staff:a","staff:c"]),_fixed(["staff:b","staff:d"])],reception)
+	var repeated: Dictionary = _fixed(["staff:a"])
+	repeated.bundles[0].structural_choices = ["same"]
+	repeated.choice_groups = {"same":[{"structural_resources":["staff:a"]}]}
+	var same_doctor: Dictionary = _solve([repeated],reception)
+	# A conservative joint witness cannot reuse its clinical person as the
+	# receptionist. Failure to certify retains the original separate-R API.
+	var reception_overlap: Dictionary = _solve([_fixed(["staff:r"])],reception)
 	var valid: bool = complete.get("pairs")==2 and complete.get("structure_encoding")=="implicit" and int(complete.get("structural_dominated_alternatives",0))>=2 and int(complete.get("structural_nodes",0))<int(complete.get("structural_interned_nodes",0))
 	valid = valid and partial_result.get("pairs")==2 and ward_result.get("pairs")==2 and nurse_result.get("pairs")==2
 	valid = valid and same.get("pairs")==1 and reversed.get("pairs")==1 and int(same.get("structural_alternatives_after",0))>=1 and int(same.get("structural_dominated_alternatives",0))>=1
 	valid = valid and nonempty.get("pairs")==2 and rejected.has("error") and recovered.get("pairs")==2
-	t.check("GROW-82",valid,{"complete":complete,"partial_OR":partial_result,"wards":ward_result,"nurses":nurse_result,"equal_languages":same,"reversed":reversed,"nonempty":nonempty,"rejected":rejected,"recovered":recovered})
+	valid = valid and certificate.get("pairs")==4 and certificate.get("structural_certificate_status")=="optimal" and certificate.get("structural_staff_minimum")==2 and certificate.get("structural_variables")==0 and int(certificate.get("structural_slots",0))<int(certificate.get("structural_original_slots",0))
+	valid = valid and trap.get("pairs")==2 and trap.get("structural_certificate_status")=="fallback" and trap.get("structural_certificate_upper")==2 and trap.get("structural_slots")==2 and int(trap.get("structural_variables",0))>0
+	valid = valid and same_doctor.get("pairs")==1 and same_doctor.get("structural_staff_minimum")==1 and reception_overlap.get("pairs")==1 and reception_overlap.get("structural_certificate_status")=="fallback" and reception_overlap.get("structural_certificate_lower")==0
+	t.check("GROW-82",valid,{"complete":complete,"partial_OR":partial_result,"wards":ward_result,"nurses":nurse_result,"equal_languages":same,"reversed":reversed,"nonempty":nonempty,"rejected":rejected,"recovered":recovered,"certificate":certificate,"greedy_trap":trap,"same_doctor":same_doctor,"reception_overlap":reception_overlap})
+
+func _fixed(resources: Array) -> Dictionary:
+	return {"bundles":[{"structural_resources":resources}],"reception_bundles":[{"resources":{"staff:r":F.make(1),"facility:d":F.make(1)}}]}
 
 func _case(terminal: String, gp: Array, complex_path: bool, nurse: String = "", ward: String = "") -> Dictionary:
 	var root: Dictionary = {"structural_resources":["staff:"+terminal] if not terminal.is_empty() else [],"structural_choices":["gp"]}

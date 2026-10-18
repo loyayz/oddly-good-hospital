@@ -708,6 +708,166 @@ struct StructuralGraph {
         return result;
     }
 };
+
+struct StructuralCertificate {
+    size_t staff = 0, minimum = 0, upper = 0, lower = 0, matching = 0;
+    std::vector<size_t> root_minimum;
+    bool exact = false;
+};
+StructuralCertificate structural_certificate(const StructuralGraph& graph, const std::vector<std::pair<Pattern, int>>& roots,
+        const std::set<std::string>& blocked, const std::set<std::pair<std::string, std::string>>& reception,
+        size_t ratio, size_t bed_limit, size_t original_upper) {
+    // A graph resource is exclusive between complete groups. Coverage nurses
+    // are deliberately absent here: one nurse may cover several same-ward beds.
+    using Names = std::set<std::string>;
+    struct Bound { Names possible, required; size_t minimum = 0; bool feasible = true; };
+    StructuralCertificate result;
+    Names staff;
+    for (const auto& node : graph.nodes) for (const auto& name : node.resources)
+        if (name.compare(0, 6, "staff:") == 0) staff.insert(name);
+    result.staff = staff.size(); result.upper = original_upper;
+    std::vector<Bound> bounds(graph.nodes.size());
+    // Interning is bottom-up: every child already exists before its parent.
+    for (size_t id = 0; id < graph.nodes.size(); ++id) {
+        const auto& node = graph.nodes[id]; auto& bound = bounds[id]; Names own;
+        for (const auto& name : node.resources) {
+            if (blocked.count(name)) bound.feasible = false;
+            if (staff.count(name)) own.insert(name);
+        }
+        bound.possible = bound.required = own; bound.minimum = own.size();
+        if (node.choice) {
+            bool first = true; size_t minimum = staff.size() + 1; Names required;
+            for (int child : node.children) if (bounds[child].feasible) {
+                const auto& next = bounds[child];
+                bound.possible.insert(next.possible.begin(), next.possible.end());
+                if (first) required = next.required;
+                else { Names common; std::set_intersection(required.begin(), required.end(), next.required.begin(), next.required.end(), std::inserter(common, common.end())); required = std::move(common); }
+                size_t overlap = 0; for (const auto& name : own) overlap += next.possible.count(name);
+                minimum = std::min(minimum, own.size() + (next.minimum > overlap ? next.minimum - overlap : 0));
+                first = false;
+            }
+            if (first) bound.feasible = false; // Empty OR has no complete path.
+            else { bound.required.insert(required.begin(), required.end()); bound.minimum = std::max(minimum, bound.required.size()); }
+        } else {
+            Names disjoint = own; size_t sum = own.size();
+            for (int child : node.children) {
+                const auto& next = bounds[child];
+                bound.feasible = bound.feasible && next.feasible;
+                bound.possible.insert(next.possible.begin(), next.possible.end());
+                bound.required.insert(next.required.begin(), next.required.end());
+                bound.minimum = std::max(bound.minimum, next.minimum);
+                bool separate = true; for (const auto& name : next.possible) if (disjoint.count(name)) { separate = false; break; }
+                if (separate) { sum += next.minimum; disjoint.insert(next.possible.begin(), next.possible.end()); }
+            }
+            // Only disjoint possible supports add. Repeated stages or a shared
+            // OR can never count the same doctor twice in this lower bound.
+            bound.minimum = std::max(bound.minimum, std::max(sum, bound.required.size()));
+        }
+    }
+    bool feasible = false; result.minimum = staff.size() + 1;
+    for (const auto& root : roots) {
+        const auto& bound = bounds[root.second];
+        result.root_minimum.push_back(bound.feasible ? bound.minimum : 0);
+        if (bound.feasible) { feasible = true; result.minimum = std::min(result.minimum, bound.minimum); }
+    }
+    if (!feasible) { result.minimum = 0; result.upper = 0; }
+    else if (result.minimum) result.upper = std::min(result.upper, staff.size() / result.minimum);
+
+    auto matching = [&](const Names& unavailable) {
+        std::map<std::string, std::vector<std::string>> edges;
+        for (const auto& edge : reception) if (!unavailable.count(edge.first) && !unavailable.count(edge.second)) edges[edge.first].push_back(edge.second);
+        std::map<std::string, std::string> owners;
+        std::function<bool(const std::string&, Names&)> augment = [&](const std::string& person, Names& seen) {
+            for (const auto& desk : edges[person]) if (seen.insert(desk).second) {
+                auto prior = owners.find(desk);
+                if (prior == owners.end() || augment(prior->second, seen)) { owners[desk] = person; return true; }
+            }
+            return false;
+        };
+        for (const auto& person : edges) { Names seen; augment(person.first, seen); }
+        return owners.size();
+    };
+    result.matching = matching(blocked);
+    result.upper = std::min(result.upper, ratio * result.matching);
+
+    struct Witness { size_t root; Names resources; std::map<int, int> choices; };
+    std::vector<Witness> witnesses;
+    Names occupied = blocked;
+    std::map<std::string, std::pair<std::string, size_t>> covered;
+    bool progress = true;
+    while (witnesses.size() < result.upper && progress) {
+        progress = false;
+        for (size_t root = 0; root < roots.size() && witnesses.size() < result.upper; ++root) {
+            if (!bounds[roots[root].second].feasible) continue;
+            Witness witness{root, {}, {}}; std::set<int> done;
+            std::function<bool(int, Witness&, std::set<int>&)> choose = [&](int id, Witness& path, std::set<int>& visited) {
+                if (visited.count(id)) return true;
+                const auto& node = graph.nodes[id];
+                for (const auto& name : node.resources) if (occupied.count(name)) return false;
+                path.resources.insert(node.resources.begin(), node.resources.end());
+                if (node.choice) {
+                    auto prior = path.choices.find(id);
+                    if (prior != path.choices.end()) { if (!choose(prior->second, path, visited)) return false; }
+                    else {
+                        bool found = false;
+                        for (int child : node.children) {
+                            Witness attempt = path; auto completed = visited; attempt.choices[id] = child;
+                            if (choose(child, attempt, completed)) { path = std::move(attempt); visited = std::move(completed); found = true; break; }
+                        }
+                        if (!found) return false;
+                    }
+                } else for (int child : node.children) if (!choose(child, path, visited)) return false;
+                visited.insert(id); return true;
+            };
+            if (!choose(roots[root].second, witness, done) || witness.resources.empty()) continue;
+            const auto& pattern = roots[root].first; const auto& nurse = std::get<1>(pattern); const auto& ward = std::get<2>(pattern);
+            if (!nurse.empty()) {
+                const std::string token = "staff:" + nurse; auto prior = covered.find(nurse);
+                if (ward.empty() || blocked.count(token) || witness.resources.count(token)) continue;
+                if (prior == covered.end()) { if (occupied.count(token)) continue; }
+                else if (prior->second.first != ward || prior->second.second >= bed_limit) continue;
+            }
+            occupied.insert(witness.resources.begin(), witness.resources.end());
+            if (!nurse.empty()) { auto& entry = covered[nurse]; entry.first = ward; ++entry.second; occupied.insert("staff:" + nurse); }
+            witnesses.push_back(std::move(witness)); progress = true;
+        }
+    }
+    // Independently reconstruct and validate complete witnesses. A greedy
+    // miss, a shared-choice inconsistency or insufficient joint reception
+    // yields no certificate; the original complete MILP remains the fallback.
+    Names used = blocked; std::map<std::string, std::pair<std::string, size_t>> wards;
+    bool valid = true;
+    for (const auto& witness : witnesses) {
+        Names resources; std::set<int> visited; std::vector<int> pending{roots[witness.root].second};
+        while (!pending.empty() && valid) {
+            int id = pending.back(); pending.pop_back(); if (!visited.insert(id).second) continue;
+            const auto& node = graph.nodes[id]; resources.insert(node.resources.begin(), node.resources.end());
+            if (node.choice) {
+                auto choice = witness.choices.find(id);
+                if (choice == witness.choices.end() || std::find(node.children.begin(), node.children.end(), choice->second) == node.children.end()) valid = false;
+                else pending.push_back(choice->second);
+            } else pending.insert(pending.end(), node.children.begin(), node.children.end());
+        }
+        if (resources.empty() || resources != witness.resources) valid = false;
+        for (const auto& name : resources) if (used.count(name)) valid = false;
+        used.insert(resources.begin(), resources.end());
+        const auto& pattern = roots[witness.root].first; const auto& nurse = std::get<1>(pattern); const auto& ward = std::get<2>(pattern);
+        if (!nurse.empty()) {
+            const auto token = "staff:" + nurse; auto prior = wards.find(nurse);
+            if (ward.empty() || used.count(token)) valid = false;
+            if (prior != wards.end() && (prior->second.first != ward || prior->second.second >= bed_limit)) valid = false;
+            auto& entry = wards[nurse]; entry.first = ward; ++entry.second;
+        }
+    }
+    for (const auto& entry : wards) {
+        if (used.count("staff:" + entry.first)) valid = false;
+        used.insert("staff:" + entry.first);
+    }
+    const size_t joint_matching = matching(used);
+    if (valid && witnesses.size() <= ratio * joint_matching) result.lower = witnesses.size();
+    result.exact = valid && result.lower == result.upper;
+    return result;
+}
 V structure_graph(const V& raw_cases, const V& raw_blocked, const V& raw_reception, int64_t bed_limit, int64_t flat_attempt_us) {
     const int64_t started = micros();
     if (bed_limit < 1 || bed_limit > INT32_MAX) throw std::runtime_error("无效的病房覆盖上限");
@@ -799,6 +959,41 @@ V structure_graph(const V& raw_cases, const V& raw_blocked, const V& raw_recepti
     std::set<std::string> reception_people, reception_desks;
     for (const auto& edge : reception_edges) { reception_people.insert(edge.first); reception_desks.insert(edge.second); }
     slots = std::min(slots, std::min(reception_people.size(), reception_desks.size()) * static_cast<size_t>(ratio));
+    const size_t original_slots = slots;
+    const int64_t certificate_started = micros();
+    const auto certificate = structural_certificate(graph, roots, blocked_ids, reception_edges, static_cast<size_t>(ratio), static_cast<size_t>(bed_limit), slots);
+    const int64_t certificate_us = micros() - certificate_started;
+    // This is a proved upper bound over every complete legal path, not a
+    // candidate cap. A failed greedy certificate still solves the full graph.
+    slots = std::min(slots, certificate.upper);
+    result.set("structural_input_cases", V::number(cases.size())); result.set("structural_input_bases", V::number(input_bases));
+    result.set("structural_input_group_parts", V::number(input_group_parts));
+    result.set("structural_alternatives_before", V::number(alternatives_before)); result.set("structural_alternatives_after", V::number(alternatives_after));
+    result.set("structural_dominated_alternatives", V::number(alternatives_before - alternatives_after));
+    result.set("structural_interned_nodes", V::number(graph.nodes.size())); result.set("structural_nodes", V::number(reachable.size()));
+    result.set("structural_original_slots", V::number(original_slots)); result.set("structural_slots", V::number(slots));
+    result.set("structural_flat_attempt_us", V::number(flat_attempt_us)); result.set("structural_presolve_us", V::number(presolve_us));
+    result.set("structural_subset_proof_pairs", V::number(proof_pairs)); result.set("structural_certificate_us", V::number(certificate_us));
+    result.set("structural_staff_resources", V::number(certificate.staff)); result.set("structural_staff_minimum", V::number(certificate.minimum));
+    result.set("structural_certificate_upper", V::number(certificate.upper)); result.set("structural_certificate_lower", V::number(certificate.lower));
+    result.set("structural_reception_matching", V::number(certificate.matching));
+    result.set("structural_certificate_status", V::text(certificate.exact ? "optimal" : "fallback"));
+    A root_minimum; for (size_t minimum : certificate.root_minimum) root_minimum.append(V::number(minimum));
+    result.set("structural_root_staff_minimum", root_minimum.value());
+    const char* diagnostic = std::getenv("OGH_CAPACITY_DIAGNOSTIC");
+    if (diagnostic && std::string(diagnostic) == "1") {
+        std::fprintf(stderr, "OGH_STRUCTURE_CERTIFICATE={\"staff_resources\":%llu,\"minimum_staff\":%llu,\"upper\":%llu,\"lower\":%llu,\"reception_matching\":%llu,\"original_slots\":%llu,\"slots\":%llu,\"exact\":%s,\"certificate_us\":%lld}\n",
+            static_cast<unsigned long long>(certificate.staff), static_cast<unsigned long long>(certificate.minimum), static_cast<unsigned long long>(certificate.upper),
+            static_cast<unsigned long long>(certificate.lower), static_cast<unsigned long long>(certificate.matching), static_cast<unsigned long long>(original_slots),
+            static_cast<unsigned long long>(slots), certificate.exact ? "true" : "false", static_cast<long long>(certificate_us));
+        std::fflush(stderr);
+    }
+    if (certificate.exact) {
+        result.set("pairs", V::number(certificate.lower)); result.set("terminals", V::number(terminals.size())); result.set("structure_encoding", V::text("implicit"));
+        result.set("structural_variables", V::number(0)); result.set("structural_constraints", V::number(0));
+        result.set("structural_assembly_us", V::number(micros() - started)); result.set("structural_solve_us", V::number(0));
+        return result.value();
+    }
     PackingProgram program;
     std::vector<std::pair<int, int>> previous_order;
     for (size_t slot = 0; slot < slots; ++slot) {
@@ -873,15 +1068,8 @@ V structure_graph(const V& raw_cases, const V& raw_blocked, const V& raw_recepti
     for (const auto& row : reception_matching) program.at_most(row.second, 1);
     program.at_most(std::move(limit), 0);
     const int64_t assembly_us = micros() - started;
-    result.set("structural_input_cases", V::number(cases.size())); result.set("structural_input_bases", V::number(input_bases));
-    result.set("structural_input_group_parts", V::number(input_group_parts));
-    result.set("structural_alternatives_before", V::number(alternatives_before)); result.set("structural_alternatives_after", V::number(alternatives_after));
-    result.set("structural_dominated_alternatives", V::number(alternatives_before - alternatives_after));
-    result.set("structural_interned_nodes", V::number(graph.nodes.size())); result.set("structural_nodes", V::number(reachable.size()));
-    result.set("structural_slots", V::number(slots)); result.set("structural_variables", V::number(program.variables.size())); result.set("structural_constraints", V::number(program.rows.size()));
-    result.set("structural_flat_attempt_us", V::number(flat_attempt_us)); result.set("structural_presolve_us", V::number(presolve_us)); result.set("structural_assembly_us", V::number(assembly_us));
-    result.set("structural_subset_proof_pairs", V::number(proof_pairs));
-    const char* diagnostic = std::getenv("OGH_CAPACITY_DIAGNOSTIC");
+    result.set("structural_variables", V::number(program.variables.size())); result.set("structural_constraints", V::number(program.rows.size()));
+    result.set("structural_assembly_us", V::number(assembly_us));
     if (diagnostic && std::string(diagnostic) == "1") {
         std::fprintf(stderr, "OGH_STRUCTURE_MODEL={\"input_cases\":%lld,\"input_bases\":%lld,\"input_group_parts\":%lld,\"terminal_patterns\":%llu,\"alternatives_before\":%lld,\"alternatives_after\":%lld,\"dominated\":%lld,\"interned_nodes\":%llu,\"reachable_nodes\":%llu,\"slots\":%llu,\"variables\":%llu,\"constraints\":%llu,\"flat_attempt_us\":%lld,\"presolve_us\":%lld,\"assembly_us\":%lld}\n",
             static_cast<long long>(cases.size()), static_cast<long long>(input_bases), static_cast<long long>(input_group_parts), static_cast<unsigned long long>(terminals.size()),

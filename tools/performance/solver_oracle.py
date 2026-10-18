@@ -244,12 +244,12 @@ for stage in range(3):
             part["structural_choices"] = [f"trigger{stage+1}"]
         trigger["choice_groups"][f"trigger{stage}"].append(part)
 
-def implicit_vector(cases, blocked=None, dominated=0):
+def implicit_vector(cases, blocked=None, dominated=0, reception=None, bed_limit=8, **observations):
     blocked = {**(blocked or {}), "staff:disabled": True}
     cases = [deepcopy(trigger)] + cases
-    reception = {"people": {"staff:r": True}, "desks": {"facility:d": True}, "ratio": 3}
-    packing.append({"index": len(packing), "cases": cases, "blocked": blocked, "reception": reception, "bed_limit": 8,
-                    "expected": structure_optimum(cases, blocked, reception, 8), "expected_encoding": "implicit", "dominated_minimum": dominated})
+    reception = reception or {"people": {"staff:r": True}, "desks": {"facility:d": True}, "ratio": 3}
+    packing.append({"index": len(packing), "cases": cases, "blocked": blocked, "reception": reception, "bed_limit": bed_limit,
+                    "expected": structure_optimum(cases, blocked, reception, bed_limit), "expected_encoding": "implicit", "dominated_minimum": dominated, **observations})
 
 def diagnostic_case(terminal, simple, complex_branch=False, nurse="", ward=""):
     base = {"structural_resources": ["staff:"+terminal] if terminal else [], "structural_choices": ["gp"]}
@@ -281,7 +281,7 @@ shared = {"bundles": [{"structural_resources": ["staff:t0"], "structural_choices
                             "wrap": [{"structural_resources": ["facility:a"], "structural_choices": ["x"]}]}, "reception_bundles": [registration]}
 fixed = {"bundles": [{"structural_resources": ["staff:t0"], "structural_choices": ["all"]}],
          "choice_groups": {"all": [{"structural_resources": ["staff:g0", "staff:g1", "facility:a"]}]}, "reception_bundles": [registration]}
-implicit_vector([shared, fixed], dominated=1)
+implicit_vector([shared, fixed], dominated=1, staff_minimum=2)
 for index in range(32):
     cases = []
     for terminal in ["t0", "t1"]:
@@ -291,6 +291,53 @@ for index in range(32):
             cases.append(diagnostic_case(terminal, choices, nested, nurse, "w"+str(rng.randrange(2)) if nurse else ""))
     blocked = {rng.choice(["staff:g0", "staff:t0", "facility:g1", "facility:s0", "staff:n0"]): True} if index % 3 == 0 else {}
     implicit_vector(cases, blocked)
+
+# Independent full-set enumeration checks the certificate, its deliberately
+# incomplete greedy lower bound, and the unchanged complete MILP fallback.
+def fixed_structure(names, nurse="", ward=""):
+    base = {"structural_resources": names}
+    if nurse:
+        base.update(coverage_nurse_id=nurse, ward_id=ward)
+    return {"bundles": [base], "reception_bundles": [registration]}
+
+four = []
+for i in range(4):
+    case = fixed_structure([f"staff:a{i}"])
+    case["bundles"][0]["structural_choices"] = ["other"]
+    case["choice_groups"] = {"other": [{"structural_resources": [f"staff:b{i}"]}]}
+    four.append(case)
+large_reception = {"people": {"staff:r": True}, "desks": {"facility:d": True}, "ratio": 6}
+implicit_vector(four, reception=large_reception, certificate_status="optimal", staff_minimum=2, certificate_upper=4)
+implicit_vector([fixed_structure(["staff:a", "staff:b"]), fixed_structure(["staff:a", "staff:c"]),
+                 fixed_structure(["staff:b", "staff:d"])], certificate_status="fallback", staff_minimum=2, certificate_upper=2)
+repeated = [fixed_structure(["staff:a"]), fixed_structure(["staff:b"])]
+for case in repeated:
+    case["bundles"][0]["structural_choices"] = ["repeat"]
+    case["choice_groups"] = {"repeat": [{"structural_resources": case["bundles"][0]["structural_resources"]}]}
+implicit_vector(repeated, staff_minimum=1)
+weak = fixed_structure(["staff:a"])
+weak["bundles"][0]["structural_choices"] = ["optional"]
+weak["choice_groups"] = {"optional": [{"structural_resources": ["staff:a"]}, {"structural_resources": ["staff:b"]}]}
+implicit_vector([weak, fixed_structure(["staff:b"])], staff_minimum=1)
+implicit_vector([fixed_structure(["facility:a"]), fixed_structure(["facility:b"])], staff_minimum=0)
+implicit_vector([fixed_structure([])], staff_minimum=0, certificate_status="fallback")
+empty_or = fixed_structure(["staff:a"])
+empty_or["bundles"][0]["structural_choices"] = ["empty"]
+empty_or["choice_groups"] = {"empty": []}
+implicit_vector([empty_or], certificate_status="optimal", certificate_upper=0)
+implicit_vector([fixed_structure(["staff:a"])], {"staff:a": True}, certificate_status="optimal", certificate_upper=0)
+implicit_vector([diagnostic_case("t0", [0, 1], False, "n0", "w0"), diagnostic_case("t1", [0, 1], False, "n0", "w0")], bed_limit=1)
+implicit_vector([fixed_structure(["staff:a"], "n0", "w0"), fixed_structure(["staff:n0"])])
+implicit_vector([fixed_structure(["staff:a"], "n0", "w0"), fixed_structure(["staff:b"], "n0", "w1")])
+hall = [fixed_structure(["staff:a"+str(i)]) for i in range(3)]
+for i, case in enumerate(hall):
+    case["reception_bundles"] = [{"resources": {"staff:r"+str(i): fraction(1), "facility:d0": fraction(1)}}]
+implicit_vector(hall, reception={"people": {"staff:r"+str(i): True for i in range(3)},
+                                 "desks": {"facility:d"+str(i): True for i in range(3)}, "ratio": 1}, reception_matching=1)
+# The existing API defines min(K,ratio*R) with separate reception matching.
+# A joint lower certificate is intentionally stricter and must decline this
+# cross-role generic input, leaving the original complete API solve intact.
+implicit_vector([fixed_structure(["staff:r"])], certificate_status="fallback", certificate_lower=0)
 Path(sys.argv[1]).with_name("structure-vectors.json").write_text(json.dumps(packing), encoding="utf-8")
 print(f"EXACT_STRUCTURE_VECTORS={len(packing)}")
 arithmetic = []

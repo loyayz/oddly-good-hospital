@@ -204,7 +204,9 @@ func _validate_config() -> String:
 	if run_id.is_empty() or run_id.length()>80: return "Invalid run_id"
 	for character: String in run_id:
 		if not character in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_": return "run_id must contain only ASCII letters, numbers, hyphen or underscore"
-	if not config.window_pixels is Array or config.window_pixels.size()!=2 or int(config.window_pixels[0])<=0 or int(config.window_pixels[1])<=0: return "window_pixels must contain two positive dimensions"
+	if not config.window_pixels is Array or config.window_pixels.size()!=2: return "window_pixels must contain two positive integer dimensions"
+	for value: Variant in config.window_pixels:
+		if not (value is int or value is float) or not is_finite(float(value)) or float(value)!=float(int(value)) or int(value)<=0: return "window_pixels must contain two positive integer dimensions"
 	if not str(config.layout) in ["four_floors","wide","tall"]: return "Unsupported Fixture layout"
 	if int(config.actors)<=0: return "Actual actor count must be positive"
 	if str(config.get("workload_kind","reference"))=="reference" and not int(config.actors) in [160,320,640]: return "Unsupported formal reference actor group"
@@ -352,7 +354,10 @@ func _prepare_capture(usage: Dictionary, work: Dictionary) -> void:
 
 func _verify_settings() -> bool:
 	var actual: Dictionary = _settings()
-	if actual.window_pixels!=config.window_pixels or not is_equal_approx(float(actual.scene_scale),float(config.scene_scale_bp)/10000.0) or int(actual.ui_scale_percent)!=int(config.ui_scale_percent):
+	# JSON numbers are floats; Array equality also compares element types.
+	# Validate integral input first, then compare canonical pixel integers.
+	var requested_pixels: Array = [int(config.window_pixels[0]),int(config.window_pixels[1])]
+	if actual.window_pixels!=requested_pixels or not is_equal_approx(float(actual.scene_scale),float(config.scene_scale_bp)/10000.0) or int(actual.ui_scale_percent)!=int(config.ui_scale_percent):
 		_fail("Actual window/scene/UI settings differ from scenario: "+JSON.stringify(actual))
 		return false
 	if str(actual.renderer)!=str(config.get("rendering_method","gl_compatibility")):
