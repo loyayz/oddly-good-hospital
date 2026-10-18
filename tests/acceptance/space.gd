@@ -111,7 +111,8 @@ const CASES: Dictionary = {
 	"SPACE-49":"docs/design/08-hospital-life.md 候诊与家属；完整有序设施候选与独立冷计算等价，失败不生成身份，成功真实移动且新预约立即可见",
 	"SPACE-50":"docs/data/balance.json seat_choice；自动候诊只以保守路程下界严格排除超30秒座位，完整报价与手动选择不变",
 	"SPACE-51":"docs/design/04-technical.md §6；参考层内与完整旅程缓存按预约通行权限隔离，同权限跨主体共享",
-	"SPACE-52":"docs/design/04-technical.md §3大面积预览；完整合法最大矩形、井道失败、相关重启与取消、共享原帧预算"
+	"SPACE-52":"docs/design/04-technical.md §3大面积预览；完整合法最大矩形、井道失败、相关重启与取消、共享原帧预算",
+	"SPACE-53":"docs/design/16-navigation-space-selection.md §7；目标完整身体被阻挡时保留原争用结果，组配位、小数起点、扫掠与可绕行完整冷对照"
 }
 
 var content: HospitalContent
@@ -1669,6 +1670,11 @@ func _waiting_visit(sim: HospitalSimulation, id: String, cell: Array, binding_id
 
 func _case_52(_t) -> Dictionary:
 	return preload("res://tests/acceptance/preview_computation.gd").run(content)
+
+func _case_53(_t) -> Dictionary:
+	var sim: HospitalSimulation = _fixture()
+	var result: Dictionary = preload("res://tests/acceptance/blocked_route_target.gd").new().run_case(sim,content)
+	return _done(sim,bool(result.get("ok",false)),result.get("details",{}))
 
 func _fixture(preset: bool = false, cash: int = 1000000) -> HospitalSimulation:
 	_sequence += 1

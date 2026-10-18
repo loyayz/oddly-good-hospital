@@ -417,8 +417,14 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 					break
 				previous = next
 			if blocked:
-				var alternative: Dictionary = graph.find_path(start,goal,query,people,false,navigation.bases,navigation.shifts,bool(navigation.get("overlay",false)))
-				if alternative.ok:
+				# Every incoming sweep contains the destination body. An occupied
+				# destination cannot have a dynamic detour. The actual start's
+				# fractional stub makes its self-query wider, so retain A* there.
+				var actual_start: bool = actor.location.kind=="floor" and int(actor.location.floor_id)==floor_id and goal==Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
+				var alternative: Dictionary = {}
+				if actual_start or bool(people.call(goal,goal)):
+					alternative = graph.find_path(start,goal,query,people,false,navigation.bases,navigation.shifts,bool(navigation.get("overlay",false)))
+				if alternative.get("ok",false):
 					result = alternative
 				else:
 					result.status = "contention"
