@@ -18,6 +18,8 @@ func _run() -> void:
 	var binding: String = "B_S13_D09_M09"
 	var shift: int = 0
 	var constraints: String = ""
+	var checkpoint_steps: int = 1
+	var valid_checkpoint: bool = true
 	for argument: String in OS.get_cmdline_user_args():
 		if argument.begins_with("--actors="): count = argument.get_slice("=",1).to_int()
 		if argument.begins_with("--steps="): steps = argument.get_slice("=",1).to_int()
@@ -30,6 +32,14 @@ func _run() -> void:
 		if argument.begins_with("--binding="): binding = argument.get_slice("=",1)
 		if argument.begins_with("--shift="): shift = argument.get_slice("=",1).to_int()
 		if argument.begins_with("--constraints="): constraints = argument.trim_prefix("--constraints=")
+		if argument.begins_with("--checkpoint-steps="):
+			var value: String = argument.trim_prefix("--checkpoint-steps=")
+			valid_checkpoint = valid_checkpoint and value.is_valid_int() and value.to_int()>0
+			checkpoint_steps = value.to_int()
+	if not valid_checkpoint:
+		push_error("--checkpoint-steps must be a positive integer")
+		quit(2)
+		return
 	var started: int = Time.get_ticks_usec()
 	var content: HospitalContent = HospitalContent.new()
 	var fixture: RefCounted = Fixture.new(content,count,layout,input)
@@ -217,6 +227,7 @@ func _run() -> void:
 		simulation.dispose()
 		quit(0)
 		return
+	var checkpoint_indices: Array = []
 	for index: int in steps:
 		var begin: int = Time.get_ticks_usec()
 		if trace_phases: timing.trace_phase("simulation.step",fixture.world,"enter")
@@ -226,10 +237,14 @@ func _run() -> void:
 		if profile: sample.profile = timing.report()
 		samples.append(sample)
 		print("PERFORMANCE_STEP="+JSON.stringify(sample.merged({"profile":{}}) if profile else sample))
-		fixture.store_input(output+".after.bin")
-		var file: FileAccess = FileAccess.open(output,FileAccess.WRITE)
-		file.store_string(JSON.stringify({"diagnostic":true,"fixture":fixture.describe(),"steps":samples,"profile":timing.report()},"\t"))
-		file.close()
+		# Persistence is outside the original complete-step timer. Less frequent
+		# checkpoints retain every sample while avoiding quadratic write volume.
+		if (index+1)%checkpoint_steps==0 or index+1==steps:
+			checkpoint_indices.append(index+1)
+			fixture.store_input(output+".after.bin")
+			var file: FileAccess = FileAccess.open(output,FileAccess.WRITE)
+			file.store_string(JSON.stringify({"diagnostic":true,"fixture":fixture.describe(),"steps":samples,"profile":timing.report(),"checkpoint_steps":checkpoint_steps,"checkpoint_step_indices":checkpoint_indices},"\t"))
+			file.close()
 	simulation.dispose()
 	quit(0)
 

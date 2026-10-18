@@ -96,7 +96,7 @@ func _initialize() -> void:
 		if actual.has("error") or int(actual.get("pairs",-1))!=int(vector.expected): failures.append({"structure_index":vector.index,"expected":vector.expected,"actual":actual})
 		if vector.has("expected_encoding") and actual.get("structure_encoding")!=vector.expected_encoding: failures.append({"structure_encoding_index":vector.index,"actual":actual})
 		if int(actual.get("structural_dominated_alternatives",0))<int(vector.get("dominated_minimum",0)): failures.append({"structure_presolve_index":vector.index,"actual":actual})
-		for field: String in ["certificate_status","staff_minimum","certificate_upper","certificate_lower","reception_matching"]:
+		for field: String in ["certificate_status","staff_minimum","certificate_upper","certificate_lower","reception_matching","bound_resources","bound_minimum","bound_upper"]:
 			if vector.has(field) and actual.get("structural_"+field)!=vector[field]: failures.append({"structure_certificate_index":vector.index,"field":field,"expected":vector[field],"actual":actual})
 	var fraction_input_checks: int = 0
 	for bad: Variant in [{"n":"1","d":"0"},{"n":"1","d":"-000"},{"n":1,"d":"1"},{"n":"one","d":"2"},[],"1/2"]:

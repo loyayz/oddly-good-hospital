@@ -91,9 +91,17 @@ func start(operation: Dictionary) -> Dictionary:
 			if app._leave_operation.is_empty(): return _failure("Original switch did not start")
 			state.target_hospital_id = target
 		"remodel":
+			if bool(current.get("room_from_required_session",false)):
+				var required: Dictionary = current.get("required_session",{})
+				var live: Dictionary = app._simulation.world.facts.sessions.get(str(required.get("id","")),{})
+				var facility: Dictionary = app._simulation.world.facts.facilities.get(str(live.get("facility_id","")),{})
+				var room_id: String = str(facility.get("room_id",""))
+				if room_id.is_empty() or not app._simulation.world.facts.rooms.has(room_id): return _failure("Named clinical session has no original occupied room")
+				current.commands = [{"kind":"build_rotate","target_id":room_id,"turns":2}]
+				state.occupied_session = live.duplicate(true)
 			if not current.get("commands") is Array or current.commands.is_empty(): return _failure("Remodel requires original complete commands")
 			if not _real_layout_change(current.commands): return _failure("Remodel must change actual geometry")
-			if bool(current.get("require_view_loading",false)) and int(app._view.resource_usage().pending_bindings)==0: return _failure("Requested geometry-during-loading case has no actual pending view bindings")
+			if bool(current.get("require_view_loading",false)) and not bool(current.get("rebind_before_apply",false)) and int(app._view.resource_usage().pending_bindings)==0: return _failure("Requested geometry-during-loading case has no actual pending view bindings")
 			var prerequisite: String = _check_work_prerequisite(current.get("required_session",{}))
 			if not prerequisite.is_empty(): return _failure(prerequisite)
 			state.stage = "prepare"
@@ -243,6 +251,32 @@ func _poll_remodel(now: int) -> Dictionary:
 		state.quote = {"price":plan.price,"refund":plan.refund,"layout":plan.layout.duplicate(true)}
 		observer._emit("remodel_quote", {"operation":current,"order_id":state.order_id,"quote":state.quote,"tick":world.sim_tick,"confirmation":"scenario authorizes this exact freshly observed quote once"})
 		state.stage = "apply"
+		if bool(current.get("rebind_before_apply",false)):
+			# Original paused submit applies synchronously at this already complete
+			# boundary. No rendering callback can drain bindings before geometry.
+			var original_speed: int = app._session.requested_speed
+			app._set_speed(0)
+			var view = app._view
+			var camera_transform: Transform3D = view.camera.global_transform
+			var camera_size: float = view.camera.size
+			var target: Vector3 = view._camera_target
+			var follow: String = view.follow_actor
+			var selected: String = view._selected
+			view.bind(world,app._observed_floor,app._session.loading_session_id)
+			view.camera.global_transform = camera_transform
+			view.camera.size = camera_size
+			view._camera_target = target
+			view.follow_actor = follow
+			view._selected = selected
+			var pending: Dictionary = view.resource_usage()
+			if not view.bind_error.is_empty() or not pending.errors.is_empty() or int(pending.pending_bindings)<=0: return _failure("Original view rebind did not produce real pending resources before geometry apply")
+			observer._emit("geometry_loading_overlap", {"operation":current,"generation":view.view_generation,"resources":pending,"phase":"original paused synchronous submit, immediately before actual remodel_apply"})
+			_submit("remodel_apply",{"order_id":state.order_id,"quote":state.quote})
+			var immediate: Dictionary = app._simulation.receipt(str(state.command_id))
+			if immediate.is_empty() or not bool(immediate.accepted): return _failure("Original paused geometry apply did not complete synchronously with pending bindings")
+			state.loading_overlap_verified = true
+			app._set_speed(original_speed)
+			return {"pending":true}
 		_submit("remodel_apply",{"order_id":state.order_id,"quote":state.quote})
 		return {"pending":true}
 	var applied: Dictionary = app._simulation.receipt(str(state.command_id))
@@ -251,7 +285,12 @@ func _poll_remodel(now: int) -> Dictionary:
 	var committed: Dictionary = world.facts.remodels.get(str(state.order_id),{})
 	var entry: Dictionary = world.facts.ledger.entries.get(str(state.order_id)+":remodel",{})
 	if committed.get("state","")!="applied" or entry.is_empty() or int(entry.amount)!=int(state.quote.refund)-int(state.quote.price): return _failure("Remodel final state/ledger does not match the original exact quote")
-	return _success({"prepare_receipt":state.prepare_receipt,"apply_receipt":applied,"order_id":state.order_id,"quote":state.quote,"ledger_entry":entry,"actual_tick":world.sim_tick})
+	var resources: Dictionary = app._view.resource_usage()
+	if not resources.errors.is_empty(): return _failure("View resources failed during original geometry handoff")
+	if bool(current.get("require_view_loading",false)) and (int(resources.pending_bindings)>0 or int(resources.retiring_nodes)>0): return {"pending":true}
+	var validation: String = world.validate(app._content)
+	if not validation.is_empty(): return _failure("Original remodel published an invalid world: "+validation)
+	return _success({"prepare_receipt":state.prepare_receipt,"apply_receipt":applied,"order_id":state.order_id,"quote":state.quote,"ledger_entry":entry,"actual_tick":world.sim_tick,"occupied_session_before":state.get("occupied_session",{}),"loading_overlap_verified":state.get("loading_overlap_verified",false),"resources_after":resources,"world_validation":validation})
 
 func _submit(kind: String, payload: Dictionary) -> void:
 	var command: Dictionary = payload.duplicate(true)

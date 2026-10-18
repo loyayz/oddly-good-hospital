@@ -711,6 +711,7 @@ struct StructuralGraph {
 
 struct StructuralCertificate {
     size_t staff = 0, minimum = 0, upper = 0, lower = 0, matching = 0;
+    size_t bound_resources = 0, bound_minimum = 0, bound_upper = 0, bound_subsets = 0;
     std::vector<size_t> root_minimum;
     bool exact = false;
 };
@@ -726,17 +727,18 @@ StructuralCertificate structural_certificate(const StructuralGraph& graph, const
     for (const auto& node : graph.nodes) for (const auto& name : node.resources)
         if (name.compare(0, 6, "staff:") == 0) staff.insert(name);
     result.staff = staff.size(); result.upper = original_upper;
-    std::vector<Bound> bounds(graph.nodes.size());
-    // Interning is bottom-up: every child already exists before its parent.
-    for (size_t id = 0; id < graph.nodes.size(); ++id) {
+    auto prove = [&](const Names& subset) {
+      std::vector<Bound> bounds(graph.nodes.size());
+      // Interning is bottom-up: every child already exists before its parent.
+      for (size_t id = 0; id < graph.nodes.size(); ++id) {
         const auto& node = graph.nodes[id]; auto& bound = bounds[id]; Names own;
         for (const auto& name : node.resources) {
             if (blocked.count(name)) bound.feasible = false;
-            if (staff.count(name)) own.insert(name);
+            if (subset.count(name)) own.insert(name);
         }
         bound.possible = bound.required = own; bound.minimum = own.size();
         if (node.choice) {
-            bool first = true; size_t minimum = staff.size() + 1; Names required;
+            bool first = true; size_t minimum = subset.size() + 1; Names required;
             for (int child : node.children) if (bounds[child].feasible) {
                 const auto& next = bounds[child];
                 bound.possible.insert(next.possible.begin(), next.possible.end());
@@ -763,7 +765,10 @@ StructuralCertificate structural_certificate(const StructuralGraph& graph, const
             // OR can never count the same doctor twice in this lower bound.
             bound.minimum = std::max(bound.minimum, std::max(sum, bound.required.size()));
         }
-    }
+      }
+      return bounds;
+    };
+    const auto bounds = prove(staff);
     bool feasible = false; result.minimum = staff.size() + 1;
     for (const auto& root : roots) {
         const auto& bound = bounds[root.second];
@@ -772,6 +777,25 @@ StructuralCertificate structural_certificate(const StructuralGraph& graph, const
     }
     if (!feasible) { result.minimum = 0; result.upper = 0; }
     else if (result.minimum) result.upper = std::min(result.upper, staff.size() / result.minimum);
+
+    // Every resource subset gives its own complete-graph packing upper bound.
+    // Possible supports supply deterministic candidates without role labels or
+    // deleting any path. Extra nurses in H cannot dilute a doctor's bottleneck.
+    std::set<Names> subsets;
+    if (!staff.empty()) subsets.insert(staff);
+    for (const auto& bound : bounds) if (!bound.possible.empty()) subsets.insert(bound.possible);
+    result.bound_subsets = subsets.size();
+    for (const auto& subset : subsets) {
+        const auto projected = subset == staff ? bounds : prove(subset);
+        size_t minimum = subset.size() + 1; bool any = false;
+        for (const auto& root : roots) if (projected[root.second].feasible) { any = true; minimum = std::min(minimum, projected[root.second].minimum); }
+        if (!any || !minimum) continue;
+        const size_t upper = subset.size() / minimum;
+        if (!result.bound_minimum || upper < result.bound_upper || (upper == result.bound_upper && subset.size() < result.bound_resources)) {
+            result.bound_resources = subset.size(); result.bound_minimum = minimum; result.bound_upper = upper;
+        }
+        result.upper = std::min(result.upper, upper);
+    }
 
     auto matching = [&](const Names& unavailable) {
         std::map<std::string, std::vector<std::string>> edges;
@@ -975,6 +999,8 @@ V structure_graph(const V& raw_cases, const V& raw_blocked, const V& raw_recepti
     result.set("structural_flat_attempt_us", V::number(flat_attempt_us)); result.set("structural_presolve_us", V::number(presolve_us));
     result.set("structural_subset_proof_pairs", V::number(proof_pairs)); result.set("structural_certificate_us", V::number(certificate_us));
     result.set("structural_staff_resources", V::number(certificate.staff)); result.set("structural_staff_minimum", V::number(certificate.minimum));
+    result.set("structural_bound_resources", V::number(certificate.bound_resources)); result.set("structural_bound_minimum", V::number(certificate.bound_minimum));
+    result.set("structural_bound_upper", V::number(certificate.bound_upper)); result.set("structural_bound_subsets", V::number(certificate.bound_subsets));
     result.set("structural_certificate_upper", V::number(certificate.upper)); result.set("structural_certificate_lower", V::number(certificate.lower));
     result.set("structural_reception_matching", V::number(certificate.matching));
     result.set("structural_certificate_status", V::text(certificate.exact ? "optimal" : "fallback"));
@@ -982,10 +1008,11 @@ V structure_graph(const V& raw_cases, const V& raw_blocked, const V& raw_recepti
     result.set("structural_root_staff_minimum", root_minimum.value());
     const char* diagnostic = std::getenv("OGH_CAPACITY_DIAGNOSTIC");
     if (diagnostic && std::string(diagnostic) == "1") {
-        std::fprintf(stderr, "OGH_STRUCTURE_CERTIFICATE={\"staff_resources\":%llu,\"minimum_staff\":%llu,\"upper\":%llu,\"lower\":%llu,\"reception_matching\":%llu,\"original_slots\":%llu,\"slots\":%llu,\"exact\":%s,\"certificate_us\":%lld}\n",
+        std::fprintf(stderr, "OGH_STRUCTURE_CERTIFICATE={\"staff_resources\":%llu,\"minimum_staff\":%llu,\"upper\":%llu,\"lower\":%llu,\"reception_matching\":%llu,\"original_slots\":%llu,\"slots\":%llu,\"exact\":%s,\"certificate_us\":%lld,\"bound_resources\":%llu,\"bound_minimum\":%llu,\"bound_upper\":%llu,\"bound_subsets\":%llu}\n",
             static_cast<unsigned long long>(certificate.staff), static_cast<unsigned long long>(certificate.minimum), static_cast<unsigned long long>(certificate.upper),
             static_cast<unsigned long long>(certificate.lower), static_cast<unsigned long long>(certificate.matching), static_cast<unsigned long long>(original_slots),
-            static_cast<unsigned long long>(slots), certificate.exact ? "true" : "false", static_cast<long long>(certificate_us));
+            static_cast<unsigned long long>(slots), certificate.exact ? "true" : "false", static_cast<long long>(certificate_us), static_cast<unsigned long long>(certificate.bound_resources),
+            static_cast<unsigned long long>(certificate.bound_minimum), static_cast<unsigned long long>(certificate.bound_upper), static_cast<unsigned long long>(certificate.bound_subsets));
         std::fflush(stderr);
     }
     if (certificate.exact) {

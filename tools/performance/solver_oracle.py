@@ -338,6 +338,22 @@ implicit_vector(hall, reception={"people": {"staff:r"+str(i): True for i in rang
 # A joint lower certificate is intentionally stricter and must decline this
 # cross-role generic input, leaving the original complete API solve intact.
 implicit_vector([fixed_structure(["staff:r"])], certificate_status="fallback", certificate_lower=0)
+diluted = []
+for i in range(4):
+    for extra in [False, True]:
+        case = fixed_structure([f"staff:d{i}"])
+        case["bundles"][0]["structural_choices"] = ["gp"]
+        case["choice_groups"] = {"gp": [{"structural_resources": [f"staff:d{j}"],
+                                            **({"structural_choices": ["extra"]} if extra else {})} for j in range(4) if j != i]}
+        if extra:
+            case["choice_groups"]["extra"] = [{"structural_resources": [f"staff:n{j}"]} for j in range(4)]
+        diluted.append(case)
+implicit_vector(diluted, certificate_status="optimal", staff_minimum=2, bound_resources=4, bound_minimum=2, bound_upper=2, certificate_upper=2)
+optional_support = fixed_structure([])
+optional_support["bundles"][0]["structural_choices"] = ["choice"]
+optional_support["choice_groups"] = {"choice": [{"structural_resources": [], "structural_choices": ["a"]}, {"structural_resources": ["staff:b0"]}],
+                                      "a": [{"structural_resources": ["staff:a0"]}, {"structural_resources": ["staff:a1"]}]}
+implicit_vector([optional_support, fixed_structure(["staff:b1"])], certificate_upper=3)
 Path(sys.argv[1]).with_name("structure-vectors.json").write_text(json.dumps(packing), encoding="utf-8")
 print(f"EXACT_STRUCTURE_VECTORS={len(packing)}")
 arithmetic = []

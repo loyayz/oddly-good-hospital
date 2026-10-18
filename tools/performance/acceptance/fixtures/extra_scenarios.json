@@ -134,6 +134,20 @@
       "responsibilities":["same-named-unfinished-original-session-must-survive-real-warmup-before-save", "save-owner-observes-current-session-visit-attempt-ticket-consumables-and-frozen-commitments", "original-checkpoint-snapshot-id-and-loader-witness-equality-required-before-new-simulation", "actual-owner-progress-after-resume-no-manual-session-completion-or-clock-edit", "input-witness-is-prerequisite-not-post-load-proof"]
     },
     {
+      "id":"CLINICALREMODEL", "name":"actual-occupied-clinical-room-evacuation-and-rotation", "input_id":"clinical_midstep", "source_kind":"boundary", "layout":"four_floors", "workload_kind":"boundary", "required_session_from_input":true,
+      "operations":[
+        {"id":"rotate-original-occupied-room","action":"remodel","room_from_required_session":true,"required_session_from_input":true,"safe_transfer":false,"after_real_seconds":0,"timeout_real_seconds":1800}
+      ],
+      "responsibilities":["real-in-progress-named-session-owned-room-selected-from-original-facility", "original-prepare-real-evacuation-complete-preview-exact-quote-apply-and-ledger", "occupied-clinical-handoff-is-separate-from-empty-stability-shell-rotations"]
+    },
+    {
+      "id":"LOADINGREMODEL", "name":"actual-room-geometry-change-during-original-view-loading", "input_id":"clinical_midstep", "source_kind":"boundary", "layout":"four_floors", "workload_kind":"boundary", "required_session_from_input":true,
+      "operations":[
+        {"id":"rebind-then-rotate-original-occupied-room","action":"remodel","room_from_required_session":true,"required_session_from_input":true,"rebind_before_apply":true,"require_view_loading":true,"safe_transfer":false,"after_real_seconds":0,"timeout_real_seconds":1800}
+      ],
+      "responsibilities":["after-real-evacuation-and-exact-quote-original-pause-bind-and-synchronous-submit-at-complete-boundary", "requires-actual-positive-pending-bindings-immediately-before-geometry-apply-with-no-render-callback-between", "original-playback-signals-record-short-pause-and-resume-all-actual-frames-retained", "real-occupied-room-command-completes-through-original-safe-handoff-and-invalidation", "generation-resource-errors-and-stale-identity-remain-failures"]
+    },
+    {
       "id":"DAYBOUNDARY", "name":"actual-next-day-complete-original-step", "input_id":"day_boundary_before", "source_kind":"boundary", "layout":"four_floors", "workload_kind":"boundary",
       "operations":[{"id":"actual-original-day-commit","action":"wait_boundary","boundary":"day","boundary_from_input":true,"after_real_seconds":0,"timeout_real_seconds":1800}],
       "responsibilities":["warmup-must-not-pass-manifest-target-executed-tick", "one-original-complete-day-step-and-one-committed-arrival-plan-original-rng", "entire-step-wall-time-keeps-all-real-wait-intervals", "no-pending-observed-means-pending-pause-save-responsibilities-uncovered"]
