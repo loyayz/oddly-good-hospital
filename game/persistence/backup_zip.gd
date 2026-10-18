@@ -261,11 +261,13 @@ func _emit(raw: PackedByteArray, entry: Dictionary, state: Dictionary, hash: Has
 	if entry.method==8:
 		var a: int = state.adler_a
 		var b: int = state.adler_b
+		# Extract/drain feeds at most BLOCK bytes. Even a full block's sums
+		# fit int64, so reducing once preserves the exact Adler remainder.
 		for byte: int in raw:
-			a = (a+byte)%65521
-			b = (b+a)%65521
-		state.adler_a = a
-		state.adler_b = b
+			a += byte
+			b += a
+		state.adler_a = a%65521
+		state.adler_b = b%65521
 	hash.update(raw)
 	return {"ok":true}
 

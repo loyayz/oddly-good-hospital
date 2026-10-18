@@ -208,6 +208,7 @@ func update_facts(interpolation_alpha: float = 1.0) -> void:
 	_complete_resources()
 	_labels = _labels.filter(func(label: Variant) -> bool: return is_instance_valid(label) and not label.is_queued_for_deletion())
 	_retiring = _retiring.filter(func(reference: WeakRef) -> bool: return reference.get_ref()!=null)
+	var presentation: Dictionary = _presentation_index()
 	for actor_id: String in _actors:
 		var actor: Dictionary = world.facts.actors[actor_id]
 		var wrapper: Node3D = _actors[actor_id]
@@ -229,7 +230,7 @@ func update_facts(interpolation_alpha: float = 1.0) -> void:
 		wrapper.position = (binding.previous_position as Vector3).lerp(current,clampf(interpolation_alpha,0,1))
 		var model: Node3D = _actor_models[actor_id]
 		model.rotation = Vector3(-PI/2 if actor.get("posture","standing")=="lying" else 0.0,float(actor.facing),0)
-		var pose: Dictionary = _pose(actor_id)
+		var pose: Dictionary = _pose(actor_id,presentation)
 		wrapper.set_meta("business_pose",pose.name)
 		if world.facts.staff.has(actor_id):
 			var staff_status: Dictionary = _staff_status(actor_id)
@@ -249,9 +250,9 @@ func update_facts(interpolation_alpha: float = 1.0) -> void:
 				_retire(_case_props[actor_id].node)
 				_case_props.erase(actor_id)
 		if not _case_props.has(actor_id) and not bool(wrapper.get_meta("resource_proxy",true)):
-			_bind_case_props(actor_id)
+			_bind_case_props(actor_id,presentation.visits_by_actor.get(actor_id,[]))
 		if _case_props.has(actor_id):
-			_update_case_props(actor_id)
+			_update_case_props(actor_id,presentation.sessions_by_visit)
 	for facility_id: String in _facilities:
 		(_facilities[facility_id] as Node3D).position = _cell_position(world.facts.facilities[facility_id].cell,0)
 		_update_equipment_mark(facility_id)
@@ -260,9 +261,7 @@ func update_facts(interpolation_alpha: float = 1.0) -> void:
 			continue
 		var requested: String = "idle"
 		var local_time: float = 0.0
-		for session: Dictionary in world.facts.sessions.values():
-			if session.facility_id!=facility_id:
-				continue
+		for session: Dictionary in presentation.sessions_by_facility.get(facility_id,[]):
 			if session.kind in ["outpatient","surgery"]:
 				var completed: int = int(session.total_ticks)-int(session.remaining_ticks)
 				var cumulative: int = 0
@@ -437,7 +436,7 @@ func publish_resource(ticket: Dictionary, model: Node3D) -> bool:
 		wrapper.add_child(model)
 		_actor_models[id] = model
 		(_actor_labels[id] as Label3D).text = str(world.facts.actors[id].name)
-		_bind_case_props(id)
+		_bind_case_props(id,world.facts.visits.values().filter(func(visit: Dictionary) -> bool: return visit.actor_id==id))
 	else:
 		var proxy: Node = wrapper.get_node_or_null("ResourceProxy")
 		if proxy!=null:
@@ -471,11 +470,9 @@ func _orient_facility_part(node: Node3D, facility: Dictionary) -> void:
 	node.position = offset+basis*node.position
 	node.rotation.y = -float(turns)*PI*0.5
 
-func _bind_case_props(actor_id: String) -> void:
+func _bind_case_props(actor_id: String, visits: Array) -> void:
 	var model: Node3D = _actor_models[actor_id]
-	for visit: Dictionary in world.facts.visits.values():
-		if visit.actor_id!=actor_id:
-			continue
+	for visit: Dictionary in visits:
 		var filename: String = {"B_S49_D37_M37":"case_d37_tissue.glb","B_S49_D23_M23":"case_d23_dream.glb"}.get(visit.binding_id,"")
 		if filename.is_empty():
 			continue
@@ -750,26 +747,61 @@ func _update_selection() -> void:
 		(vertical.mesh as BoxMesh).size = Vector3(0.06,0.03,size.y+0.12)
 		vertical.position.x = side*(size.x*0.5+0.03)
 
-func _pose(actor_id: String) -> Dictionary:
+func _presentation_index() -> Dictionary:
+	# This projection belongs to one update only. Commands may change facts
+	# while paused or within the same simulation tick.
+	var result: Dictionary = {"moving":{},"paused":{},"working":{},"visits_by_actor":{},"sessions_by_facility":{},"sessions_by_visit":{}}
+	for actor_id: String in world.facts.moves:
+		result.moving[actor_id] = true
+		for member: String in world.facts.moves[actor_id].get("members",[]):
+			result.moving[member] = true
+	for visit: Dictionary in world.facts.visits.values():
+		if not result.visits_by_actor.has(visit.actor_id):
+			result.visits_by_actor[visit.actor_id] = []
+		result.visits_by_actor[visit.actor_id].append(visit)
+	for session: Dictionary in world.facts.sessions.values():
+		if not result.sessions_by_facility.has(session.facility_id):
+			result.sessions_by_facility[session.facility_id] = []
+		result.sessions_by_facility[session.facility_id].append(session)
+		if not result.sessions_by_visit.has(session.visit_id):
+			result.sessions_by_visit[session.visit_id] = []
+		result.sessions_by_visit[session.visit_id].append(session)
+		for staff_id: String in session.staff_ids:
+			result.working[staff_id] = true
+		if session.kind!="wake" and world.facts.facilities.get(session.facility_id,{}).get("failed",false):
+			var patient_id: String = str(world.facts.visits.get(session.visit_id,{}).get("actor_id",""))
+			result.paused[patient_id] = true
+			for staff_id: String in session.staff_ids:
+				result.paused[staff_id] = true
+	for patch: Dictionary in world.facts.get("environment",{}).get("dirt",{}).values():
+		if patch.get("phase","")=="working":
+			result.working[patch.get("worker_id","")] = true
+	for order: Dictionary in world.facts.get("environment",{}).get("orders",{}).values():
+		for unit: Dictionary in order.units:
+			if unit.phase=="working":
+				result.working[unit.get("worker_id","")] = true
+	for collection: String in ["jobs","upgrades"]:
+		for job: Dictionary in world.facts.get("maintenance",{}).get(collection,{}).values():
+			if job.phase=="working":
+				result.working[job.get("worker_id","")] = true
+	return result
+
+func _pose(actor_id: String, presentation: Dictionary = {}) -> Dictionary:
 	if low_motion:
 		return {"name":"low_motion","time":0.5}
-	if world.facts.moves.has(actor_id):
+	if presentation.is_empty():
+		presentation = _presentation_index()
+	if presentation.moving.has(actor_id):
 		return {"name":"walk","time":fmod(float(world.facts.sim_tick)*0.1,1.0)}
-	for movement: Dictionary in world.facts.moves.values():
-		if actor_id in movement.get("members",[]):
-			return {"name":"walk","time":fmod(float(world.facts.sim_tick)*0.1,1.0)}
-	for session: Dictionary in world.facts.sessions.values():
-		if (actor_id==world.facts.visits.get(session.get("visit_id",""),{}).get("actor_id","") or actor_id in session.get("staff_ids",[])) and world.facts.facilities.get(session.get("facility_id",""),{}).get("failed",false) and session.kind!="wake":
-			return {"name":"pause","time":0.5}
+	if presentation.paused.has(actor_id):
+		return {"name":"pause","time":0.5}
 	if world.facts.staff.has(actor_id):
 		var phase: String = str(world.facts.staff[actor_id].get("life_task",{}).get("phase","idle"))
 		if phase in ["sleep","rest","recreation"]:
 			return {"name":phase,"time":0.5 if phase!="recreation" else fmod(float(world.sim_tick)*0.1,1.0)}
 	if world.facts.actors[actor_id].get("posture","standing") == "seated":
 		return {"name":"sit","time":0.5}
-	for visit: Dictionary in world.facts.visits.values():
-		if visit.actor_id != actor_id:
-			continue
+	for visit: Dictionary in presentation.visits_by_actor.get(actor_id,[]):
 		if visit.final_result == "cured":
 			return {"name":"recover","time":fmod(float(world.facts.sim_tick)*0.1,1.0)}
 		if visit.phase in ["outpatient","surgery"]:
@@ -777,20 +809,8 @@ func _pose(actor_id: String) -> Dictionary:
 		if visit.phase in ["wake","transfer","recovery","round_wait","round"]:
 			return {"name":"pause","time":0.5}
 		return {"name":"symptom","time":fmod(float(world.facts.sim_tick)*0.1,1.0)}
-	for session: Dictionary in world.facts.sessions.values():
-		if actor_id in session.staff_ids:
-			return {"name":"work","time":fmod(float(world.facts.sim_tick)*0.1,1.0)}
-	for patch: Dictionary in world.facts.get("environment",{}).get("dirt",{}).values():
-		if patch.get("worker_id","")==actor_id and patch.get("phase","")=="working":
-			return {"name":"work","time":fmod(float(world.sim_tick)*0.1,1.0)}
-	for order: Dictionary in world.facts.get("environment",{}).get("orders",{}).values():
-		for unit: Dictionary in order.units:
-			if unit.get("worker_id","")==actor_id and unit.phase=="working":
-				return {"name":"work","time":fmod(float(world.sim_tick)*0.1,1.0)}
-	for collection: String in ["jobs","upgrades"]:
-		for job: Dictionary in world.facts.get("maintenance",{}).get(collection,{}).values():
-			if job.get("worker_id","")==actor_id and job.phase=="working":
-				return {"name":"work","time":fmod(float(world.sim_tick)*0.1,1.0)}
+	if presentation.working.has(actor_id):
+		return {"name":"work","time":fmod(float(world.sim_tick)*0.1,1.0)}
 	return {"name":"idle","time":fmod(float(world.facts.sim_tick)*0.1,1.0)}
 
 func _sync_environment_marks() -> void:
@@ -1029,7 +1049,7 @@ func _load_model(filename: String) -> Node3D:
 func _load_scene(path: String) -> Node3D:
 	return _resources.acquire(path)
 
-func _update_case_props(actor_id: String) -> void:
+func _update_case_props(actor_id: String, sessions_by_visit: Dictionary) -> void:
 	var binding: Dictionary = _case_props[actor_id]
 	var props: Node3D = binding.node
 	var skeleton: Skeleton3D = _skeleton(_actor_models[actor_id])
@@ -1055,11 +1075,10 @@ func _update_case_props(actor_id: String) -> void:
 		pose = "awaiting_result" if visit.binding_id=="B_S49_D23_M23" else "paused"
 	elif visit.phase in ["outpatient","surgery"]:
 		pose = "work"
-		for session: Dictionary in world.facts.sessions.values():
-			if session.visit_id==visit.id:
-				time = float(session.total_ticks-session.remaining_ticks)/maxi(1,int(session.total_ticks))*2.0
-				if world.facts.facilities[session.facility_id].failed:
-					pose = "paused"
+		for session: Dictionary in sessions_by_visit.get(visit.id,[]):
+			time = float(session.total_ticks-session.remaining_ticks)/maxi(1,int(session.total_ticks))*2.0
+			if world.facts.facilities[session.facility_id].failed:
+				pose = "paused"
 	if low_motion:
 		pose = "low_motion_recovery" if visit.final_result=="cured" else ("low_motion_work" if visit.phase in ["outpatient","surgery"] else "low_motion")
 		var player: AnimationPlayer = _animation_player(props)

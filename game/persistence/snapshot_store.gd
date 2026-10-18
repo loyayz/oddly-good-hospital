@@ -463,9 +463,17 @@ func _cleanup(hospital_id: String, validated_snapshot_id: String) -> void:
 	var automatic: int = 0
 	var checkpoints: int = 0
 	var records: Array[Dictionary] = []
-	for record: Dictionary in list_commits(hospital_id):
-		if record.snapshot_id==validated_snapshot_id or load_commit(hospital_id,record.snapshot_id).ok:
+	var candidates: Array = list_commits(hospital_id)
+	var validation_connection: Dictionary = _connect(hospital_id)
+	if not validation_connection.ok: return
+	var validation_database: RefCounted = validation_connection.database
+	if not validation_database.call("execute","BEGIN",[]).ok:
+		validation_database.call("close")
+		return
+	for record: Dictionary in candidates:
+		if record.snapshot_id==validated_snapshot_id or _read_snapshot(validation_database,hospital_id,record.snapshot_id).ok:
 			records.append(record)
+	validation_database.call("close")
 	for record: Dictionary in records:
 		var key: String = str(record.slot_kind)+":"+str(record.slot_key)
 		if record.slot_kind=="auto" and automatic<int(content.balance.save.autosave_slots):

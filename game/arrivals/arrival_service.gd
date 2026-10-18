@@ -351,9 +351,12 @@ func settle(world: WorldState) -> void:
 			while resident.memories.size() > history_limit:
 				resident.memories.pop_front()
 		world.facts.wait_departures.erase(visit.actor_id)
+	var protection: Variant = null
 	for resident_id: String in world.ids("residents"):
 		var resident: Dictionary = world.facts.residents[resident_id]
-		if (resident.get("pending_release",false) or not resident.get("remembered",false)) and _protected_reasons(world,resident).is_empty():
+		if not (resident.get("pending_release",false) or not resident.get("remembered",false)): continue
+		if protection==null: protection = _resident_protection(world)
+		if _protected_reasons(world,resident,false,protection).is_empty():
 			_release_identity(world,resident_id)
 
 func outpatient_count(world: WorldState) -> int:
@@ -1304,6 +1307,7 @@ func _expression(world: WorldState) -> String:
 
 func _returning_resident(world: WorldState, species_id: String, binding_id: String) -> Dictionary:
 	var candidates: Array = []
+	var protection: Variant = null
 	var minimum: int = int(content.balance.resident_returns.minimum_absence_days)*WorldState.TICKS_PER_DAY
 	for resident_id: String in world.ids("residents"):
 		var resident: Dictionary = world.facts.residents[resident_id]
@@ -1311,7 +1315,8 @@ func _returning_resident(world: WorldState, species_id: String, binding_id: Stri
 			continue
 		if int(resident.get("last_departure_tick",-1)) < 0 or world.sim_tick-int(resident.last_departure_tick) < minimum:
 			continue
-		if not _protected_reasons(world,resident,true).is_empty():
+		if protection==null: protection = _resident_protection(world)
+		if not _protected_reasons(world,resident,true,protection).is_empty():
 			continue
 		var binding: Dictionary = content.definition("treatment_bindings",binding_id)
 		if binding.get("species_id","") != resident.species_id:
@@ -1346,26 +1351,57 @@ func _remember(world: WorldState, payload: Dictionary, remembered: bool) -> Comm
 		_release_identity(world,resident_id)
 	return CommandResult.new(true,"applied","",[resident_id],world.revision)
 
-func _protected_reasons(world: WorldState, resident: Dictionary, ignore_story: bool = false) -> Array:
+func _resident_protection(world: WorldState) -> Dictionary:
+	# References are shared only inside one synchronous settlement/candidate scan.
+	# Release changes the resident book, never these actors, visits or activity lists.
+	var index: Dictionary = {"actors":{},"visits":{},"references":{}}
+	for actor: Dictionary in world.facts.actors.values():
+		var resident_id: String = str(actor.get("resident_id",""))
+		if resident_id.is_empty(): continue
+		if not index.actors.has(resident_id): index.actors[resident_id] = []
+		index.actors[resident_id].append(actor)
+	for visit: Dictionary in world.facts.visits.values():
+		if visit.phase=="departed": continue
+		if not index.visits.has(visit.actor_id): index.visits[visit.actor_id] = []
+		index.visits[visit.actor_id].append(visit)
+	for collection: String in ["activities","community_activities","interactions","visitor_stays","care_jobs"]:
+		for record: Dictionary in world.facts.get(collection,{}).values():
+			if record.get("state",record.get("phase","")) in ["completed","cancelled","ended","departed"]: continue
+			var members: Dictionary = {}
+			for resident_id: String in record.get("resident_ids",record.get("participants",[])): members[resident_id] = true
+			var owner: String = str(record.get("resident_id",""))
+			if not owner.is_empty(): members[owner] = true
+			for resident_id: String in members:
+				if not index.references.has(resident_id): index.references[resident_id] = []
+				index.references[resident_id].append(record)
+	return index
+
+func _protected_reasons(world: WorldState, resident: Dictionary, ignore_story: bool = false, protection: Variant = null) -> Array:
 	var reasons: Array = []
 	var resident_id: String = resident.id
-	for actor: Dictionary in world.facts.actors.values():
+	var actors: Array = world.facts.actors.values() if protection==null else protection.actors.get(resident_id,[])
+	for actor: Dictionary in actors:
 		if actor.get("resident_id","") != resident_id:
 			continue
 		if actor.location.kind != "outside":
 			reasons.append("本次实际离院后腾出位置")
 		if world.facts.staff.has(actor.id):
 			reasons.append("当前员工身份")
-		for visit: Dictionary in world.facts.visits.values():
+		var visits: Array = world.facts.visits.values() if protection==null else protection.visits.get(actor.id,[])
+		for visit: Dictionary in visits:
 			if visit.actor_id == actor.id and visit.phase != "departed":
 				reasons.append("当前就诊尚未结束")
-	for collection: String in ["activities","community_activities","interactions","visitor_stays","care_jobs"]:
-		for record: Dictionary in world.facts.get(collection,{}).values():
-			if record.get("state",record.get("phase","")) in ["completed","cancelled","ended","departed"]:
-				continue
-			var participants: Array = record.get("resident_ids",record.get("participants",[]))
-			if resident_id in participants or record.get("resident_id","") == resident_id:
-				reasons.append("仍关联活动、互动或照护")
+	var references: Array = []
+	if protection==null:
+		for collection: String in ["activities","community_activities","interactions","visitor_stays","care_jobs"]:
+			references.append_array(world.facts.get(collection,{}).values())
+	else: references = protection.references.get(resident_id,[])
+	for record: Dictionary in references:
+		if record.get("state",record.get("phase","")) in ["completed","cancelled","ended","departed"]:
+			continue
+		var participants: Array = record.get("resident_ids",record.get("participants",[]))
+		if resident_id in participants or record.get("resident_id","") == resident_id:
+			reasons.append("仍关联活动、互动或照护")
 	if not ignore_story and not resident.get("story_binding","").is_empty():
 		reasons.append("故事保留同一人物身份")
 	return reasons
@@ -1438,7 +1474,7 @@ func _environment_score(world: WorldState, visit: Dictionary) -> float:
 		# Standalone numerical callers use the same personal water contract.
 		query = HospitalEnvironment.new(content,space)
 		query.waiting_life = HospitalWaitingLife.new(content,space)
-	return float(query.environment_at(world,int(actor.location.floor_id),actor.location.cell,str(actor.id)).value)
+	return float(query.sample_at(world,int(actor.location.floor_id),actor.location.cell,str(actor.id)).value)
 
 func _schedule(ticket_id: String, actor_id: String, tick: int, threshold: int) -> void:
 	if _scheduled.has(ticket_id) and int(_scheduled[ticket_id].due_tick) == tick and int(_scheduled[ticket_id].threshold) == threshold:

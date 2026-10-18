@@ -176,6 +176,10 @@ func _peek() -> int:
 	return _buffer[_cursor]
 
 func _take() -> int:
+	if error.is_empty() and _cursor<_buffer.size():
+		var buffered: int = _buffer[_cursor]
+		_cursor += 1
+		return buffered
 	var value: int = _peek()
 	if value >= 0:
 		_cursor += 1

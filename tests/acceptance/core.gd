@@ -44,7 +44,12 @@ const CASES: Dictionary = {
 	"CORE-41":"技术规格账目结算：待结索引、幂等、原子失败、恢复及医院隔离",
 	"CORE-42":"技术规格分段SQLite：固定语句复用、空结果、错误恢复与回滚原子性",
 	"CORE-43":"性能规格显示边界：实际物理3D视口、原生2D、比例切换和原坐标拾取",
-	"CORE-44":"技术规格§5规范JSON：String/StringName文本键统一排序，完整值与冷热回读保持"
+	"CORE-44":"技术规格§5规范JSON：String/StringName文本键统一排序，完整值与冷热回读保持",
+	"CORE-45":"技术规格账本：余额与待付负债同源，提交、结算、替换和恢复精确保持",
+	"CORE-46":"技术规格保存保留：完整旧保存点校验、坏档拒绝及有效回退保留",
+	"CORE-47":"技术规格详情投影：原会话顺序、完整文字和余额显示保持",
+	"CORE-48":"技术规格表现投影：局部只读索引保留姿态优先级与当前事实",
+	"CORE-49":"技术规格流式编解码：跨块UTF-8、64位、坏输入及精确校验和"
 }
 
 func run(t) -> void:
@@ -58,6 +63,21 @@ func _case_43(t, content: HospitalContent) -> void:
 
 func _case_44(t, content: HospitalContent) -> void:
 	preload("res://tests/acceptance/canonical_json.gd").new().run(t,content)
+
+func _case_45(t, content: HospitalContent) -> void:
+	preload("res://tests/acceptance/ledger_observation.gd").new().run(t,content)
+
+func _case_46(t, content: HospitalContent) -> void:
+	preload("res://tests/acceptance/snapshot_cleanup.gd").new().run(t,content)
+
+func _case_47(t, content: HospitalContent) -> void:
+	await preload("res://tests/acceptance/details_projection.gd").new().run(t,content)
+
+func _case_48(t, content: HospitalContent) -> void:
+	await preload("res://tests/acceptance/view_projection.gd").new().run(t,content)
+
+func _case_49(t, content: HospitalContent) -> void:
+	preload("res://tests/acceptance/stream_boundaries.gd").new().run(t,content)
 
 func _case_01(t, content: HospitalContent) -> void:
 	var empty: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"空地",false,content)

@@ -82,7 +82,9 @@ const CASES: Dictionary = {
 	"GROW-79":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；参考数值复用保留独立候选、有界批次与失败原子性",
 	"GROW-80":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；分层诊断保留完整合法分支、精确C和独立结构K",
 	"GROW-81":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；名义相同适配布局的完整候选与独立预约世界一致",
-	"GROW-82":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；独立K精确结构支配及不可比候选、护理所有权与空组反例"
+	"GROW-82":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；独立K精确结构支配及不可比候选、护理所有权与空组反例",
+	"GROW-83":"docs/design/11-growth-arrivals-recruitment.md §1.3；居民保护批次及导诊结构查询保持身份、完整路由与随机流",
+	"GROW-84":"docs/design/07-clinical-team.md §6；参考手术预筛选保持完整候选及实际资格验证"
 }
 
 func run(t) -> void:
@@ -450,6 +452,12 @@ func _case_81(t) -> void:
 
 func _case_82(t) -> void:
 	load("res://tests/acceptance/structure_dominance.gd").new().run_case(t,_content)
+
+func _case_83(t) -> void:
+	load("res://tests/acceptance/clinical_query_batches.gd").new().run_case(t,_content)
+
+func _case_84(t) -> void:
+	load("res://tests/acceptance/surgery_qualification.gd").new().run_case(t,_content)
 
 func _case_47(t) -> void:
 	var builder: RefCounted = load("res://tests/acceptance/space.gd").new()

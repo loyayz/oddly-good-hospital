@@ -117,10 +117,7 @@ func pay_necessary(world: WorldState, owner: String, component: String, cost: in
 	if world.facts.ledger.entries.has(key):
 		var original: Dictionary = world.facts.ledger.entries[key]
 		return _result(world,int(original.get("cost",-1))==cost,"duplicate" if int(original.get("cost",-1))==cost else "entry_id_conflict","原费用凭据已存在")
-	var cash: int = HospitalLedger.balance(world)
-	for pending: Dictionary in world.facts.ledger.entries.values():
-		if not pending.settled:
-			cash += mini(0,int(pending.amount))
+	var cash: int = world.available_ledger_balance()
 	var paid: int = mini(maxi(0,cash),cost)
 	var result: CommandResult = HospitalLedger.post(world,LedgerEntry.new(owner,component,-paid))
 	if not result.accepted:
@@ -196,6 +193,16 @@ func operating_rate(world: WorldState) -> int:
 	return roundi(float(content.balance.daily_base_cost)*20.0)+roundi(float(content.balance.daily_cost_per_station)*20.0)*stations+roundi(float(content.balance.daily_cost_per_indoor_cell)*20.0)*_indoor_cells(world)
 
 func _indoor_cells(world: WorldState) -> int:
+	var unchanged: bool = true
+	var count: int = 0
+	for id: String in world.facts.rooms:
+		var room: Dictionary = world.facts.rooms[id]
+		if room.get("under_construction",false): continue
+		count += 1
+		var previous: Array = _indoor_geometry.get(id,[])
+		if previous.size()!=4 or previous[0]!=room.floor_id or previous[1]!=room.origin or previous[2]!=room.size or previous[3]!=room.get("cells"):
+			unchanged = false
+	if unchanged and count==_indoor_geometry.size(): return _indoor_count
 	var geometry: Dictionary = {}
 	for id: String in world.facts.rooms:
 		var room: Dictionary = world.facts.rooms[id]

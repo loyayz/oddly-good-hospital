@@ -934,6 +934,10 @@ func _update_details() -> void:
 		for source: String in _session.pause_reasons():
 			reasons.append({"focus":"窗口未聚焦"}.get(source,source))
 		lines.append("暂停原因："+", ".join(reasons))
+	var sessions_by_visit: Dictionary = {}
+	for session: Dictionary in world.facts.sessions.values():
+		if not sessions_by_visit.has(session.visit_id): sessions_by_visit[session.visit_id] = []
+		sessions_by_visit[session.visit_id].append(session)
 	for visit_id: String in world.ids("visits"):
 		var visit: Dictionary = world.facts.visits[visit_id]
 		var evidence: float = 0.0
@@ -947,9 +951,8 @@ func _update_details() -> void:
 			lines.append(visit.waiting_reason)
 		if not visit.plan_decision.is_empty():
 			lines.append(str(_content.definition("treatment_plans",visit.plan_decision.plan_id).name))
-		for session: Dictionary in world.facts.sessions.values():
-			if session.visit_id == visit.id:
-				lines.append("剩余 %d 医院分钟" % ceili(float(session.remaining_ticks)*4.8/60.0))
+		for session: Dictionary in sessions_by_visit.get(visit.id,[]):
+			lines.append("剩余 %d 医院分钟" % ceili(float(session.remaining_ticks)*4.8/60.0))
 		if visit.final_result == "cured":
 			lines.append("[color=#"+Palette.SUCCESS.to_html(false)+"]已治愈，沿原流程离院[/color]")
 		elif visit.final_result == "retry":

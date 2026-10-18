@@ -1084,6 +1084,11 @@ func _surgery_quote(world: WorldState, visit: Dictionary, requested_team: Array 
 	# The doctors cannot be ward-nurse candidates; only the team's nurse is excluded.
 	var bed_quotes: Dictionary = options.get("bed_quotes",{})
 	var alternatives: Variant = options.get("alternatives")
+	# Only this same-call complete reference enumeration may trust its pools.
+	# Actual work and direct bundle requests retain the full validation entry.
+	var prequalified: bool = structural and bool(options.get("reference_schedule",false)) and alternatives!=null and visit.attempt_ids.size()<int(content.balance.max_treatment_attempts)
+	for research_id: String in plan.requires_research:
+		if not research_id in world.facts.research: prequalified = false
 	space.begin_route_query(world)
 	var best: Dictionary = {"ok":false,"structural_ok":false,"reason":"缺少当前可执行的三个互异手术岗位"}
 	if not pools[0].is_empty() and not pools[1].is_empty() and not pools[2].is_empty() and not tables.is_empty():
@@ -1114,7 +1119,8 @@ func _surgery_quote(world: WorldState, visit: Dictionary, requested_team: Array 
 						var predicted: Dictionary = _surgery_probability(world,visit,[surgeon_id,anesthetist_id,nurse_id],table,protocol)
 						if int(predicted.probability_bp)<int(best.probability_bp) or (int(predicted.probability_bp)==int(best.probability_bp) and str([surgeon_id,anesthetist_id,nurse_id])+facility_id>=str(best.staff_ids)+str(best.facility_id)):
 							continue
-					var quote: Dictionary = _surgery_bundle_quote(world,visit,[surgeon_id,anesthetist_id,nurse_id],facility_id,options,bed_quotes)
+					var team: Array = [surgeon_id,anesthetist_id,nurse_id]
+					var quote: Dictionary = _qualified_surgery_bundle_quote(world,visit,team,facility_id,options,bed_quotes,plan,protocol) if prequalified else _surgery_bundle_quote(world,visit,team,facility_id,options,bed_quotes)
 					if quote.ok and alternatives!=null: alternatives.append(quote)
 					if quote.ok and (not best.ok or int(quote.probability_bp)>int(best.probability_bp) or (int(quote.probability_bp)==int(best.probability_bp) and str(quote.staff_ids)+facility_id<str(best.staff_ids)+str(best.facility_id))):
 						best = quote
@@ -1160,6 +1166,9 @@ func _surgery_bundle_quote(world: WorldState, visit: Dictionary, team: Array, fa
 			return {"ok":false,"reason":"外科职称不足"}
 		if index == 2 and not "q_or" in staff.certificates:
 			return {"ok":false,"reason":"护士未取得手术资格"}
+	return _qualified_surgery_bundle_quote(world,visit,team,facility_id,options,bed_quotes,plan,protocol)
+
+func _qualified_surgery_bundle_quote(world: WorldState, visit: Dictionary, team: Array, facility_id: String, options: Dictionary, bed_quotes: Dictionary, plan: Dictionary, protocol: Dictionary) -> Dictionary:
 	if team[0] == team[1] or team[0] == team[2] or team[1] == team[2]:
 		return {"ok":false,"reason":"手术岗位必须互异"}
 	var table: Dictionary = world.facts.facilities[facility_id]

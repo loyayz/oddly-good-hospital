@@ -211,7 +211,7 @@ func route_patient(world: WorldState, visit_id: String) -> bool:
 		var correct: Array = []
 		var wrong: Array = []
 		for id: String in _sorted(units):
-			var readiness: Dictionary = readiness(world,id,visit_id)
+			var readiness: Dictionary = readiness(world,id,visit_id,true)
 			if not readiness.reachable or not units[id].open: continue
 			if readiness.structurally_compatible: correct.append(id)
 			elif readiness.reason_id in content.balance.guidance.wrong_destination_reason_ids and _serves_other_case(world,units[id]): wrong.append(id)
@@ -228,12 +228,12 @@ func route_patient(world: WorldState, visit_id: String) -> bool:
 		world.facts.departments.routes[visit_id] = {"visit_id":visit_id,"registration_choice":selected,"correct_department_id":correct[0],"error_rolled":error_rolled,"corrected":false,"nurse_attempted":false,"started_tick":world.sim_tick,"actual_mismatched_entry_arrival":{},"correction_source":""}
 		visit.department_id = selected
 	var route: Dictionary = world.facts.departments.routes[visit_id]
-	var current: Dictionary = readiness(world,str(visit.department_id),visit_id)
+	var current: Dictionary = readiness(world,str(visit.department_id),visit_id,true)
 	if current.structurally_compatible:
 		if world.facts.departments.guidance.get(visit_id,{}).get("phase","")=="working": return false
 		if route.error_rolled and not route.corrected: _correct(world,visit_id,"capacity_recheck",str(visit.department_id))
 		return true
-	var targets: Array = eligible_departments(world,visit_id)
+	var targets: Array = eligible_departments(world,visit_id,true)
 	if targets.is_empty():
 		visit.waiting_reason = "正确科室临时不可用，保留票号等待合格窗口"
 		return false

@@ -18,6 +18,8 @@ var facts: Dictionary:
 		_department_records.clear()
 		_department_snapshot = {}
 		_pending_ledger = null
+		_ledger_entries = {}
+		_ledger_entry_count = -1
 		invalidate_geometry()
 
 # Rebuildable observation identities; none of these values enter freeze().
@@ -33,21 +35,61 @@ var _department_versions: Dictionary = {}
 var _department_records: Dictionary = {}
 var _department_snapshot: Dictionary = {}
 var _pending_ledger: Variant = null
+var _ledger_entries: Dictionary = {}
+var _ledger_entry_count: int = -1
+var _settled_ledger_amount: int = 0
+var _pending_ledger_debits: int = 0
+
+func _ensure_ledger_index() -> void:
+	if _pending_ledger!=null and is_same(_ledger_entries,facts.ledger.entries) and _ledger_entry_count==facts.ledger.entries.size(): return
+	# Ledger owns posting/settlement. Restored or replaced facts rebuild these
+	# derived totals together with the existing pending set; freeze keeps facts only.
+	_pending_ledger = {}
+	_ledger_entries = facts.ledger.entries
+	_ledger_entry_count = _ledger_entries.size()
+	_settled_ledger_amount = 0
+	_pending_ledger_debits = 0
+	for id: String in _ledger_entries:
+		var entry: Dictionary = _ledger_entries[id]
+		if entry.settled:
+			_settled_ledger_amount += int(entry.amount)
+		else:
+			_pending_ledger[id] = true
+			_pending_ledger_debits += mini(0,int(entry.amount))
+
+func ledger_balance() -> int:
+	_ensure_ledger_index()
+	return int(facts.ledger.opening_balance)+_settled_ledger_amount
+
+func available_ledger_balance() -> int:
+	_ensure_ledger_index()
+	return int(facts.ledger.opening_balance)+_settled_ledger_amount+_pending_ledger_debits
 
 func pending_ledger_ids() -> Array:
-	if _pending_ledger==null:
-		_pending_ledger = {}
-		for id: String in facts.ledger.entries:
-			if not facts.ledger.entries[id].settled: _pending_ledger[id] = true
+	_ensure_ledger_index()
 	var result: Array = _pending_ledger.keys()
 	result.sort()
 	return result
 
-func register_pending_ledger(id: String) -> void:
-	if _pending_ledger!=null: _pending_ledger[id] = true
+func ledger_posted(id: String) -> void:
+	if _pending_ledger==null: return
+	if not is_same(_ledger_entries,facts.ledger.entries) or _ledger_entry_count+1!=facts.ledger.entries.size():
+		_ensure_ledger_index()
+		return
+	_ledger_entry_count += 1
+	var entry: Dictionary = facts.ledger.entries[id]
+	if entry.settled:
+		_settled_ledger_amount += int(entry.amount)
+	else:
+		_pending_ledger[id] = true
+		_pending_ledger_debits += mini(0,int(entry.amount))
 
 func ledger_settled(id: String) -> void:
-	if _pending_ledger!=null: _pending_ledger.erase(id)
+	if _pending_ledger!=null and _pending_ledger.has(id):
+		var amount: int = int(facts.ledger.entries[id].amount)
+		_settled_ledger_amount += amount
+		_pending_ledger_debits -= mini(0,amount)
+		_pending_ledger.erase(id)
 
 var hospital_id: String:
 	get:

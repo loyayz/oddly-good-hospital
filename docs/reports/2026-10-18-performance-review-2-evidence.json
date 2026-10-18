@@ -1,0 +1,5212 @@
+{
+  "kind": "second_source_review_quick_validation",
+  "generated_utc": "2026-10-18T08:42:37.038618+00:00",
+  "baseline_head": "83cc36ae6a8cb28272ba523b984128fae54a7dae",
+  "formal_pass": false,
+  "task_state": "quick_review_completed_formal_matrix_and_stability_paused",
+  "scope": "Only focused functional cases and short diagnostics. No full capacity rerun, Release export, formal capture, GPU acceptance or stability run.",
+  "review_url": "https://chatgpt.com/share/6ad47faf-f960-83e9-89b2-d25abb35e01e",
+  "numbered_review_items": 17,
+  "adopted_or_partial": 12,
+  "no_new_production_change_or_rejected": 5,
+  "items": [
+    {
+      "id": "N01",
+      "recommendation": "表现层逐角色/设施扫描会话、病例和任务",
+      "disposition": "采用",
+      "implementation_or_reason": "每次update构造局部只读索引，保留全部匹配记录、原顺序及姿态优先级；不跨帧缓存。",
+      "measurement_and_limit": "160名在院角色，0/256/1024条合法离院历史，160次姿态投影批次中位数2.604→0.466、4.324→0.712、10.025→1.668ms；含新索引构造。此输入sessions=0，不声称测到会话规模收益或实际绘制提速。"
+    },
+    {
+      "id": "N02",
+      "recommendation": "环境观察批次重复构建索引",
+      "disposition": "部分采用",
+      "implementation_or_reason": "七类构建分项测量完成；保留原共享begin/end及每批动态重建。仅将到院怒气的value消费者改为既有sample_at，省掉未消费的sources/nearby统计，个人饮水规则不变。",
+      "measurement_and_limit": "同合法160输入120个个人环境值、5个交替配对样本，批次中位数9.812→6.799ms，全部值/facts/RNG相同。全部原样本保留，首个旧冷样本66.607ms，不作为独立冷启动收益。跨步增量环境索引不采用：动态写入依赖未闭合，不能仅凭revision共享整个_query。"
+    },
+    {
+      "id": "N03",
+      "recommendation": "手术完整组合重复资格校验",
+      "disposition": "采用",
+      "implementation_or_reason": "仅同次封闭参考枚举复用已证明资格的人员池；实际开工和直接bundle调用保留完整检查。既有首试/重试物理基础、床位覆盖元组和精确组件复用不重写。",
+      "measurement_and_limit": "完整12个有序报价，7组交替配对、每组5次完整调用均值的中位数7.5734→7.2784ms，约3.90%。独立旧枚举及旧bundle正文均冻结；不是大型医院冷参考或完整容量收益。"
+    },
+    {
+      "id": "N04",
+      "recommendation": "居民保护身份嵌套扫描",
+      "disposition": "采用",
+      "implementation_or_reason": "单次settle/返回候选边界建立完整保护关系，标量UI/命令查询仍读当前事实；保护原因的重复、顺序与数量保持。",
+      "measurement_and_limit": "合法160角色/120Visit/120居民身份变体，保护批次中位数6.901→0.951ms；完整事实和RNG一致。"
+    },
+    {
+      "id": "N05",
+      "recommendation": "详情逐病例遍历全部会话",
+      "disposition": "采用",
+      "implementation_or_reason": "每次可见详情刷新按visit分组全部会话，保持插入顺序与完整文本；不降低更新频率。",
+      "measurement_and_limit": "实际门诊边界仅1个活动会话，1/257/1025个Visit，21对完整clock+text刷新中位数0.022→0.022、2.082→1.992、7.640→7.681ms；没有显著提速证据。独立旧renderer辅助调用存在间接访问偏差，仅作探索诊断；CORE-47验证完整输出、隐藏正文时钟及真实后续进度。"
+    },
+    {
+      "id": "N06",
+      "recommendation": "噪声按设施占地逐格展开",
+      "disposition": "不采用",
+      "implementation_or_reason": "逐格覆盖是原环境传播规则，锚点代替占地会改变墙体阻隔、距离和最大罚值。布尔索引候选实际试做后完整撤回。",
+      "measurement_and_limit": "第二轮机器批次443.688→451.000μs、空环境238.500→250.188μs，施工421.313→411.438μs，无稳定净收益；环境生产文件与83cc36a相同。两轮候选和分项计时保留。"
+    },
+    {
+      "id": "N07",
+      "recommendation": "运输搜索每节点重复连接、停靠和队列前缀",
+      "disposition": "采用",
+      "implementation_or_reason": "仅同一次同步只读route内复用有序连接、楼层候选、完整身体适配、停靠集及该查询者的队列前缀；出口仍逐目标完整检查。公开quote继续完整适配检查。",
+      "measurement_and_limit": "3连接5F路线中位数3.100→2.592ms，连续10000F为2.607→2.389ms；fits30→3、stops15→3、prefix15→3。真实在途加两票unknown场景2.785→2.419ms，queue扫描8→2、move扫描24→6，完整路线/时刻/状态/facts/RNG相同。"
+    },
+    {
+      "id": "N08",
+      "recommendation": "运输出口逐半径生成后排序",
+      "disposition": "采用",
+      "implementation_or_reason": "按原y*96+x顺序直接生成楼层内曼哈顿环；保留1～191半径、完整身体、静态/动态障碍、公共空间与原路线检查。",
+      "measurement_and_limit": "5锚点×191半径共955条候选序列同序；单锚点全部半径纯生成74.418→2.729ms。该值不含实际乘梯和移动，不据此宣称真实出口延迟下降同等幅度。"
+    },
+    {
+      "id": "N09",
+      "recommendation": "保存清理反复完整恢复旧保存点",
+      "disposition": "部分采用",
+      "implementation_or_reason": "清理使用一个只读SQLite事务核验候选，消除每个旧点重复打开数据库等开销；原完整世界解码、SHA、业务验证和坏档保留/回退规则全部保留。",
+      "measurement_and_limit": "8个真实小世界手动保存点，3样本清理及结果枚举中位数30.186→20.567ms，保留记录完全相同。拒绝只信manifest/sealed或跨保存点缓存成功：内容可损坏，元数据相同不能证明当前世界块有效。未执行64/128MiB场景。"
+    },
+    {
+      "id": "N10",
+      "recommendation": "脚本JSON/ZIP逐字节处理，迁移原生库",
+      "disposition": "部分采用",
+      "implementation_or_reason": "已缓冲_take省掉重复_peek；ZIP每个≤32768字节块末尾取Adler模，保持所有CRC/Adler/SHA校验及预算/长度/UTF-8/64位/重复键边界。",
+      "measurement_and_limit": "同160世界规范JSON内存分块解码，3完整样本中位数751.754→625.607ms；相同32768字节校验块21样本1.960→1.374ms，CRC/Adler/SHA全部相同。完整RapidJSON/minizip迁移本轮不采用：没有满足当前重复键、64位、错误/预算边界的等价可替换接口，快速局部修复无需新增原生依赖及生命周期；不宣称现脚本已经满足完整大档目标。"
+    },
+    {
+      "id": "N11",
+      "recommendation": "准备捕获命中仍扫描和比较完整事实",
+      "disposition": "保留既有实现，不新增缓存",
+      "implementation_or_reason": "当前已有不变布局/科室记录共享、精确深比较和扫描/复用/复制计数；保留当前事实输入。拒绝新增跨生产者版本框架或浅比较快路：直接嵌套写入尚未闭合，容器身份、数量或world_revision都不足以证明值未变。",
+      "measurement_and_limit": "当前同160暖捕获中位数5.982ms，每次1777条扫描、1776次深比较；不变时0复制，单员工变化1复制，原输入隔离成立。没有新旧收益对照，不把0复制当0成本。"
+    },
+    {
+      "id": "N12",
+      "recommendation": "结构证书多个资源子集重复图上界",
+      "disposition": "不采用",
+      "implementation_or_reason": "既有完整图上的精确上界/独立下界证书已使本医院K返回。新子集界缓存或另一套定价状态增加内存和失效责任，没有显著占比依据；不能用旧未返回模型作为当前故障。",
+      "measurement_and_limit": "复用含义未变的既有证据：两班证书24.648/25.160ms，完整capacity308.268秒；未重新运行完整容量或原生2004项检查，DLL身份仍08a6582c…。"
+    },
+    {
+      "id": "N13",
+      "recommendation": "WorldState.ids命中仍核对并复制成员",
+      "disposition": "不采用跨步快路",
+      "implementation_or_reason": "保留完整成员核对及独立可修改返回数组。直接新增/删除与同大小替换仍存在，size/revision快路会漏成员；共享可改数组破坏调用者隔离。新增只读接口仍不能跳过成员核对，且无已闭合写入者证明支持移除主要扫描，不扩张全局身份框架。",
+      "measurement_and_limit": "源码确认成本存在，不伪造收益或毫秒结论；相关已排序查询和本次运输单调用局部复用保留。"
+    },
+    {
+      "id": "N14",
+      "recommendation": "每步运营费扫描设施和房间",
+      "disposition": "部分采用",
+      "implementation_or_reason": "稳定室内格命中先逐字段精确核对，不再每步构造整份房间几何描述；任何房间/施工/cells直接变化仍可识别。计费设施仍扫描，不增加未闭合写入者的永久计数。",
+      "measurement_and_limit": "同160输入41次原operating_rate完整调用中位数0.976→0.931ms；首冷样本保留，金额相同，改善很小。拒绝只按geometry_revision缓存所有计费分类：stored/under_construction/capacity与直接几何写入不能靠该版本统一证明。"
+    },
+    {
+      "id": "N15",
+      "recommendation": "隐藏详情仍重复读取完整历史账本余额",
+      "disposition": "采用",
+      "implementation_or_reason": "时钟栏仍显示当前资金；由现有账本唯一写入者在post/settle维护可重建的已结总额与待付负债，随facts或entries容器替换重建，期初余额实时读。派生值不保存。",
+      "measurement_and_limit": "相同160输入追加合法8192条已结账目，101次暖余额查询中位数1.831→0.001ms；无新增历史为0.001→0.001ms。首冷重建单列，不能称所有余额读取永远O(1)。正待结不计可用现金、负待结扣预算、幂等与恢复均验证。"
+    },
+    {
+      "id": "N16",
+      "recommendation": "不变骨骼矩阵页跳过纹理上传",
+      "disposition": "不采用，候选已撤回",
+      "implementation_or_reason": "试做完整输入比较及dirty纹理后，持续全骨架动画出现CPU回退；当前没有实测GPU帧收益抵偿，不保留附加发布状态。",
+      "measurement_and_limit": "64行×21骨，30次发布，静态/仅移动省1,966,080名义上传字节；全动态中位数1.097→1.248ms，增加约13.8%，动态字节不减，图像/实例buffer一致。两轮数据和候选保留；skinned_pose_batch.gd与83cc36a完全一致。"
+    },
+    {
+      "id": "N17",
+      "recommendation": "GP导诊反复执行未消费的完整方案比较",
+      "disposition": "采用",
+      "implementation_or_reason": "route_patient仅结构消费者改用现有structural_only，候选科室、错误导诊原因/概率、路由任务及随机顺序保持；不新增跨步路由缓存，实际服务入口仍完整校验资源/路线。",
+      "measurement_and_limit": "真实已路由GP等待边界，7次完整路由调用的比较次数7→0，中位数18.333→12.998ms；完整路由事实与RNG相同。"
+    }
+  ],
+  "agent_detailed_dispositions": {
+    "clinical": {
+      "baseline_head": "83cc36ae6a8cb28272ba523b984128fae54a7dae",
+      "formal_release_matrix": "PAUSED",
+      "long_2h_run": "PAUSED",
+      "scope": "Quick fixed-input diagnostics and selected rule regressions only. No capacity rerun, export, formal Release matrix, or long run.",
+      "source_identity": {
+        "engine_sha256": "c8f0a6bc45a19b33541501e57f6f7cd972ab18453743266339d495cbbe846643",
+        "native_sha256": "08a6582cecede19073637d6af437f76b86aa69c684d4bfe070c115c43e8f37dd",
+        "fixed160_input": ".cache/performance/review-formal-inputs-r1/160four.input.bin",
+        "fixed160_sha256": "6595dda287f5a82cf725ce3b1cd77b8da8d73bc242da7f2c13aa97e0b5ea822e",
+        "harness": ".cache/review-6ad47faf/clinical_benchmark.gd",
+        "identities": "Each metric JSON includes actual source hashes, engine, content, input and the harness hash at execution."
+      },
+      "items": [
+        {
+          "id": 3,
+          "disposition": "adopt_narrow_same_call_prequalification",
+          "source": "game/clinic/clinical_runtime.gd:1051,1146,1171",
+          "subrecommendations": [
+            {
+              "recommendation": "Reuse proven qualification in complete read-only reference enumeration.",
+              "status": "adopted",
+              "reason": "Only structural + reference_schedule + alternatives present and current attempt/research valid may call the private qualified helper. Same-call pools already prove existence, role, ability, title and nurse certificate. No proof token persists or comes from options."
+            },
+            {
+              "recommendation": "Retain direct and actual-start qualification, mutual posts, physical routes, schedule, beds, score/probability and all alternatives/order.",
+              "status": "retained",
+              "reason": "Full _surgery_bundle_quote entry retains original validation; trusted helper retains schedule, room/table readiness, bed, adapter, fit, complete route, supplies and energy behavior. Enumeration order and winner logic unchanged."
+            },
+            {
+              "recommendation": "Current 160/320/640 full cold clinical reference measurements.",
+              "status": "not_run_under_paused_long_validation",
+              "reason": "Quick 12-combination calculation measured. It does not close large-cold-reference risk and is not extrapolated to full capacity or any population tier."
+            }
+          ],
+          "benchmark": {
+            "artifact": ".cache/review-6ad47faf/clinical-surgery-paired.json",
+            "kind": "focused warm operation; frozen original entire enumeration and bundle validator",
+            "samples": 7,
+            "complete_operations_per_sample": 5,
+            "ordered_quotes_each_operation": 12,
+            "before_median_us": 7573.4,
+            "after_median_us": 7278.4,
+            "reduction_percent": 3.8952,
+            "result": "complete ordered quotes, best quote, and read-only source facts equal",
+            "limitations": "Modest local gain with sample spread; no cold-large-reference or full model C/K speed claim. Initial noisy unbalanced trial retained separately as clinical-surgery.json."
+          }
+        },
+        {
+          "id": 4,
+          "disposition": "adopt_synchronous_read_only_protection_index",
+          "source": "game/arrivals/arrival_service.gd:327,1308,1354,1379",
+          "subrecommendations": [
+            {
+              "recommendation": "Remove per-resident nested Actor/Visit/activity scans.",
+              "status": "adopted",
+              "reason": "A lazy map groups actor, unfinished-visit and active reference rows once in a synchronous settle or returning-resident scan. Same row ordering, duplicate reasons and per-record membership deduplication remain."
+            },
+            {
+              "recommendation": "Use existing owner maintained reverse indexes.",
+              "status": "not_adopted",
+              "reason": "No complete owner index exists for these resident references; local map has no invalidation or save/restore contract. All original Visit facts are observed once, including direct changes."
+            },
+            {
+              "recommendation": "Preserve release and return timing and identity guards.",
+              "status": "retained",
+              "reason": "Scalar UI/remember queries remain current. Release only changes resident/relationship records, not the grouped facts. Return candidate filtering, ordering and RNG draw occur as before. No map survives this synchronous call."
+            }
+          ],
+          "benchmark": {
+            "artifact": ".cache/review-6ad47faf/clinical-protection.json",
+            "kind": "valid identity variant of unchanged fixed-160 clinical/geometric workload",
+            "actors": 160,
+            "visits": 120,
+            "residents": 120,
+            "validation": "WorldState.validate returned empty",
+            "samples": 7,
+            "before_median_us": 6901,
+            "after_median_us": 951,
+            "reduction_percent": 86.2194,
+            "result": "complete output facts and RNG equal",
+            "limitations": "Resident identities generated for existing admitted patients outside timing. This is explicitly a legal setup variant, not an unchanged fixed-160 population benchmark or full simulation-step result."
+          }
+        },
+        {
+          "id": 11,
+          "disposition": "measure_and_reject_new_owner_revision_framework",
+          "source": "game/arrivals/arrival_preparation.gd:230,315",
+          "subrecommendations": [
+            {
+              "recommendation": "Measure capture scans, deep compares, copied/reused records and elapsed time.",
+              "status": "existing_metrics_measured",
+              "reason": "Production already records capture_us, scanned_records, deep_compares, copied_records, reused_records and layout_reuses. Diagnostic invokes real capture without launching capacity."
+            },
+            {
+              "recommendation": "Reuse stable owner identities.",
+              "status": "already_implemented_for_proven_owners",
+              "reason": "WorldState.capacity_layout owns immutable rooms/floors/entry projection and department_records owns unit versions. ArrivalPreparation._own_capture recognizes those identities."
+            },
+            {
+              "recommendation": "Replace remaining comparisons with versions/incremental extraction.",
+              "status": "rejected",
+              "reason": "Remaining inputs have direct nested writes, e.g. clinical_development.gd:275/289 ability, staff_wellbeing.gd:651/653 energy/fatigue and maintenance_service.gd:82/85 condition/failure. No verified producer identity closes those paths. A reader-generated revision would silently miss facts."
+            },
+            {
+              "recommendation": "Retain input isolation, deletion, A-B-A and sealed request semantics.",
+              "status": "retained_no_production_edit",
+              "reason": "No new cache or revision layer was added. Warm capture and single nested staff change confirm immutable prior input; existing GROW54/55/65/66 cover owner recovery boundaries."
+            }
+          ],
+          "benchmark": {
+            "artifact": ".cache/review-6ad47faf/clinical-capture.json",
+            "kind": "current-only real capture on unchanged fixed 160",
+            "samples": 7,
+            "median_us": 5982,
+            "initial_us": 10945,
+            "actors": 160,
+            "staff": 32,
+            "facilities": 1336,
+            "per_warm_capture": {
+              "scanned_records": 1777,
+              "deep_compares": 1776,
+              "copied_records": 0,
+              "reused_records": 1777
+            },
+            "single_staff_edit_copies": 1,
+            "readonly": true,
+            "old_input_isolated": true,
+            "limitations": "No before/after speed claim. Zero copies still leave whole-record scans and comparisons. Fine per-layout/deep-copy time attribution was not added to production hot loops."
+          }
+        },
+        {
+          "id": 12,
+          "disposition": "reject_further_structural_certificate_micro_optimization",
+          "source": "game/platform/windows/platform_arrivals.cpp:718,730,988",
+          "subrecommendations": [
+            {
+              "recommendation": "Measure certificate share before changing structures.",
+              "status": "existing_complete_diagnostic_evaluated",
+              "reason": "Existing complete diagnostic returned normally, exact K=4, two certificate times 24648/25160 us with 26 subsets each, against 308268 ms complete capacity."
+            },
+            {
+              "recommendation": "Precompute subset independent information or reduce duplicate subset bounds.",
+              "status": "rejected_for_this_scope",
+              "reason": "Both certificate calls together are 49.808 ms, approximately 0.0162 percent of the complete diagnostic. Additional structures lack demonstrated material benefit."
+            },
+            {
+              "recommendation": "Retain full graph, reliable upper bound, greedy lower certificate and exact fallback.",
+              "status": "retained_no_source_edit",
+              "reason": "No native solver/graph/candidate/pruning contract changed. Existing certificate bounds exact lower=upper=4 and solve_us=0 are preserved."
+            }
+          ],
+          "benchmark": {
+            "artifact": "docs/reports/2026-10-18-performance-review-resolution-evidence.json:complete_capacity_diagnostic.summary",
+            "source_identity_sha256": "E196E39689AC4D5EA092A8EBEAE699EA201AC4E5977578E7D3E4B44A285A2E04",
+            "fresh_run": false,
+            "elapsed_ms": 308268,
+            "certificate_us": [
+              24648,
+              25160
+            ],
+            "bound_subsets_each": 26,
+            "lower": 4,
+            "upper": 4,
+            "solver_us": 0,
+            "limitations": "Prior complete diagnostic, not current quick benchmark or Release acceptance. No new long capacity run."
+          }
+        },
+        {
+          "id": 17,
+          "disposition": "adopt_existing_structural_readiness_at_structure_only_route_consumers",
+          "source": "game/operations/department_service.gd:206",
+          "subrecommendations": [
+            {
+              "recommendation": "Do not call full compare_plans when routing consumes structural fields only.",
+              "status": "adopted",
+              "reason": "Only three route_patient calls change to structural_only=true, including its eligible-department fallback. Public detailed readiness still returns full plans."
+            },
+            {
+              "recommendation": "Preserve route choice, wrong-routing reasons, RNG and subsequent actual qualification.",
+              "status": "retained",
+              "reason": "Normal surgery plan_quote already sets structural_ok from the same structural quote; outpatient proves structural_ok before transient checks. A structurally incompatible candidate cannot be ready, so its reason_id stays clinical_readiness or the same early reason. Any differing reason_id occurs only for a structurally compatible candidate, where route_patient does not consume it. Sorted unit iteration, error draw, guide jobs and actual dispatch remain unchanged."
+            },
+            {
+              "recommendation": "Cache existing route checks across simulation steps until structural facts change.",
+              "status": "rejected",
+              "reason": "Current body location/route, direct research/intake changes and other mutable facts remain relevant; no complete cross-step invalidation proof. Every call still observes current facts."
+            }
+          ],
+          "benchmark": {
+            "artifact": ".cache/review-6ad47faf/clinical-routing.json",
+            "kind": "real GP waiting boundary with existing correct route",
+            "samples": 7,
+            "before_median_us": 18333,
+            "after_median_us": 12998,
+            "reduction_percent": 29.1005,
+            "compare_plans_before": 7,
+            "compare_plans_after": 0,
+            "result": "complete output facts, route outcome and RNG equal",
+            "limitations": "Focused route query, not full simulation-step/frame time."
+          }
+        }
+      ],
+      "general_P1": [
+        {
+          "recommendation": 1,
+          "status": "already_shared_per_sealed_case_shift_and_attempt_kind",
+          "reason": "_reference_options physical.outpatient/surgery caches complete quotes by first/retry kind and candidate/plan. Retry contexts do not regenerate physical quotes for every prior team. Further first-vs-retry physical-base unification was not added; +0.15/clamped retry probability remains separate."
+        },
+        {
+          "recommendation": 2,
+          "status": "retained",
+          "reason": "Prior team's experience updates remain isolated to retry candidate staff; scores recomputed for each doctor, terminal and strategy; _reference_retry_context retains plan, consulting doctor and first-team membership; exact retry failure weight unchanged."
+        },
+        {
+          "recommendation": 3,
+          "status": "partially_existing_plus_item3",
+          "reason": "Existing roles/abilities/titles/certificates/current table list filtered before combinations. New helper avoids repeated same-call qualification only. Room, full mutual team, schedule assignment, body/adapter and actual route remain in complete bundle; no extra prefilter framework."
+        },
+        {
+          "recommendation": 4,
+          "status": "already_implemented",
+          "reason": "_reference_bed_alternatives caches the entire legal floor tuple set and filters only excluded nurses after sharing. _reference_terminal_beds expands every legal selected-plan bed in original order."
+        },
+        {
+          "recommendation": 5,
+          "status": "already_implemented",
+          "reason": "_reference_component batching memo keys full stage decomposition and normalized exact rational weight. Independent business target metadata retained. No additional business-candidate deduplication added."
+        },
+        {
+          "recommendation": "full cold 160/320/640 closure",
+          "status": "not_run",
+          "reason": "Formal matrix/2h paused. Quick measures do not establish that the large cold reference bottleneck is closed."
+        }
+      ],
+      "regression_selection": {
+        "cases": [
+          "GROW-19",
+          "GROW-20",
+          "GROW-64",
+          "GROW-83",
+          "GROW-84",
+          "CLIN-14",
+          "OPS-30",
+          "OPS-31"
+        ],
+        "new_tests": [
+          "tests/acceptance/clinical_query_batches.gd",
+          "tests/acceptance/surgery_qualification.gd"
+        ],
+        "reason": "Identity release/return, same structural readiness, exact quote/order and direct qualification, wrong-route actual entry, one-shot correction and recovery handoffs only.",
+        "status": "parent shared prepared batch pending",
+        "static": "Godot --check-only passed new test scripts and diagnostic harness; git diff --check passed"
+      }
+    },
+    "navigation": {
+      "baseline": "83cc36ae6a8cb28272ba523b984128fae54a7dae",
+      "production_changed": [
+        "game/building/hospital_transit.gd"
+      ],
+      "production_environment_changed": false,
+      "production_maintenance_changed": false,
+      "items": [
+        {
+          "id": 2,
+          "status": "measured_no_production_change",
+          "adopted": [
+            "seven-category batch profiling",
+            "existing definition and geometry sharing retained"
+          ],
+          "rejected": [
+            "cross-tick whole query cache",
+            "dynamic incremental indices without closed mutation ownership"
+          ],
+          "reason": "Current batch already shares read-only consumers; no current evidence warrants invalidation machinery."
+        },
+        {
+          "id": 6,
+          "status": "candidate_measured_and_reverted",
+          "adopted": [
+            "retained exact footprint cell coverage"
+          ],
+          "rejected": [
+            "facility anchor substitution",
+            "per-query complete source scan",
+            "boolean noise presence candidate"
+          ],
+          "reason": "Paired batch measurements were inconsistent, including regressions; fewer small containers alone does not prove a net batch win.",
+          "candidate": ".cache/review-6ad47faf/navigation-environment-candidate.gd"
+        },
+        {
+          "id": 7,
+          "status": "adopted",
+          "subitems": [
+            "one sorted connector enumeration per route",
+            "lazy complete per-visited-floor candidate lists",
+            "one sparse stop candidate union per route",
+            "one ordered stop list and body fit per connector",
+            "one queue prefix per connector and querying actor per synchronous route"
+          ],
+          "rejected": [
+            "cross-step nominal cache for real movement",
+            "candidate clipping",
+            "unknown exits treated as finite"
+          ],
+          "reason": "Read-only call lifetime closes all relevant dependencies; complete output/facts/RNG checks agree and paired timings improve."
+        },
+        {
+          "id": 8,
+          "status": "adopted",
+          "subitems": [
+            "bounded valid ring generation in original y then x order"
+          ],
+          "rejected": [
+            "smaller radius",
+            "new unmeasured obstacle indices",
+            "skipping final route checks"
+          ],
+          "reason": "All 955 full valid candidate sequences match, with exact original body/static/dynamic/public-space/route checks retained."
+        },
+        {
+          "id": "P2.environment",
+          "status": "existing_shared_batch_retained",
+          "reason": "begin_query/end_query, positive definition reuse and bounded geometry coverage reuse already exist; incremental cross-tick ownership is not closed."
+        },
+        {
+          "id": "P2.maintenance",
+          "status": "reported_issue_absent",
+          "reason": "Current _priority and _safe_free pass _clinical_uses into HospitalEquipmentUse.query; no maintenance patch."
+        },
+        {
+          "id": "P2.numeric_sampling",
+          "status": "handed_to_arrivals_owner",
+          "reason": "Arrival _environment_score consumes only value but calls environment_at; sample_at exists. Waiting seat queries also consume nearby/preferences and cannot be replaced broadly."
+        },
+        {
+          "id": "P2.candidate_and_history",
+          "status": "covered_by_module_owners",
+          "reason": "Arrival/clinical/staff owners evaluate their resource and mutation boundaries; no second owner index added in environment/transit."
+        },
+        {
+          "id": "P3.scalar_quotes",
+          "status": "existing_fast_path_retained",
+          "reason": "HospitalSpace.travel_quote already uses same-floor scalar distances; cross-floor full path materialization has no separate current cost evidence supporting another API."
+        },
+        {
+          "id": "P3.query_dependencies",
+          "status": "adopted_local_scope_only",
+          "reason": "New transport reuse is discarded when route returns, preserving current tickets, bodies, failures, phase and exit conditions on every later query."
+        }
+      ],
+      "selected_case_ids": [
+        "SPACE-20",
+        "SPACE-23",
+        "SPACE-24",
+        "SPACE-25",
+        "SPACE-26",
+        "SPACE-28",
+        "SPACE-29"
+      ],
+      "selected_case_status": "pending_parent_shared_batch",
+      "quick_measurement": {
+        "formal_release": false,
+        "complete_result_checks": true,
+        "facts_rng_checks": true,
+        "ring_sequences_checked": 955,
+        "initial_harness_ms": 2381.955,
+        "final_harness_ms": 3048.677,
+        "results": [
+          {
+            "fixture": "three_lifts_five_floors",
+            "before_us": 3100.125,
+            "after_us": 2592.25,
+            "change_pct": -16.38,
+            "equal": true,
+            "facts_rng_unchanged": true,
+            "status": "complete",
+            "old_per_search_counts": {
+              "fits": 30,
+              "pops": 6,
+              "prefixes": 15,
+              "queue_records": 0,
+              "queue_scans": 15,
+              "stops": 15
+            },
+            "new_per_search_counts": {
+              "fits": 3,
+              "pops": 6,
+              "prefixes": 3,
+              "queue_records": 0,
+              "queue_scans": 3,
+              "stops": 3
+            }
+          },
+          {
+            "fixture": "actual_inflight_and_two_queued_groups",
+            "before_us": 2784.875,
+            "after_us": 2419.125,
+            "change_pct": -13.13,
+            "equal": true,
+            "facts_rng_unchanged": true,
+            "status": "estimate_unknown",
+            "old_per_search_counts": {
+              "fits": 24,
+              "pops": 5,
+              "prefixes": 10,
+              "queue_records": 24,
+              "queue_scans": 8,
+              "stops": 12
+            },
+            "new_per_search_counts": {
+              "fits": 3,
+              "pops": 5,
+              "prefixes": 3,
+              "queue_records": 6,
+              "queue_scans": 2,
+              "stops": 3
+            }
+          },
+          {
+            "fixture": "blocked_egress_estimate_unknown",
+            "before_us": 869.75,
+            "after_us": 818.0,
+            "change_pct": -5.95,
+            "equal": true,
+            "facts_rng_unchanged": true,
+            "status": "estimate_unknown",
+            "old_per_search_counts": {
+              "fits": 6,
+              "pops": 1,
+              "prefixes": 0,
+              "queue_records": 0,
+              "queue_scans": 0,
+              "stops": 3
+            },
+            "new_per_search_counts": {
+              "fits": 3,
+              "pops": 1,
+              "prefixes": 0,
+              "queue_records": 0,
+              "queue_scans": 0,
+              "stops": 3
+            }
+          },
+          {
+            "fixture": "sparse_10000F",
+            "before_us": 2606.625,
+            "after_us": 2389.125,
+            "change_pct": -8.34,
+            "equal": true,
+            "facts_rng_unchanged": true,
+            "status": "complete",
+            "old_per_search_counts": {
+              "fits": 24,
+              "pops": 5,
+              "prefixes": 12,
+              "queue_records": 0,
+              "queue_scans": 12,
+              "stops": 12
+            },
+            "new_per_search_counts": {
+              "fits": 3,
+              "pops": 5,
+              "prefixes": 3,
+              "queue_records": 0,
+              "queue_scans": 3,
+              "stops": 3
+            }
+          },
+          {
+            "fixture": "failed_lifts_no_upward_route",
+            "before_us": 484.75,
+            "after_us": 454.875,
+            "change_pct": -6.16,
+            "equal": true,
+            "facts_rng_unchanged": true,
+            "status": "unreachable",
+            "old_per_search_counts": {
+              "fits": 6,
+              "pops": 1,
+              "prefixes": 0,
+              "queue_records": 0,
+              "queue_scans": 0,
+              "stops": 3
+            },
+            "new_per_search_counts": {
+              "fits": 3,
+              "pops": 1,
+              "prefixes": 0,
+              "queue_records": 0,
+              "queue_scans": 0,
+              "stops": 3
+            }
+          }
+        ],
+        "raw": ".cache/review-6ad47faf/navigation-results.json",
+        "environment_candidate_retained": false
+      },
+      "static_checks": [
+        "git diff --check passed",
+        "environment baseline full-text comparison passed",
+        "Godot quick harness execution exit 0"
+      ],
+      "paused_work": [
+        "full formal Release matrix",
+        "export",
+        "two-hour run"
+      ],
+      "changed_transit_sha256": "F9B7D4CAF98824B854414C3381C4D62A01160A828989C4CA8E883B3A38BDF3DF",
+      "limitations": [
+        "Candidate generation timings are not complete stand-aside timings",
+        "Tiny legal environment fixtures cannot establish full 160/320/640 actor step hotspots",
+        "Selected functional case status must come from parent shared batch"
+      ]
+    },
+    "view": {
+      "baseline_commit": "83cc36ae6a8cb28272ba523b984128fae54a7dae",
+      "status": "implementation, quick CPU comparisons and shared CORE47/48 functional verification complete",
+      "formal_release_matrix_and_long_stability": "paused",
+      "items": [
+        {
+          "id": 1,
+          "decision": "adopt_update_local_index",
+          "adopted": [
+            "moving_members",
+            "paused_session_participants",
+            "working_staff",
+            "ordered_visits_by_actor",
+            "ordered_sessions_by_facility",
+            "ordered_sessions_by_visit",
+            "reuse_in_case_props"
+          ],
+          "rejected": [
+            {
+              "suggestion": "cross_update_incremental_index",
+              "reason": "Fresh update-local projection gives the measured benefit without additional persistent ownership and same-tick/paused-command invalidation obligations."
+            }
+          ],
+          "source": "game/view/hospital_view.gd",
+          "test": "CORE-48",
+          "metric": "fixed160live_12samples_pose_batch_including_index_build",
+          "median_us": [
+            {
+              "history": 0,
+              "before": 2604,
+              "after": 466
+            },
+            {
+              "history": 256,
+              "before": 4324,
+              "after": 712
+            },
+            {
+              "history": 1024,
+              "before": 10025,
+              "after": 1668
+            }
+          ],
+          "all_results_equal_and_world_readonly": true,
+          "limit": "Input has0activeSessions. No session-scaling, whole-view-frame, GPU, or presentation claim."
+        },
+        {
+          "id": 5,
+          "decision": "adopt_ordered_visit_session_groups_in_parent_owned_app_root",
+          "adopted": [
+            "retain_every_matching_session_and_order",
+            "complete_text_and_clock_equivalence",
+            "hidden_details_early_return"
+          ],
+          "rejected": [
+            {
+              "suggestion": "further_split_clock_and_visit_refresh_cycles",
+              "reason": "No independent measurement justifies new UI refresh state; ordered grouping removes the demonstrated nested scan while retaining the existing refresh contract."
+            }
+          ],
+          "source": "game/app/app_root.gd::_update_details",
+          "test": "CORE-47",
+          "metric": "recorded_by_parent",
+          "exploratory_full_ui": {
+            "samples": 21,
+            "actual_sessions": 1,
+            "history": [
+              0,
+              256,
+              1024
+            ],
+            "before_median_us": [
+              22,
+              2082,
+              7640
+            ],
+            "after_median_us": [
+              22,
+              1992,
+              7681
+            ],
+            "all_output_equal": true,
+            "readonly": true,
+            "input_validation_passed": true,
+            "limitation": "Old renderer helper app-field access adds possible timing bias; no reliable UI gain established in single-session workload.",
+            "metrics": ".cache/review-6ad47faf/details-metrics.json"
+          }
+        },
+        {
+          "id": 16,
+          "decision": "reject_restore_original_production_file",
+          "suggestion": "cache_last_successful_bone_matrices_and_instance_transforms",
+          "reason": "Fully dynamic1344matrix64row21boneCPUmedian regressed13.8percent from1097to1248us; no actualGPU/presentation benefit measured. Candidate state and guards are additional complexity for a generic production path.",
+          "before_after_median_us": [
+            {
+              "mode": "unchanged",
+              "before": 1043,
+              "after": 939
+            },
+            {
+              "mode": "moving",
+              "before": 1039,
+              "after": 967
+            },
+            {
+              "mode": "animated_tip",
+              "before": 1032,
+              "after": 1001
+            },
+            {
+              "mode": "animated_root",
+              "before": 1097,
+              "after": 1248
+            }
+          ],
+          "unchanged_and_moving_30pub_nominal_upload_bytes": {
+            "before": 1966080,
+            "after": 0
+          },
+          "dynamic_30pub_nominal_upload_bytes": {
+            "before": 1966080,
+            "after": 1966080
+          },
+          "all_matrix_pages_and_instance_buffers_equal": true,
+          "candidate": ".cache/review-6ad47faf/view-skinned-candidate.gd.txt",
+          "production_restored_sha256": "aace3d336ffe477136818d06d1d2d7e5dd1ebb3051371069991dc99dcbca7ac0",
+          "limit": "HeadlessCPUprobe and nominalcounter; no driverupload/GPU/frame/pixel claim. No new production test retained for rejected candidate."
+        }
+      ],
+      "general_text_scope": "long-0-11940.txt contains P1, P2 and truncated P3 route proposal; no separate graphics general proposal recovered",
+      "evidence": {
+        "metrics": ".cache/review-6ad47faf/view-metrics.json",
+        "first_candidate_metrics": ".cache/review-6ad47faf/view-metrics-first-candidate.json",
+        "identities": ".cache/review-6ad47faf/view-identities.json",
+        "probe": ".cache/review-6ad47faf/view-probe.gd",
+        "wall_seconds": 3.2731314,
+        "exit_code": 0
+      },
+      "functional": {
+        "prepared": ".cache/acceptance/cfece37a5ed948a2a70bfd3f236dc8a6",
+        "cases": [
+          "CORE-47",
+          "CORE-48"
+        ],
+        "passed": true,
+        "thread_cleanup_warning": false,
+        "earlier_failure_evidence": "preserved by parent; test expectation and duplicate preparation owner corrected"
+      }
+    }
+  },
+  "functional_batches": [
+    {
+      "path": ".cache/acceptance/db643ca57e894ef8b92cc7969c66f572",
+      "completed": true,
+      "checks": 34,
+      "failed": 2,
+      "cases": {
+        "CLIN-14": {
+          "passed": true,
+          "setup_ms": 43,
+          "body_ms": 76
+        },
+        "CORE-02": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 349
+        },
+        "CORE-13": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 327
+        },
+        "CORE-18": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 352
+        },
+        "CORE-20": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 406
+        },
+        "CORE-21": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 395
+        },
+        "CORE-26": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 437
+        },
+        "CORE-31": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 389
+        },
+        "CORE-32": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 395
+        },
+        "CORE-41": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 325
+        },
+        "CORE-44": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 324
+        },
+        "CORE-45": {
+          "passed": false,
+          "setup_ms": 0,
+          "body_ms": 331
+        },
+        "CORE-46": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 481
+        },
+        "CORE-47": {
+          "passed": true,
+          "setup_ms": 1910,
+          "body_ms": 372
+        },
+        "CORE-48": {
+          "passed": false,
+          "setup_ms": 13,
+          "body_ms": 379
+        },
+        "CORE-49": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 343
+        },
+        "GROW-19": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 41
+        },
+        "GROW-20": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 81
+        },
+        "GROW-64": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 16
+        },
+        "GROW-83": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 1311
+        },
+        "GROW-84": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 293
+        },
+        "OPS-11": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 12
+        },
+        "OPS-18": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 363
+        },
+        "OPS-30": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 316
+        },
+        "OPS-31": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 184
+        },
+        "OPS-33": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 10
+        },
+        "OPS-35": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 4
+        },
+        "SPACE-20": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 3
+        },
+        "SPACE-23": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 2
+        },
+        "SPACE-24": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 37
+        },
+        "SPACE-25": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 60
+        },
+        "SPACE-26": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 20
+        },
+        "SPACE-28": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 99
+        },
+        "SPACE-29": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 180
+        }
+      },
+      "timing": {
+        "started_at_utc": "2026-10-18T08:30:10.1380663+00:00",
+        "ended_at_utc": "2026-10-18T08:30:34.0210774+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 2601,
+        "import_ms": 5985,
+        "tests_ms": 15284,
+        "total_ms": 23885
+      },
+      "engine_sha256": "C8F0A6BC45A19B33541501E57F6F7CD972AB18453743266339D495CBBE846643",
+      "native_sha256": "08A6582CECEDE19073637D6AF437F76B86AA69C684D4BFE070C115C43E8F37DD",
+      "sources": [
+        {
+          "path": ".cache/acceptance/db643ca57e894ef8b92cc7969c66f572/acceptance-results.json",
+          "bytes": 33979,
+          "sha256": "96617f1404f92a31c29a2dddf3144dfe95b3ab6a1a2571413c5e19c06920c5c4"
+        },
+        {
+          "path": ".cache/acceptance/db643ca57e894ef8b92cc7969c66f572/timing-summary.json",
+          "bytes": 258,
+          "sha256": "4f64591eeabd8fbe00d012dcf6dbc03e6095e9677711a4b713d149f3b73810d1"
+        },
+        {
+          "path": ".cache/acceptance/db643ca57e894ef8b92cc7969c66f572/source-identity.json",
+          "bytes": 94608,
+          "sha256": "cba9c7b4a6cf85adab48128a0170265c465f2e68de7bb652a0c3545d67ca7183"
+        },
+        {
+          "path": ".cache/acceptance/db643ca57e894ef8b92cc7969c66f572/execution.log",
+          "bytes": 23196,
+          "sha256": "6310d125ba52c6099764d37d4275c04d438feaa29cae5fdec69fabf5e0cdc67e"
+        }
+      ]
+    },
+    {
+      "path": ".cache/acceptance/cfece37a5ed948a2a70bfd3f236dc8a6",
+      "completed": true,
+      "checks": 4,
+      "failed": 0,
+      "cases": {
+        "CORE-45": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 331
+        },
+        "CORE-47": {
+          "passed": true,
+          "setup_ms": 1864,
+          "body_ms": 353
+        },
+        "CORE-48": {
+          "passed": true,
+          "setup_ms": 12,
+          "body_ms": 370
+        },
+        "CORE-49": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 347
+        }
+      },
+      "timing": {
+        "started_at_utc": "2026-10-18T08:32:27.0004169+00:00",
+        "ended_at_utc": "2026-10-18T08:32:41.1317425+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 2462,
+        "import_ms": 6181,
+        "tests_ms": 5476,
+        "total_ms": 14133
+      },
+      "engine_sha256": "C8F0A6BC45A19B33541501E57F6F7CD972AB18453743266339D495CBBE846643",
+      "native_sha256": "08A6582CECEDE19073637D6AF437F76B86AA69C684D4BFE070C115C43E8F37DD",
+      "sources": [
+        {
+          "path": ".cache/acceptance/cfece37a5ed948a2a70bfd3f236dc8a6/acceptance-results.json",
+          "bytes": 4872,
+          "sha256": "457f64c88de8a8e99da9c1e206982b315fa65ad565af2a1a90a5ac3425e15af9"
+        },
+        {
+          "path": ".cache/acceptance/cfece37a5ed948a2a70bfd3f236dc8a6/timing-summary.json",
+          "bytes": 257,
+          "sha256": "9d3b86bf07a9887604397b52a6db87344e4b718dfb9d14c3a68db30278f060be"
+        },
+        {
+          "path": ".cache/acceptance/cfece37a5ed948a2a70bfd3f236dc8a6/source-identity.json",
+          "bytes": 93852,
+          "sha256": "b0441dc9ae3cd4d5e3284a3abff293ff269499048096f51a19bb7e7086a3b8ed"
+        },
+        {
+          "path": ".cache/acceptance/cfece37a5ed948a2a70bfd3f236dc8a6/execution.log",
+          "bytes": 18431,
+          "sha256": "2a0ff7441e1869fcb35344fe48cbf858fc11de41b4f8a106de3b92c3489a87b0"
+        }
+      ]
+    }
+  ],
+  "final_selected_cases": {
+    "CLIN-14": true,
+    "CORE-02": true,
+    "CORE-13": true,
+    "CORE-18": true,
+    "CORE-20": true,
+    "CORE-21": true,
+    "CORE-26": true,
+    "CORE-31": true,
+    "CORE-32": true,
+    "CORE-41": true,
+    "CORE-44": true,
+    "CORE-45": true,
+    "CORE-46": true,
+    "CORE-47": true,
+    "CORE-48": true,
+    "CORE-49": true,
+    "GROW-19": true,
+    "GROW-20": true,
+    "GROW-64": true,
+    "GROW-83": true,
+    "GROW-84": true,
+    "OPS-11": true,
+    "OPS-18": true,
+    "OPS-30": true,
+    "OPS-31": true,
+    "OPS-33": true,
+    "OPS-35": true,
+    "SPACE-20": true,
+    "SPACE-23": true,
+    "SPACE-24": true,
+    "SPACE-25": true,
+    "SPACE-26": true,
+    "SPACE-28": true,
+    "SPACE-29": true
+  },
+  "unchanged_first_batch_passes_reused": 30,
+  "first_batch_failed_or_warning_evidence_preserved": true,
+  "metrics": {
+    "root-results.json": {
+      "cases": {
+        "json_decode": {
+          "bytes": 847924,
+          "complete_facts_rng_equal": true,
+          "in_memory_source_not_database_save_load": true,
+          "new": {
+            "first_us": 622982,
+            "median_us": 625607,
+            "samples_us": [
+              622982,
+              629699,
+              625607
+            ]
+          },
+          "old": {
+            "first_us": 745655,
+            "median_us": 751754,
+            "samples_us": [
+              745655,
+              751754,
+              754759
+            ]
+          },
+          "sha256": "ac2270efeec7618b44c9ef171283141ead7628b8d25516cdaf066329dc056bb4"
+        },
+        "ledger_0": {
+          "cold_new": {
+            "first_us": 22,
+            "last_value": 9998800,
+            "median_us": 22,
+            "samples_us": [
+              22
+            ]
+          },
+          "complete_value_equal": true,
+          "new": {
+            "first_us": 2,
+            "last_value": 9998800,
+            "median_us": 1,
+            "samples_us": [
+              2,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              2,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          },
+          "old": {
+            "first_us": 4,
+            "last_value": 9998800,
+            "median_us": 1,
+            "samples_us": [
+              4,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          }
+        },
+        "ledger_8192": {
+          "cold_new": {
+            "first_us": 14,
+            "last_value": 10006992,
+            "median_us": 14,
+            "samples_us": [
+              14
+            ]
+          },
+          "complete_value_equal": true,
+          "new": {
+            "first_us": 14,
+            "last_value": 10006992,
+            "median_us": 1,
+            "samples_us": [
+              14,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              2,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              2,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          },
+          "old": {
+            "first_us": 3511,
+            "last_value": 10006992,
+            "median_us": 1831,
+            "samples_us": [
+              3511,
+              2505,
+              2554,
+              2501,
+              1995,
+              1824,
+              1836,
+              1775,
+              1866,
+              1575,
+              2410,
+              2199,
+              2717,
+              3193,
+              2106,
+              1935,
+              2194,
+              2839,
+              2347,
+              2116,
+              2018,
+              1951,
+              1867,
+              2363,
+              2224,
+              1793,
+              1774,
+              1980,
+              1881,
+              1799,
+              1753,
+              1891,
+              1808,
+              1715,
+              1842,
+              1851,
+              2938,
+              1760,
+              1774,
+              1545,
+              1916,
+              1695,
+              1760,
+              1609,
+              1556,
+              1754,
+              1813,
+              1754,
+              1693,
+              1901,
+              1673,
+              1632,
+              1841,
+              1561,
+              2246,
+              1895,
+              1617,
+              1640,
+              1748,
+              1697,
+              1812,
+              1561,
+              1719,
+              1537,
+              1983,
+              1974,
+              1833,
+              1857,
+              1753,
+              1726,
+              1708,
+              1669,
+              1727,
+              2500,
+              2056,
+              2104,
+              1863,
+              1673,
+              1677,
+              1846,
+              1619,
+              1762,
+              2039,
+              2722,
+              1940,
+              1755,
+              1647,
+              1522,
+              1581,
+              1563,
+              1579,
+              1714,
+              3280,
+              1995,
+              1678,
+              1831,
+              1626,
+              1881,
+              1700,
+              2240,
+              2237
+            ]
+          }
+        },
+        "operating_rate": {
+          "complete_value_equal": true,
+          "first_cold_samples_retained": true,
+          "new": {
+            "first_us": 3030,
+            "last_value": 15136,
+            "median_us": 931,
+            "samples_us": [
+              3030,
+              931,
+              903,
+              987,
+              907,
+              881,
+              1054,
+              1302,
+              1041,
+              919,
+              896,
+              1031,
+              960,
+              1004,
+              979,
+              994,
+              1220,
+              973,
+              1010,
+              941,
+              942,
+              957,
+              897,
+              962,
+              896,
+              881,
+              861,
+              873,
+              862,
+              872,
+              867,
+              873,
+              874,
+              1093,
+              928,
+              903,
+              987,
+              948,
+              883,
+              899,
+              888
+            ]
+          },
+          "old": {
+            "first_us": 4009,
+            "last_value": 15136,
+            "median_us": 976,
+            "samples_us": [
+              4009,
+              1441,
+              1058,
+              1029,
+              1005,
+              1001,
+              989,
+              989,
+              976,
+              956,
+              955,
+              1091,
+              1375,
+              1024,
+              919,
+              963,
+              1238,
+              1071,
+              1560,
+              1796,
+              1067,
+              884,
+              872,
+              885,
+              876,
+              889,
+              937,
+              1158,
+              990,
+              928,
+              949,
+              1080,
+              969,
+              997,
+              953,
+              927,
+              951,
+              895,
+              879,
+              888,
+              884
+            ]
+          }
+        },
+        "snapshot_cleanup": {
+          "actual_small_world_manual_commits": 8,
+          "full_old_world_validation_kept": true,
+          "new": {
+            "first_us": 20051,
+            "median_us": 20567,
+            "samples_us": [
+              20051,
+              20567,
+              22215
+            ]
+          },
+          "old": {
+            "first_us": 30252,
+            "median_us": 30186,
+            "samples_us": [
+              30252,
+              30186,
+              29974
+            ]
+          },
+          "same_retained_records": true
+        },
+        "zip_checksum_chunk": {
+          "bytes": 32768,
+          "complete_crc_adler_sha_equal": true,
+          "new": {
+            "first_us": 1493,
+            "last_value": {
+              "ok": true,
+              "sha256": "a6a99d711f2e58db3b61febc09219d4bb80a2fe44bf7ad363ca179251a655635",
+              "state": {
+                "adler_a": 426,
+                "adler_b": 21315,
+                "bytes": 32768,
+                "crc": 185024473
+              }
+            },
+            "median_us": 1374,
+            "samples_us": [
+              1493,
+              1337,
+              1351,
+              1341,
+              1347,
+              1556,
+              1379,
+              1330,
+              1351,
+              1355,
+              1326,
+              1512,
+              2046,
+              1438,
+              1428,
+              1374,
+              1651,
+              1575,
+              1621,
+              1333,
+              1320
+            ]
+          },
+          "not_archive_end_to_end": true,
+          "old": {
+            "first_us": 2057,
+            "last_value": {
+              "ok": true,
+              "sha256": "a6a99d711f2e58db3b61febc09219d4bb80a2fe44bf7ad363ca179251a655635",
+              "state": {
+                "adler_a": 426,
+                "adler_b": 21315,
+                "bytes": 32768,
+                "crc": 185024473
+              }
+            },
+            "median_us": 1960,
+            "samples_us": [
+              2057,
+              2089,
+              2084,
+              1928,
+              1995,
+              1930,
+              1960,
+              1870,
+              1872,
+              2215,
+              1900,
+              1878,
+              1974,
+              1921,
+              1991,
+              1922,
+              1913,
+              2148,
+              2536,
+              1915,
+              1979
+            ]
+          }
+        }
+      },
+      "diagnostic_only": true,
+      "engine": {
+        "build": "official",
+        "hash": "ed1daf0bf001b61586d9930840f2f1394092c079",
+        "hex": 263938,
+        "major": 4,
+        "minor": 7,
+        "patch": 2,
+        "status": "stable",
+        "string": "4.7.2-stable (official)",
+        "timestamp": 0
+      },
+      "fixture": {
+        "description": {
+          "actors": 160,
+          "beds": 24,
+          "boundary": "built hospital; admitted patients before reception; actual production services thereafter",
+          "errors": [],
+          "facilities": 1336,
+          "floors": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "patients": 120,
+          "rooms": 64,
+          "staff": 32,
+          "visitors": 8
+        },
+        "input_sha256": "6595dda287f5a82cf725ce3b1cd77b8da8d73bc242da7f2c13aa97e0b5ea822e",
+        "validation": ""
+      },
+      "formal_pass": false,
+      "pid": 36404,
+      "valid": true
+    },
+    "environment-score-results.json": {
+      "diagnostic_only": true,
+      "facts_and_rng_readonly": true,
+      "formal_pass": false,
+      "full_values_equal": true,
+      "input_sha256": "6595dda287f5a82cf725ce3b1cd77b8da8d73bc242da7f2c13aa97e0b5ea822e",
+      "new_median_us": 6799,
+      "new_samples_us": [
+        7245,
+        6852,
+        6704,
+        6704,
+        6799
+      ],
+      "old_median_us": 9812,
+      "old_samples_us": [
+        66607,
+        7932,
+        9291,
+        9812,
+        10150
+      ],
+      "paired_samples": 5,
+      "queries_per_sample": 120,
+      "scope": "only value consumer; full personal water contract retained; each sample includes original environment begin/end",
+      "valid": true
+    },
+    "view-metrics.json": {
+      "content_fingerprint": "70ef833fb44c1682824534528697df4a55d011f10121f15f8e83f0b5b7b6d433",
+      "engine": {
+        "build": "official",
+        "hash": "ed1daf0bf001b61586d9930840f2f1394092c079",
+        "hex": 263938,
+        "major": 4,
+        "minor": 7,
+        "patch": 2,
+        "status": "stable",
+        "string": "4.7.2-stable (official)",
+        "timestamp": 0
+      },
+      "input": "res://.cache/performance/review-formal-inputs-r1/160four.input.bin",
+      "input_sha256": "6595dda287f5a82cf725ce3b1cd77b8da8d73bc242da7f2c13aa97e0b5ea822e",
+      "kind": "bounded headless CPU probe; no GPU/frame/presentation claim",
+      "live_actors": 160,
+      "pose": [
+        {
+          "actors": 160,
+          "after_us_including_index_build": {
+            "count": 12,
+            "max": 657,
+            "mean": 488.0,
+            "median": 466,
+            "samples": [
+              543,
+              471,
+              482,
+              458,
+              465,
+              464,
+              452,
+              442,
+              508,
+              466,
+              448,
+              657
+            ]
+          },
+          "all_pose_and_ordered_session_results_equal": true,
+          "before_us": {
+            "count": 12,
+            "max": 3915,
+            "mean": 2737.91666666667,
+            "median": 2604,
+            "samples": [
+              3063,
+              2578,
+              2642,
+              2590,
+              2638,
+              2636,
+              2542,
+              2556,
+              3915,
+              2549,
+              2542,
+              2604
+            ]
+          },
+          "calls_per_sample": 160,
+          "facilities": 1336,
+          "history_visits": 0,
+          "live_actors": 160,
+          "moves": 12,
+          "sessions": 0,
+          "validation": "",
+          "visits": 120,
+          "world_readonly": true
+        },
+        {
+          "actors": 416,
+          "after_us_including_index_build": {
+            "count": 12,
+            "max": 915,
+            "mean": 732.166666666667,
+            "median": 712,
+            "samples": [
+              769,
+              915,
+              704,
+              685,
+              763,
+              712,
+              704,
+              754,
+              693,
+              731,
+              688,
+              668
+            ]
+          },
+          "all_pose_and_ordered_session_results_equal": true,
+          "before_us": {
+            "count": 12,
+            "max": 7533,
+            "mean": 4661.33333333333,
+            "median": 4324,
+            "samples": [
+              7533,
+              4469,
+              4324,
+              4172,
+              4519,
+              4580,
+              4148,
+              5493,
+              4210,
+              4249,
+              4137,
+              4102
+            ]
+          },
+          "calls_per_sample": 160,
+          "facilities": 1336,
+          "history_visits": 256,
+          "live_actors": 160,
+          "moves": 12,
+          "sessions": 0,
+          "validation": "",
+          "visits": 376,
+          "world_readonly": true
+        },
+        {
+          "actors": 1184,
+          "after_us_including_index_build": {
+            "count": 12,
+            "max": 2689,
+            "mean": 1761.0,
+            "median": 1668,
+            "samples": [
+              2689,
+              1695,
+              1513,
+              1433,
+              1668,
+              1621,
+              1601,
+              1562,
+              2285,
+              1735,
+              1727,
+              1603
+            ]
+          },
+          "all_pose_and_ordered_session_results_equal": true,
+          "before_us": {
+            "count": 12,
+            "max": 12423,
+            "mean": 10115.8333333333,
+            "median": 10025,
+            "samples": [
+              12423,
+              11288,
+              10033,
+              8916,
+              11275,
+              8950,
+              9235,
+              10321,
+              10025,
+              9953,
+              8998,
+              9973
+            ]
+          },
+          "calls_per_sample": 160,
+          "facilities": 1336,
+          "history_visits": 1024,
+          "live_actors": 160,
+          "moves": 12,
+          "sessions": 0,
+          "validation": "",
+          "visits": 1144,
+          "world_readonly": true
+        }
+      ],
+      "skin": [
+        {
+          "after_uploaded_bytes": 0,
+          "after_us": {
+            "count": 30,
+            "max": 1883,
+            "mean": 990.633333333333,
+            "median": 939,
+            "samples": [
+              1111,
+              953,
+              924,
+              958,
+              1883,
+              1007,
+              1056,
+              1058,
+              966,
+              995,
+              948,
+              1092,
+              927,
+              914,
+              1000,
+              923,
+              907,
+              885,
+              894,
+              1123,
+              934,
+              909,
+              957,
+              918,
+              895,
+              939,
+              911,
+              903,
+              929,
+              900
+            ]
+          },
+          "before_uploaded_bytes": 1966080,
+          "before_us": {
+            "count": 30,
+            "max": 1431,
+            "mean": 1069.26666666667,
+            "median": 1043,
+            "samples": [
+              1062,
+              1055,
+              1019,
+              1003,
+              1015,
+              1431,
+              1065,
+              1201,
+              1142,
+              1063,
+              1041,
+              1148,
+              1110,
+              1029,
+              1006,
+              1043,
+              1010,
+              1051,
+              1018,
+              1093,
+              1195,
+              1075,
+              1130,
+              1042,
+              1009,
+              1002,
+              1013,
+              994,
+              993,
+              1020
+            ]
+          },
+          "bones": 21,
+          "every_image_and_instance_buffer_equal": true,
+          "mode": "unchanged",
+          "publications": 30,
+          "rows": 64
+        },
+        {
+          "after_uploaded_bytes": 0,
+          "after_us": {
+            "count": 30,
+            "max": 2175,
+            "mean": 1018.13333333333,
+            "median": 967,
+            "samples": [
+              1082,
+              2175,
+              1028,
+              952,
+              957,
+              938,
+              933,
+              925,
+              1096,
+              1016,
+              930,
+              1008,
+              939,
+              1034,
+              997,
+              1005,
+              995,
+              1028,
+              947,
+              1010,
+              937,
+              922,
+              944,
+              937,
+              962,
+              967,
+              1046,
+              988,
+              918,
+              928
+            ]
+          },
+          "before_uploaded_bytes": 1966080,
+          "before_us": {
+            "count": 30,
+            "max": 1844,
+            "mean": 1108.83333333333,
+            "median": 1039,
+            "samples": [
+              1563,
+              1844,
+              1441,
+              1050,
+              1031,
+              1012,
+              1016,
+              1030,
+              1005,
+              1208,
+              1172,
+              1038,
+              1072,
+              1033,
+              1096,
+              1039,
+              1114,
+              1065,
+              1039,
+              1040,
+              1030,
+              1028,
+              1054,
+              1010,
+              1028,
+              1048,
+              1085,
+              1037,
+              1012,
+              1025
+            ]
+          },
+          "bones": 21,
+          "every_image_and_instance_buffer_equal": true,
+          "mode": "moving",
+          "publications": 30,
+          "rows": 64
+        },
+        {
+          "after_uploaded_bytes": 1966080,
+          "after_us": {
+            "count": 30,
+            "max": 1502,
+            "mean": 1057.66666666667,
+            "median": 1001,
+            "samples": [
+              1001,
+              996,
+              1035,
+              1019,
+              1041,
+              1098,
+              1007,
+              954,
+              969,
+              969,
+              980,
+              1042,
+              1388,
+              971,
+              1050,
+              1036,
+              1000,
+              963,
+              980,
+              1502,
+              1448,
+              1013,
+              966,
+              960,
+              940,
+              1450,
+              1085,
+              954,
+              954,
+              959
+            ]
+          },
+          "before_uploaded_bytes": 1966080,
+          "before_us": {
+            "count": 30,
+            "max": 1565,
+            "mean": 1078.76666666667,
+            "median": 1032,
+            "samples": [
+              1107,
+              1033,
+              1017,
+              1049,
+              1254,
+              1047,
+              1009,
+              1002,
+              1004,
+              1016,
+              1066,
+              1032,
+              1046,
+              1025,
+              1032,
+              1405,
+              1062,
+              1034,
+              1019,
+              1379,
+              1565,
+              1069,
+              1055,
+              1027,
+              973,
+              1005,
+              1026,
+              1017,
+              981,
+              1007
+            ]
+          },
+          "bones": 21,
+          "every_image_and_instance_buffer_equal": true,
+          "mode": "animated_tip",
+          "publications": 30,
+          "rows": 64
+        },
+        {
+          "after_uploaded_bytes": 1966080,
+          "after_us": {
+            "count": 30,
+            "max": 1446,
+            "mean": 1261.6,
+            "median": 1248,
+            "samples": [
+              1361,
+              1446,
+              1229,
+              1253,
+              1247,
+              1286,
+              1239,
+              1229,
+              1248,
+              1253,
+              1225,
+              1322,
+              1233,
+              1353,
+              1262,
+              1239,
+              1218,
+              1248,
+              1262,
+              1259,
+              1268,
+              1273,
+              1251,
+              1234,
+              1315,
+              1228,
+              1213,
+              1217,
+              1215,
+              1222
+            ]
+          },
+          "before_uploaded_bytes": 1966080,
+          "before_us": {
+            "count": 30,
+            "max": 1590,
+            "mean": 1124.86666666667,
+            "median": 1097,
+            "samples": [
+              1130,
+              1136,
+              1104,
+              1096,
+              1083,
+              1178,
+              1085,
+              1086,
+              1168,
+              1097,
+              1160,
+              1073,
+              1229,
+              1089,
+              1255,
+              1075,
+              1048,
+              1044,
+              1128,
+              1098,
+              1117,
+              1108,
+              1590,
+              1090,
+              1068,
+              1089,
+              1076,
+              1080,
+              1061,
+              1105
+            ]
+          },
+          "bones": 21,
+          "every_image_and_instance_buffer_equal": true,
+          "mode": "animated_root",
+          "publications": 30,
+          "rows": 64
+        }
+      ],
+      "valid": true
+    },
+    "view-metrics-first-candidate.json": {
+      "content_fingerprint": "70ef833fb44c1682824534528697df4a55d011f10121f15f8e83f0b5b7b6d433",
+      "engine": {
+        "build": "official",
+        "hash": "ed1daf0bf001b61586d9930840f2f1394092c079",
+        "hex": 263938,
+        "major": 4,
+        "minor": 7,
+        "patch": 2,
+        "status": "stable",
+        "string": "4.7.2-stable (official)",
+        "timestamp": 0
+      },
+      "input": "res://.cache/performance/review-formal-inputs-r1/160four.input.bin",
+      "input_sha256": "6595dda287f5a82cf725ce3b1cd77b8da8d73bc242da7f2c13aa97e0b5ea822e",
+      "kind": "bounded headless CPU probe; no GPU/frame/presentation claim",
+      "live_actors": 160,
+      "pose": [
+        {
+          "actors": 160,
+          "after_us_including_index_build": {
+            "count": 12,
+            "max": 541,
+            "mean": 484.333333333333,
+            "median": 482,
+            "samples": [
+              541,
+              475,
+              494,
+              452,
+              447,
+              528,
+              492,
+              479,
+              482,
+              511,
+              461,
+              450
+            ]
+          },
+          "all_pose_and_ordered_session_results_equal": true,
+          "before_us": {
+            "count": 12,
+            "max": 3093,
+            "mean": 2821.83333333333,
+            "median": 2842,
+            "samples": [
+              2879,
+              2804,
+              2842,
+              2641,
+              2617,
+              3093,
+              2871,
+              2817,
+              2752,
+              2998,
+              2681,
+              2867
+            ]
+          },
+          "calls_per_sample": 160,
+          "facilities": 1336,
+          "history_visits": 0,
+          "live_actors": 160,
+          "moves": 12,
+          "sessions": 0,
+          "validation": "",
+          "visits": 120,
+          "world_readonly": true
+        },
+        {
+          "actors": 416,
+          "after_us_including_index_build": {
+            "count": 12,
+            "max": 1511,
+            "mean": 803.75,
+            "median": 733,
+            "samples": [
+              707,
+              817,
+              783,
+              1511,
+              711,
+              688,
+              725,
+              778,
+              691,
+              788,
+              733,
+              713
+            ]
+          },
+          "all_pose_and_ordered_session_results_equal": true,
+          "before_us": {
+            "count": 12,
+            "max": 7394,
+            "mean": 5008.0,
+            "median": 4733,
+            "samples": [
+              7394,
+              5185,
+              4303,
+              4365,
+              4301,
+              4294,
+              4733,
+              4942,
+              4302,
+              5635,
+              4346,
+              6296
+            ]
+          },
+          "calls_per_sample": 160,
+          "facilities": 1336,
+          "history_visits": 256,
+          "live_actors": 160,
+          "moves": 12,
+          "sessions": 0,
+          "validation": "",
+          "visits": 376,
+          "world_readonly": true
+        },
+        {
+          "actors": 1184,
+          "after_us_including_index_build": {
+            "count": 12,
+            "max": 2022,
+            "mean": 1677.75,
+            "median": 1695,
+            "samples": [
+              1488,
+              1963,
+              1551,
+              1410,
+              1562,
+              1440,
+              1763,
+              1731,
+              2022,
+              1695,
+              1651,
+              1857
+            ]
+          },
+          "all_pose_and_ordered_session_results_equal": true,
+          "before_us": {
+            "count": 12,
+            "max": 13046,
+            "mean": 10434.5833333333,
+            "median": 10297,
+            "samples": [
+              13046,
+              10781,
+              9323,
+              9408,
+              10297,
+              9056,
+              9801,
+              10895,
+              11950,
+              10840,
+              9577,
+              10241
+            ]
+          },
+          "calls_per_sample": 160,
+          "facilities": 1336,
+          "history_visits": 1024,
+          "live_actors": 160,
+          "moves": 12,
+          "sessions": 0,
+          "validation": "",
+          "visits": 1144,
+          "world_readonly": true
+        }
+      ],
+      "skin": [
+        {
+          "after_uploaded_bytes": 0,
+          "after_us": {
+            "count": 30,
+            "max": 1167,
+            "mean": 909.266666666667,
+            "median": 873,
+            "samples": [
+              1137,
+              928,
+              1116,
+              905,
+              867,
+              873,
+              858,
+              910,
+              844,
+              850,
+              1167,
+              881,
+              873,
+              881,
+              959,
+              963,
+              822,
+              885,
+              862,
+              1024,
+              965,
+              897,
+              845,
+              834,
+              862,
+              839,
+              855,
+              871,
+              849,
+              856
+            ]
+          },
+          "before_uploaded_bytes": 1966080,
+          "before_us": {
+            "count": 30,
+            "max": 1279,
+            "mean": 1082.33333333333,
+            "median": 1040,
+            "samples": [
+              1068,
+              1085,
+              1037,
+              1242,
+              1037,
+              1046,
+              1026,
+              1096,
+              1034,
+              1045,
+              1024,
+              1083,
+              1215,
+              989,
+              1231,
+              1251,
+              1028,
+              1136,
+              1033,
+              1030,
+              1040,
+              1188,
+              1279,
+              1019,
+              1031,
+              1028,
+              1018,
+              1031,
+              1097,
+              1003
+            ]
+          },
+          "bones": 21,
+          "every_image_and_instance_buffer_equal": true,
+          "mode": "unchanged",
+          "publications": 30,
+          "rows": 64
+        },
+        {
+          "after_uploaded_bytes": 0,
+          "after_us": {
+            "count": 30,
+            "max": 1766,
+            "mean": 915.6,
+            "median": 869,
+            "samples": [
+              898,
+              861,
+              869,
+              867,
+              870,
+              896,
+              894,
+              869,
+              917,
+              881,
+              864,
+              854,
+              877,
+              865,
+              869,
+              860,
+              1766,
+              864,
+              865,
+              847,
+              850,
+              866,
+              858,
+              892,
+              873,
+              1320,
+              867,
+              876,
+              845,
+              868
+            ]
+          },
+          "before_uploaded_bytes": 1966080,
+          "before_us": {
+            "count": 30,
+            "max": 1796,
+            "mean": 1083.7,
+            "median": 1040,
+            "samples": [
+              1070,
+              1025,
+              1040,
+              1032,
+              1043,
+              1036,
+              1024,
+              1055,
+              1011,
+              1094,
+              1159,
+              1062,
+              1003,
+              1018,
+              1046,
+              1041,
+              1123,
+              1487,
+              1081,
+              1030,
+              1016,
+              1020,
+              1021,
+              1053,
+              1003,
+              1796,
+              1047,
+              1024,
+              1017,
+              1034
+            ]
+          },
+          "bones": 21,
+          "every_image_and_instance_buffer_equal": true,
+          "mode": "moving",
+          "publications": 30,
+          "rows": 64
+        },
+        {
+          "after_uploaded_bytes": 1966080,
+          "after_us": {
+            "count": 30,
+            "max": 1760,
+            "mean": 1337.23333333333,
+            "median": 1238,
+            "samples": [
+              1128,
+              1095,
+              1075,
+              1078,
+              1747,
+              1413,
+              1165,
+              1245,
+              1238,
+              1413,
+              1166,
+              1109,
+              1149,
+              1110,
+              1188,
+              1524,
+              1668,
+              1730,
+              1744,
+              1760,
+              1699,
+              1686,
+              1431,
+              1393,
+              1210,
+              1149,
+              1311,
+              1138,
+              1227,
+              1128
+            ]
+          },
+          "before_uploaded_bytes": 1966080,
+          "before_us": {
+            "count": 30,
+            "max": 1656,
+            "mean": 1226.0,
+            "median": 1108,
+            "samples": [
+              1034,
+              1027,
+              1024,
+              1009,
+              1108,
+              1276,
+              1531,
+              1086,
+              1276,
+              1302,
+              1061,
+              1039,
+              1117,
+              1055,
+              1363,
+              1040,
+              1391,
+              1611,
+              1621,
+              1656,
+              1551,
+              1541,
+              1582,
+              1097,
+              1002,
+              1169,
+              1068,
+              1048,
+              1029,
+              1066
+            ]
+          },
+          "bones": 21,
+          "every_image_and_instance_buffer_equal": true,
+          "mode": "animated",
+          "publications": 30,
+          "rows": 64
+        }
+      ],
+      "valid": true
+    },
+    "details-metrics.json": {
+      "content_fingerprint": "70ef833fb44c1682824534528697df4a55d011f10121f15f8e83f0b5b7b6d433",
+      "current_app_sha256": "92747797915dc0ade61e72402f309a456dd485194f8fdd0c3e06e6efedd4abbd",
+      "engine": {
+        "build": "official",
+        "hash": "ed1daf0bf001b61586d9930840f2f1394092c079",
+        "hex": 263938,
+        "major": 4,
+        "minor": 7,
+        "patch": 2,
+        "status": "stable",
+        "string": "4.7.2-stable (official)",
+        "timestamp": 0
+      },
+      "input": "clinical outpatient_started",
+      "kind": "paired full details-renderer headless CPU probe; no frame/GPU claim",
+      "observations": [
+        {
+          "after_us": {
+            "count": 21,
+            "max": 28,
+            "mean": 22.4761904761905,
+            "median": 22,
+            "samples": [
+              23,
+              20,
+              27,
+              22,
+              22,
+              22,
+              21,
+              23,
+              28,
+              27,
+              26,
+              27,
+              18,
+              23,
+              20,
+              22,
+              19,
+              22,
+              19,
+              21,
+              20
+            ]
+          },
+          "before_us": {
+            "count": 21,
+            "max": 32,
+            "mean": 23.1904761904762,
+            "median": 22,
+            "samples": [
+              23,
+              25,
+              21,
+              19,
+              21,
+              32,
+              26,
+              20,
+              31,
+              26,
+              25,
+              25,
+              20,
+              20,
+              22,
+              22,
+              21,
+              28,
+              19,
+              20,
+              21
+            ]
+          },
+          "complete_clock_and_text_equal": true,
+          "history": 0,
+          "readonly": true,
+          "sessions": 1,
+          "validation": "",
+          "visits": 1
+        },
+        {
+          "after_us": {
+            "count": 21,
+            "max": 2571,
+            "mean": 2007.42857142857,
+            "median": 1992,
+            "samples": [
+              1901,
+              1889,
+              2095,
+              2499,
+              2040,
+              2034,
+              1967,
+              1825,
+              1956,
+              2015,
+              2120,
+              1667,
+              1581,
+              1992,
+              1980,
+              2013,
+              2032,
+              1912,
+              2571,
+              1892,
+              2175
+            ]
+          },
+          "before_us": {
+            "count": 21,
+            "max": 3062,
+            "mean": 2189.19047619048,
+            "median": 2082,
+            "samples": [
+              2082,
+              1984,
+              2575,
+              2905,
+              2393,
+              1999,
+              2097,
+              1803,
+              1989,
+              2042,
+              2773,
+              2160,
+              1701,
+              1818,
+              2210,
+              2009,
+              2017,
+              2052,
+              3062,
+              2131,
+              2171
+            ]
+          },
+          "complete_clock_and_text_equal": true,
+          "history": 256,
+          "readonly": true,
+          "sessions": 1,
+          "validation": "",
+          "visits": 257
+        },
+        {
+          "after_us": {
+            "count": 21,
+            "max": 11428,
+            "mean": 8034.33333333333,
+            "median": 7681,
+            "samples": [
+              8337,
+              9106,
+              9298,
+              9322,
+              7973,
+              11428,
+              7163,
+              7054,
+              7681,
+              7276,
+              7315,
+              7187,
+              6994,
+              6831,
+              6866,
+              7325,
+              7143,
+              8180,
+              8777,
+              8843,
+              8622
+            ]
+          },
+          "before_us": {
+            "count": 21,
+            "max": 10244,
+            "mean": 8155.85714285714,
+            "median": 7640,
+            "samples": [
+              9591,
+              10244,
+              9539,
+              9060,
+              10170,
+              8940,
+              7578,
+              7634,
+              7538,
+              7640,
+              7216,
+              8640,
+              7833,
+              7207,
+              7064,
+              8475,
+              7335,
+              7212,
+              7177,
+              7347,
+              7833
+            ]
+          },
+          "complete_clock_and_text_equal": true,
+          "history": 1024,
+          "readonly": true,
+          "sessions": 1,
+          "validation": "",
+          "visits": 1025
+        }
+      ],
+      "renderer_test_sha256": "64bf03026a94bdf538162ee5a624c5b2d9b177c00127d00607e027b808b8ceb1",
+      "valid": true
+    },
+    "navigation-results.json": {
+      "elapsed_ms": 3048.677,
+      "errors": [],
+      "formal_release": false,
+      "kind": "quick_navigation_microbenchmark",
+      "results": [
+        {
+          "actors": 0,
+          "equal": true,
+          "facilities": 0,
+          "facts_rng_unchanged": true,
+          "fixture": "empty",
+          "new_batch": {
+            "max_us": 266.4375,
+            "median_us": 250.1875,
+            "min_us": 238.0625,
+            "order": "alternating paired blocks",
+            "repeats": 16,
+            "samples": [
+              238.0625,
+              243.875,
+              249.3125,
+              250.1875,
+              261.875,
+              264.75,
+              266.4375
+            ]
+          },
+          "new_build": {
+            "max_us": 6.703125,
+            "median_us": 5.796875,
+            "min_us": 5.1875,
+            "order": "alternating paired blocks",
+            "repeats": 64,
+            "samples": [
+              5.1875,
+              5.203125,
+              5.3125,
+              5.796875,
+              5.859375,
+              6.40625,
+              6.703125
+            ]
+          },
+          "new_build_parts_mean_us": {
+            "actors": 0.484375,
+            "dirt": 0.765625,
+            "facilities": 0.3984375,
+            "renovation": 0.7578125,
+            "sessions": 0.6015625,
+            "surfaces": 0.7109375,
+            "upgrades": 0.734375
+          },
+          "new_noise_booleans": 0,
+          "noise_slots": 0,
+          "old_batch": {
+            "max_us": 251.375,
+            "median_us": 238.5,
+            "min_us": 236.0,
+            "order": "alternating paired blocks",
+            "repeats": 16,
+            "samples": [
+              236.0,
+              236.125,
+              237.125,
+              238.5,
+              241.5,
+              244.3125,
+              251.375
+            ]
+          },
+          "old_build": {
+            "max_us": 6.4375,
+            "median_us": 5.296875,
+            "min_us": 5.21875,
+            "order": "alternating paired blocks",
+            "repeats": 64,
+            "samples": [
+              5.21875,
+              5.234375,
+              5.25,
+              5.296875,
+              5.3125,
+              5.75,
+              6.4375
+            ]
+          },
+          "old_build_parts_mean_us": {
+            "actors": 0.5078125,
+            "dirt": 0.765625,
+            "facilities": 0.46875,
+            "renovation": 0.7421875,
+            "sessions": 0.5859375,
+            "surfaces": 0.734375,
+            "upgrades": 0.765625
+          },
+          "old_noise_reference_entries": 0,
+          "operation": "environment",
+          "profile_caveat": "instrumented means include timer overhead, not subtracted from operation timings",
+          "queries_per_batch": 16,
+          "sessions": 0
+        },
+        {
+          "actors": 7,
+          "equal": true,
+          "facilities": 19,
+          "facts_rng_unchanged": true,
+          "fixture": "actual_machine",
+          "new_batch": {
+            "max_us": 504.4375,
+            "median_us": 451.0,
+            "min_us": 431.875,
+            "order": "alternating paired blocks",
+            "repeats": 16,
+            "samples": [
+              431.875,
+              440.0625,
+              446.6875,
+              451.0,
+              473.0,
+              499.8125,
+              504.4375
+            ]
+          },
+          "new_build": {
+            "max_us": 71.390625,
+            "median_us": 64.3125,
+            "min_us": 60.125,
+            "order": "alternating paired blocks",
+            "repeats": 64,
+            "samples": [
+              60.125,
+              61.390625,
+              63.3125,
+              64.3125,
+              65.09375,
+              65.21875,
+              71.390625
+            ]
+          },
+          "new_build_parts_mean_us": {
+            "actors": 11.3046875,
+            "dirt": 0.7734375,
+            "facilities": 34.015625,
+            "renovation": 0.8984375,
+            "sessions": 14.40625,
+            "surfaces": 0.9375,
+            "upgrades": 0.84375
+          },
+          "new_noise_booleans": 4,
+          "noise_slots": 4,
+          "old_batch": {
+            "max_us": 488.125,
+            "median_us": 443.6875,
+            "min_us": 426.8125,
+            "order": "alternating paired blocks",
+            "repeats": 16,
+            "samples": [
+              426.8125,
+              439.75,
+              443.5625,
+              443.6875,
+              448.8125,
+              478.4375,
+              488.125
+            ]
+          },
+          "old_build": {
+            "max_us": 67.765625,
+            "median_us": 63.9375,
+            "min_us": 62.09375,
+            "order": "alternating paired blocks",
+            "repeats": 64,
+            "samples": [
+              62.09375,
+              62.421875,
+              63.453125,
+              63.9375,
+              64.0,
+              64.390625,
+              67.765625
+            ]
+          },
+          "old_build_parts_mean_us": {
+            "actors": 9.859375,
+            "dirt": 0.8515625,
+            "facilities": 35.078125,
+            "renovation": 0.8203125,
+            "sessions": 14.734375,
+            "surfaces": 0.8984375,
+            "upgrades": 0.7265625
+          },
+          "old_noise_reference_entries": 4,
+          "operation": "environment",
+          "profile_caveat": "instrumented means include timer overhead, not subtracted from operation timings",
+          "queries_per_batch": 16,
+          "sessions": 1
+        },
+        {
+          "actors": 1,
+          "equal": true,
+          "facilities": 1,
+          "facts_rng_unchanged": true,
+          "fixture": "actual_construction",
+          "new_batch": {
+            "max_us": 483.0625,
+            "median_us": 411.4375,
+            "min_us": 373.6875,
+            "order": "alternating paired blocks",
+            "repeats": 16,
+            "samples": [
+              373.6875,
+              384.1875,
+              399.5,
+              411.4375,
+              419.9375,
+              437.0,
+              483.0625
+            ]
+          },
+          "new_build": {
+            "max_us": 11.390625,
+            "median_us": 11.203125,
+            "min_us": 11.078125,
+            "order": "alternating paired blocks",
+            "repeats": 64,
+            "samples": [
+              11.078125,
+              11.1875,
+              11.1875,
+              11.203125,
+              11.203125,
+              11.203125,
+              11.390625
+            ]
+          },
+          "new_build_parts_mean_us": {
+            "actors": 2.15625,
+            "dirt": 0.7421875,
+            "facilities": 2.234375,
+            "renovation": 2.9296875,
+            "sessions": 0.59375,
+            "surfaces": 0.75,
+            "upgrades": 0.8203125
+          },
+          "new_noise_booleans": 1,
+          "noise_slots": 1,
+          "old_batch": {
+            "max_us": 442.5,
+            "median_us": 421.3125,
+            "min_us": 379.0625,
+            "order": "alternating paired blocks",
+            "repeats": 16,
+            "samples": [
+              379.0625,
+              381.375,
+              410.375,
+              421.3125,
+              428.9375,
+              438.125,
+              442.5
+            ]
+          },
+          "old_build": {
+            "max_us": 12.03125,
+            "median_us": 11.578125,
+            "min_us": 11.53125,
+            "order": "alternating paired blocks",
+            "repeats": 64,
+            "samples": [
+              11.53125,
+              11.53125,
+              11.5625,
+              11.578125,
+              11.625,
+              11.703125,
+              12.03125
+            ]
+          },
+          "old_build_parts_mean_us": {
+            "actors": 2.234375,
+            "dirt": 0.7578125,
+            "facilities": 2.25,
+            "renovation": 3.390625,
+            "sessions": 0.5390625,
+            "surfaces": 0.7890625,
+            "upgrades": 0.7890625
+          },
+          "old_noise_reference_entries": 1,
+          "operation": "environment",
+          "profile_caveat": "instrumented means include timer overhead, not subtracted from operation timings",
+          "queries_per_batch": 16,
+          "sessions": 0
+        },
+        {
+          "arrival_ticks": 290,
+          "connectors": 3,
+          "destination": 5,
+          "equal": true,
+          "facts_rng_unchanged": true,
+          "fixture": "three_lifts_five_floors",
+          "floor_overrides": 1,
+          "new": {
+            "max_us": 2723.625,
+            "median_us": 2592.25,
+            "min_us": 2503.75,
+            "order": "alternating paired blocks",
+            "repeats": 8,
+            "samples": [
+              2503.75,
+              2542.625,
+              2588.625,
+              2592.25,
+              2598.5,
+              2604.5,
+              2723.625
+            ]
+          },
+          "new_per_search_counts": {
+            "fits": 3,
+            "pops": 6,
+            "prefixes": 3,
+            "queue_records": 0,
+            "queue_scans": 3,
+            "stops": 3
+          },
+          "new_query_counts": {
+            "candidate_connections": 348,
+            "journey_hits": 0,
+            "journey_invalidations": 0,
+            "routes": 0,
+            "transport_builds": 0,
+            "transport_searches": 58
+          },
+          "old": {
+            "max_us": 3210.875,
+            "median_us": 3100.125,
+            "min_us": 2939.875,
+            "order": "alternating paired blocks",
+            "repeats": 8,
+            "samples": [
+              2939.875,
+              3050.875,
+              3088.875,
+              3100.125,
+              3115.375,
+              3205.875,
+              3210.875
+            ]
+          },
+          "old_per_search_counts": {
+            "fits": 30,
+            "pops": 6,
+            "prefixes": 15,
+            "queue_records": 0,
+            "queue_scans": 15,
+            "stops": 15
+          },
+          "old_query_counts": {
+            "candidate_connections": 870,
+            "journey_hits": 0,
+            "journey_invalidations": 0,
+            "routes": 0,
+            "transport_builds": 0,
+            "transport_searches": 58
+          },
+          "operation": "transport_route",
+          "path_segments": 45,
+          "status": "complete"
+        },
+        {
+          "arrival_ticks": -1,
+          "connectors": 3,
+          "destination": 5,
+          "equal": true,
+          "facts_rng_unchanged": true,
+          "fixture": "actual_inflight_and_two_queued_groups",
+          "floor_overrides": 1,
+          "new": {
+            "max_us": 2620.375,
+            "median_us": 2419.125,
+            "min_us": 2389.375,
+            "order": "alternating paired blocks",
+            "repeats": 8,
+            "samples": [
+              2389.375,
+              2398.375,
+              2400.0,
+              2419.125,
+              2436.0,
+              2505.5,
+              2620.375
+            ]
+          },
+          "new_per_search_counts": {
+            "fits": 3,
+            "pops": 5,
+            "prefixes": 3,
+            "queue_records": 6,
+            "queue_scans": 2,
+            "stops": 3
+          },
+          "new_query_counts": {
+            "candidate_connections": 348,
+            "journey_hits": 0,
+            "journey_invalidations": 0,
+            "routes": 0,
+            "transport_builds": 0,
+            "transport_searches": 58
+          },
+          "old": {
+            "max_us": 2898.0,
+            "median_us": 2784.875,
+            "min_us": 2661.0,
+            "order": "alternating paired blocks",
+            "repeats": 8,
+            "samples": [
+              2661.0,
+              2700.5,
+              2727.125,
+              2784.875,
+              2815.125,
+              2854.25,
+              2898.0
+            ]
+          },
+          "old_per_search_counts": {
+            "fits": 24,
+            "pops": 5,
+            "prefixes": 10,
+            "queue_records": 24,
+            "queue_scans": 8,
+            "stops": 12
+          },
+          "old_query_counts": {
+            "candidate_connections": 696,
+            "journey_hits": 0,
+            "journey_invalidations": 0,
+            "routes": 0,
+            "transport_builds": 0,
+            "transport_searches": 58
+          },
+          "operation": "transport_route",
+          "path_segments": 0,
+          "status": "estimate_unknown"
+        },
+        {
+          "arrival_ticks": -1,
+          "connectors": 3,
+          "destination": 5,
+          "equal": true,
+          "facts_rng_unchanged": true,
+          "fixture": "blocked_egress_estimate_unknown",
+          "floor_overrides": 1,
+          "new": {
+            "max_us": 990.375,
+            "median_us": 818.0,
+            "min_us": 791.0,
+            "order": "alternating paired blocks",
+            "repeats": 8,
+            "samples": [
+              791.0,
+              800.25,
+              805.5,
+              818.0,
+              860.5,
+              926.125,
+              990.375
+            ]
+          },
+          "new_per_search_counts": {
+            "fits": 3,
+            "pops": 1,
+            "prefixes": 0,
+            "queue_records": 0,
+            "queue_scans": 0,
+            "stops": 3
+          },
+          "new_query_counts": {
+            "candidate_connections": 174,
+            "journey_hits": 0,
+            "journey_invalidations": 0,
+            "routes": 0,
+            "transport_builds": 0,
+            "transport_searches": 58
+          },
+          "old": {
+            "max_us": 921.5,
+            "median_us": 869.75,
+            "min_us": 816.625,
+            "order": "alternating paired blocks",
+            "repeats": 8,
+            "samples": [
+              816.625,
+              828.25,
+              841.5,
+              869.75,
+              883.125,
+              909.25,
+              921.5
+            ]
+          },
+          "old_per_search_counts": {
+            "fits": 6,
+            "pops": 1,
+            "prefixes": 0,
+            "queue_records": 0,
+            "queue_scans": 0,
+            "stops": 3
+          },
+          "old_query_counts": {
+            "candidate_connections": 174,
+            "journey_hits": 0,
+            "journey_invalidations": 0,
+            "routes": 0,
+            "transport_builds": 0,
+            "transport_searches": 58
+          },
+          "operation": "transport_route",
+          "path_segments": 0,
+          "status": "estimate_unknown"
+        },
+        {
+          "arrival_ticks": 100240,
+          "connectors": 3,
+          "destination": 10000,
+          "equal": true,
+          "facts_rng_unchanged": true,
+          "fixture": "sparse_10000F",
+          "floor_overrides": 1,
+          "new": {
+            "max_us": 2482.5,
+            "median_us": 2389.125,
+            "min_us": 2143.875,
+            "order": "alternating paired blocks",
+            "repeats": 8,
+            "samples": [
+              2143.875,
+              2160.75,
+              2369.0,
+              2389.125,
+              2401.625,
+              2428.25,
+              2482.5
+            ]
+          },
+          "new_per_search_counts": {
+            "fits": 3,
+            "pops": 5,
+            "prefixes": 3,
+            "queue_records": 0,
+            "queue_scans": 3,
+            "stops": 3
+          },
+          "new_query_counts": {
+            "candidate_connections": 348,
+            "journey_hits": 0,
+            "journey_invalidations": 0,
+            "routes": 0,
+            "transport_builds": 0,
+            "transport_searches": 58
+          },
+          "old": {
+            "max_us": 2818.875,
+            "median_us": 2606.625,
+            "min_us": 2488.625,
+            "order": "alternating paired blocks",
+            "repeats": 8,
+            "samples": [
+              2488.625,
+              2489.25,
+              2594.125,
+              2606.625,
+              2610.0,
+              2685.25,
+              2818.875
+            ]
+          },
+          "old_per_search_counts": {
+            "fits": 24,
+            "pops": 5,
+            "prefixes": 12,
+            "queue_records": 0,
+            "queue_scans": 12,
+            "stops": 12
+          },
+          "old_query_counts": {
+            "candidate_connections": 696,
+            "journey_hits": 0,
+            "journey_invalidations": 0,
+            "routes": 0,
+            "transport_builds": 0,
+            "transport_searches": 58
+          },
+          "operation": "transport_route",
+          "path_segments": 45,
+          "status": "complete"
+        },
+        {
+          "arrival_ticks": -1,
+          "connectors": 3,
+          "destination": 10000,
+          "equal": true,
+          "facts_rng_unchanged": true,
+          "fixture": "failed_lifts_no_upward_route",
+          "floor_overrides": 1,
+          "new": {
+            "max_us": 567.25,
+            "median_us": 454.875,
+            "min_us": 425.625,
+            "order": "alternating paired blocks",
+            "repeats": 8,
+            "samples": [
+              425.625,
+              426.5,
+              443.25,
+              454.875,
+              475.375,
+              479.5,
+              567.25
+            ]
+          },
+          "new_per_search_counts": {
+            "fits": 3,
+            "pops": 1,
+            "prefixes": 0,
+            "queue_records": 0,
+            "queue_scans": 0,
+            "stops": 3
+          },
+          "new_query_counts": {
+            "candidate_connections": 174,
+            "journey_hits": 0,
+            "journey_invalidations": 0,
+            "routes": 0,
+            "transport_builds": 0,
+            "transport_searches": 58
+          },
+          "old": {
+            "max_us": 565.75,
+            "median_us": 484.75,
+            "min_us": 459.375,
+            "order": "alternating paired blocks",
+            "repeats": 8,
+            "samples": [
+              459.375,
+              460.25,
+              466.625,
+              484.75,
+              484.75,
+              498.375,
+              565.75
+            ]
+          },
+          "old_per_search_counts": {
+            "fits": 6,
+            "pops": 1,
+            "prefixes": 0,
+            "queue_records": 0,
+            "queue_scans": 0,
+            "stops": 3
+          },
+          "old_query_counts": {
+            "candidate_connections": 174,
+            "journey_hits": 0,
+            "journey_invalidations": 0,
+            "routes": 0,
+            "transport_builds": 0,
+            "transport_searches": 58
+          },
+          "operation": "transport_route",
+          "path_segments": 0,
+          "status": "unreachable"
+        },
+        {
+          "all_sequences_equal": true,
+          "anchors": 5,
+          "limitation": "candidate enumeration only; actual movement handoff is covered by selected SPACE cases",
+          "new": {
+            "max_us": 3828.0,
+            "median_us": 2638.0,
+            "min_us": 2533.0,
+            "order": "alternating paired blocks",
+            "repeats": 1,
+            "samples": [
+              2533.0,
+              2591.0,
+              2605.0,
+              2638.0,
+              2674.0,
+              2916.0,
+              3828.0
+            ]
+          },
+          "old": {
+            "max_us": 78154.0,
+            "median_us": 75720.0,
+            "min_us": 73682.0,
+            "order": "alternating paired blocks",
+            "repeats": 1,
+            "samples": [
+              73682.0,
+              73963.0,
+              74376.0,
+              75720.0,
+              76038.0,
+              76572.0,
+              78154.0
+            ]
+          },
+          "operation": "stand_aside_candidate_order",
+          "radii_each": 191,
+          "valid_candidates": 9215
+        }
+      ]
+    },
+    "navigation-results-initial.json": {
+      "elapsed_ms": 2381.955,
+      "errors": [],
+      "formal_release": false,
+      "kind": "quick_navigation_microbenchmark",
+      "results": [
+        {
+          "actors": 0,
+          "equal": true,
+          "facilities": 0,
+          "facts_rng_unchanged": true,
+          "fixture": "empty",
+          "new_batch": {
+            "max_us": 388.4375,
+            "median_us": 239.625,
+            "min_us": 233.5,
+            "repeats": 16,
+            "samples": [
+              233.5,
+              233.5625,
+              239.3125,
+              239.625,
+              251.0625,
+              272.6875,
+              388.4375
+            ]
+          },
+          "new_build": {
+            "max_us": 7.640625,
+            "median_us": 5.40625,
+            "min_us": 5.296875,
+            "repeats": 64,
+            "samples": [
+              5.296875,
+              5.296875,
+              5.3125,
+              5.40625,
+              5.734375,
+              5.9375,
+              7.640625
+            ]
+          },
+          "new_noise_booleans": 0,
+          "noise_slots": 0,
+          "old_batch": {
+            "max_us": 253.375,
+            "median_us": 235.5625,
+            "min_us": 233.875,
+            "repeats": 16,
+            "samples": [
+              233.875,
+              234.6875,
+              234.9375,
+              235.5625,
+              236.8125,
+              244.375,
+              253.375
+            ]
+          },
+          "old_build": {
+            "max_us": 5.421875,
+            "median_us": 5.3125,
+            "min_us": 5.25,
+            "repeats": 64,
+            "samples": [
+              5.25,
+              5.265625,
+              5.3125,
+              5.3125,
+              5.3125,
+              5.328125,
+              5.421875
+            ]
+          },
+          "old_noise_reference_entries": 0,
+          "operation": "environment",
+          "queries_per_batch": 16,
+          "sessions": 0
+        },
+        {
+          "actors": 7,
+          "equal": true,
+          "facilities": 19,
+          "facts_rng_unchanged": true,
+          "fixture": "actual_machine",
+          "new_batch": {
+            "max_us": 494.125,
+            "median_us": 429.125,
+            "min_us": 422.625,
+            "repeats": 16,
+            "samples": [
+              422.625,
+              424.375,
+              424.75,
+              429.125,
+              459.6875,
+              461.0625,
+              494.125
+            ]
+          },
+          "new_build": {
+            "max_us": 78.328125,
+            "median_us": 61.9375,
+            "min_us": 61.046875,
+            "repeats": 64,
+            "samples": [
+              61.046875,
+              61.328125,
+              61.59375,
+              61.9375,
+              62.9375,
+              66.21875,
+              78.328125
+            ]
+          },
+          "new_noise_booleans": 4,
+          "noise_slots": 4,
+          "old_batch": {
+            "max_us": 591.875,
+            "median_us": 455.75,
+            "min_us": 428.375,
+            "repeats": 16,
+            "samples": [
+              428.375,
+              429.3125,
+              432.1875,
+              455.75,
+              480.625,
+              488.0,
+              591.875
+            ]
+          },
+          "old_build": {
+            "max_us": 78.140625,
+            "median_us": 64.328125,
+            "min_us": 61.90625,
+            "repeats": 64,
+            "samples": [
+              61.90625,
+              63.21875,
+              64.078125,
+              64.328125,
+              64.59375,
+              73.96875,
+              78.140625
+            ]
+          },
+          "old_noise_reference_entries": 4,
+          "operation": "environment",
+          "queries_per_batch": 16,
+          "sessions": 1
+        },
+        {
+          "actors": 1,
+          "equal": true,
+          "facilities": 1,
+          "facts_rng_unchanged": true,
+          "fixture": "actual_construction",
+          "new_batch": {
+            "max_us": 519.5,
+            "median_us": 392.0625,
+            "min_us": 373.9375,
+            "repeats": 16,
+            "samples": [
+              373.9375,
+              376.6875,
+              378.3125,
+              392.0625,
+              402.5,
+              424.75,
+              519.5
+            ]
+          },
+          "new_build": {
+            "max_us": 25.5625,
+            "median_us": 12.296875,
+            "min_us": 11.40625,
+            "repeats": 64,
+            "samples": [
+              11.40625,
+              11.78125,
+              12.140625,
+              12.296875,
+              12.578125,
+              14.421875,
+              25.5625
+            ]
+          },
+          "new_noise_booleans": 1,
+          "noise_slots": 1,
+          "old_batch": {
+            "max_us": 458.6875,
+            "median_us": 409.9375,
+            "min_us": 388.375,
+            "repeats": 16,
+            "samples": [
+              388.375,
+              396.125,
+              407.125,
+              409.9375,
+              413.625,
+              419.125,
+              458.6875
+            ]
+          },
+          "old_build": {
+            "max_us": 13.859375,
+            "median_us": 11.8125,
+            "min_us": 11.453125,
+            "repeats": 64,
+            "samples": [
+              11.453125,
+              11.5625,
+              11.625,
+              11.8125,
+              12.265625,
+              13.328125,
+              13.859375
+            ]
+          },
+          "old_noise_reference_entries": 1,
+          "operation": "environment",
+          "queries_per_batch": 16,
+          "sessions": 0
+        },
+        {
+          "arrival_ticks": 290,
+          "connectors": 3,
+          "destination": 5,
+          "equal": true,
+          "facts_rng_unchanged": true,
+          "fixture": "three_lifts_five_floors",
+          "floor_overrides": 1,
+          "new": {
+            "max_us": 2768.0,
+            "median_us": 2582.125,
+            "min_us": 2504.5,
+            "repeats": 8,
+            "samples": [
+              2504.5,
+              2514.875,
+              2540.625,
+              2582.125,
+              2702.0,
+              2763.25,
+              2768.0
+            ]
+          },
+          "new_query_counts": {
+            "candidate_connections": 348,
+            "journey_hits": 0,
+            "journey_invalidations": 0,
+            "routes": 0,
+            "transport_builds": 0,
+            "transport_searches": 58
+          },
+          "old": {
+            "max_us": 3446.125,
+            "median_us": 3046.75,
+            "min_us": 2909.75,
+            "repeats": 8,
+            "samples": [
+              2909.75,
+              3000.375,
+              3046.5,
+              3046.75,
+              3055.625,
+              3070.125,
+              3446.125
+            ]
+          },
+          "old_query_counts": {
+            "candidate_connections": 870,
+            "journey_hits": 0,
+            "journey_invalidations": 0,
+            "routes": 0,
+            "transport_builds": 0,
+            "transport_searches": 58
+          },
+          "operation": "transport_route",
+          "path_segments": 45,
+          "status": "complete"
+        },
+        {
+          "arrival_ticks": 100240,
+          "connectors": 3,
+          "destination": 10000,
+          "equal": true,
+          "facts_rng_unchanged": true,
+          "fixture": "sparse_10000F",
+          "floor_overrides": 1,
+          "new": {
+            "max_us": 2422.125,
+            "median_us": 2283.875,
+            "min_us": 2099.0,
+            "repeats": 8,
+            "samples": [
+              2099.0,
+              2120.125,
+              2228.5,
+              2283.875,
+              2329.875,
+              2368.625,
+              2422.125
+            ]
+          },
+          "new_query_counts": {
+            "candidate_connections": 348,
+            "journey_hits": 0,
+            "journey_invalidations": 0,
+            "routes": 0,
+            "transport_builds": 0,
+            "transport_searches": 58
+          },
+          "old": {
+            "max_us": 2645.625,
+            "median_us": 2533.375,
+            "min_us": 2390.125,
+            "repeats": 8,
+            "samples": [
+              2390.125,
+              2434.25,
+              2462.5,
+              2533.375,
+              2551.25,
+              2595.375,
+              2645.625
+            ]
+          },
+          "old_query_counts": {
+            "candidate_connections": 696,
+            "journey_hits": 0,
+            "journey_invalidations": 0,
+            "routes": 0,
+            "transport_builds": 0,
+            "transport_searches": 58
+          },
+          "operation": "transport_route",
+          "path_segments": 45,
+          "status": "complete"
+        },
+        {
+          "arrival_ticks": -1,
+          "connectors": 3,
+          "destination": 10000,
+          "equal": true,
+          "facts_rng_unchanged": true,
+          "fixture": "failed_lifts_no_upward_route",
+          "floor_overrides": 1,
+          "new": {
+            "max_us": 543.25,
+            "median_us": 441.875,
+            "min_us": 426.375,
+            "repeats": 8,
+            "samples": [
+              426.375,
+              428.125,
+              431.375,
+              441.875,
+              461.125,
+              489.375,
+              543.25
+            ]
+          },
+          "new_query_counts": {
+            "candidate_connections": 174,
+            "journey_hits": 0,
+            "journey_invalidations": 0,
+            "routes": 0,
+            "transport_builds": 0,
+            "transport_searches": 58
+          },
+          "old": {
+            "max_us": 509.5,
+            "median_us": 468.125,
+            "min_us": 450.875,
+            "repeats": 8,
+            "samples": [
+              450.875,
+              454.25,
+              459.0,
+              468.125,
+              471.5,
+              490.125,
+              509.5
+            ]
+          },
+          "old_query_counts": {
+            "candidate_connections": 174,
+            "journey_hits": 0,
+            "journey_invalidations": 0,
+            "routes": 0,
+            "transport_builds": 0,
+            "transport_searches": 58
+          },
+          "operation": "transport_route",
+          "path_segments": 0,
+          "status": "unreachable"
+        },
+        {
+          "all_sequences_equal": true,
+          "anchors": 5,
+          "limitation": "candidate enumeration only; actual movement handoff is covered by selected SPACE cases",
+          "new": {
+            "max_us": 2924.0,
+            "median_us": 2729.0,
+            "min_us": 2529.0,
+            "repeats": 1,
+            "samples": [
+              2529.0,
+              2629.0,
+              2637.0,
+              2729.0,
+              2744.0,
+              2902.0,
+              2924.0
+            ]
+          },
+          "old": {
+            "max_us": 76166.0,
+            "median_us": 74418.0,
+            "min_us": 72889.0,
+            "repeats": 1,
+            "samples": [
+              72889.0,
+              73260.0,
+              73700.0,
+              74418.0,
+              74500.0,
+              75721.0,
+              76166.0
+            ]
+          },
+          "operation": "stand_aside_candidate_order",
+          "radii_each": 191,
+          "valid_candidates": 9215
+        }
+      ]
+    },
+    "clinical-protection.json": {
+      "baseline_head": "83cc36ae6a8cb28272ba523b984128fae54a7dae",
+      "clock": "Time.get_ticks_usec",
+      "content": "70ef833fb44c1682824534528697df4a55d011f10121f15f8e83f0b5b7b6d433",
+      "engine": {
+        "build": "official",
+        "hash": "ed1daf0bf001b61586d9930840f2f1394092c079",
+        "hex": 263938,
+        "major": 4,
+        "minor": 7,
+        "patch": 2,
+        "status": "stable",
+        "string": "4.7.2-stable (official)",
+        "timestamp": 0
+      },
+      "formal_release": false,
+      "harness_sha256": "093a111e5fd55dd11bbcd66b52976496ee6b8b1b850d6f7949d5e8ee5213d865",
+      "input_sha256": "6595dda287f5a82cf725ce3b1cd77b8da8d73bc242da7f2c13aa97e0b5ea822e",
+      "protection": {
+        "actors": 160,
+        "after": {
+          "max_us": 972,
+          "median_us": 951,
+          "min_us": 913,
+          "samples_us": [
+            913,
+            956,
+            934,
+            963,
+            914,
+            951,
+            972
+          ]
+        },
+        "before": {
+          "max_us": 7788,
+          "median_us": 6901,
+          "min_us": 6857,
+          "samples_us": [
+            6870,
+            7708,
+            6901,
+            7287,
+            6857,
+            6878,
+            7788
+          ]
+        },
+        "complete_facts_rng_equal": true,
+        "residents": 120,
+        "setup": "identity variant of fixed 160; generated residents for original admitted patients; no population/history change",
+        "validation": "",
+        "visits": 120
+      },
+      "samples": 7,
+      "source": {
+        "res://game/arrivals/arrival_preparation.gd": "e53762d0f4156ea5003e5aa32c15b5a8f2214b739616408522f7fad96bc90a81",
+        "res://game/arrivals/arrival_service.gd": "556e7e8813ac0edb422e64d895e8821d644117b3c0402f83351b341d2a62da3b",
+        "res://game/clinic/clinical_runtime.gd": "e497eb4dac6e972774b5976c182ebdabafc3ebadac72ec1f0effaa597a85781e",
+        "res://game/operations/department_service.gd": "6687b1f67f43b35fcc3870c7bb1b9d829bc3f0b5f49cbb5c0cd6fee90b9e6949",
+        "res://tests/acceptance/clinical_query_batches.gd": "730b56217e0b9ad6740469e85f468452228bd4f68c410730bb9b5cb6953aa25a",
+        "res://tests/acceptance/surgery_qualification.gd": "0fbe3d6e08138301de3e1e9a31a058ff5ac5481c6455fca43fccd07b6c25d346"
+      }
+    },
+    "clinical-routing.json": {
+      "baseline_head": "83cc36ae6a8cb28272ba523b984128fae54a7dae",
+      "clock": "Time.get_ticks_usec",
+      "content": "70ef833fb44c1682824534528697df4a55d011f10121f15f8e83f0b5b7b6d433",
+      "engine": {
+        "build": "official",
+        "hash": "ed1daf0bf001b61586d9930840f2f1394092c079",
+        "hex": 263938,
+        "major": 4,
+        "minor": 7,
+        "patch": 2,
+        "status": "stable",
+        "string": "4.7.2-stable (official)",
+        "timestamp": 0
+      },
+      "formal_release": false,
+      "harness_sha256": "093a111e5fd55dd11bbcd66b52976496ee6b8b1b850d6f7949d5e8ee5213d865",
+      "input_sha256": "6595dda287f5a82cf725ce3b1cd77b8da8d73bc242da7f2c13aa97e0b5ea822e",
+      "routing": {
+        "after": {
+          "max_us": 13546,
+          "median_us": 12998,
+          "min_us": 12386,
+          "samples_us": [
+            12823,
+            13172,
+            13378,
+            13546,
+            12819,
+            12998,
+            12386
+          ]
+        },
+        "before": {
+          "max_us": 19663,
+          "median_us": 18333,
+          "min_us": 17060,
+          "samples_us": [
+            18852,
+            19164,
+            17360,
+            18333,
+            17848,
+            19663,
+            17060
+          ]
+        },
+        "comparisons_after": 0,
+        "comparisons_before": 7,
+        "complete_facts_rng_equal": true,
+        "setup": "original real GP-wait boundary, existing correct department route; identical frozen world per timed call"
+      },
+      "samples": 7,
+      "source": {
+        "res://game/arrivals/arrival_preparation.gd": "e53762d0f4156ea5003e5aa32c15b5a8f2214b739616408522f7fad96bc90a81",
+        "res://game/arrivals/arrival_service.gd": "556e7e8813ac0edb422e64d895e8821d644117b3c0402f83351b341d2a62da3b",
+        "res://game/clinic/clinical_runtime.gd": "e497eb4dac6e972774b5976c182ebdabafc3ebadac72ec1f0effaa597a85781e",
+        "res://game/operations/department_service.gd": "6687b1f67f43b35fcc3870c7bb1b9d829bc3f0b5f49cbb5c0cd6fee90b9e6949",
+        "res://tests/acceptance/clinical_query_batches.gd": "730b56217e0b9ad6740469e85f468452228bd4f68c410730bb9b5cb6953aa25a",
+        "res://tests/acceptance/surgery_qualification.gd": "0fbe3d6e08138301de3e1e9a31a058ff5ac5481c6455fca43fccd07b6c25d346"
+      }
+    },
+    "clinical-surgery-paired.json": {
+      "baseline_head": "83cc36ae6a8cb28272ba523b984128fae54a7dae",
+      "clock": "Time.get_ticks_usec",
+      "content": "70ef833fb44c1682824534528697df4a55d011f10121f15f8e83f0b5b7b6d433",
+      "engine": {
+        "build": "official",
+        "hash": "ed1daf0bf001b61586d9930840f2f1394092c079",
+        "hex": 263938,
+        "major": 4,
+        "minor": 7,
+        "patch": 2,
+        "status": "stable",
+        "string": "4.7.2-stable (official)",
+        "timestamp": 0
+      },
+      "formal_release": false,
+      "harness_sha256": "5c7eb013c7bcce659eb97308c34cf11b49681f62001dc9b417196b6d9a718301",
+      "input_sha256": "6595dda287f5a82cf725ce3b1cd77b8da8d73bc242da7f2c13aa97e0b5ea822e",
+      "samples": 7,
+      "source": {
+        "res://game/arrivals/arrival_preparation.gd": "e53762d0f4156ea5003e5aa32c15b5a8f2214b739616408522f7fad96bc90a81",
+        "res://game/arrivals/arrival_service.gd": "556e7e8813ac0edb422e64d895e8821d644117b3c0402f83351b341d2a62da3b",
+        "res://game/clinic/clinical_runtime.gd": "e497eb4dac6e972774b5976c182ebdabafc3ebadac72ec1f0effaa597a85781e",
+        "res://game/operations/department_service.gd": "6687b1f67f43b35fcc3870c7bb1b9d829bc3f0b5f49cbb5c0cd6fee90b9e6949",
+        "res://tests/acceptance/clinical_query_batches.gd": "730b56217e0b9ad6740469e85f468452228bd4f68c410730bb9b5cb6953aa25a",
+        "res://tests/acceptance/surgery_qualification.gd": "9c341ea82b8232df77b4e8e436f832fb904bb3ffead7bd23ee622c6ce22b1280"
+      },
+      "surgery": {
+        "after": {
+          "max_us": 12627.0,
+          "median_us": 7278.4,
+          "min_us": 6985.2,
+          "samples_us": [
+            12627.0,
+            7052.0,
+            7278.4,
+            7382.6,
+            7232.6,
+            7425.0,
+            6985.2
+          ]
+        },
+        "before": {
+          "max_us": 11400.2,
+          "median_us": 7573.4,
+          "min_us": 7178.8,
+          "samples_us": [
+            11400.2,
+            7777.8,
+            7219.0,
+            7573.4,
+            7178.8,
+            7747.0,
+            7449.8
+          ]
+        },
+        "cold_large_reference_measured": false,
+        "complete_ordered_quotes_equal": true,
+        "quotes": 12,
+        "setup": "legal focused nominal surgical reference; 3 qualified doctors, 2 qualified OR nurses, 1 table; every complete quote retained",
+        "warmup": "one complete call each; alternating pair order; 5 complete calls per sample mean"
+      }
+    },
+    "clinical-surgery.json": {
+      "baseline_head": "83cc36ae6a8cb28272ba523b984128fae54a7dae",
+      "clock": "Time.get_ticks_usec",
+      "content": "70ef833fb44c1682824534528697df4a55d011f10121f15f8e83f0b5b7b6d433",
+      "engine": {
+        "build": "official",
+        "hash": "ed1daf0bf001b61586d9930840f2f1394092c079",
+        "hex": 263938,
+        "major": 4,
+        "minor": 7,
+        "patch": 2,
+        "status": "stable",
+        "string": "4.7.2-stable (official)",
+        "timestamp": 0
+      },
+      "formal_release": false,
+      "harness_sha256": "093a111e5fd55dd11bbcd66b52976496ee6b8b1b850d6f7949d5e8ee5213d865",
+      "input_sha256": "6595dda287f5a82cf725ce3b1cd77b8da8d73bc242da7f2c13aa97e0b5ea822e",
+      "samples": 7,
+      "source": {
+        "res://game/arrivals/arrival_preparation.gd": "e53762d0f4156ea5003e5aa32c15b5a8f2214b739616408522f7fad96bc90a81",
+        "res://game/arrivals/arrival_service.gd": "556e7e8813ac0edb422e64d895e8821d644117b3c0402f83351b341d2a62da3b",
+        "res://game/clinic/clinical_runtime.gd": "e497eb4dac6e972774b5976c182ebdabafc3ebadac72ec1f0effaa597a85781e",
+        "res://game/operations/department_service.gd": "6687b1f67f43b35fcc3870c7bb1b9d829bc3f0b5f49cbb5c0cd6fee90b9e6949",
+        "res://tests/acceptance/clinical_query_batches.gd": "730b56217e0b9ad6740469e85f468452228bd4f68c410730bb9b5cb6953aa25a",
+        "res://tests/acceptance/surgery_qualification.gd": "0fbe3d6e08138301de3e1e9a31a058ff5ac5481c6455fca43fccd07b6c25d346"
+      },
+      "surgery": {
+        "after": {
+          "max_us": 18060,
+          "median_us": 10256,
+          "min_us": 6797,
+          "samples_us": [
+            10189,
+            12866,
+            10101,
+            10641,
+            10256,
+            18060,
+            6797
+          ]
+        },
+        "before": {
+          "max_us": 26684,
+          "median_us": 10793,
+          "min_us": 8362,
+          "samples_us": [
+            26684,
+            10711,
+            10469,
+            11619,
+            11812,
+            10793,
+            8362
+          ]
+        },
+        "cold_large_reference_measured": false,
+        "complete_ordered_quotes_equal": true,
+        "quotes": 12,
+        "setup": "legal focused nominal surgical reference; 3 qualified doctors, 2 qualified OR nurses, 1 table; every complete quote retained"
+      }
+    },
+    "clinical-capture.json": {
+      "baseline_head": "83cc36ae6a8cb28272ba523b984128fae54a7dae",
+      "capture": {
+        "actors": 160,
+        "after_one_staff_change": {
+          "capture_us": 50878,
+          "captures": 8,
+          "copied_records": 1778,
+          "cpu_measured_jobs": 0,
+          "deep_compares": 12432,
+          "jobs": 0,
+          "latest_worker_us": 0,
+          "layout_reuses": 24,
+          "main_us": 0,
+          "max_main_us": 0,
+          "requests": 0,
+          "reused": 0,
+          "reused_records": 12438,
+          "scanned_records": 14216,
+          "source_tick": 25,
+          "superseded": 0,
+          "target_tick": 25,
+          "worker_cpu_us": 0,
+          "worker_wall_us": 0
+        },
+        "current_only": {
+          "max_us": 10945,
+          "median_us": 5982,
+          "min_us": 5408,
+          "samples_us": [
+            10945,
+            6043,
+            5982,
+            5408,
+            5991,
+            5654,
+            5466
+          ]
+        },
+        "facilities": 1336,
+        "metrics": [
+          {
+            "capture_us": 10831,
+            "captures": 1,
+            "copied_records": 1777,
+            "cpu_measured_jobs": 0,
+            "jobs": 0,
+            "latest_worker_us": 0,
+            "layout_reuses": 3,
+            "main_us": 0,
+            "max_main_us": 0,
+            "requests": 0,
+            "reused": 0,
+            "reused_records": 0,
+            "scanned_records": 1777,
+            "source_tick": 25,
+            "superseded": 0,
+            "target_tick": 25,
+            "worker_cpu_us": 0,
+            "worker_wall_us": 0
+          },
+          {
+            "capture_us": 16750,
+            "captures": 2,
+            "copied_records": 1777,
+            "cpu_measured_jobs": 0,
+            "deep_compares": 1776,
+            "jobs": 0,
+            "latest_worker_us": 0,
+            "layout_reuses": 6,
+            "main_us": 0,
+            "max_main_us": 0,
+            "requests": 0,
+            "reused": 0,
+            "reused_records": 1777,
+            "scanned_records": 3554,
+            "source_tick": 25,
+            "superseded": 0,
+            "target_tick": 25,
+            "worker_cpu_us": 0,
+            "worker_wall_us": 0
+          },
+          {
+            "capture_us": 22618,
+            "captures": 3,
+            "copied_records": 1777,
+            "cpu_measured_jobs": 0,
+            "deep_compares": 3552,
+            "jobs": 0,
+            "latest_worker_us": 0,
+            "layout_reuses": 9,
+            "main_us": 0,
+            "max_main_us": 0,
+            "requests": 0,
+            "reused": 0,
+            "reused_records": 3554,
+            "scanned_records": 5331,
+            "source_tick": 25,
+            "superseded": 0,
+            "target_tick": 25,
+            "worker_cpu_us": 0,
+            "worker_wall_us": 0
+          },
+          {
+            "capture_us": 27919,
+            "captures": 4,
+            "copied_records": 1777,
+            "cpu_measured_jobs": 0,
+            "deep_compares": 5328,
+            "jobs": 0,
+            "latest_worker_us": 0,
+            "layout_reuses": 12,
+            "main_us": 0,
+            "max_main_us": 0,
+            "requests": 0,
+            "reused": 0,
+            "reused_records": 5331,
+            "scanned_records": 7108,
+            "source_tick": 25,
+            "superseded": 0,
+            "target_tick": 25,
+            "worker_cpu_us": 0,
+            "worker_wall_us": 0
+          },
+          {
+            "capture_us": 33779,
+            "captures": 5,
+            "copied_records": 1777,
+            "cpu_measured_jobs": 0,
+            "deep_compares": 7104,
+            "jobs": 0,
+            "latest_worker_us": 0,
+            "layout_reuses": 15,
+            "main_us": 0,
+            "max_main_us": 0,
+            "requests": 0,
+            "reused": 0,
+            "reused_records": 7108,
+            "scanned_records": 8885,
+            "source_tick": 25,
+            "superseded": 0,
+            "target_tick": 25,
+            "worker_cpu_us": 0,
+            "worker_wall_us": 0
+          },
+          {
+            "capture_us": 39341,
+            "captures": 6,
+            "copied_records": 1777,
+            "cpu_measured_jobs": 0,
+            "deep_compares": 8880,
+            "jobs": 0,
+            "latest_worker_us": 0,
+            "layout_reuses": 18,
+            "main_us": 0,
+            "max_main_us": 0,
+            "requests": 0,
+            "reused": 0,
+            "reused_records": 8885,
+            "scanned_records": 10662,
+            "source_tick": 25,
+            "superseded": 0,
+            "target_tick": 25,
+            "worker_cpu_us": 0,
+            "worker_wall_us": 0
+          },
+          {
+            "capture_us": 44722,
+            "captures": 7,
+            "copied_records": 1777,
+            "cpu_measured_jobs": 0,
+            "deep_compares": 10656,
+            "jobs": 0,
+            "latest_worker_us": 0,
+            "layout_reuses": 21,
+            "main_us": 0,
+            "max_main_us": 0,
+            "requests": 0,
+            "reused": 0,
+            "reused_records": 10662,
+            "scanned_records": 12439,
+            "source_tick": 25,
+            "superseded": 0,
+            "target_tick": 25,
+            "worker_cpu_us": 0,
+            "worker_wall_us": 0
+          }
+        ],
+        "old_input_isolated": true,
+        "readonly": true,
+        "reason_no_new_cache": "qualifications, nested staff/actor and commitments still have direct writes; layout/department already use owner identities",
+        "staff": 32
+      },
+      "clock": "Time.get_ticks_usec",
+      "content": "70ef833fb44c1682824534528697df4a55d011f10121f15f8e83f0b5b7b6d433",
+      "engine": {
+        "build": "official",
+        "hash": "ed1daf0bf001b61586d9930840f2f1394092c079",
+        "hex": 263938,
+        "major": 4,
+        "minor": 7,
+        "patch": 2,
+        "status": "stable",
+        "string": "4.7.2-stable (official)",
+        "timestamp": 0
+      },
+      "formal_release": false,
+      "harness_sha256": "093a111e5fd55dd11bbcd66b52976496ee6b8b1b850d6f7949d5e8ee5213d865",
+      "input_sha256": "6595dda287f5a82cf725ce3b1cd77b8da8d73bc242da7f2c13aa97e0b5ea822e",
+      "samples": 7,
+      "source": {
+        "res://game/arrivals/arrival_preparation.gd": "e53762d0f4156ea5003e5aa32c15b5a8f2214b739616408522f7fad96bc90a81",
+        "res://game/arrivals/arrival_service.gd": "556e7e8813ac0edb422e64d895e8821d644117b3c0402f83351b341d2a62da3b",
+        "res://game/clinic/clinical_runtime.gd": "e497eb4dac6e972774b5976c182ebdabafc3ebadac72ec1f0effaa597a85781e",
+        "res://game/operations/department_service.gd": "6687b1f67f43b35fcc3870c7bb1b9d829bc3f0b5f49cbb5c0cd6fee90b9e6949",
+        "res://tests/acceptance/clinical_query_batches.gd": "730b56217e0b9ad6740469e85f468452228bd4f68c410730bb9b5cb6953aa25a",
+        "res://tests/acceptance/surgery_qualification.gd": "0fbe3d6e08138301de3e1e9a31a058ff5ac5481c6455fca43fccd07b6c25d346"
+      }
+    }
+  },
+  "same_fixed160_complete40steps": {
+    "before40": {
+      "samples": 40,
+      "first_tick": 26,
+      "last_tick": 65,
+      "p50_ms": 21.791,
+      "p95_ms": 24.316,
+      "mean_ms": 32.797775,
+      "first_cold_ms": 432.225,
+      "maximum_ms": 432.225,
+      "tick50_ms": 23.097,
+      "input_sha256": "6595dda287f5a82cf725ce3b1cd77b8da8d73bc242da7f2c13aa97e0b5ea822e",
+      "after_sha256": "2a4c5912834d509a19a29648fc0edc89535e60a0dc24b212e41709de69947191"
+    },
+    "after40": {
+      "samples": 40,
+      "first_tick": 26,
+      "last_tick": 65,
+      "p50_ms": 21.629,
+      "p95_ms": 25.205,
+      "mean_ms": 32.767325,
+      "first_cold_ms": 432.927,
+      "maximum_ms": 432.927,
+      "tick50_ms": 21.531,
+      "input_sha256": "6595dda287f5a82cf725ce3b1cd77b8da8d73bc242da7f2c13aa97e0b5ea822e",
+      "after_sha256": "2a4c5912834d509a19a29648fc0edc89535e60a0dc24b212e41709de69947191"
+    },
+    "raw_after_bytes_equal": true
+  },
+  "complete_boundary_comparison": {
+    "all_facts_equal": true,
+    "comparison": "decoded complete original facts; raw byte identity recorded separately",
+    "differing_fields": [],
+    "fixture_wrapper_equal": true,
+    "left": "C:/code/loyayz/oddly-good-hospital/.cache/review-6ad47faf/steps/before40.json.after.bin",
+    "left_sha256": "2a4c5912834d509a19a29648fc0edc89535e60a0dc24b212e41709de69947191",
+    "left_tick": 65,
+    "right": "C:/code/loyayz/oddly-good-hospital/.cache/review-6ad47faf/steps/after40.json.after.bin",
+    "right_sha256": "2a4c5912834d509a19a29648fc0edc89535e60a0dc24b212e41709de69947191",
+    "right_tick": 65,
+    "rng_equal": true
+  },
+  "final_tested_production_sources": [
+    {
+      "path": "game/app/app_root.gd",
+      "bytes": 47183,
+      "sha256": "92747797915dc0ade61e72402f309a456dd485194f8fdd0c3e06e6efedd4abbd"
+    },
+    {
+      "path": "game/arrivals/arrival_service.gd",
+      "bytes": 86347,
+      "sha256": "8fc7b7e5fbc9c72c07018166a0a12119e69c04a9a2327d0009fddccfb497d8f5"
+    },
+    {
+      "path": "game/building/hospital_transit.gd",
+      "bytes": 27638,
+      "sha256": "f9b7d4caf98824b854414c3381c4d62a01160a828989c4ca8e883b3a38bdf3df"
+    },
+    {
+      "path": "game/clinic/clinical_runtime.gd",
+      "bytes": 177945,
+      "sha256": "e497eb4dac6e972774b5976c182ebdabafc3ebadac72ec1f0effaa597a85781e"
+    },
+    {
+      "path": "game/economy/finance_service.gd",
+      "bytes": 27772,
+      "sha256": "2fd67e9d2dc6279902e2609421e9d3b773f41abe708bdb186af7f8bfe6f57b42"
+    },
+    {
+      "path": "game/economy/ledger.gd",
+      "bytes": 1527,
+      "sha256": "024370d1aacce142495b63b72d4ba52a059888fa74f030bbcaeb4b5848da6bc3"
+    },
+    {
+      "path": "game/operations/department_service.gd",
+      "bytes": 63021,
+      "sha256": "6687b1f67f43b35fcc3870c7bb1b9d829bc3f0b5f49cbb5c0cd6fee90b9e6949"
+    },
+    {
+      "path": "game/persistence/backup_zip.gd",
+      "bytes": 18888,
+      "sha256": "5859b6be7d1472798ce50392c8c2dd4869c8a4114d7ce989b44dcca082bd8261"
+    },
+    {
+      "path": "game/persistence/json_stream.gd",
+      "bytes": 8689,
+      "sha256": "f3a3eef718a74003228a7c03a1151820a542f1f992efaa601ca0d41fc24e27c6"
+    },
+    {
+      "path": "game/persistence/snapshot_store.gd",
+      "bytes": 27604,
+      "sha256": "78566573c6bdb50efc8dd6945d27c69f5f0578d93752fb961c99c0d585bcef25"
+    },
+    {
+      "path": "game/sim/world_state.gd",
+      "bytes": 55609,
+      "sha256": "df95d335d96abce56dfe0d6ecfc6eabed2c77e9befd3e73272cb8a355997eee9"
+    },
+    {
+      "path": "game/view/hospital_view.gd",
+      "bytes": 59466,
+      "sha256": "cf92a6253ebe5490849c4c92f0de8fc47e31df71d4ddcd5fc22afbdc0d10e1a4"
+    },
+    {
+      "path": "tests/acceptance/clinical_query_batches.gd",
+      "bytes": 7375,
+      "sha256": "730b56217e0b9ad6740469e85f468452228bd4f68c410730bb9b5cb6953aa25a"
+    },
+    {
+      "path": "tests/acceptance/clinical_query_batches.gd.uid",
+      "bytes": 20,
+      "sha256": "e27391caf8253ea7da70d796dd458e0e571b18afd396d341b3ddc55fec839075"
+    },
+    {
+      "path": "tests/acceptance/core.gd",
+      "bytes": 46886,
+      "sha256": "a52a5f3d6a4cbbc352c4368b491975518a16cd442b819060de284c1218553399"
+    },
+    {
+      "path": "tests/acceptance/core.md",
+      "bytes": 9787,
+      "sha256": "3553fa288f9d67d09ec4c9a96e8f913aa40b9f3f5777583a33ad93e8834ff816"
+    },
+    {
+      "path": "tests/acceptance/details_projection.gd",
+      "bytes": 9571,
+      "sha256": "64bf03026a94bdf538162ee5a624c5b2d9b177c00127d00607e027b808b8ceb1"
+    },
+    {
+      "path": "tests/acceptance/details_projection.gd.uid",
+      "bytes": 20,
+      "sha256": "c5c73fe1b76f4bf890646803cddb3f2e019135e7fad9884270ae3fdc078da0ec"
+    },
+    {
+      "path": "tests/acceptance/growth.gd",
+      "bytes": 152597,
+      "sha256": "4ca565847275347ad2ba015e4942e2a4073596871be72bf818aede086fe7f0f1"
+    },
+    {
+      "path": "tests/acceptance/growth.md",
+      "bytes": 15925,
+      "sha256": "c582ed52b34908ebaf17811889ecb8918e55b2149569f50ba5c9f0edcedb853a"
+    },
+    {
+      "path": "tests/acceptance/ledger_observation.gd",
+      "bytes": 3366,
+      "sha256": "a594b3067029c666c6214306f6c742a941dcbbe0be2d02e457558573d9eacc21"
+    },
+    {
+      "path": "tests/acceptance/ledger_observation.gd.uid",
+      "bytes": 20,
+      "sha256": "2d3b05d785b693b926af25c938afd6b9d351cfb1048c6604b93d7c73604a344f"
+    },
+    {
+      "path": "tests/acceptance/snapshot_cleanup.gd",
+      "bytes": 2304,
+      "sha256": "3712a6fa042a636df836bd485548ed625c3bdd652ec4065cfa43b01e1fe58a95"
+    },
+    {
+      "path": "tests/acceptance/snapshot_cleanup.gd.uid",
+      "bytes": 20,
+      "sha256": "fbe5e6adcf074a5c45ca598fc15b69dc7fab842e08d0191d0f309d161172e693"
+    },
+    {
+      "path": "tests/acceptance/stream_boundaries.gd",
+      "bytes": 2634,
+      "sha256": "7ba2edb9adc01f3d788d16f4801a3cc90bde3f3f24a4663842677ccf10267943"
+    },
+    {
+      "path": "tests/acceptance/stream_boundaries.gd.uid",
+      "bytes": 20,
+      "sha256": "194a33cbda06bcd8ebed3b0f52fc589848028fbe47d2eab05f3ea9a42384a9ea"
+    },
+    {
+      "path": "tests/acceptance/surgery_qualification.gd",
+      "bytes": 16000,
+      "sha256": "22d293b230889017390b4eaa99ea9dbf14085b12a5929016a16cec2cf6858cf3"
+    },
+    {
+      "path": "tests/acceptance/surgery_qualification.gd.uid",
+      "bytes": 19,
+      "sha256": "190f85b265afe9116245980a22f76f06898eccad0831aeeda7eb8880521952bf"
+    },
+    {
+      "path": "tests/acceptance/view_projection.gd",
+      "bytes": 5800,
+      "sha256": "9ab9006e53a76b5918172f814f40a18471db89058809d0d9f8e850d6d13d58e3"
+    },
+    {
+      "path": "tests/acceptance/view_projection.gd.uid",
+      "bytes": 20,
+      "sha256": "235c03fe34ca0818094c139b9e23a6322eb5f4e2dfcc4ce5bb8115d7313ad6bc"
+    }
+  ],
+  "all_changed_production_gd_sources_byte_match_final_passed_project": true,
+  "all_changed_gd_sources_match_after_trailing_blank_normalization": true,
+  "post_test_format_only_changes": [
+    {
+      "path": "tests/acceptance/surgery_qualification.gd",
+      "tested_sha256": "9c341ea82b8232df77b4e8e436f832fb904bb3ffead7bd23ee622c6ce22b1280",
+      "change": "trailing blank line removal only; no executable change"
+    }
+  ],
+  "engine": {
+    "path": "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+    "bytes": 198152,
+    "sha256": "c8f0a6bc45a19b33541501e57f6f7cd972ab18453743266339d495cbbe846643"
+  },
+  "native": {
+    "path": "game/platform/windows/bin/oddly_good_platform.windows.x86_64.dll",
+    "bytes": 14966784,
+    "sha256": "08a6582cecede19073637d6af437f76b86aa69c684d4bfe070c115c43e8f37dd"
+  },
+  "input": {
+    "path": ".cache/performance/review-formal-inputs-r1/160four.input.bin",
+    "bytes": 1499144,
+    "sha256": "6595dda287f5a82cf725ce3b1cd77b8da8d73bc242da7f2c13aa97e0b5ea822e"
+  },
+  "prepared_parent_quick_identity": {
+    "path": ".cache/performance/review2-parent-quick-r1/source-identity.json",
+    "bytes": 66393,
+    "sha256": "2ce277ae863d0b9c2d84ed8e178f06397b03253ac50c17a61003c86119eb501b"
+  },
+  "report": {
+    "path": "docs/reports/2026-10-18-performance-review-2-resolution.md",
+    "bytes": 17387,
+    "sha256": "508b5e870f240ccf43e008dd89e3658ff5a8328a8d3cd441e30dc090242564c5"
+  },
+  "artifact_manifest": [
+    {
+      "path": ".cache/review-6ad47faf/root-results.json",
+      "bytes": 8402,
+      "sha256": "cd9f7dfe31bad4224b468ecffe595dc57eef4b0d7b676761ea9cfdefb121b442"
+    },
+    {
+      "path": ".cache/review-6ad47faf/environment-score-results.json",
+      "bytes": 566,
+      "sha256": "a49d166bbf013204df73b0f9ae920c735f2276c49efccdd5e365fbeb9b215de1"
+    },
+    {
+      "path": ".cache/review-6ad47faf/view-metrics.json",
+      "bytes": 7498,
+      "sha256": "47b993fe89f914502a40ca89c4a715057605e93cd19b07c6a1333e9ac217cbb1"
+    },
+    {
+      "path": ".cache/review-6ad47faf/view-metrics-first-candidate.json",
+      "bytes": 6340,
+      "sha256": "b0e34554907cc01e69ead5411e1c1e16c201886ecab2a8d0a0f4667306b99219"
+    },
+    {
+      "path": ".cache/review-6ad47faf/details-metrics.json",
+      "bytes": 3183,
+      "sha256": "23cf9e18bba99e890374e35e8b1faa41d75e06f99623d99ecfe3a431a2302a8f"
+    },
+    {
+      "path": ".cache/review-6ad47faf/navigation-results.json",
+      "bytes": 14282,
+      "sha256": "dddbc5a1a2b94e7d41e3cdf0b96ca6e5eadcfe4a13f81b722b8a29d77c1c4e4d"
+    },
+    {
+      "path": ".cache/review-6ad47faf/navigation-results-initial.json",
+      "bytes": 7936,
+      "sha256": "fb83e0171384c6a06aeccade7fcf796781423d6747ed81a1f2ab2245715c2644"
+    },
+    {
+      "path": ".cache/review-6ad47faf/clinical-protection.json",
+      "bytes": 1925,
+      "sha256": "bf9488d2e5817ba665d167ed89550b5b0ac69a783dfae3e5224b71465c82aee8"
+    },
+    {
+      "path": ".cache/review-6ad47faf/clinical-routing.json",
+      "bytes": 1924,
+      "sha256": "1d4366fbdfb2fa5cb444ab8049c368c121b667e882f87fce19e6f7aad5faf8d8"
+    },
+    {
+      "path": ".cache/review-6ad47faf/clinical-surgery-paired.json",
+      "bytes": 2074,
+      "sha256": "f4cd73f038b4bb601c1dba5562f6df83deec2b2a11a26c887fc5cc4e493e618a"
+    },
+    {
+      "path": ".cache/review-6ad47faf/clinical-surgery.json",
+      "bytes": 1950,
+      "sha256": "00baf375524ab671f9aeb13aa197b94de2756ec1987ecc14c28d51d09bb0b2d2"
+    },
+    {
+      "path": ".cache/review-6ad47faf/clinical-capture.json",
+      "bytes": 5411,
+      "sha256": "7882752f86a29173b2943eef4ee5393f612b892c5352543a425d61a407621655"
+    },
+    {
+      "path": ".cache/review-6ad47faf/clinical-disposition.json",
+      "bytes": 14284,
+      "sha256": "fdc19f1b3063c8c855fd558bf1e8d3f21762c9b0cf838646337e622596d56f67"
+    },
+    {
+      "path": ".cache/review-6ad47faf/view-disposition.json",
+      "bytes": 5248,
+      "sha256": "c8777955c35cdc5e6409af27c97171f3315df7fdc05a4fcc80a96af77482b960"
+    },
+    {
+      "path": ".cache/review-6ad47faf/navigation-disposition.json",
+      "bytes": 8491,
+      "sha256": "3e4aa3ff76513c576e9312727836b44cab494efb8786b7cfae58410ee3cda730"
+    },
+    {
+      "path": ".cache/review-6ad47faf/view-identities.json",
+      "bytes": 3236,
+      "sha256": "099c6af2f426c64ea8723fc27cdc2571934d36ee63c6eb8fa179bb457a74d22f"
+    },
+    {
+      "path": ".cache/review-6ad47faf/details-probe-identity.json",
+      "bytes": 469,
+      "sha256": "8a091b83703d429f8bb16cdd6e5e595f9625ce500aaa9eb94e490af60013d6a1"
+    },
+    {
+      "path": ".cache/review-6ad47faf/navigation-source-identity.json",
+      "bytes": 948,
+      "sha256": "8be7b2bfd545aa4f498bae5fd671efb7021a70a0b6a34ae4edc767971e4c8ec0"
+    },
+    {
+      "path": ".cache/review-6ad47faf/navigation-final-source-identity.json",
+      "bytes": 964,
+      "sha256": "1d3259a57ce33d5466cb0321c95280af5f7076906f7cb23473ac0d4fcede0aad"
+    },
+    {
+      "path": ".cache/review-6ad47faf/before40-source-equivalence.json",
+      "bytes": 50526,
+      "sha256": "fd2812256e5795a6373ed1be51102e9e85158c18a86f5f2361991765ace1ccfd"
+    },
+    {
+      "path": ".cache/review-6ad47faf/root-quick-run.log",
+      "bytes": 208,
+      "sha256": "d5da697bdbebda0dfe71162244390da7be5957e4973415654aba24e0403b1fbe"
+    },
+    {
+      "path": ".cache/review-6ad47faf/environment-score-run.log",
+      "bytes": 569,
+      "sha256": "6fadcaf55a477b4fa6e2830f88c0b4b42721b0867ede716a4834544c9bf249a3"
+    },
+    {
+      "path": ".cache/review-6ad47faf/share.html",
+      "bytes": 1892639,
+      "sha256": "e5f9414dc8d16665e67333e3bd068d4bd24f7c2bf41feaae59a4fce687db4d3b"
+    },
+    {
+      "path": ".cache/review-6ad47faf/stream-0.json",
+      "bytes": 1376701,
+      "sha256": "f5ed04c0bd04bb6e1fe879d0cd9fe0702746b2b00f55fe3ae03e3f129f4e6b0b"
+    },
+    {
+      "path": ".cache/review-6ad47faf/review-items.json",
+      "bytes": 56692,
+      "sha256": "9b88fbda2a8f8b01a40f856c353bc72798f8a0fc94f8c2affe6b30376b6d872a"
+    },
+    {
+      "path": ".cache/review-6ad47faf/steps/summary.json",
+      "bytes": 882,
+      "sha256": "db0953bb9bea992f11749fb0f329d871abdf8fc87ad40629e74e4766257bfca2"
+    },
+    {
+      "path": ".cache/review-6ad47faf/steps/boundary-comparison.json",
+      "bytes": 600,
+      "sha256": "f3d6fd56c12221aa41eafbee5f4c4129437a0bbf042653d1a7caca2d23aa4aea"
+    },
+    {
+      "path": ".cache/review-6ad47faf/steps/before40.json",
+      "bytes": 6154,
+      "sha256": "d85a1c2beb4a01168cb259ce461b981f9b8e5fb42780e8cbbc5c907b9b1226f9"
+    },
+    {
+      "path": ".cache/review-6ad47faf/steps/after40.json",
+      "bytes": 6160,
+      "sha256": "84b5d1c41b446c580092923c97e9d015b4fcfaf35e383d8dae045aa2f985353c"
+    },
+    {
+      "path": ".cache/review-6ad47faf/steps/before40-arguments.json",
+      "bytes": 413,
+      "sha256": "c421ca2703ef594203716bbd17b075c4fb6b0a4fe80ff78a20259944e64d0edf"
+    },
+    {
+      "path": ".cache/review-6ad47faf/steps/after40-arguments.json",
+      "bytes": 412,
+      "sha256": "e6ade2374459fa3cf4a910fab8975f077159038655c96fb13819c437efaf6b4b"
+    }
+  ],
+  "harness_sources": [
+    {
+      "path": ".cache/review-6ad47faf/baseline/app_root.gd",
+      "bytes": 47975,
+      "sha256": "595ad54c86da342c361ca2b0f6686086fd3a4d1412a2a55480f8be6a4e551ec4"
+    },
+    {
+      "path": ".cache/review-6ad47faf/baseline/backup_zip.gd",
+      "bytes": 19192,
+      "sha256": "375391ce3029aa1b2d93c05920ff9fa04e6510aebc53894e4c421ed222908b12"
+    },
+    {
+      "path": ".cache/review-6ad47faf/baseline/finance_service.gd",
+      "bytes": 27893,
+      "sha256": "8887658582d5bc2cd2054051bcc57328566476080c6833e2d7a4864c562edab6"
+    },
+    {
+      "path": ".cache/review-6ad47faf/baseline/json_stream.gd",
+      "bytes": 8856,
+      "sha256": "f8877df6bff887544afc1b38f6b438449c17d4d9cf5e84c477ed3c74bc96a251"
+    },
+    {
+      "path": ".cache/review-6ad47faf/baseline/ledger.gd",
+      "bytes": 1840,
+      "sha256": "3e3840e5b1238159771cd2b772e1c866534b3655970714d7544d5fa133576427"
+    },
+    {
+      "path": ".cache/review-6ad47faf/baseline/snapshot_store.gd",
+      "bytes": 27786,
+      "sha256": "deeebf563bf0c9a1b2b1dfe0cc9f455b231b0ee69fdc954f5e4b94ec2a213f5d"
+    },
+    {
+      "path": ".cache/review-6ad47faf/baseline/world_state.gd",
+      "bytes": 54933,
+      "sha256": "e1e026fb06bfc4c45a7a955ba9fc7e27b5dc40627557107915768c69d3220a91"
+    },
+    {
+      "path": ".cache/review-6ad47faf/clinical_benchmark.gd",
+      "bytes": 15249,
+      "sha256": "5c7eb013c7bcce659eb97308c34cf11b49681f62001dc9b417196b6d9a718301"
+    },
+    {
+      "path": ".cache/review-6ad47faf/details-probe.gd",
+      "bytes": 1904,
+      "sha256": "5920c911634703013d3e8fd304e25baa6f8838b989a50a4c0e7a1355bd2fac1a"
+    },
+    {
+      "path": ".cache/review-6ad47faf/environment-score-quick.gd",
+      "bytes": 2576,
+      "sha256": "3e07a718038ea1d9af80d8c6dcc99c8bd0c40572d6e76e23a16e7f1e65aed8f2"
+    },
+    {
+      "path": ".cache/review-6ad47faf/ledger-diagnose.gd",
+      "bytes": 301,
+      "sha256": "137815b4784d3fe8cde9116c96fa0c99d042be52957cb7ea8eb4265593144bfe"
+    },
+    {
+      "path": ".cache/review-6ad47faf/navigation-baseline/environment_service.gd",
+      "bytes": 49544,
+      "sha256": "a2874e6ba73c245d82a8a30df686c0d125e3524a84d47163309b8e3723c2e4e0"
+    },
+    {
+      "path": ".cache/review-6ad47faf/navigation-baseline/hospital_transit.gd",
+      "bytes": 25880,
+      "sha256": "d4ad964dd41f4261510bb8dfda9d0ae652d5d7a7a2e84afa3e5e710a0e0a569d"
+    },
+    {
+      "path": ".cache/review-6ad47faf/navigation-environment-candidate.gd",
+      "bytes": 49809,
+      "sha256": "786c08cf9b5ccd89f868346a9aea6b1712180d1dc0562574c13dc12ac7f04752"
+    },
+    {
+      "path": ".cache/review-6ad47faf/navigation-observed-baseline.gd",
+      "bytes": 26199,
+      "sha256": "39061b71e97f915992c63d5ce58a9f1d1a76de87565ce0c38e5392624bdf0117"
+    },
+    {
+      "path": ".cache/review-6ad47faf/navigation-observed-current.gd",
+      "bytes": 27962,
+      "sha256": "ec8f44fe99486a8da0f67b2b8bb415c6951c46d6365ae55508ad875b32d2cd75"
+    },
+    {
+      "path": ".cache/review-6ad47faf/navigation-profile-baseline.gd",
+      "bytes": 50190,
+      "sha256": "ae69acbe9b4e49aca4f951a500e85932f794e45d91331fd68ecfdf1e31eb8176"
+    },
+    {
+      "path": ".cache/review-6ad47faf/navigation-profile-current.gd",
+      "bytes": 50453,
+      "sha256": "0714ce74e78b42af32788241bf464912dd3003b1a3230048948c77d1c03c5b4a"
+    },
+    {
+      "path": ".cache/review-6ad47faf/navigation-quick.gd",
+      "bytes": 14791,
+      "sha256": "fa802ac87902d8a2d87e13655e1239e6ef7edabf126c6815d97860481fbce516"
+    },
+    {
+      "path": ".cache/review-6ad47faf/root-quick/old_backup_zip.gd",
+      "bytes": 19162,
+      "sha256": "e4d2d07f67fa010005bb2071ab64a514464ebbbbb7d7c7f63e9e9b4947959635"
+    },
+    {
+      "path": ".cache/review-6ad47faf/root-quick/old_cleanup.gd",
+      "bytes": 1933,
+      "sha256": "7f1a8cb6351d03a6ab2b7f7195055cac8831abae31b3cd54bc0decdd3d32119a"
+    },
+    {
+      "path": ".cache/review-6ad47faf/root-quick/old_finance_service.gd",
+      "bytes": 27866,
+      "sha256": "79ac6ea10aa2cb25d94b6bb7bf6763d5f9d19a12e6a43b3a5e4111a1b134c9ac"
+    },
+    {
+      "path": ".cache/review-6ad47faf/root-quick/old_json_stream.gd",
+      "bytes": 8825,
+      "sha256": "1f216cf7779e911be12a0b1df8dff34283b2d33394f429c0d8db8b844d4f309b"
+    },
+    {
+      "path": ".cache/review-6ad47faf/root-quick/old_ledger.gd",
+      "bytes": 265,
+      "sha256": "1796bb9d9a7d5852d5c802bd94ae869e03424d7b60d5a652b847fa01acfeaaf1"
+    },
+    {
+      "path": ".cache/review-6ad47faf/root-quick/probe.gd",
+      "bytes": 7061,
+      "sha256": "435ee51284f2ff4334274ee59fafb14fbd30a5c3d9b373b2f3302d2cfd38364b"
+    },
+    {
+      "path": ".cache/review-6ad47faf/view-baseline/app_root.gd",
+      "bytes": 46971,
+      "sha256": "8597b8c3cb3c622e0e1cd78b51c3264d165573bb2f1907b856d51ebdeb063fdf"
+    },
+    {
+      "path": ".cache/review-6ad47faf/view-baseline/hospital_view.gd",
+      "bytes": 58365,
+      "sha256": "e7b9109ffba406a14291ef87271a76c23b74826a49f52d8b8b93b43e0f487244"
+    },
+    {
+      "path": ".cache/review-6ad47faf/view-baseline/skinned_pose_batch.gd",
+      "bytes": 9875,
+      "sha256": "3e75a6fd49853f234835afe1c3432b8d5f1db5d99431935e6c9011a019c020f1"
+    },
+    {
+      "path": ".cache/review-6ad47faf/view-probe.gd",
+      "bytes": 7229,
+      "sha256": "0b31f68a04fe7122b19860652eb152f5635858b357fc21764c57f6a6354e66fd"
+    },
+    {
+      "path": ".cache/review-6ad47faf/view-skin-fixture.gd",
+      "bytes": 1498,
+      "sha256": "4fbfecca3d155cb8fe8427b8bcdb9ac04c9360b27831865f643427137d864573"
+    },
+    {
+      "path": ".cache/review-6ad47faf/view-skinned-candidate.gd",
+      "bytes": 10875,
+      "sha256": "751f9343b6167aaee8d863b6e2850bf6bb159459c4654fb1f8ebc102fbb5d431"
+    }
+  ],
+  "raw_artifacts_in_git": false,
+  "no_additional_release_product": true,
+  "formal_unfinished_source": "docs/reports/2026-10-18-performance-review-resolution.md U01-U11",
+  "whole_step_improvement_proven": false,
+  "prior_native_math_result_reused_only_not_rerun": true
+}

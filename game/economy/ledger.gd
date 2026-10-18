@@ -2,11 +2,7 @@ class_name HospitalLedger
 extends RefCounted
 
 static func balance(world: WorldState) -> int:
-	var amount: int = int(world.facts.ledger.opening_balance)
-	for entry: Dictionary in world.facts.ledger.entries.values():
-		if entry.settled:
-			amount += int(entry.amount)
-	return amount
+	return world.ledger_balance()
 
 static func post(world: WorldState, entry: LedgerEntry, settled: bool = true) -> CommandResult:
 	var entries: Dictionary = world.facts.ledger.entries
@@ -15,17 +11,13 @@ static func post(world: WorldState, entry: LedgerEntry, settled: bool = true) ->
 		if int(original.amount)!=entry.amount:
 			return CommandResult.new(false,"entry_id_conflict","同一账目凭据的金额已改变",[],world.facts.world_revision)
 		return CommandResult.new(true,"duplicate","",[],world.facts.world_revision)
-	var available: int = balance(world)
-	for pending: Dictionary in entries.values():
-		if not pending.settled:
-			available += mini(int(pending.amount),0)
+	var available: int = world.available_ledger_balance()
 	if available+entry.amount<0:
 		return CommandResult.new(false,"insufficient_funds","资金不足，原账目保留",[],world.facts.world_revision)
 	entries[entry.entry_id] = {"owner_id":entry.owner_id,"component":entry.component,"amount":entry.amount,"tick":world.facts.sim_tick,"settled":settled}
+	world.ledger_posted(entry.entry_id)
 	if settled:
 		world.touch()
-	else:
-		world.register_pending_ledger(entry.entry_id)
 	return CommandResult.new(true,"applied","",[entry.entry_id],world.facts.world_revision)
 
 static func settle(world: WorldState) -> Array[SimEvent]:

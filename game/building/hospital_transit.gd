@@ -24,6 +24,14 @@ static func route(space: HospitalSpace, world: WorldState, actor: Dictionary, so
 	_push(heap,{"id":"start","tick":initial_ticks})
 	var unknown: bool = false
 	var unknown_reason: String = ""
+	# This search is synchronous and read-only. Keep stable structure and queue
+	# prefixes only until it returns; later movement observes current facts again.
+	var connector_ids: Array = world.ids("connectors")
+	var connections_by_floor: Dictionary = {}
+	var compatible: Dictionary = {}
+	var stop_candidates: Dictionary = {}
+	var stops_by_connection: Dictionary = {}
+	var prefixes: Dictionary = {}
 	while not heap.is_empty():
 		var item: Dictionary = _pop(heap)
 		var id: String = item.id
@@ -47,11 +55,18 @@ static func route(space: HospitalSpace, world: WorldState, actor: Dictionary, so
 			var finish: Dictionary = space._floor_route(world,actor,target_floor,node.cell,goal,members,offsets,ignore_people)
 			if finish.ok:
 				_relax(heap,arrival,previous,id,"goal",_add(int(item.tick),walking_ticks(space,actor,members,float(finish.walking_distance))),finish.path,float(finish.walking_distance))
-		for connector_id: String in world.ids("connectors"):
-			space.query_counts.candidate_connections += 1
+		var node_floor: int = int(node.floor_id)
+		if not connections_by_floor.has(node_floor):
+			var candidates: Array = []
+			for connector_id: String in connector_ids:
+				space.query_counts.candidate_connections += 1
+				var connection: Dictionary = world.facts.connectors[connector_id]
+				if not has_stop(connection,node_floor): continue
+				if not compatible.has(connector_id): compatible[connector_id] = fits(space,world,connection,actor.id,members).ok
+				if compatible[connector_id]: candidates.append(connector_id)
+			connections_by_floor[node_floor] = candidates
+		for connector_id: String in connections_by_floor[node_floor]:
 			var connection: Dictionary = world.facts.connectors[connector_id]
-			if not has_stop(connection,int(node.floor_id)) or not fits(space,world,connection,actor.id,members).ok:
-				continue
 			var anchor: Vector2i = Vector2i(int(connection.anchor[0]),int(connection.anchor[1]))
 			var before: Dictionary = space._floor_route(world,actor,int(node.floor_id),node.cell,anchor,members,offsets,ignore_people)
 			if not before.ok:
@@ -59,11 +74,14 @@ static func route(space: HospitalSpace, world: WorldState, actor: Dictionary, so
 			var at_landing: int = _add(int(item.tick),walking_ticks(space,actor,members,float(before.walking_distance)))
 			if at_landing<0:
 				continue
-			var stops: Array = routing_stops(connection,world,source_floor,target_floor)
+			if not stops_by_connection.has(connector_id):
+				if connection.has("first_floor") and stop_candidates.is_empty(): stop_candidates = _routing_candidates(world,source_floor,target_floor)
+				stops_by_connection[connector_id] = routing_stops(connection,world,source_floor,target_floor,stop_candidates)
+			var stops: Array = stops_by_connection[connector_id]
 			for destination: int in stops:
 				if destination==int(node.floor_id):
 					continue
-				var quote: Dictionary = quote(space,world,connection,actor.id,int(node.floor_id),destination,at_landing,members,offsets)
+				var quote: Dictionary = _quote_known_fit(space,world,connection,actor.id,int(node.floor_id),destination,at_landing,members,offsets,prefixes)
 				if not quote.ok:
 					if quote.status=="estimate_unknown":
 						unknown = true
@@ -95,12 +113,18 @@ static func endpoints(connection: Dictionary) -> Array:
 		return [int(connection.first_floor),int(connection.last_floor)]
 	return connection.get("stops",[])
 
-static func routing_stops(connection: Dictionary, world: WorldState, source: int, target: int) -> Array:
-	if not connection.has("first_floor"): return connection.stops.duplicate()
-	var candidates: Dictionary = {source:true,target:true,int(connection.first_floor):true,int(connection.last_floor):true}
+static func _routing_candidates(world: WorldState, source: int, target: int) -> Dictionary:
+	var candidates: Dictionary = {source:true,target:true}
 	for key: String in world.facts.floors.overrides: candidates[int(key)] = true
 	for other: Dictionary in world.facts.connectors.values():
 		for floor_id: int in endpoints(other): candidates[floor_id] = true
+	return candidates
+
+static func routing_stops(connection: Dictionary, world: WorldState, source: int, target: int, candidates: Dictionary = {}) -> Array:
+	if not connection.has("first_floor"): return connection.stops.duplicate()
+	if candidates.is_empty(): candidates = _routing_candidates(world,source,target)
+	candidates[int(connection.first_floor)] = true
+	candidates[int(connection.last_floor)] = true
 	var result: Array = []
 	for floor_id: int in candidates:
 		if has_stop(connection,floor_id): result.append(floor_id)
@@ -133,16 +157,20 @@ static func fits(space: HospitalSpace, world: WorldState, connection: Dictionary
 	return {"ok":true,"reason":"","cabin_positions":positions}
 
 static func quote(space: HospitalSpace, world: WorldState, connection: Dictionary, actor_id: String, from: int, to: int, at_landing: int, members: Array = [], offsets: Dictionary = {}) -> Dictionary:
-	var definition: Dictionary = space.content.definition("vertical_connectors",connection.definition_id)
 	if not has_stop(connection,from) or not has_stop(connection,to) or not fits(space,world,connection,actor_id,members).ok:
 		return _unavailable("竖向连接或完整身体不兼容")
+	return _quote_known_fit(space,world,connection,actor_id,from,to,at_landing,members,offsets,{})
+
+static func _quote_known_fit(space: HospitalSpace, world: WorldState, connection: Dictionary, actor_id: String, from: int, to: int, at_landing: int, members: Array, offsets: Dictionary, prefixes: Dictionary) -> Dictionary:
+	var definition: Dictionary = space.content.definition("vertical_connectors",connection.definition_id)
 	if definition.kind=="stairs" and absi(to-from)!=1:
 		return _unavailable("楼梯只连接相邻楼层")
 	if _lowering(connection) and to>=from:
 		return _unavailable("故障电梯仅提供向下安全缓降")
 	if not egress_clear(space,world,connection,actor_id,to,members,offsets):
 		return {"ok":false,"status":"estimate_unknown","reason":"目标出口当前被占用，暂时无法估计离舱时间"}
-	var prefix: Dictionary = _prefix(space,world,connection,actor_id)
+	if not prefixes.has(connection.id): prefixes[connection.id] = _prefix(space,world,connection,actor_id)
+	var prefix: Dictionary = prefixes[connection.id]
 	if not prefix.ok:
 		return prefix
 	var empty: int = _travel_ticks(space,connection,int(prefix.floor_id),from) if definition.kind=="lift" else 0
@@ -376,31 +404,28 @@ static func _stand_aside(space: HospitalSpace, world: WorldState, connection: Di
 	var incoming_id: String = connection.get("primary_actor_id",connection.riders[0])
 	var incoming: Dictionary = world.facts.moves[incoming_id]
 	var exit: Rect2 = space._unit_rect(world,world.facts.actors[incoming_id],Vector2(anchor),connection.riders,incoming.get("offsets",{}))
-	var candidates: Array[Vector2i] = []
 	for radius: int in range(1,192):
-		candidates.clear()
-		for dx: int in range(-radius,radius+1):
-			var dy: int = radius-absi(dx)
-			candidates.append(anchor+Vector2i(dx,-dy))
-			if dy!=0:
-				candidates.append(anchor+Vector2i(dx,dy))
-		candidates.sort_custom(func(a: Vector2i,b: Vector2i) -> bool: return a.y*96+a.x<b.y*96+b.x)
-		for cell: Vector2i in candidates:
-			if cell.x<0 or cell.y<0 or cell.x>=96 or cell.y>=96:
-				continue
-			var rect: Rect2 = space._unit_rect(world,actor,Vector2(cell),members,offsets)
-			if rect.intersects(exit,false) or not space.static_reason(world,actor,int(connection.to),cell,members,offsets).is_empty() or not space._dynamic_clear(world,actor.id,int(connection.to),rect,members):
-				continue
-			var public_space: bool = true
-			for room: Dictionary in world.facts.rooms.values():
-				if int(room.floor_id)==int(connection.to) and rect.intersects(Rect2(float(room.origin[0]),float(room.origin[1]),float(room.size[0]),float(room.size[1])),false):
-					public_space = false
-			if not public_space:
-				continue
-			var path: Dictionary = space._floor_route(world,actor,int(connection.to),anchor,cell,members,offsets)
-			if path.ok:
-				space.queue_waypoint(world,movement,int(connection.to),[cell.x,cell.y])
-				return
+		# In-bounds cells sort by y then x under the original y*96+x key.
+		# Generate that order directly; discarded off-floor points cannot win.
+		for y: int in range(maxi(0,anchor.y-radius),mini(96,anchor.y+radius+1)):
+			var dx: int = radius-absi(y-anchor.y)
+			for side: int in range(1 if dx==0 else 2):
+				var cell: Vector2i = Vector2i(anchor.x-dx if side==0 else anchor.x+dx,y)
+				if cell.x<0 or cell.x>=96:
+					continue
+				var rect: Rect2 = space._unit_rect(world,actor,Vector2(cell),members,offsets)
+				if rect.intersects(exit,false) or not space.static_reason(world,actor,int(connection.to),cell,members,offsets).is_empty() or not space._dynamic_clear(world,actor.id,int(connection.to),rect,members):
+					continue
+				var public_space: bool = true
+				for room: Dictionary in world.facts.rooms.values():
+					if int(room.floor_id)==int(connection.to) and rect.intersects(Rect2(float(room.origin[0]),float(room.origin[1]),float(room.size[0]),float(room.size[1])),false):
+						public_space = false
+				if not public_space:
+					continue
+				var path: Dictionary = space._floor_route(world,actor,int(connection.to),anchor,cell,members,offsets)
+				if path.ok:
+					space.queue_waypoint(world,movement,int(connection.to),[cell.x,cell.y])
+					return
 
 static func _waiting(world: WorldState, connector_id: String) -> Array:
 	var result: Array = []
