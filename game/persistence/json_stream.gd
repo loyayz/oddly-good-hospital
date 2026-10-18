@@ -96,17 +96,20 @@ func _write_value(value: Variant, depth: int) -> void:
 		error = "JSON嵌套深度超过64"
 		return
 	if value is Dictionary:
+		var keys: PackedStringArray = PackedStringArray()
 		for key: Variant in value:
 			if not (key is String or key is StringName):
 				error = "世界对象键必须是字符串"
 				return
+			keys.append(str(key))
 		_emit("{")
-		var keys: Array = value.keys()
+		# Both accepted key types encode as JSON strings. Sort their text so
+		# decoding StringName keys to String cannot change canonical byte order.
 		keys.sort()
 		for index: int in keys.size():
 			if index > 0:
 				_emit(",")
-			_write_value(str(keys[index]),depth+1)
+			_write_value(keys[index],depth+1)
 			_emit(":")
 			_write_value(value[keys[index]],depth+1)
 		_emit("}")

@@ -236,7 +236,7 @@ func _run() -> void:
 		var sample: Dictionary = {"tick":fixture.world.sim_tick,"elapsed_ms":(Time.get_ticks_usec()-begin)/1000.0,"present":fixture.world.present_actor_count(),"moves":fixture.world.facts.moves.size(),"preparations":fixture.world.facts.preparations.size(),"sessions":fixture.world.facts.sessions.size(),"events":result.facts.size()}
 		if profile: sample.profile = timing.report()
 		samples.append(sample)
-		print("PERFORMANCE_STEP="+JSON.stringify(sample.merged({"profile":{}}) if profile else sample))
+		print("PERFORMANCE_STEP="+JSON.stringify(sample.merged({"profile":{}},true) if profile else sample))
 		# Persistence is outside the original complete-step timer. Less frequent
 		# checkpoints retain every sample while avoiding quadratic write volume.
 		if (index+1)%checkpoint_steps==0 or index+1==steps:
