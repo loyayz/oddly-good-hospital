@@ -1,0 +1,5012 @@
+{
+  "kind": "performance_review_resolution_evidence",
+  "status": "paused_formal_acceptance_incomplete",
+  "generated_utc": "2026-10-18T07:00:00.579793+00:00",
+  "formal_pass": false,
+  "processing_report": {
+    "path": "docs/reports/2026-10-18-performance-review-resolution.md",
+    "bytes": 59690,
+    "sha256": "9549f1030913ab93731a12dc817589a8df3e6134c42501a9b9fd8e35a8d414fa",
+    "hash_basis": "existing file read and hashed during paused documentation publication; no execution"
+  },
+  "scope": "Compact source-linked evidence; selected functional, math, tool, diagnostic and historical display results retain separate qualifications.",
+  "authority": {
+    "spec": {
+      "path": "docs/specs/26-10/2026-10-16-performance-validation.md",
+      "bytes": 17945,
+      "sha256": "227a411117b25c587b648e0b59659c47b5dbdefe5e70fa4768005df2a8746b7d",
+      "hash_basis": "complete file rehashed during this summary"
+    },
+    "targets_source": {
+      "path": "docs/data/balance.json",
+      "bytes": 103332,
+      "sha256": "4d7135cc9d7d572397888868e2a570beb0c477fa05e0ac5b6e4f9974806d7b58",
+      "hash_basis": "complete file rehashed during this summary"
+    },
+    "original_targets": {
+      "purpose": "acceptance_targets_not_gameplay_limits",
+      "simulation_budget": {
+        "version": "sim-frame-budget-v2",
+        "basis": "primary_frame_targets",
+        "share_bp": 6000,
+        "rounding": "floor_whole_milliseconds",
+        "validation": "presented_frames_and_real_speed_remain_separate"
+      },
+      "hardware_reference": {
+        "captured_on": "2026-10-13",
+        "cpu": "Intel(R) Core(TM) Ultra 5 125H",
+        "physical_cores": 14,
+        "logical_processors": 18,
+        "gpu": "Intel(R) Arc(TM) Graphics",
+        "gpu_driver": "31.0.101.5382",
+        "installed_memory_bytes": 34359738368,
+        "os": "Windows 11 x64",
+        "storage": "NVMe SSD",
+        "reported_gpu_mode": [
+          2880,
+          1920
+        ],
+        "vendor_reference": "https://www.intel.com/content/www/us/en/products/sku/236848/intel-core-ultra-5-processor-125h-18m-cache-up-to-4-50-ghz/specifications.html",
+        "cpu_core_types": {
+          "performance": 4,
+          "efficient": 8,
+          "low_power_efficient": 2
+        },
+        "gpu_xe_cores": 7,
+        "memory_report": {
+          "source": "Win32_PhysicalMemory_and_Win32_OperatingSystem_read_only_snapshot",
+          "reported_entries": 8,
+          "entry_capacity_bytes": 4294967296,
+          "Speed": 7467,
+          "ConfiguredClockSpeed": 6400,
+          "DataWidth": 64,
+          "SMBIOSMemoryType": 35,
+          "aggregate_bus_width": "not_inferred_from_smbios_entries",
+          "free_physical_bytes": 17457348608,
+          "usable_memory_bytes": 33779150848,
+          "free_bytes_are_future_reservation": false
+        },
+        "virtual_display_is_renderer": false,
+        "wmi_adapter_ram_is_total_budget": false
+      },
+      "world_source": "performance_reference",
+      "quality": "standard",
+      "display": {
+        "window_pixels": [
+          2560,
+          1440
+        ],
+        "default_scene_scale_bp": 7500,
+        "scene_scale_options_bp": [
+          10000,
+          7500,
+          6667
+        ],
+        "pixel_rounding": "nearest_even_dimension",
+        "ui_resolution": "native_window",
+        "render_scale_changes_ui": false,
+        "automatic_scale_changes": false
+      },
+      "display_workload_samples": {
+        "window_sources": [
+          "display.window_pixels",
+          "hardware_reference.reported_gpu_mode"
+        ],
+        "scene_scale_source": "display.scene_scale_options_bp",
+        "ui_scale_percent": [
+          100,
+          200
+        ],
+        "load_source": "performance_reference_and_existing_large_world_samples",
+        "metrics_source": "same_primary_frame_simulation_response_and_memory_targets",
+        "selection": "representative_costs_and_display_boundaries_not_cartesian_product",
+        "record_actual_window_scene_and_ui_extent": true,
+        "unavailable_mode": "record_missing_evidence_without_substitution",
+        "extrapolate_fps_from_pixel_ratio": false,
+        "resource_cost_basis": "actual_targets_samples_formats_and_unreleased_copies"
+      },
+      "capture": {
+        "warmup_completion": "initial_loading_bindings_and_actual_work_caches_ready_record_evidence_and_elapsed",
+        "ordinary_transitions_are_warmup": false,
+        "minimum_frame_samples": 1000,
+        "minimum_step_samples": 1000,
+        "completion": "required_metric_samples_and_scenario_operations_covered",
+        "extension": "additional_independent_window_for_borderline_or_unstable_results_preserve_prior_failures",
+        "failure": "stop_diagnostic_on_reproducible_violation_optimize_and_remeasure_affected_scope",
+        "speeds": [
+          1,
+          3
+        ],
+        "fps_target": 60,
+        "record_actual_renderer": true,
+        "record_refresh_and_sync": true,
+        "power_condition": "ac_record_actual_power_mode_and_background_load",
+        "statistics": {
+          "time_basis": "monotonic_real_time",
+          "frame_source": "actual_distinct_game_frame_display_change",
+          "frame_population": "complete_original_ordinary_intervals_with_start_in_capture_window",
+          "incomplete_tail": "continue_to_next_distinct_frame_or_mark_missing_evidence",
+          "percentile": "nearest_rank_ceil_p_times_n",
+          "maximum": "same_complete_population",
+          "grouping": "per_world_load_window_scale_ui_speed_and_capture_condition",
+          "dense_segments": "same_rules_separate_population_for_each_dense_segment",
+          "missing_samples": "no_pass_or_synthetic_frames",
+          "average_fps_substitutes_tail": false,
+          "cpu_gpu_sum_substitutes_frame": false,
+          "tool_record": "version_source_and_actual_process_renderer",
+          "data_scope": "local_acceptance_artifacts_not_world_or_runtime_cache"
+        }
+      },
+      "metrics": {
+        "frame_p95_ms": 16.7,
+        "frame_p99_ms": 25,
+        "ordinary_frame_max_ms": 50,
+        "sim_step_p95_ms": 10,
+        "sim_step_p99_ms": 15,
+        "sim_step_ordinary_max_ms": 30,
+        "sim_speed_ratio_min": 0.99,
+        "input_preview_p95_ms": 100,
+        "room_preview_p95_ms": 200,
+        "snapshot_copy_p95_ms": 25,
+        "save_max_seconds": 2,
+        "load_max_seconds": 5,
+        "working_set_target_bytes": 2147483648,
+        "graphics_resources_target_bytes": 536870912
+      },
+      "graphics_accounting": "visible_idle_loading_and_render_targets",
+      "resource_measurement": {
+        "process_source": "release_target_process_os_working_set",
+        "private_commit": "record_separately_not_working_set",
+        "graphics_source": "original_graphics_scope_with_allocation_basis_and_engine_os_corroboration",
+        "debug_only_monitors": "diagnostic_only_never_zero_as_release_usage",
+        "size_kinds": [
+          "payload_bytes",
+          "allocated_bytes",
+          "engine_estimate",
+          "os_residency"
+        ],
+        "payload_only": "not_complete_budget_evidence",
+        "peak_scope": "same_capture_ordinary_save_and_view_transition_work",
+        "peak_record": "observed_peak_cadence_and_process_lifetime_peak_separate",
+        "shared_allocation": "once_per_actual_allocation_not_content_fingerprint_or_reference",
+        "overlapping_counters": "report_separately_do_not_sum",
+        "unreleased": "count_current_loading_idle_and_retiring_actual_allocations",
+        "unknown": "record_missing_evidence_not_zero",
+        "data_scope": "local_acceptance_report_not_world_or_parallel_runtime_state"
+      },
+      "large_world_samples": {
+        "actors": [
+          320,
+          640
+        ],
+        "metrics_source": "same_primary_frame_and_simulation_targets",
+        "empty_floors": 10000,
+        "reject_by_count": false
+      },
+      "spatial_samples": {
+        "wide_floor": {
+          "logical_size_cells": [
+            96,
+            96
+          ],
+          "owned_plots": 9,
+          "active_floor": 1,
+          "actors": [
+            160,
+            640
+          ],
+          "rooms": 64,
+          "stations": 128,
+          "props": 1200,
+          "layout_requirement": "actual_entities_with_legal_routes_and_body_fit"
+        },
+        "wide_tall": {
+          "completed_top_floor_per_plot": 10000,
+          "active_floors": [
+            1,
+            10,
+            1000,
+            10000
+          ],
+          "actors": 640,
+          "structure_expand": "never_all_empty_floors"
+        },
+        "camera_sequence": [
+          "near_full_working_area",
+          "far_whole_floor",
+          "pan_both_axes",
+          "repeated_zoom_thresholds",
+          "switch_active_floors",
+          "edit_local_geometry_during_view_load"
+        ],
+        "cache_modes": [
+          "cold",
+          "warm",
+          "forced_eviction"
+        ],
+        "metrics_source": "same_primary_frame_simulation_response_and_memory_targets",
+        "count_source": "actual_logical_entities_and_visible_instances_logged_separately",
+        "dense_sample_requirements_source": "capture.minimum_frame_samples_and_minimum_step_samples",
+        "minimum_density_bp": 9000,
+        "fake_submesh_counts": false
+      },
+      "changes_simulation": false,
+      "runtime_measurement_available": false
+    }
+  },
+  "same_legal_160_input": {
+    "binary": {
+      "path": ".cache/performance/review-formal-inputs-r1/160four.input.bin",
+      "bytes": 1499144,
+      "sha256": "6595dda287f5a82cf725ce3b1cd77b8da8d73bc242da7f2c13aa97e0b5ea822e",
+      "hash_basis": "complete file rehashed during this summary"
+    },
+    "manifest_source": {
+      "path": ".cache/performance/review-formal-inputs-r1/160four.manifest.json",
+      "bytes": 1838,
+      "sha256": "b77c4a88013aca4fb5d1905d228fedcaf586cdc340af8a8ef335dcbdcf0481f3",
+      "hash_basis": "complete file rehashed during this summary"
+    },
+    "manifest": {
+      "actors": 160,
+      "actual_layout_after": {
+        "facilities": 1336,
+        "props": 1200,
+        "rooms": 64,
+        "service_objects": 136
+      },
+      "actual_layout_before": {
+        "facilities": 1328,
+        "props": 1200,
+        "rooms": 64,
+        "service_objects": 128
+      },
+      "actual_steps": 21,
+      "added_public_seat_ids": [
+        "acceptance_public_seat_0000",
+        "acceptance_public_seat_0001",
+        "acceptance_public_seat_0002",
+        "acceptance_public_seat_0003",
+        "acceptance_public_seat_0004",
+        "acceptance_public_seat_0005",
+        "acceptance_public_seat_0006",
+        "acceptance_public_seat_0007"
+      ],
+      "boundary": "original_companion_admissions_and_complete_steps",
+      "companion_intention_origin": "preserved_original_source_requests",
+      "companion_profiles_valid": true,
+      "content_fingerprint": "70ef833fb44c1682824534528697df4a55d011f10121f15f8e83f0b5b7b6d433",
+      "engine": "4.7.2-stable (official)",
+      "floors": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "hospital_id": "00000000-0000-4000-8000-000000000160",
+      "id": "160four",
+      "input_file": "160four.input.bin",
+      "input_sha256": "6595dda287f5a82cf725ce3b1cd77b8da8d73bc242da7f2c13aa97e0b5ea822e",
+      "layout": "four_floors",
+      "ok": true,
+      "original_object_ids_and_definitions_preserved": true,
+      "original_prop_count": 1200,
+      "original_rooms": 64,
+      "original_service_objects": 128,
+      "pending_visitor_requests_after": 30,
+      "pending_visitor_requests_before": 38,
+      "population": {
+        "patients": 120,
+        "present": 160,
+        "staff": 32,
+        "unowned": [],
+        "visitors": 8
+      },
+      "preparation_us": 10774990,
+      "source_input": "C:/code/loyayz/oddly-good-hospital/.cache/performance/native-step-v5/steps.json.after.bin",
+      "source_input_sha256": "2a1ef0b04534ed69687576900e4a9a4aee9ff02b63ee69fd389e7d74169832b0",
+      "source_tick": 25,
+      "validation": "",
+      "visitor_profile": "HospitalVisitors companion; original admission owner, actual entrance and public waiting route"
+    },
+    "qualification": "original legal source population and all pending companion intentions retained; later business-generated actors are not removed"
+  },
+  "review": {
+    "url": "https://chatgpt.com/share/6ad4316f-6db8-83ea-abe2-213d7671a788",
+    "baseline_commit": "1974220d802a934f546fb4aeb2513dee9d343503",
+    "last_pre_handoff_production_fix": "4839856",
+    "source_scope": "Three actual final messages; first two finished_partial_completion. Complete page/React stream checked; no hidden continuation invented.",
+    "saved_texts": [
+      {
+        "path": ".cache/review-6ad4316f/text-2757.md",
+        "bytes": 11780,
+        "sha256": "bf00e6a767970f548d5efd826bbb661dcbea7e2922e1b914458d9a7fda948de5",
+        "hash_basis": "complete file rehashed during this summary"
+      },
+      {
+        "path": ".cache/review-6ad4316f/text-2310.md",
+        "bytes": 14396,
+        "sha256": "caa128ba0544c7d33fda55499b4f18b1b64d8d8efd4cb3c9a6da336c917b46bd",
+        "hash_basis": "complete file rehashed during this summary"
+      },
+      {
+        "path": ".cache/review-6ad4316f/text-697.md",
+        "bytes": 5998,
+        "sha256": "51e2ffd3e98084a8b6771698e11edd42f6a70f1f7b9acabb7e678c89a3bf21eb",
+        "hash_basis": "complete file rehashed during this summary"
+      },
+      {
+        "path": ".cache/review-6ad4316f/page.html",
+        "bytes": 932086,
+        "sha256": "e32217881fd13a67a523898de7545fa291a823684d2bbe7f6206eb1ac3160688",
+        "hash_basis": "complete file rehashed during this summary"
+      },
+      {
+        "path": ".cache/review-6ad4316f/stream-0.json",
+        "bytes": 536931,
+        "sha256": "4bd9c2902c6d4a9a4d038b3b8877aa46a40cbe4deab4a92c10b82d797a798056",
+        "hash_basis": "complete file rehashed during this summary"
+      }
+    ],
+    "prior_handoff_evidence": {
+      "path": "docs/reports/2026-10-18-performance-handoff-evidence.json",
+      "bytes": 28313,
+      "sha256": "36cf978a1736e163e35124f34dc694509f25de493176c62356a69c58bda3389e",
+      "hash_basis": "complete file rehashed during this summary"
+    },
+    "prior_35_case_evidence": {
+      "path": "docs/reports/2026-10-18-performance-acceptance-repairs-2-evidence.json",
+      "bytes": 213531,
+      "sha256": "fe7e5c5918cec72c2b02bc548792b9c4b8868868c3d21df5b317e0f110b860f3",
+      "hash_basis": "complete file rehashed during this summary"
+    }
+  },
+  "product_r8": {
+    "build_identity": {
+      "path": ".build/review-release-r8/product/build-identity.json",
+      "bytes": 1704,
+      "sha256": "30acb2c678d79730d228a1dd1d4eee95cec0ddc8c8fb1f9a3a60c295c9f11407",
+      "hash_basis": "complete file rehashed during this summary"
+    },
+    "identity": {
+      "product_id": "oddly-good-hospital",
+      "version": "0.28.0-stage28",
+      "version_source": "ProjectSettings:application/config/version",
+      "engine": "4.7.2-stable (official)",
+      "source": {
+        "kind": "HEAD",
+        "head": "ffc29f3fd9a8b35772fa952e61f24361474938a4",
+        "head_tree": "fb5098f72bb3251cb1991f491bd88a67096cfcdb",
+        "staged_tree": "fb5098f72bb3251cb1991f491bd88a67096cfcdb",
+        "tracked_working_tree_matches_index": true,
+        "unstaged_paths": [],
+        "untracked_paths": [],
+        "working_files": []
+      },
+      "files": [
+        {
+          "path": "oddly-good-hospital.exe",
+          "bytes": 109127680,
+          "sha256": "54cee456aef4e3d1dde929790c4e371849215e610ef41cfbe8323e5935680c5b"
+        },
+        {
+          "path": "oddly-good-hospital.pck",
+          "bytes": 39420940,
+          "sha256": "2100d7cbbc20e88b9427675a8379587dc51941c389dc110618b0a986e3b4c834"
+        },
+        {
+          "path": "oddly_good_platform.windows.x86_64.dll",
+          "bytes": 14966784,
+          "sha256": "08a6582cecede19073637d6af437f76b86aa69c684d4bfe070c115c43e8f37dd"
+        },
+        {
+          "path": "libgmp-10.dll",
+          "bytes": 681231,
+          "sha256": "c2567ccf3f410c3411ba7cd4b7ba14f393a0e70a1d0c0593297df6706b5fba96"
+        },
+        {
+          "path": "libmpfr-6.dll",
+          "bytes": 713692,
+          "sha256": "b881beb5ed7e3413283ab94f24ab25cd47ed27127774867ae105642ff2fc2e47"
+        },
+        {
+          "path": "libgcc_s_seh-1.dll",
+          "bytes": 150537,
+          "sha256": "791ebf66e99c7c1b4ed3666468cec45a0172b4c8942ac6c84c3e9cab3e1b5270"
+        },
+        {
+          "path": "libwinpthread-1.dll",
+          "bytes": 64574,
+          "sha256": "e765ee6109a0080a7c42848911f4349099b3c15aa734d845cb0e438f6f5a91b5"
+        }
+      ]
+    },
+    "qualification": "clean-HEAD actual Release exported product; no formal performance pass",
+    "build_logs": [
+      {
+        "path": ".build/review-release-r8/product-logs/content-check.log",
+        "bytes": 209,
+        "sha256": "08dc893496118605f881b7ca928d109f3c76660249a1597ef14291734ebf2c39",
+        "hash_basis": "complete file rehashed during this summary"
+      },
+      {
+        "path": ".build/review-release-r8/product-logs/import.log",
+        "bytes": 1087,
+        "sha256": "d41e6300cf6ac491b0a0d10ec7fdc44455cf584b0662d6fb50d14a917682c3a3",
+        "hash_basis": "complete file rehashed during this summary"
+      },
+      {
+        "path": ".build/review-release-r8/product-logs/export.log",
+        "bytes": 37975,
+        "sha256": "5e75f76824e4e459db7c24b53226713c52ee4cc271639dde9c67850039771cd9",
+        "hash_basis": "complete file rehashed during this summary"
+      },
+      {
+        "path": ".build/review-release-r8/product-logs/settings.log",
+        "bytes": 155,
+        "sha256": "fd2b8febe70e4b2022ce02e7f0779b131b5f983c65bd7db0eee8c8a71a064dfc",
+        "hash_basis": "complete file rehashed during this summary"
+      }
+    ],
+    "probe": {
+      "passed": true,
+      "exit_code": 0,
+      "pid": 36176,
+      "features": {
+        "debug": false,
+        "editor": false,
+        "release": true,
+        "template": true
+      },
+      "assets": {
+        "assets": [
+          {
+            "expected_bytes": 403888,
+            "expected_sha256": "0e6177a4874c51fc1b9b46a3932c7d169665485a5f4a547e6dab212c353b9c08",
+            "original_owner_acquired_and_validated": true,
+            "path": "res://assets/models/core_s49_body.glb",
+            "source_bytes": 403888,
+            "source_sha256": "0e6177a4874c51fc1b9b46a3932c7d169665485a5f4a547e6dab212c353b9c08",
+            "valid": true
+          },
+          {
+            "expected_bytes": 347228,
+            "expected_sha256": "258c0d4c2c2ad004da60e3b76a4d9d7eba19af68d29e01c0cd3b96448838f7f1",
+            "original_owner_acquired_and_validated": true,
+            "path": "res://assets/models/core_s21_body.glb",
+            "source_bytes": 347228,
+            "source_sha256": "258c0d4c2c2ad004da60e3b76a4d9d7eba19af68d29e01c0cd3b96448838f7f1",
+            "valid": true
+          },
+          {
+            "expected_bytes": 407720,
+            "expected_sha256": "041de95d93c4f9386d01ac549f6142fcc63ceb14a984879a0e183639e31bbe51",
+            "original_owner_acquired_and_validated": true,
+            "path": "res://assets/models/core_s59_body.glb",
+            "source_bytes": 407720,
+            "source_sha256": "041de95d93c4f9386d01ac549f6142fcc63ceb14a984879a0e183639e31bbe51",
+            "valid": true
+          },
+          {
+            "expected_bytes": 381332,
+            "expected_sha256": "9cda9f341c75f2526ffe3016a3564ca39cee6418b41b3f704fe7213a9a0d2d13",
+            "original_owner_acquired_and_validated": true,
+            "path": "res://assets/models/core_s55_body.glb",
+            "source_bytes": 381332,
+            "source_sha256": "9cda9f341c75f2526ffe3016a3564ca39cee6418b41b3f704fe7213a9a0d2d13",
+            "valid": true
+          },
+          {
+            "expected_bytes": 306012,
+            "expected_sha256": "f4ea25be6ce784b310774d351c0749b0c85d43187d32c36b2f5d1bd3cba975da",
+            "original_owner_acquired_and_validated": true,
+            "path": "res://assets/models/core_s14_body.glb",
+            "source_bytes": 306012,
+            "source_sha256": "f4ea25be6ce784b310774d351c0749b0c85d43187d32c36b2f5d1bd3cba975da",
+            "valid": true
+          },
+          {
+            "expected_bytes": 178524,
+            "expected_sha256": "413f455645176f6772bf5382b466b662af694630acbdf09a5cabe92a7ecb0021",
+            "original_owner_acquired_and_validated": true,
+            "path": "res://assets/models/core_m37_machine.glb",
+            "source_bytes": 178524,
+            "source_sha256": "413f455645176f6772bf5382b466b662af694630acbdf09a5cabe92a7ecb0021",
+            "valid": true
+          },
+          {
+            "expected_bytes": 172632,
+            "expected_sha256": "590e07f03fdacf28c9854ed8e1c5aeeb7d2573635e36947a8237f39a91c67b9c",
+            "original_owner_acquired_and_validated": true,
+            "path": "res://assets/models/core_m17_machine.glb",
+            "source_bytes": 172632,
+            "source_sha256": "590e07f03fdacf28c9854ed8e1c5aeeb7d2573635e36947a8237f39a91c67b9c",
+            "valid": true
+          },
+          {
+            "expected_bytes": 191072,
+            "expected_sha256": "b3698111febc4f230e583144fa99379a6aa08879f2f336f72958485d005be0f4",
+            "original_owner_acquired_and_validated": true,
+            "path": "res://assets/models/core_eq01_machine.glb",
+            "source_bytes": 191072,
+            "source_sha256": "b3698111febc4f230e583144fa99379a6aa08879f2f336f72958485d005be0f4",
+            "valid": true
+          },
+          {
+            "expected_bytes": 133528,
+            "expected_sha256": "540b62ad0231c20da0b24407ac35f9e6316c72e3689792511f3831dd902e4cf5",
+            "original_owner_acquired_and_validated": true,
+            "path": "res://assets/models/core_eq05_machine.glb",
+            "source_bytes": 133528,
+            "source_sha256": "540b62ad0231c20da0b24407ac35f9e6316c72e3689792511f3831dd902e4cf5",
+            "valid": true
+          }
+        ],
+        "hash_rejection_atomic": true,
+        "released": {
+          "allocation_measurement": "not_measured",
+          "errors": [],
+          "instance_users": 0,
+          "shared_scenes": 0,
+          "source_bytes": 0
+        },
+        "scope": "published source identity and original remapped scene validation; no timing, GPU allocation or residency claim",
+        "valid": true
+      },
+      "renderer": "gl_compatibility",
+      "does_not_verify_actual_actor_rendering_or_peak": true,
+      "sources": [
+        {
+          "path": ".cache/performance/review-release-probe-r8/probe.json",
+          "bytes": 5637,
+          "sha256": "b75987c67a25db59311462288e4144ceb50a4afa49a5261279f64274eacef23c",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/performance/review-release-probe-r8/process.json",
+          "bytes": 1851,
+          "sha256": "1b948902d9e1338aa67e2e83839436df08eae2383f3f2c4420eaef81aec03882",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/performance/review-release-probe-r8/stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/performance/review-release-probe-r8/stdout.log",
+          "bytes": 5015,
+          "sha256": "868d1264b098e84407996578d5b66649b78766d064021800425e71fefc681945",
+          "hash_basis": "complete file rehashed during this summary"
+        }
+      ]
+    },
+    "export_evidence": [
+      {
+        "path": ".cache/review-6ad4316f/release-resources/include-v-add-file.json",
+        "bytes": 1111,
+        "sha256": "b6378f3133694b0907b14bbbeacb74c8a849281810dd4b82c39791898fe03672",
+        "hash_basis": "complete file rehashed during this summary"
+      },
+      {
+        "path": ".cache/review-6ad4316f/release-resources/r7-pck-index.json",
+        "bytes": 1161,
+        "sha256": "49de3a521ba58647213c8e1250f2d972780f50cfadbba5747d59254ca095e4c6",
+        "hash_basis": "complete file rehashed during this summary"
+      },
+      {
+        "path": ".cache/review-6ad4316f/release-resources/source-inventory.json",
+        "bytes": 2378,
+        "sha256": "d674ea77371ee775f2b84d8c89ecd3380ff0a317ea5e98cf3bae778dc396172b",
+        "hash_basis": "complete file rehashed during this summary"
+      }
+    ],
+    "old_r7_probe_failure": {
+      "qualification": "expected negative actual Release reproduction; not a script or timeout failure",
+      "valid": false,
+      "assets": {
+        "assets": [
+          {
+            "expected_bytes": 403888,
+            "expected_sha256": "0e6177a4874c51fc1b9b46a3932c7d169665485a5f4a547e6dab212c353b9c08",
+            "original_owner_acquired_and_validated": false,
+            "path": "res://assets/models/core_s49_body.glb",
+            "source_bytes": 0,
+            "source_sha256": "",
+            "valid": false
+          },
+          {
+            "expected_bytes": 347228,
+            "expected_sha256": "258c0d4c2c2ad004da60e3b76a4d9d7eba19af68d29e01c0cd3b96448838f7f1",
+            "original_owner_acquired_and_validated": false,
+            "path": "res://assets/models/core_s21_body.glb",
+            "source_bytes": 0,
+            "source_sha256": "",
+            "valid": false
+          },
+          {
+            "expected_bytes": 407720,
+            "expected_sha256": "041de95d93c4f9386d01ac549f6142fcc63ceb14a984879a0e183639e31bbe51",
+            "original_owner_acquired_and_validated": false,
+            "path": "res://assets/models/core_s59_body.glb",
+            "source_bytes": 0,
+            "source_sha256": "",
+            "valid": false
+          },
+          {
+            "expected_bytes": 381332,
+            "expected_sha256": "9cda9f341c75f2526ffe3016a3564ca39cee6418b41b3f704fe7213a9a0d2d13",
+            "original_owner_acquired_and_validated": false,
+            "path": "res://assets/models/core_s55_body.glb",
+            "source_bytes": 0,
+            "source_sha256": "",
+            "valid": false
+          },
+          {
+            "expected_bytes": 306012,
+            "expected_sha256": "f4ea25be6ce784b310774d351c0749b0c85d43187d32c36b2f5d1bd3cba975da",
+            "original_owner_acquired_and_validated": false,
+            "path": "res://assets/models/core_s14_body.glb",
+            "source_bytes": 0,
+            "source_sha256": "",
+            "valid": false
+          },
+          {
+            "expected_bytes": 178524,
+            "expected_sha256": "413f455645176f6772bf5382b466b662af694630acbdf09a5cabe92a7ecb0021",
+            "original_owner_acquired_and_validated": false,
+            "path": "res://assets/models/core_m37_machine.glb",
+            "source_bytes": 0,
+            "source_sha256": "",
+            "valid": false
+          },
+          {
+            "expected_bytes": 172632,
+            "expected_sha256": "590e07f03fdacf28c9854ed8e1c5aeeb7d2573635e36947a8237f39a91c67b9c",
+            "original_owner_acquired_and_validated": false,
+            "path": "res://assets/models/core_m17_machine.glb",
+            "source_bytes": 0,
+            "source_sha256": "",
+            "valid": false
+          },
+          {
+            "expected_bytes": 191072,
+            "expected_sha256": "b3698111febc4f230e583144fa99379a6aa08879f2f336f72958485d005be0f4",
+            "original_owner_acquired_and_validated": false,
+            "path": "res://assets/models/core_eq01_machine.glb",
+            "source_bytes": 0,
+            "source_sha256": "",
+            "valid": false
+          },
+          {
+            "expected_bytes": 133528,
+            "expected_sha256": "540b62ad0231c20da0b24407ac35f9e6316c72e3689792511f3831dd902e4cf5",
+            "original_owner_acquired_and_validated": false,
+            "path": "res://assets/models/core_eq05_machine.glb",
+            "source_bytes": 0,
+            "source_sha256": "",
+            "valid": false
+          }
+        ],
+        "hash_rejection_atomic": true,
+        "released": {
+          "allocation_measurement": "not_measured",
+          "errors": [
+            "res://assets/models/core_s49_body.glb: 资源哈希与发布清单不一致",
+            "res://assets/models/core_s21_body.glb: 资源哈希与发布清单不一致",
+            "res://assets/models/core_s59_body.glb: 资源哈希与发布清单不一致",
+            "res://assets/models/core_s55_body.glb: 资源哈希与发布清单不一致",
+            "res://assets/models/core_s14_body.glb: 资源哈希与发布清单不一致",
+            "res://assets/models/core_m37_machine.glb: 资源哈希与发布清单不一致",
+            "res://assets/models/core_m17_machine.glb: 资源哈希与发布清单不一致",
+            "res://assets/models/core_eq01_machine.glb: 资源哈希与发布清单不一致",
+            "res://assets/models/core_eq05_machine.glb: 资源哈希与发布清单不一致"
+          ],
+          "instance_users": 0,
+          "shared_scenes": 0,
+          "source_bytes": 0
+        },
+        "scope": "published source identity and original remapped scene validation; no timing, GPU allocation or residency claim",
+        "valid": false
+      },
+      "sources": [
+        {
+          "path": ".cache/performance/review-resource-probe-r7-before/probe.json",
+          "bytes": 5818,
+          "sha256": "313eec673ae1f7fa5fbe78f41129e3358f9db72f84357814cee7e61e68d6a0f5",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/performance/review-resource-probe-r7-before/process.json",
+          "bytes": 1859,
+          "sha256": "090786931051677dcc80a1655d78d40d98efc93b31a2ff3a92adf0aad0fb2c40",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/performance/review-resource-probe-r7-before/stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "hash_basis": "complete file rehashed during this summary"
+        }
+      ]
+    }
+  },
+  "tool_qualification_revision": {
+    "commit": "2a564deca4cb3ed433b2567a4e791f09dd0d9e4f",
+    "does_not_relabel_r8_product_source": true,
+    "allocation_upper": "Canonical adapter/global/generation 33/35 allocSize sum and conservative owner/fallback scope; PFN backing is not a size input.",
+    "backing_and_physical_residency": "Independent unknown/incomplete remains; no complete-lock proof is fabricated.",
+    "unchanged_rejections": [
+      "raw provenance",
+      "size or physical-adapter conflict",
+      "unknown size",
+      "identity or lifetime gap",
+      "owner or fallback coverage gap",
+      "event loss",
+      "actual display/QPC window",
+      "unreleased storage",
+      "OS usage coverage",
+      "comparable same-window bound contradiction"
+    ],
+    "offline_checks": {
+      "ledger": {
+        "checks": 31,
+        "elapsed_seconds": 0.004,
+        "passed": true,
+        "source": {
+          "path": ".cache/review-6ad4316f/allocation-qualification-r2/ledger-self-check.log",
+          "bytes": 135,
+          "sha256": "caae84a20a8c26aa11a4681438c5f2e44e7820cde044a6e02cbfd0342227ea14",
+          "hash_basis": "complete file rehashed during this summary"
+        }
+      },
+      "analyzer": {
+        "checks": 40,
+        "elapsed_seconds": 1.872,
+        "passed": true,
+        "source": {
+          "path": ".cache/review-6ad4316f/allocation-qualification-r2/analyzer-self-check.log",
+          "bytes": 144,
+          "sha256": "13021a02bd8f6f1bcecc97b34faea266c01fe210cd6202ac04b18db6b21d2b10",
+          "hash_basis": "complete file rehashed during this summary"
+        }
+      }
+    },
+    "sources": [
+      {
+        "path": ".cache/review-6ad4316f/allocation-qualification-r2/result.json",
+        "bytes": 55,
+        "sha256": "0a9005dddefc08f1009c791cbda252639dd4ffe42bd6e4c87392554312d11707",
+        "hash_basis": "complete file rehashed during this summary"
+      },
+      {
+        "path": ".cache/review-6ad4316f/allocation-qualification-r2/frozen-sources.json",
+        "bytes": 609,
+        "sha256": "b75a44f8a4f94f41fac5da6325b598637722153051ffc61e4fda86525779c79d",
+        "hash_basis": "complete file rehashed during this summary"
+      }
+    ]
+  },
+  "display_settings_tool_checks": {
+    "result": {
+      "checks": 20,
+      "failures": [],
+      "ok": true,
+      "scope": "capture settings tool only; no game or performance acceptance"
+    },
+    "qualification": "mocked real validation/verification methods; no gameplay, rendering or performance acceptance",
+    "source": {
+      "path": ".cache/review-6ad4316f/check-settings-r2.log",
+      "bytes": 186,
+      "sha256": "7b739ffdc3cbfb3f212c403847b35adab0309f38b6f120880de3c82d880fbd51",
+      "hash_basis": "complete file rehashed during this summary"
+    }
+  },
+  "functional_batches": [
+    {
+      "scope": "selected functional cases; not full suite or performance acceptance",
+      "completed": true,
+      "checks": 1,
+      "failed": 1,
+      "requested_cases": [
+        "SPACE-51"
+      ],
+      "case_results": {
+        "SPACE-51": {
+          "passed": false,
+          "setup_ms": 0,
+          "body_ms": 180
+        }
+      },
+      "selected_core_details": {},
+      "timing": {
+        "started_at_utc": "2026-10-18T02:53:26.5749271+00:00",
+        "ended_at_utc": "2026-10-18T02:53:38.9256981+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 2522,
+        "import_ms": 7396,
+        "tests_ms": 2419,
+        "total_ms": 12353
+      },
+      "source_head_at_preparation": "1974220d802a934f546fb4aeb2513dee9d343503",
+      "native_sha256": "02FBE7C7BE685BA3115D277904FF5333D9B07A2F3D43F38B02ADFD2B1EA19E0B",
+      "sources": [
+        {
+          "path": ".cache/acceptance/4c7fd6514e874738b9541fb9b3203093/acceptance-results.json",
+          "bytes": 7966,
+          "sha256": "061b02a3221fcbe09d6144484e049f806be43a02bf5b9d7af62dde451cc4d9f6",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/acceptance/4c7fd6514e874738b9541fb9b3203093/timing-summary.json",
+          "bytes": 257,
+          "sha256": "7a125a904611f6e75b9b96f3359f7794409f3c1e7ce30a516d74907d1471d827",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/acceptance/4c7fd6514e874738b9541fb9b3203093/source-identity.json",
+          "bytes": 83363,
+          "sha256": "845162f8a9422bea6069a70d6e1f4b9fbfa892825cf9400f9818e0877c7af30a",
+          "hash_basis": "complete file rehashed during this summary"
+        }
+      ]
+    },
+    {
+      "scope": "selected functional cases; not full suite or performance acceptance",
+      "completed": true,
+      "checks": 11,
+      "failed": 0,
+      "requested_cases": [
+        "SPACE-46",
+        "SPACE-48",
+        "SPACE-50",
+        "SPACE-51",
+        "GROW-51",
+        "GROW-53",
+        "GROW-58",
+        "GROW-60",
+        "GROW-61",
+        "GROW-70",
+        "GROW-78"
+      ],
+      "case_results": {
+        "GROW-51": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 112
+        },
+        "GROW-53": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 214
+        },
+        "GROW-58": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 28
+        },
+        "GROW-60": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 24
+        },
+        "GROW-61": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 320
+        },
+        "GROW-70": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 698
+        },
+        "GROW-78": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 457
+        },
+        "SPACE-46": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 14
+        },
+        "SPACE-48": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 13
+        },
+        "SPACE-50": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 702
+        },
+        "SPACE-51": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 224
+        }
+      },
+      "selected_core_details": {},
+      "timing": {
+        "started_at_utc": "2026-10-18T02:54:30.2106040+00:00",
+        "ended_at_utc": "2026-10-18T02:54:44.1757623+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 2306,
+        "import_ms": 5990,
+        "tests_ms": 5658,
+        "total_ms": 13967
+      },
+      "source_head_at_preparation": "1974220d802a934f546fb4aeb2513dee9d343503",
+      "native_sha256": "02FBE7C7BE685BA3115D277904FF5333D9B07A2F3D43F38B02ADFD2B1EA19E0B",
+      "sources": [
+        {
+          "path": ".cache/acceptance/0de70633e68d46d1a98c4551cb18c69a/acceptance-results.json",
+          "bytes": 32464,
+          "sha256": "b187067c781f599a8071f883559861ec9573fcbf004484a53ba1f2b3234e0137",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/acceptance/0de70633e68d46d1a98c4551cb18c69a/timing-summary.json",
+          "bytes": 257,
+          "sha256": "f08a5e93d21b05e19e58997d7e01211813cd9ac3dbdad925bbd577688d26a3eb",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/acceptance/0de70633e68d46d1a98c4551cb18c69a/source-identity.json",
+          "bytes": 83768,
+          "sha256": "5e3348a5b2664afb9e1b494185c5ab287a18c88b66f8d5d959f0ec1145ef8c7b",
+          "hash_basis": "complete file rehashed during this summary"
+        }
+      ]
+    },
+    {
+      "scope": "selected functional cases; not full suite or performance acceptance",
+      "completed": true,
+      "checks": 14,
+      "failed": 0,
+      "requested_cases": [
+        "GROW-39",
+        "GROW-45",
+        "GROW-46",
+        "GROW-48",
+        "GROW-52",
+        "GROW-57",
+        "GROW-59",
+        "GROW-62",
+        "GROW-69",
+        "GROW-71",
+        "GROW-73",
+        "GROW-77",
+        "GROW-79",
+        "GROW-80"
+      ],
+      "case_results": {
+        "GROW-39": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 69375
+        },
+        "GROW-45": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 13
+        },
+        "GROW-46": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 23
+        },
+        "GROW-48": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 41
+        },
+        "GROW-52": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 46
+        },
+        "GROW-57": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 56
+        },
+        "GROW-59": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 48
+        },
+        "GROW-62": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 29
+        },
+        "GROW-69": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 1
+        },
+        "GROW-71": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 137
+        },
+        "GROW-73": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 297
+        },
+        "GROW-77": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 404
+        },
+        "GROW-79": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 436
+        },
+        "GROW-80": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 117
+        }
+      },
+      "selected_core_details": {},
+      "timing": {
+        "started_at_utc": "2026-10-18T03:02:11.2042906+00:00",
+        "ended_at_utc": "2026-10-18T03:03:33.2689698+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 2363,
+        "import_ms": 6368,
+        "tests_ms": 73322,
+        "total_ms": 82067
+      },
+      "source_head_at_preparation": "1974220d802a934f546fb4aeb2513dee9d343503",
+      "native_sha256": "59F0BA8FB3646BD257679D35DECA16902632B4F5491365CAD17D50A6827BB1C9",
+      "sources": [
+        {
+          "path": ".cache/acceptance/40f7ed11e0784ec7bfc0b1fa5c87499b/acceptance-results.json",
+          "bytes": 22264,
+          "sha256": "df89b2ad2d48bb39f71765c56af03d1d8a902c2a96d94eb645378554560e9e94",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/acceptance/40f7ed11e0784ec7bfc0b1fa5c87499b/timing-summary.json",
+          "bytes": 258,
+          "sha256": "37caca29ea2ecc977f87f3519d3c513a2529d3ebbe40a547b76c97fe2e480edc",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/acceptance/40f7ed11e0784ec7bfc0b1fa5c87499b/source-identity.json",
+          "bytes": 84269,
+          "sha256": "86f6655056396b88f7f3b70118187c075d82b7a40c072c8fdaf72430143fcbc1",
+          "hash_basis": "complete file rehashed during this summary"
+        }
+      ]
+    },
+    {
+      "scope": "selected functional cases; not full suite or performance acceptance",
+      "completed": true,
+      "checks": 9,
+      "failed": 0,
+      "requested_cases": [
+        "GROW-39",
+        "GROW-45",
+        "GROW-46",
+        "GROW-48",
+        "GROW-52",
+        "GROW-62",
+        "GROW-69",
+        "GROW-77",
+        "GROW-80"
+      ],
+      "case_results": {
+        "GROW-39": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 8165
+        },
+        "GROW-45": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 13
+        },
+        "GROW-46": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 22
+        },
+        "GROW-48": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 40
+        },
+        "GROW-52": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 40
+        },
+        "GROW-62": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 28
+        },
+        "GROW-69": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 1
+        },
+        "GROW-77": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 392
+        },
+        "GROW-80": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 250
+        }
+      },
+      "selected_core_details": {},
+      "timing": {
+        "started_at_utc": "2026-10-18T03:15:06.2088653+00:00",
+        "ended_at_utc": "2026-10-18T03:15:26.2695474+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 2643,
+        "import_ms": 6099,
+        "tests_ms": 11308,
+        "total_ms": 20063
+      },
+      "source_head_at_preparation": "1974220d802a934f546fb4aeb2513dee9d343503",
+      "native_sha256": "72FCDE00A1D45FEF244B291E308D1CDD4F846ABB45186E4561C262C8C6E3F0D5",
+      "sources": [
+        {
+          "path": ".cache/acceptance/0d4decaf34ff4bf9a6fe8ceb9cc652f9/acceptance-results.json",
+          "bytes": 13136,
+          "sha256": "44663ca7584910cc6a163ffdb96b60512549e81f839eb012e9c513eafcd7c6a7",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/acceptance/0d4decaf34ff4bf9a6fe8ceb9cc652f9/timing-summary.json",
+          "bytes": 258,
+          "sha256": "b9085bd10b005b6e63436bd930b1add852b55540b8c4a5ced3ae9e712315c2bb",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/acceptance/0d4decaf34ff4bf9a6fe8ceb9cc652f9/source-identity.json",
+          "bytes": 85134,
+          "sha256": "1ecd7c51e6f1626c975ffa39799a083bb833a3bd3aad5d424aa1921b18b5cbb2",
+          "hash_basis": "complete file rehashed during this summary"
+        }
+      ]
+    },
+    {
+      "scope": "selected functional cases; not full suite or performance acceptance",
+      "completed": true,
+      "checks": 3,
+      "failed": 0,
+      "requested_cases": [
+        "GROW-77",
+        "GROW-79",
+        "GROW-80"
+      ],
+      "case_results": {
+        "GROW-77": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 401
+        },
+        "GROW-79": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 708
+        },
+        "GROW-80": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 302
+        }
+      },
+      "selected_core_details": {},
+      "timing": {
+        "started_at_utc": "2026-10-18T03:17:21.4434958+00:00",
+        "ended_at_utc": "2026-10-18T03:17:33.4847452+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 2411,
+        "import_ms": 5989,
+        "tests_ms": 3630,
+        "total_ms": 12043
+      },
+      "source_head_at_preparation": "1974220d802a934f546fb4aeb2513dee9d343503",
+      "native_sha256": "72FCDE00A1D45FEF244B291E308D1CDD4F846ABB45186E4561C262C8C6E3F0D5",
+      "sources": [
+        {
+          "path": ".cache/acceptance/e963d57791414abd871fbfe6144b3077/acceptance-results.json",
+          "bytes": 11215,
+          "sha256": "d4265d950c241a49b6721a98f3f4393966f1c585992fbfd7e9553d84719b75cf",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/acceptance/e963d57791414abd871fbfe6144b3077/timing-summary.json",
+          "bytes": 257,
+          "sha256": "5ee2c7ca5b11be240be98126e133d7b59171473af74105ac371f94dd60bbe49a",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/acceptance/e963d57791414abd871fbfe6144b3077/source-identity.json",
+          "bytes": 84996,
+          "sha256": "785f726332c9d8cf5324753b488b6f624fea414838df43ce8e5d7f5bb912b27a",
+          "hash_basis": "complete file rehashed during this summary"
+        }
+      ]
+    },
+    {
+      "scope": "selected functional cases; not full suite or performance acceptance",
+      "completed": true,
+      "checks": 3,
+      "failed": 0,
+      "requested_cases": [
+        "CORE-43",
+        "SPACE-51",
+        "SPACE-52"
+      ],
+      "case_results": {
+        "CORE-43": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 1096
+        },
+        "SPACE-51": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 178
+        },
+        "SPACE-52": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 5918
+        }
+      },
+      "selected_core_details": {},
+      "timing": {
+        "started_at_utc": "2026-10-18T03:21:29.5527483+00:00",
+        "ended_at_utc": "2026-10-18T03:21:47.6196650+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 2326,
+        "import_ms": 5993,
+        "tests_ms": 9735,
+        "total_ms": 18069
+      },
+      "source_head_at_preparation": "1974220d802a934f546fb4aeb2513dee9d343503",
+      "native_sha256": "72FCDE00A1D45FEF244B291E308D1CDD4F846ABB45186E4561C262C8C6E3F0D5",
+      "sources": [
+        {
+          "path": ".cache/acceptance/2953b3638822400d96873c9ba45c3b39/acceptance-results.json",
+          "bytes": 13601,
+          "sha256": "47049caf2d70b3bc2af8623b70a6d8ab0f1a90d46e823917aebdddc376658da7",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/acceptance/2953b3638822400d96873c9ba45c3b39/timing-summary.json",
+          "bytes": 257,
+          "sha256": "532cbb5fa44f4be3919bd714bfa1539224aa3c24630225085c9afa4d347c27ac",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/acceptance/2953b3638822400d96873c9ba45c3b39/source-identity.json",
+          "bytes": 85010,
+          "sha256": "093c93a6ebfb110689b4382bcd5491626fb6d2227f64bf65f6007cd2bef5ee1d",
+          "hash_basis": "complete file rehashed during this summary"
+        }
+      ]
+    },
+    {
+      "scope": "selected functional cases; not full suite or performance acceptance",
+      "completed": true,
+      "checks": 7,
+      "failed": 0,
+      "requested_cases": [
+        "SPACE-01",
+        "SPACE-02",
+        "SPACE-09",
+        "SPACE-32",
+        "SPACE-47",
+        "SPACE-49",
+        "SPACE-52"
+      ],
+      "case_results": {
+        "SPACE-01": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 35
+        },
+        "SPACE-02": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 2
+        },
+        "SPACE-09": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 116
+        },
+        "SPACE-32": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 18
+        },
+        "SPACE-47": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 0
+        },
+        "SPACE-49": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 68
+        },
+        "SPACE-52": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 6200
+        }
+      },
+      "selected_core_details": {},
+      "timing": {
+        "started_at_utc": "2026-10-18T03:36:14.7585539+00:00",
+        "ended_at_utc": "2026-10-18T03:36:32.1296395+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 2427,
+        "import_ms": 6096,
+        "tests_ms": 8834,
+        "total_ms": 17373
+      },
+      "source_head_at_preparation": "de9ecfccc2f71ac84fa79ec2cc548d581a114bfb",
+      "native_sha256": "72FCDE00A1D45FEF244B291E308D1CDD4F846ABB45186E4561C262C8C6E3F0D5",
+      "sources": [
+        {
+          "path": ".cache/acceptance/5b2e079c766d4e9da9abf4da4f958a76/acceptance-results.json",
+          "bytes": 6355,
+          "sha256": "246be6a0b1641f6ec390b8f3af97b1d91fa3487ae43d81fe2a34169a715c9958",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/acceptance/5b2e079c766d4e9da9abf4da4f958a76/timing-summary.json",
+          "bytes": 257,
+          "sha256": "824dca22f2aa4446dfe5c4602271b5f1e44faead51b653e691c5b336fde9e74a",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/acceptance/5b2e079c766d4e9da9abf4da4f958a76/source-identity.json",
+          "bytes": 85094,
+          "sha256": "cec731ff012e53df929bbb3f2e8a27dd7da5b4d9a1764c7f461ba0f4dae62d0b",
+          "hash_basis": "complete file rehashed during this summary"
+        }
+      ]
+    },
+    {
+      "scope": "selected functional cases; not full suite or performance acceptance",
+      "completed": true,
+      "checks": 8,
+      "failed": 0,
+      "requested_cases": [
+        "GROW-39",
+        "GROW-46",
+        "GROW-48",
+        "GROW-60",
+        "GROW-70",
+        "GROW-71",
+        "GROW-80",
+        "GROW-81"
+      ],
+      "case_results": {
+        "GROW-39": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 7959
+        },
+        "GROW-46": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 15
+        },
+        "GROW-48": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 40
+        },
+        "GROW-60": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 25
+        },
+        "GROW-70": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 839
+        },
+        "GROW-71": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 66
+        },
+        "GROW-80": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 210
+        },
+        "GROW-81": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 71
+        }
+      },
+      "selected_core_details": {},
+      "timing": {
+        "started_at_utc": "2026-10-18T03:39:37.1112794+00:00",
+        "ended_at_utc": "2026-10-18T03:39:56.8370538+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 2223,
+        "import_ms": 5998,
+        "tests_ms": 11491,
+        "total_ms": 19728
+      },
+      "source_head_at_preparation": "de9ecfccc2f71ac84fa79ec2cc548d581a114bfb",
+      "native_sha256": "72FCDE00A1D45FEF244B291E308D1CDD4F846ABB45186E4561C262C8C6E3F0D5",
+      "sources": [
+        {
+          "path": ".cache/acceptance/8c66adb7414d4f238e5ce540e996206c/acceptance-results.json",
+          "bytes": 12705,
+          "sha256": "3e312539b0275befcd32839563e89579462884a4624b305ba4bb6d19e2cd024e",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/acceptance/8c66adb7414d4f238e5ce540e996206c/timing-summary.json",
+          "bytes": 258,
+          "sha256": "1b64e357de28a81fcfba0afe37ac1fc7bf2ff2806cdf6f0f49d61212dcea5c40",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/acceptance/8c66adb7414d4f238e5ce540e996206c/source-identity.json",
+          "bytes": 85266,
+          "sha256": "f7572930cb6b5218036afef0dc0672cbaf6b600f6629cc212b7591c4175edf9c",
+          "hash_basis": "complete file rehashed during this summary"
+        }
+      ]
+    },
+    {
+      "scope": "selected functional cases; not full suite or performance acceptance",
+      "completed": true,
+      "checks": 10,
+      "failed": 0,
+      "requested_cases": [
+        "CORE-35",
+        "CORE-43",
+        "GROW-39",
+        "GROW-45",
+        "GROW-48",
+        "GROW-52",
+        "GROW-62",
+        "GROW-69",
+        "GROW-80",
+        "GROW-82"
+      ],
+      "case_results": {
+        "CORE-35": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 1014
+        },
+        "CORE-43": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 894
+        },
+        "GROW-39": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 8186
+        },
+        "GROW-45": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 13
+        },
+        "GROW-48": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 44
+        },
+        "GROW-52": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 32
+        },
+        "GROW-62": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 20
+        },
+        "GROW-69": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 1
+        },
+        "GROW-80": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 221
+        },
+        "GROW-82": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 815
+        }
+      },
+      "selected_core_details": {},
+      "timing": {
+        "started_at_utc": "2026-10-18T04:02:11.6052852+00:00",
+        "ended_at_utc": "2026-10-18T04:02:33.8490884+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 2328,
+        "import_ms": 5999,
+        "tests_ms": 13901,
+        "total_ms": 22244
+      },
+      "source_head_at_preparation": "3842ec4af1710c32b447ef8d721b43d8f565097b",
+      "native_sha256": "37FDE52D4F1EF83A93A7B7B543160673BD07217E9B4A37C4D44C0A82EAFD17CE",
+      "sources": [
+        {
+          "path": ".cache/acceptance/c8f4727c0f644148b31e47896d126a98/acceptance-results.json",
+          "bytes": 24139,
+          "sha256": "5a667991398624b2671c1e269fea9b2c0d225f3d8df352aedbe89fe9f72c514c",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/acceptance/c8f4727c0f644148b31e47896d126a98/timing-summary.json",
+          "bytes": 258,
+          "sha256": "15fb843ad0def89743b9f372357b05c4623c51f7748e63800920bee4a6f36006",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/acceptance/c8f4727c0f644148b31e47896d126a98/source-identity.json",
+          "bytes": 89972,
+          "sha256": "4593e6d0dfab60bfe6c3c22df7a094ac37fb8ec9416339c3cd79b12476cf9faf",
+          "hash_basis": "complete file rehashed during this summary"
+        }
+      ]
+    },
+    {
+      "scope": "selected functional cases; not full suite or performance acceptance",
+      "completed": true,
+      "checks": 2,
+      "failed": 0,
+      "requested_cases": [
+        "CORE-35",
+        "CORE-43"
+      ],
+      "case_results": {
+        "CORE-35": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 1083
+        },
+        "CORE-43": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 892
+        }
+      },
+      "selected_core_details": {},
+      "timing": {
+        "started_at_utc": "2026-10-18T04:37:08.9030907+00:00",
+        "ended_at_utc": "2026-10-18T04:37:21.1012371+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 2357,
+        "import_ms": 6013,
+        "tests_ms": 3816,
+        "total_ms": 12200
+      },
+      "source_head_at_preparation": "debf8cd41b834dd7d57879423c9d4d1dedc95c14",
+      "native_sha256": "37FDE52D4F1EF83A93A7B7B543160673BD07217E9B4A37C4D44C0A82EAFD17CE",
+      "sources": [
+        {
+          "path": ".cache/acceptance/fe5b9afba3b54113afa5d853b837f53e/acceptance-results.json",
+          "bytes": 7448,
+          "sha256": "b3b20cb5e70fcc960f96946ed518a930baf8e71aac9f9d8aa690dd87f567bc28",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/acceptance/fe5b9afba3b54113afa5d853b837f53e/timing-summary.json",
+          "bytes": 257,
+          "sha256": "7cdf744b81aea83409fe85bc3d48b033c38a0a74b211302f0e3fc25041632446",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/acceptance/fe5b9afba3b54113afa5d853b837f53e/source-identity.json",
+          "bytes": 90441,
+          "sha256": "35029c4661dbe1c578681d32ea80ef7d7f7f71c08b512cca22d44a16dccf4938",
+          "hash_basis": "complete file rehashed during this summary"
+        }
+      ]
+    },
+    {
+      "scope": "selected functional cases; not full suite or performance acceptance",
+      "completed": true,
+      "checks": 8,
+      "failed": 0,
+      "requested_cases": [
+        "GROW-39",
+        "GROW-45",
+        "GROW-48",
+        "GROW-52",
+        "GROW-62",
+        "GROW-69",
+        "GROW-80",
+        "GROW-82"
+      ],
+      "case_results": {
+        "GROW-39": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 8199
+        },
+        "GROW-45": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 12
+        },
+        "GROW-48": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 46
+        },
+        "GROW-52": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 33
+        },
+        "GROW-62": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 19
+        },
+        "GROW-69": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 1
+        },
+        "GROW-80": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 64
+        },
+        "GROW-82": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 414
+        }
+      },
+      "selected_core_details": {},
+      "timing": {
+        "started_at_utc": "2026-10-18T05:08:46.3757326+00:00",
+        "ended_at_utc": "2026-10-18T05:09:05.9572929+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 2283,
+        "import_ms": 6171,
+        "tests_ms": 11115,
+        "total_ms": 19583
+      },
+      "source_head_at_preparation": "11386e2a54e15f35d0bce6bbe5f4068883338d09",
+      "native_sha256": "08A6582CECEDE19073637D6AF437F76B86AA69C684D4BFE070C115C43E8F37DD",
+      "sources": [
+        {
+          "path": ".cache/acceptance/9eaea335f46948d48c347fe15e6824fe/acceptance-results.json",
+          "bytes": 29661,
+          "sha256": "9418c34ab9b850b23ce5fe840b5c2c63e010ea769d4907a3d607259d3720c0d5",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/acceptance/9eaea335f46948d48c347fe15e6824fe/timing-summary.json",
+          "bytes": 258,
+          "sha256": "9bb6930486ec61793b2e7e2b359c7096a810843f8cb4d502f3139eef63778b5f",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/acceptance/9eaea335f46948d48c347fe15e6824fe/source-identity.json",
+          "bytes": 91412,
+          "sha256": "a05817c725c79dfc14af2025d457e00f64be3d0dae7e786b9d6f14dbc65556ce",
+          "hash_basis": "complete file rehashed during this summary"
+        }
+      ]
+    },
+    {
+      "scope": "selected functional cases; not full suite or performance acceptance",
+      "completed": true,
+      "checks": 2,
+      "failed": 0,
+      "requested_cases": [
+        "CORE-18",
+        "CORE-44"
+      ],
+      "case_results": {
+        "CORE-18": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 357
+        },
+        "CORE-44": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 324
+        }
+      },
+      "selected_core_details": {
+        "CORE-44": {
+          "all_canonical_bytes_and_hashes_equal": true,
+          "cold_sha256": "5bfdc4dbf96f9adc62b77a410bd84c06a23d7eb0a2ad1b19f098667d8f1f583e",
+          "expected": "{\"a\":{\"a\":1,\"z\":2},\"array\":[{\"a\":3,\"z\":4}],\"z\":0}",
+          "invalid_key_error": "世界对象键必须是字符串",
+          "invalid_key_rejected": true,
+          "mixed": "{\"a\":{\"a\":1,\"z\":2},\"array\":[{\"a\":3,\"z\":4}],\"z\":0}",
+          "reversed": "{\"a\":{\"a\":1,\"z\":2},\"array\":[{\"a\":3,\"z\":4}],\"z\":0}",
+          "roundtrip_sha256": "5bfdc4dbf96f9adc62b77a410bd84c06a23d7eb0a2ad1b19f098667d8f1f583e",
+          "source_unchanged": true,
+          "string_lookup_preserves_stringname": true
+        }
+      },
+      "timing": {
+        "started_at_utc": "2026-10-18T05:23:45.4946229+00:00",
+        "ended_at_utc": "2026-10-18T05:23:56.2273411+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 2313,
+        "import_ms": 5984,
+        "tests_ms": 2424,
+        "total_ms": 10735
+      },
+      "source_head_at_preparation": "5e77dd8894743f7df0a3c7013693382a112143e4",
+      "native_sha256": "08A6582CECEDE19073637D6AF437F76B86AA69C684D4BFE070C115C43E8F37DD",
+      "sources": [
+        {
+          "path": ".cache/acceptance/625dbea2ee994bfeb3aa5650e8701009/acceptance-results.json",
+          "bytes": 1582,
+          "sha256": "301f7fb156730dd0c22eb33925a7e898654b0c4d575a420b3361173691089c20",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/acceptance/625dbea2ee994bfeb3aa5650e8701009/timing-summary.json",
+          "bytes": 257,
+          "sha256": "e2f03ec847c2582e237ddc940415b1aa95c50e0ff8e53dbe1215b2382d1f140a",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/acceptance/625dbea2ee994bfeb3aa5650e8701009/source-identity.json",
+          "bytes": 91429,
+          "sha256": "6b6bef83eca665c9ed7cade8d491c14b7374ea8d864cab8352ecc5b2c8819ff6",
+          "hash_basis": "complete file rehashed during this summary"
+        }
+      ]
+    },
+    {
+      "scope": "selected functional cases; not full suite or performance acceptance",
+      "completed": true,
+      "checks": 1,
+      "failed": 0,
+      "requested_cases": [
+        "CORE-33"
+      ],
+      "case_results": {
+        "CORE-33": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 495
+        }
+      },
+      "selected_core_details": {
+        "CORE-33": {
+          "bind_error": "",
+          "hash_rejection_atomic": true,
+          "released": {
+            "allocation_measurement": "not_measured",
+            "errors": [],
+            "instance_users": 0,
+            "shared_scenes": 0,
+            "source_bytes": 0
+          },
+          "resources": [
+            {
+              "path": "res://assets/models/core_s49_body.glb",
+              "source_and_scene_valid": true
+            },
+            {
+              "path": "res://assets/models/core_s21_body.glb",
+              "source_and_scene_valid": true
+            },
+            {
+              "path": "res://assets/models/core_s59_body.glb",
+              "source_and_scene_valid": true
+            },
+            {
+              "path": "res://assets/models/core_s55_body.glb",
+              "source_and_scene_valid": true
+            },
+            {
+              "path": "res://assets/models/core_s14_body.glb",
+              "source_and_scene_valid": true
+            },
+            {
+              "path": "res://assets/models/core_m37_machine.glb",
+              "source_and_scene_valid": true
+            },
+            {
+              "path": "res://assets/models/core_m17_machine.glb",
+              "source_and_scene_valid": true
+            },
+            {
+              "path": "res://assets/models/core_eq01_machine.glb",
+              "source_and_scene_valid": true
+            },
+            {
+              "path": "res://assets/models/core_eq05_machine.glb",
+              "source_and_scene_valid": true
+            }
+          ],
+          "scene_rejection_atomic": true
+        }
+      },
+      "timing": {
+        "started_at_utc": "2026-10-18T05:53:35.0621551+00:00",
+        "ended_at_utc": "2026-10-18T05:53:45.8364115+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 2338,
+        "import_ms": 6095,
+        "tests_ms": 2329,
+        "total_ms": 10776
+      },
+      "source_head_at_preparation": "94d2948c962ac49813f5313e240048bd1bcecfba",
+      "native_sha256": "08A6582CECEDE19073637D6AF437F76B86AA69C684D4BFE070C115C43E8F37DD",
+      "sources": [
+        {
+          "path": ".cache/acceptance/c64b108177a947bf843cb9016ab70b66/acceptance-results.json",
+          "bytes": 1904,
+          "sha256": "02f7e72bd463442d85366696df890d9c8209edc7b7956f2291da44c496f289ae",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/acceptance/c64b108177a947bf843cb9016ab70b66/timing-summary.json",
+          "bytes": 257,
+          "sha256": "80c1453687badef477fce85b305bca086d14659fc8952aabac548d5f1e1dff27",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/acceptance/c64b108177a947bf843cb9016ab70b66/source-identity.json",
+          "bytes": 91859,
+          "sha256": "fa65b81595d4d87fed951011ca63d983c87248b4ce2cf1dc6aebe5129a66519f",
+          "hash_basis": "complete file rehashed during this summary"
+        }
+      ]
+    },
+    {
+      "scope": "selected functional cases; not full suite or performance acceptance",
+      "completed": true,
+      "checks": 9,
+      "failed": 1,
+      "requested_cases": [
+        "CORE-35",
+        "CORE-43",
+        "SPACE-01",
+        "SPACE-02",
+        "SPACE-09",
+        "SPACE-32",
+        "SPACE-47",
+        "SPACE-51",
+        "SPACE-52"
+      ],
+      "case_results": {
+        "CORE-35": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 1080
+        },
+        "CORE-43": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 923
+        },
+        "SPACE-01": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 36
+        },
+        "SPACE-02": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 2
+        },
+        "SPACE-09": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 110
+        },
+        "SPACE-32": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 19
+        },
+        "SPACE-47": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 0
+        },
+        "SPACE-51": {
+          "passed": false,
+          "setup_ms": 0,
+          "body_ms": 180
+        },
+        "SPACE-52": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 5792
+        }
+      },
+      "selected_core_details": {},
+      "timing": {
+        "started_at_utc": "2026-10-18T03:06:23.8271129+00:00",
+        "ended_at_utc": "2026-10-18T03:06:42.8734003+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 2377,
+        "import_ms": 5907,
+        "tests_ms": 10750,
+        "total_ms": 19048
+      },
+      "source_head_at_preparation": "1974220d802a934f546fb4aeb2513dee9d343503",
+      "native_sha256": "59F0BA8FB3646BD257679D35DECA16902632B4F5491365CAD17D50A6827BB1C9",
+      "sources": [
+        {
+          "path": ".cache/acceptance/3e495cc049df4ae2b6f3b48233012514/acceptance-results.json",
+          "bytes": 17101,
+          "sha256": "b831b477e81311fb183926eb145be15a498615b12235a135df6af45470d2cb64",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/acceptance/3e495cc049df4ae2b6f3b48233012514/timing-summary.json",
+          "bytes": 258,
+          "sha256": "914e1d534215d79a8aefe91779a20dbe2dc1363bd59739101cb0aac4e77316b5",
+          "hash_basis": "complete file rehashed during this summary"
+        },
+        {
+          "path": ".cache/acceptance/3e495cc049df4ae2b6f3b48233012514/source-identity.json",
+          "bytes": 84173,
+          "sha256": "b6b48a34c78b7a040b83469596875579a028c4e43f394061a05528b40ede3f6f",
+          "hash_basis": "complete file rehashed during this summary"
+        }
+      ]
+    },
+    {
+      "scope": "selected functional cases; not full suite or performance acceptance",
+      "completed": true,
+      "checks": 7,
+      "failed": 1,
+      "requested_cases": [
+        "SPACE-53",
+        "SPACE-33",
+        "SPACE-45",
+        "SPACE-46",
+        "SPACE-48",
+        "OPS-21",
+        "OPS-23"
+      ],
+      "case_results": {
+        "OPS-21": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 97
+        },
+        "OPS-23": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 156
+        },
+        "SPACE-33": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 157
+        },
+        "SPACE-45": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 651
+        },
+        "SPACE-46": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 14
+        },
+        "SPACE-48": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 22
+        },
+        "SPACE-53": {
+          "passed": false,
+          "setup_ms": 0,
+          "body_ms": 182
+        }
+      },
+      "timing": {
+        "started_at_utc": "2026-10-18T06:08:52.3883797+00:00",
+        "ended_at_utc": "2026-10-18T06:09:04.9892706+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 2316,
+        "import_ms": 6192,
+        "tests_ms": 4081,
+        "total_ms": 12603
+      },
+      "source_head_at_preparation": "2a564deca4cb3ed433b2567a4e791f09dd0d9e4f",
+      "native_sha256": "08A6582CECEDE19073637D6AF437F76B86AA69C684D4BFE070C115C43E8F37DD",
+      "sources": [
+        {
+          "path": ".cache/acceptance/5291638f2cce44bb93b569c52df7589e/acceptance-results.json",
+          "bytes": 18160,
+          "sha256": "f078283639681123d8b64a26aefc7eb6fb64493e1ac55d9fc0312de83c228158",
+          "hash_basis": "existing file read and hashed during paused documentation publication; no execution"
+        },
+        {
+          "path": ".cache/acceptance/5291638f2cce44bb93b569c52df7589e/timing-summary.json",
+          "bytes": 257,
+          "sha256": "0bab66095218afaa840e79d657952dc9cf2f5e328ba44fc25a8d1a6c9841ceea",
+          "hash_basis": "existing file read and hashed during paused documentation publication; no execution"
+        },
+        {
+          "path": ".cache/acceptance/5291638f2cce44bb93b569c52df7589e/source-identity.json",
+          "bytes": 92330,
+          "sha256": "ccb8cdec8dd2b9fc2fe7cc85c8ed6331764e3ad438e5aa0c216be7e9127042d4",
+          "hash_basis": "existing file read and hashed during paused documentation publication; no execution"
+        }
+      ],
+      "failure_classification": "SPACE-53 illegal fixture StringName entity keys; six unchanged related cases passed; failed=1 retained"
+    },
+    {
+      "scope": "selected functional cases; not full suite or performance acceptance",
+      "completed": true,
+      "checks": 1,
+      "failed": 0,
+      "requested_cases": [
+        "SPACE-53"
+      ],
+      "case_results": {
+        "SPACE-53": {
+          "passed": true,
+          "setup_ms": 0,
+          "body_ms": 187
+        }
+      },
+      "timing": {
+        "started_at_utc": "2026-10-18T06:11:02.3725218+00:00",
+        "ended_at_utc": "2026-10-18T06:11:12.9496050+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 2253,
+        "import_ms": 5890,
+        "tests_ms": 2421,
+        "total_ms": 10579
+      },
+      "source_head_at_preparation": "2a564deca4cb3ed433b2567a4e791f09dd0d9e4f",
+      "native_sha256": "08A6582CECEDE19073637D6AF437F76B86AA69C684D4BFE070C115C43E8F37DD",
+      "sources": [
+        {
+          "path": ".cache/acceptance/de988643f0634ed59bfc7ff525fbf3f3/acceptance-results.json",
+          "bytes": 7792,
+          "sha256": "ab3fa9b07e483de92c4fd458c0904e3f028cf0d91fb8fc6ec66dc84eca1f20d5",
+          "hash_basis": "existing file read and hashed during paused documentation publication; no execution"
+        },
+        {
+          "path": ".cache/acceptance/de988643f0634ed59bfc7ff525fbf3f3/timing-summary.json",
+          "bytes": 257,
+          "sha256": "0f2743df23e763b13b86ca8083682daec2f793f5845a1b64fba0a97e75e9b6aa",
+          "hash_basis": "existing file read and hashed during paused documentation publication; no execution"
+        },
+        {
+          "path": ".cache/acceptance/de988643f0634ed59bfc7ff525fbf3f3/source-identity.json",
+          "bytes": 92171,
+          "sha256": "9f217549b9e986c76bc36ac3b11632904f50f8a6146ff45094474ecc124be4c5",
+          "hash_basis": "existing file read and hashed during paused documentation publication; no execution"
+        }
+      ],
+      "unchanged_previous_six_passes_reused": true,
+      "selected_details": {
+        "observations": [
+          {
+            "checks": 5,
+            "complete_cold_equal": true,
+            "expected_behavior": true,
+            "goal_checks": 1,
+            "original_checks": 1988,
+            "original_validation": "",
+            "result": {
+              "ok": true,
+              "path": [
+                {
+                  "cell": [
+                    39,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    40,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    41,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    42,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                }
+              ],
+              "reason": "",
+              "status": "contention",
+              "walking_distance": 4
+            },
+            "valid": true,
+            "validation": "",
+            "variant": "goal_body"
+          },
+          {
+            "complete_cold_equal": true,
+            "expected_behavior": true,
+            "variant": "goal_released"
+          },
+          {
+            "checks": 22,
+            "complete_cold_equal": true,
+            "expected_behavior": true,
+            "goal_checks": 1,
+            "original_checks": 21,
+            "original_validation": "",
+            "result": {
+              "ok": true,
+              "path": [
+                {
+                  "cell": [
+                    39,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    39,
+                    79
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    40,
+                    79
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    41,
+                    79
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    42,
+                    79
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    42,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                }
+              ],
+              "reason": "",
+              "status": "complete",
+              "walking_distance": 6
+            },
+            "valid": true,
+            "validation": "",
+            "variant": "middle_detour"
+          },
+          {
+            "checks": 5,
+            "complete_cold_equal": true,
+            "expected_behavior": true,
+            "goal_checks": 1,
+            "original_checks": 1862,
+            "original_validation": "",
+            "result": {
+              "ok": true,
+              "path": [
+                {
+                  "cell": [
+                    39,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    40,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    41,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    42,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                }
+              ],
+              "reason": "",
+              "status": "contention",
+              "walking_distance": 4
+            },
+            "valid": true,
+            "validation": "",
+            "variant": "group_member_goal"
+          },
+          {
+            "checks": 23,
+            "complete_cold_equal": true,
+            "expected_behavior": true,
+            "goal_checks": 1,
+            "original_checks": 22,
+            "original_validation": "",
+            "result": {
+              "ok": true,
+              "path": [
+                {
+                  "cell": [
+                    39,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    40,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    40,
+                    79
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    41,
+                    79
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    42,
+                    79
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    42,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                }
+              ],
+              "reason": "",
+              "status": "complete",
+              "walking_distance": 6
+            },
+            "valid": true,
+            "validation": "",
+            "variant": "group_gap"
+          },
+          {
+            "checks": 21,
+            "complete_cold_equal": true,
+            "expected_behavior": true,
+            "goal_checks": 0,
+            "original_checks": 21,
+            "original_validation": "",
+            "result": {
+              "ok": true,
+              "path": [
+                {
+                  "cell": [
+                    39,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    39,
+                    79
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    40,
+                    79
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    41,
+                    79
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    42,
+                    79
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    42,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                }
+              ],
+              "reason": "",
+              "status": "complete",
+              "walking_distance": 6
+            },
+            "valid": true,
+            "validation": "",
+            "variant": "actual_fractional_start"
+          },
+          {
+            "checks": 0,
+            "complete_cold_equal": true,
+            "expected_behavior": true,
+            "goal_checks": 0,
+            "original_checks": 0,
+            "original_validation": "",
+            "result": {
+              "ok": true,
+              "path": [],
+              "reason": "",
+              "status": "complete",
+              "walking_distance": 0
+            },
+            "valid": true,
+            "validation": "",
+            "variant": "zero_path"
+          },
+          {
+            "checks": 5,
+            "complete_cold_equal": true,
+            "expected_behavior": true,
+            "goal_checks": 1,
+            "original_checks": 1988,
+            "original_validation": "",
+            "result": {
+              "ok": true,
+              "path": [
+                {
+                  "cell": [
+                    39,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    40,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    41,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    42,
+                    80
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                }
+              ],
+              "reason": "",
+              "status": "contention",
+              "walking_distance": 4
+            },
+            "valid": true,
+            "validation": "",
+            "variant": "accepted_sweep"
+          }
+        ],
+        "scope": "exact original complete dynamic A* comparison; computation only; real transport lifecycle covered separately"
+      }
+    }
+  ],
+  "native_math": {
+    "qualification": "independent exact math checks, not Release performance acceptance",
+    "checks_total": 2004,
+    "failed": 0,
+    "result": {
+      "aggregate_checks": 256,
+      "arithmetic_checks": 256,
+      "batch_aggregate_checks": 256,
+      "checks": 92,
+      "coverage_max_checks": 11,
+      "empty_summary_checks": 2,
+      "failures": [],
+      "fraction_input_checks": 7,
+      "fractions_sha256": "78dbb754096d5b6b49dcd1fa4d9988f165dea95a95bbd9232693ddedfeef012a",
+      "gmp_sha256": "c2567ccf3f410c3411ba7cd4b7ba14f393a0e70a1d0c0593297df6706b5fba96",
+      "integer_checks": 256,
+      "monotonic_clock_checks": 1,
+      "mpfr_sha256": "b881beb5ed7e3413283ab94f24ab25cd47ed27127774867ae105642ff2fc2e47",
+      "native_sha256": "08a6582cecede19073637d6af437f76b86aa69c684d4bfe070c115c43e8f37dd",
+      "proof_checks": 9,
+      "recovery_checks": 7,
+      "role_checks": 186,
+      "role_restriction_checks": 7,
+      "solver_sha256": "97f010473f1b4bed516e92088eb23f4e51c01a1c60d4c66af7915511d754ca5f",
+      "structure_checks": 198,
+      "unused_resource_checks": 184,
+      "vectors_sha256": "cb421887bb5f41ebd589fcb99c63356844bc01a7825731d3a311eed8307b970c",
+      "warm_checks": 276
+    },
+    "recorded_execution": {
+      "project": ".cache/acceptance/9eaea335f46948d48c347fe15e6824fe",
+      "structure_checks": 198,
+      "native_sha256": "08a6582cecede19073637d6af437f76b86aa69c684d4bfe070c115c43e8f37dd",
+      "exit_code": 0,
+      "failures": 0,
+      "new_certificate_vectors": 15,
+      "checks": 2004,
+      "new_implicit_dominance_vectors": 39
+    },
+    "source": {
+      "path": ".cache/acceptance/9eaea335f46948d48c347fe15e6824fe/solver-check.json",
+      "bytes": 947,
+      "sha256": "5df3e88f7ca8933bc92ef76079f36d24b992f9bf68ccc945047b30d6822b926e",
+      "hash_basis": "complete file rehashed during this summary"
+    },
+    "prepared_source_identity": {
+      "path": ".cache/acceptance/9eaea335f46948d48c347fe15e6824fe/source-identity.json",
+      "bytes": 91412,
+      "sha256": "a05817c725c79dfc14af2025d457e00f64be3d0dae7e786b9d6f14dbc65556ce",
+      "hash_basis": "complete file rehashed during this summary"
+    }
+  },
+  "complete_capacity_diagnostic": {
+    "qualification": "headless same legal 160-person input, full original computation completed; not formal Release timing",
+    "compact_verification": {
+      "path": ".cache/review-6ad4316f/capacity-verification.json",
+      "bytes": 20987,
+      "sha256": "831197405034b8aa1a66cccb670d815376e2107ac7cb6589f2260c23bb9397c7",
+      "hash_basis": "existing file read and hashed during paused documentation publication; no execution"
+    },
+    "summary": {
+      "path": ".cache/native-math/preparation-5e77dd8-r1",
+      "diagnostic_only": true,
+      "complete": true,
+      "exit_code": 0,
+      "elapsed_ms": 308268,
+      "source_identity_sha256": "E196E39689AC4D5EA092A8EBEAE699EA201AC4E5977578E7D3E4B44A285A2E04",
+      "input_sha256": "6595dda287f5a82cf725ce3b1cd77b8da8d73bc242da7f2c13aa97e0b5ea822e",
+      "directory_variants": 2928,
+      "variants_per_shift": [
+        976,
+        976,
+        976
+      ],
+      "classes_per_shift": [
+        742,
+        742,
+        0
+      ],
+      "shift_pairs": [
+        4,
+        4,
+        0
+      ],
+      "shift_capacities": [
+        {
+          "n": "0",
+          "d": "1"
+        },
+        {
+          "n": "93945152552290200000",
+          "d": "3098294195881237033"
+        },
+        {
+          "n": "0",
+          "d": "1"
+        }
+      ],
+      "capacity": {
+        "n": "93945152552290200000",
+        "d": "3098294195881237033"
+      },
+      "os": {
+        "last_cpu_seconds": 302.828125,
+        "peak_record_elapsed_ms": 283790,
+        "lifetime_peak_working_set_bytes": 1450143744,
+        "lifetime_peak_private_commit_bytes": 1452568576,
+        "sample_count": 2812
+      },
+      "worker_released_tracked_bytes": 83881602,
+      "certificates": [
+        {
+          "minimum_staff": 2,
+          "lower": 4,
+          "certificate_us": 24648,
+          "assembly_us": 43815,
+          "original_slots": 8,
+          "exact": true,
+          "bound_minimum": 2,
+          "upper": 4,
+          "constraints": 0,
+          "slots": 4,
+          "solve_us": 0,
+          "staff_resources": 16,
+          "bound_subsets": 26,
+          "variables": 0,
+          "bound_resources": 8
+        },
+        {
+          "minimum_staff": 2,
+          "lower": 4,
+          "certificate_us": 25160,
+          "assembly_us": 43176,
+          "original_slots": 8,
+          "exact": true,
+          "bound_minimum": 2,
+          "upper": 4,
+          "constraints": 0,
+          "slots": 4,
+          "solve_us": 0,
+          "staff_resources": 16,
+          "bound_subsets": 26,
+          "variables": 0,
+          "bound_resources": 8
+        }
+      ],
+      "numeric": {
+        "batches": 1484,
+        "final_pending_requests": 0,
+        "max_memo_entries": 720,
+        "failed_batches": 0,
+        "memo_evictions": 0,
+        "components": 1234384,
+        "final_waiting_targets": 0,
+        "native_calls": 3280,
+        "max_completed_entries": 720,
+        "max_waiting_targets": 640,
+        "max_pending_requests": 256,
+        "native_requests": 684112,
+        "memo_hits": 550272
+      },
+      "first_shift_zero_cause": "Not attributable: trace omits individual raw budgets. Native returned normally; do not infer cause from zero.",
+      "watchdog_triggered": false
+    },
+    "actual_final_worker_event": {
+      "binding": "B_S73_D154_M84",
+      "cached_cases_0": 976,
+      "cached_cases_1": 976,
+      "cached_cases_2": 976,
+      "cancelled": false,
+      "capacity": {
+        "d": "3098294195881237033",
+        "n": "93945152552290200000"
+      },
+      "capacity_parts": 1234384,
+      "clinical_components": 1234384,
+      "complete": true,
+      "complex": true,
+      "debug_feature": true,
+      "edge": "return",
+      "engine_us": 307508511,
+      "navigation_charged_estimate": 94882784,
+      "navigation_entries": 9,
+      "navigation_sources": 2,
+      "normalized_parts": 1234624,
+      "numeric_active_completed_entries": 0,
+      "numeric_active_unique_inputs": 0,
+      "numeric_batches": 1484,
+      "numeric_components": 1234384,
+      "numeric_failed_batches": 0,
+      "numeric_max_completed_entries": 720,
+      "numeric_max_memo_entries": 720,
+      "numeric_max_pending_requests": 256,
+      "numeric_max_waiting_targets": 640,
+      "numeric_memo_evictions": 0,
+      "numeric_memo_hits": 550272,
+      "numeric_native_calls": 3280,
+      "numeric_native_requests": 684112,
+      "numeric_pending_requests": 0,
+      "numeric_unique_inputs": 684112,
+      "numeric_waiting_targets": 0,
+      "op": "worker",
+      "pid": 20688,
+      "qpc_frequency": 10000000,
+      "qpc_ticks": 1366805115555,
+      "reason": "",
+      "reference_calls_started": 2928,
+      "retained_role_models": 3,
+      "retained_structure_models": 3,
+      "route_scope_depth": 0,
+      "sequence": 44434,
+      "shift": 2,
+      "shift_capacities": [
+        {
+          "d": "1",
+          "n": "0"
+        },
+        {
+          "d": "3098294195881237033",
+          "n": "93945152552290200000"
+        },
+        {
+          "d": "1",
+          "n": "0"
+        }
+      ],
+      "shift_pairs": [
+        4,
+        4,
+        0
+      ],
+      "tracked_bytes": 475664830,
+      "variants_returned": 2928
+    },
+    "actual_release_event": {
+      "binding": "B_S73_D154_M84",
+      "capacity_parts": 1234384,
+      "clinical_components": 1234384,
+      "complex": true,
+      "debug_feature": true,
+      "edge": "return",
+      "engine_us": 308030435,
+      "normalized_parts": 1234624,
+      "op": "worker_released",
+      "pid": 20688,
+      "qpc_frequency": 10000000,
+      "qpc_ticks": 1366810334952,
+      "reference_calls_started": 2928,
+      "sequence": 44435,
+      "shift": 2,
+      "tracked_bytes": 83881602,
+      "variants_returned": 2928
+    },
+    "sources": [
+      {
+        "path": ".cache/native-math/preparation-5e77dd8-r1/result.json",
+        "bytes": 501,
+        "sha256": "e9a7b3df20329e33c0d7d673ecb68de106fe2f45e6d4a3ef07eff1b3b4c8141d",
+        "hash_basis": "complete file rehashed during this summary"
+      },
+      {
+        "path": ".cache/native-math/preparation-5e77dd8-r1/arguments.json",
+        "bytes": 401,
+        "sha256": "b622e9d5e6edaa448a3fe659ebcb7833b491eb7949822e0bb0c956c67840afac",
+        "hash_basis": "complete file rehashed during this summary"
+      },
+      {
+        "path": ".cache/native-math/preparation-5e77dd8-r1/process.json",
+        "bytes": 799132,
+        "sha256": "8601a846005a08d7956675fcba4e11483a074ae383a7c68061f88dc6c5d5c54a",
+        "hash_basis": "complete file rehashed during this summary"
+      },
+      {
+        "path": ".cache/native-math/preparation-5e77dd8-r1/stdout.txt",
+        "bytes": 246,
+        "sha256": "34731e29883c82ef5cc0fc7a25ceab7bfc8b769a2cde866f253fcc226a791950",
+        "hash_basis": "complete file rehashed during this summary"
+      },
+      {
+        "path": ".cache/native-math/preparation-5e77dd8-r1/stderr.txt",
+        "bytes": 498,
+        "sha256": "31eb74654c9983e21652bb1cb380d753ae9c3f847af722306c7829789d9664d2",
+        "hash_basis": "complete file rehashed during this summary"
+      },
+      {
+        "path": ".cache/native-math/preparation-5e77dd8-r1/trace.ndjson",
+        "bytes": 64080000,
+        "sha256": "973c27066f2ce74d7cdc449e22898007b07ca8ca72b8ab293659efca79e4e9a3",
+        "hash_basis": "complete file rehashed during this summary"
+      }
+    ],
+    "prepared_source_identity": {
+      "path": ".cache/performance/review-phase-r6/source-identity.json",
+      "bytes": 66431,
+      "sha256": "e196e39689ac4d5ea092a8ebeae699ea201ac4e5977578e7d3e4b44a285a2e04",
+      "hash_basis": "complete file rehashed during this summary"
+    }
+  },
+  "earlier_capacity_attempts": {
+    "qualification": "preserved incomplete or superseded diagnostics, not failed formal performance or successful full capacity",
+    "attempts": [
+      {
+        "path": ".cache/native-math/preparation-de9ecfc-r1",
+        "source_identity_sha256": "92A639E058C44727177982C895D84EE23E33CE542ADDEA068F6E630DAA337FF4",
+        "reason": "diagnostic_timeout",
+        "complete": false,
+        "elapsed_ms": 600169,
+        "variants_returned": 448,
+        "shift": 0,
+        "entered_native_c": false,
+        "os_peak_working_set_bytes": 715206656,
+        "os_peak_private_commit_bytes": 681484288,
+        "diagnostic_only": true
+      },
+      {
+        "path": ".cache/native-math/d08-fine-r1",
+        "source_identity_sha256": "3E4211A9EF5BFF526C1429BDA553D3CC309BE7CE7DDDF9EDD656A01CC2C07FCE",
+        "binding": "B_S12_D08_M08",
+        "full_capacity": false,
+        "reason": "single_case_probe_skipped_nominal_world_conversion; superseded by r3",
+        "complete": true,
+        "elapsed_ms": 15164,
+        "service_candidates_us": 12686892,
+        "route_us_inclusive": 12472798,
+        "floor_source_calls": 54583,
+        "floor_source_us_inclusive": 5616657,
+        "fit_navigation_equal_calls": 464,
+        "diagnostic_only": true,
+        "invalid_for_production_nominal_comparison": true
+      },
+      {
+        "path": ".cache/native-math/preparation-3842ec4-r1",
+        "source_identity_sha256": "374E8E07411578E634B9987327EF117707C3B589DE2CD4D734C1BCE732BDB4E5",
+        "reason": "controlled_diagnostic_resource_stop",
+        "complete": false,
+        "elapsed_ms": 487187,
+        "classes": 742,
+        "directory_variants": 976,
+        "completed_shifts": 0,
+        "stage": "shift_0_independent_K_after_native_C",
+        "native_c_enter_us": 133663099,
+        "native_c_return_us": 139947098,
+        "working_set_bytes": 2787553280,
+        "private_commit_bytes": 2894999552,
+        "lifetime_peak_working_set_bytes": 2790244352,
+        "lifetime_peak_private_commit_bytes": 2899279872,
+        "cpu_seconds": 479.1875,
+        "diagnostic_only": true
+      },
+      {
+        "d08_model_counts": {
+          "parts": 976,
+          "bases": 64,
+          "groups": 35
+        },
+        "directory_variants": 976,
+        "diagnostic_budget_seconds": 1800,
+        "native_c_enter_us": 135362002,
+        "complete": false,
+        "source_identity_sha256": "C9D2D65A43E448BE5FE46C78D7A37CE87930DDAE9CE4556CC6ADBDF19B243742",
+        "input_sha256": "6595dda287f5a82cf725ce3b1cd77b8da8d73bc242da7f2c13aa97e0b5ea822e",
+        "completed_shifts": 0,
+        "classes": 742,
+        "stage": "shift_0_structural_pairs_unlocalized",
+        "reason": "controlled_diagnostic_budget_stop",
+        "native_c_return_us": 141783126,
+        "d08_model_us": 106681,
+        "cpu_seconds": 1769.796875,
+        "elapsed_seconds": 1801.1003691,
+        "watchdog_triggered": false,
+        "diagnostic_only": true,
+        "original_watchdog_seconds": 7200,
+        "path": ".cache/native-math/preparation-debf8cd-r1",
+        "memory": {
+          "working_set_bytes": 2031583232,
+          "private_commit_bytes": 2044936192,
+          "lifetime_peak_working_set_bytes": 2031583232,
+          "lifetime_peak_private_commit_bytes": 2044936192
+        }
+      },
+      {
+        "path": ".cache/native-math/preparation-42ed42a-phase-r1",
+        "classes": 742,
+        "memory": {
+          "working_set_bytes": 1752858624,
+          "private_commit_bytes": 1759858688,
+          "lifetime_peak_working_set_bytes": 1784160256,
+          "lifetime_peak_private_commit_bytes": 1792442368
+        },
+        "structural_unique_us": 1335494,
+        "structural_projection_us": 2785114,
+        "elapsed_seconds": 253.6349902,
+        "structural_group_calls": 340864,
+        "reason": "localized_diagnostic_controlled_stop",
+        "complete": false,
+        "source_identity_sha256": "8E14C2F503384038C1D3868C1E3298C5B94F89BCD28BCA2112B0FBA45BA8E98B",
+        "original_watchdog_seconds": 7200,
+        "completed_shifts": 0,
+        "cpu_seconds": 248.96875,
+        "native_diagnostic_startup_environment": "1",
+        "structural_shape_dedup_us": 1191648,
+        "native_entry_engine_us": 145831399,
+        "watchdog_triggered": false,
+        "minimum_native_wait_observed_seconds": 107.8035912,
+        "diagnostic_only": true,
+        "stage": "shift_0_native_structure_scip_solve",
+        "native_model": {
+          "input_cases": 10,
+          "input_bases": 672,
+          "input_group_parts": 4416,
+          "terminal_patterns": 192,
+          "alternatives_before": 672,
+          "alternatives_after": 192,
+          "dominated": 480,
+          "interned_nodes": 1259,
+          "reachable_nodes": 464,
+          "slots": 8,
+          "variables": 11224,
+          "constraints": 20111,
+          "flat_attempt_us": 108556,
+          "presolve_us": 4373,
+          "assembly_us": 159296
+        },
+        "input_sha256": "6595dda287f5a82cf725ce3b1cd77b8da8d73bc242da7f2c13aa97e0b5ea822e",
+        "structural_shape_cases": 10,
+        "directory_variants": 976,
+        "structural_unique_calls": 13840
+      },
+      {
+        "staff_resources": 16,
+        "diagnostic_only": true,
+        "elapsed_seconds": 246.9925296,
+        "lower": 4,
+        "upper": 8,
+        "reason": "localized native exact-solve fallback still open",
+        "input_sha256": "6595dda287f5a82cf725ce3b1cd77b8da8d73bc242da7f2c13aa97e0b5ea822e",
+        "staff_minimum": 2,
+        "variables": 11224,
+        "certificate_us": 3009,
+        "complete": false,
+        "cpu_seconds": 242.890625,
+        "slots": 8,
+        "path": ".cache/native-math/preparation-11386e2-r1",
+        "constraints": 20111,
+        "controlled_stop": "controlled-stop.json",
+        "exact": false,
+        "original_watchdog_seconds": 7200,
+        "watchdog_triggered": false
+      }
+    ]
+  },
+  "nominal_d08_comparison": {
+    "qualification": "same complete nominal input, forced original reservation versus exact read-only reuse; inclusive timers are not summed",
+    "runs": [
+      {
+        "path": ".cache/native-math/d08-fine-r3-reserved",
+        "mode": "reserved",
+        "full_capacity": false,
+        "nominal_reference_world": true,
+        "source_identity_sha256": "A4A8C2BAC3BACC1015D80DAF98981F25258CF65D5B87F9326DC7DBBDE80479AA",
+        "reference_demand_us": 9623179,
+        "service_candidates_us": 9301621,
+        "route_us_inclusive": 9100240,
+        "floor_source_calls": 57275,
+        "floor_source_us_inclusive": 4983043,
+        "fit_navigation_equal_calls": 464,
+        "model": {
+          "model_bases": 64,
+          "model_groups": 35,
+          "model_parts": 976
+        },
+        "candidate_counts": {
+          "reception": 16,
+          "gp": 64,
+          "consult": 64,
+          "outpatient": 64,
+          "spectrum": 128,
+          "resonance": 128
+        },
+        "diagnostic_only": true
+      },
+      {
+        "path": ".cache/native-math/d08-fine-r3-shared",
+        "mode": "shared",
+        "full_capacity": false,
+        "nominal_reference_world": true,
+        "source_identity_sha256": "A4A8C2BAC3BACC1015D80DAF98981F25258CF65D5B87F9326DC7DBBDE80479AA",
+        "reference_demand_us": 670886,
+        "service_candidates_us": 418703,
+        "route_us_inclusive": 388613,
+        "floor_source_calls": 2094,
+        "floor_source_us_inclusive": 13169,
+        "fit_navigation_equal_calls": 464,
+        "model": {
+          "model_bases": 64,
+          "model_groups": 35,
+          "model_parts": 976
+        },
+        "candidate_counts": {
+          "reception": 16,
+          "gp": 64,
+          "consult": 64,
+          "outpatient": 64,
+          "spectrum": 128,
+          "resonance": 128
+        },
+        "diagnostic_only": true
+      }
+    ]
+  },
+  "rejected_water_scope": {
+    "boundary_comparison": ".cache/native-math/replay600-water-scope-r1/boundary-comparison-r2.json",
+    "candidate_last100_p95_ms": 143.379,
+    "observed_real_steps": 5,
+    "exit_hits_per_step": 0,
+    "raw_bin_sha256": "1cb7a1a73cd86ec79a5ce65dbc18aa1d6a8fba154f9ace9d1c8507fc758000be",
+    "distinct_route_worlds_per_step": 8,
+    "final_tick": 530,
+    "baseline_last100_p95_ms": 132.054,
+    "boundary_tick": 625,
+    "fixture_wrapper_equal": true,
+    "first_diagnostic_result": "r1 tool path error, exit1/272ms, no business step executed; retained",
+    "related_passed_cases": [
+      "SPACE-46",
+      "SPACE-48",
+      "SPACE-51",
+      "GROW-60",
+      "GROW-70",
+      "GROW-72",
+      "GROW-75",
+      "GROW-83"
+    ],
+    "baseline_last100_p50_ms": 109.511,
+    "rng_equal": true,
+    "baseline": ".cache/native-math/replay600-5e77dd8-r1",
+    "routes_per_step": 8,
+    "unique_exit_keys_per_step": 155,
+    "first_grow83_result": "failed premise: second patient outside drinking coverage; corrected legal premise and rerun passed",
+    "complete_facts_equal": true,
+    "fine_trace_exit_code": 0,
+    "fit_calls": 20,
+    "observer_sha256": "8403228CE2888E3FE63890B19C6400500DBB8E5D6105058F4181A4B990F8C28B",
+    "all_fit_layout_equal": true,
+    "fine_trace": ".cache/native-math/water-detail-r2",
+    "reason": "Complete same 160-person 600-step measurement showed no improvement; each observed step has 155 distinct exit proof keys on four different floors.",
+    "adopted": false,
+    "actual_prefix_steps": 500,
+    "production_restored": true,
+    "candidate": ".cache/native-math/replay600-water-scope-r1",
+    "any_fit_unchanged": false,
+    "candidate_last100_p50_ms": 110.722,
+    "exit_calls_per_step": 155
+  },
+  "paused_roundtrip": {
+    "qualification": "full-facts original save/load correctness and 20 independent copies; debug/headless, not formal Release acceptance",
+    "ok": true,
+    "input_sha256": "6595dda287f5a82cf725ce3b1cd77b8da8d73bc242da7f2c13aa97e0b5ea822e",
+    "hospital_id": "00000000-0000-4000-8000-000000000160",
+    "tick": 25,
+    "revision": 37,
+    "snapshot_id": "c5b48e11-8fb0-48df-af53-f27bc305a1d4",
+    "copy_summary_us": {
+      "all_p95_nearest_rank": 9500,
+      "cold_scope": "first freeze invocation in this process; no OS cache eviction; first sample also reported separately",
+      "count": 20,
+      "excluded_from_copy_timer": "full comparison and reference release",
+      "first_process_freeze": 9500,
+      "subsequent_count": 19,
+      "subsequent_p95_nearest_rank": 10683
+    },
+    "copy_samples_us": [
+      9500,
+      10683,
+      9397,
+      8165,
+      8902,
+      8162,
+      8340,
+      7505,
+      8106,
+      8204,
+      7953,
+      8669,
+      8135,
+      8382,
+      8518,
+      8119,
+      7414,
+      7354,
+      7495,
+      8129
+    ],
+    "copy_samples_all_independent_and_complete_equal": true,
+    "timings_us": {
+      "canonical_after": 191019,
+      "canonical_before": 187033,
+      "full_facts_comparison": 9794,
+      "input_decode": 13449,
+      "input_sha256": 4922,
+      "input_sha256_after": 4826,
+      "input_validate": 57732,
+      "load_main_inclusive_wall": 863325,
+      "loaded_freeze_main_wall": 9470,
+      "loaded_validate": 53648,
+      "save_begin_main_inclusive": 100940,
+      "save_total_wall": 2064217,
+      "save_wait_main_blocking_wall": 1963269,
+      "simulation_construct": 1162,
+      "simulation_facts_comparison": 3430
+    },
+    "correctness": {
+      "full_facts_equal": true,
+      "rng_equal": true,
+      "canonical_hashes_equal": true,
+      "original_world_unchanged": true,
+      "source_bin_unchanged": true,
+      "exact_snapshot_loaded": true,
+      "manifest_matches_source_canonical": true,
+      "input_validation": "",
+      "loaded_validation": ""
+    },
+    "before_canonical": {
+      "bytes": 847924,
+      "encoder": "original HospitalJsonStream, complete canonical content, discard sink",
+      "error": "",
+      "ok": true,
+      "sha256": "ac2270efeec7618b44c9ef171283141ead7628b8d25516cdaf066329dc056bb4"
+    },
+    "after_canonical": {
+      "bytes": 847924,
+      "encoder": "original HospitalJsonStream, complete canonical content, discard sink",
+      "error": "",
+      "ok": true,
+      "sha256": "ac2270efeec7618b44c9ef171283141ead7628b8d25516cdaf066329dc056bb4"
+    },
+    "preparation": {
+      "head": "5e77dd8894743f7df0a3c7013693382a112143e4",
+      "identity_path": "C:/code/loyayz/oddly-good-hospital/.cache/performance/review-roundtrip-canonical-r2/source-identity.json",
+      "identity_sha256": "0eeca07458af9dd00782f38f6ce89f79c61560051cf96e4510672f36c81010e6",
+      "profile": "OddlyGoodHospital Performance b73be75f148b4b51b28f23080e94b1a6",
+      "project": "C:/code/loyayz/oddly-good-hospital/.cache/performance/review-roundtrip-canonical-r2/",
+      "user_data_dir": "C:/Users/cong/AppData/Roaming/OddlyGoodHospital Performance b73be75f148b4b51b28f23080e94b1a6"
+    },
+    "os": {
+      "pid": 8940,
+      "exit_code": 0,
+      "wall_ms": 5661,
+      "peak_working_set_bytes": 237395968,
+      "sampled_peak_private_bytes": 191754240,
+      "private_peak_kind": "maximum of 25ms samples, not exact kernel private-commit high-water"
+    },
+    "save_target_diagnostic_exceeded": true,
+    "sources": [
+      {
+        "path": ".cache/performance/review-roundtrip-160-r2/roundtrip.json",
+        "bytes": 10225,
+        "sha256": "5296390ac10ef148151372c6ffdf5acea141ae4c22cb3b15be78eab1b8f654e4",
+        "hash_basis": "complete file rehashed during this summary"
+      },
+      {
+        "path": ".cache/performance/review-roundtrip-160-r2/os-process.json",
+        "bytes": 24561,
+        "sha256": "5a2e781d43b24c39979baf54b6c6cffeef29f5cf2bd1a806dc1ec1404bf9df1f",
+        "hash_basis": "complete file rehashed during this summary"
+      },
+      {
+        "path": ".cache/performance/review-roundtrip-160-r2/stdout.log",
+        "bytes": 388,
+        "sha256": "d5dab9e7815fb99e21f4c56a0c5c449906d5e3a622c05565e081e7b6cb94bd2a",
+        "hash_basis": "complete file rehashed during this summary"
+      },
+      {
+        "path": ".cache/performance/review-roundtrip-160-r2/stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "hash_basis": "complete file rehashed during this summary"
+      }
+    ],
+    "preserved_r1_failure": {
+      "ok": false,
+      "full_facts_equal": true,
+      "rng_equal": true,
+      "before_canonical": {
+        "bytes": 847924,
+        "encoder": "original HospitalJsonStream, complete canonical content, discard sink",
+        "error": "",
+        "ok": true,
+        "sha256": "69325f9b3334e5b70d602bd5ebe2848a74eb7a0ab8078c36d9c6962f440ddd51"
+      },
+      "after_canonical": {
+        "bytes": 847924,
+        "encoder": "original HospitalJsonStream, complete canonical content, discard sink",
+        "error": "",
+        "ok": true,
+        "sha256": "ac2270efeec7618b44c9ef171283141ead7628b8d25516cdaf066329dc056bb4"
+      },
+      "source": {
+        "path": ".cache/performance/review-roundtrip-160-r1/roundtrip.json",
+        "bytes": 10297,
+        "sha256": "28808ddd794c326d9b5db15450e291fe4d65738aa2af7b15854c5f4c01280b02",
+        "hash_basis": "complete file rehashed during this summary"
+      },
+      "representation_diagnosis": {
+        "path": ".cache/performance/review-roundtrip-160-r1/representation-r1.json",
+        "bytes": 26843,
+        "sha256": "5629a0823d87fa434fe4c4a66d80439dcbebfe9db4f5dc5f028d3dae18ded743",
+        "hash_basis": "complete file rehashed during this summary"
+      }
+    }
+  },
+  "historical_display_r4": {
+    "qualification": "12-mode actual root raster / GL attachment dimensions only, original r4 preset; not r8, business timing, full model-resource acceptance or GPU budget",
+    "product_identity": {
+      "product_id": "oddly-good-hospital",
+      "version": "0.28.0-stage28",
+      "version_source": "ProjectSettings:application/config/version",
+      "engine": "4.7.2-stable (official)",
+      "source": {
+        "kind": "HEAD",
+        "head": "cf48ad9bf6226f8ccb13f1fddc862ebcfda15427",
+        "head_tree": "26a724fb0f8f316de728259f6d2c6e7492a36dd4",
+        "staged_tree": "26a724fb0f8f316de728259f6d2c6e7492a36dd4",
+        "tracked_working_tree_matches_index": true,
+        "unstaged_paths": [],
+        "untracked_paths": [],
+        "working_files": []
+      },
+      "files": [
+        {
+          "path": "oddly-good-hospital.exe",
+          "bytes": 109127680,
+          "sha256": "54cee456aef4e3d1dde929790c4e371849215e610ef41cfbe8323e5935680c5b"
+        },
+        {
+          "path": "oddly-good-hospital.pck",
+          "bytes": 36898196,
+          "sha256": "d81425fd797d4d860c7e3421f749bac7db89c81b8ac8ef3f5754083fcddf0e24"
+        },
+        {
+          "path": "oddly_good_platform.windows.x86_64.dll",
+          "bytes": 14932480,
+          "sha256": "37fde52d4f1ef83a93a7b7b543160673bd07217e9b4a37c4d44c0a82eafd17ce"
+        },
+        {
+          "path": "libgmp-10.dll",
+          "bytes": 681231,
+          "sha256": "c2567ccf3f410c3411ba7cd4b7ba14f393a0e70a1d0c0593297df6706b5fba96"
+        },
+        {
+          "path": "libmpfr-6.dll",
+          "bytes": 713692,
+          "sha256": "b881beb5ed7e3413283ab94f24ab25cd47ed27127774867ae105642ff2fc2e47"
+        },
+        {
+          "path": "libgcc_s_seh-1.dll",
+          "bytes": 150537,
+          "sha256": "791ebf66e99c7c1b4ed3666468cec45a0172b4c8942ac6c84c3e9cab3e1b5270"
+        },
+        {
+          "path": "libwinpthread-1.dll",
+          "bytes": 64574,
+          "sha256": "e765ee6109a0080a7c42848911f4349099b3c15aa734d845cb0e438f6f5a91b5"
+        }
+      ]
+    },
+    "conditions": [
+      {
+        "index": 0,
+        "window": "2560x1440",
+        "ui": 100,
+        "scale_bp": 10000,
+        "root": "2304x1440",
+        "output": "1684x1030",
+        "actual_3d": "1684x1030",
+        "nearest_even": true,
+        "backend": true,
+        "verified": true,
+        "png": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-6ad4316f\\gl-display-r4-12/display-00.png"
+      },
+      {
+        "index": 1,
+        "window": "2560x1440",
+        "ui": 100,
+        "scale_bp": 7500,
+        "root": "2304x1440",
+        "output": "1683x1030",
+        "actual_3d": "1262x772",
+        "nearest_even": true,
+        "backend": true,
+        "verified": true,
+        "png": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-6ad4316f\\gl-display-r4-12/display-01.png"
+      },
+      {
+        "index": 2,
+        "window": "2560x1440",
+        "ui": 100,
+        "scale_bp": 6667,
+        "root": "2304x1440",
+        "output": "1683x1029",
+        "actual_3d": "1122x686",
+        "nearest_even": true,
+        "backend": true,
+        "verified": true,
+        "png": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-6ad4316f\\gl-display-r4-12/display-02.png"
+      },
+      {
+        "index": 3,
+        "window": "2560x1440",
+        "ui": 200,
+        "scale_bp": 10000,
+        "root": "2304x1440",
+        "output": "1684x796",
+        "actual_3d": "1684x796",
+        "nearest_even": true,
+        "backend": true,
+        "verified": true,
+        "png": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-6ad4316f\\gl-display-r4-12/display-03.png"
+      },
+      {
+        "index": 4,
+        "window": "2560x1440",
+        "ui": 200,
+        "scale_bp": 7500,
+        "root": "2304x1440",
+        "output": "1683x795",
+        "actual_3d": "1262x596",
+        "nearest_even": true,
+        "backend": true,
+        "verified": true,
+        "png": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-6ad4316f\\gl-display-r4-12/display-04.png"
+      },
+      {
+        "index": 5,
+        "window": "2560x1440",
+        "ui": 200,
+        "scale_bp": 6667,
+        "root": "2304x1440",
+        "output": "1683x795",
+        "actual_3d": "1122x530",
+        "nearest_even": true,
+        "backend": true,
+        "verified": true,
+        "png": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-6ad4316f\\gl-display-r4-12/display-05.png"
+      },
+      {
+        "index": 6,
+        "window": "2880x1920",
+        "ui": 100,
+        "scale_bp": 10000,
+        "root": "2880x1800",
+        "output": "2104x1236",
+        "actual_3d": "2104x1236",
+        "nearest_even": true,
+        "backend": true,
+        "verified": true,
+        "png": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-6ad4316f\\gl-display-r4-12/display-06.png"
+      },
+      {
+        "index": 7,
+        "window": "2880x1920",
+        "ui": 100,
+        "scale_bp": 7500,
+        "root": "2880x1800",
+        "output": "2104x1238",
+        "actual_3d": "1578x928",
+        "nearest_even": true,
+        "backend": true,
+        "verified": true,
+        "png": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-6ad4316f\\gl-display-r4-12/display-07.png"
+      },
+      {
+        "index": 8,
+        "window": "2880x1920",
+        "ui": 100,
+        "scale_bp": 6667,
+        "root": "2880x1800",
+        "output": "2103x1236",
+        "actual_3d": "1402x824",
+        "nearest_even": true,
+        "backend": true,
+        "verified": true,
+        "png": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-6ad4316f\\gl-display-r4-12/display-08.png"
+      },
+      {
+        "index": 9,
+        "window": "2880x1920",
+        "ui": 200,
+        "scale_bp": 10000,
+        "root": "2880x1800",
+        "output": "2104x994",
+        "actual_3d": "2104x994",
+        "nearest_even": true,
+        "backend": true,
+        "verified": true,
+        "png": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-6ad4316f\\gl-display-r4-12/display-09.png"
+      },
+      {
+        "index": 10,
+        "window": "2880x1920",
+        "ui": 200,
+        "scale_bp": 7500,
+        "root": "2880x1800",
+        "output": "2104x995",
+        "actual_3d": "1578x746",
+        "nearest_even": true,
+        "backend": true,
+        "verified": true,
+        "png": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-6ad4316f\\gl-display-r4-12/display-10.png"
+      },
+      {
+        "index": 11,
+        "window": "2880x1920",
+        "ui": 200,
+        "scale_bp": 6667,
+        "root": "2880x1800",
+        "output": "2103x993",
+        "actual_3d": "1402x662",
+        "nearest_even": true,
+        "backend": true,
+        "verified": true,
+        "png": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-6ad4316f\\gl-display-r4-12/display-11.png"
+      }
+    ],
+    "sources": [
+      {
+        "path": ".cache/review-6ad4316f/gl-display-r4-12/size-summary.json",
+        "bytes": 4339,
+        "sha256": "ad7fc58b528ce352452fdb3e281936ee76d4943cf6697fafcc7018e0124c958d",
+        "hash_basis": "complete file rehashed during this summary"
+      },
+      {
+        "path": ".cache/review-6ad4316f/gl-display-r4-12/apitrace-identity.json",
+        "bytes": 1157,
+        "sha256": "9f61ed9a91771d848288d3aecce903c31231534a2e663061a2fa534bfdebd68d",
+        "hash_basis": "complete file rehashed during this summary"
+      },
+      {
+        "path": ".cache/review-6ad4316f/gl-display-r4-12/product-copy.json",
+        "bytes": 8990,
+        "sha256": "edb256b0542dcac568e933ed65d0aa0aa2aff8f7a7f40cd43a22c452271dc0d9",
+        "hash_basis": "complete file rehashed during this summary"
+      },
+      {
+        "path": ".cache/review-6ad4316f/gl-display-r4-12/observer-sources.json",
+        "bytes": 660,
+        "sha256": "caf41c96680bdfd0efe37309415db5b52b9a371832754e03ca54a843fbd1e3b0",
+        "hash_basis": "complete file rehashed during this summary"
+      }
+    ],
+    "actual_backend_evidence": {
+      "path": ".cache/review-6ad4316f/gl-display-r4-12/gl-render-target-evidence.json",
+      "bytes": 19849961,
+      "sha256": "c66d17c09965cf632562b031b5329cae5dd875d200497b42b9a4510e4c4a1455",
+      "hash_basis": "complete file rehashed during this summary"
+    },
+    "trace": {
+      "path": ".cache/review-6ad4316f/gl-display-r4-12/display.trace",
+      "bytes": 30805898,
+      "sha256": "6c8e70d8e30e706a9444316b5cb9dea0b0c4dfcda222f68feca8e01f8b52e9f1",
+      "hash_basis": "existing sealed producer metadata; not rehashed during this summary",
+      "recorded_by": ".cache/review-6ad4316f/gl-display-r4-12/apitrace-identity.json"
+    },
+    "dump": {
+      "path": ".cache/review-6ad4316f/gl-display-r4-12/gl-calls.txt",
+      "bytes": 32071071,
+      "sha256": "347f128772e6492a687aedaa3e4f0884ba48af404fdd7ca039a95165175c1647",
+      "hash_basis": "existing sealed producer metadata; not rehashed during this summary",
+      "recorded_by": ".cache/review-6ad4316f/gl-display-r4-12/apitrace-identity.json"
+    }
+  },
+  "r7_formal_capture_incomplete": {
+    "qualification": "actual Release capture incomplete; no completed acknowledged window or qualified formal percentiles",
+    "formal_pass": false,
+    "capture_error": "Game exited without complete operations and acknowledged tail.",
+    "analysis": {
+      "status": "incomplete",
+      "formal_pass": false,
+      "tool_error": "no complete acknowledged window"
+    },
+    "pid": 3996,
+    "window_start_qpc": 1376521723646,
+    "window_end_qpc": null,
+    "qpc_frequency": 10000000,
+    "watchdog_expired": false,
+    "forced_processes": [],
+    "processes": [
+      {
+        "stem": "allocation-trace",
+        "observed_lifetime_peak_working_set_bytes": 191352832,
+        "cpu_seconds": 5.765625,
+        "arguments": [
+          "-NoProfile",
+          "-File",
+          "C:\\code\\loyayz\\oddly-good-hospital\\tools\\performance\\acceptance\\capture-dxgkrnl.ps1",
+          "-TargetIdentityPath",
+          "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance\\review-capture-r7\\B1-r1\\game-identity.json",
+          "-Output",
+          "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance\\review-capture-r7\\B1-r1\\allocation",
+          "-ReadyPath",
+          "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance\\review-capture-r7\\B1-r1\\allocation.ready.json",
+          "-StopPath",
+          "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance\\review-capture-r7\\B1-r1\\allocation.stop",
+          "-TimeoutSeconds",
+          "900"
+        ],
+        "exe": "C:\\Users\\cong\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe",
+        "sampling_error": null,
+        "start_utc_ticks": 639278982630073559,
+        "pid": 20708,
+        "exit_code": 0
+      },
+      {
+        "stem": "game",
+        "observed_lifetime_peak_working_set_bytes": 2093002752,
+        "cpu_seconds": 1113.859375,
+        "arguments": [
+          "--",
+          "--config=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance\\review-capture-r7\\B1-r1\\scenario.json"
+        ],
+        "exe": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance\\review-capture-r7\\B1-r1\\product\\oddly-good-hospital.exe",
+        "sampling_error": null,
+        "start_utc_ticks": 639278982642203377,
+        "pid": 3996,
+        "exit_code": 2
+      },
+      {
+        "stem": "presentmon",
+        "observed_lifetime_peak_working_set_bytes": 13881344,
+        "cpu_seconds": 0.546875,
+        "arguments": [
+          "--process_id",
+          "3996",
+          "--output_stdout",
+          "--v1_metrics",
+          "--qpc_time",
+          "--no_console_stats",
+          "--session_name",
+          "HospitalFormal-e586d56867574baaafbe9df29b72652e"
+        ],
+        "exe": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance-preflight\\PresentMon-2.3.1-x64.exe",
+        "sampling_error": null,
+        "start_utc_ticks": 639278982642429726,
+        "pid": 22224,
+        "exit_code": 0
+      },
+      {
+        "stem": "gpu-sampler",
+        "observed_lifetime_peak_working_set_bytes": 123248640,
+        "cpu_seconds": 7.53125,
+        "arguments": [
+          "-NoProfile",
+          "-File",
+          "C:\\code\\loyayz\\oddly-good-hospital\\tools\\performance\\acceptance\\sample-gpu.ps1",
+          "-TargetPid",
+          "3996",
+          "-TargetStartUtcTicks",
+          "639278982642203377",
+          "-Output",
+          "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance\\review-capture-r7\\B1-r1\\gpu-process-memory.ndjson",
+          "-StopPath",
+          "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance\\review-capture-r7\\B1-r1\\gpu.stop"
+        ],
+        "exe": "C:\\Users\\cong\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe",
+        "sampling_error": null,
+        "start_utc_ticks": 639278982642590214,
+        "pid": 27904,
+        "exit_code": 0
+      }
+    ],
+    "last_observer_complete_steps": 1073,
+    "last_resource_errors": [
+      "res://assets/models/core_s49_body.glb: 资源哈希与发布清单不一致"
+    ],
+    "close_observations": [
+      {
+        "clock_domain": "windows_qpc",
+        "completed_steps": 1073,
+        "engine_clock_domain": "godot_ticks_usec",
+        "engine_us": 572074223,
+        "generation": 3,
+        "guard_released": true,
+        "kind": "incomplete",
+        "observation_engine_us": 572074223,
+        "phase": "capture",
+        "qpc_frequency": 10000000,
+        "qpc_role": "telemetry observation; not historical engine_us mapping",
+        "qpc_ticks": 1381241450556,
+        "reason": "View resource error before capture end",
+        "simulation_dispose_complete": true
+      }
+    ],
+    "last_original_owner_usage": {
+      "shared_scenes": 0,
+      "instance_users": 0,
+      "source_bytes": 0
+    },
+    "full_actual_model_timing_or_512MiB_proof": false,
+    "formal_display_sample_count_verified": false,
+    "original_ledger_as_computed": {
+      "status": "incomplete",
+      "issues": {},
+      "raw_qpc_verified": true,
+      "qualification_checks": {
+        "preserved_raw_event_provenance": true,
+        "complete_raw_qpc_decode": true,
+        "target_identity_and_alias_join": true,
+        "all_process_alias_capture": true,
+        "all_required_event_families_armed": true,
+        "saved_schema_covers_interpreted_versions": true,
+        "formal_actual_display_window": false,
+        "all_target_global_sizes_joined": true,
+        "no_event_or_identity_gaps": true,
+        "backing_extent_records_unambiguous": false,
+        "unreleased_globals_included": true,
+        "positive_formal_extent_upper_bound": false,
+        "backend_target_scope_bounded": false
+      },
+      "backing_size_corroboration": {
+        "status": "incomplete",
+        "page_bytes": 4096,
+        "page_byte_basis": "WDDM Windows x64 system-memory PFN granularity",
+        "target_backing_records": 5641,
+        "lifetimes_with_backing_records": 3687,
+        "lifetimes_without_backing_lock_records": 2781,
+        "target_kernel_page_table_lifetimes": 1134,
+        "matched_cycles": 3667,
+        "pending_or_ambiguous_cycles": 23,
+        "zero_page_events": 0,
+        "cycles_by_end_reason": {
+          "unlock": 3218,
+          "trace_end": 472
+        },
+        "scope": "364 page chunks between 365/global stop/trace end corroborate immutable allocation extent; not unique PFN accounting or resident bytes; no lock event does not mean zero allocation"
+      },
+      "unresolved_kernel_lifetimes": 2169,
+      "kernel_unknown_size_lifetimes": 0,
+      "lifecycle_known_sequence_peak_allocated_bytes": 881389568,
+      "not_formal_window_budget_or_physical_residency": true,
+      "qualification_recomputed_after_2a564de": false
+    },
+    "sources": [
+      {
+        "path": ".cache/performance/review-capture-r7/B1-r1/capture.json",
+        "bytes": 20986,
+        "sha256": "66ddac76680e4f08940cf6bba4624b71ae554ce430777ecbe4e15f4356212f64",
+        "hash_basis": "complete file rehashed during this summary"
+      },
+      {
+        "path": ".cache/performance/review-capture-r7/B1-r1/analysis.json",
+        "bytes": 109,
+        "sha256": "8a7a2a8802e09c616b57d81c700d15cdb89958f4285dca9738af421e4cb2e795",
+        "hash_basis": "complete file rehashed during this summary"
+      },
+      {
+        "path": ".cache/performance/review-capture-r7/B1-r1/scenario.json",
+        "bytes": 2609,
+        "sha256": "69d956958b91e4263db83b4e0763c81b28ab745815e8fd09bc3988f97c933b8e",
+        "hash_basis": "complete file rehashed during this summary"
+      },
+      {
+        "path": ".cache/performance/review-capture-r7/B1-r1/game.stderr.log",
+        "bytes": 106,
+        "sha256": "e745cb380d53d1e9ecf54a4b50137a933408302618e91ea9dc1d7b926ec4f602",
+        "hash_basis": "complete file rehashed during this summary"
+      },
+      {
+        "path": ".cache/performance/review-capture-r7/B1-r1/game-identity.json",
+        "bytes": 125,
+        "sha256": "e2c0efcac0feea2541db8a68cc203ede65a2728a3da77a08d425d92dd3891532",
+        "hash_basis": "complete file rehashed during this summary"
+      },
+      {
+        "path": ".cache/performance/review-capture-r7/B1-r1/product-copy.json",
+        "bytes": 9781,
+        "sha256": "437229aa89cd3aca90825f3aa474ce6729b970557cf4f0e7e93df351afa22879",
+        "hash_basis": "complete file rehashed during this summary"
+      },
+      {
+        "path": ".cache/performance/review-capture-r7/B1-r1/telemetry.ndjson",
+        "bytes": 4796220,
+        "sha256": "b1371f19cc957a094d0b62c98f2fbc24b75defcaa102ae3fcb12847e7a9c9032",
+        "hash_basis": "complete file rehashed during this summary"
+      },
+      {
+        "path": ".cache/performance/review-capture-r7/B1-r1/allocation-ledger.json",
+        "bytes": 23794309,
+        "sha256": "e55c15ce2328ea4a075f757b4cd5c43a5680927ccc5a5ea253aa6df56b48788f",
+        "hash_basis": "complete file rehashed during this summary"
+      }
+    ],
+    "raw_decode_metadata": {
+      "path": ".cache/performance/review-capture-r7/B1-r1/allocation/raw-accounting.ndjson.meta.json",
+      "bytes": 3984,
+      "sha256": "edb90246f860596f764df92e8a9dbb42bb64a5b5ca967f4c5c5c3ff7e48a743b",
+      "hash_basis": "complete file rehashed during this summary"
+    },
+    "raw_events": {
+      "path": ".cache/performance/review-capture-r7/B1-r1/allocation/raw-accounting.ndjson",
+      "bytes": 229691729,
+      "sha256": "af3d543abd6051cef68423af2c3ab2619fb6f8f878acde796ed801507a86c0d3",
+      "hash_basis": "existing sealed producer metadata; not rehashed during this summary",
+      "recorded_by": ".cache/performance/review-capture-r7/B1-r1/allocation/raw-accounting.ndjson.meta.json"
+    },
+    "original_etl": {
+      "path": ".cache/performance/review-capture-r7/B1-r1/allocation/dxgkrnl.etl",
+      "bytes": 810811392,
+      "sha256": "96410d13c95cd00e2629554f0c9cb6f94ce17da433e63142de7407cee3694134",
+      "hash_basis": "existing sealed producer metadata; not rehashed during this summary",
+      "recorded_by": ".cache/performance/review-capture-r7/B1-r1/allocation/raw-accounting.ndjson.meta.json"
+    }
+  },
+  "late_boundary_diagnostic": {
+    "qualification": "original successful snapshot extracted with original loader/full facts and RNG; late-stage diagnostic, not original tick25 input or Release formal acceptance",
+    "summary": {
+      "diagnostic_only": true,
+      "not_release_acceptance": true,
+      "capture_incomplete": true,
+      "capture_failure": "View resource error before capture end; asset core_s49_body.glb hash mismatch",
+      "original_capture": ".cache/performance/review-capture-r7/B1-r1",
+      "original_snapshot": "cf3dafcb-2f04-47ca-9fe6-22d12bc4f4a0",
+      "original_receipt_line": 6039,
+      "original_receipt_qpc": 1379693871700,
+      "original_sequence": 3,
+      "original_slot_kind": "auto",
+      "original_slot_key": "2",
+      "original_tick": 1802,
+      "original_revision": 1814,
+      "source_witness_rng_equal": true,
+      "complete_facts_equal_to_loaded_original_snapshot": true,
+      "actual_population": 161,
+      "late_input_sha256": "b6088f03613108ee307c2a442d57e76a15ff3698b2e7a899ec784fc6a7cf7b8b",
+      "source_database_sha256": "cd3b6f4ee26db29a0a82398830c10c4138b52bcf2196e735f00ce255d3e89a2c",
+      "source_database_sha256_after_diagnostics": "cd3b6f4ee26db29a0a82398830c10c4138b52bcf2196e735f00ce255d3e89a2c",
+      "profile": ".cache/native-math/replay40-late1802-r1",
+      "samples": 40,
+      "first_tick": 1803,
+      "last_tick": 1842,
+      "first_cold_ms": 1050.985,
+      "p50_ms": 554.095,
+      "p95_ms": 615.767,
+      "mean_ms": 574.4672250000001,
+      "max_ms": 1050.985,
+      "complete": true,
+      "profile_errors": [],
+      "inclusive_ops": [
+        {
+          "op": "space.route",
+          "mean_ms_per_step": 466.848975,
+          "total_us": 18673959,
+          "calls": 320
+        },
+        {
+          "op": "space.floor_route",
+          "mean_ms_per_step": 427.6103,
+          "total_us": 17104412,
+          "calls": 320
+        },
+        {
+          "op": "space.advance",
+          "mean_ms_per_step": 264.6618,
+          "total_us": 10586472,
+          "calls": 40
+        },
+        {
+          "op": "service.maintenance.advance",
+          "mean_ms_per_step": 214.626125,
+          "total_us": 8585045,
+          "calls": 40
+        },
+        {
+          "op": "service.departments.sample",
+          "mean_ms_per_step": 79.2347,
+          "total_us": 3169388,
+          "calls": 40
+        },
+        {
+          "op": "service.environment.sample_at",
+          "mean_ms_per_step": 77.4766,
+          "total_us": 3099064,
+          "calls": 4800
+        },
+        {
+          "op": "service.environment._water_usable",
+          "mean_ms_per_step": 70.26725,
+          "total_us": 2810690,
+          "calls": 120
+        },
+        {
+          "op": "navigation.graph",
+          "mean_ms_per_step": 31.6255,
+          "total_us": 1265020,
+          "calls": 6350
+        },
+        {
+          "op": "space.facility_quote",
+          "mean_ms_per_step": 31.269775,
+          "total_us": 1250791,
+          "calls": 120
+        },
+        {
+          "op": "space.exit_witness",
+          "mean_ms_per_step": 24.87315,
+          "total_us": 994926,
+          "calls": 4800
+        },
+        {
+          "op": "navigation.graph_reuse_or_refresh",
+          "mean_ms_per_step": 23.589325,
+          "total_us": 943573,
+          "calls": 6346
+        },
+        {
+          "op": "space.active_route_clear",
+          "mean_ms_per_step": 10.17185,
+          "total_us": 406874,
+          "calls": 440
+        },
+        {
+          "op": "navigation.graph_new",
+          "mean_ms_per_step": 7.716175,
+          "total_us": 308647,
+          "calls": 4
+        },
+        {
+          "op": "navigation.build",
+          "mean_ms_per_step": 7.70975,
+          "total_us": 308390,
+          "calls": 4
+        },
+        {
+          "op": "service.environment.begin_query",
+          "mean_ms_per_step": 3.732575,
+          "total_us": 149303,
+          "calls": 80
+        },
+        {
+          "op": "clinical.dispatch",
+          "mean_ms_per_step": 2.95955,
+          "total_us": 118382,
+          "calls": 40
+        },
+        {
+          "op": "navigation.distance_field",
+          "mean_ms_per_step": 2.742375,
+          "total_us": 109695,
+          "calls": 5
+        },
+        {
+          "op": "service.finance.settle",
+          "mean_ms_per_step": 1.860825,
+          "total_us": 74433,
+          "calls": 40
+        },
+        {
+          "op": "service.environment._coverage",
+          "mean_ms_per_step": 1.774875,
+          "total_us": 70995,
+          "calls": 4800
+        },
+        {
+          "op": "clinical.service_candidates.reception",
+          "mean_ms_per_step": 1.41265,
+          "total_us": 56506,
+          "calls": 4280
+        }
+      ],
+      "fine_trace": ".cache/native-math/water-detail-late1802-r1",
+      "fine_actual_steps": 3,
+      "water_per_step": 3,
+      "water_floors": [
+        1,
+        2,
+        3
+      ],
+      "exits_per_step": 120,
+      "distinct_exit_keys_per_step": 120,
+      "using_branch_calls": 0,
+      "water_world_freeze_calls": 0,
+      "dominant_route": {
+        "timing_includes_trace_io": true,
+        "calls_per_step": 2,
+        "actor": "maintenance_contractor_00000146",
+        "observed_wall_us_min": 202065,
+        "target_floor": 4,
+        "target_cell": [
+          71,
+          7
+        ],
+        "observed_wall_us_max": 221517,
+        "source_floor": 1,
+        "source_cell": [
+          85.3999938964844,
+          44
+        ],
+        "original_decoded_reason": "前方已到站通行组的出口暂不可用",
+        "reason_display": "前方已到站通行组的出口暂不可用",
+        "reason_display_basis": "readable source diagnostic wording; original malformed decoded summary string retained separately"
+      },
+      "original_tick1801_main_elapsed_us": 104672963,
+      "tick1801_spike_reproduced": false,
+      "production_changes": false,
+      "initial_tool_failure": "r1 parse started before asynchronous non-console import built global class cache; no DB load; retained, successful r2 original loader used same byte-identical copied DB",
+      "original_database_unchanged": true
+    },
+    "process_result": {
+      "pid": 5984,
+      "engine_sha256": "AB1824F85BFD8E0E4128182C000C4003A3E042245B2967848D089B2A04B22424",
+      "source_identity_sha256": "A32A07D82E86BAA8FB34A0FD6854C1D7C45F95C9BF84E8D174257A24B89A8FF0",
+      "project": "C:/code/loyayz/oddly-good-hospital/.cache/performance/review-late-snapshot-r7-prepared",
+      "diagnostic_only": true,
+      "elapsed_ms": 25478,
+      "start_utc_ticks": 639278997018578542,
+      "exit_code": 0,
+      "reason": "completed",
+      "engine": "C:\\programs\\godot\\Godot_v4.7.2-stable_win64.exe"
+    },
+    "sources": [
+      {
+        "path": ".cache/review-6ad4316f/late-snapshot-analysis.json",
+        "bytes": 5193,
+        "sha256": "0de08f41f21e59a07e26d483c230959e1f76ae4302e0ece33342e4aa639e6ae6",
+        "hash_basis": "complete file rehashed during this summary"
+      },
+      {
+        "path": ".cache/native-math/replay40-late1802-r1/result.json",
+        "bytes": 516,
+        "sha256": "a57c9fb7a960dc06c6cfbe482623f972bf3f0ef19f7726013911aba89a6048b7",
+        "hash_basis": "complete file rehashed during this summary"
+      },
+      {
+        "path": ".cache/native-math/replay40-late1802-r1/steps.json",
+        "bytes": 708616,
+        "sha256": "7132818e0dcaa2ad4ada0215eb44d7143700e9ae19e0fa4999a827e8253716bc",
+        "hash_basis": "complete file rehashed during this summary"
+      }
+    ],
+    "end_goal_necessary_condition_optimization_status": "completed in 727e666; related seven selected cases have pass evidence; complete same-boundary 40-step comparison included; formal acceptance remains incomplete"
+  },
+  "fixed_current_population_history": {
+    "qualification": "independent history control diagnostic only",
+    "valid": true,
+    "scales": 4,
+    "steps_per_scale": 40,
+    "source": {
+      "path": ".cache/performance/review-history-160-r2/history-160.json",
+      "bytes": 16389,
+      "sha256": "5e583ce48e873f5c77e5d596f3748d60f8826a5583e90e9847b9b5dd19c5614b",
+      "hash_basis": "complete file rehashed during this summary"
+    }
+  },
+  "formal_matrix": {
+    "status": "incomplete",
+    "minimum_samples_per_group": {
+      "actual_display_frames": 1000,
+      "complete_steps": 1000
+    },
+    "groups": {
+      "B1_r7": "incomplete: resource error and missing complete acknowledged tail",
+      "B1_r8": "not completed",
+      "B3": "not completed",
+      "D1": "not completed",
+      "D3": "not completed",
+      "C320": "not completed",
+      "W160": "not completed",
+      "T640": "not completed",
+      "maximum_preview_success_and_failure": "functional/headless diagnostics only; formal OS-input/display cohorts not completed",
+      "normal_preview": "formal OS-input/display cohort not completed",
+      "clinical_midstep_save_load": "not completed",
+      "day_boundary_wait_pause_save": "not completed",
+      "clinical_and_loading_remodel": "not completed",
+      "history64_128_save_switch_return": "not completed",
+      "resource_rebind_and_navigation_evict_cold_warm": "not completed",
+      "stability_7200_real_seconds": "not completed",
+      "B1_r9": "incomplete: user pause during warmup at tick976; formal completed_steps=0; no start/stop ACK or formal QPC window; no pass/fail timing inference"
+    },
+    "status_is_not_inferred_from_configuration_or_partial_trace": true
+  },
+  "artifact_policy": "No raw trace, ETL, large ledger, binary world or model payload is embedded. Large original ETL/raw/GL hashes are cited from their sealed producer metadata. Capacity actual worker return is read only from a bounded tail and checked against the compact verification; no engine, reconstruction, solver or raw replay is run. Published report and this compact evidence JSON are tracked; raw .cache/.build artifacts and Release binaries remain local ignored files, not remotely downloadable attachments. Experimental graphics observers are incomplete and not published as completed tools. All software executions predate pause; publication only reads existing records and checks documentation/Git state.",
+  "task_state": "paused",
+  "publication_scope": {
+    "documentation_and_existing_completed_commits_only": true,
+    "new_tests_builds_captures_or_optimizations": false,
+    "raw_artifacts_in_git": false,
+    "experimental_graphics_tools_completed_or_published": false,
+    "release_source_is_not_documentation_commit": true
+  },
+  "current_completed_code": {
+    "head": "727e666217b58ad71ad691a4720c852f0606907b",
+    "tree": "8e6c207ddf804400a3423732e097a1434395aabd",
+    "commits_since_review_baseline": [
+      {
+        "commit": "727e666217b58ad71ad691a4720c852f0606907b",
+        "subject": "perf: avoid impossible dynamic routes to occupied destinations"
+      },
+      {
+        "commit": "2a564deca4cb3ed433b2567a4e791f09dd0d9e4f",
+        "subject": "fix: qualify direct GPU extents independently of backing PFNs"
+      },
+      {
+        "commit": "ffc29f3fd9a8b35772fa952e61f24361474938a4",
+        "subject": "fix: preserve published source assets in Windows exports"
+      },
+      {
+        "commit": "94d2948c962ac49813f5313e240048bd1bcecfba",
+        "subject": "fix: sort canonical snapshot keys by their text"
+      },
+      {
+        "commit": "5e77dd8894743f7df0a3c7013693382a112143e4",
+        "subject": "perf: prove structural capacity with complete resource subsets"
+      },
+      {
+        "commit": "11386e2a54e15f35d0bce6bbe5f4068883338d09",
+        "subject": "perf: certify exact structural capacity before full fallback"
+      },
+      {
+        "commit": "42ed42a5e5b873b28eed5dcf40527f03c1a6e256",
+        "subject": "test: reject synthetic and incomplete GL evidence"
+      },
+      {
+        "commit": "cf48ad9bf6226f8ccb13f1fddc862ebcfda15427",
+        "subject": "fix: verify even render targets and complete capture contracts"
+      },
+      {
+        "commit": "debf8cd41b834dd7d57879423c9d4d1dedc95c14",
+        "subject": "Presolve exact structural dominance and honor root viewport stretch"
+      },
+      {
+        "commit": "3842ec4af1710c32b447ef8d721b43d8f565097b",
+        "subject": "Track generated Godot script identities for reproducible Release"
+      },
+      {
+        "commit": "417c30ed965f34d68ac13c52337182f2407612a5",
+        "subject": "Reuse proven read-only routing and occupancy inputs"
+      },
+      {
+        "commit": "de9ecfccc2f71ac84fa79ec2cc548d581a114bfb",
+        "subject": "Fix reviewed capacity, route permissions, preview and rendering evidence"
+      }
+    ]
+  },
+  "product_r9": {
+    "qualification": "completed pre-pause Release export and resource-owner probe; not actual SceneTree model drawing or formal performance",
+    "build_identity": {
+      "product_id": "oddly-good-hospital",
+      "version": "0.28.0-stage28",
+      "version_source": "ProjectSettings:application/config/version",
+      "engine": "4.7.2-stable (official)",
+      "source": {
+        "kind": "HEAD",
+        "head": "727e666217b58ad71ad691a4720c852f0606907b",
+        "head_tree": "8e6c207ddf804400a3423732e097a1434395aabd",
+        "staged_tree": "8e6c207ddf804400a3423732e097a1434395aabd",
+        "tracked_working_tree_matches_index": true,
+        "unstaged_paths": [],
+        "untracked_paths": [],
+        "working_files": []
+      },
+      "files": [
+        {
+          "path": "oddly-good-hospital.exe",
+          "bytes": 109127680,
+          "sha256": "54cee456aef4e3d1dde929790c4e371849215e610ef41cfbe8323e5935680c5b"
+        },
+        {
+          "path": "oddly-good-hospital.pck",
+          "bytes": 39421036,
+          "sha256": "fd677578469b4eb38350160e6ac5a6de670c6362dd1fcdd8a61402e10c220ea4"
+        },
+        {
+          "path": "oddly_good_platform.windows.x86_64.dll",
+          "bytes": 14966784,
+          "sha256": "08a6582cecede19073637d6af437f76b86aa69c684d4bfe070c115c43e8f37dd"
+        },
+        {
+          "path": "libgmp-10.dll",
+          "bytes": 681231,
+          "sha256": "c2567ccf3f410c3411ba7cd4b7ba14f393a0e70a1d0c0593297df6706b5fba96"
+        },
+        {
+          "path": "libmpfr-6.dll",
+          "bytes": 713692,
+          "sha256": "b881beb5ed7e3413283ab94f24ab25cd47ed27127774867ae105642ff2fc2e47"
+        },
+        {
+          "path": "libgcc_s_seh-1.dll",
+          "bytes": 150537,
+          "sha256": "791ebf66e99c7c1b4ed3666468cec45a0172b4c8942ac6c84c3e9cab3e1b5270"
+        },
+        {
+          "path": "libwinpthread-1.dll",
+          "bytes": 64574,
+          "sha256": "e765ee6109a0080a7c42848911f4349099b3c15aa734d845cb0e438f6f5a91b5"
+        }
+      ]
+    },
+    "identity": {
+      "path": ".build/review-release-r9/product/build-identity.json",
+      "bytes": 1704,
+      "sha256": "0bb4d63459824adc860215f6ae93256264f7a3b07fce10fab477e612dd9fcf8e",
+      "hash_basis": "existing file read and hashed during paused documentation publication; no execution"
+    },
+    "probe": {
+      "result": {
+        "disable_project_settings_override": false,
+        "display_server": "Windows",
+        "engine": {
+          "build": "official",
+          "hash": "ed1daf0bf001b61586d9930840f2f1394092c079",
+          "hex": 263938,
+          "major": 4,
+          "minor": 7,
+          "patch": 2,
+          "status": "stable",
+          "string": "4.7.2-stable (official)",
+          "timestamp": 0
+        },
+        "executable": "C:/code/loyayz/oddly-good-hospital/.cache/performance/review-release-probe-r9/product/oddly-good-hospital.exe",
+        "external_script": "C:/code/loyayz/oddly-good-hospital/tools/performance/acceptance/probe.gd",
+        "external_script_sha256": "b3665d7eddecc72bc4c5e395846402bcc9d18d48a12ed7b21bd1ddaf4bff9f7c",
+        "features": {
+          "debug": false,
+          "editor": false,
+          "release": true,
+          "template": true
+        },
+        "global_classes": 80,
+        "loaded": {
+          "GameSession.tick_completed": true,
+          "HospitalContent.initialized": {
+            "error": "",
+            "fingerprint": "70ef833fb44c1682824534528697df4a55d011f10121f15f8e83f0b5b7b6d433",
+            "locale_csv_sha256": "2ade8c67e736aebf5c5fcdea2fd084ebb631d627048fc5db074ff3e7e59058ef"
+          },
+          "PlatformArrivalMath": true,
+          "PlatformArrivalMath.monotonic_clock": {
+            "available": true,
+            "first": {
+              "qpc_frequency": 10000000,
+              "qpc_ticks": 1402733823739
+            },
+            "second": {
+              "qpc_frequency": 10000000,
+              "qpc_ticks": 1402733824050
+            }
+          },
+          "PlatformSQLite": true,
+          "PlatformSessionGuard": true,
+          "TickResult.completed_engine_us": true,
+          "TickResult.elapsed_us": true,
+          "TickResult.main_elapsed_us": true,
+          "TickResult.started_engine_us": true,
+          "ViewResources.production_assets": {
+            "assets": [
+              {
+                "expected_bytes": 403888,
+                "expected_sha256": "0e6177a4874c51fc1b9b46a3932c7d169665485a5f4a547e6dab212c353b9c08",
+                "original_owner_acquired_and_validated": true,
+                "path": "res://assets/models/core_s49_body.glb",
+                "source_bytes": 403888,
+                "source_sha256": "0e6177a4874c51fc1b9b46a3932c7d169665485a5f4a547e6dab212c353b9c08",
+                "valid": true
+              },
+              {
+                "expected_bytes": 347228,
+                "expected_sha256": "258c0d4c2c2ad004da60e3b76a4d9d7eba19af68d29e01c0cd3b96448838f7f1",
+                "original_owner_acquired_and_validated": true,
+                "path": "res://assets/models/core_s21_body.glb",
+                "source_bytes": 347228,
+                "source_sha256": "258c0d4c2c2ad004da60e3b76a4d9d7eba19af68d29e01c0cd3b96448838f7f1",
+                "valid": true
+              },
+              {
+                "expected_bytes": 407720,
+                "expected_sha256": "041de95d93c4f9386d01ac549f6142fcc63ceb14a984879a0e183639e31bbe51",
+                "original_owner_acquired_and_validated": true,
+                "path": "res://assets/models/core_s59_body.glb",
+                "source_bytes": 407720,
+                "source_sha256": "041de95d93c4f9386d01ac549f6142fcc63ceb14a984879a0e183639e31bbe51",
+                "valid": true
+              },
+              {
+                "expected_bytes": 381332,
+                "expected_sha256": "9cda9f341c75f2526ffe3016a3564ca39cee6418b41b3f704fe7213a9a0d2d13",
+                "original_owner_acquired_and_validated": true,
+                "path": "res://assets/models/core_s55_body.glb",
+                "source_bytes": 381332,
+                "source_sha256": "9cda9f341c75f2526ffe3016a3564ca39cee6418b41b3f704fe7213a9a0d2d13",
+                "valid": true
+              },
+              {
+                "expected_bytes": 306012,
+                "expected_sha256": "f4ea25be6ce784b310774d351c0749b0c85d43187d32c36b2f5d1bd3cba975da",
+                "original_owner_acquired_and_validated": true,
+                "path": "res://assets/models/core_s14_body.glb",
+                "source_bytes": 306012,
+                "source_sha256": "f4ea25be6ce784b310774d351c0749b0c85d43187d32c36b2f5d1bd3cba975da",
+                "valid": true
+              },
+              {
+                "expected_bytes": 178524,
+                "expected_sha256": "413f455645176f6772bf5382b466b662af694630acbdf09a5cabe92a7ecb0021",
+                "original_owner_acquired_and_validated": true,
+                "path": "res://assets/models/core_m37_machine.glb",
+                "source_bytes": 178524,
+                "source_sha256": "413f455645176f6772bf5382b466b662af694630acbdf09a5cabe92a7ecb0021",
+                "valid": true
+              },
+              {
+                "expected_bytes": 172632,
+                "expected_sha256": "590e07f03fdacf28c9854ed8e1c5aeeb7d2573635e36947a8237f39a91c67b9c",
+                "original_owner_acquired_and_validated": true,
+                "path": "res://assets/models/core_m17_machine.glb",
+                "source_bytes": 172632,
+                "source_sha256": "590e07f03fdacf28c9854ed8e1c5aeeb7d2573635e36947a8237f39a91c67b9c",
+                "valid": true
+              },
+              {
+                "expected_bytes": 191072,
+                "expected_sha256": "b3698111febc4f230e583144fa99379a6aa08879f2f336f72958485d005be0f4",
+                "original_owner_acquired_and_validated": true,
+                "path": "res://assets/models/core_eq01_machine.glb",
+                "source_bytes": 191072,
+                "source_sha256": "b3698111febc4f230e583144fa99379a6aa08879f2f336f72958485d005be0f4",
+                "valid": true
+              },
+              {
+                "expected_bytes": 133528,
+                "expected_sha256": "540b62ad0231c20da0b24407ac35f9e6316c72e3689792511f3831dd902e4cf5",
+                "original_owner_acquired_and_validated": true,
+                "path": "res://assets/models/core_eq05_machine.glb",
+                "source_bytes": 133528,
+                "source_sha256": "540b62ad0231c20da0b24407ac35f9e6316c72e3689792511f3831dd902e4cf5",
+                "valid": true
+              }
+            ],
+            "hash_rejection_atomic": true,
+            "released": {
+              "allocation_measurement": "not_measured",
+              "errors": [],
+              "instance_users": 0,
+              "shared_scenes": 0,
+              "source_bytes": 0
+            },
+            "scope": "published source identity and original remapped scene validation; no timing, GPU allocation or residency claim",
+            "valid": true
+          },
+          "res://game/app/app_root.gd": true,
+          "res://game/app/game_session.gd": true,
+          "res://game/app/main.tscn": true,
+          "res://game/content/content_db.gd": true,
+          "res://game/sim/types/tick_result.gd": true,
+          "res://game/sim/world_state.gd": true
+        },
+        "renderer": "gl_compatibility",
+        "valid": true
+      },
+      "process": {
+        "arguments": [
+          "--",
+          "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance\\review-release-probe-r9\\probe.json"
+        ],
+        "pid": 26200,
+        "source": "C:\\code\\loyayz\\oddly-good-hospital\\.build\\review-release-r9\\product",
+        "files": [
+          {
+            "bytes": 1704,
+            "sha256": "0bb4d63459824adc860215f6ae93256264f7a3b07fce10fab477e612dd9fcf8e",
+            "path": "build-identity.json"
+          },
+          {
+            "bytes": 150537,
+            "sha256": "791ebf66e99c7c1b4ed3666468cec45a0172b4c8942ac6c84c3e9cab3e1b5270",
+            "path": "libgcc_s_seh-1.dll"
+          },
+          {
+            "bytes": 681231,
+            "sha256": "c2567ccf3f410c3411ba7cd4b7ba14f393a0e70a1d0c0593297df6706b5fba96",
+            "path": "libgmp-10.dll"
+          },
+          {
+            "bytes": 713692,
+            "sha256": "b881beb5ed7e3413283ab94f24ab25cd47ed27127774867ae105642ff2fc2e47",
+            "path": "libmpfr-6.dll"
+          },
+          {
+            "bytes": 64574,
+            "sha256": "e765ee6109a0080a7c42848911f4349099b3c15aa734d845cb0e438f6f5a91b5",
+            "path": "libwinpthread-1.dll"
+          },
+          {
+            "bytes": 14966784,
+            "sha256": "08a6582cecede19073637d6af437f76b86aa69c684d4bfe070c115c43e8f37dd",
+            "path": "oddly_good_platform.windows.x86_64.dll"
+          },
+          {
+            "bytes": 109127680,
+            "sha256": "54cee456aef4e3d1dde929790c4e371849215e610ef41cfbe8323e5935680c5b",
+            "path": "oddly-good-hospital.exe"
+          },
+          {
+            "bytes": 39421036,
+            "sha256": "fd677578469b4eb38350160e6ac5a6de670c6362dd1fcdd8a61402e10c220ea4",
+            "path": "oddly-good-hospital.pck"
+          },
+          {
+            "bytes": 232,
+            "sha256": "b0c85c30a6162f82168207346d3a8b488a1aecccdaabc5efc67b26e9875ce2fa",
+            "path": "override.cfg"
+          }
+        ],
+        "exit": 0,
+        "timeout": false,
+        "profile": "OddlyGoodHospital Formal Probe 8e2ebb831945443d9a252a0b2159998b"
+      },
+      "sources": [
+        {
+          "path": ".cache/performance/review-release-probe-r9/probe.json",
+          "bytes": 5637,
+          "sha256": "1b0051a706e2bb60378588e3ea611c1803ea792dfade125775e1a6f8c1ac21de",
+          "hash_basis": "existing file read and hashed during paused documentation publication; no execution"
+        },
+        {
+          "path": ".cache/performance/review-release-probe-r9/process.json",
+          "bytes": 1851,
+          "sha256": "ce66302f0cd74176d53094fd319ed5422730995c4b88d1c3e8d6123849b0bde8",
+          "hash_basis": "existing file read and hashed during paused documentation publication; no execution"
+        },
+        {
+          "path": ".cache/performance/review-release-probe-r9/stdout.log",
+          "bytes": 5015,
+          "sha256": "2a964d92915bd6dd1fd353af172d418457bf968261a432bbf8b596d98203c97d",
+          "hash_basis": "existing file read and hashed during paused documentation publication; no execution"
+        },
+        {
+          "path": ".cache/performance/review-release-probe-r9/stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "hash_basis": "existing file read and hashed during paused documentation publication; no execution"
+        }
+      ]
+    },
+    "build_logs": [
+      {
+        "path": ".build/review-release-r9/product-logs/content-check.log",
+        "bytes": 209,
+        "sha256": "08dc893496118605f881b7ca928d109f3c76660249a1597ef14291734ebf2c39",
+        "hash_basis": "existing file read and hashed during paused documentation publication; no execution"
+      },
+      {
+        "path": ".build/review-release-r9/product-logs/export.log",
+        "bytes": 37975,
+        "sha256": "5e75f76824e4e459db7c24b53226713c52ee4cc271639dde9c67850039771cd9",
+        "hash_basis": "existing file read and hashed during paused documentation publication; no execution"
+      },
+      {
+        "path": ".build/review-release-r9/product-logs/import.log",
+        "bytes": 1087,
+        "sha256": "d41e6300cf6ac491b0a0d10ec7fdc44455cf584b0662d6fb50d14a917682c3a3",
+        "hash_basis": "existing file read and hashed during paused documentation publication; no execution"
+      },
+      {
+        "path": ".build/review-release-r9/product-logs/settings.log",
+        "bytes": 155,
+        "sha256": "fd2b8febe70e4b2022ce02e7f0779b131b5f983c65bd7db0eee8c8a71a064dfc",
+        "hash_basis": "existing file read and hashed during paused documentation publication; no execution"
+      }
+    ],
+    "source_identity_preserved_after_documentation_commit": true,
+    "probe_does_not_cover_compatibility_skin_ready_or_actual_draw": true
+  },
+  "route_target_guard": {
+    "summary": {
+      "water_calls_before": 120,
+      "rng_equal": true,
+      "route_calls_before": 320,
+      "route_calls_after": 320,
+      "after_first_cold_ms": 622.025,
+      "source": "game/building/hospital_space.gd",
+      "fields_built_before": 5,
+      "all_facts_equal": true,
+      "all_cold_samples_retained": true,
+      "final_scope_passed": 7,
+      "water_calls_after": 120,
+      "fields_built_after": 5,
+      "exit_calls_before": 4800,
+      "before_after_binary_sha256": "d19c98aaafbbb8b573ea68bd1b2275128a2a1831cb18ccb8364395bb543dccbb",
+      "after_p50_ms": 161.414,
+      "samples_after": 40,
+      "exit_calls_after": 4800,
+      "before_p50_ms": 554.095,
+      "first_batch_failure_preserved": true,
+      "samples_before": 40,
+      "last_tick": 1842,
+      "input_sha256": "b6088f03613108ee307c2a442d57e76a15ff3698b2e7a899ec784fc6a7cf7b8b",
+      "after_profile": ".cache/native-math/replay40-late1802-target-r1",
+      "before_mean_ms": 574.467225,
+      "after_p95_ms": 183.505,
+      "formal_release_acceptance": false,
+      "final_scope_passed_cases": [
+        "SPACE-53",
+        "SPACE-33",
+        "SPACE-45",
+        "SPACE-46",
+        "SPACE-48",
+        "OPS-21",
+        "OPS-23"
+      ],
+      "ten_ms_target_passed": false,
+      "fixture_wrapper_equal": true,
+      "after_mean_ms": 174.2942,
+      "scope": "single read-only floor query; necessary occupied-destination condition; actual start exception retains full fallback",
+      "profile_source_identity_sha256": "9F217549B9E986C76BC36AC3B11632904F50F8A6146FF45094474ECC124BE4C5",
+      "before_first_cold_ms": 1050.985,
+      "before_p95_ms": 615.767,
+      "original_tick1801_104673ms_spike_reproduced": false,
+      "before_profile": ".cache/native-math/replay40-late1802-r1",
+      "first_tick": 1803,
+      "commit": "727e666"
+    },
+    "boundary_comparison": {
+      "all_facts_equal": true,
+      "comparison": "decoded complete original facts; raw byte identity recorded separately",
+      "differing_fields": [],
+      "fixture_wrapper_equal": true,
+      "left": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/replay40-late1802-r1/steps.json.after.bin",
+      "left_sha256": "d19c98aaafbbb8b573ea68bd1b2275128a2a1831cb18ccb8364395bb543dccbb",
+      "left_tick": 1842,
+      "right": "C:/code/loyayz/oddly-good-hospital/.cache/native-math/replay40-late1802-target-r1/steps.json.after.bin",
+      "right_sha256": "d19c98aaafbbb8b573ea68bd1b2275128a2a1831cb18ccb8364395bb543dccbb",
+      "right_tick": 1842,
+      "rng_equal": true
+    },
+    "sources": [
+      {
+        "path": "game/building/hospital_space.gd",
+        "bytes": 75840,
+        "sha256": "2450262a6eb6d7da290cfb3846c5e14edf6a28444fb95ea1755f426fa0cb8c2c",
+        "hash_basis": "existing file read and hashed during paused documentation publication; no execution"
+      },
+      {
+        "path": "tests/acceptance/blocked_route_target.gd",
+        "bytes": 8843,
+        "sha256": "3658c4d210a1cf1dfecc9b803686814512f1f98f85daeaa357f99b77fad65c3f",
+        "hash_basis": "existing file read and hashed during paused documentation publication; no execution"
+      },
+      {
+        "path": ".cache/review-6ad4316f/capacity-verification.json",
+        "bytes": 20987,
+        "sha256": "831197405034b8aa1a66cccb670d815376e2107ac7cb6589f2260c23bb9397c7",
+        "hash_basis": "existing file read and hashed during paused documentation publication; no execution"
+      },
+      {
+        "path": ".cache/native-math/replay40-late1802-target-r1/boundary-comparison.json",
+        "bytes": 628,
+        "sha256": "5797b51768f5b45cc4c2b9e3b4fabe0b391e264b4b2e9deffca38f0a61736cb5",
+        "hash_basis": "existing file read and hashed during paused documentation publication; no execution"
+      },
+      {
+        "path": ".cache/native-math/replay40-late1802-target-r1/result.json",
+        "bytes": 515,
+        "sha256": "7e03d7ca05ab159d4014a83eed11149c9342a7fe4add352a10336503778c6515",
+        "hash_basis": "existing file read and hashed during paused documentation publication; no execution"
+      }
+    ],
+    "qualification": "completed exact local production guard; seven related selected cases have passes; 40-step headless diagnostic only; formal target not passed"
+  },
+  "r9_capture_user_pause": {
+    "status": "incomplete_user_pause_during_warmup_no_formal_window",
+    "formal_pass": false,
+    "pause": {
+      "reason": "user_requested_pause",
+      "acceptance_status": "incomplete",
+      "qpc_ticks": 1405803802021,
+      "qpc_frequency": 10000000,
+      "identity": {
+        "pid": 2460,
+        "start_utc_ticks": 639279010166796999,
+        "qpc_observed": 1403044886830,
+        "qpc_frequency": 10000000
+      },
+      "expected_executable": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance\\review-capture-r9\\B1-r1\\product\\oddly-good-hospital.exe",
+      "graceful_close_requested": true,
+      "forced_stop": false,
+      "exit_code": null,
+      "completed_utc": "2026-10-18T06:21:36.4388548Z"
+    },
+    "capture": {
+      "scenario": "baseline-160-four-1x",
+      "pid": 2460,
+      "start_ack": null,
+      "stop_ack": null,
+      "window_start_qpc": null,
+      "window_end_qpc": null,
+      "qpc_frequency": 10000000,
+      "error": "Game exited without complete operations and acknowledged tail.",
+      "watchdog_expired": false,
+      "forced_processes": [],
+      "trace_stop_succeeded": true,
+      "trace_final": {
+        "code": 0,
+        "events_lost": 0,
+        "log_buffers_lost": 0,
+        "realtime_buffers_lost": 0,
+        "action": "stop_owned_session"
+      },
+      "processes": [
+        {
+          "observed_lifetime_peak_working_set_bytes": 192110592,
+          "sampling_error": null,
+          "exe": "C:\\Users\\cong\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe",
+          "cpu_seconds": 4.484375,
+          "pid": 31448,
+          "exit_code": 0,
+          "arguments": [
+            "-NoProfile",
+            "-File",
+            "C:\\code\\loyayz\\oddly-good-hospital\\tools\\performance\\acceptance\\capture-dxgkrnl.ps1",
+            "-TargetIdentityPath",
+            "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance\\review-capture-r9\\B1-r1\\game-identity.json",
+            "-Output",
+            "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance\\review-capture-r9\\B1-r1\\allocation",
+            "-ReadyPath",
+            "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance\\review-capture-r9\\B1-r1\\allocation.ready.json",
+            "-StopPath",
+            "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance\\review-capture-r9\\B1-r1\\allocation.stop",
+            "-TimeoutSeconds",
+            "1200"
+          ],
+          "stem": "allocation-trace",
+          "start_utc_ticks": 639279010150082079
+        },
+        {
+          "observed_lifetime_peak_working_set_bytes": 1734623232,
+          "sampling_error": null,
+          "exe": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance\\review-capture-r9\\B1-r1\\product\\oddly-good-hospital.exe",
+          "cpu_seconds": 484.703125,
+          "pid": 2460,
+          "exit_code": 2,
+          "arguments": [
+            "--",
+            "--config=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance\\review-capture-r9\\B1-r1\\scenario.json"
+          ],
+          "stem": "game",
+          "start_utc_ticks": 639279010166796999
+        },
+        {
+          "observed_lifetime_peak_working_set_bytes": 13901824,
+          "sampling_error": null,
+          "exe": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance-preflight\\PresentMon-2.3.1-x64.exe",
+          "cpu_seconds": 0.6875,
+          "pid": 33320,
+          "exit_code": 0,
+          "arguments": [
+            "--process_id",
+            "2460",
+            "--output_stdout",
+            "--v1_metrics",
+            "--qpc_time",
+            "--no_console_stats",
+            "--session_name",
+            "HospitalFormal-113c5777c22842279152f3d9980f6543"
+          ],
+          "stem": "presentmon",
+          "start_utc_ticks": 639279010167004400
+        },
+        {
+          "observed_lifetime_peak_working_set_bytes": 122953728,
+          "sampling_error": null,
+          "exe": "C:\\Users\\cong\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe",
+          "cpu_seconds": 5.6875,
+          "pid": 27892,
+          "exit_code": 0,
+          "arguments": [
+            "-NoProfile",
+            "-File",
+            "C:\\code\\loyayz\\oddly-good-hospital\\tools\\performance\\acceptance\\sample-gpu.ps1",
+            "-TargetPid",
+            "2460",
+            "-TargetStartUtcTicks",
+            "639279010166796999",
+            "-Output",
+            "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance\\review-capture-r9\\B1-r1\\gpu-process-memory.ndjson",
+            "-StopPath",
+            "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\performance\\review-capture-r9\\B1-r1\\gpu.stop"
+          ],
+          "stem": "gpu-sampler",
+          "start_utc_ticks": 639279010167086472
+        }
+      ]
+    },
+    "last_heartbeat": {
+      "clock_domain": "windows_qpc",
+      "completed_steps": 0,
+      "dense_target": 0,
+      "density_bp": null,
+      "engine_clock_domain": "godot_ticks_usec",
+      "engine_us": 278113282,
+      "generation": 1,
+      "kind": "heartbeat",
+      "observation_engine_us": 278113469,
+      "pause_reasons": [
+        "focus"
+      ],
+      "pending": false,
+      "phase": "warmup",
+      "preparation": {
+        "capture_us": 13850,
+        "captures": 2,
+        "copied_records": 1907,
+        "cpu_measured_jobs": 0,
+        "deep_compares": 1776,
+        "jobs": 0,
+        "latest_worker_us": 0,
+        "layout_reuses": 6,
+        "main_us": 14141,
+        "max_main_us": 8897,
+        "requests": 2,
+        "reused": 0,
+        "reused_records": 1647,
+        "scanned_records": 3554,
+        "source_tick": 26,
+        "superseded": 0,
+        "target_tick": 18000,
+        "worker_cpu_us": 0,
+        "worker_wall_us": 0
+      },
+      "qpc_frequency": 10000000,
+      "qpc_role": "telemetry observation; not historical engine_us mapping",
+      "qpc_ticks": 1405826157689,
+      "requested_speed": 0,
+      "resources": {
+        "active_bindings": 8,
+        "allocation_measurement": "not_measured",
+        "errors": [],
+        "instance_users": 0,
+        "pending_bindings": 0,
+        "retiring_nodes": 0,
+        "shared_scenes": 0,
+        "source_bytes": 0,
+        "view_work_budget": {
+          "frame": 17416,
+          "frames_over_budget": 3,
+          "limit_usec": 2000,
+          "maximum_atomic_usec": 37187,
+          "scope": "observed new view work; atomic overruns remain ordinary frame cost",
+          "spent_usec": 7
+        }
+      },
+      "settings": {
+        "camera_size": 42.0,
+        "camera_transform": "[X: (0.707107, 0.0, -0.707107), Y: (-0.408248, 0.816497, -0.408248), Z: (0.57735, 0.57735, 0.57735), O: (74.0, 50.0, 74.0)]",
+        "canvas_transform": "[X: (1.0, 0.0), Y: (0.0, 1.0), O: (0.0, 0.0)]",
+        "content_scale_mode": 1,
+        "content_scale_size": [
+          1440,
+          900
+        ],
+        "gpu": "Intel(R) Arc(TM) Graphics",
+        "max_fps": 0,
+        "native_2d_output": false,
+        "observed_floor": 1,
+        "refresh_hz": 60.0,
+        "render_driver": "opengl3",
+        "renderer": "gl_compatibility",
+        "root_canvas_physical_extent": [
+          2304,
+          1440
+        ],
+        "root_logical_extent": [
+          1440.0,
+          900.0
+        ],
+        "root_raster_source": "actual image readback outside formal window; zero until first screenshot",
+        "root_raster_texture_pixels": [
+          0,
+          0
+        ],
+        "root_viewport_texture_declared_pixels": [
+          3687,
+          2304
+        ],
+        "scene_allocated_pixels": "unavailable_without_actual_backend_corroboration",
+        "scene_control_logical_extent": [
+          1052.0,
+          644.0
+        ],
+        "scene_control_physical_extent": [
+          1683.20007324219,
+          1030.40002441406
+        ],
+        "scene_control_screen_transform": "[X: (1.6, 0.0), Y: (0.0, 1.6), O: (156.8, 318.4)]",
+        "scene_nearest_even_internal_pixels": [
+          1262,
+          772
+        ],
+        "scene_output_matches_control": true,
+        "scene_output_rounding": "nearby native output extent yields nearest even internal 3D pixels; actual GPU corroboration is separate",
+        "scene_output_texture_pixels": [
+          1683,
+          1030
+        ],
+        "scene_predicted_float32_internal_pixels": [
+          1262,
+          772
+        ],
+        "scene_scale": 0.75,
+        "scene_viewport_pixels": [
+          1683,
+          1030
+        ],
+        "ui_scale_percent": 100,
+        "vsync": 1,
+        "window_pixels": [
+          2560,
+          1440
+        ]
+      },
+      "speed": 0,
+      "tick": 976,
+      "total_steps": 951,
+      "visible_bindings": 1,
+      "world_actors": 160
+    },
+    "final_events": [
+      {
+        "app_process_us": 8834,
+        "begin_us": 278516225,
+        "callback_index": 17476,
+        "clock_domain": "windows_qpc",
+        "engine_clock_domain": "godot_ticks_usec",
+        "engine_us": 278525059,
+        "generation": 1,
+        "kind": "engine_callback",
+        "observation_engine_us": 278525077,
+        "phase": "warmup",
+        "qpc_frequency": 10000000,
+        "qpc_role": "telemetry observation; not historical engine_us mapping",
+        "qpc_ticks": 1405830273749,
+        "source": "AppRoot._process; not a displayed frame",
+        "tick": 976
+      },
+      {
+        "clock_domain": "windows_qpc",
+        "completed_steps": 0,
+        "engine_clock_domain": "godot_ticks_usec",
+        "engine_us": 279389643,
+        "generation": 1,
+        "guard_released": true,
+        "kind": "incomplete",
+        "observation_engine_us": 279389643,
+        "phase": "warmup",
+        "qpc_frequency": 10000000,
+        "qpc_role": "telemetry observation; not historical engine_us mapping",
+        "qpc_ticks": 1405838919275,
+        "reason": "Product root exited before acknowledged tail and normal checkpoint release",
+        "simulation_dispose_complete": true
+      },
+      {
+        "capture_end_engine_us": 0,
+        "clock_domain": "windows_qpc",
+        "engine_clock_domain": "godot_ticks_usec",
+        "engine_us": 279389742,
+        "exit_code": 2,
+        "generation": 1,
+        "kind": "exit",
+        "observation_engine_us": 279389742,
+        "qpc_frequency": 10000000,
+        "qpc_role": "telemetry observation; not historical engine_us mapping",
+        "qpc_ticks": 1405838920423
+      }
+    ],
+    "formal_sample_count_is_zero_not_total_warmup_steps": true,
+    "pause_note_exit_code_null_actual_capture_game_exit_two": true,
+    "source_and_resource_probe_success_does_not_prove_real_models_rendered": true,
+    "sources": [
+      {
+        "path": ".cache/performance/review-capture-r9/B1-r1/capture.json",
+        "bytes": 20273,
+        "sha256": "732a8cf48467b74934f68eeb1fe161e5b72a5986f6e4aee7b68475fe000d4174",
+        "hash_basis": "existing file read and hashed during paused documentation publication; no execution"
+      },
+      {
+        "path": ".cache/performance/review-capture-r9/B1-r1/user-pause.json",
+        "bytes": 577,
+        "sha256": "532e00de361c2c57c1137e3a62c84a71a2b2fae05d845b21dd9dc10a69df1c5d",
+        "hash_basis": "existing file read and hashed during paused documentation publication; no execution"
+      },
+      {
+        "path": ".cache/performance/review-capture-r9/B1-r1/telemetry.ndjson",
+        "bytes": 9982877,
+        "sha256": "138ae0192a42c7ee02771080120186e616ced98c5044144ebc4e5c5853e41623",
+        "hash_basis": "existing file read and hashed during paused documentation publication; no execution"
+      },
+      {
+        "path": ".cache/performance/review-capture-r9/B1-r1/game-identity.json",
+        "bytes": 125,
+        "sha256": "b67f80a34ffa08c3be6d158aec081ffe57e3a3dddf36bd071ccf4fa516af61c5",
+        "hash_basis": "existing file read and hashed during paused documentation publication; no execution"
+      }
+    ]
+  },
+  "graphics_observer_incomplete": {
+    "status": "paused_not_qualified",
+    "formal_pass": false,
+    "prior_cpu_only_claim_withdrawn": true,
+    "source_chain": [
+      "ArrayMesh::_get_surfaces",
+      "RenderingServer.mesh_get_surface",
+      "GLES3 MeshStorage",
+      "Utilities::buffer_get_data",
+      "glMapBufferRange(GL_MAP_READ_BIT)",
+      "memcpy",
+      "unmap"
+    ],
+    "render_server_sync_possible": [
+      "push_and_ret",
+      "flush"
+    ],
+    "observer_mesh_readback_is_not_cpu_only": true,
+    "production_compatibility_skin_ready_uses_surface_readback": true,
+    "runtime_stall_attribution_proven": false,
+    "release_probe_does_not_cover_scene_tree_ready": true,
+    "r4": {
+      "native_trace_swaps": 3,
+      "presentmon_rows": 3,
+      "dropped_rows": 1,
+      "source_epochs": 3,
+      "proxies_per_epoch": 8,
+      "nonproxies_per_epoch": 0,
+      "normal_footer": true,
+      "real_actor_raster_bridge_qualified": false
+    },
+    "r5_stop": {
+      "native_samples_observed": 0,
+      "kind": "diagnostic_resource_stop",
+      "original_minima_unchanged": true,
+      "reason": "90s diagnostic stage reached while original frame4 and nonproxy0 remain; no normal exit or native footer started",
+      "native_recursion_guard_triggered": false,
+      "formal_pass": false,
+      "start_utc_ticks": 639279007390915063,
+      "pid": 26656,
+      "working_set_bytes": 1692463104,
+      "native_client_extent_observed": [
+        2560,
+        1440
+      ],
+      "cpu_seconds": 201.25
+    },
+    "r5_native_samples_observed_field_does_not_replace_actual_swap_records": true,
+    "offline_dummy_mesh_extraction_rgb_depth_and_actor_pixel_replay_completed": false,
+    "experimental_tools_ignored_not_published_as_completed": true,
+    "sources": [
+      {
+        "path": ".cache/review-6ad4316f/dense-preflight-r5/diagnostic-stop.json",
+        "bytes": 501,
+        "sha256": "2710c6598900a061b3de6e22dbfabd7c45eee0a8b83028a69429ae7491cc2954",
+        "hash_basis": "existing file read and hashed during paused documentation publication; no execution"
+      }
+    ]
+  },
+  "unfinished_items": [
+    {
+      "id": "U01",
+      "status": "paused_incomplete",
+      "current_fact": "正式B1/B3、D1/D3、C320、W160、T640矩阵未完成；r7不完整，r9仅预热后暂停",
+      "missing_evidence": "每组原条件下至少1000个实际显示帧和1000个完整步、原速度/帧/步阈值、所需操作与完整ACK尾部；片段不计算通过分位。"
+    },
+    {
+      "id": "U02",
+      "status": "paused_incomplete",
+      "current_fact": "只生成160four正式输入；320四层、640宽层、160宽层及连续10000结构/四活动层640输入未生成",
+      "missing_evidence": "按原performance_reference生成并记录完整合法身份，不能以几何fixture、proxy或减少人数代替。"
+    },
+    {
+      "id": "U03",
+      "status": "paused_incomplete",
+      "current_fact": "普通8×8、最大85×95成功、96×95真实井道失败、新建无井道5F96×95成功的真实预览组未完成",
+      "missing_evidence": "各原21次真实OS输入→实际显示终点、成功/失败与施工前提，P95 100/200ms及原窗口新工作预算；几何CPU诊断不能代替。"
+    },
+    {
+      "id": "U04",
+      "status": "paused_incomplete",
+      "current_fact": "真实密集区间及演员像素资格未完成，图形observer还有S17同步读回风险",
+      "missing_evidence": "至少144/576人的原密集要求及完整区间，真实actor/姿态/几何/遮挡到实际像素、实际GL与原ETW/PresentMon同帧身份桥；CPU-only误判已撤销。"
+    },
+    {
+      "id": "U05",
+      "status": "paused_incomplete",
+      "current_fact": "图形资源≤512MiB的完整同窗证据未完成；r7旧账本未按2a564de新资格重算，r9无正式窗",
+      "missing_evidence": "直接allocation完整范围、共享/未归属范围、adapter/physical域、同窗连续OS usage及0丢失；backing歧义保留，物理resident unknown，不将旧序列峰或OS数改名为通过。"
+    },
+    {
+      "id": "U06",
+      "status": "paused_incomplete",
+      "current_fact": "临床中途保存/加载、日界等待/暂停/保存、真实临床占用改建及加载中改建未完成",
+      "missing_evidence": "真实动作、原承诺/耗材/资源及完整恢复交接；observer支持和功能选例不等价于场景已执行。"
+    },
+    {
+      "id": "U07",
+      "status": "paused_incomplete",
+      "current_fact": "双院真实切换/返回、资源重绑定及导航缓存驱逐冷热场景未完成",
+      "missing_evidence": "原切院/退场/恢复操作和身份、资源峰及重新绑定，不能改事实或只比较孤立缓存。"
+    },
+    {
+      "id": "U08",
+      "status": "paused_incomplete",
+      "current_fact": "合法64/128MiB原规范JSON历史未生成，原保存/加载及额外峰未完成",
+      "missing_evidence": "真正历史生成与原持久化链、冻结副本、保存≤2s/加载≤5s和工作集≤2GiB；基线20副本诊断正确但保存2.064217秒已超过目标。"
+    },
+    {
+      "id": "U09",
+      "status": "paused_incomplete",
+      "current_fact": "独立7200现实秒稳定性未开始",
+      "missing_evidence": "原8次改建、4次切院、180秒自动保存、最终检查点、正常退出与完整尾部，以及持续内存/资源趋势。"
+    },
+    {
+      "id": "U10",
+      "status": "paused_incomplete",
+      "current_fact": "S16后40步P95仍183.505ms；原tick1801的104.673秒尖峰未重现或归因",
+      "missing_evidence": "继续明确性能未达标，不以约69.66%诊断收益替代正式通过，不抹掉旧失败。"
+    },
+    {
+      "id": "U11",
+      "status": "paused_incomplete",
+      "current_fact": "完整capacity已返回，但首班C=0的具体原因未被原trace单独记录；r4尺寸资格也未覆盖r9真实模型",
+      "missing_evidence": "不猜测护士预算或求解器故障；保留完整C/K和742类证据，正式Release资源/模型/当前工况仍独立验证。"
+    }
+  ],
+  "not_adopted_recommendations": [
+    {
+      "strategy": "R11：把全部外部精确分数当已规范化，跳过通用校验",
+      "reason_and_retained_responsibility": "缺少成立证明，旧票、队列和不同文本表示仍可能非法；仅封闭prepare内按完整文本精确复用。"
+    },
+    {
+      "strategy": "R14：新增所有缓存的生产关闭开关",
+      "reason_and_retained_responsibility": "冻结旧实现、独立冷所有者和测试覆写已提供完整独立对照，生产开关额外扩大API与状态组合。"
+    },
+    {
+      "strategy": "R16：用当前主线程CPU与worker总CPU相减得到取消后CPU",
+      "reason_and_retained_responsibility": "两线程时钟不成立；新增跨线程句柄/同步责任未有必要性证据。保留可证明的响应墙钟、join、任务总CPU及OS峰。"
+    },
+    {
+      "strategy": "R17/18：新增跨层time-only协议、以reverse field重写实际移动首路径",
+      "reason_and_retained_responsibility": "早期冷图与后期必败A*分别已有归因；S16以局部严格无解条件取得实测收益。更大协议没有额外净收益证据，会扩大同分见证、预约与动态扫掠责任。"
+    },
+    {
+      "strategy": "R21：扩大的water-scope生产缓存",
+      "reason_and_retained_responsibility": "完整同160人600步无收益，末100步P95变差，且出口证明键与world不同；生产改动已撤回。"
+    },
+    {
+      "strategy": "R22：新增全院Actor/收据等历史镜像索引",
+      "reason_and_retained_responsibility": "19档历史独立实验未显示所测维度单调长停顿；现有Visit/Ledger索引归原写入者，不能凭遍历再增重复状态。"
+    },
+    {
+      "strategy": "R27：另改稳定Big-M、注入旧SCIP incumbent或复用旧LP变换/因子化状态",
+      "reason_and_retained_responsibility": "改M弱化现有效松弛，旧解需独立精确可行/最优证明，旧变换不满足变化离散固定值与RHS；实际长停已由完整路径上界与独立可行证书解决。保留已有不变系数短路与精确LP求解。"
+    },
+    {
+      "strategy": "R28：增加线程、扩大锁或破坏GMP/SCIP scratch原所有权",
+      "reason_and_retained_responsibility": "没有实证收益，改变进程级scratch生命周期及安全取消责任；保留原锁与分期成本。"
+    },
+    {
+      "strategy": "R30～33：把PFN union、unlock、OS工作集或已知extent改名为实际驻留，或让所有backing歧义永久阻断独立直接allocation资格",
+      "reason_and_retained_responsibility": "字段及生命周期语义不同，会重复或错误归属；直接33/35分配资格、backing旁证和同窗OS usage分别核验。物理驻留未知保持unknown，不能放宽512MiB。"
+    },
+    {
+      "strategy": "R34：从面板总包围计时直接认定具体面板责任",
+      "reason_and_retained_responsibility": "缺少局部运行证据；保留原总成本，实例化与退场等原子超预算照实计入。"
+    },
+    {
+      "strategy": "R36：改canvas_items/stretch或以逻辑分辨率直接判断低清",
+      "reason_and_retained_responsibility": "不符合原显示责任；已以真实根读回及GPU color/depth/viewport证明尺寸。"
+    },
+    {
+      "strategy": "R37/38：把注入短GL、12模式、功能用例或达到样本数替代正式矩阵/稳定性",
+      "reason_and_retained_responsibility": "经营负载、实际显示、真实速度、GPU预算和完整操作尾部责任不同；所有缺项继续incomplete。"
+    },
+    {
+      "strategy": "R05/07/08/40子项：逐唯一组件估算字节当真实分配，新增全链分配器追踪",
+      "reason_and_retained_responsibility": "Variant/DAG/GMP/solver池存在共享且内部容量不透明；全链追踪会改变执行与生命周期。记录实际OS峰及各集合峰，估计单列，不能计数乘常量冒充字节。"
+    },
+    {
+      "strategy": "R10子项：绕过GDScript/Variant转换并跨调用持裸地址",
+      "reason_and_retained_responsibility": "原VariantNewCopy是引用计数复制，未递归复制全图；唯一分数/签名重复已局部消除，裸地址扩大生命周期与错误原子性契约。"
+    },
+    {
+      "strategy": "R13/19子项：额外跨班运输缓存或仅按楼层/连接ID缓存最终报价",
+      "reason_and_retained_responsibility": "子项理论可共享但整班依据含人员、排班、资格与承诺，尚无三次构造主导成本的证据；现有完整几何/封闭query复用保留，不引入新失效责任。"
+    },
+    {
+      "strategy": "R15/16子项：把每个内部函数包围计时称作可独立中断阶段，分别给取消P95",
+      "reason_and_retained_responsibility": "原生C/K只能在原安全边界返回，把包围拆成可中断阶段会虚构契约；保留整个worker响应、join及OS全生命周期峰。"
+    }
+  ]
+}
