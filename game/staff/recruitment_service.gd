@@ -5,6 +5,9 @@ const ROLES: Array[String] = ["receptionist","doctor","nurse","cleaner","researc
 const ORDINARY_ROLES: Array[String] = ["receptionist","cleaner","researcher","decorator"]
 var content: HospitalContent
 var space: HospitalSpace
+var _completion_world: WorldState
+var _completion_facts: Dictionary = {}
+var _queued_completions: Array = []
 
 func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 	content = database
@@ -215,6 +218,9 @@ func card(world: WorldState, candidate: Dictionary) -> Dictionary:
 	result.asset_status = "岗位骨架合同已接入；全种族正式资产在阶段35逐项交付"
 	return result
 
+func search_status(world: WorldState) -> Dictionary:
+	return world.facts.get("recruitment",{}).get("active_search",{}).duplicate(true)
+
 func query(world: WorldState, filter: Dictionary = {}) -> Dictionary:
 	var candidates: Array = []
 	var saved: Dictionary = world.facts.get("recruitment",{}).get("candidates",{})
@@ -317,7 +323,10 @@ func _search(world: WorldState, filter: Dictionary) -> CommandResult:
 	var cost: int = int(content.balance.recruitment.search_fee)
 	if HospitalLedger.balance(world)<cost:
 		return _result(world,false,"insufficient_funds","资金不足，寻访未开始")
-	var clone: WorldState = WorldState.new(world.freeze())
+	var facts: Dictionary = world.facts.duplicate()
+	facts.rng = world.facts.rng.duplicate()
+	facts.rng.recruitment = world.facts.rng.recruitment.duplicate(true)
+	var clone: WorldState = WorldState.new(facts)
 	var id: String = clone.new_id("search")
 	var candidates: Array = []
 	var day: int = world.sim_tick/WorldState.TICKS_PER_DAY+1
@@ -670,21 +679,42 @@ func service_mood(world: WorldState, staff_id: String, action: String, visit_id:
 
 func settle(world: WorldState) -> void:
 	ensure(world)
-	for visit: Dictionary in world.facts.visits.values():
+	_completion_scope(world)
+	for id: String in world.pending_fact_ids("registration_practice","visits",world.facts.visits):
+		if not world.facts.visits.has(id): continue
+		var visit: Dictionary = world.facts.visits[id]
 		var receipt: Dictionary = visit.get("registration_receipt",{})
 		if not receipt.is_empty():
 			consume_completion(world,"registration_completed",receipt)
 	for collection: String in ["environment","maintenance"]:
 		var receipts: Dictionary = world.facts.get(collection,{}).get("receipts",{})
-		for receipt: Dictionary in receipts.values():
+		for id: String in world.completion_receipt_ids(collection,"recruitment_practice"):
+			if not receipts.has(id): continue
+			var receipt: Dictionary = receipts[id]
 			var kind: String = str(receipt.kind)
 			var source: String = {"repair_completed":"maintenance_order_completed","maintenance_completed":"maintenance_order_completed","upgrade_completed":"machine_upgrade_completed","renovation_completed":"surface_unit_completed"}.get(kind,kind)
 			consume_completion(world,source,receipt)
+	var queued: Array = _queued_completions
+	_queued_completions = []
+	for completion: Dictionary in queued:
+		consume_completion(world,completion.source,completion.receipt)
 	for staff: Dictionary in world.facts.staff.values():
 		if staff.role=="nurse" and int(staff.first_job_tick)<0 and not staff.get("completed_jobs",{}).is_empty():
 			_first_job(world,staff,"clinical_completed")
 		if staff.role in ORDINARY_ROLES and "R11" in world.facts.research:
 			_convert_practice(staff)
+
+func _completion_scope(world: WorldState) -> void:
+	if _completion_world!=world or not is_same(_completion_facts,world.facts):
+		_completion_world = world
+		_completion_facts = world.facts
+		_queued_completions.clear()
+
+# Producers may explicitly resubmit an updated receipt. The original settlement
+# phase, current qualification and the receipt's own idempotency flag still decide.
+func queue_completion(world: WorldState, source: String, receipt: Dictionary) -> void:
+	_completion_scope(world)
+	_queued_completions.append({"source":source,"receipt":receipt})
 
 func consume_completion(world: WorldState, source: String, receipt: Dictionary) -> bool:
 	if receipt.get("practice_awarded",false) or int(receipt.get("standard_work_milli",0))<=0:

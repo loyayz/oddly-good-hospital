@@ -2,9 +2,11 @@ class_name HospitalStaffWellbeing
 extends RefCounted
 
 const Development = preload("res://game/staff/clinical_development.gd")
+const REST_SEATS: Array[String] = ["FUR06","FUR09","FUR10","FUR11","FUR49","FUR50","FUR51","FUR52"]
 
 var content: HospitalContent
 var space: HospitalSpace
+var _dispatch_view: Dictionary = {}
 
 func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 	content = database
@@ -59,6 +61,7 @@ func execute(world: WorldState, kind: String, payload: Dictionary) -> CommandRes
 
 func dispatch(world: WorldState) -> void:
 	ensure(world)
+	_dispatch_view = _staff_query(world)
 	var day: int = world.sim_tick/WorldState.TICKS_PER_DAY
 	var ordered: Array = world.ids("staff")
 	ordered.sort_custom(func(a: String,b: String) -> bool:
@@ -88,7 +91,7 @@ func dispatch(world: WorldState) -> void:
 		if mandatory_sleep:
 			_begin(world,staff_id,"sleep")
 			continue
-		var safe: bool = not Development.safe_busy(world,staff_id) and not _other_commitment(world,staff_id)
+		var safe: bool = not _busy(world,staff_id) and not _other_commitment(world,staff_id)
 		if int(staff.awake_ticks)>=_ticks(float(content.balance.staff_sleep.early_sleep_after_seconds)) and safe and (not staff.get("on_shift",true) or _relief_available(world,staff_id)):
 			# Voluntary sleep does not create a bed queue or an offsite fallback.
 			var bed: Dictionary = _select_facility(world,staff_id,"sleep")
@@ -114,6 +117,7 @@ func dispatch(world: WorldState) -> void:
 		if _can_recreate(world,staff_id):
 			_recreation(world,[staff_id],"")
 	_dispatch_recreation(world)
+	_dispatch_view = {}
 
 func boundaries(world: WorldState) -> void:
 	ensure(world)
@@ -239,7 +243,7 @@ func _dispatch_task(world: WorldState, staff_id: String) -> void:
 	var staff: Dictionary = world.facts.staff[staff_id]
 	var task: Dictionary = staff.life_task
 	if task.phase=="wait_safe":
-		if Development.safe_busy(world,staff_id) or _other_commitment(world,staff_id) or world.facts.moves.has(staff_id):
+		if _busy(world,staff_id) or _other_commitment(world,staff_id) or world.facts.moves.has(staff_id):
 			return
 		staff.on_shift = false
 		staff.base_prepared = false
@@ -247,8 +251,9 @@ func _dispatch_task(world: WorldState, staff_id: String) -> void:
 			_go_outside(world,staff_id)
 			return
 		var selection: Dictionary = task.selection
+		var selection_query: Dictionary = {}
 		if selection.is_empty():
-			selection = _select_facility(world,staff_id,task.kind)
+			selection = _select_facility(world,staff_id,task.kind,selection_query)
 		if not selection.is_empty() and _reserve(world,staff_id,task,selection):
 			return
 		if task.kind=="sleep":
@@ -262,7 +267,7 @@ func _dispatch_task(world: WorldState, staff_id: String) -> void:
 			else:
 				_go_outside(world,staff_id)
 		else:
-			var tea: Dictionary = _tea_position(world,staff_id)
+			var tea: Dictionary = selection_query.tea if selection_query.has("tea") else _tea_position(world,staff_id)
 			if not tea.is_empty():
 				task.phase = "travel"
 				task.floor_id = tea.floor_id
@@ -359,24 +364,34 @@ func _reserve(world: WorldState, staff_id: String, task: Dictionary, selection: 
 	_move_target(world,staff_id,task)
 	return true
 
-func _select_facility(world: WorldState, staff_id: String, kind: String) -> Dictionary:
+func _select_facility(world: WorldState, staff_id: String, kind: String, query: Dictionary = {}) -> Dictionary:
 	var best: Dictionary = {}
 	var best_time: float = INF
 	var staff: Dictionary = world.facts.staff[staff_id]
 	var tea: Dictionary = _tea_position(world,staff_id) if kind=="rest" else {}
+	if kind=="rest": query.tea = tea
 	if not tea.is_empty():
 		best_time = float(tea.travel_ticks)*WorldState.TICK_SECONDS+maxf(0,float(content.balance.schedule.compensatory_rest_target_energy)-float(staff.energy))/float(content.balance.wellbeing.energy_tea_per_second)
 	# Each candidate has its own immutable adaptation projection. The space
 	# caches compare world identity and captured geometry before sharing graphs.
 	var candidate_space: HospitalSpace
-	for id: String in world.ids("facilities"):
+	var occupied: Dictionary = {}
+	var candidates: Array = []
+	if kind=="sleep": candidates = world.facility_ids(str(content.balance.staff_sleep.bed_definition_id)).duplicate()
+	elif kind=="rest":
+		for definition_id: String in REST_SEATS: candidates.append_array(world.facility_ids(definition_id))
+	else: candidates = world.ids("facilities")
+	candidates.sort()
+	for id: String in candidates:
 		var facility: Dictionary = world.facts.facilities[id]
-		if HospitalRemodel.blocked(world,id) or facility.failed or world.facts.staff_life.reservations.has(id) or _patient_occupies(world,id) or not _staff_area(world,facility):
-			continue
 		if kind=="sleep" and facility.definition_id!=str(content.balance.staff_sleep.bed_definition_id):
 			continue
 		if kind=="rest" and not _is_seat(facility.definition_id):
 			continue
+		if not _staff_area(world,facility) or HospitalRemodel.blocked(world,id) or facility.failed or world.facts.staff_life.reservations.has(id):
+			continue
+		if occupied.is_empty(): occupied = _patient_occupancy(world)
+		if _patient_occupies(world,id,occupied): continue
 		var fit: Dictionary = space.facility_quote(world,id,staff_id)
 		if not fit.ok:
 			continue
@@ -408,6 +423,7 @@ func _tea_position(world: WorldState, staff_id: String) -> Dictionary:
 	var best: Dictionary = {}
 	var shortest: float = INF
 	var obstacles: Dictionary = {}
+	space.begin_dynamic_route_query(world)
 	for room_id: String in world.ids("rooms"):
 		var room: Dictionary = world.facts.rooms[room_id]
 		if not _is_staff_room(room) or HospitalRemodel.blocked(world,room_id):
@@ -423,6 +439,7 @@ func _tea_position(world: WorldState, staff_id: String) -> Dictionary:
 			if cost<shortest:
 				shortest = cost
 				best = {"floor_id":room.floor_id,"cell":target,"travel_ticks":cost}
+	space.end_route_query()
 	return best
 
 func _go_outside(world: WorldState, staff_id: String) -> void:
@@ -508,7 +525,7 @@ func _can_recreate(world: WorldState, staff_id: String) -> bool:
 		return false
 	if float(staff.energy)<=float(content.balance.wellbeing.recreation_max_energy_priority) or int(staff.get("rest_debt_ticks",0))>0 or int(staff.sleep_remaining_ticks)>0 or int(staff.awake_ticks)>=_ticks(float(content.balance.staff_sleep.awake_limit_seconds)):
 		return false
-	if not staff.get("leave_plan",{}).is_empty() or Development.safe_busy(world,staff_id) or _other_commitment(world,staff_id) or _ward_responsibility(world,staff_id) or staff.get("supply_strike",false):
+	if not staff.get("leave_plan",{}).is_empty() or _busy(world,staff_id) or _other_commitment(world,staff_id) or _ward_responsibility(world,staff_id) or staff.get("supply_strike",false):
 		return false
 	var allowed: Array = world.facts.staff_life.settings.roles
 	if not allowed.is_empty() and not staff.role in allowed:
@@ -518,6 +535,13 @@ func _can_recreate(world: WorldState, staff_id: String) -> bool:
 	return _recreation_count(world)<int(world.facts.staff_life.settings.maximum_recreation)
 
 func _recreation(world: WorldState, ids: Array, preferred: String) -> CommandResult:
+	var previous: Dictionary = _dispatch_view
+	if _dispatch_view.get("world_id",0)!=world.get_instance_id(): _dispatch_view = _staff_query(world)
+	var result: CommandResult = _recreation_in_query(world,ids,preferred)
+	_dispatch_view = previous
+	return result
+
+func _recreation_in_query(world: WorldState, ids: Array, preferred: String) -> CommandResult:
 	if ids.is_empty():
 		return _result(world,false,"staff_missing","请选择员工")
 	var seen: Dictionary = {}
@@ -713,6 +737,7 @@ func _other_commitment(world: WorldState, staff_id: String) -> bool:
 	var training_id: String = str(staff.get("training_job_id",""))
 	if not training_id.is_empty() and world.facts.get("training_jobs",{}).get(training_id,{}).get("state","")=="working":
 		return true
+	if _dispatch_view.get("world_id",0)==world.get_instance_id(): return _dispatch_view.handoffs.has(staff_id)
 	for handoff: Dictionary in world.facts.get("staff_schedule",{}).get("handoffs",{}).values():
 		if handoff.get("new_id","")==staff_id:
 			return true
@@ -720,7 +745,8 @@ func _other_commitment(world: WorldState, staff_id: String) -> bool:
 
 func _relief_available(world: WorldState, staff_id: String) -> bool:
 	var staff: Dictionary = world.facts.staff[staff_id]
-	for other_id: String in world.ids("staff"):
+	var query: Dictionary = _dispatch_view if _dispatch_view.get("world_id",0)==world.get_instance_id() else _staff_query(world)
+	for other_id: String in query.roles.get(staff.role,[]):
 		var other: Dictionary = world.facts.staff[other_id]
 		if other_id==staff_id or other.role!=staff.role or not other.get("on_shift",false) or other.get("block_new_work",false) or other.life_task.phase!="idle" or world.facts.moves.has(other_id) or other.get("supply_strike",false) or not str(other.get("training_job_id","")).is_empty():
 			continue
@@ -737,28 +763,47 @@ func _relief_available(world: WorldState, staff_id: String) -> bool:
 
 func _pool_resting(world: WorldState, staff_id: String) -> bool:
 	var staff: Dictionary = world.facts.staff[staff_id]
-	for other: Dictionary in world.facts.staff.values():
+	var query: Dictionary = _dispatch_view if _dispatch_view.get("world_id",0)==world.get_instance_id() else _staff_query(world)
+	for id: String in query.roles.get(staff.role,[]):
+		var other: Dictionary = world.facts.staff[id]
 		if other.id!=staff_id and other.role==staff.role and other.get("life_task",{}).get("early",false) and other.life_task.phase!="idle":
 			return true
 	return false
 
 func _ward_responsibility(world: WorldState, staff_id: String) -> bool:
+	if _dispatch_view.get("world_id",0)==world.get_instance_id(): return _dispatch_view.ward.has(staff_id)
 	for stay: Dictionary in world.facts.ward_stays.values():
 		if stay.get("nurse_id","")==staff_id and not stay.get("phase","") in ["release_wait","complete"]:
 			return true
 	return false
 
-func _patient_occupies(world: WorldState, facility_id: String) -> bool:
+func _patient_occupancy(world: WorldState) -> Dictionary:
+	var result: Dictionary = {"blocked":{}}
 	for actor: Dictionary in world.facts.actors.values():
-		if actor.get("support_facility_id","")==facility_id and not world.facts.staff.has(actor.id):
-			return true
+		if not world.facts.staff.has(actor.id): result.blocked[str(actor.get("support_facility_id",""))] = true
 	for seat: Dictionary in world.facts.get("waiting_life",{}).get("seats",{}).values():
-		if seat.get("facility_id","")==facility_id:
-			return true
+		result.blocked[str(seat.get("facility_id",""))] = true
 	for need: Dictionary in world.facts.get("waiting_life",{}).get("needs",{}).values():
-		if need.get("facility_id","")==facility_id:
-			return true
-	return false
+		result.blocked[str(need.get("facility_id",""))] = true
+	return result
+
+func _patient_occupies(world: WorldState, facility_id: String, view: Dictionary = {}) -> bool:
+	if view.is_empty(): view = _patient_occupancy(world)
+	return view.blocked.has(facility_id)
+
+func _staff_query(world: WorldState) -> Dictionary:
+	var result: Dictionary = {"world_id":world.get_instance_id(),"busy":Development.busy_view(world),"roles":{},"handoffs":{},"ward":{}}
+	for id: String in world.ids("staff"):
+		var role: String = str(world.facts.staff[id].role)
+		if not result.roles.has(role): result.roles[role] = []
+		result.roles[role].append(id)
+	for handoff: Dictionary in world.facts.get("staff_schedule",{}).get("handoffs",{}).values(): result.handoffs[str(handoff.get("new_id",""))] = true
+	for stay: Dictionary in world.facts.ward_stays.values():
+		if not stay.get("phase","") in ["release_wait","complete"]: result.ward[str(stay.get("nurse_id",""))] = true
+	return result
+
+func _busy(world: WorldState, staff_id: String) -> bool:
+	return Development.safe_busy(world,staff_id,_dispatch_view.get("busy",{}))
 
 func _staff_area(world: WorldState, facility: Dictionary) -> bool:
 	return _is_staff_room(world.facts.rooms.get(facility.get("room_id",""),{}))
@@ -767,7 +812,7 @@ static func _is_staff_room(room: Dictionary) -> bool:
 	return str(room.get("kind",room.get("type",""))) in ["rest","staff_garden"]
 
 static func _is_seat(definition_id: String) -> bool:
-	return definition_id in ["FUR06","FUR09","FUR10","FUR11","FUR49","FUR50","FUR51","FUR52"]
+	return definition_id in REST_SEATS
 
 func _recreation_count(world: WorldState) -> int:
 	var count: int = 0

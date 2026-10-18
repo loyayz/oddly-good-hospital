@@ -5,6 +5,11 @@ const WAITING_SEAT_DEFINITIONS: Array[String] = ["FUR09","FUR10","FUR11","FUR12"
 
 var content: HospitalContent
 var space: HospitalSpace
+var _present_world: WorldState
+var _present_records: Dictionary = {}
+var _present_count: int = -1
+var _present_groups: Dictionary = {}
+var _present_observer: String = "visitor_lookup_"+str(get_instance_id())
 
 func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 	content = database
@@ -19,13 +24,14 @@ func arrivals(world: WorldState) -> void:
 	if world.sim_tick<int(world.facts.visitors.next_scan_tick):
 		return
 	world.facts.visitors.next_scan_tick = world.sim_tick+_ticks(content.balance.ward_care.visitor_request_scan_seconds)
+	var lookup: Dictionary = _lookup(world)
 	for visit_id: String in world.active_visit_ids():
 		var visit: Dictionary = world.facts.visits[visit_id]
 		if not visit.has("companion_intent"):
 			visit.companion_intent = world.draw("arrival",10000)<roundi(float(content.balance.ward_care.companion_probability)*10000)
 			if visit.companion_intent and not visit.phase in ["leaving","departed"]:
 				_request(world,visit,"companion","")
-		var stay: Dictionary = _ward_stay(world,visit_id)
+		var stay: Dictionary = lookup.wards.get(visit_id,{})
 		if stay.is_empty() or not stay.phase in ["recovery","round_wait"] or _window(world).ends_with(":2"):
 			continue
 		if not visit.has("visitor_windows"):
@@ -33,7 +39,7 @@ func arrivals(world: WorldState) -> void:
 		var window: String = _window(world)
 		if visit.visitor_windows.has(window):
 			continue
-		var present: Dictionary = _present(world,visit_id)
+		var present: Dictionary = lookup.present.get(visit_id,{})
 		if not present.is_empty() and (present.phase in ["to_bed","visiting","yielding"] or not str(present.get("pending_window","")).is_empty()):
 			continue
 		var intent: bool = world.draw("arrival",10000)<roundi(float(content.balance.ward_care.ward_visit_probability)*10000)
@@ -54,7 +60,7 @@ func arrivals(world: WorldState) -> void:
 		if visit.phase in ["leaving","departed","ward_referral"] or (request.purpose=="ward_visit" and (not bool(visit.get("visitor_consent",true)) or request.window!=_window(world))):
 			world.facts.visitors.requests.erase(id)
 			continue
-		if _admit(world,visit,request):
+		if _admit(world,visit,request,lookup):
 			world.facts.visitors.requests.erase(id)
 			break
 
@@ -63,8 +69,9 @@ func _request(world: WorldState, visit: Dictionary, purpose: String, window: Str
 	if not world.facts.visitors.requests.has(id):
 		world.facts.visitors.requests[id] = {"id":id,"visit_id":visit.id,"purpose":purpose,"window":window,"request_tick":world.sim_tick}
 
-func _admit(world: WorldState, visit: Dictionary, request: Dictionary) -> bool:
-	if not _present(world,visit.id).is_empty():
+func _admit(world: WorldState, visit: Dictionary, request: Dictionary, lookup: Dictionary = {}) -> bool:
+	if lookup.is_empty(): lookup = _lookup(world)
+	if lookup.present.has(visit.id):
 		return false
 	var patient: Dictionary = world.facts.actors[visit.actor_id]
 	var entry: Dictionary = world.facts.get("entry",{"floor_id":1,"cell":[47,93]})
@@ -83,7 +90,7 @@ func _admit(world: WorldState, visit: Dictionary, request: Dictionary) -> bool:
 	facts.actors = world.facts.actors.duplicate()
 	var candidate: WorldState = WorldState.new(facts)
 	candidate.facts.actors[actor.id] = actor
-	var waiting: Dictionary = _waiting_point(candidate,actor.id,facility_ids)
+	var waiting: Dictionary = _waiting_point(candidate,actor.id,facility_ids,lookup.waiting)
 	if waiting.is_empty():
 		return false
 	var actor_id: String = original_id if not original_id.is_empty() else world.new_id("relative")
@@ -94,11 +101,13 @@ func _admit(world: WorldState, visit: Dictionary, request: Dictionary) -> bool:
 	world.facts.actors[actor_id] = actor
 	world.facts.visitors.stays[stay_id] = {"id":stay_id,"visit_id":visit.id,"actor_id":actor_id,"purpose":request.purpose,"phase":"to_waiting",
 		"waiting_floor":waiting.floor_id,"waiting_cell":waiting.cell,"pending_window":request.window,"remaining_ticks":0,"started_window":""}
+	world.fact_record_changed("visitor_stays",stay_id)
 	space.sync_actor(world,actor_id)
 	return true
 
 func dispatch(world: WorldState) -> void:
 	ensure(world)
+	var wards: Dictionary = _lookup(world).wards
 	for stay_id: String in _stay_ids(world):
 		var stay: Dictionary = world.facts.visitors.stays[stay_id]
 		var visit: Dictionary = world.facts.visits[stay.visit_id]
@@ -131,7 +140,7 @@ func dispatch(world: WorldState) -> void:
 				stay.pending_window = ""
 				if stay.purpose=="ward_visit": stay.phase = "leaving"
 				continue
-			var ward_stay: Dictionary = _ward_stay(world,visit.id)
+			var ward_stay: Dictionary = wards.get(visit.id,{})
 			if ward_stay.is_empty() or not ward_stay.phase in ["recovery","round_wait"]:
 				continue
 			var position: Dictionary = _bedside(world,stay.actor_id,ward_stay)
@@ -191,11 +200,11 @@ func _end_visit(stay: Dictionary) -> void:
 	stay.pending_window = ""
 	stay.phase = "to_waiting" if stay.purpose=="companion" else "leaving"
 
-func _waiting_point(world: WorldState, actor_id: String, facility_ids: Variant = null) -> Dictionary:
+func _waiting_point(world: WorldState, actor_id: String, facility_ids: Variant = null, waiting: Variant = null) -> Dictionary:
 	space.begin_route_query(world,{},space.nominal_query(world))
 	# A supplied empty list is complete, just like a nonempty source view.
 	var candidates: Array = _waiting_facility_ids(world) if facility_ids==null else facility_ids
-	var result: Dictionary = _waiting_point_in_query(world,actor_id,candidates)
+	var result: Dictionary = _waiting_point_in_query(world,actor_id,candidates,_lookup(world).waiting if waiting==null else waiting)
 	space.end_route_query()
 	return result
 
@@ -206,7 +215,8 @@ func _waiting_facility_ids(world: WorldState) -> Array:
 	facility_ids.sort()
 	return facility_ids
 
-func _waiting_point_in_query(world: WorldState, actor_id: String, facility_ids: Array) -> Dictionary:
+func _waiting_point_in_query(world: WorldState, actor_id: String, facility_ids: Array, waiting: Variant = null) -> Dictionary:
+	if waiting==null: waiting = _lookup(world).waiting
 	for facility_id: String in facility_ids:
 		var facility: Dictionary = world.facts.facilities[facility_id]
 		if not facility.definition_id in WAITING_SEAT_DEFINITIONS:
@@ -214,10 +224,7 @@ func _waiting_point_in_query(world: WorldState, actor_id: String, facility_ids: 
 		if not str(facility.get("room_id","")).is_empty() and not world.facts.rooms[facility.room_id].kind in ["waiting","public","lobby","garden"]:
 			continue
 		var layout: Dictionary = space.facility_layout(world,facility_id)
-		var taken: bool = false
-		for present: Dictionary in world.facts.visitors.stays.values():
-			taken = taken or (int(present.waiting_floor)==int(layout.floor_id) and present.waiting_cell==layout.patient_cell)
-		if taken:
+		if waiting.has(JSON.stringify([int(layout.floor_id),layout.patient_cell])):
 			continue
 		if _point_clear(world,actor_id,int(layout.floor_id),layout.patient_cell) and space.route(world,actor_id,int(layout.floor_id),layout.patient_cell,[],{},true).ok:
 			return {"floor_id":int(layout.floor_id),"cell":layout.patient_cell.duplicate()}
@@ -257,6 +264,16 @@ func _point_clear(world: WorldState, actor_id: String, floor_id: int, cell: Arra
 	var actor: Dictionary = world.facts.actors[actor_id]
 	return space.static_reason(world,actor,floor_id,Vector2i(int(cell[0]),int(cell[1]))).is_empty() and space._dynamic_clear(world,actor_id,floor_id,space._actor_rect(actor,Vector2(float(cell[0]),float(cell[1]))))
 
+func _lookup(world: WorldState) -> Dictionary:
+	var result: Dictionary = {"wards":{},"present":{},"waiting":{}}
+	for stay: Dictionary in world.facts.ward_stays.values():
+		var id: String = str(world.facts.attempts[stay.attempt_id].visit_id)
+		if not result.wards.has(id): result.wards[id] = stay
+	for stay: Dictionary in world.facts.visitors.stays.values():
+		if not result.present.has(stay.visit_id): result.present[stay.visit_id] = stay
+		result.waiting[JSON.stringify([int(stay.waiting_floor),stay.waiting_cell])] = true
+	return result
+
 func _ward_stay(world: WorldState, visit_id: String) -> Dictionary:
 	for stay: Dictionary in world.facts.ward_stays.values():
 		if world.facts.attempts[stay.attempt_id].visit_id==visit_id:
@@ -264,9 +281,19 @@ func _ward_stay(world: WorldState, visit_id: String) -> Dictionary:
 	return {}
 
 func _present(world: WorldState, visit_id: String) -> Dictionary:
-	for stay: Dictionary in world.facts.visitors.stays.values():
-		if stay.visit_id==visit_id:
-			return stay
+	var records: Dictionary = world.facts.visitors.stays
+	var changed: Array = world.pending_fact_ids(_present_observer,"visitor_stays",records,self)
+	if _present_world!=world or not is_same(_present_records,records) or _present_count!=records.size() or not changed.is_empty():
+		_present_world = world
+		_present_records = records
+		_present_count = records.size()
+		_present_groups.clear()
+		for id: String in records:
+			var owner: String = str(records[id].visit_id)
+			if not _present_groups.has(owner): _present_groups[owner] = []
+			_present_groups[owner].append(id)
+	for id: String in _present_groups.get(visit_id,[]):
+		if records.has(id) and records[id].visit_id==visit_id: return records[id]
 	return {}
 
 func _stay_ids(world: WorldState) -> Array:

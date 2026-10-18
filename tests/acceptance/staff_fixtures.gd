@@ -1,5 +1,7 @@
 extends RefCounted
 
+const CheckpointIdentity = preload("res://tests/acceptance/checkpoint_identity.gd")
+
 var _cache: RefCounted
 var _recorder: Object
 
@@ -13,6 +15,10 @@ class SeatObservations extends RefCounted:
 
 var _content: HospitalContent
 var _next: int = 0
+
+func _checkpoint_dependencies(key: String) -> Dictionary:
+	if not key.begins_with("training_") or not key.trim_prefix("training_").is_valid_int(): return {"error":"Unknown training boundary: "+key}
+	return CheckpointIdentity.describe("res://tests/acceptance/staff_fixtures.gd",{key:{"methods":["_training_checkpoint"],"ticks":int(key.trim_prefix("training_"))}},key)
 
 func _fixture(roles: Dictionary = {}) -> Dictionary:
 	_next += 1

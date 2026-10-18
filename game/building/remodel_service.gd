@@ -15,9 +15,7 @@ func ensure(world: WorldState) -> void:
 	if not world.facts.has("remodels"): world.facts.remodels = {}
 
 static func blocked(world: WorldState, id: String) -> bool:
-	for order: Dictionary in world.facts.get("remodels",{}).values():
-		if order.state=="preparing" and (id in order.member_ids or id in order.room_ids): return true
-	return false
+	return world.remodel_blocked(id)
 
 func group_commands(world: WorldState, room_ids: Array, object_ids: Array, floor_id: int, origin: Array, turns: int) -> Dictionary:
 	if not BuildGeometry.point(origin) or room_ids.is_empty() and object_ids.is_empty(): return BuildGeometry.failure("请选择完整房间或公共物件及目标位置")
@@ -52,6 +50,7 @@ func group_commands(world: WorldState, room_ids: Array, object_ids: Array, floor
 	return {"ok":true,"commands":commands,"reason":""}
 
 func execute(world: WorldState, kind: String, payload: Dictionary) -> CommandResult:
+	world.operation_records_changed("remodels")
 	ensure(world)
 	if kind=="remodel_prepare":
 		var commands: Array = payload.get("commands",[]).duplicate(true)
@@ -142,44 +141,81 @@ func preview(world: WorldState, id: String) -> Dictionary:
 	if HospitalLedger.balance(world)+refund<price: return BuildGeometry.failure("资金不足，源布局和安排保留")
 	return {"ok":true,"reason":"","price":price,"refund":refund,"layout":order.commands.duplicate(true),"candidate":candidate,"world_revision":world.revision}
 
-func _waiting(world: WorldState, order: Dictionary) -> String:
+func _waiting_view(world: WorldState) -> Dictionary:
+	var view: Dictionary = {"sessions":{},"beds":{},"preparations":{},"units":{},"actors":{}}
 	for session: Dictionary in world.facts.sessions.values():
-		if session.facility_id in order.member_ids: return "等待当前临床安全结束、苏醒与真实转床"
+		view.sessions[session.facility_id] = true
 	for stay: Dictionary in world.facts.ward_stays.values():
-		if stay.bed_id in order.member_ids or stay.get("transfer_from_bed_id","") in order.member_ids: return "等待病床患者和原床位承诺安全释放"
+		view.beds[stay.bed_id] = true
+		view.beds[stay.get("transfer_from_bed_id","")] = true
 	for preparation: Dictionary in world.facts.preparations.values():
-		if preparation.facility_id in order.member_ids or preparation.get("bed_id","") in order.member_ids: return "等待原临床准备安全交接"
-	for order_record: Dictionary in world.facts.get("environment",{}).get("orders",{}).values():
-		if order_record.phase in ["completed","cancelled"]: continue
-		for unit: Dictionary in order_record.units:
-			if int(order_record.floor_id)==_source_floor(world,order) and _inside_source(world,order,unit.cell): return "等待原装修安全结束，或明确取消未完成单元"
-	for adaptation_id: String in world.facts.adaptations:
-		if adaptation_id in order.member_ids: return "等待使用者实际离开并释放原占用"
+		view.preparations[preparation.facility_id] = true
+		view.preparations[preparation.get("bed_id","")] = true
+	for id: String in world.active_operation_ids("environment","orders",["completed","cancelled"]):
+		var record: Dictionary = world.facts.environment.orders[id]
+		if not view.units.has(int(record.floor_id)): view.units[int(record.floor_id)] = []
+		for unit: Dictionary in record.units: view.units[int(record.floor_id)].append(unit.cell)
 	for actor: Dictionary in world.facts.actors.values():
-		if actor.location.kind=="floor" and _in_affected_area(world,order,actor): return "等待实际人员走出源布局和目标范围"
+		if actor.location.kind!="floor": continue
+		var floor_id: int = int(actor.location.floor_id)
+		if not view.actors.has(floor_id): view.actors[floor_id] = []
+		view.actors[floor_id].append(actor)
+	return view
+
+func waiting_all(world: WorldState) -> Dictionary:
+	var result: Dictionary = {}
+	var orders: Array = world.active_operation_ids("remodels","",["applied","cancelled"],false,"state")
+	if orders.is_empty(): return result
+	var view: Dictionary = _waiting_view(world)
+	for id: String in orders:
+		if world.facts.remodels[id].state=="preparing": result[id] = _waiting(world,world.facts.remodels[id],view)
+	return result
+
+func _waiting(world: WorldState, order: Dictionary, view: Dictionary = {}) -> String:
+	if view.is_empty(): view = _waiting_view(world)
+	for member: String in order.member_ids:
+		if view.sessions.has(member): return "等待当前临床安全结束、苏醒与真实转床"
+	for member: String in order.member_ids:
+		if view.beds.has(member): return "等待病床患者和原床位承诺安全释放"
+	for member: String in order.member_ids:
+		if view.preparations.has(member): return "等待原临床准备安全交接"
+	var source_floor: int = _source_floor(world,order)
+	for cell: Array in view.units.get(source_floor,[]):
+		if _inside_source(world,order,cell): return "等待原装修安全结束，或明确取消未完成单元"
+	for member: String in order.member_ids:
+		if world.facts.adaptations.has(member): return "等待使用者实际离开并释放原占用"
+	var affected: Dictionary = _affected_view(world,order)
+	for floor_id: int in affected:
+		for actor: Dictionary in view.actors.get(floor_id,[]):
+			if _in_affected_area(world,order,actor,affected): return "等待实际人员走出源布局和目标范围"
 	return ""
 
 func dispatch(world: WorldState) -> void:
-	for order: Dictionary in world.facts.remodels.values():
+	for order_id: String in world.active_operation_ids("remodels","",["applied","cancelled"],false,"state"):
+		var order: Dictionary = world.facts.remodels[order_id]
 		if order.state!="preparing": continue
 		for facility_id: String in order.member_ids:
 			if not world.facts.facilities.has(facility_id): continue
 			if order.safe_transfer: clinic.suspend_outpatient(world,facility_id)
 			services.research.suspend_facility(world,facility_id,"等待原改建安排")
 			services.development.suspend_facility(world,facility_id,"等待原改建安排")
+		var reservations_by_owner: Dictionary = {}
+		for reservation: Dictionary in world.facts.adaptations.values():
+			if not reservations_by_owner.has(reservation.owner_id): reservations_by_owner[reservation.owner_id] = []
+			reservations_by_owner[reservation.owner_id].append(reservation)
 		for preparation_id: String in world.facts.preparations.keys():
 			var preparation: Dictionary = world.facts.preparations[preparation_id]
 			if preparation.facility_id in order.member_ids:
 				var visit: Dictionary = world.facts.visits[preparation.visit_id]
-				for reservation: Dictionary in world.facts.adaptations.values():
-					if reservation.owner_id==preparation.id: reservation.owner_id = visit.actor_id
+				for reservation: Dictionary in reservations_by_owner.get(preparation.id,[]): reservation.owner_id = visit.actor_id
 				world.facts.preparations.erase(preparation_id)
 				if world.facts.tickets.has(visit.ticket_id):
 					world.facts.tickets[visit.ticket_id].service_assigned = false
 					world.facts.tickets[visit.ticket_id].called_tick = -1
+		var affected: Dictionary = _affected_view(world,order)
 		for actor_id: String in world.ids("actors"):
 			var actor: Dictionary = world.facts.actors[actor_id]
-			if actor.location.kind!="floor" or not _in_affected_area(world,order,actor) or world.facts.moves.has(actor_id) or _clinical_busy(world,actor_id): continue
+			if actor.location.kind!="floor" or not _in_affected_area(world,order,actor,affected) or world.facts.moves.has(actor_id) or _clinical_busy(world,actor_id): continue
 			var target: Array = _evacuation(world,order,actor)
 			if not target.is_empty():
 				actor.posture = "standing"
@@ -218,34 +254,51 @@ func _inside_source(world: WorldState, order: Dictionary, cell: Array) -> bool:
 		if world.facts.rooms.has(id) and BuildGeometry.contains(world.facts.rooms[id],cell): return true
 	return false
 
-func _in_affected_area(world: WorldState, order: Dictionary, actor: Dictionary) -> bool:
-	var body: Rect2 = space.body_rectangle(actor)
+func _affected_view(world: WorldState, order: Dictionary) -> Dictionary:
+	var view: Dictionary = {}
 	for id: String in order.room_ids:
 		var room: Dictionary = world.facts.rooms.get(id,{})
-		if not room.is_empty() and int(actor.location.floor_id)==int(room.floor_id) and BuildGeometry.intersects_room(body,room): return true
+		if room.is_empty(): continue
+		if not view.has(int(room.floor_id)): view[int(room.floor_id)] = {"rooms":[],"rects":[]}
+		view[int(room.floor_id)].rooms.append(room)
 	for id: String in order.member_ids:
 		var item: Dictionary = world.facts.facilities.get(id,{})
-		if not item.is_empty() and int(actor.location.floor_id)==int(item.floor_id) and body.intersects(BuildGeometry.rectangle(space.facility_layout(world,id).merged({"cell":item.cell})),false): return true
+		if item.is_empty(): continue
+		if not view.has(int(item.floor_id)): view[int(item.floor_id)] = {"rooms":[],"rects":[]}
+		view[int(item.floor_id)].rects.append(BuildGeometry.rectangle(space.facility_layout(world,id).merged({"cell":item.cell})))
 	for command: Dictionary in order.commands:
-		if command.kind!="build_move" or int(command.get("floor_id",-1))!=int(actor.location.floor_id): continue
+		if command.kind!="build_move": continue
 		var item: Dictionary = world.facts.rooms.get(command.target_id,world.facts.facilities.get(command.target_id,{}))
 		if item.is_empty(): continue
 		var size: Array = item.get("size",item.get("footprint",[1,1])).duplicate()
 		if int(command.get("turns",0))%2==1: size.reverse()
-		if body.intersects(Rect2(float(command.cell[0]),float(command.cell[1]),float(size[0]),float(size[1])),false): return true
+		var floor_id: int = int(command.get("floor_id",-1))
+		if not view.has(floor_id): view[floor_id] = {"rooms":[],"rects":[]}
+		view[floor_id].rects.append(Rect2(float(command.cell[0]),float(command.cell[1]),float(size[0]),float(size[1])))
+	return view
+
+func _in_affected_area(world: WorldState, order: Dictionary, actor: Dictionary, view: Dictionary = {}) -> bool:
+	if view.is_empty(): view = _affected_view(world,order)
+	var floor_view: Dictionary = view.get(int(actor.location.floor_id),{})
+	var body: Rect2 = space.body_rectangle(actor)
+	for room: Dictionary in floor_view.get("rooms",[]):
+		if BuildGeometry.intersects_room(body,room): return true
+	for rect: Rect2 in floor_view.get("rects",[]):
+		if body.intersects(rect,false): return true
 	return false
 
 func _evacuation(world: WorldState, order: Dictionary, actor: Dictionary) -> Array:
 	var floor_id: int = int(actor.location.floor_id)
 	var probe: Dictionary = actor.duplicate(true)
 	probe.posture = "standing"
+	var affected: Dictionary = _affected_view(world,order)
 	for y: int in 96:
 		for x: int in 96:
 			var origin: Vector2i = Vector2i(x,y)
 			if not space.owned(world,floor_id,origin) or not space.static_reason(world,probe,floor_id,origin).is_empty(): continue
 			var point: Array = [x,y]
 			probe.location.cell = point
-			if _in_affected_area(world,order,probe): continue
+			if _in_affected_area(world,order,probe,affected): continue
 			var rectangle: Rect2 = space.body_rectangle(probe)
 			if not space._dynamic_clear(world,actor.id,floor_id,rectangle) or not _movement_targets_clear(world,actor.id,floor_id,rectangle): continue
 			var inside: bool = false

@@ -121,5 +121,5 @@ func _add_card(card: Dictionary, filter: Dictionary, standard: bool) -> void:
 		_add_button("关闭简历",func() -> void: send("recruitment_dismiss",{"candidate_id":card.id}))
 
 func _search_status() -> String:
-	var search: Dictionary = simulation.services.recruitment.query(simulation.world,_filter()).active_search
+	var search: Dictionary = simulation.services.recruitment.search_status(simulation.world)
 	return "暂无正在进行的寻访" if search.is_empty() else "寻访进行中 · 剩余 %.1f 秒" % (float(search.get("remaining_ticks",0))*WorldState.TICK_SECONDS)

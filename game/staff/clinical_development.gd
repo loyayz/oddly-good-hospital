@@ -6,6 +6,8 @@ var space: HospitalSpace
 var research: RefCounted
 var _worked: Dictionary = {}
 var _mentor_blocks: Dictionary = {}
+var _busy_query: Dictionary = {}
+var _base_batch: Dictionary = {}
 
 func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 	content = database
@@ -134,6 +136,7 @@ func preview(world: WorldState, staff_id: String, track: String = "", kind: Stri
 
 func dispatch(world: WorldState) -> void:
 	ensure(world)
+	_busy_query = busy_view(world)
 	_worked.clear()
 	_mentor_blocks.clear()
 	for staff: Dictionary in world.facts.staff.values():
@@ -141,12 +144,13 @@ func dispatch(world: WorldState) -> void:
 		if not existing.is_empty() and not existing.has("queue_tick"):
 			existing.queue_tick = world.sim_tick
 	var queue: Array = []
-	for id: String in world.ids("training_jobs"):
+	for id: String in world.active_operation_ids("training_jobs","",["completed","cancelled","superseded"],true,"state"):
 		var job: Dictionary = world.facts.training_jobs[id]
 		if not terminal(job):
 			queue.append({"kind":"training","job":job})
 	if research!=null:
-		for job: Dictionary in world.facts.get("research_jobs",{}).values():
+		for job_id: String in world.active_operation_ids("research_jobs","",["completed","cancelled"],false,"state"):
+			var job: Dictionary = world.facts.research_jobs[job_id]
 			if not HospitalResearch.terminal(job):
 				queue.append({"kind":"research","job":job})
 	# Both job kinds use the world's original entity sequence. A reordered
@@ -154,11 +158,15 @@ func dispatch(world: WorldState) -> void:
 	queue.sort_custom(func(a: Dictionary,b: Dictionary) -> bool:
 		if int(a.job.created_tick)!=int(b.job.created_tick): return int(a.job.created_tick)<int(b.job.created_tick)
 		return int(str(a.job.id).rsplit("_",true,1)[1])<int(str(b.job.id).rsplit("_",true,1)[1]))
+	var desks: Dictionary = desk_view(world)
+	if research!=null: desks.maintenance = research.call("desk_maintenance_view",world)
 	for entry: Dictionary in queue:
+		var prior_desk: String = str(entry.job.get("desk_id",""))
 		if entry.kind=="research":
-			research.call("dispatch_job",world,entry.job)
+			research.call("dispatch_job",world,entry.job,desks)
 		else:
-			_dispatch_training_job(world,entry.job)
+			_dispatch_training_job(world,entry.job,desks)
+		update_desk_view(desks,entry.job,prior_desk)
 	var base_queue: Array = []
 	for staff_id: String in world.ids("staff"):
 		var staff: Dictionary = world.facts.staff[staff_id]
@@ -166,22 +174,26 @@ func dispatch(world: WorldState) -> void:
 			continue
 		base_queue.append({"id":staff_id,"queue_tick":_base_order_tick(world,staff),"commitment":2})
 	base_queue.sort_custom(_base_before)
+	_base_batch = _base_view(world)
 	for entry: Dictionary in base_queue:
+		var prior: Array = _base_signature(world,entry.id)
 		_prepare_base(world,entry.id,world.facts.staff[entry.id])
+		_refresh_base_view(world,entry.id,prior)
+	_base_batch = {}
+	_busy_query = {}
 
-func _dispatch_training_job(world: WorldState, job: Dictionary) -> void:
+func _dispatch_training_job(world: WorldState, job: Dictionary, desks: Dictionary = {}) -> void:
+	if desks.is_empty(): desks = desk_view(world)
 	var staff: Dictionary = world.facts.staff[job.staff_id]
-	if not _training_window(world,staff) or safe_busy(world,job.staff_id) or staff.get("life_task",{}).get("phase","idle")!="idle" or not staff.get("base_task",{}).is_empty():
+	if not _training_window(world,staff) or _busy(world,job.staff_id) or staff.get("life_task",{}).get("phase","idle")!="idle" or not staff.get("base_task",{}).is_empty():
 		_pause(world,job,"等待培训班或当前安全任务结束")
 		return
 	staff.block_new_work = true
-	if not str(job.desk_id).is_empty() and not _desk_available(world,job.desk_id):
+	if not str(job.desk_id).is_empty() and not _desk_available(world,job.desk_id,desks.get("maintenance",{})):
 		_pause(world,job,"研究桌不可用，培养余量保留")
 	if str(job.desk_id).is_empty():
-		for desk_id: String in _desks(world):
-			if not str(job.preferred_desk_id).is_empty() and desk_id!=str(job.preferred_desk_id):
-				continue
-			if desk_taken(world,desk_id,job.id):
+		for desk_id: String in _desks(world,str(job.preferred_desk_id),desks.get("maintenance",{})):
+			if desk_taken(world,desk_id,job.id,desks):
 				continue
 			var layout: Dictionary = space.facility_layout(world,desk_id)
 			var route: Dictionary = space.route(world,job.staff_id,int(layout.floor_id),_operator(layout))
@@ -211,10 +223,12 @@ func _dispatch_training_job(world: WorldState, job: Dictionary) -> void:
 			space.request_move(world,job.mentor_id,int(desk.floor_id),adjacent)
 
 func advance(world: WorldState) -> void:
-	for job: Dictionary in world.facts.get("training_jobs",{}).values():
+	_busy_query = busy_view(world)
+	for job_id: String in world.active_operation_ids("training_jobs","",["completed","cancelled","superseded"],false,"state"):
+		var job: Dictionary = world.facts.training_jobs[job_id]
 		if job.state!="working" or not _desk_available(world,job.desk_id):
 			continue
-		if not _training_window(world,world.facts.staff[job.staff_id]) or safe_busy(world,job.staff_id) or world.facts.staff[job.staff_id].get("life_task",{}).get("phase","idle")!="idle" or not world.facts.staff[job.staff_id].get("base_task",{}).is_empty():
+		if not _training_window(world,world.facts.staff[job.staff_id]) or _busy(world,job.staff_id) or world.facts.staff[job.staff_id].get("life_task",{}).get("phase","idle")!="idle" or not world.facts.staff[job.staff_id].get("base_task",{}).is_empty():
 			_pause(world,job,"等待培训班或当前安全任务结束")
 			continue
 		var mentor_present: bool = false
@@ -240,12 +254,13 @@ func advance(world: WorldState) -> void:
 		job.work_fraction_milli = work-float(whole)
 		job.remaining_work_milli = maxi(0,int(job.remaining_work_milli)-whole)
 		_worked[job.staff_id] = true
+	_base_batch = _base_view(world)
 	for staff_id: String in world.ids("staff"):
 		var staff: Dictionary = world.facts.staff[staff_id]
 		var task: Dictionary = staff.get("base_task",{})
 		if task.get("phase","")!="working":
 			continue
-		if not staff.get("on_shift",false) or staff.get("life_task",{}).get("phase","idle")!="idle" or safe_busy(world,staff_id) or world.facts.moves.has(staff_id) or not world.facts.facilities.has(task.facility_id):
+		if not staff.get("on_shift",false) or staff.get("life_task",{}).get("phase","idle")!="idle" or _busy(world,staff_id) or world.facts.moves.has(staff_id) or not world.facts.facilities.has(task.facility_id):
 			continue
 		var base: Dictionary = space.facility_layout(world,task.facility_id)
 		var line: Array = _base_line(world,task.facility_id)
@@ -256,14 +271,19 @@ func advance(world: WorldState) -> void:
 		task.remaining_ticks = maxi(0,int(task.remaining_ticks)-1)
 		_worked[staff_id] = true
 		if int(task.remaining_ticks)==0:
+			var prior: Array = _base_signature(world,staff_id)
 			staff.base_prepared = true
 			staff.base_task = {}
 			staff.block_new_work = false
+			_refresh_base_view(world,staff_id,prior)
+	_base_batch = {}
+	_busy_query = {}
 
 func settle(world: WorldState) -> void:
 	ensure(world)
 	# Courses that truly completed this tick precede practice-based growth.
-	for job: Dictionary in world.facts.training_jobs.values():
+	for job_id: String in world.active_operation_ids("training_jobs","",["completed","cancelled","superseded"],false,"state"):
+		var job: Dictionary = world.facts.training_jobs[job_id]
 		if terminal(job) or int(job.remaining_work_milli)>0:
 			continue
 		var staff: Dictionary = world.facts.staff[job.staff_id]
@@ -352,22 +372,26 @@ static func tracks(staff: Dictionary) -> Array:
 static func terminal(job: Dictionary) -> bool:
 	return str(job.get("state","")) in ["completed","cancelled","superseded"]
 
-static func safe_busy(world: WorldState, staff_id: String) -> bool:
-	if world.facts.staff.get(staff_id,{}).has("clinical_release"):
-		return true
+static func busy_view(world: WorldState) -> Dictionary:
+	var result: Dictionary = {"world_id":world.get_instance_id(),"staff":{}}
 	for session: Dictionary in world.facts.sessions.values():
-		if staff_id in session.staff_ids:
-			return true
+		for id: String in session.staff_ids: result.staff[id] = true
 	for preparation: Dictionary in world.facts.preparations.values():
-		if staff_id in preparation.staff_ids:
-			return true
+		for id: String in preparation.staff_ids: result.staff[id] = true
 	for stay: Dictionary in world.facts.ward_stays.values():
-		if stay.get("phase","")=="transfer" and stay.get("escort_id","")==staff_id:
-			return true
+		if stay.get("phase","")=="transfer": result.staff[str(stay.get("escort_id",""))] = true
 	for handoff: Dictionary in world.facts.get("staff_schedule",{}).get("handoffs",{}).values():
-		if handoff.get("new_id","")==staff_id:
-			return true
-	return not str(world.facts.staff.get(staff_id,{}).get("active_job_id","")).is_empty()
+		result.staff[str(handoff.get("new_id",""))] = true
+	return result
+
+static func safe_busy(world: WorldState, staff_id: String, view: Dictionary = {}) -> bool:
+	var staff: Dictionary = world.facts.staff.get(staff_id,{})
+	if staff.has("clinical_release") or not str(staff.get("active_job_id","")).is_empty(): return true
+	if view.get("world_id",0)!=world.get_instance_id(): view = busy_view(world)
+	return view.staff.has(staff_id)
+
+func _busy(world: WorldState, staff_id: String) -> bool:
+	return safe_busy(world,staff_id,_busy_query)
 
 func _prepare_base(world: WorldState, staff_id: String, staff: Dictionary) -> void:
 	if not staff.get("on_shift",true) or staff.get("life_task",{}).get("phase","idle")!="idle":
@@ -383,11 +407,11 @@ func _prepare_base(world: WorldState, staff_id: String, staff: Dictionary) -> vo
 			staff.block_new_work = true
 			staff.growth_reason = "等待原工作基地改建安排结束"
 			var movement: Dictionary = world.facts.moves.get(staff_id,{})
-			if not safe_busy(world,staff_id) and not movement.is_empty() and int(movement.target_floor)==int(arranged_base.floor_id) and movement.target_cell==_operator(arranged_base) and world.facts.actors[staff_id].location.kind=="floor" and movement.get("members",[]).is_empty():
+			if not _busy(world,staff_id) and not movement.is_empty() and int(movement.target_floor)==int(arranged_base.floor_id) and movement.target_cell==_operator(arranged_base) and world.facts.actors[staff_id].location.kind=="floor" and movement.get("members",[]).is_empty():
 				HospitalTransit.cancel_waiting(world,movement)
 				world.facts.moves.erase(staff_id)
 			return
-	if safe_busy(world,staff_id) or world.facts.moves.has(staff_id):
+	if _busy(world,staff_id) or world.facts.moves.has(staff_id):
 		return
 	if staff.get("base_prepared",false):
 		_yield_prepared_base(world,staff_id)
@@ -405,7 +429,7 @@ func _prepare_base(world: WorldState, staff_id: String, staff: Dictionary) -> vo
 		staff.base_task = {}
 		return
 	var base: Dictionary = space.facility_layout(world,task.facility_id)
-	var line: Array = _base_line(world,task.facility_id)
+	var line: Array = _base_line(world,task.facility_id,staff_id)
 	if line[0].id!=staff_id:
 		task.phase = "travel"
 		staff.growth_reason = "等待共享工作位轮用"
@@ -450,23 +474,59 @@ func _base_before(a: Dictionary, b: Dictionary) -> bool:
 		return int(a.queue_tick)<int(b.queue_tick)
 	return str(a.id)<str(b.id)
 
-func _base_line(world: WorldState, facility_id: String, candidate_id: String = "") -> Array:
-	var result: Array = []
+func _base_view(world: WorldState) -> Dictionary:
+	var result: Dictionary = {"world_id":world.get_instance_id(),"groups":{},"lines":{},"busy":_busy_query if _busy_query.get("world_id",0)==world.get_instance_id() else busy_view(world)}
+	for id: String in world.ids("staff"):
+		var facility_id: String = str(world.facts.staff[id].get("base_task",{}).get("facility_id",""))
+		if facility_id.is_empty(): continue
+		if not result.groups.has(facility_id): result.groups[facility_id] = []
+		result.groups[facility_id].append(id)
+	return result
+
+func _base_context(world: WorldState) -> Dictionary:
+	return _base_batch if _base_batch.get("world_id",0)==world.get_instance_id() else _base_view(world)
+
+func _base_signature(world: WorldState, staff_id: String) -> Array:
+	var staff: Dictionary = world.facts.staff[staff_id]
+	var move: Dictionary = world.facts.moves.get(staff_id,{})
+	return [staff.get("base_task",{}).duplicate(true),staff.get("base_prepared",false),staff.get("on_shift",false),staff.get("life_task",{}).get("phase","idle"),move.is_empty(),move.get("target_floor",-1),move.get("target_cell",[]).duplicate()]
+
+func _refresh_base_view(world: WorldState, staff_id: String, prior: Array) -> void:
+	if _base_batch.is_empty() or prior==_base_signature(world,staff_id): return
+	var previous: String = str(prior[0].get("facility_id",""))
+	var current: String = str(world.facts.staff[staff_id].get("base_task",{}).get("facility_id",""))
+	if _base_batch.groups.has(previous): _base_batch.groups[previous].erase(staff_id)
+	if not current.is_empty():
+		if not _base_batch.groups.has(current): _base_batch.groups[current] = []
+		if not staff_id in _base_batch.groups[current]: _base_batch.groups[current].append(staff_id)
+		_base_batch.groups[current].sort()
+	_base_batch.lines.erase(previous)
+	_base_batch.lines.erase(current)
+
+func _base_entry(world: WorldState, staff_id: String, base: Dictionary, busy: Dictionary) -> Dictionary:
+	var staff: Dictionary = world.facts.staff[staff_id]
+	var task: Dictionary = staff.get("base_task",{})
+	var commitment: int = 2
+	if not safe_busy(world,staff_id,busy) and staff.get("on_shift",false) and staff.get("life_task",{}).get("phase","idle")=="idle":
+		var movement: Dictionary = world.facts.moves.get(staff_id,{})
+		if not movement.is_empty() and int(movement.target_floor)==int(base.floor_id) and movement.target_cell==_operator(base):
+			commitment = 1
+		elif task.get("phase","")=="working" and movement.is_empty() and space.at(world,staff_id,int(base.floor_id),_operator(base)):
+			commitment = 0
+	return {"id":staff_id,"queue_tick":_base_order_tick(world,staff),"commitment":commitment}
+
+func _base_line(world: WorldState, facility_id: String, candidate_id: String = "", query: Dictionary = {}) -> Array:
+	if query.is_empty(): query = _base_context(world)
 	var base: Dictionary = space.facility_layout(world,facility_id)
-	for staff_id: String in world.ids("staff"):
-		var staff: Dictionary = world.facts.staff[staff_id]
-		var task: Dictionary = staff.get("base_task",{})
-		if task.get("facility_id","")!=facility_id and staff_id!=candidate_id:
-			continue
-		var commitment: int = 2
-		if not safe_busy(world,staff_id) and staff.get("on_shift",false) and staff.get("life_task",{}).get("phase","idle")=="idle":
-			var movement: Dictionary = world.facts.moves.get(staff_id,{})
-			if not movement.is_empty() and int(movement.target_floor)==int(base.floor_id) and movement.target_cell==_operator(base):
-				commitment = 1
-			elif task.get("phase","")=="working" and movement.is_empty() and space.at(world,staff_id,int(base.floor_id),_operator(base)):
-				commitment = 0
-		result.append({"id":staff_id,"queue_tick":_base_order_tick(world,staff),"commitment":commitment})
-	result.sort_custom(_base_before)
+	if not query.lines.has(facility_id):
+		var line: Array = []
+		for id: String in query.groups.get(facility_id,[]): line.append(_base_entry(world,id,base,query.busy))
+		line.sort_custom(_base_before)
+		query.lines[facility_id] = line
+	var result: Array = query.lines[facility_id].duplicate()
+	if world.facts.staff.has(candidate_id) and not candidate_id in query.groups.get(facility_id,[]):
+		result.append(_base_entry(world,candidate_id,base,query.busy))
+		result.sort_custom(_base_before)
 	return result
 
 func _base_start_quote(world: WorldState, staff_id: String, facility_id: String, route: Dictionary) -> int:
@@ -474,11 +534,12 @@ func _base_start_quote(world: WorldState, staff_id: String, facility_id: String,
 		return -1
 	var ready: int = world.sim_tick
 	var base: Dictionary = space.facility_layout(world,facility_id)
-	for entry: Dictionary in _base_line(world,facility_id,staff_id):
+	var query: Dictionary = _base_context(world)
+	for entry: Dictionary in _base_line(world,facility_id,staff_id,query):
 		if entry.id==staff_id:
 			return maxi(ready,world.sim_tick+int(route.arrival_ticks))
 		var other: Dictionary = world.facts.staff[entry.id]
-		if not other.get("on_shift",false) or other.get("life_task",{}).get("phase","idle")!="idle" or safe_busy(world,entry.id):
+		if not other.get("on_shift",false) or other.get("life_task",{}).get("phase","idle")!="idle" or safe_busy(world,entry.id,query.busy):
 			return -1
 		var arrival: Dictionary = space.route(world,entry.id,int(base.floor_id),_operator(base),[],{},true)
 		if not arrival.ok or int(arrival.get("arrival_ticks",-1))<0:
@@ -499,7 +560,9 @@ func _select_base(world: WorldState, staff_id: String) -> String:
 	var ward: Dictionary = world.facts.rooms.get(staff.get("ward_id",""),{})
 	var nurse_floor: int = int(ward.floor_id) if ward.get("kind","")=="ward" else int(actor.location.floor_id)
 	var choices: Array = []
-	for id: String in world.ids("facilities"):
+	var previous_query: Dictionary = _base_batch
+	if _base_batch.is_empty(): _base_batch = _base_view(world)
+	for id: String in world.facility_ids(wanted):
 		var facility: Dictionary = world.facts.facilities[id]
 		if facility.definition_id!=wanted or facility.failed or _base_arranged(world,id) or (staff.role=="nurse" and int(facility.floor_id)!=nurse_floor):
 			continue
@@ -514,6 +577,7 @@ func _select_base(world: WorldState, staff_id: String) -> String:
 		if (int(a.travel_ticks)<0)!=(int(b.travel_ticks)<0): return int(a.travel_ticks)>=0
 		if a.travel_ticks!=b.travel_ticks: return int(a.travel_ticks)<int(b.travel_ticks)
 		return str(a.id)<str(b.id))
+	_base_batch = previous_query
 	return "" if choices.is_empty() else str(choices[0].id)
 
 func _yield_prepared_base(world: WorldState, staff_id: String) -> void:
@@ -522,19 +586,20 @@ func _yield_prepared_base(world: WorldState, staff_id: String) -> void:
 		return
 	var floor_id: int = int(actor.location.floor_id)
 	var origin: Vector2i = Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
+	var query: Dictionary = _base_context(world)
 	for other_id: String in world.ids("staff"):
 		var other: Dictionary = world.facts.staff[other_id]
 		var task: Dictionary = other.get("base_task",{})
-		if other_id==staff_id or task.get("phase","")!="travel" or not other.get("on_shift",false) or other.get("base_prepared",false) or other.get("life_task",{}).get("phase","idle")!="idle" or safe_busy(world,other_id) or not world.facts.facilities.has(task.get("facility_id","")):
+		if other_id==staff_id or task.get("phase","")!="travel" or not other.get("on_shift",false) or other.get("base_prepared",false) or other.get("life_task",{}).get("phase","idle")!="idle" or safe_busy(world,other_id,query.busy) or not world.facts.facilities.has(task.get("facility_id","")):
 			continue
 		if _base_arranged(world,task.facility_id):
-			continue
-		if _base_line(world,task.facility_id)[0].id!=other_id:
 			continue
 		var base: Dictionary = space.facility_layout(world,task.facility_id)
 		var waiting_actor: Dictionary = world.facts.actors[other_id]
 		var operator_rect: Rect2 = space._actor_rect(waiting_actor,Vector2(float(_operator(base)[0]),float(_operator(base)[1])))
 		if int(base.floor_id)!=floor_id or not space.body_rectangle(actor).intersects(operator_rect,false):
+			continue
+		if _base_line(world,task.facility_id,"",query)[0].id!=other_id:
 			continue
 		# A completed preparation releases its reservation, but its body must
 		# also walk clear before the next employee can use this shared place.
@@ -572,35 +637,54 @@ func _training_window(world: WorldState, staff: Dictionary) -> bool:
 func _fatigue_multiplier(staff: Dictionary) -> float:
 	return 1.0+float(content.balance.wellbeing.fatigue_work_multiplier_per_point)*float(staff.get("fatigue",0)) if staff.role=="doctor" else 1.0
 
-func _desks(world: WorldState) -> Array:
+func _desks(world: WorldState, preferred_id: String = "", maintenance: Dictionary = {}) -> Array:
 	var result: Array = []
-	for id: String in world.ids("facilities"):
-		if _desk_available(world,id):
+	if maintenance.is_empty() and research!=null: maintenance = research.call("desk_maintenance_view",world)
+	var candidates: Array = [preferred_id] if not preferred_id.is_empty() else world.facility_ids("FUR05")
+	for id: String in candidates:
+		if _desk_available(world,id,maintenance):
 			result.append(id)
 	return result
 
-func _desk_available(world: WorldState, desk_id: String) -> bool:
+func _desk_available(world: WorldState, desk_id: String, maintenance: Dictionary = {}) -> bool:
 	if research!=null:
-		return str(research.call("desk_reason",world,desk_id)).is_empty()
+		return str(research.call("desk_reason",world,desk_id,maintenance)).is_empty()
 	var desk: Dictionary = world.facts.facilities.get(desk_id,{})
 	return desk.get("definition_id","")=="FUR05" and not desk.get("failed",false) and not desk.get("pending_failure",false) and not desk.get("maintenance_block",false) and not HospitalRemodel.blocked(world,desk_id)
 
-static func training_desk_taken(world: WorldState, desk_id: String, except_id: String = "") -> bool:
-	for job: Dictionary in world.facts.get("training_jobs",{}).values():
-		if job.id!=except_id and not terminal(job) and job.desk_id==desk_id:
-			return true
+static func training_desk_taken(world: WorldState, desk_id: String, except_id: String = "", view: Dictionary = {}) -> bool:
+	if view.is_empty(): view = training_desk_view(world)
+	for id: String in view.owners.get(desk_id,{}):
+		if id!=except_id and world.facts.get("training_jobs",{}).has(id): return true
 	return false
 
-static func desk_taken(world: WorldState, desk_id: String, except_id: String = "") -> bool:
-	if training_desk_taken(world,desk_id,except_id):
-		return true
+static func training_desk_view(world: WorldState) -> Dictionary:
+	var result: Dictionary = {"owners":{},"sessions":{}}
+	for job_id: String in world.active_operation_ids("training_jobs","",["completed","cancelled","superseded"],false,"state"):
+		var job: Dictionary = world.facts.training_jobs[job_id]
+		update_desk_view(result,job,"")
+	return result
+
+static func desk_view(world: WorldState) -> Dictionary:
+	var result: Dictionary = training_desk_view(world)
+	for job_id: String in world.active_operation_ids("research_jobs","",["completed","cancelled"],false,"state"):
+		update_desk_view(result,world.facts.research_jobs[job_id],"")
 	for session: Dictionary in world.facts.sessions.values():
-		if session.get("facility_id","")==desk_id:
-			return true
-	for job: Dictionary in world.facts.get("research_jobs",{}).values():
-		if job.get("id","")!=except_id and job.get("desk_id","")==desk_id and not HospitalResearch.terminal(job):
-			return true
-	return false
+		result.sessions[str(session.get("facility_id",""))] = true
+	return result
+
+static func update_desk_view(view: Dictionary, job: Dictionary, prior_desk: String) -> void:
+	if view.owners.has(prior_desk): view.owners[prior_desk].erase(job.id)
+	var done: bool = HospitalResearch.terminal(job) if job.has("research_id") else terminal(job)
+	var desk_id: String = str(job.get("desk_id",""))
+	if done or desk_id.is_empty(): return
+	if not view.owners.has(desk_id): view.owners[desk_id] = {}
+	view.owners[desk_id][job.id] = true
+
+static func desk_taken(world: WorldState, desk_id: String, except_id: String = "", view: Dictionary = {}) -> bool:
+	if view.is_empty(): view = desk_view(world)
+	var owners: Dictionary = view.owners.get(desk_id,{})
+	return view.sessions.has(desk_id) or not owners.is_empty() and (owners.size()>1 or not owners.has(except_id))
 
 func _mentor_qualified(world: WorldState, student_id: String, mentor_id: String, track: String) -> bool:
 	if mentor_id==student_id or not world.facts.staff.has(mentor_id):
@@ -619,7 +703,7 @@ func _mentor_available(world: WorldState, job: Dictionary) -> bool:
 	# teaching. Availability comes from the original obligations below.
 	if _mentor_blocks.has(job.mentor_id) and _mentor_blocks[job.mentor_id]!=job.id:
 		return false
-	return _training_window(world,mentor) and not safe_busy(world,job.mentor_id) and str(mentor.get("training_job_id","")).is_empty() and mentor.get("life_task",{}).get("phase","idle")=="idle" and mentor.get("base_task",{}).is_empty()
+	return _training_window(world,mentor) and not _busy(world,job.mentor_id) and str(mentor.get("training_job_id","")).is_empty() and mentor.get("life_task",{}).get("phase","idle")=="idle" and mentor.get("base_task",{}).is_empty()
 
 func _next_title(staff: Dictionary) -> Dictionary:
 	for title: Dictionary in content.catalog.doctor_titles:
@@ -628,7 +712,8 @@ func _next_title(staff: Dictionary) -> Dictionary:
 	return {}
 
 func suspend_facility(world: WorldState, facility_id: String, reason: String) -> void:
-	for job: Dictionary in world.facts.get("training_jobs",{}).values():
+	for job_id: String in world.active_operation_ids("training_jobs","",["completed","cancelled","superseded"],false,"state"):
+		var job: Dictionary = world.facts.training_jobs[job_id]
 		if not terminal(job) and job.desk_id==facility_id:
 			_pause(world,job,reason)
 
@@ -669,7 +754,14 @@ func _history(staff: Dictionary, record: Dictionary) -> void:
 		staff.growth_history.pop_front()
 
 func _settle_cases(world: WorldState) -> void:
-	for visit: Dictionary in world.facts.visits.values():
+	var pending: Dictionary = {}
+	for id: String in world.pending_fact_ids("development_cases","visits",world.facts.visits): pending[id] = true
+	# Standalone clinical boundary tests can finish a still-active visit directly.
+	# Production departure publishes the same identity before active removal.
+	for id: String in world.active_visit_ids(): pending[id] = true
+	for id: String in pending:
+		if not world.facts.visits.has(id): continue
+		var visit: Dictionary = world.facts.visits[id]
 		if visit.phase!="departed" or visit.get("final_result","")!="cured" or visit.get("development_case_settled",false):
 			continue
 		var participants: Dictionary = visit.get("clinical_participants",{}).duplicate()
@@ -680,6 +772,9 @@ func _settle_cases(world: WorldState) -> void:
 			if world.facts.staff.has(staff_id) and world.facts.staff[staff_id].role=="doctor":
 				world.facts.staff[staff_id].cured_cases += 1
 		visit.development_case_settled = true
+
+func queue_case(world: WorldState, visit: Dictionary) -> void:
+	world.fact_record_changed("visits",str(visit.id))
 
 static func _operator(layout: Dictionary) -> Array:
 	return layout.operator_cells[0] if not layout.get("operator_cells",[]).is_empty() else layout.patient_cell

@@ -49,7 +49,12 @@ const CASES: Dictionary = {
 	"CORE-46":"技术规格保存保留：完整旧保存点校验、坏档拒绝及有效回退保留",
 	"CORE-47":"技术规格详情投影：原会话顺序、完整文字和余额显示保持",
 	"CORE-48":"技术规格表现投影：局部只读索引保留姿态优先级与当前事实",
-	"CORE-49":"技术规格流式编解码：跨块UTF-8、64位、坏输入及精确校验和"
+	"CORE-49":"技术规格流式编解码：跨块UTF-8、64位、坏输入及精确校验和",
+	"CORE-50":"命名前提：生成recipe与祖先依赖、环境失效、无关修改复用、完整事实独立复制及坏缓存拒绝",
+	"CORE-51":"表现签名：当前精确依赖、同修订直接修改和冷热投影一致",
+	"CORE-52":"资源发布：同批一次包围盒、独立及批量绑定、迟到票与当前模型句柄",
+	"CORE-53":"管理界面：方案完整比较、提交复核、窄招聘状态与预览发布",
+	"CORE-54":"导入与预览：复合员工身份最长前缀及不规则阻挡颜色保持"
 }
 
 func run(t) -> void:
@@ -78,6 +83,21 @@ func _case_48(t, content: HospitalContent) -> void:
 
 func _case_49(t, content: HospitalContent) -> void:
 	preload("res://tests/acceptance/stream_boundaries.gd").new().run(t,content)
+
+func _case_50(t, content: HospitalContent) -> void:
+	preload("res://tests/acceptance/checkpoint_dependencies.gd").new().run(t,content)
+
+func _case_51(t, content: HospitalContent) -> void:
+	await preload("res://tests/acceptance/repeated_presentation.gd").new().run_projection(t,content,"CORE-51")
+
+func _case_52(t, content: HospitalContent) -> void:
+	await preload("res://tests/acceptance/repeated_presentation.gd").new().run_resources(t,content,"CORE-52")
+
+func _case_53(t, content: HospitalContent) -> void:
+	preload("res://tests/acceptance/repeated_presentation.gd").new().run_ui(t,content,"CORE-53")
+
+func _case_54(t, content: HospitalContent) -> void:
+	preload("res://tests/acceptance/repeated_presentation.gd").new().run_import_overlay(t,content,"CORE-54")
 
 func _case_01(t, content: HospitalContent) -> void:
 	var empty: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"空地",false,content)

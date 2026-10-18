@@ -708,7 +708,8 @@ func _door(world: WorldState, id: String) -> Dictionary:
 func _exists(world: WorldState, id: String) -> bool:
 	return world.facts.rooms.has(id) or world.facts.facilities.has(id) or not _door(world,id).is_empty()
 
-func _public_door(world: WorldState, room: Dictionary) -> String:
+func _public_door(world: WorldState, room: Dictionary, checker: HospitalSpace = null) -> String:
+	if checker==null: checker = HospitalSpace.new(content)
 	var floor_id: int = int(room.floor_id)
 	for door: Dictionary in world.facts.floors.overrides[str(floor_id)].get("doors",[]):
 		if door.room_id!=room.id:
@@ -723,7 +724,6 @@ func _public_door(world: WorldState, room: Dictionary) -> String:
 					public = false
 			if public and not side in world.facts.floors.overrides[str(floor_id)].get("blocked",[]):
 				var subject: Dictionary = {"id":"readonly-public-access","species_id":"S49","location":{"kind":"floor","floor_id":floor_id,"cell":side},"facing":0.0}
-				var checker: HospitalSpace = HospitalSpace.new(content)
 				if not checker.static_reason(world,subject,floor_id,Vector2i(int(side[0]),int(side[1]))).is_empty():
 					continue
 				if floor_id!=1 or checker._floor_route(world,subject,floor_id,Vector2i(int(side[0]),int(side[1])),Vector2i(47,93),[],{},true).get("ok",false):
@@ -733,25 +733,27 @@ func _public_door(world: WorldState, room: Dictionary) -> String:
 func _safety(previous: WorldState, candidate: WorldState, floor_id: int) -> Dictionary:
 	if not candidate.facts.floors.overrides.has(str(floor_id)):
 		return BuildGeometry.failure("目标层没有真实地面或完工楼板")
+	var checker: HospitalSpace = HospitalSpace.new(content)
+	var previous_checker: HospitalSpace = HospitalSpace.new(content)
 	for room: Dictionary in candidate.facts.rooms.values():
 		if int(room.floor_id)==floor_id and room.has("cells"):
-			var public: String = _public_door(candidate,room)
+			var public: String = _public_door(candidate,room,checker)
 			if not public.is_empty():
 				return BuildGeometry.failure(public)
 	for actor: Dictionary in candidate.facts.actors.values():
 		if actor.location.kind!="floor" or int(actor.location.floor_id)!=floor_id:
 			continue
-		var checked: Dictionary = actor_safety(previous,candidate,actor)
+		var checked: Dictionary = actor_safety(previous,candidate,actor,checker,previous_checker)
 		if not checked.ok:
 			return checked
 	return {"ok":true}
 
-func actor_safety(previous: WorldState, candidate: WorldState, actor: Dictionary) -> Dictionary:
+func actor_safety(previous: WorldState, candidate: WorldState, actor: Dictionary, checker: HospitalSpace = null, previous_checker: HospitalSpace = null) -> Dictionary:
 	# Real actors use the same complete route authority; no proxy enters WorldState.
-	var checker: HospitalSpace = HospitalSpace.new(content)
+	if checker==null: checker = HospitalSpace.new(content)
 	var floor_id: int = int(actor.location.floor_id)
 	var start: Vector2i = Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
-	var previous_checker: HospitalSpace = HospitalSpace.new(content)
+	if previous_checker==null: previous_checker = HospitalSpace.new(content)
 	if not checker.static_reason(candidate,actor,floor_id,start).is_empty() and previous_checker.static_reason(previous,actor,floor_id,start).is_empty():
 		return BuildGeometry.failure("改建会侵犯实际身体："+str(actor.id),[actor.location.cell])
 	var exit: Dictionary = checker.route(candidate,actor.id,1,[47,93],[],{},true)

@@ -16,6 +16,7 @@ var _decorations: Node3D
 var _selected: String = "patient"
 var _geometry: HospitalSpace
 var _skin_batches: Array[SkinnedPoseBatch] = []
+var _skin_actor_ids: Dictionary = {}
 var bind_error: String = ""
 var work_budget: ViewWorkBudget
 var follow_actor: String = ""
@@ -44,6 +45,13 @@ var _heatmap_stamp: String = ""
 var _heatmap_subjects: Array[String] = []
 var _equipment_marks: Dictionary = {}
 var _entity_frustum: Array[Plane] = []
+var _visual_sources: Dictionary = {}
+var _current_heatmap_stamp: String = ""
+var _publishing_resources: bool = false
+var _publishing_visits: Dictionary = {}
+var _skin_bindings_dirty: bool = false
+var _upgradable_content: String = ""
+var _upgradable_definitions: Dictionary = {}
 
 func _init(database: HospitalContent) -> void:
 	content = database
@@ -77,6 +85,11 @@ func bind(state: WorldState, floor_id: int = 1, session_id: String = "") -> void
 	_heatmap_stamp = ""
 	_heatmap_subjects.clear()
 	_equipment_marks.clear()
+	_visual_sources.clear()
+	_current_heatmap_stamp = ""
+	_publishing_resources = false
+	_publishing_visits = {}
+	_skin_bindings_dirty = false
 	var environment: WorldEnvironment = WorldEnvironment.new()
 	environment.environment = Environment.new()
 	environment.environment.background_mode = Environment.BG_COLOR
@@ -112,6 +125,9 @@ func set_floor(floor_id: int) -> void:
 		bind(world,floor_id,hospital_session)
 
 func _sync_geometry() -> void:
+	var inputs: Array = [world,observed_floor,world.facts.rooms.keys(),world.facts.rooms,
+		world.facts.connectors.keys(),world.facts.connectors,world.facts.floors,world.facts.adaptations]
+	if _same_visual_sources("geometry",inputs): return
 	var rooms: Array = []
 	for room: Dictionary in world.facts.get("rooms",{}).values():
 		if int(room.floor_id)==observed_floor:
@@ -205,10 +221,10 @@ func update_facts(interpolation_alpha: float = 1.0) -> void:
 	_sync_geometry()
 	_sync_entities()
 	_sync_environment_marks()
-	_complete_resources()
+	var presentation: Dictionary = _presentation_index()
+	_complete_resources(presentation.visits_by_actor)
 	_labels = _labels.filter(func(label: Variant) -> bool: return is_instance_valid(label) and not label.is_queued_for_deletion())
 	_retiring = _retiring.filter(func(reference: WeakRef) -> bool: return reference.get_ref()!=null)
-	var presentation: Dictionary = _presentation_index()
 	for actor_id: String in _actors:
 		var actor: Dictionary = world.facts.actors[actor_id]
 		var wrapper: Node3D = _actors[actor_id]
@@ -253,9 +269,10 @@ func update_facts(interpolation_alpha: float = 1.0) -> void:
 			_bind_case_props(actor_id,presentation.visits_by_actor.get(actor_id,[]))
 		if _case_props.has(actor_id):
 			_update_case_props(actor_id,presentation.sessions_by_visit)
+	var upgrades: Dictionary = _upgrade_states()
 	for facility_id: String in _facilities:
 		(_facilities[facility_id] as Node3D).position = _cell_position(world.facts.facilities[facility_id].cell,0)
-		_update_equipment_mark(facility_id)
+		_update_equipment_mark(facility_id,upgrades)
 		var player: AnimationPlayer = _animation_player(_facilities[facility_id])
 		if player == null:
 			continue
@@ -305,8 +322,9 @@ func update_facts(interpolation_alpha: float = 1.0) -> void:
 	for actor_id: String in _actor_labels:
 		(_actor_labels[actor_id] as Label3D).visible = actor_id==_selected or actor_id==follow_actor or bool(_actors[actor_id].get_meta("life_attention",false))
 	_update_selection()
-	for batch: SkinnedPoseBatch in _skin_batches:
-		batch.publish(_visible_body_bounds())
+	if not _skin_batches.is_empty():
+		var body_bounds: AABB = _visible_body_bounds()
+		for batch: SkinnedPoseBatch in _skin_batches: batch.publish(body_bounds)
 
 func _sync_entities() -> void:
 	_entity_frustum = camera.get_frustum() if camera!=null and is_inside_tree() else []
@@ -406,12 +424,20 @@ func accepts_resource(ticket: Dictionary) -> bool:
 	var signature: String = str(facility.definition_id)+":"+JSON.stringify(facility.footprint)+":"+str(facility.get("rotation",0))
 	return int(facility.floor_id)==observed_floor and signature==_bindings[key].signature and _in_view(AABB(_cell_position(facility.cell,0),Vector3(float(facility.footprint[0])*1.5,3,float(facility.footprint[1])*1.5)))
 
-func _complete_resources() -> void:
+func _complete_resources(visits_by_actor: Variant = null) -> void:
 	var started: int = Time.get_ticks_usec()
 	var count: int = 0
 	var budget: int = int(content.balance.spatial_view.view_build_budget_ms_per_frame)*1000
 	if work_budget!=null: budget = work_budget.remaining_usec()
 	var limit: int = int(content.balance.spatial_view.view_chunk_starts_per_frame)
+	_publishing_resources = true
+	_publishing_visits = {}
+	if visits_by_actor is Dictionary:
+		_publishing_visits = visits_by_actor
+	else:
+		for visit: Dictionary in world.facts.visits.values():
+			if not _publishing_visits.has(visit.actor_id): _publishing_visits[visit.actor_id] = []
+			_publishing_visits[visit.actor_id].append(visit)
 	while not _pending_resources.is_empty() and count<limit and Time.get_ticks_usec()-started<budget:
 		var ticket: Dictionary = _pending_resources.pop_front()
 		if not accepts_resource(ticket):
@@ -420,6 +446,11 @@ func _complete_resources() -> void:
 		if model!=null:
 			publish_resource(ticket,model)
 		count += 1
+	_publishing_resources = false
+	_publishing_visits = {}
+	if _skin_bindings_dirty:
+		_bind_skin_batches()
+		_skin_bindings_dirty = false
 	if work_budget!=null: work_budget.spend(Time.get_ticks_usec()-started)
 
 func publish_resource(ticket: Dictionary, model: Node3D) -> bool:
@@ -430,18 +461,23 @@ func publish_resource(ticket: Dictionary, model: Node3D) -> bool:
 	var key: String = ticket.entity_key
 	var id: String = key.substr(key.find(":")+1)
 	var wrapper: Node3D = _bindings[key].node
-	_clear_batches()
 	if key.begins_with("actor:"):
+		if world.facts.staff.has(id) or _skin_actor_ids.has(id):
+			_clear_batches()
+			_skin_bindings_dirty = true
 		_retire(_actor_models[id])
 		wrapper.add_child(model)
 		_actor_models[id] = model
 		(_actor_labels[id] as Label3D).text = str(world.facts.actors[id].name)
-		_bind_case_props(id,world.facts.visits.values().filter(func(visit: Dictionary) -> bool: return visit.actor_id==id))
+		var visits: Array = _publishing_visits.get(id,[]) if _publishing_resources else world.facts.visits.values().filter(func(visit: Dictionary) -> bool: return visit.actor_id==id)
+		_bind_case_props(id,visits)
 	else:
 		var proxy: Node = wrapper.get_node_or_null("ResourceProxy")
 		if proxy!=null:
 			_retire(proxy)
 		wrapper.add_child(model)
+		# A proxy wrapper may already have cached the absence of a player.
+		if wrapper.has_meta("_hospital_animation_player"): wrapper.remove_meta("_hospital_animation_player")
 		_orient_facility_part(model,world.facts.facilities[id])
 		for child: Node in wrapper.get_children():
 			if child is Label3D:
@@ -454,7 +490,9 @@ func publish_resource(ticket: Dictionary, model: Node3D) -> bool:
 				wrapper.add_child(props)
 				_machine_props[id] = props
 	wrapper.set_meta("resource_proxy",false)
-	_bind_skin_batches()
+	if _skin_bindings_dirty and not _publishing_resources:
+		_bind_skin_batches()
+		_skin_bindings_dirty = false
 	return true
 
 func _orient_facility_part(node: Node3D, facility: Dictionary) -> void:
@@ -478,7 +516,7 @@ func _bind_case_props(actor_id: String, visits: Array) -> void:
 			continue
 		var skeleton: Skeleton3D = _skeleton(model)
 		var slot: String = "hand_l" if visit.binding_id=="B_S49_D37_M37" else "head"
-		if skeleton==null or skeleton.find_bone(slot)<0:
+		if skeleton==null or _bone_index(skeleton,slot)<0:
 			continue
 		var props: Node3D = _load_scene("res://assets/gags/"+filename)
 		if props!=null:
@@ -487,7 +525,7 @@ func _bind_case_props(actor_id: String, visits: Array) -> void:
 
 func _remove_actor(id: String) -> void:
 	var started: int = Time.get_ticks_usec()
-	_clear_batches()
+	if _skin_actor_ids.has(id): _clear_batches()
 	_retire(_actors[id])
 	_actors.erase(id)
 	_actor_models.erase(id)
@@ -515,6 +553,7 @@ func _clear_batches() -> void:
 		batch.clear_sources()
 		_retire(batch)
 	_skin_batches.clear()
+	_skin_actor_ids.clear()
 
 func _retire(node: Node) -> void:
 	_resources.release_tree(node)
@@ -815,6 +854,14 @@ func _pose(actor_id: String, presentation: Dictionary = {}) -> Dictionary:
 
 func _sync_environment_marks() -> void:
 	var facts: Dictionary = world.facts.get("environment",{})
+	var inputs: Array = [world,observed_floor,facts.get("dirt",{}).keys(),facts.get("dirt",{}),
+		facts.get("surfaces",{}).keys(),facts.get("surfaces",{}),facts.get("orders",{}).keys(),facts.get("orders",{})]
+	if not _same_visual_sources("environment",inputs):
+		_build_environment_marks(facts)
+	if _environment_heatmap!=null and is_instance_valid(_environment_heatmap) and _heatmap_stamp!=_environment_read_stamp():
+		_environment_heatmap.visible = false
+
+func _build_environment_marks(facts: Dictionary) -> void:
 	var dirt: Array = []
 	var surfaces: Array = []
 	var units: Array = []
@@ -862,8 +909,6 @@ func _sync_environment_marks() -> void:
 			_environment_marks.add_child(mark)
 			_label(mark,"施工中" if working else ("施工暂停" if unit[5] else "待施工"),Vector3(0,0.8,0))
 		if work_budget!=null: work_budget.spend(Time.get_ticks_usec()-started)
-	if _environment_heatmap!=null and is_instance_valid(_environment_heatmap) and _heatmap_stamp!=_environment_read_stamp():
-		_environment_heatmap.visible = false
 
 func _surface_mark(cell: Array, surface: String, edge: String, color: Color) -> MeshInstance3D:
 	var mark: MeshInstance3D
@@ -932,6 +977,12 @@ func show_environment_heatmap(heatmap: Array) -> void:
 	if work_budget!=null: work_budget.spend(Time.get_ticks_usec()-started)
 
 func _environment_read_stamp() -> String:
+	var upgrades: Dictionary = world.facts.get("maintenance",{}).get("upgrades",{})
+	var bodies_source: Dictionary = world.facts.actors if not _heatmap_subjects.is_empty() else {}
+	var inputs: Array = [world,observed_floor,_geometry_signature,_environment_marks_signature,_heatmap_subjects,
+		world.facts.sessions.keys(),world.facts.sessions,upgrades.keys(),upgrades,bodies_source.keys(),bodies_source,
+		world.facts.facilities.keys(),world.facts.facilities,world.facts.research]
+	if _same_visual_sources("heatmap",inputs): return _current_heatmap_stamp
 	var active: Array = []
 	for session: Dictionary in world.facts.sessions.values():
 		active.append([session.facility_id,session.kind])
@@ -945,26 +996,41 @@ func _environment_read_stamp() -> String:
 	for facility: Dictionary in world.facts.facilities.values():
 		if int(facility.floor_id)==observed_floor:
 			facilities.append([facility.id,facility.cell,facility.get("rotation",0),facility.get("failed",false)])
-	return JSON.stringify([_geometry_signature,_environment_marks_signature,active,bodies,facilities,world.facts.research],"",true,true)
+	_current_heatmap_stamp = JSON.stringify([_geometry_signature,_environment_marks_signature,active,bodies,facilities,world.facts.research],"",true,true)
+	return _current_heatmap_stamp
 
-func _update_equipment_mark(facility_id: String) -> void:
+func _same_visual_sources(name: String, inputs: Array) -> bool:
+	# Exact values and collection order remain observable even for direct writes
+	# without touch(). Only projection/allocation/serialization is reused.
+	if _visual_sources.has(name) and _visual_sources[name]==inputs: return true
+	_visual_sources[name] = inputs.duplicate(true)
+	return false
+
+func _upgrade_states() -> Dictionary:
+	var states: Dictionary = {}
+	for order: Dictionary in world.facts.get("maintenance",{}).get("upgrades",{}).values():
+		if order.phase not in ["completed","cancelled"]:
+			states[order.facility_id] = "升级施工中" if order.phase=="working" else ("升级暂停" if order.paused else "等待升级施工")
+	return states
+
+func _update_equipment_mark(facility_id: String, upgrade_states: Variant = null) -> void:
 	var item: Dictionary = world.facts.facilities[facility_id]
 	if not item.definition_id in content.balance.equipment.maintained_definition_ids:
 		return
 	var wrapper: Node3D = _facilities[facility_id]
 	var grade: int = int(item.get("upgrade_level",item.get("grade",0)))
-	var upgradable: bool = false
-	for profile: Dictionary in content.catalog.get("medical_equipment_profiles",[]):
-		if profile.definition_id==item.definition_id:
-			upgradable = true
+	if _upgradable_content!=content.content_fingerprint:
+		_upgradable_definitions = {}
+		for profile: Dictionary in content.catalog.get("medical_equipment_profiles",[]): _upgradable_definitions[profile.definition_id] = true
+		_upgradable_content = content.content_fingerprint
+	var upgradable: bool = _upgradable_definitions.has(item.definition_id)
 	var state: String = "可用"
 	var accent: Color = Palette.SUCCESS
 	if item.get("upgrading_block",false):
 		state = "已付材料，等待升级"
 		accent = Palette.ACTION
-		for order: Dictionary in world.facts.get("maintenance",{}).get("upgrades",{}).values():
-			if order.facility_id==facility_id and order.phase not in ["completed","cancelled"]:
-				state = "升级施工中" if order.phase=="working" else ("升级暂停" if order.paused else "等待升级施工")
+		var states: Dictionary = upgrade_states if upgrade_states is Dictionary else _upgrade_states()
+		state = states.get(facility_id,state)
 	if item.get("maintenance_block",false):
 		state = "维护暂停"
 		accent = Palette.ACTION
@@ -1055,7 +1121,7 @@ func _update_case_props(actor_id: String, sessions_by_visit: Dictionary) -> void
 	var skeleton: Skeleton3D = _skeleton(_actor_models[actor_id])
 	if skeleton==null:
 		return
-	var bone: int = skeleton.find_bone(binding.slot)
+	var bone: int = _bone_index(skeleton,binding.slot)
 	if bone<0:
 		return
 	var attachment: Transform3D = skeleton.global_transform*skeleton.get_bone_global_pose(bone)
@@ -1098,13 +1164,37 @@ func _seek_prop(node: Node, name: String, time: float) -> void:
 		player.seek(time,true)
 
 func _skeleton(node: Node) -> Skeleton3D:
+	if node.has_meta("_hospital_skeleton"):
+		return node.get_meta("_hospital_skeleton").value as Skeleton3D
+	var found: Skeleton3D = _find_skeleton(node)
+	node.set_meta("_hospital_skeleton",{"value":found})
+	return found
+
+func _find_skeleton(node: Node) -> Skeleton3D:
 	if node is Skeleton3D:
 		return node as Skeleton3D
 	for child: Node in node.get_children():
-		var found: Skeleton3D = _skeleton(child)
+		var found: Skeleton3D = _find_skeleton(child)
 		if found!=null:
 			return found
 	return null
+
+func _bone_index(skeleton: Skeleton3D, name: String) -> int:
+	var bones: Dictionary = skeleton.get_meta("_hospital_bone_indices",{})
+	var version: int = skeleton.get_version()
+	# Renaming changes the version without emitting bone_list_changed.
+	if int(skeleton.get_meta("_hospital_bone_version",-1))!=version:
+		bones = {}
+		skeleton.set_meta("_hospital_bone_version",version)
+	if not bones.has(name):
+		bones[name] = skeleton.find_bone(name)
+		skeleton.set_meta("_hospital_bone_indices",bones)
+		if not skeleton.bone_list_changed.is_connected(_forget_bone_indices.bind(skeleton)):
+			skeleton.bone_list_changed.connect(_forget_bone_indices.bind(skeleton))
+	return int(bones[name])
+
+func _forget_bone_indices(skeleton: Skeleton3D) -> void:
+	if skeleton.has_meta("_hospital_bone_indices"): skeleton.remove_meta("_hospital_bone_indices")
 
 func _update_space_geometry() -> void:
 	for cell: Vector2i in _wall_nodes:
@@ -1151,11 +1241,18 @@ func _update_space_geometry() -> void:
 		pad.visible = true
 
 func _animation_player(node: Node) -> AnimationPlayer:
+	if node.has_meta("_hospital_animation_player"):
+		return node.get_meta("_hospital_animation_player").value as AnimationPlayer
+	var found: AnimationPlayer = _find_animation_player(node)
+	node.set_meta("_hospital_animation_player",{"value":found})
+	return found
+
+func _find_animation_player(node: Node) -> AnimationPlayer:
 	if node is AnimationPlayer:
 		(node as AnimationPlayer).callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
 		return node as AnimationPlayer
 	for child: Node in node.get_children():
-		var found: AnimationPlayer = _animation_player(child)
+		var found: AnimationPlayer = _find_animation_player(child)
 		if found != null:
 			return found
 	return null
@@ -1173,9 +1270,10 @@ func _bind_skin_batches() -> void:
 			continue
 		var key: String = str(mesh.mesh.get_instance_id())+":"+str(mesh.get_active_material(0).get_instance_id())
 		if not groups.has(key):
-			groups[key] = {"meshes":[],"skeletons":[]}
+			groups[key] = {"meshes":[],"skeletons":[],"actor_ids":[]}
 		groups[key].meshes.append(mesh)
 		groups[key].skeletons.append(skeleton)
+		groups[key].actor_ids.append(actor_id)
 	for group: Dictionary in groups.values():
 		if group.meshes.size()<2:
 			continue
@@ -1188,6 +1286,7 @@ func _bind_skin_batches() -> void:
 		var reason: String = batch.bind_sources(meshes,skeletons)
 		if reason.is_empty():
 			_skin_batches.append(batch)
+			for actor_id: String in group.actor_ids: _skin_actor_ids[actor_id] = true
 		else:
 			remove_child(batch)
 			batch.free()
@@ -1202,10 +1301,23 @@ func _mesh_instance(node: Node) -> MeshInstance3D:
 	return null
 
 func _animation_name(player: AnimationPlayer, requested: String) -> StringName:
-	for name: StringName in player.get_animation_list():
-		if str(name) == requested or str(name).ends_with("/"+requested):
-			return name
-	return &""
+	if not player.has_meta("_hospital_animation_names"):
+		var names: Dictionary = {}
+		# Record every suffix, preserving the original first matching list entry.
+		for name: StringName in player.get_animation_list():
+			var suffix: String = str(name)
+			while true:
+				if not names.has(suffix): names[suffix] = name
+				var slash: int = suffix.find("/")
+				if slash<0: break
+				suffix = suffix.substr(slash+1)
+		player.set_meta("_hospital_animation_names",names)
+		if not player.animation_list_changed.is_connected(_forget_animation_names.bind(player)):
+			player.animation_list_changed.connect(_forget_animation_names.bind(player))
+	return player.get_meta("_hospital_animation_names").get(requested,&"")
+
+func _forget_animation_names(player: AnimationPlayer) -> void:
+	if player.has_meta("_hospital_animation_names"): player.remove_meta("_hospital_animation_names")
 
 func _label(parent: Node3D, text: String, position: Vector3) -> Label3D:
 	var label: Label3D = Label3D.new()

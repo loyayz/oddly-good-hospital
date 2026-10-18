@@ -28,8 +28,11 @@ var _target_row: Control
 var _size_row: Control
 var _door_row: Control
 var _inventory_row: Control
+var _published_draft: Dictionary = {}
+var _published_result: Dictionary = {}
 
 func _ready() -> void:
+	visibility_changed.connect(_preview_visibility_changed)
 	add_theme_constant_override("separation",10)
 	var heading: Label = Label.new()
 	heading.text = "建造与布置"
@@ -89,6 +92,8 @@ func _ready() -> void:
 	_populate()
 
 func attach(kernel: HospitalSimulation, active_session: GameSession, observed_floor: int, work_budget: ViewWorkBudget = null) -> void:
+	_published_draft = {}
+	_published_result = {}
 	simulation = kernel
 	session = active_session
 	floor_id = observed_floor
@@ -210,7 +215,20 @@ func _process(_delta: float) -> void:
 		_reason.text = str(_result.get("reason","正在检查当前草案…"))
 	else:
 		_reason.text = "费用 %d · 退款 %d\n%s" % [int(_result.get("price",0)),int(_result.get("refund",0)),HospitalActionPanel.format_payment_summary(simulation.world,int(_result.get("price",0)),int(_result.get("refund",0)))]
-	preview_changed.emit(_draft.duplicate(true),_result.duplicate(true))
+	_publish_preview()
+
+func _publish_preview() -> void:
+	if _published_draft!=_draft or _published_result!=_result:
+		_published_draft = _draft.duplicate(true)
+		_published_result = _result.duplicate(true)
+		# Signal consumers own their values; they cannot mutate the comparison basis.
+		preview_changed.emit(_published_draft.duplicate(true),_published_result.duplicate(true))
+
+func _preview_visibility_changed() -> void:
+	# Leaving this panel clears the shared overlay while retaining its draft.
+	if is_visible_in_tree():
+		_published_draft = {}
+		_published_result = {}
 
 func set_map_cell(cell: Array) -> void:
 	if cell.size()!=2:
@@ -234,6 +252,8 @@ func cancel_draft() -> void:
 		_preview.cancel()
 	_draft = {}
 	_result = {}
+	_published_draft = {}
+	_published_result = {}
 	_confirm.disabled = true
 	_reason.text = "草案已取消，已确认布局保持不变。"
 	preview_changed.emit({},{})

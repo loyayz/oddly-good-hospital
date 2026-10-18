@@ -41,7 +41,8 @@ const CASES: Dictionary = {
 	"CLIN-31":"docs/design/07-clinical-team.md §8.2；每窗口意向一次，换床/恢复不重抽，实际床边才起30秒",
 	"CLIN-32":"docs/design/07-clinical-team.md §8.2；拒绝/医疗让位/出院安全退出，原停留不重启且空间不早释放",
 	"CLIN-33":"docs/design/01-simulation.md §3、07-clinical-team.md §1、§6；接待/初诊到齐预约独占职员，原票接续，床通行权限不冒充工作，路线失败不占资源",
-	"CLIN-34":"docs/design/07-clinical-team.md §6；指定医生报价保留其全部合法设备与原序，无指定仍全量；结构/实际限制及完整事实随机流不变"
+	"CLIN-34":"docs/design/07-clinical-team.md §6；指定医生报价保留其全部合法设备与原序，无指定仍全量；结构/实际限制及完整事实随机流不变",
+	"CLIN-35":"docs/design/07-clinical-team.md §6；推荐与短缺查询批次复用保留全部合法方案、顺序与只读事实"
 }
 
 const PREREQUISITES: Dictionary = {
@@ -137,7 +138,7 @@ const PREREQUISITES: Dictionary = {
 
 func run(t) -> void:
 	_content = HospitalContent.new()
-	_cache = t.checkpoints(_content,"res://tests/acceptance/clinical_fixtures.gd")
+	_cache = t.checkpoints(_content,"res://tests/acceptance/clinical_fixtures.gd",self)
 	for case_id: String in CASES:
 		if not t.wants(case_id): continue
 		t.begin_case(case_id)
@@ -181,6 +182,9 @@ func _validate_rule_input(c: Dictionary, case_id: String, kind: String) -> Strin
 	var validation: String = c.world.validate(_content)
 	print("CASE_INPUT "+case_id+" "+JSON.stringify({"kind":kind,"tick":c.world.sim_tick,"validation":validation}))
 	return validation
+
+func _case_35(t) -> void:
+	preload("res://tests/acceptance/clinical_repeated_work.gd").new().run_case(t,_content)
 
 func _case_01(t) -> void:
 	var c: Dictionary = _context()

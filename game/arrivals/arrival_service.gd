@@ -3,12 +3,15 @@ extends RefCounted
 
 const F = preload("res://game/arrivals/exact_fraction.gd")
 const Plan = preload("res://game/arrivals/day_plan.gd")
+const ResearchJobs = preload("res://game/community/research_job_index.gd")
 
 var content: HospitalContent
 var space: HospitalSpace
 var clinic: HospitalClinic
 var departments: RefCounted
 var environment: RefCounted
+var development: RefCounted
+var _research_jobs: RefCounted = ResearchJobs.new()
 var _scheduled: Dictionary = {}
 var _next_due: int = -1
 var _indexed_world: int = 0
@@ -333,6 +336,8 @@ func settle(world: WorldState) -> void:
 			continue
 		visit.departure_recorded = true
 		visit.departure_tick = world.sim_tick
+		if development!=null: development.call("queue_case",world,visit)
+		else: world.fact_record_changed("visits",visit_id)
 		var statistics: Dictionary = _stat(world,world.sim_tick/WorldState.TICKS_PER_DAY+1)
 		statistics.departed += 1
 		if visit.get("final_result","") in ["cured","success","referred","failed"]:
@@ -438,6 +443,7 @@ func capacity(world: WorldState, subtract_existing: bool = true, cancellation: C
 	var explanations: Array = []
 	var total: Dictionary = F.make()
 	var commitments: Dictionary = clinic.remaining_commitments(world) if subtract_existing else {}
+	var maintenance: Dictionary = _maintenance_view(world)
 	for shift: int in 3:
 		if _capacity_cancelled(cancellation): return {"complete":false,"cancelled":true}
 		var query: Dictionary = {}
@@ -446,7 +452,7 @@ func capacity(world: WorldState, subtract_existing: bool = true, cancellation: C
 		if query.has("error"):
 			preparation_error = str(query.reason)
 			return {"complete":false,"error":query.error,"reason":query.reason}
-		var budgets: Dictionary = _resource_budgets(world,classes,shift,query.resource_ids)
+		var budgets: Dictionary = _resource_budgets(world,classes,shift,query.resource_ids,maintenance)
 		var locked_roles: Dictionary = {}
 		if subtract_existing:
 			var workload: Dictionary = _existing_workload(world,shift,query,commitments,cancellation)
@@ -967,8 +973,9 @@ func _normalize_bundle(world: WorldState, source: Dictionary, query: Variant = n
 		result.structural_resources = structural
 	return result
 
-func _resource_budgets(world: WorldState, classes: Array, shift: int, resource_ids: Variant = null) -> Dictionary:
+func _resource_budgets(world: WorldState, classes: Array, shift: int, resource_ids: Variant = null, maintenance: Dictionary = {}) -> Dictionary:
 	var result: Dictionary = {}
+	if maintenance.is_empty(): maintenance = _maintenance_view(world)
 	var shift_ticks: int = _ticks(content.balance.schedule.shift_seconds)
 	if resource_ids==null:
 		var used: Dictionary = {}
@@ -983,7 +990,7 @@ func _resource_budgets(world: WorldState, classes: Array, shift: int, resource_i
 			var facility_id: String = resource_id.substr(9)
 			var facility: Dictionary = world.facts.facilities.get(facility_id,{})
 			var available: int = 0 if facility.is_empty() or facility.get("failed",false) or not facility.get("open",true) or not facility.get("intake_open",true) else shift_ticks
-			result[resource_id] = F.make(maxi(0,available-_maintenance_remaining(world,facility_id,shift)))
+			result[resource_id] = F.make(maxi(0,available-_maintenance_remaining(world,facility_id,shift,maintenance)))
 		elif resource_id.begins_with("coverage:"):
 			var nurse_id: String = resource_id.split(":")[1]
 			result[resource_id] = F.make(_staff_budget(world,nurse_id,shift)*int(content.balance.clinical.beds_per_nurse))
@@ -996,17 +1003,24 @@ func _staff_budget(world: WorldState, staff_id: String, shift: int) -> int:
 	if _budget_scheduler==null: _budget_scheduler = HospitalShiftScheduler.new(content,space)
 	return _budget_scheduler.available_ticks(world,staff_id,shift)
 
-func _maintenance_remaining(world: WorldState, facility_id: String, shift: int) -> int:
-	var remaining: int = 0
+func _maintenance_view(world: WorldState) -> Dictionary:
+	var result: Dictionary = {"remaining":{},"blocked":{}}
 	for collection: Dictionary in [world.facts.get("maintenance",{}).get("jobs",{}),world.facts.get("maintenance",{}).get("upgrades",{})]:
 		for job: Dictionary in collection.values():
-			if job.get("facility_id","") != facility_id or job.get("phase","") in ["completed","cancelled"]:
+			if job.get("phase","") in ["completed","cancelled"]:
 				continue
+			var facility_id: String = str(job.get("facility_id",""))
 			var rate: float = float(job.get("worker_rate",0))
 			if rate <= 0 or job.get("worker_id","").is_empty() or job.get("paused",false):
-				return _ticks(content.balance.schedule.shift_seconds)
-			remaining += ceili(float(job.get("remaining_milli",0))/1000.0/rate/WorldState.TICK_SECONDS)
-	return _shift_remainder(remaining,shift)
+				result.blocked[facility_id] = true
+			else:
+				result.remaining[facility_id] = int(result.remaining.get(facility_id,0))+ceili(float(job.get("remaining_milli",0))/1000.0/rate/WorldState.TICK_SECONDS)
+	return result
+
+func _maintenance_remaining(world: WorldState, facility_id: String, shift: int, view: Dictionary = {}) -> int:
+	if view.is_empty(): view = _maintenance_view(world)
+	if view.blocked.has(facility_id): return _ticks(content.balance.schedule.shift_seconds)
+	return _shift_remainder(int(view.remaining.get(facility_id,0)),shift)
 
 func _existing_workload(world: WorldState, shift: int, query: Variant = null, commitments: Dictionary = {}, cancellation: Callable = Callable()) -> Dictionary:
 	if query==null: query = {}
@@ -1258,7 +1272,7 @@ func _choose_case(world: WorldState, candidates: Array) -> Dictionary:
 	return candidate
 
 func _disease_weight(world: WorldState, disease_id: String) -> int:
-	if not HospitalResearch.disease_unlocked(world,content,disease_id):
+	if not HospitalResearch.disease_unlocked(world,content,disease_id,_research_jobs.view(world)):
 		return 0
 	return int(world.facts.get("arrivals",{}).get("disease_weights",{}).get(disease_id,1))
 

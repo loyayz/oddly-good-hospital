@@ -14,8 +14,8 @@ var _fixture_offsets: Array = []
 var _started: int = Time.get_ticks_msec()
 var _suite_results: Dictionary = {}
 
-func checkpoints(content: HospitalContent, builder: String) -> RefCounted:
-	var store: RefCounted = Checkpoints.new(content,builder)
+func checkpoints(content: HospitalContent, builder: String, producer: RefCounted = null) -> RefCounted:
+	var store: RefCounted = Checkpoints.new(content,builder,weakref(producer) if producer!=null else null)
 	_stores.append(store)
 	return store
 

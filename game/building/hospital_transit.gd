@@ -26,12 +26,18 @@ static func route(space: HospitalSpace, world: WorldState, actor: Dictionary, so
 	var unknown_reason: String = ""
 	# This search is synchronous and read-only. Keep stable structure and queue
 	# prefixes only until it returns; later movement observes current facts again.
-	var connector_ids: Array = world.ids("connectors")
-	var connections_by_floor: Dictionary = {}
-	var compatible: Dictionary = {}
-	var stop_candidates: Dictionary = {}
-	var stops_by_connection: Dictionary = {}
-	var prefixes: Dictionary = {}
+	var transport: Dictionary = space.dynamic_transport_view(world,actor.id,members,offsets)
+	if not transport.has("connector_ids"):
+		transport.merge({"connector_ids":world.ids("connectors"),"connections":{},"compatible":{},"stops":{},"prefixes":{}})
+	var connector_ids: Array = transport.connector_ids
+	var connections_by_floor: Dictionary = transport.connections
+	var compatible: Dictionary = transport.compatible
+	var stop_key: String = str(source_floor)+":"+str(target_floor)
+	if not transport.stops.has(stop_key): transport.stops[stop_key] = {"candidates":{},"connections":{}}
+	var stop_view: Dictionary = transport.stops[stop_key]
+	var stop_candidates: Dictionary = stop_view.candidates
+	var stops_by_connection: Dictionary = stop_view.connections
+	var prefixes: Dictionary = transport.prefixes
 	while not heap.is_empty():
 		var item: Dictionary = _pop(heap)
 		var id: String = item.id
@@ -75,7 +81,9 @@ static func route(space: HospitalSpace, world: WorldState, actor: Dictionary, so
 			if at_landing<0:
 				continue
 			if not stops_by_connection.has(connector_id):
-				if connection.has("first_floor") and stop_candidates.is_empty(): stop_candidates = _routing_candidates(world,source_floor,target_floor)
+				if connection.has("first_floor") and stop_candidates.is_empty():
+					stop_candidates = _routing_candidates(world,source_floor,target_floor)
+					stop_view.candidates = stop_candidates
 				stops_by_connection[connector_id] = routing_stops(connection,world,source_floor,target_floor,stop_candidates)
 			var stops: Array = stops_by_connection[connector_id]
 			for destination: int in stops:

@@ -208,6 +208,8 @@ func upgrade_quote(world: WorldState, payload: Dictionary) -> Dictionary:
 		"safe_release_pending":not item.is_empty() and not _safe_free(world,id)}
 
 func execute(world: WorldState, kind: String, payload: Dictionary) -> CommandResult:
+	world.operation_records_changed("maintenance","jobs")
+	world.operation_records_changed("maintenance","upgrades")
 	var state: Dictionary = world.facts.maintenance
 	match kind:
 		"maintenance_policy":
@@ -316,11 +318,14 @@ func execute(world: WorldState, kind: String, payload: Dictionary) -> CommandRes
 
 func dispatch(world: WorldState) -> void:
 	_dispatch_departures(world)
-	if world.facts.maintenance.jobs.is_empty() and world.facts.maintenance.upgrades.is_empty(): return
+	var jobs: Array = world.active_operation_ids("maintenance","jobs",["completed","cancelled"])
+	var upgrades: Array = world.active_operation_ids("maintenance","upgrades",["completed","cancelled"])
+	if jobs.is_empty() and upgrades.is_empty(): return
 	_clinical_uses = HospitalClinic.equipment_uses(world)
 	var equipment: Dictionary = _equipment(world)
 	var candidates: Array = []
-	for job: Dictionary in world.facts.maintenance.jobs.values():
+	for id: String in jobs:
+		var job: Dictionary = world.facts.maintenance.jobs[id]
 		if HospitalRemodel.blocked(world,str(job.facility_id)) and _safe_free(world,str(job.facility_id)) and not (job.kind=="repair" and _needed_for_remodel(world,str(job.facility_id))):
 			_release(world,job)
 			job.reason = "等待改建后原工单接续"
@@ -333,7 +338,8 @@ func dispatch(world: WorldState) -> void:
 			else:
 				continue
 		candidates.append({"job":job,"priority":_priority(world,job),"upgrade":false})
-	for order: Dictionary in world.facts.maintenance.upgrades.values():
+	for id: String in upgrades:
+		var order: Dictionary = world.facts.maintenance.upgrades[id]
 		if HospitalRemodel.blocked(world,str(order.facility_id)):
 			_release(world,order)
 			order.reason = "等待改建后原升级接续"
@@ -368,10 +374,12 @@ func dispatch(world: WorldState) -> void:
 	_clinical_uses = null
 
 func advance(world: WorldState) -> void:
-	if world.facts.maintenance.jobs.is_empty() and world.facts.maintenance.upgrades.is_empty(): return
+	var jobs: Array = world.active_operation_ids("maintenance","jobs",["completed","cancelled"],true)
+	var upgrades: Array = world.active_operation_ids("maintenance","upgrades",["completed","cancelled"],true)
+	if jobs.is_empty() and upgrades.is_empty(): return
 	_clinical_uses = HospitalClinic.equipment_uses(world)
 	var equipment: Dictionary = _equipment(world)
-	for id: String in _ordered(world.facts.maintenance.jobs):
+	for id: String in jobs:
 		var job: Dictionary = world.facts.maintenance.jobs[id]
 		if str(job.worker_id).is_empty() or job.paused or job.phase in ["completed","cancelled","inventory"] or not equipment.has(job.facility_id) or _in_inventory(world,str(job.facility_id)) or world.sim_tick<int(job.get("resume_not_before_tick",0)):
 			continue
@@ -415,7 +423,7 @@ func advance(world: WorldState) -> void:
 			_receipt(world,"repair_completed" if job.kind=="repair" else "maintenance_completed",str(job.id),job.contributions,int(job.total_milli),str(item.id))
 			_release(world,job)
 			job.phase = "completed"
-	for id: String in _ordered(world.facts.maintenance.upgrades):
+	for id: String in upgrades:
 		var order: Dictionary = world.facts.maintenance.upgrades[id]
 		if str(order.worker_id).is_empty() or order.paused or order.phase in ["completed","cancelled","inventory"] or not equipment.has(order.facility_id) or _in_inventory(world,str(order.facility_id)) or world.sim_tick<int(order.get("resume_not_before_tick",0)):
 			continue
@@ -474,9 +482,11 @@ func _arrived(world: WorldState, job: Dictionary, item: Dictionary) -> bool:
 
 func _needed_for_remodel(world: WorldState, id: String) -> bool:
 	if world.facts.facilities.get(id,{}).get("definition_id","")!=content.balance.renovation.tool_equipment_id: return false
-	for arrangement: Dictionary in world.facts.get("remodels",{}).values():
+	for arrangement_id: String in world.active_operation_ids("remodels","",["applied","cancelled"],false,"state"):
+		var arrangement: Dictionary = world.facts.remodels[arrangement_id]
 		if arrangement.state!="preparing": continue
-		for order: Dictionary in world.facts.get("environment",{}).get("orders",{}).values():
+		for order_id: String in world.active_operation_ids("environment","orders",["completed","cancelled"]):
+			var order: Dictionary = world.facts.environment.orders[order_id]
 			if order.phase in ["completed","cancelled"]: continue
 			for unit: Dictionary in order.units:
 				if unit.phase in ["completed","cancelled"]: continue
@@ -608,7 +618,8 @@ func _upgradable(item: Dictionary) -> bool:
 	return false
 
 func _active_upgrade(world: WorldState, facility_id: String) -> String:
-	for order: Dictionary in world.facts.maintenance.upgrades.values():
+	for id: String in world.active_operation_ids("maintenance","upgrades",["completed","cancelled"]):
+		var order: Dictionary = world.facts.maintenance.upgrades[id]
 		if order.facility_id==facility_id and order.phase not in ["completed","cancelled"]:
 			return str(order.id)
 	return ""
@@ -633,6 +644,7 @@ func _receipt(world: WorldState, kind: String, source_id: String, contributions:
 			winner = staff_id
 			largest = int(contributions[staff_id])
 	world.facts.maintenance.receipts[id] = {"id":id,"kind":kind,"source_id":source_id,"facility_id":facility_id,"staff_id":"","worker_id":winner,"tick":world.sim_tick,"standard_work_milli":total}
+	world.completion_receipt_added("maintenance",id)
 	world.touch()
 
 func query(world: WorldState, facility_id: String = "") -> Dictionary:
@@ -647,8 +659,11 @@ func query(world: WorldState, facility_id: String = "") -> Dictionary:
 
 func pending_costs(world: WorldState) -> Array:
 	var result: Array = []
+	var jobs: Array = world.active_operation_ids("maintenance","jobs",["completed","cancelled"])
+	if jobs.is_empty(): return result
 	var equipment: Dictionary = _equipment(world)
-	for job: Dictionary in world.facts.maintenance.jobs.values():
+	for id: String in jobs:
+		var job: Dictionary = world.facts.maintenance.jobs[id]
 		if job.phase in ["completed","cancelled"] or not equipment.has(job.facility_id):
 			continue
 		var cost: int = int(job.get("repair_difference_due",0))

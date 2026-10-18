@@ -1,5 +1,7 @@
 extends RefCounted
 
+const CheckpointIdentity = preload("res://tests/acceptance/checkpoint_identity.gd")
+
 var _cache: RefCounted
 
 const F = preload("res://game/arrivals/exact_fraction.gd")
@@ -16,6 +18,9 @@ var _content: HospitalContent
 var _simulations: Array[HospitalSimulation] = []
 var _opened_snapshot: Dictionary = {}
 var _fixture_errors: Array = []
+
+func _checkpoint_dependencies(key: String) -> Dictionary:
+	return CheckpointIdentity.describe("res://tests/acceptance/growth_fixtures.gd",{"research_opened":{"methods":["_prepare_opened_snapshot"]}},key)
 
 func _context(preset: bool = true, opened: bool = false) -> Dictionary:
 	if opened and _opened_snapshot.is_empty(): _prepare_opened_snapshot()

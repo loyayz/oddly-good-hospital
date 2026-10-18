@@ -72,6 +72,7 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 		services.arrivals.clinic = clinic
 		services.arrivals.departments = services.departments
 		services.arrivals.environment = services.environment
+		services.arrivals.development = services.development
 	_ensure_services()
 
 func _ensure_services() -> void:
@@ -137,6 +138,7 @@ func dispose() -> void:
 	if services.has("arrivals"):
 		services.arrivals.departments = null
 		services.arrivals.environment = null
+		services.arrivals.development = null
 	_business_handlers.clear()
 	services.clear()
 
@@ -297,9 +299,10 @@ func step_nonblocking() -> TickResult:
 		services.floors.dispatch(world)
 	clinic.dispatch(world)
 	if _production():
+		var busy: Dictionary = HospitalClinicalDevelopment.busy_view(world)
 		for staff_id: String in world.ids("staff"):
 			var staff: Dictionary = world.facts.staff[staff_id]
-			staff.dispatch_idle = not HospitalClinicalDevelopment.safe_busy(world,staff_id) and not world.facts.moves.has(staff_id) and staff.get("base_task",{}).is_empty() and str(staff.get("training_job_id","")).is_empty()
+			staff.dispatch_idle = not HospitalClinicalDevelopment.safe_busy(world,staff_id,busy) and not world.facts.moves.has(staff_id) and staff.get("base_task",{}).is_empty() and str(staff.get("training_job_id","")).is_empty()
 		services.wellbeing.dispatch(world)
 	var before_movement: Dictionary = {}
 	for staff_id: String in world.ids("staff"):

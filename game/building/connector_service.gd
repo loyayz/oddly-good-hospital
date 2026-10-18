@@ -67,9 +67,11 @@ func preview(world: WorldState, kind: String, payload: Dictionary) -> Dictionary
 		if kind=="connector_build": candidate.facts.connectors[id].paid_cost = 0
 	if HospitalLedger.balance(world)<price: return BuildGeometry.failure("资金不足，原连接保持")
 	var builder: BuildService = BuildService.new(content,space)
+	var checker: HospitalSpace = HospitalSpace.new(content)
+	var previous_checker: HospitalSpace = HospitalSpace.new(content)
 	for actor: Dictionary in candidate.facts.actors.values():
 		if actor.location.kind!="floor": continue
-		var safety: Dictionary = builder.actor_safety(world,candidate,actor)
+		var safety: Dictionary = builder.actor_safety(world,candidate,actor,checker,previous_checker)
 		if not safety.ok: return safety
 	return {"ok":true,"reason":"","price":price,"refund":refund,"connection_id":id,"world_revision":world.revision,"candidate":candidate}
 

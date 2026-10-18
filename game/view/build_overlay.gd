@@ -42,7 +42,9 @@ func show_preview(draft: Dictionary, result: Dictionary, floor_id: int) -> void:
 			if int(blocked[0])>=int(origin[0]) and int(blocked[0])<int(origin[0])+int(size[0]) and int(blocked[1])>=int(origin[1]) and int(blocked[1])<int(origin[1])+int(size[1]):
 				_cell(lines,blocked,Color("b85550"))
 	else:
-		for cell: Array in cells: _cell(lines,cell,Color("b85550") if cell in result.get("blocked_cells",[]) else color)
+		var blocked_cells: Dictionary = {}
+		for cell: Array in result.get("blocked_cells",[]): blocked_cells[cell] = true
+		for cell: Array in cells: _cell(lines,cell,Color("b85550") if blocked_cells.has(cell) else color)
 	lines.surface_end()
 	mesh = lines
 

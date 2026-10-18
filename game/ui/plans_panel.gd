@@ -36,9 +36,13 @@ func build_controls() -> void:
 
 func _populate_plans() -> void:
 	_plans.clear()
-	for quote: Dictionary in simulation.clinic.compare_plans(simulation.world,_visit_id):
-		var id: String = str(quote.plan_id)
-		var plan: Dictionary = simulation.content.definition("treatment_plans",id)
+	var visit: Dictionary = simulation.world.facts.visits.get(_visit_id,{})
+	if visit.is_empty():
+		_plan_id = ""
+		return
+	for plan: Dictionary in simulation.content.catalog.treatment_plans:
+		if plan.disease_id!=visit.disease_id: continue
+		var id: String = str(plan.id)
 		_plans.add_item(str(plan.get("name",id)))
 		_plans.set_item_metadata(_plans.item_count-1,id)
 		if id==_plan_id: _plans.select(_plans.item_count-1)

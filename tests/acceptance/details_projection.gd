@@ -5,7 +5,7 @@ const Palette = preload("res://game/view/hospital_palette.gd")
 
 func run(t, content: HospitalContent) -> void:
 	_content = content
-	_cache = t.checkpoints(content,"res://tests/acceptance/clinical_fixtures.gd")
+	_cache = t.checkpoints(content,"res://tests/acceptance/clinical_fixtures.gd",self)
 	var started: int = Time.get_ticks_msec()
 	var ready: bool = await _ensure_boundary(t,"gp_started") and await _ensure_boundary(t,"outpatient_started")
 	t.preparation_elapsed(started)

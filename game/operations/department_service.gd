@@ -157,7 +157,10 @@ func settle(world: WorldState) -> void:
 			world.facts.departments.cases.append({"visit_id":visit_id,"tick":world.sim_tick,"day":world.sim_tick/WorldState.TICKS_PER_DAY,"department_id":experience.final_department_id,
 				"result":visit.final_result,"treated":not visit.attempt_ids.is_empty(),"rating":experience.final_score.duplicate(true)})
 	for source: String in ["environment","maintenance"]:
-		for receipt: Dictionary in world.facts.get(source,{}).get("receipts",{}).values():
+		for receipt_id: String in world.completion_receipt_ids(source):
+			var receipt: Dictionary = world.facts.get(source,{}).get("receipts",{}).get(receipt_id,{})
+			if receipt.is_empty() or int(receipt.tick)/WorldState.TICKS_PER_DAY<maxi(0,world.sim_tick/WorldState.TICKS_PER_DAY-int(content.balance.ratings.window_days)): continue
+			if world.facts.departments.staff_consumed.has(str(receipt.get("staff_id",""))+":"+str(receipt.id)): continue
 			if world.facts.staff.has(receipt.get("staff_id","")):
 				var job: Dictionary = receipt.duplicate(true)
 				job.success = true
@@ -207,11 +210,13 @@ func route_patient(world: WorldState, visit_id: String) -> bool:
 	ensure(world)
 	var visit: Dictionary = world.facts.visits[visit_id]
 	var units: Dictionary = world.facts.departments.units
+	var readiness_by_department: Dictionary = {}
 	if not world.facts.departments.routes.has(visit_id):
 		var correct: Array = []
 		var wrong: Array = []
 		for id: String in _sorted(units):
 			var readiness: Dictionary = readiness(world,id,visit_id,true)
+			readiness_by_department[id] = readiness
 			if not readiness.reachable or not units[id].open: continue
 			if readiness.structurally_compatible: correct.append(id)
 			elif readiness.reason_id in content.balance.guidance.wrong_destination_reason_ids and _serves_other_case(world,units[id]): wrong.append(id)
@@ -228,12 +233,13 @@ func route_patient(world: WorldState, visit_id: String) -> bool:
 		world.facts.departments.routes[visit_id] = {"visit_id":visit_id,"registration_choice":selected,"correct_department_id":correct[0],"error_rolled":error_rolled,"corrected":false,"nurse_attempted":false,"started_tick":world.sim_tick,"actual_mismatched_entry_arrival":{},"correction_source":""}
 		visit.department_id = selected
 	var route: Dictionary = world.facts.departments.routes[visit_id]
-	var current: Dictionary = readiness(world,str(visit.department_id),visit_id,true)
+	var current: Dictionary = readiness_by_department.get(str(visit.department_id),{})
+	if current.is_empty(): current = readiness(world,str(visit.department_id),visit_id,true)
 	if current.structurally_compatible:
 		if world.facts.departments.guidance.get(visit_id,{}).get("phase","")=="working": return false
 		if route.error_rolled and not route.corrected: _correct(world,visit_id,"capacity_recheck",str(visit.department_id))
 		return true
-	var targets: Array = eligible_departments(world,visit_id,true)
+	var targets: Array = eligible_departments(world,visit_id,true,readiness_by_department)
 	if targets.is_empty():
 		visit.waiting_reason = "正确科室临时不可用，保留票号等待合格窗口"
 		return false
@@ -282,11 +288,11 @@ func readiness(world: WorldState, department_id: String, visit_id: String, struc
 	var binding: Dictionary = content.definition("treatment_bindings",visit.binding_id)
 	var routine: Dictionary = content.definition("treatment_routines",binding.get("routine_id",""))
 	var equipment: bool = false
-	for facility: Dictionary in world.facts.facilities.values():
-		if _belongs(department,facility) and facility.definition_id==routine.get("equipment_id",""): equipment = true
+	for facility_id: String in world.facility_ids(str(routine.get("equipment_id",""))):
+		if _belongs(department,world.facts.facilities[facility_id]): equipment = true
 	var surgery_equipment: bool = false
-	for facility: Dictionary in world.facts.facilities.values():
-		if _belongs(department,facility) and facility.definition_id=="EQ01": surgery_equipment = true
+	for facility_id: String in world.facility_ids("EQ01"):
+		if _belongs(department,world.facts.facilities[facility_id]): surgery_equipment = true
 	var unlocked: bool = false
 	for plan: Dictionary in content.catalog.treatment_plans:
 		if plan.disease_id!=visit.disease_id: continue
@@ -319,12 +325,13 @@ func readiness(world: WorldState, department_id: String, visit_id: String, struc
 		if quote.get("structural_ok",quote.get("ok",false)): structurally_compatible = true
 	return {"ok":department.open and ready,"reachable":true,"structurally_compatible":structurally_compatible,"reason_id":"" if ready else "clinical_readiness","reason":"" if ready else "等待本病例实际岗位、设备、床位与物资就绪","plans":quotes,"department_id":department_id,"entry":department.entry.duplicate(true)}
 
-func eligible_departments(world: WorldState, visit_id: String, structural_only: bool = false) -> Array:
+func eligible_departments(world: WorldState, visit_id: String, structural_only: bool = false, observed: Dictionary = {}) -> Array:
 	var values: Array = []
 	for id: String in _sorted(world.facts.get("departments",{}).get("units",{})):
 		var department: Dictionary = world.facts.departments.units[id]
 		if not department.open: continue
-		var status: Dictionary = readiness(world,id,visit_id,structural_only)
+		var status: Dictionary = observed.get(id,{})
+		if status.is_empty(): status = readiness(world,id,visit_id,structural_only)
 		if department.open and status.reachable and status.structurally_compatible:
 			values.append({"id":id,"name":department.name,"status":status})
 	return values
@@ -456,7 +463,7 @@ func reason_cards(world: WorldState, visit_id: String) -> Array:
 
 func hospital_reasons(world: WorldState) -> Array:
 	var grouped: Dictionary = {}
-	for visit_id: String in world.ids("visits"):
+	for visit_id: String in world.active_visit_ids():
 		for card: Dictionary in reason_cards(world,visit_id):
 			if not grouped.has(card.id): grouped[card.id] = {"id":card.id,"name":card.name,"target_panel":card.target_panel,"visit_ids":[],"reason":card.reason}
 			grouped[card.id].visit_ids.append(visit_id)
@@ -478,12 +485,16 @@ func receipt(world: WorldState, visit_id: String) -> Dictionary:
 
 func summary(world: WorldState, department_id: String = "") -> Dictionary:
 	var units: Array = []
+	var queued_by_department: Dictionary = {}
+	for visit: Dictionary in world.facts.visits.values():
+		if not world.facts.tickets.has(visit.get("ticket_id","")): continue
+		var id: String = str(visit.get("department_id","general"))
+		if not queued_by_department.has(id): queued_by_department[id] = []
+		queued_by_department[id].append(visit.id)
 	for id: String in _sorted(world.facts.get("departments",{}).get("units",{})):
 		if not department_id.is_empty() and id!=department_id: continue
 		var unit: Dictionary = world.facts.departments.units[id]
-		var queued: Array = []
-		for visit: Dictionary in world.facts.visits.values():
-			if str(visit.get("department_id","general"))==id and world.facts.tickets.has(visit.get("ticket_id","")): queued.append(visit.id)
+		var queued: Array = queued_by_department.get(id,[])
 		units.append({"id":id,"name":unit.name,"room_ids":unit.room_ids.duplicate(),"shared_room_ids":unit.shared_room_ids.duplicate(),"entry":unit.entry.duplicate(true),"focus_id":unit.focus_id,"focus_remaining_ticks":maxi(0,int(unit.focus_ready_tick)-world.sim_tick),"open":unit.open,"intake_disease_ids":unit.intake_disease_ids.duplicate(),"queued_visit_ids":queued,"rating":aggregate_rating(world,id)})
 	return {"units":units,"hospital_rating":aggregate_rating(world),"reasons":hospital_reasons(world)}
 
@@ -803,7 +814,7 @@ func _detail(_world: WorldState, data: Dictionary, detail: Dictionary) -> void:
 
 func _charges(world: WorldState, visit: Dictionary) -> Array:
 	var charges: Array = []
-	for key: String in _sorted(world.facts.ledger.entries):
+	for key: String in world.ledger_owner_ids([visit.id]+visit.attempt_ids):
 		var entry: Dictionary = world.facts.ledger.entries[key]
 		if entry.settled and (entry.owner_id==visit.id or entry.owner_id in visit.attempt_ids):
 			charges.append({"id":key,"component":entry.component,"amount":entry.amount,"tick":entry.tick})

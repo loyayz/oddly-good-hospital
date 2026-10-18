@@ -329,16 +329,20 @@ func _remap_hospital(value: Dictionary,old_id: String,new_id: String) -> Diction
 	var state: Dictionary = value.get("departments",{})
 	if state.has("staff_consumed"):
 		var consumed: Dictionary = {}
-		var staff_ids: Array = value.get("staff",{}).keys()
-		staff_ids.sort_custom(func(a: String,b: String) -> bool: return a.length()>b.length())
+		var staff_ids: Dictionary = value.get("staff",{})
 		for key: String in state.staff_consumed:
 			var mapped: String = key
-			for staff_id: String in staff_ids:
-				if key.begins_with(staff_id+":"):
-					var source_id: String = key.substr(staff_id.length()+1)
+			# Try actual delimiter positions from longest to shortest. Staff IDs
+			# may themselves contain colons; splitting at the first is incorrect.
+			var separator: int = key.rfind(":")
+			while separator>=0:
+				var staff_id: String = key.left(separator)
+				if staff_ids.has(staff_id):
+					var source_id: String = key.substr(separator+1)
 					var mapped_source: String = new_id+source_id.substr(old_id.length()) if _hospital_prefix(source_id,old_id) else source_id
 					mapped = str(ids.get(staff_id,staff_id))+":"+mapped_source
 					break
+				separator = key.rfind(":",separator-1) if separator>0 else -1
 			consumed[mapped] = state.staff_consumed[key]
 		rewritten.departments.staff_consumed = consumed
 	return rewritten

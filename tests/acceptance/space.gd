@@ -42,15 +42,15 @@ class VisitorCandidateObservation:
 	var candidate_readonly: bool = true
 	func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 		super(database,geometry)
-	func _waiting_point(world: WorldState, actor_id: String, facility_ids: Variant = null) -> Dictionary:
+	func _waiting_point(world: WorldState, actor_id: String, facility_ids: Variant = null, waiting: Variant = null) -> Dictionary:
 		if facility_ids==null:
-			return super._waiting_point(world,actor_id)
+			return super._waiting_point(world,actor_id,facility_ids,waiting)
 		provided_queries += 1
 		if facility_ids.is_empty(): empty_queries += 1
 		var ids_before: Array = facility_ids.duplicate()
 		var before: Dictionary = world.freeze()
 		var initial_index: int = world._facility_count
-		var result: Dictionary = super._waiting_point(world,actor_id,facility_ids)
+		var result: Dictionary = super._waiting_point(world,actor_id,facility_ids,waiting)
 		candidate_index_untouched = candidate_index_untouched and initial_index==-1 and world._facility_count==-1
 		candidate_readonly = candidate_readonly and before==world.freeze() and facility_ids==ids_before
 		var cold_world: WorldState = WorldState.new(before)

@@ -27,9 +27,13 @@ var _facility_checks: Array = []
 var _public_checks: Array = []
 var _actor_checks: Array = []
 var _occupancy_views: Dictionary = {}
+var _safety_checker: HospitalSpace
+var _previous_checker: HospitalSpace
 
 func _init(building: BuildService, world: WorldState, request: Dictionary) -> void:
 	service = building
+	_safety_checker = HospitalSpace.new(service.content)
+	_previous_checker = HospitalSpace.new(service.content)
 	draft = request.duplicate(true)
 	kind = str(draft.get("kind","build_room"))
 	dependency_key = dependencies(world)
@@ -287,7 +291,7 @@ func _step(world: WorldState) -> void:
 				return
 			var id: String = _public_checks[_cursor]
 			_cursor += 1
-			var reason: String = service._public_door(_candidate,_candidate.facts.rooms[id])
+			var reason: String = service._public_door(_candidate,_candidate.facts.rooms[id],_safety_checker)
 			if not reason.is_empty():
 				_fail(reason)
 		"actor_safety":
@@ -296,7 +300,7 @@ func _step(world: WorldState) -> void:
 				return
 			var id: String = _actor_checks[_cursor]
 			_cursor += 1
-			var safety: Dictionary = service.actor_safety(_source,_candidate,_candidate.facts.actors[id])
+			var safety: Dictionary = service.actor_safety(_source,_candidate,_candidate.facts.actors[id],_safety_checker,_previous_checker)
 			if not safety.ok:
 				_finish(safety,world)
 

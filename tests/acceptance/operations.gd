@@ -44,7 +44,10 @@ const CASES: Dictionary = {
 	"OPS-39":"docs/design/01-simulation.md §6；预约与实际占用释放前不得维修，恢复后真实到场开工",
 	"OPS-40":"docs/design/08-hospital-life.md §18；评价回收保护已发布窗口和下一日候选",
 	"OPS-41":"docs/design/01-simulation.md §6；维护设备索引随几何和事实失效，保留原设备顺序、当前状态及随机流",
-	"OPS-42":"docs/design/08-hospital-life.md §4、§20；施工安全查询读取当前完整身体与临床边界，清扫派工保留区域、优先级和竞争"
+	"OPS-42":"docs/design/08-hospital-life.md §4、§20；施工安全查询读取当前完整身体与临床边界，清扫派工保留区域、优先级和竞争",
+	"OPS-43":"重复查询索引：多观察者完成批次、终态恢复、账目归属及正式布局费率失效",
+	"OPS-44":"实际动态路线批次：完整碰撞、出口授权、批次失效及公共前缀复用",
+	"OPS-45":"地污生成：完整合法格、最近排序、实际占用与原plot上限保持"
 }
 
 var _content: HospitalContent
@@ -68,6 +71,15 @@ func run(t) -> void:
 
 func _case_42() -> Dictionary:
 	return preload("res://tests/acceptance/environment_query_batches.gd").new().run(_content)
+
+func _case_43() -> Dictionary:
+	return preload("res://tests/acceptance/operations_repeated_work.gd").new().run_indices(_content)
+
+func _case_44() -> Dictionary:
+	return preload("res://tests/acceptance/operations_repeated_work.gd").new().run_routes(_content)
+
+func _case_45() -> Dictionary:
+	return preload("res://tests/acceptance/operations_repeated_work.gd").new().run_spawns(_content)
 
 func _result(ok: bool, details: Variant = null) -> Dictionary:
 	return {"ok":ok,"details":details}

@@ -14,7 +14,8 @@ var _accepted_sweeps: Dictionary = {}
 var _route_checks: Dictionary = {}
 var _envelope_next: int = 0
 var _route_queries: Array[Dictionary] = []
-var query_counts: Dictionary = {"routes":0,"journey_hits":0,"journey_invalidations":0,"transport_builds":0,"transport_searches":0,"candidate_connections":0}
+var _movement_reservations: Dictionary = {}
+var query_counts: Dictionary = {"routes":0,"journey_hits":0,"journey_invalidations":0,"transport_builds":0,"transport_searches":0,"candidate_connections":0,"floor_route_hits":0,"floor_route_builds":0}
 
 # These scopes contain synchronous, read-only enumeration only. Results never
 # survive an actual reservation, movement or subsequent clinical quote.
@@ -50,6 +51,20 @@ func end_route_query() -> void:
 	var parent: Dictionary = _route_queries.back().reference
 	if not child.is_empty() and not parent.is_empty() and not is_same(child,parent) and child.get("transport_dependent",false):
 		_mark_transport_dependency(parent)
+
+func begin_dynamic_route_query(world: WorldState) -> void:
+	# A single real actor's sealed candidate enumeration. This never enables
+	# nominal transport, and ends before any task/reservation/move is committed.
+	_indexed_revision = -1
+	_ensure_actor_index(world)
+	_route_queries.append({"world":world,"routes":{},"exits":{},"views":{},"reference":{},"journeys_allowed":false,"dynamic":true,"transport":{}})
+
+func dynamic_transport_view(world: WorldState, actor_id: String, members: Array, offsets: Dictionary) -> Dictionary:
+	if _route_queries.is_empty() or _route_queries.back().world!=world or not _route_queries.back().get("dynamic",false): return {}
+	var views: Dictionary = _route_queries.back().transport
+	var key: String = JSON.stringify([actor_id,members,offsets])
+	if not views.has(key): views[key] = {}
+	return views[key]
 
 func _mark_transport_dependency(reference: Dictionary) -> void:
 	reference.transport_dependent = true
@@ -287,6 +302,7 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 	_accepted_sweeps.clear()
 	_ensure_actor_index(world)
 	release_adaptations(world)
+	_movement_reservations = _build_reservation_view(world)
 	HospitalTransit.advance(self,world)
 	_dispatch_routes(world,world.present_actor_count() if present_at_start<0 else present_at_start)
 	for id: String in _route_checks.keys():
@@ -376,18 +392,21 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 	# Historic sweeps exist only during movement phase, never in later queries.
 	_accepted_sweeps.clear()
 	_sweep_index.expire_boundary()
+	_movement_reservations = {}
 
 func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2i, goal: Vector2i, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, navigation: Dictionary = {}) -> Dictionary:
 	var routes: Dictionary = {}
 	var key: String = ""
-	if ignore_people and navigation.is_empty() and not _route_queries.is_empty() and _route_queries.back().world==world:
+	if navigation.is_empty() and not _route_queries.is_empty() and _route_queries.back().world==world and (ignore_people or _route_queries.back().get("dynamic",false)):
 		routes = _route_queries.back().routes
 		var identity: Variant = actor.id
 		if not _route_queries.back().reference.is_empty() and members.is_empty() and offsets.is_empty():
 			identity = [body(actor),RouteClearance.reservation_exemptions(world,actor.id,floor_id)]
-		key = JSON.stringify([identity,floor_id,start.x,start.y,goal.x,goal.y,members,offsets,_route_envelope(world,actor,members,offsets)])
+		key = JSON.stringify([identity,floor_id,start.x,start.y,goal.x,goal.y,members,offsets,ignore_people,_route_envelope(world,actor,members,offsets)])
 		if routes.has(key):
+			query_counts.floor_route_hits += 1
 			return routes[key].duplicate(true)
+	query_counts.floor_route_builds += 1
 	if navigation.is_empty():
 		navigation = _navigation.query_graphs(self,world,floor_id,actor,members,offsets)
 	var graph: FloorNavigation = navigation.graph
@@ -656,13 +675,12 @@ func _movement_clear(world: WorldState, actor_id: String, floor_id: int, broad: 
 			var other_to: Rect2 = other_from if other==null else other.sweep_to
 			if envelope.intersects(other_from.merge(other_to),false) and BodySweep.intersects(sweep.sweep_from,sweep.sweep_to,other_from,other_to):
 				return false
-		for reservation: Dictionary in world.facts.adaptations.values():
+		for region: Dictionary in _reservation_regions(world,floor_id,envelope):
+			var reservation: Dictionary = region.reservation
 			if int(reservation.floor_id)!=floor_id or actor_id==reservation.actor_id or actor_id in reservation.get("staff_ids",[]) or reservation.actor_id in members:
 				continue
-			for area: Array in reservation.regions:
-				var rect: Rect2 = Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3]))
-				if BodySweep.intersects(sweep.sweep_from,sweep.sweep_to,rect,rect):
-					return false
+			if BodySweep.intersects(sweep.sweep_from,sweep.sweep_to,region.rect,region.rect):
+				return false
 	return true
 
 func _actor_rect(actor: Dictionary, origin: Vector2) -> Rect2:
@@ -718,14 +736,41 @@ func _unit_rect(world: WorldState, actor: Dictionary, origin: Vector2, members: 
 			rect = rect.merge(_actor_rect(world.facts.actors[member_id],origin+Vector2(float(offset[0]),float(offset[1]))))
 	return rect
 
+func _build_reservation_view(world: WorldState) -> Dictionary:
+	var view: Dictionary = {"index":BodyIndex.new(),"regions":{},"reservation_keys":{}}
+	for id: String in world.facts.adaptations: _index_reservation(view,id,world.facts.adaptations[id])
+	return view
+
+func _index_reservation(view: Dictionary, id: String, reservation: Dictionary) -> void:
+	for key: String in view.reservation_keys.get(id,[]):
+		view.index.remove(key)
+		view.regions.erase(key)
+	var keys: Array = []
+	for ordinal: int in reservation.get("regions",[]).size():
+		var area: Array = reservation.regions[ordinal]
+		var rect: Rect2 = Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3]))
+		var key: String = id+":"+str(ordinal)
+		view.index.update(key,int(reservation.floor_id),rect)
+		view.regions[key] = {"reservation":reservation,"rect":rect}
+		keys.append(key)
+	view.reservation_keys[id] = keys
+
+func _reservation_regions(world: WorldState, floor_id: int, rect: Rect2) -> Array:
+	if world.facts.adaptations.is_empty(): return []
+	var view: Dictionary = _movement_reservations
+	if view.is_empty(): view = read_view(world,"dynamic_reservation_regions",func() -> Dictionary: return _build_reservation_view(world))
+	var regions: Array = []
+	for key: String in view.index.candidates(floor_id,rect): regions.append(view.regions[key])
+	return regions
+
 func _dynamic_clear(world: WorldState, actor_id: String, floor_id: int, rect: Rect2, members: Array = []) -> bool:
 	_ensure_actor_index(world)
-	for reservation: Dictionary in world.facts.adaptations.values():
+	for region: Dictionary in _reservation_regions(world,floor_id,rect):
+		var reservation: Dictionary = region.reservation
 		if int(reservation.floor_id)!=floor_id or actor_id==reservation.actor_id or actor_id in reservation.get("staff_ids",[]) or reservation.actor_id in members:
 			continue
-		for area: Array in reservation.regions:
-			if rect.intersects(Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3])),false):
-				return false
+		if rect.intersects(region.rect,false):
+			return false
 	if _actor_index.intersects(floor_id,rect,actor_id,members):
 		return false
 	if _sweep_index.intersects(floor_id,rect,actor_id,members):
@@ -1166,6 +1211,7 @@ func _reserve_doors(world: WorldState, actor: Dictionary, movement: Dictionary, 
 			return false
 		world.facts.adaptations[door.id] = {"kind":"door","owner_id":actor.id,"actor_id":actor.id,"staff_ids":members,"floor_id":floor_id,
 			"span":quote.span,"clear_height_m":quote.clear_height_m,"clear_width_m":quote.clear_width_m,"regions":[[rect.position.x,rect.position.y,rect.size.x,rect.size.y]]}
+		if not _movement_reservations.is_empty(): _index_reservation(_movement_reservations,str(door.id),world.facts.adaptations[door.id])
 	return true
 
 func _mark_door_use(world: WorldState, floor_id: int, swept: Rect2) -> void:

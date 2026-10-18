@@ -80,6 +80,7 @@ func boundaries(world: WorldState) -> void:
 	var day: int = world.sim_tick/WorldState.TICKS_PER_DAY
 	var slot: int = shift_index(world)
 	world.facts.staff_schedule.day = day
+	var busy: Dictionary = Development.busy_view(world)
 	for staff_id: String in world.ids("staff"):
 		var staff: Dictionary = world.facts.staff[staff_id]
 		if staff.get("departed",false):
@@ -89,7 +90,7 @@ func boundaries(world: WorldState) -> void:
 		_roll_day(staff,_day_state(world,staff))
 		var schedule: Dictionary = assignment(world,staff_id,slot,day)
 		staff.scheduled_kind = schedule.kind
-		var busy: bool = Development.safe_busy(world,staff_id)
+		var occupied: bool = Development.safe_busy(world,staff_id,busy)
 		var life_phase: String = str(staff.get("life_task",{}).get("phase","idle"))
 		if staff.role=="doctor" and float(staff.fatigue)>=float(content.balance.wellbeing.fatigue_stop_new_work) and staff.leave_plan.is_empty():
 			staff.leave_plan = {"kind":"automatic","state":"planned","requested_start_tick":world.sim_tick,"days":0,"actual_start_tick":-1,"end_tick":-1,"recalled":false}
@@ -97,7 +98,7 @@ func boundaries(world: WorldState) -> void:
 		var needs_rest: bool = schedule.kind=="rest" or int(staff.rest_debt_ticks)>0 or leave_due
 		if staff.role=="doctor" and float(staff.fatigue)>=float(content.balance.wellbeing.fatigue_stop_new_work):
 			needs_rest = true
-		if needs_rest and busy:
+		if needs_rest and occupied:
 			staff.block_new_work = true
 			staff.schedule_reason = "正在安全交接，完成当前服务后休息"
 			if schedule.kind=="rest":
@@ -118,6 +119,7 @@ func dispatch(world: WorldState) -> void:
 	var nurses_by_ward: Dictionary = {}
 	var candidates_by_ward: Dictionary = {}
 	var nurse_busy: Dictionary = {}
+	var busy: Dictionary = Development.busy_view(world)
 	for stay_id: String in world.ids("ward_stays"):
 		var stay: Dictionary = world.facts.ward_stays[stay_id]
 		if not stay.get("phase","") in ["recovery","round_wait"]:
@@ -161,7 +163,7 @@ func dispatch(world: WorldState) -> void:
 			var candidate: Dictionary = world.facts.staff[candidate_id]
 			if candidate_id==old_id or candidate.block_new_work:
 				continue
-			if not nurse_busy.has(candidate_id): nurse_busy[candidate_id] = Development.safe_busy(world,candidate_id)
+			if not nurse_busy.has(candidate_id): nurse_busy[candidate_id] = Development.safe_busy(world,candidate_id,busy)
 			if nurse_busy[candidate_id]: continue
 			# Bed reservations still belong to their patients and original team.
 			# Prove the replacement's access on isolated reservations first.

@@ -84,12 +84,13 @@ const CASES: Dictionary = {
 	"GROW-81":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；名义相同适配布局的完整候选与独立预约世界一致",
 	"GROW-82":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；独立K精确结构支配及不可比候选、护理所有权与空组反例",
 	"GROW-83":"docs/design/11-growth-arrivals-recruitment.md §1.3；居民保护批次及导诊结构查询保持身份、完整路由与随机流",
-	"GROW-84":"docs/design/07-clinical-team.md §6；参考手术预筛选保持完整候选及实际资格验证"
+	"GROW-84":"docs/design/07-clinical-team.md §6；参考手术预筛选保持完整候选及实际资格验证",
+	"GROW-85":"docs/design/01-simulation.md §9.2；研究历史索引及三班维修预算复用保留付款、暂停、取消、恢复与原序"
 }
 
 func run(t) -> void:
 	_content = HospitalContent.new()
-	_cache = t.checkpoints(_content,"res://tests/acceptance/growth_fixtures.gd")
+	_cache = t.checkpoints(_content,"res://tests/acceptance/growth_fixtures.gd",self)
 	for case_id: String in CASES:
 		if not t.wants(case_id): continue
 		t.begin_case(case_id)
@@ -104,6 +105,9 @@ func run(t) -> void:
 	for simulation: HospitalSimulation in _simulations: simulation.dispose()
 	_simulations.clear()
 
+
+func _case_85(t) -> void:
+	await preload("res://tests/acceptance/growth_repeated_work.gd").new().run(t,_content,_cache)
 
 func _case_01(t) -> void:
 	var empty: Dictionary = _context(false)

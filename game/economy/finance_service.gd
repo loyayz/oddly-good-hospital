@@ -8,6 +8,11 @@ var supplies: RefCounted
 var maintenance: RefCounted
 var _indoor_geometry: Dictionary = {}
 var _indoor_count: int = 0
+var _station_world: int = 0
+var _station_revision: int = -1
+var _station_facilities: Dictionary = {}
+var _station_count: int = -1
+var _stations: int = 0
 
 func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 	content = database
@@ -182,15 +187,19 @@ func settle_departure(world: WorldState, staff_id: String) -> CommandResult:
 	return result
 
 func operating_rate(world: WorldState) -> int:
-	var stations: int = 0
-	for facility: Dictionary in world.facts.facilities.values():
-		if facility.get("stored",false) or facility.get("under_construction",false):
-			continue
-		var id: String = str(facility.definition_id)
-		if id.begins_with("M") or id in ["FUR01","FUR02","EQ01","EQ05","FUR05"]:
-			stations += int(facility.get("capacity",1)) if id=="EQ05" else 1
+	if _station_world!=world.get_instance_id() or _station_revision!=world.geometry_revision or not is_same(_station_facilities,world.facts.facilities) or _station_count!=world.facts.facilities.size():
+		_stations = 0
+		for facility: Dictionary in world.facts.facilities.values():
+			if facility.get("stored",false) or facility.get("under_construction",false): continue
+			var id: String = str(facility.definition_id)
+			if id.begins_with("M") or id in ["FUR01","FUR02","EQ01","EQ05","FUR05"]:
+				_stations += int(facility.get("capacity",1)) if id=="EQ05" else 1
+		_station_world = world.get_instance_id()
+		_station_revision = world.geometry_revision
+		_station_facilities = world.facts.facilities
+		_station_count = world.facts.facilities.size()
 	# Source rates are expressed as twentieths of a coin per hospital day.
-	return roundi(float(content.balance.daily_base_cost)*20.0)+roundi(float(content.balance.daily_cost_per_station)*20.0)*stations+roundi(float(content.balance.daily_cost_per_indoor_cell)*20.0)*_indoor_cells(world)
+	return roundi(float(content.balance.daily_base_cost)*20.0)+roundi(float(content.balance.daily_cost_per_station)*20.0)*_stations+roundi(float(content.balance.daily_cost_per_indoor_cell)*20.0)*_indoor_cells(world)
 
 func _indoor_cells(world: WorldState) -> int:
 	var unchanged: bool = true

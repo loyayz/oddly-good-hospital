@@ -1,6 +1,7 @@
 extends RefCounted
 
 const ClinicalStep = preload("res://tests/acceptance/clinical_step.gd")
+const CheckpointIdentity = preload("res://tests/acceptance/checkpoint_identity.gd")
 
 var _cache: RefCounted
 var _content: HospitalContent
@@ -10,6 +11,7 @@ var _fixture_sequence: int = 0
 var _fixture_failures: Array = []
 var _building_key: String = ""
 var _building_context: Dictionary = {}
+var _checkpoint_recipe_cache: Dictionary = {}
 
 func _dispose_simulations() -> void:
 	for simulation: HospitalSimulation in _simulations:
@@ -259,53 +261,74 @@ func _copy(key: String) -> Dictionary:
 	copy.errors = []
 	return copy
 
+func _checkpoint_recipes() -> Dictionary:
+	if not _checkpoint_recipe_cache.is_empty(): return _checkpoint_recipe_cache
+	var recipes: Dictionary = {
+		"gp_started":{"generator":"_gp_checkpoint","condition":{"phase":"gp"}},
+		"c_diagnosed":{"generator":"_diagnosis_state","arguments":[false],"condition":{"diagnosis_third":true}},
+		"surgery_queue":{"generator":"_surgery_queue","arguments":[false],"requires":["outpatient_queue"],"condition":{"phase":"wait_surgery"}},
+		"c_surgery_queue":{"generator":"_surgery_queue","arguments":[true],"condition":{"phase":"wait_surgery"}},
+		"companion_entered":{"generator":"_companion_entry"},
+		"visitor_visiting":{"generator":"_visitor_bedside","requires":["ward_entered"]},
+		"outpatient_queue":{"parent":"gp_started","maximum_ticks":2200,"condition":{"phase":"wait_outpatient","preparation":true,"no_attempt":true},"output_flags":{"queue_ready":true}},
+		"outpatient_started":{"parent":"outpatient_queue","maximum_ticks":2200,"condition":{"phase":"outpatient"}},
+		"surgery_prepared":{"parent":"surgery_queue","maximum_ticks":600,"condition":{"preparation":true}},
+		"surgery_started":{"parent":"surgery_prepared","maximum_ticks":600,"condition":{"phase":"surgery"},"input":{"kind":"gathered_surgical_team"}},
+		"surgery_wake":{"parent":"surgery_started","maximum_ticks":1800,"condition":{"phase":"wake"},"input":{"kind":"last_work_tick","service":"surgery"}},
+		"surgery_transfer":{"parent":"surgery_wake","maximum_ticks":200,"condition":{"phase":"transfer"},"input":{"kind":"last_work_tick","service":"wake"}},
+		"ward_entered":{"parent":"surgery_transfer","maximum_ticks":900,"condition":{"phase":"recovery"}},
+		"ward_care":{"parent":"ward_entered","maximum_ticks":300,"await_escort":true,"condition":{"session":"care"}},
+		"ward_after_care":{"parent":"ward_care","maximum_ticks":350,"condition":{"stay_flag":"care_completed"},"input":{"kind":"last_work_tick","service":"care"}},
+		"ward_round_wait":{"parent":"ward_after_care","maximum_ticks":2200,"condition":{"stay_phase":"round_wait"},"input":{"kind":"last_recovery_tick"}},
+		"ward_round":{"parent":"ward_round_wait","maximum_ticks":500,"condition":{"session":"round"}},
+		"ward_settled":{"parent":"ward_round","maximum_ticks":300,"condition":{"final_result":true},"input":{"kind":"last_work_tick","service":"round"}}}
+	for recipe: Dictionary in recipes.values(): recipe.methods = ["_ensure_boundary","_boundary_input","_at_boundary"]
+	_checkpoint_recipe_cache = recipes
+	return recipes
+
+func _checkpoint_dependencies(key: String) -> Dictionary:
+	return CheckpointIdentity.describe("res://tests/acceptance/clinical_fixtures.gd",_checkpoint_recipes(),key)
+
+func _gp_checkpoint(t) -> Dictionary:
+	var c: Dictionary = _context()
+	_seed_stream(c.world,"treatment",true,true,9200,9800)
+	if _arrive(c) and await _until(t,c,func()->bool: return _visit(c).get("phase","")=="gp"):
+		c.queue_gp_session = _session(c,"gp").duplicate(true)
+	return c
+
 func _ensure_boundary(t, key: String) -> bool:
+	var recipes: Dictionary = _checkpoint_recipes()
+	if not recipes.has(key):
+		_fixture_failures.append({"unknown_boundary":key})
+		return false
 	var cached: Dictionary = _cache.read(key)
 	if not cached.is_empty():
 		_snapshots[key] = cached
 		return true
 	var c: Dictionary = {}
-	match key:
-		"gp_started":
-			c = _context()
-			_seed_stream(c.world,"treatment",true,true,9200,9800)
-			if _arrive(c) and await _until(t,c,func()->bool: return _visit(c).get("phase","")=="gp"):
-				c.queue_gp_session = _session(c,"gp").duplicate(true)
-				_remember(c,key)
-		"c_diagnosed":
-			c = await _diagnosis_state(t,false)
-			if bool(c.diagnosis_trace.third): _remember(c,key)
-		"surgery_queue", "c_surgery_queue":
-			c = await _surgery_queue(t,key=="c_surgery_queue")
-			if _visit(c).get("phase","")=="wait_surgery": _remember(c,key)
-		"companion_entered":
-			await _companion_entry(t)
-		"visitor_visiting":
-			if await _ensure_boundary(t,"ward_entered"): c = await _visitor_bedside(t)
-		_:
-			var stages: Dictionary = {
-				"outpatient_queue":["gp_started",2200], "outpatient_started":["outpatient_queue",2200],
-				"surgery_prepared":["surgery_queue",600], "surgery_started":["surgery_prepared",600],
-				"surgery_wake":["surgery_started",1800], "surgery_transfer":["surgery_wake",200],
-				"ward_entered":["surgery_transfer",900], "ward_care":["ward_entered",300],
-				"ward_after_care":["ward_care",350], "ward_round_wait":["ward_after_care",2200],
-				"ward_round":["ward_round_wait",500], "ward_settled":["ward_round",300]}
-			if not stages.has(key):
-				_fixture_failures.append({"unknown_boundary":key})
-				return false
-			if not await _ensure_boundary(t,stages[key][0]): return false
-			# A newly generated prefix can continue in the same live simulation.
-			# Frozen nodes stay independent. Restored inputs always rebuild services.
-			c = _building_context if _building_key==stages[key][0] else _copy(stages[key][0])
-			_building_key = ""
-			_building_context = {}
-			if not _boundary_input(c,key): return false
-			if key=="ward_care":
-				var escort: String = str(_stay(c).get("escort_id",""))
-				await _until(t,c,func()->bool: return not c.sim.clinic.staff_busy(c.world,escort),180)
-			if await _until(t,c,func()->bool: return _at_boundary(c,key),int(stages[key][1])):
-				if key=="outpatient_queue": c.queue_ready = true
-				_remember(c,key)
+	var recipe: Dictionary = recipes[key]
+	for ancestor: String in recipe.get("requires",[]):
+		if not await _ensure_boundary(t,ancestor): return false
+	if recipe.has("generator"):
+		var generated: Variant = await callv(recipe.generator,[t]+recipe.get("arguments",[]))
+		if generated is Dictionary: c = generated
+		if _snapshots.has(key): return true
+		if not c.is_empty() and _at_boundary(c,key): _remember(c,key)
+	else:
+		var parent: String = recipe.parent
+		if not await _ensure_boundary(t,parent): return false
+		# Keep the real live prefix only until its next named boundary. Frozen
+		# nodes remain immutable; disk restores always construct new services.
+		c = _building_context if _building_key==parent else _copy(parent)
+		_building_key = ""
+		_building_context = {}
+		if not _boundary_input(c,key): return false
+		if recipe.get("await_escort",false):
+			var escort: String = str(_stay(c).get("escort_id",""))
+			await _until(t,c,func()->bool: return not c.sim.clinic.staff_busy(c.world,escort),180)
+		if await _until(t,c,func()->bool: return _at_boundary(c,key),int(recipe.maximum_ticks)):
+			for field: String in recipe.get("output_flags",{}): c[field] = recipe.output_flags[field]
+			_remember(c,key)
 	if not _snapshots.has(key):
 		_fixture_failures.append({"missing_boundary":key,"state":_state(c) if not c.is_empty() else {}})
 	return _snapshots.has(key)
@@ -313,7 +336,8 @@ func _ensure_boundary(t, key: String) -> bool:
 func _boundary_input(c: Dictionary, key: String) -> bool:
 	# These are declared input states for downstream cases. They do not prove
 	# earlier travel or elapsed work. CLIN-18/19/20 exercise those actual segments.
-	if key=="surgery_started":
+	var input: Dictionary = _checkpoint_recipes().get(key,{}).get("input",{})
+	if input.get("kind","")=="gathered_surgical_team":
 		var preparation: Dictionary = c.world.facts.preparations[c.visit_id]
 		var layout: Dictionary = c.sim.space.facility_layout(c.world,preparation.facility_id)
 		var positions: Dictionary = {_visit(c).actor_id:layout.patient_cell}
@@ -326,9 +350,8 @@ func _boundary_input(c: Dictionary, key: String) -> bool:
 		c.world.facts.sim_tick = maxi(c.world.sim_tick,int(preparation.deadline_tick)-2)
 		preparation.setup_remaining_ticks = 1
 		c.boundary_input = {"kind":"gathered_surgical_team","setup_remaining_ticks":1,"prior_travel_and_setup":"input"}
-	elif key in ["surgery_wake","surgery_transfer","ward_after_care","ward_settled"]:
-		var kinds: Dictionary = {"surgery_wake":"surgery","surgery_transfer":"wake","ward_after_care":"care","ward_settled":"round"}
-		var session: Dictionary = _session(c,kinds[key])
+	elif input.get("kind","")=="last_work_tick":
+		var session: Dictionary = _session(c,input.service)
 		if session.is_empty(): return false
 		var delta: int = maxi(0,int(session.remaining_ticks)-1)
 		c.world.facts.sim_tick += delta
@@ -336,7 +359,7 @@ func _boundary_input(c: Dictionary, key: String) -> bool:
 		if session.kind=="surgery": session.clinical_beat = 3
 		if session.kind=="care": _stay(c).remaining_ticks = maxi(1,int(_stay(c).remaining_ticks)-delta)
 		c.boundary_input = {"kind":"last_work_tick","service":session.kind,"remaining_ticks":1,"prior_work_ticks":"input"}
-	elif key=="ward_round_wait":
+	elif input.get("kind","")=="last_recovery_tick":
 		var stay: Dictionary = _stay(c)
 		c.world.facts.sim_tick += maxi(0,int(stay.remaining_ticks)-1)
 		stay.remaining_ticks = 1
@@ -355,21 +378,17 @@ func _boundary_input(c: Dictionary, key: String) -> bool:
 	return validation.is_empty()
 
 func _at_boundary(c: Dictionary, key: String) -> bool:
-	var phase: String = str(_visit(c).get("phase",""))
-	match key:
-		"outpatient_queue": return phase=="wait_outpatient" and c.world.facts.preparations.has(c.visit_id) and _visit(c).attempt_ids.is_empty()
-		"outpatient_started": return phase=="outpatient"
-		"surgery_prepared": return c.world.facts.preparations.has(c.visit_id)
-		"surgery_started": return phase=="surgery"
-		"surgery_wake": return phase=="wake"
-		"surgery_transfer": return phase=="transfer"
-		"ward_entered": return phase=="recovery"
-		"ward_care": return not _session(c,"care").is_empty()
-		"ward_after_care": return bool(_stay(c).get("care_completed",false))
-		"ward_round_wait": return _stay(c).get("phase","")=="round_wait"
-		"ward_round": return not _session(c,"round").is_empty()
-		"ward_settled": return not _visit(c).get("final_result","").is_empty()
-	return false
+	var condition: Dictionary = _checkpoint_recipes().get(key,{}).get("condition",{})
+	if condition.is_empty(): return false
+	if condition.has("phase") and _visit(c).get("phase","")!=condition.phase: return false
+	if condition.get("preparation",false) and not c.world.facts.preparations.has(c.visit_id): return false
+	if condition.get("no_attempt",false) and not _visit(c).attempt_ids.is_empty(): return false
+	if condition.get("diagnosis_third",false) and not bool(c.get("diagnosis_trace",{}).get("third",false)): return false
+	if condition.has("session") and _session(c,condition.session).is_empty(): return false
+	if condition.has("stay_flag") and not bool(_stay(c).get(condition.stay_flag,false)): return false
+	if condition.has("stay_phase") and _stay(c).get("phase","")!=condition.stay_phase: return false
+	if condition.get("final_result",false) and _visit(c).get("final_result","").is_empty(): return false
+	return true
 
 func _require(t, ids: Array, key: String) -> bool:
 	if _snapshots.has(key): return true

@@ -1,0 +1,552 @@
+{
+  "diagnostic_only": true,
+  "formal_pass": false,
+  "baseline": "9f7dc5b5274e7d190ad4b58f85c596e0ce06d6b4",
+  "scenes": {
+    "gp": {
+      "runs": [
+        {
+          "side": "before",
+          "pair": 1,
+          "name": "gp-before-plain-p1",
+          "completed": true,
+          "qualified": true,
+          "input_sha256": "903364846fdfb6db19c30992ef0e76b01673179513b6f8a8ebf22093dde13a1f",
+          "final_binary_sha256": "60989f796d6d08e3c4a2a0881f609a5d35fb0ac2b9837d4d919faa4b73131ad8",
+          "metrics": {
+            "cold_first_us": 410065,
+            "count": 80,
+            "following_mean_us": 54132.5696202532,
+            "max_us": 1495459,
+            "mean_us": 58581.725,
+            "p50_us": 22507,
+            "p95_us": 39310,
+            "p99_us": 1495459,
+            "total_us": 4686538
+          },
+          "qualification": {
+            "actual_clinical_work": true,
+            "all_steps_complete": true,
+            "present_160_throughout": true,
+            "same_actor_ids": true,
+            "world_valid": true
+          }
+        },
+        {
+          "side": "after",
+          "pair": 1,
+          "name": "gp-after-plain-p1",
+          "completed": true,
+          "qualified": true,
+          "input_sha256": "903364846fdfb6db19c30992ef0e76b01673179513b6f8a8ebf22093dde13a1f",
+          "final_binary_sha256": "60989f796d6d08e3c4a2a0881f609a5d35fb0ac2b9837d4d919faa4b73131ad8",
+          "metrics": {
+            "cold_first_us": 416941,
+            "count": 80,
+            "following_mean_us": 53732.0632911392,
+            "max_us": 1514816,
+            "mean_us": 58272.175,
+            "p50_us": 21517,
+            "p95_us": 38652,
+            "p99_us": 1514816,
+            "total_us": 4661774
+          },
+          "qualification": {
+            "actual_clinical_work": true,
+            "all_steps_complete": true,
+            "present_160_throughout": true,
+            "same_actor_ids": true,
+            "world_valid": true
+          }
+        },
+        {
+          "side": "after",
+          "pair": 2,
+          "name": "gp-after-plain-p2",
+          "completed": true,
+          "qualified": true,
+          "input_sha256": "903364846fdfb6db19c30992ef0e76b01673179513b6f8a8ebf22093dde13a1f",
+          "final_binary_sha256": "60989f796d6d08e3c4a2a0881f609a5d35fb0ac2b9837d4d919faa4b73131ad8",
+          "metrics": {
+            "cold_first_us": 409126,
+            "count": 80,
+            "following_mean_us": 54066.4430379747,
+            "max_us": 1524352,
+            "mean_us": 58504.6875,
+            "p50_us": 21866,
+            "p95_us": 39731,
+            "p99_us": 1524352,
+            "total_us": 4680375
+          },
+          "qualification": {
+            "actual_clinical_work": true,
+            "all_steps_complete": true,
+            "present_160_throughout": true,
+            "same_actor_ids": true,
+            "world_valid": true
+          }
+        },
+        {
+          "side": "before",
+          "pair": 2,
+          "name": "gp-before-plain-p2",
+          "completed": true,
+          "qualified": true,
+          "input_sha256": "903364846fdfb6db19c30992ef0e76b01673179513b6f8a8ebf22093dde13a1f",
+          "final_binary_sha256": "60989f796d6d08e3c4a2a0881f609a5d35fb0ac2b9837d4d919faa4b73131ad8",
+          "metrics": {
+            "cold_first_us": 408182,
+            "count": 80,
+            "following_mean_us": 55111.6202531646,
+            "max_us": 1523802,
+            "mean_us": 59525.0,
+            "p50_us": 22512,
+            "p95_us": 38922,
+            "p99_us": 1523802,
+            "total_us": 4762000
+          },
+          "qualification": {
+            "actual_clinical_work": true,
+            "all_steps_complete": true,
+            "present_160_throughout": true,
+            "same_actor_ids": true,
+            "world_valid": true
+          }
+        },
+        {
+          "side": "before",
+          "pair": 3,
+          "name": "gp-before-plain-p3",
+          "completed": true,
+          "qualified": true,
+          "input_sha256": "903364846fdfb6db19c30992ef0e76b01673179513b6f8a8ebf22093dde13a1f",
+          "final_binary_sha256": "60989f796d6d08e3c4a2a0881f609a5d35fb0ac2b9837d4d919faa4b73131ad8",
+          "metrics": {
+            "cold_first_us": 471062,
+            "count": 80,
+            "following_mean_us": 59202.7848101266,
+            "max_us": 1564648,
+            "mean_us": 64351.025,
+            "p50_us": 25995,
+            "p95_us": 43232,
+            "p99_us": 1564648,
+            "total_us": 5148082
+          },
+          "qualification": {
+            "actual_clinical_work": true,
+            "all_steps_complete": true,
+            "present_160_throughout": true,
+            "same_actor_ids": true,
+            "world_valid": true
+          }
+        },
+        {
+          "side": "after",
+          "pair": 3,
+          "name": "gp-after-plain-p3",
+          "completed": true,
+          "qualified": true,
+          "input_sha256": "903364846fdfb6db19c30992ef0e76b01673179513b6f8a8ebf22093dde13a1f",
+          "final_binary_sha256": "60989f796d6d08e3c4a2a0881f609a5d35fb0ac2b9837d4d919faa4b73131ad8",
+          "metrics": {
+            "cold_first_us": 410516,
+            "count": 80,
+            "following_mean_us": 53506.4050632911,
+            "max_us": 1512677,
+            "mean_us": 57969.025,
+            "p50_us": 21249,
+            "p95_us": 39023,
+            "p99_us": 1512677,
+            "total_us": 4637522
+          },
+          "qualification": {
+            "actual_clinical_work": true,
+            "all_steps_complete": true,
+            "present_160_throughout": true,
+            "same_actor_ids": true,
+            "world_valid": true
+          }
+        }
+      ],
+      "median_window_metrics": {
+        "before": {
+          "cold_first_us": 410065,
+          "count": 80,
+          "following_mean_us": 55111.6202531646,
+          "max_us": 1523802,
+          "mean_us": 59525.0,
+          "p50_us": 22512,
+          "p95_us": 39310,
+          "p99_us": 1523802,
+          "total_us": 4762000
+        },
+        "after": {
+          "cold_first_us": 410516,
+          "count": 80,
+          "following_mean_us": 53732.0632911392,
+          "max_us": 1514816,
+          "mean_us": 58272.175,
+          "p50_us": 21517,
+          "p95_us": 39023,
+          "p99_us": 1514816,
+          "total_us": 4661774
+        }
+      },
+      "mean_reduction": 0.021047039059218786,
+      "whole_facts_events_rng_binary_equal": true
+    },
+    "operations": {
+      "runs": [
+        {
+          "side": "before",
+          "pair": 1,
+          "name": "operations-before-plain-p1",
+          "completed": true,
+          "qualified": true,
+          "input_sha256": "de7910789ad8405de0a3f88a1613ede60653422856c42b084df09532550e0247",
+          "final_binary_sha256": "e437b2d4d0ad20f645afdbf5cb27d91f8d501e072b551fdd0c553a9529f275f2",
+          "metrics": {
+            "cold_first_us": 65344740,
+            "count": 40,
+            "following_mean_us": 117093.871794872,
+            "max_us": 65344740,
+            "mean_us": 1747785.025,
+            "p50_us": 113844,
+            "p95_us": 139768,
+            "p99_us": 65344740,
+            "total_us": 69911401
+          },
+          "qualification": {
+            "actual_clinical_work": true,
+            "all_steps_complete": true,
+            "operations.local_cleanup_actually_progressed": true,
+            "operations.real_movement_or_cleanup_work": true,
+            "operations.setup_accepted": true,
+            "operations.some_cleanup_assigned_or_completed": true,
+            "operations.staff_need_tasks_selected": true,
+            "present_160_throughout": true,
+            "same_actor_ids": true,
+            "world_valid": true
+          }
+        },
+        {
+          "side": "after",
+          "pair": 1,
+          "name": "operations-after-plain-p1",
+          "completed": true,
+          "qualified": true,
+          "input_sha256": "de7910789ad8405de0a3f88a1613ede60653422856c42b084df09532550e0247",
+          "final_binary_sha256": "e437b2d4d0ad20f645afdbf5cb27d91f8d501e072b551fdd0c553a9529f275f2",
+          "metrics": {
+            "cold_first_us": 14185928,
+            "count": 40,
+            "following_mean_us": 113406.615384615,
+            "max_us": 14185928,
+            "mean_us": 465219.65,
+            "p50_us": 110377,
+            "p95_us": 132100,
+            "p99_us": 14185928,
+            "total_us": 18608786
+          },
+          "qualification": {
+            "actual_clinical_work": true,
+            "all_steps_complete": true,
+            "operations.local_cleanup_actually_progressed": true,
+            "operations.real_movement_or_cleanup_work": true,
+            "operations.setup_accepted": true,
+            "operations.some_cleanup_assigned_or_completed": true,
+            "operations.staff_need_tasks_selected": true,
+            "present_160_throughout": true,
+            "same_actor_ids": true,
+            "world_valid": true
+          }
+        },
+        {
+          "side": "after",
+          "pair": 2,
+          "name": "operations-after-plain-p2",
+          "completed": true,
+          "qualified": true,
+          "input_sha256": "de7910789ad8405de0a3f88a1613ede60653422856c42b084df09532550e0247",
+          "final_binary_sha256": "e437b2d4d0ad20f645afdbf5cb27d91f8d501e072b551fdd0c553a9529f275f2",
+          "metrics": {
+            "cold_first_us": 13943391,
+            "count": 40,
+            "following_mean_us": 115929.641025641,
+            "max_us": 13943391,
+            "mean_us": 461616.175,
+            "p50_us": 112838,
+            "p95_us": 136761,
+            "p99_us": 13943391,
+            "total_us": 18464647
+          },
+          "qualification": {
+            "actual_clinical_work": true,
+            "all_steps_complete": true,
+            "operations.local_cleanup_actually_progressed": true,
+            "operations.real_movement_or_cleanup_work": true,
+            "operations.setup_accepted": true,
+            "operations.some_cleanup_assigned_or_completed": true,
+            "operations.staff_need_tasks_selected": true,
+            "present_160_throughout": true,
+            "same_actor_ids": true,
+            "world_valid": true
+          }
+        },
+        {
+          "side": "before",
+          "pair": 2,
+          "name": "operations-before-plain-p2",
+          "completed": true,
+          "qualified": true,
+          "input_sha256": "de7910789ad8405de0a3f88a1613ede60653422856c42b084df09532550e0247",
+          "final_binary_sha256": "e437b2d4d0ad20f645afdbf5cb27d91f8d501e072b551fdd0c553a9529f275f2",
+          "metrics": {
+            "cold_first_us": 65866830,
+            "count": 40,
+            "following_mean_us": 117578.358974359,
+            "max_us": 65866830,
+            "mean_us": 1761309.65,
+            "p50_us": 114605,
+            "p95_us": 133683,
+            "p99_us": 65866830,
+            "total_us": 70452386
+          },
+          "qualification": {
+            "actual_clinical_work": true,
+            "all_steps_complete": true,
+            "operations.local_cleanup_actually_progressed": true,
+            "operations.real_movement_or_cleanup_work": true,
+            "operations.setup_accepted": true,
+            "operations.some_cleanup_assigned_or_completed": true,
+            "operations.staff_need_tasks_selected": true,
+            "present_160_throughout": true,
+            "same_actor_ids": true,
+            "world_valid": true
+          }
+        },
+        {
+          "side": "before",
+          "pair": 3,
+          "name": "operations-before-plain-p3",
+          "completed": true,
+          "qualified": true,
+          "input_sha256": "de7910789ad8405de0a3f88a1613ede60653422856c42b084df09532550e0247",
+          "final_binary_sha256": "e437b2d4d0ad20f645afdbf5cb27d91f8d501e072b551fdd0c553a9529f275f2",
+          "metrics": {
+            "cold_first_us": 66152591,
+            "count": 40,
+            "following_mean_us": 122119.948717949,
+            "max_us": 66152591,
+            "mean_us": 1772881.725,
+            "p50_us": 115923,
+            "p95_us": 180402,
+            "p99_us": 66152591,
+            "total_us": 70915269
+          },
+          "qualification": {
+            "actual_clinical_work": true,
+            "all_steps_complete": true,
+            "operations.local_cleanup_actually_progressed": true,
+            "operations.real_movement_or_cleanup_work": true,
+            "operations.setup_accepted": true,
+            "operations.some_cleanup_assigned_or_completed": true,
+            "operations.staff_need_tasks_selected": true,
+            "present_160_throughout": true,
+            "same_actor_ids": true,
+            "world_valid": true
+          }
+        },
+        {
+          "side": "after",
+          "pair": 3,
+          "name": "operations-after-plain-p3",
+          "completed": true,
+          "qualified": true,
+          "input_sha256": "de7910789ad8405de0a3f88a1613ede60653422856c42b084df09532550e0247",
+          "final_binary_sha256": "e437b2d4d0ad20f645afdbf5cb27d91f8d501e072b551fdd0c553a9529f275f2",
+          "metrics": {
+            "cold_first_us": 13925772,
+            "count": 40,
+            "following_mean_us": 113849.307692308,
+            "max_us": 13925772,
+            "mean_us": 459147.375,
+            "p50_us": 110151,
+            "p95_us": 134179,
+            "p99_us": 13925772,
+            "total_us": 18365895
+          },
+          "qualification": {
+            "actual_clinical_work": true,
+            "all_steps_complete": true,
+            "operations.local_cleanup_actually_progressed": true,
+            "operations.real_movement_or_cleanup_work": true,
+            "operations.setup_accepted": true,
+            "operations.some_cleanup_assigned_or_completed": true,
+            "operations.staff_need_tasks_selected": true,
+            "present_160_throughout": true,
+            "same_actor_ids": true,
+            "world_valid": true
+          }
+        }
+      ],
+      "median_window_metrics": {
+        "before": {
+          "cold_first_us": 65866830,
+          "count": 40,
+          "following_mean_us": 117578.358974359,
+          "max_us": 65866830,
+          "mean_us": 1761309.65,
+          "p50_us": 114605,
+          "p95_us": 139768,
+          "p99_us": 65866830,
+          "total_us": 70452386
+        },
+        "after": {
+          "cold_first_us": 13943391,
+          "count": 40,
+          "following_mean_us": 113849.307692308,
+          "max_us": 13943391,
+          "mean_us": 461616.175,
+          "p50_us": 110377,
+          "p95_us": 134179,
+          "p99_us": 13943391,
+          "total_us": 18464647
+        }
+      },
+      "mean_reduction": 0.7379131063070028,
+      "whole_facts_events_rng_binary_equal": true
+    }
+  },
+  "tools": {
+    "T02": {
+      "name": "T02",
+      "input": {
+        "definite": 4000,
+        "optional": 800,
+        "all_optional_counts_evaluated": 801
+      },
+      "equivalent_complete_output": true,
+      "runs": [
+        {
+          "pair": 1,
+          "side": "before",
+          "elapsed_ns": 620109000
+        },
+        {
+          "pair": 1,
+          "side": "after",
+          "elapsed_ns": 5280800
+        },
+        {
+          "pair": 2,
+          "side": "after",
+          "elapsed_ns": 5269300
+        },
+        {
+          "pair": 2,
+          "side": "before",
+          "elapsed_ns": 647038700
+        },
+        {
+          "pair": 3,
+          "side": "before",
+          "elapsed_ns": 622950100
+        },
+        {
+          "pair": 3,
+          "side": "after",
+          "elapsed_ns": 6006400
+        }
+      ],
+      "median_ns": {
+        "before": 622950100,
+        "after": 5280800
+      },
+      "reduction": 0.9915229165225272,
+      "traced_peak_bytes": {
+        "before": 480824,
+        "after": 63088
+      }
+    },
+    "T03_final": {
+      "name": "T03",
+      "input": {
+        "steps": 6000,
+        "frames": 6000,
+        "session_states": 1000,
+        "density": 2400,
+        "independent_windows": 50,
+        "index_build_included": true,
+        "clock_map_calls_before": 50000,
+        "clock_map_calls_after": 1000
+      },
+      "equivalent_complete_output": true,
+      "runs": [
+        {
+          "pair": 1,
+          "side": "before",
+          "elapsed_ns": 137555300
+        },
+        {
+          "pair": 1,
+          "side": "after",
+          "elapsed_ns": 14762700
+        },
+        {
+          "pair": 2,
+          "side": "after",
+          "elapsed_ns": 14122000
+        },
+        {
+          "pair": 2,
+          "side": "before",
+          "elapsed_ns": 129883300
+        },
+        {
+          "pair": 3,
+          "side": "before",
+          "elapsed_ns": 128265700
+        },
+        {
+          "pair": 3,
+          "side": "after",
+          "elapsed_ns": 15192800
+        }
+      ],
+      "median_ns": {
+        "before": 129883300,
+        "after": 14762700
+      },
+      "reduction": 0.8863387363887428,
+      "traced_peak_bytes": {
+        "before": 1438336,
+        "after": 3639224
+      }
+    }
+  },
+  "native_roles": {
+    "source": "C:\\code\\loyayz\\oddly-good-hospital\\game\\platform\\windows\\platform_arrivals.cpp",
+    "source_sha256": "2c65dc9c3c4e07dc02a8fd1041004ecdf19acdc75ee80ae015b89961ae82e498",
+    "role_body_sha256": "69473acdd9e0bc469b4beb8bf822965de1b7b71e131a1cb8ab9d62165ccaef84",
+    "command": [
+      "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\native-math\\zig-x86_64-windows-0.15.2\\zig.exe",
+      "c++",
+      "-target",
+      "x86_64-windows-gnu",
+      "-std=c++17",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\repeated-work-repairs-20261018\\native-roles-r1\\roles.cpp",
+      "-o",
+      "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\repeated-work-repairs-20261018\\native-roles-r1\\roles.exe"
+    ],
+    "compile_exit_code": 0,
+    "scope": "Actual extracted local role filter, resource-node index construction and enabled propagation; excludes solver and Godot integration.",
+    "run_exit_code": 0,
+    "stdout": "{\"transitions\":102,\"nodes\":465,\"resources\":17,\"enabled_equal\":true}\n",
+    "stderr": ""
+  }
+}

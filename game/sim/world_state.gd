@@ -18,6 +18,12 @@ var facts: Dictionary:
 		_department_records.clear()
 		_department_snapshot = {}
 		_pending_ledger = null
+		_ledger_owners.clear()
+		_pending_sources.clear()
+		_operation_sets.clear()
+		_remodel_members = null
+		_remodel_records = {}
+		_remodel_count = -1
 		_ledger_entries = {}
 		_ledger_entry_count = -1
 		invalidate_geometry()
@@ -39,6 +45,12 @@ var _ledger_entries: Dictionary = {}
 var _ledger_entry_count: int = -1
 var _settled_ledger_amount: int = 0
 var _pending_ledger_debits: int = 0
+var _ledger_owners: Dictionary = {}
+var _pending_sources: Dictionary = {}
+var _operation_sets: Dictionary = {}
+var _remodel_members: Variant = null
+var _remodel_records: Dictionary = {}
+var _remodel_count: int = -1
 
 func _ensure_ledger_index() -> void:
 	if _pending_ledger!=null and is_same(_ledger_entries,facts.ledger.entries) and _ledger_entry_count==facts.ledger.entries.size(): return
@@ -49,8 +61,10 @@ func _ensure_ledger_index() -> void:
 	_ledger_entry_count = _ledger_entries.size()
 	_settled_ledger_amount = 0
 	_pending_ledger_debits = 0
+	_ledger_owners.clear()
 	for id: String in _ledger_entries:
 		var entry: Dictionary = _ledger_entries[id]
+		_index_ledger_owner(id,entry)
 		if entry.settled:
 			_settled_ledger_amount += int(entry.amount)
 		else:
@@ -78,6 +92,7 @@ func ledger_posted(id: String) -> void:
 		return
 	_ledger_entry_count += 1
 	var entry: Dictionary = facts.ledger.entries[id]
+	_index_ledger_owner(id,entry)
 	if entry.settled:
 		_settled_ledger_amount += int(entry.amount)
 	else:
@@ -90,6 +105,95 @@ func ledger_settled(id: String) -> void:
 		_settled_ledger_amount += amount
 		_pending_ledger_debits -= mini(0,amount)
 		_pending_ledger.erase(id)
+
+func _index_ledger_owner(id: String, entry: Dictionary) -> void:
+	if not _ledger_owners.has(entry.owner_id): _ledger_owners[entry.owner_id] = []
+	_ledger_owners[entry.owner_id].append(id)
+
+func ledger_owner_ids(owners: Array) -> Array:
+	_ensure_ledger_index()
+	var selected: Dictionary = {}
+	for owner: String in owners:
+		for id: String in _ledger_owners.get(owner,[]): selected[id] = true
+	var result: Array = selected.keys()
+	result.sort()
+	return result
+
+# Each observer owns its cursor; authoritative records and consumed identities
+# remain in facts. Owner notifications also support a legal same-ID rewrite.
+func _prune_fact_observers() -> void:
+	for key: String in _pending_sources.keys():
+		var state: Dictionary = _pending_sources[key]
+		if state.has("owner") and state.owner.get_ref()==null: _pending_sources.erase(key)
+
+func pending_fact_ids(observer: String, source: String, records: Dictionary, owner: Object = null) -> Array:
+	_prune_fact_observers()
+	var key: String = observer+":"+source
+	var state: Dictionary = _pending_sources.get(key,{})
+	if state.is_empty() or not is_same(state.records,records) or int(state.count)!=records.size():
+		state = {"source":source,"records":records,"count":records.size(),"pending":{}}
+		if owner!=null: state.owner = weakref(owner)
+		for id: String in records: state.pending[id] = true
+		_pending_sources[key] = state
+	var result: Array = state.pending.keys()
+	state.pending = {}
+	return result
+
+func fact_record_changed(source: String, id: String) -> void:
+	_prune_fact_observers()
+	for state: Dictionary in _pending_sources.values():
+		if state.source!=source: continue
+		var count: int = state.records.size()
+		if count!=int(state.count) and count!=int(state.count)+1:
+			state.count = -1
+			continue
+		state.count = count
+		state.pending[id] = true
+
+func completion_receipt_ids(source: String, observer: String = "staff_jobs") -> Array:
+	return pending_fact_ids(observer,source+".receipts",facts.get(source,{}).get("receipts",{}))
+
+func completion_receipt_added(source: String, id: String) -> void:
+	fact_record_changed(source+".receipts",id)
+
+# Only terminal history is omitted. Inventory/paused tasks remain eligible to
+# resume. Owners invalidate on commands which can revive or replace a record.
+func active_operation_ids(domain: String, collection: String, terminal: Array, ordered: bool = false, field: String = "phase") -> Array:
+	var records: Dictionary = facts.get(domain,{}) if collection.is_empty() else facts.get(domain,{}).get(collection,{})
+	var key: String = domain+":"+collection+":"+field+":"+JSON.stringify(terminal)
+	var state: Dictionary = _operation_sets.get(key,{})
+	if state.is_empty() or not is_same(state.records,records) or int(state.count)!=records.size():
+		var active: Array = []
+		for id: String in records:
+			if not records[id].get(field,"") in terminal: active.append(id)
+		state = {"records":records,"count":records.size(),"ids":active}
+		_operation_sets[key] = state
+	var result: Array = []
+	for id: String in state.ids:
+		if records.has(id) and not records[id].get(field,"") in terminal: result.append(id)
+	state.ids = result
+	if ordered:
+		result = result.duplicate()
+		result.sort()
+	return result.duplicate()
+
+func operation_records_changed(domain: String, collection: String = "") -> void:
+	for key: String in _operation_sets.keys():
+		if key.begins_with(domain+":"+collection+":"): _operation_sets.erase(key)
+	if domain=="remodels": _remodel_members = null
+
+func remodel_blocked(id: String) -> bool:
+	var records: Dictionary = facts.get("remodels",{})
+	if _remodel_members==null or not is_same(_remodel_records,records) or _remodel_count!=records.size():
+		_remodel_members = {}
+		_remodel_records = records
+		_remodel_count = records.size()
+		for order_id: String in active_operation_ids("remodels","",["applied","cancelled"],false,"state"):
+			var order: Dictionary = facts.remodels[order_id]
+			if order.state!="preparing": continue
+			for member: String in order.member_ids: _remodel_members[member] = true
+			for member: String in order.room_ids: _remodel_members[member] = true
+	return _remodel_members.has(id)
 
 var hospital_id: String:
 	get:
@@ -339,11 +443,18 @@ func validate(content: HospitalContent) -> String:
 	var geometry: HospitalSpace = HospitalSpace.new(content)
 	if not facts.research is Array or not facts.ledger.get("entries") is Dictionary or not _natural(facts.ledger.get("opening_balance",-1)):
 		return "研究或账目结构无效"
+	var unit_owners: Dictionary = {}
+	for order: Variant in facts.get("environment",{}).get("orders",{}).values():
+		if not order is Dictionary: continue
+		var units: Variant = order.get("units",[])
+		if not units is Array: continue
+		for unit: Variant in units:
+			if unit is Dictionary and unit.get("id") is String: unit_owners[unit.id] = true
 	for entry_key: String in facts.ledger.entries:
 		var entry: Variant = facts.ledger.entries[entry_key]
 		if not entry is Dictionary or not _fields(entry,{"owner_id":TYPE_STRING,"component":TYPE_STRING,"amount":TYPE_INT,"tick":TYPE_INT,"settled":TYPE_BOOL}).is_empty() or not _natural(entry.tick) or not is_finite(float(entry.amount)) or abs(int(entry.amount))>1000000000000:
 			return "账目金额无效"
-		if entry_key!=entry.owner_id+":"+entry.component or not _ledger_owner_exists(entry.owner_id):
+		if entry_key!=entry.owner_id+":"+entry.component or not _ledger_owner_exists(entry.owner_id,unit_owners):
 			return "账目凭据所有者或组件身份无效"
 	for actor: Dictionary in facts.actors.values():
 		var reason: String = _fields(actor,{"id":TYPE_STRING,"name":TYPE_STRING,"species_id":TYPE_STRING,"location":TYPE_DICTIONARY,"facing":TYPE_FLOAT})
@@ -653,7 +764,7 @@ func _reservation_owner_exists(id: String) -> bool:
 			return true
 	return false
 
-func _ledger_owner_exists(id: String) -> bool:
+func _ledger_owner_exists(id: String, unit_owners: Dictionary) -> bool:
 	if id==hospital_id:
 		return true
 	for collection: String in ["visits","attempts","build_transactions","staff","training_jobs","research_jobs","vertical_transactions","blueprint_transactions","remodels"]:
@@ -672,12 +783,7 @@ func _ledger_owner_exists(id: String) -> bool:
 		return true
 	if facts.get("recruitment",{}).get("searches",{}) is Dictionary and facts.get("recruitment",{}).get("searches",{}).has(id):
 		return true
-	for order: Variant in facts.get("environment",{}).get("orders",{}).values():
-		if order is Dictionary:
-			for unit: Variant in order.get("units",[]):
-				if unit is Dictionary and unit.get("id")==id:
-					return true
-	return false
+	return unit_owners.has(id)
 
 func _validate_shapes() -> String:
 	if not _natural(facts.get("move_request_next",0)):

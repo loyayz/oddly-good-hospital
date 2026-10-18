@@ -137,6 +137,17 @@ function Pump($Record) {
         $Record[($stream+'_writer')].Flush()
     }
 }
+function Count-WindowFrames($FrameStarts, [long]$WindowStart, [hashtable]$State) {
+    # The CSV collector appends observations; their timestamps need not arrive
+    # in order. Each original start is counted once against the fixed boundary.
+    if (-not $State.ContainsKey('window_start') -or $State.window_start -ne $WindowStart) {
+        $State.window_start=$WindowStart; $State.cursor=0; $State.count=0L
+    }
+    for (; $State.cursor -lt $FrameStarts.Count; $State.cursor++) {
+        if ($FrameStarts[$State.cursor] -ge $WindowStart) { $State.count++ }
+    }
+    return [long]$State.count
+}
 function Send-Control([string]$Next) {
     $script:generation++
     $before=Qpc
@@ -201,6 +212,7 @@ try {
         $gpu=Start-Owned (Get-Process -Id $PID).Path $gpuArgs 'gpu-sampler' $false;$owned+=,$gpu
     }
     $launchQpc=Qpc;$script:lastDisplayEnd=0.0;$stopRequestQpc=$null
+    $windowFrameCounter=@{}
     while(-not $game.process.HasExited){
         $pollStarted=Qpc
         foreach($item in $owned){Pump $item}
@@ -226,7 +238,7 @@ try {
         }
         $boundaryMargin=[long]($scenarioData.boundary_step_margin ?? ([Math]::Ceiling([double]$scenarioData.speed*10)))
         if($phase -eq 'running' -and $ready -and $ready.generation -eq $generation -and $ready.operations_complete -eq $true -and [long]$ready.completed_steps -ge [long]$scenarioData.minimum_step_samples+$boundaryMargin){
-            $count=0;foreach($frameStart in $frameStarts){if($frameStart -ge $windowStart){$count++}}
+            $count=Count-WindowFrames $frameStarts $windowStart $windowFrameCounter
             $minimumSeconds=[double]($scenarioData.minimum_capture_real_seconds ?? 0)
             if($count -ge [long]$scenarioData.minimum_frame_samples -and ((Qpc)-$windowStart)/$frequency -ge $minimumSeconds){$stopRequestQpc=Send-Control 'stop';$phase='stopping'}
         }

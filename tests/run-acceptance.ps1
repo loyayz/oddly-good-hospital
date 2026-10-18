@@ -81,15 +81,20 @@ $engineHash = (Get-FileHash -LiteralPath $Godot -Algorithm SHA256).Hash
 $nativeHash = (Get-FileHash -LiteralPath $native -Algorithm SHA256).Hash
 $mathNativeHash = (Get-FileHash -LiteralPath $mathNative -Algorithm SHA256).Hash
 $mpfrNativeHash = (Get-FileHash -LiteralPath $mpfrNative -Algorithm SHA256).Hash
-# Real prefix generation steps all simulation services. Their source, content,
-# assets and runtime identities invalidate generated states; unrelated docs and
-# case assertions do not. Each fixture builder adds its own identity in Godot.
-$fixtureSources = @($identity | Where-Object { $_.path -match '^(game/|content/|assets/|project\.godot$)' })
+function Test-FixtureSource([string]$Path) {
+    $normalized=$Path.Replace('\','/')
+    # Headless producers use simulation/content/persistence and native guards.
+    # They do not instantiate app/UI/view or load the root rendered assets;
+    # all pack manifests, body/asset binding data and content files stay hashed.
+    if ($normalized -match '^game/(app|ui|view)/' -or $normalized -match '^assets/' -or $normalized.EndsWith('.gd.uid')) { return $false }
+    return $normalized -match '^(game/|content/|project\.godot$)'
+}
+$fixtureSources = @($identity | Where-Object { Test-FixtureSource $_.path })
 $fixtureIdentity = [ordered]@{ source=$fixtureSources; engine=$engineHash; native=$nativeHash; gmp=$mathNativeHash; mpfr=$mpfrNativeHash; runtime=$runtimeHashes }
 $fixtureBytes = [Text.Encoding]::UTF8.GetBytes(($fixtureIdentity | ConvertTo-Json -Depth 8 -Compress))
 $fixtureHash = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($fixtureBytes)).ToLowerInvariant()
-[ordered]@{ directory=(Join-Path $repo '.cache/acceptance-checkpoints'); identity=$fixtureHash; rebuild=[bool]$RebuildFixtures } |
-    ConvertTo-Json | Set-Content -LiteralPath (Join-Path $target 'fixture-config.json') -Encoding utf8NoBOM
+[ordered]@{ directory=(Join-Path $repo '.cache/acceptance-checkpoints'); identity=$fixtureHash; basis=$fixtureIdentity; rebuild=[bool]$RebuildFixtures } |
+    ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $target 'fixture-config.json') -Encoding utf8NoBOM
 [ordered]@{
     head=(& git -C $repo rev-parse HEAD); cwd=$repo; project=$target; profile=$profile
     engine=$Godot; engine_sha256=$engineHash

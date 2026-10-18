@@ -8,9 +8,8 @@ func build_controls() -> void:
 	_staff = choice("员工",entity_choices("staff"))
 	var facilities: Array = [{"id":"","name":"自动选择合适设施"}]
 	for entry: Dictionary in entity_choices("facilities"):
-		for equipment: Dictionary in simulation.content.catalog.get("staff_recreation_equipment",[]):
-			if simulation.world.facts.facilities[entry.id].definition_id==equipment.id:
-				facilities.append(entry)
+		if not simulation.content.definition("staff_recreation_equipment",simulation.world.facts.facilities[entry.id].definition_id).is_empty():
+			facilities.append(entry)
 	var facility: OptionButton = choice("娱乐设施",facilities)
 	action("安排娱乐",func() -> void: send("staff_recreation",{"staff_id":selected(_staff),"facility_id":selected(facility)}))
 	note("休息、睡眠和离院会按需求自动安排，正在承担的工作先完成安全交接。")

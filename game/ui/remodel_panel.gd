@@ -178,9 +178,10 @@ func build_controls() -> void:
 		_fill_selection(_rooms,true)
 		_fill_selection(_objects,false)
 		var lines: PackedStringArray = []
+		var waiting: Dictionary = simulation.services.remodel.waiting_all(simulation.world)
 		for order: Dictionary in simulation.world.facts.get("remodels",{}).values():
 			if order.state=="preparing":
-				var reason: String = simulation.services.remodel._waiting(simulation.world,order)
+				var reason: String = waiting.get(order.id,"")
 				lines.append(order.id+" · "+("可以核对并应用" if reason.is_empty() else reason))
 		return "\n".join(lines))
 

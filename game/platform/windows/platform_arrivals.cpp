@@ -1130,6 +1130,7 @@ struct Model {
     std::map<std::string, int> resource_ids;
     std::vector<Q> budgets;
     std::vector<Node> nodes;
+    std::vector<std::vector<int>> resource_nodes;
     std::map<std::string, int> shapes;
     std::vector<Case> cases;
     std::map<std::string, Q> preparation_fractions;
@@ -1254,6 +1255,9 @@ struct Model {
         };
         for (const Case& item : cases) if (item.probability > 0) visit(item.root);
         enabled.assign(nodes.size(), true);
+        resource_nodes.resize(resources.size());
+        for (size_t i = 0; i < nodes.size(); ++i)
+            for (const auto& term : nodes[i].resources) resource_nodes[term.first].push_back(static_cast<int>(i));
         // Parsing reuse owns no hospital model or global state and ends with
         // this complete prepare. Every distinct representation is canonicalized.
         preparation_fractions.clear();
@@ -1263,27 +1267,32 @@ struct Model {
         for (int64_t i = 0; i < ids.size(); ++i) next[ids.at(i).text()] = source.get(ids.at(i)).text();
         if (next == locked_roles) return;
         locked_roles = std::move(next); dirty = true; role_demand = 0;
-        for (size_t i = 0; i < nodes.size(); ++i) {
-            const Node& node = nodes[i]; bool valid = true;
-            for (const auto& role : locked_roles) {
-                bool own = false, active = false;
-                for (const auto& term : node.resources) {
-                    const auto& name = resources[term.first];
-                    const std::string prefix = "coverage:" + role.first + ":";
-                    if (name.compare(0, prefix.size(), prefix) == 0) {
-                        if (name.substr(prefix.size()) != role.second) valid = false;
-                        else own = true;
-                    }
-                    if (name == "staff:" + role.first) active = true;
+        std::vector<bool> local_valid(nodes.size(), true);
+        for (const auto& role : locked_roles) {
+            std::set<int> own;
+            // Use the entire supplied identity as the prefix. In particular,
+            // staff IDs containing ':' must retain the original comparison.
+            const std::string prefix = "coverage:" + role.first + ":";
+            auto first = std::lower_bound(resources.begin(), resources.end(), prefix);
+            for (auto current = first; current != resources.end() && current->compare(0, prefix.size(), prefix) == 0; ++current) {
+                const bool matches = current->substr(prefix.size()) == role.second;
+                for (int node : resource_nodes[static_cast<size_t>(current - resources.begin())]) {
+                    if (matches) own.insert(node);
+                    else local_valid[node] = false;
                 }
-                if (active && !own) valid = false;
             }
+            auto staff = resource_ids.find("staff:" + role.first);
+            if (staff != resource_ids.end())
+                for (int node : resource_nodes[staff->second]) if (!own.count(node)) local_valid[node] = false;
+        }
+        for (size_t i = 0; i < nodes.size(); ++i) {
+            const Node& node = nodes[i];
             bool children = !node.choice;
             for (int child : node.children) {
                 if (node.choice) children = children || enabled[child];
                 else children = children && enabled[child];
             }
-            enabled[i] = valid && children;
+            enabled[i] = local_valid[i] && children;
         }
         // LP columns encode old legal choices. Retain the graph, but rebuild
         // only this relaxation when role restrictions change. MIP rows persist.

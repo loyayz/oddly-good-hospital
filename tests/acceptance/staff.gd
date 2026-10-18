@@ -42,13 +42,15 @@ const CASES: Dictionary = {
 	"STAFF-39":"docs/design/11-growth-arrivals-recruitment.md §6.2、§6.4；六岗位每日简历、两日到期与关注互斥，未录用不收费",
 	"STAFF-40":"docs/design/11-growth-arrivals-recruitment.md §6.5、§6.6；真实完成与研究120秒余数成长，贡献最大者唯一领取，护士不发通用等级",
 	"STAFF-41":"docs/design/09-consultation-wellbeing.md §4；休息选址完整去返程与当前障碍，护理交接保持床位上限及实时排他",
-	"STAFF-42":"docs/design/08-hospital-life.md §17.2、§17.4；选座邻居查询保留真实路线、朋友关系、全部候选顺序与连续预约"
+	"STAFF-42":"docs/design/08-hospital-life.md §17.2、§17.4；选座邻居查询保留真实路线、朋友关系、全部候选顺序与连续预约",
+	"STAFF-43":"docs/design/07-clinical-team.md §3、§11；岗位候选、结算回执、茶位及招聘窄投影保留实时资格与唯一成长",
+	"STAFF-44":"docs/design/07-clinical-team.md §8、§11；等候占用、共享桌位与基地队列复用保留实时预约与独占"
 }
 
 func run(t) -> void:
 	_content = HospitalContent.new()
 	_recorder = t
-	_cache = t.checkpoints(_content,"res://tests/acceptance/staff_fixtures.gd")
+	_cache = t.checkpoints(_content,"res://tests/acceptance/staff_fixtures.gd",self)
 	for case_id: String in CASES:
 		if not t.wants(case_id): continue
 		t.begin_case(case_id)
@@ -63,6 +65,12 @@ func _case_41(t) -> void:
 
 func _case_42(t) -> void:
 	preload("res://tests/acceptance/waiting_query_batches.gd").new().run(t,_content)
+
+func _case_43(t) -> void:
+	preload("res://tests/acceptance/staff_repeated_work.gd").new().run(t,_content)
+
+func _case_44(t) -> void:
+	preload("res://tests/acceptance/staff_repeated_work.gd").new().run_views(t,_content)
 
 func _case_01(t) -> void:
 	var x: Dictionary = _fixture({"doctor":"doctor","nurse":"nurse","reception":"receptionist","cleaner":"cleaner","researcher":"researcher","decorator":"decorator"})

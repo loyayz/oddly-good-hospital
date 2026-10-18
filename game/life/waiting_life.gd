@@ -195,10 +195,19 @@ func noise_multiplier(world: WorldState, visit_id: String) -> float:
 func facility_availability(world: WorldState, actor_id: String, facility_id: String) -> Dictionary:
 	if not world.facts.actors.has(actor_id) or not world.facts.facilities.has(facility_id): return {"ok":false,"reason":"人物或实际设施不存在"}
 	var candidate: WorldState = world
-	for need: Dictionary in world.facts.get("waiting_life",{}).get("needs",{}).values():
+	var using: Dictionary = space.read_view(world,"waiting_using_facilities",_using_facilities.bind(world))
+	for need: Dictionary in using.get(facility_id,[]):
 		if need.get("facility_id","")!=facility_id or need.phase!="using" or world.facts.visits[need.visit_id].actor_id==actor_id: continue
-		candidate = WorldState.new(world.freeze())
-		candidate.facts.actors[world.facts.visits[need.visit_id].actor_id].location = {"kind":"outside"}
+		var facts: Dictionary = world.facts.duplicate()
+		var user_id: String = str(world.facts.visits[need.visit_id].actor_id)
+		facts.actors = world.facts.actors.duplicate()
+		facts.actors[user_id] = world.facts.actors[user_id].duplicate()
+		facts.waiting_life = world.facts.waiting_life.duplicate()
+		facts.waiting_life.needs = world.facts.waiting_life.needs.duplicate()
+		facts.waiting_life.needs[need.visit_id] = need.duplicate()
+		facts.adaptations = world.facts.adaptations.duplicate()
+		candidate = WorldState.new(facts)
+		candidate.facts.actors[user_id].location = {"kind":"outside"}
 		candidate.facts.waiting_life.needs[need.visit_id].facility_id = ""
 		candidate.facts.adaptations.erase(facility_id)
 		break
@@ -302,24 +311,57 @@ func _route_candidate(world: WorldState, actor_id: String) -> WorldState:
 	facts.actors[actor_id] = world.facts.actors[actor_id].duplicate(true)
 	return WorldState.new(facts)
 
-func _occupied(world: WorldState, facility_id: String, actor_id: String) -> bool:
-	for actor: Dictionary in world.facts.actors.values():
-		if actor.id!=actor_id and actor.get("support_facility_id","")==facility_id: return true
-	for seat: Dictionary in world.facts.get("waiting_life",{}).get("seats",{}).values():
-		if seat.facility_id==facility_id and seat.actor_id!=actor_id: return true
+func _using_facilities(world: WorldState) -> Dictionary:
+	var result: Dictionary = {}
 	for need: Dictionary in world.facts.get("waiting_life",{}).get("needs",{}).values():
-		if need.get("facility_id","")==facility_id and world.facts.visits[need.visit_id].actor_id!=actor_id: return true
+		var id: String = str(need.get("facility_id",""))
+		if id.is_empty() or need.phase!="using": continue
+		if not result.has(id): result[id] = []
+		result[id].append(need)
+	return result
+
+func _occupancy_view(world: WorldState) -> Dictionary:
+	var result: Dictionary = {"owners":{},"blocked":{}}
+	for actor: Dictionary in world.facts.actors.values():
+		_occupancy_owner(result,str(actor.get("support_facility_id","")),str(actor.id))
+	for seat: Dictionary in world.facts.get("waiting_life",{}).get("seats",{}).values():
+		_occupancy_owner(result,str(seat.facility_id),str(seat.actor_id))
+	for need: Dictionary in world.facts.get("waiting_life",{}).get("needs",{}).values():
+		_occupancy_owner(result,str(need.get("facility_id","")),str(world.facts.visits[need.visit_id].actor_id))
 	for session: Dictionary in world.facts.sessions.values():
-		if session.facility_id==facility_id: return true
-	return world.facts.get("staff_life",{}).get("reservations",{}).has(facility_id)
+		result.blocked[session.facility_id] = true
+	for id: String in world.facts.get("staff_life",{}).get("reservations",{}): result.blocked[id] = true
+	return result
+
+func _occupancy_owner(view: Dictionary, facility_id: String, actor_id: String) -> void:
+	if facility_id.is_empty(): return
+	if not view.owners.has(facility_id): view.owners[facility_id] = {}
+	view.owners[facility_id][actor_id] = true
+
+func _occupied(world: WorldState, facility_id: String, actor_id: String) -> bool:
+	var view: Dictionary = space.read_view(world,"waiting_occupancy",_occupancy_view.bind(world))
+	var owners: Dictionary = view.owners.get(facility_id,{})
+	return view.blocked.has(facility_id) or not owners.is_empty() and (owners.size()>1 or not owners.has(actor_id))
+
+func _public_rooms(world: WorldState) -> Dictionary:
+	var result: Dictionary = {"rooms":{},"seats":{}}
+	for room: Dictionary in world.facts.rooms.values():
+		var floor_id: int = int(room.floor_id)
+		if not result.rooms.has(floor_id): result.rooms[floor_id] = []
+		result.rooms[floor_id].append({"rect":Rect2(float(room.origin[0]),float(room.origin[1]),float(room.size[0]),float(room.size[1])),"public":str(room.get("kind",room.get("definition_id",""))) in ["waiting","waiting_area","public","lobby","garden"]})
+	return result
 
 func _public_seat(world: WorldState, facility: Dictionary) -> bool:
 	if not facility.definition_id in PUBLIC_SEAT_DEFINITIONS: return false
-	for room: Dictionary in world.facts.rooms.values():
-		if int(room.floor_id)!=int(facility.floor_id): continue
-		if Rect2(float(room.origin[0]),float(room.origin[1]),float(room.size[0]),float(room.size[1])).has_point(Vector2(float(facility.cell[0]),float(facility.cell[1]))):
-			return str(room.get("kind",room.get("definition_id",""))) in ["waiting","waiting_area","public","lobby","garden"]
-	return space.owned(world,int(facility.floor_id),Vector2i(int(facility.cell[0]),int(facility.cell[1])))
+	var view: Dictionary = space.read_view(world,"waiting_public_rooms",_public_rooms.bind(world))
+	if view.seats.has(facility.id): return bool(view.seats[facility.id])
+	for room: Dictionary in view.rooms.get(int(facility.floor_id),[]):
+		if room.rect.has_point(Vector2(float(facility.cell[0]),float(facility.cell[1]))):
+			view.seats[facility.id] = bool(room.public)
+			return bool(room.public)
+	var available: bool = space.owned(world,int(facility.floor_id),Vector2i(int(facility.cell[0]),int(facility.cell[1])))
+	view.seats[facility.id] = available
+	return available
 
 func _reserve_seat(world: WorldState, visit: Dictionary, facility_id: String) -> String:
 	var quote: Dictionary = _seat_quote(world,visit,facility_id)
@@ -383,8 +425,11 @@ func _dispatch_need(world: WorldState, visit: Dictionary, need: Dictionary) -> v
 	var candidates: Array = []
 	var service: Dictionary = _amenity(need.purpose)
 	space.begin_route_query(world,{},space.nominal_query(world))
-	for facility_id: String in world.ids("facilities"):
-		if not world.facts.facilities[facility_id].definition_id in [service.ordinary_facility_id,service.universal_facility_id]: continue
+	var facility_ids: Array = world.facility_ids(str(service.ordinary_facility_id)).duplicate()
+	for id: String in world.facility_ids(str(service.universal_facility_id)):
+		if not id in facility_ids: facility_ids.append(id)
+	facility_ids.sort()
+	for facility_id: String in facility_ids:
 		var quote: Dictionary = _facility_quote(world,visit,facility_id)
 		if quote.ok and world.sim_tick+int(quote.travel_ticks)<=int(need.started_tick)+_ticks(content.balance.amenity_flow.seek_seconds):
 			quote.facility_id = facility_id

@@ -1,6 +1,9 @@
 class_name HospitalClinic
 extends RefCounted
 
+const ResearchJobs = preload("res://game/community/research_job_index.gd")
+var _research_jobs: RefCounted = ResearchJobs.new()
+
 const Visitors = preload("res://game/clinic/hospital_visitors.gd")
 const ReferenceFraction = preload("res://game/arrivals/exact_fraction.gd")
 const REFERENCE_COMPONENT_REQUEST_LIMIT: int = 256
@@ -749,7 +752,10 @@ func plan_quote(world: WorldState, visit_id: String, plan_id: String, options: D
 func _select_plan(world: WorldState, visit: Dictionary, doctor_id: String = "") -> Dictionary:
 	var quotes: Array = []
 	if scheduler!=null and doctor_id.is_empty():
+		var considered: Dictionary = {}
 		for pair: Dictionary in service_candidates(world,visit,"consult"):
+			if considered.has(pair.staff_id): continue
+			considered[pair.staff_id] = true
 			var recommendation: Dictionary = _select_plan(world,visit,pair.staff_id)
 			if not recommendation.is_empty(): return recommendation
 		return {}
@@ -1500,6 +1506,7 @@ func _complete_service(world: WorldState, session: Dictionary) -> void:
 	match session.kind:
 		"reception":
 			visit.registration_receipt = {"id":session.id,"staff_id":session.staff_ids[0],"standard_work_milli":int(session.total_ticks)*100,"completed_tick":world.sim_tick,"practice_awarded":false}
+			world.fact_record_changed("visits",visit.id)
 			_queue(world,visit,"gp")
 		"gp", "spectrum", "resonance":
 			if not visit.evidence_by_source.has(session.kind):
@@ -2098,7 +2105,10 @@ func shortage_requests(world: WorldState) -> Array:
 		if protocol.is_empty() or _available_supplies(world,visit.id)>=_required_supplies(visit,protocol):
 			continue
 		if candidate==null:
-			candidate = WorldState.new(world.freeze())
+			var facts: Dictionary = world.facts.duplicate()
+			facts.staff = world.facts.staff.duplicate()
+			for id: String in facts.staff: facts.staff[id] = facts.staff[id].duplicate()
+			candidate = WorldState.new(facts)
 			for staff: Dictionary in candidate.facts.staff.values():
 				staff.supply_strike = false
 		var quote: Dictionary = plan_quote(candidate,visit.id,plan_id,{"ignore_supplies":true})
@@ -2113,7 +2123,7 @@ func arrival_readiness(world: WorldState, binding_id: String, complex_case: bool
 	var quotes: Array = []
 	var executable: bool = false
 	var reasons: PackedStringArray = []
-	if not HospitalResearch.disease_unlocked(world,content,candidate.visit.disease_id):
+	if not HospitalResearch.disease_unlocked(world,content,candidate.visit.disease_id,_research_jobs.view(world)):
 		reasons.append("病例研究尚未完成")
 	for plan: Dictionary in content.catalog.treatment_plans:
 		if plan.disease_id!=candidate.visit.disease_id:
@@ -2122,12 +2132,15 @@ func arrival_readiness(world: WorldState, binding_id: String, complex_case: bool
 		quotes.append(quote)
 		executable = executable or bool(quote.ok)
 		if executable and not explain: break
+	var gp_candidates: Array = []
 	for kind: String in ["reception","gp"]:
-		if service_candidates(candidate.world,candidate.visit,kind,true).is_empty():
+		var candidates: Array = service_candidates(candidate.world,candidate.visit,kind,true)
+		if kind=="gp": gp_candidates = candidates
+		if candidates.is_empty():
 			reasons.append(_missing_service_reason(candidate.world,candidate.visit,kind))
 	var diagnostics_ok: bool = false
 	var diagnostic_query: Dictionary = {"candidates":{},"reference_schedule":false}
-	for pair: Dictionary in service_candidates(candidate.world,candidate.visit,"gp",true):
+	for pair: Dictionary in gp_candidates:
 		if _build_reference_diagnostic_stages(candidate.world,candidate.visit,pair,diagnostic_query).ok:
 			diagnostics_ok = true
 			break

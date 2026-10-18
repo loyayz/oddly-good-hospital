@@ -30,7 +30,8 @@ func preview(world: WorldState, draft: Dictionary) -> Dictionary:
 	var top: int = int(world.facts.floors.get("completed_top_floor",{}).get(key,1))
 	if floor_id!=top+1:
 		return BuildGeometry.failure("只能购买该地块实完高度的下一层")
-	for order: Dictionary in world.facts.floors.get("orders",{}).values():
+	for id: String in world.active_operation_ids("floors","orders",["completed","cancelled"]):
+		var order: Dictionary = world.facts.floors.orders[id]
 		if order.floor_id==floor_id and order.plot==plot and not terminal(order):
 			return {"ok":false,"reason":"该模块已有未完工单，请定位原进度","order_id":order.id}
 	var source: String = str(draft.get("source","lift"))
@@ -55,6 +56,7 @@ func preview(world: WorldState, draft: Dictionary) -> Dictionary:
 	return {"ok":true,"reason":"","floor_id":floor_id,"plot":plot.duplicate(),"price":price,"total_milli":seconds*1000,"world_revision":world.revision,"crew":crew}
 
 func execute(world: WorldState, kind: String, payload: Dictionary) -> CommandResult:
+	world.operation_records_changed("floors","orders")
 	ensure(world)
 	if kind!="floor_purchase":
 		var order: Dictionary = world.facts.floors.orders.get(str(payload.get("order_id","")),{})
@@ -99,7 +101,7 @@ func _crew(world: WorldState, floor_id: int, plot: Array) -> Dictionary:
 		if staff.role!=content.balance.floors.construction_role: continue
 		var point: Array = _work_point(world,id,floor_id-1,plot,[])
 		if point.is_empty(): continue
-		for tool_id: String in world.ids("facilities"):
+		for tool_id: String in world.facility_ids(str(content.balance.floors.construction_tool_id)):
 			var tool: Dictionary = world.facts.facilities[tool_id]
 			if tool.definition_id!=content.balance.floors.construction_tool_id or tool.failed or HospitalRemodel.blocked(world,tool_id): continue
 			if not space.route(world,id,int(tool.floor_id),tool.operator_cells[0],[],{},true).ok: continue
@@ -120,7 +122,7 @@ func _work_point(world: WorldState, worker_id: String, floor_id: int, plot: Arra
 
 func dispatch(world: WorldState) -> void:
 	_worked.clear()
-	for id: String in world.facts.floors.orders:
+	for id: String in world.active_operation_ids("floors","orders",["completed","cancelled"]):
 		var order: Dictionary = world.facts.floors.orders[id]
 		if terminal(order): continue
 		if order.paused or not below_room(world,int(order.floor_id),order.plot):
@@ -143,7 +145,7 @@ func dispatch(world: WorldState) -> void:
 		order.work_cell = _work_point(world,worker_id,int(order.floor_id)-1,order.plot,order.work_cell)
 		var tool: Dictionary = world.facts.facilities.get(order.tool_id,{})
 		if tool.is_empty() or tool.failed or HospitalRemodel.blocked(world,order.tool_id):
-			for tool_id: String in world.ids("facilities"):
+			for tool_id: String in world.facility_ids(str(content.balance.floors.construction_tool_id)):
 				var alternative: Dictionary = world.facts.facilities[tool_id]
 				if alternative.definition_id==content.balance.floors.construction_tool_id and not alternative.failed and not HospitalRemodel.blocked(world,tool_id) and space.route(world,worker_id,int(alternative.floor_id),alternative.operator_cells[0],[],{},true).ok:
 					tool = alternative
@@ -167,7 +169,8 @@ func dispatch(world: WorldState) -> void:
 			order.reason = space.request_move(world,worker_id,target_floor,target)
 
 func advance(world: WorldState) -> void:
-	for order: Dictionary in world.facts.floors.orders.values():
+	for id: String in world.active_operation_ids("floors","orders",["completed","cancelled"]):
+		var order: Dictionary = world.facts.floors.orders[id]
 		if order.phase!="working" or order.paused: continue
 		var worker_id: String = order.worker_id
 		if not environment._worker_ready(world,worker_id,order.id) or not below_room(world,int(order.floor_id),order.plot) or not world.facts.facilities.has(order.tool_id) or world.facts.facilities[order.tool_id].failed or not space.at(world,worker_id,int(order.floor_id)-1,order.work_cell): continue

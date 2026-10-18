@@ -1,6 +1,9 @@
 class_name HospitalResearch
 extends RefCounted
 
+const JobIndex = preload("res://game/community/research_job_index.gd")
+var _job_index: RefCounted = JobIndex.new()
+
 var content: HospitalContent
 var space: HospitalSpace
 var recruitment: RefCounted
@@ -169,6 +172,7 @@ func _start(world: WorldState, research_id: String, payload: Dictionary) -> Comm
 		"created_tick":world.sim_tick,"finished_tick":-1,"refund":0,"state":"waiting","paused":false,
 		"desk_id":"","worker_id":"","preferred_desk_id":desk_id,"preferred_worker_id":worker_id,
 		"reason":"等待共享研究桌队列调度"}
+	world.fact_record_changed("research_jobs",id)
 	return _result(world,true,"applied","",[research_id,id])
 
 func record_diagnostic_work(world: WorldState, visit: Dictionary, kind: String) -> void:
@@ -191,7 +195,8 @@ func boundaries(world: WorldState) -> void:
 			_due_briefs[research_id] = {"kind":"mail","tick":world.sim_tick}
 	# Research can stop at every fixed boundary, before the scheduler decides
 	# whether a rest or leave must wait for an unsafe work commitment.
-	for job: Dictionary in world.facts.research_jobs.values():
+	for job_id: String in world.active_operation_ids("research_jobs","",["completed","cancelled"],false,"state"):
+		var job: Dictionary = world.facts.research_jobs[job_id]
 		if terminal(job) or str(job.worker_id).is_empty():
 			continue
 		if not _worker_ready(world,job.worker_id,job.id,true):
@@ -199,13 +204,15 @@ func boundaries(world: WorldState) -> void:
 			job.state = "waiting"
 			job.reason = "研究员休息、换班或离职，原研究余量保留"
 
-func dispatch_job(world: WorldState, job: Dictionary) -> void:
+func dispatch_job(world: WorldState, job: Dictionary, desks: Dictionary = {}) -> void:
 	if terminal(job) or job.paused:
 		return
-	if not str(job.desk_id).is_empty() and (not desk_reason(world,job.desk_id).is_empty() or not _worker_ready(world,job.worker_id,job.id)):
+	if desks.is_empty(): desks = HospitalClinicalDevelopment.desk_view(world)
+	if not desks.has("maintenance"): desks.maintenance = desk_maintenance_view(world)
+	if not str(job.desk_id).is_empty() and (not desk_reason(world,job.desk_id,desks.maintenance).is_empty() or not _worker_ready(world,job.worker_id,job.id)):
 		_release(world,job)
 	if str(job.desk_id).is_empty():
-		var pair: Dictionary = _find_pair(world,job.preferred_desk_id,job.preferred_worker_id,job.id)
+		var pair: Dictionary = _find_pair(world,job.preferred_desk_id,job.preferred_worker_id,job.id,desks)
 		if pair.is_empty():
 			job.state = "waiting"
 			job.reason = _resource_reason(world,job.preferred_desk_id,job.preferred_worker_id)
@@ -227,11 +234,12 @@ func dispatch_job(world: WorldState, job: Dictionary) -> void:
 	job.reason = ""
 
 func advance(world: WorldState) -> void:
-	for id: String in world.ids("research_jobs"):
+	var maintenance: Dictionary = desk_maintenance_view(world)
+	for id: String in world.active_operation_ids("research_jobs","",["completed","cancelled"],true,"state"):
 		var job: Dictionary = world.facts.research_jobs[id]
 		if job.state!="working" or job.paused:
 			continue
-		if not desk_reason(world,job.desk_id).is_empty() or not _worker_ready(world,job.worker_id,job.id):
+		if not desk_reason(world,job.desk_id,maintenance).is_empty() or not _worker_ready(world,job.worker_id,job.id):
 			_release(world,job)
 			job.state = "waiting"
 			job.reason = "实际人员或桌位不可用，研究进度保留"
@@ -273,7 +281,7 @@ func settle(world: WorldState) -> void:
 		progress.mail.erase(research_id)
 	_diagnoses.clear()
 	_due_briefs.clear()
-	for id: String in world.ids("research_jobs"):
+	for id: String in world.active_operation_ids("research_jobs","",["completed","cancelled"],true,"state"):
 		var job: Dictionary = world.facts.research_jobs[id]
 		if terminal(job) or int(job.remaining_work_milli)>0:
 			continue
@@ -287,14 +295,17 @@ func settle(world: WorldState) -> void:
 		_events.append(SimEvent.new(world.sim_tick,"research_completed",[job.research_id,job.id],{"rewards":job.rewards.duplicate(true)}))
 
 func suspend_facility(world: WorldState, facility_id: String, reason: String) -> void:
-	for job: Dictionary in world.facts.get("research_jobs",{}).values():
+	for job_id: String in world.active_operation_ids("research_jobs","",["completed","cancelled"],false,"state"):
+		var job: Dictionary = world.facts.research_jobs[job_id]
 		if not terminal(job) and job.desk_id==facility_id:
 			_release(world,job)
 			job.state = "paused" if job.paused else "waiting"
 			job.reason = reason
 
 func active_job(world: WorldState, research_id: String) -> Dictionary:
-	for job: Dictionary in world.facts.get("research_jobs",{}).values():
+	var index: Dictionary = _job_index.view(world)
+	for id: String in index.groups.get(research_id,[]):
+		var job: Dictionary = index.records[id]
 		if job.research_id==research_id and not terminal(job):
 			return job
 	return {}
@@ -310,7 +321,15 @@ func take_events() -> Array[SimEvent]:
 	_events = []
 	return result
 
-func desk_reason(world: WorldState, desk_id: String) -> String:
+func desk_maintenance_view(world: WorldState) -> Dictionary:
+	var result: Dictionary = {"blocked":{}}
+	for collection: String in ["jobs","upgrades"]:
+		for job: Dictionary in world.facts.get("maintenance",{}).get(collection,{}).values():
+			if not str(job.get("worker_id","")).is_empty() and not job.phase in ["completed","cancelled","inventory"]:
+				result.blocked[str(job.get("facility_id",""))] = true
+	return result
+
+func desk_reason(world: WorldState, desk_id: String, maintenance: Dictionary = {}) -> String:
 	var desk: Dictionary = world.facts.facilities.get(desk_id,{})
 	if desk.is_empty() or desk.definition_id!="FUR05":
 		return "研究桌尚未实际放置"
@@ -318,10 +337,8 @@ func desk_reason(world: WorldState, desk_id: String) -> String:
 		return "研究桌故障或正在维护"
 	if HospitalRemodel.blocked(world,desk_id):
 		return "研究桌正在等待安全改建"
-	for collection: String in ["jobs","upgrades"]:
-		for job: Dictionary in world.facts.get("maintenance",{}).get(collection,{}).values():
-			if job.get("facility_id","")==desk_id and not str(job.get("worker_id","")).is_empty() and not job.phase in ["completed","cancelled","inventory"]:
-				return "研究桌已由实际维修工单预约"
+	if maintenance.is_empty(): maintenance = desk_maintenance_view(world)
+	if maintenance.blocked.has(desk_id): return "研究桌已由实际维修工单预约"
 	return ""
 
 func _worker_ready(world: WorldState, worker_id: String, own_job: String = "", upcoming_schedule: bool = false) -> bool:
@@ -344,20 +361,25 @@ func _worker_ready(world: WorldState, worker_id: String, own_job: String = "", u
 	var travelling: bool = location_kind=="transit" and not own_job.is_empty() and world.facts.moves.get(worker_id,{}).get("owner_job_id","")==own_job
 	return str(staff.get("active_job_id","")) in ["",own_job] and staff.get("life_task",{}).get("phase","idle")=="idle" and (location_kind=="floor" or travelling)
 
-func _find_pair(world: WorldState, preferred_desk: String = "", preferred_worker: String = "", own_job: String = "") -> Dictionary:
-	for desk_id: String in world.ids("facilities"):
-		if not preferred_desk.is_empty() and desk_id!=preferred_desk:
-			continue
-		if not desk_reason(world,desk_id).is_empty() or HospitalClinicalDevelopment.desk_taken(world,desk_id,own_job):
+func _find_pair(world: WorldState, preferred_desk: String = "", preferred_worker: String = "", own_job: String = "", desks: Dictionary = {}) -> Dictionary:
+	if desks.is_empty(): desks = HospitalClinicalDevelopment.desk_view(world)
+	var maintenance: Dictionary = desks.get("maintenance",{})
+	if maintenance.is_empty(): maintenance = desk_maintenance_view(world)
+	var desk_ids: Array = [preferred_desk] if not preferred_desk.is_empty() else world.facility_ids("FUR05")
+	var worker_ids: Array = []
+	var workers_ready: bool = false
+	for desk_id: String in desk_ids:
+		if not desk_reason(world,desk_id,maintenance).is_empty() or HospitalClinicalDevelopment.desk_taken(world,desk_id,own_job,desks):
 			continue
 		var layout: Dictionary = space.facility_layout(world,desk_id)
 		if layout.get("operator_cells",[]).is_empty():
 			continue
-		for worker_id: String in world.ids("staff"):
-			if not preferred_worker.is_empty() and worker_id!=preferred_worker:
-				continue
-			if not _worker_ready(world,worker_id,own_job) or world.facts.moves.has(worker_id):
-				continue
+		if not workers_ready:
+			var ids: Array = [preferred_worker] if not preferred_worker.is_empty() else world.ids("staff")
+			for id: String in ids:
+				if _worker_ready(world,id,own_job) and not world.facts.moves.has(id): worker_ids.append(id)
+			workers_ready = true
+		for worker_id: String in worker_ids:
 			var region: Dictionary = world.facts.staff[worker_id].get("work_region",{})
 			var cell: Array = HospitalClinicalDevelopment._operator(layout)
 			if region.get("strict",false) and (int(region.get("floor_id",-1))!=int(layout.floor_id) or not _in_region(cell,region)):
@@ -367,8 +389,9 @@ func _find_pair(world: WorldState, preferred_desk: String = "", preferred_worker
 	return {}
 
 func _resource_reason(world: WorldState, preferred_desk: String, preferred_worker: String) -> String:
-	if not preferred_desk.is_empty() and not desk_reason(world,preferred_desk).is_empty():
-		return desk_reason(world,preferred_desk)
+	if not preferred_desk.is_empty():
+		var reason: String = desk_reason(world,preferred_desk)
+		if not reason.is_empty(): return reason
 	var researchers: bool = false
 	var desks: bool = false
 	for staff: Dictionary in world.facts.staff.values():
@@ -459,17 +482,21 @@ func reception_readiness(world: WorldState, research_id: String) -> Array:
 	return result
 
 func rewards(world: WorldState, research_id: String) -> Dictionary:
-	for job: Dictionary in world.facts.get("research_jobs",{}).values():
+	var index: Dictionary = _job_index.view(world)
+	for id: String in index.groups.get(research_id,[]):
+		var job: Dictionary = index.records[id]
 		if job.research_id==research_id and (job.state=="completed" or not terminal(job)):
 			return job.rewards
 	return _reward_snapshot(research_id)
 
-static func disease_unlocked(world: WorldState, database: HospitalContent, disease_id: String) -> bool:
+static func disease_unlocked(world: WorldState, database: HospitalContent, disease_id: String, index: Dictionary = {}) -> bool:
 	if disease_id in database.catalog.get("initial_disease_ids",[]):
 		return true
+	if index.is_empty(): index = JobIndex.build(world)
 	for research_id: String in world.facts.research:
 		var definition: Dictionary = database.definition("research",research_id)
-		for job: Dictionary in world.facts.get("research_jobs",{}).values():
+		for id: String in index.groups.get(research_id,[]):
+			var job: Dictionary = index.records[id]
 			if job.research_id==research_id and job.state=="completed":
 				definition = job.rewards
 				break
@@ -516,6 +543,7 @@ func validate(world: WorldState) -> String:
 	var active: Dictionary = {}
 	var occupied: Dictionary = {}
 	var workers: Dictionary = {}
+	var desks: Dictionary = HospitalClinicalDevelopment.training_desk_view(world)
 	for id: Variant in world.facts.research_jobs:
 		var job: Variant = world.facts.research_jobs[id]
 		if not id is String or not job is Dictionary or job.get("id")!=id or not job.get("research_id") is String or content.definition("research",job.research_id).is_empty():
@@ -560,7 +588,7 @@ func validate(world: WorldState) -> String:
 		if not str(job.worker_id).is_empty():
 			if workers.has(job.worker_id) or not world.facts.staff.has(job.worker_id) or world.facts.staff[job.worker_id].role!="researcher" or world.facts.staff[job.worker_id].get("active_job_id","")!=id:
 				return "研究实际人员缺失或重复分派"
-			if occupied.has(job.desk_id) or not world.facts.facilities.has(job.desk_id) or world.facts.facilities[job.desk_id].definition_id!="FUR05" or HospitalClinicalDevelopment.training_desk_taken(world,job.desk_id):
+			if occupied.has(job.desk_id) or not world.facts.facilities.has(job.desk_id) or world.facts.facilities[job.desk_id].definition_id!="FUR05" or HospitalClinicalDevelopment.training_desk_taken(world,job.desk_id,"",desks):
 				return "研究共享桌位不存在或重复占用"
 			workers[job.worker_id] = id
 			occupied[job.desk_id] = id

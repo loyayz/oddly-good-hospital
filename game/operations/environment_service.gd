@@ -65,11 +65,13 @@ func begin_query(world: WorldState) -> void:
 		var facility: Dictionary = world.facts.facilities[session.facility_id]
 		if facility.definition_id in content.balance.environment.machine_noise_definition_ids and session.kind in ["outpatient","surgery","operate"] and not facility.get("failed",false):
 			_index_noise(world,"machines",facility)
-	for order: Dictionary in world.facts.get("environment",{}).get("orders",{}).values():
+	for id: String in world.active_operation_ids("environment","orders",["completed","cancelled"]):
+		var order: Dictionary = world.facts.environment.orders[id]
 		if order.paused: continue
 		for unit: Dictionary in order.units:
 			if unit.phase=="working" and not str(unit.worker_id).is_empty(): _index_sample("construction",int(order.floor_id),unit.cell,unit)
-	for order: Dictionary in world.facts.get("maintenance",{}).get("upgrades",{}).values():
+	for id: String in world.active_operation_ids("maintenance","upgrades",["completed","cancelled"]):
+		var order: Dictionary = world.facts.maintenance.upgrades[id]
 		if order.get("phase","")=="working" and world.facts.facilities.has(order.facility_id): _index_noise(world,"construction",world.facts.facilities[order.facility_id])
 
 func _index_sample(kind: String, floor_id: int, cell: Array, record: Dictionary) -> void:
@@ -153,7 +155,7 @@ func spawn_dirt(world: WorldState, source_kind: String, source_id: String, sourc
 	var target: Array = []
 	if bool(source.bin_collects):
 		var reachable: Dictionary = _coverage(world,floor_id,cell,int(content.balance.cleanup.bin_range_cells),false)
-		for id: String in world.ids("facilities"):
+		for id: String in world.facility_ids(str(content.balance.cleanup.bin_definition_id)):
 			var bin: Dictionary = world.facts.facilities[id]
 			if bin.definition_id == content.balance.cleanup.bin_definition_id and int(bin.floor_id)==floor_id and reachable.has(_cell_key(bin.cell)):
 				bin_id = id
@@ -165,10 +167,11 @@ func spawn_dirt(world: WorldState, source_kind: String, source_id: String, sourc
 					return str(patch.id)
 	if target.is_empty():
 		var candidates: Array = []
+		var ground: Dictionary = _ground_spawn_view(world,floor_id)
 		for x: int in range(int(cell[0])-4,int(cell[0])+5):
 			for y: int in range(int(cell[1])-4,int(cell[1])+5):
 				var point: Array = [x,y]
-				if _ground_spawn_legal(world,floor_id,point):
+				if _ground_spawn_legal(world,floor_id,point,ground):
 					candidates.append({"cell":point,"distance":absi(x-int(cell[0]))+absi(y-int(cell[1]))})
 		candidates.sort_custom(func(a: Dictionary,b: Dictionary) -> bool:
 			if a.distance!=b.distance: return a.distance<b.distance
@@ -191,26 +194,38 @@ func spawn_dirt(world: WorldState, source_kind: String, source_id: String, sourc
 	world.touch()
 	return id
 
-func _ground_spawn_legal(world: WorldState, floor_id: int, cell: Array) -> bool:
+func _ground_spawn_view(world: WorldState, floor_id: int) -> Dictionary:
+	var points: Dictionary = {}
+	var rectangles: Dictionary = {}
+	var index: BodyIndex = BodyIndex.new()
+	var floor_data: Dictionary = world.facts.floors.overrides.get(str(floor_id),{})
+	for cell: Array in floor_data.get("blocked",[]): points[Vector2(float(cell[0]),float(cell[1]))] = true
+	for door: Dictionary in floor_data.get("doors",[]): points[Vector2(float(door.cell[0]),float(door.cell[1]))] = true
+	for patch: Dictionary in world.facts.environment.dirt.values():
+		if int(patch.floor_id)==floor_id and patch.bin_id.is_empty(): points[Vector2(float(patch.cell[0]),float(patch.cell[1]))] = true
+	for id: String in world.facts.facilities:
+		var facility: Dictionary = world.facts.facilities[id]
+		if int(facility.get("floor_id",-1))!=floor_id or facility.get("location","floor")=="inventory": continue
+		var rect: Rect2 = _rectangle(facility)
+		index.update(id,floor_id,rect)
+		rectangles[id] = rect
+		var cells: Array = facility.get("operator_cells",[]).duplicate()
+		for field: String in ["patient_cell","repair_cell"]:
+			if not facility.get(field,[]).is_empty(): cells.append(facility[field])
+		for cell: Array in cells: points[Vector2(float(cell[0]),float(cell[1]))] = true
+	for reservation: Dictionary in world.facts.adaptations.values():
+		if int(reservation.get("floor_id",-1))!=floor_id: continue
+		for cell: Array in reservation.get("occupied_cells",[]): points[Vector2(float(cell[0]),float(cell[1]))] = true
+	return {"points":points,"rectangles":rectangles,"index":index}
+
+func _ground_spawn_legal(world: WorldState, floor_id: int, cell: Array, view: Dictionary = {}) -> bool:
 	if not space.owned(world,floor_id,Vector2i(int(cell[0]),int(cell[1]))):
 		return false
-	var floor_data: Dictionary = world.facts.floors.overrides.get(str(floor_id),{})
-	if cell in floor_data.get("blocked",[]):
-		return false
-	for door: Dictionary in floor_data.get("doors",[]):
-		if door.cell == cell:
-			return false
-	for patch: Dictionary in world.facts.environment.dirt.values():
-		if int(patch.floor_id)==floor_id and patch.bin_id.is_empty() and patch.cell==cell:
-			return false
-	for facility: Dictionary in world.facts.facilities.values():
-		if int(facility.get("floor_id",-1))!=floor_id or facility.get("location","floor")=="inventory":
-			continue
-		if _rectangle(facility).has_point(Vector2(float(cell[0]),float(cell[1]))) or cell in facility.get("operator_cells",[]) or cell==facility.get("patient_cell",[]) or cell==facility.get("repair_cell",[]):
-			return false
-	for reservation: Dictionary in world.facts.adaptations.values():
-		if int(reservation.get("floor_id",-1))==floor_id and cell in reservation.get("occupied_cells",[]):
-			return false
+	if view.is_empty(): view = _ground_spawn_view(world,floor_id)
+	var point: Vector2 = Vector2(float(cell[0]),float(cell[1]))
+	if view.points.has(point): return false
+	for id: String in view.index.candidates(floor_id,Rect2(point,Vector2(0.001,0.001))):
+		if view.rectangles[id].has_point(point): return false
 	return true
 
 func renovation_quote(world: WorldState, payload: Dictionary) -> Dictionary:
@@ -262,6 +277,7 @@ func renovation_quote(world: WorldState, payload: Dictionary) -> Dictionary:
 		"work_seconds":accepted.size()*int(content.balance.renovation.work_seconds_per_unit)}
 
 func execute(world: WorldState, kind: String, payload: Dictionary) -> CommandResult:
+	world.operation_records_changed("environment","orders")
 	match kind:
 		"renovate", "renovation_order":
 			var quote: Dictionary = renovation_quote(world,payload)
@@ -348,7 +364,7 @@ func dispatch(world: WorldState) -> void:
 		if available.is_empty(): continue
 		# Selection only reads routes. Commit the winning task after closing the
 		# scope, so the next worker sees every earlier assignment immediately.
-		space.begin_route_query(world)
+		space.begin_dynamic_route_query(world)
 		for patch: Dictionary in available.values():
 			if not _allowed_region(staff,int(patch.floor_id),patch.cell):
 				continue
@@ -375,7 +391,9 @@ func dispatch(world: WorldState) -> void:
 			pending.erase(selected.patch.id)
 			pending_floors[int(selected.patch.floor_id)].erase(selected.patch.id)
 	var safety: Dictionary = {}
-	for order_id: String in _ordered(world.facts.environment.orders):
+	var tool_checked: bool = false
+	var available_tool: String = ""
+	for order_id: String in world.active_operation_ids("environment","orders",["completed","cancelled"],true):
 		var order: Dictionary = world.facts.environment.orders[order_id]
 		if order.phase in ["completed","cancelled"] or order.paused:
 			continue
@@ -389,7 +407,10 @@ func dispatch(world: WorldState) -> void:
 		for unit: Dictionary in order.units:
 			if unit.phase in ["completed","cancelled"] or not str(unit.worker_id).is_empty() or assigned>=int(content.balance.renovation.max_workers_per_order):
 				continue
-			var tool_id: String = _tool(world)
+			if not tool_checked:
+				available_tool = _tool(world)
+				tool_checked = true
+			var tool_id: String = available_tool
 			if tool_id.is_empty():
 				order.reason = "等待正常装修工具台"
 				break
@@ -438,7 +459,7 @@ func advance(world: WorldState) -> void:
 			if world.facts.environment.pinned_dirt_id==id:
 				world.facts.environment.pinned_dirt_id = ""
 	var safety: Dictionary = {}
-	for id: String in _ordered(world.facts.environment.orders):
+	for id: String in world.active_operation_ids("environment","orders",["completed","cancelled"],true):
 		var order: Dictionary = world.facts.environment.orders[id]
 		if order.paused or order.phase in ["completed","cancelled"]:
 			continue
@@ -572,7 +593,7 @@ func _unit_safe_direct(world: WorldState, order: Dictionary, unit: Dictionary) -
 	return true
 
 func _tool(world: WorldState) -> String:
-	for id: String in world.ids("facilities"):
+	for id: String in world.facility_ids(str(content.balance.renovation.tool_equipment_id)):
 		var tool: Dictionary = world.facts.facilities[id]
 		if tool.definition_id==content.balance.renovation.tool_equipment_id and not tool.get("failed",false) and tool.get("location","floor")!="inventory":
 			return id
@@ -585,7 +606,8 @@ func _has_role(world: WorldState, role: String) -> bool:
 	return false
 
 func _surface_ordered(world: WorldState, key: String) -> bool:
-	for order: Dictionary in world.facts.environment.orders.values():
+	for order_id: String in world.active_operation_ids("environment","orders",["completed","cancelled"]):
+		var order: Dictionary = world.facts.environment.orders[order_id]
 		for unit: Dictionary in order.units:
 			if unit.key==key and unit.phase not in ["completed","cancelled"]:
 				return true
@@ -613,6 +635,7 @@ func _receipt(world: WorldState, kind: String, source_id: String, contributions:
 	if not world.facts.staff.has(winner):
 		winner = ""
 	world.facts.environment.receipts[id] = {"id":id,"kind":kind,"source_id":source_id,"staff_id":winner,"tick":world.sim_tick,"standard_work_milli":total}
+	world.completion_receipt_added("environment",id)
 	world.touch()
 
 func _allowed_region(staff: Dictionary, floor_id: int, cell: Array) -> bool:
@@ -895,13 +918,15 @@ func _sample_noise(world: WorldState, floor_id: int, noise_cells: Dictionary, re
 		var facility: Dictionary = world.facts.facilities[session.facility_id]
 		if int(facility.floor_id)==floor_id and facility.definition_id in rules.machine_noise_definition_ids and session.kind in ["outpatient","surgery","operate"] and not facility.get("failed",false) and _facility_in_coverage(world,facility,noise_cells):
 			result.noise = maxi(int(result.noise),int(rules.machine_noise_penalty))
-	for order: Dictionary in world.facts.get("environment",{}).get("orders",{}).values():
+	for id: String in world.active_operation_ids("environment","orders",["completed","cancelled"]):
+		var order: Dictionary = world.facts.environment.orders[id]
 		if int(order.floor_id)!=floor_id or order.paused:
 			continue
 		for unit: Dictionary in order.units:
 			if unit.phase=="working" and not str(unit.worker_id).is_empty() and noise_cells.has(_cell_key(unit.cell)):
 				result.noise = maxi(int(result.noise),int(rules.construction_noise_penalty))
-	for order: Dictionary in world.facts.get("maintenance",{}).get("upgrades",{}).values():
+	for id: String in world.active_operation_ids("maintenance","upgrades",["completed","cancelled"]):
+		var order: Dictionary = world.facts.maintenance.upgrades[id]
 		if order.get("phase","")=="working" and world.facts.facilities.has(order.facility_id):
 			var facility: Dictionary = world.facts.facilities[order.facility_id]
 			if int(facility.floor_id)==floor_id and _facility_in_coverage(world,facility,noise_cells):

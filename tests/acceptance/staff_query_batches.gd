@@ -77,7 +77,7 @@ func facility_rules() -> Dictionary:
 func handoff_rules(t) -> Dictionary:
 	var fixture = ClinicalFixtures.new()
 	fixture._content = _content
-	fixture._cache = t.checkpoints(_content,"res://tests/acceptance/clinical_fixtures.gd")
+	fixture._cache = t.checkpoints(_content,"res://tests/acceptance/clinical_fixtures.gd",fixture)
 	if not await fixture._ensure_boundary(t,"ward_after_care"):
 		fixture._dispose_simulations()
 		return {"ok":false,"missing":"ward_after_care"}
