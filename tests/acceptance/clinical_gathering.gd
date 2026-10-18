@@ -8,6 +8,30 @@ class UnreachableWorker extends HospitalSpace:
 			return {"ok":false,"status":"no_route","reason":"controlled unreachable gathering operator"}
 		return super.route(world,actor_id,floor_id,target,members,offsets,ignore_people)
 
+class CandidateOrderSpace extends HospitalSpace:
+	var fit_before_routes: bool = false
+	var reject_worker: bool = false
+	var complete_quotes: int = 0
+	var pending_fits: Dictionary = {}
+	func facility_preflight_quote(world: WorldState, facility_id: String, actor_id: String, staff_ids: Array = []) -> Dictionary:
+		if fit_before_routes:
+			complete_quotes += 1
+			var full: Dictionary = super.facility_quote(world,facility_id,actor_id,staff_ids)
+			pending_fits[JSON.stringify([world.get_instance_id(),facility_id,actor_id,staff_ids])] = full
+			return full
+		return super.facility_preflight_quote(world,facility_id,actor_id,staff_ids)
+	func facility_quote(world: WorldState, facility_id: String, actor_id: String, staff_ids: Array = []) -> Dictionary:
+		var key: String = JSON.stringify([world.get_instance_id(),facility_id,actor_id,staff_ids])
+		if pending_fits.has(key):
+			var full: Dictionary = pending_fits[key]
+			pending_fits.erase(key)
+			return full
+		complete_quotes += 1
+		return super.facility_quote(world,facility_id,actor_id,staff_ids)
+	func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
+		if reject_worker and actor_id=="gather_worker": return {"ok":false,"status":"no_route","reason":"controlled unreachable gathering operator"}
+		return super.route(world,actor_id,floor_id,target,members,offsets,ignore_people)
+
 func run_case(t, content: HospitalContent) -> void:
 	var results: Array = []
 	var passed: bool = true
@@ -17,7 +41,58 @@ func run_case(t, content: HospitalContent) -> void:
 		passed = passed and result.passed
 	var permissions: Dictionary = _permissions(content)
 	var failed_route: Dictionary = _failed_route(content)
-	t.check("CLIN-33",passed and permissions.passed and failed_route.passed,{"competition":results,"permissions":permissions,"failed_route":failed_route})
+	var candidate_order: Dictionary = _candidate_order(content)
+	t.check("CLIN-33",passed and permissions.passed and failed_route.passed and candidate_order.passed,{"competition":results,"permissions":permissions,"failed_route":failed_route,"route_before_complete_fit":candidate_order})
+
+func _candidate_order(content: HospitalContent) -> Dictionary:
+	var passed: bool = true
+	var checked: int = 0
+	var avoided: int = 0
+	var failures: Array = []
+	for kind: String in ["reception","gp"]:
+		var c: Dictionary = _context(content,kind)
+		for condition: String in ["ordinary","unreachable_worker","occupied","retained_doctor","other_reservation"]:
+			var input: WorldState = WorldState.new(c.world.freeze())
+			var visit: Dictionary = input.facts.visits.gather_visit_0
+			var facility: Dictionary = input.facts.facilities.gather_facility_0
+			if condition=="occupied": input.facts.actors.gather_patient_1.location.cell = facility.patient_cell.duplicate()
+			if condition=="retained_doctor":
+				HospitalFactory._add_staff(input,"retained_doctor","原医生","doctor",[12,12],content)
+				input.facts.staff.retained_doctor.abilities.diagnosis = 0
+				var fit: Dictionary = c.space.facility_geometry_quote(input,facility.id,visit.actor_id,["retained_doctor"])
+				fit.erase("ok")
+				fit.owner_id = visit.actor_id
+				input.facts.adaptations[facility.id] = fit
+			if condition=="other_reservation":
+				var fit: Dictionary = c.space.facility_geometry_quote(input,facility.id,"gather_patient_1",["gather_worker"])
+				fit.erase("ok")
+				fit.owner_id = "gather_patient_1"
+				input.facts.adaptations[facility.id] = fit
+			input.touch()
+			var validation: String = input.validate(content)
+			var facts: Dictionary = input.freeze()
+			for structural: bool in [false,true]:
+				var actual_world: WorldState = WorldState.new(facts.duplicate(true))
+				var control_world: WorldState = WorldState.new(facts.duplicate(true))
+				var actual_space: CandidateOrderSpace = CandidateOrderSpace.new(content)
+				var control_space: CandidateOrderSpace = CandidateOrderSpace.new(content)
+				control_space.fit_before_routes = true
+				actual_space.reject_worker = condition=="unreachable_worker"
+				control_space.reject_worker = actual_space.reject_worker
+				var actual: HospitalClinic = HospitalClinic.new(content,actual_space)
+				var control: HospitalClinic = HospitalClinic.new(content,control_space)
+				var candidates: Array = actual.service_candidates(actual_world,actual_world.facts.visits[visit.id],kind,structural)
+				var expected: Array = control.service_candidates(control_world,control_world.facts.visits[visit.id],kind,structural)
+				var equal: bool = validation.is_empty() and candidates==expected and actual_world.freeze()==facts and control_world.freeze()==facts
+				if condition=="occupied" or (condition=="retained_doctor" and kind=="gp"):
+					for pair: Dictionary in candidates: equal = equal and pair.facility_id!="gather_facility_0"
+				if condition=="unreachable_worker":
+					equal = equal and candidates.is_empty() and actual_space.complete_quotes==0
+					avoided += control_space.complete_quotes-actual_space.complete_quotes
+				if not equal: failures.append({"kind":kind,"condition":condition,"structural":structural,"validation":validation,"actual":candidates,"expected":expected})
+				passed = passed and equal
+				checked += 1
+	return {"passed":passed and avoided>0,"checked_variants":checked,"unreachable_complete_quotes_avoided":avoided,"ordered_candidates_and_facts_rng_equal":passed,"failures":failures}
 
 func _context(content: HospitalContent, kind: String, geometry: HospitalSpace = null) -> Dictionary:
 	var world: WorldState = HospitalFactory.create("00000000-0000-4000-8000-000000003300","服务到齐预约",false,content)

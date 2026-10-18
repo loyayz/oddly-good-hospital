@@ -19,7 +19,7 @@ var public_areas: HospitalPublicAreas
 var query_counts: Dictionary = {"routes":0,"journey_hits":0,"journey_invalidations":0,"transport_builds":0,"transport_searches":0,"candidate_connections":0,"floor_route_hits":0,"floor_route_builds":0}
 
 # These scopes contain synchronous, read-only enumeration only. Results never
-# survive an actual reservation, movement or subsequent clinical quote.
+# survive an actual reservation, movement or any other world fact change.
 func begin_route_query(world: WorldState, reference: Dictionary = {}, inherit_reference: bool = true) -> void:
 	var parent: Dictionary = _route_queries.back() if not _route_queries.is_empty() and _route_queries.back().world==world else {}
 	var views: Dictionary = parent.get("views",{})
@@ -873,12 +873,18 @@ func support_exit_ticks(actor: Dictionary, facility: Dictionary, until_clear: bo
 func facility_quote(world: WorldState, facility_id: String, actor_id: String, staff_ids: Array = []) -> Dictionary:
 	return _facility_quote(world,facility_id,actor_id,staff_ids,false)
 
+# Check the exact layout, handoff and current occupancy before arrival routing.
+# This does not prove other actors' exits or authorize a reservation; a complete
+# facility_quote is still required after the arrival routes succeed.
+func facility_preflight_quote(world: WorldState, facility_id: String, actor_id: String, staff_ids: Array = []) -> Dictionary:
+	return _facility_quote(world,facility_id,actor_id,staff_ids,false,false)
+
 # Read only built geometry and body dimensions. This grants no occupancy or
 # route: actual arrival must still pass the complete facility_quote.
 func facility_geometry_quote(world: WorldState, facility_id: String, actor_id: String, staff_ids: Array = []) -> Dictionary:
 	return _facility_quote(world,facility_id,actor_id,staff_ids,true)
 
-func _facility_quote(world: WorldState, facility_id: String, actor_id: String, staff_ids: Array, geometry_only: bool) -> Dictionary:
+func _facility_quote(world: WorldState, facility_id: String, actor_id: String, staff_ids: Array, geometry_only: bool, prove_exits: bool = true) -> Dictionary:
 	if not world.facts.facilities.has(facility_id) or not world.facts.actors.has(actor_id):
 		return {"ok":false,"reason":"设备或实际使用者不存在"}
 	var bed_owner: Dictionary = world.facts.get("staff_life",{}).get("personal_beds",{}).get(facility_id,{})
@@ -986,6 +992,7 @@ func _facility_quote(world: WorldState, facility_id: String, actor_id: String, s
 	if not reference.is_empty():
 		reference.fits[reference_key] = quote
 		return quote
+	if not prove_exits: return quote
 	var same_reservation: bool = current.get("kind","")=="facility" and current.get("actor_id","")==actor_id and current.get("staff_ids",[])==staff_ids
 	for field: String in ["floor_id","footprint","patient_cell","operator_cells","repair_cell","regions"]:
 		same_reservation = same_reservation and current.get(field)!=null and current[field]==quote[field]

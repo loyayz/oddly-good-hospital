@@ -384,7 +384,7 @@ func _dispatch_service(world: WorldState, visit: Dictionary, ticket: Dictionary)
 		return
 	var kind: String = ticket.kind
 	if kind=="outpatient" and int(world.facts.get("gameplay_version",0))>=1 and not visit.plan_decision.is_empty():
-		var current_quote: Dictionary = plan_quote(world,visit.id,visit.plan_decision.plan_id)
+		var current_quote: Dictionary = plan_quote(world,visit.id,visit.plan_decision.plan_id,{"structural_only":true,"ignore_supplies":true})
 		if not current_quote.ok and not current_quote.get("structural_ok",false):
 			_release_preparation(world,visit.id)
 			ticket.service_assigned = false
@@ -584,7 +584,10 @@ func service_candidates(world: WorldState, visit: Dictionary, kind: String, stru
 			if reference_schedule and not _reference_assignment_allows(world,staff_id,kind,visit,facility_id):
 				continue
 			var layout: Dictionary = base_layout
-			var fit: Dictionary = space.facility_quote(world,facility_id,visit.actor_id,[staff_id])
+			# A complete arrival route is required even when the facility fits.
+			# Reject unreachable pairs before proving every other actor's exit;
+			# Layout and current occupancy alone never authorize a reservation.
+			var fit: Dictionary = space.facility_preflight_quote(world,facility_id,visit.actor_id,[staff_id])
 			if not fit.ok:
 				continue
 			var routing_world: WorldState = world
@@ -601,7 +604,13 @@ func service_candidates(world: WorldState, visit: Dictionary, kind: String, stru
 			if routing_world!=world: space.end_route_query()
 			if not reachable:
 				continue
-			candidates.append({"facility_id":facility_id,"staff_id":staff_id})
+			if not space.facility_quote(world,facility_id,visit.actor_id,[staff_id]).ok:
+				continue
+			var pair: Dictionary = {"facility_id":facility_id,"staff_id":staff_id}
+			var accept: Callable = selection.get("accept",Callable())
+			if accept.is_valid() and not accept.call(pair):
+				continue
+			candidates.append(pair)
 			if selection.get("first_only",false):
 				space.end_route_query()
 				return candidates
@@ -720,42 +729,52 @@ func plan_quote(world: WorldState, visit_id: String, plan_id: String, options: D
 		surgery.plan_id = plan_id
 		surgery.structural_ok = bool(structural_quote.ok)
 		return surgery
-	var reason: String = "缺少合法门诊设备、医生能力或完整路线"
-	var structural_ok: bool = false
+	# Quote in the same candidate order, stopping only after a complete usable
+	# quote. Rejected candidates still allow later facilities and doctors.
+	var state: Dictionary = {"reason":"缺少合法门诊设备、医生能力或完整路线","structural_ok":false,"quote":{}}
 	var selection: Dictionary = {"staff_id":options.doctor_id} if options.has("doctor_id") else {}
-	for pair: Dictionary in service_candidates(world,candidate,"outpatient",true,false,selection):
-		if options.has("doctor_id") and pair.staff_id!=options.doctor_id:
-			continue
-		var staff: Dictionary = world.facts.staff[pair.staff_id]
-		var facility: Dictionary = world.facts.facilities[pair.facility_id]
-		var quote: Dictionary = _outpatient_quote(world,candidate,staff,facility,plan_id,true,true)
-		if not quote.ok:
-			reason = quote.reason
-			continue
-		structural_ok = true
-		var availability: String = ""
-		if not structural and int(quote.recovery_ticks)>0:
-			var actual_bed: Dictionary = _outpatient_quote(world,candidate,staff,facility,plan_id,true,false)
-			if not actual_bed.ok:
-				availability = actual_bed.reason
-			else:
-				quote = actual_bed
-		if not structural and (_facility_unavailable(facility) or _facility_busy(world,pair.facility_id,visit.id) or _staff_busy(world,pair.staff_id,visit.id) or not staff.on_shift or not _can_start(world,staff)):
-			availability = "等待原方案的当班医护与设备"
-		if not structural and not _schedule_allows(world,pair.staff_id,"outpatient",visit,pair.facility_id):
-			availability = "等待当前排班服务池内的治疗医生"
-		if not bool(options.get("ignore_supplies",false)) and _available_supplies(world,visit.id)<int(quote.supply_units):
-			availability = "治疗包不足，保留原票号"
-		quote.ok = availability.is_empty()
-		quote.structural_ok = true
-		quote.reason = availability
-		quote.availability_reason = availability
-		quote.facility_id = pair.facility_id
-		quote.estimated_total_ticks = int(quote.work_ticks)+int(quote.recovery_ticks)
-		if quote.ok:
-			return quote
-		reason = availability
-	return {"ok":false,"structural_ok":structural_ok,"plan_id":plan_id,"reason":reason,"availability_reason":reason if structural_ok else ""}
+	selection.first_only = true
+	selection.accept = _accept_plan_candidate.bind(world,candidate,plan_id,options,state)
+	service_candidates(world,candidate,"outpatient",true,false,selection)
+	if not state.quote.is_empty():
+		return state.quote
+	return {"ok":false,"structural_ok":state.structural_ok,"plan_id":plan_id,"reason":state.reason,"availability_reason":state.reason if state.structural_ok else ""}
+
+func _accept_plan_candidate(pair: Dictionary, world: WorldState, visit: Dictionary, plan_id: String, options: Dictionary, state: Dictionary) -> bool:
+	if options.has("doctor_id") and pair.staff_id!=options.doctor_id:
+		return false
+	var structural: bool = bool(options.get("structural_only",false))
+	var staff: Dictionary = world.facts.staff[pair.staff_id]
+	var facility: Dictionary = world.facts.facilities[pair.facility_id]
+	var quote: Dictionary = _outpatient_quote(world,visit,staff,facility,plan_id,true,true)
+	if not quote.ok:
+		state.reason = quote.reason
+		return false
+	state.structural_ok = true
+	var availability: String = ""
+	if not structural and int(quote.recovery_ticks)>0:
+		var actual_bed: Dictionary = _outpatient_quote(world,visit,staff,facility,plan_id,true,false)
+		if not actual_bed.ok:
+			availability = actual_bed.reason
+		else:
+			quote = actual_bed
+	if not structural and (_facility_unavailable(facility) or _facility_busy(world,pair.facility_id,visit.id) or _staff_busy(world,pair.staff_id,visit.id) or not staff.on_shift or not _can_start(world,staff)):
+		availability = "等待原方案的当班医护与设备"
+	if not structural and not _schedule_allows(world,pair.staff_id,"outpatient",visit,pair.facility_id):
+		availability = "等待当前排班服务池内的治疗医生"
+	if not bool(options.get("ignore_supplies",false)) and _available_supplies(world,visit.id)<int(quote.supply_units):
+		availability = "治疗包不足，保留原票号"
+	quote.ok = availability.is_empty()
+	quote.structural_ok = true
+	quote.reason = availability
+	quote.availability_reason = availability
+	quote.facility_id = pair.facility_id
+	quote.estimated_total_ticks = int(quote.work_ticks)+int(quote.recovery_ticks)
+	if quote.ok:
+		state.quote = quote
+		return true
+	state.reason = availability
+	return false
 
 func _select_plan(world: WorldState, visit: Dictionary, doctor_id: String = "") -> Dictionary:
 	var quotes: Array = []
