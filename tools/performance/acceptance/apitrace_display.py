@@ -44,6 +44,7 @@ class GLState:
         self.threads, self.contexts, self.groups = {}, {}, {}
         self.frame_draws, self.last_frame_draws, self.readbacks = [], [], []
         self.generation, self.calls, self.swaps = 0, 0, 0
+        self.ignored_synthetic_calls = 0
 
     def context(self, handle):
         return self.contexts.setdefault(handle, {"group":handle,"textures":{},"unit":"GL_TEXTURE0",
@@ -107,6 +108,11 @@ class GLState:
     def consume(self, line):
         match = CALL.match(line.strip())
         if not match: return
+        if re.search(r" //.*\bincomplete\b",line):
+            raise ValueError("Incomplete selected GL call: "+line.strip())
+        if re.search(r" //.*\bfake\b",line):
+            self.ignored_synthetic_calls += 1
+            return
         call, tid, name, arguments, result = match.groups()
         call, self.tid = int(call), int(tid,16)
         self.calls += 1
@@ -251,18 +257,19 @@ def analyze(folder):
         nearest_even = [2*math.floor(value*record["scene_scale"]/2+0.5) for value in physical]
         even_draws = [draw for draw in depth_draws if draw["color"]["pixels"] == nearest_even
             and draw["depth"]["pixels"] == nearest_even and draw["viewport_pixels"] == nearest_even]
-        verified = (release and requested and geometry and record["native_2d_mode"] == 1
+        correspondence = (release and requested and geometry and record["native_2d_mode"] == 1
             and record.get("native_2d_raster_matches_canvas") is True
-            and readback["pixels"] == record["root_raster_pixels"] and bool(root_draws) and bool(depth_draws) and bool(scene_chains)
-            and bool(even_draws))
-        conditions.append({"metadata":source(path),"record":record,"verified":verified,
+            and readback["pixels"] == record["root_raster_pixels"] and bool(root_draws) and bool(depth_draws) and bool(scene_chains))
+        verified = correspondence and bool(even_draws)
+        conditions.append({"metadata":source(path),"record":record,"verified":verified,"backend_attachment_correspondence_verified":correspondence,
             "root_readback":{k:v for k,v in readback.items() if k != "draws"},"actual_root_draw_targets":root_draws,
             "actual_3d_depth_draw_targets":depth_draws,"geometry_matches_control":geometry,
             "scene_depth_to_output_root_bound_texture_chains":scene_chains,
             "nearest_even_3d_policy_pixels":nearest_even,"nearest_even_3d_policy_satisfied":bool(even_draws),
             "actual_release":release,"requested_display_matches":requested})
     return {"kind":"actual_opengl_display_attachments","status":"verified" if conditions and all(c["verified"] for c in conditions) else "incomplete",
-        "condition_count":len(conditions),"interpreted_calls":state.calls,"swap_calls":state.swaps,"conditions":conditions,
+        "condition_count":len(conditions),"interpreted_calls":state.calls,"swap_calls":state.swaps,
+        "ignored_synthetic_calls":state.ignored_synthetic_calls,"conditions":conditions,
         "sources":[source(folder/"display.trace"),source(folder/"gl-calls.txt"),source(folder/"apitrace-identity.json"),source(__file__)],
         "scope":"real traced GL allocation calls, successful FBO checks, attachments, viewport and draws associated with actual PNG readbacks; instrumented display-only preset, not timing, GPU memory budget, OS presentation or business-load evidence"}
 
@@ -270,9 +277,11 @@ def analyze(folder):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("folder",type=Path)
+    parser.add_argument("--output",type=Path)
     args = parser.parse_args()
     report = analyze(args.folder)
-    output = args.folder/"gl-render-target-evidence.json"
-    output.write_text(json.dumps(report,indent=2)+"\n",encoding="utf-8")
+    output = args.output or args.folder/"gl-render-target-evidence.json"
+    with output.open("x",encoding="utf-8") as stream:
+        stream.write(json.dumps(report,indent=2)+"\n")
     print(str(output))
     raise SystemExit(0 if report["status"] == "verified" else 2)
