@@ -772,7 +772,6 @@ def qualify_accounting(report, trace, schema_versions):
             and window.get("window_resolution", {}).get("verified") is True,
         "all_target_global_sizes_joined": bool(sizes),
         "no_event_or_identity_gaps": not report.get("issues"),
-        "backing_extent_records_unambiguous": report.get("backing_size_corroboration", {}).get("pending_or_ambiguous_cycles") == 0,
         "unreleased_globals_included": report.get("allocation_accounting", {}).get("unreleased_observed_globals_included") is True,
         "positive_formal_extent_upper_bound": type(upper) is int and upper > 0,
         "backend_target_scope_bounded": owner_complete or fallback_valid,
@@ -789,7 +788,7 @@ def qualify_accounting(report, trace, schema_versions):
         adapter_kernel_fallback_upper_bound_bytes=fallback_upper,
         unattributed_kernel_extents_bounded=fallback_valid,
         exact_physical_or_deduplicated_page_peak=False,
-        bound_semantics="sum of canonical global object allocSize extents; physical-page overlap can only make this conservative; upper-bound excess alone is inconclusive")
+        bound_semantics="sum of canonical global object allocSize extents from 33/35, independent of PFN backing corroboration; physical-page overlap can only make this conservative; upper-bound excess alone is inconclusive")
     report["peak_coverage_complete"] = qualified
     report["shared_dedup_verified"] = qualified
     report["shared_dedup_scope"] = "device/process aliases of one adapter/global/lifetime counted once; physical pages across distinct global objects not claimed disjoint"
@@ -832,6 +831,46 @@ class OfflineChecks(unittest.TestCase):
         self.assertIsNone(report["allocation_accounting"]["peak_allocated_bytes"])
         self.assertEqual(report["allocation_accounting"]["upper_bound_allocated_bytes"], 4096)
         self.assertEqual(report["status"], "incomplete")  # OS view still absent.
+
+    def test_repeated_backing_observations_do_not_resize_or_disqualify_direct_extent(self):
+        ledger = Ledger(42)
+        self.create(ledger, size=8192)
+        self.backing(ledger, [101, 102])
+        self.backing(ledger, [101, 102])
+        actual = ledger.report()
+        self.assertEqual(actual["known_sequence_peak_allocated_bytes"], 8192)
+        self.assertEqual(actual["allocations"][0]["allocated_bytes"], 8192)
+        self.assertEqual(actual["backing_size_corroboration"]["pending_or_ambiguous_cycles"], 1)
+        cycle = actual["allocations"][0]["backing_cycles"][0]
+        self.assertEqual(cycle["observed_page_extent_bytes"], 16384)
+        self.assertEqual(cycle["extent_status"], "pending_or_ambiguous")
+        report, trace = self.qualified_fixture()
+        report["allocations"][0]["allocated_bytes"] = actual["allocations"][0]["allocated_bytes"]
+        report["formal_window"]["known_same_timestamp_upper_peak_alloc_size_bytes"] = 8192
+        report["backing_size_corroboration"] = actual["backing_size_corroboration"]
+        qualify_accounting(report, trace, set(VERSIONS.items()))
+        self.assertEqual(report["allocation_accounting"]["status"], "verified")
+        self.assertEqual(report["allocation_accounting"]["upper_bound_allocated_bytes"], 8192)
+        self.assertEqual(report["backing_size_corroboration"]["status"], "incomplete")
+        self.assertIsNone(actual["allocation_accounting"]["physical_resident_bytes"])
+        self.assertFalse(actual["residency_verified"])
+        self.assertEqual(report["status"], "incomplete")  # Missing OS usage remains a failure.
+
+    def test_direct_global_size_or_physical_adapter_conflict_still_rejects_bound(self):
+        for size, physical in ((12288, 0), (8192, 1)):
+            with self.subTest(size=size, physical_adapter=physical):
+                ledger = Ledger(42)
+                self.create(ledger, size=8192)
+                self.event(ledger, 35, pDxgAdapter=1, hVidMmGlobalAlloc=7,
+                           allocSize=size, hProcessId=42, PhysicalAdapterIndex=physical)
+                actual = ledger.report()
+                self.assertEqual(actual["issues"]["live_global_identity_repeated_or_conflicting"], 1)
+                report, trace = self.qualified_fixture()
+                report["issues"] = actual["issues"]
+                qualify_accounting(report, trace, set(VERSIONS.items()))
+                self.assertEqual(report["allocation_accounting"]["status"], "incomplete")
+                self.assertFalse(report["peak_coverage_complete"])
+                self.assertIsNone(report["allocation_accounting"]["upper_bound_allocated_bytes"])
 
     def test_unassociated_kernel_storage_is_not_implicitly_free(self):
         ledger = Ledger(42)
@@ -889,7 +928,6 @@ class OfflineChecks(unittest.TestCase):
             lambda r, t: r["formal_window"]["window_resolution"].update(verified=False),
             lambda r, t: r["allocations"][0].update(allocated_bytes=None),
             lambda r, t: r["issues"].update(unknown=1),
-            lambda r, t: r["backing_size_corroboration"].update(pending_or_ambiguous_cycles=1),
             lambda r, t: r["allocation_accounting"].update(unreleased_observed_globals_included=False),
             lambda r, t: r["formal_window"].update(known_same_timestamp_upper_peak_alloc_size_bytes=None)]
         corruptions.append(lambda r, t: r["unattributed_kernel_global_bound"].update(status="incomplete"))

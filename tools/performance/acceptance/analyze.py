@@ -278,6 +278,7 @@ def allocation_evidence(root, meta, start, end, frequency, target_bytes):
         if not isinstance(ledger, dict): raise ValueError("ledger must be a JSON object")
         out.update(ledger_source={"path":str(path.resolve()), "sha256":sha256_file(path)},
                    allocation_identity=ledger.get("allocation_identity", {}), allocation_accounting=ledger.get("allocation_accounting", {}),
+                   backing_size_corroboration=ledger.get("backing_size_corroboration", {"status":"missing"}),
                    formal_window=ledger.get("formal_window", {}), ledger_status=ledger.get("status"), ledger_missing=ledger.get("missing", []),
                    lifecycle_observed_graph_peak_alloc_size_bytes=ledger.get("known_sequence_peak_allocated_bytes"),
                    lifecycle_observed_graph_upper_peak_alloc_size_bytes=ledger.get("known_same_timestamp_upper_peak_allocated_bytes"))
@@ -362,7 +363,7 @@ def allocation_evidence(root, meta, start, end, frequency, target_bytes):
         qualification_keys = ("preserved_raw_event_provenance", "complete_raw_qpc_decode", "target_identity_and_alias_join",
             "all_process_alias_capture", "all_required_event_families_armed", "saved_schema_covers_interpreted_versions",
             "formal_actual_display_window", "all_target_global_sizes_joined", "no_event_or_identity_gaps",
-            "backing_extent_records_unambiguous", "unreleased_globals_included", "positive_formal_extent_upper_bound", "backend_target_scope_bounded")
+            "unreleased_globals_included", "positive_formal_extent_upper_bound", "backend_target_scope_bounded")
         qualification_valid = all(qualification.get(name) is True for name in qualification_keys)
         method = accounting.get("coverage_method")
         owner_coverage = accounting.get("owner_coverage", {})

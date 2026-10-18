@@ -169,7 +169,7 @@ class OfflineChecks(unittest.TestCase):
             "allocation_identity":{"status":"verified"},"allocation_accounting":{"status":"verified" if complete else "incomplete","backend_coverage_verified":complete,"unreleased_observed_globals_included":True,
                 "upper_bound_allocated_bytes":100,
                 "coverage_method":"owner_bridged_target_graph", "owner_coverage":{"status":"verified","unresolved_kernel_lifetimes":0},
-                "qualification_checks":dict.fromkeys(("preserved_raw_event_provenance","complete_raw_qpc_decode","target_identity_and_alias_join","all_process_alias_capture","all_required_event_families_armed","saved_schema_covers_interpreted_versions","formal_actual_display_window","all_target_global_sizes_joined","no_event_or_identity_gaps","backing_extent_records_unambiguous","unreleased_globals_included","positive_formal_extent_upper_bound","backend_target_scope_bounded"),complete)},
+                "qualification_checks":dict.fromkeys(("preserved_raw_event_provenance","complete_raw_qpc_decode","target_identity_and_alias_join","all_process_alias_capture","all_required_event_families_armed","saved_schema_covers_interpreted_versions","formal_actual_display_window","all_target_global_sizes_joined","no_event_or_identity_gaps","unreleased_globals_included","positive_formal_extent_upper_bound","backend_target_scope_bounded"),complete)},
             "allocations":[{"adapter_pointer":"0x1","physical_adapter_index":0}],
             "peak_coverage_complete":complete,"shared_dedup_verified":complete,"formal_window":window,"raw_qpc_verified":True,
             "raw_qpc_checks":dict.fromkeys(("decoder_raw_qpc_valid","full_etl_read_complete","process_and_close_succeeded","qpc_header_clock","zero_file_loss","all_interpreted_events_have_raw_qpc","one_matching_positive_frequency"),True),
@@ -198,6 +198,34 @@ class OfflineChecks(unittest.TestCase):
         self.assertFalse(result["verified"])
         self.assertFalse(result["errors"])
         self.assertFalse(module.analyze(root,REPO/"docs/data/balance.json")["formal_pass"])
+
+    def test_backing_ambiguity_stays_separate_from_complete_direct_allocation_bound(self):
+        root = self.full_fixture(); ledger = self.ledger_fixture(root,True)
+        ledger["backing_size_corroboration"] = {"status":"incomplete", "pending_or_ambiguous_cycles":23}
+        ledger["allocation_accounting"]["physical_resident_bytes"] = None
+        self.save_ledger(root,ledger)
+        result = self.graphics(root)
+        self.assertTrue(result["verified"],result)
+        self.assertEqual(result["budget"]["upper_bound_allocated_bytes"],100)
+        self.assertEqual(result["backing_size_corroboration"]["status"],"incomplete")
+        self.assertIsNone(result["allocation_accounting"]["physical_resident_bytes"])
+
+    def test_comparable_same_window_allocation_bounds_cannot_contradict_each_other(self):
+        for lower in (False,True):
+            with self.subTest(proven_target_lower_bound=lower):
+                root = self.full_fixture(); ledger = self.ledger_fixture(root,True)
+                accounting = ledger["allocation_accounting"]
+                if lower:
+                    accounting.update(lower_bound_allocated_bytes=200,lower_bound_scope="target_allocations",
+                        lower_bound_qualification=dict.fromkeys(("actual_target_allocation_scope","canonical_allocation_identity_deduplicated",
+                            "extent_size_semantics_verified","simultaneous_actual_window_observation"),True))
+                else:
+                    accounting["peak_allocated_bytes"] = 200
+                self.save_ledger(root,ledger)
+                result = self.graphics(root)
+                self.assertFalse(result["verified"])
+                self.assertEqual(result["budget"]["status"],"incomplete")
+                self.assertIn("contradicts its supplied upper bound",str(result["missing"]))
 
     def test_bad_raw_source_hash_is_not_a_verified_proof(self):
         root = self.full_fixture(); self.ledger_fixture(root,True)
