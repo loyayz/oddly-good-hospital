@@ -25,3 +25,6 @@ environment/defaults/default_clear_color=Color(0.70,0.76,0.85,1)
 [debug]
 file_logging/enable_file_logging=false
 file_logging/enable_file_logging.pc=false
+
+[editor_plugins]
+enabled=PackedStringArray("res://addons/source_assets/plugin.cfg")

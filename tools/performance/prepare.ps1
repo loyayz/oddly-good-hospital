@@ -10,7 +10,7 @@ New-Item -ItemType Directory -Path $target | Out-Null
 $paths=@(& git -c core.quotePath=false -C $repo ls-files --cached --others --exclude-standard)
 if($LASTEXITCODE -ne 0){throw 'Cannot enumerate performance sources'}
 $source=foreach($relative in $paths | Sort-Object -Unique){
-    if($relative -notmatch '^(game/|content/|assets/|tools/performance/|tests/acceptance/clinical_timing\.gd$|project\.godot$|export_presets\.cfg$)'){continue}
+    if($relative -notmatch '^(game/|content/|assets/|addons/source_assets/|tools/performance/|tests/acceptance/clinical_timing\.gd$|project\.godot$|export_presets\.cfg$)'){continue}
     $path=Join-Path $repo $relative
     if(-not (Test-Path -LiteralPath $path -PathType Leaf)){continue}
     $destination=Join-Path $target $relative

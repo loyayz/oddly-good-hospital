@@ -42,6 +42,9 @@ func _ready() -> void:
 	var content_error: String = str(content.error) if content!=null else "Content script unavailable"
 	valid = valid and content_error.is_empty()
 	loaded["HospitalContent.initialized"] = {"error":content_error,"fingerprint":str(content.content_fingerprint) if content!=null else "","locale_csv_sha256":FileAccess.get_sha256("res://content/core/locale/zh_CN.csv")}
+	var resources: Dictionary = _production_resources()
+	loaded["ViewResources.production_assets"] = resources
+	valid = valid and resources.valid
 	var result: Dictionary = {"valid":valid,"engine":Engine.get_version_info(),"executable":OS.get_executable_path(),"features":{"template":OS.has_feature("template"),"release":OS.has_feature("release"),"debug":OS.has_feature("debug"),"editor":OS.has_feature("editor")},"disable_project_settings_override":ProjectSettings.get_setting("application/config/disable_project_settings_override",false),"loaded":loaded,"external_script":get_script().resource_path,"external_script_sha256":FileAccess.get_sha256(get_script().resource_path),"renderer":RenderingServer.get_current_rendering_method(),"display_server":DisplayServer.get_name(),"global_classes":ProjectSettings.get_global_class_list().size()}
 	if not out.is_empty():
 		var file: FileAccess = FileAccess.open(out, FileAccess.WRITE)
@@ -53,3 +56,36 @@ func _ready() -> void:
 			file.close()
 	print("FORMAL_EXPORT_PROBE="+JSON.stringify(result))
 	get_tree().quit(0 if valid else 2)
+
+func _production_resources() -> Dictionary:
+	var script: Script = ResourceLoader.load("res://game/view/view_resources.gd")
+	if script==null:
+		return {"valid":false,"error":"ViewResources unavailable"}
+	var owner = script.new()
+	var manifest: Variant = JSON.parse_string(FileAccess.get_file_as_string(owner.MANIFEST))
+	if not manifest is Dictionary or not manifest.get("assets") is Array or manifest.assets.is_empty():
+		return {"valid":false,"error":"Published asset manifest unavailable"}
+	var valid: bool = owner.errors.is_empty()
+	var records: Array = []
+	for definition: Dictionary in manifest.assets:
+		var path: String = "res://"+str(definition.asset_path)
+		var actual_hash: String = FileAccess.get_sha256(path)
+		var actual_bytes: int = FileAccess.get_file_as_bytes(path).size()
+		var node: Node3D = owner.acquire(path)
+		var accepted: bool = node!=null and actual_hash==definition.asset_sha256 and actual_bytes==int(definition.bytes)
+		records.append({"path":path,"source_sha256":actual_hash,"expected_sha256":definition.asset_sha256,"source_bytes":actual_bytes,"expected_bytes":int(definition.bytes),"original_owner_acquired_and_validated":node!=null,"valid":accepted})
+		valid = valid and accepted
+		if node!=null:
+			owner.release_tree(node)
+			node.free()
+	var released: Dictionary = owner.usage()
+	valid = valid and owner.errors.is_empty() and released.shared_scenes==0 and released.instance_users==0
+	var first: String = "res://"+str(manifest.assets[0].asset_path)
+	var invalid_hash = script.new()
+	invalid_hash._definitions[first].asset_sha256 = "0".repeat(64)
+	var rejected: Node3D = invalid_hash.acquire(first)
+	var atomic_rejection: bool = rejected==null and invalid_hash._entries.is_empty() and invalid_hash.usage().instance_users==0 and invalid_hash.errors.size()==1
+	if rejected!=null:
+		invalid_hash.release_tree(rejected)
+		rejected.free()
+	return {"valid":valid and atomic_rejection,"assets":records,"released":released,"hash_rejection_atomic":atomic_rejection,"scope":"published source identity and original remapped scene validation; no timing, GPU allocation or residency claim"}

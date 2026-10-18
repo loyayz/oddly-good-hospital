@@ -540,7 +540,35 @@ func _case_33(t, content: HospitalContent) -> void:
 	var view: HospitalView = x.view
 	var before: Dictionary = x.before
 	var resources_ready: bool = load("res://assets/fonts/NotoSansCJKsc-Regular.otf")!=null
-	t.check("CORE-33",resources_ready and view.bind_error.is_empty() and world.freeze()==before,view.bind_error)
+	var owner = load("res://game/view/view_resources.gd").new()
+	var manifest: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(owner.MANIFEST))
+	var observations: Array = []
+	for record: Dictionary in manifest.assets:
+		var path: String = "res://"+str(record.asset_path)
+		var node: Node3D = owner.acquire(path)
+		var valid: bool = node!=null and FileAccess.get_sha256(path)==record.asset_sha256 and FileAccess.get_file_as_bytes(path).size()==int(record.bytes)
+		observations.append({"path":path,"source_and_scene_valid":valid})
+		resources_ready = resources_ready and valid
+		if node!=null:
+			owner.release_tree(node)
+			node.free()
+	var released: Dictionary = owner.usage()
+	var first: String = "res://"+str(manifest.assets[0].asset_path)
+	var invalid_hash = load("res://game/view/view_resources.gd").new()
+	invalid_hash._definitions[first].asset_sha256 = "0".repeat(64)
+	var bad_hash: Node3D = invalid_hash.acquire(first)
+	var rejected_hash: bool = bad_hash==null and invalid_hash._entries.is_empty() and invalid_hash.usage().instance_users==0 and invalid_hash.errors.size()==1
+	if bad_hash!=null:
+		invalid_hash.release_tree(bad_hash)
+		bad_hash.free()
+	var invalid_scene = load("res://game/view/view_resources.gd").new()
+	invalid_scene._definitions[first].surface_count += 1
+	var bad_scene: Node3D = invalid_scene.acquire(first)
+	var rejected_scene: bool = bad_scene==null and invalid_scene._entries.is_empty() and invalid_scene.usage().instance_users==0 and invalid_scene.errors.size()==1
+	if bad_scene!=null:
+		invalid_scene.release_tree(bad_scene)
+		bad_scene.free()
+	t.check("CORE-33",resources_ready and not observations.is_empty() and owner.errors.is_empty() and released.shared_scenes==0 and released.instance_users==0 and rejected_hash and rejected_scene and view.bind_error.is_empty() and world.freeze()==before,{"resources":observations,"released":released,"hash_rejection_atomic":rejected_hash,"scene_rejection_atomic":rejected_scene,"bind_error":view.bind_error})
 	view.queue_free()
 	await t.process_frame
 
