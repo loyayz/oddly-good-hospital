@@ -38,6 +38,8 @@ $scenarioPath=Join-Path $destination 'display-scenario.json'
 $scenario | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $scenarioPath -Encoding utf8NoBOM
 $override='[application]'+"`nrun/main_scene="+(ConvertTo-Json ((Join-Path $PSScriptRoot 'display_probe.tscn').Replace('\','/')) -Compress)+"`nconfig/use_custom_user_dir=true`nconfig/custom_user_dir_name="+(ConvertTo-Json ('OddlyGoodHospital Display '+[Guid]::NewGuid().ToString('N')) -Compress)+"`n"
 [IO.File]::WriteAllText((Join-Path $runtime 'override.cfg'),$override,[Text.UTF8Encoding]::new($false))
+$diagnosticLog=(Join-Path $destination 'display-engine.log').Replace('\','/')
+[IO.File]::AppendAllText((Join-Path $runtime 'override.cfg'),"`n[debug]`nfile_logging/enable_file_logging=true`nfile_logging/enable_file_logging.pc=true`nfile_logging/log_path="+(ConvertTo-Json $diagnosticLog -Compress)+"`n",[Text.UTF8Encoding]::new($false))
 $configPath=Join-Path $destination 'renderdoc-config.json'
 @{exe=(Join-Path $runtime (Split-Path -Leaf $exePath));pack=(Join-Path $runtime (Split-Path -Leaf $packPath));scenario=$scenarioPath;output_dir=$destination;condition_count=$(if($scenario.conditions.Count){$scenario.conditions.Count}else{12});timeout_seconds=$TimeoutSeconds} | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $configPath -Encoding utf8NoBOM
 $profilePath=Join-Path $env:APPDATA 'qrenderdoc/UI.config'

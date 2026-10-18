@@ -50,6 +50,7 @@ var root_released: bool = false
 var exit_code: int = 0
 var tail_ack: Dictionary = {}
 var screenshots: Array[Dictionary] = []
+var root_readback_pixels: Vector2i = Vector2i.ZERO
 var failure_reason: String = ""
 var profile_path: String = ""
 var operation_driver: RefCounted
@@ -336,8 +337,8 @@ func _heartbeat(now: int) -> void:
 
 func _prepare_capture(usage: Dictionary, work: Dictionary) -> void:
 	await get_tree().process_frame
-	if not _verify_settings(): return
 	if not await _screenshot("prepared"): return
+	if not _verify_settings(): return
 	warmup_ready_us = Time.get_ticks_usec()
 	warmup_ready = true
 	_emit("warmup_complete", {"elapsed_us":warmup_ready_us-started_us,"actual_steps":total_steps,"real_work_observed":warmup_work_seen,"resources":usage,"preparation":work,"settings":_settings(),"gate_kind":"initial bindings, actual work and complete-step gate; background next-day preparation is ordinary capture load, not a warmup completion requirement"}, warmup_ready_us)
@@ -367,6 +368,7 @@ func _screenshot(name: String) -> bool:
 	if image==null or image.is_empty():
 		_fail("Rendered screenshot unavailable: "+name)
 		return false
+	root_readback_pixels = image.get_size()
 	var path: String = output.path_join(name+".png")
 	var status: Error = image.save_png(path)
 	if status!=OK:
@@ -538,14 +540,17 @@ func _settings() -> Dictionary:
 	var window: Vector2i = DisplayServer.window_get_size()
 	var scene: Vector2i = app._viewport.size
 	var logical: Vector2 = app.get_viewport_rect().size
-	var screen: Transform2D = app._world_container.get_screen_transform()
+	var screen: Transform2D = app._world_container.get_viewport_transform()*app._world_container.get_global_transform()
 	var physical: Vector2 = app._world_container.size*Vector2(screen.x.length(),screen.y.length())
 	var expected: Vector2i = Vector2i(ceili(physical.x),ceili(physical.y))
-	var root_texture: Vector2i = Vector2i(root.get_texture().get_size())
+	# ViewportTexture.get_size multiplies Window's already physical viewport
+	# size by stretch again in this engine. Only a real image establishes raster.
+	var root_texture_declared: Vector2i = Vector2i(root.get_texture().get_size())
+	var root_texture: Vector2i = root_readback_pixels
 	var scene_texture: Vector2i = Vector2i(app._viewport.get_texture().get_size())
 	var root_stretch: Transform2D = root.get_stretch_transform()
 	var root_physical: Vector2i = Vector2i((logical*Vector2(root_stretch.x.length(),root_stretch.y.length())).ceil())
-	return {"window_pixels":[window.x,window.y],"root_logical_extent":[logical.x,logical.y],"content_scale_size":[root.content_scale_size.x,root.content_scale_size.y],"content_scale_mode":root.content_scale_mode,"canvas_transform":str(app.get_global_transform_with_canvas()),"root_raster_texture_pixels":[root_texture.x,root_texture.y],"root_canvas_physical_extent":[root_physical.x,root_physical.y],"native_2d_output":root.content_scale_mode==Window.CONTENT_SCALE_MODE_CANVAS_ITEMS and root_texture==root_physical,"scene_control_logical_extent":[app._world_container.size.x,app._world_container.size.y],"scene_control_physical_extent":[physical.x,physical.y],"scene_control_screen_transform":str(screen),"scene_viewport_pixels":[scene.x,scene.y],"scene_output_texture_pixels":[scene_texture.x,scene_texture.y],"scene_output_matches_control":scene==expected and scene_texture==scene,"scene_scale":app._viewport.scaling_3d_scale,"scene_allocated_pixels":"unavailable_without_actual_backend_corroboration","ui_scale_percent":app._ui_scale*100,"renderer":RenderingServer.get_current_rendering_method(),"render_driver":RenderingServer.get_current_rendering_driver_name(),"gpu":RenderingServer.get_video_adapter_name(),"refresh_hz":DisplayServer.screen_get_refresh_rate(),"vsync":DisplayServer.window_get_vsync_mode(),"max_fps":Engine.max_fps,"observed_floor":app._observed_floor,"camera_size":app._view.camera.size,"camera_transform":str(app._view.camera.global_transform)}
+	return {"window_pixels":[window.x,window.y],"root_logical_extent":[logical.x,logical.y],"content_scale_size":[root.content_scale_size.x,root.content_scale_size.y],"content_scale_mode":root.content_scale_mode,"canvas_transform":str(app.get_global_transform_with_canvas()),"root_raster_texture_pixels":[root_texture.x,root_texture.y],"root_viewport_texture_declared_pixels":[root_texture_declared.x,root_texture_declared.y],"root_raster_source":"actual image readback outside formal window; zero until first screenshot","root_canvas_physical_extent":[root_physical.x,root_physical.y],"native_2d_output":root.content_scale_mode==Window.CONTENT_SCALE_MODE_CANVAS_ITEMS and root_texture==root_physical,"scene_control_logical_extent":[app._world_container.size.x,app._world_container.size.y],"scene_control_physical_extent":[physical.x,physical.y],"scene_control_screen_transform":str(screen),"scene_viewport_pixels":[scene.x,scene.y],"scene_output_texture_pixels":[scene_texture.x,scene_texture.y],"scene_output_matches_control":scene==expected and scene_texture==scene,"scene_scale":app._viewport.scaling_3d_scale,"scene_allocated_pixels":"unavailable_without_actual_backend_corroboration","ui_scale_percent":app._ui_scale*100,"renderer":RenderingServer.get_current_rendering_method(),"render_driver":RenderingServer.get_current_rendering_driver_name(),"gpu":RenderingServer.get_video_adapter_name(),"refresh_hz":DisplayServer.screen_get_refresh_rate(),"vsync":DisplayServer.window_get_vsync_mode(),"max_fps":Engine.max_fps,"observed_floor":app._observed_floor,"camera_size":app._view.camera.size,"camera_transform":str(app._view.camera.global_transform)}
 
 func _ack(state: String) -> void:
 	var sampled: Dictionary = _clock()

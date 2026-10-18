@@ -32,6 +32,9 @@ func _run() -> void:
 	var trace: Trace = Trace.new(output)
 	trace.fine = fine
 	trace.reserved_world = reserved_world
+	# This standalone diagnostic records native model size before a potentially
+	# long solve. The environment flag controls logging only, never the model.
+	OS.set_environment("OGH_CAPACITY_DIAGNOSTIC","1")
 	if trace.file==null:
 		push_error("Cannot open preparation trace: "+output)
 		quit(2)
@@ -203,7 +206,7 @@ class TracedArrivalService extends HospitalArrivalService:
 		trace.emit("structural_pairs","enter",{"binding":"","native_c_returned":true},null,self,space)
 		var result: Dictionary = super._structural_pairs(world,classes,shift)
 		var fields: Dictionary = {"binding":"","pairs":result.get("pairs",0),"error":str(result.get("error",""))}
-		for key: String in ["terminals","structure_encoding","structural_nodes","structural_slots","structural_variables","structural_constraints"]:
+		for key: String in ["terminals","structure_encoding","structural_nodes","structural_slots","structural_variables","structural_constraints","structural_input_cases","structural_input_bases","structural_input_group_parts","structural_alternatives_before","structural_alternatives_after","structural_dominated_alternatives","structural_interned_nodes","structural_flat_attempt_us","structural_presolve_us","structural_assembly_us","structural_solve_us","structural_subset_proof_pairs"]:
 			if result.has(key): fields[key] = result[key]
 		trace.emit("structural_pairs","return",fields,null,self,space)
 		return result

@@ -10,6 +10,8 @@
 #include "scip/rationalgmp.h"
 #include <algorithm>
 #include <chrono>
+#include <cstdio>
+#include <cstdlib>
 #include <functional>
 #include <iterator>
 #include <map>
@@ -600,6 +602,9 @@ struct StructuralGraph {
     struct Node { bool choice; std::vector<std::string> resources; std::vector<int> children; };
     std::vector<Node> nodes;
     std::map<std::string, int> shapes;
+    std::map<int, std::set<std::string>> required_resources;
+    std::map<std::pair<int, int>, bool> subset_proofs;
+    std::map<int, bool> nonempty_paths;
     int intern(Node node) {
         std::sort(node.children.begin(), node.children.end());
         node.children.erase(std::unique(node.children.begin(), node.children.end()), node.children.end());
@@ -635,14 +640,83 @@ struct StructuralGraph {
         }
         return intern(std::move(node));
     }
+    const std::set<std::string>& required(int id) {
+        auto found = required_resources.find(id); if (found != required_resources.end()) return found->second;
+        const auto& node = nodes[id]; std::set<std::string> result(node.resources.begin(), node.resources.end());
+        if (!node.children.empty()) {
+            auto shared = required(node.children.front());
+            for (size_t i = 1; i < node.children.size(); ++i) {
+                const auto& next = required(node.children[i]); std::set<std::string> merged;
+                if (node.choice) std::set_intersection(shared.begin(), shared.end(), next.begin(), next.end(), std::inserter(merged, merged.end()));
+                else std::set_union(shared.begin(), shared.end(), next.begin(), next.end(), std::inserter(merged, merged.end()));
+                shared = std::move(merged);
+            }
+            result.insert(shared.begin(), shared.end());
+        }
+        return required_resources.emplace(id, std::move(result)).first->second;
+    }
+    bool nonempty(int id) {
+        auto known = nonempty_paths.find(id); if (known != nonempty_paths.end()) return known->second;
+        const auto& node = nodes[id]; bool proof = !node.resources.empty();
+        if (!proof && !node.children.empty()) {
+            proof = node.choice;
+            for (int child : node.children) {
+                if (node.choice && !nonempty(child)) { proof = false; break; }
+                if (!node.choice && nonempty(child)) { proof = true; break; }
+            }
+        }
+        nonempty_paths.emplace(id, proof); return proof;
+    }
+    // Sufficient proof of: every complete B resource set contains a complete
+    // legal A set. Never infer domination from stage count or an approximate
+    // envelope. OR covers every B branch; AND keeps all A requirements.
+    // These are positive resource unions only. If child witnesses differ at
+    // a shared OR, consistently choose one witnessed complete subtree: all
+    // its resources already belong to the same B set. No negative predicate
+    // or cross-child exclusion can invalidate that subset witness.
+    bool dominates(int a, int b) {
+        if (a == b) return true;
+        const auto key = std::make_pair(a, b); auto known = subset_proofs.find(key);
+        if (known != subset_proofs.end()) return known->second;
+        const auto& left = nodes[a]; const auto& right = nodes[b]; bool proof = false;
+        if (right.choice) {
+            proof = true;
+            for (int child : right.children) if (!dominates(a, child)) { proof = false; break; }
+        } else {
+            // A legal subset of one required B subtree is also a subset of
+            // the complete B path. This exposes OR choices below an AND.
+            for (int child : right.children) if (dominates(a, child)) { proof = true; break; }
+            if (!proof && left.choice) {
+                for (int child : left.children) if (dominates(child, b)) { proof = true; break; }
+            } else if (!proof) {
+                const auto& mandatory = required(b);
+                proof = std::includes(mandatory.begin(), mandatory.end(), left.resources.begin(), left.resources.end());
+                if (proof) for (int child : left.children) if (!dominates(child, b)) { proof = false; break; }
+            }
+        }
+        subset_proofs.emplace(key, proof); return proof;
+    }
+    std::vector<int> minimal(const std::set<int>& candidates) {
+        std::vector<int> result;
+        for (int id : candidates) {
+            bool covered = false;
+            for (int kept : result) if (nonempty(kept) && dominates(kept, id)) { covered = true; break; }
+            if (covered) continue;
+            if (nonempty(id)) result.erase(std::remove_if(result.begin(), result.end(), [&](int kept) { return dominates(id, kept); }), result.end());
+            result.push_back(id);
+        }
+        return result;
+    }
 };
-V structure_graph(const V& raw_cases, const V& raw_blocked, const V& raw_reception, int64_t bed_limit) {
+V structure_graph(const V& raw_cases, const V& raw_blocked, const V& raw_reception, int64_t bed_limit, int64_t flat_attempt_us) {
+    const int64_t started = micros();
     if (bed_limit < 1 || bed_limit > INT32_MAX) throw std::runtime_error("无效的病房覆盖上限");
     D blocked(raw_blocked), reception(raw_reception), people(reception.get("people")), desks(reception.get("desks"));
     const auto blocked_ids = dictionary_names(blocked), people_ids = dictionary_names(people), desk_ids = dictionary_names(desks);
     int64_t ratio = reception.get("ratio").number();
     if (ratio < 1 || ratio > INT32_MAX) throw std::runtime_error("无效的接待结构比例");
     StructuralGraph graph;
+    int64_t input_bases = 0, input_group_parts = 0;
     std::map<Pattern, std::set<int>> terminals;
     std::set<std::pair<std::string, std::string>> reception_edges;
     auto reception_part = [&](const D& part) {
@@ -658,7 +732,10 @@ V structure_graph(const V& raw_cases, const V& raw_blocked, const V& raw_recepti
     A cases(raw_cases);
     for (int64_t i = 0; i < cases.size(); ++i) {
         D current(cases.at(i)); A bases(current.get("bundles"));
+        input_bases += bases.size();
         V raw_groups = current.get("choice_groups"); D groups = raw_groups.nil() ? D() : D(raw_groups);
+        A group_names(groups.keys());
+        for (int64_t j = 0; j < group_names.size(); ++j) input_group_parts += A(groups.get(group_names.at(j))).size();
         V raw_receptions = current.get("reception_bundles");
         if (!raw_receptions.nil()) {
             A parts(raw_receptions); for (int64_t j = 0; j < parts.size(); ++j) reception_part(D(parts.at(j)));
@@ -681,7 +758,6 @@ V structure_graph(const V& raw_cases, const V& raw_blocked, const V& raw_recepti
     std::set<std::string> all_resources;
     for (const auto& node : graph.nodes) all_resources.insert(node.resources.begin(), node.resources.end());
     if (all_resources.size() > INT32_MAX) throw std::runtime_error("结构资源规模超出原生索引范围");
-    PackingProgram program;
     std::map<std::string, std::vector<std::pair<int, int>>> exclusivity;
     std::map<std::pair<std::string, std::string>, std::vector<int>> coverage;
     std::vector<int> objectives;
@@ -693,8 +769,16 @@ V structure_graph(const V& raw_cases, const V& raw_blocked, const V& raw_recepti
     };
     std::set<std::string> staff_anchors, facility_anchors;
     bool every_staff = true, every_facility = true;
+    int64_t alternatives_before = 0, alternatives_after = 0;
+    const int64_t presolve_started = micros();
     for (const auto& terminal : terminals) {
-        int root = graph.intern({true, {}, std::vector<int>(terminal.second.begin(), terminal.second.end())});
+        // K may choose any legal case. For this exact (resources,nurse,ward)
+        // Pattern, a complete legal subset replaces a dominated path without
+        // increasing any resource use or changing coverage ownership. C and
+        // its case probabilities never enter this presolve.
+        alternatives_before += terminal.second.size();
+        auto choices = graph.minimal(terminal.second); alternatives_after += choices.size();
+        int root = graph.intern({true, {}, std::move(choices)});
         roots.emplace_back(terminal.first, root); visit(root);
         bool has_staff = false, has_facility = false;
         for (const auto& resource : std::get<0>(terminal.first)) {
@@ -703,6 +787,9 @@ V structure_graph(const V& raw_cases, const V& raw_blocked, const V& raw_recepti
         }
         every_staff = every_staff && has_staff; every_facility = every_facility && has_facility;
     }
+    const int64_t presolve_us = micros() - presolve_started;
+    const size_t proof_pairs = graph.subset_proofs.size();
+    graph.required_resources.clear(); graph.subset_proofs.clear(); graph.nonempty_paths.clear();
     // Each complete group consumes a nonempty resource set. If every terminal
     // consumes a staff/facility anchor, those disjoint anchors give a tighter
     // proven slot bound. This changes the encoding, never the legal candidates.
@@ -712,6 +799,7 @@ V structure_graph(const V& raw_cases, const V& raw_blocked, const V& raw_recepti
     std::set<std::string> reception_people, reception_desks;
     for (const auto& edge : reception_edges) { reception_people.insert(edge.first); reception_desks.insert(edge.second); }
     slots = std::min(slots, std::min(reception_people.size(), reception_desks.size()) * static_cast<size_t>(ratio));
+    PackingProgram program;
     std::vector<std::pair<int, int>> previous_order;
     for (size_t slot = 0; slot < slots; ++slot) {
         int selected = program.binary(true); objectives.push_back(selected);
@@ -784,17 +872,37 @@ V structure_graph(const V& raw_cases, const V& raw_blocked, const V& raw_recepti
     }
     for (const auto& row : reception_matching) program.at_most(row.second, 1);
     program.at_most(std::move(limit), 0);
+    const int64_t assembly_us = micros() - started;
+    result.set("structural_input_cases", V::number(cases.size())); result.set("structural_input_bases", V::number(input_bases));
+    result.set("structural_input_group_parts", V::number(input_group_parts));
+    result.set("structural_alternatives_before", V::number(alternatives_before)); result.set("structural_alternatives_after", V::number(alternatives_after));
+    result.set("structural_dominated_alternatives", V::number(alternatives_before - alternatives_after));
+    result.set("structural_interned_nodes", V::number(graph.nodes.size())); result.set("structural_nodes", V::number(reachable.size()));
+    result.set("structural_slots", V::number(slots)); result.set("structural_variables", V::number(program.variables.size())); result.set("structural_constraints", V::number(program.rows.size()));
+    result.set("structural_flat_attempt_us", V::number(flat_attempt_us)); result.set("structural_presolve_us", V::number(presolve_us)); result.set("structural_assembly_us", V::number(assembly_us));
+    result.set("structural_subset_proof_pairs", V::number(proof_pairs));
+    const char* diagnostic = std::getenv("OGH_CAPACITY_DIAGNOSTIC");
+    if (diagnostic && std::string(diagnostic) == "1") {
+        std::fprintf(stderr, "OGH_STRUCTURE_MODEL={\"input_cases\":%lld,\"input_bases\":%lld,\"input_group_parts\":%lld,\"terminal_patterns\":%llu,\"alternatives_before\":%lld,\"alternatives_after\":%lld,\"dominated\":%lld,\"interned_nodes\":%llu,\"reachable_nodes\":%llu,\"slots\":%llu,\"variables\":%llu,\"constraints\":%llu,\"flat_attempt_us\":%lld,\"presolve_us\":%lld,\"assembly_us\":%lld}\n",
+            static_cast<long long>(cases.size()), static_cast<long long>(input_bases), static_cast<long long>(input_group_parts), static_cast<unsigned long long>(terminals.size()),
+            static_cast<long long>(alternatives_before), static_cast<long long>(alternatives_after), static_cast<long long>(alternatives_before-alternatives_after),
+            static_cast<unsigned long long>(graph.nodes.size()), static_cast<unsigned long long>(reachable.size()), static_cast<unsigned long long>(slots),
+            static_cast<unsigned long long>(program.variables.size()), static_cast<unsigned long long>(program.rows.size()), static_cast<long long>(flat_attempt_us), static_cast<long long>(presolve_us), static_cast<long long>(assembly_us));
+        std::fflush(stderr);
+    }
+    const int64_t solve_started = micros();
     auto values = program.solve(); int count = 0;
+    result.set("structural_solve_us", V::number(micros() - solve_started));
     for (int id : objectives) count += values[id];
     result.set("pairs", V::number(count)); result.set("terminals", V::number(terminals.size()));
-    result.set("structure_encoding", V::text("implicit")); result.set("structural_nodes", V::number(graph.nodes.size())); result.set("structural_slots", V::number(slots)); result.set("structural_variables", V::number(program.variables.size()));
-    result.set("structural_constraints", V::number(program.rows.size()));
+    result.set("structure_encoding", V::text("implicit"));
     return result.value();
 }
 
 V structure(const V& raw_cases, const V& raw_blocked, const V& raw_reception, int64_t bed_limit) {
+    const int64_t started = micros();
     try { return structure_flat(raw_cases, raw_blocked, raw_reception, bed_limit); }
-    catch (const StructureExpansionLimit&) { return structure_graph(raw_cases, raw_blocked, raw_reception, bed_limit); }
+    catch (const StructureExpansionLimit&) { return structure_graph(raw_cases, raw_blocked, raw_reception, bed_limit, micros()-started); }
 }
 
 struct Model {

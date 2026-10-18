@@ -230,6 +230,67 @@ for index in range(24):
     blocked = {rng.choice(["staff:g0", "facility:s1", "facility:r0", "staff:t0"]): True} if index % 3 else {}
     packing.append({"index": len(packing), "cases": cases, "blocked": blocked, "reception": reception, "bed_limit": 8,
                     "expected": structure_optimum(cases, blocked, reception, 8)})
+# Force the complete implicit path with an unavailable 17^3 subtree. It is
+# still supplied and expanded independently by this oracle; its blocked root
+# cannot contribute to K. Small counterexamples then exercise DAG presolve,
+# rather than silently remaining in the separate small-set encoding.
+registration = {"resources": {"staff:r": fraction(1), "facility:d": fraction(1)}}
+trigger = {"bundles": [{"structural_resources": ["staff:disabled"], "structural_choices": ["trigger0"]}],
+           "choice_groups": {"trigger0": [], "trigger1": [], "trigger2": []}, "reception_bundles": [registration]}
+for stage in range(3):
+    for option in range(17):
+        part = {"structural_resources": [f"facility:trigger{stage}_{option}"]}
+        if stage < 2:
+            part["structural_choices"] = [f"trigger{stage+1}"]
+        trigger["choice_groups"][f"trigger{stage}"].append(part)
+
+def implicit_vector(cases, blocked=None, dominated=0):
+    blocked = {**(blocked or {}), "staff:disabled": True}
+    cases = [deepcopy(trigger)] + cases
+    reception = {"people": {"staff:r": True}, "desks": {"facility:d": True}, "ratio": 3}
+    packing.append({"index": len(packing), "cases": cases, "blocked": blocked, "reception": reception, "bed_limit": 8,
+                    "expected": structure_optimum(cases, blocked, reception, 8), "expected_encoding": "implicit", "dominated_minimum": dominated})
+
+def diagnostic_case(terminal, simple, complex_branch=False, nurse="", ward=""):
+    base = {"structural_resources": ["staff:"+terminal] if terminal else [], "structural_choices": ["gp"]}
+    if nurse:
+        base.update(coverage_nurse_id=nurse, ward_id=ward)
+    groups = {"gp": [{"structural_resources": ["staff:g"+str(i), "facility:g"+str(i)],
+                       **({"structural_choices": ["test"]} if complex_branch else {})} for i in simple]}
+    if complex_branch:
+        groups["test"] = [{"structural_resources": ["facility:s0"]}, {"structural_resources": ["facility:s1"]}]
+    return {"bundles": [base], "choice_groups": groups, "reception_bundles": [registration]}
+
+# Full subset witnesses, incomplete OR coverage, differing geometry, ward and
+# nurse ownership, and the forbidden empty-group witness are separate cases.
+implicit_vector([diagnostic_case(t, [0, 1], nested) for t in ["t0", "t1"] for nested in [False, True]], dominated=2)
+implicit_vector([diagnostic_case(t, [0] if not nested else [0, 1], nested) for t in ["t0", "t1"] for nested in [False, True]])
+geometry = [diagnostic_case("t0", [0]), diagnostic_case("t1", [1], True)]
+geometry[1]["choice_groups"]["gp"][0]["structural_resources"] = ["staff:g1", "facility:other_geometry"]
+implicit_vector(geometry, {"facility:g0": True})
+implicit_vector([diagnostic_case("t0", [0], False, "n0", "w0"), diagnostic_case("t0", [0], True, "n0", "w1"),
+                 diagnostic_case("t1", [1], False, "n0", "w1")])
+owners = [diagnostic_case("t0", [0], False, "n0", "w0"), diagnostic_case("t0", [0], True, "n1", "w0"), diagnostic_case("t1", [1])]
+owners[2]["bundles"][0]["structural_resources"].append("staff:n0")
+implicit_vector(owners)
+empty = diagnostic_case("", [])
+empty["choice_groups"]["gp"] = [{"structural_resources": []}]
+implicit_vector([empty, diagnostic_case("", [0, 1])])
+shared = {"bundles": [{"structural_resources": ["staff:t0"], "structural_choices": ["x", "wrap"]}],
+          "choice_groups": {"x": [{"structural_resources": ["staff:g0"]}, {"structural_resources": ["staff:g1"]}],
+                            "wrap": [{"structural_resources": ["facility:a"], "structural_choices": ["x"]}]}, "reception_bundles": [registration]}
+fixed = {"bundles": [{"structural_resources": ["staff:t0"], "structural_choices": ["all"]}],
+         "choice_groups": {"all": [{"structural_resources": ["staff:g0", "staff:g1", "facility:a"]}]}, "reception_bundles": [registration]}
+implicit_vector([shared, fixed], dominated=1)
+for index in range(32):
+    cases = []
+    for terminal in ["t0", "t1"]:
+        for nested in [False, True]:
+            choices = rng.sample(range(3), rng.randrange(1, 3))
+            nurse = "n"+str(rng.randrange(2)) if index % 4 == 0 else ""
+            cases.append(diagnostic_case(terminal, choices, nested, nurse, "w"+str(rng.randrange(2)) if nurse else ""))
+    blocked = {rng.choice(["staff:g0", "staff:t0", "facility:g1", "facility:s0", "staff:n0"]): True} if index % 3 == 0 else {}
+    implicit_vector(cases, blocked)
 Path(sys.argv[1]).with_name("structure-vectors.json").write_text(json.dumps(packing), encoding="utf-8")
 print(f"EXACT_STRUCTURE_VECTORS={len(packing)}")
 arithmetic = []

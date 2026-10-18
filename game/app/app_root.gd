@@ -877,7 +877,9 @@ func _sync_scene_pixels() -> void:
 	if _viewport==null or _world_container==null: return
 	# canvas_items rasterizes 2D at window resolution. The nested 3D texture
 	# likewise owns the physical pixels occupied by its control, before 3D scale.
-	var screen: Transform2D = _world_container.get_screen_transform()
+	# CanvasItem.get_screen_transform omits Window stretch while subwindows are
+	# embedded. The viewport transform maps the control to its actual raster.
+	var screen: Transform2D = _world_container.get_viewport_transform()*_world_container.get_global_transform()
 	var pixels: Vector2i = Vector2i(maxi(2,ceili(_world_container.size.x*screen.x.length())),maxi(2,ceili(_world_container.size.y*screen.y.length())))
 	if _viewport.size!=pixels: _viewport.size = pixels
 

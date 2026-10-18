@@ -79,7 +79,7 @@ def main(config):
     opts = rd.CaptureOptions()
     opts.refAllResources = True
     result = rd.ExecuteAndInject(config["exe"], str(Path(config["exe"]).parent),
-        subprocess.list2cmdline(["--", "--config=" + config["scenario"]]), [],
+        subprocess.list2cmdline(["--verbose", "--log-file", str(output / "display-engine.log"), "--", "--config=" + config["scenario"]]), [],
         str(output / "display"), opts, False)
     if result.result != rd.ResultCode.Succeeded:
         raise RuntimeError("ExecuteAndInject: " + str(result.result))
