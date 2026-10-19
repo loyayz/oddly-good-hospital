@@ -1,0 +1,10 @@
+{
+  "complete": true,
+  "plain_pairs": 7,
+  "all_binary_equal": true,
+  "functional_a": 16,
+  "functional_b": 26,
+  "archive_verified": true,
+  "formal_pass": false,
+  "formal_acceptance_paused": true
+}
