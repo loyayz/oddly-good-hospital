@@ -1,6 +1,8 @@
 class_name NavigationCache
 extends RefCounted
 
+const FIELD_STEPS: Array[int] = [-FloorNavigation.SIDE,-1,1,FloorNavigation.SIDE]
+
 var _entries: Dictionary = {}
 var _sources: Dictionary = {}
 var _used: int = 0
@@ -171,7 +173,7 @@ func clearance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Di
 				entry.query_charge = int(entry.get("query_charge",0))-int(entry.queries[id].charge)
 				entry.queries.erase(id)
 		entry.query_boundary = [world.get_instance_id(),world.revision]
-	var stamp: Array = _reservation_stamp(current,world,floor_id,actor.id) if members.is_empty() else [floor_version(space,world,floor_id)]
+	var stamp: Array = _reservation_stamp(space,current,world,floor_id,actor.id) if members.is_empty() else [floor_version(space,world,floor_id)]
 	if not members.is_empty():
 		# Identical bodies do not grant another group the same reservation access.
 		stamp.append(members.duplicate())
@@ -194,7 +196,12 @@ func clearance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Di
 # Complete inputs consumed by a single body's reservation checks. Actor/staff
 # names that leave this ordered forbidden view identical do not change it.
 # The caller compares live references; retained records own a deep signature.
-func _reservation_stamp(graph: FloorNavigation, world: WorldState, floor_id: int, actor_id: String) -> Array:
+func _reservation_stamp(space: HospitalSpace, graph: FloorNavigation, world: WorldState, floor_id: int, actor_id: String) -> Array:
+	var views: Dictionary = space.read_view(world,"reservation_stamps:"+str(graph.geometry.get_instance_id()),func()->Dictionary: return {})
+	if not views.has(actor_id): views[actor_id] = _build_reservation_stamp(graph,world,floor_id,actor_id)
+	return views[actor_id]
+
+func _build_reservation_stamp(graph: FloorNavigation, world: WorldState, floor_id: int, actor_id: String) -> Array:
 	var forbidden: Array = []
 	for reservation: Dictionary in world.facts.adaptations.values():
 		if reservation.kind=="facility" and int(reservation.floor_id)==floor_id and not RouteClearance.reservation_allows(reservation,actor_id):
@@ -261,7 +268,7 @@ func _travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, ac
 	for reservation: Array in floor_source(space,world,floor_id).occupancy:
 		if actor.id==reservation[1] or actor.id in reservation[2]: exemptions.append(reservation[0])
 	var destination: String = JSON.stringify(["from",start.x,start.y,exemptions]) if forward else JSON.stringify([goal.x,goal.y,exemptions])
-	var stamp: Array = _reservation_stamp(current,world,floor_id,actor.id)
+	var stamp: Array = _reservation_stamp(space,current,world,floor_id,actor.id)
 	var record: Dictionary = entry.estimates.get(destination,{})
 	if record.is_empty() or record.stamp!=stamp:
 		var old_charge: int = int(record.get("charge",0))
@@ -328,11 +335,10 @@ func _forward_field(graph: FloorNavigation, query: RouteClearance, start: Vector
 	while cursor<queue.size():
 		var current: int = queue[cursor]
 		cursor += 1
-		var cell: Vector2i = FloorNavigation._cell(current)
-		for offset: Vector2i in FloorNavigation.NEIGHBOURS:
-			var next: Vector2i = cell+offset
-			if not FloorNavigation._inside(next): continue
-			var id: int = FloorNavigation._id(next)
+		var x: int = current%FloorNavigation.SIDE
+		for step: int in FIELD_STEPS:
+			var id: int = current+step
+			if id<0 or id>=FloorNavigation.LIMIT or step==-1 and x==0 or step==1 and x==FloorNavigation.SIDE-1: continue
 			if distances[id]>=0 or not graph.has_point(id) or graph.is_point_disabled(id) or not graph.are_points_connected(current,id,false): continue
 			if not reservations.is_empty() and reservations[id]!=0: continue
 			distances[id] = distances[current]+1
@@ -354,14 +360,13 @@ func _distance_field(graph: FloorNavigation, query: RouteClearance, goal: Vector
 	while cursor<queue.size():
 		var current: int = queue[cursor]
 		cursor += 1
-		var cell: Vector2i = FloorNavigation._cell(current)
+		var x: int = current%FloorNavigation.SIDE
 		# The existing search permits leaving a reserved start, but never
 		# entering a reserved destination. Reverse expansion keeps that rule.
 		if not reservations.is_empty() and reservations[current]!=0: continue
-		for offset: Vector2i in FloorNavigation.NEIGHBOURS:
-			var previous: Vector2i = cell+offset
-			if not FloorNavigation._inside(previous): continue
-			var id: int = FloorNavigation._id(previous)
+		for step: int in FIELD_STEPS:
+			var id: int = current+step
+			if id<0 or id>=FloorNavigation.LIMIT or step==-1 and x==0 or step==1 and x==FloorNavigation.SIDE-1: continue
 			if distances[id]>=0 or not graph.has_point(id) or graph.is_point_disabled(id) or not graph.are_points_connected(id,current,false): continue
 			distances[id] = distances[current]+1
 			successors[id] = current

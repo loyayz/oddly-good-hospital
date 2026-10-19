@@ -9,6 +9,7 @@ var _actor_index: BodyIndex = BodyIndex.new()
 var _sweep_index: BodyIndex = BodyIndex.new()
 var _indexed_world: WorldState
 var _indexed_revision: int = -1
+var _indexed_actor_scope: Dictionary = {}
 var _navigation: NavigationCache = NavigationCache.new()
 var _accepted_sweeps: Dictionary = {}
 var _route_checks: Dictionary = {}
@@ -62,6 +63,7 @@ func begin_route_query(world: WorldState, reference: Dictionary = {}, inherit_re
 
 func end_route_query() -> void:
 	var finished: Dictionary = _route_queries.pop_back()
+	if is_same(_indexed_actor_scope,finished): _indexed_actor_scope = {}
 	if _route_queries.is_empty(): return
 	var child: Dictionary = finished.reference
 	var parent: Dictionary = _route_queries.back().reference
@@ -145,16 +147,28 @@ func body(actor: Dictionary) -> Dictionary:
 	return _bodies[key]
 
 func _ensure_actor_index(world: WorldState) -> void:
+	var scope: Dictionary = {}
+	for active: Dictionary in _route_queries:
+		if is_same(active.world.facts.actors,world.facts.actors):
+			scope = active
+			break
 	if world==_indexed_world and world.revision==_indexed_revision:
+		_indexed_actor_scope = scope
 		return
+	# A sealed read-only enumeration may alternate reservation projections
+	# with the exact same actors collection. Its active scope owns this reuse;
+	# crossing scope/world boundaries retains the original rebuild behavior.
+	var shared: bool = world!=_indexed_world and _indexed_world!=null and _indexed_revision>=0 and not scope.is_empty() and is_same(scope,_indexed_actor_scope) and is_same(world.facts.actors,_indexed_world.facts.actors)
 	if world!=_indexed_world:
-		_actor_shapes.clear()
 		_route_checks.clear()
-	_actor_index.clear()
+		if not shared: _actor_shapes.clear()
+	if not shared: _actor_index.clear()
 	_indexed_world = world
 	_indexed_revision = world.revision
-	for id: String in world.ids("actors"):
-		_sync_actor(world,id)
+	_indexed_actor_scope = scope
+	if not shared:
+		for id: String in world.ids("actors"):
+			_sync_actor(world,id)
 
 func sync_actor(world: WorldState, id: String) -> void:
 	_ensure_actor_index(world)

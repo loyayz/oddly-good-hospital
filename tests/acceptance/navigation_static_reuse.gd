@@ -38,6 +38,7 @@ func run_case(sim: HospitalSimulation, content: HospitalContent) -> Dictionary:
 			world.facts.adaptations.permissions_machine.regions[0][0] += 0.25
 		world.touch()
 		var before: Dictionary = world.freeze()
+		space.begin_route_query(world)
 		var query: RouteClearance = space._navigation.clearance(space,world,1,actor)
 		var cold: RouteClearance = RouteClearance.new(HospitalSpace.new(content),world,actor,1)
 		var equal: bool = true
@@ -59,6 +60,7 @@ func run_case(sim: HospitalSimulation, content: HospitalContent) -> Dictionary:
 			for count: int in 13: field = space._navigation.forward_distance(space,world,1,actor,pair[0],pair[1])
 			paths_equal = paths_equal and field.ready and field.ok==expected.ok and field.reason==expected.reason
 			if expected.ok: paths_equal = paths_equal and int(field.distance)==int(expected.walking_distance)
+		space.end_route_query()
 		ok = ok and equal and identity_ok and paths_equal and before==world.freeze()
 		observations.append({"pass":pass_id,"all_9216_reasons_cold_equal":equal,"query_identity_correct":identity_ok,"full_paths_fields_and_owned_result":paths_equal,"readonly":before==world.freeze()})
 		previous = query
@@ -72,7 +74,70 @@ func run_case(sim: HospitalSimulation, content: HospitalContent) -> Dictionary:
 	var rebuilt: Dictionary = _path(space,world,actor)
 	var invalidated: bool = not changed.ok and changed==cold_changed and rebuilt==cold_changed
 	var order: Dictionary = _fit_order(sim.world.freeze(),content)
-	return {"ok":ok and evicted and invalidated and order.ok,"validation":validation,"observations":observations,"geometry_refresh_and_eviction":invalidated and evicted,"static_hits":space.query_counts.static_path_hits,"fit_failure_order":order}
+	var bodies: Dictionary = _actor_scope(sim.world.freeze(),content)
+	return {"ok":ok and evicted and invalidated and order.ok and bodies.ok,"validation":validation,"observations":observations,"geometry_refresh_and_eviction":invalidated and evicted,"static_hits":space.query_counts.static_path_hits,"fit_failure_order":order,"actor_scope":bodies}
+
+func _actor_scope(source: Dictionary, content: HospitalContent) -> Dictionary:
+	var world: WorldState = WorldState.new(source.duplicate(true))
+	var facts: Dictionary = world.facts.duplicate()
+	facts.adaptations = world.facts.adaptations.duplicate(true)
+	facts.adaptations.permissions_second.staff_ids.append(STAFF)
+	var projected: WorldState = WorldState.new(facts)
+	var before: Dictionary = world.freeze()
+	var space: HospitalSpace = HospitalSpace.new(content)
+	space.begin_route_query(world)
+	space._ensure_actor_index(world)
+	var original: BodyIndex.Record = space._actor_index._records[PEER]
+	space._route_checks.sentinel = true
+	space._ensure_actor_index(projected)
+	var shared: bool = space._actor_index._records[PEER]==original and space._route_checks.is_empty()
+	space._ensure_actor_index(world)
+	shared = shared and space._actor_index._records[PEER]==original
+	space.begin_route_query(projected)
+	space._ensure_actor_index(projected)
+	space.end_route_query()
+	shared = shared and space._actor_index._records[PEER]==original and not space._indexed_actor_scope.is_empty()
+	space.end_route_query()
+	var released: bool = space._indexed_actor_scope.is_empty() and world.freeze()==before
+	# After a scope closes, the old C -> W world switch must still rebuild,
+	# even if no revision changed between those two diagnostic input states.
+	world.facts.actors[PEER].location.cell[0] += 0.25
+	space._ensure_actor_index(world)
+	var outside: BodyIndex.Record = space._actor_index._records[PEER]
+	var rebuilt: bool = outside!=original and _bodies_cold_equal(space,world,content)
+	space.begin_route_query(world)
+	space._ensure_actor_index(world)
+	space._ensure_actor_index(projected)
+	var next_scope: bool = space._actor_index._records[PEER]==outside
+	# A private projected actor changes physical geometry. Sharing unrelated
+	# records inside its actors map does not authorize sharing the whole index.
+	var private_facts: Dictionary = world.facts.duplicate()
+	private_facts.actors = world.facts.actors.duplicate()
+	private_facts.actors[PEER] = world.facts.actors[PEER].duplicate()
+	private_facts.actors[PEER].location = world.facts.actors[PEER].location.duplicate(true)
+	private_facts.actors[PEER].location.cell[0] += 1.0
+	var private_world: WorldState = WorldState.new(private_facts)
+	space.begin_route_query(private_world)
+	space._ensure_actor_index(private_world)
+	var isolated: bool = space._actor_index._records[PEER]!=outside and _bodies_cold_equal(space,private_world,content)
+	space.end_route_query()
+	space._ensure_actor_index(world)
+	var forced_before: BodyIndex.Record = space._actor_index._records[PEER]
+	space.begin_dynamic_route_query(world,true)
+	var forced: bool = space._actor_index._records[PEER]!=forced_before and _bodies_cold_equal(space,world,content)
+	space.end_route_query()
+	space.end_route_query()
+	return {"ok":shared and released and rebuilt and next_scope and isolated and forced and space._indexed_actor_scope.is_empty(),"same_scope_shared":shared,"scope_owner_released":released,"outside_scope_rebuilt":rebuilt,"next_scope_current_bodies":next_scope,"private_actor_map_isolated":isolated,"forced_refresh":forced}
+
+func _bodies_cold_equal(space: HospitalSpace, world: WorldState, content: HospitalContent) -> bool:
+	var cold: HospitalSpace = HospitalSpace.new(content)
+	cold._ensure_actor_index(world)
+	if space._actor_index._records.keys()!=cold._actor_index._records.keys(): return false
+	for id: String in cold._actor_index._records:
+		var actual: BodyIndex.Record = space._actor_index._records[id]
+		var expected: BodyIndex.Record = cold._actor_index._records[id]
+		if actual.floor_id!=expected.floor_id or actual.rect!=expected.rect: return false
+	return true
 
 func _path(space: HospitalSpace, world: WorldState, actor: Dictionary) -> Dictionary:
 	return space._floor_route(world,actor,1,Vector2i(38,86),Vector2i(40,90),[],{},true)
