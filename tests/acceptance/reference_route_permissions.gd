@@ -62,7 +62,79 @@ func run_case(sim: HospitalSimulation, content: HospitalContent) -> Dictionary:
 			valid = valid and shared
 			observations.append({"mode":mode,"same_permissions":pair,"shared":shared})
 	var fields: Dictionary = _forward_contract(source,goal,content)
-	return {"ok":valid and fields.ok,"details":{"observations":observations,"forward_fields":fields,"no_simulation_steps":true}}
+	var masks: Dictionary = _mask_contract(source,content)
+	var projections: Dictionary = _projection_contract(source,content)
+	return {"ok":valid and fields.ok and masks.ok and projections.ok,"details":{"observations":observations,"forward_fields":fields,"reservation_masks":masks,"projection_sources":projections,"no_simulation_steps":true}}
+
+func _mask_contract(source: Dictionary, content: HospitalContent) -> Dictionary:
+	var world: WorldState = WorldState.new(source.duplicate(true))
+	var before: Dictionary = world.freeze()
+	var space: HospitalSpace = HospitalSpace.new(content)
+	var sizes: Dictionary = {}
+	var observations: Array = []
+	var passed: bool = true
+	for species: Dictionary in content.catalog.species:
+		var actor: Dictionary = world.facts.actors[OTHER].duplicate()
+		actor.species_id = species.id
+		var size: int = space.clearance(actor)
+		if not size in [1,2,3] or sizes.has(size): continue
+		sizes[size] = true
+		for group: bool in [false,true]:
+			for offset: Array in [[0,0],[0.25,-0.5],[0.99999994,1.0000001]]:
+				var members: Array = [OTHER,OWNER] if group else []
+				var offsets: Dictionary = {OTHER:[0,0],OWNER:offset} if group else {}
+				var query: RouteClearance = RouteClearance.new(space,world,actor,1,members,offsets)
+				var mask: PackedByteArray = query.reservation_mask()
+				var equal: bool = true
+				for id: int in FloorNavigation.LIMIT:
+					equal = equal and (not mask.is_empty() and mask[id]!=0)==(not query.reservation_reason(FloorNavigation._cell(id)).is_empty())
+				passed = passed and equal
+				observations.append({"size":size,"group":group,"offset":offset,"all_9216_origins_equal":equal})
+	# An authorized primary with an unauthorized member exercises the shifted
+	# member's rectangle, rather than only the primary's reservation union.
+	for offset: Array in [[0,0],[0.25,-0.5],[0.99999994,1.0000001]]:
+		var query: RouteClearance = RouteClearance.new(space,world,world.facts.actors[OWNER],1,[OWNER,OTHER],{OWNER:[0,0],OTHER:offset})
+		var mask: PackedByteArray = query.reservation_mask()
+		for id: int in FloorNavigation.LIMIT:
+			passed = passed and (not mask.is_empty() and mask[id]!=0)==(not query.reservation_reason(FloorNavigation._cell(id)).is_empty())
+	var authorized: RouteClearance = RouteClearance.new(space,world,world.facts.actors[OWNER],1)
+	return {"ok":passed and sizes.size()==3 and authorized.reservation_mask().is_empty() and before==world.freeze(),"sizes":sizes.keys(),"observations":observations,"authorized_empty":authorized.reservation_mask().is_empty(),"readonly":before==world.freeze()}
+
+func _projection_contract(source: Dictionary, content: HospitalContent) -> Dictionary:
+	var world: WorldState = WorldState.new(source.duplicate(true))
+	var plots: Array = HospitalSpace.floor_plots(world,1).duplicate(true)
+	for floor_id: int in [2,3]: world.facts.floors.overrides[str(floor_id)] = {"plots":plots.duplicate(true),"blocked":[],"doors":[],"paths":[]}
+	world.facts.floors.completed_top_floor = {}
+	for plot: Array in plots: world.facts.floors.completed_top_floor[HospitalSpace.plot_key(plot)] = 3
+	world.facts.floors.height_intervals = [{"first":1,"last":3,"height_m":float(content.balance.floors.clear_height_m)}]
+	world.touch()
+	var space: HospitalSpace = HospitalSpace.new(content)
+	var observations: Array = []
+	var passed: bool = true
+	for pass_id: int in 3:
+		if pass_id==2:
+			world.facts.floors.overrides["2"].blocked.append([38,80])
+			world.touch()
+		var before: Dictionary = world.freeze()
+		var facts: Dictionary = world.facts.duplicate()
+		facts.adaptations = world.facts.adaptations.duplicate()
+		facts.adaptations.permissions_machine = facts.adaptations.permissions_machine.duplicate(true)
+		facts.adaptations.permissions_machine.staff_ids = [OTHER] if pass_id==1 else [STAFF]
+		var projected: WorldState = WorldState.new(facts)
+		var projected_before: Dictionary = projected.freeze()
+		space.prepare_projection(world,projected,["permissions_machine"],[1,2,3])
+		var equal: bool = true
+		for floor_id: int in [1,2,3]:
+			var actual: Dictionary = space._navigation.floor_source(space,projected,floor_id)
+			var expected: Dictionary = RouteClearance.capture_source(HospitalSpace.new(content),projected,floor_id)
+			equal = equal and actual==expected
+			space._navigation.graph(space,projected,floor_id,projected.facts.actors[OWNER],[],{})
+		var root_ready: bool = true
+		if pass_id>0:
+			for floor_id: int in [1,2,3]: root_ready = root_ready and space._navigation._sources.has(str(world.get_instance_id())+":"+str(floor_id))
+		passed = passed and equal and root_ready and before==world.freeze() and projected_before==projected.freeze()
+		observations.append({"pass":pass_id,"full_capture_equal":equal,"root_sources_prepared":root_ready,"readonly":before==world.freeze() and projected_before==projected.freeze()})
+	return {"ok":passed,"observations":observations}
 
 func _forward_contract(source: Dictionary, goal: Array, content: HospitalContent) -> Dictionary:
 	var space: HospitalSpace = HospitalSpace.new(content)

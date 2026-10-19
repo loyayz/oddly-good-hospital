@@ -271,6 +271,7 @@ func _forward_field(graph: FloorNavigation, query: RouteClearance, start: Vector
 	if not FloorNavigation._inside(start): return distances
 	var start_id: int = FloorNavigation._id(start)
 	if not graph.has_point(start_id) or graph.is_point_disabled(start_id): return distances
+	var reservations: PackedByteArray = query.reservation_mask()
 	var queue: Array[int] = [start_id]
 	distances[start_id] = 0
 	var cursor: int = 0
@@ -283,7 +284,7 @@ func _forward_field(graph: FloorNavigation, query: RouteClearance, start: Vector
 			if not FloorNavigation._inside(next): continue
 			var id: int = FloorNavigation._id(next)
 			if distances[id]>=0 or not graph.has_point(id) or graph.is_point_disabled(id) or not graph.are_points_connected(current,id,false): continue
-			if not query.reservation_reason(next).is_empty(): continue
+			if not reservations.is_empty() and reservations[id]!=0: continue
 			distances[id] = distances[current]+1
 			queue.append(id)
 	return distances
@@ -296,6 +297,7 @@ func _distance_field(graph: FloorNavigation, query: RouteClearance, goal: Vector
 	var result: Dictionary = {"distances":distances,"successors":successors}
 	var goal_id: int = FloorNavigation._id(goal)
 	if not graph.has_point(goal_id) or graph.is_point_disabled(goal_id): return result
+	var reservations: PackedByteArray = query.reservation_mask()
 	var queue: Array[int] = [goal_id]
 	distances[goal_id] = 0
 	var cursor: int = 0
@@ -305,7 +307,7 @@ func _distance_field(graph: FloorNavigation, query: RouteClearance, goal: Vector
 		var cell: Vector2i = FloorNavigation._cell(current)
 		# The existing search permits leaving a reserved start, but never
 		# entering a reserved destination. Reverse expansion keeps that rule.
-		if not query.reservation_reason(cell).is_empty(): continue
+		if not reservations.is_empty() and reservations[current]!=0: continue
 		for offset: Vector2i in FloorNavigation.NEIGHBOURS:
 			var previous: Vector2i = cell+offset
 			if not FloorNavigation._inside(previous): continue

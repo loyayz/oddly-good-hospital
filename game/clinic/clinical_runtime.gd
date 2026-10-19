@@ -620,13 +620,19 @@ func _service_pair_reachable(world: WorldState, visit: Dictionary, facility_id: 
 		return false
 	var routing_world: WorldState = world
 	if not fit.get("unchanged",false) and not _reference_routing_unchanged(world,base_layout,fit):
-		routing_world = _reservation_candidate(world,[facility_id])
-		var handoff: Dictionary = fit.duplicate(true)
+		# This record is replaced below, so only the adaptations container needs
+		# ownership. The verified fit's nested geometry remains read-only.
+		routing_world = _reservation_candidate(world,[])
+		var handoff: Dictionary = fit.duplicate()
 		handoff.erase("ok")
 		handoff.owner_id = visit.id
 		routing_world.facts.adaptations[facility_id] = handoff
 		layout = handoff
-		space.prepare_projection(world,routing_world,[facility_id])
+		var route_floors: Array = [int(layout.floor_id)]
+		for actor_id: String in [visit.actor_id,staff_id]:
+			var location: Dictionary = world.facts.actors[actor_id].location
+			if location.kind=="floor" and not int(location.floor_id) in route_floors: route_floors.append(int(location.floor_id))
+		space.prepare_projection(world,routing_world,[facility_id],route_floors)
 		space.begin_route_query(routing_world,{"nominal":true} if space.nominal_query(world) else {})
 	var reachable: bool = space.can_reach(routing_world,visit.actor_id,int(layout.floor_id),layout.patient_cell,[],{},true) and space.can_reach(routing_world,staff_id,int(layout.floor_id),layout.operator_cells[0],[],{},true)
 	if routing_world!=world: space.end_route_query()

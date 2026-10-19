@@ -105,6 +105,12 @@ func enter_instance(operation: String, instance_id: int, arguments: Dictionary) 
 				parameters[name] = {"supplied":not argument.is_empty(),"keys":argument.keys()}
 			else:
 				parameters[name] = argument
+		if operation=="clearance.capture_source" and context.caller=="navigation.floor_source" and not _contexts.is_empty():
+			var navigation: Object = instance_from_id(int(_contexts.back().instance_id))
+			var source_world: WorldState = arguments.world
+			var source_key: String = str(source_world.get_instance_id())+":"+str(arguments.floor_id)
+			var cached: Dictionary = navigation.get("_sources").get(source_key,{})
+			parameters.parent_source_state = "absent" if cached.is_empty() else ("stale" if cached.revision!=source_world.geometry_revision else "current")
 		context.parameter_key = JSON.stringify({"root_stage":context.root_stage,"caller":context.caller,"arguments":parameters},"",true,true)
 	_contexts.append(context)
 	_observer_us += Time.get_ticks_usec()-entered

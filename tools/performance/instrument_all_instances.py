@@ -46,6 +46,7 @@ PARAMETERS = {
     "transit.route", "transit.fits", "transit.quote", "transit._quote_known_fit",
     "transit._prefix", "transit.egress_clear", "navigation.travel_distance",
     "navigation.forward_distance", "navigation._travel_distance",
+    "clearance.capture_source",
 }
 
 

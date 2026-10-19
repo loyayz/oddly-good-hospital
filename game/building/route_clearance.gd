@@ -218,6 +218,32 @@ func has_reservations() -> bool:
 			return true
 	return false
 
+# A distance field visits thousands of integer origins. Resolve the already
+# authorized reservation rectangles once, retaining exact strict intersections.
+# Group members constructed by _init have their own single-body queries.
+func reservation_mask() -> PackedByteArray:
+	var mask: PackedByteArray = PackedByteArray()
+	if not has_reservations(): return mask
+	mask.resize(FloorNavigation.LIMIT)
+	mask.fill(0)
+	mask = _mark_reservation_mask(mask,Vector2.ZERO)
+	for member: Dictionary in _members:
+		mask = member.query._mark_reservation_mask(mask,member.offset)
+	return mask
+
+func _mark_reservation_mask(mask: PackedByteArray, offset: Vector2) -> PackedByteArray:
+	for reservation: Dictionary in _reservations:
+		for region: Rect2 in reservation.regions:
+			# Pad the candidate bounds, then use the original Rect2 predicate.
+			# This also preserves float rounding at fractional member offsets.
+			var low: Vector2i = Vector2i(maxi(0,floori(region.position.x-offset.x-_size)-1),maxi(0,floori(region.position.y-offset.y-_size)-1))
+			var high: Vector2i = Vector2i(mini(FloorNavigation.SIDE,ceili(region.end.x-offset.x)+1),mini(FloorNavigation.SIDE,ceili(region.end.y-offset.y)+1))
+			for y: int in range(low.y,high.y):
+				for x: int in range(low.x,high.x):
+					var id: int = FloorNavigation._id(Vector2i(x,y))
+					if mask[id]==0 and Rect2(Vector2(x,y)+offset,Vector2.ONE*_size).intersects(region,false): mask[id] = 1
+	return mask
+
 func _reservation_at(origin: Vector2) -> String:
 	for member: Dictionary in _members:
 		var reason: String = member.query._reservation_at(origin+member.offset)

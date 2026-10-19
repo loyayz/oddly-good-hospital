@@ -92,7 +92,13 @@ func read_view(world: WorldState, name: String, build: Callable) -> Dictionary:
 	if not views.has(name): views[name] = build.call()
 	return views[name]
 
-func prepare_projection(world: WorldState, projected: WorldState, facility_ids: Array = []) -> void:
+func prepare_projection(world: WorldState, projected: WorldState, facility_ids: Array = [], route_floors: Array = []) -> void:
+	if not route_floors.is_empty():
+		# Prepare the original owner once for the same sparse floor candidates
+		# a complete transit query can visit, then inherit its exact delta.
+		var floors: Dictionary = HospitalTransit._routing_candidates(world,int(route_floors[0]),int(route_floors.back()))
+		for floor_id: int in route_floors: floors[floor_id] = true
+		for floor_id: int in floors: _navigation.floor_source(self,world,floor_id)
 	_navigation.inherit_projection(self,world,projected,facility_ids)
 
 func nominal_query(world: WorldState) -> bool:
