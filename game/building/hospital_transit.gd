@@ -269,6 +269,21 @@ static func reference_movements(world: WorldState) -> Dictionary:
 		result[primary] = {"members":movement.get("members",[]),"offsets":movement.get("offsets",{})}
 	return result
 
+# A proposed reservation can change these groups' exit permissions even when
+# the querying patient's own body and destination stay unchanged.
+static func route_participants(world: WorldState) -> Dictionary:
+	var result: Dictionary = {}
+	for primary: String in reference_movements(world):
+		result[primary] = true
+		for id: String in world.facts.moves.get(primary,{}).get("members",[]): result[id] = true
+	for primary: String in world.facts.moves:
+		var movement: Dictionary = world.facts.moves[primary]
+		if not movement.has("transit_ticket"): continue
+		result[primary] = true
+		result[movement.actor_id] = true
+		for id: String in movement.get("members",[]): result[id] = true
+	return result
+
 static func reference_conditions(world: WorldState) -> Dictionary:
 	# Quote dependencies only. Wear receipts, historical tickets and completed
 	# uses do not change geometry, lowering rules or the known transport prefix.

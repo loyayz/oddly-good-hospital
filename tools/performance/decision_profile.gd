@@ -112,7 +112,7 @@ func _compact(value: Variant, depth: int = 0) -> Variant:
 		if depth>=3: return {"keys":value.keys()}
 		var result: Dictionary = {}
 		for name: Variant in value:
-			if str(name) in ["facts","geometry","room_bounds","actors","facilities","cells","path","source","query","base_layout","navigation"]:
+			if str(name) in ["facts","geometry","room_bounds","actors","facilities","cells","path","source","query","base_layout","navigation","pairs","patient_rejections","transport_actors"]:
 				var item: Variant = value[name]
 				result[name] = {"count":item.size()} if item is Array or item is Dictionary else _compact(item,depth+1)
 			else: result[str(name)] = _compact(value[name],depth+1)

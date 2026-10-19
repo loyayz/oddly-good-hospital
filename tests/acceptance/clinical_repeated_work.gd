@@ -2,15 +2,27 @@ extends RefCounted
 
 const Gathering = preload("res://tests/acceptance/clinical_gathering.gd")
 
+class PatientQueries extends HospitalSpace:
+	var patient_calls: int = 0
+	var fits: int = 0
+	var reject_worker: bool = false
+	func can_reach(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> bool:
+		if actor_id=="gather_patient_0": patient_calls += 1
+		if reject_worker and actor_id=="gather_worker": return false
+		return super.can_reach(world,actor_id,floor_id,target,members,offsets,ignore_people)
+	func facility_preflight_quote(world: WorldState, facility_id: String, actor_id: String, staff_ids: Array = []) -> Dictionary:
+		fits += 1
+		return super.facility_preflight_quote(world,facility_id,actor_id,staff_ids)
+
 class Queries extends HospitalClinic:
 	var quotes: Dictionary = {}
 	var gp_queries: int = 0
 	var projection_observed: bool = false
 	var projection_source: WorldState
 	var physical_calls: int = 0
-	func _service_pair_reachable(world: WorldState, visit: Dictionary, facility_id: String, staff_id: String, layout: Dictionary) -> bool:
+	func _service_pair_reachable(world: WorldState, visit: Dictionary, facility_id: String, staff_id: String, layout: Dictionary, physical: Dictionary = {}) -> bool:
 		physical_calls += 1
-		return super._service_pair_reachable(world,visit,facility_id,staff_id,layout)
+		return super._service_pair_reachable(world,visit,facility_id,staff_id,layout,physical)
 	func plan_quote(world: WorldState, visit_id: String, plan_id: String, options: Dictionary = {}) -> Dictionary:
 		var key: String = str(options.get("doctor_id",""))+":"+plan_id
 		quotes[key] = int(quotes.get(key,0))+1
@@ -56,6 +68,7 @@ func run_case(t, content: HospitalContent) -> void:
 	var first_doctor: Dictionary = _first_doctor_boundary(content)
 	var plan_batch: Dictionary = _plan_batch_boundary(content)
 	var reachability: Dictionary = _reachability_boundary(content)
+	var patient_rejections: Dictionary = _patient_rejection_boundary(content)
 	var c: Dictionary = Gathering.new()._context(content,"gp")
 	var clinic: Queries = Queries.new(content,c.space)
 	clinic.scheduler = HospitalShiftScheduler.new(content,c.space)
@@ -81,7 +94,62 @@ func run_case(t, content: HospitalContent) -> void:
 	var shortage_before: Dictionary = c.world.freeze()
 	projection.shortage_requests(c.world)
 	var projection_ok: bool = projection.projection_observed and shortage_before==c.world.freeze()
-	t.check("CLIN-35",reachability.passed and plan_batch.passed and first_doctor.passed and c.validation.is_empty() and pairs.size()>1 and once and selected.is_empty() and recommendation.readonly and readiness_ok and projection_ok,{"input_validation":c.validation,"boolean_reachability":reachability,"plan_batch":plan_batch,"first_doctor_boundary":first_doctor,"CL-A01":{"recommendation":recommendation,"readiness_equal":readiness==expected,"gp_calls":actual.gp_queries,"control_gp_calls":control.gp_queries},"CL-A06":{"isolated_written_path_shared_readonly_facts":projection.projection_observed,"readonly":shortage_before==c.world.freeze()},"elapsed_usec":Time.get_ticks_usec()-started})
+	t.check("CLIN-35",patient_rejections.passed and reachability.passed and plan_batch.passed and first_doctor.passed and c.validation.is_empty() and pairs.size()>1 and once and selected.is_empty() and recommendation.readonly and readiness_ok and projection_ok,{"input_validation":c.validation,"patient_rejections":patient_rejections,"boolean_reachability":reachability,"plan_batch":plan_batch,"first_doctor_boundary":first_doctor,"CL-A01":{"recommendation":recommendation,"readiness_equal":readiness==expected,"gp_calls":actual.gp_queries,"control_gp_calls":control.gp_queries},"CL-A06":{"isolated_written_path_shared_readonly_facts":projection.projection_observed,"readonly":shortage_before==c.world.freeze()},"elapsed_usec":Time.get_ticks_usec()-started})
+
+func _patient_rejection_boundary(content: HospitalContent) -> Dictionary:
+	var c: Dictionary = Gathering.new()._context(content,"gp")
+	var world: WorldState = c.world
+	HospitalFactory._add_room(world,{"id":"rejection_treatment","type":"T01","anchor":[46,30],"size":[8,8],"door":{"definition_id":"DR04","offset":3}},content)
+	HospitalFactory._add_facility(world,{"id":"rejection_machine","definition_id":"M09","anchor":[47,31],"size":content.facility_definition("M09").footprint,"room_id":"rejection_treatment"},content)
+	HospitalFactory._add_staff(world,"later_doctor","另一医生","doctor",[36,24],content)
+	var plots: Array = HospitalSpace.floor_plots(world,1).duplicate(true)
+	world.facts.floors.completed_top_floor = {}
+	for plot: Array in plots: world.facts.floors.completed_top_floor[HospitalSpace.plot_key(plot)] = 2
+	world.facts.floors.height_intervals = [{"first":1,"last":2,"height_m":float(content.balance.floors.clear_height_m)}]
+	world.facts.floors.overrides["2"] = {"plots":plots,"blocked":[],"doors":[],"paths":[]}
+	world.facts.actors.gather_patient_0.location.floor_id = 2
+	world.touch()
+	var validation: String = world.validate(content)
+	var source: Dictionary = world.freeze()
+	var observations: Array = []
+	var passed: bool = validation.is_empty()
+	var retained_space: PatientQueries
+	var retained_clinic: HospitalClinic
+	var old_physical: Dictionary = {}
+	for protected: bool in [false,true]:
+		var space: PatientQueries = PatientQueries.new(content)
+		var clinic: HospitalClinic = HospitalClinic.new(content,space)
+		space.begin_route_query(world)
+		var physical: Dictionary = space.read_view(world,"patient_rejection_boundary",func()->Dictionary: return {"patient_rejections":{},"transport_actors":HospitalTransit.route_participants(world)})
+		# A conservative participant superset exercises the caller's exclusion
+		# contract without claiming these doctors actually boarded a vehicle.
+		if protected: physical.transport_actors = {"gather_worker":true,"later_doctor":true}
+		var rejected: bool = true
+		for id: String in ["gather_worker","later_doctor"]:
+			rejected = rejected and not clinic._service_pair_reachable(world,world.facts.visits.gather_visit_0,"rejection_machine",id,space.facility_layout(world,"rejection_machine"),physical)
+		space.end_route_query()
+		var exact: bool = rejected and space.fits==2 and space.patient_calls==(2 if protected else 1) and world.freeze()==source and space._route_queries.is_empty()
+		passed = passed and exact
+		observations.append({"conservative_transport_participants":protected,"preflights":space.fits,"patient_routes":space.patient_calls,"rejected":rejected,"readonly":world.freeze()==source,"passed":exact})
+		if not protected:
+			retained_space = space
+			retained_clinic = clinic
+			old_physical = physical
+	# A new batch must observe a changed position even without a revision bump.
+	world.facts.actors.gather_patient_0.location.floor_id = 1
+	var changed: Dictionary = world.freeze()
+	var space: PatientQueries = retained_space
+	space.patient_calls = 0
+	space.reject_worker = true
+	var clinic: HospitalClinic = retained_clinic
+	space.begin_dynamic_route_query(world)
+	var physical: Dictionary = space.read_view(world,"patient_rejection_boundary",func()->Dictionary: return {"patient_rejections":{},"transport_actors":HospitalTransit.route_participants(world)})
+	var fresh_view: bool = not is_same(physical,old_physical) and physical.patient_rejections.is_empty()
+	var first: bool = clinic._service_pair_reachable(world,world.facts.visits.gather_visit_0,"rejection_machine","gather_worker",space.facility_layout(world,"rejection_machine"),physical)
+	var later: bool = clinic._service_pair_reachable(world,world.facts.visits.gather_visit_0,"rejection_machine","later_doctor",space.facility_layout(world,"rejection_machine"),physical)
+	space.end_route_query()
+	var worker_safe: bool = fresh_view and not first and later and space.patient_calls==2 and physical.patient_rejections.is_empty() and world.freeze()==changed and space._route_queries.is_empty()
+	return {"passed":passed and worker_safe,"validation":validation,"observations":observations,"patient_success_worker_failure_does_not_poison":worker_safe,"new_batch_same_revision_position_observed":later,"new_batch_patient_calls":space.patient_calls}
 
 func _reachability_boundary(content: HospitalContent) -> Dictionary:
 	var c: Dictionary = Gathering.new()._context(content,"gp")

@@ -553,7 +553,7 @@ func service_candidates(world: WorldState, visit: Dictionary, kind: String, stru
 	if kind=="outpatient":
 		var physical_visit: Dictionary = visit.duplicate()
 		physical_visit.erase("plan_decision")
-		physical = space.read_view(world,"clinical_pairs:"+JSON.stringify([kind,structural_only,reference_schedule,space.nominal_query(world),physical_visit]),func()->Dictionary: return {})
+		physical = space.read_view(world,"clinical_pairs:"+JSON.stringify([kind,structural_only,reference_schedule,space.nominal_query(world),physical_visit]),func()->Dictionary: return {"pairs":{},"patient_rejections":{},"transport_actors":HospitalTransit.route_participants(world)})
 	var availability: Dictionary = {}
 	for facility_id: String in facility_ids:
 		var facility: Dictionary = world.facts.facilities[facility_id]
@@ -596,8 +596,8 @@ func service_candidates(world: WorldState, visit: Dictionary, kind: String, stru
 				continue
 			if kind=="outpatient":
 				var pair_key: String = JSON.stringify([facility_id,staff_id])
-				if not physical.has(pair_key): physical[pair_key] = _service_pair_reachable(world,visit,facility_id,staff_id,base_layout)
-				if not physical[pair_key]: continue
+				if not physical.pairs.has(pair_key): physical.pairs[pair_key] = _service_pair_reachable(world,visit,facility_id,staff_id,base_layout,physical)
+				if not physical.pairs[pair_key]: continue
 			elif not _service_pair_reachable(world,visit,facility_id,staff_id,base_layout): continue
 			var pair: Dictionary = {"facility_id":facility_id,"staff_id":staff_id}
 			var accept: Callable = selection.get("accept",Callable())
@@ -610,7 +610,7 @@ func service_candidates(world: WorldState, visit: Dictionary, kind: String, stru
 	space.end_route_query()
 	return candidates
 
-func _service_pair_reachable(world: WorldState, visit: Dictionary, facility_id: String, staff_id: String, base_layout: Dictionary) -> bool:
+func _service_pair_reachable(world: WorldState, visit: Dictionary, facility_id: String, staff_id: String, base_layout: Dictionary, physical: Dictionary = {}) -> bool:
 	var layout: Dictionary = base_layout
 	# A complete arrival route is required even when the facility fits.
 	# Reject unreachable pairs before proving every other actor's exit;
@@ -618,6 +618,15 @@ func _service_pair_reachable(world: WorldState, visit: Dictionary, facility_id: 
 	var fit: Dictionary = space.facility_preflight_quote(world,facility_id,visit.actor_id,[staff_id])
 	if not fit.ok:
 		return false
+	var patient_key: String = ""
+	if not physical.is_empty() and not physical.transport_actors.has(staff_id):
+		# Within this sealed physical view, changing only a non-travelling
+		# operator's permission cannot alter the patient's route. Transit owns
+		# the full set of other groups whose exits may be queried by a prefix.
+		var patient_fit: Dictionary = fit.duplicate()
+		patient_fit.erase("staff_ids")
+		patient_key = JSON.stringify([facility_id,base_layout,patient_fit],"",true,true)
+		if physical.patient_rejections.has(patient_key): return false
 	var routing_world: WorldState = world
 	if not fit.get("unchanged",false) and not _reference_routing_unchanged(world,base_layout,fit):
 		# This record is replaced below, so only the adaptations container needs
@@ -634,7 +643,10 @@ func _service_pair_reachable(world: WorldState, visit: Dictionary, facility_id: 
 			if location.kind=="floor" and not int(location.floor_id) in route_floors: route_floors.append(int(location.floor_id))
 		space.prepare_projection(world,routing_world,[facility_id],route_floors)
 		space.begin_route_query(routing_world,{"nominal":true} if space.nominal_query(world) else {})
-	var reachable: bool = space.can_reach(routing_world,visit.actor_id,int(layout.floor_id),layout.patient_cell,[],{},true) and space.can_reach(routing_world,staff_id,int(layout.floor_id),layout.operator_cells[0],[],{},true)
+	var patient_reachable: bool = space.can_reach(routing_world,visit.actor_id,int(layout.floor_id),layout.patient_cell,[],{},true)
+	# Never cache an operator or exit failure as a failed patient journey.
+	if not patient_key.is_empty() and not patient_reachable: physical.patient_rejections[patient_key] = true
+	var reachable: bool = patient_reachable and space.can_reach(routing_world,staff_id,int(layout.floor_id),layout.operator_cells[0],[],{},true)
 	if routing_world!=world: space.end_route_query()
 	if not reachable:
 		return false

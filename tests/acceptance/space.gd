@@ -766,10 +766,11 @@ func _case_26(_t) -> Dictionary:
 	var expected: int = maxi(100,remaining_prefix)+10+40
 	var before: Dictionary = sim.world.freeze()
 	var quote: Dictionary = HospitalTransit.quote(sim.space,sim.world,connection,"querying",1,2,100)
+	var current_participants: Dictionary = HospitalTransit.route_participants(sim.world)
 	var readonly: bool = before==sim.world.freeze()
 	_add_actor(sim,"exit_blocker","S49",[36,76],2)
 	var unknown: Dictionary = HospitalTransit.quote(sim.space,sim.world,connection,"querying",1,2,100)
-	return _done(sim,boarding and readonly and quote.get("ok",false) and int(quote.get("arrival_ticks",-1))==expected and int(quote.get("queue_ticks",-1))==0 and int(quote.get("empty_ticks",-1))==10 and not unknown.get("ok",true) and unknown.get("status")=="estimate_unknown" and not str(unknown.get("reason","")).is_empty(),{"quote":quote,"expected":expected,"unknown":unknown})
+	return _done(sim,boarding and current_participants.has("active") and readonly and quote.get("ok",false) and int(quote.get("arrival_ticks",-1))==expected and int(quote.get("queue_ticks",-1))==0 and int(quote.get("empty_ticks",-1))==10 and not unknown.get("ok",true) and unknown.get("status")=="estimate_unknown" and not str(unknown.get("reason","")).is_empty(),{"quote":quote,"expected":expected,"unknown":unknown,"actual_boarding_participants":current_participants})
 
 func _case_27(_t) -> Dictionary:
 	var sim: HospitalSimulation = _transit_fixture()
