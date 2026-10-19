@@ -66,7 +66,7 @@ def analyze(report: dict) -> dict:
             preflight = next((c for c in nested if c["operation"] == "space.facility_preflight_quote"), None)
             reach = sorted((c for c in nested if c["operation"] == "space.can_reach"), key=lambda c: c["id"])
             unknown = sorted((c for c in nested if c["operation"] == "transit._quote_known_fit" and isinstance(c["result"], dict) and c["result"].get("status") == "estimate_unknown"), key=lambda c: c["id"])
-            reason = "accepted" if row["result"] else ("fit_rejected" if preflight and not preflight["result"].get("ok") else "patient_route_rejected" if reach and not reach[0]["result"] else "staff_route_rejected" if len(reach) > 1 and not reach[1]["result"] else "exit_rejected")
+            reason = "accepted" if row["result"] else ("fit_rejected" if preflight and not preflight["result"].get("ok") else "patient_route_reused_failure" if preflight and preflight["result"].get("ok") and not reach else "patient_route_rejected" if reach and not reach[0]["result"] else "staff_route_rejected" if len(reach) > 1 and not reach[1]["result"] else "exit_rejected")
             key = json.dumps([a.get("kind"), a.get("structural_only"), a.get("reference_schedule"), reason])
             group = pair_groups[key]
             group["calls"] += 1
