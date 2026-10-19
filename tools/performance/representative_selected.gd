@@ -36,6 +36,12 @@ func _run() -> void:
 		push_error("all requires an offline transformed project; plain requires an untransformed project")
 		quit(2)
 		return
+	if str(options.profile)!="plain":
+		var identity: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(identity_path))
+		if bool(identity.get("decision_ledger",false))!=(str(options.profile)=="ledger"):
+			push_error("Profile mode must match the frozen transformation's decision_ledger identity")
+			quit(2)
+			return
 	for path: String in [str(options.output),str(options.output)+".steps.ndjson",str(options.output)+".final.bin",str(options.store)]:
 		if not path.is_empty() and FileAccess.file_exists(path):
 			push_error("Evidence output already exists: "+path)
@@ -116,11 +122,14 @@ func _run() -> void:
 			clinical.errors.append("Production step did not complete: "+clinical.simulation.preparing_error())
 			report.samples.append({"index":index,"elapsed_us":elapsed,"complete":false,"profile":step_record})
 			break
+		if not clinical.simulation.space._route_queries.is_empty():
+			clinical.errors.append("A read-only route query survived a complete step")
 		var observation: Dictionary = clinical.observe(result)
 		public_observer.observe(clinical.world,clinical.simulation.space)
 		for event: SimEvent in result.facts: report.event_records.append(event.to_record())
 		report.samples.append({"index":index,"tick":result.sim_tick,"elapsed_us":elapsed,"complete":true,
 			"present":clinical.world.present_actor_count(),"sessions":observation.sessions.size(),"moves":clinical.world.facts.moves.size(),
+			"route_query_depth":clinical.simulation.space._route_queries.size(),
 			"lifecycle_events":observation.lifecycle_events})
 		progress.store_line(JSON.stringify({"kind":"complete","sample":report.samples.back(),"profile":step_record}))
 		progress.flush()

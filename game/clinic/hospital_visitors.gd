@@ -249,25 +249,32 @@ func _public_waiting(world: WorldState, stay: Dictionary) -> bool:
 	var supported: Dictionary = {}
 	for other: Dictionary in world.facts.actors.values():
 		if other.id!=actor.id and not str(other.get("support_facility_id","")).is_empty(): supported[other.support_facility_id] = true
+	# Queue fits and exit witnesses belong to this visitor's read-only choice,
+	# including nested trip quotes. End before any intent or resource commit.
+	space.begin_dynamic_route_query(world)
 	for id: String in space.public_areas.facilities(world,intent.area,WAITING_SEAT_DEFINITIONS):
 		if not space.public_areas.turn(world,intent,id): continue
 		if supported.has(id): continue
 		var quote: Dictionary = space.facility_trip_quote(world,id,actor.id)
 		if not quote.ok: continue
+		space.end_route_query()
 		intent.facility_id = id
 		if not space.at(world,actor.id,int(quote.floor_id),quote.cell):
 			intent.phase = "local_travel"
 			space.request_move(world,actor.id,int(quote.floor_id),quote.cell)
 			return false
-		if not space._dynamic_clear(world,actor.id,int(quote.floor_id),space.body_rectangle(actor)): continue
-		if not space.reserve_facility(world,id,actor.id,actor.id).is_empty(): continue
-		actor.posture = "seated"
-		actor.support_facility_id = id
-		space.sync_actor(world,actor.id)
-		intent.phase = "seated"
-		stay.waiting_floor = quote.floor_id
-		stay.waiting_cell = quote.cell
-		return true
+		if space._dynamic_clear(world,actor.id,int(quote.floor_id),space.body_rectangle(actor)):
+			if space.reserve_facility(world,id,actor.id,actor.id).is_empty():
+				actor.posture = "seated"
+				actor.support_facility_id = id
+				space.sync_actor(world,actor.id)
+				intent.phase = "seated"
+				stay.waiting_floor = quote.floor_id
+				stay.waiting_cell = quote.cell
+				return true
+		# A failed commit continues in the original order, with fresh live views.
+		space.begin_dynamic_route_query(world)
+	space.end_route_query()
 	intent.facility_id = ""
 	if not space.public_areas.safe_wait(world,actor.id,int(actor.location.floor_id),actor.location.cell):
 		var point: Dictionary = space.public_areas.waiting_point(world,actor.id,intent.area)

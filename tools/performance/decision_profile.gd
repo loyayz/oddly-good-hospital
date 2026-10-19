@@ -32,7 +32,7 @@ func enter_instance(operation: String, instance_id: int, arguments: Dictionary) 
 	_ledger_stack.append(row)
 	# Retain only the three input records needed to observe dispatch's actual
 	# outcome. They are read after the original method; never modified here.
-	if operation=="clinic._dispatch_service": row._dispatch = {"visit":arguments.visit,"ticket":arguments.ticket}
+	if operation=="clinic._dispatch_service": row._dispatch = {"world":arguments.world,"visit":arguments.visit,"ticket":arguments.ticket}
 	_observer_us += Time.get_ticks_usec()-started
 	# The complete ledger replaces bounded parameter grouping; do not serialize
 	# full floor sources again through the older aggregate observer.
@@ -47,6 +47,12 @@ func exit_instance(operation: String, result: Variant) -> void:
 	row.result = _compact(result)
 	if row.has("_dispatch"):
 		row.dispatch_outcome = {"visit":_business_record(row._dispatch.visit),"ticket":_business_record(row._dispatch.ticket)}
+		var world: WorldState = row._dispatch.world
+		row.dispatch_outcome.ticket_exists = world.facts.tickets.has(str(row._dispatch.ticket.id))
+		row.dispatch_outcome.sessions = []
+		for session: Dictionary in world.facts.sessions.values():
+			if session.visit_id==row._dispatch.visit.id:
+				row.dispatch_outcome.sessions.append(_business_record(session))
 		row.erase("_dispatch")
 	var inclusive_before: int = int(_current.calls.get(operation,{}).get("inclusive_us",0))
 	var exclusive_before: int = int(_current.calls.get(operation,{}).get("exclusive_us",0))
@@ -83,7 +89,7 @@ func _sum_values(values: Dictionary) -> int:
 
 func _business_record(value: Dictionary) -> Dictionary:
 	var result: Dictionary = {}
-	for name: String in ["id","actor_id","kind","phase","department_id","definition_id","location","posture","body","body_size","plan_decision","requested_plan_id","binding_id","waiting_reason","service_assigned","called_tick","session_id","facility_id","staff_id","staff_ids"]:
+	for name: String in ["id","actor_id","visit_id","ticket_id","kind","phase","department_id","definition_id","location","posture","body","body_size","plan_decision","requested_plan_id","binding_id","waiting_reason","service_assigned","called_tick","session_id","facility_id","staff_id","staff_ids"]:
 		if value.has(name): result[name] = _compact(value[name])
 	return result
 
