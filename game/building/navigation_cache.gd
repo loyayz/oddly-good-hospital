@@ -75,6 +75,23 @@ func floor_version(space: HospitalSpace, world: WorldState, floor_id: int) -> in
 	floor_source(space,world,floor_id)
 	return int(_sources[str(world.get_instance_id())+":"+str(floor_id)].version)
 
+# A point check can borrow already-built static geometry without paying to
+# build an A* graph. Its reservation query is always constructed afresh.
+func cached_static_geometry(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary) -> RouteClearance:
+	var current: Dictionary = floor_source(space,world,floor_id)
+	var key: String = str(floor_id)+":"+_envelope(space,world,actor,[],{},current)
+	var entry: Dictionary = _entries.get(key,{})
+	if entry.is_empty(): return null
+	var source_record: Dictionary = _sources[str(world.get_instance_id())+":"+str(floor_id)]
+	if int(source_record.graphs.get(key,0))!=entry.graph.geometry.get_instance_id():
+		var source: Dictionary = current.duplicate()
+		source.erase("occupancy")
+		if entry.source!=source: return null
+		source_record.graphs[key] = entry.graph.geometry.get_instance_id()
+	_used += 1
+	entry.used = _used
+	return entry.graph.geometry
+
 func query_graphs(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, members: Array, offsets: Dictionary) -> Dictionary:
 	var bases: Array[FloorNavigation] = []
 	var shifts: Array[Vector2i] = []
@@ -197,6 +214,8 @@ func clearance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Di
 # names that leave this ordered forbidden view identical do not change it.
 # The caller compares live references; retained records own a deep signature.
 func _reservation_stamp(space: HospitalSpace, graph: FloorNavigation, world: WorldState, floor_id: int, actor_id: String) -> Array:
+	if space._route_queries.is_empty() or space._route_queries.back().world!=world:
+		return _build_reservation_stamp(graph,world,floor_id,actor_id)
 	var views: Dictionary = space.read_view(world,"reservation_stamps:"+str(graph.geometry.get_instance_id()),func()->Dictionary: return {})
 	if not views.has(actor_id): views[actor_id] = _build_reservation_stamp(graph,world,floor_id,actor_id)
 	return views[actor_id]

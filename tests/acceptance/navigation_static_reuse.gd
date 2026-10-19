@@ -75,7 +75,40 @@ func run_case(sim: HospitalSimulation, content: HospitalContent) -> Dictionary:
 	var invalidated: bool = not changed.ok and changed==cold_changed and rebuilt==cold_changed
 	var order: Dictionary = _fit_order(sim.world.freeze(),content)
 	var bodies: Dictionary = _actor_scope(sim.world.freeze(),content)
-	return {"ok":ok and evicted and invalidated and order.ok and bodies.ok,"validation":validation,"observations":observations,"geometry_refresh_and_eviction":invalidated and evicted,"static_hits":space.query_counts.static_path_hits,"fit_failure_order":order,"actor_scope":bodies}
+	var points: Dictionary = _point_checks(sim.world.freeze(),content)
+	return {"ok":ok and evicted and invalidated and order.ok and bodies.ok and points.ok,"validation":validation,"observations":observations,"geometry_refresh_and_eviction":invalidated and evicted,"static_hits":space.query_counts.static_path_hits,"fit_failure_order":order,"actor_scope":bodies,"point_checks":points}
+
+func _point_checks(source: Dictionary, content: HospitalContent) -> Dictionary:
+	var world: WorldState = WorldState.new(source.duplicate(true))
+	var actor: Dictionary = world.facts.actors[PEER]
+	var space: HospitalSpace = HospitalSpace.new(content)
+	var cold: RouteClearance = RouteClearance.new(HospitalSpace.new(content),world,actor,1)
+	var point: Vector2i = Vector2i(38,86)
+	var no_build: bool = space._navigation.cached_static_geometry(space,world,1,actor)==null and space.static_reason(world,actor,1,point)==cold.reason(point) and space._navigation._entries.is_empty()
+	var ok: bool = no_build
+	var observations: Array = []
+	var old_geometry: RouteClearance
+	for pass_id: int in 3:
+		if pass_id==1: space.grant_facility_access(world,"permissions_second",PEER)
+		if pass_id==2:
+			world.facts.floors.overrides["1"].blocked.append([38,86])
+			world.touch()
+			ok = ok and space._navigation.cached_static_geometry(space,world,1,actor)==null and not space.static_reason(world,actor,1,point).is_empty()
+		space._navigation.graph(space,world,1,actor,[],{})
+		var geometry: RouteClearance = space._navigation.cached_static_geometry(space,world,1,actor)
+		var identity_ok: bool = geometry!=null and (pass_id!=1 or geometry==old_geometry) and (pass_id!=2 or geometry!=old_geometry)
+		cold = RouteClearance.new(HospitalSpace.new(content),world,actor,1)
+		var before: Dictionary = world.freeze()
+		var equal: bool = true
+		for id: int in FloorNavigation.LIMIT:
+			var cell: Vector2i = FloorNavigation._cell(id)
+			equal = equal and space.static_reason(world,actor,1,cell)==cold.reason(cell)
+		ok = ok and identity_ok and equal and before==world.freeze()
+		observations.append({"pass":pass_id,"all_9216_reasons_equal":equal,"geometry_identity":identity_ok,"readonly":before==world.freeze()})
+		old_geometry = geometry
+	space._navigation._trim(0)
+	var after_eviction: bool = space._navigation.cached_static_geometry(space,world,1,actor)==null and space.static_reason(world,actor,1,point)==cold.reason(point) and space._navigation._entries.is_empty()
+	return {"ok":ok and after_eviction,"cold_does_not_build_astar":no_build,"observations":observations,"evicted_fallback":after_eviction}
 
 func _actor_scope(source: Dictionary, content: HospitalContent) -> Dictionary:
 	var world: WorldState = WorldState.new(source.duplicate(true))

@@ -220,6 +220,10 @@ static func materialize_layout(world: WorldState, floor_id: int) -> void:
 func static_reason(world: WorldState, actor: Dictionary, floor_id: int, origin: Vector2i, members: Array = [], offsets: Dictionary = {}) -> String:
 	if members.is_empty() and not _route_queries.is_empty() and _route_queries.back().world==world:
 		return _navigation.clearance(self,world,floor_id,actor).reason(origin)
+	if members.is_empty():
+		var geometry: RouteClearance = _navigation.cached_static_geometry(self,world,floor_id,actor)
+		if geometry!=null:
+			return RouteClearance.new(self,world,actor,floor_id,[],{},true,_navigation.floor_source(self,world,floor_id),geometry).reason(origin)
 	return RouteClearance.new(self,world,actor,floor_id,members,offsets,true,_navigation.floor_source(self,world,floor_id)).reason(origin)
 
 func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
@@ -487,7 +491,7 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 		people = func(from_cell: Vector2i,to_cell: Vector2i) -> bool:
 			return _unit_step_dynamic_clear(world,actor,floor_id,from_cell,to_cell,members,offsets)
 	var result: Dictionary
-	if members.is_empty() and offsets.is_empty() and not navigation.has("query") and not navigation.get("overlay",false) and navigation.bases.is_empty() and navigation.shifts.is_empty():
+	if not _route_queries.is_empty() and _route_queries.back().world==world and members.is_empty() and offsets.is_empty() and not navigation.has("query") and not navigation.get("overlay",false) and navigation.bases.is_empty() and navigation.shifts.is_empty():
 		result = _navigation.cached_floor_path(self,world,floor_id,actor,graph,query,start,goal)
 	else:
 		result = graph.find_path(start,goal,query,Callable(),false,navigation.bases,navigation.shifts,bool(navigation.get("overlay",false)))
