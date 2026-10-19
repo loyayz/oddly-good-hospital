@@ -304,7 +304,8 @@ func _in_affected_area(world: WorldState, order: Dictionary, actor: Dictionary, 
 
 func _evacuation(world: WorldState, order: Dictionary, actor: Dictionary) -> Array:
 	var floor_id: int = int(actor.location.floor_id)
-	var probe: Dictionary = actor.duplicate(true)
+	var probe: Dictionary = actor.duplicate()
+	probe.location = actor.location.duplicate()
 	probe.posture = "standing"
 	var affected: Dictionary = _affected_view(world,order)
 	for y: int in 96:

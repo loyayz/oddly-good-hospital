@@ -16,7 +16,7 @@ var _envelope_next: int = 0
 var _route_queries: Array[Dictionary] = []
 var _movement_reservations: Dictionary = {}
 var public_areas: HospitalPublicAreas
-var query_counts: Dictionary = {"routes":0,"journey_hits":0,"journey_invalidations":0,"transport_builds":0,"transport_searches":0,"candidate_connections":0,"floor_route_hits":0,"floor_route_builds":0}
+var query_counts: Dictionary = {"routes":0,"journey_hits":0,"journey_invalidations":0,"transport_builds":0,"transport_searches":0,"candidate_connections":0,"floor_route_hits":0,"floor_route_builds":0,"static_path_hits":0,"static_path_builds":0}
 
 # These scopes contain synchronous, read-only enumeration only. Results never
 # survive an actual reservation, movement or any other world fact change.
@@ -472,7 +472,11 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 	if not ignore_people:
 		people = func(from_cell: Vector2i,to_cell: Vector2i) -> bool:
 			return _unit_step_dynamic_clear(world,actor,floor_id,from_cell,to_cell,members,offsets)
-	var result: Dictionary = graph.find_path(start,goal,query,Callable(),false,navigation.bases,navigation.shifts,bool(navigation.get("overlay",false)))
+	var result: Dictionary
+	if members.is_empty() and offsets.is_empty() and not navigation.has("query") and not navigation.get("overlay",false) and navigation.bases.is_empty() and navigation.shifts.is_empty():
+		result = _navigation.cached_floor_path(self,world,floor_id,actor,graph,query,start,goal)
+	else:
+		result = graph.find_path(start,goal,query,Callable(),false,navigation.bases,navigation.shifts,bool(navigation.get("overlay",false)))
 	if result.ok and people.is_valid():
 		var low: Vector2 = Vector2(start)
 		var high: Vector2 = low
@@ -897,14 +901,15 @@ func support_location(world: WorldState, actor: Dictionary, facility: Dictionary
 func support_exit_ticks(actor: Dictionary, facility: Dictionary, until_clear: bool = false) -> int:
 	# The same straight support-exit movement and speed as advance(). This is
 	# a forecast of known geometry, never a movement of the actual actor.
-	var moving: Dictionary = actor.duplicate(true)
 	var start: Vector2 = Vector2(float(actor.location.cell[0]),float(actor.location.cell[1]))
 	var target: Vector2 = Vector2(float(facility.patient_cell[0]),float(facility.patient_cell[1]))
 	var speed: float = float(content.balance.movement_speeds[str(clearance(actor))])*WorldState.TICK_SECONDS
 	var ticks: int = maxi(1,ceili(start.distance_to(target)/speed))
 	if not until_clear: return ticks
 	var rectangle: Rect2 = Rect2(float(facility.cell[0]),float(facility.cell[1]),float(facility.footprint[0]),float(facility.footprint[1]))
-	if not body_rectangle(moving).intersects(rectangle,false): return 0
+	if not body_rectangle(actor).intersects(rectangle,false): return 0
+	var moving: Dictionary = actor.duplicate()
+	moving.location = actor.location.duplicate()
 	for elapsed: int in range(1,ticks+1):
 		var next: Vector2 = start.move_toward(target,speed*elapsed)
 		moving.facing = atan2(target.x-start.x,target.y-start.y)
@@ -1013,16 +1018,13 @@ func _facility_quote(world: WorldState, facility_id: String, actor_id: String, s
 		regions.append([operators[index][0],operators[index][1],k,k])
 	var allowed: Array = [actor_id]+staff_ids
 	var room: Dictionary = world.facts.rooms.get(facility.get("room_id",""),{})
+	var static_regions: Dictionary = read_view(world,"facility_region_geometry:"+facility_id,func()->Dictionary: return {})
 	for area: Array in regions:
 		var rect: Rect2 = Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3]))
-		for cx: int in range(int(area[0]),int(area[0])+int(area[2])):
-			for cy: int in range(int(area[1]),int(area[1])+int(area[3])):
-				if not owned(world,int(facility.floor_id),Vector2i(cx,cy)) or [cx,cy] in world.facts.floors.overrides.get(str(facility.floor_id),{}).get("blocked",[]):
-					return {"ok":false,"reason":"展开或退出区域受墙、地块阻挡：%d,%d" % [cx,cy]}
-		if not room.is_empty() and not room_contains(room,rect):
-			return {"ok":false,"reason":"展开、岗位或出口超出本房间"}
-		var other_facility: String = _blocking_facility(world,int(facility.floor_id),rect,facility_id)
-		if not other_facility.is_empty(): return {"ok":false,"reason":"展开区域有其他实际设施："+other_facility}
+		var region_key: String = JSON.stringify(area,"",true,true)
+		if not static_regions.has(region_key): static_regions[region_key] = _facility_region_reason(world,facility,room,area,rect)
+		var static_reason: String = static_regions[region_key]
+		if not static_reason.is_empty(): return {"ok":false,"reason":static_reason}
 		if reference.is_empty():
 			var other_actor: String = _blocking_actor(world,int(facility.floor_id),rect,allowed)
 			if not other_actor.is_empty(): return {"ok":false,"reason":"展开或操作区域有实际身体："+other_actor}
@@ -1037,6 +1039,17 @@ func _facility_quote(world: WorldState, facility_id: String, actor_id: String, s
 		return quote
 	if not prove_exits: return quote
 	return _facility_exit_quote(world,facility_id,actor_id,staff_ids,quote)
+
+# Built geometry is fixed within the owning read-only query scope. Dynamic
+# bodies and reservation permissions still run in the original region order.
+func _facility_region_reason(world: WorldState, facility: Dictionary, room: Dictionary, area: Array, rect: Rect2) -> String:
+	for cx: int in range(int(area[0]),int(area[0])+int(area[2])):
+		for cy: int in range(int(area[1]),int(area[1])+int(area[3])):
+			if not owned(world,int(facility.floor_id),Vector2i(cx,cy)) or [cx,cy] in world.facts.floors.overrides.get(str(facility.floor_id),{}).get("blocked",[]):
+				return "展开或退出区域受墙、地块阻挡：%d,%d" % [cx,cy]
+	if not room.is_empty() and not room_contains(room,rect): return "展开、岗位或出口超出本房间"
+	var other: String = _blocking_facility(world,int(facility.floor_id),rect,str(facility.id))
+	return "" if other.is_empty() else "展开区域有其他实际设施："+other
 
 # Continuation of a preflight in the same synchronous read-only enumeration.
 # Actual reserve_facility always calls facility_quote and repeats full preflight.

@@ -171,7 +171,7 @@ func clearance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Di
 				entry.query_charge = int(entry.get("query_charge",0))-int(entry.queries[id].charge)
 				entry.queries.erase(id)
 		entry.query_boundary = [world.get_instance_id(),world.revision]
-	var stamp: Array = [floor_version(space,world,floor_id)]
+	var stamp: Array = _reservation_stamp(current,world,floor_id,actor.id) if members.is_empty() else [floor_version(space,world,floor_id)]
 	if not members.is_empty():
 		# Identical bodies do not grant another group the same reservation access.
 		stamp.append(members.duplicate())
@@ -183,13 +183,63 @@ func clearance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Di
 		_query_charged -= old_charge
 		var source: Dictionary = floor_source(space,world,floor_id)
 		# Static geometry is shared with the graph, not copied per identity.
-		var charge: int = (source.occupancy.size()*256+16384)*(members.size()+1)
-		record = {"stamp":stamp,"query":RouteClearance.new(space,world,actor,floor_id,members,offsets,true,source,current.geometry),"charge":charge}
+		var charge: int = (source.occupancy.size()*256+16384)*(members.size()+1)+var_to_bytes(stamp).size()*8
+		record = {"stamp":stamp.duplicate(true),"query":RouteClearance.new(space,world,actor,floor_id,members,offsets,true,source,current.geometry),"charge":charge}
 		entry.queries[actor.id] = record
 		entry.query_charge += int(record.charge)
 		_query_charged += int(record.charge)
 	_trim(int(space.content.balance.pathfinding.graph_cache_target_bytes))
 	return record.query
+
+# Complete inputs consumed by a single body's reservation checks. Actor/staff
+# names that leave this ordered forbidden view identical do not change it.
+# The caller compares live references; retained records own a deep signature.
+func _reservation_stamp(graph: FloorNavigation, world: WorldState, floor_id: int, actor_id: String) -> Array:
+	var forbidden: Array = []
+	for reservation: Dictionary in world.facts.adaptations.values():
+		if reservation.kind=="facility" and int(reservation.floor_id)==floor_id and not RouteClearance.reservation_allows(reservation,actor_id):
+			forbidden.append([reservation.facility_id,reservation.regions])
+	return [graph.geometry.get_instance_id(),forbidden]
+
+# Cache only the pure single-body A* result of this exact clearance query.
+# Dynamic bodies, group overlays and complete transit are checked by Space.
+func cached_floor_path(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, graph: FloorNavigation, query: RouteClearance, start: Vector2i, goal: Vector2i) -> Dictionary:
+	var key: String = str(floor_id)+":"+_envelope(space,world,actor,[],{},floor_source(space,world,floor_id))
+	var entry: Dictionary = _entries.get(key,{})
+	var record: Dictionary = entry.get("queries",{}).get(actor.id,{})
+	# clearance() can evict its own entry; externally supplied graphs/queries
+	# also remain valid computations but cannot use this record's allowance.
+	if entry.is_empty() or entry.graph!=graph or record.is_empty() or record.query!=query:
+		space.query_counts.static_path_builds += 1
+		return graph.find_path(start,goal,query)
+	if not record.has("paths"): record.paths = {}
+	var endpoints: Vector4i = Vector4i(start.x,start.y,goal.x,goal.y)
+	if record.paths.has(endpoints):
+		space.query_counts.static_path_hits += 1
+		var saved: Dictionary = record.paths[endpoints]
+		var result: Dictionary = saved.value.duplicate()
+		if saved.has("cells"):
+			result.cells = []
+			for id: int in saved.cells:
+				var cell: Vector2i = FloorNavigation._cell(id)
+				result.cells.append([cell.x,cell.y])
+		return result
+	space.query_counts.static_path_builds += 1
+	var result: Dictionary = graph.find_path(start,goal,query)
+	var saved: Dictionary = {"value":result.duplicate()}
+	var charge: int = 512+var_to_bytes(result).size()*8
+	if result.has("cells"):
+		var cells: PackedInt32Array = PackedInt32Array()
+		for cell: Array in result.cells: cells.append(FloorNavigation._id(Vector2i(cell[0],cell[1])))
+		saved.value.erase("cells")
+		saved.cells = cells
+		charge += cells.size()*16
+	record.paths[endpoints] = saved
+	record.charge += charge
+	entry.query_charge = int(entry.get("query_charge",0))+charge
+	_query_charged += charge
+	_trim(int(space.content.balance.pathfinding.graph_cache_target_bytes))
+	return result
 
 func travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, start: Vector2i, goal: Vector2i, witness: bool = false) -> Dictionary:
 	return _travel_distance(space,world,floor_id,actor,start,goal,witness,false)
@@ -211,13 +261,13 @@ func _travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, ac
 	for reservation: Array in floor_source(space,world,floor_id).occupancy:
 		if actor.id==reservation[1] or actor.id in reservation[2]: exemptions.append(reservation[0])
 	var destination: String = JSON.stringify(["from",start.x,start.y,exemptions]) if forward else JSON.stringify([goal.x,goal.y,exemptions])
-	var stamp: Array = [floor_version(space,world,floor_id)]
+	var stamp: Array = _reservation_stamp(current,world,floor_id,actor.id)
 	var record: Dictionary = entry.estimates.get(destination,{})
 	if record.is_empty() or record.stamp!=stamp:
 		var old_charge: int = int(record.get("charge",0))
 		entry.query_charge = int(entry.get("query_charge",0))-old_charge
 		_query_charged -= old_charge
-		record = {"stamp":stamp,"hits":0,"ready":false,"charge":512+destination.length()*8}
+		record = {"stamp":stamp.duplicate(true),"hits":0,"ready":false,"charge":512+destination.length()*8+var_to_bytes(stamp).size()*8}
 		entry.estimates[destination] = record
 		entry.query_charge += int(record.charge)
 		_query_charged += int(record.charge)

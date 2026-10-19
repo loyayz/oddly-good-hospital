@@ -803,7 +803,7 @@ func _capacity_reference_world(world: WorldState) -> WorldState:
 	var entry: Dictionary = world.facts.get("entry",{"floor_id":1,"cell":[47,93]})
 	facts.actors = {}
 	for staff_id: String in world.ids("staff"):
-		var actor: Dictionary = world.facts.actors[staff_id].duplicate(true)
+		var actor: Dictionary = world.facts.actors[staff_id].duplicate()
 		actor.location = {"kind":"floor","floor_id":int(entry.floor_id),"cell":entry.cell.duplicate(),"height_m":0.0}
 		actor.posture = "standing"
 		actor.erase("support_facility_id")

@@ -298,7 +298,14 @@ func _case_16(t, content: HospitalContent) -> void:
 	var immutable: bool = species.is_read_only() and species.body.is_read_only()
 	if not species.is_read_only(): species.name = "查询副本"
 	if not species.body.is_read_only(): species.body.width_m = 999.0
-	t.check("CORE-16",immutable or content.definition("species","S49").name==original_name and float(content.definition("species","S49").body.width_m)<999.0)
+	var facilities_readonly: bool = true
+	for collection: String in ContentRegistry.FACILITY_COLLECTIONS:
+		for definition: Dictionary in content.registry.collection(collection):
+			var identifier: String = str(definition.get("id",definition.get("definition_id","")))
+			var facility: Dictionary = content.facility_definition(identifier)
+			facilities_readonly = facilities_readonly and facility.is_read_only() and is_same(facility,content.registry.legacy_definition(collection,identifier)) and is_same(facility,content.facility_definition(ContentRegistry.legacy_id(identifier)))
+	facilities_readonly = facilities_readonly and content.facility_definition("absent:FACILITY").is_empty()
+	t.check("CORE-16",facilities_readonly and (immutable or content.definition("species","S49").name==original_name and float(content.definition("species","S49").body.width_m)<999.0),{"facility_views_readonly_and_canonical_aliases":facilities_readonly})
 
 func _case_17(t, content: HospitalContent) -> void:
 	var original_name: String = content.definition("species","S49").name

@@ -524,7 +524,7 @@ func _return_from_outside(world: WorldState, staff_id: String) -> void:
 	if not space.static_reason(world,actor,int(entry.floor_id),Vector2i(entry.cell[0],entry.cell[1])).is_empty():
 		world.facts.staff[staff_id].life_reason = "返院入口受阻，保留已完成的休整"
 		return
-	var arriving: Dictionary = actor.duplicate(true)
+	var arriving: Dictionary = actor.duplicate()
 	arriving.location = {"kind":"floor","floor_id":entry.floor_id,"cell":entry.cell.duplicate(),"height_m":0.0}
 	var bounds: Rect2 = space.body_rectangle(arriving)
 	for other: Dictionary in world.facts.actors.values():
@@ -721,14 +721,24 @@ func _public_recreation_eligible(world: WorldState, staff_id: String) -> bool:
 	return int(staff.recreation_count)<int(content.balance.wellbeing.recreation_max_per_day) and world.sim_tick>=int(staff.recreation_cooldown_tick)
 
 func _manual_recreation_quote(world: WorldState, ids: Array, facility_id: String) -> Dictionary:
-	var candidate: WorldState = WorldState.new(world.freeze())
+	var facts: Dictionary = world.facts.duplicate()
+	facts.actors = world.facts.actors.duplicate()
+	facts.adaptations = world.facts.adaptations.duplicate()
+	facts.staff_life = world.facts.staff_life.duplicate()
+	facts.staff_life.reservations = world.facts.staff_life.reservations.duplicate()
+	var candidate: WorldState = WorldState.new(facts)
 	var previous: Dictionary = candidate.facts.staff_life.reservations.get(facility_id,{})
+	var displaced: Dictionary = {}
 	for other: String in previous.get("staff_ids",[]):
-		if not other in ids: candidate.facts.actors[other].location = {"kind":"outside"}
+		if not other in ids: displaced[other] = true
 	for actor: Dictionary in candidate.facts.actors.values():
 		if actor.get("support_facility_id","")==facility_id and not actor.id in ids:
-			actor.location = {"kind":"outside"}
-			actor.erase("support_facility_id")
+			displaced[actor.id] = true
+	for actor_id: String in displaced:
+		var actor: Dictionary = world.facts.actors[actor_id].duplicate()
+		actor.location = {"kind":"outside"}
+		if actor.get("support_facility_id","")==facility_id: actor.erase("support_facility_id")
+		candidate.facts.actors[actor_id] = actor
 	candidate.facts.staff_life.reservations.erase(facility_id)
 	candidate.facts.adaptations.erase(facility_id)
 	var area: Dictionary = space.public_areas.for_facility(candidate,facility_id)

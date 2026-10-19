@@ -1417,7 +1417,7 @@ func _commitment_bed(world: WorldState, visit: Dictionary, owner: Dictionary, re
 		_commitment_add(result,"facility:"+str(transfer.source_id),int(transfer.exit_ticks))
 		_commitment_add(result,"staff:"+str(transfer.escort_id),int(transfer.ticks))
 	var bed: Dictionary = space.facility_layout(world,owner.bed_id)
-	var patient: Dictionary = world.facts.actors[visit.actor_id].duplicate(true)
+	var patient: Dictionary = world.facts.actors[visit.actor_id].duplicate()
 	patient.posture = "lying"
 	patient.location = space.support_location(world,patient,bed)
 	var release_ticks: int = space.support_exit_ticks(patient,bed,true)
@@ -1456,7 +1456,7 @@ func _bed_transport(world: WorldState, visit: Dictionary, source: Dictionary, be
 	var escort_id: String = str(bed_owner.get("escort_id",source.staff_ids[-1] if surgery else bed_owner.nurse_id))
 	var facts: Dictionary = world.facts.duplicate()
 	facts.actors = world.facts.actors.duplicate()
-	for id: String in [visit.actor_id,escort_id]: facts.actors[id] = world.facts.actors[id].duplicate(true)
+	for id: String in [visit.actor_id,escort_id]: facts.actors[id] = world.facts.actors[id].duplicate()
 	var candidate: WorldState = WorldState.new(facts)
 	var patient: Dictionary = facts.actors[visit.actor_id]
 	var escort: Dictionary = facts.actors[escort_id]
@@ -1507,7 +1507,9 @@ func _reservation_candidate(world: WorldState, facility_ids: Array, actor_ids: A
 		if facts.adaptations.has(id): facts.adaptations[id] = facts.adaptations[id].duplicate(true)
 	if not actor_ids.is_empty():
 		facts.actors = world.facts.actors.duplicate()
-		for id: String in actor_ids: facts.actors[id] = facts.actors[id].duplicate(true)
+		for id: String in actor_ids:
+			facts.actors[id] = world.facts.actors[id].duplicate()
+			facts.actors[id].location = world.facts.actors[id].location.duplicate()
 	return WorldState.new(facts)
 
 func _reserve_bundle(world: WorldState, visit: Dictionary, quote: Dictionary, owner_id: String) -> String:
@@ -1814,7 +1816,7 @@ func _clear_bed_exit(world: WorldState, visit: Dictionary, stay: Dictionary) -> 
 	var bed: Dictionary = space.facility_layout(world,stay.bed_id)
 	var origin: Vector2 = Vector2(float(actor.location.cell[0]),float(actor.location.cell[1]))
 	var target: Vector2 = Vector2(float(bed.patient_cell[0]),float(bed.patient_cell[1]))
-	var moving: Dictionary = actor.duplicate(true)
+	var moving: Dictionary = actor.duplicate()
 	moving.facing = atan2(target.x-origin.x,target.y-origin.y)
 	var swept: Rect2 = space.body_rectangle(actor).merge(space._actor_rect(moving,origin)).merge(space._actor_rect(moving,target))
 	for staff_id: String in world.ids("staff"):
@@ -2875,7 +2877,7 @@ func _build_reference_terminal_bundle(world: WorldState, visit: Dictionary, rece
 		if not query.bed_transport.has(key): query.bed_transport[key] = _bed_transport(world,visit,quote,quote)
 		var transfer: Dictionary = query.bed_transport[key]
 		if not transfer.ok: return {"ok":false,"reason":"缺少原同层转床路径"}
-		var patient: Dictionary = world.facts.actors[visit.actor_id].duplicate(true)
+		var patient: Dictionary = world.facts.actors[visit.actor_id].duplicate()
 		var bed: Dictionary = space.facility_layout(world,quote.bed_id)
 		patient.location = space.support_location(world,patient,bed)
 		patient.posture = "lying"

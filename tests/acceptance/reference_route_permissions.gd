@@ -64,7 +64,8 @@ func run_case(sim: HospitalSimulation, content: HospitalContent) -> Dictionary:
 	var fields: Dictionary = _forward_contract(source,goal,content)
 	var masks: Dictionary = _mask_contract(source,content)
 	var projections: Dictionary = _projection_contract(source,content)
-	return {"ok":valid and fields.ok and masks.ok and projections.ok,"details":{"observations":observations,"forward_fields":fields,"reservation_masks":masks,"projection_sources":projections,"no_simulation_steps":true}}
+	var reuse: Dictionary = preload("res://tests/acceptance/navigation_static_reuse.gd").new().run_case(sim,content)
+	return {"ok":valid and fields.ok and masks.ok and projections.ok and reuse.ok,"details":{"observations":observations,"forward_fields":fields,"reservation_masks":masks,"projection_sources":projections,"static_reuse":reuse,"no_simulation_steps":true}}
 
 func _mask_contract(source: Dictionary, content: HospitalContent) -> Dictionary:
 	var world: WorldState = WorldState.new(source.duplicate(true))

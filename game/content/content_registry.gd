@@ -17,8 +17,6 @@ var fingerprint: String:
 func _init(data: Dictionary = {}) -> void:
 	_data = data
 	_indexes = _data.get("indexes", {})
-	for collection: String in FACILITY_COLLECTIONS:
-		_facilities.merge(_indexes.get(collection, {}))
 	for binding: Dictionary in _indexes.get("treatment_bindings", {}).values():
 		var pair: String = str(binding.species_id) + "|" + str(binding.disease_id)
 		if not _bindings.has(pair):
@@ -41,6 +39,9 @@ func _init(data: Dictionary = {}) -> void:
 					if not identifier.is_empty():
 						index[identifier] = record
 		_compatibility.indexes[collection_name] = index
+	for collection: String in FACILITY_COLLECTIONS:
+		for identifier: String in _indexes.get(collection,{}):
+			if not _facilities.has(identifier): _facilities[identifier] = legacy_definition(collection,identifier)
 	for profile: Dictionary in _compatibility.catalog.get("medical_equipment_profiles",[]):
 		_equipment_effects[str(profile.definition_id)] = str(profile.effect_kind)
 	_freeze(_equipment_effects)
@@ -86,11 +87,7 @@ func snapshot_identity() -> Array[Dictionary]:
 	return identity
 
 func facility_definition(identifier: String) -> Dictionary:
-	var canonical: String = canonical_id(identifier)
-	for collection_name: String in FACILITY_COLLECTIONS:
-		if _indexes.get(collection_name, {}).has(canonical):
-			return legacy_definition(collection_name, identifier)
-	return {}
+	return _facilities.get(canonical_id(identifier),{})
 
 func resolve_bindings(species_id: String, disease_id: String) -> Array:
 	return _bindings.get(canonical_id(species_id) + "|" + canonical_id(disease_id), [])
