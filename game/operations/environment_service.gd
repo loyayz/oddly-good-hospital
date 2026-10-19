@@ -533,10 +533,17 @@ func _release(world: WorldState, job: Dictionary) -> void:
 
 func _work_position(world: WorldState, staff_id: String, floor_id: int, target: Array, adjacent: bool) -> Dictionary:
 	var best: Dictionary = {}
+	var actor: Dictionary = world.facts.actors[staff_id]
+	var origin: Vector2 = Vector2(float(actor.location.cell[0]),float(actor.location.cell[1])) if actor.location.kind=="floor" else Vector2.ZERO
+	var start: Vector2i = Vector2i(roundi(origin.x),roundi(origin.y))
+	var stub: float = origin.distance_to(Vector2(start))
 	for offset: Array in ([[0,0],[-1,0],[0,-1],[0,1],[1,0]] if not adjacent else [[-1,0],[0,-1],[0,1],[1,0]]):
 		var cell: Array = [int(target[0])+int(offset[0]),int(target[1])+int(offset[1])]
 		if not _edge_open(world,floor_id,target,cell,false):
 			continue
+		# Connectors preserve XY and all floor edges are orthogonal. Equal
+		# distance cannot replace the original first winner's strict comparison.
+		if not best.is_empty() and stub+absi(start.x-int(cell[0]))+absi(start.y-int(cell[1]))>=float(best.distance): continue
 		var path: Dictionary = space.route(world,staff_id,floor_id,cell)
 		if path.ok and (best.is_empty() or float(path.walking_distance)<float(best.distance)):
 			best = {"cell":cell,"distance":path.walking_distance}

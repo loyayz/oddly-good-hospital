@@ -5,10 +5,10 @@ const MAX_TICK: int = 9223372036854775807
 
 # Queries only read the current transport facts. Tickets are created by begin(),
 # after the complete movement unit actually reaches its departure landing.
-static func route(space: HospitalSpace, world: WorldState, actor: Dictionary, source_floor: int, start: Vector2i, target_floor: int, goal: Vector2i, members: Array, offsets: Dictionary, ignore_people: bool, initial_ticks: int = 0, stop_on_unknown: bool = false) -> Dictionary:
+static func route(space: HospitalSpace, world: WorldState, actor: Dictionary, source_floor: int, start: Vector2i, target_floor: int, goal: Vector2i, members: Array, offsets: Dictionary, ignore_people: bool, initial_ticks: int = 0, stop_on_unknown: bool = false, quote_only: bool = false) -> Dictionary:
 	var direct: Dictionary = {"ok":false,"status":"unreachable","reason":"真实身体无法到达目标"}
 	if source_floor==target_floor:
-		direct = space._floor_route(world,actor,source_floor,start,goal,members,offsets,ignore_people)
+		direct = space._floor_travel_quote(world,actor,source_floor,start,goal) if quote_only else space._floor_route(world,actor,source_floor,start,goal,members,offsets,ignore_people)
 		var delta: Vector2i = goal-start
 		# With current unit floor costs, this attains the geometric lower bound.
 		# A vertical detour cannot remove horizontal displacement or its own time.
@@ -48,7 +48,7 @@ static func route(space: HospitalSpace, world: WorldState, actor: Dictionary, so
 			var chunks: Array = []
 			var walking: float = 0.0
 			while id!="start":
-				chunks.push_front(previous[id].path)
+				if not quote_only: chunks.push_front(previous[id].path)
 				walking += float(previous[id].walking_distance)
 				id = previous[id].from
 			var path: Array = []
@@ -56,12 +56,14 @@ static func route(space: HospitalSpace, world: WorldState, actor: Dictionary, so
 				path.append_array(chunk)
 			if unknown:
 				return {"ok":false,"status":"estimate_unknown","reason":unknown_reason}
-			return {"ok":true,"status":"complete","path":path,"walking_distance":walking,"arrival_ticks":item.tick,"quoted_tick":world.sim_tick,"reason":""}
+			var result: Dictionary = {"ok":true,"status":"complete","walking_distance":walking,"arrival_ticks":item.tick,"quoted_tick":world.sim_tick,"reason":""}
+			if not quote_only: result.path = path
+			return result
 		var node: Dictionary = nodes[id]
 		if int(node.floor_id)==target_floor:
-			var finish: Dictionary = direct if id=="start" and source_floor==target_floor else space._floor_route(world,actor,target_floor,node.cell,goal,members,offsets,ignore_people)
+			var finish: Dictionary = direct if id=="start" and source_floor==target_floor else (space._floor_travel_quote(world,actor,target_floor,node.cell,goal) if quote_only else space._floor_route(world,actor,target_floor,node.cell,goal,members,offsets,ignore_people))
 			if finish.ok:
-				_relax(heap,arrival,previous,id,"goal",_add(int(item.tick),walking_ticks(space,actor,members,float(finish.walking_distance))),finish.path,float(finish.walking_distance))
+				_relax(heap,arrival,previous,id,"goal",_add(int(item.tick),walking_ticks(space,actor,members,float(finish.walking_distance))),[] if quote_only else finish.path,float(finish.walking_distance))
 		var node_floor: int = int(node.floor_id)
 		if not connections_by_floor.has(node_floor):
 			var candidates: Array = []
@@ -75,7 +77,7 @@ static func route(space: HospitalSpace, world: WorldState, actor: Dictionary, so
 		for connector_id: String in connections_by_floor[node_floor]:
 			var connection: Dictionary = world.facts.connectors[connector_id]
 			var anchor: Vector2i = Vector2i(int(connection.anchor[0]),int(connection.anchor[1]))
-			var before: Dictionary = space._floor_route(world,actor,int(node.floor_id),node.cell,anchor,members,offsets,ignore_people)
+			var before: Dictionary = space._floor_travel_quote(world,actor,int(node.floor_id),node.cell,anchor) if quote_only else space._floor_route(world,actor,int(node.floor_id),node.cell,anchor,members,offsets,ignore_people)
 			if not before.ok:
 				continue
 			var at_landing: int = _add(int(item.tick),walking_ticks(space,actor,members,float(before.walking_distance)))
@@ -101,8 +103,8 @@ static func route(space: HospitalSpace, world: WorldState, actor: Dictionary, so
 					continue
 				var next: String = connector_id+":"+str(destination)
 				nodes[next] = {"floor_id":destination,"cell":anchor}
-				var path: Array = before.path.duplicate()
-				path.append({"kind":"connector","connector_id":connector_id,"from":int(node.floor_id),"to":destination})
+				var path: Array = [] if quote_only else before.path.duplicate()
+				if not quote_only: path.append({"kind":"connector","connector_id":connector_id,"from":int(node.floor_id),"to":destination})
 				_relax(heap,arrival,previous,id,next,int(quote.arrival_ticks),path,float(before.walking_distance))
 	if unknown:
 		return {"ok":false,"status":"estimate_unknown","reason":unknown_reason}

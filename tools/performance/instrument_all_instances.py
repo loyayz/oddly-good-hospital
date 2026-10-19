@@ -25,8 +25,8 @@ CLASS_GROUPS = {
 EXTRA = {
     "space": ["begin_route_query", "end_route_query", "begin_dynamic_route_query",
               "static_reason", "_facility_quote", "_facility_exit_quote", "facility_trip_quote",
-              "can_reach", "_route_result"],
-    "navigation": ["inherit_projection"],
+              "can_reach", "_route_result", "_travel_route_quote", "_floor_travel_quote"],
+    "navigation": ["inherit_projection", "forward_distance", "_travel_distance", "_forward_field"],
     "floor_graph": ["find_path"],
     "clinic": ["_service_pair_reachable", "_plan_quote_in_query", "_select_plan_in_query"],
     "public_areas": ["_queue_fit_in_query", "_intent_view", "_wait_estimate_view"],
@@ -38,12 +38,14 @@ EXTRA = {
 # from the identity-agnostic parameter key. Equality of keys is diagnostic only.
 PARAMETERS = {
     "space.route", "space.can_reach", "space._route_result", "space.travel_quote", "space._floor_route", "space.static_reason",
+    "space._travel_route_quote", "space._floor_travel_quote",
     "space.facility_quote", "space.facility_preflight_quote", "space.facility_geometry_quote",
     "space._facility_quote", "space._facility_exit_quote", "space.facility_trip_quote",
     "clinic.service_candidates", "clinic._service_pair_reachable",
     "public_areas.select", "public_areas._waiting_point", "public_areas._queue_fit",
     "transit.route", "transit.fits", "transit.quote", "transit._quote_known_fit",
     "transit._prefix", "transit.egress_clear", "navigation.travel_distance",
+    "navigation.forward_distance", "navigation._travel_distance",
 }
 
 

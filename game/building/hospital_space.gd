@@ -249,27 +249,47 @@ func travel_quote(world: WorldState, actor_id: String, floor_id: int, target: Ar
 	# Clinical estimates ignore people, like the original read-only route.
 	# Connectors and actual movement continue through the complete path query.
 	var actor: Dictionary = world.facts.actors[actor_id]
-	if actor.location.kind!="floor" or int(actor.location.floor_id)!=floor_id:
+	if actor.location.kind!="floor" or (int(actor.location.floor_id)!=floor_id and nominal_query(world)):
 		return route(world,actor_id,floor_id,target,[],{},true)
+	var source_floor: int = int(actor.location.floor_id)
 	var start: Vector2i = Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
 	var goal: Vector2i = Vector2i(int(target[0]),int(target[1]))
 	var actual: Vector2 = Vector2(float(actor.location.cell[0]),float(actor.location.cell[1]))
 	var stub: float = actual.distance_to(Vector2(start))
 	if stub>0.0:
-		var query: RouteClearance = _navigation.clearance(self,world,floor_id,actor)
+		var query: RouteClearance = _navigation.clearance(self,world,source_floor,actor)
 		var reason: String = query.sweep_reason(actual,Vector2(start))
 		if not reason.is_empty(): return {"ok":false,"status":"unreachable","reason":reason}
+	if source_floor!=floor_id: return _travel_route_quote(world,actor,source_floor,start,floor_id,goal,stub)
 	var result: Dictionary = _navigation.travel_distance(self,world,floor_id,actor,start,goal)
-	if not result.ready: return route(world,actor_id,floor_id,target,[],{},true)
+	if not result.ready:
+		return route(world,actor_id,floor_id,target,[],{},true) if nominal_query(world) else _travel_route_quote(world,actor,source_floor,start,floor_id,goal,stub)
 	var delta: Vector2i = goal-start
 	if not world.facts.connectors.is_empty() and (not result.ok or int(result.distance)!=absi(delta.x)+absi(delta.y)):
-		return route(world,actor_id,floor_id,target,[],{},true)
+		return route(world,actor_id,floor_id,target,[],{},true) if nominal_query(world) else _travel_route_quote(world,actor,source_floor,start,floor_id,goal,stub)
 	result.erase("ready")
 	result.status = "complete" if result.ok else "unreachable"
 	if result.ok:
 		result.walking_distance = float(result.distance)+stub
 		result.arrival_ticks = HospitalTransit.walking_ticks(self,actor,[],stub)+HospitalTransit.walking_ticks(self,actor,[],float(result.distance))
 		result.quoted_tick = world.sim_tick
+	return result
+
+func _travel_route_quote(world: WorldState, actor: Dictionary, source_floor: int, start: Vector2i, target_floor: int, goal: Vector2i, stub: float) -> Dictionary:
+	query_counts.routes += 1
+	var result: Dictionary = HospitalTransit.route(self,world,actor,source_floor,start,target_floor,goal,[],{},true,HospitalTransit.walking_ticks(self,actor,[],stub),false,true)
+	if result.ok: result.walking_distance += stub
+	return result
+
+func _floor_travel_quote(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2i, goal: Vector2i) -> Dictionary:
+	var result: Dictionary = _navigation.forward_distance(self,world,floor_id,actor,start,goal)
+	if not result.ready:
+		result = _floor_route(world,actor,floor_id,start,goal,[],{},true)
+		result.erase("path")
+		return result
+	result.erase("ready")
+	result.status = "complete" if result.ok else "unreachable"
+	if result.ok: result.walking_distance = float(result.distance)
 	return result
 
 func request_move(world: WorldState, actor_id: String, floor_id: int, target: Array) -> String:

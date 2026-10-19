@@ -192,17 +192,25 @@ func clearance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Di
 	return record.query
 
 func travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, start: Vector2i, goal: Vector2i, witness: bool = false) -> Dictionary:
+	return _travel_distance(space,world,floor_id,actor,start,goal,witness,false)
+
+# Region quotes ask for many goals from the same start or connector landing.
+# Share exact distances only; actual movement still obtains its original path.
+func forward_distance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, start: Vector2i, goal: Vector2i) -> Dictionary:
+	return _travel_distance(space,world,floor_id,actor,start,goal,false,true)
+
+func _travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, start: Vector2i, goal: Vector2i, witness: bool, forward: bool) -> Dictionary:
 	var current: FloorNavigation = graph(space,world,floor_id,actor,[],{})
 	var key: String = str(floor_id)+":"+_envelope(space,world,actor,[],{},floor_source(space,world,floor_id))
 	if not _entries.has(key): return {"ready":false}
 	var entry: Dictionary = _entries[key]
 	if not entry.has("estimates"): entry.estimates = {}
-	# A reverse field depends on the body envelope and forbidden reservations,
+	# A distance field depends on the body envelope and forbidden reservations,
 	# not the traveller's identity when it grants no different exemption.
 	var exemptions: Array = []
 	for reservation: Array in floor_source(space,world,floor_id).occupancy:
 		if actor.id==reservation[1] or actor.id in reservation[2]: exemptions.append(reservation[0])
-	var destination: String = JSON.stringify([goal.x,goal.y,exemptions])
+	var destination: String = JSON.stringify(["from",start.x,start.y,exemptions]) if forward else JSON.stringify([goal.x,goal.y,exemptions])
 	var stamp: Array = [floor_version(space,world,floor_id)]
 	var record: Dictionary = entry.estimates.get(destination,{})
 	if record.is_empty() or record.stamp!=stamp:
@@ -214,16 +222,22 @@ func travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, act
 		entry.query_charge += int(record.charge)
 		_query_charged += int(record.charge)
 	record.hits += 1
-	# One-off quotes retain A*. Repeated destinations amortize a reverse field;
+	# One-off quotes retain A*. Repeated endpoints amortize a distance field;
 	# only integer distance is reused, never a route or permission to reserve.
 	if not record.ready and int(record.hits)>=12:
 		var query: RouteClearance = RouteClearance.new(space,world,actor,floor_id,[],{},true,current.geometry.source,current.geometry)
-		record.reason = query.reason(goal) if FloorNavigation._inside(goal) else "目标超出96×96真实楼面"
-		var field: Dictionary = _distance_field(current,query,goal) if str(record.reason).is_empty() else {"distances":PackedInt32Array(),"successors":PackedInt32Array()}
+		record.reason = "" if forward else (query.reason(goal) if FloorNavigation._inside(goal) else "目标超出96×96真实楼面")
+		var field: Dictionary
+		if forward:
+			record.query = query
+			field = {"distances":_forward_field(current,query,start),"successors":PackedInt32Array()}
+		else:
+			field = _distance_field(current,query,goal) if str(record.reason).is_empty() else {"distances":PackedInt32Array(),"successors":PackedInt32Array()}
 		record.distances = field.distances
 		record.successors = field.successors
 		record.ready = true
 		var charge: int = ((record.distances as PackedInt32Array).size()+(record.successors as PackedInt32Array).size())*16
+		if forward: charge += floor_source(space,world,floor_id).occupancy.size()*256+16384
 		record.charge += charge
 		entry.query_charge = int(entry.get("query_charge",0))+charge
 		_query_charged += charge
@@ -231,8 +245,13 @@ func travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, act
 	if not record.ready: return {"ready":false}
 	if not FloorNavigation._inside(start) or not FloorNavigation._inside(goal):
 		return {"ready":true,"ok":false,"reason":"目标超出96×96真实楼面"}
+	if forward:
+		# Leaving a reserved start is legal, entering that same reserved cell as
+		# the goal is not. Retain the full query's goal-first reason and zero leg.
+		var reason: String = record.query.reason(goal)
+		if not reason.is_empty(): return {"ready":true,"ok":false,"reason":reason}
 	if not str(record.reason).is_empty(): return {"ready":true,"ok":false,"reason":record.reason}
-	var distance: int = record.distances[FloorNavigation._id(start)]
+	var distance: int = record.distances[FloorNavigation._id(goal if forward else start)]
 	var result: Dictionary = {"ready":true,"ok":distance>=0,"distance":distance,"reason":"" if distance>=0 else "真实身体无法到达目标"}
 	if witness and result.ok:
 		var path: Array = []
@@ -244,6 +263,30 @@ func travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, act
 			path.append({"kind":"floor","floor_id":floor_id,"cell":[cell.x,cell.y]})
 		result.path = path
 	return result
+
+func _forward_field(graph: FloorNavigation, query: RouteClearance, start: Vector2i) -> PackedInt32Array:
+	var distances: PackedInt32Array = PackedInt32Array()
+	distances.resize(FloorNavigation.LIMIT)
+	distances.fill(-1)
+	if not FloorNavigation._inside(start): return distances
+	var start_id: int = FloorNavigation._id(start)
+	if not graph.has_point(start_id) or graph.is_point_disabled(start_id): return distances
+	var queue: Array[int] = [start_id]
+	distances[start_id] = 0
+	var cursor: int = 0
+	while cursor<queue.size():
+		var current: int = queue[cursor]
+		cursor += 1
+		var cell: Vector2i = FloorNavigation._cell(current)
+		for offset: Vector2i in FloorNavigation.NEIGHBOURS:
+			var next: Vector2i = cell+offset
+			if not FloorNavigation._inside(next): continue
+			var id: int = FloorNavigation._id(next)
+			if distances[id]>=0 or not graph.has_point(id) or graph.is_point_disabled(id) or not graph.are_points_connected(current,id,false): continue
+			if not query.reservation_reason(next).is_empty(): continue
+			distances[id] = distances[current]+1
+			queue.append(id)
+	return distances
 
 func _distance_field(graph: FloorNavigation, query: RouteClearance, goal: Vector2i) -> Dictionary:
 	var distances: PackedInt32Array = PackedInt32Array()

@@ -74,6 +74,7 @@ func _run() -> void:
 		"setup":operation_metadata,"initial":clinical.inspect(true),"samples":[],"event_records":[],"errors":[]}
 	report.sources = {}
 	for path: String in ["res://game/clinic/clinical_runtime.gd","res://game/building/hospital_space.gd","res://game/building/navigation_cache.gd",
+		"res://game/building/hospital_transit.gd","res://game/operations/environment_service.gd",
 		"res://game/life/waiting_life.gd","res://tools/performance/representative_selected.gd","res://tools/performance/representative_clinical.gd",
 		"res://tools/performance/representative_operations.gd","res://tools/performance/step_profile.gd",
 		"res://tools/performance/all_instance_profile.gd","res://tools/performance/instrument_all_instances.py"]:

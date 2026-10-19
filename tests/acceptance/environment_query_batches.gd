@@ -7,8 +7,35 @@ func run(content: HospitalContent) -> Dictionary:
 	builder._content = content
 	var safety: Dictionary = _safety(builder)
 	var cleanup: Dictionary = _cleanup(builder)
+	var positions: Dictionary = _positions(builder)
 	for simulation: HospitalSimulation in builder._live: simulation.dispose()
-	return {"ok":safety.ok and cleanup.ok,"details":{"safety":safety,"cleanup":cleanup}}
+	return {"ok":safety.ok and cleanup.ok and positions.ok,"details":{"safety":safety,"cleanup":cleanup,"position_full_enumeration":positions}}
+
+func _positions(builder: RefCounted) -> Dictionary:
+	var f: Dictionary = builder._new("清扫操作位完整路线对照")
+	builder._staff(f,"position_cleaner","cleaner",[40.25,80])
+	var environment: HospitalEnvironment = f.s.services.environment
+	var valid: bool = true
+	var observations: Array = []
+	for blocked: bool in [false,true]:
+		if blocked:
+			f.w.facts.floors.overrides["1"].blocked.append([42,80])
+			f.w.touch()
+		for target: Array in [[42,80],[40,82],[40,80]]:
+			for adjacent: bool in [false,true]:
+				var expected: Dictionary = {}
+				for offset: Array in ([[0,0],[-1,0],[0,-1],[0,1],[1,0]] if not adjacent else [[-1,0],[0,-1],[0,1],[1,0]]):
+					var cell: Array = [int(target[0])+int(offset[0]),int(target[1])+int(offset[1])]
+					if not environment._edge_open(f.w,1,target,cell,false): continue
+					var route: Dictionary = f.s.space.route(f.w,"position_cleaner",1,cell)
+					if route.ok and (expected.is_empty() or float(route.walking_distance)<float(expected.distance)):
+						expected = {"cell":cell,"distance":route.walking_distance}
+				var before: Dictionary = f.w.freeze()
+				var actual: Dictionary = environment._work_position(f.w,"position_cleaner",1,target,adjacent)
+				var equal: bool = actual==expected and before==f.w.freeze()
+				valid = valid and equal
+				observations.append({"blocked":blocked,"target":target,"adjacent":adjacent,"equal":equal,"actual":actual})
+	return {"ok":valid,"observations":observations}
 
 func _safety(builder: RefCounted) -> Dictionary:
 	var f: Dictionary = builder._new("装修单元当前身体边界")

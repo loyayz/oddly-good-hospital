@@ -366,12 +366,16 @@ func _case_61(t) -> void:
 	var optimized: Dictionary = x.space.public_areas.waiting_point(x.world,visit.actor_id,area)
 	var expected: int = 2147483647
 	var candidates: int = 0
+	var exact_quotes: bool = true
 	x.space.begin_dynamic_route_query(x.world)
 	for point: Vector2i in x.space.public_areas.region(x.world,area).cells:
 		var cell: Array = [point.x,point.y]
 		if not x.space.public_areas.safe_wait(x.world,visit.actor_id,1,cell): continue
 		var quote: Dictionary = x.space.travel_quote(x.world,visit.actor_id,1,cell)
-		if quote.ok and quote.has("arrival_ticks"): expected = mini(expected,int(quote.arrival_ticks)); candidates += 1
+		var complete: Dictionary = x.space.route(x.world,visit.actor_id,1,cell,[],{},true)
+		for field: String in ["ok","status","reason","arrival_ticks","walking_distance","quoted_tick"]:
+			exact_quotes = exact_quotes and quote.get(field)==complete.get(field)
+		if complete.ok and complete.has("arrival_ticks"): expected = mini(expected,int(complete.arrival_ticks)); candidates += 1
 	x.space.end_route_query()
 	var tight: Dictionary = x.space.public_areas.waiting_point(x.world,visit.actor_id,area,expected-1)
 	var boundary: Dictionary = x.space.public_areas.waiting_point(x.world,visit.actor_id,area,expected)
@@ -395,7 +399,7 @@ func _case_61(t) -> void:
 	for point: Vector2i in x.space.public_areas.region(x.world,area).cells:
 		var cell: Array = [point.x,point.y]
 		if not x.space.public_areas.safe_wait(x.world,visit.actor_id,1,cell): continue
-		var quote: Dictionary = x.space.travel_quote(x.world,visit.actor_id,1,cell)
+		var quote: Dictionary = x.space.route(x.world,visit.actor_id,1,cell,[],{},true)
 		no_entries = no_entries and not (quote.get("ok",false) and quote.has("arrival_ticks"))
 	var unknown_point: Dictionary = x.space.public_areas.waiting_point(x.world,visit.actor_id,area)
 	var moved: String = x.space.request_move(x.world,blocker.actor_id,1,[55,91])
@@ -406,7 +410,7 @@ func _case_61(t) -> void:
 		x.world.touch(false)
 	var restored: Dictionary = x.space.public_areas.waiting_point(x.world,visit.actor_id,area)
 	var unknown_handled: bool = unknown.unknown and unknown.landings.is_empty() and no_entries and unknown_point.is_empty() and not lowering.is_empty() and not upward.get("ok",true) and moved.is_empty() and not restored.is_empty()
-	t.check("STAFF-61",not optimized.is_empty() and candidates>0 and optimized.travel_ticks==expected and tight.is_empty() and boundary.get("travel_ticks",-1)==expected and safe_fraction and readonly and finite_retained and unknown_handled,{"exact_all_legal_entries":candidates,"expected_ticks":expected,"optimized":optimized,"below_boundary_empty":tight.is_empty(),"exact_boundary":boundary,"fractional_origin_lower_bound_valid":safe_fraction,"readonly":readonly,"finite_landing_retained_with_unknown":finite_retained,"unknown_landings":unknown,"all_legal_entries_independently_failed":no_entries,"unknown_result":unknown_point,"failed_lift_downward_retained":not lowering.is_empty(),"failed_lift_upward_refused":not upward.get("ok",true),"actual_body_departure":moved,"restored_after_real_exit":restored})
+	t.check("STAFF-61",exact_quotes and not optimized.is_empty() and candidates>0 and optimized.travel_ticks==expected and tight.is_empty() and boundary.get("travel_ticks",-1)==expected and safe_fraction and readonly and finite_retained and unknown_handled,{"all_quote_fields_match_complete_routes":exact_quotes,"exact_all_legal_entries":candidates,"expected_ticks":expected,"optimized":optimized,"below_boundary_empty":tight.is_empty(),"exact_boundary":boundary,"fractional_origin_lower_bound_valid":safe_fraction,"readonly":readonly,"finite_landing_retained_with_unknown":finite_retained,"unknown_landings":unknown,"all_legal_entries_independently_failed":no_entries,"unknown_result":unknown_point,"failed_lift_downward_retained":not lowering.is_empty(),"failed_lift_upward_refused":not upward.get("ok",true),"actual_body_departure":moved,"restored_after_real_exit":restored})
 
 func _case_62(t) -> void:
 	var x: Dictionary = _areas()
