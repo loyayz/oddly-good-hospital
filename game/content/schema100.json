@@ -17483,9 +17483,6 @@
         },
         "seat_choice": {
           "properties": {
-            "automatic_travel_seconds_max": {
-              "type": "integer"
-            },
             "call_interrupt_source": {
               "type": "string"
             },
@@ -17562,10 +17559,6 @@
             "manual_selection": {
               "type": "string"
             },
-            "nearby_detour_seconds": {
-              "minimum": 0,
-              "type": "integer"
-            },
             "runtime_measurement_available": {
               "type": "boolean"
             },
@@ -17593,7 +17586,6 @@
             }
           },
           "required": [
-            "automatic_travel_seconds_max",
             "call_interrupt_source",
             "calm_minimum_anger",
             "candidate_count_cap",
@@ -17607,7 +17599,6 @@
             "environment_tolerance",
             "existing_legal_seat",
             "manual_selection",
-            "nearby_detour_seconds",
             "runtime_measurement_available",
             "scope",
             "score_scale",

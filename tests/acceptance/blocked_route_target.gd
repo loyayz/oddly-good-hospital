@@ -110,8 +110,8 @@ func run_case(sim: HospitalSimulation, content: HospitalContent) -> Dictionary:
 				# has left its endpoint clear but its sweep remains this phase.
 				var actor: Dictionary = world.facts.actors.blocker
 				var current: Vector2 = Vector2(actor.location.cell[0],actor.location.cell[1])
-				geometry._sweep_index.begin_boundary(world.facts.actors)
-				geometry._sweep_index.update(actor.id,1,geometry._actor_rect(actor,current-Vector2(0.1,0)).merge(geometry._actor_rect(actor,current)))
+				geometry.movement._sweep_index.begin_boundary(world.facts.actors)
+				geometry.movement._sweep_index.update(actor.id,1,geometry._actor_rect(actor,current-Vector2(0.1,0)).merge(geometry._actor_rect(actor,current)))
 		var validation: String = actual_world.validate(content)
 		var original_validation: String = original_world.validate(content)
 		var valid: bool = validation.is_empty() and original_validation.is_empty()

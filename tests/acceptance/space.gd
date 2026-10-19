@@ -96,10 +96,11 @@ const CASES: Dictionary = {
 	"SPACE-47":"docs/design/08-hospital-life.md §11；整备房间按真实格形判断身体相交，不将凹角空白当房间",
 	"SPACE-48":"docs/design/04-technical.md §6/§13；设施阻挡查询复用真实展开索引，候选隔离且实际预约立即失效",
 	"SPACE-49":"docs/design/08-hospital-life.md 候诊与家属；完整有序设施候选与独立冷计算等价，失败不生成身份，成功真实移动且新预约立即可见",
-	"SPACE-50":"docs/data/balance.json seat_choice；自动候诊只以保守路程下界严格排除超30秒座位，完整报价与手动选择不变",
+	"SPACE-50":"docs/specs/26-10/2026-10-19-task-navigation-movement.md §6；远座不因30秒或附近时间带排除，时间只参与评分",
 	"SPACE-51":"docs/design/04-technical.md §6；参考层内与完整旅程缓存按预约通行权限隔离，同权限跨主体共享",
 	"SPACE-52":"docs/design/04-technical.md §3大面积预览；完整合法最大矩形、井道失败、相关重启与取消、共享原帧预算",
-	"SPACE-53":"docs/design/16-navigation-space-selection.md §7；目标完整身体被阻挡时保留原争用结果，组配位、小数起点、扫掠与可绕行完整冷对照"
+	"SPACE-53":"docs/design/16-navigation-space-selection.md §7；实际遇阻后的局部路线保留完整身体争用检查",
+	"SPACE-54":"docs/specs/26-10/2026-10-19-task-navigation-movement.md §3/§4；未知估时仍出发、真实到场排队、途中改目标完成安全乘梯段"
 }
 
 var content: HospitalContent
@@ -258,7 +259,7 @@ func _case_08(_t) -> Dictionary:
 	var before: Dictionary = sim.world.freeze()
 	var quote: Dictionary = sim.space.facility_quote(sim.world,"seat","user",["operator"])
 	var readonly: bool = sim.world.freeze()==before
-	var blocker: CommandResult = _command(sim,"build_facility",{"id":"blocker","definition_id":"SE02","floor_id":1,"cell":[46,72]})
+	var blocker: CommandResult = _command(sim,"build_facility",{"id":"blocker","definition_id":"SE02","floor_id":1,"cell":[46,74]})
 	var obstructed: Dictionary = sim.space.facility_quote(sim.world,"seat","user",["operator"])
 	var removed: CommandResult = _command(sim,"build_demolish",{"target_id":"blocker"})
 	var approached: bool = false
@@ -276,35 +277,26 @@ func _case_08(_t) -> Dictionary:
 		sim.space.release_adaptations(sim.world)
 		released = not sim.world.facts.adaptations.has("seat")
 	var exit_safety: Dictionary = _facility_exit_contract()
-	return _done(sim,made.accepted and readonly and quote.get("ok",false) and blocker.accepted and not obstructed.get("ok",true) and removed.accepted and approached and retained and released and exit_safety.ok,{"quote":quote,"obstructed":obstructed,"reservation":reserved,"approached":approached,"retained":retained,"released":released,"exit_safety":exit_safety})
+	return _done(sim,made.accepted and readonly and quote.get("ok",false) and quote.get("footprint",[])==[2,1] and blocker.accepted and not obstructed.get("ok",true) and removed.accepted and approached and retained and released and exit_safety.ok,{"quote":quote,"obstructed":obstructed,"reservation":reserved,"approached":approached,"retained":retained,"released":released,"exit_safety":exit_safety})
 
 func _facility_exit_contract() -> Dictionary:
 	var sim: HospitalSimulation = _fixture()
 	var made: CommandResult = _command(sim,"build_facility",{"id":"seat","definition_id":"FUR06","floor_id":1,"cell":[44,72]})
 	_add_actor(sim,"user","S49",[49,82])
 	_add_actor(sim,"bystander","S49",[42,73])
-	# A legal one-cell passage is the bystander's only exit. The seat remains
-	# its base size; its proposed patient region would close that passage.
 	for y: int in range(64,96):
 		if y not in [72,73]: sim.world.facts.floors.overrides["1"].blocked.append([44,y])
 	sim.world.touch()
 	var exit: Array = sim.space.exit_cell(sim.world,sim.world.facts.actors.bystander)
-	var before_route: Dictionary = sim.space.route(sim.world,"bystander",1,exit,[],{},true)
+	var before_route: Dictionary = sim.space.route(sim.world,"bystander",1,exit)
 	var before: Dictionary = sim.world.freeze()
-	var trapped: Dictionary = sim.space.facility_quote(sim.world,"seat","user")
-	var warm_trapped: bool = true
+	var searches: int = int(sim.space.query_counts.floor_route_builds)
+	var fixed: bool = true
 	for index: int in 16:
-		var repeated: Dictionary = sim.space.facility_quote(sim.world,"seat","user")
-		warm_trapped = warm_trapped and not repeated.get("ok",true) and str(repeated.get("reason","")).contains("安全出口")
-	var readonly: bool = before==sim.world.freeze()
-	sim.world.facts.floors.overrides["1"].blocked.erase([44,78])
-	sim.world.touch()
-	before = sim.world.freeze()
-	var detour: Dictionary = sim.space.facility_quote(sim.world,"seat","user")
-	var warm_detour: bool = true
-	for index: int in 16: warm_detour = warm_detour and sim.space.facility_quote(sim.world,"seat","user").get("ok",false)
-	readonly = readonly and before==sim.world.freeze()
-	return _done(sim,made.accepted and before_route.ok and not trapped.get("ok",true) and str(trapped.get("reason","")).contains("安全出口") and detour.get("ok",false) and detour.get("footprint",[])==[2,1] and warm_trapped and warm_detour and readonly,{"before_route_ok":before_route.ok,"trapped":trapped,"detour":detour,"warm_trapped":warm_trapped,"warm_detour":warm_detour,"readonly":readonly})
+		var quote: Dictionary = sim.space.facility_quote(sim.world,"seat","user")
+		fixed = fixed and quote.get("ok",false) and quote.get("footprint",[])==[2,1]
+	var no_exit_searches: bool = searches==int(sim.space.query_counts.floor_route_builds)
+	return _done(sim,made.accepted and before_route.ok and fixed and no_exit_searches and before==sim.world.freeze(),{"before_route_ok":before_route.ok,"fixed_chair":fixed,"no_other_actor_exit_searches":no_exit_searches,"readonly":before==sim.world.freeze()})
 
 func _case_09(_t) -> Dictionary:
 	var sim: HospitalSimulation = _fixture()
@@ -437,7 +429,7 @@ func _case_10(_t) -> Dictionary:
 		protected_goal_preserved = protected_goal_preserved and (not current_move.is_empty() and current_move.target_floor==1 and current_move.target_cell==[45,70] or current_move.is_empty() and protected.space.at(protected.world,"protected_walker",1,[45,70]))
 		protected_previous = current.duplicate()
 	var protected_not_pushed: bool = protected.space.at(protected.world,"busy_blocker",1,[40,70]) and not protected.world.facts.moves.has("busy_blocker")
-	var mentor_not_pushed: bool = protected.space._staff_has_movement_responsibility(protected.world,"training_mentor")
+	var mentor_not_pushed: bool = protected.space.movement._staff_has_movement_responsibility(protected.world,"training_mentor")
 	var protected_details: Dictionary = {"request_reason":protected_requested,"established":protected_established,"safe_sweeps":protected_physical,"busy_staff_not_pushed":protected_not_pushed,"training_mentor_protected":mentor_not_pushed,"patient_unchanged_goal":protected_goal_preserved,"patient_location":protected_previous}
 	var protected_ok: bool = protected_requested.is_empty() and protected_established and protected_physical and protected_not_pushed and mentor_not_pushed and protected_details.patient_unchanged_goal
 	protected.dispose()
@@ -476,7 +468,7 @@ func _travel_quote_contract(sim: HospitalSimulation, steps: int) -> bool:
 	var matches: bool = true
 	for index: int in 16:
 		var quote: Dictionary = sim.space.travel_quote(sim.world,"walker",1,[51,75])
-		matches = matches and quote.ok and is_equal_approx(float(quote.walking_distance),float(steps)) and int(quote.arrival_ticks)==expected_ticks
+		matches = matches and quote.ok and is_equal_approx(float(quote.walking_distance),float(steps)) and int(quote.travel_ticks)==expected_ticks
 	matches = matches and before==sim.world.freeze()
 	var fractional: WorldState = WorldState.new(sim.world.freeze())
 	fractional.facts.actors.walker.location.cell = [35.25,75.0]
@@ -484,7 +476,7 @@ func _travel_quote_contract(sim: HospitalSimulation, steps: int) -> bool:
 	before = fractional.freeze()
 	for index: int in 16:
 		var quote: Dictionary = sim.space.travel_quote(fractional,"walker",1,[51,75])
-		matches = matches and quote.ok and is_equal_approx(float(quote.walking_distance),float(steps)+0.25) and int(quote.arrival_ticks)==expected_ticks+ceili(0.25/speed/WorldState.TICK_SECONDS)
+		matches = matches and quote.ok and is_equal_approx(float(quote.walking_distance),float(steps)+0.25) and int(quote.travel_ticks)==expected_ticks+ceili(0.25/speed/WorldState.TICK_SECONDS)
 	return matches and before==fractional.freeze()
 
 func _case_11(_t) -> Dictionary:
@@ -931,7 +923,7 @@ func _case_35(_t) -> Dictionary:
 	var visit_id: String = str(arrival.changed_ids[0]) if arrival.accepted else ""
 	var begun: bool = _wait(sim,func() -> bool: return not _session(sim,"outpatient").is_empty(),2400)
 	var session: Dictionary = _session(sim,"outpatient").duplicate(true)
-	if not begun: return _done(sim,false,{"prerequisite":"实际门诊未开工","arrival":arrival.to_record(),"visit":sim.world.facts.visits.get(visit_id,{})})
+	if not begun: return _done(sim,false,{"prerequisite":"实际门诊未开工","arrival":arrival.to_record(),"visit":sim.world.facts.visits.get(visit_id,{}),"failure_world":preload("res://tests/acceptance/clinical_fixtures.gd").new()._failure_world("space_outpatient",sim.world)})
 	var visit: Dictionary = sim.world.facts.visits[visit_id]
 	var evidence: Dictionary = visit.evidence_by_source.duplicate(true)
 	var attempt_id: String = str(session.get("attempt_id",""))
@@ -1539,9 +1531,9 @@ func _case_48(_t) -> Dictionary:
 	var reassigned: WorldState = WorldState.new(reassigned_facts)
 	space.prepare_projection(candidate,reassigned,["z_seat"])
 	projection_exact = projection_exact and space._navigation.floor_source(space,reassigned,1)==RouteClearance.capture_source(HospitalSpace.new(content),reassigned,1) and space._navigation.floor_source(space,reassigned,1).occupancy!=space._navigation.floor_source(space,candidate,1).occupancy
-	var isolated: bool = quote.footprint==[3,3] and space._blocking_facility(candidate,1,extra)=="z_seat" and space._blocking_facility(sim.world,1,extra).is_empty() and sim.world.freeze()==before
+	var isolated: bool = quote.footprint==[2,1] and space._blocking_facility(candidate,1,extra).is_empty() and space._blocking_facility(sim.world,1,extra).is_empty() and sim.world.freeze()==before
 	var reserved: String = space.reserve_facility(sim.world,"z_seat","index_user","index_user")
-	var immediate: bool = reserved.is_empty() and space._blocking_facility(sim.world,1,extra)=="z_seat"
+	var immediate: bool = reserved.is_empty() and space._blocking_facility(sim.world,1,extra).is_empty() and not space._dynamic_clear(sim.world,"next_user",1,Rect2(46,74,1,1))
 	var reserved_facts: Dictionary = sim.world.freeze()
 	var refused: String = space.reserve_facility(sim.world,"z_seat","next_user","next_user")
 	var atomic: bool = not refused.is_empty() and reserved_facts==sim.world.freeze()
@@ -1578,7 +1570,7 @@ func _case_49(_t) -> Dictionary:
 	candidate.facts.actors[first.actor_id].species_id = "S53"
 	candidate.facts.actors[first.actor_id].erase("body_binding_id")
 	candidate.facts.actors[second.actor_id] = candidate.facts.actors[second.actor_id].duplicate(true)
-	candidate.facts.actors[second.actor_id].location.cell = [44,75]
+	candidate.facts.actors[second.actor_id].location.cell = [44,77]
 	var actual_candidate: Dictionary = waiting._facility_quote(candidate,first,"a_patient_only")
 	var candidate_isolated: bool = not actual_candidate.get("ok",true) and reference.fits.size()==retained_fits and sim.space.nominal_query(sim.world)
 	sim.space.end_route_query()
@@ -1610,64 +1602,33 @@ func _case_50(_t) -> Dictionary:
 	var sim: HospitalSimulation = _fixture()
 	var middle: CommandResult = _command(sim,"build_land",{"plot":[1,1],"floor_id":1})
 	var upper: CommandResult = _command(sim,"build_land",{"plot":[1,0],"floor_id":1})
-	var built: CommandResult = _command(sim,"build_facility",{"id":"bounded_seat","definition_id":"FUR06","floor_id":1,"cell":[42,75]})
+	var built: CommandResult = _command(sim,"build_facility",{"id":"distant_seat","definition_id":"FUR06","floor_id":1,"cell":[42,75]})
 	if not middle.accepted or not upper.accepted or not built.accepted: return _done(sim,false,{"middle":middle.to_record(),"upper":upper.to_record(),"seat":built.to_record()})
-	var visit: Dictionary = _waiting_visit(sim,"bounded",[42,30])
+	var visit: Dictionary = _waiting_visit(sim,"distant",[42,14])
 	sim.services.waiting.ensure(sim.world)
 	var rows: Array = []
 	var ok: bool = true
-	# The conservative front rectangle starts at y=74: these lower bounds
-	# are 30.5s, exactly 30s and 22s at the defined one-cell speed of 2.
-	for sample: Array in [[13,305,0],[14,300,1],[30,220,1]]:
+	for y: int in [13,14,30]:
 		var world: WorldState = WorldState.new(sim.world.freeze())
-		world.facts.actors[visit.actor_id].location.cell = [42,sample[0]]
+		world.facts.actors[visit.actor_id].location.cell = [42,y]
 		world.touch()
 		var before: Dictionary = world.freeze()
-		var actual_space: SeatCountingSpace = SeatCountingSpace.new(content)
-		var actual: SeatCountingLife = SeatCountingLife.new(content,actual_space)
-		var baseline_space: SeatCountingSpace = SeatCountingSpace.new(content)
-		baseline_space.bypass_lower_bound = true
-		var baseline: SeatCountingLife = SeatCountingLife.new(content,baseline_space)
-		var bound: int = actual_space.facility_travel_lower_bound_ticks(world,"bounded_seat",visit.actor_id)
-		var expected: Array = baseline.seat_candidates(world,visit.id)
-		var choices: Array = actual.seat_candidates(world,visit.id)
-		var calls: int = actual.quote_calls
-		var routes: int = actual_space.route_calls
-		var manual: Dictionary = actual._seat_quote(world,world.facts.visits[visit.id],"bounded_seat")
-		var row_ok: bool = bound==int(sample[1]) and calls==int(sample[2]) and choices==expected and manual.get("ok",false) and world.freeze()==before
-		row_ok = row_ok and (routes==0 if calls==0 else routes==2) and baseline_space.route_calls==2
-		if int(sample[0])==30: row_ok = row_ok and choices.size()==1
-		else: row_ok = row_ok and choices.is_empty() and int(manual.get("travel_ticks",0))>300
+		var geometry: HospitalSpace = HospitalSpace.new(content)
+		var life: HospitalWaitingLife = HospitalWaitingLife.new(content,geometry)
+		var choices: Array = life.seat_candidates(world,visit.id)
+		var manual: Dictionary = life._seat_quote(world,world.facts.visits[visit.id],"distant_seat")
+		var row_ok: bool = choices.size()==1 and manual.get("ok",false) and before==world.freeze()
+		if y<=14: row_ok = row_ok and int(manual.get("travel_ticks",0))>300
+		if choices.size()==1:
+			var more_time: Dictionary = manual.duplicate(true)
+			more_time.travel_ticks += 200
+			var observation: Dictionary = life._environment(world,visit.actor_id,1,manual.patient_cell)
+			var scored: Dictionary = life._score_seat(world,visit,"distant_seat",more_time,observation)
+			var personality: Dictionary = content.definition("patient_personalities",visit.personality_id)
+			row_ok = row_ok and int(choices[0].score)-int(scored.score)==200*int(personality.seating.travel_penalty_per_10_seconds)
 		ok = ok and row_ok
-		rows.append({"y":sample[0],"bound_ticks":bound,"full_quotes":calls,"routes_before_manual":routes,"same_complete_candidates":choices==expected,"manual_travel_ticks":manual.get("travel_ticks",-1),"ok":row_ok})
-	var symptom: Dictionary = _waiting_visit(sim,"symptom",[35,82],"B_S08_D04_M04")
-	sim.services.waiting.ensure(sim.world)
-	var shapes: Array = []
-	for turn: int in 4:
-		var world: WorldState = WorldState.new(sim.world.freeze())
-		world.facts.facilities.bounded_seat.rotation = turn
-		if turn%2==1: world.facts.facilities.bounded_seat.footprint = [1,2]
-		# Custom fractional targets must be bounded after route's int() conversion.
-		world.facts.facilities.bounded_seat.patient_cell = [60.75,65.75]
-		world.touch()
-		var geometry: SeatCountingSpace = SeatCountingSpace.new(content)
-		var life: SeatCountingLife = SeatCountingLife.new(content,geometry)
-		var full_geometry: SeatCountingSpace = SeatCountingSpace.new(content)
-		full_geometry.bypass_lower_bound = true
-		var full_life: SeatCountingLife = SeatCountingLife.new(content,full_geometry)
-		var before: Dictionary = world.freeze()
-		var fit: Dictionary = geometry.facility_quote(world,"bounded_seat",symptom.actor_id)
-		var quote: Dictionary = life._facility_quote(world,symptom,"bounded_seat")
-		var bound: int = geometry.facility_travel_lower_bound_ticks(world,"bounded_seat",symptom.actor_id)
-		var same: bool = life.seat_candidates(world,symptom.id)==full_life.seat_candidates(world,symptom.id)
-		var shape_ok: bool = fit.get("ok",false) and quote.get("ok",false) and bound<=int(quote.get("travel_ticks",-1)) and same and before==world.freeze()
-		if fit.get("ok",false):
-			world.facts.adaptations.bounded_seat = fit
-			world.touch()
-			shape_ok = shape_ok and geometry.facility_travel_lower_bound_ticks(world,"bounded_seat",symptom.actor_id)<=int(quote.get("travel_ticks",-1))
-		ok = ok and shape_ok
-		shapes.append({"rotation":turn,"symptom_clearance":geometry.clearance(world.facts.actors[symptom.actor_id]),"patient_cell":fit.get("patient_cell",[]),"bound_ticks":bound,"outward_ticks":quote.get("travel_ticks",-1),"same_complete_candidates":same,"ok":shape_ok})
-	return _done(sim,ok,{"strict_budget_boundary_and_return":rows,"symptom_rotation_custom_and_current_targets":shapes})
+		rows.append({"y":y,"travel_ticks":manual.get("travel_ticks",-1),"retained":choices.size(),"time_only_changes_score":row_ok})
+	return _done(sim,ok,{"no_arrival_time_cutoff":rows})
 
 func _case_51(_t) -> Dictionary:
 	var sim: HospitalSimulation = _fixture()
@@ -1699,6 +1660,37 @@ func _case_53(_t) -> Dictionary:
 	var sim: HospitalSimulation = _fixture()
 	var result: Dictionary = preload("res://tests/acceptance/blocked_route_target.gd").new().run_case(sim,content)
 	return _done(sim,bool(result.get("ok",false)),result.get("details",{}))
+
+func _case_54(_t) -> Dictionary:
+	var sim: HospitalSimulation = _transit_fixture()
+	var id: String = _connection(sim)
+	_add_actor(sim,"active","S49",[36,76])
+	_add_actor(sim,"traveler","S49",[32,78])
+	sim.space.request_move(sim.world,"active",2,[46,80])
+	var boarding: bool = _wait(sim,func() -> bool: return sim.world.facts.connectors[id].phase=="boarding",30,_movement_tick.bind(sim))
+	_add_actor(sim,"exit_blocker","S49",[36,76],2)
+	var before: Dictionary = sim.world.freeze()
+	var eta: Dictionary = HospitalTransit.quote(sim.space,sim.world,sim.world.facts.connectors[id],"traveler",1,2,0)
+	var route: Dictionary = sim.space.route(sim.world,"traveler",2,[44,84])
+	var reachable: bool = sim.space.can_reach(sim.world,"traveler",2,[44,84])
+	var readonly: bool = before==sim.world.freeze()
+	var reason: String = sim.space.request_move(sim.world,"traveler",2,[44,84])
+	var sequence: int = int(sim.world.facts.moves.get("traveler",{}).get("request_sequence",-1))
+	sim.space.request_move(sim.world,"traveler",2,[44,84])
+	var reused: bool = sequence==int(sim.world.facts.moves.get("traveler",{}).get("request_sequence",-2))
+	var no_early_ticket: bool = not sim.world.facts.moves.get("traveler",{}).has("transit_ticket")
+	var queued: bool = _wait(sim,func() -> bool: return sim.world.facts.moves.get("traveler",{}).has("transit_ticket"),150,_movement_tick.bind(sim))
+	var ticket: Dictionary = sim.world.facts.moves.get("traveler",{}).get("transit_ticket",{}).duplicate(true)
+	var actual_wait: bool = queued and int(ticket.get("sequence",0))==2 and sim.world.facts.actors.traveler.location.kind=="floor" and int(sim.world.facts.actors.traveler.location.floor_id)==1
+	sim.space.request_move(sim.world,"exit_blocker",2,[40,76])
+	var moving: bool = _wait(sim,func() -> bool: return sim.world.facts.actors.traveler.location.kind=="transit",500,_movement_tick.bind(sim))
+	var target_changed_safely: bool = false
+	if moving:
+		var transit: Dictionary = sim.world.facts.actors.traveler.location.duplicate(true)
+		sim.space.request_move(sim.world,"traveler",1,[48,85])
+		target_changed_safely = sim.world.facts.actors.traveler.location==transit
+	var arrived: bool = _wait(sim,func() -> bool: return sim.space.at(sim.world,"traveler",1,[48,85]) and not sim.world.facts.moves.has("traveler"),1000,_movement_tick.bind(sim))
+	return _done(sim,boarding and eta.get("status","")=="estimate_unknown" and route.get("ok",false) and reachable and route.has("travel_ticks") and not route.has("arrival_ticks") and readonly and reason.is_empty() and reused and no_early_ticket and actual_wait and moving and target_changed_safely and arrived,{"eta":eta,"route":route,"readonly":readonly,"same_goal_reused":reused,"no_early_ticket":no_early_ticket,"actual_queue":ticket,"actual_wait":actual_wait,"target_changed_in_transit":target_changed_safely,"arrived_at_new_goal":arrived,"tick":sim.world.sim_tick,"remaining":sim.world.facts.moves.duplicate(true)})
 
 func _fixture(preset: bool = false, cash: int = 1000000) -> HospitalSimulation:
 	_sequence += 1

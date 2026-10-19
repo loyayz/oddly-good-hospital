@@ -105,6 +105,7 @@ func _retarget_ticket(world: WorldState, visit: Dictionary, kind: String) -> voi
 		_queue(world,visit,kind)
 		return
 	var ticket: Dictionary = world.facts.tickets[visit.ticket_id]
+	_release_preparation(world,visit.id)
 	ticket.kind = kind
 	ticket.service_assigned = false
 	ticket.called_tick = -1
@@ -190,8 +191,9 @@ func depart_visit(world: WorldState, visit_id: String, result: String = "abandon
 
 func _release_preparation(world: WorldState, visit_id: String) -> void:
 	world.facts.preparations.erase(visit_id)
+	var owners: Array = [visit_id,str(world.facts.visits[visit_id].get("ticket_id",""))]
 	for reservation: Dictionary in world.facts.adaptations.values():
-		if reservation.kind=="facility" and reservation.owner_id==visit_id:
+		if reservation.kind=="facility" and reservation.owner_id in owners:
 			# Cancelled work no longer owns space. Any body still inside keeps
 			# its physical envelope until it has actually walked clear.
 			reservation.owner_id = reservation.actor_id
@@ -1327,7 +1329,7 @@ func _qualified_surgery_bundle_quote(world: WorldState, visit: Dictionary, team:
 		var route: Dictionary = space.travel_quote(world,actor_id,int(table.floor_id),position)
 		if not route.ok:
 			return route
-		gathering_ticks = maxi(gathering_ticks,int(route.arrival_ticks))
+		gathering_ticks = maxi(gathering_ticks,int(route.travel_ticks))
 	var predicted: Dictionary = _surgery_probability(world,visit,team,table,protocol)
 	var effective: float = float(predicted.effective_level)
 	var seconds: float = _surgery_work_seconds(world,visit,team[0],protocol,effective)
@@ -1458,7 +1460,7 @@ func _gathering_ticks(world: WorldState, visit: Dictionary, facility_id: String,
 		var target: Array = layout.patient_cell if index==0 else layout.operator_cells[index-1]
 		var quote: Dictionary = space.travel_quote(world,id,int(layout.floor_id),target)
 		if not quote.ok: return -1
-		ticks = maxi(ticks,int(quote.arrival_ticks))
+		ticks = maxi(ticks,int(quote.travel_ticks))
 	return ticks
 
 func _bed_transport(world: WorldState, visit: Dictionary, source: Dictionary, bed_owner: Dictionary, current: bool = false) -> Dictionary:
@@ -1494,7 +1496,7 @@ func _bed_transport(world: WorldState, visit: Dictionary, source: Dictionary, be
 	var transfer: Dictionary = space.route(candidate,visit.actor_id,int(bed.floor_id),bed.patient_cell,[visit.actor_id,escort_id],{visit.actor_id:[0,0],escort_id:[-1,0]},true)
 	if nominal: space.end_route_query()
 	if not gathering.ok or not transfer.ok: return {"ok":false,"exit_ticks":source_ticks,"source_id":source_id,"escort_id":escort_id,"gathering":gathering,"transfer":transfer}
-	return {"ok":true,"ticks":exit_ticks+int(gathering.arrival_ticks)+int(transfer.arrival_ticks),"exit_ticks":source_ticks,"source_id":source_id,"escort_id":escort_id}
+	return {"ok":true,"ticks":exit_ticks+int(gathering.travel_ticks)+int(transfer.travel_ticks),"exit_ticks":source_ticks,"source_id":source_id,"escort_id":escort_id}
 
 func _quoted_fee(amount: int, multiplier: Variant) -> int:
 	var parts: PackedStringArray = str(multiplier).to_lower().split("e")
@@ -1768,7 +1770,7 @@ func _dispatch_clinical_releases(world: WorldState) -> void:
 					intersects = intersects or rect.intersects(Rect2(float(region[0]),float(region[1]),float(region[2]),float(region[3])),false)
 				if intersects: continue
 				if checker==null: checker = RouteClearance.new(space,world,actor,int(actor.location.floor_id),[],{},true,space._navigation.floor_source(space,world,int(actor.location.floor_id)))
-				if not checker.reason(point).is_empty() or space._narrow(world,actor,point,checker) or not space._dynamic_clear(world,staff_id,int(actor.location.floor_id),rect):
+				if not checker.reason(point).is_empty() or space.movement._narrow(world,actor,point,checker) or not space._dynamic_clear(world,staff_id,int(actor.location.floor_id),rect):
 					continue
 				if space.route(world,staff_id,int(actor.location.floor_id),[point.x,point.y],[],{},true).ok:
 					selected = [point.x,point.y]

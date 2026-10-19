@@ -145,17 +145,11 @@ class TimedClinic extends HospitalClinic:
 		timing.count("clinical.reserve_bundle",started)
 		return result
 
-class TimedSpace extends HospitalSpace:
+class TimedMovement extends HospitalMovement:
 	var timing: RefCounted
-	var _facility_depth: int = 0
-	func _init(database: HospitalContent, observer: RefCounted) -> void:
-		super(database)
+	func _init(geometry: HospitalSpace, observer: RefCounted) -> void:
+		super(geometry)
 		timing = observer
-		_navigation = TimedNavigation.new(observer)
-	func advance(world: WorldState, present_at_start: int = -1) -> void:
-		var started: int = Time.get_ticks_usec()
-		super.advance(world,present_at_start)
-		timing.count("space.advance",started)
 	func _reserve_doors(world: WorldState, actor: Dictionary, movement: Dictionary, swept: Rect2) -> bool:
 		var started: int = Time.get_ticks_usec()
 		var result: bool = super._reserve_doors(world,actor,movement,swept)
@@ -170,6 +164,19 @@ class TimedSpace extends HospitalSpace:
 		var started: int = Time.get_ticks_usec()
 		super._dispatch_routes(world,present_at_start)
 		timing.count("space.dispatch_routes",started)
+
+class TimedSpace extends HospitalSpace:
+	var timing: RefCounted
+	var _facility_depth: int = 0
+	func _init(database: HospitalContent, observer: RefCounted) -> void:
+		super(database)
+		timing = observer
+		_navigation = TimedNavigation.new(observer)
+		movement = TimedMovement.new(self,observer)
+	func advance(world: WorldState, present_at_start: int = -1) -> void:
+		var started: int = Time.get_ticks_usec()
+		super.advance(world,present_at_start)
+		timing.count("space.advance",started)
 	func _route_result(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array, offsets: Dictionary, ignore_people: bool, stop_on_unknown: bool) -> Dictionary:
 		var started: int = Time.get_ticks_usec()
 		var result: Dictionary = super._route_result(world,actor_id,floor_id,target,members,offsets,ignore_people,stop_on_unknown)

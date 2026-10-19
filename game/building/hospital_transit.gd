@@ -3,113 +3,7 @@ extends RefCounted
 
 const MAX_TICK: int = 9223372036854775807
 
-# Queries only read the current transport facts. Tickets are created by begin(),
-# after the complete movement unit actually reaches its departure landing.
-static func route(space: HospitalSpace, world: WorldState, actor: Dictionary, source_floor: int, start: Vector2i, target_floor: int, goal: Vector2i, members: Array, offsets: Dictionary, ignore_people: bool, initial_ticks: int = 0, stop_on_unknown: bool = false, quote_only: bool = false) -> Dictionary:
-	var direct: Dictionary = {"ok":false,"status":"unreachable","reason":"真实身体无法到达目标"}
-	if source_floor==target_floor:
-		direct = space._floor_travel_quote(world,actor,source_floor,start,goal) if quote_only else space._floor_route(world,actor,source_floor,start,goal,members,offsets,ignore_people)
-		var delta: Vector2i = goal-start
-		# With current unit floor costs, this attains the geometric lower bound.
-		# A vertical detour cannot remove horizontal displacement or its own time.
-		if direct.ok and int(direct.walking_distance)==absi(delta.x)+absi(delta.y):
-			direct.arrival_ticks = _add(initial_ticks,walking_ticks(space,actor,members,float(direct.walking_distance)))
-			direct.quoted_tick = world.sim_tick
-			return direct
-	space.transport_search(world)
-	var nodes: Dictionary = {"start":{"floor_id":source_floor,"cell":start},"goal":{"floor_id":target_floor,"cell":goal}}
-	var arrival: Dictionary = {"start":initial_ticks}
-	var previous: Dictionary = {}
-	var heap: Array = []
-	_push(heap,{"id":"start","tick":initial_ticks})
-	var unknown: bool = false
-	var unknown_reason: String = ""
-	var egresses: Dictionary = {}
-	# This search is synchronous and read-only. Keep stable structure and queue
-	# prefixes only until it returns; later movement observes current facts again.
-	var transport: Dictionary = space.dynamic_transport_view(world,actor.id,members,offsets)
-	if not transport.has("connector_ids"):
-		transport.merge({"connector_ids":world.ids("connectors"),"connections":{},"compatible":{},"stops":{},"prefixes":{}})
-	var connector_ids: Array = transport.connector_ids
-	var connections_by_floor: Dictionary = transport.connections
-	var compatible: Dictionary = transport.compatible
-	var stop_key: String = str(source_floor)+":"+str(target_floor)
-	if not transport.stops.has(stop_key): transport.stops[stop_key] = {"candidates":{},"connections":{}}
-	var stop_view: Dictionary = transport.stops[stop_key]
-	var stop_candidates: Dictionary = stop_view.candidates
-	var stops_by_connection: Dictionary = stop_view.connections
-	var prefixes: Dictionary = transport.prefixes
-	while not heap.is_empty():
-		var item: Dictionary = _pop(heap)
-		var id: String = item.id
-		if int(item.tick)!=int(arrival[id]):
-			continue
-		if id=="goal":
-			var chunks: Array = []
-			var walking: float = 0.0
-			while id!="start":
-				if not quote_only: chunks.push_front(previous[id].path)
-				walking += float(previous[id].walking_distance)
-				id = previous[id].from
-			var path: Array = []
-			for chunk: Array in chunks:
-				path.append_array(chunk)
-			if unknown:
-				return {"ok":false,"status":"estimate_unknown","reason":unknown_reason}
-			var result: Dictionary = {"ok":true,"status":"complete","walking_distance":walking,"arrival_ticks":item.tick,"quoted_tick":world.sim_tick,"reason":""}
-			if not quote_only: result.path = path
-			return result
-		var node: Dictionary = nodes[id]
-		if int(node.floor_id)==target_floor:
-			var finish: Dictionary = direct if id=="start" and source_floor==target_floor else (space._floor_travel_quote(world,actor,target_floor,node.cell,goal) if quote_only else space._floor_route(world,actor,target_floor,node.cell,goal,members,offsets,ignore_people))
-			if finish.ok:
-				_relax(heap,arrival,previous,id,"goal",_add(int(item.tick),walking_ticks(space,actor,members,float(finish.walking_distance))),[] if quote_only else finish.path,float(finish.walking_distance))
-		var node_floor: int = int(node.floor_id)
-		if not connections_by_floor.has(node_floor):
-			var candidates: Array = []
-			for connector_id: String in connector_ids:
-				space.query_counts.candidate_connections += 1
-				var connection: Dictionary = world.facts.connectors[connector_id]
-				if not has_stop(connection,node_floor): continue
-				if not compatible.has(connector_id): compatible[connector_id] = fits(space,world,connection,actor.id,members).ok
-				if compatible[connector_id]: candidates.append(connector_id)
-			connections_by_floor[node_floor] = candidates
-		for connector_id: String in connections_by_floor[node_floor]:
-			var connection: Dictionary = world.facts.connectors[connector_id]
-			var anchor: Vector2i = Vector2i(int(connection.anchor[0]),int(connection.anchor[1]))
-			var before: Dictionary = space._floor_travel_quote(world,actor,int(node.floor_id),node.cell,anchor) if quote_only else space._floor_route(world,actor,int(node.floor_id),node.cell,anchor,members,offsets,ignore_people)
-			if not before.ok:
-				continue
-			var at_landing: int = _add(int(item.tick),walking_ticks(space,actor,members,float(before.walking_distance)))
-			if at_landing<0:
-				continue
-			if not stops_by_connection.has(connector_id):
-				if connection.has("first_floor") and stop_candidates.is_empty():
-					stop_candidates = _routing_candidates(world,source_floor,target_floor)
-					stop_view.candidates = stop_candidates
-				stops_by_connection[connector_id] = routing_stops(connection,world,source_floor,target_floor,stop_candidates)
-			var stops: Array = stops_by_connection[connector_id]
-			for destination: int in stops:
-				if destination==int(node.floor_id):
-					continue
-				var quote: Dictionary = _quote_known_fit(space,world,connection,actor.id,int(node.floor_id),destination,at_landing,members,offsets,prefixes,egresses)
-				if not quote.ok:
-					if quote.status=="estimate_unknown":
-						# Unknown is permanent for this read-only search. Every later
-						# goal/exhaustion returns failure; only boolean consumers stop.
-						if stop_on_unknown: return quote
-						unknown = true
-						unknown_reason = quote.reason
-					continue
-				var next: String = connector_id+":"+str(destination)
-				nodes[next] = {"floor_id":destination,"cell":anchor}
-				var path: Array = [] if quote_only else before.path.duplicate()
-				if not quote_only: path.append({"kind":"connector","connector_id":connector_id,"from":int(node.floor_id),"to":destination})
-				_relax(heap,arrival,previous,id,next,int(quote.arrival_ticks),path,float(before.walking_distance))
-	if unknown:
-		return {"ok":false,"status":"estimate_unknown","reason":unknown_reason}
-	return direct if source_floor==target_floor else {"ok":false,"status":"unreachable","reason":"没有净宽、净高和出口均合格的竖向连接"}
-
+# Tickets are created only after the complete movement unit reaches its landing.
 static func walking_ticks(space: HospitalSpace, actor: Dictionary, members: Array, distance: float) -> int:
 	var size: String = "2" if members.size()>1 else str(space.clearance(actor))
 	return ceili(distance/float(space.content.balance.movement_speeds[size])/WorldState.TICK_SECONDS)
@@ -313,7 +207,7 @@ static func begin(space: HospitalSpace, world: WorldState, actor: Dictionary, mo
 	var offsets: Dictionary = movement.get("offsets",{})
 	if not fits(space,world,connection,actor.id,members).ok or (_lowering(connection) and int(segment.to)>=int(segment.from)):
 		cancel_waiting(world,movement)
-		space._queue_route(world,movement)
+		space.movement._queue_route(world,movement)
 		return
 	if not movement.has("transit_ticket"):
 		for id: String in members:
@@ -341,8 +235,6 @@ static func begin(space: HospitalSpace, world: WorldState, actor: Dictionary, mo
 		connection.from = connection.floor_id
 		connection.to = segment.from
 		connection.remaining_ticks = _travel_ticks(space,connection,int(connection.from),int(connection.to))
-		return
-	if not egress_clear(space,world,connection,actor.id,int(segment.to),members,offsets):
 		return
 	var travel: int = _travel_ticks(space,connection,int(segment.from),int(segment.to))
 	if travel<0:
@@ -426,7 +318,7 @@ static func _alight(space: HospitalSpace, world: WorldState, connection: Diction
 			connection.use_receipts[receipt] = world.sim_tick
 			for category: Dictionary in space.content.balance.equipment.classes:
 				if category.id==definition.equipment_class: connection.condition = maxf(0.0,float(connection.get("condition",100.0))-float(category.wear_per_use))
-	movement.travelled.append(space._checkpoint(world.facts.actors[primary]))
+	movement.travelled.append(space.movement._checkpoint(world.facts.actors[primary]))
 	connection.phase = "idle"
 	connection.riders = []
 	connection.erase("trip_travel_ticks")

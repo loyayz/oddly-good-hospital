@@ -114,7 +114,7 @@
     },
     {
       "path": "facility_fit_profiles.json",
-      "sha256": "a90a3407fd87e6808610fa95d413b8bec0244dee73a6804718f5f06c5fd0fbb8"
+      "sha256": "8bb3e2a87afd1a42702ef7a5a56186080e3998d143fe1534d34e0103c07a1fff"
     },
     {
       "path": "facility_magic_scenes.json",
@@ -274,11 +274,11 @@
     },
     {
       "path": "rules.json",
-      "sha256": "89372578e0695e86d751d3dfe6f2d9a04694ada03dd39089ed0ff7a2512f0677"
+      "sha256": "202cb4f973609724cf62f3f1fd70ef3ed53455b66f4fa6d71899a9524049596b"
     },
     {
       "path": "service_equipment.json",
-      "sha256": "ed08e980a818e55cd397cab900c26bf400b308aa5113da4d7b3387662eff3959"
+      "sha256": "6f2c39ef19ffa5c50a029874e39d3fa8aa69c4fd67e6dba0dad5b21bb5babf4b"
     },
     {
       "path": "specialties.json",

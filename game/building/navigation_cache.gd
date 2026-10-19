@@ -160,6 +160,7 @@ func _trim(target: int) -> void:
 			entry.query_charge = 0
 			entry.erase("queries")
 			entry.erase("estimates")
+			entry.erase("structural_paths")
 	for key: String in keys:
 		var entry: Dictionary = _entries[key]
 		if _charged+_query_charged<=target: break
@@ -233,9 +234,12 @@ func cached_floor_path(space: HospitalSpace, world: WorldState, floor_id: int, a
 	var key: String = str(floor_id)+":"+_envelope(space,world,actor,[],{},floor_source(space,world,floor_id))
 	var entry: Dictionary = _entries.get(key,{})
 	var record: Dictionary = entry.get("queries",{}).get(actor.id,{})
+	if not entry.is_empty() and entry.graph==graph and query==graph.geometry:
+		if not entry.has("structural_paths"): entry.structural_paths = {"charge":0}
+		record = entry.structural_paths
 	# clearance() can evict its own entry; externally supplied graphs/queries
 	# also remain valid computations but cannot use this record's allowance.
-	if entry.is_empty() or entry.graph!=graph or record.is_empty() or record.query!=query:
+	if entry.is_empty() or entry.graph!=graph or record.is_empty() or (query!=graph.geometry and record.query!=query):
 		space.query_counts.static_path_builds += 1
 		return graph.find_path(start,goal,query)
 	if not record.has("paths"): record.paths = {}

@@ -30,7 +30,7 @@ const CASES: Dictionary = {
 	"STAFF-27":"docs/design/09-consultation-wellbeing.md §6；娱乐开场才消耗次数冷却，30秒恢复有上限，双人不补搭档",
 	"STAFF-28":"docs/design/09-consultation-wellbeing.md §6；合法非医生待岗可娱乐，工作覆盖与睡眠补休优先",
 	"STAFF-29":"docs/design/08-hospital-life.md §17.2、§17.4；公共兼容空座优先，员工活动占用位不得被预占",
-	"STAFF-30":"docs/design/08-hospital-life.md §17.4；30秒窗口、附近12秒、环境差10与性格定点选择，手选不受自动窗口限制",
+	"STAFF-30":"docs/design/08-hospital-life.md §17.4；取消时间硬筛选，保留环境差10与性格定点评分，手选保持目标",
 	"STAFF-31":"docs/design/08-hospital-life.md §17.3；安抚椅真实连续20秒减怒3且每Visit一次，离位读档不重领",
 	"STAFF-32":"docs/design/08-hospital-life.md §17.3；罩椅只减半当前噪声怒气分量，不改变环境和其他原因",
 	"STAFF-33":"docs/design/08-hospital-life.md §17.3；阅览椅减压0.04与活力椅回能1.2替代普通同类速率",
@@ -873,8 +873,8 @@ func _case_30(t) -> void:
 	var observations: SeatObservations = SeatObservations.new()
 	observations.cells = {"36:70":{"value":80.0,"noise":1.0,"clean":false,"water":false},
 		"48:70":{"value":78.0,"noise":0.0,"clean":false,"water":false},
-		"80:70":{"value":99.0,"noise":0.0,"clean":false,"water":false},
-		"94:70":{"value":99.0,"noise":0.0,"clean":false,"water":false}}
+		"80:70":{"value":79.0,"noise":0.0,"clean":false,"water":false},
+		"94:70":{"value":79.0,"noise":0.0,"clean":false,"water":false}}
 	x.l.environment = observations
 	var random_before: Dictionary = x.world.facts.rng.duplicate(true)
 	var impatient: Array = x.l.seat_candidates(x.world,visit.id)
@@ -883,7 +883,14 @@ func _case_30(t) -> void:
 	var chosen_shy_again: Array = x.l.seat_candidates(x.world,visit.id)
 	var bounded: bool = not impatient.is_empty() and not shy.is_empty() and impatient[0].facility_id=="A" and shy[0].facility_id=="B" and shy==chosen_shy_again
 	for candidate: Dictionary in shy:
-		bounded = bounded and candidate.facility_id in ["A","B"] and int(candidate.travel_ticks)<=300
+		bounded = bounded and candidate.facility_id in ["A","B","C","D"]
+	bounded = bounded and shy.size()==4 and impatient.size()==4
+	observations.cells["80:70"].value = 99.0
+	observations.cells["94:70"].value = 99.0
+	var environment_band: Array = x.l.seat_candidates(x.world,visit.id)
+	bounded = bounded and environment_band.size()==2
+	for candidate: Dictionary in environment_band:
+		bounded = bounded and candidate.facility_id in ["C","D"]
 	var manual: CommandResult = x.l.execute(x.world,"waiting_select_seat",{"visit_id":visit.id,"facility_id":"D"})
 	t.check("STAFF-30",bounded and manual.accepted and x.world.facts.rng==random_before and x.world.facts.waiting_life.seats[visit.id].manual_facility_id=="D",{"impatient":impatient,"shy":shy,"manual":manual.code})
 

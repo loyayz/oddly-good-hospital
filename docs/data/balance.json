@@ -1023,10 +1023,8 @@
   },
   "seat_choice": {
     "scope": "clinical_waiting_patient",
-    "automatic_travel_seconds_max": 30,
-    "nearby_detour_seconds": 12,
     "environment_tolerance": 10,
-    "selection_order": ["physical_legality", "travel_window", "nearby_band", "preference", "environment_band", "personality_score", "environment", "travel", "seat_id"],
+    "selection_order": ["physical_legality", "preference", "environment_band", "personality_score", "environment", "travel", "seat_id"],
     "criteria": {
       "quiet": "actual_noise_query",
       "less_crowded": "patient_behavior_crowd_query",

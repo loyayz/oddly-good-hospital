@@ -8,6 +8,7 @@ const BUSINESS_ARGUMENTS: Array[String] = [
 	"visitors._public_waiting","waiting._manual_seat_quote","waiting._dispatch_public_seat",
 	"space._facility_quote","space.facility_preflight_quote","space._facility_exit_quote","space._exit_witness","space.can_reach",
 	"space._floor_route","space.reserve_facility","floor_graph.find_path",
+	"point_navigation._route_result","point_navigation._point_route","point_navigation._floor_route","movement.request_move","movement._yield",
 	"transit.route","transit._quote_known_fit","transit._prefix","transit.egress_clear","environment._work_position",
 	"navigation._distance_field","navigation._forward_field","clearance.capture_source"
 ]

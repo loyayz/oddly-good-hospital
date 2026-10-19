@@ -2069,7 +2069,10 @@ func _case_29(t) -> void:
 	var working: Dictionary = _research_context()
 	working.world.facts.actors.research_worker.location.cell = [47,74]
 	working.world.touch()
-	_start(working)
+	var started: CommandResult = _start(working)
+	if not started.accepted:
+		t.check("GROW-29",false,{"research_start":started.to_record(),"prerequisite_failures":_fixture_errors.duplicate(true)})
+		return
 	var active: Dictionary = working.research.active_job(working.world,"R12")
 	var work_before: int = int(active.get("remaining_work_milli",0))
 	working.research.dispatch_job(working.world,active)
@@ -2123,7 +2126,7 @@ func _case_30(t) -> void:
 	_research_tick(parallel)
 	var one_job: Dictionary = parallel.research.active_job(parallel.world,"R12")
 	var two_job: Dictionary = parallel.research.active_job(parallel.world,"R14")
-	t.check("GROW-30",course.accepted and shared_start.accepted and exclusive and retained_desk and one.accepted and two.accepted and one_job.get("state","")=="working" and two_job.get("state","")=="working" and one_job.get("desk_id","")!=two_job.get("desk_id","") and not _start(parallel,"R12",{"allow_waiting":true}).accepted,{"exclusive":exclusive,"retained":retained_desk,"original_gp_doctor_busy":opening_doctor_busy,"course_accepted":course.accepted,"course_reason":course.reason,"course":course_job,"shared":shared_job,"first":one_job,"second":two_job})
+	t.check("GROW-30",course.accepted and shared_start.accepted and exclusive and retained_desk and one.accepted and two.accepted and one_job.get("state","")=="working" and two_job.get("state","")=="working" and one_job.get("desk_id","")!=two_job.get("desk_id","") and not _start(parallel,"R12",{"allow_waiting":true}).accepted,{"start_one":one.to_record(),"start_two":two.to_record(),"shared_start":shared_start.to_record(),"exclusive":exclusive,"retained":retained_desk,"original_gp_doctor_busy":opening_doctor_busy,"course_accepted":course.accepted,"course_reason":course.reason,"course":course_job,"shared":shared_job,"first":one_job,"second":two_job})
 
 func _case_31(t) -> void:
 	var pausing: Dictionary = _research_context()

@@ -121,9 +121,11 @@ func _actor_scope(source: Dictionary, content: HospitalContent) -> Dictionary:
 	space.begin_route_query(world)
 	space._ensure_actor_index(world)
 	var original: BodyIndex.Record = space._actor_index._records[PEER]
-	space._route_checks.sentinel = true
+	space.movement._route_checks.sentinel = true
 	space._ensure_actor_index(projected)
-	var shared: bool = space._actor_index._records[PEER]==original and space._route_checks.is_empty()
+	# A read-only projection may share this index. It cannot invalidate the
+	# movement owner's real-world route checks merely by querying geometry.
+	var shared: bool = space._actor_index._records[PEER]==original and space.movement._route_checks.get("sentinel",false)
 	space._ensure_actor_index(world)
 	shared = shared and space._actor_index._records[PEER]==original
 	space.begin_route_query(projected)

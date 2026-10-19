@@ -18,11 +18,14 @@ PREFIX = "_tail_profile_original_"
 IDENTITY = "all-instance-profile-identity.json"
 CLASS_GROUPS = {
     "HospitalSpace": "space", "NavigationCache": "navigation",
+    "HospitalNavigation": "point_navigation", "HospitalMovement": "movement",
     "HospitalClinic": "clinic", "HospitalVisitors": "visitors",
     "HospitalPublicAreas": "public_areas", "HospitalPersonalBeds": "personal_beds",
     "FloorNavigation": "floor_graph",
 }
 EXTRA = {
+    "point_navigation": ["_route_result", "_point_route", "_floor_route", "structural_clearance"],
+    "movement": ["request_move", "request_group_move", "_active_route_clear", "_dispatch_routes", "_movement_clear", "_yield", "_queue_local_route"],
     "space": ["begin_route_query", "end_route_query", "begin_dynamic_route_query",
               "static_reason", "_facility_quote", "_facility_exit_quote", "facility_trip_quote",
               "can_reach", "_route_result", "_travel_route_quote", "_floor_travel_quote"],

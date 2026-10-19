@@ -373,15 +373,15 @@ func _case_61(t) -> void:
 		if not x.space.public_areas.safe_wait(x.world,visit.actor_id,1,cell): continue
 		var quote: Dictionary = x.space.travel_quote(x.world,visit.actor_id,1,cell)
 		var complete: Dictionary = x.space.route(x.world,visit.actor_id,1,cell,[],{},true)
-		for field: String in ["ok","status","reason","arrival_ticks","walking_distance","quoted_tick"]:
+		for field: String in ["ok","status","reason","travel_ticks","walking_distance","quoted_tick"]:
 			exact_quotes = exact_quotes and quote.get(field)==complete.get(field)
-		if complete.ok and complete.has("arrival_ticks"): expected = mini(expected,int(complete.arrival_ticks)); candidates += 1
+		if complete.ok and complete.has("travel_ticks"): expected = mini(expected,int(complete.travel_ticks)); candidates += 1
 	x.space.end_route_query()
 	var tight: Dictionary = x.space.public_areas.waiting_point(x.world,visit.actor_id,area,expected-1)
 	var boundary: Dictionary = x.space.public_areas.waiting_point(x.world,visit.actor_id,area,expected)
 	var fractional: int = x.space.public_areas._entry_lower_bound(x.world.facts.actors[visit.actor_id],Vector2(40.35,90.35),Vector2i(40,90),{"landings":[],"unknown":false})
 	var actual_stub: Dictionary = x.space.travel_quote(x.world,visit.actor_id,2,[40,90])
-	var safe_fraction: bool = actual_stub.get("ok",false) and fractional<=int(actual_stub.arrival_ticks)
+	var safe_fraction: bool = actual_stub.get("ok",false) and fractional<=int(actual_stub.travel_ticks)
 	var readonly: bool = before==x.world.freeze()
 	var mixed: MixedEntryKnowledge = MixedEntryKnowledge.new(x.space)
 	var mixed_point: Dictionary = mixed.waiting_point(x.world,visit.actor_id,area)
@@ -400,7 +400,7 @@ func _case_61(t) -> void:
 		var cell: Array = [point.x,point.y]
 		if not x.space.public_areas.safe_wait(x.world,visit.actor_id,1,cell): continue
 		var quote: Dictionary = x.space.route(x.world,visit.actor_id,1,cell,[],{},true)
-		no_entries = no_entries and not (quote.get("ok",false) and quote.has("arrival_ticks"))
+		no_entries = no_entries and quote.get("ok",false) and quote.has("travel_ticks")
 	var unknown_point: Dictionary = x.space.public_areas.waiting_point(x.world,visit.actor_id,area)
 	var moved: String = x.space.request_move(x.world,blocker.actor_id,1,[55,91])
 	for tick: int in 200:
@@ -409,8 +409,8 @@ func _case_61(t) -> void:
 		x.space.advance(x.world)
 		x.world.touch(false)
 	var restored: Dictionary = x.space.public_areas.waiting_point(x.world,visit.actor_id,area)
-	var unknown_handled: bool = unknown.unknown and unknown.landings.is_empty() and no_entries and unknown_point.is_empty() and not lowering.is_empty() and not upward.get("ok",true) and moved.is_empty() and not restored.is_empty()
-	t.check("STAFF-61",exact_quotes and not optimized.is_empty() and candidates>0 and optimized.travel_ticks==expected and tight.is_empty() and boundary.get("travel_ticks",-1)==expected and safe_fraction and readonly and finite_retained and unknown_handled,{"all_quote_fields_match_complete_routes":exact_quotes,"exact_all_legal_entries":candidates,"expected_ticks":expected,"optimized":optimized,"below_boundary_empty":tight.is_empty(),"exact_boundary":boundary,"fractional_origin_lower_bound_valid":safe_fraction,"readonly":readonly,"finite_landing_retained_with_unknown":finite_retained,"unknown_landings":unknown,"all_legal_entries_independently_failed":no_entries,"unknown_result":unknown_point,"failed_lift_downward_retained":not lowering.is_empty(),"failed_lift_upward_refused":not upward.get("ok",true),"actual_body_departure":moved,"restored_after_real_exit":restored})
+	var unknown_handled: bool = not unknown.unknown and not unknown.landings.is_empty() and no_entries and not unknown_point.is_empty() and not lowering.is_empty() and not upward.get("ok",true) and moved.is_empty() and not restored.is_empty()
+	t.check("STAFF-61",exact_quotes and not optimized.is_empty() and candidates>0 and optimized.travel_ticks==expected and tight.is_empty() and boundary.get("travel_ticks",-1)==expected and safe_fraction and readonly and finite_retained and unknown_handled,{"all_quote_fields_match_complete_routes":exact_quotes,"exact_all_legal_entries":candidates,"expected_ticks":expected,"optimized":optimized,"below_boundary_empty":tight.is_empty(),"exact_boundary":boundary,"fractional_origin_lower_bound_valid":safe_fraction,"readonly":readonly,"finite_landing_retained_with_unknown":finite_retained,"unknown_landings":unknown,"all_legal_entries_remain_reachable":no_entries,"unknown_result":unknown_point,"failed_lift_downward_retained":not lowering.is_empty(),"failed_lift_upward_refused":not upward.get("ok",true),"actual_body_departure":moved,"restored_after_real_exit":restored})
 
 func _case_62(t) -> void:
 	var x: Dictionary = _areas()
@@ -478,7 +478,7 @@ func _case_65(t) -> void:
 	var x: Dictionary = _areas()
 	var visit: Dictionary = _visit(x,"wide_body",[38,73])
 	x.world.facts.actors[visit.actor_id].species_id = "S08"
-	x.world.facts.floors.overrides["1"].blocked.append([37,68])
+	x.world.facts.floors.overrides["1"].blocked.append([37,70])
 	x.world.touch()
 	var west: Dictionary = x.space.public_areas.for_facility(x.world,"west_chair")
 	var frozen: Dictionary = x.world.freeze()
@@ -491,7 +491,7 @@ func _case_65(t) -> void:
 	var changed: bool = intent.get("area",{}).get("room_id","")=="east" and intent.get("facility_id","missing")=="" and int(intent.started_tick)==50
 	var cumulative: int = int(intent.get("area_travel_ticks",0))
 	var seated: bool = _until_seated(x,visit)
-	x.world.facts.floors.overrides["1"].blocked.erase([37,68])
+	x.world.facts.floors.overrides["1"].blocked.erase([37,70])
 	x.world.touch()
 	var invalidated: bool = x.space.public_areas.compatible_geometry(x.world,west,x.l.PUBLIC_SEAT_DEFINITIONS,[visit.actor_id])
 	t.check("STAFF-65",unfit and readonly and changed and cumulative>0 and seated and intent.facility_id=="east_chair" and intent.started_tick==50 and intent.area_travel_ticks==cumulative and invalidated,{"fixed_geometry_unfit":unfit,"readonly":readonly,"changed_to_legal_area":changed,"cumulative_area_ticks":cumulative,"actually_seated":seated,"original_started_tick":intent.get("started_tick",-1),"geometry_change_rechecks_fit":invalidated})

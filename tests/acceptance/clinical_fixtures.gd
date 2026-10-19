@@ -443,7 +443,7 @@ func _roundtrip(c: Dictionary) -> Dictionary:
 	if not decoded.ok: return {"ok":false,"error":decoded.error}
 	var world: WorldState = WorldState.new(decoded.value)
 	var reason: String = world.validate(_content)
-	if not reason.is_empty(): return {"ok":false,"error":reason}
+	if not reason.is_empty(): return {"ok":false,"error":reason,"failure_world":_failure_world("roundtrip",world)}
 	var original: Dictionary = c.world.freeze()
 	if world.freeze()!=original: return {"ok":false,"error":"流式恢复后的世界与冻结边界不同"}
 	var simulation: HospitalSimulation = HospitalSimulation.new(world,_content)

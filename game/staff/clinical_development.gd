@@ -543,21 +543,21 @@ func _base_line(world: WorldState, facility_id: String, candidate_id: String = "
 	return result
 
 func _base_start_quote(world: WorldState, staff_id: String, facility_id: String, route: Dictionary) -> int:
-	if not route.ok or int(route.get("arrival_ticks",-1))<0:
+	if not route.ok or int(route.get("travel_ticks",-1))<0:
 		return -1
 	var ready: int = world.sim_tick
 	var base: Dictionary = space.facility_layout(world,facility_id)
 	var query: Dictionary = _base_context(world)
 	for entry: Dictionary in _base_line(world,facility_id,staff_id,query):
 		if entry.id==staff_id:
-			return maxi(ready,world.sim_tick+int(route.arrival_ticks))
+			return maxi(ready,world.sim_tick+int(route.travel_ticks))
 		var other: Dictionary = world.facts.staff[entry.id]
 		if not other.get("on_shift",false) or other.get("life_task",{}).get("phase","idle")!="idle" or safe_busy(world,entry.id,query.busy):
 			return -1
 		var arrival: Dictionary = space.route(world,entry.id,int(base.floor_id),_operator(base),[],{},true)
-		if not arrival.ok or int(arrival.get("arrival_ticks",-1))<0:
+		if not arrival.ok or int(arrival.get("travel_ticks",-1))<0:
 			return -1
-		ready = maxi(ready,world.sim_tick+int(arrival.arrival_ticks))+int(other.base_task.remaining_ticks)
+		ready = maxi(ready,world.sim_tick+int(arrival.travel_ticks))+int(other.base_task.remaining_ticks)
 	return -1
 
 func _base_arranged(world: WorldState, facility_id: String) -> bool:
@@ -583,7 +583,7 @@ func _select_base(world: WorldState, staff_id: String) -> String:
 		var route: Dictionary = space.route(world,staff_id,int(layout.floor_id),_operator(layout),[],{},true)
 		if not route.ok and route.get("status","")!="estimate_unknown":
 			continue
-		choices.append({"id":id,"start_tick":_base_start_quote(world,staff_id,id,route),"travel_ticks":int(route.get("arrival_ticks",-1))})
+		choices.append({"id":id,"start_tick":_base_start_quote(world,staff_id,id,route),"travel_ticks":int(route.get("travel_ticks",-1))})
 	choices.sort_custom(func(a: Dictionary,b: Dictionary) -> bool:
 		if (int(a.start_tick)<0)!=(int(b.start_tick)<0): return int(a.start_tick)>=0
 		if a.start_tick!=b.start_tick: return int(a.start_tick)<int(b.start_tick)
@@ -637,7 +637,7 @@ func _yield_prepared_base(world: WorldState, staff_id: String) -> void:
 					blocks_entry = blocks_entry or rect.intersects(region,false)
 				if blocks_entry: continue
 				if checker==null: checker = RouteClearance.new(space,world,actor,floor_id,[],{},true,space._navigation.floor_source(space,world,floor_id))
-				if not checker.reason(point).is_empty() or space._narrow(world,actor,point,checker) or not space._dynamic_clear(world,staff_id,floor_id,rect):
+				if not checker.reason(point).is_empty() or space.movement._narrow(world,actor,point,checker) or not space._dynamic_clear(world,staff_id,floor_id,rect):
 					continue
 				var route: Dictionary = space.route(world,staff_id,floor_id,[point.x,point.y])
 				if route.ok and route.get("status","")!="contention":

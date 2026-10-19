@@ -15914,7 +15914,7 @@
       "capacity": 1,
       "max_clearance_cells": 3,
       "max_height_m": 6.5,
-      "fit_profile_id": "FF02",
+      "fit_profile_id": "FF08",
       "operation_anchor": [
         0,
         2
@@ -23764,19 +23764,19 @@
     {
       "id": "FF03",
       "kind": "medical",
-      "extent_rule": "max_base_and_standing_body",
+      "extent_rule": "base_with_real_operator_areas",
       "pose": "supported"
     },
     {
       "id": "FF04",
       "kind": "operating_table",
-      "extent_rule": "max_base_and_reclined_body",
+      "extent_rule": "base_with_real_operator_areas",
       "pose": "reclined"
     },
     {
       "id": "FF05",
       "kind": "amenity",
-      "extent_rule": "max_base_and_standing_body",
+      "extent_rule": "base_with_real_operator_areas",
       "pose": "supported"
     },
     {
@@ -23790,6 +23790,12 @@
       "kind": "vertical_connector",
       "extent_rule": "fixed_structure_expanding_fittings",
       "pose": "standing"
+    },
+    {
+      "id": "FF08",
+      "kind": "bed",
+      "extent_rule": "base_with_real_operator_areas",
+      "pose": "reclined"
     }
   ],
   "facility_magic_scenes": [

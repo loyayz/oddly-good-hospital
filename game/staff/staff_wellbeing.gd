@@ -977,7 +977,7 @@ func _recreation_count(world: WorldState) -> int:
 	return participants.size()
 
 static func _route_ticks(route: Dictionary) -> float:
-	return float(route.get("arrival_ticks",route.get("estimated_ticks",route.get("path",[]).size())))
+	return float(route.get("travel_ticks",route.get("estimated_ticks",route.get("path",[]).size())))
 
 static func _entry(world: WorldState) -> Dictionary:
 	var entry: Dictionary = world.facts.get("entry",{})

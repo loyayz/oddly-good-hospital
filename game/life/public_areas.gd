@@ -232,8 +232,8 @@ func _waiting_point(world: WorldState, actor_id: String, reference: Dictionary, 
 		var cell: Array = [point.x,point.y]
 		if not safe_wait(world,actor_id,floor_id,cell): continue
 		var route: Dictionary = space.travel_quote(world,actor_id,floor_id,cell)
-		if not route.ok or not route.has("arrival_ticks"): continue
-		if int(route.arrival_ticks)<=maximum_travel_ticks and (best.is_empty() or int(route.arrival_ticks)<int(best.travel_ticks)): best = {"floor_id":floor_id,"cell":cell,"travel_ticks":int(route.arrival_ticks)}
+		if not route.ok or not route.has("travel_ticks"): continue
+		if int(route.travel_ticks)<=maximum_travel_ticks and (best.is_empty() or int(route.travel_ticks)<int(best.travel_ticks)): best = {"floor_id":floor_id,"cell":cell,"travel_ticks":int(route.travel_ticks)}
 	return best
 
 func _entry_landings(world: WorldState, actor_id: String, floor_id: int) -> Dictionary:
@@ -243,7 +243,7 @@ func _entry_landings(world: WorldState, actor_id: String, floor_id: int) -> Dict
 		var connection: Dictionary = world.facts.connectors[id]
 		if not HospitalTransit.has_stop(connection,floor_id): continue
 		var quote: Dictionary = space.travel_quote(world,actor_id,floor_id,connection.anchor)
-		if quote.ok and quote.has("arrival_ticks"): result.landings.append({"cell":Vector2(int(connection.anchor[0]),int(connection.anchor[1])),"ticks":int(quote.arrival_ticks)})
+		if quote.ok and quote.has("travel_ticks"): result.landings.append({"cell":Vector2(int(connection.anchor[0]),int(connection.anchor[1])),"ticks":int(quote.travel_ticks)})
 		elif quote.get("status","")=="estimate_unknown": result.unknown = true
 	return result
 

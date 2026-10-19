@@ -1,0 +1,1662 @@
+{
+  "status": "paused",
+  "new_test_or_measurement_run_for_delivery": false,
+  "formal_pass": false,
+  "formal_acceptance_paused": true,
+  "baseline": {
+    "complete": true,
+    "qualified": true,
+    "metrics_us": {
+      "cold_first_us": 5409330,
+      "count": 300,
+      "following_mean_us": 311777.140468227,
+      "max_us": 5409330,
+      "mean_us": 328768.983333333,
+      "p50_us": 77347,
+      "p95_us": 1908003,
+      "p99_us": 2227909,
+      "total_us": 98630695
+    },
+    "public_checks": {
+      "actual_completion_observed": true,
+      "actual_queue_observed": true,
+      "actual_uses_observed": true,
+      "manual_request_accepted": true,
+      "no_observer_rule_errors": true,
+      "prior_actual_exit_before_reuse": true,
+      "two_actual_use_regions": true
+    },
+    "completed_steps": 300,
+    "requested_steps": 300,
+    "last_completed_index": 299,
+    "last_record": {
+      "kind": "complete",
+      "profile": {},
+      "sample": {
+        "complete": true,
+        "elapsed_us": 1959581,
+        "index": 299,
+        "lifecycle_events": [],
+        "moves": 21,
+        "present": 160,
+        "route_query_depth": 0,
+        "sessions": 0,
+        "tick": 2923
+      }
+    },
+    "samples": [
+      {
+        "complete": true,
+        "elapsed_us": 5409330,
+        "index": 0,
+        "lifecycle_events": [],
+        "moves": 26,
+        "present": 160,
+        "route_query_depth": 0,
+        "sessions": 1,
+        "tick": 2624
+      },
+      {
+        "complete": true,
+        "elapsed_us": 44512,
+        "index": 19,
+        "lifecycle_events": [],
+        "moves": 27,
+        "present": 160,
+        "route_query_depth": 0,
+        "sessions": 1,
+        "tick": 2643
+      },
+      {
+        "complete": true,
+        "elapsed_us": 53443,
+        "index": 39,
+        "lifecycle_events": [],
+        "moves": 27,
+        "present": 160,
+        "route_query_depth": 0,
+        "sessions": 1,
+        "tick": 2663
+      },
+      {
+        "complete": true,
+        "elapsed_us": 43802,
+        "index": 59,
+        "lifecycle_events": [],
+        "moves": 27,
+        "present": 160,
+        "route_query_depth": 0,
+        "sessions": 1,
+        "tick": 2683
+      },
+      {
+        "complete": true,
+        "elapsed_us": 42921,
+        "index": 79,
+        "lifecycle_events": [],
+        "moves": 27,
+        "present": 160,
+        "route_query_depth": 0,
+        "sessions": 1,
+        "tick": 2703
+      },
+      {
+        "complete": true,
+        "elapsed_us": 393137,
+        "index": 119,
+        "lifecycle_events": [],
+        "moves": 11,
+        "present": 160,
+        "route_query_depth": 0,
+        "sessions": 1,
+        "tick": 2743
+      },
+      {
+        "complete": true,
+        "elapsed_us": 1959581,
+        "index": 299,
+        "lifecycle_events": [],
+        "moves": 21,
+        "present": 160,
+        "route_query_depth": 0,
+        "sessions": 0,
+        "tick": 2923
+      }
+    ],
+    "population_min": 160,
+    "population_max": 160
+  },
+  "rewrite_initial_partial": {
+    "completed_steps": 127,
+    "requested_steps": 300,
+    "last_completed_index": 126,
+    "last_record": {
+      "index": 127,
+      "kind": "enter",
+      "tick": 2750
+    },
+    "samples": [
+      {
+        "complete": true,
+        "elapsed_us": 2255515,
+        "index": 0,
+        "lifecycle_events": [],
+        "moves": 26,
+        "present": 160,
+        "route_query_depth": 0,
+        "sessions": 1,
+        "tick": 2624
+      },
+      {
+        "complete": true,
+        "elapsed_us": 30705,
+        "index": 19,
+        "lifecycle_events": [],
+        "moves": 27,
+        "present": 160,
+        "route_query_depth": 0,
+        "sessions": 1,
+        "tick": 2643
+      },
+      {
+        "complete": true,
+        "elapsed_us": 1420079,
+        "index": 39,
+        "lifecycle_events": [],
+        "moves": 114,
+        "present": 160,
+        "route_query_depth": 0,
+        "sessions": 1,
+        "tick": 2663
+      },
+      {
+        "complete": true,
+        "elapsed_us": 1527602,
+        "index": 59,
+        "lifecycle_events": [],
+        "moves": 114,
+        "present": 160,
+        "route_query_depth": 0,
+        "sessions": 1,
+        "tick": 2683
+      },
+      {
+        "complete": true,
+        "elapsed_us": 1527855,
+        "index": 79,
+        "lifecycle_events": [],
+        "moves": 113,
+        "present": 160,
+        "route_query_depth": 0,
+        "sessions": 1,
+        "tick": 2703
+      },
+      {
+        "complete": true,
+        "elapsed_us": 1606746,
+        "index": 119,
+        "lifecycle_events": [],
+        "moves": 97,
+        "present": 160,
+        "route_query_depth": 0,
+        "sessions": 1,
+        "tick": 2743
+      }
+    ],
+    "complete": false,
+    "population_min": 160,
+    "population_max": 160
+  },
+  "rewrite_cache_fix_partial": {
+    "completed_steps": 93,
+    "requested_steps": 300,
+    "last_completed_index": 92,
+    "last_record": {
+      "index": 93,
+      "kind": "enter",
+      "tick": 2716
+    },
+    "samples": [
+      {
+        "complete": true,
+        "elapsed_us": 2206529,
+        "index": 0,
+        "lifecycle_events": [],
+        "moves": 26,
+        "present": 160,
+        "route_query_depth": 0,
+        "sessions": 1,
+        "tick": 2624
+      },
+      {
+        "complete": true,
+        "elapsed_us": 33124,
+        "index": 19,
+        "lifecycle_events": [],
+        "moves": 27,
+        "present": 160,
+        "route_query_depth": 0,
+        "sessions": 1,
+        "tick": 2643
+      },
+      {
+        "complete": true,
+        "elapsed_us": 569222,
+        "index": 39,
+        "lifecycle_events": [],
+        "moves": 114,
+        "present": 160,
+        "route_query_depth": 0,
+        "sessions": 1,
+        "tick": 2663
+      },
+      {
+        "complete": true,
+        "elapsed_us": 607511,
+        "index": 59,
+        "lifecycle_events": [],
+        "moves": 114,
+        "present": 160,
+        "route_query_depth": 0,
+        "sessions": 1,
+        "tick": 2683
+      },
+      {
+        "complete": true,
+        "elapsed_us": 870664,
+        "index": 79,
+        "lifecycle_events": [],
+        "moves": 113,
+        "present": 160,
+        "route_query_depth": 0,
+        "sessions": 1,
+        "tick": 2703
+      }
+    ],
+    "complete": false,
+    "population_min": 160,
+    "population_max": 160
+  },
+  "quick_comparison_complete": false,
+  "gp_80_rewrite_comparison_complete": false,
+  "op_40_rewrite_comparison_complete": false,
+  "diagnostic": {
+    "index": 59,
+    "tick": 2683,
+    "outer_us": 4586623,
+    "root_us": 3959480,
+    "observer_us": 627066,
+    "residual_us": 77,
+    "call_count": 30168,
+    "accounting_checks": true,
+    "root_partition": [
+      {
+        "stage": "step.setup",
+        "timed_top_level_us": 0,
+        "total_us": 99,
+        "untimed_body_us": 99
+      },
+      {
+        "stage": "commands.drain",
+        "timed_top_level_us": 0,
+        "total_us": 9,
+        "untimed_body_us": 9
+      },
+      {
+        "stage": "boundaries.supplies",
+        "timed_top_level_us": 39,
+        "total_us": 54,
+        "untimed_body_us": 15
+      },
+      {
+        "stage": "boundaries.research",
+        "timed_top_level_us": 26,
+        "total_us": 34,
+        "untimed_body_us": 8
+      },
+      {
+        "stage": "boundaries.scheduler",
+        "timed_top_level_us": 1055,
+        "total_us": 1065,
+        "untimed_body_us": 10
+      },
+      {
+        "stage": "boundaries.wellbeing",
+        "timed_top_level_us": 967,
+        "total_us": 981,
+        "untimed_body_us": 14
+      },
+      {
+        "stage": "boundaries.maintenance",
+        "timed_top_level_us": 1104,
+        "total_us": 1118,
+        "untimed_body_us": 14
+      },
+      {
+        "stage": "boundaries.recruitment",
+        "timed_top_level_us": 69,
+        "total_us": 81,
+        "untimed_body_us": 12
+      },
+      {
+        "stage": "boundaries.arrivals",
+        "timed_top_level_us": 32,
+        "total_us": 45,
+        "untimed_body_us": 13
+      },
+      {
+        "stage": "arrivals.arrivals",
+        "timed_top_level_us": 22,
+        "total_us": 29,
+        "untimed_body_us": 7
+      },
+      {
+        "stage": "clinic.arrivals",
+        "timed_top_level_us": 24,
+        "total_us": 33,
+        "untimed_body_us": 9
+      },
+      {
+        "stage": "dispatch.remodel",
+        "timed_top_level_us": 26,
+        "total_us": 35,
+        "untimed_body_us": 9
+      },
+      {
+        "stage": "dispatch.scheduler",
+        "timed_top_level_us": 29,
+        "total_us": 37,
+        "untimed_body_us": 8
+      },
+      {
+        "stage": "dispatch.development",
+        "timed_top_level_us": 1529,
+        "total_us": 1539,
+        "untimed_body_us": 10
+      },
+      {
+        "stage": "dispatch.waiting",
+        "timed_top_level_us": 1481424,
+        "total_us": 1481442,
+        "untimed_body_us": 18
+      },
+      {
+        "stage": "dispatch.departments",
+        "timed_top_level_us": 155,
+        "total_us": 172,
+        "untimed_body_us": 17
+      },
+      {
+        "stage": "dispatch.environment",
+        "timed_top_level_us": 447,
+        "total_us": 461,
+        "untimed_body_us": 14
+      },
+      {
+        "stage": "dispatch.maintenance",
+        "timed_top_level_us": 57,
+        "total_us": 69,
+        "untimed_body_us": 12
+      },
+      {
+        "stage": "dispatch.floors",
+        "timed_top_level_us": 24,
+        "total_us": 33,
+        "untimed_body_us": 9
+      },
+      {
+        "stage": "clinic.dispatch",
+        "timed_top_level_us": 138248,
+        "total_us": 138274,
+        "untimed_body_us": 26
+      },
+      {
+        "stage": "dispatch.staff_idle",
+        "timed_top_level_us": 0,
+        "total_us": 185,
+        "untimed_body_us": 185
+      },
+      {
+        "stage": "dispatch.wellbeing",
+        "timed_top_level_us": 2853,
+        "total_us": 2870,
+        "untimed_body_us": 17
+      },
+      {
+        "stage": "movement.capture_staff_locations",
+        "timed_top_level_us": 0,
+        "total_us": 203,
+        "untimed_body_us": 203
+      },
+      {
+        "stage": "movement.space",
+        "timed_top_level_us": 2275282,
+        "total_us": 2275299,
+        "untimed_body_us": 17
+      },
+      {
+        "stage": "clinic.advance",
+        "timed_top_level_us": 85,
+        "total_us": 103,
+        "untimed_body_us": 18
+      },
+      {
+        "stage": "advance.development",
+        "timed_top_level_us": 204,
+        "total_us": 217,
+        "untimed_body_us": 13
+      },
+      {
+        "stage": "advance.research",
+        "timed_top_level_us": 24,
+        "total_us": 36,
+        "untimed_body_us": 12
+      },
+      {
+        "stage": "advance.scheduler",
+        "timed_top_level_us": 6,
+        "total_us": 18,
+        "untimed_body_us": 12
+      },
+      {
+        "stage": "advance.environment",
+        "timed_top_level_us": 2132,
+        "total_us": 2143,
+        "untimed_body_us": 11
+      },
+      {
+        "stage": "advance.maintenance",
+        "timed_top_level_us": 35,
+        "total_us": 49,
+        "untimed_body_us": 14
+      },
+      {
+        "stage": "advance.departments",
+        "timed_top_level_us": 8,
+        "total_us": 17,
+        "untimed_body_us": 9
+      },
+      {
+        "stage": "advance.recruitment",
+        "timed_top_level_us": 89,
+        "total_us": 95,
+        "untimed_body_us": 6
+      },
+      {
+        "stage": "advance.floors",
+        "timed_top_level_us": 44,
+        "total_us": 60,
+        "untimed_body_us": 16
+      },
+      {
+        "stage": "integrate.worked_staff",
+        "timed_top_level_us": 27,
+        "total_us": 81,
+        "untimed_body_us": 54
+      },
+      {
+        "stage": "advance.wellbeing",
+        "timed_top_level_us": 308,
+        "total_us": 318,
+        "untimed_body_us": 10
+      },
+      {
+        "stage": "advance.waiting",
+        "timed_top_level_us": 506,
+        "total_us": 518,
+        "untimed_body_us": 12
+      },
+      {
+        "stage": "advance.supplies",
+        "timed_top_level_us": 266,
+        "total_us": 277,
+        "untimed_body_us": 11
+      },
+      {
+        "stage": "begin_query.environment",
+        "timed_top_level_us": 9049,
+        "total_us": 9067,
+        "untimed_body_us": 18
+      },
+      {
+        "stage": "advance_wait.arrivals",
+        "timed_top_level_us": 1719,
+        "total_us": 1749,
+        "untimed_body_us": 30
+      },
+      {
+        "stage": "sample.departments",
+        "timed_top_level_us": 34032,
+        "total_us": 34050,
+        "untimed_body_us": 18
+      },
+      {
+        "stage": "needs.arrivals",
+        "timed_top_level_us": 2704,
+        "total_us": 2717,
+        "untimed_body_us": 13
+      },
+      {
+        "stage": "end_query.environment",
+        "timed_top_level_us": 819,
+        "total_us": 829,
+        "untimed_body_us": 10
+      },
+      {
+        "stage": "clinic.release_departed",
+        "timed_top_level_us": 11,
+        "total_us": 19,
+        "untimed_body_us": 8
+      },
+      {
+        "stage": "clinic.settle_practice",
+        "timed_top_level_us": 6,
+        "total_us": 18,
+        "untimed_body_us": 12
+      },
+      {
+        "stage": "settle.research",
+        "timed_top_level_us": 29,
+        "total_us": 36,
+        "untimed_body_us": 7
+      },
+      {
+        "stage": "settle.development",
+        "timed_top_level_us": 1327,
+        "total_us": 1334,
+        "untimed_body_us": 7
+      },
+      {
+        "stage": "settle.departments",
+        "timed_top_level_us": 330,
+        "total_us": 337,
+        "untimed_body_us": 7
+      },
+      {
+        "stage": "settle.finance",
+        "timed_top_level_us": 492,
+        "total_us": 501,
+        "untimed_body_us": 9
+      },
+      {
+        "stage": "settle.recruitment",
+        "timed_top_level_us": 135,
+        "total_us": 142,
+        "untimed_body_us": 7
+      },
+      {
+        "stage": "settle.arrivals",
+        "timed_top_level_us": 357,
+        "total_us": 366,
+        "untimed_body_us": 9
+      },
+      {
+        "stage": "events.collect",
+        "timed_top_level_us": 11,
+        "total_us": 37,
+        "untimed_body_us": 26
+      },
+      {
+        "stage": "settlement.ledger",
+        "timed_top_level_us": 0,
+        "total_us": 11,
+        "untimed_body_us": 11
+      },
+      {
+        "stage": "settlement.finish_visits",
+        "timed_top_level_us": 0,
+        "total_us": 110,
+        "untimed_body_us": 110
+      },
+      {
+        "stage": "snapshot.world_boundary",
+        "timed_top_level_us": 0,
+        "total_us": 4,
+        "untimed_body_us": 4
+      },
+      {
+        "stage": "snapshot.space_boundary",
+        "timed_top_level_us": 4,
+        "total_us": 11,
+        "untimed_body_us": 7
+      },
+      {
+        "stage": "snapshot.tick_result",
+        "timed_top_level_us": 0,
+        "total_us": 33,
+        "untimed_body_us": 33
+      },
+      {
+        "stage": "snapshot.bookkeeping",
+        "timed_top_level_us": 0,
+        "total_us": 10,
+        "untimed_body_us": 10
+      }
+    ],
+    "exclusive_operations": [
+      {
+        "operation": "clearance._build_static",
+        "calls": 192,
+        "exclusive_us": 1724743
+      },
+      {
+        "operation": "space._facility_quote",
+        "calls": 192,
+        "exclusive_us": 598975
+      },
+      {
+        "operation": "waiting._facility_quote_in_query",
+        "calls": 64,
+        "exclusive_us": 345439
+      },
+      {
+        "operation": "movement._active_route_clear",
+        "calls": 114,
+        "exclusive_us": 340537
+      },
+      {
+        "operation": "point_navigation._floor_route",
+        "calls": 352,
+        "exclusive_us": 123377
+      },
+      {
+        "operation": "navigation.facility_index",
+        "calls": 9819,
+        "exclusive_us": 91409
+      },
+      {
+        "operation": "environment.begin_query",
+        "calls": 10,
+        "exclusive_us": 72173
+      },
+      {
+        "operation": "navigation.floor_source",
+        "calls": 11435,
+        "exclusive_us": 68623
+      },
+      {
+        "operation": "navigation.graph",
+        "calls": 576,
+        "exclusive_us": 59761
+      },
+      {
+        "operation": "space._facility_region_reason",
+        "calls": 576,
+        "exclusive_us": 56760
+      },
+      {
+        "operation": "public_areas.safe_wait",
+        "calls": 16,
+        "exclusive_us": 52740
+      },
+      {
+        "operation": "point_navigation._route_result",
+        "calls": 128,
+        "exclusive_us": 50612
+      },
+      {
+        "operation": "movement.advance",
+        "calls": 1,
+        "exclusive_us": 44806
+      },
+      {
+        "operation": "space.begin_dynamic_route_query",
+        "calls": 72,
+        "exclusive_us": 33499
+      },
+      {
+        "operation": "space.end_route_query",
+        "calls": 304,
+        "exclusive_us": 32817
+      },
+      {
+        "operation": "environment._observe_at",
+        "calls": 184,
+        "exclusive_us": 21339
+      },
+      {
+        "operation": "waiting.seat_candidates",
+        "calls": 8,
+        "exclusive_us": 18289
+      },
+      {
+        "operation": "environment._coverage",
+        "calls": 368,
+        "exclusive_us": 16962
+      },
+      {
+        "operation": "public_areas._intent_view",
+        "calls": 72,
+        "exclusive_us": 14375
+      },
+      {
+        "operation": "public_areas.turn",
+        "calls": 128,
+        "exclusive_us": 11887
+      },
+      {
+        "operation": "navigation.clearance",
+        "calls": 224,
+        "exclusive_us": 11781
+      },
+      {
+        "operation": "public_areas.facilities",
+        "calls": 56,
+        "exclusive_us": 11638
+      },
+      {
+        "operation": "navigation.inherit_projection",
+        "calls": 64,
+        "exclusive_us": 11493
+      },
+      {
+        "operation": "waiting._conditions",
+        "calls": 64,
+        "exclusive_us": 9320
+      },
+      {
+        "operation": "clearance.capture_occupancy",
+        "calls": 256,
+        "exclusive_us": 8860
+      },
+      {
+        "operation": "point_navigation.structural_clearance",
+        "calls": 114,
+        "exclusive_us": 8323
+      },
+      {
+        "operation": "movement._movement_clear",
+        "calls": 110,
+        "exclusive_us": 7610
+      },
+      {
+        "operation": "clearance._init",
+        "calls": 212,
+        "exclusive_us": 7143
+      },
+      {
+        "operation": "point_navigation._point_route",
+        "calls": 128,
+        "exclusive_us": 6426
+      },
+      {
+        "operation": "waiting._condition_actor_index",
+        "calls": 8,
+        "exclusive_us": 6302
+      },
+      {
+        "operation": "navigation.query_graphs",
+        "calls": 352,
+        "exclusive_us": 5016
+      },
+      {
+        "operation": "clinic.service_candidates",
+        "calls": 96,
+        "exclusive_us": 4836
+      },
+      {
+        "operation": "environment._coverage_edges",
+        "calls": 184,
+        "exclusive_us": 4815
+      },
+      {
+        "operation": "transit.fits",
+        "calls": 78,
+        "exclusive_us": 4053
+      },
+      {
+        "operation": "visitors._public_waiting",
+        "calls": 8,
+        "exclusive_us": 3910
+      },
+      {
+        "operation": "departments.sample",
+        "calls": 1,
+        "exclusive_us": 3564
+      },
+      {
+        "operation": "public_areas._queue_fit",
+        "calls": 128,
+        "exclusive_us": 3414
+      },
+      {
+        "operation": "waiting._dispatch_public_seat",
+        "calls": 96,
+        "exclusive_us": 3281
+      },
+      {
+        "operation": "arrivals.needs",
+        "calls": 1,
+        "exclusive_us": 2704
+      },
+      {
+        "operation": "clinic._gather_assigned",
+        "calls": 103,
+        "exclusive_us": 2685
+      },
+      {
+        "operation": "space._floor_route",
+        "calls": 224,
+        "exclusive_us": 2580
+      },
+      {
+        "operation": "navigation._trim",
+        "calls": 800,
+        "exclusive_us": 2530
+      },
+      {
+        "operation": "space.static_reason",
+        "calls": 20,
+        "exclusive_us": 2505
+      },
+      {
+        "operation": "waiting.dispatch",
+        "calls": 1,
+        "exclusive_us": 2421
+      },
+      {
+        "operation": "space.facility_quote",
+        "calls": 192,
+        "exclusive_us": 2379
+      },
+      {
+        "operation": "space.begin_route_query",
+        "calls": 232,
+        "exclusive_us": 2128
+      },
+      {
+        "operation": "space._route_result",
+        "calls": 128,
+        "exclusive_us": 2103
+      },
+      {
+        "operation": "space.facility_reservation_reason",
+        "calls": 384,
+        "exclusive_us": 2077
+      },
+      {
+        "operation": "public_areas._queue_fit_in_query",
+        "calls": 128,
+        "exclusive_us": 2008
+      },
+      {
+        "operation": "clinic._dispatch_service",
+        "calls": 103,
+        "exclusive_us": 1938
+      },
+      {
+        "operation": "waiting._facility_quote",
+        "calls": 64,
+        "exclusive_us": 1918
+      },
+      {
+        "operation": "space.route",
+        "calls": 128,
+        "exclusive_us": 1906
+      },
+      {
+        "operation": "wellbeing.dispatch",
+        "calls": 1,
+        "exclusive_us": 1828
+      },
+      {
+        "operation": "environment.end_query",
+        "calls": 10,
+        "exclusive_us": 1820
+      },
+      {
+        "operation": "arrivals.advance_wait",
+        "calls": 1,
+        "exclusive_us": 1719
+      },
+      {
+        "operation": "development.dispatch",
+        "calls": 1,
+        "exclusive_us": 1529
+      },
+      {
+        "operation": "clinic.dispatch",
+        "calls": 1,
+        "exclusive_us": 1476
+      },
+      {
+        "operation": "personal_beds.sync",
+        "calls": 2,
+        "exclusive_us": 1398
+      },
+      {
+        "operation": "development.settle",
+        "calls": 1,
+        "exclusive_us": 1327
+      },
+      {
+        "operation": "public_areas._ensure",
+        "calls": 232,
+        "exclusive_us": 1146
+      },
+      {
+        "operation": "maintenance.boundaries",
+        "calls": 1,
+        "exclusive_us": 1104
+      },
+      {
+        "operation": "scheduler.boundaries",
+        "calls": 1,
+        "exclusive_us": 1055
+      },
+      {
+        "operation": "public_areas.compatible_geometry",
+        "calls": 16,
+        "exclusive_us": 926
+      },
+      {
+        "operation": "environment._positive_facilities",
+        "calls": 184,
+        "exclusive_us": 807
+      },
+      {
+        "operation": "environment.sample_at",
+        "calls": 120,
+        "exclusive_us": 787
+      },
+      {
+        "operation": "environment._nearby_actors",
+        "calls": 64,
+        "exclusive_us": 640
+      },
+      {
+        "operation": "wellbeing.boundaries",
+        "calls": 1,
+        "exclusive_us": 594
+      },
+      {
+        "operation": "environment.advance",
+        "calls": 1,
+        "exclusive_us": 555
+      },
+      {
+        "operation": "waiting._environment",
+        "calls": 64,
+        "exclusive_us": 534
+      },
+      {
+        "operation": "environment.environment_at",
+        "calls": 64,
+        "exclusive_us": 521
+      },
+      {
+        "operation": "waiting.advance",
+        "calls": 1,
+        "exclusive_us": 506
+      },
+      {
+        "operation": "finance.settle",
+        "calls": 1,
+        "exclusive_us": 492
+      },
+      {
+        "operation": "environment.dispatch",
+        "calls": 1,
+        "exclusive_us": 433
+      },
+      {
+        "operation": "clinic._dispatch_ward_returns",
+        "calls": 1,
+        "exclusive_us": 381
+      },
+      {
+        "operation": "arrivals.settle",
+        "calls": 1,
+        "exclusive_us": 357
+      },
+      {
+        "operation": "departments.settle",
+        "calls": 1,
+        "exclusive_us": 330
+      },
+      {
+        "operation": "wellbeing.advance",
+        "calls": 1,
+        "exclusive_us": 308
+      },
+      {
+        "operation": "visitors.dispatch",
+        "calls": 1,
+        "exclusive_us": 303
+      },
+      {
+        "operation": "supplies.advance",
+        "calls": 1,
+        "exclusive_us": 266
+      },
+      {
+        "operation": "environment._arrive",
+        "calls": 4,
+        "exclusive_us": 231
+      },
+      {
+        "operation": "movement._dispatch_routes",
+        "calls": 1,
+        "exclusive_us": 226
+      },
+      {
+        "operation": "development.advance",
+        "calls": 1,
+        "exclusive_us": 204
+      },
+      {
+        "operation": "clinic._gather",
+        "calls": 7,
+        "exclusive_us": 197
+      },
+      {
+        "operation": "departments.dispatch",
+        "calls": 1,
+        "exclusive_us": 155
+      },
+      {
+        "operation": "recruitment.settle",
+        "calls": 1,
+        "exclusive_us": 135
+      },
+      {
+        "operation": "waiting._dispatch_public_need",
+        "calls": 16,
+        "exclusive_us": 112
+      },
+      {
+        "operation": "recruitment.advance",
+        "calls": 1,
+        "exclusive_us": 89
+      },
+      {
+        "operation": "movement.request_move",
+        "calls": 10,
+        "exclusive_us": 84
+      },
+      {
+        "operation": "public_areas._wait_constraints",
+        "calls": 16,
+        "exclusive_us": 76
+      },
+      {
+        "operation": "recruitment.boundaries",
+        "calls": 1,
+        "exclusive_us": 69
+      },
+      {
+        "operation": "clinic.advance",
+        "calls": 1,
+        "exclusive_us": 62
+      },
+      {
+        "operation": "maintenance.dispatch",
+        "calls": 1,
+        "exclusive_us": 48
+      },
+      {
+        "operation": "floors.advance",
+        "calls": 1,
+        "exclusive_us": 44
+      },
+      {
+        "operation": "clinic._dispatch_clinical_releases",
+        "calls": 1,
+        "exclusive_us": 43
+      },
+      {
+        "operation": "supplies.boundaries",
+        "calls": 1,
+        "exclusive_us": 39
+      },
+      {
+        "operation": "maintenance.advance",
+        "calls": 1,
+        "exclusive_us": 35
+      },
+      {
+        "operation": "arrivals.boundaries",
+        "calls": 1,
+        "exclusive_us": 32
+      },
+      {
+        "operation": "scheduler.dispatch",
+        "calls": 1,
+        "exclusive_us": 29
+      },
+      {
+        "operation": "research.settle",
+        "calls": 1,
+        "exclusive_us": 29
+      },
+      {
+        "operation": "research.boundaries",
+        "calls": 1,
+        "exclusive_us": 26
+      },
+      {
+        "operation": "remodel.dispatch",
+        "calls": 1,
+        "exclusive_us": 26
+      },
+      {
+        "operation": "floors.dispatch",
+        "calls": 1,
+        "exclusive_us": 24
+      },
+      {
+        "operation": "research.advance",
+        "calls": 1,
+        "exclusive_us": 24
+      },
+      {
+        "operation": "visitors.advance",
+        "calls": 1,
+        "exclusive_us": 23
+      },
+      {
+        "operation": "arrivals.arrivals",
+        "calls": 1,
+        "exclusive_us": 22
+      },
+      {
+        "operation": "transit.advance",
+        "calls": 1,
+        "exclusive_us": 20
+      },
+      {
+        "operation": "space.advance",
+        "calls": 1,
+        "exclusive_us": 15
+      },
+      {
+        "operation": "clinic.arrivals",
+        "calls": 1,
+        "exclusive_us": 14
+      },
+      {
+        "operation": "environment._tool",
+        "calls": 1,
+        "exclusive_us": 14
+      },
+      {
+        "operation": "clinic.release_departed",
+        "calls": 1,
+        "exclusive_us": 11
+      },
+      {
+        "operation": "visitors.arrivals",
+        "calls": 1,
+        "exclusive_us": 10
+      },
+      {
+        "operation": "maintenance._dispatch_departures",
+        "calls": 1,
+        "exclusive_us": 9
+      },
+      {
+        "operation": "departments.advance",
+        "calls": 1,
+        "exclusive_us": 8
+      },
+      {
+        "operation": "clinic.worked_staff",
+        "calls": 1,
+        "exclusive_us": 7
+      },
+      {
+        "operation": "scheduler.advance",
+        "calls": 1,
+        "exclusive_us": 6
+      },
+      {
+        "operation": "clinic.settle_practice",
+        "calls": 1,
+        "exclusive_us": 6
+      },
+      {
+        "operation": "environment.worked_staff",
+        "calls": 1,
+        "exclusive_us": 5
+      },
+      {
+        "operation": "arrivals.take_events",
+        "calls": 1,
+        "exclusive_us": 4
+      },
+      {
+        "operation": "research.take_events",
+        "calls": 1,
+        "exclusive_us": 4
+      },
+      {
+        "operation": "space.finish_boundary",
+        "calls": 1,
+        "exclusive_us": 4
+      },
+      {
+        "operation": "research.worked_staff",
+        "calls": 1,
+        "exclusive_us": 3
+      },
+      {
+        "operation": "scheduler.worked_staff",
+        "calls": 1,
+        "exclusive_us": 3
+      },
+      {
+        "operation": "departments.worked_staff",
+        "calls": 1,
+        "exclusive_us": 3
+      },
+      {
+        "operation": "clinic.take_events",
+        "calls": 1,
+        "exclusive_us": 3
+      },
+      {
+        "operation": "development.worked_staff",
+        "calls": 1,
+        "exclusive_us": 2
+      },
+      {
+        "operation": "maintenance.worked_staff",
+        "calls": 1,
+        "exclusive_us": 2
+      },
+      {
+        "operation": "floors.worked_staff",
+        "calls": 1,
+        "exclusive_us": 2
+      }
+    ]
+  },
+  "diagnostic_limitations": [
+    "61-step diagnostic is not the complete 300-step public window.",
+    "Instrumented timings cannot substitute for plain full-step timings.",
+    "No post-fix ledger confirms the remaining geometry build count.",
+    "Structural departure and seat rule changes alter later work; equal final world hashes across the rewrite are not required."
+  ],
+  "input_provenance": {
+    "gp": {
+      "all_nonstretching_facility_footprints_fixed": true,
+      "facts_sha256": "9d7823d7f285d12d5fb383b1662f6106dcde8d4935df2b41323cb1186ac3bf6a",
+      "facts_unchanged": true,
+      "new_content_fingerprint": "6369abdacadd0ec32a95c46a9ce4ef6e9710166c475905ae0cd88202ad0b45a8",
+      "present": 160,
+      "previous_content_fingerprint": "70ef833fb44c1682824534528697df4a55d011f10121f15f8e83f0b5b7b6d433",
+      "source": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\continuing-perf-20261019\\gp.input.bin",
+      "source_sha256": "14bfa213c792d0da30bbf48cb39b360166cff6ecb7f8e46e17ff9bddf37bb0b0",
+      "validation": ""
+    },
+    "op": {
+      "all_nonstretching_facility_footprints_fixed": true,
+      "facts_sha256": "c6749805e615cad62611ad895e72e05e92228e07b0d10849abe02b0fcbd65ac0",
+      "facts_unchanged": true,
+      "new_content_fingerprint": "6369abdacadd0ec32a95c46a9ce4ef6e9710166c475905ae0cd88202ad0b45a8",
+      "present": 160,
+      "previous_content_fingerprint": "70ef833fb44c1682824534528697df4a55d011f10121f15f8e83f0b5b7b6d433",
+      "source": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\continuing-perf-20261019\\op.input.bin",
+      "source_sha256": "dcd41d686a06d0571ae0ad81d83332ce7ca331d4d810de7c5d2b14dede7dcdd3",
+      "validation": ""
+    },
+    "public-v6": {
+      "all_nonstretching_facility_footprints_fixed": true,
+      "facts_sha256": "1d7bd677b2d8d2e0879fc2b03ecee0abb714d2b41cbe9ba8d317a5eda4c52840",
+      "facts_unchanged": true,
+      "new_content_fingerprint": "6369abdacadd0ec32a95c46a9ce4ef6e9710166c475905ae0cd88202ad0b45a8",
+      "present": 160,
+      "previous_content_fingerprint": "70ef833fb44c1682824534528697df4a55d011f10121f15f8e83f0b5b7b6d433",
+      "source": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\continuing-perf-20261019\\public-v6.input.bin",
+      "source_sha256": "56ea8338361470fee88659ed806d412aa49927c0709c30d4fbdf536a20eb4f76",
+      "validation": ""
+    }
+  },
+  "functional_runs": [
+    {
+      "label": "functional-1",
+      "exit_code": 1,
+      "case_ids": [
+        "SPACE-07",
+        "SPACE-08",
+        "SPACE-09",
+        "SPACE-10",
+        "SPACE-16",
+        "SPACE-23",
+        "SPACE-24",
+        "SPACE-25",
+        "SPACE-26",
+        "SPACE-27",
+        "SPACE-28",
+        "SPACE-29",
+        "SPACE-30",
+        "SPACE-33",
+        "SPACE-35",
+        "SPACE-36",
+        "SPACE-44",
+        "SPACE-45",
+        "SPACE-46",
+        "SPACE-48",
+        "SPACE-49",
+        "SPACE-50",
+        "SPACE-51",
+        "SPACE-53",
+        "SPACE-54",
+        "CLIN-02",
+        "CLIN-15",
+        "CLIN-16",
+        "CLIN-18",
+        "CLIN-20",
+        "CLIN-22",
+        "CLIN-27",
+        "CLIN-30",
+        "CLIN-31",
+        "CLIN-32",
+        "CLIN-33",
+        "CLIN-34",
+        "CLIN-35",
+        "STAFF-06",
+        "STAFF-16",
+        "STAFF-25",
+        "STAFF-26",
+        "STAFF-27",
+        "STAFF-29",
+        "STAFF-30",
+        "STAFF-42",
+        "STAFF-45",
+        "STAFF-46",
+        "STAFF-47",
+        "STAFF-48",
+        "STAFF-49",
+        "STAFF-50",
+        "STAFF-51",
+        "STAFF-52",
+        "STAFF-53",
+        "STAFF-54",
+        "STAFF-57",
+        "STAFF-61",
+        "STAFF-64",
+        "STAFF-65",
+        "STAFF-66",
+        "STAFF-67",
+        "STAFF-68",
+        "GROW-29",
+        "GROW-30",
+        "GROW-83",
+        "OPS-13",
+        "OPS-16",
+        "OPS-21",
+        "OPS-39"
+      ],
+      "checks": 70,
+      "failed": 17,
+      "engine_errors": [
+        "SCRIPT ERROR: Parse Error: Function \"_reserve_doors()\" not found in base HospitalSpace.",
+        "SCRIPT ERROR: Parse Error: Function \"_active_route_clear()\" not found in base HospitalSpace.",
+        "SCRIPT ERROR: Parse Error: Function \"_dispatch_routes()\" not found in base HospitalSpace.",
+        "SCRIPT ERROR: Compile Error: Failed to compile depended scripts.",
+        "ERROR: Failed to load script \"res://tests/acceptance/clinical.gd\" with error \"Compilation failed\".",
+        "SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.",
+        "SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.",
+        "SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.",
+        "SCRIPT ERROR: Invalid access to property or key 'paused' on a base object of type 'Dictionary'.",
+        "SCRIPT ERROR: Invalid access to property or key 'paused' on a base object of type 'Dictionary'.",
+        "SCRIPT ERROR: Invalid call. Nonexistent function '_staff_has_movement_responsibility' in base 'RefCounted (HospitalSpace)'.",
+        "ERROR: 33 resources still in use at exit (run with --verbose for details)."
+      ],
+      "elapsed_seconds": 125.92254480000702,
+      "frozen_acceptance_ids": [
+        "66475e2d1f4442558024878f18793d3e"
+      ]
+    },
+    {
+      "label": "functional-2",
+      "exit_code": 1,
+      "case_ids": [
+        "SPACE-07",
+        "SPACE-08",
+        "SPACE-09",
+        "SPACE-10",
+        "SPACE-16",
+        "SPACE-23",
+        "SPACE-24",
+        "SPACE-25",
+        "SPACE-26",
+        "SPACE-27",
+        "SPACE-28",
+        "SPACE-29",
+        "SPACE-30",
+        "SPACE-33",
+        "SPACE-35",
+        "SPACE-36",
+        "SPACE-44",
+        "SPACE-45",
+        "SPACE-46",
+        "SPACE-48",
+        "SPACE-49",
+        "SPACE-50",
+        "SPACE-51",
+        "SPACE-53",
+        "SPACE-54",
+        "CLIN-02",
+        "CLIN-15",
+        "CLIN-16",
+        "CLIN-18",
+        "CLIN-20",
+        "CLIN-22",
+        "CLIN-27",
+        "CLIN-30",
+        "CLIN-31",
+        "CLIN-32",
+        "CLIN-33",
+        "CLIN-34",
+        "CLIN-35",
+        "STAFF-06",
+        "STAFF-16",
+        "STAFF-25",
+        "STAFF-26",
+        "STAFF-27",
+        "STAFF-29",
+        "STAFF-30",
+        "STAFF-42",
+        "STAFF-45",
+        "STAFF-46",
+        "STAFF-47",
+        "STAFF-48",
+        "STAFF-49",
+        "STAFF-50",
+        "STAFF-51",
+        "STAFF-52",
+        "STAFF-53",
+        "STAFF-54",
+        "STAFF-57",
+        "STAFF-61",
+        "STAFF-64",
+        "STAFF-65",
+        "STAFF-66",
+        "STAFF-67",
+        "STAFF-68",
+        "GROW-29",
+        "GROW-30",
+        "GROW-83",
+        "OPS-13",
+        "OPS-16",
+        "OPS-21",
+        "OPS-39"
+      ],
+      "checks": 70,
+      "failed": 5,
+      "engine_errors": [],
+      "elapsed_seconds": 126.16023479998694,
+      "frozen_acceptance_ids": [
+        "5a13533ecafc443e89b7f88d192dc01f"
+      ]
+    },
+    {
+      "label": "diagnose-3",
+      "exit_code": 1,
+      "case_ids": [
+        "CLIN-18",
+        "CLIN-31",
+        "GROW-29",
+        "SPACE-35"
+      ],
+      "checks": 4,
+      "failed": 4,
+      "engine_errors": [],
+      "elapsed_seconds": 47.35122379998211,
+      "frozen_acceptance_ids": [
+        "3f7832b55c4146828738ae559eb2daf5"
+      ]
+    },
+    {
+      "label": "functional-4",
+      "exit_code": 0,
+      "case_ids": [
+        "SPACE-07",
+        "SPACE-08",
+        "SPACE-09",
+        "SPACE-10",
+        "SPACE-16",
+        "SPACE-23",
+        "SPACE-24",
+        "SPACE-25",
+        "SPACE-26",
+        "SPACE-27",
+        "SPACE-28",
+        "SPACE-29",
+        "SPACE-30",
+        "SPACE-33",
+        "SPACE-35",
+        "SPACE-36",
+        "SPACE-44",
+        "SPACE-45",
+        "SPACE-46",
+        "SPACE-48",
+        "SPACE-49",
+        "SPACE-50",
+        "SPACE-51",
+        "SPACE-52",
+        "SPACE-53",
+        "SPACE-54",
+        "CLIN-02",
+        "CLIN-15",
+        "CLIN-16",
+        "CLIN-18",
+        "CLIN-20",
+        "CLIN-22",
+        "CLIN-27",
+        "CLIN-30",
+        "CLIN-31",
+        "CLIN-32",
+        "CLIN-33",
+        "CLIN-34",
+        "CLIN-35",
+        "STAFF-06",
+        "STAFF-16",
+        "STAFF-25",
+        "STAFF-26",
+        "STAFF-27",
+        "STAFF-29",
+        "STAFF-30",
+        "STAFF-42",
+        "STAFF-45",
+        "STAFF-46",
+        "STAFF-47",
+        "STAFF-48",
+        "STAFF-49",
+        "STAFF-50",
+        "STAFF-51",
+        "STAFF-52",
+        "STAFF-53",
+        "STAFF-54",
+        "STAFF-57",
+        "STAFF-61",
+        "STAFF-64",
+        "STAFF-65",
+        "STAFF-66",
+        "STAFF-67",
+        "STAFF-68",
+        "GROW-29",
+        "GROW-30",
+        "GROW-83",
+        "OPS-13",
+        "OPS-16",
+        "OPS-21",
+        "OPS-39"
+      ],
+      "checks": 71,
+      "failed": 0,
+      "engine_errors": [],
+      "elapsed_seconds": 106.24907570000505,
+      "frozen_acceptance_ids": [
+        "d4fba9626f184329afd12b7338f929e3"
+      ]
+    },
+    {
+      "label": "geometry-final",
+      "exit_code": 0,
+      "case_ids": [
+        "SPACE-07",
+        "SPACE-10",
+        "SPACE-46",
+        "SPACE-51",
+        "SPACE-53",
+        "SPACE-54"
+      ],
+      "checks": 6,
+      "failed": 0,
+      "engine_errors": [],
+      "elapsed_seconds": 14.530105899990303,
+      "frozen_acceptance_ids": [
+        "10ba2528fae044a79d83d1ed7dae558f"
+      ]
+    },
+    {
+      "label": "cache-owner-final",
+      "exit_code": 0,
+      "case_ids": [
+        "SPACE-07",
+        "SPACE-08",
+        "SPACE-10",
+        "SPACE-23",
+        "SPACE-29",
+        "SPACE-44",
+        "SPACE-46",
+        "SPACE-48",
+        "SPACE-51",
+        "SPACE-53",
+        "SPACE-54",
+        "CLIN-15",
+        "CLIN-35",
+        "STAFF-42",
+        "STAFF-48",
+        "STAFF-61",
+        "STAFF-65",
+        "STAFF-67",
+        "STAFF-68"
+      ],
+      "checks": 19,
+      "failed": 0,
+      "engine_errors": [],
+      "elapsed_seconds": 23.21744409998064,
+      "frozen_acceptance_ids": [
+        "1aa0c6fe39e34fceb4b55d12af6e79e8"
+      ]
+    }
+  ],
+  "distinct_cases_in_passed_broad_run": 71,
+  "geometry_and_cache_owner_reruns_overlap_broad_run": true,
+  "source_identity": {
+    "baseline_identity_sha256": "d5112720514c5fa5fe35a43f5dce08c5ffe2bd3f1ea0a7444c76567ca51559cc",
+    "after_identity_sha256": "30754217fa8f8b28802e054cbf2cc3bdec8165088b051aa4fe235e120beb0ed2"
+  },
+  "pending": [
+    "Complete both 300-step public windows on the latest rewrite.",
+    "Run planned GP80 and OP40 rewrite comparisons.",
+    "Confirm latest full-window queue, use, completion and physical exit/reuse checks.",
+    "Re-profile after the cache ownership fix and quantify remaining costs.",
+    "Formal same-source Release export and performance matrix.",
+    "742-case capacity and memory, maximum room performance, rendered scale and GPU evidence, two-hour stability."
+  ]
+}

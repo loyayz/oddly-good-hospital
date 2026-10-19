@@ -913,6 +913,7 @@ func _case_31(t) -> void:
 		await _until(t,visiting,func()->bool: return _visitor(visiting).get("phase","") in ["waiting","to_waiting","leaving"],350)
 		transfer = _command(visiting,"clinical_transfer_bed",{"visit_id":visiting.visit_id,"bed_id":"clin_ward_1"})
 	var transferred: bool = transfer.accepted and await _until(t,visiting,func()->bool: return _stay(visiting).get("phase","")=="recovery",800)
+	if not transferred: visiting.failure_world = _failure_world("visitor_transfer",visiting.world)
 	t.check("CLIN-31",bedside and medical_priority and legal_point and real_clock and restored.ok and once and windows.get(window,{}).get("intent",false) and windows.get(window,{}).get("started",false) and transferred and _visit(visiting).get("visitor_windows",{})==windows and visiting.world.facts.rng.arrival==arrival_rng and str(_visit(visiting).get("relative_actor_id",""))==str(original.get("actor_id","")) and _income(visiting,"ward")==0 and _income(visiting,"cure")==0,{"initial_care_before_bedside":medical_priority,"actual_bedside_before_timer":legal_point,"exact_30_second_timer":real_clock,"single_intent_after_restore":once,"transfer":transfer.to_record(),"restore":restored,"visitor_trace":visiting.get("visitor_trace",[]),"failure_world":visiting.get("failure_world",{}),"state":_state(visiting)})
 
 func _case_32(t) -> void:

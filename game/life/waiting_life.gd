@@ -42,8 +42,8 @@ func dispatch(world: WorldState) -> void:
 			_dispatch_public_seat(world,visit,seat)
 			continue
 		if world.sim_tick%_ticks(content.balance.patient_behavior.scan_seconds)==0 and not world.facts.moves.has(visit.actor_id):
-			var area: Dictionary = space.public_areas.select(world,visit.actor_id,PUBLIC_SEAT_DEFINITIONS,["waiting","waiting_area","public","lobby","garden",""],"seat",[],_ticks(content.balance.seat_choice.automatic_travel_seconds_max))
-			if not area.is_empty() and int(area.travel_ticks)<=_ticks(content.balance.seat_choice.automatic_travel_seconds_max):
+			var area: Dictionary = space.public_areas.select(world,visit.actor_id,PUBLIC_SEAT_DEFINITIONS,["waiting","waiting_area","public","lobby","garden",""],"seat")
+			if not area.is_empty():
 				var intent: Dictionary = {"id":"seat_"+visit.id,"actor_id":visit.actor_id,"ticket_id":visit.ticket_id,"facility_id":"","public_purpose":"seat","mode":"auto","area":area.area,"phase":"area_travel","continuous_ticks":0,"arrived_tick":-1,"area_travel_ticks":int(area.travel_ticks),"started_tick":world.sim_tick,"floor_id":area.floor_id,"cell":area.cell}
 				world.facts.waiting_life.seats[visit.id] = intent
 				_dispatch_public_seat(world,visit,intent,area)
@@ -126,29 +126,23 @@ func seat_candidates(world: WorldState, visit_id: String) -> Array:
 		for definition_id: String in PUBLIC_SEAT_DEFINITIONS:
 			facility_ids.append_array(world.facility_ids(definition_id))
 	facility_ids.sort()
-	var maximum_travel_ticks: int = _ticks(content.balance.seat_choice.automatic_travel_seconds_max)
-	var remaining_travel_ticks: int = maximum_travel_ticks-int(intent.get("area_travel_ticks",0))
 	space.begin_route_query(world,{},space.nominal_query(world))
 	if environment!=null: environment.begin_query(world)
-	var result: Array = _seat_candidates_in_query(world,visit,facility_ids,intent,remaining_travel_ticks,maximum_travel_ticks)
+	var result: Array = _seat_candidates_in_query(world,visit,facility_ids,intent)
 	if environment!=null: environment.end_query()
 	space.end_route_query()
 	return result
 
-func _seat_candidates_in_query(world: WorldState, visit: Dictionary, facility_ids: Array, intent: Dictionary, remaining_travel_ticks: int, maximum_travel_ticks: int) -> Array:
+func _seat_candidates_in_query(world: WorldState, visit: Dictionary, facility_ids: Array, intent: Dictionary) -> Array:
 	var candidates: Array = []
 	for facility_id: String in facility_ids:
-		if space.facility_travel_lower_bound_ticks(world,facility_id,visit.actor_id)>remaining_travel_ticks: continue
 		if not world.facts.facilities.has(facility_id) or not _public_seat(world,world.facts.facilities[facility_id]): continue
 		var quote: Dictionary = _facility_quote(world,visit,facility_id)
-		if quote.ok and int(quote.travel_ticks)+int(intent.get("area_travel_ticks",0))<=maximum_travel_ticks:
+		if quote.ok:
+			quote.travel_ticks += int(intent.get("area_travel_ticks",0))
 			candidates.append({"facility_id":facility_id,"quote":quote})
 	if candidates.is_empty():
 		return []
-	var closest: int = 2147483647
-	for candidate: Dictionary in candidates:
-		closest = mini(closest,int(candidate.quote.travel_ticks))
-	candidates = candidates.filter(func(item: Dictionary) -> bool: return int(item.quote.travel_ticks)<=closest+_ticks(content.balance.seat_choice.nearby_detour_seconds))
 	for item: Dictionary in candidates:
 		var facility: Dictionary = world.facts.facilities[item.facility_id]
 		item.observation = _environment(world,visit.actor_id,int(facility.floor_id),item.quote.patient_cell)
@@ -219,7 +213,7 @@ func _dispatch_public_seat(world: WorldState, visit: Dictionary, intent: Diction
 		if intent.mode=="manual":
 			_release_seat(world,visit.id)
 			return
-		var selected: Dictionary = space.public_areas.select(world,actor_id,PUBLIC_SEAT_DEFINITIONS,["waiting","waiting_area","public","lobby","garden",""],"seat",[],maxi(0,_ticks(content.balance.seat_choice.automatic_travel_seconds_max)-int(intent.area_travel_ticks)))
+		var selected: Dictionary = space.public_areas.select(world,actor_id,PUBLIC_SEAT_DEFINITIONS,["waiting","waiting_area","public","lobby","garden",""],"seat",[])
 		if selected.is_empty(): return
 		intent.area = selected.area
 		selected_entry = selected
@@ -424,7 +418,7 @@ func _facility_quote_in_query(world: WorldState, visit: Dictionary, facility_id:
 	if candidate!=world: space.begin_route_query(candidate,{},false)
 	var route: Dictionary = space.route(candidate,visit.actor_id,int(layout.floor_id),layout.patient_cell)
 	if candidate!=world: space.end_route_query()
-	if not route.ok or not route.has("arrival_ticks"): return {"ok":false,"reason":route.get("reason","无法估计实际设施路程")}
+	if not route.ok or not route.has("travel_ticks"): return {"ok":false,"reason":route.get("reason","无法估计实际设施路程")}
 	var reverse: WorldState = candidate if candidate!=world else _route_candidate(candidate,visit.actor_id)
 	var origin: Dictionary = world.facts.actors[visit.actor_id].location
 	reverse.facts.actors[visit.actor_id].location = {"kind":"floor","floor_id":layout.floor_id,"cell":layout.patient_cell.duplicate(),"height_m":0.0}
@@ -434,7 +428,7 @@ func _facility_quote_in_query(world: WorldState, visit: Dictionary, facility_id:
 	var back: Dictionary = space.route(reverse,visit.actor_id,int(origin.floor_id),origin.cell)
 	space.end_route_query()
 	if not back.ok: return {"ok":false,"reason":"设施没有合法返回路线："+str(back.get("reason",""))}
-	return {"ok":true,"travel_ticks":int(route.arrival_ticks),"patient_cell":layout.patient_cell.duplicate(),"floor_id":int(layout.floor_id)}
+	return {"ok":true,"travel_ticks":int(route.travel_ticks),"patient_cell":layout.patient_cell.duplicate(),"floor_id":int(layout.floor_id)}
 
 func _route_candidate(world: WorldState, actor_id: String) -> WorldState:
 	# Only prospective adaptation and the returning actor may be written.

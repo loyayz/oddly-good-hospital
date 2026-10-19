@@ -12,19 +12,19 @@
     "pose": "reclined"
   },
   {
-    "extent_rule": "max_base_and_standing_body",
+    "extent_rule": "base_with_real_operator_areas",
     "id": "FF03",
     "kind": "medical",
     "pose": "supported"
   },
   {
-    "extent_rule": "max_base_and_reclined_body",
+    "extent_rule": "base_with_real_operator_areas",
     "id": "FF04",
     "kind": "operating_table",
     "pose": "reclined"
   },
   {
-    "extent_rule": "max_base_and_standing_body",
+    "extent_rule": "base_with_real_operator_areas",
     "id": "FF05",
     "kind": "amenity",
     "pose": "supported"
@@ -40,5 +40,11 @@
     "id": "FF07",
     "kind": "vertical_connector",
     "pose": "standing"
+  },
+  {
+    "extent_rule": "base_with_real_operator_areas",
+    "id": "FF08",
+    "kind": "bed",
+    "pose": "reclined"
   }
 ]

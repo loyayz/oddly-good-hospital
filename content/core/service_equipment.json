@@ -33,7 +33,7 @@
     "access_anchor_policy": "adjacent_to_adapted_footprint",
     "capacity": 1,
     "equipment_class": "comfort",
-    "fit_profile_id": "FF02",
+    "fit_profile_id": "FF08",
     "footprint": [
       1,
       2

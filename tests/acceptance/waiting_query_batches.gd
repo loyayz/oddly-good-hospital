@@ -69,20 +69,14 @@ class FrozenLife extends CountedLife:
 		for definition_id: String in PUBLIC_SEAT_DEFINITIONS:
 			facility_ids.append_array(world.facility_ids(definition_id))
 		facility_ids.sort()
-		var maximum_travel_ticks: int = _ticks(content.balance.seat_choice.automatic_travel_seconds_max)
 		space.begin_route_query(world,{},space.nominal_query(world))
 		for facility_id: String in facility_ids:
-			if space.facility_travel_lower_bound_ticks(world,facility_id,visit.actor_id)>maximum_travel_ticks: continue
 			var quote: Dictionary = _seat_quote(world,visit,facility_id)
-			if quote.ok and int(quote.travel_ticks)<=maximum_travel_ticks:
+			if quote.ok:
 				candidates.append(quote)
 		space.end_route_query()
 		if candidates.is_empty():
 			return []
-		var closest: int = 2147483647
-		for candidate: Dictionary in candidates:
-			closest = mini(closest,int(candidate.travel_ticks))
-		candidates = candidates.filter(func(item: Dictionary) -> bool: return int(item.travel_ticks)<=closest+_ticks(content.balance.seat_choice.nearby_detour_seconds))
 		var preferred: Array = candidates.filter(func(item: Dictionary) -> bool: return item.preferred)
 		if not preferred.is_empty():
 			candidates = preferred
@@ -144,7 +138,7 @@ func run_cases(database: HospitalContent) -> Dictionary:
 	var empty: Dictionary = _empty_bound_case()
 	var water: Dictionary = _water_view_case()
 	valid = valid and reservation.passed and empty.passed and water.passed
-	return {"passed":valid,"neighborhoods":rows,"live_last_seat":reservation,"strict_rejected_bound":empty,"water_query_boundaries":water}
+	return {"passed":valid,"neighborhoods":rows,"live_last_seat":reservation,"far_candidate_retained":empty,"water_query_boundaries":water}
 
 func _water_view_case() -> Dictionary:
 	var x: Dictionary = _fixture()
@@ -287,4 +281,4 @@ func _empty_bound_case() -> Dictionary:
 	x.world.touch()
 	var before: Dictionary = x.world.freeze()
 	var compared: Dictionary = compare(x.world,visit.id)
-	return {"passed":compared.equal and compared.after_candidates.is_empty() and compared.after_metrics.full_quotes==0 and compared.after_metrics.index_build_actor_records==0 and x.world.freeze()==before,"full_candidates_equal":compared.equal,"before":compared.before_metrics,"after":compared.after_metrics,"facts_and_rng_readonly":x.world.freeze()==before}
+	return {"passed":compared.equal and compared.after_candidates.size()==1 and int(compared.after_candidates[0].travel_ticks)>300 and compared.after_metrics.full_quotes==1 and x.world.freeze()==before,"full_candidates_equal":compared.equal,"before":compared.before_metrics,"after":compared.after_metrics,"facts_and_rng_readonly":x.world.freeze()==before}

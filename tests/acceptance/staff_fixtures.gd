@@ -192,8 +192,8 @@ func _base_selection_examples() -> Dictionary:
 		var before_save: Dictionary = x.world.freeze()
 		x = _restore(x)
 		var kept: bool = x.world.freeze()==before_save
-		nearest_ok = nearest_ok and near_route.ok and far_route.ok and int(near_route.arrival_ticks)<int(far_route.arrival_ticks) and selected==near_id and kept
-		reversed_ids.append({"near_id":near_id,"selected":selected,"near_ticks":near_route.get("arrival_ticks",-1),"far_ticks":far_route.get("arrival_ticks",-1),"saved":kept})
+		nearest_ok = nearest_ok and near_route.ok and far_route.ok and int(near_route.travel_ticks)<int(far_route.travel_ticks) and selected==near_id and kept
+		reversed_ids.append({"near_id":near_id,"selected":selected,"near_ticks":near_route.get("travel_ticks",-1),"far_ticks":far_route.get("travel_ticks",-1),"saved":kept})
 	var occupied: Dictionary = _fixture({"holder":"nurse"})
 	_facility(occupied,"a_far","SE06",[60,90])
 	_facility(occupied,"z_near","SE06",[42,80])

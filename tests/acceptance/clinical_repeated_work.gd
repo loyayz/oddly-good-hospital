@@ -183,8 +183,7 @@ func _reachability_boundary(content: HospitalContent) -> Dictionary:
 		var expected: Dictionary = cold.route(world,"gather_patient_0",1,goal,[],{},true)
 		var warm: bool = actual.can_reach(world,"gather_patient_0",1,goal,[],{},true)
 		var exact: bool = reachable==bool(expected.ok) and warm==reachable and full==expected and no_partial_cache
-		if not nominal: exact = exact and not reachable and full.get("status","")=="estimate_unknown"
-		else: exact = exact and reachable
+		exact = exact and reachable and full.has("travel_ticks")
 		actual.end_route_query()
 		cold.end_route_query()
 		passed = passed and exact and before==world.freeze()

@@ -1,0 +1,158 @@
+{
+  "complete": true,
+  "tool_head": "b17b7d600653bc079e54f9b3b628f7084352290b",
+  "before_head": "e82de5589eca9fc1ab81e0d5c823008fc907fa2c",
+  "after_head": "d558e7e0ead6d56270dd552241a5912be9d0f8cc",
+  "formal_pass": false,
+  "formal_acceptance_paused": true,
+  "pairs": [
+    {
+      "scene": "public",
+      "round": 1,
+      "binary_equal": true,
+      "before": {
+        "cold_first_us": 5393330,
+        "count": 300,
+        "following_mean_us": 331764.919732441,
+        "max_us": 5393330,
+        "mean_us": 348636.803333333,
+        "p50_us": 78727,
+        "p95_us": 2311167,
+        "p99_us": 2413918,
+        "total_us": 104591041
+      },
+      "after": {
+        "cold_first_us": 5688033,
+        "count": 300,
+        "following_mean_us": 318680.558528428,
+        "max_us": 5688033,
+        "mean_us": 336578.4,
+        "p50_us": 77624,
+        "p95_us": 1919662,
+        "p99_us": 2262628,
+        "total_us": 100973520
+      }
+    },
+    {
+      "scene": "public",
+      "round": 2,
+      "binary_equal": true,
+      "before": {
+        "cold_first_us": 5584712,
+        "count": 300,
+        "following_mean_us": 338358.652173913,
+        "max_us": 5584712,
+        "mean_us": 355846.496666667,
+        "p50_us": 81008,
+        "p95_us": 2290268,
+        "p99_us": 2393652,
+        "total_us": 106753949
+      },
+      "after": {
+        "cold_first_us": 5584560,
+        "count": 300,
+        "following_mean_us": 319527.595317726,
+        "max_us": 5584560,
+        "mean_us": 337077.703333333,
+        "p50_us": 76767,
+        "p95_us": 1965783,
+        "p99_us": 2268722,
+        "total_us": 101123311
+      }
+    },
+    {
+      "scene": "gp",
+      "binary_equal": true,
+      "before": {
+        "cold_first_us": 1100201,
+        "count": 80,
+        "following_mean_us": 29721.1392405063,
+        "max_us": 1100201,
+        "mean_us": 43102.1375,
+        "p50_us": 23080,
+        "p95_us": 79138,
+        "p99_us": 1100201,
+        "total_us": 3448171
+      },
+      "after": {
+        "cold_first_us": 1129235,
+        "count": 80,
+        "following_mean_us": 29174.0886075949,
+        "max_us": 1129235,
+        "mean_us": 42924.85,
+        "p50_us": 22642,
+        "p95_us": 64763,
+        "p99_us": 1129235,
+        "total_us": 3433988
+      }
+    },
+    {
+      "scene": "op",
+      "binary_equal": true,
+      "before": {
+        "cold_first_us": 5512993,
+        "count": 40,
+        "following_mean_us": 79633.6153846154,
+        "max_us": 5512993,
+        "mean_us": 215467.6,
+        "p50_us": 77384,
+        "p95_us": 94784,
+        "p99_us": 5512993,
+        "total_us": 8618704
+      },
+      "after": {
+        "cold_first_us": 5504814,
+        "count": 40,
+        "following_mean_us": 79168.5384615385,
+        "max_us": 5504814,
+        "mean_us": 214809.675,
+        "p50_us": 78598,
+        "p95_us": 96670,
+        "p99_us": 5504814,
+        "total_us": 8592387
+      }
+    }
+  ],
+  "diagnostics": [
+    {
+      "side": "before",
+      "final_binary_equal_plain": true,
+      "metrics": {
+        "cold_first_us": 10633635,
+        "count": 300,
+        "following_mean_us": 352819.468227425,
+        "max_us": 10633635,
+        "mean_us": 387088.853333333,
+        "p50_us": 80707,
+        "p95_us": 2344574,
+        "p99_us": 2998596,
+        "total_us": 116126656
+      },
+      "calls": [
+        206204,
+        48721,
+        48078
+      ]
+    },
+    {
+      "side": "after",
+      "final_binary_equal_plain": true,
+      "metrics": {
+        "cold_first_us": 10732047,
+        "count": 300,
+        "following_mean_us": 330197.244147157,
+        "max_us": 10732047,
+        "mean_us": 364870.076666667,
+        "p50_us": 82274,
+        "p95_us": 1978778,
+        "p99_us": 2748290,
+        "total_us": 109461023
+      },
+      "calls": [
+        206488,
+        33251,
+        34048
+      ]
+    }
+  ]
+}

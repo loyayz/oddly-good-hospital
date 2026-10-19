@@ -149,7 +149,7 @@ class OriginalEnumeration extends HospitalClinic:
 			var route: Dictionary = space.travel_quote(world,actor_id,int(table.floor_id),position)
 			if not route.ok:
 				return route
-			gathering_ticks = maxi(gathering_ticks,int(route.arrival_ticks))
+			gathering_ticks = maxi(gathering_ticks,int(route.travel_ticks))
 		var predicted: Dictionary = _surgery_probability(world,visit,team,table,protocol)
 		var effective: float = float(predicted.effective_level)
 		var seconds: float = _surgery_work_seconds(world,visit,team[0],protocol,effective)

@@ -2282,7 +2282,6 @@
   },
   "schema_version": 100,
   "seat_choice": {
-    "automatic_travel_seconds_max": 30,
     "call_interrupt_source": "patient_behavior.interrupt_seconds",
     "calm_minimum_anger": 35,
     "candidate_count_cap": null,
@@ -2305,14 +2304,11 @@
     "environment_tolerance": 10,
     "existing_legal_seat": "keep_until_original_reselection_trigger",
     "manual_selection": "physical_legality_and_clinical_priority_only",
-    "nearby_detour_seconds": 12,
     "runtime_measurement_available": false,
     "scope": "clinical_waiting_patient",
     "score_scale": 100,
     "selection_order": [
       "physical_legality",
-      "travel_window",
-      "nearby_band",
       "preference",
       "environment_band",
       "personality_score",

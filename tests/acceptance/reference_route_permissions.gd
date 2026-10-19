@@ -34,7 +34,7 @@ func run_case(sim: HospitalSimulation, content: HospitalContent) -> Dictionary:
 			valid = valid and validation.is_empty()
 			worlds[id] = world
 			cold[id] = _quote(HospitalSpace.new(content),world,id,goal,{"nominal":true},mode)
-			var expected: bool = id in [OWNER,STAFF]
+			var expected: bool = mode=="journey" or id in [OWNER,STAFF]
 			valid = valid and cold[id].ok==expected
 			observations.append({"mode":mode,"actor":id,"validation":validation,"cold":cold[id]})
 		for first: String in [OWNER,STAFF]:
@@ -55,9 +55,9 @@ func run_case(sim: HospitalSimulation, content: HospitalContent) -> Dictionary:
 			var space: HospitalSpace = HospitalSpace.new(content)
 			var reference: Dictionary = {"nominal":true}
 			var first_quote: Dictionary = _quote(space,worlds[pair[0]],pair[0],goal,reference,mode)
-			var before_size: int = reference.routes.size() if mode=="floor" else reference.journeys.size()
+			var before_size: int = reference.routes.size()
 			var next_quote: Dictionary = _quote(space,worlds[pair[1]],pair[1],goal,reference,mode)
-			var after_size: int = reference.routes.size() if mode=="floor" else reference.journeys.size()
+			var after_size: int = reference.routes.size()
 			var shared: bool = first_quote==next_quote and before_size==after_size
 			valid = valid and shared
 			observations.append({"mode":mode,"same_permissions":pair,"shared":shared})
