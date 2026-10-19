@@ -122,7 +122,8 @@ func boundaries(world: WorldState) -> void:
 				_release(world,job)
 				job.phase = "cancelled"
 				item.maintenance_order_id = ""
-	for job: Dictionary in state.jobs.values():
+	for job_id: String in world.active_operation_ids("maintenance","jobs",["completed","cancelled"]):
+		var job: Dictionary = state.jobs[job_id]
 		if not equipment.has(job.facility_id) and job.phase not in ["completed","cancelled"]:
 			_release(world,job)
 			job.phase = "cancelled"
@@ -553,7 +554,9 @@ func _admit_worker(world: WorldState, job: Dictionary, item: Dictionary) -> void
 	if not space.static_reason(world,actor,int(entry.floor_id),Vector2i(int(entry.cell[0]),int(entry.cell[1]))).is_empty() or not space._dynamic_clear(world,actor.id,int(entry.floor_id),space.body_rectangle(actor)):
 		job.reason = "等待入口实际空位，维修员尚未入院"
 		return
-	var candidate: WorldState = WorldState.new(world.freeze())
+	var facts: Dictionary = world.facts.duplicate()
+	facts.actors = world.facts.actors.duplicate()
+	var candidate: WorldState = WorldState.new(facts)
 	candidate.facts.actors[actor.id] = actor
 	var position: Dictionary = _position(candidate,item,actor.id)
 	if position.is_empty() or not _has_tools(candidate,actor.id):

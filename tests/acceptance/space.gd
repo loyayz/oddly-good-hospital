@@ -28,9 +28,9 @@ class SeatCountingLife:
 	var quote_calls: int = 0
 	func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 		super(database,geometry)
-	func _seat_quote(world: WorldState, visit: Dictionary, facility_id: String, actor_index: Variant = null) -> Dictionary:
+	func _facility_quote(world: WorldState, visit: Dictionary, facility_id: String) -> Dictionary:
 		quote_calls += 1
-		return super._seat_quote(world,visit,facility_id,actor_index)
+		return super._facility_quote(world,visit,facility_id)
 
 class VisitorCandidateObservation:
 	extends HospitalVisitors
@@ -187,11 +187,20 @@ func _case_05(_t) -> Dictionary:
 	poor.dispose()
 	return _done(sim,built.accepted and exit_atomic and money_atomic,{"exit":exit_result.to_record(),"money":money.to_record()})
 
+class SafetyCountingBuilder extends BuildService:
+	var safety_floors: Array = []
+	func _safety(previous: WorldState, candidate: WorldState, floor_id: int) -> Dictionary:
+		safety_floors.append(floor_id)
+		return super._safety(previous,candidate,floor_id)
+
 func _case_06(_t) -> Dictionary:
 	var sim: HospitalSimulation = _fixture()
 	var first: CommandResult = _command(sim,"build_facility",{"id":"asset_a","definition_id":"SE02","cell":[45,75],"floor_id":1})
 	var original: Dictionary = sim.world.facts.facilities.get("asset_a",{}).duplicate(true)
 	var cash: int = HospitalLedger.balance(sim.world)
+	var counting: SafetyCountingBuilder = SafetyCountingBuilder.new(content,sim.space)
+	var counted: Dictionary = counting._plan(sim.world,"build_move",{"target_id":"asset_a","cell":[48,75],"floor_id":1})
+	var unique_safety: bool = counted.get("ok",false) and counted.get("floors",[])==[1,1] and counting.safety_floors==[1]
 	var move: CommandResult = _command(sim,"build_move",{"target_id":"asset_a","cell":[48,75],"floor_id":1})
 	var moved: bool = move.accepted and sim.world.facts.facilities.asset_a.id=="asset_a" and sim.world.facts.facilities.asset_a.paid_cost==original.get("paid_cost") and cash==HospitalLedger.balance(sim.world)
 	var undo: CommandResult = _command(sim,"build_undo",{})
@@ -205,7 +214,7 @@ func _case_06(_t) -> Dictionary:
 	var used: CommandResult = _command(sim,"build_demolish",{"target_id":"asset_used"},"space_used_refund")
 	var after: Dictionary = sim.world.freeze()
 	var repeated: CommandResult = _command(sim,"build_demolish",{"target_id":"asset_used"},"space_used_refund")
-	return _done(sim,first.accepted and moved and restored and unused_refund and used.accepted and HospitalLedger.balance(sim.world)-used_cash==int(original.get("paid_cost",0))*80/100 and repeated.accepted and after==sim.world.freeze(),{"move":move.to_record(),"undo":undo.to_record(),"used":used.to_record()})
+	return _done(sim,first.accepted and unique_safety and moved and restored and unused_refund and used.accepted and HospitalLedger.balance(sim.world)-used_cash==int(original.get("paid_cost",0))*80/100 and repeated.accepted and after==sim.world.freeze(),{"move":move.to_record(),"undo":undo.to_record(),"used":used.to_record(),"safety_floors":counting.safety_floors,"public_floors":counted.get("floors",[])})
 
 func _case_07(_t) -> Dictionary:
 	var sim: HospitalSimulation = _fixture()
@@ -1258,8 +1267,14 @@ func _case_41(_t) -> Dictionary:
 	var sim: HospitalSimulation = _fixture()
 	_command(sim,"build_facility",{"id":"preferred_stock","definition_id":"SE02","floor_id":1,"cell":[44,72]})
 	_command(sim,"build_store",{"target_id":"preferred_stock"})
+	sim.world.facts.inventory.build_items.preferred_stock.extension_payload = {"nested":[{"value":7}]}
+	var source: Dictionary = sim.world.freeze()
 	var payload: Dictionary = {"blueprint":_object_blueprint("SE02"),"floor_id":1,"cell":[44,78]}
 	var quote: Dictionary = sim.services.blueprints.preview(sim.world,payload)
+	var unknown_fields: bool = quote.get("ok",false) and quote.candidate.facts.facilities.preferred_stock.get("extension_payload",{})=={"nested":[{"value":7}]} and sim.world.freeze()==source
+	if quote.get("ok",false):
+		quote.candidate.facts.facilities.preferred_stock.extension_payload.nested[0].value = 9
+		unknown_fields = unknown_fields and sim.world.facts.inventory.build_items.preferred_stock.extension_payload.nested[0].value==7
 	payload.quote = _blueprint_quote(quote)
 	sim.world.facts.inventory.build_items.preferred_stock.reserved = true
 	sim.world.touch()
@@ -1273,7 +1288,7 @@ func _case_41(_t) -> Dictionary:
 	before = sim.world.freeze()
 	var late: Dictionary = sim.services.blueprints.preview(sim.world,{"blueprint":large,"cell":[34,68],"floor_id":1,"use_inventory":false})
 	var unowned: Dictionary = sim.services.blueprints.preview(sim.world,{"blueprint":_object_blueprint("SE02"),"cell":[44,78],"floor_id":2})
-	return _done(sim,quote.get("ok",false) and identity_atomic and block.accepted and not late.get("ok",true) and not unowned.get("ok",true) and before==sim.world.freeze(),{"changed_inventory":changed.to_record(),"late_obstacle":late.get("reason"),"unowned":unowned.get("reason")})
+	return _done(sim,quote.get("ok",false) and unknown_fields and identity_atomic and block.accepted and not late.get("ok",true) and not unowned.get("ok",true) and before==sim.world.freeze(),{"changed_inventory":changed.to_record(),"late_obstacle":late.get("reason"),"unowned":unowned.get("reason"),"unknown_inventory_fields_and_isolation":unknown_fields})
 
 func _case_42(_t) -> Dictionary:
 	var sim: HospitalSimulation = _fixture()

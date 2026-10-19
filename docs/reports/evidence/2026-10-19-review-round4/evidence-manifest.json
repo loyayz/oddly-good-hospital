@@ -1,0 +1,4898 @@
+{
+  "archive": "raw-evidence.zip",
+  "archive_sha256": "66c216ff3c11b6a310b3cf94b6cc141fd08d151cd9f798f2403d263cf785fc56",
+  "archive_bytes": 8621595,
+  "entry_count": 978,
+  "entries": [
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/acceptance-results.json",
+      "sha256": "ddc5da292ebfe4aaef431bb5f6920083de80bf20f3c8f833e0a8fcf6a72f4bac",
+      "bytes": 207097
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/execution-status.json",
+      "sha256": "2a989b6a92b860a118392aa33b12fcd2b7517cefeb029c37e46cf79e5e8e4ca1",
+      "bytes": 192
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/execution.log",
+      "sha256": "0da77c04c3d98469ae9469f3285e21e85ccc3f86c35db8a8537305e580a8411e",
+      "bytes": 183050
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/fixture-config.json",
+      "sha256": "352b9a6b7d19d8d0649f3102215d2c148f97ffc8db2b6a479387b86f41e96a6c",
+      "bytes": 27974
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/import.log",
+      "sha256": "2d5a8a7f80e8b05a5a53bfc1d6f08e4a67513a0f0f7b1d7af9f412766b19a323",
+      "bytes": 14097
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/source-identity.json",
+      "sha256": "2990d1516342c3d40e34f3910ec501ecd8738330defaa050ade18a8128622335",
+      "bytes": 115124
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/README.md",
+      "sha256": "dd56fc6c81278c0a169a7b8ab69dc1b900bb0038dac87b2240ac9929bcc65367",
+      "bytes": 6818
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/arrival_cancellation.gd",
+      "sha256": "0bb7445a26e20835f7f5d1e5922b74f6fc93a8a23e32ba2530ebbc568035f94a",
+      "bytes": 11260
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/blocked_route_target.gd",
+      "sha256": "3658c4d210a1cf1dfecc9b803686814512f1f98f85daeaa357f99b77fad65c3f",
+      "bytes": 8843
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/canonical_json.gd",
+      "sha256": "1e147246fa254beaadadac01628c0b1d22351bba05e012da900dfee1473619e9",
+      "bytes": 3012
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/checkpoint_dependencies.gd",
+      "sha256": "f4399e592f71bbc71730d98e0363fc041e3ba2fdc03a8c748c9c5488aa38db70",
+      "bytes": 5282
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/checkpoint_identity.gd",
+      "sha256": "7fdb07b39b2d4e802fc164038dd5deaea477573b77005bb7b726f8227c109fdc",
+      "bytes": 3362
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/checkpoints.gd",
+      "sha256": "de21e64d915707e1008f631175d53e68df2d4f8faf6055ba5b0a84b58e605ce6",
+      "bytes": 6189
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/clinical.gd",
+      "sha256": "55f61c797c22b96c0b766053f6b06e2d8fb983c31de7586d214d569de0ea7898",
+      "bytes": 74387
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/clinical.md",
+      "sha256": "1b25f944dcb08ba903cb60505381925535734db4fd63bb679072ecbdc224a8db",
+      "bytes": 22718
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/clinical_fixtures.gd",
+      "sha256": "729f772f15535c9e37f4a66e4dfc30790496f0a41b3d06d4b1edff6be917b4fb",
+      "bytes": 41402
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/clinical_gathering.gd",
+      "sha256": "1f30d50c5209097e177bc09d6998c4ec61da6e90c0d13aac81e2d71a8df5fd06",
+      "bytes": 13694
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/clinical_query_batches.gd",
+      "sha256": "730b56217e0b9ad6740469e85f468452228bd4f68c410730bb9b5cb6953aa25a",
+      "bytes": 7375
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/clinical_repeated_work.gd",
+      "sha256": "f2894b3f2b0207503775bef2557aef9cb44255ffaf5a38fe497906df1a017928",
+      "bytes": 5496
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/clinical_selected_doctor.gd",
+      "sha256": "b49524db019819a325695934d4fd37ffc4b9c7315caf8bcd827e3d8152921a40",
+      "bytes": 7751
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/clinical_step.gd",
+      "sha256": "ba34566e6452b55dbf649d756f545e630df6073b0c1910722bca34c4e7512030",
+      "bytes": 2278
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/clinical_timing.gd",
+      "sha256": "15c77fe691dbfa72c6cb6ed5aacfb341a068f72a87ffa78cd51129b461ccfb0b",
+      "bytes": 11966
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/core.gd",
+      "sha256": "00c129fa0a742a7d2a96725b98577e5dec7b724a9302f9aa0b044ab08f308218",
+      "bytes": 48177
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/core.md",
+      "sha256": "3553fa288f9d67d09ec4c9a96e8f913aa40b9f3f5777583a33ad93e8834ff816",
+      "bytes": 9787
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/details_projection.gd",
+      "sha256": "d6a2fcb4d6d873b910dc57052dd2ce8730cd01671e9fa081f0f9295cf4cff110",
+      "bytes": 9576
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/diagnostic_graph.gd",
+      "sha256": "6eb23b532d5260bd12e2e09be77ad5f8be64d1f0db30ffb8eb9a03dd603484eb",
+      "bytes": 9554
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/environment_query_batches.gd",
+      "sha256": "43495e850610b64a13aa9e37158277b6e8969c020ac24cacafd0b06d5970cbcb",
+      "bytes": 5338
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/growth.gd",
+      "sha256": "03d9caff484d3ae16d4f05e47b4624756cbc87d3e6548ef51368ca9b44573272",
+      "bytes": 157425
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/growth.md",
+      "sha256": "c582ed52b34908ebaf17811889ecb8918e55b2149569f50ba5c9f0edcedb853a",
+      "bytes": 15925
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/growth_fixtures.gd",
+      "sha256": "5ccc79ab6b5005b948e8e9f1d5e7e4b06f4698aa1acf5cdb7dc4fa744595c6e3",
+      "bytes": 13162
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/growth_repeated_work.gd",
+      "sha256": "3ff35e23ecc406dc1698fc491acbab96fd8265d2b2a27136d119b70142435c23",
+      "bytes": 7687
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/ledger_observation.gd",
+      "sha256": "a594b3067029c666c6214306f6c742a941dcbbe0be2d02e457558573d9eacc21",
+      "bytes": 3366
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/operations.gd",
+      "sha256": "bd920c9d6f104097094476e0e06fcbe7e9051a4c4f778045b6f57e2ab47ffbc6",
+      "bytes": 113478
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/operations.md",
+      "sha256": "88c09013f31f28be519e276883631854d16fae0389b9607dbb3b0ac6f76760f4",
+      "bytes": 20335
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/operations_repeated_work.gd",
+      "sha256": "5fb91343bafc116bc8093cb3d9c899ec6b374f3b77efa4d74a34f5763f8467c1",
+      "bytes": 16499
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/preview_computation.gd",
+      "sha256": "48cfb9acd40273655f4cdd56326a00a18fc2cd8a7bc12200225a53d06db804fc",
+      "bytes": 8524
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/public_area_use.gd",
+      "sha256": "9b3413d6a204ca359a9c9f488184f7794af2da314143ceb6d3ee0ca606239f28",
+      "bytes": 35021
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/reference_component_batch.gd",
+      "sha256": "82e3edd94106848410c02865967b9ab09b9d089944b0befc967309a2e87b0642",
+      "bytes": 20309
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/reference_route_envelope.gd",
+      "sha256": "b0301aff2fcac22c93b3b0912f8cf282a2fe37239b08cfd606567f90edf88578",
+      "bytes": 7170
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/reference_route_permissions.gd",
+      "sha256": "a49f87d01b5deb4532b9a0e8dc1493677864797f9e02ceed5f19d529a9e80cb0",
+      "bytes": 4276
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/reference_routing.gd",
+      "sha256": "9b7966583a1d07d6c216310b020c6ce14e6a908bbbc87f1336f04977251d4211",
+      "bytes": 3881
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/repeated_presentation.gd",
+      "sha256": "0c3b7f0e1330d671e9ddf2241b67c550cf301963b5b7cfc49018150425b133b0",
+      "bytes": 22203
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/runner.gd",
+      "sha256": "e188aa85e67a15e46eae8f3ba79fd8ac1cd1c43eec2faa244d8766b06c5cdd3f",
+      "bytes": 5848
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/scene_pixels.gd",
+      "sha256": "ded7447741ccd70c0c70b57ad6dbbbd511e3774b20486f056d68ad04b42913e6",
+      "bytes": 5411
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/snapshot_cleanup.gd",
+      "sha256": "3712a6fa042a636df836bd485548ed625c3bdd652ec4065cfa43b01e1fe58a95",
+      "bytes": 2304
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/space.gd",
+      "sha256": "4f680701e8f0b22596c45799eaff02fe640559b178a67a569a13446bf16c598d",
+      "bytes": 157109
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/space.md",
+      "sha256": "9d3e90cb11d2e2b91239af12cf224c6274cf39f61a3af4d408b46e2370d12fae",
+      "bytes": 29214
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/staff.gd",
+      "sha256": "4b4c1a774d181e38cfdbfad225d86ddba4efbfea055c195d7e4d736e8a42cc41",
+      "bytes": 85083
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/staff.md",
+      "sha256": "7923e9756e29ee87abf4f1b9d10273d3cff6bd334cf559a11bb553d727e5c623",
+      "bytes": 26459
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/staff_fixtures.gd",
+      "sha256": "32de59127a887edea739b5c55379950a1e51aba329a56e6d79b507a3824105c2",
+      "bytes": 23373
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/staff_query_batches.gd",
+      "sha256": "b9c9b1fd05bbad8f4721fa719725a7a4c3549398368394ffd5b5f7482e7d1eba",
+      "bytes": 8649
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/staff_repeated_work.gd",
+      "sha256": "02a2eef928cf460a957cd3d20018e21b7a3e2ca13984bb78fd40950d6d435bab",
+      "bytes": 13564
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/stream_boundaries.gd",
+      "sha256": "7ba2edb9adc01f3d788d16f4801a3cc90bde3f3f24a4663842677ccf10267943",
+      "bytes": 2634
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/structure_dominance.gd",
+      "sha256": "daf30d73f8fe0972be3ae69dc8958b6cb8280a5c300a6cf4ae59f2347885e414",
+      "bytes": 7768
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/surgery_qualification.gd",
+      "sha256": "22d293b230889017390b4eaa99ea9dbf14085b12a5929016a16cec2cf6858cf3",
+      "bytes": 16000
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/view_projection.gd",
+      "sha256": "d21fc9111311a956fd164e600300fc0c72e311bea85a647764495aa77a11cf0e",
+      "bytes": 5805
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/acceptance/waiting_query_batches.gd",
+      "sha256": "941b6503541e02e27e3b6b1241118ff7c538004a5e63ff4b277470ed6caa8db6",
+      "bytes": 17617
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/native/repeated_roles.py",
+      "sha256": "aa65ad0815b31de63bd775243ec01200b39db2813763d8a271070a7795a3a63d",
+      "bytes": 8006
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/run-acceptance.ps1",
+      "sha256": "0894f62375d61de221fed333634c234182b5fe0171ccd325b0a297329d8480ca",
+      "bytes": 9293
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/tests/test-fixture-source-policy.ps1",
+      "sha256": "fe6b6ec517bc1cd00b4ff85a6795f4d26dc61c074a67df7e5c7047c6579c21d8",
+      "bytes": 1635
+    },
+    {
+      "path": "acceptance/117b124c6ffb4aea8a3cd1b5dab5df02/timing-summary.json",
+      "sha256": "e20c8c79a8a637abd7d90c9d54609fb8407b9497a8161690304e234dbd7e7c70",
+      "bytes": 258
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/acceptance-results.json",
+      "sha256": "8efc38c6264707960da270de00dd18ae6e1bd4df574b06bbc257fd45cbf2e589",
+      "bytes": 15022
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/execution-status.json",
+      "sha256": "63c7e870a4c671b8e71553ec37ed8bf4e8b1814d2ded68104adf4cc273614e00",
+      "bytes": 192
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/execution.log",
+      "sha256": "f472f8d934700ffb5b0d306c824bc6d3b4906c2c3e2070a84c7fd5cc388d7705",
+      "bytes": 285
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/fixture-config.json",
+      "sha256": "9fff8e80d09a86089e48c830761c5b5806435fefadc552bf275329a3515ad2ba",
+      "bytes": 27974
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/import.log",
+      "sha256": "2d5a8a7f80e8b05a5a53bfc1d6f08e4a67513a0f0f7b1d7af9f412766b19a323",
+      "bytes": 14097
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/source-identity.json",
+      "sha256": "293da0ffffdb7ffce760329fa660c5c58674c591b8eda896a2a82bebc6ab2925",
+      "bytes": 113615
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/README.md",
+      "sha256": "dd56fc6c81278c0a169a7b8ab69dc1b900bb0038dac87b2240ac9929bcc65367",
+      "bytes": 6818
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/arrival_cancellation.gd",
+      "sha256": "0bb7445a26e20835f7f5d1e5922b74f6fc93a8a23e32ba2530ebbc568035f94a",
+      "bytes": 11260
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/blocked_route_target.gd",
+      "sha256": "3658c4d210a1cf1dfecc9b803686814512f1f98f85daeaa357f99b77fad65c3f",
+      "bytes": 8843
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/canonical_json.gd",
+      "sha256": "1e147246fa254beaadadac01628c0b1d22351bba05e012da900dfee1473619e9",
+      "bytes": 3012
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/checkpoint_dependencies.gd",
+      "sha256": "f4399e592f71bbc71730d98e0363fc041e3ba2fdc03a8c748c9c5488aa38db70",
+      "bytes": 5282
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/checkpoint_identity.gd",
+      "sha256": "7fdb07b39b2d4e802fc164038dd5deaea477573b77005bb7b726f8227c109fdc",
+      "bytes": 3362
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/checkpoints.gd",
+      "sha256": "de21e64d915707e1008f631175d53e68df2d4f8faf6055ba5b0a84b58e605ce6",
+      "bytes": 6189
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/clinical.gd",
+      "sha256": "55f61c797c22b96c0b766053f6b06e2d8fb983c31de7586d214d569de0ea7898",
+      "bytes": 74387
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/clinical.md",
+      "sha256": "1b25f944dcb08ba903cb60505381925535734db4fd63bb679072ecbdc224a8db",
+      "bytes": 22718
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/clinical_fixtures.gd",
+      "sha256": "729f772f15535c9e37f4a66e4dfc30790496f0a41b3d06d4b1edff6be917b4fb",
+      "bytes": 41402
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/clinical_gathering.gd",
+      "sha256": "1f30d50c5209097e177bc09d6998c4ec61da6e90c0d13aac81e2d71a8df5fd06",
+      "bytes": 13694
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/clinical_query_batches.gd",
+      "sha256": "730b56217e0b9ad6740469e85f468452228bd4f68c410730bb9b5cb6953aa25a",
+      "bytes": 7375
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/clinical_repeated_work.gd",
+      "sha256": "4d59e9d8eae989c249b05991cafdbe14165b56727c0757a0d62b2a45b387ab4f",
+      "bytes": 8200
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/clinical_selected_doctor.gd",
+      "sha256": "b49524db019819a325695934d4fd37ffc4b9c7315caf8bcd827e3d8152921a40",
+      "bytes": 7751
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/clinical_step.gd",
+      "sha256": "ba34566e6452b55dbf649d756f545e630df6073b0c1910722bca34c4e7512030",
+      "bytes": 2278
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/clinical_timing.gd",
+      "sha256": "15c77fe691dbfa72c6cb6ed5aacfb341a068f72a87ffa78cd51129b461ccfb0b",
+      "bytes": 11966
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/core.gd",
+      "sha256": "00c129fa0a742a7d2a96725b98577e5dec7b724a9302f9aa0b044ab08f308218",
+      "bytes": 48177
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/core.md",
+      "sha256": "3553fa288f9d67d09ec4c9a96e8f913aa40b9f3f5777583a33ad93e8834ff816",
+      "bytes": 9787
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/details_projection.gd",
+      "sha256": "d6a2fcb4d6d873b910dc57052dd2ce8730cd01671e9fa081f0f9295cf4cff110",
+      "bytes": 9576
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/diagnostic_graph.gd",
+      "sha256": "6eb23b532d5260bd12e2e09be77ad5f8be64d1f0db30ffb8eb9a03dd603484eb",
+      "bytes": 9554
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/environment_query_batches.gd",
+      "sha256": "43495e850610b64a13aa9e37158277b6e8969c020ac24cacafd0b06d5970cbcb",
+      "bytes": 5338
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/growth.gd",
+      "sha256": "03d9caff484d3ae16d4f05e47b4624756cbc87d3e6548ef51368ca9b44573272",
+      "bytes": 157425
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/growth.md",
+      "sha256": "c582ed52b34908ebaf17811889ecb8918e55b2149569f50ba5c9f0edcedb853a",
+      "bytes": 15925
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/growth_fixtures.gd",
+      "sha256": "5ccc79ab6b5005b948e8e9f1d5e7e4b06f4698aa1acf5cdb7dc4fa744595c6e3",
+      "bytes": 13162
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/growth_repeated_work.gd",
+      "sha256": "3ff35e23ecc406dc1698fc491acbab96fd8265d2b2a27136d119b70142435c23",
+      "bytes": 7687
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/ledger_observation.gd",
+      "sha256": "a594b3067029c666c6214306f6c742a941dcbbe0be2d02e457558573d9eacc21",
+      "bytes": 3366
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/operations.gd",
+      "sha256": "bd920c9d6f104097094476e0e06fcbe7e9051a4c4f778045b6f57e2ab47ffbc6",
+      "bytes": 113478
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/operations.md",
+      "sha256": "88c09013f31f28be519e276883631854d16fae0389b9607dbb3b0ac6f76760f4",
+      "bytes": 20335
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/operations_repeated_work.gd",
+      "sha256": "5fb91343bafc116bc8093cb3d9c899ec6b374f3b77efa4d74a34f5763f8467c1",
+      "bytes": 16499
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/preview_computation.gd",
+      "sha256": "48cfb9acd40273655f4cdd56326a00a18fc2cd8a7bc12200225a53d06db804fc",
+      "bytes": 8524
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/public_area_use.gd",
+      "sha256": "9b3413d6a204ca359a9c9f488184f7794af2da314143ceb6d3ee0ca606239f28",
+      "bytes": 35021
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/reference_component_batch.gd",
+      "sha256": "82e3edd94106848410c02865967b9ab09b9d089944b0befc967309a2e87b0642",
+      "bytes": 20309
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/reference_route_envelope.gd",
+      "sha256": "b0301aff2fcac22c93b3b0912f8cf282a2fe37239b08cfd606567f90edf88578",
+      "bytes": 7170
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/reference_route_permissions.gd",
+      "sha256": "a49f87d01b5deb4532b9a0e8dc1493677864797f9e02ceed5f19d529a9e80cb0",
+      "bytes": 4276
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/reference_routing.gd",
+      "sha256": "9b7966583a1d07d6c216310b020c6ce14e6a908bbbc87f1336f04977251d4211",
+      "bytes": 3881
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/repeated_presentation.gd",
+      "sha256": "0c3b7f0e1330d671e9ddf2241b67c550cf301963b5b7cfc49018150425b133b0",
+      "bytes": 22203
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/runner.gd",
+      "sha256": "e188aa85e67a15e46eae8f3ba79fd8ac1cd1c43eec2faa244d8766b06c5cdd3f",
+      "bytes": 5848
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/scene_pixels.gd",
+      "sha256": "ded7447741ccd70c0c70b57ad6dbbbd511e3774b20486f056d68ad04b42913e6",
+      "bytes": 5411
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/snapshot_cleanup.gd",
+      "sha256": "3712a6fa042a636df836bd485548ed625c3bdd652ec4065cfa43b01e1fe58a95",
+      "bytes": 2304
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/space.gd",
+      "sha256": "4f680701e8f0b22596c45799eaff02fe640559b178a67a569a13446bf16c598d",
+      "bytes": 157109
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/space.md",
+      "sha256": "9d3e90cb11d2e2b91239af12cf224c6274cf39f61a3af4d408b46e2370d12fae",
+      "bytes": 29214
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/staff.gd",
+      "sha256": "4b4c1a774d181e38cfdbfad225d86ddba4efbfea055c195d7e4d736e8a42cc41",
+      "bytes": 85083
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/staff.md",
+      "sha256": "7923e9756e29ee87abf4f1b9d10273d3cff6bd334cf559a11bb553d727e5c623",
+      "bytes": 26459
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/staff_fixtures.gd",
+      "sha256": "32de59127a887edea739b5c55379950a1e51aba329a56e6d79b507a3824105c2",
+      "bytes": 23373
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/staff_query_batches.gd",
+      "sha256": "b9c9b1fd05bbad8f4721fa719725a7a4c3549398368394ffd5b5f7482e7d1eba",
+      "bytes": 8649
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/staff_repeated_work.gd",
+      "sha256": "02a2eef928cf460a957cd3d20018e21b7a3e2ca13984bb78fd40950d6d435bab",
+      "bytes": 13564
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/stream_boundaries.gd",
+      "sha256": "7ba2edb9adc01f3d788d16f4801a3cc90bde3f3f24a4663842677ccf10267943",
+      "bytes": 2634
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/structure_dominance.gd",
+      "sha256": "daf30d73f8fe0972be3ae69dc8958b6cb8280a5c300a6cf4ae59f2347885e414",
+      "bytes": 7768
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/surgery_qualification.gd",
+      "sha256": "22d293b230889017390b4eaa99ea9dbf14085b12a5929016a16cec2cf6858cf3",
+      "bytes": 16000
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/view_projection.gd",
+      "sha256": "d21fc9111311a956fd164e600300fc0c72e311bea85a647764495aa77a11cf0e",
+      "bytes": 5805
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/acceptance/waiting_query_batches.gd",
+      "sha256": "671e4b6037ca29b812aadc55e61e6cae3dd8d741845a51f1fd2ebda72da88d7f",
+      "bytes": 18225
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/native/repeated_roles.py",
+      "sha256": "aa65ad0815b31de63bd775243ec01200b39db2813763d8a271070a7795a3a63d",
+      "bytes": 8006
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/run-acceptance.ps1",
+      "sha256": "0894f62375d61de221fed333634c234182b5fe0171ccd325b0a297329d8480ca",
+      "bytes": 9293
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/tests/test-fixture-source-policy.ps1",
+      "sha256": "fe6b6ec517bc1cd00b4ff85a6795f4d26dc61c074a67df7e5c7047c6579c21d8",
+      "bytes": 1635
+    },
+    {
+      "path": "acceptance/f6a2adfa54f64721a1df063718aa5a43/timing-summary.json",
+      "sha256": "c634be7fe6d5bfedb4367404db61e66cd647acb986349c3fef631473f3a71c7e",
+      "bytes": 257
+    },
+    {
+      "path": "performance/after-project/content/core/accessibility_equipment.json",
+      "sha256": "ba2c98faa2087930967db5c38238f5a2ecdf0a8cc7a4c24f3bf031033cc6f1ad",
+      "bytes": 1591
+    },
+    {
+      "path": "performance/after-project/content/core/activity_purposes.json",
+      "sha256": "d687caf5af963490084ba2ac582f43d1a585409d4e4361417357b38302c435c8",
+      "bytes": 1284
+    },
+    {
+      "path": "performance/after-project/content/core/amenity_scenes.json",
+      "sha256": "5b153d1079b63129c24f50901536df82d3bda84430e0a6ba24b5f4b941c14946",
+      "bytes": 1544
+    },
+    {
+      "path": "performance/after-project/content/core/amenity_services.json",
+      "sha256": "e07966ae565f946118c7a3548f758f3a9ace1aad4e0ff0198b870fce0e5e5887",
+      "bytes": 802
+    },
+    {
+      "path": "performance/after-project/content/core/assets/index.json",
+      "sha256": "7b071a4ada79d528160cf3fc9b51246cdf19853e5ce73d230ed27c532cfa9f16",
+      "bytes": 264602
+    },
+    {
+      "path": "performance/after-project/content/core/blueprint_presets.json",
+      "sha256": "ceac74f8970ae27f2257ed64f7d193fc1339c8b55d8071681abfa8adf270bc4c",
+      "bytes": 1914
+    },
+    {
+      "path": "performance/after-project/content/core/build_room_types.json",
+      "sha256": "016c6698fa3729a43ebf674968aef782c1d24c3dfec297fbc90b3e5cf66caf36",
+      "bytes": 2681
+    },
+    {
+      "path": "performance/after-project/content/core/chair_variants.json",
+      "sha256": "590716f92571a1d6de0fb75f939996129fd27410211811e080367f45d2d72329",
+      "bytes": 2501
+    },
+    {
+      "path": "performance/after-project/content/core/cleanup_sources.json",
+      "sha256": "7e832bafce01e9b218b7b765be96e82c4bedec7634181f70290348caeeb42960",
+      "bytes": 1795
+    },
+    {
+      "path": "performance/after-project/content/core/clinical_abilities.json",
+      "sha256": "ba8e934e3edf292cd7687e240b540695e2e32b3a437cec767e732f083932c192",
+      "bytes": 907
+    },
+    {
+      "path": "performance/after-project/content/core/clinical_equipment.json",
+      "sha256": "13330fdf4f3e2b50d6659ee965b964a84528fe8b3cea2177c3a2fdc46cade9b6",
+      "bytes": 936
+    },
+    {
+      "path": "performance/after-project/content/core/clinical_practice_sources.json",
+      "sha256": "b9bc4c57a6e63f6bfd1d991e4e232cd846bb665d5c1d23ca914ee1d5f7c0b4a2",
+      "bytes": 970
+    },
+    {
+      "path": "performance/after-project/content/core/clinical_room_types.json",
+      "sha256": "a537282e81354acdad36021d2711806e3b0a66b44baa17db4f12fa4f8775e96c",
+      "bytes": 610
+    },
+    {
+      "path": "performance/after-project/content/core/colleague_scenes.json",
+      "sha256": "a98426dbd81ef8b08f52ef33bc3bf6b6e2cfa5283a34fa2ff053ad0ff1267fcf",
+      "bytes": 1524
+    },
+    {
+      "path": "performance/after-project/content/core/comedy_corner_guides.json",
+      "sha256": "2006ab33dc432449deb620cb0fa7286eab5c4ed39d0240af24b902ef6d22c4a7",
+      "bytes": 2215
+    },
+    {
+      "path": "performance/after-project/content/core/community_activities.json",
+      "sha256": "d943613ee729499760ce2da8f7e4836866d9249f6ff96b50cfdae5522d48f815",
+      "bytes": 6410
+    },
+    {
+      "path": "performance/after-project/content/core/community_cast.json",
+      "sha256": "7118170e38965fe94309a0a9e3d4d208fc1fdc537aaa5351ab013cf57b7f86c3",
+      "bytes": 1365
+    },
+    {
+      "path": "performance/after-project/content/core/consultation_behaviors.json",
+      "sha256": "20eb66e9e2afac21d475c86cf01ffc19318ce56cafe17160a0239c4e0e19b8d0",
+      "bytes": 11290
+    },
+    {
+      "path": "performance/after-project/content/core/context_lessons.json",
+      "sha256": "258de60ec00c163f4553a91c5d00c638b842fc7f011dffbc7ce1e249c19ac070",
+      "bytes": 2029
+    },
+    {
+      "path": "performance/after-project/content/core/decor_style_presets.json",
+      "sha256": "a4312a7076752bf99924d6e0fb8f23ea78946aaf5fe55c465697fdaf0e2aa9f5",
+      "bytes": 863
+    },
+    {
+      "path": "performance/after-project/content/core/diagnostic_modes.json",
+      "sha256": "7a4038cc4f6489f50ad4a4b97720b528a7d2601a8eca0e18f6544e19f7ae0d65",
+      "bytes": 1286
+    },
+    {
+      "path": "performance/after-project/content/core/diagnostic_work_styles.json",
+      "sha256": "64f6ee22859181e0da7f62df18c262337297d536e82c86935bb47ffca9f46e4d",
+      "bytes": 1401
+    },
+    {
+      "path": "performance/after-project/content/core/diseases.json",
+      "sha256": "59aca1c6c8fba6fb392d7ba7b2722a46d0bf9cbbc1e5a518a7332a681c5a2e88",
+      "bytes": 24192
+    },
+    {
+      "path": "performance/after-project/content/core/doctor_personalities.json",
+      "sha256": "cd33d0b12b6c6902a30bb91f9a87c2549b9fe6d3585440c3776e7b4edb83d250",
+      "bytes": 2363
+    },
+    {
+      "path": "performance/after-project/content/core/doctor_responses.json",
+      "sha256": "cb5f4f6b75df618e8adfbbd70735b9a2e53aea90b55ae49ea550794179db2fba",
+      "bytes": 2045
+    },
+    {
+      "path": "performance/after-project/content/core/doctor_titles.json",
+      "sha256": "13211055ec36caf5ef043b20080a3b0673570c5635429cdbf3aefbc2707683bf",
+      "bytes": 1500
+    },
+    {
+      "path": "performance/after-project/content/core/doors.json",
+      "sha256": "34f4172d0dee93c463b60b3334ca602e66179d1847526ef36a4762be5aa3db71",
+      "bytes": 1320
+    },
+    {
+      "path": "performance/after-project/content/core/ease_rules.json",
+      "sha256": "8ada2c152d1b0ad4f2fdaea2132a33299c8a4f44f971fac177babda2e9333c0d",
+      "bytes": 1560
+    },
+    {
+      "path": "performance/after-project/content/core/facility_fit_profiles.json",
+      "sha256": "a90a3407fd87e6808610fa95d413b8bec0244dee73a6804718f5f06c5fd0fbb8",
+      "bytes": 886
+    },
+    {
+      "path": "performance/after-project/content/core/facility_magic_scenes.json",
+      "sha256": "0c5c1205cf2c7d69c058cca397f5a59edcdff406406890769bb3ef639554d28e",
+      "bytes": 1611
+    },
+    {
+      "path": "performance/after-project/content/core/families.json",
+      "sha256": "fd9734eb5f3f118a1ab36c08140e3f9c77bff5c58e4cb4ecc365987fcfb8f8c9",
+      "bytes": 874
+    },
+    {
+      "path": "performance/after-project/content/core/finance_views.json",
+      "sha256": "f0cad42f437f8f529f6ffa4486bf20fdc42dcaf202620d5eb204062b49860a31",
+      "bytes": 1505
+    },
+    {
+      "path": "performance/after-project/content/core/fit_examples.json",
+      "sha256": "72d4b431fbed081db65bee493684f9d9deeb353fcd0d2b138f10f3955a5ed348",
+      "bytes": 450
+    },
+    {
+      "path": "performance/after-project/content/core/furniture_equipment.json",
+      "sha256": "3d891aee68b48bc8d79fec6bade6d72e8967a011a841260731949d422d458310",
+      "bytes": 21908
+    },
+    {
+      "path": "performance/after-project/content/core/gratitude_abilities.json",
+      "sha256": "ba87a41ce781d7807b2647405c846ced4d5a2a7cd1f88a3715028f2849cf9564",
+      "bytes": 13775
+    },
+    {
+      "path": "performance/after-project/content/core/gratitude_effects.json",
+      "sha256": "aaaa3181fd9010f3ed617134b13b832586a730aaacf209f676926f25ec4938a3",
+      "bytes": 1023
+    },
+    {
+      "path": "performance/after-project/content/core/growth_moments.json",
+      "sha256": "e36fe9cf0e69d9bd5a1e928f4be3004e2921a02b350b8e99c5db0fc8b79b6575",
+      "bytes": 1659
+    },
+    {
+      "path": "performance/after-project/content/core/history_templates.json",
+      "sha256": "22cea9c97963a355447c5c6938bd298890ca06fbcef481bf1cc1c11fdb5ffac4",
+      "bytes": 3566
+    },
+    {
+      "path": "performance/after-project/content/core/hospital_situations.json",
+      "sha256": "9ec30e5228cc8696bcf9947e097f88801f0a41b73e3099d31f6f6f1cedcd4a7b",
+      "bytes": 6338
+    },
+    {
+      "path": "performance/after-project/content/core/incident_contexts.json",
+      "sha256": "98e9f721f81dced46afb7f7ccf9cca233f142c906dc14217de5669ad761b2442",
+      "bytes": 3622
+    },
+    {
+      "path": "performance/after-project/content/core/incidents.json",
+      "sha256": "aacb510cd0a4f4bbb1faacd07304bb6447019beae87c52ddc0aad8cad959f7c8",
+      "bytes": 29653
+    },
+    {
+      "path": "performance/after-project/content/core/initial_disease_ids.json",
+      "sha256": "adde362a73447b97b3a4297bb0bf2b145805b616d9a729c9c822e03d19de07ad",
+      "bytes": 48
+    },
+    {
+      "path": "performance/after-project/content/core/interactions.json",
+      "sha256": "6dc7bf5d42826565ea21243aab6a8e78023e47bf56654fcd052888c5e6a4bef6",
+      "bytes": 44175
+    },
+    {
+      "path": "performance/after-project/content/core/journey_reason_cards.json",
+      "sha256": "d9b006e56fdae89d1cba95795d26a51e32ea954216e8cfe11034754d6128031c",
+      "bytes": 1950
+    },
+    {
+      "path": "performance/after-project/content/core/layouts.json",
+      "sha256": "3eac94a284723845042c07001fba3c3153bc30513ea35b1ba0916df92a97524c",
+      "bytes": 5086
+    },
+    {
+      "path": "performance/after-project/content/core/locale/zh_CN.csv",
+      "sha256": "2ade8c67e736aebf5c5fcdea2fd084ebb631d627048fc5db074ff3e7e59058ef",
+      "bytes": 479215
+    },
+    {
+      "path": "performance/after-project/content/core/locale/zh_CN.csv.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+      "bytes": 25
+    },
+    {
+      "path": "performance/after-project/content/core/machines.json",
+      "sha256": "02af50c28d4817cabe770521546ee4f58cf004ea023f9042d65279701f7e396b",
+      "bytes": 930
+    },
+    {
+      "path": "performance/after-project/content/core/maintenance_policies.json",
+      "sha256": "291ddd6e6ec3982eda8810a894fa29c4be50b49d64dc0fea705b4daac0b16a2a",
+      "bytes": 453
+    },
+    {
+      "path": "performance/after-project/content/core/maintenance_scenes.json",
+      "sha256": "9af850ba793137bd287a1bd294a5c2991dc1ff751b25a908846633a417c406f0",
+      "bytes": 1811
+    },
+    {
+      "path": "performance/after-project/content/core/manifest.json",
+      "sha256": "bb107abb299f2910522e202d75033ca4ef5bcbe7bb50b2550b4ffd415b379f42",
+      "bytes": 13877
+    },
+    {
+      "path": "performance/after-project/content/core/medical_equipment_profiles.json",
+      "sha256": "869aa798161a36512eb458c2a95abadbfaf25302ee6ac24e7dcc454a32b3813e",
+      "bytes": 3103
+    },
+    {
+      "path": "performance/after-project/content/core/medical_progress_cues.json",
+      "sha256": "f2074bc2777274bca34934b9c57e34c3a1662d9724b58f6a6ba65916b98efe22",
+      "bytes": 13440
+    },
+    {
+      "path": "performance/after-project/content/core/medical_supplies.json",
+      "sha256": "2c8b925825a71fc7cc86029df0706993cdcb15a480e1cd2c9a38819433588ba3",
+      "bytes": 1968
+    },
+    {
+      "path": "performance/after-project/content/core/memory_callbacks.json",
+      "sha256": "782de776d49b2f952604c2f7eb47f0d6577fc65805c300473a45e80ef9eb177b",
+      "bytes": 4313
+    },
+    {
+      "path": "performance/after-project/content/core/movement_cues.json",
+      "sha256": "c885f2694d96ef709ab798e4081b6f73b74b682eeb3e2ac29b3f0cd8bee235f5",
+      "bytes": 468
+    },
+    {
+      "path": "performance/after-project/content/core/observation_cues.json",
+      "sha256": "abdc073a898f89b78f77abc6ca626990ba3e19307c7f69f2471bd3d373c17e48",
+      "bytes": 420
+    },
+    {
+      "path": "performance/after-project/content/core/onboarding_steps.json",
+      "sha256": "de5b9f9ba56099edd64d29ef7164de3d9ec638276af4add7e3bdaefc31aa18ec",
+      "bytes": 2650
+    },
+    {
+      "path": "performance/after-project/content/core/patient_behaviors.json",
+      "sha256": "5ba04478cdf9a77ce0bf6503bd11b6851aa394492d14413ee42e26215cb08ed8",
+      "bytes": 4455
+    },
+    {
+      "path": "performance/after-project/content/core/patient_personalities.json",
+      "sha256": "67bf45cd659289493079accf8939222c409960f4311889f569564fae0bf57827",
+      "bytes": 11103
+    },
+    {
+      "path": "performance/after-project/content/core/preferences.json",
+      "sha256": "f5d1d59c5507fd00028f830fffa30c892a256095bea6b9a8df9b0b02dc7b3147",
+      "bytes": 438
+    },
+    {
+      "path": "performance/after-project/content/core/profiles.json",
+      "sha256": "4eeebb9605e510f6b39534ea5c6b4d3d1c9f8b9fae7cae84970819f573033861",
+      "bytes": 438
+    },
+    {
+      "path": "performance/after-project/content/core/queue_cues.json",
+      "sha256": "4f4f8481da5fa75c1b75c9c04909f0f70121d775fec4a59424a0d00b10e47618",
+      "bytes": 1073
+    },
+    {
+      "path": "performance/after-project/content/core/recruitment_examples.json",
+      "sha256": "06e0478c1d06a5c71a97864f6e4a292f65bec2bb23ea83d37b1074f963915449",
+      "bytes": 2146
+    },
+    {
+      "path": "performance/after-project/content/core/remodel_guides.json",
+      "sha256": "ce4268b3e199f85290a467c8d8523b54f2a166d03d08b525dee8bd9566977839",
+      "bytes": 5625
+    },
+    {
+      "path": "performance/after-project/content/core/renovation_materials.json",
+      "sha256": "b880bfd1310b53baa29b071cf4fc63ecdfe8d52303feb2bf8b9d6ebb10580435",
+      "bytes": 1258
+    },
+    {
+      "path": "performance/after-project/content/core/research.json",
+      "sha256": "2721a56cbcdfc5f8db506be952c619f1161148c3c2d852712c88b456e81f8a75",
+      "bytes": 8617
+    },
+    {
+      "path": "performance/after-project/content/core/research_trails.json",
+      "sha256": "c17def6e3153043c617ac919211236ce041b016fa0c0ee36c0f06c73e4dd78c2",
+      "bytes": 1532
+    },
+    {
+      "path": "performance/after-project/content/core/rest_cues.json",
+      "sha256": "0c70cab9973e8712687b8db3e39c91eee4591e41f52762b766e7fbc9b13709fc",
+      "bytes": 778
+    },
+    {
+      "path": "performance/after-project/content/core/resume_note_templates.json",
+      "sha256": "8501af9bc65f95d9807b653aa87130f2f9f5163100d0e7afde26da30a8f4dce1",
+      "bytes": 446
+    },
+    {
+      "path": "performance/after-project/content/core/rules.json",
+      "sha256": "89372578e0695e86d751d3dfe6f2d9a04694ada03dd39089ed0ff7a2512f0677",
+      "bytes": 106339
+    },
+    {
+      "path": "performance/after-project/content/core/service_equipment.json",
+      "sha256": "ed08e980a818e55cd397cab900c26bf400b308aa5113da4d7b3387662eff3959",
+      "bytes": 2235
+    },
+    {
+      "path": "performance/after-project/content/core/specialties.json",
+      "sha256": "c304ea7ce66b6e5a1e264ee0910c2cb8abf3d1f5766a70ae2ffc9aab5ea1b562",
+      "bytes": 1613
+    },
+    {
+      "path": "performance/after-project/content/core/species.json",
+      "sha256": "cfa4c06adeb95d7a6479018b0ba6e773c12c6b7ae46b3620f41a3c6826759d90",
+      "bytes": 22576
+    },
+    {
+      "path": "performance/after-project/content/core/species_gifts.json",
+      "sha256": "476ffff40e99fed66209f2b9cdc9b6d57cb8889aad34352fbebb9dc40e75edc4",
+      "bytes": 15523
+    },
+    {
+      "path": "performance/after-project/content/core/staff_base_cues.json",
+      "sha256": "c12d5f57890cd755d2bd78c4c6e09fba1594c8ae9c35454ed08f62f15b2c1e79",
+      "bytes": 634
+    },
+    {
+      "path": "performance/after-project/content/core/staff_biographies.json",
+      "sha256": "8ff1bbb26d710e5612b151b73b04895dff27930b3f05507d813b4d1495c27a88",
+      "bytes": 1899
+    },
+    {
+      "path": "performance/after-project/content/core/staff_practice_profiles.json",
+      "sha256": "246f01a3400642a32aacdff6a48e6e888746860936d712af32420a13f6b21c9b",
+      "bytes": 2230
+    },
+    {
+      "path": "performance/after-project/content/core/staff_recreation_equipment.json",
+      "sha256": "caac910e1255df89b61b009c87cde56de87b108c5525e7501ac1f0361d554134",
+      "bytes": 1741
+    },
+    {
+      "path": "performance/after-project/content/core/staff_rig_adapters.json",
+      "sha256": "faae167a7bf67362134c2bf28e076a84ace43d56bd0d431dcd4043e0371c479d",
+      "bytes": 6876
+    },
+    {
+      "path": "performance/after-project/content/core/staff_role_profiles.json",
+      "sha256": "750b0e26da652ecac2999f2a2ee8081954b61236801be42b6e41d8ebdb734a32",
+      "bytes": 1963
+    },
+    {
+      "path": "performance/after-project/content/core/staff_support_rooms.json",
+      "sha256": "9e429ab088cef0d09624db9f6f40b7950e1fea882fdbd2a9df72cdf7ae7126e6",
+      "bytes": 258
+    },
+    {
+      "path": "performance/after-project/content/core/staff_talent_handlers.json",
+      "sha256": "9629ec1eff3401ed18c60dce9a01b489707704146b42178b87cf0a898b110869",
+      "bytes": 815
+    },
+    {
+      "path": "performance/after-project/content/core/staff_talents.json",
+      "sha256": "30789aac2d0de77fd917b9305157fa60da7fe8fe8edd53ccf9764556d52042fb",
+      "bytes": 20817
+    },
+    {
+      "path": "performance/after-project/content/core/staff_work_styles.json",
+      "sha256": "e64b41e97eafea9c8b5ea8a2b434e17db7b7352373b698a5c4292dd1833b3d66",
+      "bytes": 1068
+    },
+    {
+      "path": "performance/after-project/content/core/starter_layout.json",
+      "sha256": "42934c1470711d34431189418e18c52973a767e9ef835b81407910c657f411e0",
+      "bytes": 8390
+    },
+    {
+      "path": "performance/after-project/content/core/stories.json",
+      "sha256": "f8cd3a18d99e533275e7e55c7f994be7118f5c179127b727fc792e1d115584bf",
+      "bytes": 2775
+    },
+    {
+      "path": "performance/after-project/content/core/story_activity_links.json",
+      "sha256": "a4a40ec65547fa0a9671125961e10a7d0a9170c55547fb8116da5e54634fe422",
+      "bytes": 1732
+    },
+    {
+      "path": "performance/after-project/content/core/story_patient_bindings.json",
+      "sha256": "4d77bee91e679e9d69b1bf0c0651b284a54419cca97b6568cd7a6f88693ae70f",
+      "bytes": 554
+    },
+    {
+      "path": "performance/after-project/content/core/supply_reactions.json",
+      "sha256": "c97b40e69c1b63de8134aab4e583fc65f895ddac0725707594bc5cb1ad1f05b2",
+      "bytes": 716
+    },
+    {
+      "path": "performance/after-project/content/core/surgical_adapters.json",
+      "sha256": "bbfa92f2af5f71b7974038ea3931aaacbec90d661e158e5f939d93515d4909de",
+      "bytes": 19724
+    },
+    {
+      "path": "performance/after-project/content/core/tags.json",
+      "sha256": "bcbc325d398949f4ee796ee00a0fe9f90496f818569fe5062a2dd1593ed5af1a",
+      "bytes": 1193
+    },
+    {
+      "path": "performance/after-project/content/core/task_guides.json",
+      "sha256": "f840aa7111d9bfbceddedf9bea20157a69446738969b6019dbc46e396d7f77c9",
+      "bytes": 6733
+    },
+    {
+      "path": "performance/after-project/content/core/tasks.json",
+      "sha256": "3b65150da0092ced59164f6fb7cefd118c0b2c6b2b077224f84c053e2a39b2d9",
+      "bytes": 12140
+    },
+    {
+      "path": "performance/after-project/content/core/treatment_bindings.json",
+      "sha256": "f7852103655d47ab103975a8f286cf68a31c76d68fe14ebf58a88476e9cb77b8",
+      "bytes": 198103
+    },
+    {
+      "path": "performance/after-project/content/core/treatment_plans.json",
+      "sha256": "904ad231bb7705a95bfcf49c0984adeb127ba7d95445ace4c5d64611f30c8dbf",
+      "bytes": 65820
+    },
+    {
+      "path": "performance/after-project/content/core/treatment_protocols.json",
+      "sha256": "0ac7cd27f486f55102b3901f92631134facab69c5179aa8631236b213c8661a1",
+      "bytes": 2881
+    },
+    {
+      "path": "performance/after-project/content/core/treatment_routines.json",
+      "sha256": "bfec39f6b7436bed0fb57e6f212dd148f9f858b936f8898205a3d29c314f76f3",
+      "bytes": 32007
+    },
+    {
+      "path": "performance/after-project/content/core/upgrade_presentations.json",
+      "sha256": "7df4189f253d2329b93f7273b38544eefc07c537033fff03fef9a7a9a2eabf17",
+      "bytes": 2019
+    },
+    {
+      "path": "performance/after-project/content/core/upgrade_tiers.json",
+      "sha256": "d991b46ddd86b1c919bf6023255e547e6c99fa3cf2fb8b1cfe4ef55181b7e955",
+      "bytes": 371
+    },
+    {
+      "path": "performance/after-project/content/core/vertical_connectors.json",
+      "sha256": "ea08f076bbbbdea1d8bd1eaebafa67cb74215bacd27bede12287d6b81fe6a7cd",
+      "bytes": 3412
+    },
+    {
+      "path": "performance/after-project/content/core/visitor_cues.json",
+      "sha256": "fcd56a2b860e55054c79621781dd20886257b32f24f85df3fd39f02b5002471b",
+      "bytes": 532
+    },
+    {
+      "path": "performance/after-project/content/core/ward_neighbor_cues.json",
+      "sha256": "f686630d84f18c5fda432b3c0bcb4d4a1e9514b7255961fc13f9df74f1261162",
+      "bytes": 566
+    },
+    {
+      "path": "performance/after-project/content/core/ward_scenes.json",
+      "sha256": "91bedfb76c2b10749f5bfb48926a829fe18bb4b89458cb4c4099937ddd575a16",
+      "bytes": 1212
+    },
+    {
+      "path": "performance/after-project/game/app/app_root.gd",
+      "sha256": "d50eeda18ba424c6fa3813fba7c46e20c8a93820b21eb8bc7f22f0b494774e9e",
+      "bytes": 47475
+    },
+    {
+      "path": "performance/after-project/game/app/game_session.gd",
+      "sha256": "a22ec31241d16b66a607db6f1a5cb7aec70dcab625160c2a5072a7baaede2675",
+      "bytes": 4559
+    },
+    {
+      "path": "performance/after-project/game/app/main.tscn",
+      "sha256": "e1a3ffe5c4423cba6c381ac29a6dca3f98da3b045af9db13120002a88da310e5",
+      "bytes": 265
+    },
+    {
+      "path": "performance/after-project/game/arrivals/arrival_preparation.gd",
+      "sha256": "e53762d0f4156ea5003e5aa32c15b5a8f2214b739616408522f7fad96bc90a81",
+      "bytes": 17201
+    },
+    {
+      "path": "performance/after-project/game/arrivals/arrival_service.gd",
+      "sha256": "81a61a5a353613e890fdb95d7013b7d35687350f5a07da18f8ff3c4e5809ba20",
+      "bytes": 88065
+    },
+    {
+      "path": "performance/after-project/game/arrivals/capacity_solver.gd",
+      "sha256": "97f010473f1b4bed516e92088eb23f4e51c01a1c60d4c66af7915511d754ca5f",
+      "bytes": 326
+    },
+    {
+      "path": "performance/after-project/game/arrivals/day_plan.gd",
+      "sha256": "c29a801a9394879454ea37a8ffaec698e50962bb513780a41e0bac37176527bc",
+      "bytes": 7061
+    },
+    {
+      "path": "performance/after-project/game/arrivals/exact_fraction.gd",
+      "sha256": "78dbb754096d5b6b49dcd1fa4d9988f165dea95a95bbd9232693ddedfeef012a",
+      "bytes": 4312
+    },
+    {
+      "path": "performance/after-project/game/building/blueprint_service.gd",
+      "sha256": "643a5aff8d7ea6c537fd19a034b7cf92098148f7a7e34edf5611f0e80a0e5e80",
+      "bytes": 17975
+    },
+    {
+      "path": "performance/after-project/game/building/body_index.gd",
+      "sha256": "42cbd98bd9f8fca72c15a72a797f95411577fec6639bb7edf13d16cb3c55326c",
+      "bytes": 4085
+    },
+    {
+      "path": "performance/after-project/game/building/body_sweep.gd",
+      "sha256": "e8a1374f84984314c1965695b103c03d0bfd18a498322f160374f7496db69ccc",
+      "bytes": 898
+    },
+    {
+      "path": "performance/after-project/game/building/build_geometry.gd",
+      "sha256": "c3cb4db3bd31bf801fc7a6d4dd099243742b80fe8a0bdba2e5b8f72337bb8f4b",
+      "bytes": 11063
+    },
+    {
+      "path": "performance/after-project/game/building/build_preview.gd",
+      "sha256": "ef7723ea004d7e1939bbfdeda23b4128d1930d1964b3cdf806ffe9ace379f4d1",
+      "bytes": 5256
+    },
+    {
+      "path": "performance/after-project/game/building/build_preview_job.gd",
+      "sha256": "3f62606d3060235633c7a8684940f66d58b1ec11539a13958a80c32b71770c7a",
+      "bytes": 17224
+    },
+    {
+      "path": "performance/after-project/game/building/build_service.gd",
+      "sha256": "bf617a1ec3453bfb327a145a07c5204e1a985eca01edd85ac0367574979f81a6",
+      "bytes": 55161
+    },
+    {
+      "path": "performance/after-project/game/building/connector_service.gd",
+      "sha256": "002f34d0c74e0be4129ea42fed6d488ff448817079a63e49b88f475d77d6ce63",
+      "bytes": 8817
+    },
+    {
+      "path": "performance/after-project/game/building/floor_navigation.gd",
+      "sha256": "c749ff514af42ea9166a7763fde9614282dacd84be242aca862396050bddc1af",
+      "bytes": 5935
+    },
+    {
+      "path": "performance/after-project/game/building/floor_service.gd",
+      "sha256": "11e1a6beaaf9367c0bf379f13658ae8c1428a596aa4ee654b3b34a4ac0b10267",
+      "bytes": 14456
+    },
+    {
+      "path": "performance/after-project/game/building/hospital_space.gd",
+      "sha256": "8cdfa1fda0c28336f3cceb2b342ebb774094b81d7efa9dd46a376c398929c9ab",
+      "bytes": 83327
+    },
+    {
+      "path": "performance/after-project/game/building/hospital_transit.gd",
+      "sha256": "ab6cecec7598a7d30fd206f3d0c7cb4c5f250dfa9c8e04f9b685c3f4dd83f539",
+      "bytes": 28706
+    },
+    {
+      "path": "performance/after-project/game/building/navigation_cache.gd",
+      "sha256": "299c1b9e427eee6e52bc21f98bb082382460ea999ee19deec730d89836383a85",
+      "bytes": 16174
+    },
+    {
+      "path": "performance/after-project/game/building/remodel_service.gd",
+      "sha256": "1549ce4c29cd57166ae3654d0862a23461fb0eead1c490b36a99b301ee6a010c",
+      "bytes": 25727
+    },
+    {
+      "path": "performance/after-project/game/building/route_clearance.gd",
+      "sha256": "117f7ef8c92e4f0ccacb5c070364f051ef6253b89e13774daf230a83935193b1",
+      "bytes": 16839
+    },
+    {
+      "path": "performance/after-project/game/clinic/clinical_runtime.gd",
+      "sha256": "e3419ea45d8e00f903cb2c8e47b2ee0f98f9547ac5ad89073bebb1d5c63d4a53",
+      "bytes": 185213
+    },
+    {
+      "path": "performance/after-project/game/clinic/hospital_visitors.gd",
+      "sha256": "a1765b4fb970fb8708f7842c40c01722dab85ac7b9a0fcfc370e4b4035882d70",
+      "bytes": 20802
+    },
+    {
+      "path": "performance/after-project/game/community/research_job_index.gd",
+      "sha256": "caf1960eaee699eb89e2a05cbe5bdfbf47ea5c47056fd85f163862420304d1f8",
+      "bytes": 1349
+    },
+    {
+      "path": "performance/after-project/game/community/research_service.gd",
+      "sha256": "97b0d6dbdc17989e9b21e2ab6169dfc1ec06dd778be90881f08f150bd09a2d30",
+      "bytes": 34441
+    },
+    {
+      "path": "performance/after-project/game/content/content_db.gd",
+      "sha256": "658bef312d445be223af4cb7b55254160cd884105a863ee280d16fe0733f803a",
+      "bytes": 3063
+    },
+    {
+      "path": "performance/after-project/game/content/content_load_result.gd",
+      "sha256": "ca8ff6780a30f9dee0e5254df360103117735175d2d207df47a1c824d9f8c3b5",
+      "bytes": 189
+    },
+    {
+      "path": "performance/after-project/game/content/content_loader.gd",
+      "sha256": "60289da8dd877645ac07eb31cb98afb1dd3b4ab65b1057d6134e29f7c50dfe9b",
+      "bytes": 24381
+    },
+    {
+      "path": "performance/after-project/game/content/content_pipeline.py",
+      "sha256": "2ed8831fa9f63c22ada1666c6f665340d9055288ce3c9627f63f69d932205aa7",
+      "bytes": 33378
+    },
+    {
+      "path": "performance/after-project/game/content/content_registry.gd",
+      "sha256": "a38e724cfa024f9fa4fef8caa12258d5a42f26ee90743746cf5b65833083daa5",
+      "bytes": 4795
+    },
+    {
+      "path": "performance/after-project/game/content/schema100.json",
+      "sha256": "be213729bc0da33f1e10779dbeea3fabecf08bcf8b0fb6e6b6bc85ed625c341d",
+      "bytes": 584750
+    },
+    {
+      "path": "performance/after-project/game/economy/finance_service.gd",
+      "sha256": "6a84601eb63d57641467ad0877b6f7dca04178973145554fc85e7fa5d8b2c96a",
+      "bytes": 28306
+    },
+    {
+      "path": "performance/after-project/game/economy/ledger.gd",
+      "sha256": "024370d1aacce142495b63b72d4ba52a059888fa74f030bbcaeb4b5848da6bc3",
+      "bytes": 1527
+    },
+    {
+      "path": "performance/after-project/game/economy/ledger_entry.gd",
+      "sha256": "6c610e59dedf13c94618e41f872c875b1cc33446c55aae4f28317008c181b877",
+      "bytes": 290
+    },
+    {
+      "path": "performance/after-project/game/life/public_areas.gd",
+      "sha256": "72a0e89bb32bd449d7b2ce471f4ca9d768a3ad4427fcce6e19d571cf9c66d4aa",
+      "bytes": 21950
+    },
+    {
+      "path": "performance/after-project/game/life/waiting_life.gd",
+      "sha256": "f4e3c5f5ce6d5e6dca35f2dba12dbb72f4776158c0ea7ba0f4269320e76a11b6",
+      "bytes": 47727
+    },
+    {
+      "path": "performance/after-project/game/operations/department_service.gd",
+      "sha256": "0e15e971d686688f0e1c3586e16d4b70d4d10c6420e893787bdcadb62007c62a",
+      "bytes": 64188
+    },
+    {
+      "path": "performance/after-project/game/operations/environment_service.gd",
+      "sha256": "ee7ce2e56e6282dc049b1b6c13e2ed8129b0b55b827fe22fd481b7c4baedd050",
+      "bytes": 55059
+    },
+    {
+      "path": "performance/after-project/game/operations/maintenance_service.gd",
+      "sha256": "3de4e63166215e325d77679ccccd22e396cd22d175567483f8f3547b08a14db8",
+      "bytes": 37018
+    },
+    {
+      "path": "performance/after-project/game/operations/supply_service.gd",
+      "sha256": "98ec445ea231ea1e695941dd51cf94f329f7a99d9328d27c67495732d57133c5",
+      "bytes": 14484
+    },
+    {
+      "path": "performance/after-project/game/persistence/backup_zip.gd",
+      "sha256": "5859b6be7d1472798ce50392c8c2dd4869c8a4114d7ce989b44dcca082bd8261",
+      "bytes": 18888
+    },
+    {
+      "path": "performance/after-project/game/persistence/blueprint_library.gd",
+      "sha256": "aea8b917af5575789c1ec16f8780ca91f1b114661714fc67a254c22dab0ec497",
+      "bytes": 4421
+    },
+    {
+      "path": "performance/after-project/game/persistence/hospital_library.gd",
+      "sha256": "b75456ce121b0812743ded675f525dba8ac1bb73349ae6c83e87a8c168a06672",
+      "bytes": 26160
+    },
+    {
+      "path": "performance/after-project/game/persistence/json_stream.gd",
+      "sha256": "f3a3eef718a74003228a7c03a1151820a542f1f992efaa601ca0d41fc24e27c6",
+      "bytes": 8689
+    },
+    {
+      "path": "performance/after-project/game/persistence/snapshot_store.gd",
+      "sha256": "78566573c6bdb50efc8dd6945d27c69f5f0578d93752fb961c99c0d585bcef25",
+      "bytes": 27604
+    },
+    {
+      "path": "performance/after-project/game/platform/windows/README.md",
+      "sha256": "a62a396bda3f264de17bfbd7691dc3c557d1b32c3975fdc681e2371e98bdb442",
+      "bytes": 13887
+    },
+    {
+      "path": "performance/after-project/game/platform/windows/oddly_good_platform.gdextension",
+      "sha256": "9d3edda4f6527134ad82c0765c81b8fdc6e516447701d13b4ee73a5d47500dc3",
+      "bytes": 575
+    },
+    {
+      "path": "performance/after-project/game/platform/windows/platform_arrivals.cpp",
+      "sha256": "ccc2c02d3498c60b03ab0e2e636d28278491cdc98fb3764ed9353d7659a56e25",
+      "bytes": 116489
+    },
+    {
+      "path": "performance/after-project/game/platform/windows/platform_session_guard.c",
+      "sha256": "b8b211f98327d1e292cbb114d880f043d778dd99377d3854cacddffe8095e8cb",
+      "bytes": 28125
+    },
+    {
+      "path": "performance/after-project/game/platform/windows/platform_sqlite.h",
+      "sha256": "4cf27eb9149fe233cc38303f373ccc07510f1101f26c811350f7c2e48d710a95",
+      "bytes": 20552
+    },
+    {
+      "path": "performance/after-project/game/sim/equipment_use.gd",
+      "sha256": "b2c0001a0ea8640ea4f42f7d86ec59e1c7cf63bad032f78946295918a8620210",
+      "bytes": 1165
+    },
+    {
+      "path": "performance/after-project/game/sim/hospital_factory.gd",
+      "sha256": "aab6e9695c2e33658f969cbe4754fc4bd6dbc8d520df23a715ac5292e2aa8b93",
+      "bytes": 7684
+    },
+    {
+      "path": "performance/after-project/game/sim/simulation.gd",
+      "sha256": "86e30e731ac87de59fd1ca82cf1f98d7541d154c3a479a1965d184d7fd4119dd",
+      "bytes": 19382
+    },
+    {
+      "path": "performance/after-project/game/sim/types/business_payload.gd",
+      "sha256": "e6be2f738ce0077f3a6b3ec023965fef20785f8d2d941eeff68b40dfdd450fad",
+      "bytes": 216
+    },
+    {
+      "path": "performance/after-project/game/sim/types/command_result.gd",
+      "sha256": "14bfda9bada0dfb5d33f13d5966c0572f65cc344a685e4caa8b1210fdbab82cb",
+      "bytes": 869
+    },
+    {
+      "path": "performance/after-project/game/sim/types/game_command.gd",
+      "sha256": "c5d933fa960dab22d4a8c94d1727726a05d3596a1c171e33c28fbafe68d1d7a5",
+      "bytes": 1583
+    },
+    {
+      "path": "performance/after-project/game/sim/types/move_actor_payload.gd",
+      "sha256": "f9ced5a3b5649af68128e5cb1effe4d6ee516d18327eedfced56da7de6c03fcc",
+      "bytes": 1953
+    },
+    {
+      "path": "performance/after-project/game/sim/types/sim_event.gd",
+      "sha256": "97adadfe83e77fb0292ed8b322f2ed1d3f5b3138d772cf3d5b8bc4240ba8a911",
+      "bytes": 483
+    },
+    {
+      "path": "performance/after-project/game/sim/types/tick_result.gd",
+      "sha256": "21253c3043fef847fa707f77955c5d650fec072b48feb4060d6b79b320d938c1",
+      "bytes": 373
+    },
+    {
+      "path": "performance/after-project/game/sim/world_state.gd",
+      "sha256": "8afd6bd2866ac4132174d662d28523ea4fd4028640e6d4e48df8de6573f837ef",
+      "bytes": 60384
+    },
+    {
+      "path": "performance/after-project/game/staff/clinical_development.gd",
+      "sha256": "4d72292e1b223b96cc8d5bd162279c2b6dc96ca98f84ad8585a0a3af05b9b875",
+      "bytes": 46423
+    },
+    {
+      "path": "performance/after-project/game/staff/personal_bed_matching.gd",
+      "sha256": "57f53cec8b265d2a5951a56f1dd07b9a6f08f293a326cef4fd0228d65d8a2074",
+      "bytes": 4586
+    },
+    {
+      "path": "performance/after-project/game/staff/personal_beds.gd",
+      "sha256": "ee32c534b883eb3bd924b19e720b6dd411889a5d1889928b79138e3a1d5818e1",
+      "bytes": 7178
+    },
+    {
+      "path": "performance/after-project/game/staff/recruitment_service.gd",
+      "sha256": "7c7a4902aa693aa7b8f57a9ed61c87f37423b5897d00c22cd053f4ea80ae8693",
+      "bytes": 44006
+    },
+    {
+      "path": "performance/after-project/game/staff/shift_scheduler.gd",
+      "sha256": "bdfd466dc9b77ef0286e0e1301b5fcf9b184244fa7196d9f006d5e35f624cbda",
+      "bytes": 26268
+    },
+    {
+      "path": "performance/after-project/game/staff/staff_wellbeing.gd",
+      "sha256": "46eb9e9f44480fe47ce34aee62b9ed250a22ac6fe356c76b276ff92daa5e7db1",
+      "bytes": 56481
+    },
+    {
+      "path": "performance/after-project/game/ui/action_panel.gd",
+      "sha256": "e69f7581747e4277987c3a5945a7d146ddf86909f7012dae1e75dee816740310",
+      "bytes": 4706
+    },
+    {
+      "path": "performance/after-project/game/ui/arrivals_panel.gd",
+      "sha256": "3a63b207f5c3b3b61c418f853b909019eff0d6e9fcbe61a3a70fc518744ec864",
+      "bytes": 3266
+    },
+    {
+      "path": "performance/after-project/game/ui/build_panel.gd",
+      "sha256": "be7ad4393235af85159390a1f0696f59063e2ed52a7715bdcc9533832121242e",
+      "bytes": 11847
+    },
+    {
+      "path": "performance/after-project/game/ui/clinical_panel.gd",
+      "sha256": "bce88f0f1346bc6c7d839e296d597ab8c77bfc6754e2354a13fcd794b4b3c801",
+      "bytes": 3701
+    },
+    {
+      "path": "performance/after-project/game/ui/departments_panel.gd",
+      "sha256": "7e70538c5c65ae11937ff9b116cb9e59e778a1e843ea4f361c9a6e71b03cfd15",
+      "bytes": 3265
+    },
+    {
+      "path": "performance/after-project/game/ui/environment_panel.gd",
+      "sha256": "4076755346b70f8b6b1e26d9c9a3c79bad908e9de93e8d067be30e269256313e",
+      "bytes": 4940
+    },
+    {
+      "path": "performance/after-project/game/ui/expansion_panel.gd",
+      "sha256": "04e6ca9d15ad7f3427bd809716f00ad247fbd185eaa670d3137bae4158732457",
+      "bytes": 7375
+    },
+    {
+      "path": "performance/after-project/game/ui/finance_panel.gd",
+      "sha256": "f4b329680176b85e72ff096ca95d3d60f9e7183a0a3c69cfe2b5e99fd5b7b479",
+      "bytes": 3102
+    },
+    {
+      "path": "performance/after-project/game/ui/hospital_library_panel.gd",
+      "sha256": "704e1a0bc4a73be0f003c7699944c0d61ce58e4143c84f49155f4d5076bdb287",
+      "bytes": 6437
+    },
+    {
+      "path": "performance/after-project/game/ui/maintenance_panel.gd",
+      "sha256": "3cbf02b09e9b30761c0615837a07dca754ce340d8e6f01d7a56af5336145c30f",
+      "bytes": 3630
+    },
+    {
+      "path": "performance/after-project/game/ui/plans_panel.gd",
+      "sha256": "861469432b24f555718393cdb50f1609b94b58b8ed3f48bc30a9079d3b26cf75",
+      "bytes": 3841
+    },
+    {
+      "path": "performance/after-project/game/ui/recruitment_panel.gd",
+      "sha256": "e42a1616e3a607648d655f9a90b321b79cb711f1651cc75e1661bc7e211f988b",
+      "bytes": 5985
+    },
+    {
+      "path": "performance/after-project/game/ui/remodel_panel.gd",
+      "sha256": "f16c469ad4a8fe878e7e56c07cfef636e136a543aae33a9b3a0468fd1552df5e",
+      "bytes": 20278
+    },
+    {
+      "path": "performance/after-project/game/ui/research_panel.gd",
+      "sha256": "e258fdeee328083f555d369ed3e0907682da5c2cb59f6faed23bd5756201b396",
+      "bytes": 11558
+    },
+    {
+      "path": "performance/after-project/game/ui/schedule_panel.gd",
+      "sha256": "8ad29541c473d24d4b0e2422409f4094110b014dab3413725dae2f98a8113c43",
+      "bytes": 3962
+    },
+    {
+      "path": "performance/after-project/game/ui/staff_life_panel.gd",
+      "sha256": "fff324f0fe0b6ba7faafb59cf071abdf56ff1ae74c00b898de3d4e815f4e20a5",
+      "bytes": 2649
+    },
+    {
+      "path": "performance/after-project/game/ui/supplies_panel.gd",
+      "sha256": "99d43f0f2070e1597d4b85762c6567a88d3dc4dd43cbf31e9c4219f53b954cf4",
+      "bytes": 2456
+    },
+    {
+      "path": "performance/after-project/game/ui/training_panel.gd",
+      "sha256": "283b9d0c91f753cb79ba445fc41b098c90cce2e18e64f046bdc6d6c127a73be1",
+      "bytes": 3455
+    },
+    {
+      "path": "performance/after-project/game/ui/waiting_panel.gd",
+      "sha256": "773b273e1c8d8a106402c013b24caf615118a2c25863754a7b8e7b4257fc86e4",
+      "bytes": 2490
+    },
+    {
+      "path": "performance/after-project/game/ui/ward_panel.gd",
+      "sha256": "3015b74a9fa1868401354b6edae65e6c0b302d534a6623ac57183a91c457bdd0",
+      "bytes": 8480
+    },
+    {
+      "path": "performance/after-project/game/view/build_overlay.gd",
+      "sha256": "b6cd67a262a9b1e31474e1c167e96dd87b54d7a784039caf5700e3b53f7041aa",
+      "bytes": 2995
+    },
+    {
+      "path": "performance/after-project/game/view/compatibility_skin_input.gd",
+      "sha256": "f0c6b71171c8ea8917b661196152e97f2a6e642fbbdb72b3ae18091eb57f73b8",
+      "bytes": 4507
+    },
+    {
+      "path": "performance/after-project/game/view/hospital_palette.gd",
+      "sha256": "dd24f6999e8c0522cc0e04eb36bf4cd779274ccbb85133d8821daa742e930624",
+      "bytes": 1174
+    },
+    {
+      "path": "performance/after-project/game/view/hospital_view.gd",
+      "sha256": "f4afc1429850af63e365bcb2cb1a5a836df3c3b09c2b8a4c5106a6e15653be58",
+      "bytes": 65252
+    },
+    {
+      "path": "performance/after-project/game/view/shaders/skin_readback.gdshader",
+      "sha256": "72b74920b52fcfe944da7c6694945f8527734b0f86542fe43362683223ae0318",
+      "bytes": 599
+    },
+    {
+      "path": "performance/after-project/game/view/shaders/skin_readback_original.gdshader",
+      "sha256": "d498a17891628be38e3b2543ce6123267bef11320e7004d6bd1aa74ee94582d7",
+      "bytes": 582
+    },
+    {
+      "path": "performance/after-project/game/view/shaders/skin_readback_output.gdshaderinc",
+      "sha256": "80a3e9478ca9bf9f3294a1065dddbcfb32ffff97de9908c161cb4494c2cf1231",
+      "bytes": 1784
+    },
+    {
+      "path": "performance/after-project/game/view/shaders/skinned_pose.gdshader",
+      "sha256": "f6f8e6b78c4771e64da95c681f9e1e6010c4b8933fd1886cb4f5152fa0c2b6a7",
+      "bytes": 151
+    },
+    {
+      "path": "performance/after-project/game/view/shaders/skinned_pose.gdshaderinc",
+      "sha256": "0d02ebc85dd8c871d5f99d31b735cb91d745844f098e6214d1321a674c429feb",
+      "bytes": 620
+    },
+    {
+      "path": "performance/after-project/game/view/shaders/skinned_pose_double_sided.gdshader",
+      "sha256": "7e373dc423e76554f486dade8fb9453f9b27420a010b4192319425183d0e6055",
+      "bytes": 155
+    },
+    {
+      "path": "performance/after-project/game/view/shaders/skinned_pose_surface.gdshaderinc",
+      "sha256": "19ed00ba18c94787f290481d8d04a77daa434a2e5bfd8ac8c3ff096cc36ed23a",
+      "bytes": 789
+    },
+    {
+      "path": "performance/after-project/game/view/skinned_pose_batch.gd",
+      "sha256": "aace3d336ffe477136818d06d1d2d7e5dd1ebb3051371069991dc99dcbca7ac0",
+      "bytes": 9903
+    },
+    {
+      "path": "performance/after-project/game/view/view_resources.gd",
+      "sha256": "52fd8ad69760d5e74a10d9cc7ec4ccb318b44f307a74712350e8822ab324a670",
+      "bytes": 5778
+    },
+    {
+      "path": "performance/after-project/game/view/view_work_budget.gd",
+      "sha256": "7accce896aab177ff50f3d82ed2988128728bbfbf195d5b04e55c71de0e6c5d2",
+      "bytes": 1080
+    },
+    {
+      "path": "performance/after-project/import.log",
+      "sha256": "6be4762f3885ce1d05e1fcf94c241bf6dd59d58ecf29b82cfaa5c013bc44ccd8",
+      "bytes": 11483
+    },
+    {
+      "path": "performance/after-project/source-identity.json",
+      "sha256": "ef809ced933399c73c686b53211b6997b5f8bf93cd524e6fcc3fbcb8cb928066",
+      "bytes": 71798
+    },
+    {
+      "path": "performance/after-project/tests/acceptance/clinical_timing.gd",
+      "sha256": "15c77fe691dbfa72c6cb6ed5aacfb341a068f72a87ffa78cd51129b461ccfb0b",
+      "bytes": 11966
+    },
+    {
+      "path": "performance/after-project/tools/performance/REPRESENTATIVE.md",
+      "sha256": "b4c620389a89c8eaf6fad578ca22a11deb2dc187a4a0078f76158ba6e1474079",
+      "bytes": 7892
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/CAPTURE.md",
+      "sha256": "bce84c01e26fe5cd3b3b8b128aa4717f89f0a350ad61332ad5eb67afd0680e5e",
+      "bytes": 8377
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/DECODING.md",
+      "sha256": "d945fdf7229c3d72e0a60c874f227236e853aa17e4b73216390637765f1380d3",
+      "bytes": 5994
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/DENSE_MATRIX.md",
+      "sha256": "20c24298ad1e8b977234ed71b3445e443d2521fc79cd503b53857d00b04a528a",
+      "bytes": 10713
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/DISPLAY.md",
+      "sha256": "2d1d9b67935581c5b513731e138997542bdf4d77a4a61f2109544e4eaa1301a7",
+      "bytes": 4231
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/OPERATIONS.md",
+      "sha256": "17eaeedc3382e34bcb4fc8f4310ee8f79f5a5cd49ffcdbc506bd17bd21a3f170",
+      "bytes": 31630
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/README.md",
+      "sha256": "9d2017f8c90d9ccea9eb8e913875f18056bdc0c2af0611cf6bdbfe5149cad68a",
+      "bytes": 3262
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/REPORTING.md",
+      "sha256": "c1ac10224633629f70474359472e53f248481ec77f7d554e7553d275ee496931",
+      "bytes": 8620
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/RUNNER.md",
+      "sha256": "90c58a8f0720dbbee0c7de42ee1aef573f126729295ae03b18d12afabf1d1aef",
+      "bytes": 9322
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/analysis_reference.py",
+      "sha256": "d49aff7d160907f95018edee09431f7f85d7bade0f34b19b081dc7cc2d53818e",
+      "bytes": 6908
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/analyze.py",
+      "sha256": "bbcdec74e6358b702b28755ec609a66f10b6ab9bb7487401dab7b984382871ee",
+      "bytes": 54653
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/apitrace_display.py",
+      "sha256": "6e6d65bb09a62117507bafb39a7393131807fb62bd8efa5cd683098b662fa2dc",
+      "bytes": 17213
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/capture-apitrace-display.ps1",
+      "sha256": "7275a8dd82cae89e5c566670a7ba357d0c3e28c5a00ee6145606d566f057d6af",
+      "bytes": 8803
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/capture-display.ps1",
+      "sha256": "7b8fb405aa815c70d6ad80c980eb250833fe8c1a16f4c31cb38546f0a0f61b97",
+      "bytes": 8184
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/capture-dxgkrnl.ps1",
+      "sha256": "39005c3b02468450e09274a8d407b14085f3b8fc8a487e329dcf58bcfd041eaf",
+      "bytes": 4457
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/capture.ps1",
+      "sha256": "da5997ad9738120e3e05817d97f0be67bf8eeac338686d65f6a8f1ae27bd883a",
+      "bytes": 25532
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/check_roundtrip.gd",
+      "sha256": "3fea0a38ff54c0134c6c2c463fd8afe66b7eb4ecb11e45f242dfdab1d528b05e",
+      "bytes": 16015
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/check_settings.gd",
+      "sha256": "43ba2f5c4f375a3697e91da0078ba9e32f6df05c7ba40ce4a315b30591e2811b",
+      "bytes": 4015
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/decode-dxgkrnl.ps1",
+      "sha256": "75859e4fee04c31ab7ce61414aa7b5595b1240e3728599b770a3f78ac9941cf9",
+      "bytes": 2053
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/decode-etl.cs",
+      "sha256": "c274a6b4836c6de343e78bef70573ea2a20af7cb4debbb19188e2622f9d65bc1",
+      "bytes": 29896
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/decode-raw-etl.ps1",
+      "sha256": "1e4d90834cd63892e31b2d46b56f34e2a8fb352e2e020bfd878fa1e24e3895ea",
+      "bytes": 4750
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/display_probe.gd",
+      "sha256": "442c9c9a1f3475e905a1f72f942f07427f95de063b79ba7e6352a13c9591d732",
+      "bytes": 5535
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/display_probe.tscn",
+      "sha256": "ccebc428e4f6b1a2d98413fc127b8c5421923caa88a83143c3f026c74c32e6f8",
+      "bytes": 160
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/display_root.gd",
+      "sha256": "ece959229a18ab305e1c87d589a504c8ef7753a9ee091bc7d4e7c7856b0feef6",
+      "bytes": 778
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/fixtures/Expand-Extra-Scenarios.ps1",
+      "sha256": "022a1ab7e2d56cecac0710fbec69ef98b40934c739323e288b707ffbaca4b3c1",
+      "bytes": 19149
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/fixtures/Expand-Scenarios.ps1",
+      "sha256": "2d986d4a1bf9ea5896fc817fac226cd8faec03dbf9ae0b69a338c90054bb49e8",
+      "bytes": 3384
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/fixtures/Prepare-Inputs.ps1",
+      "sha256": "b653795a472ec5415c322ce22923f684bb29ec0f6cf737433320560007dd16cc",
+      "bytes": 5088
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/fixtures/Prepare-Operations.ps1",
+      "sha256": "7f112b3c98abfcd3a7621ba6a767d0127a01dbd8802fed345ac362ee1092d208",
+      "bytes": 3276
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/fixtures/README.md",
+      "sha256": "a5236b9991b8f1e88ee5f618ab19f35ce28118f59b8431e5b2eb038601f0d358",
+      "bytes": 27694
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/fixtures/extra_scenarios.json",
+      "sha256": "a05bf81d48588ea7c2e4f6514ce9aa4b7c0ad9f6c96195eba16a565a228dba5d",
+      "bytes": 20985
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/fixtures/inputs.json",
+      "sha256": "61360ea6e15293c270ed8a326c8cdb481f16a24c882a0711ed591580b05a7347",
+      "bytes": 10113
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/fixtures/legal_history_size.gd",
+      "sha256": "4a0a0855d3431c345588a0efae6e06e58b5ac2dcea0479772e68e9e1d2849920",
+      "bytes": 9041
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/fixtures/preflight_maximum_tall.gd",
+      "sha256": "aca738532796915a674453485da6142325fa04a79644b496270f78148ef75673",
+      "bytes": 3218
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/fixtures/prepare_boundary.gd",
+      "sha256": "94b4ea2afbe8d220da59b2d099790c0a5a7c984d09429769e3589c84974f05a7",
+      "bytes": 5740
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/fixtures/prepare_inputs.gd",
+      "sha256": "47ac3088979089325bde13f9aa7187d51b4813b57a3f9b737f413bd9f7c02b14",
+      "bytes": 20626
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/fixtures/prepare_operations.gd",
+      "sha256": "09a886a48177c1e54935a067d25f6aca3758d1f5553604a4b2f4a7ae4c8557ad",
+      "bytes": 19212
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/fixtures/scenarios.json",
+      "sha256": "293798106c65c8a07a78ae84a239d82c1e0c781e6fabb9c27bef0b715ff20f48",
+      "bytes": 11276
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/formal_root.gd",
+      "sha256": "02d4cb2e188fad46e9d38aff5f87f7de21ece115376ebdcaa17ac3b8b9db31c3",
+      "bytes": 4436
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/gpu-ledger.py",
+      "sha256": "9c3fec047b6028a69dfb64135483a9b4491d28f75de8bcc8445837e1f72475fc",
+      "bytes": 85613
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/input-driver.cs",
+      "sha256": "2d24d3edff294bb23401ab70464c149beddbbb0ef1b14b4a5920a288cdb03faf",
+      "bytes": 5059
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/launch.tscn",
+      "sha256": "b6f3153c0f072b153573ad4c5611c834665134b04b96e3d62ee539fa0ea87f62",
+      "bytes": 179
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/native_clock.gd",
+      "sha256": "26362c395bf813cf34f8904dbd8415cd4a8a8d404c1eb89574db28bc01e72b02",
+      "bytes": 761
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/observed_library.gd",
+      "sha256": "92cf683aa575f2a806af0a71dbbf7b221aafac303584acb27abf614d7a854935",
+      "bytes": 760
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/observed_snapshots.gd",
+      "sha256": "4f26afe33cbbb4828e2304819d8573864fceb9940e6c1e6800034a72adcea1f0",
+      "bytes": 2224
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/operation_driver.gd",
+      "sha256": "d878a707a15638f70dcb07cb95c8253082f195f0312dbe11570fc2dce7ee29b0",
+      "bytes": 29893
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/preview_input_observer.gd",
+      "sha256": "cb63b5b54abc3251c7a5fa9fe8495de1783b39dd479d79956c36a6b1f7825bdb",
+      "bytes": 8056
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/probe.gd",
+      "sha256": "b3665d7eddecc72bc4c5e395846402bcc9d18d48a12ed7b21bd1ddaf4bff9f7c",
+      "bytes": 6460
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/probe.ps1",
+      "sha256": "64a330985d263db69c7f1ba38a13c0b2e704c9bb782c9cf2d72d91c75be2c2c4",
+      "bytes": 2864
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/probe.tscn",
+      "sha256": "cda9cdae408903802c1ed74dc332374f147c379a921edd93e71d0f632317a688",
+      "bytes": 169
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/renderdoc_display.py",
+      "sha256": "93de2b24049e4e2095df954b6b713d93735ff3e1d36c564bfe5d8d3569036637",
+      "bytes": 9164
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/sample-gpu.ps1",
+      "sha256": "17545f8d8698ef1d597e8e5a1f82403f90448ef1c066297726ef5f6cef0e0a62",
+      "bytes": 2866
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/scenario.example.json",
+      "sha256": "7f67e05118d7242be08488b19ac16c4078778ce6ea2099e0e2e05ee711ae74fb",
+      "bytes": 1397
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/self-check-raw-etl.ps1",
+      "sha256": "1516600e322f95e5ae7b4a01b84bb0629250a5a17b4404e92ad35b7f0477472c",
+      "bytes": 9868
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/self_check.py",
+      "sha256": "47453626ceec8a8ea36c0b914bef48a7b2a50e121db7428546da86c0b6fbe59c",
+      "bytes": 28029
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/snapshot_witness.gd",
+      "sha256": "37e5c5084ebb4806cee1897d5fd09b8aec78876837d6fa57f72112b099db661d",
+      "bytes": 3066
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/test-frame-counter.ps1",
+      "sha256": "b75676727d95811beae60966ef72de13c20e290ac7bb195a3ebcb85fe030accb",
+      "bytes": 1684
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/test_analysis.py",
+      "sha256": "ac8eaabd4edd57ba39cce4a77f4fb5578364d932037b3fa5f6bfb3af9b2aec35",
+      "bytes": 7586
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/trace-status.cs",
+      "sha256": "fee6315a99b9d610ea582d23064c769266d7f1125c67e6f28cc5d9c1d56c156d",
+      "bytes": 3594
+    },
+    {
+      "path": "performance/after-project/tools/performance/acceptance/visible_capture.gd",
+      "sha256": "e0340c8665d62c7d28fd24f053753e6a24b897ed2a7af370b79b09111c8a4aec",
+      "bytes": 42486
+    },
+    {
+      "path": "performance/after-project/tools/performance/diagnose.gd",
+      "sha256": "1be081e89c7f6fe3763d8b59da74a894405022af9f50754ba1eb4e733dd433c6",
+      "bytes": 14858
+    },
+    {
+      "path": "performance/after-project/tools/performance/fixture.gd",
+      "sha256": "f99efd9dd5cf8afa2f7ca89f221edbcc54c2e080b1d0339d4b7de80874145189",
+      "bytes": 10582
+    },
+    {
+      "path": "performance/after-project/tools/performance/history.gd",
+      "sha256": "d0dc91f259dc77140247f4032b7549e800f6c230498419dee014cf2ab1548556",
+      "bytes": 12056
+    },
+    {
+      "path": "performance/after-project/tools/performance/native_capacity.gd",
+      "sha256": "9472530742980c9511138887987682391affee18b79baffe83384b808bce75e0",
+      "bytes": 2397
+    },
+    {
+      "path": "performance/after-project/tools/performance/personal_bed_probe.gd",
+      "sha256": "5d7002badee9eab11eab785fb1f722bb4c1b2c361c45bbd14fdd0c1eb085076f",
+      "bytes": 2884
+    },
+    {
+      "path": "performance/after-project/tools/performance/prepare.ps1",
+      "sha256": "5bfcc07759142d3692bd5c405d3592112e8ecd7dc54ca70ea2eb7554bcb06fec",
+      "bytes": 3822
+    },
+    {
+      "path": "performance/after-project/tools/performance/prepare_public_input.gd",
+      "sha256": "5ac4c8ca7e441e0f8935e6c9255e15d186f2a5953442a19e48e3a5405d622cb0",
+      "bytes": 13237
+    },
+    {
+      "path": "performance/after-project/tools/performance/preview.gd",
+      "sha256": "e2d140dd2c15a2d0dabb90fc899eea904566a21db0e0700ba48297f91815bae6",
+      "bytes": 2970
+    },
+    {
+      "path": "performance/after-project/tools/performance/profile.gd",
+      "sha256": "134d55be496dca295695acf1707a2dadcdca0f74bc5108de0870bc19ac285d02",
+      "bytes": 26652
+    },
+    {
+      "path": "performance/after-project/tools/performance/representative.gd",
+      "sha256": "85808f4b734223f7279ad0c6874f8d0a97ba1ae47bbf94e62df4b5fde545c545",
+      "bytes": 10608
+    },
+    {
+      "path": "performance/after-project/tools/performance/representative_clinical.gd",
+      "sha256": "463e2370de3a9d9ec22a9fbf7a6e64fd4809256920f8194e323bdb4ae18e52e0",
+      "bytes": 11780
+    },
+    {
+      "path": "performance/after-project/tools/performance/representative_compare.gd",
+      "sha256": "161004853d0dc2cd15284184fc1f268c08261435829fbd5690707cf88210a18b",
+      "bytes": 1732
+    },
+    {
+      "path": "performance/after-project/tools/performance/representative_continue.gd",
+      "sha256": "39a8b08ddcc2a09bb1c192115219e3acd6224cc3a5171f4144ba2d43b85bb66d",
+      "bytes": 5668
+    },
+    {
+      "path": "performance/after-project/tools/performance/representative_operations.gd",
+      "sha256": "2bfdfe6ad39fec3fc72c73ead2f5be264d1445eaec816dc14279b3641a4af8ba",
+      "bytes": 18392
+    },
+    {
+      "path": "performance/after-project/tools/performance/representative_prepare.gd",
+      "sha256": "ff395f378b943454a20b32331c2c1e6d494ea34da0d5d2d962baab90d90bf91f",
+      "bytes": 9727
+    },
+    {
+      "path": "performance/after-project/tools/performance/representative_public.gd",
+      "sha256": "3b8543c5dad65f39f45f4ddadd2c3afbfca7d772f35def46677fd460456add14",
+      "bytes": 4954
+    },
+    {
+      "path": "performance/after-project/tools/performance/resume_representative.gd",
+      "sha256": "04d302af9f523e2d99f4b2d9f8506be868fe185ce1943ace396e91916abfa797",
+      "bytes": 2135
+    },
+    {
+      "path": "performance/after-project/tools/performance/solver_check.gd",
+      "sha256": "d88f2d0f364b6e210c29c628ce3fd3f93081390ce7ed152f1989d270726caad6",
+      "bytes": 18463
+    },
+    {
+      "path": "performance/after-project/tools/performance/solver_oracle.py",
+      "sha256": "5e17d30c7cf658529081c261c2a50a11cbca2db25bbc858300f858360c91b3c3",
+      "bytes": 31248
+    },
+    {
+      "path": "performance/after-project/tools/performance/step_profile.gd",
+      "sha256": "8325e502f587505c353940b94b43dacc9ba7329b7f388e1d6d0c29df796db505",
+      "bytes": 22195
+    },
+    {
+      "path": "performance/after-project/tools/performance/trace_preparation.gd",
+      "sha256": "f2895d16426de36d9d629e677767dd1b3179b06ebeb1cd740086cc78e15c8c20",
+      "bytes": 26234
+    },
+    {
+      "path": "performance/before-project/content/core/accessibility_equipment.json",
+      "sha256": "ba2c98faa2087930967db5c38238f5a2ecdf0a8cc7a4c24f3bf031033cc6f1ad",
+      "bytes": 1591
+    },
+    {
+      "path": "performance/before-project/content/core/activity_purposes.json",
+      "sha256": "d687caf5af963490084ba2ac582f43d1a585409d4e4361417357b38302c435c8",
+      "bytes": 1284
+    },
+    {
+      "path": "performance/before-project/content/core/amenity_scenes.json",
+      "sha256": "5b153d1079b63129c24f50901536df82d3bda84430e0a6ba24b5f4b941c14946",
+      "bytes": 1544
+    },
+    {
+      "path": "performance/before-project/content/core/amenity_services.json",
+      "sha256": "e07966ae565f946118c7a3548f758f3a9ace1aad4e0ff0198b870fce0e5e5887",
+      "bytes": 802
+    },
+    {
+      "path": "performance/before-project/content/core/assets/index.json",
+      "sha256": "7b071a4ada79d528160cf3fc9b51246cdf19853e5ce73d230ed27c532cfa9f16",
+      "bytes": 264602
+    },
+    {
+      "path": "performance/before-project/content/core/blueprint_presets.json",
+      "sha256": "ceac74f8970ae27f2257ed64f7d193fc1339c8b55d8071681abfa8adf270bc4c",
+      "bytes": 1914
+    },
+    {
+      "path": "performance/before-project/content/core/build_room_types.json",
+      "sha256": "016c6698fa3729a43ebf674968aef782c1d24c3dfec297fbc90b3e5cf66caf36",
+      "bytes": 2681
+    },
+    {
+      "path": "performance/before-project/content/core/chair_variants.json",
+      "sha256": "590716f92571a1d6de0fb75f939996129fd27410211811e080367f45d2d72329",
+      "bytes": 2501
+    },
+    {
+      "path": "performance/before-project/content/core/cleanup_sources.json",
+      "sha256": "7e832bafce01e9b218b7b765be96e82c4bedec7634181f70290348caeeb42960",
+      "bytes": 1795
+    },
+    {
+      "path": "performance/before-project/content/core/clinical_abilities.json",
+      "sha256": "ba8e934e3edf292cd7687e240b540695e2e32b3a437cec767e732f083932c192",
+      "bytes": 907
+    },
+    {
+      "path": "performance/before-project/content/core/clinical_equipment.json",
+      "sha256": "13330fdf4f3e2b50d6659ee965b964a84528fe8b3cea2177c3a2fdc46cade9b6",
+      "bytes": 936
+    },
+    {
+      "path": "performance/before-project/content/core/clinical_practice_sources.json",
+      "sha256": "b9bc4c57a6e63f6bfd1d991e4e232cd846bb665d5c1d23ca914ee1d5f7c0b4a2",
+      "bytes": 970
+    },
+    {
+      "path": "performance/before-project/content/core/clinical_room_types.json",
+      "sha256": "a537282e81354acdad36021d2711806e3b0a66b44baa17db4f12fa4f8775e96c",
+      "bytes": 610
+    },
+    {
+      "path": "performance/before-project/content/core/colleague_scenes.json",
+      "sha256": "a98426dbd81ef8b08f52ef33bc3bf6b6e2cfa5283a34fa2ff053ad0ff1267fcf",
+      "bytes": 1524
+    },
+    {
+      "path": "performance/before-project/content/core/comedy_corner_guides.json",
+      "sha256": "2006ab33dc432449deb620cb0fa7286eab5c4ed39d0240af24b902ef6d22c4a7",
+      "bytes": 2215
+    },
+    {
+      "path": "performance/before-project/content/core/community_activities.json",
+      "sha256": "d943613ee729499760ce2da8f7e4836866d9249f6ff96b50cfdae5522d48f815",
+      "bytes": 6410
+    },
+    {
+      "path": "performance/before-project/content/core/community_cast.json",
+      "sha256": "7118170e38965fe94309a0a9e3d4d208fc1fdc537aaa5351ab013cf57b7f86c3",
+      "bytes": 1365
+    },
+    {
+      "path": "performance/before-project/content/core/consultation_behaviors.json",
+      "sha256": "20eb66e9e2afac21d475c86cf01ffc19318ce56cafe17160a0239c4e0e19b8d0",
+      "bytes": 11290
+    },
+    {
+      "path": "performance/before-project/content/core/context_lessons.json",
+      "sha256": "258de60ec00c163f4553a91c5d00c638b842fc7f011dffbc7ce1e249c19ac070",
+      "bytes": 2029
+    },
+    {
+      "path": "performance/before-project/content/core/decor_style_presets.json",
+      "sha256": "a4312a7076752bf99924d6e0fb8f23ea78946aaf5fe55c465697fdaf0e2aa9f5",
+      "bytes": 863
+    },
+    {
+      "path": "performance/before-project/content/core/diagnostic_modes.json",
+      "sha256": "7a4038cc4f6489f50ad4a4b97720b528a7d2601a8eca0e18f6544e19f7ae0d65",
+      "bytes": 1286
+    },
+    {
+      "path": "performance/before-project/content/core/diagnostic_work_styles.json",
+      "sha256": "64f6ee22859181e0da7f62df18c262337297d536e82c86935bb47ffca9f46e4d",
+      "bytes": 1401
+    },
+    {
+      "path": "performance/before-project/content/core/diseases.json",
+      "sha256": "59aca1c6c8fba6fb392d7ba7b2722a46d0bf9cbbc1e5a518a7332a681c5a2e88",
+      "bytes": 24192
+    },
+    {
+      "path": "performance/before-project/content/core/doctor_personalities.json",
+      "sha256": "cd33d0b12b6c6902a30bb91f9a87c2549b9fe6d3585440c3776e7b4edb83d250",
+      "bytes": 2363
+    },
+    {
+      "path": "performance/before-project/content/core/doctor_responses.json",
+      "sha256": "cb5f4f6b75df618e8adfbbd70735b9a2e53aea90b55ae49ea550794179db2fba",
+      "bytes": 2045
+    },
+    {
+      "path": "performance/before-project/content/core/doctor_titles.json",
+      "sha256": "13211055ec36caf5ef043b20080a3b0673570c5635429cdbf3aefbc2707683bf",
+      "bytes": 1500
+    },
+    {
+      "path": "performance/before-project/content/core/doors.json",
+      "sha256": "34f4172d0dee93c463b60b3334ca602e66179d1847526ef36a4762be5aa3db71",
+      "bytes": 1320
+    },
+    {
+      "path": "performance/before-project/content/core/ease_rules.json",
+      "sha256": "8ada2c152d1b0ad4f2fdaea2132a33299c8a4f44f971fac177babda2e9333c0d",
+      "bytes": 1560
+    },
+    {
+      "path": "performance/before-project/content/core/facility_fit_profiles.json",
+      "sha256": "a90a3407fd87e6808610fa95d413b8bec0244dee73a6804718f5f06c5fd0fbb8",
+      "bytes": 886
+    },
+    {
+      "path": "performance/before-project/content/core/facility_magic_scenes.json",
+      "sha256": "0c5c1205cf2c7d69c058cca397f5a59edcdff406406890769bb3ef639554d28e",
+      "bytes": 1611
+    },
+    {
+      "path": "performance/before-project/content/core/families.json",
+      "sha256": "fd9734eb5f3f118a1ab36c08140e3f9c77bff5c58e4cb4ecc365987fcfb8f8c9",
+      "bytes": 874
+    },
+    {
+      "path": "performance/before-project/content/core/finance_views.json",
+      "sha256": "f0cad42f437f8f529f6ffa4486bf20fdc42dcaf202620d5eb204062b49860a31",
+      "bytes": 1505
+    },
+    {
+      "path": "performance/before-project/content/core/fit_examples.json",
+      "sha256": "72d4b431fbed081db65bee493684f9d9deeb353fcd0d2b138f10f3955a5ed348",
+      "bytes": 450
+    },
+    {
+      "path": "performance/before-project/content/core/furniture_equipment.json",
+      "sha256": "3d891aee68b48bc8d79fec6bade6d72e8967a011a841260731949d422d458310",
+      "bytes": 21908
+    },
+    {
+      "path": "performance/before-project/content/core/gratitude_abilities.json",
+      "sha256": "ba87a41ce781d7807b2647405c846ced4d5a2a7cd1f88a3715028f2849cf9564",
+      "bytes": 13775
+    },
+    {
+      "path": "performance/before-project/content/core/gratitude_effects.json",
+      "sha256": "aaaa3181fd9010f3ed617134b13b832586a730aaacf209f676926f25ec4938a3",
+      "bytes": 1023
+    },
+    {
+      "path": "performance/before-project/content/core/growth_moments.json",
+      "sha256": "e36fe9cf0e69d9bd5a1e928f4be3004e2921a02b350b8e99c5db0fc8b79b6575",
+      "bytes": 1659
+    },
+    {
+      "path": "performance/before-project/content/core/history_templates.json",
+      "sha256": "22cea9c97963a355447c5c6938bd298890ca06fbcef481bf1cc1c11fdb5ffac4",
+      "bytes": 3566
+    },
+    {
+      "path": "performance/before-project/content/core/hospital_situations.json",
+      "sha256": "9ec30e5228cc8696bcf9947e097f88801f0a41b73e3099d31f6f6f1cedcd4a7b",
+      "bytes": 6338
+    },
+    {
+      "path": "performance/before-project/content/core/incident_contexts.json",
+      "sha256": "98e9f721f81dced46afb7f7ccf9cca233f142c906dc14217de5669ad761b2442",
+      "bytes": 3622
+    },
+    {
+      "path": "performance/before-project/content/core/incidents.json",
+      "sha256": "aacb510cd0a4f4bbb1faacd07304bb6447019beae87c52ddc0aad8cad959f7c8",
+      "bytes": 29653
+    },
+    {
+      "path": "performance/before-project/content/core/initial_disease_ids.json",
+      "sha256": "adde362a73447b97b3a4297bb0bf2b145805b616d9a729c9c822e03d19de07ad",
+      "bytes": 48
+    },
+    {
+      "path": "performance/before-project/content/core/interactions.json",
+      "sha256": "6dc7bf5d42826565ea21243aab6a8e78023e47bf56654fcd052888c5e6a4bef6",
+      "bytes": 44175
+    },
+    {
+      "path": "performance/before-project/content/core/journey_reason_cards.json",
+      "sha256": "d9b006e56fdae89d1cba95795d26a51e32ea954216e8cfe11034754d6128031c",
+      "bytes": 1950
+    },
+    {
+      "path": "performance/before-project/content/core/layouts.json",
+      "sha256": "3eac94a284723845042c07001fba3c3153bc30513ea35b1ba0916df92a97524c",
+      "bytes": 5086
+    },
+    {
+      "path": "performance/before-project/content/core/locale/zh_CN.csv",
+      "sha256": "2ade8c67e736aebf5c5fcdea2fd084ebb631d627048fc5db074ff3e7e59058ef",
+      "bytes": 479215
+    },
+    {
+      "path": "performance/before-project/content/core/locale/zh_CN.csv.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+      "bytes": 25
+    },
+    {
+      "path": "performance/before-project/content/core/machines.json",
+      "sha256": "02af50c28d4817cabe770521546ee4f58cf004ea023f9042d65279701f7e396b",
+      "bytes": 930
+    },
+    {
+      "path": "performance/before-project/content/core/maintenance_policies.json",
+      "sha256": "291ddd6e6ec3982eda8810a894fa29c4be50b49d64dc0fea705b4daac0b16a2a",
+      "bytes": 453
+    },
+    {
+      "path": "performance/before-project/content/core/maintenance_scenes.json",
+      "sha256": "9af850ba793137bd287a1bd294a5c2991dc1ff751b25a908846633a417c406f0",
+      "bytes": 1811
+    },
+    {
+      "path": "performance/before-project/content/core/manifest.json",
+      "sha256": "bb107abb299f2910522e202d75033ca4ef5bcbe7bb50b2550b4ffd415b379f42",
+      "bytes": 13877
+    },
+    {
+      "path": "performance/before-project/content/core/medical_equipment_profiles.json",
+      "sha256": "869aa798161a36512eb458c2a95abadbfaf25302ee6ac24e7dcc454a32b3813e",
+      "bytes": 3103
+    },
+    {
+      "path": "performance/before-project/content/core/medical_progress_cues.json",
+      "sha256": "f2074bc2777274bca34934b9c57e34c3a1662d9724b58f6a6ba65916b98efe22",
+      "bytes": 13440
+    },
+    {
+      "path": "performance/before-project/content/core/medical_supplies.json",
+      "sha256": "2c8b925825a71fc7cc86029df0706993cdcb15a480e1cd2c9a38819433588ba3",
+      "bytes": 1968
+    },
+    {
+      "path": "performance/before-project/content/core/memory_callbacks.json",
+      "sha256": "782de776d49b2f952604c2f7eb47f0d6577fc65805c300473a45e80ef9eb177b",
+      "bytes": 4313
+    },
+    {
+      "path": "performance/before-project/content/core/movement_cues.json",
+      "sha256": "c885f2694d96ef709ab798e4081b6f73b74b682eeb3e2ac29b3f0cd8bee235f5",
+      "bytes": 468
+    },
+    {
+      "path": "performance/before-project/content/core/observation_cues.json",
+      "sha256": "abdc073a898f89b78f77abc6ca626990ba3e19307c7f69f2471bd3d373c17e48",
+      "bytes": 420
+    },
+    {
+      "path": "performance/before-project/content/core/onboarding_steps.json",
+      "sha256": "de5b9f9ba56099edd64d29ef7164de3d9ec638276af4add7e3bdaefc31aa18ec",
+      "bytes": 2650
+    },
+    {
+      "path": "performance/before-project/content/core/patient_behaviors.json",
+      "sha256": "5ba04478cdf9a77ce0bf6503bd11b6851aa394492d14413ee42e26215cb08ed8",
+      "bytes": 4455
+    },
+    {
+      "path": "performance/before-project/content/core/patient_personalities.json",
+      "sha256": "67bf45cd659289493079accf8939222c409960f4311889f569564fae0bf57827",
+      "bytes": 11103
+    },
+    {
+      "path": "performance/before-project/content/core/preferences.json",
+      "sha256": "f5d1d59c5507fd00028f830fffa30c892a256095bea6b9a8df9b0b02dc7b3147",
+      "bytes": 438
+    },
+    {
+      "path": "performance/before-project/content/core/profiles.json",
+      "sha256": "4eeebb9605e510f6b39534ea5c6b4d3d1c9f8b9fae7cae84970819f573033861",
+      "bytes": 438
+    },
+    {
+      "path": "performance/before-project/content/core/queue_cues.json",
+      "sha256": "4f4f8481da5fa75c1b75c9c04909f0f70121d775fec4a59424a0d00b10e47618",
+      "bytes": 1073
+    },
+    {
+      "path": "performance/before-project/content/core/recruitment_examples.json",
+      "sha256": "06e0478c1d06a5c71a97864f6e4a292f65bec2bb23ea83d37b1074f963915449",
+      "bytes": 2146
+    },
+    {
+      "path": "performance/before-project/content/core/remodel_guides.json",
+      "sha256": "ce4268b3e199f85290a467c8d8523b54f2a166d03d08b525dee8bd9566977839",
+      "bytes": 5625
+    },
+    {
+      "path": "performance/before-project/content/core/renovation_materials.json",
+      "sha256": "b880bfd1310b53baa29b071cf4fc63ecdfe8d52303feb2bf8b9d6ebb10580435",
+      "bytes": 1258
+    },
+    {
+      "path": "performance/before-project/content/core/research.json",
+      "sha256": "2721a56cbcdfc5f8db506be952c619f1161148c3c2d852712c88b456e81f8a75",
+      "bytes": 8617
+    },
+    {
+      "path": "performance/before-project/content/core/research_trails.json",
+      "sha256": "c17def6e3153043c617ac919211236ce041b016fa0c0ee36c0f06c73e4dd78c2",
+      "bytes": 1532
+    },
+    {
+      "path": "performance/before-project/content/core/rest_cues.json",
+      "sha256": "0c70cab9973e8712687b8db3e39c91eee4591e41f52762b766e7fbc9b13709fc",
+      "bytes": 778
+    },
+    {
+      "path": "performance/before-project/content/core/resume_note_templates.json",
+      "sha256": "8501af9bc65f95d9807b653aa87130f2f9f5163100d0e7afde26da30a8f4dce1",
+      "bytes": 446
+    },
+    {
+      "path": "performance/before-project/content/core/rules.json",
+      "sha256": "89372578e0695e86d751d3dfe6f2d9a04694ada03dd39089ed0ff7a2512f0677",
+      "bytes": 106339
+    },
+    {
+      "path": "performance/before-project/content/core/service_equipment.json",
+      "sha256": "ed08e980a818e55cd397cab900c26bf400b308aa5113da4d7b3387662eff3959",
+      "bytes": 2235
+    },
+    {
+      "path": "performance/before-project/content/core/specialties.json",
+      "sha256": "c304ea7ce66b6e5a1e264ee0910c2cb8abf3d1f5766a70ae2ffc9aab5ea1b562",
+      "bytes": 1613
+    },
+    {
+      "path": "performance/before-project/content/core/species.json",
+      "sha256": "cfa4c06adeb95d7a6479018b0ba6e773c12c6b7ae46b3620f41a3c6826759d90",
+      "bytes": 22576
+    },
+    {
+      "path": "performance/before-project/content/core/species_gifts.json",
+      "sha256": "476ffff40e99fed66209f2b9cdc9b6d57cb8889aad34352fbebb9dc40e75edc4",
+      "bytes": 15523
+    },
+    {
+      "path": "performance/before-project/content/core/staff_base_cues.json",
+      "sha256": "c12d5f57890cd755d2bd78c4c6e09fba1594c8ae9c35454ed08f62f15b2c1e79",
+      "bytes": 634
+    },
+    {
+      "path": "performance/before-project/content/core/staff_biographies.json",
+      "sha256": "8ff1bbb26d710e5612b151b73b04895dff27930b3f05507d813b4d1495c27a88",
+      "bytes": 1899
+    },
+    {
+      "path": "performance/before-project/content/core/staff_practice_profiles.json",
+      "sha256": "246f01a3400642a32aacdff6a48e6e888746860936d712af32420a13f6b21c9b",
+      "bytes": 2230
+    },
+    {
+      "path": "performance/before-project/content/core/staff_recreation_equipment.json",
+      "sha256": "caac910e1255df89b61b009c87cde56de87b108c5525e7501ac1f0361d554134",
+      "bytes": 1741
+    },
+    {
+      "path": "performance/before-project/content/core/staff_rig_adapters.json",
+      "sha256": "faae167a7bf67362134c2bf28e076a84ace43d56bd0d431dcd4043e0371c479d",
+      "bytes": 6876
+    },
+    {
+      "path": "performance/before-project/content/core/staff_role_profiles.json",
+      "sha256": "750b0e26da652ecac2999f2a2ee8081954b61236801be42b6e41d8ebdb734a32",
+      "bytes": 1963
+    },
+    {
+      "path": "performance/before-project/content/core/staff_support_rooms.json",
+      "sha256": "9e429ab088cef0d09624db9f6f40b7950e1fea882fdbd2a9df72cdf7ae7126e6",
+      "bytes": 258
+    },
+    {
+      "path": "performance/before-project/content/core/staff_talent_handlers.json",
+      "sha256": "9629ec1eff3401ed18c60dce9a01b489707704146b42178b87cf0a898b110869",
+      "bytes": 815
+    },
+    {
+      "path": "performance/before-project/content/core/staff_talents.json",
+      "sha256": "30789aac2d0de77fd917b9305157fa60da7fe8fe8edd53ccf9764556d52042fb",
+      "bytes": 20817
+    },
+    {
+      "path": "performance/before-project/content/core/staff_work_styles.json",
+      "sha256": "e64b41e97eafea9c8b5ea8a2b434e17db7b7352373b698a5c4292dd1833b3d66",
+      "bytes": 1068
+    },
+    {
+      "path": "performance/before-project/content/core/starter_layout.json",
+      "sha256": "42934c1470711d34431189418e18c52973a767e9ef835b81407910c657f411e0",
+      "bytes": 8390
+    },
+    {
+      "path": "performance/before-project/content/core/stories.json",
+      "sha256": "f8cd3a18d99e533275e7e55c7f994be7118f5c179127b727fc792e1d115584bf",
+      "bytes": 2775
+    },
+    {
+      "path": "performance/before-project/content/core/story_activity_links.json",
+      "sha256": "a4a40ec65547fa0a9671125961e10a7d0a9170c55547fb8116da5e54634fe422",
+      "bytes": 1732
+    },
+    {
+      "path": "performance/before-project/content/core/story_patient_bindings.json",
+      "sha256": "4d77bee91e679e9d69b1bf0c0651b284a54419cca97b6568cd7a6f88693ae70f",
+      "bytes": 554
+    },
+    {
+      "path": "performance/before-project/content/core/supply_reactions.json",
+      "sha256": "c97b40e69c1b63de8134aab4e583fc65f895ddac0725707594bc5cb1ad1f05b2",
+      "bytes": 716
+    },
+    {
+      "path": "performance/before-project/content/core/surgical_adapters.json",
+      "sha256": "bbfa92f2af5f71b7974038ea3931aaacbec90d661e158e5f939d93515d4909de",
+      "bytes": 19724
+    },
+    {
+      "path": "performance/before-project/content/core/tags.json",
+      "sha256": "bcbc325d398949f4ee796ee00a0fe9f90496f818569fe5062a2dd1593ed5af1a",
+      "bytes": 1193
+    },
+    {
+      "path": "performance/before-project/content/core/task_guides.json",
+      "sha256": "f840aa7111d9bfbceddedf9bea20157a69446738969b6019dbc46e396d7f77c9",
+      "bytes": 6733
+    },
+    {
+      "path": "performance/before-project/content/core/tasks.json",
+      "sha256": "3b65150da0092ced59164f6fb7cefd118c0b2c6b2b077224f84c053e2a39b2d9",
+      "bytes": 12140
+    },
+    {
+      "path": "performance/before-project/content/core/treatment_bindings.json",
+      "sha256": "f7852103655d47ab103975a8f286cf68a31c76d68fe14ebf58a88476e9cb77b8",
+      "bytes": 198103
+    },
+    {
+      "path": "performance/before-project/content/core/treatment_plans.json",
+      "sha256": "904ad231bb7705a95bfcf49c0984adeb127ba7d95445ace4c5d64611f30c8dbf",
+      "bytes": 65820
+    },
+    {
+      "path": "performance/before-project/content/core/treatment_protocols.json",
+      "sha256": "0ac7cd27f486f55102b3901f92631134facab69c5179aa8631236b213c8661a1",
+      "bytes": 2881
+    },
+    {
+      "path": "performance/before-project/content/core/treatment_routines.json",
+      "sha256": "bfec39f6b7436bed0fb57e6f212dd148f9f858b936f8898205a3d29c314f76f3",
+      "bytes": 32007
+    },
+    {
+      "path": "performance/before-project/content/core/upgrade_presentations.json",
+      "sha256": "7df4189f253d2329b93f7273b38544eefc07c537033fff03fef9a7a9a2eabf17",
+      "bytes": 2019
+    },
+    {
+      "path": "performance/before-project/content/core/upgrade_tiers.json",
+      "sha256": "d991b46ddd86b1c919bf6023255e547e6c99fa3cf2fb8b1cfe4ef55181b7e955",
+      "bytes": 371
+    },
+    {
+      "path": "performance/before-project/content/core/vertical_connectors.json",
+      "sha256": "ea08f076bbbbdea1d8bd1eaebafa67cb74215bacd27bede12287d6b81fe6a7cd",
+      "bytes": 3412
+    },
+    {
+      "path": "performance/before-project/content/core/visitor_cues.json",
+      "sha256": "fcd56a2b860e55054c79621781dd20886257b32f24f85df3fd39f02b5002471b",
+      "bytes": 532
+    },
+    {
+      "path": "performance/before-project/content/core/ward_neighbor_cues.json",
+      "sha256": "f686630d84f18c5fda432b3c0bcb4d4a1e9514b7255961fc13f9df74f1261162",
+      "bytes": 566
+    },
+    {
+      "path": "performance/before-project/content/core/ward_scenes.json",
+      "sha256": "91bedfb76c2b10749f5bfb48926a829fe18bb4b89458cb4c4099937ddd575a16",
+      "bytes": 1212
+    },
+    {
+      "path": "performance/before-project/game/app/app_root.gd",
+      "sha256": "d50eeda18ba424c6fa3813fba7c46e20c8a93820b21eb8bc7f22f0b494774e9e",
+      "bytes": 47475
+    },
+    {
+      "path": "performance/before-project/game/app/game_session.gd",
+      "sha256": "a22ec31241d16b66a607db6f1a5cb7aec70dcab625160c2a5072a7baaede2675",
+      "bytes": 4559
+    },
+    {
+      "path": "performance/before-project/game/app/main.tscn",
+      "sha256": "e1a3ffe5c4423cba6c381ac29a6dca3f98da3b045af9db13120002a88da310e5",
+      "bytes": 265
+    },
+    {
+      "path": "performance/before-project/game/arrivals/arrival_preparation.gd",
+      "sha256": "e53762d0f4156ea5003e5aa32c15b5a8f2214b739616408522f7fad96bc90a81",
+      "bytes": 17201
+    },
+    {
+      "path": "performance/before-project/game/arrivals/arrival_service.gd",
+      "sha256": "69d141f44e76c17dedf0c3bb6c1120c0c264270bc3c89505b4c540557a951b88",
+      "bytes": 87192
+    },
+    {
+      "path": "performance/before-project/game/arrivals/capacity_solver.gd",
+      "sha256": "97f010473f1b4bed516e92088eb23f4e51c01a1c60d4c66af7915511d754ca5f",
+      "bytes": 326
+    },
+    {
+      "path": "performance/before-project/game/arrivals/day_plan.gd",
+      "sha256": "c29a801a9394879454ea37a8ffaec698e50962bb513780a41e0bac37176527bc",
+      "bytes": 7061
+    },
+    {
+      "path": "performance/before-project/game/arrivals/exact_fraction.gd",
+      "sha256": "78dbb754096d5b6b49dcd1fa4d9988f165dea95a95bbd9232693ddedfeef012a",
+      "bytes": 4312
+    },
+    {
+      "path": "performance/before-project/game/building/blueprint_service.gd",
+      "sha256": "d0cb708b7f11851601a455d6999abcc577d64871a5373a675d334c10f5228126",
+      "bytes": 17965
+    },
+    {
+      "path": "performance/before-project/game/building/body_index.gd",
+      "sha256": "42cbd98bd9f8fca72c15a72a797f95411577fec6639bb7edf13d16cb3c55326c",
+      "bytes": 4085
+    },
+    {
+      "path": "performance/before-project/game/building/body_sweep.gd",
+      "sha256": "e8a1374f84984314c1965695b103c03d0bfd18a498322f160374f7496db69ccc",
+      "bytes": 898
+    },
+    {
+      "path": "performance/before-project/game/building/build_geometry.gd",
+      "sha256": "c3cb4db3bd31bf801fc7a6d4dd099243742b80fe8a0bdba2e5b8f72337bb8f4b",
+      "bytes": 11063
+    },
+    {
+      "path": "performance/before-project/game/building/build_preview.gd",
+      "sha256": "0f1e01a4dcf2f363a0234b36ba50ab665d827eb63a50802d5846737755d99851",
+      "bytes": 4807
+    },
+    {
+      "path": "performance/before-project/game/building/build_preview_job.gd",
+      "sha256": "a5a7581e9cd580e2c83662082a10015ffd7f32eaea5f1a505be17ddd94dcb588",
+      "bytes": 15866
+    },
+    {
+      "path": "performance/before-project/game/building/build_service.gd",
+      "sha256": "179058f55078521224cd993e1fa954e561e213677e4204ef6fec892ddf4cfaf5",
+      "bytes": 54813
+    },
+    {
+      "path": "performance/before-project/game/building/connector_service.gd",
+      "sha256": "002f34d0c74e0be4129ea42fed6d488ff448817079a63e49b88f475d77d6ce63",
+      "bytes": 8817
+    },
+    {
+      "path": "performance/before-project/game/building/floor_navigation.gd",
+      "sha256": "c749ff514af42ea9166a7763fde9614282dacd84be242aca862396050bddc1af",
+      "bytes": 5935
+    },
+    {
+      "path": "performance/before-project/game/building/floor_service.gd",
+      "sha256": "11e1a6beaaf9367c0bf379f13658ae8c1428a596aa4ee654b3b34a4ac0b10267",
+      "bytes": 14456
+    },
+    {
+      "path": "performance/before-project/game/building/hospital_space.gd",
+      "sha256": "f31054708e6d6c9ed66bd2a89b85f3064928619bc196ad25588b2afe8e17c9bf",
+      "bytes": 82815
+    },
+    {
+      "path": "performance/before-project/game/building/hospital_transit.gd",
+      "sha256": "d03f6195b938de21d0b3364a96ac8749fd343d3fb1716506d5cfab95cdda40ac",
+      "bytes": 28247
+    },
+    {
+      "path": "performance/before-project/game/building/navigation_cache.gd",
+      "sha256": "299c1b9e427eee6e52bc21f98bb082382460ea999ee19deec730d89836383a85",
+      "bytes": 16174
+    },
+    {
+      "path": "performance/before-project/game/building/remodel_service.gd",
+      "sha256": "2875f18a4a023bfa2b67ad9106547c5c2e2e954c802f4c4a1bbd6ff056356c28",
+      "bytes": 25722
+    },
+    {
+      "path": "performance/before-project/game/building/route_clearance.gd",
+      "sha256": "117f7ef8c92e4f0ccacb5c070364f051ef6253b89e13774daf230a83935193b1",
+      "bytes": 16839
+    },
+    {
+      "path": "performance/before-project/game/clinic/clinical_runtime.gd",
+      "sha256": "ca73527841987f0d0aa995c05a8c5a858f288bdd900926034cded76197a18340",
+      "bytes": 182536
+    },
+    {
+      "path": "performance/before-project/game/clinic/hospital_visitors.gd",
+      "sha256": "e55710e5626b55ecb4930cea4a0c2f8ea6b66a7ac6492d0d9eb2cea375d3835e",
+      "bytes": 20825
+    },
+    {
+      "path": "performance/before-project/game/community/research_job_index.gd",
+      "sha256": "caf1960eaee699eb89e2a05cbe5bdfbf47ea5c47056fd85f163862420304d1f8",
+      "bytes": 1349
+    },
+    {
+      "path": "performance/before-project/game/community/research_service.gd",
+      "sha256": "e1c5bc5affb89692cf7d59e057bb65082802e9413ca000349834253739b9dbfc",
+      "bytes": 34318
+    },
+    {
+      "path": "performance/before-project/game/content/content_db.gd",
+      "sha256": "658bef312d445be223af4cb7b55254160cd884105a863ee280d16fe0733f803a",
+      "bytes": 3063
+    },
+    {
+      "path": "performance/before-project/game/content/content_load_result.gd",
+      "sha256": "ca8ff6780a30f9dee0e5254df360103117735175d2d207df47a1c824d9f8c3b5",
+      "bytes": 189
+    },
+    {
+      "path": "performance/before-project/game/content/content_loader.gd",
+      "sha256": "60289da8dd877645ac07eb31cb98afb1dd3b4ab65b1057d6134e29f7c50dfe9b",
+      "bytes": 24381
+    },
+    {
+      "path": "performance/before-project/game/content/content_pipeline.py",
+      "sha256": "2ed8831fa9f63c22ada1666c6f665340d9055288ce3c9627f63f69d932205aa7",
+      "bytes": 33378
+    },
+    {
+      "path": "performance/before-project/game/content/content_registry.gd",
+      "sha256": "2bc1c8a0cc1c38d15438e97fcafeb5230a7a3a044dd361355476679a789077f4",
+      "bytes": 4440
+    },
+    {
+      "path": "performance/before-project/game/content/schema100.json",
+      "sha256": "be213729bc0da33f1e10779dbeea3fabecf08bcf8b0fb6e6b6bc85ed625c341d",
+      "bytes": 584750
+    },
+    {
+      "path": "performance/before-project/game/economy/finance_service.gd",
+      "sha256": "6a84601eb63d57641467ad0877b6f7dca04178973145554fc85e7fa5d8b2c96a",
+      "bytes": 28306
+    },
+    {
+      "path": "performance/before-project/game/economy/ledger.gd",
+      "sha256": "024370d1aacce142495b63b72d4ba52a059888fa74f030bbcaeb4b5848da6bc3",
+      "bytes": 1527
+    },
+    {
+      "path": "performance/before-project/game/economy/ledger_entry.gd",
+      "sha256": "6c610e59dedf13c94618e41f872c875b1cc33446c55aae4f28317008c181b877",
+      "bytes": 290
+    },
+    {
+      "path": "performance/before-project/game/life/public_areas.gd",
+      "sha256": "1e5201a66fdcaf8dc756b42ec6d7cf66a770e5fd6252dad0b58930953fbc89fb",
+      "bytes": 21764
+    },
+    {
+      "path": "performance/before-project/game/life/waiting_life.gd",
+      "sha256": "1c9e0e494080dcc0b50f10d3a278ba8a3a67e21dd01106c24d15426fccfa8adc",
+      "bytes": 45443
+    },
+    {
+      "path": "performance/before-project/game/operations/department_service.gd",
+      "sha256": "6719eaeff1d554d43cb89ea87f16663c3996f549b0a0645298726f712b64ae07",
+      "bytes": 63968
+    },
+    {
+      "path": "performance/before-project/game/operations/environment_service.gd",
+      "sha256": "ee7ce2e56e6282dc049b1b6c13e2ed8129b0b55b827fe22fd481b7c4baedd050",
+      "bytes": 55059
+    },
+    {
+      "path": "performance/before-project/game/operations/maintenance_service.gd",
+      "sha256": "89ad30ae47e4261f91cc4a3a25fad41a1397d236266575d06d9eb9f526b9198e",
+      "bytes": 36834
+    },
+    {
+      "path": "performance/before-project/game/operations/supply_service.gd",
+      "sha256": "3846f0aa50aef8b5f1c2f10b09a7d3daeef7bf792b3bbee4c23df96cda50919f",
+      "bytes": 14540
+    },
+    {
+      "path": "performance/before-project/game/persistence/backup_zip.gd",
+      "sha256": "5859b6be7d1472798ce50392c8c2dd4869c8a4114d7ce989b44dcca082bd8261",
+      "bytes": 18888
+    },
+    {
+      "path": "performance/before-project/game/persistence/blueprint_library.gd",
+      "sha256": "aea8b917af5575789c1ec16f8780ca91f1b114661714fc67a254c22dab0ec497",
+      "bytes": 4421
+    },
+    {
+      "path": "performance/before-project/game/persistence/hospital_library.gd",
+      "sha256": "b75456ce121b0812743ded675f525dba8ac1bb73349ae6c83e87a8c168a06672",
+      "bytes": 26160
+    },
+    {
+      "path": "performance/before-project/game/persistence/json_stream.gd",
+      "sha256": "f3a3eef718a74003228a7c03a1151820a542f1f992efaa601ca0d41fc24e27c6",
+      "bytes": 8689
+    },
+    {
+      "path": "performance/before-project/game/persistence/snapshot_store.gd",
+      "sha256": "78566573c6bdb50efc8dd6945d27c69f5f0578d93752fb961c99c0d585bcef25",
+      "bytes": 27604
+    },
+    {
+      "path": "performance/before-project/game/platform/windows/README.md",
+      "sha256": "a62a396bda3f264de17bfbd7691dc3c557d1b32c3975fdc681e2371e98bdb442",
+      "bytes": 13887
+    },
+    {
+      "path": "performance/before-project/game/platform/windows/oddly_good_platform.gdextension",
+      "sha256": "9d3edda4f6527134ad82c0765c81b8fdc6e516447701d13b4ee73a5d47500dc3",
+      "bytes": 575
+    },
+    {
+      "path": "performance/before-project/game/platform/windows/platform_arrivals.cpp",
+      "sha256": "2c65dc9c3c4e07dc02a8fd1041004ecdf19acdc75ee80ae015b89961ae82e498",
+      "bytes": 115033
+    },
+    {
+      "path": "performance/before-project/game/platform/windows/platform_session_guard.c",
+      "sha256": "b8b211f98327d1e292cbb114d880f043d778dd99377d3854cacddffe8095e8cb",
+      "bytes": 28125
+    },
+    {
+      "path": "performance/before-project/game/platform/windows/platform_sqlite.h",
+      "sha256": "4cf27eb9149fe233cc38303f373ccc07510f1101f26c811350f7c2e48d710a95",
+      "bytes": 20552
+    },
+    {
+      "path": "performance/before-project/game/sim/equipment_use.gd",
+      "sha256": "b2c0001a0ea8640ea4f42f7d86ec59e1c7cf63bad032f78946295918a8620210",
+      "bytes": 1165
+    },
+    {
+      "path": "performance/before-project/game/sim/hospital_factory.gd",
+      "sha256": "aab6e9695c2e33658f969cbe4754fc4bd6dbc8d520df23a715ac5292e2aa8b93",
+      "bytes": 7684
+    },
+    {
+      "path": "performance/before-project/game/sim/simulation.gd",
+      "sha256": "86e30e731ac87de59fd1ca82cf1f98d7541d154c3a479a1965d184d7fd4119dd",
+      "bytes": 19382
+    },
+    {
+      "path": "performance/before-project/game/sim/types/business_payload.gd",
+      "sha256": "e6be2f738ce0077f3a6b3ec023965fef20785f8d2d941eeff68b40dfdd450fad",
+      "bytes": 216
+    },
+    {
+      "path": "performance/before-project/game/sim/types/command_result.gd",
+      "sha256": "14bfda9bada0dfb5d33f13d5966c0572f65cc344a685e4caa8b1210fdbab82cb",
+      "bytes": 869
+    },
+    {
+      "path": "performance/before-project/game/sim/types/game_command.gd",
+      "sha256": "c5d933fa960dab22d4a8c94d1727726a05d3596a1c171e33c28fbafe68d1d7a5",
+      "bytes": 1583
+    },
+    {
+      "path": "performance/before-project/game/sim/types/move_actor_payload.gd",
+      "sha256": "f9ced5a3b5649af68128e5cb1effe4d6ee516d18327eedfced56da7de6c03fcc",
+      "bytes": 1953
+    },
+    {
+      "path": "performance/before-project/game/sim/types/sim_event.gd",
+      "sha256": "97adadfe83e77fb0292ed8b322f2ed1d3f5b3138d772cf3d5b8bc4240ba8a911",
+      "bytes": 483
+    },
+    {
+      "path": "performance/before-project/game/sim/types/tick_result.gd",
+      "sha256": "21253c3043fef847fa707f77955c5d650fec072b48feb4060d6b79b320d938c1",
+      "bytes": 373
+    },
+    {
+      "path": "performance/before-project/game/sim/world_state.gd",
+      "sha256": "a3eb052d1fecd73d0345c3b40f4990cf27e07adc1099333f00fa2cbaa57f4aff",
+      "bytes": 60352
+    },
+    {
+      "path": "performance/before-project/game/staff/clinical_development.gd",
+      "sha256": "d7e84edb50a13807467b7aa89d60421bc4484b31e8541243526704839f3e14aa",
+      "bytes": 46146
+    },
+    {
+      "path": "performance/before-project/game/staff/personal_bed_matching.gd",
+      "sha256": "57f53cec8b265d2a5951a56f1dd07b9a6f08f293a326cef4fd0228d65d8a2074",
+      "bytes": 4586
+    },
+    {
+      "path": "performance/before-project/game/staff/personal_beds.gd",
+      "sha256": "ee32c534b883eb3bd924b19e720b6dd411889a5d1889928b79138e3a1d5818e1",
+      "bytes": 7178
+    },
+    {
+      "path": "performance/before-project/game/staff/recruitment_service.gd",
+      "sha256": "7c7a4902aa693aa7b8f57a9ed61c87f37423b5897d00c22cd053f4ea80ae8693",
+      "bytes": 44006
+    },
+    {
+      "path": "performance/before-project/game/staff/shift_scheduler.gd",
+      "sha256": "bdfd466dc9b77ef0286e0e1301b5fcf9b184244fa7196d9f006d5e35f624cbda",
+      "bytes": 26268
+    },
+    {
+      "path": "performance/before-project/game/staff/staff_wellbeing.gd",
+      "sha256": "88d891b0e3ba80f319fa97521ef2182bb5a9970e5bc958c018be677195f93d6a",
+      "bytes": 55880
+    },
+    {
+      "path": "performance/before-project/game/ui/action_panel.gd",
+      "sha256": "e69f7581747e4277987c3a5945a7d146ddf86909f7012dae1e75dee816740310",
+      "bytes": 4706
+    },
+    {
+      "path": "performance/before-project/game/ui/arrivals_panel.gd",
+      "sha256": "3a63b207f5c3b3b61c418f853b909019eff0d6e9fcbe61a3a70fc518744ec864",
+      "bytes": 3266
+    },
+    {
+      "path": "performance/before-project/game/ui/build_panel.gd",
+      "sha256": "be7ad4393235af85159390a1f0696f59063e2ed52a7715bdcc9533832121242e",
+      "bytes": 11847
+    },
+    {
+      "path": "performance/before-project/game/ui/clinical_panel.gd",
+      "sha256": "68b53895b879a40494635c6642e9b9d4f36be38a902e7cabdf6b6e30192dbe8a",
+      "bytes": 3649
+    },
+    {
+      "path": "performance/before-project/game/ui/departments_panel.gd",
+      "sha256": "7e70538c5c65ae11937ff9b116cb9e59e778a1e843ea4f361c9a6e71b03cfd15",
+      "bytes": 3265
+    },
+    {
+      "path": "performance/before-project/game/ui/environment_panel.gd",
+      "sha256": "4076755346b70f8b6b1e26d9c9a3c79bad908e9de93e8d067be30e269256313e",
+      "bytes": 4940
+    },
+    {
+      "path": "performance/before-project/game/ui/expansion_panel.gd",
+      "sha256": "04e6ca9d15ad7f3427bd809716f00ad247fbd185eaa670d3137bae4158732457",
+      "bytes": 7375
+    },
+    {
+      "path": "performance/before-project/game/ui/finance_panel.gd",
+      "sha256": "f4b329680176b85e72ff096ca95d3d60f9e7183a0a3c69cfe2b5e99fd5b7b479",
+      "bytes": 3102
+    },
+    {
+      "path": "performance/before-project/game/ui/hospital_library_panel.gd",
+      "sha256": "704e1a0bc4a73be0f003c7699944c0d61ce58e4143c84f49155f4d5076bdb287",
+      "bytes": 6437
+    },
+    {
+      "path": "performance/before-project/game/ui/maintenance_panel.gd",
+      "sha256": "3cbf02b09e9b30761c0615837a07dca754ce340d8e6f01d7a56af5336145c30f",
+      "bytes": 3630
+    },
+    {
+      "path": "performance/before-project/game/ui/plans_panel.gd",
+      "sha256": "861469432b24f555718393cdb50f1609b94b58b8ed3f48bc30a9079d3b26cf75",
+      "bytes": 3841
+    },
+    {
+      "path": "performance/before-project/game/ui/recruitment_panel.gd",
+      "sha256": "e42a1616e3a607648d655f9a90b321b79cb711f1651cc75e1661bc7e211f988b",
+      "bytes": 5985
+    },
+    {
+      "path": "performance/before-project/game/ui/remodel_panel.gd",
+      "sha256": "f16c469ad4a8fe878e7e56c07cfef636e136a543aae33a9b3a0468fd1552df5e",
+      "bytes": 20278
+    },
+    {
+      "path": "performance/before-project/game/ui/research_panel.gd",
+      "sha256": "e258fdeee328083f555d369ed3e0907682da5c2cb59f6faed23bd5756201b396",
+      "bytes": 11558
+    },
+    {
+      "path": "performance/before-project/game/ui/schedule_panel.gd",
+      "sha256": "8ad29541c473d24d4b0e2422409f4094110b014dab3413725dae2f98a8113c43",
+      "bytes": 3962
+    },
+    {
+      "path": "performance/before-project/game/ui/staff_life_panel.gd",
+      "sha256": "fff324f0fe0b6ba7faafb59cf071abdf56ff1ae74c00b898de3d4e815f4e20a5",
+      "bytes": 2649
+    },
+    {
+      "path": "performance/before-project/game/ui/supplies_panel.gd",
+      "sha256": "99d43f0f2070e1597d4b85762c6567a88d3dc4dd43cbf31e9c4219f53b954cf4",
+      "bytes": 2456
+    },
+    {
+      "path": "performance/before-project/game/ui/training_panel.gd",
+      "sha256": "283b9d0c91f753cb79ba445fc41b098c90cce2e18e64f046bdc6d6c127a73be1",
+      "bytes": 3455
+    },
+    {
+      "path": "performance/before-project/game/ui/waiting_panel.gd",
+      "sha256": "773b273e1c8d8a106402c013b24caf615118a2c25863754a7b8e7b4257fc86e4",
+      "bytes": 2490
+    },
+    {
+      "path": "performance/before-project/game/ui/ward_panel.gd",
+      "sha256": "3015b74a9fa1868401354b6edae65e6c0b302d534a6623ac57183a91c457bdd0",
+      "bytes": 8480
+    },
+    {
+      "path": "performance/before-project/game/view/build_overlay.gd",
+      "sha256": "b6cd67a262a9b1e31474e1c167e96dd87b54d7a784039caf5700e3b53f7041aa",
+      "bytes": 2995
+    },
+    {
+      "path": "performance/before-project/game/view/compatibility_skin_input.gd",
+      "sha256": "f0c6b71171c8ea8917b661196152e97f2a6e642fbbdb72b3ae18091eb57f73b8",
+      "bytes": 4507
+    },
+    {
+      "path": "performance/before-project/game/view/hospital_palette.gd",
+      "sha256": "dd24f6999e8c0522cc0e04eb36bf4cd779274ccbb85133d8821daa742e930624",
+      "bytes": 1174
+    },
+    {
+      "path": "performance/before-project/game/view/hospital_view.gd",
+      "sha256": "baf288201bc716a43fb274dd45139a77d65628d0516dd4e5dbbdb3f573c47b54",
+      "bytes": 65304
+    },
+    {
+      "path": "performance/before-project/game/view/shaders/skin_readback.gdshader",
+      "sha256": "72b74920b52fcfe944da7c6694945f8527734b0f86542fe43362683223ae0318",
+      "bytes": 599
+    },
+    {
+      "path": "performance/before-project/game/view/shaders/skin_readback_original.gdshader",
+      "sha256": "d498a17891628be38e3b2543ce6123267bef11320e7004d6bd1aa74ee94582d7",
+      "bytes": 582
+    },
+    {
+      "path": "performance/before-project/game/view/shaders/skin_readback_output.gdshaderinc",
+      "sha256": "80a3e9478ca9bf9f3294a1065dddbcfb32ffff97de9908c161cb4494c2cf1231",
+      "bytes": 1784
+    },
+    {
+      "path": "performance/before-project/game/view/shaders/skinned_pose.gdshader",
+      "sha256": "f6f8e6b78c4771e64da95c681f9e1e6010c4b8933fd1886cb4f5152fa0c2b6a7",
+      "bytes": 151
+    },
+    {
+      "path": "performance/before-project/game/view/shaders/skinned_pose.gdshaderinc",
+      "sha256": "0d02ebc85dd8c871d5f99d31b735cb91d745844f098e6214d1321a674c429feb",
+      "bytes": 620
+    },
+    {
+      "path": "performance/before-project/game/view/shaders/skinned_pose_double_sided.gdshader",
+      "sha256": "7e373dc423e76554f486dade8fb9453f9b27420a010b4192319425183d0e6055",
+      "bytes": 155
+    },
+    {
+      "path": "performance/before-project/game/view/shaders/skinned_pose_surface.gdshaderinc",
+      "sha256": "19ed00ba18c94787f290481d8d04a77daa434a2e5bfd8ac8c3ff096cc36ed23a",
+      "bytes": 789
+    },
+    {
+      "path": "performance/before-project/game/view/skinned_pose_batch.gd",
+      "sha256": "aace3d336ffe477136818d06d1d2d7e5dd1ebb3051371069991dc99dcbca7ac0",
+      "bytes": 9903
+    },
+    {
+      "path": "performance/before-project/game/view/view_resources.gd",
+      "sha256": "52fd8ad69760d5e74a10d9cc7ec4ccb318b44f307a74712350e8822ab324a670",
+      "bytes": 5778
+    },
+    {
+      "path": "performance/before-project/game/view/view_work_budget.gd",
+      "sha256": "7accce896aab177ff50f3d82ed2988128728bbfbf195d5b04e55c71de0e6c5d2",
+      "bytes": 1080
+    },
+    {
+      "path": "performance/before-project/import.log",
+      "sha256": "6be4762f3885ce1d05e1fcf94c241bf6dd59d58ecf29b82cfaa5c013bc44ccd8",
+      "bytes": 11483
+    },
+    {
+      "path": "performance/before-project/source-identity.json",
+      "sha256": "e3a1d7a1bbe6be332c36a4f1698f970b1cd7e47f2ecf08f283dd228337891833",
+      "bytes": 71800
+    },
+    {
+      "path": "performance/before-project/tests/acceptance/clinical_timing.gd",
+      "sha256": "15c77fe691dbfa72c6cb6ed5aacfb341a068f72a87ffa78cd51129b461ccfb0b",
+      "bytes": 11966
+    },
+    {
+      "path": "performance/before-project/tools/performance/REPRESENTATIVE.md",
+      "sha256": "b4c620389a89c8eaf6fad578ca22a11deb2dc187a4a0078f76158ba6e1474079",
+      "bytes": 7892
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/CAPTURE.md",
+      "sha256": "bce84c01e26fe5cd3b3b8b128aa4717f89f0a350ad61332ad5eb67afd0680e5e",
+      "bytes": 8377
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/DECODING.md",
+      "sha256": "d945fdf7229c3d72e0a60c874f227236e853aa17e4b73216390637765f1380d3",
+      "bytes": 5994
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/DENSE_MATRIX.md",
+      "sha256": "20c24298ad1e8b977234ed71b3445e443d2521fc79cd503b53857d00b04a528a",
+      "bytes": 10713
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/DISPLAY.md",
+      "sha256": "2d1d9b67935581c5b513731e138997542bdf4d77a4a61f2109544e4eaa1301a7",
+      "bytes": 4231
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/OPERATIONS.md",
+      "sha256": "17eaeedc3382e34bcb4fc8f4310ee8f79f5a5cd49ffcdbc506bd17bd21a3f170",
+      "bytes": 31630
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/README.md",
+      "sha256": "9d2017f8c90d9ccea9eb8e913875f18056bdc0c2af0611cf6bdbfe5149cad68a",
+      "bytes": 3262
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/REPORTING.md",
+      "sha256": "c1ac10224633629f70474359472e53f248481ec77f7d554e7553d275ee496931",
+      "bytes": 8620
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/RUNNER.md",
+      "sha256": "90c58a8f0720dbbee0c7de42ee1aef573f126729295ae03b18d12afabf1d1aef",
+      "bytes": 9322
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/analysis_reference.py",
+      "sha256": "d49aff7d160907f95018edee09431f7f85d7bade0f34b19b081dc7cc2d53818e",
+      "bytes": 6908
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/analyze.py",
+      "sha256": "bbcdec74e6358b702b28755ec609a66f10b6ab9bb7487401dab7b984382871ee",
+      "bytes": 54653
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/apitrace_display.py",
+      "sha256": "6e6d65bb09a62117507bafb39a7393131807fb62bd8efa5cd683098b662fa2dc",
+      "bytes": 17213
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/capture-apitrace-display.ps1",
+      "sha256": "7275a8dd82cae89e5c566670a7ba357d0c3e28c5a00ee6145606d566f057d6af",
+      "bytes": 8803
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/capture-display.ps1",
+      "sha256": "7b8fb405aa815c70d6ad80c980eb250833fe8c1a16f4c31cb38546f0a0f61b97",
+      "bytes": 8184
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/capture-dxgkrnl.ps1",
+      "sha256": "39005c3b02468450e09274a8d407b14085f3b8fc8a487e329dcf58bcfd041eaf",
+      "bytes": 4457
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/capture.ps1",
+      "sha256": "da5997ad9738120e3e05817d97f0be67bf8eeac338686d65f6a8f1ae27bd883a",
+      "bytes": 25532
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/check_roundtrip.gd",
+      "sha256": "3fea0a38ff54c0134c6c2c463fd8afe66b7eb4ecb11e45f242dfdab1d528b05e",
+      "bytes": 16015
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/check_settings.gd",
+      "sha256": "43ba2f5c4f375a3697e91da0078ba9e32f6df05c7ba40ce4a315b30591e2811b",
+      "bytes": 4015
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/decode-dxgkrnl.ps1",
+      "sha256": "75859e4fee04c31ab7ce61414aa7b5595b1240e3728599b770a3f78ac9941cf9",
+      "bytes": 2053
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/decode-etl.cs",
+      "sha256": "c274a6b4836c6de343e78bef70573ea2a20af7cb4debbb19188e2622f9d65bc1",
+      "bytes": 29896
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/decode-raw-etl.ps1",
+      "sha256": "1e4d90834cd63892e31b2d46b56f34e2a8fb352e2e020bfd878fa1e24e3895ea",
+      "bytes": 4750
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/display_probe.gd",
+      "sha256": "442c9c9a1f3475e905a1f72f942f07427f95de063b79ba7e6352a13c9591d732",
+      "bytes": 5535
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/display_probe.tscn",
+      "sha256": "ccebc428e4f6b1a2d98413fc127b8c5421923caa88a83143c3f026c74c32e6f8",
+      "bytes": 160
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/display_root.gd",
+      "sha256": "ece959229a18ab305e1c87d589a504c8ef7753a9ee091bc7d4e7c7856b0feef6",
+      "bytes": 778
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/fixtures/Expand-Extra-Scenarios.ps1",
+      "sha256": "022a1ab7e2d56cecac0710fbec69ef98b40934c739323e288b707ffbaca4b3c1",
+      "bytes": 19149
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/fixtures/Expand-Scenarios.ps1",
+      "sha256": "2d986d4a1bf9ea5896fc817fac226cd8faec03dbf9ae0b69a338c90054bb49e8",
+      "bytes": 3384
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/fixtures/Prepare-Inputs.ps1",
+      "sha256": "b653795a472ec5415c322ce22923f684bb29ec0f6cf737433320560007dd16cc",
+      "bytes": 5088
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/fixtures/Prepare-Operations.ps1",
+      "sha256": "7f112b3c98abfcd3a7621ba6a767d0127a01dbd8802fed345ac362ee1092d208",
+      "bytes": 3276
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/fixtures/README.md",
+      "sha256": "a5236b9991b8f1e88ee5f618ab19f35ce28118f59b8431e5b2eb038601f0d358",
+      "bytes": 27694
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/fixtures/extra_scenarios.json",
+      "sha256": "a05bf81d48588ea7c2e4f6514ce9aa4b7c0ad9f6c96195eba16a565a228dba5d",
+      "bytes": 20985
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/fixtures/inputs.json",
+      "sha256": "61360ea6e15293c270ed8a326c8cdb481f16a24c882a0711ed591580b05a7347",
+      "bytes": 10113
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/fixtures/legal_history_size.gd",
+      "sha256": "4a0a0855d3431c345588a0efae6e06e58b5ac2dcea0479772e68e9e1d2849920",
+      "bytes": 9041
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/fixtures/preflight_maximum_tall.gd",
+      "sha256": "aca738532796915a674453485da6142325fa04a79644b496270f78148ef75673",
+      "bytes": 3218
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/fixtures/prepare_boundary.gd",
+      "sha256": "94b4ea2afbe8d220da59b2d099790c0a5a7c984d09429769e3589c84974f05a7",
+      "bytes": 5740
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/fixtures/prepare_inputs.gd",
+      "sha256": "47ac3088979089325bde13f9aa7187d51b4813b57a3f9b737f413bd9f7c02b14",
+      "bytes": 20626
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/fixtures/prepare_operations.gd",
+      "sha256": "09a886a48177c1e54935a067d25f6aca3758d1f5553604a4b2f4a7ae4c8557ad",
+      "bytes": 19212
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/fixtures/scenarios.json",
+      "sha256": "293798106c65c8a07a78ae84a239d82c1e0c781e6fabb9c27bef0b715ff20f48",
+      "bytes": 11276
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/formal_root.gd",
+      "sha256": "02d4cb2e188fad46e9d38aff5f87f7de21ece115376ebdcaa17ac3b8b9db31c3",
+      "bytes": 4436
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/gpu-ledger.py",
+      "sha256": "9c3fec047b6028a69dfb64135483a9b4491d28f75de8bcc8445837e1f72475fc",
+      "bytes": 85613
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/input-driver.cs",
+      "sha256": "2d24d3edff294bb23401ab70464c149beddbbb0ef1b14b4a5920a288cdb03faf",
+      "bytes": 5059
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/launch.tscn",
+      "sha256": "b6f3153c0f072b153573ad4c5611c834665134b04b96e3d62ee539fa0ea87f62",
+      "bytes": 179
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/native_clock.gd",
+      "sha256": "26362c395bf813cf34f8904dbd8415cd4a8a8d404c1eb89574db28bc01e72b02",
+      "bytes": 761
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/observed_library.gd",
+      "sha256": "92cf683aa575f2a806af0a71dbbf7b221aafac303584acb27abf614d7a854935",
+      "bytes": 760
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/observed_snapshots.gd",
+      "sha256": "4f26afe33cbbb4828e2304819d8573864fceb9940e6c1e6800034a72adcea1f0",
+      "bytes": 2224
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/operation_driver.gd",
+      "sha256": "d878a707a15638f70dcb07cb95c8253082f195f0312dbe11570fc2dce7ee29b0",
+      "bytes": 29893
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/preview_input_observer.gd",
+      "sha256": "cb63b5b54abc3251c7a5fa9fe8495de1783b39dd479d79956c36a6b1f7825bdb",
+      "bytes": 8056
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/probe.gd",
+      "sha256": "b3665d7eddecc72bc4c5e395846402bcc9d18d48a12ed7b21bd1ddaf4bff9f7c",
+      "bytes": 6460
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/probe.ps1",
+      "sha256": "64a330985d263db69c7f1ba38a13c0b2e704c9bb782c9cf2d72d91c75be2c2c4",
+      "bytes": 2864
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/probe.tscn",
+      "sha256": "cda9cdae408903802c1ed74dc332374f147c379a921edd93e71d0f632317a688",
+      "bytes": 169
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/renderdoc_display.py",
+      "sha256": "93de2b24049e4e2095df954b6b713d93735ff3e1d36c564bfe5d8d3569036637",
+      "bytes": 9164
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/sample-gpu.ps1",
+      "sha256": "17545f8d8698ef1d597e8e5a1f82403f90448ef1c066297726ef5f6cef0e0a62",
+      "bytes": 2866
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/scenario.example.json",
+      "sha256": "7f67e05118d7242be08488b19ac16c4078778ce6ea2099e0e2e05ee711ae74fb",
+      "bytes": 1397
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/self-check-raw-etl.ps1",
+      "sha256": "1516600e322f95e5ae7b4a01b84bb0629250a5a17b4404e92ad35b7f0477472c",
+      "bytes": 9868
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/self_check.py",
+      "sha256": "47453626ceec8a8ea36c0b914bef48a7b2a50e121db7428546da86c0b6fbe59c",
+      "bytes": 28029
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/snapshot_witness.gd",
+      "sha256": "37e5c5084ebb4806cee1897d5fd09b8aec78876837d6fa57f72112b099db661d",
+      "bytes": 3066
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/test-frame-counter.ps1",
+      "sha256": "b75676727d95811beae60966ef72de13c20e290ac7bb195a3ebcb85fe030accb",
+      "bytes": 1684
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/test_analysis.py",
+      "sha256": "ac8eaabd4edd57ba39cce4a77f4fb5578364d932037b3fa5f6bfb3af9b2aec35",
+      "bytes": 7586
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/trace-status.cs",
+      "sha256": "fee6315a99b9d610ea582d23064c769266d7f1125c67e6f28cc5d9c1d56c156d",
+      "bytes": 3594
+    },
+    {
+      "path": "performance/before-project/tools/performance/acceptance/visible_capture.gd",
+      "sha256": "e0340c8665d62c7d28fd24f053753e6a24b897ed2a7af370b79b09111c8a4aec",
+      "bytes": 42486
+    },
+    {
+      "path": "performance/before-project/tools/performance/diagnose.gd",
+      "sha256": "1be081e89c7f6fe3763d8b59da74a894405022af9f50754ba1eb4e733dd433c6",
+      "bytes": 14858
+    },
+    {
+      "path": "performance/before-project/tools/performance/fixture.gd",
+      "sha256": "f99efd9dd5cf8afa2f7ca89f221edbcc54c2e080b1d0339d4b7de80874145189",
+      "bytes": 10582
+    },
+    {
+      "path": "performance/before-project/tools/performance/history.gd",
+      "sha256": "d0dc91f259dc77140247f4032b7549e800f6c230498419dee014cf2ab1548556",
+      "bytes": 12056
+    },
+    {
+      "path": "performance/before-project/tools/performance/native_capacity.gd",
+      "sha256": "9472530742980c9511138887987682391affee18b79baffe83384b808bce75e0",
+      "bytes": 2397
+    },
+    {
+      "path": "performance/before-project/tools/performance/personal_bed_probe.gd",
+      "sha256": "5d7002badee9eab11eab785fb1f722bb4c1b2c361c45bbd14fdd0c1eb085076f",
+      "bytes": 2884
+    },
+    {
+      "path": "performance/before-project/tools/performance/prepare.ps1",
+      "sha256": "5bfcc07759142d3692bd5c405d3592112e8ecd7dc54ca70ea2eb7554bcb06fec",
+      "bytes": 3822
+    },
+    {
+      "path": "performance/before-project/tools/performance/prepare_public_input.gd",
+      "sha256": "5ac4c8ca7e441e0f8935e6c9255e15d186f2a5953442a19e48e3a5405d622cb0",
+      "bytes": 13237
+    },
+    {
+      "path": "performance/before-project/tools/performance/preview.gd",
+      "sha256": "e2d140dd2c15a2d0dabb90fc899eea904566a21db0e0700ba48297f91815bae6",
+      "bytes": 2970
+    },
+    {
+      "path": "performance/before-project/tools/performance/profile.gd",
+      "sha256": "134d55be496dca295695acf1707a2dadcdca0f74bc5108de0870bc19ac285d02",
+      "bytes": 26652
+    },
+    {
+      "path": "performance/before-project/tools/performance/representative.gd",
+      "sha256": "85808f4b734223f7279ad0c6874f8d0a97ba1ae47bbf94e62df4b5fde545c545",
+      "bytes": 10608
+    },
+    {
+      "path": "performance/before-project/tools/performance/representative_clinical.gd",
+      "sha256": "463e2370de3a9d9ec22a9fbf7a6e64fd4809256920f8194e323bdb4ae18e52e0",
+      "bytes": 11780
+    },
+    {
+      "path": "performance/before-project/tools/performance/representative_compare.gd",
+      "sha256": "161004853d0dc2cd15284184fc1f268c08261435829fbd5690707cf88210a18b",
+      "bytes": 1732
+    },
+    {
+      "path": "performance/before-project/tools/performance/representative_continue.gd",
+      "sha256": "39a8b08ddcc2a09bb1c192115219e3acd6224cc3a5171f4144ba2d43b85bb66d",
+      "bytes": 5668
+    },
+    {
+      "path": "performance/before-project/tools/performance/representative_operations.gd",
+      "sha256": "2bfdfe6ad39fec3fc72c73ead2f5be264d1445eaec816dc14279b3641a4af8ba",
+      "bytes": 18392
+    },
+    {
+      "path": "performance/before-project/tools/performance/representative_prepare.gd",
+      "sha256": "ff395f378b943454a20b32331c2c1e6d494ea34da0d5d2d962baab90d90bf91f",
+      "bytes": 9727
+    },
+    {
+      "path": "performance/before-project/tools/performance/representative_public.gd",
+      "sha256": "3b8543c5dad65f39f45f4ddadd2c3afbfca7d772f35def46677fd460456add14",
+      "bytes": 4954
+    },
+    {
+      "path": "performance/before-project/tools/performance/resume_representative.gd",
+      "sha256": "04d302af9f523e2d99f4b2d9f8506be868fe185ce1943ace396e91916abfa797",
+      "bytes": 2135
+    },
+    {
+      "path": "performance/before-project/tools/performance/solver_check.gd",
+      "sha256": "d88f2d0f364b6e210c29c628ce3fd3f93081390ce7ed152f1989d270726caad6",
+      "bytes": 18463
+    },
+    {
+      "path": "performance/before-project/tools/performance/solver_oracle.py",
+      "sha256": "5e17d30c7cf658529081c261c2a50a11cbca2db25bbc858300f858360c91b3c3",
+      "bytes": 31248
+    },
+    {
+      "path": "performance/before-project/tools/performance/step_profile.gd",
+      "sha256": "8325e502f587505c353940b94b43dacc9ba7329b7f388e1d6d0c29df796db505",
+      "bytes": 22195
+    },
+    {
+      "path": "performance/before-project/tools/performance/trace_preparation.gd",
+      "sha256": "f2895d16426de36d9d629e677767dd1b3179b06ebeb1cd740086cc78e15c8c20",
+      "bytes": 26234
+    },
+    {
+      "path": "raw/adoption-ledger.json",
+      "sha256": "9b9f87bf82722c787e09bcdeba34a240bb43aa66bd1dbbac42c3870a1fac2203",
+      "bytes": 25029
+    },
+    {
+      "path": "raw/after-facility-quick.console.log",
+      "sha256": "41c7a406856c9b3e3dab42ad11f77a1748feb0841a4e71246a88b997162c1b93",
+      "bytes": 1085
+    },
+    {
+      "path": "raw/after-facility-quick.json",
+      "sha256": "691051e98adbf0ee616acb27f17bde4e0c0796b059473ca17e40669e9110e43d",
+      "bytes": 62159
+    },
+    {
+      "path": "raw/after-facility-quick.json.progress.ndjson",
+      "sha256": "bd5906314730f6b7f60bb430dcc6c2e35af81b9a0742e86303cf226a4b2bc859",
+      "bytes": 5165
+    },
+    {
+      "path": "raw/after-facility-quick.log",
+      "sha256": "e6ee85b5e6f87956f4b4118fd8bc4d595e894870f24b26d9a4d05405e8508e0d",
+      "bytes": 288
+    },
+    {
+      "path": "raw/after-facility-quick.run.json",
+      "sha256": "49dd1aa2ad5d424fe3e2477dc4376ff62377c873ef5417b63da118b5e690d66e",
+      "bytes": 885
+    },
+    {
+      "path": "raw/after-gp-1.console.log",
+      "sha256": "b5b3b58d656746509867146877a58bd24d7912c1afdf4a111da8c2a706aae23a",
+      "bytes": 1606
+    },
+    {
+      "path": "raw/after-gp-1.json",
+      "sha256": "6d98c1614d31941f77e9d803f47e1038792314f6644594d7770a2c6ac5ac1181",
+      "bytes": 79318
+    },
+    {
+      "path": "raw/after-gp-1.json.final.bin",
+      "sha256": "106f3455331de044c533443c742075d2e90ed7680a619f31f06eaaa2af7dc40d",
+      "bytes": 1694520
+    },
+    {
+      "path": "raw/after-gp-1.json.steps.ndjson",
+      "sha256": "e597511f0004e77cb0ff10e36753a5379ea24a3fa515408fde445d8e118bf329",
+      "bytes": 16230
+    },
+    {
+      "path": "raw/after-gp-1.log",
+      "sha256": "ab11d568cbc6929d5f30b323c7a6cd9af0360f1d0571f1bc783ea4705cff8caf",
+      "bytes": 1648
+    },
+    {
+      "path": "raw/after-gp-1.run.json",
+      "sha256": "4f67d62516fda273429767f52dc1b75775979b2f63b4182eb2e4173a547164f8",
+      "bytes": 816
+    },
+    {
+      "path": "raw/after-gp-2.console.log",
+      "sha256": "677f659405bc846708e30a4c4b036175612c0a52859816e9c5d07d09801943c1",
+      "bytes": 1606
+    },
+    {
+      "path": "raw/after-gp-2.json",
+      "sha256": "f540df31bcd8340160469158d230c57b22dd9947f131300a2e7ae683d134373e",
+      "bytes": 79317
+    },
+    {
+      "path": "raw/after-gp-2.json.final.bin",
+      "sha256": "106f3455331de044c533443c742075d2e90ed7680a619f31f06eaaa2af7dc40d",
+      "bytes": 1694520
+    },
+    {
+      "path": "raw/after-gp-2.json.steps.ndjson",
+      "sha256": "fbcac8ecf5fbd49030f62a97489e86d7d8b6795f49ee8a94e711dc74bdcc7363",
+      "bytes": 16230
+    },
+    {
+      "path": "raw/after-gp-2.log",
+      "sha256": "e17d4b9a144b05055a55c2d96b73e2f835a0e9451bda8363966c3f03f603e9d9",
+      "bytes": 1646
+    },
+    {
+      "path": "raw/after-gp-2.run.json",
+      "sha256": "c2c43958d7bf70d70b60f3421d14900ef5db24b153d27fd038ac8213d28617ab",
+      "bytes": 817
+    },
+    {
+      "path": "raw/after-gp-3.console.log",
+      "sha256": "2dace9b73fc30e4afdc544a6ad77807fcad0a7a82db45c110d6f421baa729ebc",
+      "bytes": 1605
+    },
+    {
+      "path": "raw/after-gp-3.json",
+      "sha256": "b113370261a52cba4a2313702d0ffcb87fae75e2de5d7b79e07fcef7710301fa",
+      "bytes": 79316
+    },
+    {
+      "path": "raw/after-gp-3.json.final.bin",
+      "sha256": "106f3455331de044c533443c742075d2e90ed7680a619f31f06eaaa2af7dc40d",
+      "bytes": 1694520
+    },
+    {
+      "path": "raw/after-gp-3.json.steps.ndjson",
+      "sha256": "c9b1f62808ff3b4d56a0b8700a94589ab886f9ff9dcd3fceb4839a7762d7eeb2",
+      "bytes": 16230
+    },
+    {
+      "path": "raw/after-gp-3.log",
+      "sha256": "343b839854e89268b85620425857645bc031f1736b6a4dad9ece3e9fc0f9a40d",
+      "bytes": 1646
+    },
+    {
+      "path": "raw/after-gp-3.run.json",
+      "sha256": "a9177ddeb81dcead1d8c5610eac0c544583c452b156eaea858cddcb7f58aa248",
+      "bytes": 817
+    },
+    {
+      "path": "raw/after-gp-nested.console.log",
+      "sha256": "044665598626bf43dcbdd35694538507b9a25d0da2bb739d38a4d910aa62e382",
+      "bytes": 1624
+    },
+    {
+      "path": "raw/after-gp-nested.json",
+      "sha256": "fe41dacf68803e71517328262c6ae7e5e271ecc1da47b3f1797c62fca5eae993",
+      "bytes": 2155886
+    },
+    {
+      "path": "raw/after-gp-nested.json.final.bin",
+      "sha256": "106f3455331de044c533443c742075d2e90ed7680a619f31f06eaaa2af7dc40d",
+      "bytes": 1694520
+    },
+    {
+      "path": "raw/after-gp-nested.json.sources/arrivals.gd",
+      "sha256": "8e1acb0941ab1bfca39673fe18ea218cd4d12e6518e649f8241a16cfbd2180f1",
+      "bytes": 3080
+    },
+    {
+      "path": "raw/after-gp-nested.json.sources/clinic.gd",
+      "sha256": "3bb6d7f611209f9ce0fbf390d5a3c68d993ce40dd32dce856f668d0086281ef3",
+      "bytes": 10088
+    },
+    {
+      "path": "raw/after-gp-nested.json.sources/departments.gd",
+      "sha256": "28c16a72e58e5708836ece626c11b6a56dcac88785957f960d8855105fa237b1",
+      "bytes": 1053
+    },
+    {
+      "path": "raw/after-gp-nested.json.sources/development.gd",
+      "sha256": "39056782c5035c0d6a9cd9224641e4559b9aa8ddd3eb24d5ffb9e957950d49e9",
+      "bytes": 875
+    },
+    {
+      "path": "raw/after-gp-nested.json.sources/environment.gd",
+      "sha256": "4d5f0605416e8d71028a15e0d94f0711f5a2bf4bcc44cc5da3553f121a31145c",
+      "bytes": 5024
+    },
+    {
+      "path": "raw/after-gp-nested.json.sources/finance.gd",
+      "sha256": "2eab2cc4edc611da80b6ad68c2fddd485df613327b495bf77a466b5e253a2807",
+      "bytes": 254
+    },
+    {
+      "path": "raw/after-gp-nested.json.sources/floors.gd",
+      "sha256": "1db56ceeb5c08e5ab0d2ffa22c858d0384cf75ee661f3c30eab36af3988e22f4",
+      "bytes": 666
+    },
+    {
+      "path": "raw/after-gp-nested.json.sources/maintenance.gd",
+      "sha256": "9aca30b10641ac5f7324ce876a21e23e46962a79a0fd1bff13a173c92fe1276b",
+      "bytes": 2066
+    },
+    {
+      "path": "raw/after-gp-nested.json.sources/navigation.gd",
+      "sha256": "9fce1aefd0d2024c48ce2eb49cb951420c9d2cc6f8efa399460a239d84b32a6c",
+      "bytes": 3298
+    },
+    {
+      "path": "raw/after-gp-nested.json.sources/personal_beds.gd",
+      "sha256": "c63afc1b0bb26d806f461baab93aa5038076d8adcfa77dfd7641d19003ccffc8",
+      "bytes": 531
+    },
+    {
+      "path": "raw/after-gp-nested.json.sources/public_areas.gd",
+      "sha256": "906742538e8889044e535544c7f425f0d6a1c7959599eebd9dd2341c79172da5",
+      "bytes": 4146
+    },
+    {
+      "path": "raw/after-gp-nested.json.sources/recruitment.gd",
+      "sha256": "d0f2b84f5e75ea92006881922d3907b23f76f8608d68d8c582b35c218fb4ef06",
+      "bytes": 634
+    },
+    {
+      "path": "raw/after-gp-nested.json.sources/remodel.gd",
+      "sha256": "850cede7e9688fffe6c994da08a6892f8a9dc60fcbe9f16f71b25e0ac398a4a9",
+      "bytes": 263
+    },
+    {
+      "path": "raw/after-gp-nested.json.sources/research.gd",
+      "sha256": "bc7a1cd480733cf92003b7ca6577e0daaaafde2629efcb40c46d7576e0d53f4a",
+      "bytes": 1102
+    },
+    {
+      "path": "raw/after-gp-nested.json.sources/scheduler.gd",
+      "sha256": "a32a0a0d220bfb884a3a5836d8bd47fb18cbe7d6e3bb85f7ba6d88f8fa4c6e7a",
+      "bytes": 870
+    },
+    {
+      "path": "raw/after-gp-nested.json.sources/simulation.gd",
+      "sha256": "3d3744687f3fa3e5bf0873b71d47042ed88bf72d035abc9b85695fc32051c4c5",
+      "bytes": 9312
+    },
+    {
+      "path": "raw/after-gp-nested.json.sources/space.gd",
+      "sha256": "2521968dca1d5c9d04943db7d05ac705d62e7201070b221446f597c98a1ee567",
+      "bytes": 5175
+    },
+    {
+      "path": "raw/after-gp-nested.json.sources/supplies.gd",
+      "sha256": "7fe1442e0b1aabcb9e90169568df7422c977a992685ecdde2ca90f632af4393f",
+      "bytes": 447
+    },
+    {
+      "path": "raw/after-gp-nested.json.sources/visitors.gd",
+      "sha256": "b1eaa4a031c20873e8056513bd47013c981c3f6de308332f8baac6c1e11ebea3",
+      "bytes": 2122
+    },
+    {
+      "path": "raw/after-gp-nested.json.sources/waiting.gd",
+      "sha256": "9598b70fa9c0ba6d559f40688ce8b37b0ffd17763ded6c578352f74699f80a25",
+      "bytes": 4127
+    },
+    {
+      "path": "raw/after-gp-nested.json.sources/wellbeing.gd",
+      "sha256": "5fc0a7259a893189a8b058559209fadaf36ff20f8df65781511629e387ac20c5",
+      "bytes": 2864
+    },
+    {
+      "path": "raw/after-gp-nested.json.steps.ndjson",
+      "sha256": "4c64a1d9b7424da1fdf8bee6323f8e504510c0ba81a51058d903b5ed20c61158",
+      "bytes": 1486246
+    },
+    {
+      "path": "raw/after-gp-nested.log",
+      "sha256": "f85665afefe11ed0b1e7dff6b47d2e9782c2de85017825364316941103bca762",
+      "bytes": 1655
+    },
+    {
+      "path": "raw/after-gp-nested.run.json",
+      "sha256": "ed5acbdfe215b2312d329fd31812fca7c516585ebedad14277bf7bd4762290a4",
+      "bytes": 828
+    },
+    {
+      "path": "raw/after-op-1.console.log",
+      "sha256": "f2437b3e7c30675dad5f177c1e6f7034c32d7415c4062cb5963769da0be9f2ca",
+      "bytes": 1943
+    },
+    {
+      "path": "raw/after-op-1.json",
+      "sha256": "b1bc443d49fc26bc4668761634062933542c5ae9b869bdaecab50fbabb2a46d4",
+      "bytes": 204052
+    },
+    {
+      "path": "raw/after-op-1.json.final.bin",
+      "sha256": "f20de287ab252ab3fd759f27d841da0fe8a288ee3189a22f05d006a51ace45f8",
+      "bytes": 1730496
+    },
+    {
+      "path": "raw/after-op-1.json.steps.ndjson",
+      "sha256": "82c0998b1871a75efd54e648c2fbb063d5a4be6ea35df5e09126e41f5a41538c",
+      "bytes": 8066
+    },
+    {
+      "path": "raw/after-op-1.log",
+      "sha256": "9dc380b8c4f8a93f8e8a02274ce11eebf9c9b45eb8061b466b1276b4dc5b0133",
+      "bytes": 1507
+    },
+    {
+      "path": "raw/after-op-1.run.json",
+      "sha256": "9eeefca60cc370559f95fc7eca00ddde5ee5553d7e8122fdb6ddb6a01547e345",
+      "bytes": 817
+    },
+    {
+      "path": "raw/after-op-2.console.log",
+      "sha256": "2343dc08c048d3b260ea66cdc3c5af07aff66af94797bd97525a8241fdc5108d",
+      "bytes": 1943
+    },
+    {
+      "path": "raw/after-op-2.json",
+      "sha256": "86705202e487461afa0aac30ce3b01d1b0cc8e76518a45b062ad661041ec5202",
+      "bytes": 204052
+    },
+    {
+      "path": "raw/after-op-2.json.final.bin",
+      "sha256": "f20de287ab252ab3fd759f27d841da0fe8a288ee3189a22f05d006a51ace45f8",
+      "bytes": 1730496
+    },
+    {
+      "path": "raw/after-op-2.json.steps.ndjson",
+      "sha256": "8d92c6cc0333331415c552cd07586052451410b50902d5140d5bd34c3cd8fbe5",
+      "bytes": 8066
+    },
+    {
+      "path": "raw/after-op-2.log",
+      "sha256": "66b2793b6df1c64a7087865c0e7744241a8290be14a6469ef8455d9992583fff",
+      "bytes": 1507
+    },
+    {
+      "path": "raw/after-op-2.run.json",
+      "sha256": "03e7afef0352cdc374b691b1d33ae845879851add3a506bcd1151a6449d367b7",
+      "bytes": 817
+    },
+    {
+      "path": "raw/after-op-3.console.log",
+      "sha256": "43a412c8c3ca5a899a4ff7e9a23fa261790833f375e61de2d0fea301a0fd16f7",
+      "bytes": 1943
+    },
+    {
+      "path": "raw/after-op-3.json",
+      "sha256": "64b31fd7c11ae9ee460dffa8eaa2b8d7a47b3db5422f36658f9a333186915b41",
+      "bytes": 204051
+    },
+    {
+      "path": "raw/after-op-3.json.final.bin",
+      "sha256": "f20de287ab252ab3fd759f27d841da0fe8a288ee3189a22f05d006a51ace45f8",
+      "bytes": 1730496
+    },
+    {
+      "path": "raw/after-op-3.json.steps.ndjson",
+      "sha256": "63e4d83de92d634db9526a827587fdb99c530380c535c3fb1f7e76cd015b70d6",
+      "bytes": 8066
+    },
+    {
+      "path": "raw/after-op-3.log",
+      "sha256": "2f95f2178c56813e0422e2bdec600f793750b619228c6096e87e16fbfb820971",
+      "bytes": 1506
+    },
+    {
+      "path": "raw/after-op-3.run.json",
+      "sha256": "b0a8c90ec7fad0afc0e23c15d9aecc0dac94c812f03d94f6e3867853b7ba055f",
+      "bytes": 818
+    },
+    {
+      "path": "raw/after-prepare.log",
+      "sha256": "d8b0e4d37d5984cbb896f232aa22b0082cbeaecf3f3bf82e8c49bdddd5f2b78a",
+      "bytes": 100
+    },
+    {
+      "path": "raw/after-prepare.status.json",
+      "sha256": "4accc13df18722a590c46bdb2ae4bdf18f68818f6c2a67c7ac98caead1f7eb0b",
+      "bytes": 277
+    },
+    {
+      "path": "raw/after-public-plain.console.log",
+      "sha256": "bc86bd54d7250a4ee4f0f0e44ee3e7731410e622960cf38e630626ceef44adff",
+      "bytes": 1894
+    },
+    {
+      "path": "raw/after-public-plain.json",
+      "sha256": "8062363c4bcdc05a8ea8dc0e19914ca452d946a00dde9d0c49f3fd617da04032",
+      "bytes": 424522
+    },
+    {
+      "path": "raw/after-public-plain.json.final.bin",
+      "sha256": "9df7aba828651d388d2cc4480b42632e90751c6dfdbbf690d3b41f6dbd916413",
+      "bytes": 1833348
+    },
+    {
+      "path": "raw/after-public-plain.json.steps.ndjson",
+      "sha256": "1e52eaf622109177bbde12a728928c102e4f7c6066b4699002ab62f4b1b1f9af",
+      "bytes": 61782
+    },
+    {
+      "path": "raw/after-public-plain.log",
+      "sha256": "33806cb096b3b7990861d9ade1416af4dc7d9f5c34b65312ead4fb0ec9176b95",
+      "bytes": 4049
+    },
+    {
+      "path": "raw/after-public-plain.run.json",
+      "sha256": "5fa6e0820044b6b09c272a52cbf9fe1d42b8a33a0aa23f4c5f8607ecd05e390d",
+      "bytes": 842
+    },
+    {
+      "path": "raw/after-public-root.console.log",
+      "sha256": "15c559822a976b25362bf749c760f3cad7b7ab6b629940ef5f18291cf4f71f4b",
+      "bytes": 1882
+    },
+    {
+      "path": "raw/after-public-root.json",
+      "sha256": "5a51abaee9de76b3b207b430ce0e413592ec812a9e4c1fee723121f24fb87a1c",
+      "bytes": 3122096
+    },
+    {
+      "path": "raw/after-public-root.json.final.bin",
+      "sha256": "9df7aba828651d388d2cc4480b42632e90751c6dfdbbf690d3b41f6dbd916413",
+      "bytes": 1833348
+    },
+    {
+      "path": "raw/after-public-root.json.sources/simulation.gd",
+      "sha256": "3d3744687f3fa3e5bf0873b71d47042ed88bf72d035abc9b85695fc32051c4c5",
+      "bytes": 9312
+    },
+    {
+      "path": "raw/after-public-root.json.steps.ndjson",
+      "sha256": "38f1a4e2d062a206ebfbad859f70485452cb41500819c431b34a34113c0ef46c",
+      "bytes": 1949090
+    },
+    {
+      "path": "raw/after-public-root.log",
+      "sha256": "c943017847e6ba531146e5c5af6aed6aafac9e466a7e3219d52f24bf2885bf47",
+      "bytes": 4040
+    },
+    {
+      "path": "raw/after-public-root.run.json",
+      "sha256": "c9126498d16612d2ff22233bcb1e329d3a19fa0162a4493f04edcc92c8ee035e",
+      "bytes": 838
+    },
+    {
+      "path": "raw/after-tail-nested.console.log",
+      "sha256": "4b03ffd945d0d8813d81ed2ae8a648a2e62c51c759cb3cea9968e5a02efb7897",
+      "bytes": 1620
+    },
+    {
+      "path": "raw/after-tail-nested.json",
+      "sha256": "7e799622ba256253676efb5ab64419b37d87400a55f31bad7cd43635f5735a3e",
+      "bytes": 124780
+    },
+    {
+      "path": "raw/after-tail-nested.json.final.bin",
+      "sha256": "b0b4f9547d91ff4fcde474343377ea0207faea55dbc0852745aed52c6633720a",
+      "bytes": 1786444
+    },
+    {
+      "path": "raw/after-tail-nested.json.sources/arrivals.gd",
+      "sha256": "8e1acb0941ab1bfca39673fe18ea218cd4d12e6518e649f8241a16cfbd2180f1",
+      "bytes": 3080
+    },
+    {
+      "path": "raw/after-tail-nested.json.sources/clinic.gd",
+      "sha256": "3bb6d7f611209f9ce0fbf390d5a3c68d993ce40dd32dce856f668d0086281ef3",
+      "bytes": 10088
+    },
+    {
+      "path": "raw/after-tail-nested.json.sources/departments.gd",
+      "sha256": "28c16a72e58e5708836ece626c11b6a56dcac88785957f960d8855105fa237b1",
+      "bytes": 1053
+    },
+    {
+      "path": "raw/after-tail-nested.json.sources/development.gd",
+      "sha256": "39056782c5035c0d6a9cd9224641e4559b9aa8ddd3eb24d5ffb9e957950d49e9",
+      "bytes": 875
+    },
+    {
+      "path": "raw/after-tail-nested.json.sources/environment.gd",
+      "sha256": "4d5f0605416e8d71028a15e0d94f0711f5a2bf4bcc44cc5da3553f121a31145c",
+      "bytes": 5024
+    },
+    {
+      "path": "raw/after-tail-nested.json.sources/finance.gd",
+      "sha256": "2eab2cc4edc611da80b6ad68c2fddd485df613327b495bf77a466b5e253a2807",
+      "bytes": 254
+    },
+    {
+      "path": "raw/after-tail-nested.json.sources/floors.gd",
+      "sha256": "1db56ceeb5c08e5ab0d2ffa22c858d0384cf75ee661f3c30eab36af3988e22f4",
+      "bytes": 666
+    },
+    {
+      "path": "raw/after-tail-nested.json.sources/maintenance.gd",
+      "sha256": "9aca30b10641ac5f7324ce876a21e23e46962a79a0fd1bff13a173c92fe1276b",
+      "bytes": 2066
+    },
+    {
+      "path": "raw/after-tail-nested.json.sources/navigation.gd",
+      "sha256": "9fce1aefd0d2024c48ce2eb49cb951420c9d2cc6f8efa399460a239d84b32a6c",
+      "bytes": 3298
+    },
+    {
+      "path": "raw/after-tail-nested.json.sources/personal_beds.gd",
+      "sha256": "c63afc1b0bb26d806f461baab93aa5038076d8adcfa77dfd7641d19003ccffc8",
+      "bytes": 531
+    },
+    {
+      "path": "raw/after-tail-nested.json.sources/public_areas.gd",
+      "sha256": "906742538e8889044e535544c7f425f0d6a1c7959599eebd9dd2341c79172da5",
+      "bytes": 4146
+    },
+    {
+      "path": "raw/after-tail-nested.json.sources/recruitment.gd",
+      "sha256": "d0f2b84f5e75ea92006881922d3907b23f76f8608d68d8c582b35c218fb4ef06",
+      "bytes": 634
+    },
+    {
+      "path": "raw/after-tail-nested.json.sources/remodel.gd",
+      "sha256": "850cede7e9688fffe6c994da08a6892f8a9dc60fcbe9f16f71b25e0ac398a4a9",
+      "bytes": 263
+    },
+    {
+      "path": "raw/after-tail-nested.json.sources/research.gd",
+      "sha256": "bc7a1cd480733cf92003b7ca6577e0daaaafde2629efcb40c46d7576e0d53f4a",
+      "bytes": 1102
+    },
+    {
+      "path": "raw/after-tail-nested.json.sources/scheduler.gd",
+      "sha256": "a32a0a0d220bfb884a3a5836d8bd47fb18cbe7d6e3bb85f7ba6d88f8fa4c6e7a",
+      "bytes": 870
+    },
+    {
+      "path": "raw/after-tail-nested.json.sources/simulation.gd",
+      "sha256": "3d3744687f3fa3e5bf0873b71d47042ed88bf72d035abc9b85695fc32051c4c5",
+      "bytes": 9312
+    },
+    {
+      "path": "raw/after-tail-nested.json.sources/space.gd",
+      "sha256": "2521968dca1d5c9d04943db7d05ac705d62e7201070b221446f597c98a1ee567",
+      "bytes": 5175
+    },
+    {
+      "path": "raw/after-tail-nested.json.sources/supplies.gd",
+      "sha256": "7fe1442e0b1aabcb9e90169568df7422c977a992685ecdde2ca90f632af4393f",
+      "bytes": 447
+    },
+    {
+      "path": "raw/after-tail-nested.json.sources/visitors.gd",
+      "sha256": "b1eaa4a031c20873e8056513bd47013c981c3f6de308332f8baac6c1e11ebea3",
+      "bytes": 2122
+    },
+    {
+      "path": "raw/after-tail-nested.json.sources/waiting.gd",
+      "sha256": "9598b70fa9c0ba6d559f40688ce8b37b0ffd17763ded6c578352f74699f80a25",
+      "bytes": 4127
+    },
+    {
+      "path": "raw/after-tail-nested.json.sources/wellbeing.gd",
+      "sha256": "5fc0a7259a893189a8b058559209fadaf36ff20f8df65781511629e387ac20c5",
+      "bytes": 2864
+    },
+    {
+      "path": "raw/after-tail-nested.json.steps.ndjson",
+      "sha256": "c70136bfcfa8b20e6bdc0c4995177b9cf903bdf88995e7e3e6384e77c1388005",
+      "bytes": 25205
+    },
+    {
+      "path": "raw/after-tail-nested.log",
+      "sha256": "2caebab1764677e7b464f0db4cb25da100ce56b5d8bc8ff86f240d9f3d0b7b12",
+      "bytes": 944
+    },
+    {
+      "path": "raw/after-tail-nested.run.json",
+      "sha256": "407da3665123943aeff9133e587792be23c97efc970c3a19aefef5e84ecee443",
+      "bytes": 837
+    },
+    {
+      "path": "raw/after-tail-plain.console.log",
+      "sha256": "4c7a7dac12706a98575b6a943268a8575af7361c977a4c14f8c19dc37d2b1caa",
+      "bytes": 1615
+    },
+    {
+      "path": "raw/after-tail-plain.json",
+      "sha256": "475d59392dddae0429da29d4a7f8d1b03e0979dff4d4ee1b6b00dabb5c17bc85",
+      "bytes": 45494
+    },
+    {
+      "path": "raw/after-tail-plain.json.final.bin",
+      "sha256": "b0b4f9547d91ff4fcde474343377ea0207faea55dbc0852745aed52c6633720a",
+      "bytes": 1786444
+    },
+    {
+      "path": "raw/after-tail-plain.json.steps.ndjson",
+      "sha256": "3ca20ab301656eed922197c7ad6c2f8cae73fd101ea70e949724fff8e24f3bfa",
+      "bytes": 203
+    },
+    {
+      "path": "raw/after-tail-plain.log",
+      "sha256": "60451530f51c71acc0552eff250eef012209b958ee35511c91cfb9873d2ff71d",
+      "bytes": 942
+    },
+    {
+      "path": "raw/after-tail-plain.run.json",
+      "sha256": "5a4a0c5571e0fd6d4357b3994a556703f5e6d3381841c1cc9f901df7f24ec732",
+      "bytes": 834
+    },
+    {
+      "path": "raw/after-view.console.log",
+      "sha256": "d9f59f342f65d371295bb856fe7eb001948288b4aeb011e0fa8b2bac5ffcbdb9",
+      "bytes": 1248
+    },
+    {
+      "path": "raw/after-view.json",
+      "sha256": "9c61283c8a8c19ee02bb9bc7c74f57c2d4c41e72f97198e38c91a3d09e0dc0cd",
+      "bytes": 11299
+    },
+    {
+      "path": "raw/after-view.log",
+      "sha256": "226e18665cbf5eccda0faef97818bbe2255480770ff1bfcf340503c83e9043ae",
+      "bytes": 477
+    },
+    {
+      "path": "raw/after-view.run.json",
+      "sha256": "b3d7eda37d9d1fdfb5d1c4909105cf641fc28798f31df76eeddbd2b9716cdce9",
+      "bytes": 859
+    },
+    {
+      "path": "raw/before-facility-quick.console.log",
+      "sha256": "3ed3d1c3da5ce7ee82238b0282d2dbf268e48fed050b1014b7c34e4cb9775cc1",
+      "bytes": 1089
+    },
+    {
+      "path": "raw/before-facility-quick.json",
+      "sha256": "b020577f6eb76bacd7fb5796570f83b7be257567d7d87236dd0b1b202c7617e0",
+      "bytes": 46598
+    },
+    {
+      "path": "raw/before-facility-quick.json.progress.ndjson",
+      "sha256": "b7bd788fd8c8ec171533f05023b54c2b7b19073615bfb7f558651357b5ce9bf4",
+      "bytes": 5172
+    },
+    {
+      "path": "raw/before-facility-quick.log",
+      "sha256": "17db750e78da8249bfc58bacb01727f6d29fdd4ad47dee4efb050ad173428f86",
+      "bytes": 289
+    },
+    {
+      "path": "raw/before-facility-quick.run.json",
+      "sha256": "d93d21bf19bcfa61fc24125bbb6a5f47a8469c89d3ee80a0f69be79bd027238b",
+      "bytes": 888
+    },
+    {
+      "path": "raw/before-gp-1.console.log",
+      "sha256": "c0055db382af8a78835224eab8be92a2bbcb2d632b4a10247bccd9ef64b996bb",
+      "bytes": 1613
+    },
+    {
+      "path": "raw/before-gp-1.json",
+      "sha256": "bf3fb1db2f61c1efc50737f571bfb2f34578c3168a3f4eab65e78b7f9c309c29",
+      "bytes": 79325
+    },
+    {
+      "path": "raw/before-gp-1.json.final.bin",
+      "sha256": "106f3455331de044c533443c742075d2e90ed7680a619f31f06eaaa2af7dc40d",
+      "bytes": 1694520
+    },
+    {
+      "path": "raw/before-gp-1.json.steps.ndjson",
+      "sha256": "e4710c2b65d254ba75f13ff137d583d43a84d31113871b9fc10edb6fa2acae67",
+      "bytes": 16231
+    },
+    {
+      "path": "raw/before-gp-1.log",
+      "sha256": "e6ea86caadcca02893f6b03e0e28d26cde1cdc8c01eeb12804893597671c37e5",
+      "bytes": 1651
+    },
+    {
+      "path": "raw/before-gp-1.run.json",
+      "sha256": "536476221df1226fa05dc783318087c05f283b6ab09ccedc9e7229b5209326d1",
+      "bytes": 820
+    },
+    {
+      "path": "raw/before-gp-2.console.log",
+      "sha256": "61e194bd4c55571d937474ed37a9d24eeb82480dfc7c30bf411bac7adf3cfb51",
+      "bytes": 1613
+    },
+    {
+      "path": "raw/before-gp-2.json",
+      "sha256": "3a2c451f05ab056d745adbc17b934da12b98186c50341113e8118a5c46c937a7",
+      "bytes": 79324
+    },
+    {
+      "path": "raw/before-gp-2.json.final.bin",
+      "sha256": "106f3455331de044c533443c742075d2e90ed7680a619f31f06eaaa2af7dc40d",
+      "bytes": 1694520
+    },
+    {
+      "path": "raw/before-gp-2.json.steps.ndjson",
+      "sha256": "617f792197d9e5c9ca1f0f5270656e24a055a9a0b74b24738b1911610b386679",
+      "bytes": 16231
+    },
+    {
+      "path": "raw/before-gp-2.log",
+      "sha256": "81cf7c4628de3dece0c1d49d815b546a2d571935a8fd6a59fbea8b08075eaf93",
+      "bytes": 1651
+    },
+    {
+      "path": "raw/before-gp-2.run.json",
+      "sha256": "90c60bfafb7c40ec075a276dd87ede7df3e37395ffb23e2bebcc5925003f7a34",
+      "bytes": 820
+    },
+    {
+      "path": "raw/before-gp-3.console.log",
+      "sha256": "aa8e406bf562e001882a4205ec414172b1c35c94439bb2cb0f076b363181ab63",
+      "bytes": 1613
+    },
+    {
+      "path": "raw/before-gp-3.json",
+      "sha256": "272a0609c4b4d68141af259338917620ace109f9e746dc02cb20a507a1b59ff7",
+      "bytes": 79325
+    },
+    {
+      "path": "raw/before-gp-3.json.final.bin",
+      "sha256": "106f3455331de044c533443c742075d2e90ed7680a619f31f06eaaa2af7dc40d",
+      "bytes": 1694520
+    },
+    {
+      "path": "raw/before-gp-3.json.steps.ndjson",
+      "sha256": "2eb58805ca1aa86e8e9946d77dc751b6dbb87905381598ad03e5a00cd4b75584",
+      "bytes": 16231
+    },
+    {
+      "path": "raw/before-gp-3.log",
+      "sha256": "baad1971ad851627b6b6bb575909c123555b355b8f53dbfff38cd46abe3dc2ec",
+      "bytes": 1651
+    },
+    {
+      "path": "raw/before-gp-3.run.json",
+      "sha256": "f076c8aa3a840335cccf113ffe20eccfd40ea1f2ed0ebcd88e3ba2622f9c5974",
+      "bytes": 820
+    },
+    {
+      "path": "raw/before-gp-nested.console.log",
+      "sha256": "2de589c6f7f59029ac9fa59709295d799781760a59d10d177becb272bfd1312a",
+      "bytes": 1627
+    },
+    {
+      "path": "raw/before-gp-nested.json",
+      "sha256": "f9e7ac89aa64ae2bc6e33b0746bd4b0a223a79097416db94f675cc6677a5a336",
+      "bytes": 2157313
+    },
+    {
+      "path": "raw/before-gp-nested.json.final.bin",
+      "sha256": "106f3455331de044c533443c742075d2e90ed7680a619f31f06eaaa2af7dc40d",
+      "bytes": 1694520
+    },
+    {
+      "path": "raw/before-gp-nested.json.sources/arrivals.gd",
+      "sha256": "8e1acb0941ab1bfca39673fe18ea218cd4d12e6518e649f8241a16cfbd2180f1",
+      "bytes": 3080
+    },
+    {
+      "path": "raw/before-gp-nested.json.sources/clinic.gd",
+      "sha256": "cd28ac3128021b7d4315b83af782cc36c1398f88a7ef74bbadd8773fc4845f24",
+      "bytes": 10044
+    },
+    {
+      "path": "raw/before-gp-nested.json.sources/departments.gd",
+      "sha256": "28c16a72e58e5708836ece626c11b6a56dcac88785957f960d8855105fa237b1",
+      "bytes": 1053
+    },
+    {
+      "path": "raw/before-gp-nested.json.sources/development.gd",
+      "sha256": "39056782c5035c0d6a9cd9224641e4559b9aa8ddd3eb24d5ffb9e957950d49e9",
+      "bytes": 875
+    },
+    {
+      "path": "raw/before-gp-nested.json.sources/environment.gd",
+      "sha256": "4d5f0605416e8d71028a15e0d94f0711f5a2bf4bcc44cc5da3553f121a31145c",
+      "bytes": 5024
+    },
+    {
+      "path": "raw/before-gp-nested.json.sources/finance.gd",
+      "sha256": "2eab2cc4edc611da80b6ad68c2fddd485df613327b495bf77a466b5e253a2807",
+      "bytes": 254
+    },
+    {
+      "path": "raw/before-gp-nested.json.sources/floors.gd",
+      "sha256": "1db56ceeb5c08e5ab0d2ffa22c858d0384cf75ee661f3c30eab36af3988e22f4",
+      "bytes": 666
+    },
+    {
+      "path": "raw/before-gp-nested.json.sources/maintenance.gd",
+      "sha256": "9aca30b10641ac5f7324ce876a21e23e46962a79a0fd1bff13a173c92fe1276b",
+      "bytes": 2066
+    },
+    {
+      "path": "raw/before-gp-nested.json.sources/navigation.gd",
+      "sha256": "9fce1aefd0d2024c48ce2eb49cb951420c9d2cc6f8efa399460a239d84b32a6c",
+      "bytes": 3298
+    },
+    {
+      "path": "raw/before-gp-nested.json.sources/personal_beds.gd",
+      "sha256": "c63afc1b0bb26d806f461baab93aa5038076d8adcfa77dfd7641d19003ccffc8",
+      "bytes": 531
+    },
+    {
+      "path": "raw/before-gp-nested.json.sources/public_areas.gd",
+      "sha256": "906742538e8889044e535544c7f425f0d6a1c7959599eebd9dd2341c79172da5",
+      "bytes": 4146
+    },
+    {
+      "path": "raw/before-gp-nested.json.sources/recruitment.gd",
+      "sha256": "d0f2b84f5e75ea92006881922d3907b23f76f8608d68d8c582b35c218fb4ef06",
+      "bytes": 634
+    },
+    {
+      "path": "raw/before-gp-nested.json.sources/remodel.gd",
+      "sha256": "850cede7e9688fffe6c994da08a6892f8a9dc60fcbe9f16f71b25e0ac398a4a9",
+      "bytes": 263
+    },
+    {
+      "path": "raw/before-gp-nested.json.sources/research.gd",
+      "sha256": "bc7a1cd480733cf92003b7ca6577e0daaaafde2629efcb40c46d7576e0d53f4a",
+      "bytes": 1102
+    },
+    {
+      "path": "raw/before-gp-nested.json.sources/scheduler.gd",
+      "sha256": "a32a0a0d220bfb884a3a5836d8bd47fb18cbe7d6e3bb85f7ba6d88f8fa4c6e7a",
+      "bytes": 870
+    },
+    {
+      "path": "raw/before-gp-nested.json.sources/simulation.gd",
+      "sha256": "3d3744687f3fa3e5bf0873b71d47042ed88bf72d035abc9b85695fc32051c4c5",
+      "bytes": 9312
+    },
+    {
+      "path": "raw/before-gp-nested.json.sources/space.gd",
+      "sha256": "2521968dca1d5c9d04943db7d05ac705d62e7201070b221446f597c98a1ee567",
+      "bytes": 5175
+    },
+    {
+      "path": "raw/before-gp-nested.json.sources/supplies.gd",
+      "sha256": "7fe1442e0b1aabcb9e90169568df7422c977a992685ecdde2ca90f632af4393f",
+      "bytes": 447
+    },
+    {
+      "path": "raw/before-gp-nested.json.sources/visitors.gd",
+      "sha256": "b1eaa4a031c20873e8056513bd47013c981c3f6de308332f8baac6c1e11ebea3",
+      "bytes": 2122
+    },
+    {
+      "path": "raw/before-gp-nested.json.sources/waiting.gd",
+      "sha256": "9598b70fa9c0ba6d559f40688ce8b37b0ffd17763ded6c578352f74699f80a25",
+      "bytes": 4127
+    },
+    {
+      "path": "raw/before-gp-nested.json.sources/wellbeing.gd",
+      "sha256": "5fc0a7259a893189a8b058559209fadaf36ff20f8df65781511629e387ac20c5",
+      "bytes": 2864
+    },
+    {
+      "path": "raw/before-gp-nested.json.steps.ndjson",
+      "sha256": "419071ec61c24c9096cd4e511b4c7dd0f93e667e55d999f3ca0359916c874bb9",
+      "bytes": 1487607
+    },
+    {
+      "path": "raw/before-gp-nested.log",
+      "sha256": "595fc17355335721705cb1155f3b90479958c52536e8bec83109893ba4c10294",
+      "bytes": 1655
+    },
+    {
+      "path": "raw/before-gp-nested.run.json",
+      "sha256": "69cdb01206559ea97a844224db4113071c2c6c7de0f0a4d483755bc30bd40680",
+      "bytes": 831
+    },
+    {
+      "path": "raw/before-op-1.console.log",
+      "sha256": "c4e42b3eafddf114605a2450f5be0123ebb9429bbc9882e2b5cce39abd8f0016",
+      "bytes": 1947
+    },
+    {
+      "path": "raw/before-op-1.json",
+      "sha256": "440a2e6986b4bdf900a7d1968a99825d5850f56a6eb2cfa15c667ced82ba7122",
+      "bytes": 204055
+    },
+    {
+      "path": "raw/before-op-1.json.final.bin",
+      "sha256": "f20de287ab252ab3fd759f27d841da0fe8a288ee3189a22f05d006a51ace45f8",
+      "bytes": 1730496
+    },
+    {
+      "path": "raw/before-op-1.json.steps.ndjson",
+      "sha256": "0e50dec2a35d40efa8570100d02925d0263af1cdde9f3b4ef1af17a63e4c7085",
+      "bytes": 8068
+    },
+    {
+      "path": "raw/before-op-1.log",
+      "sha256": "334d133bfa13768ab97c32c8da147967f1c080bfb79fc3ff25c860563612b8b3",
+      "bytes": 1508
+    },
+    {
+      "path": "raw/before-op-1.run.json",
+      "sha256": "6011d9976b3cfd16c69ec8af2a345974c079f8f0ef9063ffb4555f28b63e9cd9",
+      "bytes": 819
+    },
+    {
+      "path": "raw/before-op-2.console.log",
+      "sha256": "d19e601dab922be92029b7d170c48f3ff22a7c227276153d5d95bccd7f30287b",
+      "bytes": 1949
+    },
+    {
+      "path": "raw/before-op-2.json",
+      "sha256": "28eac30f92b57db89df358000e3a0a659484f268deb21eabc88fb705e36007e8",
+      "bytes": 204057
+    },
+    {
+      "path": "raw/before-op-2.json.final.bin",
+      "sha256": "f20de287ab252ab3fd759f27d841da0fe8a288ee3189a22f05d006a51ace45f8",
+      "bytes": 1730496
+    },
+    {
+      "path": "raw/before-op-2.json.steps.ndjson",
+      "sha256": "22f7ff9ff0489cc674ed0eb05aedc4519d6dd083174c08c9daa801d53a740c48",
+      "bytes": 8070
+    },
+    {
+      "path": "raw/before-op-2.log",
+      "sha256": "f85d701056a22a43e706c39fbb059b6b9c664f3c97aad36359a49092ca258076",
+      "bytes": 1509
+    },
+    {
+      "path": "raw/before-op-2.run.json",
+      "sha256": "4d29871d02b51ad5a2c9cd0426c7c1eaabca7e26f9af6c7682b2a4a6f5783875",
+      "bytes": 821
+    },
+    {
+      "path": "raw/before-op-3.console.log",
+      "sha256": "55555c7c93119040d841c194a28221975e57fe4eabbb72e857c178311f23f66d",
+      "bytes": 1949
+    },
+    {
+      "path": "raw/before-op-3.json",
+      "sha256": "d089a38ac7cc91cb4fb6b5f3f830b57e12bbcce34840d2da1ddd356ecd36f4e7",
+      "bytes": 204065
+    },
+    {
+      "path": "raw/before-op-3.json.final.bin",
+      "sha256": "f20de287ab252ab3fd759f27d841da0fe8a288ee3189a22f05d006a51ace45f8",
+      "bytes": 1730496
+    },
+    {
+      "path": "raw/before-op-3.json.steps.ndjson",
+      "sha256": "b45935bf60c56b3f125609bcc583b3affef768d7b18410ecac9f96ab0691388a",
+      "bytes": 8078
+    },
+    {
+      "path": "raw/before-op-3.log",
+      "sha256": "4711120286096aa88f6b0a6fce0ce1c45780e809233a6a4485e5257a19c6d08c",
+      "bytes": 1509
+    },
+    {
+      "path": "raw/before-op-3.run.json",
+      "sha256": "b072c311a08289ac6f21484954616a2eb2e1c00e1628aae7897f9dca3038f125",
+      "bytes": 821
+    },
+    {
+      "path": "raw/before-prepare.log",
+      "sha256": "1ded99570523a4a568b4e3fbc3fa9e8bb2bbfac05e171f0c90b55038ebbc9d84",
+      "bytes": 101
+    },
+    {
+      "path": "raw/before-prepare.status.json",
+      "sha256": "6fc4c94af8eb09d8b6d7962f564883f08c2e90f6cdc84229c8a044a7cbe6ea89",
+      "bytes": 280
+    },
+    {
+      "path": "raw/before-public-plain.console.log",
+      "sha256": "75c3432470dde0a388250c789a52c4d0e1514f5930a30052b7b8eab454bcd9be",
+      "bytes": 1900
+    },
+    {
+      "path": "raw/before-public-plain.json",
+      "sha256": "819fe0ede61a5fd31833dffffad24d2e39e7a258a41b21d605605ff2737b0e74",
+      "bytes": 424527
+    },
+    {
+      "path": "raw/before-public-plain.json.final.bin",
+      "sha256": "9df7aba828651d388d2cc4480b42632e90751c6dfdbbf690d3b41f6dbd916413",
+      "bytes": 1833348
+    },
+    {
+      "path": "raw/before-public-plain.json.steps.ndjson",
+      "sha256": "c3059a7266cdd9d9c7266858c47a7f682cebfb958631dedee34130f2839de821",
+      "bytes": 61784
+    },
+    {
+      "path": "raw/before-public-plain.log",
+      "sha256": "d3b47d59f7e21476be7b597794b7f0f1f1df711f4ca38441d404b8a7526b2783",
+      "bytes": 4053
+    },
+    {
+      "path": "raw/before-public-plain.run.json",
+      "sha256": "c041016d02622bdb12fdb35ef7d275795b25cdb9536f4dd0aefb18381004a228",
+      "bytes": 845
+    },
+    {
+      "path": "raw/before-public-root.console.log",
+      "sha256": "988328fba412a0e7b578ab97435372cb8b88d44148c79e8cf3f12b9af8faf112",
+      "bytes": 1895
+    },
+    {
+      "path": "raw/before-public-root.json",
+      "sha256": "fae8a3ccee0fe43ff4da5bd48184500a92dcef025243e6112aebc4b8833fc1a4",
+      "bytes": 3122461
+    },
+    {
+      "path": "raw/before-public-root.json.final.bin",
+      "sha256": "9df7aba828651d388d2cc4480b42632e90751c6dfdbbf690d3b41f6dbd916413",
+      "bytes": 1833348
+    },
+    {
+      "path": "raw/before-public-root.json.sources/simulation.gd",
+      "sha256": "3d3744687f3fa3e5bf0873b71d47042ed88bf72d035abc9b85695fc32051c4c5",
+      "bytes": 9312
+    },
+    {
+      "path": "raw/before-public-root.json.steps.ndjson",
+      "sha256": "c8b7e2b6919f1d8c1ef7d156ab6cadb05ff53b28af2735ee2fd692db93b7957b",
+      "bytes": 1949443
+    },
+    {
+      "path": "raw/before-public-root.log",
+      "sha256": "05d8a02071925c3e01260d5816ebba75dc77e9c83db3f3565d83bdfccbe00dca",
+      "bytes": 4051
+    },
+    {
+      "path": "raw/before-public-root.run.json",
+      "sha256": "10e8f0c0115712cfa5646011497ad6f561f82e66c3817203560c948376b83e30",
+      "bytes": 841
+    },
+    {
+      "path": "raw/before-tail-nested.console.log",
+      "sha256": "a2da7147b92ae633adba635b3a396fa0f26dd68b1e00554a1d9969ff566191fd",
+      "bytes": 1624
+    },
+    {
+      "path": "raw/before-tail-nested.json",
+      "sha256": "e5adef0f3d162fc3bec97979f656ac1290cc390f8213a9a158e473f9bed2124f",
+      "bytes": 124810
+    },
+    {
+      "path": "raw/before-tail-nested.json.final.bin",
+      "sha256": "b0b4f9547d91ff4fcde474343377ea0207faea55dbc0852745aed52c6633720a",
+      "bytes": 1786444
+    },
+    {
+      "path": "raw/before-tail-nested.json.sources/arrivals.gd",
+      "sha256": "8e1acb0941ab1bfca39673fe18ea218cd4d12e6518e649f8241a16cfbd2180f1",
+      "bytes": 3080
+    },
+    {
+      "path": "raw/before-tail-nested.json.sources/clinic.gd",
+      "sha256": "cd28ac3128021b7d4315b83af782cc36c1398f88a7ef74bbadd8773fc4845f24",
+      "bytes": 10044
+    },
+    {
+      "path": "raw/before-tail-nested.json.sources/departments.gd",
+      "sha256": "28c16a72e58e5708836ece626c11b6a56dcac88785957f960d8855105fa237b1",
+      "bytes": 1053
+    },
+    {
+      "path": "raw/before-tail-nested.json.sources/development.gd",
+      "sha256": "39056782c5035c0d6a9cd9224641e4559b9aa8ddd3eb24d5ffb9e957950d49e9",
+      "bytes": 875
+    },
+    {
+      "path": "raw/before-tail-nested.json.sources/environment.gd",
+      "sha256": "4d5f0605416e8d71028a15e0d94f0711f5a2bf4bcc44cc5da3553f121a31145c",
+      "bytes": 5024
+    },
+    {
+      "path": "raw/before-tail-nested.json.sources/finance.gd",
+      "sha256": "2eab2cc4edc611da80b6ad68c2fddd485df613327b495bf77a466b5e253a2807",
+      "bytes": 254
+    },
+    {
+      "path": "raw/before-tail-nested.json.sources/floors.gd",
+      "sha256": "1db56ceeb5c08e5ab0d2ffa22c858d0384cf75ee661f3c30eab36af3988e22f4",
+      "bytes": 666
+    },
+    {
+      "path": "raw/before-tail-nested.json.sources/maintenance.gd",
+      "sha256": "9aca30b10641ac5f7324ce876a21e23e46962a79a0fd1bff13a173c92fe1276b",
+      "bytes": 2066
+    },
+    {
+      "path": "raw/before-tail-nested.json.sources/navigation.gd",
+      "sha256": "9fce1aefd0d2024c48ce2eb49cb951420c9d2cc6f8efa399460a239d84b32a6c",
+      "bytes": 3298
+    },
+    {
+      "path": "raw/before-tail-nested.json.sources/personal_beds.gd",
+      "sha256": "c63afc1b0bb26d806f461baab93aa5038076d8adcfa77dfd7641d19003ccffc8",
+      "bytes": 531
+    },
+    {
+      "path": "raw/before-tail-nested.json.sources/public_areas.gd",
+      "sha256": "906742538e8889044e535544c7f425f0d6a1c7959599eebd9dd2341c79172da5",
+      "bytes": 4146
+    },
+    {
+      "path": "raw/before-tail-nested.json.sources/recruitment.gd",
+      "sha256": "d0f2b84f5e75ea92006881922d3907b23f76f8608d68d8c582b35c218fb4ef06",
+      "bytes": 634
+    },
+    {
+      "path": "raw/before-tail-nested.json.sources/remodel.gd",
+      "sha256": "850cede7e9688fffe6c994da08a6892f8a9dc60fcbe9f16f71b25e0ac398a4a9",
+      "bytes": 263
+    },
+    {
+      "path": "raw/before-tail-nested.json.sources/research.gd",
+      "sha256": "bc7a1cd480733cf92003b7ca6577e0daaaafde2629efcb40c46d7576e0d53f4a",
+      "bytes": 1102
+    },
+    {
+      "path": "raw/before-tail-nested.json.sources/scheduler.gd",
+      "sha256": "a32a0a0d220bfb884a3a5836d8bd47fb18cbe7d6e3bb85f7ba6d88f8fa4c6e7a",
+      "bytes": 870
+    },
+    {
+      "path": "raw/before-tail-nested.json.sources/simulation.gd",
+      "sha256": "3d3744687f3fa3e5bf0873b71d47042ed88bf72d035abc9b85695fc32051c4c5",
+      "bytes": 9312
+    },
+    {
+      "path": "raw/before-tail-nested.json.sources/space.gd",
+      "sha256": "2521968dca1d5c9d04943db7d05ac705d62e7201070b221446f597c98a1ee567",
+      "bytes": 5175
+    },
+    {
+      "path": "raw/before-tail-nested.json.sources/supplies.gd",
+      "sha256": "7fe1442e0b1aabcb9e90169568df7422c977a992685ecdde2ca90f632af4393f",
+      "bytes": 447
+    },
+    {
+      "path": "raw/before-tail-nested.json.sources/visitors.gd",
+      "sha256": "b1eaa4a031c20873e8056513bd47013c981c3f6de308332f8baac6c1e11ebea3",
+      "bytes": 2122
+    },
+    {
+      "path": "raw/before-tail-nested.json.sources/waiting.gd",
+      "sha256": "9598b70fa9c0ba6d559f40688ce8b37b0ffd17763ded6c578352f74699f80a25",
+      "bytes": 4127
+    },
+    {
+      "path": "raw/before-tail-nested.json.sources/wellbeing.gd",
+      "sha256": "5fc0a7259a893189a8b058559209fadaf36ff20f8df65781511629e387ac20c5",
+      "bytes": 2864
+    },
+    {
+      "path": "raw/before-tail-nested.json.steps.ndjson",
+      "sha256": "33c1414749361571ef5fbdee2bd2053f92246b3aade3624bb1f140e89f12901d",
+      "bytes": 25219
+    },
+    {
+      "path": "raw/before-tail-nested.log",
+      "sha256": "afd901f8934e462ca1cf0e2868dbe5a1f283c7beea9c25d2045d014a59afa2bc",
+      "bytes": 945
+    },
+    {
+      "path": "raw/before-tail-nested.run.json",
+      "sha256": "298871f19ece5321b67f1c5e9a21bcdb2fcb47ad284ab517ba0f97a82d5d0f92",
+      "bytes": 840
+    },
+    {
+      "path": "raw/before-tail-plain.console.log",
+      "sha256": "642d934980e744eb4b47af087844f55d9c9c6c166c28bfeca95d7cd677284f48",
+      "bytes": 1619
+    },
+    {
+      "path": "raw/before-tail-plain.json",
+      "sha256": "c9d3bdcf1369550cb35ff15d47f55dd5d301e1c9b902b45b1debf2f68549c95c",
+      "bytes": 45496
+    },
+    {
+      "path": "raw/before-tail-plain.json.final.bin",
+      "sha256": "b0b4f9547d91ff4fcde474343377ea0207faea55dbc0852745aed52c6633720a",
+      "bytes": 1786444
+    },
+    {
+      "path": "raw/before-tail-plain.json.steps.ndjson",
+      "sha256": "19f8223439727108eee06fa7b62cf083c25be32a2f2de838da3bca83d5e17759",
+      "bytes": 203
+    },
+    {
+      "path": "raw/before-tail-plain.log",
+      "sha256": "e93bf4ef670d2b5cde318c2f1e78621a8e96834b76396990dbb204c1bb24fa14",
+      "bytes": 943
+    },
+    {
+      "path": "raw/before-tail-plain.run.json",
+      "sha256": "c0687dd081b6e8c0d2822a1fb06d74e9d73a880dec500ef8f26e70d8e129848c",
+      "bytes": 837
+    },
+    {
+      "path": "raw/before-view.console.log",
+      "sha256": "db16cb8d56ef9f250040f9497895608c9f9dfd4ec79d41556e55a9a575a74111",
+      "bytes": 1258
+    },
+    {
+      "path": "raw/before-view.json",
+      "sha256": "f9373c19cd072f13bee6e4b3b8358441276a6cb82559dcd3116e46443f0ea085",
+      "bytes": 11356
+    },
+    {
+      "path": "raw/before-view.log",
+      "sha256": "710da3fb888f7f3933b79541b682223e51509ab2319e4c6aadf8d1b1a25dcccd",
+      "bytes": 484
+    },
+    {
+      "path": "raw/before-view.run.json",
+      "sha256": "5a84dce1b40303a83da8f3efc0dc8aba03242bf92e1bd7345ffb11ce27fe764d",
+      "bytes": 862
+    },
+    {
+      "path": "raw/build-findings.json",
+      "sha256": "53230d2f60db1ac5fd073f983d5f48520be28fea46402443a7e2f34f3eecf084",
+      "bytes": 11183
+    },
+    {
+      "path": "raw/build_report.py",
+      "sha256": "d4fa78a4890235fae46460baadafb60b5fe64fff4a3ccc7d01432895640643d8",
+      "bytes": 12370
+    },
+    {
+      "path": "raw/comparisons.ndjson",
+      "sha256": "88498e32665c0ffbfe0dd3a342a4f50c4e4ec157de1623a2160fef20a2735097",
+      "bytes": 904
+    },
+    {
+      "path": "raw/facility-probe-plan.json",
+      "sha256": "6fefc535a4b509c8628f8acd62d9e4c92727b0a218c3c459902ddfb6f44ae600",
+      "bytes": 4562
+    },
+    {
+      "path": "raw/facility_probe.gd",
+      "sha256": "ea58456051015024808c70080a7a0860201e4ac0a8c6a326a9c122ec89f3c3ce",
+      "bytes": 10056
+    },
+    {
+      "path": "raw/gp.input.bin",
+      "sha256": "14bfa213c792d0da30bbf48cb39b360166cff6ecb7f8e46e17ff9bddf37bb0b0",
+      "bytes": 1686036
+    },
+    {
+      "path": "raw/late-boundaries.log",
+      "sha256": "7415c6b46639d02f99c45d69a0f253359375842b6a6778c9606b005536d5ff35",
+      "bytes": 494
+    },
+    {
+      "path": "raw/late-boundaries.status.json",
+      "sha256": "1c7b3b30b1f64c9c06fe41eb7bc5bd10336e95fd0f466a5ccc615dfdf7b111ce",
+      "bytes": 163
+    },
+    {
+      "path": "raw/ledger.py",
+      "sha256": "6cd2f0aff974191401e6e718c71eb929ee04a0c17e337b24485686651ff39859",
+      "bytes": 11794
+    },
+    {
+      "path": "raw/measure.console.log",
+      "sha256": "dc906b7deab43928b31c6283fe8e04c721ca61f9218274eed2db2c557b09c4b4",
+      "bytes": 1754
+    },
+    {
+      "path": "raw/measure.py",
+      "sha256": "caf3088f6cbb8c422882b2fd2b5aa099e4269ed31acb092d650c2ea90637a6e8",
+      "bytes": 2051
+    },
+    {
+      "path": "raw/native-build.log",
+      "sha256": "381d921ca613161f272b307366e11640b9a82f4bc7363add053d635ec7b8536a",
+      "bytes": 1730
+    },
+    {
+      "path": "raw/native-build.status.json",
+      "sha256": "e187a4f98d4662371ed60cddbab254359576581ae791c9c4e6bbdb30fd5d5023",
+      "bytes": 686
+    },
+    {
+      "path": "raw/native-findings.json",
+      "sha256": "22fe1bb680fd30197c862eebcdbc1d16b60052dfce429c3872aef3aabbe20ea0",
+      "bytes": 6690
+    },
+    {
+      "path": "raw/native-oracle.log",
+      "sha256": "3acbe79d76b4c0b914d01d32e36fb21f53ff42be8c6d5bc083ab4b89a997ae57",
+      "bytes": 1042
+    },
+    {
+      "path": "raw/native-role-oracle/compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "raw/native-role-oracle/result.json",
+      "sha256": "793738e1c18037ba40407bcd217a646516ffff3e38c603646a0d22c749ee84be",
+      "bytes": 1137
+    },
+    {
+      "path": "raw/native-role-oracle/roles.cpp",
+      "sha256": "56afc79079c3fc8946e57bc2aadf65eda60518be6aee1d1829f0b564472f635f",
+      "bytes": 7370
+    },
+    {
+      "path": "raw/native-role-oracle/roles.pdb",
+      "sha256": "c197e442161fb76b23c5ca81b7d5c832b199665e9539c191d2ee4aba8d5bd32a",
+      "bytes": 6737920
+    },
+    {
+      "path": "raw/op.input.bin",
+      "sha256": "dcd41d686a06d0571ae0ad81d83332ce7ca331d4d810de7c5d2b14dede7dcdd3",
+      "bytes": 1784080
+    },
+    {
+      "path": "raw/package.console.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "raw/package.py",
+      "sha256": "8ff78e456a2ed39f4db76c58ab5a65ed33d32bfef9a2dd3e22ccf0d1530b7128",
+      "bytes": 8480
+    },
+    {
+      "path": "raw/public-v6.input.bin",
+      "sha256": "56ea8338361470fee88659ed806d412aa49927c0709c30d4fbdf536a20eb4f76",
+      "bytes": 1781732
+    },
+    {
+      "path": "raw/review.md",
+      "sha256": "1de7fdebb8f02ec801b9b9627a75673f5ea38eda51466df604b329cd413b3337",
+      "bytes": 43987
+    },
+    {
+      "path": "raw/run_engine.py",
+      "sha256": "ec398f30777940be7d7bd1690355e56c8149b747d0323b4c20176bdb2e497c25",
+      "bytes": 1903
+    },
+    {
+      "path": "raw/selected-acceptance.log",
+      "sha256": "527b162335eaf4715b224de68fe5abf5ef1eefbdc4a09bc3feb0d4f7b9a8c1ed",
+      "bytes": 183259
+    },
+    {
+      "path": "raw/selected-acceptance.status.json",
+      "sha256": "9299dc53caa268c23e9ad854c78c1de606d9e674db422137176e45dc843c8838",
+      "bytes": 722
+    },
+    {
+      "path": "raw/setup_before.py",
+      "sha256": "7dc7b423cb5035ed57883fc3e23763114309c8e85e1b756db5a90f8b3a57a89c",
+      "bytes": 858
+    },
+    {
+      "path": "raw/staff-history-findings.json",
+      "sha256": "e195ce36f3006b2370fe1cfcc2175d1606fd8c957fdca387445b4d003ce99748",
+      "bytes": 12453
+    },
+    {
+      "path": "raw/supplementary.console.log",
+      "sha256": "f41272a5ca5524da8e73bd4bb77e8d57b427efe84d5d00131951c15cbc1eced6",
+      "bytes": 762
+    },
+    {
+      "path": "raw/supplementary.py",
+      "sha256": "4acd86717017a65acfc6fb5c298ac35f3ba367fecc0229cbdf8124513e6ebcb6",
+      "bytes": 2283
+    },
+    {
+      "path": "raw/tick2923.input.bin",
+      "sha256": "f777f6371b3c1284a6a2ef2c1748b8961a440af1d3d9cf489732614e5947afb9",
+      "bytes": 1808888
+    },
+    {
+      "path": "raw/tool-failures.json",
+      "sha256": "7a7dcc0982f0d494213dbca7c9da57d1fd56bfffde5dc456d403700f48a6e0e7",
+      "bytes": 782
+    },
+    {
+      "path": "raw/validate.console.log",
+      "sha256": "cddb0f7ac27fc7139c3b8928db23f68778af878ef8dc1fbff754e5575fae462c",
+      "bytes": 909
+    },
+    {
+      "path": "raw/validate.py",
+      "sha256": "facd3c2dccd7326b4e217e641e94d7559e2cd45a4d13da74b302032989f4349c",
+      "bytes": 1413
+    },
+    {
+      "path": "raw/view-findings.json",
+      "sha256": "5f0c8ab20218c45629292fdd635fb61186e3671e7d0328b64822fadad3abf665",
+      "bytes": 10276
+    },
+    {
+      "path": "raw/view_probe.gd",
+      "sha256": "115bb9469d2a925bffdccb910b52f19431944012ebf523f17b45818c1e4e52f0",
+      "bytes": 8404
+    }
+  ]
+}

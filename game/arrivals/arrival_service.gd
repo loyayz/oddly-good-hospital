@@ -27,6 +27,10 @@ var preparation_error: String = ""
 var reference_counts: Dictionary = {"basis_changes":0,"case_quotes":0,"case_hits":0,"transport_independent_hits":0,"basis_us":0,"basis_change_fields":{}}
 var _admission_bindings: Dictionary = {}
 var _admission_content: String = ""
+var _slot_world: int = 0
+var _slot_plan: Dictionary = {}
+var _slot_basis: Array = []
+var _slot_due: int = -1
 
 func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 	content = database
@@ -166,6 +170,15 @@ func boundaries(world: WorldState) -> bool:
 	release_preparation()
 	return true
 
+func _next_slot_tick(world: WorldState, plan: Dictionary, index: int) -> int:
+	var basis: Array = [plan.day_index,plan.opportunity_count,str(plan.schedule_seed),plan.schedule_algorithm,plan.shift_opportunity_counts,index]
+	if _slot_world!=world.get_instance_id() or not is_same(_slot_plan,plan) or _slot_basis!=basis:
+		_slot_world = world.get_instance_id()
+		_slot_plan = plan
+		_slot_basis = basis.duplicate(true)
+		_slot_due = Plan.slot_tick(plan,index)
+	return _slot_due
+
 func arrivals(world: WorldState) -> void:
 	ensure(world)
 	var settings: Dictionary = world.facts.arrivals
@@ -177,7 +190,7 @@ func arrivals(world: WorldState) -> void:
 	var day_tick: int = world.sim_tick%WorldState.TICKS_PER_DAY
 	while int(plan.next_slot_index) < int(plan.opportunity_count):
 		var index: int = int(plan.next_slot_index)
-		if Plan.slot_tick(plan,index) > day_tick:
+		if _next_slot_tick(world,plan,index) > day_tick:
 			break
 		# Cursor consumption and a successful admission are part of this same step.
 		plan.next_slot_index += 1
@@ -360,6 +373,9 @@ func settle(world: WorldState) -> void:
 	for resident_id: String in world.ids("residents"):
 		var resident: Dictionary = world.facts.residents[resident_id]
 		if not (resident.get("pending_release",false) or not resident.get("remembered",false)): continue
+		if not resident.get("story_binding","").is_empty(): continue
+		var current: Dictionary = world.facts.actors.get(str(resident.get("current_actor_id","")),{})
+		if current.get("resident_id","")==resident_id and current.get("location",{}).get("kind","outside")!="outside": continue
 		if protection==null: protection = _resident_protection(world)
 		if _protected_reasons(world,resident,false,protection).is_empty():
 			_release_identity(world,resident_id)

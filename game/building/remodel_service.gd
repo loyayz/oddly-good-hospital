@@ -121,7 +121,7 @@ func preview(world: WorldState, id: String) -> Dictionary:
 			var delta: Vector2i = Vector2i(int(command.cell[0])-int(previous_room.origin[0]),int(command.cell[1])-int(previous_room.origin[1]))
 			result = builder._transform_room(candidate,previous_room,delta,int(command.turns),int(command.floor_id))
 		else:
-			result = builder._plan(candidate,str(command.kind),command)
+			result = builder._plan(candidate,str(command.kind),command,true)
 			if result.ok: candidate = result.candidate
 		if not result.ok: return result
 		if not previous_facility.is_empty() and command.kind=="build_move" and int(command.get("turns",0))!=0:

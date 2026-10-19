@@ -1,0 +1,494 @@
+{
+  "review_url": "https://chatgpt.com/share/6ad56ebb-fa44-83ea-a433-41b16f8fe0f7",
+  "baseline": "e64bf6c2994b04bcbf23abda9590c418be6f6178",
+  "total": 43,
+  "adopted": 39,
+  "declined": 4,
+  "items": [
+    {
+      "id": "C01",
+      "title": "会诊先生成全部设施×医生配对，选中后又搜索一次",
+      "adopted": true,
+      "paths": [
+        "clinical_runtime.gd"
+      ],
+      "decision": "按原顺序惰性消费会诊配对，首位可行医生仍评价全部方案；局部返回配对供同一只读派单分支使用；无scheduler仍只用第一医生。",
+      "evidence_scope": "CLIN-34/35；GP nested调用计数与整步",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "C02",
+      "title": "手术会诊资格判断晚于完整报价，空医生集仍枚举手术选项",
+      "adopted": true,
+      "paths": [
+        "clinical_runtime.gd"
+      ],
+      "decision": "治疗能力<2的原手术会诊资格判断前移；空会诊医生集不生成手术alternatives。",
+      "evidence_scope": "CLIN-07/14/35；没有逐项隔离耗时",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "C03",
+      "title": "普通成功手术报价先做结构搜索，再做实际搜索",
+      "adopted": true,
+      "paths": [
+        "clinical_runtime.gd"
+      ],
+      "decision": "普通实际手术报价先求actual；成功直接给structural_ok=true，失败仍求结构并返回原actual失败原因；外部alternatives/bed_quotes保持原路。",
+      "evidence_scope": "CLIN-06/14/15/17/18；没有逐项隔离耗时",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "C04",
+      "title": "每个候选报价重复汇总同一专科已发布评分",
+      "adopted": true,
+      "paths": [
+        "department_service.gd"
+      ],
+      "decision": "同一只读route query按专科复用已发布评分总量；候选自己的概率和时长仍独立计算。",
+      "evidence_scope": "CLIN-06/35；GP nested整体计数",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "C05",
+      "title": "部分手术、方案、查房循环没有使用现有 availability 视图",
+      "adopted": true,
+      "paths": [
+        "clinical_runtime.gd"
+      ],
+      "decision": "手术池、方案候选及查房在第一次合格项后懒建availability，保留except_preparation；不跨预约/移动写入。",
+      "evidence_scope": "CLIN-14/15/17/23/24/35",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "C06",
+      "title": "已整理基地的空闲医护逐人扫描全员找进入者",
+      "adopted": true,
+      "paths": [
+        "clinical_development.gd"
+      ],
+      "decision": "已有base视图维护有序travel进入者，沿原签名刷新增删；真实让位规则保持。",
+      "evidence_scope": "STAFF-12/44；进入者集合与原全扫对照",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "P01",
+      "title": "座位在前置规则淘汰前，已经计算完整环境和邻居条件",
+      "adopted": true,
+      "paths": [
+        "waiting_life.gd"
+      ],
+      "decision": "完整合法去返程及30秒额度→Tmin附近带→偏好→环境容差→完整邻居与评分；排序和完整候选字段保持。",
+      "evidence_scope": "STAFF-30/42；SPACE-50；GP/public整步",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "P02",
+      "title": "邻居查询的两个布尔结果已确定，仍继续求路线",
+      "adopted": true,
+      "paths": [
+        "waiting_life.gd"
+      ],
+      "decision": "拥挤布尔已饱和时仅对尚可能的非移动朋友继续查路；两布尔均确定即退出。",
+      "evidence_scope": "STAFF-42冻结完整候选对照与实际路由次数",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "P03",
+      "title": "维修入院和忙碌座位探针仍深复制整个世界",
+      "adopted": true,
+      "paths": [
+        "waiting_life.gd",
+        "maintenance_service.gd"
+      ],
+      "decision": "手动忙座和维修探针仅复制所写容器/记录，保留完整原世界只读事实；移除适配时声明设施几何差量。",
+      "evidence_scope": "STAFF-46/57；OPS-21/23/39",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "P04",
+      "title": "去程或某成员已经不可达，仍继续计算其余路线",
+      "adopted": true,
+      "paths": [
+        "staff_wellbeing.gd"
+      ],
+      "decision": "去程失败不算回程；娱乐任一成员失败即停止其余成员路线；不产生预约或消费。",
+      "evidence_scope": "STAFF-22/27/41/49",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "P05",
+      "title": "每个候选等待点重复线性扫描已承诺移动目标",
+      "adopted": true,
+      "paths": [
+        "public_areas.gd"
+      ],
+      "decision": "同一只读查询构建全部移动目标BodyIndex，每次以请求人ID排除自己；下一批重新读取动态目标。",
+      "evidence_scope": "STAFF-45/48/61/64/65",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "P06",
+      "title": "员工选区得到等待点后，立即丢弃重算",
+      "adopted": true,
+      "paths": [
+        "staff_wellbeing.gd"
+      ],
+      "decision": "同次选区得到的真实等待点直接用于茶位和区域短休出发；返回原floor/cell/travel_ticks三个字段。",
+      "evidence_scope": "STAFF-43/52；public整步",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "P07",
+      "title": "维护边界和研究桌视图仍扫描终态维修历史",
+      "adopted": true,
+      "paths": [
+        "maintenance_service.gd",
+        "research_service.gd"
+      ],
+      "decision": "边界和桌位占用读取既有活动工单集；排除completed/cancelled，保留inventory/paused；研究视图只在首个真实working job建立。",
+      "evidence_scope": "OPS-23/25/27/39；GROW-29/31/38",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "N01",
+      "title": "一次 Transit 查询重复求相同的 start→goal",
+      "adopted": true,
+      "paths": [
+        "hospital_transit.gd"
+      ],
+      "decision": "仅起点同楼层标签复用已求出的direct，其他节点、竖向替代和unknown回退保持。",
+      "evidence_scope": "SPACE-44；GP nested/public整步",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "N02",
+      "title": "静态候选枚举反复构造 RouteClearance",
+      "adopted": true,
+      "paths": [
+        "hospital_space.gd",
+        "clinical_runtime.gd"
+      ],
+      "decision": "_narrow四邻一次构建checker；真实闲员让位与病区逐格枚举在固定人物/事实内复用checker。",
+      "evidence_scope": "STAFF-12/57；CLIN-23/24；SPACE-44",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "N03",
+      "title": "同一运输查询重复判断相同目的出口",
+      "adopted": true,
+      "paths": [
+        "hospital_transit.gd"
+      ],
+      "decision": "一次运输route以connector+目标层记请求者出口检查；成员、包络、世界固定，其他乘客prefix仍独立检查。",
+      "evidence_scope": "SPACE-44；无跨tick授权复用",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "N04",
+      "title": "设施回程刚同步一个私有人物，又强制重建全 actor 索引",
+      "adopted": true,
+      "paths": [
+        "hospital_space.gd"
+      ],
+      "decision": "私有设施回程世界同步唯一人物后保留已有actor索引；仍建立全新的动态route scope，普通调用默认全量刷新。",
+      "evidence_scope": "STAFF-41/42；GP nested/public整步",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "B01",
+      "title": "deferred逐格无用Rect2",
+      "adopted": true,
+      "paths": [
+        "build_service.gd"
+      ],
+      "decision": "deferred分支不构造未使用的逐格Rect2；形状与最终安全全量检查保持。",
+      "evidence_scope": "SPACE-52：8075格完整成功/超界拒绝；8075→0为代码工作量推导",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "B02",
+      "title": "同层重复安全检查",
+      "adopted": true,
+      "paths": [
+        "build_service.gd"
+      ],
+      "decision": "内部安全楼层稳定去重，公共[f,f]返回保持。",
+      "evidence_scope": "SPACE-06实测安全调用2→1；跨层SPACE-37",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "B03",
+      "title": "预览依赖重复捕获",
+      "adopted": true,
+      "paths": [
+        "build_preview.gd",
+        "build_preview_job.gd"
+      ],
+      "decision": "同次重启共同依赖投影仅捕获一次；old/new plan各自经济尾部独立。",
+      "evidence_scope": "SPACE-52经济依赖对照；没有单独延迟微测",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "B04",
+      "title": "新Job丢弃暖静态图",
+      "adopted": true,
+      "paths": [
+        "build_preview.gd",
+        "build_preview_job.gd"
+      ],
+      "decision": "窗口保留候选/原布局两个现有有界NavigationCache；每Job新Space和动态上下文，原世界显式重捕获source。",
+      "evidence_scope": "SPACE-52 no-touch blocked、身份、cancel；无实机内存结论",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "B05",
+      "title": "组合事务重复深复制",
+      "adopted": true,
+      "paths": [
+        "build_service.gd",
+        "blueprint_service.gd",
+        "remodel_service.gd"
+      ],
+      "decision": "仅独占外层事务副本的组合命令走内部owned路径，子步派生失效；保留外层隔离、ID、未知inventory字段与最终整体验证。",
+      "evidence_scope": "SPACE-37/40/41/42；后置70项失败原子性",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "R01",
+      "title": "居民保护充分见证",
+      "adopted": true,
+      "paths": [
+        "arrival_service.gd"
+      ],
+      "decision": "仅story_binding非空，或精确匹配resident的current actor非outside，作为保护的充分见证；其他情况完整fallback；returning逻辑保持。",
+      "evidence_scope": "GROW-19/20；无逐项耗时",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "R02",
+      "title": "room.used导致整层装饰重建",
+      "adopted": true,
+      "paths": [
+        "hospital_view.gd"
+      ],
+      "decision": "签名和绘制共享真实房间几何读集，used不使整层装饰重建。",
+      "evidence_scope": "CORE-51；view_probe完整_sync_geometry/节点替换",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "R03",
+      "title": "视觉来源守卫过宽",
+      "adopted": true,
+      "paths": [
+        "hospital_view.gd"
+      ],
+      "decision": "仅观察层有效几何作为来源守卫；倒计时和无关楼层不触发JSON投影，相关直接几何修改仍可见。",
+      "evidence_scope": "CORE-51共17探针；view_probe完整调用",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "K01",
+      "title": "岗位映射变化但合法节点集合不变，仍丢弃求解状态",
+      "adopted": true,
+      "paths": [
+        "platform_arrivals.cpp"
+      ],
+      "decision": "实际岗位映射始终更新，仅完整enabled mask变化才清求解状态；独立budget dirty保持。",
+      "evidence_scope": "native102转换与36次同mask；GROW-45真实扩展求解计数",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "K02",
+      "title": "预算变化时重复定价同一瓶颈资源的单位价格向量",
+      "adopted": true,
+      "paths": [
+        "platform_arrivals.cpp"
+      ],
+      "decision": "仅复用最近瓶颈资源的精确单位需求（含0）；预算分子每次新算，mask变化失效。",
+      "evidence_scope": "GROW-45精确容量与定价计数；GROW-80",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "K03",
+      "title": "同一次预算更新重复解析相同精确分数",
+      "adopted": true,
+      "paths": [
+        "platform_arrivals.cpp"
+      ],
+      "decision": "局部一次budget更新内复用相同已验证分数文本的精确Q；每个输入仍校验。",
+      "evidence_scope": "GROW-45非法/负数/大分数；无单独时延测量",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "K04",
+      "title": "结构支配后的额外子集证明仍处理根不消费的节点",
+      "adopted": true,
+      "paths": [
+        "platform_arrivals.cpp"
+      ],
+      "decision": "第一轮完整证明保持；后续子集只处理已有reachable，staff bounds不再复制；所有子集、人员与诊断保持。",
+      "evidence_scope": "GROW-80/82手工容量/结构见证；未跑742容量正式验收",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "S01",
+      "title": "逐格重复staff离位目标扫描",
+      "adopted": true,
+      "paths": [
+        "clinical_runtime.gd"
+      ],
+      "decision": "病区离位一次收集其他staff的整数target坐标；保持原不按楼层过滤语义和候选顺序。",
+      "evidence_scope": "CLIN-23/24；没有逐项隔离耗时",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "S02",
+      "title": "无人消费的waiting投影",
+      "adopted": true,
+      "paths": [
+        "hospital_visitors.gd"
+      ],
+      "decision": "删除无人消费的waiting JSON；dispatch仅构建wards，到院仍保留present。",
+      "evidence_scope": "CLIN-30/32；STAFF-57",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "S03",
+      "title": "耗材容量配置及预留重复累计",
+      "adopted": true,
+      "paths": [
+        "content_registry.gd",
+        "supply_service.gd"
+      ],
+      "decision": "不可变内容owner建立definition→effect映射且末项覆盖；query一次reserved并直接units-held，不截零。",
+      "evidence_scope": "OPS-02/07；内容配置未更改",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "S04",
+      "title": "下一时隙重复hash",
+      "adopted": true,
+      "paths": [
+        "arrival_service.gd"
+      ],
+      "decision": "一个next-slot派生值以world、plan身份、完整slot_tick读集及index校验；不修改计划/RNG。",
+      "evidence_scope": "GROW-06/08/10/12；同槽重复及计划/算法/分配变化对照",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "S05",
+      "title": "面板/队列扫描历史visits",
+      "adopted": true,
+      "paths": [
+        "clinical_panel.gd",
+        "department_service.gd"
+      ],
+      "decision": "计数及专科队列读既有活动visit，保留departed未结算和原插入队序；历史详情保持。",
+      "evidence_scope": "CLIN-35；GP/public最终完整事实/事件对照",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "S06",
+      "title": "菱形重复零偏移",
+      "adopted": true,
+      "paths": [
+        "hospital_space.gd"
+      ],
+      "decision": "菱形dy=0只枚举一次，保持旧序列稳定去重。",
+      "evidence_scope": "STAFF-12/57；48→40是半径1..4的代码枚举数，不是时间",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "H01",
+      "title": "维修途中重复route",
+      "adopted": false,
+      "paths": [
+        "maintenance_service.gd"
+      ],
+      "decision": "不采用直接跳过。已有move不是新鲜route见证；_arrived失败会更新持久job.reason，request_move还检查当前移动/目标/owner。动态堵塞、跨层及恢复后仅按同目标跳过会改变原因/接续状态。保留原完整重查，没有安全的新鲜见证可复用。",
+      "evidence_scope": "无收益声明；OPS-21/23/39保持原业务",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "H02",
+      "title": "员工跨次选址冷图",
+      "adopted": true,
+      "paths": [
+        "staff_wellbeing.gd"
+      ],
+      "decision": "采用专用既有有界NavigationCache；每次选择仍新建candidate Space，保留独立人物索引与动态scope，跨投影重新捕获精确source。",
+      "evidence_scope": "STAFF-41；facility_probe冷/暖完整selection与缓存预算诊断",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "H03",
+      "title": "静态弱连通提前拒绝",
+      "adopted": false,
+      "paths": [
+        "floor_navigation.gd"
+      ],
+      "decision": "不采用默认加弱连通标签。主图不同静态弱分量可安全拒绝，bases/overlay/人物/预约仅删边，不破坏此必要条件；相同分量不能排除有向或动态失败，partial仍须原搜索。现有_build逐包络建图，_repair仅更新局部点/边，但删除连通桥会使分量全局变化；简单标签需在实际拓扑变化后惰性全图O(V+E)重建并逐包络持有。端点已拒绝、同query失败memo命中、同主图分量的约束失败均不能节省搜索。本轮没有跨静态分量失败的频次/耗时证据证明可抵消维护成本，保留原局部repair和A*。",
+      "evidence_scope": "结论为缺净收益依据的不采纳；不是方向不安全，也不是实测已证无收益",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "H04",
+      "title": "历史actor活动生命周期集合",
+      "adopted": false,
+      "paths": [
+        "world_state.gd",
+        "hospital_view.gd"
+      ],
+      "decision": "不采用现有floor BodyIndex或tick/count memo替代在院全集。转运人物仍在院但不在floor索引；合法同ID离返院和候选嵌套直接写没有统一失效owner。完整回扫可恢复正确却不缩短历史H成本。创建/离返院/转运/恢复/组合提交/投影写入清单见staff-history-findings.json。",
+      "evidence_scope": "未削减或删除历史；未测历史扩展收益",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "H05",
+      "title": "已完成shape被重启丢弃",
+      "adopted": true,
+      "paths": [
+        "build_preview.gd",
+        "build_preview_job.gd"
+      ],
+      "decision": "只转交同draft、同当前min_inner_size的已完成成功shape；新Job从prepare开始，其他依赖与安全重读；未完成shape不复用。",
+      "evidence_scope": "SPACE-52重启/直接写/经济尾部；无整步收益归因",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "H06",
+      "title": "同采样姿态重复seek/上传",
+      "adopted": false,
+      "paths": [
+        "hospital_view.gd",
+        "skinned_pose_batch.gd"
+      ],
+      "decision": "不采用动画tick/资源身份轻量键。相同键下手动骨骼pose、Skin.bind_pose、相对变换、兼容性/visibility/刚性/blendshape和资源迟到仍会改变输出；seek会覆盖期间手动pose。当前无覆盖全部写入的代次owner，跳过可陈旧上传或隐藏应fallback的原网格；全矩阵比较又保留主要读取成本。",
+      "evidence_scope": "无CPU/GPU节省声明；正式渲染验收暂停",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "H07",
+      "title": "仅消费ok的单人出口完整路径",
+      "adopted": true,
+      "paths": [
+        "build_service.gd"
+      ],
+      "decision": "仅两处消费ok的真实单人出口改用已有travel_quote；跨层、分数起点、非Manhattan及unknown原回退保留，群组目标仍完整route。",
+      "evidence_scope": "SPACE-05/37/41/44；完整出口安全保持",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    },
+    {
+      "id": "H08",
+      "title": "实际开术同次固定资源束重报价",
+      "adopted": true,
+      "paths": [
+        "clinical_runtime.gd"
+      ],
+      "decision": "仅已有准备、固定台/床/团队、setup=0且ticket先前已就绪的同次调用复用首报价；_decision_valid true和_gather全到位无相关写；新预约/首次叫号/移动/超时/核对均保留原重查。",
+      "evidence_scope": "CLIN-15/16/17/18；只省同次已验证支路，绝不跨tick缓存授权",
+      "individual_elapsed_gain": "not_isolated; see measured full-step and operation summaries; static work counts are not elapsed gains"
+    }
+  ]
+}

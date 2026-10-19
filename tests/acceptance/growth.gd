@@ -393,7 +393,45 @@ func _case_45(t) -> void:
 	var backend: RefCounted = ClassDB.instantiate("PlatformArrivalCapacity")
 	var free: Dictionary = backend.call("prepare",cases,budgets)
 	var locked: Dictionary = backend.call("prepare",ctx.arrivals._restrict_roles(cases,{"n":"w1"}),budgets)
-	t.check("GROW-45",free.get("capacity",{})==F.make(100) and locked.get("capacity",{})==F.make(2) and before==cases,{"free":free,"locked":locked})
+	var updates: Dictionary = _native_role_updates(cases,budgets)
+	t.check("GROW-45",free.get("capacity",{})==F.make(100) and locked.get("capacity",{})==F.make(2) and before==cases and updates.passed,{"free":free,"locked":locked,"updates":updates})
+
+func _native_role_updates(cases: Array, original_budgets: Dictionary) -> Dictionary:
+	var backend: RefCounted = ClassDB.instantiate("PlatformArrivalCapacity")
+	var budgets: Dictionary = original_budgets.duplicate(true)
+	var first: Dictionary = backend.call("prepare_with_roles",cases,budgets,{"n":"w1"})
+	var equivalent: Dictionary = backend.call("solve_with_roles",budgets,{"n":"w1","absent":"w9"})
+	var unchanged: bool = equivalent.get("capacity")==F.make(2) and equivalent.get("resolution_count")==first.get("resolution_count") and equivalent.get("pricing_calls")==first.get("pricing_calls")
+	budgets["coverage:n:w1"] = F.make(3)
+	var three: Dictionary = backend.call("solve_with_roles",budgets,{"n":"w1","absent":"w8"})
+	budgets["coverage:n:w1"] = F.make(4)
+	var four: Dictionary = backend.call("solve_with_roles",budgets,{"n":"w1"})
+	# Coverage w1 is mandatory under this role. Its exact unit demand is one,
+	# independent of the changing budget; the inverse-budget pricing still runs.
+	var reused: bool = three.get("capacity")==F.make(3) and four.get("capacity")==F.make(4) and int(four.get("pricing_calls",0))-int(three.get("pricing_calls",0))==1
+	var switched: Dictionary = backend.call("solve_with_roles",budgets,{"n":"w2"})
+	var restored: Dictionary = backend.call("solve_with_roles",budgets,{"n":"w1"})
+	var roles: bool = switched.get("capacity")==F.make(20) and restored.get("capacity")==F.make(4)
+	# In the unrestricted model, facility work attains100 and is incompatible
+	# with either coverage role. A complete alternative has zero facility demand.
+	budgets["staff:n"] = F.make(110)
+	var unrestricted: Dictionary = backend.call("prepare_with_roles",cases,budgets,{})
+	budgets["staff:n"] = F.make(120)
+	var warm_zero: Dictionary = backend.call("solve_with_roles",budgets,{"absent":"w1"})
+	budgets["staff:n"] = F.make(130)
+	var cached_zero: Dictionary = backend.call("solve_with_roles",budgets,{"absent":"w2"})
+	var zero: bool = unrestricted.get("capacity")==F.make(100) and warm_zero.get("capacity")==F.make(100) and cached_zero.get("capacity")==F.make(100) and int(cached_zero.get("pricing_calls",0))-int(warm_zero.get("pricing_calls",0))==1
+	var simple: Array = [{"probability":F.make(1),"bundles":[{"resources":{"a":F.make(1),"b":F.make(1)}}]}]
+	var large: Dictionary = F.make("123456789012345678901234567890",3)
+	var exact: Dictionary = backend.call("prepare",simple,{"a":large,"b":large})
+	var equivalent_fraction: Dictionary = backend.call("solve",{"a":{"n":"246913578024691357802469135780","d":"6"},"b":large})
+	var fractions: bool = exact.get("capacity")==large and equivalent_fraction.get("capacity")==large and exact.get("resolution_count")==equivalent_fraction.get("resolution_count")
+	var rejected: bool = true
+	for invalid: Variant in [{"n":"1","d":"0"},{"n":"x","d":"1"},{"n":"1","d":1},F.make(-1)]:
+		backend.call("prepare",simple,{"a":F.make(1),"b":F.make(1)})
+		var bad: Dictionary = backend.call("solve",{"a":invalid,"b":F.make(1)})
+		rejected = rejected and bad.has("error")
+	return {"passed":unchanged and reused and roles and zero and fractions and rejected,"same_mask_state_retained":unchanged,"unit_demand_reused":reused,"role_switch":roles,"zero_demand_reused":zero,"exact_fractions":fractions,"bad_budget_rejected":rejected,"first":first,"equivalent":equivalent,"three":three,"four":four,"switched":switched,"restored":restored,"warm_zero":warm_zero,"cached_zero":cached_zero}
 
 func _case_46(t) -> void:
 	var builder: RefCounted = load("res://tests/acceptance/clinical_fixtures.gd").new()
@@ -1589,12 +1627,26 @@ func _case_08(t) -> void:
 	restored.facts.arrivals.next_preset = "festival"
 	restored.facts.staff.starter_doctor_a.schedule[0].kind = "rest"
 	var restored_ticks: Array = _slot_ticks(restored.facts.arrivals.plan)
+	var cached: bool = true
+	var slot_service: HospitalArrivalService = restore.arrivals
+	for probe: Dictionary in [vector.duplicate(true),vector.duplicate(true),_vector_plan(restored)]:
+		for index: int in int(probe.opportunity_count):
+			cached = cached and slot_service._next_slot_tick(restored,probe,index)==DayPlan.slot_tick(probe,index)
+			cached = cached and slot_service._next_slot_tick(restored,probe,index)==DayPlan.slot_tick(probe,index)
+		for field: String in ["day_index","schedule_seed","schedule_algorithm","shift_opportunity_counts"]:
+			var changed: Dictionary = probe.duplicate(true)
+			match field:
+				"day_index": changed.day_index += 1
+				"schedule_seed": changed.schedule_seed = "987654321"
+				"schedule_algorithm": changed.schedule_algorithm = "arrival-slot-v1"
+				"shift_opportunity_counts": changed.shift_opportunity_counts = [0,0,int(changed.opportunity_count)]
+			cached = cached and slot_service._next_slot_tick(restored,changed,0)==DayPlan.slot_tick(changed,0)
 	var wide: Dictionary = F.make("18446744073709551616","3")
 	var exact: bool = F.add(wide,F.make(2,3))==F.make("6148914691236517206")
 	exact = exact and F.add(F.make("999999999999999999"),F.make("999999999999999999"))==F.make("1999999999999999998")
 	exact = exact and F.make("999999999999999999",7)==F.make("142857142857142857")
 	exact = exact and F.floor_value(wide)==6148914691236517205 and F.ceil_value(wide)==6148914691236517206
-	t.check("GROW-08",exact and restored_ticks==_slot_ticks(vector) and restored.facts.arrivals.plan==vector and restored.facts.rng==restore_rng and not vector.has("slot_ticks") and DayPlan.validate(vector).is_empty(),{"plan":restored.facts.arrivals.plan,"wide_exact_fractions":exact})
+	t.check("GROW-08",cached and exact and restored_ticks==_slot_ticks(vector) and restored.facts.arrivals.plan==vector and restored.facts.rng==restore_rng and not vector.has("slot_ticks") and DayPlan.validate(vector).is_empty(),{"plan":restored.facts.arrivals.plan,"wide_exact_fractions":exact,"same_slot_cache_full_readset":cached})
 
 func _case_09(t) -> void:
 	var restore: Dictionary = _context()

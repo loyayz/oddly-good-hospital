@@ -85,7 +85,7 @@ func _scratch(world: WorldState) -> WorldState:
 			data[field] = data[field].duplicate(true)
 	return WorldState.new(data)
 
-func _plan(world: WorldState, kind: String, payload: Dictionary) -> Dictionary:
+func _plan(world: WorldState, kind: String, payload: Dictionary, owns_world: bool = false) -> Dictionary:
 	if not kind in KINDS:
 		return BuildGeometry.failure("未知建造操作")
 	var payload_error: String = _payload_error(payload)
@@ -95,7 +95,9 @@ func _plan(world: WorldState, kind: String, payload: Dictionary) -> Dictionary:
 	# work orders and their exclusive worker routes. Keep that whole transaction
 	# isolated until the final spatial and quoted-intent checks have succeeded.
 	var inventory_transfer: bool = kind=="build_store" or kind=="build_facility" and not str(payload.get("inventory_id","")).is_empty()
-	var candidate: WorldState = WorldState.new(world.freeze()) if inventory_transfer else _scratch(world)
+	# Composite blueprint/remodel callers already own the complete transaction
+	# world and defer safety to their final comparison against the original.
+	var candidate: WorldState = world if owns_world else (WorldState.new(world.freeze()) if inventory_transfer else _scratch(world))
 	var requested_floor: int = int(payload.get("floor_id",1))
 	if not HospitalSpace.floor_plots(candidate,requested_floor).is_empty():
 		HospitalSpace.materialize_layout(candidate,requested_floor)
@@ -114,10 +116,14 @@ func _plan(world: WorldState, kind: String, payload: Dictionary) -> Dictionary:
 		return result
 	if HospitalLedger.balance(world)+int(result.refund)-int(result.price)<0:
 		return BuildGeometry.failure("资金不足，草案和原布局保留")
+	var checked_floors: Dictionary = {}
 	for floor_id: int in ([] if _deferred_checks else result.get("floors",[])):
+		if checked_floors.has(floor_id): continue
+		checked_floors[floor_id] = true
 		var safety: Dictionary = _safety(world,candidate,floor_id)
 		if not safety.ok:
 			return safety
+	if owns_world: candidate.invalidate_geometry()
 	result.candidate = candidate
 	return result
 
@@ -168,12 +174,13 @@ func _add_room(world: WorldState, payload: Dictionary) -> Dictionary:
 		id = world.new_id("room")
 	if _exists(world,id):
 		return BuildGeometry.failure("对象身份已存在："+id)
-	var rects: Array = []
-	for cell: Array in shape.cells:
-		rects.append(Rect2(float(cell[0]),float(cell[1]),1,1))
-	var collision: Dictionary = {"ok":true} if _deferred_checks else BuildGeometry.occupied_error(world,space,floor_id,rects)
-	if not collision.ok:
-		return collision
+	if not _deferred_checks:
+		var rects: Array = []
+		for cell: Array in shape.cells:
+			rects.append(Rect2(float(cell[0]),float(cell[1]),1,1))
+		var collision: Dictionary = BuildGeometry.occupied_error(world,space,floor_id,rects)
+		if not collision.ok:
+			return collision
 	for other: Dictionary in ([] if _deferred_checks else world.facts.rooms.values()):
 		if int(other.floor_id)==floor_id:
 			for cell: Array in shape.cells:
@@ -533,12 +540,13 @@ func _transform_room(world: WorldState, room: Dictionary, delta: Vector2i, turns
 			if not busy.is_empty():
 				return BuildGeometry.failure(busy)
 			ignored.append(facility.id)
-	var rects: Array = []
-	for cell: Array in shape.cells:
-		rects.append(Rect2(float(cell[0]),float(cell[1]),1,1))
-	var collision: Dictionary = {"ok":true} if _deferred_checks else BuildGeometry.occupied_error(world,space,target_floor,rects,ignored)
-	if not collision.ok:
-		return collision
+	if not _deferred_checks:
+		var rects: Array = []
+		for cell: Array in shape.cells:
+			rects.append(Rect2(float(cell[0]),float(cell[1]),1,1))
+		var collision: Dictionary = BuildGeometry.occupied_error(world,space,target_floor,rects,ignored)
+		if not collision.ok:
+			return collision
 	for other: Dictionary in ([] if _deferred_checks else world.facts.rooms.values()):
 		if other.id!=room.id and int(other.floor_id)==target_floor:
 			for cell: Array in shape.cells:
@@ -756,9 +764,9 @@ func actor_safety(previous: WorldState, candidate: WorldState, actor: Dictionary
 	if previous_checker==null: previous_checker = HospitalSpace.new(content)
 	if not checker.static_reason(candidate,actor,floor_id,start).is_empty() and previous_checker.static_reason(previous,actor,floor_id,start).is_empty():
 		return BuildGeometry.failure("改建会侵犯实际身体："+str(actor.id),[actor.location.cell])
-	var exit: Dictionary = checker.route(candidate,actor.id,1,[47,93],[],{},true)
+	var exit: Dictionary = checker.travel_quote(candidate,actor.id,1,[47,93])
 	if not exit.get("ok",false):
-		var before: Dictionary = previous_checker.route(previous,actor.id,1,[47,93],[],{},true)
+		var before: Dictionary = previous_checker.travel_quote(previous,actor.id,1,[47,93])
 		if before.get("ok",false):
 			return BuildGeometry.failure("改建会切断实际身体的安全出口："+str(actor.id),[actor.location.cell])
 	var movement: Dictionary = candidate.facts.moves.get(actor.id,{})

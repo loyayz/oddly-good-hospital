@@ -118,7 +118,6 @@ func seat_candidates(world: WorldState, visit_id: String) -> Array:
 	var visit: Dictionary = world.facts.visits.get(visit_id,{})
 	if visit.is_empty() or not _waiting(world,visit):
 		return []
-	var candidates: Array = []
 	var facility_ids: Array = []
 	var intent: Dictionary = world.facts.get("waiting_life",{}).get("seats",{}).get(visit_id,{})
 	if intent.has("public_purpose"):
@@ -129,29 +128,42 @@ func seat_candidates(world: WorldState, visit_id: String) -> Array:
 	facility_ids.sort()
 	var maximum_travel_ticks: int = _ticks(content.balance.seat_choice.automatic_travel_seconds_max)
 	var remaining_travel_ticks: int = maximum_travel_ticks-int(intent.get("area_travel_ticks",0))
-	var actor_index: Dictionary = {}
 	space.begin_route_query(world,{},space.nominal_query(world))
 	if environment!=null: environment.begin_query(world)
-	for facility_id: String in facility_ids:
-		if space.facility_travel_lower_bound_ticks(world,facility_id,visit.actor_id)>remaining_travel_ticks: continue
-		var quote: Dictionary = _seat_quote(world,visit,facility_id,actor_index)
-		if quote.ok and int(quote.travel_ticks)+int(intent.get("area_travel_ticks",0))<=maximum_travel_ticks:
-			candidates.append(quote)
+	var result: Array = _seat_candidates_in_query(world,visit,facility_ids,intent,remaining_travel_ticks,maximum_travel_ticks)
 	if environment!=null: environment.end_query()
 	space.end_route_query()
+	return result
+
+func _seat_candidates_in_query(world: WorldState, visit: Dictionary, facility_ids: Array, intent: Dictionary, remaining_travel_ticks: int, maximum_travel_ticks: int) -> Array:
+	var candidates: Array = []
+	for facility_id: String in facility_ids:
+		if space.facility_travel_lower_bound_ticks(world,facility_id,visit.actor_id)>remaining_travel_ticks: continue
+		if not world.facts.facilities.has(facility_id) or not _public_seat(world,world.facts.facilities[facility_id]): continue
+		var quote: Dictionary = _facility_quote(world,visit,facility_id)
+		if quote.ok and int(quote.travel_ticks)+int(intent.get("area_travel_ticks",0))<=maximum_travel_ticks:
+			candidates.append({"facility_id":facility_id,"quote":quote})
 	if candidates.is_empty():
 		return []
 	var closest: int = 2147483647
 	for candidate: Dictionary in candidates:
-		closest = mini(closest,int(candidate.travel_ticks))
-	candidates = candidates.filter(func(item: Dictionary) -> bool: return int(item.travel_ticks)<=closest+_ticks(content.balance.seat_choice.nearby_detour_seconds))
+		closest = mini(closest,int(candidate.quote.travel_ticks))
+	candidates = candidates.filter(func(item: Dictionary) -> bool: return int(item.quote.travel_ticks)<=closest+_ticks(content.balance.seat_choice.nearby_detour_seconds))
+	for item: Dictionary in candidates:
+		var facility: Dictionary = world.facts.facilities[item.facility_id]
+		item.observation = _environment(world,visit.actor_id,int(facility.floor_id),item.quote.patient_cell)
+		item.preferred = _preferred(world,visit,facility,item.observation)
 	var preferred: Array = candidates.filter(func(item: Dictionary) -> bool: return item.preferred)
 	if not preferred.is_empty():
 		candidates = preferred
 	var highest: float = 0.0
 	for candidate: Dictionary in candidates:
-		highest = maxf(highest,float(candidate.environment))
-	candidates = candidates.filter(func(item: Dictionary) -> bool: return float(item.environment)>=highest-float(content.balance.seat_choice.environment_tolerance))
+		highest = maxf(highest,float(candidate.observation.value))
+	candidates = candidates.filter(func(item: Dictionary) -> bool: return float(item.observation.value)>=highest-float(content.balance.seat_choice.environment_tolerance))
+	var actor_index: Dictionary = {}
+	var scored: Array = []
+	for item: Dictionary in candidates: scored.append(_score_seat(world,visit,item.facility_id,item.quote,item.observation,actor_index))
+	candidates = scored
 	candidates.sort_custom(func(a: Dictionary,b: Dictionary) -> bool:
 		if a.score!=b.score: return a.score>b.score
 		if a.environment!=b.environment: return a.environment>b.environment
@@ -164,17 +176,32 @@ func _manual_seat_quote(world: WorldState, visit: Dictionary, facility_id: Strin
 	if not _occupied(world,facility_id,visit.actor_id): return _seat_quote(world,visit,facility_id)
 	# A manual target may be busy. Only its eventual former public user is
 	# projected away to validate body fit; this grants no live use or reservation.
-	var candidate: WorldState = WorldState.new(world.freeze())
-	for actor: Dictionary in candidate.facts.actors.values():
+	var facts: Dictionary = world.facts.duplicate()
+	facts.actors = world.facts.actors.duplicate()
+	facts.waiting_life = world.facts.waiting_life.duplicate()
+	facts.waiting_life.seats = world.facts.waiting_life.seats.duplicate()
+	facts.staff_life = world.facts.staff_life.duplicate()
+	facts.staff_life.reservations = world.facts.staff_life.reservations.duplicate()
+	facts.adaptations = world.facts.adaptations.duplicate()
+	var candidate: WorldState = WorldState.new(facts)
+	for id: String in candidate.facts.actors:
+		var actor: Dictionary = candidate.facts.actors[id]
 		if actor.get("support_facility_id","")==facility_id:
+			actor = actor.duplicate(true)
+			candidate.facts.actors[id] = actor
 			actor.location = {"kind":"outside"}
 			actor.erase("support_facility_id")
-	for seat: Dictionary in candidate.facts.waiting_life.seats.values():
+	for id: String in candidate.facts.waiting_life.seats:
+		var seat: Dictionary = candidate.facts.waiting_life.seats[id]
 		if seat.get("facility_id","")==facility_id:
+			seat = seat.duplicate(true)
+			candidate.facts.waiting_life.seats[id] = seat
+			candidate.facts.actors[seat.actor_id] = candidate.facts.actors[seat.actor_id].duplicate(true)
 			candidate.facts.actors[seat.actor_id].location = {"kind":"outside"}
 			seat.facility_id = ""
 	candidate.facts.staff_life.reservations.erase(facility_id)
 	candidate.facts.adaptations.erase(facility_id)
+	space.prepare_projection(world,candidate,[facility_id])
 	return _seat_quote(candidate,visit,facility_id)
 
 func _dispatch_public_seat(world: WorldState, visit: Dictionary, intent: Dictionary, selected_entry: Dictionary = {}) -> void:
@@ -357,6 +384,10 @@ func _seat_quote_in_query(world: WorldState, visit: Dictionary, facility_id: Str
 	if not quote.ok: return quote
 	var facility: Dictionary = world.facts.facilities[facility_id]
 	var observation: Dictionary = _environment(world,visit.actor_id,int(facility.floor_id),quote.patient_cell)
+	return _score_seat(world,visit,facility_id,quote,observation,actor_index)
+
+func _score_seat(world: WorldState, visit: Dictionary, facility_id: String, quote: Dictionary, observation: Dictionary, actor_index: Variant = null) -> Dictionary:
+	var facility: Dictionary = world.facts.facilities[facility_id]
 	var conditions: Dictionary = _conditions(world,visit,facility,quote.patient_cell,observation,actor_index)
 	var personality: Dictionary = content.definition("patient_personalities",visit.personality_id)
 	var score: int = 0
@@ -633,16 +664,20 @@ func _conditions(world: WorldState, visit: Dictionary, facility: Dictionary, cel
 	var nearby: int = 0
 	var friendly: bool = false
 	var radius: float = float(content.balance.patient_behavior.crowd_radius_cells)
+	var crowded_at: int = int(content.balance.patient_behavior.crowded_neighbors_min)
 	for actor: Dictionary in _condition_actors(world,int(facility.floor_id),cell,actor_index):
 		if actor.id==visit.actor_id or world.facts.staff.has(actor.id) or actor.location.kind!="floor" or int(actor.location.floor_id)!=int(facility.floor_id): continue
 		if Vector2(float(actor.location.cell[0]),float(actor.location.cell[1])).distance_to(Vector2(float(cell[0]),float(cell[1])))>radius: continue
-		var nearby_route: Dictionary = space._floor_route(world,world.facts.actors[visit.actor_id],int(facility.floor_id),Vector2i(int(cell[0]),int(cell[1])),Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1])),[],{},true)
-		if not nearby_route.ok or float(nearby_route.walking_distance)>radius: continue
-		nearby += 1
 		var pair: Array = [visit.actor_id,actor.id]
 		pair.sort()
 		var relationship: Variant = world.facts.get("relationships",{}).get(":".join(pair),{})
-		if relationship is Dictionary and relationship.get("kind","")=="friend" and not world.facts.moves.has(actor.id): friendly = true
+		var possible_friend: bool = relationship is Dictionary and relationship.get("kind","")=="friend" and not world.facts.moves.has(actor.id)
+		if nearby>=crowded_at and not possible_friend: continue
+		var nearby_route: Dictionary = space._floor_route(world,world.facts.actors[visit.actor_id],int(facility.floor_id),Vector2i(int(cell[0]),int(cell[1])),Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1])),[],{},true)
+		if not nearby_route.ok or float(nearby_route.walking_distance)>radius: continue
+		nearby += 1
+		if possible_friend: friendly = true
+		if nearby>=crowded_at and friendly: break
 	return {"quiet":float(observation.noise)<=0,"less_crowded":nearby<int(content.balance.patient_behavior.crowded_neighbors_min),"friendly_neighbor":friendly,
 		"calm_available":facility.definition_id=="FUR49" and float(visit.anger)>=float(content.balance.seat_choice.calm_minimum_anger) and not visit.get("chair_calm_claimed",false),
 		"noise_reduction":facility.definition_id=="FUR50" and float(observation.noise)>0,"clean_ground":bool(observation.clean),

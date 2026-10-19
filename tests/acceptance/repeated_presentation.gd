@@ -103,11 +103,95 @@ func run_projection(t, content: HospitalContent, case_id: String = "CORE-51") ->
 	var changed_stamp: String = warm._environment_read_stamp()
 	heatmap = heatmap and changed_stamp!=first_stamp and changed_stamp==cold._environment_read_stamp() and world.freeze()==before
 	var validation: String = world.validate(content)
-	t.check(case_id,reused and geometry and environment and heatmap and validation.is_empty(),{"unchanged_projection_reused":reused,"same_revision_geometry":geometry,"direct_dirt_change":environment,"heatmap_current_inputs":heatmap,"validation":validation,"scope":"exact dependency reuse and live direct writes; no GPU timing claim"})
+	var decorations: Dictionary = _geometry_dependencies(t,content)
+	t.check(case_id,reused and geometry and environment and heatmap and validation.is_empty() and decorations.passed,{"unchanged_projection_reused":reused,"same_revision_geometry":geometry,"direct_dirt_change":environment,"heatmap_current_inputs":heatmap,"decoration_dependencies":decorations,"validation":validation,"scope":"exact dependency reuse and live direct writes; no GPU timing claim"})
 	simulation.dispose()
 	warm.queue_free()
 	cold.queue_free()
 	await t.process_frame
+
+func _geometry_dependencies(t, content: HospitalContent) -> Dictionary:
+	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"装饰几何读集",true,content)
+	var simulation: HospitalSimulation = HospitalSimulation.new(world,content)
+	var made: CommandResult = simulation.services.connectors.execute(world,"connector_build",{"definition_id":"VC02","floor_id":1,"cell":[36,72]})
+	if not made.accepted:
+		simulation.dispose()
+		return {"passed":false,"connector_build":made.to_record()}
+	var baseline: Dictionary = world.freeze()
+	var initial_validation: String = world.validate(content)
+	var connector_id: String = made.changed_ids[0]
+	var warm: WarmView = WarmView.new(content)
+	var cold: ColdView = ColdView.new(content)
+	for view: HospitalView in [warm,cold]:
+		t.root.add_child(view)
+		view.world = world
+		view._decorations = Node3D.new()
+		view.add_child(view._decorations)
+		view._sync_geometry()
+	var original_signature: String = warm._geometry_signature
+	var original_nodes: Array = warm._decorations.get_children().map(func(node: Node) -> int: return node.get_instance_id())
+	var observations: Array = []
+	var passed: bool = initial_validation.is_empty()
+	# These are direct-write read-view probes, each restored from the same legal
+	# world. They do not stand in for transport, construction or clinical flows.
+	for probe: String in ["used","transport_clock","other_floor","room_origin","room_size","room_cells","cell_order","wall_edges","blocked","door_cell","door_span","connector_cell","connector_anchor","connector_footprint","connector_stop","plots","top_floor"]:
+		world.facts = baseline.duplicate(true)
+		if probe=="cell_order": world.facts.rooms.room_gp.cells = [[36,86],[37,86],[36,87]]
+		warm.observed_floor = 1
+		cold.observed_floor = 1
+		warm._sync_geometry()
+		var before_builds: int = int(warm.builds.geometry)
+		var before_nodes: Array = warm._decorations.get_children().map(func(node: Node) -> int: return node.get_instance_id())
+		match probe:
+			"used": world.facts.rooms.room_gp.used = true
+			"transport_clock": world.facts.connectors[connector_id].remaining_ticks = 17
+			"other_floor":
+				world.facts.floors.overrides["2"] = {"blocked":[[40,75]],"doors":[]}
+				var upper: Dictionary = world.facts.rooms.room_gp.duplicate(true)
+				upper.id = "upper_probe"
+				upper.floor_id = 2
+				world.facts.rooms.upper_probe = upper
+			"room_origin": world.facts.rooms.room_gp.origin[0] += 1
+			"room_size": world.facts.rooms.room_gp.size[0] += 1
+			"room_cells": world.facts.rooms.room_gp.cells = [[36,86],[37,86],[36,87]]
+			"cell_order": world.facts.rooms.room_gp.cells = [[36,87],[37,86],[36,86]]
+			"wall_edges": world.facts.rooms.room_gp.wall_edges = [{"axis":"x","line":86,"low":36,"high":40}]
+			"blocked": world.facts.floors.overrides["1"].blocked.append([60,70])
+			"door_cell": world.facts.floors.overrides["1"].doors[0].cell[0] += 1
+			"door_span":
+				var door: Dictionary = world.facts.floors.overrides["1"].doors[0]
+				world.facts.adaptations[door.id] = {"span":int(door.span)+1}
+			"connector_cell": world.facts.connectors[connector_id].cell[0] += 1
+			"connector_anchor": world.facts.connectors[connector_id].anchor[0] += 1
+			"connector_footprint": world.facts.connectors[connector_id].footprint[0] += 1
+			"connector_stop":
+				world.facts.connectors[connector_id].first_floor = 2
+				world.facts.connectors[connector_id].last_floor = 2
+			"plots": world.facts.floors.overrides["1"].plots.append([2,2])
+			"top_floor":
+				warm.observed_floor = 2
+				cold.observed_floor = 2
+				world.facts.floors.completed_top_floor = {"1:2":2}
+		var revision: int = world.revision
+		var before: Dictionary = world.freeze()
+		warm._sync_geometry()
+		cold._geometry_signature = ""
+		cold._sync_geometry()
+		var ignored: bool = probe in ["used","transport_clock","other_floor"]
+		var nodes: Array = warm._decorations.get_children().map(func(node: Node) -> int: return node.get_instance_id())
+		var rebuilt: bool = int(warm.builds.geometry)==before_builds+1 and nodes!=before_nodes
+		var untouched: bool = int(warm.builds.geometry)==before_builds and nodes==before_nodes and warm._geometry_signature==original_signature and nodes==original_nodes
+		var equal: bool = warm._geometry_signature==cold._geometry_signature
+		var readonly: bool = world.freeze()==before and world.revision==revision
+		var ok: bool = equal and readonly and (untouched if ignored else rebuilt)
+		passed = passed and ok
+		observations.append({"probe":probe,"passed":ok,"projection_runs":int(warm.builds.geometry)-before_builds,"rebuilt":rebuilt,"matches_cold":equal,"readonly":readonly})
+	world.facts = baseline.duplicate(true)
+	var restored_validation: String = world.validate(content)
+	warm.queue_free()
+	cold.queue_free()
+	simulation.dispose()
+	return {"passed":passed and restored_validation.is_empty(),"initial_validation":initial_validation,"restored_validation":restored_validation,"observations":observations,"scope":"direct-write geometry dependencies and node reuse; no frame or GPU claim"}
 
 func run_resources(t, content: HospitalContent, case_id: String = "CORE-52") -> void:
 	var bounds: BoundsView = BoundsView.new(content)

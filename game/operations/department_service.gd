@@ -343,7 +343,9 @@ func focus_multiplier(world: WorldState, visit_id: String, staff_id: String, tra
 	if unit.is_empty() or str(unit.focus_id).is_empty() or world.sim_tick<int(unit.focus_ready_tick) or int(world.facts.staff[staff_id].abilities.get(track,0))<int(content.balance.care_departments.focus_min_ability): return 1.0
 	var routine: Dictionary = content.definition("treatment_routines",content.definition("treatment_bindings",visit.binding_id).routine_id)
 	if routine.get("specialty_id","")!=unit.focus_id: return 1.0
-	var rating: Dictionary = aggregate_rating(world,id)
+	var ratings: Dictionary = space.read_view(world,"published_department_ratings",func() -> Dictionary: return {})
+	if not ratings.has(id): ratings[id] = aggregate_rating(world,id)
+	var rating: Dictionary = ratings[id]
 	return float(content.balance.care_departments.focus_work_multiplier) if int(rating.samples)>=int(content.balance.care_departments.focus_min_cases) and rating.score!=null and float(rating.score)>=float(content.balance.care_departments.focus_min_score) else 1.0
 
 func patient_rating(world: WorldState, visit_id: String) -> Dictionary:
@@ -486,7 +488,8 @@ func receipt(world: WorldState, visit_id: String) -> Dictionary:
 func summary(world: WorldState, department_id: String = "") -> Dictionary:
 	var units: Array = []
 	var queued_by_department: Dictionary = {}
-	for visit: Dictionary in world.facts.visits.values():
+	for visit_id: String in world.active_visit_ids(false):
+		var visit: Dictionary = world.facts.visits[visit_id]
 		if not world.facts.tickets.has(visit.get("ticket_id","")): continue
 		var id: String = str(visit.get("department_id","general"))
 		if not queued_by_department.has(id): queued_by_department[id] = []

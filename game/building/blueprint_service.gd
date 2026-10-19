@@ -183,7 +183,7 @@ func preview(world: WorldState, payload: Dictionary) -> Dictionary:
 		var doors: Array = raw.doors.duplicate(true)
 		for door: Dictionary in doors:
 			if door.has("cell"): door.cell = [int(door.cell[0])+int(origin[0]),int(door.cell[1])+int(origin[1])]
-		var plan: Dictionary = builder._plan(candidate,"build_room",{"room_type_id":raw.kind,"floor_id":floor_id,"cells":cells,"doors":doors})
+		var plan: Dictionary = builder._plan(candidate,"build_room",{"room_type_id":raw.kind,"floor_id":floor_id,"cells":cells,"doors":doors},true)
 		if not plan.ok: return plan
 		candidate = plan.candidate
 		room_ids[raw.local_id] = str(plan.changed_ids[0])
@@ -202,7 +202,7 @@ func preview(world: WorldState, payload: Dictionary) -> Dictionary:
 				if item.definition_id==raw.definition_id and int(item.get("grade",0))==int(raw.get("grade",0)) and item.get("style","")==raw.get("style","") and not item.get("borrowed",false) and item.get("ownership","")!="borrowed" and not item.get("reserved",false):
 					stock = key
 					break
-		var plan: Dictionary = builder._plan(candidate,"build_facility",{"definition_id":raw.definition_id,"floor_id":floor_id,"cell":[int(raw.cell[0])+int(origin[0]),int(raw.cell[1])+int(origin[1])],"rotation":int(raw.get("rotation",0)),"room_id":room_ids.get(raw.get("room_ref",""),""),"inventory_id":stock})
+		var plan: Dictionary = builder._plan(candidate,"build_facility",{"definition_id":raw.definition_id,"floor_id":floor_id,"cell":[int(raw.cell[0])+int(origin[0]),int(raw.cell[1])+int(origin[1])],"rotation":int(raw.get("rotation",0)),"room_id":room_ids.get(raw.get("room_ref",""),""),"inventory_id":stock},true)
 		if not plan.ok: return plan
 		candidate = plan.candidate
 		var id: String = str(plan.changed_ids[0])

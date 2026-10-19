@@ -481,9 +481,11 @@ func _base_before(a: Dictionary, b: Dictionary) -> bool:
 	return str(a.id)<str(b.id)
 
 func _base_view(world: WorldState) -> Dictionary:
-	var result: Dictionary = {"world_id":world.get_instance_id(),"groups":{},"lines":{},"busy":_busy_query if _busy_query.get("world_id",0)==world.get_instance_id() else busy_view(world)}
+	var result: Dictionary = {"world_id":world.get_instance_id(),"groups":{},"lines":{},"incoming":[],"busy":_busy_query if _busy_query.get("world_id",0)==world.get_instance_id() else busy_view(world)}
 	for id: String in world.ids("staff"):
-		var facility_id: String = str(world.facts.staff[id].get("base_task",{}).get("facility_id",""))
+		var task: Dictionary = world.facts.staff[id].get("base_task",{})
+		if task.get("phase","")=="travel": result.incoming.append(id)
+		var facility_id: String = str(task.get("facility_id",""))
 		if facility_id.is_empty(): continue
 		if not result.groups.has(facility_id): result.groups[facility_id] = []
 		result.groups[facility_id].append(id)
@@ -500,7 +502,12 @@ func _base_signature(world: WorldState, staff_id: String) -> Array:
 func _refresh_base_view(world: WorldState, staff_id: String, prior: Array) -> void:
 	if _base_batch.is_empty() or prior==_base_signature(world,staff_id): return
 	var previous: String = str(prior[0].get("facility_id",""))
-	var current: String = str(world.facts.staff[staff_id].get("base_task",{}).get("facility_id",""))
+	var task: Dictionary = world.facts.staff[staff_id].get("base_task",{})
+	var current: String = str(task.get("facility_id",""))
+	_base_batch.incoming.erase(staff_id)
+	if task.get("phase","")=="travel":
+		_base_batch.incoming.append(staff_id)
+		_base_batch.incoming.sort()
 	if _base_batch.groups.has(previous): _base_batch.groups[previous].erase(staff_id)
 	if not current.is_empty():
 		if not _base_batch.groups.has(current): _base_batch.groups[current] = []
@@ -593,7 +600,7 @@ func _yield_prepared_base(world: WorldState, staff_id: String) -> void:
 	var floor_id: int = int(actor.location.floor_id)
 	var origin: Vector2i = Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
 	var query: Dictionary = _base_context(world)
-	for other_id: String in world.ids("staff"):
+	for other_id: String in query.incoming:
 		var other: Dictionary = world.facts.staff[other_id]
 		var task: Dictionary = other.get("base_task",{})
 		if other_id==staff_id or task.get("phase","")!="travel" or not other.get("on_shift",false) or other.get("base_prepared",false) or other.get("life_task",{}).get("phase","idle")!="idle" or safe_busy(world,other_id,query.busy) or not world.facts.facilities.has(task.get("facility_id","")):

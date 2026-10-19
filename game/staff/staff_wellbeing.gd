@@ -5,6 +5,7 @@ const Development = preload("res://game/staff/clinical_development.gd")
 const REST_SEATS: Array[String] = ["FUR06","FUR09","FUR10","FUR11","FUR49","FUR50","FUR51","FUR52"]
 
 var content: HospitalContent
+var _facility_navigation: NavigationCache = NavigationCache.new()
 var space: HospitalSpace
 var _dispatch_view: Dictionary = {}
 var personal_beds: HospitalPersonalBeds
@@ -420,8 +421,13 @@ func _select_facility(world: WorldState, staff_id: String, kind: String, query: 
 		var layout: Dictionary = space.facility_layout(world,id)
 		var target: Array = fit.get("patient_cell",layout.patient_cell)
 		var candidate: WorldState = _adapted_candidate(world,id,fit,staff_id)
-		if candidate_space==null: candidate_space = HospitalSpace.new(content)
+		if candidate_space==null:
+			candidate_space = HospitalSpace.new(content)
+			# Retain only the existing bounded static graph cache. Actor indices,
+			# scopes and route/exit witnesses belong to this fresh query space.
+			candidate_space._navigation = _facility_navigation
 		var route: Dictionary = candidate_space.route(candidate,staff_id,int(layout.floor_id),target)
+		if not route.ok: continue
 		var origin: Dictionary = world.facts.actors[staff_id].location
 		candidate.facts.actors[staff_id].location = {"kind":"floor","floor_id":layout.floor_id,"cell":target.duplicate(),"height_m":0.0}
 		candidate_space.sync_actor(candidate,staff_id)
@@ -448,6 +454,7 @@ func _tea_position(world: WorldState, staff_id: String) -> Dictionary:
 		var selected: Dictionary = space.public_areas.select(world,staff_id,REST_SEATS,["rest","staff_garden"],"rest")
 		if selected.is_empty(): return {}
 		reference = selected.area
+		return {"floor_id":selected.floor_id,"cell":selected.cell,"travel_ticks":selected.travel_ticks}
 	space.begin_dynamic_route_query(world)
 	var point: Dictionary = space.public_areas.waiting_point(world,staff_id,reference)
 	space.end_route_query()
@@ -457,6 +464,7 @@ func _dispatch_public_rest(world: WorldState, staff_id: String) -> void:
 	var staff: Dictionary = world.facts.staff[staff_id]
 	var task: Dictionary = staff.life_task
 	if world.facts.actors[staff_id].location.kind!="floor" or world.facts.moves.has(staff_id): return
+	var selected_point: Dictionary = {}
 	if space.public_areas.region(world,task.area).is_empty():
 		var selected: Dictionary = space.public_areas.select(world,staff_id,REST_SEATS,["rest","staff_garden"],"rest")
 		if selected.is_empty():
@@ -466,8 +474,9 @@ func _dispatch_public_rest(world: WorldState, staff_id: String) -> void:
 		task.arrived_tick = -1
 		task.floor_id = selected.floor_id
 		task.cell = selected.cell
+		selected_point = {"floor_id":selected.floor_id,"cell":selected.cell,"travel_ticks":selected.travel_ticks}
 	if not space.public_areas.contains(world,task.area,staff_id):
-		var point: Dictionary = space.public_areas.waiting_point(world,staff_id,task.area)
+		var point: Dictionary = selected_point if not selected_point.is_empty() else space.public_areas.waiting_point(world,staff_id,task.area)
 		if not point.is_empty():
 			task.floor_id = point.floor_id
 			task.cell = point.cell
@@ -656,6 +665,7 @@ func _recreation_choice(world: WorldState, ids: Array, preferred: String, area: 
 		for index: int in ids.size():
 			if not candidate_space.route(candidate,ids[index],int(layout.floor_id),positions[index]).ok:
 				all_reachable = false
+				break
 		if not all_reachable:
 			continue
 		return {"facility_id":facility_id,"floor_id":int(layout.floor_id),"positions":positions}

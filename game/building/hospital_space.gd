@@ -60,10 +60,10 @@ func end_route_query() -> void:
 	if not child.is_empty() and not parent.is_empty() and not is_same(child,parent) and child.get("transport_dependent",false):
 		_mark_transport_dependency(parent)
 
-func begin_dynamic_route_query(world: WorldState) -> void:
+func begin_dynamic_route_query(world: WorldState, refresh_actors: bool = true) -> void:
 	# A single real actor's sealed candidate enumeration. This never enables
 	# nominal transport, and ends before any task/reservation/move is committed.
-	_indexed_revision = -1
+	if refresh_actors: _indexed_revision = -1
 	_ensure_actor_index(world)
 	_route_queries.append({"world":world,"routes":{},"exits":{},"views":{},"reference":{},"journeys_allowed":false,"dynamic":true,"transport":{}})
 
@@ -1141,7 +1141,9 @@ func facility_trip_quote(world: WorldState, facility_id: String, actor_id: Strin
 	var origin: Dictionary = world.facts.actors[actor_id].location
 	candidate.facts.actors[actor_id].location = {"kind":"floor","floor_id":int(layout.floor_id),"cell":layout.patient_cell.duplicate(),"height_m":0.0}
 	sync_actor(candidate,actor_id)
-	begin_dynamic_route_query(candidate)
+	# This private projection changed only the actor just synchronized above.
+	# Discard route/exit views while retaining the now-current body index.
+	begin_dynamic_route_query(candidate,false)
 	var back: Dictionary = route(candidate,actor_id,int(origin.floor_id),origin.cell)
 	end_route_query()
 	if not back.ok: return {"ok":false,"reason":"设施没有合法返回路线"}
@@ -1373,12 +1375,13 @@ func _yield_idle_staff(world: WorldState, actor: Dictionary, movement: Dictionar
 		if not swept.intersects(blocker_rect,false) or _staff_has_movement_responsibility(world,staff_id):
 			continue
 		var origin: Vector2i = Vector2i(roundi(staff_actor.location.cell[0]),roundi(staff_actor.location.cell[1]))
+		var checker: RouteClearance = RouteClearance.new(self,world,staff_actor,floor_id,[],{},true,_navigation.floor_source(self,world,floor_id))
 		for radius: int in range(1,5):
 			for dx: int in range(-radius,radius+1):
 				var dy_abs: int = radius-absi(dx)
-				for dy: int in [-dy_abs,dy_abs]:
+				for dy: int in ([0] if dy_abs==0 else [-dy_abs,dy_abs]):
 					var goal: Vector2i = origin+Vector2i(dx,dy)
-					if goal==origin or _narrow(world,staff_actor,goal):
+					if goal==origin or _narrow(world,staff_actor,goal,checker):
 						continue
 					var goal_rect: Rect2 = _actor_rect(staff_actor,Vector2(goal))
 					var requester_path: bool = false
@@ -1386,7 +1389,7 @@ func _yield_idle_staff(world: WorldState, actor: Dictionary, movement: Dictionar
 						if goal_rect.intersects(_actor_rect(actor,Vector2(float(cell[0]),float(cell[1]))),false):
 							requester_path = true
 							break
-					if requester_path or not static_reason(world,staff_actor,floor_id,goal).is_empty():
+					if requester_path or not checker.reason(goal).is_empty():
 						continue
 					if not _dynamic_clear(world,staff_id,floor_id,goal_rect):
 						continue
@@ -1429,10 +1432,11 @@ func _staff_has_movement_responsibility(world: WorldState, staff_id: String) -> 
 			return true
 	return false
 
-func _narrow(world: WorldState, actor: Dictionary, origin: Vector2i) -> bool:
+func _narrow(world: WorldState, actor: Dictionary, origin: Vector2i, checker: RouteClearance = null) -> bool:
 	var available: int = 0
+	if checker==null: checker = RouteClearance.new(self,world,actor,int(actor.location.floor_id),[],{},true,_navigation.floor_source(self,world,int(actor.location.floor_id)))
 	for offset: Vector2i in [Vector2i.LEFT,Vector2i.RIGHT,Vector2i.UP,Vector2i.DOWN]:
-		if static_reason(world,actor,int(actor.location.floor_id),origin+offset).is_empty():
+		if checker.reason(origin+offset).is_empty():
 			available += 1
 	return available<=2
 

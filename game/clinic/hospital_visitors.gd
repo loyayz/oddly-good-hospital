@@ -107,7 +107,7 @@ func _admit(world: WorldState, visit: Dictionary, request: Dictionary, lookup: D
 
 func dispatch(world: WorldState) -> void:
 	ensure(world)
-	var wards: Dictionary = _lookup(world).wards
+	var wards: Dictionary = _lookup(world,false).wards
 	for stay_id: String in _stay_ids(world):
 		var stay: Dictionary = world.facts.visitors.stays[stay_id]
 		var visit: Dictionary = world.facts.visits[stay.visit_id]
@@ -337,14 +337,14 @@ func _point_clear(world: WorldState, actor_id: String, floor_id: int, cell: Arra
 	var actor: Dictionary = world.facts.actors[actor_id]
 	return space.static_reason(world,actor,floor_id,Vector2i(int(cell[0]),int(cell[1]))).is_empty() and space._dynamic_clear(world,actor_id,floor_id,space._actor_rect(actor,Vector2(float(cell[0]),float(cell[1]))))
 
-func _lookup(world: WorldState) -> Dictionary:
-	var result: Dictionary = {"wards":{},"present":{},"waiting":{}}
+func _lookup(world: WorldState, include_present: bool = true) -> Dictionary:
+	var result: Dictionary = {"wards":{},"present":{}}
 	for stay: Dictionary in world.facts.ward_stays.values():
 		var id: String = str(world.facts.attempts[stay.attempt_id].visit_id)
 		if not result.wards.has(id): result.wards[id] = stay
+	if not include_present: return result
 	for stay: Dictionary in world.facts.visitors.stays.values():
 		if not result.present.has(stay.visit_id): result.present[stay.visit_id] = stay
-		result.waiting[JSON.stringify([int(stay.waiting_floor),stay.waiting_cell])] = true
 	return result
 
 func _ward_stay(world: WorldState, visit_id: String) -> Dictionary:

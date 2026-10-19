@@ -30,15 +30,22 @@ var _occupancy_views: Dictionary = {}
 var _safety_checker: HospitalSpace
 var _previous_checker: HospitalSpace
 
-func _init(building: BuildService, world: WorldState, request: Dictionary) -> void:
+func _init(building: BuildService, world: WorldState, request: Dictionary, basis: Dictionary = {}, navigation: NavigationCache = null, previous_navigation: NavigationCache = null) -> void:
 	service = building
 	_safety_checker = HospitalSpace.new(service.content)
 	_previous_checker = HospitalSpace.new(service.content)
+	if navigation!=null: _safety_checker._navigation = navigation
+	if previous_navigation!=null: _previous_checker._navigation = previous_navigation
 	draft = request.duplicate(true)
 	kind = str(draft.get("kind","build_room"))
-	dependency_key = dependencies(world)
+	if basis.is_empty(): basis = dependency_basis(world)
+	# A new job may follow direct writes without world.touch(). Force source
+	# recapture before the existing cache can compare and reuse exact geometry.
+	for floor_key: String in basis.floors:
+		_previous_checker._navigation.invalidate(world,int(floor_key))
+	dependency_key = dependencies(world,basis)
 
-func dependencies(world: WorldState) -> String:
+func dependency_basis(world: WorldState) -> Dictionary:
 	var floors: Array = [int(draft.get("floor_id",1))]
 	var target_id: String = str(draft.get("target_id",""))
 	var original: Dictionary = world.facts.rooms.get(target_id,world.facts.facilities.get(target_id,service._door(world,target_id).get("door",{})))
@@ -94,11 +101,25 @@ func dependencies(world: WorldState) -> String:
 	if kind=="build_undo":
 		values.history = world.facts.get("build_history",[])
 		values.settlements = service._settlement_marker(world)
+	return values
+
+func dependencies(world: WorldState, basis: Dictionary = {}) -> String:
+	var values: Dictionary = dependency_basis(world) if basis.is_empty() else basis.duplicate()
 	if not _plan.is_empty() and _plan.get("ok",false):
 		values.solvent = HospitalLedger.balance(world)+int(_plan.refund)-int(_plan.price)>=0
 	elif not _plan.is_empty():
 		values.retry_cash = HospitalLedger.balance(world)
 	return JSON.stringify(values,"",true,true).sha256_text()
+
+func inherit_completed_shape(previous: BuildPreviewJob) -> void:
+	# Only completed, pure shape proofs transfer on a dependency restart.
+	# The new job still rereads research, money, occupancy and full safety.
+	if kind!="build_room" or draft!=previous.draft or not previous._shape.get("ok",false): return
+	var definition: Dictionary = service._room_type(str(draft.get("room_type_id",draft.get("room_type",draft.get("type","gp")))))
+	if definition.is_empty() or definition.min_inner_size!=previous._minimum: return
+	_minimum = previous._minimum.duplicate()
+	_shape = previous._shape
+	_phase = "prepare"
 
 func advance(world: WorldState, budget_usec: int, maximum_units: int = 0) -> void:
 	var start: int = Time.get_ticks_usec()

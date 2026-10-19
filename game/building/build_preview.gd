@@ -12,6 +12,8 @@ var restarted_jobs: int = 0
 var superseded_jobs: int = 0
 var work_budget: ViewWorkBudget
 var _completed_boundary: Array = []
+var _safety_navigation: NavigationCache = NavigationCache.new()
+var _previous_navigation: NavigationCache = NavigationCache.new()
 
 func _init(building: BuildService) -> void:
 	service = building
@@ -52,14 +54,17 @@ func _update(world: WorldState, maximum_units: int, budget_usec: int, completed_
 		result = {"ok":false,"ready":false,"reason":"草案属于另一座医院","generation":generation}
 		return result.duplicate(true)
 	if job==null:
-		job = BuildPreviewJob.new(service,world,current.semantic.draft)
+		job = BuildPreviewJob.new(service,world,current.semantic.draft,{},_safety_navigation,_previous_navigation)
 	elif completed_boundary.is_empty() or _completed_boundary!=completed_boundary:
 		# Only the window may identify an already completed, immutable-between-
 		# ticks UI boundary. Public queries without that guarantee still compare
 		# all actual facts, including reservations written without world.touch().
-		if job.dependencies(world)!=job.dependency_key:
+		var basis: Dictionary = job.dependency_basis(world)
+		if job.dependencies(world,basis)!=job.dependency_key:
 			restarted_jobs += 1
-			job = BuildPreviewJob.new(service,world,current.semantic.draft)
+			var previous: BuildPreviewJob = job
+			job = BuildPreviewJob.new(service,world,current.semantic.draft,basis,_safety_navigation,_previous_navigation)
+			job.inherit_completed_shape(previous)
 			result = {"ok":false,"ready":false,"reason":"相关占地或安全事实已变化，正在重新检查"}
 	_completed_boundary = completed_boundary.duplicate()
 	var remaining: int = budget_usec-(Time.get_ticks_usec()-started)
@@ -99,6 +104,8 @@ func cancel() -> void:
 	result = {}
 	job = null
 	_completed_boundary = []
+	_safety_navigation = NavigationCache.new()
+	_previous_navigation = NavigationCache.new()
 
 func _semantic_binding(binding: Dictionary) -> Dictionary:
 	var result_binding: Dictionary = binding.duplicate(true)

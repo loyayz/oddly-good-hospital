@@ -24,6 +24,7 @@ static func route(space: HospitalSpace, world: WorldState, actor: Dictionary, so
 	_push(heap,{"id":"start","tick":initial_ticks})
 	var unknown: bool = false
 	var unknown_reason: String = ""
+	var egresses: Dictionary = {}
 	# This search is synchronous and read-only. Keep stable structure and queue
 	# prefixes only until it returns; later movement observes current facts again.
 	var transport: Dictionary = space.dynamic_transport_view(world,actor.id,members,offsets)
@@ -58,7 +59,7 @@ static func route(space: HospitalSpace, world: WorldState, actor: Dictionary, so
 			return {"ok":true,"status":"complete","path":path,"walking_distance":walking,"arrival_ticks":item.tick,"quoted_tick":world.sim_tick,"reason":""}
 		var node: Dictionary = nodes[id]
 		if int(node.floor_id)==target_floor:
-			var finish: Dictionary = space._floor_route(world,actor,target_floor,node.cell,goal,members,offsets,ignore_people)
+			var finish: Dictionary = direct if id=="start" and source_floor==target_floor else space._floor_route(world,actor,target_floor,node.cell,goal,members,offsets,ignore_people)
 			if finish.ok:
 				_relax(heap,arrival,previous,id,"goal",_add(int(item.tick),walking_ticks(space,actor,members,float(finish.walking_distance))),finish.path,float(finish.walking_distance))
 		var node_floor: int = int(node.floor_id)
@@ -89,7 +90,7 @@ static func route(space: HospitalSpace, world: WorldState, actor: Dictionary, so
 			for destination: int in stops:
 				if destination==int(node.floor_id):
 					continue
-				var quote: Dictionary = _quote_known_fit(space,world,connection,actor.id,int(node.floor_id),destination,at_landing,members,offsets,prefixes)
+				var quote: Dictionary = _quote_known_fit(space,world,connection,actor.id,int(node.floor_id),destination,at_landing,members,offsets,prefixes,egresses)
 				if not quote.ok:
 					if quote.status=="estimate_unknown":
 						unknown = true
@@ -169,13 +170,21 @@ static func quote(space: HospitalSpace, world: WorldState, connection: Dictionar
 		return _unavailable("竖向连接或完整身体不兼容")
 	return _quote_known_fit(space,world,connection,actor_id,from,to,at_landing,members,offsets,{})
 
-static func _quote_known_fit(space: HospitalSpace, world: WorldState, connection: Dictionary, actor_id: String, from: int, to: int, at_landing: int, members: Array, offsets: Dictionary, prefixes: Dictionary) -> Dictionary:
+static func _quote_known_fit(space: HospitalSpace, world: WorldState, connection: Dictionary, actor_id: String, from: int, to: int, at_landing: int, members: Array, offsets: Dictionary, prefixes: Dictionary, egresses: Variant = null) -> Dictionary:
 	var definition: Dictionary = space.content.definition("vertical_connectors",connection.definition_id)
 	if definition.kind=="stairs" and absi(to-from)!=1:
 		return _unavailable("楼梯只连接相邻楼层")
 	if _lowering(connection) and to>=from:
 		return _unavailable("故障电梯仅提供向下安全缓降")
-	if not egress_clear(space,world,connection,actor_id,to,members,offsets):
+	# The route caller fixes world, actor, group and offsets for this local map.
+	# Prefixes for other actors and independent quotes retain fresh checks.
+	var key: Array = [connection.id,to]
+	var clear: bool
+	if egresses!=null and egresses.has(key): clear = egresses[key]
+	else:
+		clear = egress_clear(space,world,connection,actor_id,to,members,offsets)
+		if egresses!=null: egresses[key] = clear
+	if not clear:
 		return {"ok":false,"status":"estimate_unknown","reason":"目标出口当前被占用，暂时无法估计离舱时间"}
 	if not prefixes.has(connection.id): prefixes[connection.id] = _prefix(space,world,connection,actor_id)
 	var prefix: Dictionary = prefixes[connection.id]

@@ -8,6 +8,7 @@ var _indexes: Dictionary = {}
 var _bindings: Dictionary = {}
 var _facilities: Dictionary = {}
 var _compatibility: Dictionary = {}
+var _equipment_effects: Dictionary = {}
 
 var fingerprint: String:
 	get:
@@ -40,6 +41,9 @@ func _init(data: Dictionary = {}) -> void:
 					if not identifier.is_empty():
 						index[identifier] = record
 		_compatibility.indexes[collection_name] = index
+	for profile: Dictionary in _compatibility.catalog.get("medical_equipment_profiles",[]):
+		_equipment_effects[str(profile.definition_id)] = str(profile.effect_kind)
+	_freeze(_equipment_effects)
 	_freeze(_data)
 	_freeze(_bindings)
 	_freeze(_facilities)
@@ -47,6 +51,9 @@ func _init(data: Dictionary = {}) -> void:
 
 func definition(collection: String, identifier: String) -> Dictionary:
 	return _indexes.get(collection, {}).get(canonical_id(identifier), {})
+
+func equipment_effect_kind(identifier: String) -> String:
+	return str(_equipment_effects.get(legacy_id(identifier),""))
 
 func legacy_definition(collection: String, identifier: String) -> Dictionary:
 	return _compatibility.get("indexes", {}).get(collection, {}).get(legacy_id(identifier), {})

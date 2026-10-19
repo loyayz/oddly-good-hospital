@@ -49,6 +49,7 @@ class RepeatedReadiness extends Queries:
 
 func run_case(t, content: HospitalContent) -> void:
 	var started: int = Time.get_ticks_usec()
+	var first_doctor: Dictionary = _first_doctor_boundary(content)
 	var c: Dictionary = Gathering.new()._context(content,"gp")
 	var clinic: Queries = Queries.new(content,c.space)
 	clinic.scheduler = HospitalShiftScheduler.new(content,c.space)
@@ -74,4 +75,35 @@ func run_case(t, content: HospitalContent) -> void:
 	var shortage_before: Dictionary = c.world.freeze()
 	projection.shortage_requests(c.world)
 	var projection_ok: bool = projection.projection_observed and shortage_before==c.world.freeze()
-	t.check("CLIN-35",c.validation.is_empty() and pairs.size()>1 and once and selected.is_empty() and recommendation.readonly and readiness_ok and projection_ok,{"input_validation":c.validation,"CL-A01":{"recommendation":recommendation,"readiness_equal":readiness==expected,"gp_calls":actual.gp_queries,"control_gp_calls":control.gp_queries},"CL-A06":{"isolated_written_path_shared_readonly_facts":projection.projection_observed,"readonly":shortage_before==c.world.freeze()},"elapsed_usec":Time.get_ticks_usec()-started})
+	t.check("CLIN-35",first_doctor.passed and c.validation.is_empty() and pairs.size()>1 and once and selected.is_empty() and recommendation.readonly and readiness_ok and projection_ok,{"input_validation":c.validation,"first_doctor_boundary":first_doctor,"CL-A01":{"recommendation":recommendation,"readiness_equal":readiness==expected,"gp_calls":actual.gp_queries,"control_gp_calls":control.gp_queries},"CL-A06":{"isolated_written_path_shared_readonly_facts":projection.projection_observed,"readonly":shortage_before==c.world.freeze()},"elapsed_usec":Time.get_ticks_usec()-started})
+
+func _first_doctor_boundary(content: HospitalContent) -> Dictionary:
+	var c: Dictionary = Gathering.new()._context(content,"gp")
+	HospitalFactory._add_room(c.world,{"id":"later_treatment","type":"T01","anchor":[46,30],"size":[8,8],"door":{"definition_id":"DR04","offset":3}},content)
+	HospitalFactory._add_facility(c.world,{"id":"later_machine","definition_id":"M09","anchor":[47,31],"size":content.facility_definition("M09").footprint,"room_id":"later_treatment"},content)
+	HospitalFactory._add_staff(c.world,"later_doctor","可治疗医生","doctor",[36,24],content)
+	c.world.facts.staff.gather_worker.abilities.treatment = 1
+	c.world.facts.staff.later_doctor.abilities.treatment = 3
+	for definition: Dictionary in content.catalog.research: c.world.facts.research.append(definition.id)
+	c.world.touch()
+	var clinic: Queries = Queries.new(content,c.space)
+	var scheduler: HospitalShiftScheduler = HospitalShiftScheduler.new(content,c.space)
+	scheduler.ensure(c.world)
+	var visit: Dictionary = c.world.facts.visits.gather_visit_0
+	var binding: Dictionary = content.definition("treatment_bindings","B_S22_D14_M14")
+	visit.binding_id = binding.id
+	visit.disease_id = binding.disease_id
+	visit.requested_plan_id = "P_D14_COMMON"
+	c.world.facts.actors[visit.actor_id].species_id = binding.species_id
+	c.world.facts.actors[visit.actor_id].body_binding_id = binding.id
+	c.world.touch()
+	var validation: String = c.world.validate(content)
+	var before: Dictionary = c.world.freeze()
+	var pairs: Array = clinic.service_candidates(c.world,visit,"consult")
+	var explicit_later: Dictionary = clinic._select_plan(c.world,visit,"later_doctor")
+	var first_only: Dictionary = clinic._select_plan(c.world,visit)
+	clinic.scheduler = scheduler
+	var scheduled_before: Dictionary = c.world.freeze()
+	var selected_pair: Dictionary = {}
+	var scheduled: Dictionary = clinic._select_plan(c.world,visit,"",selected_pair)
+	return {"passed":validation.is_empty() and not pairs.is_empty() and pairs[0].staff_id=="gather_worker" and not explicit_later.is_empty() and first_only.is_empty() and scheduled==explicit_later and selected_pair.get("pair",{}).get("staff_id","")=="later_doctor" and c.world.freeze()==scheduled_before and before==scheduled_before,"validation":validation,"first_pair":pairs[0] if not pairs.is_empty() else {},"later_doctor_has_legal_plan":not explicit_later.is_empty(),"no_scheduler_preserves_first_failure":first_only.is_empty(),"scheduler_selects_original_next_doctor":scheduled==explicit_later,"selected_pair":selected_pair,"facts_rng_readonly":c.world.freeze()==scheduled_before}

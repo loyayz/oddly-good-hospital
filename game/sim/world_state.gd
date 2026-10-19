@@ -251,7 +251,7 @@ func register_visit(id: String) -> void:
 	_active_visit_count = facts.visits.size()
 	_ordered_ids.erase("visits")
 
-func active_visit_ids() -> Array:
+func active_visit_ids(ordered: bool = true) -> Array:
 	if _active_visit_count!=facts.visits.size():
 		_active_visits.clear()
 		for id: String in facts.visits:
@@ -259,7 +259,7 @@ func active_visit_ids() -> Array:
 			if visit.phase!="departed" or not visit.get("departure_recorded",false): _active_visits[id] = true
 		_active_visit_count = facts.visits.size()
 	var result: Array = _active_visits.keys()
-	result.sort()
+	if ordered: result.sort()
 	return result
 
 func finish_visits() -> void:

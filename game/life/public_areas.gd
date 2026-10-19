@@ -268,14 +268,17 @@ func safe_wait(world: WorldState, actor_id: String, floor_id: int, cell: Array) 
 		for y: int in range(floori(bounds.position.y/8.0),floori(bounds.end.y/8.0)+1):
 			for work: Vector2 in constraints.points.get(floor_id,{}).get(Vector2i(x,y),[]):
 				if bounds.intersects(Rect2(work,Vector2.ONE),false): return false
-	# Movement targets can change between two callers without a layout change.
-	# Read their current bodies instead of caching them with built work points.
+	# Targets belong to this sealed query, never to the built-geometry cache.
+	# Include every actor so a second requester gets its own self exclusion.
+	var targets: Dictionary = space.read_view(world,"public_wait_targets",_wait_targets.bind(world))
+	return not (targets.index as BodyIndex).intersects(floor_id,bounds,actor_id)
+
+func _wait_targets(world: WorldState) -> Dictionary:
+	var index: BodyIndex = BodyIndex.new()
 	for movement: Dictionary in world.facts.moves.values():
-		if movement.actor_id==actor_id or int(movement.target_floor)!=floor_id: continue
 		var target: Array = movement.target_cell
-		var body: Rect2 = space._actor_rect(world.facts.actors[movement.actor_id],Vector2(float(target[0]),float(target[1])))
-		if bounds.intersects(body,false): return false
-	return true
+		index.update(movement.actor_id,int(movement.target_floor),space._actor_rect(world.facts.actors[movement.actor_id],Vector2(float(target[0]),float(target[1]))))
+	return {"index":index}
 
 func _wait_constraints(world: WorldState) -> Dictionary:
 	if not _wait_geometry.is_empty(): return _wait_geometry

@@ -42,10 +42,7 @@ func capacity(world: WorldState) -> int:
 	for facility: Dictionary in world.facts.facilities.values():
 		if facility.get("location", "floor") == "inventory" or not facility.get("completed",true):
 			continue
-		var kind: String = ""
-		for profile: Dictionary in content.catalog.medical_equipment_profiles:
-			if profile.definition_id == facility.definition_id:
-				kind = profile.effect_kind
+		var kind: String = content.registry.equipment_effect_kind(facility.definition_id)
 		if kind == "outpatient":
 			outpatient += 1
 		elif kind == "surgery":
@@ -72,8 +69,9 @@ func query(world: WorldState) -> Dictionary:
 	var cap: int = capacity(world)
 	var demand: int = int(world.facts.inventory.get("usage",{}).get("previous_units",0))
 	var target: int = mini(cap,maxi(int(rules.restock_floor),ceili(float(3*demand)/4.0)))
-	return {"definition_id":rules.definition_id,"units":world.facts.inventory.units,"reserved":reserved(world),
-		"available":available(world),"capacity":cap,"unit_price":unit_price(),"target":target,
+	var held: int = reserved(world)
+	return {"definition_id":rules.definition_id,"units":world.facts.inventory.units,"reserved":held,
+		"available":int(world.facts.inventory.units)-held,"capacity":cap,"unit_price":unit_price(),"target":target,
 		"reorder":mini(target,maxi(int(rules.reorder_floor),ceili(float(demand)/4.0))),
 		"reserve_budget":reserve_budget(world),"auto_restock":world.facts.inventory.get("auto_restock",true),
 		"top_up":top_up(world),"shortage":world.facts.inventory.get("shortage",{}).duplicate(true)}

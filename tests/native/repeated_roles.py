@@ -30,6 +30,7 @@ def main():
 #include <map>
 #include <set>
 #include <string>
+#include <utility>
 #include <vector>
 struct Node { bool choice = false; std::map<int,int> resources; std::vector<int> children; };
 struct Model {
@@ -39,8 +40,15 @@ struct Model {
     std::vector<std::vector<int>> resource_nodes;
     std::map<std::string,std::string> locked_roles;
     std::vector<bool> enabled;
+    bool dirty = false;
+    int role_demand = 7, role_bottleneck_resource = 3, invalidations = 0;
     void make_index() { @INDEX@ }
-    void update_roles() { @BODY@ }
+    void update_roles(std::map<std::string,std::string> next) {
+        if (next == locked_roles) return;
+        locked_roles = std::move(next);
+        @BODY@
+        ++invalidations;
+    }
     void original() {
         for (size_t i = 0; i < nodes.size(); ++i) {
             const Node& node = nodes[i]; bool valid = true;
@@ -98,15 +106,29 @@ int main() {
     locks.push_back({{"a","w1"},{"a:b","w2"},{"n","ward:x"}});
     locks.push_back({{"a","b:w1"},{"a:b","w1"},{"worker:with:colons","w2"}});
     locks.push_back({});
-    int checked=0;
+    int checked=0, unchanged_masks=0;
     // Repeat transitions on the same graph, including clearing and relocking.
     for (int pass=0; pass<3; ++pass) for (const auto& value : locks) {
-        actual.locked_roles=value; control.locked_roles=value;
-        actual.update_roles(); control.original();
+        const auto old_mask = actual.enabled;
+        const bool map_changed = actual.locked_roles != value;
+        const int previous_invalidations = actual.invalidations;
+        // A preceding budget update must remain dirty even if roles are equal.
+        const bool budget_dirty = checked % 2;
+        actual.dirty = budget_dirty; actual.role_demand = 7; actual.role_bottleneck_resource = 3;
+        actual.update_roles(value);
+        if (map_changed) { control.locked_roles=value; control.original(); }
         if (actual.enabled!=control.enabled) { std::cerr<<"role enabled mismatch at transition "<<checked<<"\n"; return 1; }
+        const bool mask_changed = old_mask != actual.enabled;
+        if (actual.locked_roles != value || actual.dirty != (budget_dirty || mask_changed)
+                || actual.role_demand != (mask_changed ? 0 : 7)
+                || actual.role_bottleneck_resource != (mask_changed ? -1 : 3)
+                || actual.invalidations != previous_invalidations + mask_changed) {
+            std::cerr<<"role invalidation mismatch at transition "<<checked<<"\n"; return 2;
+        }
+        if (map_changed && !mask_changed) ++unchanged_masks;
         ++checked;
     }
-    std::cout<<"{\"transitions\":"<<checked<<",\"nodes\":"<<actual.nodes.size()<<",\"resources\":"<<actual.resources.size()<<",\"enabled_equal\":true}\n";
+    std::cout<<"{\"transitions\":"<<checked<<",\"nodes\":"<<actual.nodes.size()<<",\"resources\":"<<actual.resources.size()<<",\"enabled_equal\":true,\"same_mask_map_changes\":"<<unchanged_masks<<",\"invalidation_equal\":true}\n";
 }
 '''
     generated = template.replace("@INDEX@", index_body).replace("@BODY@", body)

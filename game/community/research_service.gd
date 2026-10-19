@@ -238,11 +238,12 @@ func dispatch_job(world: WorldState, job: Dictionary, desks: Dictionary = {}) ->
 	job.reason = ""
 
 func advance(world: WorldState) -> void:
-	var maintenance: Dictionary = desk_maintenance_view(world)
+	var maintenance: Dictionary = {}
 	for id: String in world.active_operation_ids("research_jobs","",["completed","cancelled"],true,"state"):
 		var job: Dictionary = world.facts.research_jobs[id]
 		if job.state!="working" or job.paused:
 			continue
+		if maintenance.is_empty(): maintenance = desk_maintenance_view(world)
 		if not desk_reason(world,job.desk_id,maintenance).is_empty() or not _worker_ready(world,job.worker_id,job.id):
 			_release(world,job)
 			job.state = "waiting"
@@ -328,7 +329,8 @@ func take_events() -> Array[SimEvent]:
 func desk_maintenance_view(world: WorldState) -> Dictionary:
 	var result: Dictionary = {"blocked":{}}
 	for collection: String in ["jobs","upgrades"]:
-		for job: Dictionary in world.facts.get("maintenance",{}).get(collection,{}).values():
+		for id: String in world.active_operation_ids("maintenance",collection,["completed","cancelled"]):
+			var job: Dictionary = world.facts.maintenance[collection][id]
 			if not str(job.get("worker_id","")).is_empty() and not job.phase in ["completed","cancelled","inventory"]:
 				result.blocked[str(job.get("facility_id",""))] = true
 	return result

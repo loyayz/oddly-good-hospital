@@ -32,9 +32,9 @@ class CountedLife extends HospitalWaitingLife:
 	var index_actor_visits: int = 0
 	var quote_calls: int = 0
 	var quoted: Array = []
-	func _seat_quote(world: WorldState, visit: Dictionary, facility_id: String, actor_index: Variant = null) -> Dictionary:
+	func _score_seat(world: WorldState, visit: Dictionary, facility_id: String, quote: Dictionary, observation: Dictionary, actor_index: Variant = null) -> Dictionary:
 		quote_calls += 1
-		var result: Dictionary = super._seat_quote(world,visit,facility_id,actor_index)
+		var result: Dictionary = super._score_seat(world,visit,facility_id,quote,observation,actor_index)
 		quoted.append(result.duplicate(true))
 		return result
 	func _condition_actor_index(world: WorldState) -> Dictionary:
@@ -124,7 +124,7 @@ func run_cases(database: HospitalContent) -> Dictionary:
 	_content = database
 	var valid: bool = true
 	var rows: Array = []
-	for kind: String in ["open_friend","wall","moving_friend","large_body","radius_boundary","bucket_float_boundary"]:
+	for kind: String in ["open_friend","wall","moving_friend","large_body","radius_boundary","bucket_float_boundary","crowded_friend"]:
 		var x: Dictionary = _input(kind)
 		var before: Dictionary = x.world.freeze()
 		var validation: String = x.world.validate(database)
@@ -133,6 +133,7 @@ func run_cases(database: HospitalContent) -> Dictionary:
 		var conditions: Dictionary = quotes[0].get("conditions",{}) if not quotes.is_empty() else {}
 		var expected: bool = not quotes.is_empty() and quotes[0].get("ok",false)
 		if kind in ["open_friend","bucket_float_boundary"]: expected = expected and conditions.get("friendly_neighbor",false)
+		if kind=="crowded_friend": expected = expected and conditions.get("friendly_neighbor",false) and not conditions.get("less_crowded",true) and compared.after_metrics.neighbor_routes<compared.before_metrics.neighbor_routes
 		if kind in ["wall","moving_friend"]: expected = expected and not conditions.get("friendly_neighbor",true)
 		if kind=="large_body": expected = expected and x.space.clearance(x.world.facts.actors[x.world.facts.visits.choice.actor_id])>1
 		var readonly: bool = x.world.freeze()==before
@@ -196,6 +197,11 @@ func _input(kind: String) -> Dictionary:
 		pair.sort()
 		if not x.world.facts.has("relationships"): x.world.facts.relationships = {}
 		x.world.facts.relationships[":".join(pair)] = {"kind":"friend"}
+		if kind=="crowded_friend":
+			var extra: Array = [[41,76],[43,77],[40,76],[44,77],[40,78],[43,78]]
+			for index: int in extra.size():
+				var id: String = "crowd_"+str(index)
+				x.world.facts.actors[id] = {"id":id,"name":id,"species_id":"S49","location":{"kind":"floor","floor_id":1,"cell":extra[index].duplicate(),"height_m":0.0},"facing":0.0,"posture":"standing"}
 		if kind=="wall":
 			x.world.facts.actors.z_neighbor.location.cell = [45.0,76.0]
 			x.world.facts.actors.a_neighbor.location.cell = [38.0,82.0]
@@ -238,7 +244,9 @@ func compare(world: WorldState, visit_id: String) -> Dictionary:
 	after.environment.begin_query(world)
 	var actual: Array = after.life.seat_candidates(world,visit_id)
 	after.environment.end_query()
-	var result: Dictionary = {"equal":old==actual and before.life.quoted==after.life.quoted and before.space.condition_trace==after.space.condition_trace,"before_candidates":old,"after_candidates":actual,"before_quotes":before.life.quoted,"after_quotes":after.life.quoted,"before_metrics":metrics(before),"after_metrics":metrics(after)}
+	# Rejected candidates no longer need complete scores or all neighbor routes.
+	# The complete selected candidate dictionaries and their order remain exact.
+	var result: Dictionary = {"equal":old==actual and after.space.condition_routes<=before.space.condition_routes,"before_candidates":old,"after_candidates":actual,"before_quotes":before.life.quoted,"after_quotes":after.life.quoted,"before_metrics":metrics(before),"after_metrics":metrics(after)}
 	_release_bound(before)
 	_release_bound(after)
 	return result

@@ -125,23 +125,33 @@ func set_floor(floor_id: int) -> void:
 		bind(world,floor_id,hospital_session)
 
 func _sync_geometry() -> void:
-	var inputs: Array = [world,observed_floor,world.facts.rooms.keys(),world.facts.rooms,
-		world.facts.connectors.keys(),world.facts.connectors,world.facts.floors,world.facts.adaptations]
-	if _same_visual_sources("geometry",inputs): return
+	# Only fields consumed by the decorations belong to this read view. Room
+	# usage and connector transport clocks remain live business facts elsewhere.
 	var rooms: Array = []
 	for room: Dictionary in world.facts.get("rooms",{}).values():
 		if int(room.floor_id)==observed_floor:
-			rooms.append(room)
+			var shape: Dictionary = {"kind":room.kind,"wall_edges":room.get("wall_edges",[])}
+			if room.has("cells"):
+				shape.cells = room.cells
+			else:
+				shape.origin = room.origin
+				shape.size = room.size
+			rooms.append(shape)
 	var connectors: Array = []
 	for connector: Dictionary in world.facts.connectors.values():
 		if HospitalTransit.has_stop(connector,observed_floor):
-			connectors.append({"definition_id":connector.definition_id,"cell":connector.cell,"anchor":connector.anchor,"footprint":connector.footprint,"stops":connector.get("stops",[])})
-	var door_shapes: Array = []
+			var definition: Dictionary = content.definition("vertical_connectors",connector.definition_id)
+			connectors.append({"cell":connector.cell,"anchor":connector.anchor,"footprint":connector.footprint,
+				"clear_width_m":definition.clear_width_m,"clear_height_m":definition.clear_height_m,"name":definition.name})
+	var doors: Array = []
 	for door: Dictionary in world.facts.floors.overrides.get(str(observed_floor),{}).get("doors",[]):
 		var adapted: Dictionary = world.facts.adaptations.get(door.id,{})
-		door_shapes.append([door.id,adapted.get("span",door.span),adapted.get("clear_height_m",0)])
-	var layout: Dictionary = HospitalSpace.floor_layout(world,observed_floor)
-	var signature: String = JSON.stringify([layout.get("plots",[]),layout.get("blocked",[]),layout.get("doors",[]),rooms,connectors,door_shapes],"",true,true)
+		doors.append({"id":door.id,"cell":door.cell,"axis":door.axis,"span":adapted.get("span",door.span)})
+	var plots: Array = HospitalSpace.floor_plots(world,observed_floor)
+	var blocked: Array = world.facts.floors.overrides.get(str(observed_floor),{}).get("blocked",[])
+	var shapes: Array = [plots,blocked,doors,rooms,connectors]
+	if _same_visual_sources("geometry",[world,observed_floor,shapes]): return
+	var signature: String = JSON.stringify(shapes,"",true,true)
 	if signature==_geometry_signature:
 		return
 	var started: int = Time.get_ticks_usec()
@@ -150,16 +160,16 @@ func _sync_geometry() -> void:
 		_retire(child)
 	_wall_nodes.clear()
 	_door_frames.clear()
-	for plot: Array in HospitalSpace.floor_plots(world,observed_floor):
+	for plot: Array in plots:
 		var floor_mesh: MeshInstance3D = _box(Vector3(48,0.15,48),Palette.FLOOR)
 		floor_mesh.position = _cell_position([int(plot[0])*32,int(plot[1])*32],24)+Vector3(0,-0.075,0)
 		_decorations.add_child(floor_mesh)
-	for obstacle: Array in world.facts.floors.overrides.get(str(observed_floor),{}).get("blocked",[]):
+	for obstacle: Array in blocked:
 		var wall: MeshInstance3D = _box(Vector3(1.5,0.7,1.5),Palette.WALL)
 		wall.position = _cell_position(obstacle,0.75)+Vector3(0,0.35,0)
 		_decorations.add_child(wall)
 		_wall_nodes[Vector2i(int(obstacle[0]),int(obstacle[1]))] = wall
-	for door: Dictionary in world.facts.floors.overrides.get(str(observed_floor),{}).get("doors",[]):
+	for door: Dictionary in doors:
 		var frame: Node3D = Node3D.new()
 		frame.position = _cell_position(door.cell,0)
 		if door.axis=="y":
@@ -181,10 +191,10 @@ func _sync_geometry() -> void:
 		for edge: Dictionary in room.get("wall_edges",[]):
 			for along: int in range(int(edge.low),int(edge.high)):
 				var opening: bool = false
-				for door: Dictionary in layout.get("doors",[]):
+				for door: Dictionary in doors:
 					var coordinate: int = int(door.cell[0] if door.axis=="x" else door.cell[1])
 					var line: int = int(door.cell[1] if door.axis=="x" else door.cell[0])
-					var span: int = int(world.facts.adaptations.get(door.id,{}).get("span",door.span))
+					var span: int = int(door.span)
 					if door.axis==edge.axis and line==int(edge.line) and along>=coordinate and along<coordinate+span:
 						opening = true
 				if opening:
@@ -193,26 +203,24 @@ func _sync_geometry() -> void:
 				wall.position = _cell_position([along,edge.line] if edge.axis=="x" else [edge.line,along],0)+(Vector3(0.75,0.35,0) if edge.axis=="x" else Vector3(0,0.35,0.75))
 				wall.set_meta("wall_edge",edge)
 				_decorations.add_child(wall)
-	for connector: Dictionary in world.facts.connectors.values():
-		if HospitalTransit.has_stop(connector,observed_floor):
-			var definition: Dictionary = content.definition("vertical_connectors",connector.definition_id)
-			var base: Vector3 = _cell_position(connector.cell,0)
-			var w: float = float(connector.footprint[0])*HospitalSpace.CELL_METERS
-			var d: float = float(connector.footprint[1])*HospitalSpace.CELL_METERS
-			var platform: MeshInstance3D = _box(Vector3(w,0.16,d),Palette.PLATFORM)
-			platform.position = base+Vector3(w*0.5,0.08,d*0.5)
-			_decorations.add_child(platform)
-			var opening: Vector3 = _cell_position(connector.anchor,0)+Vector3(0.75,0,0)
-			var net_width: float = float(definition.clear_width_m)
-			var net_height: float = float(definition.clear_height_m)
-			for side: float in [-0.1,net_width+0.1]:
-				var post: MeshInstance3D = _box(Vector3(0.2,net_height,0.2),Palette.STRUCTURE)
-				post.position = opening+Vector3(side,net_height*0.5,0)
-				_decorations.add_child(post)
-			var header: MeshInstance3D = _box(Vector3(net_width+0.4,0.2,0.2),Palette.STRUCTURE)
-			header.position = opening+Vector3(net_width*0.5,net_height+0.1,0)
-			_decorations.add_child(header)
-			_label(header,str(definition.name),Vector3(0,0.5,0))
+	for connector: Dictionary in connectors:
+		var base: Vector3 = _cell_position(connector.cell,0)
+		var w: float = float(connector.footprint[0])*HospitalSpace.CELL_METERS
+		var d: float = float(connector.footprint[1])*HospitalSpace.CELL_METERS
+		var platform: MeshInstance3D = _box(Vector3(w,0.16,d),Palette.PLATFORM)
+		platform.position = base+Vector3(w*0.5,0.08,d*0.5)
+		_decorations.add_child(platform)
+		var opening: Vector3 = _cell_position(connector.anchor,0)+Vector3(0.75,0,0)
+		var net_width: float = float(connector.clear_width_m)
+		var net_height: float = float(connector.clear_height_m)
+		for side: float in [-0.1,net_width+0.1]:
+			var post: MeshInstance3D = _box(Vector3(0.2,net_height,0.2),Palette.STRUCTURE)
+			post.position = opening+Vector3(side,net_height*0.5,0)
+			_decorations.add_child(post)
+		var header: MeshInstance3D = _box(Vector3(net_width+0.4,0.2,0.2),Palette.STRUCTURE)
+		header.position = opening+Vector3(net_width*0.5,net_height+0.1,0)
+		_decorations.add_child(header)
+		_label(header,str(connector.name),Vector3(0,0.5,0))
 	if work_budget!=null: work_budget.spend(Time.get_ticks_usec()-started)
 
 func update_facts(interpolation_alpha: float = 1.0) -> void:

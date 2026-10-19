@@ -3,9 +3,9 @@ extends "res://tests/acceptance/staff_fixtures.gd"
 class Routes extends HospitalSpace:
 	var route_calls: int = 0
 	var dynamic_batches: int = 0
-	func begin_dynamic_route_query(world: WorldState) -> void:
+	func begin_dynamic_route_query(world: WorldState, refresh_actors: bool = true) -> void:
 		dynamic_batches += 1
-		super.begin_dynamic_route_query(world)
+		super.begin_dynamic_route_query(world,refresh_actors)
 	func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
 		route_calls += 1
 		return super.route(world,actor_id,floor_id,target,members,offsets,ignore_people)
@@ -169,6 +169,7 @@ func _bases() -> Dictionary:
 	x.d = service
 	var query: Dictionary = service._base_view(x.world)
 	service._base_batch = query
+	var incoming: bool = query.incoming==_incoming_expected(x.world)
 	var same: bool = service._base_line(x.world,"base")==_base_expected(x,"base")
 	service._base_line(x.world,"base")
 	var existing_calls: int = service.entry_calls
@@ -177,8 +178,31 @@ func _bases() -> Dictionary:
 	x.world.facts.staff.doctor.base_task = {}
 	service._refresh_base_view(x.world,"doctor",prior)
 	same = same and service._base_line(x.world,"base")==_base_expected(x,"base")
+	incoming = incoming and query.incoming==_incoming_expected(x.world)
+	for phase: String in ["working","travel"]:
+		prior = service._base_signature(x.world,"nurse")
+		x.world.facts.staff.nurse.base_task.phase = phase
+		service._refresh_base_view(x.world,"nurse",prior)
+		incoming = incoming and query.incoming==_incoming_expected(x.world)
+	prior = service._base_signature(x.world,"nurse")
+	x.world.facts.staff.nurse.base_task = {}
+	service._refresh_base_view(x.world,"nurse",prior)
+	incoming = incoming and query.incoming==_incoming_expected(x.world)
+	prior = service._base_signature(x.world,"candidate")
+	x.world.facts.staff.candidate.base_task = {"facility_id":"base","phase":"travel","queue_tick":0}
+	service._refresh_base_view(x.world,"candidate",prior)
+	incoming = incoming and query.incoming==_incoming_expected(x.world) and query.incoming==["candidate"]
+	var restored: WorldState = WorldState.new(x.world.freeze())
+	var replacement: Dictionary = service._base_context(restored)
+	incoming = incoming and replacement.world_id==restored.get_instance_id() and replacement.incoming==_incoming_expected(restored)
 	service._base_batch = {}
-	return {"ok":same and existing_calls==2,"independent_queue_equal":same,"entry_calls_two_identical_queries":existing_calls,"entry_calls_with_candidate_and_changed_owner":service.entry_calls}
+	return {"ok":same and incoming and existing_calls==2,"independent_queue_equal":same,"incoming_matches_full_scan_through_changes_and_restore":incoming,"entry_calls_two_identical_queries":existing_calls,"entry_calls_with_candidate_and_changed_owner":service.entry_calls}
+
+func _incoming_expected(world: WorldState) -> Array:
+	var result: Array = []
+	for id: String in world.ids("staff"):
+		if world.facts.staff[id].get("base_task",{}).get("phase","")=="travel": result.append(id)
+	return result
 
 func _desks_and_busy() -> Dictionary:
 	var x: Dictionary = _training_fixture()

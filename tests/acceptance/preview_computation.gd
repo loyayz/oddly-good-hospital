@@ -72,13 +72,28 @@ static func run(content: HospitalContent) -> Dictionary:
 			rotating_actor = actor
 			break
 	var facing: float = float(rotating_actor.facing)
+	var completed_shape: Dictionary = turning.job._shape
+	var previous_safety: HospitalSpace = turning.job._safety_checker
+	var previous_navigation: NavigationCache = previous_safety._navigation
+	var basis: Dictionary = turning.job.dependency_basis(world)
+	var cold_job: BuildPreviewJob = BuildPreviewJob.new(turning.service,world,first_floor_draft,basis)
+	var separate_economics: bool = cold_job.dependency_key==cold_job.dependencies(world) and turning.job.dependencies(world,basis)!=cold_job.dependency_key and not basis.has("solvent") and not basis.has("retry_cash")
 	rotating_actor.facing = facing+PI*0.5
 	# Direct prospective queries do not assume every original write touched the
 	# revision. Facing is a real rotated-body occupancy dependency.
 	turning.update(world,1)
 	var facing_restart: bool = turning.restarted_jobs==1 and not turning.result.get("ready",false)
+	var shape_reused: bool = not completed_shape.is_empty() and is_same(turning.job._shape,completed_shape) and turning.job.units_checked==1
+	var cache_retained: bool = turning.job._safety_checker!=previous_safety and turning.job._safety_checker._navigation==previous_navigation and turning.job._safety_checker._route_queries.is_empty()
 	rotating_actor.facing = facing
+	var original_source: Dictionary = turning.job._previous_checker._navigation.floor_source(turning.job._previous_checker,world,1)
+	world.facts.floors.overrides["1"].blocked.append([0,0])
+	turning.update(world,1)
+	var refreshed_source: Dictionary = turning.job._previous_checker._navigation.floor_source(turning.job._previous_checker,world,1)
+	var source_recaptured: bool = turning.restarted_jobs==2 and not [0,0] in original_source.layout.blocked and [0,0] in refreshed_source.layout.blocked
+	world.facts.floors.overrides["1"].blocked.erase([0,0])
 	turning.cancel()
+	var cache_released: bool = turning._safety_navigation!=previous_navigation and turning._safety_navigation._entries.is_empty() and turning._previous_navigation._entries.is_empty()
 	# The binding and preview share the same original budget, including across
 	# repeated consumers in one frame. Exhaustion cannot publish permission.
 	var budget: ViewWorkBudget = ViewWorkBudget.new(2000)
@@ -96,7 +111,7 @@ static func run(content: HospitalContent) -> Dictionary:
 	overlay.free()
 	world.facts.floors.overrides["2"].blocked.clear()
 	preview.cancel()
-	return {"ok":ok and unchanged and restarted and cached_occupancy and facing_restart and cancelled and shared and outline,"details":{"maximum_requests":observations,"irrelevant_change_and_rebind":unchanged,"relevant_restart":restarted,"cached_occupancy_before_facing_change":cached_occupancy,"facing_restart_without_revision":facing_restart,"cancelled":cancelled,"shared_budget":shared,"complete_outline_bounds_and_floor":outline,"metric_scope":"headless complete preview computation; update calls are not displayed frames or OS input latency"}}
+	return {"ok":ok and unchanged and restarted and cached_occupancy and facing_restart and shape_reused and separate_economics and cache_retained and source_recaptured and cache_released and cancelled and shared and outline,"details":{"maximum_requests":observations,"irrelevant_change_and_rebind":unchanged,"relevant_restart":restarted,"cached_occupancy_before_facing_change":cached_occupancy,"facing_restart_without_revision":facing_restart,"completed_shape_reused":shape_reused,"shared_basis_separate_economics":separate_economics,"static_cache_retained_with_fresh_scope":cache_retained,"navigation_source_recaptured_without_touch":source_recaptured,"cache_released_on_cancel":cache_released,"cancelled":cancelled,"shared_budget":shared,"complete_outline_bounds_and_floor":outline,"metric_scope":"headless complete preview computation; update calls are not displayed frames or OS input latency"}}
 
 static func _draft(width: int) -> Dictionary:
 	return {"kind":"build_room","room_type_id":"gp","floor_id":2,"origin":[0,0],"size":[width,95],"door":{"definition_id":"DR01","edge":"south","offset":1}}

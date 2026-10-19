@@ -45,7 +45,8 @@ func _details() -> String:
 	var facts: Dictionary = simulation.world.facts
 	var active: int = 0
 	var waiting: int = 0
-	for visit: Dictionary in facts.get("visits",{}).values():
+	for visit_id: String in simulation.world.active_visit_ids():
+		var visit: Dictionary = facts.visits[visit_id]
 		if visit.get("phase","")!="departed": active += 1
 		if str(visit.get("phase","")).begins_with("wait_"): waiting += 1
 	var lines: Array[String] = ["在院 %d 位 · 候诊 %d 位" % [active,waiting]]

@@ -716,6 +716,7 @@ struct StructuralCertificate {
     bool exact = false;
 };
 StructuralCertificate structural_certificate(const StructuralGraph& graph, const std::vector<std::pair<Pattern, int>>& roots,
+        const std::set<int>& reachable,
         const std::set<std::string>& blocked, const std::set<std::pair<std::string, std::string>>& reception,
         size_t ratio, size_t bed_limit, size_t original_upper) {
     // A graph resource is exclusive between complete groups. Coverage nurses
@@ -727,10 +728,10 @@ StructuralCertificate structural_certificate(const StructuralGraph& graph, const
     for (const auto& node : graph.nodes) for (const auto& name : node.resources)
         if (name.compare(0, 6, "staff:") == 0) staff.insert(name);
     result.staff = staff.size(); result.upper = original_upper;
-    auto prove = [&](const Names& subset) {
+    auto prove = [&](const Names& subset, bool root_only = false) {
       std::vector<Bound> bounds(graph.nodes.size());
       // Interning is bottom-up: every child already exists before its parent.
-      for (size_t id = 0; id < graph.nodes.size(); ++id) {
+      auto prove_node = [&](size_t id) {
         const auto& node = graph.nodes[id]; auto& bound = bounds[id]; Names own;
         for (const auto& name : node.resources) {
             if (blocked.count(name)) bound.feasible = false;
@@ -765,7 +766,9 @@ StructuralCertificate structural_certificate(const StructuralGraph& graph, const
             // OR can never count the same doctor twice in this lower bound.
             bound.minimum = std::max(bound.minimum, std::max(sum, bound.required.size()));
         }
-      }
+      };
+      if (root_only) for (int id : reachable) prove_node(static_cast<size_t>(id));
+      else for (size_t id = 0; id < graph.nodes.size(); ++id) prove_node(id);
       return bounds;
     };
     const auto bounds = prove(staff);
@@ -786,15 +789,20 @@ StructuralCertificate structural_certificate(const StructuralGraph& graph, const
     for (const auto& bound : bounds) if (!bound.possible.empty()) subsets.insert(bound.possible);
     result.bound_subsets = subsets.size();
     for (const auto& subset : subsets) {
-        const auto projected = subset == staff ? bounds : prove(subset);
+      auto tighten = [&](const std::vector<Bound>& projected) {
         size_t minimum = subset.size() + 1; bool any = false;
         for (const auto& root : roots) if (projected[root.second].feasible) { any = true; minimum = std::min(minimum, projected[root.second].minimum); }
-        if (!any || !minimum) continue;
+        if (!any || !minimum) return;
         const size_t upper = subset.size() / minimum;
         if (!result.bound_minimum || upper < result.bound_upper || (upper == result.bound_upper && subset.size() < result.bound_resources)) {
             result.bound_resources = subset.size(); result.bound_minimum = minimum; result.bound_upper = upper;
         }
         result.upper = std::min(result.upper, upper);
+      };
+      // The first proof supplies every diagnostic subset, including nodes
+      // removed by dominance. Later proofs are consumed only at legal roots.
+      if (subset == staff) tighten(bounds);
+      else tighten(prove(subset, true));
     }
 
     auto matching = [&](const Names& unavailable) {
@@ -985,7 +993,7 @@ V structure_graph(const V& raw_cases, const V& raw_blocked, const V& raw_recepti
     slots = std::min(slots, std::min(reception_people.size(), reception_desks.size()) * static_cast<size_t>(ratio));
     const size_t original_slots = slots;
     const int64_t certificate_started = micros();
-    const auto certificate = structural_certificate(graph, roots, blocked_ids, reception_edges, static_cast<size_t>(ratio), static_cast<size_t>(bed_limit), slots);
+    const auto certificate = structural_certificate(graph, roots, reachable, blocked_ids, reception_edges, static_cast<size_t>(ratio), static_cast<size_t>(bed_limit), slots);
     const int64_t certificate_us = micros() - certificate_started;
     // This is a proved upper bound over every complete legal path, not a
     // candidate cap. A failed greedy certificate still solves the full graph.
@@ -1154,6 +1162,8 @@ struct Model {
     std::vector<int> role_flow, role_budget_rows;
     std::vector<Q> role_factors;
     Q role_demand = 0, role_limit = -1;
+    int role_bottleneck_resource = -1;
+    Q role_bottleneck_demand = 0;
     std::vector<std::pair<int, Q>> role_bounds, role_rhs;
     struct ScaledCoefficient { int row, variable; Q factor; };
     std::vector<ScaledCoefficient> role_coefficients;
@@ -1266,7 +1276,7 @@ struct Model {
         D source(input); A ids(source.keys()); std::map<std::string, std::string> next;
         for (int64_t i = 0; i < ids.size(); ++i) next[ids.at(i).text()] = source.get(ids.at(i)).text();
         if (next == locked_roles) return;
-        locked_roles = std::move(next); dirty = true; role_demand = 0;
+        locked_roles = std::move(next);
         std::vector<bool> local_valid(nodes.size(), true);
         for (const auto& role : locked_roles) {
             std::set<int> own;
@@ -1285,15 +1295,19 @@ struct Model {
             if (staff != resource_ids.end())
                 for (int node : resource_nodes[staff->second]) if (!own.count(node)) local_valid[node] = false;
         }
+        std::vector<bool> next_enabled(nodes.size());
         for (size_t i = 0; i < nodes.size(); ++i) {
             const Node& node = nodes[i];
             bool children = !node.choice;
             for (int child : node.children) {
-                if (node.choice) children = children || enabled[child];
-                else children = children && enabled[child];
+                if (node.choice) children = children || next_enabled[child];
+                else children = children && next_enabled[child];
             }
-            enabled[i] = local_valid[i] && children;
+            next_enabled[i] = local_valid[i] && children;
         }
+        if (next_enabled == enabled) return;
+        enabled = std::move(next_enabled); dirty = true; role_demand = 0;
+        role_bottleneck_resource = -1;
         // LP columns encode old legal choices. Retain the graph, but rebuild
         // only this relaxation when role restrictions change. MIP rows persist.
         program.reset(); columns.clear(); known.clear(); certificate_basis.clear(); certificate_inverse.clear();
@@ -1331,8 +1345,15 @@ struct Model {
     }
     void update_budgets(const V& values) {
         D input(values);
+        std::map<std::string, Q> parsed;
         for (size_t i = 0; i < resources.size(); ++i) {
-            Q next = rational(input.get(resources[i].c_str()));
+            std::string text = rational_input(input.get(resources[i].c_str()));
+            auto found = parsed.find(text);
+            if (found == parsed.end()) {
+                Q next(text.c_str()); mpq_canonicalize(next.backend().data());
+                found = parsed.emplace(std::move(text), std::move(next)).first;
+            }
+            const Q& next = found->second;
             if (next < 0) throw std::runtime_error("资源预算不能为负");
             if (next == budgets[i]) continue;
             if (program && used_resources.count(static_cast<int>(i))) program->changeRhsRational(static_cast<int>(cases.size() + i), next);
@@ -1483,19 +1504,27 @@ struct Model {
         Q limit = budget / role_demand;
         // Every nonnegative price vector prices the complete implicit graph.
         // These bounds remain valid after redistribution and role changes.
-        auto tighten = [&](const std::vector<Q>& prices) {
+        auto demand_at = [&](const std::vector<Q>& prices) {
             std::vector<Q> costs; std::vector<int> choices; price(prices, costs, choices);
             Q demand = 0;
             for (const Case& item : cases) demand += item.probability * costs[item.root];
+            return demand;
+        };
+        auto tighten = [&](const std::vector<Q>& prices, const Q& demand) {
             Q value = role_priced_budget(prices);
             if (demand > 0) { Q bound = value / demand; if (bound < limit) limit = bound; }
         };
         std::vector<Q> prices(resources.size(), Q(0));
         for (int resource : used_resources) prices[resource] = budgets[resource] > 0 ? Q(1) / budgets[resource] : Q(1);
-        tighten(prices);
+        tighten(prices, demand_at(prices));
         auto bottleneck = resource_ids.find(verified_bottleneck);
         if (bottleneck != resource_ids.end()) {
-            std::fill(prices.begin(), prices.end(), Q(0)); prices[bottleneck->second] = 1; tighten(prices);
+            std::fill(prices.begin(), prices.end(), Q(0)); prices[bottleneck->second] = 1;
+            if (role_bottleneck_resource != bottleneck->second) {
+                role_bottleneck_demand = demand_at(prices);
+                role_bottleneck_resource = bottleneck->second;
+            }
+            tighten(prices, role_bottleneck_demand);
         }
         const auto& factors = role_factors;
 
