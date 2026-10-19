@@ -30,6 +30,7 @@ var _door_row: Control
 var _inventory_row: Control
 var _published_draft: Dictionary = {}
 var _published_result: Dictionary = {}
+var _preview_boundary: Array = []
 
 func _ready() -> void:
 	visibility_changed.connect(_preview_visibility_changed)
@@ -94,6 +95,7 @@ func _ready() -> void:
 func attach(kernel: HospitalSimulation, active_session: GameSession, observed_floor: int, work_budget: ViewWorkBudget = null) -> void:
 	_published_draft = {}
 	_published_result = {}
+	_preview_boundary = []
 	simulation = kernel
 	session = active_session
 	floor_id = observed_floor
@@ -205,7 +207,7 @@ func _binding() -> Dictionary:
 func _process(_delta: float) -> void:
 	if not is_visible_in_tree() or _preview==null or _draft.is_empty() or simulation.pending():
 		return
-	_result = _preview.update(simulation.world,0,[simulation.world,simulation.world.revision])
+	_refresh_preview()
 	_confirm.disabled = not bool(_result.get("ready",false)) or not bool(_result.get("ok",false))
 	if not bool(_result.get("draw_on_current_floor",true)):
 		_confirm.disabled = true
@@ -217,6 +219,16 @@ func _process(_delta: float) -> void:
 		_reason.text = "费用 %d · 退款 %d\n%s" % [int(_result.get("price",0)),int(_result.get("refund",0)),HospitalActionPanel.format_payment_summary(simulation.world,int(_result.get("price",0)),int(_result.get("refund",0)))]
 	_publish_preview()
 
+func _refresh_preview() -> void:
+	var completed_boundary: Array = [simulation.world,simulation.world.revision]
+	var boundary: Array = completed_boundary+[_preview.generation,_binding()]
+	# Only this window owns _result. A completed, unchanged UI boundary can
+	# keep it; public BuildPreview.update callers still receive independent data.
+	if _preview.job!=null and _preview.job.complete and _preview.pending.is_empty() and not _result.is_empty() and _preview_boundary==boundary:
+		return
+	_result = _preview.update(simulation.world,0,completed_boundary)
+	_preview_boundary = boundary
+
 func _publish_preview() -> void:
 	if _published_draft!=_draft or _published_result!=_result:
 		_published_draft = _draft.duplicate(true)
@@ -226,6 +238,7 @@ func _publish_preview() -> void:
 
 func _preview_visibility_changed() -> void:
 	# Leaving this panel clears the shared overlay while retaining its draft.
+	_preview_boundary = []
 	if is_visible_in_tree():
 		_published_draft = {}
 		_published_result = {}
@@ -252,6 +265,7 @@ func cancel_draft() -> void:
 		_preview.cancel()
 	_draft = {}
 	_result = {}
+	_preview_boundary = []
 	_published_draft = {}
 	_published_result = {}
 	_confirm.disabled = true

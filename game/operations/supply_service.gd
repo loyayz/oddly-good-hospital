@@ -74,15 +74,18 @@ func query(world: WorldState) -> Dictionary:
 		"available":int(world.facts.inventory.units)-held,"capacity":cap,"unit_price":unit_price(),"target":target,
 		"reorder":mini(target,maxi(int(rules.reorder_floor),ceili(float(demand)/4.0))),
 		"reserve_budget":reserve_budget(world),"auto_restock":world.facts.inventory.get("auto_restock",true),
-		"top_up":top_up(world),"shortage":world.facts.inventory.get("shortage",{}).duplicate(true)}
+		"top_up":_top_up(world,{"capacity":cap,"available":int(world.facts.inventory.units)-held}),"shortage":world.facts.inventory.get("shortage",{}).duplicate(true)}
 
 func purchase_quote(world: WorldState, units: int, source: String = "manual") -> Dictionary:
+	return _purchase_quote(world,units,source)
+
+func _purchase_quote(world: WorldState, units: int, source: String, cap: int = -1) -> Dictionary:
 	var cost: int = units*unit_price()
 	var cash: int = HospitalLedger.balance(world)
 	var reason: String = ""
 	if units < 1:
 		reason = "采购数量必须为正整数"
-	elif units > capacity(world)-int(world.facts.inventory.units):
+	elif units > (capacity(world) if cap<0 else cap)-int(world.facts.inventory.units):
 		reason = "治疗包库存空间不足，保留原采购数量"
 	elif source == "community_aid":
 		var day_index: int = world.sim_tick / WorldState.TICKS_PER_DAY
@@ -187,6 +190,9 @@ func requests(world: WorldState) -> Array:
 	return []
 
 func top_up(world: WorldState) -> Dictionary:
+	return _top_up(world,{})
+
+func _top_up(world: WorldState, stock: Dictionary) -> Dictionary:
 	var candidates: Array = requests(world)
 	if candidates.is_empty():
 		return {}
@@ -199,10 +205,11 @@ func top_up(world: WorldState) -> Dictionary:
 	if recovering:
 		for request: Dictionary in candidates:
 			required = maxi(required,int(request.units))
-	var units: int = maxi(0,required-available(world))
+	var amount: int = int(stock.available) if stock.has("available") else available(world)
+	var units: int = maxi(0,required-amount)
 	if units == 0:
 		return {}
-	var result: Dictionary = purchase_quote(world,units)
+	var result: Dictionary = _purchase_quote(world,units,"manual",int(stock.get("capacity",-1)))
 	result["target"] = candidates[0].duplicate(true) if not recovering else {}
 	result["recovering"] = recovering
 	return result

@@ -394,7 +394,37 @@ func _case_45(t) -> void:
 	var free: Dictionary = backend.call("prepare",cases,budgets)
 	var locked: Dictionary = backend.call("prepare",ctx.arrivals._restrict_roles(cases,{"n":"w1"}),budgets)
 	var updates: Dictionary = _native_role_updates(cases,budgets)
-	t.check("GROW-45",free.get("capacity",{})==F.make(100) and locked.get("capacity",{})==F.make(2) and before==cases and updates.passed,{"free":free,"locked":locked,"updates":updates})
+	var aggregate: Dictionary = _native_aggregate_inputs()
+	t.check("GROW-45",free.get("capacity",{})==F.make(100) and locked.get("capacity",{})==F.make(2) and before==cases and updates.passed and aggregate.passed,{"free":free,"locked":locked,"updates":updates,"aggregate":aggregate})
+
+func _native_aggregate_inputs() -> Dictionary:
+	# Exact numerical components, without hospital facts or resources reserved.
+	# The scalar interface is the independent no-batch parsing path.
+	var amounts: Array = [1,{"n":"1","d":"1"},{"n":"2","d":"2"},{"n":"-3","d":"7"},{"n":"123456789012345678901234567890","d":"9"},0]
+	var requests: Array = []
+	var expected: Array = []
+	for index: int in 24:
+		var stages: Dictionary = {"first":{"a":amounts[index%amounts.size()],"b":amounts[(index+1)%amounts.size()]},"second":{"a":amounts[index%amounts.size()]}}
+		var weight: Dictionary = {"n":"2","d":"4"} if index%2==0 else {"n":"1","d":"2"}
+		requests.append({"stages":stages,"weight":weight})
+		expected.append(PlatformArrivalMath.aggregate_stages(stages,weight))
+	var before: Array = requests.duplicate(true)
+	var batched: Dictionary = PlatformArrivalMath.aggregate_components(requests)
+	var equal: bool = batched.get("components",[])==expected and requests==before
+	var rejected: bool = true
+	for bad: Variant in [{"n":"1","d":"0"},{"n":"1","d":"-000"},{"n":"x","d":"1"},{"n":1,"d":"1"},[],"1/2"]:
+		var invalid: Array = requests.duplicate(true)
+		invalid.append({"stages":{"late":{"a":bad}},"weight":{"n":"1","d":"2"}})
+		var frozen: Array = invalid.duplicate(true)
+		var failure: Dictionary = PlatformArrivalMath.aggregate_components(invalid)
+		rejected = rejected and failure.has("error") and not failure.has("components") and invalid==frozen
+	var retried: Dictionary = PlatformArrivalMath.aggregate_components(requests)
+	# Changing the same source identity in the next batch must read new text.
+	requests[0].stages.first.a = {"n":"11","d":"3"}
+	var changed: Dictionary = PlatformArrivalMath.aggregate_components(requests)
+	var next_expected: Array = expected.duplicate(true)
+	next_expected[0] = PlatformArrivalMath.aggregate_stages(requests[0].stages,requests[0].weight)
+	return {"passed":equal and rejected and retried.get("components",[])==expected and changed.get("components",[])==next_expected,"scalar_equal":equal,"late_invalid_atomic":rejected,"retry_equal":retried.get("components",[])==expected,"new_batch_rereads":changed.get("components",[])==next_expected,"components":requests.size(),"invalid_inputs":6}
 
 func _native_role_updates(cases: Array, original_budgets: Dictionary) -> Dictionary:
 	var backend: RefCounted = ClassDB.instantiate("PlatformArrivalCapacity")

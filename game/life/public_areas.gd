@@ -131,11 +131,12 @@ func compatible_geometry(world: WorldState, reference: Dictionary, definitions: 
 		if _geometry_fits[key]: return true
 	return false
 
-func select(world: WorldState, actor_id: String, definitions: Array, room_kinds: Array, purpose: String, members: Array = [], maximum_travel_ticks: int = 9223372036854775807) -> Dictionary:
+func select(world: WorldState, actor_id: String, definitions: Array, room_kinds: Array, purpose: String, members: Array = [], maximum_travel_ticks: int = 9223372036854775807, selected_entries: Dictionary = {}) -> Dictionary:
 	_ensure(world)
 	var actor: Dictionary = world.facts.actors[actor_id]
 	if actor.location.kind!="floor": return {}
 	var best: Dictionary = {}
+	var best_entries: Dictionary = {}
 	var travellers: Array = [actor_id] if members.is_empty() else members
 	space.begin_dynamic_route_query(world)
 	for area: Dictionary in _regions:
@@ -167,18 +168,23 @@ func select(world: WorldState, actor_id: String, definitions: Array, room_kinds:
 		# and the slowest member's actual journey still decide the winner.
 		var point: Dictionary = waiting_point(world,actor_id,area.ref,travel_limit)
 		if point.is_empty(): continue
+		var entries: Dictionary = {actor_id:point.duplicate(true)}
 		var all_reachable: bool = true
 		for member: String in travellers:
 			if member==actor_id: continue
 			var entry: Dictionary = waiting_point(world,member,area.ref,travel_limit)
 			if entry.is_empty(): all_reachable = false; break
+			entries[member] = entry
 			point.travel_ticks = maxi(int(point.travel_ticks),int(entry.travel_ticks))
 		if not all_reachable: continue
 		point.area = area.ref.duplicate(true)
 		point.inside = inside
 		point.start_ticks = int(point.travel_ticks)+waiting
-		if best.is_empty() or _earlier(point,best,purpose): best = point
+		if best.is_empty() or _earlier(point,best,purpose):
+			best = point
+			best_entries = entries
 	space.end_route_query()
+	selected_entries.merge(best_entries,true)
 	return best
 
 static func _earlier(a: Dictionary,b: Dictionary,purpose: String) -> bool:
@@ -309,23 +315,38 @@ func _wait_constraints(world: WorldState) -> Dictionary:
 
 func _wait_estimate(world: WorldState, reference: Dictionary, facility_ids: Array, purpose: String) -> int:
 	if not purpose in ["water","toilet"]: return 0
+	var view: Dictionary = space.read_view(world,"public_wait_estimate",_wait_estimate_view.bind(world))
 	var earliest: int = 2147483647
 	for id: String in facility_ids:
-		var remaining: int = 0
-		for need: Dictionary in world.facts.get("waiting_life",{}).get("needs",{}).values():
-			if need.get("facility_id","")==id and need.phase in ["using","returning"]:
-				remaining = maxi(remaining,int(need.remaining_ticks) if need.phase=="using" else 2147483647)
-		earliest = mini(earliest,remaining)
+		earliest = mini(earliest,int(view.remaining.get(id,0)))
 	if earliest==2147483647: return earliest
-	var queued: int = 0
-	for intent: Dictionary in intents(world):
-		if intent.get("public_purpose","")==purpose and intent.get("area",{})==reference and int(intent.get("arrived_tick",-1))>=0 and intent.phase in ["local_wait","local_travel"]: queued += 1
+	var queued: int = int(view.queued.get(purpose,{}).get(JSON.stringify(reference,"",true,true),0))
 	var service_ticks: int = 0
 	for service: Dictionary in space.content.catalog.amenity_services:
 		if service.purpose==purpose: service_ticks = ceili(float(service.ordinary_seconds)/WorldState.TICK_SECONDS)
 	return earliest+ceili(float(queued)/maxi(1,facility_ids.size()))*service_ticks
 
+func _wait_estimate_view(world: WorldState) -> Dictionary:
+	var result: Dictionary = {"remaining":{},"queued":{}}
+	for need: Dictionary in world.facts.get("waiting_life",{}).get("needs",{}).values():
+		if need.phase in ["using","returning"]:
+			var id: String = str(need.get("facility_id",""))
+			result.remaining[id] = maxi(int(result.remaining.get(id,0)),int(need.remaining_ticks) if need.phase=="using" else 2147483647)
+	for intent: Dictionary in intents(world):
+		if int(intent.get("arrived_tick",-1))<0 or not intent.phase in ["local_wait","local_travel"]: continue
+		var purpose: String = str(intent.get("public_purpose",""))
+		var area: Dictionary = intent.get("area",{})
+		# Region identity has no dictionary insertion-order semantics. A raw
+		# Dictionary key has an order-sensitive hash even when equality is true.
+		var key: String = JSON.stringify(area,"",true,true)
+		if not result.queued.has(purpose): result.queued[purpose] = {}
+		result.queued[purpose][key] = int(result.queued[purpose].get(key,0))+1
+	return result
+
 func intents(world: WorldState) -> Array:
+	return space.read_view(world,"public_intents",_intent_view.bind(world)).items
+
+func _intent_view(world: WorldState) -> Dictionary:
 	var result: Array = []
 	for collection: String in ["seats","needs"]:
 		for intent: Dictionary in world.facts.get("waiting_life",{}).get(collection,{}).values():
@@ -335,7 +356,7 @@ func intents(world: WorldState) -> Array:
 		if task.has("public_purpose"): result.append(task)
 	for stay: Dictionary in world.facts.get("visitors",{}).get("stays",{}).values():
 		if stay.has("public_use"): result.append(stay.public_use)
-	return result
+	return {"items":result}
 
 func turn(world: WorldState, intent: Dictionary, facility_id: String) -> bool:
 	for other: Dictionary in intents(world):
@@ -356,6 +377,12 @@ func turn(world: WorldState, intent: Dictionary, facility_id: String) -> bool:
 	return true
 
 func _queue_fit(world: WorldState, facility_id: String, ids: Array) -> Dictionary:
+	var fits: Dictionary = space.read_view(world,"public_queue_fits",func()->Dictionary: return {})
+	var key: String = JSON.stringify([facility_id,ids])
+	if not fits.has(key): fits[key] = _queue_fit_in_query(world,facility_id,ids)
+	return fits[key]
+
+func _queue_fit_in_query(world: WorldState, facility_id: String, ids: Array) -> Dictionary:
 	var current: Dictionary = world.facts.adaptations.get(facility_id,{})
 	if current.is_empty(): return space.facility_quote(world,facility_id,ids[0],ids.slice(1))
 	# Queue eligibility asks whether the next body fits after the current user
@@ -369,4 +396,9 @@ func _queue_fit(world: WorldState, facility_id: String, ids: Array) -> Dictionar
 		if actor_id in ids: continue
 		facts.actors[actor_id] = world.facts.actors[actor_id].duplicate()
 		facts.actors[actor_id].location = {"kind":"outside"}
-	return space.facility_quote(WorldState.new(facts),facility_id,ids[0],ids.slice(1))
+	var candidate: WorldState = WorldState.new(facts)
+	space.prepare_projection(world,candidate,[facility_id])
+	space.begin_route_query(candidate,{},false)
+	var quote: Dictionary = space.facility_quote(candidate,facility_id,ids[0],ids.slice(1))
+	space.end_route_query()
+	return quote

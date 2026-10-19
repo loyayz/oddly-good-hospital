@@ -2,6 +2,12 @@ extends RefCounted
 
 const Fixture = preload("res://tools/performance/fixture.gd")
 
+class CountPreview extends BuildPreview:
+	var updates: int = 0
+	func update(world: WorldState, maximum_units: int = 0, completed_boundary: Array = []) -> Dictionary:
+		updates += 1
+		return super.update(world,maximum_units,completed_boundary)
+
 static func run(content: HospitalContent) -> Dictionary:
 	# Original geometric fixture: all 640 bodies remain on its four active
 	# floors; floor 2 is owned and empty except for the real shaft. Factory
@@ -111,7 +117,63 @@ static func run(content: HospitalContent) -> Dictionary:
 	overlay.free()
 	world.facts.floors.overrides["2"].blocked.clear()
 	preview.cancel()
-	return {"ok":ok and unchanged and restarted and cached_occupancy and facing_restart and shape_reused and separate_economics and cache_retained and source_recaptured and cache_released and cancelled and shared and outline,"details":{"maximum_requests":observations,"irrelevant_change_and_rebind":unchanged,"relevant_restart":restarted,"cached_occupancy_before_facing_change":cached_occupancy,"facing_restart_without_revision":facing_restart,"completed_shape_reused":shape_reused,"shared_basis_separate_economics":separate_economics,"static_cache_retained_with_fresh_scope":cache_retained,"navigation_source_recaptured_without_touch":source_recaptured,"cache_released_on_cancel":cache_released,"cancelled":cancelled,"shared_budget":shared,"complete_outline_bounds_and_floor":outline,"metric_scope":"headless complete preview computation; update calls are not displayed frames or OS input latency"}}
+	var window: Dictionary = _window_result(content)
+	return {"ok":ok and unchanged and restarted and cached_occupancy and facing_restart and shape_reused and separate_economics and cache_retained and source_recaptured and cache_released and cancelled and shared and outline and window.passed,"details":{"maximum_requests":observations,"irrelevant_change_and_rebind":unchanged,"relevant_restart":restarted,"cached_occupancy_before_facing_change":cached_occupancy,"facing_restart_without_revision":facing_restart,"completed_shape_reused":shape_reused,"shared_basis_separate_economics":separate_economics,"static_cache_retained_with_fresh_scope":cache_retained,"navigation_source_recaptured_without_touch":source_recaptured,"cache_released_on_cancel":cache_released,"cancelled":cancelled,"shared_budget":shared,"complete_outline_bounds_and_floor":outline,"window_owned_result":window,"metric_scope":"headless complete preview computation; update calls are not displayed frames or OS input latency"}}
+
+static func _window_result(content: HospitalContent) -> Dictionary:
+	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"窗口结果边界",false,content)
+	var simulation: HospitalSimulation = HospitalSimulation.new(world,content)
+	var session: GameSession = GameSession.new(simulation,"preview-window")
+	var panel: HospitalBuildPanel = HospitalBuildPanel.new()
+	panel.simulation = simulation
+	panel.session = session
+	var preview: CountPreview = CountPreview.new(simulation.services.building)
+	panel._preview = preview
+	panel._draft = {"kind":"build_room","room_type_id":"gp","floor_id":1,"origin":[35,68],"size":[4,4],"door":{"definition_id":"DR01","edge":"south","offset":1}}
+	preview.request(panel._draft,panel._binding())
+	for update_index: int in 1000:
+		panel._refresh_preview()
+		if preview.job!=null and preview.job.complete: break
+	var completed: bool = preview.job!=null and preview.job.complete and panel._result.get("ok",false)
+	if not completed:
+		var failure: Dictionary = panel._result.duplicate(true)
+		panel.free()
+		simulation.dispose()
+		return {"passed":false,"completion":failure}
+	var owned: Dictionary = panel._result
+	var calls: int = preview.updates
+	for repeat: int in 3: panel._refresh_preview()
+	var reused: bool = preview.updates==calls and is_same(owned,panel._result)
+	var public_value: Dictionary = preview.update(world,0,[world,world.revision])
+	public_value.draft.origin[0] = 0
+	public_value.quote.price = -1
+	var isolated: bool = panel._result.draft.origin==[35,68] and preview.result.draft.origin==[35,68] and panel._result.quote.price>=0 and preview.result.quote.price>=0
+	calls = preview.updates
+	panel.set_floor(2)
+	panel._refresh_preview()
+	var floor_rebind: bool = preview.updates==calls+1 and not panel._result.draw_on_current_floor
+	panel.set_floor(1)
+	panel._refresh_preview()
+	var original_cash: int = HospitalLedger.balance(world)
+	var before_tick: int = world.sim_tick
+	calls = preview.updates
+	var ordered: CommandResult = session.submit(GameCommand.new("window-cash-change",world.hospital_id,world.revision,"renovation_order",BusinessPayload.new({"material_id":"MAT01","floor_id":1,"units":[{"cell":[44,80]}],"allow_waiting":true}),session.loading_session_id))
+	panel._refresh_preview()
+	var command_boundary: bool = ordered.accepted and world.sim_tick==before_tick and HospitalLedger.balance(world)==original_cash-25 and preview.updates==calls+1 and int(panel._result.balance_after)==HospitalLedger.balance(world)-int(panel._result.price)+int(panel._result.refund)
+	calls = preview.updates
+	panel._preview_visibility_changed()
+	panel._refresh_preview()
+	var reshown: bool = preview.updates==calls+1
+	panel._draft = panel._draft.duplicate(true)
+	panel._draft.origin = [36,68]
+	preview.request(panel._draft,panel._binding())
+	calls = preview.updates
+	panel._refresh_preview()
+	var draft_changed: bool = preview.updates==calls+1 and preview.current.semantic.draft.origin==[36,68]
+	var validation: String = world.validate(content)
+	panel.free()
+	simulation.dispose()
+	return {"passed":reused and isolated and floor_rebind and command_boundary and reshown and draft_changed and validation.is_empty(),"unchanged_window_reuses_owned_result":reused,"public_result_deep_isolation":isolated,"view_floor_rebind":floor_rebind,"paused_command_and_cash_refresh":command_boundary,"reshown_refresh":reshown,"new_draft_refresh":draft_changed,"validation":validation}
 
 static func _draft(width: int) -> Dictionary:
 	return {"kind":"build_room","room_type_id":"gp","floor_id":2,"origin":[0,0],"size":[width,95],"door":{"definition_id":"DR01","edge":"south","offset":1}}

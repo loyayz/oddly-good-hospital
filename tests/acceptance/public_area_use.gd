@@ -67,6 +67,7 @@ func _case_46(t) -> void:
 	t.check("STAFF-46",occupied and fixed and exit.is_empty() and seated and x.world.facts.actors[second.actor_id].support_facility_id=="west_chair",{"request":request.to_record(),"fixed":fixed,"seated":seated,"intent":x.world.facts.waiting_life.seats.get(second.id,{})})
 
 func _case_47(t) -> void:
+	var modes: Dictionary = _queue_mode_boundary()
 	var x: Dictionary = _areas()
 	_facility(x,"toilet","FUR07",[39,68],"west")
 	x.world.touch()
@@ -80,6 +81,26 @@ func _case_47(t) -> void:
 		_tick_waiting(x)
 	x.l._begin_need(x.world,second)
 	var queued: bool = x.world.facts.waiting_life.needs[second.id].phase=="local_wait"
+	var area: Dictionary = x.space.public_areas.for_facility(x.world,"toilet")
+	var reordered: Dictionary = {}
+	var keys: Array = area.keys()
+	keys.reverse()
+	for key: String in keys: reordered[key] = area[key]
+	var queue_need: Dictionary = x.world.facts.waiting_life.needs[second.id]
+	var original_area: Dictionary = queue_need.area
+	queue_need.area = reordered
+	var queue_before: Dictionary = x.world.freeze()
+	var service_ticks: int = 0
+	for service: Dictionary in _content.catalog.amenity_services:
+		if service.purpose=="toilet": service_ticks = ceili(float(service.ordinary_seconds)/WorldState.TICK_SECONDS)
+	var expected_wait: int = int(x.world.facts.waiting_life.needs[first.id].remaining_ticks)+service_ticks
+	x.space.begin_route_query(x.world,{},false)
+	var estimate: int = x.space.public_areas._wait_estimate(x.world,area,["toilet"],"toilet")
+	var reverse_estimate: int = x.space.public_areas._wait_estimate(x.world,reordered,["toilet"],"toilet")
+	x.space.end_route_query()
+	var queue_boundary: Dictionary = {"same_region_value":area==reordered,"original_hash":area.hash(),"reordered_hash":reordered.hash(),"former_dictionary_lookup":{reordered:1}.get(area,0),"expected_wait":expected_wait,"estimate":estimate,"reversed_reference_estimate":reverse_estimate,"readonly":queue_before==x.world.freeze()}
+	var queue_order_safe: bool = area==reordered and estimate==expected_wait and reverse_estimate==expected_wait and queue_before==x.world.freeze()
+	queue_need.area = original_area
 	var second_using: bool = false
 	var safe_release: bool = true
 	for _tick: int in 350:
@@ -102,7 +123,32 @@ func _case_47(t) -> void:
 	y.world.facts.sim_tick = int(boundary.started_tick)+450
 	y.l.dispatch(y.world)
 	var exact_start: bool = boundary.phase=="using" and boundary.remaining_ticks==80
-	t.check("STAFF-47",first_using and queued and second_using and safe_release and exact_start,{"first_started":first_using,"queued":queued,"second_started":second_using,"prior_physically_left":safe_release,"exact_45_seconds":exact_start,"second":x.world.facts.waiting_life.needs.get(second.id,{})})
+	t.check("STAFF-47",modes.passed and queue_order_safe and first_using and queued and second_using and safe_release and exact_start,{"nominal_actual_queue_modes":modes,"queue_region_key_order":queue_boundary,"first_started":first_using,"queued":queued,"second_started":second_using,"prior_physically_left":safe_release,"exact_45_seconds":exact_start,"second":x.world.facts.waiting_life.needs.get(second.id,{})})
+
+func _queue_mode_boundary() -> Dictionary:
+	var x: Dictionary = _areas()
+	_facility(x,"toilet","FUR07",[39,68],"west")
+	var requester: Dictionary = _visit(x,"mode_requester",[38,73])
+	_visit(x,"mode_blocker",x.space.facility_layout(x.world,"toilet").patient_cell)
+	x.world.touch()
+	var validation: String = x.world.validate(_content)
+	var source: Dictionary = x.world.freeze()
+	var observations: Array = []
+	var passed: bool = validation.is_empty()
+	for nominal_first: bool in [true,false]:
+		x.space.begin_route_query(x.world,{"nominal":true},false)
+		var nominal: Dictionary = {}
+		if nominal_first: nominal = x.space.public_areas._queue_fit(x.world,"toilet",[requester.actor_id])
+		x.space.begin_route_query(x.world,{},false)
+		var actual: Dictionary = x.space.public_areas._queue_fit(x.world,"toilet",[requester.actor_id])
+		x.space.end_route_query()
+		if not nominal_first: nominal = x.space.public_areas._queue_fit(x.world,"toilet",[requester.actor_id])
+		x.space.end_route_query()
+		var cold: Dictionary = x.space.public_areas._queue_fit(x.world,"toilet",[requester.actor_id])
+		var exact: bool = nominal.ok and not actual.ok and actual==cold and source==x.world.freeze()
+		passed = passed and exact
+		observations.append({"nominal_first":nominal_first,"nominal_ok":nominal.ok,"actual_ok":actual.ok,"actual_matches_cold":actual==cold,"readonly":source==x.world.freeze()})
+	return {"passed":passed,"validation":validation,"observations":observations}
 
 func _case_48(t) -> void:
 	var x: Dictionary = _areas()

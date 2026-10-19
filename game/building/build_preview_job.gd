@@ -48,8 +48,8 @@ func _init(building: BuildService, world: WorldState, request: Dictionary, basis
 func dependency_basis(world: WorldState) -> Dictionary:
 	var floors: Array = [int(draft.get("floor_id",1))]
 	var target_id: String = str(draft.get("target_id",""))
-	var original: Dictionary = world.facts.rooms.get(target_id,world.facts.facilities.get(target_id,service._door(world,target_id).get("door",{})))
 	var target_door: Dictionary = service._door(world,target_id)
+	var original: Dictionary = world.facts.rooms.get(target_id,world.facts.facilities.get(target_id,target_door.get("door",{})))
 	if not target_door.is_empty() and not int(target_door.floor_id) in floors:
 		floors.append(int(target_door.floor_id))
 	if original.has("floor_id") and not int(original.floor_id) in floors:

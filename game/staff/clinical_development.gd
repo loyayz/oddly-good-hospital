@@ -600,6 +600,7 @@ func _yield_prepared_base(world: WorldState, staff_id: String) -> void:
 	var floor_id: int = int(actor.location.floor_id)
 	var origin: Vector2i = Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
 	var query: Dictionary = _base_context(world)
+	var checker: RouteClearance
 	for other_id: String in query.incoming:
 		var other: Dictionary = world.facts.staff[other_id]
 		var task: Dictionary = other.get("base_task",{})
@@ -634,7 +635,9 @@ func _yield_prepared_base(world: WorldState, staff_id: String) -> void:
 				var blocks_entry: bool = false
 				for region: Rect2 in entry_regions:
 					blocks_entry = blocks_entry or rect.intersects(region,false)
-				if blocks_entry or not space.static_reason(world,actor,floor_id,point).is_empty() or space._narrow(world,actor,point) or not space._dynamic_clear(world,staff_id,floor_id,rect):
+				if blocks_entry: continue
+				if checker==null: checker = RouteClearance.new(space,world,actor,floor_id,[],{},true,space._navigation.floor_source(space,world,floor_id))
+				if not checker.reason(point).is_empty() or space._narrow(world,actor,point,checker) or not space._dynamic_clear(world,staff_id,floor_id,rect):
 					continue
 				var route: Dictionary = space.route(world,staff_id,floor_id,[point.x,point.y])
 				if route.ok and route.get("status","")!="contention":

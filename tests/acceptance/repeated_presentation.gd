@@ -2,10 +2,14 @@ extends RefCounted
 
 class WarmView extends HospitalView:
 	var builds: Dictionary = {}
+	var heatmap_reads: int = 0
 	func _same_visual_sources(name: String, inputs: Array) -> bool:
 		var same: bool = super._same_visual_sources(name,inputs)
 		if not same: builds[name] = int(builds.get(name,0))+1
 		return same
+	func _environment_read_stamp() -> String:
+		heatmap_reads += 1
+		return super._environment_read_stamp()
 
 class ColdView extends HospitalView:
 	func _same_visual_sources(_name: String, _inputs: Array) -> bool:
@@ -104,11 +108,146 @@ func run_projection(t, content: HospitalContent, case_id: String = "CORE-51") ->
 	heatmap = heatmap and changed_stamp!=first_stamp and changed_stamp==cold._environment_read_stamp() and world.freeze()==before
 	var validation: String = world.validate(content)
 	var decorations: Dictionary = _geometry_dependencies(t,content)
-	t.check(case_id,reused and geometry and environment and heatmap and validation.is_empty() and decorations.passed,{"unchanged_projection_reused":reused,"same_revision_geometry":geometry,"direct_dirt_change":environment,"heatmap_current_inputs":heatmap,"decoration_dependencies":decorations,"validation":validation,"scope":"exact dependency reuse and live direct writes; no GPU timing claim"})
+	var marks: Dictionary = _environment_dependencies(t,content)
+	var floors: Dictionary = _room_floor_batches(t,content)
+	t.check(case_id,reused and geometry and environment and heatmap and validation.is_empty() and decorations.passed and marks.passed and floors.passed,{"unchanged_projection_reused":reused,"same_revision_geometry":geometry,"direct_dirt_change":environment,"heatmap_current_inputs":heatmap,"decoration_dependencies":decorations,"environment_dependencies":marks,"room_floor_batches":floors,"validation":validation,"scope":"exact dependency reuse, per-cell static geometry and live direct writes; no GPU timing claim"})
 	simulation.dispose()
 	warm.queue_free()
 	cold.queue_free()
 	await t.process_frame
+
+func _environment_dependencies(t, content: HospitalContent) -> Dictionary:
+	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"环境标记读集",false,content)
+	var simulation: HospitalSimulation = HospitalSimulation.new(world,content)
+	var ordered: CommandResult = simulation.services.environment.execute(world,"renovation_order",{"material_id":"MAT01","floor_id":1,"units":[{"cell":[42,80]}],"allow_waiting":true})
+	var dirt: String = simulation.services.environment.spawn_dirt(world,"CL01","mark-probe","mark-probe:scatter",1,[44,80])
+	if not ordered.accepted or dirt.is_empty():
+		simulation.dispose()
+		return {"passed":false,"order":ordered.to_record(),"dirt":dirt}
+	var baseline: Dictionary = world.freeze()
+	var warm: WarmView = WarmView.new(content)
+	var cold: ColdView = ColdView.new(content)
+	for view: HospitalView in [warm,cold]:
+		t.root.add_child(view)
+		view.bind(world,1)
+	var order_id: String = str(ordered.changed_ids[0])
+	var observations: Array = []
+	var passed: bool = world.validate(content).is_empty()
+	for probe: String in ["remaining","contributions","other_floor","unit_phase","unit_paused","unit_cell","dirt_phase","dirt_cell"]:
+		world.facts = baseline.duplicate(true)
+		warm._sync_environment_marks()
+		var builds: int = int(warm.builds.environment)
+		var before_nodes: Array = warm._environment_marks.get_children().map(func(node: Node) -> int: return node.get_instance_id())
+		match probe:
+			"remaining": world.facts.environment.orders[order_id].units[0].remaining_milli -= 1
+			"contributions": world.facts.environment.orders[order_id].units[0].contributions.extra = 1
+			"other_floor":
+				var other: Dictionary = world.facts.environment.dirt[dirt].duplicate(true)
+				other.floor_id = 2
+				other.id = "other_floor_dirt"
+				world.facts.environment.dirt[other.id] = other
+			"unit_phase": world.facts.environment.orders[order_id].units[0].phase = "working"
+			"unit_paused": world.facts.environment.orders[order_id].paused = true
+			"unit_cell": world.facts.environment.orders[order_id].units[0].cell = [43,80]
+			"dirt_phase": world.facts.environment.dirt[dirt].phase = "working"
+			"dirt_cell": world.facts.environment.dirt[dirt].cell = [45,80]
+		var before: Dictionary = world.freeze()
+		warm._sync_environment_marks()
+		cold._sync_environment_marks()
+		var ignored: bool = probe in ["remaining","contributions","other_floor"]
+		var same_nodes: bool = warm._environment_marks.get_children().map(func(node: Node) -> int: return node.get_instance_id())==before_nodes
+		var ok: bool = int(warm.builds.environment)-builds==(0 if ignored else 1) and same_nodes==ignored and warm._environment_marks_signature==cold._environment_marks_signature and world.freeze()==before
+		passed = passed and ok
+		observations.append({"probe":probe,"passed":ok,"source_changes":int(warm.builds.environment)-builds,"same_nodes":same_nodes})
+	world.facts = baseline.duplicate(true)
+	warm._sync_environment_marks()
+	var sample: Array = [{"floor_id":1,"cell":[42,80],"environment":{"status":"current","value":50}}]
+	warm.show_environment_heatmap(sample)
+	var published: MultiMeshInstance3D = warm._environment_heatmap
+	world.facts.research.append(content.catalog.research[0].id)
+	warm._sync_environment_marks()
+	var invalidated: bool = published!=null and not published.visible and warm._heatmap_stamp.is_empty()
+	var reads: int = warm.heatmap_reads
+	for repeat: int in 3: warm._sync_environment_marks()
+	var stopped: bool = warm.heatmap_reads==reads and not published.visible
+	# Returning to old facts cannot silently restore a previously invalid color.
+	world.facts = baseline.duplicate(true)
+	warm._sync_environment_marks()
+	stopped = stopped and warm.heatmap_reads==reads and not published.visible
+	warm.show_environment_heatmap(sample)
+	var republished: bool = warm._environment_heatmap!=published and warm._environment_heatmap.visible and not warm._heatmap_stamp.is_empty()
+	warm.set_floor(2)
+	var floor_clear: bool = warm._environment_heatmap==null and warm._heatmap_stamp.is_empty()
+	warm.bind(HospitalFactory.create(HospitalSnapshots.uuid(),"另一环境视图",false,content),1)
+	var hospital_clear: bool = warm._environment_heatmap==null and warm._heatmap_stamp.is_empty()
+	var validation: String = world.validate(content)
+	warm.queue_free()
+	cold.queue_free()
+	simulation.dispose()
+	return {"passed":passed and invalidated and stopped and republished and floor_clear and hospital_clear and validation.is_empty(),"observations":observations,"invalidated_hidden":invalidated,"invalidated_stamp_reads_stopped":stopped,"explicit_republication":republished,"floor_clear":floor_clear,"hospital_clear":hospital_clear,"validation":validation}
+
+func _room_floor_batches(t, content: HospitalContent) -> Dictionary:
+	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"逐格地板批次",true,content)
+	var baseline: Dictionary = world.freeze()
+	# Direct presentation probes preserve ordered cells, L-shapes and holes;
+	# construction legality remains the responsibility of SPACE-06/52.
+	world.facts.rooms.room_gp.cells = [[36,86],[37,86],[36,87]]
+	var other: Dictionary = world.facts.rooms.room_gp.duplicate(true)
+	other.id = "other_floor_probe"
+	other.floor_id = 2
+	other.kind = "ward"
+	other.cells = [[35,70],[36,70],[37,70],[35,71],[37,71],[35,72],[36,72],[37,72]]
+	world.facts.rooms[other.id] = other
+	var before: Dictionary = world.freeze()
+	var view: HospitalView = HospitalView.new(content)
+	t.root.add_child(view)
+	view.bind(world,1)
+	var observations: Array = []
+	var passed: bool = true
+	for floor_id: int in [1,2,1]:
+		view.set_floor(floor_id)
+		var expected: Array = []
+		for room: Dictionary in world.facts.rooms.values():
+			if int(room.floor_id)!=floor_id or not room.has("cells"): continue
+			for cell: Array in room.cells:
+				expected.append({"transform":Transform3D(Basis.IDENTITY,Vector3((float(cell[0])-32)*1.5+0.75,0.03,(float(cell[1])-64)*1.5+0.75)),"size":Vector3(1.5,0.02,1.5),"color":HospitalView.Palette.WARD_FLOOR if room.kind=="ward" else HospitalView.Palette.SURGERY_FLOOR,"roughness":0.9})
+		var actual: Array = []
+		var batches: int = 0
+		var complete_buffers: bool = true
+		var backend_transform: String = "none"
+		for node: Node in view._decorations.get_children():
+			if not node is MultiMeshInstance3D: continue
+			batches += 1
+			var mesh: BoxMesh = node.multimesh.mesh
+			var material: StandardMaterial3D = mesh.material
+			var buffer: PackedFloat32Array = node.multimesh.buffer
+			complete_buffers = complete_buffers and buffer.size()==node.multimesh.instance_count*12
+			if buffer.size()!=node.multimesh.instance_count*12: continue
+			if node.multimesh.instance_count>0: backend_transform = var_to_str(node.multimesh.get_instance_transform(0))
+			for index: int in node.multimesh.instance_count:
+				# Decode the actual submitted renderer buffer. Dummy rendering does
+				# retain this buffer but its per-instance getter returns identity.
+				var at: int = index*12
+				var transform: Transform3D = Transform3D(Basis(Vector3(buffer[at],buffer[at+4],buffer[at+8]),Vector3(buffer[at+1],buffer[at+5],buffer[at+9]),Vector3(buffer[at+2],buffer[at+6],buffer[at+10])),Vector3(buffer[at+3],buffer[at+7],buffer[at+11]))
+				actual.append({"transform":node.global_transform*transform,"size":mesh.size,"color":material.albedo_color,"roughness":material.roughness})
+		var same: bool = complete_buffers and actual.size()==expected.size()
+		for index: int in mini(actual.size(),expected.size()):
+			same = same and (actual[index].transform as Transform3D).is_equal_approx(expected[index].transform) and (actual[index].size as Vector3).is_equal_approx(expected[index].size) and (actual[index].color as Color).is_equal_approx(expected[index].color) and is_equal_approx(float(actual[index].roughness),float(expected[index].roughness))
+		view.walls_cut = true
+		view._update_space_geometry()
+		var visible: bool = true
+		for node: Node in view._decorations.get_children():
+			if node is MultiMeshInstance3D: visible = visible and node.visible
+		passed = passed and same and visible
+		observations.append({"floor_id":floor_id,"cells":expected.size(),"instances":actual.size(),"batches":batches,"complete_uploaded_buffers":complete_buffers,"complete_geometry_materials":same,"visible_after_wall_cut":visible,"first_expected":var_to_str(expected[0]) if not expected.is_empty() else "empty","first_actual":var_to_str(actual[0]) if not actual.is_empty() else "empty","backend_first_transform":backend_transform})
+	var old_decorations: Node3D = view._decorations
+	view.bind(HospitalFactory.create(HospitalSnapshots.uuid(),"清空院区",false,content),1)
+	var cleared: bool = old_decorations.get_parent()==null and not old_decorations in view.get_children()
+	passed = passed and cleared and world.freeze()==before
+	world.facts = baseline
+	var validation: String = world.validate(content)
+	view.queue_free()
+	return {"passed":passed and validation.is_empty(),"observations":observations,"old_hospital_retired":cleared,"validation":validation,"scope":"decode actual complete submitted transform buffers plus box dimensions/materials, not GPU readback or occlusion performance"}
 
 func _geometry_dependencies(t, content: HospitalContent) -> Dictionary:
 	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"装饰几何读集",true,content)

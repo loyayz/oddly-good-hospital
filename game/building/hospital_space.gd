@@ -22,10 +22,15 @@ var query_counts: Dictionary = {"routes":0,"journey_hits":0,"journey_invalidatio
 # survive an actual reservation, movement or any other world fact change.
 func begin_route_query(world: WorldState, reference: Dictionary = {}, inherit_reference: bool = true) -> void:
 	var parent: Dictionary = _route_queries.back() if not _route_queries.is_empty() and _route_queries.back().world==world else {}
-	var views: Dictionary = parent.get("views",{})
+	var views: Dictionary = {}
 	var exits: Dictionary = parent.get("exits",{})
 	if inherit_reference and reference.is_empty() and not _route_queries.is_empty():
 		reference = _route_queries.back().reference
+	# Some views include fit/trip results: actual occupancy and nominal geometry
+	# are different queries even on the same world. Independent reference batches
+	# can also own distinct transport bases. Ordinary read-only children still share.
+	if not parent.is_empty() and (parent.reference.is_empty() and reference.is_empty() or is_same(parent.reference,reference)):
+		views = parent.views
 	if not reference.is_empty() and not reference.has("routes"):
 		reference.routes = {}
 		reference.fits = {}
@@ -40,8 +45,11 @@ func begin_route_query(world: WorldState, reference: Dictionary = {}, inherit_re
 		_route_queries.append({"world":world,"routes":parent.routes,"exits":exits,"views":views,"reference":reference,"journeys_allowed":false,"dynamic":true,"transport":parent.transport})
 		return
 	var journeys_allowed: bool = not reference.is_empty()
-	for movement: Dictionary in world.facts.moves.values():
-		if movement.has("transit_ticket"): journeys_allowed = false
+	if journeys_allowed:
+		for movement: Dictionary in world.facts.moves.values():
+			if movement.has("transit_ticket"):
+				journeys_allowed = false
+				break
 	if journeys_allowed:
 		reference.transport_builds = int(reference.get("transport_builds",0))+1
 		var transport: Dictionary = reference.transport_basis if reference.has("transport_basis") else HospitalTransit.reference_basis(self,world)
@@ -50,7 +58,7 @@ func begin_route_query(world: WorldState, reference: Dictionary = {}, inherit_re
 			query_counts.journey_invalidations += 1
 			reference.journeys.clear()
 			reference.journey_transport = transport.duplicate(true)
-	_route_queries.append({"world":world,"routes":reference.get("routes",{}),"exits":exits,"views":views,"reference":reference,"journeys_allowed":journeys_allowed})
+	_route_queries.append({"world":world,"routes":reference.get("routes",parent.get("routes",{})),"exits":exits,"views":views,"reference":reference,"journeys_allowed":journeys_allowed})
 
 func end_route_query() -> void:
 	var finished: Dictionary = _route_queries.pop_back()
@@ -993,6 +1001,17 @@ func _facility_quote(world: WorldState, facility_id: String, actor_id: String, s
 		reference.fits[reference_key] = quote
 		return quote
 	if not prove_exits: return quote
+	return _facility_exit_quote(world,facility_id,actor_id,staff_ids,quote)
+
+# Continuation of a preflight in the same synchronous read-only enumeration.
+# Actual reserve_facility always calls facility_quote and repeats full preflight.
+func _facility_exit_quote(world: WorldState, facility_id: String, actor_id: String, staff_ids: Array, quote: Dictionary) -> Dictionary:
+	if not quote.ok or quote.get("unchanged",false) or nominal_query(world): return quote
+	var facility: Dictionary = world.facts.facilities[facility_id]
+	var current: Dictionary = world.facts.adaptations.get(facility_id,{})
+	var footprint: Array = quote.footprint
+	var regions: Array = quote.regions
+	var allowed: Array = [actor_id]+staff_ids
 	var same_reservation: bool = current.get("kind","")=="facility" and current.get("actor_id","")==actor_id and current.get("staff_ids",[])==staff_ids
 	for field: String in ["floor_id","footprint","patient_cell","operator_cells","repair_cell","regions"]:
 		same_reservation = same_reservation and current.get(field)!=null and current[field]==quote[field]

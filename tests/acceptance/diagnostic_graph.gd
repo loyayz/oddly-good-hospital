@@ -4,9 +4,35 @@ func run_case(t, database: HospitalContent) -> void:
 	_content = database
 	var clinical: Dictionary = _clinical_paths()
 	var mathematical: Dictionary = _exact_graph()
+	var repeated: Dictionary = _repeated_graph()
 	for simulation: HospitalSimulation in _simulations: simulation.dispose()
 	_simulations.clear()
-	t.check("GROW-80",clinical.passed and mathematical.passed,{"clinical":clinical,"mathematical":mathematical})
+	t.check("GROW-80",clinical.passed and mathematical.passed and repeated.passed,{"clinical":clinical,"mathematical":mathematical,"repeated":repeated})
+
+func _repeated_graph() -> Dictionary:
+	# AND occurrences are additive, whereas an OR takes one complete option.
+	# This is exact arithmetic input, not a shortened hospital workload.
+	var shared: Array = [{"probability":F.make(1),"bundles":[{"resources":{"a":F.make(1)},"choices":["shared","shared"]}],"choice_groups":{"shared":[{"resources":{"a":F.make(1)}},{"resources":{"b":F.make(1)}}]}}]
+	var choice: Dictionary = PlatformArrivalMath.solve(shared,{"a":F.make(6),"b":F.make(4)})
+	var choice_valid: bool = choice.get("capacity")==F.make(10,3)
+	for allocation: Dictionary in choice.get("assignments",[]):
+		choice_valid = choice_valid and allocation.resources in [{"a":F.make(3)},{"a":F.make(1),"b":F.make(2)}]
+	var groups: Dictionary = {"depth0":[{"resources":{"a":F.make(3,7)}}]}
+	var multiplier: String = "1"
+	for depth: int in range(1,71):
+		var child: String = "depth"+str(depth-1)
+		groups["depth"+str(depth)] = [{"resources":{},"choices":[child,child]}]
+		multiplier = F.multiply_integer(multiplier,"2")
+	var unit: Dictionary = F.make(F.multiply_integer(multiplier,"3"),"7")
+	var deep: Array = [{"probability":F.make(1),"bundles":[{"resources":{},"choices":["depth70"]}],"choice_groups":groups}]
+	var before: Array = deep.duplicate(true)
+	var backend: RefCounted = ClassDB.instantiate("PlatformArrivalCapacity")
+	var budget: Dictionary = {"a":F.mul(unit,F.make(5))}
+	var result: Dictionary = backend.call("prepare",deep,budget)
+	var updated: Dictionary = backend.call("solve",{"a":F.mul(unit,F.make(7))})
+	var cold: Dictionary = PlatformArrivalMath.solve(deep,budget)
+	var large_valid: bool = result.get("capacity")==F.make(5) and updated.get("capacity")==F.make(7) and cold.get("capacity")==F.make(5) and cold.get("assignments",[]).size()==1 and cold.assignments[0].resources=={"a":unit} and deep==before
+	return {"passed":choice_valid and large_valid,"repeated_and_and_or":choice_valid,"beyond_64_bits":large_valid,"reference_count":multiplier,"exact_unit":unit}
 
 func _clinical_paths() -> Dictionary:
 	var builder = load("res://tests/acceptance/clinical_fixtures.gd").new()

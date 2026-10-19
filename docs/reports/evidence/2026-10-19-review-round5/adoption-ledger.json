@@ -1,0 +1,211 @@
+{
+  "baseline": "d51011d19ae138551a4f34325bb3e154bed06b7b",
+  "review_url": "https://chatgpt.com/share/6ad59af6-aca4-83e9-8ec9-5aa458be9737?ogimg=plain",
+  "count": 29,
+  "adopted": 26,
+  "items": [
+    {
+      "id": "F01",
+      "title": "每方案重复物理配对",
+      "adopted": true,
+      "decision": "仅门诊跨方案同一世界只读作用域按完整Visit（仅去掉plan_decision）、服务/模式和设施/员工身份复用物理成功及失败；方案报价、最终原因和accept仍逐次执行。名义/实际及不同参考批次的查询视图隔离。",
+      "evidence_scope": "CLIN-06/34/35；同次两方案配对2→1，下一次直接故障可见；真实第三人占位的名义/实际双顺序回归；组合整步另测，未隔离归因"
+    },
+    {
+      "id": "F02",
+      "title": "失败会诊医生提前排除",
+      "adopted": true,
+      "decision": "只在已完成物理检查并已评估方案后标记considered；在后续设施的物理检查前跳过同一医生。首设施不可达不会取消后设施机会，无排班器仍保留首医生失败语义。",
+      "evidence_scope": "CLIN-35 首医生与排班器接续边界；整步组合测量"
+    },
+    {
+      "id": "F03",
+      "title": "无名义交通仍扫描moves",
+      "adopted": true,
+      "decision": "只有reference非空才检查transit_ticket，并在首个命中后停止。",
+      "evidence_scope": "普通查询该扫描N→0；有名义交通仍完整判断；相关路径及GROW-83回归"
+    },
+    {
+      "id": "F04",
+      "title": "普通嵌套查询不共享路线表",
+      "adopted": true,
+      "decision": "同世界同步只读父子查询复用层内routes；不同投影仍独立。模式敏感views仅无名义参考或同一参考容器复用，名义/实际与独立参考批次隔离；实际写入后顶层重新建表。",
+      "evidence_scope": "CLIN-35/STAFF-47真实占位的名义/实际双顺序、临床/公共路径和SPACE-40/41回归；未隔离此项耗时"
+    },
+    {
+      "id": "F05",
+      "title": "预检后完整报价重复适配",
+      "adopted": true,
+      "decision": "将同次已验证fit续接第三方出口证明；仅临床同步只读枚举使用内部续接。实际reserve_facility仍调用完整facility_quote。",
+      "evidence_scope": "CLIN-33/34及SPACE-40/41/42/44；同一配对不重跑fit前半，未单项计时"
+    },
+    {
+      "id": "F06",
+      "title": "只判存在仍枚举接待全候选",
+      "adopted": true,
+      "decision": "arrival_readiness接待仅取首个完整候选；GP及诊断路径保留完整可选集合。",
+      "evidence_scope": "CLIN-35 readiness完整结果对照及GROW-83；未截断正式容量集合"
+    },
+    {
+      "id": "F07",
+      "title": "满负荷护士仍求工作台路线",
+      "adopted": true,
+      "decision": "将原有load>=beds_per_nurse判定移到工作台travel_quote之前，本人准备排除及护理上限不变。",
+      "evidence_scope": "CLIN-14/15/22/23/24及护理边界；未单项计时"
+    },
+    {
+      "id": "F08",
+      "title": "候床移动中选床结果无法消费",
+      "adopted": true,
+      "decision": "有当前Move时只省选床，原候床计时、到期离院和继续走路照常；停步后重新报价。",
+      "evidence_scope": "STAFF-12/22/27及个人床相关选例；未改变归属或等待期限"
+    },
+    {
+      "id": "F09",
+      "title": "公共队列重收意图和重复fit",
+      "adopted": true,
+      "decision": "现有无写入候选scope共享原有序意图；按设施及完整有序成员身份复用queue-fit。名义/实际及独立参考批次隔离；真实取位、预约和移动后不沿用。",
+      "evidence_scope": "STAFF-41～52/57/61/64/65/68相关选例，STAFF-47真实占位双顺序；公共300步组合对照"
+    },
+    {
+      "id": "F10",
+      "title": "每设施重扫needs估计等待",
+      "adopted": true,
+      "decision": "同次select汇总设施剩余占用及完整区域/用途意图数；区域以排序键的完整精确JSON作键，不受字典插入顺序影响；保留returning哨兵、无使用者0、ceil及每意图计数。",
+      "evidence_scope": "公共设施队列回归；未把双人意图计成两人；公共组合测量"
+    },
+    {
+      "id": "F11",
+      "title": "排队fit投影未继承静态来源",
+      "adopted": true,
+      "decision": "删除适配的设施明确传入prepare_projection差量；投影自有禁止名义继承的查询scope，人物/权限/交通/出口独立。",
+      "evidence_scope": "大/小身体及患者/亲友真实退出相关公共回归；不共享最终路线结果"
+    },
+    {
+      "id": "F12",
+      "title": "娱乐逐设施新Space",
+      "adopted": true,
+      "decision": "一次完整娱乐选择惰性创建一个Space，接入已有有界静态缓存；每个投影重新核实来源和人物，所有成员仍完整求路。",
+      "evidence_scope": "STAFF-43～49/58/59；原160场景若未触发不宣称独立收益；缓存charge不当RSS"
+    },
+    {
+      "id": "F13",
+      "title": "上一轮N02两处外层遗漏",
+      "adopted": true,
+      "decision": "临床释放和共享基地让位的固定人物逐点枚举，各在真实进入首个静态检查时惰性构造一个净空checker、复用既有floor source并传入_narrow；到真实request_move结束复用。",
+      "evidence_scope": "CLIN-33及STAFF-29/30相关交接；承认上轮覆盖遗漏"
+    },
+    {
+      "id": "F14",
+      "title": "完成预览每帧深复制",
+      "adopted": true,
+      "decision": "窗口在完成job且世界/修订/代数/绑定相同边界复用自有_result；公开update独立返回值、重新显示和真实提交重验保持。",
+      "evidence_scope": "SPACE-52；同160显示CPU探针；不是最大房间正式显示延迟验收"
+    },
+    {
+      "id": "F15",
+      "title": "环境守卫含无关工作进度",
+      "adopted": true,
+      "decision": "来源比较和绘制共用当前层实际标记字段投影，省remaining/contributions等无关字段复制及重投影。",
+      "evidence_scope": "CORE-51和同160真实装修工单只读表现探针；真实phase/paused/cell仍刷新"
+    },
+    {
+      "id": "F16",
+      "title": "已隐藏热图仍每帧stamp",
+      "adopted": true,
+      "decision": "失效隐藏后清tracking stamp，仅正式show_environment_heatmap重新发布才恢复跟踪。",
+      "evidence_scope": "CORE-51切层/切院/再次发布及同160探针；不会自动恢复旧颜色"
+    },
+    {
+      "id": "F17",
+      "title": "共享选中DAG按树递归展开",
+      "adopted": true,
+      "decision": "固定price choices后，逆拓扑累计GMP任意精度引用重数；AND重复边累加，OR只传播所选边。",
+      "evidence_scope": "GROW-80、真实提取体3000随机根及2^70；小图无收益/退化保留，非742验收"
+    },
+    {
+      "id": "F18",
+      "title": "每方案深复制整个Visit",
+      "adopted": true,
+      "decision": "只浅复制顶层Visit并替换新plan_decision；读下游，不改嵌套历史、尝试或经验。",
+      "evidence_scope": "CLIN-06/13/34/35只读及金额/工时/承诺；无单项百分比"
+    },
+    {
+      "id": "F19",
+      "title": "缺包票和库存查询重复汇总",
+      "adopted": true,
+      "decision": "shortage_requests一次统计总预留及按preparation.id本人排除量；库存query将本次容量/可用量传给内部top_up报价。公开采购仍现查。",
+      "evidence_scope": "OPS-02/03/05/07及CLIN-35；保留负值、援助、罢工和原原因；无单项百分比"
+    },
+    {
+      "id": "F20",
+      "title": "逐床重查同护士公共资格",
+      "adopted": true,
+      "decision": "session完成后，仅recovery循环共享nurse+ward+floor公共资格；床故障、每床布局和实际床边路线仍逐床检查。",
+      "evidence_scope": "CLIN-22/23/24/27；同步更新计时子类签名，首批3项未完成保留"
+    },
+    {
+      "id": "F21",
+      "title": "去程已有私有投影仍再复制",
+      "adopted": true,
+      "decision": "只在candidate已独占时原地改本人位置，sync_actor后开启新动态回程scope；candidate==world仍复制。",
+      "evidence_scope": "公共设施往返、临床生活交接回归及同160公共对照；源世界只读"
+    },
+    {
+      "id": "F22",
+      "title": "显式房间每格独立MeshInstance",
+      "adopted": true,
+      "decision": "按房间一次上传完整MultiMesh 3×4矩阵buffer，保留全部真实格、原顺序、尺寸、材质及高度；拾取沿原业务几何。",
+      "evidence_scope": "CORE-51逐格oracle及同160等价显式cells CPU探针；原GP矩形不触发，GPU/FPS仍未验收"
+    },
+    {
+      "id": "F23",
+      "title": "预览默认参数提前重复查门",
+      "adopted": true,
+      "decision": "同次dependency_basis只查询一次target_door，保留room→facility→door原优先级及层信息。",
+      "evidence_scope": "SPACE-52；该站点门扫描2→1，其他独立查询不合并"
+    },
+    {
+      "id": "F24",
+      "title": "组件批次重复解析精确标量",
+      "adopted": true,
+      "decision": "单次aggregate_components内按完整合法表示复用GMP分数解析；每次标量仍rational_input验证，失败不留跨批缓存。",
+      "evidence_scope": "GROW-45/79/82；2432标量/8表示微测及失败原子性，不是全病例性能"
+    },
+    {
+      "id": "F25",
+      "title": "有序活动工单返回二次复制",
+      "adopted": true,
+      "decision": "排序分支直接返回第一份独立数组，非排序分支仍隔离；调用方不触及内部ids。",
+      "evidence_scope": "OPS-43两种返回数组修改后重查隔离；复制2→1，无秒级收益声明"
+    },
+    {
+      "id": "G01",
+      "title": "跨不同适配投影共享完整层内结果",
+      "adopted": false,
+      "decision": "未采用跨投影结果缓存：相同足迹仍可能有不同actor/staff豁免、预约区域、交通组出口和未知prefix；尚无完整输入等价键与失败有效期证明。F01/F04只覆盖已证明的同世界只读范围，不能当作G01全部完成。",
+      "evidence_scope": "源码依赖核对；不为未执行的跨投影复用填写收益"
+    },
+    {
+      "id": "G02",
+      "title": "缩减个人床缺配重试依据",
+      "adopted": false,
+      "decision": "确认缺配分支复制成本存在，但不采用未经完整证明的缩减signature：真实身体位置/姿态、其他人物让路、moves及交通排程都可能改变往返可达性或稳定行程平局。仅按静态兼容、床或本人位置会漏新机会；保留最大匹配和原动态重试，STAFF-67实际让路后重试通过。该成本仍未消除。",
+      "evidence_scope": "同160记录是否触发及basis耗时；未触发时明确无缺配分支收益证据，不能宣称该分支廉价"
+    },
+    {
+      "id": "G03",
+      "title": "所有scoped static_reason改直接checker",
+      "adopted": false,
+      "decision": "不采用全局替换：冷单次早拒绝可能省构图，随后实际路线又会复用同图；单次与完整窗口成本不同。保留图缓存策略，只在F13已明确的固定人物外层循环共享checker。",
+      "evidence_scope": "同160冷早拒绝/40次拒绝+8次路线完整窗口诊断；不从少构造次数外推全局提速"
+    },
+    {
+      "id": "G04",
+      "title": "多人娱乐选区后复用逐人入口",
+      "adopted": true,
+      "decision": "select可选输出获胜区域每名成员原入口；主结果仍是组最大travel_ticks。只在_begin_public_recreation写姿态/任务/预约/移动前消费；区内成员原当前格处理、手动指定和写后dispatch重验保留。",
+      "evidence_scope": "STAFF-43～49/58/59；组合公共对照，未把组最大值当个人路程"
+    }
+  ]
+}

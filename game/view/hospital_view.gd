@@ -180,10 +180,30 @@ func _sync_geometry() -> void:
 		_door_frames[door.id] = frame
 	for room: Dictionary in rooms:
 		if room.has("cells"):
-			for cell: Array in room.cells:
-				var tile: MeshInstance3D = _box(Vector3(1.5,0.02,1.5),Palette.WARD_FLOOR if room.kind=="ward" else Palette.SURGERY_FLOOR)
-				tile.position = _cell_position(cell,0.75)+Vector3.UP*0.03
-				_decorations.add_child(tile)
+			var tiles: MultiMesh = MultiMesh.new()
+			tiles.transform_format = MultiMesh.TRANSFORM_3D
+			# One static batch per room retains every actual cell, including gaps.
+			# This is decoration only; picking and clearance use the world facts.
+			var tile: MeshInstance3D = _box(Vector3(1.5,0.02,1.5),Palette.WARD_FLOOR if room.kind=="ward" else Palette.SURGERY_FLOOR)
+			tiles.mesh = tile.mesh
+			tile.free()
+			tiles.instance_count = room.cells.size()
+			var transforms: PackedFloat32Array = PackedFloat32Array()
+			transforms.resize(room.cells.size()*12)
+			for index: int in room.cells.size():
+				var position: Vector3 = _cell_position(room.cells[index],0.75)+Vector3.UP*0.03
+				var at: int = index*12
+				# MultiMesh's 3x4 row-major transform layout, with identity basis.
+				transforms[at] = 1.0
+				transforms[at+3] = position.x
+				transforms[at+5] = 1.0
+				transforms[at+7] = position.y
+				transforms[at+10] = 1.0
+				transforms[at+11] = position.z
+			tiles.buffer = transforms
+			var floor: MultiMeshInstance3D = MultiMeshInstance3D.new()
+			floor.multimesh = tiles
+			_decorations.add_child(floor)
 		else:
 			var floor: MeshInstance3D = _box(Vector3(float(room.size[0])*1.5,0.02,float(room.size[1])*1.5),Palette.WARD_FLOOR if room.kind=="ward" else Palette.SURGERY_FLOOR)
 			floor.position = _cell_position(room.origin,0)+Vector3(float(room.size[0])*0.75,0.03,float(room.size[1])*0.75)
@@ -862,14 +882,17 @@ func _pose(actor_id: String, presentation: Dictionary = {}) -> Dictionary:
 
 func _sync_environment_marks() -> void:
 	var facts: Dictionary = world.facts.get("environment",{})
-	var inputs: Array = [world,observed_floor,facts.get("dirt",{}).keys(),facts.get("dirt",{}),
-		facts.get("surfaces",{}).keys(),facts.get("surfaces",{}),facts.get("orders",{}).keys(),facts.get("orders",{})]
+	var sources: Array = _environment_mark_sources(facts)
+	var inputs: Array = [world,observed_floor,sources]
 	if not _same_visual_sources("environment",inputs):
-		_build_environment_marks(facts)
-	if _environment_heatmap!=null and is_instance_valid(_environment_heatmap) and _heatmap_stamp!=_environment_read_stamp():
+		_build_environment_marks(sources)
+	if not _heatmap_stamp.is_empty() and _environment_heatmap!=null and is_instance_valid(_environment_heatmap) and _heatmap_stamp!=_environment_read_stamp():
 		_environment_heatmap.visible = false
+		# Invalidated colors remain hidden until an explicit new publication.
+		# They cannot become current again merely because the old inputs return.
+		_heatmap_stamp = ""
 
-func _build_environment_marks(facts: Dictionary) -> void:
+func _environment_mark_sources(facts: Dictionary) -> Array:
 	var dirt: Array = []
 	var surfaces: Array = []
 	var units: Array = []
@@ -885,6 +908,12 @@ func _build_environment_marks(facts: Dictionary) -> void:
 		for unit: Dictionary in order.units:
 			if unit.phase not in ["completed","cancelled"]:
 				units.append([unit.cell,order.surface,unit.edge,unit.phase,unit.started,order.paused])
+	return [dirt,surfaces,units]
+
+func _build_environment_marks(sources: Array) -> void:
+	var dirt: Array = sources[0]
+	var surfaces: Array = sources[1]
+	var units: Array = sources[2]
 	var signature: String = JSON.stringify([observed_floor,dirt,surfaces,units],"",true,true)
 	if signature!=_environment_marks_signature:
 		var started: int = Time.get_ticks_usec()
@@ -986,15 +1015,10 @@ func show_environment_heatmap(heatmap: Array) -> void:
 
 func _environment_read_stamp() -> String:
 	var upgrades: Dictionary = world.facts.get("maintenance",{}).get("upgrades",{})
-	var bodies_source: Dictionary = world.facts.actors if not _heatmap_subjects.is_empty() else {}
-	var inputs: Array = [world,observed_floor,_geometry_signature,_environment_marks_signature,_heatmap_subjects,
-		world.facts.sessions.keys(),world.facts.sessions,upgrades.keys(),upgrades,bodies_source.keys(),bodies_source,
-		world.facts.facilities.keys(),world.facts.facilities,world.facts.research]
-	if _same_visual_sources("heatmap",inputs): return _current_heatmap_stamp
 	var active: Array = []
 	for session: Dictionary in world.facts.sessions.values():
 		active.append([session.facility_id,session.kind])
-	for item: Dictionary in world.facts.get("maintenance",{}).get("upgrades",{}).values():
+	for item: Dictionary in upgrades.values():
 		active.append([item.facility_id,item.phase])
 	var bodies: Array = []
 	if not _heatmap_subjects.is_empty():
@@ -1004,6 +1028,8 @@ func _environment_read_stamp() -> String:
 	for facility: Dictionary in world.facts.facilities.values():
 		if int(facility.floor_id)==observed_floor:
 			facilities.append([facility.id,facility.cell,facility.get("rotation",0),facility.get("failed",false)])
+	var inputs: Array = [world,observed_floor,_geometry_signature,_environment_marks_signature,_heatmap_subjects,active,bodies,facilities,world.facts.research]
+	if _same_visual_sources("heatmap",inputs): return _current_heatmap_stamp
 	_current_heatmap_stamp = JSON.stringify([_geometry_signature,_environment_marks_signature,active,bodies,facilities,world.facts.research],"",true,true)
 	return _current_heatmap_stamp
 

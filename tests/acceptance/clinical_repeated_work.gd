@@ -7,6 +7,10 @@ class Queries extends HospitalClinic:
 	var gp_queries: int = 0
 	var projection_observed: bool = false
 	var projection_source: WorldState
+	var physical_calls: int = 0
+	func _service_pair_reachable(world: WorldState, visit: Dictionary, facility_id: String, staff_id: String, layout: Dictionary) -> bool:
+		physical_calls += 1
+		return super._service_pair_reachable(world,visit,facility_id,staff_id,layout)
 	func plan_quote(world: WorldState, visit_id: String, plan_id: String, options: Dictionary = {}) -> Dictionary:
 		var key: String = str(options.get("doctor_id",""))+":"+plan_id
 		quotes[key] = int(quotes.get(key,0))+1
@@ -50,6 +54,7 @@ class RepeatedReadiness extends Queries:
 func run_case(t, content: HospitalContent) -> void:
 	var started: int = Time.get_ticks_usec()
 	var first_doctor: Dictionary = _first_doctor_boundary(content)
+	var plan_batch: Dictionary = _plan_batch_boundary(content)
 	var c: Dictionary = Gathering.new()._context(content,"gp")
 	var clinic: Queries = Queries.new(content,c.space)
 	clinic.scheduler = HospitalShiftScheduler.new(content,c.space)
@@ -75,7 +80,56 @@ func run_case(t, content: HospitalContent) -> void:
 	var shortage_before: Dictionary = c.world.freeze()
 	projection.shortage_requests(c.world)
 	var projection_ok: bool = projection.projection_observed and shortage_before==c.world.freeze()
-	t.check("CLIN-35",first_doctor.passed and c.validation.is_empty() and pairs.size()>1 and once and selected.is_empty() and recommendation.readonly and readiness_ok and projection_ok,{"input_validation":c.validation,"first_doctor_boundary":first_doctor,"CL-A01":{"recommendation":recommendation,"readiness_equal":readiness==expected,"gp_calls":actual.gp_queries,"control_gp_calls":control.gp_queries},"CL-A06":{"isolated_written_path_shared_readonly_facts":projection.projection_observed,"readonly":shortage_before==c.world.freeze()},"elapsed_usec":Time.get_ticks_usec()-started})
+	t.check("CLIN-35",plan_batch.passed and first_doctor.passed and c.validation.is_empty() and pairs.size()>1 and once and selected.is_empty() and recommendation.readonly and readiness_ok and projection_ok,{"input_validation":c.validation,"plan_batch":plan_batch,"first_doctor_boundary":first_doctor,"CL-A01":{"recommendation":recommendation,"readiness_equal":readiness==expected,"gp_calls":actual.gp_queries,"control_gp_calls":control.gp_queries},"CL-A06":{"isolated_written_path_shared_readonly_facts":projection.projection_observed,"readonly":shortage_before==c.world.freeze()},"elapsed_usec":Time.get_ticks_usec()-started})
+
+func _plan_batch_boundary(content: HospitalContent) -> Dictionary:
+	var c: Dictionary = Gathering.new()._context(content,"gp")
+	HospitalFactory._add_room(c.world,{"id":"batch_treatment","type":"T01","anchor":[46,30],"size":[8,8],"door":{"definition_id":"DR04","offset":3}},content)
+	HospitalFactory._add_facility(c.world,{"id":"batch_machine","definition_id":"M09","anchor":[47,31],"size":content.facility_definition("M09").footprint,"room_id":"batch_treatment"},content)
+	c.world.facts.staff.gather_worker.abilities.treatment = 2
+	for definition: Dictionary in content.catalog.research: c.world.facts.research.append(definition.id)
+	c.world.touch()
+	var validation: String = c.world.validate(content)
+	var before: Dictionary = c.world.freeze()
+	var clinic: Queries = Queries.new(content,c.space)
+	var independent: Array = []
+	for plan: Dictionary in content.catalog.treatment_plans:
+		if plan.disease_id=="D09": independent.append(clinic.plan_quote(c.world,"gather_visit_0",plan.id))
+	var separate_calls: int = clinic.physical_calls
+	clinic.physical_calls = 0
+	var combined: Array = clinic.compare_plans(c.world,"gather_visit_0")
+	var shared_calls: int = clinic.physical_calls
+	var readonly: bool = c.world.freeze()==before
+	# Direct live changes between queries must be seen without a touch/cache reset.
+	c.world.facts.facilities.batch_machine.failed = true
+	var failed: Array = clinic.compare_plans(c.world,"gather_visit_0")
+	var fresh: bool = not failed.is_empty()
+	for quote: Dictionary in failed: fresh = fresh and not quote.ok
+	# Nominal geometry ignores people; actual structural fit still respects a
+	# different patient's real body. Modes can nest on the same read-only world.
+	c.world.facts.facilities.batch_machine.failed = false
+	var position: Array = c.space.facility_layout(c.world,"batch_machine").patient_cell
+	c.world.facts.actors.gather_patient_1.location.cell = position.duplicate()
+	c.world.touch(false)
+	var blocked_validation: String = c.world.validate(content)
+	var blocked_source: Dictionary = c.world.freeze()
+	var modes: Array = []
+	var mode_safe: bool = true
+	for nominal_first: bool in [true,false]:
+		c.space.begin_route_query(c.world,{"nominal":true},false)
+		var nominal: Dictionary = {}
+		var actual: Dictionary = {}
+		if nominal_first: nominal = clinic.plan_quote(c.world,"gather_visit_0","P_D09_COMMON",{"structural_only":true,"ignore_supplies":true})
+		c.space.begin_route_query(c.world,{},false)
+		actual = clinic.plan_quote(c.world,"gather_visit_0","P_D09_COMMON",{"structural_only":true,"ignore_supplies":true})
+		c.space.end_route_query()
+		if not nominal_first: nominal = clinic.plan_quote(c.world,"gather_visit_0","P_D09_COMMON",{"structural_only":true,"ignore_supplies":true})
+		c.space.end_route_query()
+		var cold: Dictionary = clinic.plan_quote(c.world,"gather_visit_0","P_D09_COMMON",{"structural_only":true,"ignore_supplies":true})
+		var exact: bool = nominal.ok and not actual.ok and actual==cold and blocked_source==c.world.freeze()
+		mode_safe = mode_safe and exact
+		modes.append({"nominal_first":nominal_first,"nominal_ok":nominal.ok,"actual_ok":actual.ok,"actual_matches_cold":actual==cold,"readonly":blocked_source==c.world.freeze()})
+	return {"passed":validation.is_empty() and blocked_validation.is_empty() and mode_safe and combined==independent and combined.size()>=2 and shared_calls>0 and separate_calls>shared_calls and readonly and fresh,"validation":validation,"separate_physical_calls":separate_calls,"same_query_physical_calls":shared_calls,"complete_quotes_equal":combined==independent,"readonly":readonly,"next_query_direct_failure_visible":fresh,"nested_nominal_actual":{"validation":blocked_validation,"both_orders_safe":mode_safe,"observations":modes}}
 
 func _first_doctor_boundary(content: HospitalContent) -> Dictionary:
 	var c: Dictionary = Gathering.new()._context(content,"gp")

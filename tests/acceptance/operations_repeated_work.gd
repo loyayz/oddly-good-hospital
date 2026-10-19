@@ -60,6 +60,11 @@ func run_indices(content: HospitalContent) -> Dictionary:
 		return {"ok":false,"details":{"setup":ordered.reason,"checks":checks}}
 	var order_id: String = ordered.changed_ids[0]
 	checks.active_order = world.active_operation_ids("environment","orders",["completed","cancelled"])==[order_id]
+	var sorted_ids: Array = world.active_operation_ids("environment","orders",["completed","cancelled"],true)
+	sorted_ids.clear()
+	var unsorted_ids: Array = world.active_operation_ids("environment","orders",["completed","cancelled"])
+	unsorted_ids.append("caller_only")
+	checks.active_return_isolation = world.active_operation_ids("environment","orders",["completed","cancelled"],true)==[order_id] and world.active_operation_ids("environment","orders",["completed","cancelled"])==[order_id]
 	var unit_id: String = world.facts.environment.orders[order_id].units[0].id
 	HospitalLedger.post(world,LedgerEntry.new(unit_id,"owner_boundary",0),false)
 	var owned: Array = world.ledger_owner_ids([unit_id])

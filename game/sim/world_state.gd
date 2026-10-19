@@ -175,6 +175,7 @@ func active_operation_ids(domain: String, collection: String, terminal: Array, o
 	if ordered:
 		result = result.duplicate()
 		result.sort()
+		return result
 	return result.duplicate()
 
 func operation_records_changed(domain: String, collection: String = "") -> void:

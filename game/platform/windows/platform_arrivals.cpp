@@ -1331,11 +1331,28 @@ struct Model {
         }
     }
     void expand(int id, const std::vector<int>& choices, Resources& output) const {
-        const Node& node = nodes[id];
-        if (node.choice) { if (choices[id] >= 0) expand(choices[id], choices, output); }
-        else {
-            for (const auto& item : node.resources) output[item.first] += item.second;
-            for (int child : node.children) expand(child, choices, output);
+        // The chosen graph is a DAG: intern assigns every child before its
+        // parent. Propagate exact reference counts before consuming a node,
+        // including repeated AND edges; an OR propagates only its chosen edge.
+        // Sparse pending counts avoid scanning unrelated nodes for each case.
+        std::map<int, Z> pending;
+        pending.emplace(id, Z(1));
+        while (!pending.empty()) {
+            auto current = std::prev(pending.end());
+            int next = current->first; Z references = std::move(current->second);
+            pending.erase(current);
+            const Node& node = nodes[next];
+            if (node.choice) {
+                if (choices[next] >= 0) pending[choices[next]] += references;
+            } else {
+                if (references == 1) {
+                    for (const auto& item : node.resources) output[item.first] += item.second;
+                } else if (!node.resources.empty()) {
+                    Q factor(references);
+                    for (const auto& item : node.resources) output[item.first] += item.second * factor;
+                }
+                for (int child : node.children) pending[child] += references;
+            }
         }
     }
     V resource_values(const Resources& values) const {
@@ -1754,16 +1771,31 @@ V calculate_integer(int operation, const V& first, const V& second) {
     D output; output.set("value", V::text(result.str())); output.set("remainder", V::text(remainder.str())); return output.value();
 }
 struct CapacityInstance { std::unique_ptr<Model> model; };
-V aggregate_stages(const V& raw_stages, const V& raw_weight) {
+struct AggregateFractions {
+    std::map<std::string, Q> parsed;
+    Q read(const V& value) {
+        // Validate every occurrence before lookup. Only this exact complete
+        // legal representation can reuse a canonical GMP value in this batch.
+        std::string text = rational_input(value);
+        auto found = parsed.find(text);
+        if (found == parsed.end()) {
+            Q next(text.c_str()); mpq_canonicalize(next.backend().data());
+            found = parsed.emplace(std::move(text), std::move(next)).first;
+        }
+        return found->second;
+    }
+};
+V aggregate_stages(const V& raw_stages, const V& raw_weight, AggregateFractions* fractions = nullptr) {
     D stages(raw_stages), output, weighted, totals;
-    Q weight = rational(raw_weight);
+    Q weight = fractions ? fractions->read(raw_weight) : rational(raw_weight);
     std::map<std::string, Q> resources;
     A names(stages.keys());
     for (int64_t i = 0; i < names.size(); ++i) {
         V name = names.at(i); D stage(stages.get(name)), values;
         A ids(stage.keys());
         for (int64_t j = 0; j < ids.size(); ++j) {
-            V id = ids.at(j); Q amount = rational(stage.get(id)) * weight;
+            V id = ids.at(j); V value = stage.get(id);
+            Q amount = (fractions ? fractions->read(value) : rational(value)) * weight;
             resources[id.text()] += amount;
             values.set(id.text().c_str(), fraction(amount));
         }
@@ -1815,9 +1847,10 @@ V invoke(Method method, const std::vector<V>& args, GDExtensionClassInstancePtr 
         if (method == AGGREGATE) return aggregate_stages(args[0], args[1]);
         if (method == AGGREGATE_COMPONENTS) {
             A requests(args[0]), results;
+            AggregateFractions fractions;
             for (int64_t i = 0; i < requests.size(); ++i) {
                 D request(requests.at(i));
-                results.append(aggregate_stages(request.get("stages"), request.get("weight")));
+                results.append(aggregate_stages(request.get("stages"), request.get("weight"), &fractions));
             }
             D output; output.set("components", results.value()); return output.value();
         }

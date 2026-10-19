@@ -119,9 +119,9 @@ class TimedClinic extends HospitalClinic:
 		var started: int = Time.get_ticks_usec()
 		super.advance(world)
 		timing.count("clinical.advance",started)
-	func _ward_covering(world: WorldState, stay: Dictionary) -> bool:
+	func _ward_covering(world: WorldState, stay: Dictionary, nurse_coverage: Dictionary = {}) -> bool:
 		var started: int = Time.get_ticks_usec()
-		var result: bool = super._ward_covering(world,stay)
+		var result: bool = super._ward_covering(world,stay,nurse_coverage)
 		timing.count("clinical.ward_covering",started)
 		return result
 	func _surgery_quote(world: WorldState, visit: Dictionary, requested_team: Array = [], options: Dictionary = {}) -> Dictionary:
