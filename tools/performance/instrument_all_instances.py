@@ -81,7 +81,7 @@ def split_arguments(text: str) -> list[str]:
     return result
 
 
-def transform(source: str, group: str, methods: set[str]) -> tuple[str, list[dict]]:
+def transform(source: str, group: str, methods: set[str], ledger: bool = False) -> tuple[str, list[dict]]:
     if PREFIX in source or META in source:
         raise ValueError("Source already contains diagnostic wrappers")
     declarations = list(re.finditer(r"^(static )?func ([A-Za-z_][A-Za-z_0-9]*)\(", source, re.M))
@@ -128,7 +128,7 @@ def transform(source: str, group: str, methods: set[str]) -> tuple[str, list[dic
         operation = group + "." + name
         instance = "0" if declaration.group(1) else "get_instance_id()"
         payload = ("{" + ",".join(json.dumps(arg) + ":" + arg for arg in args) + "}"
-                   if operation in PARAMETERS else "{}")
+                   if ledger or operation in PARAMETERS else "{}")
         result = "_tail_profile_result"
         lines = [header,
                  f'\tvar _tail_profile_observer: Variant = Engine.get_meta(&"{META}") if Engine.has_meta(&"{META}") else null',
@@ -154,7 +154,7 @@ def transform(source: str, group: str, methods: set[str]) -> tuple[str, list[dic
                         "original_header_sha256": sha(header.encode()),
                         "original_body_sha256": sha(body.encode()),
                         "wrapper_sha256": sha(wrapper.encode()),
-                        "parameters_sampled": operation in PARAMETERS})
+                        "parameters_sampled": ledger or operation in PARAMETERS})
     rewritten = source
     for start, finish, value in reversed(replacements):
         rewritten = rewritten[:start] + value + rewritten[finish:]
@@ -169,7 +169,7 @@ def transform(source: str, group: str, methods: set[str]) -> tuple[str, list[dic
     return generated, records
 
 
-def instrument(project: Path) -> dict:
+def instrument(project: Path, ledger: bool = False) -> dict:
     project = project.resolve()
     repository = Path(__file__).resolve().parents[2]
     if project == repository or not (project / "source-identity.json").is_file():
@@ -196,7 +196,9 @@ def instrument(project: Path) -> dict:
             raise ValueError(f"Frozen source must use LF: {path}")
         group = groups[match.group(1)]
         methods = common | set(hot.get(group, [])) | set(EXTRA.get(group, []))
-        generated, records = transform(source, group, methods)
+        if ledger and group == "space":
+            methods |= {"reserve_facility", "facility_reservation_reason", "_facility_region_reason"}
+        generated, records = transform(source, group, methods, ledger)
         if records:
             prepared.append((path, raw, generated.encode("utf-8"), records))
     if not all(any(record["operation"] == required for _, _, _, records in prepared for record in records)
@@ -204,6 +206,7 @@ def instrument(project: Path) -> dict:
         raise ValueError("Required all-instance coverage missing")
     result = {"schema_version": 1, "diagnostic_only": True,
               "formal_acceptance_paused": True, "engine_metadata_key": META,
+              "decision_ledger": ledger,
               "transformer_sha256": sha(Path(__file__).read_bytes()),
               "frozen_source_identity_sha256": sha((project / "source-identity.json").read_bytes()),
               "original_method_bodies_preserved": True,
@@ -228,8 +231,9 @@ def instrument(project: Path) -> dict:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("project", type=Path)
+    parser.add_argument("--ledger", action="store_true", help="Record the complete nested call ledger with compact business arguments")
     args = parser.parse_args()
-    result = instrument(args.project)
+    result = instrument(args.project, args.ledger)
     print(json.dumps({"identity": str(args.project / IDENTITY), "files": len(result["files"]),
                       "methods": sum(len(item["methods"]) for item in result["files"]),
                       "original_method_bodies_preserved": True}))

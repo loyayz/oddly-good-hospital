@@ -4,6 +4,7 @@ extends SceneTree
 const Clinical = preload("res://tools/performance/representative_clinical.gd")
 const Operations = preload("res://tools/performance/representative_operations.gd")
 const StepProfile = preload("res://tools/performance/all_instance_profile.gd")
+const DecisionProfile = preload("res://tools/performance/decision_profile.gd")
 const Public = preload("res://tools/performance/representative_public.gd")
 
 func _initialize() -> void:
@@ -18,8 +19,8 @@ func _run() -> void:
 		push_error("representative_selected.gd requires --input, --output and nonnegative --steps")
 		quit(2)
 		return
-	if not str(options.profile) in ["plain","all"]:
-		push_error("Profile must be plain or all")
+	if not str(options.profile) in ["plain","all","ledger"]:
+		push_error("Profile must be plain, all or ledger")
 		quit(2)
 		return
 	var selected: Array[int] = []
@@ -31,7 +32,7 @@ func _run() -> void:
 		selected.append(int(text))
 	selected.sort()
 	var identity_path: String = "res://all-instance-profile-identity.json"
-	if (str(options.profile)=="all")!=FileAccess.file_exists(identity_path):
+	if (str(options.profile)!="plain")!=FileAccess.file_exists(identity_path):
 		push_error("all requires an offline transformed project; plain requires an untransformed project")
 		quit(2)
 		return
@@ -85,7 +86,7 @@ func _run() -> void:
 	var operation_start: Dictionary = ops.snapshot(clinical.world,operation_metadata) if not operation_metadata.is_empty() else {}
 	var profiler: RefCounted = null
 	if str(options.profile)!="plain" and clinical.errors.is_empty():
-		profiler = StepProfile.new()
+		profiler = DecisionProfile.new() if str(options.profile)=="ledger" else StepProfile.new()
 		profiler.source_directory = str(options.output)+".sources"
 		var replacement: HospitalSimulation = profiler.attach(clinical.simulation,false)
 		if replacement==null: clinical.errors.append_array(profiler.errors)
