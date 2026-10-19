@@ -2,11 +2,11 @@ extends RefCounted
 
 class UnreachableWorker extends HospitalSpace:
 	var rejected_routes: int = 0
-	func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
+	func _route_result(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array, offsets: Dictionary, ignore_people: bool, stop_on_unknown: bool) -> Dictionary:
 		if actor_id=="gather_worker":
 			rejected_routes += 1
 			return {"ok":false,"status":"no_route","reason":"controlled unreachable gathering operator"}
-		return super.route(world,actor_id,floor_id,target,members,offsets,ignore_people)
+		return super._route_result(world,actor_id,floor_id,target,members,offsets,ignore_people,stop_on_unknown)
 
 class CandidateOrderSpace extends HospitalSpace:
 	var fit_before_routes: bool = false
@@ -28,9 +28,9 @@ class CandidateOrderSpace extends HospitalSpace:
 			return full
 		complete_quotes += 1
 		return super.facility_quote(world,facility_id,actor_id,staff_ids)
-	func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
+	func _route_result(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array, offsets: Dictionary, ignore_people: bool, stop_on_unknown: bool) -> Dictionary:
 		if reject_worker and actor_id=="gather_worker": return {"ok":false,"status":"no_route","reason":"controlled unreachable gathering operator"}
-		return super.route(world,actor_id,floor_id,target,members,offsets,ignore_people)
+		return super._route_result(world,actor_id,floor_id,target,members,offsets,ignore_people,stop_on_unknown)
 
 func run_case(t, content: HospitalContent) -> void:
 	var results: Array = []

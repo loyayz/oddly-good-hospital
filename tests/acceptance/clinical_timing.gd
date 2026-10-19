@@ -170,10 +170,10 @@ class TimedSpace extends HospitalSpace:
 		var started: int = Time.get_ticks_usec()
 		super._dispatch_routes(world,present_at_start)
 		timing.count("space.dispatch_routes",started)
-	func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
+	func _route_result(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array, offsets: Dictionary, ignore_people: bool, stop_on_unknown: bool) -> Dictionary:
 		var started: int = Time.get_ticks_usec()
-		var result: Dictionary = super.route(world,actor_id,floor_id,target,members,offsets,ignore_people)
-		timing.count("space.route",started)
+		var result: Dictionary = super._route_result(world,actor_id,floor_id,target,members,offsets,ignore_people,stop_on_unknown)
+		timing.count("space.route_query",started)
 		return result
 	func facility_quote(world: WorldState, facility_id: String, actor_id: String, staff_ids: Array = []) -> Dictionary:
 		var started: int = Time.get_ticks_usec()

@@ -37,10 +37,10 @@ class CountedSpace extends HospitalSpace:
 			pending_fits.erase(key)
 			return full
 		return super.facility_quote(world,facility_id,actor_id,staff_ids)
-	func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
+	func _route_result(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array, offsets: Dictionary, ignore_people: bool, stop_on_unknown: bool) -> Dictionary:
 		observed_routes.append([actor_id,floor_id,target.duplicate(),ignore_people])
 		if actor_id==reject_actor: return {"ok":false,"status":"no_route","reason":"controlled selected doctor route failure"}
-		return super.route(world,actor_id,floor_id,target,members,offsets,ignore_people)
+		return super._route_result(world,actor_id,floor_id,target,members,offsets,ignore_people,stop_on_unknown)
 
 func run_case(t, content: HospitalContent) -> void:
 	var builder: RefCounted = load("res://tests/acceptance/clinical_gathering.gd").new()

@@ -5,7 +5,7 @@ const MAX_TICK: int = 9223372036854775807
 
 # Queries only read the current transport facts. Tickets are created by begin(),
 # after the complete movement unit actually reaches its departure landing.
-static func route(space: HospitalSpace, world: WorldState, actor: Dictionary, source_floor: int, start: Vector2i, target_floor: int, goal: Vector2i, members: Array, offsets: Dictionary, ignore_people: bool, initial_ticks: int = 0) -> Dictionary:
+static func route(space: HospitalSpace, world: WorldState, actor: Dictionary, source_floor: int, start: Vector2i, target_floor: int, goal: Vector2i, members: Array, offsets: Dictionary, ignore_people: bool, initial_ticks: int = 0, stop_on_unknown: bool = false) -> Dictionary:
 	var direct: Dictionary = {"ok":false,"status":"unreachable","reason":"真实身体无法到达目标"}
 	if source_floor==target_floor:
 		direct = space._floor_route(world,actor,source_floor,start,goal,members,offsets,ignore_people)
@@ -93,6 +93,9 @@ static func route(space: HospitalSpace, world: WorldState, actor: Dictionary, so
 				var quote: Dictionary = _quote_known_fit(space,world,connection,actor.id,int(node.floor_id),destination,at_landing,members,offsets,prefixes,egresses)
 				if not quote.ok:
 					if quote.status=="estimate_unknown":
+						# Unknown is permanent for this read-only search. Every later
+						# goal/exhaustion returns failure; only boolean consumers stop.
+						if stop_on_unknown: return quote
 						unknown = true
 						unknown_reason = quote.reason
 					continue

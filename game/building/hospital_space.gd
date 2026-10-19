@@ -203,6 +203,14 @@ func static_reason(world: WorldState, actor: Dictionary, floor_id: int, origin: 
 	return RouteClearance.new(self,world,actor,floor_id,members,offsets,true,_navigation.floor_source(self,world,floor_id)).reason(origin)
 
 func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
+	return _route_result(world,actor_id,floor_id,target,members,offsets,ignore_people,false)
+
+# Existence consumers do not need the last unknown reason or a failed path.
+# Actual movement and complete quotes retain route's full result contract.
+func can_reach(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> bool:
+	return bool(_route_result(world,actor_id,floor_id,target,members,offsets,ignore_people,true).ok)
+
+func _route_result(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array, offsets: Dictionary, ignore_people: bool, stop_on_unknown: bool) -> Dictionary:
 	query_counts.routes += 1
 	var actor: Dictionary = world.facts.actors[actor_id]
 	if actor.location.kind != "floor":
@@ -229,11 +237,12 @@ func route(world: WorldState, actor_id: String, floor_id: int, target: Array, me
 		if not reason.is_empty():
 			return {"ok":false,"status":"unreachable","reason":reason}
 	var dependency: int = int(reference.get("dependency_revision",0))
-	var result: Dictionary = HospitalTransit.route(self,world,actor,source_floor,start,floor_id,goal,members,offsets,ignore_people,HospitalTransit.walking_ticks(self,actor,members,stub))
+	var result: Dictionary = HospitalTransit.route(self,world,actor,source_floor,start,floor_id,goal,members,offsets,ignore_people,HospitalTransit.walking_ticks(self,actor,members,stub),stop_on_unknown)
 	if result.ok and stub>0.0:
 		result.path.push_front({"kind":"floor","floor_id":source_floor,"cell":[start.x,start.y]})
 		result.walking_distance += stub
-	if not key.is_empty(): reference.journeys[key] = {"quote":result.duplicate(),"transport_dependent":int(reference.get("dependency_revision",0))>dependency}
+	# A boolean failure may stop before the complete query's final reason.
+	if not key.is_empty() and not stop_on_unknown: reference.journeys[key] = {"quote":result.duplicate(),"transport_dependent":int(reference.get("dependency_revision",0))>dependency}
 	return result
 
 func travel_quote(world: WorldState, actor_id: String, floor_id: int, target: Array) -> Dictionary:

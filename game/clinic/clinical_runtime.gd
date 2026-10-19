@@ -628,7 +628,7 @@ func _service_pair_reachable(world: WorldState, visit: Dictionary, facility_id: 
 		layout = handoff
 		space.prepare_projection(world,routing_world,[facility_id])
 		space.begin_route_query(routing_world,{"nominal":true} if space.nominal_query(world) else {})
-	var reachable: bool = space.route(routing_world,visit.actor_id,int(layout.floor_id),layout.patient_cell,[],{},true).ok and space.route(routing_world,staff_id,int(layout.floor_id),layout.operator_cells[0],[],{},true).ok
+	var reachable: bool = space.can_reach(routing_world,visit.actor_id,int(layout.floor_id),layout.patient_cell,[],{},true) and space.can_reach(routing_world,staff_id,int(layout.floor_id),layout.operator_cells[0],[],{},true)
 	if routing_world!=world: space.end_route_query()
 	if not reachable:
 		return false
