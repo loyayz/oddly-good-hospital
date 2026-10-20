@@ -12,10 +12,12 @@ var _indexed_actor_scope: Dictionary = {}
 var _navigation: NavigationCache = NavigationCache.new()
 var _envelope_next: int = 0
 var _route_queries: Array[Dictionary] = []
+var _reservation_views: Dictionary = {}
+var _door_views: Dictionary = {}
 var movement: HospitalMovement
 var navigation: HospitalNavigation
 var public_areas: HospitalPublicAreas
-var query_counts: Dictionary = {"routes":0,"journey_hits":0,"journey_invalidations":0,"transport_builds":0,"transport_searches":0,"candidate_connections":0,"floor_route_hits":0,"floor_route_builds":0,"static_path_hits":0,"static_path_builds":0}
+var query_counts: Dictionary = {"routes":0,"journey_hits":0,"journey_invalidations":0,"transport_builds":0,"transport_searches":0,"candidate_connections":0,"floor_route_hits":0,"floor_route_builds":0,"static_path_hits":0,"static_path_builds":0,"materialized_floor_cells":0,"reservation_index_builds":0,"reservation_index_updates":0,"door_candidates":0,"movement_candidates":0,"reservation_candidate_queries":0,"route_checks":0,"route_revalidations":0,"route_dispatch_scans":0,"route_dispatch_restores":0,"yield_attempts":0,"yield_candidates":0,"connector_topology_builds":0}
 
 # These scopes contain synchronous, read-only enumeration only. Results never
 # survive an actual reservation, movement or any other world fact change.
@@ -320,28 +322,76 @@ func _unit_rect(world: WorldState, actor: Dictionary, origin: Vector2, members: 
 	return rect
 
 func _build_reservation_view(world: WorldState) -> Dictionary:
+	query_counts.reservation_index_builds += 1
 	var view: Dictionary = {"index":BodyIndex.new(),"regions":{},"reservation_keys":{}}
 	for id: String in world.facts.adaptations: _index_reservation(view,id,world.facts.adaptations[id])
 	return view
 
+func reservation_view(world: WorldState) -> Dictionary:
+	var key: int = world.get_instance_id()
+	var cached: Dictionary = _reservation_views.get(key,{})
+	if cached.is_empty() or not is_same(cached.source,world.facts.adaptations) or int(cached.revision)!=world.geometry_revision:
+		for id: int in _reservation_views.keys():
+			if _reservation_views[id].world.get_ref()==null: _reservation_views.erase(id)
+		cached = {"world":weakref(world),"source":world.facts.adaptations,"revision":world.geometry_revision,"view":_build_reservation_view(world)}
+		_reservation_views[key] = cached
+	return cached.view
+
+func reservation_changed(world: WorldState, id: String) -> void:
+	var cached: Dictionary = _reservation_views.get(world.get_instance_id(),{})
+	if not cached.is_empty(): _index_reservation(cached.view,id,world.facts.adaptations.get(id,{}))
+
+func movement_doors(world: WorldState, actor: Dictionary, swept: Rect2, members: Array = [], floor_id: int = 0) -> Array[Dictionary]:
+	if floor_id==0: floor_id = int(actor.location.floor_id)
+	var key: String = str(world.get_instance_id())+":"+str(floor_id)
+	var version: int = _navigation.floor_version(self,world,floor_id)
+	var entry: Dictionary = _door_views.get(key,{})
+	if entry.is_empty() or entry.version!=version:
+		for old: String in _door_views.keys():
+			if _door_views[old].world.get_ref()==null: _door_views.erase(old)
+		entry = {"world":weakref(world),"version":version,"index":BodyIndex.new(),"doors":{},"order":{}}
+		for door: Dictionary in world.facts.floors.overrides.get(str(floor_id),{}).get("doors",[]):
+			entry.order[door.id] = entry.doors.size()
+			entry.doors[door.id] = door
+			entry.index.update(door.id,floor_id,_door_rect(door,int(door.span)))
+		_door_views[key] = entry
+	var ids: Dictionary = {}
+	# A door may grow from its fixed anchor to fit this body's envelope.
+	var reach: float = float(clearance(actor))+1.0
+	for id: String in members: reach = maxf(reach,float(clearance(world.facts.actors[id]))+1.0)
+	for id: String in entry.index.candidates(floor_id,swept.grow(reach)): ids[id] = true
+	for region: Dictionary in _reservation_regions(world,floor_id,swept):
+		if region.reservation.kind=="door" and entry.doors.has(region.reservation_id): ids[region.reservation_id] = true
+	var ordered: Array = ids.keys()
+	ordered.sort_custom(func(a: String,b: String) -> bool: return int(entry.order[a])<int(entry.order[b]))
+	var result: Array[Dictionary] = []
+	var actual: Array = world.facts.floors.overrides.get(str(floor_id),{}).get("doors",[])
+	for id: String in ordered: result.append(actual[int(entry.order[id])])
+	query_counts.door_candidates += result.size()
+	return result
+
 func _index_reservation(view: Dictionary, id: String, reservation: Dictionary) -> void:
+	query_counts.reservation_index_updates += 1
 	for key: String in view.reservation_keys.get(id,[]):
 		view.index.remove(key)
 		view.regions.erase(key)
+	if reservation.is_empty():
+		view.reservation_keys.erase(id)
+		return
 	var keys: Array = []
 	for ordinal: int in reservation.get("regions",[]).size():
 		var area: Array = reservation.regions[ordinal]
 		var rect: Rect2 = Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3]))
 		var key: String = id+":"+str(ordinal)
 		view.index.update(key,int(reservation.floor_id),rect)
-		view.regions[key] = {"reservation":reservation,"rect":rect}
+		view.regions[key] = {"reservation":reservation,"reservation_id":id,"rect":rect}
 		keys.append(key)
 	view.reservation_keys[id] = keys
 
 func _reservation_regions(world: WorldState, floor_id: int, rect: Rect2) -> Array:
 	if world.facts.adaptations.is_empty(): return []
-	var view: Dictionary = movement._movement_reservations
-	if view.is_empty(): view = read_view(world,"dynamic_reservation_regions",func() -> Dictionary: return _build_reservation_view(world))
+	query_counts.reservation_candidate_queries += 1
+	var view: Dictionary = reservation_view(world)
 	var regions: Array = []
 	for key: String in view.index.candidates(floor_id,rect): regions.append(view.regions[key])
 	return regions
@@ -764,6 +814,7 @@ func reserve_facility(world: WorldState, facility_id: String, actor_id: String, 
 	quote.owner_id = owner_id
 	var before: Dictionary = facility_layout(world,facility_id)
 	world.facts.adaptations[facility_id] = quote
+	reservation_changed(world,facility_id)
 	_navigation.invalidate(world,int(quote.floor_id))
 	public_areas.facility_changed(before,quote)
 	return ""
@@ -775,6 +826,7 @@ func commit_facility_reservations(world: WorldState, validated: Dictionary, faci
 		if validated.has(facility_id):
 			var before: Dictionary = facility_layout(world,facility_id)
 			world.facts.adaptations[facility_id] = validated[facility_id].duplicate(true)
+			reservation_changed(world,facility_id)
 			_navigation.invalidate(world,int(validated[facility_id].floor_id))
 			public_areas.facility_changed(before,validated[facility_id])
 
@@ -798,6 +850,7 @@ func release_adaptations(world: WorldState) -> void:
 					inside = true
 		if not inside:
 			world.facts.adaptations.erase(id)
+			reservation_changed(world,id)
 			_navigation.invalidate(world,int(reservation.floor_id))
 			if reservation.kind=="facility" and world.facts.facilities.has(id): public_areas.facility_changed(reservation,world.facts.facilities[id])
 
@@ -805,10 +858,15 @@ func _door_span(actor: Dictionary, door: Dictionary) -> int:
 	var dimensions: Dictionary = body(actor)
 	return maxi(int(door.span),ceili((maxf(float(dimensions.width_m),float(dimensions.depth_m))+0.1)/CELL_METERS))
 
-func door_quote(world: WorldState, actor: Dictionary, floor_id: int, door: Dictionary) -> Dictionary:
+func door_quote(world: WorldState, actor: Dictionary, floor_id: int, door: Dictionary, members: Array = []) -> Dictionary:
 	var dimensions: Dictionary = body(actor)
+	if members.size()>1:
+		dimensions = dimensions.duplicate()
+		for id: String in members:
+			var required: Dictionary = body(world.facts.actors[id])
+			for axis: String in ["width_m","depth_m","height_m"]: dimensions[axis] = maxf(float(dimensions[axis]),float(required[axis]))
 	var definition: Dictionary = content.definition("doors",door.definition_id)
-	var span: int = _door_span(actor,door)
+	var span: int = maxi(int(door.span),ceili((maxf(float(dimensions.width_m),float(dimensions.depth_m))+0.1)/CELL_METERS))
 	var height: float = maxf(float(definition.clear_height_m),float(dimensions.height_m)+0.1)
 	var ceiling: float = float(content.balance.floors.clear_height_m) if world.facts.floors.has("completed_top_floor") and not floor_plots(world,floor_id).is_empty() else 0.0
 	for interval: Dictionary in world.facts.floors.height_intervals:
@@ -831,12 +889,13 @@ func door_quote(world: WorldState, actor: Dictionary, floor_id: int, door: Dicti
 		continuous = int(door.cell[along])>=int(room.origin[along]) and int(door.cell[along])+span<=int(room.origin[along])+int(room.size[along])
 	if not continuous:
 		return {"ok":false,"reason":"门展开越过连续墙段或墙角"}
-	for other: Dictionary in world.facts.floors.overrides.get(str(floor_id),{}).get("doors",[]):
+	for other: Dictionary in movement_doors(world,actor,opening,members,floor_id):
 		if other.id!=door.id and opening.intersects(_door_rect(other,int(other.span)),false):
 			return {"ok":false,"reason":"门展开与另一扇门相交"}
 	if not _blocking_facility(world,floor_id,opening).is_empty():
 		return {"ok":false,"reason":"门展开区域有实际设施"}
 	var k: int = clearance(actor)
+	for id: String in members: k = maxi(k,clearance(world.facts.actors[id]))
 	var before: Rect2 = Rect2(opening.position-Vector2(0,k),Vector2(span,k)) if door.axis=="x" else Rect2(opening.position-Vector2(k,0),Vector2(k,span))
 	var wall_depth: int = 0 if room.has("wall_edges") else 1
 	var after: Rect2 = Rect2(opening.position+Vector2(0,wall_depth),Vector2(span,k)) if door.axis=="x" else Rect2(opening.position+Vector2(wall_depth,0),Vector2(k,span))

@@ -2,6 +2,7 @@ class_name HospitalNavigation
 extends RefCounted
 
 var _space: WeakRef
+var _topologies: Dictionary = {}
 var space: HospitalSpace:
 	get: return _space.get_ref()
 
@@ -41,15 +42,71 @@ func destination_reason(world: WorldState, actor: Dictionary, floor_id: int, tar
 	return structural_clearance(world,actor,floor_id,members,offsets).reason(target)
 
 func structural_clearance(world: WorldState, actor: Dictionary, floor_id: int, members: Array = [], offsets: Dictionary = {}) -> RouteClearance:
+	if members.size()==1 and members[0]==actor.id: members = []
 	var source: Dictionary = space._navigation.floor_source(space,world,floor_id)
 	var query: RouteClearance = space._navigation.cached_static_geometry(space,world,floor_id,actor) if members.is_empty() else null
 	if query==null: query = RouteClearance.new(space,world,actor,floor_id,members,offsets,false,source)
 	return query
 
+func _topology(world: WorldState) -> Dictionary:
+	var key: int = world.get_instance_id()
+	var cached: Dictionary = _topologies.get(key,{})
+	if not cached.is_empty() and int(cached.revision)==world.geometry_revision: return cached
+	for old: int in _topologies.keys():
+		if _topologies[old].world.get_ref()==null: _topologies.erase(old)
+	cached = {"world":weakref(world),"revision":world.geometry_revision,"explicit":{},"ranges":{},"floors":{},"candidates":{},"nodes":{},"node_ids":["start","goal"],"stops":{},"extra_floors":{}}
+	for floor_key: String in world.facts.floors.overrides: cached.candidates[int(floor_key)] = true
+	var connector_ids: Array = world.ids("connectors")
+	for id: String in connector_ids:
+		var connection: Dictionary = world.facts.connectors[id]
+		for floor_id: int in HospitalTransit.endpoints(connection): cached.candidates[floor_id] = true
+		if connection.has("first_floor"):
+			cached.ranges[id] = [int(connection.first_floor),int(connection.last_floor)]
+		else:
+			for floor_id: int in connection.stops:
+				if not cached.explicit.has(floor_id): cached.explicit[floor_id] = []
+				cached.explicit[floor_id].append(id)
+	# Stable structural declarations are shared by every point query until a
+	# topology revision. Only the queried source/target can add other floors.
+	for id: String in connector_ids:
+		var connection: Dictionary = world.facts.connectors[id]
+		cached.stops[id] = HospitalTransit.routing_stops(connection,world,0,0,cached.candidates)
+		var anchor: Vector2i = Vector2i(int(connection.anchor[0]),int(connection.anchor[1]))
+		for floor_id: int in cached.stops[id]:
+			var node_id: String = id+":"+str(floor_id)
+			cached.nodes[node_id] = {"floor_id":floor_id,"cell":anchor}
+			cached.node_ids.append(node_id)
+	_topologies[key] = cached
+	space.query_counts.connector_topology_builds += 1
+	space.query_counts["connector_node_declarations"] = int(space.query_counts.get("connector_node_declarations",0))+cached.nodes.size()
+	return cached
+
+func _floor_connections(topology: Dictionary, floor_id: int) -> Array:
+	if not topology.floors.has(floor_id):
+		var ids: Array = topology.explicit.get(floor_id,[]).duplicate()
+		for id: String in topology.ranges:
+			var interval: Array = topology.ranges[id]
+			if floor_id>=int(interval[0]) and floor_id<=int(interval[1]): ids.append(id)
+		ids.sort()
+		topology.floors[floor_id] = ids
+	return topology.floors[floor_id]
+
+func _topology_floor_nodes(world: WorldState, topology: Dictionary, floor_id: int) -> Dictionary:
+	if not topology.extra_floors.has(floor_id):
+		var entry: Dictionary = {"nodes":{},"ids":[],"connectors":_floor_connections(topology,floor_id)}
+		for id: String in entry.connectors:
+			var connection: Dictionary = world.facts.connectors[id]
+			var node_id: String = id+":"+str(floor_id)
+			entry.nodes[node_id] = {"floor_id":floor_id,"cell":Vector2i(int(connection.anchor[0]),int(connection.anchor[1]))}
+			entry.ids.append(node_id)
+		topology.extra_floors[floor_id] = entry
+		space.query_counts["connector_node_extensions"] = int(space.query_counts.get("connector_node_extensions",0))+entry.nodes.size()
+	return topology.extra_floors[floor_id]
+
 func _point_route(world: WorldState, actor: Dictionary, source_floor: int, start: Vector2i, target_floor: int, goal: Vector2i, members: Array, offsets: Dictionary, initial_ticks: int, distance_only: bool) -> Dictionary:
 	var direct: Dictionary = {"ok":false,"status":"unreachable","reason":"没有合法通路"}
 	if source_floor==target_floor:
-		direct = _floor_route(world,actor,source_floor,start,goal,members,offsets,true,{},true)
+		direct = _floor_route(world,actor,source_floor,start,goal,members,offsets,true,{},true,distance_only)
 		if direct.ok and (world.facts.connectors.is_empty() or int(direct.walking_distance)==absi(goal.x-start.x)+absi(goal.y-start.y)):
 			direct.travel_ticks = HospitalTransit._add(initial_ticks,HospitalTransit.walking_ticks(space,actor,members,float(direct.walking_distance)))
 			if int(direct.travel_ticks)<0: return {"ok":false,"status":"time_overflow","reason":"基准通行时间超出整数范围"}
@@ -58,69 +115,95 @@ func _point_route(world: WorldState, actor: Dictionary, source_floor: int, start
 			return direct
 	space.query_counts.transport_searches += 1
 	var nodes: Dictionary = {"start":{"floor_id":source_floor,"cell":start},"goal":{"floor_id":target_floor,"cell":goal}}
-	var costs: Dictionary = {"start":initial_ticks}
-	var previous: Dictionary = {}
-	var heap: Array = []
-	HospitalTransit._push(heap,{"id":"start","tick":initial_ticks})
-	var compatible: Dictionary = {}
-	var connections: Dictionary = {}
-	var stops: Dictionary = {}
-	var candidates: Dictionary = HospitalTransit._routing_candidates(world,source_floor,target_floor)
-	while not heap.is_empty():
-		var item: Dictionary = HospitalTransit._pop(heap)
-		var id: String = item.id
-		if int(item.tick)!=int(costs[id]): continue
-		if id=="goal":
-			var chunks: Array = []
-			var distance: float = 0.0
-			while id!="start":
-				if not distance_only: chunks.push_front(previous[id].path)
-				distance += float(previous[id].walking_distance)
-				id = previous[id].from
-			var result: Dictionary = {"ok":true,"status":"complete","reason":"","walking_distance":distance,"travel_ticks":int(item.tick),"quoted_tick":world.sim_tick}
-			if not distance_only:
-				var path: Array = []
-				for chunk: Array in chunks: path.append_array(chunk)
-				result.path = path
-			return result
-		var node: Dictionary = nodes[id]
-		var floor_id: int = int(node.floor_id)
-		if floor_id==target_floor:
-			var finish: Dictionary = direct if id=="start" and source_floor==target_floor else _floor_route(world,actor,target_floor,node.cell,goal,members,offsets,true,{},true)
-			if finish.ok:
-				var cost: int = HospitalTransit._add(int(item.tick),HospitalTransit.walking_ticks(space,actor,members,float(finish.walking_distance)))
-				if cost>=0: HospitalTransit._relax(heap,costs,previous,id,"goal",cost,[] if distance_only else finish.path,float(finish.walking_distance))
-		if not connections.has(floor_id):
-			connections[floor_id] = []
-			for connector_id: String in world.ids("connectors"):
-				space.query_counts.candidate_connections += 1
-				var connection: Dictionary = world.facts.connectors[connector_id]
-				if not HospitalTransit.has_stop(connection,floor_id): continue
-				if not compatible.has(connector_id): compatible[connector_id] = HospitalTransit.fits(space,world,connection,actor.id,members).ok
-				if compatible[connector_id]: connections[floor_id].append(connector_id)
-		for connector_id: String in connections[floor_id]:
-			var connection: Dictionary = world.facts.connectors[connector_id]
-			var anchor: Vector2i = Vector2i(int(connection.anchor[0]),int(connection.anchor[1]))
-			var before: Dictionary = _floor_route(world,actor,floor_id,node.cell,anchor,members,offsets,true,{},true)
-			if not before.ok: continue
-			if not stops.has(connector_id): stops[connector_id] = HospitalTransit.routing_stops(connection,world,source_floor,target_floor,candidates)
-			var definition: Dictionary = space.content.definition("vertical_connectors",connection.definition_id)
-			for destination: int in stops[connector_id]:
-				if destination==floor_id or definition.kind=="stairs" and absi(destination-floor_id)!=1: continue
-				if HospitalTransit._lowering(connection) and destination>=floor_id: continue
-				var travel: int = HospitalTransit._travel_ticks(space,connection,floor_id,destination)
-				var cost: int = HospitalTransit._add(int(item.tick),HospitalTransit.walking_ticks(space,actor,members,float(before.walking_distance)))
-				cost = HospitalTransit._add(cost,HospitalTransit._add(HospitalTransit._boarding(definition),HospitalTransit._add(travel,HospitalTransit._alighting(definition))))
-				if cost<0: continue
-				var next: String = connector_id+":"+str(destination)
-				nodes[next] = {"floor_id":destination,"cell":anchor}
-				var path: Array = [] if distance_only else before.path.duplicate()
-				if not distance_only: path.append({"kind":"connector","connector_id":connector_id,"from":floor_id,"to":destination})
-				HospitalTransit._relax(heap,costs,previous,id,next,cost,path,float(before.walking_distance))
+	var topology: Dictionary = _topology(world)
+	var node_ids: Array = topology.node_ids
+	var extra_stops: Dictionary = {}
+	for floor_id: int in {source_floor:true,target_floor:true}:
+		if topology.candidates.has(floor_id): continue
+		var extra: Dictionary = _topology_floor_nodes(world,topology,floor_id)
+		if extra.ids.is_empty(): continue
+		if is_same(node_ids,topology.node_ids): node_ids = node_ids.duplicate()
+		node_ids.append_array(extra.ids)
+		nodes.merge(extra.nodes)
+		for id: String in extra.connectors:
+			if not extra_stops.has(id): extra_stops[id] = []
+			extra_stops[id].append(floor_id)
+	# Native vertex declarations reuse the topology; floor A* still runs only
+	# when Boost settles a node and requests its business-defined outgoing edges.
+	var context: Dictionary = {"nodes":nodes,"stops":topology.stops,"extra_stops":extra_stops,"query_stops":{},"topology":topology,"connections":{},"compatible":{},"edges":{},"source_floor":source_floor,"target_floor":target_floor,"goal":goal,"members":members,"offsets":offsets,"distance_only":distance_only,"direct":direct}
+	var solved: Dictionary = PlatformArrivalMath.route_search({"nodes":node_ids,"start":"start","goal":"goal","initial_ticks":initial_ticks,"expand":_point_edges.bind(world,actor,context)})
+	if solved.has("error"):
+		return {"ok":false,"status":"navigation_failed","reason":str(solved.get("bottleneck",solved.error))}
+	if solved.get("ok",false):
+		var chain: Array = solved.nodes
+		var chunks: Array = []
+		var distance: float = 0.0
+		# Retain the original reverse accumulation order for floating distances.
+		for index: int in range(chain.size()-1,0,-1):
+			var edge: Dictionary = context.edges[chain[index-1]][chain[index]]
+			distance += float(edge.walking_distance)
+			if not distance_only: chunks.push_front(edge.path)
+		var result: Dictionary = {"ok":true,"status":"complete","reason":"","walking_distance":distance,"travel_ticks":int(solved.travel_ticks),"quoted_tick":world.sim_tick}
+		if not distance_only:
+			var path: Array = []
+			for chunk: Array in chunks: path.append_array(chunk)
+			result.path = path
+		return result
 	if direct.ok: return {"ok":false,"status":"time_overflow","reason":"基准通行时间超出整数范围"}
 	return direct if source_floor==target_floor else {"ok":false,"status":"unreachable","reason":"没有身体、停层和运行方向均合法的竖向通路"}
 
-func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2i, goal: Vector2i, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, navigation: Dictionary = {}, structural_only: bool = false) -> Dictionary:
+func _point_edges(id: String, world: WorldState, actor: Dictionary, context: Dictionary) -> Array:
+	var node: Dictionary = context.nodes.get(id,context.topology.nodes.get(id,{}))
+	var floor_id: int = int(node.floor_id)
+	var target_floor: int = int(context.target_floor)
+	var members: Array = context.members
+	var offsets: Dictionary = context.offsets
+	var distance_only: bool = bool(context.distance_only)
+	var outgoing: Array = []
+	var facts: Dictionary = {}
+	if floor_id==target_floor:
+		var finish: Dictionary = context.direct if id=="start" and int(context.source_floor)==target_floor else _floor_route(world,actor,target_floor,node.cell,context.goal,members,offsets,true,{},true,distance_only)
+		if finish.ok:
+			var ticks: int = HospitalTransit.walking_ticks(space,actor,members,float(finish.walking_distance))
+			if ticks>=0:
+				outgoing.append({"to":"goal","ticks":ticks})
+				facts.goal = {"path":[] if distance_only else finish.path,"walking_distance":float(finish.walking_distance)}
+	if not context.connections.has(floor_id):
+		context.connections[floor_id] = []
+		for connector_id: String in _floor_connections(context.topology,floor_id):
+			space.query_counts.candidate_connections += 1
+			var connection: Dictionary = world.facts.connectors[connector_id]
+			if not HospitalTransit.has_stop(connection,floor_id): continue
+			if not context.compatible.has(connector_id): context.compatible[connector_id] = HospitalTransit.fits(space,world,connection,actor.id,members).ok
+			if context.compatible[connector_id]: context.connections[floor_id].append(connector_id)
+	for connector_id: String in context.connections[floor_id]:
+		var connection: Dictionary = world.facts.connectors[connector_id]
+		var anchor: Vector2i = Vector2i(int(connection.anchor[0]),int(connection.anchor[1]))
+		var before: Dictionary = _floor_route(world,actor,floor_id,node.cell,anchor,members,offsets,true,{},true,distance_only)
+		if not before.ok: continue
+		var definition: Dictionary = space.content.definition("vertical_connectors",connection.definition_id)
+		var destinations: Array = context.stops[connector_id]
+		if context.extra_stops.has(connector_id):
+			if not context.query_stops.has(connector_id):
+				context.query_stops[connector_id] = destinations.duplicate()
+				context.query_stops[connector_id].append_array(context.extra_stops[connector_id])
+				context.query_stops[connector_id].sort()
+			destinations = context.query_stops[connector_id]
+		for destination: int in destinations:
+			if destination==floor_id or definition.kind=="stairs" and absi(destination-floor_id)!=1: continue
+			if HospitalTransit._lowering(connection) and destination>=floor_id: continue
+			var travel: int = HospitalTransit._travel_ticks(space,connection,floor_id,destination)
+			var ticks: int = HospitalTransit._add(HospitalTransit.walking_ticks(space,actor,members,float(before.walking_distance)),HospitalTransit._add(HospitalTransit._boarding(definition),HospitalTransit._add(travel,HospitalTransit._alighting(definition))))
+			if ticks<0: continue
+			var next: String = connector_id+":"+str(destination)
+			var path: Array = [] if distance_only else before.path.duplicate()
+			if not distance_only: path.append({"kind":"connector","connector_id":connector_id,"from":floor_id,"to":destination})
+			outgoing.append({"to":next,"ticks":ticks})
+			facts[next] = {"path":path,"walking_distance":float(before.walking_distance)}
+	context.edges[id] = facts
+	return outgoing
+
+func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2i, goal: Vector2i, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, navigation: Dictionary = {}, structural_only: bool = false, cost_only: bool = false) -> Dictionary:
 	var routes: Dictionary = {}
 	var key: String = ""
 	if navigation.is_empty() and not space._route_queries.is_empty() and space._route_queries.back().world==world and (ignore_people or space._route_queries.back().get("dynamic",false)):
@@ -128,7 +211,7 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 		var identity: Variant = actor.id
 		if not space._route_queries.back().reference.is_empty() and members.is_empty() and offsets.is_empty():
 			identity = [space.body(actor),[] if structural_only else RouteClearance.reservation_exemptions(world,actor.id,floor_id)]
-		key = JSON.stringify([identity,floor_id,start.x,start.y,goal.x,goal.y,members,offsets,ignore_people,structural_only,_route_envelope(world,actor,members,offsets)])
+		key = JSON.stringify([identity,floor_id,start.x,start.y,goal.x,goal.y,members,offsets,ignore_people,structural_only,cost_only,_route_envelope(world,actor,members,offsets)])
 		if routes.has(key):
 			space.query_counts.floor_route_hits += 1
 			return routes[key].duplicate(true)
@@ -146,10 +229,10 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 			return space._unit_step_dynamic_clear(world,actor,floor_id,from_cell,to_cell,members,offsets)
 	var result: Dictionary
 	if not space._route_queries.is_empty() and space._route_queries.back().world==world and members.is_empty() and offsets.is_empty() and not navigation.has("query") and not navigation.get("overlay",false) and navigation.bases.is_empty() and navigation.shifts.is_empty():
-		result = space._navigation.cached_floor_path(space,world,floor_id,actor,graph,query,start,goal)
+		result = space._navigation.cached_floor_path(space,world,floor_id,actor,graph,query,start,goal,cost_only)
 	else:
-		result = graph.find_path(start,goal,query,Callable(),false,navigation.bases,navigation.shifts,bool(navigation.get("overlay",false)))
-	if result.ok and people.is_valid():
+		result = graph.find_path(start,goal,query,Callable(),false,navigation.bases,navigation.shifts,bool(navigation.get("overlay",false)),cost_only)
+	if result.ok and people.is_valid() and not cost_only:
 		var low: Vector2 = Vector2(start)
 		var high: Vector2 = low
 		for cell: Array in result.cells:
@@ -173,12 +256,13 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 				var actual_start: bool = actor.location.kind=="floor" and int(actor.location.floor_id)==floor_id and goal==Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
 				var alternative: Dictionary = {}
 				if actual_start or bool(people.call(goal,goal)):
-					alternative = graph.find_path(start,goal,query,people,false,navigation.bases,navigation.shifts,bool(navigation.get("overlay",false)))
+					alternative = graph.find_path(start,goal,query,people,false,navigation.bases,navigation.shifts,bool(navigation.get("overlay",false)),cost_only)
 				if alternative.get("ok",false):
 					result = alternative
 				else:
 					result.status = "contention"
-	if result.ok:
+	if result.ok and not cost_only:
+		space.query_counts.materialized_floor_cells += result.cells.size()
 		var path: Array = []
 		for cell: Array in result.cells:
 			path.append({"kind":"floor","floor_id":floor_id,"cell":cell})

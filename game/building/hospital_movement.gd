@@ -10,6 +10,11 @@ var _accepted_sweeps: Dictionary = {}
 var _route_checks: Dictionary = {}
 var _movement_reservations: Dictionary = {}
 var _world: WeakRef
+var _pending_world: WeakRef
+var _pending_routes: Dictionary = {}
+var _ready_routes: PlatformRouteQueue
+var _delayed_routes: PlatformRouteQueue
+var _phase_owners: Dictionary = {}
 
 func _init(geometry: HospitalSpace) -> void:
 	_space = weakref(geometry)
@@ -18,21 +23,7 @@ func _init(geometry: HospitalSpace) -> void:
 
 func request_move(world: WorldState, actor_id: String, floor_id: int, target: Array) -> String:
 	if world.facts.moves.has(actor_id):
-		var previous: Dictionary = world.facts.moves[actor_id]
-		if previous.target_floor!=floor_id or previous.target_cell!=target:
-			var reason: String = space.navigation.destination_reason(world,world.facts.actors[actor_id],floor_id,Vector2i(roundi(target[0]),roundi(target[1])))
-			if not reason.is_empty():
-				return reason
-			HospitalTransit.cancel_waiting(world,previous)
-			previous.erase("route_waypoint")
-			previous.target_floor = floor_id
-			previous.target_cell = target.duplicate()
-			previous.erase("route_retry_tick")
-			if world.facts.actors[actor_id].location.kind=="transit":
-				previous.replan_after_transit = true
-			elif previous.path.is_empty() or int(previous.cursor)>=previous.path.size() or previous.path[int(previous.cursor)].kind!="support_exit":
-				_replan_goal(world,previous,bool(previous.get("route_pending",false)))
-		return previous.get("waiting_reason","")
+		return _retarget(world,world.facts.moves[actor_id],floor_id,target)
 	var actor: Dictionary = world.facts.actors[actor_id]
 	if actor.location.kind!="floor":
 		return "角色正在竖向通行或院外"
@@ -49,9 +40,28 @@ func request_move(world: WorldState, actor_id: String, floor_id: int, target: Ar
 	_queue_route(world,world.facts.moves[actor_id])
 	return ""
 
+func _retarget(world: WorldState, previous: Dictionary, floor_id: int, target: Array) -> String:
+	if previous.target_floor==floor_id and previous.target_cell==target: return previous.get("waiting_reason","")
+	var actor: Dictionary = world.facts.actors[previous.actor_id]
+	var reason: String = space.navigation.destination_reason(world,actor,floor_id,Vector2i(roundi(target[0]),roundi(target[1])),previous.get("members",[]),previous.get("offsets",{}))
+	if not reason.is_empty(): return reason
+	HospitalTransit.cancel_waiting(world,previous)
+	previous.erase("route_waypoint")
+	previous.target_floor = floor_id
+	previous.target_cell = target.duplicate()
+	previous.erase("route_retry_tick")
+	previous.erase("waiting_reason")
+	if actor.location.kind=="transit": previous.replan_after_transit = true
+	elif previous.path.is_empty() or int(previous.cursor)>=previous.path.size() or previous.path[int(previous.cursor)].kind!="support_exit":
+		_replan_goal(world,previous,bool(previous.get("route_pending",false)))
+	return previous.get("waiting_reason","")
+
 func request_group_move(world: WorldState, primary_id: String, members: Array, offsets: Dictionary, floor_id: int, target: Array) -> String:
 	if world.facts.moves.has(primary_id):
-		return ""
+		var previous: Dictionary = world.facts.moves[primary_id]
+		if previous.get("members",[primary_id])!=members or previous.get("offsets",{})!=offsets:
+			return "等待原同行组结束或取消后再变更成员与配位"
+		return _retarget(world,previous,floor_id,target)
 	for member_id: String in members:
 		if world.facts.moves.has(member_id):
 			return "等待陪同成员结束当前真实移动"
@@ -78,9 +88,10 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 		_world = weakref(world)
 	_sweep_index.begin_boundary(world.facts.actors)
 	_accepted_sweeps.clear()
+	_phase_owners.clear()
 	space._ensure_actor_index(world)
 	space.release_adaptations(world)
-	_movement_reservations = space._build_reservation_view(world)
+	_movement_reservations = space.reservation_view(world)
 	HospitalTransit.advance(space,world)
 	_dispatch_routes(world,world.present_actor_count() if present_at_start<0 else present_at_start)
 	for id: String in _route_checks.keys():
@@ -98,7 +109,10 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 		if actor.location.kind == "transit" or movement.get("route_pending",false):
 			continue
 		if not _active_route_clear(world,actor,movement,floor_versions):
-			_replan_goal(world,movement)
+			if int(movement.cursor)<movement.path.size() and movement.path[int(movement.cursor)].kind=="support_exit":
+				movement.waiting_reason = "等待支撑设施离位通路恢复"
+			else:
+				_replan_goal(world,movement)
 			continue
 		if int(movement.cursor)==0:
 			movement.cursor = _initial_route_cursor(actor,movement.path)
@@ -130,12 +144,8 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 		var swept: Rect2 = initial_rect
 		for sweep: BodyIndex.Record in sweeps:
 			swept = swept.merge(sweep.sweep_from).merge(sweep.sweep_to)
-		if segment.kind!="support_exit":
-			var floor_id: int = int(actor.location.floor_id)
-			var query: RouteClearance = space.navigation.structural_clearance(world,actor,floor_id,members if members.size()>1 else [],offsets)
-			if not _step_static_clear(world,actor,movement,next,query):
-				continue
-		if not _reserve_doors(world,actor,movement,swept):
+		var doors: Array[Dictionary] = space.movement_doors(world,actor,swept,members)
+		if not _reserve_doors(world,actor,movement,swept,doors):
 			continue
 		if not _movement_clear(world,actor_id,int(actor.location.floor_id),swept,sweeps,members):
 			if int(movement.blocked_since) < 0:
@@ -144,8 +154,9 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 				_yield(world,actor,movement,swept)
 			continue
 		movement.blocked_since = -1
+		movement.erase("waiting_reason")
 		actor.location.cell = [next.x,next.y]
-		_mark_door_use(world,int(actor.location.floor_id),swept)
+		_mark_door_use(world,int(actor.location.floor_id),swept,doors)
 		if segment.kind == "support_exit":
 			actor.location.height_m = move_toward(float(actor.location.get("height_m",0)),0.0,speed*HospitalSpace.CELL_METERS*WorldState.TICK_SECONDS)
 		actor.facing = atan2(target.x-start.x,target.y-start.y)
@@ -175,10 +186,29 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 	_sweep_index.expire_boundary()
 	_movement_reservations = {}
 
+func _ensure_route_queue(world: WorldState) -> void:
+	if _pending_world!=null and _pending_world.get_ref()==world: return
+	_pending_world = weakref(world)
+	_pending_routes.clear()
+	_ready_routes = PlatformRouteQueue.new()
+	_delayed_routes = PlatformRouteQueue.new()
+	for id: String in world.facts.moves:
+		if world.facts.moves[id].get("route_pending",false): _schedule_route(world,world.facts.moves[id])
+	space.query_counts.route_dispatch_restores += 1
+
+func _schedule_route(world: WorldState, movement: Dictionary) -> void:
+	_pending_routes[movement.actor_id] = int(movement.request_sequence)
+	if int(movement.get("route_retry_tick",0))>world.sim_tick:
+		_delayed_routes.push({"id":movement.actor_id,"tick":int(movement.route_retry_tick),"sequence":int(movement.request_sequence)})
+	else:
+		_ready_routes.push({"id":movement.actor_id,"tick":int(movement.request_sequence)})
+
 func _queue_route(world: WorldState, movement: Dictionary) -> void:
+	_ensure_route_queue(world)
 	world.facts.move_request_next = int(world.facts.get("move_request_next",0))+1
 	movement.request_sequence = world.facts.move_request_next
 	movement.route_pending = true
+	_schedule_route(world,movement)
 
 func _checkpoint(actor: Dictionary) -> Dictionary:
 	return {"kind":"floor","floor_id":int(actor.location.floor_id),"cell":actor.location.cell.duplicate()}
@@ -189,46 +219,54 @@ func _replan_goal(world: WorldState, movement: Dictionary, preserve_order: bool 
 	movement.yielding = false
 	movement.erase("yield_partner")
 	_route_checks.erase(movement.actor_id)
-	if not preserve_order: _queue_route(world,movement)
+	if not preserve_order:
+		_queue_route(world,movement)
+	else:
+		_ensure_route_queue(world)
+		_schedule_route(world,movement)
 
 func _active_route_clear(world: WorldState, actor: Dictionary, movement: Dictionary, versions: Dictionary) -> bool:
+	space.query_counts.route_checks += 1
 	var sequence: int = int(movement.get("request_sequence",0))
 	var record: Dictionary = _route_checks.get(actor.id,{})
 	if record.is_empty() or int(record.sequence)!=sequence:
 		var floors: Dictionary = {}
 		var connections: Dictionary = {}
 		for segment: Dictionary in movement.path.slice(int(movement.cursor)):
-			if segment.kind=="connector":
-				connections[segment.connector_id] = true
-			else:
-				floors[int(segment.floor_id)] = true
-		record = {"sequence":sequence,"floors":floors.keys(),"connections":connections.keys(),"stamp":[]}
+			if segment.kind=="connector": connections[segment.connector_id] = []
+			else: floors[int(segment.floor_id)] = -1
+		record = {"sequence":sequence,"floors":floors,"connections":connections,"tokens":{},"members":[],"offsets":{},"validated":false}
+	var members: Array = movement.get("members",[actor.id])
+	var offsets: Dictionary = movement.get("offsets",{})
+	var changed: bool = not record.validated or record.members!=members or record.offsets!=offsets
+	for id: String in members:
+		if record.tokens.get(id,-1)!=int(space._actor_shapes[id].token): changed = true
 	for floor_id: int in record.floors:
-		if not versions.has(floor_id):
-			versions[floor_id] = space._navigation.floor_version(space,world,floor_id)
-	if record.get("simple",false) and int(record.token)==int(space._actor_shapes[actor.id].token) and int(record.version)==int(versions[record.floors[0]]):
-		return true
-	var stamp: Array = []
-	for id: String in movement.get("members",[actor.id]):
-		var member: Dictionary = world.facts.actors[id]
-		stamp.append([member.species_id,member.get("body_binding_id",""),member.get("posture","standing"),movement.get("offsets",{}).get(id,[0,0])])
-	for floor_id: int in record.floors:
-		stamp.append(versions[floor_id])
+		if not versions.has(floor_id): versions[floor_id] = space._navigation.floor_version(space,world,floor_id)
+		if record.floors[floor_id]!=versions[floor_id]: changed = true
+	if not versions.has("connections"): versions.connections = {}
 	for id: String in record.connections:
-		var connection: Dictionary = world.facts.connectors.get(id,{})
-		if connection.is_empty():
-			return false
-		stamp.append([connection.definition_id,HospitalTransit.endpoints(connection),connection.anchor,connection.get("failed",false),connection.get("pending_failure",false)])
-	if record.stamp==stamp:
-		return true
+		if not versions.connections.has(id):
+			var connection: Dictionary = world.facts.connectors.get(id,{})
+			if connection.is_empty(): return false
+			versions.connections[id] = [connection.definition_id,HospitalTransit.endpoints(connection).duplicate(),connection.anchor.duplicate(),connection.get("failed",false),connection.get("pending_failure",false)]
+		if record.connections[id]!=versions.connections[id]: changed = true
+	if not changed: return true
+	space.query_counts.route_revalidations += 1
 	var floor_id: int = int(actor.location.floor_id)
 	var current: Vector2 = Vector2(float(actor.location.cell[0]),float(actor.location.cell[1]))
 	var queries: Dictionary = {}
-	var members: Array = movement.get("members",[])
-	var offsets: Dictionary = movement.get("offsets",{})
 	for segment: Dictionary in movement.path.slice(int(movement.cursor)):
 		if segment.kind=="support_exit":
-			current = Vector2(float(segment.cell[0]),float(segment.cell[1]))
+			# Leaving a support begins inside that owned support. Exclude only
+			# its solid footprint; walls, edits and every other obstacle remain.
+			var source: Dictionary = space._navigation.floor_source(space,world,floor_id).duplicate()
+			source.facilities = source.facilities.duplicate()
+			source.facilities.erase(actor.get("support_facility_id",""))
+			var departure: RouteClearance = RouteClearance.new(space,world,actor,floor_id,members,offsets,false,source)
+			var exit: Vector2 = Vector2(float(segment.cell[0]),float(segment.cell[1]))
+			if not departure.sweep_reason(current,exit).is_empty(): return false
+			current = exit
 			continue
 		if segment.kind=="connector":
 			var connection: Dictionary = world.facts.connectors.get(segment.connector_id,{})
@@ -245,28 +283,51 @@ func _active_route_clear(world: WorldState, actor: Dictionary, movement: Diction
 		if not (queries[floor_id] as RouteClearance).sweep_reason(current,target).is_empty():
 			return false
 		current = target
-	record.stamp = stamp.duplicate(true)
-	record.simple = members.size()<=1 and record.connections.is_empty() and record.floors.size()==1
-	if record.simple:
-		record.token = space._actor_shapes[actor.id].token
-		record.version = versions[record.floors[0]]
+	record.validated = true
+	record.members = members.duplicate()
+	record.offsets = offsets.duplicate(true)
+	for id: String in members: record.tokens[id] = space._actor_shapes[id].token
+	for id: int in record.floors: record.floors[id] = versions[id]
+	for id: String in record.connections: record.connections[id] = versions.connections[id]
 	_route_checks[actor.id] = record
 	return true
 
 func _dispatch_routes(world: WorldState, present_at_start: int) -> void:
-	var pending: Array[String] = []
-	for id: String in world.ids("moves"):
-		var movement: Dictionary = world.facts.moves[id]
-		if movement.get("route_pending",false) and int(movement.get("route_retry_tick",0))<=world.sim_tick:
-			pending.append(id)
-	pending.sort_custom(func(a: String,b: String) -> bool:
-		var left: int = int(world.facts.moves[a].request_sequence)
-		var right: int = int(world.facts.moves[b].request_sequence)
-		return left<right if left!=right else a<b)
+	_ensure_route_queue(world)
+	while _delayed_routes.size()>0:
+		var due: Dictionary = _delayed_routes.pop()
+		if int(due.tick)>world.sim_tick:
+			_delayed_routes.push(due)
+			break
+		if not _pending_routes.has(due.id) or int(_pending_routes[due.id])!=int(due.sequence): continue
+		if not world.facts.moves.has(due.id):
+			_pending_routes.erase(due.id)
+			continue
+		var movement: Dictionary = world.facts.moves[due.id]
+		if not movement.get("route_pending",false):
+			_pending_routes.erase(due.id)
+			continue
+		if int(movement.get("route_retry_tick",0))<=world.sim_tick:
+			_ready_routes.push({"id":due.id,"tick":int(movement.request_sequence)})
 	var budget: int = maxi(int(space.content.balance.pathfinding.minimum_actor_requests_per_tick),ceili(float(present_at_start)/float(space.content.balance.pathfinding.actors_per_request)))
-	for index: int in mini(budget,pending.size()):
-		var id: String = pending[index]
+	var dispatched: int = 0
+	while dispatched<budget and _ready_routes.size()>0:
+		space.query_counts.route_dispatch_scans += 1
+		var item: Dictionary = _ready_routes.pop()
+		var id: String = str(item.id)
+		if not _pending_routes.has(id): continue
+		if not world.facts.moves.has(id):
+			_pending_routes.erase(id)
+			continue
 		var movement: Dictionary = world.facts.moves[id]
+		if not movement.get("route_pending",false):
+			_pending_routes.erase(id)
+			continue
+		if int(item.tick)!=int(movement.get("request_sequence",-1)): continue
+		if int(movement.get("route_retry_tick",0))>world.sim_tick: continue
+		dispatched += 1
+		space.query_counts["route_dispatches"] = int(space.query_counts.get("route_dispatches",0))+1
+		_pending_routes.erase(id)
 		var waypoint: Dictionary = movement.get("route_waypoint",{})
 		var floor_id: int = int(movement.target_floor) if waypoint.is_empty() else int(waypoint.floor_id)
 		var cell: Array = movement.target_cell if waypoint.is_empty() else waypoint.cell
@@ -365,6 +426,8 @@ func _movement_clear(world: WorldState, actor_id: String, floor_id: int, broad: 
 		candidates[id] = true
 	var ids: Array = candidates.keys()
 	ids.sort()
+	space.query_counts.movement_candidates += ids.size()
+	var reservations: Array = space._reservation_regions(world,floor_id,broad)
 	for sweep: BodyIndex.Record in sweeps:
 		var envelope: Rect2 = sweep.sweep_from.merge(sweep.sweep_to)
 		for id: String in ids:
@@ -375,7 +438,7 @@ func _movement_clear(world: WorldState, actor_id: String, floor_id: int, broad: 
 			var other_to: Rect2 = other_from if other==null else other.sweep_to
 			if envelope.intersects(other_from.merge(other_to),false) and BodySweep.intersects(sweep.sweep_from,sweep.sweep_to,other_from,other_to):
 				return false
-		for region: Dictionary in space._reservation_regions(world,floor_id,envelope):
+		for region: Dictionary in reservations:
 			var reservation: Dictionary = region.reservation
 			if int(reservation.floor_id)!=floor_id or actor_id==reservation.actor_id or actor_id in reservation.get("staff_ids",[]) or reservation.actor_id in members:
 				continue
@@ -383,12 +446,14 @@ func _movement_clear(world: WorldState, actor_id: String, floor_id: int, broad: 
 				return false
 	return true
 
-func _reserve_doors(world: WorldState, actor: Dictionary, movement: Dictionary, swept: Rect2) -> bool:
+func _reserve_doors(world: WorldState, actor: Dictionary, movement: Dictionary, swept: Rect2, doors: Array[Dictionary]) -> bool:
 	var floor_id: int = int(actor.location.floor_id)
-	for door: Dictionary in world.facts.floors.overrides.get(str(floor_id),{}).get("doors",[]):
-		if not swept.intersects(space._door_rect(door,space._door_span(actor,door)),false):
+	for door: Dictionary in doors:
+		var span: int = space._door_span(actor,door)
+		for id: String in movement.get("members",[]): span = maxi(span,space._door_span(world.facts.actors[id],door))
+		if not swept.intersects(space._door_rect(door,span),false):
 			continue
-		var quote: Dictionary = space.door_quote(world,actor,floor_id,door)
+		var quote: Dictionary = space.door_quote(world,actor,floor_id,door,movement.get("members",[]))
 		if not quote.ok or not swept.intersects(space._door_rect(door,int(quote.span)),false):
 			continue
 		var current: Dictionary = world.facts.adaptations.get(door.id,{})
@@ -398,31 +463,46 @@ func _reserve_doors(world: WorldState, actor: Dictionary, movement: Dictionary, 
 		var members: Array = movement.get("members",[actor.id])
 		if not space._dynamic_clear(world,actor.id,floor_id,rect,members):
 			return false
-		world.facts.adaptations[door.id] = {"kind":"door","owner_id":actor.id,"actor_id":actor.id,"staff_ids":members,"floor_id":floor_id,
+		var reservation: Dictionary = {"kind":"door","owner_id":actor.id,"actor_id":actor.id,"staff_ids":members,"floor_id":floor_id,
 			"span":quote.span,"clear_height_m":quote.clear_height_m,"clear_width_m":quote.clear_width_m,"regions":[[rect.position.x,rect.position.y,rect.size.x,rect.size.y]]}
-		if not _movement_reservations.is_empty(): space._index_reservation(_movement_reservations,str(door.id),world.facts.adaptations[door.id])
+		if current!=reservation:
+			world.facts.adaptations[door.id] = reservation
+			space.reservation_changed(world,str(door.id))
 	return true
 
-func _mark_door_use(world: WorldState, floor_id: int, swept: Rect2) -> void:
-	for door: Dictionary in world.facts.floors.overrides.get(str(floor_id),{}).get("doors",[]):
+func _mark_door_use(world: WorldState, floor_id: int, swept: Rect2, doors: Array[Dictionary]) -> void:
+	for door: Dictionary in doors:
 		var current: Dictionary = world.facts.adaptations.get(door.id,{})
 		if not current.is_empty() and swept.intersects(space._door_rect(door,int(current.span)),false):
 			door.used = true
 
-func _step_static_clear(world: WorldState, actor: Dictionary, movement: Dictionary, next: Vector2, query: RouteClearance = null) -> bool:
-	if query==null:
-		query = RouteClearance.new(space,world,actor,int(actor.location.floor_id),movement.get("members",[]),movement.get("offsets",{}),false,space._navigation.floor_source(space,world,int(actor.location.floor_id)))
-	var start: Vector2 = Vector2(float(actor.location.cell[0]),float(actor.location.cell[1]))
-	if query.sweep_reason(start,next).is_empty():
-		return true
-	_replan_goal(world,movement)
-	return false
+func _local_movement_owners(world: WorldState, floor_id: int, swept: Rect2, members: Array) -> Array:
+	if _phase_owners.is_empty():
+		for primary: String in world.facts.moves:
+			for id: String in world.facts.moves[primary].get("members",[primary]): _phase_owners[id] = primary
+	var found: Dictionary = {}
+	for id: String in space._actor_index.candidates(floor_id,swept,members):
+		var owner: String = str(_phase_owners.get(id,id))
+		if world.facts.moves.has(owner): found[owner] = true
+	var result: Array = found.keys()
+	result.sort()
+	return result
+
+func _route_occupancy(world: WorldState, actor: Dictionary, movement: Dictionary, floor_id: int) -> BodyIndex:
+	var result: BodyIndex = BodyIndex.new()
+	for index: int in range(int(movement.cursor),movement.path.size()):
+		var segment: Dictionary = movement.path[index]
+		if segment.kind=="floor" and int(segment.floor_id)==floor_id:
+			result.update(str(index),floor_id,space._unit_rect(world,actor,Vector2(float(segment.cell[0]),float(segment.cell[1])),movement.get("members",[]),movement.get("offsets",{})))
+	return result
 
 func _yield(world: WorldState, actor: Dictionary, movement: Dictionary, swept: Rect2) -> void:
 	if movement.yielding or movement.travelled.is_empty():
 		return
+	space.query_counts.yield_attempts += 1
 	var partner: String = ""
-	for other_id: String in world.ids("moves"):
+	for other_id: String in _local_movement_owners(world,int(actor.location.floor_id),swept,movement.get("members",[actor.id])):
+		space.query_counts.yield_candidates += 1
 		if other_id==actor.id:
 			continue
 		var other: Dictionary = world.facts.actors[other_id]
@@ -445,24 +525,20 @@ func _yield(world: WorldState, actor: Dictionary, movement: Dictionary, swept: R
 	if world.facts.moves[partner].yielding:
 		var other_move: Dictionary = world.facts.moves[partner]
 		if int(other_move.cursor)>=other_move.path.size():
-			var detour: Dictionary
-			if int(movement.target_floor)==int(actor.location.floor_id):
-				detour = space._floor_route(world,actor,int(actor.location.floor_id),
-					Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1])),
-					Vector2i(int(movement.target_cell[0]),int(movement.target_cell[1])),movement.get("members",[]),movement.get("offsets",{}))
-			else:
-				# A person going upstairs must also route around the parked yielder.
-				detour = space.route(world,actor.id,int(movement.target_floor),movement.target_cell,movement.get("members",[]),movement.get("offsets",{}))
-			if detour.ok:
-				_queue_local_route(world,actor,movement)
+			# Resolve this actual blockage once in the normal fair dispatcher.
+			_queue_local_route(world,actor,movement)
 		return
 	if _has_priority(world,actor.id,partner):
 		return
 	var current: Vector2i = Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
+	var seen: Dictionary = {}
 	for index: int in range(movement.travelled.size()-1,-1,-1):
 		var past: Dictionary = movement.travelled[index]
 		if int(past.floor_id)!=int(actor.location.floor_id):
 			continue
+		var identity: Vector2 = Vector2(float(past.cell[0]),float(past.cell[1]))
+		if seen.has(identity): continue
+		seen[identity] = true
 		if space.at(world,actor.id,int(actor.location.floor_id),past.cell):
 			continue
 		var cell: Vector2i = Vector2i(roundi(past.cell[0]),roundi(past.cell[1]))
@@ -482,6 +558,7 @@ func _yield(world: WorldState, actor: Dictionary, movement: Dictionary, swept: R
 	var offsets: Dictionary = movement.get("offsets",{})
 	var checker: RouteClearance = RouteClearance.new(space,world,actor,int(actor.location.floor_id),members,offsets,true,space._navigation.floor_source(space,world,int(actor.location.floor_id)))
 	var winner: Dictionary = world.facts.moves[partner]
+	var occupied: BodyIndex = _route_occupancy(world,world.facts.actors[partner],winner,int(actor.location.floor_id))
 	for radius: int in range(1,5):
 		for dx: int in range(-radius,radius+1):
 			var dy_abs: int = radius-absi(dx)
@@ -490,12 +567,7 @@ func _yield(world: WorldState, actor: Dictionary, movement: Dictionary, swept: R
 				if _narrow(world,actor,goal,checker) or not checker.reason(goal).is_empty(): continue
 				var rect: Rect2 = space._unit_rect(world,actor,Vector2(goal),members,offsets)
 				if not space._dynamic_clear(world,actor.id,int(actor.location.floor_id),rect,members): continue
-				var in_way: bool = false
-				for segment: Dictionary in winner.path.slice(int(winner.cursor)):
-					if segment.kind=="floor" and int(segment.floor_id)==int(actor.location.floor_id) and rect.intersects(space._unit_rect(world,world.facts.actors[partner],Vector2(float(segment.cell[0]),float(segment.cell[1])),winner.get("members",[]),winner.get("offsets",{})),false):
-						in_way = true
-						break
-				if in_way: continue
+				if occupied.intersects(int(actor.location.floor_id),rect,""): continue
 				var retreat: Dictionary = space._floor_route(world,actor,int(actor.location.floor_id),current,goal,members,offsets)
 				if not retreat.ok or retreat.get("status","")=="contention": continue
 				movement.route_waypoint = {"floor_id":int(actor.location.floor_id),"cell":[goal.x,goal.y],"continuation":[]}
@@ -506,21 +578,20 @@ func _yield(world: WorldState, actor: Dictionary, movement: Dictionary, swept: R
 
 func _yield_idle_staff(world: WorldState, actor: Dictionary, movement: Dictionary, swept: Rect2) -> bool:
 	var floor_id: int = int(actor.location.floor_id)
-	var route_cells: Array = []
-	for segment: Dictionary in movement.path.slice(int(movement.cursor)):
-		if segment.get("kind","")=="floor" and int(segment.get("floor_id",-1))==floor_id:
-			route_cells.append(segment.cell)
-	if route_cells.is_empty():
-		route_cells.append(movement.target_cell)
+	var occupied: BodyIndex = _route_occupancy(world,actor,movement,floor_id)
+	if occupied._records.is_empty(): occupied.update("goal",floor_id,space._actor_rect(actor,Vector2(float(movement.target_cell[0]),float(movement.target_cell[1]))))
 	var candidates: Array[Dictionary] = []
-	for staff_id: String in world.ids("staff"):
+	var responsibilities: Dictionary = {}
+	for staff_id: String in space._actor_index.candidates(floor_id,swept,movement.get("members",[actor.id])):
+		if not world.facts.staff.has(staff_id): continue
+		space.query_counts.yield_candidates += 1
 		if world.facts.moves.has(staff_id) or not world.facts.actors.has(staff_id):
 			continue
 		var staff_actor: Dictionary = world.facts.actors[staff_id]
 		if staff_actor.location.kind!="floor" or int(staff_actor.location.floor_id)!=floor_id or staff_actor.get("posture","standing")!="standing":
 			continue
 		var blocker_rect: Rect2 = space._actor_rect(staff_actor,Vector2(float(staff_actor.location.cell[0]),float(staff_actor.location.cell[1])))
-		if not swept.intersects(blocker_rect,false) or _staff_has_movement_responsibility(world,staff_id):
+		if not swept.intersects(blocker_rect,false) or _staff_has_movement_responsibility(world,staff_id,responsibilities):
 			continue
 		var origin: Vector2i = Vector2i(roundi(staff_actor.location.cell[0]),roundi(staff_actor.location.cell[1]))
 		var checker: RouteClearance = RouteClearance.new(space,world,staff_actor,floor_id,[],{},true,space._navigation.floor_source(space,world,floor_id))
@@ -532,12 +603,7 @@ func _yield_idle_staff(world: WorldState, actor: Dictionary, movement: Dictionar
 					if goal==origin or _narrow(world,staff_actor,goal,checker):
 						continue
 					var goal_rect: Rect2 = space._actor_rect(staff_actor,Vector2(goal))
-					var requester_path: bool = false
-					for cell: Array in route_cells:
-						if goal_rect.intersects(space._actor_rect(actor,Vector2(float(cell[0]),float(cell[1]))),false):
-							requester_path = true
-							break
-					if requester_path or not checker.reason(goal).is_empty():
+					if occupied.intersects(floor_id,goal_rect,"") or not checker.reason(goal).is_empty():
 						continue
 					if not space._dynamic_clear(world,staff_id,floor_id,goal_rect):
 						continue
@@ -560,25 +626,28 @@ func _yield_idle_staff(world: WorldState, actor: Dictionary, movement: Dictionar
 	var choice: Dictionary = candidates[0]
 	return request_move(world,str(choice.id),floor_id,[float(choice.goal.x),float(choice.goal.y)]).is_empty()
 
-func _staff_has_movement_responsibility(world: WorldState, staff_id: String) -> bool:
+func _staff_has_movement_responsibility(world: WorldState, staff_id: String, context: Dictionary = {}) -> bool:
 	var staff: Dictionary = world.facts.staff.get(staff_id,{})
 	if staff.is_empty() or HospitalClinicalDevelopment.safe_busy(world,staff_id):
 		return true
 	if not staff.get("base_task",{}).is_empty() or not str(staff.get("training_job_id","")).is_empty() or staff.get("life_task",{"phase":"idle"}).get("phase","idle")!="idle":
 		return true
-	for stay: Dictionary in world.facts.ward_stays.values():
-		if staff_id in [stay.get("nurse_id",""),stay.get("round_doctor_id",""),stay.get("escort_id","")] and not stay.get("phase","") in ["release_wait","complete"]:
-			return true
-	for reservation: Dictionary in world.facts.adaptations.values():
-		if staff_id in reservation.get("staff_ids",[]) or staff_id==reservation.get("actor_id",""):
-			return true
-	for reservation: Dictionary in world.facts.get("staff_life",{}).get("reservations",{}).values():
-		if staff_id in reservation.get("staff_ids",[]):
-			return true
-	for job: Dictionary in world.facts.get("training_jobs",{}).values():
-		if staff_id in [job.get("staff_id",""),job.get("mentor_id","")] and not HospitalClinicalDevelopment.terminal(job):
-			return true
-	return false
+	if not context.has("owners"):
+		var owners: Dictionary = {}
+		for stay: Dictionary in world.facts.ward_stays.values():
+			if not stay.get("phase","") in ["release_wait","complete"]:
+				for id: String in [stay.get("nurse_id",""),stay.get("round_doctor_id",""),stay.get("escort_id","")]: owners[id] = true
+		for reservation: Dictionary in world.facts.adaptations.values():
+			owners[reservation.get("actor_id","")] = true
+			for id: String in reservation.get("staff_ids",[]): owners[id] = true
+		for reservation: Dictionary in world.facts.get("staff_life",{}).get("reservations",{}).values():
+			for id: String in reservation.get("staff_ids",[]): owners[id] = true
+		for job: Dictionary in world.facts.get("training_jobs",{}).values():
+			if not HospitalClinicalDevelopment.terminal(job):
+				owners[job.get("staff_id","")] = true
+				owners[job.get("mentor_id","")] = true
+		context.owners = owners
+	return context.owners.has(staff_id)
 
 func _narrow(world: WorldState, actor: Dictionary, origin: Vector2i, checker: RouteClearance = null) -> bool:
 	var available: int = 0

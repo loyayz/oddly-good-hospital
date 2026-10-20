@@ -90,6 +90,8 @@ func cached_static_geometry(space: HospitalSpace, world: WorldState, floor_id: i
 		source_record.graphs[key] = entry.graph.geometry.get_instance_id()
 	_used += 1
 	entry.used = _used
+	_entries.erase(key)
+	_entries[key] = entry
 	return entry.graph.geometry
 
 func query_graphs(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, members: Array, offsets: Dictionary) -> Dictionary:
@@ -127,8 +129,10 @@ func graph(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictio
 			_entries[key] = entry
 		source_record.graphs[key] = entry.graph.geometry.get_instance_id()
 	entry.used = _used
+	_entries.erase(key)
+	_entries[key] = entry
 	var result: FloorNavigation = entry.graph
-	_trim(int(space.content.balance.pathfinding.graph_cache_target_bytes))
+	_trim(int(space.content.balance.pathfinding.graph_cache_target_bytes),space.query_counts)
 	return result
 
 func _refresh_graph(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, members: Array, offsets: Dictionary, source: Dictionary, entry: Dictionary) -> Dictionary:
@@ -148,14 +152,15 @@ func _refresh_graph(space: HospitalSpace, world: WorldState, floor_id: int, acto
 	_charged += charge
 	return entry
 
-func _trim(target: int) -> void:
+func _trim(target: int, counts: Dictionary = {}) -> void:
 	if _charged+_query_charged<=target and _query_charged<=target/4: return
+	counts["cache_trims"] = int(counts.get("cache_trims",0))+1
 	var keys: Array = _entries.keys()
-	keys.sort_custom(func(a: String,b: String) -> bool:
-		return int(_entries[a].used)<int(_entries[b].used) if _entries[a].used!=_entries[b].used else a<b)
+	# Dictionary preserves insertion order; touches move entries to the tail.
 	for key: String in keys:
 		var entry: Dictionary = _entries[key]
 		if _query_charged>target/4:
+			counts["cache_query_clears"] = int(counts.get("cache_query_clears",0))+1
 			_query_charged -= int(entry.get("query_charge",0))
 			entry.query_charge = 0
 			entry.erase("queries")
@@ -167,6 +172,7 @@ func _trim(target: int) -> void:
 		_charged -= int(entry.charge)
 		_query_charged -= int(entry.get("query_charge",0))
 		_entries.erase(key)
+		counts["cache_graph_evictions"] = int(counts.get("cache_graph_evictions",0))+1
 	_prune_sources()
 
 func _prune_sources(current_floor: int = 0) -> void:
@@ -208,7 +214,7 @@ func clearance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Di
 		entry.queries[actor.id] = record
 		entry.query_charge += int(record.charge)
 		_query_charged += int(record.charge)
-	_trim(int(space.content.balance.pathfinding.graph_cache_target_bytes))
+	_trim(int(space.content.balance.pathfinding.graph_cache_target_bytes),space.query_counts)
 	return record.query
 
 # Complete inputs consumed by a single body's reservation checks. Actor/staff
@@ -230,7 +236,7 @@ func _build_reservation_stamp(graph: FloorNavigation, world: WorldState, floor_i
 
 # Cache only the pure single-body A* result of this exact clearance query.
 # Dynamic bodies, group overlays and complete transit are checked by Space.
-func cached_floor_path(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, graph: FloorNavigation, query: RouteClearance, start: Vector2i, goal: Vector2i) -> Dictionary:
+func cached_floor_path(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, graph: FloorNavigation, query: RouteClearance, start: Vector2i, goal: Vector2i, cost_only: bool = false) -> Dictionary:
 	var key: String = str(floor_id)+":"+_envelope(space,world,actor,[],{},floor_source(space,world,floor_id))
 	var entry: Dictionary = _entries.get(key,{})
 	var record: Dictionary = entry.get("queries",{}).get(actor.id,{})
@@ -241,21 +247,21 @@ func cached_floor_path(space: HospitalSpace, world: WorldState, floor_id: int, a
 	# also remain valid computations but cannot use this record's allowance.
 	if entry.is_empty() or entry.graph!=graph or record.is_empty() or (query!=graph.geometry and record.query!=query):
 		space.query_counts.static_path_builds += 1
-		return graph.find_path(start,goal,query)
+		return graph.find_path(start,goal,query,Callable(),false,[],[],false,cost_only)
 	if not record.has("paths"): record.paths = {}
 	var endpoints: Vector4i = Vector4i(start.x,start.y,goal.x,goal.y)
-	if record.paths.has(endpoints):
+	if record.paths.has(endpoints) and (cost_only or not record.paths[endpoints].value.get("ok",false) or record.paths[endpoints].has("cells")):
 		space.query_counts.static_path_hits += 1
 		var saved: Dictionary = record.paths[endpoints]
 		var result: Dictionary = saved.value.duplicate()
-		if saved.has("cells"):
+		if saved.has("cells") and not cost_only:
 			result.cells = []
 			for id: int in saved.cells:
 				var cell: Vector2i = FloorNavigation._cell(id)
 				result.cells.append([cell.x,cell.y])
 		return result
 	space.query_counts.static_path_builds += 1
-	var result: Dictionary = graph.find_path(start,goal,query)
+	var result: Dictionary = graph.find_path(start,goal,query,Callable(),false,[],[],false,cost_only)
 	var saved: Dictionary = {"value":result.duplicate()}
 	var charge: int = 512+var_to_bytes(result).size()*8
 	if result.has("cells"):
@@ -264,11 +270,15 @@ func cached_floor_path(space: HospitalSpace, world: WorldState, floor_id: int, a
 		saved.value.erase("cells")
 		saved.cells = cells
 		charge += cells.size()*16
+	# Replacing an earlier cost-only record must not charge its allowance twice.
+	var previous_charge: int = int(record.paths.get(endpoints,{}).get("charge",0))
+	charge -= previous_charge
+	saved.charge = charge+previous_charge
 	record.paths[endpoints] = saved
 	record.charge += charge
 	entry.query_charge = int(entry.get("query_charge",0))+charge
 	_query_charged += charge
-	_trim(int(space.content.balance.pathfinding.graph_cache_target_bytes))
+	_trim(int(space.content.balance.pathfinding.graph_cache_target_bytes),space.query_counts)
 	return result
 
 func travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, start: Vector2i, goal: Vector2i, witness: bool = false) -> Dictionary:
@@ -321,7 +331,7 @@ func _travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, ac
 		record.charge += charge
 		entry.query_charge = int(entry.get("query_charge",0))+charge
 		_query_charged += charge
-	_trim(int(space.content.balance.pathfinding.graph_cache_target_bytes))
+	_trim(int(space.content.balance.pathfinding.graph_cache_target_bytes),space.query_counts)
 	if not record.ready: return {"ready":false}
 	if not FloorNavigation._inside(start) or not FloorNavigation._inside(goal):
 		return {"ready":true,"ok":false,"reason":"目标超出96×96真实楼面"}

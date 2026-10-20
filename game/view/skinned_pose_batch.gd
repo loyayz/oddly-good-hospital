@@ -86,8 +86,8 @@ func bind_sources(meshes: Array[MeshInstance3D], skeletons: Array[Skeleton3D]) -
 	_skeletons = skeletons.duplicate()
 	for source: MeshInstance3D in _sources:
 		_source_visibility.append(source.visible)
-	_page_width = _power_of_two(_bone_count * 3)
-	_page_height = _power_of_two(_sources.size())
+	_page_width = nearest_po2(_bone_count * 3)
+	_page_height = nearest_po2(_sources.size())
 	for page: int in 2:
 		var image: Image = Image.create_empty(_page_width, _page_height, false, Image.FORMAT_RGBAF)
 		_images.append(image)
@@ -198,12 +198,6 @@ func _suspend() -> void:
 	for index: int in _sources.size():
 		if is_instance_valid(_sources[index]):
 			_sources[index].visible = _source_visibility[index]
-
-static func _power_of_two(value: int) -> int:
-	var result: int = 1
-	while result < value:
-		result *= 2
-	return result
 
 static func _rigid(basis: Basis) -> bool:
 	return absf(basis.x.length_squared() - 1.0) < 0.001 and absf(basis.y.length_squared() - 1.0) < 0.001 and absf(basis.z.length_squared() - 1.0) < 0.001 and absf(basis.x.dot(basis.y)) < 0.001 and absf(basis.x.dot(basis.z)) < 0.001 and absf(basis.y.dot(basis.z)) < 0.001

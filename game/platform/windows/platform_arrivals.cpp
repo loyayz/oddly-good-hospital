@@ -10,6 +10,18 @@
 #include "scip/rationalgmp.h"
 #include <algorithm>
 #include <chrono>
+#include <cmath>
+#include <boost/geometry.hpp>
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/max_cardinality_matching.hpp>
+#include <boost/graph/connected_components.hpp>
+#include <boost/graph/dijkstra_shortest_paths.hpp>
+#include <boost/graph/depth_first_search.hpp>
+#include <boost/iterator/transform_iterator.hpp>
+#include "platform_graph_reachability.h"
+#include <queue>
+#include "platform_json_stream.h"
+#include <boost/geometry/index/rtree.hpp>
 #include <cstdio>
 #include <cstdlib>
 #include <functional>
@@ -806,18 +818,22 @@ StructuralCertificate structural_certificate(const StructuralGraph& graph, const
     }
 
     auto matching = [&](const Names& unavailable) {
-        std::map<std::string, std::vector<std::string>> edges;
-        for (const auto& edge : reception) if (!unavailable.count(edge.first) && !unavailable.count(edge.second)) edges[edge.first].push_back(edge.second);
-        std::map<std::string, std::string> owners;
-        std::function<bool(const std::string&, Names&)> augment = [&](const std::string& person, Names& seen) {
-            for (const auto& desk : edges[person]) if (seen.insert(desk).second) {
-                auto prior = owners.find(desk);
-                if (prior == owners.end() || augment(prior->second, seen)) { owners[desk] = person; return true; }
-            }
-            return false;
-        };
-        for (const auto& person : edges) { Names seen; augment(person.first, seen); }
-        return owners.size();
+        using Graph = boost::adjacency_list<boost::vecS, boost::vecS, boost::undirectedS>;
+        using Vertex = boost::graph_traits<Graph>::vertex_descriptor;
+        Graph graph;
+        std::map<std::string, Vertex> people, desks;
+        for (const auto& edge : reception) {
+            if (unavailable.count(edge.first) || unavailable.count(edge.second)) continue;
+            auto person = people.find(edge.first), desk = desks.find(edge.second);
+            if (person == people.end()) person = people.emplace(edge.first, boost::add_vertex(graph)).first;
+            if (desk == desks.end()) desk = desks.emplace(edge.second, boost::add_vertex(graph)).first;
+            boost::add_edge(person->second, desk->second, graph);
+        }
+        if (!boost::num_vertices(graph)) return size_t{0};
+        std::vector<Vertex> mate(boost::num_vertices(graph), boost::graph_traits<Graph>::null_vertex());
+        auto mapping = boost::make_iterator_property_map(mate.begin(), get(boost::vertex_index, graph));
+        boost::edmonds_maximum_cardinality_matching(graph, mapping);
+        return boost::matching_size(graph, mapping);
     };
     result.matching = matching(blocked);
     result.upper = std::min(result.upper, ratio * result.matching);
@@ -955,10 +971,6 @@ V structure_graph(const V& raw_cases, const V& raw_blocked, const V& raw_recepti
     std::vector<int> objectives;
     std::vector<std::pair<Pattern, int>> roots;
     std::set<int> reachable;
-    std::function<void(int)> visit = [&](int id) {
-        if (!reachable.insert(id).second) return;
-        for (int child : graph.nodes[id].children) visit(child);
-    };
     std::set<std::string> staff_anchors, facility_anchors;
     bool every_staff = true, every_facility = true;
     int64_t alternatives_before = 0, alternatives_after = 0;
@@ -971,7 +983,7 @@ V structure_graph(const V& raw_cases, const V& raw_blocked, const V& raw_recepti
         alternatives_before += terminal.second.size();
         auto choices = graph.minimal(terminal.second); alternatives_after += choices.size();
         int root = graph.intern({true, {}, std::move(choices)});
-        roots.emplace_back(terminal.first, root); visit(root);
+        roots.emplace_back(terminal.first, root);
         bool has_staff = false, has_facility = false;
         for (const auto& resource : std::get<0>(terminal.first)) {
             if (resource.compare(0, 6, "staff:") == 0) { staff_anchors.insert(resource); has_staff = true; }
@@ -979,6 +991,10 @@ V structure_graph(const V& raw_cases, const V& raw_blocked, const V& raw_recepti
         }
         every_staff = every_staff && has_staff; every_facility = every_facility && has_facility;
     }
+    // All roots are now interned. Borrow stable child vectors once and retain
+    // one color map across roots; case probabilities never enter K's graph.
+    hospital_graph::Reachability reachable_nodes(graph.nodes, [&](int id) { reachable.insert(id); });
+    for (const auto& root : roots) reachable_nodes.from(root.second);
     const int64_t presolve_us = micros() - presolve_started;
     const size_t proof_pairs = graph.subset_proofs.size();
     graph.required_resources.clear(); graph.subset_proofs.clear(); graph.nonempty_paths.clear();
@@ -1257,13 +1273,10 @@ struct Model {
             Case& target = cases[found->second]; target.probability += probability;
             target.members.push_back(Member{static_cast<int>(i), probability});
         }
-        std::set<int> reachable;
-        std::function<void(int)> visit = [&](int id) {
-            if (!reachable.insert(id).second) return;
+        hospital_graph::Reachability reachable_nodes(nodes, [&](int id) {
             for (const auto& value : nodes[id].resources) if (value.second != 0) used_resources.insert(value.first);
-            for (int child : nodes[id].children) visit(child);
-        };
-        for (const Case& item : cases) if (item.probability > 0) visit(item.root);
+        });
+        for (const Case& item : cases) if (item.probability > 0) reachable_nodes.from(item.root);
         enabled.assign(nodes.size(), true);
         resource_nodes.resize(resources.size());
         for (size_t i = 0; i < nodes.size(); ++i)
@@ -1770,6 +1783,13 @@ V calculate_integer(int operation, const V& first, const V& second) {
     }
     D output; output.set("value", V::text(result.str())); output.set("remainder", V::text(remainder.str())); return output.value();
 }
+#include "platform_spatial_index.h"
+#include "platform_route_queue.h"
+#include "platform_bed_matching.h"
+#include "platform_grid_component.h"
+#include "platform_route_search.h"
+#include "platform_json_stream.inc"
+#include "platform_backup_zip.h"
 struct CapacityInstance { std::unique_ptr<Model> model; };
 struct AggregateFractions {
     std::map<std::string, Q> parsed;
@@ -1819,9 +1839,12 @@ void free_model(void*, GDExtensionClassInstancePtr instance) {
     std::lock_guard<std::recursive_mutex> guard(discrete_mutex);
     delete static_cast<CapacityInstance*>(instance);
 }
-enum Method { SOLVE, FRACTION, INTEGER, STRUCTURE, AGGREGATE, AGGREGATE_COMPONENTS, THREAD_CPU, MONOTONIC_CLOCK, PREPARE_MODEL, SOLVE_MODEL, PREPARE_ROLES, SOLVE_ROLES };
+enum Method { SOLVE, FRACTION, INTEGER, STRUCTURE, AGGREGATE, AGGREGATE_COMPONENTS, THREAD_CPU, MONOTONIC_CLOCK, PERSONAL_BED_MATCHING, GRID_COMPONENT, ROUTE_SEARCH, PREPARE_MODEL, SOLVE_MODEL, PREPARE_ROLES, SOLVE_ROLES };
 struct MethodInfo { const char* name; Method method; std::vector<GDExtensionVariantType> arguments; };
 MethodInfo methods[] = {
+    {"route_search", ROUTE_SEARCH, {GDEXTENSION_VARIANT_TYPE_DICTIONARY}},
+    {"grid_component", GRID_COMPONENT, {GDEXTENSION_VARIANT_TYPE_ARRAY, GDEXTENSION_VARIANT_TYPE_ARRAY, GDEXTENSION_VARIANT_TYPE_ARRAY, GDEXTENSION_VARIANT_TYPE_BOOL}},
+    {"personal_bed_matching", PERSONAL_BED_MATCHING, {GDEXTENSION_VARIANT_TYPE_ARRAY, GDEXTENSION_VARIANT_TYPE_DICTIONARY}},
     {"solve", SOLVE, {GDEXTENSION_VARIANT_TYPE_ARRAY, GDEXTENSION_VARIANT_TYPE_DICTIONARY}},
     {"fraction", FRACTION, {GDEXTENSION_VARIANT_TYPE_INT, GDEXTENSION_VARIANT_TYPE_DICTIONARY, GDEXTENSION_VARIANT_TYPE_DICTIONARY}},
     {"integer", INTEGER, {GDEXTENSION_VARIANT_TYPE_INT, GDEXTENSION_VARIANT_TYPE_STRING, GDEXTENSION_VARIANT_TYPE_STRING}},
@@ -1837,6 +1860,9 @@ MethodInfo methods[] = {
 };
 V invoke(Method method, const std::vector<V>& args, GDExtensionClassInstancePtr instance) {
     try {
+        if (method == PERSONAL_BED_MATCHING) return solve_personal_bed_matching(args[0], args[1]);
+        if (method == GRID_COMPONENT) return solve_grid_component(args[0], args[1], args[2], args[3]);
+        if (method == ROUTE_SEARCH) return solve_route_search(args[0]);
         std::unique_lock<std::recursive_mutex> discrete_guard(discrete_mutex, std::defer_lock);
         int64_t lock_started = micros();
         if (method == SOLVE || method == STRUCTURE || method >= PREPARE_MODEL) discrete_guard.lock();
@@ -1926,7 +1952,7 @@ extern "C" void ogh_math_initialize(GDExtensionInterfaceGetProcAddress api, GDEx
     auto get_ctor = reinterpret_cast<GDExtensionInterfaceVariantGetPtrConstructor>(api("variant_get_ptr_constructor"));
     auto get_dtor = reinterpret_cast<GDExtensionInterfaceVariantGetPtrDestructor>(api("variant_get_ptr_destructor"));
     auto get_method = reinterpret_cast<GDExtensionInterfaceVariantGetPtrBuiltinMethod>(api("variant_get_ptr_builtin_method"));
-    for (auto kind : {GDEXTENSION_VARIANT_TYPE_INT, GDEXTENSION_VARIANT_TYPE_STRING, GDEXTENSION_VARIANT_TYPE_DICTIONARY, GDEXTENSION_VARIANT_TYPE_ARRAY}) {
+    for (auto kind : {GDEXTENSION_VARIANT_TYPE_INT, GDEXTENSION_VARIANT_TYPE_FLOAT, GDEXTENSION_VARIANT_TYPE_BOOL, GDEXTENSION_VARIANT_TYPE_STRING_NAME, GDEXTENSION_VARIANT_TYPE_CALLABLE, GDEXTENSION_VARIANT_TYPE_PACKED_BYTE_ARRAY, GDEXTENSION_VARIANT_TYPE_STRING, GDEXTENSION_VARIANT_TYPE_DICTIONARY, GDEXTENSION_VARIANT_TYPE_ARRAY}) {
         from_type[kind] = get_from(kind); to_type[kind] = get_to(kind);
         construct[kind] = get_ctor(kind, 0); destruct[kind] = get_dtor(kind);
     }
@@ -1968,13 +1994,25 @@ extern "C" void ogh_math_initialize(GDExtensionInterfaceGetProcAddress api, GDEx
         get_dtor(GDEXTENSION_VARIANT_TYPE_STRING_NAME)(&name);
     }
     destruct[GDEXTENSION_VARIANT_TYPE_STRING](&hint);
+    spatial_register(api);
+    route_queue_register(api);
+    json_register(api);
+    route_search_initialize(api);
+    backup_zip_register(api);
     for (Builtin* name : {&size_name, &append_name, &keys_name, &get_name, &object_name, &notification_name, &empty_name}) get_dtor(GDEXTENSION_VARIANT_TYPE_STRING_NAME)(name);
 #undef LOAD
 }
 extern "C" void ogh_math_deinitialize(GDExtensionInterfaceGetProcAddress api) {
+    route_search_deinitialize(api);
+    unregister_class(library, &backup_zip_class);
+    route_queue_unregister(api);
+    json_unregister(api);
+    unregister_class(library, &spatial_class);
     unregister_class(library, &math_class);
     unregister_class(library, &model_class);
     auto get_dtor = reinterpret_cast<GDExtensionInterfaceVariantGetPtrDestructor>(api("variant_get_ptr_destructor"));
+    get_dtor(GDEXTENSION_VARIANT_TYPE_STRING_NAME)(&spatial_class);
+    get_dtor(GDEXTENSION_VARIANT_TYPE_STRING_NAME)(&backup_zip_class);
     get_dtor(GDEXTENSION_VARIANT_TYPE_STRING_NAME)(&math_class);
     get_dtor(GDEXTENSION_VARIANT_TYPE_STRING_NAME)(&model_class);
     get_dtor(GDEXTENSION_VARIANT_TYPE_STRING_NAME)(&ref_class);

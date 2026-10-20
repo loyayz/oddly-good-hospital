@@ -74,7 +74,11 @@ func sync(world: WorldState) -> void:
 			var quote: Dictionary = space.facility_trip_quote(world,bed_id,staff_id)
 			if quote.ok: candidates[staff_id].append({"bed_id":bed_id,"travel_ticks":int(quote.travel_ticks)})
 	space.end_route_query()
-	var assigned: Dictionary = HospitalPersonalBedMatching.solve(staff_ids,candidates)
+	var result: Dictionary = HospitalPersonalBedMatching.compute(staff_ids,candidates)
+	if not result.ok:
+		_basis.clear()
+		return
+	var assigned: Dictionary = result.owners
 	for bed_id: String in assigned:
 		owners[bed_id] = {"staff_id":assigned[bed_id]}
 		_by_staff[assigned[bed_id]] = bed_id

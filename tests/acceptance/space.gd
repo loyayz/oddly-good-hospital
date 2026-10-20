@@ -100,7 +100,8 @@ const CASES: Dictionary = {
 	"SPACE-51":"docs/design/04-technical.md §6；参考层内与完整旅程缓存按预约通行权限隔离，同权限跨主体共享",
 	"SPACE-52":"docs/design/04-technical.md §3大面积预览；完整合法最大矩形、井道失败、相关重启与取消、共享原帧预算",
 	"SPACE-53":"docs/design/16-navigation-space-selection.md §7；实际遇阻后的局部路线保留完整身体争用检查",
-	"SPACE-54":"docs/specs/26-10/2026-10-19-task-navigation-movement.md §3/§4；未知估时仍出发、真实到场排队、途中改目标完成安全乘梯段"
+	"SPACE-54":"docs/specs/26-10/2026-10-19-task-navigation-movement.md §3/§4；未知估时仍出发、真实到场排队、途中改目标完成安全乘梯段",
+	"SPACE-55":"docs/specs/26-10/2026-10-19-task-navigation-movement.md §3/§4；成本报价、原生碰撞索引、同行组改目标及恢复"
 }
 
 var content: HospitalContent
@@ -1691,6 +1692,10 @@ func _case_54(_t) -> Dictionary:
 		target_changed_safely = sim.world.facts.actors.traveler.location==transit
 	var arrived: bool = _wait(sim,func() -> bool: return sim.space.at(sim.world,"traveler",1,[48,85]) and not sim.world.facts.moves.has("traveler"),1000,_movement_tick.bind(sim))
 	return _done(sim,boarding and eta.get("status","")=="estimate_unknown" and route.get("ok",false) and reachable and route.has("travel_ticks") and not route.has("arrival_ticks") and readonly and reason.is_empty() and reused and no_early_ticket and actual_wait and moving and target_changed_safely and arrived,{"eta":eta,"route":route,"readonly":readonly,"same_goal_reused":reused,"no_early_ticket":no_early_ticket,"actual_queue":ticket,"actual_wait":actual_wait,"target_changed_in_transit":target_changed_safely,"arrived_at_new_goal":arrived,"tick":sim.world.sim_tick,"remaining":sim.world.facts.moves.duplicate(true)})
+
+func _case_55(_t) -> Dictionary:
+	var result: Dictionary = preload("res://tests/acceptance/movement_review.gd").new().run_case(self)
+	return {"ok":result.ok,"details":result}
 
 func _fixture(preset: bool = false, cash: int = 1000000) -> HospitalSimulation:
 	_sequence += 1

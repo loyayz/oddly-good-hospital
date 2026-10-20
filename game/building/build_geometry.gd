@@ -89,18 +89,15 @@ static func _rectangle_inside(occupied: Dictionary, origin: Vector2i, dimensions
 	return true
 
 static func _flood(occupied: Dictionary, start: Vector2i, filled: bool, low: Vector2i, high: Vector2i) -> Dictionary:
-	var seen: Dictionary = {start:true}
-	var queue: Array[Vector2i] = [start]
-	var cursor: int = 0
-	while cursor<queue.size():
-		var current: Vector2i = queue[cursor]
-		cursor += 1
-		for direction: Vector2i in DIRECTIONS:
-			var next: Vector2i = current+direction
-			if next.x<low.x or next.x>high.x or next.y<low.y or next.y>high.y or seen.has(next) or occupied.has(next)!=filled:
-				continue
-			seen[next] = true
-			queue.append(next)
+	var cells: Array = []
+	for point: Vector2i in occupied:
+		cells.append([point.x,point.y])
+	var component: Dictionary = PlatformArrivalMath.grid_component(cells,[low.x,low.y,high.x,high.y],[start.x,start.y],filled)
+	if component.has("error"):
+		return {}
+	var seen: Dictionary = {}
+	for point: Array in component.cells:
+		seen[Vector2i(int(point[0]),int(point[1]))] = true
 	return seen
 
 static func walls(occupied: Dictionary) -> Array:

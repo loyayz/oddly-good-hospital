@@ -95,7 +95,7 @@ func _composed_edge(from: Vector2i, to: Vector2i, bases: Array[FloorNavigation],
 			return false
 	return true
 
-func find_path(start: Vector2i, goal: Vector2i, query: RouteClearance, people: Callable = Callable(), partial: bool = false, bases: Array[FloorNavigation] = [], shifts: Array[Vector2i] = [], overlay: bool = false) -> Dictionary:
+func find_path(start: Vector2i, goal: Vector2i, query: RouteClearance, people: Callable = Callable(), partial: bool = false, bases: Array[FloorNavigation] = [], shifts: Array[Vector2i] = [], overlay: bool = false, cost_only: bool = false) -> Dictionary:
 	if not _inside(start) or not _inside(goal):
 		return {"ok":false,"status":"unreachable","reason":"目标超出96×96真实楼面"}
 	var reason: String = query.reason(goal)
@@ -118,12 +118,17 @@ func find_path(start: Vector2i, goal: Vector2i, query: RouteClearance, people: C
 	neighbor_filter_enabled = false
 	if ids.is_empty():
 		return {"ok":false,"status":"unreachable","reason":"真实身体无法到达目标"}
+	var complete: bool = ids[ids.size()-1]==_id(goal)
+	var result: Dictionary = {"ok":complete,"status":"complete" if complete else "partial","reason":"" if complete else "只能到达部分路线","walking_distance":ids.size()-1}
+	# AStar2D exposes the native ID path. Cost queries retain its exact search
+	# and tie order without materializing script cells or executable segments.
+	if cost_only: return result
 	var path: Array = []
 	for index: int in range(1,ids.size()):
 		var cell: Vector2i = _cell(ids[index])
 		path.append([cell.x,cell.y])
-	var complete: bool = ids[ids.size()-1]==_id(goal)
-	return {"ok":complete,"status":"complete" if complete else "partial","reason":"" if complete else "只能到达部分路线","cells":path,"walking_distance":path.size()}
+	result.cells = path
+	return result
 
 func _filter_neighbor(from_id: int, to_id: int) -> bool:
 	var cell: Vector2i = _cell(to_id)

@@ -82,7 +82,7 @@ func _case_48(t, content: HospitalContent) -> void:
 	await preload("res://tests/acceptance/view_projection.gd").new().run(t,content)
 
 func _case_49(t, content: HospitalContent) -> void:
-	preload("res://tests/acceptance/stream_boundaries.gd").new().run(t,content)
+	preload("res://tests/acceptance/json_library_boundaries.gd").new().run(t,content)
 
 func _case_50(t, content: HospitalContent) -> void:
 	preload("res://tests/acceptance/checkpoint_dependencies.gd").new().run(t,content)

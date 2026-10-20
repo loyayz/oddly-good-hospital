@@ -28,8 +28,11 @@ if (-not (Test-Path -LiteralPath (Join-Path $dependencies 'include/boost/version
     if ($LASTEXITCODE) { throw 'Boost extraction failed' }
 }
 $discrete = & (Join-Path $PSScriptRoot 'build-arrival-discrete.ps1') -Zig $Zig
+$json = & (Join-Path $PSScriptRoot 'build-json-stream.ps1')
+$backup = & (Join-Path $PSScriptRoot 'build-backup-zip.ps1') -Zig $Zig
 Copy-Item -LiteralPath (Join-Path $discrete.soplex_include 'soplex/config.h') -Destination (Join-Path $AbiRoot 'soplex/config.h') -Force
-$flags = @('c++','-target','x86_64-windows-gnu','-std=c++17','-O2','-DNDEBUG','-DSCIP_STATIC_DEFINE','-I',$AbiRoot,'-isystem',$source,'-isystem',$discrete.soplex_include,'-isystem',$discrete.scip_include,'-isystem',$discrete.scip_source,'-isystem',(Join-Path $dependencies 'include'))
+$flags = @('c++','-target','x86_64-windows-gnu','-std=c++17','-O2','-DNDEBUG','-DSCIP_STATIC_DEFINE','-I',$AbiRoot,'-isystem',$source,'-isystem',$discrete.soplex_include,'-isystem',$discrete.scip_include,'-isystem',$discrete.scip_source,'-isystem',(Join-Path $dependencies 'include'),'-isystem',$json.include)
+foreach ($include in $backup.include) { $flags += @('-isystem',$include) }
 $backend = Join-Path $AbiRoot 'platform_arrivals.o'
 & $Zig @flags -Wall -Wextra -Werror -c (Join-Path $repo 'game/platform/windows/platform_arrivals.cpp') -o $backend
 if ($LASTEXITCODE) { throw 'Arrival math backend compilation failed' }
@@ -48,4 +51,4 @@ Copy-Item -LiteralPath (Join-Path $cache 'gmp-6.3.0/COPYING.LESSERv3') -Destinat
 Copy-Item -LiteralPath (Join-Path $cache 'gmp-6.3.0/COPYINGv3') -Destination (Join-Path $licenses 'GNU-GPL-3.0.txt') -Force
 $fmtHeader = Get-Content -LiteralPath (Join-Path $source 'soplex/external/fmt/format.h') -Raw
 [regex]::Match($fmtHeader,'(?s)^/\*.*?\*/').Value | Set-Content -LiteralPath (Join-Path $licenses 'fmt-MIT.txt') -Encoding utf8NoBOM
-[PSCustomObject]@{objects=@($backend);libraries=@($discrete.scip_library,$discrete.soplex_library,$discrete.mpfr_import,(Join-Path $dependencies 'lib/libgmp.dll.a'));soplex='8.1.0';scip=$discrete.scip;mpfr=$discrete.mpfr;gcc=$discrete.gcc;winpthreads=$discrete.winpthreads;gmp='6.3.0-2';boost='1.92.0-4';source_sha256=@($soplexSha,$gmpSha,$boostSha)+$discrete.source_sha256}
+[PSCustomObject]@{objects=@($backend);libraries=@($discrete.scip_library,$discrete.soplex_library,$discrete.mpfr_import,(Join-Path $dependencies 'lib/libgmp.dll.a'))+$backup.libraries;soplex='8.1.0';scip=$discrete.scip;mpfr=$discrete.mpfr;gcc=$discrete.gcc;winpthreads=$discrete.winpthreads;gmp='6.3.0-2';boost='1.92.0-4';rapidjson=$json.rapidjson;minizip_ng=$backup.minizip_ng;zlib=$backup.zlib;source_sha256=@($soplexSha,$gmpSha,$boostSha)+$discrete.source_sha256+@($json.source_sha256)+$backup.source_sha256}
