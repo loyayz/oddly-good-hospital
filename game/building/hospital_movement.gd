@@ -242,7 +242,7 @@ func _active_route_clear(world: WorldState, actor: Dictionary, movement: Diction
 	for id: String in members:
 		if record.tokens.get(id,-1)!=int(space._actor_shapes[id].token): changed = true
 	for floor_id: int in record.floors:
-		if not versions.has(floor_id): versions[floor_id] = space._navigation.floor_version(space,world,floor_id)
+		if not versions.has(floor_id): versions[floor_id] = space._navigation.floor_static_version(space,world,floor_id)
 		if record.floors[floor_id]!=versions[floor_id]: changed = true
 	if not versions.has("connections"): versions.connections = {}
 	for id: String in record.connections:

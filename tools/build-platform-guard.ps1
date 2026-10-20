@@ -67,7 +67,7 @@ try {
 $api = Get-Content -Raw -LiteralPath (Join-Path $abiRoot 'extension_api.json') | ConvertFrom-Json -Depth 100
 if ($api.header.precision -ne 'single') { throw 'The bridge ABI requires single-precision Godot.' }
 $sizes = ($api.builtin_class_sizes | Where-Object build_configuration -eq 'float_64').sizes
-$expectedSizes = @{ Variant = 24; String = 8; StringName = 8; Dictionary = 8; Array = 8; PackedByteArray = 16 }
+$expectedSizes = @{ Variant = 24; String = 8; StringName = 8; Dictionary = 8; Array = 8; PackedByteArray = 16; PackedInt32Array = 16 }
 foreach ($name in $expectedSizes.Keys) {
     if (($sizes | Where-Object name -eq $name).size -ne $expectedSizes[$name]) {
         throw "Unexpected engine ABI size for $name."
@@ -90,6 +90,7 @@ if (-not $userDirHash -or -not $notificationHash) { throw 'The required engine m
 #define OGH_DICTIONARY_SIZE 8
 #define OGH_ARRAY_SIZE 8
 #define OGH_PACKED_BYTE_ARRAY_SIZE 16
+#define OGH_PACKED_INT32_ARRAY_SIZE 16
 #define OGH_ARRAY_SIZE_HASH $arraySizeHash
 #define OGH_ARRAY_APPEND_HASH $arrayAppendHash
 #define OGH_BYTES_RESIZE_HASH $bytesResizeHash

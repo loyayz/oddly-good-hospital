@@ -48,12 +48,28 @@ func structural_clearance(world: WorldState, actor: Dictionary, floor_id: int, m
 	if query==null: query = RouteClearance.new(space,world,actor,floor_id,members,offsets,false,source)
 	return query
 
+# This synchronous projection retains the original floor and connector owners.
+# Only actors and adaptations differ. Share structural declarations and their
+# floor lookups, while body compatibility and routes remain query-local.
+func inherit_projection(world: WorldState, projected: WorldState) -> void:
+	if world==projected or world.facts.connectors.is_empty(): return
+	var original: Dictionary = _topology(world)
+	_prune_topologies()
+	var inherited: Dictionary = original.duplicate()
+	inherited.world = weakref(projected)
+	inherited.revision = projected.geometry_revision
+	_topologies[projected.get_instance_id()] = inherited
+	space.query_counts["connector_topology_inherits"] = int(space.query_counts.get("connector_topology_inherits",0))+1
+
+func _prune_topologies() -> void:
+	for old: int in _topologies.keys():
+		if _topologies[old].world.get_ref()==null: _topologies.erase(old)
+
 func _topology(world: WorldState) -> Dictionary:
 	var key: int = world.get_instance_id()
 	var cached: Dictionary = _topologies.get(key,{})
-	if not cached.is_empty() and int(cached.revision)==world.geometry_revision: return cached
-	for old: int in _topologies.keys():
-		if _topologies[old].world.get_ref()==null: _topologies.erase(old)
+	if not cached.is_empty() and cached.world.get_ref()==world and int(cached.revision)==world.geometry_revision: return cached
+	_prune_topologies()
 	cached = {"world":weakref(world),"revision":world.geometry_revision,"explicit":{},"ranges":{},"floors":{},"candidates":{},"nodes":{},"node_ids":["start","goal"],"stops":{},"extra_floors":{}}
 	for floor_key: String in world.facts.floors.overrides: cached.candidates[int(floor_key)] = true
 	var connector_ids: Array = world.ids("connectors")

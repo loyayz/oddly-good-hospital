@@ -16,13 +16,13 @@ class CountedSpace extends HospitalSpace:
 		var result: Dictionary = super.route(world,actor_id,floor_id,target,members,offsets,ignore_people)
 		route_us += Time.get_ticks_usec()-started
 		return result
-	func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2i, goal: Vector2i, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, navigation: Dictionary = {}) -> Dictionary:
+	func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2i, goal: Vector2i, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, navigation: Dictionary = {}, cost_only: bool = false) -> Dictionary:
 		var counted: bool = condition_scope
 		if counted:
 			condition_routes += 1
 			condition_trace.append([floor_id,start.x,start.y,goal.x,goal.y])
 		var started: int = Time.get_ticks_usec()
-		var result: Dictionary = super._floor_route(world,actor,floor_id,start,goal,members,offsets,ignore_people,navigation)
+		var result: Dictionary = super._floor_route(world,actor,floor_id,start,goal,members,offsets,ignore_people,navigation,cost_only)
 		if counted: condition_route_us += Time.get_ticks_usec()-started
 		return result
 

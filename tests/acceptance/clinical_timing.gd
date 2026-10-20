@@ -189,9 +189,9 @@ class TimedSpace extends HospitalSpace:
 		_facility_depth -= 1
 		timing.count("space.facility_quote",started)
 		return result
-	func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2i, goal: Vector2i, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, navigation: Dictionary = {}) -> Dictionary:
+	func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2i, goal: Vector2i, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, navigation: Dictionary = {}, cost_only: bool = false) -> Dictionary:
 		var started: int = Time.get_ticks_usec()
-		var result: Dictionary = super._floor_route(world,actor,floor_id,start,goal,members,offsets,ignore_people,navigation)
+		var result: Dictionary = super._floor_route(world,actor,floor_id,start,goal,members,offsets,ignore_people,navigation,cost_only)
 		timing.count("space.facility_exit_route" if _facility_depth>0 else "space.floor_route",started)
 		return result
 	func _exit_witness(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2i, exit: Vector2i) -> Dictionary:
@@ -213,12 +213,7 @@ class TimedNavigation extends NavigationCache:
 		_seen_graphs[id] = true
 		timing.count("navigation.graph",started)
 		return result
-	func _trim(target: int) -> void:
+	func _trim(target: int, counts: Dictionary = {}) -> void:
 		var started: int = Time.get_ticks_usec()
-		super._trim(target)
+		super._trim(target,counts)
 		timing.count("navigation.trim",started)
-	func _distance_field(graph: FloorNavigation, query: RouteClearance, goal: Vector2i) -> Dictionary:
-		var started: int = Time.get_ticks_usec()
-		var result: Dictionary = super._distance_field(graph,query,goal)
-		timing.count("navigation.distance_field",started)
-		return result

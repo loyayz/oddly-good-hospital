@@ -11,7 +11,7 @@ class CountedSpace extends HospitalSpace:
 # Independent reference keeps the complete original dynamic fallback. It does
 # not call the optimized _floor_route or use its destination condition.
 class OriginalSpace extends CountedSpace:
-	func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2i, goal: Vector2i, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, navigation: Dictionary = {}) -> Dictionary:
+	func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2i, goal: Vector2i, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, navigation: Dictionary = {}, _cost_only: bool = false) -> Dictionary:
 		var routes: Dictionary = {}
 		var key: String = ""
 		if ignore_people and navigation.is_empty() and not _route_queries.is_empty() and _route_queries.back().world==world:

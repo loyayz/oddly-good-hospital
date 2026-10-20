@@ -1,7 +1,6 @@
 class_name NavigationCache
 extends RefCounted
 
-const FIELD_STEPS: Array[int] = [-FloorNavigation.SIDE,-1,1,FloorNavigation.SIDE]
 
 var _entries: Dictionary = {}
 var _sources: Dictionary = {}
@@ -9,6 +8,7 @@ var _used: int = 0
 var _charged: int = 0
 var _query_charged: int = 0
 var _source_version: int = 0
+var _static_source_version: int = 0
 
 func invalidate(world: WorldState, floor_id: int) -> void:
 	var key: String = str(world.get_instance_id())+":"+str(floor_id)
@@ -34,13 +34,16 @@ func inherit_projection(space: HospitalSpace, world: WorldState, projected: Worl
 		current.occupancy = RouteClearance.capture_occupancy(projected,floor_id)
 		var identical: bool = current==original.source
 		if not identical: _source_version += 1
-		var entry: Dictionary = {"source":original.source if identical else current,"world":weakref(projected),"floor_id":floor_id,"revision":projected.geometry_revision,"version":original.version if identical else _source_version,"graphs":original.graphs if identical else {}}
+		var identity: Dictionary = _static_identity(projected,floor_id,current)
+		var same_static: bool = identity.version==original.static_version
+		var entry: Dictionary = {"source":original.source if identical else current,"world":weakref(projected),"floor_id":floor_id,"revision":projected.geometry_revision,"version":original.version if identical else _source_version,"static_source":identity.source,"static_version":identity.version,"graphs":original.graphs if same_static else {}}
 		if original.has("facility_index") and current.facilities==original.source.facilities: entry.facility_index = original.facility_index
 		_sources[str(projected.get_instance_id())+":"+str(floor_id)] = entry
 
 func floor_source(space: HospitalSpace, world: WorldState, floor_id: int) -> Dictionary:
 	var key: String = str(world.get_instance_id())+":"+str(floor_id)
 	var entry: Dictionary = _sources.get(key,{})
+	if not entry.is_empty() and entry.world.get_ref()!=world: entry = {}
 	if entry.is_empty() or entry.revision!=world.geometry_revision:
 		if entry.is_empty(): _prune_sources(floor_id)
 		var current: Dictionary = RouteClearance.capture_source(space,world,floor_id)
@@ -54,7 +57,9 @@ func floor_source(space: HospitalSpace, world: WorldState, floor_id: int) -> Dic
 				_source_version += 1
 				shared = {"source":current,"version":_source_version,"graphs":{}}
 			var previous: Dictionary = entry
-			entry = {"source":shared.source,"world":weakref(world),"floor_id":floor_id,"version":shared.version,"graphs":shared.graphs}
+			var identity: Dictionary = _static_identity(world,floor_id,current)
+			var graphs: Dictionary = previous.graphs if not previous.is_empty() and previous.static_version==identity.version else shared.graphs
+			entry = {"source":shared.source,"world":weakref(world),"floor_id":floor_id,"version":shared.version,"static_source":identity.source,"static_version":identity.version,"graphs":graphs}
 			if previous.has("facility_index") and previous.source.facilities==current.facilities: entry.facility_index = previous.facility_index
 		entry.revision = world.geometry_revision
 		_sources[key] = entry
@@ -75,6 +80,23 @@ func floor_version(space: HospitalSpace, world: WorldState, floor_id: int) -> in
 	floor_source(space,world,floor_id)
 	return int(_sources[str(world.get_instance_id())+":"+str(floor_id)].version)
 
+func floor_static_version(space: HospitalSpace, world: WorldState, floor_id: int) -> int:
+	floor_source(space,world,floor_id)
+	return int(_sources[str(world.get_instance_id())+":"+str(floor_id)].static_version)
+
+func _static_identity(world: WorldState, floor_id: int, current: Dictionary) -> Dictionary:
+	var key: String = str(world.get_instance_id())+":"+str(floor_id)
+	var source: Dictionary = current.duplicate()
+	source.erase("occupancy")
+	var previous: Dictionary = _sources.get(key,{})
+	if not previous.is_empty() and previous.world.get_ref()==world and previous.static_source==source:
+		return {"source":previous.static_source,"version":previous.static_version}
+	for retained: Dictionary in _sources.values():
+		if retained.world.get_ref()!=null and int(retained.floor_id)==floor_id and retained.static_source==source:
+			return {"source":retained.static_source,"version":retained.static_version}
+	_static_source_version += 1
+	return {"source":source,"version":_static_source_version}
+
 # A point check can borrow already-built static geometry without paying to
 # build an A* graph. Its reservation query is always constructed afresh.
 func cached_static_geometry(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary) -> RouteClearance:
@@ -84,8 +106,7 @@ func cached_static_geometry(space: HospitalSpace, world: WorldState, floor_id: i
 	if entry.is_empty(): return null
 	var source_record: Dictionary = _sources[str(world.get_instance_id())+":"+str(floor_id)]
 	if int(source_record.graphs.get(key,0))!=entry.graph.geometry.get_instance_id():
-		var source: Dictionary = current.duplicate()
-		source.erase("occupancy")
+		var source: Dictionary = source_record.static_source
 		if entry.source!=source: return null
 		source_record.graphs[key] = entry.graph.geometry.get_instance_id()
 	_used += 1
@@ -122,8 +143,7 @@ func graph(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictio
 	if entry.is_empty() or int(source_record.graphs.get(key,0))!=entry.graph.geometry.get_instance_id():
 		# Each immutable source remembers the graph geometries it has compared.
 		# Query-only reservations may alternate worlds without comparing again.
-		var source: Dictionary = current.duplicate()
-		source.erase("occupancy")
+		var source: Dictionary = source_record.static_source
 		if entry.is_empty() or entry.source!=source:
 			entry = _refresh_graph(space,world,floor_id,actor,members,offsets,source,entry)
 			_entries[key] = entry
@@ -147,7 +167,7 @@ func _refresh_graph(space: HospitalSpace, world: WorldState, floor_id: int, acto
 		_query_charged -= int(entry.get("query_charge",0))
 	# Capacity charge includes native points/adjacency and projection containers.
 	# This is an eviction allowance, not a measured Release allocation count.
-	var charge: int = floor_graph.get_point_count()*1024+var_to_bytes(source).size()*8+16384
+	var charge: int = floor_graph.get_point_count()*1024+var_to_bytes(source).size()*8+16384+FloorNavigation.LIMIT
 	entry = {"graph":floor_graph,"source":source,"used":_used,"charge":charge,"floor_id":floor_id}
 	_charged += charge
 	return entry
@@ -320,9 +340,13 @@ func _travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, ac
 		var field: Dictionary
 		if forward:
 			record.query = query
-			field = {"distances":_forward_field(current,query,start),"successors":PackedInt32Array()}
+			field = current.distance_field(query,start)
 		else:
-			field = _distance_field(current,query,goal) if str(record.reason).is_empty() else {"distances":PackedInt32Array(),"successors":PackedInt32Array()}
+			field = current.distance_field(query,goal,true) if str(record.reason).is_empty() else {"ready":true,"distances":PackedInt32Array(),"successors":PackedInt32Array()}
+		if not field.get("ready",false):
+			space.query_counts["distance_field_failures"] = int(space.query_counts.get("distance_field_failures",0))+1
+			return {"ready":false}
+		space.query_counts["distance_field_builds"] = int(space.query_counts.get("distance_field_builds",0))+1
 		record.distances = field.distances
 		record.successors = field.successors
 		record.ready = true
@@ -352,58 +376,6 @@ func _travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, ac
 			var cell: Vector2i = FloorNavigation._cell(id)
 			path.append({"kind":"floor","floor_id":floor_id,"cell":[cell.x,cell.y]})
 		result.path = path
-	return result
-
-func _forward_field(graph: FloorNavigation, query: RouteClearance, start: Vector2i) -> PackedInt32Array:
-	var distances: PackedInt32Array = PackedInt32Array()
-	distances.resize(FloorNavigation.LIMIT)
-	distances.fill(-1)
-	if not FloorNavigation._inside(start): return distances
-	var start_id: int = FloorNavigation._id(start)
-	if not graph.has_point(start_id) or graph.is_point_disabled(start_id): return distances
-	var reservations: PackedByteArray = query.reservation_mask()
-	var queue: Array[int] = [start_id]
-	distances[start_id] = 0
-	var cursor: int = 0
-	while cursor<queue.size():
-		var current: int = queue[cursor]
-		cursor += 1
-		var x: int = current%FloorNavigation.SIDE
-		for step: int in FIELD_STEPS:
-			var id: int = current+step
-			if id<0 or id>=FloorNavigation.LIMIT or step==-1 and x==0 or step==1 and x==FloorNavigation.SIDE-1: continue
-			if distances[id]>=0 or not graph.has_point(id) or graph.is_point_disabled(id) or not graph.are_points_connected(current,id,false): continue
-			if not reservations.is_empty() and reservations[id]!=0: continue
-			distances[id] = distances[current]+1
-			queue.append(id)
-	return distances
-
-func _distance_field(graph: FloorNavigation, query: RouteClearance, goal: Vector2i) -> Dictionary:
-	var distances: PackedInt32Array = PackedInt32Array()
-	distances.resize(FloorNavigation.LIMIT)
-	distances.fill(-1)
-	var successors: PackedInt32Array = distances.duplicate()
-	var result: Dictionary = {"distances":distances,"successors":successors}
-	var goal_id: int = FloorNavigation._id(goal)
-	if not graph.has_point(goal_id) or graph.is_point_disabled(goal_id): return result
-	var reservations: PackedByteArray = query.reservation_mask()
-	var queue: Array[int] = [goal_id]
-	distances[goal_id] = 0
-	var cursor: int = 0
-	while cursor<queue.size():
-		var current: int = queue[cursor]
-		cursor += 1
-		var x: int = current%FloorNavigation.SIDE
-		# The existing search permits leaving a reserved start, but never
-		# entering a reserved destination. Reverse expansion keeps that rule.
-		if not reservations.is_empty() and reservations[current]!=0: continue
-		for step: int in FIELD_STEPS:
-			var id: int = current+step
-			if id<0 or id>=FloorNavigation.LIMIT or step==-1 and x==0 or step==1 and x==FloorNavigation.SIDE-1: continue
-			if distances[id]>=0 or not graph.has_point(id) or graph.is_point_disabled(id) or not graph.are_points_connected(id,current,false): continue
-			distances[id] = distances[current]+1
-			successors[id] = current
-			queue.append(id)
 	return result
 
 func _envelope(space: HospitalSpace, world: WorldState, actor: Dictionary, members: Array, offsets: Dictionary, source: Dictionary) -> String:

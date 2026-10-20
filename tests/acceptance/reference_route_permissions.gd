@@ -172,10 +172,12 @@ func _forward_contract(source: Dictionary, goal: Array, content: HospitalContent
 	var query: RouteClearance = space._navigation.clearance(space,world,1,actor)
 	var a: Vector2i = Vector2i(START[0],START[1])
 	var b: Vector2i = a+Vector2i.RIGHT
-	graph.disconnect_points(FloorNavigation._id(a),FloorNavigation._id(b),false)
+	graph._disconnect_edge(FloorNavigation._id(a),FloorNavigation._id(b))
 	var directed: bool = graph.are_points_connected(FloorNavigation._id(b),FloorNavigation._id(a),false)
 	for pair: Array in [[a,b],[b,a]]:
-		var distances: PackedInt32Array = space._navigation._forward_field(graph,query,pair[0])
+		var field: Dictionary = graph.distance_field(query,pair[0])
+		if not field.get("ready",false): return {"ok":false,"native_distance_field":field}
+		var distances: PackedInt32Array = field.distances
 		var expected: Dictionary = graph.find_path(pair[0],pair[1],query)
 		directed = directed and expected.ok and distances[FloorNavigation._id(pair[1])]==int(expected.walking_distance)
 	return {"ok":valid and invalidated and evicted and directed,"observations":observations,"geometry_invalidated":invalidated,"complete_budget_eviction":evicted,"directed_astar_equal":directed}

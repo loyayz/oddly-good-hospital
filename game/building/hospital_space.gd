@@ -89,6 +89,7 @@ func prepare_projection(world: WorldState, projected: WorldState, facility_ids: 
 		for floor_id: int in route_floors: floors[floor_id] = true
 		for floor_id: int in floors: _navigation.floor_source(self,world,floor_id)
 	_navigation.inherit_projection(self,world,projected,facility_ids)
+	navigation.inherit_projection(world,projected)
 
 func nominal_query(world: WorldState) -> bool:
 	return not _route_queries.is_empty() and _route_queries.back().world==world and not _route_queries.back().reference.is_empty()
@@ -238,8 +239,8 @@ func request_group_move(world: WorldState, primary_id: String, members: Array, o
 func advance(world: WorldState, present_at_start: int = -1) -> void:
 	self.movement.advance(world,present_at_start)
 
-func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2i, goal: Vector2i, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, navigation: Dictionary = {}) -> Dictionary:
-	return self.navigation._floor_route(world,actor,floor_id,start,goal,members,offsets,ignore_people,navigation)
+func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2i, goal: Vector2i, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, navigation: Dictionary = {}, cost_only: bool = false) -> Dictionary:
+	return self.navigation._floor_route(world,actor,floor_id,start,goal,members,offsets,ignore_people,navigation,false,cost_only)
 
 func _route_envelope(world: WorldState, actor: Dictionary, members: Array, offsets: Dictionary) -> Array:
 	return self.navigation._route_envelope(world,actor,members,offsets)
@@ -685,7 +686,7 @@ func _facility_exit_quote(world: WorldState, facility_id: String, actor_id: Stri
 				geometry = geometries[id]
 			navigation.query = RouteClearance.new(self,candidate,other,int(facility.floor_id),[],{},true,geometry.source,geometry)
 			navigation.overlay = not same_footprint
-		if not _floor_route(candidate,other,int(facility.floor_id),start,exit,[],{},true,navigation).ok:
+		if not _floor_route(candidate,other,int(facility.floor_id),start,exit,[],{},true,navigation,true).ok:
 			return {"ok":false,"reason":"展开会切断在院角色的安全出口："+str(other.id)}
 	return quote
 
@@ -782,7 +783,7 @@ func facility_trip_quote(world: WorldState, facility_id: String, actor_id: Strin
 		layout = facility_layout(candidate,facility_id)
 	prepare_projection(world,candidate,[facility_id])
 	begin_dynamic_route_query(candidate)
-	var forward: Dictionary = route(candidate,actor_id,int(layout.floor_id),layout.patient_cell)
+	var forward: Dictionary = _route_result(candidate,actor_id,int(layout.floor_id),layout.patient_cell,[],{},true,true)
 	end_route_query()
 	if not forward.ok or not forward.has("travel_ticks"): return {"ok":false,"reason":forward.get("reason","实际设施行程无法估计")}
 	var origin: Dictionary = world.facts.actors[actor_id].location
@@ -791,7 +792,7 @@ func facility_trip_quote(world: WorldState, facility_id: String, actor_id: Strin
 	# This private projection changed only the actor just synchronized above.
 	# Discard route/exit views while retaining the now-current body index.
 	begin_dynamic_route_query(candidate,false)
-	var back: Dictionary = route(candidate,actor_id,int(origin.floor_id),origin.cell)
+	var back: Dictionary = _route_result(candidate,actor_id,int(origin.floor_id),origin.cell,[],{},true,true)
 	end_route_query()
 	if not back.ok: return {"ok":false,"reason":"设施没有合法返回路线"}
 	return {"ok":true,"facility_id":facility_id,"floor_id":int(layout.floor_id),"cell":layout.patient_cell.duplicate(),"patient_cell":layout.patient_cell.duplicate(),"travel_ticks":int(forward.travel_ticks),"fit":fit}

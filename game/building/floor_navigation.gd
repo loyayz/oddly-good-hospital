@@ -7,6 +7,7 @@ const NEIGHBOURS: Array[Vector2i] = [Vector2i.UP,Vector2i.LEFT,Vector2i.RIGHT,Ve
 
 var geometry: RouteClearance
 var _enabled: PackedByteArray = PackedByteArray()
+var _edges: PackedByteArray = PackedByteArray()
 var _query: RouteClearance
 var _people: Callable
 var _bases: Array[FloorNavigation] = []
@@ -16,6 +17,7 @@ var _overlay: bool = false
 func _init(projection: RouteClearance) -> void:
 	geometry = projection
 	_enabled.resize(LIMIT)
+	_edges.resize(LIMIT)
 	_build()
 	neighbor_filter_enabled = true
 
@@ -38,7 +40,7 @@ func _build() -> void:
 		for offset: Vector2i in NEIGHBOURS:
 			var next: Vector2i = cell+offset
 			if _inside(next) and _enabled[_id(next)]!=0 and geometry.edge_reason(cell,next).is_empty():
-				connect_points(id,_id(next),false)
+				_connect_edge(id,_id(next))
 
 func refresh(projection: RouteClearance) -> void:
 	var regions: Array[Rect2i] = projection.dirty_regions(geometry)
@@ -67,7 +69,8 @@ func _repair(regions: Array[Rect2i]) -> void:
 	ids.sort()
 	for id: int in ids:
 		for other: int in get_point_connections(id):
-			disconnect_points(id,other,false)
+			_disconnect_edge(id,other)
+		_edges[id] = 0
 		if _enabled[id]==0:
 			continue
 		var adjacent: Array[int] = []
@@ -78,7 +81,26 @@ func _repair(regions: Array[Rect2i]) -> void:
 					adjacent.append(_id(next))
 		adjacent.sort()
 		for other: int in adjacent:
-			connect_points(id,other,false)
+			_connect_edge(id,other)
+
+func _connect_edge(from_id: int, to_id: int) -> void:
+	connect_points(from_id,to_id,false)
+	var step: int = to_id-from_id
+	_edges[from_id] |= 1 if step==-SIDE else 2 if step==-1 else 4 if step==1 else 8
+
+func _disconnect_edge(from_id: int, to_id: int) -> void:
+	disconnect_points(from_id,to_id,false)
+	var step: int = to_id-from_id
+	_edges[from_id] &= ~(1 if step==-SIDE else 2 if step==-1 else 4 if step==1 else 8)
+
+# The graph updates this bounded edge mask at the same ownership points as
+# AStar2D. A field borrows the masks once; failures never become cached no-path.
+func distance_field(query: RouteClearance, origin: Vector2i, reverse: bool = false) -> Dictionary:
+	var result: Dictionary = PlatformArrivalMath.grid_distance_field(_enabled,_edges,query.reservation_mask(),{"root":_id(origin) if _inside(origin) else -1,"reverse":reverse})
+	if not result.get("ok",false):
+		return {"ready":false,"error":str(result.get("error","距离场计算失败"))}
+	result.ready = true
+	return result
 
 # Integer translations preserve each constituent's complete footprint and edge
 # sweep. Only the current search borrows bases; cache eviction does not pin them.
