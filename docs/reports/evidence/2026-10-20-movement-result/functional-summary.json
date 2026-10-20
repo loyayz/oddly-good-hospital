@@ -1,0 +1,119 @@
+{
+  "latest_unique_cases": 9,
+  "latest_passed": 9,
+  "latest_per_case": {
+    "CLIN-25": {
+      "passed": true,
+      "project_id": "0c65ffb9fa524241b11fa91465d97a2e",
+      "requirement": "docs/design/07-clinical-team.md §8.1、§10；安全换床保留标准余量/护理，回原床不重复磨损/收费",
+      "setup_ms": 3700,
+      "body_ms": 1196
+    },
+    "OPS-44": {
+      "passed": true,
+      "project_id": "dc916403a1eb4b34ae373ee3875a830e",
+      "requirement": "实际动态路线批次：完整碰撞、出口授权、批次失效及公共前缀复用",
+      "setup_ms": 0,
+      "body_ms": 350
+    },
+    "SPACE-33": {
+      "passed": true,
+      "project_id": "0c65ffb9fa524241b11fa91465d97a2e",
+      "requirement": "docs/design/08-hospital-life.md §10；目标不预留，实际疏散终点无身体重叠，当前可用不自动应用，失败保留安排",
+      "setup_ms": 0,
+      "body_ms": 156
+    },
+    "SPACE-35": {
+      "passed": true,
+      "project_id": "0c65ffb9fa524241b11fa91465d97a2e",
+      "requirement": "docs/design/08-hospital-life.md §10/§11、07-clinical-team.md §8.1；真实门诊安全转移保原票、证据、Attempt、耗材和余量，双床职责位旋转与保存后仍可达",
+      "setup_ms": 0,
+      "body_ms": 3431
+    },
+    "SPACE-36": {
+      "passed": true,
+      "project_id": "0c65ffb9fa524241b11fa91465d97a2e",
+      "requirement": "docs/design/08-hospital-life.md §11、07-clinical-team.md §8.1；改建中沿原病例完成护理、查房、唯一结算和实际释放",
+      "setup_ms": 0,
+      "body_ms": 11602
+    },
+    "SPACE-53": {
+      "passed": true,
+      "project_id": "0c65ffb9fa524241b11fa91465d97a2e",
+      "requirement": "docs/design/16-navigation-space-selection.md §7；实际遇阻后的局部路线保留完整身体争用检查",
+      "setup_ms": 0,
+      "body_ms": 236
+    },
+    "SPACE-55": {
+      "passed": true,
+      "project_id": "0c65ffb9fa524241b11fa91465d97a2e",
+      "requirement": "docs/specs/26-10/2026-10-19-task-navigation-movement.md §3/§4；成本报价、原生碰撞索引、同行组改目标及恢复",
+      "setup_ms": 0,
+      "body_ms": 1145
+    },
+    "SPACE-56": {
+      "passed": true,
+      "project_id": "0c65ffb9fa524241b11fa91465d97a2e",
+      "requirement": "docs/specs/26-10/2026-10-19-task-navigation-movement.md §4；实际位移与精确阻挡一次交接，同行组、预约、门等待及真实恢复",
+      "setup_ms": 0,
+      "body_ms": 72
+    },
+    "STAFF-41": {
+      "passed": true,
+      "project_id": "0c65ffb9fa524241b11fa91465d97a2e",
+      "requirement": "docs/design/09-consultation-wellbeing.md §4；休息选址完整去返程与当前障碍，护理交接保持床位上限及实时排他",
+      "setup_ms": 0,
+      "body_ms": 254
+    }
+  },
+  "batches": [
+    {
+      "log": "functional-1.log",
+      "project_id": "0c65ffb9fa524241b11fa91465d97a2e",
+      "timing": {
+        "started_at_utc": "2026-10-20T12:38:51.3471825+00:00",
+        "ended_at_utc": "2026-10-20T12:39:29.1064391+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 3736,
+        "import_ms": 6941,
+        "tests_ms": 27070,
+        "total_ms": 37761
+      },
+      "execution_status": {
+        "import_exit": 0,
+        "test_exit": 1,
+        "script_errors": true,
+        "log": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\acceptance\\0c65ffb9fa524241b11fa91465d97a2e\\execution.log"
+      },
+      "checks": 9,
+      "failed": 1,
+      "script_errors": 2,
+      "exit_warnings": []
+    },
+    {
+      "log": "functional-2.log",
+      "project_id": "dc916403a1eb4b34ae373ee3875a830e",
+      "timing": {
+        "started_at_utc": "2026-10-20T12:40:22.0495458+00:00",
+        "ended_at_utc": "2026-10-20T12:40:35.2646825+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 3638,
+        "import_ms": 6941,
+        "tests_ms": 2623,
+        "total_ms": 13217
+      },
+      "execution_status": {
+        "import_exit": 0,
+        "test_exit": 0,
+        "script_errors": false,
+        "log": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\acceptance\\dc916403a1eb4b34ae373ee3875a830e\\execution.log"
+      },
+      "checks": 1,
+      "failed": 0,
+      "script_errors": 0,
+      "exit_warnings": []
+    }
+  ]
+}
