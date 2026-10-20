@@ -5,9 +5,10 @@ extends RefCounted
 class FullReservationSpace extends HospitalSpace:
 	func _reservation_regions(world: WorldState, _floor_id: int, _rect: Rect2) -> Array:
 		var result: Array = []
-		for reservation: Dictionary in world.facts.adaptations.values():
+		for id: String in world.facts.adaptations:
+			var reservation: Dictionary = world.facts.adaptations[id]
 			for area: Array in reservation.regions:
-				result.append({"reservation":reservation,"rect":Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3]))})
+				result.append({"reservation":reservation,"reservation_id":id,"rect":Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3]))})
 		return result
 
 func _builder(content: HospitalContent) -> RefCounted:
@@ -155,13 +156,21 @@ func run_routes(content: HospitalContent) -> Dictionary:
 			sweep.sweep_to = Rect2(58,82,1,1)
 			var sweeps: Array[BodyIndex.Record] = [sweep]
 			var broad: Rect2 = sweep.sweep_from.merge(sweep.sweep_to)
-			var actual_sweep: bool = actual.movement._movement_clear(world,"route_cleaner",2,broad,sweeps,["route_cleaner"])
-			var full_sweep: bool = control.movement._movement_clear(world,"route_cleaner",2,broad,sweeps,["route_cleaner"])
+			var actual_motion: HospitalMovement.MotionResult = HospitalMovement.MotionResult.new()
+			var full_motion: HospitalMovement.MotionResult = HospitalMovement.MotionResult.new()
+			actual.movement._movement_contacts(world,"route_cleaner",2,broad,sweeps,["route_cleaner"],actual_motion)
+			control.movement._movement_contacts(world,"route_cleaner",2,broad,sweeps,["route_cleaner"],full_motion)
+			var actual_sweep: bool = not actual_motion.blocked
+			var full_sweep: bool = not full_motion.blocked
 			sweeps_equal = actual_sweep==full_sweep and actual_sweep==(condition=="authorized")
 			sweep.sweep_from = Rect2(54,80,1,1)
 			sweep.sweep_to = Rect2(58,80,1,1)
 			broad = sweep.sweep_from.merge(sweep.sweep_to)
-			sweeps_equal = sweeps_equal and actual.movement._movement_clear(world,"route_cleaner",2,broad,sweeps,["route_cleaner"]) and control.movement._movement_clear(world,"route_cleaner",2,broad,sweeps,["route_cleaner"])
+			actual_motion = HospitalMovement.MotionResult.new()
+			full_motion = HospitalMovement.MotionResult.new()
+			actual.movement._movement_contacts(world,"route_cleaner",2,broad,sweeps,["route_cleaner"],actual_motion)
+			control.movement._movement_contacts(world,"route_cleaner",2,broad,sweeps,["route_cleaner"],full_motion)
+			sweeps_equal = sweeps_equal and not actual_motion.blocked and not full_motion.blocked
 		actual.end_route_query()
 		var actual_counts: Dictionary = actual.query_counts.duplicate()
 		var control_counts: Dictionary = control.query_counts.duplicate()

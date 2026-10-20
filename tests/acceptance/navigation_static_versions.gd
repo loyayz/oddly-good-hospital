@@ -223,7 +223,9 @@ func _local_clear(space: HospitalSpace, world: WorldState, goal: Array) -> bool:
 	sweep.sweep_from = sweep.rect
 	sweep.sweep_to = space._actor_rect(actor,Vector2(float(goal[0]),float(goal[1])))
 	var records: Array[BodyIndex.Record] = [sweep]
-	return space.movement._movement_clear(world,TRAVELLER,1,sweep.sweep_from.merge(sweep.sweep_to),records,[TRAVELLER])
+	var result: HospitalMovement.MotionResult = HospitalMovement.MotionResult.new()
+	space.movement._movement_contacts(world,TRAVELLER,1,sweep.sweep_from.merge(sweep.sweep_to),records,[TRAVELLER],result)
+	return not result.blocked
 
 func _cold_goal_clear(content: HospitalContent, world: WorldState, goal: Array) -> bool:
 	return RouteClearance.new(HospitalSpace.new(content),world,world.facts.actors[TRAVELLER],1,[],{},false).reason(Vector2i(int(goal[0]),int(goal[1]))).is_empty()

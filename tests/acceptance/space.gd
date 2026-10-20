@@ -101,7 +101,8 @@ const CASES: Dictionary = {
 	"SPACE-52":"docs/design/04-technical.md §3大面积预览；完整合法最大矩形、井道失败、相关重启与取消、共享原帧预算",
 	"SPACE-53":"docs/design/16-navigation-space-selection.md §7；实际遇阻后的局部路线保留完整身体争用检查",
 	"SPACE-54":"docs/specs/26-10/2026-10-19-task-navigation-movement.md §3/§4；未知估时仍出发、真实到场排队、途中改目标完成安全乘梯段",
-	"SPACE-55":"docs/specs/26-10/2026-10-19-task-navigation-movement.md §3/§4；成本报价、原生碰撞索引、同行组改目标及恢复"
+	"SPACE-55":"docs/specs/26-10/2026-10-19-task-navigation-movement.md §3/§4；成本报价、原生碰撞索引、同行组改目标及恢复",
+	"SPACE-56":"docs/specs/26-10/2026-10-19-task-navigation-movement.md §4；实际位移与精确阻挡一次交接，同行组、预约、门等待及真实恢复"
 }
 
 var content: HospitalContent
@@ -1695,6 +1696,10 @@ func _case_54(_t) -> Dictionary:
 
 func _case_55(_t) -> Dictionary:
 	var result: Dictionary = preload("res://tests/acceptance/movement_review.gd").new().run_case(self)
+	return {"ok":result.ok,"details":result}
+
+func _case_56(_t) -> Dictionary:
+	var result: Dictionary = preload("res://tests/acceptance/movement_result.gd").new().run(self)
 	return {"ok":result.ok,"details":result}
 
 func _fixture(preset: bool = false, cash: int = 1000000) -> HospitalSimulation:

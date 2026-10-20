@@ -34,7 +34,7 @@ func encode_to(value: Dictionary, budget: Callable, sink: Callable) -> bool:
 	_hash = HashingContext.new()
 	_hash.start(HashingContext.HASH_SHA256)
 	if not ClassDB.class_exists("PlatformJsonStream"):
-		error = "缺少RapidJSON流式编解码器"
+		error = "缺少原生JSON流式编解码器"
 	else:
 		var result: Dictionary = ClassDB.class_call_static("PlatformJsonStream","encode",value,_write_chunk,_float_token)
 		if not result.get("ok",false) and error.is_empty():
@@ -72,7 +72,7 @@ func decode_from(expected_bytes: int, expected_hash: String, budget: Callable, s
 	_hash.start(HashingContext.HASH_SHA256)
 	var result: Dictionary = {"ok":false,"value":{}}
 	if not ClassDB.class_exists("PlatformJsonStream"):
-		error = "缺少RapidJSON流式编解码器"
+		error = "缺少原生JSON流式编解码器"
 	else:
 		result = ClassDB.class_call_static("PlatformJsonStream","decode",_read_chunk,_decimal_value)
 		if not result.get("ok",false) and error.is_empty():

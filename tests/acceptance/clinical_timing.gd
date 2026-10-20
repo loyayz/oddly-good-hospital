@@ -150,9 +150,9 @@ class TimedMovement extends HospitalMovement:
 	func _init(geometry: HospitalSpace, observer: RefCounted) -> void:
 		super(geometry)
 		timing = observer
-	func _reserve_doors(world: WorldState, actor: Dictionary, movement: Dictionary, swept: Rect2, doors: Array[Dictionary]) -> bool:
+	func _reserve_doors(world: WorldState, actor: Dictionary, movement: Dictionary, swept: Rect2, doors: Array[Dictionary], motion: HospitalMovement.MotionResult) -> bool:
 		var started: int = Time.get_ticks_usec()
-		var result: bool = super._reserve_doors(world,actor,movement,swept,doors)
+		var result: bool = super._reserve_doors(world,actor,movement,swept,doors,motion)
 		timing.count("space.reserve_doors",started)
 		return result
 	func _active_route_clear(world: WorldState, actor: Dictionary, movement: Dictionary, versions: Dictionary) -> bool:
