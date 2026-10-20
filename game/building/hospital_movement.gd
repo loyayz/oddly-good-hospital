@@ -524,14 +524,13 @@ func _local_goal_occupied(world: WorldState, actor: Dictionary, movement: Dictio
 		unavoidable.append(Rect2(center-Vector2.ONE*side*0.5,Vector2.ONE*side))
 	# Every upright facing's collision AABB contains this centered square.
 	# Current-facing corners alone do not prove an alternative approach blocked.
-	# Only actual contacts' current bodies count, never past sweeps or group gaps.
-	for blocker_id: String in contact.blocker_actor_ids:
-		var blocker: BodyIndex.Record = space._actor_index._records.get(blocker_id)
-		if blocker==null or blocker.floor_id!=floor_id or blocker_id in members: continue
-		for rectangle: Rect2 in unavoidable:
-			if not rectangle.intersects(blocker.rect,false): continue
-			space.query_counts["local_goal_occupied_waits"] = int(space.query_counts.get("local_goal_occupied_waits",0))+1
-			return true
+	# An actual collision triggered this decision. A different current body
+	# may occupy the destination; every detour would still meet it there.
+	# The current body index excludes past sweeps and member-to-member gaps.
+	for rectangle: Rect2 in unavoidable:
+		if not space._actor_index.intersects(floor_id,rectangle,actor.id,members): continue
+		space.query_counts["local_goal_occupied_waits"] = int(space.query_counts.get("local_goal_occupied_waits",0))+1
+		return true
 	return false
 
 func _unit_sweeps(world: WorldState, actor: Dictionary, next: Vector2, members: Array, offsets: Dictionary, direction: Vector2) -> Array[BodyIndex.Record]:

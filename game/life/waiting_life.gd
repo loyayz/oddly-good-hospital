@@ -23,6 +23,7 @@ func ensure(world: WorldState) -> void:
 
 func dispatch(world: WorldState) -> void:
 	ensure(world)
+	var first_scan: bool = true
 	for visit_id: String in world.active_visit_ids():
 		var visit: Dictionary = world.facts.visits[visit_id]
 		if world.facts.waiting_life.needs.has(visit_id):
@@ -42,7 +43,13 @@ func dispatch(world: WorldState) -> void:
 			_dispatch_public_seat(world,visit,seat)
 			continue
 		if world.sim_tick%_ticks(content.balance.patient_behavior.scan_seconds)==0 and not world.facts.moves.has(visit.actor_id):
+			# Refresh before the first actual scan, including raw/upstream body
+			# changes. Later scans reuse bodies; claims/releases synchronize them.
+			# Close every query before committing an intent or facility use.
+			space.begin_dynamic_route_query(world,first_scan)
 			var area: Dictionary = space.public_areas.select(world,visit.actor_id,PUBLIC_SEAT_DEFINITIONS,["waiting","waiting_area","public","lobby","garden",""],"seat")
+			space.end_route_query()
+			first_scan = false
 			if not area.is_empty():
 				var intent: Dictionary = {"id":"seat_"+visit.id,"actor_id":visit.actor_id,"ticket_id":visit.ticket_id,"facility_id":"","public_purpose":"seat","mode":"auto","area":area.area,"phase":"area_travel","continuous_ticks":0,"arrived_tick":-1,"area_travel_ticks":int(area.travel_ticks),"started_tick":world.sim_tick,"floor_id":area.floor_id,"cell":area.cell}
 				world.facts.waiting_life.seats[visit.id] = intent

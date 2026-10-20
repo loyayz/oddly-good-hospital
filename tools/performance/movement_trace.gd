@@ -72,6 +72,11 @@ class TraceMovement:
 		super._yield(world,actor,movement,result)
 		trace.leave(world)
 
+	func _local_goal_occupied(world: WorldState, actor: Dictionary, movement: Dictionary, contact: MotionResult) -> bool:
+		var result: bool = super._local_goal_occupied(world,actor,movement,contact)
+		trace.goal_gate(world,self,actor,movement,contact.blocker_actor_ids,result)
+		return result
+
 	func _yield_idle_staff(world: WorldState, actor: Dictionary, movement: Dictionary, blocker_actor_ids: Array[String]) -> bool:
 		trace.enter("yield_idle_staff",world,str(actor.id),movement)
 		var result: bool = super._yield_idle_staff(world,actor,movement,blocker_actor_ids)
@@ -100,6 +105,8 @@ var _callers: Dictionary = {}
 var _actors: Dictionary = {}
 var _samples: Array = []
 var _sample_counts: Dictionary = {}
+var _goal_samples: Array = []
+var _goal_sample_keys: Dictionary = {}
 var _dispatch_signatures: Dictionary = {}
 var _last_winners: Dictionary = {}
 var _last_owners: Dictionary = {}
@@ -256,6 +263,55 @@ func _observed_yielded_owner(frame: Dictionary) -> bool:
 		if owner.get("yielding",false): return true
 	return false
 
+# Observe the actual parent's one gate decision, including the older gate
+# that only inspected contact IDs. These current-body probes are diagnostic;
+# they never supply a decision to production or inspect accepted past sweeps.
+func goal_gate(world: WorldState, service: HospitalMovement, actor: Dictionary, movement: Dictionary, actual_hits: Array[String], waited: bool) -> void:
+	_increment(_counts,"calls.local_goal_occupied")
+	var end: int = int(movement.cursor)
+	var floor_id: int = int(actor.location.floor_id)
+	if actual_hits.is_empty() or end<0 or end>=movement.path.size(): return
+	while end+1<movement.path.size() and movement.path[end+1].kind=="floor" and int(movement.path[end+1].floor_id)==floor_id: end += 1
+	var target: Dictionary = movement.path[end]
+	if target.kind!="floor" or int(target.floor_id)!=floor_id: return
+	var origin: Vector2 = Vector2(float(target.cell[0]),float(target.cell[1]))
+	var members: Array = [actor.id]
+	for id: String in movement.get("members",[]):
+		if id!=actor.id: members.append(id)
+	var cores: Array = []
+	var occupied: Dictionary = {}
+	var complete: bool = true
+	for id: String in members:
+		var member: Dictionary = world.facts.actors[id]
+		if member.get("posture","standing")=="lying":
+			complete = false
+			continue
+		var dimensions: Dictionary = service.space.body(member)
+		var side: float = minf(float(dimensions.get("width_m",0.0)),float(dimensions.get("depth_m",0.0)))/HospitalSpace.CELL_METERS
+		if not is_finite(side) or side<=0.0:
+			complete = false
+			continue
+		var offset: Array = movement.get("offsets",{}).get(id,[0,0])
+		var center: Vector2 = service.space._actor_rect(member,origin+Vector2(float(offset[0]),float(offset[1]))).get_center()
+		var core: Rect2 = Rect2(center-Vector2.ONE*side*0.5,Vector2.ONE*side)
+		var ids: Array[String] = service.space._actor_index.candidates(floor_id,core,members)
+		for blocker_id: String in ids: occupied[blocker_id] = true
+		cores.append({"member_id":id,"rect":[core.position.x,core.position.y,core.size.x,core.size.y],"current_body_ids":ids})
+	var all_ids: Array = occupied.keys()
+	all_ids.sort()
+	var other_ids: Array = []
+	for id: String in all_ids:
+		if not id in actual_hits: other_ids.append(id)
+	var kind: String = "other_body_at_destination" if not other_ids.is_empty() else "contact_body_at_destination" if not all_ids.is_empty() else "destination_core_clear" if complete else "not_proven"
+	var state: Dictionary = _state(world,str(actor.id),movement)
+	var extra: Dictionary = {"goal":[floor_id,target.cell.duplicate()],"actual_hit_ids":actual_hits.duplicate(),"current_destination_body_ids":all_ids,"other_destination_body_ids":other_ids,"member_cores":cores,"parent_waited":waited}
+	_record("goal_gate."+kind,world,str(actor.id),state,state,extra)
+	_record("goal_gate.waited" if waited else "goal_gate.allowed_local_route",world,str(actor.id),state,state)
+	var sample_key: String = str(actor.id)+":"+kind
+	if _goal_samples.size()<32 and not _goal_sample_keys.has(sample_key):
+		_goal_sample_keys[sample_key] = true
+		_goal_samples.append({"tick":world.sim_tick,"actor_id":actor.id,"kind":kind,"location":actor.location.duplicate(true),"observation":extra})
+
 func pending(world: WorldState) -> Dictionary:
 	var result: Dictionary = {}
 	for id: String in world.facts.moves:
@@ -318,11 +374,11 @@ func report() -> Dictionary:
 	var movement: HospitalMovement = _movement.get_ref() if _movement!=null else null
 	var query_delta: Dictionary = {}
 	if movement!=null:
-		for name: String in ["route_dispatches","route_dispatch_scans","route_revalidations","yield_attempts","yield_candidates"]:
+		for name: String in ["route_dispatches","route_dispatch_scans","route_revalidations","yield_attempts","yield_candidates","local_goal_occupied_waits"]:
 			query_delta[name] = int(movement.space.query_counts.get(name,0))-int(_query_start.get(name,0))
 	for id: String in _actors:
 		var total: int = 0
 		for count: int in _actors[id].values(): total += count
 		actor_rows.append({"actor_id":id,"events":total,"counts":_actors[id].duplicate(),"final_movement":_state(world,id,world.facts.moves.get(id,{})) if world!=null else {}})
 	actor_rows.sort_custom(func(a: Dictionary,b: Dictionary) -> bool: return int(a.events)>int(b.events))
-	return {"first_tick":_first_tick,"last_tick":_last_tick,"counts":_counts.duplicate(),"callers":_callers.duplicate(),"actors":actor_rows,"actor_rows_bounded":_actors.size()>=max_actor_rows,"samples":_samples.duplicate(true),"samples_limit":max_samples,"query_count_delta":query_delta,"request_sequence_delta":int(world.facts.get("move_request_next",0))-_start_sequence if world!=null else 0,"dispatch_query_delta":_dispatch_delta,"dispatch_observed":_dispatch_observed,"dispatch_count_check":_dispatch_delta==_dispatch_observed,"stack_depth":_stack.size(),"sources":sources.duplicate(true),"errors":errors.duplicate(),"semantics":{"timings":"Observer mode counts only. Use paired plain elapsed times for performance.","caller":"Nearest wrapped movement method. Debug external_stack retains up to four real outside caller frames when available; release builds may not expose stacks.","advance_other_replan":"Production advance call not preceded by observed active-route invalidation; retain this label rather than claim an unobserved exact branch.","yielded_owner_wait":"A returned moving-owner row was already yielding; no queue and no priority call. This is observation, not a recomputed ownership decision.","dispatch_repeat":"Same actor, final goal, effective waypoint including continuation length, body/formation and geometry identity. It does not prove the earlier route is still reusable: live occupancy may differ.","business_validation":"Driver must compare final frozen facts, random streams and semantic events with the ordinary same-input run; compare dispatch/query counts too."}}
+	return {"first_tick":_first_tick,"last_tick":_last_tick,"counts":_counts.duplicate(),"callers":_callers.duplicate(),"actors":actor_rows,"actor_rows_bounded":_actors.size()>=max_actor_rows,"samples":_samples.duplicate(true),"samples_limit":max_samples,"goal_gate_samples":_goal_samples.duplicate(true),"goal_gate_samples_limit":32,"query_count_delta":query_delta,"request_sequence_delta":int(world.facts.get("move_request_next",0))-_start_sequence if world!=null else 0,"dispatch_query_delta":_dispatch_delta,"dispatch_observed":_dispatch_observed,"dispatch_count_check":_dispatch_delta==_dispatch_observed,"stack_depth":_stack.size(),"sources":sources.duplicate(true),"errors":errors.duplicate(),"semantics":{"timings":"Observer mode counts only. Use paired plain elapsed times for performance.","caller":"Nearest wrapped movement method. Debug external_stack retains up to four real outside caller frames when available; release builds may not expose stacks.","advance_other_replan":"Production advance call not preceded by observed active-route invalidation; retain this label rather than claim an unobserved exact branch.","yielded_owner_wait":"A returned moving-owner row was already yielding; no queue and no priority call. This is observation, not a recomputed ownership decision.","goal_gate":"The production parent gate is called once; classify current destination cores against current bodies, including bodies absent from actual contact IDs. Per-actor/kind samples are separately bounded; no historical sweep or route query decides this observation.","dispatch_repeat":"Same actor, final goal, effective waypoint including continuation length, body/formation and geometry identity. It does not prove the earlier route is still reusable: live occupancy may differ.","business_validation":"Driver must compare final frozen facts, random streams and semantic events with the ordinary same-input run; compare dispatch/query counts too."}}

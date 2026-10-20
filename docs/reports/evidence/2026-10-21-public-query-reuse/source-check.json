@@ -1,0 +1,4979 @@
+{
+  "baseline": "b9bb59d59ec5db1d75f80e6db25f27f335f7fa41",
+  "baseline_source_rows": 439,
+  "baseline_checks": [
+    {
+      "path": "content/core/accessibility_equipment.json",
+      "sha256": "ba2c98faa2087930967db5c38238f5a2ecdf0a8cc7a4c24f3bf031033cc6f1ad",
+      "match": true
+    },
+    {
+      "path": "content/core/activity_purposes.json",
+      "sha256": "d687caf5af963490084ba2ac582f43d1a585409d4e4361417357b38302c435c8",
+      "match": true
+    },
+    {
+      "path": "content/core/amenity_scenes.json",
+      "sha256": "5b153d1079b63129c24f50901536df82d3bda84430e0a6ba24b5f4b941c14946",
+      "match": true
+    },
+    {
+      "path": "content/core/amenity_services.json",
+      "sha256": "e07966ae565f946118c7a3548f758f3a9ace1aad4e0ff0198b870fce0e5e5887",
+      "match": true
+    },
+    {
+      "path": "content/core/assets/index.json",
+      "sha256": "7b071a4ada79d528160cf3fc9b51246cdf19853e5ce73d230ed27c532cfa9f16",
+      "match": true
+    },
+    {
+      "path": "content/core/blueprint_presets.json",
+      "sha256": "ceac74f8970ae27f2257ed64f7d193fc1339c8b55d8071681abfa8adf270bc4c",
+      "match": true
+    },
+    {
+      "path": "content/core/build_room_types.json",
+      "sha256": "016c6698fa3729a43ebf674968aef782c1d24c3dfec297fbc90b3e5cf66caf36",
+      "match": true
+    },
+    {
+      "path": "content/core/chair_variants.json",
+      "sha256": "590716f92571a1d6de0fb75f939996129fd27410211811e080367f45d2d72329",
+      "match": true
+    },
+    {
+      "path": "content/core/cleanup_sources.json",
+      "sha256": "7e832bafce01e9b218b7b765be96e82c4bedec7634181f70290348caeeb42960",
+      "match": true
+    },
+    {
+      "path": "content/core/clinical_abilities.json",
+      "sha256": "ba8e934e3edf292cd7687e240b540695e2e32b3a437cec767e732f083932c192",
+      "match": true
+    },
+    {
+      "path": "content/core/clinical_equipment.json",
+      "sha256": "13330fdf4f3e2b50d6659ee965b964a84528fe8b3cea2177c3a2fdc46cade9b6",
+      "match": true
+    },
+    {
+      "path": "content/core/clinical_practice_sources.json",
+      "sha256": "b9bc4c57a6e63f6bfd1d991e4e232cd846bb665d5c1d23ca914ee1d5f7c0b4a2",
+      "match": true
+    },
+    {
+      "path": "content/core/clinical_room_types.json",
+      "sha256": "a537282e81354acdad36021d2711806e3b0a66b44baa17db4f12fa4f8775e96c",
+      "match": true
+    },
+    {
+      "path": "content/core/colleague_scenes.json",
+      "sha256": "a98426dbd81ef8b08f52ef33bc3bf6b6e2cfa5283a34fa2ff053ad0ff1267fcf",
+      "match": true
+    },
+    {
+      "path": "content/core/comedy_corner_guides.json",
+      "sha256": "2006ab33dc432449deb620cb0fa7286eab5c4ed39d0240af24b902ef6d22c4a7",
+      "match": true
+    },
+    {
+      "path": "content/core/community_activities.json",
+      "sha256": "d943613ee729499760ce2da8f7e4836866d9249f6ff96b50cfdae5522d48f815",
+      "match": true
+    },
+    {
+      "path": "content/core/community_cast.json",
+      "sha256": "7118170e38965fe94309a0a9e3d4d208fc1fdc537aaa5351ab013cf57b7f86c3",
+      "match": true
+    },
+    {
+      "path": "content/core/consultation_behaviors.json",
+      "sha256": "20eb66e9e2afac21d475c86cf01ffc19318ce56cafe17160a0239c4e0e19b8d0",
+      "match": true
+    },
+    {
+      "path": "content/core/context_lessons.json",
+      "sha256": "258de60ec00c163f4553a91c5d00c638b842fc7f011dffbc7ce1e249c19ac070",
+      "match": true
+    },
+    {
+      "path": "content/core/decor_style_presets.json",
+      "sha256": "a4312a7076752bf99924d6e0fb8f23ea78946aaf5fe55c465697fdaf0e2aa9f5",
+      "match": true
+    },
+    {
+      "path": "content/core/diagnostic_modes.json",
+      "sha256": "7a4038cc4f6489f50ad4a4b97720b528a7d2601a8eca0e18f6544e19f7ae0d65",
+      "match": true
+    },
+    {
+      "path": "content/core/diagnostic_work_styles.json",
+      "sha256": "64f6ee22859181e0da7f62df18c262337297d536e82c86935bb47ffca9f46e4d",
+      "match": true
+    },
+    {
+      "path": "content/core/diseases.json",
+      "sha256": "59aca1c6c8fba6fb392d7ba7b2722a46d0bf9cbbc1e5a518a7332a681c5a2e88",
+      "match": true
+    },
+    {
+      "path": "content/core/doctor_personalities.json",
+      "sha256": "cd33d0b12b6c6902a30bb91f9a87c2549b9fe6d3585440c3776e7b4edb83d250",
+      "match": true
+    },
+    {
+      "path": "content/core/doctor_responses.json",
+      "sha256": "cb5f4f6b75df618e8adfbbd70735b9a2e53aea90b55ae49ea550794179db2fba",
+      "match": true
+    },
+    {
+      "path": "content/core/doctor_titles.json",
+      "sha256": "13211055ec36caf5ef043b20080a3b0673570c5635429cdbf3aefbc2707683bf",
+      "match": true
+    },
+    {
+      "path": "content/core/doors.json",
+      "sha256": "34f4172d0dee93c463b60b3334ca602e66179d1847526ef36a4762be5aa3db71",
+      "match": true
+    },
+    {
+      "path": "content/core/ease_rules.json",
+      "sha256": "8ada2c152d1b0ad4f2fdaea2132a33299c8a4f44f971fac177babda2e9333c0d",
+      "match": true
+    },
+    {
+      "path": "content/core/facility_fit_profiles.json",
+      "sha256": "8bb3e2a87afd1a42702ef7a5a56186080e3998d143fe1534d34e0103c07a1fff",
+      "match": true
+    },
+    {
+      "path": "content/core/facility_magic_scenes.json",
+      "sha256": "0c5c1205cf2c7d69c058cca397f5a59edcdff406406890769bb3ef639554d28e",
+      "match": true
+    },
+    {
+      "path": "content/core/families.json",
+      "sha256": "fd9734eb5f3f118a1ab36c08140e3f9c77bff5c58e4cb4ecc365987fcfb8f8c9",
+      "match": true
+    },
+    {
+      "path": "content/core/finance_views.json",
+      "sha256": "f0cad42f437f8f529f6ffa4486bf20fdc42dcaf202620d5eb204062b49860a31",
+      "match": true
+    },
+    {
+      "path": "content/core/fit_examples.json",
+      "sha256": "72d4b431fbed081db65bee493684f9d9deeb353fcd0d2b138f10f3955a5ed348",
+      "match": true
+    },
+    {
+      "path": "content/core/furniture_equipment.json",
+      "sha256": "3d891aee68b48bc8d79fec6bade6d72e8967a011a841260731949d422d458310",
+      "match": true
+    },
+    {
+      "path": "content/core/gratitude_abilities.json",
+      "sha256": "ba87a41ce781d7807b2647405c846ced4d5a2a7cd1f88a3715028f2849cf9564",
+      "match": true
+    },
+    {
+      "path": "content/core/gratitude_effects.json",
+      "sha256": "aaaa3181fd9010f3ed617134b13b832586a730aaacf209f676926f25ec4938a3",
+      "match": true
+    },
+    {
+      "path": "content/core/growth_moments.json",
+      "sha256": "e36fe9cf0e69d9bd5a1e928f4be3004e2921a02b350b8e99c5db0fc8b79b6575",
+      "match": true
+    },
+    {
+      "path": "content/core/history_templates.json",
+      "sha256": "22cea9c97963a355447c5c6938bd298890ca06fbcef481bf1cc1c11fdb5ffac4",
+      "match": true
+    },
+    {
+      "path": "content/core/hospital_situations.json",
+      "sha256": "9ec30e5228cc8696bcf9947e097f88801f0a41b73e3099d31f6f6f1cedcd4a7b",
+      "match": true
+    },
+    {
+      "path": "content/core/incident_contexts.json",
+      "sha256": "98e9f721f81dced46afb7f7ccf9cca233f142c906dc14217de5669ad761b2442",
+      "match": true
+    },
+    {
+      "path": "content/core/incidents.json",
+      "sha256": "aacb510cd0a4f4bbb1faacd07304bb6447019beae87c52ddc0aad8cad959f7c8",
+      "match": true
+    },
+    {
+      "path": "content/core/initial_disease_ids.json",
+      "sha256": "adde362a73447b97b3a4297bb0bf2b145805b616d9a729c9c822e03d19de07ad",
+      "match": true
+    },
+    {
+      "path": "content/core/interactions.json",
+      "sha256": "6dc7bf5d42826565ea21243aab6a8e78023e47bf56654fcd052888c5e6a4bef6",
+      "match": true
+    },
+    {
+      "path": "content/core/journey_reason_cards.json",
+      "sha256": "d9b006e56fdae89d1cba95795d26a51e32ea954216e8cfe11034754d6128031c",
+      "match": true
+    },
+    {
+      "path": "content/core/layouts.json",
+      "sha256": "3eac94a284723845042c07001fba3c3153bc30513ea35b1ba0916df92a97524c",
+      "match": true
+    },
+    {
+      "path": "content/core/locale/zh_CN.csv",
+      "sha256": "2ade8c67e736aebf5c5fcdea2fd084ebb631d627048fc5db074ff3e7e59058ef",
+      "match": true
+    },
+    {
+      "path": "content/core/locale/zh_CN.csv.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+      "match": true
+    },
+    {
+      "path": "content/core/machines.json",
+      "sha256": "02af50c28d4817cabe770521546ee4f58cf004ea023f9042d65279701f7e396b",
+      "match": true
+    },
+    {
+      "path": "content/core/maintenance_policies.json",
+      "sha256": "291ddd6e6ec3982eda8810a894fa29c4be50b49d64dc0fea705b4daac0b16a2a",
+      "match": true
+    },
+    {
+      "path": "content/core/maintenance_scenes.json",
+      "sha256": "9af850ba793137bd287a1bd294a5c2991dc1ff751b25a908846633a417c406f0",
+      "match": true
+    },
+    {
+      "path": "content/core/manifest.json",
+      "sha256": "357d59ffc2f2a7faa08c48ed681a85ef1397505f3473e64d8bf4ac3ea07877e7",
+      "match": true
+    },
+    {
+      "path": "content/core/medical_equipment_profiles.json",
+      "sha256": "869aa798161a36512eb458c2a95abadbfaf25302ee6ac24e7dcc454a32b3813e",
+      "match": true
+    },
+    {
+      "path": "content/core/medical_progress_cues.json",
+      "sha256": "f2074bc2777274bca34934b9c57e34c3a1662d9724b58f6a6ba65916b98efe22",
+      "match": true
+    },
+    {
+      "path": "content/core/medical_supplies.json",
+      "sha256": "2c8b925825a71fc7cc86029df0706993cdcb15a480e1cd2c9a38819433588ba3",
+      "match": true
+    },
+    {
+      "path": "content/core/memory_callbacks.json",
+      "sha256": "782de776d49b2f952604c2f7eb47f0d6577fc65805c300473a45e80ef9eb177b",
+      "match": true
+    },
+    {
+      "path": "content/core/movement_cues.json",
+      "sha256": "c885f2694d96ef709ab798e4081b6f73b74b682eeb3e2ac29b3f0cd8bee235f5",
+      "match": true
+    },
+    {
+      "path": "content/core/observation_cues.json",
+      "sha256": "abdc073a898f89b78f77abc6ca626990ba3e19307c7f69f2471bd3d373c17e48",
+      "match": true
+    },
+    {
+      "path": "content/core/onboarding_steps.json",
+      "sha256": "de5b9f9ba56099edd64d29ef7164de3d9ec638276af4add7e3bdaefc31aa18ec",
+      "match": true
+    },
+    {
+      "path": "content/core/patient_behaviors.json",
+      "sha256": "5ba04478cdf9a77ce0bf6503bd11b6851aa394492d14413ee42e26215cb08ed8",
+      "match": true
+    },
+    {
+      "path": "content/core/patient_personalities.json",
+      "sha256": "67bf45cd659289493079accf8939222c409960f4311889f569564fae0bf57827",
+      "match": true
+    },
+    {
+      "path": "content/core/preferences.json",
+      "sha256": "f5d1d59c5507fd00028f830fffa30c892a256095bea6b9a8df9b0b02dc7b3147",
+      "match": true
+    },
+    {
+      "path": "content/core/profiles.json",
+      "sha256": "4eeebb9605e510f6b39534ea5c6b4d3d1c9f8b9fae7cae84970819f573033861",
+      "match": true
+    },
+    {
+      "path": "content/core/queue_cues.json",
+      "sha256": "4f4f8481da5fa75c1b75c9c04909f0f70121d775fec4a59424a0d00b10e47618",
+      "match": true
+    },
+    {
+      "path": "content/core/recruitment_examples.json",
+      "sha256": "06e0478c1d06a5c71a97864f6e4a292f65bec2bb23ea83d37b1074f963915449",
+      "match": true
+    },
+    {
+      "path": "content/core/remodel_guides.json",
+      "sha256": "ce4268b3e199f85290a467c8d8523b54f2a166d03d08b525dee8bd9566977839",
+      "match": true
+    },
+    {
+      "path": "content/core/renovation_materials.json",
+      "sha256": "b880bfd1310b53baa29b071cf4fc63ecdfe8d52303feb2bf8b9d6ebb10580435",
+      "match": true
+    },
+    {
+      "path": "content/core/research_trails.json",
+      "sha256": "c17def6e3153043c617ac919211236ce041b016fa0c0ee36c0f06c73e4dd78c2",
+      "match": true
+    },
+    {
+      "path": "content/core/research.json",
+      "sha256": "2721a56cbcdfc5f8db506be952c619f1161148c3c2d852712c88b456e81f8a75",
+      "match": true
+    },
+    {
+      "path": "content/core/rest_cues.json",
+      "sha256": "0c70cab9973e8712687b8db3e39c91eee4591e41f52762b766e7fbc9b13709fc",
+      "match": true
+    },
+    {
+      "path": "content/core/resume_note_templates.json",
+      "sha256": "8501af9bc65f95d9807b653aa87130f2f9f5163100d0e7afde26da30a8f4dce1",
+      "match": true
+    },
+    {
+      "path": "content/core/rules.json",
+      "sha256": "202cb4f973609724cf62f3f1fd70ef3ed53455b66f4fa6d71899a9524049596b",
+      "match": true
+    },
+    {
+      "path": "content/core/service_equipment.json",
+      "sha256": "6f2c39ef19ffa5c50a029874e39d3fa8aa69c4fd67e6dba0dad5b21bb5babf4b",
+      "match": true
+    },
+    {
+      "path": "content/core/specialties.json",
+      "sha256": "c304ea7ce66b6e5a1e264ee0910c2cb8abf3d1f5766a70ae2ffc9aab5ea1b562",
+      "match": true
+    },
+    {
+      "path": "content/core/species_gifts.json",
+      "sha256": "476ffff40e99fed66209f2b9cdc9b6d57cb8889aad34352fbebb9dc40e75edc4",
+      "match": true
+    },
+    {
+      "path": "content/core/species.json",
+      "sha256": "cfa4c06adeb95d7a6479018b0ba6e773c12c6b7ae46b3620f41a3c6826759d90",
+      "match": true
+    },
+    {
+      "path": "content/core/staff_base_cues.json",
+      "sha256": "c12d5f57890cd755d2bd78c4c6e09fba1594c8ae9c35454ed08f62f15b2c1e79",
+      "match": true
+    },
+    {
+      "path": "content/core/staff_biographies.json",
+      "sha256": "8ff1bbb26d710e5612b151b73b04895dff27930b3f05507d813b4d1495c27a88",
+      "match": true
+    },
+    {
+      "path": "content/core/staff_practice_profiles.json",
+      "sha256": "246f01a3400642a32aacdff6a48e6e888746860936d712af32420a13f6b21c9b",
+      "match": true
+    },
+    {
+      "path": "content/core/staff_recreation_equipment.json",
+      "sha256": "caac910e1255df89b61b009c87cde56de87b108c5525e7501ac1f0361d554134",
+      "match": true
+    },
+    {
+      "path": "content/core/staff_rig_adapters.json",
+      "sha256": "faae167a7bf67362134c2bf28e076a84ace43d56bd0d431dcd4043e0371c479d",
+      "match": true
+    },
+    {
+      "path": "content/core/staff_role_profiles.json",
+      "sha256": "750b0e26da652ecac2999f2a2ee8081954b61236801be42b6e41d8ebdb734a32",
+      "match": true
+    },
+    {
+      "path": "content/core/staff_support_rooms.json",
+      "sha256": "9e429ab088cef0d09624db9f6f40b7950e1fea882fdbd2a9df72cdf7ae7126e6",
+      "match": true
+    },
+    {
+      "path": "content/core/staff_talent_handlers.json",
+      "sha256": "9629ec1eff3401ed18c60dce9a01b489707704146b42178b87cf0a898b110869",
+      "match": true
+    },
+    {
+      "path": "content/core/staff_talents.json",
+      "sha256": "30789aac2d0de77fd917b9305157fa60da7fe8fe8edd53ccf9764556d52042fb",
+      "match": true
+    },
+    {
+      "path": "content/core/staff_work_styles.json",
+      "sha256": "e64b41e97eafea9c8b5ea8a2b434e17db7b7352373b698a5c4292dd1833b3d66",
+      "match": true
+    },
+    {
+      "path": "content/core/starter_layout.json",
+      "sha256": "42934c1470711d34431189418e18c52973a767e9ef835b81407910c657f411e0",
+      "match": true
+    },
+    {
+      "path": "content/core/stories.json",
+      "sha256": "f8cd3a18d99e533275e7e55c7f994be7118f5c179127b727fc792e1d115584bf",
+      "match": true
+    },
+    {
+      "path": "content/core/story_activity_links.json",
+      "sha256": "a4a40ec65547fa0a9671125961e10a7d0a9170c55547fb8116da5e54634fe422",
+      "match": true
+    },
+    {
+      "path": "content/core/story_patient_bindings.json",
+      "sha256": "4d77bee91e679e9d69b1bf0c0651b284a54419cca97b6568cd7a6f88693ae70f",
+      "match": true
+    },
+    {
+      "path": "content/core/supply_reactions.json",
+      "sha256": "c97b40e69c1b63de8134aab4e583fc65f895ddac0725707594bc5cb1ad1f05b2",
+      "match": true
+    },
+    {
+      "path": "content/core/surgical_adapters.json",
+      "sha256": "bbfa92f2af5f71b7974038ea3931aaacbec90d661e158e5f939d93515d4909de",
+      "match": true
+    },
+    {
+      "path": "content/core/tags.json",
+      "sha256": "bcbc325d398949f4ee796ee00a0fe9f90496f818569fe5062a2dd1593ed5af1a",
+      "match": true
+    },
+    {
+      "path": "content/core/task_guides.json",
+      "sha256": "f840aa7111d9bfbceddedf9bea20157a69446738969b6019dbc46e396d7f77c9",
+      "match": true
+    },
+    {
+      "path": "content/core/tasks.json",
+      "sha256": "3b65150da0092ced59164f6fb7cefd118c0b2c6b2b077224f84c053e2a39b2d9",
+      "match": true
+    },
+    {
+      "path": "content/core/treatment_bindings.json",
+      "sha256": "f7852103655d47ab103975a8f286cf68a31c76d68fe14ebf58a88476e9cb77b8",
+      "match": true
+    },
+    {
+      "path": "content/core/treatment_plans.json",
+      "sha256": "904ad231bb7705a95bfcf49c0984adeb127ba7d95445ace4c5d64611f30c8dbf",
+      "match": true
+    },
+    {
+      "path": "content/core/treatment_protocols.json",
+      "sha256": "0ac7cd27f486f55102b3901f92631134facab69c5179aa8631236b213c8661a1",
+      "match": true
+    },
+    {
+      "path": "content/core/treatment_routines.json",
+      "sha256": "bfec39f6b7436bed0fb57e6f212dd148f9f858b936f8898205a3d29c314f76f3",
+      "match": true
+    },
+    {
+      "path": "content/core/upgrade_presentations.json",
+      "sha256": "7df4189f253d2329b93f7273b38544eefc07c537033fff03fef9a7a9a2eabf17",
+      "match": true
+    },
+    {
+      "path": "content/core/upgrade_tiers.json",
+      "sha256": "d991b46ddd86b1c919bf6023255e547e6c99fa3cf2fb8b1cfe4ef55181b7e955",
+      "match": true
+    },
+    {
+      "path": "content/core/vertical_connectors.json",
+      "sha256": "ea08f076bbbbdea1d8bd1eaebafa67cb74215bacd27bede12287d6b81fe6a7cd",
+      "match": true
+    },
+    {
+      "path": "content/core/visitor_cues.json",
+      "sha256": "fcd56a2b860e55054c79621781dd20886257b32f24f85df3fd39f02b5002471b",
+      "match": true
+    },
+    {
+      "path": "content/core/ward_neighbor_cues.json",
+      "sha256": "f686630d84f18c5fda432b3c0bcb4d4a1e9514b7255961fc13f9df74f1261162",
+      "match": true
+    },
+    {
+      "path": "content/core/ward_scenes.json",
+      "sha256": "91bedfb76c2b10749f5bfb48926a829fe18bb4b89458cb4c4099937ddd575a16",
+      "match": true
+    },
+    {
+      "path": "game/app/app_root.gd",
+      "sha256": "d50eeda18ba424c6fa3813fba7c46e20c8a93820b21eb8bc7f22f0b494774e9e",
+      "match": true
+    },
+    {
+      "path": "game/app/app_root.gd.uid",
+      "sha256": "abd8e92cd2e25239441be057f300ccf116b9526544bec1336215864299269bd1",
+      "match": true
+    },
+    {
+      "path": "game/app/game_session.gd",
+      "sha256": "a22ec31241d16b66a607db6f1a5cb7aec70dcab625160c2a5072a7baaede2675",
+      "match": true
+    },
+    {
+      "path": "game/app/game_session.gd.uid",
+      "sha256": "4e852590433aeb5f2defcde8d11d75ef22515f9df51fafbe1b906768be10c45b",
+      "match": true
+    },
+    {
+      "path": "game/app/main.tscn",
+      "sha256": "e1a3ffe5c4423cba6c381ac29a6dca3f98da3b045af9db13120002a88da310e5",
+      "match": true
+    },
+    {
+      "path": "game/arrivals/arrival_preparation.gd",
+      "sha256": "e53762d0f4156ea5003e5aa32c15b5a8f2214b739616408522f7fad96bc90a81",
+      "match": true
+    },
+    {
+      "path": "game/arrivals/arrival_preparation.gd.uid",
+      "sha256": "4a5846543cb77492aa01294e0d8dfcefb41a4df8ed513f3239f2d7a91b387982",
+      "match": true
+    },
+    {
+      "path": "game/arrivals/arrival_service.gd",
+      "sha256": "7c0f7ac551f067419d8363d5ec8e1ad3256a92d87a63d800a67161ca038bb607",
+      "match": true
+    },
+    {
+      "path": "game/arrivals/arrival_service.gd.uid",
+      "sha256": "f7d19bd548b72b4ed76505ca97d7d7a528861a2a86f9146329bf769b8de7d019",
+      "match": true
+    },
+    {
+      "path": "game/arrivals/capacity_solver.gd",
+      "sha256": "97f010473f1b4bed516e92088eb23f4e51c01a1c60d4c66af7915511d754ca5f",
+      "match": true
+    },
+    {
+      "path": "game/arrivals/capacity_solver.gd.uid",
+      "sha256": "74aaf26a918caf75fa5bbb58085a0e6d8f21cad26d6ffd807ba9251ffdc7ec02",
+      "match": true
+    },
+    {
+      "path": "game/arrivals/day_plan.gd",
+      "sha256": "c29a801a9394879454ea37a8ffaec698e50962bb513780a41e0bac37176527bc",
+      "match": true
+    },
+    {
+      "path": "game/arrivals/day_plan.gd.uid",
+      "sha256": "5f2aaceef955eb39bbd64a2572b2bc15a9bde000b33c1fe71a0dc8c08d7268d5",
+      "match": true
+    },
+    {
+      "path": "game/arrivals/exact_fraction.gd",
+      "sha256": "78dbb754096d5b6b49dcd1fa4d9988f165dea95a95bbd9232693ddedfeef012a",
+      "match": true
+    },
+    {
+      "path": "game/arrivals/exact_fraction.gd.uid",
+      "sha256": "e80b179de4fc1b4c9e6e32314d28d47ee0d313e72af3abdd86e3d70ed373c297",
+      "match": true
+    },
+    {
+      "path": "game/building/blueprint_service.gd",
+      "sha256": "643a5aff8d7ea6c537fd19a034b7cf92098148f7a7e34edf5611f0e80a0e5e80",
+      "match": true
+    },
+    {
+      "path": "game/building/blueprint_service.gd.uid",
+      "sha256": "51cbeb0c80b2ffd9d3326adaa13054a9bce4044e84565ac9d13f89a91982a81c",
+      "match": true
+    },
+    {
+      "path": "game/building/body_index.gd",
+      "sha256": "82d8c53de127c9a1a5ffaf4b687665f1fd340c196e828ae56bce8ea27efb7ee7",
+      "match": true
+    },
+    {
+      "path": "game/building/body_index.gd.uid",
+      "sha256": "b29a33133f415757c8e5ed0f08d407b997fc05d761a3cff4bb810b665955adf0",
+      "match": true
+    },
+    {
+      "path": "game/building/body_sweep.gd",
+      "sha256": "e8a1374f84984314c1965695b103c03d0bfd18a498322f160374f7496db69ccc",
+      "match": true
+    },
+    {
+      "path": "game/building/body_sweep.gd.uid",
+      "sha256": "ae1465b8741b328c2c18241ab132562f461be644a84123d6a52bf0311c7c2a88",
+      "match": true
+    },
+    {
+      "path": "game/building/build_geometry.gd",
+      "sha256": "cbb6780b9f331cc9b1a0bac4556dd5ac7d8f864a776d0ef81a7167cf02c90db9",
+      "match": true
+    },
+    {
+      "path": "game/building/build_geometry.gd.uid",
+      "sha256": "e0cfc816c799996408780b2ac960447cb152e0a9f6110d8b679f19185eae5b03",
+      "match": true
+    },
+    {
+      "path": "game/building/build_preview_job.gd",
+      "sha256": "d7722e552391fefa557f660795f8ae97c6ace972303b9c9f92e6f6ba941088b5",
+      "match": true
+    },
+    {
+      "path": "game/building/build_preview_job.gd.uid",
+      "sha256": "6a972583b2419e1e93cf6eb3ffafa475a913c32123238b67b935efb3d430bc63",
+      "match": true
+    },
+    {
+      "path": "game/building/build_preview.gd",
+      "sha256": "ef7723ea004d7e1939bbfdeda23b4128d1930d1964b3cdf806ffe9ace379f4d1",
+      "match": true
+    },
+    {
+      "path": "game/building/build_preview.gd.uid",
+      "sha256": "46615ba9d945b0584ee93f80ff4aa26147d4adb67e5e137aed86c55a0fb09e63",
+      "match": true
+    },
+    {
+      "path": "game/building/build_service.gd",
+      "sha256": "e13e319fa1d52b35659d95e65babbdd8151ecddaf94f37e9df11ccc15ba792f5",
+      "match": true
+    },
+    {
+      "path": "game/building/build_service.gd.uid",
+      "sha256": "d20c9a79609414157ed84817c98d44f0713e0096cdcf7c4f7a9906d1c3c0ef0c",
+      "match": true
+    },
+    {
+      "path": "game/building/connector_service.gd",
+      "sha256": "002f34d0c74e0be4129ea42fed6d488ff448817079a63e49b88f475d77d6ce63",
+      "match": true
+    },
+    {
+      "path": "game/building/connector_service.gd.uid",
+      "sha256": "dc339d8eb8bcb1fd44a506c36deb751120ecf11816f0b26efcef1a4d991e27b4",
+      "match": true
+    },
+    {
+      "path": "game/building/floor_navigation.gd",
+      "sha256": "3252ea8be161029ff0ef600e605a4b50da9a4ee63d1562e69ac78a3e596b0a42",
+      "match": true
+    },
+    {
+      "path": "game/building/floor_navigation.gd.uid",
+      "sha256": "093736871b033e11aa70459b2402106ff5cc628644bc558521fea3028fd9aa83",
+      "match": true
+    },
+    {
+      "path": "game/building/floor_service.gd",
+      "sha256": "a3974006ce8c43ed5c3b177c1b481bf1c755d9dfb4fc4693ae64f6db34472c8b",
+      "match": true
+    },
+    {
+      "path": "game/building/floor_service.gd.uid",
+      "sha256": "8d233fd11a3672cb48c154ec90b468249feb7a60a25829195344b6a1c2cd32bd",
+      "match": true
+    },
+    {
+      "path": "game/building/hospital_movement.gd",
+      "sha256": "b8bf9acbc4286839300c51c5a3028dd9cb6e9507743db5a8e1d2a14af2e326e1",
+      "match": true
+    },
+    {
+      "path": "game/building/hospital_movement.gd.uid",
+      "sha256": "8fa220e6f853c912a76db965dc330d7588aa817499b7e4e06e4645c33774ae2b",
+      "match": true
+    },
+    {
+      "path": "game/building/hospital_navigation.gd",
+      "sha256": "e1e822f6612591f777bd4889c67b5553550293912b1700f23bc0d09494b7bcb5",
+      "match": true
+    },
+    {
+      "path": "game/building/hospital_navigation.gd.uid",
+      "sha256": "5002995c2200baf4a1940e7395bb31de738b213818d5f647598843bb16d3d069",
+      "match": true
+    },
+    {
+      "path": "game/building/hospital_space.gd",
+      "sha256": "25b14d563225151ddad7855773f9236683871d11150522eda1115cd8a21829af",
+      "match": true
+    },
+    {
+      "path": "game/building/hospital_space.gd.uid",
+      "sha256": "5d0cbaa0ed27304035734876113fcc679345967c5250dc6a876a8e911ff70991",
+      "match": true
+    },
+    {
+      "path": "game/building/hospital_transit.gd",
+      "sha256": "6a8ddb1da1878dd30307ff75719171a9d7d1a531f5998bc39671e48127917208",
+      "match": true
+    },
+    {
+      "path": "game/building/hospital_transit.gd.uid",
+      "sha256": "1fa81c6513d1e3dbad2cdbf1e606a5f19d5ca75f3dafde2c96ed4bd807f68e05",
+      "match": true
+    },
+    {
+      "path": "game/building/navigation_cache.gd",
+      "sha256": "266237bd20c84f1a7feb2d0e6fed268f59d0e19a393486393ec068c19cf1c719",
+      "match": true
+    },
+    {
+      "path": "game/building/navigation_cache.gd.uid",
+      "sha256": "cf0d5ad54e1ab317d1dbddbcfa9abf7f2770505e6520a45cc8b5d9caae08aa91",
+      "match": true
+    },
+    {
+      "path": "game/building/remodel_service.gd",
+      "sha256": "d46bd4af6106ad7d99bef7dedf1ca8e1290502ce1c60057dbeb455c483d9f756",
+      "match": true
+    },
+    {
+      "path": "game/building/remodel_service.gd.uid",
+      "sha256": "8cff815992583887b4a4cc61e5f9c2b6fbacbc73e82435867e2963dfff8c3eb6",
+      "match": true
+    },
+    {
+      "path": "game/building/route_clearance.gd",
+      "sha256": "57ae6fe1be895514d0fd458247f6faed3b92f0c7ba2b64949a348783bec6a6e9",
+      "match": true
+    },
+    {
+      "path": "game/building/route_clearance.gd.uid",
+      "sha256": "f1b0af50e12c22a7441fe1bb1cef89adeae052d2d4ed907bd7a7e8ce8774ada2",
+      "match": true
+    },
+    {
+      "path": "game/clinic/clinical_runtime.gd",
+      "sha256": "3ce51b71e8cfbc93b527df1f499e953d7fcd20416b6bc332d6dcaad1b24cb1e0",
+      "match": true
+    },
+    {
+      "path": "game/clinic/clinical_runtime.gd.uid",
+      "sha256": "368fec0d4e2d9da38006d89d7925eefc70104a000425633d259d3724a1a554f1",
+      "match": true
+    },
+    {
+      "path": "game/clinic/hospital_visitors.gd",
+      "sha256": "e8b8b7dbbf80dd510c1598929382c564e12f7dcceeff43dc7c30362aaf332f0d",
+      "match": true
+    },
+    {
+      "path": "game/clinic/hospital_visitors.gd.uid",
+      "sha256": "6e0bdaae581decfd807432c8671206b905b7e8da84b053442ec5b9df2a01c99e",
+      "match": true
+    },
+    {
+      "path": "game/community/research_job_index.gd",
+      "sha256": "caf1960eaee699eb89e2a05cbe5bdfbf47ea5c47056fd85f163862420304d1f8",
+      "match": true
+    },
+    {
+      "path": "game/community/research_job_index.gd.uid",
+      "sha256": "5d165d9db3ed1d679a2dc72e837a1e75f6e95e44e56addd549c0b7d0df5c8df5",
+      "match": true
+    },
+    {
+      "path": "game/community/research_service.gd",
+      "sha256": "eee0f6439a013d1689cbf1b482a9f54d49941abe551c7b667904e78c2d41c7fa",
+      "match": true
+    },
+    {
+      "path": "game/community/research_service.gd.uid",
+      "sha256": "b41ff1df0124c6cde40405679cb63fbd028c3608a05dc223492d0f1c3bc254f9",
+      "match": true
+    },
+    {
+      "path": "game/content/content_db.gd",
+      "sha256": "658bef312d445be223af4cb7b55254160cd884105a863ee280d16fe0733f803a",
+      "match": true
+    },
+    {
+      "path": "game/content/content_db.gd.uid",
+      "sha256": "4a4b05397ce4a56a50e3ed20c6f711c234e555e6c9bcf5f3ee74b7f5dba3e0ce",
+      "match": true
+    },
+    {
+      "path": "game/content/content_load_result.gd",
+      "sha256": "ca8ff6780a30f9dee0e5254df360103117735175d2d207df47a1c824d9f8c3b5",
+      "match": true
+    },
+    {
+      "path": "game/content/content_load_result.gd.uid",
+      "sha256": "b90b613124fbfb3ee61c80eff70f6edddd7e75d242d28f7021ed7fde32f00e7a",
+      "match": true
+    },
+    {
+      "path": "game/content/content_loader.gd",
+      "sha256": "60289da8dd877645ac07eb31cb98afb1dd3b4ab65b1057d6134e29f7c50dfe9b",
+      "match": true
+    },
+    {
+      "path": "game/content/content_loader.gd.uid",
+      "sha256": "5b8287fee22dfa3ac7f4f55b72f7dabb0e76dc8d5f3464f13b4b5faacbb3b30a",
+      "match": true
+    },
+    {
+      "path": "game/content/content_pipeline.py",
+      "sha256": "2ed8831fa9f63c22ada1666c6f665340d9055288ce3c9627f63f69d932205aa7",
+      "match": true
+    },
+    {
+      "path": "game/content/content_registry.gd",
+      "sha256": "3f957af0cc9c6b28fcca07e71dd58643602d31de1b8c2a283c725a76e24e8d38",
+      "match": true
+    },
+    {
+      "path": "game/content/content_registry.gd.uid",
+      "sha256": "98652b46a3c83566b028a2f4f97d2a12ae4e6952459e46541cd2ac67f00d4e78",
+      "match": true
+    },
+    {
+      "path": "game/content/schema100.json",
+      "sha256": "f5d47f62f086ac2bffeea6fceb50fccf7ed53c860e7331efd04d2ef7607e011b",
+      "match": true
+    },
+    {
+      "path": "game/economy/finance_service.gd",
+      "sha256": "6a84601eb63d57641467ad0877b6f7dca04178973145554fc85e7fa5d8b2c96a",
+      "match": true
+    },
+    {
+      "path": "game/economy/finance_service.gd.uid",
+      "sha256": "09064ea51dd89f90d2eef1f66e95b0c3f824f1ba45f4424f08df8adf9db4e5fd",
+      "match": true
+    },
+    {
+      "path": "game/economy/ledger_entry.gd",
+      "sha256": "6c610e59dedf13c94618e41f872c875b1cc33446c55aae4f28317008c181b877",
+      "match": true
+    },
+    {
+      "path": "game/economy/ledger_entry.gd.uid",
+      "sha256": "a03075b29679d08490ea278f89fbe6bd60bce606f7bcfaab9d0044cbc31baaee",
+      "match": true
+    },
+    {
+      "path": "game/economy/ledger.gd",
+      "sha256": "024370d1aacce142495b63b72d4ba52a059888fa74f030bbcaeb4b5848da6bc3",
+      "match": true
+    },
+    {
+      "path": "game/economy/ledger.gd.uid",
+      "sha256": "d79ef85f9b3a956d8343d784581bf123ce0f67af7efe4da3fae424f278507abf",
+      "match": true
+    },
+    {
+      "path": "game/life/public_areas.gd",
+      "sha256": "fa7dff283f60bbba2d14bbd40f623a5b620180e80f26aef66e2dfa9d67499424",
+      "match": true
+    },
+    {
+      "path": "game/life/public_areas.gd.uid",
+      "sha256": "a55ac97a7b178f799e527993776c4c5002303b6a4a1bcb73f04d11a049825c73",
+      "match": true
+    },
+    {
+      "path": "game/life/waiting_life.gd",
+      "sha256": "99200263f7588bd409d86010841308fd3047a564f92117f322d0968f9f1c8500",
+      "match": true
+    },
+    {
+      "path": "game/life/waiting_life.gd.uid",
+      "sha256": "d22afe73a6bc0e1ff4096c65c27d4c98f91bee5c1413eb96c9d0f6cb8954ecfd",
+      "match": true
+    },
+    {
+      "path": "game/operations/department_service.gd",
+      "sha256": "c2a0dd23d74ba8a4499153ff0a94c3e3b581045affaf3822740a14ca66d93596",
+      "match": true
+    },
+    {
+      "path": "game/operations/department_service.gd.uid",
+      "sha256": "8b24e05e935251b47be67d4f5107360767d93c22a37412d29fc20b4d5a232462",
+      "match": true
+    },
+    {
+      "path": "game/operations/environment_service.gd",
+      "sha256": "8d6b76318755aa0fb5641784ca722bd73e405a4d558d9ed6343f5cd254ea30c3",
+      "match": true
+    },
+    {
+      "path": "game/operations/environment_service.gd.uid",
+      "sha256": "7d3b425b1b3e468be5491a7f011ab53d40cd8b29155e5dec19a4d0f45e966e7e",
+      "match": true
+    },
+    {
+      "path": "game/operations/maintenance_service.gd",
+      "sha256": "9b1e32aec0d2043e16873a219f609f48b339ce21ff806011181398cfbacf2f1d",
+      "match": true
+    },
+    {
+      "path": "game/operations/maintenance_service.gd.uid",
+      "sha256": "7917d490085c45ea605438fcd30c0f9abecaae37e8b81db2d10bd565c6bc9ffb",
+      "match": true
+    },
+    {
+      "path": "game/operations/supply_service.gd",
+      "sha256": "c475929ef1ffb29fcba23ba944b9b226e9cccb166a906c400718ecd303f8e213",
+      "match": true
+    },
+    {
+      "path": "game/operations/supply_service.gd.uid",
+      "sha256": "a4c13e6ff91e9bcce5a01765391c922eb78210ec59ed3f5d0ebfa0738fe1bf4b",
+      "match": true
+    },
+    {
+      "path": "game/persistence/backup_zip.gd",
+      "sha256": "7c717b593cf331aa68196db9d5c5f25fa2e0d6a0f984c10e5fbfc56f688d2055",
+      "match": true
+    },
+    {
+      "path": "game/persistence/backup_zip.gd.uid",
+      "sha256": "161414721736977c4a47c884948a53fca2c8c055f82d0d83dfdf6079bf8940ff",
+      "match": true
+    },
+    {
+      "path": "game/persistence/blueprint_library.gd",
+      "sha256": "aea8b917af5575789c1ec16f8780ca91f1b114661714fc67a254c22dab0ec497",
+      "match": true
+    },
+    {
+      "path": "game/persistence/blueprint_library.gd.uid",
+      "sha256": "5b71d1b0cd49c763c32be7550e10cbb5458f49b3731b1b1c2fd028ef2cf4c3f6",
+      "match": true
+    },
+    {
+      "path": "game/persistence/hospital_library.gd",
+      "sha256": "b75456ce121b0812743ded675f525dba8ac1bb73349ae6c83e87a8c168a06672",
+      "match": true
+    },
+    {
+      "path": "game/persistence/hospital_library.gd.uid",
+      "sha256": "9e040d464e8f787baa7d72874d809ca502150af6071265eb32d3ba24320624c8",
+      "match": true
+    },
+    {
+      "path": "game/persistence/json_stream.gd",
+      "sha256": "8873599648ba65cbb23d162e0c9aba209d7b01cbf7734664bb3a29cde79c6f72",
+      "match": true
+    },
+    {
+      "path": "game/persistence/json_stream.gd.uid",
+      "sha256": "15b0c3868187fd8755982fd4557b98facba3e99bfbe6efef93165bb4a5de45cb",
+      "match": true
+    },
+    {
+      "path": "game/persistence/snapshot_store.gd",
+      "sha256": "78566573c6bdb50efc8dd6945d27c69f5f0578d93752fb961c99c0d585bcef25",
+      "match": true
+    },
+    {
+      "path": "game/persistence/snapshot_store.gd.uid",
+      "sha256": "5db9545d378b13c4bd9697c0897c29f1e58c99d49fe9b47821b08992f647431c",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/oddly_good_platform.gdextension",
+      "sha256": "9d3edda4f6527134ad82c0765c81b8fdc6e516447701d13b4ee73a5d47500dc3",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/oddly_good_platform.gdextension.uid",
+      "sha256": "cc18f4e80cd28a17ce221a44d2e27df851348fa474390a790b58a1f257652cb6",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/platform_arrivals.cpp",
+      "sha256": "7c99c5d61867f1adbc35672fa9766bb94a1979449c442576eb8174195ede8891",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/platform_backup_zip.c",
+      "sha256": "04cdb84f9e6eb4e700e247597fcab75ede9eefd1594fb7b2e503697fc8ee8716",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/platform_backup_zip.h",
+      "sha256": "bca4594474f66c32f005b30043426df7f4eb1325999f86b46da76059988283b1",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/platform_bed_matching.h",
+      "sha256": "4dff840d939cdb2cca4ea39d6041ea811f71bc770dfdf14389a3cdfa3f4450a4",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/platform_graph_reachability.h",
+      "sha256": "e0285260fdcf1bf7909d9d3ad4a17fbe4a7d20b2266bffbf8f7b0c4fa144186e",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/platform_grid_component.h",
+      "sha256": "150d652b38bcf644042255c23316b867238c832e284c6165cbbfbcc02dd8bf96",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/platform_grid_distance.h",
+      "sha256": "c2122659bf04d6f7dec7b3f53589981631457e9b31f65804a7f1864ac6fe8e91",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/platform_json_stream.h",
+      "sha256": "9544fb7881ba71c9acb6fd9a8fc222c727a287be3faf903542ffe7fe09964416",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/platform_json_stream.inc",
+      "sha256": "2a2fcb28aea3d1b226c0b7838e613258a19a2e09febd518581092ea689235c9c",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/platform_route_queue.h",
+      "sha256": "9d7a1f7198c2bd1d5b5e31798c50398aa8a1a1dd22179dd58e7b8950bdeed32e",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/platform_route_search.h",
+      "sha256": "9fbd263a2f571c6def0a5e34f4f0a5bc671b09d16a470768adbf00a72bc52ee7",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/platform_session_guard.c",
+      "sha256": "b8b211f98327d1e292cbb114d880f043d778dd99377d3854cacddffe8095e8cb",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/platform_spatial_index.h",
+      "sha256": "b09ea4163d2b802c0bb0ba962c28dd55d2fec4a3a2fefe532b47728b616c0a38",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/platform_sqlite.h",
+      "sha256": "4cf27eb9149fe233cc38303f373ccc07510f1101f26c811350f7c2e48d710a95",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/README.md",
+      "sha256": "a62a396bda3f264de17bfbd7691dc3c557d1b32c3975fdc681e2371e98bdb442",
+      "match": true
+    },
+    {
+      "path": "game/sim/equipment_use.gd",
+      "sha256": "b2c0001a0ea8640ea4f42f7d86ec59e1c7cf63bad032f78946295918a8620210",
+      "match": true
+    },
+    {
+      "path": "game/sim/equipment_use.gd.uid",
+      "sha256": "bb476f19404bae15df749e61d8f1279c89859e4d0a0e63ac1927bd784f8672fa",
+      "match": true
+    },
+    {
+      "path": "game/sim/hospital_factory.gd",
+      "sha256": "aab6e9695c2e33658f969cbe4754fc4bd6dbc8d520df23a715ac5292e2aa8b93",
+      "match": true
+    },
+    {
+      "path": "game/sim/hospital_factory.gd.uid",
+      "sha256": "9d16d22ec626f8eef1045b6cbb79c47bd68dc78c5437be7a4e33dde5ab7f3a6f",
+      "match": true
+    },
+    {
+      "path": "game/sim/simulation.gd",
+      "sha256": "b88679e9a9f592b2402db23fff47a5e31cdfaae1d1514c1637f9083ea61f38b4",
+      "match": true
+    },
+    {
+      "path": "game/sim/simulation.gd.uid",
+      "sha256": "e18198247468017f75ef00db54e921e7b22f6fdbacac273151e433667cbb7895",
+      "match": true
+    },
+    {
+      "path": "game/sim/types/business_payload.gd",
+      "sha256": "e6be2f738ce0077f3a6b3ec023965fef20785f8d2d941eeff68b40dfdd450fad",
+      "match": true
+    },
+    {
+      "path": "game/sim/types/business_payload.gd.uid",
+      "sha256": "bb9ad35435d4a1e28602bf15c7e357739fbc24ec03d9a19f8f7a2ebfa2d89425",
+      "match": true
+    },
+    {
+      "path": "game/sim/types/command_result.gd",
+      "sha256": "14bfda9bada0dfb5d33f13d5966c0572f65cc344a685e4caa8b1210fdbab82cb",
+      "match": true
+    },
+    {
+      "path": "game/sim/types/command_result.gd.uid",
+      "sha256": "dd7b0e8e1ad42a6be154b5836e4a276fed1cd1e5ddb3c7c98b773d0e72a34319",
+      "match": true
+    },
+    {
+      "path": "game/sim/types/game_command.gd",
+      "sha256": "c5d933fa960dab22d4a8c94d1727726a05d3596a1c171e33c28fbafe68d1d7a5",
+      "match": true
+    },
+    {
+      "path": "game/sim/types/game_command.gd.uid",
+      "sha256": "8496fefe09ded244f13a6de4632110c5161a9f54d394bb71b1d47d74f308ef96",
+      "match": true
+    },
+    {
+      "path": "game/sim/types/move_actor_payload.gd",
+      "sha256": "f9ced5a3b5649af68128e5cb1effe4d6ee516d18327eedfced56da7de6c03fcc",
+      "match": true
+    },
+    {
+      "path": "game/sim/types/move_actor_payload.gd.uid",
+      "sha256": "24e3a2c9670582b9bca90cea87c94b4610b2f49da1e55731c600a36ffde89ef3",
+      "match": true
+    },
+    {
+      "path": "game/sim/types/sim_event.gd",
+      "sha256": "97adadfe83e77fb0292ed8b322f2ed1d3f5b3138d772cf3d5b8bc4240ba8a911",
+      "match": true
+    },
+    {
+      "path": "game/sim/types/sim_event.gd.uid",
+      "sha256": "6fd132e37b5fa8ca17460770320fb5aeacb9ce3149de11023c726cee7c1572ae",
+      "match": true
+    },
+    {
+      "path": "game/sim/types/tick_result.gd",
+      "sha256": "21253c3043fef847fa707f77955c5d650fec072b48feb4060d6b79b320d938c1",
+      "match": true
+    },
+    {
+      "path": "game/sim/types/tick_result.gd.uid",
+      "sha256": "d1304dd41e06695e9c88d41d5899729731074fd2649d75c93727bf3afbc80aa0",
+      "match": true
+    },
+    {
+      "path": "game/sim/world_state.gd",
+      "sha256": "e324c57bbbdc22f798da9e7a40e89cc8b00c1fc0d1b508438cf7f80771b8bbf5",
+      "match": true
+    },
+    {
+      "path": "game/sim/world_state.gd.uid",
+      "sha256": "402c9491175a093eebd14fa3ee6438c97adbd5875db50891971e4498bead1190",
+      "match": true
+    },
+    {
+      "path": "game/staff/clinical_development.gd",
+      "sha256": "a33f86c5f165315e7710bfa6b2c359b472c678c283fb2ccee4caeef74584bb55",
+      "match": true
+    },
+    {
+      "path": "game/staff/clinical_development.gd.uid",
+      "sha256": "242f660a5bb4d3ebe212105fcb8b49b1e0bc9b0f2c6d13d8d75b7dff8702e43a",
+      "match": true
+    },
+    {
+      "path": "game/staff/personal_bed_matching.gd",
+      "sha256": "23f925d79caf91193210e6de0044e5d251cc67978e4d6b78e2e9b1b6ad58b517",
+      "match": true
+    },
+    {
+      "path": "game/staff/personal_bed_matching.gd.uid",
+      "sha256": "553841349e54852237763c7a4699f81803a3341c378a4075aed8a96f2caeab0c",
+      "match": true
+    },
+    {
+      "path": "game/staff/personal_beds.gd",
+      "sha256": "fe816d77b0e1268d5d4de0c886cbb739a1c8f0d83b8505f201f59b8a8a4c26d6",
+      "match": true
+    },
+    {
+      "path": "game/staff/personal_beds.gd.uid",
+      "sha256": "c8871a94cb27660f3918f69b075b6d9299f68dec46e33ed396a01d74c62f34c1",
+      "match": true
+    },
+    {
+      "path": "game/staff/recruitment_service.gd",
+      "sha256": "7c7a4902aa693aa7b8f57a9ed61c87f37423b5897d00c22cd053f4ea80ae8693",
+      "match": true
+    },
+    {
+      "path": "game/staff/recruitment_service.gd.uid",
+      "sha256": "814b6d17659a547710f29b5585b801693bd4407075b7d44d00683c6f1dd945be",
+      "match": true
+    },
+    {
+      "path": "game/staff/shift_scheduler.gd",
+      "sha256": "d3a45d0c2b47f05461c1cbdab6481d1c421f977a0335acab74989655e0c1d25e",
+      "match": true
+    },
+    {
+      "path": "game/staff/shift_scheduler.gd.uid",
+      "sha256": "0f7b4b2fd71b34550410f03dcdce9419aa16b5a9d9bbee13605d44beab18e6de",
+      "match": true
+    },
+    {
+      "path": "game/staff/staff_wellbeing.gd",
+      "sha256": "e290834f0469c6ee349f48542ccd673d07c1fc1d043d41bb94ec3492d62fbec6",
+      "match": true
+    },
+    {
+      "path": "game/staff/staff_wellbeing.gd.uid",
+      "sha256": "cf82722d03b7b98f6d21a20d3313529721ae34201b78aef8387ceab3f55f853d",
+      "match": true
+    },
+    {
+      "path": "game/ui/action_panel.gd",
+      "sha256": "e69f7581747e4277987c3a5945a7d146ddf86909f7012dae1e75dee816740310",
+      "match": true
+    },
+    {
+      "path": "game/ui/action_panel.gd.uid",
+      "sha256": "6d768d6119bcd33632e3c7aea4bc735a114d8f788bf57b73661499e48077654b",
+      "match": true
+    },
+    {
+      "path": "game/ui/arrivals_panel.gd",
+      "sha256": "3a63b207f5c3b3b61c418f853b909019eff0d6e9fcbe61a3a70fc518744ec864",
+      "match": true
+    },
+    {
+      "path": "game/ui/arrivals_panel.gd.uid",
+      "sha256": "f549ca9e9ee54ef72331d9aa510bb003eaabfe81ba3d23beddba1652f9140af2",
+      "match": true
+    },
+    {
+      "path": "game/ui/build_panel.gd",
+      "sha256": "eaf3579c4881469811795babb456201644450a28dce2fb947df1ab202bb3a586",
+      "match": true
+    },
+    {
+      "path": "game/ui/build_panel.gd.uid",
+      "sha256": "b4ac2b9f453ad64cb7d0b9a640b1292274b603a23b80d7831b481a381eea63a3",
+      "match": true
+    },
+    {
+      "path": "game/ui/clinical_panel.gd",
+      "sha256": "bce88f0f1346bc6c7d839e296d597ab8c77bfc6754e2354a13fcd794b4b3c801",
+      "match": true
+    },
+    {
+      "path": "game/ui/clinical_panel.gd.uid",
+      "sha256": "98359efcb5d0b82199afd3e0ef7675bce1561879a436d335d4ad53fae94030fa",
+      "match": true
+    },
+    {
+      "path": "game/ui/departments_panel.gd",
+      "sha256": "7e70538c5c65ae11937ff9b116cb9e59e778a1e843ea4f361c9a6e71b03cfd15",
+      "match": true
+    },
+    {
+      "path": "game/ui/departments_panel.gd.uid",
+      "sha256": "c3a0595050a954e0a793a872cf5049ef23c9c0ca9c3e3f8da833802ca942679f",
+      "match": true
+    },
+    {
+      "path": "game/ui/environment_panel.gd",
+      "sha256": "4076755346b70f8b6b1e26d9c9a3c79bad908e9de93e8d067be30e269256313e",
+      "match": true
+    },
+    {
+      "path": "game/ui/environment_panel.gd.uid",
+      "sha256": "daf3028394f1de6ee88f76e3987c6be607124a7820a34122962b0094b5d06fbc",
+      "match": true
+    },
+    {
+      "path": "game/ui/expansion_panel.gd",
+      "sha256": "04e6ca9d15ad7f3427bd809716f00ad247fbd185eaa670d3137bae4158732457",
+      "match": true
+    },
+    {
+      "path": "game/ui/expansion_panel.gd.uid",
+      "sha256": "3c29e158252e5ddafa9b95c3e2b89703f75f06cc3657aa84a3798f2e874ae2ff",
+      "match": true
+    },
+    {
+      "path": "game/ui/finance_panel.gd",
+      "sha256": "f4b329680176b85e72ff096ca95d3d60f9e7183a0a3c69cfe2b5e99fd5b7b479",
+      "match": true
+    },
+    {
+      "path": "game/ui/finance_panel.gd.uid",
+      "sha256": "65e9dbc8439ab3ad23be79e9082b2327539b4e043fff3d976366d88fbe6d89cd",
+      "match": true
+    },
+    {
+      "path": "game/ui/hospital_library_panel.gd",
+      "sha256": "704e1a0bc4a73be0f003c7699944c0d61ce58e4143c84f49155f4d5076bdb287",
+      "match": true
+    },
+    {
+      "path": "game/ui/hospital_library_panel.gd.uid",
+      "sha256": "6cd5b381662218a44fdfc15ee80877a7d0cbd3c7fecb8c07d4c4996a76e004b2",
+      "match": true
+    },
+    {
+      "path": "game/ui/maintenance_panel.gd",
+      "sha256": "3cbf02b09e9b30761c0615837a07dca754ce340d8e6f01d7a56af5336145c30f",
+      "match": true
+    },
+    {
+      "path": "game/ui/maintenance_panel.gd.uid",
+      "sha256": "bee9c451fdc1a44a8758e5d15e3fd81866671062549474b7edf8b96fcc004928",
+      "match": true
+    },
+    {
+      "path": "game/ui/plans_panel.gd",
+      "sha256": "861469432b24f555718393cdb50f1609b94b58b8ed3f48bc30a9079d3b26cf75",
+      "match": true
+    },
+    {
+      "path": "game/ui/plans_panel.gd.uid",
+      "sha256": "0b11aab6a496c013156655388996d74dd7f82abc2d3772b86d5df0cc40057925",
+      "match": true
+    },
+    {
+      "path": "game/ui/recruitment_panel.gd",
+      "sha256": "e42a1616e3a607648d655f9a90b321b79cb711f1651cc75e1661bc7e211f988b",
+      "match": true
+    },
+    {
+      "path": "game/ui/recruitment_panel.gd.uid",
+      "sha256": "9e2270dd55dc6f028c6cb0e73e518f858e3269787104f393f25a1b7319fb00d3",
+      "match": true
+    },
+    {
+      "path": "game/ui/remodel_panel.gd",
+      "sha256": "f16c469ad4a8fe878e7e56c07cfef636e136a543aae33a9b3a0468fd1552df5e",
+      "match": true
+    },
+    {
+      "path": "game/ui/remodel_panel.gd.uid",
+      "sha256": "f24f9a9e48cdf7f1185bcfb9ad5a54efcd5f32685b8846a46b07c5ba47e90989",
+      "match": true
+    },
+    {
+      "path": "game/ui/research_panel.gd",
+      "sha256": "e258fdeee328083f555d369ed3e0907682da5c2cb59f6faed23bd5756201b396",
+      "match": true
+    },
+    {
+      "path": "game/ui/research_panel.gd.uid",
+      "sha256": "0faef802bee43880345d02168142ab093ce305a6351930e65a2d2972d0479923",
+      "match": true
+    },
+    {
+      "path": "game/ui/schedule_panel.gd",
+      "sha256": "8ad29541c473d24d4b0e2422409f4094110b014dab3413725dae2f98a8113c43",
+      "match": true
+    },
+    {
+      "path": "game/ui/schedule_panel.gd.uid",
+      "sha256": "ca8febd07bb21f107c87d9388aa17276fe1c94bd386904036d6f64509a22d315",
+      "match": true
+    },
+    {
+      "path": "game/ui/staff_life_panel.gd",
+      "sha256": "fff324f0fe0b6ba7faafb59cf071abdf56ff1ae74c00b898de3d4e815f4e20a5",
+      "match": true
+    },
+    {
+      "path": "game/ui/staff_life_panel.gd.uid",
+      "sha256": "f48ca31129bc5369bfc611170c87b299f69cfdec04678d91ae1195a812ec24c0",
+      "match": true
+    },
+    {
+      "path": "game/ui/supplies_panel.gd",
+      "sha256": "99d43f0f2070e1597d4b85762c6567a88d3dc4dd43cbf31e9c4219f53b954cf4",
+      "match": true
+    },
+    {
+      "path": "game/ui/supplies_panel.gd.uid",
+      "sha256": "be0b6713883c58ed4e3f29d004156272b9a52809e90815b732c3bf7738662b5b",
+      "match": true
+    },
+    {
+      "path": "game/ui/training_panel.gd",
+      "sha256": "283b9d0c91f753cb79ba445fc41b098c90cce2e18e64f046bdc6d6c127a73be1",
+      "match": true
+    },
+    {
+      "path": "game/ui/training_panel.gd.uid",
+      "sha256": "a1ee3c6da7320d3d0e04a85903328e4a64c94c2c8ab41ede701ba3fd84ecb293",
+      "match": true
+    },
+    {
+      "path": "game/ui/waiting_panel.gd",
+      "sha256": "773b273e1c8d8a106402c013b24caf615118a2c25863754a7b8e7b4257fc86e4",
+      "match": true
+    },
+    {
+      "path": "game/ui/waiting_panel.gd.uid",
+      "sha256": "1502ab7cce3660f6c9cad0b24253750a4c3f912c4504e44d8a0e4371a12cc621",
+      "match": true
+    },
+    {
+      "path": "game/ui/ward_panel.gd",
+      "sha256": "3015b74a9fa1868401354b6edae65e6c0b302d534a6623ac57183a91c457bdd0",
+      "match": true
+    },
+    {
+      "path": "game/ui/ward_panel.gd.uid",
+      "sha256": "61dc7bcdd93a9df2217799f1195e3483d23edef80738817e1c1b21ffea6b541a",
+      "match": true
+    },
+    {
+      "path": "game/view/build_overlay.gd",
+      "sha256": "b6cd67a262a9b1e31474e1c167e96dd87b54d7a784039caf5700e3b53f7041aa",
+      "match": true
+    },
+    {
+      "path": "game/view/build_overlay.gd.uid",
+      "sha256": "623e39b33cb626b1f2dfbf3894fc9365956af23d0225dd5f839b2d74fea29fa6",
+      "match": true
+    },
+    {
+      "path": "game/view/compatibility_skin_input.gd",
+      "sha256": "f0c6b71171c8ea8917b661196152e97f2a6e642fbbdb72b3ae18091eb57f73b8",
+      "match": true
+    },
+    {
+      "path": "game/view/compatibility_skin_input.gd.uid",
+      "sha256": "72ff2bf326a86789f9aaedbdb9899aed96c9aa78c7e55761dc323ba7f101e79b",
+      "match": true
+    },
+    {
+      "path": "game/view/hospital_palette.gd",
+      "sha256": "dd24f6999e8c0522cc0e04eb36bf4cd779274ccbb85133d8821daa742e930624",
+      "match": true
+    },
+    {
+      "path": "game/view/hospital_palette.gd.uid",
+      "sha256": "f92dbc210a5ee0882307b2a1df87db6dd22d6b07d0a56cc827e940b240b42d1d",
+      "match": true
+    },
+    {
+      "path": "game/view/hospital_view.gd",
+      "sha256": "f3414958203f47d5d1bcfa1873d05ebf45f9f5056db1c7ba8b4eb2f8bfdd8a84",
+      "match": true
+    },
+    {
+      "path": "game/view/hospital_view.gd.uid",
+      "sha256": "fd1a205ff69ac62f0dd426d0f96dcb33b2eb041fa17a6875258f22080c5cc5e2",
+      "match": true
+    },
+    {
+      "path": "game/view/shaders/skin_readback_original.gdshader",
+      "sha256": "d498a17891628be38e3b2543ce6123267bef11320e7004d6bd1aa74ee94582d7",
+      "match": true
+    },
+    {
+      "path": "game/view/shaders/skin_readback_original.gdshader.uid",
+      "sha256": "aa75377678c8f0aacc750f481b371c4c952f135b2720ef1060d94267b71910a6",
+      "match": true
+    },
+    {
+      "path": "game/view/shaders/skin_readback_output.gdshaderinc",
+      "sha256": "80a3e9478ca9bf9f3294a1065dddbcfb32ffff97de9908c161cb4494c2cf1231",
+      "match": true
+    },
+    {
+      "path": "game/view/shaders/skin_readback_output.gdshaderinc.uid",
+      "sha256": "5addbd13efdddfea0078881c75b67cb5d998f5198cf3eb6635f902a677309308",
+      "match": true
+    },
+    {
+      "path": "game/view/shaders/skin_readback.gdshader",
+      "sha256": "72b74920b52fcfe944da7c6694945f8527734b0f86542fe43362683223ae0318",
+      "match": true
+    },
+    {
+      "path": "game/view/shaders/skin_readback.gdshader.uid",
+      "sha256": "1f4afbe30073c38d001848d86ead060d016e4a374a2ecbd56b2acab75d5e03ec",
+      "match": true
+    },
+    {
+      "path": "game/view/shaders/skinned_pose_double_sided.gdshader",
+      "sha256": "7e373dc423e76554f486dade8fb9453f9b27420a010b4192319425183d0e6055",
+      "match": true
+    },
+    {
+      "path": "game/view/shaders/skinned_pose_double_sided.gdshader.uid",
+      "sha256": "df399eaab664db0d24e2778a3f41f7117d0851283c731d364559ec2edf7dcc14",
+      "match": true
+    },
+    {
+      "path": "game/view/shaders/skinned_pose_surface.gdshaderinc",
+      "sha256": "19ed00ba18c94787f290481d8d04a77daa434a2e5bfd8ac8c3ff096cc36ed23a",
+      "match": true
+    },
+    {
+      "path": "game/view/shaders/skinned_pose_surface.gdshaderinc.uid",
+      "sha256": "c475e9aa455008c30cba8ad0ff8e298c221e413e25e80b571fae668cc5589469",
+      "match": true
+    },
+    {
+      "path": "game/view/shaders/skinned_pose.gdshader",
+      "sha256": "f6f8e6b78c4771e64da95c681f9e1e6010c4b8933fd1886cb4f5152fa0c2b6a7",
+      "match": true
+    },
+    {
+      "path": "game/view/shaders/skinned_pose.gdshader.uid",
+      "sha256": "feb970e26cd6daed55604f8353fe40e9c3c940fdd08d540b217b96d080d6f8e6",
+      "match": true
+    },
+    {
+      "path": "game/view/shaders/skinned_pose.gdshaderinc",
+      "sha256": "0d02ebc85dd8c871d5f99d31b735cb91d745844f098e6214d1321a674c429feb",
+      "match": true
+    },
+    {
+      "path": "game/view/shaders/skinned_pose.gdshaderinc.uid",
+      "sha256": "4d4b2908b588211820946b9ce936e313963c55d5f7b7ac6be2e77106cddbe4d6",
+      "match": true
+    },
+    {
+      "path": "game/view/skinned_pose_batch.gd",
+      "sha256": "55c050528ad395542feb3b48d3b72a12855ebdad755051f4fdcbb98f6b4690f8",
+      "match": true
+    },
+    {
+      "path": "game/view/skinned_pose_batch.gd.uid",
+      "sha256": "e634ba9893e67034fb509e76283529716fcb87a38839c45589525ecc0b95262c",
+      "match": true
+    },
+    {
+      "path": "game/view/view_resources.gd",
+      "sha256": "52fd8ad69760d5e74a10d9cc7ec4ccb318b44f307a74712350e8822ab324a670",
+      "match": true
+    },
+    {
+      "path": "game/view/view_resources.gd.uid",
+      "sha256": "ac753d9864d78c5a6238e3db30ba05042c4579d9f0ce568cb9b1d2965bff35de",
+      "match": true
+    },
+    {
+      "path": "game/view/view_work_budget.gd",
+      "sha256": "7accce896aab177ff50f3d82ed2988128728bbfbf195d5b04e55c71de0e6c5d2",
+      "match": true
+    },
+    {
+      "path": "game/view/view_work_budget.gd.uid",
+      "sha256": "f9547d4c98cfef18e393dc01975d4db7cd9b209e826956f26c4a6f2294a5f942",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/analysis_reference.py",
+      "sha256": "d49aff7d160907f95018edee09431f7f85d7bade0f34b19b081dc7cc2d53818e",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/analyze.py",
+      "sha256": "bbcdec74e6358b702b28755ec609a66f10b6ab9bb7487401dab7b984382871ee",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/apitrace_display.py",
+      "sha256": "6e6d65bb09a62117507bafb39a7393131807fb62bd8efa5cd683098b662fa2dc",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/capture-apitrace-display.ps1",
+      "sha256": "7275a8dd82cae89e5c566670a7ba357d0c3e28c5a00ee6145606d566f057d6af",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/capture-display.ps1",
+      "sha256": "7b8fb405aa815c70d6ad80c980eb250833fe8c1a16f4c31cb38546f0a0f61b97",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/capture-dxgkrnl.ps1",
+      "sha256": "39005c3b02468450e09274a8d407b14085f3b8fc8a487e329dcf58bcfd041eaf",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/CAPTURE.md",
+      "sha256": "bce84c01e26fe5cd3b3b8b128aa4717f89f0a350ad61332ad5eb67afd0680e5e",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/capture.ps1",
+      "sha256": "da5997ad9738120e3e05817d97f0be67bf8eeac338686d65f6a8f1ae27bd883a",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/check_roundtrip.gd",
+      "sha256": "3fea0a38ff54c0134c6c2c463fd8afe66b7eb4ecb11e45f242dfdab1d528b05e",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/check_roundtrip.gd.uid",
+      "sha256": "37e9de348f8adced62b28a29dc3329970bf51ee8753927cb984b9d2d05ba6534",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/check_settings.gd",
+      "sha256": "43ba2f5c4f375a3697e91da0078ba9e32f6df05c7ba40ce4a315b30591e2811b",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/check_settings.gd.uid",
+      "sha256": "e5fd423c21a7f1c9bf84c151daee81510142733fa37b28fb008b0e93350716b6",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/decode-dxgkrnl.ps1",
+      "sha256": "75859e4fee04c31ab7ce61414aa7b5595b1240e3728599b770a3f78ac9941cf9",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/decode-etl.cs",
+      "sha256": "c274a6b4836c6de343e78bef70573ea2a20af7cb4debbb19188e2622f9d65bc1",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/decode-raw-etl.ps1",
+      "sha256": "1e4d90834cd63892e31b2d46b56f34e2a8fb352e2e020bfd878fa1e24e3895ea",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/DECODING.md",
+      "sha256": "d945fdf7229c3d72e0a60c874f227236e853aa17e4b73216390637765f1380d3",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/DENSE_MATRIX.md",
+      "sha256": "20c24298ad1e8b977234ed71b3445e443d2521fc79cd503b53857d00b04a528a",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/display_probe.gd",
+      "sha256": "442c9c9a1f3475e905a1f72f942f07427f95de063b79ba7e6352a13c9591d732",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/display_probe.gd.uid",
+      "sha256": "f21e4e2c299ba878370d8ca9afe50ac008193ce0c52689ba4c6a8c48c2663498",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/display_probe.tscn",
+      "sha256": "ccebc428e4f6b1a2d98413fc127b8c5421923caa88a83143c3f026c74c32e6f8",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/display_root.gd",
+      "sha256": "ece959229a18ab305e1c87d589a504c8ef7753a9ee091bc7d4e7c7856b0feef6",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/display_root.gd.uid",
+      "sha256": "916bad22cc88d69b67be4fa9e61cdb8ba67f64266c9f3476ddaadfe3b1a50993",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/DISPLAY.md",
+      "sha256": "2d1d9b67935581c5b513731e138997542bdf4d77a4a61f2109544e4eaa1301a7",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/Expand-Extra-Scenarios.ps1",
+      "sha256": "022a1ab7e2d56cecac0710fbec69ef98b40934c739323e288b707ffbaca4b3c1",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/Expand-Scenarios.ps1",
+      "sha256": "2d986d4a1bf9ea5896fc817fac226cd8faec03dbf9ae0b69a338c90054bb49e8",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/extra_scenarios.json",
+      "sha256": "a05bf81d48588ea7c2e4f6514ce9aa4b7c0ad9f6c96195eba16a565a228dba5d",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/inputs.json",
+      "sha256": "61360ea6e15293c270ed8a326c8cdb481f16a24c882a0711ed591580b05a7347",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/legal_history_size.gd",
+      "sha256": "4a0a0855d3431c345588a0efae6e06e58b5ac2dcea0479772e68e9e1d2849920",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/legal_history_size.gd.uid",
+      "sha256": "31978a94539cb678e38fc2c49a3f96cc34e1b078d52b75b4161c32dad4c8a722",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/preflight_maximum_tall.gd",
+      "sha256": "aca738532796915a674453485da6142325fa04a79644b496270f78148ef75673",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/preflight_maximum_tall.gd.uid",
+      "sha256": "8567e003b23498dfef4c3b64c3464263e2ce064d1dac0dcb24f5768a39c0d713",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/prepare_boundary.gd",
+      "sha256": "94b4ea2afbe8d220da59b2d099790c0a5a7c984d09429769e3589c84974f05a7",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/prepare_boundary.gd.uid",
+      "sha256": "e819777bae9b7f88669f1b4fb8e4898b0a6782f31e8cb589b00c9214968c2757",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/prepare_inputs.gd",
+      "sha256": "47ac3088979089325bde13f9aa7187d51b4813b57a3f9b737f413bd9f7c02b14",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/prepare_inputs.gd.uid",
+      "sha256": "6d2719767aaf5715fc3927e6193b7e82c0864ae8282b28985c585826b0264651",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/prepare_operations.gd",
+      "sha256": "09a886a48177c1e54935a067d25f6aca3758d1f5553604a4b2f4a7ae4c8557ad",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/prepare_operations.gd.uid",
+      "sha256": "5d6d8a15f16567d4cecaa468573424802adb4f0dd6bf6f000632ad5700193940",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/Prepare-Inputs.ps1",
+      "sha256": "b653795a472ec5415c322ce22923f684bb29ec0f6cf737433320560007dd16cc",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/Prepare-Operations.ps1",
+      "sha256": "7f112b3c98abfcd3a7621ba6a767d0127a01dbd8802fed345ac362ee1092d208",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/README.md",
+      "sha256": "a5236b9991b8f1e88ee5f618ab19f35ce28118f59b8431e5b2eb038601f0d358",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/scenarios.json",
+      "sha256": "293798106c65c8a07a78ae84a239d82c1e0c781e6fabb9c27bef0b715ff20f48",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/formal_root.gd",
+      "sha256": "02d4cb2e188fad46e9d38aff5f87f7de21ece115376ebdcaa17ac3b8b9db31c3",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/formal_root.gd.uid",
+      "sha256": "091849be2c1ab775439ed50e8bcee3dfbea15bd3b0fff41c993fefae37f145ff",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/gpu-ledger.py",
+      "sha256": "9c3fec047b6028a69dfb64135483a9b4491d28f75de8bcc8445837e1f72475fc",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/input-driver.cs",
+      "sha256": "2d24d3edff294bb23401ab70464c149beddbbb0ef1b14b4a5920a288cdb03faf",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/launch.tscn",
+      "sha256": "b6f3153c0f072b153573ad4c5611c834665134b04b96e3d62ee539fa0ea87f62",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/native_clock.gd",
+      "sha256": "26362c395bf813cf34f8904dbd8415cd4a8a8d404c1eb89574db28bc01e72b02",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/native_clock.gd.uid",
+      "sha256": "af55fc642841400ece56b1914b1bef35def91382c76e0d8a1471509533baabe0",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/observed_library.gd",
+      "sha256": "92cf683aa575f2a806af0a71dbbf7b221aafac303584acb27abf614d7a854935",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/observed_library.gd.uid",
+      "sha256": "1b4306e6599341cc07fa743cdfb169b2e962d8b84b858320aad3516f7fd4061e",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/observed_snapshots.gd",
+      "sha256": "4f26afe33cbbb4828e2304819d8573864fceb9940e6c1e6800034a72adcea1f0",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/observed_snapshots.gd.uid",
+      "sha256": "19611321f467bd3ffc995ef6636af7c0feaae9dcef212f0fde9357d9ef29915a",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/operation_driver.gd",
+      "sha256": "d878a707a15638f70dcb07cb95c8253082f195f0312dbe11570fc2dce7ee29b0",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/operation_driver.gd.uid",
+      "sha256": "083303408d26f055f5aab020dbb0d9f6732ea6e9949133c8180a555cdf47d3e6",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/OPERATIONS.md",
+      "sha256": "17eaeedc3382e34bcb4fc8f4310ee8f79f5a5cd49ffcdbc506bd17bd21a3f170",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/preview_input_observer.gd",
+      "sha256": "cb63b5b54abc3251c7a5fa9fe8495de1783b39dd479d79956c36a6b1f7825bdb",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/preview_input_observer.gd.uid",
+      "sha256": "4e8cd8dbdf5510f78d01356aebc9a17b8a614de1836d891014bcf3298c32fd45",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/probe.gd",
+      "sha256": "b3665d7eddecc72bc4c5e395846402bcc9d18d48a12ed7b21bd1ddaf4bff9f7c",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/probe.gd.uid",
+      "sha256": "38ccd4ce6daf257e556cc84adf54edd4f9c61dbbee0943bc84b762e31947e4b6",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/probe.ps1",
+      "sha256": "64a330985d263db69c7f1ba38a13c0b2e704c9bb782c9cf2d72d91c75be2c2c4",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/probe.tscn",
+      "sha256": "cda9cdae408903802c1ed74dc332374f147c379a921edd93e71d0f632317a688",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/README.md",
+      "sha256": "9d2017f8c90d9ccea9eb8e913875f18056bdc0c2af0611cf6bdbfe5149cad68a",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/renderdoc_display.py",
+      "sha256": "93de2b24049e4e2095df954b6b713d93735ff3e1d36c564bfe5d8d3569036637",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/REPORTING.md",
+      "sha256": "c1ac10224633629f70474359472e53f248481ec77f7d554e7553d275ee496931",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/RUNNER.md",
+      "sha256": "90c58a8f0720dbbee0c7de42ee1aef573f126729295ae03b18d12afabf1d1aef",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/sample-gpu.ps1",
+      "sha256": "17545f8d8698ef1d597e8e5a1f82403f90448ef1c066297726ef5f6cef0e0a62",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/scenario.example.json",
+      "sha256": "7f67e05118d7242be08488b19ac16c4078778ce6ea2099e0e2e05ee711ae74fb",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/self_check.py",
+      "sha256": "47453626ceec8a8ea36c0b914bef48a7b2a50e121db7428546da86c0b6fbe59c",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/self-check-raw-etl.ps1",
+      "sha256": "1516600e322f95e5ae7b4a01b84bb0629250a5a17b4404e92ad35b7f0477472c",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/snapshot_witness.gd",
+      "sha256": "37e5c5084ebb4806cee1897d5fd09b8aec78876837d6fa57f72112b099db661d",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/snapshot_witness.gd.uid",
+      "sha256": "fbfa86da1992a8101c0e47853ada062815c71f89c340feb1c67a2d768a97d42d",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/test_analysis.py",
+      "sha256": "ac8eaabd4edd57ba39cce4a77f4fb5578364d932037b3fa5f6bfb3af9b2aec35",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/test-frame-counter.ps1",
+      "sha256": "b75676727d95811beae60966ef72de13c20e290ac7bb195a3ebcb85fe030accb",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/trace-status.cs",
+      "sha256": "fee6315a99b9d610ea582d23064c769266d7f1125c67e6f28cc5d9c1d56c156d",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/visible_capture.gd",
+      "sha256": "e0340c8665d62c7d28fd24f053753e6a24b897ed2a7af370b79b09111c8a4aec",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/visible_capture.gd.uid",
+      "sha256": "efbc55e302d1f3201f6cdc18347c03d75c1f8cc3b6401b55fdf71e124698c7e2",
+      "match": true
+    },
+    {
+      "path": "tools/performance/all_instance_profile.gd",
+      "sha256": "98a981fdb77bfcf71ffe59f9f423c5ae822f89f8ba8318e3956e3087f9c6a362",
+      "match": true
+    },
+    {
+      "path": "tools/performance/analyze_decisions.py",
+      "sha256": "b87eb5fb96e21d4bc08dbd50403bf18bc0c9ea9ff4cece852b2d973a66f624a2",
+      "match": true
+    },
+    {
+      "path": "tools/performance/decision_profile.gd",
+      "sha256": "d64aade6ccba39c64956e03b00d3b403b8fb9b7be08f3cb0d7391d0f61667f30",
+      "match": true
+    },
+    {
+      "path": "tools/performance/diagnose.gd",
+      "sha256": "1be081e89c7f6fe3763d8b59da74a894405022af9f50754ba1eb4e733dd433c6",
+      "match": true
+    },
+    {
+      "path": "tools/performance/diagnose.gd.uid",
+      "sha256": "4a3de98b28ba3d23bd4f7e14d39c9f15842700699a7f893b381c5a75673589ae",
+      "match": true
+    },
+    {
+      "path": "tools/performance/fixture.gd",
+      "sha256": "f99efd9dd5cf8afa2f7ca89f221edbcc54c2e080b1d0339d4b7de80874145189",
+      "match": true
+    },
+    {
+      "path": "tools/performance/fixture.gd.uid",
+      "sha256": "3c95b4d9c015dc14c7c30d8cc5256b9c3adc1224d80eace2e6618ed171883b24",
+      "match": true
+    },
+    {
+      "path": "tools/performance/history.gd",
+      "sha256": "d0dc91f259dc77140247f4032b7549e800f6c230498419dee014cf2ab1548556",
+      "match": true
+    },
+    {
+      "path": "tools/performance/history.gd.uid",
+      "sha256": "6904aee939feb34246ffbb9ed802a3cb86c169c4619969726c68697ecf1bf77c",
+      "match": true
+    },
+    {
+      "path": "tools/performance/instrument_all_instances.py",
+      "sha256": "4c2ba0648bb919724ef1f903a953dde8ff37307487f008cf7a27a2b0514e5f2f",
+      "match": true
+    },
+    {
+      "path": "tools/performance/movement_trace.gd",
+      "sha256": "de2d72c967e463a66e28434759b81e0f2bce8b4ef302c8d85da3f5543ccbea24",
+      "match": true
+    },
+    {
+      "path": "tools/performance/native_capacity.gd",
+      "sha256": "9472530742980c9511138887987682391affee18b79baffe83384b808bce75e0",
+      "match": true
+    },
+    {
+      "path": "tools/performance/native_capacity.gd.uid",
+      "sha256": "3505c40cfe9ec4bb15ff85b7b9fb2e62ac5caed141f87185ed1d60abab7e3c6b",
+      "match": true
+    },
+    {
+      "path": "tools/performance/personal_bed_probe.gd",
+      "sha256": "5d7002badee9eab11eab785fb1f722bb4c1b2c361c45bbd14fdd0c1eb085076f",
+      "match": true
+    },
+    {
+      "path": "tools/performance/personal_bed_probe.gd.uid",
+      "sha256": "a35c226c9a727bf3657259e4aaaeaa19b8f22c63ee446c86d6ddd9a1107c7683",
+      "match": true
+    },
+    {
+      "path": "tools/performance/prepare_public_input.gd",
+      "sha256": "5ac4c8ca7e441e0f8935e6c9255e15d186f2a5953442a19e48e3a5405d622cb0",
+      "match": true
+    },
+    {
+      "path": "tools/performance/prepare_public_input.gd.uid",
+      "sha256": "ac77b53ae5846ea2542767ac67c2f5178c5d189b18787e9009ac565941967971",
+      "match": true
+    },
+    {
+      "path": "tools/performance/prepare.ps1",
+      "sha256": "5bfcc07759142d3692bd5c405d3592112e8ecd7dc54ca70ea2eb7554bcb06fec",
+      "match": true
+    },
+    {
+      "path": "tools/performance/preview.gd",
+      "sha256": "e2d140dd2c15a2d0dabb90fc899eea904566a21db0e0700ba48297f91815bae6",
+      "match": true
+    },
+    {
+      "path": "tools/performance/preview.gd.uid",
+      "sha256": "1627b4671063b28592adab2506b0f3104eb70ad4e3011e03dbab65377e2f9be4",
+      "match": true
+    },
+    {
+      "path": "tools/performance/profile.gd",
+      "sha256": "134d55be496dca295695acf1707a2dadcdca0f74bc5108de0870bc19ac285d02",
+      "match": true
+    },
+    {
+      "path": "tools/performance/profile.gd.uid",
+      "sha256": "e5a981d481d565f31a869ceaf2758cc001dcd26d2ce451b4cb31eb199470fc80",
+      "match": true
+    },
+    {
+      "path": "tools/performance/representative_clinical.gd",
+      "sha256": "463e2370de3a9d9ec22a9fbf7a6e64fd4809256920f8194e323bdb4ae18e52e0",
+      "match": true
+    },
+    {
+      "path": "tools/performance/representative_clinical.gd.uid",
+      "sha256": "d49c988e798e950b69627f8335a319d857ed2bd880d24958633f8746a543cda6",
+      "match": true
+    },
+    {
+      "path": "tools/performance/representative_compare.gd",
+      "sha256": "161004853d0dc2cd15284184fc1f268c08261435829fbd5690707cf88210a18b",
+      "match": true
+    },
+    {
+      "path": "tools/performance/representative_compare.gd.uid",
+      "sha256": "b435f8f3f00a06b7effdd2ed515abbe5ce672a1d98cfe73506c50cfebd13a787",
+      "match": true
+    },
+    {
+      "path": "tools/performance/representative_continue.gd",
+      "sha256": "39a8b08ddcc2a09bb1c192115219e3acd6224cc3a5171f4144ba2d43b85bb66d",
+      "match": true
+    },
+    {
+      "path": "tools/performance/representative_continue.gd.uid",
+      "sha256": "8d727985148210cae6167997365811f2153b326238492ec5c384c9b8da95951c",
+      "match": true
+    },
+    {
+      "path": "tools/performance/representative_operations.gd",
+      "sha256": "2bfdfe6ad39fec3fc72c73ead2f5be264d1445eaec816dc14279b3641a4af8ba",
+      "match": true
+    },
+    {
+      "path": "tools/performance/representative_operations.gd.uid",
+      "sha256": "c90a8670921c8a3238d6aff188d4eccce074cb6f004af83b247c4363e3f1e006",
+      "match": true
+    },
+    {
+      "path": "tools/performance/representative_prepare.gd",
+      "sha256": "ff395f378b943454a20b32331c2c1e6d494ea34da0d5d2d962baab90d90bf91f",
+      "match": true
+    },
+    {
+      "path": "tools/performance/representative_prepare.gd.uid",
+      "sha256": "2306b707e24ef2df824f9d35eed8480b22b899b8fda62d7809faaf2377a4d970",
+      "match": true
+    },
+    {
+      "path": "tools/performance/representative_public.gd",
+      "sha256": "3b8543c5dad65f39f45f4ddadd2c3afbfca7d772f35def46677fd460456add14",
+      "match": true
+    },
+    {
+      "path": "tools/performance/representative_public.gd.uid",
+      "sha256": "0f3b40fac69f29158b4df19cf7f53877edc6e673550495098d89c5d2f87caa9a",
+      "match": true
+    },
+    {
+      "path": "tools/performance/representative_selected.gd",
+      "sha256": "3bc9613621df975f55fe3bd207c9b49e078e0aa52ef521cae43f257d6a363730",
+      "match": true
+    },
+    {
+      "path": "tools/performance/representative.gd",
+      "sha256": "9c4d7c7d609ed0325c15cd85fc07e91f2dcd118d74c2f116dafcd18351adf452",
+      "match": true
+    },
+    {
+      "path": "tools/performance/representative.gd.uid",
+      "sha256": "255417b7999c6ee63ba8d05cda620720b9094cce0bf723eb75bcdc7be3549727",
+      "match": true
+    },
+    {
+      "path": "tools/performance/REPRESENTATIVE.md",
+      "sha256": "039d0aa9ba4a704bc49078638bd018ee4676b0fb5958b73348da116a697ab9d6",
+      "match": true
+    },
+    {
+      "path": "tools/performance/resume_representative.gd",
+      "sha256": "04d302af9f523e2d99f4b2d9f8506be868fe185ce1943ace396e91916abfa797",
+      "match": true
+    },
+    {
+      "path": "tools/performance/resume_representative.gd.uid",
+      "sha256": "3438b9d5f9da4372211b7f7c49cb0d49cace672eafb31b5c13771a546e9527ba",
+      "match": true
+    },
+    {
+      "path": "tools/performance/solver_check.gd",
+      "sha256": "d88f2d0f364b6e210c29c628ce3fd3f93081390ce7ed152f1989d270726caad6",
+      "match": true
+    },
+    {
+      "path": "tools/performance/solver_check.gd.uid",
+      "sha256": "f18e018fafe6dc48694955f23c78924c437b1a559320c7408d2d5896c6a38949",
+      "match": true
+    },
+    {
+      "path": "tools/performance/solver_oracle.py",
+      "sha256": "5e17d30c7cf658529081c261c2a50a11cbca2db25bbc858300f858360c91b3c3",
+      "match": true
+    },
+    {
+      "path": "tools/performance/step_profile.gd",
+      "sha256": "b56590fff1524086af91e2c9a042cc48c406b34786edd34a7d9960a16d79cf81",
+      "match": true
+    },
+    {
+      "path": "tools/performance/step_profile.gd.uid",
+      "sha256": "3800c75d2b81e66efe1ea0f09e12aaa82e49445c7d8e192f2c1a190368eb73d9",
+      "match": true
+    },
+    {
+      "path": "tools/performance/trace_preparation.gd",
+      "sha256": "f2895d16426de36d9d629e677767dd1b3179b06ebeb1cd740086cc78e15c8c20",
+      "match": true
+    },
+    {
+      "path": "tools/performance/trace_preparation.gd.uid",
+      "sha256": "f519b0ff233285b707b67c754d57b3533fd9d7ab31b9dfab32b36a50083b007f",
+      "match": true
+    }
+  ],
+  "final_source_rows": 439,
+  "source": [
+    {
+      "path": "content/core/accessibility_equipment.json",
+      "sha256": "ba2c98faa2087930967db5c38238f5a2ecdf0a8cc7a4c24f3bf031033cc6f1ad",
+      "match": true
+    },
+    {
+      "path": "content/core/activity_purposes.json",
+      "sha256": "d687caf5af963490084ba2ac582f43d1a585409d4e4361417357b38302c435c8",
+      "match": true
+    },
+    {
+      "path": "content/core/amenity_scenes.json",
+      "sha256": "5b153d1079b63129c24f50901536df82d3bda84430e0a6ba24b5f4b941c14946",
+      "match": true
+    },
+    {
+      "path": "content/core/amenity_services.json",
+      "sha256": "e07966ae565f946118c7a3548f758f3a9ace1aad4e0ff0198b870fce0e5e5887",
+      "match": true
+    },
+    {
+      "path": "content/core/assets/index.json",
+      "sha256": "7b071a4ada79d528160cf3fc9b51246cdf19853e5ce73d230ed27c532cfa9f16",
+      "match": true
+    },
+    {
+      "path": "content/core/blueprint_presets.json",
+      "sha256": "ceac74f8970ae27f2257ed64f7d193fc1339c8b55d8071681abfa8adf270bc4c",
+      "match": true
+    },
+    {
+      "path": "content/core/build_room_types.json",
+      "sha256": "016c6698fa3729a43ebf674968aef782c1d24c3dfec297fbc90b3e5cf66caf36",
+      "match": true
+    },
+    {
+      "path": "content/core/chair_variants.json",
+      "sha256": "590716f92571a1d6de0fb75f939996129fd27410211811e080367f45d2d72329",
+      "match": true
+    },
+    {
+      "path": "content/core/cleanup_sources.json",
+      "sha256": "7e832bafce01e9b218b7b765be96e82c4bedec7634181f70290348caeeb42960",
+      "match": true
+    },
+    {
+      "path": "content/core/clinical_abilities.json",
+      "sha256": "ba8e934e3edf292cd7687e240b540695e2e32b3a437cec767e732f083932c192",
+      "match": true
+    },
+    {
+      "path": "content/core/clinical_equipment.json",
+      "sha256": "13330fdf4f3e2b50d6659ee965b964a84528fe8b3cea2177c3a2fdc46cade9b6",
+      "match": true
+    },
+    {
+      "path": "content/core/clinical_practice_sources.json",
+      "sha256": "b9bc4c57a6e63f6bfd1d991e4e232cd846bb665d5c1d23ca914ee1d5f7c0b4a2",
+      "match": true
+    },
+    {
+      "path": "content/core/clinical_room_types.json",
+      "sha256": "a537282e81354acdad36021d2711806e3b0a66b44baa17db4f12fa4f8775e96c",
+      "match": true
+    },
+    {
+      "path": "content/core/colleague_scenes.json",
+      "sha256": "a98426dbd81ef8b08f52ef33bc3bf6b6e2cfa5283a34fa2ff053ad0ff1267fcf",
+      "match": true
+    },
+    {
+      "path": "content/core/comedy_corner_guides.json",
+      "sha256": "2006ab33dc432449deb620cb0fa7286eab5c4ed39d0240af24b902ef6d22c4a7",
+      "match": true
+    },
+    {
+      "path": "content/core/community_activities.json",
+      "sha256": "d943613ee729499760ce2da8f7e4836866d9249f6ff96b50cfdae5522d48f815",
+      "match": true
+    },
+    {
+      "path": "content/core/community_cast.json",
+      "sha256": "7118170e38965fe94309a0a9e3d4d208fc1fdc537aaa5351ab013cf57b7f86c3",
+      "match": true
+    },
+    {
+      "path": "content/core/consultation_behaviors.json",
+      "sha256": "20eb66e9e2afac21d475c86cf01ffc19318ce56cafe17160a0239c4e0e19b8d0",
+      "match": true
+    },
+    {
+      "path": "content/core/context_lessons.json",
+      "sha256": "258de60ec00c163f4553a91c5d00c638b842fc7f011dffbc7ce1e249c19ac070",
+      "match": true
+    },
+    {
+      "path": "content/core/decor_style_presets.json",
+      "sha256": "a4312a7076752bf99924d6e0fb8f23ea78946aaf5fe55c465697fdaf0e2aa9f5",
+      "match": true
+    },
+    {
+      "path": "content/core/diagnostic_modes.json",
+      "sha256": "7a4038cc4f6489f50ad4a4b97720b528a7d2601a8eca0e18f6544e19f7ae0d65",
+      "match": true
+    },
+    {
+      "path": "content/core/diagnostic_work_styles.json",
+      "sha256": "64f6ee22859181e0da7f62df18c262337297d536e82c86935bb47ffca9f46e4d",
+      "match": true
+    },
+    {
+      "path": "content/core/diseases.json",
+      "sha256": "59aca1c6c8fba6fb392d7ba7b2722a46d0bf9cbbc1e5a518a7332a681c5a2e88",
+      "match": true
+    },
+    {
+      "path": "content/core/doctor_personalities.json",
+      "sha256": "cd33d0b12b6c6902a30bb91f9a87c2549b9fe6d3585440c3776e7b4edb83d250",
+      "match": true
+    },
+    {
+      "path": "content/core/doctor_responses.json",
+      "sha256": "cb5f4f6b75df618e8adfbbd70735b9a2e53aea90b55ae49ea550794179db2fba",
+      "match": true
+    },
+    {
+      "path": "content/core/doctor_titles.json",
+      "sha256": "13211055ec36caf5ef043b20080a3b0673570c5635429cdbf3aefbc2707683bf",
+      "match": true
+    },
+    {
+      "path": "content/core/doors.json",
+      "sha256": "34f4172d0dee93c463b60b3334ca602e66179d1847526ef36a4762be5aa3db71",
+      "match": true
+    },
+    {
+      "path": "content/core/ease_rules.json",
+      "sha256": "8ada2c152d1b0ad4f2fdaea2132a33299c8a4f44f971fac177babda2e9333c0d",
+      "match": true
+    },
+    {
+      "path": "content/core/facility_fit_profiles.json",
+      "sha256": "8bb3e2a87afd1a42702ef7a5a56186080e3998d143fe1534d34e0103c07a1fff",
+      "match": true
+    },
+    {
+      "path": "content/core/facility_magic_scenes.json",
+      "sha256": "0c5c1205cf2c7d69c058cca397f5a59edcdff406406890769bb3ef639554d28e",
+      "match": true
+    },
+    {
+      "path": "content/core/families.json",
+      "sha256": "fd9734eb5f3f118a1ab36c08140e3f9c77bff5c58e4cb4ecc365987fcfb8f8c9",
+      "match": true
+    },
+    {
+      "path": "content/core/finance_views.json",
+      "sha256": "f0cad42f437f8f529f6ffa4486bf20fdc42dcaf202620d5eb204062b49860a31",
+      "match": true
+    },
+    {
+      "path": "content/core/fit_examples.json",
+      "sha256": "72d4b431fbed081db65bee493684f9d9deeb353fcd0d2b138f10f3955a5ed348",
+      "match": true
+    },
+    {
+      "path": "content/core/furniture_equipment.json",
+      "sha256": "3d891aee68b48bc8d79fec6bade6d72e8967a011a841260731949d422d458310",
+      "match": true
+    },
+    {
+      "path": "content/core/gratitude_abilities.json",
+      "sha256": "ba87a41ce781d7807b2647405c846ced4d5a2a7cd1f88a3715028f2849cf9564",
+      "match": true
+    },
+    {
+      "path": "content/core/gratitude_effects.json",
+      "sha256": "aaaa3181fd9010f3ed617134b13b832586a730aaacf209f676926f25ec4938a3",
+      "match": true
+    },
+    {
+      "path": "content/core/growth_moments.json",
+      "sha256": "e36fe9cf0e69d9bd5a1e928f4be3004e2921a02b350b8e99c5db0fc8b79b6575",
+      "match": true
+    },
+    {
+      "path": "content/core/history_templates.json",
+      "sha256": "22cea9c97963a355447c5c6938bd298890ca06fbcef481bf1cc1c11fdb5ffac4",
+      "match": true
+    },
+    {
+      "path": "content/core/hospital_situations.json",
+      "sha256": "9ec30e5228cc8696bcf9947e097f88801f0a41b73e3099d31f6f6f1cedcd4a7b",
+      "match": true
+    },
+    {
+      "path": "content/core/incident_contexts.json",
+      "sha256": "98e9f721f81dced46afb7f7ccf9cca233f142c906dc14217de5669ad761b2442",
+      "match": true
+    },
+    {
+      "path": "content/core/incidents.json",
+      "sha256": "aacb510cd0a4f4bbb1faacd07304bb6447019beae87c52ddc0aad8cad959f7c8",
+      "match": true
+    },
+    {
+      "path": "content/core/initial_disease_ids.json",
+      "sha256": "adde362a73447b97b3a4297bb0bf2b145805b616d9a729c9c822e03d19de07ad",
+      "match": true
+    },
+    {
+      "path": "content/core/interactions.json",
+      "sha256": "6dc7bf5d42826565ea21243aab6a8e78023e47bf56654fcd052888c5e6a4bef6",
+      "match": true
+    },
+    {
+      "path": "content/core/journey_reason_cards.json",
+      "sha256": "d9b006e56fdae89d1cba95795d26a51e32ea954216e8cfe11034754d6128031c",
+      "match": true
+    },
+    {
+      "path": "content/core/layouts.json",
+      "sha256": "3eac94a284723845042c07001fba3c3153bc30513ea35b1ba0916df92a97524c",
+      "match": true
+    },
+    {
+      "path": "content/core/locale/zh_CN.csv",
+      "sha256": "2ade8c67e736aebf5c5fcdea2fd084ebb631d627048fc5db074ff3e7e59058ef",
+      "match": true
+    },
+    {
+      "path": "content/core/locale/zh_CN.csv.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+      "match": true
+    },
+    {
+      "path": "content/core/machines.json",
+      "sha256": "02af50c28d4817cabe770521546ee4f58cf004ea023f9042d65279701f7e396b",
+      "match": true
+    },
+    {
+      "path": "content/core/maintenance_policies.json",
+      "sha256": "291ddd6e6ec3982eda8810a894fa29c4be50b49d64dc0fea705b4daac0b16a2a",
+      "match": true
+    },
+    {
+      "path": "content/core/maintenance_scenes.json",
+      "sha256": "9af850ba793137bd287a1bd294a5c2991dc1ff751b25a908846633a417c406f0",
+      "match": true
+    },
+    {
+      "path": "content/core/manifest.json",
+      "sha256": "357d59ffc2f2a7faa08c48ed681a85ef1397505f3473e64d8bf4ac3ea07877e7",
+      "match": true
+    },
+    {
+      "path": "content/core/medical_equipment_profiles.json",
+      "sha256": "869aa798161a36512eb458c2a95abadbfaf25302ee6ac24e7dcc454a32b3813e",
+      "match": true
+    },
+    {
+      "path": "content/core/medical_progress_cues.json",
+      "sha256": "f2074bc2777274bca34934b9c57e34c3a1662d9724b58f6a6ba65916b98efe22",
+      "match": true
+    },
+    {
+      "path": "content/core/medical_supplies.json",
+      "sha256": "2c8b925825a71fc7cc86029df0706993cdcb15a480e1cd2c9a38819433588ba3",
+      "match": true
+    },
+    {
+      "path": "content/core/memory_callbacks.json",
+      "sha256": "782de776d49b2f952604c2f7eb47f0d6577fc65805c300473a45e80ef9eb177b",
+      "match": true
+    },
+    {
+      "path": "content/core/movement_cues.json",
+      "sha256": "c885f2694d96ef709ab798e4081b6f73b74b682eeb3e2ac29b3f0cd8bee235f5",
+      "match": true
+    },
+    {
+      "path": "content/core/observation_cues.json",
+      "sha256": "abdc073a898f89b78f77abc6ca626990ba3e19307c7f69f2471bd3d373c17e48",
+      "match": true
+    },
+    {
+      "path": "content/core/onboarding_steps.json",
+      "sha256": "de5b9f9ba56099edd64d29ef7164de3d9ec638276af4add7e3bdaefc31aa18ec",
+      "match": true
+    },
+    {
+      "path": "content/core/patient_behaviors.json",
+      "sha256": "5ba04478cdf9a77ce0bf6503bd11b6851aa394492d14413ee42e26215cb08ed8",
+      "match": true
+    },
+    {
+      "path": "content/core/patient_personalities.json",
+      "sha256": "67bf45cd659289493079accf8939222c409960f4311889f569564fae0bf57827",
+      "match": true
+    },
+    {
+      "path": "content/core/preferences.json",
+      "sha256": "f5d1d59c5507fd00028f830fffa30c892a256095bea6b9a8df9b0b02dc7b3147",
+      "match": true
+    },
+    {
+      "path": "content/core/profiles.json",
+      "sha256": "4eeebb9605e510f6b39534ea5c6b4d3d1c9f8b9fae7cae84970819f573033861",
+      "match": true
+    },
+    {
+      "path": "content/core/queue_cues.json",
+      "sha256": "4f4f8481da5fa75c1b75c9c04909f0f70121d775fec4a59424a0d00b10e47618",
+      "match": true
+    },
+    {
+      "path": "content/core/recruitment_examples.json",
+      "sha256": "06e0478c1d06a5c71a97864f6e4a292f65bec2bb23ea83d37b1074f963915449",
+      "match": true
+    },
+    {
+      "path": "content/core/remodel_guides.json",
+      "sha256": "ce4268b3e199f85290a467c8d8523b54f2a166d03d08b525dee8bd9566977839",
+      "match": true
+    },
+    {
+      "path": "content/core/renovation_materials.json",
+      "sha256": "b880bfd1310b53baa29b071cf4fc63ecdfe8d52303feb2bf8b9d6ebb10580435",
+      "match": true
+    },
+    {
+      "path": "content/core/research_trails.json",
+      "sha256": "c17def6e3153043c617ac919211236ce041b016fa0c0ee36c0f06c73e4dd78c2",
+      "match": true
+    },
+    {
+      "path": "content/core/research.json",
+      "sha256": "2721a56cbcdfc5f8db506be952c619f1161148c3c2d852712c88b456e81f8a75",
+      "match": true
+    },
+    {
+      "path": "content/core/rest_cues.json",
+      "sha256": "0c70cab9973e8712687b8db3e39c91eee4591e41f52762b766e7fbc9b13709fc",
+      "match": true
+    },
+    {
+      "path": "content/core/resume_note_templates.json",
+      "sha256": "8501af9bc65f95d9807b653aa87130f2f9f5163100d0e7afde26da30a8f4dce1",
+      "match": true
+    },
+    {
+      "path": "content/core/rules.json",
+      "sha256": "202cb4f973609724cf62f3f1fd70ef3ed53455b66f4fa6d71899a9524049596b",
+      "match": true
+    },
+    {
+      "path": "content/core/service_equipment.json",
+      "sha256": "6f2c39ef19ffa5c50a029874e39d3fa8aa69c4fd67e6dba0dad5b21bb5babf4b",
+      "match": true
+    },
+    {
+      "path": "content/core/specialties.json",
+      "sha256": "c304ea7ce66b6e5a1e264ee0910c2cb8abf3d1f5766a70ae2ffc9aab5ea1b562",
+      "match": true
+    },
+    {
+      "path": "content/core/species_gifts.json",
+      "sha256": "476ffff40e99fed66209f2b9cdc9b6d57cb8889aad34352fbebb9dc40e75edc4",
+      "match": true
+    },
+    {
+      "path": "content/core/species.json",
+      "sha256": "cfa4c06adeb95d7a6479018b0ba6e773c12c6b7ae46b3620f41a3c6826759d90",
+      "match": true
+    },
+    {
+      "path": "content/core/staff_base_cues.json",
+      "sha256": "c12d5f57890cd755d2bd78c4c6e09fba1594c8ae9c35454ed08f62f15b2c1e79",
+      "match": true
+    },
+    {
+      "path": "content/core/staff_biographies.json",
+      "sha256": "8ff1bbb26d710e5612b151b73b04895dff27930b3f05507d813b4d1495c27a88",
+      "match": true
+    },
+    {
+      "path": "content/core/staff_practice_profiles.json",
+      "sha256": "246f01a3400642a32aacdff6a48e6e888746860936d712af32420a13f6b21c9b",
+      "match": true
+    },
+    {
+      "path": "content/core/staff_recreation_equipment.json",
+      "sha256": "caac910e1255df89b61b009c87cde56de87b108c5525e7501ac1f0361d554134",
+      "match": true
+    },
+    {
+      "path": "content/core/staff_rig_adapters.json",
+      "sha256": "faae167a7bf67362134c2bf28e076a84ace43d56bd0d431dcd4043e0371c479d",
+      "match": true
+    },
+    {
+      "path": "content/core/staff_role_profiles.json",
+      "sha256": "750b0e26da652ecac2999f2a2ee8081954b61236801be42b6e41d8ebdb734a32",
+      "match": true
+    },
+    {
+      "path": "content/core/staff_support_rooms.json",
+      "sha256": "9e429ab088cef0d09624db9f6f40b7950e1fea882fdbd2a9df72cdf7ae7126e6",
+      "match": true
+    },
+    {
+      "path": "content/core/staff_talent_handlers.json",
+      "sha256": "9629ec1eff3401ed18c60dce9a01b489707704146b42178b87cf0a898b110869",
+      "match": true
+    },
+    {
+      "path": "content/core/staff_talents.json",
+      "sha256": "30789aac2d0de77fd917b9305157fa60da7fe8fe8edd53ccf9764556d52042fb",
+      "match": true
+    },
+    {
+      "path": "content/core/staff_work_styles.json",
+      "sha256": "e64b41e97eafea9c8b5ea8a2b434e17db7b7352373b698a5c4292dd1833b3d66",
+      "match": true
+    },
+    {
+      "path": "content/core/starter_layout.json",
+      "sha256": "42934c1470711d34431189418e18c52973a767e9ef835b81407910c657f411e0",
+      "match": true
+    },
+    {
+      "path": "content/core/stories.json",
+      "sha256": "f8cd3a18d99e533275e7e55c7f994be7118f5c179127b727fc792e1d115584bf",
+      "match": true
+    },
+    {
+      "path": "content/core/story_activity_links.json",
+      "sha256": "a4a40ec65547fa0a9671125961e10a7d0a9170c55547fb8116da5e54634fe422",
+      "match": true
+    },
+    {
+      "path": "content/core/story_patient_bindings.json",
+      "sha256": "4d77bee91e679e9d69b1bf0c0651b284a54419cca97b6568cd7a6f88693ae70f",
+      "match": true
+    },
+    {
+      "path": "content/core/supply_reactions.json",
+      "sha256": "c97b40e69c1b63de8134aab4e583fc65f895ddac0725707594bc5cb1ad1f05b2",
+      "match": true
+    },
+    {
+      "path": "content/core/surgical_adapters.json",
+      "sha256": "bbfa92f2af5f71b7974038ea3931aaacbec90d661e158e5f939d93515d4909de",
+      "match": true
+    },
+    {
+      "path": "content/core/tags.json",
+      "sha256": "bcbc325d398949f4ee796ee00a0fe9f90496f818569fe5062a2dd1593ed5af1a",
+      "match": true
+    },
+    {
+      "path": "content/core/task_guides.json",
+      "sha256": "f840aa7111d9bfbceddedf9bea20157a69446738969b6019dbc46e396d7f77c9",
+      "match": true
+    },
+    {
+      "path": "content/core/tasks.json",
+      "sha256": "3b65150da0092ced59164f6fb7cefd118c0b2c6b2b077224f84c053e2a39b2d9",
+      "match": true
+    },
+    {
+      "path": "content/core/treatment_bindings.json",
+      "sha256": "f7852103655d47ab103975a8f286cf68a31c76d68fe14ebf58a88476e9cb77b8",
+      "match": true
+    },
+    {
+      "path": "content/core/treatment_plans.json",
+      "sha256": "904ad231bb7705a95bfcf49c0984adeb127ba7d95445ace4c5d64611f30c8dbf",
+      "match": true
+    },
+    {
+      "path": "content/core/treatment_protocols.json",
+      "sha256": "0ac7cd27f486f55102b3901f92631134facab69c5179aa8631236b213c8661a1",
+      "match": true
+    },
+    {
+      "path": "content/core/treatment_routines.json",
+      "sha256": "bfec39f6b7436bed0fb57e6f212dd148f9f858b936f8898205a3d29c314f76f3",
+      "match": true
+    },
+    {
+      "path": "content/core/upgrade_presentations.json",
+      "sha256": "7df4189f253d2329b93f7273b38544eefc07c537033fff03fef9a7a9a2eabf17",
+      "match": true
+    },
+    {
+      "path": "content/core/upgrade_tiers.json",
+      "sha256": "d991b46ddd86b1c919bf6023255e547e6c99fa3cf2fb8b1cfe4ef55181b7e955",
+      "match": true
+    },
+    {
+      "path": "content/core/vertical_connectors.json",
+      "sha256": "ea08f076bbbbdea1d8bd1eaebafa67cb74215bacd27bede12287d6b81fe6a7cd",
+      "match": true
+    },
+    {
+      "path": "content/core/visitor_cues.json",
+      "sha256": "fcd56a2b860e55054c79621781dd20886257b32f24f85df3fd39f02b5002471b",
+      "match": true
+    },
+    {
+      "path": "content/core/ward_neighbor_cues.json",
+      "sha256": "f686630d84f18c5fda432b3c0bcb4d4a1e9514b7255961fc13f9df74f1261162",
+      "match": true
+    },
+    {
+      "path": "content/core/ward_scenes.json",
+      "sha256": "91bedfb76c2b10749f5bfb48926a829fe18bb4b89458cb4c4099937ddd575a16",
+      "match": true
+    },
+    {
+      "path": "game/app/app_root.gd",
+      "sha256": "d50eeda18ba424c6fa3813fba7c46e20c8a93820b21eb8bc7f22f0b494774e9e",
+      "match": true
+    },
+    {
+      "path": "game/app/app_root.gd.uid",
+      "sha256": "abd8e92cd2e25239441be057f300ccf116b9526544bec1336215864299269bd1",
+      "match": true
+    },
+    {
+      "path": "game/app/game_session.gd",
+      "sha256": "a22ec31241d16b66a607db6f1a5cb7aec70dcab625160c2a5072a7baaede2675",
+      "match": true
+    },
+    {
+      "path": "game/app/game_session.gd.uid",
+      "sha256": "4e852590433aeb5f2defcde8d11d75ef22515f9df51fafbe1b906768be10c45b",
+      "match": true
+    },
+    {
+      "path": "game/app/main.tscn",
+      "sha256": "e1a3ffe5c4423cba6c381ac29a6dca3f98da3b045af9db13120002a88da310e5",
+      "match": true
+    },
+    {
+      "path": "game/arrivals/arrival_preparation.gd",
+      "sha256": "e53762d0f4156ea5003e5aa32c15b5a8f2214b739616408522f7fad96bc90a81",
+      "match": true
+    },
+    {
+      "path": "game/arrivals/arrival_preparation.gd.uid",
+      "sha256": "4a5846543cb77492aa01294e0d8dfcefb41a4df8ed513f3239f2d7a91b387982",
+      "match": true
+    },
+    {
+      "path": "game/arrivals/arrival_service.gd",
+      "sha256": "7c0f7ac551f067419d8363d5ec8e1ad3256a92d87a63d800a67161ca038bb607",
+      "match": true
+    },
+    {
+      "path": "game/arrivals/arrival_service.gd.uid",
+      "sha256": "f7d19bd548b72b4ed76505ca97d7d7a528861a2a86f9146329bf769b8de7d019",
+      "match": true
+    },
+    {
+      "path": "game/arrivals/capacity_solver.gd",
+      "sha256": "97f010473f1b4bed516e92088eb23f4e51c01a1c60d4c66af7915511d754ca5f",
+      "match": true
+    },
+    {
+      "path": "game/arrivals/capacity_solver.gd.uid",
+      "sha256": "74aaf26a918caf75fa5bbb58085a0e6d8f21cad26d6ffd807ba9251ffdc7ec02",
+      "match": true
+    },
+    {
+      "path": "game/arrivals/day_plan.gd",
+      "sha256": "c29a801a9394879454ea37a8ffaec698e50962bb513780a41e0bac37176527bc",
+      "match": true
+    },
+    {
+      "path": "game/arrivals/day_plan.gd.uid",
+      "sha256": "5f2aaceef955eb39bbd64a2572b2bc15a9bde000b33c1fe71a0dc8c08d7268d5",
+      "match": true
+    },
+    {
+      "path": "game/arrivals/exact_fraction.gd",
+      "sha256": "78dbb754096d5b6b49dcd1fa4d9988f165dea95a95bbd9232693ddedfeef012a",
+      "match": true
+    },
+    {
+      "path": "game/arrivals/exact_fraction.gd.uid",
+      "sha256": "e80b179de4fc1b4c9e6e32314d28d47ee0d313e72af3abdd86e3d70ed373c297",
+      "match": true
+    },
+    {
+      "path": "game/building/blueprint_service.gd",
+      "sha256": "643a5aff8d7ea6c537fd19a034b7cf92098148f7a7e34edf5611f0e80a0e5e80",
+      "match": true
+    },
+    {
+      "path": "game/building/blueprint_service.gd.uid",
+      "sha256": "51cbeb0c80b2ffd9d3326adaa13054a9bce4044e84565ac9d13f89a91982a81c",
+      "match": true
+    },
+    {
+      "path": "game/building/body_index.gd",
+      "sha256": "82d8c53de127c9a1a5ffaf4b687665f1fd340c196e828ae56bce8ea27efb7ee7",
+      "match": true
+    },
+    {
+      "path": "game/building/body_index.gd.uid",
+      "sha256": "b29a33133f415757c8e5ed0f08d407b997fc05d761a3cff4bb810b665955adf0",
+      "match": true
+    },
+    {
+      "path": "game/building/body_sweep.gd",
+      "sha256": "e8a1374f84984314c1965695b103c03d0bfd18a498322f160374f7496db69ccc",
+      "match": true
+    },
+    {
+      "path": "game/building/body_sweep.gd.uid",
+      "sha256": "ae1465b8741b328c2c18241ab132562f461be644a84123d6a52bf0311c7c2a88",
+      "match": true
+    },
+    {
+      "path": "game/building/build_geometry.gd",
+      "sha256": "cbb6780b9f331cc9b1a0bac4556dd5ac7d8f864a776d0ef81a7167cf02c90db9",
+      "match": true
+    },
+    {
+      "path": "game/building/build_geometry.gd.uid",
+      "sha256": "e0cfc816c799996408780b2ac960447cb152e0a9f6110d8b679f19185eae5b03",
+      "match": true
+    },
+    {
+      "path": "game/building/build_preview_job.gd",
+      "sha256": "d7722e552391fefa557f660795f8ae97c6ace972303b9c9f92e6f6ba941088b5",
+      "match": true
+    },
+    {
+      "path": "game/building/build_preview_job.gd.uid",
+      "sha256": "6a972583b2419e1e93cf6eb3ffafa475a913c32123238b67b935efb3d430bc63",
+      "match": true
+    },
+    {
+      "path": "game/building/build_preview.gd",
+      "sha256": "ef7723ea004d7e1939bbfdeda23b4128d1930d1964b3cdf806ffe9ace379f4d1",
+      "match": true
+    },
+    {
+      "path": "game/building/build_preview.gd.uid",
+      "sha256": "46615ba9d945b0584ee93f80ff4aa26147d4adb67e5e137aed86c55a0fb09e63",
+      "match": true
+    },
+    {
+      "path": "game/building/build_service.gd",
+      "sha256": "e13e319fa1d52b35659d95e65babbdd8151ecddaf94f37e9df11ccc15ba792f5",
+      "match": true
+    },
+    {
+      "path": "game/building/build_service.gd.uid",
+      "sha256": "d20c9a79609414157ed84817c98d44f0713e0096cdcf7c4f7a9906d1c3c0ef0c",
+      "match": true
+    },
+    {
+      "path": "game/building/connector_service.gd",
+      "sha256": "002f34d0c74e0be4129ea42fed6d488ff448817079a63e49b88f475d77d6ce63",
+      "match": true
+    },
+    {
+      "path": "game/building/connector_service.gd.uid",
+      "sha256": "dc339d8eb8bcb1fd44a506c36deb751120ecf11816f0b26efcef1a4d991e27b4",
+      "match": true
+    },
+    {
+      "path": "game/building/floor_navigation.gd",
+      "sha256": "2c97c48b36d366192da85efd46e68f3f2eaeb9b135af05e68068215c79332ebc",
+      "match": true
+    },
+    {
+      "path": "game/building/floor_navigation.gd.uid",
+      "sha256": "093736871b033e11aa70459b2402106ff5cc628644bc558521fea3028fd9aa83",
+      "match": true
+    },
+    {
+      "path": "game/building/floor_service.gd",
+      "sha256": "a3974006ce8c43ed5c3b177c1b481bf1c755d9dfb4fc4693ae64f6db34472c8b",
+      "match": true
+    },
+    {
+      "path": "game/building/floor_service.gd.uid",
+      "sha256": "8d233fd11a3672cb48c154ec90b468249feb7a60a25829195344b6a1c2cd32bd",
+      "match": true
+    },
+    {
+      "path": "game/building/hospital_movement.gd",
+      "sha256": "bf50a096f6694fe0afe811e19f48f69fff122361745f075c089b9fd90e24d153",
+      "match": true
+    },
+    {
+      "path": "game/building/hospital_movement.gd.uid",
+      "sha256": "8fa220e6f853c912a76db965dc330d7588aa817499b7e4e06e4645c33774ae2b",
+      "match": true
+    },
+    {
+      "path": "game/building/hospital_navigation.gd",
+      "sha256": "e1e822f6612591f777bd4889c67b5553550293912b1700f23bc0d09494b7bcb5",
+      "match": true
+    },
+    {
+      "path": "game/building/hospital_navigation.gd.uid",
+      "sha256": "5002995c2200baf4a1940e7395bb31de738b213818d5f647598843bb16d3d069",
+      "match": true
+    },
+    {
+      "path": "game/building/hospital_space.gd",
+      "sha256": "d4850c75518ac42b5c58559add5740e0448a66511478c625157af6a3c8b71f12",
+      "match": true
+    },
+    {
+      "path": "game/building/hospital_space.gd.uid",
+      "sha256": "5d0cbaa0ed27304035734876113fcc679345967c5250dc6a876a8e911ff70991",
+      "match": true
+    },
+    {
+      "path": "game/building/hospital_transit.gd",
+      "sha256": "6a8ddb1da1878dd30307ff75719171a9d7d1a531f5998bc39671e48127917208",
+      "match": true
+    },
+    {
+      "path": "game/building/hospital_transit.gd.uid",
+      "sha256": "1fa81c6513d1e3dbad2cdbf1e606a5f19d5ca75f3dafde2c96ed4bd807f68e05",
+      "match": true
+    },
+    {
+      "path": "game/building/navigation_cache.gd",
+      "sha256": "266237bd20c84f1a7feb2d0e6fed268f59d0e19a393486393ec068c19cf1c719",
+      "match": true
+    },
+    {
+      "path": "game/building/navigation_cache.gd.uid",
+      "sha256": "cf0d5ad54e1ab317d1dbddbcfa9abf7f2770505e6520a45cc8b5d9caae08aa91",
+      "match": true
+    },
+    {
+      "path": "game/building/remodel_service.gd",
+      "sha256": "d46bd4af6106ad7d99bef7dedf1ca8e1290502ce1c60057dbeb455c483d9f756",
+      "match": true
+    },
+    {
+      "path": "game/building/remodel_service.gd.uid",
+      "sha256": "8cff815992583887b4a4cc61e5f9c2b6fbacbc73e82435867e2963dfff8c3eb6",
+      "match": true
+    },
+    {
+      "path": "game/building/route_clearance.gd",
+      "sha256": "57ae6fe1be895514d0fd458247f6faed3b92f0c7ba2b64949a348783bec6a6e9",
+      "match": true
+    },
+    {
+      "path": "game/building/route_clearance.gd.uid",
+      "sha256": "f1b0af50e12c22a7441fe1bb1cef89adeae052d2d4ed907bd7a7e8ce8774ada2",
+      "match": true
+    },
+    {
+      "path": "game/clinic/clinical_runtime.gd",
+      "sha256": "3ce51b71e8cfbc93b527df1f499e953d7fcd20416b6bc332d6dcaad1b24cb1e0",
+      "match": true
+    },
+    {
+      "path": "game/clinic/clinical_runtime.gd.uid",
+      "sha256": "368fec0d4e2d9da38006d89d7925eefc70104a000425633d259d3724a1a554f1",
+      "match": true
+    },
+    {
+      "path": "game/clinic/hospital_visitors.gd",
+      "sha256": "e8b8b7dbbf80dd510c1598929382c564e12f7dcceeff43dc7c30362aaf332f0d",
+      "match": true
+    },
+    {
+      "path": "game/clinic/hospital_visitors.gd.uid",
+      "sha256": "6e0bdaae581decfd807432c8671206b905b7e8da84b053442ec5b9df2a01c99e",
+      "match": true
+    },
+    {
+      "path": "game/community/research_job_index.gd",
+      "sha256": "caf1960eaee699eb89e2a05cbe5bdfbf47ea5c47056fd85f163862420304d1f8",
+      "match": true
+    },
+    {
+      "path": "game/community/research_job_index.gd.uid",
+      "sha256": "5d165d9db3ed1d679a2dc72e837a1e75f6e95e44e56addd549c0b7d0df5c8df5",
+      "match": true
+    },
+    {
+      "path": "game/community/research_service.gd",
+      "sha256": "eee0f6439a013d1689cbf1b482a9f54d49941abe551c7b667904e78c2d41c7fa",
+      "match": true
+    },
+    {
+      "path": "game/community/research_service.gd.uid",
+      "sha256": "b41ff1df0124c6cde40405679cb63fbd028c3608a05dc223492d0f1c3bc254f9",
+      "match": true
+    },
+    {
+      "path": "game/content/content_db.gd",
+      "sha256": "658bef312d445be223af4cb7b55254160cd884105a863ee280d16fe0733f803a",
+      "match": true
+    },
+    {
+      "path": "game/content/content_db.gd.uid",
+      "sha256": "4a4b05397ce4a56a50e3ed20c6f711c234e555e6c9bcf5f3ee74b7f5dba3e0ce",
+      "match": true
+    },
+    {
+      "path": "game/content/content_load_result.gd",
+      "sha256": "ca8ff6780a30f9dee0e5254df360103117735175d2d207df47a1c824d9f8c3b5",
+      "match": true
+    },
+    {
+      "path": "game/content/content_load_result.gd.uid",
+      "sha256": "b90b613124fbfb3ee61c80eff70f6edddd7e75d242d28f7021ed7fde32f00e7a",
+      "match": true
+    },
+    {
+      "path": "game/content/content_loader.gd",
+      "sha256": "60289da8dd877645ac07eb31cb98afb1dd3b4ab65b1057d6134e29f7c50dfe9b",
+      "match": true
+    },
+    {
+      "path": "game/content/content_loader.gd.uid",
+      "sha256": "5b8287fee22dfa3ac7f4f55b72f7dabb0e76dc8d5f3464f13b4b5faacbb3b30a",
+      "match": true
+    },
+    {
+      "path": "game/content/content_pipeline.py",
+      "sha256": "2ed8831fa9f63c22ada1666c6f665340d9055288ce3c9627f63f69d932205aa7",
+      "match": true
+    },
+    {
+      "path": "game/content/content_registry.gd",
+      "sha256": "3f957af0cc9c6b28fcca07e71dd58643602d31de1b8c2a283c725a76e24e8d38",
+      "match": true
+    },
+    {
+      "path": "game/content/content_registry.gd.uid",
+      "sha256": "98652b46a3c83566b028a2f4f97d2a12ae4e6952459e46541cd2ac67f00d4e78",
+      "match": true
+    },
+    {
+      "path": "game/content/schema100.json",
+      "sha256": "f5d47f62f086ac2bffeea6fceb50fccf7ed53c860e7331efd04d2ef7607e011b",
+      "match": true
+    },
+    {
+      "path": "game/economy/finance_service.gd",
+      "sha256": "6a84601eb63d57641467ad0877b6f7dca04178973145554fc85e7fa5d8b2c96a",
+      "match": true
+    },
+    {
+      "path": "game/economy/finance_service.gd.uid",
+      "sha256": "09064ea51dd89f90d2eef1f66e95b0c3f824f1ba45f4424f08df8adf9db4e5fd",
+      "match": true
+    },
+    {
+      "path": "game/economy/ledger_entry.gd",
+      "sha256": "6c610e59dedf13c94618e41f872c875b1cc33446c55aae4f28317008c181b877",
+      "match": true
+    },
+    {
+      "path": "game/economy/ledger_entry.gd.uid",
+      "sha256": "a03075b29679d08490ea278f89fbe6bd60bce606f7bcfaab9d0044cbc31baaee",
+      "match": true
+    },
+    {
+      "path": "game/economy/ledger.gd",
+      "sha256": "024370d1aacce142495b63b72d4ba52a059888fa74f030bbcaeb4b5848da6bc3",
+      "match": true
+    },
+    {
+      "path": "game/economy/ledger.gd.uid",
+      "sha256": "d79ef85f9b3a956d8343d784581bf123ce0f67af7efe4da3fae424f278507abf",
+      "match": true
+    },
+    {
+      "path": "game/life/public_areas.gd",
+      "sha256": "d852d459d6512de900fefcced60a48569b927400883bbee2249abb92b59ed6a9",
+      "match": true
+    },
+    {
+      "path": "game/life/public_areas.gd.uid",
+      "sha256": "a55ac97a7b178f799e527993776c4c5002303b6a4a1bcb73f04d11a049825c73",
+      "match": true
+    },
+    {
+      "path": "game/life/waiting_life.gd",
+      "sha256": "8d807685446c04c55355a5d54e07df173f8b3f3af60eac6d8327e9f5645b0047",
+      "match": true
+    },
+    {
+      "path": "game/life/waiting_life.gd.uid",
+      "sha256": "d22afe73a6bc0e1ff4096c65c27d4c98f91bee5c1413eb96c9d0f6cb8954ecfd",
+      "match": true
+    },
+    {
+      "path": "game/operations/department_service.gd",
+      "sha256": "c2a0dd23d74ba8a4499153ff0a94c3e3b581045affaf3822740a14ca66d93596",
+      "match": true
+    },
+    {
+      "path": "game/operations/department_service.gd.uid",
+      "sha256": "8b24e05e935251b47be67d4f5107360767d93c22a37412d29fc20b4d5a232462",
+      "match": true
+    },
+    {
+      "path": "game/operations/environment_service.gd",
+      "sha256": "8d6b76318755aa0fb5641784ca722bd73e405a4d558d9ed6343f5cd254ea30c3",
+      "match": true
+    },
+    {
+      "path": "game/operations/environment_service.gd.uid",
+      "sha256": "7d3b425b1b3e468be5491a7f011ab53d40cd8b29155e5dec19a4d0f45e966e7e",
+      "match": true
+    },
+    {
+      "path": "game/operations/maintenance_service.gd",
+      "sha256": "9b1e32aec0d2043e16873a219f609f48b339ce21ff806011181398cfbacf2f1d",
+      "match": true
+    },
+    {
+      "path": "game/operations/maintenance_service.gd.uid",
+      "sha256": "7917d490085c45ea605438fcd30c0f9abecaae37e8b81db2d10bd565c6bc9ffb",
+      "match": true
+    },
+    {
+      "path": "game/operations/supply_service.gd",
+      "sha256": "c475929ef1ffb29fcba23ba944b9b226e9cccb166a906c400718ecd303f8e213",
+      "match": true
+    },
+    {
+      "path": "game/operations/supply_service.gd.uid",
+      "sha256": "a4c13e6ff91e9bcce5a01765391c922eb78210ec59ed3f5d0ebfa0738fe1bf4b",
+      "match": true
+    },
+    {
+      "path": "game/persistence/backup_zip.gd",
+      "sha256": "7c717b593cf331aa68196db9d5c5f25fa2e0d6a0f984c10e5fbfc56f688d2055",
+      "match": true
+    },
+    {
+      "path": "game/persistence/backup_zip.gd.uid",
+      "sha256": "161414721736977c4a47c884948a53fca2c8c055f82d0d83dfdf6079bf8940ff",
+      "match": true
+    },
+    {
+      "path": "game/persistence/blueprint_library.gd",
+      "sha256": "aea8b917af5575789c1ec16f8780ca91f1b114661714fc67a254c22dab0ec497",
+      "match": true
+    },
+    {
+      "path": "game/persistence/blueprint_library.gd.uid",
+      "sha256": "5b71d1b0cd49c763c32be7550e10cbb5458f49b3731b1b1c2fd028ef2cf4c3f6",
+      "match": true
+    },
+    {
+      "path": "game/persistence/hospital_library.gd",
+      "sha256": "b75456ce121b0812743ded675f525dba8ac1bb73349ae6c83e87a8c168a06672",
+      "match": true
+    },
+    {
+      "path": "game/persistence/hospital_library.gd.uid",
+      "sha256": "9e040d464e8f787baa7d72874d809ca502150af6071265eb32d3ba24320624c8",
+      "match": true
+    },
+    {
+      "path": "game/persistence/json_stream.gd",
+      "sha256": "8873599648ba65cbb23d162e0c9aba209d7b01cbf7734664bb3a29cde79c6f72",
+      "match": true
+    },
+    {
+      "path": "game/persistence/json_stream.gd.uid",
+      "sha256": "15b0c3868187fd8755982fd4557b98facba3e99bfbe6efef93165bb4a5de45cb",
+      "match": true
+    },
+    {
+      "path": "game/persistence/snapshot_store.gd",
+      "sha256": "78566573c6bdb50efc8dd6945d27c69f5f0578d93752fb961c99c0d585bcef25",
+      "match": true
+    },
+    {
+      "path": "game/persistence/snapshot_store.gd.uid",
+      "sha256": "5db9545d378b13c4bd9697c0897c29f1e58c99d49fe9b47821b08992f647431c",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/oddly_good_platform.gdextension",
+      "sha256": "9d3edda4f6527134ad82c0765c81b8fdc6e516447701d13b4ee73a5d47500dc3",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/oddly_good_platform.gdextension.uid",
+      "sha256": "cc18f4e80cd28a17ce221a44d2e27df851348fa474390a790b58a1f257652cb6",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/platform_arrivals.cpp",
+      "sha256": "7c99c5d61867f1adbc35672fa9766bb94a1979449c442576eb8174195ede8891",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/platform_backup_zip.c",
+      "sha256": "04cdb84f9e6eb4e700e247597fcab75ede9eefd1594fb7b2e503697fc8ee8716",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/platform_backup_zip.h",
+      "sha256": "bca4594474f66c32f005b30043426df7f4eb1325999f86b46da76059988283b1",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/platform_bed_matching.h",
+      "sha256": "4dff840d939cdb2cca4ea39d6041ea811f71bc770dfdf14389a3cdfa3f4450a4",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/platform_graph_reachability.h",
+      "sha256": "e0285260fdcf1bf7909d9d3ad4a17fbe4a7d20b2266bffbf8f7b0c4fa144186e",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/platform_grid_component.h",
+      "sha256": "150d652b38bcf644042255c23316b867238c832e284c6165cbbfbcc02dd8bf96",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/platform_grid_distance.h",
+      "sha256": "c2122659bf04d6f7dec7b3f53589981631457e9b31f65804a7f1864ac6fe8e91",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/platform_json_stream.h",
+      "sha256": "9544fb7881ba71c9acb6fd9a8fc222c727a287be3faf903542ffe7fe09964416",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/platform_json_stream.inc",
+      "sha256": "2a2fcb28aea3d1b226c0b7838e613258a19a2e09febd518581092ea689235c9c",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/platform_route_queue.h",
+      "sha256": "9d7a1f7198c2bd1d5b5e31798c50398aa8a1a1dd22179dd58e7b8950bdeed32e",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/platform_route_search.h",
+      "sha256": "9fbd263a2f571c6def0a5e34f4f0a5bc671b09d16a470768adbf00a72bc52ee7",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/platform_session_guard.c",
+      "sha256": "b8b211f98327d1e292cbb114d880f043d778dd99377d3854cacddffe8095e8cb",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/platform_spatial_index.h",
+      "sha256": "b09ea4163d2b802c0bb0ba962c28dd55d2fec4a3a2fefe532b47728b616c0a38",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/platform_sqlite.h",
+      "sha256": "4cf27eb9149fe233cc38303f373ccc07510f1101f26c811350f7c2e48d710a95",
+      "match": true
+    },
+    {
+      "path": "game/platform/windows/README.md",
+      "sha256": "a62a396bda3f264de17bfbd7691dc3c557d1b32c3975fdc681e2371e98bdb442",
+      "match": true
+    },
+    {
+      "path": "game/sim/equipment_use.gd",
+      "sha256": "b2c0001a0ea8640ea4f42f7d86ec59e1c7cf63bad032f78946295918a8620210",
+      "match": true
+    },
+    {
+      "path": "game/sim/equipment_use.gd.uid",
+      "sha256": "bb476f19404bae15df749e61d8f1279c89859e4d0a0e63ac1927bd784f8672fa",
+      "match": true
+    },
+    {
+      "path": "game/sim/hospital_factory.gd",
+      "sha256": "aab6e9695c2e33658f969cbe4754fc4bd6dbc8d520df23a715ac5292e2aa8b93",
+      "match": true
+    },
+    {
+      "path": "game/sim/hospital_factory.gd.uid",
+      "sha256": "9d16d22ec626f8eef1045b6cbb79c47bd68dc78c5437be7a4e33dde5ab7f3a6f",
+      "match": true
+    },
+    {
+      "path": "game/sim/simulation.gd",
+      "sha256": "b88679e9a9f592b2402db23fff47a5e31cdfaae1d1514c1637f9083ea61f38b4",
+      "match": true
+    },
+    {
+      "path": "game/sim/simulation.gd.uid",
+      "sha256": "e18198247468017f75ef00db54e921e7b22f6fdbacac273151e433667cbb7895",
+      "match": true
+    },
+    {
+      "path": "game/sim/types/business_payload.gd",
+      "sha256": "e6be2f738ce0077f3a6b3ec023965fef20785f8d2d941eeff68b40dfdd450fad",
+      "match": true
+    },
+    {
+      "path": "game/sim/types/business_payload.gd.uid",
+      "sha256": "bb9ad35435d4a1e28602bf15c7e357739fbc24ec03d9a19f8f7a2ebfa2d89425",
+      "match": true
+    },
+    {
+      "path": "game/sim/types/command_result.gd",
+      "sha256": "14bfda9bada0dfb5d33f13d5966c0572f65cc344a685e4caa8b1210fdbab82cb",
+      "match": true
+    },
+    {
+      "path": "game/sim/types/command_result.gd.uid",
+      "sha256": "dd7b0e8e1ad42a6be154b5836e4a276fed1cd1e5ddb3c7c98b773d0e72a34319",
+      "match": true
+    },
+    {
+      "path": "game/sim/types/game_command.gd",
+      "sha256": "c5d933fa960dab22d4a8c94d1727726a05d3596a1c171e33c28fbafe68d1d7a5",
+      "match": true
+    },
+    {
+      "path": "game/sim/types/game_command.gd.uid",
+      "sha256": "8496fefe09ded244f13a6de4632110c5161a9f54d394bb71b1d47d74f308ef96",
+      "match": true
+    },
+    {
+      "path": "game/sim/types/move_actor_payload.gd",
+      "sha256": "f9ced5a3b5649af68128e5cb1effe4d6ee516d18327eedfced56da7de6c03fcc",
+      "match": true
+    },
+    {
+      "path": "game/sim/types/move_actor_payload.gd.uid",
+      "sha256": "24e3a2c9670582b9bca90cea87c94b4610b2f49da1e55731c600a36ffde89ef3",
+      "match": true
+    },
+    {
+      "path": "game/sim/types/sim_event.gd",
+      "sha256": "97adadfe83e77fb0292ed8b322f2ed1d3f5b3138d772cf3d5b8bc4240ba8a911",
+      "match": true
+    },
+    {
+      "path": "game/sim/types/sim_event.gd.uid",
+      "sha256": "6fd132e37b5fa8ca17460770320fb5aeacb9ce3149de11023c726cee7c1572ae",
+      "match": true
+    },
+    {
+      "path": "game/sim/types/tick_result.gd",
+      "sha256": "21253c3043fef847fa707f77955c5d650fec072b48feb4060d6b79b320d938c1",
+      "match": true
+    },
+    {
+      "path": "game/sim/types/tick_result.gd.uid",
+      "sha256": "d1304dd41e06695e9c88d41d5899729731074fd2649d75c93727bf3afbc80aa0",
+      "match": true
+    },
+    {
+      "path": "game/sim/world_state.gd",
+      "sha256": "e324c57bbbdc22f798da9e7a40e89cc8b00c1fc0d1b508438cf7f80771b8bbf5",
+      "match": true
+    },
+    {
+      "path": "game/sim/world_state.gd.uid",
+      "sha256": "402c9491175a093eebd14fa3ee6438c97adbd5875db50891971e4498bead1190",
+      "match": true
+    },
+    {
+      "path": "game/staff/clinical_development.gd",
+      "sha256": "a33f86c5f165315e7710bfa6b2c359b472c678c283fb2ccee4caeef74584bb55",
+      "match": true
+    },
+    {
+      "path": "game/staff/clinical_development.gd.uid",
+      "sha256": "242f660a5bb4d3ebe212105fcb8b49b1e0bc9b0f2c6d13d8d75b7dff8702e43a",
+      "match": true
+    },
+    {
+      "path": "game/staff/personal_bed_matching.gd",
+      "sha256": "23f925d79caf91193210e6de0044e5d251cc67978e4d6b78e2e9b1b6ad58b517",
+      "match": true
+    },
+    {
+      "path": "game/staff/personal_bed_matching.gd.uid",
+      "sha256": "553841349e54852237763c7a4699f81803a3341c378a4075aed8a96f2caeab0c",
+      "match": true
+    },
+    {
+      "path": "game/staff/personal_beds.gd",
+      "sha256": "fe816d77b0e1268d5d4de0c886cbb739a1c8f0d83b8505f201f59b8a8a4c26d6",
+      "match": true
+    },
+    {
+      "path": "game/staff/personal_beds.gd.uid",
+      "sha256": "c8871a94cb27660f3918f69b075b6d9299f68dec46e33ed396a01d74c62f34c1",
+      "match": true
+    },
+    {
+      "path": "game/staff/recruitment_service.gd",
+      "sha256": "7c7a4902aa693aa7b8f57a9ed61c87f37423b5897d00c22cd053f4ea80ae8693",
+      "match": true
+    },
+    {
+      "path": "game/staff/recruitment_service.gd.uid",
+      "sha256": "814b6d17659a547710f29b5585b801693bd4407075b7d44d00683c6f1dd945be",
+      "match": true
+    },
+    {
+      "path": "game/staff/shift_scheduler.gd",
+      "sha256": "d3a45d0c2b47f05461c1cbdab6481d1c421f977a0335acab74989655e0c1d25e",
+      "match": true
+    },
+    {
+      "path": "game/staff/shift_scheduler.gd.uid",
+      "sha256": "0f7b4b2fd71b34550410f03dcdce9419aa16b5a9d9bbee13605d44beab18e6de",
+      "match": true
+    },
+    {
+      "path": "game/staff/staff_wellbeing.gd",
+      "sha256": "e290834f0469c6ee349f48542ccd673d07c1fc1d043d41bb94ec3492d62fbec6",
+      "match": true
+    },
+    {
+      "path": "game/staff/staff_wellbeing.gd.uid",
+      "sha256": "cf82722d03b7b98f6d21a20d3313529721ae34201b78aef8387ceab3f55f853d",
+      "match": true
+    },
+    {
+      "path": "game/ui/action_panel.gd",
+      "sha256": "e69f7581747e4277987c3a5945a7d146ddf86909f7012dae1e75dee816740310",
+      "match": true
+    },
+    {
+      "path": "game/ui/action_panel.gd.uid",
+      "sha256": "6d768d6119bcd33632e3c7aea4bc735a114d8f788bf57b73661499e48077654b",
+      "match": true
+    },
+    {
+      "path": "game/ui/arrivals_panel.gd",
+      "sha256": "3a63b207f5c3b3b61c418f853b909019eff0d6e9fcbe61a3a70fc518744ec864",
+      "match": true
+    },
+    {
+      "path": "game/ui/arrivals_panel.gd.uid",
+      "sha256": "f549ca9e9ee54ef72331d9aa510bb003eaabfe81ba3d23beddba1652f9140af2",
+      "match": true
+    },
+    {
+      "path": "game/ui/build_panel.gd",
+      "sha256": "eaf3579c4881469811795babb456201644450a28dce2fb947df1ab202bb3a586",
+      "match": true
+    },
+    {
+      "path": "game/ui/build_panel.gd.uid",
+      "sha256": "b4ac2b9f453ad64cb7d0b9a640b1292274b603a23b80d7831b481a381eea63a3",
+      "match": true
+    },
+    {
+      "path": "game/ui/clinical_panel.gd",
+      "sha256": "bce88f0f1346bc6c7d839e296d597ab8c77bfc6754e2354a13fcd794b4b3c801",
+      "match": true
+    },
+    {
+      "path": "game/ui/clinical_panel.gd.uid",
+      "sha256": "98359efcb5d0b82199afd3e0ef7675bce1561879a436d335d4ad53fae94030fa",
+      "match": true
+    },
+    {
+      "path": "game/ui/departments_panel.gd",
+      "sha256": "7e70538c5c65ae11937ff9b116cb9e59e778a1e843ea4f361c9a6e71b03cfd15",
+      "match": true
+    },
+    {
+      "path": "game/ui/departments_panel.gd.uid",
+      "sha256": "c3a0595050a954e0a793a872cf5049ef23c9c0ca9c3e3f8da833802ca942679f",
+      "match": true
+    },
+    {
+      "path": "game/ui/environment_panel.gd",
+      "sha256": "4076755346b70f8b6b1e26d9c9a3c79bad908e9de93e8d067be30e269256313e",
+      "match": true
+    },
+    {
+      "path": "game/ui/environment_panel.gd.uid",
+      "sha256": "daf3028394f1de6ee88f76e3987c6be607124a7820a34122962b0094b5d06fbc",
+      "match": true
+    },
+    {
+      "path": "game/ui/expansion_panel.gd",
+      "sha256": "04e6ca9d15ad7f3427bd809716f00ad247fbd185eaa670d3137bae4158732457",
+      "match": true
+    },
+    {
+      "path": "game/ui/expansion_panel.gd.uid",
+      "sha256": "3c29e158252e5ddafa9b95c3e2b89703f75f06cc3657aa84a3798f2e874ae2ff",
+      "match": true
+    },
+    {
+      "path": "game/ui/finance_panel.gd",
+      "sha256": "f4b329680176b85e72ff096ca95d3d60f9e7183a0a3c69cfe2b5e99fd5b7b479",
+      "match": true
+    },
+    {
+      "path": "game/ui/finance_panel.gd.uid",
+      "sha256": "65e9dbc8439ab3ad23be79e9082b2327539b4e043fff3d976366d88fbe6d89cd",
+      "match": true
+    },
+    {
+      "path": "game/ui/hospital_library_panel.gd",
+      "sha256": "704e1a0bc4a73be0f003c7699944c0d61ce58e4143c84f49155f4d5076bdb287",
+      "match": true
+    },
+    {
+      "path": "game/ui/hospital_library_panel.gd.uid",
+      "sha256": "6cd5b381662218a44fdfc15ee80877a7d0cbd3c7fecb8c07d4c4996a76e004b2",
+      "match": true
+    },
+    {
+      "path": "game/ui/maintenance_panel.gd",
+      "sha256": "3cbf02b09e9b30761c0615837a07dca754ce340d8e6f01d7a56af5336145c30f",
+      "match": true
+    },
+    {
+      "path": "game/ui/maintenance_panel.gd.uid",
+      "sha256": "bee9c451fdc1a44a8758e5d15e3fd81866671062549474b7edf8b96fcc004928",
+      "match": true
+    },
+    {
+      "path": "game/ui/plans_panel.gd",
+      "sha256": "861469432b24f555718393cdb50f1609b94b58b8ed3f48bc30a9079d3b26cf75",
+      "match": true
+    },
+    {
+      "path": "game/ui/plans_panel.gd.uid",
+      "sha256": "0b11aab6a496c013156655388996d74dd7f82abc2d3772b86d5df0cc40057925",
+      "match": true
+    },
+    {
+      "path": "game/ui/recruitment_panel.gd",
+      "sha256": "e42a1616e3a607648d655f9a90b321b79cb711f1651cc75e1661bc7e211f988b",
+      "match": true
+    },
+    {
+      "path": "game/ui/recruitment_panel.gd.uid",
+      "sha256": "9e2270dd55dc6f028c6cb0e73e518f858e3269787104f393f25a1b7319fb00d3",
+      "match": true
+    },
+    {
+      "path": "game/ui/remodel_panel.gd",
+      "sha256": "f16c469ad4a8fe878e7e56c07cfef636e136a543aae33a9b3a0468fd1552df5e",
+      "match": true
+    },
+    {
+      "path": "game/ui/remodel_panel.gd.uid",
+      "sha256": "f24f9a9e48cdf7f1185bcfb9ad5a54efcd5f32685b8846a46b07c5ba47e90989",
+      "match": true
+    },
+    {
+      "path": "game/ui/research_panel.gd",
+      "sha256": "e258fdeee328083f555d369ed3e0907682da5c2cb59f6faed23bd5756201b396",
+      "match": true
+    },
+    {
+      "path": "game/ui/research_panel.gd.uid",
+      "sha256": "0faef802bee43880345d02168142ab093ce305a6351930e65a2d2972d0479923",
+      "match": true
+    },
+    {
+      "path": "game/ui/schedule_panel.gd",
+      "sha256": "8ad29541c473d24d4b0e2422409f4094110b014dab3413725dae2f98a8113c43",
+      "match": true
+    },
+    {
+      "path": "game/ui/schedule_panel.gd.uid",
+      "sha256": "ca8febd07bb21f107c87d9388aa17276fe1c94bd386904036d6f64509a22d315",
+      "match": true
+    },
+    {
+      "path": "game/ui/staff_life_panel.gd",
+      "sha256": "fff324f0fe0b6ba7faafb59cf071abdf56ff1ae74c00b898de3d4e815f4e20a5",
+      "match": true
+    },
+    {
+      "path": "game/ui/staff_life_panel.gd.uid",
+      "sha256": "f48ca31129bc5369bfc611170c87b299f69cfdec04678d91ae1195a812ec24c0",
+      "match": true
+    },
+    {
+      "path": "game/ui/supplies_panel.gd",
+      "sha256": "99d43f0f2070e1597d4b85762c6567a88d3dc4dd43cbf31e9c4219f53b954cf4",
+      "match": true
+    },
+    {
+      "path": "game/ui/supplies_panel.gd.uid",
+      "sha256": "be0b6713883c58ed4e3f29d004156272b9a52809e90815b732c3bf7738662b5b",
+      "match": true
+    },
+    {
+      "path": "game/ui/training_panel.gd",
+      "sha256": "283b9d0c91f753cb79ba445fc41b098c90cce2e18e64f046bdc6d6c127a73be1",
+      "match": true
+    },
+    {
+      "path": "game/ui/training_panel.gd.uid",
+      "sha256": "a1ee3c6da7320d3d0e04a85903328e4a64c94c2c8ab41ede701ba3fd84ecb293",
+      "match": true
+    },
+    {
+      "path": "game/ui/waiting_panel.gd",
+      "sha256": "773b273e1c8d8a106402c013b24caf615118a2c25863754a7b8e7b4257fc86e4",
+      "match": true
+    },
+    {
+      "path": "game/ui/waiting_panel.gd.uid",
+      "sha256": "1502ab7cce3660f6c9cad0b24253750a4c3f912c4504e44d8a0e4371a12cc621",
+      "match": true
+    },
+    {
+      "path": "game/ui/ward_panel.gd",
+      "sha256": "3015b74a9fa1868401354b6edae65e6c0b302d534a6623ac57183a91c457bdd0",
+      "match": true
+    },
+    {
+      "path": "game/ui/ward_panel.gd.uid",
+      "sha256": "61dc7bcdd93a9df2217799f1195e3483d23edef80738817e1c1b21ffea6b541a",
+      "match": true
+    },
+    {
+      "path": "game/view/build_overlay.gd",
+      "sha256": "b6cd67a262a9b1e31474e1c167e96dd87b54d7a784039caf5700e3b53f7041aa",
+      "match": true
+    },
+    {
+      "path": "game/view/build_overlay.gd.uid",
+      "sha256": "623e39b33cb626b1f2dfbf3894fc9365956af23d0225dd5f839b2d74fea29fa6",
+      "match": true
+    },
+    {
+      "path": "game/view/compatibility_skin_input.gd",
+      "sha256": "f0c6b71171c8ea8917b661196152e97f2a6e642fbbdb72b3ae18091eb57f73b8",
+      "match": true
+    },
+    {
+      "path": "game/view/compatibility_skin_input.gd.uid",
+      "sha256": "72ff2bf326a86789f9aaedbdb9899aed96c9aa78c7e55761dc323ba7f101e79b",
+      "match": true
+    },
+    {
+      "path": "game/view/hospital_palette.gd",
+      "sha256": "dd24f6999e8c0522cc0e04eb36bf4cd779274ccbb85133d8821daa742e930624",
+      "match": true
+    },
+    {
+      "path": "game/view/hospital_palette.gd.uid",
+      "sha256": "f92dbc210a5ee0882307b2a1df87db6dd22d6b07d0a56cc827e940b240b42d1d",
+      "match": true
+    },
+    {
+      "path": "game/view/hospital_view.gd",
+      "sha256": "f3414958203f47d5d1bcfa1873d05ebf45f9f5056db1c7ba8b4eb2f8bfdd8a84",
+      "match": true
+    },
+    {
+      "path": "game/view/hospital_view.gd.uid",
+      "sha256": "fd1a205ff69ac62f0dd426d0f96dcb33b2eb041fa17a6875258f22080c5cc5e2",
+      "match": true
+    },
+    {
+      "path": "game/view/shaders/skin_readback_original.gdshader",
+      "sha256": "d498a17891628be38e3b2543ce6123267bef11320e7004d6bd1aa74ee94582d7",
+      "match": true
+    },
+    {
+      "path": "game/view/shaders/skin_readback_original.gdshader.uid",
+      "sha256": "aa75377678c8f0aacc750f481b371c4c952f135b2720ef1060d94267b71910a6",
+      "match": true
+    },
+    {
+      "path": "game/view/shaders/skin_readback_output.gdshaderinc",
+      "sha256": "80a3e9478ca9bf9f3294a1065dddbcfb32ffff97de9908c161cb4494c2cf1231",
+      "match": true
+    },
+    {
+      "path": "game/view/shaders/skin_readback_output.gdshaderinc.uid",
+      "sha256": "5addbd13efdddfea0078881c75b67cb5d998f5198cf3eb6635f902a677309308",
+      "match": true
+    },
+    {
+      "path": "game/view/shaders/skin_readback.gdshader",
+      "sha256": "72b74920b52fcfe944da7c6694945f8527734b0f86542fe43362683223ae0318",
+      "match": true
+    },
+    {
+      "path": "game/view/shaders/skin_readback.gdshader.uid",
+      "sha256": "1f4afbe30073c38d001848d86ead060d016e4a374a2ecbd56b2acab75d5e03ec",
+      "match": true
+    },
+    {
+      "path": "game/view/shaders/skinned_pose_double_sided.gdshader",
+      "sha256": "7e373dc423e76554f486dade8fb9453f9b27420a010b4192319425183d0e6055",
+      "match": true
+    },
+    {
+      "path": "game/view/shaders/skinned_pose_double_sided.gdshader.uid",
+      "sha256": "df399eaab664db0d24e2778a3f41f7117d0851283c731d364559ec2edf7dcc14",
+      "match": true
+    },
+    {
+      "path": "game/view/shaders/skinned_pose_surface.gdshaderinc",
+      "sha256": "19ed00ba18c94787f290481d8d04a77daa434a2e5bfd8ac8c3ff096cc36ed23a",
+      "match": true
+    },
+    {
+      "path": "game/view/shaders/skinned_pose_surface.gdshaderinc.uid",
+      "sha256": "c475e9aa455008c30cba8ad0ff8e298c221e413e25e80b571fae668cc5589469",
+      "match": true
+    },
+    {
+      "path": "game/view/shaders/skinned_pose.gdshader",
+      "sha256": "f6f8e6b78c4771e64da95c681f9e1e6010c4b8933fd1886cb4f5152fa0c2b6a7",
+      "match": true
+    },
+    {
+      "path": "game/view/shaders/skinned_pose.gdshader.uid",
+      "sha256": "feb970e26cd6daed55604f8353fe40e9c3c940fdd08d540b217b96d080d6f8e6",
+      "match": true
+    },
+    {
+      "path": "game/view/shaders/skinned_pose.gdshaderinc",
+      "sha256": "0d02ebc85dd8c871d5f99d31b735cb91d745844f098e6214d1321a674c429feb",
+      "match": true
+    },
+    {
+      "path": "game/view/shaders/skinned_pose.gdshaderinc.uid",
+      "sha256": "4d4b2908b588211820946b9ce936e313963c55d5f7b7ac6be2e77106cddbe4d6",
+      "match": true
+    },
+    {
+      "path": "game/view/skinned_pose_batch.gd",
+      "sha256": "55c050528ad395542feb3b48d3b72a12855ebdad755051f4fdcbb98f6b4690f8",
+      "match": true
+    },
+    {
+      "path": "game/view/skinned_pose_batch.gd.uid",
+      "sha256": "e634ba9893e67034fb509e76283529716fcb87a38839c45589525ecc0b95262c",
+      "match": true
+    },
+    {
+      "path": "game/view/view_resources.gd",
+      "sha256": "52fd8ad69760d5e74a10d9cc7ec4ccb318b44f307a74712350e8822ab324a670",
+      "match": true
+    },
+    {
+      "path": "game/view/view_resources.gd.uid",
+      "sha256": "ac753d9864d78c5a6238e3db30ba05042c4579d9f0ce568cb9b1d2965bff35de",
+      "match": true
+    },
+    {
+      "path": "game/view/view_work_budget.gd",
+      "sha256": "7accce896aab177ff50f3d82ed2988128728bbfbf195d5b04e55c71de0e6c5d2",
+      "match": true
+    },
+    {
+      "path": "game/view/view_work_budget.gd.uid",
+      "sha256": "f9547d4c98cfef18e393dc01975d4db7cd9b209e826956f26c4a6f2294a5f942",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/analysis_reference.py",
+      "sha256": "d49aff7d160907f95018edee09431f7f85d7bade0f34b19b081dc7cc2d53818e",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/analyze.py",
+      "sha256": "bbcdec74e6358b702b28755ec609a66f10b6ab9bb7487401dab7b984382871ee",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/apitrace_display.py",
+      "sha256": "6e6d65bb09a62117507bafb39a7393131807fb62bd8efa5cd683098b662fa2dc",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/capture-apitrace-display.ps1",
+      "sha256": "7275a8dd82cae89e5c566670a7ba357d0c3e28c5a00ee6145606d566f057d6af",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/capture-display.ps1",
+      "sha256": "7b8fb405aa815c70d6ad80c980eb250833fe8c1a16f4c31cb38546f0a0f61b97",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/capture-dxgkrnl.ps1",
+      "sha256": "39005c3b02468450e09274a8d407b14085f3b8fc8a487e329dcf58bcfd041eaf",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/CAPTURE.md",
+      "sha256": "bce84c01e26fe5cd3b3b8b128aa4717f89f0a350ad61332ad5eb67afd0680e5e",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/capture.ps1",
+      "sha256": "da5997ad9738120e3e05817d97f0be67bf8eeac338686d65f6a8f1ae27bd883a",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/check_roundtrip.gd",
+      "sha256": "3fea0a38ff54c0134c6c2c463fd8afe66b7eb4ecb11e45f242dfdab1d528b05e",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/check_roundtrip.gd.uid",
+      "sha256": "37e9de348f8adced62b28a29dc3329970bf51ee8753927cb984b9d2d05ba6534",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/check_settings.gd",
+      "sha256": "43ba2f5c4f375a3697e91da0078ba9e32f6df05c7ba40ce4a315b30591e2811b",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/check_settings.gd.uid",
+      "sha256": "e5fd423c21a7f1c9bf84c151daee81510142733fa37b28fb008b0e93350716b6",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/decode-dxgkrnl.ps1",
+      "sha256": "75859e4fee04c31ab7ce61414aa7b5595b1240e3728599b770a3f78ac9941cf9",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/decode-etl.cs",
+      "sha256": "c274a6b4836c6de343e78bef70573ea2a20af7cb4debbb19188e2622f9d65bc1",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/decode-raw-etl.ps1",
+      "sha256": "1e4d90834cd63892e31b2d46b56f34e2a8fb352e2e020bfd878fa1e24e3895ea",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/DECODING.md",
+      "sha256": "d945fdf7229c3d72e0a60c874f227236e853aa17e4b73216390637765f1380d3",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/DENSE_MATRIX.md",
+      "sha256": "20c24298ad1e8b977234ed71b3445e443d2521fc79cd503b53857d00b04a528a",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/display_probe.gd",
+      "sha256": "442c9c9a1f3475e905a1f72f942f07427f95de063b79ba7e6352a13c9591d732",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/display_probe.gd.uid",
+      "sha256": "f21e4e2c299ba878370d8ca9afe50ac008193ce0c52689ba4c6a8c48c2663498",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/display_probe.tscn",
+      "sha256": "ccebc428e4f6b1a2d98413fc127b8c5421923caa88a83143c3f026c74c32e6f8",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/display_root.gd",
+      "sha256": "ece959229a18ab305e1c87d589a504c8ef7753a9ee091bc7d4e7c7856b0feef6",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/display_root.gd.uid",
+      "sha256": "916bad22cc88d69b67be4fa9e61cdb8ba67f64266c9f3476ddaadfe3b1a50993",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/DISPLAY.md",
+      "sha256": "2d1d9b67935581c5b513731e138997542bdf4d77a4a61f2109544e4eaa1301a7",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/Expand-Extra-Scenarios.ps1",
+      "sha256": "022a1ab7e2d56cecac0710fbec69ef98b40934c739323e288b707ffbaca4b3c1",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/Expand-Scenarios.ps1",
+      "sha256": "2d986d4a1bf9ea5896fc817fac226cd8faec03dbf9ae0b69a338c90054bb49e8",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/extra_scenarios.json",
+      "sha256": "a05bf81d48588ea7c2e4f6514ce9aa4b7c0ad9f6c96195eba16a565a228dba5d",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/inputs.json",
+      "sha256": "61360ea6e15293c270ed8a326c8cdb481f16a24c882a0711ed591580b05a7347",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/legal_history_size.gd",
+      "sha256": "4a0a0855d3431c345588a0efae6e06e58b5ac2dcea0479772e68e9e1d2849920",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/legal_history_size.gd.uid",
+      "sha256": "31978a94539cb678e38fc2c49a3f96cc34e1b078d52b75b4161c32dad4c8a722",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/preflight_maximum_tall.gd",
+      "sha256": "aca738532796915a674453485da6142325fa04a79644b496270f78148ef75673",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/preflight_maximum_tall.gd.uid",
+      "sha256": "8567e003b23498dfef4c3b64c3464263e2ce064d1dac0dcb24f5768a39c0d713",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/prepare_boundary.gd",
+      "sha256": "94b4ea2afbe8d220da59b2d099790c0a5a7c984d09429769e3589c84974f05a7",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/prepare_boundary.gd.uid",
+      "sha256": "e819777bae9b7f88669f1b4fb8e4898b0a6782f31e8cb589b00c9214968c2757",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/prepare_inputs.gd",
+      "sha256": "47ac3088979089325bde13f9aa7187d51b4813b57a3f9b737f413bd9f7c02b14",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/prepare_inputs.gd.uid",
+      "sha256": "6d2719767aaf5715fc3927e6193b7e82c0864ae8282b28985c585826b0264651",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/prepare_operations.gd",
+      "sha256": "09a886a48177c1e54935a067d25f6aca3758d1f5553604a4b2f4a7ae4c8557ad",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/prepare_operations.gd.uid",
+      "sha256": "5d6d8a15f16567d4cecaa468573424802adb4f0dd6bf6f000632ad5700193940",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/Prepare-Inputs.ps1",
+      "sha256": "b653795a472ec5415c322ce22923f684bb29ec0f6cf737433320560007dd16cc",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/Prepare-Operations.ps1",
+      "sha256": "7f112b3c98abfcd3a7621ba6a767d0127a01dbd8802fed345ac362ee1092d208",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/README.md",
+      "sha256": "a5236b9991b8f1e88ee5f618ab19f35ce28118f59b8431e5b2eb038601f0d358",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/scenarios.json",
+      "sha256": "293798106c65c8a07a78ae84a239d82c1e0c781e6fabb9c27bef0b715ff20f48",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/formal_root.gd",
+      "sha256": "02d4cb2e188fad46e9d38aff5f87f7de21ece115376ebdcaa17ac3b8b9db31c3",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/formal_root.gd.uid",
+      "sha256": "091849be2c1ab775439ed50e8bcee3dfbea15bd3b0fff41c993fefae37f145ff",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/gpu-ledger.py",
+      "sha256": "9c3fec047b6028a69dfb64135483a9b4491d28f75de8bcc8445837e1f72475fc",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/input-driver.cs",
+      "sha256": "2d24d3edff294bb23401ab70464c149beddbbb0ef1b14b4a5920a288cdb03faf",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/launch.tscn",
+      "sha256": "b6f3153c0f072b153573ad4c5611c834665134b04b96e3d62ee539fa0ea87f62",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/native_clock.gd",
+      "sha256": "26362c395bf813cf34f8904dbd8415cd4a8a8d404c1eb89574db28bc01e72b02",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/native_clock.gd.uid",
+      "sha256": "af55fc642841400ece56b1914b1bef35def91382c76e0d8a1471509533baabe0",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/observed_library.gd",
+      "sha256": "92cf683aa575f2a806af0a71dbbf7b221aafac303584acb27abf614d7a854935",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/observed_library.gd.uid",
+      "sha256": "1b4306e6599341cc07fa743cdfb169b2e962d8b84b858320aad3516f7fd4061e",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/observed_snapshots.gd",
+      "sha256": "4f26afe33cbbb4828e2304819d8573864fceb9940e6c1e6800034a72adcea1f0",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/observed_snapshots.gd.uid",
+      "sha256": "19611321f467bd3ffc995ef6636af7c0feaae9dcef212f0fde9357d9ef29915a",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/operation_driver.gd",
+      "sha256": "d878a707a15638f70dcb07cb95c8253082f195f0312dbe11570fc2dce7ee29b0",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/operation_driver.gd.uid",
+      "sha256": "083303408d26f055f5aab020dbb0d9f6732ea6e9949133c8180a555cdf47d3e6",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/OPERATIONS.md",
+      "sha256": "17eaeedc3382e34bcb4fc8f4310ee8f79f5a5cd49ffcdbc506bd17bd21a3f170",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/preview_input_observer.gd",
+      "sha256": "cb63b5b54abc3251c7a5fa9fe8495de1783b39dd479d79956c36a6b1f7825bdb",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/preview_input_observer.gd.uid",
+      "sha256": "4e8cd8dbdf5510f78d01356aebc9a17b8a614de1836d891014bcf3298c32fd45",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/probe.gd",
+      "sha256": "b3665d7eddecc72bc4c5e395846402bcc9d18d48a12ed7b21bd1ddaf4bff9f7c",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/probe.gd.uid",
+      "sha256": "38ccd4ce6daf257e556cc84adf54edd4f9c61dbbee0943bc84b762e31947e4b6",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/probe.ps1",
+      "sha256": "64a330985d263db69c7f1ba38a13c0b2e704c9bb782c9cf2d72d91c75be2c2c4",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/probe.tscn",
+      "sha256": "cda9cdae408903802c1ed74dc332374f147c379a921edd93e71d0f632317a688",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/README.md",
+      "sha256": "9d2017f8c90d9ccea9eb8e913875f18056bdc0c2af0611cf6bdbfe5149cad68a",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/renderdoc_display.py",
+      "sha256": "93de2b24049e4e2095df954b6b713d93735ff3e1d36c564bfe5d8d3569036637",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/REPORTING.md",
+      "sha256": "c1ac10224633629f70474359472e53f248481ec77f7d554e7553d275ee496931",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/RUNNER.md",
+      "sha256": "90c58a8f0720dbbee0c7de42ee1aef573f126729295ae03b18d12afabf1d1aef",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/sample-gpu.ps1",
+      "sha256": "17545f8d8698ef1d597e8e5a1f82403f90448ef1c066297726ef5f6cef0e0a62",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/scenario.example.json",
+      "sha256": "7f67e05118d7242be08488b19ac16c4078778ce6ea2099e0e2e05ee711ae74fb",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/self_check.py",
+      "sha256": "47453626ceec8a8ea36c0b914bef48a7b2a50e121db7428546da86c0b6fbe59c",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/self-check-raw-etl.ps1",
+      "sha256": "1516600e322f95e5ae7b4a01b84bb0629250a5a17b4404e92ad35b7f0477472c",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/snapshot_witness.gd",
+      "sha256": "37e5c5084ebb4806cee1897d5fd09b8aec78876837d6fa57f72112b099db661d",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/snapshot_witness.gd.uid",
+      "sha256": "fbfa86da1992a8101c0e47853ada062815c71f89c340feb1c67a2d768a97d42d",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/test_analysis.py",
+      "sha256": "ac8eaabd4edd57ba39cce4a77f4fb5578364d932037b3fa5f6bfb3af9b2aec35",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/test-frame-counter.ps1",
+      "sha256": "b75676727d95811beae60966ef72de13c20e290ac7bb195a3ebcb85fe030accb",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/trace-status.cs",
+      "sha256": "fee6315a99b9d610ea582d23064c769266d7f1125c67e6f28cc5d9c1d56c156d",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/visible_capture.gd",
+      "sha256": "e0340c8665d62c7d28fd24f053753e6a24b897ed2a7af370b79b09111c8a4aec",
+      "match": true
+    },
+    {
+      "path": "tools/performance/acceptance/visible_capture.gd.uid",
+      "sha256": "efbc55e302d1f3201f6cdc18347c03d75c1f8cc3b6401b55fdf71e124698c7e2",
+      "match": true
+    },
+    {
+      "path": "tools/performance/all_instance_profile.gd",
+      "sha256": "98a981fdb77bfcf71ffe59f9f423c5ae822f89f8ba8318e3956e3087f9c6a362",
+      "match": true
+    },
+    {
+      "path": "tools/performance/analyze_decisions.py",
+      "sha256": "b87eb5fb96e21d4bc08dbd50403bf18bc0c9ea9ff4cece852b2d973a66f624a2",
+      "match": true
+    },
+    {
+      "path": "tools/performance/decision_profile.gd",
+      "sha256": "d64aade6ccba39c64956e03b00d3b403b8fb9b7be08f3cb0d7391d0f61667f30",
+      "match": true
+    },
+    {
+      "path": "tools/performance/diagnose.gd",
+      "sha256": "1be081e89c7f6fe3763d8b59da74a894405022af9f50754ba1eb4e733dd433c6",
+      "match": true
+    },
+    {
+      "path": "tools/performance/diagnose.gd.uid",
+      "sha256": "4a3de98b28ba3d23bd4f7e14d39c9f15842700699a7f893b381c5a75673589ae",
+      "match": true
+    },
+    {
+      "path": "tools/performance/fixture.gd",
+      "sha256": "f99efd9dd5cf8afa2f7ca89f221edbcc54c2e080b1d0339d4b7de80874145189",
+      "match": true
+    },
+    {
+      "path": "tools/performance/fixture.gd.uid",
+      "sha256": "3c95b4d9c015dc14c7c30d8cc5256b9c3adc1224d80eace2e6618ed171883b24",
+      "match": true
+    },
+    {
+      "path": "tools/performance/history.gd",
+      "sha256": "d0dc91f259dc77140247f4032b7549e800f6c230498419dee014cf2ab1548556",
+      "match": true
+    },
+    {
+      "path": "tools/performance/history.gd.uid",
+      "sha256": "6904aee939feb34246ffbb9ed802a3cb86c169c4619969726c68697ecf1bf77c",
+      "match": true
+    },
+    {
+      "path": "tools/performance/instrument_all_instances.py",
+      "sha256": "4c2ba0648bb919724ef1f903a953dde8ff37307487f008cf7a27a2b0514e5f2f",
+      "match": true
+    },
+    {
+      "path": "tools/performance/movement_trace.gd",
+      "sha256": "1ec2bcf0b4fd125af02fccbc64c9e77ae79e4bd1137d8b79ee5a8c0a7a2ffd96",
+      "match": true
+    },
+    {
+      "path": "tools/performance/native_capacity.gd",
+      "sha256": "9472530742980c9511138887987682391affee18b79baffe83384b808bce75e0",
+      "match": true
+    },
+    {
+      "path": "tools/performance/native_capacity.gd.uid",
+      "sha256": "3505c40cfe9ec4bb15ff85b7b9fb2e62ac5caed141f87185ed1d60abab7e3c6b",
+      "match": true
+    },
+    {
+      "path": "tools/performance/personal_bed_probe.gd",
+      "sha256": "5d7002badee9eab11eab785fb1f722bb4c1b2c361c45bbd14fdd0c1eb085076f",
+      "match": true
+    },
+    {
+      "path": "tools/performance/personal_bed_probe.gd.uid",
+      "sha256": "a35c226c9a727bf3657259e4aaaeaa19b8f22c63ee446c86d6ddd9a1107c7683",
+      "match": true
+    },
+    {
+      "path": "tools/performance/prepare_public_input.gd",
+      "sha256": "5ac4c8ca7e441e0f8935e6c9255e15d186f2a5953442a19e48e3a5405d622cb0",
+      "match": true
+    },
+    {
+      "path": "tools/performance/prepare_public_input.gd.uid",
+      "sha256": "ac77b53ae5846ea2542767ac67c2f5178c5d189b18787e9009ac565941967971",
+      "match": true
+    },
+    {
+      "path": "tools/performance/prepare.ps1",
+      "sha256": "5bfcc07759142d3692bd5c405d3592112e8ecd7dc54ca70ea2eb7554bcb06fec",
+      "match": true
+    },
+    {
+      "path": "tools/performance/preview.gd",
+      "sha256": "e2d140dd2c15a2d0dabb90fc899eea904566a21db0e0700ba48297f91815bae6",
+      "match": true
+    },
+    {
+      "path": "tools/performance/preview.gd.uid",
+      "sha256": "1627b4671063b28592adab2506b0f3104eb70ad4e3011e03dbab65377e2f9be4",
+      "match": true
+    },
+    {
+      "path": "tools/performance/profile.gd",
+      "sha256": "134d55be496dca295695acf1707a2dadcdca0f74bc5108de0870bc19ac285d02",
+      "match": true
+    },
+    {
+      "path": "tools/performance/profile.gd.uid",
+      "sha256": "e5a981d481d565f31a869ceaf2758cc001dcd26d2ce451b4cb31eb199470fc80",
+      "match": true
+    },
+    {
+      "path": "tools/performance/representative_clinical.gd",
+      "sha256": "463e2370de3a9d9ec22a9fbf7a6e64fd4809256920f8194e323bdb4ae18e52e0",
+      "match": true
+    },
+    {
+      "path": "tools/performance/representative_clinical.gd.uid",
+      "sha256": "d49c988e798e950b69627f8335a319d857ed2bd880d24958633f8746a543cda6",
+      "match": true
+    },
+    {
+      "path": "tools/performance/representative_compare.gd",
+      "sha256": "161004853d0dc2cd15284184fc1f268c08261435829fbd5690707cf88210a18b",
+      "match": true
+    },
+    {
+      "path": "tools/performance/representative_compare.gd.uid",
+      "sha256": "b435f8f3f00a06b7effdd2ed515abbe5ce672a1d98cfe73506c50cfebd13a787",
+      "match": true
+    },
+    {
+      "path": "tools/performance/representative_continue.gd",
+      "sha256": "39a8b08ddcc2a09bb1c192115219e3acd6224cc3a5171f4144ba2d43b85bb66d",
+      "match": true
+    },
+    {
+      "path": "tools/performance/representative_continue.gd.uid",
+      "sha256": "8d727985148210cae6167997365811f2153b326238492ec5c384c9b8da95951c",
+      "match": true
+    },
+    {
+      "path": "tools/performance/representative_operations.gd",
+      "sha256": "2bfdfe6ad39fec3fc72c73ead2f5be264d1445eaec816dc14279b3641a4af8ba",
+      "match": true
+    },
+    {
+      "path": "tools/performance/representative_operations.gd.uid",
+      "sha256": "c90a8670921c8a3238d6aff188d4eccce074cb6f004af83b247c4363e3f1e006",
+      "match": true
+    },
+    {
+      "path": "tools/performance/representative_prepare.gd",
+      "sha256": "ff395f378b943454a20b32331c2c1e6d494ea34da0d5d2d962baab90d90bf91f",
+      "match": true
+    },
+    {
+      "path": "tools/performance/representative_prepare.gd.uid",
+      "sha256": "2306b707e24ef2df824f9d35eed8480b22b899b8fda62d7809faaf2377a4d970",
+      "match": true
+    },
+    {
+      "path": "tools/performance/representative_public.gd",
+      "sha256": "3b8543c5dad65f39f45f4ddadd2c3afbfca7d772f35def46677fd460456add14",
+      "match": true
+    },
+    {
+      "path": "tools/performance/representative_public.gd.uid",
+      "sha256": "0f3b40fac69f29158b4df19cf7f53877edc6e673550495098d89c5d2f87caa9a",
+      "match": true
+    },
+    {
+      "path": "tools/performance/representative_selected.gd",
+      "sha256": "3bc9613621df975f55fe3bd207c9b49e078e0aa52ef521cae43f257d6a363730",
+      "match": true
+    },
+    {
+      "path": "tools/performance/representative.gd",
+      "sha256": "9c4d7c7d609ed0325c15cd85fc07e91f2dcd118d74c2f116dafcd18351adf452",
+      "match": true
+    },
+    {
+      "path": "tools/performance/representative.gd.uid",
+      "sha256": "255417b7999c6ee63ba8d05cda620720b9094cce0bf723eb75bcdc7be3549727",
+      "match": true
+    },
+    {
+      "path": "tools/performance/REPRESENTATIVE.md",
+      "sha256": "039d0aa9ba4a704bc49078638bd018ee4676b0fb5958b73348da116a697ab9d6",
+      "match": true
+    },
+    {
+      "path": "tools/performance/resume_representative.gd",
+      "sha256": "04d302af9f523e2d99f4b2d9f8506be868fe185ce1943ace396e91916abfa797",
+      "match": true
+    },
+    {
+      "path": "tools/performance/resume_representative.gd.uid",
+      "sha256": "3438b9d5f9da4372211b7f7c49cb0d49cace672eafb31b5c13771a546e9527ba",
+      "match": true
+    },
+    {
+      "path": "tools/performance/solver_check.gd",
+      "sha256": "d88f2d0f364b6e210c29c628ce3fd3f93081390ce7ed152f1989d270726caad6",
+      "match": true
+    },
+    {
+      "path": "tools/performance/solver_check.gd.uid",
+      "sha256": "f18e018fafe6dc48694955f23c78924c437b1a559320c7408d2d5896c6a38949",
+      "match": true
+    },
+    {
+      "path": "tools/performance/solver_oracle.py",
+      "sha256": "5e17d30c7cf658529081c261c2a50a11cbca2db25bbc858300f858360c91b3c3",
+      "match": true
+    },
+    {
+      "path": "tools/performance/step_profile.gd",
+      "sha256": "d7b596922a0cc9b1e2c7f1a46e5506a85a24a4676246d8f9022455ccf6d1a535",
+      "match": true
+    },
+    {
+      "path": "tools/performance/step_profile.gd.uid",
+      "sha256": "3800c75d2b81e66efe1ea0f09e12aaa82e49445c7d8e192f2c1a190368eb73d9",
+      "match": true
+    },
+    {
+      "path": "tools/performance/trace_preparation.gd",
+      "sha256": "f2895d16426de36d9d629e677767dd1b3179b06ebeb1cd740086cc78e15c8c20",
+      "match": true
+    },
+    {
+      "path": "tools/performance/trace_preparation.gd.uid",
+      "sha256": "f519b0ff233285b707b67c754d57b3533fd9d7ab31b9dfab32b36a50083b007f",
+      "match": true
+    }
+  ],
+  "acceptance_source_rows": 109,
+  "acceptance": [
+    {
+      "path": "tests/acceptance/arrival_cancellation.gd",
+      "sha256": "0bb7445a26e20835f7f5d1e5922b74f6fc93a8a23e32ba2530ebbc568035f94a",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/arrival_cancellation.gd.uid",
+      "sha256": "49022c140aed8e2b5f3cbf296b2318005609f018f1016b25a7537f3aacf8a7c8",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/bed_matching_boundaries.gd",
+      "sha256": "8ac1de41b6d4c68f16dea3d8852085e267b45af327ce18263f3b3ce70576495c",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/blocked_route_target.gd",
+      "sha256": "f12559d16888e9c640ae0798ddf4fdc220cd5aedee600ea229d685782edcf92a",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/blocked_route_target.gd.uid",
+      "sha256": "0c0ebca2bfbfee8e723dd2e833bb7908ed9f993f8ae682b5c2265ab69a29f195",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/build_geometry_components.gd",
+      "sha256": "8bc4f770db143873a6959b41a7f24b12a5fcfa865b2ecae60f28d0891adb1656",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/canonical_json.gd",
+      "sha256": "1e147246fa254beaadadac01628c0b1d22351bba05e012da900dfee1473619e9",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/canonical_json.gd.uid",
+      "sha256": "b4ca3f351ebb123297058f322c0ad5476315ff3122d1a1c10fe2d44c9a292f3b",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/checkpoint_dependencies.gd",
+      "sha256": "f4399e592f71bbc71730d98e0363fc041e3ba2fdc03a8c748c9c5488aa38db70",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/checkpoint_dependencies.gd.uid",
+      "sha256": "6009d1fdea1b3aa9acbab5b1526092d372c6a1c374658c7a77264baea58ec6d2",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/checkpoint_identity.gd",
+      "sha256": "7fdb07b39b2d4e802fc164038dd5deaea477573b77005bb7b726f8227c109fdc",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/checkpoint_identity.gd.uid",
+      "sha256": "cf51536de9cacb87bdb6480ac39a293c6c967295d7e488016b44793ab28487f6",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/checkpoints.gd",
+      "sha256": "de21e64d915707e1008f631175d53e68df2d4f8faf6055ba5b0a84b58e605ce6",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/checkpoints.gd.uid",
+      "sha256": "e80a969cb1d10f15a150022044b0ddfe8c4ecb1b182d8e22088d95d5b8b28801",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/clinical_fixtures.gd",
+      "sha256": "efcc7536cf4a83ecc17f007235b09f78ac34734c31fd1bfe0397f8550e20f78b",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/clinical_fixtures.gd.uid",
+      "sha256": "43ba57a5a30420f56cd16c81b06a81db8c78bf02bf24d439e1f950c2d6b3b782",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/clinical_gathering.gd",
+      "sha256": "b4e0c09b69a3978f2dd68102f3d5df571aa9b330ff31e02b3e3abcd6e5e6fb8c",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/clinical_gathering.gd.uid",
+      "sha256": "5c36930ed10eac1cbaa083cb7d10a073ae76222ad36826b6833b78b21a17bcae",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/clinical_query_batches.gd",
+      "sha256": "730b56217e0b9ad6740469e85f468452228bd4f68c410730bb9b5cb6953aa25a",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/clinical_query_batches.gd.uid",
+      "sha256": "e27391caf8253ea7da70d796dd458e0e571b18afd396d341b3ddc55fec839075",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/clinical_repeated_work.gd",
+      "sha256": "04dc2ce874e2603fd021cabb36efe09fa0edfd3429a5c6bb0b2507b12b2fbef1",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/clinical_repeated_work.gd.uid",
+      "sha256": "021ec3527c1548a2f7890861d6262d057262f3891c02e3c1aee6b46bc100754e",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/clinical_selected_doctor.gd",
+      "sha256": "208b908d373674b26f996097fe2a19df37a7ea2d41ac1dd3a6d75f078e90fefe",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/clinical_selected_doctor.gd.uid",
+      "sha256": "80c05b2f8438f4f150cdf3fcf3241b745fb9f17a7a6fcb9e2d0112826da44b83",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/clinical_step.gd",
+      "sha256": "ba34566e6452b55dbf649d756f545e630df6073b0c1910722bca34c4e7512030",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/clinical_step.gd.uid",
+      "sha256": "939f462e43844b65443cef8c7e11c25abd833588cc5b529dc72616a2c7cae555",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/clinical_timing.gd",
+      "sha256": "f794e68e8c8752ded4e34580a8d270e79c8f4bf4f156c8ee2320b59278beaddd",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/clinical_timing.gd.uid",
+      "sha256": "6d368b16f02226c36667b8253f71e30ee6b27e47c3b384885dd762e040dda562",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/clinical.gd",
+      "sha256": "c3357632157027f4d302be39de0bfb19853b884ccab6f704ea3c4f10788a2696",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/clinical.gd.uid",
+      "sha256": "fb4087d2d83a111bd3279c00b0d25449749764d9619904a011bac3a2197f0d46",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/clinical.md",
+      "sha256": "d9ca15d32299b4af7dfa4c22bca25790c4f9e2a3f95796ec82289bd915d1f575",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/core.gd",
+      "sha256": "e937469545e70aaacce1a6ab5526ba8ae125dff48cea03f7fdb00fa56aeacf71",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/core.gd.uid",
+      "sha256": "aca847d606b00fd1a686311cb13979ca0777504d3642a5a95fdd9ef6d232efda",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/core.md",
+      "sha256": "3553fa288f9d67d09ec4c9a96e8f913aa40b9f3f5777583a33ad93e8834ff816",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/details_projection.gd",
+      "sha256": "d6a2fcb4d6d873b910dc57052dd2ce8730cd01671e9fa081f0f9295cf4cff110",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/details_projection.gd.uid",
+      "sha256": "c5c73fe1b76f4bf890646803cddb3f2e019135e7fad9884270ae3fdc078da0ec",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/diagnostic_graph.gd",
+      "sha256": "72a5d045d312daf2c2267a250d9f044b6cdc7d441eb7045198f2a1fb25bf5d84",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/diagnostic_graph.gd.uid",
+      "sha256": "b5515210f1a51181361a3c1600f61fbd0b9aa58076cc7fa8912037f534e0e271",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/environment_query_batches.gd",
+      "sha256": "344a5eb603cda2c2c5e6756919697a77793762ace6266c723cd72ed201bb72c2",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/environment_query_batches.gd.uid",
+      "sha256": "8f7d51c08b80451d99e0b34e6f54cc3029cd619e5b4e7dd38560e3b9baff9f8b",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/growth_fixtures.gd",
+      "sha256": "5ccc79ab6b5005b948e8e9f1d5e7e4b06f4698aa1acf5cdb7dc4fa744595c6e3",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/growth_fixtures.gd.uid",
+      "sha256": "6e1180ac3ec8bcfd68b68c473e645157c3c559cdcf69efb98466d615721a1d02",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/growth_repeated_work.gd",
+      "sha256": "3ff35e23ecc406dc1698fc491acbab96fd8265d2b2a27136d119b70142435c23",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/growth_repeated_work.gd.uid",
+      "sha256": "d6bc0b9e96d292178e6ebb18aa711b68d9b798a8dd6967731314deb003568036",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/growth.gd",
+      "sha256": "1e31de03894923fdc1b5fe475847c918e64cd36a64aa8e84bcf8579a77316bdf",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/growth.gd.uid",
+      "sha256": "d458f68088c67206b625182e21d0676ac3b0f883cdd907275bd40d9439120003",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/growth.md",
+      "sha256": "c582ed52b34908ebaf17811889ecb8918e55b2149569f50ba5c9f0edcedb853a",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/json_library_boundaries.gd",
+      "sha256": "b6b8659ad57329be823f03a55585500df50c2633b4a790ae1f0e14a8f63faada",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/ledger_observation.gd",
+      "sha256": "a594b3067029c666c6214306f6c742a941dcbbe0be2d02e457558573d9eacc21",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/ledger_observation.gd.uid",
+      "sha256": "2d3b05d785b693b926af25c938afd6b9d351cfb1048c6604b93d7c73604a344f",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/movement_goal_wait.gd",
+      "sha256": "8c43d5792bf8a2e37f1d03db80f15f8f53e2ef45d01505b712c2a0073762ee37",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/movement_result.gd",
+      "sha256": "09e9eb068730e2cc17f17437d2e910dba83184d7ac0f9a8cdee57da600be363b",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/movement_review.gd",
+      "sha256": "69e4e6db9bbc4febbb5272a1e3323866264f6085384c6346e5c446ce5f6f6f73",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/navigation_cold_graph.gd",
+      "sha256": "d6eae8ca39091e97553da145adb9b222fd7ee43bde211656796a4bb8588b8376",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/navigation_distance_fields.gd",
+      "sha256": "b499e06fb2014bafed4f167362d3f66421aab8131aeb99adcf4c9f87c9534cee",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/navigation_static_reuse.gd",
+      "sha256": "cea778c11315e495bb2c9115338b08bb590437853b815ac717fc72be50ea3056",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/navigation_static_versions.gd",
+      "sha256": "3a496b7d56e7bbf9d48f447823c37efcf86a08dae12c92653308e89015e35818",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/navigation_topology_projection.gd",
+      "sha256": "50e0532a776d54bd99a56d773f78a8d19c5f8c68197dda6f900c1ca381f2cf73",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/operations_repeated_work.gd",
+      "sha256": "9517d80c3b075564bf9fb459ecb4a721c895ec53570b5f91ccf57572af5cf660",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/operations_repeated_work.gd.uid",
+      "sha256": "36e46f49707220a082585c7afc4b15716bfd89e34327c344cbc762acd7f4d1ec",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/operations.gd",
+      "sha256": "bd920c9d6f104097094476e0e06fcbe7e9051a4c4f778045b6f57e2ab47ffbc6",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/operations.gd.uid",
+      "sha256": "0cbac408b9e3ec96618a60ec063231098ec2fa08eb2d651c7e1f30af40fa0a30",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/operations.md",
+      "sha256": "3526030ed0327ed79bda4446e31b29b73590e23e0297e04bf4ce8a01ed43c867",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/preview_computation.gd",
+      "sha256": "bbd00935362718eb5f636545b1dcd30c6a48de8dee9680d75b6656ba9e97a2c5",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/preview_computation.gd.uid",
+      "sha256": "d7ac1cd1e82d019bcfc3c8ccfd39230c89b473074a54d00d9b80ce27e98940a6",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/public_area_use.gd",
+      "sha256": "9f66498d30043722c8c64b45998933a9dbf57cb63d70511feaa382d7ad304cb1",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/public_area_use.gd.uid",
+      "sha256": "464d71d53a83057684f498ab5a79a58d16fb7913cdbeeb3681f1aab0e3362f30",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/public_phase_use.gd",
+      "sha256": "1cdac0640b5a66b45ed96ea7856822a5d76d489d77151382bd16ce58a9f6a8dc",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/reference_component_batch.gd",
+      "sha256": "82e3edd94106848410c02865967b9ab09b9d089944b0befc967309a2e87b0642",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/reference_component_batch.gd.uid",
+      "sha256": "4886330f95a2a3654ca75c91ade0f1c388c298b923fc1d5569e933334d46f70e",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/reference_route_envelope.gd",
+      "sha256": "b0301aff2fcac22c93b3b0912f8cf282a2fe37239b08cfd606567f90edf88578",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/reference_route_envelope.gd.uid",
+      "sha256": "da459d1f0a224929e19c48fecd87867820d9252035ce5a68e083803d22150c5a",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/reference_route_permissions.gd",
+      "sha256": "dedaf8a0904cf73f7e3f8fb035fc0c47b681b068e806f8340c37b71637c8a245",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/reference_route_permissions.gd.uid",
+      "sha256": "b67c2da4351734d74c93ca22a6347ad19313865235e084528c13e4aaebf31a0c",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/reference_routing.gd",
+      "sha256": "9b7966583a1d07d6c216310b020c6ce14e6a908bbbc87f1336f04977251d4211",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/reference_routing.gd.uid",
+      "sha256": "cec2b68d00d61078a09f6e37a5b01b390ccbcafb85145a78e4cfb269f4ed450e",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/repeated_presentation.gd",
+      "sha256": "d3395044ff6985f6bf1689c43d267ab155d970b6896b3338da5f9c13150009dd",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/repeated_presentation.gd.uid",
+      "sha256": "04d25b056d3230e14dbe0767f5ad92bba447bb45ed2d94904ab5018cb5387ed3",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/route_cost_consumers.gd",
+      "sha256": "4a22add4cb096cacaea19ac69812a01b63160734bc6153619b13258c9c3b5344",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/route_search_boundaries.gd",
+      "sha256": "30bfd7a55bfb444d1a6040b7db2f4a2d81a6c6c223aacff396edcef232c91e0f",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/runner.gd",
+      "sha256": "e188aa85e67a15e46eae8f3ba79fd8ac1cd1c43eec2faa244d8766b06c5cdd3f",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/runner.gd.uid",
+      "sha256": "78cb0c22a1fa88938aae3ae45059d7091f6edb41ae87b85a1a8a9331aadf28ba",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/scene_pixels.gd",
+      "sha256": "ded7447741ccd70c0c70b57ad6dbbbd511e3774b20486f056d68ad04b42913e6",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/scene_pixels.gd.uid",
+      "sha256": "2941a30d73990fe1fd674c4984a9af72c7cfa95495c9fc418289797ee8e22a53",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/snapshot_cleanup.gd",
+      "sha256": "3712a6fa042a636df836bd485548ed625c3bdd652ec4065cfa43b01e1fe58a95",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/snapshot_cleanup.gd.uid",
+      "sha256": "fbe5e6adcf074a5c45ca598fc15b69dc7fab842e08d0191d0f309d161172e693",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/space.gd",
+      "sha256": "b1d02ea33c540af3516dece8d10b170ab82798b9cb10ec5a319e85ab4dfedcbe",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/space.gd.uid",
+      "sha256": "34fa2a428fdfeae5836c10fb8ea78f0f294dc5bb471df12692e8f4d57f8d2db2",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/space.md",
+      "sha256": "5b652d3504c835d846af0ff846a3f6c676333df0db4eba2f4df90e3228aa3401",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/staff_fixtures.gd",
+      "sha256": "9b9767ec230e80a5ebe592ebdea54dad6743c8bb9558c6bd6165bdc5bd0aa112",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/staff_fixtures.gd.uid",
+      "sha256": "2ea8096d84c029d75639d23bb12fe4a2067563c03e119631b3ec8e2ef747aaeb",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/staff_query_batches.gd",
+      "sha256": "b9c9b1fd05bbad8f4721fa719725a7a4c3549398368394ffd5b5f7482e7d1eba",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/staff_query_batches.gd.uid",
+      "sha256": "bd786de6f492a5b947652d834394b1362847443b8ef0c1d08c592eb5ff4563e4",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/staff_repeated_work.gd",
+      "sha256": "d6eab93a36c9aac0f2521c0528d0a8270522277e84a2457ec39eeec8f10a64bc",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/staff_repeated_work.gd.uid",
+      "sha256": "6a948a358079ba377ee9c102126437854e59e1d288e8996a213a128e428aa3fb",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/staff.gd",
+      "sha256": "a9ebdb277c0645ec001f189722a80e0f0b502fb78588e3a7068cb85684dc70b7",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/staff.gd.uid",
+      "sha256": "cd965ee641fac493d362ba69ce6d89b097355b0adda3fe36929860ce9f70004e",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/staff.md",
+      "sha256": "97c689621cb5b8c8cfcbf8be1c10fd57b647e5ddc9ded0eec991d4b154f065ab",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/stream_boundaries.gd",
+      "sha256": "cb73368f3302b800373b3120ac047b626c1421a415156c0e323df4afc476a5f2",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/stream_boundaries.gd.uid",
+      "sha256": "194a33cbda06bcd8ebed3b0f52fc589848028fbe47d2eab05f3ea9a42384a9ea",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/structure_dominance.gd",
+      "sha256": "daf30d73f8fe0972be3ae69dc8958b6cb8280a5c300a6cf4ae59f2347885e414",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/structure_dominance.gd.uid",
+      "sha256": "61b84057215668d90eb9b63e1db147feeeb9824601c461528a34fb939ab25353",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/surgery_qualification.gd",
+      "sha256": "0481e414b2a7f7b3b13f61bbd24d73283e022fed0502d1ac0b33cbc4f09e83be",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/surgery_qualification.gd.uid",
+      "sha256": "190f85b265afe9116245980a22f76f06898eccad0831aeeda7eb8880521952bf",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/view_projection.gd",
+      "sha256": "d21fc9111311a956fd164e600300fc0c72e311bea85a647764495aa77a11cf0e",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/view_projection.gd.uid",
+      "sha256": "235c03fe34ca0818094c139b9e23a6322eb5f4e2dfcc4ce5bb8115d7313ad6bc",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/waiting_query_batches.gd",
+      "sha256": "9aa3d37526f6b3862d36578d086c45918a05c82583ed4e81987de1846dbfe615",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/waiting_query_batches.gd.uid",
+      "sha256": "d434ddd587cf7f069f2b75b01f561441827e6a519b1d2c9b7f9b1fec84deb159",
+      "match": true
+    },
+    {
+      "path": "tests/acceptance/zip_library_boundaries.gd",
+      "sha256": "586398363eee997ec7dfa4d5b018fef7245e4cb136ecc5558c0952401b6388ef",
+      "match": true
+    }
+  ],
+  "binary_matches": {
+    "engine_sha256": true,
+    "native_sha256": true,
+    "gmp_sha256": true,
+    "mpfr_sha256": true,
+    "runtime_sha256": true
+  },
+  "transforms": [
+    {
+      "project": "before-all-project",
+      "files": 25,
+      "methods": 272,
+      "originals_match_plain": true
+    },
+    {
+      "project": "after-all-project",
+      "files": 25,
+      "methods": 273,
+      "originals_match_plain": true
+    }
+  ],
+  "first_batch_only_later_source_change": [
+    "tests/acceptance/movement_result.gd"
+  ],
+  "engine_sha256": "C8F0A6BC45A19B33541501E57F6F7CD972AB18453743266339D495CBBE846643",
+  "native_sha256": "6BED87C44E561939B18F11DC37C8747C5DEA88FBD7947F71F601C7DF2CCC236D",
+  "gmp_sha256": "C2567CCF3F410C3411BA7CD4B7BA14F393A0E70A1D0C0593297DF6706B5FBA96",
+  "mpfr_sha256": "B881BEB5ED7E3413283AB94F24AB25CD47ED27127774867AE105642FF2FC2E47",
+  "runtime_sha256": {
+    "libgcc_s_seh-1.dll": "791EBF66E99C7C1B4ED3666468CEC45A0172B4C8942AC6C84C3E9CAB3E1B5270",
+    "libwinpthread-1.dll": "E765EE6109A0080A7C42848911F4349099B3C15AA734D845CB0E438F6F5A91B5"
+  }
+}

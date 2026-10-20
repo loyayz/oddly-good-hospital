@@ -65,6 +65,9 @@ func begin_dynamic_route_query(world: WorldState, refresh_actors: bool = true) -
 	_ensure_actor_index(world)
 	_route_queries.append({"world":world,"routes":{},"exits":{},"views":{},"reference":{},"journeys_allowed":false,"dynamic":true,"transport":{}})
 
+func in_dynamic_route_query(world: WorldState) -> bool:
+	return not _route_queries.is_empty() and _route_queries.back().world==world and _route_queries.back().get("dynamic",false)
+
 func dynamic_transport_view(world: WorldState, actor_id: String, members: Array, offsets: Dictionary) -> Dictionary:
 	if _route_queries.is_empty() or _route_queries.back().world!=world or not _route_queries.back().get("dynamic",false): return {}
 	var views: Dictionary = _route_queries.back().transport

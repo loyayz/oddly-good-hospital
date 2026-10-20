@@ -28,6 +28,7 @@ class CourtesyProbe extends HospitalMovement:
 	var chosen_partner: String = ""
 	var idle_ids: Array[String] = []
 	var local_detours: int = 0
+	var goal_queries: int = 0
 	func _init(geometry: HospitalSpace) -> void:
 		super(geometry)
 	func _has_priority(_world: WorldState, _first_id: String, second_id: String) -> bool:
@@ -38,6 +39,12 @@ class CourtesyProbe extends HospitalMovement:
 		return false
 	func _queue_local_route(_world: WorldState, _actor: Dictionary, _movement: Dictionary) -> void:
 		local_detours += 1
+	func _local_goal_occupied(world: WorldState, actor: Dictionary, movement: Dictionary, contact: MotionResult) -> bool:
+		var index: QueryCountingIndex = space._actor_index
+		var before: int = index.queries
+		var occupied: bool = super._local_goal_occupied(world,actor,movement,contact)
+		goal_queries += index.queries-before
+		return occupied
 
 func run(suite: RefCounted) -> Dictionary:
 	var contacts: Dictionary = _literal_contacts(suite)
@@ -133,7 +140,9 @@ func _courtesy_handoff(suite: RefCounted) -> Dictionary:
 	var changed_group_owner: bool = probe._movement_owners(world,result.blocker_actor_ids).is_empty()
 	probe.chosen_partner = ""
 	probe._yield(world,world.facts.actors.probe,movement,result)
-	var idle_receives_hits: bool = probe.idle_ids==["secondary"] and index.queries==0
+	# Partner/courtesy selection consumes the original hits. A separate current
+	# destination query may prove that a different body makes detouring futile.
+	var idle_receives_hits: bool = probe.idle_ids==["secondary"] and index.queries==probe.goal_queries
 	var reservation_result: HospitalMovement.MotionResult = HospitalMovement.MotionResult.new()
 	reservation_result.reservation_ids.append("reservation_only")
 	probe.chosen_partner = ""

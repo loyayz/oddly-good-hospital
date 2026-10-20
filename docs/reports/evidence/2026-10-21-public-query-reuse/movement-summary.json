@@ -1,0 +1,2621 @@
+{
+  "traces": [
+    {
+      "run": "before-trace-public360",
+      "final_binary_sha256": "a65ff7256372e47041fe3ddb6fc05fa2b1dc236150122c421c72a040e2def26f",
+      "counts": {
+        "calls.advance": 360,
+        "calls.dispatch_routes": 360,
+        "calls.local_goal_occupied": 877,
+        "calls.queue_local_route": 138,
+        "calls.queue_route": 383,
+        "calls.queue_waypoint": 1,
+        "calls.replan_goal": 2,
+        "calls.request_move": 3971,
+        "calls.retarget": 3789,
+        "calls.yield": 2149,
+        "calls.yield_idle_staff": 770,
+        "dispatch.repeated_same_actor_goal_waypoint_body_geometry": 112,
+        "dispatch.success": 381,
+        "goal_gate.allowed_local_route": 126,
+        "goal_gate.contact_body_at_destination": 739,
+        "goal_gate.destination_core_clear": 9,
+        "goal_gate.other_body_at_destination": 117,
+        "goal_gate.waited": 739,
+        "idle_courtesy.moved": 15,
+        "idle_courtesy.no_move": 755,
+        "local_route.yield": 138,
+        "priority.false": 40,
+        "priority.true": 5,
+        "queue.completed_retreat_resume": 20,
+        "queue.explicit_waypoint": 1,
+        "queue.local_fallback": 138,
+        "queue.new_request": 182,
+        "queue.replan.retarget": 2,
+        "queue.yield_retreat": 40,
+        "replan.retarget.new_sequence": 2,
+        "request.new.accepted": 182,
+        "request.retarget.accepted": 3789,
+        "retarget.changed_goal": 2,
+        "retarget.same_goal": 3787,
+        "waypoint.advance": 1,
+        "yield.idle_staff_moved": 15,
+        "yield.local_fallback": 138,
+        "yield.observed_owner_sequence_changed_since_previous_pair_check": 5,
+        "yield.observed_yielded_owner_wait": 662,
+        "yield.priority_wait": 5,
+        "yield.retreat_queued": 40,
+        "yield.skipped": 550,
+        "yield.unknown_no_queue": 739
+      },
+      "query_counts": {
+        "actor_index_actor_visits": 173760,
+        "actor_index_builds": 1086,
+        "candidate_connections": 8962,
+        "connector_node_declarations": 28,
+        "connector_topology_builds": 7,
+        "connector_topology_inherits": 532,
+        "distance_field_builds": 36,
+        "distance_field_hits": 3263,
+        "door_candidates": 14994,
+        "floor_route_builds": 4767,
+        "floor_route_hits": 9736,
+        "journey_hits": 50,
+        "journey_invalidations": 0,
+        "local_goal_occupied_waits": 739,
+        "materialized_floor_cells": 12808,
+        "movement_candidates": 4658,
+        "nearby_field_builds": 9,
+        "public_wait_hits": 6135,
+        "public_wait_rechecks": 674,
+        "reservation_candidate_queries": 264150,
+        "reservation_index_builds": 523,
+        "reservation_index_updates": 7101,
+        "route_checks": 36299,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 381,
+        "route_dispatches": 381,
+        "route_revalidation_unvalidated": 391,
+        "route_revalidations": 391,
+        "routes": 3849,
+        "static_path_builds": 542,
+        "static_path_hits": 143,
+        "transport_builds": 0,
+        "transport_searches": 3327,
+        "yield_attempts": 1599,
+        "yield_candidates": 844
+      },
+      "errors": [],
+      "dispatch_count_check": true,
+      "top_actors": [
+        {
+          "actor_id": "bench_patient_0083",
+          "counts": {
+            "dispatch.repeated_same_actor_goal_waypoint_body_geometry": 83,
+            "dispatch.success": 87,
+            "goal_gate.allowed_local_route": 87,
+            "goal_gate.other_body_at_destination": 87,
+            "local_route.yield": 87,
+            "queue.local_fallback": 87,
+            "queue.new_request": 1,
+            "request.new.accepted": 1,
+            "yield.local_fallback": 87,
+            "yield.observed_yielded_owner_wait": 1,
+            "yield.priority_wait": 1
+          },
+          "events": 609,
+          "final_movement": {
+            "blocked_since": 2864,
+            "body": [
+              [
+                [
+                  "bench_patient_0083",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 1,
+            "goal": [
+              1,
+              [
+                85,
+                44
+              ]
+            ],
+            "location": {
+              "cell": [
+                84.0,
+                43.4000015258789
+              ],
+              "floor_id": 4,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 6,
+            "pending": true,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 417,
+            "travelled": 42,
+            "waypoint": [
+              4,
+              [
+                86,
+                44
+              ],
+              2
+            ],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0077",
+          "counts": {
+            "dispatch.repeated_same_actor_goal_waypoint_body_geometry": 26,
+            "dispatch.success": 30,
+            "goal_gate.allowed_local_route": 30,
+            "goal_gate.other_body_at_destination": 30,
+            "local_route.yield": 30,
+            "queue.local_fallback": 30,
+            "queue.new_request": 1,
+            "request.new.accepted": 1,
+            "yield.local_fallback": 30
+          },
+          "events": 208,
+          "final_movement": {
+            "blocked_since": 2923,
+            "body": [
+              [
+                [
+                  "bench_patient_0077",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 1,
+            "goal": [
+              1,
+              [
+                85,
+                44
+              ]
+            ],
+            "location": {
+              "cell": [
+                84.0,
+                43.4000015258789
+              ],
+              "floor_id": 2,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 6,
+            "pending": true,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 416,
+            "travelled": 54,
+            "waypoint": [
+              2,
+              [
+                86,
+                44
+              ],
+              2
+            ],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0044",
+          "counts": {
+            "dispatch.success": 2,
+            "goal_gate.allowed_local_route": 1,
+            "goal_gate.contact_body_at_destination": 179,
+            "goal_gate.destination_core_clear": 1,
+            "goal_gate.waited": 179,
+            "idle_courtesy.no_move": 179,
+            "local_route.yield": 1,
+            "queue.local_fallback": 1,
+            "queue.new_request": 1,
+            "request.new.accepted": 1,
+            "yield.local_fallback": 1,
+            "yield.unknown_no_queue": 179
+          },
+          "events": 725,
+          "final_movement": {
+            "blocked_since": 2774,
+            "body": [
+              [
+                [
+                  "bench_patient_0044",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 17,
+            "goal": [
+              1,
+              [
+                53,
+                15
+              ]
+            ],
+            "location": {
+              "cell": [
+                53.0,
+                14.3999996185303
+              ],
+              "floor_id": 1,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 18,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 164,
+            "travelled": 19,
+            "waypoint": [],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0016",
+          "counts": {
+            "dispatch.success": 6,
+            "goal_gate.contact_body_at_destination": 77,
+            "goal_gate.waited": 77,
+            "idle_courtesy.no_move": 78,
+            "local_route.yield": 1,
+            "queue.completed_retreat_resume": 1,
+            "queue.local_fallback": 1,
+            "queue.new_request": 3,
+            "queue.yield_retreat": 1,
+            "request.new.accepted": 3,
+            "yield.local_fallback": 1,
+            "yield.retreat_queued": 1,
+            "yield.unknown_no_queue": 77
+          },
+          "events": 327,
+          "final_movement": {
+            "blocked_since": -1,
+            "body": [
+              [
+                [
+                  "bench_patient_0016",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 0,
+            "goal": [
+              1,
+              [
+                24,
+                52
+              ]
+            ],
+            "location": {
+              "cell": [
+                28.0,
+                52.4000015258789
+              ],
+              "floor_id": 1,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 20,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 410,
+            "travelled": 1,
+            "waypoint": [],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0017",
+          "counts": {
+            "dispatch.success": 6,
+            "goal_gate.contact_body_at_destination": 77,
+            "goal_gate.waited": 77,
+            "idle_courtesy.no_move": 78,
+            "local_route.yield": 1,
+            "queue.completed_retreat_resume": 1,
+            "queue.local_fallback": 1,
+            "queue.new_request": 3,
+            "queue.yield_retreat": 1,
+            "request.new.accepted": 3,
+            "yield.local_fallback": 1,
+            "yield.retreat_queued": 1,
+            "yield.unknown_no_queue": 77
+          },
+          "events": 327,
+          "final_movement": {
+            "blocked_since": -1,
+            "body": [
+              [
+                [
+                  "bench_patient_0017",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 0,
+            "goal": [
+              2,
+              [
+                24,
+                52
+              ]
+            ],
+            "location": {
+              "cell": [
+                28.0,
+                52.4000015258789
+              ],
+              "floor_id": 2,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 20,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 411,
+            "travelled": 1,
+            "waypoint": [],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0019",
+          "counts": {
+            "dispatch.success": 6,
+            "goal_gate.contact_body_at_destination": 77,
+            "goal_gate.waited": 77,
+            "idle_courtesy.no_move": 78,
+            "local_route.yield": 1,
+            "queue.completed_retreat_resume": 1,
+            "queue.local_fallback": 1,
+            "queue.new_request": 3,
+            "queue.yield_retreat": 1,
+            "request.new.accepted": 3,
+            "yield.local_fallback": 1,
+            "yield.retreat_queued": 1,
+            "yield.unknown_no_queue": 77
+          },
+          "events": 327,
+          "final_movement": {
+            "blocked_since": -1,
+            "body": [
+              [
+                [
+                  "bench_patient_0019",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 0,
+            "goal": [
+              4,
+              [
+                24,
+                52
+              ]
+            ],
+            "location": {
+              "cell": [
+                28.0,
+                52.4000015258789
+              ],
+              "floor_id": 4,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 20,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 413,
+            "travelled": 1,
+            "waypoint": [],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0018",
+          "counts": {
+            "dispatch.success": 6,
+            "goal_gate.contact_body_at_destination": 77,
+            "goal_gate.waited": 77,
+            "idle_courtesy.no_move": 78,
+            "local_route.yield": 1,
+            "queue.completed_retreat_resume": 1,
+            "queue.local_fallback": 1,
+            "queue.new_request": 3,
+            "queue.yield_retreat": 1,
+            "request.new.accepted": 3,
+            "yield.local_fallback": 1,
+            "yield.retreat_queued": 1,
+            "yield.unknown_no_queue": 77
+          },
+          "events": 327,
+          "final_movement": {
+            "blocked_since": -1,
+            "body": [
+              [
+                [
+                  "bench_patient_0018",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 0,
+            "goal": [
+              3,
+              [
+                24,
+                52
+              ]
+            ],
+            "location": {
+              "cell": [
+                28.0,
+                52.4000015258789
+              ],
+              "floor_id": 3,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 20,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 412,
+            "travelled": 1,
+            "waypoint": [],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0020",
+          "counts": {
+            "dispatch.success": 7,
+            "goal_gate.allowed_local_route": 1,
+            "goal_gate.destination_core_clear": 1,
+            "idle_courtesy.no_move": 1,
+            "local_route.yield": 1,
+            "queue.completed_retreat_resume": 1,
+            "queue.local_fallback": 1,
+            "queue.new_request": 4,
+            "queue.yield_retreat": 1,
+            "request.new.accepted": 4,
+            "request.retarget.accepted": 88,
+            "retarget.same_goal": 88,
+            "yield.local_fallback": 1,
+            "yield.retreat_queued": 1
+          },
+          "events": 200,
+          "final_movement": {
+            "blocked_since": -1,
+            "body": [
+              [
+                [
+                  "bench_patient_0020",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 3,
+            "goal": [
+              1,
+              [
+                50,
+                74
+              ]
+            ],
+            "location": {
+              "cell": [
+                25.2000007629395,
+                58.0
+              ],
+              "floor_id": 1,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 60,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 375,
+            "travelled": 8,
+            "waypoint": [],
+            "yield_partner": "bench_patient_0008",
+            "yielding": false
+          }
+        }
+      ],
+      "goal_gate_samples": [
+        {
+          "actor_id": "bench_patient_0044",
+          "kind": "destination_core_clear",
+          "location": {
+            "cell": [
+              53.4000015258789,
+              6.0
+            ],
+            "floor_id": 1,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0048"
+            ],
+            "current_destination_body_ids": [],
+            "goal": [
+              1,
+              [
+                53,
+                15
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [],
+                "member_id": "bench_patient_0044",
+                "rect": [
+                  53.2333335876465,
+                  15.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [],
+            "parent_waited": false
+          },
+          "tick": 2689
+        },
+        {
+          "actor_id": "bench_patient_0045",
+          "kind": "destination_core_clear",
+          "location": {
+            "cell": [
+              53.4000015258789,
+              6.0
+            ],
+            "floor_id": 2,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0049"
+            ],
+            "current_destination_body_ids": [],
+            "goal": [
+              2,
+              [
+                86,
+                44
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [],
+                "member_id": "bench_patient_0045",
+                "rect": [
+                  86.2333297729492,
+                  44.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [],
+            "parent_waited": false
+          },
+          "tick": 2689
+        },
+        {
+          "actor_id": "bench_patient_0046",
+          "kind": "destination_core_clear",
+          "location": {
+            "cell": [
+              53.4000015258789,
+              6.0
+            ],
+            "floor_id": 3,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0050"
+            ],
+            "current_destination_body_ids": [],
+            "goal": [
+              3,
+              [
+                86,
+                44
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [],
+                "member_id": "bench_patient_0046",
+                "rect": [
+                  86.2333297729492,
+                  44.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [],
+            "parent_waited": false
+          },
+          "tick": 2689
+        },
+        {
+          "actor_id": "bench_patient_0047",
+          "kind": "destination_core_clear",
+          "location": {
+            "cell": [
+              53.4000015258789,
+              6.0
+            ],
+            "floor_id": 4,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0051"
+            ],
+            "current_destination_body_ids": [],
+            "goal": [
+              4,
+              [
+                86,
+                44
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [],
+                "member_id": "bench_patient_0047",
+                "rect": [
+                  86.2333297729492,
+                  44.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [],
+            "parent_waited": false
+          },
+          "tick": 2689
+        },
+        {
+          "actor_id": "bench_patient_0052",
+          "kind": "destination_core_clear",
+          "location": {
+            "cell": [
+              54.5999984741211,
+              6.0
+            ],
+            "floor_id": 1,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0048"
+            ],
+            "current_destination_body_ids": [],
+            "goal": [
+              1,
+              [
+                53,
+                15
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [],
+                "member_id": "bench_patient_0052",
+                "rect": [
+                  53.2333335876465,
+                  15.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [],
+            "parent_waited": false
+          },
+          "tick": 2690
+        },
+        {
+          "actor_id": "bench_patient_0104",
+          "kind": "contact_body_at_destination",
+          "location": {
+            "cell": [
+              8.0,
+              14.3999996185303
+            ],
+            "floor_id": 1,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0108"
+            ],
+            "current_destination_body_ids": [
+              "bench_patient_0108"
+            ],
+            "goal": [
+              1,
+              [
+                8,
+                15
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [
+                  "bench_patient_0108"
+                ],
+                "member_id": "bench_patient_0104",
+                "rect": [
+                  8.23333358764648,
+                  15.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [],
+            "parent_waited": true
+          },
+          "tick": 2731
+        },
+        {
+          "actor_id": "bench_patient_0016",
+          "kind": "contact_body_at_destination",
+          "location": {
+            "cell": [
+              30.0,
+              55.5999984741211
+            ],
+            "floor_id": 1,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0012"
+            ],
+            "current_destination_body_ids": [
+              "bench_patient_0012"
+            ],
+            "goal": [
+              1,
+              [
+                30,
+                55
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [
+                  "bench_patient_0012"
+                ],
+                "member_id": "bench_patient_0016",
+                "rect": [
+                  30.2333335876465,
+                  55.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [],
+            "parent_waited": true
+          },
+          "tick": 2740
+        },
+        {
+          "actor_id": "bench_patient_0017",
+          "kind": "contact_body_at_destination",
+          "location": {
+            "cell": [
+              30.0,
+              55.5999984741211
+            ],
+            "floor_id": 2,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0013"
+            ],
+            "current_destination_body_ids": [
+              "bench_patient_0013"
+            ],
+            "goal": [
+              2,
+              [
+                30,
+                55
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [
+                  "bench_patient_0013"
+                ],
+                "member_id": "bench_patient_0017",
+                "rect": [
+                  30.2333335876465,
+                  55.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [],
+            "parent_waited": true
+          },
+          "tick": 2740
+        },
+        {
+          "actor_id": "bench_patient_0018",
+          "kind": "contact_body_at_destination",
+          "location": {
+            "cell": [
+              30.0,
+              55.5999984741211
+            ],
+            "floor_id": 3,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0014"
+            ],
+            "current_destination_body_ids": [
+              "bench_patient_0014"
+            ],
+            "goal": [
+              3,
+              [
+                30,
+                55
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [
+                  "bench_patient_0014"
+                ],
+                "member_id": "bench_patient_0018",
+                "rect": [
+                  30.2333335876465,
+                  55.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [],
+            "parent_waited": true
+          },
+          "tick": 2740
+        },
+        {
+          "actor_id": "bench_patient_0019",
+          "kind": "contact_body_at_destination",
+          "location": {
+            "cell": [
+              30.0,
+              55.5999984741211
+            ],
+            "floor_id": 4,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0015"
+            ],
+            "current_destination_body_ids": [
+              "bench_patient_0015"
+            ],
+            "goal": [
+              4,
+              [
+                30,
+                55
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [
+                  "bench_patient_0015"
+                ],
+                "member_id": "bench_patient_0019",
+                "rect": [
+                  30.2333335876465,
+                  55.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [],
+            "parent_waited": true
+          },
+          "tick": 2740
+        },
+        {
+          "actor_id": "bench_patient_0044",
+          "kind": "contact_body_at_destination",
+          "location": {
+            "cell": [
+              53.0,
+              14.3999996185303
+            ],
+            "floor_id": 1,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0052"
+            ],
+            "current_destination_body_ids": [
+              "bench_patient_0052"
+            ],
+            "goal": [
+              1,
+              [
+                53,
+                15
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [
+                  "bench_patient_0052"
+                ],
+                "member_id": "bench_patient_0044",
+                "rect": [
+                  53.2333335876465,
+                  15.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [],
+            "parent_waited": true
+          },
+          "tick": 2804
+        },
+        {
+          "actor_id": "bench_patient_0020",
+          "kind": "destination_core_clear",
+          "location": {
+            "cell": [
+              30.5999984741211,
+              55.0
+            ],
+            "floor_id": 1,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0012"
+            ],
+            "current_destination_body_ids": [],
+            "goal": [
+              1,
+              [
+                25,
+                53
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [],
+                "member_id": "bench_patient_0020",
+                "rect": [
+                  25.2333335876465,
+                  53.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [],
+            "parent_waited": false
+          },
+          "tick": 2809
+        },
+        {
+          "actor_id": "bench_patient_0021",
+          "kind": "destination_core_clear",
+          "location": {
+            "cell": [
+              30.5999984741211,
+              55.0
+            ],
+            "floor_id": 2,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0013"
+            ],
+            "current_destination_body_ids": [],
+            "goal": [
+              2,
+              [
+                25,
+                53
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [],
+                "member_id": "bench_patient_0021",
+                "rect": [
+                  25.2333335876465,
+                  53.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [],
+            "parent_waited": false
+          },
+          "tick": 2809
+        },
+        {
+          "actor_id": "bench_patient_0022",
+          "kind": "destination_core_clear",
+          "location": {
+            "cell": [
+              30.5999984741211,
+              55.0
+            ],
+            "floor_id": 3,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0014"
+            ],
+            "current_destination_body_ids": [],
+            "goal": [
+              3,
+              [
+                25,
+                53
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [],
+                "member_id": "bench_patient_0022",
+                "rect": [
+                  25.2333335876465,
+                  53.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [],
+            "parent_waited": false
+          },
+          "tick": 2809
+        },
+        {
+          "actor_id": "bench_patient_0023",
+          "kind": "destination_core_clear",
+          "location": {
+            "cell": [
+              30.5999984741211,
+              55.0
+            ],
+            "floor_id": 4,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0015"
+            ],
+            "current_destination_body_ids": [],
+            "goal": [
+              4,
+              [
+                25,
+                53
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [],
+                "member_id": "bench_patient_0023",
+                "rect": [
+                  25.2333335876465,
+                  53.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [],
+            "parent_waited": false
+          },
+          "tick": 2809
+        },
+        {
+          "actor_id": "bench_patient_0083",
+          "kind": "other_body_at_destination",
+          "location": {
+            "cell": [
+              84.0,
+              43.4000015258789
+            ],
+            "floor_id": 4,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0095"
+            ],
+            "current_destination_body_ids": [
+              "bench_patient_0003"
+            ],
+            "goal": [
+              4,
+              [
+                86,
+                44
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [
+                  "bench_patient_0003"
+                ],
+                "member_id": "bench_patient_0083",
+                "rect": [
+                  86.2333297729492,
+                  44.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [
+              "bench_patient_0003"
+            ],
+            "parent_waited": false
+          },
+          "tick": 2896
+        },
+        {
+          "actor_id": "bench_patient_0077",
+          "kind": "other_body_at_destination",
+          "location": {
+            "cell": [
+              84.0,
+              43.4000015258789
+            ],
+            "floor_id": 2,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0081"
+            ],
+            "current_destination_body_ids": [
+              "bench_patient_0085",
+              "bench_patient_0097"
+            ],
+            "goal": [
+              2,
+              [
+                86,
+                44
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [
+                  "bench_patient_0085",
+                  "bench_patient_0097"
+                ],
+                "member_id": "bench_patient_0077",
+                "rect": [
+                  86.2333297729492,
+                  44.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [
+              "bench_patient_0085",
+              "bench_patient_0097"
+            ],
+            "parent_waited": false
+          },
+          "tick": 2953
+        }
+      ]
+    },
+    {
+      "run": "after-trace-public360",
+      "final_binary_sha256": "aa6b9baf08110e4152a32c001922142fb21ded7efa838cb906ce45bf59e1da7e",
+      "counts": {
+        "calls.advance": 360,
+        "calls.dispatch_routes": 360,
+        "calls.local_goal_occupied": 877,
+        "calls.queue_local_route": 21,
+        "calls.queue_route": 266,
+        "calls.queue_waypoint": 1,
+        "calls.replan_goal": 2,
+        "calls.request_move": 3971,
+        "calls.retarget": 3789,
+        "calls.yield": 2149,
+        "calls.yield_idle_staff": 770,
+        "dispatch.repeated_same_actor_goal_waypoint_body_geometry": 3,
+        "dispatch.success": 266,
+        "goal_gate.allowed_local_route": 9,
+        "goal_gate.contact_body_at_destination": 739,
+        "goal_gate.destination_core_clear": 9,
+        "goal_gate.other_body_at_destination": 117,
+        "goal_gate.waited": 856,
+        "idle_courtesy.moved": 15,
+        "idle_courtesy.no_move": 755,
+        "local_route.yield": 21,
+        "priority.false": 40,
+        "priority.true": 5,
+        "queue.completed_retreat_resume": 20,
+        "queue.explicit_waypoint": 1,
+        "queue.local_fallback": 21,
+        "queue.new_request": 182,
+        "queue.replan.retarget": 2,
+        "queue.yield_retreat": 40,
+        "replan.retarget.new_sequence": 2,
+        "request.new.accepted": 182,
+        "request.retarget.accepted": 3789,
+        "retarget.changed_goal": 2,
+        "retarget.same_goal": 3787,
+        "waypoint.advance": 1,
+        "yield.idle_staff_moved": 15,
+        "yield.local_fallback": 21,
+        "yield.observed_owner_sequence_changed_since_previous_pair_check": 5,
+        "yield.observed_yielded_owner_wait": 779,
+        "yield.priority_wait": 5,
+        "yield.retreat_queued": 40,
+        "yield.skipped": 550,
+        "yield.unknown_no_queue": 739
+      },
+      "query_counts": {
+        "actor_index_actor_visits": 158080,
+        "actor_index_builds": 988,
+        "candidate_connections": 8962,
+        "connector_node_declarations": 28,
+        "connector_topology_builds": 7,
+        "connector_topology_inherits": 532,
+        "distance_field_builds": 36,
+        "distance_field_hits": 3263,
+        "door_candidates": 13154,
+        "floor_route_builds": 4652,
+        "floor_route_hits": 9736,
+        "journey_hits": 50,
+        "journey_invalidations": 0,
+        "local_goal_occupied_waits": 856,
+        "materialized_floor_cells": 12463,
+        "movement_candidates": 4658,
+        "nearby_field_builds": 9,
+        "public_wait_hits": 6135,
+        "public_wait_rechecks": 674,
+        "reservation_candidate_queries": 261965,
+        "reservation_index_builds": 523,
+        "reservation_index_updates": 7101,
+        "route_checks": 36299,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 266,
+        "route_dispatches": 266,
+        "route_revalidation_unvalidated": 276,
+        "route_revalidations": 276,
+        "routes": 3849,
+        "static_path_builds": 542,
+        "static_path_hits": 143,
+        "transport_builds": 0,
+        "transport_searches": 3327,
+        "yield_attempts": 1599,
+        "yield_candidates": 844
+      },
+      "errors": [],
+      "dispatch_count_check": true,
+      "top_actors": [
+        {
+          "actor_id": "bench_patient_0044",
+          "counts": {
+            "dispatch.success": 2,
+            "goal_gate.allowed_local_route": 1,
+            "goal_gate.contact_body_at_destination": 179,
+            "goal_gate.destination_core_clear": 1,
+            "goal_gate.waited": 179,
+            "idle_courtesy.no_move": 179,
+            "local_route.yield": 1,
+            "queue.local_fallback": 1,
+            "queue.new_request": 1,
+            "request.new.accepted": 1,
+            "yield.local_fallback": 1,
+            "yield.unknown_no_queue": 179
+          },
+          "events": 725,
+          "final_movement": {
+            "blocked_since": 2774,
+            "body": [
+              [
+                [
+                  "bench_patient_0044",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 17,
+            "goal": [
+              1,
+              [
+                53,
+                15
+              ]
+            ],
+            "location": {
+              "cell": [
+                53.0,
+                14.3999996185303
+              ],
+              "floor_id": 1,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 18,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 164,
+            "travelled": 19,
+            "waypoint": [],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0016",
+          "counts": {
+            "dispatch.success": 6,
+            "goal_gate.contact_body_at_destination": 77,
+            "goal_gate.waited": 77,
+            "idle_courtesy.no_move": 78,
+            "local_route.yield": 1,
+            "queue.completed_retreat_resume": 1,
+            "queue.local_fallback": 1,
+            "queue.new_request": 3,
+            "queue.yield_retreat": 1,
+            "request.new.accepted": 3,
+            "yield.local_fallback": 1,
+            "yield.retreat_queued": 1,
+            "yield.unknown_no_queue": 77
+          },
+          "events": 327,
+          "final_movement": {
+            "blocked_since": -1,
+            "body": [
+              [
+                [
+                  "bench_patient_0016",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 0,
+            "goal": [
+              1,
+              [
+                24,
+                52
+              ]
+            ],
+            "location": {
+              "cell": [
+                28.0,
+                52.4000015258789
+              ],
+              "floor_id": 1,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 20,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 297,
+            "travelled": 1,
+            "waypoint": [],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0019",
+          "counts": {
+            "dispatch.success": 6,
+            "goal_gate.contact_body_at_destination": 77,
+            "goal_gate.waited": 77,
+            "idle_courtesy.no_move": 78,
+            "local_route.yield": 1,
+            "queue.completed_retreat_resume": 1,
+            "queue.local_fallback": 1,
+            "queue.new_request": 3,
+            "queue.yield_retreat": 1,
+            "request.new.accepted": 3,
+            "yield.local_fallback": 1,
+            "yield.retreat_queued": 1,
+            "yield.unknown_no_queue": 77
+          },
+          "events": 327,
+          "final_movement": {
+            "blocked_since": -1,
+            "body": [
+              [
+                [
+                  "bench_patient_0019",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 0,
+            "goal": [
+              4,
+              [
+                24,
+                52
+              ]
+            ],
+            "location": {
+              "cell": [
+                28.0,
+                52.4000015258789
+              ],
+              "floor_id": 4,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 20,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 300,
+            "travelled": 1,
+            "waypoint": [],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0018",
+          "counts": {
+            "dispatch.success": 6,
+            "goal_gate.contact_body_at_destination": 77,
+            "goal_gate.waited": 77,
+            "idle_courtesy.no_move": 78,
+            "local_route.yield": 1,
+            "queue.completed_retreat_resume": 1,
+            "queue.local_fallback": 1,
+            "queue.new_request": 3,
+            "queue.yield_retreat": 1,
+            "request.new.accepted": 3,
+            "yield.local_fallback": 1,
+            "yield.retreat_queued": 1,
+            "yield.unknown_no_queue": 77
+          },
+          "events": 327,
+          "final_movement": {
+            "blocked_since": -1,
+            "body": [
+              [
+                [
+                  "bench_patient_0018",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 0,
+            "goal": [
+              3,
+              [
+                24,
+                52
+              ]
+            ],
+            "location": {
+              "cell": [
+                28.0,
+                52.4000015258789
+              ],
+              "floor_id": 3,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 20,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 299,
+            "travelled": 1,
+            "waypoint": [],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0017",
+          "counts": {
+            "dispatch.success": 6,
+            "goal_gate.contact_body_at_destination": 77,
+            "goal_gate.waited": 77,
+            "idle_courtesy.no_move": 78,
+            "local_route.yield": 1,
+            "queue.completed_retreat_resume": 1,
+            "queue.local_fallback": 1,
+            "queue.new_request": 3,
+            "queue.yield_retreat": 1,
+            "request.new.accepted": 3,
+            "yield.local_fallback": 1,
+            "yield.retreat_queued": 1,
+            "yield.unknown_no_queue": 77
+          },
+          "events": 327,
+          "final_movement": {
+            "blocked_since": -1,
+            "body": [
+              [
+                [
+                  "bench_patient_0017",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 0,
+            "goal": [
+              2,
+              [
+                24,
+                52
+              ]
+            ],
+            "location": {
+              "cell": [
+                28.0,
+                52.4000015258789
+              ],
+              "floor_id": 2,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 20,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 298,
+            "travelled": 1,
+            "waypoint": [],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0020",
+          "counts": {
+            "dispatch.success": 7,
+            "goal_gate.allowed_local_route": 1,
+            "goal_gate.destination_core_clear": 1,
+            "idle_courtesy.no_move": 1,
+            "local_route.yield": 1,
+            "queue.completed_retreat_resume": 1,
+            "queue.local_fallback": 1,
+            "queue.new_request": 4,
+            "queue.yield_retreat": 1,
+            "request.new.accepted": 4,
+            "request.retarget.accepted": 88,
+            "retarget.same_goal": 88,
+            "yield.local_fallback": 1,
+            "yield.retreat_queued": 1
+          },
+          "events": 200,
+          "final_movement": {
+            "blocked_since": -1,
+            "body": [
+              [
+                [
+                  "bench_patient_0020",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 3,
+            "goal": [
+              1,
+              [
+                50,
+                74
+              ]
+            ],
+            "location": {
+              "cell": [
+                25.2000007629395,
+                58.0
+              ],
+              "floor_id": 1,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 60,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 292,
+            "travelled": 8,
+            "waypoint": [],
+            "yield_partner": "bench_patient_0008",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0022",
+          "counts": {
+            "dispatch.success": 5,
+            "goal_gate.allowed_local_route": 1,
+            "goal_gate.destination_core_clear": 1,
+            "idle_courtesy.no_move": 1,
+            "local_route.yield": 1,
+            "queue.local_fallback": 1,
+            "queue.new_request": 4,
+            "request.new.accepted": 4,
+            "yield.local_fallback": 1
+          },
+          "events": 19,
+          "final_movement": {
+            "blocked_since": -1,
+            "body": [
+              [
+                [
+                  "bench_patient_0022",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 16,
+            "goal": [
+              1,
+              [
+                85,
+                44
+              ]
+            ],
+            "location": {
+              "cell": [
+                32.6000022888184,
+                44.0
+              ],
+              "floor_id": 3,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 72,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 272,
+            "travelled": 17,
+            "waypoint": [],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0023",
+          "counts": {
+            "dispatch.success": 5,
+            "goal_gate.allowed_local_route": 1,
+            "goal_gate.destination_core_clear": 1,
+            "idle_courtesy.no_move": 1,
+            "local_route.yield": 1,
+            "queue.local_fallback": 1,
+            "queue.new_request": 4,
+            "request.new.accepted": 4,
+            "yield.local_fallback": 1
+          },
+          "events": 19,
+          "final_movement": {
+            "blocked_since": -1,
+            "body": [
+              [
+                [
+                  "bench_patient_0023",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 16,
+            "goal": [
+              1,
+              [
+                85,
+                44
+              ]
+            ],
+            "location": {
+              "cell": [
+                32.6000022888184,
+                44.0
+              ],
+              "floor_id": 4,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 72,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 273,
+            "travelled": 17,
+            "waypoint": [],
+            "yield_partner": "",
+            "yielding": false
+          }
+        }
+      ],
+      "goal_gate_samples": [
+        {
+          "actor_id": "bench_patient_0044",
+          "kind": "destination_core_clear",
+          "location": {
+            "cell": [
+              53.4000015258789,
+              6.0
+            ],
+            "floor_id": 1,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0048"
+            ],
+            "current_destination_body_ids": [],
+            "goal": [
+              1,
+              [
+                53,
+                15
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [],
+                "member_id": "bench_patient_0044",
+                "rect": [
+                  53.2333335876465,
+                  15.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [],
+            "parent_waited": false
+          },
+          "tick": 2689
+        },
+        {
+          "actor_id": "bench_patient_0045",
+          "kind": "destination_core_clear",
+          "location": {
+            "cell": [
+              53.4000015258789,
+              6.0
+            ],
+            "floor_id": 2,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0049"
+            ],
+            "current_destination_body_ids": [],
+            "goal": [
+              2,
+              [
+                86,
+                44
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [],
+                "member_id": "bench_patient_0045",
+                "rect": [
+                  86.2333297729492,
+                  44.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [],
+            "parent_waited": false
+          },
+          "tick": 2689
+        },
+        {
+          "actor_id": "bench_patient_0046",
+          "kind": "destination_core_clear",
+          "location": {
+            "cell": [
+              53.4000015258789,
+              6.0
+            ],
+            "floor_id": 3,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0050"
+            ],
+            "current_destination_body_ids": [],
+            "goal": [
+              3,
+              [
+                86,
+                44
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [],
+                "member_id": "bench_patient_0046",
+                "rect": [
+                  86.2333297729492,
+                  44.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [],
+            "parent_waited": false
+          },
+          "tick": 2689
+        },
+        {
+          "actor_id": "bench_patient_0047",
+          "kind": "destination_core_clear",
+          "location": {
+            "cell": [
+              53.4000015258789,
+              6.0
+            ],
+            "floor_id": 4,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0051"
+            ],
+            "current_destination_body_ids": [],
+            "goal": [
+              4,
+              [
+                86,
+                44
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [],
+                "member_id": "bench_patient_0047",
+                "rect": [
+                  86.2333297729492,
+                  44.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [],
+            "parent_waited": false
+          },
+          "tick": 2689
+        },
+        {
+          "actor_id": "bench_patient_0052",
+          "kind": "destination_core_clear",
+          "location": {
+            "cell": [
+              54.5999984741211,
+              6.0
+            ],
+            "floor_id": 1,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0048"
+            ],
+            "current_destination_body_ids": [],
+            "goal": [
+              1,
+              [
+                53,
+                15
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [],
+                "member_id": "bench_patient_0052",
+                "rect": [
+                  53.2333335876465,
+                  15.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [],
+            "parent_waited": false
+          },
+          "tick": 2690
+        },
+        {
+          "actor_id": "bench_patient_0104",
+          "kind": "contact_body_at_destination",
+          "location": {
+            "cell": [
+              8.0,
+              14.3999996185303
+            ],
+            "floor_id": 1,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0108"
+            ],
+            "current_destination_body_ids": [
+              "bench_patient_0108"
+            ],
+            "goal": [
+              1,
+              [
+                8,
+                15
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [
+                  "bench_patient_0108"
+                ],
+                "member_id": "bench_patient_0104",
+                "rect": [
+                  8.23333358764648,
+                  15.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [],
+            "parent_waited": true
+          },
+          "tick": 2731
+        },
+        {
+          "actor_id": "bench_patient_0016",
+          "kind": "contact_body_at_destination",
+          "location": {
+            "cell": [
+              30.0,
+              55.5999984741211
+            ],
+            "floor_id": 1,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0012"
+            ],
+            "current_destination_body_ids": [
+              "bench_patient_0012"
+            ],
+            "goal": [
+              1,
+              [
+                30,
+                55
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [
+                  "bench_patient_0012"
+                ],
+                "member_id": "bench_patient_0016",
+                "rect": [
+                  30.2333335876465,
+                  55.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [],
+            "parent_waited": true
+          },
+          "tick": 2740
+        },
+        {
+          "actor_id": "bench_patient_0017",
+          "kind": "contact_body_at_destination",
+          "location": {
+            "cell": [
+              30.0,
+              55.5999984741211
+            ],
+            "floor_id": 2,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0013"
+            ],
+            "current_destination_body_ids": [
+              "bench_patient_0013"
+            ],
+            "goal": [
+              2,
+              [
+                30,
+                55
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [
+                  "bench_patient_0013"
+                ],
+                "member_id": "bench_patient_0017",
+                "rect": [
+                  30.2333335876465,
+                  55.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [],
+            "parent_waited": true
+          },
+          "tick": 2740
+        },
+        {
+          "actor_id": "bench_patient_0018",
+          "kind": "contact_body_at_destination",
+          "location": {
+            "cell": [
+              30.0,
+              55.5999984741211
+            ],
+            "floor_id": 3,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0014"
+            ],
+            "current_destination_body_ids": [
+              "bench_patient_0014"
+            ],
+            "goal": [
+              3,
+              [
+                30,
+                55
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [
+                  "bench_patient_0014"
+                ],
+                "member_id": "bench_patient_0018",
+                "rect": [
+                  30.2333335876465,
+                  55.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [],
+            "parent_waited": true
+          },
+          "tick": 2740
+        },
+        {
+          "actor_id": "bench_patient_0019",
+          "kind": "contact_body_at_destination",
+          "location": {
+            "cell": [
+              30.0,
+              55.5999984741211
+            ],
+            "floor_id": 4,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0015"
+            ],
+            "current_destination_body_ids": [
+              "bench_patient_0015"
+            ],
+            "goal": [
+              4,
+              [
+                30,
+                55
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [
+                  "bench_patient_0015"
+                ],
+                "member_id": "bench_patient_0019",
+                "rect": [
+                  30.2333335876465,
+                  55.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [],
+            "parent_waited": true
+          },
+          "tick": 2740
+        },
+        {
+          "actor_id": "bench_patient_0044",
+          "kind": "contact_body_at_destination",
+          "location": {
+            "cell": [
+              53.0,
+              14.3999996185303
+            ],
+            "floor_id": 1,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0052"
+            ],
+            "current_destination_body_ids": [
+              "bench_patient_0052"
+            ],
+            "goal": [
+              1,
+              [
+                53,
+                15
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [
+                  "bench_patient_0052"
+                ],
+                "member_id": "bench_patient_0044",
+                "rect": [
+                  53.2333335876465,
+                  15.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [],
+            "parent_waited": true
+          },
+          "tick": 2804
+        },
+        {
+          "actor_id": "bench_patient_0020",
+          "kind": "destination_core_clear",
+          "location": {
+            "cell": [
+              30.5999984741211,
+              55.0
+            ],
+            "floor_id": 1,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0012"
+            ],
+            "current_destination_body_ids": [],
+            "goal": [
+              1,
+              [
+                25,
+                53
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [],
+                "member_id": "bench_patient_0020",
+                "rect": [
+                  25.2333335876465,
+                  53.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [],
+            "parent_waited": false
+          },
+          "tick": 2809
+        },
+        {
+          "actor_id": "bench_patient_0021",
+          "kind": "destination_core_clear",
+          "location": {
+            "cell": [
+              30.5999984741211,
+              55.0
+            ],
+            "floor_id": 2,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0013"
+            ],
+            "current_destination_body_ids": [],
+            "goal": [
+              2,
+              [
+                25,
+                53
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [],
+                "member_id": "bench_patient_0021",
+                "rect": [
+                  25.2333335876465,
+                  53.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [],
+            "parent_waited": false
+          },
+          "tick": 2809
+        },
+        {
+          "actor_id": "bench_patient_0022",
+          "kind": "destination_core_clear",
+          "location": {
+            "cell": [
+              30.5999984741211,
+              55.0
+            ],
+            "floor_id": 3,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0014"
+            ],
+            "current_destination_body_ids": [],
+            "goal": [
+              3,
+              [
+                25,
+                53
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [],
+                "member_id": "bench_patient_0022",
+                "rect": [
+                  25.2333335876465,
+                  53.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [],
+            "parent_waited": false
+          },
+          "tick": 2809
+        },
+        {
+          "actor_id": "bench_patient_0023",
+          "kind": "destination_core_clear",
+          "location": {
+            "cell": [
+              30.5999984741211,
+              55.0
+            ],
+            "floor_id": 4,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0015"
+            ],
+            "current_destination_body_ids": [],
+            "goal": [
+              4,
+              [
+                25,
+                53
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [],
+                "member_id": "bench_patient_0023",
+                "rect": [
+                  25.2333335876465,
+                  53.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [],
+            "parent_waited": false
+          },
+          "tick": 2809
+        },
+        {
+          "actor_id": "bench_patient_0083",
+          "kind": "other_body_at_destination",
+          "location": {
+            "cell": [
+              84.0,
+              43.4000015258789
+            ],
+            "floor_id": 4,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0095"
+            ],
+            "current_destination_body_ids": [
+              "bench_patient_0003"
+            ],
+            "goal": [
+              4,
+              [
+                86,
+                44
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [
+                  "bench_patient_0003"
+                ],
+                "member_id": "bench_patient_0083",
+                "rect": [
+                  86.2333297729492,
+                  44.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [
+              "bench_patient_0003"
+            ],
+            "parent_waited": true
+          },
+          "tick": 2896
+        },
+        {
+          "actor_id": "bench_patient_0077",
+          "kind": "other_body_at_destination",
+          "location": {
+            "cell": [
+              84.0,
+              43.4000015258789
+            ],
+            "floor_id": 2,
+            "height_m": 0.0,
+            "kind": "floor"
+          },
+          "observation": {
+            "actual_hit_ids": [
+              "bench_patient_0081"
+            ],
+            "current_destination_body_ids": [
+              "bench_patient_0085",
+              "bench_patient_0097"
+            ],
+            "goal": [
+              2,
+              [
+                86,
+                44
+              ]
+            ],
+            "member_cores": [
+              {
+                "current_body_ids": [
+                  "bench_patient_0085",
+                  "bench_patient_0097"
+                ],
+                "member_id": "bench_patient_0077",
+                "rect": [
+                  86.2333297729492,
+                  44.2333335876465,
+                  0.533333361148834,
+                  0.533333361148834
+                ]
+              }
+            ],
+            "other_destination_body_ids": [
+              "bench_patient_0085",
+              "bench_patient_0097"
+            ],
+            "parent_waited": true
+          },
+          "tick": 2953
+        }
+      ]
+    }
+  ],
+  "caution": "A repeated dispatch key is diagnostic, not proof of unchanged occupancy. Goal-gate observations use current bodies and are retained per actor. The production gate only runs following an actual collision."
+}

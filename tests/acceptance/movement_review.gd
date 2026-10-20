@@ -7,6 +7,7 @@ func run_case(suite: RefCounted) -> Dictionary:
 	var topology: Dictionary = preload("res://tests/acceptance/navigation_topology_projection.gd").new().run(suite)
 	var static_versions: Dictionary = preload("res://tests/acceptance/navigation_static_versions.gd").new().run()
 	var distance_fields: Dictionary = preload("res://tests/acceptance/navigation_distance_fields.gd").new().run(suite)
+	var cold_graph: Dictionary = preload("res://tests/acceptance/navigation_cold_graph.gd").new().run_case(suite)
 	var cost_consumers: Dictionary = preload("res://tests/acceptance/route_cost_consumers.gd").new().run(suite)
 	var shapes: Dictionary = preload("res://tests/acceptance/build_geometry_components.gd").new().run()
 	var matching: Dictionary = preload("res://tests/acceptance/bed_matching_boundaries.gd").new().run()
@@ -19,12 +20,12 @@ func run_case(suite: RefCounted) -> Dictionary:
 	var group_door: Dictionary = _group_door(suite)
 	var page_sizes: Dictionary = _pose_page_sizes()
 	var groups: Array = []
-	var ok: bool = spatial.ok and quotes.ok and trips.ok and topology.ok and static_versions.ok and distance_fields.ok and cost_consumers.ok and shapes.ok and matching.ok and search.ok and ready_reuse.ok and delayed_retarget.ok and delayed_cancel.ok and high_floors.ok and door_layers.ok and group_door.ok and page_sizes.ok
+	var ok: bool = spatial.ok and quotes.ok and trips.ok and topology.ok and static_versions.ok and distance_fields.ok and cold_graph.ok and cost_consumers.ok and shapes.ok and matching.ok and search.ok and ready_reuse.ok and delayed_retarget.ok and delayed_cancel.ok and high_floors.ok and door_layers.ok and group_door.ok and page_sizes.ok
 	for phase: String in ["pending","waiting","riding"]:
 		var result: Dictionary = _group(suite,phase)
 		groups.append(result)
 		ok = ok and result.ok
-	return {"ok":ok,"spatial":spatial,"quotes":quotes,"trip_quotes":trips,"projection_topology":topology,"static_versions":static_versions,"distance_fields":distance_fields,"cost_consumers":cost_consumers,"shapes":shapes,"matching":matching,"search":search,"group_retargets":groups,"ready_support_exit":ready_reuse,"delayed_retarget":delayed_retarget,"delayed_cancel":delayed_cancel,"high_floor_topology":high_floors,"door_layers":door_layers,"group_door":group_door,"pose_page_sizes":page_sizes}
+	return {"ok":ok,"spatial":spatial,"quotes":quotes,"trip_quotes":trips,"projection_topology":topology,"static_versions":static_versions,"distance_fields":distance_fields,"cold_graph":cold_graph,"cost_consumers":cost_consumers,"shapes":shapes,"matching":matching,"search":search,"group_retargets":groups,"ready_support_exit":ready_reuse,"delayed_retarget":delayed_retarget,"delayed_cancel":delayed_cancel,"high_floor_topology":high_floors,"door_layers":door_layers,"group_door":group_door,"pose_page_sizes":page_sizes}
 
 func _pose_page_sizes() -> Dictionary:
 	var rows: Array = []

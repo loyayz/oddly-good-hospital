@@ -42,8 +42,8 @@ func area_valid(world: WorldState, reference: Dictionary, room_kinds: Array) -> 
 func should_recheck(world: WorldState, intent: Dictionary, definitions: Array, members: Array = [], extra: Dictionary = {}) -> bool:
 	_decision_view(world)
 	var saved: Dictionary = _wait_results.get(str(intent.id),{})
-	var signature: String = _decision_signature(world,intent,definitions,members,extra,saved.get("floors",[]))
-	var repeat: bool = saved.get("signature","")==signature
+	var signature: Array = _decision_signature(world,intent,definitions,members,extra,saved.get("floors",[]))
+	var repeat: bool = saved.get("signature",[])==signature
 	var counter: String = "public_wait_hits" if repeat else "public_wait_rechecks"
 	space.query_counts[counter] = int(space.query_counts.get(counter,0))+1
 	return not repeat
@@ -55,8 +55,10 @@ func remember_wait(world: WorldState, intent: Dictionary, definitions: Array, me
 	if local>0 and not local in floors:
 		floors.append(local)
 		floors.sort()
-	var signature: String = _decision_signature(world,intent,definitions,members,extra,floors)
-	_wait_results[str(intent.id)] = {"signature":signature,"floors":floors}
+	# Freeze nested facts once. Live observations can then use structural value
+	# equality without serializing the whole dependency set on every wait step.
+	var signature: Array = _decision_signature(world,intent,definitions,members,extra,floors)
+	_wait_results[str(intent.id)] = {"signature":signature.duplicate(true),"floors":floors}
 
 # One shared observation of actual ownership per changed dispatch boundary.
 # Rows refer to original intents: phase changes are read from their sole owner.
@@ -65,7 +67,7 @@ func _decision_view(world: WorldState) -> Dictionary:
 		_decision_world = weakref(world)
 		_decision_tick = -1
 		_wait_results.clear()
-	if _decision_tick==world.sim_tick: return _decision_basis
+	if _decision_tick==world.sim_tick and _decision_basis.get("geometry_revision",-1)==world.geometry_revision: return _decision_basis
 	_decision_tick = world.sim_tick
 	var users: Dictionary = {}
 	for actor: Dictionary in world.facts.actors.values():
@@ -104,10 +106,10 @@ func _decision_view(world: WorldState) -> Dictionary:
 		if order.get("phase","")!="working": continue
 		var facility: Dictionary = world.facts.facilities.get(order.get("facility_id",""),{})
 		if not facility.is_empty(): environment.get_or_add(int(facility.floor_id),[]).append([facility.cell,"upgrade",facility.id])
-	_decision_basis = {"users":users,"queues":queues,"environment":environment}
+	_decision_basis = {"users":users,"queues":queues,"environment":environment,"environment_indices":{},"geometry_revision":world.geometry_revision}
 	return _decision_basis
 
-func _decision_signature(world: WorldState, intent: Dictionary, definitions: Array, members: Array, extra: Dictionary, route_floors: Array = []) -> String:
+func _decision_signature(world: WorldState, intent: Dictionary, definitions: Array, members: Array, extra: Dictionary, route_floors: Array = []) -> Array:
 	var view: Dictionary = _decision_view(world)
 	var ids: Array = [str(intent.actor_id)] if members.is_empty() else members
 	var bodies: Array = []
@@ -174,13 +176,39 @@ func _decision_signature(world: WorldState, intent: Dictionary, definitions: Arr
 	var reservation_ids: Array = reservations.keys()
 	reservation_ids.sort()
 	for id: String in reservation_ids: records.append(reservations[id])
-	if not points.is_empty():
-		for sample: Array in view.environment.get(int(reference.get("floor_id",-1)),[]):
-			for point: Array in points:
-				if absf(float(sample[0][0])-float(point[0]))+absf(float(sample[0][1])-float(point[1]))<=8.0:
-					records.append(sample)
-					break
-	return JSON.stringify(records,"",true,true)
+	records.append_array(_environment_samples(view,int(reference.get("floor_id",-1)),points))
+	return records
+
+func _environment_samples(view: Dictionary, floor_id: int, points: Array) -> Array:
+	var samples: Array = view.environment.get(floor_id,[])
+	if points.is_empty() or samples.is_empty(): return []
+	var indices: Dictionary = view.environment_indices
+	if not indices.has(floor_id):
+		var created: BodyIndex = BodyIndex.new()
+		for number: int in samples.size():
+			var cell: Array = samples[number][0]
+			# Unit rectangles are broadphase proxies for sample origins only.
+			# Exact original Manhattan distance below decides inclusion.
+			created.update(str(number),floor_id,Rect2(Vector2(float(cell[0]),float(cell[1])),Vector2.ONE))
+		indices[floor_id] = created
+	var index: BodyIndex = indices[floor_id]
+	var origins: Dictionary = {}
+	for point: Array in points: origins[point] = true
+	var matched: Dictionary = {}
+	for point: Array in origins:
+		# Padding keeps exact eight-cell boundaries inside the broadphase,
+		# including fractional coordinates and float32 rectangle rounding.
+		var bounds: Rect2 = Rect2(Vector2(float(point[0]),float(point[1])),Vector2.ONE).grow(9.0)
+		for id: String in index.candidates(floor_id,bounds):
+			var number: int = int(id)
+			if matched.has(number): continue
+			var cell: Array = samples[number][0]
+			if absf(float(cell[0])-float(point[0]))+absf(float(cell[1])-float(point[1]))<=8.0: matched[number] = true
+	var ordered: Array = matched.keys()
+	ordered.sort()
+	var result: Array = []
+	for number: int in ordered: result.append(samples[number])
+	return result
 
 func _add_dynamic_dependencies(world: WorldState, floor_id: int, bounds: Rect2, members: Array, actors: Dictionary, reservations: Dictionary) -> void:
 	for id: String in space._actor_index.candidates(floor_id,bounds,members): actors[id] = true
@@ -331,7 +359,9 @@ func select(world: WorldState, actor_id: String, definitions: Array, room_kinds:
 	var best: Dictionary = {}
 	var best_entries: Dictionary = {}
 	var travellers: Array = [actor_id] if members.is_empty() else members
-	space.begin_dynamic_route_query(world)
+	# The caller may already own this unchanged, real-body enumeration. Its
+	# actor index is reusable; this child still gets independent query views.
+	space.begin_dynamic_route_query(world,not space.in_dynamic_route_query(world))
 	for area: Dictionary in _regions:
 		var room: Dictionary = world.facts.rooms.get(area.ref.room_id,{})
 		if not room.is_empty() and (not str(room.get("kind",room.get("type",""))) in room_kinds or HospitalRemodel.blocked(world,area.ref.room_id)): continue

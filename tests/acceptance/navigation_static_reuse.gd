@@ -162,7 +162,29 @@ func _actor_scope(source: Dictionary, content: HospitalContent) -> Dictionary:
 	var forced: bool = space._actor_index._records[PEER]!=forced_before and _bodies_cold_equal(space,world,content)
 	space.end_route_query()
 	space.end_route_query()
-	return {"ok":shared and released and rebuilt and next_scope and isolated and forced and space._indexed_actor_scope.is_empty(),"same_scope_shared":shared,"scope_owner_released":released,"outside_scope_rebuilt":rebuilt,"next_scope_current_bodies":next_scope,"private_actor_map_isolated":isolated,"forced_refresh":forced}
+	# Explicit refresh remains a force operation even below a dynamic parent.
+	space.begin_dynamic_route_query(world,true)
+	var dynamic_before: BodyIndex.Record = space._actor_index._records[PEER]
+	space.begin_dynamic_route_query(world,true)
+	var dynamic_forced: bool = space.in_dynamic_route_query(world) and space._actor_index._records[PEER]!=dynamic_before and _bodies_cold_equal(space,world,content)
+	space.end_route_query()
+	space.end_route_query()
+	# Commit a real body update between two sealed enumerations. Reuse must
+	# see this synchronization without requiring an unrelated world revision.
+	world.facts.actors[PEER].location.cell[0] += 0.25
+	space.sync_actor(world,PEER)
+	var synchronized: BodyIndex.Record = space._actor_index._records[PEER]
+	space.begin_dynamic_route_query(world,false)
+	var incremental: bool = space._actor_index._records[PEER]==synchronized and _bodies_cold_equal(space,world,content)
+	space.begin_route_query(private_world,{},false)
+	space._ensure_actor_index(private_world)
+	var dynamic_isolated: bool = space._actor_index._records[PEER]!=synchronized and _bodies_cold_equal(space,private_world,content)
+	space.end_route_query()
+	space._ensure_actor_index(world)
+	dynamic_isolated = dynamic_isolated and _bodies_cold_equal(space,world,content)
+	space.end_route_query()
+	var closed: bool = space._route_queries.is_empty() and space._indexed_actor_scope.is_empty() and not space.in_dynamic_route_query(world)
+	return {"ok":shared and released and rebuilt and next_scope and isolated and forced and dynamic_forced and incremental and dynamic_isolated and closed,"same_scope_shared":shared,"scope_owner_released":released,"outside_scope_rebuilt":rebuilt,"next_scope_current_bodies":next_scope,"private_actor_map_isolated":isolated,"forced_refresh":forced,"explicit_refresh_below_dynamic_parent":dynamic_forced,"between_enumerations_body_sync_visible":incremental,"private_projection_under_dynamic_parent_isolated":dynamic_isolated,"all_query_scopes_released":closed}
 
 func _bodies_cold_equal(space: HospitalSpace, world: WorldState, content: HospitalContent) -> bool:
 	var cold: HospitalSpace = HospitalSpace.new(content)

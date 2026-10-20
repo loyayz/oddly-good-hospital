@@ -36,11 +36,16 @@ func _build() -> void:
 	for id: int in ids:
 		if _enabled[id]==0: continue
 		var cell: Vector2i = _cell(id)
-		# These target IDs are already ascending; retain directed edge order.
-		for offset: Vector2i in NEIGHBOURS:
-			var next: Vector2i = cell+offset
+		# Static sweeps are symmetric. Earlier IDs already inserted UP/LEFT;
+		# add RIGHT/DOWN once, retaining the original neighbour order on both ends.
+		# Reservations and people remain directed query-time filters.
+		for direction: int in range(2,4):
+			var next: Vector2i = cell+NEIGHBOURS[direction]
 			if _inside(next) and _enabled[_id(next)]!=0 and geometry.edge_reason(cell,next).is_empty():
-				_connect_edge(id,_id(next))
+				var other: int = _id(next)
+				connect_points(id,other,true)
+				_edges[id] |= 1<<direction
+				_edges[other] |= 1<<(3-direction)
 
 func refresh(projection: RouteClearance) -> void:
 	var regions: Array[Rect2i] = projection.dirty_regions(geometry)

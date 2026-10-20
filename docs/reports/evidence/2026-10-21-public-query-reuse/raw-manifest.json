@@ -1,0 +1,1192 @@
+{
+  "archive_sha256": "096b6b87af15e94d71761cba07cc00ea260794ce993e8f75a8266dff3defad94",
+  "archive_bytes": 4301074,
+  "entries": [
+    {
+      "path": ".cache/acceptance/3155cd5aa21342a39d502d876b8c1d9a/acceptance-results.json",
+      "bytes": 97049,
+      "sha256": "63a201c540dad129d22ff761d1b1e11e58ffcc0b731ee5b041e348d2758611be"
+    },
+    {
+      "path": ".cache/acceptance/3155cd5aa21342a39d502d876b8c1d9a/execution-status.json",
+      "bytes": 192,
+      "sha256": "b0169304cd9cecd086fdea31ff067490d5458f8e01c8a3e200256f14885d76ac"
+    },
+    {
+      "path": ".cache/acceptance/3155cd5aa21342a39d502d876b8c1d9a/execution.log",
+      "bytes": 3998,
+      "sha256": "71a5f23e0d5cac25dff6bb905621fafe103845b90cf65114af0361f1feeede59"
+    },
+    {
+      "path": ".cache/acceptance/3155cd5aa21342a39d502d876b8c1d9a/import.log",
+      "bytes": 15370,
+      "sha256": "f714738ea80d27fa9411dfc7198cc631eddbf00b7304cd7e022739c0c3e8c4b2"
+    },
+    {
+      "path": ".cache/acceptance/3155cd5aa21342a39d502d876b8c1d9a/source-identity.json",
+      "bytes": 134802,
+      "sha256": "6166c0908f09e19a84fae6a2deef9567139d1f44250cfba73d22748d57b6934e"
+    },
+    {
+      "path": ".cache/acceptance/3155cd5aa21342a39d502d876b8c1d9a/tests/acceptance/movement_goal_wait.gd",
+      "bytes": 21266,
+      "sha256": "8c43d5792bf8a2e37f1d03db80f15f8f53e2ef45d01505b712c2a0073762ee37"
+    },
+    {
+      "path": ".cache/acceptance/3155cd5aa21342a39d502d876b8c1d9a/tests/acceptance/movement_result.gd",
+      "bytes": 18108,
+      "sha256": "2ed30300aa0b68936939316647b62bc3f9f2bc95fdbb19aa62c41b9aa794f963"
+    },
+    {
+      "path": ".cache/acceptance/3155cd5aa21342a39d502d876b8c1d9a/tests/acceptance/movement_review.gd",
+      "bytes": 25466,
+      "sha256": "69e4e6db9bbc4febbb5272a1e3323866264f6085384c6346e5c446ce5f6f6f73"
+    },
+    {
+      "path": ".cache/acceptance/3155cd5aa21342a39d502d876b8c1d9a/tests/acceptance/navigation_cold_graph.gd",
+      "bytes": 5351,
+      "sha256": "d6eae8ca39091e97553da145adb9b222fd7ee43bde211656796a4bb8588b8376"
+    },
+    {
+      "path": ".cache/acceptance/3155cd5aa21342a39d502d876b8c1d9a/tests/acceptance/navigation_static_reuse.gd",
+      "bytes": 14524,
+      "sha256": "cea778c11315e495bb2c9115338b08bb590437853b815ac717fc72be50ea3056"
+    },
+    {
+      "path": ".cache/acceptance/3155cd5aa21342a39d502d876b8c1d9a/tests/acceptance/public_phase_use.gd",
+      "bytes": 40831,
+      "sha256": "1cdac0640b5a66b45ed96ea7856822a5d76d489d77151382bd16ce58a9f6a8dc"
+    },
+    {
+      "path": ".cache/acceptance/3155cd5aa21342a39d502d876b8c1d9a/timing-summary.json",
+      "bytes": 257,
+      "sha256": "665597174e1f14b9f661c5c8b77c261e7283105a9ec866eed3d5a8a3757dc05e"
+    },
+    {
+      "path": ".cache/acceptance/895a7e6bb45a4bd681888e8aad598085/acceptance-results.json",
+      "bytes": 5287,
+      "sha256": "5a99478ad62380ef4b0c8c3617185d05e46c0821f9b70afc8bbac0560c7cf801"
+    },
+    {
+      "path": ".cache/acceptance/895a7e6bb45a4bd681888e8aad598085/execution-status.json",
+      "bytes": 192,
+      "sha256": "50dffba7f46d3b24f36a096221f6262aa1be9eb157e94af944818454a909097e"
+    },
+    {
+      "path": ".cache/acceptance/895a7e6bb45a4bd681888e8aad598085/execution.log",
+      "bytes": 193,
+      "sha256": "a2f7d1c0fae3a67c16acf46a9d306a3567224a806817eb94848d98a5c76500da"
+    },
+    {
+      "path": ".cache/acceptance/895a7e6bb45a4bd681888e8aad598085/import.log",
+      "bytes": 15370,
+      "sha256": "f714738ea80d27fa9411dfc7198cc631eddbf00b7304cd7e022739c0c3e8c4b2"
+    },
+    {
+      "path": ".cache/acceptance/895a7e6bb45a4bd681888e8aad598085/source-identity.json",
+      "bytes": 134452,
+      "sha256": "e927d6bb8fed636cf91d5e49c1fd35a3a9d2fc1cb741e8bdcbcade649e191d1c"
+    },
+    {
+      "path": ".cache/acceptance/895a7e6bb45a4bd681888e8aad598085/tests/acceptance/movement_goal_wait.gd",
+      "bytes": 21266,
+      "sha256": "8c43d5792bf8a2e37f1d03db80f15f8f53e2ef45d01505b712c2a0073762ee37"
+    },
+    {
+      "path": ".cache/acceptance/895a7e6bb45a4bd681888e8aad598085/tests/acceptance/movement_result.gd",
+      "bytes": 18649,
+      "sha256": "09e9eb068730e2cc17f17437d2e910dba83184d7ac0f9a8cdee57da600be363b"
+    },
+    {
+      "path": ".cache/acceptance/895a7e6bb45a4bd681888e8aad598085/tests/acceptance/movement_review.gd",
+      "bytes": 25466,
+      "sha256": "69e4e6db9bbc4febbb5272a1e3323866264f6085384c6346e5c446ce5f6f6f73"
+    },
+    {
+      "path": ".cache/acceptance/895a7e6bb45a4bd681888e8aad598085/tests/acceptance/navigation_cold_graph.gd",
+      "bytes": 5351,
+      "sha256": "d6eae8ca39091e97553da145adb9b222fd7ee43bde211656796a4bb8588b8376"
+    },
+    {
+      "path": ".cache/acceptance/895a7e6bb45a4bd681888e8aad598085/tests/acceptance/navigation_static_reuse.gd",
+      "bytes": 14524,
+      "sha256": "cea778c11315e495bb2c9115338b08bb590437853b815ac717fc72be50ea3056"
+    },
+    {
+      "path": ".cache/acceptance/895a7e6bb45a4bd681888e8aad598085/tests/acceptance/public_phase_use.gd",
+      "bytes": 40831,
+      "sha256": "1cdac0640b5a66b45ed96ea7856822a5d76d489d77151382bd16ce58a9f6a8dc"
+    },
+    {
+      "path": ".cache/acceptance/895a7e6bb45a4bd681888e8aad598085/timing-summary.json",
+      "bytes": 257,
+      "sha256": "6ad9f6762f062708f3630e29f0cea1e59f546ce357798ed66d69766473399c32"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-gp40.json",
+      "bytes": 1541970,
+      "sha256": "74ae700fcd330e813c131c82812a8f8369df09aeeb87c77e38e283f06bae3dc4"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-gp40.json.final.bin",
+      "bytes": 2432520,
+      "sha256": "186b3d8b25889dc1a6e32acdf9121fd520afa1d6debf28e8e089af7ec1eab748"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-gp40.json.sources/simulation.gd",
+      "bytes": 9312,
+      "sha256": "3d3744687f3fa3e5bf0873b71d47042ed88bf72d035abc9b85695fc32051c4c5"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-gp40.json.steps.ndjson",
+      "bytes": 1003359,
+      "sha256": "3faeed27eca10cb815504d3ad736746b9204aae87210e6adb09ec973136b2b0c"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-gp40.log",
+      "bytes": 1345,
+      "sha256": "bec39758bc1f8b9eec731d31b04c4ee97db2b052200f50e63203a62fac3d8fd9"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-operations40.json",
+      "bytes": 1306013,
+      "sha256": "6c59e1ad3445f6d588d767a7ca6567091b56c2cff4c671f21fec93e6ae6d9adc"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-operations40.json.final.bin",
+      "bytes": 1730496,
+      "sha256": "f20de287ab252ab3fd759f27d841da0fe8a288ee3189a22f05d006a51ace45f8"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-operations40.json.sources/simulation.gd",
+      "bytes": 9312,
+      "sha256": "3d3744687f3fa3e5bf0873b71d47042ed88bf72d035abc9b85695fc32051c4c5"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-operations40.json.steps.ndjson",
+      "bytes": 712914,
+      "sha256": "5bc64a1115afd6243f647834e37e33b805b674bc63864f46905864ba0b0f327f"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-operations40.log",
+      "bytes": 1583,
+      "sha256": "316b0a55789c17bbebd82350ca73f56bb88a9334588227113491dbd98310029b"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-prepare.log",
+      "bytes": 108,
+      "sha256": "2398abe01b737f6c53bd2d4506d5048f7a7ff39bfabcdcbd87bc2f72f3838112"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project-reimport.log",
+      "bytes": 3162,
+      "sha256": "776d8119cc65b04a3df1247d75c8b7853f6f9cb4d63519a5f8b10fbc53e182e2"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/.cache/tail-profile-originals/game/arrivals/arrival_service.gd",
+      "bytes": 88061,
+      "sha256": "7c0f7ac551f067419d8363d5ec8e1ad3256a92d87a63d800a67161ca038bb607"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/.cache/tail-profile-originals/game/building/floor_navigation.gd",
+      "bytes": 8109,
+      "sha256": "2c97c48b36d366192da85efd46e68f3f2eaeb9b135af05e68068215c79332ebc"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/.cache/tail-profile-originals/game/building/floor_service.gd",
+      "bytes": 14460,
+      "sha256": "a3974006ce8c43ed5c3b177c1b481bf1c755d9dfb4fc4693ae64f6db34472c8b"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/.cache/tail-profile-originals/game/building/hospital_movement.gd",
+      "bytes": 45963,
+      "sha256": "bf50a096f6694fe0afe811e19f48f69fff122361745f075c089b9fd90e24d153"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/.cache/tail-profile-originals/game/building/hospital_navigation.gd",
+      "bytes": 21405,
+      "sha256": "e1e822f6612591f777bd4889c67b5553550293912b1700f23bc0d09494b7bcb5"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/.cache/tail-profile-originals/game/building/hospital_space.gd",
+      "bytes": 59612,
+      "sha256": "d4850c75518ac42b5c58559add5740e0448a66511478c625157af6a3c8b71f12"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/.cache/tail-profile-originals/game/building/hospital_transit.gd",
+      "bytes": 22197,
+      "sha256": "6a8ddb1da1878dd30307ff75719171a9d7d1a531f5998bc39671e48127917208"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/.cache/tail-profile-originals/game/building/navigation_cache.gd",
+      "bytes": 23577,
+      "sha256": "266237bd20c84f1a7feb2d0e6fed268f59d0e19a393486393ec068c19cf1c719"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/.cache/tail-profile-originals/game/building/remodel_service.gd",
+      "bytes": 25773,
+      "sha256": "d46bd4af6106ad7d99bef7dedf1ca8e1290502ce1c60057dbeb455c483d9f756"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/.cache/tail-profile-originals/game/building/route_clearance.gd",
+      "bytes": 18272,
+      "sha256": "57ae6fe1be895514d0fd458247f6faed3b92f0c7ba2b64949a348783bec6a6e9"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/.cache/tail-profile-originals/game/clinic/clinical_runtime.gd",
+      "bytes": 189003,
+      "sha256": "3ce51b71e8cfbc93b527df1f499e953d7fcd20416b6bc332d6dcaad1b24cb1e0"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/.cache/tail-profile-originals/game/clinic/hospital_visitors.gd",
+      "bytes": 24636,
+      "sha256": "e8b8b7dbbf80dd510c1598929382c564e12f7dcceeff43dc7c30362aaf332f0d"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/.cache/tail-profile-originals/game/community/research_service.gd",
+      "bytes": 34442,
+      "sha256": "eee0f6439a013d1689cbf1b482a9f54d49941abe551c7b667904e78c2d41c7fa"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/.cache/tail-profile-originals/game/economy/finance_service.gd",
+      "bytes": 28306,
+      "sha256": "6a84601eb63d57641467ad0877b6f7dca04178973145554fc85e7fa5d8b2c96a"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/.cache/tail-profile-originals/game/life/public_areas.gd",
+      "bytes": 43436,
+      "sha256": "d852d459d6512de900fefcced60a48569b927400883bbee2249abb92b59ed6a9"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/.cache/tail-profile-originals/game/life/waiting_life.gd",
+      "bytes": 52597,
+      "sha256": "8d807685446c04c55355a5d54e07df173f8b3f3af60eac6d8327e9f5645b0047"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/.cache/tail-profile-originals/game/operations/department_service.gd",
+      "bytes": 64195,
+      "sha256": "c2a0dd23d74ba8a4499153ff0a94c3e3b581045affaf3822740a14ca66d93596"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/.cache/tail-profile-originals/game/operations/environment_service.gd",
+      "bytes": 55614,
+      "sha256": "8d6b76318755aa0fb5641784ca722bd73e405a4d558d9ed6343f5cd254ea30c3"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/.cache/tail-profile-originals/game/operations/maintenance_service.gd",
+      "bytes": 37028,
+      "sha256": "9b1e32aec0d2043e16873a219f609f48b339ce21ff806011181398cfbacf2f1d"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/.cache/tail-profile-originals/game/operations/supply_service.gd",
+      "bytes": 14926,
+      "sha256": "c475929ef1ffb29fcba23ba944b9b226e9cccb166a906c400718ecd303f8e213"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/.cache/tail-profile-originals/game/staff/clinical_development.gd",
+      "bytes": 46617,
+      "sha256": "a33f86c5f165315e7710bfa6b2c359b472c678c283fb2ccee4caeef74584bb55"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/.cache/tail-profile-originals/game/staff/personal_beds.gd",
+      "bytes": 7265,
+      "sha256": "fe816d77b0e1268d5d4de0c886cbb739a1c8f0d83b8505f201f59b8a8a4c26d6"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/.cache/tail-profile-originals/game/staff/recruitment_service.gd",
+      "bytes": 44006,
+      "sha256": "7c7a4902aa693aa7b8f57a9ed61c87f37423b5897d00c22cd053f4ea80ae8693"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/.cache/tail-profile-originals/game/staff/shift_scheduler.gd",
+      "bytes": 26269,
+      "sha256": "d3a45d0c2b47f05461c1cbdab6481d1c421f977a0335acab74989655e0c1d25e"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/.cache/tail-profile-originals/game/staff/staff_wellbeing.gd",
+      "bytes": 65744,
+      "sha256": "e290834f0469c6ee349f48542ccd673d07c1fc1d043d41bb94ec3492d62fbec6"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/all-instance-profile-identity.json",
+      "bytes": 175097,
+      "sha256": "720827d78e849055cd1140bf0bc25eebd8b64f87b3dd68dcd7598cc2e22f4ceb"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/game/building/floor_navigation.gd",
+      "bytes": 11349,
+      "sha256": "b69c88ce650f11fb4dbf769b9b79ed51dd7964d8036174bc90189819ee2e35b9"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/game/building/hospital_movement.gd",
+      "bytes": 59656,
+      "sha256": "0eeb8245e54ea2a8ec4deed5d7ea4710a1a79e4604c07ca123952771ec75264b"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/game/building/hospital_space.gd",
+      "bytes": 81914,
+      "sha256": "7a69157984301e378b5cbef7ae1f330bdfd79c37b1e5f1b9109ea7e4c2b7b046"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/game/life/public_areas.gd",
+      "bytes": 65123,
+      "sha256": "0bb090bd9543149108fb453a12deb1dd19e2fa4f5b31827f803db6f4954cd6ae"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/game/life/waiting_life.gd",
+      "bytes": 68931,
+      "sha256": "2f7f447746e9c826aad454410f0af9c1e7288143e8e193ce88528aeb8e1a202a"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/import.log",
+      "bytes": 11871,
+      "sha256": "cde005c38df94d4eb37657d23e9aae7a900685c441a0d87c7bbb36e7a6d1efc5"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/project.godot",
+      "bytes": 929,
+      "sha256": "76e9ca3babfbfc172b3ae971d83d73a1a0f56eb19b13d5c55868e2fcefe536c1"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/source-identity.json",
+      "bytes": 75180,
+      "sha256": "dd15bef4e7b91776d37f76dadc50a0db1cdab6a2758e39c02b097001802921dc"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/tools/performance/movement_trace.gd",
+      "bytes": 23585,
+      "sha256": "1ec2bcf0b4fd125af02fccbc64c9e77ae79e4bd1137d8b79ee5a8c0a7a2ffd96"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/tools/performance/representative.gd",
+      "bytes": 11329,
+      "sha256": "9c4d7c7d609ed0325c15cd85fc07e91f2dcd118d74c2f116dafcd18351adf452"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/tools/performance/representative_selected.gd",
+      "bytes": 12585,
+      "sha256": "3bc9613621df975f55fe3bd207c9b49e078e0aa52ef521cae43f257d6a363730"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-project/tools/performance/step_profile.gd",
+      "bytes": 26185,
+      "sha256": "d7b596922a0cc9b1e2c7f1a46e5506a85a24a4676246d8f9022455ccf6d1a535"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-public360.json",
+      "bytes": 3193769,
+      "sha256": "421410929fcbc5bf3b57c75eb81e5ebcf6d2eb6c588683e0d931fd10ec084e2a"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-public360.json.final.bin",
+      "bytes": 2896512,
+      "sha256": "aa6b9baf08110e4152a32c001922142fb21ded7efa838cb906ce45bf59e1da7e"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-public360.json.sources/simulation.gd",
+      "bytes": 9312,
+      "sha256": "3d3744687f3fa3e5bf0873b71d47042ed88bf72d035abc9b85695fc32051c4c5"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-public360.json.steps.ndjson",
+      "bytes": 2052777,
+      "sha256": "56c438caa6ea44d50a4e92350ec8db990ffa207d2b5b30b309a80b79e2db4d66"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-all-public360.log",
+      "bytes": 5066,
+      "sha256": "5ec410eb9decbe0886511f468bf1a074b670d333425e02347c0c5f4182d1901b"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-plain-gp80.json",
+      "bytes": 80315,
+      "sha256": "2c584d9a307d232f162c6e9d8ba531946732c2c04facf910df4280214b8f8942"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-plain-gp80.json.final.bin",
+      "bytes": 2590220,
+      "sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-plain-gp80.json.steps.ndjson",
+      "bytes": 16325,
+      "sha256": "59bbdb5dd1a9b9dbd2ab1ae499cd3f966445677140cf52ea3e96487a5c894927"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-plain-gp80.log",
+      "bytes": 1666,
+      "sha256": "b29a7e4000e452a66877fb5aeb7bff75a5236e5ee6fba68cde2d3a0983610672"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-plain-operations40.json",
+      "bytes": 204773,
+      "sha256": "c1a72be97da6db10eb9c6b82c2a783aad0eb720abcd89deeab6fd4ffca04f6fe"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-plain-operations40.json.final.bin",
+      "bytes": 1730496,
+      "sha256": "f20de287ab252ab3fd759f27d841da0fe8a288ee3189a22f05d006a51ace45f8"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-plain-operations40.json.steps.ndjson",
+      "bytes": 8062,
+      "sha256": "5a004404bea87991f4fe18cc218f615b2d798e60f458772fdd39cdf7609a931d"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-plain-operations40.log",
+      "bytes": 1522,
+      "sha256": "58a859b4374205c5ce88fdabb83e6b1ee32ca6c31318b8bbf7cffe18bc18b5ac"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-plain-public360.json",
+      "bytes": 446085,
+      "sha256": "c61ca384b69e877696bbde77ba84ff6a91d1c7254ce6abda69eb07ae4714be30"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-plain-public360.json.final.bin",
+      "bytes": 2896512,
+      "sha256": "aa6b9baf08110e4152a32c001922142fb21ded7efa838cb906ce45bf59e1da7e"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-plain-public360.json.steps.ndjson",
+      "bytes": 74625,
+      "sha256": "2574f86279e00dacad808961242e6101fad51a10bef265a6dcc2fbd2aa5f5b85"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-plain-public360.log",
+      "bytes": 4650,
+      "sha256": "b150991ffcec1e6c73eed505ad58cbfa15e41d893006d577b6bfdec8b5e33184"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-prepare.log",
+      "bytes": 104,
+      "sha256": "d058019e22bcae9ae105c79d1c32e543c4e8220b3ec0ce10ded4c0fb3415d829"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-project/game/building/floor_navigation.gd",
+      "bytes": 8109,
+      "sha256": "2c97c48b36d366192da85efd46e68f3f2eaeb9b135af05e68068215c79332ebc"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-project/game/building/hospital_movement.gd",
+      "bytes": 45963,
+      "sha256": "bf50a096f6694fe0afe811e19f48f69fff122361745f075c089b9fd90e24d153"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-project/game/building/hospital_space.gd",
+      "bytes": 59612,
+      "sha256": "d4850c75518ac42b5c58559add5740e0448a66511478c625157af6a3c8b71f12"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-project/game/life/public_areas.gd",
+      "bytes": 43436,
+      "sha256": "d852d459d6512de900fefcced60a48569b927400883bbee2249abb92b59ed6a9"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-project/game/life/waiting_life.gd",
+      "bytes": 52597,
+      "sha256": "8d807685446c04c55355a5d54e07df173f8b3f3af60eac6d8327e9f5645b0047"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-project/import.log",
+      "bytes": 11871,
+      "sha256": "cde005c38df94d4eb37657d23e9aae7a900685c441a0d87c7bbb36e7a6d1efc5"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-project/project.godot",
+      "bytes": 929,
+      "sha256": "c70ff1f9cac1eb30f92a47bfa54a57ce1820e6491b165de25a22c5ce5af9db24"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-project/source-identity.json",
+      "bytes": 75172,
+      "sha256": "202c5d095dd7d142c29e5eb49181cf2c5673b92ba129c096403b541114a330cd"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-project/tools/performance/movement_trace.gd",
+      "bytes": 23585,
+      "sha256": "1ec2bcf0b4fd125af02fccbc64c9e77ae79e4bd1137d8b79ee5a8c0a7a2ffd96"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-project/tools/performance/representative.gd",
+      "bytes": 11329,
+      "sha256": "9c4d7c7d609ed0325c15cd85fc07e91f2dcd118d74c2f116dafcd18351adf452"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-project/tools/performance/representative_selected.gd",
+      "bytes": 12585,
+      "sha256": "3bc9613621df975f55fe3bd207c9b49e078e0aa52ef521cae43f257d6a363730"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-project/tools/performance/step_profile.gd",
+      "bytes": 26185,
+      "sha256": "d7b596922a0cc9b1e2c7f1a46e5506a85a24a4676246d8f9022455ccf6d1a535"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-trace-public360.json",
+      "bytes": 787804,
+      "sha256": "e0c628accadaf04b540fbbe4cf2ef054ec54e27a9bdc2b224ad0eaf4f7d04d57"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-trace-public360.json.final.bin",
+      "bytes": 2896512,
+      "sha256": "aa6b9baf08110e4152a32c001922142fb21ded7efa838cb906ce45bf59e1da7e"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-trace-public360.json.steps.ndjson",
+      "bytes": 74626,
+      "sha256": "6ade137df4134d57b9d3a1a8fb9cd76e1764f26821d6af9532988fefaa1536f5"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/after-trace-public360.log",
+      "bytes": 4649,
+      "sha256": "f4e90951043bc8e90f9e2940cdb7f0cd025c5a934b6fda6e5ceb4fa654cdc765"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-gp40.json",
+      "bytes": 1540540,
+      "sha256": "502338f7aae8bbed1b8fa2ca7e3f287d024860cee6c3118e0cff0ef1438cad00"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-gp40.json.final.bin",
+      "bytes": 2432520,
+      "sha256": "186b3d8b25889dc1a6e32acdf9121fd520afa1d6debf28e8e089af7ec1eab748"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-gp40.json.sources/simulation.gd",
+      "bytes": 9312,
+      "sha256": "3d3744687f3fa3e5bf0873b71d47042ed88bf72d035abc9b85695fc32051c4c5"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-gp40.json.steps.ndjson",
+      "bytes": 1002873,
+      "sha256": "ec9bad6c278a2b49e4fe02860be526442623edc9a4bb6133055cfa854f950744"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-gp40.log",
+      "bytes": 1346,
+      "sha256": "77e810f582d41e466fb20eea58887d01a754c4444c51a2e8d8cfe69b463dd7db"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-operations40.json",
+      "bytes": 1305047,
+      "sha256": "8d5641fc7e832f9da4e779794c217fa34ef1328d43d9e3bf217016ce69feb457"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-operations40.json.final.bin",
+      "bytes": 1730496,
+      "sha256": "f20de287ab252ab3fd759f27d841da0fe8a288ee3189a22f05d006a51ace45f8"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-operations40.json.sources/simulation.gd",
+      "bytes": 9312,
+      "sha256": "3d3744687f3fa3e5bf0873b71d47042ed88bf72d035abc9b85695fc32051c4c5"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-operations40.json.steps.ndjson",
+      "bytes": 712752,
+      "sha256": "007d660a93b1db9d34dc4439ca6cb37861f30806855b8a33d6ef0e770f9371f4"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-operations40.log",
+      "bytes": 1583,
+      "sha256": "697dee5d2a20b9b115ffb734a75047f54f281a627946e2cb90e865344776fdce"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-prepare.log",
+      "bytes": 109,
+      "sha256": "38369b4a304ee9ea6ba47eb785854d2e6c7639a61dc4ef6c9a995f973bc42fed"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/.cache/tail-profile-originals/game/arrivals/arrival_service.gd",
+      "bytes": 88061,
+      "sha256": "7c0f7ac551f067419d8363d5ec8e1ad3256a92d87a63d800a67161ca038bb607"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/.cache/tail-profile-originals/game/building/floor_navigation.gd",
+      "bytes": 7853,
+      "sha256": "3252ea8be161029ff0ef600e605a4b50da9a4ee63d1562e69ac78a3e596b0a42"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/.cache/tail-profile-originals/game/building/floor_service.gd",
+      "bytes": 14460,
+      "sha256": "a3974006ce8c43ed5c3b177c1b481bf1c755d9dfb4fc4693ae64f6db34472c8b"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/.cache/tail-profile-originals/game/building/hospital_movement.gd",
+      "bytes": 46019,
+      "sha256": "b8bf9acbc4286839300c51c5a3028dd9cb6e9507743db5a8e1d2a14af2e326e1"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/.cache/tail-profile-originals/game/building/hospital_navigation.gd",
+      "bytes": 21405,
+      "sha256": "e1e822f6612591f777bd4889c67b5553550293912b1700f23bc0d09494b7bcb5"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/.cache/tail-profile-originals/game/building/hospital_space.gd",
+      "bytes": 59431,
+      "sha256": "25b14d563225151ddad7855773f9236683871d11150522eda1115cd8a21829af"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/.cache/tail-profile-originals/game/building/hospital_transit.gd",
+      "bytes": 22197,
+      "sha256": "6a8ddb1da1878dd30307ff75719171a9d7d1a531f5998bc39671e48127917208"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/.cache/tail-profile-originals/game/building/navigation_cache.gd",
+      "bytes": 23577,
+      "sha256": "266237bd20c84f1a7feb2d0e6fed268f59d0e19a393486393ec068c19cf1c719"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/.cache/tail-profile-originals/game/building/remodel_service.gd",
+      "bytes": 25773,
+      "sha256": "d46bd4af6106ad7d99bef7dedf1ca8e1290502ce1c60057dbeb455c483d9f756"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/.cache/tail-profile-originals/game/building/route_clearance.gd",
+      "bytes": 18272,
+      "sha256": "57ae6fe1be895514d0fd458247f6faed3b92f0c7ba2b64949a348783bec6a6e9"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/.cache/tail-profile-originals/game/clinic/clinical_runtime.gd",
+      "bytes": 189003,
+      "sha256": "3ce51b71e8cfbc93b527df1f499e953d7fcd20416b6bc332d6dcaad1b24cb1e0"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/.cache/tail-profile-originals/game/clinic/hospital_visitors.gd",
+      "bytes": 24636,
+      "sha256": "e8b8b7dbbf80dd510c1598929382c564e12f7dcceeff43dc7c30362aaf332f0d"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/.cache/tail-profile-originals/game/community/research_service.gd",
+      "bytes": 34442,
+      "sha256": "eee0f6439a013d1689cbf1b482a9f54d49941abe551c7b667904e78c2d41c7fa"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/.cache/tail-profile-originals/game/economy/finance_service.gd",
+      "bytes": 28306,
+      "sha256": "6a84601eb63d57641467ad0877b6f7dca04178973145554fc85e7fa5d8b2c96a"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/.cache/tail-profile-originals/game/life/public_areas.gd",
+      "bytes": 41660,
+      "sha256": "fa7dff283f60bbba2d14bbd40f623a5b620180e80f26aef66e2dfa9d67499424"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/.cache/tail-profile-originals/game/life/waiting_life.gd",
+      "bytes": 52253,
+      "sha256": "99200263f7588bd409d86010841308fd3047a564f92117f322d0968f9f1c8500"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/.cache/tail-profile-originals/game/operations/department_service.gd",
+      "bytes": 64195,
+      "sha256": "c2a0dd23d74ba8a4499153ff0a94c3e3b581045affaf3822740a14ca66d93596"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/.cache/tail-profile-originals/game/operations/environment_service.gd",
+      "bytes": 55614,
+      "sha256": "8d6b76318755aa0fb5641784ca722bd73e405a4d558d9ed6343f5cd254ea30c3"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/.cache/tail-profile-originals/game/operations/maintenance_service.gd",
+      "bytes": 37028,
+      "sha256": "9b1e32aec0d2043e16873a219f609f48b339ce21ff806011181398cfbacf2f1d"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/.cache/tail-profile-originals/game/operations/supply_service.gd",
+      "bytes": 14926,
+      "sha256": "c475929ef1ffb29fcba23ba944b9b226e9cccb166a906c400718ecd303f8e213"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/.cache/tail-profile-originals/game/staff/clinical_development.gd",
+      "bytes": 46617,
+      "sha256": "a33f86c5f165315e7710bfa6b2c359b472c678c283fb2ccee4caeef74584bb55"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/.cache/tail-profile-originals/game/staff/personal_beds.gd",
+      "bytes": 7265,
+      "sha256": "fe816d77b0e1268d5d4de0c886cbb739a1c8f0d83b8505f201f59b8a8a4c26d6"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/.cache/tail-profile-originals/game/staff/recruitment_service.gd",
+      "bytes": 44006,
+      "sha256": "7c7a4902aa693aa7b8f57a9ed61c87f37423b5897d00c22cd053f4ea80ae8693"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/.cache/tail-profile-originals/game/staff/shift_scheduler.gd",
+      "bytes": 26269,
+      "sha256": "d3a45d0c2b47f05461c1cbdab6481d1c421f977a0335acab74989655e0c1d25e"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/.cache/tail-profile-originals/game/staff/staff_wellbeing.gd",
+      "bytes": 65744,
+      "sha256": "e290834f0469c6ee349f48542ccd673d07c1fc1d043d41bb94ec3492d62fbec6"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/all-instance-profile-identity.json",
+      "bytes": 174488,
+      "sha256": "268269148ff516a35baa59b93e62720b964c64d61fb9fd0348d09809b4ae3a36"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/game/building/floor_navigation.gd",
+      "bytes": 11093,
+      "sha256": "737f3fc9ca8afab556bea27c15eb7748261d2f0755dec641a53dfa51bf42d4f2"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/game/building/hospital_movement.gd",
+      "bytes": 59712,
+      "sha256": "d31d7d05621bc4d313e35e04e6d37c0614c5f2ac87aa7dfba11b361b8b29664b"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/game/building/hospital_space.gd",
+      "bytes": 81733,
+      "sha256": "747e854266537bd6621144d2981d320c9617db39fdc4e52ffa113d4344995afd"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/game/life/public_areas.gd",
+      "bytes": 62642,
+      "sha256": "10d9e0fab97a66d5322361ddf2509bbfe276050a375ae43a73582183578ae597"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/game/life/waiting_life.gd",
+      "bytes": 68587,
+      "sha256": "3e56fa62552831b8d25e97869cd23415ac8d60378c0b7b9e7891534653df0046"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/import.log",
+      "bytes": 11871,
+      "sha256": "cde005c38df94d4eb37657d23e9aae7a900685c441a0d87c7bbb36e7a6d1efc5"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/project.godot",
+      "bytes": 929,
+      "sha256": "6e868bafb438ce6869c1210ef56fd90271b33bc185789ed38f4ce59a202a74eb"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/source-identity.json",
+      "bytes": 75182,
+      "sha256": "a30a9296611e3adb9c706e35611800c59929df887abce71e2d313741d8d29da9"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/tools/performance/movement_trace.gd",
+      "bytes": 19670,
+      "sha256": "de2d72c967e463a66e28434759b81e0f2bce8b4ef302c8d85da3f5543ccbea24"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/tools/performance/representative.gd",
+      "bytes": 11329,
+      "sha256": "9c4d7c7d609ed0325c15cd85fc07e91f2dcd118d74c2f116dafcd18351adf452"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/tools/performance/representative_selected.gd",
+      "bytes": 12585,
+      "sha256": "3bc9613621df975f55fe3bd207c9b49e078e0aa52ef521cae43f257d6a363730"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-project/tools/performance/step_profile.gd",
+      "bytes": 26162,
+      "sha256": "b56590fff1524086af91e2c9a042cc48c406b34786edd34a7d9960a16d79cf81"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-public360.json",
+      "bytes": 3201172,
+      "sha256": "0c4a0c61896b1ce4b654485b4ceb41772dd5db1d1b967e71eaddc691d71ee259"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-public360.json.final.bin",
+      "bytes": 2888360,
+      "sha256": "a65ff7256372e47041fe3ddb6fc05fa2b1dc236150122c421c72a040e2def26f"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-public360.json.sources/simulation.gd",
+      "bytes": 9312,
+      "sha256": "3d3744687f3fa3e5bf0873b71d47042ed88bf72d035abc9b85695fc32051c4c5"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-public360.json.steps.ndjson",
+      "bytes": 2058178,
+      "sha256": "3260b003bbfbee20bf313b6913542e66c07f9ee0e4423e7eedcdee99e007596c"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-public360.log",
+      "bytes": 5076,
+      "sha256": "54c79435af47c9f8affa07bb98d0acc9af0e622e26d1a7eaf61d103be5bb7589"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-all-reimport.log",
+      "bytes": 3162,
+      "sha256": "776d8119cc65b04a3df1247d75c8b7853f6f9cb4d63519a5f8b10fbc53e182e2"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-plain-gp80.json",
+      "bytes": 80322,
+      "sha256": "2d0ba29069a2b1e680f2180228edbc7a31eda0667e59b9ff067b2b5170ccf682"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-plain-gp80.json.final.bin",
+      "bytes": 2590220,
+      "sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-plain-gp80.json.steps.ndjson",
+      "bytes": 16333,
+      "sha256": "eb060e025e7e4d5f9f6f111fc8bf6a29553586a2f5b4ac1ac7544f3ab3b889a3"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-plain-gp80.log",
+      "bytes": 1667,
+      "sha256": "d00beecd75718cb2dc9be4c650516dd6c102cf5871be0cfeb1c4d862084340a9"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-plain-operations40.json",
+      "bytes": 204772,
+      "sha256": "45be71fbd02249816faceadf6ea910f3fb0b638163c20070f95a14755c25667b"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-plain-operations40.json.final.bin",
+      "bytes": 1730496,
+      "sha256": "f20de287ab252ab3fd759f27d841da0fe8a288ee3189a22f05d006a51ace45f8"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-plain-operations40.json.steps.ndjson",
+      "bytes": 8062,
+      "sha256": "db1c7b2281b0bfd80c86d47d330c163406f49b94f48bdcd0fee9a2ba24cbd2c5"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-plain-operations40.log",
+      "bytes": 1523,
+      "sha256": "39c907ba2aa09e39cec42cf69c189d507d8d08386739cfa55f4f9407cde7e6c8"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-plain-public360.json",
+      "bytes": 446243,
+      "sha256": "aae689b444c4758386e5882dab26e5e91a34fbe267245456d90ec8cd8d07e989"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-plain-public360.json.final.bin",
+      "bytes": 2888360,
+      "sha256": "a65ff7256372e47041fe3ddb6fc05fa2b1dc236150122c421c72a040e2def26f"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-plain-public360.json.steps.ndjson",
+      "bytes": 74781,
+      "sha256": "2d320fb08a6a78b8d7f2c1e2d9687de25998212ed016d64040f1bf5bb125ff5a"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-plain-public360.log",
+      "bytes": 4659,
+      "sha256": "53c3b38f6713d66cd068762b7ad99297984116e5209d3a61a38e459aca5eacc1"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-prepare.log",
+      "bytes": 105,
+      "sha256": "cca15c241e83e46b5253433ed320fa86febc1383913799efb87400509f0371bb"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-project/game/building/floor_navigation.gd",
+      "bytes": 7853,
+      "sha256": "3252ea8be161029ff0ef600e605a4b50da9a4ee63d1562e69ac78a3e596b0a42"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-project/game/building/hospital_movement.gd",
+      "bytes": 46019,
+      "sha256": "b8bf9acbc4286839300c51c5a3028dd9cb6e9507743db5a8e1d2a14af2e326e1"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-project/game/building/hospital_space.gd",
+      "bytes": 59431,
+      "sha256": "25b14d563225151ddad7855773f9236683871d11150522eda1115cd8a21829af"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-project/game/life/public_areas.gd",
+      "bytes": 41660,
+      "sha256": "fa7dff283f60bbba2d14bbd40f623a5b620180e80f26aef66e2dfa9d67499424"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-project/game/life/waiting_life.gd",
+      "bytes": 52253,
+      "sha256": "99200263f7588bd409d86010841308fd3047a564f92117f322d0968f9f1c8500"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-project/import.log",
+      "bytes": 11871,
+      "sha256": "cde005c38df94d4eb37657d23e9aae7a900685c441a0d87c7bbb36e7a6d1efc5"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-project/project.godot",
+      "bytes": 929,
+      "sha256": "e346ab763dd797ffdb8eeaab87ebe4d092bd544165faf01eab51ffd3c91cf319"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-project/source-identity.json",
+      "bytes": 75174,
+      "sha256": "3ba8591278587fa1be94e7cb1fd45509b0ba3bcb0b5eb7b0a5f52b731a0b0dab"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-project/tools/performance/movement_trace.gd",
+      "bytes": 19670,
+      "sha256": "de2d72c967e463a66e28434759b81e0f2bce8b4ef302c8d85da3f5543ccbea24"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-project/tools/performance/representative.gd",
+      "bytes": 11329,
+      "sha256": "9c4d7c7d609ed0325c15cd85fc07e91f2dcd118d74c2f116dafcd18351adf452"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-project/tools/performance/representative_selected.gd",
+      "bytes": 12585,
+      "sha256": "3bc9613621df975f55fe3bd207c9b49e078e0aa52ef521cae43f257d6a363730"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-project/tools/performance/step_profile.gd",
+      "bytes": 26162,
+      "sha256": "b56590fff1524086af91e2c9a042cc48c406b34786edd34a7d9960a16d79cf81"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-signature-import.log",
+      "bytes": 1087,
+      "sha256": "d41e6300cf6ac491b0a0d10ec7fdc44455cf584b0662d6fb50d14a917682c3a3"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-signature-project/game/building/floor_navigation.gd",
+      "bytes": 7853,
+      "sha256": "3252ea8be161029ff0ef600e605a4b50da9a4ee63d1562e69ac78a3e596b0a42"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-signature-project/game/building/hospital_movement.gd",
+      "bytes": 46019,
+      "sha256": "b8bf9acbc4286839300c51c5a3028dd9cb6e9507743db5a8e1d2a14af2e326e1"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-signature-project/game/building/hospital_space.gd",
+      "bytes": 59431,
+      "sha256": "25b14d563225151ddad7855773f9236683871d11150522eda1115cd8a21829af"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-signature-project/game/life/public_areas.gd",
+      "bytes": 42360,
+      "sha256": "bd4fdeb767fe983ab831241d9507315ab474b9c5c47c94d0ed054df6eb8db8c3"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-signature-project/game/life/waiting_life.gd",
+      "bytes": 52253,
+      "sha256": "99200263f7588bd409d86010841308fd3047a564f92117f322d0968f9f1c8500"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-signature-project/import.log",
+      "bytes": 11871,
+      "sha256": "cde005c38df94d4eb37657d23e9aae7a900685c441a0d87c7bbb36e7a6d1efc5"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-signature-project/project.godot",
+      "bytes": 926,
+      "sha256": "961dc81dae398f083c5d415dcb9a29191ca04a7cf91f847777a52769e8d97e2f"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-signature-project/source-identity.json",
+      "bytes": 75582,
+      "sha256": "1a6e4fb7d58f5ae1c1bb0dad68f5040c2a552ed02da1f4a8e586e314bf520784"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-signature-project/tools/performance/movement_trace.gd",
+      "bytes": 19670,
+      "sha256": "de2d72c967e463a66e28434759b81e0f2bce8b4ef302c8d85da3f5543ccbea24"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-signature-project/tools/performance/representative.gd",
+      "bytes": 11329,
+      "sha256": "9c4d7c7d609ed0325c15cd85fc07e91f2dcd118d74c2f116dafcd18351adf452"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-signature-project/tools/performance/representative_selected.gd",
+      "bytes": 12585,
+      "sha256": "3bc9613621df975f55fe3bd207c9b49e078e0aa52ef521cae43f257d6a363730"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-signature-project/tools/performance/step_profile.gd",
+      "bytes": 26162,
+      "sha256": "b56590fff1524086af91e2c9a042cc48c406b34786edd34a7d9960a16d79cf81"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-signature-public160.json",
+      "bytes": 376897,
+      "sha256": "f6c47356f4c131be5553b80379f50f0bfdab511286d2f916cee55a90a214dac7"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-signature-public160.json.final.bin",
+      "bytes": 2689144,
+      "sha256": "374f0183489f383097bc30292efa38b761363e7b3fcc687b1d5e9645fb669fa1"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-signature-public160.json.steps.ndjson",
+      "bytes": 32999,
+      "sha256": "554d538a2614492a58917a6e1ebf4659f9b4569349269351baff09b72b462c6b"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-signature-public160.log",
+      "bytes": 2702,
+      "sha256": "04032db2e064d6b61d1725d910295b63f2085f58fffd5b2b36f6265b4484b1cb"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-trace-project-reimport.log",
+      "bytes": 1087,
+      "sha256": "d41e6300cf6ac491b0a0d10ec7fdc44455cf584b0662d6fb50d14a917682c3a3"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-trace-project/game/building/floor_navigation.gd",
+      "bytes": 7853,
+      "sha256": "3252ea8be161029ff0ef600e605a4b50da9a4ee63d1562e69ac78a3e596b0a42"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-trace-project/game/building/hospital_movement.gd",
+      "bytes": 46019,
+      "sha256": "b8bf9acbc4286839300c51c5a3028dd9cb6e9507743db5a8e1d2a14af2e326e1"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-trace-project/game/building/hospital_space.gd",
+      "bytes": 59431,
+      "sha256": "25b14d563225151ddad7855773f9236683871d11150522eda1115cd8a21829af"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-trace-project/game/life/public_areas.gd",
+      "bytes": 41660,
+      "sha256": "fa7dff283f60bbba2d14bbd40f623a5b620180e80f26aef66e2dfa9d67499424"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-trace-project/game/life/waiting_life.gd",
+      "bytes": 52253,
+      "sha256": "99200263f7588bd409d86010841308fd3047a564f92117f322d0968f9f1c8500"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-trace-project/import.log",
+      "bytes": 11871,
+      "sha256": "cde005c38df94d4eb37657d23e9aae7a900685c441a0d87c7bbb36e7a6d1efc5"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-trace-project/project.godot",
+      "bytes": 922,
+      "sha256": "cb2272c4ad8e10ca9299c1bbe6b9ac6f27abf62b5bc345e038ba2acf7391eeda"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-trace-project/source-identity.json",
+      "bytes": 75444,
+      "sha256": "503256971a7a4ddfc874317b5c73a21c4fa0e7ace0c887f0427e755cf607f8b7"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-trace-project/tools/performance/movement_trace.gd",
+      "bytes": 23585,
+      "sha256": "1ec2bcf0b4fd125af02fccbc64c9e77ae79e4bd1137d8b79ee5a8c0a7a2ffd96"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-trace-project/tools/performance/representative.gd",
+      "bytes": 11329,
+      "sha256": "9c4d7c7d609ed0325c15cd85fc07e91f2dcd118d74c2f116dafcd18351adf452"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-trace-project/tools/performance/representative_selected.gd",
+      "bytes": 12585,
+      "sha256": "3bc9613621df975f55fe3bd207c9b49e078e0aa52ef521cae43f257d6a363730"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-trace-project/tools/performance/step_profile.gd",
+      "bytes": 26162,
+      "sha256": "b56590fff1524086af91e2c9a042cc48c406b34786edd34a7d9960a16d79cf81"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-trace-public360.json",
+      "bytes": 788411,
+      "sha256": "94c687a03b15f046153cdb20ea5abd6565f5bf44122704ce175077dd12218bc4"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-trace-public360.json.final.bin",
+      "bytes": 2888360,
+      "sha256": "a65ff7256372e47041fe3ddb6fc05fa2b1dc236150122c421c72a040e2def26f"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-trace-public360.json.steps.ndjson",
+      "bytes": 74790,
+      "sha256": "df306818c63ac8ef69c5b514a460468f91e57b0abbfddf77c72c041a77b03313"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/before-trace-public360.log",
+      "bytes": 4659,
+      "sha256": "aefae373ac90304cb41929ed76667ba78560aeb0ddac8161f6ce29f9bac65c6c"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/prepare-signature.py",
+      "bytes": 2400,
+      "sha256": "9ed8bb6d65e0b9f934051ffaac9fb4f69a10f1aad3d5084f0131ea1472af9f41"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/prepare-trace.py",
+      "bytes": 1122,
+      "sha256": "8f52c81d30e3a019a2fc6748260b587be371fb5dacbbcb29f796043c47688f8b"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/regression-courtesy-final.log",
+      "bytes": 402,
+      "sha256": "bd57f0be39c5b42ce29f4275eae07458fec748b45cb2d1da63512a70d87d9e98"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/regression-fifteen.log",
+      "bytes": 4104,
+      "sha256": "55d913e3b58545ff979703fb6fad7dd2da456b4c92d6418bc14147d31e5bb209"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/run-after.ps1",
+      "bytes": 2577,
+      "sha256": "9110c49ab1621c609b8641b803d5e6a60556a5ce07a7fe8a0ad5e8c695b2710f"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/run-before.ps1",
+      "bytes": 2171,
+      "sha256": "42e9667209be66a0dd6e917634e4995532b17b3f6971a774b344c45e2ce0b8d4"
+    },
+    {
+      "path": ".cache/remaining-b9bb59d-20261021/summarize.py",
+      "bytes": 12954,
+      "sha256": "c8ef62be9cda7bbff18ffa42372c2dfd4fc6d4ca233e9c16e5a49c3eb9e4a0e0"
+    },
+    {
+      "path": ".cache/task-navigation-20261019/gp.input.bin",
+      "bytes": 1686716,
+      "sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27"
+    },
+    {
+      "path": ".cache/task-navigation-20261019/op.input.bin",
+      "bytes": 1784760,
+      "sha256": "939c2d95da67a9df671dbb5a824fd987174e77b449e3ed0b0332405922b4848b"
+    },
+    {
+      "path": ".cache/task-navigation-20261019/public-v6.input.bin",
+      "bytes": 1782420,
+      "sha256": "1d83a8834528fd2f6c53dff06f6ec150c9e598eed675fc37521ab7e45fcadb10"
+    },
+    {
+      "path": "docs/reports/evidence/2026-10-21-public-query-reuse/functional-summary.json",
+      "bytes": 2063,
+      "sha256": "c9f30cbb84e993f382c208bb6b4ac893a04b2fcbb07314f40dafc1468d4a94cc"
+    },
+    {
+      "path": "docs/reports/evidence/2026-10-21-public-query-reuse/movement-summary.json",
+      "bytes": 74172,
+      "sha256": "72805da4333f4eb36f2dc415c5adbfb8df6fdcf74d4ac6b1c60ee2c1f0faa00d"
+    },
+    {
+      "path": "docs/reports/evidence/2026-10-21-public-query-reuse/quick-summary.json",
+      "bytes": 19616,
+      "sha256": "138b059bacda0c582ec6fb0ab288b3bbfcaafef85920f9a18eea3e2cc20aba3d"
+    },
+    {
+      "path": "docs/reports/evidence/2026-10-21-public-query-reuse/source-check.json",
+      "bytes": 176043,
+      "sha256": "a010efbb228e7984faa4b43e90a13c90b5baeef320245ca124053c6da3e4ddd1"
+    },
+    {
+      "path": "docs/reports/evidence/2026-10-21-public-query-reuse/stage-function-summary.json",
+      "bytes": 310415,
+      "sha256": "691254df85e1f0756e45e2c73d4d39694fbc6f2fedee10a06bf8d51bcbd050e6"
+    }
+  ],
+  "verified_entries": 237
+}

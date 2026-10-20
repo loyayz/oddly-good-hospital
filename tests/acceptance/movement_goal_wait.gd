@@ -38,7 +38,53 @@ func run(suite: RefCounted) -> Dictionary:
 	var gap: Dictionary = _group_gap(suite)
 	var facing: Dictionary = _alternative_facing(suite)
 	var sweep: Dictionary = _accepted_sweep_boundary(suite)
-	return {"ok":single.ok and follower.ok and gap.ok and facing.ok and sweep.ok,"actual_occupied_destination":single,"actual_follower_destination":follower,"actual_midroute_obstacle_in_group_goal_gap":gap,"rectangular_body_alternative_arrival_facing":facing,"accepted_sweep_with_current_goal_clear":sweep}
+	var different: Dictionary = _different_goal_occupant(suite)
+	return {"ok":single.ok and follower.ok and gap.ok and facing.ok and sweep.ok and different.ok,"actual_occupied_destination":single,"actual_follower_destination":follower,"actual_midroute_obstacle_in_group_goal_gap":gap,"rectangular_body_alternative_arrival_facing":facing,"accepted_sweep_with_current_goal_clear":sweep,"different_actual_body_occupies_destination":different}
+
+func _different_goal_occupant(suite: RefCounted) -> Dictionary:
+	var sim: HospitalSimulation = suite._fixture()
+	var observer: ObservingMovement = ObservingMovement.new(sim.space)
+	sim.space.movement = observer
+	suite._add_actor(sim,"z_walker","S49",[40,82])
+	suite._add_actor(sim,"middle_body","S49",[42,82])
+	suite._add_actor(sim,"a_goal_body","S49",[46,82])
+	var requested: String = sim.space.request_move(sim.world,"z_walker",1,[46,82])
+	var sequence: int = int(sim.world.facts.moves.get("z_walker",{}).get("request_sequence",-1))
+	var safe: bool = true
+	var original: bool = true
+	var middle_contact_only: bool = false
+	for _tick: int in 100:
+		safe = _physical_tick(suite,sim) and safe
+		var move: Dictionary = sim.world.facts.moves.get("z_walker",{})
+		original = original and move.get("target_cell",[])==[46,82] and int(move.get("request_sequence",-2))==sequence
+		var contact: Array = observer.contacts.get("z_walker",{}).get("actors",[])
+		middle_contact_only = middle_contact_only or "middle_body" in contact and not "a_goal_body" in contact
+	var held: Array = sim.world.facts.actors.z_walker.location.cell.duplicate()
+	var path: Array = sim.world.facts.moves.get("z_walker",{}).get("path",[]).duplicate(true)
+	var waits: int = int(sim.space.query_counts.get("local_goal_occupied_waits",0))
+	for _tick: int in 40: safe = _physical_tick(suite,sim) and safe
+	var stable: bool = waits>0 and int(sim.space.query_counts.get("local_goal_occupied_waits",0))>waits and int(sim.space.query_counts.get("route_dispatches",0))==1 and observer.local_requests==0 and sim.world.facts.actors.z_walker.location.cell==held and sim.world.facts.moves.get("z_walker",{}).get("path",[])==path and int(sim.world.facts.moves.get("z_walker",{}).get("request_sequence",-2))==sequence
+	# Only the distant destination body leaves. The encountered middle body
+	# stays put, so a newly allowed local route must really detour around it.
+	var leave: String = sim.space.request_move(sim.world,"a_goal_body",1,[46,85])
+	var clear_tick: int = -1
+	var local_tick: int = -1
+	var middle_stayed: bool = true
+	var arrived: bool = false
+	for tick: int in 240:
+		safe = _physical_tick(suite,sim) and safe
+		middle_stayed = middle_stayed and sim.world.facts.actors.middle_body.location.cell==[42,82]
+		var goal: Rect2 = sim.space._actor_rect(sim.world.facts.actors.z_walker,Vector2(46,82))
+		if clear_tick<0 and not goal.intersects(sim.space.body_rectangle(sim.world.facts.actors.a_goal_body),false): clear_tick = tick
+		if local_tick<0 and observer.local_requests>0: local_tick = tick
+		if not sim.world.facts.moves.has("z_walker"):
+			arrived = sim.space.at(sim.world,"z_walker",1,[46,82])
+			break
+	var promptly: bool = clear_tick>=0 and local_tick>=clear_tick and local_tick-clear_tick<=1
+	var validation: String = sim.world.validate(suite.content)
+	var result: Dictionary = {"ok":requested.is_empty() and original and middle_contact_only and stable and leave.is_empty() and promptly and middle_stayed and arrived and safe and validation.is_empty(),"request_error":requested,"actual_contact_is_only_middle_body":middle_contact_only,"original_target_and_fifo_preserved":original,"no_useless_redispatch_while_other_body_at_goal":stable,"held_location":held,"goal_occupied_waits":waits,"goal_body_departure_error":leave,"actual_goal_body_clear_tick":clear_tick,"local_detour_requested_tick":local_tick,"local_detour_by_next_boundary":promptly,"middle_body_stayed":middle_stayed,"local_route_requests":observer.local_requests,"actual_original_goal_arrival":arrived,"safe_real_steps":safe,"safety_failures":observer.safety_failures,"validation":validation,"remaining":sim.world.facts.moves.duplicate(true)}
+	sim.dispose()
+	return result
 
 func _occupied_goal(suite: RefCounted, group: bool) -> Dictionary:
 	var sim: HospitalSimulation = suite._fixture()

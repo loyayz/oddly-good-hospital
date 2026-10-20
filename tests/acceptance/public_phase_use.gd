@@ -14,6 +14,15 @@ class WaitingWorkProbe extends HospitalWaitingLife:
 		scores += 1
 		return super._score_seat(world,visit,facility_id,quote,observation,actor_index)
 
+# A cold-current calculation reference: identical rules, with an explicit
+# forced physical index refresh at every regional choice.
+class FreshEntryAreas extends HospitalPublicAreas:
+	func select(world: WorldState, actor_id: String, definitions: Array, room_kinds: Array, purpose: String, members: Array = [], maximum_travel_ticks: int = 9223372036854775807, selected_entries: Dictionary = {}) -> Dictionary:
+		space.begin_dynamic_route_query(world,true)
+		var result: Dictionary = super.select(world,actor_id,definitions,room_kinds,purpose,members,maximum_travel_ticks,selected_entries)
+		space.end_route_query()
+		return result
+
 func _observe_waiting(x: Dictionary) -> WaitingWorkProbe:
 	var probe: WaitingWorkProbe = WaitingWorkProbe.new(_content,x.space)
 	probe.environment = x.e
@@ -38,6 +47,8 @@ func _occupied_west() -> Dictionary:
 
 func _case_69(t) -> void:
 	var connector_basis: Dictionary = _connector_wait_basis()
+	var snapshot: Dictionary = _wait_value_snapshot()
+	var samples: Dictionary = _complete_environment_samples()
 	var x: Dictionary = _occupied_west()
 	var intent: Dictionary = x.world.facts.waiting_life.seats.get(x.waiter.id,{})
 	var arrived: bool = intent.get("phase","")=="local_wait" and int(intent.get("arrived_tick",-1))==50
@@ -55,7 +66,46 @@ func _case_69(t) -> void:
 	var release_move: String = x.space.request_move(x.world,x.holder.actor_id,1,[40,76])
 	var seated: bool = _until_seated(x,x.waiter)
 	var timely: bool = seated and intent.get("facility_id","")=="west_chair" and int(intent.get("arrived_tick",-1))==queued_at and not x.space.overlaps_facility(x.world,x.holder.actor_id,"west_chair")
-	t.check("STAFF-69",connector_basis.ok and x.held and arrived and unchanged and other_move.is_empty() and local_dependencies and release_move.is_empty() and timely and x.l.validate(x.world).is_empty(),{"connector_dependency_boundary":connector_basis,"arrived_waiting":arrived,"unchanged_wait_did_not_requote":unchanged,"unrelated_area_real_move":other_move,"unrelated_movement_did_not_requote":local_dependencies,"actual_holder_exit":release_move,"original_queue_time_kept":int(intent.get("arrived_tick",-1))==queued_at,"actually_seated_after_release":timely,"quotes_before":quotes,"quotes_after":x.probe.quotes,"intent":intent})
+	t.check("STAFF-69",snapshot.ok and samples.ok and connector_basis.ok and x.held and arrived and unchanged and other_move.is_empty() and local_dependencies and release_move.is_empty() and timely and x.l.validate(x.world).is_empty(),{"immutable_wait_basis":snapshot,"complete_environment_dependencies":samples,"connector_dependency_boundary":connector_basis,"arrived_waiting":arrived,"unchanged_wait_did_not_requote":unchanged,"unrelated_area_real_move":other_move,"unrelated_movement_did_not_requote":local_dependencies,"actual_holder_exit":release_move,"original_queue_time_kept":int(intent.get("arrived_tick",-1))==queued_at,"actually_seated_after_release":timely,"quotes_before":quotes,"quotes_after":x.probe.quotes,"intent":intent})
+
+func _wait_value_snapshot() -> Dictionary:
+	var x: Dictionary = _occupied_west()
+	var intent: Dictionary = x.world.facts.waiting_life.seats[x.waiter.id]
+	var extra: Dictionary = {"nested":{"values":[1,2]},"flag":true}
+	var before: Dictionary = x.world.freeze()
+	x.space.public_areas.remember_wait(x.world,intent,x.l.PUBLIC_SEAT_DEFINITIONS,[],extra)
+	var initial: bool = not x.space.public_areas.should_recheck(x.world,intent,x.l.PUBLIC_SEAT_DEFINITIONS,[],extra)
+	extra["nested"]["values"][0] = 3
+	var changed: bool = x.space.public_areas.should_recheck(x.world,intent,x.l.PUBLIC_SEAT_DEFINITIONS,[],extra)
+	extra["nested"]["values"][0] = 1
+	var unchanged: bool = not x.space.public_areas.should_recheck(x.world,intent,x.l.PUBLIC_SEAT_DEFINITIONS,[],{"flag":true,"nested":{"values":[1,2]}})
+	return {"ok":x.held and initial and changed and unchanged and before==x.world.freeze(),"initial_hit":initial,"nested_input_change_rechecked":changed,"retained_snapshot_not_aliased":unchanged,"world_and_rng_unchanged":before==x.world.freeze()}
+
+func _complete_environment_samples() -> Dictionary:
+	var x: Dictionary = _areas()
+	var view: Dictionary = x.space.public_areas._decision_view(x.world)
+	var all: Array = view.environment.get(1,[])
+	var anchor: Array = all[0][0]
+	var cases: Array = [[],[anchor,anchor],[[float(anchor[0])+8.0,anchor[1]]],[[float(anchor[0])+8.000001,anchor[1]]],[[float(anchor[0])+4.25,float(anchor[1])+3.75],[float(anchor[0])-0.25,float(anchor[1])+8.25]]]
+	var before: Dictionary = x.world.freeze()
+	var rows: Array = []
+	for points: Array in cases:
+		var expected: Array = []
+		for sample: Array in all:
+			for point: Array in points:
+				if absf(float(sample[0][0])-float(point[0]))+absf(float(sample[0][1])-float(point[1]))<=8.0:
+					expected.append(sample)
+					break
+		var actual: Array = x.space.public_areas._environment_samples(view,1,points)
+		rows.append({"points":points,"all_sources_and_order_equal":actual==expected,"expected":expected,"actual":actual})
+	var readonly: bool = before==x.world.freeze()
+	var old_view: Dictionary = view
+	x.world.touch()
+	var touched: Dictionary = x.world.freeze()
+	var current: Dictionary = x.space.public_areas._decision_view(x.world)
+	var geometry_refreshed: bool = not is_same(old_view,current) and current.environment_indices.is_empty()
+	readonly = readonly and touched==x.world.freeze()
+	return {"ok":rows.all(func(row: Dictionary)->bool: return row.all_sources_and_order_equal) and geometry_refreshed and readonly,"complete_original_enumeration":rows,"same_tick_geometry_rebuilds_sample_index":geometry_refreshed,"world_and_rng_unchanged":readonly}
 
 # This calculation boundary starts with a genuinely arrived negative result.
 # The main case then independently exercises real release and use. Live lift
@@ -355,6 +405,7 @@ func _case_74(t) -> void:
 # are inputs here; STAFF-45 exercises the resulting real arrival and use.
 func _case_75(t) -> void:
 	var large_estimate: Dictionary = _large_entry_estimate()
+	var scan_batch: Dictionary = _scan_index_batch()
 	var observations: Array = []
 	for variant: String in ["ordinary","fractional","nearest_body_occupied","only_far_point_free"]:
 		var x: Dictionary = _areas()
@@ -394,7 +445,33 @@ func _case_75(t) -> void:
 		var far_retained: bool = retained_far.is_empty() or expected.rows.size()==1 and actual.get("cell",[])==retained_far and original.rows.size()>32
 		var readonly: bool = before==x.world.freeze()
 		observations.append({"variant":variant,"ok":validation.is_empty() and original.readonly and expected.readonly and same and blocked_rejected and stable_tie_exercised and far_retained and readonly,"validation":validation,"literal_rectangle_cells":120,"original_safe_complete_candidates":original.rows.size(),"current_safe_complete_candidates":expected.rows.size(),"minimum_cost_ties":expected.cost_ties,"minimum_cost_and_lower_ties":expected.order_ties,"expected":_entry_result(expected.best,1),"actual":actual,"same_point_cost_and_stable_order":same,"occupied_nearest_rejected":blocked_rejected,"stable_tie_exercised":stable_tie_exercised,"far_unique_candidate_retained":far_retained,"readonly":readonly,"route_queries":route_queries,"waiting_point_us":elapsed})
-	t.check("STAFF-75",large_estimate.ok and observations.all(func(row: Dictionary)->bool: return row.ok),{"complete_entry_boundaries":observations,"large_finite_estimate":large_estimate})
+	t.check("STAFF-75",large_estimate.ok and scan_batch.ok and observations.all(func(row: Dictionary)->bool: return row.ok),{"complete_entry_boundaries":observations,"large_finite_estimate":large_estimate,"physical_index_scan_batch":scan_batch})
+
+func _scan_index_batch() -> Dictionary:
+	var x: Dictionary = _areas()
+	var first: Dictionary = _visit(x,"batch_first",[38,90])
+	var second: Dictionary = _visit(x,"batch_second",[53,90])
+	x.world.facts.sim_tick = 50
+	x.space._ensure_actor_index(x.world)
+	# A legal input can be prepared after the previous index boundary without
+	# changing its revision. The first real scan must still refresh it.
+	x.world.facts.actors[second.actor_id].location.cell = [52.25,90]
+	var stale: bool = x.space._actor_index.rectangle(second.actor_id)!=x.space.body_rectangle(x.world.facts.actors[second.actor_id])
+	var source: Dictionary = x.world.freeze()
+	var cold: Dictionary = _bind(WorldState.new(source.duplicate(true)))
+	cold.space.public_areas = FreshEntryAreas.new(cold.space)
+	var before_builds: int = int(x.space.query_counts.actor_index_builds)
+	x.l.dispatch(x.world)
+	cold.l.dispatch(cold.world)
+	var builds: int = int(x.space.query_counts.actor_index_builds)-before_builds
+	var equal: bool = x.world.freeze()==cold.world.freeze()
+	var both_selected: bool = x.world.facts.waiting_life.seats.has(first.id) and x.world.facts.waiting_life.seats.has(second.id)
+	var actual_body: bool = x.space._actor_index.rectangle(second.actor_id)==x.space.body_rectangle(x.world.facts.actors[second.actor_id])
+	var closed: bool = x.space._route_queries.is_empty() and x.space._indexed_actor_scope.is_empty()
+	var before_idle: int = int(x.space.query_counts.actor_index_builds)
+	x.l.dispatch(x.world)
+	var no_empty_scan_refresh: bool = int(x.space.query_counts.actor_index_builds)==before_idle
+	return {"ok":stale and equal and both_selected and actual_body and builds==1 and closed and no_empty_scan_refresh,"input_index_was_stale":stale,"same_facts_and_rng_as_forced_fresh_choices":equal,"both_actors_selected":both_selected,"first_scan_sees_current_body":actual_body,"full_index_builds_for_two_choices":builds,"all_query_scopes_released":closed,"no_extra_rebuild_without_new_scan":no_empty_scan_refresh}
 
 # A finite route-cost input near int64's limit must remain sortable. This is
 # only the numeric candidate boundary: no lift journey or arrival is fabricated.

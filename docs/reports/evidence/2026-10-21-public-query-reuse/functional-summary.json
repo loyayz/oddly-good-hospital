@@ -1,0 +1,77 @@
+{
+  "unique_final_selected_cases": [
+    "STAFF-45",
+    "STAFF-61",
+    "STAFF-65",
+    "STAFF-69",
+    "STAFF-70",
+    "STAFF-71",
+    "STAFF-72",
+    "STAFF-75",
+    "SPACE-10",
+    "SPACE-46",
+    "SPACE-51",
+    "SPACE-53",
+    "SPACE-55",
+    "SPACE-56",
+    "SPACE-57"
+  ],
+  "final_selected_passed": 15,
+  "batches": [
+    {
+      "id": "3155cd5aa21342a39d502d876b8c1d9a",
+      "requested_cases": [
+        "STAFF-45",
+        "STAFF-61",
+        "STAFF-65",
+        "STAFF-69",
+        "STAFF-70",
+        "STAFF-71",
+        "STAFF-72",
+        "STAFF-75",
+        "SPACE-10",
+        "SPACE-46",
+        "SPACE-51",
+        "SPACE-53",
+        "SPACE-55",
+        "SPACE-56",
+        "SPACE-57"
+      ],
+      "checks": 15,
+      "assertions_failed": 1,
+      "completed": true,
+      "script_errors": false,
+      "timing": {
+        "started_at_utc": "2026-10-20T16:43:02.6961484+00:00",
+        "ended_at_utc": "2026-10-20T16:43:20.9443084+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 3788,
+        "import_ms": 6824,
+        "tests_ms": 7625,
+        "total_ms": 18250
+      }
+    },
+    {
+      "id": "895a7e6bb45a4bd681888e8aad598085",
+      "requested_cases": [
+        "SPACE-56"
+      ],
+      "checks": 1,
+      "assertions_failed": 0,
+      "completed": true,
+      "script_errors": false,
+      "timing": {
+        "started_at_utc": "2026-10-20T16:45:14.3793750+00:00",
+        "ended_at_utc": "2026-10-20T16:45:28.0744320+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 3681,
+        "import_ms": 7019,
+        "tests_ms": 2984,
+        "total_ms": 13697
+      }
+    }
+  ],
+  "failure": "SPACE56 counted every body-index query as a forbidden partner re-query. The new legitimate destination-core occupancy query is now separately counted by the probe; original actual-contact identity and no duplicate partner lookup assertions remain. Only this affected case was rerun."
+}
