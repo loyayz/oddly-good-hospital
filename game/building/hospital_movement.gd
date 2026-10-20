@@ -235,24 +235,42 @@ func _active_route_clear(world: WorldState, actor: Dictionary, movement: Diction
 		for segment: Dictionary in movement.path.slice(int(movement.cursor)):
 			if segment.kind=="connector": connections[segment.connector_id] = []
 			else: floors[int(segment.floor_id)] = -1
-		record = {"sequence":sequence,"floors":floors,"connections":connections,"tokens":{},"members":[],"offsets":{},"validated":false}
+		record = {"sequence":sequence,"floors":floors,"connections":connections,"bodies":{},"members":[],"offsets":{},"validated":false}
 	var members: Array = movement.get("members",[actor.id])
 	var offsets: Dictionary = movement.get("offsets",{})
-	var changed: bool = not record.validated or record.members!=members or record.offsets!=offsets
+	# Collision-index shapes are disposable when a read-only projection changes
+	# its indexed world. A route instead owns the actual body facts it proved.
+	var bodies: Dictionary = {actor.id:_route_body_basis(actor)}
 	for id: String in members:
-		if record.tokens.get(id,-1)!=int(space._actor_shapes[id].token): changed = true
+		if id!=actor.id: bodies[id] = _route_body_basis(world.facts.actors[id])
+	var body_changed: bool = record.bodies!=bodies
+	var formation_changed: bool = record.members!=members or record.offsets!=offsets
+	var floor_changed: bool = false
+	var connection_changed: bool = false
 	for floor_id: int in record.floors:
 		if not versions.has(floor_id): versions[floor_id] = space._navigation.floor_static_version(space,world,floor_id)
-		if record.floors[floor_id]!=versions[floor_id]: changed = true
+		if record.floors[floor_id]!=versions[floor_id]: floor_changed = true
 	if not versions.has("connections"): versions.connections = {}
 	for id: String in record.connections:
 		if not versions.connections.has(id):
 			var connection: Dictionary = world.facts.connectors.get(id,{})
 			if connection.is_empty(): return false
 			versions.connections[id] = [connection.definition_id,HospitalTransit.endpoints(connection).duplicate(),connection.anchor.duplicate(),connection.get("failed",false),connection.get("pending_failure",false)]
-		if record.connections[id]!=versions.connections[id]: changed = true
-	if not changed: return true
+		if record.connections[id]!=versions.connections[id]: connection_changed = true
+	if record.validated and not body_changed and not formation_changed and not floor_changed and not connection_changed: return true
 	space.query_counts.route_revalidations += 1
+	# Reasons count checks which actually revalidate. An unproved route counts
+	# only as unvalidated; an existing proof can have several changed reasons.
+	var reasons: Array[String] = []
+	if not record.validated: reasons.append("unvalidated")
+	else:
+		if body_changed: reasons.append("body")
+		if formation_changed: reasons.append("formation")
+		if floor_changed: reasons.append("floor")
+		if connection_changed: reasons.append("connection")
+	for reason: String in reasons:
+		var key: String = "route_revalidation_"+reason
+		space.query_counts[key] = int(space.query_counts.get(key,0))+1
 	var floor_id: int = int(actor.location.floor_id)
 	var current: Vector2 = Vector2(float(actor.location.cell[0]),float(actor.location.cell[1]))
 	var queries: Dictionary = {}
@@ -286,11 +304,19 @@ func _active_route_clear(world: WorldState, actor: Dictionary, movement: Diction
 	record.validated = true
 	record.members = members.duplicate()
 	record.offsets = offsets.duplicate(true)
-	for id: String in members: record.tokens[id] = space._actor_shapes[id].token
+	record.bodies = bodies
 	for id: int in record.floors: record.floors[id] = versions[id]
 	for id: String in record.connections: record.connections[id] = versions.connections[id]
 	_route_checks[actor.id] = record
 	return true
+
+func _route_body_basis(actor: Dictionary) -> Array:
+	# RouteClearance uses integer width/depth clearance and posture-dependent
+	# height; doors and connector fits also use the full standing dimensions.
+	# Facing belongs to the exact collision sweep performed during movement.
+	var body: Dictionary = space.body(actor)
+	var posture: String = actor.get("posture","standing")
+	return [actor.species_id,actor.get("body_binding_id",""),posture,float(body.width_m),float(body.depth_m),float(body.height_m),actor.get("support_facility_id","") if posture=="lying" else ""]
 
 func _dispatch_routes(world: WorldState, present_at_start: int) -> void:
 	_ensure_route_queue(world)

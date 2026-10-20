@@ -249,7 +249,7 @@ func _execute(command: GameCommand) -> CommandResult:
 		return CommandResult.new(false,"movement_in_progress","当前通行尚未完成，原移动请求保留",[],world.revision)
 	if payload.floor_id<1 or HospitalSpace.floor_plots(world,payload.floor_id).is_empty():
 		return CommandResult.new(false,"floor_unavailable","目标楼层没有可用通行布局",[],world.revision)
-	var quote: Dictionary = space.route(world,payload.actor_id,payload.floor_id,[payload.cell.x,payload.cell.y])
+	var quote: Dictionary = space.route_cost(world,payload.actor_id,payload.floor_id,[payload.cell.x,payload.cell.y])
 	if not quote.ok:
 		return CommandResult.new(false,"route_unavailable",quote.reason,[],world.revision)
 	var reason: String = space.request_move(world,payload.actor_id,payload.floor_id,[payload.cell.x,payload.cell.y])

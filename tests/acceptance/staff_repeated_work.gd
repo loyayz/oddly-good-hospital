@@ -9,6 +9,9 @@ class Routes extends HospitalSpace:
 	func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
 		route_calls += 1
 		return super.route(world,actor_id,floor_id,target,members,offsets,ignore_people)
+	func route_cost(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
+		route_calls += 1
+		return super.route_cost(world,actor_id,floor_id,target,members,offsets,ignore_people)
 
 class Wellbeing extends HospitalStaffWellbeing:
 	var tea_calls: int = 0

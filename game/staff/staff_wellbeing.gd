@@ -308,7 +308,7 @@ func _dispatch_task(world: WorldState, staff_id: String) -> void:
 			return
 		if not _at_target(world,staff_id,task):
 			if task.kind!="recreation" and not world.facts.moves.has(staff_id):
-				var legal: Dictionary = space.route(world,staff_id,int(task.floor_id),task.cell,[],{},true)
+				var legal: Dictionary = space.route_cost(world,staff_id,int(task.floor_id),task.cell,[],{},true)
 				if not legal.ok and legal.get("status","")=="unreachable":
 					_release_if_clear(world,staff_id)
 					if str(task.facility_id).is_empty():
@@ -369,7 +369,7 @@ func _reserve(world: WorldState, staff_id: String, task: Dictionary, selection: 
 		return false
 	var layout: Dictionary = space.facility_layout(world,facility_id)
 	var target: Array = layout.patient_cell
-	var route: Dictionary = space.route(world,staff_id,int(layout.floor_id),target)
+	var route: Dictionary = space.route_cost(world,staff_id,int(layout.floor_id),target)
 	if not route.ok:
 		world.facts.staff[staff_id].life_reason = route.get("reason","休息位置路线暂不可用")
 		return false
@@ -426,12 +426,12 @@ func _select_facility(world: WorldState, staff_id: String, kind: String, query: 
 			# Retain only the existing bounded static graph cache. Actor indices,
 			# scopes and route/exit witnesses belong to this fresh query space.
 			candidate_space._navigation = _facility_navigation
-		var route: Dictionary = candidate_space.route(candidate,staff_id,int(layout.floor_id),target)
+		var route: Dictionary = candidate_space.route_cost(candidate,staff_id,int(layout.floor_id),target)
 		if not route.ok: continue
 		var origin: Dictionary = world.facts.actors[staff_id].location
 		candidate.facts.actors[staff_id].location = {"kind":"floor","floor_id":layout.floor_id,"cell":target.duplicate(),"height_m":0.0}
 		candidate_space.sync_actor(candidate,staff_id)
-		var back: Dictionary = candidate_space.route(candidate,staff_id,int(origin.get("floor_id",layout.floor_id)),origin.get("cell",target))
+		var back: Dictionary = candidate_space.route_cost(candidate,staff_id,int(origin.get("floor_id",layout.floor_id)),origin.get("cell",target))
 		if not route.ok or not back.ok:
 			continue
 		var travel: float = _route_ticks(route)
@@ -666,7 +666,7 @@ func _recreation_choice(world: WorldState, ids: Array, preferred: String, area: 
 			candidate_space = HospitalSpace.new(content)
 			candidate_space._navigation = _facility_navigation
 		for index: int in ids.size():
-			if not candidate_space.route(candidate,ids[index],int(layout.floor_id),positions[index]).ok:
+			if not candidate_space.can_reach(candidate,ids[index],int(layout.floor_id),positions[index]):
 				all_reachable = false
 				break
 		if not all_reachable:

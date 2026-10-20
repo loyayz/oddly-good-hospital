@@ -336,7 +336,7 @@ func _bedside_in_query(world: WorldState, actor_id: String, stay: Dictionary) ->
 		var compatible: bool = true
 		for operator_cell: Array in bed.operator_cells:
 			compatible = compatible and not rectangle.intersects(Rect2(float(operator_cell[0]),float(operator_cell[1]),1,1),false)
-		if compatible and space.route(world,actor_id,int(bed.floor_id),point,[],{},true).ok:
+		if compatible and space.can_reach(world,actor_id,int(bed.floor_id),point,[],{},true):
 			return {"floor_id":int(bed.floor_id),"cell":point}
 	return {}
 

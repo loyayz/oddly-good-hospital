@@ -155,13 +155,13 @@ func run_routes(content: HospitalContent) -> Dictionary:
 			sweep.sweep_to = Rect2(58,82,1,1)
 			var sweeps: Array[BodyIndex.Record] = [sweep]
 			var broad: Rect2 = sweep.sweep_from.merge(sweep.sweep_to)
-			var actual_sweep: bool = actual._movement_clear(world,"route_cleaner",2,broad,sweeps,["route_cleaner"])
-			var full_sweep: bool = control._movement_clear(world,"route_cleaner",2,broad,sweeps,["route_cleaner"])
+			var actual_sweep: bool = actual.movement._movement_clear(world,"route_cleaner",2,broad,sweeps,["route_cleaner"])
+			var full_sweep: bool = control.movement._movement_clear(world,"route_cleaner",2,broad,sweeps,["route_cleaner"])
 			sweeps_equal = actual_sweep==full_sweep and actual_sweep==(condition=="authorized")
 			sweep.sweep_from = Rect2(54,80,1,1)
 			sweep.sweep_to = Rect2(58,80,1,1)
 			broad = sweep.sweep_from.merge(sweep.sweep_to)
-			sweeps_equal = sweeps_equal and actual._movement_clear(world,"route_cleaner",2,broad,sweeps,["route_cleaner"]) and control._movement_clear(world,"route_cleaner",2,broad,sweeps,["route_cleaner"])
+			sweeps_equal = sweeps_equal and actual.movement._movement_clear(world,"route_cleaner",2,broad,sweeps,["route_cleaner"]) and control.movement._movement_clear(world,"route_cleaner",2,broad,sweeps,["route_cleaner"])
 		actual.end_route_query()
 		var actual_counts: Dictionary = actual.query_counts.duplicate()
 		var control_counts: Dictionary = control.query_counts.duplicate()
@@ -169,7 +169,11 @@ func run_routes(content: HospitalContent) -> Dictionary:
 		if condition=="clear":
 			reduction = int(actual.query_counts.floor_route_hits)>0 and int(actual.query_counts.floor_route_builds)<int(control.query_counts.floor_route_builds)
 			equal = equal and bool(quotes[0].get("ok",false))
-		if condition=="egress_occupied": equal = equal and not bool(quotes[0].get("ok",false))
+		if condition=="egress_occupied":
+			# Structural journeys may depart toward a busy landing. The real
+			# arrival still cannot overlap the person currently blocking it.
+			var landing: Vector2i = Vector2i(51,86)
+			equal = equal and bool(quotes[0].get("ok",false)) and not actual._unit_step_dynamic_clear(world,world.facts.actors.route_cleaner,2,landing,landing,[],{})
 		if condition in ["reservation","authorized"]: equal = equal and dynamic==(condition=="authorized")
 		# The next batch must observe an actual new blocker, even without a tick.
 		world.facts.actors.route_blocker.location.cell = [51,86]

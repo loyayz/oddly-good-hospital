@@ -416,7 +416,7 @@ func _facility_quote_in_query(world: WorldState, visit: Dictionary, facility_id:
 	# A changed fit and the reverse location are distinct actual worlds. They
 	# must not inherit a parent's nominal routes or another world's views.
 	if candidate!=world: space.begin_route_query(candidate,{},false)
-	var route: Dictionary = space.route(candidate,visit.actor_id,int(layout.floor_id),layout.patient_cell)
+	var route: Dictionary = space.route_cost(candidate,visit.actor_id,int(layout.floor_id),layout.patient_cell)
 	if candidate!=world: space.end_route_query()
 	if not route.ok or not route.has("travel_ticks"): return {"ok":false,"reason":route.get("reason","无法估计实际设施路程")}
 	var reverse: WorldState = candidate if candidate!=world else _route_candidate(candidate,visit.actor_id)
@@ -425,7 +425,7 @@ func _facility_quote_in_query(world: WorldState, visit: Dictionary, facility_id:
 	if reverse!=candidate: space.prepare_projection(candidate,reverse)
 	space.sync_actor(reverse,visit.actor_id)
 	space.begin_dynamic_route_query(reverse,false)
-	var back: Dictionary = space.route(reverse,visit.actor_id,int(origin.floor_id),origin.cell)
+	var back: Dictionary = space.route_cost(reverse,visit.actor_id,int(origin.floor_id),origin.cell)
 	space.end_route_query()
 	if not back.ok: return {"ok":false,"reason":"设施没有合法返回路线："+str(back.get("reason",""))}
 	return {"ok":true,"travel_ticks":int(route.travel_ticks),"patient_cell":layout.patient_cell.duplicate(),"floor_id":int(layout.floor_id)}
@@ -668,7 +668,7 @@ func _conditions(world: WorldState, visit: Dictionary, facility: Dictionary, cel
 		var relationship: Variant = world.facts.get("relationships",{}).get(":".join(pair),{})
 		var possible_friend: bool = relationship is Dictionary and relationship.get("kind","")=="friend" and not world.facts.moves.has(actor.id)
 		if nearby>=crowded_at and not possible_friend: continue
-		var nearby_route: Dictionary = space._floor_route(world,world.facts.actors[visit.actor_id],int(facility.floor_id),Vector2i(int(cell[0]),int(cell[1])),Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1])),[],{},true)
+		var nearby_route: Dictionary = space._floor_route(world,world.facts.actors[visit.actor_id],int(facility.floor_id),Vector2i(int(cell[0]),int(cell[1])),Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1])),[],{},true,{},true)
 		if not nearby_route.ok or float(nearby_route.walking_distance)>radius: continue
 		nearby += 1
 		if possible_friend: friendly = true

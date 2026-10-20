@@ -726,11 +726,11 @@ func _missing_service_reason(world: WorldState, visit: Dictionary, kind: String)
 			if not fit.ok:
 				reason = str(fit.reason)
 				continue
-			var patient_route: Dictionary = space.route(world,visit.actor_id,int(layout.floor_id),layout.patient_cell,[],{},true)
+			var patient_route: Dictionary = space.route_cost(world,visit.actor_id,int(layout.floor_id),layout.patient_cell,[],{},true)
 			if not patient_route.ok:
 				reason = "患者路线："+str(patient_route.reason)
 				continue
-			var worker_route: Dictionary = space.route(world,staff_id,int(layout.floor_id),layout.operator_cells[0],[],{},true)
+			var worker_route: Dictionary = space.route_cost(world,staff_id,int(layout.floor_id),layout.operator_cells[0],[],{},true)
 			if not worker_route.ok:
 				reason = "工作人员路线："+str(worker_route.reason)
 	return reason
@@ -1493,7 +1493,7 @@ func _bed_transport(world: WorldState, visit: Dictionary, source: Dictionary, be
 	var nominal: bool = space.nominal_query(world)
 	if nominal: space.begin_route_query(candidate)
 	var gathering: Dictionary = space.travel_quote(candidate,escort_id,int(bed.floor_id),alongside)
-	var transfer: Dictionary = space.route(candidate,visit.actor_id,int(bed.floor_id),bed.patient_cell,[visit.actor_id,escort_id],{visit.actor_id:[0,0],escort_id:[-1,0]},true)
+	var transfer: Dictionary = space.route_cost(candidate,visit.actor_id,int(bed.floor_id),bed.patient_cell,[visit.actor_id,escort_id],{visit.actor_id:[0,0],escort_id:[-1,0]},true)
 	if nominal: space.end_route_query()
 	if not gathering.ok or not transfer.ok: return {"ok":false,"exit_ticks":source_ticks,"source_id":source_id,"escort_id":escort_id,"gathering":gathering,"transfer":transfer}
 	return {"ok":true,"ticks":exit_ticks+int(gathering.travel_ticks)+int(transfer.travel_ticks),"exit_ticks":source_ticks,"source_id":source_id,"escort_id":escort_id}
@@ -1772,7 +1772,7 @@ func _dispatch_clinical_releases(world: WorldState) -> void:
 				if checker==null: checker = RouteClearance.new(space,world,actor,int(actor.location.floor_id),[],{},true,space._navigation.floor_source(space,world,int(actor.location.floor_id)))
 				if not checker.reason(point).is_empty() or space.movement._narrow(world,actor,point,checker) or not space._dynamic_clear(world,staff_id,int(actor.location.floor_id),rect):
 					continue
-				if space.route(world,staff_id,int(actor.location.floor_id),[point.x,point.y],[],{},true).ok:
+				if space.can_reach(world,staff_id,int(actor.location.floor_id),[point.x,point.y],[],{},true):
 					selected = [point.x,point.y]
 					break
 			if not selected.is_empty(): break
@@ -1817,7 +1817,7 @@ func _release_ward_operator(world: WorldState, stay: Dictionary, staff_id: Strin
 			candidates.append({"cell":[x,y],"distance":absf(float(actor.location.cell[0])-x)+absf(float(actor.location.cell[1])-y)})
 	candidates.sort_custom(func(a: Dictionary,b: Dictionary)->bool: return a.distance<b.distance)
 	for candidate: Dictionary in candidates:
-		var route: Dictionary = space.route(world,staff_id,int(bed.floor_id),candidate.cell)
+		var route: Dictionary = space.route_cost(world,staff_id,int(bed.floor_id),candidate.cell)
 		if not route.ok or route.get("status","")=="contention": continue
 		world.facts.staff[staff_id].clinical_release = {"facility_id":stay.bed_id,"visit_id":world.facts.attempts[stay.attempt_id].visit_id,"phase":"walking","reason":"","target_floor":int(bed.floor_id),"target_cell":candidate.cell}
 		space.request_move(world,staff_id,int(bed.floor_id),candidate.cell)
@@ -2017,7 +2017,7 @@ func _round_candidate(world: WorldState, visit: Dictionary, stay: Dictionary) ->
 		if not reservation.is_empty() and not id in reservation.staff_ids:
 			candidate = _reservation_candidate(world,[stay.bed_id])
 			space.grant_facility_access(candidate,stay.bed_id,id)
-		var route: Dictionary = space.route(candidate,id,int(bed.floor_id),bed.operator_cells[1])
+		var route: Dictionary = space.route_cost(candidate,id,int(bed.floor_id),bed.operator_cells[1])
 		if route.ok and route.get("status","")!="contention":
 			space.grant_facility_access(world,stay.bed_id,id)
 			return id

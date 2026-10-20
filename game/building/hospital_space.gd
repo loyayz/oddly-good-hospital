@@ -217,6 +217,9 @@ func static_reason(world: WorldState, actor: Dictionary, floor_id: int, origin: 
 func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
 	return _route_result(world,actor_id,floor_id,target,members,offsets,ignore_people,false)
 
+func route_cost(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
+	return _route_result(world,actor_id,floor_id,target,members,offsets,ignore_people,true)
+
 func can_reach(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> bool:
 	return bool(_route_result(world,actor_id,floor_id,target,members,offsets,ignore_people,true).ok)
 

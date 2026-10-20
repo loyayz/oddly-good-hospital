@@ -6,6 +6,9 @@ class UnknownTransferEstimate extends HospitalSpace:
 	func route(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
 		if members.size()>1: return {"ok":false,"status":"estimate_unknown","reason":"controlled downstream estimate failure"}
 		return super.route(world,actor_id,floor_id,target,members,offsets,ignore_people)
+	func route_cost(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false) -> Dictionary:
+		if members.size()>1: return {"ok":false,"status":"estimate_unknown","reason":"controlled downstream estimate failure"}
+		return super.route_cost(world,actor_id,floor_id,target,members,offsets,ignore_people)
 
 const CASES: Dictionary = {
 	"CLIN-01":"docs/design/12-implementation-plan.md §10.1–10.2；真实接待6秒，Actor/Visit/原票只建一次",

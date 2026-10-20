@@ -509,7 +509,7 @@ func _arrive(world: WorldState, job: Dictionary, floor_id: int, cell: Array) -> 
 	# The movement service owns this real journey and rechecks its next segment.
 	# Requoting the whole trip cannot advance an already travelling worker.
 	if world.facts.moves.has(worker_id): return false
-	var route: Dictionary = space.route(world,worker_id,floor_id,cell)
+	var route: Dictionary = space.route_cost(world,worker_id,floor_id,cell)
 	if not route.ok:
 		_release(world,job)
 		job.reason = str(route.get("reason","清扫路线暂不可达"))
@@ -544,7 +544,7 @@ func _work_position(world: WorldState, staff_id: String, floor_id: int, target: 
 		# Connectors preserve XY and all floor edges are orthogonal. Equal
 		# distance cannot replace the original first winner's strict comparison.
 		if not best.is_empty() and stub+absi(start.x-int(cell[0]))+absi(start.y-int(cell[1]))>=float(best.distance): continue
-		var path: Dictionary = space.route(world,staff_id,floor_id,cell)
+		var path: Dictionary = space.route_cost(world,staff_id,floor_id,cell)
 		if path.ok and (best.is_empty() or float(path.walking_distance)<float(best.distance)):
 			best = {"cell":cell,"distance":path.walking_distance}
 	return best
@@ -963,8 +963,7 @@ func _water_usable(world: WorldState, facility: Dictionary, actor_id: String) ->
 	var quote: Dictionary = space.facility_quote(world,str(facility.id),actor_id)
 	if not quote.get("ok",false):
 		return false
-	var route: Dictionary = space.route(world,actor_id,int(facility.floor_id),quote.get("patient_cell",facility.get("patient_cell",facility.cell)))
-	return bool(route.ok)
+	return space.can_reach(world,actor_id,int(facility.floor_id),quote.get("patient_cell",facility.get("patient_cell",facility.cell)))
 
 func heatmap(world: WorldState, floor_id: int, cells: Array, actor_id: String = "") -> Array:
 	var result: Array = []

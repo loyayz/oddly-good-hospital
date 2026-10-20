@@ -321,7 +321,7 @@ func _evacuation(world: WorldState, order: Dictionary, actor: Dictionary) -> Arr
 			for room: Dictionary in world.facts.rooms.values():
 				if int(room.floor_id)==floor_id and BuildGeometry.intersects_room(rectangle,room): inside = true
 			if inside: continue
-			var route: Dictionary = space.route(world,actor.id,floor_id,point)
+			var route: Dictionary = space.route_cost(world,actor.id,floor_id,point)
 			if route.ok and route.get("status","")!="contention": return point
 	return []
 

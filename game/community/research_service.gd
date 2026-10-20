@@ -390,7 +390,7 @@ func _find_pair(world: WorldState, preferred_desk: String = "", preferred_worker
 			var cell: Array = HospitalClinicalDevelopment._operator(layout)
 			if region.get("strict",false) and (int(region.get("floor_id",-1))!=int(layout.floor_id) or not _in_region(cell,region)):
 				continue
-			if space.route(world,worker_id,int(layout.floor_id),cell).ok:
+			if space.can_reach(world,worker_id,int(layout.floor_id),cell):
 				return {"desk_id":desk_id,"worker_id":worker_id}
 	return {}
 

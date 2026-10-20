@@ -199,7 +199,7 @@ func _dispatch_training_job(world: WorldState, job: Dictionary, desks: Dictionar
 			if desk_taken(world,desk_id,job.id,desks):
 				continue
 			var layout: Dictionary = space.facility_layout(world,desk_id)
-			var route: Dictionary = space.route(world,job.staff_id,int(layout.floor_id),_operator(layout))
+			var route: Dictionary = space.route_cost(world,job.staff_id,int(layout.floor_id),_operator(layout))
 			if route.ok:
 				job.desk_id = desk_id
 				break
@@ -218,7 +218,7 @@ func _dispatch_training_job(world: WorldState, job: Dictionary, desks: Dictionar
 	job.reason = ""
 	if not str(job.mentor_id).is_empty() and _mentor_available(world,job):
 		var adjacent: Array = [int(_operator(desk)[0])+space.clearance(world.facts.actors[job.staff_id]),int(_operator(desk)[1])]
-		if not space.route(world,job.mentor_id,int(desk.floor_id),adjacent).ok:
+		if not space.can_reach(world,job.mentor_id,int(desk.floor_id),adjacent):
 			return
 		_mentor_blocks[job.mentor_id] = job.id
 		world.facts.staff[job.mentor_id].block_new_work = true
@@ -242,7 +242,7 @@ func advance(world: WorldState) -> void:
 		if _mentor_available(world,job):
 			var desk: Dictionary = space.facility_layout(world,job.desk_id)
 			var adjacent: Array = [int(_operator(desk)[0])+space.clearance(world.facts.actors[job.staff_id]),int(_operator(desk)[1])]
-			if space.at(world,job.mentor_id,int(desk.floor_id),adjacent) and space.route(world,job.mentor_id,int(desk.floor_id),adjacent).ok:
+			if space.at(world,job.mentor_id,int(desk.floor_id),adjacent) and space.can_reach(world,job.mentor_id,int(desk.floor_id),adjacent):
 				mentor_present = true
 				_worked[job.mentor_id] = true
 		var segment_mentor: String = str(job.mentor_id) if mentor_present else ""
@@ -554,7 +554,7 @@ func _base_start_quote(world: WorldState, staff_id: String, facility_id: String,
 		var other: Dictionary = world.facts.staff[entry.id]
 		if not other.get("on_shift",false) or other.get("life_task",{}).get("phase","idle")!="idle" or safe_busy(world,entry.id,query.busy):
 			return -1
-		var arrival: Dictionary = space.route(world,entry.id,int(base.floor_id),_operator(base),[],{},true)
+		var arrival: Dictionary = space.route_cost(world,entry.id,int(base.floor_id),_operator(base),[],{},true)
 		if not arrival.ok or int(arrival.get("travel_ticks",-1))<0:
 			return -1
 		ready = maxi(ready,world.sim_tick+int(arrival.travel_ticks))+int(other.base_task.remaining_ticks)
@@ -580,7 +580,7 @@ func _select_base(world: WorldState, staff_id: String) -> String:
 		if facility.definition_id!=wanted or facility.failed or _base_arranged(world,id) or (staff.role=="nurse" and int(facility.floor_id)!=nurse_floor):
 			continue
 		var layout: Dictionary = space.facility_layout(world,id)
-		var route: Dictionary = space.route(world,staff_id,int(layout.floor_id),_operator(layout),[],{},true)
+		var route: Dictionary = space.route_cost(world,staff_id,int(layout.floor_id),_operator(layout),[],{},true)
 		if not route.ok and route.get("status","")!="estimate_unknown":
 			continue
 		choices.append({"id":id,"start_tick":_base_start_quote(world,staff_id,id,route),"travel_ticks":int(route.get("travel_ticks",-1))})
@@ -639,7 +639,7 @@ func _yield_prepared_base(world: WorldState, staff_id: String) -> void:
 				if checker==null: checker = RouteClearance.new(space,world,actor,floor_id,[],{},true,space._navigation.floor_source(space,world,floor_id))
 				if not checker.reason(point).is_empty() or space.movement._narrow(world,actor,point,checker) or not space._dynamic_clear(world,staff_id,floor_id,rect):
 					continue
-				var route: Dictionary = space.route(world,staff_id,floor_id,[point.x,point.y])
+				var route: Dictionary = space.route_cost(world,staff_id,floor_id,[point.x,point.y])
 				if route.ok and route.get("status","")!="contention":
 					space.request_move(world,staff_id,floor_id,[point.x,point.y])
 					world.facts.staff[staff_id].growth_reason = "让出共享工作位"

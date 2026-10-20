@@ -89,9 +89,101 @@ func run() -> Dictionary:
 	temporary = null
 	navigation._prune_sources(1)
 	checks.dead_world_pruned = weak.get_ref()==null and not navigation._sources.has(temporary_key)
+	checks.merge(_body_identity_checks(content))
 	var passed: bool = true
 	for accepted: bool in checks.values(): passed = passed and accepted
 	return {"ok":passed,"checks":checks,"route_checks":space.query_counts.route_checks,"route_revalidations":space.query_counts.route_revalidations}
+
+func _body_identity_checks(content: HospitalContent) -> Dictionary:
+	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"路线身体依据",false,content)
+	HospitalFactory._add_room(world,{"id":"identity_ward","type":"ward","anchor":[50,66],"size":[12,12],"door":{"definition_id":"DR01","offset":4}},content)
+	HospitalFactory._add_facility(world,{"id":BED,"definition_id":"EQ05","anchor":[54,69],"size":content.facility_definition("EQ05").footprint.duplicate(),"room_id":"identity_ward"},content)
+	world.facts.actors[TRAVELLER] = _actor(TRAVELLER,[40,86])
+	world.facts.actors[OWNER] = _actor(OWNER,[40,87])
+	world.touch()
+	var space: HospitalSpace = HospitalSpace.new(content)
+	var actor: Dictionary = world.facts.actors[TRAVELLER]
+	var route: Dictionary = space.route(world,TRAVELLER,1,[44,86])
+	if not route.ok: return {"body_identity_route_legal":false}
+	var movement: Dictionary = {"request_sequence":1,"cursor":0,"path":route.path,"members":[TRAVELLER],"offsets":{}}
+	space.sync_actor(world,TRAVELLER)
+	var checks: Dictionary = {}
+	checks.body_identity_initial_proof = space.movement._active_route_clear(world,actor,movement,{}) and int(space.query_counts.get("route_revalidation_unvalidated",0))==1 and int(space.query_counts.get("route_revalidation_body",0))==0
+	var counted: int = int(space.query_counts.route_revalidations)
+	var roundtrips: bool = true
+	for attempt: int in 4:
+		var projected: WorldState = WorldState.new(world.freeze())
+		# Real quotation projections may also carry a different proposed body.
+		# Both the unchanged and altered projection rebuild disposable shapes.
+		if attempt%2==1: projected.facts.actors[TRAVELLER].species_id = "S13"
+		space.prepare_projection(world,projected,[],[1])
+		space.sync_actor(projected,TRAVELLER)
+		roundtrips = roundtrips and space._indexed_world==projected
+		space.sync_actor(world,TRAVELLER)
+		var clear: bool = space.movement._active_route_clear(world,actor,movement,{})
+		roundtrips = roundtrips and clear and space._indexed_world==world and int(space.query_counts.route_revalidations)==counted
+	checks.actual_projection_roundtrips_reuse_body_proof = roundtrips
+	var before_turn: Rect2 = space.body_rectangle(actor)
+	actor.facing = PI*0.25
+	space.sync_actor(world,TRAVELLER)
+	checks.facing_keeps_static_proof = space.movement._active_route_clear(world,actor,movement,{}) and int(space.query_counts.route_revalidations)==counted
+	checks.facing_still_changes_exact_collision_shape = space.body_rectangle(actor)!=before_turn
+	actor.species_id = "S13"
+	space.sync_actor(world,TRAVELLER)
+	checks.real_species_revalidates = _revalidation_matches_cold(space,world,actor,movement,"body")
+	actor.body_binding_id = "B_S13_D09_M09"
+	space.sync_actor(world,TRAVELLER)
+	checks.real_binding_revalidates = _revalidation_matches_cold(space,world,actor,movement,"body")
+	actor.species_id = "S08"
+	actor.erase("body_binding_id")
+	space.sync_actor(world,TRAVELLER)
+	checks.larger_species_revalidates = _revalidation_matches_cold(space,world,actor,movement,"body")
+	actor.body_binding_id = "B_S08_D04_M04"
+	space.sync_actor(world,TRAVELLER)
+	checks.symptom_dimensions_revalidate = _revalidation_matches_cold(space,world,actor,movement,"body")
+	actor.species_id = "S49"
+	actor.erase("body_binding_id")
+	space.sync_actor(world,TRAVELLER)
+	checks.original_body_revalidates = _revalidation_matches_cold(space,world,actor,movement,"body")
+	movement.members = [TRAVELLER,OWNER]
+	movement.offsets = {TRAVELLER:[0,0],OWNER:[0,1]}
+	checks.real_members_revalidate = _revalidation_matches_cold(space,world,actor,movement,"formation")
+	world.facts.actors[OWNER].species_id = "S13"
+	space.sync_actor(world,OWNER)
+	checks.member_body_revalidates = _revalidation_matches_cold(space,world,actor,movement,"body")
+	movement.offsets[OWNER] = [0,2]
+	world.facts.actors[OWNER].location.cell = [40,88]
+	space.sync_actor(world,OWNER)
+	checks.real_offsets_revalidate = _revalidation_matches_cold(space,world,actor,movement,"formation")
+	# This is a supported-pose boundary input for checking an existing proof,
+	# not a simulated arrival. A stale path must agree with a cold rejection.
+	var reservation: String = space.reserve_facility(world,BED,TRAVELLER,TRAVELLER)
+	var original_location: Dictionary = actor.location.duplicate(true)
+	actor.posture = "lying"
+	actor.support_facility_id = BED
+	actor.location = space.support_location(world,actor,world.facts.facilities[BED])
+	world.touch()
+	space.sync_actor(world,TRAVELLER)
+	checks.real_supported_posture_revalidates = reservation.is_empty() and _revalidation_matches_cold(space,world,actor,movement,"body")
+	# Restore the independent boundary input before checking geometry changes.
+	actor.posture = "standing"
+	actor.erase("support_facility_id")
+	actor.location = original_location
+	world.touch()
+	space.sync_actor(world,TRAVELLER)
+	space.movement._active_route_clear(world,actor,movement,{})
+	world.facts.floors.overrides["1"].blocked.append([42,86])
+	world.touch()
+	checks.real_geometry_revalidates = _revalidation_matches_cold(space,world,actor,movement,"floor")
+	return checks
+
+func _revalidation_matches_cold(space: HospitalSpace, world: WorldState, actor: Dictionary, movement: Dictionary, reason: String) -> bool:
+	var count: int = int(space.query_counts.route_revalidations)
+	var key: String = "route_revalidation_"+reason
+	var causes: int = int(space.query_counts.get(key,0))
+	var actual: bool = space.movement._active_route_clear(world,actor,movement,{})
+	var expected: bool = _cold_path_clear(space.content,world,actor,movement.path,movement.members,movement.offsets)
+	return actual==expected and int(space.query_counts.route_revalidations)==count+1 and int(space.query_counts.get(key,0))==causes+1
 
 func _projections(space: HospitalSpace, world: WorldState, goal: Array, original_version: int) -> Dictionary:
 	var navigation: NavigationCache = space._navigation
@@ -136,8 +228,8 @@ func _local_clear(space: HospitalSpace, world: WorldState, goal: Array) -> bool:
 func _cold_goal_clear(content: HospitalContent, world: WorldState, goal: Array) -> bool:
 	return RouteClearance.new(HospitalSpace.new(content),world,world.facts.actors[TRAVELLER],1,[],{},false).reason(Vector2i(int(goal[0]),int(goal[1]))).is_empty()
 
-func _cold_path_clear(content: HospitalContent, world: WorldState, actor: Dictionary, path: Array) -> bool:
-	var clearance: RouteClearance = RouteClearance.new(HospitalSpace.new(content),world,actor,1,[],{},false)
+func _cold_path_clear(content: HospitalContent, world: WorldState, actor: Dictionary, path: Array, members: Array = [], offsets: Dictionary = {}) -> bool:
+	var clearance: RouteClearance = RouteClearance.new(HospitalSpace.new(content),world,actor,1,members,offsets,false)
 	var current: Vector2 = Vector2(float(actor.location.cell[0]),float(actor.location.cell[1]))
 	for segment: Dictionary in path:
 		var target: Vector2 = Vector2(float(segment.cell[0]),float(segment.cell[1]))

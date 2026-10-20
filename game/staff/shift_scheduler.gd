@@ -168,7 +168,7 @@ func dispatch(world: WorldState) -> void:
 			# Bed reservations still belong to their patients and original team.
 			# Prove the replacement's access on isolated reservations first.
 			var candidate_world: WorldState = _handoff_candidate(world,stay_ids,candidate_id)
-			if not space.route(candidate_world,candidate_id,int(layout.floor_id),position).ok:
+			if not space.can_reach(candidate_world,candidate_id,int(layout.floor_id),position):
 				continue
 			for related_id: String in stay_ids:
 				space.grant_facility_access(world,str(world.facts.ward_stays[related_id].bed_id),candidate_id)

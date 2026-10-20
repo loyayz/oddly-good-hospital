@@ -471,7 +471,7 @@ func _arrived(world: WorldState, job: Dictionary, item: Dictionary) -> bool:
 	var id: String = str(job.worker_id)
 	if space.at(world,id,int(job.work_floor),job.work_cell) and not world.facts.moves.has(id):
 		return space.static_reason(world,world.facts.actors[id],int(job.work_floor),Vector2i(int(job.work_cell[0]),int(job.work_cell[1]))).is_empty()
-	var route: Dictionary = space.route(world,id,int(job.work_floor),job.work_cell)
+	var route: Dictionary = space.route_cost(world,id,int(job.work_floor),job.work_cell)
 	if not route.ok:
 		job.reason = str(route.get("reason","维修路线被挡住"))
 		return false
@@ -514,7 +514,7 @@ func _position(world: WorldState, item: Dictionary, staff_id: String) -> Diction
 		target = space.facility_layout(world,str(item.id)).get("repair_cell",[])
 	if target.is_empty():
 		return {}
-	var route: Dictionary = space.route(world,staff_id,floor_id,target)
+	var route: Dictionary = space.route_cost(world,staff_id,floor_id,target)
 	return {"floor_id":floor_id,"cell":target,"distance":route.walking_distance} if route.ok else {}
 
 func _any_repair_position(world: WorldState, item: Dictionary) -> bool:

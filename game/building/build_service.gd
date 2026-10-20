@@ -734,7 +734,7 @@ func _public_door(world: WorldState, room: Dictionary, checker: HospitalSpace = 
 				var subject: Dictionary = {"id":"readonly-public-access","species_id":"S49","location":{"kind":"floor","floor_id":floor_id,"cell":side},"facing":0.0}
 				if not checker.static_reason(world,subject,floor_id,Vector2i(int(side[0]),int(side[1]))).is_empty():
 					continue
-				if floor_id!=1 or checker._floor_route(world,subject,floor_id,Vector2i(int(side[0]),int(side[1])),Vector2i(47,93),[],{},true).get("ok",false):
+				if floor_id!=1 or checker._floor_route(world,subject,floor_id,Vector2i(int(side[0]),int(side[1])),Vector2i(47,93),[],{},true,{},true).get("ok",false):
 					return ""
 	return "至少一扇房门须通向本层已取得的公共空间"
 
@@ -771,7 +771,7 @@ func actor_safety(previous: WorldState, candidate: WorldState, actor: Dictionary
 			return BuildGeometry.failure("改建会切断实际身体的安全出口："+str(actor.id),[actor.location.cell])
 	var movement: Dictionary = candidate.facts.moves.get(actor.id,{})
 	if not movement.is_empty():
-		var target: Dictionary = checker.route(candidate,actor.id,int(movement.target_floor),movement.target_cell,movement.get("members",[]),movement.get("offsets",{}),true)
+		var target: Dictionary = checker.route_cost(candidate,actor.id,int(movement.target_floor),movement.target_cell,movement.get("members",[]),movement.get("offsets",{}),true)
 		if not target.get("ok",false):
 			return BuildGeometry.failure("改建会切断已承诺的实际移动目标："+str(actor.id),[movement.target_cell])
 	return {"ok":true}

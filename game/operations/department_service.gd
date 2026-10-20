@@ -281,7 +281,7 @@ func readiness(world: WorldState, department_id: String, visit_id: String, struc
 	var department: Dictionary = world.facts.get("departments",{}).get("units",{}).get(department_id,{})
 	var visit: Dictionary = world.facts.visits.get(visit_id,{})
 	if department.is_empty() or visit.is_empty(): return {"ok":false,"reachable":false,"structurally_compatible":false,"reason_id":"department_missing","reason":"科室或就诊不存在"}
-	var route: Dictionary = space.route(world,visit.actor_id,int(department.entry.floor_id),department.entry.cell)
+	var route: Dictionary = space.route_cost(world,visit.actor_id,int(department.entry.floor_id),department.entry.cell)
 	if not route.ok: return {"ok":false,"reachable":false,"structurally_compatible":false,"reason_id":"traversal","reason":route.reason}
 	if not department.intake_disease_ids.is_empty() and not visit.disease_id in department.intake_disease_ids:
 		return {"ok":false,"reachable":true,"structurally_compatible":false,"reason_id":"intake_scope_excludes_case","reason":"接诊范围明确排除本病例"}
@@ -649,7 +649,7 @@ func _serves_other_case(world: WorldState, unit: Dictionary) -> bool:
 func _has_guide_screen(world: WorldState, unit: Dictionary, visit: Dictionary) -> bool:
 	for facility: Dictionary in world.facts.facilities.values():
 		if facility.definition_id!="SE03" or int(facility.floor_id)!=int(unit.entry.floor_id): continue
-		if Vector2(float(facility.cell[0]),float(facility.cell[1])).distance_to(Vector2(float(unit.entry.cell[0]),float(unit.entry.cell[1])))<=float(content.balance.patient_behavior.crowd_radius_cells) and space.route(world,visit.actor_id,int(facility.floor_id),facility.patient_cell).ok: return true
+		if Vector2(float(facility.cell[0]),float(facility.cell[1])).distance_to(Vector2(float(unit.entry.cell[0]),float(unit.entry.cell[1])))<=float(content.balance.patient_behavior.crowd_radius_cells) and space.can_reach(world,visit.actor_id,int(facility.floor_id),facility.patient_cell): return true
 	return false
 
 func _start_guidance(world: WorldState, visit_id: String) -> bool:
@@ -689,7 +689,7 @@ func _guide_position(world: WorldState, visit_id: String, nurse_id: String) -> A
 	var nurse_size: int = space.clearance(world.facts.actors[nurse_id])
 	for offset: Array in [[-nurse_size,0],[size,0],[0,-nurse_size],[0,size]]:
 		var target: Array = [roundi(actor.location.cell[0])+int(offset[0]),roundi(actor.location.cell[1])+int(offset[1])]
-		if space.route(world,nurse_id,int(actor.location.floor_id),target).ok: return target
+		if space.can_reach(world,nurse_id,int(actor.location.floor_id),target): return target
 	return []
 
 func _staff_busy(world: WorldState, staff_id: String) -> bool:

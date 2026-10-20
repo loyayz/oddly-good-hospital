@@ -104,7 +104,7 @@ func _crew(world: WorldState, floor_id: int, plot: Array) -> Dictionary:
 		for tool_id: String in world.facility_ids(str(content.balance.floors.construction_tool_id)):
 			var tool: Dictionary = world.facts.facilities[tool_id]
 			if tool.definition_id!=content.balance.floors.construction_tool_id or tool.failed or HospitalRemodel.blocked(world,tool_id): continue
-			if not space.route(world,id,int(tool.floor_id),tool.operator_cells[0],[],{},true).ok: continue
+			if not space.can_reach(world,id,int(tool.floor_id),tool.operator_cells[0],[],{},true): continue
 			var candidate: Dictionary = {"ok":true,"worker_id":id,"work_cell":point,"tool_id":tool_id}
 			if environment._worker_ready(world,id): return candidate
 			busy = candidate
@@ -112,12 +112,12 @@ func _crew(world: WorldState, floor_id: int, plot: Array) -> Dictionary:
 
 func _work_point(world: WorldState, worker_id: String, floor_id: int, plot: Array, previous: Array) -> Array:
 	var actor: Dictionary = world.facts.actors[worker_id]
-	if not previous.is_empty() and environment._allowed_region(world.facts.staff[worker_id],floor_id,previous) and space.static_reason(world,actor,floor_id,Vector2i(int(previous[0]),int(previous[1]))).is_empty() and space.route(world,worker_id,floor_id,previous,[],{},true).ok:
+	if not previous.is_empty() and environment._allowed_region(world.facts.staff[worker_id],floor_id,previous) and space.static_reason(world,actor,floor_id,Vector2i(int(previous[0]),int(previous[1]))).is_empty() and space.can_reach(world,worker_id,floor_id,previous,[],{},true):
 		return previous
 	for y: int in range(int(plot[1])*32,(int(plot[1])+1)*32):
 		for x: int in range(int(plot[0])*32,(int(plot[0])+1)*32):
 			if not environment._allowed_region(world.facts.staff[worker_id],floor_id,[x,y]): continue
-			if space.route(world,worker_id,floor_id,[x,y],[],{},true).ok: return [x,y]
+			if space.can_reach(world,worker_id,floor_id,[x,y],[],{},true): return [x,y]
 	return []
 
 func dispatch(world: WorldState) -> void:
@@ -147,7 +147,7 @@ func dispatch(world: WorldState) -> void:
 		if tool.is_empty() or tool.failed or HospitalRemodel.blocked(world,order.tool_id):
 			for tool_id: String in world.facility_ids(str(content.balance.floors.construction_tool_id)):
 				var alternative: Dictionary = world.facts.facilities[tool_id]
-				if alternative.definition_id==content.balance.floors.construction_tool_id and not alternative.failed and not HospitalRemodel.blocked(world,tool_id) and space.route(world,worker_id,int(alternative.floor_id),alternative.operator_cells[0],[],{},true).ok:
+				if alternative.definition_id==content.balance.floors.construction_tool_id and not alternative.failed and not HospitalRemodel.blocked(world,tool_id) and space.can_reach(world,worker_id,int(alternative.floor_id),alternative.operator_cells[0],[],{},true):
 					tool = alternative
 					order.tool_id = tool_id
 					order.tool_collected = false
