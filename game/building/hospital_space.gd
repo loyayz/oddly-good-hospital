@@ -17,7 +17,7 @@ var _door_views: Dictionary = {}
 var movement: HospitalMovement
 var navigation: HospitalNavigation
 var public_areas: HospitalPublicAreas
-var query_counts: Dictionary = {"routes":0,"journey_hits":0,"journey_invalidations":0,"transport_builds":0,"transport_searches":0,"candidate_connections":0,"floor_route_hits":0,"floor_route_builds":0,"static_path_hits":0,"static_path_builds":0,"materialized_floor_cells":0,"reservation_index_builds":0,"reservation_index_updates":0,"door_candidates":0,"movement_candidates":0,"reservation_candidate_queries":0,"route_checks":0,"route_revalidations":0,"route_dispatch_scans":0,"route_dispatch_restores":0,"yield_attempts":0,"yield_candidates":0,"connector_topology_builds":0}
+var query_counts: Dictionary = {"routes":0,"journey_hits":0,"journey_invalidations":0,"transport_builds":0,"transport_searches":0,"candidate_connections":0,"floor_route_hits":0,"floor_route_builds":0,"static_path_hits":0,"static_path_builds":0,"materialized_floor_cells":0,"actor_index_builds":0,"actor_index_actor_visits":0,"reservation_index_builds":0,"reservation_index_updates":0,"door_candidates":0,"movement_candidates":0,"reservation_candidate_queries":0,"route_checks":0,"route_revalidations":0,"route_dispatch_scans":0,"route_dispatch_restores":0,"yield_attempts":0,"yield_candidates":0,"connector_topology_builds":0}
 
 # These scopes contain synchronous, read-only enumeration only. Results never
 # survive an actual reservation, movement or any other world fact change.
@@ -155,7 +155,9 @@ func _ensure_actor_index(world: WorldState) -> void:
 	_indexed_revision = world.revision
 	_indexed_actor_scope = scope
 	if not shared:
+		query_counts.actor_index_builds += 1
 		for id: String in world.ids("actors"):
+			query_counts.actor_index_actor_visits += 1
 			_sync_actor(world,id)
 
 func sync_actor(world: WorldState, id: String) -> void:
@@ -785,16 +787,15 @@ func facility_trip_quote(world: WorldState, facility_id: String, actor_id: Strin
 		candidate.facts.adaptations[facility_id] = adaptation
 		layout = facility_layout(candidate,facility_id)
 	prepare_projection(world,candidate,[facility_id])
-	begin_dynamic_route_query(candidate)
+	begin_route_query(candidate,{},false)
 	var forward: Dictionary = _route_result(candidate,actor_id,int(layout.floor_id),layout.patient_cell,[],{},true,true)
 	end_route_query()
 	if not forward.ok or not forward.has("travel_ticks"): return {"ok":false,"reason":forward.get("reason","实际设施行程无法估计")}
 	var origin: Dictionary = world.facts.actors[actor_id].location
 	candidate.facts.actors[actor_id].location = {"kind":"floor","floor_id":int(layout.floor_id),"cell":layout.patient_cell.duplicate(),"height_m":0.0}
-	sync_actor(candidate,actor_id)
-	# This private projection changed only the actor just synchronized above.
-	# Discard route/exit views while retaining the now-current body index.
-	begin_dynamic_route_query(candidate,false)
+	# Structural cost queries read this actor directly. The new scope discards
+	# the forward trip's views without constructing a dynamic body index.
+	begin_route_query(candidate,{},false)
 	var back: Dictionary = _route_result(candidate,actor_id,int(origin.floor_id),origin.cell,[],{},true,true)
 	end_route_query()
 	if not back.ok: return {"ok":false,"reason":"设施没有合法返回路线"}

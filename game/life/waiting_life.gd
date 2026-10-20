@@ -423,8 +423,7 @@ func _facility_quote_in_query(world: WorldState, visit: Dictionary, facility_id:
 	var origin: Dictionary = world.facts.actors[visit.actor_id].location
 	reverse.facts.actors[visit.actor_id].location = {"kind":"floor","floor_id":layout.floor_id,"cell":layout.patient_cell.duplicate(),"height_m":0.0}
 	if reverse!=candidate: space.prepare_projection(candidate,reverse)
-	space.sync_actor(reverse,visit.actor_id)
-	space.begin_dynamic_route_query(reverse,false)
+	space.begin_route_query(reverse,{},false)
 	var back: Dictionary = space.route_cost(reverse,visit.actor_id,int(origin.floor_id),origin.cell)
 	space.end_route_query()
 	if not back.ok: return {"ok":false,"reason":"设施没有合法返回路线："+str(back.get("reason",""))}

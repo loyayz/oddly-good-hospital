@@ -430,7 +430,6 @@ func _select_facility(world: WorldState, staff_id: String, kind: String, query: 
 		if not route.ok: continue
 		var origin: Dictionary = world.facts.actors[staff_id].location
 		candidate.facts.actors[staff_id].location = {"kind":"floor","floor_id":layout.floor_id,"cell":target.duplicate(),"height_m":0.0}
-		candidate_space.sync_actor(candidate,staff_id)
 		var back: Dictionary = candidate_space.route_cost(candidate,staff_id,int(origin.get("floor_id",layout.floor_id)),origin.get("cell",target))
 		if not route.ok or not back.ok:
 			continue
