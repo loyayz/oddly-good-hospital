@@ -1568,7 +1568,7 @@ func _case_49(_t) -> Dictionary:
 	var nominal: Dictionary = waiting._facility_quote(sim.world,first,"a_patient_only")
 	var nominal_preserved: bool = nominal.get("ok",false) and not reference.fits.is_empty() and sim.space.nominal_query(sim.world)
 	var retained_fits: int = reference.fits.size()
-	var candidate: WorldState = waiting._route_candidate(sim.world,first.actor_id)
+	var candidate: WorldState = WorldState.new(sim.world.freeze())
 	candidate.facts.actors[first.actor_id].species_id = "S53"
 	candidate.facts.actors[first.actor_id].erase("body_binding_id")
 	candidate.facts.actors[second.actor_id] = candidate.facts.actors[second.actor_id].duplicate(true)

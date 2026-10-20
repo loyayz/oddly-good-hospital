@@ -265,6 +265,7 @@ func _dispatch_task(world: WorldState, staff_id: String) -> void:
 			return
 		if task.kind=="rest":
 			task.merge({"public_purpose":"rest","actor_id":staff_id,"mode":"auto","area":{},"arrived_tick":-1,"started_tick":world.sim_tick,"phase":"area_travel"},true)
+			space.public_areas.changed(world)
 			_dispatch_public_rest(world,staff_id)
 			return
 		var selection: Dictionary = task.selection
@@ -369,15 +370,17 @@ func _reserve(world: WorldState, staff_id: String, task: Dictionary, selection: 
 		return false
 	var layout: Dictionary = space.facility_layout(world,facility_id)
 	var target: Array = layout.patient_cell
-	var route: Dictionary = space.route_cost(world,staff_id,int(layout.floor_id),target)
-	if not route.ok:
-		world.facts.staff[staff_id].life_reason = route.get("reason","休息位置路线暂不可用")
-		return false
+	if not space.at(world,staff_id,int(layout.floor_id),target):
+		var route: Dictionary = space.route_cost(world,staff_id,int(layout.floor_id),target)
+		if not route.ok:
+			world.facts.staff[staff_id].life_reason = route.get("reason","休息位置路线暂不可用")
+			return false
 	task.facility_id = facility_id
 	task.floor_id = layout.floor_id
 	task.cell = target.duplicate()
 	task.phase = "travel"
 	world.facts.staff_life.reservations[facility_id] = {"id":task.id,"kind":task.kind,"staff_ids":[staff_id],"state":"reserved","remaining_ticks":int(world.facts.staff[staff_id].sleep_remaining_ticks) if task.kind=="sleep" else 0}
+	if task.has("public_purpose"): space.public_areas.changed(world)
 	_move_target(world,staff_id,task)
 	return true
 
@@ -415,24 +418,31 @@ func _select_facility(world: WorldState, staff_id: String, kind: String, query: 
 			continue
 		if occupied.is_empty(): occupied = _patient_occupancy(world)
 		if _patient_occupies(world,id,occupied): continue
+		if kind=="rest" and not space.facility_reservation_reason(world,id,staff_id).is_empty(): continue
+		if kind=="rest" and staff.life_task.get("public_purpose","")=="rest" and not space.public_areas.turn(world,staff.life_task,id): continue
 		var fit: Dictionary = space.facility_quote(world,id,staff_id)
 		if not fit.ok:
 			continue
 		var layout: Dictionary = space.facility_layout(world,id)
 		var target: Array = fit.get("patient_cell",layout.patient_cell)
-		var candidate: WorldState = _adapted_candidate(world,id,fit,staff_id)
-		if candidate_space==null:
-			candidate_space = HospitalSpace.new(content)
-			# Retain only the existing bounded static graph cache. Actor indices,
-			# scopes and route/exit witnesses belong to this fresh query space.
-			candidate_space._navigation = _facility_navigation
-		var route: Dictionary = candidate_space.route_cost(candidate,staff_id,int(layout.floor_id),target)
+		var candidate: WorldState = world
+		var route: Dictionary
+		if kind=="rest":
+			# Fixed public furniture changes no structural navigation geometry.
+			# Actual body/use-space permission is still checked by the fit above.
+			route = space.route_cost(world,staff_id,int(layout.floor_id),target)
+		else:
+			candidate = _adapted_candidate(world,id,fit,staff_id)
+			if candidate_space==null:
+				candidate_space = HospitalSpace.new(content)
+				candidate_space._navigation = _facility_navigation
+			route = candidate_space.route_cost(candidate,staff_id,int(layout.floor_id),target)
 		if not route.ok: continue
-		var origin: Dictionary = world.facts.actors[staff_id].location
-		candidate.facts.actors[staff_id].location = {"kind":"floor","floor_id":layout.floor_id,"cell":target.duplicate(),"height_m":0.0}
-		var back: Dictionary = candidate_space.route_cost(candidate,staff_id,int(origin.get("floor_id",layout.floor_id)),origin.get("cell",target))
-		if not route.ok or not back.ok:
-			continue
+		if kind=="sleep":
+			var origin: Dictionary = world.facts.actors[staff_id].location
+			candidate.facts.actors[staff_id].location = {"kind":"floor","floor_id":layout.floor_id,"cell":target.duplicate(),"height_m":0.0}
+			var back: Dictionary = candidate_space.route_cost(candidate,staff_id,int(origin.get("floor_id",layout.floor_id)),origin.get("cell",target))
+			if not back.ok: continue
 		var travel: float = _route_ticks(route)
 		var rate: float = float(content.balance.wellbeing.energy_rest_per_second)
 		for variant: Dictionary in content.catalog.get("chair_variants",[]):
@@ -459,10 +469,37 @@ func _tea_position(world: WorldState, staff_id: String) -> Dictionary:
 	space.end_route_query()
 	return point
 
+func _public_entry(world: WorldState, staff_id: String, area: Dictionary, task: Dictionary, selected: Dictionary = {}) -> Dictionary:
+	if not selected.is_empty(): return selected
+	var cell: Array = task.get("cell",[])
+	if task.phase=="area_travel" and cell.size()==2 and int(task.get("floor_id",-1))==int(area.floor_id) and space.public_areas.region(world,area).get("cells",{}).has(Vector2i(roundi(cell[0]),roundi(cell[1]))) and space.public_areas.safe_wait(world,staff_id,int(task.floor_id),cell):
+		return {"floor_id":task.floor_id,"cell":cell}
+	return space.public_areas.waiting_point(world,staff_id,area)
+
+func _public_wait_safety(world: WorldState, staff_id: String, area: Dictionary) -> void:
+	var actor: Dictionary = world.facts.actors[staff_id]
+	if actor.location.kind!="floor" or world.facts.moves.has(staff_id) or space.public_areas.safe_wait(world,staff_id,int(actor.location.floor_id),actor.location.cell): return
+	var point: Dictionary = space.public_areas.waiting_point(world,staff_id,area)
+	if point.is_empty(): return
+	var task: Dictionary = world.facts.staff[staff_id].life_task
+	task.floor_id = point.floor_id
+	task.cell = point.cell
+	_move_target(world,staff_id,task)
+
 func _dispatch_public_rest(world: WorldState, staff_id: String) -> void:
 	var staff: Dictionary = world.facts.staff[staff_id]
 	var task: Dictionary = staff.life_task
-	if world.facts.actors[staff_id].location.kind!="floor" or world.facts.moves.has(staff_id): return
+	var actor: Dictionary = world.facts.actors[staff_id]
+	var failed: Dictionary = space.movement_failure(world,staff_id)
+	var valid: bool = space.public_areas.area_valid(world,task.area,["rest","staff_garden"])
+	if not failed.is_empty() or not valid:
+		if world.facts.moves.has(staff_id) and not space.cancel_ground_move(world,staff_id): return
+		if task.phase=="area_travel" or not valid: task.area = {}; task.arrived_tick = -1
+		task.facility_id = ""
+		task.erase("tea")
+		task.phase = "area_travel" if task.area.is_empty() else "local_wait"
+		space.public_areas.changed(world)
+	if actor.location.kind!="floor" or world.facts.moves.has(staff_id): return
 	var selected_point: Dictionary = {}
 	if space.public_areas.region(world,task.area).is_empty():
 		var selected: Dictionary = space.public_areas.select(world,staff_id,REST_SEATS,["rest","staff_garden"],"rest")
@@ -474,26 +511,69 @@ func _dispatch_public_rest(world: WorldState, staff_id: String) -> void:
 		task.floor_id = selected.floor_id
 		task.cell = selected.cell
 		selected_point = {"floor_id":selected.floor_id,"cell":selected.cell,"travel_ticks":selected.travel_ticks}
+		space.public_areas.changed(world)
 	if not space.public_areas.contains(world,task.area,staff_id):
-		var point: Dictionary = selected_point if not selected_point.is_empty() else space.public_areas.waiting_point(world,staff_id,task.area)
+		var point: Dictionary = _public_entry(world,staff_id,task.area,task,selected_point)
 		if not point.is_empty():
 			task.floor_id = point.floor_id
 			task.cell = point.cell
 			_move_target(world,staff_id,task)
 		staff.life_reason = "前往休息区"
 		return
-	if int(task.arrived_tick)<0: task.arrived_tick = world.sim_tick
+	if int(task.arrived_tick)<0:
+		task.arrived_tick = world.sim_tick
+		space.public_areas.changed(world)
+	# The local target is an intention, not a reservation. Revalidate it at
+	# arrival before comparing every other chair again.
+	if task.phase=="local_travel":
+		if task.get("tea",false):
+			if space.public_areas.safe_wait(world,staff_id,int(task.floor_id),task.cell):
+				if _at_target(world,staff_id,task): task.phase = "rest"; space.public_areas.changed(world)
+				else: _move_target(world,staff_id,task)
+				return
+		elif not str(task.get("facility_id","")).is_empty():
+			var current: String = str(task.facility_id)
+			var facility: Dictionary = world.facts.facilities.get(current,{})
+			if not facility.is_empty() and _is_seat(facility.definition_id) and _staff_area(world,facility) and not facility.failed and not HospitalRemodel.blocked(world,current) and not world.facts.staff_life.reservations.has(current) and not _patient_occupies(world,current) and space.facility_reservation_reason(world,current,staff_id).is_empty() and space.public_areas.turn(world,task,current):
+				var fit: Dictionary = space.facility_quote(world,current,staff_id)
+				if fit.ok:
+					var layout: Dictionary = space.facility_layout(world,current)
+					task.floor_id = layout.floor_id
+					task.cell = fit.get("patient_cell",layout.patient_cell)
+					if not _at_target(world,staff_id,task):
+						_move_target(world,staff_id,task)
+						if world.facts.moves.has(staff_id): return
+					elif _reserve(world,staff_id,task,{"facility_id":current}):
+						_dispatch_task(world,staff_id)
+						return
+		task.facility_id = ""
+		task.erase("tea")
+		space.public_areas.changed(world)
 	task.phase = "local_wait"
+	# Only a negative result is retained: energy changes can change ranking,
+	# but cannot create a lawful chair or tea position. Duties are checked above.
+	var dependencies: Dictionary = {}
+	if not space.public_areas.should_recheck(world,task,REST_SEATS,[staff_id],dependencies):
+		_public_wait_safety(world,staff_id,task.area)
+		return
 	var query: Dictionary = {}
+	space.begin_dynamic_route_query(world)
 	var choice: Dictionary = _select_facility(world,staff_id,"rest",query)
-	if not choice.is_empty() and space.public_areas.turn(world,task,choice.facility_id):
+	space.end_route_query()
+	if not choice.is_empty():
+		task.erase("tea")
 		task.facility_id = choice.facility_id
 		task.floor_id = choice.floor_id
 		task.cell = choice.cell
 		if not _at_target(world,staff_id,task):
 			task.phase = "local_travel"
+			space.public_areas.changed(world)
 			_move_target(world,staff_id,task)
 		elif _reserve(world,staff_id,task,choice): _dispatch_task(world,staff_id)
+		else:
+			task.facility_id = ""
+			space.public_areas.changed(world)
+			space.public_areas.remember_wait(world,task,REST_SEATS,[staff_id],dependencies)
 		return
 	var tea: Dictionary = query.get("tea",{})
 	if not tea.is_empty():
@@ -501,10 +581,14 @@ func _dispatch_public_rest(world: WorldState, staff_id: String) -> void:
 		task.floor_id = tea.floor_id
 		task.cell = tea.cell
 		task.tea = true
-		if _at_target(world,staff_id,task): task.phase = "rest"
+		if _at_target(world,staff_id,task): task.phase = "rest"; space.public_areas.changed(world)
 		else:
 			task.phase = "local_travel"
+			space.public_areas.changed(world)
 			_move_target(world,staff_id,task)
+	if task.phase=="local_wait":
+		space.public_areas.remember_wait(world,task,REST_SEATS,[staff_id],dependencies)
+		_public_wait_safety(world,staff_id,task.area)
 	staff.life_reason = "员工区清醒休息" if task.phase=="rest" else "本区等待休息位置"
 
 func _go_outside(world: WorldState, staff_id: String) -> void:
@@ -543,6 +627,7 @@ func _begin_return(world: WorldState, staff_id: String) -> void:
 		actor.erase("support_facility_id")
 		space.sync_actor(world,staff_id)
 	task.phase = "returning"
+	if task.has("public_purpose"): space.public_areas.changed(world)
 	if task.kind=="rest" and float(staff.energy)>=float(content.balance.schedule.compensatory_rest_target_energy) and int(staff.get("rest_debt_ticks",0))==0:
 		staff.rest_obligation = false
 	var return_location: Dictionary = task.return_location
@@ -638,40 +723,50 @@ func _recreation_in_query(world: WorldState, ids: Array, preferred: String) -> C
 		return _result(world,false,"recreation_limit","当前同时娱乐人数已满")
 	return _begin_public_recreation(world,ids,preferred)
 
-func _recreation_choice(world: WorldState, ids: Array, preferred: String, area: Dictionary) -> Dictionary:
-	var candidate_space: HospitalSpace
-	for facility_id: String in space.public_areas.region(world,area).get("facilities",[]):
-		var facility: Dictionary = world.facts.facilities[facility_id]
-		var definition: Dictionary = content.definition("staff_recreation_equipment",facility.definition_id)
-		if not facility_id in space.public_areas.region(world,area).get("facilities",[]) or HospitalRemodel.blocked(world,facility_id) or (not preferred.is_empty() and facility_id!=preferred) or definition.is_empty() or facility.failed or not _staff_area(world,facility) or world.facts.staff_life.reservations.has(facility_id) or int(definition.capacity)<ids.size():
-			continue
-		var partners: Array = ids.slice(1)
-		var fit: Dictionary = space.facility_quote(world,facility_id,ids[0],partners)
-		if not fit.ok:
-			continue
-		var layout: Dictionary = space.facility_layout(world,facility_id)
-		var positions: Array = [fit.get("patient_cell",layout.patient_cell)]
-		var operators: Array = fit.get("operator_cells",layout.get("operator_cells",[]))
-		for index: int in partners.size():
-			if operators.size()<=index:
-				positions.clear()
-				break
-			positions.append(operators[index])
-		if positions.size()!=ids.size():
-			continue
-		var all_reachable: bool = true
-		var candidate: WorldState = _adapted_candidate(world,facility_id,fit,ids[0])
-		if candidate_space==null:
-			candidate_space = HospitalSpace.new(content)
-			candidate_space._navigation = _facility_navigation
-		for index: int in ids.size():
-			if not candidate_space.can_reach(candidate,ids[index],int(layout.floor_id),positions[index]):
-				all_reachable = false
-				break
-		if not all_reachable:
-			continue
-		return {"facility_id":facility_id,"floor_id":int(layout.floor_id),"positions":positions}
+func _recreation_choice(world: WorldState, ids: Array, preferred: String, area: Dictionary, intent: Dictionary = {}, known_target: Dictionary = {}) -> Dictionary:
+	space.begin_route_query(world,{},false)
+	var result: Dictionary = _recreation_choice_in_query(world,ids,preferred,area,intent,known_target)
+	space.end_route_query()
+	return result
+
+func _recreation_choice_in_query(world: WorldState, ids: Array, preferred: String, area: Dictionary, intent: Dictionary, known_target: Dictionary) -> Dictionary:
+	var local: Array = space.public_areas.region(world,area).get("facilities",[])
+	var candidates: Array = [preferred] if not preferred.is_empty() and preferred in local else local if preferred.is_empty() else []
+	for facility_id: String in candidates:
+		if not intent.is_empty() and not space.public_areas.turn(world,intent,facility_id): continue
+		var quote: Dictionary = _recreation_equipment_quote(world,ids,facility_id,known_target)
+		if not quote.is_empty(): return quote
 	return {}
+
+func _recreation_equipment_quote(world: WorldState, ids: Array, facility_id: String, known_target: Dictionary = {}) -> Dictionary:
+	var facility: Dictionary = world.facts.facilities.get(facility_id,{})
+	if facility.is_empty(): return {}
+	var definition: Dictionary = content.definition("staff_recreation_equipment",facility.definition_id)
+	if HospitalRemodel.blocked(world,facility_id) or definition.is_empty() or facility.failed or not _staff_area(world,facility) or world.facts.staff_life.reservations.has(facility_id) or not space.facility_reservation_reason(world,facility_id,ids[0]).is_empty() or int(definition.capacity)<ids.size(): return {}
+	var partners: Array = ids.slice(1)
+	var fit: Dictionary = space.facility_quote(world,facility_id,ids[0],partners)
+	if not fit.ok: return {}
+	var layout: Dictionary = space.facility_layout(world,facility_id)
+	var positions: Array = [fit.get("patient_cell",layout.patient_cell)]
+	var operators: Array = fit.get("operator_cells",layout.get("operator_cells",[]))
+	for index: int in partners.size():
+		if operators.size()<=index: return {}
+		positions.append(operators[index])
+	# Only the first synchronous dispatch receives this manual preflight. Its
+	# projected vacancy grants no use: the actual fit above always runs again.
+	var routes_known: bool = not known_target.is_empty() and known_target.get("facility_id","")==facility_id and int(known_target.get("floor_id",-1))==int(layout.floor_id) and known_target.get("positions",[])==positions and known_target.get("route_basis",[])==_recreation_route_basis(world,ids)
+	for index: int in ids.size():
+		if routes_known or space.at(world,ids[index],int(layout.floor_id),positions[index]): continue
+		if not space.can_reach(world,ids[index],int(layout.floor_id),positions[index]): return {}
+	return {"facility_id":facility_id,"floor_id":int(layout.floor_id),"positions":positions}
+
+func _recreation_route_basis(world: WorldState, ids: Array) -> Array:
+	var basis: Array = [world.get_instance_id(),world.sim_tick,world.geometry_revision]
+	for id: String in ids:
+		var actor: Dictionary = world.facts.actors[id]
+		basis.append([id,actor.location,space.body(actor),actor.get("posture","standing"),actor.get("facing",0.0)])
+	basis.append(space.navigation.connection_basis(world))
+	return basis.duplicate(true)
 
 func _begin_public_recreation(world: WorldState, ids: Array, preferred: String) -> CommandResult:
 	var definitions: Array = []
@@ -687,11 +782,16 @@ func _begin_public_recreation(world: WorldState, ids: Array, preferred: String) 
 		var selected: Dictionary = space.public_areas.select(world,ids[0],definitions,["rest","staff_garden"],"recreation",ids,9223372036854775807,selected_entries)
 		area = selected.get("area",{})
 	if area.is_empty(): return _result(world,false,"no_recreation_slot","没有兼容且可达的员工娱乐区")
-	if not preferred.is_empty() and _manual_recreation_quote(world,ids,preferred).is_empty(): return _result(world,false,"no_recreation_slot","指定娱乐设施不兼容或缺少合法真实路线")
+	var known_target: Dictionary = _manual_recreation_quote(world,ids,preferred) if not preferred.is_empty() else {}
+	if not preferred.is_empty() and known_target.is_empty(): return _result(world,false,"no_recreation_slot","指定娱乐设施不兼容或缺少合法真实路线")
 	var entries: Dictionary = {}
 	for id: String in ids:
 		var actor: Dictionary = world.facts.actors[id]
-		var point: Dictionary = {"floor_id":actor.location.floor_id,"cell":actor.location.cell.duplicate(),"travel_ticks":0} if space.public_areas.contains(world,area,id) else selected_entries[id] if selected_entries.has(id) else space.public_areas.waiting_point(world,id,area)
+		var point: Dictionary
+		if not preferred.is_empty():
+			point = {"floor_id":known_target.floor_id,"cell":known_target.positions[ids.find(id)]}
+		else:
+			point = {"floor_id":actor.location.floor_id,"cell":actor.location.cell.duplicate(),"travel_ticks":0} if space.public_areas.contains(world,area,id) else selected_entries[id] if selected_entries.has(id) else space.public_areas.waiting_point(world,id,area)
 		if point.is_empty(): return _result(world,false,"no_recreation_slot","娱乐组成员无法真实进入指定区域")
 		entries[id] = point
 	var group_id: String = "recreation_"+str(world.sim_tick)+"_"+ids[0]
@@ -707,7 +807,8 @@ func _begin_public_recreation(world: WorldState, ids: Array, preferred: String) 
 		staff.life_task = {"id":group_id,"kind":"recreation","phase":"area_travel","facility_id":"","group_leader_id":ids[0],"leaving_facility_id":leaving,"floor_id":entries[id].floor_id,"cell":entries[id].cell,"return_location":previous.get("return_location",actor.location).duplicate(true),"resume_rest":previous.get("kind","")=="rest","offsite_ticks":0,"offsite_sleep_satisfied":false}
 	var leader: Dictionary = world.facts.staff[ids[0]].life_task
 	leader.merge({"staff_ids":ids.duplicate(),"actor_id":ids[0],"public_purpose":"recreation","mode":"manual" if not preferred.is_empty() else "auto","manual_facility_id":preferred,"area":area,"arrived_tick":-1,"started_tick":world.sim_tick})
-	_dispatch_public_recreation(world,ids[0])
+	space.public_areas.changed(world)
+	_dispatch_public_recreation(world,ids[0],known_target)
 	return _result(world,true,"applied","",ids)
 
 func _public_recreation_eligible(world: WorldState, staff_id: String) -> bool:
@@ -740,10 +841,14 @@ func _manual_recreation_quote(world: WorldState, ids: Array, facility_id: String
 		candidate.facts.actors[actor_id] = actor
 	candidate.facts.staff_life.reservations.erase(facility_id)
 	candidate.facts.adaptations.erase(facility_id)
-	var area: Dictionary = space.public_areas.for_facility(candidate,facility_id)
-	return _recreation_choice(candidate,ids,facility_id,area)
+	space.prepare_projection(world,candidate,[facility_id])
+	space.begin_route_query(candidate,{},false)
+	var result: Dictionary = _recreation_equipment_quote(candidate,ids,facility_id)
+	space.end_route_query()
+	if not result.is_empty(): result.route_basis = _recreation_route_basis(world,ids)
+	return result
 
-func _dispatch_public_recreation(world: WorldState, leader_id: String) -> void:
+func _dispatch_public_recreation(world: WorldState, leader_id: String, known_target: Dictionary = {}) -> void:
 	var leader: Dictionary = world.facts.staff[leader_id].life_task
 	var ids: Array = leader.staff_ids
 	for id: String in ids:
@@ -751,24 +856,45 @@ func _dispatch_public_recreation(world: WorldState, leader_id: String) -> void:
 		if not _public_recreation_eligible(world,id):
 			for member: String in ids: _begin_return(world,member)
 			return
+	var area_valid: bool = space.public_areas.area_valid(world,leader.area,["rest","staff_garden"])
+	var failed: bool = false
+	for id: String in ids:
+		if not space.movement_failure(world,id).is_empty(): failed = true; break
+	if not area_valid or failed:
+		for id: String in ids:
+			if world.facts.moves.has(id) and not space.cancel_ground_move(world,id): return
+		if leader.mode=="manual":
+			for member: String in ids: _begin_return(world,member)
+			return
+		if not area_valid or leader.phase=="area_travel": leader.area = {}; leader.arrived_tick = -1
+		leader.facility_id = ""
+		leader.phase = "area_travel" if leader.area.is_empty() else "local_wait"
+		space.public_areas.changed(world)
 	var definitions: Array = []
 	for definition: Dictionary in content.catalog.staff_recreation_equipment:
 		if int(definition.capacity)>=ids.size(): definitions.append(str(definition.id))
 	if leader.mode=="manual" and (not world.facts.facilities.has(leader.manual_facility_id) or world.facts.facilities[leader.manual_facility_id].get("failed",false) or HospitalRemodel.blocked(world,leader.manual_facility_id)):
 		for member: String in ids: _begin_return(world,member)
 		return
+	var selected_entries: Dictionary = {}
 	if space.public_areas.region(world,leader.area).is_empty() or space.public_areas.facilities(world,leader.area,definitions).is_empty() or (space.public_areas.contains(world,leader.area,leader_id) and not space.public_areas.compatible_geometry(world,leader.area,definitions,ids)):
 		if leader.mode=="manual":
 			for member: String in ids: _begin_return(world,member)
 			return
-		var selected: Dictionary = space.public_areas.select(world,leader_id,definitions,["rest","staff_garden"],"recreation",ids)
+		var selected: Dictionary = space.public_areas.select(world,leader_id,definitions,["rest","staff_garden"],"recreation",ids,9223372036854775807,selected_entries)
 		if selected.is_empty():
 			for member: String in ids: _begin_return(world,member)
 			return
 		leader.area = selected.area
 		leader.arrived_tick = -1
+		leader.facility_id = ""
+		space.public_areas.changed(world)
 	var all_inside: bool = true
-	var direct: Dictionary = _recreation_choice(world,ids,str(leader.manual_facility_id),leader.area) if leader.mode=="manual" and space.public_areas.turn(world,leader,leader.manual_facility_id) else {}
+	var needs_direct: bool = false
+	if leader.mode=="manual":
+		for id: String in ids:
+			if world.facts.actors[id].location.kind=="floor" and not world.facts.moves.has(id) and not space.public_areas.contains(world,leader.area,id): needs_direct = true; break
+	var direct: Dictionary = _recreation_choice(world,ids,str(leader.manual_facility_id),leader.area,leader,known_target) if needs_direct else {}
 	for id: String in ids:
 		var task: Dictionary = world.facts.staff[id].life_task
 		if world.facts.actors[id].location.kind!="floor" or world.facts.moves.has(id):
@@ -776,18 +902,32 @@ func _dispatch_public_recreation(world: WorldState, leader_id: String) -> void:
 			continue
 		if not space.public_areas.contains(world,leader.area,id):
 			all_inside = false
-			var entry: Dictionary = {"floor_id":direct.floor_id,"cell":direct.positions[ids.find(id)]} if not direct.is_empty() else space.public_areas.waiting_point(world,id,leader.area)
+			var entry: Dictionary = {"floor_id":direct.floor_id,"cell":direct.positions[ids.find(id)]} if not direct.is_empty() else _public_entry(world,id,leader.area,task,selected_entries.get(id,{}))
 			if not entry.is_empty():
 				task.floor_id = entry.floor_id
 				task.cell = entry.cell
 				_move_target(world,id,task)
 		world.facts.staff[id].life_reason = "前往指定设施" if leader.mode=="manual" else "前往娱乐区"
 	if not all_inside: return
-	if int(leader.arrived_tick)<0: leader.arrived_tick = world.sim_tick
+	if int(leader.arrived_tick)<0:
+		leader.arrived_tick = world.sim_tick
+		space.public_areas.changed(world)
+	var choice: Dictionary = {}
+	if leader.phase=="local_travel" and not str(leader.get("facility_id","")).is_empty():
+		choice = _recreation_choice(world,ids,str(leader.facility_id),leader.area,leader)
+	var previous_phase: String = str(leader.phase)
+	var previous_facility: String = str(leader.get("facility_id",""))
 	leader.phase = "manual_wait" if leader.mode=="manual" else "local_wait"
-	var choice: Dictionary = _recreation_choice(world,ids,str(leader.manual_facility_id),leader.area)
-	if choice.is_empty() or not space.public_areas.turn(world,leader,str(choice.get("facility_id",""))):
+	if choice.is_empty() and not space.public_areas.should_recheck(world,leader,definitions,ids):
+		for id: String in ids: _public_wait_safety(world,id,leader.area)
+		return
+	if choice.is_empty(): choice = _recreation_choice(world,ids,str(leader.manual_facility_id),leader.area,leader,known_target)
+	if choice.is_empty():
+		leader.facility_id = ""
+		if previous_phase!=leader.phase or not previous_facility.is_empty(): space.public_areas.changed(world)
+		space.public_areas.remember_wait(world,leader,definitions,ids)
 		for id: String in ids: world.facts.staff[id].life_reason = "等待指定设施" if leader.mode=="manual" else "本区等待娱乐设施"
+		for id: String in ids: _public_wait_safety(world,id,leader.area)
 		return
 	var all_present: bool = true
 	for index: int in ids.size():
@@ -799,7 +939,10 @@ func _dispatch_public_recreation(world: WorldState, leader_id: String) -> void:
 			all_present = false
 			task.phase = "local_travel"
 			_move_target(world,ids[index],task)
-	if not all_present: return
+	if not all_present:
+		leader.phase = "local_travel"
+		space.public_areas.changed(world)
+		return
 	var reason: String = space.reserve_facility(world,choice.facility_id,ids[0],ids[0],ids.slice(1))
 	if not reason.is_empty(): return
 	world.facts.staff_life.reservations[choice.facility_id] = {"id":leader.id,"kind":"recreation","staff_ids":ids.duplicate(),"state":"working","remaining_ticks":_ticks(float(content.balance.wellbeing.recreation_seconds)),"positions":choice.positions}
@@ -810,6 +953,7 @@ func _dispatch_public_recreation(world: WorldState, leader_id: String) -> void:
 		staff.recreation_count += 1
 		staff.recreation_cooldown_tick = world.sim_tick+_ticks(float(content.balance.wellbeing.recreation_cooldown_seconds))
 		staff.last_recreation_tick = world.sim_tick
+	space.public_areas.changed(world)
 
 func _release_previous_seat(world: WorldState, staff_id: String) -> void:
 	var task: Dictionary = world.facts.staff[staff_id].life_task
@@ -819,6 +963,7 @@ func _release_previous_seat(world: WorldState, staff_id: String) -> void:
 		var reservation: Dictionary = world.facts.staff_life.reservations[id]
 		reservation.staff_ids.erase(staff_id)
 		if reservation.staff_ids.is_empty(): world.facts.staff_life.reservations.erase(id)
+		space.public_areas.changed(world)
 	task.erase("leaving_facility_id")
 
 func _adapted_candidate(world: WorldState, facility_id: String, fit: Dictionary, actor_id: String) -> WorldState:

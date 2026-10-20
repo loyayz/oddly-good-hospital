@@ -2,10 +2,10 @@ extends RefCounted
 
 class CountingSpace extends HospitalSpace:
 	var synchronized_worlds: Dictionary = {}
-	func _sync_actor(world: WorldState, id: String) -> void:
+	func _sync_actor(world: WorldState, id: String, notify: bool = true) -> void:
 		var key: int = world.get_instance_id()
 		synchronized_worlds[key] = int(synchronized_worlds.get(key,0))+1
-		super._sync_actor(world,id)
+		super._sync_actor(world,id,notify)
 	func projection_visits(owner: WorldState) -> int:
 		var visits: int = 0
 		for key: int in synchronized_worlds:

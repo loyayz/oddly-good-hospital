@@ -306,10 +306,10 @@ func travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, act
 
 # Region quotes ask for many goals from the same start or connector landing.
 # Share exact distances only; actual movement still obtains its original path.
-func forward_distance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, start: Vector2i, goal: Vector2i) -> Dictionary:
-	return _travel_distance(space,world,floor_id,actor,start,goal,false,true)
+func forward_distance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, start: Vector2i, goal: Vector2i, structural_only: bool = false) -> Dictionary:
+	return _travel_distance(space,world,floor_id,actor,start,goal,false,true,structural_only)
 
-func _travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, start: Vector2i, goal: Vector2i, witness: bool, forward: bool) -> Dictionary:
+func _travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, start: Vector2i, goal: Vector2i, witness: bool, forward: bool, structural_only: bool = false) -> Dictionary:
 	var current: FloorNavigation = graph(space,world,floor_id,actor,[],{})
 	var key: String = str(floor_id)+":"+_envelope(space,world,actor,[],{},floor_source(space,world,floor_id))
 	if not _entries.has(key): return {"ready":false}
@@ -318,10 +318,11 @@ func _travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, ac
 	# A distance field depends on the body envelope and forbidden reservations,
 	# not the traveller's identity when it grants no different exemption.
 	var exemptions: Array = []
-	for reservation: Array in floor_source(space,world,floor_id).occupancy:
-		if actor.id==reservation[1] or actor.id in reservation[2]: exemptions.append(reservation[0])
-	var destination: String = JSON.stringify(["from",start.x,start.y,exemptions]) if forward else JSON.stringify([goal.x,goal.y,exemptions])
-	var stamp: Array = _reservation_stamp(space,current,world,floor_id,actor.id)
+	if not structural_only:
+		for reservation: Array in floor_source(space,world,floor_id).occupancy:
+			if actor.id==reservation[1] or actor.id in reservation[2]: exemptions.append(reservation[0])
+	var destination: String = JSON.stringify(["from",start.x,start.y,structural_only,exemptions]) if forward else JSON.stringify([goal.x,goal.y,exemptions])
+	var stamp: Array = [current.geometry.get_instance_id()] if structural_only else _reservation_stamp(space,current,world,floor_id,actor.id)
 	var record: Dictionary = entry.estimates.get(destination,{})
 	if record.is_empty() or record.stamp!=stamp:
 		var old_charge: int = int(record.get("charge",0))
@@ -335,7 +336,7 @@ func _travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, ac
 	# One-off quotes retain A*. Repeated endpoints amortize a distance field;
 	# only integer distance is reused, never a route or permission to reserve.
 	if not record.ready and int(record.hits)>=12:
-		var query: RouteClearance = RouteClearance.new(space,world,actor,floor_id,[],{},true,current.geometry.source,current.geometry)
+		var query: RouteClearance = current.geometry if structural_only else RouteClearance.new(space,world,actor,floor_id,[],{},true,current.geometry.source,current.geometry)
 		record.reason = "" if forward else (query.reason(goal) if FloorNavigation._inside(goal) else "目标超出96×96真实楼面")
 		var field: Dictionary
 		if forward:

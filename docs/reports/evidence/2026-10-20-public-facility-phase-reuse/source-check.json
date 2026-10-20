@@ -1,0 +1,23 @@
+{
+  "baseline": {
+    "head": "913cebef20696b324be4a70268508681d324339e",
+    "baseline": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\motion-result-20261020\\after-project",
+    "compared_paths": 438,
+    "mismatches": [],
+    "native_sha256": "6BED87C44E561939B18F11DC37C8747C5DEA88FBD7947F71F601C7DF2CCC236D"
+  },
+  "after_prepared": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\public-flow-20261020\\after-project",
+  "final_acceptance": "c0b3ed4d0621432d8985e8b7581ead48",
+  "compared_paths": 438,
+  "compared_test_paths": 107,
+  "mismatches": [],
+  "engine_sha256": "C8F0A6BC45A19B33541501E57F6F7CD972AB18453743266339D495CBBE846643",
+  "native_sha256": "6BED87C44E561939B18F11DC37C8747C5DEA88FBD7947F71F601C7DF2CCC236D",
+  "engine_matches_baseline": true,
+  "native_matches_baseline": true,
+  "engine_matches_final_acceptance": true,
+  "native_matches_final_acceptance": true,
+  "after_source_identity": "raw-evidence.zip:sources/after-identity.json",
+  "main_36_acceptance": "6d550e3bffc94d17a2466899e04d2320",
+  "main_36_source_mismatches": []
+}

@@ -41,7 +41,7 @@ const CASES: Dictionary = {
 	"STAFF-38":"docs/design/11-growth-arrivals-recruitment.md §6.1、§6.4；寻访100币120秒三身份，冻结名额与随机结果，取消不退款",
 	"STAFF-39":"docs/design/11-growth-arrivals-recruitment.md §6.2、§6.4；六岗位每日简历、两日到期与关注互斥，未录用不收费",
 	"STAFF-40":"docs/design/11-growth-arrivals-recruitment.md §6.5、§6.6；真实完成与研究120秒余数成长，贡献最大者唯一领取，护士不发通用等级",
-	"STAFF-41":"docs/design/09-consultation-wellbeing.md §4；休息选址完整去返程与当前障碍，护理交接保持床位上限及实时排他",
+	"STAFF-41":"docs/design/09-consultation-wellbeing.md §4；个人床完整去返程与当前障碍，护理交接保持床位上限及实时排他",
 	"STAFF-42":"docs/design/08-hospital-life.md §17.2、§17.4；选座邻居查询保留真实路线、朋友关系与候选顺序，手动目标到场竞争",
 	"STAFF-43":"docs/design/07-clinical-team.md §3、§11；岗位候选、结算回执、茶位及招聘窄投影保留实时资格与唯一成长",
 	"STAFF-44":"docs/design/07-clinical-team.md §8、§11；等候占用、共享桌位与基地队列复用保留实时预约与独占",
@@ -68,7 +68,13 @@ const CASES: Dictionary = {
 	"STAFF-65":"公共设施区域寻址规格 §3；本区固定几何全不适配时自动换区，原起点与累计额度保持",
 	"STAFF-66":"docs/design/08-hospital-life.md §20；清洁行程由真实移动推进，途中不重复整程报价且不提前施工",
 	"STAFF-67":"公共设施区域寻址规格 §6；无主床暂受身体阻挡，实际让出后在几何不变时重试分配",
-	"STAFF-68":"公共设施区域寻址规格 §4；生活服务实际使用和返回期间不重算临床选址，真实返回后接续原票"
+	"STAFF-68":"公共设施区域寻址规格 §4；生活服务实际使用和返回期间不重算临床选址，真实返回后接续原票",
+	"STAFF-69":"公共设施区域寻址规格 §3；无相关变化及异区行走不重复报价，本区真实释放后及时接续并保留队序",
+	"STAFF-70":"公共设施区域寻址规格 §3、§5；已选短程目标到位后不全区重选，手动目标不执行自动排名",
+	"STAFF-71":"公共设施区域寻址规格 §3、§4；早到者仅竞争当前目标，短休和娱乐可取得其他本区候选并真实开用",
+	"STAFF-72":"公共设施区域寻址规格 §3、§4；用途失效重新选区，地面无路待重试不掩盖原45秒期限",
+	"STAFF-73":"公共设施区域寻址规格 §6；单向可达但不可返回的无主个人床不分配，双向恢复后才建立长期归属",
+	"STAFF-74":"公共设施区域寻址规格 §4、§7；期限后先真实离开门口或交通登离区，保存恢复后到安全点才开始8秒兜底"
 }
 
 func run(t) -> void:
@@ -80,6 +86,9 @@ func run(t) -> void:
 		t.begin_case(case_id)
 		if not _content.error.is_empty():
 			t.check(case_id,false,{"content_error":_content.error})
+			continue
+		if int(case_id.right(2))>=69:
+			preload("res://tests/acceptance/public_phase_use.gd").new().run(t,_content,case_id)
 			continue
 		if int(case_id.right(2))>=45:
 			preload("res://tests/acceptance/public_area_use.gd").new().run(t,_content,case_id)

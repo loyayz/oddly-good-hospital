@@ -157,7 +157,7 @@ func _water_view_case() -> Dictionary:
 	var first: Dictionary = service.facility_availability(x.world,visit.actor_id,"water")
 	var repeated: Dictionary = service.facility_availability(x.world,visit.actor_id,"water")
 	# A different projected body must not borrow the real body's query result.
-	var projected: WorldState = service._route_candidate(x.world,visit.actor_id)
+	var projected: WorldState = WorldState.new(x.world.freeze())
 	projected.facts.actors[visit.actor_id].location = {"kind":"outside"}
 	var isolated: Dictionary = service.facility_availability(projected,visit.actor_id,"water")
 	x.space.end_route_query()

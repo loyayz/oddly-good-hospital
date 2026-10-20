@@ -199,13 +199,17 @@ func _case_51(t) -> void:
 	var x: Dictionary = _areas()
 	var visit: Dictionary = _visit(x,"manual_invalid",[37,73])
 	x.l.execute(x.world,"waiting_select_seat",{"visit_id":visit.id,"facility_id":"west_chair"})
+	var travelling: bool = x.world.facts.moves.has(visit.actor_id)
+	var location: Dictionary = x.world.facts.actors[visit.actor_id].location.duplicate(true)
 	x.world.facts.facilities.erase("west_chair")
 	x.world.touch()
+	x.l.dispatch(x.world)
+	var timely: bool = travelling and not x.world.facts.moves.has(visit.actor_id) and not x.world.facts.waiting_life.seats.has(visit.id) and x.world.facts.actors[visit.actor_id].location==location
 	for _tick: int in 300:
 		_tick_waiting(x)
 		if not x.world.facts.waiting_life.seats.has(visit.id): break
 	var stopped: bool = not x.world.facts.waiting_life.seats.has(visit.id) and x.world.facts.actors[visit.actor_id].get("support_facility_id","")!="east_chair"
-	t.check("STAFF-51",stopped,{"stopped_invalid_exact_target":stopped,"reason":visit.waiting_reason})
+	t.check("STAFF-51",timely and stopped,{"real_trip_started":travelling,"cancelled_at_current_safe_ground_position":timely,"stopped_invalid_exact_target":stopped,"reason":visit.waiting_reason})
 
 func _case_52(t) -> void:
 	var x: Dictionary = _areas({"resting":"doctor"})

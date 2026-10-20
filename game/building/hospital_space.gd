@@ -14,6 +14,7 @@ var _envelope_next: int = 0
 var _route_queries: Array[Dictionary] = []
 var _reservation_views: Dictionary = {}
 var _door_views: Dictionary = {}
+var _facility_geometry: Dictionary = {}
 var movement: HospitalMovement
 var navigation: HospitalNavigation
 var public_areas: HospitalPublicAreas
@@ -158,18 +159,23 @@ func _ensure_actor_index(world: WorldState) -> void:
 		query_counts.actor_index_builds += 1
 		for id: String in world.ids("actors"):
 			query_counts.actor_index_actor_visits += 1
-			_sync_actor(world,id)
+			_sync_actor(world,id,false)
 
 func sync_actor(world: WorldState, id: String) -> void:
 	_ensure_actor_index(world)
 	_sync_actor(world,id)
 
-func _sync_actor(world: WorldState, id: String) -> void:
+func _sync_actor(world: WorldState, id: String, notify: bool = true) -> void:
 	var actor: Dictionary = world.facts.actors[id]
+	var previous: BodyIndex.Record = _actor_index._records.get(id)
+	var changed: bool = previous!=null
 	if actor.location.kind=="floor":
-		_actor_index.update(id,int(actor.location.floor_id),body_rectangle(actor))
+		var rectangle: Rect2 = body_rectangle(actor)
+		changed = previous==null or previous.floor_id!=int(actor.location.floor_id) or previous.rect!=rectangle
+		_actor_index.update(id,int(actor.location.floor_id),rectangle)
 	else:
 		_actor_index.remove(id)
+	if notify and changed and public_areas!=null: public_areas.changed(world)
 
 func finish_boundary(world: WorldState) -> void:
 	_indexed_revision = world.revision
@@ -233,6 +239,33 @@ func travel_quote(world: WorldState, actor_id: String, floor_id: int, target: Ar
 
 func request_move(world: WorldState, actor_id: String, floor_id: int, target: Array) -> String:
 	return self.movement.request_move(world,actor_id,floor_id,target)
+
+func movement_failure(world: WorldState, actor_id: String) -> Dictionary:
+	return movement.failure(world,actor_id)
+
+func cancel_ground_move(world: WorldState, actor_id: String) -> bool:
+	return movement.cancel_ground(world,actor_id)
+
+# Local personality conditions ask only whether a point is reachable within a
+# few grid steps. Share one bounded native BFS with the same reservation rights.
+func nearby_reachable(world: WorldState, actor_id: String, floor_id: int, start: Vector2i, goal: Vector2i, radius: int = 3) -> bool:
+	if radius<0 or absi(goal.x-start.x)+absi(goal.y-start.y)>radius: return false
+	var actor: Dictionary = world.facts.actors[actor_id]
+	var graph: FloorNavigation = _navigation.graph(self,world,floor_id,actor,[],{})
+	var query: RouteClearance = _navigation.clearance(self,world,floor_id,actor)
+	if not query.reason(goal).is_empty(): return false
+	var fields: Dictionary = read_view(world,"nearby_distance_fields",func()->Dictionary: return {})
+	var key: String = JSON.stringify([graph.geometry.get_instance_id(),RouteClearance.reservation_exemptions(world,actor_id,floor_id),start.x,start.y,radius])
+	if not fields.has(key):
+		fields[key] = graph.distance_field(query,start,false,radius)
+		query_counts["nearby_field_builds"] = int(query_counts.get("nearby_field_builds",0))+1
+	var field: Dictionary = fields[key]
+	if not field.get("ready",false):
+		var fallback: Dictionary = _floor_route(world,actor,floor_id,start,goal,[],{},true,{},true)
+		return fallback.get("ok",false) and float(fallback.walking_distance)<=radius
+	if not FloorNavigation._inside(goal): return false
+	var distance: int = field.distances[FloorNavigation._id(goal)]
+	return distance>=0 and distance<=radius
 
 func at(world: WorldState, actor_id: String, floor_id: int, target: Array) -> bool:
 	var location: Dictionary = world.facts.actors[actor_id].location
@@ -346,6 +379,7 @@ func reservation_view(world: WorldState) -> Dictionary:
 func reservation_changed(world: WorldState, id: String) -> void:
 	var cached: Dictionary = _reservation_views.get(world.get_instance_id(),{})
 	if not cached.is_empty(): _index_reservation(cached.view,id,world.facts.adaptations.get(id,{}))
+	if public_areas!=null: public_areas.changed(world)
 
 func movement_doors(world: WorldState, actor: Dictionary, swept: Rect2, members: Array = [], floor_id: int = 0) -> Array[Dictionary]:
 	if floor_id==0: floor_id = int(actor.location.floor_id)
@@ -601,7 +635,7 @@ func _facility_quote(world: WorldState, facility_id: String, actor_id: String, s
 		regions.append([operators[index][0],operators[index][1],k,k])
 	var allowed: Array = [actor_id]+staff_ids
 	var room: Dictionary = world.facts.rooms.get(facility.get("room_id",""),{})
-	var static_regions: Dictionary = read_view(world,"facility_region_geometry:"+facility_id,func()->Dictionary: return {})
+	var static_regions: Dictionary = _facility_geometry_view(world,facility)
 	for area: Array in regions:
 		var rect: Rect2 = Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3]))
 		var region_key: String = JSON.stringify(area,"",true,true)
@@ -622,6 +656,20 @@ func _facility_quote(world: WorldState, facility_id: String, actor_id: String, s
 		return quote
 	if not prove_exits or not stretching_bed: return quote
 	return _facility_exit_quote(world,facility_id,actor_id,staff_ids,quote)
+
+# Region legality depends on built geometry and the actual fixed/bed footprint,
+# never on the current people or queue. A new source replaces this floor's views;
+# actual quotes and commits still execute every dynamic conflict check below.
+func _facility_geometry_view(world: WorldState, facility: Dictionary) -> Dictionary:
+	var floor_id: int = int(facility.floor_id)
+	var version: int = _navigation.floor_static_version(self,world,floor_id)
+	var saved: Dictionary = _facility_geometry.get(floor_id,{})
+	if saved.is_empty() or int(saved.version)!=version:
+		saved = {"version":version,"facilities":{}}
+		_facility_geometry[floor_id] = saved
+	var key: String = str(facility.id)+":"+str(facility.get("room_id",""))
+	if not saved.facilities.has(key): saved.facilities[key] = {}
+	return saved.facilities[key]
 
 # Built geometry is fixed within the owning read-only query scope. Dynamic
 # bodies and reservation permissions still run in the original region order.
@@ -775,6 +823,15 @@ func facility_trip_quote(world: WorldState, facility_id: String, actor_id: Strin
 	var fit: Dictionary = facility_quote(world,facility_id,actor_id,staff_ids)
 	if not fit.ok: return fit
 	var layout: Dictionary = facility_layout(world,facility_id)
+	if world.facts.facilities[facility_id].definition_id!=str(content.balance.staff_sleep.bed_definition_id):
+		# A fixed public object only contributes short-lived use occupancy. That
+		# occupancy does not change the structural navigation problem.
+		var target: Array = fit.get("patient_cell",layout.patient_cell)
+		var forward: Dictionary = {"ok":true,"travel_ticks":0} if at(world,actor_id,int(layout.floor_id),target) else route_cost(world,actor_id,int(layout.floor_id),target)
+		if not forward.ok or not forward.has("travel_ticks"): return {"ok":false,"reason":forward.get("reason","实际设施行程无法估计")}
+		return {"ok":true,"facility_id":facility_id,"floor_id":int(layout.floor_id),"cell":target.duplicate(),"patient_cell":target.duplicate(),"travel_ticks":int(forward.travel_ticks),"fit":fit}
+	# Long-term personal-bed assignment still owns the original lawful round
+	# trip. It shares this helper, but is not a public-facility selection.
 	var facts: Dictionary = world.facts.duplicate()
 	facts.adaptations = world.facts.adaptations.duplicate()
 	facts.actors = world.facts.actors.duplicate()
@@ -793,8 +850,6 @@ func facility_trip_quote(world: WorldState, facility_id: String, actor_id: Strin
 	if not forward.ok or not forward.has("travel_ticks"): return {"ok":false,"reason":forward.get("reason","实际设施行程无法估计")}
 	var origin: Dictionary = world.facts.actors[actor_id].location
 	candidate.facts.actors[actor_id].location = {"kind":"floor","floor_id":int(layout.floor_id),"cell":layout.patient_cell.duplicate(),"height_m":0.0}
-	# Structural cost queries read this actor directly. The new scope discards
-	# the forward trip's views without constructing a dynamic body index.
 	begin_route_query(candidate,{},false)
 	var back: Dictionary = _route_result(candidate,actor_id,int(origin.floor_id),origin.cell,[],{},true,true)
 	end_route_query()

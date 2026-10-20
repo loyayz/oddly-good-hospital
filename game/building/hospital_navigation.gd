@@ -3,6 +3,7 @@ extends RefCounted
 
 var _space: WeakRef
 var _topologies: Dictionary = {}
+var _observed_floors: Dictionary = {}
 var space: HospitalSpace:
 	get: return _space.get_ref()
 
@@ -15,6 +16,7 @@ func _route_result(world: WorldState, actor_id: String, floor_id: int, target: A
 	space.query_counts.routes += 1
 	var actor: Dictionary = world.facts.actors[actor_id]
 	if actor.location.kind!="floor": return {"ok":false,"status":"unavailable","reason":"角色正在竖向通行或院外"}
+	_observe_floor(world,actor_id,int(actor.location.floor_id))
 	var start: Vector2i = Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
 	var goal: Vector2i = Vector2i(int(target[0]),int(target[1]))
 	var actual: Vector2 = Vector2(float(actor.location.cell[0]),float(actor.location.cell[1]))
@@ -37,6 +39,40 @@ func _route_result(world: WorldState, actor_id: String, floor_id: int, target: A
 
 func travel_quote(world: WorldState, actor_id: String, floor_id: int, target: Array) -> Dictionary:
 	return _route_result(world,actor_id,floor_id,target,[],{},true,true)
+
+# Structural choices read these original declarations and failure directions.
+# Queue tickets, current cabin trips and remaining times do not deny a route.
+func connection_basis(world: WorldState) -> Array:
+	var result: Array = []
+	for id: String in world.ids("connectors"):
+		var connection: Dictionary = world.facts.connectors[id]
+		result.append([id,connection.definition_id,connection.get("first_floor",0),connection.get("last_floor",0),connection.get("stops",[]),connection.cell,connection.footprint,connection.anchor,HospitalTransit._lowering(connection)])
+	return result
+
+func _observe_floor(world: WorldState, actor_id: String, floor_id: int) -> void:
+	var key: int = world.get_instance_id()
+	if not _observed_floors.has(key) or _observed_floors[key].world.get_ref()!=world:
+		for old: int in _observed_floors.keys():
+			if _observed_floors[old].world.get_ref()==null: _observed_floors.erase(old)
+		_observed_floors[key] = {"world":weakref(world),"tick":world.sim_tick,"actors":{}}
+	elif int(_observed_floors[key].tick)!=world.sim_tick:
+		_observed_floors[key].tick = world.sim_tick
+		_observed_floors[key].actors.clear()
+	_observed_floors[key].actors.get_or_add(actor_id,{})[floor_id] = true
+
+func observed_floors(world: WorldState, actor_ids: Array) -> Array:
+	var result: Dictionary = {}
+	var record: Dictionary = _observed_floors.get(world.get_instance_id(),{})
+	if not record.is_empty() and record.world.get_ref()==world and int(record.tick)==world.sim_tick:
+		for id: String in actor_ids: result.merge(record.actors.get(id,{}))
+	var floors: Array = result.keys()
+	floors.sort()
+	return floors
+
+func routing_floor_basis(world: WorldState) -> Array:
+	var floors: Array = world.facts.floors.overrides.keys()
+	floors.sort()
+	return floors
 
 func destination_reason(world: WorldState, actor: Dictionary, floor_id: int, target: Vector2i, members: Array = [], offsets: Dictionary = {}) -> String:
 	return structural_clearance(world,actor,floor_id,members,offsets).reason(target)
@@ -68,9 +104,10 @@ func _prune_topologies() -> void:
 func _topology(world: WorldState) -> Dictionary:
 	var key: int = world.get_instance_id()
 	var cached: Dictionary = _topologies.get(key,{})
-	if not cached.is_empty() and cached.world.get_ref()==world and int(cached.revision)==world.geometry_revision: return cached
+	var basis: Array = connection_basis(world)
+	if not cached.is_empty() and cached.world.get_ref()==world and int(cached.revision)==world.geometry_revision and cached.get("basis",[])==basis: return cached
 	_prune_topologies()
-	cached = {"world":weakref(world),"revision":world.geometry_revision,"explicit":{},"ranges":{},"floors":{},"candidates":{},"nodes":{},"node_ids":["start","goal"],"stops":{},"extra_floors":{}}
+	cached = {"world":weakref(world),"revision":world.geometry_revision,"basis":basis.duplicate(true),"explicit":{},"ranges":{},"floors":{},"candidates":{},"nodes":{},"node_ids":["start","goal"],"stops":{},"extra_floors":{}}
 	for floor_key: String in world.facts.floors.overrides: cached.candidates[int(floor_key)] = true
 	var connector_ids: Array = world.ids("connectors")
 	for id: String in connector_ids:
@@ -220,6 +257,7 @@ func _point_edges(id: String, world: WorldState, actor: Dictionary, context: Dic
 	return outgoing
 
 func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2i, goal: Vector2i, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, navigation: Dictionary = {}, structural_only: bool = false, cost_only: bool = false) -> Dictionary:
+	_observe_floor(world,str(actor.id),floor_id)
 	var routes: Dictionary = {}
 	var key: String = ""
 	if navigation.is_empty() and not space._route_queries.is_empty() and space._route_queries.back().world==world and (ignore_people or space._route_queries.back().get("dynamic",false)):
@@ -244,7 +282,13 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 		people = func(from_cell: Vector2i,to_cell: Vector2i) -> bool:
 			return space._unit_step_dynamic_clear(world,actor,floor_id,from_cell,to_cell,members,offsets)
 	var result: Dictionary
-	if not space._route_queries.is_empty() and space._route_queries.back().world==world and members.is_empty() and offsets.is_empty() and not navigation.has("query") and not navigation.get("overlay",false) and navigation.bases.is_empty() and navigation.shifts.is_empty():
+	var repeated: Dictionary = {}
+	if cost_only and ignore_people and members.is_empty() and offsets.is_empty() and not navigation.has("query") and not navigation.get("overlay",false) and navigation.bases.is_empty() and navigation.shifts.is_empty():
+		repeated = space._navigation.forward_distance(space,world,floor_id,actor,start,goal,structural_only)
+	if repeated.get("ready",false):
+		space.query_counts["distance_field_hits"] = int(space.query_counts.get("distance_field_hits",0))+1
+		result = {"ok":bool(repeated.ok),"status":"complete" if repeated.ok else "unreachable","reason":repeated.get("reason",""),"walking_distance":int(repeated.get("distance",-1))}
+	elif not space._route_queries.is_empty() and space._route_queries.back().world==world and members.is_empty() and offsets.is_empty() and not navigation.has("query") and not navigation.get("overlay",false) and navigation.bases.is_empty() and navigation.shifts.is_empty():
 		result = space._navigation.cached_floor_path(space,world,floor_id,actor,graph,query,start,goal,cost_only)
 	else:
 		result = graph.find_path(start,goal,query,Callable(),false,navigation.bases,navigation.shifts,bool(navigation.get("overlay",false)),cost_only)

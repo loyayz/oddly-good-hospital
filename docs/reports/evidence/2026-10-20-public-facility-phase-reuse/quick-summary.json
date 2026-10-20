@@ -1,0 +1,5190 @@
+{
+  "scope": "Fixed legal 160; ordinary complete steps; headless/debug; formal acceptance paused",
+  "baseline_dev": "913cebef20696b324be4a70268508681d324339e",
+  "order": "before public/gp/operations; after public/gp/operations; before public380 failed, after public380 not run; before public360, after public360; separate cold services, no concurrent heavy runs",
+  "runs": {
+    "before-public": {
+      "source_input_sha256": "1d83a8834528fd2f6c53dff06f6ec150c9e598eed675fc37521ab7e45fcadb10",
+      "metrics_us": {
+        "cold_first_us": 1946726,
+        "count": 300,
+        "following_mean_us": 443746.97993311,
+        "max_us": 11338819,
+        "mean_us": 448756.91,
+        "p50_us": 444960,
+        "p95_us": 565634,
+        "p99_us": 734764,
+        "total_us": 134627073
+      },
+      "complete": true,
+      "qualified": true,
+      "qualification": {
+        "actual_clinical_work": true,
+        "all_steps_complete": true,
+        "operations.local_cleanup_actually_progressed": true,
+        "operations.real_movement_or_cleanup_work": true,
+        "operations.setup_accepted": true,
+        "operations.some_cleanup_assigned_or_completed": true,
+        "operations.staff_need_tasks_selected": true,
+        "present_160_throughout": true,
+        "same_actor_ids": true,
+        "world_valid": true
+      },
+      "public_checks": {
+        "actual_completion_observed": true,
+        "actual_queue_observed": true,
+        "actual_uses_observed": true,
+        "manual_request_accepted": true,
+        "no_observer_rule_errors": true,
+        "prior_actual_exit_before_reuse": true,
+        "two_actual_use_regions": true
+      },
+      "public_checks_all": true,
+      "execution": {
+        "debug_build": true,
+        "display_server": "headless",
+        "editor_binary": true,
+        "platform": "Windows",
+        "processor": "Intel(R) Core(TM) Ultra 5 125H",
+        "scope": "ordinary HospitalSimulation.step; frozen legal day plan; no GameSession background capacity preparation, rendering or persistence IO"
+      },
+      "initial": {
+        "patients": 120,
+        "visitors": 8,
+        "present": 160,
+        "rooms": 64,
+        "tick": 2623,
+        "staff": 32,
+        "facilities": 1336
+      },
+      "final": {
+        "present": 160,
+        "maximum_present": 160,
+        "work_ticks_by_kind": {
+          "consult": 81,
+          "gp": 55,
+          "reception": 60
+        },
+        "validation": "",
+        "services_completed": {
+          "consult": 1,
+          "gp": 1,
+          "reception": 1
+        },
+        "services_started": {
+          "consult": 1,
+          "reception": 1
+        },
+        "minimum_present": 160,
+        "tick": 2923
+      },
+      "public": {
+        "use_starts": 16,
+        "queue_actor_ticks": 640,
+        "exit_then_reuse": 8,
+        "queued_actors": 8,
+        "queue_peak": 8,
+        "use_completions": 16,
+        "use_ticks": 1280,
+        "used_regions": [
+          {
+            "anchor": [
+              27,
+              49
+            ],
+            "floor_id": 1,
+            "room_id": "bench_room_1_09"
+          },
+          {
+            "anchor": [
+              27,
+              49
+            ],
+            "floor_id": 2,
+            "room_id": "bench_room_2_09"
+          },
+          {
+            "anchor": [
+              27,
+              49
+            ],
+            "floor_id": 3,
+            "room_id": "bench_room_3_09"
+          },
+          {
+            "anchor": [
+              27,
+              49
+            ],
+            "floor_id": 4,
+            "room_id": "bench_room_4_09"
+          }
+        ],
+        "fallback_starts": 0
+      },
+      "query_counts": {
+        "actor_index_actor_visits": 624000,
+        "actor_index_builds": 3900,
+        "candidate_connections": 20938,
+        "connector_node_declarations": 24,
+        "connector_topology_builds": 6,
+        "connector_topology_inherits": 27247,
+        "door_candidates": 10871,
+        "floor_route_builds": 160095,
+        "floor_route_hits": 12904,
+        "journey_hits": 50,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 18729,
+        "movement_candidates": 2445,
+        "reservation_candidate_queries": 291324,
+        "reservation_index_builds": 647,
+        "reservation_index_updates": 10769,
+        "route_checks": 29102,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 329,
+        "route_dispatches": 329,
+        "route_revalidation_unvalidated": 339,
+        "route_revalidations": 339,
+        "routes": 57448,
+        "static_path_builds": 8471,
+        "static_path_hits": 150794,
+        "transport_builds": 0,
+        "transport_searches": 13280,
+        "yield_attempts": 316,
+        "yield_candidates": 309
+      },
+      "operations": {
+        "assigned_remaining_dirt": 4,
+        "checks": {
+          "local_cleanup_actually_progressed": true,
+          "real_movement_or_cleanup_work": true,
+          "setup_accepted": true,
+          "some_cleanup_assigned_or_completed": true,
+          "staff_need_tasks_selected": true
+        },
+        "cleanup_completed": 12,
+        "cleanup_completed_since_setup": 12,
+        "cleanup_started_or_completed": 15,
+        "cleanup_work_milli_in_window": 50000,
+        "cross_floor_remaining_task_selections": 0,
+        "elapsed_steps_since_setup": 300,
+        "final": {
+          "actors": 160,
+          "dirt": [
+            {
+              "id": "dirt_00000152",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000152:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000152",
+                "staff_id": "bench_staff_0028",
+                "standard_work_milli": 4000,
+                "tick": 2662
+              }
+            },
+            {
+              "id": "dirt_00000153",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000153:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000153",
+                "staff_id": "bench_staff_0028",
+                "standard_work_milli": 4000,
+                "tick": 2708
+              }
+            },
+            {
+              "id": "dirt_00000154",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000154:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000154",
+                "staff_id": "bench_staff_0028",
+                "standard_work_milli": 4000,
+                "tick": 2754
+              }
+            },
+            {
+              "cell": [
+                28,
+                5
+              ],
+              "contributions": {},
+              "floor_id": 1,
+              "id": "dirt_00000155",
+              "phase": "travelling",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 4000,
+              "total_milli": 4000,
+              "work_cell": [
+                29,
+                5
+              ],
+              "worker_id": "bench_staff_0028"
+            },
+            {
+              "id": "dirt_00000156",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000156:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000156",
+                "staff_id": "bench_staff_0029",
+                "standard_work_milli": 4000,
+                "tick": 2662
+              }
+            },
+            {
+              "id": "dirt_00000157",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000157:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000157",
+                "staff_id": "bench_staff_0029",
+                "standard_work_milli": 4000,
+                "tick": 2708
+              }
+            },
+            {
+              "id": "dirt_00000158",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000158:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000158",
+                "staff_id": "bench_staff_0029",
+                "standard_work_milli": 4000,
+                "tick": 2754
+              }
+            },
+            {
+              "cell": [
+                28,
+                5
+              ],
+              "contributions": {
+                "bench_staff_0029": 800
+              },
+              "floor_id": 2,
+              "id": "dirt_00000159",
+              "phase": "working",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 3200,
+              "total_milli": 4000,
+              "work_cell": [
+                29,
+                5
+              ],
+              "worker_id": "bench_staff_0029"
+            },
+            {
+              "id": "dirt_00000160",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000160:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000160",
+                "staff_id": "bench_staff_0030",
+                "standard_work_milli": 4000,
+                "tick": 2662
+              }
+            },
+            {
+              "id": "dirt_00000161",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000161:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000161",
+                "staff_id": "bench_staff_0030",
+                "standard_work_milli": 4000,
+                "tick": 2708
+              }
+            },
+            {
+              "id": "dirt_00000162",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000162:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000162",
+                "staff_id": "bench_staff_0030",
+                "standard_work_milli": 4000,
+                "tick": 2754
+              }
+            },
+            {
+              "cell": [
+                28,
+                5
+              ],
+              "contributions": {
+                "bench_staff_0030": 800
+              },
+              "floor_id": 3,
+              "id": "dirt_00000163",
+              "phase": "working",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 3200,
+              "total_milli": 4000,
+              "work_cell": [
+                29,
+                5
+              ],
+              "worker_id": "bench_staff_0030"
+            },
+            {
+              "id": "dirt_00000164",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000164:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000164",
+                "staff_id": "bench_staff_0031",
+                "standard_work_milli": 4000,
+                "tick": 2662
+              }
+            },
+            {
+              "id": "dirt_00000165",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000165:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000165",
+                "staff_id": "bench_staff_0031",
+                "standard_work_milli": 4000,
+                "tick": 2708
+              }
+            },
+            {
+              "id": "dirt_00000166",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000166:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000166",
+                "staff_id": "bench_staff_0031",
+                "standard_work_milli": 4000,
+                "tick": 2754
+              }
+            },
+            {
+              "cell": [
+                28,
+                5
+              ],
+              "contributions": {
+                "bench_staff_0031": 400
+              },
+              "floor_id": 4,
+              "id": "dirt_00000167",
+              "phase": "working",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 3600,
+              "total_milli": 4000,
+              "work_cell": [
+                29,
+                5
+              ],
+              "worker_id": "bench_staff_0031"
+            }
+          ],
+          "orders": [
+            {
+              "cost": 100,
+              "floor_id": 1,
+              "id": "renovation_00000168",
+              "phase": "queued",
+              "reason": "等待正常装修工具台",
+              "units": [
+                {
+                  "cell": [
+                    42,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000168:0",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    44,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000168:1",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    46,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000168:2",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    48,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000168:3",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                }
+              ]
+            },
+            {
+              "cost": 100,
+              "floor_id": 2,
+              "id": "renovation_00000169",
+              "phase": "queued",
+              "reason": "等待正常装修工具台",
+              "units": [
+                {
+                  "cell": [
+                    42,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000169:0",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    44,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000169:1",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    46,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000169:2",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    48,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000169:3",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                }
+              ]
+            },
+            {
+              "cost": 100,
+              "floor_id": 3,
+              "id": "renovation_00000170",
+              "phase": "queued",
+              "reason": "等待正常装修工具台",
+              "units": [
+                {
+                  "cell": [
+                    42,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000170:0",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    44,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000170:1",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    46,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000170:2",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    48,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000170:3",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                }
+              ]
+            },
+            {
+              "cost": 100,
+              "floor_id": 4,
+              "id": "renovation_00000171",
+              "phase": "queued",
+              "reason": "等待正常装修工具台",
+              "units": [
+                {
+                  "cell": [
+                    42,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000171:0",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    44,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000171:1",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    46,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000171:2",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    48,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000171:3",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                }
+              ]
+            }
+          ],
+          "staff": [
+            {
+              "active_job_id": "dirt_00000155",
+              "awake_ticks": 1123,
+              "energy": 98.8690000000005,
+              "id": "bench_staff_0028",
+              "life_reason": "实际移动消耗",
+              "life_task": {
+                "phase": "idle"
+              },
+              "location": {
+                "cell": [
+                  25.0,
+                  14.0
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "movement": {
+                "blocked_since": -1,
+                "cursor": 1,
+                "path_steps": 1,
+                "target_cell": [
+                  29,
+                  5
+                ],
+                "target_floor": 1,
+                "travelled_checkpoints": 11,
+                "yielding": true
+              },
+              "role": "cleaner",
+              "sleep_remaining_ticks": 0
+            },
+            {
+              "active_job_id": "dirt_00000159",
+              "awake_ticks": 1123,
+              "energy": 98.5740000000006,
+              "id": "bench_staff_0029",
+              "life_reason": "实际工作消耗",
+              "life_task": {
+                "phase": "idle"
+              },
+              "location": {
+                "cell": [
+                  29.0,
+                  5.0
+                ],
+                "floor_id": 2,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "movement": {
+                "path_steps": 0,
+                "travelled_checkpoints": 0
+              },
+              "role": "cleaner",
+              "sleep_remaining_ticks": 0
+            },
+            {
+              "active_job_id": "dirt_00000163",
+              "awake_ticks": 1123,
+              "energy": 98.5740000000006,
+              "id": "bench_staff_0030",
+              "life_reason": "实际工作消耗",
+              "life_task": {
+                "phase": "idle"
+              },
+              "location": {
+                "cell": [
+                  29.0,
+                  5.0
+                ],
+                "floor_id": 3,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "movement": {
+                "path_steps": 0,
+                "travelled_checkpoints": 0
+              },
+              "role": "cleaner",
+              "sleep_remaining_ticks": 0
+            },
+            {
+              "active_job_id": "dirt_00000167",
+              "awake_ticks": 1123,
+              "energy": 98.6060000000005,
+              "id": "bench_staff_0031",
+              "life_reason": "实际工作消耗",
+              "life_task": {
+                "phase": "idle"
+              },
+              "location": {
+                "cell": [
+                  29.0,
+                  5.0
+                ],
+                "floor_id": 4,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "movement": {
+                "path_steps": 0,
+                "travelled_checkpoints": 0
+              },
+              "role": "cleaner",
+              "sleep_remaining_ticks": 0
+            }
+          ],
+          "tick": 2923
+        },
+        "initial_dirt": 16,
+        "limitations": [
+          "Paid renovation orders lack a decorator and/or working tool; no construction progress is claimed."
+        ],
+        "measurement_boundary_tick": 2623,
+        "new_cleanup_task_selections_at_least": 16,
+        "new_staff_need_tasks": 0,
+        "observed_cleaners_with_real_location_change": 4,
+        "observed_staff_with_real_location_change": 4,
+        "pending_renovation_units": 16,
+        "setup_errors": [],
+        "sleep_work_ticks_in_window": 0,
+        "staff_needs_actually_resting_or_sleeping": 0,
+        "staff_needs_selected": 0,
+        "steps": 300
+      },
+      "final_sha256": "f01cbc4f9a4a1a93fa2702a0833aa3cade0f1ff19e63eb4e383addbb128f4d7d"
+    },
+    "before-gp": {
+      "source_input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "metrics_us": {
+        "cold_first_us": 527778,
+        "count": 80,
+        "following_mean_us": 402800.341772152,
+        "max_us": 13861345,
+        "mean_us": 404362.5625,
+        "p50_us": 262039,
+        "p95_us": 336754,
+        "p99_us": 13861345,
+        "total_us": 32349005
+      },
+      "complete": true,
+      "qualified": true,
+      "qualification": {
+        "actual_clinical_work": true,
+        "all_steps_complete": true,
+        "present_160_throughout": true,
+        "same_actor_ids": true,
+        "world_valid": true
+      },
+      "public_checks": null,
+      "public_checks_all": true,
+      "execution": {
+        "debug_build": true,
+        "display_server": "headless",
+        "editor_binary": true,
+        "platform": "Windows",
+        "processor": "Intel(R) Core(TM) Ultra 5 125H",
+        "scope": "ordinary HospitalSimulation.step; frozen legal day plan; no GameSession background capacity preparation, rendering or persistence IO"
+      },
+      "initial": {
+        "patients": 120,
+        "visitors": 8,
+        "present": 160,
+        "rooms": 64,
+        "tick": 823,
+        "staff": 32,
+        "facilities": 1336
+      },
+      "final": {
+        "present": 160,
+        "maximum_present": 160,
+        "work_ticks_by_kind": {
+          "consult": 25,
+          "gp": 55
+        },
+        "validation": "",
+        "services_completed": {
+          "gp": 1
+        },
+        "services_started": {
+          "consult": 1
+        },
+        "minimum_present": 160,
+        "tick": 903
+      },
+      "public": {
+        "use_starts": 0,
+        "queue_actor_ticks": 0,
+        "exit_then_reuse": 0,
+        "queued_actors": 0,
+        "queue_peak": 0,
+        "use_completions": 0,
+        "use_ticks": 0,
+        "used_regions": [],
+        "fallback_starts": 0
+      },
+      "query_counts": {
+        "actor_index_actor_visits": 82560,
+        "actor_index_builds": 516,
+        "candidate_connections": 5641,
+        "connector_node_declarations": 4,
+        "connector_topology_builds": 1,
+        "connector_topology_inherits": 3763,
+        "door_candidates": 7191,
+        "floor_route_builds": 23323,
+        "floor_route_hits": 5597,
+        "journey_hits": 0,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 9249,
+        "movement_candidates": 524,
+        "reservation_candidate_queries": 57628,
+        "reservation_index_builds": 34,
+        "reservation_index_updates": 389,
+        "route_checks": 5629,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 146,
+        "route_dispatches": 146,
+        "route_revalidation_floor": 243,
+        "route_revalidation_unvalidated": 156,
+        "route_revalidations": 399,
+        "routes": 9573,
+        "static_path_builds": 2327,
+        "static_path_hits": 20429,
+        "transport_builds": 0,
+        "transport_searches": 2058,
+        "yield_attempts": 27,
+        "yield_candidates": 23
+      },
+      "operations": {},
+      "final_sha256": "d9e274756e136ff48a6d4c22d4419efa02f2ab5047ce2f7a0562359a5ef12b51"
+    },
+    "before-operations": {
+      "source_input_sha256": "939c2d95da67a9df671dbb5a824fd987174e77b449e3ed0b0332405922b4848b",
+      "metrics_us": {
+        "cold_first_us": 1346057,
+        "count": 40,
+        "following_mean_us": 29125.8461538462,
+        "max_us": 1346057,
+        "mean_us": 62049.125,
+        "p50_us": 28058,
+        "p95_us": 38077,
+        "p99_us": 1346057,
+        "total_us": 2481965
+      },
+      "complete": true,
+      "qualified": true,
+      "qualification": {
+        "actual_clinical_work": true,
+        "all_steps_complete": true,
+        "operations.local_cleanup_actually_progressed": true,
+        "operations.real_movement_or_cleanup_work": true,
+        "operations.setup_accepted": true,
+        "operations.some_cleanup_assigned_or_completed": true,
+        "operations.staff_need_tasks_selected": true,
+        "present_160_throughout": true,
+        "same_actor_ids": true,
+        "world_valid": true
+      },
+      "public_checks": null,
+      "public_checks_all": true,
+      "execution": {
+        "debug_build": true,
+        "display_server": "headless",
+        "editor_binary": true,
+        "platform": "Windows",
+        "processor": "Intel(R) Core(TM) Ultra 5 125H",
+        "scope": "ordinary HospitalSimulation.step; frozen legal day plan; no GameSession background capacity preparation, rendering or persistence IO"
+      },
+      "initial": {
+        "patients": 120,
+        "visitors": 8,
+        "present": 160,
+        "rooms": 64,
+        "tick": 1151,
+        "staff": 32,
+        "facilities": 1336
+      },
+      "final": {
+        "present": 160,
+        "maximum_present": 160,
+        "work_ticks_by_kind": {
+          "outpatient": 40,
+          "reception": 120
+        },
+        "validation": "",
+        "services_completed": {},
+        "services_started": {},
+        "minimum_present": 160,
+        "tick": 1191
+      },
+      "public": {
+        "use_starts": 0,
+        "queue_actor_ticks": 0,
+        "exit_then_reuse": 0,
+        "queued_actors": 0,
+        "queue_peak": 0,
+        "use_completions": 0,
+        "use_ticks": 0,
+        "used_regions": [],
+        "fallback_starts": 0
+      },
+      "query_counts": {
+        "actor_index_actor_visits": 2240,
+        "actor_index_builds": 14,
+        "candidate_connections": 771,
+        "connector_node_declarations": 8,
+        "connector_topology_builds": 2,
+        "connector_topology_inherits": 128,
+        "door_candidates": 208,
+        "floor_route_builds": 588,
+        "floor_route_hits": 901,
+        "journey_hits": 34,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 379,
+        "movement_candidates": 58,
+        "reservation_candidate_queries": 1509,
+        "reservation_index_builds": 2,
+        "reservation_index_updates": 42,
+        "route_checks": 420,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 2,
+        "route_dispatches": 2,
+        "route_revalidation_unvalidated": 11,
+        "route_revalidations": 11,
+        "routes": 584,
+        "static_path_builds": 211,
+        "static_path_hits": 361,
+        "transport_builds": 0,
+        "transport_searches": 278,
+        "yield_attempts": 0,
+        "yield_candidates": 0
+      },
+      "operations": {
+        "assigned_remaining_dirt": 0,
+        "checks": {
+          "local_cleanup_actually_progressed": true,
+          "real_movement_or_cleanup_work": true,
+          "setup_accepted": true,
+          "some_cleanup_assigned_or_completed": true,
+          "staff_need_tasks_selected": true
+        },
+        "cleanup_completed": 4,
+        "cleanup_completed_since_setup": 4,
+        "cleanup_started_or_completed": 4,
+        "cleanup_work_milli_in_window": 16000,
+        "cross_floor_remaining_task_selections": 0,
+        "elapsed_steps_since_setup": 40,
+        "final": {
+          "actors": 160,
+          "dirt": [
+            {
+              "id": "dirt_00000162",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000162:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000162",
+                "staff_id": "bench_staff_0028",
+                "standard_work_milli": 4000,
+                "tick": 1190
+              }
+            },
+            {
+              "cell": [
+                24,
+                6
+              ],
+              "contributions": {},
+              "floor_id": 1,
+              "id": "dirt_00000163",
+              "phase": "queued",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 4000,
+              "total_milli": 4000,
+              "work_cell": [],
+              "worker_id": ""
+            },
+            {
+              "cell": [
+                25,
+                6
+              ],
+              "contributions": {},
+              "floor_id": 1,
+              "id": "dirt_00000164",
+              "phase": "queued",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 4000,
+              "total_milli": 4000,
+              "work_cell": [],
+              "worker_id": ""
+            },
+            {
+              "cell": [
+                28,
+                5
+              ],
+              "contributions": {},
+              "floor_id": 1,
+              "id": "dirt_00000165",
+              "phase": "queued",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 4000,
+              "total_milli": 4000,
+              "work_cell": [],
+              "worker_id": ""
+            },
+            {
+              "id": "dirt_00000166",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000166:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000166",
+                "staff_id": "bench_staff_0029",
+                "standard_work_milli": 4000,
+                "tick": 1190
+              }
+            },
+            {
+              "cell": [
+                24,
+                6
+              ],
+              "contributions": {},
+              "floor_id": 2,
+              "id": "dirt_00000167",
+              "phase": "queued",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 4000,
+              "total_milli": 4000,
+              "work_cell": [],
+              "worker_id": ""
+            },
+            {
+              "cell": [
+                25,
+                6
+              ],
+              "contributions": {},
+              "floor_id": 2,
+              "id": "dirt_00000168",
+              "phase": "queued",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 4000,
+              "total_milli": 4000,
+              "work_cell": [],
+              "worker_id": ""
+            },
+            {
+              "cell": [
+                28,
+                5
+              ],
+              "contributions": {},
+              "floor_id": 2,
+              "id": "dirt_00000169",
+              "phase": "queued",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 4000,
+              "total_milli": 4000,
+              "work_cell": [],
+              "worker_id": ""
+            },
+            {
+              "id": "dirt_00000170",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000170:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000170",
+                "staff_id": "bench_staff_0030",
+                "standard_work_milli": 4000,
+                "tick": 1190
+              }
+            },
+            {
+              "cell": [
+                24,
+                6
+              ],
+              "contributions": {},
+              "floor_id": 3,
+              "id": "dirt_00000171",
+              "phase": "queued",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 4000,
+              "total_milli": 4000,
+              "work_cell": [],
+              "worker_id": ""
+            },
+            {
+              "cell": [
+                25,
+                6
+              ],
+              "contributions": {},
+              "floor_id": 3,
+              "id": "dirt_00000172",
+              "phase": "queued",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 4000,
+              "total_milli": 4000,
+              "work_cell": [],
+              "worker_id": ""
+            },
+            {
+              "cell": [
+                28,
+                5
+              ],
+              "contributions": {},
+              "floor_id": 3,
+              "id": "dirt_00000173",
+              "phase": "queued",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 4000,
+              "total_milli": 4000,
+              "work_cell": [],
+              "worker_id": ""
+            },
+            {
+              "id": "dirt_00000174",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000174:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000174",
+                "staff_id": "bench_staff_0031",
+                "standard_work_milli": 4000,
+                "tick": 1190
+              }
+            },
+            {
+              "cell": [
+                24,
+                6
+              ],
+              "contributions": {},
+              "floor_id": 4,
+              "id": "dirt_00000175",
+              "phase": "queued",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 4000,
+              "total_milli": 4000,
+              "work_cell": [],
+              "worker_id": ""
+            },
+            {
+              "cell": [
+                25,
+                6
+              ],
+              "contributions": {},
+              "floor_id": 4,
+              "id": "dirt_00000176",
+              "phase": "queued",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 4000,
+              "total_milli": 4000,
+              "work_cell": [],
+              "worker_id": ""
+            },
+            {
+              "cell": [
+                28,
+                5
+              ],
+              "contributions": {},
+              "floor_id": 4,
+              "id": "dirt_00000177",
+              "phase": "queued",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 4000,
+              "total_milli": 4000,
+              "work_cell": [],
+              "worker_id": ""
+            }
+          ],
+          "orders": [
+            {
+              "cost": 100,
+              "floor_id": 1,
+              "id": "renovation_00000178",
+              "phase": "queued",
+              "reason": "等待正常装修工具台",
+              "units": [
+                {
+                  "cell": [
+                    42,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000178:0",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    44,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000178:1",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    46,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000178:2",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    48,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000178:3",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                }
+              ]
+            },
+            {
+              "cost": 100,
+              "floor_id": 2,
+              "id": "renovation_00000179",
+              "phase": "queued",
+              "reason": "等待正常装修工具台",
+              "units": [
+                {
+                  "cell": [
+                    42,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000179:0",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    44,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000179:1",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    46,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000179:2",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    48,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000179:3",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                }
+              ]
+            },
+            {
+              "cost": 100,
+              "floor_id": 3,
+              "id": "renovation_00000180",
+              "phase": "queued",
+              "reason": "等待正常装修工具台",
+              "units": [
+                {
+                  "cell": [
+                    42,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000180:0",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    44,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000180:1",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    46,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000180:2",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    48,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000180:3",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                }
+              ]
+            },
+            {
+              "cost": 100,
+              "floor_id": 4,
+              "id": "renovation_00000181",
+              "phase": "queued",
+              "reason": "等待正常装修工具台",
+              "units": [
+                {
+                  "cell": [
+                    42,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000181:0",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    44,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000181:1",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    46,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000181:2",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    48,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000181:3",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                }
+              ]
+            }
+          ],
+          "staff": [
+            {
+              "active_job_id": "",
+              "awake_ticks": 1191,
+              "energy": 99.6800000000002,
+              "id": "bench_staff_0028",
+              "life_reason": "实际工作消耗",
+              "life_task": {
+                "phase": "idle"
+              },
+              "location": {
+                "cell": [
+                  22,
+                  6
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "movement": {
+                "path_steps": 0,
+                "travelled_checkpoints": 0
+              },
+              "role": "cleaner",
+              "sleep_remaining_ticks": 0
+            },
+            {
+              "active_job_id": "",
+              "awake_ticks": 1191,
+              "energy": 99.6800000000002,
+              "id": "bench_staff_0029",
+              "life_reason": "实际工作消耗",
+              "life_task": {
+                "phase": "idle"
+              },
+              "location": {
+                "cell": [
+                  22,
+                  6
+                ],
+                "floor_id": 2,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "movement": {
+                "path_steps": 0,
+                "travelled_checkpoints": 0
+              },
+              "role": "cleaner",
+              "sleep_remaining_ticks": 0
+            },
+            {
+              "active_job_id": "",
+              "awake_ticks": 1191,
+              "energy": 99.6800000000002,
+              "id": "bench_staff_0030",
+              "life_reason": "实际工作消耗",
+              "life_task": {
+                "phase": "idle"
+              },
+              "location": {
+                "cell": [
+                  22,
+                  6
+                ],
+                "floor_id": 3,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "movement": {
+                "path_steps": 0,
+                "travelled_checkpoints": 0
+              },
+              "role": "cleaner",
+              "sleep_remaining_ticks": 0
+            },
+            {
+              "active_job_id": "",
+              "awake_ticks": 1191,
+              "energy": 99.6800000000002,
+              "id": "bench_staff_0031",
+              "life_reason": "实际工作消耗",
+              "life_task": {
+                "phase": "idle"
+              },
+              "location": {
+                "cell": [
+                  22,
+                  6
+                ],
+                "floor_id": 4,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "movement": {
+                "path_steps": 0,
+                "travelled_checkpoints": 0
+              },
+              "role": "cleaner",
+              "sleep_remaining_ticks": 0
+            },
+            {
+              "awake_ticks": 1191,
+              "energy": 34.88,
+              "id": "bench_staff_0024",
+              "life_reason": "实际移动消耗",
+              "life_task": {
+                "actor_id": "bench_staff_0024",
+                "area": {
+                  "anchor": [
+                    27,
+                    71
+                  ],
+                  "floor_id": 1,
+                  "room_id": "bench_room_1_13"
+                },
+                "arrived_tick": -1,
+                "cell": [
+                  32,
+                  77
+                ],
+                "early": false,
+                "facility_id": "",
+                "floor_id": 1,
+                "id": "life_bench_staff_0024_1151",
+                "kind": "rest",
+                "mode": "auto",
+                "offsite_sleep_satisfied": false,
+                "offsite_ticks": 0,
+                "phase": "area_travel",
+                "public_purpose": "rest",
+                "required_offsite_ticks": 0,
+                "return_location": {
+                  "cell": [
+                    50.0,
+                    72.0
+                  ],
+                  "floor_id": 1,
+                  "height_m": 0.0,
+                  "kind": "floor"
+                },
+                "selection": {},
+                "started_tick": 1151,
+                "waited_ticks": 0
+              },
+              "location": {
+                "cell": [
+                  52.0,
+                  78.0
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "movement": {
+                "blocked_since": -1,
+                "cursor": 8,
+                "path_steps": 35,
+                "target_cell": [
+                  32,
+                  77
+                ],
+                "target_floor": 1,
+                "travelled_checkpoints": 9,
+                "yielding": false
+              },
+              "role": "receptionist",
+              "sleep_remaining_ticks": 0
+            },
+            {
+              "awake_ticks": 13540,
+              "energy": 99.88,
+              "id": "bench_staff_0008",
+              "life_reason": "实际移动消耗",
+              "life_task": {
+                "cell": [
+                  9,
+                  55
+                ],
+                "early": false,
+                "facility_id": "bench_room_1_08_1",
+                "floor_id": 1,
+                "id": "life_bench_staff_0008_1151",
+                "kind": "sleep",
+                "offsite_sleep_satisfied": false,
+                "offsite_ticks": 0,
+                "phase": "travel",
+                "required_offsite_ticks": 0,
+                "return_location": {
+                  "cell": [
+                    50.0,
+                    8.0
+                  ],
+                  "floor_id": 1,
+                  "height_m": 0.0,
+                  "kind": "floor"
+                },
+                "selection": {},
+                "waited_ticks": 0
+              },
+              "location": {
+                "cell": [
+                  52.0,
+                  14.0
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "movement": {
+                "blocked_since": -1,
+                "cursor": 8,
+                "path_steps": 98,
+                "target_cell": [
+                  9,
+                  55
+                ],
+                "target_floor": 1,
+                "travelled_checkpoints": 9,
+                "yielding": false
+              },
+              "role": "doctor",
+              "sleep_remaining_ticks": 4500
+            }
+          ],
+          "tick": 1191
+        },
+        "initial_dirt": 16,
+        "limitations": [
+          "Paid renovation orders lack a decorator and/or working tool; no construction progress is claimed."
+        ],
+        "measurement_boundary_tick": 1151,
+        "new_cleanup_task_selections_at_least": 4,
+        "new_staff_need_tasks": 2,
+        "observed_cleaners_with_real_location_change": 0,
+        "observed_staff_with_real_location_change": 2,
+        "pending_renovation_units": 16,
+        "setup_errors": [],
+        "sleep_work_ticks_in_window": 0,
+        "staff_needs_actually_resting_or_sleeping": 0,
+        "staff_needs_selected": 2,
+        "steps": 40
+      },
+      "final_sha256": "f20de287ab252ab3fd759f27d841da0fe8a288ee3189a22f05d006a51ace45f8"
+    },
+    "before-public360": {
+      "source_input_sha256": "1d83a8834528fd2f6c53dff06f6ec150c9e598eed675fc37521ab7e45fcadb10",
+      "metrics_us": {
+        "cold_first_us": 1826253,
+        "count": 360,
+        "following_mean_us": 445912.846796657,
+        "max_us": 10986704,
+        "mean_us": 449747.125,
+        "p50_us": 463707,
+        "p95_us": 573053,
+        "p99_us": 763587,
+        "total_us": 161908965
+      },
+      "complete": true,
+      "qualified": true,
+      "qualification": {
+        "actual_clinical_work": true,
+        "all_steps_complete": true,
+        "operations.local_cleanup_actually_progressed": true,
+        "operations.real_movement_or_cleanup_work": true,
+        "operations.setup_accepted": true,
+        "operations.some_cleanup_assigned_or_completed": true,
+        "operations.staff_need_tasks_selected": true,
+        "present_160_throughout": true,
+        "same_actor_ids": true,
+        "world_valid": true
+      },
+      "public_checks": {
+        "actual_completion_observed": true,
+        "actual_queue_observed": true,
+        "actual_uses_observed": true,
+        "manual_request_accepted": true,
+        "no_observer_rule_errors": true,
+        "prior_actual_exit_before_reuse": true,
+        "two_actual_use_regions": true
+      },
+      "public_checks_all": true,
+      "execution": {
+        "debug_build": true,
+        "display_server": "headless",
+        "editor_binary": true,
+        "platform": "Windows",
+        "processor": "Intel(R) Core(TM) Ultra 5 125H",
+        "scope": "ordinary HospitalSimulation.step; frozen legal day plan; no GameSession background capacity preparation, rendering or persistence IO"
+      },
+      "initial": {
+        "patients": 120,
+        "visitors": 8,
+        "present": 160,
+        "rooms": 64,
+        "tick": 2623,
+        "staff": 32,
+        "facilities": 1336
+      },
+      "final": {
+        "present": 160,
+        "maximum_present": 160,
+        "work_ticks_by_kind": {
+          "consult": 81,
+          "gp": 55,
+          "reception": 168
+        },
+        "validation": "",
+        "services_completed": {
+          "consult": 1,
+          "gp": 1,
+          "reception": 1
+        },
+        "services_started": {
+          "consult": 1,
+          "reception": 4
+        },
+        "minimum_present": 160,
+        "tick": 2983
+      },
+      "public": {
+        "use_starts": 16,
+        "queue_actor_ticks": 640,
+        "exit_then_reuse": 8,
+        "queued_actors": 8,
+        "queue_peak": 8,
+        "use_completions": 16,
+        "use_ticks": 1280,
+        "used_regions": [
+          {
+            "anchor": [
+              27,
+              49
+            ],
+            "floor_id": 1,
+            "room_id": "bench_room_1_09"
+          },
+          {
+            "anchor": [
+              27,
+              49
+            ],
+            "floor_id": 2,
+            "room_id": "bench_room_2_09"
+          },
+          {
+            "anchor": [
+              27,
+              49
+            ],
+            "floor_id": 3,
+            "room_id": "bench_room_3_09"
+          },
+          {
+            "anchor": [
+              27,
+              49
+            ],
+            "floor_id": 4,
+            "room_id": "bench_room_4_09"
+          }
+        ],
+        "fallback_starts": 0
+      },
+      "query_counts": {
+        "actor_index_actor_visits": 701120,
+        "actor_index_builds": 4382,
+        "candidate_connections": 23818,
+        "connector_node_declarations": 32,
+        "connector_topology_builds": 8,
+        "connector_topology_inherits": 35578,
+        "door_candidates": 15714,
+        "floor_route_builds": 208366,
+        "floor_route_hits": 12904,
+        "journey_hits": 50,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 24785,
+        "movement_candidates": 4280,
+        "reservation_candidate_queries": 388972,
+        "reservation_index_builds": 649,
+        "reservation_index_updates": 10800,
+        "route_checks": 35348,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 490,
+        "route_dispatches": 490,
+        "route_revalidation_unvalidated": 500,
+        "route_revalidations": 500,
+        "routes": 74110,
+        "static_path_builds": 8501,
+        "static_path_hits": 198866,
+        "transport_builds": 0,
+        "transport_searches": 16160,
+        "yield_attempts": 1051,
+        "yield_candidates": 1040
+      },
+      "operations": {
+        "assigned_remaining_dirt": 1,
+        "checks": {
+          "local_cleanup_actually_progressed": true,
+          "real_movement_or_cleanup_work": true,
+          "setup_accepted": true,
+          "some_cleanup_assigned_or_completed": true,
+          "staff_need_tasks_selected": true
+        },
+        "cleanup_completed": 15,
+        "cleanup_completed_since_setup": 15,
+        "cleanup_started_or_completed": 15,
+        "cleanup_work_milli_in_window": 60000,
+        "cross_floor_remaining_task_selections": 0,
+        "elapsed_steps_since_setup": 360,
+        "final": {
+          "actors": 160,
+          "dirt": [
+            {
+              "id": "dirt_00000152",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000152:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000152",
+                "staff_id": "bench_staff_0028",
+                "standard_work_milli": 4000,
+                "tick": 2662
+              }
+            },
+            {
+              "id": "dirt_00000153",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000153:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000153",
+                "staff_id": "bench_staff_0028",
+                "standard_work_milli": 4000,
+                "tick": 2708
+              }
+            },
+            {
+              "id": "dirt_00000154",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000154:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000154",
+                "staff_id": "bench_staff_0028",
+                "standard_work_milli": 4000,
+                "tick": 2754
+              }
+            },
+            {
+              "cell": [
+                28,
+                5
+              ],
+              "contributions": {},
+              "floor_id": 1,
+              "id": "dirt_00000155",
+              "phase": "travelling",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 4000,
+              "total_milli": 4000,
+              "work_cell": [
+                29,
+                5
+              ],
+              "worker_id": "bench_staff_0028"
+            },
+            {
+              "id": "dirt_00000156",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000156:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000156",
+                "staff_id": "bench_staff_0029",
+                "standard_work_milli": 4000,
+                "tick": 2662
+              }
+            },
+            {
+              "id": "dirt_00000157",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000157:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000157",
+                "staff_id": "bench_staff_0029",
+                "standard_work_milli": 4000,
+                "tick": 2708
+              }
+            },
+            {
+              "id": "dirt_00000158",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000158:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000158",
+                "staff_id": "bench_staff_0029",
+                "standard_work_milli": 4000,
+                "tick": 2754
+              }
+            },
+            {
+              "id": "dirt_00000159",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000159:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000159",
+                "staff_id": "bench_staff_0029",
+                "standard_work_milli": 4000,
+                "tick": 2954
+              }
+            },
+            {
+              "id": "dirt_00000160",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000160:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000160",
+                "staff_id": "bench_staff_0030",
+                "standard_work_milli": 4000,
+                "tick": 2662
+              }
+            },
+            {
+              "id": "dirt_00000161",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000161:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000161",
+                "staff_id": "bench_staff_0030",
+                "standard_work_milli": 4000,
+                "tick": 2708
+              }
+            },
+            {
+              "id": "dirt_00000162",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000162:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000162",
+                "staff_id": "bench_staff_0030",
+                "standard_work_milli": 4000,
+                "tick": 2754
+              }
+            },
+            {
+              "id": "dirt_00000163",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000163:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000163",
+                "staff_id": "bench_staff_0030",
+                "standard_work_milli": 4000,
+                "tick": 2954
+              }
+            },
+            {
+              "id": "dirt_00000164",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000164:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000164",
+                "staff_id": "bench_staff_0031",
+                "standard_work_milli": 4000,
+                "tick": 2662
+              }
+            },
+            {
+              "id": "dirt_00000165",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000165:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000165",
+                "staff_id": "bench_staff_0031",
+                "standard_work_milli": 4000,
+                "tick": 2708
+              }
+            },
+            {
+              "id": "dirt_00000166",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000166:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000166",
+                "staff_id": "bench_staff_0031",
+                "standard_work_milli": 4000,
+                "tick": 2754
+              }
+            },
+            {
+              "id": "dirt_00000167",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000167:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000167",
+                "staff_id": "bench_staff_0031",
+                "standard_work_milli": 4000,
+                "tick": 2958
+              }
+            }
+          ],
+          "orders": [
+            {
+              "cost": 100,
+              "floor_id": 1,
+              "id": "renovation_00000168",
+              "phase": "queued",
+              "reason": "等待正常装修工具台",
+              "units": [
+                {
+                  "cell": [
+                    42,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000168:0",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    44,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000168:1",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    46,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000168:2",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    48,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000168:3",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                }
+              ]
+            },
+            {
+              "cost": 100,
+              "floor_id": 2,
+              "id": "renovation_00000169",
+              "phase": "queued",
+              "reason": "等待正常装修工具台",
+              "units": [
+                {
+                  "cell": [
+                    42,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000169:0",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    44,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000169:1",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    46,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000169:2",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    48,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000169:3",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                }
+              ]
+            },
+            {
+              "cost": 100,
+              "floor_id": 3,
+              "id": "renovation_00000170",
+              "phase": "queued",
+              "reason": "等待正常装修工具台",
+              "units": [
+                {
+                  "cell": [
+                    42,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000170:0",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    44,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000170:1",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    46,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000170:2",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    48,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000170:3",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                }
+              ]
+            },
+            {
+              "cost": 100,
+              "floor_id": 4,
+              "id": "renovation_00000171",
+              "phase": "queued",
+              "reason": "等待正常装修工具台",
+              "units": [
+                {
+                  "cell": [
+                    42,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000171:0",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    44,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000171:1",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    46,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000171:2",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    48,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000171:3",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                }
+              ]
+            }
+          ],
+          "staff": [
+            {
+              "active_job_id": "dirt_00000155",
+              "awake_ticks": 1183,
+              "energy": 98.8690000000005,
+              "id": "bench_staff_0028",
+              "life_reason": "实际移动消耗",
+              "life_task": {
+                "phase": "idle"
+              },
+              "location": {
+                "cell": [
+                  25.0,
+                  14.0
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "movement": {
+                "blocked_since": -1,
+                "cursor": 1,
+                "path_steps": 1,
+                "target_cell": [
+                  29,
+                  5
+                ],
+                "target_floor": 1,
+                "travelled_checkpoints": 11,
+                "yielding": true
+              },
+              "role": "cleaner",
+              "sleep_remaining_ticks": 0
+            },
+            {
+              "active_job_id": "",
+              "awake_ticks": 1183,
+              "energy": 98.3180000000007,
+              "id": "bench_staff_0029",
+              "life_reason": "实际工作消耗",
+              "life_task": {
+                "phase": "idle"
+              },
+              "location": {
+                "cell": [
+                  29.0,
+                  5.0
+                ],
+                "floor_id": 2,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "movement": {
+                "path_steps": 0,
+                "travelled_checkpoints": 0
+              },
+              "role": "cleaner",
+              "sleep_remaining_ticks": 0
+            },
+            {
+              "active_job_id": "",
+              "awake_ticks": 1183,
+              "energy": 98.3180000000007,
+              "id": "bench_staff_0030",
+              "life_reason": "实际工作消耗",
+              "life_task": {
+                "phase": "idle"
+              },
+              "location": {
+                "cell": [
+                  29.0,
+                  5.0
+                ],
+                "floor_id": 3,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "movement": {
+                "path_steps": 0,
+                "travelled_checkpoints": 0
+              },
+              "role": "cleaner",
+              "sleep_remaining_ticks": 0
+            },
+            {
+              "active_job_id": "",
+              "awake_ticks": 1183,
+              "energy": 98.3180000000007,
+              "id": "bench_staff_0031",
+              "life_reason": "实际工作消耗",
+              "life_task": {
+                "phase": "idle"
+              },
+              "location": {
+                "cell": [
+                  29.0,
+                  5.0
+                ],
+                "floor_id": 4,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "movement": {
+                "path_steps": 0,
+                "travelled_checkpoints": 0
+              },
+              "role": "cleaner",
+              "sleep_remaining_ticks": 0
+            }
+          ],
+          "tick": 2983
+        },
+        "initial_dirt": 16,
+        "limitations": [
+          "Paid renovation orders lack a decorator and/or working tool; no construction progress is claimed."
+        ],
+        "measurement_boundary_tick": 2623,
+        "new_cleanup_task_selections_at_least": 16,
+        "new_staff_need_tasks": 0,
+        "observed_cleaners_with_real_location_change": 4,
+        "observed_staff_with_real_location_change": 4,
+        "pending_renovation_units": 16,
+        "setup_errors": [],
+        "sleep_work_ticks_in_window": 0,
+        "staff_needs_actually_resting_or_sleeping": 0,
+        "staff_needs_selected": 0,
+        "steps": 360
+      },
+      "final_sha256": "49c1aa694e9e63a800721228ff1c3a882c02bd4a3f3a44c5444afc9f79655a84"
+    },
+    "after-public": {
+      "source_input_sha256": "1d83a8834528fd2f6c53dff06f6ec150c9e598eed675fc37521ab7e45fcadb10",
+      "metrics_us": {
+        "cold_first_us": 1701617,
+        "count": 300,
+        "following_mean_us": 160720.461538462,
+        "max_us": 10733397,
+        "mean_us": 165856.783333333,
+        "p50_us": 117191,
+        "p95_us": 265195,
+        "p99_us": 403724,
+        "total_us": 49757035
+      },
+      "complete": true,
+      "qualified": true,
+      "qualification": {
+        "actual_clinical_work": true,
+        "all_steps_complete": true,
+        "operations.local_cleanup_actually_progressed": true,
+        "operations.real_movement_or_cleanup_work": true,
+        "operations.setup_accepted": true,
+        "operations.some_cleanup_assigned_or_completed": true,
+        "operations.staff_need_tasks_selected": true,
+        "present_160_throughout": true,
+        "same_actor_ids": true,
+        "world_valid": true
+      },
+      "public_checks": {
+        "actual_completion_observed": true,
+        "actual_queue_observed": true,
+        "actual_uses_observed": true,
+        "manual_request_accepted": true,
+        "no_observer_rule_errors": true,
+        "prior_actual_exit_before_reuse": true,
+        "two_actual_use_regions": true
+      },
+      "public_checks_all": true,
+      "execution": {
+        "debug_build": true,
+        "display_server": "headless",
+        "editor_binary": true,
+        "platform": "Windows",
+        "processor": "Intel(R) Core(TM) Ultra 5 125H",
+        "scope": "ordinary HospitalSimulation.step; frozen legal day plan; no GameSession background capacity preparation, rendering or persistence IO"
+      },
+      "initial": {
+        "patients": 120,
+        "visitors": 8,
+        "present": 160,
+        "rooms": 64,
+        "tick": 2623,
+        "staff": 32,
+        "facilities": 1336
+      },
+      "final": {
+        "present": 160,
+        "maximum_present": 160,
+        "work_ticks_by_kind": {
+          "consult": 81,
+          "gp": 55,
+          "reception": 60
+        },
+        "validation": "",
+        "services_completed": {
+          "consult": 1,
+          "gp": 1,
+          "reception": 1
+        },
+        "services_started": {
+          "consult": 1,
+          "reception": 1
+        },
+        "minimum_present": 160,
+        "tick": 2923
+      },
+      "public": {
+        "use_starts": 16,
+        "queue_actor_ticks": 495,
+        "exit_then_reuse": 8,
+        "queued_actors": 8,
+        "queue_peak": 4,
+        "use_completions": 12,
+        "use_ticks": 1048,
+        "used_regions": [
+          {
+            "anchor": [
+              27,
+              49
+            ],
+            "floor_id": 1,
+            "room_id": "bench_room_1_09"
+          },
+          {
+            "anchor": [
+              27,
+              49
+            ],
+            "floor_id": 2,
+            "room_id": "bench_room_2_09"
+          },
+          {
+            "anchor": [
+              27,
+              49
+            ],
+            "floor_id": 3,
+            "room_id": "bench_room_3_09"
+          },
+          {
+            "anchor": [
+              27,
+              49
+            ],
+            "floor_id": 4,
+            "room_id": "bench_room_4_09"
+          }
+        ],
+        "fallback_starts": 0
+      },
+      "query_counts": {
+        "actor_index_actor_visits": 170400,
+        "actor_index_builds": 1065,
+        "candidate_connections": 8902,
+        "connector_node_declarations": 24,
+        "connector_topology_builds": 6,
+        "connector_topology_inherits": 526,
+        "distance_field_builds": 33,
+        "distance_field_hits": 3150,
+        "door_candidates": 20935,
+        "floor_route_builds": 5056,
+        "floor_route_hits": 9700,
+        "journey_hits": 50,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 12364,
+        "movement_candidates": 2917,
+        "nearby_field_builds": 9,
+        "public_wait_hits": 4974,
+        "public_wait_rechecks": 634,
+        "reservation_candidate_queries": 228161,
+        "reservation_index_builds": 521,
+        "reservation_index_updates": 7068,
+        "route_checks": 30031,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 892,
+        "route_dispatches": 892,
+        "route_revalidation_unvalidated": 902,
+        "route_revalidations": 902,
+        "routes": 3652,
+        "static_path_builds": 521,
+        "static_path_hits": 80,
+        "transport_builds": 0,
+        "transport_searches": 3307,
+        "yield_attempts": 863,
+        "yield_candidates": 228
+      },
+      "operations": {
+        "assigned_remaining_dirt": 4,
+        "checks": {
+          "local_cleanup_actually_progressed": true,
+          "real_movement_or_cleanup_work": true,
+          "setup_accepted": true,
+          "some_cleanup_assigned_or_completed": true,
+          "staff_need_tasks_selected": true
+        },
+        "cleanup_completed": 12,
+        "cleanup_completed_since_setup": 12,
+        "cleanup_started_or_completed": 15,
+        "cleanup_work_milli_in_window": 50000,
+        "cross_floor_remaining_task_selections": 0,
+        "elapsed_steps_since_setup": 300,
+        "final": {
+          "actors": 160,
+          "dirt": [
+            {
+              "id": "dirt_00000152",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000152:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000152",
+                "staff_id": "bench_staff_0028",
+                "standard_work_milli": 4000,
+                "tick": 2662
+              }
+            },
+            {
+              "id": "dirt_00000153",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000153:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000153",
+                "staff_id": "bench_staff_0028",
+                "standard_work_milli": 4000,
+                "tick": 2708
+              }
+            },
+            {
+              "id": "dirt_00000154",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000154:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000154",
+                "staff_id": "bench_staff_0028",
+                "standard_work_milli": 4000,
+                "tick": 2754
+              }
+            },
+            {
+              "cell": [
+                28,
+                5
+              ],
+              "contributions": {},
+              "floor_id": 1,
+              "id": "dirt_00000155",
+              "phase": "travelling",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 4000,
+              "total_milli": 4000,
+              "work_cell": [
+                29,
+                5
+              ],
+              "worker_id": "bench_staff_0028"
+            },
+            {
+              "id": "dirt_00000156",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000156:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000156",
+                "staff_id": "bench_staff_0029",
+                "standard_work_milli": 4000,
+                "tick": 2662
+              }
+            },
+            {
+              "id": "dirt_00000157",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000157:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000157",
+                "staff_id": "bench_staff_0029",
+                "standard_work_milli": 4000,
+                "tick": 2708
+              }
+            },
+            {
+              "id": "dirt_00000158",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000158:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000158",
+                "staff_id": "bench_staff_0029",
+                "standard_work_milli": 4000,
+                "tick": 2754
+              }
+            },
+            {
+              "cell": [
+                28,
+                5
+              ],
+              "contributions": {
+                "bench_staff_0029": 800
+              },
+              "floor_id": 2,
+              "id": "dirt_00000159",
+              "phase": "working",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 3200,
+              "total_milli": 4000,
+              "work_cell": [
+                29,
+                5
+              ],
+              "worker_id": "bench_staff_0029"
+            },
+            {
+              "id": "dirt_00000160",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000160:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000160",
+                "staff_id": "bench_staff_0030",
+                "standard_work_milli": 4000,
+                "tick": 2662
+              }
+            },
+            {
+              "id": "dirt_00000161",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000161:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000161",
+                "staff_id": "bench_staff_0030",
+                "standard_work_milli": 4000,
+                "tick": 2708
+              }
+            },
+            {
+              "id": "dirt_00000162",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000162:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000162",
+                "staff_id": "bench_staff_0030",
+                "standard_work_milli": 4000,
+                "tick": 2754
+              }
+            },
+            {
+              "cell": [
+                28,
+                5
+              ],
+              "contributions": {
+                "bench_staff_0030": 800
+              },
+              "floor_id": 3,
+              "id": "dirt_00000163",
+              "phase": "working",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 3200,
+              "total_milli": 4000,
+              "work_cell": [
+                29,
+                5
+              ],
+              "worker_id": "bench_staff_0030"
+            },
+            {
+              "id": "dirt_00000164",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000164:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000164",
+                "staff_id": "bench_staff_0031",
+                "standard_work_milli": 4000,
+                "tick": 2662
+              }
+            },
+            {
+              "id": "dirt_00000165",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000165:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000165",
+                "staff_id": "bench_staff_0031",
+                "standard_work_milli": 4000,
+                "tick": 2708
+              }
+            },
+            {
+              "id": "dirt_00000166",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000166:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000166",
+                "staff_id": "bench_staff_0031",
+                "standard_work_milli": 4000,
+                "tick": 2754
+              }
+            },
+            {
+              "cell": [
+                28,
+                5
+              ],
+              "contributions": {
+                "bench_staff_0031": 400
+              },
+              "floor_id": 4,
+              "id": "dirt_00000167",
+              "phase": "working",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 3600,
+              "total_milli": 4000,
+              "work_cell": [
+                29,
+                5
+              ],
+              "worker_id": "bench_staff_0031"
+            }
+          ],
+          "orders": [
+            {
+              "cost": 100,
+              "floor_id": 1,
+              "id": "renovation_00000168",
+              "phase": "queued",
+              "reason": "等待正常装修工具台",
+              "units": [
+                {
+                  "cell": [
+                    42,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000168:0",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    44,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000168:1",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    46,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000168:2",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    48,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000168:3",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                }
+              ]
+            },
+            {
+              "cost": 100,
+              "floor_id": 2,
+              "id": "renovation_00000169",
+              "phase": "queued",
+              "reason": "等待正常装修工具台",
+              "units": [
+                {
+                  "cell": [
+                    42,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000169:0",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    44,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000169:1",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    46,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000169:2",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    48,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000169:3",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                }
+              ]
+            },
+            {
+              "cost": 100,
+              "floor_id": 3,
+              "id": "renovation_00000170",
+              "phase": "queued",
+              "reason": "等待正常装修工具台",
+              "units": [
+                {
+                  "cell": [
+                    42,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000170:0",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    44,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000170:1",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    46,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000170:2",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    48,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000170:3",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                }
+              ]
+            },
+            {
+              "cost": 100,
+              "floor_id": 4,
+              "id": "renovation_00000171",
+              "phase": "queued",
+              "reason": "等待正常装修工具台",
+              "units": [
+                {
+                  "cell": [
+                    42,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000171:0",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    44,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000171:1",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    46,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000171:2",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    48,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000171:3",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                }
+              ]
+            }
+          ],
+          "staff": [
+            {
+              "active_job_id": "dirt_00000155",
+              "awake_ticks": 1123,
+              "energy": 98.8540000000005,
+              "id": "bench_staff_0028",
+              "life_reason": "实际移动消耗",
+              "life_task": {
+                "phase": "idle"
+              },
+              "location": {
+                "cell": [
+                  25.0,
+                  13.0
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "movement": {
+                "blocked_since": -1,
+                "cursor": 2,
+                "path_steps": 2,
+                "target_cell": [
+                  29,
+                  5
+                ],
+                "target_floor": 1,
+                "travelled_checkpoints": 12,
+                "yielding": true
+              },
+              "role": "cleaner",
+              "sleep_remaining_ticks": 0
+            },
+            {
+              "active_job_id": "dirt_00000159",
+              "awake_ticks": 1123,
+              "energy": 98.5740000000006,
+              "id": "bench_staff_0029",
+              "life_reason": "实际工作消耗",
+              "life_task": {
+                "phase": "idle"
+              },
+              "location": {
+                "cell": [
+                  29.0,
+                  5.0
+                ],
+                "floor_id": 2,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "movement": {
+                "path_steps": 0,
+                "travelled_checkpoints": 0
+              },
+              "role": "cleaner",
+              "sleep_remaining_ticks": 0
+            },
+            {
+              "active_job_id": "dirt_00000163",
+              "awake_ticks": 1123,
+              "energy": 98.5740000000006,
+              "id": "bench_staff_0030",
+              "life_reason": "实际工作消耗",
+              "life_task": {
+                "phase": "idle"
+              },
+              "location": {
+                "cell": [
+                  29.0,
+                  5.0
+                ],
+                "floor_id": 3,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "movement": {
+                "path_steps": 0,
+                "travelled_checkpoints": 0
+              },
+              "role": "cleaner",
+              "sleep_remaining_ticks": 0
+            },
+            {
+              "active_job_id": "dirt_00000167",
+              "awake_ticks": 1123,
+              "energy": 98.6060000000005,
+              "id": "bench_staff_0031",
+              "life_reason": "实际工作消耗",
+              "life_task": {
+                "phase": "idle"
+              },
+              "location": {
+                "cell": [
+                  29.0,
+                  5.0
+                ],
+                "floor_id": 4,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "movement": {
+                "path_steps": 0,
+                "travelled_checkpoints": 0
+              },
+              "role": "cleaner",
+              "sleep_remaining_ticks": 0
+            }
+          ],
+          "tick": 2923
+        },
+        "initial_dirt": 16,
+        "limitations": [
+          "Paid renovation orders lack a decorator and/or working tool; no construction progress is claimed."
+        ],
+        "measurement_boundary_tick": 2623,
+        "new_cleanup_task_selections_at_least": 16,
+        "new_staff_need_tasks": 0,
+        "observed_cleaners_with_real_location_change": 4,
+        "observed_staff_with_real_location_change": 4,
+        "pending_renovation_units": 16,
+        "setup_errors": [],
+        "sleep_work_ticks_in_window": 0,
+        "staff_needs_actually_resting_or_sleeping": 0,
+        "staff_needs_selected": 0,
+        "steps": 300
+      },
+      "final_sha256": "42883fa194b7194541e14412f6f0dbdfba7eebdde40c892448dae3e6454057a0"
+    },
+    "after-gp": {
+      "source_input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "metrics_us": {
+        "cold_first_us": 513670,
+        "count": 80,
+        "following_mean_us": 314372.050632911,
+        "max_us": 12836082,
+        "mean_us": 316863.275,
+        "p50_us": 167963,
+        "p95_us": 335904,
+        "p99_us": 12836082,
+        "total_us": 25349062
+      },
+      "complete": true,
+      "qualified": true,
+      "qualification": {
+        "actual_clinical_work": true,
+        "all_steps_complete": true,
+        "present_160_throughout": true,
+        "same_actor_ids": true,
+        "world_valid": true
+      },
+      "public_checks": null,
+      "public_checks_all": true,
+      "execution": {
+        "debug_build": true,
+        "display_server": "headless",
+        "editor_binary": true,
+        "platform": "Windows",
+        "processor": "Intel(R) Core(TM) Ultra 5 125H",
+        "scope": "ordinary HospitalSimulation.step; frozen legal day plan; no GameSession background capacity preparation, rendering or persistence IO"
+      },
+      "initial": {
+        "patients": 120,
+        "visitors": 8,
+        "present": 160,
+        "rooms": 64,
+        "tick": 823,
+        "staff": 32,
+        "facilities": 1336
+      },
+      "final": {
+        "present": 160,
+        "maximum_present": 160,
+        "work_ticks_by_kind": {
+          "consult": 25,
+          "gp": 55
+        },
+        "validation": "",
+        "services_completed": {
+          "gp": 1
+        },
+        "services_started": {
+          "consult": 1
+        },
+        "minimum_present": 160,
+        "tick": 903
+      },
+      "public": {
+        "use_starts": 0,
+        "queue_actor_ticks": 0,
+        "exit_then_reuse": 0,
+        "queued_actors": 0,
+        "queue_peak": 0,
+        "use_completions": 0,
+        "use_ticks": 0,
+        "used_regions": [],
+        "fallback_starts": 0
+      },
+      "query_counts": {
+        "actor_index_actor_visits": 129920,
+        "actor_index_builds": 812,
+        "candidate_connections": 2312,
+        "connector_node_declarations": 4,
+        "connector_topology_builds": 1,
+        "connector_topology_inherits": 507,
+        "distance_field_builds": 14,
+        "distance_field_hits": 1094,
+        "door_candidates": 8498,
+        "floor_route_builds": 1881,
+        "floor_route_hits": 1731,
+        "journey_hits": 0,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 8428,
+        "movement_candidates": 525,
+        "nearby_field_builds": 12,
+        "public_wait_hits": 672,
+        "public_wait_rechecks": 288,
+        "reservation_candidate_queries": 53864,
+        "reservation_index_builds": 505,
+        "reservation_index_updates": 6676,
+        "route_checks": 5624,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 146,
+        "route_dispatches": 146,
+        "route_revalidation_floor": 270,
+        "route_revalidation_unvalidated": 156,
+        "route_revalidations": 426,
+        "routes": 1256,
+        "static_path_builds": 247,
+        "static_path_hits": 45,
+        "transport_builds": 0,
+        "transport_searches": 1164,
+        "yield_attempts": 27,
+        "yield_candidates": 23
+      },
+      "operations": {},
+      "final_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a"
+    },
+    "after-operations": {
+      "source_input_sha256": "939c2d95da67a9df671dbb5a824fd987174e77b449e3ed0b0332405922b4848b",
+      "metrics_us": {
+        "cold_first_us": 1359125,
+        "count": 40,
+        "following_mean_us": 28142.1794871795,
+        "max_us": 1359125,
+        "mean_us": 61416.75,
+        "p50_us": 27222,
+        "p95_us": 36515,
+        "p99_us": 1359125,
+        "total_us": 2456670
+      },
+      "complete": true,
+      "qualified": true,
+      "qualification": {
+        "actual_clinical_work": true,
+        "all_steps_complete": true,
+        "operations.local_cleanup_actually_progressed": true,
+        "operations.real_movement_or_cleanup_work": true,
+        "operations.setup_accepted": true,
+        "operations.some_cleanup_assigned_or_completed": true,
+        "operations.staff_need_tasks_selected": true,
+        "present_160_throughout": true,
+        "same_actor_ids": true,
+        "world_valid": true
+      },
+      "public_checks": null,
+      "public_checks_all": true,
+      "execution": {
+        "debug_build": true,
+        "display_server": "headless",
+        "editor_binary": true,
+        "platform": "Windows",
+        "processor": "Intel(R) Core(TM) Ultra 5 125H",
+        "scope": "ordinary HospitalSimulation.step; frozen legal day plan; no GameSession background capacity preparation, rendering or persistence IO"
+      },
+      "initial": {
+        "patients": 120,
+        "visitors": 8,
+        "present": 160,
+        "rooms": 64,
+        "tick": 1151,
+        "staff": 32,
+        "facilities": 1336
+      },
+      "final": {
+        "present": 160,
+        "maximum_present": 160,
+        "work_ticks_by_kind": {
+          "outpatient": 40,
+          "reception": 120
+        },
+        "validation": "",
+        "services_completed": {},
+        "services_started": {},
+        "minimum_present": 160,
+        "tick": 1191
+      },
+      "public": {
+        "use_starts": 0,
+        "queue_actor_ticks": 0,
+        "exit_then_reuse": 0,
+        "queued_actors": 0,
+        "queue_peak": 0,
+        "use_completions": 0,
+        "use_ticks": 0,
+        "used_regions": [],
+        "fallback_starts": 0
+      },
+      "query_counts": {
+        "actor_index_actor_visits": 2240,
+        "actor_index_builds": 14,
+        "candidate_connections": 771,
+        "connector_node_declarations": 4,
+        "connector_topology_builds": 1,
+        "distance_field_builds": 8,
+        "distance_field_hits": 317,
+        "door_candidates": 208,
+        "floor_route_builds": 452,
+        "floor_route_hits": 901,
+        "journey_hits": 34,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 379,
+        "movement_candidates": 58,
+        "public_wait_rechecks": 8,
+        "reservation_candidate_queries": 1599,
+        "reservation_index_builds": 2,
+        "reservation_index_updates": 42,
+        "route_checks": 420,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 2,
+        "route_dispatches": 2,
+        "route_revalidation_unvalidated": 11,
+        "route_revalidations": 11,
+        "routes": 448,
+        "static_path_builds": 93,
+        "static_path_hits": 31,
+        "transport_builds": 0,
+        "transport_searches": 278,
+        "yield_attempts": 0,
+        "yield_candidates": 0
+      },
+      "operations": {
+        "assigned_remaining_dirt": 0,
+        "checks": {
+          "local_cleanup_actually_progressed": true,
+          "real_movement_or_cleanup_work": true,
+          "setup_accepted": true,
+          "some_cleanup_assigned_or_completed": true,
+          "staff_need_tasks_selected": true
+        },
+        "cleanup_completed": 4,
+        "cleanup_completed_since_setup": 4,
+        "cleanup_started_or_completed": 4,
+        "cleanup_work_milli_in_window": 16000,
+        "cross_floor_remaining_task_selections": 0,
+        "elapsed_steps_since_setup": 40,
+        "final": {
+          "actors": 160,
+          "dirt": [
+            {
+              "id": "dirt_00000162",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000162:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000162",
+                "staff_id": "bench_staff_0028",
+                "standard_work_milli": 4000,
+                "tick": 1190
+              }
+            },
+            {
+              "cell": [
+                24,
+                6
+              ],
+              "contributions": {},
+              "floor_id": 1,
+              "id": "dirt_00000163",
+              "phase": "queued",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 4000,
+              "total_milli": 4000,
+              "work_cell": [],
+              "worker_id": ""
+            },
+            {
+              "cell": [
+                25,
+                6
+              ],
+              "contributions": {},
+              "floor_id": 1,
+              "id": "dirt_00000164",
+              "phase": "queued",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 4000,
+              "total_milli": 4000,
+              "work_cell": [],
+              "worker_id": ""
+            },
+            {
+              "cell": [
+                28,
+                5
+              ],
+              "contributions": {},
+              "floor_id": 1,
+              "id": "dirt_00000165",
+              "phase": "queued",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 4000,
+              "total_milli": 4000,
+              "work_cell": [],
+              "worker_id": ""
+            },
+            {
+              "id": "dirt_00000166",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000166:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000166",
+                "staff_id": "bench_staff_0029",
+                "standard_work_milli": 4000,
+                "tick": 1190
+              }
+            },
+            {
+              "cell": [
+                24,
+                6
+              ],
+              "contributions": {},
+              "floor_id": 2,
+              "id": "dirt_00000167",
+              "phase": "queued",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 4000,
+              "total_milli": 4000,
+              "work_cell": [],
+              "worker_id": ""
+            },
+            {
+              "cell": [
+                25,
+                6
+              ],
+              "contributions": {},
+              "floor_id": 2,
+              "id": "dirt_00000168",
+              "phase": "queued",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 4000,
+              "total_milli": 4000,
+              "work_cell": [],
+              "worker_id": ""
+            },
+            {
+              "cell": [
+                28,
+                5
+              ],
+              "contributions": {},
+              "floor_id": 2,
+              "id": "dirt_00000169",
+              "phase": "queued",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 4000,
+              "total_milli": 4000,
+              "work_cell": [],
+              "worker_id": ""
+            },
+            {
+              "id": "dirt_00000170",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000170:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000170",
+                "staff_id": "bench_staff_0030",
+                "standard_work_milli": 4000,
+                "tick": 1190
+              }
+            },
+            {
+              "cell": [
+                24,
+                6
+              ],
+              "contributions": {},
+              "floor_id": 3,
+              "id": "dirt_00000171",
+              "phase": "queued",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 4000,
+              "total_milli": 4000,
+              "work_cell": [],
+              "worker_id": ""
+            },
+            {
+              "cell": [
+                25,
+                6
+              ],
+              "contributions": {},
+              "floor_id": 3,
+              "id": "dirt_00000172",
+              "phase": "queued",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 4000,
+              "total_milli": 4000,
+              "work_cell": [],
+              "worker_id": ""
+            },
+            {
+              "cell": [
+                28,
+                5
+              ],
+              "contributions": {},
+              "floor_id": 3,
+              "id": "dirt_00000173",
+              "phase": "queued",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 4000,
+              "total_milli": 4000,
+              "work_cell": [],
+              "worker_id": ""
+            },
+            {
+              "id": "dirt_00000174",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000174:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000174",
+                "staff_id": "bench_staff_0031",
+                "standard_work_milli": 4000,
+                "tick": 1190
+              }
+            },
+            {
+              "cell": [
+                24,
+                6
+              ],
+              "contributions": {},
+              "floor_id": 4,
+              "id": "dirt_00000175",
+              "phase": "queued",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 4000,
+              "total_milli": 4000,
+              "work_cell": [],
+              "worker_id": ""
+            },
+            {
+              "cell": [
+                25,
+                6
+              ],
+              "contributions": {},
+              "floor_id": 4,
+              "id": "dirt_00000176",
+              "phase": "queued",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 4000,
+              "total_milli": 4000,
+              "work_cell": [],
+              "worker_id": ""
+            },
+            {
+              "cell": [
+                28,
+                5
+              ],
+              "contributions": {},
+              "floor_id": 4,
+              "id": "dirt_00000177",
+              "phase": "queued",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 4000,
+              "total_milli": 4000,
+              "work_cell": [],
+              "worker_id": ""
+            }
+          ],
+          "orders": [
+            {
+              "cost": 100,
+              "floor_id": 1,
+              "id": "renovation_00000178",
+              "phase": "queued",
+              "reason": "等待正常装修工具台",
+              "units": [
+                {
+                  "cell": [
+                    42,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000178:0",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    44,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000178:1",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    46,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000178:2",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    48,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000178:3",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                }
+              ]
+            },
+            {
+              "cost": 100,
+              "floor_id": 2,
+              "id": "renovation_00000179",
+              "phase": "queued",
+              "reason": "等待正常装修工具台",
+              "units": [
+                {
+                  "cell": [
+                    42,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000179:0",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    44,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000179:1",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    46,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000179:2",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    48,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000179:3",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                }
+              ]
+            },
+            {
+              "cost": 100,
+              "floor_id": 3,
+              "id": "renovation_00000180",
+              "phase": "queued",
+              "reason": "等待正常装修工具台",
+              "units": [
+                {
+                  "cell": [
+                    42,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000180:0",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    44,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000180:1",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    46,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000180:2",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    48,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000180:3",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                }
+              ]
+            },
+            {
+              "cost": 100,
+              "floor_id": 4,
+              "id": "renovation_00000181",
+              "phase": "queued",
+              "reason": "等待正常装修工具台",
+              "units": [
+                {
+                  "cell": [
+                    42,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000181:0",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    44,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000181:1",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    46,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000181:2",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    48,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000181:3",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                }
+              ]
+            }
+          ],
+          "staff": [
+            {
+              "active_job_id": "",
+              "awake_ticks": 1191,
+              "energy": 99.6800000000002,
+              "id": "bench_staff_0028",
+              "life_reason": "实际工作消耗",
+              "life_task": {
+                "phase": "idle"
+              },
+              "location": {
+                "cell": [
+                  22,
+                  6
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "movement": {
+                "path_steps": 0,
+                "travelled_checkpoints": 0
+              },
+              "role": "cleaner",
+              "sleep_remaining_ticks": 0
+            },
+            {
+              "active_job_id": "",
+              "awake_ticks": 1191,
+              "energy": 99.6800000000002,
+              "id": "bench_staff_0029",
+              "life_reason": "实际工作消耗",
+              "life_task": {
+                "phase": "idle"
+              },
+              "location": {
+                "cell": [
+                  22,
+                  6
+                ],
+                "floor_id": 2,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "movement": {
+                "path_steps": 0,
+                "travelled_checkpoints": 0
+              },
+              "role": "cleaner",
+              "sleep_remaining_ticks": 0
+            },
+            {
+              "active_job_id": "",
+              "awake_ticks": 1191,
+              "energy": 99.6800000000002,
+              "id": "bench_staff_0030",
+              "life_reason": "实际工作消耗",
+              "life_task": {
+                "phase": "idle"
+              },
+              "location": {
+                "cell": [
+                  22,
+                  6
+                ],
+                "floor_id": 3,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "movement": {
+                "path_steps": 0,
+                "travelled_checkpoints": 0
+              },
+              "role": "cleaner",
+              "sleep_remaining_ticks": 0
+            },
+            {
+              "active_job_id": "",
+              "awake_ticks": 1191,
+              "energy": 99.6800000000002,
+              "id": "bench_staff_0031",
+              "life_reason": "实际工作消耗",
+              "life_task": {
+                "phase": "idle"
+              },
+              "location": {
+                "cell": [
+                  22,
+                  6
+                ],
+                "floor_id": 4,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "movement": {
+                "path_steps": 0,
+                "travelled_checkpoints": 0
+              },
+              "role": "cleaner",
+              "sleep_remaining_ticks": 0
+            },
+            {
+              "awake_ticks": 1191,
+              "energy": 34.88,
+              "id": "bench_staff_0024",
+              "life_reason": "实际移动消耗",
+              "life_task": {
+                "actor_id": "bench_staff_0024",
+                "area": {
+                  "anchor": [
+                    27,
+                    71
+                  ],
+                  "floor_id": 1,
+                  "room_id": "bench_room_1_13"
+                },
+                "arrived_tick": -1,
+                "cell": [
+                  32,
+                  77
+                ],
+                "early": false,
+                "facility_id": "",
+                "floor_id": 1,
+                "id": "life_bench_staff_0024_1151",
+                "kind": "rest",
+                "mode": "auto",
+                "offsite_sleep_satisfied": false,
+                "offsite_ticks": 0,
+                "phase": "area_travel",
+                "public_purpose": "rest",
+                "required_offsite_ticks": 0,
+                "return_location": {
+                  "cell": [
+                    50.0,
+                    72.0
+                  ],
+                  "floor_id": 1,
+                  "height_m": 0.0,
+                  "kind": "floor"
+                },
+                "selection": {},
+                "started_tick": 1151,
+                "waited_ticks": 0
+              },
+              "location": {
+                "cell": [
+                  52.0,
+                  78.0
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "movement": {
+                "blocked_since": -1,
+                "cursor": 8,
+                "path_steps": 35,
+                "target_cell": [
+                  32,
+                  77
+                ],
+                "target_floor": 1,
+                "travelled_checkpoints": 9,
+                "yielding": false
+              },
+              "role": "receptionist",
+              "sleep_remaining_ticks": 0
+            },
+            {
+              "awake_ticks": 13540,
+              "energy": 99.88,
+              "id": "bench_staff_0008",
+              "life_reason": "实际移动消耗",
+              "life_task": {
+                "cell": [
+                  9,
+                  55
+                ],
+                "early": false,
+                "facility_id": "bench_room_1_08_1",
+                "floor_id": 1,
+                "id": "life_bench_staff_0008_1151",
+                "kind": "sleep",
+                "offsite_sleep_satisfied": false,
+                "offsite_ticks": 0,
+                "phase": "travel",
+                "required_offsite_ticks": 0,
+                "return_location": {
+                  "cell": [
+                    50.0,
+                    8.0
+                  ],
+                  "floor_id": 1,
+                  "height_m": 0.0,
+                  "kind": "floor"
+                },
+                "selection": {},
+                "waited_ticks": 0
+              },
+              "location": {
+                "cell": [
+                  52.0,
+                  14.0
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "movement": {
+                "blocked_since": -1,
+                "cursor": 8,
+                "path_steps": 98,
+                "target_cell": [
+                  9,
+                  55
+                ],
+                "target_floor": 1,
+                "travelled_checkpoints": 9,
+                "yielding": false
+              },
+              "role": "doctor",
+              "sleep_remaining_ticks": 4500
+            }
+          ],
+          "tick": 1191
+        },
+        "initial_dirt": 16,
+        "limitations": [
+          "Paid renovation orders lack a decorator and/or working tool; no construction progress is claimed."
+        ],
+        "measurement_boundary_tick": 1151,
+        "new_cleanup_task_selections_at_least": 4,
+        "new_staff_need_tasks": 2,
+        "observed_cleaners_with_real_location_change": 0,
+        "observed_staff_with_real_location_change": 2,
+        "pending_renovation_units": 16,
+        "setup_errors": [],
+        "sleep_work_ticks_in_window": 0,
+        "staff_needs_actually_resting_or_sleeping": 0,
+        "staff_needs_selected": 2,
+        "steps": 40
+      },
+      "final_sha256": "f20de287ab252ab3fd759f27d841da0fe8a288ee3189a22f05d006a51ace45f8"
+    },
+    "after-public360": {
+      "source_input_sha256": "1d83a8834528fd2f6c53dff06f6ec150c9e598eed675fc37521ab7e45fcadb10",
+      "metrics_us": {
+        "cold_first_us": 1879049,
+        "count": 360,
+        "following_mean_us": 159599.39275766,
+        "max_us": 11181599,
+        "mean_us": 164375.641666667,
+        "p50_us": 118927,
+        "p95_us": 258752,
+        "p99_us": 497919,
+        "total_us": 59175231
+      },
+      "complete": true,
+      "qualified": true,
+      "qualification": {
+        "actual_clinical_work": true,
+        "all_steps_complete": true,
+        "operations.local_cleanup_actually_progressed": true,
+        "operations.real_movement_or_cleanup_work": true,
+        "operations.setup_accepted": true,
+        "operations.some_cleanup_assigned_or_completed": true,
+        "operations.staff_need_tasks_selected": true,
+        "present_160_throughout": true,
+        "same_actor_ids": true,
+        "world_valid": true
+      },
+      "public_checks": {
+        "actual_completion_observed": true,
+        "actual_queue_observed": true,
+        "actual_uses_observed": true,
+        "manual_request_accepted": true,
+        "no_observer_rule_errors": true,
+        "prior_actual_exit_before_reuse": true,
+        "two_actual_use_regions": true
+      },
+      "public_checks_all": true,
+      "execution": {
+        "debug_build": true,
+        "display_server": "headless",
+        "editor_binary": true,
+        "platform": "Windows",
+        "processor": "Intel(R) Core(TM) Ultra 5 125H",
+        "scope": "ordinary HospitalSimulation.step; frozen legal day plan; no GameSession background capacity preparation, rendering or persistence IO"
+      },
+      "initial": {
+        "patients": 120,
+        "visitors": 8,
+        "present": 160,
+        "rooms": 64,
+        "tick": 2623,
+        "staff": 32,
+        "facilities": 1336
+      },
+      "final": {
+        "present": 160,
+        "maximum_present": 160,
+        "work_ticks_by_kind": {
+          "consult": 81,
+          "gp": 55,
+          "reception": 168
+        },
+        "validation": "",
+        "services_completed": {
+          "consult": 1,
+          "gp": 1,
+          "reception": 1
+        },
+        "services_started": {
+          "consult": 1,
+          "reception": 4
+        },
+        "minimum_present": 160,
+        "tick": 2983
+      },
+      "public": {
+        "use_starts": 16,
+        "queue_actor_ticks": 495,
+        "exit_then_reuse": 8,
+        "queued_actors": 8,
+        "queue_peak": 4,
+        "use_completions": 16,
+        "use_ticks": 1280,
+        "used_regions": [
+          {
+            "anchor": [
+              27,
+              49
+            ],
+            "floor_id": 1,
+            "room_id": "bench_room_1_09"
+          },
+          {
+            "anchor": [
+              27,
+              49
+            ],
+            "floor_id": 2,
+            "room_id": "bench_room_2_09"
+          },
+          {
+            "anchor": [
+              27,
+              49
+            ],
+            "floor_id": 3,
+            "room_id": "bench_room_3_09"
+          },
+          {
+            "anchor": [
+              27,
+              49
+            ],
+            "floor_id": 4,
+            "room_id": "bench_room_4_09"
+          }
+        ],
+        "fallback_starts": 0
+      },
+      "query_counts": {
+        "actor_index_actor_visits": 173760,
+        "actor_index_builds": 1086,
+        "candidate_connections": 8962,
+        "connector_node_declarations": 28,
+        "connector_topology_builds": 7,
+        "connector_topology_inherits": 532,
+        "distance_field_builds": 36,
+        "distance_field_hits": 3263,
+        "door_candidates": 26786,
+        "floor_route_builds": 5504,
+        "floor_route_hits": 9736,
+        "journey_hits": 50,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 13545,
+        "movement_candidates": 4657,
+        "nearby_field_builds": 9,
+        "public_wait_hits": 6134,
+        "public_wait_rechecks": 674,
+        "reservation_candidate_queries": 278146,
+        "reservation_index_builds": 523,
+        "reservation_index_updates": 7101,
+        "route_checks": 36297,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 1118,
+        "route_dispatches": 1118,
+        "route_revalidation_unvalidated": 1128,
+        "route_revalidations": 1128,
+        "routes": 3849,
+        "static_path_builds": 542,
+        "static_path_hits": 143,
+        "transport_builds": 0,
+        "transport_searches": 3327,
+        "yield_attempts": 1599,
+        "yield_candidates": 844
+      },
+      "operations": {
+        "assigned_remaining_dirt": 1,
+        "checks": {
+          "local_cleanup_actually_progressed": true,
+          "real_movement_or_cleanup_work": true,
+          "setup_accepted": true,
+          "some_cleanup_assigned_or_completed": true,
+          "staff_need_tasks_selected": true
+        },
+        "cleanup_completed": 15,
+        "cleanup_completed_since_setup": 15,
+        "cleanup_started_or_completed": 15,
+        "cleanup_work_milli_in_window": 60000,
+        "cross_floor_remaining_task_selections": 0,
+        "elapsed_steps_since_setup": 360,
+        "final": {
+          "actors": 160,
+          "dirt": [
+            {
+              "id": "dirt_00000152",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000152:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000152",
+                "staff_id": "bench_staff_0028",
+                "standard_work_milli": 4000,
+                "tick": 2662
+              }
+            },
+            {
+              "id": "dirt_00000153",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000153:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000153",
+                "staff_id": "bench_staff_0028",
+                "standard_work_milli": 4000,
+                "tick": 2708
+              }
+            },
+            {
+              "id": "dirt_00000154",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000154:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000154",
+                "staff_id": "bench_staff_0028",
+                "standard_work_milli": 4000,
+                "tick": 2754
+              }
+            },
+            {
+              "cell": [
+                28,
+                5
+              ],
+              "contributions": {},
+              "floor_id": 1,
+              "id": "dirt_00000155",
+              "phase": "travelling",
+              "present": true,
+              "reason": "",
+              "remaining_milli": 4000,
+              "total_milli": 4000,
+              "work_cell": [
+                29,
+                5
+              ],
+              "worker_id": "bench_staff_0028"
+            },
+            {
+              "id": "dirt_00000156",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000156:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000156",
+                "staff_id": "bench_staff_0029",
+                "standard_work_milli": 4000,
+                "tick": 2662
+              }
+            },
+            {
+              "id": "dirt_00000157",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000157:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000157",
+                "staff_id": "bench_staff_0029",
+                "standard_work_milli": 4000,
+                "tick": 2708
+              }
+            },
+            {
+              "id": "dirt_00000158",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000158:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000158",
+                "staff_id": "bench_staff_0029",
+                "standard_work_milli": 4000,
+                "tick": 2754
+              }
+            },
+            {
+              "id": "dirt_00000159",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000159:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000159",
+                "staff_id": "bench_staff_0029",
+                "standard_work_milli": 4000,
+                "tick": 2954
+              }
+            },
+            {
+              "id": "dirt_00000160",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000160:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000160",
+                "staff_id": "bench_staff_0030",
+                "standard_work_milli": 4000,
+                "tick": 2662
+              }
+            },
+            {
+              "id": "dirt_00000161",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000161:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000161",
+                "staff_id": "bench_staff_0030",
+                "standard_work_milli": 4000,
+                "tick": 2708
+              }
+            },
+            {
+              "id": "dirt_00000162",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000162:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000162",
+                "staff_id": "bench_staff_0030",
+                "standard_work_milli": 4000,
+                "tick": 2754
+              }
+            },
+            {
+              "id": "dirt_00000163",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000163:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000163",
+                "staff_id": "bench_staff_0030",
+                "standard_work_milli": 4000,
+                "tick": 2954
+              }
+            },
+            {
+              "id": "dirt_00000164",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000164:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000164",
+                "staff_id": "bench_staff_0031",
+                "standard_work_milli": 4000,
+                "tick": 2662
+              }
+            },
+            {
+              "id": "dirt_00000165",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000165:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000165",
+                "staff_id": "bench_staff_0031",
+                "standard_work_milli": 4000,
+                "tick": 2708
+              }
+            },
+            {
+              "id": "dirt_00000166",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000166:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000166",
+                "staff_id": "bench_staff_0031",
+                "standard_work_milli": 4000,
+                "tick": 2754
+              }
+            },
+            {
+              "id": "dirt_00000167",
+              "present": false,
+              "receipt": {
+                "id": "dirt_00000167:cleanup_completed",
+                "kind": "cleanup_completed",
+                "practice_awarded": true,
+                "source_id": "dirt_00000167",
+                "staff_id": "bench_staff_0031",
+                "standard_work_milli": 4000,
+                "tick": 2958
+              }
+            }
+          ],
+          "orders": [
+            {
+              "cost": 100,
+              "floor_id": 1,
+              "id": "renovation_00000168",
+              "phase": "queued",
+              "reason": "等待正常装修工具台",
+              "units": [
+                {
+                  "cell": [
+                    42,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000168:0",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    44,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000168:1",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    46,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000168:2",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    48,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000168:3",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                }
+              ]
+            },
+            {
+              "cost": 100,
+              "floor_id": 2,
+              "id": "renovation_00000169",
+              "phase": "queued",
+              "reason": "等待正常装修工具台",
+              "units": [
+                {
+                  "cell": [
+                    42,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000169:0",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    44,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000169:1",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    46,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000169:2",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    48,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000169:3",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                }
+              ]
+            },
+            {
+              "cost": 100,
+              "floor_id": 3,
+              "id": "renovation_00000170",
+              "phase": "queued",
+              "reason": "等待正常装修工具台",
+              "units": [
+                {
+                  "cell": [
+                    42,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000170:0",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    44,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000170:1",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    46,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000170:2",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    48,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000170:3",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                }
+              ]
+            },
+            {
+              "cost": 100,
+              "floor_id": 4,
+              "id": "renovation_00000171",
+              "phase": "queued",
+              "reason": "等待正常装修工具台",
+              "units": [
+                {
+                  "cell": [
+                    42,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000171:0",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    44,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000171:1",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    46,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000171:2",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                },
+                {
+                  "cell": [
+                    48,
+                    87
+                  ],
+                  "contributions": {},
+                  "id": "renovation_00000171:3",
+                  "phase": "queued",
+                  "remaining_milli": 8000,
+                  "started": false,
+                  "tool_collected": false,
+                  "total_milli": 8000,
+                  "worker_id": ""
+                }
+              ]
+            }
+          ],
+          "staff": [
+            {
+              "active_job_id": "dirt_00000155",
+              "awake_ticks": 1183,
+              "energy": 98.8540000000005,
+              "id": "bench_staff_0028",
+              "life_reason": "实际移动消耗",
+              "life_task": {
+                "phase": "idle"
+              },
+              "location": {
+                "cell": [
+                  25.0,
+                  13.0
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "movement": {
+                "blocked_since": -1,
+                "cursor": 2,
+                "path_steps": 2,
+                "target_cell": [
+                  29,
+                  5
+                ],
+                "target_floor": 1,
+                "travelled_checkpoints": 12,
+                "yielding": true
+              },
+              "role": "cleaner",
+              "sleep_remaining_ticks": 0
+            },
+            {
+              "active_job_id": "",
+              "awake_ticks": 1183,
+              "energy": 98.3180000000007,
+              "id": "bench_staff_0029",
+              "life_reason": "实际工作消耗",
+              "life_task": {
+                "phase": "idle"
+              },
+              "location": {
+                "cell": [
+                  29.0,
+                  5.0
+                ],
+                "floor_id": 2,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "movement": {
+                "path_steps": 0,
+                "travelled_checkpoints": 0
+              },
+              "role": "cleaner",
+              "sleep_remaining_ticks": 0
+            },
+            {
+              "active_job_id": "",
+              "awake_ticks": 1183,
+              "energy": 98.3180000000007,
+              "id": "bench_staff_0030",
+              "life_reason": "实际工作消耗",
+              "life_task": {
+                "phase": "idle"
+              },
+              "location": {
+                "cell": [
+                  29.0,
+                  5.0
+                ],
+                "floor_id": 3,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "movement": {
+                "path_steps": 0,
+                "travelled_checkpoints": 0
+              },
+              "role": "cleaner",
+              "sleep_remaining_ticks": 0
+            },
+            {
+              "active_job_id": "",
+              "awake_ticks": 1183,
+              "energy": 98.3180000000007,
+              "id": "bench_staff_0031",
+              "life_reason": "实际工作消耗",
+              "life_task": {
+                "phase": "idle"
+              },
+              "location": {
+                "cell": [
+                  29.0,
+                  5.0
+                ],
+                "floor_id": 4,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "movement": {
+                "path_steps": 0,
+                "travelled_checkpoints": 0
+              },
+              "role": "cleaner",
+              "sleep_remaining_ticks": 0
+            }
+          ],
+          "tick": 2983
+        },
+        "initial_dirt": 16,
+        "limitations": [
+          "Paid renovation orders lack a decorator and/or working tool; no construction progress is claimed."
+        ],
+        "measurement_boundary_tick": 2623,
+        "new_cleanup_task_selections_at_least": 16,
+        "new_staff_need_tasks": 0,
+        "observed_cleaners_with_real_location_change": 4,
+        "observed_staff_with_real_location_change": 4,
+        "pending_renovation_units": 16,
+        "setup_errors": [],
+        "sleep_work_ticks_in_window": 0,
+        "staff_needs_actually_resting_or_sleeping": 0,
+        "staff_needs_selected": 0,
+        "steps": 360
+      },
+      "final_sha256": "2516cd84151b9c122113d527b8e1b46833d6dcc3cab3ea64262b189e950d1c33"
+    }
+  },
+  "changes": [
+    {
+      "scene": "public",
+      "mean_percent": -63.040840232781484,
+      "p95_percent": -53.115442141031124,
+      "max_percent": -5.3393744092749,
+      "final_binary_equal": false
+    },
+    {
+      "scene": "gp",
+      "mean_percent": -21.638820112086897,
+      "p95_percent": -0.25240977093070605,
+      "max_percent": -7.396562166225573,
+      "final_binary_equal": false
+    },
+    {
+      "scene": "operations",
+      "mean_percent": -1.0191521637089918,
+      "p95_percent": -4.102213934921339,
+      "max_percent": 0.9708355589696405,
+      "final_binary_equal": true
+    },
+    {
+      "scene": "public360",
+      "mean_percent": -63.4515414263811,
+      "p95_percent": -54.846759374787325,
+      "max_percent": 1.7739169090202012,
+      "final_binary_equal": false
+    }
+  ],
+  "failed_runs": {
+    "before_public380": {
+      "metrics_us": {
+        "cold_first_us": 1932873,
+        "count": 378,
+        "following_mean_us": 435397.310344828,
+        "max_us": 11133522,
+        "mean_us": 439358.886243386,
+        "p50_us": 435371,
+        "p95_us": 566265,
+        "p99_us": 925758,
+        "total_us": 166077659
+      },
+      "requested_steps": 380,
+      "errors": [
+        "Actual population left the fixed160 workload at tick 3001: 161"
+      ],
+      "qualified": false,
+      "final_present": 161,
+      "complete": false,
+      "qualification": {
+        "actual_clinical_work": true,
+        "all_steps_complete": false,
+        "operations.local_cleanup_actually_progressed": true,
+        "operations.real_movement_or_cleanup_work": true,
+        "operations.setup_accepted": true,
+        "operations.some_cleanup_assigned_or_completed": true,
+        "operations.staff_need_tasks_selected": true,
+        "present_160_throughout": false,
+        "same_actor_ids": false,
+        "world_valid": true
+      }
+    },
+    "after_public380": {
+      "reason": "Baseline exceeded fixed160 at original arrival tick3001; stopped pair before after run",
+      "executed": false
+    }
+  }
+}

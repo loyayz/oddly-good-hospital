@@ -95,8 +95,20 @@ func _disconnect_edge(from_id: int, to_id: int) -> void:
 
 # The graph updates this bounded edge mask at the same ownership points as
 # AStar2D. A field borrows the masks once; failures never become cached no-path.
-func distance_field(query: RouteClearance, origin: Vector2i, reverse: bool = false) -> Dictionary:
-	var result: Dictionary = PlatformArrivalMath.grid_distance_field(_enabled,_edges,query.reservation_mask(),{"root":_id(origin) if _inside(origin) else -1,"reverse":reverse})
+func distance_field(query: RouteClearance, origin: Vector2i, reverse: bool = false, maximum_distance: int = -1) -> Dictionary:
+	var enabled: PackedByteArray = _enabled
+	if maximum_distance>=0:
+		# A four-neighbour path of at most r steps cannot leave this Manhattan
+		# neighbourhood. Boost still owns traversal and directed-edge handling.
+		enabled = PackedByteArray()
+		enabled.resize(LIMIT)
+		enabled.fill(0)
+		for y: int in range(maxi(0,origin.y-maximum_distance),mini(SIDE,origin.y+maximum_distance+1)):
+			var reach: int = maximum_distance-absi(y-origin.y)
+			for x: int in range(maxi(0,origin.x-reach),mini(SIDE,origin.x+reach+1)):
+				var id: int = _id(Vector2i(x,y))
+				enabled[id] = _enabled[id]
+	var result: Dictionary = PlatformArrivalMath.grid_distance_field(enabled,_edges,query.reservation_mask(),{"root":_id(origin) if _inside(origin) else -1,"reverse":reverse})
 	if not result.get("ok",false):
 		return {"ready":false,"error":str(result.get("error","距离场计算失败"))}
 	result.ready = true

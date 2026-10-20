@@ -26,6 +26,7 @@ var _pending_routes: Dictionary = {}
 var _ready_routes: PlatformRouteQueue
 var _delayed_routes: PlatformRouteQueue
 var _phase_owners: Dictionary = {}
+var _route_failures: Dictionary = {}
 
 func _init(geometry: HospitalSpace) -> void:
 	_space = weakref(geometry)
@@ -42,6 +43,7 @@ func request_move(world: WorldState, actor_id: String, floor_id: int, target: Ar
 		var facility: Dictionary = space.facility_layout(world,actor.support_facility_id)
 		world.facts.moves[actor_id] = {"actor_id":actor_id,"path":[{"kind":"support_exit","floor_id":int(facility.floor_id),"cell":facility.patient_cell.duplicate()}],
 			"cursor":0,"travelled":[_checkpoint(actor)],"blocked_since":-1,"yielding":false,"target_floor":floor_id,"target_cell":target.duplicate()}
+		if space.public_areas!=null: space.public_areas.changed(world)
 		return ""
 	var reason: String = space.navigation.destination_reason(world,actor,floor_id,Vector2i(roundi(target[0]),roundi(target[1])))
 	if not reason.is_empty():
@@ -49,6 +51,7 @@ func request_move(world: WorldState, actor_id: String, floor_id: int, target: Ar
 	world.facts.moves[actor_id] = {"actor_id":actor_id,"path":[],"cursor":0,
 		"travelled":[_checkpoint(actor)],"blocked_since":-1,"yielding":false,"target_floor":floor_id,"target_cell":target.duplicate()}
 	_queue_route(world,world.facts.moves[actor_id])
+	if space.public_areas!=null: space.public_areas.changed(world)
 	return ""
 
 func _retarget(world: WorldState, previous: Dictionary, floor_id: int, target: Array) -> String:
@@ -65,6 +68,7 @@ func _retarget(world: WorldState, previous: Dictionary, floor_id: int, target: A
 	if actor.location.kind=="transit": previous.replan_after_transit = true
 	elif previous.path.is_empty() or int(previous.cursor)>=previous.path.size() or previous.path[int(previous.cursor)].kind!="support_exit":
 		_replan_goal(world,previous,bool(previous.get("route_pending",false)))
+	if space.public_areas!=null: space.public_areas.changed(world)
 	return previous.get("waiting_reason","")
 
 func request_group_move(world: WorldState, primary_id: String, members: Array, offsets: Dictionary, floor_id: int, target: Array) -> String:
@@ -89,13 +93,60 @@ func request_group_move(world: WorldState, primary_id: String, members: Array, o
 	world.facts.moves[primary_id] = {"actor_id":primary_id,"members":members.duplicate(),"offsets":offsets.duplicate(true),
 		"path":[],"cursor":0,"travelled":[_checkpoint(actor)],"blocked_since":-1,"yielding":false,"target_floor":floor_id,"target_cell":target.duplicate()}
 	_queue_route(world,world.facts.moves[primary_id])
+	if space.public_areas!=null: space.public_areas.changed(world)
 	return ""
+
+# An unreachable search is different from traffic contention. Its proof is
+# query-local runtime data, rechecked against current static geometry and body
+# conditions before the owning task may act on it.
+func failure(world: WorldState, actor_id: String) -> Dictionary:
+	var saved: Dictionary = _route_failures.get(actor_id,{})
+	var movement: Dictionary = world.facts.moves.get(actor_id,{})
+	if saved.is_empty() or movement.is_empty() or saved.world.get_ref()!=world or int(saved.sequence)!=int(movement.get("request_sequence",-1)) or int(saved.geometry)!=world.geometry_revision: return {}
+	if saved.basis!=_failure_body_basis(world,movement) or saved.connectors!=space.navigation.connection_basis(world): return {}
+	for floor_id: int in saved.floors:
+		if int(saved.floors[floor_id])!=space._navigation.floor_static_version(space,world,floor_id): return {}
+	return {"status":"unreachable","reason":saved.reason,"floor_id":movement.target_floor,"cell":movement.target_cell.duplicate()}
+
+# A task can stop a ground walk or landing queue. It cannot interrupt a real
+# ride, a support-exit segment or a group whose full body is not on the floor.
+func cancel_ground(world: WorldState, actor_id: String) -> bool:
+	var movement: Dictionary = world.facts.moves.get(actor_id,{})
+	if movement.is_empty():
+		var actor: Dictionary = world.facts.actors[actor_id]
+		return actor.location.kind=="floor" and actor.get("posture","standing")!="lying"
+	for id: String in movement.get("members",[actor_id]):
+		var actor: Dictionary = world.facts.actors[id]
+		if actor.location.kind!="floor" or actor.get("posture","standing")=="lying": return false
+	if int(movement.cursor)<movement.path.size() and int(movement.cursor)>=0 and movement.path[int(movement.cursor)].kind=="support_exit": return false
+	HospitalTransit.cancel_waiting(world,movement)
+	world.facts.moves.erase(actor_id)
+	_pending_routes.erase(actor_id)
+	_route_checks.erase(actor_id)
+	_route_failures.erase(actor_id)
+	if space.public_areas!=null: space.public_areas.changed(world)
+	return true
+
+func _failure_body_basis(world: WorldState, movement: Dictionary) -> Array:
+	var result: Array = [movement.target_floor,movement.target_cell,movement.get("members",[]),movement.get("offsets",{})]
+	for id: String in movement.get("members",[str(movement.actor_id)]):
+		var actor: Dictionary = world.facts.actors[id]
+		result.append([id,actor.location,_route_body_basis(actor)])
+	return result
+
+func _remember_failure(world: WorldState, movement: Dictionary, reason: String) -> void:
+	var floors: Dictionary = {}
+	for entry: Dictionary in space._navigation._sources.values():
+		if entry.world.get_ref()==world: floors[int(entry.floor_id)] = int(entry.static_version)
+	_route_failures[movement.actor_id] = {"world":weakref(world),"sequence":int(movement.request_sequence),"geometry":world.geometry_revision,"basis":_failure_body_basis(world,movement).duplicate(true),"connectors":space.navigation.connection_basis(world).duplicate(true),"floors":floors,"reason":reason}
+	if space.public_areas!=null: space.public_areas.changed(world)
 
 func advance(world: WorldState, present_at_start: int = -1) -> void:
 	# Read-only facility projections can temporarily replace the geometry
 	# index's world. They never replace this world's actual journeys.
 	if _world==null or _world.get_ref()!=world:
 		_route_checks.clear()
+		_route_failures.clear()
 		_world = weakref(world)
 	_sweep_index.begin_boundary(world.facts.actors)
 	_accepted_sweeps.clear()
@@ -108,6 +159,8 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 	for id: String in _route_checks.keys():
 		if not world.facts.moves.has(id):
 			_route_checks.erase(id)
+	for id: String in _route_failures.keys():
+		if not world.facts.moves.has(id): _route_failures.erase(id)
 	var floor_versions: Dictionary = {}
 	for actor_id: String in world.ids("moves"):
 		if not world.facts.moves.has(actor_id):
@@ -135,6 +188,8 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 				_queue_route(world,movement)
 				continue
 			world.facts.moves.erase(actor_id)
+			_route_failures.erase(actor_id)
+			if space.public_areas!=null: space.public_areas.changed(world)
 			continue
 		var segment: Dictionary = movement.path[int(movement.cursor)]
 		if segment.kind == "connector":
@@ -401,6 +456,8 @@ func _dispatch_routes(world: WorldState, present_at_start: int) -> void:
 			movement.waiting_reason = quote.reason
 			movement.route_retry_tick = world.sim_tick+int(space.content.balance.movement_courtesy.retry_hard_block_seconds)*10
 			_queue_route(world,movement)
+			if quote.get("status","")=="unreachable": _remember_failure(world,movement,str(quote.reason))
+			else: _route_failures.erase(id)
 			continue
 		movement.path = quote.path
 		if not waypoint.is_empty():
@@ -410,6 +467,7 @@ func _dispatch_routes(world: WorldState, present_at_start: int) -> void:
 		movement.route_pending = false
 		movement.erase("route_retry_tick")
 		movement.erase("waiting_reason")
+		_route_failures.erase(id)
 
 func _initial_route_cursor(actor: Dictionary, path: Array) -> int:
 	if path.size()<2 or path[0].kind!="floor" or path[1].kind!="floor" or int(path[0].floor_id)!=int(actor.location.floor_id) or int(path[1].floor_id)!=int(actor.location.floor_id):
@@ -541,6 +599,10 @@ func _movement_owners(world: WorldState, blocker_actor_ids: Array[String]) -> Ar
 
 func _route_occupancy(world: WorldState, actor: Dictionary, movement: Dictionary, floor_id: int) -> BodyIndex:
 	var result: BodyIndex = BodyIndex.new()
+	# A pending/local route may temporarily have no remaining cells. Its real
+	# destination still cannot serve as the other body's waiting retreat.
+	if int(movement.target_floor)==floor_id:
+		result.update("goal",floor_id,space._unit_rect(world,actor,Vector2(float(movement.target_cell[0]),float(movement.target_cell[1])),movement.get("members",[]),movement.get("offsets",{})))
 	for index: int in range(int(movement.cursor),movement.path.size()):
 		var segment: Dictionary = movement.path[index]
 		if segment.kind=="floor" and int(segment.floor_id)==floor_id:
@@ -578,6 +640,8 @@ func _yield(world: WorldState, actor: Dictionary, movement: Dictionary, result: 
 		return
 	if _has_priority(world,actor.id,partner):
 		return
+	var winner: Dictionary = world.facts.moves[partner]
+	var occupied: BodyIndex = _route_occupancy(world,world.facts.actors[partner],winner,int(actor.location.floor_id))
 	var current: Vector2i = Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
 	var seen: Dictionary = {}
 	for index: int in range(movement.travelled.size()-1,-1,-1):
@@ -591,7 +655,8 @@ func _yield(world: WorldState, actor: Dictionary, movement: Dictionary, result: 
 			continue
 		var cell: Vector2i = Vector2i(roundi(past.cell[0]),roundi(past.cell[1]))
 		var actual: Vector2 = Vector2(float(past.cell[0]),float(past.cell[1]))
-		if _narrow(world,actor,cell) or not space._dynamic_clear(world,actor.id,int(actor.location.floor_id),space._unit_rect(world,actor,actual,movement.get("members",[]),movement.get("offsets",{})),movement.get("members",[])):
+		var rect: Rect2 = space._unit_rect(world,actor,actual,movement.get("members",[]),movement.get("offsets",{}))
+		if _narrow(world,actor,cell) or occupied.intersects(int(actor.location.floor_id),rect,"") or not space._dynamic_clear(world,actor.id,int(actor.location.floor_id),rect,movement.get("members",[])):
 			continue
 		var retreat: Dictionary = space._floor_route(world,actor,int(actor.location.floor_id),current,cell,movement.get("members",[]),movement.get("offsets",{}))
 		if retreat.ok:
@@ -605,8 +670,6 @@ func _yield(world: WorldState, actor: Dictionary, movement: Dictionary, result: 
 	var members: Array = movement.get("members",[])
 	var offsets: Dictionary = movement.get("offsets",{})
 	var checker: RouteClearance = RouteClearance.new(space,world,actor,int(actor.location.floor_id),members,offsets,true,space._navigation.floor_source(space,world,int(actor.location.floor_id)))
-	var winner: Dictionary = world.facts.moves[partner]
-	var occupied: BodyIndex = _route_occupancy(world,world.facts.actors[partner],winner,int(actor.location.floor_id))
 	for radius: int in range(1,5):
 		for dx: int in range(-radius,radius+1):
 			var dy_abs: int = radius-absi(dx)

@@ -1,0 +1,633 @@
+{
+  "scope": "Selected affected cases only",
+  "batches": [
+    {
+      "batch": "2672cd42a94b4945a124a7a52ef23f5b",
+      "requested_cases": null,
+      "checks": null,
+      "failed": null,
+      "completed": null,
+      "timing": {
+        "started_at_utc": "2026-10-20T21:44:20.521867+08:00",
+        "ended_at_utc": "2026-10-20T21:44:37.748065+08:00",
+        "phase": "import_failed",
+        "completed": false,
+        "preparation_ms": 5254,
+        "import_ms": 11964,
+        "tests_ms": null,
+        "total_ms": 17228
+      },
+      "status": {
+        "phase": "not_executed_import_failed"
+      },
+      "results": null
+    },
+    {
+      "batch": "351d25a9215343a2b902b75564eece4f",
+      "requested_cases": [
+        "STAFF-51",
+        "STAFF-69",
+        "STAFF-70",
+        "STAFF-71",
+        "STAFF-72",
+        "STAFF-73"
+      ],
+      "checks": 6,
+      "failed": 1,
+      "completed": true,
+      "timing": {
+        "started_at_utc": "2026-10-20T21:45:58.9242647+08:00",
+        "ended_at_utc": "2026-10-20T21:46:13.2306913+08:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 3329,
+        "import_ms": 7030,
+        "tests_ms": 3935,
+        "total_ms": 14308
+      },
+      "status": {
+        "import_exit": 0,
+        "test_exit": 1,
+        "script_errors": false,
+        "log": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\acceptance\\351d25a9215343a2b902b75564eece4f\\execution.log"
+      },
+      "results": [
+        {
+          "case": "STAFF-51",
+          "passed": true,
+          "body_ms": 19
+        },
+        {
+          "case": "STAFF-69",
+          "passed": true,
+          "body_ms": 71
+        },
+        {
+          "case": "STAFF-70",
+          "passed": true,
+          "body_ms": 59
+        },
+        {
+          "case": "STAFF-71",
+          "passed": false,
+          "body_ms": 995
+        },
+        {
+          "case": "STAFF-72",
+          "passed": true,
+          "body_ms": 56
+        },
+        {
+          "case": "STAFF-73",
+          "passed": true,
+          "body_ms": 36
+        }
+      ]
+    },
+    {
+      "batch": "ddaf5c120d1948f8aa6dd2a4b1d6fd8b",
+      "requested_cases": [
+        "STAFF-71"
+      ],
+      "checks": 1,
+      "failed": 1,
+      "completed": true,
+      "timing": {
+        "started_at_utc": "2026-10-20T21:49:13.7276148+08:00",
+        "ended_at_utc": "2026-10-20T21:49:27.6325425+08:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 3338,
+        "import_ms": 7017,
+        "tests_ms": 3539,
+        "total_ms": 13907
+      },
+      "status": {
+        "import_exit": 0,
+        "test_exit": 1,
+        "script_errors": false,
+        "log": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\acceptance\\ddaf5c120d1948f8aa6dd2a4b1d6fd8b\\execution.log"
+      },
+      "results": {
+        "case": "STAFF-71",
+        "passed": false,
+        "body_ms": 908
+      }
+    },
+    {
+      "batch": "adb62d2b916d440baf88b10352f9e257",
+      "requested_cases": [
+        "STAFF-22",
+        "STAFF-27",
+        "STAFF-30",
+        "STAFF-35",
+        "STAFF-42",
+        "STAFF-45",
+        "STAFF-46",
+        "STAFF-47",
+        "STAFF-48",
+        "STAFF-49",
+        "STAFF-50",
+        "STAFF-51",
+        "STAFF-52",
+        "STAFF-53",
+        "STAFF-57",
+        "STAFF-58",
+        "STAFF-59",
+        "STAFF-61",
+        "STAFF-62",
+        "STAFF-63",
+        "STAFF-64",
+        "STAFF-65",
+        "STAFF-68",
+        "STAFF-69",
+        "STAFF-70",
+        "STAFF-71",
+        "STAFF-72",
+        "STAFF-73",
+        "STAFF-74",
+        "SPACE-33",
+        "SPACE-35",
+        "SPACE-36",
+        "SPACE-53",
+        "SPACE-55",
+        "SPACE-56",
+        "OPS-44"
+      ],
+      "checks": 36,
+      "failed": 4,
+      "completed": true,
+      "timing": {
+        "started_at_utc": "2026-10-20T21:59:18.5099475+08:00",
+        "ended_at_utc": "2026-10-20T21:59:50.8612262+08:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 3414,
+        "import_ms": 7020,
+        "tests_ms": 21904,
+        "total_ms": 32353
+      },
+      "status": {
+        "import_exit": 0,
+        "test_exit": 1,
+        "script_errors": true,
+        "log": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\acceptance\\adb62d2b916d440baf88b10352f9e257\\execution.log"
+      },
+      "results": [
+        {
+          "case": "OPS-44",
+          "passed": true,
+          "body_ms": 391
+        },
+        {
+          "case": "SPACE-33",
+          "passed": true,
+          "body_ms": 147
+        },
+        {
+          "case": "SPACE-35",
+          "passed": true,
+          "body_ms": 3178
+        },
+        {
+          "case": "SPACE-36",
+          "passed": true,
+          "body_ms": 11147
+        },
+        {
+          "case": "SPACE-53",
+          "passed": true,
+          "body_ms": 233
+        },
+        {
+          "case": "SPACE-55",
+          "passed": false,
+          "body_ms": 585
+        },
+        {
+          "case": "SPACE-56",
+          "passed": true,
+          "body_ms": 66
+        },
+        {
+          "case": "STAFF-22",
+          "passed": true,
+          "body_ms": 31
+        },
+        {
+          "case": "STAFF-27",
+          "passed": true,
+          "body_ms": 9
+        },
+        {
+          "case": "STAFF-30",
+          "passed": true,
+          "body_ms": 34
+        },
+        {
+          "case": "STAFF-35",
+          "passed": false,
+          "body_ms": 27
+        },
+        {
+          "case": "STAFF-42",
+          "passed": false,
+          "body_ms": 91
+        },
+        {
+          "case": "STAFF-45",
+          "passed": true,
+          "body_ms": 39
+        },
+        {
+          "case": "STAFF-46",
+          "passed": true,
+          "body_ms": 53
+        },
+        {
+          "case": "STAFF-47",
+          "passed": true,
+          "body_ms": 92
+        },
+        {
+          "case": "STAFF-48",
+          "passed": true,
+          "body_ms": 44
+        },
+        {
+          "case": "STAFF-49",
+          "passed": true,
+          "body_ms": 29
+        },
+        {
+          "case": "STAFF-50",
+          "passed": true,
+          "body_ms": 56
+        },
+        {
+          "case": "STAFF-51",
+          "passed": true,
+          "body_ms": 17
+        },
+        {
+          "case": "STAFF-52",
+          "passed": true,
+          "body_ms": 40
+        },
+        {
+          "case": "STAFF-53",
+          "passed": true,
+          "body_ms": 16
+        },
+        {
+          "case": "STAFF-57",
+          "passed": true,
+          "body_ms": 96
+        },
+        {
+          "case": "STAFF-58",
+          "passed": true,
+          "body_ms": 16
+        },
+        {
+          "case": "STAFF-59",
+          "passed": true,
+          "body_ms": 50
+        },
+        {
+          "case": "STAFF-61",
+          "passed": true,
+          "body_ms": 348
+        },
+        {
+          "case": "STAFF-62",
+          "passed": true,
+          "body_ms": 36
+        },
+        {
+          "case": "STAFF-63",
+          "passed": true,
+          "body_ms": 7
+        },
+        {
+          "case": "STAFF-64",
+          "passed": true,
+          "body_ms": 24
+        },
+        {
+          "case": "STAFF-65",
+          "passed": true,
+          "body_ms": 85
+        },
+        {
+          "case": "STAFF-68",
+          "passed": true,
+          "body_ms": 66
+        },
+        {
+          "case": "STAFF-69",
+          "passed": true,
+          "body_ms": 67
+        },
+        {
+          "case": "STAFF-70",
+          "passed": true,
+          "body_ms": 59
+        },
+        {
+          "case": "STAFF-71",
+          "passed": true,
+          "body_ms": 122
+        },
+        {
+          "case": "STAFF-72",
+          "passed": true,
+          "body_ms": 53
+        },
+        {
+          "case": "STAFF-73",
+          "passed": true,
+          "body_ms": 32
+        },
+        {
+          "case": "STAFF-74",
+          "passed": false,
+          "body_ms": 89
+        }
+      ]
+    },
+    {
+      "batch": "6d550e3bffc94d17a2466899e04d2320",
+      "requested_cases": [
+        "STAFF-22",
+        "STAFF-27",
+        "STAFF-30",
+        "STAFF-35",
+        "STAFF-42",
+        "STAFF-45",
+        "STAFF-46",
+        "STAFF-47",
+        "STAFF-48",
+        "STAFF-49",
+        "STAFF-50",
+        "STAFF-51",
+        "STAFF-52",
+        "STAFF-53",
+        "STAFF-57",
+        "STAFF-58",
+        "STAFF-59",
+        "STAFF-61",
+        "STAFF-62",
+        "STAFF-63",
+        "STAFF-64",
+        "STAFF-65",
+        "STAFF-68",
+        "STAFF-69",
+        "STAFF-70",
+        "STAFF-71",
+        "STAFF-72",
+        "STAFF-73",
+        "STAFF-74",
+        "SPACE-33",
+        "SPACE-35",
+        "SPACE-36",
+        "SPACE-53",
+        "SPACE-55",
+        "SPACE-56",
+        "OPS-44"
+      ],
+      "checks": 36,
+      "failed": 0,
+      "completed": true,
+      "timing": {
+        "started_at_utc": "2026-10-20T22:15:10.6275421+08:00",
+        "ended_at_utc": "2026-10-20T22:15:43.6151378+08:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 3443,
+        "import_ms": 6919,
+        "tests_ms": 22609,
+        "total_ms": 32986
+      },
+      "status": {
+        "import_exit": 0,
+        "test_exit": 0,
+        "script_errors": false,
+        "log": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\acceptance\\6d550e3bffc94d17a2466899e04d2320\\execution.log"
+      },
+      "results": [
+        {
+          "case": "OPS-44",
+          "passed": true,
+          "body_ms": 348
+        },
+        {
+          "case": "SPACE-33",
+          "passed": true,
+          "body_ms": 139
+        },
+        {
+          "case": "SPACE-35",
+          "passed": true,
+          "body_ms": 3164
+        },
+        {
+          "case": "SPACE-36",
+          "passed": true,
+          "body_ms": 11436
+        },
+        {
+          "case": "SPACE-53",
+          "passed": true,
+          "body_ms": 250
+        },
+        {
+          "case": "SPACE-55",
+          "passed": true,
+          "body_ms": 1008
+        },
+        {
+          "case": "SPACE-56",
+          "passed": true,
+          "body_ms": 68
+        },
+        {
+          "case": "STAFF-22",
+          "passed": true,
+          "body_ms": 32
+        },
+        {
+          "case": "STAFF-27",
+          "passed": true,
+          "body_ms": 9
+        },
+        {
+          "case": "STAFF-30",
+          "passed": true,
+          "body_ms": 40
+        },
+        {
+          "case": "STAFF-35",
+          "passed": true,
+          "body_ms": 44
+        },
+        {
+          "case": "STAFF-42",
+          "passed": true,
+          "body_ms": 319
+        },
+        {
+          "case": "STAFF-45",
+          "passed": true,
+          "body_ms": 36
+        },
+        {
+          "case": "STAFF-46",
+          "passed": true,
+          "body_ms": 46
+        },
+        {
+          "case": "STAFF-47",
+          "passed": true,
+          "body_ms": 89
+        },
+        {
+          "case": "STAFF-48",
+          "passed": true,
+          "body_ms": 45
+        },
+        {
+          "case": "STAFF-49",
+          "passed": true,
+          "body_ms": 17
+        },
+        {
+          "case": "STAFF-50",
+          "passed": true,
+          "body_ms": 52
+        },
+        {
+          "case": "STAFF-51",
+          "passed": true,
+          "body_ms": 19
+        },
+        {
+          "case": "STAFF-52",
+          "passed": true,
+          "body_ms": 36
+        },
+        {
+          "case": "STAFF-53",
+          "passed": true,
+          "body_ms": 15
+        },
+        {
+          "case": "STAFF-57",
+          "passed": true,
+          "body_ms": 99
+        },
+        {
+          "case": "STAFF-58",
+          "passed": true,
+          "body_ms": 16
+        },
+        {
+          "case": "STAFF-59",
+          "passed": true,
+          "body_ms": 29
+        },
+        {
+          "case": "STAFF-61",
+          "passed": true,
+          "body_ms": 345
+        },
+        {
+          "case": "STAFF-62",
+          "passed": true,
+          "body_ms": 33
+        },
+        {
+          "case": "STAFF-63",
+          "passed": true,
+          "body_ms": 6
+        },
+        {
+          "case": "STAFF-64",
+          "passed": true,
+          "body_ms": 22
+        },
+        {
+          "case": "STAFF-65",
+          "passed": true,
+          "body_ms": 74
+        },
+        {
+          "case": "STAFF-68",
+          "passed": true,
+          "body_ms": 50
+        },
+        {
+          "case": "STAFF-69",
+          "passed": true,
+          "body_ms": 103
+        },
+        {
+          "case": "STAFF-70",
+          "passed": true,
+          "body_ms": 150
+        },
+        {
+          "case": "STAFF-71",
+          "passed": true,
+          "body_ms": 120
+        },
+        {
+          "case": "STAFF-72",
+          "passed": true,
+          "body_ms": 55
+        },
+        {
+          "case": "STAFF-73",
+          "passed": true,
+          "body_ms": 30
+        },
+        {
+          "case": "STAFF-74",
+          "passed": true,
+          "body_ms": 88
+        }
+      ]
+    },
+    {
+      "batch": "c0b3ed4d0621432d8985e8b7581ead48",
+      "requested_cases": [
+        "STAFF-69"
+      ],
+      "checks": 1,
+      "failed": 0,
+      "completed": true,
+      "timing": {
+        "started_at_utc": "2026-10-20T22:16:12.2902007+08:00",
+        "ended_at_utc": "2026-10-20T22:16:25.3459779+08:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 3412,
+        "import_ms": 6933,
+        "tests_ms": 2698,
+        "total_ms": 13056
+      },
+      "status": {
+        "import_exit": 0,
+        "test_exit": 0,
+        "script_errors": false,
+        "log": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\acceptance\\c0b3ed4d0621432d8985e8b7581ead48\\execution.log"
+      },
+      "results": {
+        "case": "STAFF-69",
+        "passed": true,
+        "body_ms": 124
+      }
+    }
+  ],
+  "final_batch": "c0b3ed4d0621432d8985e8b7581ead48"
+}
