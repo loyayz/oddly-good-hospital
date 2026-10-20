@@ -1,0 +1,766 @@
+{
+  "batches": [
+    {
+      "log": "nav-functional-1.log",
+      "project_id": "14d9f52dcdd64facb35219278f10b078",
+      "timing-summary.json": {
+        "started_at_utc": "2026-10-20T07:23:28.8969216+00:00",
+        "ended_at_utc": "2026-10-20T07:23:55.5676587+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 3890,
+        "import_ms": 6981,
+        "tests_ms": 15788,
+        "total_ms": 26672
+      },
+      "execution-status.json": {
+        "import_exit": 0,
+        "test_exit": 1,
+        "script_errors": true,
+        "log": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\acceptance\\14d9f52dcdd64facb35219278f10b078\\execution.log"
+      },
+      "completed": true,
+      "declared": 18,
+      "checks": 18,
+      "failed": 12,
+      "elapsed_ms": 13522,
+      "requested_cases": [
+        "SPACE-09",
+        "SPACE-10",
+        "SPACE-23",
+        "SPACE-24",
+        "SPACE-25",
+        "SPACE-26",
+        "SPACE-27",
+        "SPACE-28",
+        "SPACE-29",
+        "SPACE-30",
+        "SPACE-45",
+        "SPACE-46",
+        "SPACE-48",
+        "SPACE-49",
+        "SPACE-51",
+        "SPACE-53",
+        "SPACE-54",
+        "SPACE-55"
+      ]
+    },
+    {
+      "log": "library-functional-1.log",
+      "project_id": "31c057afcd9e4420a6030a81cbd779fe",
+      "timing-summary.json": {
+        "started_at_utc": "2026-10-20T07:43:33.5535352+00:00",
+        "ended_at_utc": "2026-10-20T07:44:00.6456134+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 4610,
+        "import_ms": 11579,
+        "tests_ms": 10883,
+        "total_ms": 27095
+      },
+      "execution-status.json": {
+        "import_exit": 0,
+        "test_exit": 1,
+        "script_errors": true,
+        "log": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\acceptance\\31c057afcd9e4420a6030a81cbd779fe\\execution.log"
+      },
+      "completed": true,
+      "declared": 10,
+      "checks": 10,
+      "failed": 3,
+      "elapsed_ms": 8957,
+      "requested_cases": [
+        "CORE-18",
+        "CORE-19",
+        "CORE-21",
+        "CORE-22",
+        "CORE-26",
+        "CORE-27",
+        "CORE-44",
+        "CORE-46",
+        "CORE-49",
+        "STAFF-54"
+      ]
+    },
+    {
+      "log": "nav-functional-2.log",
+      "project_id": "aba248a037ca43488e41607ae15a6625",
+      "timing-summary.json": {
+        "started_at_utc": "2026-10-20T07:50:15.5835269+00:00",
+        "ended_at_utc": "2026-10-20T07:50:28.9947770+00:00",
+        "phase": "import_failed",
+        "completed": false,
+        "preparation_ms": 4352,
+        "import_ms": 9042,
+        "tests_ms": null,
+        "total_ms": 13416
+      }
+    },
+    {
+      "log": "functional-3.log",
+      "project_id": "491da279860b4af5ba02699fc8753cf1",
+      "timing-summary.json": {
+        "started_at_utc": "2026-10-20T08:06:36.9459421+00:00",
+        "ended_at_utc": "2026-10-20T08:07:14.3225756+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 5506,
+        "import_ms": 11922,
+        "tests_ms": 19934,
+        "total_ms": 37379
+      },
+      "execution-status.json": {
+        "import_exit": 0,
+        "test_exit": 1,
+        "script_errors": true,
+        "log": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\acceptance\\491da279860b4af5ba02699fc8753cf1\\execution.log"
+      },
+      "completed": true,
+      "declared": 33,
+      "checks": 33,
+      "failed": 1,
+      "elapsed_ms": 18067,
+      "requested_cases": [
+        "SPACE-01",
+        "SPACE-02",
+        "SPACE-09",
+        "SPACE-10",
+        "SPACE-23",
+        "SPACE-24",
+        "SPACE-25",
+        "SPACE-26",
+        "SPACE-27",
+        "SPACE-28",
+        "SPACE-29",
+        "SPACE-30",
+        "SPACE-45",
+        "SPACE-46",
+        "SPACE-48",
+        "SPACE-49",
+        "SPACE-51",
+        "SPACE-53",
+        "SPACE-54",
+        "SPACE-55",
+        "CORE-18",
+        "CORE-19",
+        "CORE-21",
+        "CORE-22",
+        "CORE-26",
+        "CORE-27",
+        "CORE-44",
+        "CORE-46",
+        "CORE-49",
+        "STAFF-54",
+        "GROW-52",
+        "GROW-80",
+        "GROW-82"
+      ]
+    },
+    {
+      "log": "functional-4.log",
+      "project_id": "dccb0689a41a4c54ab83d86dfa10aeae",
+      "timing-summary.json": {
+        "started_at_utc": "2026-10-20T08:21:44.3055153+00:00",
+        "ended_at_utc": "2026-10-20T08:22:34.9097809+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 4016,
+        "import_ms": 10974,
+        "tests_ms": 35598,
+        "total_ms": 50608
+      },
+      "execution-status.json": {
+        "import_exit": 0,
+        "test_exit": 1,
+        "script_errors": false,
+        "log": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\acceptance\\dccb0689a41a4c54ab83d86dfa10aeae\\execution.log"
+      },
+      "completed": true,
+      "declared": 14,
+      "checks": 14,
+      "failed": 1,
+      "elapsed_ms": 33586,
+      "requested_cases": [
+        "SPACE-08",
+        "SPACE-09",
+        "SPACE-10",
+        "SPACE-33",
+        "SPACE-35",
+        "SPACE-36",
+        "SPACE-44",
+        "SPACE-54",
+        "SPACE-55",
+        "CORE-52",
+        "GROW-02",
+        "GROW-52",
+        "GROW-80",
+        "GROW-82"
+      ]
+    },
+    {
+      "log": "functional-5.log",
+      "project_id": "16f55b3b182d4292ab33c604f6b7d80b",
+      "timing-summary.json": {
+        "started_at_utc": "2026-10-20T08:25:35.8351758+00:00",
+        "ended_at_utc": "2026-10-20T08:25:52.6940691+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 3687,
+        "import_ms": 8651,
+        "tests_ms": 4507,
+        "total_ms": 16861
+      },
+      "execution-status.json": {
+        "import_exit": 0,
+        "test_exit": 0,
+        "script_errors": false,
+        "log": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\acceptance\\16f55b3b182d4292ab33c604f6b7d80b\\execution.log"
+      },
+      "completed": true,
+      "declared": 2,
+      "checks": 2,
+      "failed": 0,
+      "elapsed_ms": 2437,
+      "requested_cases": [
+        "STAFF-54",
+        "SPACE-55"
+      ]
+    },
+    {
+      "log": "functional-6.log",
+      "project_id": "1ed24417abdb4cb7a88459c97fbf1a11",
+      "timing-summary.json": {
+        "started_at_utc": "2026-10-20T08:56:45.2365675+00:00",
+        "ended_at_utc": "2026-10-20T08:57:26.9482819+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 3343,
+        "import_ms": 8138,
+        "tests_ms": 30218,
+        "total_ms": 41714
+      },
+      "execution-status.json": {
+        "import_exit": 0,
+        "test_exit": 1,
+        "script_errors": true,
+        "log": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\acceptance\\1ed24417abdb4cb7a88459c97fbf1a11\\execution.log"
+      },
+      "completed": true,
+      "declared": 14,
+      "checks": 14,
+      "failed": 2,
+      "elapsed_ms": 28397,
+      "requested_cases": [
+        "SPACE-09",
+        "SPACE-10",
+        "SPACE-23",
+        "SPACE-24",
+        "SPACE-33",
+        "SPACE-35",
+        "SPACE-36",
+        "SPACE-44",
+        "SPACE-49",
+        "SPACE-51",
+        "SPACE-53",
+        "SPACE-54",
+        "SPACE-55",
+        "STAFF-54"
+      ]
+    },
+    {
+      "log": "functional-7.log",
+      "project_id": "1f3816efede4410b822dc7aede21e412",
+      "timing-summary.json": {
+        "started_at_utc": "2026-10-20T08:59:20.2048229+00:00",
+        "ended_at_utc": "2026-10-20T08:59:38.1823850+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 3586,
+        "import_ms": 7314,
+        "tests_ms": 7065,
+        "total_ms": 17980
+      },
+      "execution-status.json": {
+        "import_exit": 0,
+        "test_exit": 0,
+        "script_errors": false,
+        "log": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\acceptance\\1f3816efede4410b822dc7aede21e412\\execution.log"
+      },
+      "completed": true,
+      "declared": 4,
+      "checks": 4,
+      "failed": 0,
+      "elapsed_ms": 5190,
+      "requested_cases": [
+        "SPACE-51",
+        "SPACE-53",
+        "SPACE-55",
+        "STAFF-54"
+      ]
+    },
+    {
+      "log": "functional-8.log",
+      "project_id": "9909f094c3b241a6a068275cb11ad470",
+      "timing-summary.json": {
+        "started_at_utc": "2026-10-20T09:20:14.7226664+00:00",
+        "ended_at_utc": "2026-10-20T09:21:15.9135944+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 3689,
+        "import_ms": 8157,
+        "tests_ms": 49330,
+        "total_ms": 61190
+      },
+      "execution-status.json": {
+        "import_exit": 0,
+        "test_exit": 1,
+        "script_errors": true,
+        "log": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\acceptance\\9909f094c3b241a6a068275cb11ad470\\execution.log"
+      },
+      "completed": true,
+      "declared": 17,
+      "checks": 17,
+      "failed": 1,
+      "elapsed_ms": 46836,
+      "requested_cases": [
+        "SPACE-55",
+        "STAFF-41",
+        "STAFF-42",
+        "STAFF-43",
+        "STAFF-52",
+        "OPS-13",
+        "OPS-16",
+        "OPS-21",
+        "OPS-30",
+        "OPS-44",
+        "GROW-30",
+        "CLIN-24",
+        "CLIN-25",
+        "CLIN-33",
+        "SPACE-18",
+        "SPACE-35",
+        "SPACE-36"
+      ]
+    },
+    {
+      "log": "functional-9.log",
+      "project_id": "f52c17c8df9643a2a92395e1cbc7dae2",
+      "timing-summary.json": {
+        "started_at_utc": "2026-10-20T09:23:00.5629968+00:00",
+        "ended_at_utc": "2026-10-20T09:23:46.4088810+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 5179,
+        "import_ms": 10798,
+        "tests_ms": 29847,
+        "total_ms": 45846
+      },
+      "execution-status.json": {
+        "import_exit": 0,
+        "test_exit": 1,
+        "script_errors": false,
+        "log": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\acceptance\\f52c17c8df9643a2a92395e1cbc7dae2\\execution.log"
+      },
+      "completed": true,
+      "declared": 5,
+      "checks": 5,
+      "failed": 1,
+      "elapsed_ms": 27928,
+      "requested_cases": [
+        "OPS-44",
+        "CLIN-24",
+        "CLIN-25",
+        "CLIN-33",
+        "SPACE-55"
+      ]
+    },
+    {
+      "log": "functional-10.log",
+      "project_id": "5c014fb005934db9951874446b054e62",
+      "timing-summary.json": {
+        "started_at_utc": "2026-10-20T09:25:47.6025036+00:00",
+        "ended_at_utc": "2026-10-20T09:26:04.7413589+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 4459,
+        "import_ms": 9937,
+        "tests_ms": 2725,
+        "total_ms": 17140
+      },
+      "execution-status.json": {
+        "import_exit": 0,
+        "test_exit": 0,
+        "script_errors": false,
+        "log": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\acceptance\\5c014fb005934db9951874446b054e62\\execution.log"
+      },
+      "completed": true,
+      "declared": 1,
+      "checks": 1,
+      "failed": 0,
+      "elapsed_ms": 1010,
+      "requested_cases": [
+        "OPS-44"
+      ]
+    },
+    {
+      "log": "functional-11.log",
+      "project_id": "99f26c6554cd49f384fd371aec855ac4",
+      "timing-summary.json": {
+        "started_at_utc": "2026-10-20T09:40:03.9224640+00:00",
+        "ended_at_utc": "2026-10-20T09:40:34.2361423+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 4529,
+        "import_ms": 10517,
+        "tests_ms": 15248,
+        "total_ms": 30316
+      },
+      "execution-status.json": {
+        "import_exit": 0,
+        "test_exit": 0,
+        "script_errors": false,
+        "log": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\acceptance\\99f26c6554cd49f384fd371aec855ac4\\execution.log"
+      },
+      "completed": true,
+      "declared": 4,
+      "checks": 4,
+      "failed": 0,
+      "elapsed_ms": 13112,
+      "requested_cases": [
+        "SPACE-55",
+        "STAFF-41",
+        "STAFF-42",
+        "STAFF-52"
+      ]
+    }
+  ],
+  "latest_per_case": {
+    "CLIN-24": {
+      "passed": true,
+      "project_id": "f52c17c8df9643a2a92395e1cbc7dae2",
+      "log": "functional-9.log",
+      "requirement": "docs/design/07-clinical-team.md §8.1、§14；8秒护理和10秒合格查房全部完成才收床费/治愈费"
+    },
+    "CLIN-25": {
+      "passed": true,
+      "project_id": "f52c17c8df9643a2a92395e1cbc7dae2",
+      "log": "functional-9.log",
+      "requirement": "docs/design/07-clinical-team.md §8.1、§10；安全换床保留标准余量/护理，回原床不重复磨损/收费"
+    },
+    "CLIN-33": {
+      "passed": true,
+      "project_id": "f52c17c8df9643a2a92395e1cbc7dae2",
+      "log": "functional-9.log",
+      "requirement": "docs/design/01-simulation.md §3、07-clinical-team.md §1、§6；接待/初诊到齐预约独占职员，原票接续，床通行权限不冒充工作，路线失败不占资源"
+    },
+    "CORE-18": {
+      "passed": true,
+      "project_id": "491da279860b4af5ba02699fc8753cf1",
+      "log": "functional-3.log",
+      "requirement": "技术规格§5、路线5.1至5.3：真实SQLite保存回读"
+    },
+    "CORE-19": {
+      "passed": true,
+      "project_id": "491da279860b4af5ba02699fc8753cf1",
+      "log": "functional-3.log",
+      "requirement": "同上：回执属于冻结修订"
+    },
+    "CORE-21": {
+      "passed": true,
+      "project_id": "491da279860b4af5ba02699fc8753cf1",
+      "log": "functional-3.log",
+      "requirement": "路线4.1、5.4：完整内容身份、坏世界不部分载入及旧有效提交恢复"
+    },
+    "CORE-22": {
+      "passed": true,
+      "project_id": "491da279860b4af5ba02699fc8753cf1",
+      "log": "functional-3.log",
+      "requirement": "路线5.4：事务中断不封存半成品"
+    },
+    "CORE-26": {
+      "passed": true,
+      "project_id": "491da279860b4af5ba02699fc8753cf1",
+      "log": "functional-3.log",
+      "requirement": "路线6.3：实际ZIP备份新身份导入"
+    },
+    "CORE-27": {
+      "passed": true,
+      "project_id": "491da279860b4af5ba02699fc8753cf1",
+      "log": "functional-3.log",
+      "requirement": "技术规格受限ZIP：路径与未知条目拒绝"
+    },
+    "CORE-44": {
+      "passed": true,
+      "project_id": "491da279860b4af5ba02699fc8753cf1",
+      "log": "functional-3.log",
+      "requirement": "技术规格§5规范JSON：String/StringName文本键统一排序，完整值与冷热回读保持"
+    },
+    "CORE-46": {
+      "passed": true,
+      "project_id": "491da279860b4af5ba02699fc8753cf1",
+      "log": "functional-3.log",
+      "requirement": "技术规格保存保留：完整旧保存点校验、坏档拒绝及有效回退保留"
+    },
+    "CORE-49": {
+      "passed": true,
+      "project_id": "491da279860b4af5ba02699fc8753cf1",
+      "log": "functional-3.log",
+      "requirement": "技术规格流式编解码：跨块UTF-8、64位、坏输入及精确校验和"
+    },
+    "CORE-52": {
+      "passed": true,
+      "project_id": "dccb0689a41a4c54ab83d86dfa10aeae",
+      "log": "functional-4.log",
+      "requirement": "资源发布：同批一次包围盒、独立及批量绑定、迟到票与当前模型句柄"
+    },
+    "GROW-02": {
+      "passed": true,
+      "project_id": "dccb0689a41a4c54ab83d86dfa10aeae",
+      "log": "functional-4.log",
+      "requirement": "docs/design/11-growth-arrivals-recruitment.md §1.1/1.1.1；完整组合要求互异实际操作者"
+    },
+    "GROW-30": {
+      "passed": true,
+      "project_id": "9909f094c3b241a6a068275cb11ad470",
+      "log": "functional-8.log",
+      "requirement": "docs/design/01-simulation.md §9.2；研究课程共用真实桌位且可分桌并行"
+    },
+    "GROW-52": {
+      "passed": true,
+      "project_id": "dccb0689a41a4c54ab83d86dfa10aeae",
+      "log": "functional-4.log",
+      "requirement": "docs/design/11-growth-arrivals-recruitment.md §1.1；K仅依赖首尝试实际结构及接待匹配"
+    },
+    "GROW-80": {
+      "passed": true,
+      "project_id": "dccb0689a41a4c54ab83d86dfa10aeae",
+      "log": "functional-4.log",
+      "requirement": "docs/design/11-growth-arrivals-recruitment.md §1.1.1；分层诊断保留完整合法分支、精确C和独立结构K"
+    },
+    "GROW-82": {
+      "passed": true,
+      "project_id": "dccb0689a41a4c54ab83d86dfa10aeae",
+      "log": "functional-4.log",
+      "requirement": "docs/design/11-growth-arrivals-recruitment.md §1.1.1；独立K精确结构支配及不可比候选、护理所有权与空组反例"
+    },
+    "OPS-13": {
+      "passed": true,
+      "project_id": "9909f094c3b241a6a068275cb11ad470",
+      "log": "functional-8.log",
+      "requirement": "docs/design/08-hospital-life.md §4；实际工人与工具完成才安装表面"
+    },
+    "OPS-16": {
+      "passed": true,
+      "project_id": "9909f094c3b241a6a068275cb11ad470",
+      "log": "functional-8.log",
+      "requirement": "docs/design/08-hospital-life.md §20；真实清洁余量贡献和唯一完成"
+    },
+    "OPS-21": {
+      "passed": true,
+      "project_id": "9909f094c3b241a6a068275cb11ad470",
+      "log": "functional-8.log",
+      "requirement": "docs/design/01-simulation.md §6；真实维修30秒40币恢复100及免抽180秒"
+    },
+    "OPS-30": {
+      "passed": true,
+      "project_id": "9909f094c3b241a6a068275cb11ad470",
+      "log": "functional-8.log",
+      "requirement": "docs/design/08-hospital-life.md §6；暂时不足不是挂错且等价目的地就地接续"
+    },
+    "OPS-44": {
+      "passed": true,
+      "project_id": "5c014fb005934db9951874446b054e62",
+      "log": "functional-10.log",
+      "requirement": "实际动态路线批次：完整碰撞、出口授权、批次失效及公共前缀复用"
+    },
+    "SPACE-01": {
+      "passed": true,
+      "project_id": "491da279860b4af5ba02699fc8753cf1",
+      "log": "functional-3.log",
+      "requirement": "docs/design/12-implementation-plan.md §11 8.1/8.3；合法房壳预览只读，创建与整数付款原子一致"
+    },
+    "SPACE-02": {
+      "passed": true,
+      "project_id": "491da279860b4af5ba02699fc8753cf1",
+      "log": "functional-3.log",
+      "requirement": "docs/design/12-implementation-plan.md §11 8.1/8.4；未购地、断格、孔洞、小房失败原子"
+    },
+    "SPACE-08": {
+      "passed": true,
+      "project_id": "dccb0689a41a4c54ab83d86dfa10aeae",
+      "log": "functional-4.log",
+      "requirement": "docs/design/04-technical.md §13；身体、工具、伸展和真实离位共同决定设施占用"
+    },
+    "SPACE-09": {
+      "passed": true,
+      "project_id": "1ed24417abdb4cb7a88459c97fbf1a11",
+      "log": "functional-6.log",
+      "requirement": "docs/design/04-technical.md §6 全院请求；真实人数FIFO，替换保序，只读预览不耗额度"
+    },
+    "SPACE-10": {
+      "passed": true,
+      "project_id": "1ed24417abdb4cb7a88459c97fbf1a11",
+      "log": "functional-6.log",
+      "requirement": "docs/design/04-technical.md §6 局部更新；真实阻挡/层/修订及恢复不串合法路线"
+    },
+    "SPACE-18": {
+      "passed": true,
+      "project_id": "9909f094c3b241a6a068275cb11ad470",
+      "log": "functional-8.log",
+      "requirement": "docs/design/11-growth-arrivals-recruitment.md §3；换人/下层Room与合法工作点变化不重付清进度"
+    },
+    "SPACE-23": {
+      "passed": true,
+      "project_id": "1ed24417abdb4cb7a88459c97fbf1a11",
+      "log": "functional-6.log",
+      "requirement": "docs/design/11-growth-arrivals-recruitment.md §4；净宽高安全余量及真实舱内组合准入"
+    },
+    "SPACE-24": {
+      "passed": true,
+      "project_id": "1ed24417abdb4cb7a88459c97fbf1a11",
+      "log": "functional-6.log",
+      "requirement": "docs/design/11-growth-arrivals-recruitment.md §4.1；报价不取票，实际整组到齐才领当前段票"
+    },
+    "SPACE-25": {
+      "passed": true,
+      "project_id": "491da279860b4af5ba02699fc8753cf1",
+      "log": "functional-3.log",
+      "requirement": "docs/design/11-growth-arrivals-recruitment.md §4.1；票序公平且不因职业、视图或报价插队"
+    },
+    "SPACE-26": {
+      "passed": true,
+      "project_id": "491da279860b4af5ba02699fc8753cf1",
+      "log": "functional-3.log",
+      "requirement": "docs/design/11-growth-arrivals-recruitment.md §4.1；同刻max(A,P)+E+G与未知出口等待"
+    },
+    "SPACE-27": {
+      "passed": true,
+      "project_id": "491da279860b4af5ba02699fc8753cf1",
+      "log": "functional-3.log",
+      "requirement": "docs/design/11-growth-arrivals-recruitment.md §4.1；取消接人保留已启动空车段与恢复余量"
+    },
+    "SPACE-28": {
+      "passed": true,
+      "project_id": "491da279860b4af5ba02699fc8753cf1",
+      "log": "functional-3.log",
+      "requirement": "docs/design/11-growth-arrivals-recruitment.md §4.1/§8；乘梯与地面位置互斥，恢复安全离舱"
+    },
+    "SPACE-29": {
+      "passed": true,
+      "project_id": "491da279860b4af5ba02699fc8753cf1",
+      "log": "functional-3.log",
+      "requirement": "docs/design/11-growth-arrivals-recruitment.md §4；途中故障先安全到站，只保留每层4秒缓降"
+    },
+    "SPACE-30": {
+      "passed": true,
+      "project_id": "491da279860b4af5ba02699fc8753cf1",
+      "log": "functional-3.log",
+      "requirement": "docs/design/11-growth-arrivals-recruitment.md §4；困人拆改失败，正常往返和同层床条件不放宽"
+    },
+    "SPACE-33": {
+      "passed": true,
+      "project_id": "1ed24417abdb4cb7a88459c97fbf1a11",
+      "log": "functional-6.log",
+      "requirement": "docs/design/08-hospital-life.md §10；目标不预留，实际疏散终点无身体重叠，当前可用不自动应用，失败保留安排"
+    },
+    "SPACE-35": {
+      "passed": true,
+      "project_id": "9909f094c3b241a6a068275cb11ad470",
+      "log": "functional-8.log",
+      "requirement": "docs/design/08-hospital-life.md §10/§11、07-clinical-team.md §8.1；真实门诊安全转移保原票、证据、Attempt、耗材和余量，双床职责位旋转与保存后仍可达"
+    },
+    "SPACE-36": {
+      "passed": true,
+      "project_id": "9909f094c3b241a6a068275cb11ad470",
+      "log": "functional-8.log",
+      "requirement": "docs/design/08-hospital-life.md §11、07-clinical-team.md §8.1；改建中沿原病例完成护理、查房、唯一结算和实际释放"
+    },
+    "SPACE-44": {
+      "passed": true,
+      "project_id": "1ed24417abdb4cb7a88459c97fbf1a11",
+      "log": "functional-6.log",
+      "requirement": "docs/design/08-hospital-life.md §13/§14；部分保养与改建安排共同恢复，原任务接续且应用不重付"
+    },
+    "SPACE-45": {
+      "passed": true,
+      "project_id": "491da279860b4af5ba02699fc8753cf1",
+      "log": "functional-3.log",
+      "requirement": "docs/design/01-simulation.md §6；上门人员乘梯中取消未开工保养，原乘梯与读档保留，实际返1F离院"
+    },
+    "SPACE-46": {
+      "passed": true,
+      "project_id": "491da279860b4af5ba02699fc8753cf1",
+      "log": "functional-3.log",
+      "requirement": "docs/design/04-technical.md §6；同体型通行组换成员不继承预约豁免，变更配位与真实阻挡立即生效"
+    },
+    "SPACE-48": {
+      "passed": true,
+      "project_id": "491da279860b4af5ba02699fc8753cf1",
+      "log": "functional-3.log",
+      "requirement": "docs/design/04-technical.md §6/§13；设施阻挡查询复用真实展开索引，候选隔离且实际预约立即失效"
+    },
+    "SPACE-49": {
+      "passed": true,
+      "project_id": "1ed24417abdb4cb7a88459c97fbf1a11",
+      "log": "functional-6.log",
+      "requirement": "docs/design/08-hospital-life.md 候诊与家属；完整有序设施候选与独立冷计算等价，失败不生成身份，成功真实移动且新预约立即可见"
+    },
+    "SPACE-51": {
+      "passed": true,
+      "project_id": "1f3816efede4410b822dc7aede21e412",
+      "log": "functional-7.log",
+      "requirement": "docs/design/04-technical.md §6；参考层内与完整旅程缓存按预约通行权限隔离，同权限跨主体共享"
+    },
+    "SPACE-53": {
+      "passed": true,
+      "project_id": "1f3816efede4410b822dc7aede21e412",
+      "log": "functional-7.log",
+      "requirement": "docs/design/16-navigation-space-selection.md §7；实际遇阻后的局部路线保留完整身体争用检查"
+    },
+    "SPACE-54": {
+      "passed": true,
+      "project_id": "1ed24417abdb4cb7a88459c97fbf1a11",
+      "log": "functional-6.log",
+      "requirement": "docs/specs/26-10/2026-10-19-task-navigation-movement.md §3/§4；未知估时仍出发、真实到场排队、途中改目标完成安全乘梯段"
+    },
+    "SPACE-55": {
+      "passed": true,
+      "project_id": "99f26c6554cd49f384fd371aec855ac4",
+      "log": "functional-11.log",
+      "requirement": "docs/specs/26-10/2026-10-19-task-navigation-movement.md §3/§4；成本报价、原生碰撞索引、同行组改目标及恢复"
+    },
+    "STAFF-41": {
+      "passed": true,
+      "project_id": "99f26c6554cd49f384fd371aec855ac4",
+      "log": "functional-11.log",
+      "requirement": "docs/design/09-consultation-wellbeing.md §4；休息选址完整去返程与当前障碍，护理交接保持床位上限及实时排他"
+    },
+    "STAFF-42": {
+      "passed": true,
+      "project_id": "99f26c6554cd49f384fd371aec855ac4",
+      "log": "functional-11.log",
+      "requirement": "docs/design/08-hospital-life.md §17.2、§17.4；选座邻居查询保留真实路线、朋友关系与候选顺序，手动目标到场竞争"
+    },
+    "STAFF-43": {
+      "passed": true,
+      "project_id": "9909f094c3b241a6a068275cb11ad470",
+      "log": "functional-8.log",
+      "requirement": "docs/design/07-clinical-team.md §3、§11；岗位候选、结算回执、茶位及招聘窄投影保留实时资格与唯一成长"
+    },
+    "STAFF-52": {
+      "passed": true,
+      "project_id": "99f26c6554cd49f384fd371aec855ac4",
+      "log": "functional-11.log",
+      "requirement": "公共设施区域寻址规格 §3、§4；员工区域短休，实际走路无恢复，到场本区取位"
+    },
+    "STAFF-54": {
+      "passed": true,
+      "project_id": "1f3816efede4410b822dc7aede21e412",
+      "log": "functional-7.log",
+      "requirement": "公共设施区域寻址规格 §6；兼容最大匹配、缺床员工优先和稳定行程择优"
+    }
+  },
+  "latest_unique_cases": 54,
+  "latest_passed": 54,
+  "scope": "Selected affected functional cases only; no full-suite or formal-performance claim."
+}

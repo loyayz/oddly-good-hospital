@@ -1,0 +1,56 @@
+{
+  "diagnostic_only": true,
+  "formal_pass": false,
+  "versions": {
+    "before": {
+      "library_ok": true,
+      "algorithm_ok": true,
+      "input_sha256": "1d83a8834528fd2f6c53dff06f6ec150c9e598eed675fc37521ab7e45fcadb10",
+      "json_bytes": 956307,
+      "json_sha256": "77d8f3d0e82b201309fbf111dfb8661eed7ecade6bf07597ecaebb8f1cdea3fc",
+      "encode_median_us": 351936,
+      "decode_median_us": 1320768,
+      "file_info_median_us": 53445,
+      "database_bytes": 1007616,
+      "io": {
+        "real_sqlite_save": 3349607,
+        "real_backup_export": 2993592,
+        "real_backup_import": 8054607
+      },
+      "matching_median_us": {
+        "dense_32": 2333.5,
+        "chain_32": 316.5,
+        "scarce_16": 2186.5
+      },
+      "shape_median_us": {
+        "24": 2136,
+        "96": 39258
+      }
+    },
+    "after": {
+      "library_ok": true,
+      "algorithm_ok": true,
+      "input_sha256": "1d83a8834528fd2f6c53dff06f6ec150c9e598eed675fc37521ab7e45fcadb10",
+      "json_bytes": 956307,
+      "json_sha256": "77d8f3d0e82b201309fbf111dfb8661eed7ecade6bf07597ecaebb8f1cdea3fc",
+      "encode_median_us": 34144,
+      "decode_median_us": 53136,
+      "file_info_median_us": 3614,
+      "database_bytes": 1007616,
+      "io": {
+        "real_sqlite_save": 393169,
+        "real_backup_export": 273443,
+        "real_backup_import": 947512
+      },
+      "matching_median_us": {
+        "dense_32": 2923.0,
+        "chain_32": 624.0,
+        "scarce_16": 1163.0
+      },
+      "shape_median_us": {
+        "24": 5129,
+        "96": 62276
+      }
+    }
+  }
+}

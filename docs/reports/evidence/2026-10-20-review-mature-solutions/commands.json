@@ -1,0 +1,300 @@
+{
+  "scope": "Quick diagnosis only; formal performance acceptance paused.",
+  "build": [
+    "pwsh",
+    "-File",
+    "tools/build-platform-guard.ps1"
+  ],
+  "functional_final": [
+    "pwsh",
+    "-File",
+    "tests/run-acceptance.ps1",
+    "-CaseId",
+    "SPACE-55,STAFF-41,STAFF-42,STAFF-52"
+  ],
+  "ordinary": [
+    {
+      "version": "before",
+      "scene": "public",
+      "head": "f9dec5b23d87f492fbc4c588a543427a109a93a0",
+      "args": [
+        "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\before-project",
+        "--script",
+        "res://tools/performance/representative.gd",
+        "--",
+        "--input=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\task-navigation-20261019\\public-v6.input.bin",
+        "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\before-public.json",
+        "--steps=300",
+        "--profile=plain"
+      ]
+    },
+    {
+      "version": "before",
+      "scene": "gp",
+      "head": "f9dec5b23d87f492fbc4c588a543427a109a93a0",
+      "args": [
+        "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\before-project",
+        "--script",
+        "res://tools/performance/representative.gd",
+        "--",
+        "--input=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\task-navigation-20261019\\gp.input.bin",
+        "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\before-gp.json",
+        "--steps=80",
+        "--profile=plain"
+      ]
+    },
+    {
+      "version": "before",
+      "scene": "operations",
+      "head": "f9dec5b23d87f492fbc4c588a543427a109a93a0",
+      "args": [
+        "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\before-project",
+        "--script",
+        "res://tools/performance/representative.gd",
+        "--",
+        "--input=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\task-navigation-20261019\\op.input.bin",
+        "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\before-operations.json",
+        "--steps=40",
+        "--profile=plain"
+      ]
+    },
+    {
+      "version": "after",
+      "scene": "public",
+      "head": "2cfa8db352a55debe559fa94391949bb616f6798",
+      "args": [
+        "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\after-project",
+        "--script",
+        "res://tools/performance/representative.gd",
+        "--",
+        "--input=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\task-navigation-20261019\\public-v6.input.bin",
+        "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\after-public.json",
+        "--steps=300",
+        "--profile=plain"
+      ]
+    },
+    {
+      "version": "after",
+      "scene": "gp",
+      "head": "2cfa8db352a55debe559fa94391949bb616f6798",
+      "args": [
+        "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\after-project",
+        "--script",
+        "res://tools/performance/representative.gd",
+        "--",
+        "--input=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\task-navigation-20261019\\gp.input.bin",
+        "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\after-gp.json",
+        "--steps=80",
+        "--profile=plain"
+      ]
+    },
+    {
+      "version": "after",
+      "scene": "operations",
+      "head": "2cfa8db352a55debe559fa94391949bb616f6798",
+      "args": [
+        "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\after-project",
+        "--script",
+        "res://tools/performance/representative.gd",
+        "--",
+        "--input=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\task-navigation-20261019\\op.input.bin",
+        "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\after-operations.json",
+        "--steps=40",
+        "--profile=plain"
+      ]
+    },
+    {
+      "version": "second",
+      "scene": "public",
+      "head": "7f140e8ce0a32496fb9d7b1ea932d0d9abd5a54f",
+      "args": [
+        "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\final-project",
+        "--script",
+        "res://tools/performance/representative.gd",
+        "--",
+        "--input=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\task-navigation-20261019\\public-v6.input.bin",
+        "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\final-public.json",
+        "--steps=300",
+        "--profile=plain"
+      ]
+    },
+    {
+      "version": "second",
+      "scene": "gp",
+      "head": "7f140e8ce0a32496fb9d7b1ea932d0d9abd5a54f",
+      "args": [
+        "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\final-project",
+        "--script",
+        "res://tools/performance/representative.gd",
+        "--",
+        "--input=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\task-navigation-20261019\\gp.input.bin",
+        "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\final-gp.json",
+        "--steps=80",
+        "--profile=plain"
+      ]
+    },
+    {
+      "version": "second",
+      "scene": "operations",
+      "head": "7f140e8ce0a32496fb9d7b1ea932d0d9abd5a54f",
+      "args": [
+        "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\final-project",
+        "--script",
+        "res://tools/performance/representative.gd",
+        "--",
+        "--input=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\task-navigation-20261019\\op.input.bin",
+        "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\final-operations.json",
+        "--steps=40",
+        "--profile=plain"
+      ]
+    },
+    {
+      "version": "third",
+      "scene": "public",
+      "head": "b17f3f1384a3349dfb3cb15df5faa295b00a687a",
+      "args": [
+        "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\verified-project",
+        "--script",
+        "res://tools/performance/representative.gd",
+        "--",
+        "--input=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\task-navigation-20261019\\public-v6.input.bin",
+        "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\verified-public.json",
+        "--steps=300",
+        "--profile=plain"
+      ]
+    },
+    {
+      "version": "third",
+      "scene": "gp",
+      "head": "b17f3f1384a3349dfb3cb15df5faa295b00a687a",
+      "args": [
+        "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\verified-project",
+        "--script",
+        "res://tools/performance/representative.gd",
+        "--",
+        "--input=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\task-navigation-20261019\\gp.input.bin",
+        "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\verified-gp.json",
+        "--steps=80",
+        "--profile=plain"
+      ]
+    },
+    {
+      "version": "third",
+      "scene": "operations",
+      "head": "b17f3f1384a3349dfb3cb15df5faa295b00a687a",
+      "args": [
+        "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\verified-project",
+        "--script",
+        "res://tools/performance/representative.gd",
+        "--",
+        "--input=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\task-navigation-20261019\\op.input.bin",
+        "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\verified-operations.json",
+        "--steps=40",
+        "--profile=plain"
+      ]
+    },
+    {
+      "version": "final",
+      "scene": "public",
+      "head": "f83011330adff6d7347b2369e67dcdbbcffcaf23",
+      "args": [
+        "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\complete-project",
+        "--script",
+        "res://tools/performance/representative.gd",
+        "--",
+        "--input=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\task-navigation-20261019\\public-v6.input.bin",
+        "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\complete-public.json",
+        "--steps=300",
+        "--profile=plain"
+      ]
+    },
+    {
+      "version": "final",
+      "scene": "gp",
+      "head": "f83011330adff6d7347b2369e67dcdbbcffcaf23",
+      "args": [
+        "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\complete-project",
+        "--script",
+        "res://tools/performance/representative.gd",
+        "--",
+        "--input=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\task-navigation-20261019\\gp.input.bin",
+        "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\complete-gp.json",
+        "--steps=80",
+        "--profile=plain"
+      ]
+    },
+    {
+      "version": "final",
+      "scene": "operations",
+      "head": "f83011330adff6d7347b2369e67dcdbbcffcaf23",
+      "args": [
+        "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\complete-project",
+        "--script",
+        "res://tools/performance/representative.gd",
+        "--",
+        "--input=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\task-navigation-20261019\\op.input.bin",
+        "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\complete-operations.json",
+        "--steps=40",
+        "--profile=plain"
+      ]
+    }
+  ],
+  "final_root_diagnostic": [
+    "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+    "--headless",
+    "--path",
+    "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\complete-project",
+    "--script",
+    "res://tools/performance/representative.gd",
+    "--",
+    "--input=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\task-navigation-20261019\\public-v6.input.bin",
+    "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\complete-public-root80.json",
+    "--steps=80",
+    "--profile=root"
+  ]
+}

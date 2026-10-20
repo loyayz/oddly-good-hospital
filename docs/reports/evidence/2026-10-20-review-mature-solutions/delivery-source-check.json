@@ -1,0 +1,1280 @@
+{
+  "implementation_head": "f83011330adff6d7347b2369e67dcdbbcffcaf23",
+  "native_sha256": "6BED87C44E561939B18F11DC37C8747C5DEA88FBD7947F71F601C7DF2CCC236D",
+  "compared_game_files": [
+    {
+      "path": "game/app/app_root.gd",
+      "sha256": "d50eeda18ba424c6fa3813fba7c46e20c8a93820b21eb8bc7f22f0b494774e9e",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/app/app_root.gd.uid",
+      "sha256": "abd8e92cd2e25239441be057f300ccf116b9526544bec1336215864299269bd1",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/app/game_session.gd",
+      "sha256": "a22ec31241d16b66a607db6f1a5cb7aec70dcab625160c2a5072a7baaede2675",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/app/game_session.gd.uid",
+      "sha256": "4e852590433aeb5f2defcde8d11d75ef22515f9df51fafbe1b906768be10c45b",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/app/main.tscn",
+      "sha256": "e1a3ffe5c4423cba6c381ac29a6dca3f98da3b045af9db13120002a88da310e5",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/arrivals/arrival_preparation.gd",
+      "sha256": "e53762d0f4156ea5003e5aa32c15b5a8f2214b739616408522f7fad96bc90a81",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/arrivals/arrival_preparation.gd.uid",
+      "sha256": "4a5846543cb77492aa01294e0d8dfcefb41a4df8ed513f3239f2d7a91b387982",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/arrivals/arrival_service.gd",
+      "sha256": "7c0f7ac551f067419d8363d5ec8e1ad3256a92d87a63d800a67161ca038bb607",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/arrivals/arrival_service.gd.uid",
+      "sha256": "f7d19bd548b72b4ed76505ca97d7d7a528861a2a86f9146329bf769b8de7d019",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/arrivals/capacity_solver.gd",
+      "sha256": "97f010473f1b4bed516e92088eb23f4e51c01a1c60d4c66af7915511d754ca5f",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/arrivals/capacity_solver.gd.uid",
+      "sha256": "74aaf26a918caf75fa5bbb58085a0e6d8f21cad26d6ffd807ba9251ffdc7ec02",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/arrivals/day_plan.gd",
+      "sha256": "c29a801a9394879454ea37a8ffaec698e50962bb513780a41e0bac37176527bc",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/arrivals/day_plan.gd.uid",
+      "sha256": "5f2aaceef955eb39bbd64a2572b2bc15a9bde000b33c1fe71a0dc8c08d7268d5",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/arrivals/exact_fraction.gd",
+      "sha256": "78dbb754096d5b6b49dcd1fa4d9988f165dea95a95bbd9232693ddedfeef012a",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/arrivals/exact_fraction.gd.uid",
+      "sha256": "e80b179de4fc1b4c9e6e32314d28d47ee0d313e72af3abdd86e3d70ed373c297",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/blueprint_service.gd",
+      "sha256": "643a5aff8d7ea6c537fd19a034b7cf92098148f7a7e34edf5611f0e80a0e5e80",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/blueprint_service.gd.uid",
+      "sha256": "51cbeb0c80b2ffd9d3326adaa13054a9bce4044e84565ac9d13f89a91982a81c",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/body_index.gd",
+      "sha256": "82d8c53de127c9a1a5ffaf4b687665f1fd340c196e828ae56bce8ea27efb7ee7",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/body_index.gd.uid",
+      "sha256": "b29a33133f415757c8e5ed0f08d407b997fc05d761a3cff4bb810b665955adf0",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/body_sweep.gd",
+      "sha256": "e8a1374f84984314c1965695b103c03d0bfd18a498322f160374f7496db69ccc",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/body_sweep.gd.uid",
+      "sha256": "ae1465b8741b328c2c18241ab132562f461be644a84123d6a52bf0311c7c2a88",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/build_geometry.gd",
+      "sha256": "cbb6780b9f331cc9b1a0bac4556dd5ac7d8f864a776d0ef81a7167cf02c90db9",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/build_geometry.gd.uid",
+      "sha256": "e0cfc816c799996408780b2ac960447cb152e0a9f6110d8b679f19185eae5b03",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/build_preview_job.gd",
+      "sha256": "d7722e552391fefa557f660795f8ae97c6ace972303b9c9f92e6f6ba941088b5",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/build_preview_job.gd.uid",
+      "sha256": "6a972583b2419e1e93cf6eb3ffafa475a913c32123238b67b935efb3d430bc63",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/build_preview.gd",
+      "sha256": "ef7723ea004d7e1939bbfdeda23b4128d1930d1964b3cdf806ffe9ace379f4d1",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/build_preview.gd.uid",
+      "sha256": "46615ba9d945b0584ee93f80ff4aa26147d4adb67e5e137aed86c55a0fb09e63",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/build_service.gd",
+      "sha256": "e13e319fa1d52b35659d95e65babbdd8151ecddaf94f37e9df11ccc15ba792f5",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/build_service.gd.uid",
+      "sha256": "d20c9a79609414157ed84817c98d44f0713e0096cdcf7c4f7a9906d1c3c0ef0c",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/connector_service.gd",
+      "sha256": "002f34d0c74e0be4129ea42fed6d488ff448817079a63e49b88f475d77d6ce63",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/connector_service.gd.uid",
+      "sha256": "dc339d8eb8bcb1fd44a506c36deb751120ecf11816f0b26efcef1a4d991e27b4",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/floor_navigation.gd",
+      "sha256": "797a3e30e1fbd412e6f49772fc36ecf5ef10c58d1595214b51c080f1a9a0c22b",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/floor_navigation.gd.uid",
+      "sha256": "093736871b033e11aa70459b2402106ff5cc628644bc558521fea3028fd9aa83",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/floor_service.gd",
+      "sha256": "a3974006ce8c43ed5c3b177c1b481bf1c755d9dfb4fc4693ae64f6db34472c8b",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/floor_service.gd.uid",
+      "sha256": "8d233fd11a3672cb48c154ec90b468249feb7a60a25829195344b6a1c2cd32bd",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/hospital_movement.gd",
+      "sha256": "0981993c11a3cfd9e2a778d7e8de3c3bd42b67bc976a9b08f212038a007ee81c",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/hospital_movement.gd.uid",
+      "sha256": "8fa220e6f853c912a76db965dc330d7588aa817499b7e4e06e4645c33774ae2b",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/hospital_navigation.gd",
+      "sha256": "6cfa33f67b8dfd89e67098939add7728c0d6f4b29e6c4ee60f2f232559d822b9",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/hospital_navigation.gd.uid",
+      "sha256": "5002995c2200baf4a1940e7395bb31de738b213818d5f647598843bb16d3d069",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/hospital_space.gd",
+      "sha256": "5db352a580be5958b11ce0275974cf96a621ea0562f52d89144a652129d25621",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/hospital_space.gd.uid",
+      "sha256": "5d0cbaa0ed27304035734876113fcc679345967c5250dc6a876a8e911ff70991",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/hospital_transit.gd",
+      "sha256": "6a8ddb1da1878dd30307ff75719171a9d7d1a531f5998bc39671e48127917208",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/hospital_transit.gd.uid",
+      "sha256": "1fa81c6513d1e3dbad2cdbf1e606a5f19d5ca75f3dafde2c96ed4bd807f68e05",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/navigation_cache.gd",
+      "sha256": "7fed6579f6dbd6e98768a85f0a2181a951284598875fad87eda28c02b46df83a",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/navigation_cache.gd.uid",
+      "sha256": "cf0d5ad54e1ab317d1dbddbcfa9abf7f2770505e6520a45cc8b5d9caae08aa91",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/remodel_service.gd",
+      "sha256": "d46bd4af6106ad7d99bef7dedf1ca8e1290502ce1c60057dbeb455c483d9f756",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/remodel_service.gd.uid",
+      "sha256": "8cff815992583887b4a4cc61e5f9c2b6fbacbc73e82435867e2963dfff8c3eb6",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/route_clearance.gd",
+      "sha256": "57ae6fe1be895514d0fd458247f6faed3b92f0c7ba2b64949a348783bec6a6e9",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/building/route_clearance.gd.uid",
+      "sha256": "f1b0af50e12c22a7441fe1bb1cef89adeae052d2d4ed907bd7a7e8ce8774ada2",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/clinic/clinical_runtime.gd",
+      "sha256": "3ce51b71e8cfbc93b527df1f499e953d7fcd20416b6bc332d6dcaad1b24cb1e0",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/clinic/clinical_runtime.gd.uid",
+      "sha256": "368fec0d4e2d9da38006d89d7925eefc70104a000425633d259d3724a1a554f1",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/clinic/hospital_visitors.gd",
+      "sha256": "525e77119355ddf64710cc85df1d60f63a106603453a4b612f18aeecbe6f6de0",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/clinic/hospital_visitors.gd.uid",
+      "sha256": "6e0bdaae581decfd807432c8671206b905b7e8da84b053442ec5b9df2a01c99e",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/community/research_job_index.gd",
+      "sha256": "caf1960eaee699eb89e2a05cbe5bdfbf47ea5c47056fd85f163862420304d1f8",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/community/research_job_index.gd.uid",
+      "sha256": "5d165d9db3ed1d679a2dc72e837a1e75f6e95e44e56addd549c0b7d0df5c8df5",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/community/research_service.gd",
+      "sha256": "eee0f6439a013d1689cbf1b482a9f54d49941abe551c7b667904e78c2d41c7fa",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/community/research_service.gd.uid",
+      "sha256": "b41ff1df0124c6cde40405679cb63fbd028c3608a05dc223492d0f1c3bc254f9",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/content/content_db.gd",
+      "sha256": "658bef312d445be223af4cb7b55254160cd884105a863ee280d16fe0733f803a",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/content/content_db.gd.uid",
+      "sha256": "4a4b05397ce4a56a50e3ed20c6f711c234e555e6c9bcf5f3ee74b7f5dba3e0ce",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/content/content_load_result.gd",
+      "sha256": "ca8ff6780a30f9dee0e5254df360103117735175d2d207df47a1c824d9f8c3b5",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/content/content_load_result.gd.uid",
+      "sha256": "b90b613124fbfb3ee61c80eff70f6edddd7e75d242d28f7021ed7fde32f00e7a",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/content/content_loader.gd",
+      "sha256": "60289da8dd877645ac07eb31cb98afb1dd3b4ab65b1057d6134e29f7c50dfe9b",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/content/content_loader.gd.uid",
+      "sha256": "5b8287fee22dfa3ac7f4f55b72f7dabb0e76dc8d5f3464f13b4b5faacbb3b30a",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/content/content_pipeline.py",
+      "sha256": "2ed8831fa9f63c22ada1666c6f665340d9055288ce3c9627f63f69d932205aa7",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/content/content_registry.gd",
+      "sha256": "3f957af0cc9c6b28fcca07e71dd58643602d31de1b8c2a283c725a76e24e8d38",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/content/content_registry.gd.uid",
+      "sha256": "98652b46a3c83566b028a2f4f97d2a12ae4e6952459e46541cd2ac67f00d4e78",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/content/schema100.json",
+      "sha256": "f5d47f62f086ac2bffeea6fceb50fccf7ed53c860e7331efd04d2ef7607e011b",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/economy/finance_service.gd",
+      "sha256": "6a84601eb63d57641467ad0877b6f7dca04178973145554fc85e7fa5d8b2c96a",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/economy/finance_service.gd.uid",
+      "sha256": "09064ea51dd89f90d2eef1f66e95b0c3f824f1ba45f4424f08df8adf9db4e5fd",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/economy/ledger_entry.gd",
+      "sha256": "6c610e59dedf13c94618e41f872c875b1cc33446c55aae4f28317008c181b877",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/economy/ledger_entry.gd.uid",
+      "sha256": "a03075b29679d08490ea278f89fbe6bd60bce606f7bcfaab9d0044cbc31baaee",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/economy/ledger.gd",
+      "sha256": "024370d1aacce142495b63b72d4ba52a059888fa74f030bbcaeb4b5848da6bc3",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/economy/ledger.gd.uid",
+      "sha256": "d79ef85f9b3a956d8343d784581bf123ce0f67af7efe4da3fae424f278507abf",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/life/public_areas.gd",
+      "sha256": "b982120bf3fb19d57bdb62d7f6ac3b2153a0c12665fa88c352101fdc28eaa81c",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/life/public_areas.gd.uid",
+      "sha256": "a55ac97a7b178f799e527993776c4c5002303b6a4a1bcb73f04d11a049825c73",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/life/waiting_life.gd",
+      "sha256": "8df8430664d0057889f527012105c4f22fa917b52bf2b8da40bcb9597e03b11c",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/life/waiting_life.gd.uid",
+      "sha256": "d22afe73a6bc0e1ff4096c65c27d4c98f91bee5c1413eb96c9d0f6cb8954ecfd",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/operations/department_service.gd",
+      "sha256": "c2a0dd23d74ba8a4499153ff0a94c3e3b581045affaf3822740a14ca66d93596",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/operations/department_service.gd.uid",
+      "sha256": "8b24e05e935251b47be67d4f5107360767d93c22a37412d29fc20b4d5a232462",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/operations/environment_service.gd",
+      "sha256": "8d6b76318755aa0fb5641784ca722bd73e405a4d558d9ed6343f5cd254ea30c3",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/operations/environment_service.gd.uid",
+      "sha256": "7d3b425b1b3e468be5491a7f011ab53d40cd8b29155e5dec19a4d0f45e966e7e",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/operations/maintenance_service.gd",
+      "sha256": "9b1e32aec0d2043e16873a219f609f48b339ce21ff806011181398cfbacf2f1d",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/operations/maintenance_service.gd.uid",
+      "sha256": "7917d490085c45ea605438fcd30c0f9abecaae37e8b81db2d10bd565c6bc9ffb",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/operations/supply_service.gd",
+      "sha256": "c475929ef1ffb29fcba23ba944b9b226e9cccb166a906c400718ecd303f8e213",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/operations/supply_service.gd.uid",
+      "sha256": "a4c13e6ff91e9bcce5a01765391c922eb78210ec59ed3f5d0ebfa0738fe1bf4b",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/persistence/backup_zip.gd",
+      "sha256": "7c717b593cf331aa68196db9d5c5f25fa2e0d6a0f984c10e5fbfc56f688d2055",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/persistence/backup_zip.gd.uid",
+      "sha256": "161414721736977c4a47c884948a53fca2c8c055f82d0d83dfdf6079bf8940ff",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/persistence/blueprint_library.gd",
+      "sha256": "aea8b917af5575789c1ec16f8780ca91f1b114661714fc67a254c22dab0ec497",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/persistence/blueprint_library.gd.uid",
+      "sha256": "5b71d1b0cd49c763c32be7550e10cbb5458f49b3731b1b1c2fd028ef2cf4c3f6",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/persistence/hospital_library.gd",
+      "sha256": "b75456ce121b0812743ded675f525dba8ac1bb73349ae6c83e87a8c168a06672",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/persistence/hospital_library.gd.uid",
+      "sha256": "9e040d464e8f787baa7d72874d809ca502150af6071265eb32d3ba24320624c8",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/persistence/json_stream.gd",
+      "sha256": "702cf9a0cc892f88433c5297cb1c4b10b7ff2a58f576243d852334a301afe1ed",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/persistence/json_stream.gd.uid",
+      "sha256": "15b0c3868187fd8755982fd4557b98facba3e99bfbe6efef93165bb4a5de45cb",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/persistence/snapshot_store.gd",
+      "sha256": "78566573c6bdb50efc8dd6945d27c69f5f0578d93752fb961c99c0d585bcef25",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/persistence/snapshot_store.gd.uid",
+      "sha256": "5db9545d378b13c4bd9697c0897c29f1e58c99d49fe9b47821b08992f647431c",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/platform/windows/oddly_good_platform.gdextension",
+      "sha256": "9d3edda4f6527134ad82c0765c81b8fdc6e516447701d13b4ee73a5d47500dc3",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/platform/windows/oddly_good_platform.gdextension.uid",
+      "sha256": "cc18f4e80cd28a17ce221a44d2e27df851348fa474390a790b58a1f257652cb6",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/platform/windows/platform_arrivals.cpp",
+      "sha256": "7c99c5d61867f1adbc35672fa9766bb94a1979449c442576eb8174195ede8891",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/platform/windows/platform_backup_zip.c",
+      "sha256": "04cdb84f9e6eb4e700e247597fcab75ede9eefd1594fb7b2e503697fc8ee8716",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/platform/windows/platform_backup_zip.h",
+      "sha256": "bca4594474f66c32f005b30043426df7f4eb1325999f86b46da76059988283b1",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/platform/windows/platform_bed_matching.h",
+      "sha256": "4dff840d939cdb2cca4ea39d6041ea811f71bc770dfdf14389a3cdfa3f4450a4",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/platform/windows/platform_graph_reachability.h",
+      "sha256": "e0285260fdcf1bf7909d9d3ad4a17fbe4a7d20b2266bffbf8f7b0c4fa144186e",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/platform/windows/platform_grid_component.h",
+      "sha256": "150d652b38bcf644042255c23316b867238c832e284c6165cbbfbcc02dd8bf96",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/platform/windows/platform_grid_distance.h",
+      "sha256": "c2122659bf04d6f7dec7b3f53589981631457e9b31f65804a7f1864ac6fe8e91",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/platform/windows/platform_json_stream.h",
+      "sha256": "9544fb7881ba71c9acb6fd9a8fc222c727a287be3faf903542ffe7fe09964416",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/platform/windows/platform_json_stream.inc",
+      "sha256": "2a2fcb28aea3d1b226c0b7838e613258a19a2e09febd518581092ea689235c9c",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/platform/windows/platform_route_queue.h",
+      "sha256": "9d7a1f7198c2bd1d5b5e31798c50398aa8a1a1dd22179dd58e7b8950bdeed32e",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/platform/windows/platform_route_search.h",
+      "sha256": "9fbd263a2f571c6def0a5e34f4f0a5bc671b09d16a470768adbf00a72bc52ee7",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/platform/windows/platform_session_guard.c",
+      "sha256": "b8b211f98327d1e292cbb114d880f043d778dd99377d3854cacddffe8095e8cb",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/platform/windows/platform_spatial_index.h",
+      "sha256": "b09ea4163d2b802c0bb0ba962c28dd55d2fec4a3a2fefe532b47728b616c0a38",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/platform/windows/platform_sqlite.h",
+      "sha256": "4cf27eb9149fe233cc38303f373ccc07510f1101f26c811350f7c2e48d710a95",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/platform/windows/README.md",
+      "sha256": "a62a396bda3f264de17bfbd7691dc3c557d1b32c3975fdc681e2371e98bdb442",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/sim/equipment_use.gd",
+      "sha256": "b2c0001a0ea8640ea4f42f7d86ec59e1c7cf63bad032f78946295918a8620210",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/sim/equipment_use.gd.uid",
+      "sha256": "bb476f19404bae15df749e61d8f1279c89859e4d0a0e63ac1927bd784f8672fa",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/sim/hospital_factory.gd",
+      "sha256": "aab6e9695c2e33658f969cbe4754fc4bd6dbc8d520df23a715ac5292e2aa8b93",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/sim/hospital_factory.gd.uid",
+      "sha256": "9d16d22ec626f8eef1045b6cbb79c47bd68dc78c5437be7a4e33dde5ab7f3a6f",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/sim/simulation.gd",
+      "sha256": "b88679e9a9f592b2402db23fff47a5e31cdfaae1d1514c1637f9083ea61f38b4",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/sim/simulation.gd.uid",
+      "sha256": "e18198247468017f75ef00db54e921e7b22f6fdbacac273151e433667cbb7895",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/sim/types/business_payload.gd",
+      "sha256": "e6be2f738ce0077f3a6b3ec023965fef20785f8d2d941eeff68b40dfdd450fad",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/sim/types/business_payload.gd.uid",
+      "sha256": "bb9ad35435d4a1e28602bf15c7e357739fbc24ec03d9a19f8f7a2ebfa2d89425",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/sim/types/command_result.gd",
+      "sha256": "14bfda9bada0dfb5d33f13d5966c0572f65cc344a685e4caa8b1210fdbab82cb",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/sim/types/command_result.gd.uid",
+      "sha256": "dd7b0e8e1ad42a6be154b5836e4a276fed1cd1e5ddb3c7c98b773d0e72a34319",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/sim/types/game_command.gd",
+      "sha256": "c5d933fa960dab22d4a8c94d1727726a05d3596a1c171e33c28fbafe68d1d7a5",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/sim/types/game_command.gd.uid",
+      "sha256": "8496fefe09ded244f13a6de4632110c5161a9f54d394bb71b1d47d74f308ef96",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/sim/types/move_actor_payload.gd",
+      "sha256": "f9ced5a3b5649af68128e5cb1effe4d6ee516d18327eedfced56da7de6c03fcc",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/sim/types/move_actor_payload.gd.uid",
+      "sha256": "24e3a2c9670582b9bca90cea87c94b4610b2f49da1e55731c600a36ffde89ef3",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/sim/types/sim_event.gd",
+      "sha256": "97adadfe83e77fb0292ed8b322f2ed1d3f5b3138d772cf3d5b8bc4240ba8a911",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/sim/types/sim_event.gd.uid",
+      "sha256": "6fd132e37b5fa8ca17460770320fb5aeacb9ce3149de11023c726cee7c1572ae",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/sim/types/tick_result.gd",
+      "sha256": "21253c3043fef847fa707f77955c5d650fec072b48feb4060d6b79b320d938c1",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/sim/types/tick_result.gd.uid",
+      "sha256": "d1304dd41e06695e9c88d41d5899729731074fd2649d75c93727bf3afbc80aa0",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/sim/world_state.gd",
+      "sha256": "e324c57bbbdc22f798da9e7a40e89cc8b00c1fc0d1b508438cf7f80771b8bbf5",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/sim/world_state.gd.uid",
+      "sha256": "402c9491175a093eebd14fa3ee6438c97adbd5875db50891971e4498bead1190",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/staff/clinical_development.gd",
+      "sha256": "a33f86c5f165315e7710bfa6b2c359b472c678c283fb2ccee4caeef74584bb55",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/staff/clinical_development.gd.uid",
+      "sha256": "242f660a5bb4d3ebe212105fcb8b49b1e0bc9b0f2c6d13d8d75b7dff8702e43a",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/staff/personal_bed_matching.gd",
+      "sha256": "23f925d79caf91193210e6de0044e5d251cc67978e4d6b78e2e9b1b6ad58b517",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/staff/personal_bed_matching.gd.uid",
+      "sha256": "553841349e54852237763c7a4699f81803a3341c378a4075aed8a96f2caeab0c",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/staff/personal_beds.gd",
+      "sha256": "fe816d77b0e1268d5d4de0c886cbb739a1c8f0d83b8505f201f59b8a8a4c26d6",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/staff/personal_beds.gd.uid",
+      "sha256": "c8871a94cb27660f3918f69b075b6d9299f68dec46e33ed396a01d74c62f34c1",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/staff/recruitment_service.gd",
+      "sha256": "7c7a4902aa693aa7b8f57a9ed61c87f37423b5897d00c22cd053f4ea80ae8693",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/staff/recruitment_service.gd.uid",
+      "sha256": "814b6d17659a547710f29b5585b801693bd4407075b7d44d00683c6f1dd945be",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/staff/shift_scheduler.gd",
+      "sha256": "d3a45d0c2b47f05461c1cbdab6481d1c421f977a0335acab74989655e0c1d25e",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/staff/shift_scheduler.gd.uid",
+      "sha256": "0f7b4b2fd71b34550410f03dcdce9419aa16b5a9d9bbee13605d44beab18e6de",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/staff/staff_wellbeing.gd",
+      "sha256": "63e37ddfd7780e15a4aff8521820ae793f90bc1c6e59d88fef3be42127ead1ef",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/staff/staff_wellbeing.gd.uid",
+      "sha256": "cf82722d03b7b98f6d21a20d3313529721ae34201b78aef8387ceab3f55f853d",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/action_panel.gd",
+      "sha256": "e69f7581747e4277987c3a5945a7d146ddf86909f7012dae1e75dee816740310",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/action_panel.gd.uid",
+      "sha256": "6d768d6119bcd33632e3c7aea4bc735a114d8f788bf57b73661499e48077654b",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/arrivals_panel.gd",
+      "sha256": "3a63b207f5c3b3b61c418f853b909019eff0d6e9fcbe61a3a70fc518744ec864",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/arrivals_panel.gd.uid",
+      "sha256": "f549ca9e9ee54ef72331d9aa510bb003eaabfe81ba3d23beddba1652f9140af2",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/build_panel.gd",
+      "sha256": "eaf3579c4881469811795babb456201644450a28dce2fb947df1ab202bb3a586",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/build_panel.gd.uid",
+      "sha256": "b4ac2b9f453ad64cb7d0b9a640b1292274b603a23b80d7831b481a381eea63a3",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/clinical_panel.gd",
+      "sha256": "bce88f0f1346bc6c7d839e296d597ab8c77bfc6754e2354a13fcd794b4b3c801",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/clinical_panel.gd.uid",
+      "sha256": "98359efcb5d0b82199afd3e0ef7675bce1561879a436d335d4ad53fae94030fa",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/departments_panel.gd",
+      "sha256": "7e70538c5c65ae11937ff9b116cb9e59e778a1e843ea4f361c9a6e71b03cfd15",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/departments_panel.gd.uid",
+      "sha256": "c3a0595050a954e0a793a872cf5049ef23c9c0ca9c3e3f8da833802ca942679f",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/environment_panel.gd",
+      "sha256": "4076755346b70f8b6b1e26d9c9a3c79bad908e9de93e8d067be30e269256313e",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/environment_panel.gd.uid",
+      "sha256": "daf3028394f1de6ee88f76e3987c6be607124a7820a34122962b0094b5d06fbc",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/expansion_panel.gd",
+      "sha256": "04e6ca9d15ad7f3427bd809716f00ad247fbd185eaa670d3137bae4158732457",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/expansion_panel.gd.uid",
+      "sha256": "3c29e158252e5ddafa9b95c3e2b89703f75f06cc3657aa84a3798f2e874ae2ff",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/finance_panel.gd",
+      "sha256": "f4b329680176b85e72ff096ca95d3d60f9e7183a0a3c69cfe2b5e99fd5b7b479",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/finance_panel.gd.uid",
+      "sha256": "65e9dbc8439ab3ad23be79e9082b2327539b4e043fff3d976366d88fbe6d89cd",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/hospital_library_panel.gd",
+      "sha256": "704e1a0bc4a73be0f003c7699944c0d61ce58e4143c84f49155f4d5076bdb287",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/hospital_library_panel.gd.uid",
+      "sha256": "6cd5b381662218a44fdfc15ee80877a7d0cbd3c7fecb8c07d4c4996a76e004b2",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/maintenance_panel.gd",
+      "sha256": "3cbf02b09e9b30761c0615837a07dca754ce340d8e6f01d7a56af5336145c30f",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/maintenance_panel.gd.uid",
+      "sha256": "bee9c451fdc1a44a8758e5d15e3fd81866671062549474b7edf8b96fcc004928",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/plans_panel.gd",
+      "sha256": "861469432b24f555718393cdb50f1609b94b58b8ed3f48bc30a9079d3b26cf75",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/plans_panel.gd.uid",
+      "sha256": "0b11aab6a496c013156655388996d74dd7f82abc2d3772b86d5df0cc40057925",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/recruitment_panel.gd",
+      "sha256": "e42a1616e3a607648d655f9a90b321b79cb711f1651cc75e1661bc7e211f988b",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/recruitment_panel.gd.uid",
+      "sha256": "9e2270dd55dc6f028c6cb0e73e518f858e3269787104f393f25a1b7319fb00d3",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/remodel_panel.gd",
+      "sha256": "f16c469ad4a8fe878e7e56c07cfef636e136a543aae33a9b3a0468fd1552df5e",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/remodel_panel.gd.uid",
+      "sha256": "f24f9a9e48cdf7f1185bcfb9ad5a54efcd5f32685b8846a46b07c5ba47e90989",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/research_panel.gd",
+      "sha256": "e258fdeee328083f555d369ed3e0907682da5c2cb59f6faed23bd5756201b396",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/research_panel.gd.uid",
+      "sha256": "0faef802bee43880345d02168142ab093ce305a6351930e65a2d2972d0479923",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/schedule_panel.gd",
+      "sha256": "8ad29541c473d24d4b0e2422409f4094110b014dab3413725dae2f98a8113c43",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/schedule_panel.gd.uid",
+      "sha256": "ca8febd07bb21f107c87d9388aa17276fe1c94bd386904036d6f64509a22d315",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/staff_life_panel.gd",
+      "sha256": "fff324f0fe0b6ba7faafb59cf071abdf56ff1ae74c00b898de3d4e815f4e20a5",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/staff_life_panel.gd.uid",
+      "sha256": "f48ca31129bc5369bfc611170c87b299f69cfdec04678d91ae1195a812ec24c0",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/supplies_panel.gd",
+      "sha256": "99d43f0f2070e1597d4b85762c6567a88d3dc4dd43cbf31e9c4219f53b954cf4",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/supplies_panel.gd.uid",
+      "sha256": "be0b6713883c58ed4e3f29d004156272b9a52809e90815b732c3bf7738662b5b",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/training_panel.gd",
+      "sha256": "283b9d0c91f753cb79ba445fc41b098c90cce2e18e64f046bdc6d6c127a73be1",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/training_panel.gd.uid",
+      "sha256": "a1ee3c6da7320d3d0e04a85903328e4a64c94c2c8ab41ede701ba3fd84ecb293",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/waiting_panel.gd",
+      "sha256": "773b273e1c8d8a106402c013b24caf615118a2c25863754a7b8e7b4257fc86e4",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/waiting_panel.gd.uid",
+      "sha256": "1502ab7cce3660f6c9cad0b24253750a4c3f912c4504e44d8a0e4371a12cc621",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/ward_panel.gd",
+      "sha256": "3015b74a9fa1868401354b6edae65e6c0b302d534a6623ac57183a91c457bdd0",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/ui/ward_panel.gd.uid",
+      "sha256": "61dc7bcdd93a9df2217799f1195e3483d23edef80738817e1c1b21ffea6b541a",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/view/build_overlay.gd",
+      "sha256": "b6cd67a262a9b1e31474e1c167e96dd87b54d7a784039caf5700e3b53f7041aa",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/view/build_overlay.gd.uid",
+      "sha256": "623e39b33cb626b1f2dfbf3894fc9365956af23d0225dd5f839b2d74fea29fa6",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/view/compatibility_skin_input.gd",
+      "sha256": "f0c6b71171c8ea8917b661196152e97f2a6e642fbbdb72b3ae18091eb57f73b8",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/view/compatibility_skin_input.gd.uid",
+      "sha256": "72ff2bf326a86789f9aaedbdb9899aed96c9aa78c7e55761dc323ba7f101e79b",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/view/hospital_palette.gd",
+      "sha256": "dd24f6999e8c0522cc0e04eb36bf4cd779274ccbb85133d8821daa742e930624",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/view/hospital_palette.gd.uid",
+      "sha256": "f92dbc210a5ee0882307b2a1df87db6dd22d6b07d0a56cc827e940b240b42d1d",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/view/hospital_view.gd",
+      "sha256": "f3414958203f47d5d1bcfa1873d05ebf45f9f5056db1c7ba8b4eb2f8bfdd8a84",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/view/hospital_view.gd.uid",
+      "sha256": "fd1a205ff69ac62f0dd426d0f96dcb33b2eb041fa17a6875258f22080c5cc5e2",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/view/shaders/skin_readback_original.gdshader",
+      "sha256": "d498a17891628be38e3b2543ce6123267bef11320e7004d6bd1aa74ee94582d7",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/view/shaders/skin_readback_original.gdshader.uid",
+      "sha256": "aa75377678c8f0aacc750f481b371c4c952f135b2720ef1060d94267b71910a6",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/view/shaders/skin_readback_output.gdshaderinc",
+      "sha256": "80a3e9478ca9bf9f3294a1065dddbcfb32ffff97de9908c161cb4494c2cf1231",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/view/shaders/skin_readback_output.gdshaderinc.uid",
+      "sha256": "5addbd13efdddfea0078881c75b67cb5d998f5198cf3eb6635f902a677309308",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/view/shaders/skin_readback.gdshader",
+      "sha256": "72b74920b52fcfe944da7c6694945f8527734b0f86542fe43362683223ae0318",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/view/shaders/skin_readback.gdshader.uid",
+      "sha256": "1f4afbe30073c38d001848d86ead060d016e4a374a2ecbd56b2acab75d5e03ec",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/view/shaders/skinned_pose_double_sided.gdshader",
+      "sha256": "7e373dc423e76554f486dade8fb9453f9b27420a010b4192319425183d0e6055",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/view/shaders/skinned_pose_double_sided.gdshader.uid",
+      "sha256": "df399eaab664db0d24e2778a3f41f7117d0851283c731d364559ec2edf7dcc14",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/view/shaders/skinned_pose_surface.gdshaderinc",
+      "sha256": "19ed00ba18c94787f290481d8d04a77daa434a2e5bfd8ac8c3ff096cc36ed23a",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/view/shaders/skinned_pose_surface.gdshaderinc.uid",
+      "sha256": "c475e9aa455008c30cba8ad0ff8e298c221e413e25e80b571fae668cc5589469",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/view/shaders/skinned_pose.gdshader",
+      "sha256": "f6f8e6b78c4771e64da95c681f9e1e6010c4b8933fd1886cb4f5152fa0c2b6a7",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/view/shaders/skinned_pose.gdshader.uid",
+      "sha256": "feb970e26cd6daed55604f8353fe40e9c3c940fdd08d540b217b96d080d6f8e6",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/view/shaders/skinned_pose.gdshaderinc",
+      "sha256": "0d02ebc85dd8c871d5f99d31b735cb91d745844f098e6214d1321a674c429feb",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/view/shaders/skinned_pose.gdshaderinc.uid",
+      "sha256": "4d4b2908b588211820946b9ce936e313963c55d5f7b7ac6be2e77106cddbe4d6",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/view/skinned_pose_batch.gd",
+      "sha256": "55c050528ad395542feb3b48d3b72a12855ebdad755051f4fdcbb98f6b4690f8",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/view/skinned_pose_batch.gd.uid",
+      "sha256": "e634ba9893e67034fb509e76283529716fcb87a38839c45589525ecc0b95262c",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/view/view_resources.gd",
+      "sha256": "52fd8ad69760d5e74a10d9cc7ec4ccb318b44f307a74712350e8822ab324a670",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/view/view_resources.gd.uid",
+      "sha256": "ac753d9864d78c5a6238e3db30ba05042c4579d9f0ce568cb9b1d2965bff35de",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/view/view_work_budget.gd",
+      "sha256": "7accce896aab177ff50f3d82ed2988128728bbfbf195d5b04e55c71de0e6c5d2",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    },
+    {
+      "path": "game/view/view_work_budget.gd.uid",
+      "sha256": "f9547d4c98cfef18e393dc01975d4db7cd9b209e826956f26c4a6f2294a5f942",
+      "workspace_matches_frozen": true,
+      "git_blob_matches_frozen": true
+    }
+  ],
+  "all_match": true,
+  "functional_final_source_match": true
+}

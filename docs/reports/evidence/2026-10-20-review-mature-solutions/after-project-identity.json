@@ -1,0 +1,22 @@
+{
+  "head": "2cfa8db352a55debe559fa94391949bb616f6798",
+  "project": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\after-project",
+  "profile": "OddlyGoodHospital Performance 3d23f8c180ef4864abc8ff98aeb42ddf",
+  "engine": "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+  "engine_sha256": "C8F0A6BC45A19B33541501E57F6F7CD972AB18453743266339D495CBBE846643",
+  "native_sha256": "020249917189F78ADFB42283CDFCA8923F9F9963A415F21D6640136611371081",
+  "gmp_sha256": "C2567CCF3F410C3411BA7CD4B7BA14F393A0E70A1D0C0593297DF6706B5FBA96",
+  "mpfr_sha256": "B881BEB5ED7E3413283AB94F24AB25CD47ED27127774867AE105642FF2FC2E47",
+  "runtime_sha256": {
+    "libwinpthread-1.dll": "E765EE6109A0080A7C42848911F4349099B3C15AA734D845CB0E438F6F5A91B5",
+    "libgcc_s_seh-1.dll": "791EBF66E99C7C1B4ED3666468CEC45A0172B4C8942AC6C84C3E9CAB3E1B5270"
+  },
+  "import_arguments": [
+    "--headless",
+    "--editor",
+    "--path",
+    "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\review-2026-10-20\\after-project",
+    "--import",
+    "--quit"
+  ]
+}
