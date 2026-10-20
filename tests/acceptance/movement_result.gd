@@ -109,7 +109,7 @@ func _courtesy_handoff(suite: RefCounted) -> Dictionary:
 	space._actor_index.update("a_gap_primary",1,Rect2(10.5,12,1,1))
 	space._actor_index.update("z_primary",1,Rect2(11.25,8,0.25,1))
 	space._actor_index.update("secondary",1,Rect2(11.25,10,0.25,1))
-	var movement: Dictionary = {"actor_id":"probe","members":["probe","follower"],"offsets":{"probe":[0,0],"follower":[0,4]},"travelled":[{"floor_id":1,"cell":[10,10]}],"yielding":false,"target_floor":1,"target_cell":[12,10]}
+	var movement: Dictionary = {"actor_id":"probe","members":["probe","follower"],"offsets":{"probe":[0,0],"follower":[0,4]},"travelled":[{"floor_id":1,"cell":[10,10]}],"yielding":false,"target_floor":1,"target_cell":[12,10],"cursor":0,"path":[{"kind":"floor","floor_id":1,"cell":[11,10]},{"kind":"floor","floor_id":1,"cell":[12,10]}]}
 	world.facts.moves["probe"] = movement
 	world.facts.moves["a_gap_primary"] = {"actor_id":"a_gap_primary","members":["a_gap_primary"],"yielding":false}
 	world.facts.moves["z_primary"] = {"actor_id":"z_primary","members":["z_primary","secondary"],"offsets":{"z_primary":[0,0],"secondary":[0,2]},"yielding":false}

@@ -1,0 +1,811 @@
+{
+  "failed": {
+    "accepted_sweep_with_current_goal_clear": {
+      "actual_contacts": [
+        "past_blocker"
+      ],
+      "current_body_no_longer_at_goal": true,
+      "does_not_gate_local_route": true,
+      "legal_fixed_step_collision_input": true,
+      "ok": true,
+      "request_error": "",
+      "timed_accepted_sweep_really_hits": true,
+      "world_unchanged": true
+    },
+    "actual_follower_destination": {
+      "accepted_past_sweep_observed_after_current_body_left": null,
+      "actual_goal_body_cleared_tick": 2,
+      "actual_motion_resumed_tick": 2,
+      "actual_original_goal_arrival": true,
+      "blocker_departure_error": "",
+      "goal_waits_before_hold": 46,
+      "group": true,
+      "initial_dispatches": 1,
+      "local_route_requests_after_release": 0,
+      "ok": false,
+      "past_sweep_did_not_gate_local_route": null,
+      "remaining": {
+        "a_blocker": {
+          "actor_id": "a_blocker",
+          "blocked_since": -1,
+          "cursor": 1,
+          "path": [
+            {
+              "cell": [
+                44,
+                86
+              ],
+              "floor_id": 1,
+              "kind": "floor"
+            },
+            {
+              "cell": [
+                44,
+                87
+              ],
+              "floor_id": 1,
+              "kind": "floor"
+            },
+            {
+              "cell": [
+                44,
+                88
+              ],
+              "floor_id": 1,
+              "kind": "floor"
+            }
+          ],
+          "request_sequence": 2,
+          "route_pending": false,
+          "target_cell": [
+            44,
+            88
+          ],
+          "target_floor": 1,
+          "travelled": [
+            {
+              "cell": [
+                44,
+                85
+              ],
+              "floor_id": 1,
+              "kind": "floor"
+            },
+            {
+              "cell": [
+                44,
+                86
+              ],
+              "floor_id": 1,
+              "kind": "floor"
+            }
+          ],
+          "yielding": false
+        }
+      },
+      "repeated_current_goal_occupancy_did_not_redispatch": true,
+      "request_error": "",
+      "resumed_by_next_boundary": true,
+      "safe_real_steps": false,
+      "safety_failures": [
+        {
+          "actors": {
+            "a_blocker": {
+              "facing": 0.0,
+              "id": "a_blocker",
+              "location": {
+                "cell": [
+                  44.0,
+                  85.5999908447266
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "name": "a_blocker",
+              "posture": "standing",
+              "species_id": "S49"
+            },
+            "z_follower": {
+              "facing": 1.5707963267949,
+              "id": "z_follower",
+              "location": {
+                "cell": [
+                  43.6399993896484,
+                  85.0
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "name": "z_follower",
+              "posture": "standing",
+              "species_id": "S49"
+            },
+            "z_walker": {
+              "facing": 1.5707963267949,
+              "id": "z_walker",
+              "location": {
+                "cell": [
+                  43.6399993896484,
+                  82.0
+                ],
+                "floor_id": 1,
+                "height_m": 0.0,
+                "kind": "floor"
+              },
+              "name": "z_walker",
+              "posture": "standing",
+              "species_id": "S49"
+            }
+          },
+          "contact_attempts": {
+            "a_blocker": {
+              "accepted_earlier": {},
+              "actual_contact_ids": [],
+              "proposed": {
+                "a_blocker": {
+                  "from": [
+                    44.2666625976563,
+                    85.6666717529297,
+                    0.466666668653488,
+                    0.466666668653488
+                  ],
+                  "to": [
+                    44.2666625976563,
+                    85.8666687011719,
+                    0.466666668653488,
+                    0.466666668653488
+                  ]
+                }
+              }
+            },
+            "z_walker": {
+              "accepted_earlier": {
+                "a_blocker": {
+                  "from": [
+                    44.2666625976563,
+                    85.6666717529297,
+                    0.466666668653488,
+                    0.466666668653488
+                  ],
+                  "to": [
+                    44.2666625976563,
+                    85.8666687011719,
+                    0.466666668653488,
+                    0.466666668653488
+                  ]
+                }
+              },
+              "actual_contact_ids": [],
+              "proposed": {
+                "z_follower": {
+                  "from": [
+                    43.7466659545898,
+                    85.2666625976563,
+                    0.466666668653488,
+                    0.466666668653488
+                  ],
+                  "to": [
+                    43.906665802002,
+                    85.2666625976563,
+                    0.466666668653488,
+                    0.466666668653488
+                  ]
+                },
+                "z_walker": {
+                  "from": [
+                    43.7466659545898,
+                    82.2666625976563,
+                    0.466666668653488,
+                    0.466666668653488
+                  ],
+                  "to": [
+                    43.906665802002,
+                    82.2666625976563,
+                    0.466666668653488,
+                    0.466666668653488
+                  ]
+                }
+              }
+            }
+          },
+          "endpoint_overlap": false,
+          "first": "a_blocker",
+          "first_from": [
+            44.2666664123535,
+            85.6666641235352,
+            0.466666668653488,
+            0.466666668653488
+          ],
+          "first_to": [
+            44.2666664123535,
+            85.8666610717773,
+            0.466666668653488,
+            0.466666668653488
+          ],
+          "kind": "body_or_sweep",
+          "moves": {
+            "a_blocker": {
+              "actor_id": "a_blocker",
+              "blocked_since": -1,
+              "cursor": 0,
+              "path": [
+                {
+                  "cell": [
+                    44,
+                    86
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    44,
+                    87
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    44,
+                    88
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                }
+              ],
+              "request_sequence": 2,
+              "route_pending": false,
+              "target_cell": [
+                44,
+                88
+              ],
+              "target_floor": 1,
+              "travelled": [
+                {
+                  "cell": [
+                    44,
+                    85
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                }
+              ],
+              "yielding": false
+            },
+            "z_walker": {
+              "actor_id": "z_walker",
+              "blocked_since": -1,
+              "cursor": 3,
+              "members": [
+                "z_walker",
+                "z_follower"
+              ],
+              "offsets": {
+                "z_follower": [
+                  0,
+                  3
+                ],
+                "z_walker": [
+                  0,
+                  0
+                ]
+              },
+              "path": [
+                {
+                  "cell": [
+                    41,
+                    82
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    42,
+                    82
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    43,
+                    82
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    44,
+                    82
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                }
+              ],
+              "request_sequence": 1,
+              "route_pending": false,
+              "target_cell": [
+                44,
+                82
+              ],
+              "target_floor": 1,
+              "travelled": [
+                {
+                  "cell": [
+                    40,
+                    82
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    41,
+                    82
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    42,
+                    82
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                },
+                {
+                  "cell": [
+                    43,
+                    82
+                  ],
+                  "floor_id": 1,
+                  "kind": "floor"
+                }
+              ],
+              "yielding": false
+            }
+          },
+          "second": "z_follower",
+          "second_from": [
+            43.7466659545898,
+            85.2666702270508,
+            0.466666668653488,
+            0.466666668653488
+          ],
+          "second_to": [
+            43.906665802002,
+            85.2666702270508,
+            0.466666668653488,
+            0.466666668653488
+          ],
+          "sweep_intersects": true,
+          "tick": 143
+        }
+      ],
+      "target_and_fifo_sequence_preserved": true,
+      "validation": ""
+    },
+    "actual_midroute_obstacle_in_group_goal_gap": {
+      "actual_original_route_collision": true,
+      "blocker_in_merged_goal_gap_only": true,
+      "both_members_actually_arrived": true,
+      "false_goal_occupancy_waits": 0,
+      "follower": {
+        "cell": [
+          44.0,
+          85.0
+        ],
+        "floor_id": 1,
+        "height_m": 0.0,
+        "kind": "floor"
+      },
+      "leader": {
+        "cell": [
+          44.0,
+          82.0
+        ],
+        "floor_id": 1,
+        "height_m": 0.0,
+        "kind": "floor"
+      },
+      "midroute_local_routes_requested": 1,
+      "ok": true,
+      "remaining": {},
+      "request_error": "",
+      "safe_real_steps": true
+    },
+    "actual_occupied_destination": {
+      "accepted_past_sweep_observed_after_current_body_left": false,
+      "actual_goal_body_cleared_tick": 2,
+      "actual_motion_resumed_tick": 2,
+      "actual_original_goal_arrival": true,
+      "blocker_departure_error": "",
+      "goal_waits_before_hold": 53,
+      "group": false,
+      "initial_dispatches": 1,
+      "local_route_requests_after_release": 0,
+      "ok": true,
+      "past_sweep_did_not_gate_local_route": false,
+      "remaining": {},
+      "repeated_current_goal_occupancy_did_not_redispatch": true,
+      "request_error": "",
+      "resumed_by_next_boundary": true,
+      "safe_real_steps": true,
+      "safety_failures": [],
+      "target_and_fifo_sequence_preserved": true,
+      "validation": ""
+    },
+    "ok": false,
+    "rectangular_body_alternative_arrival_facing": {
+      "actor": {
+        "cell": [
+          44.0,
+          81.8000183105469
+        ],
+        "floor_id": 1,
+        "height_m": 0.0,
+        "kind": "floor"
+      },
+      "actual_motion_collision": true,
+      "alternative_arrival_facing_goal_clear": true,
+      "current_facing_goal_intersects": true,
+      "false_unavoidable_goal_waits": 0,
+      "local_route_decision_allowed": true,
+      "ok": true,
+      "remaining": {
+        "rectangle": {
+          "actor_id": "rectangle",
+          "blocked_since": 26,
+          "cursor": 3,
+          "path": [
+            {
+              "cell": [
+                44,
+                79
+              ],
+              "floor_id": 1,
+              "kind": "floor"
+            },
+            {
+              "cell": [
+                44,
+                80
+              ],
+              "floor_id": 1,
+              "kind": "floor"
+            },
+            {
+              "cell": [
+                44,
+                81
+              ],
+              "floor_id": 1,
+              "kind": "floor"
+            },
+            {
+              "cell": [
+                44,
+                82
+              ],
+              "floor_id": 1,
+              "kind": "floor"
+            }
+          ],
+          "request_sequence": 2,
+          "route_pending": true,
+          "route_waypoint": {
+            "cell": [
+              44,
+              82
+            ],
+            "continuation": [],
+            "floor_id": 1
+          },
+          "target_cell": [
+            44,
+            82
+          ],
+          "target_floor": 1,
+          "travelled": [
+            {
+              "cell": [
+                44,
+                78
+              ],
+              "floor_id": 1,
+              "kind": "floor"
+            },
+            {
+              "cell": [
+                44,
+                79
+              ],
+              "floor_id": 1,
+              "kind": "floor"
+            },
+            {
+              "cell": [
+                44,
+                80
+              ],
+              "floor_id": 1,
+              "kind": "floor"
+            },
+            {
+              "cell": [
+                44,
+                81
+              ],
+              "floor_id": 1,
+              "kind": "floor"
+            }
+          ],
+          "yielding": false
+        }
+      },
+      "request_error": "",
+      "safe_real_steps": true
+    }
+  },
+  "fixed": {
+    "accepted_sweep_with_current_goal_clear": {
+      "actual_contacts": [
+        "past_blocker"
+      ],
+      "current_body_no_longer_at_goal": true,
+      "does_not_gate_local_route": true,
+      "legal_fixed_step_collision_input": true,
+      "ok": true,
+      "request_error": "",
+      "timed_accepted_sweep_really_hits": true,
+      "world_unchanged": true
+    },
+    "actual_follower_destination": {
+      "accepted_past_sweep_observed_after_current_body_left": null,
+      "actual_goal_body_cleared_tick": 2,
+      "actual_motion_resumed_tick": 3,
+      "actual_original_goal_arrival": true,
+      "blocker_departure_error": "",
+      "goal_waits_before_hold": 46,
+      "group": true,
+      "initial_dispatches": 1,
+      "local_route_requests_after_release": 0,
+      "ok": true,
+      "past_sweep_did_not_gate_local_route": null,
+      "remaining": {
+        "a_blocker": {
+          "actor_id": "a_blocker",
+          "blocked_since": -1,
+          "cursor": 1,
+          "path": [
+            {
+              "cell": [
+                44,
+                86
+              ],
+              "floor_id": 1,
+              "kind": "floor"
+            },
+            {
+              "cell": [
+                44,
+                87
+              ],
+              "floor_id": 1,
+              "kind": "floor"
+            },
+            {
+              "cell": [
+                44,
+                88
+              ],
+              "floor_id": 1,
+              "kind": "floor"
+            }
+          ],
+          "request_sequence": 2,
+          "route_pending": false,
+          "target_cell": [
+            44,
+            88
+          ],
+          "target_floor": 1,
+          "travelled": [
+            {
+              "cell": [
+                44,
+                85
+              ],
+              "floor_id": 1,
+              "kind": "floor"
+            },
+            {
+              "cell": [
+                44,
+                86
+              ],
+              "floor_id": 1,
+              "kind": "floor"
+            }
+          ],
+          "yielding": false
+        }
+      },
+      "repeated_current_goal_occupancy_did_not_redispatch": true,
+      "request_error": "",
+      "resumed_by_next_boundary": true,
+      "safe_real_steps": true,
+      "safety_failures": [],
+      "target_and_fifo_sequence_preserved": true,
+      "validation": ""
+    },
+    "actual_midroute_obstacle_in_group_goal_gap": {
+      "actual_original_route_collision": true,
+      "blocker_in_merged_goal_gap_only": true,
+      "both_members_actually_arrived": true,
+      "false_goal_occupancy_waits": 0,
+      "follower": {
+        "cell": [
+          44.0,
+          85.0
+        ],
+        "floor_id": 1,
+        "height_m": 0.0,
+        "kind": "floor"
+      },
+      "leader": {
+        "cell": [
+          44.0,
+          82.0
+        ],
+        "floor_id": 1,
+        "height_m": 0.0,
+        "kind": "floor"
+      },
+      "midroute_local_routes_requested": 1,
+      "ok": true,
+      "remaining": {},
+      "request_error": "",
+      "safe_real_steps": true
+    },
+    "actual_occupied_destination": {
+      "accepted_past_sweep_observed_after_current_body_left": false,
+      "actual_goal_body_cleared_tick": 2,
+      "actual_motion_resumed_tick": 2,
+      "actual_original_goal_arrival": true,
+      "blocker_departure_error": "",
+      "goal_waits_before_hold": 53,
+      "group": false,
+      "initial_dispatches": 1,
+      "local_route_requests_after_release": 0,
+      "ok": true,
+      "past_sweep_did_not_gate_local_route": false,
+      "remaining": {},
+      "repeated_current_goal_occupancy_did_not_redispatch": true,
+      "request_error": "",
+      "resumed_by_next_boundary": true,
+      "safe_real_steps": true,
+      "safety_failures": [],
+      "target_and_fifo_sequence_preserved": true,
+      "validation": ""
+    },
+    "ok": true,
+    "rectangular_body_alternative_arrival_facing": {
+      "actor": {
+        "cell": [
+          44.0,
+          81.8000183105469
+        ],
+        "floor_id": 1,
+        "height_m": 0.0,
+        "kind": "floor"
+      },
+      "actual_motion_collision": true,
+      "alternative_arrival_facing_goal_clear": true,
+      "current_facing_goal_intersects": true,
+      "false_unavoidable_goal_waits": 0,
+      "local_route_decision_allowed": true,
+      "ok": true,
+      "remaining": {
+        "rectangle": {
+          "actor_id": "rectangle",
+          "blocked_since": 26,
+          "cursor": 3,
+          "path": [
+            {
+              "cell": [
+                44,
+                79
+              ],
+              "floor_id": 1,
+              "kind": "floor"
+            },
+            {
+              "cell": [
+                44,
+                80
+              ],
+              "floor_id": 1,
+              "kind": "floor"
+            },
+            {
+              "cell": [
+                44,
+                81
+              ],
+              "floor_id": 1,
+              "kind": "floor"
+            },
+            {
+              "cell": [
+                44,
+                82
+              ],
+              "floor_id": 1,
+              "kind": "floor"
+            }
+          ],
+          "request_sequence": 2,
+          "route_pending": true,
+          "route_waypoint": {
+            "cell": [
+              44,
+              82
+            ],
+            "continuation": [],
+            "floor_id": 1
+          },
+          "target_cell": [
+            44,
+            82
+          ],
+          "target_floor": 1,
+          "travelled": [
+            {
+              "cell": [
+                44,
+                78
+              ],
+              "floor_id": 1,
+              "kind": "floor"
+            },
+            {
+              "cell": [
+                44,
+                79
+              ],
+              "floor_id": 1,
+              "kind": "floor"
+            },
+            {
+              "cell": [
+                44,
+                80
+              ],
+              "floor_id": 1,
+              "kind": "floor"
+            },
+            {
+              "cell": [
+                44,
+                81
+              ],
+              "floor_id": 1,
+              "kind": "floor"
+            }
+          ],
+          "yielding": false
+        }
+      },
+      "request_error": "",
+      "safe_real_steps": true
+    }
+  },
+  "cause": "The same-facing fast path translated the prior float32 rectangle repeatedly instead of deriving it from the actual actor position and cached shape. Numeric actual-sweep snapshots differ from canonical bodies; the timed crossing was missed. No overlap epsilon or movement rule was relaxed."
+}

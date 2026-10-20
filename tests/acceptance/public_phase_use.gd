@@ -349,3 +349,110 @@ func _case_74(t) -> void:
 			work_complete = before_last and need.phase=="returning" and is_equal_approx(float(visit.anger),anger+float(_content.balance.amenity_flow.fallback_anger))
 		observations.append({"place":place,"unsafe_initial_location":unsafe,"formal_original_trip":initial_trip,"expired_need_moves_to_safety_without_work":safe_departure,"saved_trip_identity_and_clock":restored,"normalized_input_fields":normalized_fields,"restore_changed_fields":changed_fields,"no_work_or_effect_before_safe_arrival":no_early_work,"actual_safe_arrival_starts_eighty_ticks":arrived,"eight_seconds_actually_completed":work_complete,"original_started_tick":original_start,"target":target,"actor":x.world.facts.actors[visit.actor_id].duplicate(true),"need":need.duplicate(true),"movement":x.world.facts.moves.get(visit.actor_id,{}).duplicate(true)})
 	t.check("STAFF-74",observations.all(func(row: Dictionary)->bool: return row.unsafe_initial_location and row.formal_original_trip and row.expired_need_moves_to_safety_without_work and row.saved_trip_identity_and_clock and row.no_work_or_effect_before_safe_arrival and row.actual_safe_arrival_starts_eighty_ticks and row.eight_seconds_actually_completed),{"safe_fallback_after_expiry":observations})
+
+# Candidate computation boundaries. The rectangle is the literal room input,
+# not a candidate list produced by the optimized entry sorter. Physical people
+# are inputs here; STAFF-45 exercises the resulting real arrival and use.
+func _case_75(t) -> void:
+	var large_estimate: Dictionary = _large_entry_estimate()
+	var observations: Array = []
+	for variant: String in ["ordinary","fractional","nearest_body_occupied","only_far_point_free"]:
+		var x: Dictionary = _areas()
+		var visit: Dictionary = _visit(x,"entry_subject",[38.35,90.35] if variant=="fractional" else [38,90])
+		var area: Dictionary = x.space.public_areas.for_facility(x.world,"west_chair")
+		var original: Dictionary = _complete_entry_reference(x,visit,1)
+		var blocked_cell: Array = []
+		var retained_far: Array = []
+		if variant=="nearest_body_occupied" and not original.best.is_empty():
+			blocked_cell = original.best.cell.duplicate()
+			var blocker: Dictionary = _visit(x,"entry_blocker",blocked_cell)
+			x.space.sync_actor(x.world,blocker.actor_id)
+			x.world.touch(false)
+		elif variant=="only_far_point_free" and not original.rows.is_empty():
+			var far: Dictionary = original.rows[0]
+			for row: Dictionary in original.rows:
+				if _entry_order_before(far,row): far = row
+			retained_far = far.cell.duplicate()
+			var index: int = 0
+			for row: Dictionary in original.rows:
+				if row.cell==retained_far: continue
+				var blocker: Dictionary = _visit(x,"packed_%03d"%index,row.cell)
+				x.space.sync_actor(x.world,blocker.actor_id)
+				index += 1
+			x.world.touch(false)
+		var before: Dictionary = x.world.freeze()
+		var validation: String = x.world.validate(_content)
+		var expected: Dictionary = _complete_entry_reference(x,visit,1)
+		var routes_before: int = int(x.space.query_counts.routes)
+		var started: int = Time.get_ticks_usec()
+		var actual: Dictionary = x.space.public_areas.waiting_point(x.world,visit.actor_id,area)
+		var elapsed: int = Time.get_ticks_usec()-started
+		var route_queries: int = int(x.space.query_counts.routes)-routes_before
+		var same: bool = not expected.best.is_empty() and actual==_entry_result(expected.best,1)
+		var blocked_rejected: bool = blocked_cell.is_empty() or actual.get("cell",[])!=blocked_cell
+		var stable_tie_exercised: bool = variant!="nearest_body_occupied" or int(expected.order_ties)>1
+		var far_retained: bool = retained_far.is_empty() or expected.rows.size()==1 and actual.get("cell",[])==retained_far and original.rows.size()>32
+		var readonly: bool = before==x.world.freeze()
+		observations.append({"variant":variant,"ok":validation.is_empty() and original.readonly and expected.readonly and same and blocked_rejected and stable_tie_exercised and far_retained and readonly,"validation":validation,"literal_rectangle_cells":120,"original_safe_complete_candidates":original.rows.size(),"current_safe_complete_candidates":expected.rows.size(),"minimum_cost_ties":expected.cost_ties,"minimum_cost_and_lower_ties":expected.order_ties,"expected":_entry_result(expected.best,1),"actual":actual,"same_point_cost_and_stable_order":same,"occupied_nearest_rejected":blocked_rejected,"stable_tie_exercised":stable_tie_exercised,"far_unique_candidate_retained":far_retained,"readonly":readonly,"route_queries":route_queries,"waiting_point_us":elapsed})
+	t.check("STAFF-75",large_estimate.ok and observations.all(func(row: Dictionary)->bool: return row.ok),{"complete_entry_boundaries":observations,"large_finite_estimate":large_estimate})
+
+# A finite route-cost input near int64's limit must remain sortable. This is
+# only the numeric candidate boundary: no lift journey or arrival is fabricated.
+func _large_entry_estimate() -> Dictionary:
+	var x: Dictionary = _areas()
+	var visit: Dictionary = _visit(x,"large_estimate",[38,90])
+	var ticks: int = 9223372036854773807 # int64 maximum minus 2000.
+	var bounds: Dictionary = {"landings":[{"cell":Vector2(40,75),"ticks":ticks}],"unknown":false}
+	var geometry: Dictionary = {"cells":[Vector2i(42,76),Vector2i(41,75),Vector2i(40,75),Vector2i(40,74)],"points":{}}
+	var original_geometry: Dictionary = geometry.duplicate(true)
+	var original_bounds: Dictionary = bounds.duplicate(true)
+	var before: Dictionary = x.world.freeze()
+	var routes: int = int(x.space.query_counts.routes)
+	var ordered: Dictionary = x.space.public_areas._ordered_entry_cells(x.world.facts.actors[visit.actor_id],Vector2(38,90),bounds,geometry,9223372036854775807)
+	# At the published 2 cells/s, zero, one and three orthogonal cells take
+	# zero, five and fifteen ticks. Equal lower values compare y before x.
+	var expected: Array = [{"cell":Vector2i(40,75),"lower":ticks},{"cell":Vector2i(40,74),"lower":ticks+5},{"cell":Vector2i(41,75),"lower":ticks+5},{"cell":Vector2i(42,76),"lower":ticks+15}]
+	var exact: bool = not ordered.compact and ordered.packed.is_empty() and ordered.fallback==expected
+	var readonly: bool = before==x.world.freeze() and bounds==original_bounds and geometry==original_geometry and routes==int(x.space.query_counts.routes)
+	return {"ok":exact and readonly,"all_finite_candidates_and_literal_order":exact,"input_and_world_unchanged_without_route_queries":readonly,"expected":expected,"actual":ordered.fallback}
+
+func _entry_result(best: Dictionary, floor_id: int) -> Dictionary:
+	return {} if best.is_empty() else {"floor_id":floor_id,"cell":best.cell.duplicate(),"travel_ticks":int(best.travel_ticks)}
+
+func _entry_order_before(a: Dictionary, b: Dictionary) -> bool:
+	if int(a.lower)!=int(b.lower): return int(a.lower)<int(b.lower)
+	return int(a.cell[1])<int(b.cell[1]) or a.cell[1]==b.cell[1] and int(a.cell[0])<int(b.cell[0])
+
+func _complete_entry_reference(x: Dictionary, visit: Dictionary, floor_id: int) -> Dictionary:
+	var before: Dictionary = x.world.freeze()
+	var actor: Dictionary = x.world.facts.actors[visit.actor_id]
+	var origin: Vector2 = Vector2(float(actor.location.cell[0]),float(actor.location.cell[1]))
+	var rounded: Vector2i = Vector2i(roundi(origin.x),roundi(origin.y))
+	# S49's ordinary one-cell case uses the published 2 cells/s rate. Keep the
+	# two original ceil operations separate, including the fractional stub.
+	var speed: float = float(_content.balance.movement_speeds["1"])
+	var stub: int = ceili(origin.distance_to(Vector2(rounded))/speed/WorldState.TICK_SECONDS)
+	var rows: Array = []
+	var best: Dictionary = {}
+	# The west room was explicitly created at [34,66] with size [10,12].
+	# Test every cell, allowing the real safety/route contracts to reject walls,
+	# door margins, work positions, furniture and current physical occupants.
+	x.space.begin_dynamic_route_query(x.world)
+	for y: int in range(66,78):
+		for px: int in range(34,44):
+			var cell: Array = [px,y]
+			if not x.space.public_areas.safe_wait(x.world,visit.actor_id,floor_id,cell): continue
+			var complete: Dictionary = x.space.route(x.world,visit.actor_id,floor_id,cell,[],{},true)
+			if not complete.get("ok",false) or not complete.has("travel_ticks"): continue
+			var distance: int = absi(rounded.x-px)+absi(rounded.y-y)
+			var row: Dictionary = {"cell":cell,"lower":stub+ceili(float(distance)/speed/WorldState.TICK_SECONDS),"travel_ticks":int(complete.travel_ticks)}
+			rows.append(row)
+			if best.is_empty() or row.travel_ticks<best.travel_ticks or row.travel_ticks==best.travel_ticks and _entry_order_before(row,best): best = row
+	x.space.end_route_query()
+	var cost_ties: int = 0
+	var order_ties: int = 0
+	for row: Dictionary in rows:
+		if row.travel_ticks==best.travel_ticks:
+			cost_ties += 1
+			if row.lower==best.lower: order_ties += 1
+	return {"rows":rows,"best":best,"cost_ties":cost_ties,"order_ties":order_ties,"readonly":before==x.world.freeze()}

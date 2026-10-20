@@ -1,6 +1,10 @@
 class_name HospitalPublicAreas
 extends RefCounted
 
+const ENTRY_GRID_WIDTH: int = FloorNavigation.SIDE
+const ENTRY_CELL_COUNT: int = ENTRY_GRID_WIDTH*ENTRY_GRID_WIDTH
+const ENTRY_SORT_LIMIT: int = (HospitalTransit.MAX_TICK-(ENTRY_CELL_COUNT-1))/ENTRY_CELL_COUNT
+
 # Geometry is derived, never saved. Intent and queue times belong to the
 # original visit/staff/visitor task; this service owns no second queue.
 var _space: WeakRef
@@ -406,26 +410,86 @@ func _waiting_point(world: WorldState, actor_id: String, reference: Dictionary, 
 		var earliest: int = 9223372036854775807
 		for landing: Dictionary in bounds.landings: earliest = mini(earliest,int(landing.ticks))
 		if earliest>maximum_travel_ticks: return {}
-	var points: Array = []
 	var geometry: Dictionary = _entry_geometry_view(world,actor,area)
-	for point: Vector2i in geometry.cells:
-		if geometry.points.get(Vector2(point),true)==false: continue
-		var lower: int = _entry_lower_bound(actor,origin,point,bounds)
-		if lower<=maximum_travel_ticks: points.append({"cell":point,"lower":lower})
-	points.sort_custom(func(a: Dictionary,b: Dictionary)->bool:
-		if a.lower!=b.lower: return a.lower<b.lower
-		return a.cell.y<b.cell.y or a.cell.y==b.cell.y and a.cell.x<b.cell.x)
+	var ordered: Dictionary = _ordered_entry_cells(actor,origin,bounds,geometry,maximum_travel_ticks)
+	var packed: PackedInt64Array = ordered.packed
+	var fallback: Array = ordered.fallback
 	var best: Dictionary = {}
-	for candidate: Dictionary in points:
-		if int(candidate.lower)>maximum_travel_ticks: break
-		if not best.is_empty() and int(candidate.lower)>int(best.travel_ticks): break
-		var point: Vector2i = candidate.cell
+	for index: int in (packed.size() if ordered.compact else fallback.size()):
+		var lower: int
+		var point: Vector2i
+		if ordered.compact:
+			var key: int = packed[index]
+			var cell_id: int = key%ENTRY_CELL_COUNT
+			lower = key/ENTRY_CELL_COUNT
+			point = Vector2i(cell_id%ENTRY_GRID_WIDTH,cell_id/ENTRY_GRID_WIDTH)
+		else:
+			lower = int(fallback[index].lower)
+			point = fallback[index].cell
+		if lower>maximum_travel_ticks: break
+		if not best.is_empty() and lower>int(best.travel_ticks): break
 		var cell: Array = [point.x,point.y]
 		if not safe_wait(world,actor_id,floor_id,cell,geometry): continue
 		var route: Dictionary = space.travel_quote(world,actor_id,floor_id,cell)
 		if not route.ok or not route.has("travel_ticks"): continue
 		if int(route.travel_ticks)<=maximum_travel_ticks and (best.is_empty() or int(route.travel_ticks)<int(best.travel_ticks)): best = {"floor_id":floor_id,"cell":cell,"travel_ticks":int(route.travel_ticks)}
 	return best
+
+func _ordered_entry_cells(actor: Dictionary, origin: Vector2, bounds: Dictionary, geometry: Dictionary, maximum_travel_ticks: int) -> Dictionary:
+	var start: Vector2i = Vector2i(roundi(origin.x),roundi(origin.y))
+	var speed: float = float(space.content.balance.movement_speeds[str(space.clearance(actor))])
+	var stub_ticks: int = ceili(origin.distance_to(Vector2(start))/speed/WorldState.TICK_SECONDS)
+	var walking: PackedInt64Array = PackedInt64Array()
+	walking.resize((ENTRY_GRID_WIDTH-1)*2+1)
+	for distance: int in walking.size():
+		# Retain walking_ticks' division order and separate fractional-stub ceil.
+		walking[distance] = ceili(float(distance)/speed/WorldState.TICK_SECONDS)
+	var landing_cells: Array[Vector2i] = []
+	var landing_ticks: PackedInt64Array = PackedInt64Array()
+	if not bounds.unknown:
+		for landing: Dictionary in bounds.landings:
+			landing_cells.append(Vector2i(int(landing.cell.x),int(landing.cell.y)))
+			landing_ticks.append(int(landing.ticks))
+	var packed: PackedInt64Array = PackedInt64Array()
+	packed.resize(geometry.cells.size())
+	var count: int = 0
+	var fallback: Array = []
+	var compact: bool = true
+	for point: Vector2i in geometry.cells:
+		if geometry.points.get(Vector2(point),true)==false: continue
+		var lower: int = HospitalTransit.MAX_TICK
+		if landing_cells.is_empty():
+			var distance: int = absi(start.x-point.x)+absi(start.y-point.y)
+			lower = stub_ticks+(walking[distance] if distance<walking.size() else ceili(float(distance)/speed/WorldState.TICK_SECONDS))
+		else:
+			for index: int in landing_cells.size():
+				var landing: Vector2i = landing_cells[index]
+				var distance: int = absi(landing.x-point.x)+absi(landing.y-point.y)
+				var travel: int = walking[distance] if distance<walking.size() else ceili(float(distance)/speed/WorldState.TICK_SECONDS)
+				lower = mini(lower,landing_ticks[index]+travel)
+		if lower>maximum_travel_ticks: continue
+		if compact and lower>=0 and lower<=ENTRY_SORT_LIMIT and point.x>=0 and point.x<ENTRY_GRID_WIDTH and point.y>=0 and point.y<ENTRY_GRID_WIDTH:
+			# The native numeric sort has the original lower/y/x total order.
+			packed[count] = lower*ENTRY_CELL_COUNT+point.y*ENTRY_GRID_WIDTH+point.x
+			count += 1
+		else:
+			if compact:
+				# Very large legal times retain all candidates and the exact order.
+				for index: int in count:
+					var key: int = packed[index]
+					var cell_id: int = key%ENTRY_CELL_COUNT
+					fallback.append({"cell":Vector2i(cell_id%ENTRY_GRID_WIDTH,cell_id/ENTRY_GRID_WIDTH),"lower":key/ENTRY_CELL_COUNT})
+				compact = false
+			fallback.append({"cell":point,"lower":lower})
+	if compact:
+		packed.resize(count)
+		packed.sort()
+	else:
+		packed.clear()
+		fallback.sort_custom(func(a: Dictionary,b: Dictionary)->bool:
+			if a.lower!=b.lower: return a.lower<b.lower
+			return a.cell.y<b.cell.y or a.cell.y==b.cell.y and a.cell.x<b.cell.x)
+	return {"packed":packed,"fallback":fallback,"compact":compact}
 
 func _entry_landings(world: WorldState, actor_id: String, floor_id: int) -> Dictionary:
 	var result: Dictionary = {"landings":[],"unknown":false}

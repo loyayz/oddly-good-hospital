@@ -496,6 +496,44 @@ func _queue_local_route(world: WorldState, actor: Dictionary, movement: Dictiona
 	movement.route_waypoint = {"floor_id":int(actor.location.floor_id),"cell":target.cell.duplicate(),"continuation":movement.path.slice(end+1)}
 	_queue_route(world,movement)
 
+func _local_goal_occupied(world: WorldState, actor: Dictionary, movement: Dictionary, contact: MotionResult) -> bool:
+	if contact.blocker_actor_ids.is_empty(): return false
+	var end: int = int(movement.cursor)
+	if end<0 or end>=movement.path.size(): return false
+	var floor_id: int = int(actor.location.floor_id)
+	while end+1<movement.path.size() and movement.path[end+1].kind=="floor" and int(movement.path[end+1].floor_id)==floor_id:
+		end += 1
+	var target: Dictionary = movement.path[end]
+	if target.kind!="floor" or int(target.floor_id)!=floor_id: return false
+	var origin: Vector2 = Vector2(float(target.cell[0]),float(target.cell[1]))
+	var members: Array = [actor.id]
+	for id: String in movement.get("members",[]):
+		if id!=actor.id: members.append(id)
+	var unavoidable: Array[Rect2] = []
+	for id: String in members:
+		var member: Dictionary = world.facts.actors[id]
+		if member.get("posture","standing")=="lying": continue
+		var dimensions: Dictionary = space.body(member)
+		var width: Variant = dimensions.get("width_m")
+		var depth: Variant = dimensions.get("depth_m")
+		if not (width is float or width is int) or not (depth is float or depth is int): continue
+		if not is_finite(float(width)) or not is_finite(float(depth)) or float(width)<=0.0 or float(depth)<=0.0: continue
+		var side: float = minf(float(width),float(depth))/HospitalSpace.CELL_METERS
+		var offset: Array = movement.get("offsets",{}).get(id,[0,0])
+		var center: Vector2 = space._actor_rect(member,origin+Vector2(float(offset[0]),float(offset[1]))).get_center()
+		unavoidable.append(Rect2(center-Vector2.ONE*side*0.5,Vector2.ONE*side))
+	# Every upright facing's collision AABB contains this centered square.
+	# Current-facing corners alone do not prove an alternative approach blocked.
+	# Only actual contacts' current bodies count, never past sweeps or group gaps.
+	for blocker_id: String in contact.blocker_actor_ids:
+		var blocker: BodyIndex.Record = space._actor_index._records.get(blocker_id)
+		if blocker==null or blocker.floor_id!=floor_id or blocker_id in members: continue
+		for rectangle: Rect2 in unavoidable:
+			if not rectangle.intersects(blocker.rect,false): continue
+			space.query_counts["local_goal_occupied_waits"] = int(space.query_counts.get("local_goal_occupied_waits",0))+1
+			return true
+	return false
+
 func _unit_sweeps(world: WorldState, actor: Dictionary, next: Vector2, members: Array, offsets: Dictionary, direction: Vector2) -> Array[BodyIndex.Record]:
 	var result: Array[BodyIndex.Record] = []
 	for id: String in members:
@@ -507,7 +545,10 @@ func _unit_sweeps(world: WorldState, actor: Dictionary, next: Vector2, members: 
 		var facing: float = atan2(direction.x,direction.y)
 		var to: Rect2
 		if facing==float(member.facing):
-			to = Rect2(from.position+position-Vector2(float(member.location.cell[0]),float(member.location.cell[1])),from.size)
+			# Derive the destination from the actual position and cached shape.
+			# Repeatedly translating the old float32 rectangle drifts away from
+			# the actor's body and can miss an exact edge-crossing collision.
+			to = space._actor_rect(member,position)
 		else:
 			var sample: Dictionary = member.duplicate()
 			sample.facing = facing
@@ -628,7 +669,7 @@ func _yield(world: WorldState, actor: Dictionary, movement: Dictionary, result: 
 			return
 		# A body may stop on a route after it was planned. Keep the goal and
 		# request a current detour instead of waiting for a moving partner.
-		_queue_local_route(world,actor,movement)
+		if not _local_goal_occupied(world,actor,movement,result): _queue_local_route(world,actor,movement)
 		return
 	# A committed retreat keeps its winner until that winner finishes this move.
 	# Re-evaluating priorities during the retreat creates mutual waiting cycles.
@@ -636,7 +677,7 @@ func _yield(world: WorldState, actor: Dictionary, movement: Dictionary, result: 
 		var other_move: Dictionary = world.facts.moves[partner]
 		if int(other_move.cursor)>=other_move.path.size():
 			# Resolve this actual blockage once in the normal fair dispatcher.
-			_queue_local_route(world,actor,movement)
+			if not _local_goal_occupied(world,actor,movement,result): _queue_local_route(world,actor,movement)
 		return
 	if _has_priority(world,actor.id,partner):
 		return

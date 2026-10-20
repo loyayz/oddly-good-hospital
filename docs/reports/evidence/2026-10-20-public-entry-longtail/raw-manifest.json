@@ -1,0 +1,2312 @@
+{
+  "archive_sha256": "3295d82317cc41b93f0ec1be7108f00e3b8fd9805217bc249d3bc78c7b365035",
+  "archive_bytes": 7074876,
+  "entries": [
+    {
+      "path": ".cache/acceptance/666776bf44094762b74894e89d9f7a24/acceptance-results.json",
+      "bytes": 12637,
+      "sha256": "af7dbef8ef1268a86495a29d1e9740a1f93d4f8f91745955bdf54abac61b50ca"
+    },
+    {
+      "path": ".cache/acceptance/666776bf44094762b74894e89d9f7a24/execution-status.json",
+      "bytes": 192,
+      "sha256": "8cbb7da60ef7d5454aced04ef6984c969211026d134ee17b332fae9ab007036c"
+    },
+    {
+      "path": ".cache/acceptance/666776bf44094762b74894e89d9f7a24/execution.log",
+      "bytes": 6472,
+      "sha256": "f3fbe8093c31f1160d0382d53b8675dabd96bb9fdd96964de8ab6e1697b08b49"
+    },
+    {
+      "path": ".cache/acceptance/666776bf44094762b74894e89d9f7a24/import.log",
+      "bytes": 15311,
+      "sha256": "1a389f60e4cabaddf44ec8a810642cf7e123e149a6c50ddde6a9ad39d27cf512"
+    },
+    {
+      "path": ".cache/acceptance/666776bf44094762b74894e89d9f7a24/source-identity.json",
+      "bytes": 132401,
+      "sha256": "7e7e904d1019b7e07f203aefdcd8bde56d1dbf720fccbfad066140048d141239"
+    },
+    {
+      "path": ".cache/acceptance/666776bf44094762b74894e89d9f7a24/tests/acceptance/movement_goal_wait.gd",
+      "bytes": 16761,
+      "sha256": "9ae5d13fa27f7e8f765eb5a674b8d8e1e75bda43e5cc7841bf6f704b1c2c3677"
+    },
+    {
+      "path": ".cache/acceptance/666776bf44094762b74894e89d9f7a24/tests/acceptance/movement_result.gd",
+      "bytes": 18108,
+      "sha256": "2ed30300aa0b68936939316647b62bc3f9f2bc95fdbb19aa62c41b9aa794f963"
+    },
+    {
+      "path": ".cache/acceptance/666776bf44094762b74894e89d9f7a24/tests/acceptance/public_phase_use.gd",
+      "bytes": 35275,
+      "sha256": "34624d8773fd25db2dcc5991f503faf9f43ceef9074e22d4ed4b8b92544ce683"
+    },
+    {
+      "path": ".cache/acceptance/666776bf44094762b74894e89d9f7a24/timing-summary.json",
+      "bytes": 257,
+      "sha256": "6cfb84153cd02061f6f6ef5df6dcb9681e77ee750c4e28123049db2a7d267edf"
+    },
+    {
+      "path": ".cache/acceptance/8892f7a748b94b3e977ca2dc87529f09/acceptance-results.json",
+      "bytes": 2311,
+      "sha256": "a7bcecc3e35791d84ffab113c9fe02338957210c421514bb3a960b3b3813547e"
+    },
+    {
+      "path": ".cache/acceptance/8892f7a748b94b3e977ca2dc87529f09/execution-status.json",
+      "bytes": 192,
+      "sha256": "2f421debbd3ce16940e8c680e59e581a72c5cc879e9a50387ae21696dd72aa55"
+    },
+    {
+      "path": ".cache/acceptance/8892f7a748b94b3e977ca2dc87529f09/execution.log",
+      "bytes": 234,
+      "sha256": "2aa7d8f93be1eadfa72bb87f921d793687df4f910cb435c0ea279a0c5712fe5e"
+    },
+    {
+      "path": ".cache/acceptance/8892f7a748b94b3e977ca2dc87529f09/import.log",
+      "bytes": 15311,
+      "sha256": "1a389f60e4cabaddf44ec8a810642cf7e123e149a6c50ddde6a9ad39d27cf512"
+    },
+    {
+      "path": ".cache/acceptance/8892f7a748b94b3e977ca2dc87529f09/source-identity.json",
+      "bytes": 132425,
+      "sha256": "3095589f215cfb44c3c317072c3c9e50bab7afc6d0cb5258578032412d074a5e"
+    },
+    {
+      "path": ".cache/acceptance/8892f7a748b94b3e977ca2dc87529f09/tests/acceptance/movement_goal_wait.gd",
+      "bytes": 17428,
+      "sha256": "fe54e7abef71fd360d1ddf1c2622da94ce3d70a1ac8c438c2068a7622a862f70"
+    },
+    {
+      "path": ".cache/acceptance/8892f7a748b94b3e977ca2dc87529f09/tests/acceptance/movement_result.gd",
+      "bytes": 18108,
+      "sha256": "2ed30300aa0b68936939316647b62bc3f9f2bc95fdbb19aa62c41b9aa794f963"
+    },
+    {
+      "path": ".cache/acceptance/8892f7a748b94b3e977ca2dc87529f09/tests/acceptance/public_phase_use.gd",
+      "bytes": 35275,
+      "sha256": "34624d8773fd25db2dcc5991f503faf9f43ceef9074e22d4ed4b8b92544ce683"
+    },
+    {
+      "path": ".cache/acceptance/8892f7a748b94b3e977ca2dc87529f09/timing-summary.json",
+      "bytes": 257,
+      "sha256": "a54e4fcc48f324fd3eb2d52cd8ae684104ef5d2ad39f61bca08053aa8f607fd7"
+    },
+    {
+      "path": ".cache/acceptance/9117679370ba4719b64036b9f43ac05e/acceptance-results.json",
+      "bytes": 15827,
+      "sha256": "1cccbcdb7f249d5510171747ca548e75eee99290771ae4ed280ceeada0a9e80b"
+    },
+    {
+      "path": ".cache/acceptance/9117679370ba4719b64036b9f43ac05e/execution-status.json",
+      "bytes": 192,
+      "sha256": "f20337c93374b1f40e60b830814fb49f4d9b750c7b6da4a6c37d25211c5d7f1a"
+    },
+    {
+      "path": ".cache/acceptance/9117679370ba4719b64036b9f43ac05e/execution.log",
+      "bytes": 5670,
+      "sha256": "e8c27c4581d368272922582dfac5e07c162cd82cd48903f855260b2a69f98f15"
+    },
+    {
+      "path": ".cache/acceptance/9117679370ba4719b64036b9f43ac05e/import.log",
+      "bytes": 15311,
+      "sha256": "1a389f60e4cabaddf44ec8a810642cf7e123e149a6c50ddde6a9ad39d27cf512"
+    },
+    {
+      "path": ".cache/acceptance/9117679370ba4719b64036b9f43ac05e/source-identity.json",
+      "bytes": 132425,
+      "sha256": "b698ed818dfe41875fe9d85e92340f3319462f0a415716a2c31b60d830a026f2"
+    },
+    {
+      "path": ".cache/acceptance/9117679370ba4719b64036b9f43ac05e/tests/acceptance/movement_goal_wait.gd",
+      "bytes": 15520,
+      "sha256": "25674a9668857b06214d52f5975dabaee3484577af78294d881694124ba59930"
+    },
+    {
+      "path": ".cache/acceptance/9117679370ba4719b64036b9f43ac05e/tests/acceptance/movement_result.gd",
+      "bytes": 18108,
+      "sha256": "2ed30300aa0b68936939316647b62bc3f9f2bc95fdbb19aa62c41b9aa794f963"
+    },
+    {
+      "path": ".cache/acceptance/9117679370ba4719b64036b9f43ac05e/tests/acceptance/public_phase_use.gd",
+      "bytes": 35275,
+      "sha256": "34624d8773fd25db2dcc5991f503faf9f43ceef9074e22d4ed4b8b92544ce683"
+    },
+    {
+      "path": ".cache/acceptance/9117679370ba4719b64036b9f43ac05e/timing-summary.json",
+      "bytes": 257,
+      "sha256": "a255cae0e718c5a856ddacace4886d61b8576145b8ccf066388fb545139ecb7c"
+    },
+    {
+      "path": ".cache/acceptance/cd0eec5fe63d4b158ea263c7ad19ca2c/acceptance-results.json",
+      "bytes": 33884,
+      "sha256": "cf95f8ceda6805074bcd80c652c49047a65c8f21d153596c26967d199d378eed"
+    },
+    {
+      "path": ".cache/acceptance/cd0eec5fe63d4b158ea263c7ad19ca2c/execution-status.json",
+      "bytes": 192,
+      "sha256": "4b9e9b5ed8f3652680998e09f540df66237944392a8cb55d0f8dc060982349ec"
+    },
+    {
+      "path": ".cache/acceptance/cd0eec5fe63d4b158ea263c7ad19ca2c/execution.log",
+      "bytes": 445,
+      "sha256": "9a1d3613532c4a44ef90347720e8369f5f728aa94b05d0d662b13460fbf71d1b"
+    },
+    {
+      "path": ".cache/acceptance/cd0eec5fe63d4b158ea263c7ad19ca2c/import.log",
+      "bytes": 15311,
+      "sha256": "1a389f60e4cabaddf44ec8a810642cf7e123e149a6c50ddde6a9ad39d27cf512"
+    },
+    {
+      "path": ".cache/acceptance/cd0eec5fe63d4b158ea263c7ad19ca2c/source-identity.json",
+      "bytes": 132535,
+      "sha256": "970a4d7eee4c614d21395888ab5f93790a94f4b60f89c88767a9c5d6807e67f2"
+    },
+    {
+      "path": ".cache/acceptance/cd0eec5fe63d4b158ea263c7ad19ca2c/tests/acceptance/movement_goal_wait.gd",
+      "bytes": 17428,
+      "sha256": "fe54e7abef71fd360d1ddf1c2622da94ce3d70a1ac8c438c2068a7622a862f70"
+    },
+    {
+      "path": ".cache/acceptance/cd0eec5fe63d4b158ea263c7ad19ca2c/tests/acceptance/movement_result.gd",
+      "bytes": 18108,
+      "sha256": "2ed30300aa0b68936939316647b62bc3f9f2bc95fdbb19aa62c41b9aa794f963"
+    },
+    {
+      "path": ".cache/acceptance/cd0eec5fe63d4b158ea263c7ad19ca2c/tests/acceptance/public_phase_use.gd",
+      "bytes": 35275,
+      "sha256": "34624d8773fd25db2dcc5991f503faf9f43ceef9074e22d4ed4b8b92544ce683"
+    },
+    {
+      "path": ".cache/acceptance/cd0eec5fe63d4b158ea263c7ad19ca2c/timing-summary.json",
+      "bytes": 257,
+      "sha256": "d8ef92c23a0381dd906ccce960d59f3b801146f71745522701e27bfe23808ef2"
+    },
+    {
+      "path": ".cache/acceptance/cfa57464eee640748e17f570e1bf29f1/acceptance-results.json",
+      "bytes": 39824,
+      "sha256": "f779381e48d41ad80b612edee8cc85c41b67b97f1ef37c5c1cf7ff37ff8d401a"
+    },
+    {
+      "path": ".cache/acceptance/cfa57464eee640748e17f570e1bf29f1/execution-status.json",
+      "bytes": 191,
+      "sha256": "eca65310efaa93d36f6db43fa3083c5c02841af7b3930e4556105b96ca13a210"
+    },
+    {
+      "path": ".cache/acceptance/cfa57464eee640748e17f570e1bf29f1/execution.log",
+      "bytes": 4299,
+      "sha256": "ff1be46d37caaa478cb6a482acc3f8cd592e790be78acdbc52afc4f0200731b6"
+    },
+    {
+      "path": ".cache/acceptance/cfa57464eee640748e17f570e1bf29f1/import.log",
+      "bytes": 15311,
+      "sha256": "1a389f60e4cabaddf44ec8a810642cf7e123e149a6c50ddde6a9ad39d27cf512"
+    },
+    {
+      "path": ".cache/acceptance/cfa57464eee640748e17f570e1bf29f1/source-identity.json",
+      "bytes": 132607,
+      "sha256": "1ea0312ce1f29f6a3d347df2838a01086d57ef532a9fb7d42c44935b273eebe4"
+    },
+    {
+      "path": ".cache/acceptance/cfa57464eee640748e17f570e1bf29f1/tests/acceptance/movement_goal_wait.gd",
+      "bytes": 11354,
+      "sha256": "a6d47bd561d416bc07580768da09fe7558be59fef730613d109818d44b7d8977"
+    },
+    {
+      "path": ".cache/acceptance/cfa57464eee640748e17f570e1bf29f1/tests/acceptance/movement_result.gd",
+      "bytes": 17998,
+      "sha256": "b7a3f33e9ab6add7c41db83af1001ba07130272b39fa2f1804ea6bacf767bd33"
+    },
+    {
+      "path": ".cache/acceptance/cfa57464eee640748e17f570e1bf29f1/tests/acceptance/public_phase_use.gd",
+      "bytes": 35275,
+      "sha256": "34624d8773fd25db2dcc5991f503faf9f43ceef9074e22d4ed4b8b92544ce683"
+    },
+    {
+      "path": ".cache/acceptance/cfa57464eee640748e17f570e1bf29f1/timing-summary.json",
+      "bytes": 257,
+      "sha256": "373cdae2e55ed1989d5989aaa1a81cd983056726d315910c1bcaf2ce021f374d"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-gp40.json",
+      "bytes": 1398317,
+      "sha256": "320517f1aba66c769d57488f06c4ef9b3d99b90660f61c28d2efeb5793f6de56"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-gp40.json.final.bin",
+      "bytes": 2432520,
+      "sha256": "186b3d8b25889dc1a6e32acdf9121fd520afa1d6debf28e8e089af7ec1eab748"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-gp40.json.sources/arrivals.gd",
+      "bytes": 3080,
+      "sha256": "8e1acb0941ab1bfca39673fe18ea218cd4d12e6518e649f8241a16cfbd2180f1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-gp40.json.sources/clinic.gd",
+      "bytes": 10136,
+      "sha256": "b17999f7d4a7d92a36f9652f4434c1889cca8c39554ac7d57c26023ca9b1617b"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-gp40.json.sources/departments.gd",
+      "bytes": 1053,
+      "sha256": "28c16a72e58e5708836ece626c11b6a56dcac88785957f960d8855105fa237b1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-gp40.json.sources/development.gd",
+      "bytes": 875,
+      "sha256": "39056782c5035c0d6a9cd9224641e4559b9aa8ddd3eb24d5ffb9e957950d49e9"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-gp40.json.sources/environment.gd",
+      "bytes": 5024,
+      "sha256": "4d5f0605416e8d71028a15e0d94f0711f5a2bf4bcc44cc5da3553f121a31145c"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-gp40.json.sources/finance.gd",
+      "bytes": 254,
+      "sha256": "2eab2cc4edc611da80b6ad68c2fddd485df613327b495bf77a466b5e253a2807"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-gp40.json.sources/floors.gd",
+      "bytes": 666,
+      "sha256": "1db56ceeb5c08e5ab0d2ffa22c858d0384cf75ee661f3c30eab36af3988e22f4"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-gp40.json.sources/maintenance.gd",
+      "bytes": 2066,
+      "sha256": "9aca30b10641ac5f7324ce876a21e23e46962a79a0fd1bff13a173c92fe1276b"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-gp40.json.sources/movement.gd",
+      "bytes": 5728,
+      "sha256": "b5c5adc36adde43b784a041162e33e3eb4b49212606fa1a9270d288cfc7c6034"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-gp40.json.sources/navigation.gd",
+      "bytes": 6307,
+      "sha256": "036962ee64882317c6c1fe3c31adb0ad18983159fa896c48640de5094ea6b905"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-gp40.json.sources/personal_beds.gd",
+      "bytes": 531,
+      "sha256": "c63afc1b0bb26d806f461baab93aa5038076d8adcfa77dfd7641d19003ccffc8"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-gp40.json.sources/point_navigation.gd",
+      "bytes": 4068,
+      "sha256": "d99e7c82dbfdaca55dc8fc101de3b77ba02fd44bd36abc93fe51e18289ea766e"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-gp40.json.sources/public_areas.gd",
+      "bytes": 10082,
+      "sha256": "6d3b60a8ce55d50287300208dfcdd6e563c47e70161bdbd6b81639a4e0c1dc29"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-gp40.json.sources/recruitment.gd",
+      "bytes": 634,
+      "sha256": "d0f2b84f5e75ea92006881922d3907b23f76f8608d68d8c582b35c218fb4ef06"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-gp40.json.sources/remodel.gd",
+      "bytes": 263,
+      "sha256": "850cede7e9688fffe6c994da08a6892f8a9dc60fcbe9f16f71b25e0ac398a4a9"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-gp40.json.sources/research.gd",
+      "bytes": 1102,
+      "sha256": "bc7a1cd480733cf92003b7ca6577e0daaaafde2629efcb40c46d7576e0d53f4a"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-gp40.json.sources/scheduler.gd",
+      "bytes": 870,
+      "sha256": "a32a0a0d220bfb884a3a5836d8bd47fb18cbe7d6e3bb85f7ba6d88f8fa4c6e7a"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-gp40.json.sources/simulation.gd",
+      "bytes": 9312,
+      "sha256": "3d3744687f3fa3e5bf0873b71d47042ed88bf72d035abc9b85695fc32051c4c5"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-gp40.json.sources/space.gd",
+      "bytes": 9080,
+      "sha256": "f51daf5744193281ee4ffc254989b21d39f4ac645dbf92d538ee7ccfa8b86b6c"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-gp40.json.sources/supplies.gd",
+      "bytes": 447,
+      "sha256": "7fe1442e0b1aabcb9e90169568df7422c977a992685ecdde2ca90f632af4393f"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-gp40.json.sources/visitors.gd",
+      "bytes": 3113,
+      "sha256": "08cee6dc1aee51a662cb7c07051088723eedba14ff6feda60aafd26521a579d1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-gp40.json.sources/waiting.gd",
+      "bytes": 7738,
+      "sha256": "fcd6dd58f12a0ae9063c4ea35f5cc3ab64eb3e20f82d725bfbb302537a32f395"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-gp40.json.sources/wellbeing.gd",
+      "bytes": 5398,
+      "sha256": "7df33ff7d097ef87483c9bf2723e71da77385a4e82732b7479332337a114d4b0"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-gp40.json.steps.ndjson",
+      "bytes": 920901,
+      "sha256": "a06ae7d315a43f3ffd7c12ee24e7e8a7606e3d30b632161857c4b4d212194926"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-gp40.log",
+      "bytes": 1284,
+      "sha256": "53e12b2004cd2140a7541bd4289e17f28c820926732a773a5ab72966ae62be0b"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-operations40.json",
+      "bytes": 1613948,
+      "sha256": "73536369ad00b7d62ba6e49e7197ad4bb49caa066dd4584d64a11419e2bedd1b"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-operations40.json.final.bin",
+      "bytes": 1730496,
+      "sha256": "f20de287ab252ab3fd759f27d841da0fe8a288ee3189a22f05d006a51ace45f8"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-operations40.json.sources/arrivals.gd",
+      "bytes": 3080,
+      "sha256": "8e1acb0941ab1bfca39673fe18ea218cd4d12e6518e649f8241a16cfbd2180f1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-operations40.json.sources/clinic.gd",
+      "bytes": 10136,
+      "sha256": "b17999f7d4a7d92a36f9652f4434c1889cca8c39554ac7d57c26023ca9b1617b"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-operations40.json.sources/departments.gd",
+      "bytes": 1053,
+      "sha256": "28c16a72e58e5708836ece626c11b6a56dcac88785957f960d8855105fa237b1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-operations40.json.sources/development.gd",
+      "bytes": 875,
+      "sha256": "39056782c5035c0d6a9cd9224641e4559b9aa8ddd3eb24d5ffb9e957950d49e9"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-operations40.json.sources/environment.gd",
+      "bytes": 5024,
+      "sha256": "4d5f0605416e8d71028a15e0d94f0711f5a2bf4bcc44cc5da3553f121a31145c"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-operations40.json.sources/finance.gd",
+      "bytes": 254,
+      "sha256": "2eab2cc4edc611da80b6ad68c2fddd485df613327b495bf77a466b5e253a2807"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-operations40.json.sources/floors.gd",
+      "bytes": 666,
+      "sha256": "1db56ceeb5c08e5ab0d2ffa22c858d0384cf75ee661f3c30eab36af3988e22f4"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-operations40.json.sources/maintenance.gd",
+      "bytes": 2066,
+      "sha256": "9aca30b10641ac5f7324ce876a21e23e46962a79a0fd1bff13a173c92fe1276b"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-operations40.json.sources/movement.gd",
+      "bytes": 5728,
+      "sha256": "b5c5adc36adde43b784a041162e33e3eb4b49212606fa1a9270d288cfc7c6034"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-operations40.json.sources/navigation.gd",
+      "bytes": 6307,
+      "sha256": "036962ee64882317c6c1fe3c31adb0ad18983159fa896c48640de5094ea6b905"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-operations40.json.sources/personal_beds.gd",
+      "bytes": 531,
+      "sha256": "c63afc1b0bb26d806f461baab93aa5038076d8adcfa77dfd7641d19003ccffc8"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-operations40.json.sources/point_navigation.gd",
+      "bytes": 4068,
+      "sha256": "d99e7c82dbfdaca55dc8fc101de3b77ba02fd44bd36abc93fe51e18289ea766e"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-operations40.json.sources/public_areas.gd",
+      "bytes": 10082,
+      "sha256": "6d3b60a8ce55d50287300208dfcdd6e563c47e70161bdbd6b81639a4e0c1dc29"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-operations40.json.sources/recruitment.gd",
+      "bytes": 634,
+      "sha256": "d0f2b84f5e75ea92006881922d3907b23f76f8608d68d8c582b35c218fb4ef06"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-operations40.json.sources/remodel.gd",
+      "bytes": 263,
+      "sha256": "850cede7e9688fffe6c994da08a6892f8a9dc60fcbe9f16f71b25e0ac398a4a9"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-operations40.json.sources/research.gd",
+      "bytes": 1102,
+      "sha256": "bc7a1cd480733cf92003b7ca6577e0daaaafde2629efcb40c46d7576e0d53f4a"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-operations40.json.sources/scheduler.gd",
+      "bytes": 870,
+      "sha256": "a32a0a0d220bfb884a3a5836d8bd47fb18cbe7d6e3bb85f7ba6d88f8fa4c6e7a"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-operations40.json.sources/simulation.gd",
+      "bytes": 9312,
+      "sha256": "3d3744687f3fa3e5bf0873b71d47042ed88bf72d035abc9b85695fc32051c4c5"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-operations40.json.sources/space.gd",
+      "bytes": 9080,
+      "sha256": "f51daf5744193281ee4ffc254989b21d39f4ac645dbf92d538ee7ccfa8b86b6c"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-operations40.json.sources/supplies.gd",
+      "bytes": 447,
+      "sha256": "7fe1442e0b1aabcb9e90169568df7422c977a992685ecdde2ca90f632af4393f"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-operations40.json.sources/visitors.gd",
+      "bytes": 3113,
+      "sha256": "08cee6dc1aee51a662cb7c07051088723eedba14ff6feda60aafd26521a579d1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-operations40.json.sources/waiting.gd",
+      "bytes": 7738,
+      "sha256": "fcd6dd58f12a0ae9063c4ea35f5cc3ab64eb3e20f82d725bfbb302537a32f395"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-operations40.json.sources/wellbeing.gd",
+      "bytes": 5398,
+      "sha256": "7df33ff7d097ef87483c9bf2723e71da77385a4e82732b7479332337a114d4b0"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-operations40.json.steps.ndjson",
+      "bytes": 976904,
+      "sha256": "d3a7673ab5496883cd7f03b1888a74dc40a7f6ba6ff5cb2a839f5e3ca3a11320"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-operations40.log",
+      "bytes": 1521,
+      "sha256": "93bd7706695045d8646ab8844d0130cf57293e616908cbeeafd295383f5f751d"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-public40.json",
+      "bytes": 1691895,
+      "sha256": "c4d9e14df19943ccf6d640d666939b85b3d61a8e47201c6eb60cdaa98b17046e"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-public40.json.final.bin",
+      "bytes": 2458488,
+      "sha256": "f200b04a01d369619a8bb0934c4a047f5223eed975bb30a2b2f2dc39e319dfcf"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-public40.json.sources/arrivals.gd",
+      "bytes": 3080,
+      "sha256": "8e1acb0941ab1bfca39673fe18ea218cd4d12e6518e649f8241a16cfbd2180f1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-public40.json.sources/clinic.gd",
+      "bytes": 10136,
+      "sha256": "b17999f7d4a7d92a36f9652f4434c1889cca8c39554ac7d57c26023ca9b1617b"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-public40.json.sources/departments.gd",
+      "bytes": 1053,
+      "sha256": "28c16a72e58e5708836ece626c11b6a56dcac88785957f960d8855105fa237b1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-public40.json.sources/development.gd",
+      "bytes": 875,
+      "sha256": "39056782c5035c0d6a9cd9224641e4559b9aa8ddd3eb24d5ffb9e957950d49e9"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-public40.json.sources/environment.gd",
+      "bytes": 5024,
+      "sha256": "4d5f0605416e8d71028a15e0d94f0711f5a2bf4bcc44cc5da3553f121a31145c"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-public40.json.sources/finance.gd",
+      "bytes": 254,
+      "sha256": "2eab2cc4edc611da80b6ad68c2fddd485df613327b495bf77a466b5e253a2807"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-public40.json.sources/floors.gd",
+      "bytes": 666,
+      "sha256": "1db56ceeb5c08e5ab0d2ffa22c858d0384cf75ee661f3c30eab36af3988e22f4"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-public40.json.sources/maintenance.gd",
+      "bytes": 2066,
+      "sha256": "9aca30b10641ac5f7324ce876a21e23e46962a79a0fd1bff13a173c92fe1276b"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-public40.json.sources/movement.gd",
+      "bytes": 5728,
+      "sha256": "b5c5adc36adde43b784a041162e33e3eb4b49212606fa1a9270d288cfc7c6034"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-public40.json.sources/navigation.gd",
+      "bytes": 6307,
+      "sha256": "036962ee64882317c6c1fe3c31adb0ad18983159fa896c48640de5094ea6b905"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-public40.json.sources/personal_beds.gd",
+      "bytes": 531,
+      "sha256": "c63afc1b0bb26d806f461baab93aa5038076d8adcfa77dfd7641d19003ccffc8"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-public40.json.sources/point_navigation.gd",
+      "bytes": 4068,
+      "sha256": "d99e7c82dbfdaca55dc8fc101de3b77ba02fd44bd36abc93fe51e18289ea766e"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-public40.json.sources/public_areas.gd",
+      "bytes": 10082,
+      "sha256": "6d3b60a8ce55d50287300208dfcdd6e563c47e70161bdbd6b81639a4e0c1dc29"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-public40.json.sources/recruitment.gd",
+      "bytes": 634,
+      "sha256": "d0f2b84f5e75ea92006881922d3907b23f76f8608d68d8c582b35c218fb4ef06"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-public40.json.sources/remodel.gd",
+      "bytes": 263,
+      "sha256": "850cede7e9688fffe6c994da08a6892f8a9dc60fcbe9f16f71b25e0ac398a4a9"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-public40.json.sources/research.gd",
+      "bytes": 1102,
+      "sha256": "bc7a1cd480733cf92003b7ca6577e0daaaafde2629efcb40c46d7576e0d53f4a"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-public40.json.sources/scheduler.gd",
+      "bytes": 870,
+      "sha256": "a32a0a0d220bfb884a3a5836d8bd47fb18cbe7d6e3bb85f7ba6d88f8fa4c6e7a"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-public40.json.sources/simulation.gd",
+      "bytes": 9312,
+      "sha256": "3d3744687f3fa3e5bf0873b71d47042ed88bf72d035abc9b85695fc32051c4c5"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-public40.json.sources/space.gd",
+      "bytes": 9080,
+      "sha256": "f51daf5744193281ee4ffc254989b21d39f4ac645dbf92d538ee7ccfa8b86b6c"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-public40.json.sources/supplies.gd",
+      "bytes": 447,
+      "sha256": "7fe1442e0b1aabcb9e90169568df7422c977a992685ecdde2ca90f632af4393f"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-public40.json.sources/visitors.gd",
+      "bytes": 3113,
+      "sha256": "08cee6dc1aee51a662cb7c07051088723eedba14ff6feda60aafd26521a579d1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-public40.json.sources/waiting.gd",
+      "bytes": 7738,
+      "sha256": "fcd6dd58f12a0ae9063c4ea35f5cc3ab64eb3e20f82d725bfbb302537a32f395"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-public40.json.sources/wellbeing.gd",
+      "bytes": 5398,
+      "sha256": "7df33ff7d097ef87483c9bf2723e71da77385a4e82732b7479332337a114d4b0"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-public40.json.steps.ndjson",
+      "bytes": 942160,
+      "sha256": "bf7bb22b16cd01a4a265a6bd97860c2d57927699aa55b3869c789eac8e3ff11c"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-nested-public40.log",
+      "bytes": 1523,
+      "sha256": "a6fdd946bb5e84484400791e522422fe749f070512361801118f6bd7ff386009"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-plain-gp80.json",
+      "bytes": 80328,
+      "sha256": "4906ad3e5ff80d0d8e3058f0711938a81ffed72b16f6c8c2c82c69f746f5efca"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-plain-gp80.json.final.bin",
+      "bytes": 2590220,
+      "sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-plain-gp80.json.steps.ndjson",
+      "bytes": 16339,
+      "sha256": "703e309e7062354fcd2c001f0313a2af164fd380f8a50c562e5c65ddc3429bf3"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-plain-gp80.log",
+      "bytes": 1666,
+      "sha256": "d350ca0bc28cedf7939ee1dd4cd7c551ea75f0ef9b7921a8ceff3dca185e7778"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-plain-operations40.json",
+      "bytes": 204772,
+      "sha256": "7d07bb777ea227c84b16d8c01250eb7041d55a5441152c6889cf40c3dd60a9bb"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-plain-operations40.json.final.bin",
+      "bytes": 1730496,
+      "sha256": "f20de287ab252ab3fd759f27d841da0fe8a288ee3189a22f05d006a51ace45f8"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-plain-operations40.json.steps.ndjson",
+      "bytes": 8062,
+      "sha256": "4f866dda6b2cbd9ba2477409533a37e4e193c7f77284d33d224d89572796ba68"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-plain-operations40.log",
+      "bytes": 1520,
+      "sha256": "1d752cc0df4dd766304c0e5e69730f7192c52eaab9c649a77194cc5b493d8957"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-plain-public360.json",
+      "bytes": 446319,
+      "sha256": "58c4b99f04a05cc99c77aa234f1b6f5f7657d4ebf741bf5bd4a0bed443589fe3"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-plain-public360.json.final.bin",
+      "bytes": 2888360,
+      "sha256": "a65ff7256372e47041fe3ddb6fc05fa2b1dc236150122c421c72a040e2def26f"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-plain-public360.json.steps.ndjson",
+      "bytes": 74857,
+      "sha256": "2bb4c72dad87ad3eb3043d70457fa840c291e3f260ed3574997614363c414e6f"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-plain-public360.log",
+      "bytes": 4661,
+      "sha256": "c3555cd83d52a3ca30ee3f0b2f1d91465145464220c4644663458a2ec60933d6"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-prepare.log",
+      "bytes": 103,
+      "sha256": "c32748ebd6971a4477859dfa5ca0e323449dae28fa1bbdd730ba18ee3182f9fb"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-project/game/building/hospital_movement.gd",
+      "bytes": 45884,
+      "sha256": "c3d2acc046f1c955d225db5ac60f3695a79b3f73563bc155b80aeafd3e9b0e67"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-project/game/life/public_areas.gd",
+      "bytes": 41660,
+      "sha256": "fa7dff283f60bbba2d14bbd40f623a5b620180e80f26aef66e2dfa9d67499424"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-project/import.log",
+      "bytes": 11871,
+      "sha256": "cde005c38df94d4eb37657d23e9aae7a900685c441a0d87c7bbb36e7a6d1efc5"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-project/project.godot",
+      "bytes": 929,
+      "sha256": "aaf64be7359f539ccc8d352398e76817e64939ea7c1a424ad1f0f67215291071"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-project/source-identity.json",
+      "bytes": 75170,
+      "sha256": "511849f89cf9c3cd67ad5e681962684fefface6e44e70aa4c85e772e01fc5e78"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-project/tools/performance/movement_trace.gd",
+      "bytes": 19670,
+      "sha256": "de2d72c967e463a66e28434759b81e0f2bce8b4ef302c8d85da3f5543ccbea24"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-project/tools/performance/representative.gd",
+      "bytes": 11329,
+      "sha256": "9c4d7c7d609ed0325c15cd85fc07e91f2dcd118d74c2f116dafcd18351adf452"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-project/tools/performance/step_profile.gd",
+      "bytes": 26124,
+      "sha256": "11303cf085a9eeae86823dbadd8570f0a225d79d291bca8339f5e20d97fa3f67"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-trace-public360.json",
+      "bytes": 747836,
+      "sha256": "afc833f2ba96308367fce5e233c0c200f17e3640e1a2a8ba4317f4042b56c60d"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-trace-public360.json.final.bin",
+      "bytes": 2888360,
+      "sha256": "a65ff7256372e47041fe3ddb6fc05fa2b1dc236150122c421c72a040e2def26f"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-trace-public360.json.steps.ndjson",
+      "bytes": 74823,
+      "sha256": "f7b99519773e49e1d855f5d46ed0f727bbdb74cf3d8f1973cd5fad0d551909de"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/after-trace-public360.log",
+      "bytes": 4660,
+      "sha256": "f493fb4c83bb3ffa480e74529fab8e692b94991f1c4d19e50af608f8c564c8d3"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/approval-service-failure.txt",
+      "bytes": 370,
+      "sha256": "b8115fbe3fdfeaf691aff31aad612331af4b9b90a8a24fe663547e5503acca86"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/baseline-identity.json",
+      "bytes": 403,
+      "sha256": "545ab3ad5ec8f2b10c7a4cce12d641c6b0bd2040188cddce2faa10595aee62ec"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-prepare.log",
+      "bytes": 111,
+      "sha256": "510024349c54ea8934dbb927cf5d448b341e1ca24730ec6d5f47990289273780"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-project/game/building/hospital_movement.gd",
+      "bytes": 43464,
+      "sha256": "18e96daa7b580f8bc86e3b9dc268a48344109b085ef2a6a9c237981c0ff9624e"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-project/game/life/public_areas.gd",
+      "bytes": 38511,
+      "sha256": "4dc3ca1339938136a0077622f5a53034cc528f3ad2e729b8f18f3b2958c81d69"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-project/import.log",
+      "bytes": 11812,
+      "sha256": "1958aec6c12237f94f1fc6be9e79481352d0c0dea6149f954736a610bc867d8f"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-project/project.godot",
+      "bytes": 929,
+      "sha256": "7cd1f4992549be4db5b4000968b6f51878338dc7038d6b8f40c40813c41c19cb"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-project/source-identity.json",
+      "bytes": 75033,
+      "sha256": "2dc9178e3a50e1a859d03dfddd5984f83450080ea7d97a264643cda762bcb758"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-project/tools/performance/representative.gd",
+      "bytes": 10608,
+      "sha256": "85808f4b734223f7279ad0c6874f8d0a97ba1ae47bbf94e62df4b5fde545c545"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-project/tools/performance/step_profile.gd",
+      "bytes": 26101,
+      "sha256": "d354cae055508431255a44559e17b6cf91392df694c11345cedb73ca970fb868"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-public40.json",
+      "bytes": 1691733,
+      "sha256": "1be66a5b90d92b9bd02cb5a732ddcd884f83f1a43b409a311dfeb7a90724e589"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-public40.json.final.bin",
+      "bytes": 2458488,
+      "sha256": "f200b04a01d369619a8bb0934c4a047f5223eed975bb30a2b2f2dc39e319dfcf"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-public40.json.sources/arrivals.gd",
+      "bytes": 3080,
+      "sha256": "8e1acb0941ab1bfca39673fe18ea218cd4d12e6518e649f8241a16cfbd2180f1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-public40.json.sources/clinic.gd",
+      "bytes": 10136,
+      "sha256": "b17999f7d4a7d92a36f9652f4434c1889cca8c39554ac7d57c26023ca9b1617b"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-public40.json.sources/departments.gd",
+      "bytes": 1053,
+      "sha256": "28c16a72e58e5708836ece626c11b6a56dcac88785957f960d8855105fa237b1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-public40.json.sources/development.gd",
+      "bytes": 875,
+      "sha256": "39056782c5035c0d6a9cd9224641e4559b9aa8ddd3eb24d5ffb9e957950d49e9"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-public40.json.sources/environment.gd",
+      "bytes": 5024,
+      "sha256": "4d5f0605416e8d71028a15e0d94f0711f5a2bf4bcc44cc5da3553f121a31145c"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-public40.json.sources/finance.gd",
+      "bytes": 254,
+      "sha256": "2eab2cc4edc611da80b6ad68c2fddd485df613327b495bf77a466b5e253a2807"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-public40.json.sources/floors.gd",
+      "bytes": 666,
+      "sha256": "1db56ceeb5c08e5ab0d2ffa22c858d0384cf75ee661f3c30eab36af3988e22f4"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-public40.json.sources/maintenance.gd",
+      "bytes": 2066,
+      "sha256": "9aca30b10641ac5f7324ce876a21e23e46962a79a0fd1bff13a173c92fe1276b"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-public40.json.sources/movement.gd",
+      "bytes": 5728,
+      "sha256": "b5c5adc36adde43b784a041162e33e3eb4b49212606fa1a9270d288cfc7c6034"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-public40.json.sources/navigation.gd",
+      "bytes": 6307,
+      "sha256": "036962ee64882317c6c1fe3c31adb0ad18983159fa896c48640de5094ea6b905"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-public40.json.sources/personal_beds.gd",
+      "bytes": 531,
+      "sha256": "c63afc1b0bb26d806f461baab93aa5038076d8adcfa77dfd7641d19003ccffc8"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-public40.json.sources/point_navigation.gd",
+      "bytes": 4068,
+      "sha256": "d99e7c82dbfdaca55dc8fc101de3b77ba02fd44bd36abc93fe51e18289ea766e"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-public40.json.sources/public_areas.gd",
+      "bytes": 9648,
+      "sha256": "c37805444bb1c3e12396f3cb92af595ed8a9408018263dd6cbb8a5fa92988fc6"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-public40.json.sources/recruitment.gd",
+      "bytes": 634,
+      "sha256": "d0f2b84f5e75ea92006881922d3907b23f76f8608d68d8c582b35c218fb4ef06"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-public40.json.sources/remodel.gd",
+      "bytes": 263,
+      "sha256": "850cede7e9688fffe6c994da08a6892f8a9dc60fcbe9f16f71b25e0ac398a4a9"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-public40.json.sources/research.gd",
+      "bytes": 1102,
+      "sha256": "bc7a1cd480733cf92003b7ca6577e0daaaafde2629efcb40c46d7576e0d53f4a"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-public40.json.sources/scheduler.gd",
+      "bytes": 870,
+      "sha256": "a32a0a0d220bfb884a3a5836d8bd47fb18cbe7d6e3bb85f7ba6d88f8fa4c6e7a"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-public40.json.sources/simulation.gd",
+      "bytes": 9312,
+      "sha256": "3d3744687f3fa3e5bf0873b71d47042ed88bf72d035abc9b85695fc32051c4c5"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-public40.json.sources/space.gd",
+      "bytes": 9080,
+      "sha256": "f51daf5744193281ee4ffc254989b21d39f4ac645dbf92d538ee7ccfa8b86b6c"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-public40.json.sources/supplies.gd",
+      "bytes": 447,
+      "sha256": "7fe1442e0b1aabcb9e90169568df7422c977a992685ecdde2ca90f632af4393f"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-public40.json.sources/visitors.gd",
+      "bytes": 3113,
+      "sha256": "08cee6dc1aee51a662cb7c07051088723eedba14ff6feda60aafd26521a579d1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-public40.json.sources/waiting.gd",
+      "bytes": 7738,
+      "sha256": "fcd6dd58f12a0ae9063c4ea35f5cc3ab64eb3e20f82d725bfbb302537a32f395"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-public40.json.sources/wellbeing.gd",
+      "bytes": 5398,
+      "sha256": "7df33ff7d097ef87483c9bf2723e71da77385a4e82732b7479332337a114d4b0"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-public40.json.steps.ndjson",
+      "bytes": 941985,
+      "sha256": "85d62b66bff20600738b71c0656e0372bea41cf0e6921c97831bdbdaa5341a5c"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-detail-public40.log",
+      "bytes": 1527,
+      "sha256": "ecdf35ea317f1e7161fa5f0eccf59ed442d7e98ef42d22dee3932eab272a3a52"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-gp40.json",
+      "bytes": 1398180,
+      "sha256": "42d98517167200dc3832f3ae5f3bd8d0f59eb4a27b01d900992ff70b813db97d"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-gp40.json.final.bin",
+      "bytes": 2432520,
+      "sha256": "186b3d8b25889dc1a6e32acdf9121fd520afa1d6debf28e8e089af7ec1eab748"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-gp40.json.sources/arrivals.gd",
+      "bytes": 3080,
+      "sha256": "8e1acb0941ab1bfca39673fe18ea218cd4d12e6518e649f8241a16cfbd2180f1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-gp40.json.sources/clinic.gd",
+      "bytes": 10136,
+      "sha256": "b17999f7d4a7d92a36f9652f4434c1889cca8c39554ac7d57c26023ca9b1617b"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-gp40.json.sources/departments.gd",
+      "bytes": 1053,
+      "sha256": "28c16a72e58e5708836ece626c11b6a56dcac88785957f960d8855105fa237b1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-gp40.json.sources/development.gd",
+      "bytes": 875,
+      "sha256": "39056782c5035c0d6a9cd9224641e4559b9aa8ddd3eb24d5ffb9e957950d49e9"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-gp40.json.sources/environment.gd",
+      "bytes": 5024,
+      "sha256": "4d5f0605416e8d71028a15e0d94f0711f5a2bf4bcc44cc5da3553f121a31145c"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-gp40.json.sources/finance.gd",
+      "bytes": 254,
+      "sha256": "2eab2cc4edc611da80b6ad68c2fddd485df613327b495bf77a466b5e253a2807"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-gp40.json.sources/floors.gd",
+      "bytes": 666,
+      "sha256": "1db56ceeb5c08e5ab0d2ffa22c858d0384cf75ee661f3c30eab36af3988e22f4"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-gp40.json.sources/maintenance.gd",
+      "bytes": 2066,
+      "sha256": "9aca30b10641ac5f7324ce876a21e23e46962a79a0fd1bff13a173c92fe1276b"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-gp40.json.sources/movement.gd",
+      "bytes": 5728,
+      "sha256": "b5c5adc36adde43b784a041162e33e3eb4b49212606fa1a9270d288cfc7c6034"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-gp40.json.sources/navigation.gd",
+      "bytes": 6307,
+      "sha256": "036962ee64882317c6c1fe3c31adb0ad18983159fa896c48640de5094ea6b905"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-gp40.json.sources/personal_beds.gd",
+      "bytes": 531,
+      "sha256": "c63afc1b0bb26d806f461baab93aa5038076d8adcfa77dfd7641d19003ccffc8"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-gp40.json.sources/point_navigation.gd",
+      "bytes": 4068,
+      "sha256": "d99e7c82dbfdaca55dc8fc101de3b77ba02fd44bd36abc93fe51e18289ea766e"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-gp40.json.sources/public_areas.gd",
+      "bytes": 9285,
+      "sha256": "88707a73e994d92b82a559ec98dd4dff92749deef1e3a3c3304f6c30bc90e218"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-gp40.json.sources/recruitment.gd",
+      "bytes": 634,
+      "sha256": "d0f2b84f5e75ea92006881922d3907b23f76f8608d68d8c582b35c218fb4ef06"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-gp40.json.sources/remodel.gd",
+      "bytes": 263,
+      "sha256": "850cede7e9688fffe6c994da08a6892f8a9dc60fcbe9f16f71b25e0ac398a4a9"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-gp40.json.sources/research.gd",
+      "bytes": 1102,
+      "sha256": "bc7a1cd480733cf92003b7ca6577e0daaaafde2629efcb40c46d7576e0d53f4a"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-gp40.json.sources/scheduler.gd",
+      "bytes": 870,
+      "sha256": "a32a0a0d220bfb884a3a5836d8bd47fb18cbe7d6e3bb85f7ba6d88f8fa4c6e7a"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-gp40.json.sources/simulation.gd",
+      "bytes": 9312,
+      "sha256": "3d3744687f3fa3e5bf0873b71d47042ed88bf72d035abc9b85695fc32051c4c5"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-gp40.json.sources/space.gd",
+      "bytes": 9080,
+      "sha256": "f51daf5744193281ee4ffc254989b21d39f4ac645dbf92d538ee7ccfa8b86b6c"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-gp40.json.sources/supplies.gd",
+      "bytes": 447,
+      "sha256": "7fe1442e0b1aabcb9e90169568df7422c977a992685ecdde2ca90f632af4393f"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-gp40.json.sources/visitors.gd",
+      "bytes": 3113,
+      "sha256": "08cee6dc1aee51a662cb7c07051088723eedba14ff6feda60aafd26521a579d1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-gp40.json.sources/waiting.gd",
+      "bytes": 7738,
+      "sha256": "fcd6dd58f12a0ae9063c4ea35f5cc3ab64eb3e20f82d725bfbb302537a32f395"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-gp40.json.sources/wellbeing.gd",
+      "bytes": 5398,
+      "sha256": "7df33ff7d097ef87483c9bf2723e71da77385a4e82732b7479332337a114d4b0"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-gp40.json.steps.ndjson",
+      "bytes": 921032,
+      "sha256": "542e23ab1b8a8c499cfba40cc6f953e86241d444554a1defa4be34a8d1420674"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-gp40.log",
+      "bytes": 1287,
+      "sha256": "e52746fbb68be8c6fdf2fb2f820147ee5117bda7cc98c68ca442dd368e88e8bb"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-operations40.json",
+      "bytes": 1614170,
+      "sha256": "c8a90d0889a519c3698944832b5a868da2fa68c426278b5a0b2008549911a058"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-operations40.json.final.bin",
+      "bytes": 1730496,
+      "sha256": "f20de287ab252ab3fd759f27d841da0fe8a288ee3189a22f05d006a51ace45f8"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-operations40.json.sources/arrivals.gd",
+      "bytes": 3080,
+      "sha256": "8e1acb0941ab1bfca39673fe18ea218cd4d12e6518e649f8241a16cfbd2180f1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-operations40.json.sources/clinic.gd",
+      "bytes": 10136,
+      "sha256": "b17999f7d4a7d92a36f9652f4434c1889cca8c39554ac7d57c26023ca9b1617b"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-operations40.json.sources/departments.gd",
+      "bytes": 1053,
+      "sha256": "28c16a72e58e5708836ece626c11b6a56dcac88785957f960d8855105fa237b1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-operations40.json.sources/development.gd",
+      "bytes": 875,
+      "sha256": "39056782c5035c0d6a9cd9224641e4559b9aa8ddd3eb24d5ffb9e957950d49e9"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-operations40.json.sources/environment.gd",
+      "bytes": 5024,
+      "sha256": "4d5f0605416e8d71028a15e0d94f0711f5a2bf4bcc44cc5da3553f121a31145c"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-operations40.json.sources/finance.gd",
+      "bytes": 254,
+      "sha256": "2eab2cc4edc611da80b6ad68c2fddd485df613327b495bf77a466b5e253a2807"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-operations40.json.sources/floors.gd",
+      "bytes": 666,
+      "sha256": "1db56ceeb5c08e5ab0d2ffa22c858d0384cf75ee661f3c30eab36af3988e22f4"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-operations40.json.sources/maintenance.gd",
+      "bytes": 2066,
+      "sha256": "9aca30b10641ac5f7324ce876a21e23e46962a79a0fd1bff13a173c92fe1276b"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-operations40.json.sources/movement.gd",
+      "bytes": 5728,
+      "sha256": "b5c5adc36adde43b784a041162e33e3eb4b49212606fa1a9270d288cfc7c6034"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-operations40.json.sources/navigation.gd",
+      "bytes": 6307,
+      "sha256": "036962ee64882317c6c1fe3c31adb0ad18983159fa896c48640de5094ea6b905"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-operations40.json.sources/personal_beds.gd",
+      "bytes": 531,
+      "sha256": "c63afc1b0bb26d806f461baab93aa5038076d8adcfa77dfd7641d19003ccffc8"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-operations40.json.sources/point_navigation.gd",
+      "bytes": 4068,
+      "sha256": "d99e7c82dbfdaca55dc8fc101de3b77ba02fd44bd36abc93fe51e18289ea766e"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-operations40.json.sources/public_areas.gd",
+      "bytes": 9648,
+      "sha256": "c37805444bb1c3e12396f3cb92af595ed8a9408018263dd6cbb8a5fa92988fc6"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-operations40.json.sources/recruitment.gd",
+      "bytes": 634,
+      "sha256": "d0f2b84f5e75ea92006881922d3907b23f76f8608d68d8c582b35c218fb4ef06"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-operations40.json.sources/remodel.gd",
+      "bytes": 263,
+      "sha256": "850cede7e9688fffe6c994da08a6892f8a9dc60fcbe9f16f71b25e0ac398a4a9"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-operations40.json.sources/research.gd",
+      "bytes": 1102,
+      "sha256": "bc7a1cd480733cf92003b7ca6577e0daaaafde2629efcb40c46d7576e0d53f4a"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-operations40.json.sources/scheduler.gd",
+      "bytes": 870,
+      "sha256": "a32a0a0d220bfb884a3a5836d8bd47fb18cbe7d6e3bb85f7ba6d88f8fa4c6e7a"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-operations40.json.sources/simulation.gd",
+      "bytes": 9312,
+      "sha256": "3d3744687f3fa3e5bf0873b71d47042ed88bf72d035abc9b85695fc32051c4c5"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-operations40.json.sources/space.gd",
+      "bytes": 9080,
+      "sha256": "f51daf5744193281ee4ffc254989b21d39f4ac645dbf92d538ee7ccfa8b86b6c"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-operations40.json.sources/supplies.gd",
+      "bytes": 447,
+      "sha256": "7fe1442e0b1aabcb9e90169568df7422c977a992685ecdde2ca90f632af4393f"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-operations40.json.sources/visitors.gd",
+      "bytes": 3113,
+      "sha256": "08cee6dc1aee51a662cb7c07051088723eedba14ff6feda60aafd26521a579d1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-operations40.json.sources/waiting.gd",
+      "bytes": 7738,
+      "sha256": "fcd6dd58f12a0ae9063c4ea35f5cc3ab64eb3e20f82d725bfbb302537a32f395"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-operations40.json.sources/wellbeing.gd",
+      "bytes": 5398,
+      "sha256": "7df33ff7d097ef87483c9bf2723e71da77385a4e82732b7479332337a114d4b0"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-operations40.json.steps.ndjson",
+      "bytes": 977159,
+      "sha256": "50b9f7bfa5daf7887d92068324880b965c9f685c8a955a6c2e3016903d5b19e0"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-operations40.log",
+      "bytes": 1524,
+      "sha256": "2ec7b1ca23f2b9f3fcc09c5f8a1363b00c437de0f768f6d062ec3c029d52a08d"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-public40.json",
+      "bytes": 1691261,
+      "sha256": "31f6dc40137772defef7650f945432f0ea9946ff91c20bde4c7be35bb589f9b8"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-public40.json.final.bin",
+      "bytes": 2458488,
+      "sha256": "f200b04a01d369619a8bb0934c4a047f5223eed975bb30a2b2f2dc39e319dfcf"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-public40.json.sources/arrivals.gd",
+      "bytes": 3080,
+      "sha256": "8e1acb0941ab1bfca39673fe18ea218cd4d12e6518e649f8241a16cfbd2180f1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-public40.json.sources/clinic.gd",
+      "bytes": 10136,
+      "sha256": "b17999f7d4a7d92a36f9652f4434c1889cca8c39554ac7d57c26023ca9b1617b"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-public40.json.sources/departments.gd",
+      "bytes": 1053,
+      "sha256": "28c16a72e58e5708836ece626c11b6a56dcac88785957f960d8855105fa237b1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-public40.json.sources/development.gd",
+      "bytes": 875,
+      "sha256": "39056782c5035c0d6a9cd9224641e4559b9aa8ddd3eb24d5ffb9e957950d49e9"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-public40.json.sources/environment.gd",
+      "bytes": 5024,
+      "sha256": "4d5f0605416e8d71028a15e0d94f0711f5a2bf4bcc44cc5da3553f121a31145c"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-public40.json.sources/finance.gd",
+      "bytes": 254,
+      "sha256": "2eab2cc4edc611da80b6ad68c2fddd485df613327b495bf77a466b5e253a2807"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-public40.json.sources/floors.gd",
+      "bytes": 666,
+      "sha256": "1db56ceeb5c08e5ab0d2ffa22c858d0384cf75ee661f3c30eab36af3988e22f4"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-public40.json.sources/maintenance.gd",
+      "bytes": 2066,
+      "sha256": "9aca30b10641ac5f7324ce876a21e23e46962a79a0fd1bff13a173c92fe1276b"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-public40.json.sources/movement.gd",
+      "bytes": 5728,
+      "sha256": "b5c5adc36adde43b784a041162e33e3eb4b49212606fa1a9270d288cfc7c6034"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-public40.json.sources/navigation.gd",
+      "bytes": 6307,
+      "sha256": "036962ee64882317c6c1fe3c31adb0ad18983159fa896c48640de5094ea6b905"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-public40.json.sources/personal_beds.gd",
+      "bytes": 531,
+      "sha256": "c63afc1b0bb26d806f461baab93aa5038076d8adcfa77dfd7641d19003ccffc8"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-public40.json.sources/point_navigation.gd",
+      "bytes": 4068,
+      "sha256": "d99e7c82dbfdaca55dc8fc101de3b77ba02fd44bd36abc93fe51e18289ea766e"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-public40.json.sources/public_areas.gd",
+      "bytes": 9285,
+      "sha256": "88707a73e994d92b82a559ec98dd4dff92749deef1e3a3c3304f6c30bc90e218"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-public40.json.sources/recruitment.gd",
+      "bytes": 634,
+      "sha256": "d0f2b84f5e75ea92006881922d3907b23f76f8608d68d8c582b35c218fb4ef06"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-public40.json.sources/remodel.gd",
+      "bytes": 263,
+      "sha256": "850cede7e9688fffe6c994da08a6892f8a9dc60fcbe9f16f71b25e0ac398a4a9"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-public40.json.sources/research.gd",
+      "bytes": 1102,
+      "sha256": "bc7a1cd480733cf92003b7ca6577e0daaaafde2629efcb40c46d7576e0d53f4a"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-public40.json.sources/scheduler.gd",
+      "bytes": 870,
+      "sha256": "a32a0a0d220bfb884a3a5836d8bd47fb18cbe7d6e3bb85f7ba6d88f8fa4c6e7a"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-public40.json.sources/simulation.gd",
+      "bytes": 9312,
+      "sha256": "3d3744687f3fa3e5bf0873b71d47042ed88bf72d035abc9b85695fc32051c4c5"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-public40.json.sources/space.gd",
+      "bytes": 9080,
+      "sha256": "f51daf5744193281ee4ffc254989b21d39f4ac645dbf92d538ee7ccfa8b86b6c"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-public40.json.sources/supplies.gd",
+      "bytes": 447,
+      "sha256": "7fe1442e0b1aabcb9e90169568df7422c977a992685ecdde2ca90f632af4393f"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-public40.json.sources/visitors.gd",
+      "bytes": 3113,
+      "sha256": "08cee6dc1aee51a662cb7c07051088723eedba14ff6feda60aafd26521a579d1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-public40.json.sources/waiting.gd",
+      "bytes": 7738,
+      "sha256": "fcd6dd58f12a0ae9063c4ea35f5cc3ab64eb3e20f82d725bfbb302537a32f395"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-public40.json.sources/wellbeing.gd",
+      "bytes": 5398,
+      "sha256": "7df33ff7d097ef87483c9bf2723e71da77385a4e82732b7479332337a114d4b0"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-public40.json.steps.ndjson",
+      "bytes": 941855,
+      "sha256": "71ad6c7abfad95ccb56e71784dc42f8d52b54f2eac1d60ce2e9fc80e9d77630f"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-nested-public40.log",
+      "bytes": 1527,
+      "sha256": "8910c74175ffc317697a3f9b26c651952da5780745c0d768e4b9d1ab06bb3610"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-plain-gp40.json",
+      "bytes": 66645,
+      "sha256": "3ab16a22cab9c2fe734eac1d740651c5e0888f9e9a82edeb92a8cd43cc403701"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-plain-gp40.json.final.bin",
+      "bytes": 2432520,
+      "sha256": "186b3d8b25889dc1a6e32acdf9121fd520afa1d6debf28e8e089af7ec1eab748"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-plain-gp40.json.steps.ndjson",
+      "bytes": 8031,
+      "sha256": "c443b720af5d6ccd6532c9d5159604c77f5ca2b3be9ec8d3101bec3c09af91d5"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-plain-gp40.log",
+      "bytes": 1284,
+      "sha256": "2a44c6865f21688ce44e9659ce4d86016091495044a40f545e22d1eb22a15cfe"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-plain-gp80.json",
+      "bytes": 80324,
+      "sha256": "311d0b312e4366b3510af6cae197a1996a7db5837f9276ad81105d52af7ac366"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-plain-gp80.json.final.bin",
+      "bytes": 2590220,
+      "sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-plain-gp80.json.steps.ndjson",
+      "bytes": 16333,
+      "sha256": "4ff2eca13c3bc7abfe64d270a462b72aba6999c35c1686dd1e7793750fafc5de"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-plain-gp80.log",
+      "bytes": 1667,
+      "sha256": "389596c95f33c41be4aafbc54d2e4d74f4b2e8cbf5b3227b80bed134b598129b"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-plain-operations40.json",
+      "bytes": 204772,
+      "sha256": "19ce2034de9ee2bde9a326ad274d68fe4f6ec3f561d638dbc64a30799f2292ef"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-plain-operations40.json.final.bin",
+      "bytes": 1730496,
+      "sha256": "f20de287ab252ab3fd759f27d841da0fe8a288ee3189a22f05d006a51ace45f8"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-plain-operations40.json.steps.ndjson",
+      "bytes": 8062,
+      "sha256": "c5b441c896689fab70724018e01213876912ac41a74f2b04004f55f039e95f74"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-plain-operations40.log",
+      "bytes": 1521,
+      "sha256": "d55f8a8a6400a521e8a3796339e9d2b3d8b674fb78bd536a103ff4adf94559b2"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-plain-public360.json",
+      "bytes": 446291,
+      "sha256": "9c0063ac586aadd78b1dcd9ee771edabcecc0f16b4525f3edea3e617c615b2dd"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-plain-public360.json.final.bin",
+      "bytes": 2886200,
+      "sha256": "2516cd84151b9c122113d527b8e1b46833d6dcc3cab3ea64262b189e950d1c33"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-plain-public360.json.steps.ndjson",
+      "bytes": 74861,
+      "sha256": "94eaba6e9741cac940c8e6208776cdd59aade6dcf35eec88ca09adda500c5d6d"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-plain-public360.log",
+      "bytes": 4663,
+      "sha256": "43402c2a23dced564ac0703f6256556669651b1357e58c6ec1ffaa388374733f"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-plain-public40.json",
+      "bytes": 329299,
+      "sha256": "37621993e65eeb74aa5dff44e3237bc09be17c1da723e4324b06a924fac4e71c"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-plain-public40.json.final.bin",
+      "bytes": 2458488,
+      "sha256": "f200b04a01d369619a8bb0934c4a047f5223eed975bb30a2b2f2dc39e319dfcf"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-plain-public40.json.steps.ndjson",
+      "bytes": 8088,
+      "sha256": "f05c746d50416a7fa52865c3ec43536e6996510b5f5cef861189008f9567fcbc"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-plain-public40.log",
+      "bytes": 1525,
+      "sha256": "8ee7350146e0587705bd2349cfdea26aa4bdea6ca49071df7830a51292aaa8a9"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-profile-prepare.log",
+      "bytes": 112,
+      "sha256": "da6e171a845852494715bcf22ddc12c2870efe67127f9b06b59a53226e5e1086"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-profile-project/game/building/hospital_movement.gd",
+      "bytes": 43464,
+      "sha256": "18e96daa7b580f8bc86e3b9dc268a48344109b085ef2a6a9c237981c0ff9624e"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-profile-project/game/life/public_areas.gd",
+      "bytes": 38511,
+      "sha256": "4dc3ca1339938136a0077622f5a53034cc528f3ad2e729b8f18f3b2958c81d69"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-profile-project/import.log",
+      "bytes": 11812,
+      "sha256": "1958aec6c12237f94f1fc6be9e79481352d0c0dea6149f954736a610bc867d8f"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-profile-project/project.godot",
+      "bytes": 929,
+      "sha256": "92822d843d50f4e8b414c22fdb856b087d1434cd93c71880b1018adc3e757cc0"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-profile-project/source-identity.json",
+      "bytes": 75035,
+      "sha256": "b4e8062189bd6547f2c5fc72be651059a31a5ee4563ca2321000fff50d354b76"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-profile-project/tools/performance/representative.gd",
+      "bytes": 10608,
+      "sha256": "85808f4b734223f7279ad0c6874f8d0a97ba1ae47bbf94e62df4b5fde545c545"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-profile-project/tools/performance/step_profile.gd",
+      "bytes": 26080,
+      "sha256": "84a2d5460aa0de1f0166d2604aa6e8786b3e55668fe882d2d752077170a462e2"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-root-gp40.json",
+      "bytes": 435598,
+      "sha256": "84975d77d582f839dfa509279b7b972046b52d8a6bc10ec2ff63c0d5c041bd10"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-root-gp40.json.final.bin",
+      "bytes": 2432520,
+      "sha256": "186b3d8b25889dc1a6e32acdf9121fd520afa1d6debf28e8e089af7ec1eab748"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-root-gp40.json.sources/simulation.gd",
+      "bytes": 9312,
+      "sha256": "3d3744687f3fa3e5bf0873b71d47042ed88bf72d035abc9b85695fc32051c4c5"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-root-gp40.json.steps.ndjson",
+      "bytes": 259766,
+      "sha256": "1d16998f1e6c558d97c4fe6827f94991fcd7be425c6a79a3d1d0dc426f030f1f"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-root-gp40.log",
+      "bytes": 1283,
+      "sha256": "aca6d854b13d7c67c514a88ff8b5cdbddedf15fd4fc7fce09e95ce2f5fcedd7d"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-root-public40.json",
+      "bytes": 696940,
+      "sha256": "edc87ca4935780a2c095bca9a790bf4d29ea12ebf7da15d9bc5e4bd9e25b9bbe"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-root-public40.json.final.bin",
+      "bytes": 2458488,
+      "sha256": "f200b04a01d369619a8bb0934c4a047f5223eed975bb30a2b2f2dc39e319dfcf"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-root-public40.json.sources/simulation.gd",
+      "bytes": 9312,
+      "sha256": "3d3744687f3fa3e5bf0873b71d47042ed88bf72d035abc9b85695fc32051c4c5"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-root-public40.json.steps.ndjson",
+      "bytes": 258512,
+      "sha256": "4f741570bd097d00fa8398597fb1e350f5dd2e53c765c6df142351fd8e51cb63"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-root-public40.log",
+      "bytes": 1523,
+      "sha256": "4091d6ba931bdc4aa60656e3d6a5862fdc6bdae55a0164cb477f658fe15776b3"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-trace-prepare.log",
+      "bytes": 110,
+      "sha256": "041df29bd746c300a5272a666b33d055f2eba31f53a2f8d54443b260f7682fdd"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-trace-project/game/building/hospital_movement.gd",
+      "bytes": 43464,
+      "sha256": "18e96daa7b580f8bc86e3b9dc268a48344109b085ef2a6a9c237981c0ff9624e"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-trace-project/game/life/public_areas.gd",
+      "bytes": 38511,
+      "sha256": "4dc3ca1339938136a0077622f5a53034cc528f3ad2e729b8f18f3b2958c81d69"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-trace-project/import.log",
+      "bytes": 11871,
+      "sha256": "cde005c38df94d4eb37657d23e9aae7a900685c441a0d87c7bbb36e7a6d1efc5"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-trace-project/project.godot",
+      "bytes": 929,
+      "sha256": "2bf5a5a45ac5a48ba7a482a8f288349b9ee54c35311eed1897296ab2797f0aa5"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-trace-project/source-identity.json",
+      "bytes": 75184,
+      "sha256": "add9ddf087e56f5bc4912c9aeb293b7e86c264df78912438e8cf5ba9458eb641"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-trace-project/tools/performance/movement_trace.gd",
+      "bytes": 19670,
+      "sha256": "de2d72c967e463a66e28434759b81e0f2bce8b4ef302c8d85da3f5543ccbea24"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-trace-project/tools/performance/representative.gd",
+      "bytes": 11329,
+      "sha256": "9c4d7c7d609ed0325c15cd85fc07e91f2dcd118d74c2f116dafcd18351adf452"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-trace-project/tools/performance/step_profile.gd",
+      "bytes": 26101,
+      "sha256": "d354cae055508431255a44559e17b6cf91392df694c11345cedb73ca970fb868"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-trace-public360.json",
+      "bytes": 740826,
+      "sha256": "d2c292af74ae2566d9187a2c299a69f5679f703aefa9296fc9b55c3b7287fc64"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-trace-public360.json.final.bin",
+      "bytes": 2886200,
+      "sha256": "2516cd84151b9c122113d527b8e1b46833d6dcc3cab3ea64262b189e950d1c33"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-trace-public360.json.steps.ndjson",
+      "bytes": 74859,
+      "sha256": "c45e90eae5046439b5f4cbd403643eaabb628ada1de60ba8ec8d5f04af502cdb"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/before-trace-public360.log",
+      "bytes": 4663,
+      "sha256": "773cfe93e9f26952bd844bf0042406acdd167476db96192b546683414e864da4"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-gp40.json",
+      "bytes": 1406866,
+      "sha256": "9d0856a4c1085c7251434c0cdf21edefc5cb1b67bebd091e4a481447e8095ce1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-gp40.json.final.bin",
+      "bytes": 2432520,
+      "sha256": "186b3d8b25889dc1a6e32acdf9121fd520afa1d6debf28e8e089af7ec1eab748"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-gp40.json.sources/arrivals.gd",
+      "bytes": 3080,
+      "sha256": "8e1acb0941ab1bfca39673fe18ea218cd4d12e6518e649f8241a16cfbd2180f1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-gp40.json.sources/clinic.gd",
+      "bytes": 10136,
+      "sha256": "b17999f7d4a7d92a36f9652f4434c1889cca8c39554ac7d57c26023ca9b1617b"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-gp40.json.sources/departments.gd",
+      "bytes": 1053,
+      "sha256": "28c16a72e58e5708836ece626c11b6a56dcac88785957f960d8855105fa237b1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-gp40.json.sources/development.gd",
+      "bytes": 875,
+      "sha256": "39056782c5035c0d6a9cd9224641e4559b9aa8ddd3eb24d5ffb9e957950d49e9"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-gp40.json.sources/environment.gd",
+      "bytes": 5024,
+      "sha256": "4d5f0605416e8d71028a15e0d94f0711f5a2bf4bcc44cc5da3553f121a31145c"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-gp40.json.sources/finance.gd",
+      "bytes": 254,
+      "sha256": "2eab2cc4edc611da80b6ad68c2fddd485df613327b495bf77a466b5e253a2807"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-gp40.json.sources/floors.gd",
+      "bytes": 666,
+      "sha256": "1db56ceeb5c08e5ab0d2ffa22c858d0384cf75ee661f3c30eab36af3988e22f4"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-gp40.json.sources/maintenance.gd",
+      "bytes": 2066,
+      "sha256": "9aca30b10641ac5f7324ce876a21e23e46962a79a0fd1bff13a173c92fe1276b"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-gp40.json.sources/movement.gd",
+      "bytes": 6510,
+      "sha256": "53b8171ffbd284a4901ded2b4e1fdf2b634a1250d0cfab12a5812eec496a1753"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-gp40.json.sources/navigation.gd",
+      "bytes": 6307,
+      "sha256": "036962ee64882317c6c1fe3c31adb0ad18983159fa896c48640de5094ea6b905"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-gp40.json.sources/personal_beds.gd",
+      "bytes": 531,
+      "sha256": "c63afc1b0bb26d806f461baab93aa5038076d8adcfa77dfd7641d19003ccffc8"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-gp40.json.sources/point_navigation.gd",
+      "bytes": 4068,
+      "sha256": "d99e7c82dbfdaca55dc8fc101de3b77ba02fd44bd36abc93fe51e18289ea766e"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-gp40.json.sources/public_areas.gd",
+      "bytes": 10082,
+      "sha256": "6d3b60a8ce55d50287300208dfcdd6e563c47e70161bdbd6b81639a4e0c1dc29"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-gp40.json.sources/recruitment.gd",
+      "bytes": 634,
+      "sha256": "d0f2b84f5e75ea92006881922d3907b23f76f8608d68d8c582b35c218fb4ef06"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-gp40.json.sources/remodel.gd",
+      "bytes": 263,
+      "sha256": "850cede7e9688fffe6c994da08a6892f8a9dc60fcbe9f16f71b25e0ac398a4a9"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-gp40.json.sources/research.gd",
+      "bytes": 1102,
+      "sha256": "bc7a1cd480733cf92003b7ca6577e0daaaafde2629efcb40c46d7576e0d53f4a"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-gp40.json.sources/scheduler.gd",
+      "bytes": 870,
+      "sha256": "a32a0a0d220bfb884a3a5836d8bd47fb18cbe7d6e3bb85f7ba6d88f8fa4c6e7a"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-gp40.json.sources/simulation.gd",
+      "bytes": 9312,
+      "sha256": "3d3744687f3fa3e5bf0873b71d47042ed88bf72d035abc9b85695fc32051c4c5"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-gp40.json.sources/space.gd",
+      "bytes": 9080,
+      "sha256": "f51daf5744193281ee4ffc254989b21d39f4ac645dbf92d538ee7ccfa8b86b6c"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-gp40.json.sources/supplies.gd",
+      "bytes": 447,
+      "sha256": "7fe1442e0b1aabcb9e90169568df7422c977a992685ecdde2ca90f632af4393f"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-gp40.json.sources/visitors.gd",
+      "bytes": 3113,
+      "sha256": "08cee6dc1aee51a662cb7c07051088723eedba14ff6feda60aafd26521a579d1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-gp40.json.sources/waiting.gd",
+      "bytes": 7738,
+      "sha256": "fcd6dd58f12a0ae9063c4ea35f5cc3ab64eb3e20f82d725bfbb302537a32f395"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-gp40.json.sources/wellbeing.gd",
+      "bytes": 5398,
+      "sha256": "7df33ff7d097ef87483c9bf2723e71da77385a4e82732b7479332337a114d4b0"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-gp40.json.steps.ndjson",
+      "bytes": 927116,
+      "sha256": "8173c873ee421cc7d6f070d30dc2d19cc18fbf08b73f68c9f235db3a31b98155"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-gp40.log",
+      "bytes": 1283,
+      "sha256": "d55beeed3dff410a1ff24afffb0e8e58470195b2c33e0f9acdb53c0dc6a19423"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-operations40.json",
+      "bytes": 1622130,
+      "sha256": "e4c1842e72ef84d2eeabdc13f01dac616f4bf789e5bef08449ccb81daa694528"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-operations40.json.final.bin",
+      "bytes": 1730496,
+      "sha256": "f20de287ab252ab3fd759f27d841da0fe8a288ee3189a22f05d006a51ace45f8"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-operations40.json.sources/arrivals.gd",
+      "bytes": 3080,
+      "sha256": "8e1acb0941ab1bfca39673fe18ea218cd4d12e6518e649f8241a16cfbd2180f1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-operations40.json.sources/clinic.gd",
+      "bytes": 10136,
+      "sha256": "b17999f7d4a7d92a36f9652f4434c1889cca8c39554ac7d57c26023ca9b1617b"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-operations40.json.sources/departments.gd",
+      "bytes": 1053,
+      "sha256": "28c16a72e58e5708836ece626c11b6a56dcac88785957f960d8855105fa237b1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-operations40.json.sources/development.gd",
+      "bytes": 875,
+      "sha256": "39056782c5035c0d6a9cd9224641e4559b9aa8ddd3eb24d5ffb9e957950d49e9"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-operations40.json.sources/environment.gd",
+      "bytes": 5024,
+      "sha256": "4d5f0605416e8d71028a15e0d94f0711f5a2bf4bcc44cc5da3553f121a31145c"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-operations40.json.sources/finance.gd",
+      "bytes": 254,
+      "sha256": "2eab2cc4edc611da80b6ad68c2fddd485df613327b495bf77a466b5e253a2807"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-operations40.json.sources/floors.gd",
+      "bytes": 666,
+      "sha256": "1db56ceeb5c08e5ab0d2ffa22c858d0384cf75ee661f3c30eab36af3988e22f4"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-operations40.json.sources/maintenance.gd",
+      "bytes": 2066,
+      "sha256": "9aca30b10641ac5f7324ce876a21e23e46962a79a0fd1bff13a173c92fe1276b"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-operations40.json.sources/movement.gd",
+      "bytes": 6510,
+      "sha256": "53b8171ffbd284a4901ded2b4e1fdf2b634a1250d0cfab12a5812eec496a1753"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-operations40.json.sources/navigation.gd",
+      "bytes": 6307,
+      "sha256": "036962ee64882317c6c1fe3c31adb0ad18983159fa896c48640de5094ea6b905"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-operations40.json.sources/personal_beds.gd",
+      "bytes": 531,
+      "sha256": "c63afc1b0bb26d806f461baab93aa5038076d8adcfa77dfd7641d19003ccffc8"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-operations40.json.sources/point_navigation.gd",
+      "bytes": 4068,
+      "sha256": "d99e7c82dbfdaca55dc8fc101de3b77ba02fd44bd36abc93fe51e18289ea766e"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-operations40.json.sources/public_areas.gd",
+      "bytes": 10082,
+      "sha256": "6d3b60a8ce55d50287300208dfcdd6e563c47e70161bdbd6b81639a4e0c1dc29"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-operations40.json.sources/recruitment.gd",
+      "bytes": 634,
+      "sha256": "d0f2b84f5e75ea92006881922d3907b23f76f8608d68d8c582b35c218fb4ef06"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-operations40.json.sources/remodel.gd",
+      "bytes": 263,
+      "sha256": "850cede7e9688fffe6c994da08a6892f8a9dc60fcbe9f16f71b25e0ac398a4a9"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-operations40.json.sources/research.gd",
+      "bytes": 1102,
+      "sha256": "bc7a1cd480733cf92003b7ca6577e0daaaafde2629efcb40c46d7576e0d53f4a"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-operations40.json.sources/scheduler.gd",
+      "bytes": 870,
+      "sha256": "a32a0a0d220bfb884a3a5836d8bd47fb18cbe7d6e3bb85f7ba6d88f8fa4c6e7a"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-operations40.json.sources/simulation.gd",
+      "bytes": 9312,
+      "sha256": "3d3744687f3fa3e5bf0873b71d47042ed88bf72d035abc9b85695fc32051c4c5"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-operations40.json.sources/space.gd",
+      "bytes": 9080,
+      "sha256": "f51daf5744193281ee4ffc254989b21d39f4ac645dbf92d538ee7ccfa8b86b6c"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-operations40.json.sources/supplies.gd",
+      "bytes": 447,
+      "sha256": "7fe1442e0b1aabcb9e90169568df7422c977a992685ecdde2ca90f632af4393f"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-operations40.json.sources/visitors.gd",
+      "bytes": 3113,
+      "sha256": "08cee6dc1aee51a662cb7c07051088723eedba14ff6feda60aafd26521a579d1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-operations40.json.sources/waiting.gd",
+      "bytes": 7738,
+      "sha256": "fcd6dd58f12a0ae9063c4ea35f5cc3ab64eb3e20f82d725bfbb302537a32f395"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-operations40.json.sources/wellbeing.gd",
+      "bytes": 5398,
+      "sha256": "7df33ff7d097ef87483c9bf2723e71da77385a4e82732b7479332337a114d4b0"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-operations40.json.steps.ndjson",
+      "bytes": 982724,
+      "sha256": "400b84b38cf20a5f14c40aab2d98ef4ee31108b47c7f391eb9f7795975dbd890"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-operations40.log",
+      "bytes": 1522,
+      "sha256": "3fbf5e8384bb9aca26a846576d66033cf9a77875592bbe0b6dfa339ef6dd714a"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-public40.json",
+      "bytes": 1700115,
+      "sha256": "aba103c88107d13b54171c393af255075163e63109b68aa1daae5196514b099c"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-public40.json.final.bin",
+      "bytes": 2458488,
+      "sha256": "f200b04a01d369619a8bb0934c4a047f5223eed975bb30a2b2f2dc39e319dfcf"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-public40.json.sources/arrivals.gd",
+      "bytes": 3080,
+      "sha256": "8e1acb0941ab1bfca39673fe18ea218cd4d12e6518e649f8241a16cfbd2180f1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-public40.json.sources/clinic.gd",
+      "bytes": 10136,
+      "sha256": "b17999f7d4a7d92a36f9652f4434c1889cca8c39554ac7d57c26023ca9b1617b"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-public40.json.sources/departments.gd",
+      "bytes": 1053,
+      "sha256": "28c16a72e58e5708836ece626c11b6a56dcac88785957f960d8855105fa237b1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-public40.json.sources/development.gd",
+      "bytes": 875,
+      "sha256": "39056782c5035c0d6a9cd9224641e4559b9aa8ddd3eb24d5ffb9e957950d49e9"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-public40.json.sources/environment.gd",
+      "bytes": 5024,
+      "sha256": "4d5f0605416e8d71028a15e0d94f0711f5a2bf4bcc44cc5da3553f121a31145c"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-public40.json.sources/finance.gd",
+      "bytes": 254,
+      "sha256": "2eab2cc4edc611da80b6ad68c2fddd485df613327b495bf77a466b5e253a2807"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-public40.json.sources/floors.gd",
+      "bytes": 666,
+      "sha256": "1db56ceeb5c08e5ab0d2ffa22c858d0384cf75ee661f3c30eab36af3988e22f4"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-public40.json.sources/maintenance.gd",
+      "bytes": 2066,
+      "sha256": "9aca30b10641ac5f7324ce876a21e23e46962a79a0fd1bff13a173c92fe1276b"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-public40.json.sources/movement.gd",
+      "bytes": 6510,
+      "sha256": "53b8171ffbd284a4901ded2b4e1fdf2b634a1250d0cfab12a5812eec496a1753"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-public40.json.sources/navigation.gd",
+      "bytes": 6307,
+      "sha256": "036962ee64882317c6c1fe3c31adb0ad18983159fa896c48640de5094ea6b905"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-public40.json.sources/personal_beds.gd",
+      "bytes": 531,
+      "sha256": "c63afc1b0bb26d806f461baab93aa5038076d8adcfa77dfd7641d19003ccffc8"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-public40.json.sources/point_navigation.gd",
+      "bytes": 4068,
+      "sha256": "d99e7c82dbfdaca55dc8fc101de3b77ba02fd44bd36abc93fe51e18289ea766e"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-public40.json.sources/public_areas.gd",
+      "bytes": 10082,
+      "sha256": "6d3b60a8ce55d50287300208dfcdd6e563c47e70161bdbd6b81639a4e0c1dc29"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-public40.json.sources/recruitment.gd",
+      "bytes": 634,
+      "sha256": "d0f2b84f5e75ea92006881922d3907b23f76f8608d68d8c582b35c218fb4ef06"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-public40.json.sources/remodel.gd",
+      "bytes": 263,
+      "sha256": "850cede7e9688fffe6c994da08a6892f8a9dc60fcbe9f16f71b25e0ac398a4a9"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-public40.json.sources/research.gd",
+      "bytes": 1102,
+      "sha256": "bc7a1cd480733cf92003b7ca6577e0daaaafde2629efcb40c46d7576e0d53f4a"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-public40.json.sources/scheduler.gd",
+      "bytes": 870,
+      "sha256": "a32a0a0d220bfb884a3a5836d8bd47fb18cbe7d6e3bb85f7ba6d88f8fa4c6e7a"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-public40.json.sources/simulation.gd",
+      "bytes": 9312,
+      "sha256": "3d3744687f3fa3e5bf0873b71d47042ed88bf72d035abc9b85695fc32051c4c5"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-public40.json.sources/space.gd",
+      "bytes": 9080,
+      "sha256": "f51daf5744193281ee4ffc254989b21d39f4ac645dbf92d538ee7ccfa8b86b6c"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-public40.json.sources/supplies.gd",
+      "bytes": 447,
+      "sha256": "7fe1442e0b1aabcb9e90169568df7422c977a992685ecdde2ca90f632af4393f"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-public40.json.sources/visitors.gd",
+      "bytes": 3113,
+      "sha256": "08cee6dc1aee51a662cb7c07051088723eedba14ff6feda60aafd26521a579d1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-public40.json.sources/waiting.gd",
+      "bytes": 7738,
+      "sha256": "fcd6dd58f12a0ae9063c4ea35f5cc3ab64eb3e20f82d725bfbb302537a32f395"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-public40.json.sources/wellbeing.gd",
+      "bytes": 5398,
+      "sha256": "7df33ff7d097ef87483c9bf2723e71da77385a4e82732b7479332337a114d4b0"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-public40.json.steps.ndjson",
+      "bytes": 948055,
+      "sha256": "1fd286d4d6429c56558f5b15e3cc3a95bc409fc4341bbfdf2497522855a658e4"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-nested-public40.log",
+      "bytes": 1523,
+      "sha256": "528af3d5d2bdf49e0ba081c424a09a8db43e3100bd367f0553317b49b3d56826"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-plain-gp80.json",
+      "bytes": 80317,
+      "sha256": "ac460c1dba76561d1ec4bfe1cb1d589efe90b6ff94389d4996932c94f8ccf606"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-plain-gp80.json.final.bin",
+      "bytes": 2590220,
+      "sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-plain-gp80.json.steps.ndjson",
+      "bytes": 16331,
+      "sha256": "e270555c9c11a188373a20b190d098ec51dae4480ae02cf7e7e1e8e902379f9c"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-plain-gp80.log",
+      "bytes": 1661,
+      "sha256": "7d542ae5953ff87aa95c52595fa43bc41152fff714122e58cb521e4f5aa43575"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-plain-operations40.json",
+      "bytes": 204772,
+      "sha256": "616715974086ed23572492fbac5f0b229eea28becfbfb54dfc0422811ce280e5"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-plain-operations40.json.final.bin",
+      "bytes": 1730496,
+      "sha256": "f20de287ab252ab3fd759f27d841da0fe8a288ee3189a22f05d006a51ace45f8"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-plain-operations40.json.steps.ndjson",
+      "bytes": 8062,
+      "sha256": "c6f369f13df1a3d01f7b343fcfff0eb42cb2ca57c59116ca3e83fcf3dccc9382"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-plain-operations40.log",
+      "bytes": 1521,
+      "sha256": "a33542370f1881e8c184efbe46eb08f414c0169a13a5656441d41525b71473bb"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-plain-public360.json",
+      "bytes": 446283,
+      "sha256": "cd5f71561d53919d4bf4083c5a1a4fcdb7cc6535e2d9060f0466671305a97677"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-plain-public360.json.final.bin",
+      "bytes": 2888360,
+      "sha256": "a65ff7256372e47041fe3ddb6fc05fa2b1dc236150122c421c72a040e2def26f"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-plain-public360.json.steps.ndjson",
+      "bytes": 74821,
+      "sha256": "cf5cdad79170636b64e7447a4397ed17feec69565649df63c0df421646b6265f"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-plain-public360.log",
+      "bytes": 4659,
+      "sha256": "fc96b2c379569caf597398019ac872ebe833df18fb5c5e173c38610b15fe4b8b"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-prepare.log",
+      "bytes": 103,
+      "sha256": "1b15007690da6fe1a6c424fb055fb2a6989d4146d6aa2deeffdc60df93d274ac"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-project/game/building/hospital_movement.gd",
+      "bytes": 46019,
+      "sha256": "b8bf9acbc4286839300c51c5a3028dd9cb6e9507743db5a8e1d2a14af2e326e1"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-project/game/life/public_areas.gd",
+      "bytes": 41660,
+      "sha256": "fa7dff283f60bbba2d14bbd40f623a5b620180e80f26aef66e2dfa9d67499424"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-project/import.log",
+      "bytes": 11871,
+      "sha256": "cde005c38df94d4eb37657d23e9aae7a900685c441a0d87c7bbb36e7a6d1efc5"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-project/project.godot",
+      "bytes": 929,
+      "sha256": "595b1d3e1d3ee90059805e80c90a9a8db06bca8bd82629037f1a2c7197a92a74"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-project/source-identity.json",
+      "bytes": 75170,
+      "sha256": "b8599879c4c825e4ead107568f4b41f8568b8d06d261f0d5b8367e3de7614ba6"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-project/tools/performance/movement_trace.gd",
+      "bytes": 19670,
+      "sha256": "de2d72c967e463a66e28434759b81e0f2bce8b4ef302c8d85da3f5543ccbea24"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-project/tools/performance/representative.gd",
+      "bytes": 11329,
+      "sha256": "9c4d7c7d609ed0325c15cd85fc07e91f2dcd118d74c2f116dafcd18351adf452"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-project/tools/performance/step_profile.gd",
+      "bytes": 26162,
+      "sha256": "b56590fff1524086af91e2c9a042cc48c406b34786edd34a7d9960a16d79cf81"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-trace-public360.json",
+      "bytes": 747849,
+      "sha256": "b86119ff1e338cd82533dc2abbd9eafd05be48417e8c849193b60da0a21f081f"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-trace-public360.json.final.bin",
+      "bytes": 2888360,
+      "sha256": "a65ff7256372e47041fe3ddb6fc05fa2b1dc236150122c421c72a040e2def26f"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-trace-public360.json.steps.ndjson",
+      "bytes": 74836,
+      "sha256": "fbccf8de9207568dff79ab79c42ab7ce61dcd03a239e8ec899be9ec72499c8fc"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/final-trace-public360.log",
+      "bytes": 4661,
+      "sha256": "8eb4054d115713196eb0929d476fb7e205fcb26009a76309ab15fde6e81a5e10"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/legacy-trace-prepare.log",
+      "bytes": 11871,
+      "sha256": "cde005c38df94d4eb37657d23e9aae7a900685c441a0d87c7bbb36e7a6d1efc5"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/legacy-trace-project/game/building/hospital_movement.gd",
+      "bytes": 39247,
+      "sha256": "3a57686be1c53ed8a36a063313d09992a8c6d3767796ca3a01f1c7a5fd10d0ad"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/legacy-trace-project/game/life/public_areas.gd",
+      "bytes": 23566,
+      "sha256": "b982120bf3fb19d57bdb62d7f6ac3b2153a0c12665fa88c352101fdc28eaa81c"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/legacy-trace-project/project.godot",
+      "bytes": 931,
+      "sha256": "cae445ee49d85ab99b64ac5fea9d6f7c1cb238d9d77af1bb01a24c0170a04185"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/legacy-trace-project/source-identity.json",
+      "bytes": 75445,
+      "sha256": "4f54aa94c4335f912ee63359d993ba9e0989633b70fd566e6a2c9ce39a1e322f"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/legacy-trace-project/tools/performance/movement_trace.gd",
+      "bytes": 19670,
+      "sha256": "de2d72c967e463a66e28434759b81e0f2bce8b4ef302c8d85da3f5543ccbea24"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/legacy-trace-project/tools/performance/representative.gd",
+      "bytes": 11329,
+      "sha256": "9c4d7c7d609ed0325c15cd85fc07e91f2dcd118d74c2f116dafcd18351adf452"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/legacy-trace-project/tools/performance/step_profile.gd",
+      "bytes": 26101,
+      "sha256": "d354cae055508431255a44559e17b6cf91392df694c11345cedb73ca970fb868"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/legacy-trace-public360.json",
+      "bytes": 735471,
+      "sha256": "be957677dd2430130824ea97e412ebbef8fe7aa07816597c8ec2ff7ceb569587"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/legacy-trace-public360.json.final.bin",
+      "bytes": 2863804,
+      "sha256": "49c1aa694e9e63a800721228ff1c3a882c02bd4a3f3a44c5444afc9f79655a84"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/legacy-trace-public360.json.steps.ndjson",
+      "bytes": 74856,
+      "sha256": "b3ea09a885b491b2e2e151a79737015643fc87168f0abc6728fc61a76cd55c03"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/legacy-trace-public360.log",
+      "bytes": 4662,
+      "sha256": "a254455d783b9df0d4e51e17b60d9daf25ef547802f6830ebb44712a43ed2a23"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/regression-arrival-final.log",
+      "bytes": 443,
+      "sha256": "b29711f14f51a296e58d280328d79b8d33c654e28db43e29c997d4412bdc6b58"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/regression-movement-diagnostic.log",
+      "bytes": 5776,
+      "sha256": "a564c5e5535f7e187d47de182bdbe6eaba9416c45997d69350198b513be4ed02"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/regression-movement-final.log",
+      "bytes": 654,
+      "sha256": "81b03bcf4cf34364203838f1016b9934b6acd67b0b63b8efdb6ecb0ebb0f3bf2"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/regression-nine.log",
+      "bytes": 4405,
+      "sha256": "2e95e124b4fe26bc941a419243172047f7a36a1392ec0cd415094d23bcbf06de"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/regression-sweep-diagnostic.log",
+      "bytes": 6578,
+      "sha256": "645b5841fbc9b8c98d4ebfe08ba2d856c412e25d0e1978e67956851260104433"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/run-diagnostics.ps1",
+      "bytes": 1826,
+      "sha256": "25c6672b37bca90c07ad521af1383f81b86210a72270e7206f8b9e854a16f7f8"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/run-final.ps1",
+      "bytes": 2254,
+      "sha256": "8b2753903bf9bd72474dd400b68ee836850168781fbe2e3fedc8c9bcc6dbb5ee"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/run-paired.ps1",
+      "bytes": 1771,
+      "sha256": "a387a37347503cc16adca975f718b8bf5f6aa313689d7b9d4069191b2e1409ec"
+    },
+    {
+      "path": ".cache/longtail-39402b6-20261020/summarize.py",
+      "bytes": 10954,
+      "sha256": "0e11057dc9132e24da2e240170af3a6758f5da9948cf7fc6dd749e57b47da7d4"
+    },
+    {
+      "path": ".cache/public-flow-20261020/after-project/game/building/hospital_movement.gd",
+      "bytes": 43464,
+      "sha256": "18e96daa7b580f8bc86e3b9dc268a48344109b085ef2a6a9c237981c0ff9624e"
+    },
+    {
+      "path": ".cache/public-flow-20261020/after-project/game/life/public_areas.gd",
+      "bytes": 38511,
+      "sha256": "4dc3ca1339938136a0077622f5a53034cc528f3ad2e729b8f18f3b2958c81d69"
+    },
+    {
+      "path": ".cache/public-flow-20261020/after-project/source-identity.json",
+      "bytes": 75007,
+      "sha256": "3e6e7799686280d3f0ab5dad1354f64cd68f3b070002d5994dc6379b4e96386f"
+    },
+    {
+      "path": ".cache/public-flow-20261020/after-project/tools/performance/representative.gd",
+      "bytes": 10608,
+      "sha256": "85808f4b734223f7279ad0c6874f8d0a97ba1ae47bbf94e62df4b5fde545c545"
+    },
+    {
+      "path": ".cache/public-flow-20261020/after-project/tools/performance/step_profile.gd",
+      "bytes": 22223,
+      "sha256": "3bb9efe49160241133d4f08edc8e0167dcaff7ed42591da59588e7025dee8703"
+    },
+    {
+      "path": ".cache/task-navigation-20261019/gp.input.bin",
+      "bytes": 1686716,
+      "sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27"
+    },
+    {
+      "path": ".cache/task-navigation-20261019/op.input.bin",
+      "bytes": 1784760,
+      "sha256": "939c2d95da67a9df671dbb5a824fd987174e77b449e3ed0b0332405922b4848b"
+    },
+    {
+      "path": ".cache/task-navigation-20261019/public-v6.input.bin",
+      "bytes": 1782420,
+      "sha256": "1d83a8834528fd2f6c53dff06f6ec150c9e598eed675fc37521ab7e45fcadb10"
+    },
+    {
+      "path": "docs/reports/evidence/2026-10-20-public-entry-longtail/collision-repair.json",
+      "bytes": 21924,
+      "sha256": "5768144d7b6c91e8715deb0ac5f052bc738395651dc3cf1c93bdd793974fbdc6"
+    },
+    {
+      "path": "docs/reports/evidence/2026-10-20-public-entry-longtail/functional-summary.json",
+      "bytes": 4129,
+      "sha256": "0492ef679660e44d6adf3e023c8c5792847a91476d9097e37b47b272e1307ee1"
+    },
+    {
+      "path": "docs/reports/evidence/2026-10-20-public-entry-longtail/movement-summary.json",
+      "bytes": 62010,
+      "sha256": "c2487082d2c1e4d5275d7d97fc87d2370ca3f79fad1db121c6309cd27f85d823"
+    },
+    {
+      "path": "docs/reports/evidence/2026-10-20-public-entry-longtail/quick-summary.json",
+      "bytes": 28281,
+      "sha256": "b9ca4c0884804685fb8998989971b950a021e77e005f81145b3be058d947a33a"
+    },
+    {
+      "path": "docs/reports/evidence/2026-10-20-public-entry-longtail/source-check.json",
+      "bytes": 117559,
+      "sha256": "673103ccd46cb21d7f776a781b1d5b62d12160aa4c6d52945b10d837043f6099"
+    },
+    {
+      "path": "docs/reports/evidence/2026-10-20-public-entry-longtail/stage-function-summary.json",
+      "bytes": 832794,
+      "sha256": "f1a67bc5ac0523c5acf44b198007d6689771ded006dd3073347bafec55ea34bf"
+    }
+  ],
+  "verified_entries": 461
+}

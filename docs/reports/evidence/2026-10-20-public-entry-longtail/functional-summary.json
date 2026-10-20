@@ -1,0 +1,135 @@
+{
+  "unique_final_selected_cases": [
+    "STAFF-45",
+    "STAFF-61",
+    "STAFF-65",
+    "STAFF-71",
+    "STAFF-75",
+    "SPACE-10",
+    "SPACE-53",
+    "SPACE-56",
+    "SPACE-57"
+  ],
+  "batches": [
+    {
+      "id": "cfa57464eee640748e17f570e1bf29f1",
+      "requested_cases": [
+        "STAFF-45",
+        "STAFF-61",
+        "STAFF-65",
+        "STAFF-75",
+        "SPACE-10",
+        "SPACE-53",
+        "SPACE-56",
+        "SPACE-57",
+        "STAFF-71"
+      ],
+      "checks": 9,
+      "assertions_failed": 1,
+      "script_errors": true,
+      "timing": {
+        "started_at_utc": "2026-10-20T15:09:53.3204770+00:00",
+        "ended_at_utc": "2026-10-20T15:10:09.7862188+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 3495,
+        "import_ms": 7695,
+        "tests_ms": 5253,
+        "total_ms": 16467
+      }
+    },
+    {
+      "id": "9117679370ba4719b64036b9f43ac05e",
+      "requested_cases": [
+        "SPACE-56",
+        "SPACE-57"
+      ],
+      "checks": 2,
+      "assertions_failed": 1,
+      "script_errors": false,
+      "timing": {
+        "started_at_utc": "2026-10-20T15:41:52.6328519+00:00",
+        "ended_at_utc": "2026-10-20T15:42:06.4159653+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 3584,
+        "import_ms": 7020,
+        "tests_ms": 3167,
+        "total_ms": 13785
+      }
+    },
+    {
+      "id": "666776bf44094762b74894e89d9f7a24",
+      "requested_cases": [
+        "SPACE-57"
+      ],
+      "checks": 1,
+      "assertions_failed": 1,
+      "script_errors": false,
+      "timing": {
+        "started_at_utc": "2026-10-20T15:44:17.4336837+00:00",
+        "ended_at_utc": "2026-10-20T15:44:31.0817322+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 3356,
+        "import_ms": 7022,
+        "tests_ms": 3259,
+        "total_ms": 13650
+      }
+    },
+    {
+      "id": "cd0eec5fe63d4b158ea263c7ad19ca2c",
+      "requested_cases": [
+        "STAFF-45",
+        "STAFF-71",
+        "SPACE-10",
+        "SPACE-53",
+        "SPACE-56",
+        "SPACE-57"
+      ],
+      "checks": 6,
+      "assertions_failed": 0,
+      "script_errors": false,
+      "timing": {
+        "started_at_utc": "2026-10-20T15:45:51.6857724+00:00",
+        "ended_at_utc": "2026-10-20T15:46:06.5039333+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 3506,
+        "import_ms": 6929,
+        "tests_ms": 4369,
+        "total_ms": 14820
+      }
+    },
+    {
+      "id": "8892f7a748b94b3e977ca2dc87529f09",
+      "requested_cases": [
+        "STAFF-61",
+        "STAFF-65"
+      ],
+      "checks": 2,
+      "assertions_failed": 0,
+      "script_errors": false,
+      "timing": {
+        "started_at_utc": "2026-10-20T15:46:54.2316027+00:00",
+        "ended_at_utc": "2026-10-20T15:47:07.5639262+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 3459,
+        "import_ms": 6836,
+        "tests_ms": 3026,
+        "total_ms": 13334
+      }
+    }
+  ],
+  "reused_pass": {
+    "case": "STAFF-75",
+    "batch": "cfa57464eee640748e17f570e1bf29f1",
+    "reason": "Candidate calculation only; public_areas.gd, public_phase_use.gd and calculation dependencies are unchanged. The later correction only changes movement sweep targets, never called by this case."
+  },
+  "failures": [
+    "Initial SPACE56 assertion passed but an incomplete CourtesyProbe journey caused a script error; complete cursor/path input repaired the probe.",
+    "Initial single-person old-sweep expectation was not actually exercised by that real trajectory; retain real release/arrival and use a separate lawful collision-calculation boundary for the old-sweep contract.",
+    "SPACE57 group safety failed in three runs. Numeric production-vs-canonical sweep snapshots proved float32 rectangle drift and an actual missed timed collision; fixed production destination construction with no epsilon relaxation."
+  ]
+}

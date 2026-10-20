@@ -1,0 +1,2146 @@
+{
+  "traces": [
+    {
+      "run": "legacy-trace-public360",
+      "final_binary_sha256": "49c1aa694e9e63a800721228ff1c3a882c02bd4a3f3a44c5444afc9f79655a84",
+      "counts": {
+        "calls.advance": 360,
+        "calls.dispatch_routes": 360,
+        "calls.queue_local_route": 253,
+        "calls.queue_route": 493,
+        "calls.queue_waypoint": 1,
+        "calls.replan_goal": 2,
+        "calls.request_move": 4020,
+        "calls.retarget": 3837,
+        "calls.yield": 1694,
+        "calls.yield_idle_staff": 27,
+        "dispatch.repeated_same_actor_goal_waypoint_body_geometry": 228,
+        "dispatch.success": 490,
+        "idle_courtesy.moved": 16,
+        "idle_courtesy.no_move": 11,
+        "local_route.yield": 253,
+        "priority.false": 37,
+        "priority.true": 5,
+        "queue.completed_retreat_resume": 17,
+        "queue.explicit_waypoint": 1,
+        "queue.local_fallback": 253,
+        "queue.new_request": 183,
+        "queue.replan.retarget": 2,
+        "queue.yield_retreat": 37,
+        "replan.retarget.new_sequence": 2,
+        "request.new.accepted": 183,
+        "request.retarget.accepted": 3837,
+        "retarget.changed_goal": 2,
+        "retarget.same_goal": 3835,
+        "waypoint.advance": 1,
+        "yield.idle_staff_moved": 16,
+        "yield.local_fallback": 253,
+        "yield.observed_owner_sequence_changed_since_previous_pair_check": 5,
+        "yield.observed_yielded_owner_wait": 740,
+        "yield.priority_wait": 5,
+        "yield.retreat_queued": 37,
+        "yield.skipped": 643
+      },
+      "query_counts": {
+        "actor_index_actor_visits": 701120,
+        "actor_index_builds": 4382,
+        "candidate_connections": 23818,
+        "connector_node_declarations": 32,
+        "connector_topology_builds": 8,
+        "connector_topology_inherits": 35578,
+        "door_candidates": 15714,
+        "floor_route_builds": 208366,
+        "floor_route_hits": 12904,
+        "journey_hits": 50,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 24785,
+        "movement_candidates": 4280,
+        "reservation_candidate_queries": 388972,
+        "reservation_index_builds": 649,
+        "reservation_index_updates": 10800,
+        "route_checks": 35348,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 490,
+        "route_dispatches": 490,
+        "route_revalidation_unvalidated": 500,
+        "route_revalidations": 500,
+        "routes": 74110,
+        "static_path_builds": 8501,
+        "static_path_hits": 198866,
+        "transport_builds": 0,
+        "transport_searches": 16160,
+        "yield_attempts": 1051,
+        "yield_candidates": 1040
+      },
+      "errors": [],
+      "dispatch_count_check": true,
+      "top_actors": [
+        {
+          "actor_id": "bench_patient_0036",
+          "counts": {
+            "dispatch.repeated_same_actor_goal_waypoint_body_geometry": 114,
+            "dispatch.success": 118,
+            "local_route.yield": 118,
+            "queue.local_fallback": 118,
+            "queue.new_request": 1,
+            "request.new.accepted": 1,
+            "yield.local_fallback": 118,
+            "yield.observed_yielded_owner_wait": 1,
+            "yield.priority_wait": 1
+          },
+          "events": 590,
+          "final_movement": {
+            "blocked_since": 2835,
+            "body": [
+              [
+                [
+                  "bench_patient_0036",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 1,
+            "goal": [
+              1,
+              [
+                10,
+                91
+              ]
+            ],
+            "location": {
+              "cell": [
+                25.5999984741211,
+                14.0
+              ],
+              "floor_id": 1,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 94,
+            "pending": true,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 525,
+            "travelled": 29,
+            "waypoint": [
+              1,
+              [
+                10,
+                91
+              ],
+              0
+            ],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0083",
+          "counts": {
+            "dispatch.repeated_same_actor_goal_waypoint_body_geometry": 83,
+            "dispatch.success": 87,
+            "local_route.yield": 87,
+            "queue.local_fallback": 87,
+            "queue.new_request": 1,
+            "request.new.accepted": 1,
+            "yield.local_fallback": 87,
+            "yield.observed_yielded_owner_wait": 1,
+            "yield.priority_wait": 1
+          },
+          "events": 435,
+          "final_movement": {
+            "blocked_since": 2864,
+            "body": [
+              [
+                [
+                  "bench_patient_0083",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 1,
+            "goal": [
+              1,
+              [
+                84,
+                40
+              ]
+            ],
+            "location": {
+              "cell": [
+                84.0,
+                43.4000015258789
+              ],
+              "floor_id": 4,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 11,
+            "pending": true,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 527,
+            "travelled": 42,
+            "waypoint": [
+              4,
+              [
+                86,
+                44
+              ],
+              7
+            ],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0077",
+          "counts": {
+            "dispatch.repeated_same_actor_goal_waypoint_body_geometry": 26,
+            "dispatch.success": 30,
+            "local_route.yield": 30,
+            "queue.local_fallback": 30,
+            "queue.new_request": 1,
+            "request.new.accepted": 1,
+            "yield.local_fallback": 30
+          },
+          "events": 148,
+          "final_movement": {
+            "blocked_since": 2923,
+            "body": [
+              [
+                [
+                  "bench_patient_0077",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 1,
+            "goal": [
+              1,
+              [
+                84,
+                47
+              ]
+            ],
+            "location": {
+              "cell": [
+                84.0,
+                43.4000015258789
+              ],
+              "floor_id": 2,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 10,
+            "pending": true,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 526,
+            "travelled": 54,
+            "waypoint": [
+              2,
+              [
+                86,
+                44
+              ],
+              6
+            ],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_staff_0000",
+          "counts": {
+            "dispatch.success": 4,
+            "idle_courtesy.no_move": 2,
+            "local_route.yield": 2,
+            "queue.local_fallback": 2,
+            "queue.new_request": 1,
+            "queue.replan.retarget": 1,
+            "replan.retarget.new_sequence": 1,
+            "request.new.accepted": 1,
+            "request.retarget.accepted": 94,
+            "retarget.changed_goal": 1,
+            "retarget.same_goal": 93,
+            "yield.local_fallback": 2
+          },
+          "events": 204,
+          "final_movement": {
+            "blocked_since": -1,
+            "body": [
+              [
+                [
+                  "bench_staff_0000",
+                  "S49",
+                  "",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 9,
+            "goal": [
+              1,
+              [
+                6,
+                5
+              ]
+            ],
+            "location": {
+              "cell": [
+                8.0,
+                10.2000007629395
+              ],
+              "floor_id": 1,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 17,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 396,
+            "travelled": 33,
+            "waypoint": [],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0008",
+          "counts": {
+            "dispatch.repeated_same_actor_goal_waypoint_body_geometry": 1,
+            "dispatch.success": 6,
+            "idle_courtesy.no_move": 2,
+            "local_route.yield": 2,
+            "queue.local_fallback": 2,
+            "queue.new_request": 4,
+            "request.new.accepted": 4,
+            "request.retarget.accepted": 88,
+            "retarget.same_goal": 88,
+            "yield.local_fallback": 2
+          },
+          "events": 199,
+          "final_movement": {
+            "blocked_since": -1,
+            "body": [
+              [
+                [
+                  "bench_patient_0008",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 11,
+            "goal": [
+              1,
+              [
+                50,
+                74
+              ]
+            ],
+            "location": {
+              "cell": [
+                27.0,
+                58.0
+              ],
+              "floor_id": 1,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 70,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 375,
+            "travelled": 12,
+            "waypoint": [],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0048",
+          "counts": {
+            "dispatch.repeated_same_actor_goal_waypoint_body_geometry": 1,
+            "dispatch.success": 7,
+            "idle_courtesy.moved": 2,
+            "idle_courtesy.no_move": 1,
+            "local_route.yield": 2,
+            "queue.completed_retreat_resume": 2,
+            "queue.local_fallback": 2,
+            "queue.new_request": 1,
+            "queue.yield_retreat": 2,
+            "request.new.accepted": 1,
+            "yield.idle_staff_moved": 2,
+            "yield.local_fallback": 2,
+            "yield.retreat_queued": 2
+          },
+          "events": 27,
+          "final_movement": {}
+        },
+        {
+          "actor_id": "bench_patient_0052",
+          "counts": {
+            "dispatch.success": 3,
+            "local_route.yield": 2,
+            "queue.local_fallback": 2,
+            "queue.new_request": 1,
+            "request.new.accepted": 1,
+            "yield.local_fallback": 2,
+            "yield.observed_yielded_owner_wait": 1,
+            "yield.priority_wait": 1
+          },
+          "events": 13,
+          "final_movement": {}
+        },
+        {
+          "actor_id": "bench_patient_0000",
+          "counts": {
+            "dispatch.success": 2,
+            "idle_courtesy.no_move": 1,
+            "local_route.yield": 1,
+            "queue.local_fallback": 1,
+            "queue.new_request": 1,
+            "request.new.accepted": 1,
+            "request.retarget.accepted": 223,
+            "retarget.same_goal": 223,
+            "yield.local_fallback": 1
+          },
+          "events": 454,
+          "final_movement": {
+            "blocked_since": -1,
+            "body": [
+              [
+                [
+                  "bench_patient_0000",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 28,
+            "goal": [
+              1,
+              [
+                28,
+                8
+              ]
+            ],
+            "location": {
+              "cell": [
+                30.0,
+                10.2000007629395
+              ],
+              "floor_id": 1,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 33,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 238,
+            "travelled": 39,
+            "waypoint": [],
+            "yield_partner": "",
+            "yielding": false
+          }
+        }
+      ]
+    },
+    {
+      "run": "before-trace-public360",
+      "final_binary_sha256": "2516cd84151b9c122113d527b8e1b46833d6dcc3cab3ea64262b189e950d1c33",
+      "counts": {
+        "calls.advance": 360,
+        "calls.dispatch_routes": 360,
+        "calls.queue_local_route": 877,
+        "calls.queue_route": 1122,
+        "calls.queue_waypoint": 1,
+        "calls.replan_goal": 2,
+        "calls.request_move": 3971,
+        "calls.retarget": 3789,
+        "calls.yield": 2149,
+        "calls.yield_idle_staff": 770,
+        "dispatch.repeated_same_actor_goal_waypoint_body_geometry": 834,
+        "dispatch.success": 1118,
+        "idle_courtesy.moved": 15,
+        "idle_courtesy.no_move": 755,
+        "local_route.yield": 877,
+        "priority.false": 40,
+        "priority.true": 5,
+        "queue.completed_retreat_resume": 20,
+        "queue.explicit_waypoint": 1,
+        "queue.local_fallback": 877,
+        "queue.new_request": 182,
+        "queue.replan.retarget": 2,
+        "queue.yield_retreat": 40,
+        "replan.retarget.new_sequence": 2,
+        "request.new.accepted": 182,
+        "request.retarget.accepted": 3789,
+        "retarget.changed_goal": 2,
+        "retarget.same_goal": 3787,
+        "waypoint.advance": 1,
+        "yield.idle_staff_moved": 15,
+        "yield.local_fallback": 877,
+        "yield.observed_owner_sequence_changed_since_previous_pair_check": 5,
+        "yield.observed_yielded_owner_wait": 662,
+        "yield.priority_wait": 5,
+        "yield.retreat_queued": 40,
+        "yield.skipped": 550
+      },
+      "query_counts": {
+        "actor_index_actor_visits": 173760,
+        "actor_index_builds": 1086,
+        "candidate_connections": 8962,
+        "connector_node_declarations": 28,
+        "connector_topology_builds": 7,
+        "connector_topology_inherits": 532,
+        "distance_field_builds": 36,
+        "distance_field_hits": 3263,
+        "door_candidates": 26786,
+        "floor_route_builds": 5504,
+        "floor_route_hits": 9736,
+        "journey_hits": 50,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 13545,
+        "movement_candidates": 4657,
+        "nearby_field_builds": 9,
+        "public_wait_hits": 6134,
+        "public_wait_rechecks": 674,
+        "reservation_candidate_queries": 278146,
+        "reservation_index_builds": 523,
+        "reservation_index_updates": 7101,
+        "route_checks": 36297,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 1118,
+        "route_dispatches": 1118,
+        "route_revalidation_unvalidated": 1128,
+        "route_revalidations": 1128,
+        "routes": 3849,
+        "static_path_builds": 542,
+        "static_path_hits": 143,
+        "transport_builds": 0,
+        "transport_searches": 3327,
+        "yield_attempts": 1599,
+        "yield_candidates": 844
+      },
+      "errors": [],
+      "dispatch_count_check": true,
+      "top_actors": [
+        {
+          "actor_id": "bench_patient_0104",
+          "counts": {
+            "dispatch.repeated_same_actor_goal_waypoint_body_geometry": 246,
+            "dispatch.success": 251,
+            "idle_courtesy.no_move": 251,
+            "local_route.yield": 251,
+            "queue.local_fallback": 251,
+            "queue.new_request": 1,
+            "request.new.accepted": 1,
+            "yield.local_fallback": 251
+          },
+          "events": 1503,
+          "final_movement": {
+            "blocked_since": 2701,
+            "body": [
+              [
+                [
+                  "bench_patient_0104",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 1,
+            "goal": [
+              1,
+              [
+                8,
+                15
+              ]
+            ],
+            "location": {
+              "cell": [
+                8.0,
+                14.3999996185303
+              ],
+              "floor_id": 1,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 2,
+            "pending": true,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 1156,
+            "travelled": 9,
+            "waypoint": [
+              1,
+              [
+                8,
+                15
+              ],
+              0
+            ],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0044",
+          "counts": {
+            "dispatch.repeated_same_actor_goal_waypoint_body_geometry": 175,
+            "dispatch.success": 180,
+            "idle_courtesy.no_move": 179,
+            "local_route.yield": 180,
+            "queue.local_fallback": 180,
+            "queue.new_request": 1,
+            "request.new.accepted": 1,
+            "yield.local_fallback": 180
+          },
+          "events": 1076,
+          "final_movement": {
+            "blocked_since": 2774,
+            "body": [
+              [
+                [
+                  "bench_patient_0044",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 1,
+            "goal": [
+              1,
+              [
+                53,
+                15
+              ]
+            ],
+            "location": {
+              "cell": [
+                53.0,
+                14.3999996185303
+              ],
+              "floor_id": 1,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 2,
+            "pending": true,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 1153,
+            "travelled": 19,
+            "waypoint": [
+              1,
+              [
+                53,
+                15
+              ],
+              0
+            ],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0083",
+          "counts": {
+            "dispatch.repeated_same_actor_goal_waypoint_body_geometry": 83,
+            "dispatch.success": 87,
+            "local_route.yield": 87,
+            "queue.local_fallback": 87,
+            "queue.new_request": 1,
+            "request.new.accepted": 1,
+            "yield.local_fallback": 87,
+            "yield.observed_yielded_owner_wait": 1,
+            "yield.priority_wait": 1
+          },
+          "events": 435,
+          "final_movement": {
+            "blocked_since": 2864,
+            "body": [
+              [
+                [
+                  "bench_patient_0083",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 1,
+            "goal": [
+              1,
+              [
+                85,
+                44
+              ]
+            ],
+            "location": {
+              "cell": [
+                84.0,
+                43.4000015258789
+              ],
+              "floor_id": 4,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 6,
+            "pending": true,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 1155,
+            "travelled": 42,
+            "waypoint": [
+              4,
+              [
+                86,
+                44
+              ],
+              2
+            ],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0019",
+          "counts": {
+            "dispatch.repeated_same_actor_goal_waypoint_body_geometry": 76,
+            "dispatch.success": 84,
+            "idle_courtesy.no_move": 79,
+            "local_route.yield": 79,
+            "queue.completed_retreat_resume": 1,
+            "queue.local_fallback": 79,
+            "queue.new_request": 3,
+            "queue.yield_retreat": 1,
+            "request.new.accepted": 3,
+            "yield.local_fallback": 79,
+            "yield.retreat_queued": 1
+          },
+          "events": 485,
+          "final_movement": {
+            "blocked_since": -1,
+            "body": [
+              [
+                [
+                  "bench_patient_0019",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 0,
+            "goal": [
+              4,
+              [
+                24,
+                52
+              ]
+            ],
+            "location": {
+              "cell": [
+                28.0,
+                52.4000015258789
+              ],
+              "floor_id": 4,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 20,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 1148,
+            "travelled": 1,
+            "waypoint": [],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0016",
+          "counts": {
+            "dispatch.repeated_same_actor_goal_waypoint_body_geometry": 75,
+            "dispatch.success": 83,
+            "idle_courtesy.no_move": 78,
+            "local_route.yield": 78,
+            "queue.completed_retreat_resume": 1,
+            "queue.local_fallback": 78,
+            "queue.new_request": 3,
+            "queue.yield_retreat": 1,
+            "request.new.accepted": 3,
+            "yield.local_fallback": 78,
+            "yield.retreat_queued": 1
+          },
+          "events": 479,
+          "final_movement": {
+            "blocked_since": -1,
+            "body": [
+              [
+                [
+                  "bench_patient_0016",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 0,
+            "goal": [
+              1,
+              [
+                24,
+                52
+              ]
+            ],
+            "location": {
+              "cell": [
+                28.0,
+                52.4000015258789
+              ],
+              "floor_id": 1,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 20,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 1145,
+            "travelled": 1,
+            "waypoint": [],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0017",
+          "counts": {
+            "dispatch.repeated_same_actor_goal_waypoint_body_geometry": 75,
+            "dispatch.success": 83,
+            "idle_courtesy.no_move": 78,
+            "local_route.yield": 78,
+            "queue.completed_retreat_resume": 1,
+            "queue.local_fallback": 78,
+            "queue.new_request": 3,
+            "queue.yield_retreat": 1,
+            "request.new.accepted": 3,
+            "yield.local_fallback": 78,
+            "yield.retreat_queued": 1
+          },
+          "events": 479,
+          "final_movement": {
+            "blocked_since": -1,
+            "body": [
+              [
+                [
+                  "bench_patient_0017",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 0,
+            "goal": [
+              2,
+              [
+                24,
+                52
+              ]
+            ],
+            "location": {
+              "cell": [
+                28.0,
+                52.4000015258789
+              ],
+              "floor_id": 2,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 20,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 1146,
+            "travelled": 1,
+            "waypoint": [],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0018",
+          "counts": {
+            "dispatch.repeated_same_actor_goal_waypoint_body_geometry": 75,
+            "dispatch.success": 83,
+            "idle_courtesy.no_move": 78,
+            "local_route.yield": 78,
+            "queue.completed_retreat_resume": 1,
+            "queue.local_fallback": 78,
+            "queue.new_request": 3,
+            "queue.yield_retreat": 1,
+            "request.new.accepted": 3,
+            "yield.local_fallback": 78,
+            "yield.retreat_queued": 1
+          },
+          "events": 479,
+          "final_movement": {
+            "blocked_since": -1,
+            "body": [
+              [
+                [
+                  "bench_patient_0018",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 0,
+            "goal": [
+              3,
+              [
+                24,
+                52
+              ]
+            ],
+            "location": {
+              "cell": [
+                28.0,
+                52.4000015258789
+              ],
+              "floor_id": 3,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 20,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 1147,
+            "travelled": 1,
+            "waypoint": [],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0077",
+          "counts": {
+            "dispatch.repeated_same_actor_goal_waypoint_body_geometry": 26,
+            "dispatch.success": 30,
+            "local_route.yield": 30,
+            "queue.local_fallback": 30,
+            "queue.new_request": 1,
+            "request.new.accepted": 1,
+            "yield.local_fallback": 30
+          },
+          "events": 148,
+          "final_movement": {
+            "blocked_since": 2923,
+            "body": [
+              [
+                [
+                  "bench_patient_0077",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 1,
+            "goal": [
+              1,
+              [
+                85,
+                44
+              ]
+            ],
+            "location": {
+              "cell": [
+                84.0,
+                43.4000015258789
+              ],
+              "floor_id": 2,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 6,
+            "pending": true,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 1154,
+            "travelled": 54,
+            "waypoint": [
+              2,
+              [
+                86,
+                44
+              ],
+              2
+            ],
+            "yield_partner": "",
+            "yielding": false
+          }
+        }
+      ]
+    },
+    {
+      "run": "after-trace-public360",
+      "final_binary_sha256": "a65ff7256372e47041fe3ddb6fc05fa2b1dc236150122c421c72a040e2def26f",
+      "counts": {
+        "calls.advance": 360,
+        "calls.dispatch_routes": 360,
+        "calls.queue_local_route": 138,
+        "calls.queue_route": 383,
+        "calls.queue_waypoint": 1,
+        "calls.replan_goal": 2,
+        "calls.request_move": 3971,
+        "calls.retarget": 3789,
+        "calls.yield": 2149,
+        "calls.yield_idle_staff": 770,
+        "dispatch.repeated_same_actor_goal_waypoint_body_geometry": 112,
+        "dispatch.success": 381,
+        "idle_courtesy.moved": 15,
+        "idle_courtesy.no_move": 755,
+        "local_route.yield": 138,
+        "priority.false": 40,
+        "priority.true": 5,
+        "queue.completed_retreat_resume": 20,
+        "queue.explicit_waypoint": 1,
+        "queue.local_fallback": 138,
+        "queue.new_request": 182,
+        "queue.replan.retarget": 2,
+        "queue.yield_retreat": 40,
+        "replan.retarget.new_sequence": 2,
+        "request.new.accepted": 182,
+        "request.retarget.accepted": 3789,
+        "retarget.changed_goal": 2,
+        "retarget.same_goal": 3787,
+        "waypoint.advance": 1,
+        "yield.idle_staff_moved": 15,
+        "yield.local_fallback": 138,
+        "yield.observed_owner_sequence_changed_since_previous_pair_check": 5,
+        "yield.observed_yielded_owner_wait": 662,
+        "yield.priority_wait": 5,
+        "yield.retreat_queued": 40,
+        "yield.skipped": 550,
+        "yield.unknown_no_queue": 739
+      },
+      "query_counts": {
+        "actor_index_actor_visits": 173760,
+        "actor_index_builds": 1086,
+        "candidate_connections": 8962,
+        "connector_node_declarations": 28,
+        "connector_topology_builds": 7,
+        "connector_topology_inherits": 532,
+        "distance_field_builds": 36,
+        "distance_field_hits": 3263,
+        "door_candidates": 14994,
+        "floor_route_builds": 4767,
+        "floor_route_hits": 9736,
+        "journey_hits": 50,
+        "journey_invalidations": 0,
+        "local_goal_occupied_waits": 739,
+        "materialized_floor_cells": 12808,
+        "movement_candidates": 4658,
+        "nearby_field_builds": 9,
+        "public_wait_hits": 6135,
+        "public_wait_rechecks": 674,
+        "reservation_candidate_queries": 264150,
+        "reservation_index_builds": 523,
+        "reservation_index_updates": 7101,
+        "route_checks": 36299,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 381,
+        "route_dispatches": 381,
+        "route_revalidation_unvalidated": 391,
+        "route_revalidations": 391,
+        "routes": 3849,
+        "static_path_builds": 542,
+        "static_path_hits": 143,
+        "transport_builds": 0,
+        "transport_searches": 3327,
+        "yield_attempts": 1599,
+        "yield_candidates": 844
+      },
+      "errors": [],
+      "dispatch_count_check": true,
+      "top_actors": [
+        {
+          "actor_id": "bench_patient_0083",
+          "counts": {
+            "dispatch.repeated_same_actor_goal_waypoint_body_geometry": 83,
+            "dispatch.success": 87,
+            "local_route.yield": 87,
+            "queue.local_fallback": 87,
+            "queue.new_request": 1,
+            "request.new.accepted": 1,
+            "yield.local_fallback": 87,
+            "yield.observed_yielded_owner_wait": 1,
+            "yield.priority_wait": 1
+          },
+          "events": 435,
+          "final_movement": {
+            "blocked_since": 2864,
+            "body": [
+              [
+                [
+                  "bench_patient_0083",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 1,
+            "goal": [
+              1,
+              [
+                85,
+                44
+              ]
+            ],
+            "location": {
+              "cell": [
+                84.0,
+                43.4000015258789
+              ],
+              "floor_id": 4,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 6,
+            "pending": true,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 417,
+            "travelled": 42,
+            "waypoint": [
+              4,
+              [
+                86,
+                44
+              ],
+              2
+            ],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0077",
+          "counts": {
+            "dispatch.repeated_same_actor_goal_waypoint_body_geometry": 26,
+            "dispatch.success": 30,
+            "local_route.yield": 30,
+            "queue.local_fallback": 30,
+            "queue.new_request": 1,
+            "request.new.accepted": 1,
+            "yield.local_fallback": 30
+          },
+          "events": 148,
+          "final_movement": {
+            "blocked_since": 2923,
+            "body": [
+              [
+                [
+                  "bench_patient_0077",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 1,
+            "goal": [
+              1,
+              [
+                85,
+                44
+              ]
+            ],
+            "location": {
+              "cell": [
+                84.0,
+                43.4000015258789
+              ],
+              "floor_id": 2,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 6,
+            "pending": true,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 416,
+            "travelled": 54,
+            "waypoint": [
+              2,
+              [
+                86,
+                44
+              ],
+              2
+            ],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0044",
+          "counts": {
+            "dispatch.success": 2,
+            "idle_courtesy.no_move": 179,
+            "local_route.yield": 1,
+            "queue.local_fallback": 1,
+            "queue.new_request": 1,
+            "request.new.accepted": 1,
+            "yield.local_fallback": 1,
+            "yield.unknown_no_queue": 179
+          },
+          "events": 365,
+          "final_movement": {
+            "blocked_since": 2774,
+            "body": [
+              [
+                [
+                  "bench_patient_0044",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 17,
+            "goal": [
+              1,
+              [
+                53,
+                15
+              ]
+            ],
+            "location": {
+              "cell": [
+                53.0,
+                14.3999996185303
+              ],
+              "floor_id": 1,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 18,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 164,
+            "travelled": 19,
+            "waypoint": [],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0020",
+          "counts": {
+            "dispatch.success": 7,
+            "idle_courtesy.no_move": 1,
+            "local_route.yield": 1,
+            "queue.completed_retreat_resume": 1,
+            "queue.local_fallback": 1,
+            "queue.new_request": 4,
+            "queue.yield_retreat": 1,
+            "request.new.accepted": 4,
+            "request.retarget.accepted": 88,
+            "retarget.same_goal": 88,
+            "yield.local_fallback": 1,
+            "yield.retreat_queued": 1
+          },
+          "events": 198,
+          "final_movement": {
+            "blocked_since": -1,
+            "body": [
+              [
+                [
+                  "bench_patient_0020",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 3,
+            "goal": [
+              1,
+              [
+                50,
+                74
+              ]
+            ],
+            "location": {
+              "cell": [
+                25.2000007629395,
+                58.0
+              ],
+              "floor_id": 1,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 60,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 375,
+            "travelled": 8,
+            "waypoint": [],
+            "yield_partner": "bench_patient_0008",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0016",
+          "counts": {
+            "dispatch.success": 6,
+            "idle_courtesy.no_move": 78,
+            "local_route.yield": 1,
+            "queue.completed_retreat_resume": 1,
+            "queue.local_fallback": 1,
+            "queue.new_request": 3,
+            "queue.yield_retreat": 1,
+            "request.new.accepted": 3,
+            "yield.local_fallback": 1,
+            "yield.retreat_queued": 1,
+            "yield.unknown_no_queue": 77
+          },
+          "events": 173,
+          "final_movement": {
+            "blocked_since": -1,
+            "body": [
+              [
+                [
+                  "bench_patient_0016",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 0,
+            "goal": [
+              1,
+              [
+                24,
+                52
+              ]
+            ],
+            "location": {
+              "cell": [
+                28.0,
+                52.4000015258789
+              ],
+              "floor_id": 1,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 20,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 410,
+            "travelled": 1,
+            "waypoint": [],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0017",
+          "counts": {
+            "dispatch.success": 6,
+            "idle_courtesy.no_move": 78,
+            "local_route.yield": 1,
+            "queue.completed_retreat_resume": 1,
+            "queue.local_fallback": 1,
+            "queue.new_request": 3,
+            "queue.yield_retreat": 1,
+            "request.new.accepted": 3,
+            "yield.local_fallback": 1,
+            "yield.retreat_queued": 1,
+            "yield.unknown_no_queue": 77
+          },
+          "events": 173,
+          "final_movement": {
+            "blocked_since": -1,
+            "body": [
+              [
+                [
+                  "bench_patient_0017",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 0,
+            "goal": [
+              2,
+              [
+                24,
+                52
+              ]
+            ],
+            "location": {
+              "cell": [
+                28.0,
+                52.4000015258789
+              ],
+              "floor_id": 2,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 20,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 411,
+            "travelled": 1,
+            "waypoint": [],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0019",
+          "counts": {
+            "dispatch.success": 6,
+            "idle_courtesy.no_move": 78,
+            "local_route.yield": 1,
+            "queue.completed_retreat_resume": 1,
+            "queue.local_fallback": 1,
+            "queue.new_request": 3,
+            "queue.yield_retreat": 1,
+            "request.new.accepted": 3,
+            "yield.local_fallback": 1,
+            "yield.retreat_queued": 1,
+            "yield.unknown_no_queue": 77
+          },
+          "events": 173,
+          "final_movement": {
+            "blocked_since": -1,
+            "body": [
+              [
+                [
+                  "bench_patient_0019",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 0,
+            "goal": [
+              4,
+              [
+                24,
+                52
+              ]
+            ],
+            "location": {
+              "cell": [
+                28.0,
+                52.4000015258789
+              ],
+              "floor_id": 4,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 20,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 413,
+            "travelled": 1,
+            "waypoint": [],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0018",
+          "counts": {
+            "dispatch.success": 6,
+            "idle_courtesy.no_move": 78,
+            "local_route.yield": 1,
+            "queue.completed_retreat_resume": 1,
+            "queue.local_fallback": 1,
+            "queue.new_request": 3,
+            "queue.yield_retreat": 1,
+            "request.new.accepted": 3,
+            "yield.local_fallback": 1,
+            "yield.retreat_queued": 1,
+            "yield.unknown_no_queue": 77
+          },
+          "events": 173,
+          "final_movement": {
+            "blocked_since": -1,
+            "body": [
+              [
+                [
+                  "bench_patient_0018",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 0,
+            "goal": [
+              3,
+              [
+                24,
+                52
+              ]
+            ],
+            "location": {
+              "cell": [
+                28.0,
+                52.4000015258789
+              ],
+              "floor_id": 3,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 20,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 412,
+            "travelled": 1,
+            "waypoint": [],
+            "yield_partner": "",
+            "yielding": false
+          }
+        }
+      ]
+    },
+    {
+      "run": "final-trace-public360",
+      "final_binary_sha256": "a65ff7256372e47041fe3ddb6fc05fa2b1dc236150122c421c72a040e2def26f",
+      "counts": {
+        "calls.advance": 360,
+        "calls.dispatch_routes": 360,
+        "calls.queue_local_route": 138,
+        "calls.queue_route": 383,
+        "calls.queue_waypoint": 1,
+        "calls.replan_goal": 2,
+        "calls.request_move": 3971,
+        "calls.retarget": 3789,
+        "calls.yield": 2149,
+        "calls.yield_idle_staff": 770,
+        "dispatch.repeated_same_actor_goal_waypoint_body_geometry": 112,
+        "dispatch.success": 381,
+        "idle_courtesy.moved": 15,
+        "idle_courtesy.no_move": 755,
+        "local_route.yield": 138,
+        "priority.false": 40,
+        "priority.true": 5,
+        "queue.completed_retreat_resume": 20,
+        "queue.explicit_waypoint": 1,
+        "queue.local_fallback": 138,
+        "queue.new_request": 182,
+        "queue.replan.retarget": 2,
+        "queue.yield_retreat": 40,
+        "replan.retarget.new_sequence": 2,
+        "request.new.accepted": 182,
+        "request.retarget.accepted": 3789,
+        "retarget.changed_goal": 2,
+        "retarget.same_goal": 3787,
+        "waypoint.advance": 1,
+        "yield.idle_staff_moved": 15,
+        "yield.local_fallback": 138,
+        "yield.observed_owner_sequence_changed_since_previous_pair_check": 5,
+        "yield.observed_yielded_owner_wait": 662,
+        "yield.priority_wait": 5,
+        "yield.retreat_queued": 40,
+        "yield.skipped": 550,
+        "yield.unknown_no_queue": 739
+      },
+      "query_counts": {
+        "actor_index_actor_visits": 173760,
+        "actor_index_builds": 1086,
+        "candidate_connections": 8962,
+        "connector_node_declarations": 28,
+        "connector_topology_builds": 7,
+        "connector_topology_inherits": 532,
+        "distance_field_builds": 36,
+        "distance_field_hits": 3263,
+        "door_candidates": 14994,
+        "floor_route_builds": 4767,
+        "floor_route_hits": 9736,
+        "journey_hits": 50,
+        "journey_invalidations": 0,
+        "local_goal_occupied_waits": 739,
+        "materialized_floor_cells": 12808,
+        "movement_candidates": 4658,
+        "nearby_field_builds": 9,
+        "public_wait_hits": 6135,
+        "public_wait_rechecks": 674,
+        "reservation_candidate_queries": 264150,
+        "reservation_index_builds": 523,
+        "reservation_index_updates": 7101,
+        "route_checks": 36299,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 381,
+        "route_dispatches": 381,
+        "route_revalidation_unvalidated": 391,
+        "route_revalidations": 391,
+        "routes": 3849,
+        "static_path_builds": 542,
+        "static_path_hits": 143,
+        "transport_builds": 0,
+        "transport_searches": 3327,
+        "yield_attempts": 1599,
+        "yield_candidates": 844
+      },
+      "errors": [],
+      "dispatch_count_check": true,
+      "top_actors": [
+        {
+          "actor_id": "bench_patient_0083",
+          "counts": {
+            "dispatch.repeated_same_actor_goal_waypoint_body_geometry": 83,
+            "dispatch.success": 87,
+            "local_route.yield": 87,
+            "queue.local_fallback": 87,
+            "queue.new_request": 1,
+            "request.new.accepted": 1,
+            "yield.local_fallback": 87,
+            "yield.observed_yielded_owner_wait": 1,
+            "yield.priority_wait": 1
+          },
+          "events": 435,
+          "final_movement": {
+            "blocked_since": 2864,
+            "body": [
+              [
+                [
+                  "bench_patient_0083",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 1,
+            "goal": [
+              1,
+              [
+                85,
+                44
+              ]
+            ],
+            "location": {
+              "cell": [
+                84.0,
+                43.4000015258789
+              ],
+              "floor_id": 4,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 6,
+            "pending": true,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 417,
+            "travelled": 42,
+            "waypoint": [
+              4,
+              [
+                86,
+                44
+              ],
+              2
+            ],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0077",
+          "counts": {
+            "dispatch.repeated_same_actor_goal_waypoint_body_geometry": 26,
+            "dispatch.success": 30,
+            "local_route.yield": 30,
+            "queue.local_fallback": 30,
+            "queue.new_request": 1,
+            "request.new.accepted": 1,
+            "yield.local_fallback": 30
+          },
+          "events": 148,
+          "final_movement": {
+            "blocked_since": 2923,
+            "body": [
+              [
+                [
+                  "bench_patient_0077",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 1,
+            "goal": [
+              1,
+              [
+                85,
+                44
+              ]
+            ],
+            "location": {
+              "cell": [
+                84.0,
+                43.4000015258789
+              ],
+              "floor_id": 2,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 6,
+            "pending": true,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 416,
+            "travelled": 54,
+            "waypoint": [
+              2,
+              [
+                86,
+                44
+              ],
+              2
+            ],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0044",
+          "counts": {
+            "dispatch.success": 2,
+            "idle_courtesy.no_move": 179,
+            "local_route.yield": 1,
+            "queue.local_fallback": 1,
+            "queue.new_request": 1,
+            "request.new.accepted": 1,
+            "yield.local_fallback": 1,
+            "yield.unknown_no_queue": 179
+          },
+          "events": 365,
+          "final_movement": {
+            "blocked_since": 2774,
+            "body": [
+              [
+                [
+                  "bench_patient_0044",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 17,
+            "goal": [
+              1,
+              [
+                53,
+                15
+              ]
+            ],
+            "location": {
+              "cell": [
+                53.0,
+                14.3999996185303
+              ],
+              "floor_id": 1,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 18,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 164,
+            "travelled": 19,
+            "waypoint": [],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0020",
+          "counts": {
+            "dispatch.success": 7,
+            "idle_courtesy.no_move": 1,
+            "local_route.yield": 1,
+            "queue.completed_retreat_resume": 1,
+            "queue.local_fallback": 1,
+            "queue.new_request": 4,
+            "queue.yield_retreat": 1,
+            "request.new.accepted": 4,
+            "request.retarget.accepted": 88,
+            "retarget.same_goal": 88,
+            "yield.local_fallback": 1,
+            "yield.retreat_queued": 1
+          },
+          "events": 198,
+          "final_movement": {
+            "blocked_since": -1,
+            "body": [
+              [
+                [
+                  "bench_patient_0020",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 3,
+            "goal": [
+              1,
+              [
+                50,
+                74
+              ]
+            ],
+            "location": {
+              "cell": [
+                25.2000007629395,
+                58.0
+              ],
+              "floor_id": 1,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 60,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 375,
+            "travelled": 8,
+            "waypoint": [],
+            "yield_partner": "bench_patient_0008",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0016",
+          "counts": {
+            "dispatch.success": 6,
+            "idle_courtesy.no_move": 78,
+            "local_route.yield": 1,
+            "queue.completed_retreat_resume": 1,
+            "queue.local_fallback": 1,
+            "queue.new_request": 3,
+            "queue.yield_retreat": 1,
+            "request.new.accepted": 3,
+            "yield.local_fallback": 1,
+            "yield.retreat_queued": 1,
+            "yield.unknown_no_queue": 77
+          },
+          "events": 173,
+          "final_movement": {
+            "blocked_since": -1,
+            "body": [
+              [
+                [
+                  "bench_patient_0016",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 0,
+            "goal": [
+              1,
+              [
+                24,
+                52
+              ]
+            ],
+            "location": {
+              "cell": [
+                28.0,
+                52.4000015258789
+              ],
+              "floor_id": 1,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 20,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 410,
+            "travelled": 1,
+            "waypoint": [],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0017",
+          "counts": {
+            "dispatch.success": 6,
+            "idle_courtesy.no_move": 78,
+            "local_route.yield": 1,
+            "queue.completed_retreat_resume": 1,
+            "queue.local_fallback": 1,
+            "queue.new_request": 3,
+            "queue.yield_retreat": 1,
+            "request.new.accepted": 3,
+            "yield.local_fallback": 1,
+            "yield.retreat_queued": 1,
+            "yield.unknown_no_queue": 77
+          },
+          "events": 173,
+          "final_movement": {
+            "blocked_since": -1,
+            "body": [
+              [
+                [
+                  "bench_patient_0017",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 0,
+            "goal": [
+              2,
+              [
+                24,
+                52
+              ]
+            ],
+            "location": {
+              "cell": [
+                28.0,
+                52.4000015258789
+              ],
+              "floor_id": 2,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 20,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 411,
+            "travelled": 1,
+            "waypoint": [],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0019",
+          "counts": {
+            "dispatch.success": 6,
+            "idle_courtesy.no_move": 78,
+            "local_route.yield": 1,
+            "queue.completed_retreat_resume": 1,
+            "queue.local_fallback": 1,
+            "queue.new_request": 3,
+            "queue.yield_retreat": 1,
+            "request.new.accepted": 3,
+            "yield.local_fallback": 1,
+            "yield.retreat_queued": 1,
+            "yield.unknown_no_queue": 77
+          },
+          "events": 173,
+          "final_movement": {
+            "blocked_since": -1,
+            "body": [
+              [
+                [
+                  "bench_patient_0019",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 0,
+            "goal": [
+              4,
+              [
+                24,
+                52
+              ]
+            ],
+            "location": {
+              "cell": [
+                28.0,
+                52.4000015258789
+              ],
+              "floor_id": 4,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 20,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 413,
+            "travelled": 1,
+            "waypoint": [],
+            "yield_partner": "",
+            "yielding": false
+          }
+        },
+        {
+          "actor_id": "bench_patient_0018",
+          "counts": {
+            "dispatch.success": 6,
+            "idle_courtesy.no_move": 78,
+            "local_route.yield": 1,
+            "queue.completed_retreat_resume": 1,
+            "queue.local_fallback": 1,
+            "queue.new_request": 3,
+            "queue.yield_retreat": 1,
+            "request.new.accepted": 3,
+            "yield.local_fallback": 1,
+            "yield.retreat_queued": 1,
+            "yield.unknown_no_queue": 77
+          },
+          "events": 173,
+          "final_movement": {
+            "blocked_since": -1,
+            "body": [
+              [
+                [
+                  "bench_patient_0018",
+                  "S13",
+                  "B_S13_D09_M09",
+                  "standing",
+                  ""
+                ]
+              ],
+              {}
+            ],
+            "cursor": 0,
+            "goal": [
+              3,
+              [
+                24,
+                52
+              ]
+            ],
+            "location": {
+              "cell": [
+                28.0,
+                52.4000015258789
+              ],
+              "floor_id": 3,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "path_size": 20,
+            "pending": false,
+            "reason": "",
+            "retry_tick": 0,
+            "sequence": 412,
+            "travelled": 1,
+            "waypoint": [],
+            "yield_partner": "",
+            "yielding": false
+          }
+        }
+      ]
+    }
+  ],
+  "caution": "Repeated signatures alone do not prove live occupancy unchanged. Actual current contacts and goal occupancy justify the production gate; yield_attempts keeps its original meaning. Legacy913 explains the earlier increase and is not the optimization baseline."
+}

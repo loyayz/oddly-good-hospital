@@ -4,12 +4,13 @@ const Clinical = preload("res://tools/performance/representative_clinical.gd")
 const Operations = preload("res://tools/performance/representative_operations.gd")
 const StepProfile = preload("res://tools/performance/step_profile.gd")
 const Public = preload("res://tools/performance/representative_public.gd")
+const MovementTrace = preload("res://tools/performance/movement_trace.gd")
 
 func _initialize() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
-	var options: Dictionary = {"input":"","output":"","steps":"80","profile":"plain","setup":"","store":""}
+	var options: Dictionary = {"input":"","output":"","steps":"80","profile":"plain","setup":"","store":"","movement-trace":"false"}
 	for argument: String in OS.get_cmdline_user_args():
 		if argument.begins_with("--") and "=" in argument:
 			options[argument.trim_prefix("--").get_slice("=",0)] = argument.substr(argument.find("=")+1)
@@ -19,6 +20,10 @@ func _run() -> void:
 		return
 	if not str(options.profile) in ["plain","root","nested"]:
 		push_error("Profile must be plain, root or nested")
+		quit(2)
+		return
+	if not str(options["movement-trace"]) in ["true","false"] or options.profile=="nested" and options["movement-trace"]=="true":
+		push_error("movement-trace must be true/false and cannot attach with nested profiling")
 		quit(2)
 		return
 	for path: String in [str(options.output),str(options.output)+".steps.ndjson",str(options.output)+".final.bin",str(options.store)]:
@@ -74,6 +79,10 @@ func _run() -> void:
 		var replacement: HospitalSimulation = profiler.attach(clinical.simulation,str(options.profile)=="nested")
 		if replacement==null: clinical.errors.append_array(profiler.errors)
 		else: clinical.simulation = replacement
+	var movement_trace: RefCounted = null
+	if options["movement-trace"]=="true" and clinical.errors.is_empty():
+		movement_trace = MovementTrace.new()
+		if movement_trace.attach(clinical.simulation)==null: clinical.errors.append_array(movement_trace.errors)
 	var public_observer: RefCounted = Public.new(clinical.simulation.space)
 	print("REPRESENTATIVE_START="+JSON.stringify({"input_sha256":clinical.source_sha256,"mode":options.profile,
 		"tick":clinical.world.sim_tick,"present":clinical.world.present_actor_count(),"steps":options.steps,"pid":OS.get_process_id()}))
@@ -117,6 +126,9 @@ func _run() -> void:
 	if profiler!=null:
 		report.profile = profiler.report()
 		clinical.errors.append_array(profiler.errors)
+	if movement_trace!=null:
+		report.movement_trace = movement_trace.report()
+		clinical.errors.append_array(movement_trace.errors)
 	report.errors = clinical.errors.duplicate()
 	report.complete = report.samples.size()==int(options.steps) and report.errors.is_empty() and report.final.ok
 	var clinical_work_ticks: int = 0
