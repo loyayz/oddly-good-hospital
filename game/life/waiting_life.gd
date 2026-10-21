@@ -188,9 +188,11 @@ func _manual_seat_quote(world: WorldState, visit: Dictionary, facility_id: Strin
 	facts.staff_life.reservations = world.facts.staff_life.reservations.duplicate()
 	facts.adaptations = world.facts.adaptations.duplicate()
 	var candidate: WorldState = WorldState.new(facts)
+	var departing: Array = []
 	for id: String in candidate.facts.actors:
 		var actor: Dictionary = candidate.facts.actors[id]
 		if actor.get("support_facility_id","")==facility_id:
+			departing.append(id)
 			actor = actor.duplicate(true)
 			candidate.facts.actors[id] = actor
 			actor.location = {"kind":"outside"}
@@ -200,13 +202,19 @@ func _manual_seat_quote(world: WorldState, visit: Dictionary, facility_id: Strin
 		if seat.get("facility_id","")==facility_id:
 			seat = seat.duplicate(true)
 			candidate.facts.waiting_life.seats[id] = seat
+			if not seat.actor_id in departing: departing.append(seat.actor_id)
 			candidate.facts.actors[seat.actor_id] = candidate.facts.actors[seat.actor_id].duplicate(true)
 			candidate.facts.actors[seat.actor_id].location = {"kind":"outside"}
 			seat.facility_id = ""
 	candidate.facts.staff_life.reservations.erase(facility_id)
 	candidate.facts.adaptations.erase(facility_id)
 	space.prepare_projection(world,candidate,[facility_id])
-	return _seat_target_quote(candidate,visit,facility_id)
+	# This preview only removes its declared former users. Retain the source
+	# body index while all other dynamic checks read the actual candidate facts.
+	space.begin_actor_exclusion_query(world,candidate,departing)
+	var quote: Dictionary = _seat_target_quote(candidate,visit,facility_id)
+	space.end_route_query()
+	return quote
 
 func _seat_target_quote(world: WorldState, visit: Dictionary, facility_id: String) -> Dictionary:
 	if not world.facts.facilities.has(facility_id) or not _public_seat(world,world.facts.facilities[facility_id]): return {"ok":false,"reason":"目标不是实际公共候诊座位"}

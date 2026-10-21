@@ -13,7 +13,6 @@ var space: HospitalSpace:
 var _world: WeakRef
 var _revision: int = -1
 var _regions: Array = []
-var _by_cell: Dictionary = {}
 var _by_facility: Dictionary = {}
 var _derived_floors: Dictionary = {}
 var _floor_regions: Dictionary = {}
@@ -357,17 +356,15 @@ func _ensure(world: WorldState, requested_floor: int = 0) -> void:
 	if same_regions:
 		space.query_counts["public_region_mapping_hits"] = int(space.query_counts.get("public_region_mapping_hits",0))+1
 		return
-	# Reattach in the same floor/component/cell/facility order as a cold build.
-	# Unchanged dictionaries remain the sole owners of their lazily derived views.
+	# Reattach region/facility views in the original order. Cell membership has
+	# one owner per floor; no second global map or per-cell floor string is needed.
 	_regions.clear()
-	_by_cell.clear()
 	_by_facility.clear()
 	_derived_floors.clear()
 	for floor_id: int in _floor_regions:
 		var derived: Dictionary = _floor_regions[floor_id]
 		_derived_floors[floor_id] = true
 		_regions.append_array(derived.regions)
-		_by_cell.merge(derived.by_cell)
 		_by_facility.merge(derived.by_facility)
 	space.query_counts["public_region_mapping_builds"] = int(space.query_counts.get("public_region_mapping_builds",0))+1
 	_wait_geometry = {}
@@ -442,11 +439,11 @@ func _derive_floor(floor_id: int, layout: Dictionary, rooms: Array, facilities: 
 		var geometry: String = JSON.stringify(pending,"",true,true).sha256_text()
 		var region: Dictionary = {"ref":{"floor_id":floor_id,"room_id":zones[start],"anchor":[start.x,start.y]},"cells":cells,"facilities":[],"facility_definitions":{},"bounds":bounds,"geometry":geometry}
 		result.regions.append(region)
-		for point: Vector2i in cells: result.by_cell[_key(floor_id,point)] = region
+		for point: Vector2i in cells: result.by_cell[point] = region
 	for facility: Dictionary in facilities:
 		var actual: Dictionary = facility.layout
 		var point: Vector2i = Vector2i(int(actual.patient_cell[0]),int(actual.patient_cell[1]))
-		var region: Dictionary = result.by_cell.get(_key(floor_id,point),{})
+		var region: Dictionary = result.by_cell.get(point,{})
 		if not region.is_empty():
 			var definition: String = facility.definition
 			var positions: PackedInt32Array = region.facility_definitions.get(definition,PackedInt32Array())
@@ -456,8 +453,10 @@ func _derive_floor(floor_id: int, layout: Dictionary, rooms: Array, facilities: 
 			result.by_facility[facility.id] = region
 	return result
 
-static func _key(floor_id: int, point: Vector2i) -> String:
-	return str(floor_id)+":"+str(point.x)+":"+str(point.y)
+func _cell_region(floor_id: int, point: Vector2i) -> Dictionary:
+	# The outer Dictionary keeps the complete 64-bit floor identity. Coordinates
+	# already use Vector2i throughout region derivation, including its fallback.
+	return _floor_regions.get(floor_id,{}).get("by_cell",{}).get(point,{})
 
 func region(world: WorldState, reference: Dictionary) -> Dictionary:
 	_ensure(world,int(reference.get("floor_id",0)))
@@ -465,7 +464,7 @@ func region(world: WorldState, reference: Dictionary) -> Dictionary:
 	if not str(reference.get("room_id","")).is_empty() and HospitalRemodel.blocked(world,reference.room_id): return {}
 	var anchor: Array = reference.get("anchor",[])
 	if anchor.size()!=2: return {}
-	var result: Dictionary = _by_cell.get(_key(int(reference.floor_id),Vector2i(int(anchor[0]),int(anchor[1]))),{})
+	var result: Dictionary = _cell_region(int(reference.floor_id),Vector2i(int(anchor[0]),int(anchor[1])))
 	return result if not result.is_empty() and result.ref==reference else {}
 
 func contains(world: WorldState, reference: Dictionary, actor_id: String) -> bool:
@@ -483,7 +482,7 @@ func current_area(world: WorldState, actor_id: String) -> Dictionary:
 	if actor.location.kind!="floor": return {}
 	_ensure(world,int(actor.location.floor_id))
 	var point: Vector2i = Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
-	return _by_cell.get(_key(int(actor.location.floor_id),point),{}).get("ref",{}).duplicate(true)
+	return _cell_region(int(actor.location.floor_id),point).get("ref",{}).duplicate(true)
 
 func facilities(world: WorldState, reference: Dictionary, definitions: Array) -> Array:
 	var result: Array = []
@@ -803,7 +802,7 @@ func safe_wait(world: WorldState, actor_id: String, floor_id: int, cell: Array, 
 	var point: Vector2i = Vector2i(roundi(cell[0]),roundi(cell[1]))
 	var origin: Vector2 = Vector2(float(cell[0]),float(cell[1]))
 	if geometry.is_empty():
-		var area: Dictionary = _by_cell.get(_key(floor_id,point),{})
+		var area: Dictionary = _cell_region(floor_id,point)
 		if area.is_empty(): return false
 		geometry = _entry_geometry_view(world,actor,area)
 	if not geometry.points.has(origin): geometry.points[origin] = _safe_wait_geometry(world,actor,floor_id,origin,geometry.geometry,geometry.get("doors",{}))

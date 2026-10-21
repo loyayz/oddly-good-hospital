@@ -15,6 +15,12 @@ class LayoutCounts extends HospitalSpace:
 # order, not a definition of gameplay. The independent assertions below also
 # check fixed obstacles, stored/nonblocking facilities and a real bed quote.
 class ReferenceAreas extends HospitalPublicAreas:
+	# Keep the old string encoding independent from the production floor map.
+	var _by_cell: Dictionary = {}
+	static func _reference_key(floor_id: int, point: Vector2i) -> String:
+		return str(floor_id)+":"+str(point.x)+":"+str(point.y)
+	func _cell_region(floor_id: int, point: Vector2i) -> Dictionary:
+		return _by_cell.get(_reference_key(floor_id,point),{})
 	func _ensure(world: WorldState, requested_floor: int = 0) -> void:
 		var current: bool = _world!=null and _world.get_ref()==world and _revision==world.geometry_revision
 		if current and (requested_floor==0 or _derived_floors.has(requested_floor)): return
@@ -77,13 +83,13 @@ class ReferenceAreas extends HospitalPublicAreas:
 				var geometry: String = JSON.stringify(pending,"",true,true).sha256_text()
 				var region: Dictionary = {"ref":{"floor_id":floor_id,"room_id":zones[start],"anchor":[start.x,start.y]},"cells":cells,"facilities":[],"bounds":bounds,"geometry":geometry}
 				_regions.append(region)
-				for point: Vector2i in cells: _by_cell[_key(floor_id,point)] = region
+				for point: Vector2i in cells: _by_cell[_reference_key(floor_id,point)] = region
 			for id: String in world.ids("facilities"):
 				var facility: Dictionary = world.facts.facilities[id]
 				if int(facility.floor_id)!=floor_id or facility.get("stored",false): continue
 				var layout: Dictionary = space.facility_layout(world,id)
 				var point: Vector2i = Vector2i(int(layout.patient_cell[0]),int(layout.patient_cell[1]))
-				var region: Dictionary = _by_cell.get(_key(floor_id,point),{})
+				var region: Dictionary = _by_cell.get(_reference_key(floor_id,point),{})
 				if not region.is_empty():
 					region.facilities.append(id)
 					_by_facility[id] = region
@@ -107,14 +113,14 @@ func run_case(database: HospitalContent) -> Dictionary:
 	var reference_cold_calls: int = reference_space.layouts
 	actual._ensure(x.world)
 	checks.current_build_reused = actual_space.layouts==cold_calls
-	checks.full_grid_boundaries = actual._by_cell.has("1:0:0") and actual._by_cell.has("1:95:95")
-	checks.stored_excluded = not actual._by_facility.has(STORED) and actual._by_cell.has("1:41:70")
-	checks.nonblocking_still_associated = actual._by_cell.has("1:40:70") and actual._by_facility.get(NONBLOCKING,{}).get("ref",{}).get("room_id","")=="west"
-	checks.fixed_chair_blocks_its_cell = not actual._by_cell.has("1:36:68")
+	checks.full_grid_boundaries = not actual._cell_region(1,Vector2i(0,0)).is_empty() and not actual._cell_region(1,Vector2i(95,95)).is_empty()
+	checks.stored_excluded = not actual._by_facility.has(STORED) and not actual._cell_region(1,Vector2i(41,70)).is_empty()
+	checks.nonblocking_still_associated = not actual._cell_region(1,Vector2i(40,70)).is_empty() and actual._by_facility.get(NONBLOCKING,{}).get("ref",{}).get("room_id","")=="west"
+	checks.fixed_chair_blocks_its_cell = actual._cell_region(1,Vector2i(36,68)).is_empty()
 	checks.floors_isolated = actual._by_facility.get("upper_west_chair",{}).get("ref",{}).get("floor_id",0)==2 and actual._by_facility.get("west_chair",{}).get("ref",{}).get("floor_id",0)==1
 	checks.upper_floor_starts_lazy = not actual._derived_floors.has(3)
 	observations.append(_compare_build("lazy_empty_upper_floor",x.world,actual,reference,3))
-	checks.empty_upper_floor_built = actual._derived_floors.has(3) and actual._by_cell.has("3:32:64") and not actual._by_cell.has("3:0:0")
+	checks.empty_upper_floor_built = actual._derived_floors.has(3) and not actual._cell_region(3,Vector2i(32,64)).is_empty() and actual._cell_region(3,Vector2i(0,0)).is_empty()
 	var initial: Dictionary = _snapshot(actual)
 	var tick: int = x.world.sim_tick
 	var quote: Dictionary = _bed_expansion(x)
@@ -126,13 +132,13 @@ func run_case(database: HospitalContent) -> Dictionary:
 	x.world.touch()
 	var expanded_validation: String = x.world.validate(_content)
 	observations.append(_compare_build("same_tick_geometry_and_bed_change",x.world,actual,reference))
-	checks.same_tick_geometry_rebuilt = x.world.sim_tick==tick and initial!=_snapshot(actual) and not actual._by_cell.has("1:37:70")
+	checks.same_tick_geometry_rebuilt = x.world.sim_tick==tick and initial!=_snapshot(actual) and actual._cell_region(1,Vector2i(37,70)).is_empty()
 	checks.expanded_input_valid = expanded_validation.is_empty()
 	if not quote.is_empty():
 		checks.expanded_bed_cells_excluded = _footprint_excluded(actual,1,x.world.facts.facilities[BED].cell,quote.footprint)
-		var patient_key: String = HospitalPublicAreas._key(1,Vector2i(int(quote.patient_cell[0]),int(quote.patient_cell[1])))
-		checks.adapted_patient_cell_used = quote.patient_cell!=x.world.facts.facilities[BED].patient_cell and actual._by_facility.get(BED,{}).get("ref",{})==actual._by_cell.get(patient_key,{}).get("ref",{}) and actual._by_facility.has(BED)
-		checks.other_floor_keeps_base_bed = actual._by_cell.has("2:51:72")
+		var patient_point: Vector2i = Vector2i(int(quote.patient_cell[0]),int(quote.patient_cell[1]))
+		checks.adapted_patient_cell_used = quote.patient_cell!=x.world.facts.facilities[BED].patient_cell and actual._by_facility.get(BED,{}).get("ref",{})==actual._cell_region(1,patient_point).get("ref",{}) and actual._by_facility.has(BED)
+	checks.other_floor_keeps_base_bed = not actual._cell_region(2,Vector2i(51,72)).is_empty()
 	var restored: WorldState = WorldState.new(x.world.freeze())
 	observations.append(_compare_build("restored_world_identity",restored,actual,reference,3))
 	var ok: bool = true
@@ -207,14 +213,25 @@ func _compare_build(label: String, world: WorldState, actual: HospitalPublicArea
 	if not equal:
 		for field: String in expected:
 			if expected[field]!=observed.get(field): first_difference = {"field":field}; break
-	return {"ok":equal and before==world.freeze(),"boundary":label,"all_regions_anchors_cell_order_geometry_and_facility_maps_equal":equal,"regions":actual._regions.size(),"cells":actual._by_cell.size(),"facilities":actual._by_facility.size(),"world_and_rng_unchanged":before==world.freeze(),"first_difference":first_difference}
+	return {"ok":equal and before==world.freeze(),"boundary":label,"all_regions_anchors_cell_order_geometry_and_facility_maps_equal":equal,"regions":actual._regions.size(),"cells":observed.cells.size(),"facilities":actual._by_facility.size(),"world_and_rng_unchanged":before==world.freeze(),"first_difference":first_difference}
 
 func _snapshot(areas: HospitalPublicAreas) -> Dictionary:
 	var regions: Array = []
 	for region: Dictionary in areas._regions:
 		regions.append({"ref":region.ref.duplicate(true),"cells":region.cells.keys(),"facilities":region.facilities.duplicate(),"bounds":region.bounds,"geometry":region.geometry})
 	var cells: Array = []
-	for key: String in areas._by_cell: cells.append([key,areas._by_cell[key].ref.duplicate(true)])
+	if areas is ReferenceAreas:
+		var reference: ReferenceAreas = areas
+		for key: String in reference._by_cell:
+			var parts: PackedStringArray = key.split(":")
+			cells.append([[int(parts[0]),int(parts[1]),int(parts[2])],reference._by_cell[key].ref.duplicate(true)])
+	else:
+		# Enumerate the real index, not region.cells, so missing/extra mappings
+		# still fail against the independent string-keyed reference above.
+		for floor_id: int in areas._floor_regions:
+			var by_cell: Dictionary = areas._floor_regions[floor_id].by_cell
+			for point: Vector2i in by_cell:
+				cells.append([[floor_id,point.x,point.y],by_cell[point].ref.duplicate(true)])
 	var facilities: Array = []
 	for id: String in areas._by_facility: facilities.append([id,areas._by_facility[id].ref.duplicate(true)])
 	return {"regions":regions,"cells":cells,"facilities":facilities,"derived_floors":areas._derived_floors.keys()}
@@ -222,5 +239,5 @@ func _snapshot(areas: HospitalPublicAreas) -> Dictionary:
 func _footprint_excluded(areas: HospitalPublicAreas, floor_id: int, cell: Array, footprint: Array) -> bool:
 	for y: int in range(int(cell[1]),int(cell[1])+int(footprint[1])):
 		for x: int in range(int(cell[0]),int(cell[0])+int(footprint[0])):
-			if areas._by_cell.has(HospitalPublicAreas._key(floor_id,Vector2i(x,y))): return false
+			if not areas._cell_region(floor_id,Vector2i(x,y)).is_empty(): return false
 	return true

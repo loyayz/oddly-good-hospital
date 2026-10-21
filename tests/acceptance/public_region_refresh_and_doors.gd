@@ -36,7 +36,7 @@ func run_case(database: HospitalContent) -> Dictionary:
 	x.world.facts.floors.overrides.erase("2")
 	x.world.touch()
 	observations.append(_compare_build("removed_explicit_floor",x.world,actual,reference))
-	checks.removed_floor_has_no_stale_mapping = actual._floor_regions.keys()==[1] and not actual._by_cell.has("2:32:64") and not actual._by_facility.has("upper_west_chair")
+	checks.removed_floor_has_no_stale_mapping = actual._floor_regions.keys()==[1] and actual._cell_region(2,Vector2i(32,64)).is_empty() and not actual._by_facility.has("upper_west_chair")
 	var other: WorldState = WorldState.new(x.world.freeze())
 	var before_other: int = int(actual_space.query_counts.get("public_region_mapping_builds",0))
 	observations.append(_compare_build("equal_facts_different_world",other,actual,reference))
