@@ -19,7 +19,10 @@ func invalidate(world: WorldState, floor_id: int) -> void:
 # Copy the exact footprint delta and current permission records; never inherit
 # actor indices, transport prefixes, exit witnesses or route results.
 func inherit_projection(space: HospitalSpace, world: WorldState, projected: WorldState, facility_ids: Array = []) -> void:
-	_prune_sources()
+	# The active source is the projection's preparation owner even when no
+	# path graph has been requested. Pruning it here changes a stable static
+	# identity into a new generation on every subsequent eligibility query.
+	_prune_sources(0,world)
 	for original: Dictionary in _sources.values():
 		if original.world.get_ref()!=world or original.revision!=world.geometry_revision: continue
 		var floor_id: int = int(original.floor_id)
@@ -195,12 +198,12 @@ func _trim(target: int, counts: Dictionary = {}) -> void:
 		counts["cache_graph_evictions"] = int(counts.get("cache_graph_evictions",0))+1
 	_prune_sources()
 
-func _prune_sources(current_floor: int = 0) -> void:
+func _prune_sources(current_floor: int = 0, active_source: WorldState = null) -> void:
 	var retained: Dictionary = {current_floor:true}
 	for entry: Dictionary in _entries.values():
 		retained[entry.floor_id] = true
 	for key: String in _sources.keys():
-		if _sources[key].world.get_ref()==null or not retained.has(_sources[key].floor_id):
+		if _sources[key].world.get_ref()==null or _sources[key].world.get_ref()!=active_source and not retained.has(_sources[key].floor_id):
 			_sources.erase(key)
 
 func clearance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, members: Array = [], offsets: Dictionary = {}) -> RouteClearance:

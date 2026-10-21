@@ -1344,13 +1344,13 @@ func _case_75(t) -> void:
 	var expected_brief: Dictionary = complete.duplicate(true)
 	expected_brief.sources = []
 	environment.begin_query(ctx.world)
+	var edges: Dictionary = environment._coverage_edges(ctx.world,1)
 	var positive_ids: Dictionary = {}
 	for cells: Dictionary in environment._query.facilities.values():
 		for facilities: Array in cells.values():
-			for facility: Dictionary in facilities: positive_ids[facility.id] = true
+			for id: String in facilities: positive_ids[id] = true
 	var filtered: bool = positive_ids.has("environment_plant") and positive_ids.has("environment_light") and positive_ids.has("water")
-	filtered = filtered and not positive_ids.has("bin") and not positive_ids.has("environment_screen") and ctx.world.facts.facilities.environment_screen in environment._query.screens.get(1,[])
-	var edges: Dictionary = environment._coverage_edges(ctx.world,1)
+	filtered = filtered and not positive_ids.has("bin") and not positive_ids.has("environment_screen") and "environment_screen" in environment._query.screens.get(1,[])
 	var sparse_ids: Array = []
 	for facility: Dictionary in environment._positive_facilities(ctx.world,1,environment._coverage(ctx.world,1,[44,80],5,false,edges)): sparse_ids.append(facility.id)
 	sparse_ids.sort()

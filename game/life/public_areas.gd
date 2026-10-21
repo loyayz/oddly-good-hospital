@@ -23,6 +23,11 @@ var _decision_world: WeakRef
 var _decision_tick: int = -1
 var _decision_basis: Dictionary = {}
 var _wait_results: Dictionary = {}
+var _queue_fit_world: WeakRef
+var _queue_fit_revision: int = -1
+var _queue_fit_facilities: Dictionary = {}
+var _queue_fit_facility_count: int = -1
+var _queue_fits: Dictionary = {}
 
 func _init(geometry: HospitalSpace) -> void:
 	_space = weakref(geometry)
@@ -793,8 +798,70 @@ func turn(world: WorldState, intent: Dictionary, facility_id: String) -> bool:
 func _queue_fit(world: WorldState, facility_id: String, ids: Array) -> Dictionary:
 	var fits: Dictionary = space.read_view(world,"public_queue_fits",func()->Dictionary: return {})
 	var key: String = JSON.stringify([facility_id,ids])
-	if not fits.has(key): fits[key] = _queue_fit_in_query(world,facility_id,ids)
+	if not fits.has(key): fits[key] = _queue_fit_current(world,facility_id,ids)
 	return fits[key]
+
+func _queue_fit_current(world: WorldState, facility_id: String, ids: Array) -> Dictionary:
+	# Independent raw-input callers retain the original fresh projection path.
+	# Cross-observer reuse requires an explicit current read-only boundary.
+	if space._route_queries.is_empty() or space._route_queries.back().world!=world:
+		space.query_counts["public_queue_fit_builds"] = int(space.query_counts.get("public_queue_fit_builds",0))+1
+		return _queue_fit_in_query(world,facility_id,ids)
+	# The qualification belongs to the earlier waiter, not each later observer.
+	# Keep only this facility's latest successful fixed geometry. No queue,
+	# negative result or permission to occupy survives the caller's scope.
+	var facilities: Dictionary = world.facts.facilities
+	if _queue_fit_world==null or _queue_fit_world.get_ref()!=world or _queue_fit_revision!=world.geometry_revision or not is_same(_queue_fit_facilities,facilities) or _queue_fit_facility_count!=facilities.size():
+		_queue_fit_world = weakref(world)
+		_queue_fit_revision = world.geometry_revision
+		_queue_fit_facilities = facilities
+		_queue_fit_facility_count = facilities.size()
+		_queue_fits.clear()
+	var basis: Array = _queue_fit_basis(world,facility_id,ids)
+	var saved: Dictionary = _queue_fits.get(facility_id,{})
+	if not basis.is_empty() and saved.get("basis",[])==basis and _queue_fit_clear(world,facility_id,ids,saved.quote):
+		space.query_counts["public_queue_fit_hits"] = int(space.query_counts.get("public_queue_fit_hits",0))+1
+		return saved.quote
+	space.query_counts["public_queue_fit_builds"] = int(space.query_counts.get("public_queue_fit_builds",0))+1
+	var result: Dictionary = _queue_fit_in_query(world,facility_id,ids)
+	if not basis.is_empty() and result.ok and result.has("regions"):
+		_queue_fits[facility_id] = {"basis":basis.duplicate(true),"quote":result.duplicate(true)}
+	else:
+		_queue_fits.erase(facility_id)
+	return result
+
+func _queue_fit_basis(world: WorldState, facility_id: String, ids: Array) -> Array:
+	var current: Dictionary = world.facts.adaptations.get(facility_id,{})
+	var facility: Dictionary = world.facts.facilities.get(facility_id,{})
+	if current.is_empty() or facility.is_empty() or ids.is_empty() or space.nominal_query(world): return []
+	var definition: Dictionary = space.content.facility_definition(facility.definition_id)
+	var profile: Dictionary = space.content.definition("facility_fit_profiles",str(definition.get("fit_profile_id","")))
+	# Beds can stretch and prove remote exits; a local region check cannot stand
+	# in for that proof. Only fixed public fittings use this retained geometry.
+	if profile.is_empty() or profile.get("kind","")=="bed": return []
+	var participants: Array = []
+	for id: String in ids:
+		if not world.facts.actors.has(id): return []
+		participants.append([id,space.body(world.facts.actors[id])])
+	return [space._navigation.floor_static_version(space,world,int(facility.floor_id)),facility,current,participants,world.facts.get("staff_life",{}).get("personal_beds",{}).get(facility_id,{})]
+
+func _queue_fit_clear(world: WorldState, facility_id: String, ids: Array, quote: Dictionary) -> bool:
+	space._ensure_actor_index(world)
+	var current: Dictionary = world.facts.adaptations[facility_id]
+	var ignored: Array = ids+[current.actor_id]+current.staff_ids
+	var floor_id: int = int(quote.floor_id)
+	for area: Array in quote.regions:
+		var rect: Rect2 = Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3]))
+		if space._actor_index.intersects(floor_id,rect,str(ids[0]),ignored): return false
+		for region: Dictionary in space._reservation_regions(world,floor_id,rect):
+			if region.reservation_id==facility_id: continue
+			var reservation: Dictionary = region.reservation
+			if reservation.actor_id in ids or ids[0] in reservation.get("staff_ids",[]): continue
+			if rect.intersects(region.rect,false): return false
+		# A departure projection excludes its current body, never its already
+		# accepted historical sweep. This is the original actual-query contract.
+		if space.movement._sweep_index.intersects(floor_id,rect,str(ids[0]),ids): return false
+	return true
 
 func _queue_fit_in_query(world: WorldState, facility_id: String, ids: Array) -> Dictionary:
 	var current: Dictionary = world.facts.adaptations.get(facility_id,{})

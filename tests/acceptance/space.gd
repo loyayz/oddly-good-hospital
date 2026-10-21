@@ -1648,7 +1648,8 @@ func _case_51(_t) -> Dictionary:
 	var result: Dictionary = preload("res://tests/acceptance/reference_route_permissions.gd").new().run_case(sim,content)
 	var compatible: Dictionary = preload("res://tests/acceptance/connector_fit_scope.gd").new().run_case(self)
 	var single: Dictionary = preload("res://tests/acceptance/single_connector_route.gd").new().run_case(self)
-	return _done(sim,result.ok and compatible.ok and single.ok,{"reference_permissions":result.details,"connector_fit_scope":compatible,"single_connector_route":single})
+	var expansion: Dictionary = preload("res://tests/acceptance/connector_expansion_scope.gd").new().run_case(self)
+	return _done(sim,result.ok and compatible.ok and single.ok and expansion.ok,{"reference_permissions":result.details,"connector_fit_scope":compatible,"single_connector_route":single,"connector_expansion_scope":expansion})
 
 func _waiting_visit(sim: HospitalSimulation, id: String, cell: Array, binding_id: String = "") -> Dictionary:
 	var binding: Dictionary = content.definition("treatment_bindings",binding_id) if not binding_id.is_empty() else {}

@@ -190,7 +190,8 @@ func _point_route(world: WorldState, actor: Dictionary, source_floor: int, start
 	# Compatibility is independent of the destination. The existing sealed
 	# read-only scope owns reuse for this exact actor and ordered member list.
 	var compatible: Dictionary = space.read_view(world,"point_connector_fits:"+JSON.stringify([actor.id,members]),func()->Dictionary:return {})
-	var context: Dictionary = {"nodes":nodes,"stops":topology.stops,"extra_stops":extra_stops,"query_stops":{},"topology":topology,"connections":{},"compatible":compatible,"edges":{},"source_floor":source_floor,"target_floor":target_floor,"goal":goal,"members":members,"offsets":offsets,"distance_only":distance_only,"direct":direct}
+	var prepared: Dictionary = _connector_preparation(world,actor,members,offsets,distance_only,topology,extra_stops)
+	var context: Dictionary = {"nodes":nodes,"stops":topology.stops,"extra_stops":extra_stops,"query_stops":{},"topology":topology,"connections":{},"compatible":compatible,"connector_prepared":prepared,"edges":{},"source_floor":source_floor,"target_floor":target_floor,"goal":goal,"members":members,"offsets":offsets,"distance_only":distance_only,"direct":direct}
 	var solved: Dictionary = PlatformArrivalMath.route_search({"nodes":node_ids,"start":"start","goal":"goal","initial_ticks":initial_ticks,"expand":_point_edges.bind(world,actor,context)})
 	if solved.has("error"):
 		return {"ok":false,"status":"navigation_failed","reason":str(solved.get("bottleneck",solved.error))}
@@ -206,11 +207,26 @@ func _point_route(world: WorldState, actor: Dictionary, source_floor: int, start
 		var result: Dictionary = {"ok":true,"status":"complete","reason":"","walking_distance":distance,"travel_ticks":int(solved.travel_ticks),"quoted_tick":world.sim_tick}
 		if not distance_only:
 			var path: Array = []
-			for chunk: Array in chunks: path.append_array(chunk)
+			# Returned executable segments belong to this journey. Connector
+			# preparation remains immutable when a caller edits its own path.
+			for chunk: Array in chunks: path.append_array(chunk.duplicate(true))
 			result.path = path
 		return result
 	if direct.ok: return {"ok":false,"status":"time_overflow","reason":"基准通行时间超出整数范围"}
 	return direct if source_floor==target_floor else {"ok":false,"status":"unreachable","reason":"没有身体、停层和运行方向均合法的竖向通路"}
+
+func _connector_preparation(world: WorldState, actor: Dictionary, members: Array, offsets: Dictionary, distance_only: bool, topology: Dictionary, extra_stops: Dictionary) -> Dictionary:
+	# This existing owner lasts only for one real, synchronous candidate batch;
+	# ordinary queries outside a dynamic scope receive a fresh disposable view.
+	var owner: Dictionary = space.dynamic_transport_view(world,actor.id,members,offsets)
+	var retained: Dictionary = owner.get("point_connector_edges",{})
+	if retained.is_empty() or not is_same(retained.topology,topology):
+		retained = {"topology":topology,"variants":{}}
+		owner.point_connector_edges = retained
+	# A query can introduce source/target floors absent from the topology.
+	# Its complete stop declaration and output mode define one expansion view.
+	var variant: String = JSON.stringify([distance_only,extra_stops],"",true,true)
+	return retained.variants.get_or_add(variant,{})
 
 func _point_edges(id: String, world: WorldState, actor: Dictionary, context: Dictionary) -> Array:
 	var node: Dictionary = context.nodes.get(id,context.topology.nodes.get(id,{}))
@@ -228,6 +244,28 @@ func _point_edges(id: String, world: WorldState, actor: Dictionary, context: Dic
 			if ticks>=0:
 				outgoing.append({"to":"goal","ticks":ticks})
 				facts.goal = {"path":[] if distance_only else finish.path,"walking_distance":float(finish.walking_distance)}
+	var prepared: Dictionary = context.get("connector_prepared",{}).get_or_add(floor_id,{})
+	var connectors: Dictionary = prepared.get(node.cell,{})
+	if connectors.is_empty():
+		connectors = _connector_edges(world,actor,context,node)
+		prepared[node.cell] = connectors
+		space.query_counts["connector_edge_builds"] = int(space.query_counts.get("connector_edge_builds",0))+1
+	else:
+		space.query_counts["connector_edge_hits"] = int(space.query_counts.get("connector_edge_hits",0))+1
+	# Goal is target-dependent and remains first. The cached arrays contain no
+	# goal edge and are only read while composing this query's private result.
+	outgoing.append_array(connectors.outgoing)
+	facts.merge(connectors.facts)
+	context.edges[id] = facts
+	return outgoing
+
+func _connector_edges(world: WorldState, actor: Dictionary, context: Dictionary, node: Dictionary) -> Dictionary:
+	var floor_id: int = int(node.floor_id)
+	var members: Array = context.members
+	var offsets: Dictionary = context.offsets
+	var distance_only: bool = bool(context.distance_only)
+	var outgoing: Array = []
+	var facts: Dictionary = {}
 	if not context.connections.has(floor_id):
 		context.connections[floor_id] = []
 		for connector_id: String in _floor_connections(context.topology,floor_id):
@@ -263,8 +301,7 @@ func _point_edges(id: String, world: WorldState, actor: Dictionary, context: Dic
 			if not distance_only: path.append({"kind":"connector","connector_id":connector_id,"from":floor_id,"to":destination})
 			outgoing.append({"to":next,"ticks":ticks})
 			facts[next] = {"path":path,"walking_distance":float(before.walking_distance)}
-	context.edges[id] = facts
-	return outgoing
+	return {"outgoing":outgoing,"facts":facts}
 
 func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2i, goal: Vector2i, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, navigation: Dictionary = {}, structural_only: bool = false, cost_only: bool = false) -> Dictionary:
 	_observe_floor(world,str(actor.id),floor_id)

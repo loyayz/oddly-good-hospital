@@ -11,6 +11,7 @@ var _coverage_used: int = 0
 var _query: Dictionary = {}
 var _query_depth: int = 0
 var query_builds: int = 0
+var _facility_sources: Dictionary = {}
 var _water_ids: Dictionary = {}
 var _positive_definitions: Dictionary = {}
 
@@ -38,18 +39,40 @@ func begin_query(world: WorldState) -> void:
 		return
 	_query_depth = 1
 	query_builds += 1
-	_query = {"world":world,"edges":{},"coverage":{},"facilities":{},"screens":{},"actors":{},"samples":{"walls":{},"dirt":{},"machines":{},"construction":{}}}
-	for facility: Dictionary in world.facts.facilities.values():
+	# Opening a scope does not imply an observation. A seat search may finish
+	# without a valid candidate, so source acquisition belongs to its consumers.
+	_query = {"world":world,"edges":{},"coverage":{},"facilities":{},"screens":{},"actors":{},"samples":{"walls":{},"dirt":{},"machines":{},"construction":{}},"facilities_ready":false,"samples_ready":false,"actors_ready":false}
+
+func _prepare_facility_sources(world: WorldState) -> void:
+	if _query.facilities_ready: return
+	var records: Dictionary = world.facts.facilities
+	if _facility_sources.is_empty() or _facility_sources.world.get_ref()!=world or _facility_sources.revision!=world.geometry_revision or not is_same(_facility_sources.records,records) or _facility_sources.count!=records.size():
+		# Environment owns this one derived position/classification view. Layout
+		# owners invalidate geometry; mutable values remain in original facts.
+		_facility_sources = {"world":weakref(world),"revision":world.geometry_revision,"records":records,"count":records.size(),"facilities":{},"screens":{}}
+		space.query_counts["environment_facility_source_builds"] = int(space.query_counts.get("environment_facility_source_builds",0))+1
+		_build_facility_sources(records)
+	else:
+		space.query_counts["environment_facility_source_hits"] = int(space.query_counts.get("environment_facility_source_hits",0))+1
+	_query.facilities = _facility_sources.facilities
+	_query.screens = _facility_sources.screens
+	_query.facilities_ready = true
+
+func _build_facility_sources(records: Dictionary) -> void:
+	for facility: Dictionary in records.values():
 		var floor_id: int = int(facility.floor_id)
 		if facility.definition_id in content.balance.environment.noise_barrier_definition_ids:
-			if not _query.screens.has(floor_id): _query.screens[floor_id] = []
-			_query.screens[floor_id].append(facility)
+			_facility_sources.screens.get_or_add(floor_id,[]).append(str(facility.id))
 		var definition: Dictionary = _positive_definition(str(facility.definition_id))
 		if not definition.decoration and not definition.light and not _is_water(str(facility.definition_id)): continue
-		if not _query.facilities.has(floor_id): _query.facilities[floor_id] = {}
+		if not _facility_sources.facilities.has(floor_id): _facility_sources.facilities[floor_id] = {}
 		var key: String = _cell_key(facility.cell)
-		if not _query.facilities[floor_id].has(key): _query.facilities[floor_id][key] = []
-		_query.facilities[floor_id][key].append(facility)
+		_facility_sources.facilities[floor_id].get_or_add(key,[]).append(str(facility.id))
+
+func _prepare_actor_sources(world: WorldState) -> void:
+	if _query.actors_ready: return
+	_query.actors_ready = true
+	space.query_counts["environment_actor_source_builds"] = int(space.query_counts.get("environment_actor_source_builds",0))+1
 	for actor: Dictionary in world.facts.actors.values():
 		if actor.location.kind!="floor": continue
 		var floor_id: int = int(actor.location.floor_id)
@@ -57,6 +80,11 @@ func begin_query(world: WorldState) -> void:
 		var bucket: Vector2i = Vector2i(floori(float(actor.location.cell[0])/4.0),floori(float(actor.location.cell[1])/4.0))
 		if not _query.actors[floor_id].has(bucket): _query.actors[floor_id][bucket] = []
 		_query.actors[floor_id][bucket].append(actor)
+
+func _prepare_sample_sources(world: WorldState) -> void:
+	if _query.samples_ready: return
+	_query.samples_ready = true
+	space.query_counts["environment_dynamic_source_builds"] = int(space.query_counts.get("environment_dynamic_source_builds",0))+1
 	for surface: Dictionary in world.facts.get("environment",{}).get("surfaces",{}).values():
 		if surface.surface=="wall": _index_sample("walls",int(surface.floor_id),surface.cell,surface)
 	for patch: Dictionary in world.facts.get("environment",{}).get("dirt",{}).values():
@@ -87,6 +115,7 @@ func _index_noise(world: WorldState, kind: String, facility: Dictionary) -> void
 		for y: int in range(int(facility.cell[1]),int(facility.cell[1])+int(layout.footprint[1])): _index_sample(kind,int(facility.floor_id),[x,y],facility)
 
 func _sample_records(kind: String, floor_id: int, coverage: Dictionary) -> Array:
+	_prepare_sample_sources(_query.world)
 	var cells: Dictionary = _query.samples[kind].get(floor_id,{})
 	var result: Array = []
 	if cells.is_empty(): return result
@@ -94,6 +123,7 @@ func _sample_records(kind: String, floor_id: int, coverage: Dictionary) -> Array
 	return result
 
 func _has_sample(kind: String, floor_id: int, coverage: Dictionary) -> bool:
+	_prepare_sample_sources(_query.world)
 	var cells: Dictionary = _query.samples[kind].get(floor_id,{})
 	if cells.is_empty(): return false
 	for key: String in coverage:
@@ -723,6 +753,7 @@ func _coverage_edge_key(first: Array, second: Array) -> Vector3i:
 func _coverage_edges(world: WorldState, floor_id: int) -> Dictionary:
 	if _query.get("world")==world and _query.edges.has(floor_id):
 		return _query.edges[floor_id]
+	if _query.get("world")==world: _prepare_facility_sources(world)
 	var layout: Dictionary = world.facts.floors.overrides.get(str(floor_id),{})
 	var source: Dictionary = {"floor_id":floor_id,"plots":space.floor_plots(world,floor_id),"blocked":layout.get("blocked",[]),"rooms":[],"doors":[],"screens":[]}
 	for room: Dictionary in world.facts.rooms.values():
@@ -733,7 +764,11 @@ func _coverage_edges(world: WorldState, floor_id: int) -> Dictionary:
 		source.rooms.append(shape)
 	for door: Dictionary in layout.get("doors",[]):
 		source.doors.append({"room_id":door.room_id,"axis":door.axis,"cell":door.cell,"span":int(world.facts.adaptations.get(door.id,{}).get("span",door.span))})
-	var screens: Array = _query.screens.get(floor_id,[]) if _query.get("world")==world else world.facts.facilities.values()
+	var screens: Array = []
+	if _query.get("world")==world:
+		for id: String in _query.screens.get(floor_id,[]): screens.append(world.facts.facilities[id])
+	else:
+		screens = world.facts.facilities.values()
 	for facility: Dictionary in screens:
 		if int(facility.floor_id)!=floor_id or not facility.definition_id in content.balance.environment.noise_barrier_definition_ids: continue
 		var facing: int = int(facility.get("rotation",0))%4
@@ -824,18 +859,22 @@ func _coverage(world: WorldState, floor_id: int, origin: Array, radius: int, noi
 
 func _positive_facilities(world: WorldState, floor_id: int, coverage: Dictionary) -> Array:
 	if _query.get("world")!=world: return world.facts.facilities.values()
-	var result: Array = []
+	_prepare_facility_sources(world)
+	var ids: Array = []
 	var cells: Dictionary = _query.facilities.get(floor_id,{})
-	if cells.is_empty(): return result
+	if cells.is_empty(): return []
 	if cells.size()<coverage.size():
 		for key: String in cells:
-			if coverage.has(key): result.append_array(cells[key])
+			if coverage.has(key): ids.append_array(cells[key])
 	else:
-		for key: String in coverage: result.append_array(cells.get(key,[]))
+		for key: String in coverage: ids.append_array(cells.get(key,[]))
+	var result: Array = []
+	for id: String in ids: result.append(world.facts.facilities[id])
 	return result
 
 func _nearby_actors(world: WorldState, floor_id: int, cell: Array) -> Array:
 	if _query.get("world")!=world: return world.facts.actors.values()
+	_prepare_actor_sources(world)
 	var buckets: Dictionary = _query.actors.get(floor_id,{})
 	var result: Array = []
 	for y: int in range(floori((float(cell[1])-3.0)/4.0),floori((float(cell[1])+3.0)/4.0)+1):
@@ -859,6 +898,9 @@ func _observe_at(world: WorldState, floor_id: int, cell: Array, actor_id: String
 		return result
 	var range_cells: int = int(rules.upgraded_range_cells if "R15" in world.facts.research else rules.range_cells)
 	var scoped: bool = _query.get("world")==world
+	if scoped:
+		_prepare_facility_sources(world)
+		_prepare_sample_sources(world)
 	# Only this read-only scope proves a field has no sources on the floor.
 	var need_positive: bool = not scoped or not _query.facilities.get(floor_id,{}).is_empty() or not _query.samples.walls.get(floor_id,{}).is_empty()
 	var need_dirt: bool = not scoped or not _query.samples.dirt.get(floor_id,{}).is_empty()

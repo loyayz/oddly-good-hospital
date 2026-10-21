@@ -70,7 +70,9 @@ func run(t) -> void:
 	_live.clear()
 
 func _case_42() -> Dictionary:
-	return preload("res://tests/acceptance/environment_query_batches.gd").new().run(_content)
+	var batches: Dictionary = preload("res://tests/acceptance/environment_query_batches.gd").new().run(_content)
+	var lifecycle: Dictionary = preload("res://tests/acceptance/environment_source_lifecycle.gd").new().run(_content)
+	return _result(batches.ok and lifecycle.ok,{"query_batches":batches,"source_lifecycle":lifecycle})
 
 func _case_43() -> Dictionary:
 	return preload("res://tests/acceptance/operations_repeated_work.gd").new().run_indices(_content)

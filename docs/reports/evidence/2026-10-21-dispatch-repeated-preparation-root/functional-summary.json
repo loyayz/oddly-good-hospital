@@ -1,0 +1,73 @@
+{
+  "batches": [
+    {
+      "batch": "ae4a061608c44f97ad710f771152bf70",
+      "cases": [
+        "STAFF-69",
+        "STAFF-70",
+        "STAFF-71",
+        "STAFF-72",
+        "SPACE-10",
+        "SPACE-23",
+        "SPACE-24",
+        "SPACE-28",
+        "SPACE-51",
+        "SPACE-54",
+        "OPS-11",
+        "OPS-13",
+        "OPS-16",
+        "OPS-18",
+        "OPS-42",
+        "GROW-75"
+      ],
+      "checks": 16,
+      "failed": 1,
+      "completed": true,
+      "timing": {
+        "started_at_utc": "2026-10-21T04:04:27.2356463+00:00",
+        "ended_at_utc": "2026-10-21T04:04:47.8738301+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 4377,
+        "import_ms": 7780,
+        "tests_ms": 8468,
+        "total_ms": 20640
+      },
+      "execution": {
+        "import_exit": 0,
+        "test_exit": 1,
+        "script_errors": true,
+        "log": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\acceptance\\ae4a061608c44f97ad710f771152bf70\\execution.log"
+      }
+    },
+    {
+      "batch": "3bf0ec56406d469784bd22a27b59c223",
+      "cases": [
+        "STAFF-69",
+        "SPACE-10",
+        "SPACE-51",
+        "SPACE-54"
+      ],
+      "checks": 4,
+      "failed": 0,
+      "completed": true,
+      "timing": {
+        "started_at_utc": "2026-10-21T04:12:35.1660496+00:00",
+        "ended_at_utc": "2026-10-21T04:12:52.7595434+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 3762,
+        "import_ms": 7304,
+        "tests_ms": 6515,
+        "total_ms": 17596
+      },
+      "execution": {
+        "import_exit": 0,
+        "test_exit": 0,
+        "script_errors": false,
+        "log": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\acceptance\\3bf0ec56406d469784bd22a27b59c223\\execution.log"
+      }
+    }
+  ],
+  "formal_pass": false
+}
