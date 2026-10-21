@@ -21,6 +21,7 @@ func run_case(database: HospitalContent) -> Dictionary:
 	var observations: Array = [_observe("cold_two_floors",x.world,actual,reference,[1,2])]
 	var ground: Dictionary = actual._by_facility.west_chair
 	var upper: Dictionary = actual._by_facility.upper_west_chair
+	var ground_geometry: String = ground.geometry
 	# A broad owner notification, a metadata change and an explicit invalidation
 	# retain the same actual region inputs; none may rerun cell traversal.
 	x.world.touch()
@@ -39,6 +40,7 @@ func run_case(database: HospitalContent) -> Dictionary:
 	x.world.touch()
 	observations.append(_observe("ground_obstacle",x.world,actual,reference,[1]))
 	checks.only_ground_replaced = not is_same(ground,actual._by_facility.west_chair) and is_same(upper,actual._by_facility.upper_west_chair) and actual._cell_region(1,Vector2i(37,70)).is_empty()
+	checks.changed_membership_updates_fingerprint_with_same_public_ref = actual._by_facility.west_chair.ref==ground.ref and str(actual._by_facility.west_chair.geometry)!=ground_geometry
 	# The explicit legal room-cell representation is an input independently of
 	# its rectangular shorthand, and must be frozen rather than aliased to facts.
 	var room: Dictionary = x.world.facts.rooms.west
@@ -92,6 +94,7 @@ func run_case(database: HospitalContent) -> Dictionary:
 	var other: WorldState = WorldState.new(x.world.freeze())
 	observations.append(_observe("other_world_same_values",other,actual,reference,[1,2]))
 	checks.world_identity_isolated = not is_same(old_ground,actual._by_facility.west_chair) and actual._world.get_ref()==other and actual._floor_regions.size()==2
+	checks.same_geometry_rebuild_keeps_fingerprint = str(old_ground.geometry)==str(actual._by_facility.west_chair.geometry)
 	observations.append(_observe("return_to_original_world",x.world,actual,reference,[1,2]))
 	checks.only_latest_world_is_retained = actual._world.get_ref()==x.world and actual._floor_regions.size()==2
 	var high_floors: Dictionary = _high_floor_keys(x.world)

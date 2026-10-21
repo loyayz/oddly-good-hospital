@@ -1795,6 +1795,7 @@ V calculate_integer(int operation, const V& first, const V& second) {
 #include "platform_unit_static_masks.h"
 #include "platform_floor_graph.h"
 #include "platform_entry_order.h"
+#include "platform_public_regions.h"
 #include "platform_route_search.h"
 #include "platform_json_stream.inc"
 #include "platform_backup_zip.h"
@@ -1847,9 +1848,10 @@ void free_model(void*, GDExtensionClassInstancePtr instance) {
     std::lock_guard<std::recursive_mutex> guard(discrete_mutex);
     delete static_cast<CapacityInstance*>(instance);
 }
-enum Method { SOLVE, FRACTION, INTEGER, STRUCTURE, AGGREGATE, AGGREGATE_COMPONENTS, THREAD_CPU, MONOTONIC_CLOCK, PERSONAL_BED_MATCHING, GRID_COMPONENT, ROUTE_SEARCH, GRID_DISTANCE_FIELD, FLOOR_GRAPH_BUILD, UNIT_STATIC_MASKS, ENTRY_ORDER, PREPARE_MODEL, SOLVE_MODEL, PREPARE_ROLES, SOLVE_ROLES };
+enum Method { SOLVE, FRACTION, INTEGER, STRUCTURE, AGGREGATE, AGGREGATE_COMPONENTS, THREAD_CPU, MONOTONIC_CLOCK, PERSONAL_BED_MATCHING, GRID_COMPONENT, ROUTE_SEARCH, GRID_DISTANCE_FIELD, FLOOR_GRAPH_BUILD, UNIT_STATIC_MASKS, ENTRY_ORDER, PUBLIC_REGION_COMPONENTS, PREPARE_MODEL, SOLVE_MODEL, PREPARE_ROLES, SOLVE_ROLES };
 struct MethodInfo { const char* name; Method method; std::vector<GDExtensionVariantType> arguments; };
 MethodInfo methods[] = {
+    {"public_region_components", PUBLIC_REGION_COMPONENTS, {GDEXTENSION_VARIANT_TYPE_DICTIONARY}},
     {"entry_order", ENTRY_ORDER, {GDEXTENSION_VARIANT_TYPE_PACKED_INT32_ARRAY, GDEXTENSION_VARIANT_TYPE_DICTIONARY}},
     {"floor_graph_build", FLOOR_GRAPH_BUILD, {GDEXTENSION_VARIANT_TYPE_OBJECT, GDEXTENSION_VARIANT_TYPE_PACKED_BYTE_ARRAY, GDEXTENSION_VARIANT_TYPE_PACKED_BYTE_ARRAY, GDEXTENSION_VARIANT_TYPE_PACKED_BYTE_ARRAY}},
     {"unit_static_masks", UNIT_STATIC_MASKS, {GDEXTENSION_VARIANT_TYPE_DICTIONARY}},
@@ -1878,6 +1880,7 @@ V invoke(Method method, const std::vector<V>& args, GDExtensionClassInstancePtr 
         if (method == FLOOR_GRAPH_BUILD) return build_floor_graph(args[0], args[1], args[2], args[3]);
         if (method == UNIT_STATIC_MASKS) return build_unit_static_masks(args[0]);
         if (method == ENTRY_ORDER) return solve_entry_order(args[0], args[1]);
+        if (method == PUBLIC_REGION_COMPONENTS) return solve_public_region_components(args[0]);
         if (method == ROUTE_SEARCH) return solve_route_search(args[0]);
         std::unique_lock<std::recursive_mutex> discrete_guard(discrete_mutex, std::defer_lock);
         int64_t lock_started = micros();

@@ -11,9 +11,9 @@ class LayoutCounts extends HospitalSpace:
 		layouts += 1
 		return super.facility_layout(world,facility_id)
 
-# Frozen 284efc9 traversal is a compatibility oracle for derived identity and
-# order, not a definition of gameplay. The independent assertions below also
-# check fixed obstacles, stored/nonblocking facilities and a real bed quote.
+# Frozen 284efc9 traversal independently checks complete connected sets, public
+# identity, bounds and facility order. Its BFS insertion/JSON digest are internal
+# representations; the new canonical identity protocol is checked separately.
 class ReferenceAreas extends HospitalPublicAreas:
 	# Keep the old string encoding independent from the production floor map.
 	var _by_cell: Dictionary = {}
@@ -108,6 +108,7 @@ func run_case(database: HospitalContent) -> Dictionary:
 		if not facility.get("stored",false): expected_layouts += 1
 	var checks: Dictionary = {}
 	checks.valid_input = validation.is_empty()
+	checks.cold_build_uses_native_once_per_floor = int(actual_space.query_counts.get("public_region_native_builds",0))==2 and int(actual_space.query_counts.get("public_region_script_builds",0))==0
 	checks.region_reads_only_actual_geometry_without_full_layout_copy = actual_space.layouts==0 and expected_layouts>0 and reference_space.layouts>actual_space.layouts
 	var cold_calls: int = actual_space.layouts
 	var reference_cold_calls: int = reference_space.layouts
@@ -141,10 +142,11 @@ func run_case(database: HospitalContent) -> Dictionary:
 	checks.other_floor_keeps_base_bed = not actual._cell_region(2,Vector2i(51,72)).is_empty()
 	var restored: WorldState = WorldState.new(x.world.freeze())
 	observations.append(_compare_build("restored_world_identity",restored,actual,reference,3))
+	var components: Dictionary = preload("res://tests/acceptance/public_region_components.gd").new().run_case(_content)
 	var ok: bool = true
 	for passed: bool in checks.values(): ok = ok and passed
 	for observation: Dictionary in observations: ok = ok and observation.ok
-	var result: Dictionary = {"ok":ok,"validation":validation,"expanded_validation":expanded_validation,"checks":checks,"cold_facility_layout_calls":{"optimized":cold_calls,"reference":reference_cold_calls},"observations":observations,"scope":"Complete derived region compatibility; no gameplay movement or arrival is simulated by this calculation fixture."}
+	var result: Dictionary = {"ok":ok and components.ok,"validation":validation,"expanded_validation":expanded_validation,"checks":checks,"cold_facility_layout_calls":{"optimized":cold_calls,"reference":reference_cold_calls},"observations":observations,"canonical_component_calculations":components,"scope":"Complete derived region semantics and canonical identity; no gameplay movement or arrival is simulated by this calculation fixture."}
 	x.a.dispose()
 	x.p.waiting_life = null
 	x.p.environment = null
@@ -213,12 +215,14 @@ func _compare_build(label: String, world: WorldState, actual: HospitalPublicArea
 	if not equal:
 		for field: String in expected:
 			if expected[field]!=observed.get(field): first_difference = {"field":field}; break
-	return {"ok":equal and before==world.freeze(),"boundary":label,"all_regions_anchors_cell_order_geometry_and_facility_maps_equal":equal,"regions":actual._regions.size(),"cells":observed.cells.size(),"facilities":actual._by_facility.size(),"world_and_rng_unchanged":before==world.freeze(),"first_difference":first_difference}
+	return {"ok":equal and before==world.freeze(),"boundary":label,"all_region_cells_anchors_bounds_and_facility_maps_equal":equal,"regions":actual._regions.size(),"cells":observed.cells.size(),"facilities":actual._by_facility.size(),"world_and_rng_unchanged":before==world.freeze(),"first_difference":first_difference,"internal_representation":"Cell insertion order and digest encoding are canonical derived data, independently of the frozen BFS/JSON implementation."}
 
 func _snapshot(areas: HospitalPublicAreas) -> Dictionary:
 	var regions: Array = []
 	for region: Dictionary in areas._regions:
-		regions.append({"ref":region.ref.duplicate(true),"cells":region.cells.keys(),"facilities":region.facilities.duplicate(),"bounds":region.bounds,"geometry":region.geometry})
+		var occupied: Array = region.cells.keys()
+		occupied.sort_custom(func(a: Vector2i,b: Vector2i)->bool:return a.y<b.y or a.y==b.y and a.x<b.x)
+		regions.append({"ref":region.ref.duplicate(true),"cells":occupied,"facilities":region.facilities.duplicate(),"bounds":region.bounds,"geometry_fingerprint_present":str(region.geometry).length()==64})
 	var cells: Array = []
 	if areas is ReferenceAreas:
 		var reference: ReferenceAreas = areas
@@ -232,6 +236,9 @@ func _snapshot(areas: HospitalPublicAreas) -> Dictionary:
 			var by_cell: Dictionary = areas._floor_regions[floor_id].by_cell
 			for point: Vector2i in by_cell:
 				cells.append([[floor_id,point.x,point.y],by_cell[point].ref.duplicate(true)])
+	cells.sort_custom(func(a: Array,b: Array)->bool:
+		if a[0][0]!=b[0][0]: return a[0][0]<b[0][0]
+		return a[0][2]<b[0][2] or a[0][2]==b[0][2] and a[0][1]<b[0][1])
 	var facilities: Array = []
 	for id: String in areas._by_facility: facilities.append([id,areas._by_facility[id].ref.duplicate(true)])
 	return {"regions":regions,"cells":cells,"facilities":facilities,"derived_floors":areas._derived_floors.keys()}

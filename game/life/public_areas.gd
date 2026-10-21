@@ -382,7 +382,51 @@ func _region_basis(layout: Dictionary, rooms: Array, facilities: Array, connecto
 	return [layout.plots,layout.get("blocked",[]),room_shapes,facility_shapes,connector_shapes]
 
 func _derive_floor(floor_id: int, layout: Dictionary, rooms: Array, facilities: Array, connectors: Array) -> Dictionary:
+	var blocking: Array = []
+	for facility: Dictionary in facilities:
+		if facility.blocks: blocking.append(facility.layout)
+	blocking.append_array(connectors)
+	# Pass original compact geometry, not a script-expanded Variant per cell.
+	var native: Dictionary = PlatformArrivalMath.public_region_components({"plots":layout.plots,"blocked":layout.get("blocked",[]),"rooms":rooms,"obstacles":blocking})
+	if native.has("error"): push_error("公共区域组件原生计算失败："+str(native.get("bottleneck",native.error)))
+	var components: Array
+	if native.get("ready",false):
+		components = native.components
+		space.query_counts["public_region_native_builds"] = int(space.query_counts.get("public_region_native_builds",0))+1
+	else:
+		components = _script_region_components(layout,rooms,blocking)
+		space.query_counts["public_region_script_builds"] = int(space.query_counts.get("public_region_script_builds",0))+1
 	var result: Dictionary = {"regions":[],"by_cell":{},"by_facility":{}}
+	for component: Dictionary in components:
+		var coordinates: PackedInt64Array = component.cells
+		var origin: Vector2i = Vector2i(coordinates[0],coordinates[1])
+		var extent: Array = component.bounds
+		var digest: HashingContext = HashingContext.new()
+		digest.start(HashingContext.HASH_SHA256)
+		digest.update(coordinates.to_byte_array())
+		var region: Dictionary = {"ref":{"floor_id":floor_id,"room_id":component.room_id,"anchor":[origin.x,origin.y]},"cells":{},"facilities":[],"facility_definitions":{},"bounds":Rect2i(int(extent[0]),int(extent[1]),int(extent[2]),int(extent[3])),"geometry":digest.finish().hex_encode()}
+		result.regions.append(region)
+		for index: int in range(0,coordinates.size(),2):
+			var point: Vector2i = Vector2i(coordinates[index],coordinates[index+1])
+			region.cells[point] = true
+			result.by_cell[point] = region
+	for facility: Dictionary in facilities:
+		var actual: Dictionary = facility.layout
+		var point: Vector2i = Vector2i(int(actual.patient_cell[0]),int(actual.patient_cell[1]))
+		var region: Dictionary = result.by_cell.get(point,{})
+		if not region.is_empty():
+			var definition: String = facility.definition
+			var positions: PackedInt32Array = region.facility_definitions.get(definition,PackedInt32Array())
+			positions.append(region.facilities.size())
+			region.facility_definitions[definition] = positions
+			region.facilities.append(facility.id)
+			result.by_facility[facility.id] = region
+	return result
+
+func _script_region_components(layout: Dictionary, rooms: Array, blocking: Array) -> Array:
+	# Unsupported/native-failure inputs retain the complete original geometry
+	# calculation. Only its exported order/identity uses canonical y/x cells.
+	var result: Array = []
 	var zones: Dictionary = {}
 	for plot: Array in layout.plots:
 		for y: int in range(int(plot[1])*32,(int(plot[1])+1)*32):
@@ -391,15 +435,10 @@ func _derive_floor(floor_id: int, layout: Dictionary, rooms: Array, facilities: 
 		for cell: Array in BuildGeometry.cells(room): zones[Vector2i(int(cell[0]),int(cell[1]))] = str(room.id)
 	var free: Dictionary = zones.duplicate()
 	for cell: Array in layout.get("blocked",[]): free.erase(Vector2i(int(cell[0]),int(cell[1])))
-	var blocking: Array = []
-	for facility: Dictionary in facilities:
-		if facility.blocks: blocking.append(facility.layout)
-	blocking.append_array(connectors)
 	for obstacle: Dictionary in blocking:
 		for y: int in range(int(obstacle.cell[1]),int(obstacle.cell[1])+int(obstacle.footprint[1])):
 			for x: int in range(int(obstacle.cell[0]),int(obstacle.cell[0])+int(obstacle.footprint[0])): free.erase(Vector2i(x,y))
-	# Row-major IDs use the engine's integer sort while retaining the same
-	# y/x anchors and the original per-component traversal order.
+	# Row-major seeds retain the original minimum y/x component anchors.
 	var packed: PackedInt32Array = PackedInt32Array()
 	packed.resize(free.size())
 	var compact: bool = true
@@ -421,7 +460,6 @@ func _derive_floor(floor_id: int, layout: Dictionary, rooms: Array, facilities: 
 	for index: int in free.size():
 		var start: Vector2i = Vector2i(packed[index]%ENTRY_GRID_WIDTH,packed[index]/ENTRY_GRID_WIDTH) if compact else ordered[index]
 		if seen.has(start): continue
-		var cells: Dictionary = {start:true}
 		var bounds: Rect2i = Rect2i(start,Vector2i.ONE)
 		var pending: Array[Vector2i] = [start]
 		seen[start] = true
@@ -433,24 +471,15 @@ func _derive_floor(floor_id: int, layout: Dictionary, rooms: Array, facilities: 
 				var next: Vector2i = point+direction
 				if seen.has(next) or not free.has(next) or zones[next]!=zones[start]: continue
 				seen[next] = true
-				cells[next] = true
 				bounds = bounds.merge(Rect2i(next,Vector2i.ONE))
 				pending.append(next)
-		var geometry: String = JSON.stringify(pending,"",true,true).sha256_text()
-		var region: Dictionary = {"ref":{"floor_id":floor_id,"room_id":zones[start],"anchor":[start.x,start.y]},"cells":cells,"facilities":[],"facility_definitions":{},"bounds":bounds,"geometry":geometry}
-		result.regions.append(region)
-		for point: Vector2i in cells: result.by_cell[point] = region
-	for facility: Dictionary in facilities:
-		var actual: Dictionary = facility.layout
-		var point: Vector2i = Vector2i(int(actual.patient_cell[0]),int(actual.patient_cell[1]))
-		var region: Dictionary = result.by_cell.get(point,{})
-		if not region.is_empty():
-			var definition: String = facility.definition
-			var positions: PackedInt32Array = region.facility_definitions.get(definition,PackedInt32Array())
-			positions.append(region.facilities.size())
-			region.facility_definitions[definition] = positions
-			region.facilities.append(facility.id)
-			result.by_facility[facility.id] = region
+		pending.sort_custom(func(a: Vector2i,b: Vector2i)->bool:return a.y<b.y or a.y==b.y and a.x<b.x)
+		var coordinates: PackedInt64Array = PackedInt64Array()
+		coordinates.resize(pending.size()*2)
+		for coordinate_index: int in pending.size():
+			coordinates[coordinate_index*2] = pending[coordinate_index].x
+			coordinates[coordinate_index*2+1] = pending[coordinate_index].y
+		result.append({"room_id":zones[start],"cells":coordinates,"bounds":[bounds.position.x,bounds.position.y,bounds.size.x,bounds.size.y]})
 	return result
 
 func _cell_region(floor_id: int, point: Vector2i) -> Dictionary:
