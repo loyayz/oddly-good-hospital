@@ -137,11 +137,13 @@ func _staff(f: Dictionary, id: String, role: String, cell: Array) -> void:
 	f.s.space.sync_actor(f.w,id)
 	for service: RefCounted in f.s.services.values(): service.call("ensure",f.w)
 
-func _work_tick(f: Dictionary, service: String) -> void:
+func _work_tick(f: Dictionary, service: String, observe_work: Callable = Callable()) -> void:
 	var worker: RefCounted = f.s.services[service]
 	worker.call("dispatch",f.w)
 	f.s.space.advance(f.w,f.w.present_actor_count())
+	if observe_work.is_valid(): observe_work.call("before")
 	worker.call("advance",f.w)
+	if observe_work.is_valid(): observe_work.call("after")
 	f.w.facts.sim_tick += 1
 	_zero_arrivals(f.w)
 	f.w.touch()
@@ -562,13 +564,28 @@ func _case_13() -> Dictionary:
 	_work_tick(f,"environment")
 	var waiting: bool = f.w.facts.environment.orders[id].units[0].remaining_milli==8000 and f.w.facts.environment.surfaces.is_empty()
 	if not _decorator(f): return _result(false,f.errors)
+	var completion: Dictionary = {}
+	var observe: Callable = func(stage: String) -> void:
+		var current: Dictionary = f.w.facts.environment.orders[id].units[0]
+		if stage=="before":
+			if str(current.worker_id).is_empty() or int(current.remaining_milli)>f.s.services.environment._work_amount(f.w,str(current.worker_id)): return
+			var view: Dictionary = f.s.space.public_areas._decision_view(f.w)
+			completion.before = {"tick":f.w.sim_tick,"geometry":f.w.geometry_revision,"revision":f.w.revision,"source":f.s.space._navigation.floor_source(f.s.space,f.w,1),"surfaces":view.environment.get(1,[]).filter(func(row: Array) -> bool: return row[1]=="surfaces" and row[0]==[42,80]),"construction":view.environment.get(1,[]).filter(func(row: Array) -> bool: return row[1]=="construction" and row[0]==[42,80])}
+		elif completion.has("before") and current.phase=="completed":
+			var view: Dictionary = f.s.space.public_areas._decision_view(f.w)
+			var surfaces: Array = view.environment.get(1,[]).filter(func(row: Array) -> bool: return row[1]=="surfaces" and row[0]==[42,80])
+			var construction: Array = view.environment.get(1,[]).filter(func(row: Array) -> bool: return row[1]=="construction" and row[0]==[42,80])
+			completion.geometry_after = f.w.geometry_revision
+			completion.source_reused = is_same(completion.before.source,f.s.space._navigation.floor_source(f.s.space,f.w,1))
+			completion.same_tick_view_updated = f.w.sim_tick==completion.before.tick and completion.before.surfaces.is_empty() and completion.before.construction.size()==1 and surfaces.size()==1 and surfaces[0][2].material_id=="MAT01" and construction.is_empty()
+			completion.ok = f.w.geometry_revision==completion.before.geometry and f.w.revision>completion.before.revision and completion.source_reused and completion.same_tick_view_updated
 	for tick: int in 400:
-		_work_tick(f,"environment")
+		_work_tick(f,"environment",observe)
 		if f.w.facts.environment.orders[id].phase=="completed": break
 	var unit: Dictionary = f.w.facts.environment.orders[id].units[0]
 	var surface: Dictionary = f.w.facts.environment.surfaces.get("1:42:80:floor:",{})
 	var receipt: Dictionary = f.w.facts.environment.receipts.get(str(unit.id)+":renovation_completed",{})
-	return _result(waiting and unit.phase=="completed" and unit.remaining_milli==0 and surface.get("material_id")=="MAT01" and surface.get("paid_cost")==25 and receipt.get("standard_work_milli")==8000 and receipt.get("staff_id")=="ops_decorator" and f.s.services.environment.environment_at(f.w,1,[42,80]).value==49,{"unit":unit,"surface":surface,"receipt":receipt})
+	return _result(waiting and unit.phase=="completed" and unit.remaining_milli==0 and surface.get("material_id")=="MAT01" and surface.get("paid_cost")==25 and receipt.get("standard_work_milli")==8000 and receipt.get("staff_id")=="ops_decorator" and f.s.services.environment.environment_at(f.w,1,[42,80]).value==49 and completion.get("ok",false),{"unit":unit,"surface":surface,"receipt":receipt,"completion_boundary":completion})
 
 func _case_14() -> Dictionary:
 	var f: Dictionary = _new("装修取消与恢复")
@@ -640,13 +657,30 @@ func _case_16() -> Dictionary:
 	copied.w.facts.staff.ops_cleaner_a.on_shift = false
 	copied.s.space.request_move(copied.w,"ops_cleaner_a",1,[39,83])
 	_staff(copied,"ops_cleaner_b","cleaner",[40,81])
+	var completion: Dictionary = {}
+	var observe: Callable = func(stage: String) -> void:
+		if stage=="before":
+			var patch: Dictionary = copied.w.facts.environment.dirt.get(id,{})
+			if str(patch.get("worker_id","")).is_empty() or int(patch.remaining_milli)>copied.s.services.environment._work_amount(copied.w,str(patch.worker_id)): return
+			var view: Dictionary = copied.s.space.public_areas._decision_view(copied.w)
+			completion.before = {"tick":copied.w.sim_tick,"geometry":copied.w.geometry_revision,"revision":copied.w.revision,"source":copied.s.space._navigation.floor_source(copied.s.space,copied.w,1),"dirt":view.environment.get(1,[]).filter(func(row: Array) -> bool: return row[1]=="dirt" and row[2].id==id),"environment":copied.s.services.environment.environment_at(copied.w,1,[42,80])}
+		elif completion.has("before") and not copied.w.facts.environment.dirt.has(id):
+			var view: Dictionary = copied.s.space.public_areas._decision_view(copied.w)
+			var dirt: Array = view.environment.get(1,[]).filter(func(row: Array) -> bool: return row[1]=="dirt" and row[2].id==id)
+			var clean: Dictionary = copied.s.services.environment.environment_at(copied.w,1,[42,80])
+			completion.geometry_after = copied.w.geometry_revision
+			completion.source_reused = is_same(completion.before.source,copied.s.space._navigation.floor_source(copied.s.space,copied.w,1))
+			completion.same_tick_view_updated = copied.w.sim_tick==completion.before.tick and completion.before.dirt.size()==1 and dirt.is_empty()
+			completion.environment_after = clean
+			completion.environment_restored = int(completion.before.environment.dirt)==1 and not completion.before.environment.clean and int(clean.dirt)==0 and clean.clean and int(clean.value)-int(completion.before.environment.value)==12
+			completion.ok = copied.w.geometry_revision==completion.before.geometry and copied.w.revision>completion.before.revision and completion.source_reused and completion.same_tick_view_updated and completion.environment_restored
 	for tick: int in 200:
-		_work_tick(copied,"environment")
+		_work_tick(copied,"environment",observe)
 		if not copied.w.facts.environment.dirt.has(id): break
 	var receipt: Dictionary = copied.w.facts.environment.receipts.get(id+":cleanup_completed",{})
 	var receipts: int = copied.w.facts.environment.receipts.size()
 	for tick: int in 3: _work_tick(copied,"environment")
-	return _result(unattended and paused and remaining>0 and remaining<4000 and not copied.w.facts.environment.dirt.has(id) and receipt.get("standard_work_milli")==4000 and receipt.get("staff_id")=="ops_cleaner_b" and copied.w.facts.environment.receipts.size()==receipts,{"remaining_at_handoff":remaining,"receipt":receipt,"pending":copied.w.facts.environment.dirt})
+	return _result(unattended and paused and remaining>0 and remaining<4000 and not copied.w.facts.environment.dirt.has(id) and receipt.get("standard_work_milli")==4000 and receipt.get("staff_id")=="ops_cleaner_b" and copied.w.facts.environment.receipts.size()==receipts and completion.get("ok",false),{"remaining_at_handoff":remaining,"receipt":receipt,"pending":copied.w.facts.environment.dirt,"completion_boundary":completion})
 
 func _case_17() -> Dictionary:
 	var f: Dictionary = _new("桶内垃圾合并")

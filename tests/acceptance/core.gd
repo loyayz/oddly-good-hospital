@@ -242,12 +242,14 @@ func _case_13(t, content: HospitalContent) -> void:
 	var world: WorldState = x.world
 	var sim: HospitalSimulation = x.sim
 	var balance: int = HospitalLedger.balance(world)
+	var geometry: int = world.geometry_revision
+	var revision: int = world.revision
 	var entry: LedgerEntry = LedgerEntry.new(world.hospital_id,"acceptance_payment",-10)
 	var paid: CommandResult = HospitalLedger.post(world,entry)
 	HospitalLedger.post(world,entry)
 	var before: Dictionary = world.freeze()
 	var excessive: CommandResult = HospitalLedger.post(world,LedgerEntry.new(world.hospital_id,"excessive",-1000000))
-	t.check("CORE-13",paid.accepted and HospitalLedger.balance(world)==balance-10 and not excessive.accepted and world.freeze()==before)
+	t.check("CORE-13",paid.accepted and HospitalLedger.balance(world)==balance-10 and not excessive.accepted and world.freeze()==before and world.geometry_revision==geometry and world.revision==revision+1,{"geometry_unchanged":world.geometry_revision==geometry,"one_actual_fact_revision":world.revision==revision+1})
 	sim.dispose()
 
 func _case_41(t, content: HospitalContent) -> void:

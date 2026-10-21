@@ -66,8 +66,10 @@ func _decision_view(world: WorldState) -> Dictionary:
 	if _decision_world==null or _decision_world.get_ref()!=world:
 		_decision_world = weakref(world)
 		_decision_tick = -1
+		_decision_basis = {}
 		_wait_results.clear()
-	if _decision_tick==world.sim_tick and _decision_basis.get("geometry_revision",-1)==world.geometry_revision: return _decision_basis
+	var facility_environment: Dictionary = _facility_environment(world)
+	if _decision_tick==world.sim_tick and _decision_basis.get("geometry_revision",-1)==world.geometry_revision and is_same(_decision_basis.get("facility_environment",{}),facility_environment): return _decision_basis
 	_decision_tick = world.sim_tick
 	var users: Dictionary = {}
 	for actor: Dictionary in world.facts.actors.values():
@@ -86,8 +88,6 @@ func _decision_view(world: WorldState) -> Dictionary:
 	for id: String in _wait_results.keys():
 		if not active.has(id): _wait_results.erase(id)
 	var environment: Dictionary = {}
-	for facility: Dictionary in world.facts.facilities.values():
-		environment.get_or_add(int(facility.floor_id),[]).append([facility.cell,"facility",[facility.id,facility.definition_id,facility.get("level",1),facility.get("failed",false)]])
 	for collection: String in ["surfaces","dirt"]:
 		for record: Dictionary in world.facts.get("environment",{}).get(collection,{}).values():
 			if collection=="dirt" and not str(record.get("bin_id","")).is_empty(): continue
@@ -106,8 +106,22 @@ func _decision_view(world: WorldState) -> Dictionary:
 		if order.get("phase","")!="working": continue
 		var facility: Dictionary = world.facts.facilities.get(order.get("facility_id",""),{})
 		if not facility.is_empty(): environment.get_or_add(int(facility.floor_id),[]).append([facility.cell,"upgrade",facility.id])
-	_decision_basis = {"users":users,"queues":queues,"environment":environment,"environment_indices":{},"geometry_revision":world.geometry_revision}
+	_decision_basis = {"users":users,"queues":queues,"environment":environment,"environment_indices":{},"facility_environment":facility_environment,"geometry_revision":world.geometry_revision}
 	return _decision_basis
+
+func _facility_environment(world: WorldState) -> Dictionary:
+	var records: Dictionary = world.facts.facilities
+	var retained: Dictionary = _decision_basis.get("facility_environment",{})
+	if not retained.is_empty() and int(retained.geometry_revision)==world.geometry_revision and is_same(retained.records,records) and int(retained.count)==records.size():
+		space.query_counts["facility_environment_hits"] = int(space.query_counts.get("facility_environment_hits",0))+1
+		return retained
+	# Layout owners invalidate geometry when a facility moves. Only frozen
+	# origins and identities persist; selected values are read from facts below.
+	var rows: Dictionary = {}
+	for facility: Dictionary in records.values():
+		rows.get_or_add(int(facility.floor_id),[]).append([facility.cell.duplicate(),"facility",str(facility.id)])
+	space.query_counts["facility_environment_builds"] = int(space.query_counts.get("facility_environment_builds",0))+1
+	return {"records":records,"count":records.size(),"geometry_revision":world.geometry_revision,"rows":rows,"indices":{}}
 
 func _decision_signature(world: WorldState, intent: Dictionary, definitions: Array, members: Array, extra: Dictionary, route_floors: Array = []) -> Array:
 	var view: Dictionary = _decision_view(world)
@@ -180,9 +194,20 @@ func _decision_signature(world: WorldState, intent: Dictionary, definitions: Arr
 	return records
 
 func _environment_samples(view: Dictionary, floor_id: int, points: Array) -> Array:
+	var result: Array = []
+	var facilities: Dictionary = view.get("facility_environment",{})
+	if not facilities.is_empty():
+		var rows: Array = facilities.rows.get(floor_id,[])
+		for number: int in _environment_sample_indices(rows,facilities.indices,floor_id,points):
+			var row: Array = rows[number]
+			var facility: Dictionary = facilities.records[row[2]]
+			result.append([row[0],"facility",[facility.id,facility.definition_id,facility.get("level",1),facility.get("failed",false)]])
 	var samples: Array = view.environment.get(floor_id,[])
+	for number: int in _environment_sample_indices(samples,view.environment_indices,floor_id,points): result.append(samples[number])
+	return result
+
+func _environment_sample_indices(samples: Array, indices: Dictionary, floor_id: int, points: Array) -> Array:
 	if points.is_empty() or samples.is_empty(): return []
-	var indices: Dictionary = view.environment_indices
 	if not indices.has(floor_id):
 		var created: BodyIndex = BodyIndex.new()
 		for number: int in samples.size():
@@ -206,9 +231,7 @@ func _environment_samples(view: Dictionary, floor_id: int, points: Array) -> Arr
 			if absf(float(cell[0])-float(point[0]))+absf(float(cell[1])-float(point[1]))<=8.0: matched[number] = true
 	var ordered: Array = matched.keys()
 	ordered.sort()
-	var result: Array = []
-	for number: int in ordered: result.append(samples[number])
-	return result
+	return ordered
 
 func _add_dynamic_dependencies(world: WorldState, floor_id: int, bounds: Rect2, members: Array, actors: Dictionary, reservations: Dictionary) -> void:
 	for id: String in space._actor_index.candidates(floor_id,bounds,members): actors[id] = true

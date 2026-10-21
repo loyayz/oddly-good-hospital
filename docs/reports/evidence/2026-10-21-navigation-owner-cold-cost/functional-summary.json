@@ -1,0 +1,92 @@
+{
+  "batches": [
+    {
+      "batch": "f88a7c878abb4071ba3f65af973d8759",
+      "cases": [
+        "STAFF-61",
+        "STAFF-69",
+        "STAFF-70",
+        "STAFF-71",
+        "STAFF-72",
+        "STAFF-75",
+        "SPACE-16",
+        "SPACE-23",
+        "SPACE-24",
+        "SPACE-28",
+        "SPACE-51",
+        "SPACE-54",
+        "OPS-13",
+        "OPS-14",
+        "OPS-16",
+        "OPS-17",
+        "OPS-32"
+      ],
+      "checks": 17,
+      "failed": 2,
+      "completed": true,
+      "timing": {
+        "started_at_utc": "2026-10-21T02:40:19.7427939+00:00",
+        "ended_at_utc": "2026-10-21T02:40:39.7060790+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 3830,
+        "import_ms": 7392,
+        "tests_ms": 8730,
+        "total_ms": 19965
+      }
+    },
+    {
+      "batch": "37fe5a94f1614ec98d7cbef34f061073",
+      "cases": [
+        "CORE-02",
+        "CORE-09",
+        "CORE-13",
+        "CORE-41",
+        "CORE-45",
+        "CLIN-05",
+        "OPS-01",
+        "OPS-02",
+        "OPS-13",
+        "OPS-14",
+        "OPS-16",
+        "OPS-17",
+        "OPS-32",
+        "OPS-33",
+        "SPACE-01",
+        "SPACE-06",
+        "SPACE-10",
+        "SPACE-16",
+        "SPACE-23",
+        "SPACE-24",
+        "SPACE-28",
+        "SPACE-33",
+        "SPACE-51",
+        "SPACE-54",
+        "STAFF-61",
+        "STAFF-69",
+        "STAFF-70",
+        "STAFF-71",
+        "STAFF-72",
+        "STAFF-75"
+      ],
+      "checks": 30,
+      "failed": 0,
+      "completed": true,
+      "timing": {
+        "started_at_utc": "2026-10-21T02:47:20.5548062+00:00",
+        "ended_at_utc": "2026-10-21T02:47:47.7391157+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 3650,
+        "import_ms": 7417,
+        "tests_ms": 16105,
+        "total_ms": 27188
+      }
+    }
+  ],
+  "initial_failures": [
+    "OPS-13: ledger refund independently touches geometry",
+    "SPACE-51: new shortcut changed walking_distance float to int"
+  ],
+  "formal_pass": false
+}

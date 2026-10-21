@@ -460,6 +460,7 @@ func advance(world: WorldState) -> void:
 			world.facts.environment.dirt.erase(id)
 			if world.facts.environment.pinned_dirt_id==id:
 				world.facts.environment.pinned_dirt_id = ""
+			space.public_areas.changed(world)
 	var safety: Dictionary = {}
 	for id: String in world.active_operation_ids("environment","orders",["completed","cancelled"],true):
 		var order: Dictionary = world.facts.environment.orders[id]
@@ -495,6 +496,7 @@ func advance(world: WorldState) -> void:
 				_receipt(world,"renovation_completed",str(unit.id),unit.contributions,int(unit.total_milli))
 				_release(world,unit)
 				unit.phase = "completed"
+				space.public_areas.changed(world)
 		_finish_order(order)
 
 func _arrive(world: WorldState, job: Dictionary, floor_id: int, cell: Array) -> bool:
@@ -648,7 +650,9 @@ func _receipt(world: WorldState, kind: String, source_id: String, contributions:
 		winner = ""
 	world.facts.environment.receipts[id] = {"id":id,"kind":kind,"source_id":source_id,"staff_id":winner,"tick":world.sim_tick,"standard_work_milli":total}
 	world.completion_receipt_added("environment",id)
-	world.touch()
+	# Completion evidence changes no floor geometry. The producing owner
+	# publishes its actual material, dirt or completed-floor change separately.
+	world.touch(false)
 
 func _allowed_region(staff: Dictionary, floor_id: int, cell: Array) -> bool:
 	var zone: Dictionary = staff.get("work_region",{})

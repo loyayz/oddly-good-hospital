@@ -17,7 +17,7 @@ static func post(world: WorldState, entry: LedgerEntry, settled: bool = true) ->
 	entries[entry.entry_id] = {"owner_id":entry.owner_id,"component":entry.component,"amount":entry.amount,"tick":world.facts.sim_tick,"settled":settled}
 	world.ledger_posted(entry.entry_id)
 	if settled:
-		world.touch()
+		world.touch(false)
 	return CommandResult.new(true,"applied","",[entry.entry_id],world.facts.world_revision)
 
 static func settle(world: WorldState) -> Array[SimEvent]:

@@ -82,30 +82,7 @@ func _wait_value_snapshot() -> Dictionary:
 	return {"ok":x.held and initial and changed and unchanged and before==x.world.freeze(),"initial_hit":initial,"nested_input_change_rechecked":changed,"retained_snapshot_not_aliased":unchanged,"world_and_rng_unchanged":before==x.world.freeze()}
 
 func _complete_environment_samples() -> Dictionary:
-	var x: Dictionary = _areas()
-	var view: Dictionary = x.space.public_areas._decision_view(x.world)
-	var all: Array = view.environment.get(1,[])
-	var anchor: Array = all[0][0]
-	var cases: Array = [[],[anchor,anchor],[[float(anchor[0])+8.0,anchor[1]]],[[float(anchor[0])+8.000001,anchor[1]]],[[float(anchor[0])+4.25,float(anchor[1])+3.75],[float(anchor[0])-0.25,float(anchor[1])+8.25]]]
-	var before: Dictionary = x.world.freeze()
-	var rows: Array = []
-	for points: Array in cases:
-		var expected: Array = []
-		for sample: Array in all:
-			for point: Array in points:
-				if absf(float(sample[0][0])-float(point[0]))+absf(float(sample[0][1])-float(point[1]))<=8.0:
-					expected.append(sample)
-					break
-		var actual: Array = x.space.public_areas._environment_samples(view,1,points)
-		rows.append({"points":points,"all_sources_and_order_equal":actual==expected,"expected":expected,"actual":actual})
-	var readonly: bool = before==x.world.freeze()
-	var old_view: Dictionary = view
-	x.world.touch()
-	var touched: Dictionary = x.world.freeze()
-	var current: Dictionary = x.space.public_areas._decision_view(x.world)
-	var geometry_refreshed: bool = not is_same(old_view,current) and current.environment_indices.is_empty()
-	readonly = readonly and touched==x.world.freeze()
-	return {"ok":rows.all(func(row: Dictionary)->bool: return row.all_sources_and_order_equal) and geometry_refreshed and readonly,"complete_original_enumeration":rows,"same_tick_geometry_rebuilds_sample_index":geometry_refreshed,"world_and_rng_unchanged":readonly}
+	return preload("res://tests/acceptance/public_environment_view.gd").new().run_case(_content)
 
 # This calculation boundary starts with a genuinely arrived negative result.
 # The main case then independently exercises real release and use. Live lift

@@ -571,13 +571,23 @@ func _case_16(_t) -> Dictionary:
 	var start: int = int(order.get("remaining_milli",-1))
 	sim.step()
 	var no_remote: bool = not order.is_empty() and int(order.remaining_milli)==start and order.phase!="completed"
-	var completed: bool = _wait(sim,func() -> bool: return _order(sim).get("phase")=="completed",1400)
+	# Reach the last real work boundary; do not manufacture its remaining work.
+	var final_work: bool = _wait(sim,func() -> bool:
+		var current: Dictionary = _order(sim)
+		return current.get("phase")=="working" and int(current.remaining_milli)>0 and int(current.remaining_milli)<=int(current.rate_milli),1400)
+	var source_before: Dictionary = sim.space._navigation.floor_source(sim.space,sim.world,2)
+	var geometry_before: int = sim.world.geometry_revision
+	var before_owned: bool = sim.space.owned(sim.world,2,Vector2i(40,75))
+	sim.step()
+	var completed: bool = final_work and _order(sim).get("phase")=="completed"
+	var source_after: Dictionary = sim.space._navigation.floor_source(sim.space,sim.world,2)
+	var owner_invalidated: bool = completed and not before_owned and sim.world.geometry_revision==geometry_before+1 and source_before.layout.plots.is_empty() and [1,2] in source_after.layout.plots and source_before!=source_after
 	order = _order(sim)
 	var contributions: int = 0
 	for value: int in order.get("contributions",{}).values(): contributions += value
 	var after: Dictionary = sim.world.facts.floors.duplicate(true)
 	sim.step()
-	return _done(sim,purchase.accepted and no_remote and completed and sim.space.owned(sim.world,2,Vector2i(40,75)) and int(order.get("remaining_milli",-1))==0 and contributions==90000 and sim.world.facts.rooms.size()==1 and int(sim.world.facts.connectors[_connection(sim)].last_floor)==1 and after==sim.world.facts.floors,{"purchase":purchase.to_record(),"order":order.duplicate(true),"no_remote":no_remote})
+	return _done(sim,purchase.accepted and no_remote and completed and owner_invalidated and sim.space.owned(sim.world,2,Vector2i(40,75)) and int(order.get("remaining_milli",-1))==0 and contributions==90000 and sim.world.facts.rooms.size()==1 and int(sim.world.facts.connectors[_connection(sim)].last_floor)==1 and after==sim.world.facts.floors,{"purchase":purchase.to_record(),"order":order.duplicate(true),"no_remote":no_remote,"floor_owner_invalidated_geometry_once":owner_invalidated,"geometry_before":geometry_before,"source_before":source_before,"source_after":source_after})
 
 func _case_17(_t) -> Dictionary:
 	var sim: HospitalSimulation = _floor_fixture()
@@ -1636,7 +1646,9 @@ func _case_50(_t) -> Dictionary:
 func _case_51(_t) -> Dictionary:
 	var sim: HospitalSimulation = _fixture()
 	var result: Dictionary = preload("res://tests/acceptance/reference_route_permissions.gd").new().run_case(sim,content)
-	return _done(sim,result.ok,result.details)
+	var compatible: Dictionary = preload("res://tests/acceptance/connector_fit_scope.gd").new().run_case(self)
+	var single: Dictionary = preload("res://tests/acceptance/single_connector_route.gd").new().run_case(self)
+	return _done(sim,result.ok and compatible.ok and single.ok,{"reference_permissions":result.details,"connector_fit_scope":compatible,"single_connector_route":single})
 
 func _waiting_visit(sim: HospitalSimulation, id: String, cell: Array, binding_id: String = "") -> Dictionary:
 	var binding: Dictionary = content.definition("treatment_bindings",binding_id) if not binding_id.is_empty() else {}

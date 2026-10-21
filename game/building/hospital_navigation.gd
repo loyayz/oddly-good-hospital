@@ -160,9 +160,13 @@ func _point_route(world: WorldState, actor: Dictionary, source_floor: int, start
 	var direct: Dictionary = {"ok":false,"status":"unreachable","reason":"没有合法通路"}
 	if source_floor==target_floor:
 		direct = _floor_route(world,actor,source_floor,start,goal,members,offsets,true,{},true,distance_only)
-		if direct.ok and (world.facts.connectors.is_empty() or int(direct.walking_distance)==absi(goal.x-start.x)+absi(goal.y-start.y)):
+		# Current floor edges have unit cost. A sole connector returns to the
+		# same anchor, so leaving and returning cannot improve this shortest walk.
+		if direct.ok and (world.facts.connectors.size()<=1 or int(direct.walking_distance)==absi(goal.x-start.x)+absi(goal.y-start.y)):
 			direct.travel_ticks = HospitalTransit._add(initial_ticks,HospitalTransit.walking_ticks(space,actor,members,float(direct.walking_distance)))
 			if int(direct.travel_ticks)<0: return {"ok":false,"status":"time_overflow","reason":"基准通行时间超出整数范围"}
+			# This new case previously returned the full solver's float distance.
+			if world.facts.connectors.size()==1 and int(direct.walking_distance)!=absi(goal.x-start.x)+absi(goal.y-start.y): direct.walking_distance = float(direct.walking_distance)
 			direct.quoted_tick = world.sim_tick
 			if distance_only: direct.erase("path")
 			return direct
@@ -183,7 +187,10 @@ func _point_route(world: WorldState, actor: Dictionary, source_floor: int, start
 			extra_stops[id].append(floor_id)
 	# Native vertex declarations reuse the topology; floor A* still runs only
 	# when Boost settles a node and requests its business-defined outgoing edges.
-	var context: Dictionary = {"nodes":nodes,"stops":topology.stops,"extra_stops":extra_stops,"query_stops":{},"topology":topology,"connections":{},"compatible":{},"edges":{},"source_floor":source_floor,"target_floor":target_floor,"goal":goal,"members":members,"offsets":offsets,"distance_only":distance_only,"direct":direct}
+	# Compatibility is independent of the destination. The existing sealed
+	# read-only scope owns reuse for this exact actor and ordered member list.
+	var compatible: Dictionary = space.read_view(world,"point_connector_fits:"+JSON.stringify([actor.id,members]),func()->Dictionary:return {})
+	var context: Dictionary = {"nodes":nodes,"stops":topology.stops,"extra_stops":extra_stops,"query_stops":{},"topology":topology,"connections":{},"compatible":compatible,"edges":{},"source_floor":source_floor,"target_floor":target_floor,"goal":goal,"members":members,"offsets":offsets,"distance_only":distance_only,"direct":direct}
 	var solved: Dictionary = PlatformArrivalMath.route_search({"nodes":node_ids,"start":"start","goal":"goal","initial_ticks":initial_ticks,"expand":_point_edges.bind(world,actor,context)})
 	if solved.has("error"):
 		return {"ok":false,"status":"navigation_failed","reason":str(solved.get("bottleneck",solved.error))}
