@@ -297,8 +297,13 @@ func _ensure(world: WorldState, requested_floor: int = 0) -> void:
 	for id: String in world.ids("facilities"):
 		var facility: Dictionary = world.facts.facilities[id]
 		if not layouts.has(int(facility.floor_id)) or facility.get("stored",false): continue
-		facilities.get_or_add(int(facility.floor_id),[]).append({"id":id,"definition":str(facility.definition_id),"layout":space.facility_layout(world,id),"blocks":space.content.facility_definition(facility.definition_id).get("blocks_movement",true)})
+		# Region connectivity consumes only these actual geometry fields. The
+		# full facility layout also duplicates unrelated service/state metadata.
+		var adaptation: Dictionary = world.facts.adaptations.get(id,{})
+		var actual: Dictionary = {"cell":facility.cell,"footprint":adaptation.get("footprint",facility.footprint),"patient_cell":adaptation.get("patient_cell",facility.patient_cell)}
+		facilities.get_or_add(int(facility.floor_id),[]).append({"id":id,"definition":str(facility.definition_id),"layout":actual,"blocks":space.content.facility_definition(facility.definition_id).get("blocks_movement",true)})
 	var next_floors: Dictionary = {} if not current else _floor_regions.duplicate()
+	var same_regions: bool = same_world
 	for floor_id: int in floors:
 		if not layouts.has(floor_id): continue
 		var floor_rooms: Array = rooms.get(floor_id,[])
@@ -315,8 +320,16 @@ func _ensure(world: WorldState, requested_floor: int = 0) -> void:
 			var derived: Dictionary = _derive_floor(floor_id,layouts[floor_id],floor_rooms,floor_facilities,connectors)
 			derived.basis = basis.duplicate(true)
 			next_floors[floor_id] = derived
+			same_regions = false
 			space.query_counts["public_region_floor_builds"] = int(space.query_counts.get("public_region_floor_builds",0))+1
+	same_regions = same_regions and next_floors.keys()==_floor_regions.keys()
 	_floor_regions = next_floors
+	# Complete comparison remains the fallback for every broad invalidation.
+	# When it proves the same floor sequence and objects, the existing global
+	# mappings are already exact; do not copy all their cells a second time.
+	if same_regions:
+		space.query_counts["public_region_mapping_hits"] = int(space.query_counts.get("public_region_mapping_hits",0))+1
+		return
 	# Reattach in the same floor/component/cell/facility order as a cold build.
 	# Unchanged dictionaries remain the sole owners of their lazily derived views.
 	_regions.clear()
@@ -329,6 +342,7 @@ func _ensure(world: WorldState, requested_floor: int = 0) -> void:
 		_regions.append_array(derived.regions)
 		_by_cell.merge(derived.by_cell)
 		_by_facility.merge(derived.by_facility)
+	space.query_counts["public_region_mapping_builds"] = int(space.query_counts.get("public_region_mapping_builds",0))+1
 	_wait_geometry = {}
 
 func _region_basis(layout: Dictionary, rooms: Array, facilities: Array, connectors: Array) -> Array:
@@ -748,20 +762,29 @@ func safe_wait(world: WorldState, actor_id: String, floor_id: int, cell: Array, 
 		var area: Dictionary = _by_cell.get(_key(floor_id,point),{})
 		if area.is_empty(): return false
 		geometry = _entry_geometry_view(world,actor,area)
-	if not geometry.points.has(origin): geometry.points[origin] = _safe_wait_geometry(world,actor,floor_id,origin,geometry.geometry)
+	if not geometry.points.has(origin): geometry.points[origin] = _safe_wait_geometry(world,actor,floor_id,origin,geometry.geometry,geometry.get("doors",{}))
 	if not geometry.points[origin]: return false
 	var current: Dictionary = space.read_view(world,"public_wait_clearance:"+actor_id+":"+str(floor_id),func()->Dictionary:
 		return {"query":RouteClearance.new(space,world,actor,floor_id,[],{},true,space._navigation.floor_source(space,world,floor_id),geometry.geometry)})
 	if not (current.query as RouteClearance).reservation_reason(point).is_empty(): return false
 	return space._dynamic_clear(world,actor_id,floor_id,space._actor_rect(actor,origin))
 
-func _safe_wait_geometry(world: WorldState, actor: Dictionary, floor_id: int, origin: Vector2, geometry: RouteClearance) -> bool:
+func _safe_wait_geometry(world: WorldState, actor: Dictionary, floor_id: int, origin: Vector2, geometry: RouteClearance, doors: Dictionary = {}) -> bool:
 	if not geometry.reason(Vector2i(roundi(origin.x),roundi(origin.y))).is_empty(): return false
 	var bounds: Rect2 = space._actor_rect(actor,origin)
 	var constraints: Dictionary = _wait_constraints(world)
-	for door: Dictionary in constraints.doors.get(floor_id,[]):
-		var span: int = int(world.facts.adaptations.get(door.id,{}).get("span",door.span))
-		if bounds.intersects(space._door_rect(door,span).grow(1.0),false): return false
+	if doors.is_empty():
+		for door: Dictionary in constraints.doors.get(floor_id,[]):
+			space.query_counts["public_wait_door_checks"] = int(space.query_counts.get("public_wait_door_checks",0))+1
+			var span: int = int(world.facts.adaptations.get(door.id,{}).get("span",door.span))
+			if bounds.intersects(space._door_rect(door,span).grow(1.0),false): return false
+	else:
+		var numbers: PackedInt32Array = PackedInt32Array()
+		for id: String in (doors.index as BodyIndex).candidates(floor_id,bounds): numbers.append(int(id))
+		numbers.sort()
+		for number: int in numbers:
+			space.query_counts["public_wait_door_checks"] = int(space.query_counts.get("public_wait_door_checks",0))+1
+			if bounds.intersects(doors.rectangles[number],false): return false
 	for x: int in range(floori(bounds.position.x/8.0),floori(bounds.end.x/8.0)+1):
 		for y: int in range(floori(bounds.position.y/8.0),floori(bounds.end.y/8.0)+1):
 			for work: Vector2 in constraints.points.get(floor_id,{}).get(Vector2i(x,y),[]):
@@ -776,6 +799,7 @@ func _entry_geometry_view(world: WorldState, actor: Dictionary, area: Dictionary
 	var key: String = JSON.stringify([area.ref,space.body(actor),actor.get("posture","standing"),rectangle.position,rectangle.size,spans],"",true,true)
 	var version: int = space._navigation.floor_static_version(space,world,floor_id)
 	var saved: Dictionary = _entry_geometry.get(key,{})
+	var doors: Dictionary = _wait_door_view(world,floor_id,spans)
 	if saved.is_empty() or int(saved.version)!=version:
 		# Region cells are independent of the traveller's body. Their immutable
 		# native representation belongs to the region, while fit/ordering belongs
@@ -795,6 +819,29 @@ func _entry_geometry_view(world: WorldState, actor: Dictionary, area: Dictionary
 		var prepared: Dictionary = area.entry_order_cells
 		saved = {"version":version,"cells":prepared.cells,"entry_cells":prepared.ids,"native_order":prepared.native_order,"points":{},"geometry":space.navigation.structural_clearance(world,actor,floor_id),"ordering":{},"previous_ordering":{}}
 		_entry_geometry[key] = saved
+	saved.doors = doors
+	return saved
+
+func _wait_door_view(world: WorldState, floor_id: int, spans: Array) -> Dictionary:
+	var constraints: Dictionary = _wait_constraints(world)
+	var views: Dictionary = constraints.get_or_add("door_views",{})
+	var saved: Dictionary = views.get(floor_id,{})
+	if not saved.is_empty() and saved.spans==spans: return saved
+	# Every regional/body entry refers to this same current view. Rebuild its
+	# index in place rather than retaining one native tree for each past span.
+	var index: BodyIndex = BodyIndex.new() if saved.is_empty() else saved.index
+	index.clear()
+	var rectangles: Array[Rect2] = []
+	var doors: Array = constraints.doors.get(floor_id,[])
+	for number: int in doors.size():
+		var rect: Rect2 = space._door_rect(doors[number],int(spans[number][1])).grow(1.0)
+		rectangles.append(rect)
+		index.update(str(number),floor_id,rect)
+	if saved.is_empty(): saved = {"index":index}
+	saved.spans = spans.duplicate(true)
+	saved.rectangles = rectangles
+	views[floor_id] = saved
+	space.query_counts["public_wait_door_index_builds"] = int(space.query_counts.get("public_wait_door_index_builds",0))+1
 	return saved
 
 func _wait_constraints(world: WorldState) -> Dictionary:

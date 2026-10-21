@@ -192,7 +192,7 @@ func _point_route(world: WorldState, actor: Dictionary, source_floor: int, start
 			direct.quoted_tick = world.sim_tick
 			if distance_only: direct.erase("path")
 			return direct
-	space.query_counts.transport_searches += 1
+	space.query_counts["transport_requests"] = int(space.query_counts.get("transport_requests",0))+1
 	var nodes: Dictionary = {"start":{"floor_id":source_floor,"cell":start},"goal":{"floor_id":target_floor,"cell":goal}}
 	var topology: Dictionary = _topology(world)
 	var node_ids: Array = topology.node_ids
@@ -214,6 +214,9 @@ func _point_route(world: WorldState, actor: Dictionary, source_floor: int, start
 	var compatible: Dictionary = space.read_view(world,"point_connector_fits:"+JSON.stringify([actor.id,members]),func()->Dictionary:return {})
 	var prepared: Dictionary = _connector_preparation(world,actor,members,offsets,distance_only,topology,extra_stops)
 	var context: Dictionary = {"nodes":nodes,"stops":topology.stops,"extra_stops":extra_stops,"query_stops":{},"topology":topology,"connections":{},"compatible":compatible,"connector_prepared":prepared,"edges":{},"source_floor":source_floor,"target_floor":target_floor,"goal":goal,"members":members,"offsets":offsets,"distance_only":distance_only,"direct":direct}
+	var shared: Dictionary = _source_quote(world,actor,context,node_ids,initial_ticks)
+	if not shared.is_empty(): return shared
+	space.query_counts.transport_searches += 1
 	var solved: Dictionary = PlatformArrivalMath.route_search({"nodes":node_ids,"start":"start","goal":"goal","initial_ticks":initial_ticks,"expand":_point_edges.bind(world,actor,context)})
 	if solved.has("error"):
 		return {"ok":false,"status":"navigation_failed","reason":str(solved.get("bottleneck",solved.error))}
@@ -237,6 +240,69 @@ func _point_route(world: WorldState, actor: Dictionary, source_floor: int, start
 	if direct.ok: return {"ok":false,"status":"time_overflow","reason":"基准通行时间超出整数范围"}
 	return direct if source_floor==target_floor else {"ok":false,"status":"unreachable","reason":"没有身体、停层和运行方向均合法的竖向通路"}
 
+func _source_quote(world: WorldState, actor: Dictionary, context: Dictionary, node_ids: Array, initial_ticks: int) -> Dictionary:
+	if not context.distance_only or not context.members.is_empty() or not context.offsets.is_empty() or not space.in_dynamic_route_query(world): return {}
+	var owner: Dictionary = space.dynamic_transport_view(world,actor.id,[],{})
+	var retained: Dictionary = owner.get("point_source_queries",{})
+	if retained.is_empty() or not is_same(retained.topology,context.topology):
+		retained = {"topology":context.topology,"variants":{}}
+		owner.point_source_queries = retained
+	var start: Vector2i = context.nodes.start.cell
+	var key: String = JSON.stringify([context.source_floor,start.x,start.y,initial_ticks,context.extra_stops],"",true,true)
+	var source: Dictionary = retained.variants.get(key,{})
+	if source.is_empty():
+		# Preserve lazy single-goal work. Only a second distinct goal establishes
+		# demand for a complete source tree inside this sealed candidate batch.
+		retained.variants[key] = {"seen":true}
+		return {}
+	if not source.has("tree"):
+		var common: Dictionary = context.duplicate()
+		common.single_source = true
+		common.direct_lift_stops = false
+		if world.facts.connectors.size()==1:
+			var connection: Dictionary = world.facts.connectors.values()[0]
+			common.direct_lift_stops = space.content.definition("vertical_connectors",connection.definition_id).kind=="lift"
+		common.edges = {}
+		common.connections = {}
+		common.query_stops = {}
+		space.query_counts.transport_searches += 1
+		space.query_counts["point_source_builds"] = int(space.query_counts.get("point_source_builds",0))+1
+		source.tree = PlatformArrivalMath.route_search({"nodes":node_ids,"start":"start","goal":"goal","initial_ticks":initial_ticks,"single_source":true,"expand":_point_edges.bind(world,actor,common)})
+		source.context = common
+	else:
+		space.query_counts["point_source_hits"] = int(space.query_counts.get("point_source_hits",0))+1
+	var tree: Dictionary = source.tree
+	if tree.has("error"): return {"ok":false,"status":"navigation_failed","reason":str(tree.get("bottleneck",tree.error))}
+	var direct: Dictionary = context.direct
+	var best: Dictionary = {}
+	if direct.ok:
+		var ticks: int = HospitalTransit._add(initial_ticks,HospitalTransit.walking_ticks(space,actor,[],float(direct.walking_distance)))
+		if ticks>=0: best = {"node":"start","ticks":ticks,"distance":float(direct.walking_distance)}
+	# The library's real settlement order includes zero-edge discoveries. A
+	# globally sorted label list could pick a different equally short journey.
+	for label: Dictionary in tree.settled:
+		if not best.is_empty() and int(label.travel_ticks)>=int(best.ticks): break
+		var id: String = str(label.id)
+		if id=="start": continue
+		var node: Dictionary = source.context.nodes.get(id,source.context.topology.nodes.get(id,{}))
+		if int(node.floor_id)!=int(context.target_floor): continue
+		var finish: Dictionary = _floor_route(world,actor,int(node.floor_id),node.cell,context.goal,[],{},true,{},true,true)
+		space.query_counts["point_source_goal_legs"] = int(space.query_counts.get("point_source_goal_legs",0))+1
+		if not finish.ok: continue
+		var ticks: int = HospitalTransit._add(int(label.travel_ticks),HospitalTransit.walking_ticks(space,actor,[],float(finish.walking_distance)))
+		if ticks>=0 and (best.is_empty() or ticks<int(best.ticks)): best = {"node":id,"ticks":ticks,"distance":float(finish.walking_distance)}
+	if not best.is_empty():
+		var distance: float = 0.0
+		distance += float(best.distance)
+		var current: String = str(best.node)
+		while current!="start":
+			var previous: String = str(tree.previous[current])
+			distance += float(source.context.edges[previous][current].walking_distance)
+			current = previous
+		return {"ok":true,"status":"complete","reason":"","walking_distance":distance,"travel_ticks":int(best.ticks),"quoted_tick":world.sim_tick}
+	if direct.ok: return {"ok":false,"status":"time_overflow","reason":"基准通行时间超出整数范围"}
+	return direct if int(context.source_floor)==int(context.target_floor) else {"ok":false,"status":"unreachable","reason":"没有身体、停层和运行方向均合法的竖向通路"}
+
 func _connector_preparation(world: WorldState, actor: Dictionary, members: Array, offsets: Dictionary, distance_only: bool, topology: Dictionary, extra_stops: Dictionary) -> Dictionary:
 	# This existing owner lasts only for one real, synchronous candidate batch;
 	# ordinary queries outside a dynamic scope receive a fresh disposable view.
@@ -259,7 +325,13 @@ func _point_edges(id: String, world: WorldState, actor: Dictionary, context: Dic
 	var distance_only: bool = bool(context.distance_only)
 	var outgoing: Array = []
 	var facts: Dictionary = {}
-	if floor_id==target_floor:
+	# A sole lift has one anchor and linear integer time per floor. The start
+	# already offered every legal stop; another boarding there cannot improve
+	# any label, including equal-cost ties first relaxed by that start.
+	if context.get("direct_lift_stops",false) and id!="start":
+		context.edges[id] = facts
+		return outgoing
+	if not context.get("single_source",false) and floor_id==target_floor:
 		var finish: Dictionary = context.direct if id=="start" and int(context.source_floor)==target_floor else _floor_route(world,actor,target_floor,node.cell,context.goal,members,offsets,true,{},true,distance_only)
 		if finish.ok:
 			var ticks: int = HospitalTransit.walking_ticks(space,actor,members,float(finish.walking_distance))

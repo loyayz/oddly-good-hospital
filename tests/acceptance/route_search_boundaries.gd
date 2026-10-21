@@ -9,7 +9,8 @@ func run() -> Dictionary:
 	var integers: Dictionary = _integer_limits()
 	var unreachable: Dictionary = _unreachable()
 	var callback_failure: Dictionary = _callback_failure()
-	return {"ok":lazy.ok and zero.ok and ties.ok and integers.ok and unreachable.ok and callback_failure.ok,"lazy":lazy,"zero_edges":zero,"stable_ties":ties,"integer_limits":integers,"unreachable":unreachable,"callback_failure":callback_failure}
+	var source: Dictionary = _single_source()
+	return {"ok":lazy.ok and zero.ok and ties.ok and integers.ok and unreachable.ok and callback_failure.ok and source.ok,"lazy":lazy,"zero_edges":zero,"stable_ties":ties,"integer_limits":integers,"unreachable":unreachable,"callback_failure":callback_failure,"single_source":source}
 
 func _search(nodes: Array, edges: Dictionary, expanded: Array, initial: int = 0) -> Dictionary:
 	var expand: Callable = func(id: String) -> Array:
@@ -69,3 +70,33 @@ func _callback_failure() -> Dictionary:
 	var result: Dictionary = PlatformArrivalMath.route_search(request)
 	var atomic: bool = result.has("error") and not result.has("nodes") and not result.has("travel_ticks") and nodes==["start","goal"] and int(request.initial_ticks)==9
 	return {"ok":atomic and expanded==["start"],"no_partial_path":atomic,"expanded":expanded,"result":result}
+
+func _source_search(nodes: Array, edges: Dictionary, expanded: Array, initial: int = 0) -> Dictionary:
+	var expand: Callable = func(id: String) -> Array:
+		expanded.append(id)
+		return edges.get(id,[])
+	return PlatformArrivalMath.route_search({"nodes":nodes,"start":"start","goal":"goal","initial_ticks":initial,"expand":expand,"single_source":true})
+
+func _single_source() -> Dictionary:
+	var expanded: Array = []
+	var nodes: Array = ["z","unused","start","goal","a","isolated"]
+	var edges: Dictionary = {"start":[{"to":"z","ticks":1},{"to":"a","ticks":1}],"a":[{"to":"goal","ticks":1}],"z":[{"to":"unused","ticks":1}],"goal":[{"to":"isolated","ticks":1}]}
+	var before: Dictionary = edges.duplicate(true)
+	var tree: Dictionary = _source_search(nodes,edges,expanded)
+	var expected: Array = [{"id":"start","travel_ticks":0},{"id":"a","travel_ticks":1},{"id":"z","travel_ticks":1},{"id":"goal","travel_ticks":2},{"id":"unused","travel_ticks":2},{"id":"isolated","travel_ticks":3}]
+	var checks: Dictionary = {"all_reachable_labels_and_actual_order":tree.get("ok",false) and tree.get("settled",[])==expected and expanded==["start","a","z","goal","unused","isolated"],"predecessors_retain_first_equal_cost_edge":tree.get("previous",{})=={"a":"start","z":"start","goal":"a","unused":"z","isolated":"goal"},"input_and_result_mode_preserved":edges==before and not tree.has("nodes") and not tree.has("travel_ticks")}
+	expanded.clear()
+	# A zero edge discovers an earlier ID only after z settles. A sorted table
+	# of (ticks, ID) would produce a different order from the real library search.
+	var zero: Dictionary = _source_search(["a","start","z","goal"],{"start":[{"to":"z","ticks":0}],"z":[{"to":"a","ticks":0}],"a":[{"to":"goal","ticks":0}]},expanded)
+	checks.zero_edges_keep_actual_discovery_order = zero.get("settled",[])==[{"id":"start","travel_ticks":0},{"id":"z","travel_ticks":0},{"id":"a","travel_ticks":0},{"id":"goal","travel_ticks":0}] and expanded==["start","z","a","goal"] and zero.get("previous",{})=={"z":"start","a":"z","goal":"a"}
+	expanded.clear()
+	var maximum: Dictionary = _source_search(["start","a","goal","overflow"],{"start":[{"to":"a","ticks":2},{"to":"overflow","ticks":3}],"a":[{"to":"goal","ticks":0}]},expanded,MAX_TICK-2)
+	checks.exact_maximum_labels_and_overflow_omission = maximum.get("ok",false) and maximum.get("settled",[])==[{"id":"start","travel_ticks":MAX_TICK-2},{"id":"a","travel_ticks":MAX_TICK},{"id":"goal","travel_ticks":MAX_TICK}] and maximum.get("previous",{})=={"a":"start","goal":"a"} and not "overflow" in expanded
+	expanded.clear()
+	var isolated: Dictionary = _source_search(["start","goal","isolated"],{},expanded,MAX_TICK)
+	checks.isolated_source_remains_a_complete_tree = isolated.get("ok",false) and isolated.get("settled",[])==[{"id":"start","travel_ticks":MAX_TICK}] and isolated.get("previous",{})=={} and expanded==["start"]
+	expanded.clear()
+	var failure: Dictionary = _source_search(["start","goal"],{"start":[{"to":"missing","ticks":0}]},expanded)
+	checks.callback_error_publishes_no_partial_tree = failure.has("error") and not failure.has("settled") and not failure.has("previous") and not failure.has("nodes") and not failure.has("travel_ticks") and expanded==["start"]
+	return {"ok":not checks.values().has(false),"checks":checks,"tree":tree,"zero_edges":zero,"maximum":maximum,"isolated":isolated,"failure":failure}

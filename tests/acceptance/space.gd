@@ -1653,7 +1653,8 @@ func _case_51(_t) -> Dictionary:
 	var binding: Dictionary = preload("res://tests/acceptance/actor_index_scope_binding.gd").new().run_case(self)
 	var sources: Dictionary = preload("res://tests/acceptance/navigation_source_lifecycle.gd").new().run_case(self)
 	var subject: Dictionary = preload("res://tests/acceptance/navigation_route_subject.gd").new().run_case(self)
-	return _done(sim,result.ok and compatible.ok and single.ok and expansion.ok and prepared.ok and binding.ok and sources.ok and subject.ok,{"reference_permissions":result.details,"connector_fit_scope":compatible,"single_connector_route":single,"connector_expansion_scope":expansion,"prepared_floor_graph":prepared,"actor_index_scope_binding":binding,"navigation_source_lifecycle":sources,"route_subject_preparation":subject})
+	var tree: Dictionary = preload("res://tests/acceptance/navigation_source_tree.gd").new().run_case(self)
+	return _done(sim,result.ok and compatible.ok and single.ok and expansion.ok and prepared.ok and binding.ok and sources.ok and subject.ok and tree.ok,{"reference_permissions":result.details,"connector_fit_scope":compatible,"single_connector_route":single,"connector_expansion_scope":expansion,"prepared_floor_graph":prepared,"actor_index_scope_binding":binding,"navigation_source_lifecycle":sources,"route_subject_preparation":subject,"navigation_source_tree":tree})
 
 func _waiting_visit(sim: HospitalSimulation, id: String, cell: Array, binding_id: String = "") -> Dictionary:
 	var binding: Dictionary = content.definition("treatment_bindings",binding_id) if not binding_id.is_empty() else {}

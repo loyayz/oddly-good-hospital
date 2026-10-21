@@ -38,13 +38,16 @@ struct Search {
     std::vector<Distance> distances;
     V expand;
     Vertex goal;
+    bool single_source = false;
+    std::vector<Vertex> settled;
     int64_t expanded = 0;
 
     explicit Search(const V& callback) : expand(callback) {}
 
     void examine(Vertex vertex) {
         if (!distances[vertex].finite) return;
-        if (vertex == goal) throw GoalReached{};
+        if (!single_source && vertex == goal) throw GoalReached{};
+        if (single_source) settled.push_back(vertex);
         ++expanded;
         V id = V::text(names[vertex]);
         const GDExtensionConstVariantPtr arguments[] = {&id.raw};
@@ -81,11 +84,19 @@ V solve_route_search(const V& raw_request) {
     D request(raw_request);
     V raw_nodes = request.get("nodes"), start_name = request.get("start"), goal_name = request.get("goal");
     V initial = request.get("initial_ticks"), callback = request.get("expand");
+    V source_mode = request.get("single_source");
     if (type(&raw_nodes.raw) != GDEXTENSION_VARIANT_TYPE_ARRAY || type(&start_name.raw) != GDEXTENSION_VARIANT_TYPE_STRING ||
         type(&goal_name.raw) != GDEXTENSION_VARIANT_TYPE_STRING || type(&initial.raw) != GDEXTENSION_VARIANT_TYPE_INT ||
         initial.number() < 0 || type(&callback.raw) != GDEXTENSION_VARIANT_TYPE_CALLABLE)
         throw std::runtime_error("路线搜索需要完整节点、起终点、整数初始耗时和出边回调");
+    if (!source_mode.nil() && type(&source_mode.raw) != GDEXTENSION_VARIANT_TYPE_BOOL)
+        throw std::runtime_error("单源路线模式必须是布尔值");
     Search search(callback);
+    if (!source_mode.nil()) {
+        GDExtensionBool enabled = false;
+        to_type[GDEXTENSION_VARIANT_TYPE_BOOL](&enabled, &source_mode.raw);
+        search.single_source = enabled;
+    }
     A nodes(raw_nodes);
     for (int64_t i = 0; i < nodes.size(); ++i) {
         V name = nodes.at(i);
@@ -118,6 +129,24 @@ V solve_route_search(const V& raw_request) {
         // the former queue. Its outgoing edges are never quoted.
     }
     D output;
+    if (search.single_source) {
+        A settled;
+        D parents;
+        for (Vertex vertex : search.settled) {
+            D row;
+            row.set("id", V::text(search.names[vertex]));
+            row.set("travel_ticks", V::number(search.distances[vertex].ticks));
+            settled.append(row.value());
+            if (vertex != start->second)
+                parents.set(search.names[vertex].c_str(), V::text(search.names[previous[vertex]]));
+        }
+        GDExtensionBool complete = true;
+        output.set("ok", V::typed(GDEXTENSION_VARIANT_TYPE_BOOL, &complete));
+        output.set("expanded_nodes", V::number(search.expanded));
+        output.set("settled", settled.value());
+        output.set("previous", parents.value());
+        return output.value();
+    }
     GDExtensionBool reached = search.distances[search.goal].finite;
     output.set("ok", V::typed(GDEXTENSION_VARIANT_TYPE_BOOL, &reached));
     output.set("expanded_nodes", V::number(search.expanded));

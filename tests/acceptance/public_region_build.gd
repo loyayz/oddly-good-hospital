@@ -102,7 +102,7 @@ func run_case(database: HospitalContent) -> Dictionary:
 		if not facility.get("stored",false): expected_layouts += 1
 	var checks: Dictionary = {}
 	checks.valid_input = validation.is_empty()
-	checks.one_layout_per_current_facility = actual_space.layouts==expected_layouts and reference_space.layouts>actual_space.layouts
+	checks.region_reads_only_actual_geometry_without_full_layout_copy = actual_space.layouts==0 and expected_layouts>0 and reference_space.layouts>actual_space.layouts
 	var cold_calls: int = actual_space.layouts
 	var reference_cold_calls: int = reference_space.layouts
 	actual._ensure(x.world)

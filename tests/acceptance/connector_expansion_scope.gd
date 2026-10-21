@@ -50,7 +50,11 @@ func run_case(suite: RefCounted) -> Dictionary:
 		observations.append(_observe(sim.space,sim.world,suite.content,FIRST,3,[50,82],cost_only))
 	checks.each_unchanged_node_prepared_at_most_once_per_mode = _bounded(probe.builds,10)
 	checks.later_targets_reuse_preparation = true
-	for number: int in [1,2,3,4,6,7,8,9]: checks.later_targets_reuse_preparation = checks.later_targets_reuse_preparation and observations[number].new_builds==0 and observations[number].hits>0
+	for number: int in [1,2,3,4,6,7,8,9]:
+		# A completed source tree also reuses these edges without re-entering
+		# their lookup. Full paths must still hit the original edge preparation.
+		var reused: bool = observations[number].hits>0 or observations[number].cost_only and observations[number].source_hits>0
+		checks.later_targets_reuse_preparation = checks.later_targets_reuse_preparation and observations[number].new_builds==0 and reused
 	# Member order and actual formation offsets own distinct complete geometry.
 	observations.append(_observe(sim.space,sim.world,suite.content,FIRST,2,[46,84],true,[FIRST,SECOND],{FIRST:[0,0],SECOND:[1,0]}))
 	observations.append(_observe(sim.space,sim.world,suite.content,FIRST,2,[47,84],true,[FIRST,SECOND],{FIRST:[0,0],SECOND:[1,0]}))
@@ -122,13 +126,14 @@ func _observe(space: HospitalSpace, world: WorldState, content: HospitalContent,
 	var before: Dictionary = world.freeze()
 	var builds: int = int(space.query_counts.get("connector_edge_builds",0))
 	var hits: int = int(space.query_counts.get("connector_edge_hits",0))
+	var source_hits: int = int(space.query_counts.get("point_source_hits",0))
 	var actual: Dictionary = space.route_cost(world,actor_id,floor_id,goal,members,offsets,true) if cost_only else space.route(world,actor_id,floor_id,goal,members,offsets,true)
 	# The frozen solver has no connector_prepared context and always derives
 	# every settled node's connector edges through the original complete process.
 	var cold: HospitalSpace = HospitalSpace.new(content)
 	cold.navigation = Original.FullSolver.new(cold)
 	var expected: Dictionary = cold.route_cost(world,actor_id,floor_id,goal,members,offsets,true) if cost_only else cold.route(world,actor_id,floor_id,goal,members,offsets,true)
-	return {"ok":actual==expected and actual.ok==available and before==world.freeze(),"floor_id":floor_id,"goal":goal,"cost_only":cost_only,"members":members,"offsets":offsets,"new_builds":int(space.query_counts.get("connector_edge_builds",0))-builds,"hits":int(space.query_counts.get("connector_edge_hits",0))-hits,"full_path_types_cost_status_match_unprepared_solver":actual==expected,"available":actual.ok,"world_and_rng_unchanged":before==world.freeze(),"actual":actual,"expected":expected if actual!=expected else {}}
+	return {"ok":actual==expected and actual.ok==available and before==world.freeze(),"floor_id":floor_id,"goal":goal,"cost_only":cost_only,"members":members,"offsets":offsets,"new_builds":int(space.query_counts.get("connector_edge_builds",0))-builds,"hits":int(space.query_counts.get("connector_edge_hits",0))-hits,"source_hits":int(space.query_counts.get("point_source_hits",0))-source_hits,"full_path_types_cost_status_match_unprepared_solver":actual==expected,"available":actual.ok,"world_and_rng_unchanged":before==world.freeze(),"actual":actual,"expected":expected if actual!=expected else {}}
 
 func _bounded(builds: Dictionary, maximum_nodes: int) -> bool:
 	if builds.is_empty() or builds.size()>maximum_nodes: return false
