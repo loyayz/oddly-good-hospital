@@ -164,12 +164,11 @@ func body(actor: Dictionary) -> Dictionary:
 	return _bodies[key]
 
 func _ensure_actor_index(world: WorldState) -> void:
+	# An existing binding belongs to an active read-only scope; popping that
+	# scope clears it. Equal source/revision needs no repeated owner lookup.
+	if world==_indexed_world and world.revision==_indexed_revision and (not _indexed_actor_scope.is_empty() or _route_queries.is_empty()): return
 	if not _actor_exclusion_scope(world).is_empty(): return
-	var scope: Dictionary = {}
-	for active: Dictionary in _route_queries:
-		if is_same(active.world.facts.actors,world.facts.actors):
-			scope = active
-			break
+	var scope: Dictionary = _actor_index_scope(world)
 	if world==_indexed_world and world.revision==_indexed_revision:
 		_indexed_actor_scope = scope
 		return
@@ -188,6 +187,11 @@ func _ensure_actor_index(world: WorldState) -> void:
 		for id: String in world.ids("actors"):
 			query_counts.actor_index_actor_visits += 1
 			_sync_actor(world,id,false)
+
+func _actor_index_scope(world: WorldState) -> Dictionary:
+	for active: Dictionary in _route_queries:
+		if is_same(active.world.facts.actors,world.facts.actors): return active
+	return {}
 
 func sync_actor(world: WorldState, id: String) -> void:
 	_ensure_actor_index(world)

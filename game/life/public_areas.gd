@@ -140,15 +140,16 @@ func _decision_signature(world: WorldState, intent: Dictionary, definitions: Arr
 	var records: Array = [reference,room.get("kind",room.get("type","")),room.get("origin",[]),room.get("size",[]),room.get("wall_edges",[]),definitions,bodies,extra,intent.get("mode","auto"),intent.get("manual_facility_id",""),intent.get("arrived_tick",-1),intent.get("started_tick",-1),intent.has("ticket_id"),"R15" in world.facts.research]
 	records.append(space.navigation.connection_basis(world))
 	var points: Array = []
+	var observed_points: Dictionary = {}
 	var other_ids: Dictionary = {}
 	var reservations: Dictionary = {}
 	space._ensure_actor_index(world)
 	var area: Dictionary = region(world,reference)
 	records.append(area.get("geometry",""))
 	var route_dependent: bool = intent.public_purpose=="rest" or definitions.is_empty()
-	for facility_id: String in area.get("facilities",[]):
+	for number: int in _facility_members(area,definitions):
+		var facility_id: String = str(area.facilities[number])
 		var facility: Dictionary = world.facts.facilities[facility_id]
-		if not facility.definition_id in definitions: continue
 		var users: Array = view.users.get(facility_id,[])
 		var reservation: Dictionary = world.facts.get("staff_life",{}).get("reservations",{}).get(facility_id,{})
 		var adaptation: Dictionary = world.facts.adaptations.get(facility_id,{})
@@ -160,10 +161,15 @@ func _decision_signature(world: WorldState, intent: Dictionary, definitions: Arr
 		route_dependent = true
 		var layout: Dictionary = space.facility_layout(world,facility_id)
 		for point: Array in [layout.patient_cell]+layout.get("operator_cells",[])+[layout.get("repair_cell",layout.patient_cell)]:
+			# This synchronous observation consumes a set union around identical
+			# points. Patient/repair/operator aliases do not create new facts.
+			if observed_points.has(point): continue
+			observed_points[point] = true
 			points.append(point)
-			var reach: float = maxf(6.0,float(space.clearance(world.facts.actors[ids[0]]))+1.0)
-			var bounds: Rect2 = Rect2(Vector2(float(point[0]),float(point[1])),Vector2.ONE).grow(reach)
-			_add_dynamic_dependencies(world,int(reference.floor_id),bounds,ids,other_ids,reservations)
+	var reach: float = maxf(6.0,float(space.clearance(world.facts.actors[ids[0]]))+1.0)
+	for point: Array in points:
+		var bounds: Rect2 = Rect2(Vector2(float(point[0]),float(point[1])),Vector2.ONE).grow(reach)
+		_add_dynamic_dependencies(world,int(reference.floor_id),bounds,ids,other_ids,reservations)
 	if (intent.public_purpose=="rest" or definitions.is_empty()) and not area.is_empty():
 		# Tea is a real free standing place, including a region with no chairs.
 		# Its availability can change when any body/reservation leaves that area.
@@ -352,7 +358,7 @@ func _ensure(world: WorldState, requested_floor: int = 0) -> void:
 					bounds = bounds.merge(Rect2i(next,Vector2i.ONE))
 					pending.append(next)
 			var geometry: String = JSON.stringify(pending,"",true,true).sha256_text()
-			var region: Dictionary = {"ref":{"floor_id":floor_id,"room_id":zones[start],"anchor":[start.x,start.y]},"cells":cells,"facilities":[],"bounds":bounds,"geometry":geometry}
+			var region: Dictionary = {"ref":{"floor_id":floor_id,"room_id":zones[start],"anchor":[start.x,start.y]},"cells":cells,"facilities":[],"facility_definitions":{},"bounds":bounds,"geometry":geometry}
 			_regions.append(region)
 			for point: Vector2i in cells: _by_cell[_key(floor_id,point)] = region
 		for facility: Dictionary in facilities.get(floor_id,[]):
@@ -360,6 +366,10 @@ func _ensure(world: WorldState, requested_floor: int = 0) -> void:
 			var point: Vector2i = Vector2i(int(layout.patient_cell[0]),int(layout.patient_cell[1]))
 			var region: Dictionary = _by_cell.get(_key(floor_id,point),{})
 			if not region.is_empty():
+				var definition: String = str(world.facts.facilities[facility.id].definition_id)
+				var positions: PackedInt32Array = region.facility_definitions.get(definition,PackedInt32Array())
+				positions.append(region.facilities.size())
+				region.facility_definitions[definition] = positions
 				region.facilities.append(facility.id)
 				_by_facility[facility.id] = region
 
@@ -394,10 +404,28 @@ func current_area(world: WorldState, actor_id: String) -> Dictionary:
 
 func facilities(world: WorldState, reference: Dictionary, definitions: Array) -> Array:
 	var result: Array = []
-	for id: String in region(world,reference).get("facilities",[]):
+	var area: Dictionary = region(world,reference)
+	if area.is_empty(): return result
+	var selected: PackedInt32Array = _facility_members(area,definitions)
+	space.query_counts["public_facility_candidates"] = int(space.query_counts.get("public_facility_candidates",0))+selected.size()
+	for number: int in selected:
+		var id: String = str(area.facilities[number])
 		var facility: Dictionary = world.facts.facilities[id]
-		if facility.definition_id in definitions and not facility.get("failed",false) and not HospitalRemodel.blocked(world,id): result.append(id)
+		if not facility.get("failed",false) and not HospitalRemodel.blocked(world,id): result.append(id)
 	return result
+
+func _facility_members(area: Dictionary, definitions: Array) -> PackedInt32Array:
+	# Membership is static; both availability and waiting dependencies consume
+	# the complete original order. This view never filters failure/ownership.
+	var selected: PackedInt32Array = PackedInt32Array()
+	var seen: Dictionary = {}
+	var definitions_index: Dictionary = area.get("facility_definitions",{})
+	for definition: String in definitions:
+		if seen.has(definition): continue
+		seen[definition] = true
+		selected.append_array(definitions_index.get(definition,PackedInt32Array()))
+	selected.sort()
+	return selected
 
 func _fit_key(facility_id: String, world: WorldState, members: Array) -> String:
 	var bodies: Array = []
@@ -536,10 +564,16 @@ func _entry_order(actor: Dictionary, origin: Vector2, bounds: Dictionary, geomet
 		for landing: Dictionary in bounds.landings: normalized.landings.append({"cell":landing.cell,"ticks":int(landing.ticks)-prefix})
 		basis = ["landings",speed,normalized.landings]
 	var retained: Dictionary = geometry.get("ordering",{})
+	var previous: Dictionary = geometry.get("previous_ordering",{})
 	var ordered: Dictionary
 	if retained.get("basis",[])==basis:
 		space.query_counts["entry_order_hits"] = int(space.query_counts.get("entry_order_hits",0))+1
 		ordered = retained.ordered
+	elif previous.get("basis",[])==basis:
+		space.query_counts["entry_order_hits"] = int(space.query_counts.get("entry_order_hits",0))+1
+		ordered = previous.ordered
+		geometry.previous_ordering = retained
+		geometry.ordering = previous
 	else:
 		# Every candidate shares the fractional walking stub or minimum landing
 		# arrival. Removing this additive prefix preserves lower/y/x ordering.
@@ -547,8 +581,9 @@ func _entry_order(actor: Dictionary, origin: Vector2, bounds: Dictionary, geomet
 		ordered = _ordered_entry_cells(actor,Vector2(start),normalized,geometry,HospitalTransit.MAX_TICK)
 		space.query_counts["entry_order_builds"] = int(space.query_counts.get("entry_order_builds",0))+1
 		if ordered.compact and geometry.has("ordering"):
-			# One retained basis per static geometry; moving origins cannot grow
-			# an unbounded cache. Geometry replacement discards its order too.
+			# Two recent bases preserve alternating observers without retaining an
+			# origin history. Both complete orders belong to this static geometry.
+			geometry.previous_ordering = retained
 			geometry.ordering = {"basis":basis.duplicate(true),"ordered":ordered}
 	var largest: int = int(ordered.packed[-1]/ENTRY_CELL_COUNT) if ordered.compact and not ordered.packed.is_empty() else 0
 	if not ordered.compact or prefix<0 or prefix>ENTRY_SORT_LIMIT-largest:
@@ -562,17 +597,42 @@ func _ordered_entry_cells(actor: Dictionary, origin: Vector2, bounds: Dictionary
 	var start: Vector2i = Vector2i(roundi(origin.x),roundi(origin.y))
 	var speed: float = float(space.content.balance.movement_speeds[str(space.clearance(actor))])
 	var stub_ticks: int = ceili(origin.distance_to(Vector2(start))/speed/WorldState.TICK_SECONDS)
-	var walking: PackedInt64Array = PackedInt64Array()
-	walking.resize((ENTRY_GRID_WIDTH-1)*2+1)
-	for distance: int in walking.size():
-		# Retain walking_ticks' division order and separate fractional-stub ceil.
-		walking[distance] = ceili(float(distance)/speed/WorldState.TICK_SECONDS)
+	var walking: PackedInt64Array = geometry.get("walking_ticks",PackedInt64Array())
+	if walking.is_empty() or float(geometry.get("walking_speed",-1.0))!=speed:
+		walking.resize((ENTRY_GRID_WIDTH-1)*2+1)
+		for distance: int in walking.size():
+			# Retain walking_ticks' division order and separate fractional-stub ceil.
+			walking[distance] = ceili(float(distance)/speed/WorldState.TICK_SECONDS)
+		if geometry.has("entry_cells"):
+			geometry.walking_ticks = walking
+			geometry.walking_speed = speed
+			space.query_counts["entry_walking_table_builds"] = int(space.query_counts.get("entry_walking_table_builds",0))+1
 	var landing_cells: Array[Vector2i] = []
 	var landing_ticks: PackedInt64Array = PackedInt64Array()
 	if not bounds.unknown:
 		for landing: Dictionary in bounds.landings:
 			landing_cells.append(Vector2i(int(landing.cell.x),int(landing.cell.y)))
 			landing_ticks.append(int(landing.ticks))
+	if geometry.get("native_order",false):
+		var sources: PackedInt64Array = PackedInt64Array()
+		for index: int in landing_cells.size():
+			sources.append(landing_cells[index].x)
+			sources.append(landing_cells[index].y)
+			sources.append(landing_ticks[index])
+		var excluded: PackedInt32Array = PackedInt32Array()
+		for origin_key: Vector2 in geometry.points:
+			if geometry.points[origin_key]!=false: continue
+			var point: Vector2i = Vector2i(roundi(origin_key.x),roundi(origin_key.y))
+			if Vector2(point)==origin_key and point.x>=0 and point.y>=0 and point.x<ENTRY_GRID_WIDTH and point.y<ENTRY_GRID_WIDTH:
+				excluded.append(point.y*ENTRY_GRID_WIDTH+point.x)
+		# Standard-library sort constructs all lower/y/x keys in one native call.
+		# Noncompact/int64 cases retain the complete original calculation below.
+		var native: Dictionary = PlatformArrivalMath.entry_order(geometry.entry_cells,{"start":[start.x,start.y],"walking":walking,"sources":sources,"stub_ticks":stub_ticks,"maximum_ticks":maximum_travel_ticks,"excluded":excluded})
+		if native.get("ready",false):
+			space.query_counts["entry_order_native_builds"] = int(space.query_counts.get("entry_order_native_builds",0))+1
+			native.erase("ready")
+			return native
+		space.query_counts["entry_order_native_fallbacks"] = int(space.query_counts.get("entry_order_native_fallbacks",0))+1
 	var packed: PackedInt64Array = PackedInt64Array()
 	packed.resize(geometry.cells.size())
 	var count: int = 0
@@ -675,7 +735,23 @@ func _entry_geometry_view(world: WorldState, actor: Dictionary, area: Dictionary
 	var version: int = space._navigation.floor_static_version(space,world,floor_id)
 	var saved: Dictionary = _entry_geometry.get(key,{})
 	if saved.is_empty() or int(saved.version)!=version:
-		saved = {"version":version,"cells":area.cells.keys(),"points":{},"geometry":space.navigation.structural_clearance(world,actor,floor_id),"ordering":{}}
+		# Region cells are independent of the traveller's body. Their immutable
+		# native representation belongs to the region, while fit/ordering belongs
+		# to this exact static body/door geometry. Region replacement drops both.
+		if not area.has("entry_order_cells"):
+			var cells: Array = area.cells.keys()
+			var entry_cells: PackedInt32Array = PackedInt32Array()
+			entry_cells.resize(cells.size())
+			var native_order: bool = true
+			for index: int in cells.size():
+				var point: Vector2i = cells[index]
+				if point.x<0 or point.y<0 or point.x>=ENTRY_GRID_WIDTH or point.y>=ENTRY_GRID_WIDTH:
+					native_order = false
+					break
+				entry_cells[index] = point.y*ENTRY_GRID_WIDTH+point.x
+			area.entry_order_cells = {"cells":cells,"ids":entry_cells,"native_order":native_order}
+		var prepared: Dictionary = area.entry_order_cells
+		saved = {"version":version,"cells":prepared.cells,"entry_cells":prepared.ids,"native_order":prepared.native_order,"points":{},"geometry":space.navigation.structural_clearance(world,actor,floor_id),"ordering":{},"previous_ordering":{}}
 		_entry_geometry[key] = saved
 	return saved
 

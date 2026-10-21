@@ -23,16 +23,16 @@ func _init(projection: RouteClearance) -> void:
 
 func _build() -> void:
 	var ids: Array[int] = []
+	var present: PackedByteArray = PackedByteArray()
+	present.resize(LIMIT)
 	for plot: Vector2i in geometry._plots:
 		for y: int in range(plot.y*32,(plot.y+1)*32):
 			for x: int in range(plot.x*32,(plot.x+1)*32): ids.append(y*SIDE+x)
 	ids.sort()
-	reserve_space(ids.size())
 	for id: int in ids:
 		var cell: Vector2i = _cell(id)
-		add_point(id,Vector2(cell))
+		present[id] = 1
 		_enabled[id] = int(geometry.reason(cell).is_empty())
-		if _enabled[id]==0: set_point_disabled(id,true)
 	for id: int in ids:
 		if _enabled[id]==0: continue
 		var cell: Vector2i = _cell(id)
@@ -43,9 +43,26 @@ func _build() -> void:
 			var next: Vector2i = cell+NEIGHBOURS[direction]
 			if _inside(next) and _enabled[_id(next)]!=0 and geometry.edge_reason(cell,next).is_empty():
 				var other: int = _id(next)
-				connect_points(id,other,true)
 				_edges[id] |= 1<<direction
 				_edges[other] |= 1<<(3-direction)
+	# Godot still owns points, ordered neighbours and all A* searches. Pass the
+	# completed masks once instead of crossing the script bridge for every point
+	# and connection; all original body and static-sweep predicates ran above.
+	var built: Dictionary = PlatformArrivalMath.floor_graph_build(self,present,_enabled,_edges)
+	if not built.get("ok",false):
+		push_error("层内导航图批量装配失败："+str(built.get("bottleneck",built.get("error","未知原因"))))
+		_populate_script(ids)
+
+func _populate_script(ids: Array[int]) -> void:
+	# Retain complete engine assembly if the bulk adapter rejects its input.
+	# The adapter validates all inputs before changing an empty graph.
+	reserve_space(ids.size())
+	for id: int in ids:
+		add_point(id,Vector2(_cell(id)))
+		if _enabled[id]==0: set_point_disabled(id,true)
+	for id: int in ids:
+		if _edges[id]&4: connect_points(id,id+1,true)
+		if _edges[id]&8: connect_points(id,id+SIDE,true)
 
 func refresh(projection: RouteClearance) -> void:
 	var regions: Array[Rect2i] = projection.dirty_regions(geometry)

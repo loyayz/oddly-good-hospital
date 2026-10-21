@@ -1649,7 +1649,10 @@ func _case_51(_t) -> Dictionary:
 	var compatible: Dictionary = preload("res://tests/acceptance/connector_fit_scope.gd").new().run_case(self)
 	var single: Dictionary = preload("res://tests/acceptance/single_connector_route.gd").new().run_case(self)
 	var expansion: Dictionary = preload("res://tests/acceptance/connector_expansion_scope.gd").new().run_case(self)
-	return _done(sim,result.ok and compatible.ok and single.ok and expansion.ok,{"reference_permissions":result.details,"connector_fit_scope":compatible,"single_connector_route":single,"connector_expansion_scope":expansion})
+	var prepared: Dictionary = preload("res://tests/acceptance/prepared_floor_graph.gd").new().run_case(self)
+	var binding: Dictionary = preload("res://tests/acceptance/actor_index_scope_binding.gd").new().run_case(self)
+	var sources: Dictionary = preload("res://tests/acceptance/navigation_source_lifecycle.gd").new().run_case(self)
+	return _done(sim,result.ok and compatible.ok and single.ok and expansion.ok and prepared.ok and binding.ok and sources.ok,{"reference_permissions":result.details,"connector_fit_scope":compatible,"single_connector_route":single,"connector_expansion_scope":expansion,"prepared_floor_graph":prepared,"actor_index_scope_binding":binding,"navigation_source_lifecycle":sources})
 
 func _waiting_visit(sim: HospitalSimulation, id: String, cell: Array, binding_id: String = "") -> Dictionary:
 	var binding: Dictionary = content.definition("treatment_bindings",binding_id) if not binding_id.is_empty() else {}
@@ -1710,7 +1713,8 @@ func _case_54(_t) -> Dictionary:
 
 func _case_55(_t) -> Dictionary:
 	var result: Dictionary = preload("res://tests/acceptance/movement_review.gd").new().run_case(self)
-	return {"ok":result.ok,"details":result}
+	var construction: Dictionary = preload("res://tests/acceptance/navigation_bulk_build.gd").new().run_case(self)
+	return {"ok":result.ok and construction.ok,"details":{"movement":result,"native_graph_construction":construction}}
 
 func _case_56(_t) -> Dictionary:
 	var result: Dictionary = preload("res://tests/acceptance/movement_result.gd").new().run(self)

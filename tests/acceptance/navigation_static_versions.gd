@@ -70,12 +70,12 @@ func run() -> Dictionary:
 	world.touch()
 	checks.footprint_invalidates = navigation.floor_static_version(space,world,1)!=before_footprint
 	checks.footprint_cold_equal = space.navigation.structural_clearance(world,actor,1).reason(Vector2i(int(goal[0]),int(goal[1])))==RouteClearance.new(HospitalSpace.new(content),world,actor,1,[],{},false).reason(Vector2i(int(goal[0]),int(goal[1])))
-	# Graph eviction may give the source a fresh tag; it must never keep a
-	# stale clearance result. No permanent floor-snapshot cache is required.
+	# Graph eviction discards computations, not the identity of live facts.
+	var before_eviction: int = navigation.floor_static_version(space,world,1)
 	navigation._trim(0)
 	checks.graphs_evicted = navigation._entries.is_empty()
 	var rebuilt: int = navigation.floor_static_version(space,world,1)
-	checks.evicted_rebuild_safe = rebuilt>0 and space.movement._active_route_clear(world,actor,movement,{})==_cold_path_clear(content,world,actor,movement.path)
+	checks.evicted_rebuild_safe = rebuilt==before_eviction and space.movement._active_route_clear(world,actor,movement,{})==_cold_path_clear(content,world,actor,movement.path)
 	var restored: WorldState = WorldState.new(world.freeze())
 	var restored_actor: Dictionary = restored.facts.actors[TRAVELLER]
 	var restored_source: Dictionary = navigation.floor_source(space,restored,1)
@@ -87,7 +87,7 @@ func run() -> Dictionary:
 	var temporary_key: String = str(temporary.get_instance_id())+":1"
 	var weak: WeakRef = weakref(temporary)
 	temporary = null
-	navigation._prune_sources(1)
+	navigation._prune_sources()
 	checks.dead_world_pruned = weak.get_ref()==null and not navigation._sources.has(temporary_key)
 	checks.merge(_body_identity_checks(content))
 	var passed: bool = true

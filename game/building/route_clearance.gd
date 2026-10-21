@@ -257,13 +257,21 @@ func _reservation_at(origin: Vector2) -> String:
 	return ""
 
 func _wall_reason(rect: Rect2) -> String:
-	var walls: Array = _walls
-	if _indexed_static:
-		walls = []
-		for line: int in range(floori(rect.position.y)+1,ceili(rect.end.y)):
-			walls.append_array(_horizontal_walls.get(line,[]))
-		for line: int in range(floori(rect.position.x)+1,ceili(rect.end.x)):
-			walls.append_array(_vertical_walls.get(line,[]))
+	if not _indexed_static: return _walls_reason(rect,_walls)
+	# The static geometry already owns ordered wall buckets. Borrow them in the
+	# same horizontal-then-vertical order instead of copying a temporary Array at
+	# every node/edge. Integer one-cell rectangles naturally visit no wall line.
+	for line: int in range(floori(rect.position.y)+1,ceili(rect.end.y)):
+		if not _horizontal_walls.has(line): continue
+		var reason: String = _walls_reason(rect,_horizontal_walls[line])
+		if not reason.is_empty(): return reason
+	for line: int in range(floori(rect.position.x)+1,ceili(rect.end.x)):
+		if not _vertical_walls.has(line): continue
+		var reason: String = _walls_reason(rect,_vertical_walls[line])
+		if not reason.is_empty(): return reason
+	return ""
+
+func _walls_reason(rect: Rect2, walls: Array) -> String:
 	for wall: Dictionary in walls:
 		var low: float = maxf(rect.position.x if wall.axis=="x" else rect.position.y,float(wall.low))
 		var high: float = minf(rect.end.x if wall.axis=="x" else rect.end.y,float(wall.high))

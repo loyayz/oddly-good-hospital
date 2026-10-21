@@ -19,10 +19,7 @@ func invalidate(world: WorldState, floor_id: int) -> void:
 # Copy the exact footprint delta and current permission records; never inherit
 # actor indices, transport prefixes, exit witnesses or route results.
 func inherit_projection(space: HospitalSpace, world: WorldState, projected: WorldState, facility_ids: Array = []) -> void:
-	# The active source is the projection's preparation owner even when no
-	# path graph has been requested. Pruning it here changes a stable static
-	# identity into a new generation on every subsequent eligibility query.
-	_prune_sources(0,world)
+	_prune_sources()
 	for original: Dictionary in _sources.values():
 		if original.world.get_ref()!=world or original.revision!=world.geometry_revision: continue
 		var floor_id: int = int(original.floor_id)
@@ -48,7 +45,7 @@ func floor_source(space: HospitalSpace, world: WorldState, floor_id: int) -> Dic
 	var entry: Dictionary = _sources.get(key,{})
 	if not entry.is_empty() and entry.world.get_ref()!=world: entry = {}
 	if entry.is_empty() or entry.revision!=world.geometry_revision:
-		if entry.is_empty(): _prune_sources(floor_id)
+		if entry.is_empty(): _prune_sources()
 		var current: Dictionary = RouteClearance.capture_source(space,world,floor_id)
 		if entry.is_empty() or entry.source!=current:
 			var shared: Dictionary = {}
@@ -195,15 +192,20 @@ func _trim(target: int, counts: Dictionary = {}) -> void:
 		_charged -= int(entry.charge)
 		_query_charged -= int(entry.get("query_charge",0))
 		_entries.erase(key)
+		# Geometry equality proofs belong to the resident graph, while the
+		# latest live floor facts retain their identity after graph eviction.
+		for source: Dictionary in _sources.values():
+			source.graphs.erase(key)
 		counts["cache_graph_evictions"] = int(counts.get("cache_graph_evictions",0))+1
 	_prune_sources()
 
-func _prune_sources(current_floor: int = 0, active_source: WorldState = null) -> void:
-	var retained: Dictionary = {current_floor:true}
-	for entry: Dictionary in _entries.values():
-		retained[entry.floor_id] = true
+func _prune_sources() -> void:
+	# Sources identify the latest facts for a live world/floor, independently
+	# of disposable path graphs. Alternating cold floors or evicting a graph
+	# must not manufacture a static edit and invalidate every active journey.
+	# Each world/floor replaces its one record; no actor/query history is kept.
 	for key: String in _sources.keys():
-		if _sources[key].world.get_ref()==null or _sources[key].world.get_ref()!=active_source and not retained.has(_sources[key].floor_id):
+		if _sources[key].world.get_ref()==null:
 			_sources.erase(key)
 
 func clearance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, members: Array = [], offsets: Dictionary = {}) -> RouteClearance:
@@ -309,11 +311,13 @@ func travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, act
 
 # Region quotes ask for many goals from the same start or connector landing.
 # Share exact distances only; actual movement still obtains its original path.
-func forward_distance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, start: Vector2i, goal: Vector2i, structural_only: bool = false) -> Dictionary:
-	return _travel_distance(space,world,floor_id,actor,start,goal,false,true,structural_only)
+func forward_distance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, start: Vector2i, goal: Vector2i, structural_only: bool = false, prepared_graph: FloorNavigation = null) -> Dictionary:
+	return _travel_distance(space,world,floor_id,actor,start,goal,false,true,structural_only,prepared_graph)
 
-func _travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, start: Vector2i, goal: Vector2i, witness: bool, forward: bool, structural_only: bool = false) -> Dictionary:
-	var current: FloorNavigation = graph(space,world,floor_id,actor,[],{})
+func _travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, start: Vector2i, goal: Vector2i, witness: bool, forward: bool, structural_only: bool = false, prepared_graph: FloorNavigation = null) -> Dictionary:
+	# Only a structural query may pass its just-acquired graph. Permission-
+	# dependent distance fields retain the original graph/clearance acquisition.
+	var current: FloorNavigation = prepared_graph if structural_only and prepared_graph!=null else graph(space,world,floor_id,actor,[],{})
 	var key: String = str(floor_id)+":"+_envelope(space,world,actor,[],{},floor_source(space,world,floor_id))
 	if not _entries.has(key): return {"ready":false}
 	var entry: Dictionary = _entries[key]

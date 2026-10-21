@@ -317,6 +317,7 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 			space.query_counts.floor_route_hits += 1
 			return routes[key].duplicate(true)
 	space.query_counts.floor_route_builds += 1
+	var fresh_structural_graph: bool = structural_only and navigation.is_empty()
 	if navigation.is_empty():
 		navigation = space._navigation.query_graphs(space,world,floor_id,actor,members,offsets)
 	var graph: FloorNavigation = navigation.graph
@@ -331,7 +332,9 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 	var result: Dictionary
 	var repeated: Dictionary = {}
 	if cost_only and ignore_people and members.is_empty() and offsets.is_empty() and not navigation.has("query") and not navigation.get("overlay",false) and navigation.bases.is_empty() and navigation.shifts.is_empty():
-		repeated = space._navigation.forward_distance(space,world,floor_id,actor,start,goal,structural_only)
+		# The structural graph was acquired above in this same invocation. No
+		# intervening query can refresh it; dynamic clearance keeps its own path.
+		repeated = space._navigation.forward_distance(space,world,floor_id,actor,start,goal,structural_only,graph if fresh_structural_graph else null)
 	if repeated.get("ready",false):
 		space.query_counts["distance_field_hits"] = int(space.query_counts.get("distance_field_hits",0))+1
 		result = {"ok":bool(repeated.ok),"status":"complete" if repeated.ok else "unreachable","reason":repeated.get("reason",""),"walking_distance":int(repeated.get("distance",-1))}

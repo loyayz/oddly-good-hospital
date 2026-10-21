@@ -67,7 +67,7 @@ try {
 $api = Get-Content -Raw -LiteralPath (Join-Path $abiRoot 'extension_api.json') | ConvertFrom-Json -Depth 100
 if ($api.header.precision -ne 'single') { throw 'The bridge ABI requires single-precision Godot.' }
 $sizes = ($api.builtin_class_sizes | Where-Object build_configuration -eq 'float_64').sizes
-$expectedSizes = @{ Variant = 24; String = 8; StringName = 8; Dictionary = 8; Array = 8; PackedByteArray = 16; PackedInt32Array = 16 }
+$expectedSizes = @{ Variant = 24; String = 8; StringName = 8; Dictionary = 8; Array = 8; PackedByteArray = 16; PackedInt32Array = 16; PackedInt64Array = 16; Vector2 = 8 }
 foreach ($name in $expectedSizes.Keys) {
     if (($sizes | Where-Object name -eq $name).size -ne $expectedSizes[$name]) {
         throw "Unexpected engine ABI size for $name."
@@ -75,6 +75,12 @@ foreach ($name in $expectedSizes.Keys) {
 }
 $userDirHash = ($api.classes | Where-Object name -eq 'OS').methods | Where-Object name -eq 'get_user_data_dir' | Select-Object -ExpandProperty hash
 $notificationHash = ($api.classes | Where-Object name -eq 'Object').methods | Where-Object name -eq 'notification' | Select-Object -ExpandProperty hash
+$astarMethods = ($api.classes | Where-Object name -eq 'AStar2D').methods
+$astarReserveHash = ($astarMethods | Where-Object name -eq 'reserve_space').hash
+$astarAddHash = ($astarMethods | Where-Object name -eq 'add_point').hash
+$astarDisableHash = ($astarMethods | Where-Object name -eq 'set_point_disabled').hash
+$astarConnectHash = ($astarMethods | Where-Object name -eq 'connect_points').hash
+$astarCountHash = ($astarMethods | Where-Object name -eq 'get_point_count').hash
 $arrayMethods = ($api.builtin_classes | Where-Object name -eq 'Array').methods
 $byteMethods = ($api.builtin_classes | Where-Object name -eq 'PackedByteArray').methods
 $arraySizeHash = ($arrayMethods | Where-Object name -eq 'size').hash
@@ -82,7 +88,7 @@ $arrayAppendHash = ($arrayMethods | Where-Object name -eq 'append').hash
 $bytesResizeHash = ($byteMethods | Where-Object name -eq 'resize').hash
 $dictionaryKeysHash = (($api.builtin_classes | Where-Object name -eq 'Dictionary').methods | Where-Object name -eq 'keys').hash
 $dictionaryGetHash = (($api.builtin_classes | Where-Object name -eq 'Dictionary').methods | Where-Object name -eq 'get').hash
-if (-not $userDirHash -or -not $notificationHash) { throw 'The required engine method hashes are missing.' }
+if (-not $userDirHash -or -not $notificationHash -or -not $astarReserveHash -or -not $astarAddHash -or -not $astarDisableHash -or -not $astarConnectHash -or -not $astarCountHash) { throw 'The required engine method hashes are missing.' }
 @"
 #define OGH_VARIANT_SIZE 24
 #define OGH_STRING_SIZE 8
@@ -91,6 +97,7 @@ if (-not $userDirHash -or -not $notificationHash) { throw 'The required engine m
 #define OGH_ARRAY_SIZE 8
 #define OGH_PACKED_BYTE_ARRAY_SIZE 16
 #define OGH_PACKED_INT32_ARRAY_SIZE 16
+#define OGH_PACKED_INT64_ARRAY_SIZE 16
 #define OGH_ARRAY_SIZE_HASH $arraySizeHash
 #define OGH_ARRAY_APPEND_HASH $arrayAppendHash
 #define OGH_BYTES_RESIZE_HASH $bytesResizeHash
@@ -98,6 +105,11 @@ if (-not $userDirHash -or -not $notificationHash) { throw 'The required engine m
 #define OGH_DICTIONARY_GET_HASH $dictionaryGetHash
 #define OGH_USER_DIR_HASH $userDirHash
 #define OGH_NOTIFICATION_HASH $notificationHash
+#define OGH_ASTAR_RESERVE_HASH $astarReserveHash
+#define OGH_ASTAR_ADD_HASH $astarAddHash
+#define OGH_ASTAR_DISABLE_HASH $astarDisableHash
+#define OGH_ASTAR_CONNECT_HASH $astarConnectHash
+#define OGH_ASTAR_COUNT_HASH $astarCountHash
 "@ | Set-Content -LiteralPath (Join-Path $abiRoot 'platform_guard_abi.h') -Encoding utf8NoBOM
 
 $math = & (Join-Path $PSScriptRoot 'build-arrival-math.ps1') -Zig $zigExe -AbiRoot $abiRoot
