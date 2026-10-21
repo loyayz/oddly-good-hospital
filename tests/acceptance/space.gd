@@ -1654,7 +1654,9 @@ func _case_51(_t) -> Dictionary:
 	var sources: Dictionary = preload("res://tests/acceptance/navigation_source_lifecycle.gd").new().run_case(self)
 	var subject: Dictionary = preload("res://tests/acceptance/navigation_route_subject.gd").new().run_case(self)
 	var tree: Dictionary = preload("res://tests/acceptance/navigation_source_tree.gd").new().run_case(self)
-	return _done(sim,result.ok and compatible.ok and single.ok and expansion.ok and prepared.ok and binding.ok and sources.ok and subject.ok and tree.ok,{"reference_permissions":result.details,"connector_fit_scope":compatible,"single_connector_route":single,"connector_expansion_scope":expansion,"prepared_floor_graph":prepared,"actor_index_scope_binding":binding,"navigation_source_lifecycle":sources,"route_subject_preparation":subject,"navigation_source_tree":tree})
+	var keys: Dictionary = preload("res://tests/acceptance/navigation_key_scope.gd").new().run_case(self)
+	var fields: Dictionary = preload("res://tests/acceptance/public_waiting_cost_field.gd").new().run_case(self)
+	return _done(sim,result.ok and compatible.ok and single.ok and expansion.ok and prepared.ok and binding.ok and sources.ok and subject.ok and tree.ok and keys.ok and fields.ok,{"reference_permissions":result.details,"connector_fit_scope":compatible,"single_connector_route":single,"connector_expansion_scope":expansion,"prepared_floor_graph":prepared,"actor_index_scope_binding":binding,"navigation_source_lifecycle":sources,"route_subject_preparation":subject,"navigation_source_tree":tree,"navigation_key_scope":keys,"public_waiting_cost_field":fields})
 
 func _waiting_visit(sim: HospitalSimulation, id: String, cell: Array, binding_id: String = "") -> Dictionary:
 	var binding: Dictionary = content.definition("treatment_bindings",binding_id) if not binding_id.is_empty() else {}
@@ -1717,7 +1719,8 @@ func _case_55(_t) -> Dictionary:
 	var result: Dictionary = preload("res://tests/acceptance/movement_review.gd").new().run_case(self)
 	var construction: Dictionary = preload("res://tests/acceptance/navigation_bulk_build.gd").new().run_case(self)
 	var cuts: Dictionary = preload("res://tests/acceptance/navigation_unit_wall_cuts.gd").new().run_case(self)
-	return {"ok":result.ok and construction.ok and cuts.ok,"details":{"movement":result,"native_graph_construction":construction,"unit_wall_cuts":cuts}}
+	var masks: Dictionary = preload("res://tests/acceptance/navigation_unit_static_masks.gd").new().run_case(self)
+	return {"ok":result.ok and construction.ok and cuts.ok and masks.ok,"details":{"movement":result,"native_graph_construction":construction,"unit_wall_cuts":cuts,"unit_static_masks":masks}}
 
 func _case_56(_t) -> Dictionary:
 	var result: Dictionary = preload("res://tests/acceptance/movement_result.gd").new().run(self)

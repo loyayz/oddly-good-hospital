@@ -122,6 +122,13 @@ func _index_rectangle(rect: Rect2, cells: Dictionary, value: Variant) -> void:
 			var cell: Vector2i = Vector2i(x,y)
 			if not cells.has(cell): cells[cell] = value
 
+func unit_static_masks() -> Dictionary:
+	# Only the unit integer static graph can reuse masks assembled from these
+	# already resolved business facts. Actual reasons and all other envelopes
+	# keep the full predicates, including groups and query-level reservations.
+	if not _indexed_static or _size!=1 or not _members.is_empty() or not _reservations.is_empty(): return {"ready":false}
+	return PlatformArrivalMath.unit_static_masks({"source":source,"doors":_doors,"height_ok":not (_height_m>float(source.height))})
+
 func reason(origin: Vector2i) -> String:
 	if _height_m>float(source.height):
 		return "真实身体超过本层实际净高"

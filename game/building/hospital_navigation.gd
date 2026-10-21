@@ -240,6 +240,35 @@ func _point_route(world: WorldState, actor: Dictionary, source_floor: int, start
 	if direct.ok: return {"ok":false,"status":"time_overflow","reason":"基准通行时间超出整数范围"}
 	return direct if source_floor==target_floor else {"ok":false,"status":"unreachable","reason":"没有身体、停层和运行方向均合法的竖向通路"}
 
+# The task consumes only exact candidate times. A warm field stays local to
+# that synchronous loop; executable routes and complex journeys use the solver.
+func ready_waiting_cost_field(world: WorldState, actor_id: String, floor_id: int, bounds: Dictionary) -> Dictionary:
+	if not space.in_dynamic_route_query(world) or world.facts.connectors.size()>1: return {}
+	var owner: Dictionary = space.read_view(world,"point_journeys",func()->Dictionary:return {})
+	var subject: Dictionary = owner.get("subjects",{}).get(actor_id,{})
+	if subject.is_empty() or not str(subject.reason).is_empty(): return {}
+	var actor: Dictionary = world.facts.actors[actor_id]
+	var root: Vector2i = subject.start
+	var prefix: int = int(subject.initial_ticks)
+	if int(subject.floor_id)!=floor_id:
+		if world.facts.connectors.size()!=1 or bounds.get("unknown",false) or bounds.get("landings",[]).size()!=1: return {}
+		var connection: Dictionary = world.facts.connectors.values()[0]
+		if space.content.definition("vertical_connectors",connection.definition_id).kind!="lift": return {}
+		var landing: Dictionary = bounds.landings[0]
+		root = Vector2i(int(connection.anchor[0]),int(connection.anchor[1]))
+		if Vector2(landing.cell)!=Vector2(root): return {}
+		# _entry_landings already issued this complete structural quote in the
+		# same owner. It proves actual stop, direction, body and fractional stub.
+		var quote_key: String = JSON.stringify([floor_id,connection.anchor,true],"",true,true)
+		var quote: Dictionary = subject.get("journeys",{}).get(quote_key,{})
+		if not quote.get("ok",false) or not quote.has("travel_ticks") or int(quote.travel_ticks)!=int(landing.ticks): return {}
+		prefix = int(quote.travel_ticks)
+	var field: Dictionary = space._navigation.ready_structural_field(space,world,floor_id,actor,root)
+	if not field.get("ready",false): return {}
+	_observe_floor(world,actor_id,floor_id)
+	space.query_counts["public_entry_field_preparations"] = int(space.query_counts.get("public_entry_field_preparations",0))+1
+	return {"ready":true,"distances":field.distances,"prefix_ticks":prefix,"speed":float(space.content.balance.movement_speeds[str(space.clearance(actor))])}
+
 func _source_quote(world: WorldState, actor: Dictionary, context: Dictionary, node_ids: Array, initial_ticks: int) -> Dictionary:
 	if not context.distance_only or not context.members.is_empty() or not context.offsets.is_empty() or not space.in_dynamic_route_query(world): return {}
 	var owner: Dictionary = space.dynamic_transport_view(world,actor.id,[],{})
@@ -400,16 +429,29 @@ func _connector_edges(world: WorldState, actor: Dictionary, context: Dictionary,
 func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2i, goal: Vector2i, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, navigation: Dictionary = {}, structural_only: bool = false, cost_only: bool = false) -> Dictionary:
 	_observe_floor(world,str(actor.id),floor_id)
 	var routes: Dictionary = {}
-	var key: String = ""
-	if navigation.is_empty() and not space._route_queries.is_empty() and space._route_queries.back().world==world and (ignore_people or space._route_queries.back().get("dynamic",false)):
+	var key: Variant = ""
+	var cacheable: bool = false
+	if navigation.is_empty() and structural_only and ignore_people and cost_only and members.is_empty() and offsets.is_empty() and space.in_dynamic_route_query(world):
+		# Body and mode are fixed by this sealed real-candidate batch. Keep the
+		# complete endpoint result without serializing that same body per goal.
+		var owner: Dictionary = space.read_view(world,"point_floor_costs",func()->Dictionary:return {"revision":world.geometry_revision,"actors":{}})
+		if int(owner.revision)!=world.geometry_revision:
+			owner.revision = world.geometry_revision
+			owner.actors.clear()
+		var floors: Dictionary = owner.actors.get_or_add(str(actor.id),{})
+		routes = floors.get_or_add(floor_id,{})
+		key = Vector4i(start.x,start.y,goal.x,goal.y)
+		cacheable = true
+	elif navigation.is_empty() and not space._route_queries.is_empty() and space._route_queries.back().world==world and (ignore_people or space._route_queries.back().get("dynamic",false)):
 		routes = space._route_queries.back().routes
 		var identity: Variant = actor.id
 		if not space._route_queries.back().reference.is_empty() and members.is_empty() and offsets.is_empty():
 			identity = [space.body(actor),[] if structural_only else RouteClearance.reservation_exemptions(world,actor.id,floor_id)]
 		key = JSON.stringify([identity,floor_id,start.x,start.y,goal.x,goal.y,members,offsets,ignore_people,structural_only,cost_only,_route_envelope(world,actor,members,offsets)])
-		if routes.has(key):
-			space.query_counts.floor_route_hits += 1
-			return routes[key].duplicate(true)
+		cacheable = true
+	if cacheable and routes.has(key):
+		space.query_counts.floor_route_hits += 1
+		return routes[key].duplicate(true)
 	space.query_counts.floor_route_builds += 1
 	var fresh_structural_graph: bool = structural_only and navigation.is_empty()
 	if navigation.is_empty():
@@ -472,7 +514,7 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 			path.append({"kind":"floor","floor_id":floor_id,"cell":cell})
 		result.path = path
 		result.erase("cells")
-	if not key.is_empty():
+	if cacheable:
 		routes[key] = result.duplicate(true)
 	return result
 

@@ -52,6 +52,7 @@ func _case_69(t) -> void:
 	var qualifications: Dictionary = preload("res://tests/acceptance/public_queue_fit_lifecycle.gd").new().run_case(self)
 	var membership: Dictionary = preload("res://tests/acceptance/public_facility_membership.gd").new().run_case(self)
 	var dependencies: Dictionary = preload("res://tests/acceptance/public_wait_dependency_queries.gd").new().run_case(self)
+	var environment_matches: Dictionary = preload("res://tests/acceptance/public_wait_environment_matches.gd").new().run_case(_content)
 	var x: Dictionary = _occupied_west()
 	var intent: Dictionary = x.world.facts.waiting_life.seats.get(x.waiter.id,{})
 	var arrived: bool = intent.get("phase","")=="local_wait" and int(intent.get("arrived_tick",-1))==50
@@ -69,7 +70,7 @@ func _case_69(t) -> void:
 	var release_move: String = x.space.request_move(x.world,x.holder.actor_id,1,[40,76])
 	var seated: bool = _until_seated(x,x.waiter)
 	var timely: bool = seated and intent.get("facility_id","")=="west_chair" and int(intent.get("arrived_tick",-1))==queued_at and not x.space.overlaps_facility(x.world,x.holder.actor_id,"west_chair")
-	t.check("STAFF-69",membership.ok and dependencies.ok and qualifications.ok and snapshot.ok and samples.ok and connector_basis.ok and x.held and arrived and unchanged and other_move.is_empty() and local_dependencies and release_move.is_empty() and timely and x.l.validate(x.world).is_empty(),{"static_facility_membership":membership,"wait_dependency_queries":dependencies,"queue_qualification_lifecycle":qualifications,"immutable_wait_basis":snapshot,"complete_environment_dependencies":samples,"connector_dependency_boundary":connector_basis,"arrived_waiting":arrived,"unchanged_wait_did_not_requote":unchanged,"unrelated_area_real_move":other_move,"unrelated_movement_did_not_requote":local_dependencies,"actual_holder_exit":release_move,"original_queue_time_kept":int(intent.get("arrived_tick",-1))==queued_at,"actually_seated_after_release":timely,"quotes_before":quotes,"quotes_after":x.probe.quotes,"intent":intent})
+	t.check("STAFF-69",membership.ok and dependencies.ok and environment_matches.ok and qualifications.ok and snapshot.ok and samples.ok and connector_basis.ok and x.held and arrived and unchanged and other_move.is_empty() and local_dependencies and release_move.is_empty() and timely and x.l.validate(x.world).is_empty(),{"static_facility_membership":membership,"wait_dependency_queries":dependencies,"environment_match_reuse":environment_matches,"queue_qualification_lifecycle":qualifications,"immutable_wait_basis":snapshot,"complete_environment_dependencies":samples,"connector_dependency_boundary":connector_basis,"arrived_waiting":arrived,"unchanged_wait_did_not_requote":unchanged,"unrelated_area_real_move":other_move,"unrelated_movement_did_not_requote":local_dependencies,"actual_holder_exit":release_move,"original_queue_time_kept":int(intent.get("arrived_tick",-1))==queued_at,"actually_seated_after_release":timely,"quotes_before":quotes,"quotes_after":x.probe.quotes,"intent":intent})
 
 func _wait_value_snapshot() -> Dictionary:
 	var x: Dictionary = _occupied_west()

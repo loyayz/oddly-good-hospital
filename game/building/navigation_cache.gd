@@ -101,7 +101,7 @@ func _static_identity(world: WorldState, floor_id: int, current: Dictionary) -> 
 # build an A* graph. Its reservation query is always constructed afresh.
 func cached_static_geometry(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary) -> RouteClearance:
 	var current: Dictionary = floor_source(space,world,floor_id)
-	var key: String = str(floor_id)+":"+_envelope(space,world,actor,[],{},current)
+	var key: String = _graph_key(space,world,floor_id,actor,[],{},current)
 	var entry: Dictionary = _entries.get(key,{})
 	if entry.is_empty(): return null
 	var source_record: Dictionary = _sources[str(world.get_instance_id())+":"+str(floor_id)]
@@ -136,7 +136,7 @@ func query_graphs(space: HospitalSpace, world: WorldState, floor_id: int, actor:
 
 func graph(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, members: Array, offsets: Dictionary) -> FloorNavigation:
 	var current: Dictionary = floor_source(space,world,floor_id)
-	var key: String = str(floor_id)+":"+_envelope(space,world,actor,members,offsets,current)
+	var key: String = _graph_key(space,world,floor_id,actor,members,offsets,current)
 	var source_record: Dictionary = _sources[str(world.get_instance_id())+":"+str(floor_id)]
 	var entry: Dictionary = _entries.get(key,{})
 	_used += 1
@@ -210,7 +210,7 @@ func _prune_sources() -> void:
 
 func clearance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, members: Array = [], offsets: Dictionary = {}) -> RouteClearance:
 	var current: FloorNavigation = graph(space,world,floor_id,actor,[],{})
-	var key: String = str(floor_id)+":"+_envelope(space,world,actor,[],{},floor_source(space,world,floor_id))
+	var key: String = _graph_key(space,world,floor_id,actor,[],{},floor_source(space,world,floor_id))
 	if not _entries.has(key): return RouteClearance.new(space,world,actor,floor_id,members,offsets,true,floor_source(space,world,floor_id),current.geometry)
 	var entry: Dictionary = _entries[key]
 	if not entry.has("queries"): entry.queries = {}
@@ -262,7 +262,7 @@ func _build_reservation_stamp(graph: FloorNavigation, world: WorldState, floor_i
 # Cache only the pure single-body A* result of this exact clearance query.
 # Dynamic bodies, group overlays and complete transit are checked by Space.
 func cached_floor_path(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, graph: FloorNavigation, query: RouteClearance, start: Vector2i, goal: Vector2i, cost_only: bool = false) -> Dictionary:
-	var key: String = str(floor_id)+":"+_envelope(space,world,actor,[],{},floor_source(space,world,floor_id))
+	var key: String = _graph_key(space,world,floor_id,actor,[],{},floor_source(space,world,floor_id))
 	var entry: Dictionary = _entries.get(key,{})
 	var record: Dictionary = entry.get("queries",{}).get(actor.id,{})
 	if not entry.is_empty() and entry.graph==graph and query==graph.geometry:
@@ -314,11 +314,27 @@ func travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, act
 func forward_distance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, start: Vector2i, goal: Vector2i, structural_only: bool = false, prepared_graph: FloorNavigation = null) -> Dictionary:
 	return _travel_distance(space,world,floor_id,actor,start,goal,false,true,structural_only,prepared_graph)
 
+# Borrow only a resident, already-built field for one synchronous task loop.
+# This does not advance its warmup, retain a graph or create an extra allowance.
+func ready_structural_field(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, root: Vector2i) -> Dictionary:
+	if not space.in_dynamic_route_query(world): return {}
+	# This performs the original complete current-source proof before exposing
+	# any old field. A same-key graph can still describe a previous floor edit.
+	var geometry: RouteClearance = cached_static_geometry(space,world,floor_id,actor)
+	if geometry==null: return {}
+	var key: String = _graph_key(space,world,floor_id,actor,[],{},floor_source(space,world,floor_id))
+	var entry: Dictionary = _entries.get(key,{})
+	if entry.is_empty(): return {}
+	var destination: String = _distance_destination(space,world,floor_id,actor,root,root,true,true,[])
+	var record: Dictionary = entry.get("estimates",{}).get(destination,{})
+	if not record.get("ready",false) or record.get("stamp",[])!=[geometry.get_instance_id()]: return {}
+	return {"ready":true,"distances":record.distances}
+
 func _travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, start: Vector2i, goal: Vector2i, witness: bool, forward: bool, structural_only: bool = false, prepared_graph: FloorNavigation = null) -> Dictionary:
 	# Only a structural query may pass its just-acquired graph. Permission-
 	# dependent distance fields retain the original graph/clearance acquisition.
 	var current: FloorNavigation = prepared_graph if structural_only and prepared_graph!=null else graph(space,world,floor_id,actor,[],{})
-	var key: String = str(floor_id)+":"+_envelope(space,world,actor,[],{},floor_source(space,world,floor_id))
+	var key: String = _graph_key(space,world,floor_id,actor,[],{},floor_source(space,world,floor_id))
 	if not _entries.has(key): return {"ready":false}
 	var entry: Dictionary = _entries[key]
 	if not entry.has("estimates"): entry.estimates = {}
@@ -328,7 +344,7 @@ func _travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, ac
 	if not structural_only:
 		for reservation: Array in floor_source(space,world,floor_id).occupancy:
 			if actor.id==reservation[1] or actor.id in reservation[2]: exemptions.append(reservation[0])
-	var destination: String = JSON.stringify(["from",start.x,start.y,structural_only,exemptions]) if forward else JSON.stringify([goal.x,goal.y,exemptions])
+	var destination: String = _distance_destination(space,world,floor_id,actor,start,goal,forward,structural_only,exemptions)
 	var stamp: Array = [current.geometry.get_instance_id()] if structural_only else _reservation_stamp(space,current,world,floor_id,actor.id)
 	var record: Dictionary = entry.estimates.get(destination,{})
 	if record.is_empty() or record.stamp!=stamp:
@@ -386,7 +402,38 @@ func _travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, ac
 		result.path = path
 	return result
 
+func _graph_key(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, members: Array, offsets: Dictionary, source: Dictionary) -> String:
+	if members.is_empty() and offsets.is_empty() and space.in_dynamic_route_query(world):
+		# Keys contain immutable values only. Graph acquisition, source validation
+		# and budget eviction remain in each caller; no graph is held by the scope.
+		var view: Dictionary = space.read_view(world,"navigation_graph_keys",func()->Dictionary:return {})
+		var floors: Dictionary = view.get_or_add(actor.id,{})
+		var heights: Dictionary = floors.get_or_add(floor_id,{})
+		var keys: Dictionary = heights.get_or_add(float(source.height),{})
+		var door_height: float = float(source.door_height)
+		if not keys.has(door_height): keys[door_height] = str(floor_id)+":"+_envelope(space,world,actor,[],{},source)
+		return keys[door_height]
+	return str(floor_id)+":"+_envelope(space,world,actor,members,offsets,source)
+
+func _distance_destination(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, start: Vector2i, goal: Vector2i, forward: bool, structural_only: bool, exemptions: Array) -> String:
+	if structural_only and space.in_dynamic_route_query(world):
+		# Permission-dependent consumers retain their complete live exemption key.
+		# This view reuses only the original structural endpoint serialization.
+		var view: Dictionary = space.read_view(world,"navigation_distance_keys",func()->Dictionary:return {})
+		var roots: Dictionary = view.get_or_add(actor.id,{}).get_or_add(floor_id,{}).get_or_add(forward,{})
+		var point: Vector2i = start if forward else goal
+		if not roots.has(point): roots[point] = JSON.stringify(["from",start.x,start.y,true,[]]) if forward else JSON.stringify([goal.x,goal.y,[]])
+		return roots[point]
+	return JSON.stringify(["from",start.x,start.y,structural_only,exemptions]) if forward else JSON.stringify([goal.x,goal.y,exemptions])
+
 func _envelope(space: HospitalSpace, world: WorldState, actor: Dictionary, members: Array, offsets: Dictionary, source: Dictionary) -> String:
+	if members.is_empty() and offsets.is_empty() and space.in_dynamic_route_query(world):
+		var view: Dictionary = space.read_view(world,"navigation_envelopes",func()->Dictionary:return {})
+		var heights: Dictionary = view.get_or_add(actor.id,{})
+		var variants: Dictionary = heights.get_or_add(float(source.height),{})
+		var door_height: float = float(source.door_height)
+		if not variants.has(door_height): variants[door_height] = JSON.stringify([_traversal_shape(space,actor,[0,0],source)],"",true,true)
+		return variants[door_height]
 	var shapes: Array = [_traversal_shape(space,actor,[0,0],source)]
 	for id: String in members:
 		if id!=actor.id:

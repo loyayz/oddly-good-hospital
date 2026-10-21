@@ -2,6 +2,15 @@ extends RefCounted
 
 class CountingClearance extends RouteClearance:
 	var edge_checks: int = 0
+	var node_checks: int = 0
+	var native_masks: int = 0
+	func unit_static_masks() -> Dictionary:
+		var result: Dictionary = super.unit_static_masks()
+		if result.get("ready",false): native_masks += 1
+		return result
+	func reason(cell: Vector2i) -> String:
+		node_checks += 1
+		return super.reason(cell)
 	func edge_reason(from: Vector2i, to: Vector2i) -> String:
 		edge_checks += 1
 		return super.edge_reason(from,to)
@@ -29,12 +38,14 @@ func run_case(suite: RefCounted) -> Dictionary:
 		var geometry: CountingClearance = CountingClearance.new(sim.space,sim.world,actor,1,members,offsets,false)
 		var graph: FloorNavigation = FloorNavigation.new(geometry)
 		var actual_checks: int = geometry.edge_checks
+		var actual_nodes: int = geometry.node_checks
 		geometry.edge_checks = 0
+		geometry.node_checks = 0
 		var expected: Dictionary = _complete_directed_reference(sim.world,geometry)
 		var comparison: Dictionary = _compare(graph,expected)
-		var halved: bool = actual_checks>0 and actual_checks*2==geometry.edge_checks
-		ok = ok and comparison.ok and halved
-		rows.append({"mode":mode,"clearance":sim.space.clearance(actor),"points":graph.get_point_count(),"complete_comparison":comparison,"cold_edge_checks":actual_checks,"full_directed_edge_checks":geometry.edge_checks,"each_static_pair_checked_once":halved})
+		var work_bounded: bool = geometry.native_masks==1 and actual_checks==0 and actual_nodes==0 if mode=="small" else geometry.native_masks==0 and actual_checks>0 and actual_checks*2==geometry.edge_checks and actual_nodes==geometry.node_checks
+		ok = ok and comparison.ok and work_bounded
+		rows.append({"mode":mode,"clearance":sim.space.clearance(actor),"points":graph.get_point_count(),"complete_comparison":comparison,"cold_node_checks":actual_nodes,"cold_edge_checks":actual_checks,"full_directed_edge_checks":geometry.edge_checks,"native_unit_mask_builds":geometry.native_masks,"unit_masks_or_each_fallback_pair_once":work_bounded})
 	var readonly: bool = before==sim.world.freeze()
 	var result: Dictionary = {"ok":ok and door_boundary and readonly,"validation":validation,"actual_one_and_three_cell_door_rules":door_boundary,"small_door":small_quote,"wide_door":wide_quote,"all_owned_and_outside_cells":rows,"world_and_rng_unchanged":readonly,"scope":"Static topology only; SPACE-46/51 separately retain query-time group and reservation permissions."}
 	sim.dispose()

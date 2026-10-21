@@ -112,7 +112,7 @@ func _decision_view(world: WorldState) -> Dictionary:
 		if order.get("phase","")!="working": continue
 		var facility: Dictionary = world.facts.facilities.get(order.get("facility_id",""),{})
 		if not facility.is_empty(): environment.get_or_add(int(facility.floor_id),[]).append([facility.cell,"upgrade",facility.id])
-	_decision_basis = {"users":users,"queues":queues,"environment":environment,"environment_indices":{},"facility_environment":facility_environment,"geometry_revision":world.geometry_revision}
+	_decision_basis = {"users":users,"queues":queues,"environment":environment,"environment_indices":{},"environment_matches":{},"facility_environment":facility_environment,"geometry_revision":world.geometry_revision}
 	return _decision_basis
 
 func _facility_environment(world: WorldState) -> Dictionary:
@@ -160,8 +160,12 @@ func _decision_signature(world: WorldState, intent: Dictionary, definitions: Arr
 			if not owner in ids: occupied = true
 		if occupied or not reservation.is_empty() or not adaptation.is_empty() and not str(adaptation.get("actor_id","")) in ids: continue
 		route_dependent = true
-		var layout: Dictionary = space.facility_layout(world,facility_id)
-		for point: Array in [layout.patient_cell]+layout.get("operator_cells",[])+[layout.get("repair_cell",layout.patient_cell)]:
+		# Observe only the work places consumed here, with the same adaptation
+		# overrides as facility_layout; the remaining facility state is above.
+		var patient_cell: Array = adaptation.get("patient_cell",facility.patient_cell)
+		var operator_cells: Array = adaptation.get("operator_cells",facility.get("operator_cells",[]))
+		var repair_cell: Array = adaptation.get("repair_cell",facility.get("repair_cell",patient_cell))
+		for point: Array in [patient_cell]+operator_cells+[repair_cell]:
 			# This synchronous observation consumes a set union around identical
 			# points. Patient/repair/operator aliases do not create new facts.
 			if observed_points.has(point): continue
@@ -207,16 +211,39 @@ func _decision_signature(world: WorldState, intent: Dictionary, definitions: Arr
 
 func _environment_samples(view: Dictionary, floor_id: int, points: Array) -> Array:
 	var result: Array = []
+	var matched: Dictionary = _environment_matches(view,floor_id,points)
 	var facilities: Dictionary = view.get("facility_environment",{})
 	if not facilities.is_empty():
 		var rows: Array = facilities.rows.get(floor_id,[])
-		for number: int in _environment_sample_indices(rows,facilities.indices,floor_id,points):
+		for number: int in matched.facilities:
 			var row: Array = rows[number]
 			var facility: Dictionary = facilities.records[row[2]]
 			result.append([row[0],"facility",[facility.id,facility.definition_id,facility.get("level",1),facility.get("failed",false)]])
 	var samples: Array = view.environment.get(floor_id,[])
-	for number: int in _environment_sample_indices(samples,view.environment_indices,floor_id,points): result.append(samples[number])
+	for number: int in matched.samples: result.append(samples[number])
 	return result
+
+func _environment_matches(view: Dictionary, floor_id: int, points: Array) -> Dictionary:
+	if points.is_empty(): return {"facilities":[],"samples":[]}
+	var matches: Dictionary = view.get_or_add("environment_matches",{})
+	var recent: Array = matches.get_or_add(floor_id,[])
+	for number: int in recent.size():
+		var retained: Dictionary = recent[number]
+		if retained.points!=points: continue
+		recent.remove_at(number)
+		recent.push_front(retained)
+		space.query_counts["public_wait_environment_match_hits"] = int(space.query_counts.get("public_wait_environment_match_hits",0))+1
+		return retained
+	var facilities: Dictionary = view.get("facility_environment",{})
+	var matched: Dictionary = {"points":points.duplicate(true),"facilities":[],"samples":[]}
+	if not facilities.is_empty(): matched.facilities = _environment_sample_indices(facilities.rows.get(floor_id,[]),facilities.indices,floor_id,points)
+	matched.samples = _environment_sample_indices(view.environment.get(floor_id,[]),view.environment_indices,floor_id,points)
+	# Only recent full point sets in this closed observation share the ordered
+	# index union. Current facility values and actor dependencies remain live.
+	recent.push_front(matched)
+	if recent.size()>2: recent.pop_back()
+	space.query_counts["public_wait_environment_match_builds"] = int(space.query_counts.get("public_wait_environment_match_builds",0))+1
+	return matched
 
 func _environment_sample_indices(samples: Array, indices: Dictionary, floor_id: int, points: Array) -> Array:
 	if points.is_empty() or samples.is_empty(): return []
@@ -588,6 +615,9 @@ func _waiting_point(world: WorldState, actor_id: String, reference: Dictionary, 
 	var packed: PackedInt64Array = ordered.packed
 	var fallback: Array = ordered.fallback
 	var best: Dictionary = {}
+	var field: Dictionary = {}
+	var full_quotes: int = 0
+	var next_field_check: int = 0
 	for index: int in (packed.size() if ordered.compact else fallback.size()):
 		var lower: int
 		var point: Vector2i
@@ -603,9 +633,23 @@ func _waiting_point(world: WorldState, actor_id: String, reference: Dictionary, 
 		if not best.is_empty() and lower>int(best.travel_ticks): break
 		var cell: Array = [point.x,point.y]
 		if not safe_wait(world,actor_id,floor_id,cell,geometry): continue
-		var route: Dictionary = space.travel_quote(world,actor_id,floor_id,cell)
-		if not route.ok or not route.has("travel_ticks"): continue
-		if int(route.travel_ticks)<=maximum_travel_ticks and (best.is_empty() or int(route.travel_ticks)<int(best.travel_ticks)): best = {"floor_id":floor_id,"cell":cell,"travel_ticks":int(route.travel_ticks)}
+		if field.is_empty() and full_quotes>=next_field_check:
+			field = space.navigation.ready_waiting_cost_field(world,actor_id,floor_id,bounds)
+			next_field_check = full_quotes+12
+		var travel_ticks: int = -1
+		if not field.is_empty():
+			# The complete resident field is borrowed only by this synchronous
+			# loop. safe_wait does not acquire graphs or trim their cache; no
+			# navigation query runs while this local array is being consumed.
+			space.query_counts["public_entry_field_hits"] = int(space.query_counts.get("public_entry_field_hits",0))+1
+			var distance: int = field.distances[FloorNavigation._id(point)]
+			if distance<0: continue
+			travel_ticks = HospitalTransit._add(int(field.prefix_ticks),ceili(float(distance)/float(field.speed)/WorldState.TICK_SECONDS))
+		else:
+			var route: Dictionary = space.travel_quote(world,actor_id,floor_id,cell)
+			full_quotes += 1
+			if route.ok and route.has("travel_ticks"): travel_ticks = int(route.travel_ticks)
+		if travel_ticks>=0 and travel_ticks<=maximum_travel_ticks and (best.is_empty() or travel_ticks<int(best.travel_ticks)): best = {"floor_id":floor_id,"cell":cell,"travel_ticks":travel_ticks}
 	return best
 
 func _entry_order(actor: Dictionary, origin: Vector2, bounds: Dictionary, geometry: Dictionary, maximum_travel_ticks: int) -> Dictionary:

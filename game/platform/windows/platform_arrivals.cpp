@@ -33,6 +33,7 @@
 #include <memory>
 #include <mutex>
 #include <set>
+#include <tuple>
 #include <stdexcept>
 #include <string>
 #include <tuple>
@@ -1791,6 +1792,7 @@ V calculate_integer(int operation, const V& first, const V& second) {
 #include "platform_bed_matching.h"
 #include "platform_grid_component.h"
 #include "platform_grid_distance.h"
+#include "platform_unit_static_masks.h"
 #include "platform_floor_graph.h"
 #include "platform_entry_order.h"
 #include "platform_route_search.h"
@@ -1845,11 +1847,12 @@ void free_model(void*, GDExtensionClassInstancePtr instance) {
     std::lock_guard<std::recursive_mutex> guard(discrete_mutex);
     delete static_cast<CapacityInstance*>(instance);
 }
-enum Method { SOLVE, FRACTION, INTEGER, STRUCTURE, AGGREGATE, AGGREGATE_COMPONENTS, THREAD_CPU, MONOTONIC_CLOCK, PERSONAL_BED_MATCHING, GRID_COMPONENT, ROUTE_SEARCH, GRID_DISTANCE_FIELD, FLOOR_GRAPH_BUILD, ENTRY_ORDER, PREPARE_MODEL, SOLVE_MODEL, PREPARE_ROLES, SOLVE_ROLES };
+enum Method { SOLVE, FRACTION, INTEGER, STRUCTURE, AGGREGATE, AGGREGATE_COMPONENTS, THREAD_CPU, MONOTONIC_CLOCK, PERSONAL_BED_MATCHING, GRID_COMPONENT, ROUTE_SEARCH, GRID_DISTANCE_FIELD, FLOOR_GRAPH_BUILD, UNIT_STATIC_MASKS, ENTRY_ORDER, PREPARE_MODEL, SOLVE_MODEL, PREPARE_ROLES, SOLVE_ROLES };
 struct MethodInfo { const char* name; Method method; std::vector<GDExtensionVariantType> arguments; };
 MethodInfo methods[] = {
     {"entry_order", ENTRY_ORDER, {GDEXTENSION_VARIANT_TYPE_PACKED_INT32_ARRAY, GDEXTENSION_VARIANT_TYPE_DICTIONARY}},
     {"floor_graph_build", FLOOR_GRAPH_BUILD, {GDEXTENSION_VARIANT_TYPE_OBJECT, GDEXTENSION_VARIANT_TYPE_PACKED_BYTE_ARRAY, GDEXTENSION_VARIANT_TYPE_PACKED_BYTE_ARRAY, GDEXTENSION_VARIANT_TYPE_PACKED_BYTE_ARRAY}},
+    {"unit_static_masks", UNIT_STATIC_MASKS, {GDEXTENSION_VARIANT_TYPE_DICTIONARY}},
     {"grid_distance_field", GRID_DISTANCE_FIELD, {GDEXTENSION_VARIANT_TYPE_PACKED_BYTE_ARRAY, GDEXTENSION_VARIANT_TYPE_PACKED_BYTE_ARRAY, GDEXTENSION_VARIANT_TYPE_PACKED_BYTE_ARRAY, GDEXTENSION_VARIANT_TYPE_DICTIONARY}},
     {"route_search", ROUTE_SEARCH, {GDEXTENSION_VARIANT_TYPE_DICTIONARY}},
     {"grid_component", GRID_COMPONENT, {GDEXTENSION_VARIANT_TYPE_ARRAY, GDEXTENSION_VARIANT_TYPE_ARRAY, GDEXTENSION_VARIANT_TYPE_ARRAY, GDEXTENSION_VARIANT_TYPE_BOOL}},
@@ -1873,6 +1876,7 @@ V invoke(Method method, const std::vector<V>& args, GDExtensionClassInstancePtr 
         if (method == GRID_COMPONENT) return solve_grid_component(args[0], args[1], args[2], args[3]);
         if (method == GRID_DISTANCE_FIELD) return solve_grid_distance_field(args[0], args[1], args[2], args[3]);
         if (method == FLOOR_GRAPH_BUILD) return build_floor_graph(args[0], args[1], args[2], args[3]);
+        if (method == UNIT_STATIC_MASKS) return build_unit_static_masks(args[0]);
         if (method == ENTRY_ORDER) return solve_entry_order(args[0], args[1]);
         if (method == ROUTE_SEARCH) return solve_route_search(args[0]);
         std::unique_lock<std::recursive_mutex> discrete_guard(discrete_mutex, std::defer_lock);
@@ -1975,6 +1979,8 @@ extern "C" void ogh_math_initialize(GDExtensionInterfaceGetProcAddress api, GDEx
     }
     from_type[GDEXTENSION_VARIANT_TYPE_OBJECT] = get_from(GDEXTENSION_VARIANT_TYPE_OBJECT);
     to_type[GDEXTENSION_VARIANT_TYPE_OBJECT] = get_to(GDEXTENSION_VARIANT_TYPE_OBJECT);
+    // Rect2 is a POD input; only its engine conversion is used by unit masks.
+    to_type[GDEXTENSION_VARIANT_TYPE_RECT2] = get_to(GDEXTENSION_VARIANT_TYPE_RECT2);
     Builtin size_name, append_name, keys_name, get_name, object_name, notification_name, empty_name; Builtin hint;
     new_name(&size_name, "size"); new_name(&append_name, "append"); new_name(&keys_name, "keys");
     array_size = get_method(GDEXTENSION_VARIANT_TYPE_ARRAY, &size_name, OGH_ARRAY_SIZE_HASH);
@@ -2019,6 +2025,7 @@ extern "C" void ogh_math_initialize(GDExtensionInterfaceGetProcAddress api, GDEx
     route_search_initialize(api);
     backup_zip_register(api);
     grid_distance_initialize(api);
+    unit_static_masks_initialize(api);
     floor_graph_initialize(api);
     entry_order_initialize(api);
     for (Builtin* name : {&size_name, &append_name, &keys_name, &get_name, &object_name, &notification_name, &empty_name}) get_dtor(GDEXTENSION_VARIANT_TYPE_STRING_NAME)(name);

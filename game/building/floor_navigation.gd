@@ -23,34 +23,44 @@ func _init(projection: RouteClearance) -> void:
 
 func _build() -> void:
 	var ids: Array[int] = []
-	var present: PackedByteArray = PackedByteArray()
-	present.resize(LIMIT)
-	for plot: Vector2i in geometry._plots:
-		for y: int in range(plot.y*32,(plot.y+1)*32):
-			for x: int in range(plot.x*32,(plot.x+1)*32): ids.append(y*SIDE+x)
-	ids.sort()
-	for id: int in ids:
-		var cell: Vector2i = _cell(id)
-		present[id] = 1
-		_enabled[id] = int(geometry.reason(cell).is_empty())
-	for id: int in ids:
-		if _enabled[id]==0: continue
-		var cell: Vector2i = _cell(id)
-		# Static sweeps are symmetric. Earlier IDs already inserted UP/LEFT;
-		# add RIGHT/DOWN once, retaining the original neighbour order on both ends.
-		# Reservations and people remain directed query-time filters.
-		for direction: int in range(2,4):
-			var next: Vector2i = cell+NEIGHBOURS[direction]
-			if _inside(next) and _enabled[_id(next)]!=0 and geometry.edge_reason(cell,next).is_empty():
-				var other: int = _id(next)
-				_edges[id] |= 1<<direction
-				_edges[other] |= 1<<(3-direction)
-	# Godot still owns points, ordered neighbours and all A* searches. Pass the
-	# completed masks once instead of crossing the script bridge for every point
-	# and connection; all original body and static-sweep predicates ran above.
+	var prepared: Dictionary = geometry.unit_static_masks()
+	var present: PackedByteArray
+	if prepared.get("ready",false):
+		present = prepared.present
+		_enabled = prepared.enabled
+		_edges = prepared.edges
+	else:
+		# Unsupported envelopes and special coordinates are normal complete
+		# fallbacks. A genuine native failure remains visible to validation.
+		if prepared.has("error"): push_error("层内单格静态掩码失败："+str(prepared.get("bottleneck",prepared.error)))
+		present = PackedByteArray()
+		present.resize(LIMIT)
+		for plot: Vector2i in geometry._plots:
+			for y: int in range(plot.y*32,(plot.y+1)*32):
+				for x: int in range(plot.x*32,(plot.x+1)*32): ids.append(y*SIDE+x)
+		ids.sort()
+		for id: int in ids:
+			var cell: Vector2i = _cell(id)
+			present[id] = 1
+			_enabled[id] = int(geometry.reason(cell).is_empty())
+		for id: int in ids:
+			if _enabled[id]==0: continue
+			var cell: Vector2i = _cell(id)
+			# Static sweeps are symmetric. Earlier IDs already inserted UP/LEFT;
+			# add RIGHT/DOWN once, preserving the original neighbour order.
+			for direction: int in range(2,4):
+				var next: Vector2i = cell+NEIGHBOURS[direction]
+				if _inside(next) and _enabled[_id(next)]!=0 and geometry.edge_reason(cell,next).is_empty():
+					var other: int = _id(next)
+					_edges[id] |= 1<<direction
+					_edges[other] |= 1<<(3-direction)
+	# Godot still owns points, ordered neighbours and all A* searches. Unit
+	# integer geometry uses equivalent bulk masks; every unsupported envelope
+	# retains the complete original body and static-sweep predicates above.
 	var built: Dictionary = PlatformArrivalMath.floor_graph_build(self,present,_enabled,_edges)
 	if not built.get("ok",false):
 		push_error("层内导航图批量装配失败："+str(built.get("bottleneck",built.get("error","未知原因"))))
+		if prepared.get("ready",false): ids.assign(prepared.ids)
 		_populate_script(ids)
 
 func _populate_script(ids: Array[int]) -> void:
