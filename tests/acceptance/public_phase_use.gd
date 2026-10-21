@@ -406,6 +406,8 @@ func _case_74(t) -> void:
 func _case_75(t) -> void:
 	var large_estimate: Dictionary = _large_entry_estimate()
 	var scan_batch: Dictionary = _scan_index_batch()
+	var ordering: Dictionary = _entry_order_reuse()
+	var regions: Dictionary = preload("res://tests/acceptance/public_region_build.gd").new().run_case(_content)
 	var observations: Array = []
 	for variant: String in ["ordinary","fractional","nearest_body_occupied","only_far_point_free"]:
 		var x: Dictionary = _areas()
@@ -445,7 +447,48 @@ func _case_75(t) -> void:
 		var far_retained: bool = retained_far.is_empty() or expected.rows.size()==1 and actual.get("cell",[])==retained_far and original.rows.size()>32
 		var readonly: bool = before==x.world.freeze()
 		observations.append({"variant":variant,"ok":validation.is_empty() and original.readonly and expected.readonly and same and blocked_rejected and stable_tie_exercised and far_retained and readonly,"validation":validation,"literal_rectangle_cells":120,"original_safe_complete_candidates":original.rows.size(),"current_safe_complete_candidates":expected.rows.size(),"minimum_cost_ties":expected.cost_ties,"minimum_cost_and_lower_ties":expected.order_ties,"expected":_entry_result(expected.best,1),"actual":actual,"same_point_cost_and_stable_order":same,"occupied_nearest_rejected":blocked_rejected,"stable_tie_exercised":stable_tie_exercised,"far_unique_candidate_retained":far_retained,"readonly":readonly,"route_queries":route_queries,"waiting_point_us":elapsed})
-	t.check("STAFF-75",large_estimate.ok and scan_batch.ok and observations.all(func(row: Dictionary)->bool: return row.ok),{"complete_entry_boundaries":observations,"large_finite_estimate":large_estimate,"physical_index_scan_batch":scan_batch})
+	t.check("STAFF-75",large_estimate.ok and scan_batch.ok and ordering.ok and regions.ok and observations.all(func(row: Dictionary)->bool: return row.ok),{"complete_entry_boundaries":observations,"large_finite_estimate":large_estimate,"physical_index_scan_batch":scan_batch,"shared_entry_order":ordering,"complete_region_build":regions})
+
+func _entry_order_reuse() -> Dictionary:
+	var x: Dictionary = _areas()
+	var visit: Dictionary = _visit(x,"order_subject",[38,90])
+	var actor: Dictionary = x.world.facts.actors[visit.actor_id]
+	var geometry: Dictionary = {"cells":[Vector2i(42,76),Vector2i(41,75),Vector2i(40,75),Vector2i(40,74)],"points":{},"ordering":{}}
+	var before: Dictionary = x.world.freeze()
+	var cases: Array = [
+		{"origin":Vector2(38,90),"bounds":{"landings":[{"cell":Vector2(40,75),"ticks":50},{"cell":Vector2(43,75),"ticks":57}],"unknown":false},"limit":1000,"hit":false},
+		{"origin":Vector2(30.25,80.25),"bounds":{"landings":[{"cell":Vector2(40,75),"ticks":91},{"cell":Vector2(43,75),"ticks":98}],"unknown":false},"limit":96,"hit":true},
+		{"origin":Vector2(30.25,80.25),"bounds":{"landings":[{"cell":Vector2(40,75),"ticks":91},{"cell":Vector2(43,75),"ticks":99}],"unknown":false},"limit":1000,"hit":false},
+		{"origin":Vector2(38.1,90.1),"bounds":{"landings":[{"cell":Vector2(40,75),"ticks":91}],"unknown":true},"limit":1000,"hit":false},
+		{"origin":Vector2(38.2,90.2),"bounds":{"landings":[],"unknown":false},"limit":1000,"hit":true},
+		{"origin":Vector2(39,90),"bounds":{"landings":[],"unknown":false},"limit":1000,"hit":false}
+	]
+	var rows: Array = []
+	for item: Dictionary in cases:
+		var expected: Array = []
+		var start: Vector2i = Vector2i(roundi(item.origin.x),roundi(item.origin.y))
+		var stub: int = ceili(item.origin.distance_to(Vector2(start))/2.0/WorldState.TICK_SECONDS)
+		for point: Vector2i in geometry.cells:
+			# Published S49 rate is 2 cells/s: integer orthogonal cells cost
+			# five ticks each. Fractional walking retains its separate ceil.
+			var lower: int = stub+5*(absi(start.x-point.x)+absi(start.y-point.y))
+			if not item.bounds.unknown and not item.bounds.landings.is_empty():
+				lower = HospitalTransit.MAX_TICK
+				for landing: Dictionary in item.bounds.landings:
+					lower = mini(lower,int(landing.ticks)+5*(absi(int(landing.cell.x)-point.x)+absi(int(landing.cell.y)-point.y)))
+			if lower<=item.limit: expected.append({"cell":point,"lower":lower})
+		expected.sort_custom(func(a: Dictionary,b: Dictionary)->bool: return a.lower<b.lower or a.lower==b.lower and (a.cell.y<b.cell.y or a.cell.y==b.cell.y and a.cell.x<b.cell.x))
+		var hits: int = int(x.space.query_counts.get("entry_order_hits",0))
+		var actual_order: Dictionary = x.space.public_areas._entry_order(actor,item.origin,item.bounds,geometry,item.limit)
+		var actual: Array = []
+		for key: int in actual_order.packed:
+			var lower: int = key/HospitalPublicAreas.ENTRY_CELL_COUNT+int(actual_order.get("offset_ticks",0))
+			if lower>item.limit: break
+			var cell_id: int = key%HospitalPublicAreas.ENTRY_CELL_COUNT
+			actual.append({"cell":Vector2i(cell_id%96,cell_id/96),"lower":lower})
+		var reused: bool = int(x.space.query_counts.get("entry_order_hits",0))==hits+1
+		rows.append({"ok":actual==expected and reused==bool(item.hit),"expected":expected,"actual":actual,"expected_reuse":item.hit,"actual_reuse":reused})
+	return {"ok":rows.all(func(row: Dictionary)->bool: return row.ok) and before==x.world.freeze(),"literal_complete_candidates_and_budget":rows,"world_and_rng_unchanged":before==x.world.freeze()}
 
 func _scan_index_batch() -> Dictionary:
 	var x: Dictionary = _areas()
@@ -486,10 +529,11 @@ func _large_entry_estimate() -> Dictionary:
 	var before: Dictionary = x.world.freeze()
 	var routes: int = int(x.space.query_counts.routes)
 	var ordered: Dictionary = x.space.public_areas._ordered_entry_cells(x.world.facts.actors[visit.actor_id],Vector2(38,90),bounds,geometry,9223372036854775807)
+	var shared: Dictionary = x.space.public_areas._entry_order(x.world.facts.actors[visit.actor_id],Vector2(38,90),bounds,geometry,9223372036854775807)
 	# At the published 2 cells/s, zero, one and three orthogonal cells take
 	# zero, five and fifteen ticks. Equal lower values compare y before x.
 	var expected: Array = [{"cell":Vector2i(40,75),"lower":ticks},{"cell":Vector2i(40,74),"lower":ticks+5},{"cell":Vector2i(41,75),"lower":ticks+5},{"cell":Vector2i(42,76),"lower":ticks+15}]
-	var exact: bool = not ordered.compact and ordered.packed.is_empty() and ordered.fallback==expected
+	var exact: bool = not ordered.compact and ordered.packed.is_empty() and ordered.fallback==expected and not shared.compact and shared.packed.is_empty() and shared.fallback==expected
 	var readonly: bool = before==x.world.freeze() and bounds==original_bounds and geometry==original_geometry and routes==int(x.space.query_counts.routes)
 	return {"ok":exact and readonly,"all_finite_candidates_and_literal_order":exact,"input_and_world_unchanged_without_route_queries":readonly,"expected":expected,"actual":ordered.fallback}
 

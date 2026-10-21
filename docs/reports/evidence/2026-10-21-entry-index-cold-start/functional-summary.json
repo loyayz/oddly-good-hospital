@@ -1,0 +1,98 @@
+{
+  "unique_selected_passed": [
+    "SPACE-10",
+    "SPACE-23",
+    "SPACE-24",
+    "SPACE-28",
+    "SPACE-46",
+    "SPACE-51",
+    "SPACE-53",
+    "SPACE-54",
+    "SPACE-55",
+    "STAFF-45",
+    "STAFF-61",
+    "STAFF-65",
+    "STAFF-69",
+    "STAFF-70",
+    "STAFF-71",
+    "STAFF-72",
+    "STAFF-75"
+  ],
+  "batches": [
+    {
+      "batch": "81193fd956b34e30be439e4a83d671e6",
+      "cases": [
+        "STAFF-45",
+        "STAFF-61",
+        "STAFF-65",
+        "STAFF-69",
+        "STAFF-70",
+        "STAFF-71",
+        "STAFF-72",
+        "STAFF-75",
+        "SPACE-10",
+        "SPACE-23",
+        "SPACE-24",
+        "SPACE-28",
+        "SPACE-46",
+        "SPACE-51",
+        "SPACE-53",
+        "SPACE-55"
+      ],
+      "checks": 16,
+      "failed": 0,
+      "timing": {
+        "started_at_utc": "2026-10-21T01:40:32.3258883+00:00",
+        "ended_at_utc": "2026-10-21T01:41:00.2030541+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 3871,
+        "import_ms": 10196,
+        "tests_ms": 13795,
+        "total_ms": 27881
+      }
+    },
+    {
+      "batch": "2cf71badb57d4dcb822024f3328bce2c",
+      "cases": [
+        "STAFF-61",
+        "SPACE-10",
+        "SPACE-23",
+        "SPACE-24",
+        "SPACE-28",
+        "SPACE-54"
+      ],
+      "checks": 6,
+      "failed": 0,
+      "timing": {
+        "started_at_utc": "2026-10-21T01:43:33.2571074+00:00",
+        "ended_at_utc": "2026-10-21T01:43:48.5946640+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 3743,
+        "import_ms": 7204,
+        "tests_ms": 4378,
+        "total_ms": 15340
+      }
+    },
+    {
+      "batch": "559f99440e09447888b0db6680ca9ead",
+      "cases": [
+        "SPACE-51"
+      ],
+      "checks": 1,
+      "failed": 0,
+      "timing": {
+        "started_at_utc": "2026-10-21T01:56:04.5627179+00:00",
+        "ended_at_utc": "2026-10-21T01:56:24.2188740+00:00",
+        "phase": "finished",
+        "completed": true,
+        "preparation_ms": 4742,
+        "import_ms": 9542,
+        "tests_ms": 5356,
+        "total_ms": 19660
+      }
+    }
+  ],
+  "reuse": "After the first16, only three pure values are hoisted outside a destination loop; six affected cross-floor/egress cases rerun. The final one-line source==queried-world fast guard cannot represent a valid exclusion scope; SPACE51 independently rerun. Unchanged task, cache, region, transit and reservation assertions reuse earlier passes."
+}

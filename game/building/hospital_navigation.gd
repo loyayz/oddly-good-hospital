@@ -235,6 +235,9 @@ func _point_edges(id: String, world: WorldState, actor: Dictionary, context: Dic
 		var before: Dictionary = _floor_route(world,actor,floor_id,node.cell,anchor,members,offsets,true,{},true,distance_only)
 		if not before.ok: continue
 		var definition: Dictionary = space.content.definition("vertical_connectors",connection.definition_id)
+		var walking: int = HospitalTransit.walking_ticks(space,actor,members,float(before.walking_distance))
+		var boarding: int = HospitalTransit._boarding(definition)
+		var alighting: int = HospitalTransit._alighting(definition)
 		var destinations: Array = context.stops[connector_id]
 		if context.extra_stops.has(connector_id):
 			if not context.query_stops.has(connector_id):
@@ -246,7 +249,7 @@ func _point_edges(id: String, world: WorldState, actor: Dictionary, context: Dic
 			if destination==floor_id or definition.kind=="stairs" and absi(destination-floor_id)!=1: continue
 			if HospitalTransit._lowering(connection) and destination>=floor_id: continue
 			var travel: int = HospitalTransit._travel_ticks(space,connection,floor_id,destination)
-			var ticks: int = HospitalTransit._add(HospitalTransit.walking_ticks(space,actor,members,float(before.walking_distance)),HospitalTransit._add(HospitalTransit._boarding(definition),HospitalTransit._add(travel,HospitalTransit._alighting(definition))))
+			var ticks: int = HospitalTransit._add(walking,HospitalTransit._add(boarding,HospitalTransit._add(travel,alighting)))
 			if ticks<0: continue
 			var next: String = connector_id+":"+str(destination)
 			var path: Array = [] if distance_only else before.path.duplicate()

@@ -249,31 +249,64 @@ func _ensure(world: WorldState, requested_floor: int = 0) -> void:
 		for room: Dictionary in world.facts.rooms.values(): floors[int(room.floor_id)] = true
 		for facility: Dictionary in world.facts.facilities.values(): floors[int(facility.floor_id)] = true
 	if requested_floor>0: floors[requested_floor] = true
+	var layouts: Dictionary = {}
 	for floor_id: int in floors:
-		if _derived_floors.has(floor_id) or HospitalSpace.floor_plots(world,floor_id).is_empty(): continue
+		if _derived_floors.has(floor_id): continue
+		var layout: Dictionary = HospitalSpace.floor_layout(world,floor_id)
+		if not layout.plots.is_empty(): layouts[floor_id] = layout
+	# The two consumers of a facility use the same current adaptation. These
+	# views last only for this synchronous build, never across world changes.
+	var rooms: Dictionary = {}
+	for id: String in world.ids("rooms"):
+		var room: Dictionary = world.facts.rooms[id]
+		if layouts.has(int(room.floor_id)): rooms.get_or_add(int(room.floor_id),[]).append(room)
+	var facilities: Dictionary = {}
+	for id: String in world.ids("facilities"):
+		var facility: Dictionary = world.facts.facilities[id]
+		if not layouts.has(int(facility.floor_id)) or facility.get("stored",false): continue
+		facilities.get_or_add(int(facility.floor_id),[]).append({"id":id,"layout":space.facility_layout(world,id),"blocks":space.content.facility_definition(facility.definition_id).get("blocks_movement",true)})
+	for floor_id: int in floors:
+		if not layouts.has(floor_id): continue
 		_derived_floors[floor_id] = true
 		_wait_geometry = {}
 		var zones: Dictionary = {}
-		for plot: Array in HospitalSpace.floor_plots(world,floor_id):
+		for plot: Array in layouts[floor_id].plots:
 			for y: int in range(int(plot[1])*32,(int(plot[1])+1)*32):
 				for x: int in range(int(plot[0])*32,(int(plot[0])+1)*32): zones[Vector2i(x,y)] = ""
-		for room_id: String in world.ids("rooms"):
-			var room: Dictionary = world.facts.rooms[room_id]
-			if int(room.floor_id)!=floor_id: continue
-			for cell: Array in BuildGeometry.cells(room): zones[Vector2i(int(cell[0]),int(cell[1]))] = room_id
+		for room: Dictionary in rooms.get(floor_id,[]):
+			for cell: Array in BuildGeometry.cells(room): zones[Vector2i(int(cell[0]),int(cell[1]))] = str(room.id)
 		var free: Dictionary = zones.duplicate()
-		for cell: Array in HospitalSpace.floor_layout(world,floor_id).get("blocked",[]): free.erase(Vector2i(int(cell[0]),int(cell[1])))
-		for collection: String in ["facilities","connectors"]:
-			for record: Dictionary in world.facts[collection].values():
-				if (int(record.floor_id)!=floor_id if collection=="facilities" else not HospitalTransit.has_stop(record,floor_id)) or record.get("stored",false): continue
-				if collection=="facilities" and not space.content.facility_definition(record.definition_id).get("blocks_movement",true): continue
-				var layout: Dictionary = space.facility_layout(world,record.id) if collection=="facilities" else record
-				for y: int in range(int(layout.cell[1]),int(layout.cell[1])+int(layout.footprint[1])):
-					for x: int in range(int(layout.cell[0]),int(layout.cell[0])+int(layout.footprint[0])): free.erase(Vector2i(x,y))
-		var ordered: Array = free.keys()
-		ordered.sort_custom(func(a: Vector2i,b: Vector2i)->bool: return a.y<b.y or a.y==b.y and a.x<b.x)
+		for cell: Array in layouts[floor_id].get("blocked",[]): free.erase(Vector2i(int(cell[0]),int(cell[1])))
+		var blocking: Array = []
+		for facility: Dictionary in facilities.get(floor_id,[]):
+			if facility.blocks: blocking.append(facility.layout)
+		for connector: Dictionary in world.facts.connectors.values():
+			if HospitalTransit.has_stop(connector,floor_id) and not connector.get("stored",false): blocking.append(connector)
+		for layout: Dictionary in blocking:
+			for y: int in range(int(layout.cell[1]),int(layout.cell[1])+int(layout.footprint[1])):
+				for x: int in range(int(layout.cell[0]),int(layout.cell[0])+int(layout.footprint[0])): free.erase(Vector2i(x,y))
+		# Row-major IDs use the engine's integer sort while retaining the same
+		# y/x anchors and the original per-component traversal order.
+		var packed: PackedInt32Array = PackedInt32Array()
+		packed.resize(free.size())
+		var compact: bool = true
+		var number: int = 0
+		for point: Vector2i in free:
+			if point.x<0 or point.y<0 or point.x>=ENTRY_GRID_WIDTH or point.y>=ENTRY_GRID_WIDTH:
+				compact = false
+				break
+			packed[number] = point.y*ENTRY_GRID_WIDTH+point.x
+			number += 1
+		var ordered: Array = []
+		if compact:
+			packed.sort()
+		else:
+			# Keep the original ordering outside the bounded integer encoding.
+			ordered = free.keys()
+			ordered.sort_custom(func(a: Vector2i,b: Vector2i)->bool: return a.y<b.y or a.y==b.y and a.x<b.x)
 		var seen: Dictionary = {}
-		for start: Vector2i in ordered:
+		for index: int in free.size():
+			var start: Vector2i = Vector2i(packed[index]%ENTRY_GRID_WIDTH,packed[index]/ENTRY_GRID_WIDTH) if compact else ordered[index]
 			if seen.has(start): continue
 			var cells: Dictionary = {start:true}
 			var bounds: Rect2i = Rect2i(start,Vector2i.ONE)
@@ -294,15 +327,13 @@ func _ensure(world: WorldState, requested_floor: int = 0) -> void:
 			var region: Dictionary = {"ref":{"floor_id":floor_id,"room_id":zones[start],"anchor":[start.x,start.y]},"cells":cells,"facilities":[],"bounds":bounds,"geometry":geometry}
 			_regions.append(region)
 			for point: Vector2i in cells: _by_cell[_key(floor_id,point)] = region
-		for id: String in world.ids("facilities"):
-			var facility: Dictionary = world.facts.facilities[id]
-			if int(facility.floor_id)!=floor_id or facility.get("stored",false): continue
-			var layout: Dictionary = space.facility_layout(world,id)
+		for facility: Dictionary in facilities.get(floor_id,[]):
+			var layout: Dictionary = facility.layout
 			var point: Vector2i = Vector2i(int(layout.patient_cell[0]),int(layout.patient_cell[1]))
 			var region: Dictionary = _by_cell.get(_key(floor_id,point),{})
 			if not region.is_empty():
-				region.facilities.append(id)
-				_by_facility[id] = region
+				region.facilities.append(facility.id)
+				_by_facility[facility.id] = region
 
 static func _key(floor_id: int, point: Vector2i) -> String:
 	return str(floor_id)+":"+str(point.x)+":"+str(point.y)
@@ -441,7 +472,7 @@ func _waiting_point(world: WorldState, actor_id: String, reference: Dictionary, 
 		for landing: Dictionary in bounds.landings: earliest = mini(earliest,int(landing.ticks))
 		if earliest>maximum_travel_ticks: return {}
 	var geometry: Dictionary = _entry_geometry_view(world,actor,area)
-	var ordered: Dictionary = _ordered_entry_cells(actor,origin,bounds,geometry,maximum_travel_ticks)
+	var ordered: Dictionary = _entry_order(actor,origin,bounds,geometry,maximum_travel_ticks)
 	var packed: PackedInt64Array = ordered.packed
 	var fallback: Array = ordered.fallback
 	var best: Dictionary = {}
@@ -451,7 +482,7 @@ func _waiting_point(world: WorldState, actor_id: String, reference: Dictionary, 
 		if ordered.compact:
 			var key: int = packed[index]
 			var cell_id: int = key%ENTRY_CELL_COUNT
-			lower = key/ENTRY_CELL_COUNT
+			lower = key/ENTRY_CELL_COUNT+int(ordered.get("offset_ticks",0))
 			point = Vector2i(cell_id%ENTRY_GRID_WIDTH,cell_id/ENTRY_GRID_WIDTH)
 		else:
 			lower = int(fallback[index].lower)
@@ -464,6 +495,40 @@ func _waiting_point(world: WorldState, actor_id: String, reference: Dictionary, 
 		if not route.ok or not route.has("travel_ticks"): continue
 		if int(route.travel_ticks)<=maximum_travel_ticks and (best.is_empty() or int(route.travel_ticks)<int(best.travel_ticks)): best = {"floor_id":floor_id,"cell":cell,"travel_ticks":int(route.travel_ticks)}
 	return best
+
+func _entry_order(actor: Dictionary, origin: Vector2, bounds: Dictionary, geometry: Dictionary, maximum_travel_ticks: int) -> Dictionary:
+	var start: Vector2i = Vector2i(roundi(origin.x),roundi(origin.y))
+	var speed: float = float(space.content.balance.movement_speeds[str(space.clearance(actor))])
+	var prefix: int = ceili(origin.distance_to(Vector2(start))/speed/WorldState.TICK_SECONDS)
+	var normalized: Dictionary = {"landings":[],"unknown":bool(bounds.unknown)}
+	var basis: Array = ["walking",speed,start]
+	if not bounds.unknown and not bounds.landings.is_empty():
+		prefix = int(bounds.landings[0].ticks)
+		for landing: Dictionary in bounds.landings: prefix = mini(prefix,int(landing.ticks))
+		for landing: Dictionary in bounds.landings: normalized.landings.append({"cell":landing.cell,"ticks":int(landing.ticks)-prefix})
+		basis = ["landings",speed,normalized.landings]
+	var retained: Dictionary = geometry.get("ordering",{})
+	var ordered: Dictionary
+	if retained.get("basis",[])==basis:
+		space.query_counts["entry_order_hits"] = int(space.query_counts.get("entry_order_hits",0))+1
+		ordered = retained.ordered
+	else:
+		# Every candidate shares the fractional walking stub or minimum landing
+		# arrival. Removing this additive prefix preserves lower/y/x ordering.
+		# Keep the complete order: each caller applies its own travel budget.
+		ordered = _ordered_entry_cells(actor,Vector2(start),normalized,geometry,HospitalTransit.MAX_TICK)
+		space.query_counts["entry_order_builds"] = int(space.query_counts.get("entry_order_builds",0))+1
+		if ordered.compact and geometry.has("ordering"):
+			# One retained basis per static geometry; moving origins cannot grow
+			# an unbounded cache. Geometry replacement discards its order too.
+			geometry.ordering = {"basis":basis.duplicate(true),"ordered":ordered}
+	var largest: int = int(ordered.packed[-1]/ENTRY_CELL_COUNT) if ordered.compact and not ordered.packed.is_empty() else 0
+	if not ordered.compact or prefix<0 or prefix>ENTRY_SORT_LIMIT-largest:
+		# Preserve the original exact int64 fallback, including mixed encodable
+		# and very large values. No candidate or budget is approximated.
+		space.query_counts["entry_order_fallbacks"] = int(space.query_counts.get("entry_order_fallbacks",0))+1
+		return _ordered_entry_cells(actor,origin,bounds,geometry,maximum_travel_ticks)
+	return {"packed":ordered.packed,"fallback":[],"compact":true,"offset_ticks":prefix}
 
 func _ordered_entry_cells(actor: Dictionary, origin: Vector2, bounds: Dictionary, geometry: Dictionary, maximum_travel_ticks: int) -> Dictionary:
 	var start: Vector2i = Vector2i(roundi(origin.x),roundi(origin.y))
@@ -582,7 +647,7 @@ func _entry_geometry_view(world: WorldState, actor: Dictionary, area: Dictionary
 	var version: int = space._navigation.floor_static_version(space,world,floor_id)
 	var saved: Dictionary = _entry_geometry.get(key,{})
 	if saved.is_empty() or int(saved.version)!=version:
-		saved = {"version":version,"cells":area.cells.keys(),"points":{},"geometry":space.navigation.structural_clearance(world,actor,floor_id)}
+		saved = {"version":version,"cells":area.cells.keys(),"points":{},"geometry":space.navigation.structural_clearance(world,actor,floor_id),"ordering":{}}
 		_entry_geometry[key] = saved
 	return saved
 
@@ -718,13 +783,15 @@ func _queue_fit_in_query(world: WorldState, facility_id: String, ids: Array) -> 
 	facts.adaptations = world.facts.adaptations.duplicate()
 	facts.adaptations.erase(facility_id)
 	facts.actors = world.facts.actors.duplicate()
+	var departing: Array = []
 	for actor_id: String in [current.actor_id]+current.staff_ids:
 		if actor_id in ids: continue
+		departing.append(actor_id)
 		facts.actors[actor_id] = world.facts.actors[actor_id].duplicate()
 		facts.actors[actor_id].location = {"kind":"outside"}
 	var candidate: WorldState = WorldState.new(facts)
 	space.prepare_projection(world,candidate,[facility_id])
-	space.begin_route_query(candidate,{},false)
+	space.begin_actor_exclusion_query(world,candidate,departing)
 	var quote: Dictionary = space.facility_quote(candidate,facility_id,ids[0],ids.slice(1))
 	space.end_route_query()
 	return quote

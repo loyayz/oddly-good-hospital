@@ -1,0 +1,599 @@
+{
+  "legacy": "b9bb59d59ec5db1d75f80e6db25f27f335f7fa41",
+  "current": "284efc9c339d23fe1299f901b1f7f738c2239876",
+  "original_regression": {
+    "before_p95_us": 36676,
+    "after_p95_us": 40743,
+    "before_warm_mean_us": 27557.2051282051,
+    "after_warm_mean_us": 29041.9487179487
+  },
+  "abba": [
+    {
+      "run": "ops-legacy-a",
+      "metrics": {
+        "cold_first_us": 1902257,
+        "count": 40,
+        "following_mean_us": 41464.2307692308,
+        "max_us": 1902257,
+        "mean_us": 87984.05,
+        "p50_us": 39067,
+        "p95_us": 67665,
+        "p99_us": 1902257,
+        "total_us": 3519362
+      },
+      "qualification": {
+        "actual_clinical_work": true,
+        "all_steps_complete": true,
+        "operations.local_cleanup_actually_progressed": true,
+        "operations.real_movement_or_cleanup_work": true,
+        "operations.setup_accepted": true,
+        "operations.some_cleanup_assigned_or_completed": true,
+        "operations.staff_need_tasks_selected": true,
+        "present_160_throughout": true,
+        "same_actor_ids": true,
+        "world_valid": true
+      },
+      "public_checks": null,
+      "final_hash": "f20de287ab252ab3fd759f27d841da0fe8a288ee3189a22f05d006a51ace45f8",
+      "input_sha256": "939c2d95da67a9df671dbb5a824fd987174e77b449e3ed0b0332405922b4848b",
+      "work": {
+        "outpatient": 40,
+        "reception": 120
+      },
+      "query_counts": {
+        "actor_index_actor_visits": 2240,
+        "actor_index_builds": 14,
+        "candidate_connections": 771,
+        "connector_node_declarations": 4,
+        "connector_topology_builds": 1,
+        "distance_field_builds": 8,
+        "distance_field_hits": 317,
+        "door_candidates": 208,
+        "floor_route_builds": 452,
+        "floor_route_hits": 901,
+        "journey_hits": 34,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 379,
+        "movement_candidates": 58,
+        "public_wait_rechecks": 8,
+        "reservation_candidate_queries": 1599,
+        "reservation_index_builds": 2,
+        "reservation_index_updates": 42,
+        "route_checks": 420,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 2,
+        "route_dispatches": 2,
+        "route_revalidation_unvalidated": 11,
+        "route_revalidations": 11,
+        "routes": 448,
+        "static_path_builds": 93,
+        "static_path_hits": 31,
+        "transport_builds": 0,
+        "transport_searches": 278,
+        "yield_attempts": 0,
+        "yield_candidates": 0
+      },
+      "public_work": {
+        "starts": 0,
+        "completions": 0,
+        "ticks": 0,
+        "queue_ticks": 0,
+        "reuses": 0
+      },
+      "index27": {
+        "complete": true,
+        "elapsed_us": 34832,
+        "index": 27,
+        "lifecycle_events": [],
+        "moves": 11,
+        "present": 160,
+        "sessions": 4,
+        "tick": 1179
+      },
+      "slowest_steps": [
+        {
+          "complete": true,
+          "elapsed_us": 1902257,
+          "index": 0,
+          "lifecycle_events": [],
+          "moves": 11,
+          "present": 160,
+          "sessions": 4,
+          "tick": 1152
+        },
+        {
+          "complete": true,
+          "elapsed_us": 75922,
+          "index": 39,
+          "lifecycle_events": [],
+          "moves": 11,
+          "present": 160,
+          "sessions": 4,
+          "tick": 1191
+        },
+        {
+          "complete": true,
+          "elapsed_us": 67665,
+          "index": 20,
+          "lifecycle_events": [],
+          "moves": 11,
+          "present": 160,
+          "sessions": 4,
+          "tick": 1172
+        },
+        {
+          "complete": true,
+          "elapsed_us": 56042,
+          "index": 35,
+          "lifecycle_events": [],
+          "moves": 11,
+          "present": 160,
+          "sessions": 4,
+          "tick": 1187
+        },
+        {
+          "complete": true,
+          "elapsed_us": 52368,
+          "index": 17,
+          "lifecycle_events": [],
+          "moves": 11,
+          "present": 160,
+          "sessions": 4,
+          "tick": 1169
+        },
+        {
+          "complete": true,
+          "elapsed_us": 50648,
+          "index": 5,
+          "lifecycle_events": [],
+          "moves": 11,
+          "present": 160,
+          "sessions": 4,
+          "tick": 1157
+        }
+      ]
+    },
+    {
+      "run": "ops-current-b",
+      "metrics": {
+        "cold_first_us": 1401753,
+        "count": 40,
+        "following_mean_us": 42981.4615384615,
+        "max_us": 1401753,
+        "mean_us": 76950.75,
+        "p50_us": 41866,
+        "p95_us": 64525,
+        "p99_us": 1401753,
+        "total_us": 3078030
+      },
+      "qualification": {
+        "actual_clinical_work": true,
+        "all_steps_complete": true,
+        "operations.local_cleanup_actually_progressed": true,
+        "operations.real_movement_or_cleanup_work": true,
+        "operations.setup_accepted": true,
+        "operations.some_cleanup_assigned_or_completed": true,
+        "operations.staff_need_tasks_selected": true,
+        "present_160_throughout": true,
+        "same_actor_ids": true,
+        "world_valid": true
+      },
+      "public_checks": null,
+      "final_hash": "f20de287ab252ab3fd759f27d841da0fe8a288ee3189a22f05d006a51ace45f8",
+      "input_sha256": "939c2d95da67a9df671dbb5a824fd987174e77b449e3ed0b0332405922b4848b",
+      "work": {
+        "outpatient": 40,
+        "reception": 120
+      },
+      "query_counts": {
+        "actor_index_actor_visits": 2240,
+        "actor_index_builds": 14,
+        "candidate_connections": 771,
+        "connector_node_declarations": 4,
+        "connector_topology_builds": 1,
+        "distance_field_builds": 8,
+        "distance_field_hits": 317,
+        "door_candidates": 208,
+        "floor_route_builds": 452,
+        "floor_route_hits": 901,
+        "journey_hits": 34,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 379,
+        "movement_candidates": 58,
+        "public_wait_rechecks": 8,
+        "reservation_candidate_queries": 1599,
+        "reservation_index_builds": 2,
+        "reservation_index_updates": 42,
+        "route_checks": 420,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 2,
+        "route_dispatches": 2,
+        "route_revalidation_unvalidated": 11,
+        "route_revalidations": 11,
+        "routes": 448,
+        "static_path_builds": 93,
+        "static_path_hits": 31,
+        "transport_builds": 0,
+        "transport_searches": 278,
+        "yield_attempts": 0,
+        "yield_candidates": 0
+      },
+      "public_work": {
+        "starts": 0,
+        "completions": 0,
+        "ticks": 0,
+        "queue_ticks": 0,
+        "reuses": 0
+      },
+      "index27": {
+        "complete": true,
+        "elapsed_us": 49861,
+        "index": 27,
+        "lifecycle_events": [],
+        "moves": 11,
+        "present": 160,
+        "sessions": 4,
+        "tick": 1179
+      },
+      "slowest_steps": [
+        {
+          "complete": true,
+          "elapsed_us": 1401753,
+          "index": 0,
+          "lifecycle_events": [],
+          "moves": 11,
+          "present": 160,
+          "sessions": 4,
+          "tick": 1152
+        },
+        {
+          "complete": true,
+          "elapsed_us": 83212,
+          "index": 39,
+          "lifecycle_events": [],
+          "moves": 11,
+          "present": 160,
+          "sessions": 4,
+          "tick": 1191
+        },
+        {
+          "complete": true,
+          "elapsed_us": 64525,
+          "index": 20,
+          "lifecycle_events": [],
+          "moves": 11,
+          "present": 160,
+          "sessions": 4,
+          "tick": 1172
+        },
+        {
+          "complete": true,
+          "elapsed_us": 58263,
+          "index": 34,
+          "lifecycle_events": [],
+          "moves": 11,
+          "present": 160,
+          "sessions": 4,
+          "tick": 1186
+        },
+        {
+          "complete": true,
+          "elapsed_us": 57337,
+          "index": 15,
+          "lifecycle_events": [],
+          "moves": 11,
+          "present": 160,
+          "sessions": 4,
+          "tick": 1167
+        },
+        {
+          "complete": true,
+          "elapsed_us": 55671,
+          "index": 28,
+          "lifecycle_events": [],
+          "moves": 11,
+          "present": 160,
+          "sessions": 4,
+          "tick": 1180
+        }
+      ]
+    },
+    {
+      "run": "ops-current-c",
+      "metrics": {
+        "cold_first_us": 1299296,
+        "count": 40,
+        "following_mean_us": 45030.2564102564,
+        "max_us": 1299296,
+        "mean_us": 76386.9,
+        "p50_us": 44838,
+        "p95_us": 67635,
+        "p99_us": 1299296,
+        "total_us": 3055476
+      },
+      "qualification": {
+        "actual_clinical_work": true,
+        "all_steps_complete": true,
+        "operations.local_cleanup_actually_progressed": true,
+        "operations.real_movement_or_cleanup_work": true,
+        "operations.setup_accepted": true,
+        "operations.some_cleanup_assigned_or_completed": true,
+        "operations.staff_need_tasks_selected": true,
+        "present_160_throughout": true,
+        "same_actor_ids": true,
+        "world_valid": true
+      },
+      "public_checks": null,
+      "final_hash": "f20de287ab252ab3fd759f27d841da0fe8a288ee3189a22f05d006a51ace45f8",
+      "input_sha256": "939c2d95da67a9df671dbb5a824fd987174e77b449e3ed0b0332405922b4848b",
+      "work": {
+        "outpatient": 40,
+        "reception": 120
+      },
+      "query_counts": {
+        "actor_index_actor_visits": 2240,
+        "actor_index_builds": 14,
+        "candidate_connections": 771,
+        "connector_node_declarations": 4,
+        "connector_topology_builds": 1,
+        "distance_field_builds": 8,
+        "distance_field_hits": 317,
+        "door_candidates": 208,
+        "floor_route_builds": 452,
+        "floor_route_hits": 901,
+        "journey_hits": 34,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 379,
+        "movement_candidates": 58,
+        "public_wait_rechecks": 8,
+        "reservation_candidate_queries": 1599,
+        "reservation_index_builds": 2,
+        "reservation_index_updates": 42,
+        "route_checks": 420,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 2,
+        "route_dispatches": 2,
+        "route_revalidation_unvalidated": 11,
+        "route_revalidations": 11,
+        "routes": 448,
+        "static_path_builds": 93,
+        "static_path_hits": 31,
+        "transport_builds": 0,
+        "transport_searches": 278,
+        "yield_attempts": 0,
+        "yield_candidates": 0
+      },
+      "public_work": {
+        "starts": 0,
+        "completions": 0,
+        "ticks": 0,
+        "queue_ticks": 0,
+        "reuses": 0
+      },
+      "index27": {
+        "complete": true,
+        "elapsed_us": 42958,
+        "index": 27,
+        "lifecycle_events": [],
+        "moves": 11,
+        "present": 160,
+        "sessions": 4,
+        "tick": 1179
+      },
+      "slowest_steps": [
+        {
+          "complete": true,
+          "elapsed_us": 1299296,
+          "index": 0,
+          "lifecycle_events": [],
+          "moves": 11,
+          "present": 160,
+          "sessions": 4,
+          "tick": 1152
+        },
+        {
+          "complete": true,
+          "elapsed_us": 79520,
+          "index": 39,
+          "lifecycle_events": [],
+          "moves": 11,
+          "present": 160,
+          "sessions": 4,
+          "tick": 1191
+        },
+        {
+          "complete": true,
+          "elapsed_us": 67635,
+          "index": 20,
+          "lifecycle_events": [],
+          "moves": 11,
+          "present": 160,
+          "sessions": 4,
+          "tick": 1172
+        },
+        {
+          "complete": true,
+          "elapsed_us": 57450,
+          "index": 35,
+          "lifecycle_events": [],
+          "moves": 11,
+          "present": 160,
+          "sessions": 4,
+          "tick": 1187
+        },
+        {
+          "complete": true,
+          "elapsed_us": 53929,
+          "index": 21,
+          "lifecycle_events": [],
+          "moves": 11,
+          "present": 160,
+          "sessions": 4,
+          "tick": 1173
+        },
+        {
+          "complete": true,
+          "elapsed_us": 52727,
+          "index": 15,
+          "lifecycle_events": [],
+          "moves": 11,
+          "present": 160,
+          "sessions": 4,
+          "tick": 1167
+        }
+      ]
+    },
+    {
+      "run": "ops-legacy-d",
+      "metrics": {
+        "cold_first_us": 2145930,
+        "count": 40,
+        "following_mean_us": 51686.8717948718,
+        "max_us": 2145930,
+        "mean_us": 104042.95,
+        "p50_us": 50412,
+        "p95_us": 65986,
+        "p99_us": 2145930,
+        "total_us": 4161718
+      },
+      "qualification": {
+        "actual_clinical_work": true,
+        "all_steps_complete": true,
+        "operations.local_cleanup_actually_progressed": true,
+        "operations.real_movement_or_cleanup_work": true,
+        "operations.setup_accepted": true,
+        "operations.some_cleanup_assigned_or_completed": true,
+        "operations.staff_need_tasks_selected": true,
+        "present_160_throughout": true,
+        "same_actor_ids": true,
+        "world_valid": true
+      },
+      "public_checks": null,
+      "final_hash": "f20de287ab252ab3fd759f27d841da0fe8a288ee3189a22f05d006a51ace45f8",
+      "input_sha256": "939c2d95da67a9df671dbb5a824fd987174e77b449e3ed0b0332405922b4848b",
+      "work": {
+        "outpatient": 40,
+        "reception": 120
+      },
+      "query_counts": {
+        "actor_index_actor_visits": 2240,
+        "actor_index_builds": 14,
+        "candidate_connections": 771,
+        "connector_node_declarations": 4,
+        "connector_topology_builds": 1,
+        "distance_field_builds": 8,
+        "distance_field_hits": 317,
+        "door_candidates": 208,
+        "floor_route_builds": 452,
+        "floor_route_hits": 901,
+        "journey_hits": 34,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 379,
+        "movement_candidates": 58,
+        "public_wait_rechecks": 8,
+        "reservation_candidate_queries": 1599,
+        "reservation_index_builds": 2,
+        "reservation_index_updates": 42,
+        "route_checks": 420,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 2,
+        "route_dispatches": 2,
+        "route_revalidation_unvalidated": 11,
+        "route_revalidations": 11,
+        "routes": 448,
+        "static_path_builds": 93,
+        "static_path_hits": 31,
+        "transport_builds": 0,
+        "transport_searches": 278,
+        "yield_attempts": 0,
+        "yield_candidates": 0
+      },
+      "public_work": {
+        "starts": 0,
+        "completions": 0,
+        "ticks": 0,
+        "queue_ticks": 0,
+        "reuses": 0
+      },
+      "index27": {
+        "complete": true,
+        "elapsed_us": 48893,
+        "index": 27,
+        "lifecycle_events": [],
+        "moves": 11,
+        "present": 160,
+        "sessions": 4,
+        "tick": 1179
+      },
+      "slowest_steps": [
+        {
+          "complete": true,
+          "elapsed_us": 2145930,
+          "index": 0,
+          "lifecycle_events": [],
+          "moves": 11,
+          "present": 160,
+          "sessions": 4,
+          "tick": 1152
+        },
+        {
+          "complete": true,
+          "elapsed_us": 89810,
+          "index": 39,
+          "lifecycle_events": [],
+          "moves": 11,
+          "present": 160,
+          "sessions": 4,
+          "tick": 1191
+        },
+        {
+          "complete": true,
+          "elapsed_us": 65986,
+          "index": 30,
+          "lifecycle_events": [],
+          "moves": 11,
+          "present": 160,
+          "sessions": 4,
+          "tick": 1182
+        },
+        {
+          "complete": true,
+          "elapsed_us": 62720,
+          "index": 31,
+          "lifecycle_events": [],
+          "moves": 11,
+          "present": 160,
+          "sessions": 4,
+          "tick": 1183
+        },
+        {
+          "complete": true,
+          "elapsed_us": 60448,
+          "index": 6,
+          "lifecycle_events": [],
+          "moves": 11,
+          "present": 160,
+          "sessions": 4,
+          "tick": 1158
+        },
+        {
+          "complete": true,
+          "elapsed_us": 60125,
+          "index": 38,
+          "lifecycle_events": [],
+          "moves": 11,
+          "present": 160,
+          "sessions": 4,
+          "tick": 1190
+        }
+      ]
+    }
+  ],
+  "version_regression_reproduced": false,
+  "cpu_cause": "unmeasured; no attribution to heat, frequency, or specific competing workload",
+  "environment_counter_probe": "Win32_PerfFormattedData_PerfOS_Processor unavailable: CIM resource inaccessible",
+  "observed_common_costs": [
+    "Output tick1172: actual 4F-to-3F lift egress passed singleton members and rebuilt static geometry; fixed by exact singleton normalization.",
+    "Output tick1191: seven source captures, first movement/1F stale predates current completions; six later captures follow four cleanup receipts incrementing global geometry revision. Source inputs unchanged; notifications retained pending owner soft-range contract."
+  ]
+}

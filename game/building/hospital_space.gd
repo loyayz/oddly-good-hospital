@@ -62,11 +62,33 @@ func begin_dynamic_route_query(world: WorldState, refresh_actors: bool = true) -
 	# A single real actor's sealed candidate enumeration. This never enables
 	# nominal transport, and ends before any task/reservation/move is committed.
 	if refresh_actors: _indexed_revision = -1
-	_ensure_actor_index(world)
 	_route_queries.append({"world":world,"routes":{},"exits":{},"views":{},"reference":{},"journeys_allowed":false,"dynamic":true,"transport":{}})
+	_ensure_actor_index(world)
 
 func in_dynamic_route_query(world: WorldState) -> bool:
 	return not _route_queries.is_empty() and _route_queries.back().world==world and _route_queries.back().get("dynamic",false)
+
+func begin_actor_exclusion_query(source: WorldState, projected: WorldState, excluded_ids: Array) -> void:
+	# This projection owns only departures: the listed private actor records
+	# are outside, and every other actor record is shared with the source.
+	# An independent caller still refreshes raw input before borrowing bodies.
+	if _route_queries.is_empty() or _route_queries.back().world!=source: _indexed_revision = -1
+	_ensure_actor_index(source)
+	begin_route_query(projected,{},false)
+	var query: Dictionary = _route_queries.back()
+	query.actor_source = source
+	query.actor_source_revision = source.revision
+	query.actor_projection_revision = projected.revision
+	query.actor_exclusions = excluded_ids.duplicate()
+
+func _actor_exclusion_scope(world: WorldState) -> Dictionary:
+	if _indexed_world==world: return {}
+	for number: int in range(_route_queries.size()-1,-1,-1):
+		var query: Dictionary = _route_queries[number]
+		if query.world!=world or not query.has("actor_source"): continue
+		var source: WorldState = query.actor_source
+		if _indexed_world==source and _indexed_revision==int(query.actor_source_revision) and source.revision==int(query.actor_source_revision) and world.revision==int(query.actor_projection_revision): return query
+	return {}
 
 func dynamic_transport_view(world: WorldState, actor_id: String, members: Array, offsets: Dictionary) -> Dictionary:
 	if _route_queries.is_empty() or _route_queries.back().world!=world or not _route_queries.back().get("dynamic",false): return {}
@@ -119,7 +141,9 @@ func _blocking_facility(world: WorldState, floor_id: int, rect: Rect2, except_id
 func _blocking_actor(world: WorldState, floor_id: int, rect: Rect2, allowed: Array) -> String:
 	if not _route_queries.is_empty() and _route_queries.back().world==world:
 		_ensure_actor_index(world)
-		var hits: Array[String] = _actor_index.candidates(floor_id,rect,allowed)
+		var projection: Dictionary = _actor_exclusion_scope(world)
+		var ignored: Array = allowed if projection.is_empty() else allowed+projection.actor_exclusions
+		var hits: Array[String] = _actor_index.candidates(floor_id,rect,ignored)
 		return "" if hits.is_empty() else hits[0]
 	for actor: Dictionary in world.facts.actors.values():
 		if not actor.id in allowed and actor.location.kind=="floor" and int(actor.location.floor_id)==floor_id and rect.intersects(body_rectangle(actor),false): return actor.id
@@ -140,6 +164,7 @@ func body(actor: Dictionary) -> Dictionary:
 	return _bodies[key]
 
 func _ensure_actor_index(world: WorldState) -> void:
+	if not _actor_exclusion_scope(world).is_empty(): return
 	var scope: Dictionary = {}
 	for active: Dictionary in _route_queries:
 		if is_same(active.world.facts.actors,world.facts.actors):
@@ -217,6 +242,9 @@ static func materialize_layout(world: WorldState, floor_id: int) -> void:
 		world.facts.floors.overrides[str(floor_id)] = {"doors":[],"blocked":[],"paths":[]}
 
 func static_reason(world: WorldState, actor: Dictionary, floor_id: int, origin: Vector2i, members: Array = [], offsets: Dictionary = {}) -> String:
+	# A transport unit containing only its primary has no additional body.
+	# Keep the primary's current reservation permissions in the single-body query.
+	if members.size()==1 and members[0]==actor.id: members = []
 	if members.is_empty() and not _route_queries.is_empty() and _route_queries.back().world==world:
 		return _navigation.clearance(self,world,floor_id,actor).reason(origin)
 	if members.is_empty():
@@ -447,7 +475,9 @@ func _dynamic_clear(world: WorldState, actor_id: String, floor_id: int, rect: Re
 			continue
 		if rect.intersects(region.rect,false):
 			return false
-	if _actor_index.intersects(floor_id,rect,actor_id,members):
+	var projection: Dictionary = _actor_exclusion_scope(world)
+	var ignored: Array = members if projection.is_empty() else members+projection.actor_exclusions
+	if _actor_index.intersects(floor_id,rect,actor_id,ignored):
 		return false
 	if movement._sweep_index.intersects(floor_id,rect,actor_id,members):
 		return false
