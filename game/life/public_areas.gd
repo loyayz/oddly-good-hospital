@@ -16,6 +16,7 @@ var _regions: Array = []
 var _by_cell: Dictionary = {}
 var _by_facility: Dictionary = {}
 var _derived_floors: Dictionary = {}
+var _floor_regions: Dictionary = {}
 var _wait_geometry: Dictionary = {}
 var _geometry_fits: Dictionary = {}
 var _entry_geometry: Dictionary = {}
@@ -264,16 +265,14 @@ func for_facility(world: WorldState, facility_id: String) -> Dictionary:
 	return _by_facility[facility_id].ref.duplicate(true) if _by_facility.has(facility_id) else {}
 
 func _ensure(world: WorldState, requested_floor: int = 0) -> void:
-	var current: bool = _world!=null and _world.get_ref()==world and _revision==world.geometry_revision
+	var same_world: bool = _world!=null and _world.get_ref()==world
+	var current: bool = same_world and _revision==world.geometry_revision
 	if current and (requested_floor==0 or _derived_floors.has(requested_floor)): return
 	var floors: Dictionary = {}
 	if not current:
+		if not same_world: _floor_regions.clear()
 		_world = weakref(world)
 		_revision = world.geometry_revision
-		_regions.clear()
-		_by_cell.clear()
-		_by_facility.clear()
-		_derived_floors.clear()
 		_wait_geometry = {}
 		_geometry_fits.clear()
 		_entry_geometry.clear()
@@ -285,11 +284,11 @@ func _ensure(world: WorldState, requested_floor: int = 0) -> void:
 	if requested_floor>0: floors[requested_floor] = true
 	var layouts: Dictionary = {}
 	for floor_id: int in floors:
-		if _derived_floors.has(floor_id): continue
+		if current and _derived_floors.has(floor_id): continue
 		var layout: Dictionary = HospitalSpace.floor_layout(world,floor_id)
 		if not layout.plots.is_empty(): layouts[floor_id] = layout
-	# The two consumers of a facility use the same current adaptation. These
-	# views last only for this synchronous build, never across world changes.
+	# Capture the actual adaptation once. Only the exact region inputs persist;
+	# unrelated revisions do not rebuild every floor's connected components.
 	var rooms: Dictionary = {}
 	for id: String in world.ids("rooms"):
 		var room: Dictionary = world.facts.rooms[id]
@@ -298,80 +297,123 @@ func _ensure(world: WorldState, requested_floor: int = 0) -> void:
 	for id: String in world.ids("facilities"):
 		var facility: Dictionary = world.facts.facilities[id]
 		if not layouts.has(int(facility.floor_id)) or facility.get("stored",false): continue
-		facilities.get_or_add(int(facility.floor_id),[]).append({"id":id,"layout":space.facility_layout(world,id),"blocks":space.content.facility_definition(facility.definition_id).get("blocks_movement",true)})
+		facilities.get_or_add(int(facility.floor_id),[]).append({"id":id,"definition":str(facility.definition_id),"layout":space.facility_layout(world,id),"blocks":space.content.facility_definition(facility.definition_id).get("blocks_movement",true)})
+	var next_floors: Dictionary = {} if not current else _floor_regions.duplicate()
 	for floor_id: int in floors:
 		if not layouts.has(floor_id): continue
-		_derived_floors[floor_id] = true
-		_wait_geometry = {}
-		var zones: Dictionary = {}
-		for plot: Array in layouts[floor_id].plots:
-			for y: int in range(int(plot[1])*32,(int(plot[1])+1)*32):
-				for x: int in range(int(plot[0])*32,(int(plot[0])+1)*32): zones[Vector2i(x,y)] = ""
-		for room: Dictionary in rooms.get(floor_id,[]):
-			for cell: Array in BuildGeometry.cells(room): zones[Vector2i(int(cell[0]),int(cell[1]))] = str(room.id)
-		var free: Dictionary = zones.duplicate()
-		for cell: Array in layouts[floor_id].get("blocked",[]): free.erase(Vector2i(int(cell[0]),int(cell[1])))
-		var blocking: Array = []
-		for facility: Dictionary in facilities.get(floor_id,[]):
-			if facility.blocks: blocking.append(facility.layout)
+		var floor_rooms: Array = rooms.get(floor_id,[])
+		var floor_facilities: Array = facilities.get(floor_id,[])
+		var connectors: Array = []
 		for connector: Dictionary in world.facts.connectors.values():
-			if HospitalTransit.has_stop(connector,floor_id) and not connector.get("stored",false): blocking.append(connector)
-		for layout: Dictionary in blocking:
-			for y: int in range(int(layout.cell[1]),int(layout.cell[1])+int(layout.footprint[1])):
-				for x: int in range(int(layout.cell[0]),int(layout.cell[0])+int(layout.footprint[0])): free.erase(Vector2i(x,y))
-		# Row-major IDs use the engine's integer sort while retaining the same
-		# y/x anchors and the original per-component traversal order.
-		var packed: PackedInt32Array = PackedInt32Array()
-		packed.resize(free.size())
-		var compact: bool = true
-		var number: int = 0
-		for point: Vector2i in free:
-			if point.x<0 or point.y<0 or point.x>=ENTRY_GRID_WIDTH or point.y>=ENTRY_GRID_WIDTH:
-				compact = false
-				break
-			packed[number] = point.y*ENTRY_GRID_WIDTH+point.x
-			number += 1
-		var ordered: Array = []
-		if compact:
-			packed.sort()
+			if HospitalTransit.has_stop(connector,floor_id) and not connector.get("stored",false): connectors.append(connector)
+		var basis: Array = _region_basis(layouts[floor_id],floor_rooms,floor_facilities,connectors)
+		var retained: Dictionary = _floor_regions.get(floor_id,{})
+		if not retained.is_empty() and retained.basis==basis:
+			next_floors[floor_id] = retained
+			space.query_counts["public_region_floor_hits"] = int(space.query_counts.get("public_region_floor_hits",0))+1
 		else:
-			# Keep the original ordering outside the bounded integer encoding.
-			ordered = free.keys()
-			ordered.sort_custom(func(a: Vector2i,b: Vector2i)->bool: return a.y<b.y or a.y==b.y and a.x<b.x)
-		var seen: Dictionary = {}
-		for index: int in free.size():
-			var start: Vector2i = Vector2i(packed[index]%ENTRY_GRID_WIDTH,packed[index]/ENTRY_GRID_WIDTH) if compact else ordered[index]
-			if seen.has(start): continue
-			var cells: Dictionary = {start:true}
-			var bounds: Rect2i = Rect2i(start,Vector2i.ONE)
-			var pending: Array[Vector2i] = [start]
-			seen[start] = true
-			var cursor: int = 0
-			while cursor<pending.size():
-				var point: Vector2i = pending[cursor]
-				cursor += 1
-				for direction: Vector2i in BuildGeometry.DIRECTIONS:
-					var next: Vector2i = point+direction
-					if seen.has(next) or not free.has(next) or zones[next]!=zones[start]: continue
-					seen[next] = true
-					cells[next] = true
-					bounds = bounds.merge(Rect2i(next,Vector2i.ONE))
-					pending.append(next)
-			var geometry: String = JSON.stringify(pending,"",true,true).sha256_text()
-			var region: Dictionary = {"ref":{"floor_id":floor_id,"room_id":zones[start],"anchor":[start.x,start.y]},"cells":cells,"facilities":[],"facility_definitions":{},"bounds":bounds,"geometry":geometry}
-			_regions.append(region)
-			for point: Vector2i in cells: _by_cell[_key(floor_id,point)] = region
-		for facility: Dictionary in facilities.get(floor_id,[]):
-			var layout: Dictionary = facility.layout
-			var point: Vector2i = Vector2i(int(layout.patient_cell[0]),int(layout.patient_cell[1]))
-			var region: Dictionary = _by_cell.get(_key(floor_id,point),{})
-			if not region.is_empty():
-				var definition: String = str(world.facts.facilities[facility.id].definition_id)
-				var positions: PackedInt32Array = region.facility_definitions.get(definition,PackedInt32Array())
-				positions.append(region.facilities.size())
-				region.facility_definitions[definition] = positions
-				region.facilities.append(facility.id)
-				_by_facility[facility.id] = region
+			var derived: Dictionary = _derive_floor(floor_id,layouts[floor_id],floor_rooms,floor_facilities,connectors)
+			derived.basis = basis.duplicate(true)
+			next_floors[floor_id] = derived
+			space.query_counts["public_region_floor_builds"] = int(space.query_counts.get("public_region_floor_builds",0))+1
+	_floor_regions = next_floors
+	# Reattach in the same floor/component/cell/facility order as a cold build.
+	# Unchanged dictionaries remain the sole owners of their lazily derived views.
+	_regions.clear()
+	_by_cell.clear()
+	_by_facility.clear()
+	_derived_floors.clear()
+	for floor_id: int in _floor_regions:
+		var derived: Dictionary = _floor_regions[floor_id]
+		_derived_floors[floor_id] = true
+		_regions.append_array(derived.regions)
+		_by_cell.merge(derived.by_cell)
+		_by_facility.merge(derived.by_facility)
+	_wait_geometry = {}
+
+func _region_basis(layout: Dictionary, rooms: Array, facilities: Array, connectors: Array) -> Array:
+	var room_shapes: Array = []
+	for room: Dictionary in rooms:
+		room_shapes.append([room.id,room.origin,room.size,room.get("cells")])
+	var facility_shapes: Array = []
+	for facility: Dictionary in facilities:
+		var actual: Dictionary = facility.layout
+		facility_shapes.append([facility.id,facility.definition,facility.blocks,actual.cell,actual.footprint,actual.patient_cell])
+	var connector_shapes: Array = []
+	for connector: Dictionary in connectors: connector_shapes.append([connector.cell,connector.footprint])
+	return [layout.plots,layout.get("blocked",[]),room_shapes,facility_shapes,connector_shapes]
+
+func _derive_floor(floor_id: int, layout: Dictionary, rooms: Array, facilities: Array, connectors: Array) -> Dictionary:
+	var result: Dictionary = {"regions":[],"by_cell":{},"by_facility":{}}
+	var zones: Dictionary = {}
+	for plot: Array in layout.plots:
+		for y: int in range(int(plot[1])*32,(int(plot[1])+1)*32):
+			for x: int in range(int(plot[0])*32,(int(plot[0])+1)*32): zones[Vector2i(x,y)] = ""
+	for room: Dictionary in rooms:
+		for cell: Array in BuildGeometry.cells(room): zones[Vector2i(int(cell[0]),int(cell[1]))] = str(room.id)
+	var free: Dictionary = zones.duplicate()
+	for cell: Array in layout.get("blocked",[]): free.erase(Vector2i(int(cell[0]),int(cell[1])))
+	var blocking: Array = []
+	for facility: Dictionary in facilities:
+		if facility.blocks: blocking.append(facility.layout)
+	blocking.append_array(connectors)
+	for obstacle: Dictionary in blocking:
+		for y: int in range(int(obstacle.cell[1]),int(obstacle.cell[1])+int(obstacle.footprint[1])):
+			for x: int in range(int(obstacle.cell[0]),int(obstacle.cell[0])+int(obstacle.footprint[0])): free.erase(Vector2i(x,y))
+	# Row-major IDs use the engine's integer sort while retaining the same
+	# y/x anchors and the original per-component traversal order.
+	var packed: PackedInt32Array = PackedInt32Array()
+	packed.resize(free.size())
+	var compact: bool = true
+	var number: int = 0
+	for point: Vector2i in free:
+		if point.x<0 or point.y<0 or point.x>=ENTRY_GRID_WIDTH or point.y>=ENTRY_GRID_WIDTH:
+			compact = false
+			break
+		packed[number] = point.y*ENTRY_GRID_WIDTH+point.x
+		number += 1
+	var ordered: Array = []
+	if compact:
+		packed.sort()
+	else:
+		# Keep the original ordering outside the bounded integer encoding.
+		ordered = free.keys()
+		ordered.sort_custom(func(a: Vector2i,b: Vector2i)->bool: return a.y<b.y or a.y==b.y and a.x<b.x)
+	var seen: Dictionary = {}
+	for index: int in free.size():
+		var start: Vector2i = Vector2i(packed[index]%ENTRY_GRID_WIDTH,packed[index]/ENTRY_GRID_WIDTH) if compact else ordered[index]
+		if seen.has(start): continue
+		var cells: Dictionary = {start:true}
+		var bounds: Rect2i = Rect2i(start,Vector2i.ONE)
+		var pending: Array[Vector2i] = [start]
+		seen[start] = true
+		var cursor: int = 0
+		while cursor<pending.size():
+			var point: Vector2i = pending[cursor]
+			cursor += 1
+			for direction: Vector2i in BuildGeometry.DIRECTIONS:
+				var next: Vector2i = point+direction
+				if seen.has(next) or not free.has(next) or zones[next]!=zones[start]: continue
+				seen[next] = true
+				cells[next] = true
+				bounds = bounds.merge(Rect2i(next,Vector2i.ONE))
+				pending.append(next)
+		var geometry: String = JSON.stringify(pending,"",true,true).sha256_text()
+		var region: Dictionary = {"ref":{"floor_id":floor_id,"room_id":zones[start],"anchor":[start.x,start.y]},"cells":cells,"facilities":[],"facility_definitions":{},"bounds":bounds,"geometry":geometry}
+		result.regions.append(region)
+		for point: Vector2i in cells: result.by_cell[_key(floor_id,point)] = region
+	for facility: Dictionary in facilities:
+		var actual: Dictionary = facility.layout
+		var point: Vector2i = Vector2i(int(actual.patient_cell[0]),int(actual.patient_cell[1]))
+		var region: Dictionary = result.by_cell.get(_key(floor_id,point),{})
+		if not region.is_empty():
+			var definition: String = facility.definition
+			var positions: PackedInt32Array = region.facility_definitions.get(definition,PackedInt32Array())
+			positions.append(region.facilities.size())
+			region.facility_definitions[definition] = positions
+			region.facilities.append(facility.id)
+			result.by_facility[facility.id] = region
+	return result
 
 static func _key(floor_id: int, point: Vector2i) -> String:
 	return str(floor_id)+":"+str(point.x)+":"+str(point.y)

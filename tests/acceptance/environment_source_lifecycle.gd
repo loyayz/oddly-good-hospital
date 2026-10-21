@@ -108,4 +108,8 @@ func run(database: HospitalContent) -> Dictionary:
 	direct.e._nearby_actors(direct.world,1,[44,80])
 	checks.direct_nearby_consumers_prepare_people_once = _counts(direct)==[1,1,1]
 	direct.e.end_query()
-	return {"ok":not checks.values().has(false),"details":{"checks":checks,"final_source_counts":_counts(x),"water_available":available.actual.water,"water_occupied":occupied.actual.water}}
+	var result: Dictionary = {"ok":not checks.values().has(false),"details":{"checks":checks,"final_source_counts":_counts(x),"water_available":available.actual.water,"water_occupied":occupied.actual.water}}
+	# _bind already gives waiting_life its environment. This test's reverse
+	# water-availability link must be released just like Simulation.dispose.
+	service.waiting_life = null
+	return result

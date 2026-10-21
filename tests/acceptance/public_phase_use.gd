@@ -389,6 +389,7 @@ func _case_75(t) -> void:
 	var ordering: Dictionary = _entry_order_reuse()
 	var prepared: Dictionary = preload("res://tests/acceptance/public_entry_order_reuse.gd").new().run_case(self)
 	var regions: Dictionary = preload("res://tests/acceptance/public_region_build.gd").new().run_case(_content)
+	var lifecycle: Dictionary = preload("res://tests/acceptance/public_region_lifecycle.gd").new().run_case(_content)
 	var observations: Array = []
 	for variant: String in ["ordinary","fractional","nearest_body_occupied","only_far_point_free"]:
 		var x: Dictionary = _areas()
@@ -428,7 +429,7 @@ func _case_75(t) -> void:
 		var far_retained: bool = retained_far.is_empty() or expected.rows.size()==1 and actual.get("cell",[])==retained_far and original.rows.size()>32
 		var readonly: bool = before==x.world.freeze()
 		observations.append({"variant":variant,"ok":validation.is_empty() and original.readonly and expected.readonly and same and blocked_rejected and stable_tie_exercised and far_retained and readonly,"validation":validation,"literal_rectangle_cells":120,"original_safe_complete_candidates":original.rows.size(),"current_safe_complete_candidates":expected.rows.size(),"minimum_cost_ties":expected.cost_ties,"minimum_cost_and_lower_ties":expected.order_ties,"expected":_entry_result(expected.best,1),"actual":actual,"same_point_cost_and_stable_order":same,"occupied_nearest_rejected":blocked_rejected,"stable_tie_exercised":stable_tie_exercised,"far_unique_candidate_retained":far_retained,"readonly":readonly,"route_queries":route_queries,"waiting_point_us":elapsed})
-	t.check("STAFF-75",prepared.ok and large_estimate.ok and scan_batch.ok and ordering.ok and regions.ok and observations.all(func(row: Dictionary)->bool: return row.ok),{"complete_entry_boundaries":observations,"large_finite_estimate":large_estimate,"physical_index_scan_batch":scan_batch,"shared_entry_order":ordering,"prepared_entry_order":prepared,"complete_region_build":regions})
+	t.check("STAFF-75",prepared.ok and large_estimate.ok and scan_batch.ok and ordering.ok and regions.ok and lifecycle.ok and observations.all(func(row: Dictionary)->bool: return row.ok),{"complete_entry_boundaries":observations,"large_finite_estimate":large_estimate,"physical_index_scan_batch":scan_batch,"shared_entry_order":ordering,"prepared_entry_order":prepared,"complete_region_build":regions,"region_lifecycle":lifecycle})
 
 func _entry_order_reuse() -> Dictionary:
 	var x: Dictionary = _areas()

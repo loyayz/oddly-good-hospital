@@ -17,25 +17,47 @@ func _route_result(world: WorldState, actor_id: String, floor_id: int, target: A
 	var actor: Dictionary = world.facts.actors[actor_id]
 	if actor.location.kind!="floor": return {"ok":false,"status":"unavailable","reason":"角色正在竖向通行或院外"}
 	_observe_floor(world,actor_id,int(actor.location.floor_id))
-	var start: Vector2i = Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
-	var goal: Vector2i = Vector2i(int(target[0]),int(target[1]))
-	var actual: Vector2 = Vector2(float(actor.location.cell[0]),float(actor.location.cell[1]))
-	var stub: float = actual.distance_to(Vector2(start))
-	if stub>0.0:
-		var query: RouteClearance = structural_clearance(world,actor,int(actor.location.floor_id),members,offsets)
-		var reason: String = query.sweep_reason(actual,Vector2(start))
-		if not reason.is_empty(): return {"ok":false,"status":"unreachable","reason":reason}
-	var journeys: Dictionary = space.read_view(world,"point_journeys",func()->Dictionary:return {})
-	var key: String = JSON.stringify([actor.id,actor.location.floor_id,actor.location.cell,floor_id,target,_route_envelope(world,actor,members,offsets),distance_only],"",true,true)
+	var owner: Dictionary = space.read_view(world,"point_journeys",func()->Dictionary:return {})
+	var subject: Dictionary
+	var journeys: Dictionary
+	var key: String
+	var single: bool = members.is_empty() and offsets.is_empty()
+	if single:
+		# Source position, body and facing are fixed throughout this existing
+		# sealed read-only scope. Different goals share that source proof only.
+		# Without a scope, read_view returns a new disposable owner each time.
+		var subjects: Dictionary = owner.get_or_add("subjects",{})
+		if not subjects.has(actor_id): subjects[actor_id] = _prepare_route_subject(world,actor,[],{})
+		subject = subjects[actor_id]
+		journeys = subject.get_or_add("journeys",{})
+	else:
+		# Formations retain their complete original key and source acquisition.
+		subject = _prepare_route_subject(world,actor,members,offsets)
+		journeys = owner.get_or_add("groups",{})
+	if not str(subject.reason).is_empty(): return {"ok":false,"status":"unreachable","reason":subject.reason}
+	key = JSON.stringify([floor_id,target,distance_only],"",true,true) if single else JSON.stringify([actor.id,actor.location.floor_id,actor.location.cell,floor_id,target,_route_envelope(world,actor,members,offsets),distance_only],"",true,true)
 	if journeys.has(key):
 		space.query_counts.journey_hits += 1
 		return journeys[key].duplicate(true)
-	var result: Dictionary = _point_route(world,actor,int(actor.location.floor_id),start,floor_id,goal,members,offsets,HospitalTransit.walking_ticks(space,actor,members,stub),distance_only)
+	var start: Vector2i = subject.start
+	var stub: float = float(subject.stub)
+	var goal: Vector2i = Vector2i(int(target[0]),int(target[1]))
+	var result: Dictionary = _point_route(world,actor,int(subject.floor_id),start,floor_id,goal,members,offsets,int(subject.initial_ticks),distance_only)
 	if result.ok and stub>0.0:
 		if not distance_only: result.path.push_front({"kind":"floor","floor_id":int(actor.location.floor_id),"cell":[start.x,start.y]})
 		result.walking_distance += stub
 	journeys[key] = result.duplicate(true)
 	return result
+
+func _prepare_route_subject(world: WorldState, actor: Dictionary, members: Array, offsets: Dictionary) -> Dictionary:
+	var start: Vector2i = Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
+	var actual: Vector2 = Vector2(float(actor.location.cell[0]),float(actor.location.cell[1]))
+	var stub: float = actual.distance_to(Vector2(start))
+	var reason: String = ""
+	if stub>0.0:
+		var query: RouteClearance = structural_clearance(world,actor,int(actor.location.floor_id),members,offsets)
+		reason = query.sweep_reason(actual,Vector2(start))
+	return {"floor_id":int(actor.location.floor_id),"start":start,"stub":stub,"reason":reason,"initial_ticks":HospitalTransit.walking_ticks(space,actor,members,stub) if reason.is_empty() else 0}
 
 func travel_quote(world: WorldState, actor_id: String, floor_id: int, target: Array) -> Dictionary:
 	return _route_result(world,actor_id,floor_id,target,[],{},true,true)

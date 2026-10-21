@@ -138,7 +138,16 @@ func run_case(database: HospitalContent) -> Dictionary:
 	var ok: bool = true
 	for passed: bool in checks.values(): ok = ok and passed
 	for observation: Dictionary in observations: ok = ok and observation.ok
-	return {"ok":ok,"validation":validation,"expanded_validation":expanded_validation,"checks":checks,"cold_facility_layout_calls":{"optimized":cold_calls,"reference":reference_cold_calls},"observations":observations,"scope":"Complete derived region compatibility; no gameplay movement or arrival is simulated by this calculation fixture."}
+	var result: Dictionary = {"ok":ok,"validation":validation,"expanded_validation":expanded_validation,"checks":checks,"cold_facility_layout_calls":{"optimized":cold_calls,"reference":reference_cold_calls},"observations":observations,"scope":"Complete derived region compatibility; no gameplay movement or arrival is simulated by this calculation fixture."}
+	x.a.dispose()
+	x.p.waiting_life = null
+	x.p.environment = null
+	x.e.waiting_life = null
+	x.l.environment = null
+	x.l.visitors = null
+	x.c.recruitment = null
+	x.clear()
+	return result
 
 func _build_fixture() -> Dictionary:
 	var x: Dictionary = _areas()

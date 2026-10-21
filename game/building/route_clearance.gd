@@ -168,6 +168,9 @@ func reason(origin: Vector2i) -> String:
 				for region: Rect2 in reservation.regions:
 					if region.has_point(point):
 						return "真实展开与岗位预约阻挡："+str(reservation.id)
+	# An integer unit rectangle contains no indexed integer wall line. Body,
+	# ceiling, floor, fixture, reservation and member checks already ran above.
+	if _indexed_static and _size==1: return ""
 	return _wall_reason(Rect2(Vector2(origin),Vector2.ONE*_size))
 
 func edge_reason(from: Vector2i, to: Vector2i) -> String:
@@ -175,6 +178,20 @@ func edge_reason(from: Vector2i, to: Vector2i) -> String:
 		var reason: String = member.query.sweep_reason(Vector2(from)+member.offset,Vector2(to)+member.offset)
 		if not reason.is_empty():
 			return reason
+	# A unit body's adjacent grid step crosses exactly one wall direction/line.
+	# Select that original bucket before allocating a sweep rectangle. Larger
+	# bodies and nonadjacent edges retain the complete rectangle calculation.
+	if _indexed_static and _size==1:
+		var walls: Array
+		if from.x==to.x and absi(from.y-to.y)==1:
+			walls = _horizontal_walls.get(maxi(from.y,to.y),[])
+		elif from.y==to.y and absi(from.x-to.x)==1:
+			walls = _vertical_walls.get(maxi(from.x,to.x),[])
+		else:
+			return _wall_reason(Rect2(Vector2(from),Vector2.ONE).merge(Rect2(Vector2(to),Vector2.ONE)))
+		if walls.is_empty(): return ""
+		var rect: Rect2 = Rect2(Vector2(from.min(to)),Vector2(1,2) if from.x==to.x else Vector2(2,1))
+		return _walls_reason(rect,walls)
 	return _wall_reason(Rect2(Vector2(from),Vector2.ONE*_size).merge(Rect2(Vector2(to),Vector2.ONE*_size)))
 
 func position_reason(origin: Vector2) -> String:

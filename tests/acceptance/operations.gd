@@ -516,6 +516,7 @@ func _case_10() -> Dictionary:
 	return _result(first and not again.accepted and before==restored.w.freeze() and not no_request.accepted and none.w.facts.inventory.aid_orders==0,{"order":order,"initial_reason":buy.reason,"repeat_reason":again.reason,"no_request":no_request.reason})
 
 func _case_11() -> Dictionary:
+	var intersections: Dictionary = preload("res://tests/acceptance/environment_source_intersection.gd").new().run(_content)
 	var f: Dictionary = _new("真实环境来源")
 	var clean: Dictionary = f.s.services.environment.environment_at(f.w,1,[44,80])
 	_place(f,"ops11_plant_a","FUR25",[42,79])
@@ -538,7 +539,7 @@ func _case_11() -> Dictionary:
 	var upgraded_range: Dictionary = ranges.s.services.environment.environment_at(ranges.w,1,[44,85])
 	var exact_ranges: bool = brief==expected_brief and not far_dirt.is_empty() and ranges.w.facts.environment.dirt[far_dirt].cell==[43,81] and original_range.value==43 and upgraded_range.value==49 and upgraded_range.dirt==0 and upgraded_range.clean and before==ranges.w.freeze()
 	exact_ranges = exact_ranges and _sampling_matches(f,[[44,80],[44.25,80.0]]) and _sampling_matches(ranges,[[44,85]])
-	return _result(exact_ranges and f.errors.is_empty() and ranges.errors.is_empty() and clean.value==43 and once.value==49 and twice.value==49 and ids.size()==4 and not "" in ids and dirty.dirt==4 and not dirty.clean and dirty.value==25 and int(twice.value)-int(dirty.value)==24,{"base":clean,"one_category":once,"duplicate_category":twice,"dirty":dirty,"original_range":original_range,"upgraded_range":upgraded_range,"exact_ranges":exact_ranges,"errors":f.errors})
+	return _result(intersections.ok and exact_ranges and f.errors.is_empty() and ranges.errors.is_empty() and clean.value==43 and once.value==49 and twice.value==49 and ids.size()==4 and not "" in ids and dirty.dirt==4 and not dirty.clean and dirty.value==25 and int(twice.value)-int(dirty.value)==24,{"source_intersection":intersections,"base":clean,"one_category":once,"duplicate_category":twice,"dirty":dirty,"original_range":original_range,"upgraded_range":upgraded_range,"exact_ranges":exact_ranges,"errors":f.errors})
 
 func _case_12() -> Dictionary:
 	var f: Dictionary = _new("暂停付费装修")

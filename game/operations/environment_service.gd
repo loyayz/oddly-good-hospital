@@ -114,20 +114,31 @@ func _index_noise(world: WorldState, kind: String, facility: Dictionary) -> void
 	for x: int in range(int(facility.cell[0]),int(facility.cell[0])+int(layout.footprint[0])):
 		for y: int in range(int(facility.cell[1]),int(facility.cell[1])+int(layout.footprint[1])): _index_sample(kind,int(facility.floor_id),[x,y],facility)
 
-func _sample_records(kind: String, floor_id: int, coverage: Dictionary) -> Array:
-	_prepare_sample_sources(_query.world)
+func _sample_records(kind: String, floor_id: int, coverage: Dictionary, preserve_order: bool = true) -> Array:
+	if not _query.samples_ready: _prepare_sample_sources(_query.world)
 	var cells: Dictionary = _query.samples[kind].get(floor_id,{})
 	var result: Array = []
 	if cells.is_empty(): return result
-	for key: String in coverage: result.append_array(cells.get(key,[]))
+	# Plain counts and explicit distance/key selection do not consume enumeration
+	# order. Join the smaller source set; explanatory sources retain coverage order.
+	if not preserve_order and cells.size()<coverage.size():
+		for key: String in cells:
+			if coverage.has(key): result.append_array(cells[key])
+	else:
+		for key: String in coverage:
+			if cells.has(key): result.append_array(cells[key])
 	return result
 
 func _has_sample(kind: String, floor_id: int, coverage: Dictionary) -> bool:
-	_prepare_sample_sources(_query.world)
+	if not _query.samples_ready: _prepare_sample_sources(_query.world)
 	var cells: Dictionary = _query.samples[kind].get(floor_id,{})
 	if cells.is_empty(): return false
-	for key: String in coverage:
-		if cells.has(key) and not cells[key].is_empty(): return true
+	if cells.size()<coverage.size():
+		for key: String in cells:
+			if coverage.has(key) and not cells[key].is_empty(): return true
+	else:
+		for key: String in coverage:
+			if cells.has(key) and not cells[key].is_empty(): return true
 	return false
 
 func end_query() -> void:
@@ -753,7 +764,7 @@ func _coverage_edge_key(first: Array, second: Array) -> Vector3i:
 func _coverage_edges(world: WorldState, floor_id: int) -> Dictionary:
 	if _query.get("world")==world and _query.edges.has(floor_id):
 		return _query.edges[floor_id]
-	if _query.get("world")==world: _prepare_facility_sources(world)
+	if _query.get("world")==world and not _query.facilities_ready: _prepare_facility_sources(world)
 	var layout: Dictionary = world.facts.floors.overrides.get(str(floor_id),{})
 	var source: Dictionary = {"floor_id":floor_id,"plots":space.floor_plots(world,floor_id),"blocked":layout.get("blocked",[]),"rooms":[],"doors":[],"screens":[]}
 	for room: Dictionary in world.facts.rooms.values():
@@ -859,7 +870,7 @@ func _coverage(world: WorldState, floor_id: int, origin: Array, radius: int, noi
 
 func _positive_facilities(world: WorldState, floor_id: int, coverage: Dictionary) -> Array:
 	if _query.get("world")!=world: return world.facts.facilities.values()
-	_prepare_facility_sources(world)
+	if not _query.facilities_ready: _prepare_facility_sources(world)
 	var ids: Array = []
 	var cells: Dictionary = _query.facilities.get(floor_id,{})
 	if cells.is_empty(): return []
@@ -899,8 +910,8 @@ func _observe_at(world: WorldState, floor_id: int, cell: Array, actor_id: String
 	var range_cells: int = int(rules.upgraded_range_cells if "R15" in world.facts.research else rules.range_cells)
 	var scoped: bool = _query.get("world")==world
 	if scoped:
-		_prepare_facility_sources(world)
-		_prepare_sample_sources(world)
+		if not _query.facilities_ready: _prepare_facility_sources(world)
+		if not _query.samples_ready: _prepare_sample_sources(world)
 	# Only this read-only scope proves a field has no sources on the floor.
 	var need_positive: bool = not scoped or not _query.facilities.get(floor_id,{}).is_empty() or not _query.samples.walls.get(floor_id,{}).is_empty()
 	var need_dirt: bool = not scoped or not _query.samples.dirt.get(floor_id,{}).is_empty()
@@ -922,7 +933,7 @@ func _observe_at(world: WorldState, floor_id: int, cell: Array, actor_id: String
 	var wall_value: int = 0
 	var wall_distance: int = range_cells+1
 	var wall_key: String = ""
-	for surface: Dictionary in (_sample_records("walls",floor_id,positive) if _query.get("world")==world else surfaces.values()):
+	for surface: Dictionary in (_sample_records("walls",floor_id,positive,false) if _query.get("world")==world else surfaces.values()):
 		if surface.surface!="wall" or int(surface.floor_id)!=floor_id or not positive.has(_cell_key(surface.cell)) or not _wall_edge(world,floor_id,surface.cell,str(surface.edge)):
 			continue
 		var distance: int = int(positive[_cell_key(surface.cell)])
@@ -951,7 +962,7 @@ func _observe_at(world: WorldState, floor_id: int, cell: Array, actor_id: String
 		result.value += int(rules.light_bonus)
 	if result.water:
 		result.value += int(rules.water_bonus)
-	for patch: Dictionary in (_sample_records("dirt",floor_id,negative) if _query.get("world")==world else environment.get("dirt",{}).values()):
+	for patch: Dictionary in (_sample_records("dirt",floor_id,negative,explain) if _query.get("world")==world else environment.get("dirt",{}).values()):
 		if int(patch.floor_id)==floor_id and str(patch.bin_id).is_empty() and negative.has(_cell_key(patch.cell)):
 			result.dirt += 1
 			if explain: result.sources.append({"kind":"dirt","id":patch.id,"value":-int(rules.dirt_per_item)})
