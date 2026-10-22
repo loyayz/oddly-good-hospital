@@ -36,13 +36,14 @@ SpatialBox spatial_box(const V& raw) {
     if (width < 0 || height < 0) throw std::runtime_error("Spatial rectangle has negative size");
     return {{x, y}, {x + width, y + height}};
 }
-enum class SpatialMethod { CLEAR, UPDATE, REMOVE, QUERY };
+enum class SpatialMethod { CLEAR, UPDATE, REMOVE, QUERY, QUERY_MANY };
 struct SpatialMethodInfo { const char* name; SpatialMethod method; std::vector<GDExtensionVariantType> arguments; };
 SpatialMethodInfo spatial_methods[] = {
     {"clear", SpatialMethod::CLEAR, {}},
     {"update", SpatialMethod::UPDATE, {GDEXTENSION_VARIANT_TYPE_STRING, GDEXTENSION_VARIANT_TYPE_INT, GDEXTENSION_VARIANT_TYPE_ARRAY}},
     {"remove", SpatialMethod::REMOVE, {GDEXTENSION_VARIANT_TYPE_STRING}},
-    {"query", SpatialMethod::QUERY, {GDEXTENSION_VARIANT_TYPE_INT, GDEXTENSION_VARIANT_TYPE_ARRAY}}
+    {"query", SpatialMethod::QUERY, {GDEXTENSION_VARIANT_TYPE_INT, GDEXTENSION_VARIANT_TYPE_ARRAY}},
+    {"query_many", SpatialMethod::QUERY_MANY, {GDEXTENSION_VARIANT_TYPE_INT, GDEXTENSION_VARIANT_TYPE_ARRAY}}
 };
 V spatial_invoke(SpatialMethod method, SpatialInstance& instance, const std::vector<V>& args) {
     try {
@@ -55,10 +56,33 @@ V spatial_invoke(SpatialMethod method, SpatialInstance& instance, const std::vec
             instance.floors[floor].insert({box, id}); instance.records.emplace(id, std::make_pair(floor, box));
         } else {
             A ids;
+            std::vector<SpatialBox> rectangles;
+            if (method == SpatialMethod::QUERY_MANY) {
+                A inputs(args[1]);
+                rectangles.reserve(inputs.size());
+                for (int64_t i = 0; i < inputs.size(); ++i) {
+                    V rectangle = inputs.at(i);
+                    if (type(&rectangle.raw) != GDEXTENSION_VARIANT_TYPE_ARRAY)
+                        throw std::runtime_error("Spatial rectangle must be an array");
+                    auto box = spatial_box(rectangle);
+                    if (!std::isfinite(bg::get<bg::max_corner, 0>(box)) || !std::isfinite(bg::get<bg::max_corner, 1>(box)))
+                        throw std::runtime_error("Spatial rectangle endpoint must be finite");
+                    rectangles.push_back(box);
+                }
+            }
             auto floor = instance.floors.find(args[0].number());
             if (floor != instance.floors.end()) {
-                auto predicate = bgi::intersects(spatial_box(args[1]));
-                for (auto it = floor->second.qbegin(predicate); it != floor->second.qend(); ++it) ids.append(V::text(it->second));
+                if (method == SpatialMethod::QUERY) {
+                    auto predicate = bgi::intersects(spatial_box(args[1]));
+                    for (auto it = floor->second.qbegin(predicate); it != floor->second.qend(); ++it) ids.append(V::text(it->second));
+                } else {
+                    std::set<std::string> candidates;
+                    for (const auto& box : rectangles) {
+                        auto predicate = bgi::intersects(box);
+                        for (auto it = floor->second.qbegin(predicate); it != floor->second.qend(); ++it) candidates.insert(it->second);
+                    }
+                    for (const auto& id : candidates) ids.append(V::text(id));
+                }
             }
             output.set("ids", ids.value());
         }
@@ -105,7 +129,8 @@ void spatial_register(GDExtensionInterfaceGetProcAddress api) {
         std::vector<GDExtensionPropertyInfo> args(entry.arguments.size(), output);
         std::vector<Builtin> names(entry.arguments.size());
         std::vector<GDExtensionClassMethodArgumentMetadata> metadata(entry.arguments.size(), GDEXTENSION_METHOD_ARGUMENT_METADATA_NONE);
-        const char* argument_names[] = {entry.method == SpatialMethod::QUERY ? "floor_id" : "id", entry.method == SpatialMethod::QUERY ? "rectangle" : "floor_id", "rectangle"};
+        bool query = entry.method == SpatialMethod::QUERY || entry.method == SpatialMethod::QUERY_MANY;
+        const char* argument_names[] = {query ? "floor_id" : "id", entry.method == SpatialMethod::QUERY_MANY ? "rectangles" : query ? "rectangle" : "floor_id", "rectangle"};
         for (size_t i = 0; i < args.size(); ++i) { new_name(&names[i], argument_names[i]); args[i].name = &names[i]; args[i].type = entry.arguments[i]; }
         GDExtensionClassMethodInfo method{}; method.name = &name; method.method_userdata = &entry;
         method.call_func = spatial_call; method.ptrcall_func = spatial_ptrcall; method.method_flags = GDEXTENSION_METHOD_FLAG_NORMAL;

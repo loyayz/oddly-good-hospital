@@ -182,14 +182,14 @@ func _decision_signature(world: WorldState, intent: Dictionary, definitions: Arr
 			observed_points[point] = true
 			points.append(point)
 	var reach: float = maxf(6.0,float(space.clearance(world.facts.actors[ids[0]]))+1.0)
+	var bounds: Array[Rect2] = []
 	for point: Array in points:
-		var bounds: Rect2 = Rect2(Vector2(float(point[0]),float(point[1])),Vector2.ONE).grow(reach)
-		_add_dynamic_dependencies(world,int(reference.floor_id),bounds,ids,other_ids,reservations)
+		bounds.append(Rect2(Vector2(float(point[0]),float(point[1])),Vector2.ONE).grow(reach))
 	if (intent.public_purpose=="rest" or definitions.is_empty()) and not area.is_empty():
 		# Tea is a real free standing place, including a region with no chairs.
 		# Its availability can change when any body/reservation leaves that area.
-		var bounds: Rect2 = Rect2(area.bounds).grow(float(space.clearance(world.facts.actors[ids[0]]))+1.0)
-		_add_dynamic_dependencies(world,int(reference.floor_id),bounds,ids,other_ids,reservations)
+		bounds.append(Rect2(area.bounds).grow(float(space.clearance(world.facts.actors[ids[0]]))+1.0))
+	if not bounds.is_empty(): _add_dynamic_dependencies(world,int(reference.floor_id),bounds,ids,other_ids,reservations)
 	if route_dependent:
 		# A failed route may recover through a remote floor. Retain the exact
 		# static sources actually searched, plus newly declared routing stops.
@@ -282,11 +282,15 @@ func _environment_sample_indices(samples: Array, indices: Dictionary, floor_id: 
 	ordered.sort()
 	return ordered
 
-func _add_dynamic_dependencies(world: WorldState, floor_id: int, bounds: Rect2, members: Array, actors: Dictionary, reservations: Dictionary) -> void:
-	for id: String in space._actor_index.candidates(floor_id,bounds,members): actors[id] = true
-	for region: Dictionary in space._reservation_regions(world,floor_id,bounds):
+func _add_dynamic_dependencies(world: WorldState, floor_id: int, bounds: Array[Rect2], members: Array, actors: Dictionary, reservations: Dictionary) -> void:
+	if bounds.is_empty(): return
+	for id: String in space._actor_index.candidates_in_regions(floor_id,bounds,members): actors[id] = true
+	for region: Dictionary in space._reservation_regions_many(world,floor_id,bounds):
+		if reservations.has(region.reservation_id): continue
 		var reservation: Dictionary = region.reservation
 		reservations[region.reservation_id] = [region.reservation_id,reservation.get("actor_id",""),reservation.get("staff_ids",[]),reservation.get("regions",[])]
+	space.query_counts["public_wait_dependency_batches"] = int(space.query_counts.get("public_wait_dependency_batches",0))+1
+	space.query_counts["public_wait_dependency_rectangles"] = int(space.query_counts.get("public_wait_dependency_rectangles",0))+bounds.size()
 
 func facility_changed(before: Dictionary, after: Dictionary) -> void:
 	if before.get("footprint")!=after.get("footprint") or before.get("patient_cell")!=after.get("patient_cell") or before.get("operator_cells")!=after.get("operator_cells") or before.get("repair_cell")!=after.get("repair_cell"):

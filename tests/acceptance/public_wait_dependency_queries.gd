@@ -3,10 +3,12 @@ extends RefCounted
 # Observe only real spatial unions; the original query still reads current facts.
 class ProbeAreas extends HospitalPublicAreas:
 	var queries: int = 0
+	var batches: int = 0
 	var rectangles: Array = []
-	func _add_dynamic_dependencies(world: WorldState, floor_id: int, bounds: Rect2, members: Array, actors: Dictionary, reservations: Dictionary) -> void:
-		queries += 1
-		rectangles.append(bounds)
+	func _add_dynamic_dependencies(world: WorldState, floor_id: int, bounds: Array[Rect2], members: Array, actors: Dictionary, reservations: Dictionary) -> void:
+		queries += bounds.size()
+		batches += 1 if not bounds.is_empty() else 0
+		rectangles.append_array(bounds)
 		super._add_dynamic_dependencies(world,floor_id,bounds,members,actors,reservations)
 
 # Frozen fa9898b complete signature: original full facility enumeration and
@@ -14,10 +16,13 @@ class ProbeAreas extends HospitalPublicAreas:
 class ReferenceAreas extends HospitalPublicAreas:
 	var queries: int = 0
 	var rectangles: Array = []
-	func _add_dynamic_dependencies(world: WorldState, floor_id: int, bounds: Rect2, members: Array, actors: Dictionary, reservations: Dictionary) -> void:
+	func _original_dynamic_dependencies(world: WorldState, floor_id: int, bounds: Rect2, members: Array, actors: Dictionary, reservations: Dictionary) -> void:
 		queries += 1
 		rectangles.append(bounds)
-		super._add_dynamic_dependencies(world,floor_id,bounds,members,actors,reservations)
+		for id: String in space._actor_index.candidates(floor_id,bounds,members): actors[id] = true
+		for region: Dictionary in space._reservation_regions(world,floor_id,bounds):
+			var reservation: Dictionary = region.reservation
+			reservations[region.reservation_id] = [region.reservation_id,reservation.get("actor_id",""),reservation.get("staff_ids",[]),reservation.get("regions",[])]
 	func _decision_signature(world: WorldState, intent: Dictionary, definitions: Array, members: Array, extra: Dictionary, route_floors: Array = []) -> Array:
 		var view: Dictionary = _decision_view(world)
 		var ids: Array = [str(intent.actor_id)] if members.is_empty() else members
@@ -53,12 +58,12 @@ class ReferenceAreas extends HospitalPublicAreas:
 				points.append(point)
 				var reach: float = maxf(6.0,float(space.clearance(world.facts.actors[ids[0]]))+1.0)
 				var bounds: Rect2 = Rect2(Vector2(float(point[0]),float(point[1])),Vector2.ONE).grow(reach)
-				_add_dynamic_dependencies(world,int(reference.floor_id),bounds,ids,other_ids,reservations)
+				_original_dynamic_dependencies(world,int(reference.floor_id),bounds,ids,other_ids,reservations)
 		if (intent.public_purpose=="rest" or definitions.is_empty()) and not area.is_empty():
 			# Tea is a real free standing place, including a region with no chairs.
 			# Its availability can change when any body/reservation leaves that area.
 			var bounds: Rect2 = Rect2(area.bounds).grow(float(space.clearance(world.facts.actors[ids[0]]))+1.0)
-			_add_dynamic_dependencies(world,int(reference.floor_id),bounds,ids,other_ids,reservations)
+			_original_dynamic_dependencies(world,int(reference.floor_id),bounds,ids,other_ids,reservations)
 		if route_dependent:
 			# A failed route may recover through a remote floor. Retain the exact
 			# static sources actually searched, plus newly declared routing stops.
@@ -89,6 +94,7 @@ class ReferenceAreas extends HospitalPublicAreas:
 		return records
 
 func run_case(suite: RefCounted) -> Dictionary:
+	var spatial: Dictionary = preload("res://tests/acceptance/public_wait_dependency_regions.gd").new().run_case()
 	var x: Dictionary = suite._areas()
 	# Built footprints are disjoint. The second chair's repair place equals the
 	# first patient's place; the third shares two other real work-place points.
@@ -152,7 +158,11 @@ func run_case(suite: RefCounted) -> Dictionary:
 	rows.append(_row("empty_definitions_keep_area_bounds",_observe(x,intent,[],[])))
 	rows.append(_row("different_current_members",_observe(x,intent,definitions,[x.subject.actor_id,x.peer.actor_id])))
 	rows.append(_row("duplicate_and_unknown_definitions",_observe(x,intent,["FUR09","FUR09","unknown"],[])))
-	var result: Dictionary = {"ok":not checks.values().has(false) and rows.all(func(row: Dictionary)->bool:return row.ok),"checks":checks,"observations":rows,"reservation":reservation,"scope":"Current dependency calculations only; complete real waiting, release, movement and use remain the existing STAFF-69 through STAFF-72 cases."}
+	var empty_reference: Dictionary = intent.duplicate(true)
+	empty_reference.public_purpose = "seat"
+	empty_reference.area = {}
+	rows.append(_row("empty_reference_has_no_dynamic_bounds",_observe(x,empty_reference,definitions,[])))
+	var result: Dictionary = {"ok":spatial.ok and not checks.values().has(false) and rows.all(func(row: Dictionary)->bool:return row.ok),"spatial_union":spatial,"checks":checks,"observations":rows,"reservation":reservation,"scope":"Current dependency calculations only; complete real waiting, release, movement and use remain the existing STAFF-69 through STAFF-72 cases."}
 	x.a.dispose()
 	x.p.waiting_life = null
 	x.p.environment = null
@@ -170,6 +180,7 @@ func _changed(x: Dictionary) -> void:
 func _observe(x: Dictionary, intent: Dictionary, definitions: Array, members: Array) -> Dictionary:
 	var before: Dictionary = x.world.freeze()
 	x.probe.queries = 0
+	x.probe.batches = 0
 	x.probe.rectangles.clear()
 	x.reference.queries = 0
 	x.reference.rectangles.clear()
@@ -182,7 +193,10 @@ func _observe(x: Dictionary, intent: Dictionary, definitions: Array, members: Ar
 		var rectangle: Rect2 = x.reference.rectangles[index]
 		if not rectangle in unique_points: unique_points.append(rectangle)
 	var expected_queries: int = unique_points.size()+(1 if area_query else 0)
-	return {"ok":actual==expected and x.probe.queries==expected_queries and before==x.world.freeze(),"signature":actual.duplicate(true),"full_original_signature_equal":actual==expected,"actual_queries":x.probe.queries,"reference_queries":x.reference.queries,"unique_point_queries":unique_points.size(),"separate_area_query":area_query,"expected_queries":expected_queries,"facts_and_rng_unchanged":before==x.world.freeze()}
+	var expected_rectangles: Array = unique_points.duplicate()
+	if area_query: expected_rectangles.append(x.reference.rectangles.back())
+	var complete_bounds: bool = x.probe.rectangles==expected_rectangles
+	return {"ok":actual==expected and complete_bounds and x.probe.queries==expected_queries and x.probe.batches==(1 if expected_queries>0 else 0) and before==x.world.freeze(),"signature":actual.duplicate(true),"full_original_signature_equal":actual==expected,"complete_original_bounds_preserved":complete_bounds,"actual_queries":x.probe.queries,"batch_calls":x.probe.batches,"reference_queries":x.reference.queries,"unique_point_queries":unique_points.size(),"separate_area_query":area_query,"expected_queries":expected_queries,"facts_and_rng_unchanged":before==x.world.freeze()}
 
 func _row(label: String, observed: Dictionary) -> Dictionary:
 	var result: Dictionary = observed.duplicate()

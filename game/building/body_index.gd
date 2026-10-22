@@ -67,6 +67,23 @@ func candidates(floor_id: int, rect: Rect2, ignored_ids: Array = []) -> Array[St
 	result.sort()
 	return result
 
+func candidates_in_regions(floor_id: int, regions: Array[Rect2], ignored_ids: Array = []) -> Array[String]:
+	var result: Array[String] = []
+	if regions.is_empty(): return result
+	var rectangles: Array = []
+	for rect: Rect2 in regions: rectangles.append([rect.position.x,rect.position.y,rect.size.x,rect.size.y])
+	# Boost queries every original box; the standard-library set only removes
+	# repeated broadphase identities. Exact engine geometry still decides below.
+	for id: String in _tree.query_many(floor_id,rectangles).ids:
+		var record: Record = _records[id]
+		if record.boundary!=_boundary or id in ignored_ids: continue
+		for rect: Rect2 in regions:
+			if rect.intersects(record.rect,false):
+				result.append(id)
+				break
+	result.sort()
+	return result
+
 func _query(floor_id: int, rect: Rect2) -> Array:
 	return _tree.query(floor_id,[rect.position.x,rect.position.y,rect.size.x,rect.size.y]).ids
 

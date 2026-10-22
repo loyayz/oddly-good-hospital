@@ -471,6 +471,14 @@ func _reservation_regions(world: WorldState, floor_id: int, rect: Rect2) -> Arra
 	for key: String in view.index.candidates(floor_id,rect): regions.append(view.regions[key])
 	return regions
 
+func _reservation_regions_many(world: WorldState, floor_id: int, bounds: Array[Rect2]) -> Array:
+	if bounds.is_empty() or world.facts.adaptations.is_empty(): return []
+	query_counts.reservation_candidate_queries += 1
+	var view: Dictionary = reservation_view(world)
+	var regions: Array = []
+	for key: String in view.index.candidates_in_regions(floor_id,bounds): regions.append(view.regions[key])
+	return regions
+
 func _dynamic_clear(world: WorldState, actor_id: String, floor_id: int, rect: Rect2, members: Array = []) -> bool:
 	_ensure_actor_index(world)
 	for region: Dictionary in _reservation_regions(world,floor_id,rect):
