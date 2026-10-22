@@ -1376,7 +1376,8 @@ func _case_75(t) -> void:
 	department.ensure(ctx.world)
 	ctx.world.facts.departments.experience[visit.id].next_anger_tick = ctx.world.sim_tick
 	department.sample(ctx.world)
-	t.check("GROW-75",correct and filtered and intersections and sampling and positive_only and empty_sources and readonly and environment.calls==1 and environment.sample_calls==1 and environment.nearby_queries==0 and environment._query.is_empty(),{"classification_equal":correct,"filtered_sources":filtered,"intersections":intersections,"sampling_equal":sampling,"positive_coverage_only":positive_only,"empty_sources":empty_sources,"readonly":readonly,"environment_calls":environment.calls,"sample_calls":environment.sample_calls,"nearby_queries":environment.nearby_queries,"scope_balanced":environment._query.is_empty()})
+	var worker_checks: Dictionary = preload("res://tests/acceptance/worker_sample_checks.gd").new().run(self,_content)
+	t.check("GROW-75",worker_checks.ok and correct and filtered and intersections and sampling and positive_only and empty_sources and readonly and environment.calls==1 and environment.sample_calls==1 and environment.nearby_queries==0 and environment._query.is_empty(),{"classification_equal":correct,"filtered_sources":filtered,"intersections":intersections,"sampling_equal":sampling,"positive_coverage_only":positive_only,"empty_sources":empty_sources,"readonly":readonly,"environment_calls":environment.calls,"sample_calls":environment.sample_calls,"nearby_queries":environment.nearby_queries,"scope_balanced":environment._query.is_empty(),"worker_sample_checks":worker_checks})
 
 func _empty_environment_sources() -> bool:
 	var ctx: Dictionary = _context(false)
@@ -1486,7 +1487,7 @@ func _case_72(t) -> void:
 	observation.end_query()
 	var standalone: HospitalArrivalService = HospitalArrivalService.new(_content,ctx.space)
 	var independent: float = standalone._environment_score(ctx.world,visit)
-	t.check("GROW-72",injected and observation.calls==3 and observation.sample_calls==1 and sampled_coverages==1 and sampled==expected_sample and actual==float(expected.value) and independent==actual and ctx.world.freeze()==before,{"injected":injected,"calls":observation.calls,"sampled_coverages":sampled_coverages,"sampling_equal":sampled==expected_sample,"shared":actual,"standalone":independent,"readonly":ctx.world.freeze()==before})
+	t.check("GROW-72",injected and observation.calls==3 and observation.sample_calls==2 and sampled_coverages==1 and sampled==expected_sample and actual==float(expected.value) and independent==actual and ctx.world.freeze()==before,{"injected":injected,"calls":observation.calls,"sample_calls":observation.sample_calls,"sampled_coverages":sampled_coverages,"sampling_equal":sampled==expected_sample,"shared":actual,"standalone":independent,"readonly":ctx.world.freeze()==before})
 
 func _case_71(t) -> void:
 	var ctx: Dictionary = _context()

@@ -7,6 +7,10 @@ var clinic: RefCounted
 var waiting_life: RefCounted
 var environment: RefCounted
 var _worked: Dictionary = {}
+var sample_workers_enabled: bool = true
+var sample_worker_tasks: int = 4
+var sample_worker_diagnostics: bool = false
+var _worker_sample_batch: RefCounted
 var _pruned_boundary: Array = []
 
 func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
@@ -108,7 +112,13 @@ func worked_staff() -> Dictionary:
 func sample(world: WorldState) -> void:
 	ensure(world)
 	if environment!=null: environment.begin_query(world)
-	for visit_id: String in world.active_visit_ids():
+	var _worker_visit_ids: Array = world.active_visit_ids()
+	var _worker_sample_active: bool = sample_workers_enabled and environment!=null and environment.get_script()==preload("res://game/operations/environment_service.gd") and environment.space!=null and environment.space.get_script()==preload("res://game/building/hospital_space.gd")
+	if _worker_sample_active:
+		if _worker_sample_batch==null: _worker_sample_batch = preload("res://game/operations/environment_sample_batch.gd").new()
+		_worker_sample_active = _worker_sample_batch.prepare(world,environment,_worker_visit_ids,sample_worker_tasks,sample_worker_diagnostics)
+		if _worker_sample_active: _worker_sample_batch.begin_apply()
+	for visit_id: String in _worker_visit_ids:
 		var visit: Dictionary = world.facts.visits[visit_id]
 		if not world.facts.departments.experience.has(visit_id): continue
 		var experience: Dictionary = world.facts.departments.experience[visit_id]
@@ -117,7 +127,7 @@ func sample(world: WorldState) -> void:
 		var actor: Dictionary = world.facts.actors[visit.actor_id]
 		var observation: Dictionary = {}
 		if actor.location.kind=="floor":
-			observation = _environment(world,visit.actor_id,int(actor.location.floor_id),actor.location.cell)
+			observation = _worker_sample_batch.consume(world,environment,visit_id,str(visit.actor_id)) if _worker_sample_active else _environment(world,visit.actor_id,int(actor.location.floor_id),actor.location.cell)
 			experience.environment_total += float(observation.value)
 			experience.environment_ticks += 1
 			_update_cause_clocks(world,visit,experience,observation)
@@ -126,6 +136,7 @@ func sample(world: WorldState) -> void:
 			_sample_anger(world,visit,experience,observation)
 			var reasons: Array = reason_cards(world,visit_id)
 			if not reasons.is_empty(): _detail(world,experience,{"kind":"cause","tick":world.sim_tick,"cause_id":reasons[0].id,"text":reasons[0].reason})
+	if _worker_sample_active: _worker_sample_batch.end_apply(environment)
 	if environment!=null: environment.end_query()
 	for staff_id: String in world.ids("staff"):
 		var day_key: String = str(world.sim_tick/WorldState.TICKS_PER_DAY)
@@ -879,6 +890,9 @@ func _prune(world: WorldState) -> void:
 		if int(key)<oldest_day: state.staff_days.erase(key)
 	for staff_id: String in state.staff_jobs:
 		state.staff_jobs[staff_id] = state.staff_jobs[staff_id].filter(func(record: Dictionary) -> bool: return int(record.tick)/WorldState.TICKS_PER_DAY>=oldest_day)
+
+func sample_worker_report() -> Dictionary:
+	return _worker_sample_batch.report() if _worker_sample_batch!=null else {"batches":0,"jobs":0,"processed":0,"consumed":0,"failed_batches":0,"threads":{}}
 
 func _environment(world: WorldState, actor_id: String, floor_id: int, cell: Array) -> Dictionary:
 	if environment==null: return {"value":float(content.balance.environment.base)+float(content.balance.environment.clean_bonus),"noise":0.0,"clean":true}

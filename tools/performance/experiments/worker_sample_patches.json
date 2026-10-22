@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "files": [
+    {
+      "source": "tools/performance/representative.gd",
+      "target": "tools/performance/representative_worker.gd",
+      "replacements": [
+        {
+          "original": "\tvar ops: RefCounted = Operations.new()\n",
+          "generated": "\tclinical.simulation.services.departments.sample_workers_enabled = str(options.get(\"workers\",\"on\"))==\"on\"\n\tclinical.simulation.services.departments.sample_worker_tasks = int(options.get(\"worker-tasks\",\"4\"))\n\tclinical.simulation.services.departments.sample_worker_diagnostics = str(options.get(\"worker-diagnostics\",\"false\"))==\"true\"\n\tvar ops: RefCounted = Operations.new()\n"
+        },
+        {
+          "original": "\treport.final = clinical.inspect(true)\n",
+          "generated": "\treport.worker_sample = clinical.simulation.services.departments.sample_worker_report()\n\treport.final = clinical.inspect(true)\n"
+        },
+        {
+          "original": "\t\tvar observation: Dictionary = clinical.observe(result)\n",
+          "generated": "\t\tif str(options.get(\"worker-records\",\"false\"))==\"true\" and clinical.simulation.services.departments._worker_sample_batch!=null:\n\t\t\treport.get_or_add(\"worker_sample_step_records\",[]).append({\"tick\":result.sim_tick,\"batch\":clinical.simulation.services.departments._worker_sample_batch._last.duplicate(true)})\n\t\tvar observation: Dictionary = clinical.observe(result)\n"
+        }
+      ]
+    }
+  ],
+  "production_helper": {
+    "path": "game/operations/environment_sample_batch.gd",
+    "sha256": "d187bb3bb456363135e054a5142f81200f524b6a005bd2723e96e9fa8e84b1ea"
+  }
+}

@@ -1012,6 +1012,9 @@ func _observe_at(world: WorldState, floor_id: int, cell: Array, actor_id: String
 		for actor: Dictionary in _nearby_actors(world,floor_id,cell):
 			if actor.location.kind=="floor" and int(actor.location.floor_id)==floor_id and str(actor.id)!=actor_id and Vector2(float(actor.location.cell[0]),float(actor.location.cell[1])).distance_to(Vector2(float(cell[0]),float(cell[1])))<=3.0:
 				result.nearby_count += 1
+	return _finish_observation(result)
+
+func _finish_observation(result: Dictionary) -> Dictionary:
 	result.value = clampi(int(result.value)-int(result.noise),0,100)
 	result.status = "current"
 	return result
