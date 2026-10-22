@@ -1,0 +1,2189 @@
+{
+  "schema_version": 1,
+  "diagnostic_only": true,
+  "formal_pass": false,
+  "source_commit": "d5f048e1fe918bd764f3607db49a3c2f360be89a",
+  "current_commit": "2e41bcb105778bb27408aaca1649bb6e3e31906f",
+  "current_commit_changed_only_outside_484_source_inventory": true,
+  "current_workspace_source_inventory_has_no_tracked_modifications": true,
+  "prior_committed_source_verification": [
+    {
+      "path": "docs/reports/evidence/2026-10-22-wait-dependency-batch/source-check.json",
+      "size": 1297500,
+      "sha256": "c46d01a5b323de47635016b56bf97f4595e8aa55f1296678784bf18d3736ae6d"
+    },
+    {
+      "path": "docs/reports/evidence/2026-10-22-wait-dependency-batch/raw-manifest.json",
+      "size": 412707,
+      "sha256": "38e85675c762a68d64688f3082f0353b5f385095dcc21d7b2938299232cb3ca4"
+    },
+    {
+      "path": "docs/reports/evidence/2026-10-22-wait-dependency-batch/functional-summary.json",
+      "size": 870437,
+      "sha256": "99ef5c04043ecfeaf07a0dcf81e5eb6acfd1bc402e86098b3e71676f4bc9a1a0"
+    }
+  ],
+  "prior_archive_sha256": "3268035587040862a9cf04b110ab638a1d5abc21470fdba35418ec0f94f38b37",
+  "source_identity": {
+    "path": ".cache/wait-signature-031e1f7-20261022/after-project/source-identity.json",
+    "size": 76079,
+    "sha256": "45c46ddbdf3d81c05f4350b0069be78f73d906dc69fde8ddcf1e866ba3b87d3e"
+  },
+  "complete_source_inventory_count": 484,
+  "actual_script_content_rows_checked_this_freeze": 253,
+  "actual_script_content_rows": [
+    {
+      "path": "addons/source_assets/plugin.gd",
+      "original_sha256": "cbaebc604ad09665db1a3ec6ce0d923319d3f17c148227aea7634d5713c157cd",
+      "actual_diagnostic_sha256": "cbaebc604ad09665db1a3ec6ce0d923319d3f17c148227aea7634d5713c157cd",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "assets/gags/stage01-gags.json",
+      "original_sha256": "91661d4172ad827b5a5be0f43d2523724ef489f2978822d58381bb36089d11f8",
+      "actual_diagnostic_sha256": "91661d4172ad827b5a5be0f43d2523724ef489f2978822d58381bb36089d11f8",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "assets/models/import_vertex_colours.gd",
+      "original_sha256": "556fcf845505dca9bfc30f1c8a65466cb9fea4caaf0e73eee4331bc571c0688c",
+      "actual_diagnostic_sha256": "556fcf845505dca9bfc30f1c8a65466cb9fea4caaf0e73eee4331bc571c0688c",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "assets/models/stage01-production.json",
+      "original_sha256": "9064c45dee4f0c47c6b7d476b2b38eb596ee777efb977bca8b6fac9546345565",
+      "actual_diagnostic_sha256": "9064c45dee4f0c47c6b7d476b2b38eb596ee777efb977bca8b6fac9546345565",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/accessibility_equipment.json",
+      "original_sha256": "ba2c98faa2087930967db5c38238f5a2ecdf0a8cc7a4c24f3bf031033cc6f1ad",
+      "actual_diagnostic_sha256": "ba2c98faa2087930967db5c38238f5a2ecdf0a8cc7a4c24f3bf031033cc6f1ad",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/activity_purposes.json",
+      "original_sha256": "d687caf5af963490084ba2ac582f43d1a585409d4e4361417357b38302c435c8",
+      "actual_diagnostic_sha256": "d687caf5af963490084ba2ac582f43d1a585409d4e4361417357b38302c435c8",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/amenity_scenes.json",
+      "original_sha256": "5b153d1079b63129c24f50901536df82d3bda84430e0a6ba24b5f4b941c14946",
+      "actual_diagnostic_sha256": "5b153d1079b63129c24f50901536df82d3bda84430e0a6ba24b5f4b941c14946",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/amenity_services.json",
+      "original_sha256": "e07966ae565f946118c7a3548f758f3a9ace1aad4e0ff0198b870fce0e5e5887",
+      "actual_diagnostic_sha256": "e07966ae565f946118c7a3548f758f3a9ace1aad4e0ff0198b870fce0e5e5887",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/assets/index.json",
+      "original_sha256": "7b071a4ada79d528160cf3fc9b51246cdf19853e5ce73d230ed27c532cfa9f16",
+      "actual_diagnostic_sha256": "7b071a4ada79d528160cf3fc9b51246cdf19853e5ce73d230ed27c532cfa9f16",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/blueprint_presets.json",
+      "original_sha256": "ceac74f8970ae27f2257ed64f7d193fc1339c8b55d8071681abfa8adf270bc4c",
+      "actual_diagnostic_sha256": "ceac74f8970ae27f2257ed64f7d193fc1339c8b55d8071681abfa8adf270bc4c",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/build_room_types.json",
+      "original_sha256": "016c6698fa3729a43ebf674968aef782c1d24c3dfec297fbc90b3e5cf66caf36",
+      "actual_diagnostic_sha256": "016c6698fa3729a43ebf674968aef782c1d24c3dfec297fbc90b3e5cf66caf36",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/chair_variants.json",
+      "original_sha256": "590716f92571a1d6de0fb75f939996129fd27410211811e080367f45d2d72329",
+      "actual_diagnostic_sha256": "590716f92571a1d6de0fb75f939996129fd27410211811e080367f45d2d72329",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/cleanup_sources.json",
+      "original_sha256": "7e832bafce01e9b218b7b765be96e82c4bedec7634181f70290348caeeb42960",
+      "actual_diagnostic_sha256": "7e832bafce01e9b218b7b765be96e82c4bedec7634181f70290348caeeb42960",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/clinical_abilities.json",
+      "original_sha256": "ba8e934e3edf292cd7687e240b540695e2e32b3a437cec767e732f083932c192",
+      "actual_diagnostic_sha256": "ba8e934e3edf292cd7687e240b540695e2e32b3a437cec767e732f083932c192",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/clinical_equipment.json",
+      "original_sha256": "13330fdf4f3e2b50d6659ee965b964a84528fe8b3cea2177c3a2fdc46cade9b6",
+      "actual_diagnostic_sha256": "13330fdf4f3e2b50d6659ee965b964a84528fe8b3cea2177c3a2fdc46cade9b6",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/clinical_practice_sources.json",
+      "original_sha256": "b9bc4c57a6e63f6bfd1d991e4e232cd846bb665d5c1d23ca914ee1d5f7c0b4a2",
+      "actual_diagnostic_sha256": "b9bc4c57a6e63f6bfd1d991e4e232cd846bb665d5c1d23ca914ee1d5f7c0b4a2",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/clinical_room_types.json",
+      "original_sha256": "a537282e81354acdad36021d2711806e3b0a66b44baa17db4f12fa4f8775e96c",
+      "actual_diagnostic_sha256": "a537282e81354acdad36021d2711806e3b0a66b44baa17db4f12fa4f8775e96c",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/colleague_scenes.json",
+      "original_sha256": "a98426dbd81ef8b08f52ef33bc3bf6b6e2cfa5283a34fa2ff053ad0ff1267fcf",
+      "actual_diagnostic_sha256": "a98426dbd81ef8b08f52ef33bc3bf6b6e2cfa5283a34fa2ff053ad0ff1267fcf",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/comedy_corner_guides.json",
+      "original_sha256": "2006ab33dc432449deb620cb0fa7286eab5c4ed39d0240af24b902ef6d22c4a7",
+      "actual_diagnostic_sha256": "2006ab33dc432449deb620cb0fa7286eab5c4ed39d0240af24b902ef6d22c4a7",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/community_activities.json",
+      "original_sha256": "d943613ee729499760ce2da8f7e4836866d9249f6ff96b50cfdae5522d48f815",
+      "actual_diagnostic_sha256": "d943613ee729499760ce2da8f7e4836866d9249f6ff96b50cfdae5522d48f815",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/community_cast.json",
+      "original_sha256": "7118170e38965fe94309a0a9e3d4d208fc1fdc537aaa5351ab013cf57b7f86c3",
+      "actual_diagnostic_sha256": "7118170e38965fe94309a0a9e3d4d208fc1fdc537aaa5351ab013cf57b7f86c3",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/consultation_behaviors.json",
+      "original_sha256": "20eb66e9e2afac21d475c86cf01ffc19318ce56cafe17160a0239c4e0e19b8d0",
+      "actual_diagnostic_sha256": "20eb66e9e2afac21d475c86cf01ffc19318ce56cafe17160a0239c4e0e19b8d0",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/context_lessons.json",
+      "original_sha256": "258de60ec00c163f4553a91c5d00c638b842fc7f011dffbc7ce1e249c19ac070",
+      "actual_diagnostic_sha256": "258de60ec00c163f4553a91c5d00c638b842fc7f011dffbc7ce1e249c19ac070",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/decor_style_presets.json",
+      "original_sha256": "a4312a7076752bf99924d6e0fb8f23ea78946aaf5fe55c465697fdaf0e2aa9f5",
+      "actual_diagnostic_sha256": "a4312a7076752bf99924d6e0fb8f23ea78946aaf5fe55c465697fdaf0e2aa9f5",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/diagnostic_modes.json",
+      "original_sha256": "7a4038cc4f6489f50ad4a4b97720b528a7d2601a8eca0e18f6544e19f7ae0d65",
+      "actual_diagnostic_sha256": "7a4038cc4f6489f50ad4a4b97720b528a7d2601a8eca0e18f6544e19f7ae0d65",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/diagnostic_work_styles.json",
+      "original_sha256": "64f6ee22859181e0da7f62df18c262337297d536e82c86935bb47ffca9f46e4d",
+      "actual_diagnostic_sha256": "64f6ee22859181e0da7f62df18c262337297d536e82c86935bb47ffca9f46e4d",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/diseases.json",
+      "original_sha256": "59aca1c6c8fba6fb392d7ba7b2722a46d0bf9cbbc1e5a518a7332a681c5a2e88",
+      "actual_diagnostic_sha256": "59aca1c6c8fba6fb392d7ba7b2722a46d0bf9cbbc1e5a518a7332a681c5a2e88",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/doctor_personalities.json",
+      "original_sha256": "cd33d0b12b6c6902a30bb91f9a87c2549b9fe6d3585440c3776e7b4edb83d250",
+      "actual_diagnostic_sha256": "cd33d0b12b6c6902a30bb91f9a87c2549b9fe6d3585440c3776e7b4edb83d250",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/doctor_responses.json",
+      "original_sha256": "cb5f4f6b75df618e8adfbbd70735b9a2e53aea90b55ae49ea550794179db2fba",
+      "actual_diagnostic_sha256": "cb5f4f6b75df618e8adfbbd70735b9a2e53aea90b55ae49ea550794179db2fba",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/doctor_titles.json",
+      "original_sha256": "13211055ec36caf5ef043b20080a3b0673570c5635429cdbf3aefbc2707683bf",
+      "actual_diagnostic_sha256": "13211055ec36caf5ef043b20080a3b0673570c5635429cdbf3aefbc2707683bf",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/doors.json",
+      "original_sha256": "34f4172d0dee93c463b60b3334ca602e66179d1847526ef36a4762be5aa3db71",
+      "actual_diagnostic_sha256": "34f4172d0dee93c463b60b3334ca602e66179d1847526ef36a4762be5aa3db71",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/ease_rules.json",
+      "original_sha256": "8ada2c152d1b0ad4f2fdaea2132a33299c8a4f44f971fac177babda2e9333c0d",
+      "actual_diagnostic_sha256": "8ada2c152d1b0ad4f2fdaea2132a33299c8a4f44f971fac177babda2e9333c0d",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/facility_fit_profiles.json",
+      "original_sha256": "8bb3e2a87afd1a42702ef7a5a56186080e3998d143fe1534d34e0103c07a1fff",
+      "actual_diagnostic_sha256": "8bb3e2a87afd1a42702ef7a5a56186080e3998d143fe1534d34e0103c07a1fff",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/facility_magic_scenes.json",
+      "original_sha256": "0c5c1205cf2c7d69c058cca397f5a59edcdff406406890769bb3ef639554d28e",
+      "actual_diagnostic_sha256": "0c5c1205cf2c7d69c058cca397f5a59edcdff406406890769bb3ef639554d28e",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/families.json",
+      "original_sha256": "fd9734eb5f3f118a1ab36c08140e3f9c77bff5c58e4cb4ecc365987fcfb8f8c9",
+      "actual_diagnostic_sha256": "fd9734eb5f3f118a1ab36c08140e3f9c77bff5c58e4cb4ecc365987fcfb8f8c9",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/finance_views.json",
+      "original_sha256": "f0cad42f437f8f529f6ffa4486bf20fdc42dcaf202620d5eb204062b49860a31",
+      "actual_diagnostic_sha256": "f0cad42f437f8f529f6ffa4486bf20fdc42dcaf202620d5eb204062b49860a31",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/fit_examples.json",
+      "original_sha256": "72d4b431fbed081db65bee493684f9d9deeb353fcd0d2b138f10f3955a5ed348",
+      "actual_diagnostic_sha256": "72d4b431fbed081db65bee493684f9d9deeb353fcd0d2b138f10f3955a5ed348",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/furniture_equipment.json",
+      "original_sha256": "3d891aee68b48bc8d79fec6bade6d72e8967a011a841260731949d422d458310",
+      "actual_diagnostic_sha256": "3d891aee68b48bc8d79fec6bade6d72e8967a011a841260731949d422d458310",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/gratitude_abilities.json",
+      "original_sha256": "ba87a41ce781d7807b2647405c846ced4d5a2a7cd1f88a3715028f2849cf9564",
+      "actual_diagnostic_sha256": "ba87a41ce781d7807b2647405c846ced4d5a2a7cd1f88a3715028f2849cf9564",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/gratitude_effects.json",
+      "original_sha256": "aaaa3181fd9010f3ed617134b13b832586a730aaacf209f676926f25ec4938a3",
+      "actual_diagnostic_sha256": "aaaa3181fd9010f3ed617134b13b832586a730aaacf209f676926f25ec4938a3",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/growth_moments.json",
+      "original_sha256": "e36fe9cf0e69d9bd5a1e928f4be3004e2921a02b350b8e99c5db0fc8b79b6575",
+      "actual_diagnostic_sha256": "e36fe9cf0e69d9bd5a1e928f4be3004e2921a02b350b8e99c5db0fc8b79b6575",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/history_templates.json",
+      "original_sha256": "22cea9c97963a355447c5c6938bd298890ca06fbcef481bf1cc1c11fdb5ffac4",
+      "actual_diagnostic_sha256": "22cea9c97963a355447c5c6938bd298890ca06fbcef481bf1cc1c11fdb5ffac4",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/hospital_situations.json",
+      "original_sha256": "9ec30e5228cc8696bcf9947e097f88801f0a41b73e3099d31f6f6f1cedcd4a7b",
+      "actual_diagnostic_sha256": "9ec30e5228cc8696bcf9947e097f88801f0a41b73e3099d31f6f6f1cedcd4a7b",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/incident_contexts.json",
+      "original_sha256": "98e9f721f81dced46afb7f7ccf9cca233f142c906dc14217de5669ad761b2442",
+      "actual_diagnostic_sha256": "98e9f721f81dced46afb7f7ccf9cca233f142c906dc14217de5669ad761b2442",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/incidents.json",
+      "original_sha256": "aacb510cd0a4f4bbb1faacd07304bb6447019beae87c52ddc0aad8cad959f7c8",
+      "actual_diagnostic_sha256": "aacb510cd0a4f4bbb1faacd07304bb6447019beae87c52ddc0aad8cad959f7c8",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/initial_disease_ids.json",
+      "original_sha256": "adde362a73447b97b3a4297bb0bf2b145805b616d9a729c9c822e03d19de07ad",
+      "actual_diagnostic_sha256": "adde362a73447b97b3a4297bb0bf2b145805b616d9a729c9c822e03d19de07ad",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/interactions.json",
+      "original_sha256": "6dc7bf5d42826565ea21243aab6a8e78023e47bf56654fcd052888c5e6a4bef6",
+      "actual_diagnostic_sha256": "6dc7bf5d42826565ea21243aab6a8e78023e47bf56654fcd052888c5e6a4bef6",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/journey_reason_cards.json",
+      "original_sha256": "d9b006e56fdae89d1cba95795d26a51e32ea954216e8cfe11034754d6128031c",
+      "actual_diagnostic_sha256": "d9b006e56fdae89d1cba95795d26a51e32ea954216e8cfe11034754d6128031c",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/layouts.json",
+      "original_sha256": "3eac94a284723845042c07001fba3c3153bc30513ea35b1ba0916df92a97524c",
+      "actual_diagnostic_sha256": "3eac94a284723845042c07001fba3c3153bc30513ea35b1ba0916df92a97524c",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/machines.json",
+      "original_sha256": "02af50c28d4817cabe770521546ee4f58cf004ea023f9042d65279701f7e396b",
+      "actual_diagnostic_sha256": "02af50c28d4817cabe770521546ee4f58cf004ea023f9042d65279701f7e396b",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/maintenance_policies.json",
+      "original_sha256": "291ddd6e6ec3982eda8810a894fa29c4be50b49d64dc0fea705b4daac0b16a2a",
+      "actual_diagnostic_sha256": "291ddd6e6ec3982eda8810a894fa29c4be50b49d64dc0fea705b4daac0b16a2a",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/maintenance_scenes.json",
+      "original_sha256": "9af850ba793137bd287a1bd294a5c2991dc1ff751b25a908846633a417c406f0",
+      "actual_diagnostic_sha256": "9af850ba793137bd287a1bd294a5c2991dc1ff751b25a908846633a417c406f0",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/manifest.json",
+      "original_sha256": "357d59ffc2f2a7faa08c48ed681a85ef1397505f3473e64d8bf4ac3ea07877e7",
+      "actual_diagnostic_sha256": "357d59ffc2f2a7faa08c48ed681a85ef1397505f3473e64d8bf4ac3ea07877e7",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/medical_equipment_profiles.json",
+      "original_sha256": "869aa798161a36512eb458c2a95abadbfaf25302ee6ac24e7dcc454a32b3813e",
+      "actual_diagnostic_sha256": "869aa798161a36512eb458c2a95abadbfaf25302ee6ac24e7dcc454a32b3813e",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/medical_progress_cues.json",
+      "original_sha256": "f2074bc2777274bca34934b9c57e34c3a1662d9724b58f6a6ba65916b98efe22",
+      "actual_diagnostic_sha256": "f2074bc2777274bca34934b9c57e34c3a1662d9724b58f6a6ba65916b98efe22",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/medical_supplies.json",
+      "original_sha256": "2c8b925825a71fc7cc86029df0706993cdcb15a480e1cd2c9a38819433588ba3",
+      "actual_diagnostic_sha256": "2c8b925825a71fc7cc86029df0706993cdcb15a480e1cd2c9a38819433588ba3",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/memory_callbacks.json",
+      "original_sha256": "782de776d49b2f952604c2f7eb47f0d6577fc65805c300473a45e80ef9eb177b",
+      "actual_diagnostic_sha256": "782de776d49b2f952604c2f7eb47f0d6577fc65805c300473a45e80ef9eb177b",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/movement_cues.json",
+      "original_sha256": "c885f2694d96ef709ab798e4081b6f73b74b682eeb3e2ac29b3f0cd8bee235f5",
+      "actual_diagnostic_sha256": "c885f2694d96ef709ab798e4081b6f73b74b682eeb3e2ac29b3f0cd8bee235f5",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/observation_cues.json",
+      "original_sha256": "abdc073a898f89b78f77abc6ca626990ba3e19307c7f69f2471bd3d373c17e48",
+      "actual_diagnostic_sha256": "abdc073a898f89b78f77abc6ca626990ba3e19307c7f69f2471bd3d373c17e48",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/onboarding_steps.json",
+      "original_sha256": "de5b9f9ba56099edd64d29ef7164de3d9ec638276af4add7e3bdaefc31aa18ec",
+      "actual_diagnostic_sha256": "de5b9f9ba56099edd64d29ef7164de3d9ec638276af4add7e3bdaefc31aa18ec",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/patient_behaviors.json",
+      "original_sha256": "5ba04478cdf9a77ce0bf6503bd11b6851aa394492d14413ee42e26215cb08ed8",
+      "actual_diagnostic_sha256": "5ba04478cdf9a77ce0bf6503bd11b6851aa394492d14413ee42e26215cb08ed8",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/patient_personalities.json",
+      "original_sha256": "67bf45cd659289493079accf8939222c409960f4311889f569564fae0bf57827",
+      "actual_diagnostic_sha256": "67bf45cd659289493079accf8939222c409960f4311889f569564fae0bf57827",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/preferences.json",
+      "original_sha256": "f5d1d59c5507fd00028f830fffa30c892a256095bea6b9a8df9b0b02dc7b3147",
+      "actual_diagnostic_sha256": "f5d1d59c5507fd00028f830fffa30c892a256095bea6b9a8df9b0b02dc7b3147",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/profiles.json",
+      "original_sha256": "4eeebb9605e510f6b39534ea5c6b4d3d1c9f8b9fae7cae84970819f573033861",
+      "actual_diagnostic_sha256": "4eeebb9605e510f6b39534ea5c6b4d3d1c9f8b9fae7cae84970819f573033861",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/queue_cues.json",
+      "original_sha256": "4f4f8481da5fa75c1b75c9c04909f0f70121d775fec4a59424a0d00b10e47618",
+      "actual_diagnostic_sha256": "4f4f8481da5fa75c1b75c9c04909f0f70121d775fec4a59424a0d00b10e47618",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/recruitment_examples.json",
+      "original_sha256": "06e0478c1d06a5c71a97864f6e4a292f65bec2bb23ea83d37b1074f963915449",
+      "actual_diagnostic_sha256": "06e0478c1d06a5c71a97864f6e4a292f65bec2bb23ea83d37b1074f963915449",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/remodel_guides.json",
+      "original_sha256": "ce4268b3e199f85290a467c8d8523b54f2a166d03d08b525dee8bd9566977839",
+      "actual_diagnostic_sha256": "ce4268b3e199f85290a467c8d8523b54f2a166d03d08b525dee8bd9566977839",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/renovation_materials.json",
+      "original_sha256": "b880bfd1310b53baa29b071cf4fc63ecdfe8d52303feb2bf8b9d6ebb10580435",
+      "actual_diagnostic_sha256": "b880bfd1310b53baa29b071cf4fc63ecdfe8d52303feb2bf8b9d6ebb10580435",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/research_trails.json",
+      "original_sha256": "c17def6e3153043c617ac919211236ce041b016fa0c0ee36c0f06c73e4dd78c2",
+      "actual_diagnostic_sha256": "c17def6e3153043c617ac919211236ce041b016fa0c0ee36c0f06c73e4dd78c2",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/research.json",
+      "original_sha256": "2721a56cbcdfc5f8db506be952c619f1161148c3c2d852712c88b456e81f8a75",
+      "actual_diagnostic_sha256": "2721a56cbcdfc5f8db506be952c619f1161148c3c2d852712c88b456e81f8a75",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/rest_cues.json",
+      "original_sha256": "0c70cab9973e8712687b8db3e39c91eee4591e41f52762b766e7fbc9b13709fc",
+      "actual_diagnostic_sha256": "0c70cab9973e8712687b8db3e39c91eee4591e41f52762b766e7fbc9b13709fc",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/resume_note_templates.json",
+      "original_sha256": "8501af9bc65f95d9807b653aa87130f2f9f5163100d0e7afde26da30a8f4dce1",
+      "actual_diagnostic_sha256": "8501af9bc65f95d9807b653aa87130f2f9f5163100d0e7afde26da30a8f4dce1",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/rules.json",
+      "original_sha256": "202cb4f973609724cf62f3f1fd70ef3ed53455b66f4fa6d71899a9524049596b",
+      "actual_diagnostic_sha256": "202cb4f973609724cf62f3f1fd70ef3ed53455b66f4fa6d71899a9524049596b",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/service_equipment.json",
+      "original_sha256": "6f2c39ef19ffa5c50a029874e39d3fa8aa69c4fd67e6dba0dad5b21bb5babf4b",
+      "actual_diagnostic_sha256": "6f2c39ef19ffa5c50a029874e39d3fa8aa69c4fd67e6dba0dad5b21bb5babf4b",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/specialties.json",
+      "original_sha256": "c304ea7ce66b6e5a1e264ee0910c2cb8abf3d1f5766a70ae2ffc9aab5ea1b562",
+      "actual_diagnostic_sha256": "c304ea7ce66b6e5a1e264ee0910c2cb8abf3d1f5766a70ae2ffc9aab5ea1b562",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/species_gifts.json",
+      "original_sha256": "476ffff40e99fed66209f2b9cdc9b6d57cb8889aad34352fbebb9dc40e75edc4",
+      "actual_diagnostic_sha256": "476ffff40e99fed66209f2b9cdc9b6d57cb8889aad34352fbebb9dc40e75edc4",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/species.json",
+      "original_sha256": "cfa4c06adeb95d7a6479018b0ba6e773c12c6b7ae46b3620f41a3c6826759d90",
+      "actual_diagnostic_sha256": "cfa4c06adeb95d7a6479018b0ba6e773c12c6b7ae46b3620f41a3c6826759d90",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/staff_base_cues.json",
+      "original_sha256": "c12d5f57890cd755d2bd78c4c6e09fba1594c8ae9c35454ed08f62f15b2c1e79",
+      "actual_diagnostic_sha256": "c12d5f57890cd755d2bd78c4c6e09fba1594c8ae9c35454ed08f62f15b2c1e79",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/staff_biographies.json",
+      "original_sha256": "8ff1bbb26d710e5612b151b73b04895dff27930b3f05507d813b4d1495c27a88",
+      "actual_diagnostic_sha256": "8ff1bbb26d710e5612b151b73b04895dff27930b3f05507d813b4d1495c27a88",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/staff_practice_profiles.json",
+      "original_sha256": "246f01a3400642a32aacdff6a48e6e888746860936d712af32420a13f6b21c9b",
+      "actual_diagnostic_sha256": "246f01a3400642a32aacdff6a48e6e888746860936d712af32420a13f6b21c9b",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/staff_recreation_equipment.json",
+      "original_sha256": "caac910e1255df89b61b009c87cde56de87b108c5525e7501ac1f0361d554134",
+      "actual_diagnostic_sha256": "caac910e1255df89b61b009c87cde56de87b108c5525e7501ac1f0361d554134",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/staff_rig_adapters.json",
+      "original_sha256": "faae167a7bf67362134c2bf28e076a84ace43d56bd0d431dcd4043e0371c479d",
+      "actual_diagnostic_sha256": "faae167a7bf67362134c2bf28e076a84ace43d56bd0d431dcd4043e0371c479d",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/staff_role_profiles.json",
+      "original_sha256": "750b0e26da652ecac2999f2a2ee8081954b61236801be42b6e41d8ebdb734a32",
+      "actual_diagnostic_sha256": "750b0e26da652ecac2999f2a2ee8081954b61236801be42b6e41d8ebdb734a32",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/staff_support_rooms.json",
+      "original_sha256": "9e429ab088cef0d09624db9f6f40b7950e1fea882fdbd2a9df72cdf7ae7126e6",
+      "actual_diagnostic_sha256": "9e429ab088cef0d09624db9f6f40b7950e1fea882fdbd2a9df72cdf7ae7126e6",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/staff_talent_handlers.json",
+      "original_sha256": "9629ec1eff3401ed18c60dce9a01b489707704146b42178b87cf0a898b110869",
+      "actual_diagnostic_sha256": "9629ec1eff3401ed18c60dce9a01b489707704146b42178b87cf0a898b110869",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/staff_talents.json",
+      "original_sha256": "30789aac2d0de77fd917b9305157fa60da7fe8fe8edd53ccf9764556d52042fb",
+      "actual_diagnostic_sha256": "30789aac2d0de77fd917b9305157fa60da7fe8fe8edd53ccf9764556d52042fb",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/staff_work_styles.json",
+      "original_sha256": "e64b41e97eafea9c8b5ea8a2b434e17db7b7352373b698a5c4292dd1833b3d66",
+      "actual_diagnostic_sha256": "e64b41e97eafea9c8b5ea8a2b434e17db7b7352373b698a5c4292dd1833b3d66",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/starter_layout.json",
+      "original_sha256": "42934c1470711d34431189418e18c52973a767e9ef835b81407910c657f411e0",
+      "actual_diagnostic_sha256": "42934c1470711d34431189418e18c52973a767e9ef835b81407910c657f411e0",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/stories.json",
+      "original_sha256": "f8cd3a18d99e533275e7e55c7f994be7118f5c179127b727fc792e1d115584bf",
+      "actual_diagnostic_sha256": "f8cd3a18d99e533275e7e55c7f994be7118f5c179127b727fc792e1d115584bf",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/story_activity_links.json",
+      "original_sha256": "a4a40ec65547fa0a9671125961e10a7d0a9170c55547fb8116da5e54634fe422",
+      "actual_diagnostic_sha256": "a4a40ec65547fa0a9671125961e10a7d0a9170c55547fb8116da5e54634fe422",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/story_patient_bindings.json",
+      "original_sha256": "4d77bee91e679e9d69b1bf0c0651b284a54419cca97b6568cd7a6f88693ae70f",
+      "actual_diagnostic_sha256": "4d77bee91e679e9d69b1bf0c0651b284a54419cca97b6568cd7a6f88693ae70f",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/supply_reactions.json",
+      "original_sha256": "c97b40e69c1b63de8134aab4e583fc65f895ddac0725707594bc5cb1ad1f05b2",
+      "actual_diagnostic_sha256": "c97b40e69c1b63de8134aab4e583fc65f895ddac0725707594bc5cb1ad1f05b2",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/surgical_adapters.json",
+      "original_sha256": "bbfa92f2af5f71b7974038ea3931aaacbec90d661e158e5f939d93515d4909de",
+      "actual_diagnostic_sha256": "bbfa92f2af5f71b7974038ea3931aaacbec90d661e158e5f939d93515d4909de",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/tags.json",
+      "original_sha256": "bcbc325d398949f4ee796ee00a0fe9f90496f818569fe5062a2dd1593ed5af1a",
+      "actual_diagnostic_sha256": "bcbc325d398949f4ee796ee00a0fe9f90496f818569fe5062a2dd1593ed5af1a",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/task_guides.json",
+      "original_sha256": "f840aa7111d9bfbceddedf9bea20157a69446738969b6019dbc46e396d7f77c9",
+      "actual_diagnostic_sha256": "f840aa7111d9bfbceddedf9bea20157a69446738969b6019dbc46e396d7f77c9",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/tasks.json",
+      "original_sha256": "3b65150da0092ced59164f6fb7cefd118c0b2c6b2b077224f84c053e2a39b2d9",
+      "actual_diagnostic_sha256": "3b65150da0092ced59164f6fb7cefd118c0b2c6b2b077224f84c053e2a39b2d9",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/treatment_bindings.json",
+      "original_sha256": "f7852103655d47ab103975a8f286cf68a31c76d68fe14ebf58a88476e9cb77b8",
+      "actual_diagnostic_sha256": "f7852103655d47ab103975a8f286cf68a31c76d68fe14ebf58a88476e9cb77b8",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/treatment_plans.json",
+      "original_sha256": "904ad231bb7705a95bfcf49c0984adeb127ba7d95445ace4c5d64611f30c8dbf",
+      "actual_diagnostic_sha256": "904ad231bb7705a95bfcf49c0984adeb127ba7d95445ace4c5d64611f30c8dbf",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/treatment_protocols.json",
+      "original_sha256": "0ac7cd27f486f55102b3901f92631134facab69c5179aa8631236b213c8661a1",
+      "actual_diagnostic_sha256": "0ac7cd27f486f55102b3901f92631134facab69c5179aa8631236b213c8661a1",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/treatment_routines.json",
+      "original_sha256": "bfec39f6b7436bed0fb57e6f212dd148f9f858b936f8898205a3d29c314f76f3",
+      "actual_diagnostic_sha256": "bfec39f6b7436bed0fb57e6f212dd148f9f858b936f8898205a3d29c314f76f3",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/upgrade_presentations.json",
+      "original_sha256": "7df4189f253d2329b93f7273b38544eefc07c537033fff03fef9a7a9a2eabf17",
+      "actual_diagnostic_sha256": "7df4189f253d2329b93f7273b38544eefc07c537033fff03fef9a7a9a2eabf17",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/upgrade_tiers.json",
+      "original_sha256": "d991b46ddd86b1c919bf6023255e547e6c99fa3cf2fb8b1cfe4ef55181b7e955",
+      "actual_diagnostic_sha256": "d991b46ddd86b1c919bf6023255e547e6c99fa3cf2fb8b1cfe4ef55181b7e955",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/vertical_connectors.json",
+      "original_sha256": "ea08f076bbbbdea1d8bd1eaebafa67cb74215bacd27bede12287d6b81fe6a7cd",
+      "actual_diagnostic_sha256": "ea08f076bbbbdea1d8bd1eaebafa67cb74215bacd27bede12287d6b81fe6a7cd",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/visitor_cues.json",
+      "original_sha256": "fcd56a2b860e55054c79621781dd20886257b32f24f85df3fd39f02b5002471b",
+      "actual_diagnostic_sha256": "fcd56a2b860e55054c79621781dd20886257b32f24f85df3fd39f02b5002471b",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/ward_neighbor_cues.json",
+      "original_sha256": "f686630d84f18c5fda432b3c0bcb4d4a1e9514b7255961fc13f9df74f1261162",
+      "actual_diagnostic_sha256": "f686630d84f18c5fda432b3c0bcb4d4a1e9514b7255961fc13f9df74f1261162",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "content/core/ward_scenes.json",
+      "original_sha256": "91bedfb76c2b10749f5bfb48926a829fe18bb4b89458cb4c4099937ddd575a16",
+      "actual_diagnostic_sha256": "91bedfb76c2b10749f5bfb48926a829fe18bb4b89458cb4c4099937ddd575a16",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/app/app_root.gd",
+      "original_sha256": "d50eeda18ba424c6fa3813fba7c46e20c8a93820b21eb8bc7f22f0b494774e9e",
+      "actual_diagnostic_sha256": "d50eeda18ba424c6fa3813fba7c46e20c8a93820b21eb8bc7f22f0b494774e9e",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/app/game_session.gd",
+      "original_sha256": "a22ec31241d16b66a607db6f1a5cb7aec70dcab625160c2a5072a7baaede2675",
+      "actual_diagnostic_sha256": "a22ec31241d16b66a607db6f1a5cb7aec70dcab625160c2a5072a7baaede2675",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/arrivals/arrival_preparation.gd",
+      "original_sha256": "e53762d0f4156ea5003e5aa32c15b5a8f2214b739616408522f7fad96bc90a81",
+      "actual_diagnostic_sha256": "e53762d0f4156ea5003e5aa32c15b5a8f2214b739616408522f7fad96bc90a81",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/arrivals/arrival_service.gd",
+      "original_sha256": "7c0f7ac551f067419d8363d5ec8e1ad3256a92d87a63d800a67161ca038bb607",
+      "actual_diagnostic_sha256": "7c0f7ac551f067419d8363d5ec8e1ad3256a92d87a63d800a67161ca038bb607",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/arrivals/capacity_solver.gd",
+      "original_sha256": "97f010473f1b4bed516e92088eb23f4e51c01a1c60d4c66af7915511d754ca5f",
+      "actual_diagnostic_sha256": "97f010473f1b4bed516e92088eb23f4e51c01a1c60d4c66af7915511d754ca5f",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/arrivals/day_plan.gd",
+      "original_sha256": "c29a801a9394879454ea37a8ffaec698e50962bb513780a41e0bac37176527bc",
+      "actual_diagnostic_sha256": "c29a801a9394879454ea37a8ffaec698e50962bb513780a41e0bac37176527bc",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/arrivals/exact_fraction.gd",
+      "original_sha256": "78dbb754096d5b6b49dcd1fa4d9988f165dea95a95bbd9232693ddedfeef012a",
+      "actual_diagnostic_sha256": "78dbb754096d5b6b49dcd1fa4d9988f165dea95a95bbd9232693ddedfeef012a",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/building/blueprint_service.gd",
+      "original_sha256": "643a5aff8d7ea6c537fd19a034b7cf92098148f7a7e34edf5611f0e80a0e5e80",
+      "actual_diagnostic_sha256": "643a5aff8d7ea6c537fd19a034b7cf92098148f7a7e34edf5611f0e80a0e5e80",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/building/body_index.gd",
+      "original_sha256": "df5e1ce853b55e7d78f3dc8335466478c56a0c0798007986cd8e961316ff1428",
+      "actual_diagnostic_sha256": "df5e1ce853b55e7d78f3dc8335466478c56a0c0798007986cd8e961316ff1428",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/building/body_sweep.gd",
+      "original_sha256": "e8a1374f84984314c1965695b103c03d0bfd18a498322f160374f7496db69ccc",
+      "actual_diagnostic_sha256": "e8a1374f84984314c1965695b103c03d0bfd18a498322f160374f7496db69ccc",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/building/build_geometry.gd",
+      "original_sha256": "cbb6780b9f331cc9b1a0bac4556dd5ac7d8f864a776d0ef81a7167cf02c90db9",
+      "actual_diagnostic_sha256": "cbb6780b9f331cc9b1a0bac4556dd5ac7d8f864a776d0ef81a7167cf02c90db9",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/building/build_preview_job.gd",
+      "original_sha256": "d7722e552391fefa557f660795f8ae97c6ace972303b9c9f92e6f6ba941088b5",
+      "actual_diagnostic_sha256": "d7722e552391fefa557f660795f8ae97c6ace972303b9c9f92e6f6ba941088b5",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/building/build_preview.gd",
+      "original_sha256": "ef7723ea004d7e1939bbfdeda23b4128d1930d1964b3cdf806ffe9ace379f4d1",
+      "actual_diagnostic_sha256": "ef7723ea004d7e1939bbfdeda23b4128d1930d1964b3cdf806ffe9ace379f4d1",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/building/build_service.gd",
+      "original_sha256": "e13e319fa1d52b35659d95e65babbdd8151ecddaf94f37e9df11ccc15ba792f5",
+      "actual_diagnostic_sha256": "e13e319fa1d52b35659d95e65babbdd8151ecddaf94f37e9df11ccc15ba792f5",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/building/connector_service.gd",
+      "original_sha256": "002f34d0c74e0be4129ea42fed6d488ff448817079a63e49b88f475d77d6ce63",
+      "actual_diagnostic_sha256": "002f34d0c74e0be4129ea42fed6d488ff448817079a63e49b88f475d77d6ce63",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/building/floor_navigation.gd",
+      "original_sha256": "241502dbb289d2ca939f2cd193d7b9c7740b64bcd70323fda03d50cead577090",
+      "actual_diagnostic_sha256": "f1e50d7a43687bc5286852ef03e063cdb2bc678832f39d753848690a2857adca",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": true
+    },
+    {
+      "path": "game/building/floor_service.gd",
+      "original_sha256": "a3974006ce8c43ed5c3b177c1b481bf1c755d9dfb4fc4693ae64f6db34472c8b",
+      "actual_diagnostic_sha256": "a3974006ce8c43ed5c3b177c1b481bf1c755d9dfb4fc4693ae64f6db34472c8b",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/building/hospital_movement.gd",
+      "original_sha256": "f599d2a82d825db53bdc0997d90a7cbd63e881fd8ee96d335d816b7ed3121c15",
+      "actual_diagnostic_sha256": "f599d2a82d825db53bdc0997d90a7cbd63e881fd8ee96d335d816b7ed3121c15",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/building/hospital_navigation.gd",
+      "original_sha256": "b2de71ea7cc4ca3bb7135b5b0d42c33eef0661001edd3e4c583391325cf90508",
+      "actual_diagnostic_sha256": "4867e4c249d609176b172e3660732b94217480859b382243b2baec52623fc7ff",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": true
+    },
+    {
+      "path": "game/building/hospital_space.gd",
+      "original_sha256": "0f51367a200ee14aeb205472023658430278dde9621e4d740ccdd7b2332c6266",
+      "actual_diagnostic_sha256": "0f51367a200ee14aeb205472023658430278dde9621e4d740ccdd7b2332c6266",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/building/hospital_transit.gd",
+      "original_sha256": "6a8ddb1da1878dd30307ff75719171a9d7d1a531f5998bc39671e48127917208",
+      "actual_diagnostic_sha256": "6a8ddb1da1878dd30307ff75719171a9d7d1a531f5998bc39671e48127917208",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/building/navigation_cache.gd",
+      "original_sha256": "ebb83727e9998ad8183f9b3b981ebe993216bdc94da87e92dedb418e8ddc12e8",
+      "actual_diagnostic_sha256": "0652678cd6539cac4f3f0de3e33468516ac148cfa158a56ed9c513f9fda159e4",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": true
+    },
+    {
+      "path": "game/building/remodel_service.gd",
+      "original_sha256": "d46bd4af6106ad7d99bef7dedf1ca8e1290502ce1c60057dbeb455c483d9f756",
+      "actual_diagnostic_sha256": "d46bd4af6106ad7d99bef7dedf1ca8e1290502ce1c60057dbeb455c483d9f756",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/building/route_clearance.gd",
+      "original_sha256": "65ebdf72cfc1362b737883c2702a8ef07a4335b3d39d3c0b14ed10a567b91dde",
+      "actual_diagnostic_sha256": "65ebdf72cfc1362b737883c2702a8ef07a4335b3d39d3c0b14ed10a567b91dde",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/clinic/clinical_runtime.gd",
+      "original_sha256": "3ce51b71e8cfbc93b527df1f499e953d7fcd20416b6bc332d6dcaad1b24cb1e0",
+      "actual_diagnostic_sha256": "3ce51b71e8cfbc93b527df1f499e953d7fcd20416b6bc332d6dcaad1b24cb1e0",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/clinic/hospital_visitors.gd",
+      "original_sha256": "e8b8b7dbbf80dd510c1598929382c564e12f7dcceeff43dc7c30362aaf332f0d",
+      "actual_diagnostic_sha256": "e8b8b7dbbf80dd510c1598929382c564e12f7dcceeff43dc7c30362aaf332f0d",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/community/research_job_index.gd",
+      "original_sha256": "caf1960eaee699eb89e2a05cbe5bdfbf47ea5c47056fd85f163862420304d1f8",
+      "actual_diagnostic_sha256": "caf1960eaee699eb89e2a05cbe5bdfbf47ea5c47056fd85f163862420304d1f8",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/community/research_service.gd",
+      "original_sha256": "eee0f6439a013d1689cbf1b482a9f54d49941abe551c7b667904e78c2d41c7fa",
+      "actual_diagnostic_sha256": "eee0f6439a013d1689cbf1b482a9f54d49941abe551c7b667904e78c2d41c7fa",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/content/content_db.gd",
+      "original_sha256": "658bef312d445be223af4cb7b55254160cd884105a863ee280d16fe0733f803a",
+      "actual_diagnostic_sha256": "658bef312d445be223af4cb7b55254160cd884105a863ee280d16fe0733f803a",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/content/content_load_result.gd",
+      "original_sha256": "ca8ff6780a30f9dee0e5254df360103117735175d2d207df47a1c824d9f8c3b5",
+      "actual_diagnostic_sha256": "ca8ff6780a30f9dee0e5254df360103117735175d2d207df47a1c824d9f8c3b5",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/content/content_loader.gd",
+      "original_sha256": "60289da8dd877645ac07eb31cb98afb1dd3b4ab65b1057d6134e29f7c50dfe9b",
+      "actual_diagnostic_sha256": "60289da8dd877645ac07eb31cb98afb1dd3b4ab65b1057d6134e29f7c50dfe9b",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/content/content_pipeline.py",
+      "original_sha256": "2ed8831fa9f63c22ada1666c6f665340d9055288ce3c9627f63f69d932205aa7",
+      "actual_diagnostic_sha256": "2ed8831fa9f63c22ada1666c6f665340d9055288ce3c9627f63f69d932205aa7",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/content/content_registry.gd",
+      "original_sha256": "3f957af0cc9c6b28fcca07e71dd58643602d31de1b8c2a283c725a76e24e8d38",
+      "actual_diagnostic_sha256": "3f957af0cc9c6b28fcca07e71dd58643602d31de1b8c2a283c725a76e24e8d38",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/content/schema100.json",
+      "original_sha256": "f5d47f62f086ac2bffeea6fceb50fccf7ed53c860e7331efd04d2ef7607e011b",
+      "actual_diagnostic_sha256": "f5d47f62f086ac2bffeea6fceb50fccf7ed53c860e7331efd04d2ef7607e011b",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/economy/finance_service.gd",
+      "original_sha256": "6a84601eb63d57641467ad0877b6f7dca04178973145554fc85e7fa5d8b2c96a",
+      "actual_diagnostic_sha256": "6a84601eb63d57641467ad0877b6f7dca04178973145554fc85e7fa5d8b2c96a",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/economy/ledger_entry.gd",
+      "original_sha256": "6c610e59dedf13c94618e41f872c875b1cc33446c55aae4f28317008c181b877",
+      "actual_diagnostic_sha256": "6c610e59dedf13c94618e41f872c875b1cc33446c55aae4f28317008c181b877",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/economy/ledger.gd",
+      "original_sha256": "7359bf55f0f2cb9ede666b8a7f9a2efa64103d896169d1db62624c80ad069844",
+      "actual_diagnostic_sha256": "7359bf55f0f2cb9ede666b8a7f9a2efa64103d896169d1db62624c80ad069844",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/life/public_areas.gd",
+      "original_sha256": "8c925f40777f11eaa5adc7e88564b09e4e1e938fca1bbc9563840d2c59f62643",
+      "actual_diagnostic_sha256": "8c925f40777f11eaa5adc7e88564b09e4e1e938fca1bbc9563840d2c59f62643",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/life/waiting_life.gd",
+      "original_sha256": "7945149fce1c22bb818b163acf014f1f4ae3b072461c240ad4431a51199fd2c7",
+      "actual_diagnostic_sha256": "7945149fce1c22bb818b163acf014f1f4ae3b072461c240ad4431a51199fd2c7",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/operations/department_service.gd",
+      "original_sha256": "c2a0dd23d74ba8a4499153ff0a94c3e3b581045affaf3822740a14ca66d93596",
+      "actual_diagnostic_sha256": "c2a0dd23d74ba8a4499153ff0a94c3e3b581045affaf3822740a14ca66d93596",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/operations/environment_service.gd",
+      "original_sha256": "f3fc28eed445d8a848de174e940055339a0672964974cd6bd47bdb33b82be56a",
+      "actual_diagnostic_sha256": "f3fc28eed445d8a848de174e940055339a0672964974cd6bd47bdb33b82be56a",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/operations/maintenance_service.gd",
+      "original_sha256": "9b1e32aec0d2043e16873a219f609f48b339ce21ff806011181398cfbacf2f1d",
+      "actual_diagnostic_sha256": "9b1e32aec0d2043e16873a219f609f48b339ce21ff806011181398cfbacf2f1d",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/operations/supply_service.gd",
+      "original_sha256": "c475929ef1ffb29fcba23ba944b9b226e9cccb166a906c400718ecd303f8e213",
+      "actual_diagnostic_sha256": "c475929ef1ffb29fcba23ba944b9b226e9cccb166a906c400718ecd303f8e213",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/persistence/backup_zip.gd",
+      "original_sha256": "7c717b593cf331aa68196db9d5c5f25fa2e0d6a0f984c10e5fbfc56f688d2055",
+      "actual_diagnostic_sha256": "7c717b593cf331aa68196db9d5c5f25fa2e0d6a0f984c10e5fbfc56f688d2055",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/persistence/blueprint_library.gd",
+      "original_sha256": "aea8b917af5575789c1ec16f8780ca91f1b114661714fc67a254c22dab0ec497",
+      "actual_diagnostic_sha256": "aea8b917af5575789c1ec16f8780ca91f1b114661714fc67a254c22dab0ec497",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/persistence/hospital_library.gd",
+      "original_sha256": "b75456ce121b0812743ded675f525dba8ac1bb73349ae6c83e87a8c168a06672",
+      "actual_diagnostic_sha256": "b75456ce121b0812743ded675f525dba8ac1bb73349ae6c83e87a8c168a06672",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/persistence/json_stream.gd",
+      "original_sha256": "8873599648ba65cbb23d162e0c9aba209d7b01cbf7734664bb3a29cde79c6f72",
+      "actual_diagnostic_sha256": "8873599648ba65cbb23d162e0c9aba209d7b01cbf7734664bb3a29cde79c6f72",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/persistence/snapshot_store.gd",
+      "original_sha256": "78566573c6bdb50efc8dd6945d27c69f5f0578d93752fb961c99c0d585bcef25",
+      "actual_diagnostic_sha256": "78566573c6bdb50efc8dd6945d27c69f5f0578d93752fb961c99c0d585bcef25",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/sim/equipment_use.gd",
+      "original_sha256": "b2c0001a0ea8640ea4f42f7d86ec59e1c7cf63bad032f78946295918a8620210",
+      "actual_diagnostic_sha256": "b2c0001a0ea8640ea4f42f7d86ec59e1c7cf63bad032f78946295918a8620210",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/sim/hospital_factory.gd",
+      "original_sha256": "aab6e9695c2e33658f969cbe4754fc4bd6dbc8d520df23a715ac5292e2aa8b93",
+      "actual_diagnostic_sha256": "aab6e9695c2e33658f969cbe4754fc4bd6dbc8d520df23a715ac5292e2aa8b93",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/sim/simulation.gd",
+      "original_sha256": "b88679e9a9f592b2402db23fff47a5e31cdfaae1d1514c1637f9083ea61f38b4",
+      "actual_diagnostic_sha256": "b88679e9a9f592b2402db23fff47a5e31cdfaae1d1514c1637f9083ea61f38b4",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/sim/types/business_payload.gd",
+      "original_sha256": "e6be2f738ce0077f3a6b3ec023965fef20785f8d2d941eeff68b40dfdd450fad",
+      "actual_diagnostic_sha256": "e6be2f738ce0077f3a6b3ec023965fef20785f8d2d941eeff68b40dfdd450fad",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/sim/types/command_result.gd",
+      "original_sha256": "14bfda9bada0dfb5d33f13d5966c0572f65cc344a685e4caa8b1210fdbab82cb",
+      "actual_diagnostic_sha256": "14bfda9bada0dfb5d33f13d5966c0572f65cc344a685e4caa8b1210fdbab82cb",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/sim/types/game_command.gd",
+      "original_sha256": "c5d933fa960dab22d4a8c94d1727726a05d3596a1c171e33c28fbafe68d1d7a5",
+      "actual_diagnostic_sha256": "c5d933fa960dab22d4a8c94d1727726a05d3596a1c171e33c28fbafe68d1d7a5",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/sim/types/move_actor_payload.gd",
+      "original_sha256": "f9ced5a3b5649af68128e5cb1effe4d6ee516d18327eedfced56da7de6c03fcc",
+      "actual_diagnostic_sha256": "f9ced5a3b5649af68128e5cb1effe4d6ee516d18327eedfced56da7de6c03fcc",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/sim/types/sim_event.gd",
+      "original_sha256": "97adadfe83e77fb0292ed8b322f2ed1d3f5b3138d772cf3d5b8bc4240ba8a911",
+      "actual_diagnostic_sha256": "97adadfe83e77fb0292ed8b322f2ed1d3f5b3138d772cf3d5b8bc4240ba8a911",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/sim/types/tick_result.gd",
+      "original_sha256": "21253c3043fef847fa707f77955c5d650fec072b48feb4060d6b79b320d938c1",
+      "actual_diagnostic_sha256": "21253c3043fef847fa707f77955c5d650fec072b48feb4060d6b79b320d938c1",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/sim/world_state.gd",
+      "original_sha256": "e324c57bbbdc22f798da9e7a40e89cc8b00c1fc0d1b508438cf7f80771b8bbf5",
+      "actual_diagnostic_sha256": "e324c57bbbdc22f798da9e7a40e89cc8b00c1fc0d1b508438cf7f80771b8bbf5",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/staff/clinical_development.gd",
+      "original_sha256": "a33f86c5f165315e7710bfa6b2c359b472c678c283fb2ccee4caeef74584bb55",
+      "actual_diagnostic_sha256": "a33f86c5f165315e7710bfa6b2c359b472c678c283fb2ccee4caeef74584bb55",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/staff/personal_bed_matching.gd",
+      "original_sha256": "23f925d79caf91193210e6de0044e5d251cc67978e4d6b78e2e9b1b6ad58b517",
+      "actual_diagnostic_sha256": "23f925d79caf91193210e6de0044e5d251cc67978e4d6b78e2e9b1b6ad58b517",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/staff/personal_beds.gd",
+      "original_sha256": "fe816d77b0e1268d5d4de0c886cbb739a1c8f0d83b8505f201f59b8a8a4c26d6",
+      "actual_diagnostic_sha256": "fe816d77b0e1268d5d4de0c886cbb739a1c8f0d83b8505f201f59b8a8a4c26d6",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/staff/recruitment_service.gd",
+      "original_sha256": "7c7a4902aa693aa7b8f57a9ed61c87f37423b5897d00c22cd053f4ea80ae8693",
+      "actual_diagnostic_sha256": "7c7a4902aa693aa7b8f57a9ed61c87f37423b5897d00c22cd053f4ea80ae8693",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/staff/shift_scheduler.gd",
+      "original_sha256": "d3a45d0c2b47f05461c1cbdab6481d1c421f977a0335acab74989655e0c1d25e",
+      "actual_diagnostic_sha256": "d3a45d0c2b47f05461c1cbdab6481d1c421f977a0335acab74989655e0c1d25e",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/staff/staff_wellbeing.gd",
+      "original_sha256": "e290834f0469c6ee349f48542ccd673d07c1fc1d043d41bb94ec3492d62fbec6",
+      "actual_diagnostic_sha256": "e290834f0469c6ee349f48542ccd673d07c1fc1d043d41bb94ec3492d62fbec6",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/ui/action_panel.gd",
+      "original_sha256": "e69f7581747e4277987c3a5945a7d146ddf86909f7012dae1e75dee816740310",
+      "actual_diagnostic_sha256": "e69f7581747e4277987c3a5945a7d146ddf86909f7012dae1e75dee816740310",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/ui/arrivals_panel.gd",
+      "original_sha256": "3a63b207f5c3b3b61c418f853b909019eff0d6e9fcbe61a3a70fc518744ec864",
+      "actual_diagnostic_sha256": "3a63b207f5c3b3b61c418f853b909019eff0d6e9fcbe61a3a70fc518744ec864",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/ui/build_panel.gd",
+      "original_sha256": "eaf3579c4881469811795babb456201644450a28dce2fb947df1ab202bb3a586",
+      "actual_diagnostic_sha256": "eaf3579c4881469811795babb456201644450a28dce2fb947df1ab202bb3a586",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/ui/clinical_panel.gd",
+      "original_sha256": "bce88f0f1346bc6c7d839e296d597ab8c77bfc6754e2354a13fcd794b4b3c801",
+      "actual_diagnostic_sha256": "bce88f0f1346bc6c7d839e296d597ab8c77bfc6754e2354a13fcd794b4b3c801",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/ui/departments_panel.gd",
+      "original_sha256": "7e70538c5c65ae11937ff9b116cb9e59e778a1e843ea4f361c9a6e71b03cfd15",
+      "actual_diagnostic_sha256": "7e70538c5c65ae11937ff9b116cb9e59e778a1e843ea4f361c9a6e71b03cfd15",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/ui/environment_panel.gd",
+      "original_sha256": "4076755346b70f8b6b1e26d9c9a3c79bad908e9de93e8d067be30e269256313e",
+      "actual_diagnostic_sha256": "4076755346b70f8b6b1e26d9c9a3c79bad908e9de93e8d067be30e269256313e",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/ui/expansion_panel.gd",
+      "original_sha256": "04e6ca9d15ad7f3427bd809716f00ad247fbd185eaa670d3137bae4158732457",
+      "actual_diagnostic_sha256": "04e6ca9d15ad7f3427bd809716f00ad247fbd185eaa670d3137bae4158732457",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/ui/finance_panel.gd",
+      "original_sha256": "f4b329680176b85e72ff096ca95d3d60f9e7183a0a3c69cfe2b5e99fd5b7b479",
+      "actual_diagnostic_sha256": "f4b329680176b85e72ff096ca95d3d60f9e7183a0a3c69cfe2b5e99fd5b7b479",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/ui/hospital_library_panel.gd",
+      "original_sha256": "704e1a0bc4a73be0f003c7699944c0d61ce58e4143c84f49155f4d5076bdb287",
+      "actual_diagnostic_sha256": "704e1a0bc4a73be0f003c7699944c0d61ce58e4143c84f49155f4d5076bdb287",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/ui/maintenance_panel.gd",
+      "original_sha256": "3cbf02b09e9b30761c0615837a07dca754ce340d8e6f01d7a56af5336145c30f",
+      "actual_diagnostic_sha256": "3cbf02b09e9b30761c0615837a07dca754ce340d8e6f01d7a56af5336145c30f",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/ui/plans_panel.gd",
+      "original_sha256": "861469432b24f555718393cdb50f1609b94b58b8ed3f48bc30a9079d3b26cf75",
+      "actual_diagnostic_sha256": "861469432b24f555718393cdb50f1609b94b58b8ed3f48bc30a9079d3b26cf75",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/ui/recruitment_panel.gd",
+      "original_sha256": "e42a1616e3a607648d655f9a90b321b79cb711f1651cc75e1661bc7e211f988b",
+      "actual_diagnostic_sha256": "e42a1616e3a607648d655f9a90b321b79cb711f1651cc75e1661bc7e211f988b",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/ui/remodel_panel.gd",
+      "original_sha256": "f16c469ad4a8fe878e7e56c07cfef636e136a543aae33a9b3a0468fd1552df5e",
+      "actual_diagnostic_sha256": "f16c469ad4a8fe878e7e56c07cfef636e136a543aae33a9b3a0468fd1552df5e",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/ui/research_panel.gd",
+      "original_sha256": "e258fdeee328083f555d369ed3e0907682da5c2cb59f6faed23bd5756201b396",
+      "actual_diagnostic_sha256": "e258fdeee328083f555d369ed3e0907682da5c2cb59f6faed23bd5756201b396",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/ui/schedule_panel.gd",
+      "original_sha256": "8ad29541c473d24d4b0e2422409f4094110b014dab3413725dae2f98a8113c43",
+      "actual_diagnostic_sha256": "8ad29541c473d24d4b0e2422409f4094110b014dab3413725dae2f98a8113c43",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/ui/staff_life_panel.gd",
+      "original_sha256": "fff324f0fe0b6ba7faafb59cf071abdf56ff1ae74c00b898de3d4e815f4e20a5",
+      "actual_diagnostic_sha256": "fff324f0fe0b6ba7faafb59cf071abdf56ff1ae74c00b898de3d4e815f4e20a5",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/ui/supplies_panel.gd",
+      "original_sha256": "99d43f0f2070e1597d4b85762c6567a88d3dc4dd43cbf31e9c4219f53b954cf4",
+      "actual_diagnostic_sha256": "99d43f0f2070e1597d4b85762c6567a88d3dc4dd43cbf31e9c4219f53b954cf4",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/ui/training_panel.gd",
+      "original_sha256": "283b9d0c91f753cb79ba445fc41b098c90cce2e18e64f046bdc6d6c127a73be1",
+      "actual_diagnostic_sha256": "283b9d0c91f753cb79ba445fc41b098c90cce2e18e64f046bdc6d6c127a73be1",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/ui/waiting_panel.gd",
+      "original_sha256": "773b273e1c8d8a106402c013b24caf615118a2c25863754a7b8e7b4257fc86e4",
+      "actual_diagnostic_sha256": "773b273e1c8d8a106402c013b24caf615118a2c25863754a7b8e7b4257fc86e4",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/ui/ward_panel.gd",
+      "original_sha256": "3015b74a9fa1868401354b6edae65e6c0b302d534a6623ac57183a91c457bdd0",
+      "actual_diagnostic_sha256": "3015b74a9fa1868401354b6edae65e6c0b302d534a6623ac57183a91c457bdd0",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/view/build_overlay.gd",
+      "original_sha256": "b6cd67a262a9b1e31474e1c167e96dd87b54d7a784039caf5700e3b53f7041aa",
+      "actual_diagnostic_sha256": "b6cd67a262a9b1e31474e1c167e96dd87b54d7a784039caf5700e3b53f7041aa",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/view/compatibility_skin_input.gd",
+      "original_sha256": "f0c6b71171c8ea8917b661196152e97f2a6e642fbbdb72b3ae18091eb57f73b8",
+      "actual_diagnostic_sha256": "f0c6b71171c8ea8917b661196152e97f2a6e642fbbdb72b3ae18091eb57f73b8",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/view/hospital_palette.gd",
+      "original_sha256": "dd24f6999e8c0522cc0e04eb36bf4cd779274ccbb85133d8821daa742e930624",
+      "actual_diagnostic_sha256": "dd24f6999e8c0522cc0e04eb36bf4cd779274ccbb85133d8821daa742e930624",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/view/hospital_view.gd",
+      "original_sha256": "f3414958203f47d5d1bcfa1873d05ebf45f9f5056db1c7ba8b4eb2f8bfdd8a84",
+      "actual_diagnostic_sha256": "f3414958203f47d5d1bcfa1873d05ebf45f9f5056db1c7ba8b4eb2f8bfdd8a84",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/view/skinned_pose_batch.gd",
+      "original_sha256": "55c050528ad395542feb3b48d3b72a12855ebdad755051f4fdcbb98f6b4690f8",
+      "actual_diagnostic_sha256": "55c050528ad395542feb3b48d3b72a12855ebdad755051f4fdcbb98f6b4690f8",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/view/view_resources.gd",
+      "original_sha256": "52fd8ad69760d5e74a10d9cc7ec4ccb318b44f307a74712350e8822ab324a670",
+      "actual_diagnostic_sha256": "52fd8ad69760d5e74a10d9cc7ec4ccb318b44f307a74712350e8822ab324a670",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "game/view/view_work_budget.gd",
+      "original_sha256": "7accce896aab177ff50f3d82ed2988128728bbfbf195d5b04e55c71de0e6c5d2",
+      "actual_diagnostic_sha256": "7accce896aab177ff50f3d82ed2988128728bbfbf195d5b04e55c71de0e6c5d2",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tests/acceptance/clinical_timing.gd",
+      "original_sha256": "f794e68e8c8752ded4e34580a8d270e79c8f4bf4f156c8ee2320b59278beaddd",
+      "actual_diagnostic_sha256": "f794e68e8c8752ded4e34580a8d270e79c8f4bf4f156c8ee2320b59278beaddd",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/acceptance/analysis_reference.py",
+      "original_sha256": "d49aff7d160907f95018edee09431f7f85d7bade0f34b19b081dc7cc2d53818e",
+      "actual_diagnostic_sha256": "d49aff7d160907f95018edee09431f7f85d7bade0f34b19b081dc7cc2d53818e",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/acceptance/analyze.py",
+      "original_sha256": "bbcdec74e6358b702b28755ec609a66f10b6ab9bb7487401dab7b984382871ee",
+      "actual_diagnostic_sha256": "bbcdec74e6358b702b28755ec609a66f10b6ab9bb7487401dab7b984382871ee",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/acceptance/apitrace_display.py",
+      "original_sha256": "6e6d65bb09a62117507bafb39a7393131807fb62bd8efa5cd683098b662fa2dc",
+      "actual_diagnostic_sha256": "6e6d65bb09a62117507bafb39a7393131807fb62bd8efa5cd683098b662fa2dc",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/acceptance/check_roundtrip.gd",
+      "original_sha256": "3fea0a38ff54c0134c6c2c463fd8afe66b7eb4ecb11e45f242dfdab1d528b05e",
+      "actual_diagnostic_sha256": "3fea0a38ff54c0134c6c2c463fd8afe66b7eb4ecb11e45f242dfdab1d528b05e",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/acceptance/check_settings.gd",
+      "original_sha256": "43ba2f5c4f375a3697e91da0078ba9e32f6df05c7ba40ce4a315b30591e2811b",
+      "actual_diagnostic_sha256": "43ba2f5c4f375a3697e91da0078ba9e32f6df05c7ba40ce4a315b30591e2811b",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/acceptance/display_probe.gd",
+      "original_sha256": "442c9c9a1f3475e905a1f72f942f07427f95de063b79ba7e6352a13c9591d732",
+      "actual_diagnostic_sha256": "442c9c9a1f3475e905a1f72f942f07427f95de063b79ba7e6352a13c9591d732",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/acceptance/display_root.gd",
+      "original_sha256": "ece959229a18ab305e1c87d589a504c8ef7753a9ee091bc7d4e7c7856b0feef6",
+      "actual_diagnostic_sha256": "ece959229a18ab305e1c87d589a504c8ef7753a9ee091bc7d4e7c7856b0feef6",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/extra_scenarios.json",
+      "original_sha256": "a05bf81d48588ea7c2e4f6514ce9aa4b7c0ad9f6c96195eba16a565a228dba5d",
+      "actual_diagnostic_sha256": "a05bf81d48588ea7c2e4f6514ce9aa4b7c0ad9f6c96195eba16a565a228dba5d",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/inputs.json",
+      "original_sha256": "61360ea6e15293c270ed8a326c8cdb481f16a24c882a0711ed591580b05a7347",
+      "actual_diagnostic_sha256": "61360ea6e15293c270ed8a326c8cdb481f16a24c882a0711ed591580b05a7347",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/legal_history_size.gd",
+      "original_sha256": "4a0a0855d3431c345588a0efae6e06e58b5ac2dcea0479772e68e9e1d2849920",
+      "actual_diagnostic_sha256": "4a0a0855d3431c345588a0efae6e06e58b5ac2dcea0479772e68e9e1d2849920",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/preflight_maximum_tall.gd",
+      "original_sha256": "aca738532796915a674453485da6142325fa04a79644b496270f78148ef75673",
+      "actual_diagnostic_sha256": "aca738532796915a674453485da6142325fa04a79644b496270f78148ef75673",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/prepare_boundary.gd",
+      "original_sha256": "94b4ea2afbe8d220da59b2d099790c0a5a7c984d09429769e3589c84974f05a7",
+      "actual_diagnostic_sha256": "94b4ea2afbe8d220da59b2d099790c0a5a7c984d09429769e3589c84974f05a7",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/prepare_inputs.gd",
+      "original_sha256": "47ac3088979089325bde13f9aa7187d51b4813b57a3f9b737f413bd9f7c02b14",
+      "actual_diagnostic_sha256": "47ac3088979089325bde13f9aa7187d51b4813b57a3f9b737f413bd9f7c02b14",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/prepare_operations.gd",
+      "original_sha256": "09a886a48177c1e54935a067d25f6aca3758d1f5553604a4b2f4a7ae4c8557ad",
+      "actual_diagnostic_sha256": "09a886a48177c1e54935a067d25f6aca3758d1f5553604a4b2f4a7ae4c8557ad",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/acceptance/fixtures/scenarios.json",
+      "original_sha256": "293798106c65c8a07a78ae84a239d82c1e0c781e6fabb9c27bef0b715ff20f48",
+      "actual_diagnostic_sha256": "293798106c65c8a07a78ae84a239d82c1e0c781e6fabb9c27bef0b715ff20f48",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/acceptance/formal_root.gd",
+      "original_sha256": "02d4cb2e188fad46e9d38aff5f87f7de21ece115376ebdcaa17ac3b8b9db31c3",
+      "actual_diagnostic_sha256": "02d4cb2e188fad46e9d38aff5f87f7de21ece115376ebdcaa17ac3b8b9db31c3",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/acceptance/gpu-ledger.py",
+      "original_sha256": "9c3fec047b6028a69dfb64135483a9b4491d28f75de8bcc8445837e1f72475fc",
+      "actual_diagnostic_sha256": "9c3fec047b6028a69dfb64135483a9b4491d28f75de8bcc8445837e1f72475fc",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/acceptance/native_clock.gd",
+      "original_sha256": "26362c395bf813cf34f8904dbd8415cd4a8a8d404c1eb89574db28bc01e72b02",
+      "actual_diagnostic_sha256": "26362c395bf813cf34f8904dbd8415cd4a8a8d404c1eb89574db28bc01e72b02",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/acceptance/observed_library.gd",
+      "original_sha256": "92cf683aa575f2a806af0a71dbbf7b221aafac303584acb27abf614d7a854935",
+      "actual_diagnostic_sha256": "92cf683aa575f2a806af0a71dbbf7b221aafac303584acb27abf614d7a854935",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/acceptance/observed_snapshots.gd",
+      "original_sha256": "4f26afe33cbbb4828e2304819d8573864fceb9940e6c1e6800034a72adcea1f0",
+      "actual_diagnostic_sha256": "4f26afe33cbbb4828e2304819d8573864fceb9940e6c1e6800034a72adcea1f0",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/acceptance/operation_driver.gd",
+      "original_sha256": "d878a707a15638f70dcb07cb95c8253082f195f0312dbe11570fc2dce7ee29b0",
+      "actual_diagnostic_sha256": "d878a707a15638f70dcb07cb95c8253082f195f0312dbe11570fc2dce7ee29b0",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/acceptance/preview_input_observer.gd",
+      "original_sha256": "cb63b5b54abc3251c7a5fa9fe8495de1783b39dd479d79956c36a6b1f7825bdb",
+      "actual_diagnostic_sha256": "cb63b5b54abc3251c7a5fa9fe8495de1783b39dd479d79956c36a6b1f7825bdb",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/acceptance/probe.gd",
+      "original_sha256": "b3665d7eddecc72bc4c5e395846402bcc9d18d48a12ed7b21bd1ddaf4bff9f7c",
+      "actual_diagnostic_sha256": "b3665d7eddecc72bc4c5e395846402bcc9d18d48a12ed7b21bd1ddaf4bff9f7c",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/acceptance/renderdoc_display.py",
+      "original_sha256": "93de2b24049e4e2095df954b6b713d93735ff3e1d36c564bfe5d8d3569036637",
+      "actual_diagnostic_sha256": "93de2b24049e4e2095df954b6b713d93735ff3e1d36c564bfe5d8d3569036637",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/acceptance/scenario.example.json",
+      "original_sha256": "7f67e05118d7242be08488b19ac16c4078778ce6ea2099e0e2e05ee711ae74fb",
+      "actual_diagnostic_sha256": "7f67e05118d7242be08488b19ac16c4078778ce6ea2099e0e2e05ee711ae74fb",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/acceptance/self_check.py",
+      "original_sha256": "47453626ceec8a8ea36c0b914bef48a7b2a50e121db7428546da86c0b6fbe59c",
+      "actual_diagnostic_sha256": "47453626ceec8a8ea36c0b914bef48a7b2a50e121db7428546da86c0b6fbe59c",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/acceptance/snapshot_witness.gd",
+      "original_sha256": "37e5c5084ebb4806cee1897d5fd09b8aec78876837d6fa57f72112b099db661d",
+      "actual_diagnostic_sha256": "37e5c5084ebb4806cee1897d5fd09b8aec78876837d6fa57f72112b099db661d",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/acceptance/test_analysis.py",
+      "original_sha256": "ac8eaabd4edd57ba39cce4a77f4fb5578364d932037b3fa5f6bfb3af9b2aec35",
+      "actual_diagnostic_sha256": "ac8eaabd4edd57ba39cce4a77f4fb5578364d932037b3fa5f6bfb3af9b2aec35",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/acceptance/visible_capture.gd",
+      "original_sha256": "e0340c8665d62c7d28fd24f053753e6a24b897ed2a7af370b79b09111c8a4aec",
+      "actual_diagnostic_sha256": "e0340c8665d62c7d28fd24f053753e6a24b897ed2a7af370b79b09111c8a4aec",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/all_instance_profile.gd",
+      "original_sha256": "98a981fdb77bfcf71ffe59f9f423c5ae822f89f8ba8318e3956e3087f9c6a362",
+      "actual_diagnostic_sha256": "98a981fdb77bfcf71ffe59f9f423c5ae822f89f8ba8318e3956e3087f9c6a362",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/analyze_decisions.py",
+      "original_sha256": "b87eb5fb96e21d4bc08dbd50403bf18bc0c9ea9ff4cece852b2d973a66f624a2",
+      "actual_diagnostic_sha256": "b87eb5fb96e21d4bc08dbd50403bf18bc0c9ea9ff4cece852b2d973a66f624a2",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/decision_profile.gd",
+      "original_sha256": "d64aade6ccba39c64956e03b00d3b403b8fb9b7be08f3cb0d7391d0f61667f30",
+      "actual_diagnostic_sha256": "d64aade6ccba39c64956e03b00d3b403b8fb9b7be08f3cb0d7391d0f61667f30",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/diagnose.gd",
+      "original_sha256": "1be081e89c7f6fe3763d8b59da74a894405022af9f50754ba1eb4e733dd433c6",
+      "actual_diagnostic_sha256": "1be081e89c7f6fe3763d8b59da74a894405022af9f50754ba1eb4e733dd433c6",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/fixture.gd",
+      "original_sha256": "f99efd9dd5cf8afa2f7ca89f221edbcc54c2e080b1d0339d4b7de80874145189",
+      "actual_diagnostic_sha256": "f99efd9dd5cf8afa2f7ca89f221edbcc54c2e080b1d0339d4b7de80874145189",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/history.gd",
+      "original_sha256": "d0dc91f259dc77140247f4032b7549e800f6c230498419dee014cf2ab1548556",
+      "actual_diagnostic_sha256": "d0dc91f259dc77140247f4032b7549e800f6c230498419dee014cf2ab1548556",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/instrument_all_instances.py",
+      "original_sha256": "4c2ba0648bb919724ef1f903a953dde8ff37307487f008cf7a27a2b0514e5f2f",
+      "actual_diagnostic_sha256": "4c2ba0648bb919724ef1f903a953dde8ff37307487f008cf7a27a2b0514e5f2f",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/movement_trace.gd",
+      "original_sha256": "1ec2bcf0b4fd125af02fccbc64c9e77ae79e4bd1137d8b79ee5a8c0a7a2ffd96",
+      "actual_diagnostic_sha256": "1ec2bcf0b4fd125af02fccbc64c9e77ae79e4bd1137d8b79ee5a8c0a7a2ffd96",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/native_capacity.gd",
+      "original_sha256": "9472530742980c9511138887987682391affee18b79baffe83384b808bce75e0",
+      "actual_diagnostic_sha256": "9472530742980c9511138887987682391affee18b79baffe83384b808bce75e0",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/personal_bed_probe.gd",
+      "original_sha256": "5d7002badee9eab11eab785fb1f722bb4c1b2c361c45bbd14fdd0c1eb085076f",
+      "actual_diagnostic_sha256": "5d7002badee9eab11eab785fb1f722bb4c1b2c361c45bbd14fdd0c1eb085076f",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/prepare_public_input.gd",
+      "original_sha256": "5ac4c8ca7e441e0f8935e6c9255e15d186f2a5953442a19e48e3a5405d622cb0",
+      "actual_diagnostic_sha256": "5ac4c8ca7e441e0f8935e6c9255e15d186f2a5953442a19e48e3a5405d622cb0",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/preview.gd",
+      "original_sha256": "e2d140dd2c15a2d0dabb90fc899eea904566a21db0e0700ba48297f91815bae6",
+      "actual_diagnostic_sha256": "e2d140dd2c15a2d0dabb90fc899eea904566a21db0e0700ba48297f91815bae6",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/profile.gd",
+      "original_sha256": "134d55be496dca295695acf1707a2dadcdca0f74bc5108de0870bc19ac285d02",
+      "actual_diagnostic_sha256": "134d55be496dca295695acf1707a2dadcdca0f74bc5108de0870bc19ac285d02",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/representative_clinical.gd",
+      "original_sha256": "463e2370de3a9d9ec22a9fbf7a6e64fd4809256920f8194e323bdb4ae18e52e0",
+      "actual_diagnostic_sha256": "463e2370de3a9d9ec22a9fbf7a6e64fd4809256920f8194e323bdb4ae18e52e0",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/representative_compare.gd",
+      "original_sha256": "161004853d0dc2cd15284184fc1f268c08261435829fbd5690707cf88210a18b",
+      "actual_diagnostic_sha256": "161004853d0dc2cd15284184fc1f268c08261435829fbd5690707cf88210a18b",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/representative_continue.gd",
+      "original_sha256": "39a8b08ddcc2a09bb1c192115219e3acd6224cc3a5171f4144ba2d43b85bb66d",
+      "actual_diagnostic_sha256": "39a8b08ddcc2a09bb1c192115219e3acd6224cc3a5171f4144ba2d43b85bb66d",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/representative_operations.gd",
+      "original_sha256": "2bfdfe6ad39fec3fc72c73ead2f5be264d1445eaec816dc14279b3641a4af8ba",
+      "actual_diagnostic_sha256": "2bfdfe6ad39fec3fc72c73ead2f5be264d1445eaec816dc14279b3641a4af8ba",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/representative_prepare.gd",
+      "original_sha256": "ff395f378b943454a20b32331c2c1e6d494ea34da0d5d2d962baab90d90bf91f",
+      "actual_diagnostic_sha256": "ff395f378b943454a20b32331c2c1e6d494ea34da0d5d2d962baab90d90bf91f",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/representative_public.gd",
+      "original_sha256": "3b8543c5dad65f39f45f4ddadd2c3afbfca7d772f35def46677fd460456add14",
+      "actual_diagnostic_sha256": "3b8543c5dad65f39f45f4ddadd2c3afbfca7d772f35def46677fd460456add14",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/representative_selected.gd",
+      "original_sha256": "3bc9613621df975f55fe3bd207c9b49e078e0aa52ef521cae43f257d6a363730",
+      "actual_diagnostic_sha256": "3bc9613621df975f55fe3bd207c9b49e078e0aa52ef521cae43f257d6a363730",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/representative.gd",
+      "original_sha256": "9c4d7c7d609ed0325c15cd85fc07e91f2dcd118d74c2f116dafcd18351adf452",
+      "actual_diagnostic_sha256": "9cd938f7df306524a9ae1cb3967b6e8c527d364904d1aa861739da31231c5eaa",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": true
+    },
+    {
+      "path": "tools/performance/resume_representative.gd",
+      "original_sha256": "04d302af9f523e2d99f4b2d9f8506be868fe185ce1943ace396e91916abfa797",
+      "actual_diagnostic_sha256": "04d302af9f523e2d99f4b2d9f8506be868fe185ce1943ace396e91916abfa797",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/solver_check.gd",
+      "original_sha256": "d88f2d0f364b6e210c29c628ce3fd3f93081390ce7ed152f1989d270726caad6",
+      "actual_diagnostic_sha256": "d88f2d0f364b6e210c29c628ce3fd3f93081390ce7ed152f1989d270726caad6",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/solver_oracle.py",
+      "original_sha256": "5e17d30c7cf658529081c261c2a50a11cbca2db25bbc858300f858360c91b3c3",
+      "actual_diagnostic_sha256": "5e17d30c7cf658529081c261c2a50a11cbca2db25bbc858300f858360c91b3c3",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/step_profile.gd",
+      "original_sha256": "d4305f0a57cbf55d7a5750ebb41aa8a3a147f441c19b6be3b1fa3f445f3e8620",
+      "actual_diagnostic_sha256": "d4305f0a57cbf55d7a5750ebb41aa8a3a147f441c19b6be3b1fa3f445f3e8620",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    },
+    {
+      "path": "tools/performance/trace_preparation.gd",
+      "original_sha256": "f2895d16426de36d9d629e677767dd1b3179b06ebeb1cd740086cc78e15c8c20",
+      "actual_diagnostic_sha256": "f2895d16426de36d9d629e677767dd1b3179b06ebeb1cd740086cc78e15c8c20",
+      "actual_frozen_original_and_workspace_equal": true,
+      "inline_modified": false
+    }
+  ],
+  "four_independent_inline_inverses": [
+    {
+      "path": "game/building/floor_navigation.gd",
+      "original_sha256": "241502dbb289d2ca939f2cd193d7b9c7740b64bcd70323fda03d50cead577090",
+      "actual_generated_sha256": "f1e50d7a43687bc5286852ef03e063cdb2bc678832f39d753848690a2857adca",
+      "replacement_count": 3,
+      "independent_inverse_byte_equal": true
+    },
+    {
+      "path": "game/building/hospital_navigation.gd",
+      "original_sha256": "b2de71ea7cc4ca3bb7135b5b0d42c33eef0661001edd3e4c583391325cf90508",
+      "actual_generated_sha256": "4867e4c249d609176b172e3660732b94217480859b382243b2baec52623fc7ff",
+      "replacement_count": 6,
+      "independent_inverse_byte_equal": true
+    },
+    {
+      "path": "game/building/navigation_cache.gd",
+      "original_sha256": "ebb83727e9998ad8183f9b3b981ebe993216bdc94da87e92dedb418e8ddc12e8",
+      "actual_generated_sha256": "0652678cd6539cac4f3f0de3e33468516ac148cfa158a56ed9c513f9fda159e4",
+      "replacement_count": 6,
+      "independent_inverse_byte_equal": true
+    },
+    {
+      "path": "tools/performance/representative.gd",
+      "original_sha256": "9c4d7c7d609ed0325c15cd85fc07e91f2dcd118d74c2f116dafcd18351adf452",
+      "actual_generated_sha256": "9cd938f7df306524a9ae1cb3967b6e8c527d364904d1aa861739da31231c5eaa",
+      "replacement_count": 2,
+      "independent_inverse_byte_equal": true
+    }
+  ],
+  "additional_copied_prepared_configs_checked": [
+    {
+      "path": "project.godot",
+      "actual_sha256": "203f80f48a53d49204bc34cf0868d67966b7a29773dc0e361b298c5c40ab33ba",
+      "copied_prepared_config_equal": true
+    },
+    {
+      "path": "export_presets.cfg",
+      "actual_sha256": "4a23f9ec0110dc2bbb4c2794b02397498ceffa6f398e4a9331a08577dccf0e59",
+      "copied_prepared_config_equal": true
+    }
+  ],
+  "remaining_source_rows_reusing_previous_actual_verification": 231,
+  "remaining_reused_source_paths": [
+    "addons/source_assets/plugin.cfg",
+    "addons/source_assets/plugin.gd.uid",
+    "assets/fonts/NotoSansCJKsc-Medium.otf",
+    "assets/fonts/NotoSansCJKsc-Medium.otf.import",
+    "assets/fonts/NotoSansCJKsc-Regular.otf",
+    "assets/fonts/NotoSansCJKsc-Regular.otf.import",
+    "assets/fonts/OFL.txt",
+    "assets/gags/case_d23_dream.glb",
+    "assets/gags/case_d23_dream.glb.import",
+    "assets/gags/case_d37_tissue.glb",
+    "assets/gags/case_d37_tissue.glb.import",
+    "assets/gags/device_m37_filter.glb",
+    "assets/gags/device_m37_filter.glb.import",
+    "assets/licenses/Godot-MIT.txt",
+    "assets/models/core_eq01_machine.glb",
+    "assets/models/core_eq01_machine.glb.import",
+    "assets/models/core_eq05_machine.glb",
+    "assets/models/core_eq05_machine.glb.import",
+    "assets/models/core_m17_machine.glb",
+    "assets/models/core_m17_machine.glb.import",
+    "assets/models/core_m37_machine.glb",
+    "assets/models/core_m37_machine.glb.import",
+    "assets/models/core_s14_body.glb",
+    "assets/models/core_s14_body.glb.import",
+    "assets/models/core_s21_body.glb",
+    "assets/models/core_s21_body.glb.import",
+    "assets/models/core_s49_body.glb",
+    "assets/models/core_s49_body.glb.import",
+    "assets/models/core_s55_body.glb",
+    "assets/models/core_s55_body.glb.import",
+    "assets/models/core_s59_body.glb",
+    "assets/models/core_s59_body.glb.import",
+    "assets/models/import_vertex_colours.gd.uid",
+    "content/core/locale/zh_CN.csv",
+    "content/core/locale/zh_CN.csv.import",
+    "export_presets.cfg",
+    "game/app/app_root.gd.uid",
+    "game/app/game_session.gd.uid",
+    "game/app/main.tscn",
+    "game/arrivals/arrival_preparation.gd.uid",
+    "game/arrivals/arrival_service.gd.uid",
+    "game/arrivals/capacity_solver.gd.uid",
+    "game/arrivals/day_plan.gd.uid",
+    "game/arrivals/exact_fraction.gd.uid",
+    "game/building/blueprint_service.gd.uid",
+    "game/building/body_index.gd.uid",
+    "game/building/body_sweep.gd.uid",
+    "game/building/build_geometry.gd.uid",
+    "game/building/build_preview.gd.uid",
+    "game/building/build_preview_job.gd.uid",
+    "game/building/build_service.gd.uid",
+    "game/building/connector_service.gd.uid",
+    "game/building/floor_navigation.gd.uid",
+    "game/building/floor_service.gd.uid",
+    "game/building/hospital_movement.gd.uid",
+    "game/building/hospital_navigation.gd.uid",
+    "game/building/hospital_space.gd.uid",
+    "game/building/hospital_transit.gd.uid",
+    "game/building/navigation_cache.gd.uid",
+    "game/building/remodel_service.gd.uid",
+    "game/building/route_clearance.gd.uid",
+    "game/clinic/clinical_runtime.gd.uid",
+    "game/clinic/hospital_visitors.gd.uid",
+    "game/community/research_job_index.gd.uid",
+    "game/community/research_service.gd.uid",
+    "game/content/content_db.gd.uid",
+    "game/content/content_load_result.gd.uid",
+    "game/content/content_loader.gd.uid",
+    "game/content/content_registry.gd.uid",
+    "game/economy/finance_service.gd.uid",
+    "game/economy/ledger.gd.uid",
+    "game/economy/ledger_entry.gd.uid",
+    "game/life/public_areas.gd.uid",
+    "game/life/waiting_life.gd.uid",
+    "game/operations/department_service.gd.uid",
+    "game/operations/environment_service.gd.uid",
+    "game/operations/maintenance_service.gd.uid",
+    "game/operations/supply_service.gd.uid",
+    "game/persistence/backup_zip.gd.uid",
+    "game/persistence/blueprint_library.gd.uid",
+    "game/persistence/hospital_library.gd.uid",
+    "game/persistence/json_stream.gd.uid",
+    "game/persistence/snapshot_store.gd.uid",
+    "game/platform/windows/README.md",
+    "game/platform/windows/oddly_good_platform.gdextension",
+    "game/platform/windows/oddly_good_platform.gdextension.uid",
+    "game/platform/windows/platform_arrivals.cpp",
+    "game/platform/windows/platform_backup_zip.c",
+    "game/platform/windows/platform_backup_zip.h",
+    "game/platform/windows/platform_bed_matching.h",
+    "game/platform/windows/platform_entry_order.h",
+    "game/platform/windows/platform_environment_coverage.h",
+    "game/platform/windows/platform_floor_graph.h",
+    "game/platform/windows/platform_graph_reachability.h",
+    "game/platform/windows/platform_grid_component.h",
+    "game/platform/windows/platform_grid_distance.h",
+    "game/platform/windows/platform_json_stream.h",
+    "game/platform/windows/platform_json_stream.inc",
+    "game/platform/windows/platform_public_regions.h",
+    "game/platform/windows/platform_route_queue.h",
+    "game/platform/windows/platform_route_search.h",
+    "game/platform/windows/platform_session_guard.c",
+    "game/platform/windows/platform_spatial_index.h",
+    "game/platform/windows/platform_sqlite.h",
+    "game/platform/windows/platform_unit_static_masks.h",
+    "game/sim/equipment_use.gd.uid",
+    "game/sim/hospital_factory.gd.uid",
+    "game/sim/simulation.gd.uid",
+    "game/sim/types/business_payload.gd.uid",
+    "game/sim/types/command_result.gd.uid",
+    "game/sim/types/game_command.gd.uid",
+    "game/sim/types/move_actor_payload.gd.uid",
+    "game/sim/types/sim_event.gd.uid",
+    "game/sim/types/tick_result.gd.uid",
+    "game/sim/world_state.gd.uid",
+    "game/staff/clinical_development.gd.uid",
+    "game/staff/personal_bed_matching.gd.uid",
+    "game/staff/personal_beds.gd.uid",
+    "game/staff/recruitment_service.gd.uid",
+    "game/staff/shift_scheduler.gd.uid",
+    "game/staff/staff_wellbeing.gd.uid",
+    "game/ui/action_panel.gd.uid",
+    "game/ui/arrivals_panel.gd.uid",
+    "game/ui/build_panel.gd.uid",
+    "game/ui/clinical_panel.gd.uid",
+    "game/ui/departments_panel.gd.uid",
+    "game/ui/environment_panel.gd.uid",
+    "game/ui/expansion_panel.gd.uid",
+    "game/ui/finance_panel.gd.uid",
+    "game/ui/hospital_library_panel.gd.uid",
+    "game/ui/maintenance_panel.gd.uid",
+    "game/ui/plans_panel.gd.uid",
+    "game/ui/recruitment_panel.gd.uid",
+    "game/ui/remodel_panel.gd.uid",
+    "game/ui/research_panel.gd.uid",
+    "game/ui/schedule_panel.gd.uid",
+    "game/ui/staff_life_panel.gd.uid",
+    "game/ui/supplies_panel.gd.uid",
+    "game/ui/training_panel.gd.uid",
+    "game/ui/waiting_panel.gd.uid",
+    "game/ui/ward_panel.gd.uid",
+    "game/view/build_overlay.gd.uid",
+    "game/view/compatibility_skin_input.gd.uid",
+    "game/view/hospital_palette.gd.uid",
+    "game/view/hospital_view.gd.uid",
+    "game/view/shaders/skin_readback.gdshader",
+    "game/view/shaders/skin_readback.gdshader.uid",
+    "game/view/shaders/skin_readback_original.gdshader",
+    "game/view/shaders/skin_readback_original.gdshader.uid",
+    "game/view/shaders/skin_readback_output.gdshaderinc",
+    "game/view/shaders/skin_readback_output.gdshaderinc.uid",
+    "game/view/shaders/skinned_pose.gdshader",
+    "game/view/shaders/skinned_pose.gdshader.uid",
+    "game/view/shaders/skinned_pose.gdshaderinc",
+    "game/view/shaders/skinned_pose.gdshaderinc.uid",
+    "game/view/shaders/skinned_pose_double_sided.gdshader",
+    "game/view/shaders/skinned_pose_double_sided.gdshader.uid",
+    "game/view/shaders/skinned_pose_surface.gdshaderinc",
+    "game/view/shaders/skinned_pose_surface.gdshaderinc.uid",
+    "game/view/skinned_pose_batch.gd.uid",
+    "game/view/view_resources.gd.uid",
+    "game/view/view_work_budget.gd.uid",
+    "project.godot",
+    "tools/performance/REPRESENTATIVE.md",
+    "tools/performance/acceptance/CAPTURE.md",
+    "tools/performance/acceptance/DECODING.md",
+    "tools/performance/acceptance/DENSE_MATRIX.md",
+    "tools/performance/acceptance/DISPLAY.md",
+    "tools/performance/acceptance/OPERATIONS.md",
+    "tools/performance/acceptance/README.md",
+    "tools/performance/acceptance/REPORTING.md",
+    "tools/performance/acceptance/RUNNER.md",
+    "tools/performance/acceptance/capture-apitrace-display.ps1",
+    "tools/performance/acceptance/capture-display.ps1",
+    "tools/performance/acceptance/capture-dxgkrnl.ps1",
+    "tools/performance/acceptance/capture.ps1",
+    "tools/performance/acceptance/check_roundtrip.gd.uid",
+    "tools/performance/acceptance/check_settings.gd.uid",
+    "tools/performance/acceptance/decode-dxgkrnl.ps1",
+    "tools/performance/acceptance/decode-etl.cs",
+    "tools/performance/acceptance/decode-raw-etl.ps1",
+    "tools/performance/acceptance/display_probe.gd.uid",
+    "tools/performance/acceptance/display_probe.tscn",
+    "tools/performance/acceptance/display_root.gd.uid",
+    "tools/performance/acceptance/fixtures/Expand-Extra-Scenarios.ps1",
+    "tools/performance/acceptance/fixtures/Expand-Scenarios.ps1",
+    "tools/performance/acceptance/fixtures/Prepare-Inputs.ps1",
+    "tools/performance/acceptance/fixtures/Prepare-Operations.ps1",
+    "tools/performance/acceptance/fixtures/README.md",
+    "tools/performance/acceptance/fixtures/legal_history_size.gd.uid",
+    "tools/performance/acceptance/fixtures/preflight_maximum_tall.gd.uid",
+    "tools/performance/acceptance/fixtures/prepare_boundary.gd.uid",
+    "tools/performance/acceptance/fixtures/prepare_inputs.gd.uid",
+    "tools/performance/acceptance/fixtures/prepare_operations.gd.uid",
+    "tools/performance/acceptance/formal_root.gd.uid",
+    "tools/performance/acceptance/input-driver.cs",
+    "tools/performance/acceptance/launch.tscn",
+    "tools/performance/acceptance/native_clock.gd.uid",
+    "tools/performance/acceptance/observed_library.gd.uid",
+    "tools/performance/acceptance/observed_snapshots.gd.uid",
+    "tools/performance/acceptance/operation_driver.gd.uid",
+    "tools/performance/acceptance/preview_input_observer.gd.uid",
+    "tools/performance/acceptance/probe.gd.uid",
+    "tools/performance/acceptance/probe.ps1",
+    "tools/performance/acceptance/probe.tscn",
+    "tools/performance/acceptance/sample-gpu.ps1",
+    "tools/performance/acceptance/self-check-raw-etl.ps1",
+    "tools/performance/acceptance/snapshot_witness.gd.uid",
+    "tools/performance/acceptance/test-frame-counter.ps1",
+    "tools/performance/acceptance/trace-status.cs",
+    "tools/performance/acceptance/visible_capture.gd.uid",
+    "tools/performance/diagnose.gd.uid",
+    "tools/performance/fixture.gd.uid",
+    "tools/performance/history.gd.uid",
+    "tools/performance/native_capacity.gd.uid",
+    "tools/performance/personal_bed_probe.gd.uid",
+    "tools/performance/prepare.ps1",
+    "tools/performance/prepare_public_input.gd.uid",
+    "tools/performance/preview.gd.uid",
+    "tools/performance/profile.gd.uid",
+    "tools/performance/representative.gd.uid",
+    "tools/performance/representative_clinical.gd.uid",
+    "tools/performance/representative_compare.gd.uid",
+    "tools/performance/representative_continue.gd.uid",
+    "tools/performance/representative_operations.gd.uid",
+    "tools/performance/representative_prepare.gd.uid",
+    "tools/performance/representative_public.gd.uid",
+    "tools/performance/resume_representative.gd.uid",
+    "tools/performance/solver_check.gd.uid",
+    "tools/performance/step_profile.gd.uid",
+    "tools/performance/trace_preparation.gd.uid"
+  ],
+  "all_484_actual_rows_rehashed_this_freeze": false,
+  "new_helper": [
+    {
+      "path": "tools/performance/route_tail_probe.gd",
+      "sha256": "3c2e4887004fd0ad573b226d2cabaeac843c1840d6c01afa8ff9200682076d99"
+    }
+  ],
+  "actual_native_and_engine_dependencies": {
+    "actual_native_files": [
+      {
+        "path": "game/platform/windows/bin/oddly_good_platform.windows.x86_64.dll",
+        "sha256": "44ea0b98fb903072f6b62cb9943b19d798ddd08a9911b6b76dffaeb85951e8b2",
+        "workspace_equal": true,
+        "payload_archived": false
+      },
+      {
+        "path": "game/platform/windows/bin/libgmp-10.dll",
+        "sha256": "c2567ccf3f410c3411ba7cd4b7ba14f393a0e70a1d0c0593297df6706b5fba96",
+        "workspace_equal": true,
+        "payload_archived": false
+      },
+      {
+        "path": "game/platform/windows/bin/libmpfr-6.dll",
+        "sha256": "b881beb5ed7e3413283ab94f24ab25cd47ed27127774867ae105642ff2fc2e47",
+        "workspace_equal": true,
+        "payload_archived": false
+      },
+      {
+        "path": "game/platform/windows/bin/libgcc_s_seh-1.dll",
+        "sha256": "791ebf66e99c7c1b4ed3666468cec45a0172b4c8942ac6c84c3e9cab3e1b5270",
+        "workspace_equal": true,
+        "payload_archived": false
+      },
+      {
+        "path": "game/platform/windows/bin/libwinpthread-1.dll",
+        "sha256": "e765ee6109a0080a7c42848911f4349099b3c15aa734d845cb0e438f6f5a91b5",
+        "workspace_equal": true,
+        "payload_archived": false
+      }
+    ],
+    "source_identity_engine": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\ordinary-tail-2d65f93-20261022\\engine\\Godot_v4.7.2-stable_win64_console.exe",
+    "actual_source_identity_engine_sha256": "c8f0a6bc45a19b33541501e57f6f7cd972ab18453743266339d495cbbe846643"
+  },
+  "native_build_this_diagnostic": false,
+  "native_payload_rearchived": false,
+  "native_provenance": [
+    {
+      "path": ".cache/wait-signature-031e1f7-20261022/native-build-identity.json",
+      "size": 7457,
+      "sha256": "e452b1ebb74f4b4ab9c2acae036acf8b9e67aa22beb199abcfad2d9617c42d3c"
+    },
+    {
+      "path": ".cache/wait-signature-031e1f7-20261022/native-build-absolute.receipt.json",
+      "size": 576,
+      "sha256": "d0f812e1daf08feee8cb09fe461002a0bbacd2afa4e26e069e080bbb7bb8c54c"
+    }
+  ],
+  "scope_note": "253 script/content rows, four independent inverses, two copied runtime configs and actual native/engine identities checked now. The other 231 inventory rows reuse committed d5 after verification; they were not all rehashed in this diagnostic. No complete source tree or native DLL payload is repackaged.",
+  "summary_raw_event_validation": {
+    "both_selected_tick_totals_recomputed_from_raw_events": true,
+    "group_graph_goal_identity_and_eligible_search_totals_recomputed": true,
+    "event_count": 1563,
+    "selected_ticks": [
+      851,
+      867
+    ],
+    "candidate_opportunity_starts_at_eligible_request": 12,
+    "candidate_opportunity_includes_trigger_request": true,
+    "first_11_requests_precede_the_potential_trigger": true,
+    "raw_unchanged_warmup_requests_field_means_trigger_threshold_not_unchanged_search_count": 12,
+    "original_reverse_field_build_or_lookup_cost_measured": false,
+    "other_78_steps_have_no_parameter_or_event_samples": true,
+    "nested_times_must_not_be_added_or_subtracted_to_reconstruct_plain": true
+  },
+  "single_completed_engine_run": {
+    "engine": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\ordinary-tail-2d65f93-20261022\\engine\\Godot_v4.7.2-stable_win64.exe",
+    "engine_sha256": "ab1824f85bfd8e0e4128182c000c4003a3e042245b2967848d089b2a04b22424",
+    "self_contained": true,
+    "isolated_appdata": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\route-tail-d5f048e-20261022\\isolated-user\\APPDATA",
+    "isolated_localappdata": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\route-tail-d5f048e-20261022\\isolated-user\\LOCALAPPDATA",
+    "pid": 35580,
+    "arguments": [
+      "--headless",
+      "--path",
+      "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\route-tail-d5f048e-20261022\\probe-project",
+      "--script",
+      "res://tools/performance/representative.gd",
+      "--",
+      "--input=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\task-navigation-20261019\\gp.input.bin",
+      "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\route-tail-d5f048e-20261022\\probe-gp80.json",
+      "--steps=80",
+      "--profile=plain"
+    ],
+    "started_at_utc": "2026-10-22T14:39:14.875900+00:00",
+    "ended_at_utc": "2026-10-22T14:39:22.379016+00:00",
+    "wall_ms": 7503.126800002065,
+    "child_cpu_ms": 7109.375,
+    "exit_code": 0,
+    "timed_out": false,
+    "errors": [],
+    "affinity_changed": false,
+    "priority_changed": false,
+    "diagnostic_only": true,
+    "formal_pass": false
+  },
+  "new_engine_build_test_runs_by_this_freezer": 0
+}

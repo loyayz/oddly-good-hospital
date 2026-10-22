@@ -1,0 +1,412 @@
+{
+  "schema_version": 1,
+  "diagnostic_only": true,
+  "formal_pass": false,
+  "archive": "raw-evidence.zip",
+  "archive_size": 438716,
+  "archive_sha256": "1b64019bf0ecf9d8e53d4a7293be60a01e47a0adc95d081c92a01ede0526ba42",
+  "member_count": 43,
+  "all_members_size_and_sha256_verified_after_zip": true,
+  "files": [
+    {
+      "path": ".cache/route-tail-d5f048e-20261022/FINDINGS.md",
+      "size": 2275,
+      "sha256": "83cfe2a6dfed30e4bc9f3a94988e82594bd74ad03ba32292a46507b35f712454",
+      "origin": ".cache/route-tail-d5f048e-20261022/FINDINGS.md",
+      "roles": [
+        "original-route-tail-evidence-or-freezer-tool"
+      ]
+    },
+    {
+      "path": ".cache/route-tail-d5f048e-20261022/PLAN.md",
+      "size": 2245,
+      "sha256": "1779e7c38c2d4013823d406a2f71a1a688c4ada9441e5702fcc739223548ac7c",
+      "origin": ".cache/route-tail-d5f048e-20261022/PLAN.md",
+      "roles": [
+        "original-route-tail-evidence-or-freezer-tool"
+      ]
+    },
+    {
+      "path": ".cache/route-tail-d5f048e-20261022/freeze-inspection-errors.log",
+      "size": 1012,
+      "sha256": "9a475dffdb34fad97916a93cb4063b9fbfea4a7cd98a72a08c8506e6dd344889",
+      "origin": ".cache/route-tail-d5f048e-20261022/freeze-inspection-errors.log",
+      "roles": [
+        "original-route-tail-evidence-or-freezer-tool"
+      ]
+    },
+    {
+      "path": ".cache/route-tail-d5f048e-20261022/freeze.py",
+      "size": 23709,
+      "sha256": "796d2ecf39c9a47d700029c6c3b9f1fee0f6c274824a111f262f1bfbcb841be4",
+      "origin": ".cache/route-tail-d5f048e-20261022/freeze.py",
+      "roles": [
+        "original-route-tail-evidence-or-freezer-tool"
+      ]
+    },
+    {
+      "path": ".cache/route-tail-d5f048e-20261022/prepare-attempt-1.log",
+      "size": 888,
+      "sha256": "66d09d3092e44b50fa2f33a4856d3bbefec2fa1002b18230709c9d6fc3a7e93a",
+      "origin": ".cache/route-tail-d5f048e-20261022/prepare-attempt-1.log",
+      "roles": [
+        "original-route-tail-evidence-or-freezer-tool"
+      ]
+    },
+    {
+      "path": ".cache/route-tail-d5f048e-20261022/prepare-attempts.md",
+      "size": 465,
+      "sha256": "7c2f6d3f5c9bb7fce8ed51b6c3b1444d6565228886c2e66e6df984584b0253c6",
+      "origin": ".cache/route-tail-d5f048e-20261022/prepare-attempts.md",
+      "roles": [
+        "original-route-tail-evidence-or-freezer-tool"
+      ]
+    },
+    {
+      "path": ".cache/route-tail-d5f048e-20261022/prepare-receipt.json",
+      "size": 2065,
+      "sha256": "f09a0f8af9b18227ad5e97a060f9705a7847ca4a6bd2a9910347c36e8be41961",
+      "origin": ".cache/route-tail-d5f048e-20261022/prepare-receipt.json",
+      "roles": [
+        "original-route-tail-evidence-or-freezer-tool"
+      ]
+    },
+    {
+      "path": ".cache/route-tail-d5f048e-20261022/probe-gp80.json",
+      "size": 1147971,
+      "sha256": "61c44ef3f3b5dec0ca1cacd65fc368a80dc5275bb23450238231f6fd1a1749af",
+      "origin": ".cache/route-tail-d5f048e-20261022/probe-gp80.json",
+      "roles": [
+        "raw-plain-measurement",
+        "original-route-tail-evidence-or-freezer-tool"
+      ]
+    },
+    {
+      "path": ".cache/route-tail-d5f048e-20261022/probe-gp80.json.final.bin",
+      "size": 2590220,
+      "sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a",
+      "origin": ".cache/route-tail-d5f048e-20261022/probe-gp80.json.final.bin",
+      "roles": [
+        "raw-plain-measurement"
+      ]
+    },
+    {
+      "path": ".cache/route-tail-d5f048e-20261022/probe-gp80.json.steps.ndjson",
+      "size": 16280,
+      "sha256": "b8b6960cc7c51db28a380fafe4338991707fb73fa83dcad27137172ca4066355",
+      "origin": ".cache/route-tail-d5f048e-20261022/probe-gp80.json.steps.ndjson",
+      "roles": [
+        "raw-plain-measurement",
+        "original-route-tail-evidence-or-freezer-tool"
+      ]
+    },
+    {
+      "path": ".cache/route-tail-d5f048e-20261022/probe-gp80.launch.json",
+      "size": 1332,
+      "sha256": "7dace8a7035f88449adf1cc4b0e0893a9c5b62d64aa289b258c39b8b0d8b93d8",
+      "origin": ".cache/route-tail-d5f048e-20261022/probe-gp80.launch.json",
+      "roles": [
+        "raw-plain-measurement",
+        "original-route-tail-evidence-or-freezer-tool"
+      ]
+    },
+    {
+      "path": ".cache/route-tail-d5f048e-20261022/probe-gp80.stderr.log",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin": ".cache/route-tail-d5f048e-20261022/probe-gp80.stderr.log",
+      "roles": [
+        "measurement-log",
+        "original-route-tail-evidence-or-freezer-tool"
+      ]
+    },
+    {
+      "path": ".cache/route-tail-d5f048e-20261022/probe-gp80.stdout.log",
+      "size": 1651,
+      "sha256": "0b30ce2a861f4c51d5c255a5d449f185c06a7faa67ffd1c52ce508bcdc0e7285",
+      "origin": ".cache/route-tail-d5f048e-20261022/probe-gp80.stdout.log",
+      "roles": [
+        "measurement-log",
+        "original-route-tail-evidence-or-freezer-tool"
+      ]
+    },
+    {
+      "path": ".cache/route-tail-d5f048e-20261022/probe-project/export_presets.cfg",
+      "size": 1591,
+      "sha256": "4a23f9ec0110dc2bbb4c2794b02397498ceffa6f398e4a9331a08577dccf0e59",
+      "origin": ".cache/route-tail-d5f048e-20261022/probe-project/export_presets.cfg",
+      "roles": [
+        "copied-isolated-runtime-config"
+      ]
+    },
+    {
+      "path": ".cache/route-tail-d5f048e-20261022/probe-project/game/building/floor_navigation.gd",
+      "size": 10811,
+      "sha256": "f1e50d7a43687bc5286852ef03e063cdb2bc678832f39d753848690a2857adca",
+      "origin": ".cache/route-tail-d5f048e-20261022/probe-project/game/building/floor_navigation.gd",
+      "roles": [
+        "four-generated-inline-source-files"
+      ]
+    },
+    {
+      "path": ".cache/route-tail-d5f048e-20261022/probe-project/game/building/hospital_navigation.gd",
+      "size": 38162,
+      "sha256": "4867e4c249d609176b172e3660732b94217480859b382243b2baec52623fc7ff",
+      "origin": ".cache/route-tail-d5f048e-20261022/probe-project/game/building/hospital_navigation.gd",
+      "roles": [
+        "four-generated-inline-source-files"
+      ]
+    },
+    {
+      "path": ".cache/route-tail-d5f048e-20261022/probe-project/game/building/navigation_cache.gd",
+      "size": 35467,
+      "sha256": "0652678cd6539cac4f3f0de3e33468516ac148cfa158a56ed9c513f9fda159e4",
+      "origin": ".cache/route-tail-d5f048e-20261022/probe-project/game/building/navigation_cache.gd",
+      "roles": [
+        "four-generated-inline-source-files"
+      ]
+    },
+    {
+      "path": ".cache/route-tail-d5f048e-20261022/probe-project/project.godot",
+      "size": 929,
+      "sha256": "203f80f48a53d49204bc34cf0868d67966b7a29773dc0e361b298c5c40ab33ba",
+      "origin": ".cache/route-tail-d5f048e-20261022/probe-project/project.godot",
+      "roles": [
+        "copied-isolated-runtime-config"
+      ]
+    },
+    {
+      "path": ".cache/route-tail-d5f048e-20261022/probe-project/tools/performance/representative.gd",
+      "size": 12313,
+      "sha256": "9cd938f7df306524a9ae1cb3967b6e8c527d364904d1aa861739da31231c5eaa",
+      "origin": ".cache/route-tail-d5f048e-20261022/probe-project/tools/performance/representative.gd",
+      "roles": [
+        "four-generated-inline-source-files"
+      ]
+    },
+    {
+      "path": ".cache/route-tail-d5f048e-20261022/probe-project/tools/performance/route_tail_probe.gd",
+      "size": 3681,
+      "sha256": "3c2e4887004fd0ad573b226d2cabaeac843c1840d6c01afa8ff9200682076d99",
+      "origin": ".cache/route-tail-d5f048e-20261022/probe-project/tools/performance/route_tail_probe.gd",
+      "roles": [
+        "new-diagnostic-helper-only"
+      ]
+    },
+    {
+      "path": ".cache/route-tail-d5f048e-20261022/probe.py",
+      "size": 35593,
+      "sha256": "b2347b2e05ea04c4e9b2c9357dada3e2565816175358dee6b93800636438f6ff",
+      "origin": ".cache/route-tail-d5f048e-20261022/probe.py",
+      "roles": [
+        "original-route-tail-evidence-or-freezer-tool"
+      ]
+    },
+    {
+      "path": ".cache/route-tail-d5f048e-20261022/route_tail_probe.gd",
+      "size": 3681,
+      "sha256": "3c2e4887004fd0ad573b226d2cabaeac843c1840d6c01afa8ff9200682076d99",
+      "origin": ".cache/route-tail-d5f048e-20261022/route_tail_probe.gd",
+      "roles": [
+        "original-route-tail-evidence-or-freezer-tool"
+      ]
+    },
+    {
+      "path": ".cache/route-tail-d5f048e-20261022/semantic-check.json",
+      "size": 690,
+      "sha256": "d128e6936c9d114759dd7ba8987f0b5a713bcf30fc8e22d190702abd96defc56",
+      "origin": ".cache/route-tail-d5f048e-20261022/semantic-check.json",
+      "roles": [
+        "original-route-tail-evidence-or-freezer-tool"
+      ]
+    },
+    {
+      "path": ".cache/route-tail-d5f048e-20261022/source-proof-before-immediate-stop.json",
+      "size": 113537,
+      "sha256": "30d6f6ea76a6a39d6c854cca10c854ba5920bfc3300c702259bac0bd97919bb4",
+      "origin": ".cache/route-tail-d5f048e-20261022/source-proof-before-immediate-stop.json",
+      "roles": [
+        "original-route-tail-evidence-or-freezer-tool"
+      ]
+    },
+    {
+      "path": ".cache/route-tail-d5f048e-20261022/source-proof.json",
+      "size": 114119,
+      "sha256": "08dd7523ba19d243f6391400390ea3b169e2857ca88a5bb481bc40c216bd099f",
+      "origin": ".cache/route-tail-d5f048e-20261022/source-proof.json",
+      "roles": [
+        "original-route-tail-evidence-or-freezer-tool"
+      ]
+    },
+    {
+      "path": ".cache/route-tail-d5f048e-20261022/summarize.stdout.log",
+      "size": 6900,
+      "sha256": "c7e75b24eb0c119118b880eb6a47dbfec806f4f2d9ff69046bf85c8bf1aa1d48",
+      "origin": ".cache/route-tail-d5f048e-20261022/summarize.stdout.log",
+      "roles": [
+        "original-route-tail-evidence-or-freezer-tool"
+      ]
+    },
+    {
+      "path": ".cache/route-tail-d5f048e-20261022/summary.json",
+      "size": 176420,
+      "sha256": "720156bf71ab569cd21d440327193ca8b940d06b8285f93d6eb8f8c89ab037cd",
+      "origin": ".cache/route-tail-d5f048e-20261022/summary.json",
+      "roles": [
+        "original-route-tail-evidence-or-freezer-tool"
+      ]
+    },
+    {
+      "path": ".cache/task-navigation-20261019/gp.input.bin",
+      "size": 1686716,
+      "sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "origin": ".cache/task-navigation-20261019/gp.input.bin",
+      "roles": [
+        "unchanged-read-only-input"
+      ]
+    },
+    {
+      "path": ".cache/wait-signature-031e1f7-20261022/after-project/game/building/floor_navigation.gd",
+      "size": 9447,
+      "sha256": "241502dbb289d2ca939f2cd193d7b9c7740b64bcd70323fda03d50cead577090",
+      "origin": ".cache/wait-signature-031e1f7-20261022/after-project/game/building/floor_navigation.gd",
+      "roles": [
+        "four-original-inline-source-files"
+      ]
+    },
+    {
+      "path": ".cache/wait-signature-031e1f7-20261022/after-project/game/building/hospital_navigation.gd",
+      "size": 34272,
+      "sha256": "b2de71ea7cc4ca3bb7135b5b0d42c33eef0661001edd3e4c583391325cf90508",
+      "origin": ".cache/wait-signature-031e1f7-20261022/after-project/game/building/hospital_navigation.gd",
+      "roles": [
+        "four-original-inline-source-files"
+      ]
+    },
+    {
+      "path": ".cache/wait-signature-031e1f7-20261022/after-project/game/building/navigation_cache.gd",
+      "size": 27711,
+      "sha256": "ebb83727e9998ad8183f9b3b981ebe993216bdc94da87e92dedb418e8ddc12e8",
+      "origin": ".cache/wait-signature-031e1f7-20261022/after-project/game/building/navigation_cache.gd",
+      "roles": [
+        "four-original-inline-source-files"
+      ]
+    },
+    {
+      "path": ".cache/wait-signature-031e1f7-20261022/after-project/source-identity.json",
+      "size": 76079,
+      "sha256": "45c46ddbdf3d81c05f4350b0069be78f73d906dc69fde8ddcf1e866ba3b87d3e",
+      "origin": ".cache/wait-signature-031e1f7-20261022/after-project/source-identity.json",
+      "roles": [
+        "reused-complete-484-source-identity"
+      ]
+    },
+    {
+      "path": ".cache/wait-signature-031e1f7-20261022/after-project/tools/performance/representative.gd",
+      "size": 11329,
+      "sha256": "9c4d7c7d609ed0325c15cd85fc07e91f2dcd118d74c2f116dafcd18351adf452",
+      "origin": ".cache/wait-signature-031e1f7-20261022/after-project/tools/performance/representative.gd",
+      "roles": [
+        "four-original-inline-source-files"
+      ]
+    },
+    {
+      "path": ".cache/wait-signature-031e1f7-20261022/b-gp80.json",
+      "size": 81749,
+      "sha256": "c7fc6e9c35e33b3139eb3c90f88c78e61d0acdc74ce38222ba0bd9dcc55c5084",
+      "origin": ".cache/wait-signature-031e1f7-20261022/b-gp80.json",
+      "roles": [
+        "reused-complete-plain-reference-json"
+      ]
+    },
+    {
+      "path": ".cache/wait-signature-031e1f7-20261022/c-gp80.json",
+      "size": 81749,
+      "sha256": "0ee51ff41f87fb86d51ed4d088678dda033f90d18769553ac92f45df517941a4",
+      "origin": ".cache/wait-signature-031e1f7-20261022/c-gp80.json",
+      "roles": [
+        "reused-complete-plain-reference-json"
+      ]
+    },
+    {
+      "path": ".cache/wait-signature-031e1f7-20261022/summarize.py",
+      "size": 52694,
+      "sha256": "fee24c0abd32aea29aa25846ab7f8847404a1bcb4618c8348e98026063a92e0e",
+      "origin": ".cache/wait-signature-031e1f7-20261022/summarize.py",
+      "roles": [
+        "reused-verification-and-zip-helper-source"
+      ]
+    },
+    {
+      "path": "docs/reports/evidence/2026-10-22-route-tail-queries/functional-summary.json",
+      "size": 6423,
+      "sha256": "385ade6553e7d42711bf45f8ba3338ddda31273aa0c57857e9dcfc375fbea05c",
+      "origin": "generated-verification-proof",
+      "roles": [
+        "frozen-derived-summary"
+      ]
+    },
+    {
+      "path": "docs/reports/evidence/2026-10-22-route-tail-queries/source-check.json",
+      "size": 107514,
+      "sha256": "a9e409b694f0257deb40fbaf860213e7d0ed97895a20a5238457f578e35fca79",
+      "origin": "generated-verification-proof",
+      "roles": [
+        "frozen-derived-summary"
+      ]
+    },
+    {
+      "path": "docs/reports/evidence/2026-10-22-route-tail-queries/summary.json",
+      "size": 209844,
+      "sha256": "fd4f3f99d32d4ff83a837bce21331700e2d81765b3b7f9c64b06d9079713b06e",
+      "origin": "generated-verification-proof",
+      "roles": [
+        "frozen-derived-summary"
+      ]
+    },
+    {
+      "path": "verification-proofs/independent-inverse/game/building/floor_navigation.gd.txt",
+      "size": 9447,
+      "sha256": "241502dbb289d2ca939f2cd193d7b9c7740b64bcd70323fda03d50cead577090",
+      "origin": "generated-verification-proof",
+      "roles": [
+        "independent-inline-inverse"
+      ]
+    },
+    {
+      "path": "verification-proofs/independent-inverse/game/building/hospital_navigation.gd.txt",
+      "size": 34272,
+      "sha256": "b2de71ea7cc4ca3bb7135b5b0d42c33eef0661001edd3e4c583391325cf90508",
+      "origin": "generated-verification-proof",
+      "roles": [
+        "independent-inline-inverse"
+      ]
+    },
+    {
+      "path": "verification-proofs/independent-inverse/game/building/navigation_cache.gd.txt",
+      "size": 27711,
+      "sha256": "ebb83727e9998ad8183f9b3b981ebe993216bdc94da87e92dedb418e8ddc12e8",
+      "origin": "generated-verification-proof",
+      "roles": [
+        "independent-inline-inverse"
+      ]
+    },
+    {
+      "path": "verification-proofs/independent-inverse/tools/performance/representative.gd.txt",
+      "size": 11329,
+      "sha256": "9c4d7c7d609ed0325c15cd85fc07e91f2dcd118d74c2f116dafcd18351adf452",
+      "origin": "generated-verification-proof",
+      "roles": [
+        "independent-inline-inverse"
+      ]
+    }
+  ],
+  "excluded_binary_payloads": [
+    "Godot executables",
+    "entire .godot/assets tree",
+    "production DLL payloads",
+    "unchanged 484-file snapshot tree"
+  ],
+  "binary_identity_note": "Actual native and engine hashes were checked now. Full 484-row source identity verification is reused from the committed prior after evidence; this freeze independently checks 253 script/content rows and four inverses. Hashes do not define business correctness.",
+  "generated_at_utc": "2026-10-22T14:49:05.939605+00:00"
+}
