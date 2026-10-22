@@ -17,6 +17,8 @@ class WaitingWorkProbe extends HospitalWaitingLife:
 # A cold-current calculation reference: identical rules, with an explicit
 # forced physical index refresh at every regional choice.
 class FreshEntryAreas extends HospitalPublicAreas:
+	func _candidate_regions(_definitions: Array) -> Array:
+		return _regions
 	func select(world: WorldState, actor_id: String, definitions: Array, room_kinds: Array, purpose: String, members: Array = [], maximum_travel_ticks: int = 9223372036854775807, selected_entries: Dictionary = {}) -> Dictionary:
 		space.begin_dynamic_route_query(world,true)
 		var result: Dictionary = super.select(world,actor_id,definitions,room_kinds,purpose,members,maximum_travel_ticks,selected_entries)

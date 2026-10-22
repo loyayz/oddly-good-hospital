@@ -52,13 +52,23 @@ func run_ranges(database: HospitalContent) -> Dictionary:
 	var edges: Dictionary = x.e._coverage_edges(x.world,1)
 	var checks: Dictionary = {"legal_input":x.world.validate(database).is_empty(),"one_native_mask_for_source":_count(x,"mask_builds")==1 and edges.get("native_coverage",{}).get("ready",false)}
 	var rows: Array = []
-	for input: Array in [[[48,48],-3],[[48,48],0],[[48,48],1],[[48,48],4],[[48,48],5],[[0,0],4],[[95,95],4],[[32,32],1],[[44.25,80.99],4],[[-0.25,0.75],2],[[-1,0],2],[[96,95],2],[[48,48],9223372036854775807]]:
+	var positive_fraction: Dictionary = {}
+	var zero_fraction: Dictionary = {}
+	for input: Array in [[[48,48],-3],[[48,48],0],[[48,48],1],[[48,48],4],[[48,48],5],[[0,0],4],[[95,95],4],[[32,32],1],[[44.25,80.99],4],[[44.99,80.01],4],[[45.01,80.99],4],[[-0.25,0.75],2],[[-0.99,-0.01],2],[[-1.01,0.75],2],[[95.99,95.99],4],[[96.01,95.99],2],[[44.25,-1.01],2],[[44.25,96.01],2],[[-1,0],2],[[96,95],2],[[48,48],9223372036854775807]]:
 		var observed: Dictionary = _compare(x,"radius_and_origin",1,input[0],int(input[1]),false,edges)
 		if input[0]==[48,48] and input[1]<=0: checks["radius_"+str(input[1])+"_only_root"] = observed.actual=={"48:48":0}
 		if input[0]==[48,48] and input[1]==1: checks.authored_neighbour_order_preserved = observed.actual.keys()==["48:48","47:48","48:47","48:49","49:48"]
 		if input[0]==[32,32]: checks.blocked_root_still_leaves_to_legal_next = observed.actual.get("32:32",-1)==0 and observed.actual.get("31:32",-1)==1
-		if float(input[0][0])!=float(int(input[0][0])) or float(input[0][1])!=float(int(input[0][1])) or int(input[0][0])<0 or int(input[0][0])>=96: observed.ok = observed.ok and observed.native_calls==0 and observed.fallback_calls==1
+		var root: Array = [int(input[0][0]),int(input[0][1])]
+		observed.normalized_origin = root
+		if root[0]<0 or root[1]<0 or root[0]>=96 or root[1]>=96: observed.ok = observed.ok and observed.native_calls==0 and observed.fallback_calls==1
 		else: observed.ok = observed.ok and observed.native_calls==1 and observed.fallback_calls==0
+		if input[0]==[44.25,80.99]: positive_fraction = observed.actual
+		if input[0]==[44.99,80.01]: checks.positive_fractions_in_same_cell_keep_full_coverage = observed.actual==positive_fraction and observed.actual.keys()==positive_fraction.keys()
+		if input[0]==[45.01,80.99]: checks.positive_fraction_crossing_cell_changes_root = observed.actual.get("45:80",-1)==0 and positive_fraction.get("45:80",-1)==1
+		if input[0]==[-0.25,0.75]: zero_fraction = observed.actual
+		if input[0]==[-0.99,-0.01]: checks.negative_fraction_truncates_toward_zero = observed.actual==zero_fraction and observed.actual.keys()==zero_fraction.keys() and observed.actual.get("0:0",-1)==0
+		if input[0]==[-1.01,0.75]: checks.negative_fraction_crossing_domain_keeps_outside_root = observed.actual.get("-1:0",-1)==0 and observed.actual.get("0:0",-1)==1
 		observed.erase("actual")
 		rows.append(observed)
 	var compact: Dictionary = PlatformArrivalMath.environment_coverage(edges.native_coverage.ordinary,{"root":48*96+48,"radius":1})

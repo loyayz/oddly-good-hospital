@@ -17,6 +17,14 @@ class LayoutCounts extends HospitalSpace:
 class ReferenceAreas extends HospitalPublicAreas:
 	# Keep the old string encoding independent from the production floor map.
 	var _by_cell: Dictionary = {}
+	func _candidate_regions(_definitions: Array) -> Array:
+		return _regions
+	func _facility_members(area: Dictionary, definitions: Array) -> PackedInt32Array:
+		var selected: PackedInt32Array = PackedInt32Array()
+		var world: WorldState = _world.get_ref()
+		for number: int in area.get("facilities",[]).size():
+			if world.facts.facilities[area.facilities[number]].definition_id in definitions: selected.append(number)
+		return selected
 	static func _reference_key(floor_id: int, point: Vector2i) -> String:
 		return str(floor_id)+":"+str(point.x)+":"+str(point.y)
 	func _cell_region(floor_id: int, point: Vector2i) -> Dictionary:

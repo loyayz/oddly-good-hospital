@@ -874,7 +874,7 @@ func _coverage(world: WorldState, floor_id: int, origin: Array, radius: int, noi
 			_query.coverage[floor_id][key] = previous[key]
 			return previous[key]
 	var prepared: Dictionary = edges.get("native_coverage",{})
-	if prepared.get("ready",false) and float(origin[0])==float(origin_cell[0]) and float(origin[1])==float(origin_cell[1]) and origin_cell[0]>=0 and origin_cell[1]>=0 and origin_cell[0]<96 and origin_cell[1]<96:
+	if prepared.get("ready",false) and origin_cell[0]>=0 and origin_cell[1]>=0 and origin_cell[0]<96 and origin_cell[1]<96:
 		var result: Dictionary = PlatformArrivalMath.environment_coverage(prepared.noise if noise else prepared.ordinary,{"root":int(origin_cell[1])*96+int(origin_cell[0]),"radius":radius})
 		if result.has("error"): push_error("环境覆盖原生计算失败："+str(result.get("bottleneck",result.error)))
 		if result.get("ready",false):

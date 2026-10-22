@@ -155,6 +155,8 @@ func _high_floor_keys(world: WorldState) -> Dictionary:
 
 func _observe(label: String, world: WorldState, actual: BuildCounts, reference: HospitalPublicAreas, expected: Array, requested_floor: int = 0) -> Dictionary:
 	var begin: int = actual.builds.size()
+	var mapping_builds: int = int(actual.space.query_counts.get("public_region_mapping_builds",0))
+	var index_builds: int = int(actual.space.query_counts.get("public_region_definition_index_builds",0))
 	var result: Dictionary = _compare_build(label,world,actual,reference,requested_floor)
 	var traversals: Array = actual.builds.slice(begin)
 	var memberships: bool = true
@@ -166,11 +168,27 @@ func _observe(label: String, world: WorldState, actual: BuildCounts, reference: 
 			positions.append(number)
 			expected_index[definition] = positions
 		memberships = memberships and region.facility_definitions==expected_index
+	var candidates: bool = true
+	for definitions: Array in [[],["FUR09"],["EQ05","FUR09","FUR09"],["FUR23"],["unknown"]]:
+		var expected_refs: Array = []
+		# This independent traversal consumes original facts and complete regions,
+		# including failed facilities; it never reads either production index.
+		for area: Dictionary in reference._regions:
+			for id: String in area.facilities:
+				if world.facts.facilities[id].definition_id in definitions:
+					expected_refs.append(area.ref)
+					break
+		var actual_refs: Array = []
+		for area: Dictionary in actual._candidate_regions(definitions): actual_refs.append(area.ref)
+		candidates = candidates and actual_refs==expected_refs
+	var same_rebuilds: bool = int(actual.space.query_counts.get("public_region_mapping_builds",0))-mapping_builds==int(actual.space.query_counts.get("public_region_definition_index_builds",0))-index_builds
 	var validation: String = world.validate(_content)
-	result.ok = result.ok and traversals==expected and memberships and validation.is_empty()
+	result.ok = result.ok and traversals==expected and memberships and candidates and same_rebuilds and validation.is_empty()
 	result.floor_traversals = traversals
 	result.expected_floor_traversals = expected
 	result.complete_definition_membership_equal = memberships
+	result.complete_candidate_regions_and_original_order_equal = candidates
+	result.index_rebuilds_only_with_changed_region_mapping = same_rebuilds
 	result.validation = validation
 	return result
 

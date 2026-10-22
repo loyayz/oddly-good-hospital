@@ -13,6 +13,7 @@ var space: HospitalSpace:
 var _world: WeakRef
 var _revision: int = -1
 var _regions: Array = []
+var _regions_by_definition: Dictionary = {}
 var _by_facility: Dictionary = {}
 var _derived_floors: Dictionary = {}
 var _floor_regions: Dictionary = {}
@@ -369,14 +370,20 @@ func _ensure(world: WorldState, requested_floor: int = 0) -> void:
 	# Reattach region/facility views in the original order. Cell membership has
 	# one owner per floor; no second global map or per-cell floor string is needed.
 	_regions.clear()
+	_regions_by_definition.clear()
 	_by_facility.clear()
 	_derived_floors.clear()
 	for floor_id: int in _floor_regions:
 		var derived: Dictionary = _floor_regions[floor_id]
 		_derived_floors[floor_id] = true
-		_regions.append_array(derived.regions)
+		for area: Dictionary in derived.regions:
+			var number: int = _regions.size()
+			_regions.append(area)
+			for definition: String in area.facility_definitions:
+				_regions_by_definition.get_or_add(definition,[]).append(number)
 		_by_facility.merge(derived.by_facility)
 	space.query_counts["public_region_mapping_builds"] = int(space.query_counts.get("public_region_mapping_builds",0))+1
+	space.query_counts["public_region_definition_index_builds"] = int(space.query_counts.get("public_region_definition_index_builds",0))+1
 	_wait_geometry = {}
 
 func _region_basis(layout: Dictionary, rooms: Array, facilities: Array, connectors: Array) -> Array:
@@ -548,16 +555,33 @@ func _facility_members(area: Dictionary, definitions: Array) -> PackedInt32Array
 	selected.sort()
 	return selected
 
-func _fit_key(facility_id: String, world: WorldState, members: Array) -> String:
+func _candidate_regions(definitions: Array) -> Array:
+	# The complete static membership only excludes regions with no requested
+	# definition. Availability, room purpose and actual use remain live below.
+	var selected: Dictionary = {}
+	for definition: String in definitions:
+		for number: int in _regions_by_definition.get(definition,[]): selected[number] = true
+	var numbers: Array = selected.keys()
+	numbers.sort()
+	var result: Array = []
+	for number: int in numbers: result.append(_regions[number])
+	space.query_counts["public_region_definition_index_hits"] = int(space.query_counts.get("public_region_definition_index_hits",0))+1
+	return result
+
+func _body_key(world: WorldState, members: Array) -> String:
 	var bodies: Array = []
 	for id: String in members: bodies.append(space.body(world.facts.actors[id]))
-	return JSON.stringify([facility_id,bodies])
+	space.query_counts["public_fit_body_key_preparations"] = int(space.query_counts.get("public_fit_body_key_preparations",0))+1
+	return JSON.stringify(bodies)
 
 func compatible_geometry(world: WorldState, reference: Dictionary, definitions: Array, members: Array) -> bool:
-	for id: String in facilities(world,reference,definitions):
-		var key: String = _fit_key(id,world,members)
-		if not _geometry_fits.has(key): _geometry_fits[key] = space.facility_geometry_quote(world,id,members[0],members.slice(1)).ok
-		if _geometry_fits[key]: return true
+	var local: Array = facilities(world,reference,definitions)
+	if local.is_empty(): return false
+	var key: String = _body_key(world,members)
+	for id: String in local:
+		var fits: Dictionary = _geometry_fits.get_or_add(id,{})
+		if not fits.has(key): fits[key] = space.facility_geometry_quote(world,id,members[0],members.slice(1)).ok
+		if fits[key]: return true
 	return false
 
 func select(world: WorldState, actor_id: String, definitions: Array, room_kinds: Array, purpose: String, members: Array = [], maximum_travel_ticks: int = 9223372036854775807, selected_entries: Dictionary = {}) -> Dictionary:
@@ -567,16 +591,22 @@ func select(world: WorldState, actor_id: String, definitions: Array, room_kinds:
 	var best: Dictionary = {}
 	var best_entries: Dictionary = {}
 	var travellers: Array = [actor_id] if members.is_empty() else members
+	var body_key: String = ""
+	# Rest also permits tea in a free standing region without any furniture.
+	var candidates: Array = _regions if purpose=="rest" else _candidate_regions(definitions)
+	space.query_counts["public_select_regions_total"] = int(space.query_counts.get("public_select_regions_total",0))+_regions.size()
+	space.query_counts["public_select_regions_visited"] = int(space.query_counts.get("public_select_regions_visited",0))+candidates.size()
 	# The caller may already own this unchanged, real-body enumeration. Its
 	# actor index is reusable; this child still gets independent query views.
 	space.begin_dynamic_route_query(world,not space.in_dynamic_route_query(world))
-	for area: Dictionary in _regions:
+	for area: Dictionary in candidates:
 		var room: Dictionary = world.facts.rooms.get(area.ref.room_id,{})
 		if not room.is_empty() and (not str(room.get("kind",room.get("type",""))) in room_kinds or HospitalRemodel.blocked(world,area.ref.room_id)): continue
 		if room.is_empty() and not "" in room_kinds: continue
 		var local: Array = facilities(world,area.ref,definitions)
+		if not local.is_empty() and body_key.is_empty(): body_key = _body_key(world,travellers)
 		local = local.filter(func(id: String)->bool:
-			if _geometry_fits.get(_fit_key(id,world,travellers),true)==false: return false
+			if _geometry_fits.get(id,{}).get(body_key,true)==false: return false
 			if maximum_travel_ticks<9223372036854775807 and space.facility_travel_lower_bound_ticks(world,id,actor_id)>maximum_travel_ticks: return false
 			var definition: Dictionary = space.content.facility_definition(world.facts.facilities[id].definition_id)
 			var capacity: Dictionary = definition.get("adapter_capacity",definition)
