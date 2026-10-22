@@ -709,7 +709,7 @@ func _yield(world: WorldState, actor: Dictionary, movement: Dictionary, result: 
 	# retrace. Use the same local passing-space search as idle-staff courtesy.
 	var members: Array = movement.get("members",[])
 	var offsets: Dictionary = movement.get("offsets",{})
-	var checker: RouteClearance = RouteClearance.new(space,world,actor,int(actor.location.floor_id),members,offsets,true,space._navigation.floor_source(space,world,int(actor.location.floor_id)))
+	var checker: RouteClearance = _courtesy_clearance(world,actor,members,offsets)
 	for radius: int in range(1,5):
 		for dx: int in range(-radius,radius+1):
 			var dy_abs: int = radius-absi(dx)
@@ -745,7 +745,7 @@ func _yield_idle_staff(world: WorldState, actor: Dictionary, movement: Dictionar
 		if _staff_has_movement_responsibility(world,staff_id,responsibilities):
 			continue
 		var origin: Vector2i = Vector2i(roundi(staff_actor.location.cell[0]),roundi(staff_actor.location.cell[1]))
-		var checker: RouteClearance = RouteClearance.new(space,world,staff_actor,floor_id,[],{},true,space._navigation.floor_source(space,world,floor_id))
+		var checker: RouteClearance = _courtesy_clearance(world,staff_actor)
 		for radius: int in range(1,5):
 			for dx: int in range(-radius,radius+1):
 				var dy_abs: int = radius-absi(dx)
@@ -800,9 +800,18 @@ func _staff_has_movement_responsibility(world: WorldState, staff_id: String, con
 		context.owners = owners
 	return context.owners.has(staff_id)
 
+func _courtesy_clearance(world: WorldState, actor: Dictionary, members: Array = [], offsets: Dictionary = {}) -> RouteClearance:
+	var floor_id: int = int(actor.location.floor_id)
+	# Borrow only resident, source-validated static geometry. Current members
+	# and reservation permissions remain query-local; a miss builds no graph.
+	var geometry: RouteClearance = space._navigation.cached_static_geometry(space,world,floor_id,actor)
+	var counter: String = "courtesy_static_geometry_hits" if geometry!=null else "courtesy_static_geometry_misses"
+	space.query_counts[counter] = int(space.query_counts.get(counter,0))+1
+	return RouteClearance.new(space,world,actor,floor_id,members,offsets,true,space._navigation.floor_source(space,world,floor_id),geometry)
+
 func _narrow(world: WorldState, actor: Dictionary, origin: Vector2i, checker: RouteClearance = null) -> bool:
 	var available: int = 0
-	if checker==null: checker = RouteClearance.new(space,world,actor,int(actor.location.floor_id),[],{},true,space._navigation.floor_source(space,world,int(actor.location.floor_id)))
+	if checker==null: checker = _courtesy_clearance(world,actor)
 	for offset: Vector2i in [Vector2i.LEFT,Vector2i.RIGHT,Vector2i.UP,Vector2i.DOWN]:
 		if checker.reason(origin+offset).is_empty():
 			available += 1

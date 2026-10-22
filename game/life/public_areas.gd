@@ -82,7 +82,8 @@ func _decision_view(world: WorldState) -> Dictionary:
 		if not id.is_empty(): users.get_or_add(id,[]).append(actor.id)
 	var queues: Dictionary = {}
 	var active: Dictionary = {}
-	for intent: Dictionary in _intent_view(world).items:
+	var intent_view: Dictionary = _intent_view(world)
+	for intent: Dictionary in intent_view.items:
 		active[str(intent.id)] = true
 		var purpose: String = str(intent.get("public_purpose",""))
 		var key: String = JSON.stringify([purpose,intent.get("area",{})],"",true,true)
@@ -111,7 +112,7 @@ func _decision_view(world: WorldState) -> Dictionary:
 		if order.get("phase","")!="working": continue
 		var facility: Dictionary = world.facts.facilities.get(order.get("facility_id",""),{})
 		if not facility.is_empty(): environment.get_or_add(int(facility.floor_id),[]).append([facility.cell,"upgrade",facility.id])
-	_decision_basis = {"users":users,"queues":queues,"environment":environment,"environment_indices":{},"environment_matches":{},"facility_environment":facility_environment,"geometry_revision":world.geometry_revision}
+	_decision_basis = {"users":users,"queues":queues,"visitor_seats":intent_view.visitor_seats,"environment":environment,"environment_indices":{},"environment_matches":{},"facility_environment":facility_environment,"geometry_revision":world.geometry_revision}
 	return _decision_basis
 
 func _facility_environment(world: WorldState) -> Dictionary:
@@ -157,7 +158,10 @@ func _decision_signature(world: WorldState, intent: Dictionary, definitions: Arr
 		var occupied: bool = false
 		for owner: String in users:
 			if not owner in ids: occupied = true
-		if occupied or not reservation.is_empty() or not adaptation.is_empty() and not str(adaptation.get("actor_id","")) in ids: continue
+		# A patient can still ask a seated visitor to yield. Its vacancy preview
+		# reads other real bodies and routes even while the seat remains occupied.
+		var visitor_preview: bool = intent.public_purpose=="seat" and intent.has("ticket_id") and view.visitor_seats.has(facility_id) and (intent.get("mode","auto")!="manual" or intent.get("manual_facility_id","")==facility_id)
+		if not visitor_preview and (occupied or not reservation.is_empty() or not adaptation.is_empty() and not str(adaptation.get("actor_id","")) in ids): continue
 		route_dependent = true
 		# Observe only the work places consumed here, with the same adaptation
 		# overrides as facility_layout; the remaining facility state is above.
@@ -978,6 +982,7 @@ func intents(world: WorldState) -> Array:
 
 func _intent_view(world: WorldState) -> Dictionary:
 	var result: Array = []
+	var visitor_seats: Dictionary = {}
 	for collection: String in ["seats","needs"]:
 		for intent: Dictionary in world.facts.get("waiting_life",{}).get(collection,{}).values():
 			if intent.has("public_purpose"): result.append(intent)
@@ -985,8 +990,10 @@ func _intent_view(world: WorldState) -> Dictionary:
 		var task: Dictionary = staff.get("life_task",{})
 		if task.has("public_purpose"): result.append(task)
 	for stay: Dictionary in world.facts.get("visitors",{}).get("stays",{}).values():
-		if stay.has("public_use"): result.append(stay.public_use)
-	return {"items":result}
+		if stay.has("public_use"):
+			result.append(stay.public_use)
+			if stay.public_use.get("phase","")=="seated": visitor_seats[str(stay.public_use.get("facility_id",""))] = true
+	return {"items":result,"visitor_seats":visitor_seats}
 
 func _queue_members(world: WorldState) -> Dictionary:
 	var result: Dictionary = {"areas":{},"targets":{},"facilities":{}}

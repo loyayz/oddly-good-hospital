@@ -85,7 +85,8 @@ func _point_checks(source: Dictionary, content: HospitalContent) -> Dictionary:
 	var space: HospitalSpace = HospitalSpace.new(content)
 	var cold: RouteClearance = RouteClearance.new(HospitalSpace.new(content),world,actor,1)
 	var point: Vector2i = Vector2i(38,86)
-	var no_build: bool = space._navigation.cached_static_geometry(space,world,1,actor)==null and space.static_reason(world,actor,1,point)==cold.reason(point) and space.static_reason(world,actor,1,point,[actor.id])==cold.reason(point) and space._navigation._entries.is_empty()
+	var courtesy: RouteClearance = space.movement._courtesy_clearance(world,actor)
+	var no_build: bool = space._navigation.cached_static_geometry(space,world,1,actor)==null and space.static_reason(world,actor,1,point)==cold.reason(point) and space.static_reason(world,actor,1,point,[actor.id])==cold.reason(point) and courtesy.reason(point).is_empty() and not courtesy.reason(Vector2i(-1,86)).is_empty() and space._navigation._entries.is_empty()
 	var ok: bool = no_build
 	var observations: Array = []
 	var permissions: Array = []
@@ -113,9 +114,15 @@ func _point_checks(source: Dictionary, content: HospitalContent) -> Dictionary:
 			var members: Array = [actor_id]
 			var offsets: Dictionary = {actor_id:[0,0]}
 			var independent: RouteClearance = RouteClearance.new(HospitalSpace.new(content),world,subject,1,members,offsets)
+			courtesy = space.movement._courtesy_clearance(world,subject,members,offsets)
 			var reasons: Array = []
 			for target: Vector2i in [point,Vector2i(int(owner_goal[0]),int(owner_goal[1])),Vector2i(int(second_goal[0]),int(second_goal[1]))]:
 				var expected: String = independent.reason(target)
+				identities_equal = identities_equal and courtesy.reason(target).is_empty()==expected.is_empty()
+				var free_neighbours: int = 0
+				for direction: Vector2i in [Vector2i.LEFT,Vector2i.RIGHT,Vector2i.UP,Vector2i.DOWN]:
+					if independent.reason(target+direction).is_empty(): free_neighbours += 1
+				identities_equal = identities_equal and space.movement._narrow(world,subject,target,courtesy)==(free_neighbours<=2)
 				identities_equal = identities_equal and space.static_reason(world,subject,1,target,members,offsets)==expected
 				space.begin_route_query(world)
 				identities_equal = identities_equal and space.static_reason(world,subject,1,target,members,offsets)==expected
@@ -129,8 +136,29 @@ func _point_checks(source: Dictionary, content: HospitalContent) -> Dictionary:
 		ok = ok and identity_ok and equal and before==world.freeze()
 		observations.append({"pass":pass_id,"all_9216_reasons_equal":equal,"geometry_identity":identity_ok,"singleton_identity_and_scope_cold_equal":identities_equal,"readonly":before==world.freeze()})
 		old_geometry = geometry
+	# Courtesy borrows static geometry only. Permission and patient-space writes
+	# in this same boundary must create a fresh actual reservation predicate.
+	var owner_point: Vector2i = Vector2i(int(owner_goal[0]),int(owner_goal[1]))
+	space.grant_facility_access(world,"permissions_machine",PEER)
+	var granted: bool = space.movement._courtesy_clearance(world,actor).reason(owner_point).is_empty()
+	world.facts.adaptations.permissions_machine.staff_ids.erase(PEER)
+	var denied: RouteClearance = space.movement._courtesy_clearance(world,actor)
+	var revoked: bool = not denied.reason(owner_point).is_empty()
+	var patient_region: Array = world.facts.adaptations.permissions_machine.regions[1]
+	patient_region[0] += 1
+	var shifted: bool = space.movement._courtesy_clearance(world,actor).reason(owner_point).is_empty() and not denied.reason(owner_point).is_empty()
+	patient_region[0] -= 1
+	var boundary: Vector2i = Vector2i(63,86)
+	var other_world: WorldState = WorldState.new(source.duplicate(true))
+	other_world.facts.actors[PEER].species_id = "S53"
+	other_world.facts.floors.overrides["1"].blocked.append([40,90])
+	other_world.touch()
+	var other_actor: Dictionary = other_world.facts.actors[PEER]
+	var other_courtesy: RouteClearance = space.movement._courtesy_clearance(other_world,other_actor)
+	var worlds_and_bodies: bool = other_world.validate(content).is_empty() and space.clearance(other_actor)>1 and not other_courtesy.reason(boundary).is_empty() and not other_courtesy.reason(Vector2i(40,90)).is_empty() and space.movement._courtesy_clearance(world,actor).reason(boundary).is_empty() and space.movement._courtesy_clearance(world,actor).reason(Vector2i(40,90)).is_empty()
+	ok = ok and granted and revoked and shifted and worlds_and_bodies
 	space._navigation._trim(0)
-	var after_eviction: bool = space._navigation.cached_static_geometry(space,world,1,actor)==null and space.static_reason(world,actor,1,point)==cold.reason(point) and space.static_reason(world,actor,1,point,[actor.id])==cold.reason(point) and space._navigation._entries.is_empty()
+	var after_eviction: bool = space._navigation.cached_static_geometry(space,world,1,actor)==null and space.static_reason(world,actor,1,point)==cold.reason(point) and space.static_reason(world,actor,1,point,[actor.id])==cold.reason(point) and not space.movement._courtesy_clearance(world,actor).reason(point).is_empty() and space._navigation._entries.is_empty()
 	# A different single member is still an additional body. Its offset must
 	# remain effective, as must the complete two-person envelope after eviction.
 	var grouped: WorldState = WorldState.new(source.duplicate(true))
@@ -152,11 +180,12 @@ func _point_checks(source: Dictionary, content: HospitalContent) -> Dictionary:
 			var independent: RouteClearance = RouteClearance.new(HospitalSpace.new(content),grouped,primary,1,members,group_offsets)
 			var expected: String = independent.reason(point)
 			var actual: String = group_space.static_reason(grouped,primary,1,point,members,group_offsets)
-			groups_equal = groups_equal and actual==expected and expected.is_empty()==(not OTHER in members)
+			var actual_courtesy: String = group_space.movement._courtesy_clearance(grouped,primary,members,group_offsets).reason(point)
+			groups_equal = groups_equal and actual==expected and actual_courtesy.is_empty()==expected.is_empty() and expected.is_empty()==(not OTHER in members)
 			group_observations.append({"temperature":temperature,"members":members.duplicate(),"reason":actual,"cold_equal":actual==expected})
 		if temperature!="warm": groups_equal = groups_equal and group_space._navigation._entries.is_empty()
 	groups_equal = groups_equal and group_before==grouped.freeze() and group_offsets=={PEER:[0,0],OTHER:[offset,0]}
-	return {"ok":ok and after_eviction and groups_equal,"cold_does_not_build_astar":no_build,"observations":observations,"singleton_permissions":permissions,"evicted_fallback":after_eviction,"different_member_and_full_group_cold_equal":groups_equal,"group_observations":group_observations}
+	return {"ok":ok and after_eviction and groups_equal,"cold_does_not_build_astar":no_build,"observations":observations,"singleton_permissions":permissions,"courtesy_permissions_and_in_place_regions":{"granted":granted,"revoked":revoked,"shifted_and_previous_query_frozen":shifted},"courtesy_world_and_body_boundaries":worlds_and_bodies,"evicted_fallback":after_eviction,"different_member_and_full_group_cold_equal":groups_equal,"group_observations":group_observations}
 
 func _actor_scope(source: Dictionary, content: HospitalContent) -> Dictionary:
 	var world: WorldState = WorldState.new(source.duplicate(true))

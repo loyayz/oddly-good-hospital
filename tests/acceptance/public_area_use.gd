@@ -300,7 +300,8 @@ func _case_57(t) -> void:
 	var request: CommandResult = x.l.execute(x.world,"waiting_select_seat",{"visit_id":patient.id,"facility_id":"west_chair"})
 	var taken: bool = _until_seated(x,patient)
 	var clear: bool = not visitor.is_empty() and not x.space.overlaps_facility(x.world,visitor.actor_id,"west_chair")
-	t.check("STAFF-57",admitted and seated and request.accepted and taken and clear,{"visitor_admitted":admitted,"visitor_actually_seated":seated,"patient_request":request.to_record(),"patient_seated":taken,"visitor_actually_clear":clear,"patient_intent":x.world.facts.waiting_life.seats.get(patient.id,{}),"patient_actor":x.world.facts.actors[patient.actor_id],"visitor":visitor,"quote":x.l._seat_quote(x.world,patient,"west_chair"),"adaptations":x.world.facts.adaptations,"other_seats":x.world.facts.waiting_life.seats})
+	var nearby_release: Dictionary = preload("res://tests/acceptance/public_yield_wait_recovery.gd").new().run_case(_content)
+	t.check("STAFF-57",admitted and seated and request.accepted and taken and clear and nearby_release.ok,{"visitor_admitted":admitted,"visitor_actually_seated":seated,"patient_request":request.to_record(),"patient_seated":taken,"visitor_actually_clear":clear,"patient_intent":x.world.facts.waiting_life.seats.get(patient.id,{}),"patient_actor":x.world.facts.actors[patient.actor_id],"visitor":visitor,"quote":x.l._seat_quote(x.world,patient,"west_chair"),"adaptations":x.world.facts.adaptations,"other_seats":x.world.facts.waiting_life.seats,"nonqueue_body_release_restarts_real_yield":nearby_release})
 
 func _case_58(t) -> void:
 	var x: Dictionary = _areas({"cleaner":"cleaner"})
