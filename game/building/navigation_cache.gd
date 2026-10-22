@@ -314,6 +314,11 @@ func travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, act
 func forward_distance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, start: Vector2i, goal: Vector2i, structural_only: bool = false, prepared_graph: FloorNavigation = null) -> Dictionary:
 	return _travel_distance(space,world,floor_id,actor,start,goal,false,true,structural_only,prepared_graph)
 
+# Different travellers can share a complete structural graph and destination.
+# This cost-only field owns no route, actor permission or extra cache budget.
+func reverse_structural_distance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, start: Vector2i, goal: Vector2i, prepared_graph: FloorNavigation = null) -> Dictionary:
+	return _travel_distance(space,world,floor_id,actor,start,goal,false,false,true,prepared_graph)
+
 # Borrow only a resident, already-built field for one synchronous task loop.
 # This does not advance its warmup, retain a graph or create an extra allowance.
 func ready_structural_field(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, root: Vector2i) -> Dictionary:
@@ -372,7 +377,7 @@ func _travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, ac
 			return {"ready":false}
 		space.query_counts["distance_field_builds"] = int(space.query_counts.get("distance_field_builds",0))+1
 		record.distances = field.distances
-		record.successors = field.successors
+		record.successors = PackedInt32Array() if structural_only and not forward else field.successors
 		record.ready = true
 		var charge: int = ((record.distances as PackedInt32Array).size()+(record.successors as PackedInt32Array).size())*16
 		if forward: charge += floor_source(space,world,floor_id).occupancy.size()*256+16384
@@ -422,9 +427,10 @@ func _distance_destination(space: HospitalSpace, world: WorldState, floor_id: in
 		var view: Dictionary = space.read_view(world,"navigation_distance_keys",func()->Dictionary:return {})
 		var roots: Dictionary = view.get_or_add(actor.id,{}).get_or_add(floor_id,{}).get_or_add(forward,{})
 		var point: Vector2i = start if forward else goal
-		if not roots.has(point): roots[point] = JSON.stringify(["from",start.x,start.y,true,[]]) if forward else JSON.stringify([goal.x,goal.y,[]])
+		if not roots.has(point): roots[point] = JSON.stringify(["from",start.x,start.y,true,[]]) if forward else JSON.stringify(["to",goal.x,goal.y,true,[]])
 		return roots[point]
-	return JSON.stringify(["from",start.x,start.y,structural_only,exemptions]) if forward else JSON.stringify([goal.x,goal.y,exemptions])
+	if forward: return JSON.stringify(["from",start.x,start.y,structural_only,exemptions])
+	return JSON.stringify(["to",goal.x,goal.y,true,[]]) if structural_only else JSON.stringify([goal.x,goal.y,exemptions])
 
 func _envelope(space: HospitalSpace, world: WorldState, actor: Dictionary, members: Array, offsets: Dictionary, source: Dictionary) -> String:
 	if members.is_empty() and offsets.is_empty() and space.in_dynamic_route_query(world):

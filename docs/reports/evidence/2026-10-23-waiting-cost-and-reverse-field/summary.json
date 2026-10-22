@@ -1,0 +1,1018 @@
+{
+  "schema_version": 1,
+  "diagnostic_only": true,
+  "formal_pass": false,
+  "generated_at_utc": "2026-10-22T16:59:06.799779+00:00",
+  "baseline_commit": "f4207fb8d829ad833a744dbd08629563f9f8c8fa",
+  "current_workspace_head": "f4207fb8d829ad833a744dbd08629563f9f8c8fa",
+  "adopted": "Structural reverse cost field with original warmup, budget, graph proof and AStar failure fallback",
+  "rejected": "Flattened queue signature: no established whole-step benefit; both P99 samples regressed",
+  "fixed_load": {
+    "actors": 160,
+    "patients": 120,
+    "staff": 32,
+    "visitors": 8,
+    "floors": 4,
+    "rooms": 64,
+    "facilities": 1336,
+    "tick_seconds": 0.1
+  },
+  "performance_successful_windows": 13,
+  "performance_steps": 2080,
+  "runs": {
+    "a-gp80": {
+      "metrics_us": {
+        "cold_first_us": 224398,
+        "count": 80,
+        "following_mean_us": 46184.0,
+        "max_us": 327912,
+        "mean_us": 48411.675,
+        "p50_us": 39654,
+        "p95_us": 86552,
+        "p99_us": 327912,
+        "total_us": 3872934
+      },
+      "steps": 80,
+      "all_business_events_rng_non_time_samples_equal": true,
+      "query_count_differences": {},
+      "wall_ms": 7517.158999995445,
+      "cpu_ms": 7515.625,
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a"
+    },
+    "probe02-gp80": {
+      "metrics_us": {
+        "cold_first_us": 231310,
+        "count": 80,
+        "following_mean_us": 47284.7215189873,
+        "max_us": 322289,
+        "mean_us": 49585.0375,
+        "p50_us": 40770,
+        "p95_us": 91981,
+        "p99_us": 322289,
+        "total_us": 3966803
+      },
+      "steps": 80,
+      "all_business_events_rng_non_time_samples_equal": true,
+      "query_count_differences": {
+        "diag_wait/851/public_areas.gd._waiting_point/us": {
+          "actual": 183395,
+          "baseline": null
+        },
+        "diag_wait/851/waiting_life.gd._dispatch_public_seat/us": {
+          "actual": 94056,
+          "baseline": null
+        },
+        "diag_wait/851/waiting_life.gd.seat_candidates/calls": {
+          "actual": 18,
+          "baseline": null
+        },
+        "diag_wait/851/waiting_life.gd._manual_seat_quote/calls": {
+          "actual": 8,
+          "baseline": null
+        },
+        "diag_wait/851/public_areas.gd._queue_fit_current/calls": {
+          "actual": 136,
+          "baseline": null
+        },
+        "diag_wait/851/public_areas.gd._entry_geometry_view/us": {
+          "actual": 23425,
+          "baseline": null
+        },
+        "diag_wait/851/waiting_life.gd.seat_candidates/us": {
+          "actual": 28335,
+          "baseline": null
+        },
+        "diag_wait/851/public_areas.gd._decision_signature/us": {
+          "actual": 8544,
+          "baseline": null
+        },
+        "diag_wait/867/waiting_life.gd._dispatch_public_seat/us": {
+          "actual": 10159,
+          "baseline": null
+        },
+        "diag_wait/851/public_areas.gd._entry_geometry_view/calls": {
+          "actual": 146,
+          "baseline": null
+        },
+        "diag_wait/851/public_areas.gd.select/calls": {
+          "actual": 1008,
+          "baseline": null
+        },
+        "diag_wait/851/public_areas.gd._decision_signature/calls": {
+          "actual": 18,
+          "baseline": null
+        },
+        "diag_wait/851/waiting_life.gd._manual_seat_quote/us": {
+          "actual": 25162,
+          "baseline": null
+        },
+        "diag_wait/851/public_areas.gd._queue_fit_current/us": {
+          "actual": 14515,
+          "baseline": null
+        },
+        "diag_wait/867/public_areas.gd._decision_signature/calls": {
+          "actual": 18,
+          "baseline": null
+        },
+        "diag_wait/851/waiting_life.gd._dispatch_public_seat/calls": {
+          "actual": 112,
+          "baseline": null
+        },
+        "diag_wait/867/waiting_life.gd._dispatch_public_seat/calls": {
+          "actual": 112,
+          "baseline": null
+        },
+        "diag_wait/867/public_areas.gd._decision_signature/us": {
+          "actual": 6786,
+          "baseline": null
+        },
+        "diag_wait/867/public_areas.gd._entry_geometry_view/calls": {
+          "actual": 18,
+          "baseline": null
+        },
+        "diag_wait/851/public_areas.gd._entry_landings/us": {
+          "actual": 74472,
+          "baseline": null
+        },
+        "diag_wait/851/public_areas.gd._waiting_point/calls": {
+          "actual": 120,
+          "baseline": null
+        },
+        "diag_wait/851/public_areas.gd._entry_landings/calls": {
+          "actual": 102,
+          "baseline": null
+        },
+        "diag_wait/851/public_areas.gd.select/us": {
+          "actual": 278390,
+          "baseline": null
+        },
+        "diag_wait/867/public_areas.gd._entry_geometry_view/us": {
+          "actual": 917,
+          "baseline": null
+        }
+      },
+      "wall_ms": 7784.558700004709,
+      "cpu_ms": 7875.0,
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a"
+    },
+    "probe03-gp80": {
+      "metrics_us": {
+        "cold_first_us": 231858,
+        "count": 80,
+        "following_mean_us": 46710.164556962,
+        "max_us": 329939,
+        "mean_us": 49024.5125,
+        "p50_us": 39471,
+        "p95_us": 87770,
+        "p99_us": 329939,
+        "total_us": 3921961
+      },
+      "steps": 80,
+      "all_business_events_rng_non_time_samples_equal": true,
+      "query_count_differences": {
+        "diag_wait/851/signature.environment/us": {
+          "actual": 1926,
+          "baseline": null
+        },
+        "diag_wait/851/public_areas.gd._waiting_point/us": {
+          "actual": 185946,
+          "baseline": null
+        },
+        "diag_wait/851/waiting_life.gd._dispatch_public_seat/us": {
+          "actual": 102774,
+          "baseline": null
+        },
+        "diag_wait/867/signature.facilities/us": {
+          "actual": 1220,
+          "baseline": null
+        },
+        "diag_wait/851/signature.facilities/calls": {
+          "actual": 18,
+          "baseline": null
+        },
+        "diag_wait/867/signature.environment/calls": {
+          "actual": 18,
+          "baseline": null
+        },
+        "diag_wait/851/waiting_life.gd.seat_candidates/calls": {
+          "actual": 18,
+          "baseline": null
+        },
+        "diag_wait/851/waiting_life.gd._manual_seat_quote/calls": {
+          "actual": 8,
+          "baseline": null
+        },
+        "diag_wait/867/signature.facilities/calls": {
+          "actual": 18,
+          "baseline": null
+        },
+        "diag_wait/851/public_areas.gd._queue_fit_current/calls": {
+          "actual": 136,
+          "baseline": null
+        },
+        "diag_wait/851/public_areas.gd._entry_geometry_view/us": {
+          "actual": 23476,
+          "baseline": null
+        },
+        "diag_wait/851/signature.setup/us": {
+          "actual": 2747,
+          "baseline": null
+        },
+        "diag_wait/851/signature.route_queue/us": {
+          "actual": 1572,
+          "baseline": null
+        },
+        "diag_wait/851/signature.environment/calls": {
+          "actual": 18,
+          "baseline": null
+        },
+        "diag_wait/851/signature.dynamic/calls": {
+          "actual": 18,
+          "baseline": null
+        },
+        "diag_wait/851/waiting_life.gd.seat_candidates/us": {
+          "actual": 32450,
+          "baseline": null
+        },
+        "diag_wait/851/signature.route_queue/calls": {
+          "actual": 18,
+          "baseline": null
+        },
+        "diag_wait/851/public_areas.gd._decision_signature/us": {
+          "actual": 8767,
+          "baseline": null
+        },
+        "diag_wait/867/signature.other_bodies/us": {
+          "actual": 426,
+          "baseline": null
+        },
+        "diag_wait/867/waiting_life.gd._dispatch_public_seat/us": {
+          "actual": 9260,
+          "baseline": null
+        },
+        "diag_wait/851/signature.facilities/us": {
+          "actual": 1122,
+          "baseline": null
+        },
+        "diag_wait/851/public_areas.gd._entry_geometry_view/calls": {
+          "actual": 146,
+          "baseline": null
+        },
+        "diag_wait/851/public_areas.gd.select/calls": {
+          "actual": 112,
+          "baseline": null
+        },
+        "diag_wait/851/signature.other_bodies/us": {
+          "actual": 215,
+          "baseline": null
+        },
+        "diag_wait/867/signature.route_queue/calls": {
+          "actual": 18,
+          "baseline": null
+        },
+        "diag_wait/867/signature.route_queue/us": {
+          "actual": 3266,
+          "baseline": null
+        },
+        "diag_wait/867/signature.environment/us": {
+          "actual": 417,
+          "baseline": null
+        },
+        "diag_wait/851/public_areas.gd._decision_signature/calls": {
+          "actual": 18,
+          "baseline": null
+        },
+        "diag_wait/851/waiting_life.gd._manual_seat_quote/us": {
+          "actual": 29330,
+          "baseline": null
+        },
+        "diag_wait/851/public_areas.gd._queue_fit_current/us": {
+          "actual": 16604,
+          "baseline": null
+        },
+        "diag_wait/867/public_areas.gd._decision_signature/calls": {
+          "actual": 18,
+          "baseline": null
+        },
+        "diag_wait/851/signature.setup/calls": {
+          "actual": 18,
+          "baseline": null
+        },
+        "diag_wait/851/waiting_life.gd._dispatch_public_seat/calls": {
+          "actual": 112,
+          "baseline": null
+        },
+        "diag_wait/867/waiting_life.gd._dispatch_public_seat/calls": {
+          "actual": 112,
+          "baseline": null
+        },
+        "diag_wait/867/public_areas.gd._decision_signature/us": {
+          "actual": 7132,
+          "baseline": null
+        },
+        "diag_wait/867/signature.setup/calls": {
+          "actual": 18,
+          "baseline": null
+        },
+        "diag_wait/867/public_areas.gd._entry_geometry_view/calls": {
+          "actual": 18,
+          "baseline": null
+        },
+        "diag_wait/867/signature.other_bodies/calls": {
+          "actual": 18,
+          "baseline": null
+        },
+        "diag_wait/851/signature.dynamic/us": {
+          "actual": 763,
+          "baseline": null
+        },
+        "diag_wait/851/public_areas.gd._entry_landings/us": {
+          "actual": 75719,
+          "baseline": null
+        },
+        "diag_wait/851/public_areas.gd._waiting_point/calls": {
+          "actual": 120,
+          "baseline": null
+        },
+        "diag_wait/851/public_areas.gd._entry_landings/calls": {
+          "actual": 102,
+          "baseline": null
+        },
+        "diag_wait/867/signature.dynamic/us": {
+          "actual": 1002,
+          "baseline": null
+        },
+        "diag_wait/851/public_areas.gd.select/us": {
+          "actual": 194666,
+          "baseline": null
+        },
+        "diag_wait/867/public_areas.gd._entry_geometry_view/us": {
+          "actual": 883,
+          "baseline": null
+        },
+        "diag_wait/867/signature.dynamic/calls": {
+          "actual": 18,
+          "baseline": null
+        },
+        "diag_wait/851/signature.other_bodies/calls": {
+          "actual": 18,
+          "baseline": null
+        },
+        "diag_wait/867/signature.setup/us": {
+          "actual": 409,
+          "baseline": null
+        }
+      },
+      "wall_ms": 7887.139300000854,
+      "cpu_ms": 7875.0,
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a"
+    },
+    "a-public360": {
+      "metrics_us": {
+        "cold_first_us": 458609,
+        "count": 360,
+        "following_mean_us": 48788.782729805,
+        "max_us": 458609,
+        "mean_us": 49927.1722222222,
+        "p50_us": 44092,
+        "p95_us": 87491,
+        "p99_us": 104974,
+        "total_us": 17973782
+      },
+      "steps": 360,
+      "all_business_events_rng_non_time_samples_equal": true,
+      "query_count_differences": {},
+      "wall_ms": 21778.674700006377,
+      "cpu_ms": 23609.375,
+      "input_sha256": "1d83a8834528fd2f6c53dff06f6ec150c9e598eed675fc37521ab7e45fcadb10",
+      "final_binary_sha256": "aa6b9baf08110e4152a32c001922142fb21ded7efa838cb906ce45bf59e1da7e"
+    },
+    "b-public360": {
+      "metrics_us": {
+        "cold_first_us": 437911,
+        "count": 360,
+        "following_mean_us": 48737.1420612813,
+        "max_us": 437911,
+        "mean_us": 49818.1805555556,
+        "p50_us": 44107,
+        "p95_us": 87168,
+        "p99_us": 107663,
+        "total_us": 17934545
+      },
+      "steps": 360,
+      "all_business_events_rng_non_time_samples_equal": true,
+      "query_count_differences": {},
+      "wall_ms": 21768.006700003752,
+      "cpu_ms": 23968.75,
+      "input_sha256": "1d83a8834528fd2f6c53dff06f6ec150c9e598eed675fc37521ab7e45fcadb10",
+      "final_binary_sha256": "aa6b9baf08110e4152a32c001922142fb21ded7efa838cb906ce45bf59e1da7e"
+    },
+    "b-gp80": {
+      "metrics_us": {
+        "cold_first_us": 228467,
+        "count": 80,
+        "following_mean_us": 46770.417721519,
+        "max_us": 334783,
+        "mean_us": 49041.625,
+        "p50_us": 39496,
+        "p95_us": 89621,
+        "p99_us": 334783,
+        "total_us": 3923330
+      },
+      "steps": 80,
+      "all_business_events_rng_non_time_samples_equal": true,
+      "query_count_differences": {},
+      "wall_ms": 7504.71040001139,
+      "cpu_ms": 7562.5,
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a"
+    },
+    "r1-gp80": {
+      "metrics_us": {
+        "cold_first_us": 220031,
+        "count": 80,
+        "following_mean_us": 45372.4556962025,
+        "max_us": 313371,
+        "mean_us": 47555.6875,
+        "p50_us": 38439,
+        "p95_us": 89276,
+        "p99_us": 313371,
+        "total_us": 3804455
+      },
+      "steps": 80,
+      "all_business_events_rng_non_time_samples_equal": true,
+      "query_count_differences": {
+        "structural_reverse_field_lookups": {
+          "actual": 255,
+          "baseline": null
+        },
+        "distance_field_builds": {
+          "actual": 14,
+          "baseline": 11
+        },
+        "static_path_builds": {
+          "actual": 191,
+          "baseline": 242
+        },
+        "structural_reverse_field_hits": {
+          "actual": 51,
+          "baseline": null
+        },
+        "distance_field_hits": {
+          "actual": 143,
+          "baseline": 92
+        }
+      },
+      "wall_ms": 7208.739099995,
+      "cpu_ms": 7281.25,
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a"
+    },
+    "r2-gp80": {
+      "metrics_us": {
+        "cold_first_us": 217273,
+        "count": 80,
+        "following_mean_us": 44881.8734177215,
+        "max_us": 306905,
+        "mean_us": 47036.7625,
+        "p50_us": 38074,
+        "p95_us": 85644,
+        "p99_us": 306905,
+        "total_us": 3762941
+      },
+      "steps": 80,
+      "all_business_events_rng_non_time_samples_equal": true,
+      "query_count_differences": {
+        "structural_reverse_field_lookups": {
+          "actual": 255,
+          "baseline": null
+        },
+        "distance_field_builds": {
+          "actual": 14,
+          "baseline": 11
+        },
+        "static_path_builds": {
+          "actual": 191,
+          "baseline": 242
+        },
+        "structural_reverse_field_hits": {
+          "actual": 51,
+          "baseline": null
+        },
+        "distance_field_hits": {
+          "actual": 143,
+          "baseline": 92
+        }
+      },
+      "wall_ms": 7210.446199998842,
+      "cpu_ms": 7218.75,
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a"
+    },
+    "r2-public360": {
+      "metrics_us": {
+        "cold_first_us": 441409,
+        "count": 360,
+        "following_mean_us": 47562.6239554318,
+        "max_us": 441409,
+        "mean_us": 48656.6416666667,
+        "p50_us": 42663,
+        "p95_us": 84025,
+        "p99_us": 100192,
+        "total_us": 17516391
+      },
+      "steps": 360,
+      "all_business_events_rng_non_time_samples_equal": true,
+      "query_count_differences": {
+        "structural_reverse_field_lookups": {
+          "actual": 686,
+          "baseline": null
+        },
+        "distance_field_builds": {
+          "actual": 43,
+          "baseline": 36
+        },
+        "static_path_builds": {
+          "actual": 454,
+          "baseline": 541
+        },
+        "static_path_hits": {
+          "actual": 76,
+          "baseline": 135
+        },
+        "structural_reverse_field_hits": {
+          "actual": 146,
+          "baseline": null
+        },
+        "distance_field_hits": {
+          "actual": 858,
+          "baseline": 712
+        }
+      },
+      "wall_ms": 21094.541400001617,
+      "cpu_ms": 23484.375,
+      "input_sha256": "1d83a8834528fd2f6c53dff06f6ec150c9e598eed675fc37521ab7e45fcadb10",
+      "final_binary_sha256": "aa6b9baf08110e4152a32c001922142fb21ded7efa838cb906ce45bf59e1da7e"
+    },
+    "a2-gp80": {
+      "metrics_us": {
+        "cold_first_us": 215021,
+        "count": 80,
+        "following_mean_us": 45156.4810126582,
+        "max_us": 313534,
+        "mean_us": 47279.7875,
+        "p50_us": 38612,
+        "p95_us": 89213,
+        "p99_us": 313534,
+        "total_us": 3782383
+      },
+      "steps": 80,
+      "all_business_events_rng_non_time_samples_equal": true,
+      "query_count_differences": {},
+      "wall_ms": 7205.50130000629,
+      "cpu_ms": 7203.125,
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a"
+    },
+    "a2-public360": {
+      "metrics_us": {
+        "cold_first_us": 436496,
+        "count": 360,
+        "following_mean_us": 47529.8913649025,
+        "max_us": 436496,
+        "mean_us": 48610.3527777778,
+        "p50_us": 42942,
+        "p95_us": 85093,
+        "p99_us": 101593,
+        "total_us": 17499727
+      },
+      "steps": 360,
+      "all_business_events_rng_non_time_samples_equal": true,
+      "query_count_differences": {},
+      "wall_ms": 21091.05260000797,
+      "cpu_ms": 22906.25,
+      "input_sha256": "1d83a8834528fd2f6c53dff06f6ec150c9e598eed675fc37521ab7e45fcadb10",
+      "final_binary_sha256": "aa6b9baf08110e4152a32c001922142fb21ded7efa838cb906ce45bf59e1da7e"
+    },
+    "r2-operations40": {
+      "metrics_us": {
+        "cold_first_us": 341674,
+        "count": 40,
+        "following_mean_us": 19303.7948717949,
+        "max_us": 341674,
+        "mean_us": 27363.05,
+        "p50_us": 19127,
+        "p95_us": 22621,
+        "p99_us": 341674,
+        "total_us": 1094522
+      },
+      "steps": 40,
+      "all_business_events_rng_non_time_samples_equal": true,
+      "query_count_differences": {
+        "structural_reverse_field_lookups": {
+          "actual": 125,
+          "baseline": null
+        }
+      },
+      "wall_ms": 4440.726699991501,
+      "cpu_ms": 4468.75,
+      "input_sha256": "939c2d95da67a9df671dbb5a824fd987174e77b449e3ed0b0332405922b4848b",
+      "final_binary_sha256": "f20de287ab252ab3fd759f27d841da0fe8a288ee3189a22f05d006a51ace45f8"
+    },
+    "a2-operations40": {
+      "metrics_us": {
+        "cold_first_us": 342679,
+        "count": 40,
+        "following_mean_us": 19157.6923076923,
+        "max_us": 342679,
+        "mean_us": 27245.725,
+        "p50_us": 18955,
+        "p95_us": 23521,
+        "p99_us": 342679,
+        "total_us": 1089829
+      },
+      "steps": 40,
+      "all_business_events_rng_non_time_samples_equal": true,
+      "query_count_differences": {},
+      "wall_ms": 4434.029900003225,
+      "cpu_ms": 4234.375,
+      "input_sha256": "939c2d95da67a9df671dbb5a824fd987174e77b449e3ed0b0332405922b4848b",
+      "final_binary_sha256": "f20de287ab252ab3fd759f27d841da0fe8a288ee3189a22f05d006a51ace45f8"
+    }
+  },
+  "final_vs_nearby_serial": {
+    "public360": {
+      "mean_us": {
+        "before_us": 48610.3527777778,
+        "after_us": 48656.6416666667,
+        "change_percent": 0.09522434264261914
+      },
+      "p50_us": {
+        "before_us": 42942,
+        "after_us": 42663,
+        "change_percent": -0.6497135671370668
+      },
+      "p95_us": {
+        "before_us": 85093,
+        "after_us": 84025,
+        "change_percent": -1.2550973640604979
+      },
+      "p99_us": {
+        "before_us": 101593,
+        "after_us": 100192,
+        "change_percent": -1.3790320199226325
+      },
+      "cold_first_us": {
+        "before_us": 436496,
+        "after_us": 441409,
+        "change_percent": 1.1255544151607344
+      },
+      "max_us": {
+        "before_us": 436496,
+        "after_us": 441409,
+        "change_percent": 1.1255544151607344
+      }
+    },
+    "gp80": {
+      "mean_us": {
+        "before_us": 47279.7875,
+        "after_us": 47036.7625,
+        "change_percent": -0.5140145775824445
+      },
+      "p50_us": {
+        "before_us": 38612,
+        "after_us": 38074,
+        "change_percent": -1.3933492178597295
+      },
+      "p95_us": {
+        "before_us": 89213,
+        "after_us": 85644,
+        "change_percent": -4.000538038178291
+      },
+      "p99_us": {
+        "before_us": 313534,
+        "after_us": 306905,
+        "change_percent": -2.1142842562529074
+      },
+      "cold_first_us": {
+        "before_us": 215021,
+        "after_us": 217273,
+        "change_percent": 1.0473395621823034
+      },
+      "max_us": {
+        "before_us": 313534,
+        "after_us": 306905,
+        "change_percent": -2.1142842562529074
+      }
+    },
+    "operations40": {
+      "mean_us": {
+        "before_us": 27245.725,
+        "after_us": 27363.05,
+        "change_percent": 0.430618014385753
+      },
+      "p50_us": {
+        "before_us": 18955,
+        "after_us": 19127,
+        "change_percent": 0.9074122922711592
+      },
+      "p95_us": {
+        "before_us": 23521,
+        "after_us": 22621,
+        "change_percent": -3.826367926533736
+      },
+      "p99_us": {
+        "before_us": 342679,
+        "after_us": 341674,
+        "change_percent": -0.2932773820397472
+      },
+      "cold_first_us": {
+        "before_us": 342679,
+        "after_us": 341674,
+        "change_percent": -0.2932773820397472
+      },
+      "max_us": {
+        "before_us": 342679,
+        "after_us": 341674,
+        "change_percent": -0.2932773820397472
+      }
+    }
+  },
+  "final_vs_earlier_serial": {
+    "public360": {
+      "mean_us": {
+        "before_us": 49927.1722222222,
+        "after_us": 48656.6416666667,
+        "change_percent": -2.5447677066517294
+      },
+      "p50_us": {
+        "before_us": 44092,
+        "after_us": 42663,
+        "change_percent": -3.2409507393631465
+      },
+      "p95_us": {
+        "before_us": 87491,
+        "after_us": 84025,
+        "change_percent": -3.9615503308911726
+      },
+      "p99_us": {
+        "before_us": 104974,
+        "after_us": 100192,
+        "change_percent": -4.55541372149294
+      },
+      "cold_first_us": {
+        "before_us": 458609,
+        "after_us": 441409,
+        "change_percent": -3.750471534575206
+      },
+      "max_us": {
+        "before_us": 458609,
+        "after_us": 441409,
+        "change_percent": -3.750471534575206
+      }
+    },
+    "gp80": {
+      "mean_us": {
+        "before_us": 48411.675,
+        "after_us": 47036.7625,
+        "change_percent": -2.8400432333729575
+      },
+      "p50_us": {
+        "before_us": 39654,
+        "after_us": 38074,
+        "change_percent": -3.9844656276794232
+      },
+      "p95_us": {
+        "before_us": 86552,
+        "after_us": 85644,
+        "change_percent": -1.0490803216563482
+      },
+      "p99_us": {
+        "before_us": 327912,
+        "after_us": 306905,
+        "change_percent": -6.406291931981755
+      },
+      "cold_first_us": {
+        "before_us": 224398,
+        "after_us": 217273,
+        "change_percent": -3.1751619889660354
+      },
+      "max_us": {
+        "before_us": 327912,
+        "after_us": 306905,
+        "change_percent": -6.406291931981755
+      }
+    }
+  },
+  "flattened_signature": {
+    "public360": {
+      "mean_us": {
+        "before_us": 49927.1722222222,
+        "after_us": 49818.1805555556,
+        "change_percent": -0.21830130130641168
+      },
+      "p50_us": {
+        "before_us": 44092,
+        "after_us": 44107,
+        "change_percent": 0.03401977683026303
+      },
+      "p95_us": {
+        "before_us": 87491,
+        "after_us": 87168,
+        "change_percent": -0.3691808300282262
+      },
+      "p99_us": {
+        "before_us": 104974,
+        "after_us": 107663,
+        "change_percent": 2.5615866786061314
+      },
+      "cold_first_us": {
+        "before_us": 458609,
+        "after_us": 437911,
+        "change_percent": -4.513212780385912
+      },
+      "max_us": {
+        "before_us": 458609,
+        "after_us": 437911,
+        "change_percent": -4.513212780385912
+      }
+    },
+    "gp80": {
+      "mean_us": {
+        "before_us": 48411.675,
+        "after_us": 49041.625,
+        "change_percent": 1.3012357039908107
+      },
+      "p50_us": {
+        "before_us": 39654,
+        "after_us": 39496,
+        "change_percent": -0.3984465627679401
+      },
+      "p95_us": {
+        "before_us": 86552,
+        "after_us": 89621,
+        "change_percent": 3.545845272206294
+      },
+      "p99_us": {
+        "before_us": 327912,
+        "after_us": 334783,
+        "change_percent": 2.095379248090956
+      },
+      "cold_first_us": {
+        "before_us": 224398,
+        "after_us": 228467,
+        "change_percent": 1.8132960186810987
+      },
+      "max_us": {
+        "before_us": 327912,
+        "after_us": 334783,
+        "change_percent": 2.095379248090956
+      }
+    }
+  },
+  "selected_final_functional": {
+    "SPACE-51": {
+      "passed": true,
+      "body_ms": 1926,
+      "setup_ms": 0
+    },
+    "STAFF-57": {
+      "passed": true,
+      "body_ms": 266,
+      "setup_ms": 0
+    },
+    "STAFF-61": {
+      "passed": true,
+      "body_ms": 250,
+      "setup_ms": 0
+    }
+  },
+  "actual_baseline_source_rows_checked": 485,
+  "actual_final_runtime_source_rows_checked": 485,
+  "actual_final_test_rows_checked": 145,
+  "documentation_only_changes_since_functional": [
+    {
+      "path": "tests/acceptance/space.md",
+      "measured_sha256": "5b652d3504c835d846af0ff846a3f6c676333df0db4eba2f4df90e3228aa3401",
+      "delivery_sha256": "e7ac886dff4b503d59c385ab7f698cd4d3f2868aeecbaf5515a35f416e90f932",
+      "documentation_only": true
+    }
+  ],
+  "all_current_runtime_and_test_gd_files_match_final_execution": true,
+  "reused_complete_baseline": {
+    "path": "docs/reports/evidence/2026-10-22-worker-pool-environment/raw-evidence.zip",
+    "sha256": "aee05728e481d710ef1ee1c05b6bbdb96288bdda5b0aa88e38129ad7f3d93609",
+    "scope": "Original engine, native library, complete prepared runtime/assets; this archive adds actual final 485-row identity, changed sources and inverse diagnostic transformations."
+  },
+  "final_binary_aliases": [
+    {
+      "original": ".cache/waiting-phase-f4207fb-20261023/a-gp80.json.final.bin",
+      "member": "final-states/a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a.bin",
+      "size": 2590220,
+      "sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a"
+    },
+    {
+      "original": ".cache/waiting-phase-f4207fb-20261023/a-public360.json.final.bin",
+      "member": "final-states/aa6b9baf08110e4152a32c001922142fb21ded7efa838cb906ce45bf59e1da7e.bin",
+      "size": 2896512,
+      "sha256": "aa6b9baf08110e4152a32c001922142fb21ded7efa838cb906ce45bf59e1da7e"
+    },
+    {
+      "original": ".cache/waiting-phase-f4207fb-20261023/a2-gp80.json.final.bin",
+      "member": "final-states/a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a.bin",
+      "size": 2590220,
+      "sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a"
+    },
+    {
+      "original": ".cache/waiting-phase-f4207fb-20261023/a2-operations40.json.final.bin",
+      "member": "final-states/f20de287ab252ab3fd759f27d841da0fe8a288ee3189a22f05d006a51ace45f8.bin",
+      "size": 1730496,
+      "sha256": "f20de287ab252ab3fd759f27d841da0fe8a288ee3189a22f05d006a51ace45f8"
+    },
+    {
+      "original": ".cache/waiting-phase-f4207fb-20261023/a2-public360.json.final.bin",
+      "member": "final-states/aa6b9baf08110e4152a32c001922142fb21ded7efa838cb906ce45bf59e1da7e.bin",
+      "size": 2896512,
+      "sha256": "aa6b9baf08110e4152a32c001922142fb21ded7efa838cb906ce45bf59e1da7e"
+    },
+    {
+      "original": ".cache/waiting-phase-f4207fb-20261023/b-gp80.json.final.bin",
+      "member": "final-states/a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a.bin",
+      "size": 2590220,
+      "sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a"
+    },
+    {
+      "original": ".cache/waiting-phase-f4207fb-20261023/b-public360.json.final.bin",
+      "member": "final-states/aa6b9baf08110e4152a32c001922142fb21ded7efa838cb906ce45bf59e1da7e.bin",
+      "size": 2896512,
+      "sha256": "aa6b9baf08110e4152a32c001922142fb21ded7efa838cb906ce45bf59e1da7e"
+    },
+    {
+      "original": ".cache/waiting-phase-f4207fb-20261023/probe-gp80.json.final.bin",
+      "member": "final-states/126cdd2dd3beb5fa2b635b376713757222a6bb6e9262cd633455a2545db95fb0.bin",
+      "size": 1689016,
+      "sha256": "126cdd2dd3beb5fa2b635b376713757222a6bb6e9262cd633455a2545db95fb0"
+    },
+    {
+      "original": ".cache/waiting-phase-f4207fb-20261023/probe02-gp80.json.final.bin",
+      "member": "final-states/a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a.bin",
+      "size": 2590220,
+      "sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a"
+    },
+    {
+      "original": ".cache/waiting-phase-f4207fb-20261023/probe03-gp80.json.final.bin",
+      "member": "final-states/a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a.bin",
+      "size": 2590220,
+      "sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a"
+    },
+    {
+      "original": ".cache/waiting-phase-f4207fb-20261023/r1-gp80.json.final.bin",
+      "member": "final-states/a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a.bin",
+      "size": 2590220,
+      "sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a"
+    },
+    {
+      "original": ".cache/waiting-phase-f4207fb-20261023/r2-gp80.json.final.bin",
+      "member": "final-states/a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a.bin",
+      "size": 2590220,
+      "sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a"
+    },
+    {
+      "original": ".cache/waiting-phase-f4207fb-20261023/r2-operations40.json.final.bin",
+      "member": "final-states/f20de287ab252ab3fd759f27d841da0fe8a288ee3189a22f05d006a51ace45f8.bin",
+      "size": 1730496,
+      "sha256": "f20de287ab252ab3fd759f27d841da0fe8a288ee3189a22f05d006a51ace45f8"
+    },
+    {
+      "original": ".cache/waiting-phase-f4207fb-20261023/r2-public360.json.final.bin",
+      "member": "final-states/aa6b9baf08110e4152a32c001922142fb21ded7efa838cb906ce45bf59e1da7e.bin",
+      "size": 2896512,
+      "sha256": "aa6b9baf08110e4152a32c001922142fb21ded7efa838cb906ce45bf59e1da7e"
+    }
+  ],
+  "limitations": [
+    "Root and selected inline spans are diagnostics, include residual observer effects and overlap. No observer subtraction estimates plain CPU.",
+    "probe02 select events incorrectly included lambda returns and are rejected. Its complete raw window is retained.",
+    "Prototype r1 precedes the final failed-result schema fallback; only r2 is final production measurement.",
+    "A1/B/A2 controls show drift. Nearby public mean is flat and operations mean regressed; all retained.",
+    "No Release, full capacity, rendering, allocation measurement or two-hour run. Formal acceptance has not passed.",
+    "No diagnostic public360 window was executed although its selected tick conditions were prepared."
+  ],
+  "failures": [
+    "First read-only Python display used Windows default encoding; fixed to explicit UTF-8.",
+    "First inline generator included following static function and failed parsing; actual source and engine logs retained.",
+    "probe02 completed but tool summary looked up wrong root stage; select lambda return instrumentation invalidated select timing.",
+    "reverse-functional initial SPACE-51 test had too many facade arguments; same run STAFF-57/61 passed.",
+    "reverse-functional-02 failed old distance-key schema assertion; actual reverse contract and other business checks passed.",
+    "Final canonical structural reverse mode test and complete three-case regression passed."
+  ],
+  "raw_archive": {
+    "archive": "raw-evidence.zip",
+    "size": 2114421,
+    "sha256": "ce6c05503116937dc1225150ac05b4b1899280ddd23588f973234f97685a8016",
+    "members": 155
+  }
+}

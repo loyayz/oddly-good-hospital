@@ -14,6 +14,7 @@ class FullKeys extends KeyProbe:
 	func _graph_key(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, members: Array, offsets: Dictionary, source: Dictionary) -> String:
 		return str(floor_id)+":"+_envelope(space,world,actor,members,offsets,source)
 	func _distance_destination(_space: HospitalSpace, _world: WorldState, _floor_id: int, _actor: Dictionary, start: Vector2i, goal: Vector2i, forward: bool, structural_only: bool, exemptions: Array) -> String:
+		if structural_only and not forward: return JSON.stringify(["to",goal.x,goal.y,true,[]])
 		return JSON.stringify(["from",start.x,start.y,structural_only,exemptions]) if forward else JSON.stringify([goal.x,goal.y,exemptions])
 	func _envelope(space: HospitalSpace, world: WorldState, actor: Dictionary, members: Array, offsets: Dictionary, source: Dictionary) -> String:
 		var shapes: Array = [_traversal_shape(space,actor,[0,0],source)]
@@ -192,7 +193,8 @@ func _envelopes(pair: Dictionary, world: WorldState) -> Dictionary:
 				# Structural consumers always own the empty exemption list.
 				if structural and not exemptions.is_empty(): continue
 				keys_equal = keys_equal and actual._distance_destination(pair.actual,world,1,actor,Vector2i(44,80),Vector2i(46,82),forward,structural,exemptions)==original._distance_destination(pair.original,world,1,actor,Vector2i(44,80),Vector2i(46,82),forward,structural,exemptions)
-	checks.distance_destination_schema_and_permission_exemptions_unchanged = keys_equal
+	checks.distance_destination_canonical_and_permission_exemptions_preserved = keys_equal
+	checks.reverse_structural_and_permission_modes_distinct = actual._distance_destination(pair.actual,world,1,actor,Vector2i(44,80),Vector2i(46,82),false,true,[])!=actual._distance_destination(pair.actual,world,1,actor,Vector2i(44,80),Vector2i(46,82),false,false,[])
 	for name: String in ["navigation_envelopes","navigation_graph_keys","navigation_distance_keys"]:
 		checks[name+"_stores_values_only"] = _values_only(pair.actual._route_queries.back().views.get(name,{}))
 	_end(pair)

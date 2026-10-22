@@ -476,6 +476,13 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 		# The structural graph was acquired above in this same invocation. No
 		# intervening query can refresh it; dynamic clearance keeps its own path.
 		repeated = space._navigation.forward_distance(space,world,floor_id,actor,start,goal,structural_only,graph if fresh_structural_graph else null)
+		if structural_only and not repeated.get("ready",false):
+			space.query_counts["structural_reverse_field_lookups"] = int(space.query_counts.get("structural_reverse_field_lookups",0))+1
+			var reverse: Dictionary = space._navigation.reverse_structural_distance(space,world,floor_id,actor,start,goal,graph if fresh_structural_graph else null)
+			# Failed fields retain the original cached/A* result and failure schema.
+			if reverse.get("ready",false) and reverse.get("ok",false):
+				repeated = reverse
+				space.query_counts["structural_reverse_field_hits"] = int(space.query_counts.get("structural_reverse_field_hits",0))+1
 	if repeated.get("ready",false):
 		space.query_counts["distance_field_hits"] = int(space.query_counts.get("distance_field_hits",0))+1
 		result = {"ok":bool(repeated.ok),"status":"complete" if repeated.ok else "unreachable","reason":repeated.get("reason",""),"walking_distance":int(repeated.get("distance",-1))}
