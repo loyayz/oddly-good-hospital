@@ -214,6 +214,9 @@ func _point_route(world: WorldState, actor: Dictionary, source_floor: int, start
 	var compatible: Dictionary = space.read_view(world,"point_connector_fits:"+JSON.stringify([actor.id,members]),func()->Dictionary:return {})
 	var prepared: Dictionary = _connector_preparation(world,actor,members,offsets,distance_only,topology,extra_stops)
 	var context: Dictionary = {"nodes":nodes,"stops":topology.stops,"extra_stops":extra_stops,"query_stops":{},"topology":topology,"connections":{},"compatible":compatible,"connector_prepared":prepared,"edges":{},"source_floor":source_floor,"target_floor":target_floor,"goal":goal,"members":members,"offsets":offsets,"distance_only":distance_only,"direct":direct}
+	if distance_only and members.is_empty() and offsets.is_empty() and world.facts.connectors.size()==1:
+		var connection: Dictionary = world.facts.connectors.values()[0]
+		context.direct_lift_stops = space.content.definition("vertical_connectors",connection.definition_id).kind=="lift"
 	var shared: Dictionary = _source_quote(world,actor,context,node_ids,initial_ticks)
 	if not shared.is_empty(): return shared
 	space.query_counts.transport_searches += 1
@@ -354,12 +357,6 @@ func _point_edges(id: String, world: WorldState, actor: Dictionary, context: Dic
 	var distance_only: bool = bool(context.distance_only)
 	var outgoing: Array = []
 	var facts: Dictionary = {}
-	# A sole lift has one anchor and linear integer time per floor. The start
-	# already offered every legal stop; another boarding there cannot improve
-	# any label, including equal-cost ties first relaxed by that start.
-	if context.get("direct_lift_stops",false) and id!="start":
-		context.edges[id] = facts
-		return outgoing
 	if not context.get("single_source",false) and floor_id==target_floor:
 		var finish: Dictionary = context.direct if id=="start" and int(context.source_floor)==target_floor else _floor_route(world,actor,target_floor,node.cell,context.goal,members,offsets,true,{},true,distance_only)
 		if finish.ok:
@@ -367,6 +364,14 @@ func _point_edges(id: String, world: WorldState, actor: Dictionary, context: Dic
 			if ticks>=0:
 				outgoing.append({"to":"goal","ticks":ticks})
 				facts.goal = {"path":[] if distance_only else finish.path,"walking_distance":float(finish.walking_distance)}
+	# The sole lift's start already offered every legal stop. Linear integer
+	# travel and nonnegative boarding/alighting make another ride unhelpful.
+	# A lazy goal query still consumes its complete target-floor finish above;
+	# the common source tree has no target edge and retains only start edges.
+	if context.get("direct_lift_stops",false) and id!="start":
+		if not context.get("single_source",false): space.query_counts["point_cost_lift_arrival_prunes"] = int(space.query_counts.get("point_cost_lift_arrival_prunes",0))+1
+		context.edges[id] = facts
+		return outgoing
 	var prepared: Dictionary = context.get("connector_prepared",{}).get_or_add(floor_id,{})
 	var connectors: Dictionary = prepared.get(node.cell,{})
 	if connectors.is_empty():

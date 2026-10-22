@@ -807,6 +807,7 @@ func _coverage_edges(world: WorldState, floor_id: int) -> Dictionary:
 						break
 				if not opening: edges.walls[Vector3i(0 if wall.axis=="x" else 1,int(wall.line),along)] = true
 	for edge: Vector3i in source.screens: edges.noise[edge] = true
+	edges.native_coverage = _prepare_coverage_masks(edges)
 	_coverage_used += 1
 	var entry: Dictionary = {"source":source.duplicate(true),"edges":edges,"coverage":{},"used":_coverage_used}
 	_coverage_cache[floor_id] = entry
@@ -816,6 +817,28 @@ func _coverage_edges(world: WorldState, floor_id: int) -> Dictionary:
 		while _coverage_cache.size()>8: _coverage_cache.erase(floors.pop_front())
 	if _query.get("world")==world: _query.edges[floor_id] = edges
 	return edges
+
+func _prepare_coverage_masks(edges: Dictionary) -> Dictionary:
+	var input: Dictionary = {"owned":PackedInt32Array(),"blocked":PackedInt32Array(),"walls":PackedInt32Array(),"noise":PackedInt32Array()}
+	for field: String in ["owned","blocked"]:
+		var coordinates: PackedInt32Array = PackedInt32Array()
+		for cell: Variant in edges[field]:
+			if not cell is Vector2i: return {}
+			coordinates.append(cell.x)
+			coordinates.append(cell.y)
+		input[field] = coordinates
+	for field: String in ["walls","noise"]:
+		var coordinates: PackedInt32Array = PackedInt32Array()
+		for edge: Variant in edges[field]:
+			if not edge is Vector3i: return {}
+			coordinates.append(edge.x)
+			coordinates.append(edge.y)
+			coordinates.append(edge.z)
+		input[field] = coordinates
+	var result: Dictionary = PlatformArrivalMath.environment_coverage_masks(input)
+	if result.has("error"): push_error("环境覆盖掩码失败："+str(result.get("bottleneck",result.error)))
+	if result.get("ready",false): space.query_counts["environment_coverage_mask_builds"] = int(space.query_counts.get("environment_coverage_mask_builds",0))+1
+	return result
 
 func _edge_open(world: WorldState, floor_id: int, first: Array, second: Array, noise: bool, edges: Dictionary = {}) -> bool:
 	if not edges.is_empty() and float(first[0])==float(int(first[0])) and float(first[1])==float(int(first[1])):
@@ -850,6 +873,18 @@ func _coverage(world: WorldState, floor_id: int, origin: Array, radius: int, noi
 		if previous.has(key):
 			_query.coverage[floor_id][key] = previous[key]
 			return previous[key]
+	var prepared: Dictionary = edges.get("native_coverage",{})
+	if prepared.get("ready",false) and float(origin[0])==float(origin_cell[0]) and float(origin[1])==float(origin_cell[1]) and origin_cell[0]>=0 and origin_cell[1]>=0 and origin_cell[0]<96 and origin_cell[1]<96:
+		var result: Dictionary = PlatformArrivalMath.environment_coverage(prepared.noise if noise else prepared.ordinary,{"root":int(origin_cell[1])*96+int(origin_cell[0]),"radius":radius})
+		if result.has("error"): push_error("环境覆盖原生计算失败："+str(result.get("bottleneck",result.error)))
+		if result.get("ready",false):
+			var cells: PackedInt32Array = result.cells
+			var covered: Dictionary = {}
+			for index: int in range(0,cells.size(),3): covered["%d:%d" % [cells[index],cells[index+1]]] = cells[index+2]
+			space.query_counts["environment_coverage_native_calls"] = int(space.query_counts.get("environment_coverage_native_calls",0))+1
+			if scoped: _query.coverage[floor_id][key] = covered
+			return covered
+	space.query_counts["environment_coverage_fallbacks"] = int(space.query_counts.get("environment_coverage_fallbacks",0))+1
 	var visited: Dictionary = {_cell_key(origin_cell):0}
 	var queue: Array = [origin_cell]
 	var cursor: int = 0

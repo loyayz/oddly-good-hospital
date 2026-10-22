@@ -73,6 +73,7 @@ class SoleLiftProbe extends HospitalNavigation:
 	var source_expansions: Array = []
 	var source_nonempty_expansions: Array = []
 	var source_floor_queries: Array = []
+	var lazy_arrivals: Array = []
 	var _source_expanding_id: String = ""
 	func _init(geometry: HospitalSpace) -> void:
 		super(geometry)
@@ -87,6 +88,10 @@ class SoleLiftProbe extends HospitalNavigation:
 			source_expansions.append(id)
 		var result: Array = super._point_edges(id,world,actor,context)
 		if context.get("single_source",false) and not result.is_empty(): source_nonempty_expansions.append(id)
+		if not context.get("single_source",false) and context.get("direct_lift_stops",false) and id!="start":
+			var targets: Array = []
+			for edge: Dictionary in result: targets.append(edge.to)
+			lazy_arrivals.append({"id":id,"targets":targets})
 		_source_expanding_id = previous
 		return result
 	func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2i, goal: Vector2i, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, navigation: Dictionary = {}, structural_only: bool = false, cost_only: bool = false) -> Dictionary:
@@ -250,11 +255,53 @@ func _single_lift(suite: RefCounted) -> Dictionary:
 	# edges. Every arrival is still settled, but no return ride is prepared.
 	checks.common_tree_only_start_has_outgoing_edges = probe.source_expansions.size()==5 and probe.source_expansions[0]=="start" and probe.source_nonempty_expansions==["start"]
 	checks.common_tree_reuses_start_without_repreparing_arrivals = probe.source_preparations.is_empty() and probe.source_floor_queries.is_empty()
+	var goal_edges_only: bool = not probe.lazy_arrivals.is_empty()
+	var goal_observed: bool = false
+	for arrival: Dictionary in probe.lazy_arrivals:
+		for id: String in arrival.targets: goal_edges_only = goal_edges_only and id=="goal"
+		goal_observed = goal_observed or "goal" in arrival.targets
+	checks.first_lazy_arrivals_keep_goal_edges_only = goal_edges_only and goal_observed and int(sim.space.query_counts.get("point_cost_lift_arrival_prunes",0))==probe.lazy_arrivals.size()
 	checks.every_full_quote_keeps_current_goal_checks = _all_ok(rows)
 	for row: Dictionary in rows: checks.every_full_quote_keeps_current_goal_checks = checks.every_full_quote_keeps_current_goal_checks and row.actual.get("ok",false)
-	var result: Dictionary = {"ok":not checks.values().has(false),"checks":checks,"observations":rows,"start_preparations":probe.start_preparations,"source_expansions":probe.source_expansions,"source_nonempty_expansions":probe.source_nonempty_expansions,"source_connector_preparations":probe.source_preparations,"source_floor_queries":probe.source_floor_queries}
+	var boundary_space: HospitalSpace = HospitalSpace.new(suite.content)
+	var sparse: Dictionary = _extra_stops(boundary_space,reference,sim.world,suite.content)
+	var changed: Dictionary = _changed_facts(boundary_space,reference,sim.world,suite.content)
+	var boundary: Dictionary = _sole_boundaries(sim,reference,suite)
+	checks.sole_lift_extra_stop_declarations = sparse.ok
+	checks.sole_lift_failure_direction_geometry_and_recovery = changed.ok
+	checks.sole_lift_cost_boundaries_and_fallbacks = boundary.ok
+	var result: Dictionary = {"ok":not checks.values().has(false),"checks":checks,"observations":rows,"lazy_arrivals":probe.lazy_arrivals,"start_preparations":probe.start_preparations,"source_expansions":probe.source_expansions,"source_nonempty_expansions":probe.source_nonempty_expansions,"source_connector_preparations":probe.source_preparations,"source_floor_queries":probe.source_floor_queries,"extra_stops":sparse,"changed_facts":changed,"boundaries":boundary}
 	sim.dispose()
 	return result
+
+func _sole_boundaries(sim: HospitalSimulation, reference: HospitalSpace, suite: RefCounted) -> Dictionary:
+	var world: WorldState = WorldState.new(sim.world.freeze())
+	var space: HospitalSpace = HospitalSpace.new(suite.content)
+	world.facts.actors[OTHER] = suite._actor(OTHER,"S49",[45.25,80.25])
+	world.touch(false)
+	var rows: Array = []
+	var prunes: int = int(space.query_counts.get("point_cost_lift_arrival_prunes",0))
+	_begin(space,reference,world)
+	rows.append(_observe(space,reference,world,2,[46,83],false))
+	rows.append(_observe(space,reference,world,2,[47,83],true,[ACTOR,OTHER],{ACTOR:[0,0],OTHER:[1,0]}))
+	var fallback: bool = int(space.query_counts.get("point_cost_lift_arrival_prunes",0))==prunes
+	rows.append(_observe(space,reference,world,2,[46,84],true,[],{},HospitalTransit.MAX_TICK))
+	_end(space,reference)
+	var overflow: bool = not rows[2].actual.ok and rows[2].ok
+	# Completed historical structure and one installed lift retain sparse
+	# 64-bit floor identity; no intermediate floor is materialized by the test.
+	var high: int = 4294967301
+	world.facts.floors.completed_top_floor["1:2"] = high
+	var connection: Dictionary = world.facts.connectors.values()[0]
+	connection.last_floor = high
+	HospitalSpace.materialize_layout(world,high)
+	world.touch()
+	var legal: bool = world.validate(suite.content).is_empty()
+	_begin(space,reference,world)
+	rows.append(_observe(space,reference,world,high,[46,82]))
+	_end(space,reference)
+	var high_reachable: bool = rows[3].actual.ok and rows[3].ok
+	return {"ok":legal and fallback and overflow and high_reachable and _all_ok(rows),"legal_sparse_high_floor_input":legal,"full_path_and_group_keep_full_expansion":fallback,"overflow_keeps_failure":overflow,"complete_high_floor_cost":high_reachable,"observations":rows}
 
 func _extra_stops(space: HospitalSpace, reference: HospitalSpace, original: WorldState, content: HospitalContent) -> Dictionary:
 	var world: WorldState = WorldState.new(original.freeze())

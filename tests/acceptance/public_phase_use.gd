@@ -23,6 +23,12 @@ class FreshEntryAreas extends HospitalPublicAreas:
 		space.end_route_query()
 		return result
 
+class WaitSignatureProbe extends HospitalPublicAreas:
+	var signatures: int = 0
+	func _decision_signature(world: WorldState, intent: Dictionary, definitions: Array, members: Array, extra: Dictionary, route_floors: Array = []) -> Array:
+		signatures += 1
+		return super._decision_signature(world,intent,definitions,members,extra,route_floors)
+
 func _observe_waiting(x: Dictionary) -> WaitingWorkProbe:
 	var probe: WaitingWorkProbe = WaitingWorkProbe.new(_content,x.space)
 	probe.environment = x.e
@@ -31,11 +37,14 @@ func _observe_waiting(x: Dictionary) -> WaitingWorkProbe:
 	x.p.waiting_life = probe
 	return probe
 
-func _occupied_west() -> Dictionary:
+func _occupied_west(observe_signatures: bool = false) -> Dictionary:
 	var x: Dictionary = _areas()
 	var holder: Dictionary = _visit(x,"holder",[36,70])
 	var waiter: Dictionary = _visit(x,"waiter",[40,74])
 	var held: bool = _seat_checkpoint(x,holder,"west_chair")
+	if observe_signatures:
+		x.signatures = WaitSignatureProbe.new(x.space)
+		x.space.public_areas = x.signatures
 	var probe: WaitingWorkProbe = _observe_waiting(x)
 	x.world.facts.sim_tick = 50
 	x.l.dispatch(x.world)
@@ -46,6 +55,7 @@ func _occupied_west() -> Dictionary:
 	return x
 
 func _case_69(t) -> void:
+	var first_wait: Dictionary = _first_wait_signatures()
 	var connector_basis: Dictionary = _connector_wait_basis()
 	var snapshot: Dictionary = _wait_value_snapshot()
 	var samples: Dictionary = _complete_environment_samples()
@@ -70,7 +80,24 @@ func _case_69(t) -> void:
 	var release_move: String = x.space.request_move(x.world,x.holder.actor_id,1,[40,76])
 	var seated: bool = _until_seated(x,x.waiter)
 	var timely: bool = seated and intent.get("facility_id","")=="west_chair" and int(intent.get("arrived_tick",-1))==queued_at and not x.space.overlaps_facility(x.world,x.holder.actor_id,"west_chair")
-	t.check("STAFF-69",membership.ok and dependencies.ok and environment_matches.ok and qualifications.ok and snapshot.ok and samples.ok and connector_basis.ok and x.held and arrived and unchanged and other_move.is_empty() and local_dependencies and release_move.is_empty() and timely and x.l.validate(x.world).is_empty(),{"static_facility_membership":membership,"wait_dependency_queries":dependencies,"environment_match_reuse":environment_matches,"queue_qualification_lifecycle":qualifications,"immutable_wait_basis":snapshot,"complete_environment_dependencies":samples,"connector_dependency_boundary":connector_basis,"arrived_waiting":arrived,"unchanged_wait_did_not_requote":unchanged,"unrelated_area_real_move":other_move,"unrelated_movement_did_not_requote":local_dependencies,"actual_holder_exit":release_move,"original_queue_time_kept":int(intent.get("arrived_tick",-1))==queued_at,"actually_seated_after_release":timely,"quotes_before":quotes,"quotes_after":x.probe.quotes,"intent":intent})
+	t.check("STAFF-69",first_wait.ok and membership.ok and dependencies.ok and environment_matches.ok and qualifications.ok and snapshot.ok and samples.ok and connector_basis.ok and x.held and arrived and unchanged and other_move.is_empty() and local_dependencies and release_move.is_empty() and timely and x.l.validate(x.world).is_empty(),{"first_negative_wait_signatures":first_wait,"static_facility_membership":membership,"wait_dependency_queries":dependencies,"environment_match_reuse":environment_matches,"queue_qualification_lifecycle":qualifications,"immutable_wait_basis":snapshot,"complete_environment_dependencies":samples,"connector_dependency_boundary":connector_basis,"arrived_waiting":arrived,"unchanged_wait_did_not_requote":unchanged,"unrelated_area_real_move":other_move,"unrelated_movement_did_not_requote":local_dependencies,"actual_holder_exit":release_move,"original_queue_time_kept":int(intent.get("arrived_tick",-1))==queued_at,"actually_seated_after_release":timely,"quotes_before":quotes,"quotes_after":x.probe.quotes,"intent":intent})
+
+func _first_wait_signatures() -> Dictionary:
+	# The holder actually acquired the chair, and dispatch actually failed the
+	# arrived waiter's selection before any remembered negative is inspected.
+	var x: Dictionary = _occupied_west(true)
+	var areas: WaitSignatureProbe = x.signatures
+	var intent: Dictionary = x.world.facts.waiting_life.seats[x.waiter.id]
+	var first: bool = x.held and intent.phase=="local_wait" and areas.signatures==1 and int(x.space.query_counts.get("public_wait_initial_rechecks",0))==1
+	var before: Dictionary = x.world.freeze()
+	var extra: Dictionary = {"anger":float(x.waiter.anger)>=float(_content.balance.seat_choice.calm_minimum_anger),"calm":x.waiter.get("chair_calm_claimed",false)}
+	var hit: bool = not areas.should_recheck(x.world,intent,x.l.PUBLIC_SEAT_DEFINITIONS,[],extra) and areas.signatures==2 and before==x.world.freeze()
+	var other: WorldState = WorldState.new(x.world.freeze())
+	x.l.dispatch(other)
+	var switched: bool = other.facts.waiting_life.seats[x.waiter.id].phase=="local_wait" and areas.signatures==3 and int(x.space.query_counts.get("public_wait_initial_rechecks",0))==2
+	x.l.dispatch(x.world)
+	var restored: bool = intent.phase=="local_wait" and areas.signatures==4 and int(x.space.query_counts.get("public_wait_initial_rechecks",0))==3
+	return {"ok":first and hit and switched and restored,"first_attempt_only_records_failed_selection_signature":first,"remembered_negative_still_compares_live_signature":hit,"other_world_does_not_inherit_negative":switched,"returning_world_rebuilds_its_negative":restored}
 
 func _wait_value_snapshot() -> Dictionary:
 	var x: Dictionary = _occupied_west()

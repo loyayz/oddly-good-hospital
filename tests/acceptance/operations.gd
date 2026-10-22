@@ -516,6 +516,7 @@ func _case_10() -> Dictionary:
 	return _result(first and not again.accepted and before==restored.w.freeze() and not no_request.accepted and none.w.facts.inventory.aid_orders==0,{"order":order,"initial_reason":buy.reason,"repeat_reason":again.reason,"no_request":no_request.reason})
 
 func _case_11() -> Dictionary:
+	var coverage: Dictionary = preload("res://tests/acceptance/environment_coverage.gd").new().run_ranges(_content)
 	var intersections: Dictionary = preload("res://tests/acceptance/environment_source_intersection.gd").new().run(_content)
 	var f: Dictionary = _new("真实环境来源")
 	var clean: Dictionary = f.s.services.environment.environment_at(f.w,1,[44,80])
@@ -539,7 +540,7 @@ func _case_11() -> Dictionary:
 	var upgraded_range: Dictionary = ranges.s.services.environment.environment_at(ranges.w,1,[44,85])
 	var exact_ranges: bool = brief==expected_brief and not far_dirt.is_empty() and ranges.w.facts.environment.dirt[far_dirt].cell==[43,81] and original_range.value==43 and upgraded_range.value==49 and upgraded_range.dirt==0 and upgraded_range.clean and before==ranges.w.freeze()
 	exact_ranges = exact_ranges and _sampling_matches(f,[[44,80],[44.25,80.0]]) and _sampling_matches(ranges,[[44,85]])
-	return _result(intersections.ok and exact_ranges and f.errors.is_empty() and ranges.errors.is_empty() and clean.value==43 and once.value==49 and twice.value==49 and ids.size()==4 and not "" in ids and dirty.dirt==4 and not dirty.clean and dirty.value==25 and int(twice.value)-int(dirty.value)==24,{"source_intersection":intersections,"base":clean,"one_category":once,"duplicate_category":twice,"dirty":dirty,"original_range":original_range,"upgraded_range":upgraded_range,"exact_ranges":exact_ranges,"errors":f.errors})
+	return _result(coverage.ok and intersections.ok and exact_ranges and f.errors.is_empty() and ranges.errors.is_empty() and clean.value==43 and once.value==49 and twice.value==49 and ids.size()==4 and not "" in ids and dirty.dirt==4 and not dirty.clean and dirty.value==25 and int(twice.value)-int(dirty.value)==24,{"coverage_boundaries":coverage,"source_intersection":intersections,"base":clean,"one_category":once,"duplicate_category":twice,"dirty":dirty,"original_range":original_range,"upgraded_range":upgraded_range,"exact_ranges":exact_ranges,"errors":f.errors})
 
 func _case_12() -> Dictionary:
 	var f: Dictionary = _new("暂停付费装修")
@@ -704,6 +705,7 @@ func _case_17() -> Dictionary:
 	return _result(f.errors.is_empty() and g.errors.is_empty() and first==second and patch.bin_id=="ops_bin" and patch.total_milli==4000 and observation.dirt==0 and observation.clean and observation.value==43 and not refused.accepted and not f.w.facts.environment.dirt.has(first) and g.w.facts.environment.dirt.has(ground_id) and g.w.facts.environment.dirt[ground_id].bin_id=="",{"bin_patch":patch,"environment":observation,"refused_store":refused.reason,"old_ground":g.w.facts.environment.dirt})
 
 func _case_18() -> Dictionary:
+	var coverage: Dictionary = preload("res://tests/acceptance/environment_coverage.gd").new().run_barriers(_content)
 	var f: Dictionary = _new("实际临床噪声",true)
 	var visit_id: String = _diagnosed_outpatient(f,"ops18_work",[48,92])
 	if visit_id.is_empty(): return _result(false,f.errors)
@@ -736,7 +738,7 @@ func _case_18() -> Dictionary:
 	var reset_screen: CommandResult = _command(g,"build_rotate",{"target_id":"ops_noise_screen","rotation":0})
 	var after_reset: Dictionary = g.s.services.environment.environment_at(g.w,1,[42.25,83.0])
 	if not _sampling_matches(f,[[51,88]]) or not _sampling_matches(g,[[42,84],[42,83],[42.25,83.0],[43,82]]): return _result(false,{"sampling_index":"与同一观察边界的逐项来源结果不一致"})
-	return _result(before.noise==0 and running.noise==10 and paused_query.noise==10 and queued.noise==0 and construction.noise==15 and screened.noise==0 and screened_cell.noise==0 and screened_fraction.noise==0 and bypass.noise==15 and moved.accepted and after_move.noise==15 and moved_back.accepted and rotated.accepted and after_rotation.noise==15 and reset_screen.accepted and after_reset.noise==0 and g.errors.is_empty(),{"before":before.noise,"running":running.noise,"queued":queued.noise,"construction":construction.noise,"screened":screened.noise,"screened_cell":screened_cell.noise,"screened_fraction":screened_fraction.noise,"bypass":bypass.noise,"after_move":after_move.noise,"after_rotation":after_rotation.noise,"after_reset":after_reset.noise,"errors":g.errors})
+	return _result(coverage.ok and before.noise==0 and running.noise==10 and paused_query.noise==10 and queued.noise==0 and construction.noise==15 and screened.noise==0 and screened_cell.noise==0 and screened_fraction.noise==0 and bypass.noise==15 and moved.accepted and after_move.noise==15 and moved_back.accepted and rotated.accepted and after_rotation.noise==15 and reset_screen.accepted and after_reset.noise==0 and g.errors.is_empty(),{"coverage_boundaries":coverage,"before":before.noise,"running":running.noise,"queued":queued.noise,"construction":construction.noise,"screened":screened.noise,"screened_cell":screened_cell.noise,"screened_fraction":screened_fraction.noise,"bypass":bypass.noise,"after_move":after_move.noise,"after_rotation":after_rotation.noise,"after_reset":after_reset.noise,"errors":g.errors})
 
 func _sampling_matches(f: Dictionary, cells: Array) -> bool:
 	var service: RefCounted = f.s.services.environment

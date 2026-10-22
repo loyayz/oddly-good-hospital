@@ -47,6 +47,12 @@ func area_valid(world: WorldState, reference: Dictionary, room_kinds: Array) -> 
 func should_recheck(world: WorldState, intent: Dictionary, definitions: Array, members: Array = [], extra: Dictionary = {}) -> bool:
 	_decision_view(world)
 	var saved: Dictionary = _wait_results.get(str(intent.id),{})
+	if saved.is_empty():
+		# A first attempt has no negative result to compare. Only a subsequent
+		# failed selection records the complete current dependency signature.
+		space.query_counts["public_wait_initial_rechecks"] = int(space.query_counts.get("public_wait_initial_rechecks",0))+1
+		space.query_counts["public_wait_rechecks"] = int(space.query_counts.get("public_wait_rechecks",0))+1
+		return true
 	var signature: Array = _decision_signature(world,intent,definitions,members,extra,saved.get("floors",[]))
 	var repeat: bool = saved.get("signature",[])==signature
 	var counter: String = "public_wait_hits" if repeat else "public_wait_rechecks"
