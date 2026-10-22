@@ -19,9 +19,10 @@ class ReservationProbe extends HospitalSpace:
 func run_case(suite: RefCounted) -> Dictionary:
 	var batch: Dictionary = _observer_batch(suite)
 	var boundaries: Dictionary = _dependency_boundaries(suite)
-	return {"ok":batch.ok and boundaries.ok,"independent_observer_scopes":batch,"current_qualification_dependencies":boundaries,"scope":"Qualification calculations begin with legal arrived/occupied inputs. Only the explicitly recorded remote and sweep movement is executed; no arrival or use completion is inferred from prepared positions."}
+	var vacant: Dictionary = _dependency_boundaries(suite,false)
+	return {"ok":batch.ok and boundaries.ok and vacant.ok,"independent_observer_scopes":batch,"current_qualification_dependencies":boundaries,"vacant_qualification_dependencies":vacant,"scope":"Qualification calculations begin with legal arrived, vacant or occupied inputs. Only the explicitly recorded remote and sweep movement is executed; no arrival or use completion is inferred from prepared positions."}
 
-func _fixture(suite: RefCounted, count: int) -> Dictionary:
+func _fixture(suite: RefCounted, count: int, occupied: bool = true) -> Dictionary:
 	var x: Dictionary = suite._fixture()
 	var room: String = suite._room(x,"waiting")
 	x.chairs = []
@@ -36,6 +37,7 @@ func _fixture(suite: RefCounted, count: int) -> Dictionary:
 	suite._facility(x,"qualification_neighbor","FUR09",[37,69],room)
 	x.world.touch()
 	for id: String in x.chairs:
+		if not occupied: continue
 		var holder: Dictionary = suite._visit(x,"holder_"+id,x.space.facility_layout(x.world,id).patient_cell)
 		x.held = suite._seat_checkpoint(x,holder,id) and x.held
 		x.holders.append(holder)
@@ -104,21 +106,21 @@ func _observer_batch(suite: RefCounted) -> Dictionary:
 	_close_fixture(x)
 	return result
 
-func _observe(x: Dictionary, label: String, facility_id: String, ids: Array, expected_builds: int = -1, expected_ok: Variant = null) -> Dictionary:
+func _observe(x: Dictionary, label: String, facility_id: String, ids: Array, expected_builds: int = -1, expected_ok: Variant = null, query_reference: Dictionary = {}) -> Dictionary:
 	var before: Dictionary = x.world.freeze()
 	var count_before: int = x.probe.projections
-	x.space.begin_route_query(x.world,{},false)
+	x.space.begin_route_query(x.world,query_reference,false)
 	var actual: Dictionary = x.probe._queue_fit(x.world,facility_id,ids)
 	x.space.end_route_query()
 	var builds: int = x.probe.projections-count_before
-	x.space.begin_route_query(x.world,{},false)
+	x.space.begin_route_query(x.world,query_reference,false)
 	var expected: Dictionary = x.probe.uncached_fit(x.world,facility_id,ids)
 	x.space.end_route_query()
 	var readonly: bool = before==x.world.freeze()
 	return {"ok":actual==expected and readonly and (expected_builds<0 or builds==expected_builds) and (expected_ok==null or bool(actual.ok)==bool(expected_ok)),"boundary":label,"new_projections":builds,"expected_projections":expected_builds,"available":actual.ok,"expected_available":expected_ok,"full_quote_matches_original_solver":actual==expected,"world_and_rng_unchanged":readonly,"quote":actual}
 
-func _dependency_boundaries(suite: RefCounted) -> Dictionary:
-	var x: Dictionary = _fixture(suite,1)
+func _dependency_boundaries(suite: RefCounted, occupied: bool = true) -> Dictionary:
+	var x: Dictionary = _fixture(suite,1,occupied)
 	if not x.held:
 		var failed: Dictionary = {"ok":false,"holders_reserved":false,"validation":x.validation}
 		_close_fixture(x)
@@ -154,8 +156,29 @@ func _dependency_boundaries(suite: RefCounted) -> Dictionary:
 	x.space.sync_actor(x.world,x.earlier.actor_id)
 	x.world.touch(false)
 	rows.append(_observe(x,"incoming_body_restored",id,ids,1,true))
-	var sweep: Dictionary = _historical_sweep(suite,x,id,ids,repair)
+	var sweep: Dictionary = _historical_sweep(suite,x,id,ids,repair,1 if occupied else 0)
 	var reservations: Dictionary = _reservation_permissions(suite,x,id,ids,repair)
+	var fallbacks: Dictionary = {"ok":true}
+	if not occupied:
+		x.world.facts.floors.overrides["1"].blocked.append(repair.duplicate())
+		x.world.touch()
+		rows.append(_observe(x,"vacant_static_region_now_blocked",id,ids,1,false))
+		x.world.facts.floors.overrides["1"].blocked.erase(repair)
+		x.world.touch()
+		rows.append(_observe(x,"vacant_static_region_restored",id,ids,1,true))
+		fallbacks = _vacant_fallbacks(suite,x,id,ids)
+		rows.append(_observe(x,"vacant_reprimed_before_other_owner",id,ids,1,true))
+		# The same facility acquires a different real owner. A previous vacant
+		# qualification must miss before the original departure projection runs.
+		var holder: Dictionary = suite._visit(x,"vacant_new_owner",x.space.facility_layout(x.world,id).patient_cell)
+		x.held = suite._seat_checkpoint(x,holder,id)
+		x.holders.append(holder)
+		if not x.held:
+			var owner_failure: Dictionary = {"ok":false,"new_owner_reserved":false,"observations":rows,"complete_fallbacks":fallbacks}
+			_close_fixture(x)
+			return owner_failure
+		x.world.touch(false)
+		rows.append(_observe(x,"vacant_to_other_owner_rebuilds_qualification",id,ids,1,true))
 	var current: Dictionary = x.world.facts.adaptations[id]
 	var prior_holder: Dictionary = x.holders[0]
 	x.world.facts.actors[prior_holder.actor_id].posture = "standing"
@@ -188,9 +211,48 @@ func _dependency_boundaries(suite: RefCounted) -> Dictionary:
 	x.probe._queue_fit(x.world,id,ids)
 	x.probe._queue_fit(x.world,id,ids)
 	var unscoped: bool = x.probe.projections-count_before==2
-	var result: Dictionary = {"ok":x.validation.is_empty() and changed_body and replaced and sweep.ok and reservations.ok and actual_commit.ok and unscoped and rows.all(func(row: Dictionary)->bool: return row.ok) and x.space._route_queries.is_empty(),"validation":x.validation,"observations":rows,"incoming_body_really_different":changed_body,"departure_owner_replaced":replaced,"historical_sweep":sweep,"reservation_permissions":reservations,"actual_reservation_rechecks":actual_commit,"two_unscoped_calls_run_original_projection":unscoped,"closed_scopes":x.space._route_queries.is_empty()}
+	var result: Dictionary = {"ok":x.validation.is_empty() and x.held and changed_body and replaced and sweep.ok and reservations.ok and fallbacks.ok and actual_commit.ok and unscoped and rows.all(func(row: Dictionary)->bool: return row.ok) and x.space._route_queries.is_empty(),"initially_occupied":occupied,"validation":x.validation,"observations":rows,"incoming_body_really_different":changed_body,"departure_owner_replaced":replaced,"historical_sweep":sweep,"reservation_permissions":reservations,"complete_fallbacks":fallbacks,"actual_reservation_rechecks":actual_commit,"two_unscoped_calls_run_original_projection":unscoped,"closed_scopes":x.space._route_queries.is_empty()}
 	_close_fixture(x)
 	return result
+
+func _vacant_fallbacks(suite: RefCounted, x: Dictionary, id: String, ids: Array) -> Dictionary:
+	var rows: Array = []
+	for index: int in 2:
+		rows.append(_observe(x,"nominal_fallback_%d"%index,id,ids,1,true,{"nominal":true}))
+	var count_before: int = x.probe.projections
+	x.probe._queue_fit(x.world,id,ids)
+	x.probe._queue_fit(x.world,id,ids)
+	var unscoped: bool = x.probe.projections-count_before==2
+	# Exclusion queries borrow their source index. Their original full solver
+	# retains this projection's exact exclusions rather than using a vacant hit.
+	var source: WorldState = x.world
+	var facts: Dictionary = source.facts.duplicate()
+	facts.actors = source.facts.actors.duplicate()
+	facts.actors[x.obstacle.actor_id] = facts.actors[x.obstacle.actor_id].duplicate()
+	facts.actors[x.obstacle.actor_id].location = {"kind":"outside"}
+	x.world = WorldState.new(facts)
+	for index: int in 2:
+		x.space.begin_actor_exclusion_query(source,x.world,[x.obstacle.actor_id])
+		rows.append(_observe(x,"actor_exclusion_fallback_%d"%index,id,ids,1,true))
+		x.space.end_route_query()
+	x.world = source
+	# These existing legal calculation fixtures keep bed ownership and research
+	# workstations in their actual room types. No arrival or work is simulated.
+	var kinds: Array = []
+	for kind: String in ["personal_bed","workstation"]:
+		var y: Dictionary = suite._beds() if kind=="personal_bed" else suite._training_fixture()
+		var facility_id: String = y.w.personal_beds.bed_for(y.world,"first") if kind=="personal_bed" else "desk"
+		var members: Array = ["first"] if kind=="personal_bed" else ["doctor","nurse"]
+		var geometry: ReservationProbe = ReservationProbe.new(suite._content)
+		y.space = geometry
+		y.probe = QueueFitProbe.new(geometry)
+		geometry.public_areas = y.probe
+		var checks: Array = []
+		for index: int in 2: checks.append(_observe(y,kind+"_fallback_%d"%index,facility_id,members,1))
+		if kind=="personal_bed": checks.append(_observe(y,"another_personal_bed_owner_rejected",facility_id,["second"],1,false))
+		kinds.append({"kind":kind,"ok":not facility_id.is_empty() and y.world.validate(suite._content).is_empty() and checks.all(func(row: Dictionary)->bool:return row.ok) and y.probe._queue_fits.is_empty(),"observations":checks})
+		_close_fixture(y)
+	return {"ok":unscoped and rows.all(func(row: Dictionary)->bool:return row.ok) and kinds.all(func(row: Dictionary)->bool:return row.ok) and x.space._route_queries.is_empty(),"two_unscoped_calls_run_full_solver":unscoped,"nominal_and_projection_scopes":rows,"unsupported_fixed_profiles":kinds}
 
 func _close_fixture(x: Dictionary) -> void:
 	x.a.dispose()
@@ -216,13 +278,14 @@ func _different_body(suite: RefCounted, x: Dictionary, visit: Dictionary) -> boo
 		return before!=x.space.body(actor)
 	return false
 
-func _historical_sweep(suite: RefCounted, x: Dictionary, id: String, ids: Array, repair: Array) -> Dictionary:
+func _historical_sweep(suite: RefCounted, x: Dictionary, id: String, ids: Array, repair: Array, access_builds: int = 1) -> Dictionary:
 	# Prepare a legal fractional movement input. The real movement system must
 	# accept its 0.2-cell substep; the test never inserts a synthetic sweep.
 	# Its real owner grants access before the walker enters that work place.
+	# A vacant target has no owner: this grant is a no-op, not a permission.
 	# The incoming candidate receives no such access to the historical sweep.
 	x.space.grant_facility_access(x.world,id,str(x.obstacle.actor_id))
-	var access: Dictionary = _observe(x,"departure_access_changed",id,ids,1,true)
+	var access: Dictionary = _observe(x,"departure_access_changed",id,ids,access_builds,true)
 	suite._position(x,x.obstacle.actor_id,[float(repair[0]),float(repair[1])+0.6])
 	x.world.touch(false)
 	var request: String = x.space.request_move(x.world,x.obstacle.actor_id,1,[repair[0],int(repair[1])+1])

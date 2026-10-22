@@ -1113,23 +1113,30 @@ func _queue_fit_current(world: WorldState, facility_id: String, ids: Array) -> D
 func _queue_fit_basis(world: WorldState, facility_id: String, ids: Array) -> Array:
 	var current: Dictionary = world.facts.adaptations.get(facility_id,{})
 	var facility: Dictionary = world.facts.facilities.get(facility_id,{})
-	if current.is_empty() or facility.is_empty() or ids.is_empty() or space.nominal_query(world): return []
+	if facility.is_empty() or ids.is_empty() or space.nominal_query(world): return []
 	var definition: Dictionary = space.content.facility_definition(facility.definition_id)
 	var profile: Dictionary = space.content.definition("facility_fit_profiles",str(definition.get("fit_profile_id","")))
 	# Beds can stretch and prove remote exits; a local region check cannot stand
 	# in for that proof. Only fixed public fittings use this retained geometry.
 	if profile.is_empty() or profile.get("kind","")=="bed": return []
+	if current.is_empty() and (profile.get("kind","")!="amenity" or profile.get("extent_rule","")!="base_with_real_operator_areas" or not space._actor_exclusion_scope(world).is_empty()): return []
 	var participants: Array = []
 	for id: String in ids:
 		if not world.facts.actors.has(id): return []
 		participants.append([id,space.body(world.facts.actors[id])])
-	return [space._navigation.floor_static_version(space,world,int(facility.floor_id)),facility,current,participants,world.facts.get("staff_life",{}).get("personal_beds",{}).get(facility_id,{})]
+	return [space._navigation.floor_static_version(space,world,int(facility.floor_id)),facility,current,participants,world.facts.get("staff_life",{}).get("personal_beds",{}).get(facility_id,{}),space.content.content_fingerprint]
 
 func _queue_fit_clear(world: WorldState, facility_id: String, ids: Array, quote: Dictionary) -> bool:
-	space._ensure_actor_index(world)
-	var current: Dictionary = world.facts.adaptations[facility_id]
-	var ignored: Array = ids+[current.actor_id]+current.staff_ids
+	var current: Dictionary = world.facts.adaptations.get(facility_id,{})
 	var floor_id: int = int(quote.floor_id)
+	if current.is_empty():
+		# A vacant fitting has no departing owner or removed reservation. Keep
+		# the original current body, reservation and accepted sweep checks.
+		for area: Array in quote.regions:
+			if not space._dynamic_clear(world,str(ids[0]),floor_id,Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3])),ids): return false
+		return true
+	space._ensure_actor_index(world)
+	var ignored: Array = ids+[current.actor_id]+current.staff_ids
 	for area: Array in quote.regions:
 		var rect: Rect2 = Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3]))
 		if space._actor_index.intersects(floor_id,rect,str(ids[0]),ignored): return false
