@@ -1,0 +1,596 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-10-23T09:29:37.285246+00:00",
+  "baseline_commit": "5712c6f7fbc7e222e2a483bc376201352fd5ffc2",
+  "adopted": false,
+  "production_and_test_source_restored": true,
+  "diagnostic_only": true,
+  "formal_pass": false,
+  "successful_engine_windows": 12,
+  "measured_steps": 1720,
+  "fixed_load": {
+    "actors": 160,
+    "patients": 120,
+    "staff": 32,
+    "visitors": 8,
+    "floors": 4,
+    "rooms": 64,
+    "facilities": 1336,
+    "tick_seconds": 0.1
+  },
+  "runs": {
+    "a1-gp80": {
+      "variant": "baseline",
+      "metrics_us": {
+        "cold_first_us": 464689,
+        "count": 80,
+        "following_mean_us": 94542.4050632911,
+        "max_us": 771276,
+        "mean_us": 99169.2375,
+        "p50_us": 72991,
+        "p95_us": 202624,
+        "p99_us": 771276,
+        "total_us": 7933539
+      },
+      "steps": 80,
+      "all_original_query_counts_business_events_rng_non_time_samples_equal": true,
+      "new_counts": {},
+      "probes": {},
+      "query_count_differences": {},
+      "process_cpu_ms": 12156.25,
+      "launch_wall_ms": 12263.994100008858,
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a"
+    },
+    "a1-operations40": {
+      "variant": "baseline",
+      "metrics_us": {
+        "cold_first_us": 767240,
+        "count": 40,
+        "following_mean_us": 45015.4358974359,
+        "max_us": 767240,
+        "mean_us": 63071.05,
+        "p50_us": 42929,
+        "p95_us": 56072,
+        "p99_us": 767240,
+        "total_us": 2522842
+      },
+      "steps": 40,
+      "all_original_query_counts_business_events_rng_non_time_samples_equal": true,
+      "new_counts": {},
+      "probes": {},
+      "query_count_differences": {},
+      "process_cpu_ms": 6703.125,
+      "launch_wall_ms": 6638.396599999396,
+      "input_sha256": "939c2d95da67a9df671dbb5a824fd987174e77b449e3ed0b0332405922b4848b",
+      "final_binary_sha256": "f20de287ab252ab3fd759f27d841da0fe8a288ee3189a22f05d006a51ace45f8"
+    },
+    "a1-public360": {
+      "variant": "baseline",
+      "metrics_us": {
+        "cold_first_us": 822439,
+        "count": 360,
+        "following_mean_us": 93601.56545961,
+        "max_us": 822439,
+        "mean_us": 95626.1138888889,
+        "p50_us": 82302,
+        "p95_us": 179683,
+        "p99_us": 250600,
+        "total_us": 34425401
+      },
+      "steps": 360,
+      "all_original_query_counts_business_events_rng_non_time_samples_equal": true,
+      "new_counts": {},
+      "probes": {},
+      "query_count_differences": {},
+      "process_cpu_ms": 39937.5,
+      "launch_wall_ms": 38667.92910001823,
+      "input_sha256": "1d83a8834528fd2f6c53dff06f6ec150c9e598eed675fc37521ab7e45fcadb10",
+      "final_binary_sha256": "aa6b9baf08110e4152a32c001922142fb21ded7efa838cb906ce45bf59e1da7e"
+    },
+    "a2-gp80": {
+      "variant": "baseline",
+      "metrics_us": {
+        "cold_first_us": 423169,
+        "count": 80,
+        "following_mean_us": 82326.7341772152,
+        "max_us": 554433,
+        "mean_us": 86587.2625,
+        "p50_us": 67625,
+        "p95_us": 163452,
+        "p99_us": 554433,
+        "total_us": 6926981
+      },
+      "steps": 80,
+      "all_original_query_counts_business_events_rng_non_time_samples_equal": true,
+      "new_counts": {},
+      "probes": {},
+      "query_count_differences": {},
+      "process_cpu_ms": 10968.75,
+      "launch_wall_ms": 10927.426200010814,
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a"
+    },
+    "a2-public360": {
+      "variant": "baseline",
+      "metrics_us": {
+        "cold_first_us": 802029,
+        "count": 360,
+        "following_mean_us": 90801.3844011142,
+        "max_us": 802029,
+        "mean_us": 92777.0166666667,
+        "p50_us": 84238,
+        "p95_us": 158003,
+        "p99_us": 225828,
+        "total_us": 33399726
+      },
+      "steps": 360,
+      "all_original_query_counts_business_events_rng_non_time_samples_equal": true,
+      "new_counts": {},
+      "probes": {},
+      "query_count_differences": {},
+      "process_cpu_ms": 40218.75,
+      "launch_wall_ms": 37683.529099973384,
+      "input_sha256": "1d83a8834528fd2f6c53dff06f6ec150c9e598eed675fc37521ab7e45fcadb10",
+      "final_binary_sha256": "aa6b9baf08110e4152a32c001922142fb21ded7efa838cb906ce45bf59e1da7e"
+    },
+    "a3-gp80": {
+      "variant": "baseline",
+      "metrics_us": {
+        "cold_first_us": 407351,
+        "count": 80,
+        "following_mean_us": 81889.7721518987,
+        "max_us": 559082,
+        "mean_us": 85958.0375,
+        "p50_us": 71247,
+        "p95_us": 152439,
+        "p99_us": 559082,
+        "total_us": 6876643
+      },
+      "steps": 80,
+      "all_original_query_counts_business_events_rng_non_time_samples_equal": true,
+      "new_counts": {},
+      "probes": {},
+      "query_count_differences": {},
+      "process_cpu_ms": 10984.375,
+      "launch_wall_ms": 10925.96580000827,
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a"
+    },
+    "afterprobe01-gp80": {
+      "variant": "afterprobe",
+      "metrics_us": {
+        "cold_first_us": 420033,
+        "count": 80,
+        "following_mean_us": 85852.1772151899,
+        "max_us": 546693,
+        "mean_us": 90029.4375,
+        "p50_us": 71562,
+        "p95_us": 170434,
+        "p99_us": 546693,
+        "total_us": 7202355
+      },
+      "steps": 80,
+      "all_original_query_counts_business_events_rng_non_time_samples_equal": true,
+      "new_counts": {
+        "public_wait_queue_view_actor_checks": 25612,
+        "public_wait_queue_view_builds": 63,
+        "public_wait_queue_view_hits": 1016,
+        "public_wait_queue_view_rows": 1410
+      },
+      "probes": {
+        "diag_wait/851/hospital_visitors.gd.dispatch/calls": 1,
+        "diag_wait/851/hospital_visitors.gd.dispatch/us": 213,
+        "diag_wait/851/public_areas.gd._decision_signature/calls": 18,
+        "diag_wait/851/public_areas.gd._decision_signature/us": 15664,
+        "diag_wait/851/public_areas.gd._queue_signature_view/calls": 7,
+        "diag_wait/851/public_areas.gd._queue_signature_view/us": 2123,
+        "diag_wait/851/signature.queue/calls": 18,
+        "diag_wait/851/signature.queue/us": 2352,
+        "diag_wait/867/hospital_visitors.gd.dispatch/calls": 1,
+        "diag_wait/867/hospital_visitors.gd.dispatch/us": 7849,
+        "diag_wait/867/public_areas.gd._decision_signature/calls": 18,
+        "diag_wait/867/public_areas.gd._decision_signature/us": 9925,
+        "diag_wait/867/public_areas.gd._queue_signature_view/calls": 18,
+        "diag_wait/867/public_areas.gd._queue_signature_view/us": 3750,
+        "diag_wait/867/signature.queue/calls": 18,
+        "diag_wait/867/signature.queue/us": 4212
+      },
+      "query_count_differences": {
+        "diag_wait/867/hospital_visitors.gd.dispatch/us": {
+          "actual": 7849,
+          "baseline": null
+        },
+        "public_wait_queue_view_hits": {
+          "actual": 1016,
+          "baseline": null
+        },
+        "diag_wait/867/public_areas.gd._queue_signature_view/calls": {
+          "actual": 18,
+          "baseline": null
+        },
+        "diag_wait/851/signature.queue/calls": {
+          "actual": 18,
+          "baseline": null
+        },
+        "diag_wait/867/hospital_visitors.gd.dispatch/calls": {
+          "actual": 1,
+          "baseline": null
+        },
+        "diag_wait/867/signature.queue/us": {
+          "actual": 4212,
+          "baseline": null
+        },
+        "diag_wait/851/public_areas.gd._decision_signature/calls": {
+          "actual": 18,
+          "baseline": null
+        },
+        "diag_wait/867/public_areas.gd._decision_signature/us": {
+          "actual": 9925,
+          "baseline": null
+        },
+        "diag_wait/867/public_areas.gd._decision_signature/calls": {
+          "actual": 18,
+          "baseline": null
+        },
+        "public_wait_queue_view_builds": {
+          "actual": 63,
+          "baseline": null
+        },
+        "diag_wait/867/public_areas.gd._queue_signature_view/us": {
+          "actual": 3750,
+          "baseline": null
+        },
+        "diag_wait/851/public_areas.gd._decision_signature/us": {
+          "actual": 15664,
+          "baseline": null
+        },
+        "public_wait_queue_view_actor_checks": {
+          "actual": 25612,
+          "baseline": null
+        },
+        "diag_wait/851/public_areas.gd._queue_signature_view/calls": {
+          "actual": 7,
+          "baseline": null
+        },
+        "diag_wait/851/signature.queue/us": {
+          "actual": 2352,
+          "baseline": null
+        },
+        "diag_wait/851/hospital_visitors.gd.dispatch/us": {
+          "actual": 213,
+          "baseline": null
+        },
+        "diag_wait/851/hospital_visitors.gd.dispatch/calls": {
+          "actual": 1,
+          "baseline": null
+        },
+        "diag_wait/867/signature.queue/calls": {
+          "actual": 18,
+          "baseline": null
+        },
+        "public_wait_queue_view_rows": {
+          "actual": 1410,
+          "baseline": null
+        },
+        "diag_wait/851/public_areas.gd._queue_signature_view/us": {
+          "actual": 2123,
+          "baseline": null
+        }
+      },
+      "process_cpu_ms": 12234.375,
+      "launch_wall_ms": 11843.034899997292,
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a"
+    },
+    "b1-gp80": {
+      "variant": "native",
+      "metrics_us": {
+        "cold_first_us": 392273,
+        "count": 80,
+        "following_mean_us": 89120.835443038,
+        "max_us": 555036,
+        "mean_us": 92910.2375,
+        "p50_us": 70102,
+        "p95_us": 169348,
+        "p99_us": 555036,
+        "total_us": 7432819
+      },
+      "steps": 80,
+      "all_original_query_counts_business_events_rng_non_time_samples_equal": true,
+      "new_counts": {
+        "public_wait_queue_view_actor_checks": 25612,
+        "public_wait_queue_view_builds": 63,
+        "public_wait_queue_view_hits": 1016,
+        "public_wait_queue_view_rows": 1410
+      },
+      "probes": {},
+      "query_count_differences": {
+        "public_wait_queue_view_hits": {
+          "actual": 1016,
+          "baseline": null
+        },
+        "public_wait_queue_view_builds": {
+          "actual": 63,
+          "baseline": null
+        },
+        "public_wait_queue_view_actor_checks": {
+          "actual": 25612,
+          "baseline": null
+        },
+        "public_wait_queue_view_rows": {
+          "actual": 1410,
+          "baseline": null
+        }
+      },
+      "process_cpu_ms": 11562.5,
+      "launch_wall_ms": 11835.298699996201,
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a"
+    },
+    "b1-operations40": {
+      "variant": "final",
+      "metrics_us": {
+        "cold_first_us": 602572,
+        "count": 40,
+        "following_mean_us": 36566.1794871795,
+        "max_us": 602572,
+        "mean_us": 50716.325,
+        "p50_us": 35973,
+        "p95_us": 47945,
+        "p99_us": 602572,
+        "total_us": 2028653
+      },
+      "steps": 40,
+      "all_original_query_counts_business_events_rng_non_time_samples_equal": true,
+      "new_counts": {},
+      "probes": {},
+      "query_count_differences": {},
+      "process_cpu_ms": 5843.75,
+      "launch_wall_ms": 5941.076100018108,
+      "input_sha256": "939c2d95da67a9df671dbb5a824fd987174e77b449e3ed0b0332405922b4848b",
+      "final_binary_sha256": "f20de287ab252ab3fd759f27d841da0fe8a288ee3189a22f05d006a51ace45f8"
+    },
+    "b1-public360": {
+      "variant": "final",
+      "metrics_us": {
+        "cold_first_us": 1624260,
+        "count": 360,
+        "following_mean_us": 107202.863509749,
+        "max_us": 1624260,
+        "mean_us": 111416.911111111,
+        "p50_us": 90919,
+        "p95_us": 221076,
+        "p99_us": 362021,
+        "total_us": 40110088
+      },
+      "steps": 360,
+      "all_original_query_counts_business_events_rng_non_time_samples_equal": true,
+      "new_counts": {
+        "public_wait_queue_view_actor_checks": 170916,
+        "public_wait_queue_view_builds": 849,
+        "public_wait_queue_view_hits": 6468,
+        "public_wait_queue_view_rows": 9757
+      },
+      "probes": {},
+      "query_count_differences": {
+        "public_wait_queue_view_hits": {
+          "actual": 6468,
+          "baseline": null
+        },
+        "public_wait_queue_view_builds": {
+          "actual": 849,
+          "baseline": null
+        },
+        "public_wait_queue_view_actor_checks": {
+          "actual": 170916,
+          "baseline": null
+        },
+        "public_wait_queue_view_rows": {
+          "actual": 9757,
+          "baseline": null
+        }
+      },
+      "process_cpu_ms": 43875.0,
+      "launch_wall_ms": 44862.30589999468,
+      "input_sha256": "1d83a8834528fd2f6c53dff06f6ec150c9e598eed675fc37521ab7e45fcadb10",
+      "final_binary_sha256": "aa6b9baf08110e4152a32c001922142fb21ded7efa838cb906ce45bf59e1da7e"
+    },
+    "b2-gp80": {
+      "variant": "final",
+      "metrics_us": {
+        "cold_first_us": 422518,
+        "count": 80,
+        "following_mean_us": 82228.8987341772,
+        "max_us": 561271,
+        "mean_us": 86482.5125,
+        "p50_us": 68483,
+        "p95_us": 167227,
+        "p99_us": 561271,
+        "total_us": 6918601
+      },
+      "steps": 80,
+      "all_original_query_counts_business_events_rng_non_time_samples_equal": true,
+      "new_counts": {
+        "public_wait_queue_view_actor_checks": 25612,
+        "public_wait_queue_view_builds": 63,
+        "public_wait_queue_view_hits": 1016,
+        "public_wait_queue_view_rows": 1410
+      },
+      "probes": {},
+      "query_count_differences": {
+        "public_wait_queue_view_hits": {
+          "actual": 1016,
+          "baseline": null
+        },
+        "public_wait_queue_view_builds": {
+          "actual": 63,
+          "baseline": null
+        },
+        "public_wait_queue_view_actor_checks": {
+          "actual": 25612,
+          "baseline": null
+        },
+        "public_wait_queue_view_rows": {
+          "actual": 1410,
+          "baseline": null
+        }
+      },
+      "process_cpu_ms": 11531.25,
+      "launch_wall_ms": 11255.803100008052,
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a"
+    },
+    "beforeprobe01-gp80": {
+      "variant": "beforeprobe",
+      "metrics_us": {
+        "cold_first_us": 396233,
+        "count": 80,
+        "following_mean_us": 93106.0379746835,
+        "max_us": 672738,
+        "mean_us": 96895.125,
+        "p50_us": 76243,
+        "p95_us": 191733,
+        "p99_us": 672738,
+        "total_us": 7751610
+      },
+      "steps": 80,
+      "all_original_query_counts_business_events_rng_non_time_samples_equal": true,
+      "new_counts": {},
+      "probes": {
+        "diag_wait/851/hospital_visitors.gd.dispatch/calls": 1,
+        "diag_wait/851/hospital_visitors.gd.dispatch/us": 204,
+        "diag_wait/851/public_areas.gd._decision_signature/calls": 18,
+        "diag_wait/851/public_areas.gd._decision_signature/us": 17800,
+        "diag_wait/851/signature.queue/calls": 18,
+        "diag_wait/851/signature.queue/us": 724,
+        "diag_wait/867/hospital_visitors.gd.dispatch/calls": 1,
+        "diag_wait/867/hospital_visitors.gd.dispatch/us": 8620,
+        "diag_wait/867/public_areas.gd._decision_signature/calls": 18,
+        "diag_wait/867/public_areas.gd._decision_signature/us": 12286,
+        "diag_wait/867/signature.queue/calls": 18,
+        "diag_wait/867/signature.queue/us": 5449
+      },
+      "query_count_differences": {
+        "diag_wait/867/hospital_visitors.gd.dispatch/us": {
+          "actual": 8620,
+          "baseline": null
+        },
+        "diag_wait/851/signature.queue/calls": {
+          "actual": 18,
+          "baseline": null
+        },
+        "diag_wait/867/hospital_visitors.gd.dispatch/calls": {
+          "actual": 1,
+          "baseline": null
+        },
+        "diag_wait/867/signature.queue/us": {
+          "actual": 5449,
+          "baseline": null
+        },
+        "diag_wait/851/public_areas.gd._decision_signature/calls": {
+          "actual": 18,
+          "baseline": null
+        },
+        "diag_wait/867/public_areas.gd._decision_signature/us": {
+          "actual": 12286,
+          "baseline": null
+        },
+        "diag_wait/867/public_areas.gd._decision_signature/calls": {
+          "actual": 18,
+          "baseline": null
+        },
+        "diag_wait/851/public_areas.gd._decision_signature/us": {
+          "actual": 17800,
+          "baseline": null
+        },
+        "diag_wait/851/signature.queue/us": {
+          "actual": 724,
+          "baseline": null
+        },
+        "diag_wait/851/hospital_visitors.gd.dispatch/us": {
+          "actual": 204,
+          "baseline": null
+        },
+        "diag_wait/851/hospital_visitors.gd.dispatch/calls": {
+          "actual": 1,
+          "baseline": null
+        },
+        "diag_wait/867/signature.queue/calls": {
+          "actual": 18,
+          "baseline": null
+        }
+      },
+      "process_cpu_ms": 13765.625,
+      "launch_wall_ms": 13839.233900012914,
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a"
+    }
+  },
+  "functional": {
+    "checks": 6,
+    "failed": 0,
+    "cases": {
+      "STAFF-48": {
+        "passed": true,
+        "body_ms": 63,
+        "setup_ms": 0
+      },
+      "STAFF-49": {
+        "passed": true,
+        "body_ms": 17,
+        "setup_ms": 0
+      },
+      "STAFF-57": {
+        "passed": true,
+        "body_ms": 493,
+        "setup_ms": 0
+      },
+      "STAFF-69": {
+        "passed": true,
+        "body_ms": 646,
+        "setup_ms": 0
+      },
+      "STAFF-70": {
+        "passed": true,
+        "body_ms": 196,
+        "setup_ms": 0
+      },
+      "STAFF-71": {
+        "passed": true,
+        "body_ms": 150,
+        "setup_ms": 0
+      }
+    },
+    "lifecycle": {
+      "checks": {
+        "actor_in_place_edit_rebuilds": true,
+        "actor_record_replacement_rebuilds": true,
+        "both_complete_original_signatures": true,
+        "changed_queries_readonly": true,
+        "initial_queries_readonly": true,
+        "live_intent_edit_rebuilds": true,
+        "next_tick_rebuilds": true,
+        "other_world_rebuilds": true,
+        "returning_world_rebuilds": true,
+        "saved_values_not_aliased": true,
+        "state_is_legal": true,
+        "unchanged_observers_share_rows": true
+      },
+      "ok": true
+    }
+  },
+  "raw_archive": {
+    "path": "docs/reports/evidence/2026-10-23-queue-value-view-trial/raw-evidence.zip",
+    "sha256": "8b4a268736cb215558c7c9981eb34217e86684cfc625a23181603a3e9d17f5d3",
+    "size": 1613665,
+    "members": 116
+  },
+  "notes": [
+    "Shared queue snapshot trial rejected: no established whole-step benefit and public regression.",
+    "All original query counts and business results equal; new view counters measure preparation, not fewer people or queries.",
+    "View function timing includes equality, current actor collection, necessary rebuilding and bookkeeping; not isolated native equality CPU.",
+    "Operations never entered the new view branch, yet its mean changed significantly. Its improvement cannot be credited to this patch.",
+    "Source unchanged after rollback. Trial functional passes do not mean a new production implementation was accepted."
+  ]
+}
