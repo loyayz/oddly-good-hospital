@@ -95,3 +95,5 @@ E在无开放路线查询的主线程边界，将导航缓存条目独占移给j
 未完成项是GP入口/路线链的可摊薄准备、普通等待/访客依赖、移动邻域重复查询、公共临床推进尾步及同源运行波动的原因。未执行Release、完整容量、渲染、内存或两小时正式验收；P95≤10ms、P99≤15ms、普通最大≤30ms保持，正式验收未通过。
 
 [完整汇总](evidence/2026-10-23-selection-worker-trial/summary.json)、[原始证据](evidence/2026-10-23-selection-worker-trial/raw-evidence.zip)、[逐文件清单](evidence/2026-10-23-selection-worker-trial/raw-manifest.json)。
+
+后续[相同分片的执行控制](2026-10-23-movement-neighborhood-controls.md)保持全部查询与准备量，仅改变主线程、单任务和双任务执行方式，进一步区分重复准备与并行阶段收益。

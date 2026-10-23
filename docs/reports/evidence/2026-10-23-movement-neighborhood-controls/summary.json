@@ -1,0 +1,4233 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-10-23T10:32:26.681638+00:00",
+  "baseline_commit": "5a7d4b8d89b725abfc9dbc5eceb3efb52fe7678a",
+  "production_commit": "5712c6f7fbc7e222e2a483bc376201352fd5ffc2",
+  "diagnostic_only": true,
+  "formal_pass": false,
+  "fixed_load": {
+    "people": 160,
+    "patients": 120,
+    "staff": 32,
+    "visitors": 8,
+    "floors": 4,
+    "rooms": 64,
+    "facilities": 1336,
+    "tick_seconds": 0.1
+  },
+  "successful_performance_windows": 12,
+  "measured_steps": 1800,
+  "functional_engine_windows": 1,
+  "all_engine_intervals_disjoint": true,
+  "production_and_tests_unchanged": true,
+  "identities": {
+    "baseline": {
+      "sources": 485,
+      "tests": 145,
+      "all_files_verified": true,
+      "execution_control": null
+    },
+    "baselinenearby": {
+      "sources": 485,
+      "tests": 145,
+      "all_files_verified": true,
+      "execution_control": null
+    },
+    "baselineoneworkerhandoff": {
+      "sources": 486,
+      "tests": 145,
+      "all_files_verified": true,
+      "execution_control": "one_worker"
+    },
+    "baselineparallelhandoff": {
+      "sources": 486,
+      "tests": 145,
+      "all_files_verified": true,
+      "execution_control": "parallel_workers"
+    },
+    "baselineserialhandoff": {
+      "sources": 486,
+      "tests": 145,
+      "all_files_verified": true,
+      "execution_control": "main_serial"
+    },
+    "baselineserialshared": {
+      "sources": 486,
+      "tests": 145,
+      "all_files_verified": true,
+      "execution_control": "main_serial"
+    }
+  },
+  "runs": {
+    "a1-gp80": {
+      "variant": "baseline",
+      "steps": 80,
+      "metrics_us": {
+        "cold_first_us": 456063,
+        "count": 80,
+        "following_mean_us": 74971.6202531646,
+        "max_us": 469700,
+        "mean_us": 79735.2625,
+        "p50_us": 63389,
+        "p95_us": 152497,
+        "p99_us": 469700,
+        "total_us": 6378821
+      },
+      "checks": {
+        "complete": true,
+        "qualified": true,
+        "errors_empty": true,
+        "source_input_sha256": true,
+        "initial": true,
+        "final": true,
+        "qualification": true,
+        "operations": true,
+        "event_records": true,
+        "final_binary_sha256": true,
+        "public_business": true,
+        "non_timing_samples": true,
+        "environment_workers_complete": true
+      },
+      "additional_checks": {
+        "passed": true,
+        "checks": {
+          "all_semantic_checks": true,
+          "only_reservation_query_count_changed": true
+        },
+        "changes": {}
+      },
+      "selection": {},
+      "query_count_differences": {},
+      "query_counts": {
+        "actor_index_actor_visits": 15520,
+        "actor_index_builds": 97,
+        "candidate_connections": 414,
+        "connector_edge_builds": 414,
+        "connector_edge_hits": 3,
+        "connector_node_declarations": 4,
+        "connector_topology_builds": 1,
+        "connector_topology_inherits": 31,
+        "courtesy_static_geometry_hits": 36,
+        "distance_field_builds": 14,
+        "distance_field_hits": 143,
+        "door_candidates": 1266,
+        "entry_order_builds": 19,
+        "entry_order_hits": 83,
+        "entry_order_native_builds": 19,
+        "entry_walking_table_builds": 2,
+        "environment_actor_source_builds": 8,
+        "environment_coverage_mask_builds": 4,
+        "environment_coverage_native_calls": 631,
+        "environment_dynamic_source_builds": 88,
+        "environment_facility_source_builds": 1,
+        "environment_facility_source_hits": 87,
+        "facility_environment_builds": 1,
+        "facility_environment_hits": 2146,
+        "floor_route_builds": 841,
+        "floor_route_hits": 0,
+        "journey_hits": 0,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 8354,
+        "movement_candidates": 525,
+        "nearby_field_builds": 12,
+        "point_cost_lift_arrival_prunes": 224,
+        "point_source_builds": 3,
+        "point_source_goal_legs": 9,
+        "point_source_hits": 6,
+        "public_entry_field_hits": 865,
+        "public_entry_field_preparations": 91,
+        "public_facility_candidates": 20688,
+        "public_fit_body_key_preparations": 1072,
+        "public_queue_fit_builds": 28,
+        "public_queue_fit_hits": 2064,
+        "public_region_definition_index_builds": 1,
+        "public_region_definition_index_hits": 112,
+        "public_region_floor_builds": 4,
+        "public_region_mapping_builds": 1,
+        "public_region_native_builds": 4,
+        "public_select_regions_total": 7616,
+        "public_select_regions_visited": 112,
+        "public_wait_dependency_batches": 1079,
+        "public_wait_dependency_rectangles": 17271,
+        "public_wait_door_checks": 18,
+        "public_wait_door_index_builds": 1,
+        "public_wait_environment_match_builds": 63,
+        "public_wait_environment_match_hits": 1016,
+        "public_wait_hits": 682,
+        "public_wait_initial_rechecks": 35,
+        "public_wait_rechecks": 278,
+        "reservation_candidate_queries": 22979,
+        "reservation_index_builds": 29,
+        "reservation_index_updates": 424,
+        "route_checks": 5624,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 146,
+        "route_dispatches": 146,
+        "route_revalidation_unvalidated": 156,
+        "route_revalidations": 156,
+        "routes": 391,
+        "static_path_builds": 191,
+        "static_path_hits": 13,
+        "structural_reverse_field_hits": 51,
+        "structural_reverse_field_lookups": 255,
+        "transport_builds": 0,
+        "transport_requests": 183,
+        "transport_searches": 177,
+        "yield_attempts": 27,
+        "yield_candidates": 23
+      },
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a",
+      "process_cpu_ms": 10234.375,
+      "process_wall_ms": 10292.2319000063
+    },
+    "a1-public360": {
+      "variant": "baseline",
+      "steps": 360,
+      "metrics_us": {
+        "cold_first_us": 506283,
+        "count": 360,
+        "following_mean_us": 55526.643454039,
+        "max_us": 506283,
+        "mean_us": 56778.7444444444,
+        "p50_us": 50259,
+        "p95_us": 97871,
+        "p99_us": 119421,
+        "total_us": 20440348
+      },
+      "checks": {
+        "complete": true,
+        "qualified": true,
+        "errors_empty": true,
+        "source_input_sha256": true,
+        "initial": true,
+        "final": true,
+        "qualification": true,
+        "operations": true,
+        "event_records": true,
+        "final_binary_sha256": true,
+        "public_business": true,
+        "non_timing_samples": true,
+        "environment_workers_complete": true
+      },
+      "additional_checks": {
+        "passed": true,
+        "checks": {
+          "all_semantic_checks": true,
+          "only_reservation_query_count_changed": true
+        },
+        "changes": {}
+      },
+      "selection": {},
+      "query_count_differences": {},
+      "query_counts": {
+        "actor_index_actor_visits": 61920,
+        "actor_index_builds": 387,
+        "candidate_connections": 429,
+        "connector_edge_builds": 429,
+        "connector_edge_hits": 31,
+        "connector_node_declarations": 12,
+        "connector_topology_builds": 3,
+        "connector_topology_inherits": 51,
+        "courtesy_static_geometry_hits": 178,
+        "distance_field_builds": 43,
+        "distance_field_hits": 858,
+        "door_candidates": 9074,
+        "entry_order_builds": 36,
+        "entry_order_hits": 98,
+        "entry_order_native_builds": 36,
+        "entry_walking_table_builds": 6,
+        "environment_actor_source_builds": 7,
+        "environment_coverage_mask_builds": 4,
+        "environment_coverage_native_calls": 7572,
+        "environment_dynamic_source_builds": 367,
+        "environment_facility_source_builds": 2,
+        "environment_facility_source_hits": 365,
+        "facility_environment_builds": 2,
+        "facility_environment_hits": 14199,
+        "floor_route_builds": 2040,
+        "floor_route_hits": 0,
+        "journey_hits": 50,
+        "journey_invalidations": 0,
+        "local_goal_occupied_waits": 856,
+        "materialized_floor_cells": 9108,
+        "movement_candidates": 4658,
+        "nearby_field_builds": 9,
+        "point_cost_lift_arrival_prunes": 292,
+        "point_source_builds": 31,
+        "point_source_goal_legs": 425,
+        "point_source_hits": 403,
+        "public_entry_field_hits": 2307,
+        "public_entry_field_preparations": 126,
+        "public_facility_candidates": 111568,
+        "public_fit_body_key_preparations": 6942,
+        "public_queue_fit_builds": 177,
+        "public_queue_fit_hits": 4039,
+        "public_region_definition_index_builds": 1,
+        "public_region_definition_index_hits": 117,
+        "public_region_floor_builds": 4,
+        "public_region_floor_hits": 4,
+        "public_region_mapping_builds": 1,
+        "public_region_mapping_hits": 1,
+        "public_region_native_builds": 4,
+        "public_select_regions_total": 7956,
+        "public_select_regions_visited": 165,
+        "public_wait_dependency_batches": 7013,
+        "public_wait_dependency_rectangles": 113547,
+        "public_wait_door_checks": 28,
+        "public_wait_door_index_builds": 8,
+        "public_wait_environment_match_builds": 557,
+        "public_wait_environment_match_hits": 6456,
+        "public_wait_hits": 6142,
+        "public_wait_initial_rechecks": 52,
+        "public_wait_rechecks": 667,
+        "reservation_candidate_queries": 104611,
+        "reservation_index_builds": 37,
+        "reservation_index_updates": 680,
+        "route_checks": 36299,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 266,
+        "route_dispatches": 266,
+        "route_revalidation_unvalidated": 276,
+        "route_revalidations": 276,
+        "routes": 1542,
+        "static_path_builds": 454,
+        "static_path_hits": 76,
+        "structural_reverse_field_hits": 146,
+        "structural_reverse_field_lookups": 686,
+        "transport_builds": 0,
+        "transport_requests": 631,
+        "transport_searches": 228,
+        "yield_attempts": 1599,
+        "yield_candidates": 844
+      },
+      "input_sha256": "1d83a8834528fd2f6c53dff06f6ec150c9e598eed675fc37521ab7e45fcadb10",
+      "final_binary_sha256": "aa6b9baf08110e4152a32c001922142fb21ded7efa838cb906ce45bf59e1da7e",
+      "process_cpu_ms": 26468.75,
+      "process_wall_ms": 24480.54570000386
+    },
+    "a2-gp80": {
+      "variant": "baseline",
+      "steps": 80,
+      "metrics_us": {
+        "cold_first_us": 390146,
+        "count": 80,
+        "following_mean_us": 75789.9493670886,
+        "max_us": 472047,
+        "mean_us": 79719.4,
+        "p50_us": 63168,
+        "p95_us": 147472,
+        "p99_us": 472047,
+        "total_us": 6377552
+      },
+      "checks": {
+        "complete": true,
+        "qualified": true,
+        "errors_empty": true,
+        "source_input_sha256": true,
+        "initial": true,
+        "final": true,
+        "qualification": true,
+        "operations": true,
+        "event_records": true,
+        "final_binary_sha256": true,
+        "public_business": true,
+        "non_timing_samples": true,
+        "environment_workers_complete": true
+      },
+      "additional_checks": {
+        "passed": true,
+        "checks": {
+          "all_semantic_checks": true,
+          "only_reservation_query_count_changed": true
+        },
+        "changes": {}
+      },
+      "selection": {},
+      "query_count_differences": {},
+      "query_counts": {
+        "actor_index_actor_visits": 15520,
+        "actor_index_builds": 97,
+        "candidate_connections": 414,
+        "connector_edge_builds": 414,
+        "connector_edge_hits": 3,
+        "connector_node_declarations": 4,
+        "connector_topology_builds": 1,
+        "connector_topology_inherits": 31,
+        "courtesy_static_geometry_hits": 36,
+        "distance_field_builds": 14,
+        "distance_field_hits": 143,
+        "door_candidates": 1266,
+        "entry_order_builds": 19,
+        "entry_order_hits": 83,
+        "entry_order_native_builds": 19,
+        "entry_walking_table_builds": 2,
+        "environment_actor_source_builds": 8,
+        "environment_coverage_mask_builds": 4,
+        "environment_coverage_native_calls": 631,
+        "environment_dynamic_source_builds": 88,
+        "environment_facility_source_builds": 1,
+        "environment_facility_source_hits": 87,
+        "facility_environment_builds": 1,
+        "facility_environment_hits": 2146,
+        "floor_route_builds": 841,
+        "floor_route_hits": 0,
+        "journey_hits": 0,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 8354,
+        "movement_candidates": 525,
+        "nearby_field_builds": 12,
+        "point_cost_lift_arrival_prunes": 224,
+        "point_source_builds": 3,
+        "point_source_goal_legs": 9,
+        "point_source_hits": 6,
+        "public_entry_field_hits": 865,
+        "public_entry_field_preparations": 91,
+        "public_facility_candidates": 20688,
+        "public_fit_body_key_preparations": 1072,
+        "public_queue_fit_builds": 28,
+        "public_queue_fit_hits": 2064,
+        "public_region_definition_index_builds": 1,
+        "public_region_definition_index_hits": 112,
+        "public_region_floor_builds": 4,
+        "public_region_mapping_builds": 1,
+        "public_region_native_builds": 4,
+        "public_select_regions_total": 7616,
+        "public_select_regions_visited": 112,
+        "public_wait_dependency_batches": 1079,
+        "public_wait_dependency_rectangles": 17271,
+        "public_wait_door_checks": 18,
+        "public_wait_door_index_builds": 1,
+        "public_wait_environment_match_builds": 63,
+        "public_wait_environment_match_hits": 1016,
+        "public_wait_hits": 682,
+        "public_wait_initial_rechecks": 35,
+        "public_wait_rechecks": 278,
+        "reservation_candidate_queries": 22979,
+        "reservation_index_builds": 29,
+        "reservation_index_updates": 424,
+        "route_checks": 5624,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 146,
+        "route_dispatches": 146,
+        "route_revalidation_unvalidated": 156,
+        "route_revalidations": 156,
+        "routes": 391,
+        "static_path_builds": 191,
+        "static_path_hits": 13,
+        "structural_reverse_field_hits": 51,
+        "structural_reverse_field_lookups": 255,
+        "transport_builds": 0,
+        "transport_requests": 183,
+        "transport_searches": 177,
+        "yield_attempts": 27,
+        "yield_candidates": 23
+      },
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a",
+      "process_cpu_ms": 10000.0,
+      "process_wall_ms": 10168.85389998788
+    },
+    "a2-public360": {
+      "variant": "baseline",
+      "steps": 360,
+      "metrics_us": {
+        "cold_first_us": 465254,
+        "count": 360,
+        "following_mean_us": 50548.8913649025,
+        "max_us": 465254,
+        "mean_us": 51700.85,
+        "p50_us": 45577,
+        "p95_us": 91591,
+        "p99_us": 110202,
+        "total_us": 18612306
+      },
+      "checks": {
+        "complete": true,
+        "qualified": true,
+        "errors_empty": true,
+        "source_input_sha256": true,
+        "initial": true,
+        "final": true,
+        "qualification": true,
+        "operations": true,
+        "event_records": true,
+        "final_binary_sha256": true,
+        "public_business": true,
+        "non_timing_samples": true,
+        "environment_workers_complete": true
+      },
+      "additional_checks": {
+        "passed": true,
+        "checks": {
+          "all_semantic_checks": true,
+          "only_reservation_query_count_changed": true
+        },
+        "changes": {}
+      },
+      "selection": {},
+      "query_count_differences": {},
+      "query_counts": {
+        "actor_index_actor_visits": 61920,
+        "actor_index_builds": 387,
+        "candidate_connections": 429,
+        "connector_edge_builds": 429,
+        "connector_edge_hits": 31,
+        "connector_node_declarations": 12,
+        "connector_topology_builds": 3,
+        "connector_topology_inherits": 51,
+        "courtesy_static_geometry_hits": 178,
+        "distance_field_builds": 43,
+        "distance_field_hits": 858,
+        "door_candidates": 9074,
+        "entry_order_builds": 36,
+        "entry_order_hits": 98,
+        "entry_order_native_builds": 36,
+        "entry_walking_table_builds": 6,
+        "environment_actor_source_builds": 7,
+        "environment_coverage_mask_builds": 4,
+        "environment_coverage_native_calls": 7572,
+        "environment_dynamic_source_builds": 367,
+        "environment_facility_source_builds": 2,
+        "environment_facility_source_hits": 365,
+        "facility_environment_builds": 2,
+        "facility_environment_hits": 14199,
+        "floor_route_builds": 2040,
+        "floor_route_hits": 0,
+        "journey_hits": 50,
+        "journey_invalidations": 0,
+        "local_goal_occupied_waits": 856,
+        "materialized_floor_cells": 9108,
+        "movement_candidates": 4658,
+        "nearby_field_builds": 9,
+        "point_cost_lift_arrival_prunes": 292,
+        "point_source_builds": 31,
+        "point_source_goal_legs": 425,
+        "point_source_hits": 403,
+        "public_entry_field_hits": 2307,
+        "public_entry_field_preparations": 126,
+        "public_facility_candidates": 111568,
+        "public_fit_body_key_preparations": 6942,
+        "public_queue_fit_builds": 177,
+        "public_queue_fit_hits": 4039,
+        "public_region_definition_index_builds": 1,
+        "public_region_definition_index_hits": 117,
+        "public_region_floor_builds": 4,
+        "public_region_floor_hits": 4,
+        "public_region_mapping_builds": 1,
+        "public_region_mapping_hits": 1,
+        "public_region_native_builds": 4,
+        "public_select_regions_total": 7956,
+        "public_select_regions_visited": 165,
+        "public_wait_dependency_batches": 7013,
+        "public_wait_dependency_rectangles": 113547,
+        "public_wait_door_checks": 28,
+        "public_wait_door_index_builds": 8,
+        "public_wait_environment_match_builds": 557,
+        "public_wait_environment_match_hits": 6456,
+        "public_wait_hits": 6142,
+        "public_wait_initial_rechecks": 52,
+        "public_wait_rechecks": 667,
+        "reservation_candidate_queries": 104611,
+        "reservation_index_builds": 37,
+        "reservation_index_updates": 680,
+        "route_checks": 36299,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 266,
+        "route_dispatches": 266,
+        "route_revalidation_unvalidated": 276,
+        "route_revalidations": 276,
+        "routes": 1542,
+        "static_path_builds": 454,
+        "static_path_hits": 76,
+        "structural_reverse_field_hits": 146,
+        "structural_reverse_field_lookups": 686,
+        "transport_builds": 0,
+        "transport_requests": 631,
+        "transport_searches": 228,
+        "yield_attempts": 1599,
+        "yield_candidates": 844
+      },
+      "input_sha256": "1d83a8834528fd2f6c53dff06f6ec150c9e598eed675fc37521ab7e45fcadb10",
+      "final_binary_sha256": "aa6b9baf08110e4152a32c001922142fb21ded7efa838cb906ce45bf59e1da7e",
+      "process_cpu_ms": 24046.875,
+      "process_wall_ms": 22414.669299992966
+    },
+    "a3-gp80": {
+      "variant": "baseline",
+      "steps": 80,
+      "metrics_us": {
+        "cold_first_us": 275282,
+        "count": 80,
+        "following_mean_us": 53810.3544303797,
+        "max_us": 377363,
+        "mean_us": 56578.75,
+        "p50_us": 44684,
+        "p95_us": 105706,
+        "p99_us": 377363,
+        "total_us": 4526300
+      },
+      "checks": {
+        "complete": true,
+        "qualified": true,
+        "errors_empty": true,
+        "source_input_sha256": true,
+        "initial": true,
+        "final": true,
+        "qualification": true,
+        "operations": true,
+        "event_records": true,
+        "final_binary_sha256": true,
+        "public_business": true,
+        "non_timing_samples": true,
+        "environment_workers_complete": true
+      },
+      "additional_checks": {
+        "passed": true,
+        "checks": {
+          "all_semantic_checks": true,
+          "only_reservation_query_count_changed": true
+        },
+        "changes": {}
+      },
+      "selection": {},
+      "query_count_differences": {},
+      "query_counts": {
+        "actor_index_actor_visits": 15520,
+        "actor_index_builds": 97,
+        "candidate_connections": 414,
+        "connector_edge_builds": 414,
+        "connector_edge_hits": 3,
+        "connector_node_declarations": 4,
+        "connector_topology_builds": 1,
+        "connector_topology_inherits": 31,
+        "courtesy_static_geometry_hits": 36,
+        "distance_field_builds": 14,
+        "distance_field_hits": 143,
+        "door_candidates": 1266,
+        "entry_order_builds": 19,
+        "entry_order_hits": 83,
+        "entry_order_native_builds": 19,
+        "entry_walking_table_builds": 2,
+        "environment_actor_source_builds": 8,
+        "environment_coverage_mask_builds": 4,
+        "environment_coverage_native_calls": 631,
+        "environment_dynamic_source_builds": 88,
+        "environment_facility_source_builds": 1,
+        "environment_facility_source_hits": 87,
+        "facility_environment_builds": 1,
+        "facility_environment_hits": 2146,
+        "floor_route_builds": 841,
+        "floor_route_hits": 0,
+        "journey_hits": 0,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 8354,
+        "movement_candidates": 525,
+        "nearby_field_builds": 12,
+        "point_cost_lift_arrival_prunes": 224,
+        "point_source_builds": 3,
+        "point_source_goal_legs": 9,
+        "point_source_hits": 6,
+        "public_entry_field_hits": 865,
+        "public_entry_field_preparations": 91,
+        "public_facility_candidates": 20688,
+        "public_fit_body_key_preparations": 1072,
+        "public_queue_fit_builds": 28,
+        "public_queue_fit_hits": 2064,
+        "public_region_definition_index_builds": 1,
+        "public_region_definition_index_hits": 112,
+        "public_region_floor_builds": 4,
+        "public_region_mapping_builds": 1,
+        "public_region_native_builds": 4,
+        "public_select_regions_total": 7616,
+        "public_select_regions_visited": 112,
+        "public_wait_dependency_batches": 1079,
+        "public_wait_dependency_rectangles": 17271,
+        "public_wait_door_checks": 18,
+        "public_wait_door_index_builds": 1,
+        "public_wait_environment_match_builds": 63,
+        "public_wait_environment_match_hits": 1016,
+        "public_wait_hits": 682,
+        "public_wait_initial_rechecks": 35,
+        "public_wait_rechecks": 278,
+        "reservation_candidate_queries": 22979,
+        "reservation_index_builds": 29,
+        "reservation_index_updates": 424,
+        "route_checks": 5624,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 146,
+        "route_dispatches": 146,
+        "route_revalidation_unvalidated": 156,
+        "route_revalidations": 156,
+        "routes": 391,
+        "static_path_builds": 191,
+        "static_path_hits": 13,
+        "structural_reverse_field_hits": 51,
+        "structural_reverse_field_lookups": 255,
+        "transport_builds": 0,
+        "transport_requests": 183,
+        "transport_searches": 177,
+        "yield_attempts": 27,
+        "yield_candidates": 23
+      },
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a",
+      "process_cpu_ms": 8609.375,
+      "process_wall_ms": 8778.592599992407
+    },
+    "b1-gp80": {
+      "variant": "baselinenearby",
+      "steps": 80,
+      "metrics_us": {
+        "cold_first_us": 393386,
+        "count": 80,
+        "following_mean_us": 76012.670886076,
+        "max_us": 501869,
+        "mean_us": 79979.8375,
+        "p50_us": 61939,
+        "p95_us": 157665,
+        "p99_us": 501869,
+        "total_us": 6398387
+      },
+      "checks": {
+        "complete": true,
+        "qualified": true,
+        "errors_empty": true,
+        "source_input_sha256": true,
+        "initial": true,
+        "final": true,
+        "qualification": true,
+        "operations": true,
+        "event_records": true,
+        "final_binary_sha256": true,
+        "public_business": true,
+        "non_timing_samples": true,
+        "environment_workers_complete": true
+      },
+      "additional_checks": {
+        "passed": true,
+        "checks": {
+          "all_semantic_checks": true,
+          "only_reservation_query_count_changed": true,
+          "fewer_duplicate_queries": true
+        },
+        "changes": {
+          "reservation_candidate_queries": {
+            "actual": 17954,
+            "expected": 22979
+          }
+        }
+      },
+      "selection": {},
+      "query_count_differences": {
+        "reservation_candidate_queries": {
+          "actual": 17954,
+          "expected": 22979
+        }
+      },
+      "query_counts": {
+        "actor_index_actor_visits": 15520,
+        "actor_index_builds": 97,
+        "candidate_connections": 414,
+        "connector_edge_builds": 414,
+        "connector_edge_hits": 3,
+        "connector_node_declarations": 4,
+        "connector_topology_builds": 1,
+        "connector_topology_inherits": 31,
+        "courtesy_static_geometry_hits": 36,
+        "distance_field_builds": 14,
+        "distance_field_hits": 143,
+        "door_candidates": 1266,
+        "entry_order_builds": 19,
+        "entry_order_hits": 83,
+        "entry_order_native_builds": 19,
+        "entry_walking_table_builds": 2,
+        "environment_actor_source_builds": 8,
+        "environment_coverage_mask_builds": 4,
+        "environment_coverage_native_calls": 631,
+        "environment_dynamic_source_builds": 88,
+        "environment_facility_source_builds": 1,
+        "environment_facility_source_hits": 87,
+        "facility_environment_builds": 1,
+        "facility_environment_hits": 2146,
+        "floor_route_builds": 841,
+        "floor_route_hits": 0,
+        "journey_hits": 0,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 8354,
+        "movement_candidates": 525,
+        "nearby_field_builds": 12,
+        "point_cost_lift_arrival_prunes": 224,
+        "point_source_builds": 3,
+        "point_source_goal_legs": 9,
+        "point_source_hits": 6,
+        "public_entry_field_hits": 865,
+        "public_entry_field_preparations": 91,
+        "public_facility_candidates": 20688,
+        "public_fit_body_key_preparations": 1072,
+        "public_queue_fit_builds": 28,
+        "public_queue_fit_hits": 2064,
+        "public_region_definition_index_builds": 1,
+        "public_region_definition_index_hits": 112,
+        "public_region_floor_builds": 4,
+        "public_region_mapping_builds": 1,
+        "public_region_native_builds": 4,
+        "public_select_regions_total": 7616,
+        "public_select_regions_visited": 112,
+        "public_wait_dependency_batches": 1079,
+        "public_wait_dependency_rectangles": 17271,
+        "public_wait_door_checks": 18,
+        "public_wait_door_index_builds": 1,
+        "public_wait_environment_match_builds": 63,
+        "public_wait_environment_match_hits": 1016,
+        "public_wait_hits": 682,
+        "public_wait_initial_rechecks": 35,
+        "public_wait_rechecks": 278,
+        "reservation_candidate_queries": 17954,
+        "reservation_index_builds": 29,
+        "reservation_index_updates": 424,
+        "route_checks": 5624,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 146,
+        "route_dispatches": 146,
+        "route_revalidation_unvalidated": 156,
+        "route_revalidations": 156,
+        "routes": 391,
+        "static_path_builds": 191,
+        "static_path_hits": 13,
+        "structural_reverse_field_hits": 51,
+        "structural_reverse_field_lookups": 255,
+        "transport_builds": 0,
+        "transport_requests": 183,
+        "transport_searches": 177,
+        "yield_attempts": 27,
+        "yield_candidates": 23
+      },
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a",
+      "process_cpu_ms": 10531.25,
+      "process_wall_ms": 10408.782999991672
+    },
+    "b1-public360": {
+      "variant": "baselinenearby",
+      "steps": 360,
+      "metrics_us": {
+        "cold_first_us": 554105,
+        "count": 360,
+        "following_mean_us": 55382.2729805014,
+        "max_us": 554105,
+        "mean_us": 56767.6138888889,
+        "p50_us": 49996,
+        "p95_us": 102610,
+        "p99_us": 121805,
+        "total_us": 20436341
+      },
+      "checks": {
+        "complete": true,
+        "qualified": true,
+        "errors_empty": true,
+        "source_input_sha256": true,
+        "initial": true,
+        "final": true,
+        "qualification": true,
+        "operations": true,
+        "event_records": true,
+        "final_binary_sha256": true,
+        "public_business": true,
+        "non_timing_samples": true,
+        "environment_workers_complete": true
+      },
+      "additional_checks": {
+        "passed": true,
+        "checks": {
+          "all_semantic_checks": true,
+          "only_reservation_query_count_changed": true,
+          "fewer_duplicate_queries": true
+        },
+        "changes": {
+          "reservation_candidate_queries": {
+            "actual": 76755,
+            "expected": 104611
+          }
+        }
+      },
+      "selection": {},
+      "query_count_differences": {
+        "reservation_candidate_queries": {
+          "actual": 76755,
+          "expected": 104611
+        }
+      },
+      "query_counts": {
+        "actor_index_actor_visits": 61920,
+        "actor_index_builds": 387,
+        "candidate_connections": 429,
+        "connector_edge_builds": 429,
+        "connector_edge_hits": 31,
+        "connector_node_declarations": 12,
+        "connector_topology_builds": 3,
+        "connector_topology_inherits": 51,
+        "courtesy_static_geometry_hits": 178,
+        "distance_field_builds": 43,
+        "distance_field_hits": 858,
+        "door_candidates": 9074,
+        "entry_order_builds": 36,
+        "entry_order_hits": 98,
+        "entry_order_native_builds": 36,
+        "entry_walking_table_builds": 6,
+        "environment_actor_source_builds": 7,
+        "environment_coverage_mask_builds": 4,
+        "environment_coverage_native_calls": 7572,
+        "environment_dynamic_source_builds": 367,
+        "environment_facility_source_builds": 2,
+        "environment_facility_source_hits": 365,
+        "facility_environment_builds": 2,
+        "facility_environment_hits": 14199,
+        "floor_route_builds": 2040,
+        "floor_route_hits": 0,
+        "journey_hits": 50,
+        "journey_invalidations": 0,
+        "local_goal_occupied_waits": 856,
+        "materialized_floor_cells": 9108,
+        "movement_candidates": 4658,
+        "nearby_field_builds": 9,
+        "point_cost_lift_arrival_prunes": 292,
+        "point_source_builds": 31,
+        "point_source_goal_legs": 425,
+        "point_source_hits": 403,
+        "public_entry_field_hits": 2307,
+        "public_entry_field_preparations": 126,
+        "public_facility_candidates": 111568,
+        "public_fit_body_key_preparations": 6942,
+        "public_queue_fit_builds": 177,
+        "public_queue_fit_hits": 4039,
+        "public_region_definition_index_builds": 1,
+        "public_region_definition_index_hits": 117,
+        "public_region_floor_builds": 4,
+        "public_region_floor_hits": 4,
+        "public_region_mapping_builds": 1,
+        "public_region_mapping_hits": 1,
+        "public_region_native_builds": 4,
+        "public_select_regions_total": 7956,
+        "public_select_regions_visited": 165,
+        "public_wait_dependency_batches": 7013,
+        "public_wait_dependency_rectangles": 113547,
+        "public_wait_door_checks": 28,
+        "public_wait_door_index_builds": 8,
+        "public_wait_environment_match_builds": 557,
+        "public_wait_environment_match_hits": 6456,
+        "public_wait_hits": 6142,
+        "public_wait_initial_rechecks": 52,
+        "public_wait_rechecks": 667,
+        "reservation_candidate_queries": 76755,
+        "reservation_index_builds": 37,
+        "reservation_index_updates": 680,
+        "route_checks": 36299,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 266,
+        "route_dispatches": 266,
+        "route_revalidation_unvalidated": 276,
+        "route_revalidations": 276,
+        "routes": 1542,
+        "static_path_builds": 454,
+        "static_path_hits": 76,
+        "structural_reverse_field_hits": 146,
+        "structural_reverse_field_lookups": 686,
+        "transport_builds": 0,
+        "transport_requests": 631,
+        "transport_searches": 228,
+        "yield_attempts": 1599,
+        "yield_candidates": 844
+      },
+      "input_sha256": "1d83a8834528fd2f6c53dff06f6ec150c9e598eed675fc37521ab7e45fcadb10",
+      "final_binary_sha256": "aa6b9baf08110e4152a32c001922142fb21ded7efa838cb906ce45bf59e1da7e",
+      "process_cpu_ms": 26453.125,
+      "process_wall_ms": 24932.25079998956
+    },
+    "oneworker01-gp80": {
+      "variant": "baselineoneworkerhandoff",
+      "steps": 80,
+      "metrics_us": {
+        "cold_first_us": 316968,
+        "count": 80,
+        "following_mean_us": 69186.670886076,
+        "max_us": 1470988,
+        "mean_us": 72283.9375,
+        "p50_us": 46281,
+        "p95_us": 99331,
+        "p99_us": 1470988,
+        "total_us": 5782715
+      },
+      "checks": {
+        "complete": true,
+        "qualified": true,
+        "errors_empty": true,
+        "source_input_sha256": true,
+        "initial": true,
+        "final": true,
+        "qualification": true,
+        "operations": true,
+        "event_records": true,
+        "final_binary_sha256": true,
+        "public_business": true,
+        "non_timing_samples": true,
+        "environment_workers_complete": true
+      },
+      "additional_checks": {
+        "passed": true,
+        "checks": {
+          "same_original_query_counts": true,
+          "same_work_accounting": true,
+          "intended_execution_thread": true
+        },
+        "mode": "one_worker",
+        "reference": "e1-gp80",
+        "selection": {
+          "batches": 19,
+          "consumed": 94,
+          "failed_batches": 0,
+          "jobs": 38,
+          "last_batch": {
+            "group_id": 46,
+            "jobs": [
+              {
+                "allowance": 67108864,
+                "elapsed_us": 17006,
+                "job": 0,
+                "peak_charge": 41100896,
+                "processed": 9,
+                "requested": 9,
+                "thread_id": 5
+              },
+              {
+                "allowance": 67108864,
+                "elapsed_us": 64904,
+                "job": 1,
+                "peak_charge": 40260480,
+                "processed": 10,
+                "requested": 10,
+                "thread_id": 5
+              }
+            ],
+            "main_thread_id": 1,
+            "ok": true,
+            "peak_charge_sum": 81361376,
+            "processed": 19,
+            "requested": 19,
+            "total_budget": 134217728
+          },
+          "processed": 94,
+          "reject_reasons": {},
+          "rejected": 0,
+          "requested": 94,
+          "threads": {
+            "10": 2,
+            "11": 2,
+            "13": 2,
+            "16": 2,
+            "18": 2,
+            "20": 2,
+            "21": 2,
+            "23": 2,
+            "24": 2,
+            "26": 2,
+            "28": 2,
+            "30": 2,
+            "32": 2,
+            "33": 2,
+            "5": 4,
+            "6": 2,
+            "7": 2,
+            "8": 2
+          },
+          "timings_us": {
+            "dispatch_wait": 1120333,
+            "harvest": 38892,
+            "preparation": 56485,
+            "validation": 22487
+          },
+          "unused": 0
+        },
+        "reference_selection": {
+          "batches": 19,
+          "consumed": 94,
+          "failed_batches": 0,
+          "jobs": 38,
+          "last_batch": {
+            "group_id": 46,
+            "jobs": [
+              {
+                "allowance": 67108864,
+                "elapsed_us": 19814,
+                "job": 0,
+                "peak_charge": 41100896,
+                "processed": 9,
+                "requested": 9,
+                "thread_id": 5
+              },
+              {
+                "allowance": 67108864,
+                "elapsed_us": 70077,
+                "job": 1,
+                "peak_charge": 40260480,
+                "processed": 10,
+                "requested": 10,
+                "thread_id": 6
+              }
+            ],
+            "main_thread_id": 1,
+            "ok": true,
+            "peak_charge_sum": 81361376,
+            "processed": 19,
+            "requested": 19,
+            "total_budget": 134217728
+          },
+          "processed": 94,
+          "reject_reasons": {},
+          "rejected": 0,
+          "requested": 94,
+          "threads": {
+            "10": 2,
+            "11": 2,
+            "12": 2,
+            "14": 2,
+            "15": 2,
+            "17": 2,
+            "19": 2,
+            "21": 2,
+            "23": 2,
+            "25": 2,
+            "27": 2,
+            "29": 2,
+            "32": 2,
+            "34": 2,
+            "5": 3,
+            "6": 3,
+            "7": 2,
+            "8": 2
+          },
+          "timings_us": {
+            "dispatch_wait": 877444,
+            "harvest": 38568,
+            "preparation": 37157,
+            "validation": 23319
+          },
+          "unused": 0
+        },
+        "metrics": {
+          "cold_first_us": 316968,
+          "count": 80,
+          "following_mean_us": 69186.670886076,
+          "max_us": 1470988,
+          "mean_us": 72283.9375,
+          "p50_us": 46281,
+          "p95_us": 99331,
+          "p99_us": 1470988,
+          "total_us": 5782715
+        }
+      },
+      "selection": {
+        "batches": 19,
+        "consumed": 94,
+        "failed_batches": 0,
+        "jobs": 38,
+        "last_batch": {
+          "group_id": 46,
+          "jobs": [
+            {
+              "allowance": 67108864,
+              "elapsed_us": 17006,
+              "job": 0,
+              "peak_charge": 41100896,
+              "processed": 9,
+              "requested": 9,
+              "thread_id": 5
+            },
+            {
+              "allowance": 67108864,
+              "elapsed_us": 64904,
+              "job": 1,
+              "peak_charge": 40260480,
+              "processed": 10,
+              "requested": 10,
+              "thread_id": 5
+            }
+          ],
+          "main_thread_id": 1,
+          "ok": true,
+          "peak_charge_sum": 81361376,
+          "processed": 19,
+          "requested": 19,
+          "total_budget": 134217728
+        },
+        "processed": 94,
+        "reject_reasons": {},
+        "rejected": 0,
+        "requested": 94,
+        "threads": {
+          "10": 2,
+          "11": 2,
+          "13": 2,
+          "16": 2,
+          "18": 2,
+          "20": 2,
+          "21": 2,
+          "23": 2,
+          "24": 2,
+          "26": 2,
+          "28": 2,
+          "30": 2,
+          "32": 2,
+          "33": 2,
+          "5": 4,
+          "6": 2,
+          "7": 2,
+          "8": 2
+        },
+        "timings_us": {
+          "dispatch_wait": 1120333,
+          "harvest": 38892,
+          "preparation": 56485,
+          "validation": 22487
+        },
+        "unused": 0
+      },
+      "query_count_differences": {
+        "connector_topology_builds": {
+          "actual": 39,
+          "expected": 1
+        },
+        "connector_node_declarations": {
+          "actual": 156,
+          "expected": 4
+        },
+        "distance_field_builds": {
+          "actual": 15,
+          "expected": 14
+        },
+        "public_select_planning_actors": {
+          "actual": 130,
+          "expected": null
+        },
+        "static_path_hits": {
+          "actual": 98,
+          "expected": 13
+        },
+        "static_path_builds": {
+          "actual": 306,
+          "expected": 191
+        },
+        "structural_reverse_field_lookups": {
+          "actual": 416,
+          "expected": 255
+        },
+        "public_wait_door_checks": {
+          "actual": 33,
+          "expected": 18
+        },
+        "routes": {
+          "actual": 514,
+          "expected": 391
+        },
+        "connector_edge_hits": {
+          "actual": 44,
+          "expected": 3
+        },
+        "structural_reverse_field_hits": {
+          "actual": 12,
+          "expected": 51
+        },
+        "public_entry_field_hits": {
+          "actual": 742,
+          "expected": 865
+        },
+        "entry_walking_table_builds": {
+          "actual": 39,
+          "expected": 2
+        },
+        "transport_requests": {
+          "actual": 306,
+          "expected": 183
+        },
+        "public_entry_field_preparations": {
+          "actual": 50,
+          "expected": 91
+        },
+        "actor_index_actor_visits": {
+          "actual": 21600,
+          "expected": 15520
+        },
+        "entry_order_hits": {
+          "actual": 46,
+          "expected": 83
+        },
+        "entry_order_native_builds": {
+          "actual": 56,
+          "expected": 19
+        },
+        "point_source_builds": {
+          "actual": 44,
+          "expected": 3
+        },
+        "public_select_planning_contains": {
+          "actual": 130,
+          "expected": null
+        },
+        "distance_field_hits": {
+          "actual": 66,
+          "expected": 143
+        },
+        "reservation_index_builds": {
+          "actual": 67,
+          "expected": 29
+        },
+        "reservation_index_updates": {
+          "actual": 1032,
+          "expected": 424
+        },
+        "point_source_goal_legs": {
+          "actual": 132,
+          "expected": 9
+        },
+        "public_wait_door_index_builds": {
+          "actual": 39,
+          "expected": 1
+        },
+        "point_source_hits": {
+          "actual": 88,
+          "expected": 6
+        },
+        "transport_searches": {
+          "actual": 218,
+          "expected": 177
+        },
+        "actor_index_builds": {
+          "actual": 135,
+          "expected": 97
+        },
+        "public_region_definition_index_hits": {
+          "actual": 261,
+          "expected": 112
+        },
+        "door_candidates": {
+          "actual": 2258,
+          "expected": 1266
+        },
+        "entry_order_builds": {
+          "actual": 56,
+          "expected": 19
+        },
+        "reservation_candidate_queries": {
+          "actual": 23971,
+          "expected": 22979
+        },
+        "floor_route_builds": {
+          "actual": 964,
+          "expected": 841
+        }
+      },
+      "query_counts": {
+        "actor_index_actor_visits": 21600,
+        "actor_index_builds": 135,
+        "candidate_connections": 414,
+        "connector_edge_builds": 414,
+        "connector_edge_hits": 44,
+        "connector_node_declarations": 156,
+        "connector_topology_builds": 39,
+        "connector_topology_inherits": 31,
+        "courtesy_static_geometry_hits": 36,
+        "distance_field_builds": 15,
+        "distance_field_hits": 66,
+        "door_candidates": 2258,
+        "entry_order_builds": 56,
+        "entry_order_hits": 46,
+        "entry_order_native_builds": 56,
+        "entry_walking_table_builds": 39,
+        "environment_actor_source_builds": 8,
+        "environment_coverage_mask_builds": 4,
+        "environment_coverage_native_calls": 631,
+        "environment_dynamic_source_builds": 88,
+        "environment_facility_source_builds": 1,
+        "environment_facility_source_hits": 87,
+        "facility_environment_builds": 1,
+        "facility_environment_hits": 2146,
+        "floor_route_builds": 964,
+        "floor_route_hits": 0,
+        "journey_hits": 0,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 8354,
+        "movement_candidates": 525,
+        "nearby_field_builds": 12,
+        "point_cost_lift_arrival_prunes": 224,
+        "point_source_builds": 44,
+        "point_source_goal_legs": 132,
+        "point_source_hits": 88,
+        "public_entry_field_hits": 742,
+        "public_entry_field_preparations": 50,
+        "public_facility_candidates": 20688,
+        "public_fit_body_key_preparations": 1072,
+        "public_queue_fit_builds": 28,
+        "public_queue_fit_hits": 2064,
+        "public_region_definition_index_builds": 1,
+        "public_region_definition_index_hits": 261,
+        "public_region_floor_builds": 4,
+        "public_region_mapping_builds": 1,
+        "public_region_native_builds": 4,
+        "public_select_planning_actors": 130,
+        "public_select_planning_contains": 130,
+        "public_select_regions_total": 7616,
+        "public_select_regions_visited": 112,
+        "public_wait_dependency_batches": 1079,
+        "public_wait_dependency_rectangles": 17271,
+        "public_wait_door_checks": 33,
+        "public_wait_door_index_builds": 39,
+        "public_wait_environment_match_builds": 63,
+        "public_wait_environment_match_hits": 1016,
+        "public_wait_hits": 682,
+        "public_wait_initial_rechecks": 35,
+        "public_wait_rechecks": 278,
+        "reservation_candidate_queries": 23971,
+        "reservation_index_builds": 67,
+        "reservation_index_updates": 1032,
+        "route_checks": 5624,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 146,
+        "route_dispatches": 146,
+        "route_revalidation_unvalidated": 156,
+        "route_revalidations": 156,
+        "routes": 514,
+        "static_path_builds": 306,
+        "static_path_hits": 98,
+        "structural_reverse_field_hits": 12,
+        "structural_reverse_field_lookups": 416,
+        "transport_builds": 0,
+        "transport_requests": 306,
+        "transport_searches": 218,
+        "yield_attempts": 27,
+        "yield_candidates": 23
+      },
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a",
+      "process_cpu_ms": 10187.5,
+      "process_wall_ms": 10028.413799998816
+    },
+    "parallel01-gp80": {
+      "variant": "baselineparallelhandoff",
+      "steps": 80,
+      "metrics_us": {
+        "cold_first_us": 238830,
+        "count": 80,
+        "following_mean_us": 66178.9493670886,
+        "max_us": 1323911,
+        "mean_us": 68337.0875,
+        "p50_us": 44893,
+        "p95_us": 101364,
+        "p99_us": 1323911,
+        "total_us": 5466967
+      },
+      "checks": {
+        "complete": true,
+        "qualified": true,
+        "errors_empty": true,
+        "source_input_sha256": true,
+        "initial": true,
+        "final": true,
+        "qualification": true,
+        "operations": true,
+        "event_records": true,
+        "final_binary_sha256": true,
+        "public_business": true,
+        "non_timing_samples": true,
+        "environment_workers_complete": true
+      },
+      "additional_checks": {
+        "passed": true,
+        "checks": {
+          "same_original_query_counts": true,
+          "same_work_accounting": true,
+          "intended_execution_thread": true
+        },
+        "mode": "parallel_workers",
+        "reference": "e1-gp80",
+        "selection": {
+          "batches": 19,
+          "consumed": 94,
+          "failed_batches": 0,
+          "jobs": 38,
+          "last_batch": {
+            "group_id": 46,
+            "jobs": [
+              {
+                "allowance": 67108864,
+                "elapsed_us": 21377,
+                "job": 0,
+                "peak_charge": 41100896,
+                "processed": 9,
+                "requested": 9,
+                "thread_id": 5
+              },
+              {
+                "allowance": 67108864,
+                "elapsed_us": 76528,
+                "job": 1,
+                "peak_charge": 40260480,
+                "processed": 10,
+                "requested": 10,
+                "thread_id": 6
+              }
+            ],
+            "main_thread_id": 1,
+            "ok": true,
+            "peak_charge_sum": 81361376,
+            "processed": 19,
+            "requested": 19,
+            "total_budget": 134217728
+          },
+          "processed": 94,
+          "reject_reasons": {},
+          "rejected": 0,
+          "requested": 94,
+          "threads": {
+            "10": 2,
+            "11": 2,
+            "13": 2,
+            "14": 2,
+            "16": 2,
+            "17": 2,
+            "19": 2,
+            "20": 2,
+            "22": 2,
+            "23": 2,
+            "24": 2,
+            "25": 2,
+            "27": 2,
+            "5": 3,
+            "6": 3,
+            "7": 2,
+            "8": 2,
+            "9": 2
+          },
+          "timings_us": {
+            "dispatch_wait": 951010,
+            "harvest": 40490,
+            "preparation": 48714,
+            "validation": 23959
+          },
+          "unused": 0
+        },
+        "reference_selection": {
+          "batches": 19,
+          "consumed": 94,
+          "failed_batches": 0,
+          "jobs": 38,
+          "last_batch": {
+            "group_id": 46,
+            "jobs": [
+              {
+                "allowance": 67108864,
+                "elapsed_us": 19814,
+                "job": 0,
+                "peak_charge": 41100896,
+                "processed": 9,
+                "requested": 9,
+                "thread_id": 5
+              },
+              {
+                "allowance": 67108864,
+                "elapsed_us": 70077,
+                "job": 1,
+                "peak_charge": 40260480,
+                "processed": 10,
+                "requested": 10,
+                "thread_id": 6
+              }
+            ],
+            "main_thread_id": 1,
+            "ok": true,
+            "peak_charge_sum": 81361376,
+            "processed": 19,
+            "requested": 19,
+            "total_budget": 134217728
+          },
+          "processed": 94,
+          "reject_reasons": {},
+          "rejected": 0,
+          "requested": 94,
+          "threads": {
+            "10": 2,
+            "11": 2,
+            "12": 2,
+            "14": 2,
+            "15": 2,
+            "17": 2,
+            "19": 2,
+            "21": 2,
+            "23": 2,
+            "25": 2,
+            "27": 2,
+            "29": 2,
+            "32": 2,
+            "34": 2,
+            "5": 3,
+            "6": 3,
+            "7": 2,
+            "8": 2
+          },
+          "timings_us": {
+            "dispatch_wait": 877444,
+            "harvest": 38568,
+            "preparation": 37157,
+            "validation": 23319
+          },
+          "unused": 0
+        },
+        "metrics": {
+          "cold_first_us": 238830,
+          "count": 80,
+          "following_mean_us": 66178.9493670886,
+          "max_us": 1323911,
+          "mean_us": 68337.0875,
+          "p50_us": 44893,
+          "p95_us": 101364,
+          "p99_us": 1323911,
+          "total_us": 5466967
+        }
+      },
+      "selection": {
+        "batches": 19,
+        "consumed": 94,
+        "failed_batches": 0,
+        "jobs": 38,
+        "last_batch": {
+          "group_id": 46,
+          "jobs": [
+            {
+              "allowance": 67108864,
+              "elapsed_us": 21377,
+              "job": 0,
+              "peak_charge": 41100896,
+              "processed": 9,
+              "requested": 9,
+              "thread_id": 5
+            },
+            {
+              "allowance": 67108864,
+              "elapsed_us": 76528,
+              "job": 1,
+              "peak_charge": 40260480,
+              "processed": 10,
+              "requested": 10,
+              "thread_id": 6
+            }
+          ],
+          "main_thread_id": 1,
+          "ok": true,
+          "peak_charge_sum": 81361376,
+          "processed": 19,
+          "requested": 19,
+          "total_budget": 134217728
+        },
+        "processed": 94,
+        "reject_reasons": {},
+        "rejected": 0,
+        "requested": 94,
+        "threads": {
+          "10": 2,
+          "11": 2,
+          "13": 2,
+          "14": 2,
+          "16": 2,
+          "17": 2,
+          "19": 2,
+          "20": 2,
+          "22": 2,
+          "23": 2,
+          "24": 2,
+          "25": 2,
+          "27": 2,
+          "5": 3,
+          "6": 3,
+          "7": 2,
+          "8": 2,
+          "9": 2
+        },
+        "timings_us": {
+          "dispatch_wait": 951010,
+          "harvest": 40490,
+          "preparation": 48714,
+          "validation": 23959
+        },
+        "unused": 0
+      },
+      "query_count_differences": {
+        "connector_node_declarations": {
+          "actual": 156,
+          "expected": 4
+        },
+        "public_entry_field_preparations": {
+          "actual": 50,
+          "expected": 91
+        },
+        "actor_index_builds": {
+          "actual": 135,
+          "expected": 97
+        },
+        "reservation_index_builds": {
+          "actual": 67,
+          "expected": 29
+        },
+        "reservation_index_updates": {
+          "actual": 1032,
+          "expected": 424
+        },
+        "public_region_definition_index_hits": {
+          "actual": 261,
+          "expected": 112
+        },
+        "entry_walking_table_builds": {
+          "actual": 39,
+          "expected": 2
+        },
+        "entry_order_hits": {
+          "actual": 46,
+          "expected": 83
+        },
+        "reservation_candidate_queries": {
+          "actual": 23971,
+          "expected": 22979
+        },
+        "connector_topology_builds": {
+          "actual": 39,
+          "expected": 1
+        },
+        "structural_reverse_field_lookups": {
+          "actual": 416,
+          "expected": 255
+        },
+        "entry_order_builds": {
+          "actual": 56,
+          "expected": 19
+        },
+        "static_path_builds": {
+          "actual": 306,
+          "expected": 191
+        },
+        "transport_requests": {
+          "actual": 306,
+          "expected": 183
+        },
+        "actor_index_actor_visits": {
+          "actual": 21600,
+          "expected": 15520
+        },
+        "static_path_hits": {
+          "actual": 98,
+          "expected": 13
+        },
+        "distance_field_hits": {
+          "actual": 66,
+          "expected": 143
+        },
+        "routes": {
+          "actual": 514,
+          "expected": 391
+        },
+        "point_source_builds": {
+          "actual": 44,
+          "expected": 3
+        },
+        "point_source_goal_legs": {
+          "actual": 132,
+          "expected": 9
+        },
+        "point_source_hits": {
+          "actual": 88,
+          "expected": 6
+        },
+        "public_select_planning_actors": {
+          "actual": 130,
+          "expected": null
+        },
+        "door_candidates": {
+          "actual": 2258,
+          "expected": 1266
+        },
+        "floor_route_builds": {
+          "actual": 964,
+          "expected": 841
+        },
+        "public_wait_door_index_builds": {
+          "actual": 39,
+          "expected": 1
+        },
+        "structural_reverse_field_hits": {
+          "actual": 12,
+          "expected": 51
+        },
+        "distance_field_builds": {
+          "actual": 15,
+          "expected": 14
+        },
+        "public_entry_field_hits": {
+          "actual": 742,
+          "expected": 865
+        },
+        "public_select_planning_contains": {
+          "actual": 130,
+          "expected": null
+        },
+        "public_wait_door_checks": {
+          "actual": 33,
+          "expected": 18
+        },
+        "transport_searches": {
+          "actual": 218,
+          "expected": 177
+        },
+        "entry_order_native_builds": {
+          "actual": 56,
+          "expected": 19
+        },
+        "connector_edge_hits": {
+          "actual": 44,
+          "expected": 3
+        }
+      },
+      "query_counts": {
+        "actor_index_actor_visits": 21600,
+        "actor_index_builds": 135,
+        "candidate_connections": 414,
+        "connector_edge_builds": 414,
+        "connector_edge_hits": 44,
+        "connector_node_declarations": 156,
+        "connector_topology_builds": 39,
+        "connector_topology_inherits": 31,
+        "courtesy_static_geometry_hits": 36,
+        "distance_field_builds": 15,
+        "distance_field_hits": 66,
+        "door_candidates": 2258,
+        "entry_order_builds": 56,
+        "entry_order_hits": 46,
+        "entry_order_native_builds": 56,
+        "entry_walking_table_builds": 39,
+        "environment_actor_source_builds": 8,
+        "environment_coverage_mask_builds": 4,
+        "environment_coverage_native_calls": 631,
+        "environment_dynamic_source_builds": 88,
+        "environment_facility_source_builds": 1,
+        "environment_facility_source_hits": 87,
+        "facility_environment_builds": 1,
+        "facility_environment_hits": 2146,
+        "floor_route_builds": 964,
+        "floor_route_hits": 0,
+        "journey_hits": 0,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 8354,
+        "movement_candidates": 525,
+        "nearby_field_builds": 12,
+        "point_cost_lift_arrival_prunes": 224,
+        "point_source_builds": 44,
+        "point_source_goal_legs": 132,
+        "point_source_hits": 88,
+        "public_entry_field_hits": 742,
+        "public_entry_field_preparations": 50,
+        "public_facility_candidates": 20688,
+        "public_fit_body_key_preparations": 1072,
+        "public_queue_fit_builds": 28,
+        "public_queue_fit_hits": 2064,
+        "public_region_definition_index_builds": 1,
+        "public_region_definition_index_hits": 261,
+        "public_region_floor_builds": 4,
+        "public_region_mapping_builds": 1,
+        "public_region_native_builds": 4,
+        "public_select_planning_actors": 130,
+        "public_select_planning_contains": 130,
+        "public_select_regions_total": 7616,
+        "public_select_regions_visited": 112,
+        "public_wait_dependency_batches": 1079,
+        "public_wait_dependency_rectangles": 17271,
+        "public_wait_door_checks": 33,
+        "public_wait_door_index_builds": 39,
+        "public_wait_environment_match_builds": 63,
+        "public_wait_environment_match_hits": 1016,
+        "public_wait_hits": 682,
+        "public_wait_initial_rechecks": 35,
+        "public_wait_rechecks": 278,
+        "reservation_candidate_queries": 23971,
+        "reservation_index_builds": 67,
+        "reservation_index_updates": 1032,
+        "route_checks": 5624,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 146,
+        "route_dispatches": 146,
+        "route_revalidation_unvalidated": 156,
+        "route_revalidations": 156,
+        "routes": 514,
+        "static_path_builds": 306,
+        "static_path_hits": 98,
+        "structural_reverse_field_hits": 12,
+        "structural_reverse_field_lookups": 416,
+        "transport_builds": 0,
+        "transport_requests": 306,
+        "transport_searches": 218,
+        "yield_attempts": 27,
+        "yield_candidates": 23
+      },
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a",
+      "process_cpu_ms": 9234.375,
+      "process_wall_ms": 9231.77250000299
+    },
+    "serialhandoff01-gp80": {
+      "variant": "baselineserialhandoff",
+      "steps": 80,
+      "metrics_us": {
+        "cold_first_us": 234401,
+        "count": 80,
+        "following_mean_us": 65230.4810126582,
+        "max_us": 1368437,
+        "mean_us": 67345.1125,
+        "p50_us": 42541,
+        "p95_us": 110021,
+        "p99_us": 1368437,
+        "total_us": 5387609
+      },
+      "checks": {
+        "complete": true,
+        "qualified": true,
+        "errors_empty": true,
+        "source_input_sha256": true,
+        "initial": true,
+        "final": true,
+        "qualification": true,
+        "operations": true,
+        "event_records": true,
+        "final_binary_sha256": true,
+        "public_business": true,
+        "non_timing_samples": true,
+        "environment_workers_complete": true
+      },
+      "additional_checks": {
+        "passed": true,
+        "checks": {
+          "same_original_query_counts": true,
+          "same_work_accounting": true,
+          "intended_execution_thread": true
+        },
+        "mode": "main_serial",
+        "reference": "e1-gp80",
+        "selection": {
+          "batches": 19,
+          "consumed": 94,
+          "failed_batches": 0,
+          "jobs": 38,
+          "last_batch": {
+            "group_id": -1,
+            "jobs": [
+              {
+                "allowance": 67108864,
+                "elapsed_us": 17135,
+                "job": 0,
+                "peak_charge": 41100896,
+                "processed": 9,
+                "requested": 9,
+                "thread_id": 1
+              },
+              {
+                "allowance": 67108864,
+                "elapsed_us": 66693,
+                "job": 1,
+                "peak_charge": 40260480,
+                "processed": 10,
+                "requested": 10,
+                "thread_id": 1
+              }
+            ],
+            "main_thread_id": 1,
+            "ok": true,
+            "peak_charge_sum": 81361376,
+            "processed": 19,
+            "requested": 19,
+            "total_budget": 134217728
+          },
+          "processed": 94,
+          "reject_reasons": {},
+          "rejected": 0,
+          "requested": 94,
+          "threads": {
+            "1": 38
+          },
+          "timings_us": {
+            "dispatch_wait": 1022044,
+            "harvest": 37294,
+            "preparation": 37789,
+            "validation": 23919
+          },
+          "unused": 0
+        },
+        "reference_selection": {
+          "batches": 19,
+          "consumed": 94,
+          "failed_batches": 0,
+          "jobs": 38,
+          "last_batch": {
+            "group_id": 46,
+            "jobs": [
+              {
+                "allowance": 67108864,
+                "elapsed_us": 19814,
+                "job": 0,
+                "peak_charge": 41100896,
+                "processed": 9,
+                "requested": 9,
+                "thread_id": 5
+              },
+              {
+                "allowance": 67108864,
+                "elapsed_us": 70077,
+                "job": 1,
+                "peak_charge": 40260480,
+                "processed": 10,
+                "requested": 10,
+                "thread_id": 6
+              }
+            ],
+            "main_thread_id": 1,
+            "ok": true,
+            "peak_charge_sum": 81361376,
+            "processed": 19,
+            "requested": 19,
+            "total_budget": 134217728
+          },
+          "processed": 94,
+          "reject_reasons": {},
+          "rejected": 0,
+          "requested": 94,
+          "threads": {
+            "10": 2,
+            "11": 2,
+            "12": 2,
+            "14": 2,
+            "15": 2,
+            "17": 2,
+            "19": 2,
+            "21": 2,
+            "23": 2,
+            "25": 2,
+            "27": 2,
+            "29": 2,
+            "32": 2,
+            "34": 2,
+            "5": 3,
+            "6": 3,
+            "7": 2,
+            "8": 2
+          },
+          "timings_us": {
+            "dispatch_wait": 877444,
+            "harvest": 38568,
+            "preparation": 37157,
+            "validation": 23319
+          },
+          "unused": 0
+        },
+        "metrics": {
+          "cold_first_us": 234401,
+          "count": 80,
+          "following_mean_us": 65230.4810126582,
+          "max_us": 1368437,
+          "mean_us": 67345.1125,
+          "p50_us": 42541,
+          "p95_us": 110021,
+          "p99_us": 1368437,
+          "total_us": 5387609
+        }
+      },
+      "selection": {
+        "batches": 19,
+        "consumed": 94,
+        "failed_batches": 0,
+        "jobs": 38,
+        "last_batch": {
+          "group_id": -1,
+          "jobs": [
+            {
+              "allowance": 67108864,
+              "elapsed_us": 17135,
+              "job": 0,
+              "peak_charge": 41100896,
+              "processed": 9,
+              "requested": 9,
+              "thread_id": 1
+            },
+            {
+              "allowance": 67108864,
+              "elapsed_us": 66693,
+              "job": 1,
+              "peak_charge": 40260480,
+              "processed": 10,
+              "requested": 10,
+              "thread_id": 1
+            }
+          ],
+          "main_thread_id": 1,
+          "ok": true,
+          "peak_charge_sum": 81361376,
+          "processed": 19,
+          "requested": 19,
+          "total_budget": 134217728
+        },
+        "processed": 94,
+        "reject_reasons": {},
+        "rejected": 0,
+        "requested": 94,
+        "threads": {
+          "1": 38
+        },
+        "timings_us": {
+          "dispatch_wait": 1022044,
+          "harvest": 37294,
+          "preparation": 37789,
+          "validation": 23919
+        },
+        "unused": 0
+      },
+      "query_count_differences": {
+        "reservation_index_updates": {
+          "actual": 1032,
+          "expected": 424
+        },
+        "actor_index_actor_visits": {
+          "actual": 21600,
+          "expected": 15520
+        },
+        "structural_reverse_field_hits": {
+          "actual": 12,
+          "expected": 51
+        },
+        "structural_reverse_field_lookups": {
+          "actual": 416,
+          "expected": 255
+        },
+        "connector_node_declarations": {
+          "actual": 156,
+          "expected": 4
+        },
+        "public_wait_door_index_builds": {
+          "actual": 39,
+          "expected": 1
+        },
+        "public_entry_field_hits": {
+          "actual": 742,
+          "expected": 865
+        },
+        "public_wait_door_checks": {
+          "actual": 33,
+          "expected": 18
+        },
+        "entry_walking_table_builds": {
+          "actual": 39,
+          "expected": 2
+        },
+        "door_candidates": {
+          "actual": 2258,
+          "expected": 1266
+        },
+        "entry_order_hits": {
+          "actual": 46,
+          "expected": 83
+        },
+        "connector_edge_hits": {
+          "actual": 44,
+          "expected": 3
+        },
+        "static_path_hits": {
+          "actual": 98,
+          "expected": 13
+        },
+        "point_source_hits": {
+          "actual": 88,
+          "expected": 6
+        },
+        "distance_field_hits": {
+          "actual": 66,
+          "expected": 143
+        },
+        "public_select_planning_actors": {
+          "actual": 130,
+          "expected": null
+        },
+        "entry_order_native_builds": {
+          "actual": 56,
+          "expected": 19
+        },
+        "public_entry_field_preparations": {
+          "actual": 50,
+          "expected": 91
+        },
+        "distance_field_builds": {
+          "actual": 15,
+          "expected": 14
+        },
+        "transport_searches": {
+          "actual": 218,
+          "expected": 177
+        },
+        "connector_topology_builds": {
+          "actual": 39,
+          "expected": 1
+        },
+        "entry_order_builds": {
+          "actual": 56,
+          "expected": 19
+        },
+        "point_source_goal_legs": {
+          "actual": 132,
+          "expected": 9
+        },
+        "reservation_index_builds": {
+          "actual": 67,
+          "expected": 29
+        },
+        "public_region_definition_index_hits": {
+          "actual": 261,
+          "expected": 112
+        },
+        "actor_index_builds": {
+          "actual": 135,
+          "expected": 97
+        },
+        "reservation_candidate_queries": {
+          "actual": 23971,
+          "expected": 22979
+        },
+        "static_path_builds": {
+          "actual": 306,
+          "expected": 191
+        },
+        "public_select_planning_contains": {
+          "actual": 130,
+          "expected": null
+        },
+        "floor_route_builds": {
+          "actual": 964,
+          "expected": 841
+        },
+        "routes": {
+          "actual": 514,
+          "expected": 391
+        },
+        "point_source_builds": {
+          "actual": 44,
+          "expected": 3
+        },
+        "transport_requests": {
+          "actual": 306,
+          "expected": 183
+        }
+      },
+      "query_counts": {
+        "actor_index_actor_visits": 21600,
+        "actor_index_builds": 135,
+        "candidate_connections": 414,
+        "connector_edge_builds": 414,
+        "connector_edge_hits": 44,
+        "connector_node_declarations": 156,
+        "connector_topology_builds": 39,
+        "connector_topology_inherits": 31,
+        "courtesy_static_geometry_hits": 36,
+        "distance_field_builds": 15,
+        "distance_field_hits": 66,
+        "door_candidates": 2258,
+        "entry_order_builds": 56,
+        "entry_order_hits": 46,
+        "entry_order_native_builds": 56,
+        "entry_walking_table_builds": 39,
+        "environment_actor_source_builds": 8,
+        "environment_coverage_mask_builds": 4,
+        "environment_coverage_native_calls": 631,
+        "environment_dynamic_source_builds": 88,
+        "environment_facility_source_builds": 1,
+        "environment_facility_source_hits": 87,
+        "facility_environment_builds": 1,
+        "facility_environment_hits": 2146,
+        "floor_route_builds": 964,
+        "floor_route_hits": 0,
+        "journey_hits": 0,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 8354,
+        "movement_candidates": 525,
+        "nearby_field_builds": 12,
+        "point_cost_lift_arrival_prunes": 224,
+        "point_source_builds": 44,
+        "point_source_goal_legs": 132,
+        "point_source_hits": 88,
+        "public_entry_field_hits": 742,
+        "public_entry_field_preparations": 50,
+        "public_facility_candidates": 20688,
+        "public_fit_body_key_preparations": 1072,
+        "public_queue_fit_builds": 28,
+        "public_queue_fit_hits": 2064,
+        "public_region_definition_index_builds": 1,
+        "public_region_definition_index_hits": 261,
+        "public_region_floor_builds": 4,
+        "public_region_mapping_builds": 1,
+        "public_region_native_builds": 4,
+        "public_select_planning_actors": 130,
+        "public_select_planning_contains": 130,
+        "public_select_regions_total": 7616,
+        "public_select_regions_visited": 112,
+        "public_wait_dependency_batches": 1079,
+        "public_wait_dependency_rectangles": 17271,
+        "public_wait_door_checks": 33,
+        "public_wait_door_index_builds": 39,
+        "public_wait_environment_match_builds": 63,
+        "public_wait_environment_match_hits": 1016,
+        "public_wait_hits": 682,
+        "public_wait_initial_rechecks": 35,
+        "public_wait_rechecks": 278,
+        "reservation_candidate_queries": 23971,
+        "reservation_index_builds": 67,
+        "reservation_index_updates": 1032,
+        "route_checks": 5624,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 146,
+        "route_dispatches": 146,
+        "route_revalidation_unvalidated": 156,
+        "route_revalidations": 156,
+        "routes": 514,
+        "static_path_builds": 306,
+        "static_path_hits": 98,
+        "structural_reverse_field_hits": 12,
+        "structural_reverse_field_lookups": 416,
+        "transport_builds": 0,
+        "transport_requests": 306,
+        "transport_searches": 218,
+        "yield_attempts": 27,
+        "yield_candidates": 23
+      },
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a",
+      "process_cpu_ms": 9078.125,
+      "process_wall_ms": 9001.420400018105
+    },
+    "serialhandoff02-gp80": {
+      "variant": "baselineserialhandoff",
+      "steps": 80,
+      "metrics_us": {
+        "cold_first_us": 251216,
+        "count": 80,
+        "following_mean_us": 65062.8227848101,
+        "max_us": 1395298,
+        "mean_us": 67389.7375,
+        "p50_us": 44074,
+        "p95_us": 102410,
+        "p99_us": 1395298,
+        "total_us": 5391179
+      },
+      "checks": {
+        "complete": true,
+        "qualified": true,
+        "errors_empty": true,
+        "source_input_sha256": true,
+        "initial": true,
+        "final": true,
+        "qualification": true,
+        "operations": true,
+        "event_records": true,
+        "final_binary_sha256": true,
+        "public_business": true,
+        "non_timing_samples": true,
+        "environment_workers_complete": true
+      },
+      "additional_checks": {
+        "passed": true,
+        "checks": {
+          "same_original_query_counts": true,
+          "same_work_accounting": true,
+          "intended_execution_thread": true
+        },
+        "mode": "main_serial",
+        "reference": "e1-gp80",
+        "selection": {
+          "batches": 19,
+          "consumed": 94,
+          "failed_batches": 0,
+          "jobs": 38,
+          "last_batch": {
+            "group_id": -1,
+            "jobs": [
+              {
+                "allowance": 67108864,
+                "elapsed_us": 17798,
+                "job": 0,
+                "peak_charge": 41100896,
+                "processed": 9,
+                "requested": 9,
+                "thread_id": 1
+              },
+              {
+                "allowance": 67108864,
+                "elapsed_us": 71515,
+                "job": 1,
+                "peak_charge": 40260480,
+                "processed": 10,
+                "requested": 10,
+                "thread_id": 1
+              }
+            ],
+            "main_thread_id": 1,
+            "ok": true,
+            "peak_charge_sum": 81361376,
+            "processed": 19,
+            "requested": 19,
+            "total_budget": 134217728
+          },
+          "processed": 94,
+          "reject_reasons": {},
+          "rejected": 0,
+          "requested": 94,
+          "threads": {
+            "1": 38
+          },
+          "timings_us": {
+            "dispatch_wait": 1045184,
+            "harvest": 39824,
+            "preparation": 37632,
+            "validation": 25599
+          },
+          "unused": 0
+        },
+        "reference_selection": {
+          "batches": 19,
+          "consumed": 94,
+          "failed_batches": 0,
+          "jobs": 38,
+          "last_batch": {
+            "group_id": 46,
+            "jobs": [
+              {
+                "allowance": 67108864,
+                "elapsed_us": 19814,
+                "job": 0,
+                "peak_charge": 41100896,
+                "processed": 9,
+                "requested": 9,
+                "thread_id": 5
+              },
+              {
+                "allowance": 67108864,
+                "elapsed_us": 70077,
+                "job": 1,
+                "peak_charge": 40260480,
+                "processed": 10,
+                "requested": 10,
+                "thread_id": 6
+              }
+            ],
+            "main_thread_id": 1,
+            "ok": true,
+            "peak_charge_sum": 81361376,
+            "processed": 19,
+            "requested": 19,
+            "total_budget": 134217728
+          },
+          "processed": 94,
+          "reject_reasons": {},
+          "rejected": 0,
+          "requested": 94,
+          "threads": {
+            "10": 2,
+            "11": 2,
+            "12": 2,
+            "14": 2,
+            "15": 2,
+            "17": 2,
+            "19": 2,
+            "21": 2,
+            "23": 2,
+            "25": 2,
+            "27": 2,
+            "29": 2,
+            "32": 2,
+            "34": 2,
+            "5": 3,
+            "6": 3,
+            "7": 2,
+            "8": 2
+          },
+          "timings_us": {
+            "dispatch_wait": 877444,
+            "harvest": 38568,
+            "preparation": 37157,
+            "validation": 23319
+          },
+          "unused": 0
+        },
+        "metrics": {
+          "cold_first_us": 251216,
+          "count": 80,
+          "following_mean_us": 65062.8227848101,
+          "max_us": 1395298,
+          "mean_us": 67389.7375,
+          "p50_us": 44074,
+          "p95_us": 102410,
+          "p99_us": 1395298,
+          "total_us": 5391179
+        }
+      },
+      "selection": {
+        "batches": 19,
+        "consumed": 94,
+        "failed_batches": 0,
+        "jobs": 38,
+        "last_batch": {
+          "group_id": -1,
+          "jobs": [
+            {
+              "allowance": 67108864,
+              "elapsed_us": 17798,
+              "job": 0,
+              "peak_charge": 41100896,
+              "processed": 9,
+              "requested": 9,
+              "thread_id": 1
+            },
+            {
+              "allowance": 67108864,
+              "elapsed_us": 71515,
+              "job": 1,
+              "peak_charge": 40260480,
+              "processed": 10,
+              "requested": 10,
+              "thread_id": 1
+            }
+          ],
+          "main_thread_id": 1,
+          "ok": true,
+          "peak_charge_sum": 81361376,
+          "processed": 19,
+          "requested": 19,
+          "total_budget": 134217728
+        },
+        "processed": 94,
+        "reject_reasons": {},
+        "rejected": 0,
+        "requested": 94,
+        "threads": {
+          "1": 38
+        },
+        "timings_us": {
+          "dispatch_wait": 1045184,
+          "harvest": 39824,
+          "preparation": 37632,
+          "validation": 25599
+        },
+        "unused": 0
+      },
+      "query_count_differences": {
+        "public_entry_field_hits": {
+          "actual": 742,
+          "expected": 865
+        },
+        "reservation_index_updates": {
+          "actual": 1032,
+          "expected": 424
+        },
+        "actor_index_builds": {
+          "actual": 135,
+          "expected": 97
+        },
+        "static_path_builds": {
+          "actual": 306,
+          "expected": 191
+        },
+        "distance_field_builds": {
+          "actual": 15,
+          "expected": 14
+        },
+        "entry_order_native_builds": {
+          "actual": 56,
+          "expected": 19
+        },
+        "public_wait_door_checks": {
+          "actual": 33,
+          "expected": 18
+        },
+        "connector_topology_builds": {
+          "actual": 39,
+          "expected": 1
+        },
+        "transport_searches": {
+          "actual": 218,
+          "expected": 177
+        },
+        "connector_edge_hits": {
+          "actual": 44,
+          "expected": 3
+        },
+        "point_source_hits": {
+          "actual": 88,
+          "expected": 6
+        },
+        "public_entry_field_preparations": {
+          "actual": 50,
+          "expected": 91
+        },
+        "entry_order_hits": {
+          "actual": 46,
+          "expected": 83
+        },
+        "floor_route_builds": {
+          "actual": 964,
+          "expected": 841
+        },
+        "public_select_planning_actors": {
+          "actual": 130,
+          "expected": null
+        },
+        "public_wait_door_index_builds": {
+          "actual": 39,
+          "expected": 1
+        },
+        "routes": {
+          "actual": 514,
+          "expected": 391
+        },
+        "connector_node_declarations": {
+          "actual": 156,
+          "expected": 4
+        },
+        "structural_reverse_field_hits": {
+          "actual": 12,
+          "expected": 51
+        },
+        "reservation_index_builds": {
+          "actual": 67,
+          "expected": 29
+        },
+        "transport_requests": {
+          "actual": 306,
+          "expected": 183
+        },
+        "point_source_builds": {
+          "actual": 44,
+          "expected": 3
+        },
+        "door_candidates": {
+          "actual": 2258,
+          "expected": 1266
+        },
+        "distance_field_hits": {
+          "actual": 66,
+          "expected": 143
+        },
+        "reservation_candidate_queries": {
+          "actual": 23971,
+          "expected": 22979
+        },
+        "public_select_planning_contains": {
+          "actual": 130,
+          "expected": null
+        },
+        "static_path_hits": {
+          "actual": 98,
+          "expected": 13
+        },
+        "entry_walking_table_builds": {
+          "actual": 39,
+          "expected": 2
+        },
+        "entry_order_builds": {
+          "actual": 56,
+          "expected": 19
+        },
+        "actor_index_actor_visits": {
+          "actual": 21600,
+          "expected": 15520
+        },
+        "point_source_goal_legs": {
+          "actual": 132,
+          "expected": 9
+        },
+        "structural_reverse_field_lookups": {
+          "actual": 416,
+          "expected": 255
+        },
+        "public_region_definition_index_hits": {
+          "actual": 261,
+          "expected": 112
+        }
+      },
+      "query_counts": {
+        "actor_index_actor_visits": 21600,
+        "actor_index_builds": 135,
+        "candidate_connections": 414,
+        "connector_edge_builds": 414,
+        "connector_edge_hits": 44,
+        "connector_node_declarations": 156,
+        "connector_topology_builds": 39,
+        "connector_topology_inherits": 31,
+        "courtesy_static_geometry_hits": 36,
+        "distance_field_builds": 15,
+        "distance_field_hits": 66,
+        "door_candidates": 2258,
+        "entry_order_builds": 56,
+        "entry_order_hits": 46,
+        "entry_order_native_builds": 56,
+        "entry_walking_table_builds": 39,
+        "environment_actor_source_builds": 8,
+        "environment_coverage_mask_builds": 4,
+        "environment_coverage_native_calls": 631,
+        "environment_dynamic_source_builds": 88,
+        "environment_facility_source_builds": 1,
+        "environment_facility_source_hits": 87,
+        "facility_environment_builds": 1,
+        "facility_environment_hits": 2146,
+        "floor_route_builds": 964,
+        "floor_route_hits": 0,
+        "journey_hits": 0,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 8354,
+        "movement_candidates": 525,
+        "nearby_field_builds": 12,
+        "point_cost_lift_arrival_prunes": 224,
+        "point_source_builds": 44,
+        "point_source_goal_legs": 132,
+        "point_source_hits": 88,
+        "public_entry_field_hits": 742,
+        "public_entry_field_preparations": 50,
+        "public_facility_candidates": 20688,
+        "public_fit_body_key_preparations": 1072,
+        "public_queue_fit_builds": 28,
+        "public_queue_fit_hits": 2064,
+        "public_region_definition_index_builds": 1,
+        "public_region_definition_index_hits": 261,
+        "public_region_floor_builds": 4,
+        "public_region_mapping_builds": 1,
+        "public_region_native_builds": 4,
+        "public_select_planning_actors": 130,
+        "public_select_planning_contains": 130,
+        "public_select_regions_total": 7616,
+        "public_select_regions_visited": 112,
+        "public_wait_dependency_batches": 1079,
+        "public_wait_dependency_rectangles": 17271,
+        "public_wait_door_checks": 33,
+        "public_wait_door_index_builds": 39,
+        "public_wait_environment_match_builds": 63,
+        "public_wait_environment_match_hits": 1016,
+        "public_wait_hits": 682,
+        "public_wait_initial_rechecks": 35,
+        "public_wait_rechecks": 278,
+        "reservation_candidate_queries": 23971,
+        "reservation_index_builds": 67,
+        "reservation_index_updates": 1032,
+        "route_checks": 5624,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 146,
+        "route_dispatches": 146,
+        "route_revalidation_unvalidated": 156,
+        "route_revalidations": 156,
+        "routes": 514,
+        "static_path_builds": 306,
+        "static_path_hits": 98,
+        "structural_reverse_field_hits": 12,
+        "structural_reverse_field_lookups": 416,
+        "transport_builds": 0,
+        "transport_requests": 306,
+        "transport_searches": 218,
+        "yield_attempts": 27,
+        "yield_candidates": 23
+      },
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a",
+      "process_cpu_ms": 9921.875,
+      "process_wall_ms": 9651.543000014499
+    },
+    "serialshared01-gp80": {
+      "variant": "baselineserialshared",
+      "steps": 80,
+      "metrics_us": {
+        "cold_first_us": 252163,
+        "count": 80,
+        "following_mean_us": 79396.3417721519,
+        "max_us": 2265713,
+        "mean_us": 81555.925,
+        "p50_us": 41228,
+        "p95_us": 151229,
+        "p99_us": 2265713,
+        "total_us": 6524474
+      },
+      "checks": {
+        "complete": true,
+        "qualified": true,
+        "errors_empty": true,
+        "source_input_sha256": true,
+        "initial": true,
+        "final": true,
+        "qualification": true,
+        "operations": true,
+        "event_records": true,
+        "final_binary_sha256": true,
+        "public_business": true,
+        "non_timing_samples": true,
+        "environment_workers_complete": true
+      },
+      "additional_checks": {
+        "passed": true,
+        "checks": {
+          "same_original_query_counts": true,
+          "same_work_accounting": true,
+          "intended_execution_thread": true
+        },
+        "mode": "main_serial",
+        "reference": "d1-gp80",
+        "selection": {
+          "batches": 19,
+          "consumed": 94,
+          "failed_batches": 0,
+          "jobs": 38,
+          "last_batch": {
+            "group_id": -1,
+            "jobs": [
+              {
+                "allowance": 62104820,
+                "elapsed_us": 89978,
+                "job": 0,
+                "peak_charge": 40260552,
+                "processed": 9,
+                "requested": 9,
+                "thread_id": 1
+              },
+              {
+                "allowance": 62104820,
+                "elapsed_us": 91824,
+                "job": 1,
+                "peak_charge": 40260480,
+                "processed": 10,
+                "requested": 10,
+                "thread_id": 1
+              }
+            ],
+            "main_thread_id": 1,
+            "ok": true,
+            "peak_charge_sum": 90529120,
+            "processed": 19,
+            "requested": 19,
+            "total_budget": 134217728
+          },
+          "processed": 94,
+          "reject_reasons": {},
+          "rejected": 0,
+          "requested": 94,
+          "threads": {
+            "1": 38
+          },
+          "timings_us": {
+            "dispatch_wait": 1710499,
+            "harvest": 220070,
+            "preparation": 40359,
+            "validation": 29348
+          },
+          "unused": 0
+        },
+        "reference_selection": {
+          "batches": 19,
+          "consumed": 94,
+          "failed_batches": 0,
+          "jobs": 38,
+          "last_batch": {
+            "group_id": 46,
+            "jobs": [
+              {
+                "allowance": 62104820,
+                "elapsed_us": 89865,
+                "job": 0,
+                "peak_charge": 40260552,
+                "processed": 9,
+                "requested": 9,
+                "thread_id": 6
+              },
+              {
+                "allowance": 62104820,
+                "elapsed_us": 90089,
+                "job": 1,
+                "peak_charge": 40260480,
+                "processed": 10,
+                "requested": 10,
+                "thread_id": 5
+              }
+            ],
+            "main_thread_id": 1,
+            "ok": true,
+            "peak_charge_sum": 90529120,
+            "processed": 19,
+            "requested": 19,
+            "total_budget": 134217728
+          },
+          "processed": 94,
+          "reject_reasons": {},
+          "rejected": 0,
+          "requested": 94,
+          "threads": {
+            "10": 2,
+            "11": 2,
+            "14": 2,
+            "15": 2,
+            "17": 2,
+            "19": 2,
+            "21": 2,
+            "22": 2,
+            "24": 2,
+            "26": 2,
+            "29": 2,
+            "31": 2,
+            "32": 2,
+            "34": 2,
+            "5": 3,
+            "6": 3,
+            "7": 2,
+            "8": 2
+          },
+          "timings_us": {
+            "dispatch_wait": 1088666,
+            "harvest": 226458,
+            "preparation": 44284,
+            "validation": 25149
+          },
+          "unused": 0
+        },
+        "metrics": {
+          "cold_first_us": 252163,
+          "count": 80,
+          "following_mean_us": 79396.3417721519,
+          "max_us": 2265713,
+          "mean_us": 81555.925,
+          "p50_us": 41228,
+          "p95_us": 151229,
+          "p99_us": 2265713,
+          "total_us": 6524474
+        }
+      },
+      "selection": {
+        "batches": 19,
+        "consumed": 94,
+        "failed_batches": 0,
+        "jobs": 38,
+        "last_batch": {
+          "group_id": -1,
+          "jobs": [
+            {
+              "allowance": 62104820,
+              "elapsed_us": 89978,
+              "job": 0,
+              "peak_charge": 40260552,
+              "processed": 9,
+              "requested": 9,
+              "thread_id": 1
+            },
+            {
+              "allowance": 62104820,
+              "elapsed_us": 91824,
+              "job": 1,
+              "peak_charge": 40260480,
+              "processed": 10,
+              "requested": 10,
+              "thread_id": 1
+            }
+          ],
+          "main_thread_id": 1,
+          "ok": true,
+          "peak_charge_sum": 90529120,
+          "processed": 19,
+          "requested": 19,
+          "total_budget": 134217728
+        },
+        "processed": 94,
+        "reject_reasons": {},
+        "rejected": 0,
+        "requested": 94,
+        "threads": {
+          "1": 38
+        },
+        "timings_us": {
+          "dispatch_wait": 1710499,
+          "harvest": 220070,
+          "preparation": 40359,
+          "validation": 29348
+        },
+        "unused": 0
+      },
+      "query_count_differences": {
+        "distance_field_builds": {
+          "actual": 16,
+          "expected": 14
+        },
+        "actor_index_actor_visits": {
+          "actual": 21600,
+          "expected": 15520
+        },
+        "public_select_planning_contains": {
+          "actual": 130,
+          "expected": null
+        },
+        "transport_requests": {
+          "actual": 372,
+          "expected": 183
+        },
+        "static_path_hits": {
+          "actual": 112,
+          "expected": 13
+        },
+        "entry_order_native_builds": {
+          "actual": 56,
+          "expected": 19
+        },
+        "public_entry_field_hits": {
+          "actual": 676,
+          "expected": 865
+        },
+        "reservation_index_updates": {
+          "actual": 1032,
+          "expected": 424
+        },
+        "routes": {
+          "actual": 580,
+          "expected": 391
+        },
+        "entry_order_builds": {
+          "actual": 56,
+          "expected": 19
+        },
+        "point_source_goal_legs": {
+          "actual": 198,
+          "expected": 9
+        },
+        "structural_reverse_field_lookups": {
+          "actual": 502,
+          "expected": 255
+        },
+        "structural_reverse_field_hits": {
+          "actual": null,
+          "expected": 51
+        },
+        "public_select_planning_actors": {
+          "actual": 130,
+          "expected": null
+        },
+        "floor_route_builds": {
+          "actual": 1030,
+          "expected": 841
+        },
+        "entry_order_hits": {
+          "actual": 46,
+          "expected": 83
+        },
+        "transport_searches": {
+          "actual": 240,
+          "expected": 177
+        },
+        "public_wait_door_checks": {
+          "actual": 33,
+          "expected": 18
+        },
+        "actor_index_builds": {
+          "actual": 135,
+          "expected": 97
+        },
+        "distance_field_hits": {
+          "actual": 34,
+          "expected": 143
+        },
+        "connector_topology_builds": {
+          "actual": 39,
+          "expected": 1
+        },
+        "reservation_index_builds": {
+          "actual": 67,
+          "expected": 29
+        },
+        "point_source_hits": {
+          "actual": 132,
+          "expected": 6
+        },
+        "static_path_builds": {
+          "actual": 390,
+          "expected": 191
+        },
+        "door_candidates": {
+          "actual": 3090,
+          "expected": 1266
+        },
+        "connector_edge_hits": {
+          "actual": 66,
+          "expected": 3
+        },
+        "public_wait_door_index_builds": {
+          "actual": 39,
+          "expected": 1
+        },
+        "entry_walking_table_builds": {
+          "actual": 39,
+          "expected": 2
+        },
+        "public_entry_field_preparations": {
+          "actual": 28,
+          "expected": 91
+        },
+        "public_region_definition_index_hits": {
+          "actual": 261,
+          "expected": 112
+        },
+        "reservation_candidate_queries": {
+          "actual": 24803,
+          "expected": 22979
+        },
+        "point_source_builds": {
+          "actual": 66,
+          "expected": 3
+        },
+        "connector_node_declarations": {
+          "actual": 156,
+          "expected": 4
+        }
+      },
+      "query_counts": {
+        "actor_index_actor_visits": 21600,
+        "actor_index_builds": 135,
+        "candidate_connections": 414,
+        "connector_edge_builds": 414,
+        "connector_edge_hits": 66,
+        "connector_node_declarations": 156,
+        "connector_topology_builds": 39,
+        "connector_topology_inherits": 31,
+        "courtesy_static_geometry_hits": 36,
+        "distance_field_builds": 16,
+        "distance_field_hits": 34,
+        "door_candidates": 3090,
+        "entry_order_builds": 56,
+        "entry_order_hits": 46,
+        "entry_order_native_builds": 56,
+        "entry_walking_table_builds": 39,
+        "environment_actor_source_builds": 8,
+        "environment_coverage_mask_builds": 4,
+        "environment_coverage_native_calls": 631,
+        "environment_dynamic_source_builds": 88,
+        "environment_facility_source_builds": 1,
+        "environment_facility_source_hits": 87,
+        "facility_environment_builds": 1,
+        "facility_environment_hits": 2146,
+        "floor_route_builds": 1030,
+        "floor_route_hits": 0,
+        "journey_hits": 0,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 8354,
+        "movement_candidates": 525,
+        "nearby_field_builds": 12,
+        "point_cost_lift_arrival_prunes": 224,
+        "point_source_builds": 66,
+        "point_source_goal_legs": 198,
+        "point_source_hits": 132,
+        "public_entry_field_hits": 676,
+        "public_entry_field_preparations": 28,
+        "public_facility_candidates": 20688,
+        "public_fit_body_key_preparations": 1072,
+        "public_queue_fit_builds": 28,
+        "public_queue_fit_hits": 2064,
+        "public_region_definition_index_builds": 1,
+        "public_region_definition_index_hits": 261,
+        "public_region_floor_builds": 4,
+        "public_region_mapping_builds": 1,
+        "public_region_native_builds": 4,
+        "public_select_planning_actors": 130,
+        "public_select_planning_contains": 130,
+        "public_select_regions_total": 7616,
+        "public_select_regions_visited": 112,
+        "public_wait_dependency_batches": 1079,
+        "public_wait_dependency_rectangles": 17271,
+        "public_wait_door_checks": 33,
+        "public_wait_door_index_builds": 39,
+        "public_wait_environment_match_builds": 63,
+        "public_wait_environment_match_hits": 1016,
+        "public_wait_hits": 682,
+        "public_wait_initial_rechecks": 35,
+        "public_wait_rechecks": 278,
+        "reservation_candidate_queries": 24803,
+        "reservation_index_builds": 67,
+        "reservation_index_updates": 1032,
+        "route_checks": 5624,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 146,
+        "route_dispatches": 146,
+        "route_revalidation_unvalidated": 156,
+        "route_revalidations": 156,
+        "routes": 580,
+        "static_path_builds": 390,
+        "static_path_hits": 112,
+        "structural_reverse_field_lookups": 502,
+        "transport_builds": 0,
+        "transport_requests": 372,
+        "transport_searches": 240,
+        "yield_attempts": 27,
+        "yield_candidates": 23
+      },
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a",
+      "process_cpu_ms": 10140.625,
+      "process_wall_ms": 10301.89010000322
+    }
+  },
+  "functional": {
+    "experimental_variant": "baselinenearby",
+    "cases": {
+      "SPACE-46": {
+        "body_ms": 16,
+        "details": {
+          "changed_offset_blocked": true,
+          "different_patient_blocked": true,
+          "individual_exemptions": true,
+          "near_clear": true,
+          "original_group_restored": true,
+          "own_reservation": true,
+          "readonly": true,
+          "removed_obstacle_reopens": true
+        },
+        "elapsed_ms": 16,
+        "fixtures": [],
+        "passed": true,
+        "requirement": "docs/design/04-technical.md §6；同体型通行组换成员不继承预约豁免，变更配位与真实阻挡立即生效",
+        "setup_ms": 0,
+        "suite": "space"
+      },
+      "SPACE-56": {
+        "body_ms": 44,
+        "details": {
+          "actual_group": {
+            "blocked_step": {
+              "actors": [
+                "group_blocker"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door": "",
+              "requested": "(0.16, 0.0)",
+              "reservations": []
+            },
+            "blocker_departure_error": "",
+            "both_actually_arrived": true,
+            "clear_step": {
+              "actors": [],
+              "actual": "(0.16, 0.0)",
+              "blocked": false,
+              "door": "",
+              "requested": "(0.16, 0.0)",
+              "reservations": []
+            },
+            "follower_collision_blocks_whole_group": true,
+            "literal_shared_displacement": true,
+            "ok": true,
+            "request_error": ""
+          },
+          "actual_movement": {
+            "actual_arrival_after_release": true,
+            "blocked_position_and_cursor_preserved": true,
+            "blocked_step": {
+              "actors": [
+                "motion_blocker"
+              ],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door": "",
+              "requested": "(0.200001, 0.0)",
+              "reservations": []
+            },
+            "blocker_departure_error": "",
+            "clear_step": {
+              "actors": [],
+              "actual": "(0.200001, 0.0)",
+              "blocked": false,
+              "door": "",
+              "requested": "(0.200001, 0.0)",
+              "reservations": []
+            },
+            "literal_clear_displacement": true,
+            "ok": true,
+            "request_error": ""
+          },
+          "courtesy_handoff": {
+            "gap_actor_not_selected": true,
+            "idle_staff_branch_receives_only_actual_hits": true,
+            "new_single_trip_overrides_old_group": true,
+            "ok": true,
+            "partner_selection_index_queries": 0,
+            "removed_member_does_not_keep_old_owner": true,
+            "reservation_owner_not_treated_as_body": true,
+            "secondary_maps_to_primary": true
+          },
+          "door_wait": {
+            "actual_arrival_after_owner_left": true,
+            "blocked_door_result": {
+              "actors": [],
+              "actual": "(0.0, 0.0)",
+              "blocked": true,
+              "door": "door_00000001",
+              "requested": "(0.0, -0.199997)",
+              "reservations": [
+                "door_00000001"
+              ]
+            },
+            "door_id": "door_00000001",
+            "door_wait_without_displacement": true,
+            "new_door_after_observation_seen": true,
+            "new_door_contact_reservations": [
+              "door_00000001"
+            ],
+            "normal_owner_acquisition": true,
+            "ok": true,
+            "owner_departure_error": "",
+            "request_error": ""
+          },
+          "literal_contacts": {
+            "cases": [
+              {
+                "actual_actor_ids": [],
+                "actual_reservation_ids": [],
+                "expected_actor_ids": [],
+                "expected_reservation_ids": [],
+                "facts_unchanged": true,
+                "name": "edge_touch_is_clear",
+                "ok": true
+              },
+              {
+                "actual_actor_ids": [
+                  "a_hit",
+                  "z_hit"
+                ],
+                "actual_reservation_ids": [],
+                "expected_actor_ids": [
+                  "a_hit",
+                  "z_hit"
+                ],
+                "expected_reservation_ids": [],
+                "facts_unchanged": true,
+                "name": "all_hits_sorted_and_deduplicated",
+                "ok": true
+              },
+              {
+                "actual_actor_ids": [],
+                "actual_reservation_ids": [],
+                "expected_actor_ids": [],
+                "expected_reservation_ids": [],
+                "facts_unchanged": true,
+                "name": "group_gap_is_not_a_hit",
+                "ok": true
+              },
+              {
+                "actual_actor_ids": [],
+                "actual_reservation_ids": [],
+                "expected_actor_ids": [],
+                "expected_reservation_ids": [],
+                "facts_unchanged": true,
+                "name": "parallel_accepted_sweeps_are_clear",
+                "ok": true
+              },
+              {
+                "actual_actor_ids": [
+                  "crossing"
+                ],
+                "actual_reservation_ids": [],
+                "expected_actor_ids": [
+                  "crossing"
+                ],
+                "expected_reservation_ids": [],
+                "facts_unchanged": true,
+                "name": "accepted_sweep_blocks_after_endpoint_left",
+                "ok": true
+              },
+              {
+                "actual_actor_ids": [],
+                "actual_reservation_ids": [],
+                "expected_actor_ids": [],
+                "expected_reservation_ids": [],
+                "facts_unchanged": true,
+                "name": "other_floor_is_clear",
+                "ok": true
+              },
+              {
+                "actual_actor_ids": [],
+                "actual_reservation_ids": [
+                  "a_reservation",
+                  "z_reservation"
+                ],
+                "expected_actor_ids": [],
+                "expected_reservation_ids": [
+                  "a_reservation",
+                  "z_reservation"
+                ],
+                "facts_unchanged": true,
+                "name": "multiple_regions_report_reservation_once",
+                "ok": true
+              },
+              {
+                "actual_actor_ids": [],
+                "actual_reservation_ids": [],
+                "expected_actor_ids": [],
+                "expected_reservation_ids": [],
+                "facts_unchanged": true,
+                "name": "reservation_permission_exemptions",
+                "ok": true
+              }
+            ],
+            "ok": true
+          },
+          "ok": true
+        },
+        "elapsed_ms": 44,
+        "fixtures": [],
+        "passed": true,
+        "requirement": "docs/specs/26-10/2026-10-19-task-navigation-movement.md §4；实际位移与精确阻挡一次交接，同行组、预约、门等待及真实恢复",
+        "setup_ms": 0,
+        "suite": "space"
+      },
+      "SPACE-57": {
+        "body_ms": 200,
+        "details": {
+          "accepted_sweep_with_current_goal_clear": {
+            "actual_contacts": [
+              "past_blocker"
+            ],
+            "current_body_no_longer_at_goal": true,
+            "does_not_gate_local_route": true,
+            "legal_fixed_step_collision_input": true,
+            "ok": true,
+            "request_error": "",
+            "timed_accepted_sweep_really_hits": true,
+            "world_unchanged": true
+          },
+          "actual_follower_destination": {
+            "accepted_past_sweep_observed_after_current_body_left": null,
+            "actual_goal_body_cleared_tick": 2,
+            "actual_motion_resumed_tick": 3,
+            "actual_original_goal_arrival": true,
+            "blocker_departure_error": "",
+            "goal_waits_before_hold": 46,
+            "group": true,
+            "initial_dispatches": 1,
+            "local_route_requests_after_release": 0,
+            "ok": true,
+            "past_sweep_did_not_gate_local_route": null,
+            "remaining": {
+              "a_blocker": {
+                "actor_id": "a_blocker",
+                "blocked_since": -1,
+                "cursor": 1,
+                "path": [
+                  {
+                    "cell": [
+                      44,
+                      86
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  },
+                  {
+                    "cell": [
+                      44,
+                      87
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  },
+                  {
+                    "cell": [
+                      44,
+                      88
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  }
+                ],
+                "request_sequence": 2,
+                "route_pending": false,
+                "target_cell": [
+                  44,
+                  88
+                ],
+                "target_floor": 1,
+                "travelled": [
+                  {
+                    "cell": [
+                      44,
+                      85
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  },
+                  {
+                    "cell": [
+                      44,
+                      86
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  }
+                ],
+                "yielding": false
+              }
+            },
+            "repeated_current_goal_occupancy_did_not_redispatch": true,
+            "request_error": "",
+            "resumed_by_next_boundary": true,
+            "safe_real_steps": true,
+            "safety_failures": [],
+            "target_and_fifo_sequence_preserved": true,
+            "validation": ""
+          },
+          "actual_midroute_obstacle_in_group_goal_gap": {
+            "actual_original_route_collision": true,
+            "blocker_in_merged_goal_gap_only": true,
+            "both_members_actually_arrived": true,
+            "false_goal_occupancy_waits": 0,
+            "follower": {
+              "cell": [
+                44.0,
+                85.0
+              ],
+              "floor_id": 1,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "leader": {
+              "cell": [
+                44.0,
+                82.0
+              ],
+              "floor_id": 1,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "midroute_local_routes_requested": 1,
+            "ok": true,
+            "remaining": {},
+            "request_error": "",
+            "safe_real_steps": true
+          },
+          "actual_occupied_destination": {
+            "accepted_past_sweep_observed_after_current_body_left": false,
+            "actual_goal_body_cleared_tick": 2,
+            "actual_motion_resumed_tick": 2,
+            "actual_original_goal_arrival": true,
+            "blocker_departure_error": "",
+            "goal_waits_before_hold": 53,
+            "group": false,
+            "initial_dispatches": 1,
+            "local_route_requests_after_release": 0,
+            "ok": true,
+            "past_sweep_did_not_gate_local_route": false,
+            "remaining": {},
+            "repeated_current_goal_occupancy_did_not_redispatch": true,
+            "request_error": "",
+            "resumed_by_next_boundary": true,
+            "safe_real_steps": true,
+            "safety_failures": [],
+            "target_and_fifo_sequence_preserved": true,
+            "validation": ""
+          },
+          "different_actual_body_occupies_destination": {
+            "actual_contact_is_only_middle_body": true,
+            "actual_goal_body_clear_tick": 2,
+            "actual_original_goal_arrival": true,
+            "goal_body_departure_error": "",
+            "goal_occupied_waits": 63,
+            "held_location": [
+              41.4000015258789,
+              82.0
+            ],
+            "local_detour_by_next_boundary": true,
+            "local_detour_requested_tick": 2,
+            "local_route_requests": 1,
+            "middle_body_stayed": true,
+            "no_useless_redispatch_while_other_body_at_goal": true,
+            "ok": true,
+            "original_target_and_fifo_preserved": true,
+            "remaining": {},
+            "request_error": "",
+            "safe_real_steps": true,
+            "safety_failures": [],
+            "validation": ""
+          },
+          "ok": true,
+          "rectangular_body_alternative_arrival_facing": {
+            "actor": {
+              "cell": [
+                44.0,
+                81.8000183105469
+              ],
+              "floor_id": 1,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "actual_motion_collision": true,
+            "alternative_arrival_facing_goal_clear": true,
+            "current_facing_goal_intersects": true,
+            "false_unavoidable_goal_waits": 0,
+            "local_route_decision_allowed": true,
+            "ok": true,
+            "remaining": {
+              "rectangle": {
+                "actor_id": "rectangle",
+                "blocked_since": 26,
+                "cursor": 3,
+                "path": [
+                  {
+                    "cell": [
+                      44,
+                      79
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  },
+                  {
+                    "cell": [
+                      44,
+                      80
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  },
+                  {
+                    "cell": [
+                      44,
+                      81
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  },
+                  {
+                    "cell": [
+                      44,
+                      82
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  }
+                ],
+                "request_sequence": 2,
+                "route_pending": true,
+                "route_waypoint": {
+                  "cell": [
+                    44,
+                    82
+                  ],
+                  "continuation": [],
+                  "floor_id": 1
+                },
+                "target_cell": [
+                  44,
+                  82
+                ],
+                "target_floor": 1,
+                "travelled": [
+                  {
+                    "cell": [
+                      44,
+                      78
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  },
+                  {
+                    "cell": [
+                      44,
+                      79
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  },
+                  {
+                    "cell": [
+                      44,
+                      80
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  },
+                  {
+                    "cell": [
+                      44,
+                      81
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  }
+                ],
+                "yielding": false
+              }
+            },
+            "request_error": "",
+            "safe_real_steps": true
+          }
+        },
+        "elapsed_ms": 200,
+        "fixtures": [],
+        "passed": true,
+        "requirement": "docs/specs/26-10/2026-10-19-task-navigation-movement.md §4；真实终点占用等待不重派，当前释放及历史扫掠、中段阻挡和整组空隙边界",
+        "setup_ms": 0,
+        "suite": "space"
+      },
+      "STAFF-57": {
+        "body_ms": 467,
+        "details": {
+          "adaptations": {
+            "east_chair": {
+              "actor_id": "patient_owner",
+              "facility_id": "east_chair",
+              "floor_id": 1,
+              "footprint": [
+                1,
+                1
+              ],
+              "kind": "facility",
+              "operator_cells": [
+                [
+                  51,
+                  68
+                ]
+              ],
+              "owner_id": "patient_owner",
+              "patient_cell": [
+                50,
+                69
+              ],
+              "regions": [
+                [
+                  50,
+                  68,
+                  1,
+                  1
+                ],
+                [
+                  50,
+                  69,
+                  1,
+                  1
+                ],
+                [
+                  49,
+                  68,
+                  1,
+                  1
+                ]
+              ],
+              "repair_cell": [
+                49,
+                68
+              ],
+              "staff_ids": []
+            },
+            "west_chair": {
+              "actor_id": "patient_priority",
+              "facility_id": "west_chair",
+              "floor_id": 1,
+              "footprint": [
+                1,
+                1
+              ],
+              "kind": "facility",
+              "operator_cells": [
+                [
+                  37,
+                  68
+                ]
+              ],
+              "owner_id": "patient_priority",
+              "patient_cell": [
+                36,
+                69
+              ],
+              "regions": [
+                [
+                  36,
+                  68,
+                  1,
+                  1
+                ],
+                [
+                  36,
+                  69,
+                  1,
+                  1
+                ],
+                [
+                  35,
+                  68,
+                  1,
+                  1
+                ]
+              ],
+              "repair_cell": [
+                35,
+                68
+              ],
+              "staff_ids": []
+            }
+          },
+          "nonqueue_body_release_restarts_real_yield": {
+            "after_actual_exit_complete_quote": {
+              "floor_id": 1,
+              "ok": true,
+              "patient_cell": [
+                44,
+                74
+              ],
+              "travel_ticks": 0
+            },
+            "all_automatic_quotes": [
+              {
+                "facility_id": "yield_large_chair",
+                "quote": {
+                  "ok": false,
+                  "reason": "展开或操作区域有实际身体：yield_bystander"
+                },
+                "tick": 150
+              },
+              {
+                "facility_id": "yield_large_chair",
+                "quote": {
+                  "ok": false,
+                  "reason": "展开或操作区域有实际身体：yield_bystander"
+                },
+                "tick": 154
+              },
+              {
+                "facility_id": "yield_large_chair",
+                "quote": {
+                  "ok": false,
+                  "reason": "展开或操作区域有实际身体：yield_bystander"
+                },
+                "tick": 155
+              },
+              {
+                "facility_id": "yield_large_chair",
+                "quote": {
+                  "ok": false,
+                  "reason": "展开或操作区域有实际身体：yield_bystander"
+                },
+                "tick": 156
+              },
+              {
+                "facility_id": "yield_large_chair",
+                "quote": {
+                  "ok": false,
+                  "reason": "展开或操作区域有实际身体：yield_bystander"
+                },
+                "tick": 157
+              },
+              {
+                "facility_id": "yield_large_chair",
+                "quote": {
+                  "floor_id": 1,
+                  "ok": true,
+                  "patient_cell": [
+                    44,
+                    74
+                  ],
+                  "travel_ticks": 75
+                },
+                "tick": 158
+              }
+            ],
+            "body": {
+              "depth_m": 1.8,
+              "height_m": 1.7,
+              "width_m": 1.2
+            },
+            "checks": {
+              "automatic_failed_quote_keeps_patient_waiting": true,
+              "automatic_quote_recovered_after_release": true,
+              "bystander_blocks_future_patient_place": true,
+              "bystander_does_not_invade_existing_reservation": true,
+              "bystander_is_not_a_public_queue_member": true,
+              "chair_never_stretched": true,
+              "failed_attempt_did_not_release_or_move_visitor": true,
+              "final_world_valid": true,
+              "fixed_large_chair_really_fits_patient": true,
+              "host_walked_to_own_seat": true,
+              "legal_input": true,
+              "original_ticket_and_queue_order_retained": true,
+              "patient_really_walked_and_arrived": true,
+              "released_body_allows_complete_quote": true,
+              "third_person_really_walked_clear": true,
+              "unchanged_blocker_reuses_negative_result": true,
+              "visitor_admitted_and_actually_seated": true,
+              "visitor_really_left_before_transfer": true,
+              "yield_started_within_authored_two_seconds": true
+            },
+            "clear_tick": 157,
+            "final_bystander_rect": [
+              50.2666664123535,
+              75.2666702270508,
+              0.466666668653488,
+              0.466666668653488
+            ],
+            "final_patient_intent": {
+              "actor_id": "patient_yield_priority",
+              "area": {
+                "anchor": [
+                  34,
+                  66
+                ],
+                "floor_id": 1,
+                "room_id": "support_room"
+              },
+              "area_travel_ticks": 0,
+              "arrived_tick": 150,
+              "cell": [
+                38,
+                80
+              ],
+              "continuous_ticks": 0,
+              "facility_id": "yield_large_chair",
+              "floor_id": 1,
+              "id": "seat_yield_priority",
+              "mode": "auto",
+              "phase": "seated",
+              "public_purpose": "seat",
+              "started_tick": 150,
+              "ticket_id": "ticket_00000004"
+            },
+            "final_validation": "",
+            "first_automatic_quotes": [
+              {
+                "facility_id": "yield_large_chair",
+                "quote": {
+                  "ok": false,
+                  "reason": "展开或操作区域有实际身体：yield_bystander"
+                },
+                "tick": 150
+              }
+            ],
+            "fixed_footprint": [
+              2,
+              2
+            ],
+            "initial_bystander_rect": [
+              45.2666664123535,
+              75.2666702270508,
+              0.466666668653488,
+              0.466666668653488
+            ],
+            "initial_patient_intent": {
+              "actor_id": "patient_yield_priority",
+              "area": {
+                "anchor": [
+                  34,
+                  66
+                ],
+                "floor_id": 1,
+                "room_id": "support_room"
+              },
+              "area_travel_ticks": 0,
+              "arrived_tick": 150,
+              "cell": [
+                38,
+                80
+              ],
+              "continuous_ticks": 0,
+              "facility_id": "",
+              "floor_id": 1,
+              "id": "seat_yield_priority",
+              "mode": "auto",
+              "phase": "local_wait",
+              "public_purpose": "seat",
+              "started_tick": 150,
+              "ticket_id": "ticket_00000004"
+            },
+            "input_validation": "",
+            "move_reason": "",
+            "moves": {},
+            "ok": true,
+            "old_visitor_regions": [
+              [
+                44,
+                72,
+                2,
+                2
+              ],
+              [
+                44,
+                74,
+                1,
+                1
+              ],
+              [
+                43,
+                72,
+                1,
+                1
+              ]
+            ],
+            "patient_seated_tick": 301,
+            "quotes_after_stable_hold": 1,
+            "quotes_before_stable_hold": 1,
+            "visitor": {
+              "actor_id": "relative_00000002",
+              "id": "visitor_00000003",
+              "pending_window": "",
+              "phase": "waiting",
+              "public_use": {
+                "actor_id": "relative_00000002",
+                "area": {
+                  "anchor": [
+                    34,
+                    66
+                  ],
+                  "floor_id": 1,
+                  "room_id": "support_room"
+                },
+                "arrived_tick": 164,
+                "facility_id": "",
+                "id": "visitor_00000003",
+                "mode": "auto",
+                "phase": "local_wait",
+                "public_purpose": "seat",
+                "started_tick": 42
+              },
+              "purpose": "companion",
+              "remaining_ticks": 0,
+              "started_window": "",
+              "visit_id": "yield_host",
+              "waiting_cell": [
+                43.0,
+                74.0
+              ],
+              "waiting_floor": 1
+            },
+            "wait_cache_hits_before_move": 3,
+            "yield_tick": 158
+          },
+          "other_seats": {
+            "owner": {
+              "actor_id": "patient_owner",
+              "area": {
+                "anchor": [
+                  48,
+                  66
+                ],
+                "floor_id": 1,
+                "room_id": "east"
+              },
+              "area_travel_ticks": 0,
+              "arrived_tick": 50,
+              "cell": [
+                53,
+                74
+              ],
+              "continuous_ticks": 0,
+              "facility_id": "east_chair",
+              "floor_id": 1,
+              "id": "seat_owner",
+              "mode": "auto",
+              "phase": "seated",
+              "public_purpose": "seat",
+              "started_tick": 50,
+              "ticket_id": "ticket_00000001"
+            },
+            "priority": {
+              "actor_id": "patient_priority",
+              "area": {
+                "anchor": [
+                  34,
+                  66
+                ],
+                "floor_id": 1,
+                "room_id": "west"
+              },
+              "area_travel_ticks": 0,
+              "arrived_tick": 200,
+              "cell": [
+                36.7999992370605,
+                69.0
+              ],
+              "continuous_ticks": 0,
+              "facility_id": "west_chair",
+              "floor_id": 1,
+              "id": "seat_priority",
+              "mode": "auto",
+              "phase": "seated",
+              "public_purpose": "seat",
+              "started_tick": 200,
+              "ticket_id": "ticket_00000004"
+            }
+          },
+          "patient_actor": {
+            "body_binding_id": "B_S49_D23_M23",
+            "facing": -1.5707963267949,
+            "id": "patient_priority",
+            "location": {
+              "cell": [
+                36.0,
+                69.0
+              ],
+              "floor_id": 1,
+              "height_m": 0.0,
+              "kind": "floor"
+            },
+            "name": "候诊患者",
+            "posture": "seated",
+            "species_id": "S49",
+            "support_facility_id": "west_chair"
+          },
+          "patient_intent": {
+            "actor_id": "patient_priority",
+            "area": {
+              "anchor": [
+                34,
+                66
+              ],
+              "floor_id": 1,
+              "room_id": "west"
+            },
+            "area_travel_ticks": 0,
+            "arrived_tick": 200,
+            "cell": [
+              36.7999992370605,
+              69.0
+            ],
+            "continuous_ticks": 0,
+            "facility_id": "west_chair",
+            "floor_id": 1,
+            "id": "seat_priority",
+            "mode": "auto",
+            "phase": "seated",
+            "public_purpose": "seat",
+            "started_tick": 200,
+            "ticket_id": "ticket_00000004"
+          },
+          "patient_request": {
+            "accepted": true,
+            "changed_ids": [
+              "priority",
+              "west_chair"
+            ],
+            "code": "applied",
+            "new_revision": 120,
+            "reason": ""
+          },
+          "patient_seated": true,
+          "quote": {
+            "conditions": {
+              "calm_available": false,
+              "casual_scene_nearby": false,
+              "clean_ground": true,
+              "decor_nearby": false,
+              "friendly_neighbor": false,
+              "less_crowded": true,
+              "noise_reduction": false,
+              "quiet": true
+            },
+            "environment": 43.0,
+            "facility_id": "west_chair",
+            "floor_id": 1,
+            "ok": true,
+            "patient_cell": [
+              36,
+              69
+            ],
+            "preferred": true,
+            "reasons": [
+              "脚下干净",
+              "这里不拥挤",
+              "这里比较安静"
+            ],
+            "score": 400,
+            "travel_ticks": 0
+          },
+          "visitor": {
+            "actor_id": "relative_00000002",
+            "id": "visitor_00000003",
+            "pending_window": "",
+            "phase": "waiting",
+            "public_use": {
+              "actor_id": "relative_00000002",
+              "area": {
+                "anchor": [
+                  34,
+                  66
+                ],
+                "floor_id": 1,
+                "room_id": "west"
+              },
+              "arrived_tick": 206,
+              "facility_id": "",
+              "id": "visitor_00000003",
+              "mode": "auto",
+              "phase": "local_wait",
+              "public_purpose": "seat",
+              "started_tick": 0
+            },
+            "purpose": "companion",
+            "remaining_ticks": 0,
+            "started_window": "",
+            "visit_id": "owner",
+            "waiting_cell": [
+              35.0,
+              69.0
+            ],
+            "waiting_floor": 1
+          },
+          "visitor_actually_clear": true,
+          "visitor_actually_seated": true,
+          "visitor_admitted": true
+        },
+        "elapsed_ms": 467,
+        "fixtures": [],
+        "passed": true,
+        "requirement": "公共设施区域寻址规格 §4；亲友真实退出后患者取位，不同时占椅或穿身",
+        "setup_ms": 0,
+        "suite": "staff"
+      }
+    },
+    "new_door_boundary": {
+      "actual_arrival_after_owner_left": true,
+      "blocked_door_result": {
+        "actors": [],
+        "actual": "(0.0, 0.0)",
+        "blocked": true,
+        "door": "door_00000001",
+        "requested": "(0.0, -0.199997)",
+        "reservations": [
+          "door_00000001"
+        ]
+      },
+      "door_id": "door_00000001",
+      "door_wait_without_displacement": true,
+      "new_door_after_observation_seen": true,
+      "new_door_contact_reservations": [
+        "door_00000001"
+      ],
+      "normal_owner_acquisition": true,
+      "ok": true,
+      "owner_departure_error": "",
+      "request_error": ""
+    },
+    "note": "Experimental checks passed; neither production nor experimental tests were adopted because whole-step benefit was not established."
+  },
+  "adoption": {
+    "neighborhood_reuse": false,
+    "selection_worker": false
+  },
+  "raw_archive": {
+    "path": "docs/reports/evidence/2026-10-23-movement-neighborhood-controls/raw-evidence.zip",
+    "sha256": "24862e116198337c709b253151082e501a911182b923bcb2c662085aeb678a80",
+    "bytes": 1456222,
+    "members": 133
+  },
+  "notes": [
+    "Same-job controls preserve every original query count and work-accounting field; only execution placement changes.",
+    "Two-worker group time is lower than one-worker and paired main-serial controls; complete-window mean is not lower than paired main-serial controls.",
+    "No operations window was added after the neighborhood trial failed to establish GP/public whole-step benefit.",
+    "No Release, rendering, capacity, memory or two-hour formal acceptance run was performed.",
+    "Process CPU includes startup and is not function CPU self time."
+  ]
+}
