@@ -1,0 +1,5754 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-10-23T10:15:13.580954+00:00",
+  "baseline_commit": "afff405b1f6f66e51a95fe76bf77ef35924516b2",
+  "production_commit": "5712c6f7fbc7e222e2a483bc376201352fd5ffc2",
+  "diagnostic_only": true,
+  "formal_pass": false,
+  "fixed_load": {
+    "people": 160,
+    "patients": 120,
+    "staff": 32,
+    "visitors": 8,
+    "floors": 4,
+    "rooms": 64,
+    "facilities": 1336,
+    "tick_seconds": 0.1
+  },
+  "successful_engine_windows": 10,
+  "measured_steps": 1080,
+  "all_engine_intervals_disjoint": true,
+  "production_and_tests_unchanged": true,
+  "identities": {
+    "baseline02": {
+      "sources": 485,
+      "tests": 145,
+      "tasks": 4,
+      "all_files_verified": true
+    },
+    "baselinemoveparts": {
+      "sources": 485,
+      "tests": 145,
+      "tasks": 4,
+      "all_files_verified": true
+    },
+    "baselinemoveprobe": {
+      "sources": 485,
+      "tests": 145,
+      "tasks": 4,
+      "all_files_verified": true
+    },
+    "lazy2": {
+      "sources": 486,
+      "tests": 145,
+      "tasks": 2,
+      "all_files_verified": true
+    },
+    "lazyhandoff2": {
+      "sources": 486,
+      "tests": 145,
+      "tasks": 2,
+      "all_files_verified": true
+    },
+    "lazyshared2": {
+      "sources": 486,
+      "tests": 145,
+      "tasks": 2,
+      "all_files_verified": true
+    },
+    "pool4": {
+      "sources": 486,
+      "tests": 145,
+      "tasks": 4,
+      "all_files_verified": true
+    }
+  },
+  "runs": {
+    "a1-gp80": {
+      "variant": "baseline02",
+      "mode": "plain",
+      "metrics_us": {
+        "cold_first_us": 455188,
+        "count": 80,
+        "following_mean_us": 64167.5189873418,
+        "max_us": 455188,
+        "mean_us": 69055.275,
+        "p50_us": 54001,
+        "p95_us": 122228,
+        "p99_us": 455188,
+        "total_us": 5524422
+      },
+      "steps": 80,
+      "checks": {
+        "complete": true,
+        "qualified": true,
+        "errors_empty": true,
+        "source_input_sha256": true,
+        "initial": true,
+        "final": true,
+        "qualification": true,
+        "operations": true,
+        "event_records": true,
+        "final_binary_sha256": true,
+        "public_business": true,
+        "non_timing_samples": true,
+        "environment_workers_complete": true
+      },
+      "selection": {},
+      "query_count_differences": {},
+      "roots": {},
+      "diagnostic_counts": {},
+      "query_counts": {
+        "actor_index_actor_visits": 15520,
+        "actor_index_builds": 97,
+        "candidate_connections": 414,
+        "connector_edge_builds": 414,
+        "connector_edge_hits": 3,
+        "connector_node_declarations": 4,
+        "connector_topology_builds": 1,
+        "connector_topology_inherits": 31,
+        "courtesy_static_geometry_hits": 36,
+        "distance_field_builds": 14,
+        "distance_field_hits": 143,
+        "door_candidates": 1266,
+        "entry_order_builds": 19,
+        "entry_order_hits": 83,
+        "entry_order_native_builds": 19,
+        "entry_walking_table_builds": 2,
+        "environment_actor_source_builds": 8,
+        "environment_coverage_mask_builds": 4,
+        "environment_coverage_native_calls": 631,
+        "environment_dynamic_source_builds": 88,
+        "environment_facility_source_builds": 1,
+        "environment_facility_source_hits": 87,
+        "facility_environment_builds": 1,
+        "facility_environment_hits": 2146,
+        "floor_route_builds": 841,
+        "floor_route_hits": 0,
+        "journey_hits": 0,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 8354,
+        "movement_candidates": 525,
+        "nearby_field_builds": 12,
+        "point_cost_lift_arrival_prunes": 224,
+        "point_source_builds": 3,
+        "point_source_goal_legs": 9,
+        "point_source_hits": 6,
+        "public_entry_field_hits": 865,
+        "public_entry_field_preparations": 91,
+        "public_facility_candidates": 20688,
+        "public_fit_body_key_preparations": 1072,
+        "public_queue_fit_builds": 28,
+        "public_queue_fit_hits": 2064,
+        "public_region_definition_index_builds": 1,
+        "public_region_definition_index_hits": 112,
+        "public_region_floor_builds": 4,
+        "public_region_mapping_builds": 1,
+        "public_region_native_builds": 4,
+        "public_select_regions_total": 7616,
+        "public_select_regions_visited": 112,
+        "public_wait_dependency_batches": 1079,
+        "public_wait_dependency_rectangles": 17271,
+        "public_wait_door_checks": 18,
+        "public_wait_door_index_builds": 1,
+        "public_wait_environment_match_builds": 63,
+        "public_wait_environment_match_hits": 1016,
+        "public_wait_hits": 682,
+        "public_wait_initial_rechecks": 35,
+        "public_wait_rechecks": 278,
+        "reservation_candidate_queries": 22979,
+        "reservation_index_builds": 29,
+        "reservation_index_updates": 424,
+        "route_checks": 5624,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 146,
+        "route_dispatches": 146,
+        "route_revalidation_unvalidated": 156,
+        "route_revalidations": 156,
+        "routes": 391,
+        "static_path_builds": 191,
+        "static_path_hits": 13,
+        "structural_reverse_field_hits": 51,
+        "structural_reverse_field_lookups": 255,
+        "transport_builds": 0,
+        "transport_requests": 183,
+        "transport_searches": 177,
+        "yield_attempts": 27,
+        "yield_candidates": 23
+      },
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a",
+      "process_cpu_ms": 12500.0,
+      "process_wall_ms": 13641.436200006865
+    },
+    "a2-gp80": {
+      "variant": "baseline02",
+      "mode": "plain",
+      "metrics_us": {
+        "cold_first_us": 457314,
+        "count": 80,
+        "following_mean_us": 85233.2025316456,
+        "max_us": 639582,
+        "mean_us": 89884.2125,
+        "p50_us": 70744,
+        "p95_us": 165870,
+        "p99_us": 639582,
+        "total_us": 7190737
+      },
+      "steps": 80,
+      "checks": {
+        "complete": true,
+        "qualified": true,
+        "errors_empty": true,
+        "source_input_sha256": true,
+        "initial": true,
+        "final": true,
+        "qualification": true,
+        "operations": true,
+        "event_records": true,
+        "final_binary_sha256": true,
+        "public_business": true,
+        "non_timing_samples": true,
+        "environment_workers_complete": true
+      },
+      "selection": {},
+      "query_count_differences": {},
+      "roots": {},
+      "diagnostic_counts": {},
+      "query_counts": {
+        "actor_index_actor_visits": 15520,
+        "actor_index_builds": 97,
+        "candidate_connections": 414,
+        "connector_edge_builds": 414,
+        "connector_edge_hits": 3,
+        "connector_node_declarations": 4,
+        "connector_topology_builds": 1,
+        "connector_topology_inherits": 31,
+        "courtesy_static_geometry_hits": 36,
+        "distance_field_builds": 14,
+        "distance_field_hits": 143,
+        "door_candidates": 1266,
+        "entry_order_builds": 19,
+        "entry_order_hits": 83,
+        "entry_order_native_builds": 19,
+        "entry_walking_table_builds": 2,
+        "environment_actor_source_builds": 8,
+        "environment_coverage_mask_builds": 4,
+        "environment_coverage_native_calls": 631,
+        "environment_dynamic_source_builds": 88,
+        "environment_facility_source_builds": 1,
+        "environment_facility_source_hits": 87,
+        "facility_environment_builds": 1,
+        "facility_environment_hits": 2146,
+        "floor_route_builds": 841,
+        "floor_route_hits": 0,
+        "journey_hits": 0,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 8354,
+        "movement_candidates": 525,
+        "nearby_field_builds": 12,
+        "point_cost_lift_arrival_prunes": 224,
+        "point_source_builds": 3,
+        "point_source_goal_legs": 9,
+        "point_source_hits": 6,
+        "public_entry_field_hits": 865,
+        "public_entry_field_preparations": 91,
+        "public_facility_candidates": 20688,
+        "public_fit_body_key_preparations": 1072,
+        "public_queue_fit_builds": 28,
+        "public_queue_fit_hits": 2064,
+        "public_region_definition_index_builds": 1,
+        "public_region_definition_index_hits": 112,
+        "public_region_floor_builds": 4,
+        "public_region_mapping_builds": 1,
+        "public_region_native_builds": 4,
+        "public_select_regions_total": 7616,
+        "public_select_regions_visited": 112,
+        "public_wait_dependency_batches": 1079,
+        "public_wait_dependency_rectangles": 17271,
+        "public_wait_door_checks": 18,
+        "public_wait_door_index_builds": 1,
+        "public_wait_environment_match_builds": 63,
+        "public_wait_environment_match_hits": 1016,
+        "public_wait_hits": 682,
+        "public_wait_initial_rechecks": 35,
+        "public_wait_rechecks": 278,
+        "reservation_candidate_queries": 22979,
+        "reservation_index_builds": 29,
+        "reservation_index_updates": 424,
+        "route_checks": 5624,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 146,
+        "route_dispatches": 146,
+        "route_revalidation_unvalidated": 156,
+        "route_revalidations": 156,
+        "routes": 391,
+        "static_path_builds": 191,
+        "static_path_hits": 13,
+        "structural_reverse_field_hits": 51,
+        "structural_reverse_field_lookups": 255,
+        "transport_builds": 0,
+        "transport_requests": 183,
+        "transport_searches": 177,
+        "yield_attempts": 27,
+        "yield_candidates": 23
+      },
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a",
+      "process_cpu_ms": 10656.25,
+      "process_wall_ms": 11269.282699999167
+    },
+    "a3-gp80": {
+      "variant": "baseline02",
+      "mode": "plain",
+      "metrics_us": {
+        "cold_first_us": 265171,
+        "count": 80,
+        "following_mean_us": 52699.0632911392,
+        "max_us": 340476,
+        "mean_us": 55354.9625,
+        "p50_us": 47641,
+        "p95_us": 98849,
+        "p99_us": 340476,
+        "total_us": 4428397
+      },
+      "steps": 80,
+      "checks": {
+        "complete": true,
+        "qualified": true,
+        "errors_empty": true,
+        "source_input_sha256": true,
+        "initial": true,
+        "final": true,
+        "qualification": true,
+        "operations": true,
+        "event_records": true,
+        "final_binary_sha256": true,
+        "public_business": true,
+        "non_timing_samples": true,
+        "environment_workers_complete": true
+      },
+      "selection": {},
+      "query_count_differences": {},
+      "roots": {},
+      "diagnostic_counts": {},
+      "query_counts": {
+        "actor_index_actor_visits": 15520,
+        "actor_index_builds": 97,
+        "candidate_connections": 414,
+        "connector_edge_builds": 414,
+        "connector_edge_hits": 3,
+        "connector_node_declarations": 4,
+        "connector_topology_builds": 1,
+        "connector_topology_inherits": 31,
+        "courtesy_static_geometry_hits": 36,
+        "distance_field_builds": 14,
+        "distance_field_hits": 143,
+        "door_candidates": 1266,
+        "entry_order_builds": 19,
+        "entry_order_hits": 83,
+        "entry_order_native_builds": 19,
+        "entry_walking_table_builds": 2,
+        "environment_actor_source_builds": 8,
+        "environment_coverage_mask_builds": 4,
+        "environment_coverage_native_calls": 631,
+        "environment_dynamic_source_builds": 88,
+        "environment_facility_source_builds": 1,
+        "environment_facility_source_hits": 87,
+        "facility_environment_builds": 1,
+        "facility_environment_hits": 2146,
+        "floor_route_builds": 841,
+        "floor_route_hits": 0,
+        "journey_hits": 0,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 8354,
+        "movement_candidates": 525,
+        "nearby_field_builds": 12,
+        "point_cost_lift_arrival_prunes": 224,
+        "point_source_builds": 3,
+        "point_source_goal_legs": 9,
+        "point_source_hits": 6,
+        "public_entry_field_hits": 865,
+        "public_entry_field_preparations": 91,
+        "public_facility_candidates": 20688,
+        "public_fit_body_key_preparations": 1072,
+        "public_queue_fit_builds": 28,
+        "public_queue_fit_hits": 2064,
+        "public_region_definition_index_builds": 1,
+        "public_region_definition_index_hits": 112,
+        "public_region_floor_builds": 4,
+        "public_region_mapping_builds": 1,
+        "public_region_native_builds": 4,
+        "public_select_regions_total": 7616,
+        "public_select_regions_visited": 112,
+        "public_wait_dependency_batches": 1079,
+        "public_wait_dependency_rectangles": 17271,
+        "public_wait_door_checks": 18,
+        "public_wait_door_index_builds": 1,
+        "public_wait_environment_match_builds": 63,
+        "public_wait_environment_match_hits": 1016,
+        "public_wait_hits": 682,
+        "public_wait_initial_rechecks": 35,
+        "public_wait_rechecks": 278,
+        "reservation_candidate_queries": 22979,
+        "reservation_index_builds": 29,
+        "reservation_index_updates": 424,
+        "route_checks": 5624,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 146,
+        "route_dispatches": 146,
+        "route_revalidation_unvalidated": 156,
+        "route_revalidations": 156,
+        "routes": 391,
+        "static_path_builds": 191,
+        "static_path_hits": 13,
+        "structural_reverse_field_hits": 51,
+        "structural_reverse_field_lookups": 255,
+        "transport_builds": 0,
+        "transport_requests": 183,
+        "transport_searches": 177,
+        "yield_attempts": 27,
+        "yield_candidates": 23
+      },
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a",
+      "process_cpu_ms": 8546.875,
+      "process_wall_ms": 8364.270899997791
+    },
+    "b1-gp80": {
+      "variant": "pool4",
+      "mode": "plain",
+      "metrics_us": {
+        "cold_first_us": 581388,
+        "count": 80,
+        "following_mean_us": 129597.126582278,
+        "max_us": 2176255,
+        "mean_us": 135244.5125,
+        "p50_us": 83567,
+        "p95_us": 270301,
+        "p99_us": 2176255,
+        "total_us": 10819561
+      },
+      "steps": 80,
+      "checks": {
+        "complete": true,
+        "qualified": true,
+        "errors_empty": true,
+        "source_input_sha256": true,
+        "initial": true,
+        "final": true,
+        "qualification": true,
+        "operations": true,
+        "event_records": true,
+        "final_binary_sha256": true,
+        "public_business": true,
+        "non_timing_samples": true,
+        "environment_workers_complete": true,
+        "selection_completed": true,
+        "every_result_accounted": true,
+        "distinct_nonmain_workers": true
+      },
+      "selection": {
+        "batches": 1,
+        "consumed": 9,
+        "failed_batches": 0,
+        "jobs": 4,
+        "last_batch": {
+          "group_id": 28,
+          "jobs": [
+            {
+              "allowance": 33554432,
+              "elapsed_us": 1265694,
+              "job": 0,
+              "peak_charge": 30326928,
+              "processed": 28,
+              "requested": 28,
+              "thread_id": 5
+            },
+            {
+              "allowance": 33554432,
+              "elapsed_us": 1154986,
+              "job": 1,
+              "peak_charge": 30701840,
+              "processed": 28,
+              "requested": 28,
+              "thread_id": 6
+            },
+            {
+              "allowance": 33554432,
+              "elapsed_us": 1191448,
+              "job": 2,
+              "peak_charge": 29950368,
+              "processed": 28,
+              "requested": 28,
+              "thread_id": 8
+            },
+            {
+              "allowance": 33554432,
+              "elapsed_us": 1183489,
+              "job": 3,
+              "peak_charge": 30701752,
+              "processed": 28,
+              "requested": 28,
+              "thread_id": 7
+            }
+          ],
+          "main_thread_id": 1,
+          "ok": true,
+          "peak_charge_sum": 121680888,
+          "processed": 112,
+          "requested": 112,
+          "total_budget": 134217728
+        },
+        "processed": 112,
+        "reject_reasons": {
+          "actors": 103
+        },
+        "rejected": 103,
+        "requested": 112,
+        "threads": {
+          "5": 1,
+          "6": 1,
+          "7": 1,
+          "8": 1
+        },
+        "timings_us": {
+          "dispatch_wait": 1265804,
+          "harvest": 107355,
+          "preparation": 3775,
+          "validation": 43892
+        },
+        "unused": 0
+      },
+      "query_count_differences": {
+        "transport_searches": {
+          "actual": 267,
+          "expected": 177
+        },
+        "entry_walking_table_builds": {
+          "actual": 6,
+          "expected": 2
+        },
+        "floor_route_builds": {
+          "actual": 1129,
+          "expected": 841
+        },
+        "cache_trims": {
+          "actual": 76,
+          "expected": null
+        },
+        "reservation_index_updates": {
+          "actual": 488,
+          "expected": 424
+        },
+        "public_select_regions_visited": {
+          "actual": 215,
+          "expected": 112
+        },
+        "public_wait_door_checks": {
+          "actual": 30,
+          "expected": 18
+        },
+        "connector_topology_builds": {
+          "actual": 5,
+          "expected": 1
+        },
+        "distance_field_builds": {
+          "actual": 26,
+          "expected": 14
+        },
+        "routes": {
+          "actual": 601,
+          "expected": 391
+        },
+        "candidate_connections": {
+          "actual": 492,
+          "expected": 414
+        },
+        "point_source_builds": {
+          "actual": 15,
+          "expected": 3
+        },
+        "entry_order_builds": {
+          "actual": 31,
+          "expected": 19
+        },
+        "cache_graph_evictions": {
+          "actual": 76,
+          "expected": null
+        },
+        "public_wait_door_index_builds": {
+          "actual": 5,
+          "expected": 1
+        },
+        "public_fit_body_key_preparations": {
+          "actual": 1175,
+          "expected": 1072
+        },
+        "static_path_builds": {
+          "actual": 379,
+          "expected": 191
+        },
+        "reservation_index_builds": {
+          "actual": 33,
+          "expected": 29
+        },
+        "connector_edge_builds": {
+          "actual": 492,
+          "expected": 414
+        },
+        "actor_index_builds": {
+          "actual": 101,
+          "expected": 97
+        },
+        "public_entry_field_preparations": {
+          "actual": 165,
+          "expected": 91
+        },
+        "door_candidates": {
+          "actual": 2850,
+          "expected": 1266
+        },
+        "public_select_regions_total": {
+          "actual": 14620,
+          "expected": 7616
+        },
+        "public_facility_candidates": {
+          "actual": 21512,
+          "expected": 20688
+        },
+        "connector_node_declarations": {
+          "actual": 20,
+          "expected": 4
+        },
+        "point_cost_lift_arrival_prunes": {
+          "actual": 432,
+          "expected": 224
+        },
+        "structural_reverse_field_lookups": {
+          "actual": 465,
+          "expected": 255
+        },
+        "point_source_hits": {
+          "actual": 30,
+          "expected": 6
+        },
+        "structural_reverse_field_hits": {
+          "actual": 45,
+          "expected": 51
+        },
+        "actor_index_actor_visits": {
+          "actual": 16160,
+          "expected": 15520
+        },
+        "reservation_candidate_queries": {
+          "actual": 25397,
+          "expected": 22979
+        },
+        "transport_requests": {
+          "actual": 297,
+          "expected": 183
+        },
+        "static_path_hits": {
+          "actual": 41,
+          "expected": 13
+        },
+        "public_region_definition_index_hits": {
+          "actual": 215,
+          "expected": 112
+        },
+        "distance_field_hits": {
+          "actual": 215,
+          "expected": 143
+        },
+        "entry_order_native_builds": {
+          "actual": 31,
+          "expected": 19
+        },
+        "public_region_native_builds": {
+          "actual": 20,
+          "expected": 4
+        },
+        "public_region_mapping_builds": {
+          "actual": 5,
+          "expected": 1
+        },
+        "entry_order_hits": {
+          "actual": 157,
+          "expected": 83
+        },
+        "public_entry_field_hits": {
+          "actual": 1522,
+          "expected": 865
+        },
+        "public_region_definition_index_builds": {
+          "actual": 5,
+          "expected": 1
+        },
+        "connector_edge_hits": {
+          "actual": 15,
+          "expected": 3
+        },
+        "point_source_goal_legs": {
+          "actual": 45,
+          "expected": 9
+        },
+        "public_region_floor_builds": {
+          "actual": 20,
+          "expected": 4
+        }
+      },
+      "roots": {},
+      "diagnostic_counts": {},
+      "query_counts": {
+        "actor_index_actor_visits": 16160,
+        "actor_index_builds": 101,
+        "cache_graph_evictions": 76,
+        "cache_trims": 76,
+        "candidate_connections": 492,
+        "connector_edge_builds": 492,
+        "connector_edge_hits": 15,
+        "connector_node_declarations": 20,
+        "connector_topology_builds": 5,
+        "connector_topology_inherits": 31,
+        "courtesy_static_geometry_hits": 36,
+        "distance_field_builds": 26,
+        "distance_field_hits": 215,
+        "door_candidates": 2850,
+        "entry_order_builds": 31,
+        "entry_order_hits": 157,
+        "entry_order_native_builds": 31,
+        "entry_walking_table_builds": 6,
+        "environment_actor_source_builds": 8,
+        "environment_coverage_mask_builds": 4,
+        "environment_coverage_native_calls": 631,
+        "environment_dynamic_source_builds": 88,
+        "environment_facility_source_builds": 1,
+        "environment_facility_source_hits": 87,
+        "facility_environment_builds": 1,
+        "facility_environment_hits": 2146,
+        "floor_route_builds": 1129,
+        "floor_route_hits": 0,
+        "journey_hits": 0,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 8354,
+        "movement_candidates": 525,
+        "nearby_field_builds": 12,
+        "point_cost_lift_arrival_prunes": 432,
+        "point_source_builds": 15,
+        "point_source_goal_legs": 45,
+        "point_source_hits": 30,
+        "public_entry_field_hits": 1522,
+        "public_entry_field_preparations": 165,
+        "public_facility_candidates": 21512,
+        "public_fit_body_key_preparations": 1175,
+        "public_queue_fit_builds": 28,
+        "public_queue_fit_hits": 2064,
+        "public_region_definition_index_builds": 5,
+        "public_region_definition_index_hits": 215,
+        "public_region_floor_builds": 20,
+        "public_region_mapping_builds": 5,
+        "public_region_native_builds": 20,
+        "public_select_regions_total": 14620,
+        "public_select_regions_visited": 215,
+        "public_wait_dependency_batches": 1079,
+        "public_wait_dependency_rectangles": 17271,
+        "public_wait_door_checks": 30,
+        "public_wait_door_index_builds": 5,
+        "public_wait_environment_match_builds": 63,
+        "public_wait_environment_match_hits": 1016,
+        "public_wait_hits": 682,
+        "public_wait_initial_rechecks": 35,
+        "public_wait_rechecks": 278,
+        "reservation_candidate_queries": 25397,
+        "reservation_index_builds": 33,
+        "reservation_index_updates": 488,
+        "route_checks": 5624,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 146,
+        "route_dispatches": 146,
+        "route_revalidation_unvalidated": 156,
+        "route_revalidations": 156,
+        "routes": 601,
+        "static_path_builds": 379,
+        "static_path_hits": 41,
+        "structural_reverse_field_hits": 45,
+        "structural_reverse_field_lookups": 465,
+        "transport_builds": 0,
+        "transport_requests": 297,
+        "transport_searches": 267,
+        "yield_attempts": 27,
+        "yield_candidates": 23
+      },
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a",
+      "process_cpu_ms": 20453.125,
+      "process_wall_ms": 19702.36960001057
+    },
+    "c1-gp80": {
+      "variant": "lazy2",
+      "mode": "plain",
+      "metrics_us": {
+        "cold_first_us": 264156,
+        "count": 80,
+        "following_mean_us": 97607.7974683544,
+        "max_us": 3693118,
+        "mean_us": 99689.65,
+        "p50_us": 47183,
+        "p95_us": 106266,
+        "p99_us": 3693118,
+        "total_us": 7975172
+      },
+      "steps": 80,
+      "checks": {
+        "complete": true,
+        "qualified": true,
+        "errors_empty": true,
+        "source_input_sha256": true,
+        "initial": true,
+        "final": true,
+        "qualification": true,
+        "operations": true,
+        "event_records": true,
+        "final_binary_sha256": true,
+        "public_business": true,
+        "non_timing_samples": true,
+        "environment_workers_complete": true,
+        "selection_completed": true,
+        "every_result_accounted": true,
+        "distinct_nonmain_workers": true
+      },
+      "selection": {
+        "batches": 19,
+        "consumed": 94,
+        "failed_batches": 0,
+        "jobs": 38,
+        "last_batch": {
+          "group_id": 46,
+          "jobs": [
+            {
+              "allowance": 62104820,
+              "elapsed_us": 171833,
+              "job": 0,
+              "peak_charge": 40260552,
+              "processed": 9,
+              "requested": 9,
+              "thread_id": 5
+            },
+            {
+              "allowance": 62104820,
+              "elapsed_us": 175262,
+              "job": 1,
+              "peak_charge": 40260480,
+              "processed": 10,
+              "requested": 10,
+              "thread_id": 6
+            }
+          ],
+          "main_thread_id": 1,
+          "ok": true,
+          "peak_charge_sum": 90529120,
+          "processed": 19,
+          "requested": 19,
+          "total_budget": 134217728
+        },
+        "processed": 94,
+        "reject_reasons": {},
+        "rejected": 0,
+        "requested": 94,
+        "threads": {
+          "10": 2,
+          "11": 2,
+          "13": 2,
+          "15": 2,
+          "16": 2,
+          "18": 2,
+          "20": 2,
+          "22": 2,
+          "23": 2,
+          "25": 2,
+          "27": 2,
+          "30": 2,
+          "33": 2,
+          "5": 3,
+          "6": 3,
+          "7": 2,
+          "8": 2,
+          "9": 2
+        },
+        "timings_us": {
+          "dispatch_wait": 2893460,
+          "harvest": 458257,
+          "preparation": 17611,
+          "validation": 31504
+        },
+        "unused": 0
+      },
+      "query_count_differences": {
+        "public_region_mapping_builds": {
+          "actual": 39,
+          "expected": 1
+        },
+        "public_region_definition_index_hits": {
+          "actual": 242,
+          "expected": 112
+        },
+        "structural_reverse_field_hits": {
+          "actual": null,
+          "expected": 51
+        },
+        "structural_reverse_field_lookups": {
+          "actual": 502,
+          "expected": 255
+        },
+        "connector_node_declarations": {
+          "actual": 156,
+          "expected": 4
+        },
+        "actor_index_actor_visits": {
+          "actual": 21600,
+          "expected": 15520
+        },
+        "distance_field_hits": {
+          "actual": 34,
+          "expected": 143
+        },
+        "reservation_index_builds": {
+          "actual": 67,
+          "expected": 29
+        },
+        "transport_searches": {
+          "actual": 240,
+          "expected": 177
+        },
+        "public_wait_door_index_builds": {
+          "actual": 39,
+          "expected": 1
+        },
+        "entry_order_builds": {
+          "actual": 56,
+          "expected": 19
+        },
+        "distance_field_builds": {
+          "actual": 16,
+          "expected": 14
+        },
+        "routes": {
+          "actual": 580,
+          "expected": 391
+        },
+        "public_select_planning_contains": {
+          "actual": 130,
+          "expected": null
+        },
+        "public_select_planning_actors": {
+          "actual": 130,
+          "expected": null
+        },
+        "public_entry_field_preparations": {
+          "actual": 28,
+          "expected": 91
+        },
+        "actor_index_builds": {
+          "actual": 135,
+          "expected": 97
+        },
+        "reservation_index_updates": {
+          "actual": 1032,
+          "expected": 424
+        },
+        "connector_edge_hits": {
+          "actual": 66,
+          "expected": 3
+        },
+        "reservation_candidate_queries": {
+          "actual": 24803,
+          "expected": 22979
+        },
+        "entry_walking_table_builds": {
+          "actual": 39,
+          "expected": 2
+        },
+        "door_candidates": {
+          "actual": 3090,
+          "expected": 1266
+        },
+        "point_source_builds": {
+          "actual": 66,
+          "expected": 3
+        },
+        "entry_order_hits": {
+          "actual": 46,
+          "expected": 83
+        },
+        "public_region_native_builds": {
+          "actual": 156,
+          "expected": 4
+        },
+        "public_wait_door_checks": {
+          "actual": 33,
+          "expected": 18
+        },
+        "point_source_goal_legs": {
+          "actual": 198,
+          "expected": 9
+        },
+        "connector_topology_builds": {
+          "actual": 39,
+          "expected": 1
+        },
+        "static_path_builds": {
+          "actual": 390,
+          "expected": 191
+        },
+        "entry_order_native_builds": {
+          "actual": 56,
+          "expected": 19
+        },
+        "static_path_hits": {
+          "actual": 112,
+          "expected": 13
+        },
+        "transport_requests": {
+          "actual": 372,
+          "expected": 183
+        },
+        "floor_route_builds": {
+          "actual": 1030,
+          "expected": 841
+        },
+        "point_source_hits": {
+          "actual": 132,
+          "expected": 6
+        },
+        "public_entry_field_hits": {
+          "actual": 676,
+          "expected": 865
+        },
+        "public_region_definition_index_builds": {
+          "actual": 39,
+          "expected": 1
+        },
+        "public_region_floor_builds": {
+          "actual": 156,
+          "expected": 4
+        }
+      },
+      "roots": {},
+      "diagnostic_counts": {},
+      "query_counts": {
+        "actor_index_actor_visits": 21600,
+        "actor_index_builds": 135,
+        "candidate_connections": 414,
+        "connector_edge_builds": 414,
+        "connector_edge_hits": 66,
+        "connector_node_declarations": 156,
+        "connector_topology_builds": 39,
+        "connector_topology_inherits": 31,
+        "courtesy_static_geometry_hits": 36,
+        "distance_field_builds": 16,
+        "distance_field_hits": 34,
+        "door_candidates": 3090,
+        "entry_order_builds": 56,
+        "entry_order_hits": 46,
+        "entry_order_native_builds": 56,
+        "entry_walking_table_builds": 39,
+        "environment_actor_source_builds": 8,
+        "environment_coverage_mask_builds": 4,
+        "environment_coverage_native_calls": 631,
+        "environment_dynamic_source_builds": 88,
+        "environment_facility_source_builds": 1,
+        "environment_facility_source_hits": 87,
+        "facility_environment_builds": 1,
+        "facility_environment_hits": 2146,
+        "floor_route_builds": 1030,
+        "floor_route_hits": 0,
+        "journey_hits": 0,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 8354,
+        "movement_candidates": 525,
+        "nearby_field_builds": 12,
+        "point_cost_lift_arrival_prunes": 224,
+        "point_source_builds": 66,
+        "point_source_goal_legs": 198,
+        "point_source_hits": 132,
+        "public_entry_field_hits": 676,
+        "public_entry_field_preparations": 28,
+        "public_facility_candidates": 20688,
+        "public_fit_body_key_preparations": 1072,
+        "public_queue_fit_builds": 28,
+        "public_queue_fit_hits": 2064,
+        "public_region_definition_index_builds": 39,
+        "public_region_definition_index_hits": 242,
+        "public_region_floor_builds": 156,
+        "public_region_mapping_builds": 39,
+        "public_region_native_builds": 156,
+        "public_select_planning_actors": 130,
+        "public_select_planning_contains": 130,
+        "public_select_regions_total": 7616,
+        "public_select_regions_visited": 112,
+        "public_wait_dependency_batches": 1079,
+        "public_wait_dependency_rectangles": 17271,
+        "public_wait_door_checks": 33,
+        "public_wait_door_index_builds": 39,
+        "public_wait_environment_match_builds": 63,
+        "public_wait_environment_match_hits": 1016,
+        "public_wait_hits": 682,
+        "public_wait_initial_rechecks": 35,
+        "public_wait_rechecks": 278,
+        "reservation_candidate_queries": 24803,
+        "reservation_index_builds": 67,
+        "reservation_index_updates": 1032,
+        "route_checks": 5624,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 146,
+        "route_dispatches": 146,
+        "route_revalidation_unvalidated": 156,
+        "route_revalidations": 156,
+        "routes": 580,
+        "static_path_builds": 390,
+        "static_path_hits": 112,
+        "structural_reverse_field_lookups": 502,
+        "transport_builds": 0,
+        "transport_requests": 372,
+        "transport_searches": 240,
+        "yield_attempts": 27,
+        "yield_candidates": 23
+      },
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a",
+      "process_cpu_ms": 14546.875,
+      "process_wall_ms": 12519.226999982493
+    },
+    "d1-gp80": {
+      "variant": "lazyshared2",
+      "mode": "plain",
+      "metrics_us": {
+        "cold_first_us": 239457,
+        "count": 80,
+        "following_mean_us": 66832.8734177215,
+        "max_us": 1628955,
+        "mean_us": 68990.675,
+        "p50_us": 43524,
+        "p95_us": 97801,
+        "p99_us": 1628955,
+        "total_us": 5519254
+      },
+      "steps": 80,
+      "checks": {
+        "complete": true,
+        "qualified": true,
+        "errors_empty": true,
+        "source_input_sha256": true,
+        "initial": true,
+        "final": true,
+        "qualification": true,
+        "operations": true,
+        "event_records": true,
+        "final_binary_sha256": true,
+        "public_business": true,
+        "non_timing_samples": true,
+        "environment_workers_complete": true,
+        "selection_completed": true,
+        "every_result_accounted": true,
+        "distinct_nonmain_workers": true
+      },
+      "selection": {
+        "batches": 19,
+        "consumed": 94,
+        "failed_batches": 0,
+        "jobs": 38,
+        "last_batch": {
+          "group_id": 46,
+          "jobs": [
+            {
+              "allowance": 62104820,
+              "elapsed_us": 89865,
+              "job": 0,
+              "peak_charge": 40260552,
+              "processed": 9,
+              "requested": 9,
+              "thread_id": 6
+            },
+            {
+              "allowance": 62104820,
+              "elapsed_us": 90089,
+              "job": 1,
+              "peak_charge": 40260480,
+              "processed": 10,
+              "requested": 10,
+              "thread_id": 5
+            }
+          ],
+          "main_thread_id": 1,
+          "ok": true,
+          "peak_charge_sum": 90529120,
+          "processed": 19,
+          "requested": 19,
+          "total_budget": 134217728
+        },
+        "processed": 94,
+        "reject_reasons": {},
+        "rejected": 0,
+        "requested": 94,
+        "threads": {
+          "10": 2,
+          "11": 2,
+          "14": 2,
+          "15": 2,
+          "17": 2,
+          "19": 2,
+          "21": 2,
+          "22": 2,
+          "24": 2,
+          "26": 2,
+          "29": 2,
+          "31": 2,
+          "32": 2,
+          "34": 2,
+          "5": 3,
+          "6": 3,
+          "7": 2,
+          "8": 2
+        },
+        "timings_us": {
+          "dispatch_wait": 1088666,
+          "harvest": 226458,
+          "preparation": 44284,
+          "validation": 25149
+        },
+        "unused": 0
+      },
+      "query_count_differences": {
+        "public_wait_door_index_builds": {
+          "actual": 39,
+          "expected": 1
+        },
+        "reservation_candidate_queries": {
+          "actual": 24803,
+          "expected": 22979
+        },
+        "connector_edge_hits": {
+          "actual": 66,
+          "expected": 3
+        },
+        "entry_order_native_builds": {
+          "actual": 56,
+          "expected": 19
+        },
+        "routes": {
+          "actual": 580,
+          "expected": 391
+        },
+        "connector_node_declarations": {
+          "actual": 156,
+          "expected": 4
+        },
+        "reservation_index_builds": {
+          "actual": 67,
+          "expected": 29
+        },
+        "transport_requests": {
+          "actual": 372,
+          "expected": 183
+        },
+        "actor_index_actor_visits": {
+          "actual": 21600,
+          "expected": 15520
+        },
+        "public_region_definition_index_hits": {
+          "actual": 261,
+          "expected": 112
+        },
+        "point_source_builds": {
+          "actual": 66,
+          "expected": 3
+        },
+        "reservation_index_updates": {
+          "actual": 1032,
+          "expected": 424
+        },
+        "static_path_hits": {
+          "actual": 112,
+          "expected": 13
+        },
+        "actor_index_builds": {
+          "actual": 135,
+          "expected": 97
+        },
+        "entry_walking_table_builds": {
+          "actual": 39,
+          "expected": 2
+        },
+        "transport_searches": {
+          "actual": 240,
+          "expected": 177
+        },
+        "public_wait_door_checks": {
+          "actual": 33,
+          "expected": 18
+        },
+        "static_path_builds": {
+          "actual": 390,
+          "expected": 191
+        },
+        "distance_field_builds": {
+          "actual": 16,
+          "expected": 14
+        },
+        "public_entry_field_preparations": {
+          "actual": 28,
+          "expected": 91
+        },
+        "connector_topology_builds": {
+          "actual": 39,
+          "expected": 1
+        },
+        "point_source_goal_legs": {
+          "actual": 198,
+          "expected": 9
+        },
+        "public_entry_field_hits": {
+          "actual": 676,
+          "expected": 865
+        },
+        "floor_route_builds": {
+          "actual": 1030,
+          "expected": 841
+        },
+        "door_candidates": {
+          "actual": 3090,
+          "expected": 1266
+        },
+        "structural_reverse_field_lookups": {
+          "actual": 502,
+          "expected": 255
+        },
+        "public_select_planning_contains": {
+          "actual": 130,
+          "expected": null
+        },
+        "distance_field_hits": {
+          "actual": 34,
+          "expected": 143
+        },
+        "entry_order_hits": {
+          "actual": 46,
+          "expected": 83
+        },
+        "entry_order_builds": {
+          "actual": 56,
+          "expected": 19
+        },
+        "public_select_planning_actors": {
+          "actual": 130,
+          "expected": null
+        },
+        "structural_reverse_field_hits": {
+          "actual": null,
+          "expected": 51
+        },
+        "point_source_hits": {
+          "actual": 132,
+          "expected": 6
+        }
+      },
+      "roots": {},
+      "diagnostic_counts": {},
+      "query_counts": {
+        "actor_index_actor_visits": 21600,
+        "actor_index_builds": 135,
+        "candidate_connections": 414,
+        "connector_edge_builds": 414,
+        "connector_edge_hits": 66,
+        "connector_node_declarations": 156,
+        "connector_topology_builds": 39,
+        "connector_topology_inherits": 31,
+        "courtesy_static_geometry_hits": 36,
+        "distance_field_builds": 16,
+        "distance_field_hits": 34,
+        "door_candidates": 3090,
+        "entry_order_builds": 56,
+        "entry_order_hits": 46,
+        "entry_order_native_builds": 56,
+        "entry_walking_table_builds": 39,
+        "environment_actor_source_builds": 8,
+        "environment_coverage_mask_builds": 4,
+        "environment_coverage_native_calls": 631,
+        "environment_dynamic_source_builds": 88,
+        "environment_facility_source_builds": 1,
+        "environment_facility_source_hits": 87,
+        "facility_environment_builds": 1,
+        "facility_environment_hits": 2146,
+        "floor_route_builds": 1030,
+        "floor_route_hits": 0,
+        "journey_hits": 0,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 8354,
+        "movement_candidates": 525,
+        "nearby_field_builds": 12,
+        "point_cost_lift_arrival_prunes": 224,
+        "point_source_builds": 66,
+        "point_source_goal_legs": 198,
+        "point_source_hits": 132,
+        "public_entry_field_hits": 676,
+        "public_entry_field_preparations": 28,
+        "public_facility_candidates": 20688,
+        "public_fit_body_key_preparations": 1072,
+        "public_queue_fit_builds": 28,
+        "public_queue_fit_hits": 2064,
+        "public_region_definition_index_builds": 1,
+        "public_region_definition_index_hits": 261,
+        "public_region_floor_builds": 4,
+        "public_region_mapping_builds": 1,
+        "public_region_native_builds": 4,
+        "public_select_planning_actors": 130,
+        "public_select_planning_contains": 130,
+        "public_select_regions_total": 7616,
+        "public_select_regions_visited": 112,
+        "public_wait_dependency_batches": 1079,
+        "public_wait_dependency_rectangles": 17271,
+        "public_wait_door_checks": 33,
+        "public_wait_door_index_builds": 39,
+        "public_wait_environment_match_builds": 63,
+        "public_wait_environment_match_hits": 1016,
+        "public_wait_hits": 682,
+        "public_wait_initial_rechecks": 35,
+        "public_wait_rechecks": 278,
+        "reservation_candidate_queries": 24803,
+        "reservation_index_builds": 67,
+        "reservation_index_updates": 1032,
+        "route_checks": 5624,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 146,
+        "route_dispatches": 146,
+        "route_revalidation_unvalidated": 156,
+        "route_revalidations": 156,
+        "routes": 580,
+        "static_path_builds": 390,
+        "static_path_hits": 112,
+        "structural_reverse_field_lookups": 502,
+        "transport_builds": 0,
+        "transport_requests": 372,
+        "transport_searches": 240,
+        "yield_attempts": 27,
+        "yield_candidates": 23
+      },
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a",
+      "process_cpu_ms": 10203.125,
+      "process_wall_ms": 9217.670799989719
+    },
+    "e1-gp80": {
+      "variant": "lazyhandoff2",
+      "mode": "plain",
+      "metrics_us": {
+        "cold_first_us": 250593,
+        "count": 80,
+        "following_mean_us": 87761.0759493671,
+        "max_us": 1225460,
+        "mean_us": 89796.475,
+        "p50_us": 71278,
+        "p95_us": 169640,
+        "p99_us": 1225460,
+        "total_us": 7183718
+      },
+      "steps": 80,
+      "checks": {
+        "complete": true,
+        "qualified": true,
+        "errors_empty": true,
+        "source_input_sha256": true,
+        "initial": true,
+        "final": true,
+        "qualification": true,
+        "operations": true,
+        "event_records": true,
+        "final_binary_sha256": true,
+        "public_business": true,
+        "non_timing_samples": true,
+        "environment_workers_complete": true,
+        "selection_completed": true,
+        "every_result_accounted": true,
+        "distinct_nonmain_workers": true
+      },
+      "selection": {
+        "batches": 19,
+        "consumed": 94,
+        "failed_batches": 0,
+        "jobs": 38,
+        "last_batch": {
+          "group_id": 46,
+          "jobs": [
+            {
+              "allowance": 67108864,
+              "elapsed_us": 19814,
+              "job": 0,
+              "peak_charge": 41100896,
+              "processed": 9,
+              "requested": 9,
+              "thread_id": 5
+            },
+            {
+              "allowance": 67108864,
+              "elapsed_us": 70077,
+              "job": 1,
+              "peak_charge": 40260480,
+              "processed": 10,
+              "requested": 10,
+              "thread_id": 6
+            }
+          ],
+          "main_thread_id": 1,
+          "ok": true,
+          "peak_charge_sum": 81361376,
+          "processed": 19,
+          "requested": 19,
+          "total_budget": 134217728
+        },
+        "processed": 94,
+        "reject_reasons": {},
+        "rejected": 0,
+        "requested": 94,
+        "threads": {
+          "10": 2,
+          "11": 2,
+          "12": 2,
+          "14": 2,
+          "15": 2,
+          "17": 2,
+          "19": 2,
+          "21": 2,
+          "23": 2,
+          "25": 2,
+          "27": 2,
+          "29": 2,
+          "32": 2,
+          "34": 2,
+          "5": 3,
+          "6": 3,
+          "7": 2,
+          "8": 2
+        },
+        "timings_us": {
+          "dispatch_wait": 877444,
+          "harvest": 38568,
+          "preparation": 37157,
+          "validation": 23319
+        },
+        "unused": 0
+      },
+      "query_count_differences": {
+        "public_wait_door_checks": {
+          "actual": 33,
+          "expected": 18
+        },
+        "floor_route_builds": {
+          "actual": 964,
+          "expected": 841
+        },
+        "public_entry_field_hits": {
+          "actual": 742,
+          "expected": 865
+        },
+        "transport_requests": {
+          "actual": 306,
+          "expected": 183
+        },
+        "routes": {
+          "actual": 514,
+          "expected": 391
+        },
+        "reservation_index_builds": {
+          "actual": 67,
+          "expected": 29
+        },
+        "public_wait_door_index_builds": {
+          "actual": 39,
+          "expected": 1
+        },
+        "entry_order_builds": {
+          "actual": 56,
+          "expected": 19
+        },
+        "public_entry_field_preparations": {
+          "actual": 50,
+          "expected": 91
+        },
+        "reservation_index_updates": {
+          "actual": 1032,
+          "expected": 424
+        },
+        "public_select_planning_contains": {
+          "actual": 130,
+          "expected": null
+        },
+        "entry_order_native_builds": {
+          "actual": 56,
+          "expected": 19
+        },
+        "point_source_builds": {
+          "actual": 44,
+          "expected": 3
+        },
+        "entry_order_hits": {
+          "actual": 46,
+          "expected": 83
+        },
+        "connector_topology_builds": {
+          "actual": 39,
+          "expected": 1
+        },
+        "public_region_definition_index_hits": {
+          "actual": 261,
+          "expected": 112
+        },
+        "actor_index_actor_visits": {
+          "actual": 21600,
+          "expected": 15520
+        },
+        "point_source_goal_legs": {
+          "actual": 132,
+          "expected": 9
+        },
+        "distance_field_builds": {
+          "actual": 15,
+          "expected": 14
+        },
+        "point_source_hits": {
+          "actual": 88,
+          "expected": 6
+        },
+        "door_candidates": {
+          "actual": 2258,
+          "expected": 1266
+        },
+        "structural_reverse_field_lookups": {
+          "actual": 416,
+          "expected": 255
+        },
+        "actor_index_builds": {
+          "actual": 135,
+          "expected": 97
+        },
+        "connector_node_declarations": {
+          "actual": 156,
+          "expected": 4
+        },
+        "static_path_builds": {
+          "actual": 306,
+          "expected": 191
+        },
+        "structural_reverse_field_hits": {
+          "actual": 12,
+          "expected": 51
+        },
+        "distance_field_hits": {
+          "actual": 66,
+          "expected": 143
+        },
+        "transport_searches": {
+          "actual": 218,
+          "expected": 177
+        },
+        "reservation_candidate_queries": {
+          "actual": 23971,
+          "expected": 22979
+        },
+        "static_path_hits": {
+          "actual": 98,
+          "expected": 13
+        },
+        "connector_edge_hits": {
+          "actual": 44,
+          "expected": 3
+        },
+        "entry_walking_table_builds": {
+          "actual": 39,
+          "expected": 2
+        },
+        "public_select_planning_actors": {
+          "actual": 130,
+          "expected": null
+        }
+      },
+      "roots": {},
+      "diagnostic_counts": {},
+      "query_counts": {
+        "actor_index_actor_visits": 21600,
+        "actor_index_builds": 135,
+        "candidate_connections": 414,
+        "connector_edge_builds": 414,
+        "connector_edge_hits": 44,
+        "connector_node_declarations": 156,
+        "connector_topology_builds": 39,
+        "connector_topology_inherits": 31,
+        "courtesy_static_geometry_hits": 36,
+        "distance_field_builds": 15,
+        "distance_field_hits": 66,
+        "door_candidates": 2258,
+        "entry_order_builds": 56,
+        "entry_order_hits": 46,
+        "entry_order_native_builds": 56,
+        "entry_walking_table_builds": 39,
+        "environment_actor_source_builds": 8,
+        "environment_coverage_mask_builds": 4,
+        "environment_coverage_native_calls": 631,
+        "environment_dynamic_source_builds": 88,
+        "environment_facility_source_builds": 1,
+        "environment_facility_source_hits": 87,
+        "facility_environment_builds": 1,
+        "facility_environment_hits": 2146,
+        "floor_route_builds": 964,
+        "floor_route_hits": 0,
+        "journey_hits": 0,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 8354,
+        "movement_candidates": 525,
+        "nearby_field_builds": 12,
+        "point_cost_lift_arrival_prunes": 224,
+        "point_source_builds": 44,
+        "point_source_goal_legs": 132,
+        "point_source_hits": 88,
+        "public_entry_field_hits": 742,
+        "public_entry_field_preparations": 50,
+        "public_facility_candidates": 20688,
+        "public_fit_body_key_preparations": 1072,
+        "public_queue_fit_builds": 28,
+        "public_queue_fit_hits": 2064,
+        "public_region_definition_index_builds": 1,
+        "public_region_definition_index_hits": 261,
+        "public_region_floor_builds": 4,
+        "public_region_mapping_builds": 1,
+        "public_region_native_builds": 4,
+        "public_select_planning_actors": 130,
+        "public_select_planning_contains": 130,
+        "public_select_regions_total": 7616,
+        "public_select_regions_visited": 112,
+        "public_wait_dependency_batches": 1079,
+        "public_wait_dependency_rectangles": 17271,
+        "public_wait_door_checks": 33,
+        "public_wait_door_index_builds": 39,
+        "public_wait_environment_match_builds": 63,
+        "public_wait_environment_match_hits": 1016,
+        "public_wait_hits": 682,
+        "public_wait_initial_rechecks": 35,
+        "public_wait_rechecks": 278,
+        "reservation_candidate_queries": 23971,
+        "reservation_index_builds": 67,
+        "reservation_index_updates": 1032,
+        "route_checks": 5624,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 146,
+        "route_dispatches": 146,
+        "route_revalidation_unvalidated": 156,
+        "route_revalidations": 156,
+        "routes": 514,
+        "static_path_builds": 306,
+        "static_path_hits": 98,
+        "structural_reverse_field_hits": 12,
+        "structural_reverse_field_lookups": 416,
+        "transport_builds": 0,
+        "transport_requests": 306,
+        "transport_searches": 218,
+        "yield_attempts": 27,
+        "yield_candidates": 23
+      },
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a",
+      "process_cpu_ms": 11703.125,
+      "process_wall_ms": 11265.411700005643
+    },
+    "moves01-gp80": {
+      "variant": "baselinemoveprobe",
+      "mode": "root",
+      "metrics_us": {
+        "cold_first_us": 238132,
+        "count": 80,
+        "following_mean_us": 52216.8987341772,
+        "max_us": 360470,
+        "mean_us": 54540.8375,
+        "p50_us": 44028,
+        "p95_us": 100722,
+        "p99_us": 360470,
+        "total_us": 4363267
+      },
+      "steps": 80,
+      "checks": {
+        "complete": true,
+        "qualified": true,
+        "errors_empty": true,
+        "source_input_sha256": true,
+        "initial": true,
+        "final": true,
+        "qualification": true,
+        "operations": true,
+        "event_records": true,
+        "final_binary_sha256": true,
+        "public_business": true,
+        "non_timing_samples": true,
+        "environment_workers_complete": true
+      },
+      "selection": {},
+      "query_count_differences": {
+        "diag_wait/851/movement.hospital_movement.gd._mark_door_use/us": {
+          "actual": 6,
+          "expected": null
+        },
+        "diag_wait/851/movement.hospital_space.gd.movement_doors/calls": {
+          "actual": 98,
+          "expected": null
+        },
+        "diag_wait/867/movement.hospital_space.gd.movement_doors/calls": {
+          "actual": 112,
+          "expected": null
+        },
+        "diag_wait/867/movement.hospital_movement.gd._dispatch_routes/us": {
+          "actual": 13,
+          "expected": null
+        },
+        "diag_wait/867/movement.hospital_space.gd._reservation_regions/us": {
+          "actual": 1399,
+          "expected": null
+        },
+        "diag_wait/851/movement.hospital_movement.gd._dispatch_routes/us": {
+          "actual": 6447,
+          "expected": null
+        },
+        "diag_wait/867/movement.hospital_movement.gd._active_route_clear/us": {
+          "actual": 1517,
+          "expected": null
+        },
+        "diag_wait/867/movement.hospital_movement.gd._movement_contacts/calls": {
+          "actual": 112,
+          "expected": null
+        },
+        "diag_wait/867/movement.hospital_movement.gd._move_step/calls": {
+          "actual": 112,
+          "expected": null
+        },
+        "diag_wait/851/movement.hospital_movement.gd._active_route_clear/us": {
+          "actual": 2846,
+          "expected": null
+        },
+        "diag_wait/851/movement.hospital_space.gd.movement_doors/us": {
+          "actual": 2183,
+          "expected": null
+        },
+        "diag_wait/851/movement.hospital_movement.gd._active_route_clear/calls": {
+          "actual": 18,
+          "expected": null
+        },
+        "diag_wait/867/movement.hospital_movement.gd._move_step/us": {
+          "actual": 12258,
+          "expected": null
+        },
+        "diag_wait/867/movement.hospital_movement.gd._reserve_doors/us": {
+          "actual": 115,
+          "expected": null
+        },
+        "diag_wait/867/movement.hospital_movement.gd._unit_sweeps/us": {
+          "actual": 902,
+          "expected": null
+        },
+        "diag_wait/867/movement.hospital_space.gd._reservation_regions/calls": {
+          "actual": 242,
+          "expected": null
+        },
+        "diag_wait/851/movement.hospital_movement.gd._mark_door_use/calls": {
+          "actual": 18,
+          "expected": null
+        },
+        "diag_wait/851/movement.hospital_movement.gd.advance/us": {
+          "actual": 11718,
+          "expected": null
+        },
+        "diag_wait/851/movement.hospital_movement.gd.advance/calls": {
+          "actual": 1,
+          "expected": null
+        },
+        "diag_wait/851/movement.hospital_movement.gd._dispatch_routes/calls": {
+          "actual": 1,
+          "expected": null
+        },
+        "diag_wait/867/movement.hospital_movement.gd._mark_door_use/us": {
+          "actual": 33,
+          "expected": null
+        },
+        "diag_wait/851/movement.hospital_movement.gd._movement_contacts/us": {
+          "actual": 324,
+          "expected": null
+        },
+        "diag_wait/851/movement.hospital_movement.gd._reserve_doors/calls": {
+          "actual": 18,
+          "expected": null
+        },
+        "diag_wait/851/movement.hospital_space.gd._ensure_actor_index/us": {
+          "actual": 18231,
+          "expected": null
+        },
+        "diag_wait/851/movement.hospital_space.gd._reservation_regions/calls": {
+          "actual": 1642,
+          "expected": null
+        },
+        "diag_wait/867/movement.hospital_movement.gd._reserve_doors/calls": {
+          "actual": 112,
+          "expected": null
+        },
+        "diag_wait/867/movement.hospital_movement.gd._mark_door_use/calls": {
+          "actual": 97,
+          "expected": null
+        },
+        "diag_wait/851/movement.hospital_space.gd._reservation_regions/us": {
+          "actual": 16208,
+          "expected": null
+        },
+        "diag_wait/867/movement.hospital_movement.gd._active_route_clear/calls": {
+          "actual": 112,
+          "expected": null
+        },
+        "diag_wait/867/movement.hospital_space.gd._ensure_actor_index/calls": {
+          "actual": 149,
+          "expected": null
+        },
+        "diag_wait/867/movement.hospital_space.gd.movement_doors/us": {
+          "actual": 2998,
+          "expected": null
+        },
+        "diag_wait/851/movement.hospital_movement.gd._movement_contacts/calls": {
+          "actual": 18,
+          "expected": null
+        },
+        "diag_wait/851/movement.hospital_space.gd._ensure_actor_index/calls": {
+          "actual": 1603,
+          "expected": null
+        },
+        "diag_wait/867/movement.hospital_movement.gd._unit_sweeps/calls": {
+          "actual": 112,
+          "expected": null
+        },
+        "diag_wait/867/movement.hospital_movement.gd.advance/calls": {
+          "actual": 1,
+          "expected": null
+        },
+        "diag_wait/851/movement.hospital_movement.gd._unit_sweeps/us": {
+          "actual": 148,
+          "expected": null
+        },
+        "diag_wait/867/movement.hospital_space.gd._ensure_actor_index/us": {
+          "actual": 132,
+          "expected": null
+        },
+        "diag_wait/851/movement.hospital_movement.gd._move_step/calls": {
+          "actual": 18,
+          "expected": null
+        },
+        "diag_wait/867/movement.hospital_movement.gd._movement_contacts/us": {
+          "actual": 2703,
+          "expected": null
+        },
+        "diag_wait/867/movement.hospital_movement.gd.advance/us": {
+          "actual": 16196,
+          "expected": null
+        },
+        "diag_wait/851/movement.hospital_movement.gd._move_step/us": {
+          "actual": 1693,
+          "expected": null
+        },
+        "diag_wait/867/movement.hospital_movement.gd._dispatch_routes/calls": {
+          "actual": 1,
+          "expected": null
+        },
+        "diag_wait/851/movement.hospital_space.gd._sync_actor/calls": {
+          "actual": 1448,
+          "expected": null
+        },
+        "diag_wait/851/movement.hospital_space.gd._sync_actor/us": {
+          "actual": 11209,
+          "expected": null
+        },
+        "diag_wait/851/movement.hospital_movement.gd._unit_sweeps/calls": {
+          "actual": 18,
+          "expected": null
+        },
+        "diag_wait/851/movement.hospital_movement.gd._reserve_doors/us": {
+          "actual": 13,
+          "expected": null
+        }
+      },
+      "roots": {
+        "851": {
+          "outer_elapsed_us": 360470,
+          "stages": {
+            "advance.departments": {
+              "calls": 1,
+              "max_us": 5,
+              "profiled_whole_share": 1.38707798152412e-05,
+              "total_us": 5
+            },
+            "advance.development": {
+              "calls": 1,
+              "max_us": 92,
+              "profiled_whole_share": 0.000255222348600438,
+              "total_us": 92
+            },
+            "advance.environment": {
+              "calls": 1,
+              "max_us": 12,
+              "profiled_whole_share": 3.32898715565789e-05,
+              "total_us": 12
+            },
+            "advance.floors": {
+              "calls": 1,
+              "max_us": 10,
+              "profiled_whole_share": 2.77415596304824e-05,
+              "total_us": 10
+            },
+            "advance.maintenance": {
+              "calls": 1,
+              "max_us": 14,
+              "profiled_whole_share": 3.88381834826754e-05,
+              "total_us": 14
+            },
+            "advance.recruitment": {
+              "calls": 1,
+              "max_us": 43,
+              "profiled_whole_share": 0.000119288706411074,
+              "total_us": 43
+            },
+            "advance.research": {
+              "calls": 1,
+              "max_us": 11,
+              "profiled_whole_share": 3.05157155935307e-05,
+              "total_us": 11
+            },
+            "advance.scheduler": {
+              "calls": 1,
+              "max_us": 4,
+              "profiled_whole_share": 1.1096623852193e-05,
+              "total_us": 4
+            },
+            "advance.supplies": {
+              "calls": 1,
+              "max_us": 123,
+              "profiled_whole_share": 0.000341221183454934,
+              "total_us": 123
+            },
+            "advance.waiting": {
+              "calls": 1,
+              "max_us": 276,
+              "profiled_whole_share": 0.000765667045801315,
+              "total_us": 276
+            },
+            "advance.wellbeing": {
+              "calls": 1,
+              "max_us": 129,
+              "profiled_whole_share": 0.000357866119233223,
+              "total_us": 129
+            },
+            "advance_wait.arrivals": {
+              "calls": 1,
+              "max_us": 698,
+              "profiled_whole_share": 0.00193636086220767,
+              "total_us": 698
+            },
+            "arrivals.arrivals": {
+              "calls": 1,
+              "max_us": 12,
+              "profiled_whole_share": 3.32898715565789e-05,
+              "total_us": 12
+            },
+            "begin_query.environment": {
+              "calls": 1,
+              "max_us": 6,
+              "profiled_whole_share": 1.66449357782895e-05,
+              "total_us": 6
+            },
+            "boundaries.arrivals": {
+              "calls": 1,
+              "max_us": 14,
+              "profiled_whole_share": 3.88381834826754e-05,
+              "total_us": 14
+            },
+            "boundaries.maintenance": {
+              "calls": 1,
+              "max_us": 509,
+              "profiled_whole_share": 0.00141204538519156,
+              "total_us": 509
+            },
+            "boundaries.recruitment": {
+              "calls": 1,
+              "max_us": 32,
+              "profiled_whole_share": 8.87729908175438e-05,
+              "total_us": 32
+            },
+            "boundaries.research": {
+              "calls": 1,
+              "max_us": 23,
+              "profiled_whole_share": 6.38055871501096e-05,
+              "total_us": 23
+            },
+            "boundaries.scheduler": {
+              "calls": 1,
+              "max_us": 565,
+              "profiled_whole_share": 0.00156739811912226,
+              "total_us": 565
+            },
+            "boundaries.supplies": {
+              "calls": 1,
+              "max_us": 32,
+              "profiled_whole_share": 8.87729908175438e-05,
+              "total_us": 32
+            },
+            "boundaries.wellbeing": {
+              "calls": 1,
+              "max_us": 392,
+              "profiled_whole_share": 0.00108746913751491,
+              "total_us": 392
+            },
+            "clinic.advance": {
+              "calls": 1,
+              "max_us": 44,
+              "profiled_whole_share": 0.000122062862374123,
+              "total_us": 44
+            },
+            "clinic.arrivals": {
+              "calls": 1,
+              "max_us": 168,
+              "profiled_whole_share": 0.000466058201792105,
+              "total_us": 168
+            },
+            "clinic.dispatch": {
+              "calls": 1,
+              "max_us": 3461,
+              "profiled_whole_share": 0.00960135378810997,
+              "total_us": 3461
+            },
+            "clinic.release_departed": {
+              "calls": 1,
+              "max_us": 7,
+              "profiled_whole_share": 1.94190917413377e-05,
+              "total_us": 7
+            },
+            "clinic.settle_practice": {
+              "calls": 1,
+              "max_us": 8,
+              "profiled_whole_share": 2.21932477043859e-05,
+              "total_us": 8
+            },
+            "commands.drain": {
+              "calls": 1,
+              "max_us": 9,
+              "profiled_whole_share": 2.49674036674342e-05,
+              "total_us": 9
+            },
+            "dispatch.departments": {
+              "calls": 1,
+              "max_us": 85,
+              "profiled_whole_share": 0.000235803256859101,
+              "total_us": 85
+            },
+            "dispatch.development": {
+              "calls": 1,
+              "max_us": 643,
+              "profiled_whole_share": 0.00178378228424002,
+              "total_us": 643
+            },
+            "dispatch.environment": {
+              "calls": 1,
+              "max_us": 116,
+              "profiled_whole_share": 0.000321802091713596,
+              "total_us": 116
+            },
+            "dispatch.floors": {
+              "calls": 1,
+              "max_us": 10,
+              "profiled_whole_share": 2.77415596304824e-05,
+              "total_us": 10
+            },
+            "dispatch.maintenance": {
+              "calls": 1,
+              "max_us": 18,
+              "profiled_whole_share": 4.99348073348684e-05,
+              "total_us": 18
+            },
+            "dispatch.remodel": {
+              "calls": 1,
+              "max_us": 11,
+              "profiled_whole_share": 3.05157155935307e-05,
+              "total_us": 11
+            },
+            "dispatch.scheduler": {
+              "calls": 1,
+              "max_us": 13,
+              "profiled_whole_share": 3.60640275196272e-05,
+              "total_us": 13
+            },
+            "dispatch.staff_idle": {
+              "calls": 1,
+              "max_us": 70,
+              "profiled_whole_share": 0.000194190917413377,
+              "total_us": 70
+            },
+            "dispatch.waiting": {
+              "calls": 1,
+              "max_us": 331383,
+              "profiled_whole_share": 0.919308125502816,
+              "total_us": 331383
+            },
+            "dispatch.wellbeing": {
+              "calls": 1,
+              "max_us": 850,
+              "profiled_whole_share": 0.00235803256859101,
+              "total_us": 850
+            },
+            "end_query.environment": {
+              "calls": 1,
+              "max_us": 40,
+              "profiled_whole_share": 0.00011096623852193,
+              "total_us": 40
+            },
+            "events.collect": {
+              "calls": 1,
+              "max_us": 10,
+              "profiled_whole_share": 2.77415596304824e-05,
+              "total_us": 10
+            },
+            "integrate.worked_staff": {
+              "calls": 1,
+              "max_us": 11,
+              "profiled_whole_share": 3.05157155935307e-05,
+              "total_us": 11
+            },
+            "movement.capture_staff_locations": {
+              "calls": 1,
+              "max_us": 43,
+              "profiled_whole_share": 0.000119288706411074,
+              "total_us": 43
+            },
+            "movement.space": {
+              "calls": 1,
+              "max_us": 11732,
+              "profiled_whole_share": 0.032546397758482,
+              "total_us": 11732
+            },
+            "needs.arrivals": {
+              "calls": 1,
+              "max_us": 1294,
+              "profiled_whole_share": 0.00358975781618443,
+              "total_us": 1294
+            },
+            "sample.departments": {
+              "calls": 1,
+              "max_us": 5781,
+              "profiled_whole_share": 0.0160373956223819,
+              "total_us": 5781
+            },
+            "settle.arrivals": {
+              "calls": 1,
+              "max_us": 114,
+              "profiled_whole_share": 0.0003162537797875,
+              "total_us": 114
+            },
+            "settle.departments": {
+              "calls": 1,
+              "max_us": 174,
+              "profiled_whole_share": 0.000482703137570394,
+              "total_us": 174
+            },
+            "settle.development": {
+              "calls": 1,
+              "max_us": 692,
+              "profiled_whole_share": 0.00191971592642938,
+              "total_us": 692
+            },
+            "settle.finance": {
+              "calls": 1,
+              "max_us": 271,
+              "profiled_whole_share": 0.000751796265986074,
+              "total_us": 271
+            },
+            "settle.recruitment": {
+              "calls": 1,
+              "max_us": 77,
+              "profiled_whole_share": 0.000213610009154715,
+              "total_us": 77
+            },
+            "settle.research": {
+              "calls": 1,
+              "max_us": 23,
+              "profiled_whole_share": 6.38055871501096e-05,
+              "total_us": 23
+            },
+            "settlement.finish_visits": {
+              "calls": 1,
+              "max_us": 44,
+              "profiled_whole_share": 0.000122062862374123,
+              "total_us": 44
+            },
+            "settlement.ledger": {
+              "calls": 1,
+              "max_us": 7,
+              "profiled_whole_share": 1.94190917413377e-05,
+              "total_us": 7
+            },
+            "snapshot.bookkeeping": {
+              "calls": 1,
+              "max_us": 5,
+              "profiled_whole_share": 1.38707798152412e-05,
+              "total_us": 5
+            },
+            "snapshot.space_boundary": {
+              "calls": 1,
+              "max_us": 3,
+              "profiled_whole_share": 8.32246788914473e-06,
+              "total_us": 3
+            },
+            "snapshot.tick_result": {
+              "calls": 1,
+              "max_us": 22,
+              "profiled_whole_share": 6.10314311870613e-05,
+              "total_us": 22
+            },
+            "snapshot.world_boundary": {
+              "calls": 1,
+              "max_us": 3,
+              "profiled_whole_share": 8.32246788914473e-06,
+              "total_us": 3
+            },
+            "step.setup": {
+              "calls": 1,
+              "max_us": 53,
+              "profiled_whole_share": 0.000147030266041557,
+              "total_us": 53
+            }
+          },
+          "observer_handler_us": 125,
+          "residual_us": 48
+        },
+        "867": {
+          "outer_elapsed_us": 58424,
+          "stages": {
+            "advance.departments": {
+              "calls": 1,
+              "max_us": 6,
+              "profiled_whole_share": 0.00010269752156648,
+              "total_us": 6
+            },
+            "advance.development": {
+              "calls": 1,
+              "max_us": 124,
+              "profiled_whole_share": 0.00212241544570724,
+              "total_us": 124
+            },
+            "advance.environment": {
+              "calls": 1,
+              "max_us": 17,
+              "profiled_whole_share": 0.000290976311105025,
+              "total_us": 17
+            },
+            "advance.floors": {
+              "calls": 1,
+              "max_us": 15,
+              "profiled_whole_share": 0.000256743803916199,
+              "total_us": 15
+            },
+            "advance.maintenance": {
+              "calls": 1,
+              "max_us": 19,
+              "profiled_whole_share": 0.000325208818293852,
+              "total_us": 19
+            },
+            "advance.recruitment": {
+              "calls": 1,
+              "max_us": 51,
+              "profiled_whole_share": 0.000872928933315076,
+              "total_us": 51
+            },
+            "advance.research": {
+              "calls": 1,
+              "max_us": 14,
+              "profiled_whole_share": 0.000239627550321786,
+              "total_us": 14
+            },
+            "advance.scheduler": {
+              "calls": 1,
+              "max_us": 6,
+              "profiled_whole_share": 0.00010269752156648,
+              "total_us": 6
+            },
+            "advance.supplies": {
+              "calls": 1,
+              "max_us": 180,
+              "profiled_whole_share": 0.00308092564699439,
+              "total_us": 180
+            },
+            "advance.waiting": {
+              "calls": 1,
+              "max_us": 337,
+              "profiled_whole_share": 0.00576817746131727,
+              "total_us": 337
+            },
+            "advance.wellbeing": {
+              "calls": 1,
+              "max_us": 166,
+              "profiled_whole_share": 0.0028412980966726,
+              "total_us": 166
+            },
+            "advance_wait.arrivals": {
+              "calls": 1,
+              "max_us": 1037,
+              "profiled_whole_share": 0.0177495549774065,
+              "total_us": 1037
+            },
+            "arrivals.arrivals": {
+              "calls": 1,
+              "max_us": 14,
+              "profiled_whole_share": 0.000239627550321786,
+              "total_us": 14
+            },
+            "begin_query.environment": {
+              "calls": 1,
+              "max_us": 10,
+              "profiled_whole_share": 0.000171162535944133,
+              "total_us": 10
+            },
+            "boundaries.arrivals": {
+              "calls": 1,
+              "max_us": 19,
+              "profiled_whole_share": 0.000325208818293852,
+              "total_us": 19
+            },
+            "boundaries.maintenance": {
+              "calls": 1,
+              "max_us": 618,
+              "profiled_whole_share": 0.0105778447213474,
+              "total_us": 618
+            },
+            "boundaries.recruitment": {
+              "calls": 1,
+              "max_us": 49,
+              "profiled_whole_share": 0.00083869642612625,
+              "total_us": 49
+            },
+            "boundaries.research": {
+              "calls": 1,
+              "max_us": 18,
+              "profiled_whole_share": 0.000308092564699439,
+              "total_us": 18
+            },
+            "boundaries.scheduler": {
+              "calls": 1,
+              "max_us": 711,
+              "profiled_whole_share": 0.0121696563056278,
+              "total_us": 711
+            },
+            "boundaries.supplies": {
+              "calls": 1,
+              "max_us": 26,
+              "profiled_whole_share": 0.000445022593454745,
+              "total_us": 26
+            },
+            "boundaries.wellbeing": {
+              "calls": 1,
+              "max_us": 558,
+              "profiled_whole_share": 0.0095508695056826,
+              "total_us": 558
+            },
+            "clinic.advance": {
+              "calls": 1,
+              "max_us": 52,
+              "profiled_whole_share": 0.000890045186909489,
+              "total_us": 52
+            },
+            "clinic.arrivals": {
+              "calls": 1,
+              "max_us": 13,
+              "profiled_whole_share": 0.000222511296727372,
+              "total_us": 13
+            },
+            "clinic.dispatch": {
+              "calls": 1,
+              "max_us": 9566,
+              "profiled_whole_share": 0.163734081884157,
+              "total_us": 9566
+            },
+            "clinic.release_departed": {
+              "calls": 1,
+              "max_us": 8,
+              "profiled_whole_share": 0.000136930028755306,
+              "total_us": 8
+            },
+            "clinic.settle_practice": {
+              "calls": 1,
+              "max_us": 9,
+              "profiled_whole_share": 0.000154046282349719,
+              "total_us": 9
+            },
+            "commands.drain": {
+              "calls": 1,
+              "max_us": 6,
+              "profiled_whole_share": 0.00010269752156648,
+              "total_us": 6
+            },
+            "dispatch.departments": {
+              "calls": 1,
+              "max_us": 96,
+              "profiled_whole_share": 0.00164316034506367,
+              "total_us": 96
+            },
+            "dispatch.development": {
+              "calls": 1,
+              "max_us": 935,
+              "profiled_whole_share": 0.0160036971107764,
+              "total_us": 935
+            },
+            "dispatch.environment": {
+              "calls": 1,
+              "max_us": 130,
+              "profiled_whole_share": 0.00222511296727372,
+              "total_us": 130
+            },
+            "dispatch.floors": {
+              "calls": 1,
+              "max_us": 11,
+              "profiled_whole_share": 0.000188278789538546,
+              "total_us": 11
+            },
+            "dispatch.maintenance": {
+              "calls": 1,
+              "max_us": 20,
+              "profiled_whole_share": 0.000342325071888265,
+              "total_us": 20
+            },
+            "dispatch.remodel": {
+              "calls": 1,
+              "max_us": 14,
+              "profiled_whole_share": 0.000239627550321786,
+              "total_us": 14
+            },
+            "dispatch.scheduler": {
+              "calls": 1,
+              "max_us": 16,
+              "profiled_whole_share": 0.000273860057510612,
+              "total_us": 16
+            },
+            "dispatch.staff_idle": {
+              "calls": 1,
+              "max_us": 84,
+              "profiled_whole_share": 0.00143776530193071,
+              "total_us": 84
+            },
+            "dispatch.waiting": {
+              "calls": 1,
+              "max_us": 13620,
+              "profiled_whole_share": 0.233123373955909,
+              "total_us": 13620
+            },
+            "dispatch.wellbeing": {
+              "calls": 1,
+              "max_us": 910,
+              "profiled_whole_share": 0.0155757907709161,
+              "total_us": 910
+            },
+            "end_query.environment": {
+              "calls": 1,
+              "max_us": 69,
+              "profiled_whole_share": 0.00118102149801451,
+              "total_us": 69
+            },
+            "events.collect": {
+              "calls": 1,
+              "max_us": 12,
+              "profiled_whole_share": 0.000205395043132959,
+              "total_us": 12
+            },
+            "integrate.worked_staff": {
+              "calls": 1,
+              "max_us": 14,
+              "profiled_whole_share": 0.000239627550321786,
+              "total_us": 14
+            },
+            "movement.capture_staff_locations": {
+              "calls": 1,
+              "max_us": 48,
+              "profiled_whole_share": 0.000821580172531836,
+              "total_us": 48
+            },
+            "movement.space": {
+              "calls": 1,
+              "max_us": 16215,
+              "profiled_whole_share": 0.277540052033411,
+              "total_us": 16215
+            },
+            "needs.arrivals": {
+              "calls": 1,
+              "max_us": 2016,
+              "profiled_whole_share": 0.0345063672463371,
+              "total_us": 2016
+            },
+            "sample.departments": {
+              "calls": 1,
+              "max_us": 8696,
+              "profiled_whole_share": 0.148842941257018,
+              "total_us": 8696
+            },
+            "settle.arrivals": {
+              "calls": 1,
+              "max_us": 196,
+              "profiled_whole_share": 0.003354785704505,
+              "total_us": 196
+            },
+            "settle.departments": {
+              "calls": 1,
+              "max_us": 205,
+              "profiled_whole_share": 0.00350883198685472,
+              "total_us": 205
+            },
+            "settle.development": {
+              "calls": 1,
+              "max_us": 721,
+              "profiled_whole_share": 0.012340818841572,
+              "total_us": 721
+            },
+            "settle.finance": {
+              "calls": 1,
+              "max_us": 304,
+              "profiled_whole_share": 0.00520334109270163,
+              "total_us": 304
+            },
+            "settle.recruitment": {
+              "calls": 1,
+              "max_us": 85,
+              "profiled_whole_share": 0.00145488155552513,
+              "total_us": 85
+            },
+            "settle.research": {
+              "calls": 1,
+              "max_us": 26,
+              "profiled_whole_share": 0.000445022593454745,
+              "total_us": 26
+            },
+            "settlement.finish_visits": {
+              "calls": 1,
+              "max_us": 43,
+              "profiled_whole_share": 0.00073599890455977,
+              "total_us": 43
+            },
+            "settlement.ledger": {
+              "calls": 1,
+              "max_us": 8,
+              "profiled_whole_share": 0.000136930028755306,
+              "total_us": 8
+            },
+            "snapshot.bookkeeping": {
+              "calls": 1,
+              "max_us": 5,
+              "profiled_whole_share": 8.55812679720663e-05,
+              "total_us": 5
+            },
+            "snapshot.space_boundary": {
+              "calls": 1,
+              "max_us": 5,
+              "profiled_whole_share": 8.55812679720663e-05,
+              "total_us": 5
+            },
+            "snapshot.tick_result": {
+              "calls": 1,
+              "max_us": 27,
+              "profiled_whole_share": 0.000462138847049158,
+              "total_us": 27
+            },
+            "snapshot.world_boundary": {
+              "calls": 1,
+              "max_us": 3,
+              "profiled_whole_share": 5.13487607832398e-05,
+              "total_us": 3
+            },
+            "step.setup": {
+              "calls": 1,
+              "max_us": 38,
+              "profiled_whole_share": 0.000650417636587704,
+              "total_us": 38
+            }
+          },
+          "observer_handler_us": 156,
+          "residual_us": 47
+        }
+      },
+      "diagnostic_counts": {
+        "diag_wait/851/movement.hospital_movement.gd._active_route_clear/calls": 18,
+        "diag_wait/851/movement.hospital_movement.gd._active_route_clear/us": 2846,
+        "diag_wait/851/movement.hospital_movement.gd._dispatch_routes/calls": 1,
+        "diag_wait/851/movement.hospital_movement.gd._dispatch_routes/us": 6447,
+        "diag_wait/851/movement.hospital_movement.gd._mark_door_use/calls": 18,
+        "diag_wait/851/movement.hospital_movement.gd._mark_door_use/us": 6,
+        "diag_wait/851/movement.hospital_movement.gd._move_step/calls": 18,
+        "diag_wait/851/movement.hospital_movement.gd._move_step/us": 1693,
+        "diag_wait/851/movement.hospital_movement.gd._movement_contacts/calls": 18,
+        "diag_wait/851/movement.hospital_movement.gd._movement_contacts/us": 324,
+        "diag_wait/851/movement.hospital_movement.gd._reserve_doors/calls": 18,
+        "diag_wait/851/movement.hospital_movement.gd._reserve_doors/us": 13,
+        "diag_wait/851/movement.hospital_movement.gd._unit_sweeps/calls": 18,
+        "diag_wait/851/movement.hospital_movement.gd._unit_sweeps/us": 148,
+        "diag_wait/851/movement.hospital_movement.gd.advance/calls": 1,
+        "diag_wait/851/movement.hospital_movement.gd.advance/us": 11718,
+        "diag_wait/851/movement.hospital_space.gd._ensure_actor_index/calls": 1603,
+        "diag_wait/851/movement.hospital_space.gd._ensure_actor_index/us": 18231,
+        "diag_wait/851/movement.hospital_space.gd._reservation_regions/calls": 1642,
+        "diag_wait/851/movement.hospital_space.gd._reservation_regions/us": 16208,
+        "diag_wait/851/movement.hospital_space.gd._sync_actor/calls": 1448,
+        "diag_wait/851/movement.hospital_space.gd._sync_actor/us": 11209,
+        "diag_wait/851/movement.hospital_space.gd.movement_doors/calls": 98,
+        "diag_wait/851/movement.hospital_space.gd.movement_doors/us": 2183,
+        "diag_wait/867/movement.hospital_movement.gd._active_route_clear/calls": 112,
+        "diag_wait/867/movement.hospital_movement.gd._active_route_clear/us": 1517,
+        "diag_wait/867/movement.hospital_movement.gd._dispatch_routes/calls": 1,
+        "diag_wait/867/movement.hospital_movement.gd._dispatch_routes/us": 13,
+        "diag_wait/867/movement.hospital_movement.gd._mark_door_use/calls": 97,
+        "diag_wait/867/movement.hospital_movement.gd._mark_door_use/us": 33,
+        "diag_wait/867/movement.hospital_movement.gd._move_step/calls": 112,
+        "diag_wait/867/movement.hospital_movement.gd._move_step/us": 12258,
+        "diag_wait/867/movement.hospital_movement.gd._movement_contacts/calls": 112,
+        "diag_wait/867/movement.hospital_movement.gd._movement_contacts/us": 2703,
+        "diag_wait/867/movement.hospital_movement.gd._reserve_doors/calls": 112,
+        "diag_wait/867/movement.hospital_movement.gd._reserve_doors/us": 115,
+        "diag_wait/867/movement.hospital_movement.gd._unit_sweeps/calls": 112,
+        "diag_wait/867/movement.hospital_movement.gd._unit_sweeps/us": 902,
+        "diag_wait/867/movement.hospital_movement.gd.advance/calls": 1,
+        "diag_wait/867/movement.hospital_movement.gd.advance/us": 16196,
+        "diag_wait/867/movement.hospital_space.gd._ensure_actor_index/calls": 149,
+        "diag_wait/867/movement.hospital_space.gd._ensure_actor_index/us": 132,
+        "diag_wait/867/movement.hospital_space.gd._reservation_regions/calls": 242,
+        "diag_wait/867/movement.hospital_space.gd._reservation_regions/us": 1399,
+        "diag_wait/867/movement.hospital_space.gd.movement_doors/calls": 112,
+        "diag_wait/867/movement.hospital_space.gd.movement_doors/us": 2998
+      },
+      "query_counts": {
+        "actor_index_actor_visits": 15520,
+        "actor_index_builds": 97,
+        "candidate_connections": 414,
+        "connector_edge_builds": 414,
+        "connector_edge_hits": 3,
+        "connector_node_declarations": 4,
+        "connector_topology_builds": 1,
+        "connector_topology_inherits": 31,
+        "courtesy_static_geometry_hits": 36,
+        "distance_field_builds": 14,
+        "distance_field_hits": 143,
+        "door_candidates": 1266,
+        "entry_order_builds": 19,
+        "entry_order_hits": 83,
+        "entry_order_native_builds": 19,
+        "entry_walking_table_builds": 2,
+        "environment_actor_source_builds": 8,
+        "environment_coverage_mask_builds": 4,
+        "environment_coverage_native_calls": 631,
+        "environment_dynamic_source_builds": 88,
+        "environment_facility_source_builds": 1,
+        "environment_facility_source_hits": 87,
+        "facility_environment_builds": 1,
+        "facility_environment_hits": 2146,
+        "floor_route_builds": 841,
+        "floor_route_hits": 0,
+        "journey_hits": 0,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 8354,
+        "movement_candidates": 525,
+        "nearby_field_builds": 12,
+        "point_cost_lift_arrival_prunes": 224,
+        "point_source_builds": 3,
+        "point_source_goal_legs": 9,
+        "point_source_hits": 6,
+        "public_entry_field_hits": 865,
+        "public_entry_field_preparations": 91,
+        "public_facility_candidates": 20688,
+        "public_fit_body_key_preparations": 1072,
+        "public_queue_fit_builds": 28,
+        "public_queue_fit_hits": 2064,
+        "public_region_definition_index_builds": 1,
+        "public_region_definition_index_hits": 112,
+        "public_region_floor_builds": 4,
+        "public_region_mapping_builds": 1,
+        "public_region_native_builds": 4,
+        "public_select_regions_total": 7616,
+        "public_select_regions_visited": 112,
+        "public_wait_dependency_batches": 1079,
+        "public_wait_dependency_rectangles": 17271,
+        "public_wait_door_checks": 18,
+        "public_wait_door_index_builds": 1,
+        "public_wait_environment_match_builds": 63,
+        "public_wait_environment_match_hits": 1016,
+        "public_wait_hits": 682,
+        "public_wait_initial_rechecks": 35,
+        "public_wait_rechecks": 278,
+        "reservation_candidate_queries": 22979,
+        "reservation_index_builds": 29,
+        "reservation_index_updates": 424,
+        "route_checks": 5624,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 146,
+        "route_dispatches": 146,
+        "route_revalidation_unvalidated": 156,
+        "route_revalidations": 156,
+        "routes": 391,
+        "static_path_builds": 191,
+        "static_path_hits": 13,
+        "structural_reverse_field_hits": 51,
+        "structural_reverse_field_lookups": 255,
+        "transport_builds": 0,
+        "transport_requests": 183,
+        "transport_searches": 177,
+        "yield_attempts": 27,
+        "yield_candidates": 23
+      },
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a",
+      "process_cpu_ms": 8500.0,
+      "process_wall_ms": 8592.53350002109
+    },
+    "parts01-gp80": {
+      "variant": "baselinemoveparts",
+      "mode": "root",
+      "metrics_us": {
+        "cold_first_us": 239439,
+        "count": 80,
+        "following_mean_us": 48976.3797468354,
+        "max_us": 322492,
+        "mean_us": 51357.1625,
+        "p50_us": 42021,
+        "p95_us": 95469,
+        "p99_us": 322492,
+        "total_us": 4108573
+      },
+      "steps": 80,
+      "checks": {
+        "complete": true,
+        "qualified": true,
+        "errors_empty": true,
+        "source_input_sha256": true,
+        "initial": true,
+        "final": true,
+        "qualification": true,
+        "operations": true,
+        "event_records": true,
+        "final_binary_sha256": true,
+        "public_business": true,
+        "non_timing_samples": true,
+        "environment_workers_complete": true
+      },
+      "selection": {},
+      "query_count_differences": {
+        "diag_wait/867/movement.part.door_candidates/calls": {
+          "actual": 112,
+          "expected": null
+        },
+        "diag_wait/851/movement.part.doors_count": {
+          "actual": 0,
+          "expected": null
+        },
+        "diag_wait/867/movement.parts._move_step/calls": {
+          "actual": 112,
+          "expected": null
+        },
+        "diag_wait/867/movement.part.route_tail/us": {
+          "actual": 59,
+          "expected": null
+        },
+        "diag_wait/867/movement.part.prepare/calls": {
+          "actual": 112,
+          "expected": null
+        },
+        "diag_wait/867/movement.part.prepare/us": {
+          "actual": 1828,
+          "expected": null
+        },
+        "diag_wait/851/movement.parts._move_step/calls": {
+          "actual": 18,
+          "expected": null
+        },
+        "diag_wait/851/movement.part.index_updates/us": {
+          "actual": 139,
+          "expected": null
+        },
+        "diag_wait/867/movement.part.contacts/us": {
+          "actual": 1703,
+          "expected": null
+        },
+        "diag_wait/867/movement.part.door_reservation/calls": {
+          "actual": 112,
+          "expected": null
+        },
+        "diag_wait/851/movement.parts.advance/us": {
+          "actual": 11696,
+          "expected": null
+        },
+        "diag_wait/851/movement.part.body_commit/calls": {
+          "actual": 18,
+          "expected": null
+        },
+        "diag_wait/851/movement.part.prepare/calls": {
+          "actual": 18,
+          "expected": null
+        },
+        "diag_wait/851/movement.part.door_reservation/us": {
+          "actual": 56,
+          "expected": null
+        },
+        "diag_wait/851/movement.part.prepare/us": {
+          "actual": 337,
+          "expected": null
+        },
+        "diag_wait/851/movement.part.contacts/calls": {
+          "actual": 18,
+          "expected": null
+        },
+        "diag_wait/867/movement.parts._move_step/us": {
+          "actual": 9389,
+          "expected": null
+        },
+        "diag_wait/867/movement.part.door_reservation/us": {
+          "actual": 395,
+          "expected": null
+        },
+        "diag_wait/867/movement.part.doors_count": {
+          "actual": 0,
+          "expected": null
+        },
+        "diag_wait/851/movement.parts.advance/calls": {
+          "actual": 1,
+          "expected": null
+        },
+        "diag_wait/851/movement.part.contacts/us": {
+          "actual": 247,
+          "expected": null
+        },
+        "diag_wait/867/movement.part.body_commit/calls": {
+          "actual": 97,
+          "expected": null
+        },
+        "diag_wait/867/movement.part.index_updates/calls": {
+          "actual": 97,
+          "expected": null
+        },
+        "diag_wait/851/movement.part.body_commit/us": {
+          "actual": 52,
+          "expected": null
+        },
+        "diag_wait/867/movement.part.route_tail/calls": {
+          "actual": 97,
+          "expected": null
+        },
+        "diag_wait/851/movement.parts._move_step/us": {
+          "actual": 1587,
+          "expected": null
+        },
+        "diag_wait/867/movement.part.index_updates/us": {
+          "actual": 702,
+          "expected": null
+        },
+        "diag_wait/851/movement.part.door_candidates/us": {
+          "actual": 356,
+          "expected": null
+        },
+        "diag_wait/851/movement.part.index_updates/calls": {
+          "actual": 18,
+          "expected": null
+        },
+        "diag_wait/851/movement.part.door_reservation/calls": {
+          "actual": 18,
+          "expected": null
+        },
+        "diag_wait/867/movement.part.contacts/calls": {
+          "actual": 112,
+          "expected": null
+        },
+        "diag_wait/867/movement.part.body_commit/us": {
+          "actual": 276,
+          "expected": null
+        },
+        "diag_wait/851/movement.part.route_tail/calls": {
+          "actual": 18,
+          "expected": null
+        },
+        "diag_wait/867/movement.part.door_candidates/us": {
+          "actual": 2100,
+          "expected": null
+        },
+        "diag_wait/867/movement.parts.advance/calls": {
+          "actual": 1,
+          "expected": null
+        },
+        "diag_wait/867/movement.parts.advance/us": {
+          "actual": 12063,
+          "expected": null
+        },
+        "diag_wait/851/movement.part.door_candidates/calls": {
+          "actual": 18,
+          "expected": null
+        },
+        "diag_wait/851/movement.part.route_tail/us": {
+          "actual": 19,
+          "expected": null
+        }
+      },
+      "roots": {
+        "851": {
+          "outer_elapsed_us": 322492,
+          "stages": {
+            "advance.departments": {
+              "calls": 1,
+              "max_us": 5,
+              "profiled_whole_share": 1.55042605708049e-05,
+              "total_us": 5
+            },
+            "advance.development": {
+              "calls": 1,
+              "max_us": 87,
+              "profiled_whole_share": 0.000269774133932005,
+              "total_us": 87
+            },
+            "advance.environment": {
+              "calls": 1,
+              "max_us": 12,
+              "profiled_whole_share": 3.72102253699317e-05,
+              "total_us": 12
+            },
+            "advance.floors": {
+              "calls": 1,
+              "max_us": 9,
+              "profiled_whole_share": 2.79076690274487e-05,
+              "total_us": 9
+            },
+            "advance.maintenance": {
+              "calls": 1,
+              "max_us": 14,
+              "profiled_whole_share": 4.34119295982536e-05,
+              "total_us": 14
+            },
+            "advance.recruitment": {
+              "calls": 1,
+              "max_us": 39,
+              "profiled_whole_share": 0.000120933232452278,
+              "total_us": 39
+            },
+            "advance.research": {
+              "calls": 1,
+              "max_us": 9,
+              "profiled_whole_share": 2.79076690274487e-05,
+              "total_us": 9
+            },
+            "advance.scheduler": {
+              "calls": 1,
+              "max_us": 4,
+              "profiled_whole_share": 1.24034084566439e-05,
+              "total_us": 4
+            },
+            "advance.supplies": {
+              "calls": 1,
+              "max_us": 106,
+              "profiled_whole_share": 0.000328690324101063,
+              "total_us": 106
+            },
+            "advance.waiting": {
+              "calls": 1,
+              "max_us": 229,
+              "profiled_whole_share": 0.000710095134142863,
+              "total_us": 229
+            },
+            "advance.wellbeing": {
+              "calls": 1,
+              "max_us": 102,
+              "profiled_whole_share": 0.000316286915644419,
+              "total_us": 102
+            },
+            "advance_wait.arrivals": {
+              "calls": 1,
+              "max_us": 623,
+              "profiled_whole_share": 0.00193183086712229,
+              "total_us": 623
+            },
+            "arrivals.arrivals": {
+              "calls": 1,
+              "max_us": 11,
+              "profiled_whole_share": 3.41093732557707e-05,
+              "total_us": 11
+            },
+            "begin_query.environment": {
+              "calls": 1,
+              "max_us": 7,
+              "profiled_whole_share": 2.17059647991268e-05,
+              "total_us": 7
+            },
+            "boundaries.arrivals": {
+              "calls": 1,
+              "max_us": 9,
+              "profiled_whole_share": 2.79076690274487e-05,
+              "total_us": 9
+            },
+            "boundaries.maintenance": {
+              "calls": 1,
+              "max_us": 477,
+              "profiled_whole_share": 0.00147910645845478,
+              "total_us": 477
+            },
+            "boundaries.recruitment": {
+              "calls": 1,
+              "max_us": 22,
+              "profiled_whole_share": 6.82187465115414e-05,
+              "total_us": 22
+            },
+            "boundaries.research": {
+              "calls": 1,
+              "max_us": 12,
+              "profiled_whole_share": 3.72102253699317e-05,
+              "total_us": 12
+            },
+            "boundaries.scheduler": {
+              "calls": 1,
+              "max_us": 413,
+              "profiled_whole_share": 0.00128065192314848,
+              "total_us": 413
+            },
+            "boundaries.supplies": {
+              "calls": 1,
+              "max_us": 20,
+              "profiled_whole_share": 6.20170422832194e-05,
+              "total_us": 20
+            },
+            "boundaries.wellbeing": {
+              "calls": 1,
+              "max_us": 366,
+              "profiled_whole_share": 0.00113491187378292,
+              "total_us": 366
+            },
+            "clinic.advance": {
+              "calls": 1,
+              "max_us": 39,
+              "profiled_whole_share": 0.000120933232452278,
+              "total_us": 39
+            },
+            "clinic.arrivals": {
+              "calls": 1,
+              "max_us": 126,
+              "profiled_whole_share": 0.000390707366384282,
+              "total_us": 126
+            },
+            "clinic.dispatch": {
+              "calls": 1,
+              "max_us": 3618,
+              "profiled_whole_share": 0.0112188829490344,
+              "total_us": 3618
+            },
+            "clinic.release_departed": {
+              "calls": 1,
+              "max_us": 6,
+              "profiled_whole_share": 1.86051126849658e-05,
+              "total_us": 6
+            },
+            "clinic.settle_practice": {
+              "calls": 1,
+              "max_us": 6,
+              "profiled_whole_share": 1.86051126849658e-05,
+              "total_us": 6
+            },
+            "commands.drain": {
+              "calls": 1,
+              "max_us": 4,
+              "profiled_whole_share": 1.24034084566439e-05,
+              "total_us": 4
+            },
+            "dispatch.departments": {
+              "calls": 1,
+              "max_us": 81,
+              "profiled_whole_share": 0.000251169021247039,
+              "total_us": 81
+            },
+            "dispatch.development": {
+              "calls": 1,
+              "max_us": 607,
+              "profiled_whole_share": 0.00188221723329571,
+              "total_us": 607
+            },
+            "dispatch.environment": {
+              "calls": 1,
+              "max_us": 121,
+              "profiled_whole_share": 0.000375203105813478,
+              "total_us": 121
+            },
+            "dispatch.floors": {
+              "calls": 1,
+              "max_us": 10,
+              "profiled_whole_share": 3.10085211416097e-05,
+              "total_us": 10
+            },
+            "dispatch.maintenance": {
+              "calls": 1,
+              "max_us": 19,
+              "profiled_whole_share": 5.89161901690585e-05,
+              "total_us": 19
+            },
+            "dispatch.remodel": {
+              "calls": 1,
+              "max_us": 10,
+              "profiled_whole_share": 3.10085211416097e-05,
+              "total_us": 10
+            },
+            "dispatch.scheduler": {
+              "calls": 1,
+              "max_us": 12,
+              "profiled_whole_share": 3.72102253699317e-05,
+              "total_us": 12
+            },
+            "dispatch.staff_idle": {
+              "calls": 1,
+              "max_us": 69,
+              "profiled_whole_share": 0.000213958795877107,
+              "total_us": 69
+            },
+            "dispatch.waiting": {
+              "calls": 1,
+              "max_us": 294053,
+              "profiled_whole_share": 0.911814866725376,
+              "total_us": 294053
+            },
+            "dispatch.wellbeing": {
+              "calls": 1,
+              "max_us": 981,
+              "profiled_whole_share": 0.00304193592399191,
+              "total_us": 981
+            },
+            "end_query.environment": {
+              "calls": 1,
+              "max_us": 32,
+              "profiled_whole_share": 9.92272676531511e-05,
+              "total_us": 32
+            },
+            "events.collect": {
+              "calls": 1,
+              "max_us": 9,
+              "profiled_whole_share": 2.79076690274487e-05,
+              "total_us": 9
+            },
+            "integrate.worked_staff": {
+              "calls": 1,
+              "max_us": 10,
+              "profiled_whole_share": 3.10085211416097e-05,
+              "total_us": 10
+            },
+            "movement.capture_staff_locations": {
+              "calls": 1,
+              "max_us": 50,
+              "profiled_whole_share": 0.000155042605708049,
+              "total_us": 50
+            },
+            "movement.space": {
+              "calls": 1,
+              "max_us": 11709,
+              "profiled_whole_share": 0.0363078774047108,
+              "total_us": 11709
+            },
+            "needs.arrivals": {
+              "calls": 1,
+              "max_us": 1352,
+              "profiled_whole_share": 0.00419235205834563,
+              "total_us": 1352
+            },
+            "sample.departments": {
+              "calls": 1,
+              "max_us": 5376,
+              "profiled_whole_share": 0.0166701809657294,
+              "total_us": 5376
+            },
+            "settle.arrivals": {
+              "calls": 1,
+              "max_us": 127,
+              "profiled_whole_share": 0.000393808218498443,
+              "total_us": 127
+            },
+            "settle.departments": {
+              "calls": 1,
+              "max_us": 169,
+              "profiled_whole_share": 0.000524044007293204,
+              "total_us": 169
+            },
+            "settle.development": {
+              "calls": 1,
+              "max_us": 716,
+              "profiled_whole_share": 0.00222021011373926,
+              "total_us": 716
+            },
+            "settle.finance": {
+              "calls": 1,
+              "max_us": 240,
+              "profiled_whole_share": 0.000744204507398633,
+              "total_us": 240
+            },
+            "settle.recruitment": {
+              "calls": 1,
+              "max_us": 76,
+              "profiled_whole_share": 0.000235664760676234,
+              "total_us": 76
+            },
+            "settle.research": {
+              "calls": 1,
+              "max_us": 17,
+              "profiled_whole_share": 5.27144859407365e-05,
+              "total_us": 17
+            },
+            "settlement.finish_visits": {
+              "calls": 1,
+              "max_us": 44,
+              "profiled_whole_share": 0.000136437493023083,
+              "total_us": 44
+            },
+            "settlement.ledger": {
+              "calls": 1,
+              "max_us": 11,
+              "profiled_whole_share": 3.41093732557707e-05,
+              "total_us": 11
+            },
+            "snapshot.bookkeeping": {
+              "calls": 1,
+              "max_us": 4,
+              "profiled_whole_share": 1.24034084566439e-05,
+              "total_us": 4
+            },
+            "snapshot.space_boundary": {
+              "calls": 1,
+              "max_us": 3,
+              "profiled_whole_share": 9.30255634248291e-06,
+              "total_us": 3
+            },
+            "snapshot.tick_result": {
+              "calls": 1,
+              "max_us": 20,
+              "profiled_whole_share": 6.20170422832194e-05,
+              "total_us": 20
+            },
+            "snapshot.world_boundary": {
+              "calls": 1,
+              "max_us": 3,
+              "profiled_whole_share": 9.30255634248291e-06,
+              "total_us": 3
+            },
+            "step.setup": {
+              "calls": 1,
+              "max_us": 37,
+              "profiled_whole_share": 0.000114731528223956,
+              "total_us": 37
+            }
+          },
+          "observer_handler_us": 115,
+          "residual_us": 34
+        },
+        "867": {
+          "outer_elapsed_us": 43777,
+          "stages": {
+            "advance.departments": {
+              "calls": 1,
+              "max_us": 5,
+              "profiled_whole_share": 0.000114215227174087,
+              "total_us": 5
+            },
+            "advance.development": {
+              "calls": 1,
+              "max_us": 92,
+              "profiled_whole_share": 0.0021015601800032,
+              "total_us": 92
+            },
+            "advance.environment": {
+              "calls": 1,
+              "max_us": 12,
+              "profiled_whole_share": 0.000274116545217808,
+              "total_us": 12
+            },
+            "advance.floors": {
+              "calls": 1,
+              "max_us": 11,
+              "profiled_whole_share": 0.000251273499782991,
+              "total_us": 11
+            },
+            "advance.maintenance": {
+              "calls": 1,
+              "max_us": 13,
+              "profiled_whole_share": 0.000296959590652626,
+              "total_us": 13
+            },
+            "advance.recruitment": {
+              "calls": 1,
+              "max_us": 41,
+              "profiled_whole_share": 0.000936564862827512,
+              "total_us": 41
+            },
+            "advance.research": {
+              "calls": 1,
+              "max_us": 10,
+              "profiled_whole_share": 0.000228430454348174,
+              "total_us": 10
+            },
+            "advance.scheduler": {
+              "calls": 1,
+              "max_us": 4,
+              "profiled_whole_share": 9.13721817392695e-05,
+              "total_us": 4
+            },
+            "advance.supplies": {
+              "calls": 1,
+              "max_us": 122,
+              "profiled_whole_share": 0.00278685154304772,
+              "total_us": 122
+            },
+            "advance.waiting": {
+              "calls": 1,
+              "max_us": 274,
+              "profiled_whole_share": 0.00625899444913996,
+              "total_us": 274
+            },
+            "advance.wellbeing": {
+              "calls": 1,
+              "max_us": 115,
+              "profiled_whole_share": 0.002626950225004,
+              "total_us": 115
+            },
+            "advance_wait.arrivals": {
+              "calls": 1,
+              "max_us": 675,
+              "profiled_whole_share": 0.0154190556685017,
+              "total_us": 675
+            },
+            "arrivals.arrivals": {
+              "calls": 1,
+              "max_us": 11,
+              "profiled_whole_share": 0.000251273499782991,
+              "total_us": 11
+            },
+            "begin_query.environment": {
+              "calls": 1,
+              "max_us": 8,
+              "profiled_whole_share": 0.000182744363478539,
+              "total_us": 8
+            },
+            "boundaries.arrivals": {
+              "calls": 1,
+              "max_us": 18,
+              "profiled_whole_share": 0.000411174817826713,
+              "total_us": 18
+            },
+            "boundaries.maintenance": {
+              "calls": 1,
+              "max_us": 468,
+              "profiled_whole_share": 0.0106905452634945,
+              "total_us": 468
+            },
+            "boundaries.recruitment": {
+              "calls": 1,
+              "max_us": 22,
+              "profiled_whole_share": 0.000502546999565982,
+              "total_us": 22
+            },
+            "boundaries.research": {
+              "calls": 1,
+              "max_us": 13,
+              "profiled_whole_share": 0.000296959590652626,
+              "total_us": 13
+            },
+            "boundaries.scheduler": {
+              "calls": 1,
+              "max_us": 417,
+              "profiled_whole_share": 0.00952554994631884,
+              "total_us": 417
+            },
+            "boundaries.supplies": {
+              "calls": 1,
+              "max_us": 19,
+              "profiled_whole_share": 0.00043401786326153,
+              "total_us": 19
+            },
+            "boundaries.wellbeing": {
+              "calls": 1,
+              "max_us": 326,
+              "profiled_whole_share": 0.00744683281175046,
+              "total_us": 326
+            },
+            "clinic.advance": {
+              "calls": 1,
+              "max_us": 43,
+              "profiled_whole_share": 0.000982250953697147,
+              "total_us": 43
+            },
+            "clinic.arrivals": {
+              "calls": 1,
+              "max_us": 8,
+              "profiled_whole_share": 0.000182744363478539,
+              "total_us": 8
+            },
+            "clinic.dispatch": {
+              "calls": 1,
+              "max_us": 8261,
+              "profiled_whole_share": 0.188706398337026,
+              "total_us": 8261
+            },
+            "clinic.release_departed": {
+              "calls": 1,
+              "max_us": 6,
+              "profiled_whole_share": 0.000137058272608904,
+              "total_us": 6
+            },
+            "clinic.settle_practice": {
+              "calls": 1,
+              "max_us": 7,
+              "profiled_whole_share": 0.000159901318043722,
+              "total_us": 7
+            },
+            "commands.drain": {
+              "calls": 1,
+              "max_us": 4,
+              "profiled_whole_share": 9.13721817392695e-05,
+              "total_us": 4
+            },
+            "dispatch.departments": {
+              "calls": 1,
+              "max_us": 86,
+              "profiled_whole_share": 0.00196450190739429,
+              "total_us": 86
+            },
+            "dispatch.development": {
+              "calls": 1,
+              "max_us": 606,
+              "profiled_whole_share": 0.0138428855334993,
+              "total_us": 606
+            },
+            "dispatch.environment": {
+              "calls": 1,
+              "max_us": 124,
+              "profiled_whole_share": 0.00283253763391735,
+              "total_us": 124
+            },
+            "dispatch.floors": {
+              "calls": 1,
+              "max_us": 11,
+              "profiled_whole_share": 0.000251273499782991,
+              "total_us": 11
+            },
+            "dispatch.maintenance": {
+              "calls": 1,
+              "max_us": 20,
+              "profiled_whole_share": 0.000456860908696347,
+              "total_us": 20
+            },
+            "dispatch.remodel": {
+              "calls": 1,
+              "max_us": 10,
+              "profiled_whole_share": 0.000228430454348174,
+              "total_us": 10
+            },
+            "dispatch.scheduler": {
+              "calls": 1,
+              "max_us": 11,
+              "profiled_whole_share": 0.000251273499782991,
+              "total_us": 11
+            },
+            "dispatch.staff_idle": {
+              "calls": 1,
+              "max_us": 75,
+              "profiled_whole_share": 0.0017132284076113,
+              "total_us": 75
+            },
+            "dispatch.waiting": {
+              "calls": 1,
+              "max_us": 9629,
+              "profiled_whole_share": 0.219955684491856,
+              "total_us": 9629
+            },
+            "dispatch.wellbeing": {
+              "calls": 1,
+              "max_us": 877,
+              "profiled_whole_share": 0.0200333508463348,
+              "total_us": 877
+            },
+            "end_query.environment": {
+              "calls": 1,
+              "max_us": 37,
+              "profiled_whole_share": 0.000845192681088243,
+              "total_us": 37
+            },
+            "events.collect": {
+              "calls": 1,
+              "max_us": 14,
+              "profiled_whole_share": 0.000319802636087443,
+              "total_us": 14
+            },
+            "integrate.worked_staff": {
+              "calls": 1,
+              "max_us": 10,
+              "profiled_whole_share": 0.000228430454348174,
+              "total_us": 10
+            },
+            "movement.capture_staff_locations": {
+              "calls": 1,
+              "max_us": 46,
+              "profiled_whole_share": 0.0010507800900016,
+              "total_us": 46
+            },
+            "movement.space": {
+              "calls": 1,
+              "max_us": 12075,
+              "profiled_whole_share": 0.27582977362542,
+              "total_us": 12075
+            },
+            "needs.arrivals": {
+              "calls": 1,
+              "max_us": 1318,
+              "profiled_whole_share": 0.0301071338830893,
+              "total_us": 1318
+            },
+            "sample.departments": {
+              "calls": 1,
+              "max_us": 5805,
+              "profiled_whole_share": 0.132603878749115,
+              "total_us": 5805
+            },
+            "settle.arrivals": {
+              "calls": 1,
+              "max_us": 162,
+              "profiled_whole_share": 0.00370057336044041,
+              "total_us": 162
+            },
+            "settle.departments": {
+              "calls": 1,
+              "max_us": 248,
+              "profiled_whole_share": 0.00566507526783471,
+              "total_us": 248
+            },
+            "settle.development": {
+              "calls": 1,
+              "max_us": 907,
+              "profiled_whole_share": 0.0207186422093794,
+              "total_us": 907
+            },
+            "settle.finance": {
+              "calls": 1,
+              "max_us": 313,
+              "profiled_whole_share": 0.00714987322109784,
+              "total_us": 313
+            },
+            "settle.recruitment": {
+              "calls": 1,
+              "max_us": 86,
+              "profiled_whole_share": 0.00196450190739429,
+              "total_us": 86
+            },
+            "settle.research": {
+              "calls": 1,
+              "max_us": 21,
+              "profiled_whole_share": 0.000479703954131165,
+              "total_us": 21
+            },
+            "settlement.finish_visits": {
+              "calls": 1,
+              "max_us": 46,
+              "profiled_whole_share": 0.0010507800900016,
+              "total_us": 46
+            },
+            "settlement.ledger": {
+              "calls": 1,
+              "max_us": 8,
+              "profiled_whole_share": 0.000182744363478539,
+              "total_us": 8
+            },
+            "snapshot.bookkeeping": {
+              "calls": 1,
+              "max_us": 4,
+              "profiled_whole_share": 9.13721817392695e-05,
+              "total_us": 4
+            },
+            "snapshot.space_boundary": {
+              "calls": 1,
+              "max_us": 4,
+              "profiled_whole_share": 9.13721817392695e-05,
+              "total_us": 4
+            },
+            "snapshot.tick_result": {
+              "calls": 1,
+              "max_us": 24,
+              "profiled_whole_share": 0.000548233090435617,
+              "total_us": 24
+            },
+            "snapshot.world_boundary": {
+              "calls": 1,
+              "max_us": 3,
+              "profiled_whole_share": 6.85291363044521e-05,
+              "total_us": 3
+            },
+            "step.setup": {
+              "calls": 1,
+              "max_us": 35,
+              "profiled_whole_share": 0.000799506590218608,
+              "total_us": 35
+            }
+          },
+          "observer_handler_us": 119,
+          "residual_us": 38
+        }
+      },
+      "diagnostic_counts": {
+        "diag_wait/851/movement.part.body_commit/calls": 18,
+        "diag_wait/851/movement.part.body_commit/us": 52,
+        "diag_wait/851/movement.part.contacts/calls": 18,
+        "diag_wait/851/movement.part.contacts/us": 247,
+        "diag_wait/851/movement.part.door_candidates/calls": 18,
+        "diag_wait/851/movement.part.door_candidates/us": 356,
+        "diag_wait/851/movement.part.door_reservation/calls": 18,
+        "diag_wait/851/movement.part.door_reservation/us": 56,
+        "diag_wait/851/movement.part.doors_count": 0,
+        "diag_wait/851/movement.part.index_updates/calls": 18,
+        "diag_wait/851/movement.part.index_updates/us": 139,
+        "diag_wait/851/movement.part.prepare/calls": 18,
+        "diag_wait/851/movement.part.prepare/us": 337,
+        "diag_wait/851/movement.part.route_tail/calls": 18,
+        "diag_wait/851/movement.part.route_tail/us": 19,
+        "diag_wait/851/movement.parts._move_step/calls": 18,
+        "diag_wait/851/movement.parts._move_step/us": 1587,
+        "diag_wait/851/movement.parts.advance/calls": 1,
+        "diag_wait/851/movement.parts.advance/us": 11696,
+        "diag_wait/867/movement.part.body_commit/calls": 97,
+        "diag_wait/867/movement.part.body_commit/us": 276,
+        "diag_wait/867/movement.part.contacts/calls": 112,
+        "diag_wait/867/movement.part.contacts/us": 1703,
+        "diag_wait/867/movement.part.door_candidates/calls": 112,
+        "diag_wait/867/movement.part.door_candidates/us": 2100,
+        "diag_wait/867/movement.part.door_reservation/calls": 112,
+        "diag_wait/867/movement.part.door_reservation/us": 395,
+        "diag_wait/867/movement.part.doors_count": 0,
+        "diag_wait/867/movement.part.index_updates/calls": 97,
+        "diag_wait/867/movement.part.index_updates/us": 702,
+        "diag_wait/867/movement.part.prepare/calls": 112,
+        "diag_wait/867/movement.part.prepare/us": 1828,
+        "diag_wait/867/movement.part.route_tail/calls": 97,
+        "diag_wait/867/movement.part.route_tail/us": 59,
+        "diag_wait/867/movement.parts._move_step/calls": 112,
+        "diag_wait/867/movement.parts._move_step/us": 9389,
+        "diag_wait/867/movement.parts.advance/calls": 1,
+        "diag_wait/867/movement.parts.advance/us": 12063
+      },
+      "query_counts": {
+        "actor_index_actor_visits": 15520,
+        "actor_index_builds": 97,
+        "candidate_connections": 414,
+        "connector_edge_builds": 414,
+        "connector_edge_hits": 3,
+        "connector_node_declarations": 4,
+        "connector_topology_builds": 1,
+        "connector_topology_inherits": 31,
+        "courtesy_static_geometry_hits": 36,
+        "distance_field_builds": 14,
+        "distance_field_hits": 143,
+        "door_candidates": 1266,
+        "entry_order_builds": 19,
+        "entry_order_hits": 83,
+        "entry_order_native_builds": 19,
+        "entry_walking_table_builds": 2,
+        "environment_actor_source_builds": 8,
+        "environment_coverage_mask_builds": 4,
+        "environment_coverage_native_calls": 631,
+        "environment_dynamic_source_builds": 88,
+        "environment_facility_source_builds": 1,
+        "environment_facility_source_hits": 87,
+        "facility_environment_builds": 1,
+        "facility_environment_hits": 2146,
+        "floor_route_builds": 841,
+        "floor_route_hits": 0,
+        "journey_hits": 0,
+        "journey_invalidations": 0,
+        "materialized_floor_cells": 8354,
+        "movement_candidates": 525,
+        "nearby_field_builds": 12,
+        "point_cost_lift_arrival_prunes": 224,
+        "point_source_builds": 3,
+        "point_source_goal_legs": 9,
+        "point_source_hits": 6,
+        "public_entry_field_hits": 865,
+        "public_entry_field_preparations": 91,
+        "public_facility_candidates": 20688,
+        "public_fit_body_key_preparations": 1072,
+        "public_queue_fit_builds": 28,
+        "public_queue_fit_hits": 2064,
+        "public_region_definition_index_builds": 1,
+        "public_region_definition_index_hits": 112,
+        "public_region_floor_builds": 4,
+        "public_region_mapping_builds": 1,
+        "public_region_native_builds": 4,
+        "public_select_regions_total": 7616,
+        "public_select_regions_visited": 112,
+        "public_wait_dependency_batches": 1079,
+        "public_wait_dependency_rectangles": 17271,
+        "public_wait_door_checks": 18,
+        "public_wait_door_index_builds": 1,
+        "public_wait_environment_match_builds": 63,
+        "public_wait_environment_match_hits": 1016,
+        "public_wait_hits": 682,
+        "public_wait_initial_rechecks": 35,
+        "public_wait_rechecks": 278,
+        "reservation_candidate_queries": 22979,
+        "reservation_index_builds": 29,
+        "reservation_index_updates": 424,
+        "route_checks": 5624,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 146,
+        "route_dispatches": 146,
+        "route_revalidation_unvalidated": 156,
+        "route_revalidations": 156,
+        "routes": 391,
+        "static_path_builds": 191,
+        "static_path_hits": 13,
+        "structural_reverse_field_hits": 51,
+        "structural_reverse_field_lookups": 255,
+        "transport_builds": 0,
+        "transport_requests": 183,
+        "transport_searches": 177,
+        "yield_attempts": 27,
+        "yield_candidates": 23
+      },
+      "input_sha256": "a7cbe6d7075151f30f0935c7c802952a7dedc0b4f73a588dc1e52b793d904f27",
+      "final_binary_sha256": "a3fbe5c056868e88406f393238b1a016a6815ca91d1426809ee106851456eb9a",
+      "process_cpu_ms": 8046.875,
+      "process_wall_ms": 8171.230400010245
+    },
+    "parts01-public360": {
+      "variant": "baselinemoveparts",
+      "mode": "root",
+      "metrics_us": {
+        "cold_first_us": 483546,
+        "count": 360,
+        "following_mean_us": 65618.4206128134,
+        "max_us": 483546,
+        "mean_us": 66779.3305555556,
+        "p50_us": 56960,
+        "p95_us": 121862,
+        "p99_us": 218129,
+        "total_us": 24040559
+      },
+      "steps": 360,
+      "checks": {
+        "complete": true,
+        "qualified": true,
+        "errors_empty": true,
+        "source_input_sha256": true,
+        "initial": true,
+        "final": true,
+        "qualification": true,
+        "operations": true,
+        "event_records": true,
+        "final_binary_sha256": true,
+        "public_business": true,
+        "non_timing_samples": true,
+        "environment_workers_complete": true
+      },
+      "selection": {},
+      "query_count_differences": {
+        "diag_wait/2760/movement.part.door_reservation/calls": {
+          "actual": 104,
+          "expected": null
+        },
+        "diag_wait/2760/movement.part.prepare/calls": {
+          "actual": 104,
+          "expected": null
+        },
+        "diag_wait/2759/movement.part.doors_count": {
+          "actual": 38,
+          "expected": null
+        },
+        "diag_wait/2764/movement.parts._move_step/calls": {
+          "actual": 104,
+          "expected": null
+        },
+        "diag_wait/2879/movement.part.doors_count": {
+          "actual": 18,
+          "expected": null
+        },
+        "diag_wait/2759/movement.part.door_candidates/calls": {
+          "actual": 102,
+          "expected": null
+        },
+        "diag_wait/2764/movement.parts.advance/calls": {
+          "actual": 1,
+          "expected": null
+        },
+        "diag_wait/2764/movement.part.body_commit/calls": {
+          "actual": 98,
+          "expected": null
+        },
+        "diag_wait/2879/movement.part.route_tail/us": {
+          "actual": 43,
+          "expected": null
+        },
+        "diag_wait/2760/movement.part.doors_count": {
+          "actual": 35,
+          "expected": null
+        },
+        "diag_wait/2759/movement.part.door_reservation/calls": {
+          "actual": 102,
+          "expected": null
+        },
+        "diag_wait/2764/movement.part.door_candidates/us": {
+          "actual": 2546,
+          "expected": null
+        },
+        "diag_wait/2760/movement.parts._move_step/us": {
+          "actual": 16154,
+          "expected": null
+        },
+        "diag_wait/2879/movement.parts.advance/calls": {
+          "actual": 1,
+          "expected": null
+        },
+        "diag_wait/2764/movement.part.index_updates/us": {
+          "actual": 779,
+          "expected": null
+        },
+        "diag_wait/2759/movement.parts.advance/calls": {
+          "actual": 1,
+          "expected": null
+        },
+        "diag_wait/2879/movement.part.body_commit/us": {
+          "actual": 294,
+          "expected": null
+        },
+        "diag_wait/2759/movement.part.contacts/calls": {
+          "actual": 102,
+          "expected": null
+        },
+        "diag_wait/2759/movement.part.prepare/us": {
+          "actual": 3928,
+          "expected": null
+        },
+        "diag_wait/2759/movement.part.contacts/us": {
+          "actual": 3217,
+          "expected": null
+        },
+        "diag_wait/2879/movement.part.index_updates/us": {
+          "actual": 662,
+          "expected": null
+        },
+        "diag_wait/2760/movement.part.route_tail/calls": {
+          "actual": 98,
+          "expected": null
+        },
+        "diag_wait/2764/movement.part.door_candidates/calls": {
+          "actual": 104,
+          "expected": null
+        },
+        "diag_wait/2764/movement.part.contacts/calls": {
+          "actual": 104,
+          "expected": null
+        },
+        "diag_wait/2760/movement.part.body_commit/us": {
+          "actual": 575,
+          "expected": null
+        },
+        "diag_wait/2879/movement.parts.advance/us": {
+          "actual": 15516,
+          "expected": null
+        },
+        "diag_wait/2879/movement.parts._move_step/calls": {
+          "actual": 105,
+          "expected": null
+        },
+        "diag_wait/2760/movement.part.door_reservation/us": {
+          "actual": 730,
+          "expected": null
+        },
+        "diag_wait/2764/movement.part.prepare/calls": {
+          "actual": 104,
+          "expected": null
+        },
+        "diag_wait/2759/movement.part.prepare/calls": {
+          "actual": 102,
+          "expected": null
+        },
+        "diag_wait/2759/movement.part.index_updates/calls": {
+          "actual": 96,
+          "expected": null
+        },
+        "diag_wait/2879/movement.part.prepare/calls": {
+          "actual": 105,
+          "expected": null
+        },
+        "diag_wait/2760/movement.parts.advance/us": {
+          "actual": 24238,
+          "expected": null
+        },
+        "diag_wait/2759/movement.parts.advance/us": {
+          "actual": 26565,
+          "expected": null
+        },
+        "diag_wait/2760/movement.part.route_tail/us": {
+          "actual": 63,
+          "expected": null
+        },
+        "diag_wait/2764/movement.part.index_updates/calls": {
+          "actual": 98,
+          "expected": null
+        },
+        "diag_wait/2759/movement.part.body_commit/calls": {
+          "actual": 96,
+          "expected": null
+        },
+        "diag_wait/2760/movement.part.contacts/calls": {
+          "actual": 104,
+          "expected": null
+        },
+        "diag_wait/2759/movement.part.body_commit/us": {
+          "actual": 711,
+          "expected": null
+        },
+        "diag_wait/2760/movement.parts._move_step/calls": {
+          "actual": 104,
+          "expected": null
+        },
+        "diag_wait/2760/movement.part.door_candidates/us": {
+          "actual": 4053,
+          "expected": null
+        },
+        "diag_wait/2760/movement.part.index_updates/calls": {
+          "actual": 98,
+          "expected": null
+        },
+        "diag_wait/2764/movement.part.prepare/us": {
+          "actual": 2061,
+          "expected": null
+        },
+        "diag_wait/2760/movement.part.prepare/us": {
+          "actual": 2997,
+          "expected": null
+        },
+        "diag_wait/2759/movement.part.door_reservation/us": {
+          "actual": 977,
+          "expected": null
+        },
+        "diag_wait/2764/movement.part.door_reservation/calls": {
+          "actual": 104,
+          "expected": null
+        },
+        "diag_wait/2760/movement.part.index_updates/us": {
+          "actual": 1251,
+          "expected": null
+        },
+        "diag_wait/2759/movement.parts._move_step/us": {
+          "actual": 19901,
+          "expected": null
+        },
+        "diag_wait/2764/movement.parts._move_step/us": {
+          "actual": 11792,
+          "expected": null
+        },
+        "diag_wait/2879/movement.part.door_reservation/us": {
+          "actual": 452,
+          "expected": null
+        },
+        "diag_wait/2879/movement.part.door_candidates/us": {
+          "actual": 2631,
+          "expected": null
+        },
+        "diag_wait/2879/movement.part.contacts/us": {
+          "actual": 2018,
+          "expected": null
+        },
+        "diag_wait/2764/movement.part.doors_count": {
+          "actual": 37,
+          "expected": null
+        },
+        "diag_wait/2760/movement.part.contacts/us": {
+          "actual": 2904,
+          "expected": null
+        },
+        "diag_wait/2764/movement.part.body_commit/us": {
+          "actual": 368,
+          "expected": null
+        },
+        "diag_wait/2879/movement.part.index_updates/calls": {
+          "actual": 77,
+          "expected": null
+        },
+        "diag_wait/2879/movement.part.contacts/calls": {
+          "actual": 103,
+          "expected": null
+        },
+        "diag_wait/2764/movement.parts.advance/us": {
+          "actual": 20672,
+          "expected": null
+        },
+        "diag_wait/2760/movement.part.door_candidates/calls": {
+          "actual": 104,
+          "expected": null
+        },
+        "diag_wait/2759/movement.parts._move_step/calls": {
+          "actual": 102,
+          "expected": null
+        },
+        "diag_wait/2760/movement.parts.advance/calls": {
+          "actual": 1,
+          "expected": null
+        },
+        "diag_wait/2879/movement.part.route_tail/calls": {
+          "actual": 77,
+          "expected": null
+        },
+        "diag_wait/2764/movement.part.contacts/us": {
+          "actual": 1851,
+          "expected": null
+        },
+        "diag_wait/2764/movement.part.route_tail/us": {
+          "actual": 48,
+          "expected": null
+        },
+        "diag_wait/2879/movement.part.door_reservation/calls": {
+          "actual": 103,
+          "expected": null
+        },
+        "diag_wait/2879/movement.part.prepare/us": {
+          "actual": 2370,
+          "expected": null
+        },
+        "diag_wait/2759/movement.part.route_tail/calls": {
+          "actual": 96,
+          "expected": null
+        },
+        "diag_wait/2759/movement.part.door_candidates/us": {
+          "actual": 4786,
+          "expected": null
+        },
+        "diag_wait/2879/movement.part.door_candidates/calls": {
+          "actual": 105,
+          "expected": null
+        },
+        "diag_wait/2759/movement.part.route_tail/us": {
+          "actual": 87,
+          "expected": null
+        },
+        "diag_wait/2879/movement.part.body_commit/calls": {
+          "actual": 77,
+          "expected": null
+        },
+        "diag_wait/2759/movement.part.index_updates/us": {
+          "actual": 1503,
+          "expected": null
+        },
+        "diag_wait/2764/movement.part.door_reservation/us": {
+          "actual": 1595,
+          "expected": null
+        },
+        "diag_wait/2879/movement.parts._move_step/us": {
+          "actual": 11528,
+          "expected": null
+        },
+        "diag_wait/2764/movement.part.route_tail/calls": {
+          "actual": 98,
+          "expected": null
+        },
+        "diag_wait/2760/movement.part.body_commit/calls": {
+          "actual": 98,
+          "expected": null
+        }
+      },
+      "roots": {
+        "2759": {
+          "outer_elapsed_us": 164932,
+          "stages": {
+            "advance.departments": {
+              "calls": 1,
+              "max_us": 7,
+              "profiled_whole_share": 4.24417335629229e-05,
+              "total_us": 7
+            },
+            "advance.development": {
+              "calls": 1,
+              "max_us": 101,
+              "profiled_whole_share": 0.00061237358426503,
+              "total_us": 101
+            },
+            "advance.environment": {
+              "calls": 1,
+              "max_us": 117,
+              "profiled_whole_share": 0.000709383260980283,
+              "total_us": 117
+            },
+            "advance.floors": {
+              "calls": 1,
+              "max_us": 13,
+              "profiled_whole_share": 7.88203623311425e-05,
+              "total_us": 13
+            },
+            "advance.maintenance": {
+              "calls": 1,
+              "max_us": 16,
+              "profiled_whole_share": 9.70096767152523e-05,
+              "total_us": 16
+            },
+            "advance.recruitment": {
+              "calls": 1,
+              "max_us": 51,
+              "profiled_whole_share": 0.000309218344529867,
+              "total_us": 51
+            },
+            "advance.research": {
+              "calls": 1,
+              "max_us": 13,
+              "profiled_whole_share": 7.88203623311425e-05,
+              "total_us": 13
+            },
+            "advance.scheduler": {
+              "calls": 1,
+              "max_us": 4,
+              "profiled_whole_share": 2.42524191788131e-05,
+              "total_us": 4
+            },
+            "advance.supplies": {
+              "calls": 1,
+              "max_us": 186,
+              "profiled_whole_share": 0.00112773749181481,
+              "total_us": 186
+            },
+            "advance.waiting": {
+              "calls": 1,
+              "max_us": 317,
+              "profiled_whole_share": 0.00192200421992094,
+              "total_us": 317
+            },
+            "advance.wellbeing": {
+              "calls": 1,
+              "max_us": 151,
+              "profiled_whole_share": 0.000915528824000194,
+              "total_us": 151
+            },
+            "advance_wait.arrivals": {
+              "calls": 1,
+              "max_us": 750,
+              "profiled_whole_share": 0.00454732859602745,
+              "total_us": 750
+            },
+            "arrivals.arrivals": {
+              "calls": 1,
+              "max_us": 12,
+              "profiled_whole_share": 7.27572575364393e-05,
+              "total_us": 12
+            },
+            "begin_query.environment": {
+              "calls": 1,
+              "max_us": 8,
+              "profiled_whole_share": 4.85048383576262e-05,
+              "total_us": 8
+            },
+            "boundaries.arrivals": {
+              "calls": 1,
+              "max_us": 12,
+              "profiled_whole_share": 7.27572575364393e-05,
+              "total_us": 12
+            },
+            "boundaries.maintenance": {
+              "calls": 1,
+              "max_us": 494,
+              "profiled_whole_share": 0.00299517376858342,
+              "total_us": 494
+            },
+            "boundaries.recruitment": {
+              "calls": 1,
+              "max_us": 28,
+              "profiled_whole_share": 0.000169766934251692,
+              "total_us": 28
+            },
+            "boundaries.research": {
+              "calls": 1,
+              "max_us": 16,
+              "profiled_whole_share": 9.70096767152523e-05,
+              "total_us": 16
+            },
+            "boundaries.scheduler": {
+              "calls": 1,
+              "max_us": 473,
+              "profiled_whole_share": 0.00286784856789465,
+              "total_us": 473
+            },
+            "boundaries.supplies": {
+              "calls": 1,
+              "max_us": 23,
+              "profiled_whole_share": 0.000139451410278175,
+              "total_us": 23
+            },
+            "boundaries.wellbeing": {
+              "calls": 1,
+              "max_us": 411,
+              "profiled_whole_share": 0.00249193607062304,
+              "total_us": 411
+            },
+            "clinic.advance": {
+              "calls": 1,
+              "max_us": 26111,
+              "profiled_whole_share": 0.158313729294497,
+              "total_us": 26111
+            },
+            "clinic.arrivals": {
+              "calls": 1,
+              "max_us": 10,
+              "profiled_whole_share": 6.06310479470327e-05,
+              "total_us": 10
+            },
+            "clinic.dispatch": {
+              "calls": 1,
+              "max_us": 17046,
+              "profiled_whole_share": 0.103351684330512,
+              "total_us": 17046
+            },
+            "clinic.release_departed": {
+              "calls": 1,
+              "max_us": 17,
+              "profiled_whole_share": 0.000103072781509956,
+              "total_us": 17
+            },
+            "clinic.settle_practice": {
+              "calls": 1,
+              "max_us": 11,
+              "profiled_whole_share": 6.6694152741736e-05,
+              "total_us": 11
+            },
+            "commands.drain": {
+              "calls": 1,
+              "max_us": 8,
+              "profiled_whole_share": 4.85048383576262e-05,
+              "total_us": 8
+            },
+            "dispatch.departments": {
+              "calls": 1,
+              "max_us": 152,
+              "profiled_whole_share": 0.000921591928794897,
+              "total_us": 152
+            },
+            "dispatch.development": {
+              "calls": 1,
+              "max_us": 649,
+              "profiled_whole_share": 0.00393495501176242,
+              "total_us": 649
+            },
+            "dispatch.environment": {
+              "calls": 1,
+              "max_us": 200,
+              "profiled_whole_share": 0.00121262095894065,
+              "total_us": 200
+            },
+            "dispatch.floors": {
+              "calls": 1,
+              "max_us": 13,
+              "profiled_whole_share": 7.88203623311425e-05,
+              "total_us": 13
+            },
+            "dispatch.maintenance": {
+              "calls": 1,
+              "max_us": 23,
+              "profiled_whole_share": 0.000139451410278175,
+              "total_us": 23
+            },
+            "dispatch.remodel": {
+              "calls": 1,
+              "max_us": 12,
+              "profiled_whole_share": 7.27572575364393e-05,
+              "total_us": 12
+            },
+            "dispatch.scheduler": {
+              "calls": 1,
+              "max_us": 17,
+              "profiled_whole_share": 0.000103072781509956,
+              "total_us": 17
+            },
+            "dispatch.staff_idle": {
+              "calls": 1,
+              "max_us": 173,
+              "profiled_whole_share": 0.00104891712948367,
+              "total_us": 173
+            },
+            "dispatch.waiting": {
+              "calls": 1,
+              "max_us": 74501,
+              "profiled_whole_share": 0.451707370310188,
+              "total_us": 74501
+            },
+            "dispatch.wellbeing": {
+              "calls": 1,
+              "max_us": 2394,
+              "profiled_whole_share": 0.0145150728785196,
+              "total_us": 2394
+            },
+            "end_query.environment": {
+              "calls": 1,
+              "max_us": 570,
+              "profiled_whole_share": 0.00345596973298086,
+              "total_us": 570
+            },
+            "events.collect": {
+              "calls": 1,
+              "max_us": 16,
+              "profiled_whole_share": 9.70096767152523e-05,
+              "total_us": 16
+            },
+            "integrate.worked_staff": {
+              "calls": 1,
+              "max_us": 14,
+              "profiled_whole_share": 8.48834671258458e-05,
+              "total_us": 14
+            },
+            "movement.capture_staff_locations": {
+              "calls": 1,
+              "max_us": 195,
+              "profiled_whole_share": 0.00118230543496714,
+              "total_us": 195
+            },
+            "movement.space": {
+              "calls": 1,
+              "max_us": 26599,
+              "profiled_whole_share": 0.161272524434312,
+              "total_us": 26599
+            },
+            "needs.arrivals": {
+              "calls": 1,
+              "max_us": 2835,
+              "profiled_whole_share": 0.0171889020929838,
+              "total_us": 2835
+            },
+            "sample.departments": {
+              "calls": 1,
+              "max_us": 8023,
+              "profiled_whole_share": 0.0486442897679044,
+              "total_us": 8023
+            },
+            "settle.arrivals": {
+              "calls": 1,
+              "max_us": 244,
+              "profiled_whole_share": 0.0014793975699076,
+              "total_us": 244
+            },
+            "settle.departments": {
+              "calls": 1,
+              "max_us": 234,
+              "profiled_whole_share": 0.00141876652196057,
+              "total_us": 234
+            },
+            "settle.development": {
+              "calls": 1,
+              "max_us": 830,
+              "profiled_whole_share": 0.00503237697960372,
+              "total_us": 830
+            },
+            "settle.finance": {
+              "calls": 1,
+              "max_us": 308,
+              "profiled_whole_share": 0.00186743627676861,
+              "total_us": 308
+            },
+            "settle.recruitment": {
+              "calls": 1,
+              "max_us": 97,
+              "profiled_whole_share": 0.000588121165086217,
+              "total_us": 97
+            },
+            "settle.research": {
+              "calls": 1,
+              "max_us": 32,
+              "profiled_whole_share": 0.000194019353430505,
+              "total_us": 32
+            },
+            "settlement.finish_visits": {
+              "calls": 1,
+              "max_us": 48,
+              "profiled_whole_share": 0.000291029030145757,
+              "total_us": 48
+            },
+            "settlement.ledger": {
+              "calls": 1,
+              "max_us": 9,
+              "profiled_whole_share": 5.45679431523294e-05,
+              "total_us": 9
+            },
+            "snapshot.bookkeeping": {
+              "calls": 1,
+              "max_us": 6,
+              "profiled_whole_share": 3.63786287682196e-05,
+              "total_us": 6
+            },
+            "snapshot.space_boundary": {
+              "calls": 1,
+              "max_us": 5,
+              "profiled_whole_share": 3.03155239735164e-05,
+              "total_us": 5
+            },
+            "snapshot.tick_result": {
+              "calls": 1,
+              "max_us": 31,
+              "profiled_whole_share": 0.000187956248635801,
+              "total_us": 31
+            },
+            "snapshot.world_boundary": {
+              "calls": 1,
+              "max_us": 3,
+              "profiled_whole_share": 1.81893143841098e-05,
+              "total_us": 3
+            },
+            "step.setup": {
+              "calls": 1,
+              "max_us": 42,
+              "profiled_whole_share": 0.000254650401377537,
+              "total_us": 42
+            }
+          },
+          "observer_handler_us": 202,
+          "residual_us": 49
+        },
+        "2760": {
+          "outer_elapsed_us": 218129,
+          "stages": {
+            "advance.departments": {
+              "calls": 1,
+              "max_us": 6,
+              "profiled_whole_share": 2.75066589036763e-05,
+              "total_us": 6
+            },
+            "advance.development": {
+              "calls": 1,
+              "max_us": 112,
+              "profiled_whole_share": 0.000513457632868624,
+              "total_us": 112
+            },
+            "advance.environment": {
+              "calls": 1,
+              "max_us": 116,
+              "profiled_whole_share": 0.000531795405471074,
+              "total_us": 116
+            },
+            "advance.floors": {
+              "calls": 1,
+              "max_us": 11,
+              "profiled_whole_share": 5.04288746567398e-05,
+              "total_us": 11
+            },
+            "advance.maintenance": {
+              "calls": 1,
+              "max_us": 17,
+              "profiled_whole_share": 7.79355335604161e-05,
+              "total_us": 17
+            },
+            "advance.recruitment": {
+              "calls": 1,
+              "max_us": 52,
+              "profiled_whole_share": 0.000238391043831861,
+              "total_us": 52
+            },
+            "advance.research": {
+              "calls": 1,
+              "max_us": 14,
+              "profiled_whole_share": 6.4182204108578e-05,
+              "total_us": 14
+            },
+            "advance.scheduler": {
+              "calls": 1,
+              "max_us": 5,
+              "profiled_whole_share": 2.29222157530636e-05,
+              "total_us": 5
+            },
+            "advance.supplies": {
+              "calls": 1,
+              "max_us": 316,
+              "profiled_whole_share": 0.00144868403559362,
+              "total_us": 316
+            },
+            "advance.waiting": {
+              "calls": 1,
+              "max_us": 491,
+              "profiled_whole_share": 0.00225096158695084,
+              "total_us": 491
+            },
+            "advance.wellbeing": {
+              "calls": 1,
+              "max_us": 272,
+              "profiled_whole_share": 0.00124696853696666,
+              "total_us": 272
+            },
+            "advance_wait.arrivals": {
+              "calls": 1,
+              "max_us": 1713,
+              "profiled_whole_share": 0.00785315111699957,
+              "total_us": 1713
+            },
+            "arrivals.arrivals": {
+              "calls": 1,
+              "max_us": 14,
+              "profiled_whole_share": 6.4182204108578e-05,
+              "total_us": 14
+            },
+            "begin_query.environment": {
+              "calls": 1,
+              "max_us": 15,
+              "profiled_whole_share": 6.87666472591907e-05,
+              "total_us": 15
+            },
+            "boundaries.arrivals": {
+              "calls": 1,
+              "max_us": 14,
+              "profiled_whole_share": 6.4182204108578e-05,
+              "total_us": 14
+            },
+            "boundaries.maintenance": {
+              "calls": 1,
+              "max_us": 509,
+              "profiled_whole_share": 0.00233348156366187,
+              "total_us": 509
+            },
+            "boundaries.recruitment": {
+              "calls": 1,
+              "max_us": 32,
+              "profiled_whole_share": 0.000146702180819607,
+              "total_us": 32
+            },
+            "boundaries.research": {
+              "calls": 1,
+              "max_us": 18,
+              "profiled_whole_share": 8.25199767110288e-05,
+              "total_us": 18
+            },
+            "boundaries.scheduler": {
+              "calls": 1,
+              "max_us": 483,
+              "profiled_whole_share": 0.00221428604174594,
+              "total_us": 483
+            },
+            "boundaries.supplies": {
+              "calls": 1,
+              "max_us": 27,
+              "profiled_whole_share": 0.000123779965066543,
+              "total_us": 27
+            },
+            "boundaries.wellbeing": {
+              "calls": 1,
+              "max_us": 397,
+              "profiled_whole_share": 0.00182002393079325,
+              "total_us": 397
+            },
+            "clinic.advance": {
+              "calls": 1,
+              "max_us": 48,
+              "profiled_whole_share": 0.00022005327122941,
+              "total_us": 48
+            },
+            "clinic.arrivals": {
+              "calls": 1,
+              "max_us": 10,
+              "profiled_whole_share": 4.58444315061271e-05,
+              "total_us": 10
+            },
+            "clinic.dispatch": {
+              "calls": 1,
+              "max_us": 95737,
+              "profiled_whole_share": 0.438900833910209,
+              "total_us": 95737
+            },
+            "clinic.release_departed": {
+              "calls": 1,
+              "max_us": 16,
+              "profiled_whole_share": 7.33510904098034e-05,
+              "total_us": 16
+            },
+            "clinic.settle_practice": {
+              "calls": 1,
+              "max_us": 11,
+              "profiled_whole_share": 5.04288746567398e-05,
+              "total_us": 11
+            },
+            "commands.drain": {
+              "calls": 1,
+              "max_us": 7,
+              "profiled_whole_share": 3.2091102054289e-05,
+              "total_us": 7
+            },
+            "dispatch.departments": {
+              "calls": 1,
+              "max_us": 159,
+              "profiled_whole_share": 0.000728926460947421,
+              "total_us": 159
+            },
+            "dispatch.development": {
+              "calls": 1,
+              "max_us": 753,
+              "profiled_whole_share": 0.00345208569241137,
+              "total_us": 753
+            },
+            "dispatch.environment": {
+              "calls": 1,
+              "max_us": 211,
+              "profiled_whole_share": 0.000967317504779282,
+              "total_us": 211
+            },
+            "dispatch.floors": {
+              "calls": 1,
+              "max_us": 13,
+              "profiled_whole_share": 5.95977609579652e-05,
+              "total_us": 13
+            },
+            "dispatch.maintenance": {
+              "calls": 1,
+              "max_us": 24,
+              "profiled_whole_share": 0.000110026635614705,
+              "total_us": 24
+            },
+            "dispatch.remodel": {
+              "calls": 1,
+              "max_us": 11,
+              "profiled_whole_share": 5.04288746567398e-05,
+              "total_us": 11
+            },
+            "dispatch.scheduler": {
+              "calls": 1,
+              "max_us": 11,
+              "profiled_whole_share": 5.04288746567398e-05,
+              "total_us": 11
+            },
+            "dispatch.staff_idle": {
+              "calls": 1,
+              "max_us": 88,
+              "profiled_whole_share": 0.000403430997253919,
+              "total_us": 88
+            },
+            "dispatch.waiting": {
+              "calls": 1,
+              "max_us": 72427,
+              "profiled_whole_share": 0.332037464069427,
+              "total_us": 72427
+            },
+            "dispatch.wellbeing": {
+              "calls": 1,
+              "max_us": 2456,
+              "profiled_whole_share": 0.0112593923779048,
+              "total_us": 2456
+            },
+            "end_query.environment": {
+              "calls": 1,
+              "max_us": 538,
+              "profiled_whole_share": 0.00246643041502964,
+              "total_us": 538
+            },
+            "events.collect": {
+              "calls": 1,
+              "max_us": 17,
+              "profiled_whole_share": 7.79355335604161e-05,
+              "total_us": 17
+            },
+            "integrate.worked_staff": {
+              "calls": 1,
+              "max_us": 13,
+              "profiled_whole_share": 5.95977609579652e-05,
+              "total_us": 13
+            },
+            "movement.capture_staff_locations": {
+              "calls": 1,
+              "max_us": 129,
+              "profiled_whole_share": 0.00059139316642904,
+              "total_us": 129
+            },
+            "movement.space": {
+              "calls": 1,
+              "max_us": 24262,
+              "profiled_whole_share": 0.111227759720166,
+              "total_us": 24262
+            },
+            "needs.arrivals": {
+              "calls": 1,
+              "max_us": 2657,
+              "profiled_whole_share": 0.012180865451178,
+              "total_us": 2657
+            },
+            "sample.departments": {
+              "calls": 1,
+              "max_us": 11350,
+              "profiled_whole_share": 0.0520334297594543,
+              "total_us": 11350
+            },
+            "settle.arrivals": {
+              "calls": 1,
+              "max_us": 262,
+              "profiled_whole_share": 0.00120112410546053,
+              "total_us": 262
+            },
+            "settle.departments": {
+              "calls": 1,
+              "max_us": 268,
+              "profiled_whole_share": 0.00122863076436421,
+              "total_us": 268
+            },
+            "settle.development": {
+              "calls": 1,
+              "max_us": 907,
+              "profiled_whole_share": 0.00415808993760573,
+              "total_us": 907
+            },
+            "settle.finance": {
+              "calls": 1,
+              "max_us": 558,
+              "profiled_whole_share": 0.00255811927804189,
+              "total_us": 558
+            },
+            "settle.recruitment": {
+              "calls": 1,
+              "max_us": 108,
+              "profiled_whole_share": 0.000495119860266173,
+              "total_us": 108
+            },
+            "settle.research": {
+              "calls": 1,
+              "max_us": 33,
+              "profiled_whole_share": 0.000151286623970219,
+              "total_us": 33
+            },
+            "settlement.finish_visits": {
+              "calls": 1,
+              "max_us": 48,
+              "profiled_whole_share": 0.00022005327122941,
+              "total_us": 48
+            },
+            "settlement.ledger": {
+              "calls": 1,
+              "max_us": 10,
+              "profiled_whole_share": 4.58444315061271e-05,
+              "total_us": 10
+            },
+            "snapshot.bookkeeping": {
+              "calls": 1,
+              "max_us": 5,
+              "profiled_whole_share": 2.29222157530636e-05,
+              "total_us": 5
+            },
+            "snapshot.space_boundary": {
+              "calls": 1,
+              "max_us": 5,
+              "profiled_whole_share": 2.29222157530636e-05,
+              "total_us": 5
+            },
+            "snapshot.tick_result": {
+              "calls": 1,
+              "max_us": 29,
+              "profiled_whole_share": 0.000132948851367769,
+              "total_us": 29
+            },
+            "snapshot.world_boundary": {
+              "calls": 1,
+              "max_us": 3,
+              "profiled_whole_share": 1.37533294518381e-05,
+              "total_us": 3
+            },
+            "step.setup": {
+              "calls": 1,
+              "max_us": 40,
+              "profiled_whole_share": 0.000183377726024508,
+              "total_us": 40
+            }
+          },
+          "observer_handler_us": 213,
+          "residual_us": 58
+        },
+        "2764": {
+          "outer_elapsed_us": 121051,
+          "stages": {
+            "advance.departments": {
+              "calls": 1,
+              "max_us": 6,
+              "profiled_whole_share": 4.95658854532387e-05,
+              "total_us": 6
+            },
+            "advance.development": {
+              "calls": 1,
+              "max_us": 108,
+              "profiled_whole_share": 0.000892185938158297,
+              "total_us": 108
+            },
+            "advance.environment": {
+              "calls": 1,
+              "max_us": 108,
+              "profiled_whole_share": 0.000892185938158297,
+              "total_us": 108
+            },
+            "advance.floors": {
+              "calls": 1,
+              "max_us": 14,
+              "profiled_whole_share": 0.000115653732724224,
+              "total_us": 14
+            },
+            "advance.maintenance": {
+              "calls": 1,
+              "max_us": 16,
+              "profiled_whole_share": 0.00013217569454197,
+              "total_us": 16
+            },
+            "advance.recruitment": {
+              "calls": 1,
+              "max_us": 71,
+              "profiled_whole_share": 0.000586529644529991,
+              "total_us": 71
+            },
+            "advance.research": {
+              "calls": 1,
+              "max_us": 13,
+              "profiled_whole_share": 0.000107392751815351,
+              "total_us": 13
+            },
+            "advance.scheduler": {
+              "calls": 1,
+              "max_us": 5,
+              "profiled_whole_share": 4.13049045443656e-05,
+              "total_us": 5
+            },
+            "advance.supplies": {
+              "calls": 1,
+              "max_us": 182,
+              "profiled_whole_share": 0.00150349852541491,
+              "total_us": 182
+            },
+            "advance.waiting": {
+              "calls": 1,
+              "max_us": 314,
+              "profiled_whole_share": 0.00259394800538616,
+              "total_us": 314
+            },
+            "advance.wellbeing": {
+              "calls": 1,
+              "max_us": 139,
+              "profiled_whole_share": 0.00114827634633336,
+              "total_us": 139
+            },
+            "advance_wait.arrivals": {
+              "calls": 1,
+              "max_us": 733,
+              "profiled_whole_share": 0.006055299006204,
+              "total_us": 733
+            },
+            "arrivals.arrivals": {
+              "calls": 1,
+              "max_us": 23,
+              "profiled_whole_share": 0.000190002560904082,
+              "total_us": 23
+            },
+            "begin_query.environment": {
+              "calls": 1,
+              "max_us": 9,
+              "profiled_whole_share": 7.43488281798581e-05,
+              "total_us": 9
+            },
+            "boundaries.arrivals": {
+              "calls": 1,
+              "max_us": 24,
+              "profiled_whole_share": 0.000198263541812955,
+              "total_us": 24
+            },
+            "boundaries.maintenance": {
+              "calls": 1,
+              "max_us": 1128,
+              "profiled_whole_share": 0.00931838646520888,
+              "total_us": 1128
+            },
+            "boundaries.recruitment": {
+              "calls": 1,
+              "max_us": 65,
+              "profiled_whole_share": 0.000536963759076753,
+              "total_us": 65
+            },
+            "boundaries.research": {
+              "calls": 1,
+              "max_us": 23,
+              "profiled_whole_share": 0.000190002560904082,
+              "total_us": 23
+            },
+            "boundaries.scheduler": {
+              "calls": 1,
+              "max_us": 514,
+              "profiled_whole_share": 0.00424614418716078,
+              "total_us": 514
+            },
+            "boundaries.supplies": {
+              "calls": 1,
+              "max_us": 37,
+              "profiled_whole_share": 0.000305656293628305,
+              "total_us": 37
+            },
+            "boundaries.wellbeing": {
+              "calls": 1,
+              "max_us": 423,
+              "profiled_whole_share": 0.00349439492445333,
+              "total_us": 423
+            },
+            "clinic.advance": {
+              "calls": 1,
+              "max_us": 39,
+              "profiled_whole_share": 0.000322178255446052,
+              "total_us": 39
+            },
+            "clinic.arrivals": {
+              "calls": 1,
+              "max_us": 16,
+              "profiled_whole_share": 0.00013217569454197,
+              "total_us": 16
+            },
+            "clinic.dispatch": {
+              "calls": 1,
+              "max_us": 26626,
+              "profiled_whole_share": 0.219956877679656,
+              "total_us": 26626
+            },
+            "clinic.release_departed": {
+              "calls": 1,
+              "max_us": 17,
+              "profiled_whole_share": 0.000140436675450843,
+              "total_us": 17
+            },
+            "clinic.settle_practice": {
+              "calls": 1,
+              "max_us": 12,
+              "profiled_whole_share": 9.91317709064774e-05,
+              "total_us": 12
+            },
+            "commands.drain": {
+              "calls": 1,
+              "max_us": 8,
+              "profiled_whole_share": 6.6087847270985e-05,
+              "total_us": 8
+            },
+            "dispatch.departments": {
+              "calls": 1,
+              "max_us": 294,
+              "profiled_whole_share": 0.0024287283872087,
+              "total_us": 294
+            },
+            "dispatch.development": {
+              "calls": 1,
+              "max_us": 1515,
+              "profiled_whole_share": 0.0125153860769428,
+              "total_us": 1515
+            },
+            "dispatch.environment": {
+              "calls": 1,
+              "max_us": 1309,
+              "profiled_whole_share": 0.0108136240097149,
+              "total_us": 1309
+            },
+            "dispatch.floors": {
+              "calls": 1,
+              "max_us": 28,
+              "profiled_whole_share": 0.000231307465448447,
+              "total_us": 28
+            },
+            "dispatch.maintenance": {
+              "calls": 1,
+              "max_us": 64,
+              "profiled_whole_share": 0.00052870277816788,
+              "total_us": 64
+            },
+            "dispatch.remodel": {
+              "calls": 1,
+              "max_us": 21,
+              "profiled_whole_share": 0.000173480599086336,
+              "total_us": 21
+            },
+            "dispatch.scheduler": {
+              "calls": 1,
+              "max_us": 27,
+              "profiled_whole_share": 0.000223046484539574,
+              "total_us": 27
+            },
+            "dispatch.staff_idle": {
+              "calls": 1,
+              "max_us": 123,
+              "profiled_whole_share": 0.00101610065179139,
+              "total_us": 123
+            },
+            "dispatch.waiting": {
+              "calls": 1,
+              "max_us": 50598,
+              "profiled_whole_share": 0.417989112027162,
+              "total_us": 50598
+            },
+            "dispatch.wellbeing": {
+              "calls": 1,
+              "max_us": 1472,
+              "profiled_whole_share": 0.0121601638978612,
+              "total_us": 1472
+            },
+            "end_query.environment": {
+              "calls": 1,
+              "max_us": 564,
+              "profiled_whole_share": 0.00465919323260444,
+              "total_us": 564
+            },
+            "events.collect": {
+              "calls": 1,
+              "max_us": 24,
+              "profiled_whole_share": 0.000198263541812955,
+              "total_us": 24
+            },
+            "integrate.worked_staff": {
+              "calls": 1,
+              "max_us": 13,
+              "profiled_whole_share": 0.000107392751815351,
+              "total_us": 13
+            },
+            "movement.capture_staff_locations": {
+              "calls": 1,
+              "max_us": 75,
+              "profiled_whole_share": 0.000619573568165484,
+              "total_us": 75
+            },
+            "movement.space": {
+              "calls": 1,
+              "max_us": 20694,
+              "profiled_whole_share": 0.17095273892822,
+              "total_us": 20694
+            },
+            "needs.arrivals": {
+              "calls": 1,
+              "max_us": 2004,
+              "profiled_whole_share": 0.0165550057413817,
+              "total_us": 2004
+            },
+            "sample.departments": {
+              "calls": 1,
+              "max_us": 8002,
+              "profiled_whole_share": 0.0661043692328027,
+              "total_us": 8002
+            },
+            "settle.arrivals": {
+              "calls": 1,
+              "max_us": 400,
+              "profiled_whole_share": 0.00330439236354925,
+              "total_us": 400
+            },
+            "settle.departments": {
+              "calls": 1,
+              "max_us": 353,
+              "profiled_whole_share": 0.00291612626083221,
+              "total_us": 353
+            },
+            "settle.development": {
+              "calls": 1,
+              "max_us": 1172,
+              "profiled_whole_share": 0.0096818696251993,
+              "total_us": 1172
+            },
+            "settle.finance": {
+              "calls": 1,
+              "max_us": 520,
+              "profiled_whole_share": 0.00429571007261402,
+              "total_us": 520
+            },
+            "settle.recruitment": {
+              "calls": 1,
+              "max_us": 142,
+              "profiled_whole_share": 0.00117305928905998,
+              "total_us": 142
+            },
+            "settle.research": {
+              "calls": 1,
+              "max_us": 38,
+              "profiled_whole_share": 0.000313917274537179,
+              "total_us": 38
+            },
+            "settlement.finish_visits": {
+              "calls": 1,
+              "max_us": 92,
+              "profiled_whole_share": 0.000760010243616327,
+              "total_us": 92
+            },
+            "settlement.ledger": {
+              "calls": 1,
+              "max_us": 14,
+              "profiled_whole_share": 0.000115653732724224,
+              "total_us": 14
+            },
+            "snapshot.bookkeeping": {
+              "calls": 1,
+              "max_us": 9,
+              "profiled_whole_share": 7.43488281798581e-05,
+              "total_us": 9
+            },
+            "snapshot.space_boundary": {
+              "calls": 1,
+              "max_us": 6,
+              "profiled_whole_share": 4.95658854532387e-05,
+              "total_us": 6
+            },
+            "snapshot.tick_result": {
+              "calls": 1,
+              "max_us": 38,
+              "profiled_whole_share": 0.000313917274537179,
+              "total_us": 38
+            },
+            "snapshot.world_boundary": {
+              "calls": 1,
+              "max_us": 4,
+              "profiled_whole_share": 3.30439236354925e-05,
+              "total_us": 4
+            },
+            "step.setup": {
+              "calls": 1,
+              "max_us": 116,
+              "profiled_whole_share": 0.000958273785429282,
+              "total_us": 116
+            }
+          },
+          "observer_handler_us": 570,
+          "residual_us": 77
+        },
+        "2879": {
+          "outer_elapsed_us": 68069,
+          "stages": {
+            "advance.departments": {
+              "calls": 1,
+              "max_us": 6,
+              "profiled_whole_share": 8.81458520031145e-05,
+              "total_us": 6
+            },
+            "advance.development": {
+              "calls": 1,
+              "max_us": 133,
+              "profiled_whole_share": 0.00195389971940237,
+              "total_us": 133
+            },
+            "advance.environment": {
+              "calls": 1,
+              "max_us": 113,
+              "profiled_whole_share": 0.00166008021272532,
+              "total_us": 113
+            },
+            "advance.floors": {
+              "calls": 1,
+              "max_us": 13,
+              "profiled_whole_share": 0.000190982679340081,
+              "total_us": 13
+            },
+            "advance.maintenance": {
+              "calls": 1,
+              "max_us": 17,
+              "profiled_whole_share": 0.000249746580675491,
+              "total_us": 17
+            },
+            "advance.recruitment": {
+              "calls": 1,
+              "max_us": 49,
+              "profiled_whole_share": 0.000719857791358768,
+              "total_us": 49
+            },
+            "advance.research": {
+              "calls": 1,
+              "max_us": 15,
+              "profiled_whole_share": 0.000220364630007786,
+              "total_us": 15
+            },
+            "advance.scheduler": {
+              "calls": 1,
+              "max_us": 5,
+              "profiled_whole_share": 7.34548766692621e-05,
+              "total_us": 5
+            },
+            "advance.supplies": {
+              "calls": 1,
+              "max_us": 304,
+              "profiled_whole_share": 0.00446605650149113,
+              "total_us": 304
+            },
+            "advance.waiting": {
+              "calls": 1,
+              "max_us": 461,
+              "profiled_whole_share": 0.00677253962890596,
+              "total_us": 461
+            },
+            "advance.wellbeing": {
+              "calls": 1,
+              "max_us": 138,
+              "profiled_whole_share": 0.00202735459607163,
+              "total_us": 138
+            },
+            "advance_wait.arrivals": {
+              "calls": 1,
+              "max_us": 1257,
+              "profiled_whole_share": 0.0184665559946525,
+              "total_us": 1257
+            },
+            "arrivals.arrivals": {
+              "calls": 1,
+              "max_us": 18,
+              "profiled_whole_share": 0.000264437556009343,
+              "total_us": 18
+            },
+            "begin_query.environment": {
+              "calls": 1,
+              "max_us": 12,
+              "profiled_whole_share": 0.000176291704006229,
+              "total_us": 12
+            },
+            "boundaries.arrivals": {
+              "calls": 1,
+              "max_us": 20,
+              "profiled_whole_share": 0.000293819506677048,
+              "total_us": 20
+            },
+            "boundaries.maintenance": {
+              "calls": 1,
+              "max_us": 1063,
+              "profiled_whole_share": 0.0156165067798851,
+              "total_us": 1063
+            },
+            "boundaries.recruitment": {
+              "calls": 1,
+              "max_us": 55,
+              "profiled_whole_share": 0.000808003643361883,
+              "total_us": 55
+            },
+            "boundaries.research": {
+              "calls": 1,
+              "max_us": 17,
+              "profiled_whole_share": 0.000249746580675491,
+              "total_us": 17
+            },
+            "boundaries.scheduler": {
+              "calls": 1,
+              "max_us": 504,
+              "profiled_whole_share": 0.00740425156826162,
+              "total_us": 504
+            },
+            "boundaries.supplies": {
+              "calls": 1,
+              "max_us": 28,
+              "profiled_whole_share": 0.000411347309347868,
+              "total_us": 28
+            },
+            "boundaries.wellbeing": {
+              "calls": 1,
+              "max_us": 640,
+              "profiled_whole_share": 0.00940222421366555,
+              "total_us": 640
+            },
+            "clinic.advance": {
+              "calls": 1,
+              "max_us": 52,
+              "profiled_whole_share": 0.000763930717360326,
+              "total_us": 52
+            },
+            "clinic.arrivals": {
+              "calls": 1,
+              "max_us": 13,
+              "profiled_whole_share": 0.000190982679340081,
+              "total_us": 13
+            },
+            "clinic.dispatch": {
+              "calls": 1,
+              "max_us": 10709,
+              "profiled_whole_share": 0.157325654850226,
+              "total_us": 10709
+            },
+            "clinic.release_departed": {
+              "calls": 1,
+              "max_us": 11,
+              "profiled_whole_share": 0.000161600728672377,
+              "total_us": 11
+            },
+            "clinic.settle_practice": {
+              "calls": 1,
+              "max_us": 8,
+              "profiled_whole_share": 0.000117527802670819,
+              "total_us": 8
+            },
+            "commands.drain": {
+              "calls": 1,
+              "max_us": 7,
+              "profiled_whole_share": 0.000102836827336967,
+              "total_us": 7
+            },
+            "dispatch.departments": {
+              "calls": 1,
+              "max_us": 94,
+              "profiled_whole_share": 0.00138095168138213,
+              "total_us": 94
+            },
+            "dispatch.development": {
+              "calls": 1,
+              "max_us": 1123,
+              "profiled_whole_share": 0.0164979652999163,
+              "total_us": 1123
+            },
+            "dispatch.environment": {
+              "calls": 1,
+              "max_us": 185,
+              "profiled_whole_share": 0.0027178304367627,
+              "total_us": 185
+            },
+            "dispatch.floors": {
+              "calls": 1,
+              "max_us": 13,
+              "profiled_whole_share": 0.000190982679340081,
+              "total_us": 13
+            },
+            "dispatch.maintenance": {
+              "calls": 1,
+              "max_us": 22,
+              "profiled_whole_share": 0.000323201457344753,
+              "total_us": 22
+            },
+            "dispatch.remodel": {
+              "calls": 1,
+              "max_us": 19,
+              "profiled_whole_share": 0.000279128531343196,
+              "total_us": 19
+            },
+            "dispatch.scheduler": {
+              "calls": 1,
+              "max_us": 24,
+              "profiled_whole_share": 0.000352583408012458,
+              "total_us": 24
+            },
+            "dispatch.staff_idle": {
+              "calls": 1,
+              "max_us": 86,
+              "profiled_whole_share": 0.00126342387871131,
+              "total_us": 86
+            },
+            "dispatch.waiting": {
+              "calls": 1,
+              "max_us": 18648,
+              "profiled_whole_share": 0.27395730802568,
+              "total_us": 18648
+            },
+            "dispatch.wellbeing": {
+              "calls": 1,
+              "max_us": 1205,
+              "profiled_whole_share": 0.0177026252772922,
+              "total_us": 1205
+            },
+            "end_query.environment": {
+              "calls": 1,
+              "max_us": 375,
+              "profiled_whole_share": 0.00550911575019466,
+              "total_us": 375
+            },
+            "events.collect": {
+              "calls": 1,
+              "max_us": 20,
+              "profiled_whole_share": 0.000293819506677048,
+              "total_us": 20
+            },
+            "integrate.worked_staff": {
+              "calls": 1,
+              "max_us": 14,
+              "profiled_whole_share": 0.000205673654673934,
+              "total_us": 14
+            },
+            "movement.capture_staff_locations": {
+              "calls": 1,
+              "max_us": 70,
+              "profiled_whole_share": 0.00102836827336967,
+              "total_us": 70
+            },
+            "movement.space": {
+              "calls": 1,
+              "max_us": 15533,
+              "profiled_whole_share": 0.22819491986073,
+              "total_us": 15533
+            },
+            "needs.arrivals": {
+              "calls": 1,
+              "max_us": 1557,
+              "profiled_whole_share": 0.0228738485948082,
+              "total_us": 1557
+            },
+            "sample.departments": {
+              "calls": 1,
+              "max_us": 10915,
+              "profiled_whole_share": 0.160351995768999,
+              "total_us": 10915
+            },
+            "settle.arrivals": {
+              "calls": 1,
+              "max_us": 428,
+              "profiled_whole_share": 0.00628773744288883,
+              "total_us": 428
+            },
+            "settle.departments": {
+              "calls": 1,
+              "max_us": 254,
+              "profiled_whole_share": 0.00373150773479851,
+              "total_us": 254
+            },
+            "settle.development": {
+              "calls": 1,
+              "max_us": 819,
+              "profiled_whole_share": 0.0120319087984251,
+              "total_us": 819
+            },
+            "settle.finance": {
+              "calls": 1,
+              "max_us": 425,
+              "profiled_whole_share": 0.00624366451688728,
+              "total_us": 425
+            },
+            "settle.recruitment": {
+              "calls": 1,
+              "max_us": 131,
+              "profiled_whole_share": 0.00192451776873467,
+              "total_us": 131
+            },
+            "settle.research": {
+              "calls": 1,
+              "max_us": 32,
+              "profiled_whole_share": 0.000470111210683277,
+              "total_us": 32
+            },
+            "settlement.finish_visits": {
+              "calls": 1,
+              "max_us": 64,
+              "profiled_whole_share": 0.000940222421366554,
+              "total_us": 64
+            },
+            "settlement.ledger": {
+              "calls": 1,
+              "max_us": 13,
+              "profiled_whole_share": 0.000190982679340081,
+              "total_us": 13
+            },
+            "snapshot.bookkeeping": {
+              "calls": 1,
+              "max_us": 7,
+              "profiled_whole_share": 0.000102836827336967,
+              "total_us": 7
+            },
+            "snapshot.space_boundary": {
+              "calls": 1,
+              "max_us": 5,
+              "profiled_whole_share": 7.34548766692621e-05,
+              "total_us": 5
+            },
+            "snapshot.tick_result": {
+              "calls": 1,
+              "max_us": 38,
+              "profiled_whole_share": 0.000558257062686392,
+              "total_us": 38
+            },
+            "snapshot.world_boundary": {
+              "calls": 1,
+              "max_us": 3,
+              "profiled_whole_share": 4.40729260015572e-05,
+              "total_us": 3
+            },
+            "step.setup": {
+              "calls": 1,
+              "max_us": 43,
+              "profiled_whole_share": 0.000631711939355654,
+              "total_us": 43
+            }
+          },
+          "observer_handler_us": 184,
+          "residual_us": 52
+        }
+      },
+      "diagnostic_counts": {
+        "diag_wait/2759/movement.part.body_commit/calls": 96,
+        "diag_wait/2759/movement.part.body_commit/us": 711,
+        "diag_wait/2759/movement.part.contacts/calls": 102,
+        "diag_wait/2759/movement.part.contacts/us": 3217,
+        "diag_wait/2759/movement.part.door_candidates/calls": 102,
+        "diag_wait/2759/movement.part.door_candidates/us": 4786,
+        "diag_wait/2759/movement.part.door_reservation/calls": 102,
+        "diag_wait/2759/movement.part.door_reservation/us": 977,
+        "diag_wait/2759/movement.part.doors_count": 38,
+        "diag_wait/2759/movement.part.index_updates/calls": 96,
+        "diag_wait/2759/movement.part.index_updates/us": 1503,
+        "diag_wait/2759/movement.part.prepare/calls": 102,
+        "diag_wait/2759/movement.part.prepare/us": 3928,
+        "diag_wait/2759/movement.part.route_tail/calls": 96,
+        "diag_wait/2759/movement.part.route_tail/us": 87,
+        "diag_wait/2759/movement.parts._move_step/calls": 102,
+        "diag_wait/2759/movement.parts._move_step/us": 19901,
+        "diag_wait/2759/movement.parts.advance/calls": 1,
+        "diag_wait/2759/movement.parts.advance/us": 26565,
+        "diag_wait/2760/movement.part.body_commit/calls": 98,
+        "diag_wait/2760/movement.part.body_commit/us": 575,
+        "diag_wait/2760/movement.part.contacts/calls": 104,
+        "diag_wait/2760/movement.part.contacts/us": 2904,
+        "diag_wait/2760/movement.part.door_candidates/calls": 104,
+        "diag_wait/2760/movement.part.door_candidates/us": 4053,
+        "diag_wait/2760/movement.part.door_reservation/calls": 104,
+        "diag_wait/2760/movement.part.door_reservation/us": 730,
+        "diag_wait/2760/movement.part.doors_count": 35,
+        "diag_wait/2760/movement.part.index_updates/calls": 98,
+        "diag_wait/2760/movement.part.index_updates/us": 1251,
+        "diag_wait/2760/movement.part.prepare/calls": 104,
+        "diag_wait/2760/movement.part.prepare/us": 2997,
+        "diag_wait/2760/movement.part.route_tail/calls": 98,
+        "diag_wait/2760/movement.part.route_tail/us": 63,
+        "diag_wait/2760/movement.parts._move_step/calls": 104,
+        "diag_wait/2760/movement.parts._move_step/us": 16154,
+        "diag_wait/2760/movement.parts.advance/calls": 1,
+        "diag_wait/2760/movement.parts.advance/us": 24238,
+        "diag_wait/2764/movement.part.body_commit/calls": 98,
+        "diag_wait/2764/movement.part.body_commit/us": 368,
+        "diag_wait/2764/movement.part.contacts/calls": 104,
+        "diag_wait/2764/movement.part.contacts/us": 1851,
+        "diag_wait/2764/movement.part.door_candidates/calls": 104,
+        "diag_wait/2764/movement.part.door_candidates/us": 2546,
+        "diag_wait/2764/movement.part.door_reservation/calls": 104,
+        "diag_wait/2764/movement.part.door_reservation/us": 1595,
+        "diag_wait/2764/movement.part.doors_count": 37,
+        "diag_wait/2764/movement.part.index_updates/calls": 98,
+        "diag_wait/2764/movement.part.index_updates/us": 779,
+        "diag_wait/2764/movement.part.prepare/calls": 104,
+        "diag_wait/2764/movement.part.prepare/us": 2061,
+        "diag_wait/2764/movement.part.route_tail/calls": 98,
+        "diag_wait/2764/movement.part.route_tail/us": 48,
+        "diag_wait/2764/movement.parts._move_step/calls": 104,
+        "diag_wait/2764/movement.parts._move_step/us": 11792,
+        "diag_wait/2764/movement.parts.advance/calls": 1,
+        "diag_wait/2764/movement.parts.advance/us": 20672,
+        "diag_wait/2879/movement.part.body_commit/calls": 77,
+        "diag_wait/2879/movement.part.body_commit/us": 294,
+        "diag_wait/2879/movement.part.contacts/calls": 103,
+        "diag_wait/2879/movement.part.contacts/us": 2018,
+        "diag_wait/2879/movement.part.door_candidates/calls": 105,
+        "diag_wait/2879/movement.part.door_candidates/us": 2631,
+        "diag_wait/2879/movement.part.door_reservation/calls": 103,
+        "diag_wait/2879/movement.part.door_reservation/us": 452,
+        "diag_wait/2879/movement.part.doors_count": 18,
+        "diag_wait/2879/movement.part.index_updates/calls": 77,
+        "diag_wait/2879/movement.part.index_updates/us": 662,
+        "diag_wait/2879/movement.part.prepare/calls": 105,
+        "diag_wait/2879/movement.part.prepare/us": 2370,
+        "diag_wait/2879/movement.part.route_tail/calls": 77,
+        "diag_wait/2879/movement.part.route_tail/us": 43,
+        "diag_wait/2879/movement.parts._move_step/calls": 105,
+        "diag_wait/2879/movement.parts._move_step/us": 11528,
+        "diag_wait/2879/movement.parts.advance/calls": 1,
+        "diag_wait/2879/movement.parts.advance/us": 15516
+      },
+      "query_counts": {
+        "actor_index_actor_visits": 61920,
+        "actor_index_builds": 387,
+        "candidate_connections": 429,
+        "connector_edge_builds": 429,
+        "connector_edge_hits": 31,
+        "connector_node_declarations": 12,
+        "connector_topology_builds": 3,
+        "connector_topology_inherits": 51,
+        "courtesy_static_geometry_hits": 178,
+        "distance_field_builds": 43,
+        "distance_field_hits": 858,
+        "door_candidates": 9074,
+        "entry_order_builds": 36,
+        "entry_order_hits": 98,
+        "entry_order_native_builds": 36,
+        "entry_walking_table_builds": 6,
+        "environment_actor_source_builds": 7,
+        "environment_coverage_mask_builds": 4,
+        "environment_coverage_native_calls": 7572,
+        "environment_dynamic_source_builds": 367,
+        "environment_facility_source_builds": 2,
+        "environment_facility_source_hits": 365,
+        "facility_environment_builds": 2,
+        "facility_environment_hits": 14199,
+        "floor_route_builds": 2040,
+        "floor_route_hits": 0,
+        "journey_hits": 50,
+        "journey_invalidations": 0,
+        "local_goal_occupied_waits": 856,
+        "materialized_floor_cells": 9108,
+        "movement_candidates": 4658,
+        "nearby_field_builds": 9,
+        "point_cost_lift_arrival_prunes": 292,
+        "point_source_builds": 31,
+        "point_source_goal_legs": 425,
+        "point_source_hits": 403,
+        "public_entry_field_hits": 2307,
+        "public_entry_field_preparations": 126,
+        "public_facility_candidates": 111568,
+        "public_fit_body_key_preparations": 6942,
+        "public_queue_fit_builds": 177,
+        "public_queue_fit_hits": 4039,
+        "public_region_definition_index_builds": 1,
+        "public_region_definition_index_hits": 117,
+        "public_region_floor_builds": 4,
+        "public_region_floor_hits": 4,
+        "public_region_mapping_builds": 1,
+        "public_region_mapping_hits": 1,
+        "public_region_native_builds": 4,
+        "public_select_regions_total": 7956,
+        "public_select_regions_visited": 165,
+        "public_wait_dependency_batches": 7013,
+        "public_wait_dependency_rectangles": 113547,
+        "public_wait_door_checks": 28,
+        "public_wait_door_index_builds": 8,
+        "public_wait_environment_match_builds": 557,
+        "public_wait_environment_match_hits": 6456,
+        "public_wait_hits": 6142,
+        "public_wait_initial_rechecks": 52,
+        "public_wait_rechecks": 667,
+        "reservation_candidate_queries": 104611,
+        "reservation_index_builds": 37,
+        "reservation_index_updates": 680,
+        "route_checks": 36299,
+        "route_dispatch_restores": 1,
+        "route_dispatch_scans": 266,
+        "route_dispatches": 266,
+        "route_revalidation_unvalidated": 276,
+        "route_revalidations": 276,
+        "routes": 1542,
+        "static_path_builds": 454,
+        "static_path_hits": 76,
+        "structural_reverse_field_hits": 146,
+        "structural_reverse_field_lookups": 686,
+        "transport_builds": 0,
+        "transport_requests": 631,
+        "transport_searches": 228,
+        "yield_attempts": 1599,
+        "yield_candidates": 844
+      },
+      "input_sha256": "1d83a8834528fd2f6c53dff06f6ec150c9e598eed675fc37521ab7e45fcadb10",
+      "final_binary_sha256": "aa6b9baf08110e4152a32c001922142fb21ded7efa838cb906ce45bf59e1da7e",
+      "process_cpu_ms": 30281.25,
+      "process_wall_ms": 28802.691199991386
+    }
+  },
+  "failures": [
+    {
+      "stage": "experiment_preparation",
+      "variant": "baseline",
+      "engine_started": false,
+      "error": "AssertionError: report[\"worker_sample\"] runner anchor was absent; prepared runner uses report.worker_sample.",
+      "retained_project": ".cache/worker-select-afff405-20261023/baseline-project",
+      "resolution": "Corrected the generator anchor and prepared a separate baseline02 project. The original folder was retained."
+    }
+  ],
+  "functional": {
+    "experimental_cases_run": false,
+    "reason": "All selection worker variants were rejected for whole-step regression; no production or test change was adopted.",
+    "selected_but_not_executed": [
+      "STAFF-48",
+      "STAFF-57",
+      "STAFF-61",
+      "STAFF-69",
+      "STAFF-75",
+      "SPACE-51"
+    ],
+    "unchanged_production_evidence": "docs/reports/evidence/2026-10-23-occupied-seat-dependencies/summary.json"
+  },
+  "raw_archive": {
+    "path": "docs/reports/evidence/2026-10-23-selection-worker-trial/raw-evidence.zip",
+    "sha256": "4d3a6cbc172cec69d000838a07ca87d070720c98d424d4e09d21bd2ae354046c",
+    "bytes": 2267572,
+    "members": 105
+  },
+  "notes": [
+    "Function intervals are nested wall durations with measurement overhead, not additive CPU self time.",
+    "No Release, rendering, capacity, memory or two-hour formal acceptance run was performed.",
+    "Semantic equality is isolation evidence and does not replace independent experimental functional regression.",
+    "Peak cache charges are sampled after requests and checked against the existing eviction allowance, not a measured resident-memory maximum.",
+    "The first prepare failure did not start an engine; read-only source lookup mistakes do not constitute game-run failures."
+  ]
+}
