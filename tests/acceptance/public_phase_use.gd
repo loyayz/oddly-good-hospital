@@ -65,6 +65,7 @@ func _case_69(t) -> void:
 	var membership: Dictionary = preload("res://tests/acceptance/public_facility_membership.gd").new().run_case(self)
 	var dependencies: Dictionary = preload("res://tests/acceptance/public_wait_dependency_queries.gd").new().run_case(self)
 	var environment_matches: Dictionary = preload("res://tests/acceptance/public_wait_environment_matches.gd").new().run_case(_content)
+	var occupied_queue: Dictionary = _occupied_seat_queue_dependencies()
 	var x: Dictionary = _occupied_west()
 	var intent: Dictionary = x.world.facts.waiting_life.seats.get(x.waiter.id,{})
 	var arrived: bool = intent.get("phase","")=="local_wait" and int(intent.get("arrived_tick",-1))==50
@@ -82,7 +83,47 @@ func _case_69(t) -> void:
 	var release_move: String = x.space.request_move(x.world,x.holder.actor_id,1,[40,76])
 	var seated: bool = _until_seated(x,x.waiter)
 	var timely: bool = seated and intent.get("facility_id","")=="west_chair" and int(intent.get("arrived_tick",-1))==queued_at and not x.space.overlaps_facility(x.world,x.holder.actor_id,"west_chair")
-	t.check("STAFF-69",first_wait.ok and membership.ok and dependencies.ok and environment_matches.ok and qualifications.ok and snapshot.ok and samples.ok and connector_basis.ok and x.held and arrived and unchanged and other_move.is_empty() and local_dependencies and release_move.is_empty() and timely and x.l.validate(x.world).is_empty(),{"first_negative_wait_signatures":first_wait,"static_facility_membership":membership,"wait_dependency_queries":dependencies,"environment_match_reuse":environment_matches,"queue_qualification_lifecycle":qualifications,"immutable_wait_basis":snapshot,"complete_environment_dependencies":samples,"connector_dependency_boundary":connector_basis,"arrived_waiting":arrived,"unchanged_wait_did_not_requote":unchanged,"unrelated_area_real_move":other_move,"unrelated_movement_did_not_requote":local_dependencies,"actual_holder_exit":release_move,"original_queue_time_kept":int(intent.get("arrived_tick",-1))==queued_at,"actually_seated_after_release":timely,"quotes_before":quotes,"quotes_after":x.probe.quotes,"intent":intent})
+	t.check("STAFF-69",first_wait.ok and membership.ok and dependencies.ok and environment_matches.ok and occupied_queue.ok and qualifications.ok and snapshot.ok and samples.ok and connector_basis.ok and x.held and arrived and unchanged and other_move.is_empty() and local_dependencies and release_move.is_empty() and timely and x.l.validate(x.world).is_empty(),{"first_negative_wait_signatures":first_wait,"static_facility_membership":membership,"wait_dependency_queries":dependencies,"environment_match_reuse":environment_matches,"occupied_seat_queue_dependencies":occupied_queue,"queue_qualification_lifecycle":qualifications,"immutable_wait_basis":snapshot,"complete_environment_dependencies":samples,"connector_dependency_boundary":connector_basis,"arrived_waiting":arrived,"unchanged_wait_did_not_requote":unchanged,"unrelated_area_real_move":other_move,"unrelated_movement_did_not_requote":local_dependencies,"actual_holder_exit":release_move,"original_queue_time_kept":int(intent.get("arrived_tick",-1))==queued_at,"actually_seated_after_release":timely,"quotes_before":quotes,"quotes_after":x.probe.quotes,"intent":intent})
+
+func _occupied_seat_queue_dependencies() -> Dictionary:
+	var x: Dictionary = _occupied_west()
+	var later: Dictionary = _visit(x,"zz_later",[42,74])
+	x.l.dispatch(x.world)
+	var first: Dictionary = x.world.facts.waiting_life.seats[x.waiter.id]
+	var last: Dictionary = x.world.facts.waiting_life.seats[later.id]
+	var arrived: bool = x.held and first.phase=="local_wait" and last.phase=="local_wait" and first.arrived_tick==last.arrived_tick and str(first.id)<str(last.id)
+	var areas: HospitalPublicAreas = x.space.public_areas
+	var definitions: Array = x.l.PUBLIC_SEAT_DEFINITIONS
+	var reference: HospitalPublicAreas = preload("res://tests/acceptance/public_wait_dependency_queries.gd").ReferenceAreas.new(x.space)
+	var before: Dictionary = x.world.freeze()
+	var original_first: Array = reference._decision_signature(x.world,first,definitions,[],{},[1])
+	var original_last: Array = reference._decision_signature(x.world,last,definitions,[],{},[1])
+	var expected_first: Array = original_first.filter(func(row: Variant)->bool: return not (row is Array and row.size()==7 and row[0]==last.id))
+	var expected_last: Array = original_last.filter(func(row: Variant)->bool: return not (row is Array and row.size()==7 and row[0]==first.id))
+	var first_signature: Array = areas._decision_signature(x.world,first,definitions,[],{},[1]).duplicate(true)
+	var last_signature: Array = areas._decision_signature(x.world,last,definitions,[],{},[1]).duplicate(true)
+	var complete: bool = expected_first.size()==original_first.size()-1 and expected_last.size()==original_last.size()-1 and first_signature==expected_first and last_signature==expected_last
+	var readonly: bool = before==x.world.freeze()
+	var manual_later: CommandResult = x.l.execute(x.world,"waiting_select_seat",{"visit_id":later.id,"facility_id":"west_chair"})
+	x.l.dispatch(x.world)
+	first = x.world.facts.waiting_life.seats[x.waiter.id]
+	last = x.world.facts.waiting_life.seats[later.id]
+	var unchanged_first: bool = first_signature==areas._decision_signature(x.world,first,definitions,[],{},[1])
+	var manual_last_signature: Array = areas._decision_signature(x.world,last,definitions,[],{},[1]).duplicate(true)
+	var manual_first: CommandResult = x.l.execute(x.world,"waiting_select_seat",{"visit_id":x.waiter.id,"facility_id":"west_chair"})
+	x.l.dispatch(x.world)
+	first = x.world.facts.waiting_life.seats[x.waiter.id]
+	last = x.world.facts.waiting_life.seats[later.id]
+	var unchanged_last: bool = manual_last_signature==areas._decision_signature(x.world,last,definitions,[],{},[1])
+	# A new real, unoccupied candidate restores the complete original queue.
+	# This calculation grants neither claimant the new chair or a reservation.
+	_facility(x,"queue_free_chair","FUR09",[38,68],"west")
+	x.world.touch()
+	before = x.world.freeze()
+	var restored: bool = areas._decision_signature(x.world,first,definitions,[],{},[1])==reference._decision_signature(x.world,first,definitions,[],{},[1]) and areas._decision_signature(x.world,last,definitions,[],{},[1])==reference._decision_signature(x.world,last,definitions,[],{},[1])
+	readonly = readonly and before==x.world.freeze()
+	var valid: bool = x.l.validate(x.world).is_empty() and x.world.validate(_content).is_empty()
+	return {"ok":arrived and complete and readonly and manual_later.accepted and unchanged_first and manual_first.accepted and unchanged_last and restored and valid,"same_tick_real_arrivals":arrived,"occupied_seats_omit_only_queue_rows":complete,"queries_readonly":readonly,"later_manual_command":manual_later.to_record(),"later_target_change_cannot_free_occupied_seat":unchanged_first,"earlier_manual_command":manual_first.to_record(),"earlier_target_change_cannot_free_occupied_seat":unchanged_last,"new_unoccupied_candidate_restores_complete_original_queue":restored,"legal_state":valid}
 
 func _first_wait_signatures() -> Dictionary:
 	# The holder actually acquired the chair, and dispatch actually failed the

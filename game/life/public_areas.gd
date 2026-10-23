@@ -196,8 +196,14 @@ func _decision_signature(world: WorldState, intent: Dictionary, definitions: Arr
 		var versions: Array = []
 		for floor_id: int in route_floors: versions.append([floor_id,space._navigation.floor_static_version(space,world,floor_id)])
 		records.append([versions,space.navigation.routing_floor_basis(world)])
-	var queue_key: String = JSON.stringify([intent.public_purpose,reference],"",true,true)
-	for other: Dictionary in view.queues.get(queue_key,[]):
+	# Queue eligibility cannot make an occupied seat available. Its owners,
+	# reservations and adaptations are already observed above; their release
+	# restores the complete queue dependencies on this same dispatch boundary.
+	# A patient's visitor-yield preview sets route_dependent even while occupied.
+	var queue: Array = []
+	if route_dependent or intent.public_purpose!="seat":
+		queue = view.queues.get(JSON.stringify([intent.public_purpose,reference],"",true,true),[])
+	for other: Dictionary in queue:
 		if str(other.get("id",""))==str(intent.id) or int(other.get("arrived_tick",-1))<0: continue
 		if not other.get("phase","") in ["local_wait","local_travel","manual_wait"]: continue
 		var queue_bodies: Array = []
