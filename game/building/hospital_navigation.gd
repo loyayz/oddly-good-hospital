@@ -245,10 +245,16 @@ func _point_route(world: WorldState, actor: Dictionary, source_floor: int, start
 
 # The task consumes only exact candidate times. A warm field stays local to
 # that synchronous loop; executable routes and complex journeys use the solver.
-func ready_waiting_cost_field(world: WorldState, actor_id: String, floor_id: int, bounds: Dictionary) -> Dictionary:
+func _waiting_cost_basis(world: WorldState, actor_id: String, floor_id: int, bounds: Dictionary, prepare_source: bool = false) -> Dictionary:
 	if not space.in_dynamic_route_query(world) or world.facts.connectors.size()>1: return {}
+	var bases: Dictionary = space.read_view(world,"waiting_cost_bases",func()->Dictionary:return {})
+	var floors: Dictionary = bases.get_or_add(actor_id,{})
+	var retained: Dictionary = floors.get(floor_id,{})
+	if prepare_source and not retained.is_empty() and retained.bounds==bounds: return retained.basis
 	var owner: Dictionary = space.read_view(world,"point_journeys",func()->Dictionary:return {})
-	var subject: Dictionary = owner.get("subjects",{}).get(actor_id,{})
+	var subjects: Dictionary = owner.get_or_add("subjects",{})
+	if prepare_source and not subjects.has(actor_id): subjects[actor_id] = _prepare_route_subject(world,world.facts.actors[actor_id],[],{})
+	var subject: Dictionary = subjects.get(actor_id,{})
 	if subject.is_empty() or not str(subject.reason).is_empty(): return {}
 	var actor: Dictionary = world.facts.actors[actor_id]
 	var root: Vector2i = subject.start
@@ -266,11 +272,31 @@ func ready_waiting_cost_field(world: WorldState, actor_id: String, floor_id: int
 		var quote: Dictionary = subject.get("journeys",{}).get(quote_key,{})
 		if not quote.get("ok",false) or not quote.has("travel_ticks") or int(quote.travel_ticks)!=int(landing.ticks): return {}
 		prefix = int(quote.travel_ticks)
-	var field: Dictionary = space._navigation.ready_structural_field(space,world,floor_id,actor,root)
+	var basis: Dictionary = {"root":root,"prefix_ticks":prefix,"speed":float(space.content.balance.movement_speeds[str(space.clearance(actor))])}
+	if prepare_source: floors[floor_id] = {"bounds":bounds.duplicate(true),"basis":basis}
+	return basis
+
+# A single connector cannot improve a same-floor walk by returning to its
+# own anchor. A sole lift's complete landing quote already proves the entire
+# cross-floor prefix. Only the final floor leg varies between waiting cells.
+func waiting_travel_ticks(world: WorldState, actor_id: String, floor_id: int, point: Vector2i, bounds: Dictionary) -> Dictionary:
+	var basis: Dictionary = _waiting_cost_basis(world,actor_id,floor_id,bounds,true)
+	if basis.is_empty(): return {}
+	var actor: Dictionary = world.facts.actors[actor_id]
+	var leg: Dictionary = _floor_route(world,actor,floor_id,basis.root,point,[],{},true,{},true,true)
+	space.query_counts["public_entry_leg_quotes"] = int(space.query_counts.get("public_entry_leg_quotes",0))+1
+	if not leg.ok: return {"ready":true,"travel_ticks":-1}
+	return {"ready":true,"travel_ticks":HospitalTransit._add(int(basis.prefix_ticks),HospitalTransit.walking_ticks(space,actor,[],float(leg.walking_distance)))}
+
+func ready_waiting_cost_field(world: WorldState, actor_id: String, floor_id: int, bounds: Dictionary) -> Dictionary:
+	var basis: Dictionary = _waiting_cost_basis(world,actor_id,floor_id,bounds)
+	if basis.is_empty(): return {}
+	var actor: Dictionary = world.facts.actors[actor_id]
+	var field: Dictionary = space._navigation.ready_structural_field(space,world,floor_id,actor,basis.root)
 	if not field.get("ready",false): return {}
 	_observe_floor(world,actor_id,floor_id)
 	space.query_counts["public_entry_field_preparations"] = int(space.query_counts.get("public_entry_field_preparations",0))+1
-	return {"ready":true,"distances":field.distances,"prefix_ticks":prefix,"speed":float(space.content.balance.movement_speeds[str(space.clearance(actor))])}
+	return {"ready":true,"distances":field.distances,"prefix_ticks":basis.prefix_ticks,"speed":basis.speed}
 
 func _source_quote(world: WorldState, actor: Dictionary, context: Dictionary, node_ids: Array, initial_ticks: int) -> Dictionary:
 	if not context.distance_only or not context.members.is_empty() or not context.offsets.is_empty() or not space.in_dynamic_route_query(world): return {}

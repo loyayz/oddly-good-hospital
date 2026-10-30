@@ -64,6 +64,11 @@ func execute(world: WorldState, kind: String, payload: Dictionary) -> CommandRes
 	return _result(world,false,"unknown_command","未知员工生活命令")
 
 func dispatch(world: WorldState) -> void:
+	space.public_areas.begin_wait_observation(world)
+	_dispatch_waiting(world)
+	space.public_areas.end_wait_observation()
+
+func _dispatch_waiting(world: WorldState) -> void:
 	ensure(world)
 	_dispatch_view = _staff_query(world)
 	var day: int = world.sim_tick/WorldState.TICKS_PER_DAY

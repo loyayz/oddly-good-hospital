@@ -22,6 +22,11 @@ func ensure(world: WorldState) -> void:
 				"next_need_tick":int(visit.get("arrival_tick",world.sim_tick))+_ticks(content.balance.amenity_flow.first_need_seconds)}
 
 func dispatch(world: WorldState) -> void:
+	space.public_areas.begin_wait_observation(world)
+	_dispatch_waiting(world)
+	space.public_areas.end_wait_observation()
+
+func _dispatch_waiting(world: WorldState) -> void:
 	ensure(world)
 	var first_scan: bool = true
 	for visit_id: String in world.active_visit_ids():

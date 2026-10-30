@@ -24,6 +24,11 @@ var _decision_world: WeakRef
 var _decision_tick: int = -1
 var _decision_basis: Dictionary = {}
 var _wait_results: Dictionary = {}
+var _wait_dependencies: RefCounted = preload("res://game/life/waiting_dependencies.gd").new()
+var _wait_observations: Array[WorldState] = []
+var _decision_facts: Dictionary = {}
+var _decision_generation: int = 0
+var _wait_refreshed: int = -1
 var _queue_fit_world: WeakRef
 var _queue_fit_revision: int = -1
 var _queue_fit_facilities: Dictionary = {}
@@ -40,13 +45,64 @@ func invalidate() -> void:
 func changed(world: WorldState) -> void:
 	if _decision_world!=null and _decision_world.get_ref()==world: _decision_tick = -1
 
+func begin_wait_observation(world: WorldState) -> void:
+	_wait_observations.append(world)
+	changed(world)
+
+func end_wait_observation() -> void:
+	var world: WorldState = _wait_observations.pop_back()
+	if _decision_world==null or _decision_world.get_ref()!=world or _wait_results.is_empty(): return
+	var active: Dictionary = {}
+	for intent: Dictionary in _intent_view(world).items: active[str(intent.id)] = true
+	_prune_waiters(active)
+
+func _prune_waiters(active: Dictionary) -> void:
+	for id: String in _wait_results.keys():
+		if active.has(id): continue
+		_wait_results.erase(id)
+		_wait_dependencies.remove(id)
+
+func actor_changed(world: WorldState, id: String, old_floor: int, old_rect: Rect2, floor_id: int, rect: Rect2) -> void:
+	if _decision_world==null or _decision_world.get_ref()!=world: return
+	_wait_dependencies.mark("actor:"+id)
+	_wait_dependencies.actor_changed(id,old_floor,old_rect,floor_id,rect)
+	changed(world)
+
+func reservation_changed(world: WorldState, id: String) -> void:
+	if _decision_world==null or _decision_world.get_ref()!=world: return
+	_wait_dependencies.reservation_changed(id,world.facts.adaptations.get(id,{}))
+	changed(world)
+
+func _wait_request(intent: Dictionary, definitions: Array, members: Array, extra: Dictionary) -> Array:
+	return [intent.actor_id,intent.get("area",{}),intent.public_purpose,definitions,members,extra,intent.get("mode","auto"),intent.get("manual_facility_id",""),intent.get("arrived_tick",-1),intent.get("started_tick",-1),intent.has("ticket_id")]
+
+func _observe_wait_dependencies(world: WorldState) -> Dictionary:
+	var sealed: bool = not _wait_observations.is_empty() and _wait_observations.back()==world
+	# Raw calculation callers may edit facts without an owner notification.
+	# Their observations remain complete; production dispatch shares one view.
+	if not sealed:
+		changed(world)
+		space._indexed_revision = -1
+	var view: Dictionary = _decision_view(world)
+	if _wait_refreshed==int(view.generation): return view
+	if not _wait_dependencies.waiters.is_empty():
+		space._ensure_actor_index(world)
+		_wait_dependencies.observe_actors(space._actor_index)
+		_wait_dependencies.observe_reservations(world.facts.adaptations)
+	var changes: int = _wait_dependencies.refresh(_wait_dependency_value.bind(world,view))
+	space.query_counts["public_wait_dependency_observations"] = int(space.query_counts.get("public_wait_dependency_observations",0))+1
+	space.query_counts["public_wait_dependency_resources"] = int(space.query_counts.get("public_wait_dependency_resources",0))+_wait_dependencies.resources.size()
+	space.query_counts["public_wait_dependency_changes"] = int(space.query_counts.get("public_wait_dependency_changes",0))+changes
+	_wait_refreshed = int(view.generation)
+	return view
+
 func area_valid(world: WorldState, reference: Dictionary, room_kinds: Array) -> bool:
 	if region(world,reference).is_empty(): return false
 	var room: Dictionary = world.facts.rooms.get(reference.get("room_id",""),{})
 	return "" in room_kinds if room.is_empty() else str(room.get("kind",room.get("type",""))) in room_kinds and not HospitalRemodel.blocked(world,str(room.id))
 
 func should_recheck(world: WorldState, intent: Dictionary, definitions: Array, members: Array = [], extra: Dictionary = {}) -> bool:
-	_decision_view(world)
+	_observe_wait_dependencies(world)
 	var saved: Dictionary = _wait_results.get(str(intent.id),{})
 	if saved.is_empty():
 		# A first attempt has no negative result to compare. Only a subsequent
@@ -54,32 +110,43 @@ func should_recheck(world: WorldState, intent: Dictionary, definitions: Array, m
 		space.query_counts["public_wait_initial_rechecks"] = int(space.query_counts.get("public_wait_initial_rechecks",0))+1
 		space.query_counts["public_wait_rechecks"] = int(space.query_counts.get("public_wait_rechecks",0))+1
 		return true
-	var signature: Array = _decision_signature(world,intent,definitions,members,extra,saved.get("floors",[]))
-	var repeat: bool = saved.get("signature",[])==signature
+	var dirty: bool = saved.request!=_wait_request(intent,definitions,members,extra) or _wait_dependencies.dirty(str(intent.id))
+	if dirty: space.query_counts["public_wait_dirty_rechecks"] = int(space.query_counts.get("public_wait_dirty_rechecks",0))+1
+	var repeat: bool = not dirty
 	var counter: String = "public_wait_hits" if repeat else "public_wait_rechecks"
 	space.query_counts[counter] = int(space.query_counts.get(counter,0))+1
 	return not repeat
 
 func remember_wait(world: WorldState, intent: Dictionary, definitions: Array, members: Array = [], extra: Dictionary = {}) -> void:
+	_observe_wait_dependencies(world)
 	var ids: Array = [str(intent.actor_id)] if members.is_empty() else members
 	var floors: Array = space.navigation.observed_floors(world,ids)
 	var local: int = int(intent.get("area",{}).get("floor_id",0))
 	if local>0 and not local in floors:
 		floors.append(local)
 		floors.sort()
-	# Freeze nested facts once. Live observations can then use structural value
-	# equality without serializing the whole dependency set on every wait step.
-	var signature: Array = _decision_signature(world,intent,definitions,members,extra,floors)
-	_wait_results[str(intent.id)] = {"signature":signature.duplicate(true),"floors":floors}
+	# Keep one proof per shared resource. Individual unchanged waiters retain
+	# only their request and reverse subscriptions, not another full signature.
+	var observed: Dictionary = {"resources":{},"bounds":[]}
+	_capture_wait_signature(world,intent,definitions,members,extra,floors,observed)
+	space.query_counts["public_wait_dependency_captures"] = int(space.query_counts.get("public_wait_dependency_captures",0))+1
+	if _wait_dependencies.waiters.is_empty():
+		_wait_dependencies.observe_actors(space._actor_index)
+		_wait_dependencies.observe_reservations(world.facts.adaptations)
+	_wait_dependencies.remember(str(intent.id),observed.resources,int(intent.get("area",{}).get("floor_id",0)),observed.bounds)
+	_wait_results[str(intent.id)] = {"request":_wait_request(intent,definitions,members,extra).duplicate(true)}
 
 # One shared observation of actual ownership per changed dispatch boundary.
 # Rows refer to original intents: phase changes are read from their sole owner.
 func _decision_view(world: WorldState) -> Dictionary:
-	if _decision_world==null or _decision_world.get_ref()!=world:
+	if _decision_world==null or _decision_world.get_ref()!=world or not is_same(_decision_facts,world.facts):
 		_decision_world = weakref(world)
+		_decision_facts = world.facts
 		_decision_tick = -1
 		_decision_basis = {}
 		_wait_results.clear()
+		_wait_dependencies.clear()
+		_wait_refreshed = -1
 	var facility_environment: Dictionary = _facility_environment(world)
 	if _decision_tick==world.sim_tick and _decision_basis.get("geometry_revision",-1)==world.geometry_revision and is_same(_decision_basis.get("facility_environment",{}),facility_environment): return _decision_basis
 	_decision_tick = world.sim_tick
@@ -98,8 +165,7 @@ func _decision_view(world: WorldState) -> Dictionary:
 		if intent.get("phase","") in ["using","seated","returning"]:
 			var id: String = str(intent.get("facility_id",""))
 			if not id.is_empty(): users.get_or_add(id,[]).append(str(intent.get("actor_id","")))
-	for id: String in _wait_results.keys():
-		if not active.has(id): _wait_results.erase(id)
+	_prune_waiters(active)
 	var environment: Dictionary = {}
 	for collection: String in ["surfaces","dirt"]:
 		for record: Dictionary in world.facts.get("environment",{}).get(collection,{}).values():
@@ -119,7 +185,8 @@ func _decision_view(world: WorldState) -> Dictionary:
 		if order.get("phase","")!="working": continue
 		var facility: Dictionary = world.facts.facilities.get(order.get("facility_id",""),{})
 		if not facility.is_empty(): environment.get_or_add(int(facility.floor_id),[]).append([facility.cell,"upgrade",facility.id])
-	_decision_basis = {"users":users,"queues":queues,"visitor_seats":intent_view.visitor_seats,"environment":environment,"environment_indices":{},"environment_matches":{},"facility_environment":facility_environment,"geometry_revision":world.geometry_revision}
+	_decision_generation += 1
+	_decision_basis = {"users":users,"queues":queues,"visitor_seats":intent_view.visitor_seats,"environment":environment,"environment_indices":{},"environment_matches":{},"facility_environment":facility_environment,"geometry_revision":world.geometry_revision,"generation":_decision_generation}
 	return _decision_basis
 
 func _facility_environment(world: WorldState) -> Dictionary:
@@ -137,16 +204,21 @@ func _facility_environment(world: WorldState) -> Dictionary:
 	return {"records":records,"count":records.size(),"geometry_revision":world.geometry_revision,"rows":rows,"indices":{}}
 
 func _decision_signature(world: WorldState, intent: Dictionary, definitions: Array, members: Array, extra: Dictionary, route_floors: Array = []) -> Array:
+	return _capture_wait_signature(world,intent,definitions,members,extra,route_floors,{})
+
+func _capture_wait_signature(world: WorldState, intent: Dictionary, definitions: Array, members: Array, extra: Dictionary, route_floors: Array, observed: Dictionary) -> Array:
 	var view: Dictionary = _decision_view(world)
 	var ids: Array = [str(intent.actor_id)] if members.is_empty() else members
 	var bodies: Array = []
 	for id: String in ids:
 		var actor: Dictionary = world.facts.actors[id]
 		bodies.append([id,space.body(actor),actor.location,actor.get("posture","standing"),actor.get("facing",0.0)])
+		_watch_wait(observed,"actor",id,_wait_actor_value(world,id))
 	var reference: Dictionary = intent.get("area",{})
 	var room: Dictionary = world.facts.rooms.get(reference.get("room_id",""),{})
 	var records: Array = [reference,room.get("kind",room.get("type","")),room.get("origin",[]),room.get("size",[]),room.get("wall_edges",[]),definitions,bodies,extra,intent.get("mode","auto"),intent.get("manual_facility_id",""),intent.get("arrived_tick",-1),intent.get("started_tick",-1),intent.has("ticket_id"),"R15" in world.facts.research]
 	records.append(space.navigation.connection_basis(world))
+	_watch_wait(observed,"control","",[space.navigation.connection_basis(world),"R15" in world.facts.research])
 	var points: Array = []
 	var observed_points: Dictionary = {}
 	var other_ids: Dictionary = {}
@@ -154,6 +226,7 @@ func _decision_signature(world: WorldState, intent: Dictionary, definitions: Arr
 	space._ensure_actor_index(world)
 	var area: Dictionary = region(world,reference)
 	records.append(area.get("geometry",""))
+	_watch_wait(observed,"area",JSON.stringify(reference,"",true,true),_wait_area_value(world,reference),{"area":reference})
 	var route_dependent: bool = intent.public_purpose=="rest" or definitions.is_empty()
 	for number: int in _facility_members(area,definitions):
 		var facility_id: String = str(area.facilities[number])
@@ -161,7 +234,9 @@ func _decision_signature(world: WorldState, intent: Dictionary, definitions: Arr
 		var users: Array = view.users.get(facility_id,[])
 		var reservation: Dictionary = world.facts.get("staff_life",{}).get("reservations",{}).get(facility_id,{})
 		var adaptation: Dictionary = world.facts.adaptations.get(facility_id,{})
-		records.append([facility_id,facility.definition_id,facility.cell,facility.footprint,facility.get("rotation",0),facility.get("patient_cell",[]),facility.get("operator_cells",[]),facility.get("repair_cell",[]),facility.get("failed",false),HospitalRemodel.blocked(world,facility_id),users,reservation.get("id",""),reservation.get("staff_ids",[]),adaptation.get("actor_id",""),adaptation.get("staff_ids",[]),adaptation.get("regions",[])])
+		var facility_basis: Array = _wait_facility_value(world,view,facility_id)
+		records.append(facility_basis)
+		_watch_wait(observed,"facility",facility_id,facility_basis+[view.visitor_seats.has(facility_id)])
 		var occupied: bool = false
 		for owner: String in users:
 			if not owner in ids: occupied = true
@@ -189,13 +264,18 @@ func _decision_signature(world: WorldState, intent: Dictionary, definitions: Arr
 		# Tea is a real free standing place, including a region with no chairs.
 		# Its availability can change when any body/reservation leaves that area.
 		bounds.append(Rect2(area.bounds).grow(float(space.clearance(world.facts.actors[ids[0]]))+1.0))
+	if not observed.is_empty(): observed.bounds = bounds
 	if not bounds.is_empty(): _add_dynamic_dependencies(world,int(reference.floor_id),bounds,ids,other_ids,reservations)
 	if route_dependent:
 		# A failed route may recover through a remote floor. Retain the exact
 		# static sources actually searched, plus newly declared routing stops.
 		var versions: Array = []
-		for floor_id: int in route_floors: versions.append([floor_id,space._navigation.floor_static_version(space,world,floor_id)])
+		for floor_id: int in route_floors:
+			var version: int = space._navigation.floor_static_version(space,world,floor_id)
+			versions.append([floor_id,version])
+			_watch_wait(observed,"floor",str(floor_id),[version])
 		records.append([versions,space.navigation.routing_floor_basis(world)])
+		_watch_wait(observed,"routing","",[space.navigation.routing_floor_basis(world)])
 	# Queue eligibility cannot make an occupied seat available. Its owners,
 	# reservations and adaptations are already observed above; their release
 	# restores the complete queue dependencies on this same dispatch boundary.
@@ -203,6 +283,7 @@ func _decision_signature(world: WorldState, intent: Dictionary, definitions: Arr
 	var queue: Array = []
 	if route_dependent or intent.public_purpose!="seat":
 		queue = view.queues.get(JSON.stringify([intent.public_purpose,reference],"",true,true),[])
+		_watch_wait(observed,"queue",JSON.stringify([intent.public_purpose,reference],"",true,true),_wait_queue_value(world,queue),{"purpose":intent.public_purpose,"area":reference})
 	for other: Dictionary in queue:
 		if str(other.get("id",""))==str(intent.id) or int(other.get("arrived_tick",-1))<0: continue
 		if not other.get("phase","") in ["local_wait","local_travel","manual_wait"]: continue
@@ -219,11 +300,70 @@ func _decision_signature(world: WorldState, intent: Dictionary, definitions: Arr
 		var pair: Array = [str(intent.actor_id),id]
 		pair.sort()
 		records.append([id,other.location,space.body(other),other.get("posture","standing"),other.get("facing",0.0),world.facts.moves.has(id),world.facts.get("relationships",{}).get(":".join(pair),{})])
+		_watch_wait(observed,"actor",id,_wait_actor_value(world,id))
+		_watch_wait(observed,"relationship",":".join(pair),[world.facts.get("relationships",{}).get(":".join(pair),{})])
 	var reservation_ids: Array = reservations.keys()
 	reservation_ids.sort()
-	for id: String in reservation_ids: records.append(reservations[id])
-	records.append_array(_environment_samples(view,int(reference.get("floor_id",-1)),points))
+	for id: String in reservation_ids:
+		records.append(reservations[id])
+		_watch_wait(observed,"reservation",id,reservations[id])
+	var samples: Array = _environment_samples(view,int(reference.get("floor_id",-1)),points)
+	records.append_array(samples)
+	_watch_wait(observed,"environment",JSON.stringify([reference.get("floor_id",-1),points]),samples,{"floor":int(reference.get("floor_id",-1)),"points":points})
 	return records
+
+func _watch_wait(observed: Dictionary, kind: String, id: String, value: Array, context: Dictionary = {}) -> void:
+	if observed.is_empty(): return
+	var source: Dictionary = context.duplicate()
+	source.kind = kind
+	source.id = id
+	source.value = value
+	observed.resources[kind+":"+id] = source
+
+func _wait_actor_value(world: WorldState, id: String) -> Array:
+	var actor: Dictionary = world.facts.actors.get(id,{})
+	if actor.is_empty(): return []
+	return [id,space.body(actor),actor.location,actor.get("posture","standing"),actor.get("facing",0.0),world.facts.moves.has(id)]
+
+func _wait_area_value(world: WorldState, reference: Dictionary) -> Array:
+	var room: Dictionary = world.facts.rooms.get(reference.get("room_id",""),{})
+	var area: Dictionary = region(world,reference)
+	return [room.get("kind",room.get("type","")),room.get("origin",[]),room.get("size",[]),room.get("wall_edges",[]),area.get("geometry",""),area.get("facilities",[])]
+
+func _wait_facility_value(world: WorldState, view: Dictionary, id: String) -> Array:
+	var facility: Dictionary = world.facts.facilities.get(id,{})
+	if facility.is_empty(): return []
+	var reservation: Dictionary = world.facts.get("staff_life",{}).get("reservations",{}).get(id,{})
+	var adaptation: Dictionary = world.facts.adaptations.get(id,{})
+	return [id,facility.definition_id,facility.cell,facility.footprint,facility.get("rotation",0),facility.get("patient_cell",[]),facility.get("operator_cells",[]),facility.get("repair_cell",[]),facility.get("failed",false),HospitalRemodel.blocked(world,id),view.users.get(id,[]),reservation.get("id",""),reservation.get("staff_ids",[]),adaptation.get("actor_id",""),adaptation.get("staff_ids",[]),adaptation.get("regions",[])]
+
+func _wait_queue_value(world: WorldState, queue: Array) -> Array:
+	var result: Array = []
+	for intent: Dictionary in queue:
+		if int(intent.get("arrived_tick",-1))<0 or not intent.get("phase","") in ["local_wait","local_travel","manual_wait"]: continue
+		var bodies: Array = []
+		for id: String in intent.get("staff_ids",[str(intent.actor_id)]):
+			if not world.facts.actors.has(id): continue
+			var actor: Dictionary = world.facts.actors[id]
+			bodies.append([id,space.body(actor),actor.get("posture","standing"),actor.get("facing",0.0)])
+		result.append([intent.id,intent.arrived_tick,intent.phase,intent.get("facility_id",""),intent.get("mode","auto"),intent.get("manual_facility_id",""),bodies])
+	return result
+
+func _wait_dependency_value(source: Dictionary, world: WorldState, view: Dictionary) -> Array:
+	match str(source.kind):
+		"actor": return _wait_actor_value(world,str(source.id))
+		"area": return _wait_area_value(world,source.area)
+		"facility": return _wait_facility_value(world,view,str(source.id))+[view.visitor_seats.has(source.id)]
+		"queue": return _wait_queue_value(world,view.queues.get(source.id,[]))
+		"control": return [space.navigation.connection_basis(world),"R15" in world.facts.research]
+		"routing": return [space.navigation.routing_floor_basis(world)]
+		"floor": return [space._navigation.floor_static_version(space,world,int(source.id))]
+		"relationship": return [world.facts.get("relationships",{}).get(source.id,{})]
+		"environment": return _environment_samples(view,int(source.floor),source.points)
+		"reservation":
+			var reservation: Dictionary = world.facts.adaptations.get(source.id,{})
+			return [] if reservation.is_empty() else [source.id,reservation.get("actor_id",""),reservation.get("staff_ids",[]),reservation.get("regions",[])]
+	return []
 
 func _environment_samples(view: Dictionary, floor_id: int, points: Array) -> Array:
 	var result: Array = []
@@ -724,9 +864,12 @@ func _waiting_point(world: WorldState, actor_id: String, reference: Dictionary, 
 			if distance<0: continue
 			travel_ticks = HospitalTransit._add(int(field.prefix_ticks),ceili(float(distance)/float(field.speed)/WorldState.TICK_SECONDS))
 		else:
-			var route: Dictionary = space.travel_quote(world,actor_id,floor_id,cell)
+			var leg: Dictionary = space.navigation.waiting_travel_ticks(world,actor_id,floor_id,point,bounds)
 			full_quotes += 1
-			if route.ok and route.has("travel_ticks"): travel_ticks = int(route.travel_ticks)
+			if not leg.is_empty(): travel_ticks = int(leg.travel_ticks)
+			else:
+				var route: Dictionary = space.travel_quote(world,actor_id,floor_id,cell)
+				if route.ok and route.has("travel_ticks"): travel_ticks = int(route.travel_ticks)
 		if travel_ticks>=0 and travel_ticks<=maximum_travel_ticks and (best.is_empty() or travel_ticks<int(best.travel_ticks)): best = {"floor_id":floor_id,"cell":cell,"travel_ticks":travel_ticks}
 	return best
 

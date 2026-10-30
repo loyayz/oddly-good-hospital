@@ -107,6 +107,11 @@ func _admit(world: WorldState, visit: Dictionary, request: Dictionary, lookup: D
 	return true
 
 func dispatch(world: WorldState) -> void:
+	space.public_areas.begin_wait_observation(world)
+	_dispatch_waiting(world)
+	space.public_areas.end_wait_observation()
+
+func _dispatch_waiting(world: WorldState) -> void:
 	ensure(world)
 	var wards: Dictionary = _lookup(world,false).wards
 	for stay_id: String in _stay_ids(world):

@@ -200,14 +200,17 @@ func sync_actor(world: WorldState, id: String) -> void:
 func _sync_actor(world: WorldState, id: String, notify: bool = true) -> void:
 	var actor: Dictionary = world.facts.actors[id]
 	var previous: BodyIndex.Record = _actor_index._records.get(id)
-	var changed: bool = previous!=null
+	var old_floor: int = previous.floor_id if previous!=null else 0
+	var old_rect: Rect2 = previous.rect if previous!=null else Rect2()
+	var floor_id: int = 0
+	var rectangle: Rect2 = Rect2()
 	if actor.location.kind=="floor":
-		var rectangle: Rect2 = body_rectangle(actor)
-		changed = previous==null or previous.floor_id!=int(actor.location.floor_id) or previous.rect!=rectangle
-		_actor_index.update(id,int(actor.location.floor_id),rectangle)
+		rectangle = body_rectangle(actor)
+		floor_id = int(actor.location.floor_id)
+		_actor_index.update(id,floor_id,rectangle)
 	else:
 		_actor_index.remove(id)
-	if notify and changed and public_areas!=null: public_areas.changed(world)
+	if notify and public_areas!=null: public_areas.actor_changed(world,id,old_floor,old_rect,floor_id,rectangle)
 
 func finish_boundary(world: WorldState) -> void:
 	_indexed_revision = world.revision
@@ -414,7 +417,7 @@ func reservation_view(world: WorldState) -> Dictionary:
 func reservation_changed(world: WorldState, id: String) -> void:
 	var cached: Dictionary = _reservation_views.get(world.get_instance_id(),{})
 	if not cached.is_empty(): _index_reservation(cached.view,id,world.facts.adaptations.get(id,{}))
-	if public_areas!=null: public_areas.changed(world)
+	if public_areas!=null: public_areas.reservation_changed(world,id)
 
 func movement_doors(world: WorldState, actor: Dictionary, swept: Rect2, members: Array = [], floor_id: int = 0) -> Array[Dictionary]:
 	if floor_id==0: floor_id = int(actor.location.floor_id)

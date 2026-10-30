@@ -246,6 +246,7 @@ func _move_step(world: WorldState, actor: Dictionary, movement: Dictionary, segm
 		_accepted_sweeps[sweep.id] = sweep
 		_sweep_index.update(sweep.id,int(actor.location.floor_id),sweep.sweep_from.merge(sweep.sweep_to))
 		space._actor_index.update(sweep.id,int(actor.location.floor_id),sweep.sweep_to)
+		if space.public_areas!=null: space.public_areas.actor_changed(world,sweep.id,int(actor.location.floor_id),sweep.sweep_from,int(actor.location.floor_id),sweep.sweep_to)
 	if next.is_equal_approx(target):
 		if segment.kind=="support_exit":
 			actor.posture = "standing"
