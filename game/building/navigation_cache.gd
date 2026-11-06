@@ -130,9 +130,17 @@ func query_graphs(space: HospitalSpace, world: WorldState, floor_id: int, actor:
 			ids.append(id)
 			shifts.append(Vector2i(int(offset[0]),int(offset[1])))
 	var primary: FloorNavigation = graph(space,world,floor_id,actor,[],{})
+	if ids.is_empty(): return {"graph":primary,"bases":bases,"shifts":shifts}
+	var member_geometries: Dictionary = {}
 	for id: String in ids:
-		bases.append(graph(space,world,floor_id,world.facts.actors[id],[],{}))
-	return {"graph":primary,"bases":bases,"shifts":shifts}
+		var member_graph: FloorNavigation = graph(space,world,floor_id,world.facts.actors[id],[],{})
+		bases.append(member_graph)
+		member_geometries[id] = member_graph.geometry
+	var result: Dictionary = {"graph":primary,"bases":bases,"shifts":shifts}
+	# These immutable geometries were acquired for this exact query already;
+	# no extra graph build or retained cross-query permission is introduced.
+	result.member_geometries = member_geometries
+	return result
 
 func graph(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, members: Array, offsets: Dictionary) -> FloorNavigation:
 	var current: Dictionary = floor_source(space,world,floor_id)
@@ -282,8 +290,8 @@ func cached_floor_path(space: HospitalSpace, world: WorldState, floor_id: int, a
 		if saved.has("cells") and not cost_only:
 			result.cells = []
 			for id: int in saved.cells:
-				var cell: Vector2i = FloorNavigation._cell(id)
-				result.cells.append([cell.x,cell.y])
+				# Cached IDs are bounded floor cells; decode without a temporary vector.
+				result.cells.append([id%FloorNavigation.SIDE,id/FloorNavigation.SIDE])
 		return result
 	space.query_counts.static_path_builds += 1
 	var result: Dictionary = graph.find_path(start,goal,query,Callable(),false,[],[],false,cost_only)
@@ -291,7 +299,7 @@ func cached_floor_path(space: HospitalSpace, world: WorldState, floor_id: int, a
 	var charge: int = 512+var_to_bytes(result).size()*8
 	if result.has("cells"):
 		var cells: PackedInt32Array = PackedInt32Array()
-		for cell: Array in result.cells: cells.append(FloorNavigation._id(Vector2i(cell[0],cell[1])))
+		for cell: Array in result.cells: cells.append(int(cell[1])*FloorNavigation.SIDE+int(cell[0]))
 		saved.value.erase("cells")
 		saved.cells = cells
 		charge += cells.size()*16

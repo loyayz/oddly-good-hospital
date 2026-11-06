@@ -23,6 +23,8 @@ CLASS_GROUPS = {
     "HospitalPublicAreas": "public_areas", "HospitalPersonalBeds": "personal_beds",
     "FloorNavigation": "floor_graph",
 }
+# Private scripts need not expose a global class merely to be observable.
+PATH_GROUPS = {"game/life/waiting_dependencies.gd": "waiting_dependencies"}
 EXTRA = {
     "point_navigation": ["_route_result", "_point_route", "_floor_route", "structural_clearance"],
     "movement": ["request_move", "request_group_move", "_active_route_clear", "_dispatch_routes", "_movement_clear", "_yield", "_queue_local_route"],
@@ -192,12 +194,14 @@ def instrument(project: Path, ledger: bool = False) -> dict:
         raw = path.read_bytes()
         source = raw.decode("utf-8")
         match = re.search(r"^class_name ([A-Za-z_0-9]+)", source, re.M)
-        if not match or match.group(1) not in groups:
+        group = PATH_GROUPS.get(path.relative_to(project).as_posix())
+        if group is None:
+            group = groups.get(match.group(1)) if match else None
+        if group is None:
             continue
         # Refuse newline conversion instead of concealing it in identity proof.
         if b"\r" in raw:
             raise ValueError(f"Frozen source must use LF: {path}")
-        group = groups[match.group(1)]
         methods = common | set(hot.get(group, [])) | set(EXTRA.get(group, []))
         if ledger and group == "space":
             methods |= {"reserve_facility", "facility_reservation_reason", "_facility_region_reason"}
@@ -205,7 +209,10 @@ def instrument(project: Path, ledger: bool = False) -> dict:
         if records:
             prepared.append((path, raw, generated.encode("utf-8"), records))
     if not all(any(record["operation"] == required for _, _, _, records in prepared for record in records)
-               for required in ["space.route", "navigation.floor_source", "transit._prefix", "transit.egress_clear", "clearance.capture_source", "clearance.capture_occupancy"]):
+               for required in ["space.route", "navigation.floor_source", "transit._prefix", "transit.egress_clear", "clearance.capture_source", "clearance.capture_occupancy",
+                            "public_areas._capture_wait_signature", "public_areas._observe_wait_dependencies",
+                            "waiting_dependencies.refresh", "waiting_dependencies.observe_actors",
+                            "point_navigation.waiting_travel_ticks", "point_navigation._waiting_cost_basis"]):
         raise ValueError("Required all-instance coverage missing")
     result = {"schema_version": 1, "diagnostic_only": True,
               "formal_acceptance_paused": True, "engine_metadata_key": META,

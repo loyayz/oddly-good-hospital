@@ -34,6 +34,10 @@
 
 `observer_handler_us` 仅测记录函数体，不含全部包装派发/时钟读取开销；总扰动要与同输入 plain 比较。`residual_us` 是完整步扣根阶段与已测记录开销的余数，包含外层设置、等待及间隙。`partition_check_us=0` 是分解核对恒等式，不能独立证明归因正确。每步的阶段、占比、调用和完整标记保留在 JSON 及 `.steps.ndjson`。
 
+当前嵌套观察同时覆盖等待结果捕获、共享资源观察、反向依赖刷新/脏标记，以及入口旅程前缀和剩余层内报价。`waiting_dependencies` 是无全局类名的私有服务：attach 模式替换其观察包装而保留原订阅/空间索引；离线 all-instance 模式按明确脚本路径识别。不能仅以旧 `_decision_signature` 调用减少认定等待工作消失，应同时核对 `public_wait_dependency_*`、`public_wait_dirty_rechecks`、`public_entry_leg_quotes` 计数及完整步。包装更多细粒度调用会增加扰动，前后收益仍以独立 plain 窗口为准，不能把父子包含时间相加。
+
+`python3 -B tools/performance/test_instrumentation.py` 检查当前源码的包装覆盖、原始字节备份、重复包装拒绝及默认参数/副作用保持；若本机有 Godot，还运行独立的真实包装调用烟测。没有 Godot 时烟测显式 skipped。该检查不启动完整医院，不代表生产功能或性能通过。
+
 最终 `.final.bin` 保存完整 `facts`（含 `facts.rng`）和有序语义事件。可比较完整二进制，或运行 `representative_compare.gd -- --before=<A.final.bin> --after=<B.final.bin> --output=<新差异.json>`。只有规则要求的结果必须严格确定；本次同输入局部只读筛选优化额外取得完整二进制相同证据。
 
 ### 慢步决策账本
@@ -55,3 +59,7 @@
 诊断应有外部进程树超时保护，并保留启动参数、源身份、原始日志和最后 enter/complete 标记。超时未完成的步没有有效耗时样本；不得将超时上限当作该步实际耗时。完整性能验收暂停期间不扩大为 Release/渲染/长稳测试。
 
 `resume_representative.gd --source=<完整原输入> --final=<真实完成边界.final.bin> --output=<新输入>` 只接续已执行的完整事实，校验内容身份、原人物集合、160人和世界合法性，不提供位置、工时或完成量。已消费的手动命令不会重新入队。单步定位可能没有诊疗工时，此时即使步完整且世界合法，`qualified` 仍为 false、进程退出1；保留该结果为诊断，完整代表窗口另行验证。`nested` 的方法时间为包含/排除子调用的观测值，不能相加当作整步；速度收益使用同输入 `plain` 的完整窗口。
+
+### 访客选座的有序诊断
+
+`--ledger` 的选步账本保留 `_public_seat_quote`、`turn` 和实际提交的参数/结果。每次报价入口只观察当前同世界只读作用域是否已经持有该访客的 `visitor_supported` 投影，以及该投影是否已知占用当前设施；不调用构造函数、不扫描人物、不提前预热。`_supported_facilities` 记录实际构造调用及返回数量，不复制整个投影。用父调用编号关联报价、队序返回和提交边界，即可区分“已有投影后再遇到占用候选”与“从未通过队序而无需投影”的真实频率。观察仅说明原路径中的机会，不证明重排检查的收益或跨提交复用合法性。选步和 plain 完整窗口仍分别计时，不能把插桩耗时当作整步优化结果。

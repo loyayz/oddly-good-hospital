@@ -122,8 +122,11 @@ func _observe(space: HospitalSpace, reference: HospitalSpace, world: WorldState,
 		expected = reference.navigation._point_route(world,actor,source_floor,start,floor_id,goal,members,offsets,initial,cost_only)
 	else:
 		actual = space.route_cost(world,ACTOR,floor_id,target,members,offsets,true) if cost_only else space.route(world,ACTOR,floor_id,target,members,offsets,true)
-		expected = reference.route_cost(world,ACTOR,floor_id,target,members,offsets,true) if cost_only else reference.route(world,ACTOR,floor_id,target,members,offsets,true)
-	var equal: bool = var_to_bytes(actual)==var_to_bytes(expected)
+		# A current cold solver includes convoy portal endpoints and the actual
+		# trail; the frozen reference remains the oracle for individual queries.
+		var oracle: HospitalSpace = reference if members.is_empty() else HospitalSpace.new(space.content)
+		expected = oracle.route_cost(world,ACTOR,floor_id,target,members,offsets,true) if cost_only else oracle.route(world,ACTOR,floor_id,target,members,offsets,true)
+	var equal: bool = var_to_bytes(actual)==var_to_bytes(expected) and (members.is_empty() or actual.get("ok",false))
 	return {"ok":equal and before==world.freeze(),"floor_id":floor_id,"target":target,"cost_only":cost_only,"initial_ticks":initial,"full_result_including_types_and_reason_equal":equal,"world_and_rng_unchanged":before==world.freeze(),"actual":actual,"expected":expected if not equal else {}}
 
 func _all_ok(rows: Array) -> bool:
@@ -151,7 +154,7 @@ func run_case(suite: RefCounted) -> Dictionary:
 		return {"ok":false,"second_extension":extended_second.to_record()}
 	for floor_id: int in [2,3,4,5]: HospitalSpace.materialize_layout(sim.world,floor_id)
 	suite._add_actor(sim,ACTOR,"S49",[44.25,80.25])
-	suite._add_actor(sim,OTHER,"S49",[45.25,80.25])
+	suite._add_actor(sim,OTHER,"S49",[42.25,80.25])
 	var reference: HospitalSpace = HospitalSpace.new(suite.content)
 	reference.navigation = FrozenSolver.new(reference)
 	var space: HospitalSpace = sim.space
@@ -178,8 +181,8 @@ func run_case(suite: RefCounted) -> Dictionary:
 	var full_before: Array = _counts(space)
 	rows.append(_observe(space,reference,world,2,[46,83],false))
 	rows.append(_observe(space,reference,world,2,[47,83],false))
-	rows.append(_observe(space,reference,world,2,[46,84],true,[ACTOR,OTHER],{ACTOR:[0,0],OTHER:[1,0]}))
-	rows.append(_observe(space,reference,world,2,[47,84],true,[ACTOR,OTHER],{ACTOR:[0,0],OTHER:[1,0]}))
+	rows.append(_observe(space,reference,world,2,[46,84],true,[ACTOR,OTHER],{}))
+	rows.append(_observe(space,reference,world,2,[47,84],true,[ACTOR,OTHER],{}))
 	checks.executable_paths_and_groups_keep_lazy_solver = _counts(space)[0]-full_before[0]==4 and _counts(space)[1]==full_before[1] and _counts(space)[2]==full_before[2]
 	var projected: WorldState = WorldState.new(world.freeze())
 	var nested_before: Array = _counts(space)
@@ -223,7 +226,7 @@ func run_case(suite: RefCounted) -> Dictionary:
 	checks.same_floor_two_connector_alternative = bypass.ok
 	var changes: Dictionary = _changed_facts(space,reference,world,suite.content)
 	checks.real_direction_geometry_and_origin_changes = changes.ok
-	checks.all_complete_answers_match_frozen_solver = _all_ok(rows)
+	checks.all_complete_answers_match_their_independent_oracle = _all_ok(rows)
 	checks.closed_scopes = space._route_queries.is_empty() and reference._route_queries.is_empty()
 	var result: Dictionary = {"ok":not checks.values().has(false),"checks":checks,"observations":rows,"single_lift":sole,"extra_stops":sparse,"same_floor_bypass":bypass,"changed_facts":changes,"source_counts":_counts(space),"scope":"Complete legal candidate quotes on the original fixed-time connector graph. No route, target, actor, stage or movement is removed."}
 	sim.dispose()
@@ -283,7 +286,7 @@ func _sole_boundaries(sim: HospitalSimulation, reference: HospitalSpace, suite: 
 	var prunes: int = int(space.query_counts.get("point_cost_lift_arrival_prunes",0))
 	_begin(space,reference,world)
 	rows.append(_observe(space,reference,world,2,[46,83],false))
-	rows.append(_observe(space,reference,world,2,[47,83],true,[ACTOR,OTHER],{ACTOR:[0,0],OTHER:[1,0]}))
+	rows.append(_observe(space,reference,world,2,[47,83],true,[ACTOR,OTHER],{}))
 	var fallback: bool = int(space.query_counts.get("point_cost_lift_arrival_prunes",0))==prunes
 	rows.append(_observe(space,reference,world,2,[46,84],true,[],{},HospitalTransit.MAX_TICK))
 	_end(space,reference)

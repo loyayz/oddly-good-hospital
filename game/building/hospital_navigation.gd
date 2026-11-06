@@ -13,6 +13,7 @@ func _init(geometry: HospitalSpace) -> void:
 # A route proves a structural journey. Queues and movable people are handled
 # by movement when encountered; their release time is not a path prerequisite.
 func _route_result(world: WorldState, actor_id: String, floor_id: int, target: Array, members: Array, offsets: Dictionary, _ignore_people: bool, distance_only: bool) -> Dictionary:
+	if not members.is_empty(): return _convoy_route_result(world,actor_id,floor_id,target,members,offsets,distance_only)
 	space.query_counts.routes += 1
 	var actor: Dictionary = world.facts.actors[actor_id]
 	if actor.location.kind!="floor": return {"ok":false,"status":"unavailable","reason":"角色正在竖向通行或院外"}
@@ -97,10 +98,15 @@ func routing_floor_basis(world: WorldState) -> Array:
 	return floors
 
 func destination_reason(world: WorldState, actor: Dictionary, floor_id: int, target: Vector2i, members: Array = [], offsets: Dictionary = {}) -> String:
+	if not members.is_empty():
+		if not offsets.is_empty(): return "同行组只支持前后队列"
+		var m: Dictionary = _convoy_query_movement(world,actor.id,members)
+		var proxy: Dictionary = ConvoyTrail.proxy(world,m)
+		return structural_clearance(world,proxy,floor_id).position_reason(Vector2(target)+Vector2.ONE*float(m.convoy.shift))
 	return structural_clearance(world,actor,floor_id,members,offsets).reason(target)
 
 func structural_clearance(world: WorldState, actor: Dictionary, floor_id: int, members: Array = [], offsets: Dictionary = {}) -> RouteClearance:
-	if members.size()==1 and members[0]==actor.id: members = []
+	if actor.has("_convoy_size") or members.size()==1 and members[0]==actor.id: members = []
 	var source: Dictionary = space._navigation.floor_source(space,world,floor_id)
 	var query: RouteClearance = space._navigation.cached_static_geometry(space,world,floor_id,actor) if members.is_empty() else null
 	if query==null: query = RouteClearance.new(space,world,actor,floor_id,members,offsets,false,source)
@@ -196,6 +202,15 @@ func _point_route(world: WorldState, actor: Dictionary, source_floor: int, start
 	var nodes: Dictionary = {"start":{"floor_id":source_floor,"cell":start},"goal":{"floor_id":target_floor,"cell":goal}}
 	var topology: Dictionary = _topology(world)
 	var node_ids: Array = topology.node_ids
+	if actor.has("_convoy_size"):
+		for id: String in topology.nodes:
+			var node: Dictionary = topology.nodes[id].duplicate()
+			var cid: String = id.get_slice(":",0)
+			var p: Dictionary = ConvoyPortal.plan(space,world,world.facts.connectors[cid],actor.id,members,world.facts.moves[actor.id].convoy)
+			if p.get("ok",false):
+				node.cell = Vector2i(ConvoyTrail.point(p.egress)+Vector2.ONE*float(world.facts.moves[actor.id].convoy.shift))
+				node.convoy = ConvoyPortal.predict(world.facts.moves[actor.id].convoy,p,int(node.floor_id))
+			nodes[id] = node
 	var extra_stops: Dictionary = {}
 	for floor_id: int in {source_floor:true,target_floor:true}:
 		if topology.candidates.has(floor_id): continue
@@ -203,7 +218,15 @@ func _point_route(world: WorldState, actor: Dictionary, source_floor: int, start
 		if extra.ids.is_empty(): continue
 		if is_same(node_ids,topology.node_ids): node_ids = node_ids.duplicate()
 		node_ids.append_array(extra.ids)
-		nodes.merge(extra.nodes)
+		for id: String in extra.nodes:
+			var node: Dictionary = extra.nodes[id].duplicate()
+			if actor.has("_convoy_size"):
+				var cid: String = id.get_slice(":",0)
+				var p: Dictionary = ConvoyPortal.plan(space,world,world.facts.connectors[cid],actor.id,members,world.facts.moves[actor.id].convoy)
+				if p.get("ok",false):
+					node.cell = Vector2i(ConvoyTrail.point(p.egress)+Vector2.ONE*float(world.facts.moves[actor.id].convoy.shift))
+					node.convoy = ConvoyPortal.predict(world.facts.moves[actor.id].convoy,p,int(node.floor_id))
+			nodes[id] = node
 		for id: String in extra.connectors:
 			if not extra_stops.has(id): extra_stops[id] = []
 			extra_stops[id].append(floor_id)
@@ -286,7 +309,8 @@ func waiting_travel_ticks(world: WorldState, actor_id: String, floor_id: int, po
 	var leg: Dictionary = _floor_route(world,actor,floor_id,basis.root,point,[],{},true,{},true,true)
 	space.query_counts["public_entry_leg_quotes"] = int(space.query_counts.get("public_entry_leg_quotes",0))+1
 	if not leg.ok: return {"ready":true,"travel_ticks":-1}
-	return {"ready":true,"travel_ticks":HospitalTransit._add(int(basis.prefix_ticks),HospitalTransit.walking_ticks(space,actor,[],float(leg.walking_distance)))}
+	# The sealed single-actor basis already resolved this same walking speed.
+	return {"ready":true,"travel_ticks":HospitalTransit._add(int(basis.prefix_ticks),ceili(float(leg.walking_distance)/float(basis.speed)/WorldState.TICK_SECONDS))}
 
 func ready_waiting_cost_field(world: WorldState, actor_id: String, floor_id: int, bounds: Dictionary) -> Dictionary:
 	var basis: Dictionary = _waiting_cost_basis(world,actor_id,floor_id,bounds)
@@ -431,12 +455,20 @@ func _connector_edges(world: WorldState, actor: Dictionary, context: Dictionary,
 	for connector_id: String in context.connections[floor_id]:
 		var connection: Dictionary = world.facts.connectors[connector_id]
 		var anchor: Vector2i = Vector2i(int(connection.anchor[0]),int(connection.anchor[1]))
-		var before: Dictionary = _floor_route(world,actor,floor_id,node.cell,anchor,members,offsets,true,{},true,distance_only)
+		var portal: Dictionary = {}
+		if actor.has("_convoy_size") and space.content.definition("vertical_connectors",connection.definition_id).kind!="stairs":
+			portal = ConvoyPortal.plan(space,world,connection,actor.id,members,world.facts.moves[actor.id].convoy)
+			if not portal.get("ok",false): continue
+			anchor = Vector2i(ConvoyTrail.point(portal.entry)+Vector2.ONE*float(world.facts.moves[actor.id].convoy.shift))
+		var before: Dictionary = _convoy_portal_approach(world,actor,floor_id,node,portal) if not portal.is_empty() else _floor_route(world,actor,floor_id,node.cell,anchor,members,offsets,true,{},true,distance_only)
 		if not before.ok: continue
 		var definition: Dictionary = space.content.definition("vertical_connectors",connection.definition_id)
 		var walking: int = HospitalTransit.walking_ticks(space,actor,members,float(before.walking_distance))
 		var boarding: int = HospitalTransit._boarding(definition)
 		var alighting: int = HospitalTransit._alighting(definition)
+		if not portal.is_empty():
+			boarding = int(portal.boarding_ticks)
+			alighting = int(portal.alighting_ticks)
 		var destinations: Array = context.stops[connector_id]
 		if context.extra_stops.has(connector_id):
 			if not context.query_stops.has(connector_id):
@@ -458,6 +490,9 @@ func _connector_edges(world: WorldState, actor: Dictionary, context: Dictionary,
 	return {"outgoing":outgoing,"facts":facts}
 
 func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2i, goal: Vector2i, members: Array = [], offsets: Dictionary = {}, ignore_people: bool = false, navigation: Dictionary = {}, structural_only: bool = false, cost_only: bool = false) -> Dictionary:
+	if actor.has("_convoy_size"):
+		members = []
+		offsets = {}
 	_observe_floor(world,str(actor.id),floor_id)
 	var routes: Dictionary = {}
 	var key: Variant = ""
@@ -491,14 +526,31 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 	var query: RouteClearance
 	if structural_only: query = graph.geometry
 	elif navigation.has("query"): query = navigation.query
+	elif navigation.has("member_geometries"):
+		query = RouteClearance.new(space,world,actor,floor_id,members,offsets,true,graph.geometry.source,graph.geometry,navigation.member_geometries)
 	else: query = space._navigation.clearance(space,world,floor_id,actor) if members.is_empty() else RouteClearance.new(space,world,actor,floor_id,members,offsets,true,graph.geometry.source)
 	var people: Callable = Callable()
-	if not ignore_people:
+	var convoy_start: bool = actor.has("_convoy_size") and actor.location.kind=="floor" and int(actor.location.floor_id)==floor_id and start==Vector2i(ConvoyTrail.point(actor.location.cell).round())
+	if not ignore_people or convoy_start:
 		people = func(from_cell: Vector2i,to_cell: Vector2i) -> bool:
-			return space._unit_step_dynamic_clear(world,actor,floor_id,from_cell,to_cell,members,offsets)
+			if to_cell==goal and actor.has("_convoy_goal_direction") and Vector2(to_cell-from_cell).dot(actor._convoy_goal_direction)<-0.00001: return false
+			if convoy_start:
+				var unit: Dictionary = world.facts.moves.get(actor.id,{})
+				if unit.has("convoy") and unit.members.size()>1:
+					if from_cell==start and unit.convoy.points.size()>1:
+						var forward: Vector2 = ConvoyTrail.point(unit.convoy.points[-1])-ConvoyTrail.point(unit.convoy.points[-2])
+						if Vector2(to_cell-from_cell).dot(forward)<-0.00001: return false
+					var prefix: Array = unit.convoy.points.duplicate(true)
+					prefix.reverse()
+					prefix = ConvoyTrail.drop(prefix,float(unit.convoy.spacing))
+					prefix.reverse()
+					var swept: Rect2 = Rect2(Vector2(from_cell),Vector2.ONE*int(unit.convoy.size)).merge(Rect2(Vector2(to_cell),Vector2.ONE*int(unit.convoy.size)))
+					for region: Rect2 in ConvoyTrail.regions(unit.convoy,prefix):
+						if swept.intersects(region,false): return false
+			return true if ignore_people else space._unit_step_dynamic_clear(world,actor,floor_id,from_cell,to_cell,members,offsets)
 	var result: Dictionary
 	var repeated: Dictionary = {}
-	if cost_only and ignore_people and members.is_empty() and offsets.is_empty() and not navigation.has("query") and not navigation.get("overlay",false) and navigation.bases.is_empty() and navigation.shifts.is_empty():
+	if not convoy_start and cost_only and ignore_people and members.is_empty() and offsets.is_empty() and not navigation.has("query") and not navigation.get("overlay",false) and navigation.bases.is_empty() and navigation.shifts.is_empty():
 		# The structural graph was acquired above in this same invocation. No
 		# intervening query can refresh it; dynamic clearance keeps its own path.
 		repeated = space._navigation.forward_distance(space,world,floor_id,actor,start,goal,structural_only,graph if fresh_structural_graph else null)
@@ -512,10 +564,10 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 	if repeated.get("ready",false):
 		space.query_counts["distance_field_hits"] = int(space.query_counts.get("distance_field_hits",0))+1
 		result = {"ok":bool(repeated.ok),"status":"complete" if repeated.ok else "unreachable","reason":repeated.get("reason",""),"walking_distance":int(repeated.get("distance",-1))}
-	elif not space._route_queries.is_empty() and space._route_queries.back().world==world and members.is_empty() and offsets.is_empty() and not navigation.has("query") and not navigation.get("overlay",false) and navigation.bases.is_empty() and navigation.shifts.is_empty():
+	elif not convoy_start and not space._route_queries.is_empty() and space._route_queries.back().world==world and members.is_empty() and offsets.is_empty() and not navigation.has("query") and not navigation.get("overlay",false) and navigation.bases.is_empty() and navigation.shifts.is_empty():
 		result = space._navigation.cached_floor_path(space,world,floor_id,actor,graph,query,start,goal,cost_only)
 	else:
-		result = graph.find_path(start,goal,query,Callable(),false,navigation.bases,navigation.shifts,bool(navigation.get("overlay",false)),cost_only)
+		result = graph.find_path(start,goal,query,people if convoy_start else Callable(),false,navigation.bases,navigation.shifts,bool(navigation.get("overlay",false)),cost_only)
 	if result.ok and people.is_valid() and not cost_only:
 		var low: Vector2 = Vector2(start)
 		var high: Vector2 = low
@@ -524,7 +576,7 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 			high = high.max(Vector2(float(cell[0]),float(cell[1])))
 		var shape: Rect2 = space._unit_rect(world,actor,Vector2.ZERO,members,offsets)
 		var broad: Rect2 = Rect2(low+shape.position,high-low+shape.size)
-		if not space._dynamic_clear(world,actor.id,floor_id,broad,members):
+		if actor.has("_convoy_size") or not space._dynamic_clear(world,actor.id,floor_id,broad,members):
 			var blocked: bool = false
 			var previous: Vector2i = start
 			for cell: Array in result.cells:
@@ -564,3 +616,237 @@ func _route_envelope(world: WorldState, actor: Dictionary, members: Array, offse
 		result.append([space.body(member),member.get("posture","standing"),float(member.get("facing",0.0)),offsets[member_id]])
 	return result
 
+
+# Group queries have a single traversal envelope. A read-only projection gives
+# transit access to the same queue definition before actual gathering completes.
+func _convoy_query_movement(world: WorldState, primary: String, members: Array) -> Dictionary:
+	var existing: Dictionary = world.facts.moves.get(primary,{})
+	if existing.has("convoy") and existing.members==members: return existing
+	# A legal, physically assembled queue already owns its real direction and
+	# spacing even before a move is requested. Do not invent an eastbound tail
+	# for its read-only quote. Unassembled planning retains a pure projection.
+	var assembled: Dictionary = ConvoyTrail.create(space,world,primary,members)
+	if assembled.ok: return {"actor_id":primary,"members":members.duplicate(),"convoy":assembled.convoy}
+	var form: Dictionary = ConvoyTrail.formation(space,world,primary,members)
+	var head: Vector2 = ConvoyTrail.point(world.facts.actors[primary].location.cell)
+	var tail: Vector2 = head-Vector2.RIGHT*float(form.spacing)*(members.size()-1)
+	return {"actor_id":primary,"members":members.duplicate(),"convoy":{"version":1,"points":[[tail.x,tail.y],[head.x,head.y]] if members.size()>1 else [[head.x,head.y]],"spacing":form.spacing,"size":form.size,"centers":form.centers,"floor_id":int(world.facts.actors[primary].location.floor_id),"shift":form.shift,"height":form.height}}
+
+func _convoy_route_result(world: WorldState, primary: String, floor_id: int, target: Array, members: Array, offsets: Dictionary, cost_only: bool) -> Dictionary:
+	if not offsets.is_empty(): return {"ok":false,"status":"unreachable","reason":"同行组只支持前后队列"}
+	if members.is_empty() or members[0]!=primary: return {"ok":false,"status":"unreachable","reason":"队列首位必须是队长"}
+	var seen: Dictionary = {}
+	for id: String in members:
+		if not world.facts.actors.has(id) or seen.has(id): return {"ok":false,"status":"unreachable","reason":"队列成员无效"}
+		seen[id] = true
+	if world.facts.actors[primary].location.kind!="floor": return {"ok":false,"status":"unavailable","reason":"等待队长真实落地"}
+	var m: Dictionary = _convoy_query_movement(world,primary,members)
+	var facts: Dictionary = world.facts.duplicate()
+	facts.moves = world.facts.moves.duplicate()
+	facts.moves[primary] = m
+	var projected: WorldState = WorldState.new(facts)
+	inherit_projection(world,projected)
+	var proxy: Dictionary = ConvoyTrail.proxy(projected,m)
+	var shift: Vector2 = Vector2.ONE*float(m.convoy.shift)
+	var actual: Vector2 = ConvoyTrail.point(proxy.location.cell)
+	var goal_actual: Vector2 = ConvoyTrail.point(target)+shift
+	var start: Vector2i = Vector2i(actual.round())
+	if m.convoy.points.size()>1:
+		var forward: Vector2 = ConvoyTrail.point(m.convoy.points[-1])-ConvoyTrail.point(m.convoy.points[-2])
+		if forward.x>0: start.x=ceili(actual.x)
+		elif forward.x<0: start.x=floori(actual.x)
+		if forward.y>0: start.y=ceili(actual.y)
+		elif forward.y<0: start.y=floori(actual.y)
+	var goal: Vector2i = Vector2i(floori(goal_actual.x) if goal_actual.x>=actual.x else ceili(goal_actual.x),floori(goal_actual.y) if goal_actual.y>=actual.y else ceili(goal_actual.y))
+	var entry: Dictionary = _convoy_grid_stub(projected,proxy,int(proxy.location.floor_id),actual,Vector2(start))
+	if not entry.ok: return {"ok":false,"status":"unreachable","reason":entry.reason}
+	var exit: Dictionary = _convoy_grid_stub(projected,proxy,floor_id,Vector2(goal),goal_actual)
+	if not exit.ok: return {"ok":false,"status":"unreachable","reason":exit.reason}
+	if not entry.points.is_empty():
+		# The route graph begins after the real fractional prefix. Portal
+		# alignment and own-tail proofs must start from that predicted trail,
+		# not from the unadvanced fractional head in the caller's world.
+		var prefix: Array = []
+		for point: Array in entry.points: prefix.append({"kind":"floor","floor_id":int(proxy.location.floor_id),"cell":point})
+		var prediction: Dictionary = _convoy_predict_floor_path(m.convoy,prefix,shift)
+		if not prediction.ok: return {"ok":false,"status":"unreachable","reason":prediction.reason}
+		var trial: Dictionary = m.convoy.duplicate(true)
+		trial.points = prediction.points
+		projected = _convoy_route_projection(projected,m,trial,int(proxy.location.floor_id),Vector2(start)-shift)
+		inherit_projection(world,projected)
+		proxy = ConvoyTrail.proxy(projected,projected.facts.moves[primary])
+	var result: Dictionary = _point_route(projected,proxy,int(proxy.location.floor_id),start,floor_id,goal,members,{},int(entry.ticks),cost_only)
+	if not result.get("ok",false) and int(proxy.location.floor_id)==floor_id:
+		var prefix: Array = []
+		for point: Array in entry.points: prefix.append({"kind":"floor","floor_id":floor_id,"cell":point})
+		var prediction: Dictionary = _convoy_predict_floor_path(m.convoy,prefix,shift)
+		if prediction.ok:
+			var seed: Dictionary = m.convoy.duplicate(true)
+			seed.points = prediction.points
+			var detour_world: WorldState = _convoy_route_projection(projected,m,seed,floor_id,Vector2(start)-shift)
+			var detour: Dictionary = _convoy_vacated_goal_route(detour_world,m.actor_id,floor_id,start,goal,int(entry.ticks))
+			if detour.get("ok",false): result = detour
+	if result.get("ok",false):
+		if not cost_only:
+			var prefix: Array = []
+			for point: Array in entry.points: prefix.append({"kind":"floor","floor_id":int(proxy.location.floor_id),"cell":point})
+			prefix.append_array(result.path)
+			for point: Array in exit.points: prefix.append({"kind":"floor","floor_id":floor_id,"cell":point})
+			result.path = prefix
+			for segment: Dictionary in result.path:
+				if segment.kind=="floor": segment.cell = [float(segment.cell[0])-shift.x,float(segment.cell[1])-shift.y]
+		result.walking_distance += float(entry.distance)+float(exit.distance)
+		result.travel_ticks = HospitalTransit._add(int(result.travel_ticks),int(exit.ticks))
+		if cost_only: result.erase("path")
+	return result
+
+func convoy_local_route(world: WorldState, movement: Dictionary, floor_id: int, target: Array) -> Dictionary:
+	var proxy: Dictionary = ConvoyTrail.proxy(world,movement)
+	var shift: Vector2 = Vector2.ONE*float(movement.convoy.shift)
+	var start: Vector2 = ConvoyTrail.point(proxy.location.cell)
+	var goal: Vector2 = ConvoyTrail.point(target)+shift
+	var query: RouteClearance = structural_clearance(world,proxy,floor_id)
+	var reason: String = query.sweep_reason(start,Vector2(Vector2i(start.round())))
+	if not reason.is_empty(): return {"ok":false,"reason":reason}
+	var result: Dictionary = _floor_route(world,proxy,floor_id,Vector2i(start.round()),Vector2i(goal.round()),[],{},false,{},true,false)
+	if result.get("ok",false):
+		if start!=start.round(): result.path.push_front({"kind":"floor","floor_id":floor_id,"cell":[roundf(start.x),roundf(start.y)]})
+		for segment: Dictionary in result.path: segment.cell = [float(segment.cell[0])-shift.x,float(segment.cell[1])-shift.y]
+	return result
+
+# Fractional endpoints join the integer route through real orthogonal legs.
+# Each short floor leg consumes its actual number of fixed movement steps.
+func _convoy_grid_stub(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2, end: Vector2) -> Dictionary:
+	var query: RouteClearance = structural_clearance(world,actor,floor_id)
+	for corner: Vector2 in [Vector2(end.x,start.y),Vector2(start.x,end.y)]:
+		var current: Vector2 = start
+		var points: Array = []
+		var distance: float = 0.0
+		var ticks: int = 0
+		var reason: String = ""
+		for next: Vector2 in [corner,end]:
+			if current==next: continue
+			reason = query.sweep_reason(current,next)
+			if not reason.is_empty(): break
+			distance += current.distance_to(next)
+			ticks += HospitalTransit.walking_ticks(space,actor,[],current.distance_to(next))
+			points.append([next.x,next.y])
+			current = next
+		if reason.is_empty(): return {"ok":true,"points":points,"distance":distance,"ticks":ticks}
+	return {"ok":false,"reason":"队列分数坐标没有安全的正交接入段"}
+
+# Admission requires the entire tail to be aligned, not just the head at a
+# coordinate. Walk from the outer approach point through one real straight
+# tail-length prefix. Pure trail prediction rejects a folded approach before
+# it becomes an accepted journey; the two side alternatives are ordinary
+# geometric detours with no queue priority or teleportation rule.
+func _convoy_portal_approach(world: WorldState, actor: Dictionary, floor_id: int, node: Dictionary, portal: Dictionary) -> Dictionary:
+	var original: Dictionary = world.facts.moves[actor.id]
+	var seed: Dictionary = node.get("convoy",original.convoy).duplicate(true)
+	var shift: Vector2 = Vector2.ONE*float(seed.shift)
+	var start: Vector2 = Vector2(node.cell)
+	var entry: Vector2 = ConvoyTrail.point(portal.entry)+shift
+	var approach: Vector2 = ConvoyTrail.point(portal.egress)+shift
+	var inward: Vector2 = ConvoyTrail.point(portal.inward)
+	if start.distance_to(entry)<0.001 and HospitalTransit._convoy_entry_aligned(seed,portal):
+		return {"ok":true,"path":[],"walking_distance":0.0}
+	var side: Vector2 = Vector2(-inward.y,inward.x)
+	var radius: float = maxf(float(seed.spacing),float(seed.size)*2.0)
+	var alternatives: Array = [null,approach+side*radius,approach-side*radius]
+	for staging: Variant in alternatives:
+		var trial: Dictionary = seed.duplicate(true)
+		var path: Array = []
+		var distance: float = 0.0
+		var current: Vector2 = start
+		var goals: Array = [approach] if staging==null else [staging,approach]
+		var valid: bool = true
+		for goal: Vector2 in goals:
+			var projected: WorldState = _convoy_route_projection(world,original,trial,floor_id,current-shift)
+			var proxy: Dictionary = ConvoyTrail.proxy(projected,projected.facts.moves[actor.id])
+			if goal==approach: proxy._convoy_goal_direction = inward
+			var leg: Dictionary = _floor_route(projected,proxy,floor_id,Vector2i(current),Vector2i(goal),[],{},true,{},true,false)
+			var prediction: Dictionary = _convoy_predict_floor_path(trial,leg.path,shift) if leg.get("ok",false) else {"ok":false}
+			if not prediction.ok:
+				leg = _convoy_vacated_goal_route(projected,actor.id,floor_id,Vector2i(current),Vector2i(goal),0,inward if goal==approach else Vector2.ZERO)
+				if leg.get("ok",false): prediction = _convoy_predict_floor_path(trial,leg.path,shift)
+			if not leg.get("ok",false) or not prediction.ok: valid = false;break
+			trial.points = prediction.points
+			path.append_array(leg.path)
+			distance += float(leg.walking_distance)
+			current = goal
+		if not valid: continue
+		var projection: WorldState = _convoy_route_projection(world,original,trial,floor_id,current-shift)
+		var proxy: Dictionary = ConvoyTrail.proxy(projection,projection.facts.moves[actor.id])
+		var query: RouteClearance = structural_clearance(projection,proxy,floor_id)
+		if not query.sweep_reason(approach,entry).is_empty(): continue
+		var straight: Array = []
+		while current.distance_to(entry)>0.00001:
+			var next: Vector2 = current.move_toward(entry,1.0)
+			straight.append({"kind":"floor","floor_id":floor_id,"cell":[next.x,next.y]})
+			distance += current.distance_to(next)
+			current = next
+		var prediction: Dictionary = _convoy_predict_floor_path(trial,straight,shift)
+		if not prediction.ok: continue
+		trial.points = prediction.points
+		if not HospitalTransit._convoy_entry_aligned(trial,portal): continue
+		path.append_array(straight)
+		return {"ok":true,"path":path,"walking_distance":distance}
+	return {"ok":false,"status":"unreachable","reason":"入口没有可真实对齐完整队列的接近通路"}
+
+func _convoy_route_projection(world: WorldState, movement: Dictionary, convoy: Dictionary, floor_id: int, head: Vector2) -> WorldState:
+	var facts: Dictionary = world.facts.duplicate()
+	facts.moves = world.facts.moves.duplicate()
+	var m: Dictionary = movement.duplicate()
+	m.convoy = convoy.duplicate(true)
+	m.convoy.floor_id = floor_id
+	facts.moves[m.actor_id] = m
+	facts.actors = world.facts.actors.duplicate()
+	var leader: Dictionary = world.facts.actors[m.actor_id].duplicate(true)
+	leader.location = {"kind":"floor","floor_id":floor_id,"cell":[head.x,head.y],"height_m":0.0}
+	facts.actors[m.actor_id] = leader
+	return WorldState.new(facts)
+
+func _convoy_predict_floor_path(convoy: Dictionary, path: Array, shift: Vector2) -> Dictionary:
+	var trial: Dictionary = convoy.duplicate(true)
+	for segment: Dictionary in path:
+		var target: Vector2 = ConvoyTrail.point(segment.cell)-shift
+		var current: Vector2 = ConvoyTrail.point(trial.points[-1])
+		while current.distance_to(target)>0.00001:
+			var next: Vector2 = current.move_toward(target,float(trial.size)*0.5)
+			var proposal: Dictionary = ConvoyTrail.propose(trial,next)
+			if not proposal.ok: return {"ok":false,"reason":proposal.reason}
+			trial.points = proposal.points
+			current = next
+	return {"ok":true,"points":trial.points}
+
+# The present tail is temporary, so it cannot make a valid future goal
+# permanently unreachable. A bounded ordinary detour vacates that old region,
+# then replans with the predicted trail, without relaxing any collision proof.
+func _convoy_vacated_goal_route(world: WorldState, primary: String, floor_id: int, start: Vector2i, goal: Vector2i, initial_ticks: int, final_direction: Vector2 = Vector2.ZERO) -> Dictionary:
+	var movement: Dictionary = world.facts.moves[primary]
+	var seed: Dictionary = movement.convoy
+	if movement.members.size()<2: return {"ok":false}
+	var shift: Vector2 = Vector2.ONE*float(seed.shift)
+	var forward: Vector2 = (ConvoyTrail.point(seed.points[-1])-ConvoyTrail.point(seed.points[-2])).normalized()
+	var side: Vector2 = Vector2(-forward.y,forward.x)
+	var distance: float = ceilf(ConvoyTrail.length(seed.points)+float(seed.size))
+	for direction: Vector2 in [forward,side,-side]:
+		var staging: Vector2i = start+Vector2i(direction*distance)
+		var proxy: Dictionary = ConvoyTrail.proxy(world,movement)
+		var first: Dictionary = _floor_route(world,proxy,floor_id,start,staging,[],{},true,{},true,false)
+		if not first.get("ok",false): continue
+		var prediction: Dictionary = _convoy_predict_floor_path(seed,first.path,shift)
+		if not prediction.ok: continue
+		var trial: Dictionary = seed.duplicate(true)
+		trial.points = prediction.points
+		var projected: WorldState = _convoy_route_projection(world,movement,trial,floor_id,Vector2(staging)-shift)
+		proxy = ConvoyTrail.proxy(projected,projected.facts.moves[primary])
+		if final_direction!=Vector2.ZERO: proxy._convoy_goal_direction = final_direction
+		var second: Dictionary = _floor_route(projected,proxy,floor_id,staging,goal,[],{},true,{},true,false)
+		if not second.get("ok",false): continue
+		if not _convoy_predict_floor_path(trial,second.path,shift).ok: continue
+		var path: Array = first.path.duplicate()
+		path.append_array(second.path)
+		var walked: float = float(first.walking_distance)+float(second.walking_distance)
+		return {"ok":true,"status":"complete","reason":"","path":path,"walking_distance":walked,"travel_ticks":HospitalTransit._add(initial_ticks,HospitalTransit.walking_ticks(space,proxy,[],walked)),"quoted_tick":world.sim_tick}
+	return {"ok":false}

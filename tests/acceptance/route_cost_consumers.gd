@@ -45,7 +45,13 @@ func _compare(sim: HospitalSimulation, actor_id: String, floor_id: int, cell: Ar
 	var before: Dictionary = sim.world.freeze()
 	var count: int = int(sim.space.query_counts.materialized_floor_cells)
 	var cost: Dictionary = sim.space.route_cost(sim.world,actor_id,floor_id,cell,members,offsets)
-	var no_cells: bool = count==int(sim.space.query_counts.materialized_floor_cells) and not cost.has("path") and not cost.has("cells")
+	var materialized: int = int(sim.space.query_counts.materialized_floor_cells)-count
+	var no_cells: bool = materialized==0
+	var cost_shape: bool = not cost.has("path") and not cost.has("cells")
+	# A convoy may prove a portal approach by following a private path. That
+	# proof is required even for a cost query; it must not leak a returned path
+	# or mutate the world. The unchanged single-actor path-free contract stays.
+	var proof_contract: bool = cost_shape and (not members.is_empty() or no_cells)
 	var full: Dictionary = sim.space.route(sim.world,actor_id,floor_id,cell,members,offsets)
 	var same: bool = _business_fields(cost)==_business_fields(full)
 	var literal: bool = cost.get("ok",false)==expected_ok
@@ -54,7 +60,7 @@ func _compare(sim: HospitalSimulation, actor_id: String, floor_id: int, cell: Ar
 	else:
 		literal = literal and not str(cost.get("reason","")).is_empty()
 	var readonly: bool = before==sim.world.freeze()
-	return {"ok":same and no_cells and literal and readonly,"business_fields_identical":same,"literal_expected_result":literal,"no_script_path_cells":no_cells,"facts_unchanged":readonly,"cost":cost,"complete_fields":_business_fields(full)}
+	return {"ok":same and proof_contract and literal and readonly,"business_fields_identical":same,"literal_expected_result":literal,"cost_only_omits_path_and_cells":cost_shape,"no_script_path_cells":no_cells,"materialized_proof_cells":materialized,"convoy_alignment_proof_allowed":not members.is_empty(),"facts_unchanged":readonly,"cost":cost,"complete_fields":_business_fields(full)}
 
 func _route_contract(suite: RefCounted) -> Dictionary:
 	var sim: HospitalSimulation = suite._fixture()
@@ -81,15 +87,20 @@ func _route_contract(suite: RefCounted) -> Dictionary:
 
 func _group_contract(suite: RefCounted) -> Dictionary:
 	var sim: HospitalSimulation = suite._transit_fixture()
-	suite._add_actor(sim,"cost_primary","S49",[44,84])
-	suite._add_actor(sim,"cost_partner","S49",[45,84])
+	# Legal input boundary: an already-assembled northbound queue is at the
+	# real VC02 portal. Quoting must neither move it nor create a live journey.
+	suite._add_actor(sim,"cost_primary","S49",[36,76])
+	suite._add_actor(sim,"cost_partner","S49",[36,78])
 	suite._add_actor(sim,"cost_giant","S59",[49,84])
-	# VC02's landing is [36,76]. Walking is 16 cells on each floor. At
-	# 1.6 cells/s, the group walks 200 ticks plus 15+10+15 fixed lift ticks.
-	var group: Dictionary = _compare(sim,"cost_primary",2,[44,84],true,32,240,["cost_primary","cost_partner"],{"cost_primary":[0,0],"cost_partner":[1,0]})
+	# The two-member portal uses 8 cells boarding and 3 cells alighting.
+	# At the leader's 2 cells/s these consume 40 and 15 ticks, with 10 riding
+	# ticks. The exit is [36,78], followed by 4 cells / 20 ticks to the goal.
+	var group: Dictionary = _compare(sim,"cost_primary",2,[36,82],true,4,85,["cost_primary","cost_partner"],{})
+	var request: String = sim.space.request_group_move(sim.world,"cost_primary",["cost_primary","cost_partner"],{},2,[36,82])
+	var active: Dictionary = _compare(sim,"cost_primary",2,[36,82],true,4,85,["cost_primary","cost_partner"],{})
 	var incompatible: Dictionary = _compare(sim,"cost_giant",2,[49,84],false)
 	sim.dispose()
-	return {"ok":group.ok and incompatible.ok,"complete_group":group,"incompatible_body":incompatible}
+	return {"ok":group.ok and request.is_empty() and active.ok and incompatible.ok,"complete_group":group,"request_error":request,"active_group":active,"incompatible_body":incompatible}
 
 func _hot_seat_quote(suite: RefCounted) -> Dictionary:
 	var sim: HospitalSimulation = suite._fixture()

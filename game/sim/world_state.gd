@@ -611,18 +611,15 @@ func validate(content: HospitalContent) -> String:
 			if not member_id is String or not facts.actors.has(member_id) or moving_members.has(member_id):
 				return "移动组身体不存在或重复参与"
 			moving_members[member_id] = id
-			if movement.has("members") and not _point(movement.offsets.get(member_id)):
-				return "陪同组实际相对位置无效"
 			if movement.has("members"):
 				var member: Dictionary = facts.actors[member_id]
 				if member.location.kind!=leader.location.kind:
 					return "完整移动组处于不同位置阶段"
-				if leader.location.kind=="floor" and not geometry.at(self,member_id,int(leader.location.floor_id),[float(leader.location.cell[0])+float(movement.offsets[member_id][0]),float(leader.location.cell[1])+float(movement.offsets[member_id][1])]):
-					return "完整移动组没有实际保持原配位"
 				if leader.location.kind=="transit" and member.location.connector_id!=leader.location.connector_id:
 					return "完整移动组不在同一真实连接中"
-		if movement.has("members") and (not id in movement.members or movement.members[0]!=id or float(movement.offsets[id][0])!=0.0 or float(movement.offsets[id][1])!=0.0):
-			return "移动组必须包含原领队与零偏移"
+		if movement.has("convoy"):
+			var convoy_error: String = ConvoyTrail.validate(geometry,self,movement)
+			if not convoy_error.is_empty(): return convoy_error
 		var segments: Array = movement.path+movement.get("route_waypoint",{}).get("continuation",[])
 		for segment: Dictionary in segments:
 			if segment.kind=="connector" and not facts.connectors.has(segment.connector_id):
@@ -679,12 +676,25 @@ func validate(content: HospitalContent) -> String:
 		if reservation.kind=="door":
 			if not doors.has(id) or reservation.owner_id!=reservation.actor_id:
 				return "门展开的实际墙段或所有者缺失"
-			var quote: Dictionary = geometry.door_quote(self,facts.actors[reservation.actor_id],int(reservation.floor_id),doors[id])
+			var subject: Dictionary = facts.actors[reservation.actor_id]
+			if reservation.has("convoy_envelope"):
+				var envelope: Dictionary = reservation.convoy_envelope
+				# A door retains the original queue envelope until its physical
+				# reservation is released, even after the queue dissolves.
+				subject = subject.duplicate(true)
+				subject._convoy_size = int(envelope.size)
+				subject._convoy_body = {"width_m":float(envelope.size)*HospitalSpace.CELL_METERS,"depth_m":float(envelope.size)*HospitalSpace.CELL_METERS,"height_m":float(envelope.height)}
+			var quote: Dictionary = geometry.door_quote(self,subject,int(reservation.floor_id),doors[id])
 			if not quote.ok or int(reservation.span)!=int(quote.span) or absf(float(reservation.clear_height_m)-float(quote.clear_height_m))>0.000001 or absf(float(reservation.clear_width_m)-float(quote.clear_width_m))>0.000001:
 				return "门展开与真实身体、净高或连续墙段不一致"
 		for staff_id: Variant in reservation.staff_ids:
 			if not staff_id is String or not facts.actors.has(staff_id):
 				return "展开岗位身体不存在"
+	# All movement, connector and reservation shapes are established above.
+	# Restore must re-establish the protected trail before leader-only steps
+	# can rely on it; this is not an extra per-step follower permission pass.
+	var convoy_ground_error: String = _validate_convoy_ground(geometry)
+	if not convoy_ground_error.is_empty(): return convoy_ground_error
 	if facts.has("visitors"):
 		var error: String = HospitalClinic.new(content,geometry).validate(self)
 		if not error.is_empty():
@@ -752,6 +762,43 @@ func validate(content: HospitalContent) -> String:
 			if not record is Dictionary or record.get("id")!=id or facts.sessions.has(id) or not facts.visits.has(record.get("visit_id","")) or not facts.tickets.has(record.get("suspended_ticket_id","")) or not _natural(record.get("remaining_ticks")) or not _natural(record.get("suspended_tick")) or not record.get("definition_id") is String: return "临床接续身份、原票号或工时无效"
 			if facts.tickets[record.suspended_ticket_id].get("resume_session_id","")!=id: return "临床接续票号拥有者无效"
 	return BuildService.new(content).validate(self)
+
+# A valid saved trail is an occupied compound region, including gaps between
+# member samples. Rebuild its world invariant once at the validation boundary.
+func _validate_convoy_ground(geometry: HospitalSpace) -> String:
+	for movement: Dictionary in facts.moves.values():
+		if not movement.has("convoy"): continue
+		var convoy: Dictionary = movement.convoy
+		var leader: Dictionary = facts.actors[movement.actor_id]
+		var regions: Array[Rect2] = ConvoyTrail.regions(convoy)
+		if leader.location.kind=="transit": regions = ConvoyPortal.ground_regions(convoy,facts.connectors[leader.location.connector_id])
+		if regions.is_empty(): continue
+		var floor_id: int = int(convoy.floor_id)
+		var proxy: Dictionary = ConvoyTrail.proxy(self,movement)
+		# A fresh query only, never the navigation cache. Its unit-cell scan
+		# tests exactly the clipped ground rectangles, not a whole proxy square
+		# that would extend back into the cabin during boarding/alighting.
+		var query: RouteClearance = RouteClearance.new(geometry,self,proxy,floor_id,[],{},false)
+		query._size = 1
+		query._indexed_static = false
+		query._doors.clear()
+		for door: Dictionary in query.source.layout.doors:
+			var opening: Dictionary = facts.adaptations.get(door.id,{})
+			var definition: Dictionary = geometry.content.definition("doors",door.definition_id)
+			var span: int = int(opening.get("span",door.span))
+			var rectangle: Rect2 = geometry._door_rect(door,span)
+			var fits: bool = float(opening.get("clear_height_m",definition.clear_height_m))+0.00001>=float(convoy.height)+0.1 and float(opening.get("clear_width_m",definition.clear_width_m))+0.00001>=float(convoy.size)*HospitalSpace.CELL_METERS+0.1
+			query._doors.append({"original":rectangle,"opening":rectangle,"ok":fits,"reason":"保存队列穿过尚未实际展开的门","room_id":door.room_id,"axis":door.axis})
+		query._plain = query._plain_geometry()
+		for region: Rect2 in regions:
+			if not geometry._dynamic_clear(self,movement.actor_id,floor_id,region,movement.members): return "保存队列尾迹与外部身体或预约重叠："+str(movement.actor_id)
+			for y: int in range(floori(region.position.y),ceili(region.end.y)):
+				for x: int in range(floori(region.position.x),ceili(region.end.x)):
+					var reason: String = query.reason(Vector2i(x,y))
+					if not reason.is_empty(): return "保存队列尾迹静态空间无效："+reason
+			var wall_reason: String = query._wall_reason(region)
+			if not wall_reason.is_empty(): return "保存队列尾迹静态空间无效："+wall_reason
+	return ""
 
 func _reservation_owner_exists(id: String) -> bool:
 	for collection: String in ["actors","tickets","preparations","sessions","attempts"]:
@@ -954,8 +1001,15 @@ func _validate_shapes() -> String:
 	var request_sequences: Dictionary = {}
 	var transit_sequences: Dictionary = {}
 	for movement: Dictionary in facts.moves.values():
-		if not _point(movement.target_cell) or not _natural(movement.cursor) or int(movement.cursor)>movement.path.size() or (movement.has("members") and not movement.get("offsets") is Dictionary):
-			return "移动游标、目标或陪同结构无效"
+		# Saved groups have one authoritative ordered trail. Fixed offsets are
+		# deliberately unsupported; accepting both creates conflicting poses.
+		if movement.has("offsets"): return "旧固定偏移移动组不受支持"
+		if movement.has("members")!=movement.has("convoy"): return "移动组必须保存完整队列状态"
+		if movement.has("members") and (not movement.members is Array or movement.members.is_empty() or not movement.convoy is Dictionary): return "队列成员或状态结构无效"
+		for member_id: Variant in movement.get("members",[]):
+			if not member_id is String: return "队列成员身份类型无效"
+		if not _point(movement.target_cell) or not _natural(movement.cursor) or int(movement.cursor)>movement.path.size():
+			return "移动游标或目标无效"
 		if movement.yielding and (not movement.get("yield_partner") is String or not facts.actors.has(movement.yield_partner)):
 			return "让行对象不存在"
 		if not movement.get("route_pending",false) is bool:
@@ -1006,6 +1060,10 @@ func _validate_shapes() -> String:
 			return "实际展开楼层不存在"
 		if reservation.kind=="door" and (not _natural(reservation.get("span",-1)) or int(reservation.span)<1 or not (reservation.get("clear_height_m") is float or reservation.get("clear_height_m") is int) or not is_finite(float(reservation.clear_height_m)) or float(reservation.clear_height_m)<=0 or not (reservation.get("clear_width_m") is float or reservation.get("clear_width_m") is int) or not is_finite(float(reservation.clear_width_m)) or float(reservation.clear_width_m)<=0):
 			return "门展开净宽净高无效"
+		if reservation.has("convoy_envelope"):
+			var envelope: Variant = reservation.convoy_envelope
+			if reservation.kind!="door" or not envelope is Dictionary or envelope.size()!=2 or not _natural(envelope.get("size",0)) or int(envelope.get("size",0))<1 or not (envelope.get("height") is int or envelope.get("height") is float) or not is_finite(float(envelope.height)) or float(envelope.height)<=0:
+				return "门展开队列包络无效"
 		if reservation.kind=="facility" and (not reservation.get("facility_id") is String or not _point(reservation.get("footprint")) or not _point(reservation.get("patient_cell")) or not reservation.get("operator_cells") is Array or not _point(reservation.get("repair_cell"))):
 			return "实际设施展开几何无效"
 		for area: Variant in reservation.regions:

@@ -113,7 +113,8 @@ func dispatch(world: WorldState) -> void:
 
 func _dispatch_waiting(world: WorldState) -> void:
 	ensure(world)
-	var wards: Dictionary = _lookup(world,false).wards
+	var wards: Dictionary = {}
+	var wards_ready: bool = false
 	for stay_id: String in _stay_ids(world):
 		var stay: Dictionary = world.facts.visitors.stays[stay_id]
 		var visit: Dictionary = world.facts.visits[stay.visit_id]
@@ -151,6 +152,11 @@ func _dispatch_waiting(world: WorldState) -> void:
 				stay.pending_window = ""
 				if stay.purpose=="ward_visit": stay.phase = "leaving"
 				continue
+			# Ordinary public waiting does not consume the ward lookup. Build
+			# it once only when this synchronous dispatch reaches a visit window.
+			if not wards_ready:
+				wards = _lookup(world,false).wards
+				wards_ready = true
 			var ward_stay: Dictionary = wards.get(visit.id,{})
 			if ward_stay.is_empty() or not ward_stay.phase in ["recovery","round_wait"]:
 				continue
@@ -235,6 +241,8 @@ func _leave_public_seat(world: WorldState, stay: Dictionary) -> void:
 func _public_waiting(world: WorldState, stay: Dictionary) -> bool:
 	var actor: Dictionary = world.facts.actors[stay.actor_id]
 	var intent: Dictionary = stay.public_use
+	var yielded: String = _yielded_seat(world,intent)
+	if yielded.is_empty(): intent.erase("yielded_seat")
 	var failed: Dictionary = space.movement_failure(world,actor.id)
 	var valid: bool = space.public_areas.area_valid(world,intent.area,["waiting","waiting_area","public","lobby","garden",""])
 	if not failed.is_empty() or not valid:
@@ -283,7 +291,7 @@ func _public_waiting(world: WorldState, stay: Dictionary) -> bool:
 		intent.facility_id = ""
 		space.public_areas.changed(world)
 	intent.phase = "local_wait"
-	if not space.public_areas.should_recheck(world,intent,WAITING_SEAT_DEFINITIONS,[actor.id]): return _public_wait_position(world,stay)
+	if not space.public_areas.should_recheck(world,intent,WAITING_SEAT_DEFINITIONS,[actor.id],{"yielded_seat":yielded}): return _public_wait_position(world,stay)
 	# Queue fits and exit witnesses belong to this visitor's read-only choice,
 	# including nested trip quotes. End before any intent or resource commit.
 	space.begin_dynamic_route_query(world)
@@ -298,7 +306,7 @@ func _public_waiting(world: WorldState, stay: Dictionary) -> bool:
 	space.end_route_query()
 	intent.facility_id = ""
 	intent.phase = "local_wait"
-	space.public_areas.remember_wait(world,intent,WAITING_SEAT_DEFINITIONS,[actor.id])
+	space.public_areas.remember_wait(world,intent,WAITING_SEAT_DEFINITIONS,[actor.id],{"yielded_seat":yielded})
 	return _public_wait_position(world,stay)
 
 func _public_wait_position(world: WorldState, stay: Dictionary) -> bool:
@@ -316,6 +324,9 @@ func _public_wait_position(world: WorldState, stay: Dictionary) -> bool:
 	return true
 
 func _public_seat_quote(world: WorldState, stay: Dictionary, facility_id: String) -> Dictionary:
+	# This visitor voluntarily stepped aside for a real patient. Do not walk
+	# straight back into that chair; it remains free for every other arrival.
+	if _yielded_seat(world,stay.public_use)==facility_id: return {}
 	if not space.public_areas.turn(world,stay.public_use,facility_id): return {}
 	var supported: Dictionary = space.read_view(world,"visitor_supported:"+str(stay.actor_id),_supported_facilities.bind(world,str(stay.actor_id)))
 	if supported.has(facility_id): return {}
@@ -348,7 +359,7 @@ func _take_waiting_seat(world: WorldState, stay: Dictionary, quote: Dictionary) 
 	space.public_areas.changed(world)
 	return true
 
-func yield_seat(world: WorldState, facility_id: String) -> bool:
+func yield_seat(world: WorldState, facility_id: String, visit_id: String) -> bool:
 	for stay: Dictionary in world.facts.visitors.stays.values():
 		var intent: Dictionary = stay.public_use
 		if intent.get("phase","")!="seated" or intent.get("facility_id","")!=facility_id or not stay.phase in ["waiting","to_waiting"]: continue
@@ -356,11 +367,27 @@ func yield_seat(world: WorldState, facility_id: String) -> bool:
 		if point.is_empty(): return false
 		_leave_public_seat(world,stay)
 		intent.phase = "yielding"
+		intent.yielded_seat = {"facility_id":facility_id,"visit_id":visit_id}
 		stay.waiting_floor = point.floor_id
 		stay.waiting_cell = point.cell
 		space.request_move(world,stay.actor_id,int(point.floor_id),point.cell)
 		return true
 	return false
+
+# A small courtesy owned by the yielding visitor, never a seat reservation or
+# patient priority. It ends on use, cancellation, another target or departure.
+func _yielded_seat(world: WorldState, intent: Dictionary) -> String:
+	var offered: Dictionary = intent.get("yielded_seat",{})
+	if offered.is_empty(): return ""
+	var facility_id: String = str(offered.facility_id)
+	if not world.facts.facilities.has(facility_id): return ""
+	var patient: Dictionary = world.facts.visits.get(str(offered.visit_id),{})
+	var ticket: Dictionary = world.facts.tickets.get(patient.get("ticket_id",""),{})
+	if patient.is_empty() or not str(patient.get("phase","")).begins_with("wait_") or ticket.is_empty() or not ticket.get("pause_reasons",{}).is_empty() or int(ticket.get("called_tick",-1))>=0: return ""
+	var target: Dictionary = world.facts.get("waiting_life",{}).get("seats",{}).get(str(offered.visit_id),{})
+	if target.is_empty() or target.get("phase","")=="seated" or target.get("area",{})!=intent.get("area",{}): return ""
+	if target.get("mode","")=="manual": return facility_id if str(target.get("manual_facility_id",""))==facility_id else ""
+	return facility_id if str(target.get("facility_id","")) in ["",facility_id] else ""
 
 func seated_facilities(world: WorldState) -> Array:
 	var result: Array = []
@@ -461,6 +488,9 @@ func validate(world: WorldState) -> String:
 			return "同次就诊的家属身份或实际在院占用无效"
 		if not stay.get("phase","") in ["to_waiting","waiting","to_bed","visiting","yielding","leaving"] or not WorldState._natural(stay.get("remaining_ticks",-1)):
 			return "家属实际阶段或剩余探视时间无效"
+		if stay.get("public_use",{}).has("yielded_seat"):
+			var offered: Variant = stay.public_use.yielded_seat
+			if not offered is Dictionary or not offered.get("facility_id") is String or str(offered.facility_id).is_empty() or not offered.get("visit_id") is String or str(offered.visit_id).is_empty(): return "家属让座意图无效"
 		visits[stay.visit_id] = true
 	for id: String in state.requests:
 		var request: Variant = state.requests[id]

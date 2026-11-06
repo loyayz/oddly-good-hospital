@@ -8,13 +8,14 @@ const COMMON_METHODS: Array[String] = ["boundaries","arrivals","dispatch","advan
 const HOT_METHODS: Dictionary = {
 	"clinic":["arrivals","dispatch","advance","release_departed","settle_practice","service_candidates","_dispatch_service","_gather_assigned","_prepare_surgery","_surgery_quote","_surgery_bundle_quote","_qualified_surgery_bundle_quote","_compatible_bed","_ward_covering","_round_candidate","_select_plan","plan_quote","_outpatient_quote","_availability","_build_availability","_gather","_complete_service","_dispatch_clinical_releases","_dispatch_ward_returns","_reserve_bundle","_reservation_candidate","arrival_readiness","reference_demand","_reference_options"],
 	"space":["advance","route","route_cost","can_reach","_route_result","travel_quote","nearby_reachable","facility_quote","facility_preflight_quote","facility_geometry_quote","_facility_quote","_facility_geometry_view","_facility_exit_quote","facility_trip_quote","reserve_facility","_floor_route","_exit_witness","_ensure_actor_index","begin_actor_exclusion_query","_actor_exclusion_scope","_build_reservation_view","reservation_view","_reservation_regions","_dynamic_clear","movement_doors","prepare_projection","finish_boundary"],
-	"point_navigation":["_route_result","travel_quote","connection_basis","routing_floor_basis","structural_clearance","_topology","_topology_floor_nodes","_point_route","_point_edges","_floor_route"],
+	"point_navigation":["_waiting_cost_basis","waiting_travel_ticks","ready_waiting_cost_field","_source_quote","_connector_preparation","_connector_edges","_route_result","travel_quote","connection_basis","routing_floor_basis","structural_clearance","_topology","_topology_floor_nodes","_point_route","_point_edges","_floor_route"],
 	"movement":["request_move","request_group_move","_retarget","failure","cancel_ground","advance","_move_step","_unit_sweeps","_queue_route","_replan_goal","_active_route_clear","_dispatch_routes","queue_waypoint","_queue_local_route","_local_goal_occupied","_movement_contacts","_reserve_doors","_route_occupancy","_yield","_yield_idle_staff"],
 	"navigation":["floor_source","floor_static_version","_static_identity","facility_index","cached_static_geometry","query_graphs","graph","_refresh_graph","_trim","clearance","_reservation_stamp","_build_reservation_stamp","cached_floor_path","travel_distance","forward_distance","_travel_distance"],
 	"floor_graph":["_build","refresh","_repair","find_path","distance_field"],
 	"clearance":["_init","_build_static","capture_source","capture_occupancy"],
-	"visitors":["arrivals","dispatch","advance","_waiting_point","_public_waiting","_public_wait_position","_public_seat_quote","_take_waiting_seat","yield_seat","_bedside","_bedside_in_query"],
-	"public_areas":["_ensure","region","contains","current_area","select","waiting_point","_waiting_point","_entry_order","_ordered_entry_cells","_entry_landings","_entry_lower_bound","_entry_geometry_view","safe_wait","_safe_wait_geometry","_wait_constraints","facilities","compatible_geometry","should_recheck","remember_wait","_decision_view","_decision_signature","_environment_samples","_add_dynamic_dependencies","turn","_queue_members","_facility_queue","_queue_fit","_queue_fit_in_query","_intent_view","_wait_estimate","_wait_estimate_view"],
+	"visitors":["arrivals","dispatch","advance","_waiting_point","_public_waiting","_public_wait_position","_public_seat_quote","_supported_facilities","_take_waiting_seat","yield_seat","_bedside","_bedside_in_query"],
+	"public_areas":["begin_wait_observation","end_wait_observation","changed","actor_changed","reservation_changed","_observe_wait_dependencies","_capture_wait_signature","_wait_dependency_value","_ensure","region","contains","current_area","select","waiting_point","_waiting_point","_entry_order","_ordered_entry_cells","_entry_landings","_entry_lower_bound","_entry_geometry_view","safe_wait","_safe_wait_geometry","_wait_constraints","facilities","compatible_geometry","should_recheck","remember_wait","_decision_view","_decision_signature","_environment_samples","_add_dynamic_dependencies","turn","_queue_members","_facility_queue","_queue_fit","_queue_fit_in_query","_intent_view","_wait_estimate","_wait_estimate_view"],
+	"waiting_dependencies":["remember","remove","dirty","mark","refresh","_mark_bounds","actor_changed","reservation_changed","observe_actors","observe_reservations"],
 	"personal_beds":["sync","bed_for"],
 	"environment":["begin_query","end_query","environment_at","sample_at","_observe_at","_coverage_edges","_coverage","_positive_facilities","_nearby_actors","_water_usable","_work_position","_safety_query","_tool","_arrive"],
 	"waiting":["_dispatch_public_seat","_dispatch_public_need","seat_candidates","_seat_candidates_in_query","_seat_quote","_seat_quote_in_query","_manual_seat_quote","_seat_target_quote","_claim_seat","_wait_safely","_claim_need","_wait_need","_start_fallback","_score_seat","_conditions","_condition_actor_index","_environment","facility_availability","_facility_availability","_facility_quote","_facility_quote_in_query","_occupancy_view"],
@@ -303,6 +304,14 @@ func _attach_nested(simulation: HospitalSimulation) -> bool:
 		redirects[original] = replacement
 		geometry.set(property.name,replacement)
 		extra.append(replacement)
+		# Preserve the existing reverse subscriptions and spatial index. The
+		# observer replaces only the service instance, not its runtime contents.
+		var dependencies: RefCounted = original.get("_wait_dependencies")
+		var wrapped_dependencies: RefCounted = _wrap(dependencies,"waiting_dependencies",[])
+		if wrapped_dependencies==null: return false
+		redirects[dependencies] = wrapped_dependencies
+		replacement.set("_wait_dependencies",wrapped_dependencies)
+		extra.append(wrapped_dependencies)
 	var old_clinic: HospitalClinic = simulation.clinic
 	var clinic: HospitalClinic = _wrap(old_clinic,"clinic",[simulation.content,geometry])
 	if clinic==null: return false
@@ -350,7 +359,7 @@ func _attach_nested(simulation: HospitalSimulation) -> bool:
 			var value: Variant = original.get(property.name)
 			if int(property.type)==TYPE_OBJECT and value!=null and redirects.has(value): original.set(property.name,null)
 			elif str(property.name)=="services" and value is Dictionary and is_same(value,simulation.services): original.set(property.name,{})
-	sources.nested_object_paths = {"space":"simulation.space","navigation":"simulation.space._navigation","point_navigation":"simulation.space.navigation","movement":"simulation.space.movement","public_areas":"simulation.space.public_areas","clinic":"simulation.clinic","visitors":"simulation.clinic.visitors","services":"simulation.services[*]"}
+	sources.nested_object_paths = {"space":"simulation.space","navigation":"simulation.space._navigation","point_navigation":"simulation.space.navigation","movement":"simulation.space.movement","public_areas":"simulation.space.public_areas","waiting_dependencies":"simulation.space.public_areas._wait_dependencies","clinic":"simulation.clinic","visitors":"simulation.clinic.visitors","services":"simulation.services[*]"}
 	sources.unwrapped_runtime_leaves = ["FloorNavigation instances and engine/native path kernels: included in their timed caller, not individually wrapped by this mode.","RouteClearance instances and static methods: included in their timed caller, not individually wrapped by this mode.","Future temporary service instances created inside production methods: not covered by attach-time instance replacement; use the existing offline all-instance/ledger mode if these dominate."]
 	return errors.is_empty()
 

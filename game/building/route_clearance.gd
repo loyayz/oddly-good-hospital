@@ -36,7 +36,7 @@ static func reservation_exemptions(world: WorldState, actor_id: String, floor_id
 static func reservation_allows(reservation: Dictionary, actor_id: String, members: Array = []) -> bool:
 	return actor_id==reservation.actor_id or actor_id in reservation.staff_ids or reservation.actor_id in members
 
-func _init(space: HospitalSpace, world: WorldState, actor: Dictionary, floor_id: int, members: Array = [], offsets: Dictionary = {}, include_reservations: bool = true, floor_source: Dictionary = {}, static_geometry: RouteClearance = null) -> void:
+func _init(space: HospitalSpace, world: WorldState, actor: Dictionary, floor_id: int, members: Array = [], offsets: Dictionary = {}, include_reservations: bool = true, floor_source: Dictionary = {}, static_geometry: RouteClearance = null, member_geometries: Dictionary = {}) -> void:
 	_indexed_static = not include_reservations
 	_size = space.clearance(actor)
 	var body: Dictionary = space.body(actor)
@@ -45,7 +45,10 @@ func _init(space: HospitalSpace, world: WorldState, actor: Dictionary, floor_id:
 	for member_id: String in members:
 		if member_id!=actor.id:
 			var offset: Array = offsets[member_id]
-			_members.append({"query":RouteClearance.new(space,world,world.facts.actors[member_id],floor_id,[],{},include_reservations,source),"offset":Vector2(float(offset[0]),float(offset[1]))})
+			# Borrow only this member's body-specific geometry. Reservation
+			# exceptions are still rebuilt for its actual identity below.
+			var member_geometry: RouteClearance = member_geometries.get(member_id)
+			_members.append({"query":RouteClearance.new(space,world,world.facts.actors[member_id],floor_id,[],{},include_reservations,source,member_geometry),"offset":Vector2(float(offset[0]),float(offset[1]))})
 	if static_geometry==null:
 		_build_static(space,world,actor,floor_id)
 	else:
@@ -256,6 +259,10 @@ func reservation_mask() -> PackedByteArray:
 	return mask
 
 func _mark_reservation_mask(mask: PackedByteArray, offset: Vector2) -> PackedByteArray:
+	if _reservations.is_empty(): return mask
+	# Candidate origins are clamped to the fixed grid; reuse scalar row IDs
+	# and the identical body size without changing the exact Rect2 predicate.
+	var body_size: Vector2 = Vector2.ONE*_size
 	for reservation: Dictionary in _reservations:
 		for region: Rect2 in reservation.regions:
 			# Pad the candidate bounds, then use the original Rect2 predicate.
@@ -263,9 +270,10 @@ func _mark_reservation_mask(mask: PackedByteArray, offset: Vector2) -> PackedByt
 			var low: Vector2i = Vector2i(maxi(0,floori(region.position.x-offset.x-_size)-1),maxi(0,floori(region.position.y-offset.y-_size)-1))
 			var high: Vector2i = Vector2i(mini(FloorNavigation.SIDE,ceili(region.end.x-offset.x)+1),mini(FloorNavigation.SIDE,ceili(region.end.y-offset.y)+1))
 			for y: int in range(low.y,high.y):
+				var row: int = y*FloorNavigation.SIDE
 				for x: int in range(low.x,high.x):
-					var id: int = FloorNavigation._id(Vector2i(x,y))
-					if mask[id]==0 and Rect2(Vector2(x,y)+offset,Vector2.ONE*_size).intersects(region,false): mask[id] = 1
+					var id: int = row+x
+					if mask[id]==0 and Rect2(Vector2(x,y)+offset,body_size).intersects(region,false): mask[id] = 1
 	return mask
 
 func _reservation_at(origin: Vector2) -> String:

@@ -92,7 +92,7 @@ const CASES: Dictionary = {
 	"SPACE-43":"docs/design/08-hospital-life.md §14；共享蓝图修订原子保存，已确认安排独立于外部蓝图",
 	"SPACE-44":"docs/design/08-hospital-life.md §13/§14；部分保养与改建安排共同恢复，原任务接续且应用不重付",
 	"SPACE-45":"docs/design/01-simulation.md §6；上门人员乘梯中取消未开工保养，原乘梯与读档保留，实际返1F离院",
-	"SPACE-46":"docs/design/04-technical.md §6；同体型通行组换成员不继承预约豁免，变更配位与真实阻挡立即生效",
+	"SPACE-46":"docs/design/04-technical.md §6；内部复合几何查询换成员不继承预约豁免，投影偏移与真实阻挡立即生效；不授权横向同行",
 	"SPACE-47":"docs/design/08-hospital-life.md §11；整备房间按真实格形判断身体相交，不将凹角空白当房间",
 	"SPACE-48":"docs/design/04-technical.md §6/§13；设施阻挡查询复用真实展开索引，候选隔离且实际预约立即失效",
 	"SPACE-49":"docs/design/08-hospital-life.md 候诊与家属；完整有序设施候选与独立冷计算等价，失败不生成身份，成功真实移动且新预约立即可见",
@@ -101,9 +101,9 @@ const CASES: Dictionary = {
 	"SPACE-52":"docs/design/04-technical.md §3大面积预览；完整合法最大矩形、井道失败、相关重启与取消、共享原帧预算",
 	"SPACE-53":"docs/design/16-navigation-space-selection.md §7；实际遇阻后的局部路线保留完整身体争用检查",
 	"SPACE-54":"docs/specs/26-10/2026-10-19-task-navigation-movement.md §3/§4；未知估时仍出发、真实到场排队、途中改目标完成安全乘梯段",
-	"SPACE-55":"docs/specs/26-10/2026-10-19-task-navigation-movement.md §3/§4；成本报价、原生碰撞索引、同行组改目标及恢复",
-	"SPACE-56":"docs/specs/26-10/2026-10-19-task-navigation-movement.md §4；实际位移与精确阻挡一次交接，同行组、预约、门等待及真实恢复",
-	"SPACE-57":"docs/specs/26-10/2026-10-19-task-navigation-movement.md §4；真实终点占用等待不重派，当前释放及历史扫掠、中段阻挡和整组空隙边界"
+	"SPACE-55":"docs/specs/26-10/2026-10-19-task-navigation-movement.md §3/§4；成本报价、原生碰撞索引、前后队列改目标及恢复",
+	"SPACE-56":"docs/specs/26-10/2026-10-19-task-navigation-movement.md §4；实际位移与精确阻挡一次交接，队长许可、受保护尾迹、预约、门等待及真实恢复",
+	"SPACE-57":"docs/specs/26-10/2026-10-19-task-navigation-movement.md §4；真实终点占用等待不重派，当前释放及历史扫掠、中段阻挡和受保护尾迹边界"
 }
 
 var content: HospitalContent

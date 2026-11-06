@@ -26,9 +26,9 @@ func preview(world: WorldState, kind: String, payload: Dictionary) -> Dictionary
 			return BuildGeometry.failure("电梯主设备必须初装于1F")
 		var rotation: int = posmod(int(payload.get("rotation",0)),4)
 		var size: Array = definition.footprint.duplicate()
-		var front: Vector2i = BuildService._rotate_offset(Vector2i(int(definition.front_operation_anchor[0]),int(definition.front_operation_anchor[1])),size,rotation)
+		var front: Vector2i = _port_origin(Vector2i(int(definition.front_operation_anchor[0]),int(definition.front_operation_anchor[1])),size,int(definition.max_clearance_cells),rotation)
 		var repair: Vector2i = Vector2i.ZERO
-		if definition.kind=="lift": repair = BuildService._rotate_offset(Vector2i(int(definition.repair_anchor[0]),int(definition.repair_anchor[1])),size,rotation)
+		if definition.kind=="lift": repair = _port_origin(Vector2i(int(definition.repair_anchor[0]),int(definition.repair_anchor[1])),size,int(definition.max_clearance_cells),rotation)
 		if rotation%2==1: size.reverse()
 		id = candidate.new_id("connector")
 		var cell: Array = payload.cell.duplicate()
@@ -119,3 +119,12 @@ func execute(world: WorldState, kind: String, payload: Dictionary) -> CommandRes
 	if not paid.accepted: return paid
 	world.facts = candidate.facts
 	return CommandResult.new(true,"applied","",[plan.connection_id,receipt],world.revision)
+
+# Operation anchors are origins of max-clearance squares, not single cells.
+# Rotate the complete square so its positive-axis extent stays outside the shaft.
+static func _port_origin(point: Vector2i, size: Array, extent: int, rotation: int) -> Vector2i:
+	match posmod(rotation,4):
+		1: return Vector2i(int(size[1])-point.y-extent,point.x)
+		2: return Vector2i(int(size[0])-point.x-extent,int(size[1])-point.y-extent)
+		3: return Vector2i(point.y,int(size[0])-point.x-extent)
+	return point

@@ -24,12 +24,12 @@ class SampleBatch extends SkinnedPoseBatch:
 class BoundsView extends HospitalView:
 	var bounds_calls: int = 0
 	func _sync_geometry() -> void: pass
-	func _sync_entities() -> void: pass
+	func _sync_entities() -> Dictionary: return {}
 	func _sync_environment_marks() -> void: pass
 	func _complete_resources(_visits: Variant = null) -> void: pass
 	func _update_space_geometry() -> void: pass
 	func _update_selection() -> void: pass
-	func _visible_body_bounds() -> AABB:
+	func _visible_body_bounds(_actor_samples: Dictionary = {}) -> AABB:
 		bounds_calls += 1
 		return AABB(Vector3(1,2,3),Vector3(4,5,6))
 
@@ -386,10 +386,71 @@ func run_resources(t, content: HospitalContent, case_id: String = "CORE-52") -> 
 		facility_only = view.publish_resource(view.resource_ticket("facility:"+id),Node3D.new()) and view.rebinds==2 and not wrapper.has_meta("_hospital_animation_player")
 		break
 	var lookups: Dictionary = _model_lookups(view)
-	t.check(case_id,one_bounds and coalesced and independent and rejected and facility_only and lookups.ok and world.freeze()==before,{"one_bounds_per_update":one_bounds,"two_publications_one_rebind":coalesced,"standalone_publication":independent,"stale_ticket_rejected":rejected,"facility_preserves_staff_batches":facility_only,"model_lookup_results":lookups.ok,"model_lookup_details":lookups,"scope":"publication orchestration with a resource double; source hashes/material/bones remain CORE-33"})
+	view._skin_actor_ids[str(actor_ids[0])] = true
+	view._remove_actor(str(actor_ids[0]))
+	view._remove_actor(str(actor_ids[1]))
+	var removal_pending: bool = view._skin_bindings_dirty and view.rebinds==2
+	view._complete_resources()
+	var removal_rebound: bool = removal_pending and view.rebinds==3 and not view._skin_bindings_dirty
+	view._complete_resources()
+	removal_rebound = removal_rebound and view.rebinds==3
+	var paging: Dictionary = _skin_batch_pages(t,content)
+
+	t.check(case_id,one_bounds and coalesced and independent and rejected and facility_only and lookups.ok and removal_rebound and paging.ok and world.freeze()==before,{"one_bounds_per_update":one_bounds,"two_publications_one_rebind":coalesced,"standalone_publication":independent,"stale_ticket_rejected":rejected,"facility_preserves_staff_batches":facility_only,"model_lookup_results":lookups.ok,"model_lookup_details":lookups,"removals_one_rebind_without_publication":removal_rebound,"skin_pages":paging,"scope":"publication orchestration with a resource double; source hashes/material/bones remain CORE-33"})
 	bounds.queue_free()
 	view.queue_free()
 	await t.process_frame
+
+func _skin_batch_pages(t, content: HospitalContent) -> Dictionary:
+	# Rendering-only synthetic sources: one compatible bone/triangle, shared
+	# material and mesh. These do not stand in for hospital business actors.
+	var arrays: Array = []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = PackedVector3Array([Vector3.ZERO,Vector3.RIGHT,Vector3.UP])
+	arrays[Mesh.ARRAY_BONES] = PackedInt32Array([0,0,0,0,0,0,0,0,0,0,0,0])
+	arrays[Mesh.ARRAY_WEIGHTS] = PackedFloat32Array([1,0,0,0,1,0,0,0,1,0,0,0])
+	var mesh: ArrayMesh = ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,arrays)
+	mesh.surface_set_material(0,StandardMaterial3D.new())
+	var skin: Skin = Skin.new()
+	skin.add_bind(0,Transform3D.IDENTITY)
+	var observations: Array = []
+	var ok: bool = true
+	for count: int in [1,2,63,64,65,128,129]:
+		var view: HospitalView = HospitalView.new(content)
+		view.world = WorldState.new({"staff":{}})
+		t.root.add_child(view)
+		for index: int in count:
+			var id: String = "render_source_"+str(index)
+			var wrapper: Node3D = Node3D.new()
+			var skeleton: Skeleton3D = Skeleton3D.new()
+			skeleton.name = "Skeleton"
+			skeleton.add_bone("root")
+			var source: MeshInstance3D = MeshInstance3D.new()
+			source.mesh = mesh
+			source.skin = skin
+			source.skeleton = NodePath("../Skeleton")
+			wrapper.add_child(skeleton)
+			wrapper.add_child(source)
+			view.add_child(wrapper)
+			view._actors[id] = wrapper
+			view._actor_models[id] = wrapper
+			view.world.facts.staff[id] = {}
+		view._bind_skin_batches()
+		var members: int = 0
+		var capacities: bool = true
+		for batch: SkinnedPoseBatch in view._skin_batches:
+			var rows: int = int(batch.resource_usage().members)
+			members += rows
+			capacities = capacities and rows>0 and rows<=64
+		var expected_pages: int = 0 if count==1 else ceili(float(count)/64.0)
+		var expected_members: int = 0 if count==1 else count
+		var passed: bool = capacities and view._skin_batches.size()==expected_pages and members==expected_members and view._skin_actor_ids.size()==expected_members
+		ok = ok and passed
+		observations.append({"sources":count,"pages":view._skin_batches.size(),"members":members,"passed":passed})
+		view._clear_batches()
+		view.free()
+	return {"ok":ok,"observations":observations}
 
 func _model_lookups(view: HospitalView) -> Dictionary:
 	var model: Node3D = Node3D.new()

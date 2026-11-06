@@ -90,6 +90,9 @@ func bind_sources(meshes: Array[MeshInstance3D], skeletons: Array[Skeleton3D]) -
 	_page_height = nearest_po2(_sources.size())
 	for page: int in 2:
 		var image: Image = Image.create_empty(_page_width, _page_height, false, Image.FORMAT_RGBAF)
+		# Padding never participates in a pose and active pixels are fully
+		# overwritten before every successful upload. Initialize it once.
+		image.fill(Color(0, 0, 0, 0))
 		_images.append(image)
 		_textures.append(ImageTexture.create_from_image(image))
 	_uploaded_bytes = _page_width * _page_height * 16 * 2
@@ -113,6 +116,9 @@ func bind_sources(meshes: Array[MeshInstance3D], skeletons: Array[Skeleton3D]) -
 	_instances.multimesh.use_custom_data = true
 	_instances.multimesh.mesh = prepared
 	_instances.multimesh.instance_count = _sources.size()
+	for row: int in _sources.size():
+		_instances.multimesh.set_instance_color(row, Color.WHITE)
+		_instances.multimesh.set_instance_custom_data(row, Color(float(row), 0, 0, 0))
 	add_child(_instances)
 	return ""
 
@@ -124,7 +130,6 @@ func publish(visible_bounds: AABB) -> bool:
 		return false
 	var next_page: int = 1 - _current_page
 	var image: Image = _images[next_page]
-	image.fill(Color(0, 0, 0, 0))
 	for row: int in _sources.size():
 		if not is_instance_valid(_sources[row]) or not is_instance_valid(_skeletons[row]):
 			_suspend()
@@ -148,10 +153,9 @@ func publish(visible_bounds: AABB) -> bool:
 			image.set_pixel(bind_index * 3 + 1, row, Color(basis.x.y, basis.y.y, basis.z.y, pose.origin.y))
 			image.set_pixel(bind_index * 3 + 2, row, Color(basis.x.z, basis.y.z, basis.z.z, pose.origin.z))
 	_textures[next_page].update(image)
+	var batch_inverse: Transform3D = global_transform.affine_inverse()
 	for row: int in _sources.size():
-		_instances.multimesh.set_instance_transform(row, global_transform.affine_inverse() * _sources[row].global_transform)
-		_instances.multimesh.set_instance_color(row, Color.WHITE)
-		_instances.multimesh.set_instance_custom_data(row, Color(float(row), 0, 0, 0))
+		_instances.multimesh.set_instance_transform(row, batch_inverse * _sources[row].global_transform)
 	_instances.custom_aabb = visible_bounds
 	_material.set_shader_parameter("bone_rows", _textures[next_page])
 	_current_page = next_page

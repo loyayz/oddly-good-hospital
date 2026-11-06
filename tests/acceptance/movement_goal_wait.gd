@@ -35,11 +35,11 @@ class ObservingMovement extends HospitalMovement:
 func run(suite: RefCounted) -> Dictionary:
 	var single: Dictionary = _occupied_goal(suite,false)
 	var follower: Dictionary = _occupied_goal(suite,true)
-	var gap: Dictionary = _group_gap(suite)
+	var gap: Dictionary = _protected_trail(suite)
 	var facing: Dictionary = _alternative_facing(suite)
 	var sweep: Dictionary = _accepted_sweep_boundary(suite)
 	var different: Dictionary = _different_goal_occupant(suite)
-	return {"ok":single.ok and follower.ok and gap.ok and facing.ok and sweep.ok and different.ok,"actual_occupied_destination":single,"actual_follower_destination":follower,"actual_midroute_obstacle_in_group_goal_gap":gap,"rectangular_body_alternative_arrival_facing":facing,"accepted_sweep_with_current_goal_clear":sweep,"different_actual_body_occupies_destination":different}
+	return {"ok":single.ok and follower.ok and gap.ok and facing.ok and sweep.ok and different.ok,"actual_occupied_destination":single,"actual_convoy_leader_destination":follower,"actual_protected_trail_crossing":gap,"rectangular_body_alternative_arrival_facing":facing,"accepted_sweep_with_current_goal_clear":sweep,"different_actual_body_occupies_destination":different}
 
 func _different_goal_occupant(suite: RefCounted) -> Dictionary:
 	var sim: HospitalSimulation = suite._fixture()
@@ -91,10 +91,10 @@ func _occupied_goal(suite: RefCounted, group: bool) -> Dictionary:
 	var observer: ObservingMovement = ObservingMovement.new(sim.space)
 	sim.space.movement = observer
 	suite._add_actor(sim,"z_walker","S49",[40,82])
-	if group: suite._add_actor(sim,"z_follower","S49",[40,85])
-	var blocker_cell: Array = [44,85] if group else [44,82]
+	if group: suite._add_actor(sim,"z_follower","S49",[38,82])
+	var blocker_cell: Array = [44,82]
 	suite._add_actor(sim,"a_blocker","S49",blocker_cell)
-	var requested: String = sim.space.request_group_move(sim.world,"z_walker",["z_walker","z_follower"],{"z_walker":[0,0],"z_follower":[0,3]},1,[44,82]) if group else sim.space.request_move(sim.world,"z_walker",1,[44,82])
+	var requested: String = sim.space.request_group_move(sim.world,"z_walker",["z_walker","z_follower"],{},1,[44,82]) if group else sim.space.request_move(sim.world,"z_walker",1,[44,82])
 	var sequence: int = int(sim.world.facts.moves.get("z_walker",{}).get("request_sequence",-1))
 	var original_target: bool = true
 	var safe: bool = true
@@ -110,7 +110,7 @@ func _occupied_goal(suite: RefCounted, group: bool) -> Dictionary:
 	var stable: bool = occupied_waits>0 and int(sim.space.query_counts.get("local_goal_occupied_waits",0))>occupied_waits and observer.local_requests==0 and int(sim.space.query_counts.get("route_dispatches",0))==dispatches and dispatches==1 and sim.world.facts.actors.z_walker.location.cell==held_position and sim.world.facts.moves.get("z_walker",{}).get("path",[])==held_path and int(sim.world.facts.moves.get("z_walker",{}).get("request_sequence",-2))==sequence
 	# The blocking body leaves through real movement. A separate calculation
 	# boundary below supplies an accepted sweep that really crosses this step.
-	var leave: String = sim.space.request_move(sim.world,"a_blocker",1,[44,88] if group else [44,85])
+	var leave: String = sim.space.request_move(sim.world,"a_blocker",1,[44,85])
 	var accepted_old_sweep: bool = false
 	var old_sweep_allowed_detour: bool = false
 	var clear_tick: int = -1
@@ -121,8 +121,8 @@ func _occupied_goal(suite: RefCounted, group: bool) -> Dictionary:
 		var previous_requests: int = observer.local_requests
 		var previous_waits: int = int(sim.space.query_counts.get("local_goal_occupied_waits",0))
 		safe = _physical_tick(suite,sim) and safe
-		var goal_actor: Dictionary = sim.world.facts.actors.z_follower if group else sim.world.facts.actors.z_walker
-		var goal_rect: Rect2 = sim.space._actor_rect(goal_actor,Vector2(blocker_cell[0],blocker_cell[1]))
+		var goal_actor: Dictionary = sim.world.facts.actors.z_walker
+		var goal_rect: Rect2 = Rect2(44,82,1,1) if group else sim.space._actor_rect(goal_actor,Vector2(blocker_cell[0],blocker_cell[1]))
 		var current_clear: bool = not goal_rect.intersects(sim.space.body_rectangle(sim.world.facts.actors.a_blocker),false)
 		if current_clear and clear_tick<0: clear_tick = tick
 		if current_clear and sim.world.facts.actors.z_walker.location.cell!=previous and resume_tick<0: resume_tick = tick
@@ -131,7 +131,7 @@ func _occupied_goal(suite: RefCounted, group: bool) -> Dictionary:
 			accepted_old_sweep = true
 			old_sweep_allowed_detour = observer.local_requests>previous_requests and int(sim.space.query_counts.get("local_goal_occupied_waits",0))==previous_waits
 		if not sim.world.facts.moves.has("z_walker"):
-			arrived = sim.space.at(sim.world,"z_walker",1,[44,82]) and (not group or sim.space.at(sim.world,"z_follower",1,[44,85]))
+			arrived = sim.space.at(sim.world,"z_walker",1,[44,82]) and (not group or sim.space.at(sim.world,"z_follower",1,[42,82]))
 			break
 	var promptly: bool = clear_tick>=0 and resume_tick>=clear_tick and resume_tick-clear_tick<=1
 	var validation: String = sim.world.validate(suite.content)
@@ -139,31 +139,37 @@ func _occupied_goal(suite: RefCounted, group: bool) -> Dictionary:
 	sim.dispose()
 	return result
 
-func _group_gap(suite: RefCounted) -> Dictionary:
+func _protected_trail(suite: RefCounted) -> Dictionary:
 	var sim: HospitalSimulation = suite._fixture()
 	var observer: ObservingMovement = ObservingMovement.new(sim.space)
 	sim.space.movement = observer
-	suite._add_actor(sim,"leader","S49",[44,86])
-	suite._add_actor(sim,"follower","S49",[44,89])
-	# This body is in the leader's original route, but between the two actual
-	# destination bodies. A merged destination rectangle would misclassify it.
-	suite._add_actor(sim,"gap_blocker","S49",[44,83.5])
-	var leader_goal: Rect2 = sim.space._actor_rect(sim.world.facts.actors.leader,Vector2(44,82))
-	var follower_goal: Rect2 = sim.space._actor_rect(sim.world.facts.actors.follower,Vector2(44,85))
-	var blocker: Rect2 = sim.space.body_rectangle(sim.world.facts.actors.gap_blocker)
-	var actual_gap: bool = leader_goal.merge(follower_goal).intersects(blocker,false) and not leader_goal.intersects(blocker,false) and not follower_goal.intersects(blocker,false)
-	var requested: String = sim.space.request_group_move(sim.world,"leader",["leader","follower"],{"leader":[0,0],"follower":[0,3]},1,[44,82])
+	# The physical bodies leave a visible gap, but this is occupied convoy
+	# trail, not a free crossing. Start all actors outside each other's bodies.
+	suite._add_actor(sim,"leader","S49",[44,82])
+	suite._add_actor(sim,"follower","S49",[40,82])
+	suite._add_actor(sim,"crossing","S49",[42,80])
+	var requested: String = sim.space.request_group_move(sim.world,"leader",["leader","follower"],{},1,[50,82])
+	var crossing: String = sim.space.request_move(sim.world,"crossing",1,[42,85])
+	var gap: Rect2 = Rect2(42,82.3,0.2,0.2)
+	var gap_has_no_member: bool = not gap.intersects(sim.space.body_rectangle(sim.world.facts.actors.leader),false) and not gap.intersects(sim.space.body_rectangle(sim.world.facts.actors.follower),false)
+	var protected_before: bool = not sim.space._dynamic_clear(sim.world,"crossing",1,gap,[])
 	var safe: bool = true
+	var protected_steps: bool = true
 	var encountered: bool = false
+	var crossed: bool = false
 	var arrived: bool = false
-	for _tick: int in 400:
+	for _tick: int in 300:
 		safe = _physical_tick(suite,sim) and safe
-		encountered = encountered or "gap_blocker" in observer.contacts.get("leader",{}).get("actors",[])
-		if not sim.world.facts.moves.has("leader"):
-			arrived = sim.space.at(sim.world,"leader",1,[44,82]) and sim.space.at(sim.world,"follower",1,[44,85])
-			break
-	var waits: int = int(sim.space.query_counts.get("local_goal_occupied_waits",0))
-	var result: Dictionary = {"ok":requested.is_empty() and actual_gap and encountered and observer.local_requests>0 and waits==0 and safe and arrived,"request_error":requested,"blocker_in_merged_goal_gap_only":actual_gap,"actual_original_route_collision":encountered,"midroute_local_routes_requested":observer.local_requests,"false_goal_occupancy_waits":waits,"safe_real_steps":safe,"both_members_actually_arrived":arrived,"leader":sim.world.facts.actors.leader.location.duplicate(true),"follower":sim.world.facts.actors.follower.location.duplicate(true),"remaining":sim.world.facts.moves.duplicate(true)}
+		encountered = encountered or "leader" in observer.contacts.get("crossing",{}).get("actors",[])
+		var move: Dictionary = sim.world.facts.moves.get("leader",{})
+		if move.has("convoy"):
+			for region: Rect2 in ConvoyTrail.regions(move.convoy):
+				protected_steps = protected_steps and not region.intersects(sim.space.body_rectangle(sim.world.facts.actors.crossing),false)
+		arrived = not sim.world.facts.moves.has("leader") and sim.space.at(sim.world,"leader",1,[50,82]) and sim.space.at(sim.world,"follower",1,[46,82])
+		crossed = not sim.world.facts.moves.has("crossing") and sim.space.at(sim.world,"crossing",1,[42,85])
+		if arrived and crossed: break
+	var validation: String = sim.world.validate(suite.content)
+	var result: Dictionary = {"ok":requested.is_empty() and crossing.is_empty() and gap_has_no_member and protected_before and encountered and protected_steps and safe and arrived and crossed and validation.is_empty(),"request_error":requested,"crossing_request_error":crossing,"gap_between_actual_member_bodies":gap_has_no_member,"gap_reserved_before_first_step":protected_before,"crossing_encounters_convoy_owner":encountered,"outsider_never_enters_live_tail":protected_steps,"safe_real_steps":safe,"both_members_actually_arrived":arrived,"outsider_actually_crossed_after_clearance":crossed,"validation":validation,"safety_failures":observer.safety_failures,"remaining":sim.world.facts.moves.duplicate(true)}
 	sim.dispose()
 	return result
 
@@ -206,11 +212,29 @@ func _physical_tick(suite: RefCounted, sim: HospitalSimulation) -> bool:
 	var canonical: Dictionary = {}
 	var indexed: Dictionary = {}
 	var observer: ObservingMovement = sim.space.movement
+	var owners: Dictionary = {}
+	for owner: String in sim.world.facts.moves:
+		var move: Dictionary = sim.world.facts.moves[owner]
+		if move.has("convoy"):
+			for member: String in move.members: owners[member] = owner
+	var index_valid: bool = true
 	for id: String in ids:
 		canonical[id] = sim.space.body_rectangle(sim.world.facts.actors[id])
-		indexed[id] = sim.space._actor_index.rectangle(id)
-		if canonical[id]!=indexed[id] and observer.body_index_drift.size()<4:
-			observer.body_index_drift.append({"tick":sim.world.sim_tick,"actor_id":id,"canonical":_rect_fields(canonical[id]),"indexed":_rect_fields(indexed[id])})
+		var owner: String = str(owners.get(id,id))
+		var record: BodyIndex.Record = sim.space._actor_index._records.get(owner)
+		var valid: bool = record!=null
+		if owners.has(id):
+			var expected: Array[Rect2] = ConvoyTrail.regions(sim.world.facts.moves[owner].convoy)
+			valid = valid and record.regions==expected and (id==owner or not sim.space._actor_index._records.has(id))
+		else:
+			valid = valid and record.rect==canonical[id]
+		indexed[id] = owner
+		index_valid = index_valid and valid
+		if not valid and observer.body_index_drift.size()<4:
+			observer.body_index_drift.append({"tick":sim.world.sim_tick,"actor_id":id,"index_owner":owner,"canonical":_rect_fields(canonical[id]),"owner_missing":record==null,"indexed":_rect_fields(record.rect) if record!=null else []})
+	if not index_valid:
+		_record_safety_failure(sim,{"kind":"body_index_ownership"})
+		return false
 	for first: int in ids.size():
 		var a: Rect2 = canonical[ids[first]]
 		if before[ids[first]].position.distance_to(a.position)>0.2+0.0001:
@@ -235,7 +259,7 @@ func _record_safety_failure(sim: HospitalSimulation, detail: Dictionary) -> void
 	detail.contact_attempts = observer.contact_attempts.duplicate(true)
 	detail.body_index_drift = observer.body_index_drift.duplicate(true)
 	detail.indexed_bodies = {}
-	for id: String in sim.world.ids("actors"): detail.indexed_bodies[id] = _rect_fields(sim.space._actor_index.rectangle(id))
+	for id: String in sim.space._actor_index._records: detail.indexed_bodies[id] = _rect_fields(sim.space._actor_index._records[id].rect)
 	observer.safety_failures.append(detail)
 
 # Legal collision-calculation input: an earlier accepted 0.2-cell step left

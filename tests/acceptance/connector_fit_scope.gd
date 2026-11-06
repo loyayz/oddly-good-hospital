@@ -18,7 +18,7 @@ class FitProbe extends HospitalNavigation:
 
 func run_case(suite: RefCounted) -> Dictionary:
 	var sim: HospitalSimulation = suite._transit_fixture()
-	for data: Array in [[FIRST,"S49",[46,80]],[SECOND,"S49",[47,80]],[LARGE,"S59",[50,84]]]:
+	for data: Array in [[FIRST,"S49",[46,80]],[SECOND,"S49",[44,80]],[LARGE,"S59",[50,84]]]:
 		suite._add_actor(sim,str(data[0]),str(data[1]),data[2])
 	var validation: String = sim.world.validate(suite.content)
 	var probe: FitProbe = FitProbe.new(sim.space)
@@ -31,9 +31,11 @@ func run_case(suite: RefCounted) -> Dictionary:
 	sim.space.begin_route_query(sim.world,{},false)
 	observations.append(_observe(sim,probe,FIRST,2,[47,82],0,true))
 	sim.space.end_route_query()
-	observations.append(_observe(sim,probe,FIRST,2,[48,84],1,true,[FIRST,SECOND],{FIRST:[0,0],SECOND:[1,0]}))
-	observations.append(_observe(sim,probe,FIRST,2,[49,84],0,true,[FIRST,SECOND],{FIRST:[0,0],SECOND:[1,0]}))
-	observations.append(_observe(sim,probe,FIRST,2,[50,84],1,true,[SECOND,FIRST],{FIRST:[0,0],SECOND:[1,0]}))
+	observations.append(_observe(sim,probe,FIRST,2,[48,84],1,true,[FIRST,SECOND],{}))
+	observations.append(_observe(sim,probe,FIRST,2,[49,84],1,true,[FIRST,SECOND],{}))
+	checks.convoy_reuses_canonical_portal_plan = observations.back().portal_builds==0 and observations.back().portal_hits>0
+	observations.append(_observe(sim,probe,FIRST,2,[50,84],0,false,[SECOND,FIRST],{}))
+	observations.append(_observe(sim,probe,SECOND,2,[50,84],1,true,[SECOND,FIRST],{}))
 	observations.append(_observe(sim,probe,LARGE,2,[46,86],1,false))
 	observations.append(_observe(sim,probe,LARGE,2,[47,86],0,false))
 	# A private changed-body world cannot inherit the source's successful fit.
@@ -84,6 +86,8 @@ func _observe(sim: HospitalSimulation, probe: FitProbe, actor_id: String, floor_
 func _observe_world(space: HospitalSpace, world: WorldState, content: HospitalContent, probe: FitProbe, actor_id: String, floor_id: int, goal: Array, expected_checks: int, expected_ok: bool, members: Array = [], offsets: Dictionary = {}) -> Dictionary:
 	var before: Dictionary = world.freeze()
 	var count: int = probe.compatibility_checks
+	var portal_builds: int = int(space.query_counts.get("convoy_portal_plan_builds",0))
+	var portal_hits: int = int(space.query_counts.get("convoy_portal_plan_hits",0))
 	var actual: Dictionary = space.route(world,actor_id,floor_id,goal,members,offsets,true)
 	# A new Space has no scope-shared compatibility or journey records. Compare
 	# the complete production solver result, including executable floor segments.
@@ -91,4 +95,4 @@ func _observe_world(space: HospitalSpace, world: WorldState, content: HospitalCo
 	var expected: Dictionary = cold.route(world,actor_id,floor_id,goal,members,offsets,true)
 	var delta: int = probe.compatibility_checks-count
 	var ok: bool = actual==expected and bool(actual.ok)==expected_ok and delta==expected_checks and before==world.freeze()
-	return {"ok":ok,"actor":actor_id,"members":members,"floor_id":floor_id,"goal":goal,"actual_available":actual.ok,"expected_available":expected_ok,"full_route_matches_independent_cold_solver":actual==expected,"new_compatibility_checks":delta,"expected_new_checks":expected_checks,"world_and_rng_unchanged":before==world.freeze(),"route":actual if not ok else {"status":actual.status,"travel_ticks":actual.get("travel_ticks",-1)}}
+	return {"ok":ok,"actor":actor_id,"members":members,"floor_id":floor_id,"goal":goal,"actual_available":actual.ok,"expected_available":expected_ok,"full_route_matches_independent_cold_solver":actual==expected,"new_compatibility_checks":delta,"expected_new_checks":expected_checks,"portal_builds":int(space.query_counts.get("convoy_portal_plan_builds",0))-portal_builds,"portal_hits":int(space.query_counts.get("convoy_portal_plan_hits",0))-portal_hits,"world_and_rng_unchanged":before==world.freeze(),"route":actual if not ok else {"status":actual.status,"travel_ticks":actual.get("travel_ticks",-1)}}

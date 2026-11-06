@@ -115,12 +115,13 @@ func _compare_wait(x: Dictionary, budget: int = HospitalTransit.MAX_TICK) -> Dic
 	var before: Dictionary = x.world.freeze()
 	var actual_routes: int = int(x.actual.query_counts.routes)
 	var original_routes: int = int(x.original.query_counts.routes)
+	var leg_quotes: int = int(x.actual.query_counts.get("public_entry_leg_quotes",0))
 	var field_hits: int = int(x.actual.query_counts.get("public_entry_field_hits",0))
 	var field_builds: int = int(x.actual.query_counts.get("distance_field_builds",0))
 	var actual: Dictionary = x.actual.public_areas.waiting_point(x.world,ACTOR,x.area,budget)
 	var expected: Dictionary = x.original.public_areas.waiting_point(x.world,ACTOR,x.area,budget)
 	var equal: bool = var_to_bytes(actual)==var_to_bytes(expected)
-	return {"ok":equal and before==x.world.freeze(),"complete_waiting_point_equal":equal,"facts_rng_and_positions_unchanged":before==x.world.freeze(),"budget":budget,"actual":actual,"expected":expected if not equal else {},"actual_complete_quote_calls":int(x.actual.query_counts.routes)-actual_routes,"reference_complete_quote_calls":int(x.original.query_counts.routes)-original_routes,"warm_field_reads":int(x.actual.query_counts.get("public_entry_field_hits",0))-field_hits,"distance_fields_built":int(x.actual.query_counts.get("distance_field_builds",0))-field_builds}
+	return {"ok":equal and before==x.world.freeze(),"complete_waiting_point_equal":equal,"facts_rng_and_positions_unchanged":before==x.world.freeze(),"budget":budget,"actual":actual,"expected":expected if not equal else {},"actual_complete_quote_calls":int(x.actual.query_counts.routes)-actual_routes,"actual_floor_leg_quote_calls":int(x.actual.query_counts.get("public_entry_leg_quotes",0))-leg_quotes,"reference_complete_quote_calls":int(x.original.query_counts.routes)-original_routes,"warm_field_reads":int(x.actual.query_counts.get("public_entry_field_hits",0))-field_hits,"distance_fields_built":int(x.actual.query_counts.get("distance_field_builds",0))-field_builds}
 
 func _warm_case(cross_floor: bool, fractional: bool = false, unreachable: bool = false, multiple: bool = false) -> Dictionary:
 	var x: Dictionary = _field_fixture(cross_floor,fractional,unreachable,multiple)
@@ -155,15 +156,17 @@ func _warm_case(cross_floor: bool, fractional: bool = false, unreachable: bool =
 	borrow = {}
 	# Actual cache cleanup must remove borrowing eligibility even in this same
 	# live scope; no graph or distance array is kept in a persistent task view.
+	# The current single-connector fast path can prove the final floor leg
+	# directly; count those real queries as well as complete point journeys.
 	var query_clears: int = int(x.actual.query_counts.get("cache_query_clears",0))
 	x.actual._navigation._trim(0,x.actual.query_counts)
 	x.original._navigation._trim(0,x.original.query_counts)
 	checks.real_trim_removes_ready_field = x.actual._navigation.ready_structural_field(x.actual,x.world,1,x.world.facts.actors[ACTOR],x.root).is_empty() and x.actual._navigation._entries.is_empty() and int(x.actual.query_counts.get("cache_query_clears",0))>query_clears
 	var after_trim: Dictionary = _compare_wait(x)
-	checks.after_trim_uses_original_complete_query_result = after_trim.ok and after_trim.actual_complete_quote_calls>0
+	checks.after_trim_uses_real_route_queries = after_trim.ok and after_trim.actual_complete_quote_calls+after_trim.actual_floor_leg_quote_calls>0
 	# Trimming removes the original field, but later real complete queries may
 	# rebuild it. Borrowing is retried only after twelve such quotes.
-	checks.after_trim_reactivation_requires_real_quote_warmup = after_trim.warm_field_reads==0 or (after_trim.actual_complete_quote_calls>=12 and after_trim.distance_fields_built>0)
+	checks.after_trim_reactivation_requires_real_quote_warmup = after_trim.warm_field_reads==0 or (after_trim.actual_complete_quote_calls+after_trim.actual_floor_leg_quote_calls>=12 and after_trim.distance_fields_built>0)
 	_field_end(x)
 	var ok: bool = not checks.values().has(false)
 	var result: Dictionary = {"ok":ok,"cross_floor":cross_floor,"fractional":fractional,"unreachable":unreachable,"multiple_connections":multiple,"validation":validation,"checks":checks,"warmup":warm,"comparison":comparison,"after_real_trim":after_trim}
