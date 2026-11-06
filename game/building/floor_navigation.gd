@@ -205,8 +205,9 @@ func _filter_neighbor(from_id: int, to_id: int) -> bool:
 	return not _query.reservation_reason(cell).is_empty() or (_people.is_valid() and not bool(_people.call(_cell(from_id),cell)))
 
 func _estimate_cost(from_id: int, end_id: int) -> float:
-	var delta: Vector2i = _cell(from_id)-_cell(end_id)
-	return float(absi(delta.x)+absi(delta.y))
+	# Nodes are bounded 96x96 IDs. Keep the exact integer Manhattan
+	# heuristic without constructing two temporary cell vectors per callback.
+	return float(absi(from_id%SIDE-end_id%SIDE)+absi(from_id/SIDE-end_id/SIDE))
 
 static func _inside(cell: Vector2i) -> bool:
 	return cell.x>=0 and cell.y>=0 and cell.x<SIDE and cell.y<SIDE

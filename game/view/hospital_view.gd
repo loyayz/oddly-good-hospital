@@ -247,7 +247,7 @@ func update_facts(interpolation_alpha: float = 1.0) -> void:
 	if world == null:
 		return
 	_sync_geometry()
-	_sync_entities()
+	var actor_samples: Dictionary = _sync_entities()
 	_sync_environment_marks()
 	var presentation: Dictionary = _presentation_index()
 	_complete_resources(presentation.visits_by_actor)
@@ -256,7 +256,7 @@ func update_facts(interpolation_alpha: float = 1.0) -> void:
 	for actor_id: String in _actors:
 		var actor: Dictionary = world.facts.actors[actor_id]
 		var wrapper: Node3D = _actors[actor_id]
-		var projected: Dictionary = _project_location(actor)
+		var projected: Dictionary = actor_samples[actor_id]
 		wrapper.visible = projected.visible
 		if not wrapper.visible:
 			continue
@@ -351,10 +351,10 @@ func update_facts(interpolation_alpha: float = 1.0) -> void:
 		(_actor_labels[actor_id] as Label3D).visible = actor_id==_selected or actor_id==follow_actor or bool(_actors[actor_id].get_meta("life_attention",false))
 	_update_selection()
 	if not _skin_batches.is_empty():
-		var body_bounds: AABB = _visible_body_bounds()
+		var body_bounds: AABB = _visible_body_bounds(actor_samples)
 		for batch: SkinnedPoseBatch in _skin_batches: batch.publish(body_bounds)
 
-func _sync_entities() -> void:
+func _sync_entities() -> Dictionary:
 	_entity_frustum = camera.get_frustum() if camera!=null and is_inside_tree() else []
 	var visible_actors: Dictionary = {}
 	for actor_id: String in world.ids("actors"):
@@ -366,7 +366,10 @@ func _sync_entities() -> void:
 		var bounds: AABB = AABB(projection.position-Vector3(float(dimensions.width_m)*0.5,0,float(dimensions.depth_m)*0.5),Vector3(float(dimensions.width_m),float(dimensions.height_m),float(dimensions.depth_m)))
 		if not _in_view(bounds):
 			continue
-		visible_actors[actor_id] = true
+		# Reuse only inside this synchronous update; paused commands are
+		# observed afresh by the next call, without a revision/tick cache.
+		projection.dimensions = dimensions
+		visible_actors[actor_id] = projection
 		var signature: String = str(actor.species_id)+":"+str(actor.get("body_binding_id",""))+":"+JSON.stringify(dimensions,"",true,true)
 		var key: String = "actor:"+actor_id
 		if _bindings.has(key) and _bindings[key].signature!=signature:
@@ -417,6 +420,7 @@ func _sync_entities() -> void:
 		if not visible_facilities.has(facility_id):
 			_remove_facility(facility_id)
 	_entity_frustum = []
+	return visible_actors
 
 func _bind_entity(key: String, signature: String, wrapper: Node3D, path: String) -> void:
 	_binding_next += 1
@@ -553,7 +557,10 @@ func _bind_case_props(actor_id: String, visits: Array) -> void:
 
 func _remove_actor(id: String) -> void:
 	var started: int = Time.get_ticks_usec()
-	if _skin_actor_ids.has(id): _clear_batches()
+	if _skin_actor_ids.has(id):
+		_clear_batches()
+		# Coalesce removals with resource publications in _complete_resources.
+		_skin_bindings_dirty = true
 	_retire(_actors[id])
 	_actors.erase(id)
 	_actor_models.erase(id)
@@ -616,7 +623,7 @@ func _in_view(bounds: AABB) -> bool:
 			return false
 	return true
 
-func _visible_body_bounds() -> AABB:
+func _visible_body_bounds(actor_samples: Dictionary = {}) -> AABB:
 	var combined: AABB = AABB()
 	var first: bool = true
 	for actor_id: String in _actors:
@@ -624,7 +631,7 @@ func _visible_body_bounds() -> AABB:
 		if not wrapper.visible:
 			continue
 		var actor: Dictionary = world.facts.actors[actor_id]
-		var dimensions: Dictionary = content.actor_body(actor)
+		var dimensions: Dictionary = actor_samples[actor_id].dimensions if actor_samples.has(actor_id) else content.actor_body(actor)
 		var bounds: AABB = AABB(wrapper.position-Vector3(float(dimensions.width_m)*0.5,0,float(dimensions.depth_m)*0.5),Vector3(float(dimensions.width_m),float(dimensions.height_m),float(dimensions.depth_m)))
 		combined = bounds if first else combined.merge(bounds)
 		first = false
@@ -1311,19 +1318,23 @@ func _bind_skin_batches() -> void:
 	for group: Dictionary in groups.values():
 		if group.meshes.size()<2:
 			continue
-		var meshes: Array[MeshInstance3D] = []
-		var skeletons: Array[Skeleton3D] = []
-		meshes.assign(group.meshes)
-		skeletons.assign(group.skeletons)
-		var batch: SkinnedPoseBatch = SkinnedPoseBatch.new()
-		add_child(batch)
-		var reason: String = batch.bind_sources(meshes,skeletons)
-		if reason.is_empty():
-			_skin_batches.append(batch)
-			for actor_id: String in group.actor_ids: _skin_actor_ids[actor_id] = true
-		else:
-			remove_child(batch)
-			batch.free()
+		# MAX_ROWS bounds a texture page, not the number of visible employees.
+		# Keep the original group order and validate every page independently.
+		for first: int in range(0,group.meshes.size(),SkinnedPoseBatch.MAX_ROWS):
+			var stop: int = mini(first+SkinnedPoseBatch.MAX_ROWS,group.meshes.size())
+			var meshes: Array[MeshInstance3D] = []
+			var skeletons: Array[Skeleton3D] = []
+			meshes.assign(group.meshes.slice(first,stop))
+			skeletons.assign(group.skeletons.slice(first,stop))
+			var batch: SkinnedPoseBatch = SkinnedPoseBatch.new()
+			add_child(batch)
+			var reason: String = batch.bind_sources(meshes,skeletons)
+			if reason.is_empty():
+				_skin_batches.append(batch)
+				for index: int in range(first,stop): _skin_actor_ids[group.actor_ids[index]] = true
+			else:
+				remove_child(batch)
+				batch.free()
 
 func _mesh_instance(node: Node) -> MeshInstance3D:
 	if node is MeshInstance3D:

@@ -138,10 +138,13 @@ func sample(world: WorldState) -> void:
 			if not reasons.is_empty(): _detail(world,experience,{"kind":"cause","tick":world.sim_tick,"cause_id":reasons[0].id,"text":reasons[0].reason})
 	if _worker_sample_active: _worker_sample_batch.end_apply(environment)
 	if environment!=null: environment.end_query()
-	for staff_id: String in world.ids("staff"):
-		var day_key: String = str(world.sim_tick/WorldState.TICKS_PER_DAY)
-		if not world.facts.departments.staff_days.has(day_key): world.facts.departments.staff_days[day_key] = {}
-		var days: Dictionary = world.facts.departments.staff_days[day_key]
+	var staff_ids: Array = world.ids("staff")
+	if staff_ids.is_empty(): return
+	# All employees in this synchronous sample share the same hospital day.
+	var day_key: String = str(world.sim_tick/WorldState.TICKS_PER_DAY)
+	if not world.facts.departments.staff_days.has(day_key): world.facts.departments.staff_days[day_key] = {}
+	var days: Dictionary = world.facts.departments.staff_days[day_key]
+	for staff_id: String in staff_ids:
 		if not days.has(staff_id): days[staff_id] = {"energy_total":0.0,"ticks":0,"rest_ticks":0,"required_rest_ticks":0}
 		var daily: Dictionary = days[staff_id]
 		daily.energy_total += float(world.facts.staff[staff_id].energy)
@@ -750,7 +753,7 @@ func _sample_anger(world: WorldState, visit: Dictionary, data: Dictionary, provi
 		active.wait_guidance = world.sim_tick-int(world.facts.departments.routes[visit.id].started_tick)
 	elif not ticket.is_empty() and ticket.get("pause_reasons",{}).is_empty():
 		active["wait_doctor" if ticket.kind in ["gp","consult","outpatient","round"] else "wait_clinical"] = int(ticket.get("waited_ticks",0))
-		if world.facts.get("waiting_life",{}).get("seats",{}).get(visit.id,{}).is_empty(): active.no_compatible_seat = _clock(world,data,"no_compatible_seat")
+		if not HospitalWaitingLife.is_seated(world,str(visit.id)): active.no_compatible_seat = _clock(world,data,"no_compatible_seat")
 	if not observation.is_empty():
 		if not bool(observation.get("clean",true)): active.dirty = _clock(world,data,"dirty")
 		if float(observation.get("noise",0.0))>0.0: active.construction_noise = _clock(world,data,"construction_noise")
@@ -780,7 +783,7 @@ func _sample_anger(world: WorldState, visit: Dictionary, data: Dictionary, provi
 func _update_cause_clocks(world: WorldState, visit: Dictionary, data: Dictionary, observation: Dictionary) -> void:
 	var active: Dictionary = {}
 	var ticket: Dictionary = world.facts.tickets.get(visit.get("ticket_id",""),{})
-	if not ticket.is_empty() and ticket.get("pause_reasons",{}).is_empty() and world.facts.get("waiting_life",{}).get("seats",{}).get(visit.id,{}).is_empty(): active.no_compatible_seat = true
+	if not ticket.is_empty() and ticket.get("pause_reasons",{}).is_empty() and not HospitalWaitingLife.is_seated(world,str(visit.id)): active.no_compatible_seat = true
 	if not bool(observation.get("clean",true)): active.dirty = true
 	if float(observation.get("noise",0.0))>0: active.construction_noise = true
 	for id: String in active:

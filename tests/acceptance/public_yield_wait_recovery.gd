@@ -44,8 +44,8 @@ func _dispose(x: Dictionary) -> void:
 
 # Rule inputs: life design §17 requires a usable patient seat to trigger a
 # visitor's yield within two seconds, with real departure before transfer.
-# Public-area specification §3.5 requires a relevant nearby body release to
-# wake a negative wait. FUR10 stays 2x2 cells; its R16 unlock and the S52/D43
+# Optional chairs retry on the original five-second scan; a relevant nearby
+# body release must recover at the next scan without a negative-seat cache. FUR10 stays 2x2 cells; its R16 unlock and the S52/D43
 # binding are content facts. No old solver/signature supplies the expectation.
 func run_case(database: HospitalContent) -> Dictionary:
 	_content = database
@@ -123,7 +123,7 @@ func run_case(database: HospitalContent) -> Dictionary:
 	checks.failed_attempt_did_not_release_or_move_visitor = visitor.public_use.phase=="seated" and x.world.facts.actors[visitor.actor_id].location.cell==original_visitor and x.world.facts.adaptations.yield_large_chair.actor_id==visitor.actor_id
 	var retained_wait_hits: int = int(x.space.query_counts.get("public_wait_hits",0))
 	var quote_count_after_hold: int = probe.automatic_quotes.size()
-	checks.unchanged_blocker_reuses_negative_result = quote_count_before_hold==quote_count_after_hold and retained_wait_hits>0
+	checks.unchanged_blocker_waits_for_behavior_scan = quote_count_before_hold==quote_count_after_hold and not x.space.public_areas._wait_results.has(str(initial_intent.id))
 	var move_reason: String = x.space.request_move(x.world,"yield_bystander",1,[50,75])
 	var clear_tick: int = -1
 	var yield_tick: int = -1
@@ -136,9 +136,10 @@ func run_case(database: HospitalContent) -> Dictionary:
 	var fixed_throughout: bool = true
 	var origin_ticket: String = str(patient.ticket_id)
 	var origin_queue_tick: int = int(x.world.facts.tickets[origin_ticket].enqueued_tick)
-	# Two seconds is the authored yield-start limit. Once that limit expires,
-	# finish a started real handoff, but do not wait for unrelated new needs to
-	# hide a missing wake-up. All movement is the production advance operation.
+	# Search resumes on the next ordinary behavior scan. Once a compatible
+	# handoff is found the visitor must still start yielding within two seconds.
+	# All movement is the production advance operation, with the original step.
+	var scan_ticks: int = ceili(float(_content.balance.patient_behavior.scan_seconds)/WorldState.TICK_SECONDS)
 	var maximum_ticks: int = 700
 	for _step: int in maximum_ticks:
 		_tick(x)
@@ -155,11 +156,14 @@ func run_case(database: HospitalContent) -> Dictionary:
 		if patient_has_seat:
 			seated_tick = x.world.sim_tick
 			break
-		if clear_tick>=0 and yield_tick<0 and x.world.sim_tick-clear_tick>ceili(2.0/WorldState.TICK_SECONDS): break
+		if clear_tick>=0 and yield_tick<0 and x.world.sim_tick-clear_tick>scan_ticks+ceili(2.0/WorldState.TICK_SECONDS): break
 	var automatic_after_exit: Array = probe.automatic_quotes.filter(func(row: Dictionary)->bool:return clear_tick>=0 and int(row.tick)>=clear_tick)
 	checks.third_person_really_walked_clear = move_reason.is_empty() and bystander_moved and clear_tick>=0 and bystander.location.cell!=original_bystander
 	checks.automatic_quote_recovered_after_release = automatic_after_exit.any(func(row: Dictionary)->bool:return row.quote.get("ok",false))
-	checks.yield_started_within_authored_two_seconds = clear_tick>=0 and yield_tick>=clear_tick and yield_tick-clear_tick<=ceili(2.0/WorldState.TICK_SECONDS)
+	var recovered_quotes: Array = automatic_after_exit.filter(func(row: Dictionary)->bool:return row.quote.get("ok",false))
+	var recovered_tick: int = int(recovered_quotes[0].tick) if not recovered_quotes.is_empty() else -1
+	checks.available_chair_rechecked_by_next_scan = clear_tick>=0 and recovered_tick>=clear_tick and recovered_tick-clear_tick<=scan_ticks
+	checks.yield_started_within_authored_two_seconds = recovered_tick>=0 and yield_tick>=recovered_tick and yield_tick-recovered_tick<=ceili(2.0/WorldState.TICK_SECONDS)
 	checks.visitor_really_left_before_transfer = visitor_moved and safe_handoff and _outside_regions(x.space.body_rectangle(x.world.facts.actors[visitor.actor_id]),original_regions)
 	checks.patient_really_walked_and_arrived = patient_route_requested and patient_moved and seated_tick>=0 and x.space.at(x.world,patient.actor_id,1,[44,74]) and actor.get("posture","")=="seated" and actor.get("support_facility_id","")=="yield_large_chair"
 	checks.chair_never_stretched = fixed_throughout

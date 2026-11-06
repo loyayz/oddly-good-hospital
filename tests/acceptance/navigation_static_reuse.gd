@@ -77,7 +77,8 @@ func run_case(sim: HospitalSimulation, content: HospitalContent) -> Dictionary:
 	var bodies: Dictionary = _actor_scope(sim.world.freeze(),content)
 	var departures: Dictionary = _actor_departure_projection(sim.world.freeze(),content)
 	var points: Dictionary = _point_checks(sim.world.freeze(),content)
-	return {"ok":ok and evicted and invalidated and order.ok and bodies.ok and departures.ok and points.ok,"validation":validation,"observations":observations,"geometry_refresh_and_eviction":invalidated and evicted,"static_hits":space.query_counts.static_path_hits,"fit_failure_order":order,"actor_scope":bodies,"actor_departure_projection":departures,"point_checks":points}
+	var groups: Dictionary = preload("res://tests/acceptance/group_navigation_geometry.gd").new().run_case(sim.world.freeze(),content)
+	return {"ok":ok and evicted and invalidated and order.ok and bodies.ok and departures.ok and points.ok and groups.ok,"validation":validation,"observations":observations,"geometry_refresh_and_eviction":invalidated and evicted,"static_hits":space.query_counts.static_path_hits,"fit_failure_order":order,"actor_scope":bodies,"actor_departure_projection":departures,"point_checks":points,"group_geometry":groups}
 
 func _point_checks(source: Dictionary, content: HospitalContent) -> Dictionary:
 	var world: WorldState = WorldState.new(source.duplicate(true))

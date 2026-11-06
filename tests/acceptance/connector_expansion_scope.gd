@@ -31,7 +31,7 @@ func run_case(suite: RefCounted) -> Dictionary:
 			return {"ok":false,"extension":result.to_record()}
 	for floor_id: int in [2,3,4]: HospitalSpace.materialize_layout(sim.world,floor_id)
 	suite._add_actor(sim,FIRST,"S49",[44,80])
-	suite._add_actor(sim,SECOND,"S49",[45,80])
+	suite._add_actor(sim,SECOND,"S49",[42,80])
 	var probe: PreparationProbe = PreparationProbe.new(sim.space)
 	sim.space.navigation = probe
 	var validation: String = sim.world.validate(suite.content)
@@ -55,14 +55,18 @@ func run_case(suite: RefCounted) -> Dictionary:
 		# their lookup. Full paths must still hit the original edge preparation.
 		var reused: bool = observations[number].hits>0 or observations[number].cost_only and observations[number].source_hits>0
 		checks.later_targets_reuse_preparation = checks.later_targets_reuse_preparation and observations[number].new_builds==0 and reused
-	# Member order and actual formation offsets own distinct complete geometry.
-	observations.append(_observe(sim.space,sim.world,suite.content,FIRST,2,[46,84],true,[FIRST,SECOND],{FIRST:[0,0],SECOND:[1,0]}))
-	observations.append(_observe(sim.space,sim.world,suite.content,FIRST,2,[47,84],true,[FIRST,SECOND],{FIRST:[0,0],SECOND:[1,0]}))
-	checks.same_group_reuses = observations.back().new_builds==0 and observations.back().hits>0
-	observations.append(_observe(sim.space,sim.world,suite.content,FIRST,2,[48,84],true,[FIRST,SECOND],{FIRST:[0,0],SECOND:[0,1]}))
-	checks.changed_offsets_prepare_independently = observations.back().new_builds>0
-	observations.append(_observe(sim.space,sim.world,suite.content,FIRST,2,[49,84],true,[SECOND,FIRST],{FIRST:[0,0],SECOND:[1,0]}))
-	checks.changed_member_order_prepares_independently = observations.back().new_builds>0
+	# Convoys use private trail projections, while immutable portal geometry
+	# remains reusable. Old lateral offsets and a non-leading primary are not
+	# valid inputs and must fail before preparing any connection edges.
+	observations.append(_observe(sim.space,sim.world,suite.content,FIRST,2,[46,84],true,[FIRST,SECOND],{}))
+	observations.append(_observe(sim.space,sim.world,suite.content,FIRST,2,[47,84],true,[FIRST,SECOND],{}))
+	checks.same_group_reuses_portal_geometry = observations.back().portal_builds==0 and observations.back().portal_hits>0
+	observations.append(_observe(sim.space,sim.world,suite.content,FIRST,2,[48,84],true,[FIRST,SECOND],{FIRST:[0,0],SECOND:[0,1]},false))
+	checks.legacy_offsets_rejected_before_preparation = observations.back().new_builds==0 and not observations.back().available
+	observations.append(_observe(sim.space,sim.world,suite.content,FIRST,2,[49,84],true,[SECOND,FIRST],{},false))
+	checks.nonleading_primary_rejected_before_preparation = observations.back().new_builds==0 and not observations.back().available
+	observations.append(_observe(sim.space,sim.world,suite.content,SECOND,2,[49,84],true,[SECOND,FIRST],{}))
+	checks.changed_leader_proves_its_own_trail = observations.back().new_builds>0 and observations.back().available
 	checks.no_cached_goal_or_materialization_mutation = _only_connector_edges(sim.space.dynamic_transport_view(sim.world,FIRST,[],{}))
 	sim.space.end_route_query()
 	checks.source_world_and_rng_unchanged = before==sim.world.freeze()
@@ -110,6 +114,8 @@ func run_case(suite: RefCounted) -> Dictionary:
 	sim.space.end_route_query()
 	checks.goal_edge_order_preserved = probe.goals_first
 	checks.query_stack_closed = sim.space._route_queries.is_empty()
+	var convoy_identity: Dictionary = _convoy_identity(suite)
+	checks.real_trail_direction_spacing_and_envelope_are_current = convoy_identity.ok
 	var ok: bool = true
 	for accepted: bool in checks.values(): ok = ok and accepted
 	var details: Array = []
@@ -118,7 +124,7 @@ func run_case(suite: RefCounted) -> Dictionary:
 		var row: Dictionary = observation.duplicate()
 		row.erase("actual")
 		details.append(row)
-	var result: Dictionary = {"ok":ok,"validation":validation,"checks":checks,"observations":details,"scope":"Only target-independent connector preparation belongs to a sealed dynamic candidate batch. Goal edges, final answers and actual movement remain independent."}
+	var result: Dictionary = {"ok":ok,"validation":validation,"checks":checks,"observations":details,"convoy_identity":convoy_identity,"scope":"Individual connector preparation belongs to a sealed dynamic candidate batch. Convoy trail projections are query-local and do not claim the old cross-query edge-cache benefit; only canonical portal geometry is shared. Goal edges, final answers and actual movement remain independent."}
 	sim.dispose()
 	return result
 
@@ -127,13 +133,18 @@ func _observe(space: HospitalSpace, world: WorldState, content: HospitalContent,
 	var builds: int = int(space.query_counts.get("connector_edge_builds",0))
 	var hits: int = int(space.query_counts.get("connector_edge_hits",0))
 	var source_hits: int = int(space.query_counts.get("point_source_hits",0))
+	var portal_builds: int = int(space.query_counts.get("convoy_portal_plan_builds",0))
+	var portal_hits: int = int(space.query_counts.get("convoy_portal_plan_hits",0))
 	var actual: Dictionary = space.route_cost(world,actor_id,floor_id,goal,members,offsets,true) if cost_only else space.route(world,actor_id,floor_id,goal,members,offsets,true)
 	# The frozen solver has no connector_prepared context and always derives
 	# every settled node's connector edges through the original complete process.
 	var cold: HospitalSpace = HospitalSpace.new(content)
-	cold.navigation = Original.FullSolver.new(cold)
+	# Keep the frozen unprepared solver for unchanged single-actor behavior.
+	# Convoy queries need the current portal/trail contract in an independent
+	# cold owner, not the old single-body connector endpoints.
+	if members.is_empty(): cold.navigation = Original.FullSolver.new(cold)
 	var expected: Dictionary = cold.route_cost(world,actor_id,floor_id,goal,members,offsets,true) if cost_only else cold.route(world,actor_id,floor_id,goal,members,offsets,true)
-	return {"ok":actual==expected and actual.ok==available and before==world.freeze(),"floor_id":floor_id,"goal":goal,"cost_only":cost_only,"members":members,"offsets":offsets,"new_builds":int(space.query_counts.get("connector_edge_builds",0))-builds,"hits":int(space.query_counts.get("connector_edge_hits",0))-hits,"source_hits":int(space.query_counts.get("point_source_hits",0))-source_hits,"full_path_types_cost_status_match_unprepared_solver":actual==expected,"available":actual.ok,"world_and_rng_unchanged":before==world.freeze(),"actual":actual,"expected":expected if actual!=expected else {}}
+	return {"ok":actual==expected and actual.ok==available and before==world.freeze(),"floor_id":floor_id,"goal":goal,"cost_only":cost_only,"members":members,"offsets":offsets,"new_builds":int(space.query_counts.get("connector_edge_builds",0))-builds,"hits":int(space.query_counts.get("connector_edge_hits",0))-hits,"source_hits":int(space.query_counts.get("point_source_hits",0))-source_hits,"portal_builds":int(space.query_counts.get("convoy_portal_plan_builds",0))-portal_builds,"portal_hits":int(space.query_counts.get("convoy_portal_plan_hits",0))-portal_hits,"full_path_types_cost_status_match_independent_solver":actual==expected,"available":actual.ok,"world_and_rng_unchanged":before==world.freeze(),"actual":actual,"expected":expected if actual!=expected else {}}
 
 func _bounded(builds: Dictionary, maximum_nodes: int) -> bool:
 	if builds.is_empty() or builds.size()>maximum_nodes: return false
@@ -149,3 +160,39 @@ func _only_connector_edges(owner: Dictionary) -> bool:
 				for edge: Dictionary in prepared.outgoing:
 					if edge.to=="goal": return false
 	return true
+
+# Each row is a legal read-only route-calculation input, not simulated motion.
+# Reuse one Space across changed actual queue geometry and return to the prior
+# northbound input. Identity or old offsets cannot substitute for the trail.
+func _convoy_identity(suite: RefCounted) -> Dictionary:
+	var sim: HospitalSimulation = suite._fixture()
+	suite._add_actor(sim,FIRST,"S49",[44,80])
+	suite._add_actor(sim,SECOND,"S49",[42,80])
+	var rows: Array = []
+	var costs: Array = []
+	var ok: bool = true
+	for sample: Dictionary in [
+		{"name":"east","species":"S49","cell":[42,80]},
+		{"name":"north","species":"S49","cell":[44,82]},
+		{"name":"longer_east_tail","species":"S49","cell":[40,80]},
+		{"name":"north_again","species":"S49","cell":[44,82]},
+		{"name":"larger_member_envelope","species":"S52","cell":[43.5,85.5]}]:
+		sim.world.facts.actors[SECOND].location.cell = sample.cell.duplicate()
+		sim.world.facts.actors[SECOND].species_id = sample.species
+		sim.world.touch(false)
+		var members: Array = [FIRST,SECOND]
+		var created: Dictionary = ConvoyTrail.create(sim.space,sim.world,FIRST,members)
+		var before: Dictionary = sim.world.freeze()
+		sim.space.begin_dynamic_route_query(sim.world)
+		var actual: Dictionary = sim.space.route_cost(sim.world,FIRST,1,[42,80],members,{})
+		var repeated: Dictionary = sim.space.route_cost(sim.world,FIRST,1,[42,80],members,{})
+		sim.space.end_route_query()
+		var cold: Dictionary = HospitalSpace.new(suite.content).route_cost(sim.world,FIRST,1,[42,80],members,{})
+		var passed: bool = created.ok and actual.get("ok",false) and actual==cold and actual==repeated and before==sim.world.freeze() and not actual.has("path")
+		ok = ok and passed
+		costs.append(actual)
+		rows.append({"variant":sample.name,"ok":passed,"legal_formation":created.ok,"actual":actual,"cold":cold,"readonly":before==sim.world.freeze(),"convoy":created.get("convoy",{})})
+	var direction_matters: bool = costs[0].get("travel_ticks",-1)>costs[1].get("travel_ticks",-1)
+	var prior_restored: bool = costs[1]==costs[3]
+	sim.dispose()
+	return {"ok":ok and direction_matters and prior_restored,"different_actual_tail_direction_changes_route":direction_matters,"return_to_prior_tail_restores_quote":prior_restored,"observations":rows}

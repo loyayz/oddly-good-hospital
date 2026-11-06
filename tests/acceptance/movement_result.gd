@@ -58,7 +58,8 @@ func _literal_contacts(suite: RefCounted) -> Dictionary:
 	var cases: Array[Dictionary] = [
 		{"name":"edge_touch_is_clear","from":Rect2(10,10,1,1),"to":Rect2(11,10,1,1),"others":{"edge":Rect2(12,10,1,1)},"expected":[]},
 		{"name":"all_hits_sorted_and_deduplicated","from":Rect2(10,10,1,1),"to":Rect2(11,10,1,1),"others":{"z_hit":Rect2(11.5,10,0.25,1),"a_hit":Rect2(11.25,10,0.25,1)},"expected":["a_hit","z_hit"]},
-		{"name":"group_gap_is_not_a_hit","from":Rect2(10,10,1,1),"to":Rect2(11,10,1,1),"follower_from":Rect2(10,14,1,1),"follower_to":Rect2(11,14,1,1),"others":{"gap":Rect2(10.5,12,1,1)},"expected":[]},
+		{"name":"convoy_trail_gap_is_protected","from":Rect2(10,10,1,1),"to":Rect2(11,10,1,1),"others":{"convoy":Rect2(11.5,8,1,5)},"compounds":{"convoy":[Rect2(11.5,8,1,5)]},"expected":["convoy"]},
+		{"name":"convoy_bend_outer_corner_is_clear","from":Rect2(10,11,1,1),"to":Rect2(11,11,1,1),"others":{"convoy":Rect2(9,8,4,5)},"compounds":{"convoy":[Rect2(9,8,4,1),Rect2(9,8,1,5)]},"expected":[]},
 		{"name":"parallel_accepted_sweeps_are_clear","from":Rect2(10,10,1,1),"to":Rect2(12,10,1,1),"others":{"parallel":Rect2(13,10,1,1)},"accepted":{"parallel":[Rect2(11,10,1,1),Rect2(13,10,1,1)]},"expected":[]},
 		{"name":"accepted_sweep_blocks_after_endpoint_left","from":Rect2(10,11,1,1),"to":Rect2(12,11,1,1),"others":{"crossing":Rect2(11,12,1,1)},"accepted":{"crossing":[Rect2(11,10,1,1),Rect2(11,12,1,1)]},"expected":["crossing"]},
 		{"name":"other_floor_is_clear","from":Rect2(10,10,1,1),"to":Rect2(11,10,1,1),"others":{"upstairs":Rect2(11.5,10,0.25,1)},"other_floor":2,"expected":[]},
@@ -86,6 +87,10 @@ func _literal_contacts(suite: RefCounted) -> Dictionary:
 			var rect: Rect2 = item.others[id]
 			world.facts.actors[id] = suite._actor(id,"S49",[rect.position.x,rect.position.y],int(item.get("other_floor",1)))
 			space._actor_index.update(id,int(item.get("other_floor",1)),rect)
+		for id: String in item.get("compounds",{}):
+			var regions: Array[Rect2] = []
+			regions.assign(item.compounds[id])
+			space._actor_index.update_compound(id,1,regions)
 		for id: String in item.get("accepted",{}):
 			var accepted: BodyIndex.Record = _sweep(id,item.accepted[id][0],item.accepted[id][1])
 			space.movement._accepted_sweeps[id] = accepted
@@ -106,23 +111,23 @@ func _literal_contacts(suite: RefCounted) -> Dictionary:
 func _courtesy_handoff(suite: RefCounted) -> Dictionary:
 	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"精确阻挡交接",false,suite.content)
 	var space: LiteralSpace = LiteralSpace.new(suite.content)
-	for id: String in ["probe","follower","a_gap_primary","z_primary","secondary","reservation_owner"]:
+	for id: String in ["probe","follower","nearby_primary","z_primary","secondary","reservation_owner"]:
 		world.facts.actors[id] = suite._actor(id,"S49",[40,80])
 	world.facts.actors.probe.location.cell = [10,10]
 	world.facts.actors.follower.location.cell = [10,14]
-	world.facts.actors.a_gap_primary.location.cell = [10.5,12]
+	world.facts.actors.nearby_primary.location.cell = [10.5,12]
 	world.facts.actors.z_primary.location.cell = [11.25,8]
 	world.facts.actors.secondary.location.cell = [11.25,10]
-	space._actor_index.update("a_gap_primary",1,Rect2(10.5,12,1,1))
+	space._actor_index.update("nearby_primary",1,Rect2(10.5,12,1,1))
 	space._actor_index.update("z_primary",1,Rect2(11.25,8,0.25,1))
 	space._actor_index.update("secondary",1,Rect2(11.25,10,0.25,1))
-	var movement: Dictionary = {"actor_id":"probe","members":["probe","follower"],"offsets":{"probe":[0,0],"follower":[0,4]},"travelled":[{"floor_id":1,"cell":[10,10]}],"yielding":false,"target_floor":1,"target_cell":[12,10],"cursor":0,"path":[{"kind":"floor","floor_id":1,"cell":[11,10]},{"kind":"floor","floor_id":1,"cell":[12,10]}]}
+	var movement: Dictionary = {"actor_id":"probe","members":["probe"],"travelled":[{"floor_id":1,"cell":[10,10]}],"yielding":false,"target_floor":1,"target_cell":[12,10],"cursor":0,"path":[{"kind":"floor","floor_id":1,"cell":[11,10]},{"kind":"floor","floor_id":1,"cell":[12,10]}]}
 	world.facts.moves["probe"] = movement
-	world.facts.moves["a_gap_primary"] = {"actor_id":"a_gap_primary","members":["a_gap_primary"],"yielding":false}
-	world.facts.moves["z_primary"] = {"actor_id":"z_primary","members":["z_primary","secondary"],"offsets":{"z_primary":[0,0],"secondary":[0,2]},"yielding":false}
-	var sweeps: Array[BodyIndex.Record] = [_sweep("probe",Rect2(10,10,1,1),Rect2(11,10,1,1)),_sweep("follower",Rect2(10,14,1,1),Rect2(11,14,1,1))]
+	world.facts.moves["nearby_primary"] = {"actor_id":"nearby_primary","members":["nearby_primary"],"yielding":false}
+	world.facts.moves["z_primary"] = {"actor_id":"z_primary","members":["z_primary","secondary"],"yielding":false}
+	var sweeps: Array[BodyIndex.Record] = [_sweep("probe",Rect2(10,10,1,1),Rect2(11,10,1,1))]
 	var result: HospitalMovement.MotionResult = HospitalMovement.MotionResult.new()
-	space.movement._movement_contacts(world,"probe",1,Rect2(10,10,2,5),sweeps,["probe","follower"],result)
+	space.movement._movement_contacts(world,"probe",1,Rect2(10,10,2,1),sweeps,["probe"],result)
 	var probe: CourtesyProbe = CourtesyProbe.new(space)
 	var index: QueryCountingIndex = space._actor_index
 	index.queries = 0
@@ -149,7 +154,7 @@ func _courtesy_handoff(suite: RefCounted) -> Dictionary:
 	probe.idle_ids.clear()
 	probe._yield(world,world.facts.actors.probe,movement,reservation_result)
 	var reservation_not_body: bool = probe.chosen_partner.is_empty() and probe.idle_ids.is_empty() and probe.local_detours==2
-	return {"ok":primary and no_partner_requery and new_single_owner and changed_group_owner and idle_receives_hits and reservation_not_body,"secondary_maps_to_primary":primary,"gap_actor_not_selected":probe.chosen_partner!="a_gap_primary","partner_selection_index_queries":0 if no_partner_requery else index.queries,"new_single_trip_overrides_old_group":new_single_owner,"removed_member_does_not_keep_old_owner":changed_group_owner,"idle_staff_branch_receives_only_actual_hits":idle_receives_hits,"reservation_owner_not_treated_as_body":reservation_not_body}
+	return {"ok":primary and no_partner_requery and new_single_owner and changed_group_owner and idle_receives_hits and reservation_not_body,"secondary_maps_to_primary":primary,"noncontact_actor_not_selected":probe.chosen_partner!="nearby_primary","partner_selection_index_queries":0 if no_partner_requery else index.queries,"new_single_trip_overrides_old_group":new_single_owner,"removed_member_does_not_keep_old_owner":changed_group_owner,"idle_staff_branch_receives_only_actual_hits":idle_receives_hits,"reservation_owner_not_treated_as_body":reservation_not_body}
 
 func _actual_movement(suite: RefCounted) -> Dictionary:
 	var sim: HospitalSimulation = suite._fixture()
@@ -179,22 +184,31 @@ func _actual_group(suite: RefCounted) -> Dictionary:
 	var sim: HospitalSimulation = suite._fixture()
 	var recording: RecordingMovement = RecordingMovement.new(sim.space)
 	sim.space.movement = recording
+	# Legal already-assembled input, facing east. S49's turning proxy is one
+	# cell and the two members are two cells apart along their shared trail.
 	suite._add_actor(sim,"group_leader","S49",[44,82])
-	suite._add_actor(sim,"group_follower","S49",[44,83])
-	var request: String = sim.space.request_group_move(sim.world,"group_leader",["group_leader","group_follower"],{"group_leader":[0,0],"group_follower":[0,1]},1,[46,82])
+	suite._add_actor(sim,"group_follower","S49",[42,82])
+	var request: String = sim.space.request_group_move(sim.world,"group_leader",["group_leader","group_follower"],{},1,[46,82])
+	var checks: int = int(sim.space.query_counts.get("convoy_leader_checks",0))
 	suite._movement_tick(sim)
 	var clear: Dictionary = recording.results.get("group_leader",{}).duplicate(true)
 	var rounding: float = 2.0*96.0*pow(2.0,-23.0)
-	var moved_together: bool = not clear.is_empty() and not clear.blocked and Vector2(clear.actual).distance_to(Vector2(0.16,0))<=rounding and sim.space.at(sim.world,"group_leader",1,[44.16,82]) and sim.space.at(sim.world,"group_follower",1,[44.16,83])
-	suite._add_actor(sim,"group_blocker","S49",[44.7,83])
-	var before_leader: Array = sim.world.facts.actors.group_leader.location.cell.duplicate()
-	var before_follower: Array = sim.world.facts.actors.group_follower.location.cell.duplicate()
+	# The leader retains S49's real 2 cells/s speed, not the old fixed 1.6.
+	var moved_together: bool = not clear.is_empty() and not clear.blocked and Vector2(clear.actual).distance_to(Vector2(0.2,0))<=rounding and sim.space.at(sim.world,"group_leader",1,[44.2,82]) and sim.space.at(sim.world,"group_follower",1,[42.2,82])
+	var leader_only: bool = int(sim.space.query_counts.get("convoy_leader_checks",0))-checks==1 and not recording.results.has("group_follower")
+	# This new body is beyond the occupied front, inside the next proxy sweep.
+	suite._add_actor(sim,"group_blocker","S49",[45.1,82])
+	var before_leader: Dictionary = sim.world.facts.actors.group_leader.duplicate(true)
+	var before_follower: Dictionary = sim.world.facts.actors.group_follower.duplicate(true)
+	var before_trail: Dictionary = sim.world.facts.moves.get("group_leader",{}).get("convoy",{}).duplicate(true)
+	var before_doors: Dictionary = sim.world.facts.adaptations.duplicate(true)
+	var before_cursor: int = int(sim.world.facts.moves.get("group_leader",{}).get("cursor",-1))
 	suite._movement_tick(sim)
 	var blocked: Dictionary = recording.results.get("group_leader",{}).duplicate(true)
-	var group_waited: bool = not blocked.is_empty() and blocked.blocked and blocked.actors==["group_blocker"] and Vector2(blocked.actual)==Vector2.ZERO and sim.world.facts.actors.group_leader.location.cell==before_leader and sim.world.facts.actors.group_follower.location.cell==before_follower
+	var group_waited: bool = not blocked.is_empty() and blocked.blocked and blocked.actors==["group_blocker"] and Vector2(blocked.actual)==Vector2.ZERO and sim.world.facts.actors.group_leader==before_leader and sim.world.facts.actors.group_follower==before_follower and sim.world.facts.moves.get("group_leader",{}).get("convoy",{})==before_trail and sim.world.facts.adaptations==before_doors and int(sim.world.facts.moves.get("group_leader",{}).get("cursor",-2))==before_cursor
 	var leave: String = sim.space.request_move(sim.world,"group_blocker",1,[47,85])
-	var arrived: bool = suite._wait(sim,func()->bool:return not sim.world.facts.moves.has("group_leader") and sim.space.at(sim.world,"group_leader",1,[46,82]) and sim.space.at(sim.world,"group_follower",1,[46,83]),160,suite._movement_tick.bind(sim))
-	var result: Dictionary = {"ok":request.is_empty() and moved_together and group_waited and leave.is_empty() and arrived,"request_error":request,"clear_step":clear,"literal_shared_displacement":moved_together,"follower_collision_blocks_whole_group":group_waited,"blocked_step":blocked,"blocker_departure_error":leave,"both_actually_arrived":arrived}
+	var arrived: bool = suite._wait(sim,func()->bool:return not sim.world.facts.moves.has("group_leader") and sim.space.at(sim.world,"group_leader",1,[46,82]) and sim.space.at(sim.world,"group_follower",1,[44,82]),160,suite._movement_tick.bind(sim))
+	var result: Dictionary = {"ok":request.is_empty() and moved_together and leader_only and group_waited and leave.is_empty() and arrived,"request_error":request,"clear_step":clear,"literal_leader_speed_and_trailing_displacement":moved_together,"one_leader_permission_no_follower_request":leader_only,"front_collision_preserves_every_member_trail_cursor_and_doors":group_waited,"blocked_step":blocked,"blocker_departure_error":leave,"both_actually_arrived_in_queue":arrived}
 	sim.dispose()
 	return result
 

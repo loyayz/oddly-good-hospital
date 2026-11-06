@@ -3,6 +3,9 @@ extends RefCounted
 
 const CELL_METERS: float = 1.5
 var content: HospitalContent
+var _convoy_owner: Dictionary = {}
+var _convoy_members: Dictionary = {}
+
 var _bodies: Dictionary = {}
 var _actor_shapes: Dictionary = {}
 var _actor_index: BodyIndex = BodyIndex.new()
@@ -158,6 +161,7 @@ func _init(database: HospitalContent) -> void:
 	_actor_index = BodyIndex.new(Vector2(float(cells[0]),float(cells[1])))
 
 func body(actor: Dictionary) -> Dictionary:
+	if actor.has("_convoy_body"): return actor._convoy_body
 	var key: String = str(actor.species_id)+":"+str(actor.get("body_binding_id",""))
 	if not _bodies.has(key):
 		_bodies[key] = content.actor_body(actor)
@@ -178,7 +182,10 @@ func _ensure_actor_index(world: WorldState) -> void:
 	var shared: bool = world!=_indexed_world and _indexed_world!=null and _indexed_revision>=0 and not scope.is_empty() and is_same(scope,_indexed_actor_scope) and is_same(world.facts.actors,_indexed_world.facts.actors)
 	if world!=_indexed_world:
 		if not shared: _actor_shapes.clear()
-	if not shared: _actor_index.clear()
+	if not shared:
+		_actor_index.clear()
+		_convoy_owner.clear()
+		_convoy_members.clear()
 	_indexed_world = world
 	_indexed_revision = world.revision
 	_indexed_actor_scope = scope
@@ -187,6 +194,7 @@ func _ensure_actor_index(world: WorldState) -> void:
 		for id: String in world.ids("actors"):
 			query_counts.actor_index_actor_visits += 1
 			_sync_actor(world,id,false)
+		_sync_convoys(world)
 
 func _actor_index_scope(world: WorldState) -> Dictionary:
 	for active: Dictionary in _route_queries:
@@ -207,8 +215,8 @@ func _sync_actor(world: WorldState, id: String, notify: bool = true) -> void:
 	if actor.location.kind=="floor":
 		rectangle = body_rectangle(actor)
 		floor_id = int(actor.location.floor_id)
-		_actor_index.update(id,floor_id,rectangle)
-	else:
+		if not _convoy_owner.has(id): _actor_index.update(id,floor_id,rectangle)
+	elif not _convoy_owner.has(id):
 		_actor_index.remove(id)
 	if notify and public_areas!=null: public_areas.actor_changed(world,id,old_floor,old_rect,floor_id,rectangle)
 
@@ -216,6 +224,7 @@ func finish_boundary(world: WorldState) -> void:
 	_indexed_revision = world.revision
 
 func clearance(actor: Dictionary) -> int:
+	if actor.has("_convoy_size"): return int(actor._convoy_size)
 	var dimensions: Dictionary = body(actor)
 	return ceili(maxf(float(dimensions.width_m), float(dimensions.depth_m)) / CELL_METERS)
 
@@ -334,7 +343,7 @@ func _unit_step_dynamic_clear(world: WorldState, actor: Dictionary, floor_id: in
 		if id!=actor.id:
 			var raw_offset: Array = offsets.get(id,[0,0])
 			offset = Vector2(float(raw_offset[0]),float(raw_offset[1]))
-		var member: Dictionary = world.facts.actors[id]
+		var member: Dictionary = actor if id==actor.id else world.facts.actors[id]
 		var from_origin: Vector2 = start_origin if actual_floor_start and from==start_cell else Vector2(from)
 		var from_rect: Rect2 = _actor_rect(member,from_origin+offset)
 		var to_rect: Rect2 = _actor_rect(member,Vector2(to)+offset)
@@ -346,6 +355,7 @@ func queue_waypoint(world: WorldState, movement: Dictionary, floor_id: int, cell
 	self.movement.queue_waypoint(world,movement,floor_id,cell)
 
 func _actor_rect(actor: Dictionary, origin: Vector2) -> Rect2:
+	if actor.has("_convoy_size"): return Rect2(origin,Vector2.ONE*int(actor._convoy_size))
 	var posture: String = actor.get("posture","standing")
 	var binding: String = actor.get("body_binding_id","")
 	var facing: float = float(actor.facing)
@@ -440,6 +450,9 @@ func movement_doors(world: WorldState, actor: Dictionary, swept: Rect2, members:
 	for id: String in entry.index.candidates(floor_id,swept.grow(reach)): ids[id] = true
 	for region: Dictionary in _reservation_regions(world,floor_id,swept):
 		if region.reservation.kind=="door" and entry.doors.has(region.reservation_id): ids[region.reservation_id] = true
+	# All live index and reservation checks above still run. An empty
+	# union has no ordering or floor-record projection work to perform.
+	if ids.is_empty(): return []
 	var ordered: Array = ids.keys()
 	ordered.sort_custom(func(a: String,b: String) -> bool: return int(entry.order[a])<int(entry.order[b]))
 	var result: Array[Dictionary] = []
@@ -951,11 +964,19 @@ func release_adaptations(world: WorldState) -> void:
 		if reservation.kind=="facility" and (world.facts.tickets.has(reservation.owner_id) or world.facts.sessions.has(reservation.owner_id) or world.facts.preparations.has(reservation.owner_id) or world.facts.ward_stays.has(reservation.owner_id) or world.facts.get("staff_life",{}).get("reservations",{}).has(id)):
 			continue
 		var inside: bool = false
-		for participant_id: String in [actor.id]+reservation.staff_ids:
-			var participant: Dictionary = world.facts.actors[participant_id]
-			for area: Array in reservation.regions:
-				if participant.location.kind=="floor" and int(participant.location.floor_id)==int(reservation.floor_id) and body_rectangle(participant).intersects(Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3])),false):
-					inside = true
+		var journey: Dictionary = world.facts.moves.get(actor.id,{})
+		if journey.has("convoy") and reservation.kind=="door":
+			var trail: Array[Rect2] = ConvoyPortal.ground_regions(journey.convoy,world.facts.connectors[actor.location.connector_id]) if actor.location.kind=="transit" else ConvoyTrail.regions(journey.convoy)
+			if int(journey.convoy.floor_id)==int(reservation.floor_id):
+				for region: Rect2 in trail:
+					for area: Array in reservation.regions:
+						if region.intersects(Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3])),false): inside = true
+		if not journey.has("convoy") or reservation.kind!="door":
+			for participant_id: String in [actor.id]+reservation.staff_ids:
+				var participant: Dictionary = world.facts.actors[participant_id]
+				for area: Array in reservation.regions:
+					if participant.location.kind=="floor" and int(participant.location.floor_id)==int(reservation.floor_id) and body_rectangle(participant).intersects(Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3])),false):
+						inside = true
 		if not inside:
 			world.facts.adaptations.erase(id)
 			reservation_changed(world,id)
@@ -1025,3 +1046,36 @@ func _potential_door_opening(world: WorldState, actor: Dictionary, floor_id: int
 		if fit.ok and _door_rect(door,int(fit.span)).has_point(Vector2(cell)):
 			return true
 	return false
+
+# Immutable journey membership is bound once. Each step publishes only its
+# occupied trail; no follower is queried for movement permission.
+func walking_speed(actor: Dictionary) -> float:
+	var k: int = ceili(maxf(float(content.actor_body(actor).width_m),float(content.actor_body(actor).depth_m))/CELL_METERS)
+	return float(content.balance.movement_speeds[str(k)])
+
+func _sync_convoys(world: WorldState) -> void:
+	for owner: String in _convoy_members.keys():
+		if not world.facts.moves.get(owner,{}).has("convoy"):
+			_end_convoy(world,{"actor_id":owner,"members":_convoy_members[owner]})
+	for journey: Dictionary in world.facts.moves.values():
+		if journey.has("convoy"): _sync_convoy(world,journey)
+
+func _sync_convoy(world: WorldState, journey: Dictionary) -> void:
+	var owner: String = str(journey.actor_id)
+	if not _convoy_members.has(owner):
+		_convoy_members[owner] = journey.members.duplicate()
+		for id: String in journey.members:
+			_convoy_owner[id] = owner
+			if id!=owner: _actor_index.remove(id)
+	var actor: Dictionary = world.facts.actors[owner]
+	var regions: Array[Rect2] = ConvoyTrail.regions(journey.convoy)
+	if actor.location.kind=="transit": regions = ConvoyPortal.ground_regions(journey.convoy,world.facts.connectors[actor.location.connector_id])
+	_actor_index.update_compound(owner,int(journey.convoy.floor_id),regions)
+
+func _end_convoy(world: WorldState, journey: Dictionary) -> void:
+	var owner: String = str(journey.actor_id)
+	var former: Array = _convoy_members.get(owner,journey.get("members",[owner])).duplicate()
+	_convoy_members.erase(owner)
+	for id: String in former:
+		_convoy_owner.erase(id)
+		if world.facts.actors.has(id): _sync_actor(world,id)

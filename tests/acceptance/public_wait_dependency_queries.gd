@@ -196,7 +196,20 @@ func _observe(x: Dictionary, intent: Dictionary, definitions: Array, members: Ar
 	var expected_rectangles: Array = unique_points.duplicate()
 	if area_query: expected_rectangles.append(x.reference.rectangles.back())
 	var complete_bounds: bool = x.probe.rectangles==expected_rectangles
-	return {"ok":actual==expected and complete_bounds and x.probe.queries==expected_queries and x.probe.batches==(1 if expected_queries>0 else 0) and before==x.world.freeze(),"signature":actual.duplicate(true),"full_original_signature_equal":actual==expected,"complete_original_bounds_preserved":complete_bounds,"actual_queries":x.probe.queries,"batch_calls":x.probe.batches,"reference_queries":x.reference.queries,"unique_point_queries":unique_points.size(),"separate_area_query":area_query,"expected_queries":expected_queries,"facts_and_rng_unchanged":before==x.world.freeze()}
+	var result: Dictionary = {"ok":actual==expected and complete_bounds and x.probe.queries==expected_queries and x.probe.batches==(1 if expected_queries>0 else 0) and before==x.world.freeze(),"signature":actual.duplicate(true),"full_original_signature_equal":actual==expected,"complete_original_bounds_preserved":complete_bounds,"actual_queries":x.probe.queries,"batch_calls":x.probe.batches,"reference_queries":x.reference.queries,"unique_point_queries":unique_points.size(),"separate_area_query":area_query,"expected_queries":expected_queries,"facts_and_rng_unchanged":before==x.world.freeze()}
+	# Production capture must retain every dependency and spatial observation,
+	# but does not need the legacy ordered diagnostic signature as a byproduct.
+	var full: Dictionary = {"resources":{},"bounds":[]}
+	var subscriptions: Dictionary = {"resources":{},"bounds":[]}
+	var diagnostic: Array = x.probe._capture_wait_signature(x.world,intent,definitions,members,{},[1],full)
+	var unused: Array = x.probe._capture_wait_signature(x.world,intent,definitions,members,{},[1],subscriptions,false)
+	result.subscription_capture_equal = full==subscriptions
+	result.diagnostic_signature_preserved = diagnostic==actual
+	result.production_does_not_materialize_signature = unused.is_empty()
+	result.facts_and_rng_unchanged = before==x.world.freeze()
+	result.ok = result.ok and result.subscription_capture_equal and result.diagnostic_signature_preserved and result.production_does_not_materialize_signature and result.facts_and_rng_unchanged
+	return result
+
 
 func _row(label: String, observed: Dictionary) -> Dictionary:
 	var result: Dictionary = observed.duplicate()

@@ -1,5 +1,12 @@
 extends RefCounted
 
+# The observation projection is a fixed tuple, not a second reservation owner.
+# Keep every compared field and deep-copy nested values on actual changes.
+enum ActorField { FLOOR, RECT }
+
+enum ReservationField { FLOOR, KIND, SPAN, ACTOR, STAFF, REGIONS }
+
+
 # Runtime reverse dependencies only. Tasks, queues and permission facts stay
 # with their existing owners; a dirty waiter is consumed in their original order.
 var resources: Dictionary = {}
@@ -80,7 +87,7 @@ func actor_changed(id: String, old_floor: int, old_rect: Rect2, floor_id: int, r
 	mark("actor:"+id)
 	_mark_bounds(old_floor,old_rect)
 	_mark_bounds(floor_id,rect)
-	if floor_id>0: _actors[id] = {"floor":floor_id,"rect":rect}
+	if floor_id>0: _actors[id] = [floor_id,rect]
 	else: _actors.erase(id)
 
 # Raw calculation worlds and imported facts also use the same reverse index.
@@ -88,22 +95,23 @@ func actor_changed(id: String, old_floor: int, old_rect: Rect2, floor_id: int, r
 func observe_actors(index: BodyIndex) -> void:
 	for id: String in _actors.keys():
 		if index._records.has(id): continue
-		var previous: Dictionary = _actors[id]
-		actor_changed(id,int(previous.floor),previous.rect,0,Rect2())
+		var previous: Array = _actors[id]
+		actor_changed(id,int(previous[ActorField.FLOOR]),previous[ActorField.RECT],0,Rect2())
 	for id: String in index._records:
 		var current: BodyIndex.Record = index._records[id]
-		var previous: Dictionary = _actors.get(id,{})
-		actor_changed(id,int(previous.get("floor",0)),previous.get("rect",Rect2()),current.floor_id,current.rect)
+		var previous: Array = _actors.get(id,[])
+		actor_changed(id,int(previous[ActorField.FLOOR]) if not previous.is_empty() else 0,previous[ActorField.RECT] if not previous.is_empty() else Rect2(),current.floor_id,current.rect)
 
 func reservation_changed(id: String, reservation: Dictionary) -> void:
-	var previous: Dictionary = _reservations.get(id,{})
-	var current: Dictionary = {} if reservation.is_empty() else {"floor":int(reservation.floor_id),"kind":reservation.get("kind",""),"span":reservation.get("span",-1),"actor":reservation.get("actor_id",""),"staff":reservation.get("staff_ids",[]),"regions":reservation.get("regions",[])}
+	var previous: Array = _reservations.get(id,[])
+	var current: Array = [] if reservation.is_empty() else [int(reservation.floor_id),reservation.get("kind",""),reservation.get("span",-1),reservation.get("actor_id",""),reservation.get("staff_ids",[]),reservation.get("regions",[])]
 	if previous==current: return
 	mark("reservation:"+id)
-	for state: Dictionary in [previous,current]:
-		if state.get("kind","")=="door": mark("floor:"+str(state.floor))
-		for rect: Array in state.get("regions",[]):
-			_mark_bounds(int(state.floor),Rect2(float(rect[0]),float(rect[1]),float(rect[2]),float(rect[3])))
+	for state: Array in [previous,current]:
+		if state.is_empty(): continue
+		if state[ReservationField.KIND]=="door": mark("floor:"+str(state[ReservationField.FLOOR]))
+		for rect: Array in state[ReservationField.REGIONS]:
+			_mark_bounds(int(state[ReservationField.FLOOR]),Rect2(float(rect[0]),float(rect[1]),float(rect[2]),float(rect[3])))
 	if current.is_empty(): _reservations.erase(id)
 	else: _reservations[id] = current.duplicate(true)
 

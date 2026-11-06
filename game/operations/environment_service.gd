@@ -150,7 +150,12 @@ func end_query() -> void:
 		if not _coverage_cache.has(floor_id): continue
 		var entry: Dictionary = _coverage_cache[floor_id]
 		entry.coverage.merge(_query.coverage.get(floor_id,{}))
-		while entry.coverage.size()>128: entry.coverage.erase(entry.coverage.keys()[0])
+		var excess: int = entry.coverage.size()-128
+		if excess>0:
+			# Preserve the original insertion-order eviction prefix without
+			# reallocating every remaining key on each individual removal.
+			var keys: Array = entry.coverage.keys()
+			for index: int in range(excess): entry.coverage.erase(keys[index])
 	_query.clear()
 
 func ensure(world: WorldState) -> void:
@@ -1045,8 +1050,11 @@ func _is_water(definition_id: String) -> bool:
 func _facility_in_coverage(world: WorldState, facility: Dictionary, coverage: Dictionary) -> bool:
 	var layout: Dictionary = space.facility_layout(world,str(facility.id))
 	for x: int in range(int(facility.cell[0]),int(facility.cell[0])+int(layout.footprint[0])):
+		# Coverage keys retain the original integer cell format. Reuse this
+		# column prefix rather than allocating a cell and format array per tile.
+		var prefix: String = str(x)+":"
 		for y: int in range(int(facility.cell[1]),int(facility.cell[1])+int(layout.footprint[1])):
-			if coverage.has(_cell_key([x,y])):
+			if coverage.has(prefix+str(y)):
 				return true
 	return false
 

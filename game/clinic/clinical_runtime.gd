@@ -272,12 +272,29 @@ func dispatch(world: WorldState) -> void:
 			if not space.at(world,visit.actor_id,int(bed.floor_id),bed.patient_cell):
 				if world.facts.moves.has(visit.actor_id):
 					continue
-				var alongside: Array = [float(actor.location.cell[0])-1,float(actor.location.cell[1])]
-				if not space.at(world,stay.escort_id,int(bed.floor_id),alongside):
-					visit.waiting_reason = space.request_move(world,stay.escort_id,int(bed.floor_id),alongside)
+				var formation: Dictionary = _escort_formation(world,visit.actor_id,stay.escort_id,int(bed.floor_id),bed.patient_cell)
+				if not formation.get("ok",false):
+					visit.waiting_reason = formation.get("reason","队列成队空间不足")
 					continue
-				visit.waiting_reason = space.request_group_move(world,visit.actor_id,[visit.actor_id,stay.escort_id],{visit.actor_id:[0,0],stay.escort_id:[-1,0]},int(bed.floor_id),bed.patient_cell)
+				var alongside: Array = formation.targets[stay.escort_id]
+				var source_floor: int = int(actor.location.floor_id)
+				if not space.at(world,stay.escort_id,source_floor,alongside):
+					visit.waiting_reason = space.request_move(world,stay.escort_id,source_floor,alongside)
+					continue
+				visit.waiting_reason = space.request_group_move(world,visit.actor_id,[visit.actor_id,stay.escort_id],{},int(bed.floor_id),bed.patient_cell)
 			else:
+				# Arrival of the head is not the clinical handoff. Finish the
+				# convoy, then let its escort walk to the actual bedside position.
+				if world.facts.moves.has(visit.actor_id): continue
+				if bed.operator_cells.is_empty():
+					visit.waiting_reason = "队列交接缺少真实床旁护理位置"
+					continue
+				space.grant_facility_access(world,stay.bed_id,stay.escort_id)
+				if not space.at(world,stay.escort_id,int(bed.floor_id),bed.operator_cells[0]):
+					visit.waiting_reason = space.request_move(world,stay.escort_id,int(bed.floor_id),bed.operator_cells[0])
+					continue
+				if world.facts.moves.has(stay.escort_id): continue
+				visit.waiting_reason = ""
 				stay.phase = "recovery"
 				visit.phase = "recovery"
 				stay.entered_tick = world.sim_tick
@@ -1471,7 +1488,10 @@ func _bed_transport(world: WorldState, visit: Dictionary, source: Dictionary, be
 	var facts: Dictionary = world.facts.duplicate()
 	facts.actors = world.facts.actors.duplicate()
 	for id: String in [visit.actor_id,escort_id]: facts.actors[id] = world.facts.actors[id].duplicate()
+	facts.adaptations = world.facts.adaptations.duplicate()
+	if facts.adaptations.has(bed.id): facts.adaptations[bed.id] = facts.adaptations[bed.id].duplicate(true)
 	var candidate: WorldState = WorldState.new(facts)
+	space.grant_facility_access(candidate,bed.id,escort_id)
 	var patient: Dictionary = facts.actors[visit.actor_id]
 	var escort: Dictionary = facts.actors[escort_id]
 	if not current:
@@ -1489,14 +1509,84 @@ func _bed_transport(world: WorldState, visit: Dictionary, source: Dictionary, be
 		patient.location = {"kind":"floor","floor_id":int(support.floor_id),"cell":support.patient_cell.duplicate(),"height_m":0.0}
 	patient.posture = "standing"
 	patient.erase("support_facility_id")
-	var alongside: Array = [float(patient.location.cell[0])-1,float(patient.location.cell[1])]
 	var nominal: bool = space.nominal_query(world)
 	if nominal: space.begin_route_query(candidate)
-	var gathering: Dictionary = space.travel_quote(candidate,escort_id,int(bed.floor_id),alongside)
-	var transfer: Dictionary = space.route_cost(candidate,visit.actor_id,int(bed.floor_id),bed.patient_cell,[visit.actor_id,escort_id],{visit.actor_id:[0,0],escort_id:[-1,0]},true)
+	if current and space.at(candidate,visit.actor_id,int(bed.floor_id),bed.patient_cell):
+		var handoff: Dictionary = _bed_handoff_quote(candidate,escort_id,bed)
+		if nominal: space.end_route_query()
+		return {"ok":handoff.ok,"ticks":int(handoff.get("travel_ticks",0)),"exit_ticks":source_ticks,"source_id":source_id,"escort_id":escort_id,"handoff":handoff}
+	var active: Dictionary = candidate.facts.moves.get(visit.actor_id,{})
+	var travelling: bool = current and active.has("convoy") and active.get("members",[])==[visit.actor_id,escort_id]
+	var formation: Dictionary
+	if travelling:
+		formation = active.convoy.duplicate(true)
+		formation.route = space.route(candidate,visit.actor_id,int(bed.floor_id),bed.patient_cell,active.members,{},true)
+		formation.ok = formation.route.get("ok",false)
+		formation.reason = formation.route.get("reason","")
+	else:
+		formation = _escort_formation(candidate,visit.actor_id,escort_id,int(bed.floor_id),bed.patient_cell)
+	if not formation.get("ok",false):
+		if nominal: space.end_route_query()
+		return {"ok":false,"exit_ticks":source_ticks,"source_id":source_id,"escort_id":escort_id,"reason":formation.get("reason","")}
+	var gathering: Dictionary = {"ok":true,"travel_ticks":0} if travelling else space.travel_quote(candidate,escort_id,int(patient.location.floor_id),formation.targets[escort_id])
+	var transfer: Dictionary = formation.route
+	# The ward contract is same-floor. Reconstruct the quoted queue endpoint
+	# solely to estimate the escort's last walk; never publish these poses.
+	var handoff: Dictionary = _projected_bed_handoff(candidate,visit.actor_id,escort_id,bed,formation)
 	if nominal: space.end_route_query()
-	if not gathering.ok or not transfer.ok: return {"ok":false,"exit_ticks":source_ticks,"source_id":source_id,"escort_id":escort_id,"gathering":gathering,"transfer":transfer}
-	return {"ok":true,"ticks":exit_ticks+int(gathering.travel_ticks)+int(transfer.travel_ticks),"exit_ticks":source_ticks,"source_id":source_id,"escort_id":escort_id}
+	if not gathering.ok or not transfer.ok or not handoff.ok: return {"ok":false,"exit_ticks":source_ticks,"source_id":source_id,"escort_id":escort_id,"gathering":gathering,"transfer":transfer,"handoff":handoff}
+	return {"ok":true,"ticks":exit_ticks+int(gathering.travel_ticks)+int(transfer.travel_ticks)+int(handoff.travel_ticks),"exit_ticks":source_ticks,"source_id":source_id,"escort_id":escort_id,"gathering":gathering,"transfer":transfer,"handoff":handoff}
+
+# Initial direction comes from the whole convoy's envelope, not a personal
+# route that might fit the patient but send a larger escort through a narrow gap.
+func _escort_formation(world: WorldState, patient_id: String, escort_id: String, target_floor: int, target: Array) -> Dictionary:
+	var actor: Dictionary = world.facts.actors[patient_id]
+	if actor.location.kind!="floor": return {"ok":false,"reason":"等待患者真实落地后成队"}
+	var route: Dictionary = space.route(world,patient_id,target_floor,target,[patient_id,escort_id],{},true)
+	if not route.get("ok",false): return {"ok":false,"reason":route.get("reason","队长路线不可达")}
+	var start: Vector2 = Vector2(float(actor.location.cell[0]),float(actor.location.cell[1]))
+	var direction: Vector2 = Vector2.ZERO
+	for segment: Dictionary in route.get("path",[]):
+		if segment.kind=="connector": break
+		if segment.kind!="floor": continue
+		var delta: Vector2 = Vector2(float(segment.cell[0]),float(segment.cell[1]))-start
+		if delta.length()>0.001:
+			direction = Vector2(signf(delta.x),0) if absf(delta.x)>absf(delta.y) else Vector2(0,signf(delta.y))
+			break
+	if direction==Vector2.ZERO: return {"ok":false,"reason":"等待队列具有真实地面起步路径"}
+	var formation: Dictionary = ConvoyTrail.formation(space,world,patient_id,[patient_id,escort_id],direction)
+	formation.ok = true
+	formation.route = route
+	formation.direction = [direction.x,direction.y]
+	return formation
+
+func _bed_handoff_quote(world: WorldState, escort_id: String, bed: Dictionary) -> Dictionary:
+	if bed.operator_cells.is_empty(): return {"ok":false,"reason":"缺少真实床旁护理位置"}
+	return space.travel_quote(world,escort_id,int(bed.floor_id),bed.operator_cells[0])
+
+func _projected_bed_handoff(world: WorldState, patient_id: String, escort_id: String, bed: Dictionary, formation: Dictionary) -> Dictionary:
+	var patient: Dictionary = world.facts.actors[patient_id]
+	if int(patient.location.floor_id)!=int(bed.floor_id): return {"ok":false,"reason":"护理转床必须位于同层"}
+	var points: Array = formation.get("points",[]).duplicate(true)
+	if points.is_empty():
+		var head: Vector2 = ConvoyTrail.point(patient.location.cell)
+		var tail: Vector2 = head-ConvoyTrail.point(formation.direction)*float(formation.spacing)
+		points = [[tail.x,tail.y],[head.x,head.y]]
+	for segment: Dictionary in formation.route.get("path",[]):
+		if segment.kind!="floor" or int(segment.floor_id)!=int(bed.floor_id): return {"ok":false,"reason":"护理转床报价包含跨层路段"}
+		points = ConvoyTrail.extended(points,ConvoyTrail.point(segment.cell))
+	var projected: Dictionary = formation.duplicate()
+	projected.points = ConvoyTrail.drop(points,maxf(0.0,ConvoyTrail.length(points)-float(formation.spacing)))
+	var poses: Dictionary = ConvoyTrail.positions(projected,[patient_id,escort_id])
+	# Give the final leg its own read-only world identity: the earlier route
+	# scope's actor source and route observations remain immutable.
+	var facts: Dictionary = world.facts.duplicate()
+	facts.actors = world.facts.actors.duplicate()
+	for id: String in [patient_id,escort_id]:
+		facts.actors[id] = world.facts.actors[id].duplicate()
+		facts.actors[id].location = {"kind":"floor","floor_id":int(bed.floor_id),"cell":poses[id].cell.duplicate(),"height_m":0.0}
+		facts.actors[id].facing = poses[id].facing
+	return _bed_handoff_quote(WorldState.new(facts),escort_id,bed)
 
 func _quoted_fee(amount: int, multiplier: Variant) -> int:
 	var parts: PackedStringArray = str(multiplier).to_lower().split("e")

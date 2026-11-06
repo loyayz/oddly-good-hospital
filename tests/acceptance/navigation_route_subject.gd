@@ -71,7 +71,7 @@ func _observe(pair: Dictionary, world: WorldState, floor_id: int, target: Array,
 func run_case(suite: RefCounted) -> Dictionary:
 	var sim: HospitalSimulation = suite._transit_fixture()
 	suite._add_actor(sim,ACTOR,"S49",[44.25,80.25])
-	suite._add_actor(sim,OTHER,"S49",[45.25,80.25])
+	suite._add_actor(sim,OTHER,"S49",[42.25,80.25])
 	var world: WorldState = sim.world
 	var pair: Dictionary = _pair(suite.content)
 	var actual: SubjectProbe = pair.actual.navigation
@@ -94,9 +94,15 @@ func run_case(suite: RefCounted) -> Dictionary:
 	checks.nested_scope_reuses_source_with_deep_owned_results = repeated.ok and actual.preparations==1 and actual.source_proofs==1
 	var prior: int = actual.preparations
 	var grouped: bool = true
+	var group_rows: Array = []
 	for target: Array in [[46,83],[47,83]]:
-		grouped = grouped and _observe(pair,world,1,target,false,[ACTOR,OTHER],{ACTOR:[0,0],OTHER:[1,0]}).ok
-	checks.group_keeps_original_source_chain_and_ordered_formation = grouped and actual.preparations-prior==2
+		var before_group: Dictionary = world.freeze()
+		var result: Dictionary = pair.actual.route(world,ACTOR,1,target,[ACTOR,OTHER],{},true)
+		var cold: Dictionary = HospitalSpace.new(suite.content).route(world,ACTOR,1,target,[ACTOR,OTHER],{},true)
+		var valid: bool = result.get("ok",false) and var_to_bytes(result)==var_to_bytes(cold) and before_group==world.freeze() and ConvoyTrail.point(result.path.back().cell).is_equal_approx(ConvoyTrail.point(target))
+		grouped = grouped and valid
+		group_rows.append({"ok":valid,"actual":result,"cold":cold,"world_unchanged":before_group==world.freeze()})
+	checks.convoy_has_private_trail_without_replacing_single_subject = grouped and actual.preparations==prior
 	prior = actual.preparations
 	var offset_only: Dictionary = _observe(pair,world,1,[46,84],true,[],{ACTOR:[0,0]})
 	checks.nonempty_offsets_keep_original_chain = offset_only.ok and actual.preparations==prior+1
@@ -127,7 +133,7 @@ func run_case(suite: RefCounted) -> Dictionary:
 	var failed: Dictionary = _stub_failure(suite.content,world.freeze())
 	checks.original_stub_failure_and_recovery = failed.ok
 	checks.closed_query_stacks = pair.actual._route_queries.is_empty() and pair.reference._route_queries.is_empty()
-	var result: Dictionary = {"ok":not checks.values().has(false),"checks":checks,"source_preparations":actual.preparations,"source_proofs":actual.source_proofs,"reference_source_proofs":reference.source_proofs,"complete_point_queries":actual.point_queries,"reference_complete_point_queries":reference.point_queries,"stub_failure":failed}
+	var result: Dictionary = {"ok":not checks.values().has(false),"checks":checks,"source_preparations":actual.preparations,"source_proofs":actual.source_proofs,"reference_source_proofs":reference.source_proofs,"complete_point_queries":actual.point_queries,"reference_complete_point_queries":reference.point_queries,"stub_failure":failed,"convoy_queries":group_rows}
 	sim.dispose()
 	return result
 

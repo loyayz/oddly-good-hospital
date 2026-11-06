@@ -57,33 +57,48 @@ func _occupied_west(observe_signatures: bool = false) -> Dictionary:
 	return x
 
 func _case_69(t) -> void:
-	var first_wait: Dictionary = _first_wait_signatures()
-	var connector_basis: Dictionary = _connector_wait_basis()
-	var snapshot: Dictionary = _wait_value_snapshot()
-	var samples: Dictionary = _complete_environment_samples()
-	var qualifications: Dictionary = preload("res://tests/acceptance/public_queue_fit_lifecycle.gd").new().run_case(self)
-	var membership: Dictionary = preload("res://tests/acceptance/public_facility_membership.gd").new().run_case(self)
-	var dependencies: Dictionary = preload("res://tests/acceptance/public_wait_dependency_queries.gd").new().run_case(self)
-	var environment_matches: Dictionary = preload("res://tests/acceptance/public_wait_environment_matches.gd").new().run_case(_content)
-	var occupied_queue: Dictionary = _occupied_seat_queue_dependencies()
+	# Optional chairs use the original five-second behavior scan, not the
+	# failed-service dependency queue. Real bodies still own their occupied chair.
 	var x: Dictionary = _occupied_west()
 	var intent: Dictionary = x.world.facts.waiting_life.seats.get(x.waiter.id,{})
 	var arrived: bool = intent.get("phase","")=="local_wait" and int(intent.get("arrived_tick",-1))==50
-	var queued_at: int = int(intent.get("arrived_tick",-1))
 	var quotes: int = x.probe.quotes
 	var scores: int = x.probe.scores
-	_tick_waiting(x,5)
-	var unchanged: bool = x.probe.quotes==quotes and x.probe.scores==scores and int(intent.get("arrived_tick",-1))==queued_at
-	var unrelated: Dictionary = _visit(x,"other_area",[51,74])
-	var other_move: String = x.space.request_move(x.world,unrelated.actor_id,1,[53,75])
-	_tick_waiting(x,5)
-	var local_dependencies: bool = x.probe.quotes==quotes and x.probe.scores==scores and intent.get("phase","")=="local_wait"
+	_tick_waiting(x,49)
+	var between_scans: bool = x.probe.quotes==quotes and x.probe.scores==scores and not HospitalWaitingLife.is_seated(x.world,x.waiter.id)
+	_tick_waiting(x)
+	var rescanned: bool = x.probe.quotes>quotes and x.probe.scores==scores and intent.phase=="local_wait"
+	var no_failed_queue: bool = not x.space.public_areas._wait_results.has(str(intent.id)) and not x.space.public_areas._wait_dependencies.waiters.has(str(intent.id))
+	var reaction: Dictionary = _standing_seat_reaction(x)
 	x.l.execute(x.world,"waiting_release_seat",{"visit_id":x.holder.id})
 	x.c.execute(x.world,"clinical_refer",{"visit_id":x.holder.id})
 	var release_move: String = x.space.request_move(x.world,x.holder.actor_id,1,[40,76])
 	var seated: bool = _until_seated(x,x.waiter)
-	var timely: bool = seated and intent.get("facility_id","")=="west_chair" and int(intent.get("arrived_tick",-1))==queued_at and not x.space.overlaps_facility(x.world,x.holder.actor_id,"west_chair")
-	t.check("STAFF-69",first_wait.ok and membership.ok and dependencies.ok and environment_matches.ok and occupied_queue.ok and qualifications.ok and snapshot.ok and samples.ok and connector_basis.ok and x.held and arrived and unchanged and other_move.is_empty() and local_dependencies and release_move.is_empty() and timely and x.l.validate(x.world).is_empty(),{"first_negative_wait_signatures":first_wait,"static_facility_membership":membership,"wait_dependency_queries":dependencies,"environment_match_reuse":environment_matches,"occupied_seat_queue_dependencies":occupied_queue,"queue_qualification_lifecycle":qualifications,"immutable_wait_basis":snapshot,"complete_environment_dependencies":samples,"connector_dependency_boundary":connector_basis,"arrived_waiting":arrived,"unchanged_wait_did_not_requote":unchanged,"unrelated_area_real_move":other_move,"unrelated_movement_did_not_requote":local_dependencies,"actual_holder_exit":release_move,"original_queue_time_kept":int(intent.get("arrived_tick",-1))==queued_at,"actually_seated_after_release":timely,"quotes_before":quotes,"quotes_after":x.probe.quotes,"intent":intent})
+	var actual: bool = seated and intent.get("facility_id","")=="west_chair" and not x.space.overlaps_facility(x.world,x.holder.actor_id,"west_chair")
+	var data: Dictionary = {"anger_sources":{},"cause_clocks":{"no_compatible_seat":0}}
+	x.p._update_cause_clocks(x.world,x.waiter,data,{"value":50.0,"clean":true,"noise":0.0})
+	var cleared: bool = actual and not data.cause_clocks.has("no_compatible_seat")
+	t.check("STAFF-69",x.held and arrived and between_scans and rescanned and no_failed_queue and reaction.ok and release_move.is_empty() and actual and cleared and x.l.validate(x.world).is_empty(),{"arrived_standing":arrived,"no_search_between_behavior_scans":between_scans,"occupied_area_rechecked_on_scan":rescanned,"no_failed_seat_subscription":no_failed_queue,"standing_reaction":reaction,"actual_holder_exit":release_move,"actually_seated_after_release":actual,"real_seating_clears_no_seat_clock":cleared,"intent":intent})
+
+func _standing_seat_reaction(x: Dictionary) -> Dictionary:
+	# An explicit arithmetic boundary for the existing anger rule. It does not
+	# stand in for the real movement and seat acquisition exercised above.
+	var observation: Dictionary = {"value":50.0,"clean":true,"noise":0.0}
+	var cause: Dictionary = x.p._cause("no_compatible_seat")
+	var grace: int = ceili(float(cause.grace_seconds)/WorldState.TICK_SECONDS)
+	var before: WorldState = WorldState.new(x.world.freeze())
+	before.facts.sim_tick = grace-1
+	var at: WorldState = WorldState.new(x.world.freeze())
+	at.facts.sim_tick = grace
+	var before_data: Dictionary = {"anger_sources":{},"cause_clocks":{"no_compatible_seat":0}}
+	var at_data: Dictionary = before_data.duplicate(true)
+	x.p._sample_anger(before,before.facts.visits[x.waiter.id],before_data,observation)
+	x.p._sample_anger(at,at.facts.visits[x.waiter.id],at_data,observation)
+	var expected: float = float(cause.per_update)*float(_content.definition("patient_personalities",x.waiter.personality_id).anger_growth_multiplier)
+	var boundary: bool = float(before_data.anger_sources.get("no_compatible_seat",0.0))==0.0 and _near(float(at_data.anger_sources.get("no_compatible_seat",0.0)),expected)
+	var data: Dictionary = {"anger_sources":{},"cause_clocks":{}}
+	x.p._update_cause_clocks(x.world,x.waiter,data,observation)
+	return {"ok":boundary and data.cause_clocks.has("no_compatible_seat"),"standing_intent_keeps_no_seat_clock":data.cause_clocks.has("no_compatible_seat"),"grace_ticks":grace,"before_grace":before_data.anger_sources,"at_grace":at_data.anger_sources,"expected_no_seat_contribution":expected}
 
 func _occupied_seat_queue_dependencies() -> Dictionary:
 	var x: Dictionary = _occupied_west()

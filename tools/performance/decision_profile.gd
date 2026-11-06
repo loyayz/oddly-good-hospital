@@ -2,10 +2,11 @@ extends "res://tools/performance/step_profile.gd"
 
 # Complete nested accounting for selected real steps in an offline copy only.
 # Rows retain caller identities and business outcomes, not full world snapshots.
+const VisitorSeatObservation = preload("res://tools/performance/visitor_seat_observation.gd")
 const METADATA_KEY: StringName = &"oddly_good_tail_profile_observer_v1"
 const BUSINESS_ARGUMENTS: Array[String] = [
 	"clinic._dispatch_service","clinic.service_candidates","clinic._service_pair_reachable","clinic.plan_quote","clinic._plan_quote_in_query",
-	"visitors._public_waiting","waiting._manual_seat_quote","waiting._dispatch_public_seat",
+	"visitors._public_waiting","visitors._public_seat_quote","visitors._take_waiting_seat","public_areas.turn","waiting._manual_seat_quote","waiting._dispatch_public_seat",
 	"space._facility_quote","space.facility_preflight_quote","space._facility_exit_quote","space._exit_witness","space.can_reach",
 	"space._floor_route","space.reserve_facility","floor_graph.find_path",
 	"point_navigation._route_result","point_navigation._point_route","point_navigation._floor_route","movement.request_move","movement._yield",
@@ -42,6 +43,9 @@ func enter_instance(operation: String, instance_id: int, arguments: Dictionary) 
 			row.arguments[name] = argument
 			if str(row.owner).is_empty(): row.owner = str(argument)
 		else: row.arguments[name] = _compact(argument)
+	if operation=="visitors._public_seat_quote":
+		var visitor: Object = instance_from_id(instance_id)
+		row.seat_observation = VisitorSeatObservation.capture(visitor.space,arguments.world,str(arguments.stay.actor_id),str(arguments.facility_id))
 	_ledger.append(row)
 	_ledger_stack.append(row)
 	# Retain only the three input records needed to observe dispatch's actual
@@ -59,6 +63,8 @@ func exit_instance(operation: String, result: Variant) -> void:
 		return
 	var row: Dictionary = _ledger_stack.pop_back()
 	row.result = _compact(result) if operation in BUSINESS_ARGUMENTS else _status(result)
+	if operation=="visitors._supported_facilities" and result is Dictionary:
+		row.result = {"supported_facility_count":result.size()}
 	if row.has("_dispatch"):
 		row.dispatch_outcome = {"visit":_business_record(row._dispatch.visit),"ticket":_business_record(row._dispatch.ticket)}
 		var world: WorldState = row._dispatch.world

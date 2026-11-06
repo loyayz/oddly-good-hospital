@@ -34,6 +34,8 @@ func _init(geometry: HospitalSpace) -> void:
 	_sweep_index = BodyIndex.new(Vector2(float(cells[0]),float(cells[1])))
 
 func request_move(world: WorldState, actor_id: String, floor_id: int, target: Array) -> String:
+	for primary: String in world.facts.moves:
+		if primary!=actor_id and actor_id in world.facts.moves[primary].get("members",[]): return "等待当前队列完成后独立移动"
 	if world.facts.moves.has(actor_id):
 		return _retarget(world,world.facts.moves[actor_id],floor_id,target)
 	var actor: Dictionary = world.facts.actors[actor_id]
@@ -57,7 +59,7 @@ func request_move(world: WorldState, actor_id: String, floor_id: int, target: Ar
 func _retarget(world: WorldState, previous: Dictionary, floor_id: int, target: Array) -> String:
 	if previous.target_floor==floor_id and previous.target_cell==target: return previous.get("waiting_reason","")
 	var actor: Dictionary = world.facts.actors[previous.actor_id]
-	var reason: String = space.navigation.destination_reason(world,actor,floor_id,Vector2i(roundi(target[0]),roundi(target[1])),previous.get("members",[]),previous.get("offsets",{}))
+	var reason: String = _convoy_goal_reason(world,previous,floor_id,target) if previous.has("convoy") else space.navigation.destination_reason(world,actor,floor_id,Vector2i(roundi(target[0]),roundi(target[1])),previous.get("members",[]),previous.get("offsets",{}))
 	if not reason.is_empty(): return reason
 	HospitalTransit.cancel_waiting(world,previous)
 	previous.erase("route_waypoint")
@@ -72,27 +74,38 @@ func _retarget(world: WorldState, previous: Dictionary, floor_id: int, target: A
 	return previous.get("waiting_reason","")
 
 func request_group_move(world: WorldState, primary_id: String, members: Array, offsets: Dictionary, floor_id: int, target: Array) -> String:
+	if not offsets.is_empty(): return "同行组只支持前后队列，不再使用横向配位"
+	if members.is_empty() or members[0]!=primary_id: return "队列首位必须为队长"
 	if world.facts.moves.has(primary_id):
 		var previous: Dictionary = world.facts.moves[primary_id]
-		if previous.get("members",[primary_id])!=members or previous.get("offsets",{})!=offsets:
-			return "等待原同行组结束或取消后再变更成员与配位"
+		if not previous.has("convoy") or previous.members!=members: return "等待原队列结束后再变更成员"
 		return _retarget(world,previous,floor_id,target)
-	for member_id: String in members:
-		if world.facts.moves.has(member_id):
-			return "等待陪同成员结束当前真实移动"
-	var actor: Dictionary = world.facts.actors[primary_id]
-	if actor.location.kind!="floor":
-		return "等待完整通行组到达地面"
+	var seen: Dictionary = {}
 	for id: String in members:
-		var offset: Array = offsets[id]
-		if not space.at(world,id,int(actor.location.floor_id),[float(actor.location.cell[0])+float(offset[0]),float(actor.location.cell[1])+float(offset[1])]):
-			return "等待完整陪同组到达真实配位"
-	var reason: String = space.navigation.destination_reason(world,actor,floor_id,Vector2i(roundi(target[0]),roundi(target[1])),members,offsets)
-	if not reason.is_empty():
-		return reason
-	world.facts.moves[primary_id] = {"actor_id":primary_id,"members":members.duplicate(),"offsets":offsets.duplicate(true),
-		"path":[],"cursor":0,"travelled":[_checkpoint(actor)],"blocked_since":-1,"yielding":false,"target_floor":floor_id,"target_cell":target.duplicate()}
-	_queue_route(world,world.facts.moves[primary_id])
+		if not world.facts.actors.has(id) or seen.has(id): return "队列成员不存在或重复"
+		seen[id] = true
+		if world.facts.actors[id].location.kind!="floor" or world.facts.moves.has(id): return "等待完整队列真实到场"
+		for active: Dictionary in world.facts.moves.values():
+			if id in active.get("members",[]): return "成员已有队列归属"
+	var created: Dictionary = ConvoyTrail.create(space,world,primary_id,members)
+	if not created.ok: return created.reason
+	var actor: Dictionary = world.facts.actors[primary_id]
+	var m: Dictionary = {"actor_id":primary_id,"members":members.duplicate(),"convoy":created.convoy,"path":[],"cursor":0,"travelled":[_checkpoint(actor)],"blocked_since":-1,"yielding":false,"target_floor":floor_id,"target_cell":target.duplicate()}
+	var proxy: Dictionary = ConvoyTrail.proxy(world,m)
+	var query: RouteClearance = space.navigation.structural_clearance(world,proxy,int(actor.location.floor_id))
+	var shift: Vector2 = Vector2.ONE*float(m.convoy.shift)
+	for region: Rect2 in ConvoyTrail.regions(m.convoy):
+		if not space._dynamic_clear(world,primary_id,int(actor.location.floor_id),region,members): return "队列集合尾迹已有占用"
+		for door: Dictionary in space.movement_doors(world,proxy,region):
+			if region.intersects(space._door_rect(door,space._door_span(proxy,door)),false): return "必须离开门口后完整成队"
+	for i: int in range(1,m.convoy.points.size()):
+		var reason: String = query.sweep_reason(ConvoyTrail.point(m.convoy.points[i-1])+shift,ConvoyTrail.point(m.convoy.points[i])+shift)
+		if not reason.is_empty(): return reason
+	var reason: String = _convoy_goal_reason(world,m,floor_id,target)
+	if not reason.is_empty(): return reason
+	world.facts.moves[primary_id] = m
+	space._sync_convoy(world,m)
+	_queue_route(world,m)
 	if space.public_areas!=null: space.public_areas.changed(world)
 	return ""
 
@@ -111,6 +124,8 @@ func failure(world: WorldState, actor_id: String) -> Dictionary:
 # A task can stop a ground walk or landing queue. It cannot interrupt a real
 # ride, a support-exit segment or a group whose full body is not on the floor.
 func cancel_ground(world: WorldState, actor_id: String) -> bool:
+	for primary: String in world.facts.moves:
+		if primary!=actor_id and actor_id in world.facts.moves[primary].get("members",[]): return false
 	var movement: Dictionary = world.facts.moves.get(actor_id,{})
 	if movement.is_empty():
 		var actor: Dictionary = world.facts.actors[actor_id]
@@ -121,6 +136,7 @@ func cancel_ground(world: WorldState, actor_id: String) -> bool:
 	if int(movement.cursor)<movement.path.size() and int(movement.cursor)>=0 and movement.path[int(movement.cursor)].kind=="support_exit": return false
 	HospitalTransit.cancel_waiting(world,movement)
 	world.facts.moves.erase(actor_id)
+	if movement.has("convoy"): space._end_convoy(world,movement)
 	_pending_routes.erase(actor_id)
 	_route_checks.erase(actor_id)
 	_route_failures.erase(actor_id)
@@ -152,6 +168,7 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 	_accepted_sweeps.clear()
 	_phase_owners.clear()
 	space._ensure_actor_index(world)
+	space._sync_convoys(world)
 	space.release_adaptations(world)
 	_movement_reservations = space.reservation_view(world)
 	HospitalTransit.advance(space,world)
@@ -172,6 +189,9 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 			_replan_goal(world,movement)
 		if actor.location.kind == "transit" or movement.get("route_pending",false):
 			continue
+		# Final portal egress already spent this frame's leader walking budget.
+		# Publishing a floor location does not grant a second movement attempt.
+		if _accepted_sweeps.has(actor_id): continue
 		if not _active_route_clear(world,actor,movement,floor_versions):
 			if int(movement.cursor)<movement.path.size() and movement.path[int(movement.cursor)].kind=="support_exit":
 				movement.waiting_reason = "等待支撑设施离位通路恢复"
@@ -188,6 +208,7 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 				_queue_route(world,movement)
 				continue
 			world.facts.moves.erase(actor_id)
+			if movement.has("convoy"): space._end_convoy(world,movement)
 			_route_failures.erase(actor_id)
 			if space.public_areas!=null: space.public_areas.changed(world)
 			continue
@@ -209,6 +230,7 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 	_movement_reservations = {}
 
 func _move_step(world: WorldState, actor: Dictionary, movement: Dictionary, segment: Dictionary) -> MotionResult:
+	if movement.has("convoy"): return _move_convoy(world,actor,movement,segment)
 	var result: MotionResult = MotionResult.new()
 	var target: Vector2 = Vector2(float(segment.cell[0]),float(segment.cell[1]))
 	var start: Vector2 = Vector2(float(actor.location.cell[0]),float(actor.location.cell[1]))
@@ -300,6 +322,7 @@ func _replan_goal(world: WorldState, movement: Dictionary, preserve_order: bool 
 		_schedule_route(world,movement)
 
 func _active_route_clear(world: WorldState, actor: Dictionary, movement: Dictionary, versions: Dictionary) -> bool:
+	if movement.has("convoy"): return _active_convoy_route_clear(world,actor,movement)
 	space.query_counts.route_checks += 1
 	var sequence: int = int(movement.get("request_sequence",0))
 	var record: Dictionary = _route_checks.get(actor.id,{})
@@ -432,7 +455,9 @@ func _dispatch_routes(world: WorldState, present_at_start: int) -> void:
 		var floor_id: int = int(movement.target_floor) if waypoint.is_empty() else int(waypoint.floor_id)
 		var cell: Array = movement.target_cell if waypoint.is_empty() else waypoint.cell
 		var quote: Dictionary
-		if waypoint.is_empty():
+		if not waypoint.is_empty() and movement.has("convoy"):
+			quote = space.navigation.convoy_local_route(world,movement,floor_id,cell)
+		elif waypoint.is_empty():
 			quote = space.route(world,id,floor_id,cell,movement.get("members",[]),movement.get("offsets",{}))
 		else:
 			var actor: Dictionary = world.facts.actors[id]
@@ -507,6 +532,14 @@ func _local_goal_occupied(world: WorldState, actor: Dictionary, movement: Dictio
 	var target: Dictionary = movement.path[end]
 	if target.kind!="floor" or int(target.floor_id)!=floor_id: return false
 	var origin: Vector2 = Vector2(float(target.cell[0]),float(target.cell[1]))
+	if movement.has("convoy"):
+		# The leader's fixed proxy is required at the destination on every
+		# approach. Followers have path-derived positions, not fixed offsets.
+		var rectangle: Rect2 = Rect2(origin+Vector2.ONE*float(movement.convoy.shift),Vector2.ONE*int(movement.convoy.size))
+		if space._actor_index.intersects(floor_id,rectangle,actor.id,movement.members):
+			space.query_counts["local_goal_occupied_waits"] = int(space.query_counts.get("local_goal_occupied_waits",0))+1
+			return true
+		return false
 	var members: Array = [actor.id]
 	for id: String in movement.get("members",[]):
 		if id!=actor.id: members.append(id)
@@ -573,11 +606,17 @@ func _movement_contacts(world: WorldState, actor_id: String, floor_id: int, broa
 	# gives active units priority over idle staff, even if the latter sorts first.
 	for id: String in ids:
 		var other: BodyIndex.Record = _accepted_sweeps.get(id)
-		var other_from: Rect2 = space._actor_index.rectangle(id) if other==null else other.sweep_from
+		var current: BodyIndex.Record = space._actor_index._records.get(id)
+		var other_from: Rect2 = current.rect if other==null else other.sweep_from
 		var other_to: Rect2 = other_from if other==null else other.sweep_to
+		var compound: Array[Rect2] = other.regions if other!=null and not other.regions.is_empty() else (current.regions if current!=null else [])
 		for sweep: BodyIndex.Record in sweeps:
-			var envelope: Rect2 = sweep.sweep_from.merge(sweep.sweep_to)
-			if envelope.intersects(other_from.merge(other_to),false) and BodySweep.intersects(sweep.sweep_from,sweep.sweep_to,other_from,other_to):
+			var hit: bool = false
+			if compound.is_empty(): hit = BodySweep.intersects(sweep.sweep_from,sweep.sweep_to,other_from,other_to)
+			else:
+				for region: Rect2 in compound:
+					if BodySweep.intersects(sweep.sweep_from,sweep.sweep_to,region,region): hit = true;break
+			if hit:
 				result.blocker_actor_ids.append(id)
 				break
 	for region: Dictionary in reservations:
@@ -592,29 +631,31 @@ func _movement_contacts(world: WorldState, actor_id: String, floor_id: int, broa
 
 func _reserve_doors(world: WorldState, actor: Dictionary, movement: Dictionary, swept: Rect2, doors: Array[Dictionary], result: MotionResult) -> bool:
 	var floor_id: int = int(actor.location.floor_id)
+	var staged: Dictionary = {}
+	var members: Array = movement.get("members",[actor.id])
 	for door: Dictionary in doors:
 		var span: int = space._door_span(actor,door)
-		for id: String in movement.get("members",[]): span = maxi(span,space._door_span(world.facts.actors[id],door))
-		if not swept.intersects(space._door_rect(door,span),false):
-			continue
-		var quote: Dictionary = space.door_quote(world,actor,floor_id,door,movement.get("members",[]))
-		if not quote.ok or not swept.intersects(space._door_rect(door,int(quote.span)),false):
-			continue
+		if not swept.intersects(space._door_rect(door,span),false): continue
+		var quote: Dictionary = space.door_quote(world,actor,floor_id,door,[])
+		if not quote.ok:
+			result.door_id = str(door.id)
+			return false
 		var current: Dictionary = world.facts.adaptations.get(door.id,{})
 		if not current.is_empty() and current.actor_id!=actor.id:
 			result.door_id = str(door.id)
 			result.reservation_ids.append(str(door.id))
 			return false
 		var rect: Rect2 = space._door_rect(door,int(quote.span))
-		var members: Array = movement.get("members",[actor.id])
 		if not space._dynamic_clear(world,actor.id,floor_id,rect,members):
 			result.door_id = str(door.id)
 			return false
-		var reservation: Dictionary = {"kind":"door","owner_id":actor.id,"actor_id":actor.id,"staff_ids":members,"floor_id":floor_id,
-			"span":quote.span,"clear_height_m":quote.clear_height_m,"clear_width_m":quote.clear_width_m,"regions":[[rect.position.x,rect.position.y,rect.size.x,rect.size.y]]}
-		if current!=reservation:
-			world.facts.adaptations[door.id] = reservation
-			space.reservation_changed(world,str(door.id))
+		var reservation: Dictionary = {"kind":"door","owner_id":actor.id,"actor_id":actor.id,"staff_ids":members,"floor_id":floor_id,"span":quote.span,"clear_height_m":quote.clear_height_m,"clear_width_m":quote.clear_width_m,"regions":[[rect.position.x,rect.position.y,rect.size.x,rect.size.y]]}
+		if movement.has("convoy"): reservation.convoy_envelope = {"size":movement.convoy.size,"height":movement.convoy.height}
+		staged[door.id] = reservation
+	for id: String in staged:
+		if world.facts.adaptations.get(id,{})!=staged[id]:
+			world.facts.adaptations[id] = staged[id]
+			space.reservation_changed(world,id)
 	return true
 
 func _mark_door_use(world: WorldState, floor_id: int, swept: Rect2, doors: Array[Dictionary]) -> void:
@@ -643,14 +684,24 @@ func _route_occupancy(world: WorldState, actor: Dictionary, movement: Dictionary
 	# A pending/local route may temporarily have no remaining cells. Its real
 	# destination still cannot serve as the other body's waiting retreat.
 	if int(movement.target_floor)==floor_id:
-		result.update("goal",floor_id,space._unit_rect(world,actor,Vector2(float(movement.target_cell[0]),float(movement.target_cell[1])),movement.get("members",[]),movement.get("offsets",{})))
+		result.update("goal",floor_id,_route_occupancy_rect(world,actor,movement,movement.target_cell))
 	for index: int in range(int(movement.cursor),movement.path.size()):
 		var segment: Dictionary = movement.path[index]
 		if segment.kind=="floor" and int(segment.floor_id)==floor_id:
-			result.update(str(index),floor_id,space._unit_rect(world,actor,Vector2(float(segment.cell[0]),float(segment.cell[1])),movement.get("members",[]),movement.get("offsets",{})))
+			result.update(str(index),floor_id,_route_occupancy_rect(world,actor,movement,segment.cell))
 	return result
 
+func _route_occupancy_rect(world: WorldState, actor: Dictionary, movement: Dictionary, cell: Array) -> Rect2:
+	if movement.has("convoy"):
+		return Rect2(ConvoyTrail.point(cell)+Vector2.ONE*float(movement.convoy.shift),Vector2.ONE*int(movement.convoy.size))
+	return space._actor_rect(actor,ConvoyTrail.point(cell))
+
 func _yield(world: WorldState, actor: Dictionary, movement: Dictionary, result: MotionResult) -> void:
+	if movement.has("convoy"):
+		if not _local_goal_occupied(world,actor,movement,result):
+			_queue_local_route(world,actor,movement)
+			movement.waiting_reason = "队列寻找不穿过队尾的通路"
+		return
 	if movement.yielding or movement.travelled.is_empty():
 		return
 	space.query_counts.yield_attempts += 1
@@ -832,3 +883,155 @@ func _has_priority(world: WorldState, first_id: String, second_id: String) -> bo
 	if int(first.blocked_since)!=int(second.blocked_since):
 		return int(first.blocked_since)<int(second.blocked_since)
 	return first_id<second_id
+
+func _move_convoy(world: WorldState, actor: Dictionary, movement: Dictionary, segment: Dictionary) -> MotionResult:
+	var result: MotionResult=MotionResult.new()
+	var target: Vector2=ConvoyTrail.point(segment.cell)
+	var start: Vector2=ConvoyTrail.point(actor.location.cell)
+	var speed: float=space.walking_speed(world.facts.actors[movement.actor_id])
+	var next: Vector2=start.move_toward(target,speed*WorldState.TICK_SECONDS)
+	if next.distance_to(target)<0.001: next=target
+	result.requested_motion=next-start
+	space.query_counts["convoy_leader_checks"]=int(space.query_counts.get("convoy_leader_checks",0))+1
+	var proposal: Dictionary=ConvoyTrail.propose(movement.convoy,next)
+	if not proposal.ok:
+		movement.waiting_reason=proposal.reason
+		_queue_local_route(world,actor,movement)
+		return result
+	var proxy: Dictionary=ConvoyTrail.proxy(world,movement)
+	var shift: Vector2=Vector2.ONE*float(movement.convoy.shift)
+	var query: RouteClearance=space.navigation.structural_clearance(world,proxy,int(actor.location.floor_id))
+	var reason: String=query.sweep_reason(start+shift,next+shift)
+	if not reason.is_empty(): movement.waiting_reason=reason;return result
+	var sweep: BodyIndex.Record=BodyIndex.Record.new()
+	sweep.id=actor.id;sweep.sweep_from=Rect2(start+shift,Vector2.ONE*int(movement.convoy.size));sweep.sweep_to=Rect2(next+shift,Vector2.ONE*int(movement.convoy.size))
+	var sweeps: Array[BodyIndex.Record]=[sweep]
+	var doors: Array[Dictionary]=space.movement_doors(world,proxy,proposal.front,[])
+	_movement_contacts(world,actor.id,int(actor.location.floor_id),proposal.front,sweeps,movement.members,result)
+	if result.blocked: return result
+	if not _reserve_doors(world,proxy,movement,proposal.front,doors,result): return result
+	movement.convoy.points=proposal.points
+	var poses: Dictionary=ConvoyTrail.positions(movement.convoy,movement.members)
+	# O(member count) publication only; no member route/collision permissions.
+	for id: String in movement.members:
+		world.facts.actors[id].location.cell=poses[id].cell
+		world.facts.actors[id].facing=poses[id].facing
+		space._sync_actor(world,id)
+	space._sync_convoy(world,movement)
+	sweep.regions=proposal.history
+	_accepted_sweeps[actor.id]=sweep
+	_sweep_index.update_compound(actor.id,int(actor.location.floor_id),proposal.history)
+	_mark_door_use(world,int(actor.location.floor_id),proposal.front,doors)
+	result.actual_motion=next-start
+	movement.blocked_since=-1
+	movement.erase("waiting_reason")
+	if next.is_equal_approx(target):
+		movement.travelled.append({"kind":"floor","floor_id":actor.location.floor_id,"cell":segment.cell.duplicate()})
+		movement.cursor+=1
+	return result
+
+# A portal frame is one atomic compound leader trajectory. Half-size proof
+# milestones may split it, but never discard the remaining walking budget.
+func _move_convoy_portal(world: WorldState, actor: Dictionary, movement: Dictionary, targets: Array, floor_id: int, connector_id: String) -> MotionResult:
+	var result: MotionResult=MotionResult.new()
+	var start: Vector2=ConvoyTrail.point(movement.convoy.points[-1])
+	space.query_counts["convoy_leader_checks"]=int(space.query_counts.get("convoy_leader_checks",0))+1
+	space.query_counts["convoy_portal_proposals"]=int(space.query_counts.get("convoy_portal_proposals",0))+1
+	var proposal: Dictionary=ConvoyPortal.propose_step(movement.convoy,targets,int(movement.convoy.portal.cursor),space.walking_speed(world.facts.actors[movement.actor_id])*WorldState.TICK_SECONDS)
+	if not proposal.ok: movement.waiting_reason=proposal.reason;return result
+	space.query_counts["convoy_portal_subsegments"]=int(space.query_counts.get("convoy_portal_subsegments",0))+int(proposal.segment_count)
+	var next: Vector2=ConvoyTrail.point(proposal.points[-1])
+	result.requested_motion=next-start
+	var proxy: Dictionary=ConvoyTrail.proxy(world,movement)
+	var shift: Vector2=Vector2.ONE*float(movement.convoy.shift)
+	proxy.location={"kind":"floor","floor_id":floor_id,"cell":[start.x+shift.x,start.y+shift.y]}
+	var source: Dictionary=space._navigation.floor_source(space,world,floor_id).duplicate()
+	source.connectors=source.connectors.duplicate()
+	source.connectors.erase(connector_id)
+	var query: RouteClearance=RouteClearance.new(space,world,proxy,floor_id,[],{},false,source)
+	for index: int in range(1,proposal.path.size()):
+		var reason: String=query.sweep_reason(ConvoyTrail.point(proposal.path[index-1])+shift,ConvoyTrail.point(proposal.path[index])+shift)
+		if not reason.is_empty(): movement.waiting_reason=reason;return result
+	# A static swept-front region for each piece is conservative for the whole
+	# frame. Comparing each piece as a separate full-speed frame would mistime
+	# ordinary actors' accepted sweeps and could miss a contact at a corner.
+	var sweeps: Array[BodyIndex.Record]=[]
+	for front: Rect2 in proposal.fronts:
+		var piece: BodyIndex.Record=BodyIndex.Record.new()
+		piece.id=actor.id;piece.sweep_from=front;piece.sweep_to=front
+		sweeps.append(piece)
+	_movement_contacts(world,actor.id,floor_id,proposal.front,sweeps,movement.members,result)
+	if result.blocked: movement.waiting_reason="队列登离舱前端受阻，保持当前连接所有权";return result
+	var doors: Array[Dictionary]=[]
+	var seen: Dictionary={}
+	for front: Rect2 in proposal.fronts:
+		for door: Dictionary in space.movement_doors(world,proxy,front,[],floor_id):
+			if seen.has(door.id) or not front.intersects(space._door_rect(door,space._door_span(proxy,door)),false): continue
+			var quote: Dictionary=space.door_quote(world,proxy,floor_id,door,[])
+			if not quote.ok or not front.intersects(space._door_rect(door,int(quote.span)),false): continue
+			seen[door.id]=true
+			doors.append(door)
+	# _reserve_doors stages every reservation before committing any of them.
+	if not _reserve_doors(world,proxy,movement,proposal.front,doors,result): return result
+	movement.convoy.points=proposal.points
+	movement.convoy.portal.cursor=int(proposal.cursor)
+	var poses: Dictionary = ConvoyTrail.positions(movement.convoy,movement.members)
+	for id: String in movement.members:
+		world.facts.actors[id].location.queue_cell = poses[id].cell
+		world.facts.actors[id].facing = poses[id].facing
+		space._sync_actor(world,id)
+	space._sync_convoy(world,movement)
+	var sweep: BodyIndex.Record = BodyIndex.Record.new()
+	sweep.id = actor.id
+	sweep.regions = proposal.history
+	_accepted_sweeps[actor.id] = sweep
+	_sweep_index.update_compound(actor.id,floor_id,proposal.history)
+	_mark_door_use(world,floor_id,proposal.front,doors)
+	result.actual_motion = next-start
+	movement.blocked_since = -1
+	movement.erase("waiting_reason")
+	return result
+
+func _active_convoy_route_clear(world: WorldState, actor: Dictionary, movement: Dictionary) -> bool:
+	var sequence: int = int(movement.get("request_sequence",0))
+	var record: Dictionary = _route_checks.get(actor.id,{})
+	var floor_versions: Dictionary = {}
+	var connection_basis: Array = space.navigation.connection_basis(world)
+	if int(record.get("sequence",-1))==sequence:
+		var unchanged: bool = record.get("connections",[])==connection_basis
+		for floor_key: int in record.get("floors",{}):
+			floor_versions[floor_key] = space._navigation.floor_static_version(space,world,floor_key)
+			if floor_versions[floor_key]!=record.floors[floor_key]: unchanged = false
+		if unchanged: return true
+	var proxy: Dictionary = ConvoyTrail.proxy(world,movement)
+	var shift: Vector2 = Vector2.ONE*float(movement.convoy.shift)
+	var floor_id: int = int(actor.location.floor_id)
+	var current: Vector2 = ConvoyTrail.point(actor.location.cell)+shift
+	var query: RouteClearance = space.navigation.structural_clearance(world,proxy,floor_id)
+	for segment: Dictionary in movement.path.slice(int(movement.cursor)):
+		if segment.kind=="connector":
+			var connection: Dictionary = world.facts.connectors.get(segment.connector_id,{})
+			if connection.is_empty() or not HospitalTransit.fits(space,world,connection,actor.id,movement.members).ok: return false
+			floor_id = int(segment.to)
+			var p: Dictionary = ConvoyPortal.plan(space,world,connection,actor.id,movement.members,movement.convoy)
+			current = ConvoyTrail.point(p.egress)+shift if p.get("ok",false) else ConvoyTrail.point(connection.anchor)+shift
+			query = space.navigation.structural_clearance(world,proxy,floor_id)
+		else:
+			var target: Vector2 = ConvoyTrail.point(segment.cell)+shift
+			if int(segment.floor_id)!=floor_id or not query.sweep_reason(current,target).is_empty(): return false
+			current = target
+	for segment: Dictionary in movement.path.slice(int(movement.cursor)):
+		if segment.kind=="floor": floor_versions[int(segment.floor_id)] = space._navigation.floor_static_version(space,world,int(segment.floor_id))
+	_route_checks[actor.id] = {"floors":floor_versions,"connections":connection_basis,"sequence":sequence}
+	return true
+
+# A rejected destination cannot change a journey, ticket, or ownership.
+# Only static geometry defines admission; temporary people and the queue's
+# present tail may occupy a valid future destination.
+func _convoy_goal_reason(world: WorldState, movement: Dictionary, floor_id: int, target: Array) -> String:
+	if floor_id<1 or not ConvoyTrail._finite_point(target): return "队列目标楼层或坐标无效"
+	var goal: Vector2 = ConvoyTrail.point(target)
+	if goal.x<0.0 or goal.y<0.0 or goal.x>=FloorNavigation.SIDE or goal.y>=FloorNavigation.SIDE: return "队列目标超出楼层范围"
+	var proxy: Dictionary = ConvoyTrail.proxy(world,movement)
+	var origin: Vector2 = goal+Vector2.ONE*float(movement.convoy.shift)
+	return space.navigation.structural_clearance(world,proxy,floor_id).sweep_reason(origin,origin)

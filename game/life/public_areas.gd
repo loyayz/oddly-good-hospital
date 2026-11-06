@@ -128,7 +128,7 @@ func remember_wait(world: WorldState, intent: Dictionary, definitions: Array, me
 	# Keep one proof per shared resource. Individual unchanged waiters retain
 	# only their request and reverse subscriptions, not another full signature.
 	var observed: Dictionary = {"resources":{},"bounds":[]}
-	_capture_wait_signature(world,intent,definitions,members,extra,floors,observed)
+	_capture_wait_signature(world,intent,definitions,members,extra,floors,observed,false)
 	space.query_counts["public_wait_dependency_captures"] = int(space.query_counts.get("public_wait_dependency_captures",0))+1
 	if _wait_dependencies.waiters.is_empty():
 		_wait_dependencies.observe_actors(space._actor_index)
@@ -206,18 +206,21 @@ func _facility_environment(world: WorldState) -> Dictionary:
 func _decision_signature(world: WorldState, intent: Dictionary, definitions: Array, members: Array, extra: Dictionary, route_floors: Array = []) -> Array:
 	return _capture_wait_signature(world,intent,definitions,members,extra,route_floors,{})
 
-func _capture_wait_signature(world: WorldState, intent: Dictionary, definitions: Array, members: Array, extra: Dictionary, route_floors: Array, observed: Dictionary) -> Array:
+func _capture_wait_signature(world: WorldState, intent: Dictionary, definitions: Array, members: Array, extra: Dictionary, route_floors: Array, observed: Dictionary, collect_signature: bool = true) -> Array:
+	# Dependency subscriptions do not consume the legacy diagnostic signature.
+	# Keep its ordered output available without building a second set of body
+	# and queue records during production negative-result capture.
 	var view: Dictionary = _decision_view(world)
 	var ids: Array = [str(intent.actor_id)] if members.is_empty() else members
 	var bodies: Array = []
 	for id: String in ids:
 		var actor: Dictionary = world.facts.actors[id]
-		bodies.append([id,space.body(actor),actor.location,actor.get("posture","standing"),actor.get("facing",0.0)])
+		if collect_signature: bodies.append([id,space.body(actor),actor.location,actor.get("posture","standing"),actor.get("facing",0.0)])
 		_watch_wait(observed,"actor",id,_wait_actor_value(world,id))
 	var reference: Dictionary = intent.get("area",{})
 	var room: Dictionary = world.facts.rooms.get(reference.get("room_id",""),{})
-	var records: Array = [reference,room.get("kind",room.get("type","")),room.get("origin",[]),room.get("size",[]),room.get("wall_edges",[]),definitions,bodies,extra,intent.get("mode","auto"),intent.get("manual_facility_id",""),intent.get("arrived_tick",-1),intent.get("started_tick",-1),intent.has("ticket_id"),"R15" in world.facts.research]
-	records.append(space.navigation.connection_basis(world))
+	var records: Array = [reference,room.get("kind",room.get("type","")),room.get("origin",[]),room.get("size",[]),room.get("wall_edges",[]),definitions,bodies,extra,intent.get("mode","auto"),intent.get("manual_facility_id",""),intent.get("arrived_tick",-1),intent.get("started_tick",-1),intent.has("ticket_id"),"R15" in world.facts.research] if collect_signature else []
+	if collect_signature: records.append(space.navigation.connection_basis(world))
 	_watch_wait(observed,"control","",[space.navigation.connection_basis(world),"R15" in world.facts.research])
 	var points: Array = []
 	var observed_points: Dictionary = {}
@@ -225,7 +228,7 @@ func _capture_wait_signature(world: WorldState, intent: Dictionary, definitions:
 	var reservations: Dictionary = {}
 	space._ensure_actor_index(world)
 	var area: Dictionary = region(world,reference)
-	records.append(area.get("geometry",""))
+	if collect_signature: records.append(area.get("geometry",""))
 	_watch_wait(observed,"area",JSON.stringify(reference,"",true,true),_wait_area_value(world,reference),{"area":reference})
 	var route_dependent: bool = intent.public_purpose=="rest" or definitions.is_empty()
 	for number: int in _facility_members(area,definitions):
@@ -235,7 +238,7 @@ func _capture_wait_signature(world: WorldState, intent: Dictionary, definitions:
 		var reservation: Dictionary = world.facts.get("staff_life",{}).get("reservations",{}).get(facility_id,{})
 		var adaptation: Dictionary = world.facts.adaptations.get(facility_id,{})
 		var facility_basis: Array = _wait_facility_value(world,view,facility_id)
-		records.append(facility_basis)
+		if collect_signature: records.append(facility_basis)
 		_watch_wait(observed,"facility",facility_id,facility_basis+[view.visitor_seats.has(facility_id)])
 		var occupied: bool = false
 		for owner: String in users:
@@ -272,9 +275,9 @@ func _capture_wait_signature(world: WorldState, intent: Dictionary, definitions:
 		var versions: Array = []
 		for floor_id: int in route_floors:
 			var version: int = space._navigation.floor_static_version(space,world,floor_id)
-			versions.append([floor_id,version])
+			if collect_signature: versions.append([floor_id,version])
 			_watch_wait(observed,"floor",str(floor_id),[version])
-		records.append([versions,space.navigation.routing_floor_basis(world)])
+		if collect_signature: records.append([versions,space.navigation.routing_floor_basis(world)])
 		_watch_wait(observed,"routing","",[space.navigation.routing_floor_basis(world)])
 	# Queue eligibility cannot make an occupied seat available. Its owners,
 	# reservations and adaptations are already observed above; their release
@@ -284,31 +287,32 @@ func _capture_wait_signature(world: WorldState, intent: Dictionary, definitions:
 	if route_dependent or intent.public_purpose!="seat":
 		queue = view.queues.get(JSON.stringify([intent.public_purpose,reference],"",true,true),[])
 		_watch_wait(observed,"queue",JSON.stringify([intent.public_purpose,reference],"",true,true),_wait_queue_value(world,queue),{"purpose":intent.public_purpose,"area":reference})
-	for other: Dictionary in queue:
-		if str(other.get("id",""))==str(intent.id) or int(other.get("arrived_tick",-1))<0: continue
-		if not other.get("phase","") in ["local_wait","local_travel","manual_wait"]: continue
-		var queue_bodies: Array = []
-		for id: String in other.get("staff_ids",[str(other.actor_id)]):
-			if world.facts.actors.has(id):
-				var actor: Dictionary = world.facts.actors[id]
-				queue_bodies.append([id,space.body(actor),actor.get("posture","standing"),actor.get("facing",0.0)])
-		records.append([other.id,other.arrived_tick,other.phase,other.get("facility_id",""),other.get("mode","auto"),other.get("manual_facility_id",""),queue_bodies])
+	if collect_signature:
+		for other: Dictionary in queue:
+			if str(other.get("id",""))==str(intent.id) or int(other.get("arrived_tick",-1))<0: continue
+			if not other.get("phase","") in ["local_wait","local_travel","manual_wait"]: continue
+			var queue_bodies: Array = []
+			for id: String in other.get("staff_ids",[str(other.actor_id)]):
+				if world.facts.actors.has(id):
+					var actor: Dictionary = world.facts.actors[id]
+					queue_bodies.append([id,space.body(actor),actor.get("posture","standing"),actor.get("facing",0.0)])
+			records.append([other.id,other.arrived_tick,other.phase,other.get("facility_id",""),other.get("mode","auto"),other.get("manual_facility_id",""),queue_bodies])
 	var sorted_ids: Array = other_ids.keys()
 	sorted_ids.sort()
 	for id: String in sorted_ids:
 		var other: Dictionary = world.facts.actors[id]
 		var pair: Array = [str(intent.actor_id),id]
 		pair.sort()
-		records.append([id,other.location,space.body(other),other.get("posture","standing"),other.get("facing",0.0),world.facts.moves.has(id),world.facts.get("relationships",{}).get(":".join(pair),{})])
+		if collect_signature: records.append([id,other.location,space.body(other),other.get("posture","standing"),other.get("facing",0.0),world.facts.moves.has(id),world.facts.get("relationships",{}).get(":".join(pair),{})])
 		_watch_wait(observed,"actor",id,_wait_actor_value(world,id))
 		_watch_wait(observed,"relationship",":".join(pair),[world.facts.get("relationships",{}).get(":".join(pair),{})])
 	var reservation_ids: Array = reservations.keys()
 	reservation_ids.sort()
 	for id: String in reservation_ids:
-		records.append(reservations[id])
+		if collect_signature: records.append(reservations[id])
 		_watch_wait(observed,"reservation",id,reservations[id])
 	var samples: Array = _environment_samples(view,int(reference.get("floor_id",-1)),points)
-	records.append_array(samples)
+	if collect_signature: records.append_array(samples)
 	_watch_wait(observed,"environment",JSON.stringify([reference.get("floor_id",-1),points]),samples,{"floor":int(reference.get("floor_id",-1)),"points":points})
 	return records
 
@@ -832,25 +836,28 @@ func _waiting_point(world: WorldState, actor_id: String, reference: Dictionary, 
 	var ordered: Dictionary = _entry_order(actor,origin,bounds,geometry,maximum_travel_ticks)
 	var packed: PackedInt64Array = ordered.packed
 	var fallback: Array = ordered.fallback
+	var compact: bool = ordered.compact
+	var entry_count: int = packed.size() if compact else fallback.size()
+	if entry_count==0: return {}
 	var best: Dictionary = {}
 	var field: Dictionary = {}
 	var full_quotes: int = 0
 	var next_field_check: int = 0
-	for index: int in (packed.size() if ordered.compact else fallback.size()):
+	var offset_ticks: int = int(ordered.get("offset_ticks",0))
+	for index: int in entry_count:
 		var lower: int
 		var point: Vector2i
-		if ordered.compact:
+		if compact:
 			var key: int = packed[index]
 			var cell_id: int = key%ENTRY_CELL_COUNT
-			lower = key/ENTRY_CELL_COUNT+int(ordered.get("offset_ticks",0))
+			lower = key/ENTRY_CELL_COUNT+offset_ticks
 			point = Vector2i(cell_id%ENTRY_GRID_WIDTH,cell_id/ENTRY_GRID_WIDTH)
 		else:
 			lower = int(fallback[index].lower)
 			point = fallback[index].cell
 		if lower>maximum_travel_ticks: break
 		if not best.is_empty() and lower>int(best.travel_ticks): break
-		var cell: Array = [point.x,point.y]
-		if not safe_wait(world,actor_id,floor_id,cell,geometry): continue
+		if not _safe_wait_at(world,actor_id,floor_id,point,Vector2(point),actor,geometry): continue
 		if field.is_empty() and full_quotes>=next_field_check:
 			field = space.navigation.ready_waiting_cost_field(world,actor_id,floor_id,bounds)
 			next_field_check = full_quotes+12
@@ -868,9 +875,9 @@ func _waiting_point(world: WorldState, actor_id: String, reference: Dictionary, 
 			full_quotes += 1
 			if not leg.is_empty(): travel_ticks = int(leg.travel_ticks)
 			else:
-				var route: Dictionary = space.travel_quote(world,actor_id,floor_id,cell)
+				var route: Dictionary = space.travel_quote(world,actor_id,floor_id,[point.x,point.y])
 				if route.ok and route.has("travel_ticks"): travel_ticks = int(route.travel_ticks)
-		if travel_ticks>=0 and travel_ticks<=maximum_travel_ticks and (best.is_empty() or travel_ticks<int(best.travel_ticks)): best = {"floor_id":floor_id,"cell":cell,"travel_ticks":travel_ticks}
+		if travel_ticks>=0 and travel_ticks<=maximum_travel_ticks and (best.is_empty() or travel_ticks<int(best.travel_ticks)): best = {"floor_id":floor_id,"cell":[point.x,point.y],"travel_ticks":travel_ticks}
 	return best
 
 func _entry_order(actor: Dictionary, origin: Vector2, bounds: Dictionary, geometry: Dictionary, maximum_travel_ticks: int) -> Dictionary:
@@ -1027,6 +1034,18 @@ func safe_wait(world: WorldState, actor_id: String, floor_id: int, cell: Array, 
 		var area: Dictionary = _cell_region(floor_id,point)
 		if area.is_empty(): return false
 		geometry = _entry_geometry_view(world,actor,area)
+	if not geometry.points.has(origin): geometry.points[origin] = _safe_wait_geometry(world,actor,floor_id,origin,geometry.geometry,geometry.get("doors",{}))
+	if not geometry.points[origin]: return false
+	var current: Dictionary = space.read_view(world,"public_wait_clearance:"+actor_id+":"+str(floor_id),func()->Dictionary:
+		return {"query":RouteClearance.new(space,world,actor,floor_id,[],{},true,space._navigation.floor_source(space,world,floor_id),geometry.geometry)})
+	if not (current.query as RouteClearance).reservation_reason(point).is_empty(): return false
+	return space._dynamic_clear(world,actor_id,floor_id,space._actor_rect(actor,origin))
+
+# Integer entry candidates only: region() already ensured this floor, and actor
+# and geometry belong to the same synchronous read-only scan. Keep the public
+# fractional-cell entry unchanged. The safety tail is intentionally identical;
+# tests/native/entry_safety.py guards it against diverging permission checks.
+func _safe_wait_at(world: WorldState, actor_id: String, floor_id: int, point: Vector2i, origin: Vector2, actor: Dictionary, geometry: Dictionary) -> bool:
 	if not geometry.points.has(origin): geometry.points[origin] = _safe_wait_geometry(world,actor,floor_id,origin,geometry.geometry,geometry.get("doors",{}))
 	if not geometry.points[origin]: return false
 	var current: Dictionary = space.read_view(world,"public_wait_clearance:"+actor_id+":"+str(floor_id),func()->Dictionary:
@@ -1215,12 +1234,14 @@ func _facility_queue(world: WorldState, purpose: String, facility_id: String) ->
 	return view.facilities[key]
 
 func turn(world: WorldState, intent: Dictionary, facility_id: String) -> bool:
+	# Waiting chairs have no arrival-ticket priority. Only actual occupancy
+	# and the final fit check decide who can sit; service queues keep FIFO.
+	if intent.public_purpose=="seat": return true
 	for row: Dictionary in _facility_queue(world,str(intent.public_purpose),facility_id):
 		var other: Dictionary = row.intent
 		if is_same(other,intent): continue
 		var before: bool = int(other.arrived_tick)<int(intent.arrived_tick) or int(other.arrived_tick)==int(intent.arrived_tick) and str(other.id)<str(intent.id)
 		if int(intent.get("arrived_tick",-1))<0: before = true
-		if intent.public_purpose=="seat" and intent.has("ticket_id")!=other.has("ticket_id"): before = other.has("ticket_id")
 		if not before: continue
 		var ids: Array = other.get("staff_ids",[str(other.actor_id)])
 		if ids.is_empty(): continue

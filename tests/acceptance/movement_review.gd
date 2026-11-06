@@ -218,32 +218,52 @@ func _door_layers(suite: RefCounted) -> Dictionary:
 
 func _group_door(suite: RefCounted) -> Dictionary:
 	var sim: HospitalSimulation = suite._fixture()
-	var built: CommandResult = suite._command(sim,"build_room",suite._room("group_door_room",[42,68],[14,10]))
+	var land: CommandResult = suite._command(sim,"build_land",{"plot":[1,1],"floor_id":1})
+	if not land.accepted:
+		sim.dispose()
+		return {"ok":false,"land":land.to_record()}
+	var built: CommandResult = suite._command(sim,"build_room",suite._room("group_door_room",[42,62],[18,16]))
 	if not built.accepted:
 		sim.dispose()
 		return {"ok":false,"room":built.to_record()}
-	suite._add_actor(sim,"small_leader","S49",[43,80])
-	suite._add_actor(sim,"large_follower","S59",[43,83])
+	# S59 needs a five-cell turning proxy: ceil(hypot(3.4,3.2)/1.5),
+	# widened to share the one-cell leader's center. Its tail starts ten cells
+	# behind, with the large body's cell origin centered one cell to the left.
+	suite._add_actor(sim,"small_leader","S49",[45,81])
+	suite._add_actor(sim,"large_follower","S59",[44,90])
 	var members: Array = ["small_leader","large_follower"]
-	var offsets: Dictionary = {"small_leader":[0,0],"large_follower":[0,3]}
 	var door: Dictionary = suite._doors(sim.world,"group_door_room")[0]
-	var quote: Dictionary = sim.space.door_quote(sim.world,sim.world.facts.actors.small_leader,1,door,members)
-	# S59 is 3.4m wide, 3.2m deep and 6.2m high; the required door adds
-	# 0.1m clearance, yielding a three-cell opening with 3.5m/6.3m clearance.
-	var fit: bool = quote.get("ok",false) and int(quote.get("span",0))==3 and float(quote.get("clear_width_m",0))>=3.5-0.00001 and float(quote.get("clear_height_m",0))>=6.3-0.00001
-	var requested: String = sim.space.movement.request_group_move(sim.world,"small_leader",members,offsets,1,[43,72])
+	var formed: Dictionary = ConvoyTrail.create(sim.space,sim.world,"small_leader",members)
+	if not formed.ok:
+		sim.dispose()
+		return {"ok":false,"formation_error":formed.reason}
+	var proxy: Dictionary = ConvoyTrail.proxy(sim.world,{"actor_id":"small_leader","members":members,"convoy":formed.convoy})
+	var before_quote: Dictionary = sim.world.freeze()
+	var quote: Dictionary = sim.space.door_quote(sim.world,proxy,1,door)
+	# Five cells are 7.5m; the safety margin needs a six-cell opening.
+	var fit: bool = quote.get("ok",false) and int(quote.get("span",0))==6 and float(quote.get("clear_width_m",0))>=7.6-0.00001 and float(quote.get("clear_height_m",0))>=6.3-0.00001
+	var readonly: bool = before_quote==sim.world.freeze()
+	var requested: String = sim.space.movement.request_group_move(sim.world,"small_leader",members,{},1,[45,65])
 	var seen: bool = false
 	var actual_fit: bool = true
-	for tick: int in 400:
+	var tail_holds: bool = true
+	for tick: int in 800:
 		var reservation: Dictionary = sim.world.facts.adaptations.get(door.id,{})
+		var move: Dictionary = sim.world.facts.moves.get("small_leader",{})
 		if not reservation.is_empty():
 			seen = true
-			actual_fit = actual_fit and int(reservation.span)==3 and float(reservation.clear_width_m)>=3.5-0.00001 and float(reservation.clear_height_m)>=6.3-0.00001
+			actual_fit = actual_fit and int(reservation.span)==6 and float(reservation.clear_width_m)>=7.6-0.00001 and float(reservation.clear_height_m)>=6.3-0.00001
+		if seen and move.has("convoy"):
+			for region: Rect2 in ConvoyTrail.regions(move.convoy):
+				if region.intersects(sim.space._door_rect(door,6),false): tail_holds = tail_holds and not reservation.is_empty()
 		if not sim.world.facts.moves.has("small_leader"): break
 		suite._movement_tick(sim)
-	var arrived: bool = not sim.world.facts.moves.has("small_leader") and sim.space.at(sim.world,"small_leader",1,[43,72]) and sim.space.at(sim.world,"large_follower",1,[43,75])
+	var arrived: bool = not sim.world.facts.moves.has("small_leader") and sim.space.at(sim.world,"small_leader",1,[45,65]) and sim.space.at(sim.world,"large_follower",1,[44,74])
+	sim.space.release_adaptations(sim.world)
+	var released: bool = not sim.world.facts.adaptations.has(door.id)
+	var result: Dictionary = {"ok":fit and readonly and requested.is_empty() and seen and actual_fit and tail_holds and arrived and released,"group_quote":quote,"quote_readonly":readonly,"actual_expansion_seen":seen,"actual_proxy_dimensions":actual_fit,"door_held_until_tail_cleared":tail_holds,"both_members_arrived":arrived,"door_released":released,"request_error":requested,"remaining":sim.world.facts.moves.duplicate(true)}
 	sim.dispose()
-	return {"ok":fit and requested.is_empty() and seen and actual_fit and arrived,"group_quote":quote,"actual_expansion_seen":seen,"actual_group_dimensions":actual_fit,"both_members_arrived":arrived,"request_error":requested}
+	return result
 
 func _spatial() -> Dictionary:
 	var index: BodyIndex = BodyIndex.new()
@@ -269,14 +289,23 @@ func _spatial() -> Dictionary:
 	index.remove("r00")
 	var removed: bool = index.candidates(10000,Rect2(0,0,1,1)).is_empty()
 	index.begin_boundary(rectangles)
+	var empty_regions: Array[Rect2] = [Rect2(0,0,20,20),Rect2(0,0,1,1)]
+	var empty_boundary: bool = not index._has_current_records and index.candidates(1,Rect2(0,0,20,20)).is_empty() and index.candidates_in_regions(1,empty_regions).is_empty() and not index.intersects(1,Rect2(0,0,20,20),"")
 	index.update("r01",1,Rect2(0,0,1,1))
 	var boundary: bool = index.candidates(1,Rect2(0,0,1,1))==["r01"]
 	index.expire_boundary()
-	boundary = boundary and index.candidates(1,Rect2(0,0,20,20)).is_empty()
+	boundary = boundary and not index._has_current_records and index.candidates(1,Rect2(0,0,20,20)).is_empty()
+	# Same-rectangle update must reactivate a retained record before returning.
+	index.update("r01",1,Rect2(0,0,1,1))
+	var reactivated: bool = index._has_current_records and index.candidates_in_regions(1,empty_regions)==["r01"]
+	index.clear()
+	var cleared: bool = not index._has_current_records and index.candidates(1,Rect2(0,0,20,20)).is_empty()
 	var sweeps: bool = BodySweep.intersects(Rect2(0,0,1,1),Rect2(2,0,1,1),Rect2(2,0,1,1),Rect2(0,0,1,1))
 	sweeps = sweeps and not BodySweep.intersects(Rect2(0,0,1,1),Rect2(1,0,1,1),Rect2(2,0,1,1),Rect2(2,0,1,1))
 	sweeps = sweeps and BodySweep.intersects(Rect2(0,0,1,1),Rect2(0,0,2,1),Rect2(1.5,0,1,1),Rect2(1.5,0,1,1))
-	return {"ok":ok and moved and touching and ignored and removed and boundary and sweeps,"brute_force_queries_equal":ok,"floor_update":moved,"touching_legal":touching,"ignored":ignored,"removed":removed,"boundary_lifetime":boundary,"moving_and_growing_envelopes":sweeps}
+	sweeps = sweeps and not BodySweep.intersects(Rect2(0,0,1,1),Rect2(2,2,1,1),Rect2(0,2,1,1),Rect2(0,2,1,1))
+	sweeps = sweeps and BodySweep.intersects(Rect2(0,0,1,1),Rect2(0,0,0.5,1),Rect2(0.75,0,1,1),Rect2(0.75,0,1,1))
+	return {"ok":ok and moved and touching and ignored and removed and boundary and empty_boundary and reactivated and cleared and sweeps,"empty_boundary":empty_boundary,"same_rectangle_reactivated":reactivated,"cleared_generation":cleared,"brute_force_queries_equal":ok,"floor_update":moved,"touching_legal":touching,"ignored":ignored,"removed":removed,"boundary_lifetime":boundary,"moving_and_growing_envelopes":sweeps}
 
 func _quotes(suite: RefCounted) -> Dictionary:
 	var sim: HospitalSimulation = suite._transit_fixture()
@@ -339,10 +368,9 @@ func _group(suite: RefCounted, phase: String) -> Dictionary:
 			sim.dispose()
 			return failed
 	suite._add_actor(sim,"party_a","S49",[36,77] if phase=="waiting" else [40,80])
-	suite._add_actor(sim,"party_b","S49",[37,77] if phase=="waiting" else [41,80])
+	suite._add_actor(sim,"party_b","S49",[36,79] if phase=="waiting" else [40,82])
 	var members: Array = ["party_a","party_b"]
-	var offsets: Dictionary = {"party_a":[0,0],"party_b":[1,0]}
-	var requested: String = sim.space.movement.request_group_move(sim.world,"party_a",members,offsets,2,[46,84])
+	var requested: String = sim.space.movement.request_group_move(sim.world,"party_a",members,{},2,[46,84])
 	if not requested.is_empty():
 		sim.dispose()
 		return {"ok":false,"phase":phase,"request_error":requested}
@@ -352,12 +380,12 @@ func _group(suite: RefCounted, phase: String) -> Dictionary:
 			return sim.world.facts.actors.party_a.location.kind=="transit" if phase=="riding" else sim.world.facts.moves.get("party_a",{}).has("transit_ticket") and sim.world.facts.actors.party_a.location.kind=="floor" and sim.world.facts.connectors[connection_id].phase!="idle",600,suite._movement_tick.bind(sim))
 	var location: Dictionary = sim.world.facts.actors.party_a.location.duplicate(true)
 	var sequence: int = int(sim.world.facts.moves.get("party_a",{}).get("request_sequence",-1))
-	var same: String = sim.space.movement.request_group_move(sim.world,"party_a",members,offsets,2,[46,84])
+	var same: String = sim.space.movement.request_group_move(sim.world,"party_a",members,{},2,[46,84])
 	var reused: bool = int(sim.world.facts.moves.get("party_a",{}).get("request_sequence",-2))==sequence
 	var invalid_before: Dictionary = sim.world.freeze()
-	var invalid: String = sim.space.movement.request_group_move(sim.world,"party_a",members,offsets,1,[-4,-4])
+	var invalid: String = sim.space.movement.request_group_move(sim.world,"party_a",members,{},1,[-4,-4])
 	var atomic: bool = not invalid.is_empty() and invalid_before==sim.world.freeze()
-	var changed: String = sim.space.movement.request_group_move(sim.world,"party_a",members,offsets,1,[50,86])
+	var changed: String = sim.space.movement.request_group_move(sim.world,"party_a",members,{},1,[50,86])
 	var goal: bool = sim.world.facts.moves.party_a.target_floor==1 and sim.world.facts.moves.party_a.target_cell==[50,86]
 	var safe: bool = sim.world.facts.actors.party_a.location==location
 	if phase=="riding":
@@ -366,7 +394,7 @@ func _group(suite: RefCounted, phase: String) -> Dictionary:
 		sim.dispose()
 		sim = restored
 	var arrived: bool = suite._wait(sim,func()->bool:
-		return not sim.world.facts.moves.has("party_a") and sim.space.at(sim.world,"party_a",1,[50,86]) and sim.space.at(sim.world,"party_b",1,[51,86]),1400,suite._movement_tick.bind(sim))
+		return not sim.world.facts.moves.has("party_a") and sim.space.at(sim.world,"party_a",1,[50,86]) and sim.world.facts.actors.party_b.location.kind=="floor" and int(sim.world.facts.actors.party_b.location.floor_id)==1 and absf(ConvoyTrail.point(sim.world.facts.actors.party_a.location.cell).distance_to(ConvoyTrail.point(sim.world.facts.actors.party_b.location.cell))-2.0)<0.001,1400,suite._movement_tick.bind(sim))
 	var result: Dictionary = {"ok":busy_started and reached and same.is_empty() and reused and atomic and changed.is_empty() and goal and safe and arrived,"phase":phase,"earlier_passenger_actually_boarded":busy_started if phase=="waiting" else null,"boundary_reached":reached,"same_goal_reused":reused,"invalid_goal_atomic":atomic,"change_error":changed,"new_goal_retained":goal,"safe_position_retained":safe,"actual_group_arrival":arrived,"remaining":sim.world.facts.moves.duplicate(true)}
 	sim.dispose()
 	return result

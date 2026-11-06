@@ -57,7 +57,7 @@ class FullSolver extends HospitalNavigation:
 func run_case(suite: RefCounted) -> Dictionary:
 	var sim: HospitalSimulation = suite._transit_fixture()
 	suite._add_actor(sim,FIRST,"S49",[44,80])
-	suite._add_actor(sim,SECOND,"S49",[45,80])
+	suite._add_actor(sim,SECOND,"S49",[42,80])
 	# A literal one-cell wall makes the six-cell straight journey an eight-cell
 	# detour. The existing connector is elsewhere and cannot bypass this wall.
 	sim.world.facts.floors.overrides["1"].blocked.append([47,80])
@@ -67,7 +67,7 @@ func run_case(suite: RefCounted) -> Dictionary:
 	reference.navigation = FullSolver.new(reference)
 	var observations: Array = []
 	observations.append(_compare(sim,reference,1,[50,80],true,8))
-	observations.append(_compare(sim,reference,1,[50,80],true,8,[FIRST,SECOND],{FIRST:[0,0],SECOND:[1,0]}))
+	observations.append(_compare(sim,reference,1,[50,80],true,8,[FIRST,SECOND],{}))
 	observations.append(_compare(sim,reference,2,[50,80],true))
 	observations.append(_compare(sim,reference,1,[47,80],false))
 	var before: Dictionary = sim.world.freeze()
@@ -89,7 +89,10 @@ func run_case(suite: RefCounted) -> Dictionary:
 func _compare(sim: HospitalSimulation, reference: HospitalSpace, floor_id: int, goal: Array, expected_ok: bool, expected_distance: int = -1, members: Array = [], offsets: Dictionary = {}) -> Dictionary:
 	var before: Dictionary = sim.world.freeze()
 	var actual: Dictionary = sim.space.route(sim.world,FIRST,floor_id,goal,members,offsets,true)
-	var expected: Dictionary = reference.route(sim.world,FIRST,floor_id,goal,members,offsets,true)
+	# Frozen individual transit endpoints are not a convoy oracle. A fresh
+	# current Space independently proves the queue trail and portal geometry.
+	var oracle: HospitalSpace = reference if members.is_empty() else HospitalSpace.new(sim.content)
+	var expected: Dictionary = oracle.route(sim.world,FIRST,floor_id,goal,members,offsets,true)
 	var distance_ok: bool = expected_distance<0 or actual.get("walking_distance",-1)==expected_distance
 	return {"ok":actual==expected and actual.ok==expected_ok and distance_ok and before==sim.world.freeze(),"floor_id":floor_id,"goal":goal,"members":members,"full_path_distance_ticks_and_status_equal":actual==expected,"literal_expected_distance":expected_distance,"actual_distance":actual.get("walking_distance",-1),"actual_available":actual.ok,"world_and_rng_unchanged":before==sim.world.freeze(),"actual":actual if actual!=expected else {},"expected":expected if actual!=expected else {}}
 

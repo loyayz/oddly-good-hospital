@@ -129,8 +129,13 @@ func _cache_lifecycle() -> Dictionary:
 	service.begin_query(x.world)
 	var bounded: Dictionary = service._coverage_edges(x.world,1)
 	for index: int in 140: service._coverage(x.world,1,[33+index%28,65+index/28],1,false,bounded)
+	var retained_keys: Array = service._coverage_cache[1].coverage.keys()
+	for key: String in service._query.coverage[1]:
+		if not retained_keys.has(key): retained_keys.append(key)
+	retained_keys = retained_keys.slice(maxi(0,retained_keys.size()-128))
 	service.end_query()
 	checks.original_128_result_limit_kept = service._coverage_cache[1].coverage.size()==128
+	checks.original_insertion_order_eviction_kept = service._coverage_cache[1].coverage.keys()==retained_keys
 	x.world.facts.floors.height_intervals[0].last = 10
 	for floor_id: int in range(2,11): x.world.facts.floors.overrides[str(floor_id)] = {"plots":[[1,2]],"blocked":[],"doors":[],"paths":[]}
 	x.world.touch()

@@ -162,7 +162,31 @@ func _case_48(t) -> void:
 	var ticket: String = first.ticket_id
 	var wait_ticks: int = int(x.world.facts.tickets[ticket].waited_ticks)
 	var called: bool = x.l.call_patient(x.world,first.id)
-	t.check("STAFF-48",one.accepted and two.accepted and no_remote and first_seated and not second_seated and called and first.ticket_id==ticket and x.world.facts.tickets[ticket].waited_ticks==wait_ticks,{"first_seated":first_seated,"second_seated":second_seated,"no_remote_claim":no_remote,"clinical_called":called})
+	var overtaking: Dictionary = _arrival_first_seat()
+	t.check("STAFF-48",one.accepted and two.accepted and no_remote and first_seated and not second_seated and called and first.ticket_id==ticket and x.world.facts.tickets[ticket].waited_ticks==wait_ticks and overtaking.ok,{"first_seated":first_seated,"second_seated":second_seated,"no_remote_claim":no_remote,"clinical_called":called,"later_request_arrives_first":overtaking})
+
+func _arrival_first_seat() -> Dictionary:
+	var x: Dictionary = _areas()
+	var far: Dictionary = _visit(x,"a_earlier_far",[42,76])
+	var near: Dictionary = _visit(x,"z_later_near",[37,71])
+	var validation: String = x.world.validate(_content)
+	var early: CommandResult = x.l.execute(x.world,"waiting_select_seat",{"visit_id":far.id,"facility_id":"west_chair"})
+	_tick_waiting(x)
+	var late: CommandResult = x.l.execute(x.world,"waiting_select_seat",{"visit_id":near.id,"facility_id":"west_chair"})
+	var one: Dictionary = x.world.facts.waiting_life.seats.get(far.id,{})
+	var two: Dictionary = x.world.facts.waiting_life.seats.get(near.id,{})
+	var no_remote: bool = x.world.facts.adaptations.is_empty() and not HospitalWaitingLife.is_seated(x.world,far.id) and not HospitalWaitingLife.is_seated(x.world,near.id)
+	var older: bool = int(one.get("arrived_tick",-1))>=0 and int(one.get("arrived_tick",-1))<int(two.get("arrived_tick",-1))
+	var tickets: Array = [far.ticket_id,near.ticket_id]
+	var waited: Array = [x.world.facts.tickets[far.ticket_id].waited_ticks,x.world.facts.tickets[near.ticket_id].waited_ticks]
+	var winner: String = ""
+	for _tick: int in 600:
+		_tick_waiting(x)
+		if HospitalWaitingLife.is_seated(x.world,near.id): winner = near.id; break
+		if HospitalWaitingLife.is_seated(x.world,far.id): winner = far.id; break
+	var actual: bool = winner==near.id and x.space.at(x.world,near.actor_id,1,x.space.facility_layout(x.world,"west_chair").patient_cell) and not HospitalWaitingLife.is_seated(x.world,far.id)
+	var kept: bool = tickets==[far.ticket_id,near.ticket_id] and waited==[x.world.facts.tickets[far.ticket_id].waited_ticks,x.world.facts.tickets[near.ticket_id].waited_ticks]
+	return {"ok":validation.is_empty() and early.accepted and late.accepted and no_remote and older and actual and kept and x.l.validate(x.world).is_empty(),"input_validation":validation,"early_command":early.to_record(),"late_command":late.to_record(),"earlier_area_arrival":older,"no_remote_claim":no_remote,"winner":winner,"later_patient_actually_arrived_first":actual,"clinical_tickets_and_wait_kept":kept,"far_intent":one,"near_intent":two}
 
 func _case_49(t) -> void:
 	var x: Dictionary = _areas({"first":"doctor","second":"nurse"})
@@ -298,10 +322,42 @@ func _case_57(t) -> void:
 		_tick_waiting(x)
 	var patient: Dictionary = _visit(x,"priority",[40,74])
 	var request: CommandResult = x.l.execute(x.world,"waiting_select_seat",{"visit_id":patient.id,"facility_id":"west_chair"})
-	var taken: bool = _until_seated(x,patient)
+	var taken: bool = false
+	var restored: bool = false
+	var courtesy: Dictionary = {}
+	for _tick: int in 600:
+		if HospitalWaitingLife.is_seated(x.world,patient.id): taken = true; break
+		_tick_waiting(x)
+		visitor = x.c.visitors._present(x.world,owner.id)
+		if not restored and visitor.get("public_use",{}).has("yielded_seat"):
+			courtesy = _yield_courtesy_boundaries(x,visitor,patient)
+			var before: Dictionary = x.world.freeze()
+			x = _restore(x)
+			patient = x.world.facts.visits[patient.id]
+			visitor = x.c.visitors._present(x.world,owner.id)
+			restored = before==x.world.freeze() and visitor.public_use.has("yielded_seat") and x.world.validate(_content).is_empty()
 	var clear: bool = not visitor.is_empty() and not x.space.overlaps_facility(x.world,visitor.actor_id,"west_chair")
+	var final_intent: Dictionary = x.world.facts.waiting_life.seats.get(patient.id,{})
+	var manual_kept: bool = final_intent.get("mode","")=="manual" and final_intent.get("manual_facility_id","")=="west_chair"
 	var nearby_release: Dictionary = preload("res://tests/acceptance/public_yield_wait_recovery.gd").new().run_case(_content)
-	t.check("STAFF-57",admitted and seated and request.accepted and taken and clear and nearby_release.ok,{"visitor_admitted":admitted,"visitor_actually_seated":seated,"patient_request":request.to_record(),"patient_seated":taken,"visitor_actually_clear":clear,"patient_intent":x.world.facts.waiting_life.seats.get(patient.id,{}),"patient_actor":x.world.facts.actors[patient.actor_id],"visitor":visitor,"quote":x.l._seat_quote(x.world,patient,"west_chair"),"adaptations":x.world.facts.adaptations,"other_seats":x.world.facts.waiting_life.seats,"nonqueue_body_release_restarts_real_yield":nearby_release})
+	t.check("STAFF-57",admitted and seated and request.accepted and taken and clear and manual_kept and restored and courtesy.get("ok",false) and nearby_release.ok,{"visitor_admitted":admitted,"visitor_actually_seated":seated,"patient_request":request.to_record(),"patient_seated":taken,"visitor_actually_clear":clear,"manual_target_kept_through_handoff":manual_kept,"yield_courtesy_restored_before_real_handoff":restored,"courtesy_boundaries":courtesy,"patient_intent":x.world.facts.waiting_life.seats.get(patient.id,{}),"patient_actor":x.world.facts.actors[patient.actor_id],"visitor":visitor,"quote":x.l._seat_quote(x.world,patient,"west_chair"),"adaptations":x.world.facts.adaptations,"other_seats":x.world.facts.waiting_life.seats,"nonqueue_body_release_restarts_real_yield":nearby_release})
+
+func _yield_courtesy_boundaries(x: Dictionary, visitor: Dictionary, patient: Dictionary) -> Dictionary:
+	var before: Dictionary = x.world.freeze()
+	var offered: Dictionary = visitor.public_use.yielded_seat
+	var active: bool = x.c.visitors._yielded_seat(x.world,visitor.public_use)=="west_chair"
+	# Clinical cancellation is a real owner operation in an independent copy.
+	var cancelled: Dictionary = _restore(x)
+	cancelled.l.call_patient(cancelled.world,patient.id)
+	var cancelled_visitor: Dictionary = cancelled.c.visitors._present(cancelled.world,str(visitor.visit_id))
+	var released: bool = cancelled.c.visitors._yielded_seat(cancelled.world,cancelled_visitor.public_use).is_empty()
+	var malformed: WorldState = WorldState.new(before.duplicate(true))
+	malformed.facts.visitors.stays[visitor.id].public_use.yielded_seat = {"facility_id":42,"visit_id":patient.id}
+	var rejected: bool = not x.c.visitors.validate(malformed).is_empty()
+	var library: HospitalLibrary = HospitalLibrary.new(_content,null)
+	var remapped: Dictionary = library._rewrite_ids(offered,"",x.world.hospital_id,HospitalSnapshots.uuid(),{offered.facility_id:"imported_chair",offered.visit_id:"imported_patient"})
+	var ids_rewritten: bool = remapped=={"facility_id":"imported_chair","visit_id":"imported_patient"}
+	return {"ok":active and released and rejected and ids_rewritten and x.world.freeze()==before,"courtesy_is_active":active,"called_patient_releases_courtesy":released,"malformed_optional_state_rejected":rejected,"hospital_import_rewrites_target_ids":ids_rewritten,"source_unchanged":x.world.freeze()==before}
 
 func _case_58(t) -> void:
 	var x: Dictionary = _areas({"cleaner":"cleaner"})
