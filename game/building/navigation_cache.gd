@@ -73,6 +73,9 @@ func inherit_projection(space: HospitalSpace, world: WorldState, projected: Worl
 		_store_source(str(projected.get_instance_id())+":"+str(floor_id),entry)
 	if _defer_trim==0: _trim_source_payloads(int(space.content.balance.pathfinding.graph_cache_target_bytes),space.query_counts)
 
+# Source payloads are cache-owned immutable snapshots. A caller that needs a
+# hypothetical source must duplicate every container it changes. World facts,
+# entry metadata and graph proof maps are not frozen.
 # A returned record is a synchronous borrower even when the target cannot
 # retain it. No caller may require a resident _sources entry after trimming.
 func floor_source(space: HospitalSpace, world: WorldState, floor_id: int) -> Dictionary:
@@ -97,10 +100,34 @@ func _store_source(key: String, entry: Dictionary) -> void:
 	if _sources.has(key): _source_charged -= int(_sources[key].charge)
 	# Conservative allowance for both payload views, equality proof keys and
 	# record metadata. Shared containers may be charged twice, never omitted.
-	entry.charge = 2048+(var_to_bytes(entry.source).size()+var_to_bytes(entry.static_source).size())*8+entry.graphs.size()*1024
+	entry.charge = 2048+_sealed_payload_charge(entry)+entry.graphs.size()*1024
 	_sources.erase(key)
 	_sources[key] = entry
 	_source_charged += int(entry.charge)
+
+# Source records are replaced whenever either captured payload changes. Seal
+# only these owned payload trees before publishing a borrower, not arbitrary
+# hypothetical inputs or the mutable entry/graphs. The same sealed payload's
+# encoding allowance is stable; graph proofs and resident accounting are not.
+func _sealed_payload_charge(entry: Dictionary) -> int:
+	if not entry.has("payload_charge"):
+		_freeze_source_payload(entry.source)
+		_freeze_source_payload(entry.static_source)
+		entry.payload_charge = _measure_source_payloads(entry.source,entry.static_source)
+	return int(entry.payload_charge)
+
+func _measure_source_payloads(source: Dictionary, static_source: Dictionary) -> int:
+	return (var_to_bytes(source).size()+var_to_bytes(static_source).size())*8
+
+func _freeze_source_payload(value: Variant) -> void:
+	if value is Dictionary:
+		if value.is_read_only(): return
+		for child: Variant in value.values(): _freeze_source_payload(child)
+		value.make_read_only()
+	elif value is Array:
+		if value.is_read_only(): return
+		for child: Variant in value: _freeze_source_payload(child)
+		value.make_read_only()
 
 # Source acquisition can occur while a graph/query owner is borrowed by a
 # caller. Reclaim only source records here; never evict that graph mid-update.
