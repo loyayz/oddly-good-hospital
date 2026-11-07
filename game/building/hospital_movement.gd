@@ -946,7 +946,7 @@ func _detour_return_path(world: WorldState, actor: Dictionary, movement: Diction
 	# Candidate links read one unchanged actor, geometry, reservations and
 	# accepted sweeps. Exact single-body proofs live only in this synchronous
 	# search; the next attempt rebuilds. Convoys retain their full trail proof.
-	var proof: Dictionary = {"sweeps":{},"segments":{}} if not movement.has("convoy") else {}
+	var proof: Dictionary = {"sweeps":{},"segments":{},"_capture_entry":true,"_return_sample":actor.duplicate(true)} if not movement.has("convoy") else {}
 	var query: RouteClearance = null
 	for index: int in movement.detour.original_path.size():
 		var segment: Dictionary = movement.detour.original_path[index]
@@ -973,6 +973,7 @@ func _detour_return_path(world: WorldState, actor: Dictionary, movement: Diction
 				links.append([Vector2(x,origin.y),Vector2(x,y),Vector2(target.x,y),target])
 				links.append([Vector2(origin.x,y),Vector2(x,y),Vector2(x,target.y),target])
 		for link: Array in links:
+			if _detour_first_segment_failed(world,actor,origin,prefix,link,segment,proof): continue
 			var path: Array = prefix.duplicate(true)
 			var previous: Vector2 = origin
 			for point: Vector2 in link:
@@ -981,6 +982,37 @@ func _detour_return_path(world: WorldState, actor: Dictionary, movement: Diction
 			if path.is_empty(): path.append(segment.duplicate(true))
 			if _detour_path_clear(world,actor,movement,path,query,proof): return {"path":path,"index":index}
 	return {}
+
+# Only the return-search owner can capture this exact entry state. A known
+# first-segment failure can reject this candidate before building its path;
+# unknown/positive/capped-out proofs still execute the complete predicate.
+func _detour_first_segment_failed(world: WorldState, actor: Dictionary, link_origin: Vector2, prefix: Array, link: Array, fallback: Dictionary, proof: Dictionary) -> bool:
+	if not proof.has("_entry"): return false
+	var first: Vector2
+	if not prefix.is_empty():
+		first = ConvoyTrail.point(prefix[0].cell)
+	else:
+		var previous: Vector2 = link_origin
+		var found: bool = false
+		for point: Vector2 in link:
+			if previous.distance_to(point)>0.001:
+				first = point
+				found = true
+				break
+			# The original builder advances even when this point is not appended.
+			previous = point
+		if not found: first = ConvoyTrail.point(fallback.cell)
+	var entry: Dictionary = proof._entry
+	var origin: Vector2 = entry.origin
+	if absf(first.x-origin.x)>0.001 and absf(first.y-origin.y)>0.001: return false
+	if origin.distance_to(first)<=0.001: return false
+	var key: Array = [origin,first,entry.rect]
+	if not proof.segments.has(key) or not proof.segments[key].is_empty(): return false
+	# A first-segment negative memo returns before any trial-facing change.
+	# Keep its original index/shape side effects, using the same actor fields
+	# as the fresh sample. A surprising rectangle change takes full fallback.
+	space._ensure_actor_index(world)
+	return space._actor_rect(actor,origin)==entry.rect
 
 func _floor_point(actor: Dictionary, point: Vector2) -> Dictionary:
 	return {"kind":"floor","floor_id":int(actor.location.floor_id),"cell":[point.x,point.y]}
@@ -995,8 +1027,12 @@ func _detour_path_clear(world: WorldState, actor: Dictionary, movement: Dictiona
 	var trial: Dictionary = movement.convoy.duplicate(true) if movement.has("convoy") else {}
 	var shift: Vector2 = Vector2.ONE*float(trial.shift) if not trial.is_empty() else Vector2.ZERO
 	var origin: Vector2 = ConvoyTrail.point(actor.location.cell)
-	var sample: Dictionary = actor.duplicate(true)
+	var sample: Dictionary = proof._return_sample if proof.has("_return_sample") else actor.duplicate(true)
+	# Pruned candidates leave private scratch untouched; full trials reset it.
+	sample.facing = actor.facing
 	var previous: Rect2 = space._actor_rect(sample,origin) if trial.is_empty() else Rect2(origin+shift,Vector2.ONE*int(trial.size))
+	if proof.get("_capture_entry",false) and not proof.has("_entry"):
+		proof._entry = {"origin":origin,"rect":previous}
 	var members: Array = movement.get("members",[actor.id])
 	for segment: Dictionary in path:
 		var target: Vector2 = ConvoyTrail.point(segment.cell)
