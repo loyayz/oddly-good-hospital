@@ -142,7 +142,7 @@ func preview(world: WorldState, id: String) -> Dictionary:
 	return {"ok":true,"reason":"","price":price,"refund":refund,"layout":order.commands.duplicate(true),"candidate":candidate,"world_revision":world.revision}
 
 func _waiting_view(world: WorldState) -> Dictionary:
-	var view: Dictionary = {"sessions":{},"beds":{},"preparations":{},"units":{},"actors":{}}
+	var view: Dictionary = {"sessions":{},"beds":{},"preparations":{},"units":{},"actors":{},"occupied_door_rooms":{}}
 	for session: Dictionary in world.facts.sessions.values():
 		view.sessions[session.facility_id] = true
 	for stay: Dictionary in world.facts.ward_stays.values():
@@ -154,12 +154,19 @@ func _waiting_view(world: WorldState) -> Dictionary:
 	for id: String in world.active_operation_ids("environment","orders",["completed","cancelled"]):
 		var record: Dictionary = world.facts.environment.orders[id]
 		if not view.units.has(int(record.floor_id)): view.units[int(record.floor_id)] = []
-		for unit: Dictionary in record.units: view.units[int(record.floor_id)].append(unit.cell)
+		for unit: Dictionary in record.units:
+			if unit.phase not in ["completed","cancelled"]:
+				view.units[int(record.floor_id)].append(unit.cell)
 	for actor: Dictionary in world.facts.actors.values():
 		if actor.location.kind!="floor": continue
 		var floor_id: int = int(actor.location.floor_id)
 		if not view.actors.has(floor_id): view.actors[floor_id] = []
 		view.actors[floor_id].append(actor)
+	# Resolve ownership from current source doors, including saved orders whose
+	# member_ids contain rooms but not their doors. Movement owns their release.
+	for layout: Dictionary in world.facts.floors.overrides.values():
+		for door: Dictionary in layout.get("doors",[]):
+			if world.facts.adaptations.has(door.id): view.occupied_door_rooms[door.room_id] = true
 	return view
 
 func waiting_all(world: WorldState) -> Dictionary:
@@ -184,6 +191,8 @@ func _waiting(world: WorldState, order: Dictionary, view: Dictionary = {}) -> St
 		if _inside_source(world,order,cell): return "等待原装修安全结束，或明确取消未完成单元"
 	for member: String in order.member_ids:
 		if world.facts.adaptations.has(member): return "等待使用者实际离开并释放原占用"
+	for room_id: String in order.room_ids:
+		if view.occupied_door_rooms.has(room_id): return "等待使用者实际离开并释放原占用"
 	var affected: Dictionary = _affected_view(world,order)
 	for floor_id: int in affected:
 		for actor: Dictionary in view.actors.get(floor_id,[]):

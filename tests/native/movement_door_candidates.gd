@@ -18,6 +18,9 @@ func world_with_doors(size: int):
 
 func entry(service, world) -> Dictionary:
  service.movement_doors(world,world.facts.actors.actor,Rect2(0,0,1,1),["actor","member"])
+ if not service._navigation.entries.is_empty():
+  var record = service._navigation.entries.values()[0]
+  return {"index":record.geometry.door_index,"version":record.version}
  return service._door_views.values()[0]
 
 func exercise(size: int, mode: int, explicit_floor: bool) -> void:
@@ -61,7 +64,7 @@ func exercise(size: int, mode: int, explicit_floor: bool) -> void:
  old.regions=[]
  current.regions=[]
  check(old.movement_doors(world,world.facts.actors.actor,Rect2())==current.movement_doors(world,world.facts.actors.actor,Rect2()))
- check(current._door_views.values()[0].version==2)
+ check(entry(current,world).version==2)
  check(old.query_counts==current.query_counts)
 
 func _init() -> void:

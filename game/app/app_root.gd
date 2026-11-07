@@ -22,6 +22,7 @@ var _details_deadline_ms: int = 0
 var _last_process_us: int = 0
 var _saved_revision: int = -1
 var _ui_scale: int = 1
+var _floor_static_preparation: Dictionary = {}
 var _observed_floor: int = 1
 var _selected_actor: String = "patient"
 var _selected_object: String = ""
@@ -47,7 +48,6 @@ var _draft_confirmation: ConfirmationDialog
 var _draft_leave: Callable
 var _draft_leave_confirmed: bool = false
 var _draft_commands: Dictionary = {}
-var _capacity_dialog: ConfirmationDialog
 var _pending_floor: int = -1
 var _view_work_budget: ViewWorkBudget
 
@@ -273,7 +273,7 @@ func _button(text: String, callback: Callable, primary: bool = false) -> void:
 
 func _acquire() -> void:
 	if not ClassDB.class_exists("PlatformSessionGuard") or not ClassDB.class_exists("PlatformSQLite"):
-		_status.text = "Windows资料库组件未能加载。请重新安装完整程序。"
+		_status.text = "资料库组件未能加载。请重新安装完整程序。"
 		return
 	_guard = ClassDB.instantiate("PlatformSessionGuard") as RefCounted
 	var acquired: Dictionary = _guard.call("acquire")
@@ -347,6 +347,7 @@ func _activate(world: WorldState, restored: bool = false) -> bool:
 	if _simulation!=null:
 		_simulation.dispose()
 	_simulation = HospitalSimulation.new(world,_content)
+	_floor_static_preparation = _simulation.prepare_floor_static(_observed_floor)
 	_session = GameSession.new(_simulation,session_id)
 	_last_process_us = Time.get_ticks_usec()
 	if not DisplayServer.window_is_focused():
@@ -610,8 +611,6 @@ func _process(_delta: float) -> void:
 	_management_panels.process_mode = Node.PROCESS_MODE_DISABLED if pending else Node.PROCESS_MODE_INHERIT
 	if pending:
 		_clock.text = "正在完成当前接诊边界…"
-		var error: String = _simulation.preparing_error()
-		if not error.is_empty(): _show_capacity_error(error)
 	else:
 		if _pending_floor>=0:
 			var floor_id: int = _pending_floor
@@ -773,6 +772,7 @@ func _prepare_switch_candidate() -> void:
 	if _simulation!=null:
 		_simulation.dispose()
 	_simulation = HospitalSimulation.new(_candidate,_content)
+	_floor_static_preparation = _simulation.prepare_floor_static(_observed_floor)
 	_session = GameSession.new(_simulation,candidate_session_id)
 	_last_process_us = Time.get_ticks_usec()
 	if not DisplayServer.window_is_focused():
@@ -817,6 +817,7 @@ func _change_floor(floor_id: int) -> void:
 		if HospitalSpace.floor_plots(_simulation.world,floor_id).is_empty():
 			_status.text = "这一层还没有可用楼板。"
 			return
+		_floor_static_preparation = _simulation.prepare_floor_static(floor_id)
 		_observed_floor = floor_id
 		_view.set_floor(floor_id)
 		_build_panel.set_floor(floor_id)
@@ -974,23 +975,6 @@ func _update_details() -> void:
 			lines.append("未分配个人床" if owner.is_empty() else "个人床主人："+str(world.facts.actors[owner.staff_id].name)+" · 仅本人使用")
 	var text: String = "\n".join(lines)
 	if _details.text!=text: _details.text = text
-
-func _show_capacity_error(reason: String) -> void:
-	if _capacity_dialog==null:
-		_capacity_dialog = ConfirmationDialog.new()
-		_capacity_dialog.title = "接诊能力准备未完成"
-		_capacity_dialog.ok_button_text = "按相同输入重试"
-		_capacity_dialog.get_cancel_button().hide()
-		_capacity_dialog.add_button("不保存退出",false,"exit")
-		_capacity_dialog.confirmed.connect(func() -> void: _simulation.retry_preparation())
-		_capacity_dialog.custom_action.connect(func(action: StringName) -> void:
-			if action=="exit":
-				_guard.call("release")
-				get_tree().quit())
-		add_child(_capacity_dialog)
-	if not _capacity_dialog.visible:
-		_capacity_dialog.dialog_text = reason+"\n当前输入与随机状态已保留，尚未生成新的当日计划。"
-		_capacity_dialog.popup_centered(Vector2i(560,210))
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:

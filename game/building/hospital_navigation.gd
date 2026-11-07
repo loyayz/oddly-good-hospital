@@ -42,11 +42,25 @@ func _route_result(world: WorldState, actor_id: String, floor_id: int, target: A
 		return journeys[key].duplicate(true)
 	var start: Vector2i = subject.start
 	var stub: float = float(subject.stub)
+	var destination: Vector2 = Vector2(float(target[0]),float(target[1]))
 	var goal: Vector2i = Vector2i(int(target[0]),int(target[1]))
+	var final_leg: Dictionary = {"points":[],"distance":0.0,"ticks":0}
+	if Vector2(goal)!=destination:
+		# The graph endpoint is only an anchor, not the requested destination.
+		# Orthogonal legs keep actual facing inside the proved body envelope.
+		final_leg = _grid_stub(world,actor,floor_id,Vector2(goal),destination)
+		if not final_leg.ok: return {"ok":false,"status":"unreachable","reason":final_leg.reason}
 	var result: Dictionary = _point_route(world,actor,int(subject.floor_id),start,floor_id,goal,members,offsets,int(subject.initial_ticks),distance_only)
 	if result.ok and stub>0.0:
 		if not distance_only: result.path.push_front({"kind":"floor","floor_id":int(actor.location.floor_id),"cell":[start.x,start.y]})
 		result.walking_distance += stub
+	if result.ok and not final_leg.points.is_empty():
+		var ticks: int = HospitalTransit._add(int(result.travel_ticks),int(final_leg.ticks))
+		if ticks<0: return {"ok":false,"status":"time_overflow","reason":"基准通行时间超出整数范围"}
+		if not distance_only:
+			for point: Array in final_leg.points: result.path.append({"kind":"floor","floor_id":floor_id,"cell":point.duplicate()})
+		result.walking_distance += float(final_leg.distance)
+		result.travel_ticks = ticks
 	journeys[key] = result.duplicate(true)
 	return result
 
@@ -97,13 +111,16 @@ func routing_floor_basis(world: WorldState) -> Array:
 	floors.sort()
 	return floors
 
-func destination_reason(world: WorldState, actor: Dictionary, floor_id: int, target: Vector2i, members: Array = [], offsets: Dictionary = {}) -> String:
+func destination_reason(world: WorldState, actor: Dictionary, floor_id: int, target: Vector2, members: Array = [], offsets: Dictionary = {}) -> String:
 	if not members.is_empty():
 		if not offsets.is_empty(): return "同行组只支持前后队列"
 		var m: Dictionary = _convoy_query_movement(world,actor.id,members)
 		var proxy: Dictionary = ConvoyTrail.proxy(world,m)
 		return structural_clearance(world,proxy,floor_id).position_reason(Vector2(target)+Vector2.ONE*float(m.convoy.shift))
-	return structural_clearance(world,actor,floor_id,members,offsets).reason(target)
+	var query: RouteClearance = structural_clearance(world,actor,floor_id,members,offsets)
+	# Integer admission retains the existing graph predicate. A fractional
+	# body can overlap a wall or fixture absent from its rounded neighbor.
+	return query.reason(Vector2i(target)) if target==target.floor() else query.sweep_reason(target,target)
 
 func structural_clearance(world: WorldState, actor: Dictionary, floor_id: int, members: Array = [], offsets: Dictionary = {}) -> RouteClearance:
 	if actor.has("_convoy_size") or members.size()==1 and members[0]==actor.id: members = []
@@ -564,7 +581,11 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 	if repeated.get("ready",false):
 		space.query_counts["distance_field_hits"] = int(space.query_counts.get("distance_field_hits",0))+1
 		result = {"ok":bool(repeated.ok),"status":"complete" if repeated.ok else "unreachable","reason":repeated.get("reason",""),"walking_distance":int(repeated.get("distance",-1))}
-	elif not convoy_start and not space._route_queries.is_empty() and space._route_queries.back().world==world and members.is_empty() and offsets.is_empty() and not navigation.has("query") and not navigation.get("overlay",false) and navigation.bases.is_empty() and navigation.shifts.is_empty():
+	elif not convoy_start and (structural_only or not space._route_queries.is_empty() and space._route_queries.back().world==world) and members.is_empty() and offsets.is_empty() and not navigation.has("query") and not navigation.get("overlay",false) and navigation.bases.is_empty() and navigation.shifts.is_empty():
+		# Actual dispatch has no read-only query scope. Its pure static floor
+		# leg can still reuse the resident body/floor/endpoint cache, including
+		# lift landings to guidance desks. Live reservations and collisions
+		# remain owned by movement; local dynamic replans keep their old scope.
 		result = space._navigation.cached_floor_path(space,world,floor_id,actor,graph,query,start,goal,cost_only)
 	else:
 		result = graph.find_path(start,goal,query,people if convoy_start else Callable(),false,navigation.bases,navigation.shifts,bool(navigation.get("overlay",false)),cost_only)
@@ -717,6 +738,11 @@ func convoy_local_route(world: WorldState, movement: Dictionary, floor_id: int, 
 # Fractional endpoints join the integer route through real orthogonal legs.
 # Each short floor leg consumes its actual number of fixed movement steps.
 func _convoy_grid_stub(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2, end: Vector2) -> Dictionary:
+	var result: Dictionary = _grid_stub(world,actor,floor_id,start,end)
+	if not result.ok: result.reason = "队列分数坐标没有安全的正交接入段"
+	return result
+
+func _grid_stub(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2, end: Vector2) -> Dictionary:
 	var query: RouteClearance = structural_clearance(world,actor,floor_id)
 	for corner: Vector2 in [Vector2(end.x,start.y),Vector2(start.x,end.y)]:
 		var current: Vector2 = start
@@ -733,7 +759,7 @@ func _convoy_grid_stub(world: WorldState, actor: Dictionary, floor_id: int, star
 			points.append([next.x,next.y])
 			current = next
 		if reason.is_empty(): return {"ok":true,"points":points,"distance":distance,"ticks":ticks}
-	return {"ok":false,"reason":"队列分数坐标没有安全的正交接入段"}
+	return {"ok":false,"reason":"分数坐标没有安全的正交接入段"}
 
 # Admission requires the entire tail to be aligned, not just the head at a
 # coordinate. Walk from the outer approach point through one real straight

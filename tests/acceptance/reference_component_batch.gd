@@ -217,7 +217,7 @@ func _failure_cleanup() -> Dictionary:
 	var eviction_atomic: bool = not rejected_after_eviction.ok and not rejected_after_eviction.has("model") and not bounded_query.has("component_batch") and bounded_failure.first_target.resources["staff:doctor"]==F.make(1) and bounded_failure.reference_component_observation().memo_evictions>0
 	return {"passed":atomic and recovered and early_clean and empty_complete and eviction_atomic,"later_batch_atomic":atomic,"retry_matches_cold":recovered,"early_return_cleanup":early_clean,"empty_model_fully_assembled":empty_complete,"failure_after_eviction_atomic":eviction_atomic}
 
-func _configure(service: HospitalArrivalService) -> void:
+func _configure(service: LegacyArrivalProjection) -> void:
 	service.clinic.scheduler = HospitalShiftScheduler.new(_content,service.space)
 	service.clinic.recruitment = RecruitmentService.new(_content,service.space)
 	service.clinic.departments = HospitalDepartments.new(_content,service.space)
@@ -226,7 +226,7 @@ func _configure(service: HospitalArrivalService) -> void:
 func _capacity_failure() -> Dictionary:
 	var ctx: Dictionary = _context()
 	_single_case(ctx)
-	var worker: HospitalArrivalService = HospitalArrivalService.new(_content,HospitalSpace.new(_content))
+	var worker: LegacyArrivalProjection = LegacyArrivalProjection.new(_content,HospitalSpace.new(_content))
 	var failing: FailedReference = FailedReference.new(_content,worker.space)
 	worker.clinic = failing
 	_configure(worker)
@@ -235,7 +235,7 @@ func _capacity_failure() -> Dictionary:
 	var not_cached: bool = worker._reference_cache.get(0,{}).get("cases",{}).is_empty() and not worker._reference_cache.get(0,{}).has("outputs")
 	failing.fail = false
 	var resumed: Dictionary = worker.capacity(ctx.world,false)
-	var cold: HospitalArrivalService = HospitalArrivalService.new(_content,HospitalSpace.new(_content))
+	var cold: LegacyArrivalProjection = LegacyArrivalProjection.new(_content,HospitalSpace.new(_content))
 	_configure(cold)
 	var independent: Dictionary = cold.capacity(ctx.world,false)
 	var new_atomic: bool = not failed.get("complete",true) and failed.has("error") and not failed.has("capacity") and not failed.has("shift_capacities") and not_cached and resumed.get("complete",false) and resumed==independent and ctx.world.freeze()==frozen
@@ -263,7 +263,7 @@ func _complete_models() -> Dictionary:
 	for property: Dictionary in ctx.clinic.get_property_list():
 		if (int(property.usage)&PROPERTY_USAGE_SCRIPT_VARIABLE)!=0 and str(property.name)!="reference_component_counts": scalar.set(property.name,ctx.clinic.get(property.name))
 	var before: Dictionary = ctx.world.freeze()
-	var nominal: WorldState = ctx.arrivals._capacity_reference_world(ctx.world)
+	var nominal: WorldState = LegacyArrivalProjection._capacity_reference_world(ctx.world)
 	var nominal_before: Dictionary = nominal.freeze()
 	var query: Dictionary = {}
 	var retained: Array = []

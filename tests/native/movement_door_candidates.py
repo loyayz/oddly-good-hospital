@@ -16,6 +16,7 @@ parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--godot', default='godot')
 parser.add_argument('--baseline', default='35d656dc58c4f7afac8419218a12051d3617c47b')
 parser.add_argument('--output', type=Path, required=True)
+parser.add_argument('--baseline-file', type=Path, help='Exact saved hospital_space.gd instead of a Git revision')
 args = parser.parse_args()
 repo = Path(__file__).resolve().parents[2]
 output = args.output.resolve()
@@ -24,12 +25,13 @@ project = output / 'project'
 project.mkdir()
 path = 'game/building/hospital_space.gd'
 sources = {
-    'baseline': subprocess.check_output(['git', 'show', f'{args.baseline}:{path}'], cwd=repo),
+    'baseline': args.baseline_file.read_bytes() if args.baseline_file else subprocess.check_output(['git', 'show', f'{args.baseline}:{path}'], cwd=repo),
     'current': (repo / path).read_bytes(),
 }
 prelude = '''extends RefCounted
 const WorldState = preload("res://world.gd")
 const BodyIndex = preload("res://index.gd")
+const FloorStaticGeometry = preload("res://floor.gd")
 var _navigation = preload("res://nav.gd").new()
 var _door_views: Dictionary = {}
 var query_counts: Dictionary = {"door_candidates":0}
@@ -52,7 +54,19 @@ for name, raw in sources.items():
     functions[name] = match.group()
     (project / f'{name}.gd').write_text(prelude.replace('\n ', '\n\t') + match.group())
 (project / 'world.gd').write_text('extends RefCounted\nvar facts: Dictionary = {}\n')
-(project / 'nav.gd').write_text('extends RefCounted\nvar version: int = 1\nfunc floor_version(_s,_w,_f): return version\n')
+(project / 'floor.gd').write_text('extends RefCounted\nvar door_index = preload("res://index.gd").new()\nvar door_order: Dictionary = {}\n')
+(project / 'nav.gd').write_text('''extends RefCounted
+var version: int = 1
+var entries: Dictionary = {}
+func floor_version(_s,_w,_f): return version
+func floor_geometry(_s,w,f):
+ if not entries.has(f) or entries[f].version!=version:
+  var geometry = preload("res://floor.gd").new()
+  for door in w.facts.floors.overrides[str(f)].doors:
+   geometry.door_order[door.id] = geometry.door_order.size()
+  entries[f] = {"geometry":geometry,"version":version}
+ return entries[f].geometry
+''')
 (project / 'index.gd').write_text('''extends RefCounted
 var selected: Array[String] = []
 var calls: int = 0
@@ -77,7 +91,7 @@ if 'SCRIPT ERROR' in run.stderr or 'ERROR:' in run.stderr:
     raise RuntimeError('Godot error, see run.log')
 result = json.loads(next(line for line in reversed(run.stdout.splitlines()) if line.startswith('{')))
 result.update({
-    'baseline': args.baseline,
+    'baseline': str(args.baseline_file) if args.baseline_file else args.baseline,
     'source_hashes': {k: hashlib.sha256(v).hexdigest() for k, v in sources.items()},
     'function_hashes': {k: hashlib.sha256(v.encode()).hexdigest() for k, v in functions.items()},
     'harness_sha256': hashlib.sha256(harness.read_bytes()).hexdigest(),

@@ -12,7 +12,7 @@ The signal must not call the kernel again, change a business field, consume rand
 
 The dispatcher is once per actual completed step, with cost proportional to listeners; a no-listener emission still has a constant dispatch check. No numeric overhead is established by static inspection. The full presented frame includes listener, encoding and flush overhead. `TickResult.elapsed_us` was finalized before notification, so that kernel metric does not include the observer itself; the observer cost is never relabeled as zero full-frame work.
 
-`formal_root.gd` constructs the original GameSession and connects it after composition. Its original switch method constructs the original new session; the observer connects that new session immediately after the original publication method returns, before a later `advance()` can run. It never constructs another session just to observe it, which would repeat `enable_preparation()`. Optional `playback_changed()` notifies after the original pause/resume/speed/watching state change, with early-return paths unchanged. The runner expects a no-argument playback signal; absence is a declared segmentation gap.
+`formal_root.gd` constructs the original GameSession and connects it after composition. Its original switch method constructs the original new session; the observer connects that new session immediately after the original publication method returns, before a later `advance()` can run. It never constructs another session just to observe it. Optional `playback_changed()` notifies after the original pause/resume/speed/watching state change, with early-return paths unchanged. The runner expects a no-argument playback signal; absence is a declared segmentation gap.
 
 ## Interface map
 

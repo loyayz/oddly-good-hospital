@@ -50,6 +50,7 @@ func _details() -> String:
 		if visit.get("phase","")!="departed": active += 1
 		if str(visit.get("phase","")).begins_with("wait_"): waiting += 1
 	var lines: Array[String] = ["在院 %d 位 · 候诊 %d 位" % [active,waiting]]
+	if simulation.services.has("floor_guidance"): lines.append(simulation.services.floor_guidance.summary(simulation.world))
 	var visit: Dictionary = facts.get("visits",{}).get(_visit_id,{})
 	_refer.disabled = visit.is_empty() or not str(visit.get("phase","")).begins_with("wait_")
 	if visit.is_empty():

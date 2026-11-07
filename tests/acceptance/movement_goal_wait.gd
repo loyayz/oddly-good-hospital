@@ -14,9 +14,9 @@ class ObservingMovement extends HospitalMovement:
 		var result: HospitalMovement.MotionResult = super._move_step(world,actor,movement,segment)
 		contacts[actor.id] = {"blocked":result.blocked,"actors":result.blocker_actor_ids.duplicate(),"actual":result.actual_motion}
 		return result
-	func _queue_local_route(world: WorldState, actor: Dictionary, movement: Dictionary) -> void:
+	func _start_detour(world: WorldState, actor: Dictionary, movement: Dictionary) -> void:
 		local_requests += 1
-		super._queue_local_route(world,actor,movement)
+		super._start_detour(world,actor,movement)
 	func _movement_contacts(world: WorldState, actor_id: String, floor_id: int, broad: Rect2, sweeps: Array[BodyIndex.Record], members: Array, result: HospitalMovement.MotionResult) -> void:
 		# Copy numeric envelopes before committing this attempt. Records are
 		# shared runtime scratch; retaining their references would lose evidence.

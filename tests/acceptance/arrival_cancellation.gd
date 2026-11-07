@@ -10,7 +10,7 @@ class ReleaseOnCancel extends ArrivalPreparation.Cancellation:
 		super.request()
 		gate.post()
 
-class BoundaryArrival extends HospitalArrivalService:
+class BoundaryArrival extends LegacyArrivalProjection:
 	var entered: Semaphore = Semaphore.new()
 	var gate: Semaphore = Semaphore.new()
 	var cases: int = 0
@@ -24,7 +24,7 @@ class BoundaryArrival extends HospitalArrivalService:
 			gate.wait()
 		return result
 
-class ShiftArrival extends HospitalArrivalService:
+class ShiftArrival extends LegacyArrivalProjection:
 	var cancellation: ArrivalPreparation.Cancellation
 	var shifts: int = 0
 	func _solve_roles(world: WorldState, classes: Array, budgets: Dictionary, shift: int, model_key: Variant = null, locked_roles: Dictionary = {}) -> Dictionary:
@@ -45,7 +45,7 @@ class QueueClinic extends HospitalClinic:
 			if stop_after_reference: cancellation.request()
 		return result
 
-class QueueArrival extends HospitalArrivalService:
+class QueueArrival extends LegacyArrivalProjection:
 	var cancellation: ArrivalPreparation.Cancellation
 	var stop_after_ticket: bool = false
 	var tickets: int = 0

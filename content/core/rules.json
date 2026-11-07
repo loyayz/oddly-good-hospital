@@ -138,11 +138,11 @@
       "order": [
         "current_intake_open",
         "actual_outpatient_count_below_frozen_day_allowance",
-        "original_case_and_body_readiness"
+        "unlocked_weighted_case_then_actual_entry_space"
       ],
-      "passed_guard": "original_complete_readiness_and_atomic_actual_admission",
+      "passed_guard": "natural_case_and_atomic_safe_entry",
       "phase": "phase3_original_arrival_boundary",
-      "readonly_reason_card": "original_complete_cause_query",
+      "readonly_reason_card": "current_stage_cause_query",
       "runtime_measurement_available": false,
       "same_tick": "slot_order_reread_after_each_actual_admission",
       "scope": "current_original_patient_opportunity",
@@ -210,6 +210,10 @@
     "manual_patient_invitation": false,
     "missed_slot": "consume_without_catchup",
     "preset_change": "next_day",
+    "random_demand": {
+      "concurrent_outpatients_per_open_gp_desk": 16,
+      "daily_interest_per_open_gp_desk": 6
+    },
     "schedule": {
       "algorithm": "arrival-load-slot-v1",
       "digest": "sha256_first_u32_be",
@@ -1492,19 +1496,12 @@
     "pinned_entries": 50
   },
   "movement_courtesy": {
-    "blocked_before_yield_seconds": 3,
     "body_overlap": false,
-    "priority": [
-      "inside_narrow_segment",
-      "committed_transfer_group",
-      "blocked_tick",
-      "actor_id"
-    ],
+    "detour_resets_wait": false,
+    "detour_target": "original_blocked_cell_then_nearest_reachable_original_route_cell",
     "refer_hard_block_seconds": 60,
     "reselect_hard_block_seconds": 30,
-    "retry_hard_block_seconds": 5,
-    "yield_resets_wait": false,
-    "yield_target": "nearest_reachable_space_on_travelled_route"
+    "retry_hard_block_seconds": 5
   },
   "movement_queries": {
     "actor_motion_rebuilds_static_graph": false,
@@ -2557,11 +2554,11 @@
     "assignment_scope": "existing_roster_and_permissions",
     "delay_mandatory_rest": false,
     "early_energy_ceiling": 45,
-    "eligibility": "actual_qualified_coverage",
+    "eligibility": "current_dispatch_idle",
     "enabled": true,
     "recall_early_rest": false,
     "return_target": "existing_rest_energy_target",
-    "voluntary_per_pool": 1
+    "voluntary_per_pool": 0
   },
   "starter_purchase": [
     {
@@ -2613,8 +2610,8 @@
       "item": "Toilet fixture"
     },
     {
-      "amount": 300,
-      "item": "Six bench seats"
+      "amount": 250,
+      "item": "Five bench seats"
     },
     {
       "amount": 400,
@@ -2623,10 +2620,6 @@
     {
       "amount": 200,
       "item": "Bin and water dispenser"
-    },
-    {
-      "amount": 400,
-      "item": "Paths 40 cells"
     },
     {
       "amount": 640,
@@ -2643,6 +2636,10 @@
     {
       "amount": 300,
       "item": "Nurse workbench SE06"
+    },
+    {
+      "amount": 600,
+      "item": "Floor guidance desk SE01"
     }
   ],
   "starting_cash": 26000,
@@ -2650,7 +2647,7 @@
     "cleaner": 1,
     "decorator": 0,
     "doctor": 3,
-    "nurse": 1,
+    "nurse": 2,
     "receptionist": 1,
     "researcher": 0
   },

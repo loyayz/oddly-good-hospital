@@ -33,38 +33,9 @@ class Queries extends HospitalClinic:
 		if kind=="gp": gp_queries += 1
 		return super.service_candidates(world,visit,kind,structural_only,reference_schedule,selection)
 
-# Independent control retains the former second GP enumeration. Every returned
-# quote, diagnostic stage and route is still produced by the production service.
-class RepeatedReadiness extends Queries:
-	func arrival_readiness(world: WorldState, binding_id: String, complex_case: bool = false, explain: bool = true) -> Dictionary:
-		var candidate: Dictionary = _arrival_candidate(world,binding_id,complex_case)
-		if not candidate.get("ok",false): return candidate
-		var plans: Array = []
-		var executable: bool = false
-		var reasons: PackedStringArray = []
-		if not HospitalResearch.disease_unlocked(world,content,candidate.visit.disease_id): reasons.append("病例研究尚未完成")
-		for plan: Dictionary in content.catalog.treatment_plans:
-			if plan.disease_id!=candidate.visit.disease_id: continue
-			var quote: Dictionary = plan_quote(candidate.world,candidate.visit.id,plan.id,{"structural_only":true,"ignore_supplies":true})
-			plans.append(quote)
-			executable = executable or bool(quote.ok)
-			if executable and not explain: break
-		for kind: String in ["reception","gp"]:
-			if service_candidates(candidate.world,candidate.visit,kind,true).is_empty(): reasons.append(_missing_service_reason(candidate.world,candidate.visit,kind))
-		var diagnostics_ok: bool = false
-		var query: Dictionary = {"candidates":{},"reference_schedule":false}
-		for pair: Dictionary in service_candidates(candidate.world,candidate.visit,"gp",true):
-			if _build_reference_diagnostic_stages(candidate.world,candidate.visit,pair,query).ok:
-				diagnostics_ok = true
-				break
-		if not diagnostics_ok: reasons.append("全部合法检查仍未达到诊断阈值")
-		if not executable:
-			for quote: Dictionary in plans:
-				reasons.append(str(content.definition("treatment_plans",quote.plan_id).get("name",quote.plan_id))+"："+str(quote.reason))
-		return {"ok":executable and reasons.is_empty(),"reason":"；".join(reasons),"plans":plans}
-
 func run_case(t, content: HospitalContent) -> void:
 	var started: int = Time.get_ticks_usec()
+	var staff_filter: Dictionary = preload("res://tests/acceptance/clinical_staff_filter.gd").new().run(content)
 	var first_doctor: Dictionary = _first_doctor_boundary(content)
 	var plan_batch: Dictionary = _plan_batch_boundary(content)
 	var reachability: Dictionary = _reachability_boundary(content)
@@ -81,10 +52,10 @@ func run_case(t, content: HospitalContent) -> void:
 	for count: int in clinic.quotes.values(): once = once and count==1
 	var recommendation: Dictionary = {"consult_pairs":pairs.size(),"quote_calls_by_doctor_plan":clinic.quotes.duplicate(),"no_executable_plan":selected.is_empty(),"readonly":before==c.world.freeze()}
 	var actual: Queries = Queries.new(content,c.space)
-	var control: RepeatedReadiness = RepeatedReadiness.new(content,c.space)
 	var readiness: Dictionary = actual.arrival_readiness(c.world,visit.binding_id)
-	var expected: Dictionary = control.arrival_readiness(c.world,visit.binding_id)
-	var readiness_ok: bool = readiness==expected and actual.gp_queries+1==control.gp_queries and before==c.world.freeze()
+	# Natural arrival requires no GP/plan enumeration. Actual care still waits
+	# for the real resources exercised independently below.
+	var readiness_ok: bool = readiness.ok and actual.gp_queries==0 and actual.quotes.is_empty() and before==c.world.freeze()
 	var projection: Queries = Queries.new(content,c.space)
 	projection.projection_source = c.world
 	c.world.facts.staff.gather_worker.supply_strike = true
@@ -94,7 +65,7 @@ func run_case(t, content: HospitalContent) -> void:
 	var shortage_before: Dictionary = c.world.freeze()
 	projection.shortage_requests(c.world)
 	var projection_ok: bool = projection.projection_observed and shortage_before==c.world.freeze()
-	t.check("CLIN-35",patient_rejections.passed and reachability.passed and plan_batch.passed and first_doctor.passed and c.validation.is_empty() and pairs.size()>1 and once and selected.is_empty() and recommendation.readonly and readiness_ok and projection_ok,{"input_validation":c.validation,"patient_rejections":patient_rejections,"boolean_reachability":reachability,"plan_batch":plan_batch,"first_doctor_boundary":first_doctor,"CL-A01":{"recommendation":recommendation,"readiness_equal":readiness==expected,"gp_calls":actual.gp_queries,"control_gp_calls":control.gp_queries},"CL-A06":{"isolated_written_path_shared_readonly_facts":projection.projection_observed,"readonly":shortage_before==c.world.freeze()},"elapsed_usec":Time.get_ticks_usec()-started})
+	t.check("CLIN-35",staff_filter.passed and patient_rejections.passed and reachability.passed and plan_batch.passed and first_doctor.passed and c.validation.is_empty() and pairs.size()>1 and once and selected.is_empty() and recommendation.readonly and readiness_ok and projection_ok,{"staff_filter":staff_filter,"input_validation":c.validation,"patient_rejections":patient_rejections,"boolean_reachability":reachability,"plan_batch":plan_batch,"first_doctor_boundary":first_doctor,"CL-A01":{"recommendation":recommendation,"natural_arrival":readiness,"gp_calls":actual.gp_queries,"plan_queries":actual.quotes.size()},"CL-A06":{"isolated_written_path_shared_readonly_facts":projection.projection_observed,"readonly":shortage_before==c.world.freeze()},"elapsed_usec":Time.get_ticks_usec()-started})
 
 func _patient_rejection_boundary(content: HospitalContent) -> Dictionary:
 	var c: Dictionary = Gathering.new()._context(content,"gp")
@@ -284,4 +255,5 @@ func _first_doctor_boundary(content: HospitalContent) -> Dictionary:
 	var scheduled_before: Dictionary = c.world.freeze()
 	var selected_pair: Dictionary = {}
 	var scheduled: Dictionary = clinic._select_plan(c.world,visit,"",selected_pair)
-	return {"passed":validation.is_empty() and not pairs.is_empty() and pairs[0].staff_id=="gather_worker" and not explicit_later.is_empty() and first_only.is_empty() and scheduled==explicit_later and selected_pair.get("pair",{}).get("staff_id","")=="later_doctor" and c.world.freeze()==scheduled_before and before==scheduled_before,"validation":validation,"first_pair":pairs[0] if not pairs.is_empty() else {},"later_doctor_has_legal_plan":not explicit_later.is_empty(),"no_scheduler_preserves_first_failure":first_only.is_empty(),"scheduler_selects_original_next_doctor":scheduled==explicit_later,"selected_pair":selected_pair,"facts_rng_readonly":c.world.freeze()==scheduled_before}
+	var separate_treatment: bool = not first_only.is_empty() and first_only.get("consulting_doctor_id","")=="gather_worker" and first_only.get("staff_ids",[])==["later_doctor"]
+	return {"passed":validation.is_empty() and not pairs.is_empty() and pairs[0].staff_id=="gather_worker" and not explicit_later.is_empty() and separate_treatment and scheduled==first_only and selected_pair.get("pair",{}).get("staff_id","")=="gather_worker" and c.world.freeze()==scheduled_before and before==scheduled_before,"validation":validation,"first_pair":pairs[0] if not pairs.is_empty() else {},"later_doctor_has_legal_plan":not explicit_later.is_empty(),"consultant_may_recommend_another_treating_doctor":separate_treatment,"scheduler_keeps_available_consultant":scheduled==first_only,"selected_pair":selected_pair,"facts_rng_readonly":c.world.freeze()==scheduled_before}

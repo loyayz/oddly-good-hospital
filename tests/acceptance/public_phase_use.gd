@@ -19,11 +19,18 @@ class WaitingWorkProbe extends HospitalWaitingLife:
 class FreshEntryAreas extends HospitalPublicAreas:
 	func _candidate_regions(_definitions: Array) -> Array:
 		return _regions
-	func select(world: WorldState, actor_id: String, definitions: Array, room_kinds: Array, purpose: String, members: Array = [], maximum_travel_ticks: int = 9223372036854775807, selected_entries: Dictionary = {}) -> Dictionary:
+	func select(world: WorldState, actor_id: String, definitions: Array, room_kinds: Array, purpose: String, members: Array = [], maximum_travel_ticks: int = 9223372036854775807, selected_entries: Dictionary = {}, current_floor_only: bool = false) -> Dictionary:
 		space.begin_dynamic_route_query(world,true)
-		var result: Dictionary = super.select(world,actor_id,definitions,room_kinds,purpose,members,maximum_travel_ticks,selected_entries)
+		var result: Dictionary = super.select(world,actor_id,definitions,room_kinds,purpose,members,maximum_travel_ticks,selected_entries,current_floor_only)
 		space.end_route_query()
 		return result
+
+# Count real area searches without replacing geometry, selection or movement.
+class SeatAreaSearchProbe extends HospitalPublicAreas:
+	var searches: int = 0
+	func select(world: WorldState, actor_id: String, definitions: Array, room_kinds: Array, purpose: String, members: Array = [], maximum_travel_ticks: int = 9223372036854775807, selected_entries: Dictionary = {}, current_floor_only: bool = false) -> Dictionary:
+		if purpose=="seat": searches += 1
+		return super.select(world,actor_id,definitions,room_kinds,purpose,members,maximum_travel_ticks,selected_entries,current_floor_only)
 
 class WaitSignatureProbe extends HospitalPublicAreas:
 	var signatures: int = 0
@@ -59,6 +66,7 @@ func _occupied_west(observe_signatures: bool = false) -> Dictionary:
 func _case_69(t) -> void:
 	# Optional chairs use the original five-second behavior scan, not the
 	# failed-service dependency queue. Real bodies still own their occupied chair.
+	var missing_area: Dictionary = _missing_seat_area_retry()
 	var x: Dictionary = _occupied_west()
 	var intent: Dictionary = x.world.facts.waiting_life.seats.get(x.waiter.id,{})
 	var arrived: bool = intent.get("phase","")=="local_wait" and int(intent.get("arrived_tick",-1))==50
@@ -78,7 +86,57 @@ func _case_69(t) -> void:
 	var data: Dictionary = {"anger_sources":{},"cause_clocks":{"no_compatible_seat":0}}
 	x.p._update_cause_clocks(x.world,x.waiter,data,{"value":50.0,"clean":true,"noise":0.0})
 	var cleared: bool = actual and not data.cause_clocks.has("no_compatible_seat")
-	t.check("STAFF-69",x.held and arrived and between_scans and rescanned and no_failed_queue and reaction.ok and release_move.is_empty() and actual and cleared and x.l.validate(x.world).is_empty(),{"arrived_standing":arrived,"no_search_between_behavior_scans":between_scans,"occupied_area_rechecked_on_scan":rescanned,"no_failed_seat_subscription":no_failed_queue,"standing_reaction":reaction,"actual_holder_exit":release_move,"actually_seated_after_release":actual,"real_seating_clears_no_seat_clock":cleared,"intent":intent})
+	t.check("STAFF-69",missing_area.ok and x.held and arrived and between_scans and rescanned and no_failed_queue and reaction.ok and release_move.is_empty() and actual and cleared and x.l.validate(x.world).is_empty(),{"missing_area_retry":missing_area,"arrived_standing":arrived,"no_search_between_behavior_scans":between_scans,"occupied_area_rechecked_on_scan":rescanned,"no_failed_seat_subscription":no_failed_queue,"standing_reaction":reaction,"actual_holder_exit":release_move,"actually_seated_after_release":actual,"real_seating_clears_no_seat_clock":cleared,"intent":intent})
+
+func _missing_seat_area_retry() -> Dictionary:
+	var x: Dictionary = _areas()
+	var probe: SeatAreaSearchProbe = SeatAreaSearchProbe.new(x.space)
+	x.space.public_areas = probe
+	var visit: Dictionary = _visit(x,"missing_area",[40,74])
+	var ticket: String = str(visit.ticket_id)
+	x.world.facts.sim_tick = 50
+	x.l.dispatch(x.world)
+	var origin: Dictionary = x.world.facts.actors[visit.actor_id].location.duplicate(true)
+	_tick_waiting(x)
+	var intent: Dictionary = x.world.facts.waiting_life.seats[visit.id]
+	var started: int = int(intent.started_tick)
+	var walking: bool = intent.phase=="local_travel" and x.world.facts.moves.has(visit.actor_id) and x.world.facts.actors[visit.actor_id].location!=origin and x.world.facts.adaptations.is_empty()
+	# Remove the last chairs after the real journey starts. No body is moved
+	# or chair claim fabricated to prepare the missing-area boundary.
+	for id: String in ["west_chair","east_chair"]: x.world.facts.facilities.erase(id)
+	x.world.touch()
+	var input_validation: String = x.world.validate(_content)
+	var searches: int = probe.searches
+	_tick_waiting(x)
+	var failed_once: bool = probe.searches==searches+1 and not x.world.facts.moves.has(visit.actor_id) and intent.phase=="local_wait" and intent.area.is_empty() and intent.facility_id.is_empty() and int(intent.started_tick)==started
+	var standing_reason: bool = x.l.patient_summary(x.world,visit.id).get("reason","")=="附近没有可用候诊位"
+	var stopped: Dictionary = x.world.facts.actors[visit.actor_id].location.duplicate(true)
+	_tick_waiting(x,47) # 52 -> 99: no new scan boundary.
+	var non_scan_searches: int = probe.searches-searches
+	var no_spin: bool = non_scan_searches==1 and x.world.facts.actors[visit.actor_id].location==stopped and x.world.facts.adaptations.is_empty()
+	var called: Dictionary = _restore(x)
+	var clinical_ready: bool = called.l.call_patient(called.world,visit.id) and not called.world.facts.waiting_life.seats.has(visit.id) and called.world.facts.visits[visit.id].ticket_id==ticket
+	_tick_waiting(x) # 100: retry once, still no candidate area.
+	var retried: bool = probe.searches==searches+2 and intent.phase=="local_wait" and intent.area.is_empty()
+	var before: Dictionary = x.world.freeze()
+	x = _restore(x)
+	var restored: bool = x.world.freeze()==before
+	visit = x.world.facts.visits[visit.id]
+	intent = x.world.facts.waiting_life.seats[visit.id]
+	probe = SeatAreaSearchProbe.new(x.space)
+	x.space.public_areas = probe
+	_tick_waiting(x) # 101: a restored waiting intent does not scan early.
+	_facility(x,"restored_chair","FUR09",[50,68],"east")
+	x.world.touch()
+	_tick_waiting(x,48) # 101 -> 149: a new chair waits for the usual scan.
+	var waits_for_scan: bool = probe.searches==0 and not x.world.facts.moves.has(visit.actor_id) and not HospitalWaitingLife.is_seated(x.world,visit.id)
+	_tick_waiting(x) # 150: select the new area and actually travel there.
+	var resumed: bool = probe.searches==1 and intent.area.get("room_id","")=="east" and intent.facility_id.is_empty() and x.world.facts.moves.has(visit.actor_id) and x.world.facts.adaptations.is_empty() and int(intent.started_tick)==started
+	var seated: bool = _until_seated(x,visit)
+	var actual: bool = seated and intent.facility_id=="restored_chair" and x.space.at(x.world,visit.actor_id,1,x.space.facility_layout(x.world,"restored_chair").patient_cell) and visit.ticket_id==ticket and int(intent.started_tick)==started
+	var no_failed_queue: bool = not probe._wait_results.has(str(intent.id)) and not probe._wait_dependencies.waiters.has(str(intent.id))
+	var final_validation: String = x.world.validate(_content)
+	return {"ok":walking and input_validation.is_empty() and failed_once and standing_reason and no_spin and clinical_ready and retried and restored and waits_for_scan and resumed and actual and no_failed_queue and final_validation.is_empty(),"real_walk_before_chairs_removed":walking,"input_validation":input_validation,"immediate_failed_reselection":failed_once,"standing_reason_not_false_travel":standing_reason,"clinical_call_does_not_wait_for_chair":clinical_ready,"area_searches_during_ticks_52_to_99":non_scan_searches,"no_search_between_scans":no_spin,"retry_at_tick_100":retried,"snapshot_restored":restored,"new_chair_waits_until_tick_150":waits_for_scan,"real_area_journey_resumed":resumed,"actually_seated_at_restored_chair":actual,"no_failed_seat_subscription":no_failed_queue,"final_validation":final_validation}
 
 func _standing_seat_reaction(x: Dictionary) -> Dictionary:
 	# An explicit arithmetic boundary for the existing anger rule. It does not
@@ -476,7 +534,9 @@ func _case_75(t) -> void:
 	var prepared: Dictionary = preload("res://tests/acceptance/public_entry_order_reuse.gd").new().run_case(self)
 	var regions: Dictionary = preload("res://tests/acceptance/public_region_build.gd").new().run_case(_content)
 	var lifecycle: Dictionary = preload("res://tests/acceptance/public_region_lifecycle.gd").new().run_case(_content)
+	var copies: Dictionary = preload("res://tests/acceptance/public_region_world_copy.gd").new().run_case(_content)
 	var refresh: Dictionary = preload("res://tests/acceptance/public_region_refresh_and_doors.gd").new().run_case(_content)
+	var absent: Dictionary = preload("res://tests/acceptance/public_select_absent.gd").new().run_case(_content)
 	var observations: Array = []
 	for variant: String in ["ordinary","fractional","nearest_body_occupied","only_far_point_free"]:
 		var x: Dictionary = _areas()
@@ -516,7 +576,7 @@ func _case_75(t) -> void:
 		var far_retained: bool = retained_far.is_empty() or expected.rows.size()==1 and actual.get("cell",[])==retained_far and original.rows.size()>32
 		var readonly: bool = before==x.world.freeze()
 		observations.append({"variant":variant,"ok":validation.is_empty() and original.readonly and expected.readonly and same and blocked_rejected and stable_tie_exercised and far_retained and readonly,"validation":validation,"literal_rectangle_cells":120,"original_safe_complete_candidates":original.rows.size(),"current_safe_complete_candidates":expected.rows.size(),"minimum_cost_ties":expected.cost_ties,"minimum_cost_and_lower_ties":expected.order_ties,"expected":_entry_result(expected.best,1),"actual":actual,"same_point_cost_and_stable_order":same,"occupied_nearest_rejected":blocked_rejected,"stable_tie_exercised":stable_tie_exercised,"far_unique_candidate_retained":far_retained,"readonly":readonly,"route_queries":route_queries,"waiting_point_us":elapsed})
-	t.check("STAFF-75",prepared.ok and large_estimate.ok and scan_batch.ok and ordering.ok and regions.ok and lifecycle.ok and refresh.ok and observations.all(func(row: Dictionary)->bool: return row.ok),{"complete_entry_boundaries":observations,"large_finite_estimate":large_estimate,"physical_index_scan_batch":scan_batch,"shared_entry_order":ordering,"prepared_entry_order":prepared,"complete_region_build":regions,"region_lifecycle":lifecycle,"region_refresh_and_door_broadphase":refresh})
+	t.check("STAFF-75",prepared.ok and large_estimate.ok and scan_batch.ok and ordering.ok and regions.ok and lifecycle.ok and copies.ok and refresh.ok and absent.ok and observations.all(func(row: Dictionary)->bool: return row.ok),{"complete_entry_boundaries":observations,"large_finite_estimate":large_estimate,"physical_index_scan_batch":scan_batch,"shared_entry_order":ordering,"prepared_entry_order":prepared,"complete_region_build":regions,"region_lifecycle":lifecycle,"cross_world_region_copies":copies,"region_refresh_and_door_broadphase":refresh,"absent_definition_selection":absent})
 
 func _entry_order_reuse() -> Dictionary:
 	var x: Dictionary = _areas()

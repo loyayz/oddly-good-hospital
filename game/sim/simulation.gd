@@ -30,6 +30,7 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 	_register_service("development",HospitalClinicalDevelopment.new(database,space),["train_staff","promote_staff","cancel_training","set_growth_direction"])
 	_register_service("scheduler",HospitalShiftScheduler.new(database,space),["apply_schedule","set_schedule_lock","plan_leave","cancel_leave"])
 	_register_service("wellbeing",HospitalStaffWellbeing.new(database,space),["staff_recreation","set_staff_recreation","interrupt_staff_rest","staff_pressure_event"])
+	_register_service("floor_guidance",HospitalFloorGuidance.new(database,space),[])
 	_register_service("waiting",HospitalWaitingLife.new(database,space),["waiting_select_seat","waiting_release_seat"])
 	_register_service("supplies",HospitalSupplies.new(database,space),["set_auto_restock","supply_auto","purchase_supplies","supply_purchase","supply_aid"])
 	_register_service("environment",HospitalEnvironment.new(database,space),["renovate","renovation_order","renovation_pause","renovation_resume","renovation_cancel","cleanup_pin"])
@@ -55,6 +56,10 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 		clinic.research = services.research
 		clinic.scheduler = services.scheduler
 		clinic.waiting_life = services.waiting
+		clinic.floor_guidance = services.floor_guidance
+		services.floor_guidance.clinic = clinic
+		services.floor_guidance.waiting = services.waiting
+		services.waiting.floor_guidance = services.floor_guidance
 		services.supplies.clinic = clinic
 		clinic.environment = services.environment
 		services.waiting.environment = services.environment
@@ -76,6 +81,11 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 		services.arrivals.development = services.development
 	_ensure_services()
 
+# App loading and observation changes prepare the complete selected floor.
+# Background floors remain accessible through the same lazy cache entry point.
+func prepare_floor_static(floor_id: int) -> Dictionary:
+	return space._navigation.prepare_floor(space,world,floor_id)
+
 func _ensure_services() -> void:
 	if _production():
 		clinic.ensure(world)
@@ -88,6 +98,11 @@ func _register_service(id: String, service: RefCounted, kinds: Array[String]) ->
 		_business_handlers[kind] = service
 
 func dispose() -> void:
+	if services.has("floor_guidance"):
+		services.floor_guidance.clinic = null
+		services.floor_guidance.waiting = null
+	if clinic!=null: clinic.floor_guidance = null
+	if services.has("waiting"): services.waiting.floor_guidance = null
 	if services.has("arrivals"): services.arrivals.dispose()
 	if services.has("floors"): services.floors.environment = null
 	if services.has("remodel"):
@@ -159,11 +174,8 @@ func drain_commands() -> Array[CommandResult]:
 		else: _commands = []
 	while not _command_boundary.is_empty():
 		var command: GameCommand = _command_boundary[0]
-		var hold: bool = _production() and receipt(command.id).is_empty() and command.kind=="arrivals_scale" and command.typed_payload is BusinessPayload and command.typed_payload.to_record().get("mode","")=="hold_capacity"
-		if hold and not services.arrivals.seal_capacity(world,false).get("complete",false): break
 		_command_boundary.pop_front()
 		results.append(apply(command))
-		if hold: services.arrivals.release_preparation()
 	return results
 
 func pending() -> bool:
@@ -171,12 +183,6 @@ func pending() -> bool:
 
 func step_in_progress() -> bool:
 	return not _step_context.is_empty()
-
-func preparing_error() -> String:
-	return services.arrivals.preparation_error if _production() else ""
-
-func retry_preparation() -> void:
-	if _production(): services.arrivals.retry_preparation()
 
 func hold_save_boundary() -> void:
 	_save_boundary = true
@@ -261,7 +267,7 @@ func step(state: WorldState = null, commands: Array[GameCommand] = []) -> TickRe
 	for command: GameCommand in commands:
 		_commands.append(GameCommand.from_record(command.to_record()))
 	var result: TickResult = step_nonblocking()
-	while result==null and preparing_error().is_empty():
+	while result==null:
 		OS.delay_usec(1000)
 		result = step_nonblocking()
 	return result
@@ -294,6 +300,7 @@ func step_nonblocking() -> TickResult:
 		services.remodel.dispatch(world)
 		services.scheduler.dispatch(world)
 		services.development.dispatch(world)
+		services.floor_guidance.dispatch(world)
 		services.waiting.dispatch(world)
 		services.departments.dispatch(world)
 		services.environment.dispatch(world)
@@ -305,6 +312,7 @@ func step_nonblocking() -> TickResult:
 		for staff_id: String in world.ids("staff"):
 			var staff: Dictionary = world.facts.staff[staff_id]
 			staff.dispatch_idle = not HospitalClinicalDevelopment.safe_busy(world,staff_id,busy) and not world.facts.moves.has(staff_id) and staff.get("base_task",{}).is_empty() and str(staff.get("training_job_id","")).is_empty()
+			staff.dispatch_idle_tick = world.sim_tick
 		services.wellbeing.dispatch(world)
 	var before_movement: Dictionary = {}
 	for staff_id: String in world.ids("staff"):
@@ -318,6 +326,7 @@ func step_nonblocking() -> TickResult:
 		services.environment.advance(world)
 		services.maintenance.advance(world)
 		services.departments.advance(world)
+		services.floor_guidance.advance(world)
 		services.recruitment.advance(world)
 		services.floors.advance(world)
 	if _production(): # 7: integrate each real work/movement source once.
@@ -328,6 +337,7 @@ func step_nonblocking() -> TickResult:
 		worked.merge(services.environment.worked_staff(),true)
 		worked.merge(services.maintenance.worked_staff(),true)
 		worked.merge(services.departments.worked_staff(),true)
+		worked.merge(services.floor_guidance.worked_staff(),true)
 		worked.merge(services.floors.worked_staff(),true)
 		services.wellbeing.advance(world,worked,before_movement)
 		services.waiting.advance(world)

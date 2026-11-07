@@ -15875,6 +15875,9 @@
     {
       "id": "SE01",
       "name": "导诊台",
+      "fit_profile_id": "FF06",
+      "max_clearance_cells": 3,
+      "max_height_m": 6.5,
       "footprint": [
         2,
         1

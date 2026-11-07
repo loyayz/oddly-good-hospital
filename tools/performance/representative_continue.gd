@@ -58,11 +58,11 @@ func _run() -> void:
 			reason = "bounded_watchdog"
 			break
 		var result: TickResult = fixture.simulation.step_nonblocking()
-		while result==null and fixture.simulation.preparing_error().is_empty() and Time.get_ticks_usec()-_started<60000000:
+		while result==null and Time.get_ticks_usec()-_started<60000000:
 			await process_frame
 			result = fixture.simulation.step_nonblocking()
 		if result==null:
-			reason = "preparation_error_or_watchdog:"+fixture.simulation.preparing_error()
+			reason = "step_watchdog"
 			break
 		steps += 1
 		var observed: Dictionary = fixture.observe(result)

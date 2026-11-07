@@ -220,7 +220,7 @@ func retire_ticket(world: WorldState, visit_id: String) -> void:
 	data.retired_tickets[ticket.id] = true
 	data.excess_wait_ticks += maxi(0,int(ticket.get("waited_ticks",0))-_grace_ticks(str(ticket.kind)))
 
-func route_patient(world: WorldState, visit_id: String) -> bool:
+func route_patient(world: WorldState, visit_id: String, at_floor_desk: bool = false) -> bool:
 	ensure(world)
 	var visit: Dictionary = world.facts.visits[visit_id]
 	var units: Dictionary = world.facts.departments.units
@@ -235,7 +235,7 @@ func route_patient(world: WorldState, visit_id: String) -> bool:
 			if readiness.structurally_compatible: correct.append(id)
 			elif readiness.reason_id in content.balance.guidance.wrong_destination_reason_ids and _serves_other_case(world,units[id]): wrong.append(id)
 		if correct.is_empty():
-			visit.waiting_reason = "没有具备本病例完整路线的开放科室"
+			visit.waiting_reason = "没有接收本病例且设有初诊诊桌的开放科室"
 			return false
 		var selected: String = correct[0]
 		var error_rolled: bool = false
@@ -249,7 +249,7 @@ func route_patient(world: WorldState, visit_id: String) -> bool:
 	var route: Dictionary = world.facts.departments.routes[visit_id]
 	var current: Dictionary = readiness_by_department.get(str(visit.department_id),{})
 	if current.is_empty(): current = readiness(world,str(visit.department_id),visit_id,true)
-	if current.structurally_compatible:
+	if current.structurally_compatible and units.get(str(visit.department_id),{}).get("open",false):
 		if world.facts.departments.guidance.get(visit_id,{}).get("phase","")=="working": return false
 		if route.error_rolled and not route.corrected: _correct(world,visit_id,"capacity_recheck",str(visit.department_id))
 		return true
@@ -260,6 +260,9 @@ func route_patient(world: WorldState, visit_id: String) -> bool:
 	route.correct_department_id = targets[0].id
 	if route.corrected:
 		visit.department_id = route.correct_department_id
+		return true
+	if at_floor_desk:
+		_correct(world,visit_id,"floor_guide",str(route.correct_department_id))
 		return true
 	if world.facts.departments.guidance.has(visit_id):
 		visit.waiting_reason = "导诊护士正在核对去向，保留原票号"
@@ -299,6 +302,18 @@ func readiness(world: WorldState, department_id: String, visit_id: String, struc
 	if not route.ok: return {"ok":false,"reachable":false,"structurally_compatible":false,"reason_id":"traversal","reason":route.reason}
 	if not department.intake_disease_ids.is_empty() and not visit.disease_id in department.intake_disease_ids:
 		return {"ok":false,"reachable":true,"structurally_compatible":false,"reason_id":"intake_scope_excludes_case","reason":"接诊范围明确排除本病例"}
+	# Initial diagnosis does not promise a downstream treatment chain.
+	# Staff, body fit and real routes are still checked by GP dispatch.
+	if visit.get("phase","") in ["arrival","wait_reception","reception","wait_gp","gp"]:
+		var diagnostic: bool = false
+		for facility_id: String in world.facility_ids("FUR02"):
+			var facility: Dictionary = world.facts.facilities[facility_id]
+			if _belongs(department,facility) and not facility.failed and bool(facility.get("open",true)) and bool(facility.get("intake_open",true)) and not HospitalRemodel.blocked(world,facility_id):
+				diagnostic = true
+				break
+		return {"ok":department.open and diagnostic,"reachable":true,"structurally_compatible":diagnostic,
+			"reason_id":"" if diagnostic else "equipment_has_no_unlocked_plan","reason":"" if diagnostic else "等待开放的初诊诊桌",
+			"plans":[],"department_id":department_id,"entry":department.entry.duplicate(true)}
 	var binding: Dictionary = content.definition("treatment_bindings",visit.binding_id)
 	var routine: Dictionary = content.definition("treatment_routines",binding.get("routine_id",""))
 	var equipment: bool = false

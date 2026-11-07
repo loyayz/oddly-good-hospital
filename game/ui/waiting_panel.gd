@@ -32,10 +32,10 @@ func build_controls() -> void:
 	for candidate: Dictionary in service.seat_candidates(simulation.world,_visit_id):
 		seats.append({"id":candidate.facility_id,"name":"%s · 步行约%.1f秒" % [candidate.facility_id,float(candidate.travel_ticks)*0.1]})
 	_seat_page=clampi(_seat_page,0,maxi(0,(seats.size()-1)/12))
-	var seat: OptionButton = choice("当前合法空座 · 第%d页" % (_seat_page+1),seats.slice(_seat_page*12,_seat_page*12+12))
+	var seat: OptionButton = choice("诊室附近同层空座 · 第%d页" % (_seat_page+1),seats.slice(_seat_page*12,_seat_page*12+12))
 	action("上一页空座",func() -> void: _seat_page-=1; rebuild(),_seat_page>0)
 	action("下一页空座",func() -> void: _seat_page+=1; rebuild(),(_seat_page+1)*12<seats.size())
-	note("无合法空座时可继续原地候诊；饮水、如厕和叫号优先安全完成。")
+	note("只在护士指定诊室附近同层候诊；没有空座就安全站立。新服务先导诊，饮水、如厕和离院按原流程。")
 	action("前往所选座位",func() -> void: send("waiting_select_seat",{"visit_id":_visit_id,"facility_id":selected(seat)}),not seats.is_empty())
 	action("离开当前座位",func() -> void: send("waiting_release_seat",{"visit_id":_visit_id}))
 	action("重新查看空座",rebuild)

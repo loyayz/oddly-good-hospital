@@ -11230,6 +11230,23 @@
             },
             "tutorial_fixed_slots": {
               "type": "integer"
+            },
+            "random_demand": {
+              "type": "object",
+              "properties": {
+                "daily_interest_per_open_gp_desk": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "concurrent_outpatients_per_open_gp_desk": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "daily_interest_per_open_gp_desk",
+                "concurrent_outpatients_per_open_gp_desk"
+              ]
             }
           },
           "required": [
@@ -11243,7 +11260,8 @@
             "schedule",
             "slot_jitter_max",
             "slot_jitter_min",
-            "tutorial_fixed_slots"
+            "tutorial_fixed_slots",
+            "random_demand"
           ],
           "type": "object"
         },
@@ -14796,18 +14814,8 @@
         },
         "movement_courtesy": {
           "properties": {
-            "blocked_before_yield_seconds": {
-              "minimum": 0,
-              "type": "integer"
-            },
             "body_overlap": {
               "type": "boolean"
-            },
-            "priority": {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
             },
             "refer_hard_block_seconds": {
               "minimum": 0,
@@ -14821,22 +14829,20 @@
               "minimum": 0,
               "type": "integer"
             },
-            "yield_resets_wait": {
+            "detour_resets_wait": {
               "type": "boolean"
             },
-            "yield_target": {
+            "detour_target": {
               "type": "string"
             }
           },
           "required": [
-            "blocked_before_yield_seconds",
             "body_overlap",
-            "priority",
             "refer_hard_block_seconds",
             "reselect_hard_block_seconds",
             "retry_hard_block_seconds",
-            "yield_resets_wait",
-            "yield_target"
+            "detour_resets_wait",
+            "detour_target"
           ],
           "type": "object"
         },

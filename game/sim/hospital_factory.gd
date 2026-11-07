@@ -30,8 +30,13 @@ static func create(hospital_id: String, display_name: String, preset: bool, cont
 		return world
 	for room: Dictionary in starter.rooms:
 		_add_room(world,room,content)
+	var placement: BuildService = BuildService.new(content)
 	for item: Dictionary in starter.objects:
 		_add_facility(world,item,content)
+		# Rest fixtures share ordinary placement's real access/repair anchors.
+		# Clinical starter stations retain their authored service anchors.
+		if item.definition_id in ["SE04","FUR06"]:
+			placement._set_anchors(data.facilities[item.id],content.facility_definition(item.definition_id))
 	for path: Dictionary in starter.path_rectangles:
 		for x: int in range(int(path.anchor[0]),int(path.anchor[0])+int(path.size[0])):
 			for y: int in range(int(path.anchor[1]),int(path.anchor[1])+int(path.size[1])):
@@ -60,6 +65,9 @@ static func create(hospital_id: String, display_name: String, preset: bool, cont
 		for price: Dictionary in content.balance.staff:
 			if price.role == role:
 				HospitalLedger.post(world,LedgerEntry.new("starter_"+role,"hire",-int(price.hire)))
+	_add_staff(world,"starter_guide_nurse","导诊护士","nurse",[50,94],content)
+	for price: Dictionary in content.balance.staff:
+		if price.role=="nurse": HospitalLedger.post(world,LedgerEntry.new("starter_guide_nurse","hire",-int(price.hire)))
 	return world
 
 static func _add_staff(world: WorldState, id: String, name: String, role: String, cell: Array, _content: HospitalContent) -> void:

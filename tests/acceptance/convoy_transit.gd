@@ -13,7 +13,7 @@ func _run() -> void:
 	var started: int = Time.get_ticks_usec()
 	var rows: Array = []
 	var selected: PackedStringArray = OS.get_cmdline_user_args()
-	var cases: Array[String] = ["plans","cache","mixed","opposing","rotations","retarget","journey","ride","blocked","admission","cancel","stairs","solo_stairs","solo"]
+	var cases: Array[String] = ["plans","cache","mixed","opposing","rotations","retarget","journey","ride","blocked","admission","cancel","stairs","solo_stairs","solo","sync_lift","sync_stairs"]
 	for name: String in cases:
 		if selected.size()>1 and not name in selected[1].split(","): continue
 		var row: Dictionary
@@ -32,6 +32,8 @@ func _run() -> void:
 			"stairs": row = _stairs()
 			"solo_stairs": row = _solo_stairs()
 			"solo": row = _solo()
+			"sync_lift": row = _publication_journey("lift")
+			"sync_stairs": row = _publication_journey("stairs")
 		rows.append(row)
 		print(JSON.stringify(row))
 	var ok: bool = not rows.is_empty()
@@ -526,10 +528,11 @@ func _opposing_queues() -> Dictionary:
 	var first_error: String=""
 	var safe: bool=true
 	var bounded: bool=true
-	var preserved_ticket: bool=true
+	var absent_has_no_ticket: bool=true
+	var return_sequence: int=-1
 	var ticket: int=-1
 	var stood_aside: bool=false
-	var aside_quote_unknown: bool=false
+	var aside_prefix_complete: bool=false
 	var arrived: bool=false
 	var ticks: int=0
 	for index: int in 900:
@@ -550,13 +553,18 @@ func _opposing_queues() -> Dictionary:
 		var second: Dictionary=world.facts.moves.get("b",{})
 		if second.has("transit_ticket"):
 			if ticket<0: ticket=int(second.transit_ticket.sequence)
-			preserved_ticket=preserved_ticket and ticket==int(second.transit_ticket.sequence)
-			stood_aside=stood_aside or not sim.space.at(world,"b",2,[36,76])
-			if stood_aside: aside_quote_unknown=aside_quote_unknown or HospitalTransit._prefix(sim.space,world,world.facts.connectors[suite._connection(sim)],"other").get("status","")=="estimate_unknown"
+			else: return_sequence=maxi(return_sequence,int(second.transit_ticket.sequence))
+		var second_actor: Dictionary=world.facts.actors.b
+		if ticket>0 and second_actor.location.kind=="floor" and int(second_actor.location.floor_id)==2 and not sim.space.at(world,"b",2,[36,76]):
+			stood_aside=true
+			absent_has_no_ticket=absent_has_no_ticket and not second.has("transit_ticket")
+			aside_prefix_complete=aside_prefix_complete or HospitalTransit._prefix(sim.space,world,world.facts.connectors[suite._connection(sim)],"other").get("status","")=="complete"
+		var current_connection: Dictionary=world.facts.connectors[suite._connection(sim)]
+		if current_connection.get("primary_actor_id","")=="b": return_sequence=int(current_connection.trip_sequence)
 		if sim.space.at(world,"a",2,[44,82]) and sim.space.at(world,"b",1,[44,82]) and not world.facts.moves.has("a") and not world.facts.moves.has("b"):
 			arrived=true
 			break
-	var result: Dictionary={"ok":a.is_empty() and b.is_empty() and arrived and safe and bounded and first_error.is_empty() and stood_aside and preserved_ticket and ticket==2 and aside_quote_unknown,"case":"opposing_queues","request_a":a,"request_b":b,"arrived":arrived,"safe":safe,"bounded":bounded,"validation":first_error,"stood_aside":stood_aside,"aside_quote_unknown":aside_quote_unknown,"preserved_ticket":preserved_ticket,"ticket":ticket,"ticks":ticks,"remaining":world.facts.moves.duplicate(true),"connection":world.facts.connectors[suite._connection(sim)].duplicate(true)}
+	var result: Dictionary={"ok":a.is_empty() and b.is_empty() and arrived and safe and bounded and first_error.is_empty() and stood_aside and absent_has_no_ticket and ticket==2 and return_sequence==3 and aside_prefix_complete,"case":"opposing_queues","request_a":a,"request_b":b,"arrived":arrived,"safe":safe,"bounded":bounded,"validation":first_error,"stood_aside":stood_aside,"aside_prefix_complete":aside_prefix_complete,"absent_has_no_ticket":absent_has_no_ticket,"return_sequence":return_sequence,"ticket":ticket,"ticks":ticks,"remaining":world.facts.moves.duplicate(true),"connection":world.facts.connectors[suite._connection(sim)].duplicate(true)}
 	sim.dispose()
 	return result
 
@@ -658,3 +666,148 @@ func _mixed_queues() -> Dictionary:
 		rows.append({"ok":ok,"incoming_convoy":incoming_convoy,"arrived":arrived,"safe":safe,"convoy_bounded":bounded,"validation":first_error,"ticks":ticks,"remaining":world.facts.moves.duplicate(true)})
 		sim.dispose()
 	return {"ok":all_ok,"case":"mixed_solo_convoy_transit","rows":rows}
+
+# Observe actual production index writes, including empty-region removal. Stack
+# provenance attributes the write; the delegated record mutation is the evidence.
+class PublicationIndex:
+	extends BodyIndex
+	var events: Array = []
+	func update_compound(id: String, floor_id: int, regions: Array[Rect2]) -> void:
+		var former: Array[Rect2] = []
+		if _records.has(id): former = (_records[id] as Record).regions
+		var before: Array = _rectangles(former)
+		var from_transit: bool = false
+		var from_boundary: bool = false
+		var from_world_sync: bool = false
+		var stack: Array = get_stack()
+		for frame: Dictionary in stack:
+			from_transit = from_transit or str(frame.source)=="res://game/building/hospital_transit.gd"
+			from_boundary = from_boundary or (str(frame.source)=="res://game/building/hospital_movement.gd" and str(frame.function)=="advance")
+			from_world_sync = from_world_sync or (str(frame.source)=="res://game/building/hospital_space.gd" and str(frame.function)=="_sync_convoys")
+		super.update_compound(id,floor_id,regions)
+		var after: Array = _rectangles((_records[id] as Record).regions) if _records.has(id) else []
+		events.append({"owner":id,"floor_id":floor_id,"from_transit":from_transit,"from_movement_boundary":from_boundary and from_world_sync,"before":before,"after":after,"republished_regions":_records.has(id) and not is_same(former,(_records[id] as Record).regions),"stack":stack})
+	func _rectangles(regions: Array[Rect2]) -> Array:
+		var result: Array = []
+		for region: Rect2 in regions: result.append([region.position.x,region.position.y,region.size.x,region.size.y])
+		return result
+
+func _publication_capture(label: String, data: Variant) -> void:
+	var args: PackedStringArray = OS.get_cmdline_user_args()
+	if args.size()>2: FileAccess.open(args[2]+"."+label+".json",FileAccess.WRITE).store_string(JSON.stringify(data,"  "))
+
+func _publication_projection(sim: HospitalSimulation, tracker: PublicationIndex, movement: Dictionary) -> bool:
+	var world: WorldState = sim.world
+	var owner: String = movement.actor_id
+	if not world.facts.moves.has(owner):
+		for id: String in movement.members:
+			if sim.space._convoy_owner.has(id) or not tracker._records.has(id): return false
+			var record: BodyIndex.Record = tracker.record(id)
+			if record.floor_id!=int(world.facts.actors[id].location.floor_id) or record.rect!=sim.space.body_rectangle(world.facts.actors[id]): return false
+		return not sim.space._convoy_members.has(owner)
+	var actor: Dictionary = world.facts.actors[owner]
+	var expected: Array[Rect2] = ConvoyTrail.regions(movement.convoy)
+	if actor.location.kind=="transit": expected = ConvoyPortal.ground_regions(movement.convoy,world.facts.connectors[actor.location.connector_id])
+	if expected.is_empty(): return not tracker._records.has(owner)
+	if not tracker._records.has(owner): return false
+	var record: BodyIndex.Record = tracker.record(owner)
+	if record.floor_id!=int(movement.convoy.floor_id) or record.regions!=expected: return false
+	for id: String in movement.members:
+		if sim.space._convoy_owner.get(id,"")!=owner or (id!=owner and tracker._records.has(id)): return false
+	return true
+
+func _publication_journey(kind: String) -> Dictionary:
+	var sim: HospitalSimulation = suite._transit_fixture() if kind=="lift" else suite._fixture()
+	if kind=="stairs":
+		suite._history_height(sim,2)
+		var built: CommandResult = suite._command(sim,"connector_build",{"definition_id":"VC01","floor_id":1,"cell":[36,72]})
+		if not built.accepted:
+			sim.dispose()
+			return {"ok":false,"case":"publication_"+kind,"invalid_input":"stair build rejected"}
+	var world: WorldState = sim.world
+	var connection: Dictionary = world.facts.connectors[suite._connection(sim)]
+	# A separate actual journey stays live beyond all 65 lift or 25 stair ticks.
+	suite._add_actor(sim,"other","S49",[46,84])
+	suite._add_actor(sim,"other_f","S49",[44,84])
+	var requested: String = sim.space.request_group_move(world,"other",["other","other_f"],{},1,[62,84])
+	var previous: Array = world.facts.actors.other.location.cell.duplicate()
+	suite._movement_tick(sim)
+	var other_moved: bool = previous!=world.facts.actors.other.location.cell and world.facts.moves.get("other",{}).has("convoy")
+	var segment: Dictionary = {"kind":"connector","connector_id":connection.id,"from":1,"to":2}
+	var movement: Dictionary
+	if kind=="lift":
+		var seeded: Dictionary = _seed(sim,connection)
+		if not seeded.ok:
+			sim.dispose()
+			return {"ok":false,"case":"publication_"+kind,"invalid_input":seeded}
+		movement = seeded.movement
+	else:
+		suite._add_actor(sim,"leader","S49",connection.anchor)
+		var created: Dictionary = ConvoyTrail.create(sim.space,world,"leader",["leader"])
+		if not created.ok:
+			sim.dispose()
+			return {"ok":false,"case":"publication_"+kind,"invalid_input":created}
+		movement = {"actor_id":"leader","members":["leader"],"convoy":created.convoy,"path":[segment],"cursor":0,"travelled":[],"target_floor":2,"target_cell":connection.anchor.duplicate(),"blocked_since":-1,"yielding":false}
+		world.facts.moves["leader"] = movement
+		world.touch()
+	var other: Dictionary = world.facts.moves.get("other",{})
+	var tracker: PublicationIndex = PublicationIndex.new()
+	sim.space._actor_index = tracker
+	sim.space._indexed_revision = -1
+	sim.space._ensure_actor_index(world)
+	var initial_builds: int = int(sim.space.query_counts.actor_index_builds)
+	var built_owners: Dictionary = {}
+	for event: Dictionary in tracker.events: built_owners[event.owner] = true
+	var checks: Dictionary = {"legal_input":world.validate(suite.content).is_empty(),"other_requested":requested.is_empty(),"other_really_moved":other_moved,"cold_index_rebuilds_both":built_owners.has("leader") and built_owners.has("other"),"current_projection":_publication_projection(sim,tracker,movement),"other_projection":_publication_projection(sim,tracker,other),"no_unrelated_transit_publication":true,"no_incidental_rebuild":true,"live_other_at_every_transit_transition":true,"boundary_reconciliation_retained":true,"valid_each_tick":true,"safe_member_positions":true}
+	_publication_capture(kind+".input",{"boundary":"Other convoy already moved one real fixed step; current unit legally assembled at its connector entrance; cold body index fully built before begin","world":world.freeze(),"checks":checks.duplicate(true),"cold_index_events":tracker.events.duplicate(true)})
+	if not _all(checks):
+		sim.dispose()
+		return {"ok":false,"case":"publication_"+kind,"invalid_input":checks}
+	var unrelated_before: Dictionary = {"movement":other.duplicate(true),"leader":world.facts.actors.other.duplicate(true),"follower":world.facts.actors.other_f.duplicate(true)}
+	tracker.events.clear()
+	HospitalTransit.begin(sim.space,world,world.facts.actors.leader,movement,segment)
+	var unrelated_after: Dictionary = {"movement":other.duplicate(true),"leader":world.facts.actors.other.duplicate(true),"follower":world.facts.actors.other_f.duplicate(true)}
+	checks.begin_preserves_other_facts = unrelated_before==unrelated_after
+	checks.current_started = world.facts.actors.leader.location.kind=="transit"
+	var trace: Array = []
+	var transitions: Dictionary = {"begin":true}
+	var transit_publications: int = 0
+	var unrelated_publications: int = 0
+	var ticks: int = 0
+	for index: int in 240:
+		for event: Dictionary in tracker.events:
+			if event.from_transit:
+				transit_publications += 1
+				if event.owner!="leader": unrelated_publications += 1
+		checks.no_unrelated_transit_publication = unrelated_publications==0
+		checks.no_incidental_rebuild = checks.no_incidental_rebuild and initial_builds==int(sim.space.query_counts.actor_index_builds)
+		checks.current_projection = checks.current_projection and _publication_projection(sim,tracker,movement)
+		checks.other_projection = checks.other_projection and _publication_projection(sim,tracker,other)
+		checks.valid_each_tick = checks.valid_each_tick and world.validate(suite.content).is_empty()
+		if kind=="lift": checks.safe_member_positions = checks.safe_member_positions and _safe_positions(sim,movement)
+		if world.facts.moves.has("other"): checks.safe_member_positions = checks.safe_member_positions and _safe_positions(sim,other)
+		trace.append({"tick":world.sim_tick,"phase":connection.phase,"actors":world.facts.actors.duplicate(true),"moves":world.facts.moves.duplicate(true),"connection":connection.duplicate(true),"events":tracker.events.duplicate(true),"checks":checks.duplicate(true)})
+		if not _all(checks) or (not world.facts.moves.has("leader") and not world.facts.moves.has("other")): break
+		var old_phase: String = connection.phase
+		var other_live: bool = world.facts.moves.has("other")
+		tracker.events.clear()
+		suite._movement_tick(sim)
+		ticks += 1
+		if connection.phase!=old_phase:
+			transitions[old_phase+"_to_"+str(connection.phase)] = true
+			checks.live_other_at_every_transit_transition = checks.live_other_at_every_transit_transition and other_live
+		if other_live:
+			var boundary_published: bool = false
+			for event: Dictionary in tracker.events:
+				if event.owner=="other" and event.from_movement_boundary and not event.from_transit: boundary_published = true
+			checks.boundary_reconciliation_retained = checks.boundary_reconciliation_retained and boundary_published
+	checks.current_completed = not world.facts.moves.has("leader") and sim.space.at(world,"leader",2,movement.target_cell)
+	checks.other_completed = not world.facts.moves.has("other") and sim.space.at(world,"other",1,[62,84])
+	checks.current_transit_publications_observed = transit_publications>0
+	checks.actual_transition_coverage = transitions.has("riding_to_idle") if kind=="stairs" else transitions.has("boarding_to_riding") and transitions.has("riding_to_alighting") and transitions.has("alighting_to_idle")
+	checks.membership_released = not sim.space._convoy_members.has("leader") and not sim.space._convoy_members.has("other") and _publication_projection(sim,tracker,movement) and _publication_projection(sim,tracker,other)
+	_publication_capture(kind+".trace",trace)
+	_publication_capture(kind+".final",world.freeze())
+	var result: Dictionary = {"ok":_all(checks),"case":"publication_"+kind,"checks":checks,"ticks":ticks,"transitions":transitions,"transit_publications":transit_publications,"unrelated_transit_publications":unrelated_publications,"step_seconds":WorldState.TICK_SECONDS}
+	sim.dispose()
+	return result

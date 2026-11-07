@@ -5,6 +5,7 @@ const WAITING_SEAT_DEFINITIONS: Array[String] = ["FUR09","FUR10","FUR11","FUR12"
 
 var content: HospitalContent
 var space: HospitalSpace
+var waiting_scope: HospitalClinicWaitingScope
 var _present_world: WorldState
 var _present_records: Dictionary = {}
 var _present_count: int = -1
@@ -14,6 +15,7 @@ var _present_observer: String = "visitor_lookup_"+str(get_instance_id())
 func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 	content = database
 	space = geometry
+	waiting_scope = HospitalClinicWaitingScope.new(geometry)
 
 func ensure(world: WorldState) -> void:
 	if not world.facts.has("visitors"):
@@ -107,9 +109,7 @@ func _admit(world: WorldState, visit: Dictionary, request: Dictionary, lookup: D
 	return true
 
 func dispatch(world: WorldState) -> void:
-	space.public_areas.begin_wait_observation(world)
 	_dispatch_waiting(world)
-	space.public_areas.end_wait_observation()
 
 func _dispatch_waiting(world: WorldState) -> void:
 	ensure(world)
@@ -241,8 +241,8 @@ func _leave_public_seat(world: WorldState, stay: Dictionary) -> void:
 func _public_waiting(world: WorldState, stay: Dictionary) -> bool:
 	var actor: Dictionary = world.facts.actors[stay.actor_id]
 	var intent: Dictionary = stay.public_use
-	var yielded: String = _yielded_seat(world,intent)
-	if yielded.is_empty(): intent.erase("yielded_seat")
+	var waiting_for_area: bool = intent.phase=="local_wait" and intent.area.is_empty()
+	if _yielded_seat(world,intent).is_empty(): intent.erase("yielded_seat")
 	var failed: Dictionary = space.movement_failure(world,actor.id)
 	var valid: bool = space.public_areas.area_valid(world,intent.area,["waiting","waiting_area","public","lobby","garden",""])
 	if not failed.is_empty() or not valid:
@@ -252,19 +252,35 @@ func _public_waiting(world: WorldState, stay: Dictionary) -> bool:
 		intent.facility_id = ""
 		intent.phase = "area_travel" if intent.area.is_empty() else "local_wait"
 		space.public_areas.changed(world)
+	_stop_lost_seat_trip(world,stay)
 	if actor.location.kind!="floor" or world.facts.moves.has(actor.id): return false
 	if intent.phase=="yielding":
 		intent.phase = "local_wait"
-		intent.arrived_tick = world.sim_tick
 		space.public_areas.changed(world)
 		return true
 	if intent.phase=="seated" and world.facts.facilities.has(intent.facility_id): return true
+	# Optional chairs have no failed-choice dependencies. Settled waiting uses
+	# the ordinary behavior scan; physical movement/safe stops are handled above.
+	if (waiting_for_area or (intent.phase=="local_wait" and int(intent.arrived_tick)>=0)) and world.sim_tick%_ticks(content.balance.patient_behavior.scan_seconds)!=0:
+		if waiting_for_area: intent.phase = "local_wait"
+		return _public_wait_position(world,stay)
 	var selected_entry: Dictionary = {}
 	if space.public_areas.region(world,intent.area).is_empty() or space.public_areas.facilities(world,intent.area,WAITING_SEAT_DEFINITIONS).is_empty() or (space.public_areas.contains(world,intent.area,actor.id) and not space.public_areas.compatible_geometry(world,intent.area,WAITING_SEAT_DEFINITIONS,[actor.id])):
 		var selected: Dictionary = space.public_areas.select(world,actor.id,WAITING_SEAT_DEFINITIONS,["waiting","waiting_area","public","lobby","garden",""],"seat")
-		if selected.is_empty(): return false
+		# A missing optional chair is not a missing public waiting place.
+		# Keep the admitted standing destination until actual arrival; otherwise
+		# choose a permitted, reachable point using this visitor's own body.
+		if selected.is_empty() and valid:
+			selected = space.public_areas.waiting_point(world,actor.id,intent.area)
+			if not selected.is_empty(): selected.area = intent.area
+		if selected.is_empty(): selected = _standing_point(world,actor.id)
+		if selected.is_empty():
+			intent.area = {}
+			intent.arrived_tick = -1
+			intent.phase = "local_wait"
+			return _public_wait_position(world,stay)
+		if intent.area!=selected.area: intent.arrived_tick = -1
 		intent.area = selected.area
-		intent.arrived_tick = -1
 		selected_entry = selected
 		space.public_areas.changed(world)
 	if not space.public_areas.contains(world,intent.area,actor.id):
@@ -291,7 +307,6 @@ func _public_waiting(world: WorldState, stay: Dictionary) -> bool:
 		intent.facility_id = ""
 		space.public_areas.changed(world)
 	intent.phase = "local_wait"
-	if not space.public_areas.should_recheck(world,intent,WAITING_SEAT_DEFINITIONS,[actor.id],{"yielded_seat":yielded}): return _public_wait_position(world,stay)
 	# Queue fits and exit witnesses belong to this visitor's read-only choice,
 	# including nested trip quotes. End before any intent or resource commit.
 	space.begin_dynamic_route_query(world)
@@ -306,14 +321,46 @@ func _public_waiting(world: WorldState, stay: Dictionary) -> bool:
 	space.end_route_query()
 	intent.facility_id = ""
 	intent.phase = "local_wait"
-	space.public_areas.remember_wait(world,intent,WAITING_SEAT_DEFINITIONS,[actor.id],{"yielded_seat":yielded})
 	return _public_wait_position(world,stay)
+
+# Only this optional trip may stop after someone else physically takes its chair.
+# Retargeting, including an identical destination, clears waiting_seat_id in
+# HospitalMovement. Safety maneuvers and real support/transit exits finish first.
+func _stop_lost_seat_trip(world: WorldState, stay: Dictionary) -> void:
+	var intent: Dictionary = stay.public_use
+	if intent.phase!="local_travel": return
+	var facility_id: String = str(intent.get("facility_id",""))
+	if facility_id.is_empty() or not world.facts.facilities.has(facility_id): return
+	var movement: Dictionary = world.facts.moves.get(stay.actor_id,{})
+	if movement.is_empty() or movement.get("waiting_seat_id","")!=intent.id: return
+	if movement.has("detour") or movement.has("convoy") or movement.get("members",[stay.actor_id])!=[stay.actor_id]: return
+	var layout: Dictionary = space.facility_layout(world,facility_id)
+	if int(movement.target_floor)!=int(layout.floor_id) or movement.target_cell!=layout.patient_cell: return
+	var occupied: bool = false
+	for other: Dictionary in world.facts.actors.values():
+		if other.id!=stay.actor_id and other.get("posture","")=="seated" and other.get("support_facility_id","")==facility_id:
+			occupied = true
+			break
+	if not occupied or not space.cancel_ground_move(world,stay.actor_id): return
+	intent.facility_id = ""
+	intent.phase = "local_wait"
+	space.public_areas.changed(world)
 
 func _public_wait_position(world: WorldState, stay: Dictionary) -> bool:
 	var actor: Dictionary = world.facts.actors[stay.actor_id]
 	var intent: Dictionary = stay.public_use
-	if not space.public_areas.safe_wait(world,actor.id,int(actor.location.floor_id),actor.location.cell):
-		var point: Dictionary = space.public_areas.waiting_point(world,actor.id,intent.area)
+	var current: Dictionary = space.public_areas.current_area(world,actor.id)
+	var permitted: bool = space.public_areas.area_valid(world,current,["waiting","waiting_area","public","lobby","garden",""])
+	if not permitted or not space.public_areas.safe_wait(world,actor.id,int(actor.location.floor_id),actor.location.cell):
+		var point: Dictionary = {}
+		if space.public_areas.area_valid(world,intent.area,["waiting","waiting_area","public","lobby","garden",""]):
+			point = space.public_areas.waiting_point(world,actor.id,intent.area)
+		if point.is_empty():
+			point = _standing_point(world,actor.id)
+			if not point.is_empty():
+				intent.area = point.area
+				intent.arrived_tick = -1
+				space.public_areas.changed(world)
 		if point.is_empty(): return false
 		stay.waiting_floor = point.floor_id
 		stay.waiting_cell = point.cell
@@ -346,7 +393,11 @@ func _take_waiting_seat(world: WorldState, stay: Dictionary, quote: Dictionary) 
 	if not space.at(world,actor.id,int(quote.floor_id),quote.cell):
 		intent.phase = "local_travel"
 		space.public_areas.changed(world)
-		space.request_move(world,actor.id,int(quote.floor_id),quote.cell)
+		var already_moving: bool = world.facts.moves.has(actor.id)
+		var reason: String = space.request_move(world,actor.id,int(quote.floor_id),quote.cell)
+		var movement: Dictionary = world.facts.moves.get(actor.id,{})
+		if not already_moving and reason.is_empty() and not movement.is_empty() and int(movement.target_floor)==int(quote.floor_id) and movement.target_cell==quote.cell:
+			movement.waiting_seat_id = intent.id
 		return false
 	if not space._dynamic_clear(world,actor.id,int(quote.floor_id),space.body_rectangle(actor)): return false
 	if not space.reserve_facility(world,quote.facility_id,actor.id,actor.id).is_empty(): return false
@@ -386,6 +437,13 @@ func _yielded_seat(world: WorldState, intent: Dictionary) -> String:
 	if patient.is_empty() or not str(patient.get("phase","")).begins_with("wait_") or ticket.is_empty() or not ticket.get("pause_reasons",{}).is_empty() or int(ticket.get("called_tick",-1))>=0: return ""
 	var target: Dictionary = world.facts.get("waiting_life",{}).get("seats",{}).get(str(offered.visit_id),{})
 	if target.is_empty() or target.get("phase","")=="seated" or target.get("area",{})!=intent.get("area",{}): return ""
+	# A shared public region does not authorize courtesy for a different clinic.
+	# Reuse the same current guidance target and local-seat geometry as waiting.
+	var guidance: Dictionary = world.facts.get("floor_guidance",{}).get("visits",{}).get(str(offered.visit_id),{})
+	if not guidance.is_empty():
+		if guidance.get("phase","")!="ready": return ""
+		var clinic_id: String = str(guidance.get("target_id",""))
+		if not clinic_id.is_empty() and not waiting_scope.allows_seat(world,str(patient.actor_id),clinic_id,facility_id): return ""
 	if target.get("mode","")=="manual": return facility_id if str(target.get("manual_facility_id",""))==facility_id else ""
 	return facility_id if str(target.get("facility_id","")) in ["",facility_id] else ""
 
@@ -396,7 +454,11 @@ func seated_facilities(world: WorldState) -> Array:
 	return result
 
 func _waiting_point(world: WorldState, actor_id: String) -> Dictionary:
-	return space.public_areas.select(world,actor_id,WAITING_SEAT_DEFINITIONS,["waiting","waiting_area","public","lobby","garden",""],"seat")
+	var point: Dictionary = space.public_areas.select(world,actor_id,WAITING_SEAT_DEFINITIONS,["waiting","waiting_area","public","lobby","garden",""],"seat")
+	return point if not point.is_empty() else _standing_point(world,actor_id)
+
+func _standing_point(world: WorldState, actor_id: String) -> Dictionary:
+	return space.public_areas.select(world,actor_id,[],["waiting","waiting_area","public","lobby","garden",""],"waiting")
 
 func _bedside(world: WorldState, actor_id: String, stay: Dictionary) -> Dictionary:
 	space.begin_route_query(world,{},space.nominal_query(world))

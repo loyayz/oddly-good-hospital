@@ -3,7 +3,7 @@ extends RefCounted
 # Clinical scenarios keep the production phase order and real 0.1-second work,
 # movement, staff needs and safety. Recruitment, hospital ratings, research and
 # daily operating accounts have independent specialist cases.
-static func step(sim: HospitalSimulation, remodel: bool = false) -> TickResult:
+static func step(sim: HospitalSimulation, remodel: bool = false, dispatch_gate: Callable = Callable()) -> TickResult:
 	var world: WorldState = sim.world
 	var services: Dictionary = sim.services
 	var present: int = world.present_actor_count()
@@ -15,12 +15,15 @@ static func step(sim: HospitalSimulation, remodel: bool = false) -> TickResult:
 	if remodel: services.remodel.dispatch(world)
 	services.scheduler.dispatch(world)
 	services.development.dispatch(world)
+	services.floor_guidance.dispatch(world)
 	services.waiting.dispatch(world)
 	services.maintenance.dispatch(world)
-	sim.clinic.dispatch(world)
+	if dispatch_gate.is_valid(): dispatch_gate.call()
+	else: sim.clinic.dispatch(world)
 	for staff_id: String in world.ids("staff"):
 		var staff: Dictionary = world.facts.staff[staff_id]
 		staff.dispatch_idle = not HospitalClinicalDevelopment.safe_busy(world,staff_id) and not world.facts.moves.has(staff_id) and staff.get("base_task",{}).is_empty() and str(staff.get("training_job_id","")).is_empty()
+		staff.dispatch_idle_tick = world.sim_tick
 	services.wellbeing.dispatch(world)
 	var before_movement: Dictionary = {}
 	for staff_id: String in world.ids("staff"):
@@ -30,9 +33,11 @@ static func step(sim: HospitalSimulation, remodel: bool = false) -> TickResult:
 	services.development.advance(world)
 	services.scheduler.advance(world)
 	services.maintenance.advance(world)
+	services.floor_guidance.advance(world)
 	var worked: Dictionary = sim.clinic.worked_staff()
 	worked.merge(services.development.worked_staff(),true)
 	worked.merge(services.scheduler.worked_staff(),true)
+	worked.merge(services.floor_guidance.worked_staff(),true)
 	services.wellbeing.advance(world,worked,before_movement)
 	services.waiting.advance(world)
 	services.supplies.advance(world)

@@ -259,8 +259,8 @@ func _advance(simulation: HospitalSimulation, stage: String) -> bool:
 		return false
 	var result: TickResult = simulation.step_nonblocking()
 	while result==null:
-		if not simulation.preparing_error().is_empty() or Time.get_ticks_usec()-_started>=_maximum_us:
-			_failure = "Original pending step incomplete: "+simulation.preparing_error()
+		if Time.get_ticks_usec()-_started>=_maximum_us:
+			_failure = "Original pending step watchdog reached"
 			return false
 		await process_frame
 		result = simulation.step_nonblocking()

@@ -134,7 +134,7 @@
     },
     {
       "path": "furniture_equipment.json",
-      "sha256": "3d891aee68b48bc8d79fec6bade6d72e8967a011a841260731949d422d458310"
+      "sha256": "e05b3334451251a6dd3dc84911b4a4961d0b59c5dcb06c40a7ee7a7bd92cf643"
     },
     {
       "path": "gratitude_abilities.json",
@@ -274,11 +274,11 @@
     },
     {
       "path": "rules.json",
-      "sha256": "202cb4f973609724cf62f3f1fd70ef3ed53455b66f4fa6d71899a9524049596b"
+      "sha256": "0649cc0330371f93cc1ddc545d030502c19b450b87c2df23511cc0423f945a67"
     },
     {
       "path": "service_equipment.json",
-      "sha256": "6f2c39ef19ffa5c50a029874e39d3fa8aa69c4fd67e6dba0dad5b21bb5babf4b"
+      "sha256": "f1b407c4334eab382fb13d15c958fadebd563dd33b1d45c6520bbb2c458b7160"
     },
     {
       "path": "specialties.json",
@@ -334,7 +334,7 @@
     },
     {
       "path": "starter_layout.json",
-      "sha256": "42934c1470711d34431189418e18c52973a767e9ef835b81407910c657f411e0"
+      "sha256": "bc4641b57935ea698e474a64bd648e8d6254fc3c9c6275096f968fdf8b9f416f"
     },
     {
       "path": "stories.json",

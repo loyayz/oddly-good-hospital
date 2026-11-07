@@ -45,10 +45,13 @@ const CASES: Dictionary = {
 	"CLIN-32":"docs/design/07-clinical-team.md §8.2；拒绝/医疗让位/出院安全退出，原停留不重启且空间不早释放",
 	"CLIN-33":"docs/design/01-simulation.md §3、07-clinical-team.md §1、§6；接待/初诊到齐预约独占职员，原票接续，床通行权限不冒充工作，路线失败不占资源",
 	"CLIN-34":"docs/design/07-clinical-team.md §6；指定医生与无指定均按原序选择首个完整可用报价，失败继续搜索；结构/实际限制及完整事实随机流不变",
+	"CLIN-37":"docs/design/07-clinical-team.md §8.1；护理后真实离位保留床边缓冲、占位与原班表，旧目标受阻可安全改选，恢复不提前释放",
+	"CLIN-36":"docs/design/01-simulation.md §3、07-clinical-team.md §1、§6；接待/初诊有效预约保持，失效换台不遗留旧票；转诊后真实安全离岗并释放空间",
 	"CLIN-35":"docs/design/07-clinical-team.md §6；推荐与短缺查询批次复用保留全部合法方案、顺序与只读事实"
 }
 
 const PREREQUISITES: Dictionary = {
+	"CLIN-37": ["ward_after_care"],
 	"CLIN-05": [
 		"gp_started"
 	],
@@ -127,7 +130,7 @@ const PREREQUISITES: Dictionary = {
 		"ward_settled"
 	],
 	"CLIN-29": [
-		"c_diagnosed"
+		"c_diagnosed_gentle"
 	],
 	"CLIN-31": [
 		"ward_entered"
@@ -841,7 +844,7 @@ func _case_29(t) -> void:
 	var clock: int = Time.get_ticks_usec()
 	# Completed C-profile diagnostics are input. This case starts before choosing
 	# the gentle plan and still executes its full work, transfer and recovery.
-	var c: Dictionary = _copy("c_diagnosed")
+	var c: Dictionary = _copy("c_diagnosed_gentle")
 	# This gentle-plan hospital needs a ward, not an unrelated operating team.
 	# Keep the real completed diagnostic facts and add the legal nearby ward.
 	_add_layout(c.world,"ward_two_beds","clin_ward",[42,72])
@@ -979,3 +982,9 @@ func _diagnosis_chain(t, upgraded: bool) -> void:
 		t.check(id,third and is_equal_approx(gp_evidence,49.2) and is_equal_approx(after_spectrum,93.0) and not _visit(c).evidence_by_source.has("resonance") and int(c.started.get("resonance",0))==0 and _income(c,"resonance")==0 and _income(c)==40 and _units_used(c)==0 and _visit(c).phase=="wait_consult",{"gp":gp_evidence,"after_spectrum":after_spectrum,"income":_income(c),"state":_state(c)})
 	else:
 		t.check(id,third and is_equal_approx(gp_evidence,42.0) and is_equal_approx(after_spectrum,77.0) and is_equal_approx(total,102.0) and int(c.started.get("spectrum",0))==1 and int(c.started.get("resonance",0))==1 and _units_used(c)==0 and _income(c)==60 and _visit(c).phase=="wait_consult",{"gp":gp_evidence,"after_spectrum":after_spectrum,"total":total,"income":_income(c),"state":_state(c)})
+
+func _case_36(t) -> void:
+	preload("res://tests/acceptance/clinical_handoff.gd").new().run_case(t,_content)
+
+func _case_37(t) -> void:
+	await preload("res://tests/acceptance/clinical_ward_release.gd").new().run_case(t,self)

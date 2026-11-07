@@ -187,7 +187,7 @@
     {
       "anchor": [
         57,
-        86
+        87
       ],
       "definition_id": "FUR06",
       "id": "rest_sofa",
@@ -226,7 +226,7 @@
     {
       "anchor": [
         56,
-        86
+        87
       ],
       "definition_id": "SE04",
       "id": "staff_bed_a",
@@ -239,7 +239,7 @@
     {
       "anchor": [
         59,
-        86
+        87
       ],
       "definition_id": "SE04",
       "id": "staff_bed_b",
@@ -342,19 +342,6 @@
     },
     {
       "anchor": [
-        57,
-        92
-      ],
-      "definition_id": "FUR09",
-      "id": "chair_6",
-      "room_id": null,
-      "size": [
-        1,
-        1
-      ]
-    },
-    {
-      "anchor": [
         59,
         92
       ],
@@ -378,30 +365,22 @@
         1,
         1
       ]
-    }
-  ],
-  "path_rectangles": [
-    {
-      "anchor": [
-        41,
-        90
-      ],
-      "size": [
-        18,
-        2
-      ]
     },
     {
       "anchor": [
-        47,
-        92
+        46,
+        76
       ],
+      "definition_id": "SE01",
+      "id": "floor_guidance_desk",
+      "room_id": null,
       "size": [
         2,
-        2
+        1
       ]
     }
   ],
+  "path_rectangles": [],
   "plot": [
     1,
     2

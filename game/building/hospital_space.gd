@@ -10,13 +10,13 @@ var _bodies: Dictionary = {}
 var _actor_shapes: Dictionary = {}
 var _actor_index: BodyIndex = BodyIndex.new()
 var _indexed_world: WorldState
+var _indexed_facts: Dictionary = {}
 var _indexed_revision: int = -1
 var _indexed_actor_scope: Dictionary = {}
 var _navigation: NavigationCache = NavigationCache.new()
 var _envelope_next: int = 0
 var _route_queries: Array[Dictionary] = []
 var _reservation_views: Dictionary = {}
-var _door_views: Dictionary = {}
 var _facility_geometry: Dictionary = {}
 var movement: HospitalMovement
 var navigation: HospitalNavigation
@@ -80,6 +80,8 @@ func begin_actor_exclusion_query(source: WorldState, projected: WorldState, excl
 	begin_route_query(projected,{},false)
 	var query: Dictionary = _route_queries.back()
 	query.actor_source = source
+	query.actor_source_facts = source.facts
+	query.actor_projection_facts = projected.facts
 	query.actor_source_revision = source.revision
 	query.actor_projection_revision = projected.revision
 	query.actor_exclusions = excluded_ids.duplicate()
@@ -90,7 +92,7 @@ func _actor_exclusion_scope(world: WorldState) -> Dictionary:
 		var query: Dictionary = _route_queries[number]
 		if query.world!=world or not query.has("actor_source"): continue
 		var source: WorldState = query.actor_source
-		if _indexed_world==source and _indexed_revision==int(query.actor_source_revision) and source.revision==int(query.actor_source_revision) and world.revision==int(query.actor_projection_revision): return query
+		if _indexed_world==source and is_same(_indexed_facts,source.facts) and is_same(query.actor_source_facts,source.facts) and is_same(query.actor_projection_facts,world.facts) and _indexed_revision==int(query.actor_source_revision) and source.revision==int(query.actor_source_revision) and world.revision==int(query.actor_projection_revision): return query
 	return {}
 
 func dynamic_transport_view(world: WorldState, actor_id: String, members: Array, offsets: Dictionary) -> Dictionary:
@@ -168,25 +170,29 @@ func body(actor: Dictionary) -> Dictionary:
 	return _bodies[key]
 
 func _ensure_actor_index(world: WorldState) -> void:
+	# A facts replacement may preserve the numeric revision (restore/projection).
+	# Cached bodies belong to the exact facts owner, not just world/revision.
+	var same_facts: bool = is_same(_indexed_facts,world.facts)
 	# An existing binding belongs to an active read-only scope; popping that
 	# scope clears it. Equal source/revision needs no repeated owner lookup.
-	if world==_indexed_world and world.revision==_indexed_revision and (not _indexed_actor_scope.is_empty() or _route_queries.is_empty()): return
+	if world==_indexed_world and same_facts and world.revision==_indexed_revision and (not _indexed_actor_scope.is_empty() or _route_queries.is_empty()): return
 	if not _actor_exclusion_scope(world).is_empty(): return
 	var scope: Dictionary = _actor_index_scope(world)
-	if world==_indexed_world and world.revision==_indexed_revision:
+	if world==_indexed_world and same_facts and world.revision==_indexed_revision:
 		_indexed_actor_scope = scope
 		return
 	# A sealed read-only enumeration may alternate reservation projections
 	# with the exact same actors collection. Its active scope owns this reuse;
 	# crossing scope/world boundaries retains the original rebuild behavior.
-	var shared: bool = world!=_indexed_world and _indexed_world!=null and _indexed_revision>=0 and not scope.is_empty() and is_same(scope,_indexed_actor_scope) and is_same(world.facts.actors,_indexed_world.facts.actors)
-	if world!=_indexed_world:
+	var shared: bool = world!=_indexed_world and _indexed_world!=null and is_same(_indexed_facts,_indexed_world.facts) and _indexed_revision>=0 and not scope.is_empty() and is_same(scope,_indexed_actor_scope) and is_same(world.facts.actors,_indexed_world.facts.actors)
+	if world!=_indexed_world or not same_facts:
 		if not shared: _actor_shapes.clear()
 	if not shared:
 		_actor_index.clear()
 		_convoy_owner.clear()
 		_convoy_members.clear()
 	_indexed_world = world
+	_indexed_facts = world.facts
 	_indexed_revision = world.revision
 	_indexed_actor_scope = scope
 	if not shared:
@@ -289,6 +295,14 @@ func request_move(world: WorldState, actor_id: String, floor_id: int, target: Ar
 
 func movement_failure(world: WorldState, actor_id: String) -> Dictionary:
 	return movement.failure(world,actor_id)
+
+# Waiting and same-floor guidance must not use another floor as a shortcut.
+func request_floor_move(world: WorldState, actor_id: String, floor_id: int, target: Array) -> String:
+	var actor: Dictionary = world.facts.actors.get(actor_id,{})
+	if actor.get("location",{}).get("kind","")!="floor" or int(actor.location.floor_id)!=floor_id: return "本层移动不能跨楼层"
+	var reason: String = movement.request_move(world,actor_id,floor_id,target)
+	if reason.is_empty() and world.facts.moves.has(actor_id): world.facts.moves[actor_id].floor_only = true
+	return reason
 
 func cancel_ground_move(world: WorldState, actor_id: String) -> bool:
 	return movement.cancel_ground(world,actor_id)
@@ -431,18 +445,8 @@ func reservation_changed(world: WorldState, id: String) -> void:
 
 func movement_doors(world: WorldState, actor: Dictionary, swept: Rect2, members: Array = [], floor_id: int = 0) -> Array[Dictionary]:
 	if floor_id==0: floor_id = int(actor.location.floor_id)
-	var key: String = str(world.get_instance_id())+":"+str(floor_id)
-	var version: int = _navigation.floor_version(self,world,floor_id)
-	var entry: Dictionary = _door_views.get(key,{})
-	if entry.is_empty() or entry.version!=version:
-		for old: String in _door_views.keys():
-			if _door_views[old].world.get_ref()==null: _door_views.erase(old)
-		entry = {"world":weakref(world),"version":version,"index":BodyIndex.new(),"doors":{},"order":{}}
-		for door: Dictionary in world.facts.floors.overrides.get(str(floor_id),{}).get("doors",[]):
-			entry.order[door.id] = entry.doors.size()
-			entry.doors[door.id] = door
-			entry.index.update(door.id,floor_id,_door_rect(door,int(door.span)))
-		_door_views[key] = entry
+	var geometry: FloorStaticGeometry = _navigation.floor_geometry(self,world,floor_id)
+	var entry: Dictionary = {"index":geometry.door_index,"doors":geometry.door_order,"order":geometry.door_order}
 	var ids: Dictionary = {}
 	# A door may grow from its fixed anchor to fit this body's envelope.
 	var reach: float = float(clearance(actor))+1.0
@@ -495,18 +499,19 @@ func _reservation_regions_many(world: WorldState, floor_id: int, bounds: Array[R
 	for key: String in view.index.candidates_in_regions(floor_id,bounds): regions.append(view.regions[key])
 	return regions
 
-func _dynamic_clear(world: WorldState, actor_id: String, floor_id: int, rect: Rect2, members: Array = []) -> bool:
-	_ensure_actor_index(world)
+func _dynamic_clear(world: WorldState, actor_id: String, floor_id: int, rect: Rect2, members: Array = [], actors_checked: bool = false) -> bool:
+	if not actors_checked: _ensure_actor_index(world)
 	for region: Dictionary in _reservation_regions(world,floor_id,rect):
 		var reservation: Dictionary = region.reservation
-		if int(reservation.floor_id)!=floor_id or actor_id==reservation.actor_id or actor_id in reservation.get("staff_ids",[]) or reservation.actor_id in members:
+		if int(reservation.floor_id)!=floor_id or RouteClearance.reservation_allows(reservation,actor_id,members):
 			continue
 		if rect.intersects(region.rect,false):
 			return false
-	var projection: Dictionary = _actor_exclusion_scope(world)
-	var ignored: Array = members if projection.is_empty() else members+projection.actor_exclusions
-	if _actor_index.intersects(floor_id,rect,actor_id,ignored):
-		return false
+	if not actors_checked:
+		var projection: Dictionary = _actor_exclusion_scope(world)
+		var ignored: Array = members if projection.is_empty() else members+projection.actor_exclusions
+		if _actor_index.intersects(floor_id,rect,actor_id,ignored):
+			return false
 	if movement._sweep_index.intersects(floor_id,rect,actor_id,members):
 		return false
 	return true
@@ -593,6 +598,17 @@ func support_exit_ticks(actor: Dictionary, facility: Dictionary, until_clear: bo
 		if not body_rectangle(moving).intersects(rectangle,false): return elapsed
 	return ticks
 
+func guidance_operator_cell(world: WorldState, facility_id: String, nurse_id: String) -> Array:
+	var facility: Dictionary = world.facts.facilities[facility_id]
+	var k: int = clearance(world.facts.actors[nurse_id])
+	var x: int = int(facility.cell[0]); var y: int = int(facility.cell[1])
+	var w: int = int(facility.footprint[0]); var h: int = int(facility.footprint[1])
+	match posmod(int(facility.get("rotation",0)),4):
+		1: return [x+w,y]
+		2: return [x+maxi(0,w-k),y+h]
+		3: return [x-k,y+maxi(0,h-k)]
+	return [x,y-k]
+
 func facility_quote(world: WorldState, facility_id: String, actor_id: String, staff_ids: Array = []) -> Dictionary:
 	return _facility_quote(world,facility_id,actor_id,staff_ids,false)
 
@@ -643,8 +659,9 @@ func _facility_quote(world: WorldState, facility_id: String, actor_id: String, s
 	if not definition.has("adapter_capacity") and profile.is_empty():
 		return {"ok":true,"unchanged":true}
 	var dimensions: Dictionary = body(actor)
+	var actor_clearance: int = clearance(actor)
 	var capacity: Dictionary = definition.get("adapter_capacity",definition)
-	if clearance(actor)>int(capacity.get("max_clearance_cells",96)) or float(dimensions.height_m)>float(capacity.get("max_height_m",INF)):
+	if actor_clearance>int(capacity.get("max_clearance_cells",96)) or float(dimensions.height_m)>float(capacity.get("max_height_m",INF)):
 		return {"ok":false,"reason":"身体超过设备实际适配能力"}
 	var reclined: bool = profile.get("pose","")=="reclined" or facility.definition_id in ["EQ01","EQ05"]
 	var depth: float = maxf(float(dimensions.depth_m),float(dimensions.height_m)) if reclined else float(dimensions.depth_m)
@@ -667,7 +684,7 @@ func _facility_quote(world: WorldState, facility_id: String, actor_id: String, s
 	var operators: Array = facility.get("operator_cells",[]).duplicate(true)
 	var repair: Array = facility.get("repair_cell",[x-1,y]).duplicate()
 	if footprint!=facility.footprint:
-		patient_cell = _adapted_front(facility,footprint,clearance(actor))
+		patient_cell = _adapted_front(facility,footprint,actor_clearance)
 		operators.clear()
 	for index: int in staff_ids.size():
 		if not world.facts.actors.has(staff_ids[index]):
@@ -690,7 +707,10 @@ func _facility_quote(world: WorldState, facility_id: String, actor_id: String, s
 				operators.append(operators[0].duplicate())
 			else:
 				operators.append([x-staff_size,y+1] if index==0 else [x+w,y if index==1 else y+h-staff_size])
-	var regions: Array = [[x,y,w,h],[patient_cell[0],patient_cell[1],clearance(actor),clearance(actor)],[repair[0],repair[1],1,1]]
+	if facility.definition_id=="SE01":
+		patient_cell = _adapted_front(facility,footprint,actor_clearance)
+		if not staff_ids.is_empty(): operators[0] = guidance_operator_cell(world,facility_id,str(staff_ids[0]))
+	var regions: Array = [[x,y,w,h],[patient_cell[0],patient_cell[1],actor_clearance,actor_clearance],[repair[0],repair[1],1,1]]
 	for index: int in staff_ids.size():
 		var k: int = clearance(world.facts.actors[staff_ids[index]])
 		regions.append([operators[index][0],operators[index][1],k,k])
@@ -706,7 +726,10 @@ func _facility_quote(world: WorldState, facility_id: String, actor_id: String, s
 		if reference.is_empty():
 			var other_actor: String = _blocking_actor(world,int(facility.floor_id),rect,allowed)
 			if not other_actor.is_empty(): return {"ok":false,"reason":"展开或操作区域有实际身体："+other_actor}
-			if not _dynamic_clear(world,actor_id,int(facility.floor_id),rect,allowed):
+			# The scoped blocker just checked the identical body index and exclusions.
+			# Unscoped diagnostics use raw bodies and retain the indexed safety check.
+			var actors_checked: bool = not _route_queries.is_empty() and _route_queries.back().world==world
+			if not _dynamic_clear(world,actor_id,int(facility.floor_id),rect,allowed,actors_checked):
 				return {"ok":false,"reason":"展开区域与已有实际预约相交"}
 	var quote: Dictionary = {"ok":true,"kind":"facility","facility_id":facility_id,"actor_id":actor_id,"staff_ids":staff_ids.duplicate(),"floor_id":facility.floor_id,
 		"footprint":footprint,"patient_cell":patient_cell,"operator_cells":operators,"repair_cell":repair,"regions":regions}
@@ -723,9 +746,9 @@ func _facility_quote(world: WorldState, facility_id: String, actor_id: String, s
 # actual quotes and commits still execute every dynamic conflict check below.
 func _facility_geometry_view(world: WorldState, facility: Dictionary) -> Dictionary:
 	var floor_id: int = int(facility.floor_id)
-	var version: int = _navigation.floor_static_version(self,world,floor_id)
+	var version: String = _navigation.floor_static_version(self,world,floor_id)
 	var saved: Dictionary = _facility_geometry.get(floor_id,{})
-	if saved.is_empty() or int(saved.version)!=version:
+	if saved.is_empty() or saved.version!=version:
 		saved = {"version":version,"facilities":{}}
 		_facility_geometry[floor_id] = saved
 	var key: String = str(facility.id)+":"+str(facility.get("room_id",""))
@@ -961,22 +984,24 @@ func release_adaptations(world: WorldState) -> void:
 	for id: String in world.ids("adaptations"):
 		var reservation: Dictionary = world.facts.adaptations[id]
 		var actor: Dictionary = world.facts.actors[reservation.actor_id]
-		if reservation.kind=="facility" and (world.facts.tickets.has(reservation.owner_id) or world.facts.sessions.has(reservation.owner_id) or world.facts.preparations.has(reservation.owner_id) or world.facts.ward_stays.has(reservation.owner_id) or world.facts.get("staff_life",{}).get("reservations",{}).has(id)):
+		if reservation.kind=="facility" and (world.facts.tickets.has(reservation.owner_id) or world.facts.sessions.has(reservation.owner_id) or world.facts.preparations.has(reservation.owner_id) or world.facts.ward_stays.has(reservation.owner_id) or world.facts.get("staff_life",{}).get("reservations",{}).has(id) or HospitalFloorGuidance.owns_reservation(world,reservation)):
 			continue
 		var inside: bool = false
-		var journey: Dictionary = world.facts.moves.get(actor.id,{})
-		if journey.has("convoy") and reservation.kind=="door":
-			var trail: Array[Rect2] = ConvoyPortal.ground_regions(journey.convoy,world.facts.connectors[actor.location.connector_id]) if actor.location.kind=="transit" else ConvoyTrail.regions(journey.convoy)
-			if int(journey.convoy.floor_id)==int(reservation.floor_id):
-				for region: Rect2 in trail:
-					for area: Array in reservation.regions:
-						if region.intersects(Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3])),false): inside = true
-		if not journey.has("convoy") or reservation.kind!="door":
-			for participant_id: String in [actor.id]+reservation.staff_ids:
-				var participant: Dictionary = world.facts.actors[participant_id]
+		var participants: Array = reservation.staff_ids.duplicate()
+		if not actor.id in participants: participants.append(actor.id)
+		for participant_id: String in participants:
+			var participant: Dictionary = world.facts.actors[participant_id]
+			# A newer journey cannot substitute its trail for the original
+			# participants still physically using the held opening.
+			for area: Array in reservation.regions:
+				if participant.location.kind=="floor" and int(participant.location.floor_id)==int(reservation.floor_id) and body_rectangle(participant).intersects(Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3])),false): inside = true
+			var journey: Dictionary = world.facts.moves.get(participant_id,{})
+			if reservation.kind!="door" or not journey.has("convoy") or not RouteClearance.reservation_allows(reservation,participant_id,journey.members): continue
+			if int(journey.convoy.floor_id)!=int(reservation.floor_id): continue
+			var trail: Array[Rect2] = ConvoyPortal.ground_regions(journey.convoy,world.facts.connectors[participant.location.connector_id]) if participant.location.kind=="transit" else ConvoyTrail.regions(journey.convoy)
+			for region: Rect2 in trail:
 				for area: Array in reservation.regions:
-					if participant.location.kind=="floor" and int(participant.location.floor_id)==int(reservation.floor_id) and body_rectangle(participant).intersects(Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3])),false):
-						inside = true
+					if region.intersects(Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3])),false): inside = true
 		if not inside:
 			world.facts.adaptations.erase(id)
 			reservation_changed(world,id)

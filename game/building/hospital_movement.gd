@@ -1,6 +1,11 @@
 class_name HospitalMovement
 extends RefCounted
 
+# Conservative binary32 position allowance on the bounded floor, including
+# accumulated rounding along an ordinary leg. This is only an endpoint budget
+# correction; body and sweep collision predicates retain their strict edges.
+const POSITION_ROUNDING: float = 2.0*FloorNavigation.SIDE/8388608.0
+
 class MotionResult:
 	extends RefCounted
 	# One synchronous attempt, never a second copy of a journey or world fact.
@@ -27,6 +32,40 @@ var _ready_routes: PlatformRouteQueue
 var _delayed_routes: PlatformRouteQueue
 var _phase_owners: Dictionary = {}
 var _route_failures: Dictionary = {}
+# Journey ownership is independent of the disposable spatial projection.
+# Rebuild once on world/moves replacement, then maintain official group writes.
+var _membership_world: WeakRef
+var _membership_moves: Dictionary = {}
+var _member_owners: Dictionary = {}
+
+func _ensure_membership(world: WorldState) -> void:
+	if _membership_world!=null and _membership_world.get_ref()==world and is_same(_membership_moves,world.facts.moves): return
+	_membership_world = weakref(world)
+	_membership_moves = world.facts.moves
+	_member_owners.clear()
+	for movement: Dictionary in world.facts.moves.values():
+		if movement.has("convoy"): _register_members(movement)
+
+func _register_members(movement: Dictionary) -> void:
+	for index: int in movement.members.size():
+		_member_owners[movement.members[index]] = {"owner":movement.actor_id,"index":index}
+
+func _unregister_members(movement: Dictionary) -> void:
+	for id: String in movement.get("members",[]):
+		if _member_owners.get(id,{}).get("owner","")==movement.actor_id: _member_owners.erase(id)
+
+func _member_owner(world: WorldState, actor_id: String) -> String:
+	_ensure_membership(world)
+	var entry: Dictionary = _member_owners.get(actor_id,{})
+	if entry.is_empty(): return ""
+	var movement: Dictionary = world.facts.moves.get(entry.owner,{})
+	var members: Array = movement.get("members",[])
+	# Direct external erasure of a journey must not leave stale ownership.
+	if not movement.has("convoy") or int(entry.index)>=members.size() or members[int(entry.index)]!=actor_id:
+		_member_owners.erase(actor_id)
+		return ""
+	return str(entry.owner)
+
 
 func _init(geometry: HospitalSpace) -> void:
 	_space = weakref(geometry)
@@ -34,8 +73,8 @@ func _init(geometry: HospitalSpace) -> void:
 	_sweep_index = BodyIndex.new(Vector2(float(cells[0]),float(cells[1])))
 
 func request_move(world: WorldState, actor_id: String, floor_id: int, target: Array) -> String:
-	for primary: String in world.facts.moves:
-		if primary!=actor_id and actor_id in world.facts.moves[primary].get("members",[]): return "等待当前队列完成后独立移动"
+	var owner: String = _member_owner(world,actor_id)
+	if not owner.is_empty() and owner!=actor_id: return "等待当前队列完成后独立移动"
 	if world.facts.moves.has(actor_id):
 		return _retarget(world,world.facts.moves[actor_id],floor_id,target)
 	var actor: Dictionary = world.facts.actors[actor_id]
@@ -44,25 +83,43 @@ func request_move(world: WorldState, actor_id: String, floor_id: int, target: Ar
 	if actor.get("posture","standing") == "lying":
 		var facility: Dictionary = space.facility_layout(world,actor.support_facility_id)
 		world.facts.moves[actor_id] = {"actor_id":actor_id,"path":[{"kind":"support_exit","floor_id":int(facility.floor_id),"cell":facility.patient_cell.duplicate()}],
-			"cursor":0,"travelled":[_checkpoint(actor)],"blocked_since":-1,"yielding":false,"target_floor":floor_id,"target_cell":target.duplicate()}
+			"cursor":0,"travelled":[_checkpoint(actor)],"blocked_since":-1,"target_floor":floor_id,"target_cell":target.duplicate()}
 		if space.public_areas!=null: space.public_areas.changed(world)
 		return ""
-	var reason: String = space.navigation.destination_reason(world,actor,floor_id,Vector2i(roundi(target[0]),roundi(target[1])))
+	var reason: String = space.navigation.destination_reason(world,actor,floor_id,Vector2(float(target[0]),float(target[1])))
 	if not reason.is_empty():
 		return reason
 	world.facts.moves[actor_id] = {"actor_id":actor_id,"path":[],"cursor":0,
-		"travelled":[_checkpoint(actor)],"blocked_since":-1,"yielding":false,"target_floor":floor_id,"target_cell":target.duplicate()}
+		"travelled":[_checkpoint(actor)],"blocked_since":-1,"target_floor":floor_id,"target_cell":target.duplicate()}
 	_queue_route(world,world.facts.moves[actor_id])
 	if space.public_areas!=null: space.public_areas.changed(world)
 	return ""
 
 func _retarget(world: WorldState, previous: Dictionary, floor_id: int, target: Array) -> String:
-	if previous.target_floor==floor_id and previous.target_cell==target: return previous.get("waiting_reason","")
+	# Scalar equality accepts int/float forms without rounding distinct targets.
+	# Malformed group goals must still reach the existing destination validator.
+	if previous.target_floor==floor_id and ConvoyTrail._finite_point(target) and previous.target_cell[0]==target[0] and previous.target_cell[1]==target[1]:
+		# Accepting an identical destination may still transfer task ownership.
+		previous.erase("waiting_seat_id")
+		previous.erase("waiting_need_id")
+		previous.erase("waiting_safety_visit")
+		previous.erase("floor_guidance_key")
+		previous.erase("guidance_nurse_desk")
+		previous.erase("floor_only")
+		return previous.get("waiting_reason","")
 	var actor: Dictionary = world.facts.actors[previous.actor_id]
-	var reason: String = _convoy_goal_reason(world,previous,floor_id,target) if previous.has("convoy") else space.navigation.destination_reason(world,actor,floor_id,Vector2i(roundi(target[0]),roundi(target[1])),previous.get("members",[]),previous.get("offsets",{}))
+	var reason: String = _convoy_goal_reason(world,previous,floor_id,target) if previous.has("convoy") else space.navigation.destination_reason(world,actor,floor_id,Vector2(float(target[0]),float(target[1])),previous.get("members",[]),previous.get("offsets",{}))
 	if not reason.is_empty(): return reason
+	# A new destination belongs to its requesting task, not the old optional trip.
+	previous.erase("waiting_seat_id")
+	previous.erase("waiting_need_id")
+	previous.erase("waiting_safety_visit")
+	previous.erase("floor_guidance_key")
+	previous.erase("guidance_nurse_desk")
+	previous.erase("floor_only")
 	HospitalTransit.cancel_waiting(world,previous)
 	previous.erase("route_waypoint")
+	previous.erase("detour")
 	previous.target_floor = floor_id
 	previous.target_cell = target.duplicate()
 	previous.erase("route_retry_tick")
@@ -85,12 +142,11 @@ func request_group_move(world: WorldState, primary_id: String, members: Array, o
 		if not world.facts.actors.has(id) or seen.has(id): return "队列成员不存在或重复"
 		seen[id] = true
 		if world.facts.actors[id].location.kind!="floor" or world.facts.moves.has(id): return "等待完整队列真实到场"
-		for active: Dictionary in world.facts.moves.values():
-			if id in active.get("members",[]): return "成员已有队列归属"
+		if not _member_owner(world,id).is_empty(): return "成员已有队列归属"
 	var created: Dictionary = ConvoyTrail.create(space,world,primary_id,members)
 	if not created.ok: return created.reason
 	var actor: Dictionary = world.facts.actors[primary_id]
-	var m: Dictionary = {"actor_id":primary_id,"members":members.duplicate(),"convoy":created.convoy,"path":[],"cursor":0,"travelled":[_checkpoint(actor)],"blocked_since":-1,"yielding":false,"target_floor":floor_id,"target_cell":target.duplicate()}
+	var m: Dictionary = {"actor_id":primary_id,"members":members.duplicate(),"convoy":created.convoy,"path":[],"cursor":0,"travelled":[_checkpoint(actor)],"blocked_since":-1,"target_floor":floor_id,"target_cell":target.duplicate()}
 	var proxy: Dictionary = ConvoyTrail.proxy(world,m)
 	var query: RouteClearance = space.navigation.structural_clearance(world,proxy,int(actor.location.floor_id))
 	var shift: Vector2 = Vector2.ONE*float(m.convoy.shift)
@@ -104,6 +160,7 @@ func request_group_move(world: WorldState, primary_id: String, members: Array, o
 	var reason: String = _convoy_goal_reason(world,m,floor_id,target)
 	if not reason.is_empty(): return reason
 	world.facts.moves[primary_id] = m
+	_register_members(m)
 	space._sync_convoy(world,m)
 	_queue_route(world,m)
 	if space.public_areas!=null: space.public_areas.changed(world)
@@ -118,14 +175,14 @@ func failure(world: WorldState, actor_id: String) -> Dictionary:
 	if saved.is_empty() or movement.is_empty() or saved.world.get_ref()!=world or int(saved.sequence)!=int(movement.get("request_sequence",-1)) or int(saved.geometry)!=world.geometry_revision: return {}
 	if saved.basis!=_failure_body_basis(world,movement) or saved.connectors!=space.navigation.connection_basis(world): return {}
 	for floor_id: int in saved.floors:
-		if int(saved.floors[floor_id])!=space._navigation.floor_static_version(space,world,floor_id): return {}
+		if saved.floors[floor_id]!=space._navigation.floor_static_version(space,world,floor_id): return {}
 	return {"status":"unreachable","reason":saved.reason,"floor_id":movement.target_floor,"cell":movement.target_cell.duplicate()}
 
 # A task can stop a ground walk or landing queue. It cannot interrupt a real
 # ride, a support-exit segment or a group whose full body is not on the floor.
 func cancel_ground(world: WorldState, actor_id: String) -> bool:
-	for primary: String in world.facts.moves:
-		if primary!=actor_id and actor_id in world.facts.moves[primary].get("members",[]): return false
+	var owner: String = _member_owner(world,actor_id)
+	if not owner.is_empty() and owner!=actor_id: return false
 	var movement: Dictionary = world.facts.moves.get(actor_id,{})
 	if movement.is_empty():
 		var actor: Dictionary = world.facts.actors[actor_id]
@@ -136,7 +193,9 @@ func cancel_ground(world: WorldState, actor_id: String) -> bool:
 	if int(movement.cursor)<movement.path.size() and int(movement.cursor)>=0 and movement.path[int(movement.cursor)].kind=="support_exit": return false
 	HospitalTransit.cancel_waiting(world,movement)
 	world.facts.moves.erase(actor_id)
-	if movement.has("convoy"): space._end_convoy(world,movement)
+	if movement.has("convoy"):
+		_unregister_members(movement)
+		space._end_convoy(world,movement)
 	_pending_routes.erase(actor_id)
 	_route_checks.erase(actor_id)
 	_route_failures.erase(actor_id)
@@ -152,8 +211,10 @@ func _failure_body_basis(world: WorldState, movement: Dictionary) -> Array:
 
 func _remember_failure(world: WorldState, movement: Dictionary, reason: String) -> void:
 	var floors: Dictionary = {}
-	for entry: Dictionary in space._navigation._sources.values():
-		if entry.world.get_ref()==world: floors[int(entry.floor_id)] = int(entry.static_version)
+	var actor: Dictionary = world.facts.actors[movement.actor_id]
+	var candidates: Dictionary = HospitalTransit._routing_candidates(world,int(actor.location.floor_id),int(movement.target_floor))
+	for floor_id: int in candidates:
+		floors[floor_id] = space._navigation.floor_static_version(space,world,floor_id)
 	_route_failures[movement.actor_id] = {"world":weakref(world),"sequence":int(movement.request_sequence),"geometry":world.geometry_revision,"basis":_failure_body_basis(world,movement).duplicate(true),"connectors":space.navigation.connection_basis(world).duplicate(true),"floors":floors,"reason":reason}
 	if space.public_areas!=null: space.public_areas.changed(world)
 
@@ -192,7 +253,11 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 		# Final portal egress already spent this frame's leader walking budget.
 		# Publishing a floor location does not grant a second movement attempt.
 		if _accepted_sweeps.has(actor_id): continue
-		if not _active_route_clear(world,actor,movement,floor_versions):
+		# Dispatch can legally publish outside or a supported body position
+		# after real arrival but before this phase cleans the exhausted route.
+		# Its last real checkpoint survives that handoff, including cold restore.
+		var reached_target: bool = not movement.has("convoy") and int(movement.cursor)>=movement.path.size() and _target_checkpoint_reached(movement)
+		if not reached_target and not _active_route_clear(world,actor,movement,floor_versions):
 			if int(movement.cursor)<movement.path.size() and movement.path[int(movement.cursor)].kind=="support_exit":
 				movement.waiting_reason = "等待支撑设施离位通路恢复"
 			else:
@@ -200,15 +265,20 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 			continue
 		if int(movement.cursor)==0:
 			movement.cursor = _initial_route_cursor(actor,movement.path)
+		if movement.has("detour"):
+			_continue_detour(world,actor,movement)
+			if movement.has("detour") and int(movement.cursor)>=movement.path.size(): continue
 		if int(movement.cursor) >= movement.path.size():
-			if movement.yielding:
-				if world.facts.moves.has(movement.get("yield_partner","")):
-					continue
-				movement.yielding = false
-				_queue_route(world,movement)
+			if not movement.has("convoy") and not reached_target and not space.at(world,actor_id,int(movement.target_floor),movement.target_cell):
+				# A restored or shortened path is not proof of arrival. Retain
+				# the task and its order, and walk a newly proved remaining route.
+				movement.route_pending = true
+				_replan_goal(world,movement,true)
 				continue
 			world.facts.moves.erase(actor_id)
-			if movement.has("convoy"): space._end_convoy(world,movement)
+			if movement.has("convoy"):
+				_unregister_members(movement)
+				space._end_convoy(world,movement)
 			_route_failures.erase(actor_id)
 			if space.public_areas!=null: space.public_areas.changed(world)
 			continue
@@ -216,18 +286,49 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 		if segment.kind == "connector":
 			HospitalTransit.begin(space,world,actor,movement,segment)
 			continue
-		var result: MotionResult = _move_step(world,actor,movement,segment)
+		# A queue cannot undo a partly entered corner by folding its leader
+		# into its own trail. Read only the immediately adjoining turn first,
+		# so an already occupied local leg is handled at the real corner.
+		var result: MotionResult = _convoy_turn_contact(world,actor,movement,segment)
+		if result==null or not result.blocked:
+			result = _move_step(world,actor,movement,segment)
 		# Door ownership retains its own wait; it never pushes the owner aside.
 		if not result.door_id.is_empty(): continue
 		if result.blocked:
+			if movement.has("detour") and movement.detour.phase!="back":
+				# A new obstacle can interrupt the local link. Keep its original
+				# suffix and reconsider the nearest return cell from this real pose.
+				_set_detour_prefix(movement,[],"aside")
 			if int(movement.blocked_since) < 0:
 				movement.blocked_since = world.facts.sim_tick
-			elif int(world.facts.sim_tick) - int(movement.blocked_since) >= int(space.content.balance.movement_courtesy.blocked_before_yield_seconds) * 10:
-				_yield(world,actor,movement,result)
+			_yield(world,actor,movement,result)
+	# Publish departure from a landing in this same movement boundary, before
+	# other services quote transport or save the world. Active rides are untouched.
+	HospitalTransit.cancel_absent_waiters(space,world)
 	# Historic sweeps exist only during movement phase, never in later queries.
 	_accepted_sweeps.clear()
 	_sweep_index.expire_boundary()
 	_movement_reservations = {}
+
+# Only the last checkpoint counts: every accepted floor segment and completed
+# transit appends its actually reached position. A truncated path therefore
+# retains its integer neighbor, never the unvisited requested fraction.
+func _target_checkpoint_reached(movement: Dictionary) -> bool:
+	# A rejoin can itself be the final target, with no original suffix. Its
+	# pending bookkeeping is complete; aside/back waiting prefixes are not.
+	if movement.has("detour") and (movement.detour.phase!="rejoin" or int(movement.cursor)<int(movement.detour.prefix_size)): return false
+	var travelled: Array = movement.get("travelled",[])
+	if travelled.is_empty(): return false
+	var last: Dictionary = travelled.back()
+	return last.get("kind","")=="floor" and int(last.floor_id)==int(movement.target_floor) and ConvoyTrail.point(last.cell)==ConvoyTrail.point(movement.target_cell)
+
+func _step_toward(start: Vector2, target: Vector2, budget: float) -> Vector2:
+	# Measure the actual published endpoints with scalar arithmetic. The old
+	# remaining-distance snap could spend up to another .001 cells per tick.
+	var dx: float = float(target.x)-float(start.x)
+	var dy: float = float(target.y)-float(start.y)
+	if sqrt(dx*dx+dy*dy)<=budget+POSITION_ROUNDING: return target
+	return start.move_toward(target,budget)
 
 func _move_step(world: WorldState, actor: Dictionary, movement: Dictionary, segment: Dictionary) -> MotionResult:
 	if movement.has("convoy"): return _move_convoy(world,actor,movement,segment)
@@ -238,8 +339,7 @@ func _move_step(world: WorldState, actor: Dictionary, movement: Dictionary, segm
 	var members: Array = movement.get("members",[actor.id])
 	var offsets: Dictionary = movement.get("offsets",{})
 	if members.size()>1: speed = float(space.content.balance.movement_speeds["2"])
-	var next: Vector2 = start.move_toward(target,speed*WorldState.TICK_SECONDS)
-	if next.distance_to(target)<0.001: next = target
+	var next: Vector2 = _step_toward(start,target,speed*WorldState.TICK_SECONDS)
 	result.requested_motion = next-start
 	var initial_rect: Rect2 = space._actor_index.rectangle(actor.id) if members.size()==1 else space._unit_rect(world,actor,start,members,offsets)
 	var sweeps: Array[BodyIndex.Record] = _unit_sweeps(world,actor,next,members,offsets,target-start)
@@ -269,7 +369,10 @@ func _move_step(world: WorldState, actor: Dictionary, movement: Dictionary, segm
 		_sweep_index.update(sweep.id,int(actor.location.floor_id),sweep.sweep_from.merge(sweep.sweep_to))
 		space._actor_index.update(sweep.id,int(actor.location.floor_id),sweep.sweep_to)
 		if space.public_areas!=null: space.public_areas.actor_changed(world,sweep.id,int(actor.location.floor_id),sweep.sweep_from,int(actor.location.floor_id),sweep.sweep_to)
-	if next.is_equal_approx(target):
+	# Only the actual target earns a
+	# reached checkpoint. Relative vector tolerance can advance a diagonal
+	# stub while it is still farther away than the arrival tolerance.
+	if next==target:
 		if segment.kind=="support_exit":
 			actor.posture = "standing"
 			actor.location.height_m = 0.0
@@ -312,7 +415,8 @@ func _checkpoint(actor: Dictionary) -> Dictionary:
 func _replan_goal(world: WorldState, movement: Dictionary, preserve_order: bool = false) -> void:
 	HospitalTransit.cancel_waiting(world,movement)
 	movement.erase("route_waypoint")
-	movement.yielding = false
+	movement.erase("detour")
+	movement.erase("yielding")
 	movement.erase("yield_partner")
 	_route_checks.erase(movement.actor_id)
 	if not preserve_order:
@@ -331,7 +435,7 @@ func _active_route_clear(world: WorldState, actor: Dictionary, movement: Diction
 		var connections: Dictionary = {}
 		for segment: Dictionary in movement.path.slice(int(movement.cursor)):
 			if segment.kind=="connector": connections[segment.connector_id] = []
-			else: floors[int(segment.floor_id)] = -1
+			else: floors[int(segment.floor_id)] = ""
 		record = {"sequence":sequence,"floors":floors,"connections":connections,"bodies":{},"members":[],"offsets":{},"validated":false}
 	var members: Array = movement.get("members",[actor.id])
 	var offsets: Dictionary = movement.get("offsets",{})
@@ -457,7 +561,7 @@ func _dispatch_routes(world: WorldState, present_at_start: int) -> void:
 		var quote: Dictionary
 		if not waypoint.is_empty() and movement.has("convoy"):
 			quote = space.navigation.convoy_local_route(world,movement,floor_id,cell)
-		elif waypoint.is_empty():
+		elif waypoint.is_empty() and not movement.get("floor_only",false):
 			quote = space.route(world,id,floor_id,cell,movement.get("members",[]),movement.get("offsets",{}))
 		else:
 			var actor: Dictionary = world.facts.actors[id]
@@ -503,7 +607,7 @@ func _initial_route_cursor(actor: Dictionary, path: Array) -> int:
 	var next: Vector2 = Vector2(float(path[1].cell[0]),float(path[1].cell[1]))
 	# A retreat can begin between these cells. Returning to the rounded start
 	# would move toward the body being yielded to before moving away from it.
-	if actual.distance_to(first)>0.001 and absf(actual.distance_to(first)+actual.distance_to(next)-first.distance_to(next))<0.001:
+	if actual!=first and absf(actual.distance_to(first)+actual.distance_to(next)-first.distance_to(next))<0.001:
 		return 1
 	return 0
 
@@ -515,12 +619,7 @@ func queue_waypoint(world: WorldState, movement: Dictionary, floor_id: int, cell
 # Only an obstacle actually encountered by this movement triggers a local
 # detour. Future landings and queues do not enter this floor query.
 func _queue_local_route(world: WorldState, actor: Dictionary, movement: Dictionary) -> void:
-	var end: int = int(movement.cursor)
-	while end+1<movement.path.size() and movement.path[end+1].kind=="floor" and int(movement.path[end+1].floor_id)==int(actor.location.floor_id):
-		end += 1
-	var target: Dictionary = movement.path[end]
-	movement.route_waypoint = {"floor_id":int(actor.location.floor_id),"cell":target.cell.duplicate(),"continuation":movement.path.slice(end+1)}
-	_queue_route(world,movement)
+	_start_detour(world,actor,movement)
 
 func _local_goal_occupied(world: WorldState, actor: Dictionary, movement: Dictionary, contact: MotionResult) -> bool:
 	if contact.blocker_actor_ids.is_empty(): return false
@@ -602,8 +701,7 @@ func _movement_contacts(world: WorldState, actor_id: String, floor_id: int, broa
 	ids.sort()
 	space.query_counts.movement_candidates += ids.size()
 	var reservations: Array = space._reservation_regions(world,floor_id,broad)
-	# Preserve all exact bodies, not the first broadphase rectangle. Courtesy
-	# gives active units priority over idle staff, even if the latter sorts first.
+	# Preserve every exact contact. Actor identifiers never confer passage rights.
 	for id: String in ids:
 		var other: BodyIndex.Record = _accepted_sweeps.get(id)
 		var current: BodyIndex.Record = space._actor_index._records.get(id)
@@ -621,7 +719,7 @@ func _movement_contacts(world: WorldState, actor_id: String, floor_id: int, broa
 				break
 	for region: Dictionary in reservations:
 		var reservation: Dictionary = region.reservation
-		if int(reservation.floor_id)!=floor_id or actor_id==reservation.actor_id or actor_id in reservation.get("staff_ids",[]) or reservation.actor_id in members or str(region.reservation_id) in result.reservation_ids:
+		if int(reservation.floor_id)!=floor_id or RouteClearance.reservation_allows(reservation,actor_id,members) or str(region.reservation_id) in result.reservation_ids:
 			continue
 		for sweep: BodyIndex.Record in sweeps:
 			if BodySweep.intersects(sweep.sweep_from,sweep.sweep_to,region.rect,region.rect):
@@ -641,10 +739,15 @@ func _reserve_doors(world: WorldState, actor: Dictionary, movement: Dictionary, 
 			result.door_id = str(door.id)
 			return false
 		var current: Dictionary = world.facts.adaptations.get(door.id,{})
-		if not current.is_empty() and current.actor_id!=actor.id:
-			result.door_id = str(door.id)
-			result.reservation_ids.append(str(door.id))
-			return false
+		if not current.is_empty():
+			if not RouteClearance.reservation_allows(current,actor.id,members) or int(quote.span)>int(current.span) or float(quote.clear_height_m)>float(current.clear_height_m) or float(quote.clear_width_m)>float(current.clear_width_m):
+				result.door_id = str(door.id)
+				result.reservation_ids.append(str(door.id))
+				return false
+			# The held opening already belongs to these participants. Actual
+			# sweep contacts prove this step; do not reacquire the whole doorway
+			# against another retained participant or replace the old obligation.
+			continue
 		var rect: Rect2 = space._door_rect(door,int(quote.span))
 		if not space._dynamic_clear(world,actor.id,floor_id,rect,members):
 			result.door_id = str(door.id)
@@ -679,155 +782,282 @@ func _movement_owners(world: WorldState, blocker_actor_ids: Array[String]) -> Ar
 	result.sort()
 	return result
 
-func _route_occupancy(world: WorldState, actor: Dictionary, movement: Dictionary, floor_id: int) -> BodyIndex:
-	var result: BodyIndex = BodyIndex.new()
-	# A pending/local route may temporarily have no remaining cells. Its real
-	# destination still cannot serve as the other body's waiting retreat.
-	if int(movement.target_floor)==floor_id:
-		result.update("goal",floor_id,_route_occupancy_rect(world,actor,movement,movement.target_cell))
-	for index: int in range(int(movement.cursor),movement.path.size()):
-		var segment: Dictionary = movement.path[index]
-		if segment.kind=="floor" and int(segment.floor_id)==floor_id:
-			result.update(str(index),floor_id,_route_occupancy_rect(world,actor,movement,segment.cell))
+# Traffic changes only the short local prefix. The approved route and its
+# request order remain intact, and no actor gains a right of way.
+func _yield(world: WorldState, actor: Dictionary, movement: Dictionary, result: MotionResult) -> void:
+	if movement.has("detour"): return
+	var owners: Array = _movement_owners(world,result.blocker_actor_ids)
+	# A stationary occupied destination waits. Two active journeys may need
+	# to pass even when each destination is the other's present position.
+	if _local_goal_occupied(world,actor,movement,result) and owners.is_empty(): return
+	for owner: String in owners:
+		# One actually obstructed actor is already making room. The other
+		# still attempts its own real step every tick, without an endpoint lock.
+		if owner!=actor.id and world.facts.moves[owner].has("detour"):
+			var other: Dictionary = world.facts.moves[owner]
+			# Do not start a second passing manoeuvre while the first is
+			# actually under way. A finished local prefix which cannot return
+			# is a new obstruction, not a permanent right to block everyone.
+			if int(other.cursor)<int(other.detour.prefix_size): return
+	_start_detour(world,actor,movement)
+
+# This is a current local occupancy probe, not a future journey permission.
+# One fixed leader envelope covers at most one body width of the new leg.
+# Every actual 0.1-second step still performs the normal exact front sweep.
+func _convoy_turn_contact(world: WorldState, actor: Dictionary, movement: Dictionary, segment: Dictionary) -> MotionResult:
+	if not movement.has("convoy") or movement.members.size()<2 or movement.convoy.points.size()<2: return null
+	var points: Array = movement.convoy.points
+	var start: Vector2 = ConvoyTrail.point(actor.location.cell)
+	var delta: Vector2 = ConvoyTrail.point(segment.cell)-start
+	var incoming: Vector2 = start-ConvoyTrail.point(points[-2])
+	if delta.length()<0.001 or absf(incoming.normalized().dot(delta.normalized()))>0.001: return null
+	var end: Vector2 = start.move_toward(ConvoyTrail.point(segment.cell),float(movement.convoy.size))
+	var shift: Vector2 = Vector2.ONE*float(movement.convoy.shift)
+	var sweep: BodyIndex.Record = BodyIndex.Record.new()
+	sweep.id = actor.id
+	sweep.sweep_from = Rect2(start+shift,Vector2.ONE*int(movement.convoy.size))
+	sweep.sweep_to = Rect2(end+shift,Vector2.ONE*int(movement.convoy.size))
+	var sweeps: Array[BodyIndex.Record] = [sweep]
+	var result: MotionResult = MotionResult.new()
+	_movement_contacts(world,actor.id,int(actor.location.floor_id),sweep.sweep_from.merge(sweep.sweep_to),sweeps,movement.members,result)
+	# Operation/door reservations keep their ordinary exact-step handling;
+	# this corner probe only avoids entering a currently occupied body turn.
+	result.reservation_ids.clear()
+	space.query_counts["convoy_turn_probes"] = int(space.query_counts.get("convoy_turn_probes",0))+1
 	return result
 
-func _route_occupancy_rect(world: WorldState, actor: Dictionary, movement: Dictionary, cell: Array) -> Rect2:
-	if movement.has("convoy"):
-		return Rect2(ConvoyTrail.point(cell)+Vector2.ONE*float(movement.convoy.shift),Vector2.ONE*int(movement.convoy.size))
-	return space._actor_rect(actor,ConvoyTrail.point(cell))
-
-func _yield(world: WorldState, actor: Dictionary, movement: Dictionary, result: MotionResult) -> void:
-	if movement.has("convoy"):
-		if not _local_goal_occupied(world,actor,movement,result):
-			_queue_local_route(world,actor,movement)
-			movement.waiting_reason = "队列寻找不穿过队尾的通路"
-		return
-	if movement.yielding or movement.travelled.is_empty():
-		return
+func _start_detour(world: WorldState, actor: Dictionary, movement: Dictionary) -> void:
+	if movement.has("detour") or int(movement.cursor)>=movement.path.size(): return
+	var first: Dictionary = movement.path[int(movement.cursor)]
+	if first.kind!="floor" or int(first.floor_id)!=int(actor.location.floor_id): return
+	var delta: Vector2 = ConvoyTrail.point(first.cell)-ConvoyTrail.point(actor.location.cell)
+	if delta.length()<0.001: return
+	var direction: Vector2 = Vector2(signf(delta.x),0) if absf(delta.x)>=absf(delta.y) else Vector2(0,signf(delta.y))
+	var history: Array = []
+	for past: Dictionary in movement.travelled:
+		if int(past.floor_id)==int(actor.location.floor_id): history.append(past.duplicate(true))
+	movement.detour = {"phase":"back","original_path":movement.path.slice(int(movement.cursor)).duplicate(true),"direction":[direction.x,direction.y],"backtrack":history,"back_cursor":history.size()-1,"prefix_size":0,"resume_index":-1}
 	space.query_counts.yield_attempts += 1
-	var partner: String = ""
-	for other_id: String in _movement_owners(world,result.blocker_actor_ids):
-		space.query_counts.yield_candidates += 1
-		if other_id==actor.id:
-			continue
-		var other: Dictionary = world.facts.actors[other_id]
-		if other.location.kind!="floor" or int(other.location.floor_id)!=int(actor.location.floor_id):
-			continue
-		partner = other_id
-		break
-	if partner.is_empty():
-		if _yield_idle_staff(world,actor,movement,result.blocker_actor_ids):
+	if _detour_side(world,actor,movement): return
+	# The same local return used at each retreat checkpoint can also leave
+	# the current corner. Do not take a partial backward step first: that
+	# consumes a queue's spacing without clearing its own occupied trail.
+	if movement.has("convoy"):
+		var link: Dictionary = _detour_return_path(world,actor,movement,ConvoyTrail.point(actor.location.cell))
+		if not link.is_empty():
+			_set_detour_prefix(movement,link.path,"rejoin",int(link.index))
 			return
-		# A body may stop on a route after it was planned. Keep the goal and
-		# request a current detour instead of waiting for a moving partner.
-		if not _local_goal_occupied(world,actor,movement,result): _queue_local_route(world,actor,movement)
-		return
-	# A committed retreat keeps its winner until that winner finishes this move.
-	# Re-evaluating priorities during the retreat creates mutual waiting cycles.
-	if world.facts.moves[partner].yielding:
-		var other_move: Dictionary = world.facts.moves[partner]
-		if int(other_move.cursor)>=other_move.path.size():
-			# Resolve this actual blockage once in the normal fair dispatcher.
-			if not _local_goal_occupied(world,actor,movement,result): _queue_local_route(world,actor,movement)
-		return
-	if _has_priority(world,actor.id,partner):
-		return
-	var winner: Dictionary = world.facts.moves[partner]
-	var occupied: BodyIndex = _route_occupancy(world,world.facts.actors[partner],winner,int(actor.location.floor_id))
-	var current: Vector2i = Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
-	var seen: Dictionary = {}
-	for index: int in range(movement.travelled.size()-1,-1,-1):
-		var past: Dictionary = movement.travelled[index]
-		if int(past.floor_id)!=int(actor.location.floor_id):
-			continue
-		var identity: Vector2 = Vector2(float(past.cell[0]),float(past.cell[1]))
-		if seen.has(identity): continue
-		seen[identity] = true
-		if space.at(world,actor.id,int(actor.location.floor_id),past.cell):
-			continue
-		var cell: Vector2i = Vector2i(roundi(past.cell[0]),roundi(past.cell[1]))
-		var actual: Vector2 = Vector2(float(past.cell[0]),float(past.cell[1]))
-		var rect: Rect2 = space._unit_rect(world,actor,actual,movement.get("members",[]),movement.get("offsets",{}))
-		if _narrow(world,actor,cell) or occupied.intersects(int(actor.location.floor_id),rect,"") or not space._dynamic_clear(world,actor.id,int(actor.location.floor_id),rect,movement.get("members",[])):
-			continue
-		var retreat: Dictionary = space._floor_route(world,actor,int(actor.location.floor_id),current,cell,movement.get("members",[]),movement.get("offsets",{}))
-		if retreat.ok:
-			movement.route_waypoint = {"floor_id":int(actor.location.floor_id),"cell":past.cell.duplicate(),"continuation":[]}
-			_queue_route(world,movement)
-			movement.yielding = true
-			movement.yield_partner = partner
-			return
-	# A newly started task may meet another actor before it has any history to
-	# retrace. Use the same local passing-space search as idle-staff courtesy.
-	var members: Array = movement.get("members",[])
-	var offsets: Dictionary = movement.get("offsets",{})
-	var checker: RouteClearance = _courtesy_clearance(world,actor,members,offsets)
-	for radius: int in range(1,5):
-		for dx: int in range(-radius,radius+1):
-			var dy_abs: int = radius-absi(dx)
-			for dy: int in ([0] if dy_abs==0 else [-dy_abs,dy_abs]):
-				var goal: Vector2i = current+Vector2i(dx,dy)
-				if _narrow(world,actor,goal,checker) or not checker.reason(goal).is_empty(): continue
-				var rect: Rect2 = space._unit_rect(world,actor,Vector2(goal),members,offsets)
-				if not space._dynamic_clear(world,actor.id,int(actor.location.floor_id),rect,members): continue
-				if occupied.intersects(int(actor.location.floor_id),rect,""): continue
-				var retreat: Dictionary = space._floor_route(world,actor,int(actor.location.floor_id),current,goal,members,offsets)
-				if not retreat.ok or retreat.get("status","")=="contention": continue
-				movement.route_waypoint = {"floor_id":int(actor.location.floor_id),"cell":[goal.x,goal.y],"continuation":[]}
-				_queue_route(world,movement)
-				movement.yielding = true
-				movement.yield_partner = partner
-				return
+	if not _detour_back(world,actor,movement): movement.erase("detour")
 
-func _yield_idle_staff(world: WorldState, actor: Dictionary, movement: Dictionary, blocker_actor_ids: Array[String]) -> bool:
-	if blocker_actor_ids.is_empty(): return false
-	var floor_id: int = int(actor.location.floor_id)
-	var occupied: BodyIndex = _route_occupancy(world,actor,movement,floor_id)
-	if occupied._records.is_empty(): occupied.update("goal",floor_id,space._actor_rect(actor,Vector2(float(movement.target_cell[0]),float(movement.target_cell[1]))))
-	var candidates: Array[Dictionary] = []
-	var responsibilities: Dictionary = {}
-	for staff_id: String in blocker_actor_ids:
-		if not world.facts.staff.has(staff_id): continue
-		space.query_counts.yield_candidates += 1
-		if world.facts.moves.has(staff_id) or not world.facts.actors.has(staff_id):
-			continue
-		var staff_actor: Dictionary = world.facts.actors[staff_id]
-		if staff_actor.location.kind!="floor" or int(staff_actor.location.floor_id)!=floor_id or staff_actor.get("posture","standing")!="standing":
-			continue
-		if _staff_has_movement_responsibility(world,staff_id,responsibilities):
-			continue
-		var origin: Vector2i = Vector2i(roundi(staff_actor.location.cell[0]),roundi(staff_actor.location.cell[1]))
-		var checker: RouteClearance = _courtesy_clearance(world,staff_actor)
-		for radius: int in range(1,5):
-			for dx: int in range(-radius,radius+1):
-				var dy_abs: int = radius-absi(dx)
-				for dy: int in ([0] if dy_abs==0 else [-dy_abs,dy_abs]):
-					var goal: Vector2i = origin+Vector2i(dx,dy)
-					if goal==origin or _narrow(world,staff_actor,goal,checker):
-						continue
-					var goal_rect: Rect2 = space._actor_rect(staff_actor,Vector2(goal))
-					if occupied.intersects(floor_id,goal_rect,"") or not checker.reason(goal).is_empty():
-						continue
-					if not space._dynamic_clear(world,staff_id,floor_id,goal_rect):
-						continue
-					var destination: Dictionary = space._floor_route(world,staff_actor,floor_id,origin,goal)
-					if destination.ok and destination.get("status","")!="contention":
-						candidates.append({"id":staff_id,"goal":goal,"distance":float(destination.walking_distance)})
-				if not candidates.is_empty():
-					break
-			if not candidates.is_empty():
+func _set_detour_prefix(movement: Dictionary, path: Array, phase: String, resume_index: int = -1) -> void:
+	movement.detour.phase = phase
+	movement.detour.prefix_size = path.size()
+	movement.detour.resume_index = resume_index
+	movement.path = path
+	if phase=="rejoin": movement.path.append_array(movement.detour.original_path.slice(resume_index+1))
+	movement.cursor = 0
+	movement.blocked_since = -1
+	movement.erase("waiting_reason")
+	_route_checks.erase(movement.actor_id)
+
+func _detour_side(world: WorldState, actor: Dictionary, movement: Dictionary) -> bool:
+	var origin: Vector2 = ConvoyTrail.point(actor.location.cell)
+	var forward: Vector2 = ConvoyTrail.point(movement.detour.direction)
+	# After retracing a bend, left/right follow that local corridor rather
+	# than the heading at the original collision several cells away.
+	if movement.detour.phase=="back" and int(movement.detour.prefix_size)>0:
+		for index: int in range(int(movement.detour.back_cursor),-1,-1):
+			var reverse: Vector2 = ConvoyTrail.point(movement.detour.backtrack[index].cell)-origin
+			if reverse.length()>0.001:
+				forward = -reverse.normalized()
 				break
-	candidates.sort_custom(func(a: Dictionary,b: Dictionary) -> bool:
-		if not is_equal_approx(float(a.distance),float(b.distance)):
-			return float(a.distance)<float(b.distance)
-		if str(a.id)!=str(b.id):
-			return str(a.id)<str(b.id)
-		return Vector2i(a.goal).y<Vector2i(b.goal).y or (Vector2i(a.goal).y==Vector2i(b.goal).y and Vector2i(a.goal).x<Vector2i(b.goal).x)
-	)
-	if candidates.is_empty():
-		return false
-	var choice: Dictionary = candidates[0]
-	return request_move(world,str(choice.id),floor_id,[float(choice.goal.x),float(choice.goal.y)]).is_empty()
+	var side: Vector2 = Vector2(-forward.y,forward.x)
+	var width: float = float(movement.convoy.size) if movement.has("convoy") else float(space.clearance(actor))
+	var waiting_side: Array = []
+	for sign_value: float in [1.0,-1.0]:
+		var target: Vector2 = origin+side*sign_value*width
+		var path: Array = [_floor_point(actor,target)]
+		if not _detour_path_clear(world,actor,movement,path): continue
+		# Prefer a side from which a local return is presently possible.
+		# This avoids stepping into a doorway pocket when the other side
+		# already provides a complete passing link. No actor gets priority.
+		if not _detour_return_path(world,actor,movement,target,path).is_empty():
+			_set_detour_prefix(movement,path,"aside")
+			return true
+		# Do not stop a local retreat inside a doorway: retaining its owner
+		# there would prevent the approaching body from ever passing.
+		var proxy: Dictionary = ConvoyTrail.proxy(world,movement) if movement.has("convoy") else actor
+		var footprint: Rect2 = Rect2(target+Vector2.ONE*float(movement.convoy.shift),Vector2.ONE*int(movement.convoy.size)) if movement.has("convoy") else space._actor_rect(actor,target)
+		var in_door: bool = false
+		for door: Dictionary in space.movement_doors(world,proxy,footprint,[]):
+			if footprint.intersects(space._door_rect(door,space._door_span(proxy,door)),false): in_door = true;break
+		if waiting_side.is_empty() and not in_door: waiting_side = path
+	if waiting_side.is_empty(): return false
+	_set_detour_prefix(movement,waiting_side,"aside")
+	return true
+
+func _detour_back(world: WorldState, actor: Dictionary, movement: Dictionary) -> bool:
+	var state: Dictionary = movement.detour
+	var origin: Vector2 = ConvoyTrail.point(actor.location.cell)
+	while int(state.back_cursor)>=0:
+		var index: int = int(state.back_cursor)
+		var past: Dictionary = state.backtrack[index]
+		if ConvoyTrail.point(past.cell).distance_to(origin)<0.001:
+			state.back_cursor = index-1
+			continue
+		var path: Array = [past.duplicate(true)]
+		if not _detour_path_clear(world,actor,movement,path): return false
+		state.back_cursor = index-1
+		_set_detour_prefix(movement,path,"back")
+		return true
+	# A just-started journey may have no earlier checkpoint. Test one real
+	# step directly behind, then retry the sides at that reached point.
+	# A convoy cannot reverse its leader into its own occupied tail.
+	var width: float = float(movement.convoy.size) if movement.has("convoy") else float(space.clearance(actor))
+	var path: Array = [_floor_point(actor,origin-ConvoyTrail.point(state.direction)*width)]
+	if _detour_path_clear(world,actor,movement,path):
+		_set_detour_prefix(movement,path,"back")
+		return true
+	return false
+
+func _continue_detour(world: WorldState, actor: Dictionary, movement: Dictionary) -> void:
+	var state: Dictionary = movement.detour
+	if int(movement.cursor)<int(state.prefix_size): return
+	if state.phase=="rejoin":
+		movement.erase("detour")
+		return
+	if state.phase=="back":
+		var resumed: Dictionary = _detour_return_path(world,actor,movement,ConvoyTrail.point(actor.location.cell))
+		if not resumed.is_empty():
+			_set_detour_prefix(movement,resumed.path,"rejoin",int(resumed.index))
+			return
+		# First retreat only along the path already walked. At each reached
+		# point try its two sides, without searching the rest of the journey.
+		if _detour_side(world,actor,movement) or _detour_back(world,actor,movement): return
+		movement.waiting_reason = "等待实际侧方或后退通路"
+		return
+	var link: Dictionary = _detour_return_path(world,actor,movement,ConvoyTrail.point(actor.location.cell))
+	if not link.is_empty():
+		_set_detour_prefix(movement,link.path,"rejoin",int(link.index))
+		return
+	movement.waiting_reason = "等待原路线最近可达格"
+
+func _detour_return_path(world: WorldState, actor: Dictionary, movement: Dictionary, origin: Vector2, prefix: Array = []) -> Dictionary:
+	# Candidate links read one unchanged actor, geometry, reservations and
+	# accepted sweeps. Exact single-body proofs live only in this synchronous
+	# search; the next attempt rebuilds. Convoys retain their full trail proof.
+	var proof: Dictionary = {"sweeps":{},"segments":{}} if not movement.has("convoy") else {}
+	var query: RouteClearance = null
+	for index: int in movement.detour.original_path.size():
+		var segment: Dictionary = movement.detour.original_path[index]
+		if segment.kind!="floor" or int(segment.floor_id)!=int(actor.location.floor_id): break
+		if query==null:
+			var proxy: Dictionary = ConvoyTrail.proxy(world,movement) if movement.has("convoy") else actor
+			query = space.navigation.structural_clearance(world,proxy,int(actor.location.floor_id))
+		var target: Vector2 = ConvoyTrail.point(segment.cell)
+		# Try the original blocked cell first, then its original successors.
+		# Check fixed orthogonal local links, never a global route.
+		var links: Array = [[Vector2(target.x,origin.y),target],[Vector2(origin.x,target.y),target]]
+		# Four fixed outside links handle a nearby corner/passing pocket.
+		# A queue's margin also clears its own tail before returning.
+		var margin: float = float(movement.convoy.spacing) if movement.has("convoy") else float(space.clearance(actor))
+		var outside_x: Array = [maxf(origin.x,target.x)+margin,minf(origin.x,target.x)-margin]
+		var outside_y: Array = [maxf(origin.y,target.y)+margin,minf(origin.y,target.y)-margin]
+		for x: float in outside_x: links.append([Vector2(x,origin.y),Vector2(x,target.y),target])
+		for y: float in outside_y: links.append([Vector2(origin.x,y),Vector2(target.x,y),target])
+		# A pocket beside furniture may need one outside bend on each axis
+		# to reach the side of a doorway. Try these fixed links for this
+		# original cell before considering a farther one; never redispatch.
+		for x: float in outside_x:
+			for y: float in outside_y:
+				links.append([Vector2(x,origin.y),Vector2(x,y),Vector2(target.x,y),target])
+				links.append([Vector2(origin.x,y),Vector2(x,y),Vector2(x,target.y),target])
+		for link: Array in links:
+			var path: Array = prefix.duplicate(true)
+			var previous: Vector2 = origin
+			for point: Vector2 in link:
+				if previous.distance_to(point)>0.001: path.append(_floor_point(actor,point))
+				previous = point
+			if path.is_empty(): path.append(segment.duplicate(true))
+			if _detour_path_clear(world,actor,movement,path,query,proof): return {"path":path,"index":index}
+	return {}
+
+func _floor_point(actor: Dictionary, point: Vector2) -> Dictionary:
+	return {"kind":"floor","floor_id":int(actor.location.floor_id),"cell":[point.x,point.y]}
+
+# Read-only local proof. A convoy has one fixed leader proxy; its members only
+# inherit the proven trail. No follower gets an independent passage query.
+func _detour_path_clear(world: WorldState, actor: Dictionary, movement: Dictionary, path: Array, query: RouteClearance = null, proof: Dictionary = {}) -> bool:
+	space._ensure_actor_index(world)
+	var floor_id: int = int(actor.location.floor_id)
+	var proxy: Dictionary = ConvoyTrail.proxy(world,movement) if movement.has("convoy") else actor
+	if query==null: query = space.navigation.structural_clearance(world,proxy,floor_id)
+	var trial: Dictionary = movement.convoy.duplicate(true) if movement.has("convoy") else {}
+	var shift: Vector2 = Vector2.ONE*float(trial.shift) if not trial.is_empty() else Vector2.ZERO
+	var origin: Vector2 = ConvoyTrail.point(actor.location.cell)
+	var sample: Dictionary = actor.duplicate(true)
+	var previous: Rect2 = space._actor_rect(sample,origin) if trial.is_empty() else Rect2(origin+shift,Vector2.ONE*int(trial.size))
+	var members: Array = movement.get("members",[actor.id])
+	for segment: Dictionary in path:
+		var target: Vector2 = ConvoyTrail.point(segment.cell)
+		if absf(target.x-origin.x)>0.001 and absf(target.y-origin.y)>0.001: return false
+		var segment_key: Array = []
+		var remember_segment: bool = false
+		if proof.has("segments") and origin.distance_to(target)>0.001:
+			segment_key = [origin,target,previous]
+			if proof.segments.has(segment_key):
+				var proven: Array = proof.segments[segment_key]
+				if proven.is_empty(): return false
+				# The quarter loop can stop within tolerance, short of target.
+				origin = proven[0]
+				previous = proven[1]
+				continue
+			# This map has the same single-call lifetime as the sweep proofs.
+			# Its cap limits storage only; every uncached leg still runs below.
+			remember_segment = proof.segments.size()<4096
+			if remember_segment: proof.segments[segment_key] = []
+		while origin.distance_to(target)>0.001:
+			var next: Vector2 = origin.move_toward(target,0.25)
+			var proof_key: Array = []
+			var next_rect: Rect2
+			var remember: bool = false
+			if not proof.is_empty():
+				sample.facing = atan2(target.x-origin.x,target.y-origin.y)
+				next_rect = space._actor_rect(sample,next)
+				# Keep exact points and both real rectangles: near-axis floats can
+				# round to the same next point while retaining a different facing.
+				proof_key = [origin,next,previous,next_rect]
+				if proof.sweeps.has(proof_key):
+					if not proof.sweeps[proof_key]: return false
+					previous = next_rect
+					origin = next
+					continue
+				# Bound scratch memory only; never limit candidates or sweep work.
+				remember = proof.sweeps.size()<4096
+				if remember: proof.sweeps[proof_key] = false
+			if not query.sweep_reason(origin+shift,next+shift).is_empty(): return false
+			var sweep: BodyIndex.Record = BodyIndex.Record.new()
+			sweep.id = actor.id
+			sweep.sweep_from = previous
+			if not trial.is_empty():
+				var proposal: Dictionary = ConvoyTrail.propose(trial,next)
+				if not proposal.ok: return false
+				trial.points = proposal.points
+				sweep.sweep_to = Rect2(next+shift,Vector2.ONE*int(trial.size))
+			else:
+				if proof.is_empty():
+					sample.facing = atan2(target.x-origin.x,target.y-origin.y)
+					next_rect = space._actor_rect(sample,next)
+				sweep.sweep_to = next_rect
+			var contact: MotionResult = MotionResult.new()
+			var sweeps: Array[BodyIndex.Record] = [sweep]
+			_movement_contacts(world,actor.id,floor_id,sweep.sweep_from.merge(sweep.sweep_to),sweeps,members,contact)
+			if contact.blocked: return false
+			if remember: proof.sweeps[proof_key] = true
+			previous = sweep.sweep_to
+			origin = next
+		if remember_segment: proof.segments[segment_key] = [origin,previous]
+	return true
 
 func _staff_has_movement_responsibility(world: WorldState, staff_id: String, context: Dictionary = {}) -> bool:
 	var staff: Dictionary = world.facts.staff.get(staff_id,{})
@@ -869,28 +1099,12 @@ func _narrow(world: WorldState, actor: Dictionary, origin: Vector2i, checker: Ro
 			available += 1
 	return available<=2
 
-func _has_priority(world: WorldState, first_id: String, second_id: String) -> bool:
-	var first: Dictionary = world.facts.moves[first_id]
-	var second: Dictionary = world.facts.moves[second_id]
-	var a: Dictionary = world.facts.actors[first_id]
-	var b: Dictionary = world.facts.actors[second_id]
-	var first_narrow: bool = _narrow(world,a,Vector2i(roundi(a.location.cell[0]),roundi(a.location.cell[1])))
-	var second_narrow: bool = _narrow(world,b,Vector2i(roundi(b.location.cell[0]),roundi(b.location.cell[1])))
-	if first_narrow!=second_narrow:
-		return first_narrow
-	if first.get("members",[]).size()!=second.get("members",[]).size():
-		return first.get("members",[]).size()>second.get("members",[]).size()
-	if int(first.blocked_since)!=int(second.blocked_since):
-		return int(first.blocked_since)<int(second.blocked_since)
-	return first_id<second_id
-
 func _move_convoy(world: WorldState, actor: Dictionary, movement: Dictionary, segment: Dictionary) -> MotionResult:
 	var result: MotionResult=MotionResult.new()
 	var target: Vector2=ConvoyTrail.point(segment.cell)
 	var start: Vector2=ConvoyTrail.point(actor.location.cell)
 	var speed: float=space.walking_speed(world.facts.actors[movement.actor_id])
-	var next: Vector2=start.move_toward(target,speed*WorldState.TICK_SECONDS)
-	if next.distance_to(target)<0.001: next=target
+	var next: Vector2=_step_toward(start,target,speed*WorldState.TICK_SECONDS)
 	result.requested_motion=next-start
 	space.query_counts["convoy_leader_checks"]=int(space.query_counts.get("convoy_leader_checks",0))+1
 	var proposal: Dictionary=ConvoyTrail.propose(movement.convoy,next)
@@ -911,7 +1125,8 @@ func _move_convoy(world: WorldState, actor: Dictionary, movement: Dictionary, se
 	if result.blocked: return result
 	if not _reserve_doors(world,proxy,movement,proposal.front,doors,result): return result
 	movement.convoy.points=proposal.points
-	var poses: Dictionary=ConvoyTrail.positions(movement.convoy,movement.members)
+	var facing: float=atan2(next.x-start.x,next.y-start.y) if next!=start else float(actor.facing)
+	var poses: Dictionary=ConvoyTrail.positions(movement.convoy,movement.members,facing)
 	# O(member count) publication only; no member route/collision permissions.
 	for id: String in movement.members:
 		world.facts.actors[id].location.cell=poses[id].cell
@@ -925,7 +1140,7 @@ func _move_convoy(world: WorldState, actor: Dictionary, movement: Dictionary, se
 	result.actual_motion=next-start
 	movement.blocked_since=-1
 	movement.erase("waiting_reason")
-	if next.is_equal_approx(target):
+	if next==target:
 		movement.travelled.append({"kind":"floor","floor_id":actor.location.floor_id,"cell":segment.cell.duplicate()})
 		movement.cursor+=1
 	return result
@@ -975,7 +1190,10 @@ func _move_convoy_portal(world: WorldState, actor: Dictionary, movement: Diction
 	if not _reserve_doors(world,proxy,movement,proposal.front,doors,result): return result
 	movement.convoy.points=proposal.points
 	movement.convoy.portal.cursor=int(proposal.cursor)
-	var poses: Dictionary = ConvoyTrail.positions(movement.convoy,movement.members)
+	# A compound frame can turn: its final accepted subsegment, not the net
+	# displacement across the corner, determines the singleton's final heading.
+	var tangent: Vector2=ConvoyTrail.point(proposal.path[-1])-ConvoyTrail.point(proposal.path[-2])
+	var poses: Dictionary = ConvoyTrail.positions(movement.convoy,movement.members,atan2(tangent.x,tangent.y))
 	for id: String in movement.members:
 		world.facts.actors[id].location.queue_cell = poses[id].cell
 		world.facts.actors[id].facing = poses[id].facing

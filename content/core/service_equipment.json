@@ -1,11 +1,14 @@
 [
   {
     "equipment_class": "workstation",
+    "fit_profile_id": "FF06",
     "footprint": [
       2,
       1
     ],
     "id": "SE01",
+    "max_clearance_cells": 3,
+    "max_height_m": 6.5,
     "name": "@zh:core.service_equipment.SE01.name",
     "price": 600
   },

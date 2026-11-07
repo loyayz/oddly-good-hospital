@@ -148,7 +148,7 @@ class Trace extends RefCounted:
 		for group: String in groups: parts += groups[group].size()
 		return {"model_bases":model.get("bundles",[]).size(),"model_groups":groups.size(),"model_parts":parts}
 
-class TracedArrivalService extends HospitalArrivalService:
+class TracedArrivalService extends LegacyArrivalProjection:
 	var trace: Trace
 	var structural_tracing: bool = false
 	var structural_expected: int = 0

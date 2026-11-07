@@ -1,5 +1,6 @@
 extends RefCounted
 
+const GuidancePrerequisite = preload("res://tests/acceptance/guidance_prerequisite.gd")
 const ClinicalStep = preload("res://tests/acceptance/clinical_step.gd")
 
 class LayoutCountingSpace:
@@ -47,6 +48,7 @@ class VisitorCandidateObservation:
 		return result
 
 const CASES: Dictionary = {
+	"SPACE-61":"docs/design/04-technical.md §3/§6；人物索引当前代、完整事实替换与实际移动恢复",
 	"SPACE-01":"docs/design/12-implementation-plan.md §11 8.1/8.3；合法房壳预览只读，创建与整数付款原子一致",
 	"SPACE-02":"docs/design/12-implementation-plan.md §11 8.1/8.4；未购地、断格、孔洞、小房失败原子",
 	"SPACE-03":"docs/design/04-technical.md §3；无关修订可提交，实质报价变化保留原世界",
@@ -103,6 +105,9 @@ const CASES: Dictionary = {
 	"SPACE-54":"docs/specs/26-10/2026-10-19-task-navigation-movement.md §3/§4；未知估时仍出发、真实到场排队、途中改目标完成安全乘梯段",
 	"SPACE-55":"docs/specs/26-10/2026-10-19-task-navigation-movement.md §3/§4；成本报价、原生碰撞索引、前后队列改目标及恢复",
 	"SPACE-56":"docs/specs/26-10/2026-10-19-task-navigation-movement.md §4；实际位移与精确阻挡一次交接，队长许可、受保护尾迹、预约、门等待及真实恢复",
+	"SPACE-59":"docs/specs/26-10/2026-10-19-task-navigation-movement.md §3/§4；单人精确分数目标、末段扫掠与报价、原子拒绝、改目标、跨层实到和取消不复活",
+	"SPACE-60":"docs/design/01-simulation.md §3；小数起点连续前进、固定步距离和实际到点，保留binary32表示误差边界与严格身体扫掠",
+	"SPACE-58":"docs/design/16-navigation-space-selection.md §5；按观察楼层完整加载静态几何，跨层按需、身体派生、编辑失效及预算恢复",
 	"SPACE-57":"docs/specs/26-10/2026-10-19-task-navigation-movement.md §4；真实终点占用等待不重派，当前释放及历史扫掠、中段阻挡和受保护尾迹边界"
 }
 
@@ -119,6 +124,10 @@ func run(t) -> void:
 			continue
 		var result: Dictionary = call("_case_"+case_id.right(2),t)
 		t.check(case_id,bool(result.get("ok",false)),result.get("details"))
+
+func _case_61(_t) -> Dictionary:
+	var result: Dictionary = preload("res://tests/acceptance/actor_index_replacement.gd").new().run_case(self)
+	return {"ok":result.ok,"details":result}
 
 func _case_01(_t) -> Dictionary:
 	var sim: HospitalSimulation = _fixture()
@@ -403,8 +412,8 @@ func _case_10(_t) -> Dictionary:
 			wide_same_target = wide_same_target and wide.world.facts.moves.wide_walker.target_floor==1 and wide.world.facts.moves.wide_walker.target_cell==[45,70]
 		wide_previous = current.duplicate()
 	var wide_arrived: bool = wide.space.at(wide.world,"wide_walker",1,[45,70]) and not wide.world.facts.moves.has("wide_walker")
-	var wide_blocker_yielded: bool = wide.world.facts.actors.wide_blocker.location.cell!=[40,70] or wide.world.facts.moves.has("wide_blocker")
-	var wide_details: Dictionary = {"request_reason":wide_requested,"established_before_blocker":wide_established,"two_cell_body":wide_two_cell_body,"arrived":wide_arrived,"physical_sweeps":wide_physical,"original_target_preserved":wide_same_target,"idle_staff_yielded":wide_blocker_yielded,"travelled":wide_travelled,"final_cell":wide_previous}
+	var wide_blocker_yielded: bool = wide.world.facts.actors.wide_blocker.location.cell==[40,70] and not wide.world.facts.moves.has("wide_blocker")
+	var wide_details: Dictionary = {"request_reason":wide_requested,"established_before_blocker":wide_established,"two_cell_body":wide_two_cell_body,"arrived":wide_arrived,"physical_sweeps":wide_physical,"original_target_preserved":wide_same_target,"idle_staff_not_displaced":wide_blocker_yielded,"travelled":wide_travelled,"final_cell":wide_previous}
 	var wide_ok: bool = wide_requested.is_empty() and wide_established and wide_two_cell_body and wide_arrived and wide_physical and wide_same_target and wide_blocker_yielded and wide_travelled>10.0
 	wide.dispose()
 	var protected: HospitalSimulation = _fixture()
@@ -442,6 +451,10 @@ func _case_10(_t) -> Dictionary:
 	var first_request: String = courtesy.space.request_move(courtesy.world,"head_on_a",1,[34,86])
 	var second_request: String = courtesy.space.request_move(courtesy.world,"head_on_b",1,[34,94])
 	var fractional_yield: bool = false
+	var detour_sequences: Dictionary = {}
+	for id: String in ["head_on_a","head_on_b"]: detour_sequences[id] = courtesy.world.facts.moves[id].request_sequence
+	var one_detour: bool = true
+	var request_order_kept: bool = true
 	var safe_sweeps: bool = true
 	var courtesy_targets: bool = true
 	for index: int in 400:
@@ -451,18 +464,25 @@ func _case_10(_t) -> Dictionary:
 		var after_a: Rect2 = courtesy.space.body_rectangle(courtesy.world.facts.actors.head_on_a)
 		var after_b: Rect2 = courtesy.space.body_rectangle(courtesy.world.facts.actors.head_on_b)
 		safe_sweeps = safe_sweeps and not BodySweep.intersects(before_a,after_a,before_b,after_b) and not after_a.intersects(after_b,false) and before_a.position.distance_to(after_a.position)<=maximum_step+0.0001 and before_b.position.distance_to(after_b.position)<=maximum_step+0.0001
+		var detours: int = 0
 		for actor_id: String in ["head_on_a","head_on_b"]:
 			var movement: Dictionary = courtesy.world.facts.moves.get(actor_id,{})
 			if movement.is_empty(): continue
 			courtesy_targets = courtesy_targets and movement.target_floor==1 and movement.target_cell==([34,86] if actor_id=="head_on_a" else [34,94])
 			var cell: Array = courtesy.world.facts.actors[actor_id].location.cell
-			if movement.get("yielding",false) and (not is_equal_approx(float(cell[0]),roundf(float(cell[0]))) or not is_equal_approx(float(cell[1]),roundf(float(cell[1])))):
+			request_order_kept = request_order_kept and movement.request_sequence==detour_sequences[actor_id] and not movement.has("yield_partner") and not movement.get("yielding",false)
+			if movement.has("detour"): detours += 1
+			if movement.has("detour") and (not is_equal_approx(float(cell[0]),roundf(float(cell[0]))) or not is_equal_approx(float(cell[1]),roundf(float(cell[1])))):
 				fractional_yield = true
+		one_detour = one_detour and detours<=1
 	var courtesy_arrived: bool = courtesy.space.at(courtesy.world,"head_on_a",1,[34,86]) and courtesy.space.at(courtesy.world,"head_on_b",1,[34,94]) and courtesy.world.facts.moves.is_empty()
-	var courtesy_ok: bool = first_request.is_empty() and second_request.is_empty() and fractional_yield and safe_sweeps and courtesy_targets and courtesy_arrived
-	var courtesy_details: Dictionary = {"first_request":first_request,"second_request":second_request,"fractional_yield_observed":fractional_yield,"safe_real_sweeps":safe_sweeps,"original_targets_preserved":courtesy_targets,"both_arrived":courtesy_arrived,"first_location":courtesy.world.facts.actors.head_on_a.location.duplicate(true),"second_location":courtesy.world.facts.actors.head_on_b.location.duplicate(true),"remaining_moves":courtesy.world.facts.moves.duplicate(true)}
+	var courtesy_ok: bool = first_request.is_empty() and second_request.is_empty() and fractional_yield and safe_sweeps and courtesy_targets and courtesy_arrived and one_detour and request_order_kept
+	var courtesy_details: Dictionary = {"first_request":first_request,"second_request":second_request,"fractional_local_detour_observed":fractional_yield,"only_one_actor_detours":one_detour,"original_request_sequences":request_order_kept,"safe_real_sweeps":safe_sweeps,"original_targets_preserved":courtesy_targets,"both_arrived":courtesy_arrived,"first_location":courtesy.world.facts.actors.head_on_a.location.duplicate(true),"second_location":courtesy.world.facts.actors.head_on_b.location.duplicate(true),"remaining_moves":courtesy.world.facts.moves.duplicate(true)}
 	courtesy.dispose()
-	return _done(sim,first_estimates and changed_estimates and worlds_isolated and first.get("ok",false) and built.accepted and changed.get("ok",false) and float(changed.get("walking_distance",0))>float(first.get("walking_distance",0)) and changed.get("path")==fresh.get("path") and upstairs.accepted and after_other.get("path")==changed.get("path") and same_queue and restored_route.get("path")==changed.get("path") and dynamic_ok and wide_ok and protected_ok and courtesy_ok,{"first_estimates":first_estimates,"changed_estimates":changed_estimates,"worlds_isolated":worlds_isolated,"candidate_route":_public_quote(candidate_route),"first":_public_quote(first),"changed":_public_quote(changed),"same_queue":same_queue,"stationary_obstacle":dynamic_details,"idle_staff_yield":wide_details,"protected_staff":protected_details,"fractional_head_on":courtesy_details})
+	var local_decisions: Dictionary = preload("res://tests/acceptance/movement_detour.gd").new().run(self)
+	var step_proofs: Dictionary = load("res://tests/acceptance/detour_step_proof.gd").new().run(content)
+	var segment_proofs: Dictionary = load("res://tests/acceptance/detour_segment_proof.gd").new().run(content)
+	return _done(sim,first_estimates and changed_estimates and worlds_isolated and first.get("ok",false) and built.accepted and changed.get("ok",false) and float(changed.get("walking_distance",0))>float(first.get("walking_distance",0)) and changed.get("path")==fresh.get("path") and upstairs.accepted and after_other.get("path")==changed.get("path") and same_queue and restored_route.get("path")==changed.get("path") and dynamic_ok and wide_ok and protected_ok and courtesy_ok and local_decisions.ok and step_proofs.passed and segment_proofs.passed,{"first_estimates":first_estimates,"changed_estimates":changed_estimates,"worlds_isolated":worlds_isolated,"candidate_route":_public_quote(candidate_route),"first":_public_quote(first),"changed":_public_quote(changed),"same_queue":same_queue,"stationary_obstacle":dynamic_details,"idle_staff_yield":wide_details,"protected_staff":protected_details,"fractional_head_on":courtesy_details,"local_detour_decisions":local_decisions,"exact_step_proofs":step_proofs,"exact_segment_proofs":segment_proofs})
 
 func _travel_quote_contract(sim: HospitalSimulation, steps: int) -> bool:
 	var speed: float = float(content.balance.movement_speeds["1"])
@@ -726,20 +746,33 @@ func _case_23(_t) -> Dictionary:
 func _case_24(_t) -> Dictionary:
 	var sim: HospitalSimulation = _transit_fixture()
 	var id: String = _connection(sim)
-	_add_actor(sim,"patient","S49",[32,78])
-	_add_actor(sim,"escort","S49",[33,79])
+	_add_actor(sim,"patient","S49",[44,80])
+	_add_actor(sim,"escort","S49",[42,81])
+	var input_validation: String = sim.world.validate(content)
 	var before: Dictionary = sim.world.freeze()
+	var not_ready: String = sim.space.request_group_move(sim.world,"patient",["patient","escort"],{},2,[46,84])
+	var no_ticket: bool = not not_ready.is_empty() and int(sim.world.facts.connectors[id].ticket_next)==0 and sim.world.facts.moves.is_empty() and before==sim.world.freeze()
+	# The follower must really walk into the current front-to-back formation.
+	# No lateral offsets or manufactured arrival are accepted by this test.
+	var align_request: String = sim.space.request_move(sim.world,"escort",1,[42,80])
+	var aligned: bool = _wait(sim,func() -> bool: return sim.space.at(sim.world,"escort",1,[42,80]) and not sim.world.facts.moves.has("escort"),60,_movement_tick.bind(sim))
+	# Public convoy route quotes derive the enlarged trail correctly; the
+	# legacy low-level fixed-offset transit quote is not the convoy API.
+	var quote_before: Dictionary = sim.world.freeze()
+	var quotes_ok: bool = true
 	for index: int in 4:
-		HospitalTransit.quote(sim.space,sim.world,sim.world.facts.connectors[id],"patient",1,2,60,["patient","escort"],{"patient":[0,0],"escort":[1,0]})
-	var readonly: bool = before==sim.world.freeze()
-	var not_ready: String = sim.space.request_group_move(sim.world,"patient",["patient","escort"],{"patient":[0,0],"escort":[1,0]},2,[44,80])
-	var no_ticket: bool = not not_ready.is_empty() and int(sim.world.facts.connectors[id].ticket_next)==0 and sim.world.facts.moves.is_empty()
-	sim.space.request_move(sim.world,"escort",1,[33,78])
-	var aligned: bool = _wait(sim,func() -> bool: return sim.space.at(sim.world,"escort",1,[33,78]) and not sim.world.facts.moves.has("escort"),60)
-	var requested: String = sim.space.request_group_move(sim.world,"patient",["patient","escort"],{"patient":[0,0],"escort":[1,0]},2,[44,80])
-	var boarded: bool = _wait(sim,func() -> bool: return sim.world.facts.actors.patient.location.kind=="transit",220)
+		var quote: Dictionary = sim.space.route_cost(sim.world,"patient",2,[46,84],["patient","escort"],{},true)
+		quotes_ok = quotes_ok and quote.get("ok",false)
+	var readonly: bool = quotes_ok and quote_before==sim.world.freeze() and int(sim.world.facts.connectors[id].ticket_next)==0
+	var requested: String = sim.space.request_group_move(sim.world,"patient",["patient","escort"],{},2,[46,84])
+	var before_landing: bool = requested.is_empty() and int(sim.world.facts.connectors[id].ticket_next)==0
+	var boarded: bool = _wait(sim,func() -> bool: return sim.world.facts.actors.patient.location.kind=="transit" and sim.world.facts.actors.escort.location.kind=="transit",300,_movement_tick.bind(sim))
 	var connection: Dictionary = sim.world.facts.connectors[id]
-	return _done(sim,readonly and no_ticket and aligned and requested.is_empty() and boarded and connection.ticket_next==1 and connection.riders==["patient","escort"] and sim.world.facts.actors.escort.location.kind=="transit",{"unready":not_ready,"boarded":boarded,"connection":connection.duplicate(true)})
+	var one_ticket: bool = boarded and connection.ticket_next==1 and connection.riders==["patient","escort"]
+	var boarding: Dictionary = connection.duplicate(true)
+	var arrived: bool = _wait(sim,func() -> bool: return not sim.world.facts.moves.has("patient") and sim.space.at(sim.world,"patient",2,[46,84]) and sim.world.facts.actors.escort.location.kind=="floor" and int(sim.world.facts.actors.escort.location.floor_id)==2,500,_movement_tick.bind(sim))
+	var final_validation: String = sim.world.validate(content)
+	return _done(sim,input_validation.is_empty() and readonly and no_ticket and align_request.is_empty() and aligned and before_landing and one_ticket and arrived and final_validation.is_empty(),{"input_validation":input_validation,"unready":not_ready,"unready_did_not_mutate":no_ticket,"readonly_quotes":readonly,"align_request":align_request,"follower_actually_aligned":aligned,"group_request":requested,"no_ticket_before_landing":before_landing,"whole_group_boarded":boarded,"one_ticket":one_ticket,"boarding":boarding,"both_reached_destination_floor":arrived,"final_validation":final_validation})
 
 func _case_25(_t) -> Dictionary:
 	var sim: HospitalSimulation = _transit_fixture()
@@ -1025,24 +1058,12 @@ func _case_36(_t) -> Dictionary:
 		bed_role_quotes.append(row)
 	bed_roles_ready = bed_roles_ready and bed_role_quotes.size()==2
 	var selected: CommandResult = _command(sim,"clinical_select_plan",{"visit_id":visit_id,"plan_id":"P_D09_SURGERY"})
+	var guidance: Dictionary = {}
 	if selected.accepted:
-		# This scenario starts immediately before the remodel command, with a
-		# gathered team and one setup tick left. CLIN-18 tests the earlier full
-		# gathering/setup; all surgery and recovery work below still executes.
-		sim.clinic.dispatch(sim.world)
-		var preparation: Dictionary = sim.world.facts.preparations.get(visit_id,{})
-		if preparation.is_empty(): return _done(sim,false,{"prerequisite":"手术未取得真实准备束"})
-		var table: Dictionary = sim.space.facility_layout(sim.world,preparation.facility_id)
-		var positions: Dictionary = {input_visit.actor_id:table.patient_cell}
-		for index: int in preparation.staff_ids.size(): positions[preparation.staff_ids[index]] = table.operator_cells[index]
-		for actor_id: String in positions:
-			sim.world.facts.moves.erase(actor_id)
-			sim.world.facts.actors[actor_id].location = {"kind":"floor","floor_id":1,"cell":positions[actor_id].duplicate(),"height_m":0.0}
-		preparation.setup_remaining_ticks = 1
-		sim.world.touch()
-		var ready_validation: String = sim.world.validate(content)
-		print("CASE_INPUT SPACE-36 "+JSON.stringify({"kind":"gathered_surgical_team","setup_remaining_ticks":1,"prior_travel_and_setup":"input","validation":ready_validation}))
-		if not ready_validation.is_empty(): return _done(sim,false,{"prerequisite":"到齐的手术准备输入无效","validation":ready_validation})
+		guidance = GuidancePrerequisite.reach(sim,[visit_id],func(gate: Callable) -> void: ClinicalStep.step(sim,true,gate))
+		if not guidance.ok: return _done(sim,false,{"prerequisite":"真实导诊和手术室当地到达","guidance":guidance})
+	# Guidance, local arrival, team gathering and every setup tick execute here.
+	# Only the prior diagnostic and base-preparation history above is input.
 	var begun: bool = selected.accepted and _wait(sim,func() -> bool: return not _session(sim,"surgery").is_empty(),1800,clinical_tick)
 	if not begun:
 		var snapshot_path: String = "res://space36-plan-blocked.json"
@@ -1173,7 +1194,7 @@ func _case_36(_t) -> Dictionary:
 		var encoder: HospitalJsonStream = HospitalJsonStream.new()
 		var saved: bool = encoder.encode(snapshot_path,sim.world.freeze(),func(_bytes: int) -> bool: return true)
 		final_scene = {"tick":sim.world.sim_tick,"world_path":ProjectSettings.globalize_path(snapshot_path),"world_saved":saved,"world_save_error":encoder.error,"visit":sim.world.facts.visits[visit_id].duplicate(true),"stay":actual_stay,"ward_covering":coverage,"staff":staff_facts,"sessions":sim.world.facts.sessions.duplicate(true),"bed_layout":sim.space.facility_layout(sim.world,bed_id).duplicate(true),"adaptation":sim.world.facts.adaptations.get(bed_id,{}).duplicate(true)}
-	return _done(sim,passed,{"equipment_handoff":equipment_handoff,"reserved_use":reserved_use,"recovery_use":recovery_use,"selected_plan":selected.to_record(),"bed_role_quotes":bed_role_quotes,"prepared":prepared.to_record(),"initial_block":blocked.get("reason"),"real_transfer":transfer,"promise_preserved":promise_preserved,"stay_at_transfer":recovery_stay,"final_block":still_blocked.get("reason"),"protected":protected,"care_tick":care_tick,"round_tick":round_tick,"nurse_moved_after_care":nurse_moved_after_care,"sequence_legal":sequence_legal,"completion":completion,"charges":charges,"charge_counts":charge_counts,"unique_settlement":unique_settlement,"same_case":same_case,"arrangement_retained":arrangement_retained,"validation":validation,"final_scene":final_scene})
+	return _done(sim,passed,{"guidance":guidance,"equipment_handoff":equipment_handoff,"reserved_use":reserved_use,"recovery_use":recovery_use,"selected_plan":selected.to_record(),"bed_role_quotes":bed_role_quotes,"prepared":prepared.to_record(),"initial_block":blocked.get("reason"),"real_transfer":transfer,"promise_preserved":promise_preserved,"stay_at_transfer":recovery_stay,"final_block":still_blocked.get("reason"),"protected":protected,"care_tick":care_tick,"round_tick":round_tick,"nurse_moved_after_care":nurse_moved_after_care,"sequence_legal":sequence_legal,"completion":completion,"charges":charges,"charge_counts":charge_counts,"unique_settlement":unique_settlement,"same_case":same_case,"arrangement_retained":arrangement_retained,"validation":validation,"final_scene":final_scene})
 
 func _case_37(_t) -> Dictionary:
 	var sim: HospitalSimulation = _fixture()
@@ -1656,8 +1677,9 @@ func _case_51(_t) -> Dictionary:
 	var tree: Dictionary = preload("res://tests/acceptance/navigation_source_tree.gd").new().run_case(self)
 	var keys: Dictionary = preload("res://tests/acceptance/navigation_key_scope.gd").new().run_case(self)
 	var fields: Dictionary = preload("res://tests/acceptance/public_waiting_cost_field.gd").new().run_case(self)
+	var field_pruning: Dictionary = preload("res://tests/acceptance/public_entry_field_prune.gd").new().run_selected(content)
 	var departures: Dictionary = preload("res://tests/acceptance/manual_seat_departure_scope.gd").new().run_case(self)
-	return _done(sim,result.ok and compatible.ok and single.ok and expansion.ok and prepared.ok and binding.ok and sources.ok and subject.ok and tree.ok and keys.ok and fields.ok and departures.ok,{"reference_permissions":result.details,"connector_fit_scope":compatible,"single_connector_route":single,"connector_expansion_scope":expansion,"prepared_floor_graph":prepared,"actor_index_scope_binding":binding,"navigation_source_lifecycle":sources,"route_subject_preparation":subject,"navigation_source_tree":tree,"navigation_key_scope":keys,"public_waiting_cost_field":fields,"manual_seat_departure_scope":departures})
+	return _done(sim,result.ok and compatible.ok and single.ok and expansion.ok and prepared.ok and binding.ok and sources.ok and subject.ok and tree.ok and keys.ok and fields.ok and field_pruning.passed and departures.ok,{"reference_permissions":result.details,"connector_fit_scope":compatible,"single_connector_route":single,"connector_expansion_scope":expansion,"prepared_floor_graph":prepared,"actor_index_scope_binding":binding,"navigation_source_lifecycle":sources,"route_subject_preparation":subject,"navigation_source_tree":tree,"navigation_key_scope":keys,"public_waiting_cost_field":fields,"resident_field_pruning":field_pruning,"manual_seat_departure_scope":departures})
 
 func _waiting_visit(sim: HospitalSimulation, id: String, cell: Array, binding_id: String = "") -> Dictionary:
 	var binding: Dictionary = content.definition("treatment_bindings",binding_id) if not binding_id.is_empty() else {}
@@ -1878,6 +1900,9 @@ func _surgery_fixture() -> HospitalSimulation:
 		world.facts.actors.erase(id)
 		world.facts.ledger.entries.erase(id+":hire")
 	var sim: HospitalSimulation = _bind_fixture(world,1000000)
+	# Staff the new template desk through its real dispatch before the later OR
+	# and ward hires arrive. Otherwise the sole OR nurse can take that job.
+	sim.services.floor_guidance.dispatch(world)
 	sim.clinic.departments = null
 	for research: Dictionary in content.catalog.research: sim.world.facts.research.append(research.id)
 	for id: String in sim.world.ids("staff"):
@@ -2017,3 +2042,15 @@ func _canonical(value: Variant) -> Variant:
 func _done(sim: HospitalSimulation, ok: bool, details: Variant = null) -> Dictionary:
 	sim.dispose()
 	return {"ok":ok,"details":details}
+
+func _case_58(_t) -> Dictionary:
+	var result: Dictionary = preload("res://tests/acceptance/floor_static_loading.gd").new().run_case(self)
+	return {"ok":result.ok,"details":result}
+
+func _case_59(_t) -> Dictionary:
+	var result: Dictionary = preload("res://tests/acceptance/navigation_exact_target.gd").new().run(self)
+	return {"ok":result.ok,"details":result}
+
+func _case_60(_t) -> Dictionary:
+	var result: Dictionary = preload("res://tests/acceptance/movement_precision.gd").new().run(self)
+	return {"ok":result.ok,"details":result}

@@ -1,6 +1,9 @@
 extends "res://tests/acceptance/staff_fixtures.gd"
 
 const CASES: Dictionary = {
+	"STAFF-78":"docs/design/09-consultation-wellbeing.md §4；当前休班若等下次休班清醒将超1350秒则可提前真正睡450秒，保留本人床、安全交接与900秒闲时门槛",
+	"STAFF-77":"docs/design/09-consultation-wellbeing.md §4–5；正式召回后旧点被占或失效可改往真实安全位置，保持他人占位、原义务与班表并恢复返岗",
+	"STAFF-76":"docs/design/09-consultation-wellbeing.md §4、§5；真实到达院门后原移动安全结束才发布院外休整，恢复后不遗留移动，受阻返院等待且新路线正常返岗",
 	"STAFF-01":"docs/design/07-clinical-team.md §1；医生与护士各三能力，五岗位单技能，资格不混用",
 	"STAFF-02":"docs/design/07-clinical-team.md §3；实际完成按岗位能力归并一次，取消不成长，合格失败治疗仍成长",
 	"STAFF-03":"docs/design/07-clinical-team.md §3；实践门槛20/50/100/180，保留未解锁经验且不绕过手术入门",
@@ -21,7 +24,7 @@ const CASES: Dictionary = {
 	"STAFF-18":"docs/design/09-consultation-wellbeing.md §5；带薪假从实际离院足额计时，取消召回不回滚恢复",
 	"STAFF-19":"docs/design/09-consultation-wellbeing.md §4、§5；劳累90安全长休，55终点前不能召回接单",
 	"STAFF-20":"docs/design/09-consultation-wellbeing.md §4；工作移动休息和待岗按实际速率积分，不复制护士劳累",
-	"STAFF-21":"docs/design/09-consultation-wellbeing.md §4 日常短休自动错峰；真实替手、每池一位，不抢断或强召回",
+	"STAFF-21":"docs/design/09-consultation-wellbeing.md §4 空闲时自然短休；复用当前派工结果，无替手预测或每池限额，不抢断或强召回",
 	"STAFF-22":"docs/design/09-consultation-wellbeing.md §4 找到能真正使用的休息位置；真实兼容员工位与恢复总时长",
 	"STAFF-23":"docs/design/09-consultation-wellbeing.md §4 六类职员都需要真正睡觉；900秒无床自愿睡眠不等床或离院",
 	"STAFF-24":"docs/design/09-consultation-wellbeing.md §4 六类职员都需要真正睡觉；1350秒必须睡，缺床45秒后真实离院",
@@ -69,7 +72,7 @@ const CASES: Dictionary = {
 	"STAFF-66":"docs/design/08-hospital-life.md §20；清洁行程由真实移动推进，途中不重复整程报价且不提前施工",
 	"STAFF-67":"公共设施区域寻址规格 §6；无主床暂受身体阻挡，实际让出后在几何不变时重试分配",
 	"STAFF-68":"公共设施区域寻址规格 §4；生活服务实际使用和返回期间不重算临床选址，真实返回后接续原票",
-	"STAFF-69":"公共设施区域寻址规格 §1；候诊椅失败后按5秒行为扫描，不建失败队列，无座反应保留，实际坐下才清除",
+	"STAFF-69":"公共设施区域寻址规格 §1；候诊椅/区域失败后按5秒行为扫描，不建失败队列，保存恢复不提前重试，无座反应保留，实际坐下才清除",
 	"STAFF-70":"公共设施区域寻址规格 §3、§5；已选短程目标到位后不全区重选，手动目标不执行自动排名",
 	"STAFF-71":"公共设施区域寻址规格 §3、§4；早到者仅竞争当前目标，短休和娱乐可取得其他本区候选并真实开用",
 	"STAFF-72":"公共设施区域寻址规格 §3、§4；用途失效重新选区，地面无路待重试不掩盖原45秒期限",
@@ -87,6 +90,15 @@ func run(t) -> void:
 		t.begin_case(case_id)
 		if not _content.error.is_empty():
 			t.check(case_id,false,{"content_error":_content.error})
+			continue
+		if case_id=="STAFF-78":
+			preload("res://tests/acceptance/staff_scheduled_sleep.gd").new().run_case(t,_content)
+			continue
+		if case_id=="STAFF-77":
+			preload("res://tests/acceptance/staff_return_handoff.gd").new().run_case(t,_content)
+			continue
+		if case_id=="STAFF-76":
+			_case_76(t)
 			continue
 		if int(case_id.right(2))>=69:
 			preload("res://tests/acceptance/public_phase_use.gd").new().run(t,_content,case_id)
@@ -648,34 +660,73 @@ func _case_20(t) -> void:
 	t.check("STAFF-20",rates_ok,{"doctor":doctor,"nurse_fatigue":nurse.fatigue})
 
 func _case_21(t) -> void:
-	var x: Dictionary = _fixture({"first":"doctor","second":"doctor","relief":"doctor"})
+	# Legal start boundary: the original work dispatch has finished this tick.
+	# Its idle result is an input, never a prediction about a replacement worker.
+	var x: Dictionary = _fixture({"first":"doctor","second":"doctor"})
 	_room(x)
 	for staff: Dictionary in x.world.facts.staff.values():
 		staff.base_prepared = true
 		staff.scheduled_kind = "outpatient"
+		staff.dispatch_idle = true
+		staff.dispatch_idle_tick = x.world.sim_tick
+	_position(x,"first",[37,74])
+	_position(x,"second",[44,74])
 	x.world.facts.staff.first.energy = 40.0
 	x.world.facts.staff.second.energy = 42.0
-	_position(x,"first",[37,74])
-	_position(x,"second",[42,74])
-	_position(x,"relief",[48,74])
+	var input_validation: String = x.world.validate(_content)
 	x.w.dispatch(x.world)
-	var one_early: int = 0
-	for staff: Dictionary in x.world.facts.staff.values():
-		if staff.life_task.get("early",false):
-			one_early += 1
-	var stagger_ok: bool = one_early==1 and x.world.facts.staff.first.life_task.get("early",false) and x.world.facts.staff.second.life_task.phase=="idle"
-	var y: Dictionary = _fixture({"low":"doctor","travelling":"doctor"})
-	_room(y)
-	for staff: Dictionary in y.world.facts.staff.values():
+	var together: bool = x.world.facts.staff.first.life_task.get("early",false) and x.world.facts.staff.second.life_task.get("early",false)
+	var solo: Dictionary = _fixture({"alone":"doctor"})
+	_room(solo)
+	_position(solo,"alone",[38,75])
+	var alone: Dictionary = solo.world.facts.staff.alone
+	alone.base_prepared = true
+	alone.energy = 40.0
+	alone.dispatch_idle = true
+	alone.dispatch_idle_tick = solo.world.sim_tick
+	input_validation += solo.world.validate(_content)
+	solo.w.dispatch(solo.world)
+	var no_replacement: bool = alone.life_task.get("early",false) and alone.life_task.phase=="rest"
+	var before_energy: float = alone.energy
+	# A new request cannot interrupt rest already begun; it later returns normally.
+	alone.dispatch_idle = false
+	solo.w.dispatch(solo.world)
+	_life_ticks(solo,10,true)
+	var actual_recovery: bool = alone.energy>before_energy and alone.life_task.phase=="rest"
+	var returned: bool = _reach_life_phase(solo,"alone","idle",1600)
+	var sleeping: Dictionary = _fixture({"sleeper":"doctor"})
+	var sleep_room: String = _room(sleeping)
+	_facility(sleeping,"bed","SE04",[43,75],sleep_room)
+	_position(sleeping,"sleeper",[38,75])
+	var sleeper: Dictionary = sleeping.world.facts.staff.sleeper
+	sleeper.base_prepared = true
+	sleeper.awake_ticks = 9000
+	sleeper.energy = 50.0
+	sleeper.dispatch_idle = true
+	sleeper.dispatch_idle_tick = sleeping.world.sim_tick
+	input_validation += sleeping.world.validate(_content)
+	sleeping.w.dispatch(sleeping.world)
+	var selected_sleep: bool = sleeper.life_task.get("kind","")=="sleep" and sleeper.sleep_remaining_ticks==4500
+	var reached_sleep: bool = _reach_life_phase(sleeping,"sleeper","sleep")
+	var actual_sleep_before: int = sleeper.sleep_remaining_ticks
+	_life_ticks(sleeping,10,true)
+	var voluntary_sleep: bool = selected_sleep and reached_sleep and sleeper.sleep_remaining_ticks==actual_sleep_before-10
+	var guards: Dictionary = {}
+	for mode: String in ["not_dispatched","stale_idle","moving"]:
+		var y: Dictionary = _fixture({"worker":"doctor"})
+		_room(y)
+		_position(y,"worker",[38,75])
+		var staff: Dictionary = y.world.facts.staff.worker
 		staff.base_prepared = true
-		staff.scheduled_kind = "outpatient"
-	y.world.facts.staff.low.energy = 40.0
-	_position(y,"low",[38,75])
-	_position(y,"travelling",[45,75])
-	y.space.request_move(y.world,"travelling",1,[50,80])
-	y.w.dispatch(y.world)
-	stagger_ok = stagger_ok and y.world.facts.staff.low.life_task.phase=="idle"
-	t.check("STAFF-21",stagger_ok,{"one_pool_count":one_early,"selected":x.world.facts.staff.first.life_task,"unavailable_relief":y.world.facts.staff.low.life_task})
+		staff.energy = 40.0
+		staff.dispatch_idle = true
+		staff.dispatch_idle_tick = y.world.sim_tick
+		if mode=="not_dispatched": staff.dispatch_idle = false
+		if mode=="stale_idle": staff.dispatch_idle_tick = y.world.sim_tick-1
+		if mode=="moving": y.space.request_move(y.world,"worker",1,[44,80])
+		y.w.dispatch(y.world)
+		guards[mode] = staff.life_task.phase=="idle"
+	t.check("STAFF-21",input_validation.is_empty() and together and no_replacement and actual_recovery and returned and voluntary_sleep and not guards.values().has(false),{"input_validation":input_validation,"sole_idle_worker_actual_early_sleep":voluntary_sleep,"both_idle_can_rest":together,"sole_worker_can_rest":no_replacement,"actual_recovery":actual_recovery,"returned_without_recall":returned,"new_rest_guards":guards})
 
 func _case_22(t) -> void:
 	var x: Dictionary = _fixture({"doctor":"doctor"})
@@ -1237,3 +1288,6 @@ func _case_40(t) -> void:
 	x.r.consume_completion(x.world,"cleanup_completed",{"id":"after_maximum","staff_id":"cleaner","standard_work_milli":1000})
 	practice_ok = practice_ok and x.world.facts.staff.cleaner.skill==5 and x.world.facts.staff.cleaner.job_practice==0
 	t.check("STAFF-40",practice_ok,{"maintenance_receipts":receipts,"researcher":x.world.facts.staff.researcher,"nurse":x.world.facts.staff.nurse})
+
+func _case_76(t) -> void:
+	preload("res://tests/acceptance/staff_exit_handoff.gd").new().run_case(t,_content)

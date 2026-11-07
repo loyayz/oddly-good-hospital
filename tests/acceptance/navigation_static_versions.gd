@@ -27,8 +27,8 @@ func run() -> Dictionary:
 	var movement: Dictionary = {"request_sequence":1,"cursor":0,"path":route.path,"members":[TRAVELLER],"offsets":{}}
 	var checks: Dictionary = {}
 	checks.initial_route = space.movement._active_route_clear(world,actor,movement,{})
-	var initial: int = navigation.floor_static_version(space,world,1)
-	var full_before: int = navigation.floor_version(space,world,1)
+	var initial: String = navigation.floor_static_version(space,world,1)
+	var full_before: String = navigation.floor_version(space,world,1)
 	var counted: int = int(space.query_counts.route_revalidations)
 	var reserved: String = space.reserve_facility(world,FACILITY,OWNER,OWNER)
 	if not reserved.is_empty(): return {"ok":false,"reservation":reserved}
@@ -55,13 +55,13 @@ func run() -> Dictionary:
 	world.facts.floors.overrides["1"].blocked.erase(goal)
 	world.touch()
 	checks.blocked_restore_safe = space.movement._active_route_clear(world,actor,movement,{}) and _cold_goal_clear(content,world,goal)
-	var before_wall: int = navigation.floor_static_version(space,world,1)
+	var before_wall: String = navigation.floor_static_version(space,world,1)
 	HospitalFactory._add_room(world,{"id":"static_version_room","type":"gp","anchor":[35,66],"size":[4,4],"door":{"definition_id":"DR01","offset":1}},content)
 	world.touch()
 	checks.wall_invalidates = navigation.floor_static_version(space,world,1)!=before_wall and space.movement._active_route_clear(world,actor,movement,{}) and _cold_goal_clear(content,world,goal)
 	# A quoted nursing-bed expansion is a real change to solid geometry. Its
 	# body compatibility and complete fit are supplied by the actual game quote.
-	var before_footprint: int = navigation.floor_static_version(space,world,1)
+	var before_footprint: String = navigation.floor_static_version(space,world,1)
 	var expanded_bed: Dictionary = _expanded_bed(space,world)
 	checks.legal_expanded_bed_quote = not expanded_bed.is_empty()
 	if not expanded_bed.is_empty():
@@ -71,16 +71,16 @@ func run() -> Dictionary:
 	checks.footprint_invalidates = navigation.floor_static_version(space,world,1)!=before_footprint
 	checks.footprint_cold_equal = space.navigation.structural_clearance(world,actor,1).reason(Vector2i(int(goal[0]),int(goal[1])))==RouteClearance.new(HospitalSpace.new(content),world,actor,1,[],{},false).reason(Vector2i(int(goal[0]),int(goal[1])))
 	# Graph eviction discards computations, not the identity of live facts.
-	var before_eviction: int = navigation.floor_static_version(space,world,1)
+	var before_eviction: String = navigation.floor_static_version(space,world,1)
 	navigation._trim(0)
 	checks.graphs_evicted = navigation._entries.is_empty()
-	var rebuilt: int = navigation.floor_static_version(space,world,1)
+	var rebuilt: String = navigation.floor_static_version(space,world,1)
 	checks.evicted_rebuild_safe = rebuilt==before_eviction and space.movement._active_route_clear(world,actor,movement,{})==_cold_path_clear(content,world,actor,movement.path)
 	var restored: WorldState = WorldState.new(world.freeze())
 	var restored_actor: Dictionary = restored.facts.actors[TRAVELLER]
 	var restored_source: Dictionary = navigation.floor_source(space,restored,1)
 	var expected: Dictionary = RouteClearance.capture_source(HospitalSpace.new(content),restored,1)
-	checks.restored_world_source = restored_source==expected and navigation.floor_static_version(space,restored,1)>0
+	checks.restored_world_source = restored_source==expected and navigation.floor_static_version(space,restored,1).length()==64
 	checks.restored_cold_equal = space.navigation.structural_clearance(restored,restored_actor,1).reason(Vector2i(int(goal[0]),int(goal[1])))==RouteClearance.new(HospitalSpace.new(content),restored,restored_actor,1,[],{},false).reason(Vector2i(int(goal[0]),int(goal[1])))
 	var temporary: WorldState = WorldState.new(world.freeze())
 	navigation.floor_static_version(space,temporary,1)
@@ -185,7 +185,7 @@ func _revalidation_matches_cold(space: HospitalSpace, world: WorldState, actor: 
 	var expected: bool = _cold_path_clear(space.content,world,actor,movement.path,movement.members,movement.offsets)
 	return actual==expected and int(space.query_counts.route_revalidations)==count+1 and int(space.query_counts.get(key,0))==causes+1
 
-func _projections(space: HospitalSpace, world: WorldState, goal: Array, original_version: int) -> Dictionary:
+func _projections(space: HospitalSpace, world: WorldState, goal: Array, original_version: String) -> Dictionary:
 	var navigation: NavigationCache = space._navigation
 	# Keep the original static graph resident so inheritance can borrow it.
 	navigation.graph(space,world,1,world.facts.actors[TRAVELLER],[],{})

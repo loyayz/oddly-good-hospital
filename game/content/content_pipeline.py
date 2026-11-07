@@ -471,7 +471,7 @@ def design_sources():
             row.update(footprint=list(spec[:2]), price=spec[2], wall_mount=number in (29,30,31,32,44,48),
                        blocks_movement=number not in (23,27,28,29,30,31,32,44,48), requires_research=[])
             row["initially_available"] = True
-            row["environment_function"] = "light" if number in (19,37,38) else ("water" if number == 17 else ("noise_barrier" if number == 23 else ""))
+            row["environment_function"] = {12: "seat_shade", 13: "seat_moist", 14: "seat_dry", 15: "seat_cool", 17: "water", 19: "light", 20: "moist", 21: "dry", 22: "cool", 23: "noise_barrier", 37: "light", 38: "light"}.get(number, "")
         if numbers[0] in (25,33,41):
             categories = re.search(r"类别(?:依次)?([^。；]+)", text)
             require(categories is not None, cells[0], "missing decoration categories")

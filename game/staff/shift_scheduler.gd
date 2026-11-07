@@ -3,6 +3,8 @@ extends RefCounted
 
 const Development = preload("res://game/staff/clinical_development.gd")
 
+const STAFF_DEFAULTS: Dictionary = {"previous_day_work_tail":0,"scheduled_kind":"work","rest_debt_ticks":0,"block_new_work":false,"schedule_reason":"","last_schedule_slot":-1,"overtime_ticks":0}
+
 var content: HospitalContent
 var space: HospitalSpace
 var _worked: Dictionary = {}
@@ -31,11 +33,11 @@ func ensure(world: WorldState) -> void:
 			else:
 				var duty: String = "outpatient" if staff.role=="doctor" else "work"
 				staff.schedule = [{"kind":duty,"pools":[],"locked":false},{"kind":duty,"pools":[],"locked":false},{"kind":"rest","pools":[],"locked":false}]
-		var defaults: Dictionary = {"schedule_overrides":{},"schedule_day":world.sim_tick/WorldState.TICKS_PER_DAY,"previous_day_work_tail":0,"scheduled_kind":"work","rest_debt_ticks":0,
-			"leave_plan":{},"block_new_work":false,"schedule_reason":"","last_schedule_slot":-1,"overtime_ticks":0}
-		for key: String in defaults:
-			if not staff.has(key):
-				staff[key] = defaults[key]
+		for key: String in STAFF_DEFAULTS:
+			if not staff.has(key): staff[key] = STAFF_DEFAULTS[key]
+		if not staff.has("schedule_overrides"): staff.schedule_overrides = {}
+		if not staff.has("leave_plan"): staff.leave_plan = {}
+		if not staff.has("schedule_day"): staff.schedule_day = world.sim_tick/WorldState.TICKS_PER_DAY
 
 func execute(world: WorldState, kind: String, payload: Dictionary) -> CommandResult:
 	ensure(world)
@@ -77,6 +79,8 @@ func execute(world: WorldState, kind: String, payload: Dictionary) -> CommandRes
 func boundaries(world: WorldState) -> void:
 	ensure(world)
 	_worked.clear()
+	var fatigue_limit: float = float(content.balance.wellbeing.fatigue_stop_new_work)
+	var shifts_per_day: int = int(content.balance.schedule.shifts_per_day)
 	var day: int = world.sim_tick/WorldState.TICKS_PER_DAY
 	var slot: int = shift_index(world)
 	world.facts.staff_schedule.day = day
@@ -92,11 +96,11 @@ func boundaries(world: WorldState) -> void:
 		staff.scheduled_kind = schedule.kind
 		var occupied: bool = Development.safe_busy(world,staff_id,busy)
 		var life_phase: String = str(staff.get("life_task",{}).get("phase","idle"))
-		if staff.role=="doctor" and float(staff.fatigue)>=float(content.balance.wellbeing.fatigue_stop_new_work) and staff.leave_plan.is_empty():
+		if staff.role=="doctor" and float(staff.fatigue)>=fatigue_limit and staff.leave_plan.is_empty():
 			staff.leave_plan = {"kind":"automatic","state":"planned","requested_start_tick":world.sim_tick,"days":0,"actual_start_tick":-1,"end_tick":-1,"recalled":false}
 		var leave_due: bool = not staff.leave_plan.is_empty() and world.sim_tick>=int(staff.leave_plan.requested_start_tick)
 		var needs_rest: bool = schedule.kind=="rest" or int(staff.rest_debt_ticks)>0 or leave_due
-		if staff.role=="doctor" and float(staff.fatigue)>=float(content.balance.wellbeing.fatigue_stop_new_work):
+		if staff.role=="doctor" and float(staff.fatigue)>=fatigue_limit:
 			needs_rest = true
 		if needs_rest and occupied:
 			staff.block_new_work = true
@@ -110,7 +114,7 @@ func boundaries(world: WorldState) -> void:
 		staff.schedule_reason = "休假等待真实离院" if leave_due else ("补休中" if int(staff.rest_debt_ticks)>0 else ("休息班" if schedule.kind=="rest" else ""))
 		if needs_rest and staff.has("base_prepared"):
 			staff.base_prepared = false
-		staff.last_schedule_slot = day*int(content.balance.schedule.shifts_per_day)+slot
+		staff.last_schedule_slot = day*shifts_per_day+slot
 
 func dispatch(world: WorldState) -> void:
 	# Coverage transfers are real bedside work. Missing relief pauses recovery.
@@ -224,7 +228,7 @@ func suggestion(world: WorldState) -> Dictionary:
 	var index: int = 0
 	for id: String in world.ids("staff"):
 		var staff: Dictionary = world.facts.staff[id]
-		if staff.role!="doctor":
+		if staff.role!="doctor" or staff.get("departed",false):
 			continue
 		var proposed: Array = staff.schedule.duplicate(true)
 		var rest_slot: int = (index+1)%int(content.balance.schedule.shifts_per_day)
@@ -242,11 +246,17 @@ func coverage(world: WorldState, changes: Array = []) -> Array:
 		overrides[change.staff_id] = change.schedule
 	var rows: Array = []
 	for slot: int in int(content.balance.schedule.shifts_per_day):
-		var row: Dictionary = {"shift":slot,"outpatient":0,"surgeon":0,"anesthesia":0,"ward":0,"nurse":0,"training":0,"gaps":[]}
+		var row: Dictionary = {"shift":slot,"outpatient":0,"surgeon":0,"anesthesia":0,"ward":0,"nurse":0,"ward_nurse":0,"care":0,"nurse_diagnosis":0,"nurse_surgery":0,"receptionist":0,"cleaner":0,"researcher":0,"decorator":0,"leave_excluded":0,"training":0,"gaps":[]}
 		for id: String in world.ids("staff"):
 			var staff: Dictionary = world.facts.staff[id]
-			var entry: Dictionary = overrides.get(id,staff.get("schedule",[]))[slot]
-			if entry.kind=="rest" or not staff.get("leave_plan",{}).is_empty():
+			# Mirror _apply: past assignments and explicit day overrides survive a draft.
+			var entry: Dictionary = assignment(world,id,slot)
+			if overrides.has(id) and slot>=shift_index(world) and not (int(staff.get("schedule_day",-1))==world.sim_tick/WorldState.TICKS_PER_DAY and staff.get("schedule_overrides",{}).has(str(slot))):
+				entry = overrides[id][slot]
+			if staff.get("departed",false) or entry.kind=="rest":
+				continue
+			if _preview_leave_overlap(world,staff,slot):
+				row.leave_excluded += 1
 				continue
 			if entry.kind=="training":
 				row.training += 1
@@ -260,12 +270,26 @@ func coverage(world: WorldState, changes: Array = []) -> Array:
 					row.ward += 1
 			elif staff.role=="nurse":
 				row.nurse += 1
+				if "q_ward" in staff.get("certificates",[]): row.ward_nurse += 1
+				if int(staff.abilities.get("care",0))>=1: row.care += 1
+				if int(staff.abilities.get("diagnosis",0))>=1: row.nurse_diagnosis += 1
+				if int(staff.abilities.get("surgery",0))>=1: row.nurse_surgery += 1
+			elif row.has(staff.role):
+				row[staff.role] += 1
+		if _has_facility(world,"SE01") and int(row.care)==0:
+			row.gaps.append("导诊无排班合资格护士")
+		if _has_facility(world,"SE01") and int(row.care)==1:
+			row.gaps.append("导诊与临床护理共用护士，不能同时保证")
+		if _has_facility(world,"FUR01") and int(row.receptionist)==0:
+			row.gaps.append("接待无排班接待员")
+		if _has_facility(world,"EQ01") and int(row.nurse_surgery)==0:
+			row.gaps.append("手术无排班合资格护士")
 		if int(row.outpatient)==0:
 			row.gaps.append("缺初诊/门诊医生")
 		if _has_facility(world,"EQ01") and int(row.surgeon)<2:
 			row.gaps.append("手术缺两名互异合资格医生")
-		if _has_facility(world,"EQ05") and (int(row.ward)==0 or int(row.nurse)==0):
-			row.gaps.append("病房缺护理或查房覆盖")
+		if _has_facility(world,"EQ05") and (int(row.ward)==0 or int(row.ward_nurse)==0):
+			row.gaps.append("病房缺护理或查房排班资格")
 		var desks: int = 0
 		for facility: Dictionary in world.facts.facilities.values():
 			if facility.definition_id=="FUR05" and not facility.failed:
@@ -274,6 +298,22 @@ func coverage(world: WorldState, changes: Array = []) -> Array:
 			row.gaps.append("培训研究桌不足")
 		rows.append(row)
 	return rows
+
+# This is a conservative schedule report, not a prediction of safe availability.
+# A partially overlapping leave excludes the whole slot; the UI states this.
+func _preview_leave_overlap(world: WorldState, staff: Dictionary, slot: int) -> bool:
+	var leave: Dictionary = staff.get("leave_plan",{})
+	if leave.is_empty(): return false
+	var ticks: int = ceili(float(content.balance.schedule.shift_seconds)/WorldState.TICK_SECONDS)
+	var start: int = (world.sim_tick/WorldState.TICKS_PER_DAY)*WorldState.TICKS_PER_DAY+slot*ticks
+	var leave_start: int = int(leave.get("actual_start_tick",-1))
+	if leave_start<0: leave_start = int(leave.get("requested_start_tick",world.sim_tick))
+	var leave_end: int = int(leave.get("end_tick",-1))
+	if leave.get("kind","")=="automatic" or leave.get("state","")=="returning":
+		leave_end = maxi(start+ticks,leave_end)
+	elif leave_end<0:
+		leave_end = leave_start+int(leave.get("days",1))*WorldState.TICKS_PER_DAY
+	return leave_start<start+ticks and leave_end>start
 
 func assignment(world: WorldState, staff_id: String, slot: int, day: int = -1) -> Dictionary:
 	var staff: Dictionary = world.facts.staff[staff_id]
@@ -402,7 +442,7 @@ func _basis(world: WorldState) -> Dictionary:
 	for id: String in world.ids("staff"):
 		var staff: Dictionary = world.facts.staff[id]
 		var day_state: Dictionary = _day_state(world,staff)
-		result[id] = {"role":staff.role,"schedule":staff.get("schedule",[]).duplicate(true),"schedule_overrides":day_state.overrides.duplicate(true),"schedule_day":day_state.day,"previous_day_work_tail":day_state.previous_day_work_tail,"abilities":staff.abilities.duplicate(true),"title_id":staff.title_id,"leave_plan":staff.get("leave_plan",{}).duplicate(true)}
+		result[id] = {"departed":staff.get("departed",false),"role":staff.role,"schedule":staff.get("schedule",[]).duplicate(true),"schedule_overrides":day_state.overrides.duplicate(true),"schedule_day":day_state.day,"previous_day_work_tail":day_state.previous_day_work_tail,"abilities":staff.abilities.duplicate(true),"certificates":staff.get("certificates",[]).duplicate(),"title_id":staff.title_id,"leave_plan":staff.get("leave_plan",{}).duplicate(true)}
 	return result
 
 func _day_state(world: WorldState, staff: Dictionary) -> Dictionary:

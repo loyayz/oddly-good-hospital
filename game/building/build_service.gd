@@ -367,7 +367,10 @@ func _store_facility(world: WorldState, payload: Dictionary) -> Dictionary:
 
 func _suspend_inventory_work(world: WorldState, order: Dictionary) -> void:
 	var worker_id: String = str(order.get("worker_id",""))
-	if world.facts.staff.has(worker_id) and world.facts.staff[worker_id].get("active_job_id","")==order.id:
+	var contractor: Dictionary = world.facts.get("maintenance",{}).get("contractors",{}).get(worker_id,{})
+	var owns_contractor: bool = contractor.get("job_id","")==order.id and contractor.get("phase","")=="assigned"
+	var owns_staff: bool = world.facts.staff.has(worker_id) and world.facts.staff[worker_id].get("active_job_id","")==order.id
+	if owns_contractor or owns_staff:
 		var movement: Dictionary = world.facts.moves.get(worker_id,{})
 		var matching_target: bool = not movement.is_empty() and movement.get("target_floor",-1)==order.get("work_floor",-2) and movement.get("target_cell",[])==order.get("work_cell",["no-work-position"])
 		var owned_move: bool = movement.get("owner_job_id","")==order.id or matching_target and str(movement.get("owner_job_id","")).is_empty()
@@ -377,7 +380,10 @@ func _suspend_inventory_work(world: WorldState, order: Dictionary) -> void:
 		if owned_move and not actor.is_empty() and actor.location.kind=="floor" and movement.get("members",[]).is_empty():
 			HospitalTransit.cancel_waiting(world,movement)
 			world.facts.moves.erase(worker_id)
-		world.facts.staff[worker_id].active_job_id = ""
+		if owns_contractor:
+			# Preserve the real person and original job history until departure.
+			contractor.phase = "leaving"
+		if owns_staff: world.facts.staff[worker_id].active_job_id = ""
 	order.worker_id = ""
 	order.phase = "inventory"
 	order.reason = "设备已入库，保留原工单、实付款和剩余工作"

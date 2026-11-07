@@ -273,7 +273,6 @@ func _advance(simulation: HospitalSimulation) -> Dictionary:
 		return {"ok":false,"reason":"Preparation watchdog reached before actual entry/route became available.","steps":_steps,"population":population_of(simulation.world)}
 	var result: TickResult = simulation.step_nonblocking()
 	while result==null:
-		if not simulation.preparing_error().is_empty(): return {"ok":false,"reason":simulation.preparing_error(),"steps":_steps}
 		if Time.get_ticks_usec()-_started>=_maximum_us: return {"ok":false,"reason":"Preparation boundary/solver watchdog reached.","steps":_steps}
 		await process_frame
 		result = simulation.step_nonblocking()

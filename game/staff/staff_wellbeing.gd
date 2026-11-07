@@ -4,6 +4,8 @@ extends RefCounted
 const Development = preload("res://game/staff/clinical_development.gd")
 const REST_SEATS: Array[String] = ["FUR06","FUR09","FUR10","FUR11","FUR49","FUR50","FUR51","FUR52"]
 
+const STAFF_DEFAULTS: Dictionary = {"awake_ticks":0,"sleep_remaining_ticks":0,"recreation_count":0,"recreation_cooldown_tick":0,"life_reason":"","stress_credit":0.0,"dispatch_idle":false,"rest_obligation":false}
+
 var content: HospitalContent
 var _facility_navigation: NavigationCache = NavigationCache.new()
 var space: HospitalSpace
@@ -18,13 +20,14 @@ func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 func ensure(world: WorldState) -> void:
 	if not world.facts.has("staff_life"):
 		world.facts.staff_life = {"reservations":{},"settings":{"maximum_recreation":int(content.balance.wellbeing.default_simultaneous_recreation),"roles":[]},"pressure_receipts":{}}
+	var day: int = world.sim_tick/WorldState.TICKS_PER_DAY
 	for staff: Dictionary in world.facts.staff.values():
-		var defaults: Dictionary = {"awake_ticks":0,"sleep_remaining_ticks":0,"life_task":{"phase":"idle"},"last_rest_end_tick":int(staff.get("hired_tick",0)),
-			"recreation_day":world.sim_tick/WorldState.TICKS_PER_DAY,"recreation_count":0,"recreation_cooldown_tick":0,"last_recreation_tick":int(staff.get("hired_tick",0)),"life_reason":"",
-			"stress_credit":0.0,"dispatch_idle":false,"rest_obligation":false}
-		for key: String in defaults:
-			if not staff.has(key):
-				staff[key] = defaults[key]
+		for key: String in STAFF_DEFAULTS:
+			if not staff.has(key): staff[key] = STAFF_DEFAULTS[key]
+		if not staff.has("life_task"): staff.life_task = {"phase":"idle"}
+		if not staff.has("last_rest_end_tick"): staff.last_rest_end_tick = int(staff.get("hired_tick",0))
+		if not staff.has("last_recreation_tick"): staff.last_recreation_tick = int(staff.get("hired_tick",0))
+		if not staff.has("recreation_day"): staff.recreation_day = day
 	personal_beds.sync(world)
 
 func execute(world: WorldState, kind: String, payload: Dictionary) -> CommandResult:
@@ -100,8 +103,12 @@ func _dispatch_waiting(world: WorldState) -> void:
 		if mandatory_sleep:
 			_begin(world,staff_id,"sleep")
 			continue
-		var safe: bool = not _busy(world,staff_id) and not _other_commitment(world,staff_id)
-		if int(staff.awake_ticks)>=_ticks(float(content.balance.staff_sleep.early_sleep_after_seconds)) and safe and (not staff.get("on_shift",true) or _relief_available(world,staff_id)):
+		var safe: bool = not _busy(world,staff_id) and not _other_commitment(world,staff_id) and not world.facts.moves.has(staff_id) and not _ward_responsibility(world,staff_id)
+		# Work owners have already dispatched this boundary. Voluntary rest uses
+		# their current idle result, without forecasting a replacement or next patient.
+		var idle_now: bool = bool(staff.get("dispatch_idle",false)) and int(staff.get("dispatch_idle_tick",-1))==world.sim_tick
+		var voluntary: bool = safe and (not staff.get("on_shift",true) or idle_now)
+		if voluntary and (int(staff.awake_ticks)>=_ticks(float(content.balance.staff_sleep.early_sleep_after_seconds)) or _rest_shift_sleep_due(world,staff)):
 			# Voluntary sleep does not create a bed queue or an offsite fallback.
 			var bed: Dictionary = _select_facility(world,staff_id,"sleep")
 			if not bed.is_empty():
@@ -109,7 +116,7 @@ func _dispatch_waiting(world: WorldState) -> void:
 				continue
 		var normal_rest: bool = float(staff.energy)<=float(content.balance.wellbeing.recreation_max_energy_priority) or int(staff.get("rest_debt_ticks",0))>0 or staff.rest_obligation
 		var scheduled_rest: bool = not staff.get("on_shift",true) and float(staff.energy)<float(content.balance.schedule.compensatory_rest_target_energy)
-		var early_rest: bool = not normal_rest and float(staff.energy)<=float(content.balance.staggered_rest.early_energy_ceiling) and safe and _relief_available(world,staff_id) and not _pool_resting(world,staff_id)
+		var early_rest: bool = not normal_rest and float(staff.energy)<=float(content.balance.staggered_rest.early_energy_ceiling) and voluntary
 		if normal_rest or scheduled_rest or early_rest:
 			_begin(world,staff_id,"rest",{},early_rest)
 			continue
@@ -129,14 +136,39 @@ func _dispatch_waiting(world: WorldState) -> void:
 
 func boundaries(world: WorldState) -> void:
 	ensure(world)
+	var awake_limit: int = _ticks(float(content.balance.staff_sleep.awake_limit_seconds))
+	var rest_energy: float = float(content.balance.wellbeing.recreation_max_energy_priority)
 	for staff: Dictionary in world.facts.staff.values():
 		if staff.get("departed",false):
 			staff.on_shift = false
 			staff.block_new_work = true
 			continue
 		var leave: Dictionary = staff.get("leave_plan",{})
-		if int(staff.awake_ticks)>=_ticks(float(content.balance.staff_sleep.awake_limit_seconds)) or int(staff.sleep_remaining_ticks)>0 or float(staff.energy)<=float(content.balance.wellbeing.recreation_max_energy_priority) or staff.rest_obligation or (not leave.is_empty() and world.sim_tick>=int(leave.requested_start_tick)):
+		if int(staff.awake_ticks)>=awake_limit or int(staff.sleep_remaining_ticks)>0 or float(staff.energy)<=rest_energy or staff.rest_obligation or (not leave.is_empty() and world.sim_tick>=int(leave.requested_start_tick)):
 			staff.block_new_work = true
+
+# A scheduled rest shift may precede the ordinary 12-hour idle threshold.
+# Only the employee's effective schedule is projected, never replacement staff
+# or future work. Actual bed access, safe release and sleep stay in dispatch.
+func _rest_shift_sleep_due(world: WorldState, staff: Dictionary) -> bool:
+	var count: int = int(content.balance.schedule.shifts_per_day)
+	var shift_ticks: int = _ticks(float(content.balance.schedule.shift_seconds))
+	var absolute_slot: int = world.sim_tick/shift_ticks
+	if _sleep_shift_kind(staff,absolute_slot,count)!="rest": return false
+	for offset: int in range(1,count+1):
+		if _sleep_shift_kind(staff,absolute_slot+offset,count)!="rest": continue
+		var until_rest: int = (absolute_slot+offset)*shift_ticks-world.sim_tick
+		# At equality, waiting for the next rest does not exceed the limit.
+		# After a real sleep this also prevents a second sleep in the same rest.
+		return int(staff.awake_ticks)+until_rest>_ticks(float(content.balance.staff_sleep.awake_limit_seconds))
+	return false
+
+func _sleep_shift_kind(staff: Dictionary, absolute_slot: int, count: int) -> String:
+	var slot: int = absolute_slot%count
+	if int(staff.get("schedule_day",-1))==absolute_slot/count and staff.get("schedule_overrides",{}).has(str(slot)):
+		return str(staff.schedule_overrides[str(slot)].get("kind",""))
+	var schedule: Array = staff.get("schedule",[])
+	return str(schedule[slot].get("kind","")) if slot<schedule.size() else ""
 
 func advance(world: WorldState, worked: Dictionary = {}, before_movement: Dictionary = {}) -> void:
 	var rates: Dictionary = content.balance.wellbeing
@@ -339,6 +371,9 @@ func _dispatch_task(world: WorldState, staff_id: String) -> void:
 			_interrupt(world,staff_id)
 	elif task.phase=="exiting":
 		if _at_target(world,staff_id,task):
+			# Arrival can precede the movement owner's final cleanup by one phase.
+			# Finish only a safe ground move before publishing an outside body.
+			if not space.cancel_ground_move(world,staff_id): return
 			world.facts.actors[staff_id].location = {"kind":"outside"}
 			space.sync_actor(world,staff_id)
 			task.phase = "offsite"
@@ -355,7 +390,10 @@ func _dispatch_task(world: WorldState, staff_id: String) -> void:
 			_move_target(world,staff_id,task)
 	elif task.phase in ["returning","release"]:
 		_release_if_clear(world,staff_id)
-		if _at_target(world,staff_id,task) and str(task.facility_id).is_empty():
+		var released: bool = str(task.get("facility_id","")).is_empty() and str(task.get("leaving_facility_id","")).is_empty()
+		if released and not _return_target(world,staff_id,task): return
+		if released and _at_target(world,staff_id,task):
+			if not space.cancel_ground_move(world,staff_id): return
 			staff.life_task = {"phase":"idle"}
 			staff.last_rest_end_tick = world.sim_tick
 			staff.block_new_work = bool(staff.rest_obligation) or int(staff.sleep_remaining_ticks)>0
@@ -364,6 +402,29 @@ func _dispatch_task(world: WorldState, staff_id: String) -> void:
 			staff.life_reason = "休息结束，按当前班表返岗"
 		else:
 			_move_target(world,staff_id,task)
+
+func _return_target(world: WorldState, staff_id: String, task: Dictionary) -> bool:
+	# The departure point is a preference, not ownership of an old work slot.
+	# Do not replace a current job or interrupt a committed transport segment.
+	if _busy(world,staff_id) or _other_commitment(world,staff_id): return false
+	var actor: Dictionary = world.facts.actors[staff_id]
+	if actor.location.kind!="floor": return true
+	var movement: Dictionary = world.facts.moves.get(staff_id,{})
+	if not movement.is_empty() and (int(movement.target_floor)!=int(task.floor_id) or movement.target_cell!=task.cell): return false
+	var target: Vector2 = Vector2(float(task.cell[0]),float(task.cell[1]))
+	var usable: bool = space.static_reason(world,actor,int(task.floor_id),Vector2i(roundi(target.x),roundi(target.y))).is_empty() and space._dynamic_clear(world,staff_id,int(task.floor_id),space._actor_rect(actor,target))
+	if usable and space.movement_failure(world,staff_id).is_empty(): return true
+	# Physical support/seat release has already completed. Reuse the full
+	# current-region safe-standing search, including bodies, doors, work slots,
+	# reservations and real routes. No nearby-N cutoff or forced displacement.
+	var area: Dictionary = space.public_areas.current_area(world,staff_id)
+	var point: Dictionary = space.public_areas.waiting_point(world,staff_id,area)
+	if point.is_empty():
+		world.facts.staff[staff_id].life_reason = "原返回位置不可用，等待真实可达的安全返岗位置"
+		return false
+	task.floor_id = point.floor_id
+	task.cell = point.cell.duplicate()
+	return true
 
 func _reserve(world: WorldState, staff_id: String, task: Dictionary, selection: Dictionary) -> bool:
 	var facility_id: String = str(selection.facility_id)
@@ -1041,33 +1102,6 @@ func _other_commitment(world: WorldState, staff_id: String) -> bool:
 	if _dispatch_view.get("world_id",0)==world.get_instance_id(): return _dispatch_view.handoffs.has(staff_id)
 	for handoff: Dictionary in world.facts.get("staff_schedule",{}).get("handoffs",{}).values():
 		if handoff.get("new_id","")==staff_id:
-			return true
-	return false
-
-func _relief_available(world: WorldState, staff_id: String) -> bool:
-	var staff: Dictionary = world.facts.staff[staff_id]
-	var query: Dictionary = _dispatch_view if _dispatch_view.get("world_id",0)==world.get_instance_id() else _staff_query(world)
-	for other_id: String in query.roles.get(staff.role,[]):
-		var other: Dictionary = world.facts.staff[other_id]
-		if other_id==staff_id or other.role!=staff.role or not other.get("on_shift",false) or other.get("block_new_work",false) or other.life_task.phase!="idle" or world.facts.moves.has(other_id) or other.get("supply_strike",false) or not str(other.get("training_job_id","")).is_empty():
-			continue
-		if other.get("scheduled_kind","")!=staff.get("scheduled_kind","") or (staff.role in ["doctor","nurse"] and not other.get("base_prepared",false)):
-			continue
-		var qualified: bool = true
-		if staff.role in ["doctor","nurse"]:
-			for track: String in Development.tracks(staff):
-				if int(other.abilities[track])<mini(1,int(staff.abilities[track])):
-					qualified = false
-		if qualified and world.facts.actors[other_id].location.kind=="floor":
-			return true
-	return false
-
-func _pool_resting(world: WorldState, staff_id: String) -> bool:
-	var staff: Dictionary = world.facts.staff[staff_id]
-	var query: Dictionary = _dispatch_view if _dispatch_view.get("world_id",0)==world.get_instance_id() else _staff_query(world)
-	for id: String in query.roles.get(staff.role,[]):
-		var other: Dictionary = world.facts.staff[id]
-		if other.id!=staff_id and other.role==staff.role and other.get("life_task",{}).get("early",false) and other.life_task.phase!="idle":
 			return true
 	return false
 

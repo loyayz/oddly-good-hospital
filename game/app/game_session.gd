@@ -17,8 +17,6 @@ var _skip_next_delta: bool = false
 func _init(kernel: HospitalSimulation, session_id: String) -> void:
 	simulation = kernel
 	loading_session_id = session_id
-	if int(simulation.world.facts.get("gameplay_version",0))==1:
-		simulation.services.arrivals.enable_preparation(simulation.world)
 
 func actual_speed() -> int:
 	if requested_speed==0 or not _pause_tokens.is_empty():
@@ -70,8 +68,7 @@ func submit(command: GameCommand) -> CommandResult:
 	var captured: GameCommand = GameCommand.from_record(command.to_record())
 	if actual_speed()==0:
 		if not simulation.pending() and not simulation.saving_boundary():
-			var hold: bool = captured.kind=="arrivals_scale" and captured.typed_payload is BusinessPayload and captured.typed_payload.to_record().get("mode","")=="hold_capacity"
-			if not hold or not simulation.receipt(captured.id).is_empty(): return simulation.apply(captured)
+			return simulation.apply(captured)
 		simulation.enqueue(captured.to_record())
 		if not simulation.pending() and not simulation.saving_boundary(): simulation.drain_commands()
 		var applied: Dictionary = simulation.receipt(captured.id)
@@ -93,7 +90,6 @@ func advance(real_delta: float) -> Array[TickResult]:
 		if resumed!=null:
 			results.append(resumed)
 			tick_completed.emit(resumed)
-			if not simulation.saving_boundary(): simulation.services.arrivals.prepare_next_day(simulation.world)
 		running_slow = resumed==null
 		return results
 	if simulation.saving_boundary():
@@ -115,6 +111,5 @@ func advance(real_delta: float) -> Array[TickResult]:
 			break
 		results.append(result)
 		tick_completed.emit(result)
-		if int(simulation.world.facts.get("gameplay_version",0))==1: simulation.services.arrivals.prepare_next_day(simulation.world)
 	running_slow = simulation.pending() or _accumulator>=WorldState.TICK_SECONDS
 	return results

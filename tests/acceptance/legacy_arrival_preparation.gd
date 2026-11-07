@@ -1,3 +1,4 @@
+# Historical exact-capacity worker, never used by the game.
 class_name ArrivalPreparation
 extends RefCounted
 
@@ -36,7 +37,7 @@ var _active_id: int = -1
 var _latest_id: int = -1
 var _completed_id: int = -1
 var _sealed_id: int = -1
-var _worker: HospitalArrivalService
+var _worker: LegacyArrivalProjection
 var _capture_base: Dictionary = {}
 var _layout_values: Dictionary = {}
 var _metrics: Dictionary = {"jobs":0,"worker_wall_us":0,"worker_cpu_us":0,"cpu_measured_jobs":0,"latest_worker_us":0,"main_us":0,"max_main_us":0,"requests":0,"captures":0,"capture_us":0,"copied_records":0,"reused_records":0,"reused":0,"superseded":0}
@@ -214,7 +215,7 @@ func _compute(input: Dictionary, cancellation: Cancellation = null) -> Dictionar
 	var cpu_started: Dictionary = PlatformArrivalMath.thread_cpu()
 	if _worker==null:
 		var geometry: HospitalSpace = HospitalSpace.new(content)
-		_worker = HospitalArrivalService.new(content,geometry)
+		_worker = LegacyArrivalProjection.new(content,geometry)
 		_worker.clinic.scheduler = HospitalShiftScheduler.new(content,geometry)
 		_worker.clinic.recruitment = RecruitmentService.new(content,geometry)
 		_worker.clinic.departments = HospitalDepartments.new(content,geometry)

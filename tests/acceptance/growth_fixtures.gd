@@ -29,8 +29,8 @@ func _context(preset: bool = true, opened: bool = false) -> Dictionary:
 	_simulations.append(simulation)
 	var arrivals: HospitalArrivalService = simulation.services.arrivals
 	arrivals.execute(world,"tutorial_set_enabled",{"enabled":false})
-	# Non-capacity cases start inside an already frozen day. Manual patients and
-	# actual research/clinical work must not trigger an unrelated whole-case solver.
+	# These fixtures start inside an already frozen day so manual patients and
+	# focused clinical/research checks do not add unrelated random arrivals.
 	world.facts.arrivals.plan = _plan(world,0,[0,0,0],[F.make(),F.make(),F.make()])
 	arrivals.execute(world,"arrivals_intake",{"open":false})
 	return {"world":world,"simulation":simulation,"space":simulation.space,"clinic":simulation.clinic,
@@ -42,7 +42,7 @@ func _single_case(ctx: Dictionary, disease_id: String = "D09") -> void:
 	ctx.arrivals.execute(ctx.world,"arrivals_intake",{"open":true})
 
 func _plan(world: WorldState, count: int, counts: Array, capacities: Array = []) -> Dictionary:
-	return {"day_index":world.sim_tick/18000+1,"preset":"normal","scale_numerator":3,
+	return {"day_index":world.sim_tick/18000+1,"preset":"normal","scale_numerator":1,
 		"shift_capacities":capacities if not capacities.is_empty() else [F.make(1),F.make(),F.make()],
 		"opportunity_count":count,"shift_opportunity_counts":counts.duplicate(),"schedule_seed":"321" if count>0 else null,
 		"schedule_algorithm":"arrival-load-slot-v1","next_slot_index":0,"held_capacity_fraction":F.make(),"held_scale_numerator":0}

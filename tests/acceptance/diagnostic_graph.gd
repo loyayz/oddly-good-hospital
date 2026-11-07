@@ -43,7 +43,7 @@ func _clinical_paths() -> Dictionary:
 	_add_facility(ctx.world,"graph_exam","FUR02","graph_exam_room",[44,67])
 	ctx.world.facts.facilities.graph_exam.grade = 5
 	builder._add_worker(ctx.world,"graph_exam_nurse","nurse",[48,75],"work",{"diagnosis":5,"treatment":0,"care":1,"surgery":0})
-	var nominal: WorldState = ctx.sim.services.arrivals._capacity_reference_world(ctx.world)
+	var nominal: WorldState = LegacyArrivalProjection._capacity_reference_world(ctx.world)
 	var frozen: Dictionary = ctx.world.freeze()
 	var observed: Array = []
 	var valid: bool = true

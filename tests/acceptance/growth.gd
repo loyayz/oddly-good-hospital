@@ -1,19 +1,21 @@
 extends "res://tests/acceptance/growth_fixtures.gd"
 
+# Superseded by random_arrival_demand.gd. Keep old bodies as historical
+# numerical inputs, not registered requirements or runnable product cases.
+const RETIRED_CASES: Array[String] = ["GROW-02","GROW-05","GROW-39","GROW-40","GROW-41","GROW-42","GROW-43","GROW-44","GROW-45","GROW-47","GROW-49","GROW-50","GROW-52","GROW-53","GROW-54","GROW-55","GROW-58","GROW-61","GROW-63","GROW-65","GROW-69","GROW-70","GROW-74","GROW-77","GROW-82"]
+
 const CASES: Dictionary = {
-	"GROW-01":"docs/design/11-growth-arrivals-recruitment.md §1.1.1/1.2；零能力零机会且不抽签",
-	"GROW-02":"docs/design/11-growth-arrivals-recruitment.md §1.1/1.1.1；完整组合要求互异实际操作者",
-	"GROW-03":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；容量投影只读",
-	"GROW-04":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；关诊不改变结构能力",
-	"GROW-05":"docs/design/11-growth-arrivals-recruitment.md §1.1/1.2；保持客流取min(C,H)",
+	"GROW-01":"docs/design/11-growth-arrivals-recruitment.md §1.1/1.2；无诊桌零机会且不抽签",
+	"GROW-03":"docs/design/11-growth-arrivals-recruitment.md §1.1；诊桌需求查询只读且病症权重不重算兴趣",
+	"GROW-04":"docs/design/11-growth-arrivals-recruitment.md §1.1；立即关诊不改变诊桌需求",
 	"GROW-06":"docs/design/11-growth-arrivals-recruitment.md §1.2；三班固定时刻向量",
-	"GROW-07":"docs/design/11-growth-arrivals-recruitment.md §1.2；零能力班无机会",
+	"GROW-07":"docs/design/11-growth-arrivals-recruitment.md §1.2；零兴趣份额不分配机会",
 	"GROW-08":"docs/design/11-growth-arrivals-recruitment.md §1.2；计划恢复及查询不重抽",
 	"GROW-09":"docs/design/01-simulation.md §5；明日档位与立即关诊",
 	"GROW-10":"docs/design/11-growth-arrivals-recruitment.md §1.2.1；关诊早排除不查病例或抽患者",
 	"GROW-11":"docs/design/11-growth-arrivals-recruitment.md §1.1/1.2.1；真实门诊在院数与床承诺",
 	"GROW-12":"docs/design/11-growth-arrivals-recruitment.md §1.2.1；同tick逐机会重读额度",
-	"GROW-13":"docs/design/11-growth-arrivals-recruitment.md §1.2.1；Readiness失败消费不补发",
+	"GROW-13":"docs/design/11-growth-arrivals-recruitment.md §1.2.1；缺治疗设备仍自然入院且机会不补发",
 	"GROW-14":"docs/design/11-growth-arrivals-recruitment.md §2；弃候概率公式与环境缓冲",
 	"GROW-15":"docs/design/11-growth-arrivals-recruitment.md §2/2.1；120秒首签与每30秒唯一签",
 	"GROW-16":"docs/design/11-growth-arrivals-recruitment.md §2.1；生活暂离保留有效候诊余量",
@@ -37,52 +39,29 @@ const CASES: Dictionary = {
 	"GROW-34":"docs/design/01-simulation.md §9.2；旧任务冻结量付款方式与回报",
 	"GROW-35":"docs/design/01-simulation.md §9.2/9.4；实际完成一次解锁并释放",
 	"GROW-36":"docs/design/01-simulation.md §9.3；六兴趣路线只筛原依赖图",
-	"GROW-37":"docs/design/01-simulation.md §9.4；研究开放选项仍查真实接诊缺项",
+	"GROW-37":"docs/design/01-simulation.md §9.4；研究解锁允许入院但实际治疗仍解释缺项",
 	"GROW-38":"docs/design/04-technical.md §4研究进度；资料简报排序与任务恢复",
-	"GROW-39":"docs/design/11-growth-arrivals-recruitment.md §1.1；两套术组、两床及独立共享护理覆盖",
-	"GROW-40":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；日界与保持命令封闭输入、暂停续接和一次提交",
-	"GROW-41":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；待续步骤保存与请求命令水位、冻结计划恢复",
-	"GROW-42":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；关闭旧患者病种不清空模型身份或遗漏旧需求",
-	"GROW-43":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；苏醒承诺、恢复信用及并行床边工作去重",
-	"GROW-44":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；准备中的第二套资源按原身份和准备余量扣减",
-	"GROW-45":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；既有护理覆盖排除另一病房与术组主动岗位",
-	"GROW-46":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；必要检查保留全部合法资源及证据条件分支",
-	"GROW-47":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；运输回执不改变参考依据，已知余量仍使依据变化",
-	"GROW-48":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；同床不同护理护士的门诊转床需求保持各自身份",
-	"GROW-49":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；两床及八床覆盖贡献逐项切班，不转移到错误班次",
-	"GROW-50":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；后台保留业务版本和实际承诺适配，名义资格一致",
-	"GROW-51":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；查房授权即时失效，冷热几何与权限一致",
-	"GROW-52":"docs/design/11-growth-arrivals-recruitment.md §1.1；K仅依赖首尝试实际结构及接待匹配",
-	"GROW-53":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；无关运输变化不递增等价病例版本",
-	"GROW-54":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；A到B到A封闭结果保留与原输入重试",
-	"GROW-55":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；记录共享保持输入隔离、删除与后继完整性",
+	"GROW-46":"docs/design/07-clinical-team.md；必要检查保留全部合法资源及证据条件分支",
+	"GROW-48":"docs/design/07-clinical-team.md；同床不同护理护士的门诊转床需求保持各自身份",
+	"GROW-51":"docs/design/04-technical.md §6；查房授权即时失效，冷热几何与权限一致",
 	"GROW-56":"docs/design/07-clinical-team.md §10；同身体不同专业的会诊候选与遍历顺序无关",
 	"GROW-57":"docs/design/07-clinical-team.md §6；完整方案集上的三种策略与实际选择一致",
-	"GROW-58":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；实际交通票序和出口保留，名义模型排除排队",
-	"GROW-59":"docs/design/07-clinical-team.md §14；已足够证据不枚举后续检查，入院布尔与解释一致",
+	"GROW-59":"docs/design/07-clinical-team.md §14；足够证据省略后续检查，入口检查独立于完整诊疗链",
 	"GROW-60":"docs/design/07-clinical-team.md §5；候选使用已证明的适配站位且不修改实际预约",
-	"GROW-61":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；在途组偏移与身体姿态进入名义运输缓存身份",
-	"GROW-62":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；完整候选组件与按需队列代表分离",
-	"GROW-63":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；几何投影只保留数值依赖且隔离源记录",
-	"GROW-64":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；结构存在性短路不改变详细方案解释",
-	"GROW-65":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；分层完整输入、布局复用与恢复隔离",
-	"GROW-66":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；科室原所有者记录更新与旧快照隔离",
+	"GROW-62":"docs/design/07-clinical-team.md；完整候选组件与按需队列代表分离",
+	"GROW-64":"docs/design/07-clinical-team.md；结构存在性短路不改变详细方案解释",
+	"GROW-66":"docs/design/04-technical.md §6；科室原所有者记录更新与旧快照隔离",
 	"GROW-67":"docs/design/07-clinical-team.md；活动病例索引、归档与恢复",
 	"GROW-68":"docs/design/07-clinical-team.md §5；只读占用视图边界与实际新预约可见",
-	"GROW-69":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；精确资源驻留身份与顺序独立",
-	"GROW-70":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；运输依赖变化与冷热完整模型一致",
-	"GROW-71":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；整批组件与逐组件的完整模型、概率和选择一致",
+	"GROW-71":"docs/design/07-clinical-team.md；整批组件与逐组件的完整模型、概率和选择一致",
 	"GROW-72":"docs/design/08-hospital-life.md §4；弃候与常驻环境使用同一本人可用性且报价只读",
 	"GROW-73":"docs/design/07-clinical-team.md §6；重试经验边界与完整未共享模型一致",
-	"GROW-74":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；专业评分输入按需隔离且撤销专业移除后继历史层",
 	"GROW-75":"docs/design/08-hospital-life.md §4；正向来源交集、按来源覆盖与同次主体观察",
 	"GROW-76":"docs/design/07-clinical-team.md §5；候选早排除不装配占用或员工ID，实际接待预约立即对后票生效",
-	"GROW-77":"docs/design/11-growth-arrivals-recruitment.md §1.1.2；退出在完整计算边界取消任务且不发布部分结果",
 	"GROW-78":"docs/design/04-technical.md §6；参考路线按完整主体与组包络区分且冷热一致",
-	"GROW-79":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；参考数值复用保留独立候选、有界批次与失败原子性",
-	"GROW-80":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；分层诊断保留完整合法分支、精确C和独立结构K",
-	"GROW-81":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；名义相同适配布局的完整候选与独立预约世界一致",
-	"GROW-82":"docs/design/11-growth-arrivals-recruitment.md §1.1.1；独立K精确结构支配及不可比候选、护理所有权与空组反例",
+	"GROW-79":"docs/design/07-clinical-team.md；参考数值复用保留独立候选、有界批次与失败原子性",
+	"GROW-80":"docs/design/07-clinical-team.md；分层诊断保留完整合法分支、精确C和独立结构K",
+	"GROW-81":"docs/design/04-technical.md §6；名义相同适配布局的完整候选与独立预约世界一致",
 	"GROW-83":"docs/design/11-growth-arrivals-recruitment.md §1.3；居民保护批次及导诊结构查询保持身份、完整路由与随机流",
 	"GROW-84":"docs/design/07-clinical-team.md §6；参考手术预筛选保持完整候选及实际资格验证",
 	"GROW-85":"docs/design/01-simulation.md §9.2；研究历史索引及三班维修预算复用保留付款、暂停、取消、恢复与原序"
@@ -192,7 +171,7 @@ func _case_03(t) -> void:
 	var no_cases: Dictionary = base.arrivals.capacity(base.world,false)
 	base.arrivals.execute(base.world,"arrivals_weight",{"disease_id":"D09","weight":1})
 	var restored: Dictionary = base.arrivals.capacity(base.world,false)
-	t.check("GROW-03",capacity==repeated and unchanged and outside==capacity and outside_unchanged and no_cases.get("capacity",{})==F.make() and restored==capacity,{"same_projection":capacity==repeated,"world_unchanged":unchanged,"temporary_positions_independent":outside==capacity,"empty_weighted_pool":no_cases.get("capacity",{}),"restored_weights":restored==capacity})
+	t.check("GROW-03",capacity==repeated and unchanged and outside==capacity and outside_unchanged and no_cases==capacity and restored==capacity,{"same_projection":capacity==repeated,"world_unchanged":unchanged,"temporary_positions_independent":outside==capacity,"empty_weighted_pool":no_cases.get("capacity",{}),"restored_weights":restored==capacity})
 
 func _case_39(t) -> void:
 	# A legal calculation input; no patient movement or clinical work is skipped.
@@ -227,7 +206,7 @@ func _case_39(t) -> void:
 	_fresh_space(ctx)
 	var valid: String = ctx.world.validate(_content)
 	var frozen: Dictionary = ctx.world.freeze()
-	var nominal: WorldState = ctx.arrivals._capacity_reference_world(ctx.world)
+	var nominal: WorldState = LegacyArrivalProjection._capacity_reference_world(ctx.world)
 	var query: Dictionary = {}
 	var binding: Dictionary = _content.definition("treatment_bindings","B_S13_D09_M09")
 	ctx.space._navigation = NavigationCache.new()
@@ -472,7 +451,7 @@ func _case_46(t) -> void:
 	_add_facility(ctx.world,"second_exam","FUR02","second_diagnostic",[44,67])
 	ctx.world.facts.facilities.second_exam.grade = 5
 	builder._add_worker(ctx.world,"strong_exam_nurse","nurse",[48,75],"work",{"diagnosis":5,"treatment":0,"care":1,"surgery":0})
-	var nominal: WorldState = ctx.sim.services.arrivals._capacity_reference_world(ctx.world)
+	var nominal: WorldState = LegacyArrivalProjection._capacity_reference_world(ctx.world)
 	var candidate: Dictionary = ctx.sim.clinic._arrival_candidate(nominal,"B_S22_D14_M14",false)
 	var world: WorldState = candidate.world
 	var query: Dictionary = {"candidates":{},"diagnostic_stages":{}}
@@ -564,7 +543,7 @@ func _case_48(t) -> void:
 	ctx.world.facts.staff[ctx.doctors[1]].abilities.treatment = 3
 	ctx.world.touch()
 	var before: Dictionary = ctx.world.freeze()
-	var nominal: WorldState = ctx.sim.services.arrivals._capacity_reference_world(ctx.world)
+	var nominal: WorldState = LegacyArrivalProjection._capacity_reference_world(ctx.world)
 	var candidate: Dictionary = ctx.sim.clinic._arrival_candidate(nominal,"B_S22_D14_M14",false)
 	var world: WorldState = candidate.world
 	var query: Dictionary = {"candidates":{}}
@@ -631,8 +610,8 @@ func _case_50(t) -> void:
 	for id: String in ctx.world.facility_ids("SE06"): ctx.world.facts.facilities[id].failed = true
 	var missing: Dictionary = preparation._capture(ctx.world,false,-1)
 	var arrivals: HospitalArrivalService = ctx.sim.services.arrivals
-	var direct: Dictionary = clinic._arrival_candidate(arrivals._capacity_reference_world(ctx.world),ctx.visit.binding_id,false)
-	var copied_input: Dictionary = clinic._arrival_candidate(arrivals._capacity_reference_world(WorldState.new(missing.facts)),ctx.visit.binding_id,false)
+	var direct: Dictionary = clinic._arrival_candidate(LegacyArrivalProjection._capacity_reference_world(ctx.world),ctx.visit.binding_id,false)
+	var copied_input: Dictionary = clinic._arrival_candidate(LegacyArrivalProjection._capacity_reference_world(WorldState.new(missing.facts)),ctx.visit.binding_id,false)
 	ctx.sim.space.begin_route_query(direct.world,{"nominal":true})
 	var sync: Dictionary = clinic._surgery_quote(direct.world,direct.visit,quote.staff_ids,{"structural_only":true,"ignore_supplies":true})
 	ctx.sim.space.end_route_query()
@@ -787,7 +766,7 @@ func _case_56(t) -> void:
 		if binding.species_id==first_binding.species_id and _content.definition("treatment_routines",binding.routine_id).specialty_id!=specialty:
 			second_binding = binding
 			break
-	var candidate: Dictionary = ctx.clinic._arrival_candidate(ctx.arrivals._capacity_reference_world(ctx.world),first_binding.id,false)
+	var candidate: Dictionary = ctx.clinic._arrival_candidate(LegacyArrivalProjection._capacity_reference_world(ctx.world),first_binding.id,false)
 	if not candidate.ok or second_binding.is_empty():
 		t.check("GROW-56",false,{"candidate":candidate.get("reason",""),"second":second_binding})
 		return
@@ -820,7 +799,7 @@ func _case_57(t) -> void:
 	var detailed: Array = []
 	for strategy: String in ["doctor","safety_first","outpatient_first"]:
 		ctx.world.facts.plan_strategy = strategy
-		var nominal: WorldState = ctx.arrivals._capacity_reference_world(ctx.world)
+		var nominal: WorldState = LegacyArrivalProjection._capacity_reference_world(ctx.world)
 		var options: Dictionary = ctx.clinic._reference_options(nominal,"B_S13_D09_M09",false,0,{},{},{"candidates":{}})
 		correct = correct and options.ok
 		for terminal: Dictionary in options.get("terminals",[]):
@@ -860,7 +839,7 @@ func _case_58(t) -> void:
 
 func _case_59(t) -> void:
 	var ctx: Dictionary = _context()
-	var candidate: Dictionary = ctx.clinic._arrival_candidate(ctx.arrivals._capacity_reference_world(ctx.world),"B_S49_D37_M37",false)
+	var candidate: Dictionary = ctx.clinic._arrival_candidate(LegacyArrivalProjection._capacity_reference_world(ctx.world),"B_S49_D37_M37",false)
 	var query: Dictionary = {"candidates":{}}
 	var pairs: Array = ctx.clinic.service_candidates(candidate.world,candidate.visit,"gp",true)
 	var result: Dictionary = ctx.clinic._build_reference_diagnostic_stages(candidate.world,candidate.visit,pairs[0],query) if not pairs.is_empty() else {"ok":false}
@@ -870,7 +849,7 @@ func _case_59(t) -> void:
 
 func _case_60(t) -> void:
 	var ctx: Dictionary = _context()
-	var candidate: Dictionary = ctx.clinic._arrival_candidate(ctx.arrivals._capacity_reference_world(ctx.world),"B_S13_D09_M09",false)
+	var candidate: Dictionary = ctx.clinic._arrival_candidate(LegacyArrivalProjection._capacity_reference_world(ctx.world),"B_S13_D09_M09",false)
 	var world: WorldState = candidate.world
 	var before: Dictionary = world.freeze()
 	var pairs: Array = ctx.clinic.service_candidates(world,candidate.visit,"gp",true)
@@ -931,12 +910,12 @@ func _case_61(t) -> void:
 		hot.erase("model_key")
 		cold.erase("model_key")
 		var reference: Dictionary = {"nominal":true}
-		var nominal: WorldState = ctx.arrivals._capacity_reference_world(sim.world)
+		var nominal: WorldState = LegacyArrivalProjection._capacity_reference_world(sim.world)
 		ctx.space.begin_route_query(nominal,reference)
 		ctx.space.route(nominal,"starter_doctor_a",1,[47,93],[],{},true)
 		ctx.space.end_route_query()
 		var primed: bool = reference.journeys.size()==1
-		ctx.space.begin_route_query(ctx.arrivals._capacity_reference_world(changed),reference)
+		ctx.space.begin_route_query(LegacyArrivalProjection._capacity_reference_world(changed),reference)
 		var invalidated: bool = primed and reference.journeys.is_empty()
 		ctx.space.end_route_query()
 		correct = correct and expected!=original and rebound and hot_classes==cold_classes and hot==cold and invalidated
@@ -953,7 +932,7 @@ func _case_62(t) -> void:
 	observer.scheduler = ctx.clinic.scheduler
 	observer.recruitment = ctx.clinic.recruitment
 	observer.departments = ctx.clinic.departments
-	var world: WorldState = ctx.arrivals._capacity_reference_world(ctx.world)
+	var world: WorldState = LegacyArrivalProjection._capacity_reference_world(ctx.world)
 	var before: Dictionary = world.freeze()
 	var quote: Dictionary = observer.reference_demand(world,"B_S13_D09_M09",false,0)
 	var components: int = quote.get("model",{}).get("bundles",[]).size()
@@ -979,7 +958,7 @@ func _case_63(t) -> void:
 
 func _case_64(t) -> void:
 	var ctx: Dictionary = _context()
-	var candidate: Dictionary = ctx.clinic._arrival_candidate(ctx.arrivals._capacity_reference_world(ctx.world),"B_S13_D09_M09",false)
+	var candidate: Dictionary = ctx.clinic._arrival_candidate(LegacyArrivalProjection._capacity_reference_world(ctx.world),"B_S13_D09_M09",false)
 	var observer: QuoteCounts = QuoteCounts.new(_content,ctx.space)
 	observer.scheduler = ctx.clinic.scheduler
 	observer.recruitment = ctx.clinic.recruitment
@@ -1434,7 +1413,7 @@ func _case_73(t) -> void:
 			for plan: Dictionary in _content.catalog.treatment_plans: staff.plan_experience[plan.id] = experience
 		var before: Dictionary = ctx.world.freeze()
 		for complex_case: bool in [false,true]:
-			var nominal: WorldState = ctx.arrivals._capacity_reference_world(ctx.world)
+			var nominal: WorldState = LegacyArrivalProjection._capacity_reference_world(ctx.world)
 			var cached: Dictionary = ctx.clinic.reference_demand(nominal,"B_S49_D37_M37",complex_case,0)
 			var fresh: Dictionary = independent.reference_demand(nominal,"B_S49_D37_M37",complex_case,0)
 			var equal: bool = _reference_observables(cached)==_reference_observables(fresh)
@@ -1445,7 +1424,7 @@ func _case_73(t) -> void:
 		for staff: Dictionary in ctx.world.facts.staff.values():
 			staff.personality_id = boundary[0]
 			for plan: Dictionary in _content.catalog.treatment_plans: staff.plan_experience[plan.id] = boundary[1]
-		var nominal: WorldState = ctx.arrivals._capacity_reference_world(ctx.world)
+		var nominal: WorldState = LegacyArrivalProjection._capacity_reference_world(ctx.world)
 		var query: Dictionary = {}
 		ctx.clinic.reference_demand(nominal,"B_S49_D37_M37",false,0,query)
 		var options: Dictionary = ctx.clinic._reference_options(nominal,"B_S49_D37_M37",false,0,{}, {},query)
@@ -1501,7 +1480,7 @@ func _case_71(t) -> void:
 	var before: Dictionary = ctx.world.freeze()
 	for binding: String in ["B_S49_D37_M37","B_S13_D09_M09"]:
 		for complex_case: bool in [false,true]:
-			var nominal: WorldState = ctx.arrivals._capacity_reference_world(ctx.world)
+			var nominal: WorldState = LegacyArrivalProjection._capacity_reference_world(ctx.world)
 			var batch: Dictionary = ctx.clinic.reference_demand(nominal,binding,complex_case,0)
 			var single: Dictionary = scalar.reference_demand(nominal,binding,complex_case,0)
 			correct = correct and batch.ok and batch==single
@@ -1743,7 +1722,7 @@ func _case_11(t) -> void:
 func _case_12(t) -> void:
 	var batch: Dictionary = _context()
 	_single_case(batch,"D37")
-	for index: int in 23:
+	for index: int in 15:
 		_patient(batch,[34+(index%10)*2,65+(index/10)*2])
 	var batch_observer: AdmissionObserver = _observer(batch)
 	# A legitimate frozen high-throughput day may outlive a later resource reduction.
@@ -1751,7 +1730,7 @@ func _case_12(t) -> void:
 	batch.world.facts.arrivals.plan = _plan(batch.world,18000,[18000,0,0],[F.make(20000),F.make(),F.make()])
 	batch.arrivals.arrivals(batch.world)
 	var batch_stats: Dictionary = batch.arrivals.daystats(batch.world)
-	t.check("GROW-12",batch.arrivals.outpatient_count(batch.world)==24 and batch.world.facts.arrivals.plan.next_slot_index==3 and batch_stats.days.get("1",{}).get("arrived",0)==1 and batch_stats.days.get("1",{}).get("full",0)==2 and batch_observer.readiness_queries==3,{"stats":batch_stats,"readiness_queries":batch_observer.readiness_queries,"fixture_errors":_fixture_errors})
+	t.check("GROW-12",batch.arrivals.outpatient_count(batch.world)==16 and batch.world.facts.arrivals.plan.next_slot_index==3 and batch_stats.days.get("1",{}).get("arrived",0)==1 and batch_stats.days.get("1",{}).get("full",0)==2 and batch_observer.readiness_queries==1,{"stats":batch_stats,"readiness_queries":batch_observer.readiness_queries,"fixture_errors":_fixture_errors})
 
 func _case_13(t) -> void:
 	var unready: Dictionary = _context()
@@ -1762,7 +1741,7 @@ func _case_13(t) -> void:
 	var unready_rng: Dictionary = unready.world.facts.rng.duplicate(true)
 	unready.arrivals.arrivals(unready.world)
 	unready.arrivals.arrivals(unready.world)
-	t.check("GROW-13",unready.world.facts.arrivals.plan.next_slot_index==1 and unready.world.facts.visits.is_empty() and unready.world.facts.rng==unready_rng and unready.arrivals.daystats(unready.world).days.get("1",{}).get("unready",0)==1,unready.arrivals.daystats(unready.world))
+	t.check("GROW-13",unready.world.facts.arrivals.plan.next_slot_index==1 and unready.world.facts.visits.size()==1 and unready.world.facts.rng!=unready_rng and unready.arrivals.daystats(unready.world).days.get("1",{}).get("arrived",0)==1,unready.arrivals.daystats(unready.world))
 
 func _case_14(t) -> void:
 	var probability: Dictionary = _wait_ctx("PP02")
@@ -2241,13 +2220,25 @@ func _case_37(t) -> void:
 	var unlock_rewards: Dictionary = unlocking.research.rewards(unlocking.world,"R01")
 	var unbuilt: Array = unlocking.research.reception_readiness(unlocking.world,"R01")
 	var missing_real_resources: bool = not unbuilt.is_empty()
+	var natural_candidates: int = 0
 	for row: Dictionary in unbuilt:
-		missing_real_resources = missing_real_resources and not row.ok and not str(row.reason).is_empty()
+		if not row.ok: continue # A body may still lack a safe static entrance.
+		natural_candidates += 1
+		var candidate: Dictionary = unlocking.clinic._arrival_candidate(unlocking.world,row.binding_id,false)
+		var quotes: Array = unlocking.clinic.compare_plans(candidate.world,candidate.visit.id)
+		row.treatment_quotes = quotes
+		missing_real_resources = missing_real_resources and not quotes.is_empty()
+		# D25 legitimately shares the starter zombie machine. Research is
+		# allowed to unlock both immediately treatable cases and care gaps.
+		for quote: Dictionary in quotes:
+			if row.disease_id=="D04": missing_real_resources = missing_real_resources and not quote.ok and not str(quote.reason).is_empty()
+			elif not quote.ok: missing_real_resources = missing_real_resources and not str(quote.reason).is_empty()
+	missing_real_resources = missing_real_resources and natural_candidates>0
 	var actual_before: Dictionary = {"actors":unlocking.world.facts.actors.duplicate(true),"facilities":unlocking.world.facts.facilities.duplicate(true),"staff":unlocking.world.facts.staff.duplicate(true),"intake":unlocking.world.facts.arrivals.intake_open}
 	unlocking.research.reception_readiness(unlocking.world,"R01")
 	var ordinary: Dictionary = _context()
 	var ordinary_ready: Dictionary = ordinary.clinic.arrival_readiness(ordinary.world,"B_S49_D37_M37")
-	t.check("GROW-37",unlock_start.accepted and unlock_finished and "R01" in unlocking.world.facts.research and unlock_rewards.get("disease_ids",[])==["D03","D04","D25"] and missing_real_resources and unlocking.world.facts.actors==actual_before.actors and unlocking.world.facts.facilities==actual_before.facilities and unlocking.world.facts.staff==actual_before.staff and unlocking.world.facts.arrivals.intake_open==actual_before.intake and ordinary_ready.get("ok",false),{"finished":unlock_finished,"missing":unbuilt,"ordinary_ready":ordinary_ready})
+	t.check("GROW-37",unlock_start.accepted and unlock_finished and "R01" in unlocking.world.facts.research and unlock_rewards.get("disease_ids",[])==["D03","D04","D25"] and missing_real_resources and unlocking.world.facts.actors==actual_before.actors and unlocking.world.facts.facilities==actual_before.facilities and unlocking.world.facts.staff==actual_before.staff and unlocking.world.facts.arrivals.intake_open==actual_before.intake and ordinary_ready.get("ok",false),{"started":unlock_start.to_record(),"finished":unlock_finished,"rewards":unlock_rewards,"missing_resources":missing_real_resources,"natural_candidates":natural_candidates,"missing":unbuilt,"ordinary_ready":ordinary_ready})
 
 func _case_38(t) -> void:
 	var restoring: Dictionary = _research_context()

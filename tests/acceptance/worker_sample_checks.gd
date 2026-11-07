@@ -34,6 +34,15 @@ func run(suite: RefCounted, content: HospitalContent) -> Dictionary:
 		var row: Dictionary = _sample_pair(input,content,false,false,false)
 		rows.append(row)
 		checks["base_"+str(input.name)] = row.ok
+	var inline_repeat: Dictionary = _sample_pair(many,content,false,false,false,false,1,2)
+	rows.append(inline_repeat)
+	checks.single_task_multiple_requests_reuses_batch = inline_repeat.ok
+	var inline_missing: Dictionary = _sample_pair(one,content,false,false,true)
+	rows.append(inline_missing)
+	checks.single_task_missing_slot_preserves_fallback = inline_missing.ok
+	var no_diagnostics: Dictionary = _sample_pair(one,content,false,false,false,false,4,2,false)
+	rows.append(no_diagnostics)
+	checks.single_task_without_diagnostics_reuses_batch = no_diagnostics.ok
 	var nested: Dictionary = _sample_pair(many,content,true,false,false)
 	rows.append(nested)
 	checks.original_query_nesting_and_cache_order = nested.ok
@@ -106,7 +115,7 @@ func _cache_view(environment: HospitalEnvironment) -> Array:
 		result.append([floor_id,coverage.keys(),coverage.duplicate(true)])
 	return result
 
-func _sample_pair(input: Dictionary, content: HospitalContent, nested: bool, custom: bool, missing: bool, custom_space: bool = false) -> Dictionary:
+func _sample_pair(input: Dictionary, content: HospitalContent, nested: bool, custom: bool, missing: bool, custom_space: bool = false, task_count: int = 4, repetitions: int = 1, diagnostics: bool = true) -> Dictionary:
 	var serial: Dictionary = _bind(input.facts,content)
 	var parallel: Dictionary = _bind(input.facts,content)
 	if custom:
@@ -126,7 +135,8 @@ func _sample_pair(input: Dictionary, content: HospitalContent, nested: bool, cus
 			x.simulation.services.waiting.environment = observer
 	var defaults: bool = bool(parallel.departments.sample_workers_enabled) and int(parallel.departments.sample_worker_tasks)==4
 	serial.departments.sample_workers_enabled = false
-	parallel.departments.sample_worker_diagnostics = true
+	parallel.departments.sample_worker_diagnostics = diagnostics
+	parallel.departments.sample_worker_tasks = task_count
 	if missing: parallel.departments._worker_sample_batch = MissingSlotBatch.new()
 	var before: Dictionary = serial.world.freeze()
 	var nesting: bool = true
@@ -137,7 +147,8 @@ func _sample_pair(input: Dictionary, content: HospitalContent, nested: bool, cus
 			if not input.ids.is_empty():
 				var actor: Dictionary = x.world.facts.actors[x.world.facts.visits[input.ids[0]].actor_id]
 				x.environment.sample_at(x.world,int(actor.location.floor_id),actor.location.cell,str(actor.id))
-	for x: Dictionary in [serial,parallel]: x.departments.sample(x.world)
+	for repetition: int in repetitions:
+		for x: Dictionary in [serial,parallel]: x.departments.sample(x.world)
 	if nested:
 		nesting = serial.environment._query_depth==2 and parallel.environment._query_depth==2
 		for x: Dictionary in [serial,parallel]:
@@ -149,11 +160,13 @@ func _sample_pair(input: Dictionary, content: HospitalContent, nested: bool, cus
 	if custom or custom_space or requested==0:
 		execution = int(report.batches)==0 and int(report.processed)==0 and int(report.consumed)==0
 	elif missing:
-		execution = int(report.batches)==1 and int(report.failed_batches)==1 and int(report.processed)==requested and int(report.consumed)==0
+		execution = int(report.batches)==repetitions and int(report.failed_batches)==repetitions and int(report.processed)==requested*repetitions and int(report.consumed)==0
 	else:
-		execution = int(report.batches)==1 and int(report.failed_batches)==0 and int(report.processed)==requested and int(report.consumed)==requested and bool(report.last_batch.get("all_results_consumed",false))
+		execution = int(report.batches)==repetitions and int(report.failed_batches)==0 and int(report.processed)==requested*repetitions and int(report.consumed)==requested*repetitions and bool(report.last_batch.get("all_results_consumed",false))
+		var inline_job: bool = mini(maxi(1,task_count),requested)==1
+		execution = execution and (int(report.last_batch.group_id)==-1 if inline_job else int(report.last_batch.group_id)>=0)
 		for job: Dictionary in report.last_batch.jobs:
-			execution = execution and int(job.thread_id)!=0 and int(job.thread_id)!=OS.get_main_thread_id()
+			execution = execution and int(job.thread_id)!=0 and ((int(job.thread_id)==OS.get_main_thread_id())==inline_job)
 	var equal: bool = serial.world.freeze()==parallel.world.freeze()
 	var rng: bool = serial.world.facts.rng==before.rng and parallel.world.facts.rng==before.rng
 	var cache_equal: bool = _cache_view(serial.environment)==_cache_view(parallel.environment)
@@ -162,7 +175,7 @@ func _sample_pair(input: Dictionary, content: HospitalContent, nested: bool, cus
 	var overrides: bool = not custom or int(parallel.environment.sample_calls)==requested and int(serial.environment.sample_calls)==requested
 	var space_override: bool = not custom_space or int(parallel.environment.space.owned_calls)>0 and int(serial.environment.space.owned_calls)>0
 	var valid: String = parallel.world.validate(content)
-	var row: Dictionary = {"name":input.name,"nested":nested,"custom":custom,"custom_space":custom_space,"missing_slot":missing,
+	var row: Dictionary = {"name":input.name,"task_count":task_count,"repetitions":repetitions,"diagnostics":diagnostics,"nested":nested,"custom":custom,"custom_space":custom_space,"missing_slot":missing,
 		"ok":input.validation.is_empty() and valid.is_empty() and defaults and execution and equal and rng and cache_equal and scopes and staff_days and overrides and space_override and nesting,
 		"input_validation":input.validation,"output_validation":valid,"real_worker_execution_or_expected_fallback":execution,
 		"default_workers_enabled_with_four_tasks":defaults,

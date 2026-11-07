@@ -47,8 +47,8 @@ func _run() -> void:
 			return
 		var result: TickResult = simulation.step_nonblocking()
 		while result==null:
-			if not simulation.preparing_error().is_empty() or Time.get_ticks_usec()-started>=maximum_us:
-				_write_failure(output,{"ok":false,"mode":mode,"reason":"Original boundary did not complete.","error":simulation.preparing_error(),"steps":steps,"tick":world.sim_tick})
+			if Time.get_ticks_usec()-started>=maximum_us:
+				_write_failure(output,{"ok":false,"mode":mode,"reason":"Original boundary did not complete.","steps":steps,"tick":world.sim_tick})
 				simulation.dispose()
 				quit(1)
 				return

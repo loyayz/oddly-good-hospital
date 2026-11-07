@@ -79,7 +79,9 @@ func run_case(suite: RefCounted) -> Dictionary:
 	var checks: Dictionary = {"legal_input":world.validate(suite.content).is_empty()}
 	var rows: Array = []
 	_begin(pair,world)
-	for query: Array in [[1,[46,82],false],[1,[47,82],false],[2,[46,82],false],[2,[47,82],true],[1,[46.0,82.0],false],[1,[46.25,82.5],true],[1,[-1,80],true]]:
+	# Fractional targets have a repaired endpoint contract covered by SPACE-59;
+	# frozen-reference equality here applies only to unchanged integer goals.
+	for query: Array in [[1,[46,82],false],[1,[47,82],false],[2,[46,82],false],[2,[47,82],true],[1,[46.0,82.0],false],[1,[48,82],true],[1,[-1,80],true]]:
 		rows.append(_observe(pair,world,query[0],query[1],query[2]))
 	checks.different_goals_modes_and_numeric_target_types_keep_full_results = rows.all(func(row: Dictionary)->bool:return row.ok)
 	checks.one_source_preparation_and_real_proof_for_many_goals = actual.preparations==1 and actual.source_proofs==1 and reference.source_proofs==rows.size()

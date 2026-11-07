@@ -40,6 +40,7 @@ func encode_to(value: Dictionary, budget: Callable, sink: Callable) -> bool:
 		if not result.get("ok",false) and error.is_empty():
 			error = str(result.get("error","世界编码失败"))
 	digest = _hash.finish().hex_encode()
+	_release_callbacks()
 	return error.is_empty()
 
 func _file_sink(chunk: PackedByteArray) -> Dictionary:
@@ -82,9 +83,19 @@ func decode_from(expected_bytes: int, expected_hash: String, budget: Callable, s
 		error = "世界字节数与清单不符"
 	if error.is_empty() and digest != expected_hash:
 		error = "世界SHA-256与清单不符"
+	_release_callbacks()
 	return {"ok":error.is_empty(),"error":error,"value":result.get("value",{}) if error.is_empty() else {}}
 
+func _release_callbacks() -> void:
+	# Encoding/decoding is synchronous. Callbacks can capture this codec (or an
+	# owning snapshot), so retaining them after completion creates a reference
+	# cycle, including on native/budget/source failures.
+	_budget = Callable()
+	_sink = Callable()
+	_source = Callable()
+
 func _reset() -> void:
+	_release_callbacks()
 	error = ""
 	bytes = 0
 	digest = ""

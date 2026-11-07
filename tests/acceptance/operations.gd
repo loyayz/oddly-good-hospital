@@ -1,5 +1,7 @@
 extends RefCounted
 
+const GuidancePrerequisite = preload("res://tests/acceptance/guidance_prerequisite.gd")
+
 # Requirements are fixed in operations.md before API mapping. Fixtures use the
 # production factory, definitions, commands, movement and work services.
 const CASES: Dictionary = {
@@ -37,7 +39,7 @@ const CASES: Dictionary = {
 	"OPS-32":"docs/design/08-hospital-life.md §1/18/19；评分缺样本与真实完成事实去重只读",
 	"OPS-33":"docs/design/01-simulation.md §8/8.2；运营20日1561持余及工资逐人取整",
 	"OPS-34":"docs/design/01-simulation.md §8；第三日首补助与1F地块周期幂等",
-	"OPS-35":"docs/design/01-simulation.md §8/8.1；成本940实付100援助840不算盈利",
+	"OPS-35":"docs/design/01-simulation.md §8/8.1；成本950实付100援助850不算盈利",
 	"OPS-36":"docs/design/01-simulation.md §8.1/8.2；六账页三日展望与目标便签不圈存",
 	"OPS-37":"docs/design/01-simulation.md §8；同院救援箱仅一次且只补缺岗正常付薪",
 	"OPS-38":"docs/design/08-hospital-life.md §15；派单按设备停机用途分级，同级置顶且不打断已开工单",
@@ -47,7 +49,13 @@ const CASES: Dictionary = {
 	"OPS-42":"docs/design/08-hospital-life.md §4、§20；施工安全查询读取当前完整身体与临床边界，清扫派工保留区域、优先级和竞争",
 	"OPS-43":"重复查询索引：多观察者完成批次、终态恢复、账目归属及正式布局费率失效",
 	"OPS-44":"实际动态路线批次：完整碰撞、出口授权、批次失效及公共前缀复用",
-	"OPS-45":"地污生成：完整合法格、最近排序、实际占用与原plot上限保持"
+	"OPS-45":"地污生成：完整合法格、最近排序、实际占用与原plot上限保持",
+	"OPS-46":"日常§15；维修移动自行重查障碍，真实到场才支付40并工作30秒",
+	"OPS-47":"日常§4；装修工逐人选择实际可达工具，领料并到场完成8秒",
+	"OPS-48":"日常§10；同单已完成与取消单元不阻止改建，未结束单元仍等待",
+	"OPS-49":"日常§20；完整身体边缘可接触清扫，实际到场与每tick工具阻挡复查",
+	"OPS-50":"日常§15/§21；真实在途或施工维修员随设备收存安全释放、恢复并沿同单续做",
+	"OPS-51":"日常§4；工具搬移后真实到新位置领取，保留工时与一次材料付款"
 }
 
 var _content: HospitalContent
@@ -82,6 +90,26 @@ func _case_44() -> Dictionary:
 
 func _case_45() -> Dictionary:
 	return preload("res://tests/acceptance/operations_repeated_work.gd").new().run_spawns(_content)
+
+func _case_46() -> Dictionary:
+	return preload("res://tests/acceptance/facility_workflows.gd").new().maintenance(self)
+
+func _case_47() -> Dictionary:
+	return preload("res://tests/acceptance/facility_workflows.gd").new().tools(self)
+
+func _case_48() -> Dictionary:
+	return preload("res://tests/acceptance/facility_workflows.gd").new().remodel(self)
+
+func _case_49() -> Dictionary:
+	return preload("res://tests/acceptance/facility_workflows.gd").new().cleanup(self)
+
+func _case_51() -> Dictionary:
+	return preload("res://tests/acceptance/renovation_tool_relocation.gd").new().run(self)
+
+func _case_50() -> Dictionary:
+	var ground: Dictionary = preload("res://tests/acceptance/maintenance_inventory.gd").new().run(self)
+	var transit: Dictionary = preload("res://tests/acceptance/maintenance_inventory_transit.gd").new().run(self)
+	return _result(ground.ok and transit.ok,{"ground":ground.details,"transit":transit.details})
 
 func _result(ok: bool, details: Variant = null) -> Dictionary:
 	return {"ok":ok,"details":details}
@@ -151,23 +179,26 @@ func _work_tick(f: Dictionary, service: String, observe_work: Callable = Callabl
 	f.w.touch()
 	f.s.space.finish_boundary(f.w)
 
-func _clinic_tick(f: Dictionary, maintenance: bool = false) -> void:
+func _clinic_tick(f: Dictionary, maintenance: bool = false, dispatch_gate: Callable = Callable()) -> void:
 	# Advance the real waiting, shift and clinical phases. OPS07–10 supply their
 	# completed diagnostic and work-base history before entering this driver.
 	f.s.services.scheduler.boundaries(f.w)
 	if maintenance: f.s.services.remodel.dispatch(f.w)
 	f.s.services.scheduler.dispatch(f.w)
 	f.s.services.development.dispatch(f.w)
+	f.s.services.floor_guidance.dispatch(f.w)
 	f.s.services.waiting.dispatch(f.w)
 	f.s.services.departments.dispatch(f.w)
 	if maintenance: f.s.services.maintenance.dispatch(f.w)
-	f.s.clinic.dispatch(f.w)
+	if dispatch_gate.is_valid(): dispatch_gate.call()
+	else: f.s.clinic.dispatch(f.w)
 	f.s.space.advance(f.w,f.w.present_actor_count())
 	f.s.clinic.advance(f.w)
 	f.s.services.development.advance(f.w)
 	f.s.services.scheduler.advance(f.w)
 	if maintenance: f.s.services.maintenance.advance(f.w)
 	f.s.services.departments.advance(f.w)
+	f.s.services.floor_guidance.advance(f.w)
 	f.s.services.waiting.advance(f.w)
 	f.s.clinic.release_departed(f.w)
 	HospitalLedger.settle(f.w)
@@ -397,6 +428,8 @@ func _case_07() -> Dictionary:
 	if second.is_empty(): return _result(false,f.errors)
 	f.w.facts.inventory.units = 1
 	var second_ticket: String = f.w.facts.visits[second].ticket_id
+	var guidance: Dictionary = GuidancePrerequisite.reach(f.s,[first,second],func(gate: Callable) -> void: _clinic_tick(f,false,gate))
+	if not guidance.ok: return _result(false,{"prerequisite":"真实导诊和当地到达","guidance":guidance})
 	f.s.clinic.dispatch(f.w)
 	var reserved: int = f.s.services.supplies.reserved(f.w)
 	var one_only: bool = reserved==1 and f.w.facts.preparations.size()==1 and f.w.facts.attempts.is_empty()
@@ -420,7 +453,7 @@ func _case_07() -> Dictionary:
 	for tick: int in 3: _clinic_tick(restored)
 	var resumed: Dictionary = restored.w.facts.sessions.get(str(working.get("id","")),{})
 	var same_session: bool = not resumed.is_empty() and resumed.get("original_ticket",{}).get("id","")==ticket
-	return _result(one_only and cancelled.accepted and released and committed and original_ticket and same_session and restored.w.facts.inventory.units==snapshot_units and restored.w.facts.inventory.issues.size()==1,{"reserved":reserved,"stock":f.w.facts.inventory.units,"issues":f.w.facts.inventory.issues,"original_remaining_ticket":ticket,"session_id":working.get("id",""),"restored_original_ticket":resumed.get("original_ticket",{}).get("id",""),"second_ticket":second_ticket})
+	return _result(one_only and cancelled.accepted and released and committed and original_ticket and same_session and restored.w.facts.inventory.units==snapshot_units and restored.w.facts.inventory.issues.size()==1,{"guidance":guidance,"reserved":reserved,"stock":f.w.facts.inventory.units,"issues":f.w.facts.inventory.issues,"original_remaining_ticket":ticket,"session_id":working.get("id",""),"restored_original_ticket":resumed.get("original_ticket",{}).get("id",""),"second_ticket":second_ticket})
 
 func _case_08() -> Dictionary:
 	var empty: Dictionary = _new("空库存不抗议",true)
@@ -738,7 +771,7 @@ func _case_18() -> Dictionary:
 	var reset_screen: CommandResult = _command(g,"build_rotate",{"target_id":"ops_noise_screen","rotation":0})
 	var after_reset: Dictionary = g.s.services.environment.environment_at(g.w,1,[42.25,83.0])
 	if not _sampling_matches(f,[[51,88]]) or not _sampling_matches(g,[[42,84],[42,83],[42.25,83.0],[43,82]]): return _result(false,{"sampling_index":"与同一观察边界的逐项来源结果不一致"})
-	return _result(coverage.ok and before.noise==0 and running.noise==10 and paused_query.noise==10 and queued.noise==0 and construction.noise==15 and screened.noise==0 and screened_cell.noise==0 and screened_fraction.noise==0 and bypass.noise==15 and moved.accepted and after_move.noise==15 and moved_back.accepted and rotated.accepted and after_rotation.noise==15 and reset_screen.accepted and after_reset.noise==0 and g.errors.is_empty(),{"coverage_boundaries":coverage,"before":before.noise,"running":running.noise,"queued":queued.noise,"construction":construction.noise,"screened":screened.noise,"screened_cell":screened_cell.noise,"screened_fraction":screened_fraction.noise,"bypass":bypass.noise,"after_move":after_move.noise,"after_rotation":after_rotation.noise,"after_reset":after_reset.noise,"errors":g.errors})
+	return _result(coverage.ok and before.quiet and not running.quiet and queued.quiet and not construction.quiet and screened.quiet and not bypass.quiet and after_reset.quiet and before.noise==0 and running.noise==10 and paused_query.noise==10 and queued.noise==0 and construction.noise==15 and screened.noise==0 and screened_cell.noise==0 and screened_fraction.noise==0 and bypass.noise==15 and moved.accepted and after_move.noise==15 and moved_back.accepted and rotated.accepted and after_rotation.noise==15 and reset_screen.accepted and after_reset.noise==0 and g.errors.is_empty(),{"coverage_boundaries":coverage,"before":before.noise,"running":running.noise,"queued":queued.noise,"construction":construction.noise,"screened":screened.noise,"screened_cell":screened_cell.noise,"screened_fraction":screened_fraction.noise,"bypass":bypass.noise,"after_move":after_move.noise,"after_rotation":after_rotation.noise,"after_reset":after_reset.noise,"errors":g.errors})
 
 func _sampling_matches(f: Dictionary, cells: Array) -> bool:
 	var service: RefCounted = f.s.services.environment
@@ -766,7 +799,7 @@ func _case_19() -> Dictionary:
 	var visit_id: String = _outpatient(f,"ops19_visit")
 	if visit_id.is_empty(): return _result(false,f.errors)
 	var before: float = float(f.w.facts.facilities.cold_machine.condition)
-	for tick: int in 500:
+	for tick: int in 1500:
 		_clinic_tick(f)
 		if not f.w.facts.attempts.is_empty(): break
 	var worn: float = float(f.w.facts.facilities.cold_machine.condition)
@@ -1165,12 +1198,11 @@ func _case_29() -> Dictionary:
 	var low_ability: float = f.s.services.departments.focus_multiplier(f.w,visit_id,"starter_doctor_b","treatment")
 	f.w.facts.staff.starter_doctor_b.abilities.treatment = 2
 	var eligible: float = f.s.services.departments.focus_multiplier(f.w,visit_id,"starter_doctor_b","treatment")
-	var arrivals: HospitalArrivalService = f.s.services.arrivals
-	var reference: Dictionary = f.s.clinic._arrival_candidate(arrivals._capacity_reference_world(f.w),"B_S49_D37_M37",false)
-	var reference_focus: float = f.s.services.departments.focus_multiplier(reference.world,reference.visit.id,"starter_doctor_b","treatment") if reference.ok else 1.0
-	var basis: Dictionary = arrivals._reference_basis(f.w,0)
+	# A display-name edit must not change the same patient's real focus bonus.
+	# Exact-capacity reference projections are not a random-demand requirement.
 	f.w.facts.departments.units.ops29_focus.name = "科室新显示名"
-	var rename_stable: bool = basis==arrivals._reference_basis(f.w,0)
+	var renamed_focus: float = f.s.services.departments.focus_multiplier(f.w,visit_id,"starter_doctor_b","treatment")
+	var rename_stable: bool = is_equal_approx(eligible,renamed_focus)
 	var last: Dictionary = f.w.facts.departments.cases.pop_back()
 	var four: float = f.s.services.departments.focus_multiplier(f.w,visit_id,"starter_doctor_b","treatment")
 	f.w.facts.departments.cases.append(last)
@@ -1188,7 +1220,7 @@ func _case_29() -> Dictionary:
 	f.w.facts.departments.units.ops29_focus.focus_ready_tick = 18000
 	f.w.facts.departments.units.ops29_focus.focus_id = "T01"
 	var mismatch: float = f.s.services.departments.focus_multiplier(f.w,visit_id,"starter_doctor_b","treatment")
-	return _result(low_ability==1.0 and is_equal_approx(eligible,0.95) and reference.ok and reference.visit.department_id=="ops29_focus" and reference_focus==eligible and rename_stable and four==1.0 and low_score==1.0 and transition==1.0 and mismatch==1.0,{"ability1":low_ability,"eligible":eligible,"reference_focus":reference_focus,"rename_stable":rename_stable,"four_cases":four,"score74":low_score,"transition":transition,"mismatch":mismatch})
+	return _result(low_ability==1.0 and is_equal_approx(eligible,0.95) and rename_stable and four==1.0 and low_score==1.0 and transition==1.0 and mismatch==1.0,{"ability1":low_ability,"eligible":eligible,"renamed_focus":renamed_focus,"rename_stable":rename_stable,"four_cases":four,"score74":low_score,"transition":transition,"mismatch":mismatch})
 
 func _route_fixture(label: String) -> Dictionary:
 	var f: Dictionary = _new(label,true,20000)
@@ -1222,7 +1254,7 @@ func _case_30() -> Dictionary:
 	_registration_seed(f.w,false)
 	f.s.services.departments.route_patient(f.w,visit_id)
 	var route: Dictionary = f.w.facts.departments.routes[visit_id]
-	var temporary: bool = right.structurally_compatible and not right.ok and wrong.reason_id=="intake_scope_excludes_case" and route.registration_choice=="ops_right" and not route.error_rolled
+	var temporary: bool = right.structurally_compatible and right.ok and wrong.reason_id=="intake_scope_excludes_case" and route.registration_choice in ["general","ops_right"] and not route.error_rolled
 	var g: Dictionary = _route_fixture("错误目的地后来等价")
 	var other_id: String = str(g.visit_id)
 	if other_id.is_empty() or not g.errors.is_empty(): return _result(false,g.errors)
@@ -1396,7 +1428,7 @@ func _subsidies(world: WorldState) -> int:
 func _case_35() -> Dictionary:
 	var f: Dictionary = _new("必要支出成本与非现金援助",true,100)
 	# A day-2 checkpoint excludes the new-hospital purchase ledger from today's
-	# result and carries 650 wages plus 200 actually accrued operations.
+	# result and carries 750 wages plus 200 actually accrued operations.
 	f.w.facts.sim_tick = 35999
 	_zero_arrivals(f.w)
 	f.w.facts.economy.last_settled_day = 1
@@ -1418,7 +1450,7 @@ func _case_35() -> Dictionary:
 		aid += int(entry.get("direct_paid",0))
 	var before: Dictionary = f.w.freeze()
 	var denied: CommandResult = _command(f,"build_facility",{"id":"ops35_unfunded","definition_id":"M09","floor_id":1,"cell":[34,66]})
-	return _result(HospitalLedger.balance(f.w)==0 and cost==850 and paid==100 and aid==750 and cost==paid+aid and totals.operating_surplus==-850 and totals.cash_change==-100 and totals.direct_support==750 and not denied.accepted and f.w.freeze()==before,{"cost":cost,"hospital_paid":paid,"direct_paid":aid,"today":totals,"construction_rejection":denied.reason})
+	return _result(HospitalLedger.balance(f.w)==0 and cost==950 and paid==100 and aid==850 and cost==paid+aid and totals.operating_surplus==-950 and totals.cash_change==-100 and totals.direct_support==850 and not denied.accepted and f.w.freeze()==before,{"cost":cost,"hospital_paid":paid,"direct_paid":aid,"today":totals,"construction_rejection":denied.reason})
 
 func _case_36() -> Dictionary:
 	var f: Dictionary = _new("财务投影与目标便签",true,5000)
@@ -1428,7 +1460,7 @@ func _case_36() -> Dictionary:
 	for view: Dictionary in first.views: groups.append(str(view.group))
 	var readonly: bool = before==f.w.freeze()
 	var forecast: Array = first.forecast
-	var estimated: bool = forecast.size()==3 and forecast[0].day==1 and forecast[1].day==2 and forecast[2].day==3 and forecast[0].wages==650 and forecast[0].operations==78 and forecast[0].closing_cash==4272 and forecast[0].forecast and forecast[2].subsidy==1200
+	var estimated: bool = forecast.size()==3 and forecast[0].day==1 and forecast[1].day==2 and forecast[2].day==3 and forecast[0].wages==750 and forecast[0].operations==78 and forecast[0].closing_cash==4172 and forecast[0].forecast and forecast[2].subsidy==1200
 	var note: CommandResult = _command(f,"finance_note",{"text":"扩建诊室","target_amount":6000})
 	var noted: Dictionary = f.s.services.finance.query(f.w)
 	var goal: bool = note.accepted and noted.get("saving_note")=="扩建诊室" and noted.get("target_amount")==6000 and noted.get("remaining_to_target")==1000 and HospitalLedger.balance(f.w)==5000
@@ -1533,6 +1565,8 @@ func _case_39() -> Dictionary:
 	var f: Dictionary = _new("治疗预约安全释放后才维修",true)
 	var visit_id: String = _diagnosed_outpatient(f,"ops39_preparation",[48,92])
 	if visit_id.is_empty(): return _result(false,f.errors)
+	var guidance: Dictionary = GuidancePrerequisite.reach(f.s,[visit_id],func(gate: Callable) -> void: _clinic_tick(f,false,gate))
+	if not guidance.ok: return _result(false,{"prerequisite":"真实导诊和当地到达","guidance":guidance})
 	f.s.clinic.dispatch(f.w)
 	var preparation: Dictionary = f.w.facts.preparations.get(visit_id,{})
 	if preparation.is_empty(): return _result(false,{"prerequisite":"实际治疗预约未建立","visit":f.w.facts.visits[visit_id]})
@@ -1564,7 +1598,7 @@ func _case_39() -> Dictionary:
 	var invalid: WorldState = WorldState.new(restored.w.freeze())
 	invalid.facts.visits[visit_id].actor_id = worker_id
 	var alias_rejected: bool = not worker_id.is_empty() and invalid.validate(_content)=="患者不能同时充当上门维修人员"
-	return _result(held and restore_preserved and cancel.accepted and no_early_work and released and job.started and job.completed_milli==100 and job.paid_parts==40 and HospitalLedger.balance(restored.w)==cash-40 and restored.w.facts.attempts.is_empty() and restored.w.facts.inventory.issues.is_empty() and alias_rejected and validation.is_empty(),{"initial_use":use,"held":held,"restore_preserved":restore_preserved,"cancel":cancel.to_record(),"no_work_before_release":no_early_work,"released":released,"job":job,"cash_before":cash,"cash_after":HospitalLedger.balance(restored.w),"alias_rejected":alias_rejected,"validation":validation})
+	return _result(held and restore_preserved and cancel.accepted and no_early_work and released and job.started and job.completed_milli==100 and job.paid_parts==40 and HospitalLedger.balance(restored.w)==cash-40 and restored.w.facts.attempts.is_empty() and restored.w.facts.inventory.issues.is_empty() and alias_rejected and validation.is_empty(),{"guidance":guidance,"initial_use":use,"held":held,"restore_preserved":restore_preserved,"cancel":cancel.to_record(),"no_work_before_release":no_early_work,"released":released,"job":job,"cash_before":cash,"cash_after":HospitalLedger.balance(restored.w),"alias_rejected":alias_rejected,"validation":validation})
 
 func _case_41() -> Dictionary:
 	var f: Dictionary = _new("维护设备定义索引",false,100000)

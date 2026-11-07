@@ -7,7 +7,12 @@ class WorkerEnvironment extends HospitalEnvironment:
 	func _water_usable(_world: WorldState, facility: Dictionary, _actor_id: String) -> bool:
 		water_candidates.append(str(facility.id))
 		return false
+	func _finish_preference_sources(result: Dictionary, moisture: Dictionary, water_distances: Dictionary) -> void:
+		super._finish_preference_sources(result,moisture,water_distances)
+		result._worker_sample_moisture = moisture
+		result._worker_sample_water_distances = water_distances
 	func _finish_observation(result: Dictionary) -> Dictionary:
+		result.quiet = int(result.noise)==0
 		result.value = int(result.value)-int(result.noise)
 		result.status = "current"
 		result._worker_sample_raw = true
@@ -130,11 +135,18 @@ func prepare(world: WorldState, source: HospitalEnvironment, visit_ids: Array, t
 		(_jobs[index] as SampleJob).prepare(source,world,requests.slice(low,high),_diagnostics)
 	_mark("preparation_us",stamp)
 	stamp = Time.get_ticks_usec() if _diagnostics else 0
-	var group: int = WorkerThreadPool.add_group_task(_run_job,count,count,false,"Department environment observations")
-	_mark("dispatch_us",stamp)
-	stamp = Time.get_ticks_usec() if _diagnostics else 0
-	WorkerThreadPool.wait_for_group_task_completion(group)
-	_mark("wait_us",stamp)
+	var group: int = -1
+	if count==1:
+		# One independent observation job needs no thread-pool dispatch/barrier.
+		# Use the same virtual runner and result validation as the parallel path.
+		_run_job(0)
+		_mark("inline_job_us",stamp)
+	else:
+		group = WorkerThreadPool.add_group_task(_run_job,count,count,false,"Department environment observations")
+		_mark("dispatch_us",stamp)
+		stamp = Time.get_ticks_usec() if _diagnostics else 0
+		WorkerThreadPool.wait_for_group_task_completion(group)
+		_mark("wait_us",stamp)
 	stamp = Time.get_ticks_usec() if _diagnostics else 0
 	var valid: bool = true
 	var processed: int = 0
@@ -168,12 +180,12 @@ func prepare(world: WorldState, source: HospitalEnvironment, visit_ids: Array, t
 				valid = false
 				continue
 			if status=="current":
-				if not observation.get("_worker_sample_raw") is bool or not observation._worker_sample_raw or not observation.get("_worker_sample_water") is Array:
+				if not observation.get("_worker_sample_raw") is bool or not observation._worker_sample_raw or not observation.get("_worker_sample_water") is Array or not observation.get("_worker_sample_moisture") is Dictionary or not observation.get("_worker_sample_water_distances") is Dictionary:
 					valid = false
 					continue
 				var candidates_valid: bool = true
 				for candidate: Variant in observation._worker_sample_water:
-					if not candidate is String or not world.facts.facilities.has(candidate): candidates_valid = false
+					if not candidate is String or not world.facts.facilities.has(candidate) or not observation._worker_sample_water_distances.get(candidate) is int: candidates_valid = false
 				if not candidates_valid:
 					valid = false
 					continue
@@ -214,14 +226,22 @@ func consume(world: WorldState, source: HospitalEnvironment, visit_id: String, a
 	stamp = Time.get_ticks_usec() if _diagnostics else 0
 	var observation: Dictionary = item.observation
 	if bool(observation.get("_worker_sample_raw",false)):
+		var moisture: Dictionary = observation.get("_worker_sample_moisture",{})
 		for id: String in observation._worker_sample_water:
 			if source._water_usable(world,world.facts.facilities[id],actor_id):
 				observation.water = true
-				break
+				var distance: int = int(observation._worker_sample_water_distances[id])
+				if moisture.is_empty() or distance<int(moisture.distance) or distance==int(moisture.distance) and id<str(moisture.id):
+					moisture = {"id":id,"distance":distance,"preference":"moist"}
+		if not moisture.is_empty():
+			observation.moist = moisture.preference=="moist"
+			observation.dry = moisture.preference=="dry"
 		if observation.water: observation.value += int(source.content.balance.environment.water_bonus)
 		observation.value = clampi(int(observation.value),0,100)
 		observation.erase("_worker_sample_raw")
 		observation.erase("_worker_sample_water")
+		observation.erase("_worker_sample_moisture")
+		observation.erase("_worker_sample_water_distances")
 	_mark("serial_water_and_finish_us",stamp)
 	_observations.erase(visit_id)
 	_stats.consumed += 1

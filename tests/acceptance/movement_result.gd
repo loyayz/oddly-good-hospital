@@ -25,19 +25,11 @@ class RecordingMovement extends HospitalMovement:
 		return result
 
 class CourtesyProbe extends HospitalMovement:
-	var chosen_partner: String = ""
-	var idle_ids: Array[String] = []
 	var local_detours: int = 0
 	var goal_queries: int = 0
 	func _init(geometry: HospitalSpace) -> void:
 		super(geometry)
-	func _has_priority(_world: WorldState, _first_id: String, second_id: String) -> bool:
-		chosen_partner = second_id
-		return true
-	func _yield_idle_staff(_world: WorldState, _actor: Dictionary, _movement: Dictionary, blocker_ids: Array[String]) -> bool:
-		idle_ids.assign(blocker_ids)
-		return false
-	func _queue_local_route(_world: WorldState, _actor: Dictionary, _movement: Dictionary) -> void:
+	func _start_detour(_world: WorldState, _actor: Dictionary, _movement: Dictionary) -> void:
 		local_detours += 1
 	func _local_goal_occupied(world: WorldState, actor: Dictionary, movement: Dictionary, contact: MotionResult) -> bool:
 		var index: QueryCountingIndex = space._actor_index
@@ -132,29 +124,32 @@ func _courtesy_handoff(suite: RefCounted) -> Dictionary:
 	var index: QueryCountingIndex = space._actor_index
 	index.queries = 0
 	probe._yield(world,world.facts.actors.probe,movement,result)
-	var primary: bool = result.blocker_actor_ids==["secondary"] and probe.chosen_partner=="z_primary"
-	var no_partner_requery: bool = index.queries==0
-	# A group may finish before the next actor is processed in this same
-	# movement phase. Cached member ownership must not override a new trip.
+	var primary: bool = result.blocker_actor_ids==["secondary"] and probe._movement_owners(world,result.blocker_actor_ids)==["z_primary"] and probe.local_detours==1
+	var no_partner_requery: bool = index.queries==probe.goal_queries
+	world.facts.moves.z_primary.cursor = 0
+	world.facts.moves.z_primary.detour = {"prefix_size":1}
+	probe._yield(world,world.facts.actors.probe,movement,result)
+	var only_one_detour: bool = probe.local_detours==1
+	world.facts.moves.z_primary.cursor = 1
+	probe._yield(world,world.facts.actors.probe,movement,result)
+	var completed_prefix_not_lock: bool = probe.local_detours==2
+	world.facts.moves.z_primary.erase("detour")
+	world.facts.moves.nearby_primary.detour = {}
+	probe._yield(world,world.facts.actors.probe,movement,result)
+	var unrelated_not_owner: bool = probe.local_detours==3
+	# Ownership follows the current journey, not a stale per-phase mapping.
 	probe._phase_owners["secondary"] = "z_primary"
 	world.facts.moves.erase("z_primary")
-	world.facts.moves["secondary"] = {"actor_id":"secondary","yielding":false}
+	world.facts.moves["secondary"] = {"actor_id":"secondary"}
 	var new_single_owner: bool = probe._movement_owners(world,result.blocker_actor_ids)==["secondary"]
 	world.facts.moves.erase("secondary")
-	world.facts.moves["z_primary"] = {"actor_id":"z_primary","members":["z_primary"],"yielding":false}
+	world.facts.moves["z_primary"] = {"actor_id":"z_primary","members":["z_primary"]}
 	var changed_group_owner: bool = probe._movement_owners(world,result.blocker_actor_ids).is_empty()
-	probe.chosen_partner = ""
-	probe._yield(world,world.facts.actors.probe,movement,result)
-	# Partner/courtesy selection consumes the original hits. A separate current
-	# destination query may prove that a different body makes detouring futile.
-	var idle_receives_hits: bool = probe.idle_ids==["secondary"] and index.queries==probe.goal_queries
 	var reservation_result: HospitalMovement.MotionResult = HospitalMovement.MotionResult.new()
 	reservation_result.reservation_ids.append("reservation_only")
-	probe.chosen_partner = ""
-	probe.idle_ids.clear()
 	probe._yield(world,world.facts.actors.probe,movement,reservation_result)
-	var reservation_not_body: bool = probe.chosen_partner.is_empty() and probe.idle_ids.is_empty() and probe.local_detours==2
-	return {"ok":primary and no_partner_requery and new_single_owner and changed_group_owner and idle_receives_hits and reservation_not_body,"secondary_maps_to_primary":primary,"noncontact_actor_not_selected":probe.chosen_partner!="nearby_primary","partner_selection_index_queries":0 if no_partner_requery else index.queries,"new_single_trip_overrides_old_group":new_single_owner,"removed_member_does_not_keep_old_owner":changed_group_owner,"idle_staff_branch_receives_only_actual_hits":idle_receives_hits,"reservation_owner_not_treated_as_body":reservation_not_body}
+	var reservation_not_body: bool = probe._movement_owners(world,reservation_result.blocker_actor_ids).is_empty() and probe.local_detours==4
+	return {"ok":primary and no_partner_requery and only_one_detour and completed_prefix_not_lock and unrelated_not_owner and new_single_owner and changed_group_owner and reservation_not_body,"actual_hit_maps_to_current_group":primary,"one_actual_blocker_detours":only_one_detour,"finished_prefix_is_not_permanent_precedence":completed_prefix_not_lock,"noncontact_detour_does_not_claim_precedence":unrelated_not_owner,"contact_handoff_without_partner_requery":no_partner_requery,"new_single_trip_overrides_old_group":new_single_owner,"removed_member_does_not_keep_old_owner":changed_group_owner,"reservation_owner_not_treated_as_body":reservation_not_body}
 
 func _actual_movement(suite: RefCounted) -> Dictionary:
 	var sim: HospitalSimulation = suite._fixture()

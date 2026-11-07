@@ -1,0 +1,34 @@
+{
+  "soplex-8.1.0.tar.gz": {
+    "sha256": "67630bc95203933a3f1145ba7fad512b7f68f59dc18029eee74ac381298f56d8",
+    "url": "https://codeload.github.com/scipopt/soplex/tar.gz/a00610534e044f35aa298059eb963312336c4c9c"
+  },
+  "scip-10.1.0.tgz": {
+    "sha256": "fe8cfd15a03970ef45156ed56c6a4382485bd095e0e99cf7d7db87cdf8d47304",
+    "url": "https://scipopt.org/download/release/scip-10.1.0.tgz"
+  },
+  "boost_1_92_0.tar.bz2": {
+    "sha256": "5c1d40cb8e19adbf740a4ec2da35b3e58f3f5804b1dce44deb53df72193cbc6c",
+    "url": "https://archives.boost.io/release/1.92.0/source/boost_1_92_0.tar.bz2"
+  },
+  "mpfr-source.tar.zst": {
+    "sha256": "c8c9b1e091b744165b150d59b7599bcf014fe9c3ae21df98fd3807f05f702c60",
+    "url": "https://repo.msys2.org/mingw/sources/mingw-w64-mpfr-4.2.2-3.src.tar.zst"
+  },
+  "sqlite-amalgamation-3540000.zip": {
+    "sha256": "68e913b0fe8ec6b4e5f391c594a28872884e80d6cd042a1e50c957be46b5aa4d",
+    "url": "https://sqlite.org/2026/sqlite-amalgamation-3540000.zip"
+  },
+  "rapidjson-24b5e7a8b27f42fa16b96fc70aade9106cf7102f.tar.gz": {
+    "sha256": "2d2601a82d2d3b7e143a3c8d43ef616671391034bc46891a9816b79cf2d3e7a8",
+    "url": "https://codeload.github.com/Tencent/rapidjson/tar.gz/24b5e7a8b27f42fa16b96fc70aade9106cf7102f"
+  },
+  "minizip-ng-4.2.2.tar.gz": {
+    "sha256": "71af7b9799856d8b03619df3949e9c1be9703f8de0795af71399ba283cb27aac",
+    "url": "https://codeload.github.com/zlib-ng/minizip-ng/tar.gz/refs/tags/4.2.2"
+  },
+  "zlib-1.3.2.tar.gz": {
+    "sha256": "bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16",
+    "url": "https://zlib.net/fossils/zlib-1.3.2.tar.gz"
+  }
+}

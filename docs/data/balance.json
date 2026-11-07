@@ -12,7 +12,9 @@
     "clock_rounding": "floor_exact_ratio_after_modulo_day_ticks",
     "remaining_rounding": "ceil_display_unit_until_actual_completion",
     "numeric_units": "seconds_simulation_days_hospital_unless_explicit_real",
-    "real_day_paths": ["balance.save.trash_days"],
+    "real_day_paths": [
+      "balance.save.trash_days"
+    ],
     "realtime_seconds_paths": [
       "balance.save.autosave_real_seconds",
       "balance.performance_targets.metrics.save_max_seconds",
@@ -38,25 +40,77 @@
       "world_source": "performance_reference",
       "geometry_source": "existing_production_triangle_and_material_budget",
       "scene_cases": [
-        {"id": "PC01", "name": "160人四层均分的当前层", "actor_source": "reference", "partition": "uniform_over_reference_floors", "actor_profile": "common", "station_profile": "common"},
-        {"id": "PC02", "name": "160人全层集中常用模型", "actor_source": "reference", "partition": "whole_reference_on_one_floor", "actor_profile": "common", "station_profile": "common"},
-        {"id": "PC03", "name": "640人全层集中常用模型", "actor_source": "largest_existing_actor_sample", "partition": "whole_reference_on_one_floor", "actor_profile": "common", "station_profile": "common"},
-        {"id": "PC04", "name": "640人全层集中近景上界模型", "actor_source": "largest_existing_actor_sample", "partition": "whole_reference_on_one_floor", "actor_profile": "near", "station_profile": "near"}
+        {
+          "id": "PC01",
+          "name": "160人四层均分的当前层",
+          "actor_source": "reference",
+          "partition": "uniform_over_reference_floors",
+          "actor_profile": "common",
+          "station_profile": "common"
+        },
+        {
+          "id": "PC02",
+          "name": "160人全层集中常用模型",
+          "actor_source": "reference",
+          "partition": "whole_reference_on_one_floor",
+          "actor_profile": "common",
+          "station_profile": "common"
+        },
+        {
+          "id": "PC03",
+          "name": "640人全层集中常用模型",
+          "actor_source": "largest_existing_actor_sample",
+          "partition": "whole_reference_on_one_floor",
+          "actor_profile": "common",
+          "station_profile": "common"
+        },
+        {
+          "id": "PC04",
+          "name": "640人全层集中近景上界模型",
+          "actor_source": "largest_existing_actor_sample",
+          "partition": "whole_reference_on_one_floor",
+          "actor_profile": "near",
+          "station_profile": "near"
+        }
       ],
       "draw_case": "one_surface_per_declared_common_material_plus_one_per_prop_base_pass_only",
       "prop_surface_assumption": 1,
       "texture_cases": [
-        {"id": "PT01", "name": "家族共享图集与常用主体", "species_maps": "one_per_family", "medical_size": "common_atlas"},
-        {"id": "PT02", "name": "家族共享图集与六主体全特写", "species_maps": "one_per_family", "medical_size": "closeup_max"},
-        {"id": "PT03", "name": "全部种族独立图与六主体全特写", "species_maps": "one_per_species", "medical_size": "closeup_max"}
+        {
+          "id": "PT01",
+          "name": "家族共享图集与常用主体",
+          "species_maps": "one_per_family",
+          "medical_size": "common_atlas"
+        },
+        {
+          "id": "PT02",
+          "name": "家族共享图集与六主体全特写",
+          "species_maps": "one_per_family",
+          "medical_size": "closeup_max"
+        },
+        {
+          "id": "PT03",
+          "name": "全部种族独立图与六主体全特写",
+          "species_maps": "one_per_species",
+          "medical_size": "closeup_max"
+        }
       ],
       "maps_per_group": 1,
       "renovation_maps": "one_common_atlas_size_map_per_defined_material",
       "texture_bytes": "rgba8_complete_mip_payload_only",
       "render_target_case": "default_scaled_rgba8_color_depth32_plus_native_rgba8_output_single_sample",
       "pose_case": "single_compatible_group_existing_max_bone_full_palette_page_upload_each_target_frame",
-      "serialization_world_bytes": [67108864, 134217728],
-      "timing_unknowns": ["single_thread_gdscript_queries", "draw_submission_and_shader_cost", "full_arrival_capacity_model", "json_copy_encode_hash_and_commit", "sustained_shared_cpu_gpu_power"],
+      "serialization_world_bytes": [
+        67108864,
+        134217728
+      ],
+      "timing_unknowns": [
+        "single_thread_gdscript_queries",
+        "draw_submission_and_shader_cost",
+        "full_arrival_capacity_model",
+        "json_copy_encode_hash_and_commit",
+        "sustained_shared_cpu_gpu_power"
+      ],
       "assessment": {
         "baseline": "hardware_feasible_with_existing_culling_sharing_batching_and_caches_not_measured_fps",
         "dense_near": "high_geometry_submission_and_query_risk_no_fps_promise_or_actor_cap",
@@ -230,7 +284,7 @@
   "starting_staff": {
     "receptionist": 1,
     "doctor": 3,
-    "nurse": 1,
+    "nurse": 2,
     "cleaner": 1,
     "researcher": 0,
     "decorator": 0
@@ -471,8 +525,8 @@
       "amount": 300
     },
     {
-      "item": "Six bench seats",
-      "amount": 300
+      "item": "Five bench seats",
+      "amount": 250
     },
     {
       "item": "Warm-air trolley",
@@ -481,10 +535,6 @@
     {
       "item": "Bin and water dispenser",
       "amount": 200
-    },
-    {
-      "item": "Paths 40 cells",
-      "amount": 400
     },
     {
       "item": "Doctor office interior 4x4",
@@ -501,6 +551,10 @@
     {
       "item": "Nurse workbench SE06",
       "amount": 300
+    },
+    {
+      "item": "Floor guidance desk SE01",
+      "amount": 600
     }
   ],
   "initial_gift_machines": [
@@ -937,14 +991,34 @@
       "subject_key": "current_identity_envelope_and_access_options",
       "refresh_interval_real_ms": 200,
       "refresh_scope": "hospital_view_session_across_floor_subject_and_toggle",
-      "budget_sources": ["spatial_view.view_build_budget_ms_per_frame", "spatial_view.view_chunk_starts_per_frame"],
+      "budget_sources": [
+        "spatial_view.view_build_budget_ms_per_frame",
+        "spatial_view.view_chunk_starts_per_frame"
+      ],
       "budget_additive": false,
       "priority": "selected_or_hovered_cell_then_visible_chunks",
       "publication": "whole_chunk_with_current_complete_query_stamp",
       "dirty_values": "mask_until_current",
       "invalidation_source": "complete_local_environment_query_dependencies_not_world_tick",
-      "states": ["current", "updating", "body_no_fit", "outside_owned_floor"],
-      "request_key": ["hospital_session", "view_id", "view_generation", "floor_id", "chunk", "subject_identity", "traversal_envelope", "query_options", "environment_query_stamp", "range_version", "content_fingerprint"],
+      "states": [
+        "current",
+        "updating",
+        "body_no_fit",
+        "outside_owned_floor"
+      ],
+      "request_key": [
+        "hospital_session",
+        "view_id",
+        "view_generation",
+        "floor_id",
+        "chunk",
+        "subject_identity",
+        "traversal_envelope",
+        "query_options",
+        "environment_query_stamp",
+        "range_version",
+        "content_fingerprint"
+      ],
       "tooltip": "current_original_cell_query_not_texture_readback",
       "value_encoding": "color_lightness_and_pattern_with_single_legend",
       "legend_source": "existing_environment_thresholds",
@@ -1024,7 +1098,15 @@
   "seat_choice": {
     "scope": "clinical_waiting_patient",
     "environment_tolerance": 10,
-    "selection_order": ["physical_legality", "preference", "environment_band", "personality_score", "environment", "travel", "seat_id"],
+    "selection_order": [
+      "physical_legality",
+      "preference",
+      "environment_band",
+      "personality_score",
+      "environment",
+      "travel",
+      "seat_id"
+    ],
     "criteria": {
       "quiet": "actual_noise_query",
       "less_crowded": "patient_behavior_crowd_query",
@@ -1260,7 +1342,11 @@
     "admission_evaluation": {
       "scope": "current_original_patient_opportunity",
       "phase": "phase3_original_arrival_boundary",
-      "order": ["current_intake_open", "actual_outpatient_count_below_frozen_day_allowance", "original_case_and_body_readiness"],
+      "order": [
+        "current_intake_open",
+        "actual_outpatient_count_below_frozen_day_allowance",
+        "unlocked_weighted_case_then_actual_entry_space"
+      ],
       "active_count_source": "actually_arrived_not_physically_departed_without_valid_inpatient_bed_commitment",
       "allowance_source": "original_frozen_day_preset_and_scale",
       "guard_rejection": "consume_same_slot_without_catchup",
@@ -1268,11 +1354,15 @@
       "guard_rejection_patient_draws": 0,
       "daily_count_and_seed_draws": "original_day_plan_unchanged",
       "same_tick": "slot_order_reread_after_each_actual_admission",
-      "passed_guard": "original_complete_readiness_and_atomic_actual_admission",
+      "passed_guard": "natural_case_and_atomic_safe_entry",
       "existing_care": "original_intake_controls_new_visits_only",
-      "readonly_reason_card": "original_complete_cause_query",
+      "readonly_reason_card": "current_stage_cause_query",
       "snapshot_counter": false,
       "runtime_measurement_available": false
+    },
+    "random_demand": {
+      "daily_interest_per_open_gp_desk": 6,
+      "concurrent_outpatients_per_open_gp_desk": 16
     },
     "capacity_scaling": {
       "source": "scheduled_complete_clinical_pairs",
@@ -1302,7 +1392,15 @@
       "temporary_intake_switch_changes_capacity": false,
       "extra_consultation_behavior": false,
       "retry_work": "probability_weighted_original_auto_retry_without_reading_hidden_results",
-      "resource_clocks": ["reception", "gp", "required_tests_and_consultation", "terminal_device", "each_active_clinician", "bed_commitment", "ward_coverage_and_active_care"],
+      "resource_clocks": [
+        "reception",
+        "gp",
+        "required_tests_and_consultation",
+        "terminal_device",
+        "each_active_clinician",
+        "bed_commitment",
+        "ward_coverage_and_active_care"
+      ],
       "shared_resource_budget": "one_physical_owner_per_original_shift_window",
       "existing_load": "committed_remaining_and_quotable_existing_queue_before_new_reference_flow",
       "ward_coverage": "one_actual_nurse_one_ward_original_eight_beds_distinct_from_active_team",
@@ -1828,19 +1926,12 @@
     "restore_from": "saved_adaptation_reservation"
   },
   "movement_courtesy": {
-    "blocked_before_yield_seconds": 3,
     "body_overlap": false,
-    "yield_target": "nearest_reachable_space_on_travelled_route",
-    "priority": [
-      "inside_narrow_segment",
-      "committed_transfer_group",
-      "blocked_tick",
-      "actor_id"
-    ],
     "retry_hard_block_seconds": 5,
     "reselect_hard_block_seconds": 30,
     "refer_hard_block_seconds": 60,
-    "yield_resets_wait": false
+    "detour_resets_wait": false,
+    "detour_target": "original_blocked_cell_then_nearest_reachable_original_route_cell"
   },
   "movement_queries": {
     "scope": "original_floor_bodies_and_complete_movement_units",
@@ -1927,8 +2018,8 @@
   "staggered_rest": {
     "enabled": true,
     "early_energy_ceiling": 45,
-    "voluntary_per_pool": 1,
-    "eligibility": "actual_qualified_coverage",
+    "voluntary_per_pool": 0,
+    "eligibility": "current_dispatch_idle",
     "assignment_scope": "existing_roster_and_permissions",
     "return_target": "existing_rest_energy_target",
     "recall_early_rest": false,
@@ -2086,7 +2177,22 @@
     "superseded_job": "stop_at_next_safe_slice_and_release_original_references",
     "feedback": "current_original_outline_and_explicit_not_ready_until_complete",
     "old_ready_state": "revoke_on_semantic_request_or_relevant_fact_change",
-    "request_key": ["hospital_session", "view_id", "view_generation", "view_floor_id", "preview_session_id", "draft_id", "draft_generation", "source_floor_ids", "target_floor_id", "content_fingerprint", "query_kind", "subject_identity", "traversal_envelope", "query_options"],
+    "request_key": [
+      "hospital_session",
+      "view_id",
+      "view_generation",
+      "view_floor_id",
+      "preview_session_id",
+      "draft_id",
+      "draft_generation",
+      "source_floor_ids",
+      "target_floor_id",
+      "content_fingerprint",
+      "query_kind",
+      "subject_identity",
+      "traversal_envelope",
+      "query_options"
+    ],
     "view_change": "rebind_current_projection_reusing_valid_original_semantic_result",
     "draw_scope": "current_view_floor_equals_original_draft_target_floor",
     "dependencies": "complete_original_relevant_semantic_facts_not_global_revision",
@@ -2165,9 +2271,16 @@
       "installed_memory_bytes": 34359738368,
       "os": "Windows 11 x64",
       "storage": "NVMe SSD",
-      "reported_gpu_mode": [2880, 1920],
+      "reported_gpu_mode": [
+        2880,
+        1920
+      ],
       "vendor_reference": "https://www.intel.com/content/www/us/en/products/sku/236848/intel-core-ultra-5-processor-125h-18m-cache-up-to-4-50-ghz/specifications.html",
-      "cpu_core_types": {"performance": 4, "efficient": 8, "low_power_efficient": 2},
+      "cpu_core_types": {
+        "performance": 4,
+        "efficient": 8,
+        "low_power_efficient": 2
+      },
       "gpu_xe_cores": 7,
       "memory_report": {
         "source": "Win32_PhysicalMemory_and_Win32_OperatingSystem_read_only_snapshot",
@@ -2188,18 +2301,31 @@
     "world_source": "performance_reference",
     "quality": "standard",
     "display": {
-      "window_pixels": [2560, 1440],
+      "window_pixels": [
+        2560,
+        1440
+      ],
       "default_scene_scale_bp": 7500,
-      "scene_scale_options_bp": [10000, 7500, 6667],
+      "scene_scale_options_bp": [
+        10000,
+        7500,
+        6667
+      ],
       "pixel_rounding": "nearest_even_dimension",
       "ui_resolution": "native_window",
       "render_scale_changes_ui": false,
       "automatic_scale_changes": false
     },
     "display_workload_samples": {
-      "window_sources": ["display.window_pixels", "hardware_reference.reported_gpu_mode"],
+      "window_sources": [
+        "display.window_pixels",
+        "hardware_reference.reported_gpu_mode"
+      ],
       "scene_scale_source": "display.scene_scale_options_bp",
-      "ui_scale_percent": [100, 200],
+      "ui_scale_percent": [
+        100,
+        200
+      ],
       "load_source": "performance_reference_and_existing_large_world_samples",
       "metrics_source": "same_primary_frame_simulation_response_and_memory_targets",
       "selection": "representative_costs_and_display_boundaries_not_cartesian_product",
@@ -2216,7 +2342,10 @@
       "completion": "required_metric_samples_and_scenario_operations_covered",
       "extension": "additional_independent_window_for_borderline_or_unstable_results_preserve_prior_failures",
       "failure": "stop_diagnostic_on_reproducible_violation_optimize_and_remeasure_affected_scope",
-      "speeds": [1, 3],
+      "speeds": [
+        1,
+        3
+      ],
       "fps_target": 60,
       "record_actual_renderer": true,
       "record_refresh_and_sync": true,
@@ -2259,7 +2388,12 @@
       "private_commit": "record_separately_not_working_set",
       "graphics_source": "original_graphics_scope_with_allocation_basis_and_engine_os_corroboration",
       "debug_only_monitors": "diagnostic_only_never_zero_as_release_usage",
-      "size_kinds": ["payload_bytes", "allocated_bytes", "engine_estimate", "os_residency"],
+      "size_kinds": [
+        "payload_bytes",
+        "allocated_bytes",
+        "engine_estimate",
+        "os_residency"
+      ],
       "payload_only": "not_complete_budget_evidence",
       "peak_scope": "same_capture_ordinary_save_and_view_transition_work",
       "peak_record": "observed_peak_cadence_and_process_lifetime_peak_separate",
@@ -2270,17 +2404,26 @@
       "data_scope": "local_acceptance_report_not_world_or_parallel_runtime_state"
     },
     "large_world_samples": {
-      "actors": [320, 640],
+      "actors": [
+        320,
+        640
+      ],
       "metrics_source": "same_primary_frame_and_simulation_targets",
       "empty_floors": 10000,
       "reject_by_count": false
     },
     "spatial_samples": {
       "wide_floor": {
-        "logical_size_cells": [96, 96],
+        "logical_size_cells": [
+          96,
+          96
+        ],
         "owned_plots": 9,
         "active_floor": 1,
-        "actors": [160, 640],
+        "actors": [
+          160,
+          640
+        ],
         "rooms": 64,
         "stations": 128,
         "props": 1200,
@@ -2288,7 +2431,12 @@
       },
       "wide_tall": {
         "completed_top_floor_per_plot": 10000,
-        "active_floors": [1, 10, 1000, 10000],
+        "active_floors": [
+          1,
+          10,
+          1000,
+          10000
+        ],
         "actors": 640,
         "structure_expand": "never_all_empty_floors"
       },
@@ -2300,7 +2448,11 @@
         "switch_active_floors",
         "edit_local_geometry_during_view_load"
       ],
-      "cache_modes": ["cold", "warm", "forced_eviction"],
+      "cache_modes": [
+        "cold",
+        "warm",
+        "forced_eviction"
+      ],
       "metrics_source": "same_primary_frame_simulation_response_and_memory_targets",
       "count_source": "actual_logical_entities_and_visible_instances_logged_separately",
       "dense_sample_requirements_source": "capture.minimum_frame_samples_and_minimum_step_samples",
@@ -2471,7 +2623,10 @@
     "cache_key": "floor_and_traversal_envelope",
     "cache_changes_business_result": false,
     "local_updates": {
-      "chunk_cells": [8, 8],
+      "chunk_cells": [
+        8,
+        8
+      ],
       "change_source": "authoritative_before_after_geometry_occupancy_and_soft_cost",
       "graph_repair": "affected_nodes_edges_before_query",
       "dependency": "actual_envelope_footprint_and_movement_sweep",
@@ -2479,8 +2634,24 @@
       "history_miss": "rebuild_requested_floor_envelope",
       "actor_motion": "movement_contention_only",
       "connector_change": "index_and_touched_landings_only",
-      "single_floor_query_key": ["hospital_session", "floor_id", "start", "goal", "traversal_envelope", "query_kind", "query_options", "nav_revision", "occupancy_revision"],
-      "cached_results": ["route", "partial", "unreachable", "walking_distance", "connectivity"],
+      "single_floor_query_key": [
+        "hospital_session",
+        "floor_id",
+        "start",
+        "goal",
+        "traversal_envelope",
+        "query_kind",
+        "query_options",
+        "nav_revision",
+        "occupancy_revision"
+      ],
+      "cached_results": [
+        "route",
+        "partial",
+        "unreachable",
+        "walking_distance",
+        "connectivity"
+      ],
       "result_lifetime": "retire_results_with_floor_cache_record",
       "cross_floor_queries": "fresh_search_with_current_transit_quote",
       "active_route_recheck": "remaining_sweeps_and_used_connections_on_related_change",
@@ -2507,7 +2678,12 @@
       "otherwise": "original_full_query"
     },
     "proof_per_ticket": 1,
-    "base_proof_kinds": ["supply_shortage", "required_facility_missing", "qualified_team_missing", "compatible_bed_busy"],
+    "base_proof_kinds": [
+      "supply_shortage",
+      "required_facility_missing",
+      "qualified_team_missing",
+      "compatible_bed_busy"
+    ],
     "dependency_source": "all_prerequisites_of_one_proven_false_condition",
     "dependency_index": "sparse_resource_scope_to_current_tickets",
     "empty_candidates": "watch_definition_role_scope_and_topology",
@@ -2553,7 +2729,10 @@
     "runtime_measurement_available": false
   },
   "spatial_view": {
-    "chunk_cells": [16, 16],
+    "chunk_cells": [
+      16,
+      16
+    ],
     "scope": "current_floor_frustum_and_explicit_preview",
     "membership": "actual_display_envelope_overlap",
     "entity_instance_key": "logical_entity_id_per_view",
@@ -2562,7 +2741,16 @@
     "prefetch_ring_chunks": 1,
     "prefetch_priority": "after_visible_and_selected",
     "prefetch_instantiates": false,
-    "request_key": ["hospital_session", "view_id", "view_generation", "floor_id", "chunk", "local_visual_revision", "content_fingerprint", "lod"],
+    "request_key": [
+      "hospital_session",
+      "view_id",
+      "view_generation",
+      "floor_id",
+      "chunk",
+      "local_visual_revision",
+      "content_fingerprint",
+      "lod"
+    ],
     "late_result": "discard_unmatched_bindings",
     "retire_old_floor": "detach_before_attach_new",
     "lod_pixels": "camera_view.native_projected_cell_metric",
@@ -2579,7 +2767,14 @@
   },
   "visual_batching": {
     "scope": "current_view_actual_visible_parts",
-    "group_key": ["content_fingerprint", "mesh_resource", "material_layout", "lod", "render_state", "prepared_pose_resource"],
+    "group_key": [
+      "content_fingerprint",
+      "mesh_resource",
+      "material_layout",
+      "lod",
+      "render_state",
+      "prepared_pose_resource"
+    ],
     "part_identity": "logical_entity_id_and_registered_part_role",
     "membership": "actual_visible_unique_parts",
     "eligibility": "opaque_or_cutout_rigid_parts_or_validated_unskinned_far_pose",
@@ -2589,7 +2784,16 @@
     "instance_parameters": "current_transform_color_and_allowed_values_only",
     "shared_material_mutation": false,
     "visible_layout": "dense_current_prefix",
-    "slot_binding_key": ["hospital_session", "view_id", "batch_key", "batch_generation", "slot_index", "logical_entity_id", "part_role", "slot_generation"],
+    "slot_binding_key": [
+      "hospital_session",
+      "view_id",
+      "batch_key",
+      "batch_generation",
+      "slot_index",
+      "logical_entity_id",
+      "part_role",
+      "slot_generation"
+    ],
     "late_result": "reject_wrong_binding_or_slot_generation",
     "attach_parameters": "requery_current_original_pose_after_binding_check",
     "membership_refresh": "related_visibility_asset_and_pose_binding_change",
@@ -2607,7 +2811,17 @@
   "skin_pose_instancing": {
     "scope": "verified_opaque_or_cutout_skinned_parts_in_current_view",
     "enable": "after_reference_backend_and_adapter_validation_only",
-    "validation_key": ["engine_version", "renderer", "device_id", "driver_version", "content_fingerprint", "skin_adapter_key", "shader_fingerprint", "palette_format", "instance_parameter_layout"],
+    "validation_key": [
+      "engine_version",
+      "renderer",
+      "device_id",
+      "driver_version",
+      "content_fingerprint",
+      "skin_adapter_key",
+      "shader_fingerprint",
+      "palette_format",
+      "instance_parameter_layout"
+    ],
     "validation_source": "engine_and_asset_validation_evidence_not_content_flag",
     "unverified": "original_current_per_entity_skinning",
     "pose_source": "pose_sampling_original_model_local_skin_matrices",
@@ -2627,7 +2841,22 @@
       "instance_row_channel": "INSTANCE_CUSTOM_x_local_exact_row_only"
     },
     "group_key": "visual_batching_resource_key_plus_skin_adapter_shader_and_palette_page",
-    "row_key": ["hospital_session", "view_id", "view_generation", "floor_id", "palette_page_key", "page_generation", "row_index", "row_generation", "logical_entity_id", "part_role", "skin_adapter_key", "pose_source_key", "pose_sample_generation", "content_fingerprint"],
+    "row_key": [
+      "hospital_session",
+      "view_id",
+      "view_generation",
+      "floor_id",
+      "palette_page_key",
+      "page_generation",
+      "row_index",
+      "row_generation",
+      "logical_entity_id",
+      "part_role",
+      "skin_adapter_key",
+      "pose_source_key",
+      "pose_sample_generation",
+      "content_fingerprint"
+    ],
     "publication": "complete_staged_page_and_current_row_bindings_before_draw",
     "late_rows": "reject_mismatched_binding_then_current_pose_or_original_pipeline",
     "shader_deformation": "once_in_model_space_then_original_world_transform_and_render_passes",
@@ -2651,7 +2880,10 @@
     "far_hz": 15,
     "clock": "hospital_view_monotonic_real_time",
     "rate_source": "spatial_view_lod_and_selected_visible_detail",
-    "phase_key": ["hospital_session", "logical_entity_id"],
+    "phase_key": [
+      "hospital_session",
+      "logical_entity_id"
+    ],
     "phase_bins": 1024,
     "phase_hash": "sha256_utf8_length_prefixed_identity_first_u64_be_mod_bins",
     "due_storage": "sparse_current_visible_continuous_bindings_only",
@@ -2666,7 +2898,14 @@
     "low_motion": "current_authorized_static_pose_on_source_change",
     "reentry": "current_pose_without_ended_animation_replay",
     "reuse": "exact_rig_pose_source_mode_and_registered_camera_inputs_only",
-    "reuse_key": ["hospital_session", "logical_entity_id", "rig_resource", "pose_source_key", "pose_mode", "camera_pose_key"],
+    "reuse_key": [
+      "hospital_session",
+      "logical_entity_id",
+      "rig_resource",
+      "pose_source_key",
+      "pose_mode",
+      "camera_pose_key"
+    ],
     "shared_rate": "highest_current_compatible_view_requirement",
     "independent_actors_share_phase_state": false,
     "late_binding": "original_visual_identity_check_then_requery_current_pose",
@@ -2756,7 +2995,19 @@
     "crossfade": "all_old_and_new_playbacks_count_before_admission",
     "release_accounting": "after_actual_playback_stop_pending_resources_still_accounted",
     "release": "explicit_stop_and_unbind_not_wait_for_finished",
-    "scene_slot_key": ["hospital_session", "view_id", "view_generation", "floor_id", "pool_kind", "slot_index", "slot_generation", "source_entity_id", "source_binding_key", "clip_resource", "content_fingerprint"],
+    "scene_slot_key": [
+      "hospital_session",
+      "view_id",
+      "view_generation",
+      "floor_id",
+      "pool_kind",
+      "slot_index",
+      "slot_generation",
+      "source_entity_id",
+      "source_binding_key",
+      "clip_resource",
+      "content_fingerprint"
+    ],
     "late_clip": "oneshot_omit_loop_requery_current_original_stage_after_binding_check",
     "slot_reuse": "stop_old_actual_playback_then_unbind_before_current_attach",
     "muted_scene_categories": "stop_decoder_and_admission_no_oneshot_backlog",

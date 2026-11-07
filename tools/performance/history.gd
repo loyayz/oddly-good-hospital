@@ -84,7 +84,7 @@ func _run() -> void:
 			begin = Time.get_ticks_usec()
 			var completed: TickResult = simulation.step_nonblocking()
 			samples.append(Time.get_ticks_usec()-begin)
-			valid = valid and completed!=null and simulation.preparing_error().is_empty()
+			valid = valid and completed!=null
 			# Outside timing: compare the index with original facts each boundary.
 			var expected: Array = []
 			for id: String in world.facts.visits:
@@ -184,7 +184,7 @@ func _independent_dimensions(input: Dictionary, content: HospitalContent, visit:
 				started = Time.get_ticks_usec()
 				var complete: TickResult = simulation.step_nonblocking()
 				samples.append(Time.get_ticks_usec()-started)
-				valid = valid and complete!=null and simulation.preparing_error().is_empty()
+				valid = valid and complete!=null
 			var final_validation: String = world.validate(content)
 			var live: Dictionary = world.freeze()
 			for index: int in actor_count: live.actors.erase("dimension_actor_%04d"%index)

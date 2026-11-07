@@ -2,7 +2,7 @@ extends "res://tests/acceptance/growth_fixtures.gd"
 
 const Jobs = preload("res://game/community/research_job_index.gd")
 
-class Budgets extends HospitalArrivalService:
+class Budgets extends LegacyArrivalProjection:
 	var maintenance_builds: int = 0
 	var facility_queries: int = 0
 	func _maintenance_view(world: WorldState) -> Dictionary:

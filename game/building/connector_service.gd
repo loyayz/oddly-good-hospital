@@ -53,7 +53,7 @@ func preview(world: WorldState, kind: String, payload: Dictionary) -> Dictionary
 		record.paid_cost = int(record.paid_cost)+price
 	elif kind=="connector_remove":
 		var record: Dictionary = candidate.facts.connectors[id]
-		if record.phase!="idle" or not HospitalTransit._waiting(candidate,id).is_empty(): return BuildGeometry.failure("等待原乘员和叫梯票安全完成")
+		if record.phase!="idle" or not HospitalTransit._waiting(space,candidate,id).is_empty(): return BuildGeometry.failure("等待原乘员和叫梯票安全完成")
 		for collection: String in ["jobs","upgrades"]:
 			for job: Dictionary in world.facts.get("maintenance",{}).get(collection,{}).values():
 				if job.facility_id==id and not job.phase in ["completed","cancelled","abandoned"]: return BuildGeometry.failure("请先安全结束该设备维护工单")

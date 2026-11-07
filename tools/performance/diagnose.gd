@@ -109,7 +109,7 @@ func _run() -> void:
 		var completed: Array[TickResult] = []
 		var polls: int = 0
 		var requested_steps: int = steps if operation=="session" else 1
-		while completed.size()<requested_steps and simulation.preparing_error().is_empty():
+		while completed.size()<requested_steps:
 			var poll_started: int = Time.get_ticks_usec()
 			var batch: Array[TickResult] = session.advance(0.1 if not simulation.pending() else 0.0)
 			completed.append_array(batch)
@@ -123,8 +123,8 @@ func _run() -> void:
 			"step_ms":completed[0].elapsed_us/1000.0 if not completed.is_empty() else null,
 			"completed_steps":completed.size(),"requested_steps":requested_steps,
 			"kernel_steps_ms":completed.map(func(step: TickResult)->float: return step.elapsed_us/1000.0),
-			"metrics":simulation.services.arrivals.preparation_metrics(),"plan":fixture.world.facts.arrivals.plan,
-			"error":simulation.preparing_error(),"tracked_bytes":OS.get_static_memory_usage(),"profile":timing.report()}
+			"arrival_mode":"synchronous_random_demand","plan":fixture.world.facts.arrivals.plan,
+			"tracked_bytes":OS.get_static_memory_usage(),"profile":timing.report()}
 		fixture.store_input(output+".after.bin")
 		var report: FileAccess = FileAccess.open(output,FileAccess.WRITE)
 		report.store_string(JSON.stringify(evidence,"\t"))

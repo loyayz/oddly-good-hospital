@@ -4,12 +4,12 @@ const ACTOR: String = "source_lifecycle_actor"
 
 class SourceProbe extends NavigationCache:
 	var refreshes: int = 0
-	func floor_source(space: HospitalSpace, world: WorldState, floor_id: int) -> Dictionary:
+	func _source_record(space: HospitalSpace, world: WorldState, floor_id: int) -> Dictionary:
 		# This is the production capture branch's entry condition, observed
 		# before calling it. It counts fresh source collection, not getter calls.
 		var entry: Dictionary = _sources.get(str(world.get_instance_id())+":"+str(floor_id),{})
 		if entry.is_empty() or entry.world.get_ref()!=world or entry.revision!=world.geometry_revision: refreshes += 1
-		return super.floor_source(space,world,floor_id)
+		return super._source_record(space,world,floor_id)
 
 func _versions(cache: NavigationCache, space: HospitalSpace, world: WorldState) -> Dictionary:
 	var result: Dictionary = {}
@@ -40,20 +40,19 @@ func run_case(suite: RefCounted) -> Dictionary:
 	checks.starts_without_any_graph = cache._entries.is_empty()
 	var before: Dictionary = world.freeze()
 	var initial: Dictionary = _versions(cache,space,world)
-	var initial_source_version: int = cache._source_version
-	var initial_static_version: int = cache._static_source_version
 	var stable: bool = true
 	for _round: int in 5: stable = stable and _versions(cache,space,world)==initial
-	checks.cold_four_floor_poll_captures_only_first_four_sources = stable and cache.refreshes==4 and cache._source_version==initial_source_version and cache._static_source_version==initial_static_version and cache._sources.size()==4 and cache._entries.is_empty() and world.freeze()==before
+	checks.cold_four_floor_poll_captures_only_first_four_sources = stable and cache.refreshes==4 and cache._sources.size()==4 and cache._entries.is_empty() and world.freeze()==before
 	world.facts.floors.overrides["2"].blocked.append([46,82])
 	world.touch()
 	before = world.freeze()
 	var changed: Dictionary = _versions(cache,space,world)
-	checks.one_real_floor_edit_changes_only_that_static_identity = changed[2]!=initial[2] and changed[1]==initial[1] and changed[3]==initial[3] and changed[4]==initial[4] and cache._source_version==initial_source_version+1 and cache._static_source_version==initial_static_version+1 and cache.refreshes==8 and cache._sources.size()==4 and before==world.freeze()
+	checks.one_real_floor_edit_changes_only_that_static_identity = changed[2]!=initial[2] and changed[1]==initial[1] and changed[3]==initial[3] and changed[4]==initial[4] and cache.refreshes==8 and cache._sources.size()==4 and before==world.freeze()
 	var refreshes: int = cache.refreshes
 	cache._trim(1)
 	cache._prune_sources()
-	checks.cold_pruning_keeps_live_sources_without_graphs = _versions(cache,space,world)==changed and cache.refreshes==refreshes and cache._sources.size()==4 and cache._entries.is_empty()
+	checks.cold_pruning_releases_payloads = cache._sources.is_empty() and cache._source_charged==0
+	checks.cold_reconstruction_keeps_identity = _versions(cache,space,world)==changed and cache.refreshes==refreshes+4 and cache._sources.size()==4 and cache._entries.is_empty()
 	var move: Dictionary = _active_path(sim,space,cache)
 	checks.real_multifloor_path_proof = move.ok
 	var current: Dictionary = _versions(cache,space,world)
@@ -72,7 +71,8 @@ func run_case(suite: RefCounted) -> Dictionary:
 		for key: String in proof_keys: proofs_removed = proofs_removed and not record.graphs.has(key)
 	checks.graph_eviction_discards_proof_keys_without_source_history = proof_present and proofs_removed
 	refreshes = cache.refreshes
-	checks.graph_eviction_does_not_revoke_source_identity = built and evicted and _versions(cache,space,world)==current and cache.refreshes==refreshes and cache._sources.size()==4 and before==world.freeze()
+	checks.graph_eviction_does_not_revoke_source_identity = built and evicted and _versions(cache,space,world)==current and cache.refreshes==refreshes+4 and cache._sources.size()==4 and before==world.freeze()
+	refreshes = cache.refreshes
 	var rebuilt: Dictionary = space.route(world,ACTOR,1,[48,84],[],{},true)
 	var cold: HospitalSpace = HospitalSpace.new(suite.content)
 	var expected: Dictionary = cold.route(world,ACTOR,1,[48,84],[],{},true)
@@ -132,4 +132,4 @@ func _active_path(sim: HospitalSimulation, space: HospitalSpace, cache: SourcePr
 	var restored: bool = space.movement._active_route_clear(world,actor,movement,{})
 	var after_restore: int = int(space.query_counts.route_revalidations)
 	var hit: bool = space.movement._active_route_clear(world,actor,movement,{})
-	return {"ok":stable and blocked and blocked_readonly and restored and hit and after_restore==3 and int(space.query_counts.route_revalidations)==after_restore and cache._entries.is_empty() and before==world.freeze(),"real_requested_path_floors":floors.keys(),"five_unchanged_checks_add_no_revalidation":stable,"real_goal_block_rejected":blocked,"restored_path_accepted":restored,"revalidations_including_block_and_restore":after_restore,"no_graph_built_for_proof":cache._entries.is_empty()}
+	return {"ok":stable and blocked and blocked_readonly and restored and hit and after_restore==2 and int(space.query_counts.route_revalidations)==after_restore and cache._entries.is_empty() and before==world.freeze(),"real_requested_path_floors":floors.keys(),"five_unchanged_checks_add_no_revalidation":stable,"real_goal_block_rejected":blocked,"restored_path_accepted":restored,"revalidations_including_block_and_restore":after_restore,"no_graph_built_for_proof":cache._entries.is_empty()}

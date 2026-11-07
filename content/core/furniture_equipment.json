@@ -166,7 +166,7 @@
   {
     "blocks_movement": true,
     "definition_id": "FUR12",
-    "environment_function": "",
+    "environment_function": "seat_shade",
     "equipment_class": "comfort",
     "fit_profile_id": "FF05",
     "footprint": [
@@ -185,7 +185,7 @@
   {
     "blocks_movement": true,
     "definition_id": "FUR13",
-    "environment_function": "",
+    "environment_function": "seat_moist",
     "equipment_class": "comfort",
     "fit_profile_id": "FF05",
     "footprint": [
@@ -204,7 +204,7 @@
   {
     "blocks_movement": true,
     "definition_id": "FUR14",
-    "environment_function": "",
+    "environment_function": "seat_dry",
     "equipment_class": "comfort",
     "fit_profile_id": "FF05",
     "footprint": [
@@ -223,7 +223,7 @@
   {
     "blocks_movement": true,
     "definition_id": "FUR15",
-    "environment_function": "",
+    "environment_function": "seat_cool",
     "equipment_class": "comfort",
     "fit_profile_id": "FF05",
     "footprint": [
@@ -312,7 +312,7 @@
   {
     "blocks_movement": true,
     "definition_id": "FUR20",
-    "environment_function": "",
+    "environment_function": "moist",
     "equipment_class": "utility",
     "footprint": [
       1,
@@ -328,7 +328,7 @@
   {
     "blocks_movement": true,
     "definition_id": "FUR21",
-    "environment_function": "",
+    "environment_function": "dry",
     "equipment_class": "utility",
     "footprint": [
       1,
@@ -344,7 +344,7 @@
   {
     "blocks_movement": true,
     "definition_id": "FUR22",
-    "environment_function": "",
+    "environment_function": "cool",
     "equipment_class": "utility",
     "footprint": [
       1,

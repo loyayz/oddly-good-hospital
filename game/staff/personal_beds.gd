@@ -44,12 +44,12 @@ func sync(world: WorldState) -> void:
 	var staff_ids: Array = []
 	for staff_id: String in world.ids("staff"):
 		if not _by_staff.has(staff_id) and not world.facts.staff[staff_id].get("departed",false) and world.facts.actors[staff_id].location.kind=="floor": staff_ids.append(staff_id)
+	var awake_limit: int = ceili(float(space.content.balance.staff_sleep.awake_limit_seconds)/WorldState.TICK_SECONDS)
 	staff_ids.sort_custom(func(a: String,b: String)->bool:
 		var first: Dictionary = world.facts.staff[a]
 		var second: Dictionary = world.facts.staff[b]
-		var limit: int = ceili(float(space.content.balance.staff_sleep.awake_limit_seconds)/WorldState.TICK_SECONDS)
-		var first_due: bool = int(first.awake_ticks)>=limit or int(first.sleep_remaining_ticks)>0
-		var second_due: bool = int(second.awake_ticks)>=limit or int(second.sleep_remaining_ticks)>0
+		var first_due: bool = int(first.awake_ticks)>=awake_limit or int(first.sleep_remaining_ticks)>0
+		var second_due: bool = int(second.awake_ticks)>=awake_limit or int(second.sleep_remaining_ticks)>0
 		if first_due!=second_due: return first_due
 		if first.awake_ticks!=second.awake_ticks: return first.awake_ticks>second.awake_ticks
 		if first.energy!=second.energy: return first.energy<second.energy
@@ -66,13 +66,24 @@ func sync(world: WorldState) -> void:
 	# Share sealed before-layout exit witnesses across all staff/bed candidates;
 	# each prospective round trip still has its own independent candidate world.
 	space.begin_dynamic_route_query(world)
+	var geometry_eligibility: Dictionary = {}
 	for staff_id: String in staff_ids:
 		candidates[staff_id] = []
+		var actor: Dictionary = world.facts.actors[staff_id]
+		var shape_key: String = JSON.stringify([space.body(actor),space.clearance(actor)],"",true,true)
+		var geometry: Dictionary = geometry_eligibility.get_or_add(shape_key,{})
 		for bed_id: String in free_beds:
 			var bed: Dictionary = world.facts.facilities[bed_id]
 			if bed.get("stored",false) or bed.get("failed",false) or HospitalRemodel.blocked(world,bed_id) or not HospitalStaffWellbeing._is_staff_room(world.facts.rooms.get(bed.get("room_id",""),{})): continue
+			# Only a confirmed fixed-geometry failure rejects another equal body.
+			# Successful pairs keep the original full live round trip, with no
+			# extra preflight; dynamic failures are never shared as rejections.
+			if geometry.get(bed_id,false): continue
 			var quote: Dictionary = space.facility_trip_quote(world,bed_id,staff_id)
-			if quote.ok: candidates[staff_id].append({"bed_id":bed_id,"travel_ticks":int(quote.travel_ticks)})
+			if quote.ok:
+				candidates[staff_id].append({"bed_id":bed_id,"travel_ticks":int(quote.travel_ticks)})
+			elif not geometry.has(bed_id):
+				geometry[bed_id] = not space.facility_geometry_quote(world,bed_id,staff_id).ok
 	space.end_route_query()
 	var result: Dictionary = HospitalPersonalBedMatching.compute(staff_ids,candidates)
 	if not result.ok:

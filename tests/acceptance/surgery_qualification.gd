@@ -182,7 +182,7 @@ func qualification_case() -> Dictionary:
 	var old: OriginalEnumeration = OriginalEnumeration.new(_content,clinic.space)
 	for property: Dictionary in clinic.get_property_list():
 		if (int(property.usage)&PROPERTY_USAGE_SCRIPT_VARIABLE)!=0: old.set(property.name,clinic.get(property.name))
-	var nominal: WorldState = fixture.sim.services.arrivals._capacity_reference_world(world)
+	var nominal: WorldState = LegacyArrivalProjection._capacity_reference_world(world)
 	var candidate: Dictionary = clinic._arrival_candidate(nominal,"B_S13_D09_M09",false)
 	if not candidate.ok: return {"passed":false,"candidate":candidate.reason}
 	candidate.visit.plan_decision = {"plan_id":"P_D09_SURGERY"}

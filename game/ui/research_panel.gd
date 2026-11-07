@@ -78,8 +78,8 @@ func build_controls() -> void:
 		_send_research("research_assign",{"desk_id":selected(_desk),"worker_id":selected(_worker)}))
 	action("取消研究并按未完成比例退款",func() -> void: _send_research("research_cancel"))
 	note("计划排序不收费、不抢占已有工作。社区方式与实付款在开题时冻结，改方式须先取消。")
-	action("检查当前真实接诊缺项",_show_readiness)
-	_readiness = note("研究开放选项后，仍需准备房间、设备、医护、兼容床位及正常往返路线。")
+	action("检查病例来院条件",_show_readiness)
+	_readiness = note("研究开放病例后可自然来院；房间、设备、医护、床位和路线在实际诊疗时检查，缺项可等候或转诊。")
 	action("查看建设",func() -> void: page_requested.emit("building"))
 	action("查看医护资格与培养",func() -> void: page_requested.emit("training"))
 	action("查看招聘",func() -> void: page_requested.emit("recruitment"))
@@ -120,7 +120,7 @@ func _refresh_quote() -> void:
 	if _quote_label==null:
 		return
 	if _readiness!=null:
-		_readiness.text = "点击检查，按当前医院事实查看接诊缺项。"
+		_readiness.text = "点击检查，查看研究与入口条件；可来院不代表已具备所有治疗条件。"
 	var id: String = selected(_research)
 	if id.is_empty():
 		_quote = {}
@@ -180,7 +180,7 @@ func _show_readiness() -> void:
 		lines.append("该课题尚未完成；以下仍按当前医院事实检查。")
 	for ready: Dictionary in simulation.services.research.reception_readiness(simulation.world,id):
 		lines.append("%s · %s：%s" % [simulation.content.definition("diseases",ready.disease_id).name,
-			simulation.content.definition("species",ready.species_id).name,"当前具有普通病例接诊结构" if ready.ok else ready.reason])
+			simulation.content.definition("species",ready.species_id).name,"可自然来院，实际诊疗条件逐步检查" if ready.ok else ready.reason])
 		for plan: Dictionary in ready.plans:
 			if not plan.get("ok",false):
 				lines.append(str(simulation.content.definition("treatment_plans",plan.plan_id).name)+"："+str(plan.reason))

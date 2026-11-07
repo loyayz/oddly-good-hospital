@@ -279,9 +279,6 @@ func after_frame(begin: int, end: int) -> void:
 	if float(end-started_us)/1000000.0>float(config.get("maximum_real_seconds", 7200)):
 		_fail("Time limit reached before completion; evidence incomplete")
 		return
-	if not app._simulation.preparing_error().is_empty():
-		_fail("Production preparation failed: "+app._simulation.preparing_error())
-		return
 	if phase=="warmup" and not warmup_work_seen and not app._simulation.pending():
 		for session: Dictionary in app._simulation.world.facts.sessions.values():
 			if int(session.get("remaining_ticks", 0))<int(session.get("total_ticks", 0)): warmup_work_seen = true
@@ -331,7 +328,7 @@ func _observe_pending_step(now: int) -> void:
 
 func _heartbeat(now: int) -> void:
 	var usage: Dictionary = app._view.resource_usage()
-	var work: Dictionary = app._simulation.services.arrivals.preparation_metrics()
+	var work: Dictionary = {"mode":"synchronous_random_demand"}
 	var eligible: int = app._view._actors.size()
 	var target: int = int(config.get("dense_target_actors", config.actors))
 	var density_bp: Variant = eligible*10000/target if target>0 else null

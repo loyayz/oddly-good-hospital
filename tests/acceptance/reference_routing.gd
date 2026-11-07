@@ -16,7 +16,7 @@ class ReservedClinic extends HospitalClinic:
 func run_case(t, database: HospitalContent) -> void:
 	_content = database
 	var ctx: Dictionary = _context()
-	var nominal: WorldState = ctx.arrivals._capacity_reference_world(ctx.world)
+	var nominal: WorldState = LegacyArrivalProjection._capacity_reference_world(ctx.world)
 	var actual: ObservedClinic = ObservedClinic.new(_content,HospitalSpace.new(_content))
 	var reserved: ReservedClinic = ReservedClinic.new(_content,HospitalSpace.new(_content))
 	var before: Dictionary = nominal.freeze()

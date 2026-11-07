@@ -2,7 +2,7 @@ extends RefCounted
 
 const CASES: Dictionary = {
 	"CORE-01":"模拟规格§8：空院24800、60包、单地块且无员工房间",
-	"CORE-02":"模拟规格§8：预设10780、6员工及合法初始布局",
+	"CORE-02":"模拟规格§8：预设10430、7员工、实际采购与预算及合法初始布局",
 	"CORE-03":"阶段02至03规格§2：冻结副本与世界/会话事实分离",
 	"CORE-04":"阶段02至03规格§4：初始暂停及0.1秒固定步",
 	"CORE-05":"阶段02至03规格§4：独立来源暂停令牌",
@@ -54,7 +54,8 @@ const CASES: Dictionary = {
 	"CORE-51":"表现签名：当前精确依赖、同修订直接修改和冷热投影一致",
 	"CORE-52":"资源发布：同批一次包围盒、独立及批量绑定、迟到票与当前模型句柄",
 	"CORE-53":"管理界面：方案完整比较、提交复核、窄招聘状态与预览发布",
-	"CORE-54":"导入与预览：复合员工身份最长前缀及不规则阻挡颜色保持"
+	"CORE-54":"导入与预览：复合员工身份最长前缀及不规则阻挡颜色保持",
+	"CORE-55":"默认双床休息室：普通建造锚点一致、真实两床/沙发往返、固定归属及原预算"
 }
 
 func run(t) -> void:
@@ -99,6 +100,9 @@ func _case_53(t, content: HospitalContent) -> void:
 func _case_54(t, content: HospitalContent) -> void:
 	preload("res://tests/acceptance/repeated_presentation.gd").new().run_import_overlay(t,content,"CORE-54")
 
+func _case_55(t, content: HospitalContent) -> void:
+	preload("res://tests/acceptance/starter_rest_layout.gd").new().run(t,content)
+
 func _case_01(t, content: HospitalContent) -> void:
 	var empty: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"空地",false,content)
 	t.check("CORE-01",HospitalLedger.balance(empty)==24800 and int(empty.facts.inventory.units)==60 and empty.facts.rooms.is_empty() and empty.facts.staff.is_empty() and HospitalSpace.floor_plots(empty,1)==[[1,2]])
@@ -108,7 +112,8 @@ func _case_02(t, content: HospitalContent) -> void:
 	var initial_space: HospitalSpace = HospitalSpace.new(content)
 	var office: Dictionary = initial_space.facility_layout(preset,"doctor_office_desk")
 	var office_route: Dictionary = initial_space.route(preset,"starter_doctor_a",1,office.operator_cells[0])
-	t.check("CORE-02",HospitalLedger.balance(preset)==10780 and preset.facts.staff.size()==6 and preset.validate(content).is_empty() and office_route.ok,{"validation":preset.validate(content),"office_route":office_route})
+	var budget: Dictionary = preload("res://tests/acceptance/starter_economy.gd").new().run_case(preset,content)
+	t.check("CORE-02",HospitalLedger.balance(preset)==10430 and preset.facts.staff.size()==7 and preset.validate(content).is_empty() and office_route.ok and budget.ok,{"validation":preset.validate(content),"office_route":office_route,"budget":budget})
 
 func _case_03(t, content: HospitalContent) -> void:
 	var empty: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"空地",false,content)

@@ -26,7 +26,8 @@ func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 func _positive_definition(id: String) -> Dictionary:
 	if not _positive_definitions.has(id):
 		var definition: Dictionary = content.facility_definition(id)
-		var record: Dictionary = {"decoration":definition.get("passive_decoration",false),"light":definition.get("environment","")=="light" or definition.get("environment_function","")=="light"}
+		var function: String = str(definition.get("environment_function",""))
+		var record: Dictionary = {"decoration":definition.get("passive_decoration",false),"light":definition.get("environment","")=="light" or function=="light","preference":function if function in ["moist","dry","cool"] else ""}
 		if definition.has("decoration_category"): record.category = definition.decoration_category
 		_positive_definitions[id] = record
 	return _positive_definitions[id]
@@ -64,7 +65,7 @@ func _build_facility_sources(records: Dictionary) -> void:
 		if facility.definition_id in content.balance.environment.noise_barrier_definition_ids:
 			_facility_sources.screens.get_or_add(floor_id,[]).append(str(facility.id))
 		var definition: Dictionary = _positive_definition(str(facility.definition_id))
-		if not definition.decoration and not definition.light and not _is_water(str(facility.definition_id)): continue
+		if not definition.decoration and not definition.light and str(definition.preference).is_empty() and not _is_water(str(facility.definition_id)): continue
 		if not _facility_sources.facilities.has(floor_id): _facility_sources.facilities[floor_id] = {}
 		var key: String = _cell_key(facility.cell)
 		_facility_sources.facilities[floor_id].get_or_add(key,[]).append(str(facility.id))
@@ -414,7 +415,7 @@ func dispatch(world: WorldState) -> void:
 		for patch: Dictionary in available.values():
 			if not _allowed_region(staff,int(patch.floor_id),patch.cell):
 				continue
-			var place: Dictionary = _work_position(world,staff_id,int(patch.floor_id),patch.cell,not str(patch.bin_id).is_empty())
+			var place: Dictionary = _cleanup_position(world,staff_id,int(patch.floor_id),patch.cell) if str(patch.bin_id).is_empty() else _work_position(world,staff_id,int(patch.floor_id),patch.cell,true)
 			if place.is_empty():
 				patch.reason = "没有本员工可达的完整清扫操作位"
 				continue
@@ -439,7 +440,7 @@ func dispatch(world: WorldState) -> void:
 			pending_floors[int(selected.patch.floor_id)].erase(selected.patch.id)
 	var safety: Dictionary = {}
 	var tool_checked: bool = false
-	var available_tool: String = ""
+	var available_tools: Array = []
 	for order_id: String in world.active_operation_ids("environment","orders",["completed","cancelled"],true):
 		var order: Dictionary = world.facts.environment.orders[order_id]
 		if order.phase in ["completed","cancelled"] or order.paused:
@@ -455,10 +456,9 @@ func dispatch(world: WorldState) -> void:
 			if unit.phase in ["completed","cancelled"] or not str(unit.worker_id).is_empty() or assigned>=int(content.balance.renovation.max_workers_per_order):
 				continue
 			if not tool_checked:
-				available_tool = _tool(world)
+				available_tools = _tools(world)
 				tool_checked = true
-			var tool_id: String = available_tool
-			if tool_id.is_empty():
+			if available_tools.is_empty():
 				order.reason = "等待正常装修工具台"
 				break
 			if not _unit_safe(world,order,unit,safety):
@@ -469,10 +469,17 @@ func dispatch(world: WorldState) -> void:
 				if staff.role!="decorator" or not _worker_ready(world,staff_id) or not _allowed_region(staff,int(order.floor_id),unit.cell):
 					continue
 				var place: Dictionary = _work_position(world,staff_id,int(order.floor_id),unit.cell,true)
-				var tool: Dictionary = world.facts.facilities[tool_id]
-				var tool_position: Dictionary = _work_position(world,staff_id,int(tool.floor_id),tool.cell,true)
-				if place.is_empty() or tool_position.is_empty():
-					continue
+				if place.is_empty(): continue
+				# Eligibility is shared, but reachability belongs to this worker.
+				var tool_id: String = ""
+				var tool_position: Dictionary = {}
+				for candidate_id: String in available_tools:
+					var tool: Dictionary = world.facts.facilities[candidate_id]
+					tool_position = _work_position(world,staff_id,int(tool.floor_id),tool.cell,true)
+					if not tool_position.is_empty():
+						tool_id = candidate_id
+						break
+				if tool_id.is_empty(): continue
 				if HospitalStaffWellbeing.yield_for_work(world,content,space,[staff_id]): continue
 				unit.worker_id = staff_id
 				unit.work_cell = place.cell
@@ -493,6 +500,10 @@ func advance(world: WorldState) -> void:
 		if str(patch.worker_id).is_empty():
 			continue
 		if not _arrive(world,patch,int(patch.floor_id),patch.work_cell):
+			continue
+		if str(patch.bin_id).is_empty() and not _cleanup_contact(world,world.facts.actors[patch.worker_id],int(patch.floor_id),patch.cell,space.body_rectangle(world.facts.actors[patch.worker_id])):
+			_release(world,patch)
+			patch.reason = "清扫工具与污物之间已有实际阻挡"
 			continue
 		var contribution: int = _work_amount(world,str(patch.worker_id))
 		contribution = mini(contribution,int(patch.remaining_milli))
@@ -516,10 +527,23 @@ func advance(world: WorldState) -> void:
 			if str(unit.worker_id).is_empty() or unit.phase in ["completed","cancelled"]:
 				continue
 			var tool: Dictionary = world.facts.facilities.get(unit.tool_id,{})
-			if tool.is_empty() or bool(tool.get("failed",false)) or not _unit_safe(world,order,unit,safety):
+			if tool.is_empty() or bool(tool.get("failed",false)) or tool.get("location","floor")=="inventory" or not _unit_safe(world,order,unit,safety):
 				_release(world,unit)
 				continue
 			if not unit.tool_collected:
+				if not _worker_ready(world,str(unit.worker_id),str(unit.id)):
+					_release(world,unit)
+					continue
+				# Building may relocate the selected tool while its worker travels.
+				# A real arrival at the old stance is not a pickup of the current tool.
+				if not _tool_stance_valid(world,unit,tool):
+					if not _reselect_tool(world,unit):
+						_release(world,unit)
+						order.reason = "等待本员工可达的正常装修工具台"
+						continue
+					tool = world.facts.facilities[unit.tool_id]
+				# _arrive leaves outstanding journeys (including safe transit segments)
+				# to movement, then requests real travel to the replacement stance.
 				if _arrive(world,unit,int(tool.floor_id),unit.tool_cell):
 					unit.tool_collected = true
 				continue
@@ -544,6 +568,24 @@ func advance(world: WorldState) -> void:
 				unit.phase = "completed"
 				space.public_areas.changed(world)
 		_finish_order(order)
+
+func _tool_stance_valid(world: WorldState, unit: Dictionary, tool: Dictionary) -> bool:
+	var cell: Array = unit.tool_cell
+	var dx: int = absi(int(cell[0])-int(tool.cell[0]))
+	var dy: int = absi(int(cell[1])-int(tool.cell[1]))
+	if dx+dy!=1 or not _edge_open(world,int(tool.floor_id),tool.cell,cell,false): return false
+	return space.static_reason(world,world.facts.actors[unit.worker_id],int(tool.floor_id),Vector2i(int(cell[0]),int(cell[1]))).is_empty()
+
+func _reselect_tool(world: WorldState, unit: Dictionary) -> bool:
+	# Preserve dispatch's stable candidate order, not nearest-tool order.
+	for tool_id: String in _tools(world):
+		var tool: Dictionary = world.facts.facilities[tool_id]
+		var position: Dictionary = _work_position(world,str(unit.worker_id),int(tool.floor_id),tool.cell,true)
+		if position.is_empty(): continue
+		unit.tool_id = tool_id
+		unit.tool_cell = position.cell
+		return true
+	return false
 
 func _arrive(world: WorldState, job: Dictionary, floor_id: int, cell: Array) -> bool:
 	var worker_id: String = job.worker_id
@@ -578,6 +620,85 @@ func _release(world: WorldState, job: Dictionary) -> void:
 	job.worker_id = ""
 	if job.get("phase","") in ["working","travelling"]:
 		job.phase = "queued"
+
+# Floor dirt can be reached from the full body edge, not only five actor
+# anchors. Bins, renovation and tool collection keep their adjacent-cell rule.
+func _cleanup_position(world: WorldState, staff_id: String, floor_id: int, target: Array) -> Dictionary:
+	var actor: Dictionary = world.facts.actors[staff_id]
+	var body: Rect2 = space._actor_rect(actor,Vector2.ZERO)
+	var point: Vector2 = Vector2(float(target[0])+0.5,float(target[1])+0.5)
+	var candidates: Array = []
+	for offset: Array in [[0,0],[-1,0],[0,-1],[0,1],[1,0]]:
+		candidates.append([int(target[0])+int(offset[0]),int(target[1])+int(offset[1])])
+	for y: int in range(ceili(point.y-body.end.y-1.0),floori(point.y-body.position.y+1.0)+1):
+		for x: int in range(ceili(point.x-body.end.x-1.0),floori(point.x-body.position.x+1.0)+1):
+			if not [x,y] in candidates: candidates.append([x,y])
+	var origin: Vector2 = Vector2(float(actor.location.cell[0]),float(actor.location.cell[1])) if actor.location.kind=="floor" else Vector2.ZERO
+	var start: Vector2i = Vector2i(roundi(origin.x),roundi(origin.y))
+	var stub: float = origin.distance_to(Vector2(start))
+	var best: Dictionary = {}
+	for cell: Array in candidates:
+		if not best.is_empty() and stub+absi(start.x-int(cell[0]))+absi(start.y-int(cell[1]))>=float(best.distance): continue
+		if not _cleanup_contact(world,actor,floor_id,target,space._actor_rect(actor,Vector2(float(cell[0]),float(cell[1])))): continue
+		var route: Dictionary = space.route_cost(world,staff_id,floor_id,cell)
+		if route.ok and (best.is_empty() or float(route.walking_distance)<float(best.distance)):
+			best = {"cell":cell,"distance":route.walking_distance}
+	return best
+
+func _cleanup_contact(world: WorldState, actor: Dictionary, floor_id: int, target: Array, body: Rect2) -> bool:
+	var point: Vector2 = Vector2(float(target[0])+0.5,float(target[1])+0.5)
+	var nearest: Vector2 = point.clamp(body.position,body.end)
+	if point.distance_to(nearest)>1.0: return false
+	if point==nearest: return true
+	# Check the actual short reach, not the body's whole bounding rectangle:
+	# an unrelated wall beside another body corner is not a contact obstacle.
+	var reach: Rect2 = Rect2(nearest,Vector2.ZERO).expand(point)
+	var query: RouteClearance = space.navigation.structural_clearance(world,actor,floor_id)
+	for y: int in range(floori(reach.position.y),floori(reach.end.y)+1):
+		for x: int in range(floori(reach.position.x),floori(reach.end.x)+1):
+			var cell: Vector2i = Vector2i(x,y)
+			var solid: bool = not query._plots.has(Vector2i(floori(float(x)/32.0),floori(float(y)/32.0))) or query._blocked.has(cell) or query._facility_cells.has(cell) or query._connector_cells.has(cell) or query._closed_door_cells.has(cell)
+			if solid and _reach_intersects_cell(nearest,point,cell): return false
+	for axis: String in ["x","y"]:
+		var walls: Dictionary = query._horizontal_walls if axis=="x" else query._vertical_walls
+		var low: float = reach.position.y if axis=="x" else reach.position.x
+		var high: float = reach.end.y if axis=="x" else reach.end.x
+		for line: int in range(ceili(low),floori(high)+1):
+			for wall: Dictionary in walls.get(line,[]):
+				var first: Vector2 = Vector2(float(wall.low),line) if axis=="x" else Vector2(line,float(wall.low))
+				var last: Vector2 = Vector2(float(wall.high),line) if axis=="x" else Vector2(line,float(wall.high))
+				var hit: Variant = Geometry2D.segment_intersects_segment(nearest,point,first,last)
+				if hit==null: continue
+				var open: bool = false
+				for door: Dictionary in query._doors:
+					if not door.ok or door.room_id!=wall.room_id or door.axis!=axis: continue
+					var opening: Rect2 = door.opening
+					var door_line: float = opening.position.y if axis=="x" else opening.position.x
+					var along: float = hit.x if axis=="x" else hit.y
+					var start: float = opening.position.x if axis=="x" else opening.position.y
+					var end: float = opening.end.x if axis=="x" else opening.end.y
+					if door_line==line and along>=start and along<=end:
+						open = true
+						break
+				if not open: return false
+	return true
+
+func _reach_intersects_cell(first: Vector2, last: Vector2, cell: Vector2i) -> bool:
+	# Only an interior crossing blocks reach; touching an unrelated cell edge
+	# at the starting body boundary does not put that obstacle in the way.
+	var delta: Vector2 = last-first
+	var enter: float = 0.0
+	var leave: float = 1.0
+	for axis: int in 2:
+		if is_zero_approx(delta[axis]):
+			if first[axis]<=cell[axis] or first[axis]>=cell[axis]+1: return false
+			continue
+		var a: float = (float(cell[axis])-first[axis])/delta[axis]
+		var b: float = (float(cell[axis]+1)-first[axis])/delta[axis]
+		enter = maxf(enter,minf(a,b))
+		leave = minf(leave,maxf(a,b))
+		if enter>=leave: return false
+	return true
 
 func _work_position(world: WorldState, staff_id: String, floor_id: int, target: Array, adjacent: bool) -> Dictionary:
 	var best: Dictionary = {}
@@ -653,11 +774,16 @@ func _unit_safe_direct(world: WorldState, order: Dictionary, unit: Dictionary) -
 	return true
 
 func _tool(world: WorldState) -> String:
+	var tools: Array = _tools(world)
+	return "" if tools.is_empty() else str(tools[0])
+
+func _tools(world: WorldState) -> Array:
+	var result: Array = []
 	for id: String in world.facility_ids(str(content.balance.renovation.tool_equipment_id)):
 		var tool: Dictionary = world.facts.facilities[id]
 		if tool.definition_id==content.balance.renovation.tool_equipment_id and not tool.get("failed",false) and tool.get("location","floor")!="inventory":
-			return id
-	return ""
+			result.append(id)
+	return result
 
 func _has_role(world: WorldState, role: String) -> bool:
 	for staff: Dictionary in world.facts.staff.values():
@@ -942,7 +1068,7 @@ func sample_at(world: WorldState, floor_id: int, cell: Array, actor_id: String =
 
 func _observe_at(world: WorldState, floor_id: int, cell: Array, actor_id: String, explain: bool, nearby: bool) -> Dictionary:
 	var rules: Dictionary = content.balance.environment
-	var result: Dictionary = {"value":int(rules.base),"noise":0,"dirt":0,"clean":true,"water":false,"sources":[],"subject_id":actor_id,"reference":actor_id.is_empty()}
+	var result: Dictionary = {"value":int(rules.base),"noise":0,"dirt":0,"clean":true,"water":false,"light":false,"quiet":false,"moist":false,"dry":false,"cool":false,"sources":[],"subject_id":actor_id,"reference":actor_id.is_empty()}
 	if nearby: result.nearby_count = 0
 	if not space.owned(world,floor_id,Vector2i(int(cell[0]),int(cell[1]))):
 		result.status = "outside_owned_floor"
@@ -985,6 +1111,8 @@ func _observe_at(world: WorldState, floor_id: int, cell: Array, actor_id: String
 	result.value += mini(int(rules.wall_cap),wall_value)
 	var categories: Dictionary = {}
 	var light: bool = false
+	var moisture: Dictionary = {}
+	var water_distances: Dictionary = {}
 	for facility: Dictionary in _positive_facilities(world,floor_id,positive):
 		if int(facility.get("floor_id",-1))!=floor_id or facility.get("location","floor")=="inventory" or bool(facility.get("failed",false)):
 			continue
@@ -995,8 +1123,19 @@ func _observe_at(world: WorldState, floor_id: int, cell: Array, actor_id: String
 			categories[str(definition.get("category",facility.get("decoration_category",facility.definition_id)))] = true
 		if definition.light:
 			light = true
-		if not result.water and _is_water(str(facility.definition_id)) and _water_usable(world,facility,actor_id):
-			result.water = true
+		var preference: String = str(definition.preference)
+		if _is_water(str(facility.definition_id)):
+			water_distances[str(facility.id)] = int(positive[_cell_key(facility.cell)])
+			if _water_usable(world,facility,actor_id):
+				result.water = true
+				preference = "moist"
+		if preference in ["moist","dry"]:
+			var distance: int = int(positive[_cell_key(facility.cell)])
+			if moisture.is_empty() or distance<int(moisture.distance) or distance==int(moisture.distance) and str(facility.id)<str(moisture.id):
+				moisture = {"id":str(facility.id),"distance":distance,"preference":preference}
+		elif preference=="cool": result.cool = true
+	result.light = light
+	_finish_preference_sources(result,moisture,water_distances)
 	result.value += mini(int(rules.decoration_cap),categories.size()*int(rules.decoration_per_category))
 	if light:
 		result.value += int(rules.light_bonus)
@@ -1019,8 +1158,12 @@ func _observe_at(world: WorldState, floor_id: int, cell: Array, actor_id: String
 				result.nearby_count += 1
 	return _finish_observation(result)
 
+func _finish_preference_sources(result: Dictionary, moisture: Dictionary, _water_distances: Dictionary) -> void:
+	if not moisture.is_empty(): result[moisture.preference] = true
+
 func _finish_observation(result: Dictionary) -> Dictionary:
 	result.value = clampi(int(result.value)-int(result.noise),0,100)
+	result.quiet = int(result.noise)==0
 	result.status = "current"
 	return result
 

@@ -54,4 +54,17 @@ libgmp-10.dll 为独立动态库，使用 GNU Lesser General Public License 3.0 
 项目医院规则代码未并入 GMP，GMP 不读取医院或玩家数据。
 https://gmplib.org/ https://packages.msys2.org/packages/mingw-w64-ucrt-x86_64-gmp
 
+RapidJSON
+固定源码提交：24b5e7a8b27f42fa16b96fc70aade9106cf7102f。
+构建使用该提交的头文件；随包许可及第三方说明来自源码 license.txt，见 RapidJSON-MIT.txt。
+固定源码：https://codeload.github.com/Tencent/rapidjson/tar.gz/24b5e7a8b27f42fa16b96fc70aade9106cf7102f
+
+minizip-ng 4.2.2
+静态编入备份 ZIP 桥接；随包许可文本来自源码 LICENSE，见 minizip-ng-zlib.txt。
+固定源码：https://codeload.github.com/zlib-ng/minizip-ng/tar.gz/refs/tags/4.2.2
+
+zlib 1.3.2
+静态编入备份 ZIP 桥接；随包许可文本来自源码 LICENSE，见 zlib.txt。
+固定源码：https://zlib.net/fossils/zlib-1.3.2.tar.gz
+
 上述许可文本及 GMP、MPFR 对应源码随程序独立提供，不需要打开游戏、解包 pck 或联网阅读。

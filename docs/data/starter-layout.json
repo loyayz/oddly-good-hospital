@@ -179,7 +179,7 @@
       "definition_id": "FUR06",
       "anchor": [
         57,
-        86
+        87
       ],
       "size": [
         2,
@@ -218,7 +218,7 @@
       "definition_id": "SE04",
       "anchor": [
         56,
-        86
+        87
       ],
       "size": [
         1,
@@ -231,7 +231,7 @@
       "definition_id": "SE04",
       "anchor": [
         59,
-        86
+        87
       ],
       "size": [
         1,
@@ -331,19 +331,6 @@
       "room_id": null
     },
     {
-      "id": "chair_6",
-      "definition_id": "FUR09",
-      "anchor": [
-        57,
-        92
-      ],
-      "size": [
-        1,
-        1
-      ],
-      "room_id": null
-    },
-    {
       "id": "water",
       "definition_id": "FUR17",
       "anchor": [
@@ -368,30 +355,22 @@
         1
       ],
       "room_id": null
-    }
-  ],
-  "path_rectangles": [
-    {
-      "anchor": [
-        41,
-        90
-      ],
-      "size": [
-        18,
-        2
-      ]
     },
     {
+      "id": "floor_guidance_desk",
+      "definition_id": "SE01",
       "anchor": [
-        47,
-        92
+        46,
+        76
       ],
       "size": [
         2,
-        2
-      ]
+        1
+      ],
+      "room_id": null
     }
   ],
+  "path_rectangles": [],
   "inventory": [
     {
       "definition_id": "M09",

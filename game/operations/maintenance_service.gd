@@ -471,6 +471,9 @@ func _arrived(world: WorldState, job: Dictionary, item: Dictionary) -> bool:
 	var id: String = str(job.worker_id)
 	if space.at(world,id,int(job.work_floor),job.work_cell) and not world.facts.moves.has(id):
 		return space.static_reason(world,world.facts.actors[id],int(job.work_floor),Vector2i(int(job.work_cell[0]),int(job.work_cell[1]))).is_empty()
+	# An issued journey owns obstacle checks and replanning. Do not quote or
+	# replace it every work tick, including a real transit or evacuation segment.
+	if world.facts.moves.has(id): return false
 	var route: Dictionary = space.route_cost(world,id,int(job.work_floor),job.work_cell)
 	if not route.ok:
 		job.reason = str(route.get("reason","维修路线被挡住"))

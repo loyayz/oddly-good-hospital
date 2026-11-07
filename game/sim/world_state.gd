@@ -321,6 +321,21 @@ func present_actor_count() -> int:
 			count += 1
 	return count
 
+# Entry is a persisted location, never a request to relocate people. Legacy
+# worlds without it retain the first-floor default until the app upgrades them.
+# Validate explicit locations before admission and when restoring snapshots.
+func entry_validation_error() -> String:
+	if not facts.has("entry") and facts.get("gameplay_version",0)==0:
+		return ""
+	var entry: Variant = facts.get("entry")
+	if not entry is Dictionary:
+		return "医院入口结构无效"
+	if not _natural(entry.get("floor_id",-1)) or int(entry.floor_id)!=1:
+		return "医院入口只能位于一楼"
+	if not _grid_point(entry.get("cell")) or (entry.has("exit_cell") and not _grid_point(entry.exit_cell)):
+		return "医院入口坐标无效"
+	return ""
+
 func validate(content: HospitalContent) -> String:
 	var required: Array = ["schema_version","hospital_id", "display_name", "mode", "sim_tick", "world_revision",
 		"clock_version", "entity_next", "actors", "staff", "visits", "tickets", "sessions",
@@ -329,6 +344,9 @@ func validate(content: HospitalContent) -> String:
 	for field: String in required:
 		if not facts.has(field):
 			return "快照缺少字段：" + field
+	var entry_error: String = entry_validation_error()
+	if not entry_error.is_empty():
+		return entry_error
 	for field: String in ["actors","staff","visits","tickets","sessions","attempts","preparations","ward_stays","facilities","floors","connectors","moves","ledger","inventory","rng","command_receipts","rooms","adaptations"]:
 		if not facts.get(field) is Dictionary:
 			return "快照字段类型无效："+field
@@ -547,6 +565,8 @@ func validate(content: HospitalContent) -> String:
 		for attempt_id: String in visit.attempt_ids:
 			if not facts.attempts.has(attempt_id) or facts.attempts[attempt_id].visit_id != id:
 				return "治疗尝试引用无效：" + id
+	var guidance_error: String = HospitalFloorGuidance.validate_state(self)
+	if not guidance_error.is_empty(): return guidance_error
 	var locks: Dictionary = {}
 	for id: String in facts.sessions:
 		var session: Dictionary = facts.sessions[id]
@@ -620,7 +640,7 @@ func validate(content: HospitalContent) -> String:
 		if movement.has("convoy"):
 			var convoy_error: String = ConvoyTrail.validate(geometry,self,movement)
 			if not convoy_error.is_empty(): return convoy_error
-		var segments: Array = movement.path+movement.get("route_waypoint",{}).get("continuation",[])
+		var segments: Array = movement.path+movement.get("route_waypoint",{}).get("continuation",[])+movement.get("detour",{}).get("original_path",[])+movement.get("detour",{}).get("backtrack",[])
 		for segment: Dictionary in segments:
 			if segment.kind=="connector" and not facts.connectors.has(segment.connector_id):
 				return "移动使用的竖向连接不存在"
@@ -671,14 +691,29 @@ func validate(content: HospitalContent) -> String:
 		var reservation: Dictionary = facts.adaptations[id]
 		if not facts.actors.has(reservation.actor_id):
 			return "展开预约身体不存在"
-		if reservation.kind=="facility" and (not facts.facilities.has(reservation.facility_id) or not _reservation_owner_exists(reservation.owner_id)):
+		if reservation.kind=="facility" and (not facts.facilities.has(reservation.facility_id) or not _reservation_owner_exists(reservation.owner_id) and not HospitalFloorGuidance.owns_reservation(self,reservation)):
 			return "设施展开预约的所有者或主体不存在"
 		if reservation.kind=="door":
 			if not doors.has(id) or reservation.owner_id!=reservation.actor_id:
 				return "门展开的实际墙段或所有者缺失"
+			# Owner identity is already explicit. Historical staff lists may
+			# omit that repeated identity or repeat another authorized body.
+			var participants: Dictionary = {reservation.actor_id:true}
+			for participant_id: Variant in reservation.staff_ids:
+				if not participant_id is String or not facts.actors.has(participant_id): return "门展开参与身体不存在"
+				participants[participant_id] = true
+			var physical: Rect2 = geometry._door_rect(doors[id],int(reservation.span))
+			var expected_region: Array = [physical.position.x,physical.position.y,physical.size.x,physical.size.y]
+			if reservation.regions.size()!=1: return "门展开区域与实际墙段不一致"
+			for axis: int in 4:
+				# Numeric storage types do not change the exact physical region.
+				if float(reservation.regions[0][axis])!=float(expected_region[axis]): return "门展开区域与实际墙段不一致"
 			var subject: Dictionary = facts.actors[reservation.actor_id]
 			if reservation.has("convoy_envelope"):
 				var envelope: Dictionary = reservation.convoy_envelope
+				for participant_id: String in participants:
+					var dimensions: Dictionary = geometry.body(facts.actors[participant_id])
+					if ceili(Vector2(float(dimensions.width_m),float(dimensions.depth_m)).length()/HospitalSpace.CELL_METERS)>int(envelope.size) or float(dimensions.height_m)>float(envelope.height): return "门展开队列包络不能容纳原参与身体"
 				# A door retains the original queue envelope until its physical
 				# reservation is released, even after the queue dissolves.
 				subject = subject.duplicate(true)
@@ -885,7 +920,7 @@ func _validate_shapes() -> String:
 		"facilities":{"id":TYPE_STRING,"definition_id":TYPE_STRING,"floor_id":TYPE_INT,"cell":TYPE_ARRAY,"footprint":TYPE_ARRAY,"patient_cell":TYPE_ARRAY,"operator_cells":TYPE_ARRAY,"repair_cell":TYPE_ARRAY,"grade":TYPE_INT,"condition":TYPE_FLOAT,"failed":TYPE_BOOL,"pending_failure":TYPE_BOOL,"use_receipts":TYPE_DICTIONARY},
 		"rooms":{"id":TYPE_STRING,"kind":TYPE_STRING,"floor_id":TYPE_INT,"origin":TYPE_ARRAY,"size":TYPE_ARRAY},
 		"connectors":{"id":TYPE_STRING,"definition_id":TYPE_STRING,"anchor":TYPE_ARRAY,"cell":TYPE_ARRAY,"footprint":TYPE_ARRAY,"floor_id":TYPE_INT,"phase":TYPE_STRING,"riders":TYPE_ARRAY,"remaining_ticks":TYPE_INT},
-		"moves":{"actor_id":TYPE_STRING,"path":TYPE_ARRAY,"cursor":TYPE_INT,"travelled":TYPE_ARRAY,"blocked_since":TYPE_INT,"yielding":TYPE_BOOL,"target_floor":TYPE_INT,"target_cell":TYPE_ARRAY},
+		"moves":{"actor_id":TYPE_STRING,"path":TYPE_ARRAY,"cursor":TYPE_INT,"travelled":TYPE_ARRAY,"blocked_since":TYPE_INT,"target_floor":TYPE_INT,"target_cell":TYPE_ARRAY},
 		"adaptations":{"kind":TYPE_STRING,"owner_id":TYPE_STRING,"actor_id":TYPE_STRING,"staff_ids":TYPE_ARRAY,"floor_id":TYPE_INT,"regions":TYPE_ARRAY}}
 	for collection: String in schemas:
 		for id: String in facts[collection]:
@@ -1010,8 +1045,30 @@ func _validate_shapes() -> String:
 			if not member_id is String: return "队列成员身份类型无效"
 		if not _point(movement.target_cell) or not _natural(movement.cursor) or int(movement.cursor)>movement.path.size():
 			return "移动游标或目标无效"
-		if movement.yielding and (not movement.get("yield_partner") is String or not facts.actors.has(movement.yield_partner)):
-			return "让行对象不存在"
+		if movement.has("yielding") and (not movement.yielding is bool or movement.yielding) or movement.has("yield_partner"):
+			return "旧优先级让行状态不受支持"
+		if movement.has("detour"):
+			var detour: Variant = movement.detour
+			if not detour is Dictionary or not _fields(detour,{"phase":TYPE_STRING,"original_path":TYPE_ARRAY,"direction":TYPE_ARRAY,"backtrack":TYPE_ARRAY,"back_cursor":TYPE_INT,"prefix_size":TYPE_INT,"resume_index":TYPE_INT}).is_empty(): return "局部绕行状态结构无效"
+			if not detour.phase in ["aside","back","rejoin"] or detour.original_path.is_empty() or not _point(detour.direction): return "局部绕行阶段或原路线无效"
+			if not ((absf(float(detour.direction[0]))==1.0 and float(detour.direction[1])==0.0) or (float(detour.direction[0])==0.0 and absf(float(detour.direction[1]))==1.0)): return "局部绕行方向无效"
+			if not _natural(detour.back_cursor+1) or int(detour.back_cursor)>=detour.backtrack.size() or not _natural(detour.resume_index+1) or not _natural(detour.prefix_size) or int(detour.prefix_size)>movement.path.size() or int(movement.cursor)>int(detour.prefix_size): return "局部绕行游标无效"
+			if detour.phase=="rejoin":
+				if not _natural(detour.resume_index) or int(detour.resume_index)>=detour.original_path.size() or int(detour.prefix_size)<1 or movement.path.slice(int(detour.prefix_size))!=detour.original_path.slice(int(detour.resume_index)+1): return "局部绕行未接回原路线"
+			elif int(detour.resume_index)!=-1 or int(detour.prefix_size)!=movement.path.size(): return "局部绕行临时前缀无效"
+			if movement.get("route_pending",false) or movement.has("route_waypoint"): return "局部绕行不能重发原路线请求"
+			var actor: Dictionary = facts.actors.get(movement.actor_id,{})
+			var original: Variant = detour.original_path[0]
+			if actor.get("location",{}).get("kind","")!="floor" or not original is Dictionary or original.get("kind")!="floor" or original.get("floor_id")!=actor.location.floor_id: return "局部绕行必须保持原受阻楼层"
+			for segment: Variant in movement.path.slice(0,int(detour.prefix_size)):
+				if not segment is Dictionary or segment.get("kind")!="floor" or not _point(segment.get("cell")) or segment.get("floor_id")!=actor.location.floor_id: return "局部绕行前缀必须是同层真实路径"
+			if detour.phase=="rejoin":
+				var endpoint: Dictionary = movement.path[int(detour.prefix_size)-1]
+				var resume: Variant = detour.original_path[int(detour.resume_index)]
+				if not resume is Dictionary or resume.get("kind")!="floor" or not _point(resume.get("cell")) or resume.get("floor_id")!=endpoint.floor_id or ConvoyTrail.point(endpoint.cell).distance_to(ConvoyTrail.point(resume.cell))>0.00001: return "局部重接前缀未到原路线格"
+			if int(detour.prefix_size)>0 and int(movement.cursor)==int(detour.prefix_size) and ConvoyTrail.point(actor.location.cell).distance_to(ConvoyTrail.point(movement.path[int(detour.prefix_size)-1].cell))>0.001: return "局部绕行游标未实际到达前缀终点"
+			for past: Variant in detour.backtrack:
+				if not past is Dictionary or past.get("kind")!="floor" or not _point(past.get("cell")) or not _natural(past.get("floor_id",-1)) or past.floor_id!=actor.location.floor_id: return "局部后退历史无效"
 		if not movement.get("route_pending",false) is bool:
 			return "移动请求状态无效"
 		if movement.has("request_sequence"):
@@ -1040,7 +1097,7 @@ func _validate_shapes() -> String:
 				var actor: Dictionary = facts.actors.get(id,{})
 				if actor.is_empty() or actor.location.get("kind")!="floor" or not _natural(actor.location.get("floor_id",-1)) or int(actor.location.floor_id)!=int(ticket.from):
 					return "到站通行组没有实际位于起点层"
-		var segments: Array = movement.path+movement.get("route_waypoint",{}).get("continuation",[])
+		var segments: Array = movement.path+movement.get("route_waypoint",{}).get("continuation",[])+movement.get("detour",{}).get("original_path",[])+movement.get("detour",{}).get("backtrack",[])
 		for segment: Variant in segments:
 			if not segment is Dictionary or not segment.get("kind") in ["floor","support_exit","connector"]:
 				return "实际路线段类型无效"

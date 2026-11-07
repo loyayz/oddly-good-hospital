@@ -34,6 +34,13 @@ static func reservation_exemptions(world: WorldState, actor_id: String, floor_id
 	return result
 
 static func reservation_allows(reservation: Dictionary, actor_id: String, members: Array = []) -> bool:
+	if reservation.kind=="door":
+		# Passage belongs to the original participants, not any later group
+		# which happens to contain the owner or one former participant.
+		if actor_id!=reservation.actor_id and not actor_id in reservation.staff_ids: return false
+		for id: String in members:
+			if id!=reservation.actor_id and not id in reservation.staff_ids: return false
+		return true
 	return actor_id==reservation.actor_id or actor_id in reservation.staff_ids or reservation.actor_id in members
 
 func _init(space: HospitalSpace, world: WorldState, actor: Dictionary, floor_id: int, members: Array = [], offsets: Dictionary = {}, include_reservations: bool = true, floor_source: Dictionary = {}, static_geometry: RouteClearance = null, member_geometries: Dictionary = {}) -> void:
@@ -67,54 +74,20 @@ func _init(space: HospitalSpace, world: WorldState, actor: Dictionary, floor_id:
 	_plain = _plain_geometry()
 
 func _build_static(space: HospitalSpace, world: WorldState, actor: Dictionary, floor_id: int) -> void:
-	var layout: Dictionary = source.layout
-	for plot: Array in layout.get("plots",[]):
-		var cell: Vector2i = Vector2i(int(plot[0]),int(plot[1]))
-		_plots[cell] = true
-		_dependencies["plot:"+str(cell)] = {"rect":Rect2i(cell*32,Vector2i(32,32)),"value":true}
-		_dependencies["height:"+str(cell)] = {"rect":Rect2i(cell*32,Vector2i(32,32)),"value":source.height}
-	for cell: Array in layout.get("blocked",[]):
-		var point: Vector2i = Vector2i(int(cell[0]),int(cell[1]))
-		_blocked[point] = true
-		_dependencies["blocked:"+str(point)] = {"rect":Rect2i(point,Vector2i.ONE),"value":true}
-	for door: Dictionary in layout.get("doors",[]):
+	var base: FloorStaticGeometry = space._navigation.floor_geometry(space,world,floor_id,source)
+	for field: String in ["_plots","_blocked","_facilities","_connectors","_walls","_facility_cells","_connector_cells","_horizontal_walls","_vertical_walls"]:
+		set(field,base.get(field))
+	# Door fit dependencies belong to this complete body envelope alone.
+	_dependencies = base._dependencies.duplicate()
+	for item: Dictionary in base.doors:
+		var door: Dictionary = item.door
 		var fit: Dictionary = space.door_quote(world,actor,floor_id,door)
-		var record: Dictionary = {"original":space._door_rect(door,int(door.span)),"opening":space._door_rect(door,int(fit.span)) if fit.ok else Rect2(),"ok":fit.ok,"reason":fit.get("reason",""),"room_id":door.room_id,"axis":door.axis}
+		var record: Dictionary = {"original":item.original,"opening":space._door_rect(door,int(fit.span)) if fit.ok else Rect2(),"ok":fit.ok,"reason":fit.get("reason",""),"room_id":door.room_id,"axis":door.axis}
 		_doors.append(record)
 		if _indexed_static:
 			if record.ok: _index_rectangle(record.opening,_open_door_cells,true)
 			else: _index_rectangle(record.original,_closed_door_cells,record.reason)
 		_dependencies["door:"+str(door.id)] = {"rect":Rect2i(record.original.merge(record.opening)),"value":record}
-	for id: String in source.facilities:
-		var facility: Dictionary = source.facilities[id]
-		var rect: Rect2i = Rect2i(int(facility.cell[0]),int(facility.cell[1]),int(facility.footprint[0]),int(facility.footprint[1]))
-		_facilities.append({"rect":rect,"id":id})
-		if _indexed_static: _index_rectangle(Rect2(rect),_facility_cells,id)
-		_dependencies["facility:"+id] = {"rect":rect,"value":facility}
-	for id: String in source.connectors:
-		var connector: Dictionary = source.connectors[id]
-		var rect: Rect2i = Rect2i(int(connector.cell[0]),int(connector.cell[1]),int(connector.footprint[0]),int(connector.footprint[1]))
-		_connectors.append({"rect":rect,"id":id})
-		if _indexed_static: _index_rectangle(Rect2(rect),_connector_cells,id)
-		_dependencies["connector:"+id] = {"rect":rect,"value":connector}
-	for id: String in source.rooms:
-		var room: Dictionary = source.rooms[id]
-		var rect: Rect2i = Rect2i(int(room.origin[0]),int(room.origin[1]),int(room.size[0]),int(room.size[1]))
-		_dependencies["room:"+id] = {"rect":rect.grow(1),"value":room}
-		if room.has("wall_edges"):
-			for edge: Dictionary in room.wall_edges:
-				_walls.append({"room_id":id,"axis":edge.axis,"line":edge.line,"low":edge.low,"high":edge.high})
-			continue
-		for y: int in [rect.position.y,rect.end.y]:
-			_walls.append({"room_id":id,"axis":"x","line":y,"low":rect.position.x,"high":rect.end.x})
-		for x: int in [rect.position.x,rect.end.x]:
-			_walls.append({"room_id":id,"axis":"y","line":x,"low":rect.position.y,"high":rect.end.y})
-	if _indexed_static:
-		for wall: Dictionary in _walls:
-			var lines: Dictionary = _horizontal_walls if wall.axis=="x" else _vertical_walls
-			var line: int = int(wall.line)
-			if not lines.has(line): lines[line] = []
-			lines[line].append(wall)
 
 func _plain_geometry() -> bool:
 	return _members.is_empty() and _blocked.is_empty() and _doors.is_empty() and _facilities.is_empty() and _connectors.is_empty() and _reservations.is_empty() and _walls.is_empty()

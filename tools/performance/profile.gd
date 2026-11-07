@@ -80,7 +80,7 @@ func report() -> Dictionary:
 	return {"stages_us":stages.duplicate(true),"inclusive_calls":calls.duplicate(true),"call_distributions":distributions,"profile_sources":profile_sources.duplicate(),"profile_errors":profile_errors.duplicate(),"checkpoints":checkpoints.duplicate(),"previous_snapshot_overhead_us":snapshot_overhead_us}
 
 func solver() -> RefCounted:
-	var base: GDScript = preload("res://game/arrivals/capacity_solver.gd")
+	var base: GDScript = preload("res://tests/acceptance/legacy_capacity_solver.gd")
 	# A private diagnostic copy changes static calls into instance calls so
 	# wrappers can observe internal stages. Every original body runs once.
 	var source: String = base.source_code.replace("class_name ArrivalCapacitySolver\n","").replace("static func ","func ")

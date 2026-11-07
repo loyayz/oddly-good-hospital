@@ -119,7 +119,7 @@ func _run() -> void:
 			if simulation.clinic.visitors._admit(world,world.facts.visits[request.visit_id],request): world.facts.visitors.requests.erase(ids[0])
 		if world.facts.visitors.stays.size()==8: break
 		var result: TickResult = simulation.step_nonblocking()
-		while result==null and simulation.preparing_error().is_empty() and Time.get_ticks_usec()-_started<60000000:
+		while result==null and Time.get_ticks_usec()-_started<60000000:
 			await process_frame
 			result = simulation.step_nonblocking()
 		if result==null: _errors.append("Fresh preparation step incomplete"); break

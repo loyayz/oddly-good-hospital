@@ -7,8 +7,42 @@ var _sources: Dictionary = {}
 var _used: int = 0
 var _charged: int = 0
 var _query_charged: int = 0
-var _source_version: int = 0
-var _static_source_version: int = 0
+var _source_charged: int = 0
+
+# Static floors and body-dependent graphs share one allowance. A floor is
+# prepared completely even if too large to retain; the returned object remains
+# valid and later queries can rebuild it. There is no partial floor or body cap.
+var _floor_geometries: Dictionary = {}
+var _floor_charged: int = 0
+var _defer_trim: int = 0
+
+func prepare_floor(space: HospitalSpace, world: WorldState, floor_id: int) -> Dictionary:
+	var started: int = Time.get_ticks_usec()
+	var source: Dictionary = floor_source(space,world,floor_id)
+	var version: String = _source_record(space,world,floor_id).static_version
+	var hit: bool = _floor_geometries.has(version)
+	var geometry: FloorStaticGeometry = floor_geometry(space,world,floor_id,source)
+	return {"complete":true,"floor_id":floor_id,"resident_hit":hit,"retained":_floor_geometries.has(version),"elapsed_usec":Time.get_ticks_usec()-started,"plots":geometry._plots.size(),"walls":geometry._walls.size(),"doors":geometry.doors.size(),"blocking_facilities":geometry._facilities.size(),"connectors":geometry._connectors.size(),"charge_bytes":geometry.charge}
+
+func floor_geometry(space: HospitalSpace, world: WorldState, floor_id: int, supplied: Dictionary = {}) -> FloorStaticGeometry:
+	var current: Dictionary = floor_source(space,world,floor_id)
+	var record: Dictionary = _source_record(space,world,floor_id)
+	# Explicit hypothetical sources must not borrow a current world's geometry.
+	if not supplied.is_empty() and not is_same(supplied,current) and not is_same(supplied,record.static_source):
+		var static_supplied: Dictionary = supplied.duplicate()
+		static_supplied.erase("occupancy")
+		if static_supplied!=record.static_source: return FloorStaticGeometry.new(space,floor_id,static_supplied)
+	var version: String = record.static_version
+	var entry: Dictionary = _floor_geometries.get(version,{})
+	if entry.is_empty():
+		var built: FloorStaticGeometry = FloorStaticGeometry.new(space,floor_id,record.static_source)
+		entry = {"geometry":built,"charge":built.charge}
+		_floor_charged += built.charge
+	_floor_geometries.erase(version)
+	_floor_geometries[version] = entry
+	var result: FloorStaticGeometry = entry.geometry
+	if _defer_trim==0: _trim(int(space.content.balance.pathfinding.graph_cache_target_bytes),space.query_counts)
+	return result
 
 func invalidate(world: WorldState, floor_id: int) -> void:
 	var key: String = str(world.get_instance_id())+":"+str(floor_id)
@@ -33,87 +67,90 @@ func inherit_projection(space: HospitalSpace, world: WorldState, projected: Worl
 			current.facilities[id] = {"cell":facility.cell.duplicate(),"footprint":footprint.duplicate()}
 		current.occupancy = RouteClearance.capture_occupancy(projected,floor_id)
 		var identical: bool = current==original.source
-		if not identical: _source_version += 1
 		var identity: Dictionary = _static_identity(projected,floor_id,current)
 		var same_static: bool = identity.version==original.static_version
-		var entry: Dictionary = {"source":original.source if identical else current,"world":weakref(projected),"floor_id":floor_id,"revision":projected.geometry_revision,"version":original.version if identical else _source_version,"static_source":identity.source,"static_version":identity.version,"graphs":original.graphs if same_static else {}}
-		if original.has("facility_index") and current.facilities==original.source.facilities: entry.facility_index = original.facility_index
-		_sources[str(projected.get_instance_id())+":"+str(floor_id)] = entry
+		var entry: Dictionary = {"source":original.source if identical else current,"world":weakref(projected),"floor_id":floor_id,"revision":projected.geometry_revision,"version":original.version if identical else _identity(floor_id,current),"static_source":identity.source,"static_version":identity.version,"graphs":original.graphs.duplicate() if same_static else {}}
+		_store_source(str(projected.get_instance_id())+":"+str(floor_id),entry)
+	if _defer_trim==0: _trim_source_payloads(int(space.content.balance.pathfinding.graph_cache_target_bytes),space.query_counts)
 
+# A returned record is a synchronous borrower even when the target cannot
+# retain it. No caller may require a resident _sources entry after trimming.
 func floor_source(space: HospitalSpace, world: WorldState, floor_id: int) -> Dictionary:
+	return _source_record(space,world,floor_id).source
+
+func _source_record(space: HospitalSpace, world: WorldState, floor_id: int) -> Dictionary:
 	var key: String = str(world.get_instance_id())+":"+str(floor_id)
 	var entry: Dictionary = _sources.get(key,{})
 	if not entry.is_empty() and entry.world.get_ref()!=world: entry = {}
 	if entry.is_empty() or entry.revision!=world.geometry_revision:
-		if entry.is_empty(): _prune_sources()
 		var current: Dictionary = RouteClearance.capture_source(space,world,floor_id)
 		if entry.is_empty() or entry.source!=current:
-			var shared: Dictionary = {}
-			for retained: Dictionary in _sources.values():
-				if int(retained.floor_id)==floor_id and retained.source==current:
-					shared = retained
-					break
-			if shared.is_empty():
-				_source_version += 1
-				shared = {"source":current,"version":_source_version,"graphs":{}}
-			var previous: Dictionary = entry
 			var identity: Dictionary = _static_identity(world,floor_id,current)
-			var graphs: Dictionary = previous.graphs if not previous.is_empty() and previous.static_version==identity.version else shared.graphs
-			entry = {"source":shared.source,"world":weakref(world),"floor_id":floor_id,"version":shared.version,"static_source":identity.source,"static_version":identity.version,"graphs":graphs}
-			if previous.has("facility_index") and previous.source.facilities==current.facilities: entry.facility_index = previous.facility_index
+			var graphs: Dictionary = entry.graphs if not entry.is_empty() and entry.static_version==identity.version else {}
+			entry = {"source":current,"world":weakref(world),"floor_id":floor_id,"version":_identity(floor_id,current),"static_source":identity.source,"static_version":identity.version,"graphs":graphs}
 		entry.revision = world.geometry_revision
-		_sources[key] = entry
-	return entry.source
+	_store_source(key,entry)
+	if _defer_trim==0: _trim_source_payloads(int(space.content.balance.pathfinding.graph_cache_target_bytes),space.query_counts)
+	return entry
+
+func _store_source(key: String, entry: Dictionary) -> void:
+	if _sources.has(key): _source_charged -= int(_sources[key].charge)
+	# Conservative allowance for both payload views, equality proof keys and
+	# record metadata. Shared containers may be charged twice, never omitted.
+	entry.charge = 2048+(var_to_bytes(entry.source).size()+var_to_bytes(entry.static_source).size())*8+entry.graphs.size()*1024
+	_sources.erase(key)
+	_sources[key] = entry
+	_source_charged += int(entry.charge)
+
+# Source acquisition can occur while a graph/query owner is borrowed by a
+# caller. Reclaim only source records here; never evict that graph mid-update.
+func _trim_source_payloads(target: int, _counts: Dictionary = {}) -> void:
+	_prune_sources()
+	var allowance: int = maxi(0,mini(target/4,target-_floor_charged-_charged-_query_charged))
+	for key: String in _sources.keys():
+		if _source_charged<=allowance: break
+		_source_charged -= int(_sources[key].charge)
+		_sources.erase(key)
+
+func _identity(floor_id: int, source: Dictionary) -> String:
+	# Canonical keys, full-precision numbers and ordered arrays. Reconstructed
+	# content identity survives eviction without a permanent floor history map.
+	return JSON.stringify([floor_id,source],"",true,true).sha256_text()
 
 func facility_index(space: HospitalSpace, world: WorldState, floor_id: int) -> BodyIndex:
-	var source: Dictionary = floor_source(space,world,floor_id)
-	var entry: Dictionary = _sources[str(world.get_instance_id())+":"+str(floor_id)]
-	if not entry.has("facility_index"):
-		var index: BodyIndex = BodyIndex.new()
-		for id: String in source.facilities:
-			var facility: Dictionary = source.facilities[id]
-			index.update(id,floor_id,Rect2(float(facility.cell[0]),float(facility.cell[1]),float(facility.footprint[0]),float(facility.footprint[1])))
-		entry.facility_index = index
-	return entry.facility_index
+	return floor_geometry(space,world,floor_id).facility_index
 
-func floor_version(space: HospitalSpace, world: WorldState, floor_id: int) -> int:
-	floor_source(space,world,floor_id)
-	return int(_sources[str(world.get_instance_id())+":"+str(floor_id)].version)
+func floor_version(space: HospitalSpace, world: WorldState, floor_id: int) -> String:
+	return _source_record(space,world,floor_id).version
 
-func floor_static_version(space: HospitalSpace, world: WorldState, floor_id: int) -> int:
-	floor_source(space,world,floor_id)
-	return int(_sources[str(world.get_instance_id())+":"+str(floor_id)].static_version)
+func floor_static_version(space: HospitalSpace, world: WorldState, floor_id: int) -> String:
+	return _source_record(space,world,floor_id).static_version
 
-func _static_identity(world: WorldState, floor_id: int, current: Dictionary) -> Dictionary:
-	var key: String = str(world.get_instance_id())+":"+str(floor_id)
+func _static_identity(_world: WorldState, floor_id: int, current: Dictionary) -> Dictionary:
 	var source: Dictionary = current.duplicate()
 	source.erase("occupancy")
-	var previous: Dictionary = _sources.get(key,{})
-	if not previous.is_empty() and previous.world.get_ref()==world and previous.static_source==source:
-		return {"source":previous.static_source,"version":previous.static_version}
-	for retained: Dictionary in _sources.values():
-		if retained.world.get_ref()!=null and int(retained.floor_id)==floor_id and retained.static_source==source:
-			return {"source":retained.static_source,"version":retained.static_version}
-	_static_source_version += 1
-	return {"source":source,"version":_static_source_version}
+	return {"source":source,"version":_identity(floor_id,source)}
 
 # A point check can borrow already-built static geometry without paying to
 # build an A* graph. Its reservation query is always constructed afresh.
 func cached_static_geometry(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary) -> RouteClearance:
 	var current: Dictionary = floor_source(space,world,floor_id)
 	var key: String = _graph_key(space,world,floor_id,actor,[],{},current)
+	var source_record: Dictionary = _source_record(space,world,floor_id)
 	var entry: Dictionary = _entries.get(key,{})
 	if entry.is_empty(): return null
-	var source_record: Dictionary = _sources[str(world.get_instance_id())+":"+str(floor_id)]
 	if int(source_record.graphs.get(key,0))!=entry.graph.geometry.get_instance_id():
 		var source: Dictionary = source_record.static_source
 		if entry.source!=source: return null
 		source_record.graphs[key] = entry.graph.geometry.get_instance_id()
+		if _sources.has(str(world.get_instance_id())+":"+str(floor_id)): _store_source(str(world.get_instance_id())+":"+str(floor_id),source_record)
 	_used += 1
 	entry.used = _used
 	_entries.erase(key)
 	_entries[key] = entry
-	return entry.graph.geometry
+	var result: RouteClearance = entry.graph.geometry
+	_trim(int(space.content.balance.pathfinding.graph_cache_target_bytes),space.query_counts)
+	return result
 
 func query_graphs(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, members: Array, offsets: Dictionary) -> Dictionary:
 	var bases: Array[FloorNavigation] = []
@@ -145,7 +182,7 @@ func query_graphs(space: HospitalSpace, world: WorldState, floor_id: int, actor:
 func graph(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, members: Array, offsets: Dictionary) -> FloorNavigation:
 	var current: Dictionary = floor_source(space,world,floor_id)
 	var key: String = _graph_key(space,world,floor_id,actor,members,offsets,current)
-	var source_record: Dictionary = _sources[str(world.get_instance_id())+":"+str(floor_id)]
+	var source_record: Dictionary = _source_record(space,world,floor_id)
 	var entry: Dictionary = _entries.get(key,{})
 	_used += 1
 	if entry.is_empty() or int(source_record.graphs.get(key,0))!=entry.graph.geometry.get_instance_id():
@@ -156,6 +193,7 @@ func graph(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictio
 			entry = _refresh_graph(space,world,floor_id,actor,members,offsets,source,entry)
 			_entries[key] = entry
 		source_record.graphs[key] = entry.graph.geometry.get_instance_id()
+		if _sources.has(str(world.get_instance_id())+":"+str(floor_id)): _store_source(str(world.get_instance_id())+":"+str(floor_id),source_record)
 	entry.used = _used
 	_entries.erase(key)
 	_entries[key] = entry
@@ -164,7 +202,9 @@ func graph(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictio
 	return result
 
 func _refresh_graph(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, members: Array, offsets: Dictionary, source: Dictionary, entry: Dictionary) -> Dictionary:
+	_defer_trim += 1
 	var geometry: RouteClearance = RouteClearance.new(space,world,actor,floor_id,members,offsets,false,source)
+	_defer_trim -= 1
 	var floor_graph: FloorNavigation
 	if entry.is_empty():
 		floor_graph = FloorNavigation.new(geometry)
@@ -181,6 +221,19 @@ func _refresh_graph(space: HospitalSpace, world: WorldState, floor_id: int, acto
 	return entry
 
 func _trim(target: int, counts: Dictionary = {}) -> void:
+	# Limit shared floor ownership to one quarter of the same existing target,
+	# then give graphs/queries the remainder. Never increase the total allowance.
+	_prune_sources()
+	for key: String in _sources.keys():
+		if _source_charged<=maxi(0,target/4): break
+		_source_charged -= int(_sources[key].charge)
+		_sources.erase(key)
+	for version: String in _floor_geometries.keys():
+		if _floor_charged+_source_charged<=maxi(0,target/4): break
+		_floor_charged -= int(_floor_geometries[version].charge)
+		_floor_geometries.erase(version)
+		counts["cache_floor_evictions"] = int(counts.get("cache_floor_evictions",0))+1
+	target = maxi(0,target-_floor_charged-_source_charged)
 	if _charged+_query_charged<=target and _query_charged<=target/4: return
 	counts["cache_trims"] = int(counts.get("cache_trims",0))+1
 	var keys: Array = _entries.keys()
@@ -208,12 +261,9 @@ func _trim(target: int, counts: Dictionary = {}) -> void:
 	_prune_sources()
 
 func _prune_sources() -> void:
-	# Sources identify the latest facts for a live world/floor, independently
-	# of disposable path graphs. Alternating cold floors or evicting a graph
-	# must not manufacture a static edit and invalidate every active journey.
-	# Each world/floor replaces its one record; no actor/query history is kept.
 	for key: String in _sources.keys():
 		if _sources[key].world.get_ref()==null:
+			_source_charged -= int(_sources[key].charge)
 			_sources.erase(key)
 
 func clearance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, members: Array = [], offsets: Dictionary = {}) -> RouteClearance:
@@ -243,7 +293,12 @@ func clearance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Di
 		var source: Dictionary = floor_source(space,world,floor_id)
 		# Static geometry is shared with the graph, not copied per identity.
 		var charge: int = (source.occupancy.size()*256+16384)*(members.size()+1)+var_to_bytes(stamp).size()*8
-		record = {"stamp":stamp.duplicate(true),"query":RouteClearance.new(space,world,actor,floor_id,members,offsets,true,source,current.geometry),"charge":charge}
+		# A grouped query constructs member projections. Do not evict this
+		# partially accounted owner until the complete query is published.
+		_defer_trim += 1
+		var query: RouteClearance = RouteClearance.new(space,world,actor,floor_id,members,offsets,true,source,current.geometry)
+		_defer_trim -= 1
+		record = {"stamp":stamp.duplicate(true),"query":query,"charge":charge}
 		entry.queries[actor.id] = record
 		entry.query_charge += int(record.charge)
 		_query_charged += int(record.charge)

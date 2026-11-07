@@ -70,6 +70,7 @@ static void sql_open(PlatformSQLite *database, const String *hospital, GDExtensi
         sql_error(result, SQLITE_MISUSE, "医院数据库身份无效");
         return;
     }
+#if defined(_WIN32)
     DWORD error = ERROR_SUCCESS;
     wchar_t *directory = actual_user_directory(&error);
     if (!directory) {
@@ -100,6 +101,16 @@ static void sql_open(PlatformSQLite *database, const String *hospital, GDExtensi
         sql_error(result, SQLITE_NOMEM, "无法编码医院数据库路径");
         return;
     }
+#else
+    DWORD error = 0;
+    char *directory = actual_user_directory(&error);
+    if (!directory) {free(id);sql_error(result,SQLITE_CANTOPEN,"无法取得实际医院资料目录");return;}
+    size_t needed=strlen(directory)+80;
+    char *utf8_path=malloc(needed);
+    if(utf8_path)snprintf(utf8_path,needed,"%s/hospitals/%s/hospital.sqlite3",directory,id);
+    free(directory);free(id);
+    if(!utf8_path){sql_error(result,SQLITE_NOMEM,"无法编码医院数据库路径");return;}
+#endif
     int flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_FULLMUTEX;
     if (create) flags |= SQLITE_OPEN_CREATE;
     int code = sqlite3_open_v2(utf8_path, &database->connection, flags, NULL);

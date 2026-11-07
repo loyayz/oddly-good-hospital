@@ -1,6 +1,15 @@
+#if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <windows.h>
+#elif defined(__linux__)
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+#include "../linux/platform_posix.h"
+#else
+#error Unsupported platform: build for Windows or Linux x86_64.
+#endif
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -10,6 +19,7 @@
 #include "gdextension_interface.h"
 #include "platform_guard_abi.h"
 
+#if defined(_WIN32)
 uint64_t ogh_current_thread_cpu_us(void) {
     FILETIME created, exited, kernel, user;
     if (!GetThreadTimes(GetCurrentThread(), &created, &exited, &kernel, &user)) return UINT64_MAX;
@@ -18,13 +28,28 @@ uint64_t ogh_current_thread_cpu_us(void) {
     u.LowPart = user.dwLowDateTime; u.HighPart = user.dwHighDateTime;
     return (k.QuadPart + u.QuadPart) / 10;
 }
+#else
+uint64_t ogh_current_thread_cpu_us(void) {
+    struct timespec t;
+    if (clock_gettime(CLOCK_THREAD_CPUTIME_ID,&t)) return UINT64_MAX;
+    return (uint64_t)t.tv_sec*1000000+(uint64_t)t.tv_nsec/1000;
+}
+#endif
 
+#if defined(_WIN32)
 int ogh_monotonic_clock(int64_t *ticks, int64_t *frequency) {
     LARGE_INTEGER value, rate;
     if (!QueryPerformanceCounter(&value) || !QueryPerformanceFrequency(&rate) || rate.QuadPart <= 0) return 0;
     *ticks = value.QuadPart; *frequency = rate.QuadPart;
     return 1;
 }
+#else
+int ogh_monotonic_clock(int64_t *ticks, int64_t *frequency) {
+    struct timespec t;
+    if (clock_gettime(CLOCK_MONOTONIC,&t)) return 0;
+    *ticks=(int64_t)t.tv_sec*1000000000+t.tv_nsec; *frequency=1000000000; return 1;
+}
+#endif
 
 /* Sizes and method hashes come from this build's engine-generated API. */
 typedef struct { uint64_t words[OGH_VARIANT_SIZE / 8]; } Variant;
@@ -82,7 +107,9 @@ static GDExtensionTypeFromVariantConstructorFunc string_from_variant;
 typedef void *(__cdecl *CreateLocale)(int, const char *);
 typedef void (__cdecl *FreeLocale)(void *);
 typedef double (__cdecl *StrtodLocale)(const char *, char **, void *);
+#if defined(_WIN32)
 static HMODULE numeric_runtime;
+#endif
 static void *numeric_locale;
 static FreeLocale free_numeric_locale;
 static StrtodLocale decode_numeric_decimal;
@@ -115,6 +142,7 @@ static void set_string(Dictionary *dictionary, const char *key, const char *valu
     string_destroy(&string);
 }
 
+#if defined(_WIN32)
 static void set_error(Dictionary *result, DWORD error, const char *operation) {
     wchar_t system_message[512];
     char utf8_message[1536];
@@ -133,8 +161,16 @@ static void set_error(Dictionary *result, DWORD error, const char *operation) {
     set_int(result, "error", error);
     set_string(result, "message", message);
 }
+#else
+static void set_error(Dictionary *result, DWORD error, const char *operation) {
+    char message[2048];
+    snprintf(message,sizeof(message),"%s (POSIX error %d): %s",operation,error,strerror(error));
+    set_bool(result,"ok",0); set_int(result,"error",error); set_string(result,"message",message);
+}
+#endif
 
 /* Only OS.get_user_data_dir() supplies a path. Script cannot choose a directory. */
+#if defined(_WIN32)
 static wchar_t *actual_user_directory(DWORD *error) {
     String godot_directory;
     string_default(&godot_directory, NULL);
@@ -175,7 +211,22 @@ static wchar_t *actual_user_directory(DWORD *error) {
     while (length > 7 && path[length - 1] == L'\\') path[--length] = L'\0';
     return path;
 }
+#else
+static char *actual_user_directory(DWORD *error) {
+    String directory; string_default(&directory,NULL);
+    object_ptrcall(user_dir_method,os_singleton,NULL,&directory);
+    int64_t length=string_to_utf8(&directory,NULL,0);
+    if (length<=0 || length>1048576) {string_destroy(&directory);*error=EINVAL;return NULL;}
+    char *path=calloc(1,(size_t)length+80);
+    if (!path) {string_destroy(&directory);*error=ENOMEM;return NULL;}
+    string_to_utf8(&directory,path,length); string_destroy(&directory);
+    if (path[0]!='/') {free(path);*error=EINVAL;return NULL;}
+    while (length>1 && path[length-1]=='/') path[--length]='\0';
+    return path;
+}
+#endif
 
+#if defined(_WIN32)
 static DWORD create_directory(wchar_t *path) {
     if (CreateDirectoryW(path, NULL)) return ERROR_SUCCESS;
     DWORD error = GetLastError();
@@ -184,7 +235,16 @@ static DWORD create_directory(wchar_t *path) {
     if (attributes == INVALID_FILE_ATTRIBUTES) return GetLastError();
     return (attributes & FILE_ATTRIBUTE_DIRECTORY) ? ERROR_SUCCESS : ERROR_DIRECTORY;
 }
+#else
+static DWORD create_directory(char *path) {
+    if (mkdir(path,0700)==0) return 0;
+    if (errno!=EEXIST) return errno;
+    struct stat st; if (stat(path,&st)) return errno;
+    return S_ISDIR(st.st_mode)?0:ENOTDIR;
+}
+#endif
 
+#if defined(_WIN32)
 static DWORD ensure_user_directory(wchar_t *path) {
     size_t start = 7; /* \\?\C:\ */
     if (wcsncmp(path, L"\\\\?\\UNC\\", 8) == 0) {
@@ -204,7 +264,17 @@ static DWORD ensure_user_directory(wchar_t *path) {
     }
     return create_directory(path);
 }
+#else
+static DWORD ensure_user_directory(char *path) {
+    for (size_t i=1;path[i];++i) {
+        if (path[i]!='/') continue;
+        path[i]='\0';int error=create_directory(path);path[i]='/';if(error)return error;
+    }
+    return create_directory(path);
+}
+#endif
 
+#if defined(_WIN32)
 static void acquire_guard(PlatformSessionGuard *guard, Dictionary *result) {
     dictionary_new(result, NULL);
     set_bool(result, "busy", 0);
@@ -246,14 +316,60 @@ static void acquire_guard(PlatformSessionGuard *guard, Dictionary *result) {
         set_error(result, error, "Unable to open the hospital data guard");
     }
 }
+#else
+static void acquire_guard(PlatformSessionGuard *guard, Dictionary *result) {
+    dictionary_new(result, NULL);
+    set_bool(result, "busy", 0);
+    if (guard->handle != INVALID_HANDLE_VALUE) {
+        set_bool(result, "ok", 1); set_int(result, "error", 0); set_string(result, "message", "");
+        return;
+    }
+    DWORD error = 0;
+    char *path = actual_user_directory(&error);
+    if (!path) { set_error(result, error, "Unable to resolve the hospital data directory"); return; }
+    error = ensure_user_directory(path);
+    if (error) { free(path); set_error(result, error, "Unable to create the hospital data directory"); return; }
+    strcat(path, "/.session.guard");
+    int fd = open(path, O_CREAT | O_RDWR | O_CLOEXEC | O_NOFOLLOW, 0600);
+    error = fd < 0 ? errno : 0;
+    free(path);
+    struct stat metadata;
+    if (!error && fstat(fd, &metadata)) error = errno;
+    if (!error && !S_ISREG(metadata.st_mode)) error = EINVAL;
+    if (!error) {
+        int rc;
+        do { rc = flock(fd, LOCK_EX | LOCK_NB); } while (rc && errno == EINTR);
+        if (rc) error = errno;
+    }
+    if (error) {
+        if (fd >= 0) close(fd);
+        if (error == EWOULDBLOCK || error == EAGAIN) {
+            set_bool(result, "ok", 0); set_bool(result, "busy", 1); set_int(result, "error", error);
+            set_string(result, "message", "医院资料正在被占用，请回到已打开的游戏或稍后重试");
+        } else set_error(result, error, "Unable to open the hospital data guard");
+        return;
+    }
+    guard->handle = fd;
+    InterlockedIncrement(&active_guard_count);
+    set_bool(result, "ok", 1); set_int(result, "error", 0); set_string(result, "message", "");
+}
+#endif
 
+#if defined(_WIN32)
 static void release_guard(PlatformSessionGuard *guard) {
     if (guard->handle == INVALID_HANDLE_VALUE) return;
     CloseHandle(guard->handle);
     guard->handle = INVALID_HANDLE_VALUE;
     InterlockedDecrement(&active_guard_count);
 }
+#else
+static void release_guard(PlatformSessionGuard *guard) {
+    if(guard->handle==INVALID_HANDLE_VALUE)return;
+    close(guard->handle);guard->handle=INVALID_HANDLE_VALUE;InterlockedDecrement(&active_guard_count);
+}
+#endif
 
+#if defined(_WIN32)
 static void resource_status(PlatformSessionGuard *guard, Dictionary *result) {
     dictionary_new(result, NULL);
     set_int(result, "available_physical_bytes", 0);
@@ -291,6 +407,34 @@ static void resource_status(PlatformSessionGuard *guard, Dictionary *result) {
     set_int(result, "available_physical_bytes", (int64_t)memory.ullAvailPhys);
     set_int(result, "available_disk_bytes", (int64_t)disk.QuadPart);
 }
+#else
+static void resource_status(PlatformSessionGuard *guard, Dictionary *result) {
+    dictionary_new(result, NULL);
+    set_int(result, "available_physical_bytes", 0);
+    set_int(result, "available_disk_bytes", 0);
+    if (guard->handle == INVALID_HANDLE_VALUE) {
+        set_error(result, EBADF, "Hospital data ownership has not been acquired"); return;
+    }
+    uint64_t available = 0;
+    char reason[512] = {0};
+    int error = ogh_linux_available_memory(&available, reason, sizeof(reason));
+    if (error) { set_error(result, error, reason); return; }
+    char *path = actual_user_directory(&error);
+    if (!path) { set_error(result, error, "Unable to resolve the hospital data volume"); return; }
+    struct statvfs disk;
+    int rc = statvfs(path, &disk);
+    error = rc ? errno : 0;
+    free(path);
+    if (error) { set_error(result, error, "Unable to query available hospital data volume space"); return; }
+    uint64_t blocks = (uint64_t)disk.f_bavail, block_size = (uint64_t)disk.f_frsize;
+    if (!block_size || blocks > (uint64_t)INT64_MAX / block_size || available > INT64_MAX) {
+        set_error(result, EOVERFLOW, "Available resource bytes exceed the supported integer range"); return;
+    }
+    set_bool(result, "ok", 1); set_int(result, "error", 0); set_string(result, "message", "");
+    set_int(result, "available_physical_bytes", (int64_t)available);
+    set_int(result, "available_disk_bytes", (int64_t)(blocks * block_size));
+}
+#endif
 
 enum GuardMethod { METHOD_ACQUIRE, METHOD_RELEASE, METHOD_IS_HELD, METHOD_RESOURCES };
 
@@ -453,6 +597,7 @@ static void decimal_ptrcall(void *userdata, GDExtensionClassInstancePtr instance
 }
 
 static void bind_decimal_decoder(void) {
+#if defined(_WIN32)
     numeric_runtime = LoadLibraryExW(L"ucrtbase.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
     if (numeric_runtime) {
         FARPROC raw_create = GetProcAddress(numeric_runtime, "_create_locale");
@@ -466,6 +611,11 @@ static void bind_decimal_decoder(void) {
             numeric_locale = create_locale(LC_NUMERIC, "C");
         }
     }
+#else
+    numeric_locale = newlocale(LC_NUMERIC_MASK, "C", (locale_t)0);
+    free_numeric_locale = ogh_free_numeric_locale;
+    decode_numeric_decimal = ogh_decode_numeric_decimal;
+#endif
     string_name_new(&numbers_class, "PlatformJsonNumbers");
     GDExtensionClassCreationInfo6 class_info = { .is_exposed = 1, .is_abstract = 1 };
     register_class(library, &numbers_class, &parent_class, &class_info);
@@ -534,21 +684,30 @@ static void deinitialize(void *userdata, GDExtensionInitializationLevel level) {
     string_name_destroy(&sqlite_class);
     string_name_destroy(&numbers_class);
     if (numeric_locale) free_numeric_locale(numeric_locale);
+#if defined(_WIN32)
     if (numeric_runtime) FreeLibrary(numeric_runtime);
+#endif
     numeric_locale = NULL;
+#if defined(_WIN32)
     numeric_runtime = NULL;
+#endif
     string_name_destroy(&parent_class);
     string_name_destroy(&guard_class);
 }
 
 #define LOAD_INTERFACE(type, variable, name) do { \
     GDExtensionInterfaceFunctionPtr raw = get_proc_address(name); \
-    _Static_assert(sizeof(type) == sizeof(raw), "Windows x86_64 function pointer ABI"); \
+    _Static_assert(sizeof(type) == sizeof(raw), "x86_64 function pointer ABI"); \
     memcpy(&variable, &raw, sizeof(variable)); \
     if (!variable) return 0; \
 } while (0)
 
-__declspec(dllexport) GDExtensionBool oddly_good_platform_init(
+#if defined(_WIN32)
+__declspec(dllexport)
+#else
+__attribute__((visibility("default")))
+#endif
+GDExtensionBool oddly_good_platform_init(
         GDExtensionInterfaceGetProcAddress get_proc_address,
         GDExtensionClassLibraryPtr class_library, GDExtensionInitialization *initialization) {
     library = class_library;

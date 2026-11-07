@@ -119,7 +119,7 @@ func _run() -> void:
 		var elapsed: int = Time.get_ticks_usec()-started
 		var step_record: Dictionary = profiler.end_selected_step(result,elapsed) if profile_selected else {}
 		if result==null:
-			clinical.errors.append("Production step did not complete: "+clinical.simulation.preparing_error())
+			clinical.errors.append("Production step did not complete")
 			report.samples.append({"index":index,"elapsed_us":elapsed,"complete":false,"profile":step_record})
 			break
 		if not clinical.simulation.space._route_queries.is_empty():

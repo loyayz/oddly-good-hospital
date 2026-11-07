@@ -18,7 +18,7 @@ func _dispose_simulations() -> void:
 		simulation.dispose()
 	_simulations.clear()
 
-func _context(surgical: bool = false, c_profile: bool = false, chairs: bool = true) -> Dictionary:
+func _context(surgical: bool = false, c_profile: bool = false, chairs: bool = true, initial_guidance_cell: Array = []) -> Dictionary:
 	_fixture_sequence += 1
 	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"临床验收%04d"%_fixture_sequence,true,_content)
 	var doctors: Array = []
@@ -63,6 +63,16 @@ func _context(surgical: bool = false, c_profile: bool = false, chairs: bool = tr
 	_command(c,"set_auto_restock",{"enabled":false})
 	_fixture_arrival_plan(world)
 	_fixture_preflight(c,c_profile,surgical)
+	if not initial_guidance_cell.is_empty():
+		# Place the desk legally before the first tick or patient arrival. The
+		# nurse still starts at the ordinary entrance and walks to the new post.
+		var actors_before: Dictionary = world.facts.actors.duplicate(true)
+		var initial: bool = world.sim_tick==0 and world.facts.visits.is_empty() and world.facts.floor_guidance.desks.is_empty()
+		var moved: CommandResult = _command(c,"build_move",{"target_id":"floor_guidance_desk","floor_id":1,"cell":initial_guidance_cell})
+		var unchanged_actors: bool = actors_before==world.facts.actors
+		var placement: Dictionary = {"kind":"initial_guidance_desk_placement","before_first_tick":initial,"actors_unchanged":unchanged_actors,"cell":initial_guidance_cell,"command":moved.to_record()}
+		print("CASE_INPUT "+JSON.stringify(placement))
+		if not initial or not moved.accepted or not unchanged_actors: _fixture_failure(c,placement)
 	_tick(c)
 	_seed_stream(world,"arrival",false,true,2500,5000)
 	return c
@@ -266,6 +276,7 @@ func _checkpoint_recipes() -> Dictionary:
 	var recipes: Dictionary = {
 		"gp_started":{"generator":"_gp_checkpoint","condition":{"phase":"gp"}},
 		"c_diagnosed":{"generator":"_diagnosis_state","arguments":[false],"condition":{"diagnosis_third":true}},
+		"c_diagnosed_gentle":{"generator":"_diagnosis_state","arguments":[false,[56,76]],"condition":{"diagnosis_third":true}},
 		"surgery_queue":{"generator":"_surgery_queue","arguments":[false],"requires":["outpatient_queue"],"condition":{"phase":"wait_surgery"}},
 		"c_surgery_queue":{"generator":"_surgery_queue","arguments":[true],"condition":{"phase":"wait_surgery"}},
 		"companion_entered":{"generator":"_companion_entry"},
@@ -611,11 +622,25 @@ func _companion_entry(t, report_case: bool = false) -> void:
 	var companion: Dictionary = _context(false,false,false)
 	_seed_stream(companion.world,"arrival",true,true,2500,5000)
 	var admitted: bool = _arrive(companion,"B_S13_D09_M09","P_D09_COMMON",true)
+	# Named pre-operation unavailable-entry boundary. No actor is relocated:
+	# the original 1F entrance is restored before admission can succeed.
+	var original_entry: Dictionary = companion.world.facts.entry.duplicate(true)
+	companion.world.facts.entry.cell = [0,0]
+	companion.world.touch(false)
+	var unavailable_input_valid: bool = companion.world.validate(_content).is_empty()
 	var requested: bool = admitted and await _until(t,companion,func()->bool: return not companion.world.facts.visitors.requests.is_empty(),180)
+	# The configured entrance has no legal route into owned hospital space.
+	# Missing chairs alone must not reject a compatible standing companion.
 	var no_actor_before_space: bool = requested and companion.world.facts.visitors.requests.size()==1 and companion.world.facts.visitors.stays.is_empty() and not _visit(companion).has("relative_actor_id")
-	var chair: Dictionary = _content.facility_definition("FUR09")
-	HospitalFactory._add_facility(companion.world,{"id":"family_waiting_seat","definition_id":"FUR09","anchor":[34,92],"size":chair.footprint,"room_id":null},_content)
-	companion.world.touch()
+	var host: Dictionary = companion.world.facts.actors[_visit(companion).actor_id]
+	var entrance: Dictionary = companion.world.facts.entry
+	var probe: Dictionary = {"id":"relative_probe","species_id":host.species_id,"posture":"standing","facing":0.0,"location":{"kind":"floor","floor_id":entrance.floor_id,"cell":entrance.cell,"height_m":0.0}}
+	var entrance_unavailable: bool = not companion.sim.space.static_reason(companion.world,probe,int(entrance.floor_id),Vector2i(0,0)).is_empty()
+	var before_retry: Dictionary = companion.world.freeze()
+	var rejected_atomically: bool = requested and not companion.sim.clinic.visitors._admit(companion.world,_visit(companion),companion.world.facts.visitors.requests.values()[0]) and before_retry==companion.world.freeze()
+	var furniture_free: bool = companion.world.facts.facilities.values().all(func(facility: Dictionary)->bool: return not facility.definition_id in HospitalVisitors.WAITING_SEAT_DEFINITIONS)
+	companion.world.facts.entry = original_entry
+	companion.world.touch(false)
 	var entered: bool = requested and await _until(t,companion,func()->bool: return not _visitor(companion).is_empty(),160)
 	var relative: Dictionary = _visitor(companion)
 	var actor: Dictionary = companion.world.facts.actors.get(relative.get("actor_id",""),{})
@@ -624,11 +649,12 @@ func _companion_entry(t, report_case: bool = false) -> void:
 	if not actor.is_empty() and actor.location.kind=="floor":
 		var entry: Array = companion.world.facts.entry.cell
 		from_entry = int(actor.location.floor_id)==1 and absf(float(actor.location.cell[0])-float(entry[0]))+absf(float(actor.location.cell[1])-float(entry[1]))<=1.0
+	var own_standing_point: bool = entered and companion.sim.space.public_areas.safe_wait(companion.world,str(actor.id),int(relative.waiting_floor),relative.waiting_cell) and companion.sim.space.travel_quote(companion.world,str(actor.id),int(relative.waiting_floor),relative.waiting_cell).ok
 	var no_family_income: bool = true
 	for entry: Dictionary in companion.world.facts.ledger.entries.values():
 		no_family_income = no_family_income and not str(entry.owner_id) in [str(relative.get("id","")),str(relative.get("actor_id",""))]
 	if report_case:
-		t.check("CLIN-30",no_actor_before_space and entered and from_entry and actor.get("id","")!=patient.get("id","") and actor.get("species_id","")==patient.get("species_id","") and actor.get("relative_of","")==patient.get("id","") and relative.get("visit_id","")==companion.visit_id and companion.world.facts.visitors.stays.size()==1 and no_family_income and not bool(companion.world.facts.arrivals.intake_open),{"no_actor_before_space":no_actor_before_space,"entered_from_real_entry":from_entry,"visitor":relative,"actor":actor,"state":_state(companion)})
+		t.check("CLIN-30",no_actor_before_space and unavailable_input_valid and entrance_unavailable and rejected_atomically and furniture_free and own_standing_point and entered and from_entry and actor.get("id","")!=patient.get("id","") and actor.get("species_id","")==patient.get("species_id","") and actor.get("relative_of","")==patient.get("id","") and relative.get("visit_id","")==companion.visit_id and companion.world.facts.visitors.stays.size()==1 and no_family_income and not bool(companion.world.facts.arrivals.intake_open),{"no_actor_before_space":no_actor_before_space,"unavailable_input_valid":unavailable_input_valid,"entrance_unavailable":entrance_unavailable,"rejected_atomically":rejected_atomically,"furniture_free":furniture_free,"own_standing_point":own_standing_point,"entered_from_real_entry":from_entry,"visitor":relative,"actor":actor,"state":_state(companion)})
 	if entered: _remember(companion,"companion_entered")
 
 func _visitor_bedside(t) -> Dictionary:
@@ -649,8 +675,8 @@ func _visitor_bedside(t) -> Dictionary:
 	if not bedside: visiting.failure_world = _failure_world("visitor_bedside",visiting.world)
 	return visiting
 
-func _diagnosis_state(t, upgraded: bool) -> Dictionary:
-	var c: Dictionary = _context(false,true)
+func _diagnosis_state(t, upgraded: bool, initial_guidance_cell: Array = []) -> Dictionary:
+	var c: Dictionary = _context(false,true,true,initial_guidance_cell)
 	for staff: Dictionary in c.world.facts.staff.values():
 		if staff.role in ["doctor","nurse"]: staff.abilities.diagnosis = 3 if upgraded else 1
 	if upgraded: c.world.facts.facilities.gp_station.grade = 2

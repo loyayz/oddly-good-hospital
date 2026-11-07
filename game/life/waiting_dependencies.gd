@@ -13,6 +13,8 @@ var resources: Dictionary = {}
 var waiters: Dictionary = {}
 var _regions: BodyIndex = BodyIndex.new()
 var _region_waiters: Dictionary = {}
+# Exact floor/rectangle identities share only spatial observation, never decisions.
+var _region_tokens: Dictionary = {}
 var _next_region: int = 0
 var _actors: Dictionary = {}
 var _reservations: Dictionary = {}
@@ -22,6 +24,7 @@ func clear() -> void:
 	waiters.clear()
 	_regions.clear()
 	_region_waiters.clear()
+	_region_tokens.clear()
 	_actors.clear()
 	_reservations.clear()
 	_next_region = 0
@@ -33,8 +36,13 @@ func remove(id: String) -> void:
 		resources[key].waiters.erase(id)
 		if resources[key].waiters.is_empty(): resources.erase(key)
 	for token: String in saved.regions:
+		var shared: Dictionary = _region_waiters[token]
+		shared.waiters.erase(id)
+		if not shared.waiters.is_empty(): continue
 		_regions.remove(token)
 		_region_waiters.erase(token)
+		_region_tokens[shared.floor_id].erase(shared.rect)
+		if _region_tokens[shared.floor_id].is_empty(): _region_tokens.erase(shared.floor_id)
 	waiters.erase(id)
 
 func remember(id: String, observed: Dictionary, floor_id: int, bounds: Array[Rect2]) -> void:
@@ -53,10 +61,17 @@ func remember(id: String, observed: Dictionary, floor_id: int, bounds: Array[Rec
 		resources[key].waiters[id] = true
 		saved.resources.append(key)
 	for rect: Rect2 in bounds:
-		_next_region += 1
-		var token: String = str(_next_region)
-		_regions.update(token,floor_id,rect)
-		_region_waiters[token] = id
+		var floor_tokens: Dictionary = _region_tokens.get_or_add(floor_id,{})
+		var token: String = str(floor_tokens.get(rect,""))
+		if token.is_empty():
+			_next_region += 1
+			token = str(_next_region)
+			floor_tokens[rect] = token
+			_regions.update(token,floor_id,rect)
+			_region_waiters[token] = {"floor_id":floor_id,"rect":rect,"waiters":{}}
+		var shared: Dictionary = _region_waiters[token].waiters
+		if shared.has(id): continue
+		shared[id] = true
 		saved.regions.append(token)
 
 func dirty(id: String) -> bool:
@@ -80,7 +95,7 @@ func refresh(read: Callable) -> int:
 func _mark_bounds(floor_id: int, rect: Rect2) -> void:
 	if floor_id<=0: return
 	for token: String in _regions.candidates(floor_id,rect):
-		waiters[_region_waiters[token]].dirty = true
+		for id: String in _region_waiters[token].waiters: waiters[id].dirty = true
 
 func actor_changed(id: String, old_floor: int, old_rect: Rect2, floor_id: int, rect: Rect2) -> void:
 	if old_floor==floor_id and old_rect==rect: return

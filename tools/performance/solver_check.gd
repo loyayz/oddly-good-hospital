@@ -1,6 +1,6 @@
 extends SceneTree
 
-const Solver = preload("res://game/arrivals/capacity_solver.gd")
+const Solver = preload("res://tests/acceptance/legacy_capacity_solver.gd")
 const F = preload("res://game/arrivals/exact_fraction.gd")
 
 func _initialize() -> void:
@@ -149,7 +149,7 @@ func _initialize() -> void:
 	var empty_reused: Dictionary = empty_backend.call("solve",{})
 	if empty_prepared.get("capacity",{})!=F.make() or empty_reused.get("capacity",{})!=F.make() or empty_prepared.has("assignments") or empty_reused.has("assignments"): failures.append({"empty_persistent_summary":empty_reused})
 	if not cpu_started.has("cpu_us") or not cpu_finished.has("cpu_us") or int(cpu_finished.cpu_us)<int(cpu_started.cpu_us): failures.append({"thread_cpu":"CPU 时间不可用或不单调"})
-	var report: Dictionary = {"checks":vectors.size(),"warm_checks":vectors.size()*3,"arithmetic_checks":arithmetic.size(),"integer_checks":integers.size(),"structure_checks":structure_vectors.size(),"failures":failures,"solver_sha256":FileAccess.get_sha256("res://game/arrivals/capacity_solver.gd"),"fractions_sha256":FileAccess.get_sha256("res://game/arrivals/exact_fraction.gd"),"vectors_sha256":FileAccess.get_sha256("res://solver-vectors.json"),"native_sha256":FileAccess.get_sha256("res://game/platform/windows/bin/oddly_good_platform.windows.x86_64.dll"),"gmp_sha256":FileAccess.get_sha256("res://game/platform/windows/bin/libgmp-10.dll"),"mpfr_sha256":FileAccess.get_sha256("res://game/platform/windows/bin/libmpfr-6.dll")}
+	var report: Dictionary = {"checks":vectors.size(),"warm_checks":vectors.size()*3,"arithmetic_checks":arithmetic.size(),"integer_checks":integers.size(),"structure_checks":structure_vectors.size(),"failures":failures,"solver_sha256":FileAccess.get_sha256("res://tests/acceptance/legacy_capacity_solver.gd"),"fractions_sha256":FileAccess.get_sha256("res://game/arrivals/exact_fraction.gd"),"vectors_sha256":FileAccess.get_sha256("res://solver-vectors.json"),"native_sha256":FileAccess.get_sha256("res://game/platform/windows/bin/oddly_good_platform.windows.x86_64.dll"),"gmp_sha256":FileAccess.get_sha256("res://game/platform/windows/bin/libgmp-10.dll"),"mpfr_sha256":FileAccess.get_sha256("res://game/platform/windows/bin/libmpfr-6.dll")}
 	report.role_checks = roles.size()*6
 	report.recovery_checks = 7
 	report.unused_resource_checks = vectors.size()*2

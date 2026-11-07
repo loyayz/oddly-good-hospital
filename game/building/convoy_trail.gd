@@ -58,11 +58,13 @@ static func length(points: Array) -> float:
  var total: float = 0.0
  for i: int in range(1,points.size()): total+=point(points[i]).distance_to(point(points[i-1]))
  return total
-static func positions(convoy: Dictionary, members: Array) -> Dictionary:
+# A singleton has no historical segment. Its publisher supplies the accepted
+# motion tangent, or the actor's existing heading when no motion was accepted.
+static func positions(convoy: Dictionary, members: Array, leader_facing: float = PI*0.5) -> Dictionary:
  var result: Dictionary={}
  for index: int in members.size():
   var distance: float=index*float(convoy.spacing)
-  var pose: Dictionary={"cell":convoy.points[-1].duplicate(),"facing":PI*0.5}
+  var pose: Dictionary={"cell":convoy.points[-1].duplicate(),"facing":leader_facing}
   for i: int in range(convoy.points.size()-1,0,-1):
    var a: Vector2=point(convoy.points[i-1]);var b: Vector2=point(convoy.points[i]);var span: float=a.distance_to(b)
    if span<0.000001: continue
@@ -98,7 +100,10 @@ static func extended(points: Array, end: Vector2) -> Array:
  result.append([end.x,end.y])
  if result.size()>=3:
   var a: Vector2=point(result[-3]);var b: Vector2=point(result[-2]);var c: Vector2=point(result[-1])
-  if (b-a).normalized().is_equal_approx((c-b).normalized()): result.remove_at(result.size()-2)
+  # Approximate tangents can accumulate transverse drift. Keep the real
+  # vertex unless the compressed segment still obeys the axial contract.
+  var combined: Vector2=c-a
+  if (absf(combined.x)<=0.00001 or absf(combined.y)<=0.00001) and (b-a).normalized().is_equal_approx((c-b).normalized()): result.remove_at(result.size()-2)
  return result
 static func propose(convoy: Dictionary, end: Vector2) -> Dictionary:
  var start: Vector2=point(convoy.points[-1]);var delta: Vector2=end-start;var advance: float=delta.length()

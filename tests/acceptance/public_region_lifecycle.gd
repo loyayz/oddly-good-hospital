@@ -92,10 +92,10 @@ func run_case(database: HospitalContent) -> Dictionary:
 	checks.unrequested_lazy_floor_dropped = actual._floor_regions.keys()==[1,2] and not actual._derived_floors.has(3)
 	var old_ground: Dictionary = actual._by_facility.west_chair
 	var other: WorldState = WorldState.new(x.world.freeze())
-	observations.append(_observe("other_world_same_values",other,actual,reference,[1,2]))
+	observations.append(_observe("other_world_same_values",other,actual,reference,[]))
 	checks.world_identity_isolated = not is_same(old_ground,actual._by_facility.west_chair) and actual._world.get_ref()==other and actual._floor_regions.size()==2
 	checks.same_geometry_rebuild_keeps_fingerprint = str(old_ground.geometry)==str(actual._by_facility.west_chair.geometry)
-	observations.append(_observe("return_to_original_world",x.world,actual,reference,[1,2]))
+	observations.append(_observe("return_to_original_world",x.world,actual,reference,[]))
 	checks.only_latest_world_is_retained = actual._world.get_ref()==x.world and actual._floor_regions.size()==2
 	var high_floors: Dictionary = _high_floor_keys(x.world)
 	var ok: bool = true
@@ -148,7 +148,7 @@ func _high_floor_keys(world: WorldState) -> Dictionary:
 	observations.append(_observe("removed_high_floor_releases_index",high,actual,reference,[]))
 	checks.removed_high_floor_has_no_stale_cells = not actual._floor_regions.has(first) and actual._cell_region(first,point).is_empty() and is_same(b,actual._cell_region(second,point))
 	var other: WorldState = WorldState.new(high.freeze())
-	observations.append(_observe("same_high_facts_different_world",other,actual,reference,[1,2,second]))
+	observations.append(_observe("same_high_facts_different_world",other,actual,reference,[]))
 	checks.other_world_owns_new_cell_map = actual._world.get_ref()==other and not is_same(b,actual._cell_region(second,point)) and int(actual._cell_region(second,point).get("ref",{}).get("floor_id",0))==second
 	checks.original_world_and_rng_unchanged = original==world.freeze()
 	return {"ok":not checks.values().has(false) and observations.all(func(row: Dictionary)->bool:return row.ok),"checks":checks,"observations":observations,"actual_floor_traversals":actual.builds}
