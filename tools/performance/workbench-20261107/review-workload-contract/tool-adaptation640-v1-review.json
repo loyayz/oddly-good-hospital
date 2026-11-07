@@ -1,0 +1,82 @@
+{
+  "scope": "Read-only static review and existing oracle evidence only. No new engine run or candidate/source modification.",
+  "reviewed_utc": "2026-11-07T14:53:25.348710+00:00",
+  "decision": "Candidate promising but NOT accepted for constructor equivalence or legal640 input pending narrow mandatory tests. No demonstrated semantic counterexample found in reviewed production consumers.",
+  "actual_execution": {
+    "oracle01_status": {
+      "returncode": 0,
+      "timed_out": false,
+      "wall_seconds": 9.745696632002364,
+      "finished": true,
+      "diagnostic_only": true,
+      "legal_input_qualified": false
+    },
+    "questions": 54,
+    "actors": 9,
+    "all_equal": true,
+    "static_negative": true,
+    "dynamic_negative": true,
+    "facts_rng_unchanged": true,
+    "scope_stack_empty": true,
+    "stale_documentation": "README initial no-engine paragraph is outdated; existing oracle01 establishes execution. static-check engine_executed/engine_run is generation-time scope only."
+  },
+  "static_findings": [
+    {
+      "area": "candidate order/short circuit",
+      "finding": "fixture.patch retains choices/cursor increment, static-success AND dynamic, return cell duplicate, failure text and[48,91]fallback. Only query creation and actor transient mutation replaced."
+    },
+    {
+      "area": "body/facing/floor",
+      "finding": "Query deep-copies complete actor and retains identity/body/posture/facing. Location assigned same floor/cell/height0 shape; RouteClearance captures body clearance/height at first candidate. No body/floor/facing mutation occurs within original placement batch."
+    },
+    {
+      "area": "door semantics",
+      "finding": "RouteClearance._build_static uses door_quote with copied actor. Reviewed door_quote uses dimensions, identity for geometry/reservations, floor, doors/facilities/walls, not candidate actor.location. Static query reuse is plausible only while those facts remain fixed."
+    },
+    {
+      "area": "dynamic occupancy",
+      "finding": "Original _dynamic_clear retained, including reservations, actor index and movement sweep; self excluded by stable actor_id. However first actor-index construction can observe original world-aliased actor temporary position versus candidate old position. Successful return+sync should restore expected index, but must test commit/nextactor chain rather than assume."
+    },
+    {
+      "area": "reservation identity",
+      "finding": "RouteClearance captures nonexempt facility reservations at init; actual actor id and staff membership preserved. Dynamic reservations checked each candidate. Reuse invalid if adaptations/identity/body change during same batch; no crossactor reuse is allowed."
+    },
+    {
+      "area": "scope/cache",
+      "finding": "Original static_reason has active-route-query special path; candidate bypasses it. Constructor creates new HospitalSpace so intended scope is empty, but candidate contains no runtime guard. Existing oracle reports empty scope (true for all9), yet scope flag is not included in all_ok. Require explicit supported-empty-scope assertion or bounded fallback, not a broad general-space helper claim."
+    },
+    {
+      "area": "failure side effects",
+      "finding": "Original true actor.location ends at final tested candidate until caller commits fallback; candidate leaves true location unchanged until return. Since callers assign selected/fallback then sync, external final facts may match, but exhaustion oracle must include this sequence and cursor/errors/fallback, not simply return values."
+    }
+  ],
+  "minimum_required_tests": [
+    {
+      "test": "constructor alias/commit prefix",
+      "requirement": "Use same legal initial layout and original staff world-aliased actor; compare original loop vs candidate with identical candidates until chosen point; commit returned location and sync normally. Compare result, cursor, errors, full facts/RNG and next actor static/dynamic outcomes. Include first cold index and subsequent warm index. Do not replace A side with actor copy."
+    },
+    {
+      "test": "reservation negative and identity",
+      "requirement": "Same geometric candidate blocked for unrelated actor but allowed for original owner/authorized staff; door reservation and facility reservation separately. Keep IDs and actual reservation fields, test rejected then accepted candidate, no broad exemptions."
+    },
+    {
+      "test": "exhaustion",
+      "requirement": "Finite known blocked choices and already-empty cursor. Execute original caller fallback commit+sync and compare error string/count, cursor, final actual position, nextactor collision and facts/RNG. Fixture remains invalid after exhaustion, never legal640."
+    },
+    {
+      "test": "cache boundary",
+      "requirement": "New query after actor commit and between distinct actors/body envelopes/floors/identity. Prove no crossactor reservation reuse; require empty route scope for supported constructor. No same-query reuse after world/body/reservation mutation."
+    }
+  ],
+  "remaining_gates": [
+    "Full640 remains640 with128staff480patients32ownedvisitors after proper adaptation; no count/body/collision reduction.",
+    "Original64rooms128facilities1200props retained; required guidance/public seats added rather than replacing existing facilities.",
+    "Full construction and final validation/owner checks precede business preflight; finite oracle does not establish all that."
+  ],
+  "not_claimed": [
+    "performance speedup",
+    "production-step improvement",
+    "legal640 input",
+    "universal safety equivalence"
+  ]
+}

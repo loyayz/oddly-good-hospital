@@ -1,0 +1,8 @@
+{
+  "copied_source_files": 1388,
+  "original_aggregate": "210d549d9c266f3418a425f8edb09f7c8d9d05e2723f46625a40109ae121cf5d",
+  "production_changes": 0,
+  "added_driver": "/workspace/scratch/6962cc21ddf3/ogh-performance-20261107/diagnostic-root-v1/source/tools/performance/current/diagnostic_v1.gd",
+  "driver_sha256": "bcba59a432290bd16b43c595728d17407b99c41628fac0f776ac35ac9d1aa69c",
+  "cache_copy": "generated .godot metadata only, excluded from source identity"
+}

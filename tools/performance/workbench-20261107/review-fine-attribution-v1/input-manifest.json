@@ -1,0 +1,38 @@
+[
+  {
+    "path": "/workspace/scratch/6962cc21ddf3/ogh-performance-20261107/diagnostic-fine-v1/source/game/building/hospital_movement.gd",
+    "sha256": "b550b8b54ff26b77d9f13f8268ca6d5d44529a869972df45145f4504012d74a4"
+  },
+  {
+    "path": "/workspace/scratch/6962cc21ddf3/ogh-performance-20261107/diagnostic-fine-v1/source/game/building/hospital_space.gd",
+    "sha256": "6cb6a5415dd0282acb5453f50afc539e67cc1b102512156b466eed6c53c055ef"
+  },
+  {
+    "path": "/workspace/scratch/6962cc21ddf3/ogh-performance-20261107/diagnostic-fine-v1/source/game/life/waiting_life.gd",
+    "sha256": "8b87801e3ffc868cefbb120ebcd2902e8e2b57716077dec2986ba24ff2aeb066"
+  },
+  {
+    "path": "/workspace/scratch/6962cc21ddf3/ogh-performance-20261107/diagnostic-fine-v1/evidence/qualification-manifest.json",
+    "sha256": "6e168b5514dabe18eccb88b7a0a7a6b65575dc82e0e2ccb06eebd359bf473d79"
+  },
+  {
+    "path": "/workspace/scratch/6962cc21ddf3/ogh-performance-20261107/diagnostic-fine-v1/evidence/completed-manifest.json",
+    "sha256": "8536bb32a7916573fe5946b24650fda8eddd9abed03410639ea749a4409ac6ea"
+  },
+  {
+    "path": "/workspace/scratch/6962cc21ddf3/ogh-performance-20261107/diagnostic-fine-v1/changes.json",
+    "sha256": "38498bfc0577c91da543aca1c7349fdd2f5bb40b1297467f52c0c6568a2f0a3f"
+  },
+  {
+    "path": "/workspace/scratch/6962cc21ddf3/ogh-performance-20261107/diagnostic-fine-v1/evidence/protocol-v1.json",
+    "sha256": "5b690b64eac5908078d86b5d52c4e0c42bfca2a153fe03b3ca3d0c5049e6da81"
+  },
+  {
+    "path": "/workspace/scratch/6962cc21ddf3/ogh-performance-20261107/diagnostic-fine-v1/source/tools/performance/current/fine_timer_v1.gd",
+    "sha256": "a46c871e2973255735bbba805e5cd7fc1298f5622c519675fd9f63e195262cfd"
+  },
+  {
+    "path": "/workspace/scratch/6962cc21ddf3/ogh-performance-20261107/diagnostic-fine-v1/source/tools/performance/current/fine_driver_v1.gd",
+    "sha256": "d926e65f2ce8210cd5c6871b20e83a6c0948956f12c1d56e19a15beca08d2b81"
+  }
+]

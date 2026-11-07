@@ -1,0 +1,647 @@
+{
+  "scope": "readonly static contract and existing runtime artifact review; no engines/tests run byreviewer",
+  "source_changed": false,
+  "new_engine_runs": 0,
+  "new_performance_runs": 0,
+  "candidate_input_sha256": "7dbe20bbd53d7455b5fdb240b8fb80b3f12b7b40f37ab549942ac189cb50b61e",
+  "binary_hash_matches": true,
+  "binary_independently_decoded": false,
+  "producer_runtime_claims": {
+    "actors": 160,
+    "actual_layout_after": {
+      "facilities": 1340,
+      "props": 1200,
+      "rooms": 64,
+      "service_objects": 140
+    },
+    "actual_layout_before": {
+      "facilities": 1328,
+      "props": 1200,
+      "rooms": 64,
+      "service_objects": 128
+    },
+    "actual_steps": 21,
+    "added_guidance_desks": {
+      "boundary": "Declared initial built facilities, not measured construction",
+      "desk_ids": [
+        "performance_guidance_1",
+        "performance_guidance_2",
+        "performance_guidance_3",
+        "performance_guidance_4"
+      ],
+      "ok": true,
+      "rejected": []
+    },
+    "added_public_seat_ids": [
+      "acceptance_public_seat_0000",
+      "acceptance_public_seat_0001",
+      "acceptance_public_seat_0002",
+      "acceptance_public_seat_0003",
+      "acceptance_public_seat_0004",
+      "acceptance_public_seat_0005",
+      "acceptance_public_seat_0006",
+      "acceptance_public_seat_0007"
+    ],
+    "boundary": "original_companion_admissions_and_complete_steps",
+    "companion_intention_origin": "known_intentions_before_first_original_step",
+    "companion_profiles_valid": true,
+    "content_fingerprint": "11f4b75ffe357c73bd097d177169f1a846cf2d488fe23f2d1cd02b967cac3e2d",
+    "engine": "4.7.2-stable (official)",
+    "floors": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "hospital_id": "00000000-0000-4000-8000-000000000160",
+    "id": "160four",
+    "input_file": "160four.input.bin",
+    "input_sha256": "7dbe20bbd53d7455b5fdb240b8fb80b3f12b7b40f37ab549942ac189cb50b61e",
+    "layout": "four_floors",
+    "ok": true,
+    "original_object_ids_and_definitions_preserved": true,
+    "original_prop_count": 1200,
+    "original_rooms": 64,
+    "original_service_objects": 128,
+    "pending_visitor_requests_after": 0,
+    "pending_visitor_requests_before": 8,
+    "population": {
+      "patients": 120,
+      "present": 160,
+      "staff": 32,
+      "unowned": [],
+      "visitors": 8
+    },
+    "preparation_us": 29669059,
+    "source_input": "",
+    "source_input_sha256": "",
+    "source_tick": 21,
+    "validation": "",
+    "visitor_profile": "HospitalVisitors companion; original admission owner, actual entrance and public waiting route"
+  },
+  "separate_initial_observer": {
+    "beds": 24,
+    "desks": [
+      {
+        "floor": 1,
+        "id": "performance_guidance_1"
+      },
+      {
+        "floor": 2,
+        "id": "performance_guidance_2"
+      },
+      {
+        "floor": 3,
+        "id": "performance_guidance_3"
+      },
+      {
+        "floor": 4,
+        "id": "performance_guidance_4"
+      }
+    ],
+    "facilities": 1340,
+    "guidance": {
+      "desks": {
+        "performance_guidance_1": {
+          "id": "performance_guidance_1",
+          "nurse_id": "bench_staff_0016",
+          "reason": "导诊护士正在真实到岗"
+        },
+        "performance_guidance_2": {
+          "id": "performance_guidance_2",
+          "nurse_id": "bench_staff_0017",
+          "reason": "导诊护士正在真实到岗"
+        },
+        "performance_guidance_3": {
+          "id": "performance_guidance_3",
+          "nurse_id": "bench_staff_0018",
+          "reason": "导诊护士正在真实到岗"
+        },
+        "performance_guidance_4": {
+          "id": "performance_guidance_4",
+          "nurse_id": "bench_staff_0019",
+          "reason": "导诊护士正在真实到岗"
+        }
+      },
+      "next_arrival": 0,
+      "releases": {},
+      "visits": {}
+    },
+    "intake": {
+      "daily_stats": {
+        "1": {
+          "abandoned": 0,
+          "arrived": 0,
+          "closed": 0,
+          "completed": 0,
+          "departed": 0,
+          "full": 0,
+          "opportunities": 0,
+          "unready": 0
+        }
+      },
+      "disease_weights": {},
+      "held_capacity_fraction": {
+        "d": "1",
+        "n": "0"
+      },
+      "held_scale_numerator": 0,
+      "intake_open": true,
+      "mode": "follow_capacity",
+      "next_mode": "follow_capacity",
+      "next_preset": "normal",
+      "plan": {
+        "day_index": 1,
+        "held_capacity_fraction": {
+          "d": "1",
+          "n": "0"
+        },
+        "held_scale_numerator": 0,
+        "next_slot_index": 0,
+        "opportunity_count": 52,
+        "preset": "normal",
+        "scale_numerator": 8,
+        "schedule_algorithm": "arrival-load-slot-v1",
+        "schedule_seed": "15155611712065055742",
+        "shift_capacities": [
+          {
+            "d": "1",
+            "n": "16"
+          },
+          {
+            "d": "1",
+            "n": "16"
+          },
+          {
+            "d": "1",
+            "n": "16"
+          }
+        ],
+        "shift_opportunity_counts": [
+          18,
+          17,
+          17
+        ]
+      },
+      "preset": "normal"
+    },
+    "nurses": [
+      {
+        "abilities": {
+          "care": 2,
+          "diagnosis": 2,
+          "surgery": 2,
+          "treatment": 2
+        },
+        "certificates": [
+          "q_or",
+          "q_ward"
+        ],
+        "id": "bench_staff_0016",
+        "job": "floor_desk:performance_guidance_1",
+        "location": {
+          "cell": [
+            14.6000003814697,
+            6.59999847412109
+          ],
+          "floor_id": 1,
+          "height_m": 0.0,
+          "kind": "floor"
+        },
+        "on_shift": true,
+        "schedule": [
+          {
+            "kind": "work",
+            "locked": false,
+            "pools": []
+          },
+          {
+            "kind": "work",
+            "locked": false,
+            "pools": []
+          },
+          {
+            "kind": "rest",
+            "locked": false,
+            "pools": []
+          }
+        ]
+      },
+      {
+        "abilities": {
+          "care": 2,
+          "diagnosis": 2,
+          "surgery": 2,
+          "treatment": 2
+        },
+        "certificates": [
+          "q_or",
+          "q_ward"
+        ],
+        "id": "bench_staff_0017",
+        "job": "floor_desk:performance_guidance_2",
+        "location": {
+          "cell": [
+            14.6000003814697,
+            6.59999847412109
+          ],
+          "floor_id": 2,
+          "height_m": 0.0,
+          "kind": "floor"
+        },
+        "on_shift": true,
+        "schedule": [
+          {
+            "kind": "work",
+            "locked": false,
+            "pools": []
+          },
+          {
+            "kind": "work",
+            "locked": false,
+            "pools": []
+          },
+          {
+            "kind": "rest",
+            "locked": false,
+            "pools": []
+          }
+        ]
+      },
+      {
+        "abilities": {
+          "care": 2,
+          "diagnosis": 2,
+          "surgery": 2,
+          "treatment": 2
+        },
+        "certificates": [
+          "q_or",
+          "q_ward"
+        ],
+        "id": "bench_staff_0018",
+        "job": "floor_desk:performance_guidance_3",
+        "location": {
+          "cell": [
+            14.6000003814697,
+            6.59999847412109
+          ],
+          "floor_id": 3,
+          "height_m": 0.0,
+          "kind": "floor"
+        },
+        "on_shift": true,
+        "schedule": [
+          {
+            "kind": "work",
+            "locked": false,
+            "pools": []
+          },
+          {
+            "kind": "work",
+            "locked": false,
+            "pools": []
+          },
+          {
+            "kind": "rest",
+            "locked": false,
+            "pools": []
+          }
+        ]
+      },
+      {
+        "abilities": {
+          "care": 2,
+          "diagnosis": 2,
+          "surgery": 2,
+          "treatment": 2
+        },
+        "certificates": [
+          "q_or",
+          "q_ward"
+        ],
+        "id": "bench_staff_0019",
+        "job": "floor_desk:performance_guidance_4",
+        "location": {
+          "cell": [
+            14.6000003814697,
+            6.59999847412109
+          ],
+          "floor_id": 4,
+          "height_m": 0.0,
+          "kind": "floor"
+        },
+        "on_shift": true,
+        "schedule": [
+          {
+            "kind": "work",
+            "locked": false,
+            "pools": []
+          },
+          {
+            "kind": "work",
+            "locked": false,
+            "pools": []
+          },
+          {
+            "kind": "rest",
+            "locked": false,
+            "pools": []
+          }
+        ]
+      },
+      {
+        "abilities": {
+          "care": 2,
+          "diagnosis": 2,
+          "surgery": 2,
+          "treatment": 2
+        },
+        "certificates": [
+          "q_or",
+          "q_ward"
+        ],
+        "id": "bench_staff_0020",
+        "job": "",
+        "location": {
+          "cell": [
+            18,
+            6
+          ],
+          "floor_id": 1,
+          "height_m": 0.0,
+          "kind": "floor"
+        },
+        "on_shift": true,
+        "schedule": [
+          {
+            "kind": "work",
+            "locked": false,
+            "pools": []
+          },
+          {
+            "kind": "work",
+            "locked": false,
+            "pools": []
+          },
+          {
+            "kind": "rest",
+            "locked": false,
+            "pools": []
+          }
+        ]
+      },
+      {
+        "abilities": {
+          "care": 2,
+          "diagnosis": 2,
+          "surgery": 2,
+          "treatment": 2
+        },
+        "certificates": [
+          "q_or",
+          "q_ward"
+        ],
+        "id": "bench_staff_0021",
+        "job": "",
+        "location": {
+          "cell": [
+            18,
+            6
+          ],
+          "floor_id": 2,
+          "height_m": 0.0,
+          "kind": "floor"
+        },
+        "on_shift": true,
+        "schedule": [
+          {
+            "kind": "work",
+            "locked": false,
+            "pools": []
+          },
+          {
+            "kind": "work",
+            "locked": false,
+            "pools": []
+          },
+          {
+            "kind": "rest",
+            "locked": false,
+            "pools": []
+          }
+        ]
+      },
+      {
+        "abilities": {
+          "care": 2,
+          "diagnosis": 2,
+          "surgery": 2,
+          "treatment": 2
+        },
+        "certificates": [
+          "q_or",
+          "q_ward"
+        ],
+        "id": "bench_staff_0022",
+        "job": "",
+        "location": {
+          "cell": [
+            18,
+            6
+          ],
+          "floor_id": 3,
+          "height_m": 0.0,
+          "kind": "floor"
+        },
+        "on_shift": true,
+        "schedule": [
+          {
+            "kind": "work",
+            "locked": false,
+            "pools": []
+          },
+          {
+            "kind": "work",
+            "locked": false,
+            "pools": []
+          },
+          {
+            "kind": "rest",
+            "locked": false,
+            "pools": []
+          }
+        ]
+      },
+      {
+        "abilities": {
+          "care": 2,
+          "diagnosis": 2,
+          "surgery": 2,
+          "treatment": 2
+        },
+        "certificates": [
+          "q_or",
+          "q_ward"
+        ],
+        "id": "bench_staff_0023",
+        "job": "",
+        "location": {
+          "cell": [
+            18,
+            6
+          ],
+          "floor_id": 4,
+          "height_m": 0.0,
+          "kind": "floor"
+        },
+        "on_shift": true,
+        "schedule": [
+          {
+            "kind": "work",
+            "locked": false,
+            "pools": []
+          },
+          {
+            "kind": "work",
+            "locked": false,
+            "pools": []
+          },
+          {
+            "kind": "rest",
+            "locked": false,
+            "pools": []
+          }
+        ]
+      }
+    ],
+    "population": {
+      "patients": 120,
+      "present": 160,
+      "staff": 32,
+      "unowned": [],
+      "visitors": 8
+    },
+    "props": 1200,
+    "rooms": 64,
+    "sessions": {},
+    "tick": 21
+  },
+  "review_verdict": "Initial workload representation consistent with existing formal fixture contract; clinical/guidance timed-window qualification remains pending",
+  "service_objects_definition": "AllnonFUR18facilities,notonlymedicalstations",
+  "visitor_classification": "8actualcompanion profiles consistent withformalfixtureREADME19 andordinaryvisitor umbrella;notcoverageofallvisitpurposes",
+  "nonpassing_or_unproved": [
+    "No actualguidancearrival/completion yetat21",
+    "No clinicalsessionsat21",
+    "No formalperformance acceptance",
+    "No universaltraffic liveness",
+    "No GPU/FPS/WindowsRelease/nativeSQLite"
+  ],
+  "inputs": [
+    {
+      "path": "/workspace/scratch/6962cc21ddf3/ogh-recovery-20261107/current/source/AGENTS.md",
+      "bytes": 5006,
+      "sha256": "db53e36a9831ccba21a9ed7687df6d0458340692ff7fa4d556d34d305118c5f7"
+    },
+    {
+      "path": "/workspace/scratch/6962cc21ddf3/ogh-recovery-20261107/current/source/content/core/rules.json",
+      "bytes": 106200,
+      "sha256": "0649cc0330371f93cc1ddc545d030502c19b450b87c2df23511cc0423f945a67"
+    },
+    {
+      "path": "/workspace/scratch/6962cc21ddf3/ogh-recovery-20261107/current/source/docs/data/balance.json",
+      "bytes": 105135,
+      "sha256": "b59916349132fe574314d8d2f4ff9bc993d6a0d7e7145529da2ed1535321a840"
+    },
+    {
+      "path": "/workspace/scratch/6962cc21ddf3/ogh-recovery-20261107/current/source/docs/design/08-hospital-life.md",
+      "bytes": 141159,
+      "sha256": "4fd463a714a456c3d071c812721d133a01c3e9de398a9ae9df8414f34712e766"
+    },
+    {
+      "path": "/workspace/scratch/6962cc21ddf3/ogh-recovery-20261107/current/source/docs/design/11-growth-arrivals-recruitment.md",
+      "bytes": 70001,
+      "sha256": "69ef8fe733b69917181d93531809caf6a8a074d0e321367bdbd1231852c88186"
+    },
+    {
+      "path": "/workspace/scratch/6962cc21ddf3/ogh-recovery-20261107/current/source/docs/design/04-technical.md",
+      "bytes": 198915,
+      "sha256": "2e5ba9db3d5dd3ef925cf722ce3bc565356252a210b929a14d8f36a2b19cb9a4"
+    },
+    {
+      "path": "/workspace/scratch/6962cc21ddf3/ogh-recovery-20261107/current/source/docs/specs/26-10/2026-10-16-performance-validation.md",
+      "bytes": 17996,
+      "sha256": "483f61ec875cae3426b2e2916f94baf86516b82bf6a5e74d2045eb0f703d33cc"
+    },
+    {
+      "path": "/workspace/scratch/6962cc21ddf3/ogh-recovery-20261107/current/source/tools/performance/fixture.gd",
+      "bytes": 10582,
+      "sha256": "f99efd9dd5cf8afa2f7ca89f221edbcc54c2e080b1d0339d4b7de80874145189"
+    },
+    {
+      "path": "/workspace/scratch/6962cc21ddf3/ogh-recovery-20261107/current/source/content/core/layouts.json",
+      "bytes": 5086,
+      "sha256": "3eac94a284723845042c07001fba3c3153bc30513ea35b1ba0916df92a97524c"
+    },
+    {
+      "path": "/workspace/scratch/6962cc21ddf3/ogh-recovery-20261107/current/source/tools/performance/representative.gd",
+      "bytes": 11289,
+      "sha256": "629d2916fbf943a02d272d1472a643b5f8a6fe5a3fbef715e8961dc78d52ad91"
+    },
+    {
+      "path": "/workspace/scratch/6962cc21ddf3/ogh-recovery-20261107/current/source/tools/performance/representative_clinical.gd",
+      "bytes": 11780,
+      "sha256": "463e2370de3a9d9ec22a9fbf7a6e64fd4809256920f8194e323bdb4ae18e52e0"
+    },
+    {
+      "path": "/workspace/scratch/6962cc21ddf3/ogh-recovery-20261107/current/source/tools/performance/acceptance/fixtures/README.md",
+      "bytes": 27694,
+      "sha256": "a5236b9991b8f1e88ee5f618ab19f35ce28118f59b8431e5b2eb038601f0d358"
+    },
+    {
+      "path": "/workspace/scratch/6962cc21ddf3/ogh-recovery-20261107/current/source/tools/performance/acceptance/fixtures/inputs.json",
+      "bytes": 10113,
+      "sha256": "61360ea6e15293c270ed8a326c8cdb481f16a24c882a0711ed591580b05a7347"
+    },
+    {
+      "path": "/workspace/scratch/6962cc21ddf3/ogh-recovery-20261107/current/source/tools/performance/acceptance/fixtures/prepare_inputs.gd",
+      "bytes": 20503,
+      "sha256": "74497e2fd98e25d852fe55e264e4e8591cb8f294aef2c77fbd24b176647eb761"
+    },
+    {
+      "path": "/workspace/scratch/6962cc21ddf3/ogh-recovery-20261107/current/source/tools/performance/acceptance/DENSE_MATRIX.md",
+      "bytes": 10713,
+      "sha256": "20c24298ad1e8b977234ed71b3445e443d2521fc79cd503b53857d00b04a528a"
+    },
+    {
+      "path": "/workspace/scratch/6962cc21ddf3/ogh-recovery-20261107/current/source/game/operations/floor_guidance.gd",
+      "bytes": 41908,
+      "sha256": "ed47dec362c84f959deab21cdf75456ddc5979b0f6b6127c9583b89fafab8a41"
+    },
+    {
+      "path": "/workspace/scratch/6962cc21ddf3/ogh-performance-20261107/source/tools/performance/current/prepare_inputs.gd",
+      "bytes": 22803,
+      "sha256": "2d32c2511657250481b593905db00bac1fe3c9eb5bdc27ec55c8024bc58a6d92"
+    },
+    {
+      "path": "/workspace/scratch/6962cc21ddf3/ogh-performance-20261107/evidence/input160-v1/160four.manifest.json",
+      "bytes": 1968,
+      "sha256": "52c86a4483c9a9c86d5c86b53a7c992a2cafa0a9f902588269ca12096cdaff87"
+    },
+    {
+      "path": "/workspace/scratch/6962cc21ddf3/ogh-performance-20261107/evidence/input160-v1/160four.input.bin",
+      "bytes": 1647064,
+      "sha256": "7dbe20bbd53d7455b5fdb240b8fb80b3f12b7b40f37ab549942ac189cb50b61e"
+    },
+    {
+      "path": "/workspace/scratch/6962cc21ddf3/ogh-performance-20261107/evidence/prepare160-v1/status.json",
+      "bytes": 100,
+      "sha256": "a81974336c76455c46cc419bb449dbac113f52cf1993323c508ae7e0f8c83e4b"
+    },
+    {
+      "path": "/workspace/scratch/6962cc21ddf3/ogh-performance-20261107/evidence/preflight160-v1/result.json.initial.json",
+      "bytes": 7073,
+      "sha256": "960984cebc791469165e544ff23f4d4df374db3b58bfb717bdaebf14cd05b874"
+    }
+  ]
+}

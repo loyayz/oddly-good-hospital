@@ -1,0 +1,40 @@
+{
+  "scope": "Static-only A01 artifact review. No engine, no binary decode, no source edits.",
+  "files": [
+    {
+      "path": "review-workload-contract/baseline160-GP-v4-A01-review.json",
+      "sha256": "aa7317a3a41eeb8764ead6579d5f7d749e7dcbef0ec3609a40baa65b51fd4479",
+      "bytes": 3319
+    },
+    {
+      "path": "evidence/baseline160-GP-v4-A01/result.json",
+      "sha256": "2df8a9166cd63d93416cbc863c0ba44f6e0feef67c6b2cd10fef5ef59c612498",
+      "bytes": 22963
+    },
+    {
+      "path": "evidence/baseline160-GP-v4-A01/result.json.steps.ndjson",
+      "sha256": "4a885ba58c60c15c3ef6988b9c926ef2dca564c8b5511e84d79dd50e178d651e",
+      "bytes": 463777
+    },
+    {
+      "path": "evidence/baseline160-GP-v4-A01/result.json.final.bin",
+      "sha256": "de17e2605dbc8c8b7609dc320170a0613c8bfeddf65f722f2ecef9dfe06feee1",
+      "bytes": 2766204
+    },
+    {
+      "path": "evidence/baseline160-GP-v4-A01/status.json",
+      "sha256": "32d0d67262c8627764d42e2ffff4c341cbd651a1847c95952ed3a8b4e35310e3",
+      "bytes": 100
+    },
+    {
+      "path": "evidence/baseline160-GP-v4-A01/started.json",
+      "sha256": "1a8e8981380137eecc076da4b3cc3ff5ccfe0bdc2e78d8699f2a71a34f20a47f",
+      "bytes": 727
+    },
+    {
+      "path": "source/tools/performance/current/plain_v4.gd",
+      "sha256": "9f80ae850108151c1403eff944291b82f5248e625e44cc215f4a4f0d3005c50f",
+      "bytes": 9670
+    }
+  ]
+}

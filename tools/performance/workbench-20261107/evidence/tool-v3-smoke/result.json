@@ -1,0 +1,959 @@
+{
+	"all_completed_steps": 2,
+	"all_wall_us": 1245776,
+	"business": {
+		"clinical_work_ticks_observed_lower_bound": {},
+		"events": {
+			"tick_completed": 2
+		},
+		"guidance_work_ticks": 0,
+		"steps_with_active_moves_not_arrival_proof": 2
+	},
+	"complete": true,
+	"errors": [],
+	"final": {
+		"beds": 24,
+		"desks": [
+			{
+				"floor": 1,
+				"id": "performance_guidance_1"
+			},
+			{
+				"floor": 2,
+				"id": "performance_guidance_2"
+			},
+			{
+				"floor": 3,
+				"id": "performance_guidance_3"
+			},
+			{
+				"floor": 4,
+				"id": "performance_guidance_4"
+			}
+		],
+		"facilities": 1340,
+		"guidance": {
+			"desks": {
+				"performance_guidance_1": {
+					"id": "performance_guidance_1",
+					"nurse_id": "bench_staff_0016",
+					"reason": "导诊护士正在真实到岗"
+				},
+				"performance_guidance_2": {
+					"id": "performance_guidance_2",
+					"nurse_id": "bench_staff_0017",
+					"reason": "导诊护士正在真实到岗"
+				},
+				"performance_guidance_3": {
+					"id": "performance_guidance_3",
+					"nurse_id": "bench_staff_0018",
+					"reason": "导诊护士正在真实到岗"
+				},
+				"performance_guidance_4": {
+					"id": "performance_guidance_4",
+					"nurse_id": "bench_staff_0019",
+					"reason": "导诊护士正在真实到岗"
+				}
+			},
+			"next_arrival": 0,
+			"releases": {},
+			"visits": {}
+		},
+		"intake": {
+			"daily_stats": {
+				"1": {
+					"abandoned": 0,
+					"arrived": 0,
+					"closed": 0,
+					"completed": 0,
+					"departed": 0,
+					"full": 0,
+					"opportunities": 0,
+					"unready": 0
+				}
+			},
+			"disease_weights": {},
+			"held_capacity_fraction": {
+				"d": "1",
+				"n": "0"
+			},
+			"held_scale_numerator": 0,
+			"intake_open": true,
+			"mode": "follow_capacity",
+			"next_mode": "follow_capacity",
+			"next_preset": "normal",
+			"plan": {
+				"day_index": 1,
+				"held_capacity_fraction": {
+					"d": "1",
+					"n": "0"
+				},
+				"held_scale_numerator": 0,
+				"next_slot_index": 0,
+				"opportunity_count": 52,
+				"preset": "normal",
+				"scale_numerator": 8,
+				"schedule_algorithm": "arrival-load-slot-v1",
+				"schedule_seed": "15155611712065055742",
+				"shift_capacities": [
+					{
+						"d": "1",
+						"n": "16"
+					},
+					{
+						"d": "1",
+						"n": "16"
+					},
+					{
+						"d": "1",
+						"n": "16"
+					}
+				],
+				"shift_opportunity_counts": [
+					18,
+					17,
+					17
+				]
+			},
+			"preset": "normal"
+		},
+		"nurses": [
+			{
+				"abilities": {
+					"care": 2,
+					"diagnosis": 2,
+					"surgery": 2,
+					"treatment": 2
+				},
+				"certificates": [
+					"q_or",
+					"q_ward"
+				],
+				"id": "bench_staff_0016",
+				"job": "floor_desk:performance_guidance_1",
+				"location": {
+					"cell": [
+						14.6000003814697,
+						7.0
+					],
+					"floor_id": 1,
+					"height_m": 0.0,
+					"kind": "floor"
+				},
+				"on_shift": true,
+				"schedule": [
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "rest",
+						"locked": false,
+						"pools": []
+					}
+				]
+			},
+			{
+				"abilities": {
+					"care": 2,
+					"diagnosis": 2,
+					"surgery": 2,
+					"treatment": 2
+				},
+				"certificates": [
+					"q_or",
+					"q_ward"
+				],
+				"id": "bench_staff_0017",
+				"job": "floor_desk:performance_guidance_2",
+				"location": {
+					"cell": [
+						14.6000003814697,
+						7.0
+					],
+					"floor_id": 2,
+					"height_m": 0.0,
+					"kind": "floor"
+				},
+				"on_shift": true,
+				"schedule": [
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "rest",
+						"locked": false,
+						"pools": []
+					}
+				]
+			},
+			{
+				"abilities": {
+					"care": 2,
+					"diagnosis": 2,
+					"surgery": 2,
+					"treatment": 2
+				},
+				"certificates": [
+					"q_or",
+					"q_ward"
+				],
+				"id": "bench_staff_0018",
+				"job": "floor_desk:performance_guidance_3",
+				"location": {
+					"cell": [
+						14.6000003814697,
+						7.0
+					],
+					"floor_id": 3,
+					"height_m": 0.0,
+					"kind": "floor"
+				},
+				"on_shift": true,
+				"schedule": [
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "rest",
+						"locked": false,
+						"pools": []
+					}
+				]
+			},
+			{
+				"abilities": {
+					"care": 2,
+					"diagnosis": 2,
+					"surgery": 2,
+					"treatment": 2
+				},
+				"certificates": [
+					"q_or",
+					"q_ward"
+				],
+				"id": "bench_staff_0019",
+				"job": "floor_desk:performance_guidance_4",
+				"location": {
+					"cell": [
+						14.6000003814697,
+						7.0
+					],
+					"floor_id": 4,
+					"height_m": 0.0,
+					"kind": "floor"
+				},
+				"on_shift": true,
+				"schedule": [
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "rest",
+						"locked": false,
+						"pools": []
+					}
+				]
+			},
+			{
+				"abilities": {
+					"care": 2,
+					"diagnosis": 2,
+					"surgery": 2,
+					"treatment": 2
+				},
+				"certificates": [
+					"q_or",
+					"q_ward"
+				],
+				"id": "bench_staff_0020",
+				"job": "",
+				"location": {
+					"cell": [
+						18,
+						6
+					],
+					"floor_id": 1,
+					"height_m": 0.0,
+					"kind": "floor"
+				},
+				"on_shift": true,
+				"schedule": [
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "rest",
+						"locked": false,
+						"pools": []
+					}
+				]
+			},
+			{
+				"abilities": {
+					"care": 2,
+					"diagnosis": 2,
+					"surgery": 2,
+					"treatment": 2
+				},
+				"certificates": [
+					"q_or",
+					"q_ward"
+				],
+				"id": "bench_staff_0021",
+				"job": "",
+				"location": {
+					"cell": [
+						18,
+						6
+					],
+					"floor_id": 2,
+					"height_m": 0.0,
+					"kind": "floor"
+				},
+				"on_shift": true,
+				"schedule": [
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "rest",
+						"locked": false,
+						"pools": []
+					}
+				]
+			},
+			{
+				"abilities": {
+					"care": 2,
+					"diagnosis": 2,
+					"surgery": 2,
+					"treatment": 2
+				},
+				"certificates": [
+					"q_or",
+					"q_ward"
+				],
+				"id": "bench_staff_0022",
+				"job": "",
+				"location": {
+					"cell": [
+						18,
+						6
+					],
+					"floor_id": 3,
+					"height_m": 0.0,
+					"kind": "floor"
+				},
+				"on_shift": true,
+				"schedule": [
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "rest",
+						"locked": false,
+						"pools": []
+					}
+				]
+			},
+			{
+				"abilities": {
+					"care": 2,
+					"diagnosis": 2,
+					"surgery": 2,
+					"treatment": 2
+				},
+				"certificates": [
+					"q_or",
+					"q_ward"
+				],
+				"id": "bench_staff_0023",
+				"job": "",
+				"location": {
+					"cell": [
+						18,
+						6
+					],
+					"floor_id": 4,
+					"height_m": 0.0,
+					"kind": "floor"
+				},
+				"on_shift": true,
+				"schedule": [
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "rest",
+						"locked": false,
+						"pools": []
+					}
+				]
+			}
+		],
+		"population": {
+			"other_owned_present": [],
+			"patients": 120,
+			"present": 160,
+			"staff": 32,
+			"unclassified_actor_ids": [],
+			"visitors": 8
+		},
+		"props": 1200,
+		"rooms": 64,
+		"sessions": {},
+		"tick": 23
+	},
+	"final_sha256": "4b6f5e83482c2ea68e1a1f960be4bf3f536e1a07db38a86a0aba687e2b7bc228",
+	"gpu_fps": null,
+	"initial": {
+		"beds": 24,
+		"desks": [
+			{
+				"floor": 1,
+				"id": "performance_guidance_1"
+			},
+			{
+				"floor": 2,
+				"id": "performance_guidance_2"
+			},
+			{
+				"floor": 3,
+				"id": "performance_guidance_3"
+			},
+			{
+				"floor": 4,
+				"id": "performance_guidance_4"
+			}
+		],
+		"facilities": 1340,
+		"guidance": {
+			"desks": {
+				"performance_guidance_1": {
+					"id": "performance_guidance_1",
+					"nurse_id": "bench_staff_0016",
+					"reason": "导诊护士正在真实到岗"
+				},
+				"performance_guidance_2": {
+					"id": "performance_guidance_2",
+					"nurse_id": "bench_staff_0017",
+					"reason": "导诊护士正在真实到岗"
+				},
+				"performance_guidance_3": {
+					"id": "performance_guidance_3",
+					"nurse_id": "bench_staff_0018",
+					"reason": "导诊护士正在真实到岗"
+				},
+				"performance_guidance_4": {
+					"id": "performance_guidance_4",
+					"nurse_id": "bench_staff_0019",
+					"reason": "导诊护士正在真实到岗"
+				}
+			},
+			"next_arrival": 0,
+			"releases": {},
+			"visits": {}
+		},
+		"intake": {
+			"daily_stats": {
+				"1": {
+					"abandoned": 0,
+					"arrived": 0,
+					"closed": 0,
+					"completed": 0,
+					"departed": 0,
+					"full": 0,
+					"opportunities": 0,
+					"unready": 0
+				}
+			},
+			"disease_weights": {},
+			"held_capacity_fraction": {
+				"d": "1",
+				"n": "0"
+			},
+			"held_scale_numerator": 0,
+			"intake_open": true,
+			"mode": "follow_capacity",
+			"next_mode": "follow_capacity",
+			"next_preset": "normal",
+			"plan": {
+				"day_index": 1,
+				"held_capacity_fraction": {
+					"d": "1",
+					"n": "0"
+				},
+				"held_scale_numerator": 0,
+				"next_slot_index": 0,
+				"opportunity_count": 52,
+				"preset": "normal",
+				"scale_numerator": 8,
+				"schedule_algorithm": "arrival-load-slot-v1",
+				"schedule_seed": "15155611712065055742",
+				"shift_capacities": [
+					{
+						"d": "1",
+						"n": "16"
+					},
+					{
+						"d": "1",
+						"n": "16"
+					},
+					{
+						"d": "1",
+						"n": "16"
+					}
+				],
+				"shift_opportunity_counts": [
+					18,
+					17,
+					17
+				]
+			},
+			"preset": "normal"
+		},
+		"nurses": [
+			{
+				"abilities": {
+					"care": 2,
+					"diagnosis": 2,
+					"surgery": 2,
+					"treatment": 2
+				},
+				"certificates": [
+					"q_or",
+					"q_ward"
+				],
+				"id": "bench_staff_0016",
+				"job": "floor_desk:performance_guidance_1",
+				"location": {
+					"cell": [
+						14.6000003814697,
+						6.59999847412109
+					],
+					"floor_id": 1,
+					"height_m": 0.0,
+					"kind": "floor"
+				},
+				"on_shift": true,
+				"schedule": [
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "rest",
+						"locked": false,
+						"pools": []
+					}
+				]
+			},
+			{
+				"abilities": {
+					"care": 2,
+					"diagnosis": 2,
+					"surgery": 2,
+					"treatment": 2
+				},
+				"certificates": [
+					"q_or",
+					"q_ward"
+				],
+				"id": "bench_staff_0017",
+				"job": "floor_desk:performance_guidance_2",
+				"location": {
+					"cell": [
+						14.6000003814697,
+						6.59999847412109
+					],
+					"floor_id": 2,
+					"height_m": 0.0,
+					"kind": "floor"
+				},
+				"on_shift": true,
+				"schedule": [
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "rest",
+						"locked": false,
+						"pools": []
+					}
+				]
+			},
+			{
+				"abilities": {
+					"care": 2,
+					"diagnosis": 2,
+					"surgery": 2,
+					"treatment": 2
+				},
+				"certificates": [
+					"q_or",
+					"q_ward"
+				],
+				"id": "bench_staff_0018",
+				"job": "floor_desk:performance_guidance_3",
+				"location": {
+					"cell": [
+						14.6000003814697,
+						6.59999847412109
+					],
+					"floor_id": 3,
+					"height_m": 0.0,
+					"kind": "floor"
+				},
+				"on_shift": true,
+				"schedule": [
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "rest",
+						"locked": false,
+						"pools": []
+					}
+				]
+			},
+			{
+				"abilities": {
+					"care": 2,
+					"diagnosis": 2,
+					"surgery": 2,
+					"treatment": 2
+				},
+				"certificates": [
+					"q_or",
+					"q_ward"
+				],
+				"id": "bench_staff_0019",
+				"job": "floor_desk:performance_guidance_4",
+				"location": {
+					"cell": [
+						14.6000003814697,
+						6.59999847412109
+					],
+					"floor_id": 4,
+					"height_m": 0.0,
+					"kind": "floor"
+				},
+				"on_shift": true,
+				"schedule": [
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "rest",
+						"locked": false,
+						"pools": []
+					}
+				]
+			},
+			{
+				"abilities": {
+					"care": 2,
+					"diagnosis": 2,
+					"surgery": 2,
+					"treatment": 2
+				},
+				"certificates": [
+					"q_or",
+					"q_ward"
+				],
+				"id": "bench_staff_0020",
+				"job": "",
+				"location": {
+					"cell": [
+						18,
+						6
+					],
+					"floor_id": 1,
+					"height_m": 0.0,
+					"kind": "floor"
+				},
+				"on_shift": true,
+				"schedule": [
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "rest",
+						"locked": false,
+						"pools": []
+					}
+				]
+			},
+			{
+				"abilities": {
+					"care": 2,
+					"diagnosis": 2,
+					"surgery": 2,
+					"treatment": 2
+				},
+				"certificates": [
+					"q_or",
+					"q_ward"
+				],
+				"id": "bench_staff_0021",
+				"job": "",
+				"location": {
+					"cell": [
+						18,
+						6
+					],
+					"floor_id": 2,
+					"height_m": 0.0,
+					"kind": "floor"
+				},
+				"on_shift": true,
+				"schedule": [
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "rest",
+						"locked": false,
+						"pools": []
+					}
+				]
+			},
+			{
+				"abilities": {
+					"care": 2,
+					"diagnosis": 2,
+					"surgery": 2,
+					"treatment": 2
+				},
+				"certificates": [
+					"q_or",
+					"q_ward"
+				],
+				"id": "bench_staff_0022",
+				"job": "",
+				"location": {
+					"cell": [
+						18,
+						6
+					],
+					"floor_id": 3,
+					"height_m": 0.0,
+					"kind": "floor"
+				},
+				"on_shift": true,
+				"schedule": [
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "rest",
+						"locked": false,
+						"pools": []
+					}
+				]
+			},
+			{
+				"abilities": {
+					"care": 2,
+					"diagnosis": 2,
+					"surgery": 2,
+					"treatment": 2
+				},
+				"certificates": [
+					"q_or",
+					"q_ward"
+				],
+				"id": "bench_staff_0023",
+				"job": "",
+				"location": {
+					"cell": [
+						18,
+						6
+					],
+					"floor_id": 4,
+					"height_m": 0.0,
+					"kind": "floor"
+				},
+				"on_shift": true,
+				"schedule": [
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "work",
+						"locked": false,
+						"pools": []
+					},
+					{
+						"kind": "rest",
+						"locked": false,
+						"pools": []
+					}
+				]
+			}
+		],
+		"population": {
+			"other_owned_present": [],
+			"patients": 120,
+			"present": 160,
+			"staff": 32,
+			"unclassified_actor_ids": [],
+			"visitors": 8
+		},
+		"props": 1200,
+		"rooms": 64,
+		"sessions": {},
+		"tick": 21
+	},
+	"initialization_us": 373964,
+	"metrics": {
+		"count": 1,
+		"first_sample_step_us": 59104,
+		"fresh_runtime_first_prefix_or_sample_step_us": 1186032,
+		"max_us": 59104,
+		"mean_step_us": 59104.0,
+		"observation_logging_and_loop_wall_us": 154,
+		"p50_us": 59104,
+		"p95_us": 59104,
+		"p99_us": 59104,
+		"real_window_us_including_observation": 59258,
+		"simulated_seconds": 0.1,
+		"simulation_seconds_per_wall_second": 1.68753586013703,
+		"sum_step_us": 59104
+	},
+	"mode": "plain_cpu_full_step",
+	"performance_pass": null,
+	"prefix_business": {
+		"events": {
+			"tick_completed": 1
+		},
+		"guidance": 0,
+		"work": {}
+	},
+	"prefix_wall_us": 1186518,
+	"requested_prefix_steps": 1,
+	"requested_sample_steps": 1,
+	"sample_business": {
+		"clinical_work_ticks_observed_lower_bound": {},
+		"events": {
+			"tick_completed": 1
+		},
+		"guidance_work_ticks": 0
+	},
+	"sample_start_population": {
+		"other_owned_present": [],
+		"patients": 120,
+		"present": 160,
+		"staff": 32,
+		"unclassified_actor_ids": [],
+		"visitors": 8
+	},
+	"scope": "HospitalSimulation CPU full steps only; no GameSession/renderer/persistence lifecycle. Ordinary business rules retained; no fixed-population hold. Work counter excludes transition ticks and is a lower bound, not total completed work.",
+	"source_input_sha256": "7dbe20bbd53d7455b5fdb240b8fb80b3f12b7b40f37ab549942ac189cb50b61e"
+}

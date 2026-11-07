@@ -1,0 +1,123 @@
+{
+  "scope": "Read-only static/source comparison and existing Godot test-output review. No engine runs; no whole-tree hashing.",
+  "time_utc": "2026-11-07T15:00:56.467257+00:00",
+  "decision": "Supports proceeding to bounded full640 preparation under fresh-fixture scope; NOT qualified full640 input or performance result.",
+  "candidate_drift": {
+    "fixture_exact_v1": true,
+    "query_exact_v1": true
+  },
+  "supplemental": {
+    "run01": {
+      "status": {
+        "returncode": 0,
+        "timed_out": false,
+        "wall_seconds": 6.633154314004059,
+        "finished": true,
+        "diagnostic_only": true,
+        "legal_input_qualified": false
+      },
+      "rows": 8,
+      "all_trace_results_equal": true,
+      "all_committed_facts_rng_equal": true,
+      "reservation_coverage": {
+        "nonowner": "bench_patient_0004",
+        "nonowner_permission": false,
+        "nonowner_reason": "设备真实占地受阻：bench_room_1_14_reception",
+        "owner": "bench_patient_0000",
+        "owner_permission": true,
+        "reason": "Existing owner/nonowner compared; reservation-negative requires actual reservation rejection, other geometric rejection does not substitute",
+        "reservation_id": "bench_room_1_14_reception",
+        "status": "notcovered"
+      }
+    },
+    "reservation03": {
+      "status": {
+        "returncode": 0,
+        "timed_out": false,
+        "wall_seconds": 6.0346621650023735,
+        "finished": true,
+        "diagnostic_only": true,
+        "legal_input_qualified": false
+      },
+      "rows": 8,
+      "all_trace_results_equal": true,
+      "all_committed_facts_rng_equal": true,
+      "reservation_coverage": {
+        "nonowner": "bench_patient_0004",
+        "nonowner_permission": false,
+        "nonowner_reason": "真实展开与岗位预约阻挡：bench_room_1_14_reception",
+        "owner": "bench_patient_0000",
+        "owner_permission": true,
+        "reason": "Existing owner/nonowner compared; reservation-negative requires actual reservation rejection, other geometric rejection does not substitute",
+        "reservation_id": "bench_room_1_14_reception",
+        "status": "covered"
+      }
+    }
+  },
+  "prefix": {
+    "candidate_us": 4167796,
+    "facts_rng_exact": true,
+    "formal_requested_load": 640,
+    "legal_input": false,
+    "ok": true,
+    "original_us": 7157332,
+    "scope": "Only original constructor first3staff prefix; all64rooms/128facilities/1200props retained. Not a workload or formal performance sample.",
+    "staff": 3,
+    "trace": [
+      {
+        "actor": "bench_staff_0000",
+        "cell": [
+          6,
+          6
+        ],
+        "cursor": 1,
+        "dynamic": null,
+        "reason": "设备真实占地受阻：bench_room_1_00_0"
+      },
+      {
+        "actor": "bench_staff_0000",
+        "cell": [
+          8,
+          6
+        ],
+        "cursor": 2,
+        "dynamic": true,
+        "reason": ""
+      },
+      {
+        "actor": "bench_staff_0001",
+        "cell": [
+          10,
+          6
+        ],
+        "cursor": 3,
+        "dynamic": true,
+        "reason": ""
+      },
+      {
+        "actor": "bench_staff_0002",
+        "cell": [
+          12,
+          6
+        ],
+        "cursor": 4,
+        "dynamic": true,
+        "reason": ""
+      }
+    ],
+    "trace_equal": true
+  },
+  "review_findings": [
+    "Supplemental original lane aliases actual world actor and updates each candidate; candidate lane copies query actor; both commit returned point and sync before full frozen facts/RNG equality. Covers3staff across3floors and3fallback-exhaustion cases.",
+    "run01 facility reservation first point was occupied equipment and honestly remains notcovered. reservation03 selects existing valid patient_cell: actual owner accepted, nonowner exact reservation blocking reason, same candidate/original outcomes.",
+    "Constructor prefix uses actual original640wide room/prop setup and true staff creation at[0,0], original candidates/cursor and caller sync, stopping identically before staff index3. Comparison uses var_to_bytes(freeze) and trace/cursor/errors exact equality. This covers cold-index and sequential nextactor commit path in the intended constructor.",
+    "Prefix output retains only original trace and equality flags rather than both full snapshots. Independent review verifies executable comparison and frozen output; it does not independently decode persisted A/B full facts, which were not saved.",
+    "Scope remains new HospitalSpace(empty route scope), one actor query per synchronous unchanged-world batch; query invalidation/identity changes within a batch are outside supported contract. No broader dynamic gameplay helper acceptance."
+  ],
+  "remaining_limits": [
+    "Finite3staff constructor prefix not full128staff/480patient/32visitor result.",
+    "Door-reservation exception, empty-choice list and all body envelopes not separately runtime-covered; these do not block bounded fresh constructor with no live reservation changes and unchanged fallback code.",
+    "Full640 must use fixture.candidate.gd without oracle index3 early return; all original64rooms/128facilities/1200props and640 actors preserved before valid companion/guidance adaptation.",
+    "Full construction/owner/body validation and subsequent business preflight still mandatory; no performance or speedup claim from prefix timings."
+  ]
+}

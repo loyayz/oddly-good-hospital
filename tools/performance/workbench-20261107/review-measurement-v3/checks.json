@@ -1,0 +1,60 @@
+{
+  "status": "v3_previous_gate_fix_verified_v4_classifier_supported_population_series_gate_pending",
+  "engine_runs_by_reviewer": 0,
+  "benchmark_runs_by_reviewer": 0,
+  "original14_cases_source_and_results_checked": true,
+  "v3_smoke_count_and_wall_arithmetic_checked": true,
+  "v3_smoke_clinical_qualification": false,
+  "v4_five_classifier_cases_checked": true,
+  "v4_real_initial_classifier_breakdown": {
+    "other_owned_present": [
+      {
+        "actor_id": "maintenance_contractor_00000168",
+        "job_id": "maintenance_00000167",
+        "job_phase": "completed",
+        "location_kind": "floor",
+        "owner": "maintenance.contractors",
+        "phase": "leaving",
+        "service_role": "mechanic"
+      }
+    ],
+    "patients": 123,
+    "present": 166,
+    "staff": 32,
+    "unclassified_actor_ids": [],
+    "visitors": 10
+  },
+  "population_gate_counterexample": {
+    "synthetic_report": {
+      "complete": true,
+      "errors": [],
+      "source_input_sha256": "X",
+      "all_completed_steps": 1,
+      "requested_prefix_steps": 0,
+      "requested_sample_steps": 1,
+      "metrics": {
+        "count": 1
+      },
+      "sample_business": {
+        "clinical_work_ticks_observed_lower_bound": {
+          "gp": 1
+        }
+      },
+      "final": {
+        "population": {
+          "present": 161,
+          "patients": 120,
+          "staff": 32,
+          "visitors": 8,
+          "other_owned_present": [],
+          "unclassified_actor_ids": [
+            "unowned_actor"
+          ]
+        }
+      }
+    },
+    "v3_failure_reasons": [],
+    "expected_reason": "unclassified actor or population decomposition mismatch"
+  },
+  "scope": "Smoke is tooling only. No full performance series, treatment or entire workload pass. Python counterexample executes pure gate definitions only."
+}

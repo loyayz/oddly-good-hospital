@@ -1,0 +1,45 @@
+{
+  "scope": "Static inspection of producer-generated artifacts only. No engine execution, no independent binary decoding or runtime validation. No production edits.",
+  "files": [
+    {
+      "path": "evidence/preflight160-v1/result.json",
+      "bytes": 18772,
+      "sha256": "b414f57a97bb826ea3f7c0d1de9ec13017f0866a83cdf54497f9eb6cfbd8a7ae"
+    },
+    {
+      "path": "evidence/preflight160-v1/result.json.steps.ndjson",
+      "bytes": 151440,
+      "sha256": "bbd10ef17f12c1a92fc7713c0b1cd3977b3847cffc58846723daf89a5676ab34"
+    },
+    {
+      "path": "evidence/preflight160-v1/result.json.final.bin",
+      "bytes": 1966608,
+      "sha256": "4880445d76366ed1bb7ccf4cf9406c2a7e309846fe287ef66fe0774a5221a566"
+    },
+    {
+      "path": "evidence/preflight160-v1/status.json",
+      "bytes": 101,
+      "sha256": "9d6a6b186f11594f59fec75520d92f2387a33650d8f1590da983f4cc0cbbd12f"
+    },
+    {
+      "path": "evidence/inspect-preflight160-v1/facts.json",
+      "bytes": 1842066,
+      "sha256": "83879b4a257af98dda717e9f9d9988f40bf352c5269c4114f924a0dad82acfa9"
+    },
+    {
+      "path": "evidence/baseline-A-protocol-v1.json",
+      "bytes": 1446,
+      "sha256": "959b1b6276e4cf3909b34349072ea1377d25ba7a942df626b2e24dae733643bf"
+    },
+    {
+      "path": "source/tools/performance/current/plain.gd",
+      "bytes": 6746,
+      "sha256": "809a77e3aa4c193c6df9ce53b3170d5c105334513eae28dfb4e7e3332d42a362"
+    },
+    {
+      "path": "review-workload-contract/preflight160-v1-review.json",
+      "bytes": 4398,
+      "sha256": "a93439d6b5841a730f4b32971fb96a5280799493f9c2143d106bb03b957e7b03"
+    }
+  ]
+}

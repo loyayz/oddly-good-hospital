@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "/workspace/scratch/6962cc21ddf3/ogh-recovery-20261107/runtime/Godot_v4.7.2-stable_linux.x86_64",
+    "--headless",
+    "--path",
+    "/workspace/scratch/6962cc21ddf3/ogh-performance-20261107/diagnostic-fine-v1/source",
+    "--script",
+    "res://tools/performance/current/fine_driver_v1.gd",
+    "--",
+    "--input=/workspace/scratch/6962cc21ddf3/ogh-performance-20261107/evidence/preflight160-v1/result.json.final.bin",
+    "--output=/workspace/scratch/6962cc21ddf3/ogh-performance-20261107/diagnostic-fine-v1/evidence/smoke2/result.json",
+    "--steps=2"
+  ],
+  "timeout_seconds": 60.0,
+  "started_unix": 1794062365.9746876,
+  "engine_sha256": "8d106cbe6144c2dc7e881d61d2429c1a8a76e6b22ef48bd5e48dcf934953f71e"
+}

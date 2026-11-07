@@ -1,0 +1,16 @@
+{
+  "status": "limited_cpu_measurement_tool_gate_available_pending_exact_protocol_and_each_run_qualification",
+  "engine_runs_by_reviewer": 0,
+  "benchmark_runs_by_reviewer": 0,
+  "pure_python_gate_replay_cases": 19,
+  "replay_exactly_matches_recorded_cases": true,
+  "v2_error_aggregation_and_zero_repeat_gaps_closed": true,
+  "v3_population_gate_gap_closed": true,
+  "three_population_boundaries_checked": true,
+  "legitimate_dynamic_population_allowed": true,
+  "v4_godot_snapshot_and_measurement_body_exactly_equal_v3": true,
+  "contractor_helper_evidence_reused": "review-measurement-v3/checks.json and evidence/tool-v4/frozen-manifest.json",
+  "source_manifest_protocol_gate": "Requires explicit nonempty manifest path and expected file hash, verifies file hash then every listed accepted source path before series. Parent must supply the complete accepted integrated1388-file identity; this reviewer has not independently accepted that integration.",
+  "actual_performance_pass": null,
+  "workload_limit": "Limited actual GP/guidance/reception CPU; no completed treatment or all-product guarantee. Each run still must satisfy explicit qualification and real business review."
+}

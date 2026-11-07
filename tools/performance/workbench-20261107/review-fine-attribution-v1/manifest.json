@@ -1,0 +1,25 @@
+{
+  "status": "limited_fine_v1_800_attribution_verified",
+  "files": [
+    {
+      "path": "check.py",
+      "sha256": "598186659ceb2a7600eab9a7213b8cd26e49ed110fc85b60368bd2b14fe8f02a",
+      "bytes": 3334
+    },
+    {
+      "path": "checks.json",
+      "sha256": "4ba8dd516704144f50e29ff3767cffe1a238d5a340e0a3386c0aedae732c412a",
+      "bytes": 3592
+    },
+    {
+      "path": "input-manifest.json",
+      "sha256": "966dd9dd7e1b120b113b9be7bcc5ed1b081e3ef468a96c6b6a5a25403305f2b7",
+      "bytes": 1955
+    },
+    {
+      "path": "review.md",
+      "sha256": "58d343e08599224dbb8eeeeabc510845a3e44e2d0af802b795257ccc6c8c19d9",
+      "bytes": 4880
+    }
+  ]
+}

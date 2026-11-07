@@ -1,0 +1,29 @@
+{
+  "status": "limited_cpu_measurement_tool_gate_available",
+  "engine_runs": 0,
+  "benchmark_runs": 0,
+  "source_edits": 0,
+  "actual_workload_and_performance_pass": null,
+  "files": [
+    {
+      "path": "review-measurement-v4/checks.json",
+      "bytes": 1185,
+      "sha256": "d071c32fd2a1d902c4ca9c3650c4ab72f0d6baf2ae2883dc805d8112fdd43670"
+    },
+    {
+      "path": "review-measurement-v4/gate-replay.json",
+      "bytes": 1492,
+      "sha256": "62f45adbb803f36a0e5264831847fd5f3f221e58da571944746eec2d1a694360"
+    },
+    {
+      "path": "review-measurement-v4/input-manifest.json",
+      "bytes": 1695,
+      "sha256": "375aa7bbd40617f0240a60c4ed47d042f6656133414281ed8729e781c56b837b"
+    },
+    {
+      "path": "review-measurement-v4/review.md",
+      "bytes": 4009,
+      "sha256": "6c1558f96bf7d29f2058d311522541b67a070dd6767dbdd024d3f9d2bd838822"
+    }
+  ]
+}

@@ -8,3 +8,4 @@ __pycache__/
 *.pyc
 content/core/locale/*.translation
 game/platform/linux/bin/
+/docs/product-design.html

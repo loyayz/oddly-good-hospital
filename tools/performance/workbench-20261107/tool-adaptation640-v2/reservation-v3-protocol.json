@@ -1,0 +1,7 @@
+{
+  "scope": "Existing legal reservation patient_cell rather than occupied facility footprint; no facts mutation except disposable original alias/commit oracle. Preserve earlier notcovered.",
+  "source_input": "input160-v1",
+  "point_selection": "first existing reservation patient_cell, not constructed reservation",
+  "hard_seconds": 120,
+  "driver_sha256": "34cb925fa1bd88f4d481d27722553940b8c1140cb0e7373e2af1638a7aa558c8"
+}

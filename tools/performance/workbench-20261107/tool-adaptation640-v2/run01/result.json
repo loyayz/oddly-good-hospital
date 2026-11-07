@@ -1,0 +1,636 @@
+{
+	"full640_qualified": false,
+	"ok": true,
+	"performance_pass": null,
+	"reservation_coverage": {
+		"nonowner": "bench_patient_0004",
+		"nonowner_permission": false,
+		"nonowner_reason": "设备真实占地受阻：bench_room_1_14_reception",
+		"owner": "bench_patient_0000",
+		"owner_permission": true,
+		"reason": "Existing owner/nonowner compared; reservation-negative requires actual reservation rejection, other geometric rejection does not substitute",
+		"reservation_id": "bench_room_1_14_reception",
+		"status": "notcovered"
+	},
+	"rows": [
+		{
+			"actor": "bench_staff_0000",
+			"candidate": {
+				"accepted": true,
+				"cursor": 3,
+				"errors": [],
+				"returned": [
+					8,
+					6
+				],
+				"rows": [
+					{
+						"cell": [
+							-1,
+							-1
+						],
+						"cursor": 1,
+						"dynamic": null,
+						"reason": "身体超出已取得地块"
+					},
+					{
+						"cell": [
+							6,
+							6
+						],
+						"cursor": 2,
+						"dynamic": null,
+						"reason": "设备真实占地受阻：bench_room_1_00_0"
+					},
+					{
+						"cell": [
+							8,
+							6
+						],
+						"cursor": 3,
+						"dynamic": true,
+						"reason": ""
+					}
+				]
+			},
+			"case": "staff_alias_commit",
+			"cursor_errors_return_equal": true,
+			"expected_exhaustion": false,
+			"full_committed_facts_rng_equal": true,
+			"ok": true,
+			"original": {
+				"accepted": true,
+				"cursor": 3,
+				"errors": [],
+				"returned": [
+					8,
+					6
+				],
+				"rows": [
+					{
+						"cell": [
+							-1,
+							-1
+						],
+						"cursor": 1,
+						"dynamic": null,
+						"reason": "身体超出已取得地块"
+					},
+					{
+						"cell": [
+							6,
+							6
+						],
+						"cursor": 2,
+						"dynamic": null,
+						"reason": "设备真实占地受阻：bench_room_1_00_0"
+					},
+					{
+						"cell": [
+							8,
+							6
+						],
+						"cursor": 3,
+						"dynamic": true,
+						"reason": ""
+					}
+				]
+			},
+			"scope_empty": true
+		},
+		{
+			"actor": "bench_staff_0000",
+			"candidate": {
+				"accepted": false,
+				"cursor": 2,
+				"errors": [
+					"没有足够合法身体位置：1"
+				],
+				"returned": [
+					48,
+					91
+				],
+				"rows": [
+					{
+						"cell": [
+							-1,
+							-1
+						],
+						"cursor": 1,
+						"dynamic": null,
+						"reason": "身体超出已取得地块"
+					},
+					{
+						"cell": [
+							-2,
+							-2
+						],
+						"cursor": 2,
+						"dynamic": null,
+						"reason": "身体超出已取得地块"
+					}
+				]
+			},
+			"case": "staff_exhaustion_fallback",
+			"cursor_errors_return_equal": true,
+			"expected_exhaustion": true,
+			"full_committed_facts_rng_equal": true,
+			"ok": true,
+			"original": {
+				"accepted": false,
+				"cursor": 2,
+				"errors": [
+					"没有足够合法身体位置：1"
+				],
+				"returned": [
+					48,
+					91
+				],
+				"rows": [
+					{
+						"cell": [
+							-1,
+							-1
+						],
+						"cursor": 1,
+						"dynamic": null,
+						"reason": "身体超出已取得地块"
+					},
+					{
+						"cell": [
+							-2,
+							-2
+						],
+						"cursor": 2,
+						"dynamic": null,
+						"reason": "身体超出已取得地块"
+					}
+				]
+			},
+			"scope_empty": true
+		},
+		{
+			"actor": "bench_staff_0001",
+			"candidate": {
+				"accepted": true,
+				"cursor": 3,
+				"errors": [],
+				"returned": [
+					8,
+					6
+				],
+				"rows": [
+					{
+						"cell": [
+							-1,
+							-1
+						],
+						"cursor": 1,
+						"dynamic": null,
+						"reason": "身体超出已取得地块"
+					},
+					{
+						"cell": [
+							6,
+							6
+						],
+						"cursor": 2,
+						"dynamic": null,
+						"reason": "设备真实占地受阻：bench_room_2_00_0"
+					},
+					{
+						"cell": [
+							8,
+							6
+						],
+						"cursor": 3,
+						"dynamic": true,
+						"reason": ""
+					}
+				]
+			},
+			"case": "staff_alias_commit",
+			"cursor_errors_return_equal": true,
+			"expected_exhaustion": false,
+			"full_committed_facts_rng_equal": true,
+			"ok": true,
+			"original": {
+				"accepted": true,
+				"cursor": 3,
+				"errors": [],
+				"returned": [
+					8,
+					6
+				],
+				"rows": [
+					{
+						"cell": [
+							-1,
+							-1
+						],
+						"cursor": 1,
+						"dynamic": null,
+						"reason": "身体超出已取得地块"
+					},
+					{
+						"cell": [
+							6,
+							6
+						],
+						"cursor": 2,
+						"dynamic": null,
+						"reason": "设备真实占地受阻：bench_room_2_00_0"
+					},
+					{
+						"cell": [
+							8,
+							6
+						],
+						"cursor": 3,
+						"dynamic": true,
+						"reason": ""
+					}
+				]
+			},
+			"scope_empty": true
+		},
+		{
+			"actor": "bench_staff_0001",
+			"candidate": {
+				"accepted": false,
+				"cursor": 2,
+				"errors": [
+					"没有足够合法身体位置：2"
+				],
+				"returned": [
+					48,
+					91
+				],
+				"rows": [
+					{
+						"cell": [
+							-1,
+							-1
+						],
+						"cursor": 1,
+						"dynamic": null,
+						"reason": "身体超出已取得地块"
+					},
+					{
+						"cell": [
+							-2,
+							-2
+						],
+						"cursor": 2,
+						"dynamic": null,
+						"reason": "身体超出已取得地块"
+					}
+				]
+			},
+			"case": "staff_exhaustion_fallback",
+			"cursor_errors_return_equal": true,
+			"expected_exhaustion": true,
+			"full_committed_facts_rng_equal": true,
+			"ok": true,
+			"original": {
+				"accepted": false,
+				"cursor": 2,
+				"errors": [
+					"没有足够合法身体位置：2"
+				],
+				"returned": [
+					48,
+					91
+				],
+				"rows": [
+					{
+						"cell": [
+							-1,
+							-1
+						],
+						"cursor": 1,
+						"dynamic": null,
+						"reason": "身体超出已取得地块"
+					},
+					{
+						"cell": [
+							-2,
+							-2
+						],
+						"cursor": 2,
+						"dynamic": null,
+						"reason": "身体超出已取得地块"
+					}
+				]
+			},
+			"scope_empty": true
+		},
+		{
+			"actor": "bench_staff_0002",
+			"candidate": {
+				"accepted": true,
+				"cursor": 3,
+				"errors": [],
+				"returned": [
+					8,
+					6
+				],
+				"rows": [
+					{
+						"cell": [
+							-1,
+							-1
+						],
+						"cursor": 1,
+						"dynamic": null,
+						"reason": "身体超出已取得地块"
+					},
+					{
+						"cell": [
+							6,
+							6
+						],
+						"cursor": 2,
+						"dynamic": null,
+						"reason": "设备真实占地受阻：bench_room_3_00_0"
+					},
+					{
+						"cell": [
+							8,
+							6
+						],
+						"cursor": 3,
+						"dynamic": true,
+						"reason": ""
+					}
+				]
+			},
+			"case": "staff_alias_commit",
+			"cursor_errors_return_equal": true,
+			"expected_exhaustion": false,
+			"full_committed_facts_rng_equal": true,
+			"ok": true,
+			"original": {
+				"accepted": true,
+				"cursor": 3,
+				"errors": [],
+				"returned": [
+					8,
+					6
+				],
+				"rows": [
+					{
+						"cell": [
+							-1,
+							-1
+						],
+						"cursor": 1,
+						"dynamic": null,
+						"reason": "身体超出已取得地块"
+					},
+					{
+						"cell": [
+							6,
+							6
+						],
+						"cursor": 2,
+						"dynamic": null,
+						"reason": "设备真实占地受阻：bench_room_3_00_0"
+					},
+					{
+						"cell": [
+							8,
+							6
+						],
+						"cursor": 3,
+						"dynamic": true,
+						"reason": ""
+					}
+				]
+			},
+			"scope_empty": true
+		},
+		{
+			"actor": "bench_staff_0002",
+			"candidate": {
+				"accepted": false,
+				"cursor": 2,
+				"errors": [
+					"没有足够合法身体位置：3"
+				],
+				"returned": [
+					48,
+					91
+				],
+				"rows": [
+					{
+						"cell": [
+							-1,
+							-1
+						],
+						"cursor": 1,
+						"dynamic": null,
+						"reason": "身体超出已取得地块"
+					},
+					{
+						"cell": [
+							-2,
+							-2
+						],
+						"cursor": 2,
+						"dynamic": null,
+						"reason": "身体超出已取得地块"
+					}
+				]
+			},
+			"case": "staff_exhaustion_fallback",
+			"cursor_errors_return_equal": true,
+			"expected_exhaustion": true,
+			"full_committed_facts_rng_equal": true,
+			"ok": true,
+			"original": {
+				"accepted": false,
+				"cursor": 2,
+				"errors": [
+					"没有足够合法身体位置：3"
+				],
+				"returned": [
+					48,
+					91
+				],
+				"rows": [
+					{
+						"cell": [
+							-1,
+							-1
+						],
+						"cursor": 1,
+						"dynamic": null,
+						"reason": "身体超出已取得地块"
+					},
+					{
+						"cell": [
+							-2,
+							-2
+						],
+						"cursor": 2,
+						"dynamic": null,
+						"reason": "身体超出已取得地块"
+					}
+				]
+			},
+			"scope_empty": true
+		},
+		{
+			"actor": "bench_patient_0000",
+			"candidate": {
+				"accepted": false,
+				"cursor": 2,
+				"errors": [
+					"没有足够合法身体位置：1"
+				],
+				"returned": [
+					48,
+					91
+				],
+				"rows": [
+					{
+						"cell": [
+							50,
+							73
+						],
+						"cursor": 1,
+						"dynamic": null,
+						"reason": "设备真实占地受阻：bench_room_1_14_reception"
+					},
+					{
+						"cell": [
+							-1,
+							-1
+						],
+						"cursor": 2,
+						"dynamic": null,
+						"reason": "身体超出已取得地块"
+					}
+				]
+			},
+			"case": "existing_reservation_owner",
+			"cursor_errors_return_equal": true,
+			"expected_exhaustion": false,
+			"full_committed_facts_rng_equal": true,
+			"ok": true,
+			"original": {
+				"accepted": false,
+				"cursor": 2,
+				"errors": [
+					"没有足够合法身体位置：1"
+				],
+				"returned": [
+					48,
+					91
+				],
+				"rows": [
+					{
+						"cell": [
+							50,
+							73
+						],
+						"cursor": 1,
+						"dynamic": null,
+						"reason": "设备真实占地受阻：bench_room_1_14_reception"
+					},
+					{
+						"cell": [
+							-1,
+							-1
+						],
+						"cursor": 2,
+						"dynamic": null,
+						"reason": "身体超出已取得地块"
+					}
+				]
+			},
+			"scope_empty": true
+		},
+		{
+			"actor": "bench_patient_0004",
+			"candidate": {
+				"accepted": false,
+				"cursor": 2,
+				"errors": [
+					"没有足够合法身体位置：1"
+				],
+				"returned": [
+					48,
+					91
+				],
+				"rows": [
+					{
+						"cell": [
+							50,
+							73
+						],
+						"cursor": 1,
+						"dynamic": null,
+						"reason": "设备真实占地受阻：bench_room_1_14_reception"
+					},
+					{
+						"cell": [
+							-1,
+							-1
+						],
+						"cursor": 2,
+						"dynamic": null,
+						"reason": "身体超出已取得地块"
+					}
+				]
+			},
+			"case": "existing_reservation_nonowner",
+			"cursor_errors_return_equal": true,
+			"expected_exhaustion": false,
+			"full_committed_facts_rng_equal": true,
+			"ok": true,
+			"original": {
+				"accepted": false,
+				"cursor": 2,
+				"errors": [
+					"没有足够合法身体位置：1"
+				],
+				"returned": [
+					48,
+					91
+				],
+				"rows": [
+					{
+						"cell": [
+							50,
+							73
+						],
+						"cursor": 1,
+						"dynamic": null,
+						"reason": "设备真实占地受阻：bench_room_1_14_reception"
+					},
+					{
+						"cell": [
+							-1,
+							-1
+						],
+						"cursor": 2,
+						"dynamic": null,
+						"reason": "身体超出已取得地块"
+					}
+				]
+			},
+			"scope_empty": true
+		}
+	],
+	"scope": "Finite original staff alias/return/caller assignment/sync comparison on independent source clones. Hypothetical candidate and fallback commits are disposable oracle states, not legal saved gameplay input. No production step or formal load changed.",
+	"source_full_facts_rng_unchanged": true,
+	"source_sha256": "7dbe20bbd53d7455b5fdb240b8fb80b3f12b7b40f37ab549942ac189cb50b61e",
+	"source_validation": "",
+	"staff_selected": [
+		"bench_staff_0000",
+		"bench_staff_0001",
+		"bench_staff_0002"
+	]
+}

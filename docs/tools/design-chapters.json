@@ -1,0 +1,80 @@
+[
+  {
+    "kind": "File",
+    "source": "design/01-simulation.md",
+    "id": "simulation",
+    "title": "模拟与经营规则"
+  },
+  {
+    "kind": "File",
+    "source": "design/07-clinical-team.md",
+    "id": "clinical-team",
+    "title": "医生、手术与住院"
+  },
+  {
+    "kind": "File",
+    "source": "design/08-hospital-life.md",
+    "id": "hospital-life",
+    "title": "医院日常与居民回馈"
+  },
+  {
+    "kind": "File",
+    "source": "design/09-consultation-wellbeing.md",
+    "id": "wellbeing",
+    "title": "诊室互动与员工休闲"
+  },
+  {
+    "kind": "File",
+    "source": "design/10-community-comedy.md",
+    "id": "comedy",
+    "title": "熟客记忆与社区活动"
+  },
+  {
+    "kind": "File",
+    "source": "design/11-growth-arrivals-recruitment.md",
+    "id": "growth",
+    "title": "随机来客、多层与招聘"
+  },
+  {
+    "kind": "File",
+    "source": "design/02-content.md",
+    "id": "content",
+    "title": "内容与后续扩展"
+  },
+  {
+    "kind": "File",
+    "source": "design/03-experience.md",
+    "id": "experience",
+    "title": "界面与操作"
+  },
+  {
+    "kind": "File",
+    "source": "design/04-technical.md",
+    "id": "technical",
+    "title": "技术与保存"
+  },
+  {
+    "kind": "File",
+    "source": "design/16-navigation-space-selection.md",
+    "id": "navigation-selection",
+    "title": "导航与空间选型"
+  },
+  {
+    "kind": "File",
+    "source": "design/05-production.md",
+    "id": "production",
+    "title": "美术与声音制作"
+  },
+  {
+    "kind": "File",
+    "source": "design/06-validation.md",
+    "id": "validation",
+    "title": "验收标准"
+  },
+  {
+    "kind": "Generated",
+    "source": "atlas",
+    "id": "atlas",
+    "title": "完整内容索引"
+  }
+]

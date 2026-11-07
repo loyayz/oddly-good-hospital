@@ -1,0 +1,50 @@
+{
+  "variant": "A_current_accepted_production",
+  "run_prefix": "baseline160-GP-v4",
+  "accepted_source_manifest": "exporter-integration-r2/source-after-integration.json",
+  "accepted_source_manifest_sha256": "5f5b095edf17f696ae284ad92af5b6f8d7c37913291f814170e7cf9ebdde839e",
+  "source_aggregate_sha256": "210d549d9c266f3418a425f8edb09f7c8d9d05e2723f46625a40109ae121cf5d",
+  "source_file_count": 1388,
+  "input": "evidence/input160-v1/160four.input.bin",
+  "input_sha256": "7dbe20bbd53d7455b5fdb240b8fb80b3f12b7b40f37ab549942ac189cb50b61e",
+  "tool": "source/tools/performance/current/plain_v4.gd",
+  "tool_sha256": "9f80ae850108151c1403eff944291b82f5248e625e44cc215f4a4f0d3005c50f",
+  "series_tool": "run_series_v4.py",
+  "series_tool_sha256": "848629c99b88f4633578941da46a80cea0bb1d1e764a9e3eea163c3b34a5c6cc",
+  "engine_controller": "run_engine.py",
+  "engine_controller_sha256": "8a3dd204ac95f3804ba8368e7eeb20c38c16e55648e5a9342e6e6d066acdad11",
+  "engine": "/workspace/scratch/6962cc21ddf3/ogh-recovery-20261107/runtime/Godot_v4.7.2-stable_linux.x86_64",
+  "engine_sha256": "8d106cbe6144c2dc7e881d61d2429c1a8a76e6b22ef48bd5e48dcf934953f71e",
+  "native_sha256": "39345d5c19a87e23a0aa16e7c25d25f3fcdea6c6eef1f0e64d961688be4b814d",
+  "repeats": 5,
+  "prefix_steps": 1000,
+  "steps_per_repeat": 2000,
+  "max_process_seconds": 1200,
+  "fresh_process_each_repeat": true,
+  "allow_parallel_engine_processes": false,
+  "initial_population": {
+    "present": 160,
+    "patients": 120,
+    "staff": 32,
+    "visitors": 8
+  },
+  "dynamic_population": true,
+  "prefix_ticks": [
+    22,
+    1021
+  ],
+  "sample_ticks": [
+    1022,
+    3021
+  ],
+  "scope": "Current original160 starting-load dynamic CPU window with actual GP/guidance/reception and observed maintenance. No treatment/full-clinical/whole-application/GPU/persistence/release pass.",
+  "sampling_selection": "Full fixed2000-step continuation retained, not just GP time or fastest subwindow. Original first1000-step early window remains preserved, unqualified for non-reception clinical baseline.",
+  "business_gate": "At least one non-reception work tick in sample plus all three boundary owner/count checks; completed GP does not mean treatment complete.",
+  "cold_warm": "Fresh process/runtime first step separate; real1000-step prefix warms runtime. OS page cache not cleared or claimed cold.",
+  "failure_rule": "Keep every result; stop series on first failed qualified gate or timeout; no blind rerun or overwriting.",
+  "optimization_B": null,
+  "speedup_claim_allowed": false,
+  "formal_performance_pass": null,
+  "future_B_non_regression_margin": "not set; must preregister before observing B",
+  "protocol_plan": "evidence/baseline-A-v4-protocol-plan.md"
+}

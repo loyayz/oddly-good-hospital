@@ -1,0 +1,84 @@
+{
+  "files": [
+    {
+      "path": "tool-adaptation640-v2/run01/result.json",
+      "sha256": "0ed95c07f5ae06622ca0a7a8c3576ea64908cd9ab0a4c2a6974fcc0bff7466e3",
+      "bytes": 11323
+    },
+    {
+      "path": "tool-adaptation640-v2/run01/status.json",
+      "sha256": "6b86bd742576b051e92911f774613398b8c37a34de4c84216cbc4a716ca09485",
+      "bytes": 162
+    },
+    {
+      "path": "tool-adaptation640-v2/reservation03/result.json",
+      "sha256": "8018737721662e60be1f0ffd16f6aa58a53fbdc284571f18386f880436354baf",
+      "bytes": 10849
+    },
+    {
+      "path": "tool-adaptation640-v2/reservation03/status.json",
+      "sha256": "b371bdcd2036da14dc95153355d5fea39e9ba546e864ccc5d7620fa68c2a4c15",
+      "bytes": 163
+    },
+    {
+      "path": "tool-adaptation640-v2/run01-manifest.json",
+      "sha256": "664bfb601bd39dc3f8efe940854b992cbf5936fed26979b99b5f95ee263d541e",
+      "bytes": 938
+    },
+    {
+      "path": "tool-adaptation640-v2/reservation03-manifest.json",
+      "sha256": "11fc19ce361022187246e7d4f745cfcf044acfb04a108a40ec42e4b33a16703b",
+      "bytes": 1158
+    },
+    {
+      "path": "tool-adaptation640-v2/constructor-prefix01-manifest.json",
+      "sha256": "49945103c4e584d5cc8c5194db6866c29320055b600186c9149104691275cf3f",
+      "bytes": 896
+    },
+    {
+      "path": "tool-adaptation640-v2/prefix-protocol-manifest.json",
+      "sha256": "91730279c6b07ab852b7507ec040196dca60e4dbb14e001a6061d8692271787a",
+      "bytes": 710
+    },
+    {
+      "path": "review-workload-contract/tool-adaptation640-v2-supplement-review.json",
+      "sha256": "33b8b69454f33e0cdbfe4ca874331b4fb37b92662b1bf5d6560b3006454c2f78",
+      "bytes": 5384
+    },
+    {
+      "path": "tool-adaptation640-v2/project/tools/performance/fixture.gd",
+      "sha256": "f2752c3506b00d60c6dc93bb7aa10df60f56acb075c46a95bab5bed306a67ad7",
+      "bytes": 10536
+    },
+    {
+      "path": "tool-adaptation640-v2/project/tools/performance/placement_query.gd",
+      "sha256": "7b54f813591faa12f38581a46ab5ad1e0b623e3f33ca077b0ac9fc4af2f0efb3",
+      "bytes": 1033
+    },
+    {
+      "path": "tool-adaptation640-v2/project/constructor-prefix-oracle-v1.gd",
+      "sha256": "4b781f50e85381af755cb59b12517591c6dc262b860f650e8fbb066208379de5",
+      "bytes": 1454
+    },
+    {
+      "path": "tool-adaptation640-v2/project/prefix-original-v1.gd",
+      "sha256": "5adeab603effadc61d87abdfc4b95c9ca6db461adb51e3c1062a7c1b1bbc6fbd",
+      "bytes": 10919
+    },
+    {
+      "path": "tool-adaptation640-v2/project/prefix-candidate-v1.gd",
+      "sha256": "aef0081fa8c7912240f0a715e2b3d630768c348c5926801605387a0e183dd4a9",
+      "bytes": 10873
+    },
+    {
+      "path": "tool-adaptation640-v2/evidence/constructor-prefix01/result.json",
+      "sha256": "f3adcac426c83c8fe38d98d44593cc329ca9b6bda7777b05e6a1df5b8a404a32",
+      "bytes": 891
+    },
+    {
+      "path": "tool-adaptation640-v2/supplemental-oracle-v2.gd",
+      "sha256": "17caddf1e7ede8526b10d8d9669c638d0b8acf1dd0cb1cce688390426c661ca4",
+      "bytes": 7078
+    }
+  ]
+}

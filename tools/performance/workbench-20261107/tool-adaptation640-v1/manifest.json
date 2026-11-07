@@ -1,0 +1,57 @@
+{
+  "frozen": true,
+  "engine_executed": false,
+  "python_ast_syntax_checked": true,
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 3870,
+      "sha256": "95bc87570d8355cf6f49e0695064fe20e0f0adc39d3f0418d5d71fbd79339a1d"
+    },
+    {
+      "path": "fixture.candidate.gd",
+      "bytes": 10536,
+      "sha256": "f2752c3506b00d60c6dc93bb7aa10df60f56acb075c46a95bab5bed306a67ad7"
+    },
+    {
+      "path": "fixture.original.gd",
+      "bytes": 10582,
+      "sha256": "f99efd9dd5cf8afa2f7ca89f221edbcc54c2e080b1d0339d4b7de80874145189"
+    },
+    {
+      "path": "fixture.patch",
+      "bytes": 860,
+      "sha256": "85b3b4bfa8bc8ff5947a2b48a6242bc0221b751a9ae574177824cfc897c519b2"
+    },
+    {
+      "path": "install.py",
+      "bytes": 579,
+      "sha256": "a15e72406a16709be521565f7234d5dbee954c48fa04b6188f93a1db72bb21a7"
+    },
+    {
+      "path": "oracle.gd",
+      "bytes": 5214,
+      "sha256": "322d71fc45488c0ba7b98dd12d3d334ea3916c5995008af1b1af2c4e85c585c3"
+    },
+    {
+      "path": "placement_query.gd",
+      "bytes": 1033,
+      "sha256": "7b54f813591faa12f38581a46ab5ad1e0b623e3f33ca077b0ac9fc4af2f0efb3"
+    },
+    {
+      "path": "prepare.py",
+      "bytes": 1788,
+      "sha256": "97b7853784f9945ec572931a0dc6ad21e681d7eea081362eb2cac4670b49ecbd"
+    },
+    {
+      "path": "run_oracle.py",
+      "bytes": 1739,
+      "sha256": "02ef83d96654df5beafcebd91e3a564a5eeafb36b4c5b078a3e11729a674815b"
+    },
+    {
+      "path": "static-check.json",
+      "bytes": 801,
+      "sha256": "ed9354b75a8f3a602bb4d1e5b35b0d0207b6b78f4e1e5b09f625faf1893a3061"
+    }
+  ]
+}

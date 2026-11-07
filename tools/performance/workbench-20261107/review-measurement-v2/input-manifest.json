@@ -1,0 +1,49 @@
+{
+  "files": [
+    {
+      "path": "run_engine.py",
+      "bytes": 1276,
+      "sha256": "8a3dd204ac95f3804ba8368e7eeb20c38c16e55648e5a9342e6e6d066acdad11"
+    },
+    {
+      "path": "run_series_v2.py",
+      "bytes": 3059,
+      "sha256": "d205d96c386bb433a97e7e7f9bebff198c581d77c8301ab41ebb9d7de3d1ded2"
+    },
+    {
+      "path": "source/tools/performance/current/plain_v2.gd",
+      "bytes": 8331,
+      "sha256": "3dd153b4bdb1b73d6f497007d3474450c995d52a97e74268182793bde7b5d259"
+    },
+    {
+      "path": "evidence/tool-v2/frozen-manifest.json",
+      "bytes": 689,
+      "sha256": "5daf88752d2031800f2b212d461d1c77a24c3e8dc9825175c8940a23e1af135d"
+    },
+    {
+      "path": "source/AGENTS.md",
+      "bytes": 5006,
+      "sha256": "db53e36a9831ccba21a9ed7687df6d0458340692ff7fa4d556d34d305118c5f7"
+    },
+    {
+      "path": "source/game/sim/simulation.gd",
+      "bytes": 19777,
+      "sha256": "1ef8bf396174d46c8780295ad61a64f0fef5d6cfd6770fee914ccea6baeb1cf7"
+    },
+    {
+      "path": "source/game/sim/world_state.gd",
+      "bytes": 69940,
+      "sha256": "b2ddfd0295dce3357ecb691ddb7ec189556dbe536438ac1043269767ead7c443"
+    },
+    {
+      "path": "source/tools/performance/acceptance/fixtures/prepare_inputs.gd",
+      "bytes": 20503,
+      "sha256": "74497e2fd98e25d852fe55e264e4e8591cb8f294aef2c77fbd24b176647eb761"
+    },
+    {
+      "path": "evidence/accepted-runtime-identity.json",
+      "bytes": 694,
+      "sha256": "c3f2462489397a0fd0553c1ef184040190843402d2d0acd8b1d7082baa73dcb4"
+    }
+  ]
+}

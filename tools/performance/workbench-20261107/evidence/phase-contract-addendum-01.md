@@ -1,0 +1,7 @@
+# Dynamic-load contract clarification
+
+Parent and independent audit both confirmed fixtures/README.md:21: 160/320/640 are original actual starting loads, not population locks. Initial160 evolving to163 through three real admitted patients is lawful; fixed160 diagnostic qualifications in representative_clinical.gd do not supersede this formal contract. No sample is truncated or actors removed to maintain160.
+
+The first1000step window remains frozen as originally selected. It completed1000steps, four reception services and177observed guidance work ticks, but no non-reception clinical work. This is insufficient clinical workload preflight, so repeated A baseline has NOT started. A separate named2000step functional continuation starts from the exact genuine final facts at tick1021. It is not a replacement of the first window, not a warm-cache measurement (runtime is recreated), and not an optimization comparison. Original1000×5 observational protocol remains frozen and conditional on adequate preflight; if future scope needs a distinct sustained-clinical window it must be separately declared rather than relabeling the first.
+
+Added patients patient_00000144,patient_00000148,patient_00000160 have original resident/visit ownership and corresponding arrival_opportunity_admitted/patient_arrived events. Full final facts/events and added-actor records are available in inspect-preflight160-v1/facts.json. Original facilities' IDs and definitions were preserved. No GPU/FPS, native persistence, release or universal-liveness validation is implied.

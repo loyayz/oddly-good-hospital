@@ -1,0 +1,20 @@
+{
+  "status": "static_preflight_complete_runtime_admission_required",
+  "engine_runs": 0,
+  "benchmark_runs": 0,
+  "source_edits": 0,
+  "static_marker_sites": 60,
+  "all_explicit_return_sites_closed": [
+    283,
+    294,
+    381
+  ],
+  "original_method_text_preserved": true,
+  "known_runtime_hazards": [
+    "nontransactional same-world constructor during attach",
+    "default generated-source path in project and write-error with nonnull result",
+    "must not dispose transferred old service graph",
+    "attach may alter cache preparation even if facts unchanged"
+  ],
+  "profile_or_semantic_runtime_pass": null
+}

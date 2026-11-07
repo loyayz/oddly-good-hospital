@@ -1,0 +1,40 @@
+{
+  "frozen": true,
+  "files": [
+    {
+      "path": "reservation-v3-protocol.json",
+      "sha256": "26a846a713f16f9b5dba17eff0fc82060266199723cc777cf9cb889d4f6496e8",
+      "bytes": 428
+    },
+    {
+      "path": "run_reservation_v3.py",
+      "sha256": "8ab46258b20dfbe9c1c7f787575abf31441676a3de0b63bab48a2fe22d705f88",
+      "bytes": 1744
+    },
+    {
+      "path": "project/reservation-oracle-v3.gd",
+      "sha256": "34cb925fa1bd88f4d481d27722553940b8c1140cb0e7373e2af1638a7aa558c8",
+      "bytes": 7080
+    },
+    {
+      "path": "reservation03/result.json",
+      "sha256": "8018737721662e60be1f0ffd16f6aa58a53fbdc284571f18386f880436354baf",
+      "bytes": 10849
+    },
+    {
+      "path": "reservation03/status.json",
+      "sha256": "b371bdcd2036da14dc95153355d5fea39e9ba546e864ccc5d7620fa68c2a4c15",
+      "bytes": 163
+    },
+    {
+      "path": "reservation03/raw.log",
+      "sha256": "f75674e93b3ec494ee34d22aa191ab7152baa7bbcac90da4869b84727df00f68",
+      "bytes": 6216
+    },
+    {
+      "path": "reservation03/started.json",
+      "sha256": "c2361f7f406cf7ae25766a8a1898d27337335db06b33756f27698acbaef1a6a9",
+      "bytes": 803
+    }
+  ]
+}

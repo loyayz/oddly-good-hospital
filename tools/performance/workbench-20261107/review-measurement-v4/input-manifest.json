@@ -1,0 +1,54 @@
+{
+  "files": [
+    {
+      "path": "run_series_v4.py",
+      "bytes": 6849,
+      "sha256": "848629c99b88f4633578941da46a80cea0bb1d1e764a9e3eea163c3b34a5c6cc"
+    },
+    {
+      "path": "test_series_gate_v4.py",
+      "bytes": 3069,
+      "sha256": "2dee1df0d95a43a86e5b13ab0546183c22f24d19b852195247b06487dc64ef63"
+    },
+    {
+      "path": "run_engine.py",
+      "bytes": 1276,
+      "sha256": "8a3dd204ac95f3804ba8368e7eeb20c38c16e55648e5a9342e6e6d066acdad11"
+    },
+    {
+      "path": "source/tools/performance/current/plain_v4.gd",
+      "bytes": 9670,
+      "sha256": "9f80ae850108151c1403eff944291b82f5248e625e44cc215f4a4f0d3005c50f"
+    },
+    {
+      "path": "evidence/tool-v4-series/gate-tests.json",
+      "bytes": 1492,
+      "sha256": "62f45adbb803f36a0e5264831847fd5f3f221e58da571944746eec2d1a694360"
+    },
+    {
+      "path": "evidence/tool-v4-series/frozen-manifest.json",
+      "bytes": 993,
+      "sha256": "63c11d432aa0f06cd5766834d423670a36999cfa2aa7e1dceb301787be0219d5"
+    },
+    {
+      "path": "review-measurement-v3/manifest.json",
+      "bytes": 679,
+      "sha256": "feab24e713b49d07684929ad88c06fede739ca13711c64520a29c40267c0f3a5"
+    },
+    {
+      "path": "review-measurement-v3/checks.json",
+      "bytes": 1817,
+      "sha256": "9ff846db62f9aff6447a49609ce815f8fdf79c6ed87bdd4d3ca44928e9eb9e59"
+    },
+    {
+      "path": "evidence/tool-v4/frozen-manifest.json",
+      "bytes": 1589,
+      "sha256": "5ce4f9fd33546a2f1229e8e6f1aa8c3c1ef6d03bd540b6925eb1a965c9647527"
+    },
+    {
+      "path": "source/tools/performance/current/plain_v3.gd",
+      "bytes": 9044,
+      "sha256": "2c13ab34bb1e3b616a8146dfd9f5debef5962c8a059a8ae86e3ad674af196d3e"
+    }
+  ]
+}

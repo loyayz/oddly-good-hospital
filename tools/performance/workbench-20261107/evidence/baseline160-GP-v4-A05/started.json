@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/workspace/scratch/6962cc21ddf3/ogh-recovery-20261107/runtime/Godot_v4.7.2-stable_linux.x86_64",
+    "--headless",
+    "--path",
+    "/workspace/scratch/6962cc21ddf3/ogh-performance-20261107/source",
+    "--script",
+    "res://tools/performance/current/plain_v4.gd",
+    "--",
+    "--input=/workspace/scratch/6962cc21ddf3/ogh-performance-20261107/evidence/input160-v1/160four.input.bin",
+    "--output=/workspace/scratch/6962cc21ddf3/ogh-performance-20261107/evidence/baseline160-GP-v4-A05/result.json",
+    "--steps=2000",
+    "--prefix-steps=1000"
+  ],
+  "timeout_seconds": 1200.0,
+  "started_unix": 1794060832.8643312,
+  "engine_sha256": "8d106cbe6144c2dc7e881d61d2429c1a8a76e6b22ef48bd5e48dcf934953f71e"
+}

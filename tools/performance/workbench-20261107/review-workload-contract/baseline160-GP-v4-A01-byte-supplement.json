@@ -1,0 +1,114 @@
+{
+  "scope": "Independent static review and lightweight Python parsing only; no engine or A-tree/protocol modifications.",
+  "decision": "Close A01 missing exact clinical and maintenance receipts gap. Prior gap report remains unchanged.",
+  "facts_span_A01": [
+    128,
+    2161344
+  ],
+  "facts_span_preflight_cont": [
+    128,
+    2161344
+  ],
+  "facts_bytes": 2161216,
+  "facts_bytes_equal_without_tolerance": true,
+  "facts_sha256": "0e859b58c0dd6e41bbe0bdfe4330c04f6489d3abe43bca2c2a8fd181913e9cd9",
+  "events_exact_semantic_concatenation": true,
+  "event_counts": [
+    3638,
+    1021,
+    2617
+  ],
+  "godot_json_cross_checks": [
+    "preflight160-v1",
+    "preflight160-cont-v1"
+  ],
+  "json_float_comparison": "rel_tol=1e-12 abs_tol=1e-12 only for Godot JSON display rounding. No tolerance applied to exact encoded facts equality.",
+  "negative_parser_checks": {
+    "truncated_u32": true,
+    "unsupported_type": true,
+    "unsupported_flag": true,
+    "invalid_bool": true,
+    "oversized_dict": true,
+    "oversized_array": true,
+    "unsupported_array_builtin": true,
+    "duplicate_key": true
+  },
+  "reader_assessment": {
+    "supported_observed_headers": [
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        21,
+        0
+      ],
+      [
+        27,
+        0
+      ],
+      [
+        28,
+        0
+      ],
+      [
+        28,
+        1
+      ]
+    ],
+    "length": "take bounds checks; store_var declared length must equal file size minus4; full consumption enforced; bounded nesting and collection lengths.",
+    "span": "Top-level dictionary records byte cursor immediately after each decoded key and after its complete value. facts starts at128 and ends2161344 in both. Unique-key check rejects ambiguity.",
+    "flags": "Only specific type/flag pairs accepted; float/int32/64 selected by flag; typed-array builtin limited to primitive observed subset; no object deserialization.",
+    "limitations": [
+      "Not a universal Godot Variant format validator. String padding is consumed but not checked for zero.",
+      "Container high count bit masked as shared flag, not independently modelled. Typed-array primitive builtin is checked but individual elements are not checked against its declared type.",
+      "String and StringName become Python str; primitive-width/type distinctions may collapse in semantic JSON/event comparisons. Exact raw facts comparison preserves those distinctions.",
+      "Two known Godot-decoded files establish suitability for these observed payloads, not all arbitrary inputs. These limitations do not undermine the equal raw facts spans on these exact reviewed files."
+    ]
+  },
+  "business_proof": {
+    "GP_work_lower_bound": 120,
+    "GP_service": "service_00000173",
+    "GP_started_tick": 1567,
+    "GP_completed_tick": 1688,
+    "diagnostic_evidence": 94,
+    "doctor_completed_job": "diagnosis",
+    "repair_receipt": {
+      "maintenance_00000167:repair_completed": {
+        "id": "maintenance_00000167:repair_completed",
+        "kind": "repair_completed",
+        "source_id": "maintenance_00000167",
+        "facility_id": "bench_room_4_03_0",
+        "staff_id": "",
+        "worker_id": "maintenance_contractor_00000168",
+        "tick": 2546,
+        "standard_work_milli": 30000,
+        "practice_awarded": true
+      }
+    },
+    "repair_completed_milli": 30000,
+    "population": "sample163 to166;123patients32staff10companions1ownedcontractor; no unknown per reviewed full facts"
+  },
+  "claims_excluded": [
+    "GP is not treatment",
+    "not full clinical coverage",
+    "not A/B improvement",
+    "not proof of all5A results"
+  ]
+}

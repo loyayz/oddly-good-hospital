@@ -1,0 +1,43 @@
+{
+  "engine_active": false,
+  "pause": "Parent/user publication pause: do not start another engine until resumed",
+  "accepted_measurement_and_evidence": [
+    "source/tools/performance/current (7 gd tools, v1-v3 historical/v4 active)",
+    "run_engine.py",
+    "run_series_v4.py",
+    "read_variant.py",
+    "audit_A_series_v1.py",
+    "evidence/baseline160-GP-v4-completed-audit",
+    "evidence/baseline160-GP-v4-business-throughput.json",
+    "review-measurement-v4",
+    "review-workload-contract"
+  ],
+  "qualified_tool_candidate_not_canonical_adoption": [
+    "tool-adaptation640-v1 fixture/helper +54queryoracle",
+    "tool-adaptation640-v2 supplemental alias/commit/exhaustion/reservation/original640prefix oracles",
+    "tool-adaptation640-v2 full640 preparation ended functional setup failure4/32seats; no legalinput"
+  ],
+  "diagnostic_only": [
+    "diagnostic-root-v1",
+    "diagnostic-fine-v1",
+    "diagnostic-fine-v2",
+    "diagnostic640-v1",
+    "diagnostic640-v2"
+  ],
+  "not_adopted_production_candidate": [
+    "candidate-lazy-copy-v1: functional tests and exact800facts pass; single diagnostic2.76%slower; no5B, no gain/adoption"
+  ],
+  "unexecuted_next_tool": [
+    "prepare_fine_diagnostic_v3.py only generator, no project/engine"
+  ],
+  "no_release_claim": [
+    "320 only prepared, no clinical baseline",
+    "640wide constructor complete but currentlegal input incomplete",
+    "wide160/tall640 unverified",
+    "GPU/FPS/nativeSQLite/Windows/fullrelease unsupported",
+    "11 inherited deferred scopes unchanged"
+  ],
+  "production_baseline_changes_adopted": 0,
+  "verified_performance_improvements": 0,
+  "full_A_source_aggregate": "210d549d9c266f3418a425f8edb09f7c8d9d05e2723f46625a40109ae121cf5d"
+}

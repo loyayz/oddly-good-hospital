@@ -1,0 +1,89 @@
+{
+  "files": [
+    {
+      "path": "diagnostic640-v1/run01-analysis.json",
+      "sha256": "266d89dcc827a41e7be6c6ce3e562498869abec5509ecfc5ccb399b22bbe0379",
+      "bytes": 3934
+    },
+    {
+      "path": "diagnostic640-v1/run01-manifest.json",
+      "sha256": "11bb4ddbab5e27fa1e9419a02150923e6e7b949f108c736ec21ab455ce5dbaf0",
+      "bytes": 1593
+    },
+    {
+      "path": "diagnostic640-v1/fixture.diagnostic.gd",
+      "sha256": "50e7beba5fc29da6707d3cab0b7556789f982f4cae8069cb7274f1c3b4804dca",
+      "bytes": 13817
+    },
+    {
+      "path": "diagnostic640-v1/driver.gd",
+      "sha256": "fd371976d7c9637d7cca5b512a79feb6f5ea8991f74116c44ee8326c691bdbce",
+      "bytes": 1317
+    },
+    {
+      "path": "diagnostic640-v1/run.py",
+      "sha256": "b6326353bea8746176408ba285c0409070ff554f6697f6e489bc25da294ec29f",
+      "bytes": 1619
+    },
+    {
+      "path": "diagnostic640-v1/run01/raw.log",
+      "sha256": "79d5874a2bd587770b2045361e87b98dd75968b94c3f1178ffd32be648aa3922",
+      "bytes": 2391
+    },
+    {
+      "path": "diagnostic640-v1/run01/status.json",
+      "sha256": "6bf1c16561f274366a538eb0856f88ad70fe4f399e1c3a67bc9967b5717d5156",
+      "bytes": 164
+    },
+    {
+      "path": "diagnostic640-v2/run01-analysis.json",
+      "sha256": "b5361424d588164f58b0c982cb1de904570c4b70465d1e9d2b8ae6372e6c0b0b",
+      "bytes": 19873
+    },
+    {
+      "path": "diagnostic640-v2/run01-manifest.json",
+      "sha256": "66c446726a34cad35f3a908f202abeeea38822959886bbbd9428ffd8a0d6a885",
+      "bytes": 1595
+    },
+    {
+      "path": "diagnostic640-v2/fixture.diagnostic.gd",
+      "sha256": "a99243c50befb833300512c180752fa7397e5fe594435c7788f9eccc0f4e5c1b",
+      "bytes": 15718
+    },
+    {
+      "path": "diagnostic640-v2/driver.gd",
+      "sha256": "fd371976d7c9637d7cca5b512a79feb6f5ea8991f74116c44ee8326c691bdbce",
+      "bytes": 1317
+    },
+    {
+      "path": "diagnostic640-v2/run.py",
+      "sha256": "b6326353bea8746176408ba285c0409070ff554f6697f6e489bc25da294ec29f",
+      "bytes": 1619
+    },
+    {
+      "path": "diagnostic640-v2/run01/raw.log",
+      "sha256": "e161cac3f8374f066184900c013dac53421b0540e71c9427c502d815ffddc35f",
+      "bytes": 15966
+    },
+    {
+      "path": "diagnostic640-v2/run01/status.json",
+      "sha256": "6dcca68ca6bdc29dcd05e7a9f7ba526701dc034f0f3acf3a297ad88f03ffe108",
+      "bytes": 164
+    },
+    {
+      "path": "review-workload-contract/diagnostic640-v1v2-review.json",
+      "sha256": "d83b7668f20317e5907eb909f696c1e676ad380fea4a4dd2d75cf1761a2a61eb",
+      "bytes": 4550
+    },
+    {
+      "path": "diagnostic640-v2/prepare.py",
+      "sha256": "690b50ec240fdbef1e79ebbb15b6583757098124c9c79f62d0dd959b3cfb24d4",
+      "bytes": 3952
+    },
+    {
+      "path": "diagnostic640-v2/project/game/building/hospital_space.gd",
+      "sha256": "f66bd982c46b6bf25ab1035ad3c63a152ca9863995372c6e5c2bae5c1da86048",
+      "bytes": 67323
+    }
+  ]
+}

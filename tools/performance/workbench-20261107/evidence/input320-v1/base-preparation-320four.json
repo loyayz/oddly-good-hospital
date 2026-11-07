@@ -1,0 +1,90 @@
+{
+	"content_fingerprint": "11f4b75ffe357c73bd097d177169f1a846cf2d488fe23f2d1cd02b967cac3e2d",
+	"engine": "4.7.2-stable (official)",
+	"ok": true,
+	"preparation_only": true,
+	"results": [
+		{
+			"actors": 320,
+			"actual_layout_after": {
+				"facilities": 1348,
+				"props": 1200,
+				"rooms": 64,
+				"service_objects": 148
+			},
+			"actual_layout_before": {
+				"facilities": 1328,
+				"props": 1200,
+				"rooms": 64,
+				"service_objects": 128
+			},
+			"actual_steps": 45,
+			"added_guidance_desks": {
+				"boundary": "Declared initial built facilities, not measured construction",
+				"desk_ids": [
+					"performance_guidance_1",
+					"performance_guidance_2",
+					"performance_guidance_3",
+					"performance_guidance_4"
+				],
+				"ok": true,
+				"rejected": []
+			},
+			"added_public_seat_ids": [
+				"acceptance_public_seat_0000",
+				"acceptance_public_seat_0001",
+				"acceptance_public_seat_0002",
+				"acceptance_public_seat_0003",
+				"acceptance_public_seat_0004",
+				"acceptance_public_seat_0005",
+				"acceptance_public_seat_0006",
+				"acceptance_public_seat_0007",
+				"acceptance_public_seat_0008",
+				"acceptance_public_seat_0009",
+				"acceptance_public_seat_0010",
+				"acceptance_public_seat_0011",
+				"acceptance_public_seat_0012",
+				"acceptance_public_seat_0013",
+				"acceptance_public_seat_0014",
+				"acceptance_public_seat_0015"
+			],
+			"boundary": "original_companion_admissions_and_complete_steps",
+			"companion_intention_origin": "known_intentions_before_first_original_step",
+			"companion_profiles_valid": true,
+			"content_fingerprint": "11f4b75ffe357c73bd097d177169f1a846cf2d488fe23f2d1cd02b967cac3e2d",
+			"engine": "4.7.2-stable (official)",
+			"floors": [
+				1,
+				2,
+				3,
+				4
+			],
+			"hospital_id": "00000000-0000-4000-8000-000000000320",
+			"id": "320four",
+			"input_file": "320four.input.bin",
+			"input_sha256": "8668aa1f7cd03b5c0e241b52f71d49da27ab303682467f71e9293704427902d0",
+			"layout": "four_floors",
+			"ok": true,
+			"original_object_ids_and_definitions_preserved": true,
+			"original_prop_count": 1200,
+			"original_rooms": 64,
+			"original_service_objects": 128,
+			"pending_visitor_requests_after": 0,
+			"pending_visitor_requests_before": 16,
+			"population": {
+				"patients": 240,
+				"present": 320,
+				"staff": 64,
+				"unowned": [],
+				"visitors": 16
+			},
+			"preparation_us": 64256884,
+			"source_input": "",
+			"source_input_sha256": "",
+			"source_tick": 45,
+			"validation": "",
+			"visitor_profile": "HospitalVisitors companion; original admission owner, actual entrance and public waiting route"
+		}
+	],
+	"schema_version": 1
+}

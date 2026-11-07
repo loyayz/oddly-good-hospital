@@ -1,0 +1,465 @@
+{
+  "base_manifest": "exporter-integration-r2/source-after-integration.json",
+  "base_manifest_sha256": "5f5b095edf17f696ae284ad92af5b6f8d7c37913291f814170e7cf9ebdde839e",
+  "base_aggregate": "210d549d9c266f3418a425f8edb09f7c8d9d05e2723f46625a40109ae121cf5d",
+  "overlays": {
+    "diagnostic-root-v1": [
+      {
+        "path": "diagnostic-root-v1/source/tools/performance/current/diagnostic_v1.gd",
+        "new_relative_path": "tools/performance/current/diagnostic_v1.gd",
+        "sha256": "bcba59a432290bd16b43c595728d17407b99c41628fac0f776ac35ac9d1aa69c",
+        "bytes": 11800,
+        "mode": 420
+      }
+    ],
+    "diagnostic-fine-v1": [
+      {
+        "path": "diagnostic-fine-v1/source/game/building/hospital_movement.gd",
+        "base_path": "game/building/hospital_movement.gd",
+        "sha256": "b550b8b54ff26b77d9f13f8268ca6d5d44529a869972df45145f4504012d74a4",
+        "bytes": 74362,
+        "mode": 420
+      },
+      {
+        "path": "diagnostic-fine-v1/source/game/building/hospital_space.gd",
+        "base_path": "game/building/hospital_space.gd",
+        "sha256": "6cb6a5415dd0282acb5453f50afc539e67cc1b102512156b466eed6c53c055ef",
+        "bytes": 68222,
+        "mode": 420
+      },
+      {
+        "path": "diagnostic-fine-v1/source/game/life/waiting_life.gd",
+        "base_path": "game/life/waiting_life.gd",
+        "sha256": "8b87801e3ffc868cefbb120ebcd2902e8e2b57716077dec2986ba24ff2aeb066",
+        "bytes": 70597,
+        "mode": 420
+      },
+      {
+        "path": "diagnostic-fine-v1/source/tools/performance/current/fine_driver_v1.gd",
+        "new_relative_path": "tools/performance/current/fine_driver_v1.gd",
+        "sha256": "d926e65f2ce8210cd5c6871b20e83a6c0948956f12c1d56e19a15beca08d2b81",
+        "bytes": 12145,
+        "mode": 420
+      },
+      {
+        "path": "diagnostic-fine-v1/source/tools/performance/current/fine_timer_v1.gd",
+        "new_relative_path": "tools/performance/current/fine_timer_v1.gd",
+        "sha256": "a46c871e2973255735bbba805e5cd7fc1298f5622c519675fd9f63e195262cfd",
+        "bytes": 1090,
+        "mode": 420
+      }
+    ],
+    "diagnostic-fine-v2": [
+      {
+        "path": "diagnostic-fine-v2/source/game/building/hospital_movement.gd",
+        "base_path": "game/building/hospital_movement.gd",
+        "sha256": "6905bf4a64b77fbc801507240ad2035633d1644232c11ac3c38a48393270e967",
+        "bytes": 75796,
+        "mode": 420
+      },
+      {
+        "path": "diagnostic-fine-v2/source/game/building/hospital_space.gd",
+        "base_path": "game/building/hospital_space.gd",
+        "sha256": "857521669f76166cf0b2dc7caec687ca2473984d3981be38f7f6da0f46a9f918",
+        "bytes": 69262,
+        "mode": 420
+      },
+      {
+        "path": "diagnostic-fine-v2/source/game/life/waiting_life.gd",
+        "base_path": "game/life/waiting_life.gd",
+        "sha256": "8b87801e3ffc868cefbb120ebcd2902e8e2b57716077dec2986ba24ff2aeb066",
+        "bytes": 70597,
+        "mode": 420
+      },
+      {
+        "path": "diagnostic-fine-v2/source/tools/performance/current/fine_driver_v1.gd",
+        "new_relative_path": "tools/performance/current/fine_driver_v1.gd",
+        "sha256": "d926e65f2ce8210cd5c6871b20e83a6c0948956f12c1d56e19a15beca08d2b81",
+        "bytes": 12145,
+        "mode": 420
+      },
+      {
+        "path": "diagnostic-fine-v2/source/tools/performance/current/fine_timer_v1.gd",
+        "new_relative_path": "tools/performance/current/fine_timer_v1.gd",
+        "sha256": "a46c871e2973255735bbba805e5cd7fc1298f5622c519675fd9f63e195262cfd",
+        "bytes": 1090,
+        "mode": 420
+      }
+    ],
+    "diagnostic640-v1": [
+      {
+        "path": "diagnostic640-v1/project/tools/performance/fixture.gd",
+        "base_path": "tools/performance/fixture.gd",
+        "sha256": "50e7beba5fc29da6707d3cab0b7556789f982f4cae8069cb7274f1c3b4804dca",
+        "bytes": 13817,
+        "mode": 420
+      },
+      {
+        "path": "diagnostic640-v1/project/diagnostic640-driver.gd",
+        "new_relative_path": "diagnostic640-driver.gd",
+        "sha256": "fd371976d7c9637d7cca5b512a79feb6f5ea8991f74116c44ee8326c691bdbce",
+        "bytes": 1317,
+        "mode": 420
+      },
+      {
+        "path": "diagnostic640-v1/project/diagnostic640-driver.gd.uid",
+        "new_relative_path": "diagnostic640-driver.gd.uid",
+        "sha256": "fd78c2ab7b869112d1421e7911e3ffb1636891f532fe979265744ab3bea6612f",
+        "bytes": 20,
+        "mode": 420
+      },
+      {
+        "path": "diagnostic640-v1/project/tools/performance/current/check_population_v4.gd.uid",
+        "new_relative_path": "tools/performance/current/check_population_v4.gd.uid",
+        "sha256": "aae50ea02b310c600a144b8f3da6d1d8913d07d735b23569184dc88b09c8ce1b",
+        "bytes": 20,
+        "mode": 420
+      },
+      {
+        "path": "diagnostic640-v1/project/tools/performance/current/plain_v3.gd.uid",
+        "new_relative_path": "tools/performance/current/plain_v3.gd.uid",
+        "sha256": "69a7f53c5f80a4d29284e3566c30794c2cadbb715de51514c9f68a31772732dd",
+        "bytes": 20,
+        "mode": 420
+      },
+      {
+        "path": "diagnostic640-v1/project/tools/performance/current/plain.gd.uid",
+        "new_relative_path": "tools/performance/current/plain.gd.uid",
+        "sha256": "c75ae40f80804e093dd6cd48167aa0056f3f8977387cecd50e38bbe0b1903655",
+        "bytes": 20,
+        "mode": 420
+      },
+      {
+        "path": "diagnostic640-v1/project/tools/performance/current/prepare_inputs.gd.uid",
+        "new_relative_path": "tools/performance/current/prepare_inputs.gd.uid",
+        "sha256": "6c4a146d8d7862b4a61f8364e07336d61ccca8fbb84ff85e80ecda6f4e8745f6",
+        "bytes": 20,
+        "mode": 420
+      },
+      {
+        "path": "diagnostic640-v1/project/tools/performance/current/plain_v2.gd.uid",
+        "new_relative_path": "tools/performance/current/plain_v2.gd.uid",
+        "sha256": "c21bfeb45fbc511edd0405bfcbce73ed2022e970ee5e7dd0281d293e0a7f0fe6",
+        "bytes": 20,
+        "mode": 420
+      },
+      {
+        "path": "diagnostic640-v1/project/tools/performance/current/plain_v4.gd.uid",
+        "new_relative_path": "tools/performance/current/plain_v4.gd.uid",
+        "sha256": "f60b7be5b8ae759325b0b568ba7dfea1b8ebb9abb1a553ce1e73b6281ff01d9d",
+        "bytes": 20,
+        "mode": 420
+      },
+      {
+        "path": "diagnostic640-v1/project/tools/performance/current/inspect_boundaries.gd.uid",
+        "new_relative_path": "tools/performance/current/inspect_boundaries.gd.uid",
+        "sha256": "cfe746da643a5f3d3cb17b7ab225610cea41e6e5b407181c575f1cf95eee79a3",
+        "bytes": 20,
+        "mode": 420
+      }
+    ],
+    "diagnostic640-v2": [
+      {
+        "path": "diagnostic640-v2/project/tools/performance/fixture.gd",
+        "base_path": "tools/performance/fixture.gd",
+        "sha256": "a99243c50befb833300512c180752fa7397e5fe594435c7788f9eccc0f4e5c1b",
+        "bytes": 15718,
+        "mode": 420
+      },
+      {
+        "path": "diagnostic640-v2/project/diagnostic640-driver.gd",
+        "new_relative_path": "diagnostic640-driver.gd",
+        "sha256": "fd371976d7c9637d7cca5b512a79feb6f5ea8991f74116c44ee8326c691bdbce",
+        "bytes": 1317,
+        "mode": 420
+      },
+      {
+        "path": "diagnostic640-v2/project/diagnostic640-driver.gd.uid",
+        "new_relative_path": "diagnostic640-driver.gd.uid",
+        "sha256": "fd78c2ab7b869112d1421e7911e3ffb1636891f532fe979265744ab3bea6612f",
+        "bytes": 20,
+        "mode": 420
+      },
+      {
+        "path": "diagnostic640-v2/project/tools/performance/current/check_population_v4.gd.uid",
+        "new_relative_path": "tools/performance/current/check_population_v4.gd.uid",
+        "sha256": "aae50ea02b310c600a144b8f3da6d1d8913d07d735b23569184dc88b09c8ce1b",
+        "bytes": 20,
+        "mode": 420
+      },
+      {
+        "path": "diagnostic640-v2/project/tools/performance/current/plain_v3.gd.uid",
+        "new_relative_path": "tools/performance/current/plain_v3.gd.uid",
+        "sha256": "69a7f53c5f80a4d29284e3566c30794c2cadbb715de51514c9f68a31772732dd",
+        "bytes": 20,
+        "mode": 420
+      },
+      {
+        "path": "diagnostic640-v2/project/tools/performance/current/plain.gd.uid",
+        "new_relative_path": "tools/performance/current/plain.gd.uid",
+        "sha256": "c75ae40f80804e093dd6cd48167aa0056f3f8977387cecd50e38bbe0b1903655",
+        "bytes": 20,
+        "mode": 420
+      },
+      {
+        "path": "diagnostic640-v2/project/tools/performance/current/prepare_inputs.gd.uid",
+        "new_relative_path": "tools/performance/current/prepare_inputs.gd.uid",
+        "sha256": "6c4a146d8d7862b4a61f8364e07336d61ccca8fbb84ff85e80ecda6f4e8745f6",
+        "bytes": 20,
+        "mode": 420
+      },
+      {
+        "path": "diagnostic640-v2/project/tools/performance/current/plain_v2.gd.uid",
+        "new_relative_path": "tools/performance/current/plain_v2.gd.uid",
+        "sha256": "c21bfeb45fbc511edd0405bfcbce73ed2022e970ee5e7dd0281d293e0a7f0fe6",
+        "bytes": 20,
+        "mode": 420
+      },
+      {
+        "path": "diagnostic640-v2/project/tools/performance/current/plain_v4.gd.uid",
+        "new_relative_path": "tools/performance/current/plain_v4.gd.uid",
+        "sha256": "f60b7be5b8ae759325b0b568ba7dfea1b8ebb9abb1a553ce1e73b6281ff01d9d",
+        "bytes": 20,
+        "mode": 420
+      },
+      {
+        "path": "diagnostic640-v2/project/tools/performance/current/inspect_boundaries.gd.uid",
+        "new_relative_path": "tools/performance/current/inspect_boundaries.gd.uid",
+        "sha256": "cfe746da643a5f3d3cb17b7ab225610cea41e6e5b407181c575f1cf95eee79a3",
+        "bytes": 20,
+        "mode": 420
+      }
+    ],
+    "candidate-lazy-copy-v1": [
+      {
+        "path": "candidate-lazy-copy-v1/source/game/building/hospital_movement.gd",
+        "base_path": "game/building/hospital_movement.gd",
+        "sha256": "8c487b4b5eca14255171cb859ab3ba702995dbe9b8df594d9e3cf63145a8bf34",
+        "bytes": 71926,
+        "mode": 420
+      },
+      {
+        "path": "candidate-lazy-copy-v1/source/tools/performance/current/diagnostic_v1.gd",
+        "new_relative_path": "tools/performance/current/diagnostic_v1.gd",
+        "sha256": "bcba59a432290bd16b43c595728d17407b99c41628fac0f776ac35ac9d1aa69c",
+        "bytes": 11800,
+        "mode": 420
+      },
+      {
+        "path": "candidate-lazy-copy-v1/source/tools/performance/current/lazy_selected_tests.gd",
+        "new_relative_path": "tools/performance/current/lazy_selected_tests.gd",
+        "sha256": "6c65200c23d76a0f4ee12ac32569feb063d0616bd30dfd1004a254e8275796b2",
+        "bytes": 1378,
+        "mode": 420
+      }
+    ],
+    "tool-adaptation640-v1": [
+      {
+        "path": "tool-adaptation640-v1/project/tools/performance/fixture.gd",
+        "base_path": "tools/performance/fixture.gd",
+        "sha256": "f2752c3506b00d60c6dc93bb7aa10df60f56acb075c46a95bab5bed306a67ad7",
+        "bytes": 10536,
+        "mode": 420
+      },
+      {
+        "path": "tool-adaptation640-v1/project/placement-oracle.gd",
+        "new_relative_path": "placement-oracle.gd",
+        "sha256": "322d71fc45488c0ba7b98dd12d3d334ea3916c5995008af1b1af2c4e85c585c3",
+        "bytes": 5214,
+        "mode": 420
+      },
+      {
+        "path": "tool-adaptation640-v1/project/placement-oracle.gd.uid",
+        "new_relative_path": "placement-oracle.gd.uid",
+        "sha256": "827cdc345a42cb768513fdd34bc7b58dbbf6fe4ac141ba48658fb06cdae48b3e",
+        "bytes": 20,
+        "mode": 420
+      },
+      {
+        "path": "tool-adaptation640-v1/project/tools/performance/placement_query.gd",
+        "new_relative_path": "tools/performance/placement_query.gd",
+        "sha256": "7b54f813591faa12f38581a46ab5ad1e0b623e3f33ca077b0ac9fc4af2f0efb3",
+        "bytes": 1033,
+        "mode": 420
+      },
+      {
+        "path": "tool-adaptation640-v1/project/tools/performance/placement_query.gd.uid",
+        "new_relative_path": "tools/performance/placement_query.gd.uid",
+        "sha256": "d324ad8103c36e2f8cc06e79d4909f60d271b05c577840133bcbae90a5410b4c",
+        "bytes": 20,
+        "mode": 420
+      },
+      {
+        "path": "tool-adaptation640-v1/project/tools/performance/current/check_population_v4.gd.uid",
+        "new_relative_path": "tools/performance/current/check_population_v4.gd.uid",
+        "sha256": "aae50ea02b310c600a144b8f3da6d1d8913d07d735b23569184dc88b09c8ce1b",
+        "bytes": 20,
+        "mode": 420
+      },
+      {
+        "path": "tool-adaptation640-v1/project/tools/performance/current/plain_v3.gd.uid",
+        "new_relative_path": "tools/performance/current/plain_v3.gd.uid",
+        "sha256": "69a7f53c5f80a4d29284e3566c30794c2cadbb715de51514c9f68a31772732dd",
+        "bytes": 20,
+        "mode": 420
+      },
+      {
+        "path": "tool-adaptation640-v1/project/tools/performance/current/plain.gd.uid",
+        "new_relative_path": "tools/performance/current/plain.gd.uid",
+        "sha256": "c75ae40f80804e093dd6cd48167aa0056f3f8977387cecd50e38bbe0b1903655",
+        "bytes": 20,
+        "mode": 420
+      },
+      {
+        "path": "tool-adaptation640-v1/project/tools/performance/current/prepare_inputs.gd.uid",
+        "new_relative_path": "tools/performance/current/prepare_inputs.gd.uid",
+        "sha256": "6c4a146d8d7862b4a61f8364e07336d61ccca8fbb84ff85e80ecda6f4e8745f6",
+        "bytes": 20,
+        "mode": 420
+      },
+      {
+        "path": "tool-adaptation640-v1/project/tools/performance/current/plain_v2.gd.uid",
+        "new_relative_path": "tools/performance/current/plain_v2.gd.uid",
+        "sha256": "c21bfeb45fbc511edd0405bfcbce73ed2022e970ee5e7dd0281d293e0a7f0fe6",
+        "bytes": 20,
+        "mode": 420
+      },
+      {
+        "path": "tool-adaptation640-v1/project/tools/performance/current/plain_v4.gd.uid",
+        "new_relative_path": "tools/performance/current/plain_v4.gd.uid",
+        "sha256": "f60b7be5b8ae759325b0b568ba7dfea1b8ebb9abb1a553ce1e73b6281ff01d9d",
+        "bytes": 20,
+        "mode": 420
+      },
+      {
+        "path": "tool-adaptation640-v1/project/tools/performance/current/inspect_boundaries.gd.uid",
+        "new_relative_path": "tools/performance/current/inspect_boundaries.gd.uid",
+        "sha256": "cfe746da643a5f3d3cb17b7ab225610cea41e6e5b407181c575f1cf95eee79a3",
+        "bytes": 20,
+        "mode": 420
+      }
+    ],
+    "tool-adaptation640-v2": [
+      {
+        "path": "tool-adaptation640-v2/project/tools/performance/fixture.gd",
+        "base_path": "tools/performance/fixture.gd",
+        "sha256": "f2752c3506b00d60c6dc93bb7aa10df60f56acb075c46a95bab5bed306a67ad7",
+        "bytes": 10536,
+        "mode": 420
+      },
+      {
+        "path": "tool-adaptation640-v2/project/placement-oracle.gd",
+        "new_relative_path": "placement-oracle.gd",
+        "sha256": "322d71fc45488c0ba7b98dd12d3d334ea3916c5995008af1b1af2c4e85c585c3",
+        "bytes": 5214,
+        "mode": 420
+      },
+      {
+        "path": "tool-adaptation640-v2/project/constructor-prefix-oracle-v1.gd",
+        "new_relative_path": "constructor-prefix-oracle-v1.gd",
+        "sha256": "4b781f50e85381af755cb59b12517591c6dc262b860f650e8fbb066208379de5",
+        "bytes": 1454,
+        "mode": 420
+      },
+      {
+        "path": "tool-adaptation640-v2/project/reservation-oracle-v3.gd",
+        "new_relative_path": "reservation-oracle-v3.gd",
+        "sha256": "34cb925fa1bd88f4d481d27722553940b8c1140cb0e7373e2af1638a7aa558c8",
+        "bytes": 7080,
+        "mode": 420
+      },
+      {
+        "path": "tool-adaptation640-v2/project/supplemental-oracle-v2.gd",
+        "new_relative_path": "supplemental-oracle-v2.gd",
+        "sha256": "17caddf1e7ede8526b10d8d9669c638d0b8acf1dd0cb1cce688390426c661ca4",
+        "bytes": 7078,
+        "mode": 420
+      },
+      {
+        "path": "tool-adaptation640-v2/project/prefix-candidate-v1.gd",
+        "new_relative_path": "prefix-candidate-v1.gd",
+        "sha256": "aef0081fa8c7912240f0a715e2b3d630768c348c5926801605387a0e183dd4a9",
+        "bytes": 10873,
+        "mode": 420
+      },
+      {
+        "path": "tool-adaptation640-v2/project/placement-oracle.gd.uid",
+        "new_relative_path": "placement-oracle.gd.uid",
+        "sha256": "827cdc345a42cb768513fdd34bc7b58dbbf6fe4ac141ba48658fb06cdae48b3e",
+        "bytes": 20,
+        "mode": 420
+      },
+      {
+        "path": "tool-adaptation640-v2/project/prefix-original-v1.gd",
+        "new_relative_path": "prefix-original-v1.gd",
+        "sha256": "5adeab603effadc61d87abdfc4b95c9ca6db461adb51e3c1062a7c1b1bbc6fbd",
+        "bytes": 10919,
+        "mode": 420
+      },
+      {
+        "path": "tool-adaptation640-v2/project/tools/performance/placement_query.gd",
+        "new_relative_path": "tools/performance/placement_query.gd",
+        "sha256": "7b54f813591faa12f38581a46ab5ad1e0b623e3f33ca077b0ac9fc4af2f0efb3",
+        "bytes": 1033,
+        "mode": 420
+      },
+      {
+        "path": "tool-adaptation640-v2/project/tools/performance/placement_query.gd.uid",
+        "new_relative_path": "tools/performance/placement_query.gd.uid",
+        "sha256": "d324ad8103c36e2f8cc06e79d4909f60d271b05c577840133bcbae90a5410b4c",
+        "bytes": 20,
+        "mode": 420
+      },
+      {
+        "path": "tool-adaptation640-v2/project/tools/performance/current/check_population_v4.gd.uid",
+        "new_relative_path": "tools/performance/current/check_population_v4.gd.uid",
+        "sha256": "aae50ea02b310c600a144b8f3da6d1d8913d07d735b23569184dc88b09c8ce1b",
+        "bytes": 20,
+        "mode": 420
+      },
+      {
+        "path": "tool-adaptation640-v2/project/tools/performance/current/plain_v3.gd.uid",
+        "new_relative_path": "tools/performance/current/plain_v3.gd.uid",
+        "sha256": "69a7f53c5f80a4d29284e3566c30794c2cadbb715de51514c9f68a31772732dd",
+        "bytes": 20,
+        "mode": 420
+      },
+      {
+        "path": "tool-adaptation640-v2/project/tools/performance/current/plain.gd.uid",
+        "new_relative_path": "tools/performance/current/plain.gd.uid",
+        "sha256": "c75ae40f80804e093dd6cd48167aa0056f3f8977387cecd50e38bbe0b1903655",
+        "bytes": 20,
+        "mode": 420
+      },
+      {
+        "path": "tool-adaptation640-v2/project/tools/performance/current/prepare_inputs.gd.uid",
+        "new_relative_path": "tools/performance/current/prepare_inputs.gd.uid",
+        "sha256": "6c4a146d8d7862b4a61f8364e07336d61ccca8fbb84ff85e80ecda6f4e8745f6",
+        "bytes": 20,
+        "mode": 420
+      },
+      {
+        "path": "tool-adaptation640-v2/project/tools/performance/current/plain_v2.gd.uid",
+        "new_relative_path": "tools/performance/current/plain_v2.gd.uid",
+        "sha256": "c21bfeb45fbc511edd0405bfcbce73ed2022e970ee5e7dd0281d293e0a7f0fe6",
+        "bytes": 20,
+        "mode": 420
+      },
+      {
+        "path": "tool-adaptation640-v2/project/tools/performance/current/plain_v4.gd.uid",
+        "new_relative_path": "tools/performance/current/plain_v4.gd.uid",
+        "sha256": "f60b7be5b8ae759325b0b568ba7dfea1b8ebb9abb1a553ce1e73b6281ff01d9d",
+        "bytes": 20,
+        "mode": 420
+      },
+      {
+        "path": "tool-adaptation640-v2/project/tools/performance/current/inspect_boundaries.gd.uid",
+        "new_relative_path": "tools/performance/current/inspect_boundaries.gd.uid",
+        "sha256": "cfe746da643a5f3d3cb17b7ab225610cea41e6e5b407181c575f1cf95eee79a3",
+        "bytes": 20,
+        "mode": 420
+      }
+    ]
+  },
+  "excluded": "Generated .godot/.cache/.git/__pycache__, duplicated unchanged base files"
+}

@@ -1,0 +1,11 @@
+{
+  "path": "evidence/post-A-attribution-plan-v1.md",
+  "bytes": 4506,
+  "sha256": "5d7278fb07092e80265997f3d4378b08ee53ca35ceb78ff6965184c34206637a",
+  "status": "read_only_plan_no_profile_or_new_engine_execution",
+  "basis": [
+    "evidence/preflight160-v1-frozen-manifest.json",
+    "evidence/preflight160-cont-v1-frozen-manifest.json",
+    "evidence/preparation640wide-v1-frozen-manifest.json"
+  ]
+}

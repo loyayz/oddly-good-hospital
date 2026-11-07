@@ -1,0 +1,7 @@
+{
+  "only_production_path": "game/building/hospital_movement.gd",
+  "before_sha256": "4d5a18a7ea9c656fa9f5feafb414fbfcb4ea5c1638d061c662e37fb3d932a68d",
+  "after_sha256": "8c487b4b5eca14255171cb859ab3ba702995dbe9b8df594d9e3cf63145a8bf34",
+  "A_full_aggregate": "210d549d9c266f3418a425f8edb09f7c8d9d05e2723f46625a40109ae121cf5d",
+  "purpose": "Private lazy deepcopy only; initial rectangle call preserved"
+}

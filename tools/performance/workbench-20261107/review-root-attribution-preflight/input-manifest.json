@@ -1,0 +1,24 @@
+{
+  "files": [
+    {
+      "path": "evidence/post-A-attribution-plan-v1.md",
+      "bytes": 4506,
+      "sha256": "5d7278fb07092e80265997f3d4378b08ee53ca35ceb78ff6965184c34206637a"
+    },
+    {
+      "path": "source/tools/performance/step_profile.gd",
+      "bytes": 27320,
+      "sha256": "0f1b25373ddc3595a782de59b7e9aab501527406bdd9ec9e76c6880913f9a700"
+    },
+    {
+      "path": "source/game/sim/simulation.gd",
+      "bytes": 19777,
+      "sha256": "1ef8bf396174d46c8780295ad61a64f0fef5d6cfd6770fee914ccea6baeb1cf7"
+    },
+    {
+      "path": "source/game/sim/world_state.gd",
+      "bytes": 69940,
+      "sha256": "b2ddfd0295dce3357ecb691ddb7ec189556dbe536438ac1043269767ead7c443"
+    }
+  ]
+}

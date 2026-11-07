@@ -1,0 +1,24 @@
+{
+  "fixed_prefix_staff": 3,
+  "requested_original_fixture": 640,
+  "timeout": 120,
+  "not_legal_or_performance_input": true,
+  "files": [
+    {
+      "path": "run_engine.py",
+      "sha256": "66020bd8cdad22704f5379f199c03fbf30a3162e6a634538a214fa2b092219ea"
+    },
+    {
+      "path": "project/constructor-prefix-oracle-v1.gd",
+      "sha256": "4b781f50e85381af755cb59b12517591c6dc262b860f650e8fbb066208379de5"
+    },
+    {
+      "path": "project/prefix-candidate-v1.gd",
+      "sha256": "aef0081fa8c7912240f0a715e2b3d630768c348c5926801605387a0e183dd4a9"
+    },
+    {
+      "path": "project/prefix-original-v1.gd",
+      "sha256": "5adeab603effadc61d87abdfc4b95c9ca6db461adb51e3c1062a7c1b1bbc6fbd"
+    }
+  ]
+}

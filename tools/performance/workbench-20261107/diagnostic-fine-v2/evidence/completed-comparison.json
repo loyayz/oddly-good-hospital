@@ -1,0 +1,190 @@
+{
+  "complete": true,
+  "full_final_bin_exact_equal_paired_plain": true,
+  "metrics": {
+    "count": 800,
+    "first_sample_step_us": 1463308,
+    "fresh_runtime_first_prefix_or_sample_step_us": 1463308,
+    "max_us": 6527735,
+    "mean_step_us": 222348.8775,
+    "observation_logging_and_loop_wall_us": 229078,
+    "p50_us": 188656,
+    "p95_us": 280440,
+    "p99_us": 1064912,
+    "real_window_us_including_observation": 178108180,
+    "simulated_seconds": 80.0,
+    "simulation_seconds_per_wall_second": 0.449165220822536,
+    "sum_step_us": 177879102
+  },
+  "business": {
+    "clinical_work_ticks_observed_lower_bound": {
+      "gp": 120,
+      "reception": 221
+    },
+    "events": {
+      "arrival_opportunity_admitted": 2,
+      "ledger_settled": 2,
+      "patience_evaluated": 334,
+      "patient_arrived": 2,
+      "research_opened": 1,
+      "service_completed": 4,
+      "service_queued": 6,
+      "service_started": 5,
+      "tick_completed": 800,
+      "wait_departure_selected": 5
+    },
+    "guidance_work_ticks": 59,
+    "steps_with_active_moves_not_arrival_proof": 800
+  },
+  "methods": [
+    {
+      "name": "game/building/hospital_movement.gd:_continue_detour",
+      "calls": 17755,
+      "inclusive_us": 73528938,
+      "exclusive_us": 61184802,
+      "max_us": 61720
+    },
+    {
+      "name": "game/building/hospital_movement.gd:_move_step",
+      "calls": 15238,
+      "inclusive_us": 22640952,
+      "exclusive_us": 21467103,
+      "max_us": 13593
+    },
+    {
+      "name": "game/building/hospital_movement.gd:_movement_contacts",
+      "calls": 647469,
+      "inclusive_us": 11792851,
+      "exclusive_us": 9927066,
+      "max_us": 5832
+    },
+    {
+      "name": "game/life/waiting_life.gd:_wait_safely",
+      "calls": 5588,
+      "inclusive_us": 10146025,
+      "exclusive_us": 9923822,
+      "max_us": 105583
+    },
+    {
+      "name": "game/life/waiting_life.gd:dispatch",
+      "calls": 800,
+      "inclusive_us": 25956661,
+      "exclusive_us": 7979497,
+      "max_us": 6257499
+    },
+    {
+      "name": "game/building/hospital_movement.gd:_dispatch_routes",
+      "calls": 800,
+      "inclusive_us": 9143671,
+      "exclusive_us": 6821545,
+      "max_us": 2675004
+    },
+    {
+      "name": "game/life/waiting_life.gd:_dispatch_public_seat",
+      "calls": 25048,
+      "inclusive_us": 14566888,
+      "exclusive_us": 6165249,
+      "max_us": 118184
+    },
+    {
+      "name": "game/building/hospital_movement.gd:_active_route_clear",
+      "calls": 29496,
+      "inclusive_us": 4921213,
+      "exclusive_us": 4920198,
+      "max_us": 184290
+    },
+    {
+      "name": "game/building/hospital_space.gd:_ensure_actor_index",
+      "calls": 1748587,
+      "inclusive_us": 2703863,
+      "exclusive_us": 2697475,
+      "max_us": 7900
+    },
+    {
+      "name": "game/building/hospital_space.gd:_dynamic_clear",
+      "calls": 208753,
+      "inclusive_us": 2845056,
+      "exclusive_us": 2288196,
+      "max_us": 7011
+    },
+    {
+      "name": "game/building/hospital_space.gd:reservation_view",
+      "calls": 873653,
+      "inclusive_us": 1384228,
+      "exclusive_us": 1384228,
+      "max_us": 2108
+    },
+    {
+      "name": "game/life/waiting_life.gd:_seat_candidates_in_query",
+      "calls": 93,
+      "inclusive_us": 1218077,
+      "exclusive_us": 1207929,
+      "max_us": 40410
+    },
+    {
+      "name": "game/building/hospital_movement.gd:advance",
+      "calls": 800,
+      "inclusive_us": 112112646,
+      "exclusive_us": 1099496,
+      "max_us": 2823121
+    },
+    {
+      "name": "game/building/hospital_movement.gd:_yield",
+      "calls": 6523,
+      "inclusive_us": 579263,
+      "exclusive_us": 521784,
+      "max_us": 72125
+    },
+    {
+      "name": "game/building/hospital_movement.gd:_reserve_doors",
+      "calls": 15238,
+      "inclusive_us": 494527,
+      "exclusive_us": 493815,
+      "max_us": 8771
+    },
+    {
+      "name": "game/building/hospital_movement.gd:_unit_sweeps",
+      "calls": 15238,
+      "inclusive_us": 186452,
+      "exclusive_us": 186452,
+      "max_us": 2232
+    },
+    {
+      "name": "game/building/hospital_space.gd:release_adaptations",
+      "calls": 810,
+      "inclusive_us": 109428,
+      "exclusive_us": 109428,
+      "max_us": 3202
+    },
+    {
+      "name": "game/building/hospital_space.gd:static_reason",
+      "calls": 25,
+      "inclusive_us": 64938,
+      "exclusive_us": 64938,
+      "max_us": 7873
+    },
+    {
+      "name": "game/building/hospital_movement.gd:_convoy_turn_contact",
+      "calls": 15238,
+      "inclusive_us": 34143,
+      "exclusive_us": 34143,
+      "max_us": 260
+    },
+    {
+      "name": "game/building/hospital_space.gd:_sync_convoys",
+      "calls": 987,
+      "inclusive_us": 24577,
+      "exclusive_us": 24577,
+      "max_us": 403
+    },
+    {
+      "name": "game/building/hospital_movement.gd:_replan_goal",
+      "calls": 4,
+      "inclusive_us": 84,
+      "exclusive_us": 84,
+      "max_us": 26
+    }
+  ],
+  "speedup_claim": false,
+  "scope": "Measured wrappers include timer overhead; inclusive rows overlap. No object replacement. Method bodies unchanged. Diagnostic only."
+}

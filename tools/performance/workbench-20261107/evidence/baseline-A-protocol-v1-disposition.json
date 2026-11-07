@@ -1,0 +1,8 @@
+{
+  "protocol": "baseline-A-protocol-v1.json",
+  "status": "not_executed_not_qualified_for_clinical_baseline",
+  "reason": "Actual original tick21..1021 window has only reception clinical work. Continuation cannot retroactively qualify this window.",
+  "original_window_retained": true,
+  "five_runs_started": false,
+  "next": "Finish bounded fixed2000step continuation; preregister separate fixed prefix and actual clinical sampling window if qualified, excluding reception in business criterion."
+}

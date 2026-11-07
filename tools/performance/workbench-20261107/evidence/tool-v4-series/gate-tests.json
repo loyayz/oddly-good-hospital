@@ -1,0 +1,81 @@
+{
+  "engine_runs": 0,
+  "cases": [
+    {
+      "case": "valid_record",
+      "passed": true
+    },
+    {
+      "case": "SCRIPT ERROR: failure",
+      "passed": true
+    },
+    {
+      "case": "ERROR: native failure",
+      "passed": true
+    },
+    {
+      "case": "reception_only_rejected",
+      "passed": true
+    },
+    {
+      "case": "timeout_rejected",
+      "passed": true
+    },
+    {
+      "case": "wrong_sample_count_rejected",
+      "passed": true
+    },
+    {
+      "case": "missing_result_rejected",
+      "passed": true
+    },
+    {
+      "case": "empty_repeats_not_complete",
+      "passed": true
+    },
+    {
+      "case": "positive_aggregate",
+      "passed": true
+    },
+    {
+      "case": "reject repeats",
+      "passed": true
+    },
+    {
+      "case": "reject steps_per_repeat",
+      "passed": true
+    },
+    {
+      "case": "reject prefix_steps",
+      "passed": true
+    },
+    {
+      "case": "reject max_process_seconds",
+      "passed": true
+    },
+    {
+      "case": "malformed_result_preserved_as_failure",
+      "passed": true
+    },
+    {
+      "case": "unknown_rejected_initial",
+      "passed": true
+    },
+    {
+      "case": "unknown_rejected_sample_start_population",
+      "passed": true
+    },
+    {
+      "case": "unknown_rejected_final",
+      "passed": true
+    },
+    {
+      "case": "population_reconciliation_rejected",
+      "passed": true
+    },
+    {
+      "case": "legal_dynamic_owner_population_allowed",
+      "passed": true
+    }
+  ]
+}

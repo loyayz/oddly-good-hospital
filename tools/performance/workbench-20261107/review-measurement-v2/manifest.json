@@ -1,0 +1,23 @@
+{
+  "status": "v2_static_review_complete_runner_correction_required",
+  "engine_runs": 0,
+  "benchmark_runs": 0,
+  "source_edits": 0,
+  "files": [
+    {
+      "path": "review-measurement-v2/aggregation-counterexamples.json",
+      "bytes": 672,
+      "sha256": "fad10c9c707824b07a42e7b535d955c7ea41c62ddb53312e70fd1989ad6400f2"
+    },
+    {
+      "path": "review-measurement-v2/input-manifest.json",
+      "bytes": 1522,
+      "sha256": "cd9e1781a3da91166627bda8d1fa8d4468f2c642586615facfa5848e9e64ee89"
+    },
+    {
+      "path": "review-measurement-v2/review.md",
+      "bytes": 5774,
+      "sha256": "8c54843d45e2dd315c5e6f71286a898e06df79687cd7b83149251c5b962d7007"
+    }
+  ]
+}

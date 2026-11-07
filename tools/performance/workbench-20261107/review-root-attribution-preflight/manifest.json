@@ -1,0 +1,25 @@
+{
+  "status": "static_preflight_complete_runtime_admission_required",
+  "files": [
+    {
+      "path": "review-root-attribution-preflight/checks.json",
+      "bytes": 619,
+      "sha256": "64c0a56c985813bfaa0ebb5c2184f86f13bc64f708a61472393f3308065cd913"
+    },
+    {
+      "path": "review-root-attribution-preflight/input-manifest.json",
+      "bytes": 700,
+      "sha256": "fd36eb810f4b3b70866107876da41ed4e26281531172cc0ea84a71554240ebef"
+    },
+    {
+      "path": "review-root-attribution-preflight/review.md",
+      "bytes": 7120,
+      "sha256": "ea1252856ce932df73b8f330f38cca181e09fb4e7e1816d354a4fba1c98be345"
+    },
+    {
+      "path": "review-root-attribution-preflight/static-marker-check.json",
+      "bytes": 9633,
+      "sha256": "e99fef88614fc78778a8ed6b2951b92cafcd1a472aa9b54ccd1dbed6d302a054"
+    }
+  ]
+}

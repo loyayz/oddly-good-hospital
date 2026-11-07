@@ -1,0 +1,90 @@
+{
+  "frozen": true,
+  "files": [
+    {
+      "path": "prepare_fine_diagnostic_v2.py",
+      "sha256": "3615a3fdd8151e257ca1b4b15b8ff32afbceeda981b55a2f5890998804797275",
+      "bytes": 4847
+    },
+    {
+      "path": "diagnostic-fine-v2/changes.json",
+      "sha256": "cae13b27babdfb6522b4e00d6d47b9620efb5d3956b29d92033b8a0e9c96e00c",
+      "bytes": 1782
+    },
+    {
+      "path": "diagnostic-fine-v2/run_engine.py",
+      "sha256": "8a3dd204ac95f3804ba8368e7eeb20c38c16e55648e5a9342e6e6d066acdad11",
+      "bytes": 1276
+    },
+    {
+      "path": "diagnostic-fine-v2/evidence/protocol-v1.json",
+      "sha256": "106d0a20f86f218d83ae35dadbd871e2be56ebb70fb862de56ff829d34292fba",
+      "bytes": 1555
+    },
+    {
+      "path": "diagnostic-fine-v2/source/game/building/hospital_movement.gd",
+      "sha256": "6905bf4a64b77fbc801507240ad2035633d1644232c11ac3c38a48393270e967",
+      "bytes": 75796
+    },
+    {
+      "path": "diagnostic-fine-v2/source/game/building/hospital_space.gd",
+      "sha256": "857521669f76166cf0b2dc7caec687ca2473984d3981be38f7f6da0f46a9f918",
+      "bytes": 69262
+    },
+    {
+      "path": "diagnostic-fine-v2/source/game/life/waiting_life.gd",
+      "sha256": "8b87801e3ffc868cefbb120ebcd2902e8e2b57716077dec2986ba24ff2aeb066",
+      "bytes": 70597
+    },
+    {
+      "path": "diagnostic-fine-v2/source/tools/performance/current/fine_timer_v1.gd",
+      "sha256": "a46c871e2973255735bbba805e5cd7fc1298f5622c519675fd9f63e195262cfd",
+      "bytes": 1090
+    },
+    {
+      "path": "diagnostic-fine-v2/source/tools/performance/current/fine_driver_v1.gd",
+      "sha256": "d926e65f2ce8210cd5c6871b20e83a6c0948956f12c1d56e19a15beca08d2b81",
+      "bytes": 12145
+    },
+    {
+      "path": "diagnostic-fine-v2/evidence/smoke2/result.json",
+      "sha256": "0530726ec64d7564c5819167d12a5b77ffaa2990827d847f696bf5ab1d08b172",
+      "bytes": 21650
+    },
+    {
+      "path": "diagnostic-fine-v2/evidence/smoke2/result.json.initial.json",
+      "sha256": "c7d865bb09f1b11bcf69330d4bea1555fc5d7b9ebb174eb3996b87c5e4aaa1c6",
+      "bytes": 9369
+    },
+    {
+      "path": "diagnostic-fine-v2/evidence/smoke2/status.json",
+      "sha256": "e82617b4f9420d85537f7c2b0ebee6bf1e2b3cb1633a3ed96a553a869bbaeb74",
+      "bytes": 100
+    },
+    {
+      "path": "diagnostic-fine-v2/evidence/smoke2/raw.log",
+      "sha256": "9998d5aa4bb6aff96967d269c02a22f2c47ec8887636dae3f27a0041d18950f7",
+      "bytes": 171
+    },
+    {
+      "path": "diagnostic-fine-v2/evidence/smoke2/result.json.fine.json",
+      "sha256": "944336faf3112b690dec9ec372ea48f5a07ae7d282a5db10d42b79f6d27c1e44",
+      "bytes": 5714
+    },
+    {
+      "path": "diagnostic-fine-v2/evidence/smoke2/result.json.final.bin",
+      "sha256": "0d42abc9667319c1c2e8985f44e50cebac1492c4c51faedc1a0771ab9ef1c60d",
+      "bytes": 1815100
+    },
+    {
+      "path": "diagnostic-fine-v2/evidence/smoke2/started.json",
+      "sha256": "a3a14841985cb1a4198992ad602fde629c7d20b26ef9c7d9049e64338619d353",
+      "bytes": 733
+    },
+    {
+      "path": "diagnostic-fine-v2/evidence/smoke2/result.json.steps.ndjson",
+      "sha256": "b5f55ee2ec6779899bc6f8b9437e8f86ab879732b35e99841536bed70f322fdb",
+      "bytes": 301
+    }
+  ]
+}

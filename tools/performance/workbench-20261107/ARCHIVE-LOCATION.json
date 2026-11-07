@@ -1,0 +1,15 @@
+{
+  "bytes": 8465899,
+  "sha256": "b4a77de3e045e32499d97fd6e19a18ba653a5fe166d77b40d44cb91383dce6f1",
+  "file_count": 1082,
+  "all_packaged_bytes_modes_verified": true,
+  "source_overlay_files": 506,
+  "performance_work_files": 486,
+  "operation_start_unix": 1794064965.303709,
+  "operation_end_unix": 1794064967.873246,
+  "scope": "Verified complete work archive: source overlays, all486 performance raw artifacts, diagnosis and non-adopted candidates. Archive location metadata itself necessarily added after archival upload. Restore with source base chain; large raw data has not been discarded.",
+  "library_file_id": "libfile_fde3_f-713ca0dbe71c81919f955eae95653786_13de1016c9e08191b897c0fe3c9ed8d0",
+  "file_id": "file_0000000028a881f5a445e10e6f88b898",
+  "version": 0,
+  "source_base_sha256": "db2f3be74a29dab1de30c3b3a6f1a74ec204c6cb0d5cdc86ea4cccfd8002e8f5"
+}

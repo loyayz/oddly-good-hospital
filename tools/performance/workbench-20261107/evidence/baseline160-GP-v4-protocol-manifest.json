@@ -1,0 +1,11 @@
+{
+  "files": [
+    {
+      "path": "evidence/baseline160-GP-v4-protocol.json",
+      "bytes": 2723,
+      "sha256": "28f0385e056aa6721f742a85da2ef2ee9c03d8acae79778fb818a51f82e80951"
+    }
+  ],
+  "status": "frozen_before_any_A_run",
+  "source_files_bytes_modes_verified": 1388
+}

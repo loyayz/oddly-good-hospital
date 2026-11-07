@@ -1,0 +1,90 @@
+{
+  "qualification_manifest_files": 28,
+  "qualification_hash_mismatches": [],
+  "accepted_manifest_hash_matches": true,
+  "source_files_compared": 1388,
+  "source_hash_mismatches": [],
+  "input_hash_matches": true,
+  "smoke_full_envelope_bytes_equal": true,
+  "engine_executed_by_reviewer": false,
+  "smoke-plain": {
+    "complete": true,
+    "steps": 2,
+    "ticks": [
+      1021,
+      1023
+    ],
+    "errors": [],
+    "status": {
+      "returncode": 0,
+      "timed_out": false,
+      "wall_seconds": 4.185434818267822,
+      "finished": true
+    },
+    "raw_error": false
+  },
+  "smoke-root": {
+    "complete": true,
+    "steps": 2,
+    "ticks": [
+      1021,
+      1023
+    ],
+    "errors": [],
+    "status": {
+      "returncode": 0,
+      "timed_out": false,
+      "wall_seconds": 5.026349782943726,
+      "finished": true
+    },
+    "raw_error": false
+  },
+  "soft-stop": {
+    "complete": false,
+    "steps": 0,
+    "ticks": [
+      1021,
+      1021
+    ],
+    "errors": [
+      "soft deadline at complete boundary"
+    ],
+    "status": {
+      "returncode": 1,
+      "timed_out": false,
+      "wall_seconds": 2.622774362564087,
+      "finished": true
+    },
+    "raw_error": false
+  },
+  "profile": {
+    "complete_steps": 2,
+    "incomplete_steps": 0,
+    "errors": [],
+    "nested_calls": [],
+    "profiled_whole_us": 1655770,
+    "disjoint_root_stage_us": 1655377,
+    "observer_handler_us": 278,
+    "residual_us": 115
+  },
+  "profile_keys": [
+    "complete_steps",
+    "disjoint_root_stage_us",
+    "errors",
+    "incomplete_steps",
+    "nested_calls",
+    "observer_handler_us",
+    "observer_profiled_whole_share",
+    "partition_check_us",
+    "profiled_whole_us",
+    "residual_profiled_whole_share",
+    "residual_us",
+    "root_stage_profiled_whole_share",
+    "root_stages",
+    "semantics",
+    "sources",
+    "step_records",
+    "step_records_complete",
+    "steps"
+  ]
+}

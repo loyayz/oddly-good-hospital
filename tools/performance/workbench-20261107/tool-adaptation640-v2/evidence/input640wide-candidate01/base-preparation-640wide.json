@@ -1,0 +1,270 @@
+{
+	"content_fingerprint": "11f4b75ffe357c73bd097d177169f1a846cf2d488fe23f2d1cd02b967cac3e2d",
+	"engine": "4.7.2-stable (official)",
+	"ok": false,
+	"preparation_only": true,
+	"results": [
+		{
+			"available": 4,
+			"checked_candidates": 39,
+			"id": "640wide",
+			"ok": false,
+			"reason": "Bounded original public corridor cannot supply enough lawful companion seats; no props/rooms were deleted.",
+			"rejected": [
+				{
+					"cell": [
+						4,
+						90
+					],
+					"reason": "占地有真实结构阻挡"
+				},
+				{
+					"cell": [
+						6,
+						90
+					],
+					"reason": "占地有真实结构阻挡"
+				},
+				{
+					"cell": [
+						8,
+						90
+					],
+					"reason": "设施不能占据真实门口"
+				},
+				{
+					"cell": [
+						10,
+						90
+					],
+					"reason": "占地有真实结构阻挡"
+				},
+				{
+					"cell": [
+						12,
+						90
+					],
+					"reason": "占地有真实结构阻挡"
+				},
+				{
+					"cell": [
+						16,
+						90
+					],
+					"reason": "占地有真实结构阻挡"
+				},
+				{
+					"cell": [
+						18,
+						90
+					],
+					"reason": "占地有真实结构阻挡"
+				},
+				{
+					"cell": [
+						20,
+						90
+					],
+					"reason": "设施不能占据真实门口"
+				},
+				{
+					"cell": [
+						22,
+						90
+					],
+					"reason": "占地有真实结构阻挡"
+				},
+				{
+					"cell": [
+						24,
+						90
+					],
+					"reason": "占地有真实结构阻挡"
+				},
+				{
+					"cell": [
+						26,
+						90
+					],
+					"reason": "占地有真实结构阻挡"
+				},
+				{
+					"cell": [
+						28,
+						90
+					],
+					"reason": "占地有真实结构阻挡"
+				},
+				{
+					"cell": [
+						30,
+						90
+					],
+					"reason": "设施不能占据真实门口"
+				},
+				{
+					"cell": [
+						32,
+						90
+					],
+					"reason": "占地有真实结构阻挡"
+				},
+				{
+					"cell": [
+						34,
+						90
+					],
+					"reason": "占地有真实结构阻挡"
+				},
+				{
+					"cell": [
+						38,
+						90
+					],
+					"reason": "占地有真实结构阻挡"
+				},
+				{
+					"cell": [
+						40,
+						90
+					],
+					"reason": "占地有真实结构阻挡"
+				},
+				{
+					"cell": [
+						42,
+						90
+					],
+					"reason": "设施不能占据真实门口"
+				},
+				{
+					"cell": [
+						54,
+						90
+					],
+					"reason": "占地有真实结构阻挡"
+				},
+				{
+					"cell": [
+						56,
+						90
+					],
+					"reason": "占地有真实结构阻挡"
+				},
+				{
+					"cell": [
+						60,
+						90
+					],
+					"reason": "占地有真实结构阻挡"
+				},
+				{
+					"cell": [
+						62,
+						90
+					],
+					"reason": "占地有真实结构阻挡"
+				},
+				{
+					"cell": [
+						64,
+						90
+					],
+					"reason": "设施不能占据真实门口"
+				},
+				{
+					"cell": [
+						66,
+						90
+					],
+					"reason": "占地有真实结构阻挡"
+				},
+				{
+					"cell": [
+						68,
+						90
+					],
+					"reason": "占地有真实结构阻挡"
+				},
+				{
+					"cell": [
+						70,
+						90
+					],
+					"reason": "占地有真实结构阻挡"
+				},
+				{
+					"cell": [
+						72,
+						90
+					],
+					"reason": "占地有真实结构阻挡"
+				},
+				{
+					"cell": [
+						74,
+						90
+					],
+					"reason": "设施不能占据真实门口"
+				},
+				{
+					"cell": [
+						76,
+						90
+					],
+					"reason": "占地有真实结构阻挡"
+				},
+				{
+					"cell": [
+						78,
+						90
+					],
+					"reason": "占地有真实结构阻挡"
+				},
+				{
+					"cell": [
+						82,
+						90
+					],
+					"reason": "占地有真实结构阻挡"
+				},
+				{
+					"cell": [
+						84,
+						90
+					],
+					"reason": "占地有真实结构阻挡"
+				},
+				{
+					"cell": [
+						86,
+						90
+					],
+					"reason": "设施不能占据真实门口"
+				},
+				{
+					"cell": [
+						88,
+						90
+					],
+					"reason": "占地有真实结构阻挡"
+				},
+				{
+					"cell": [
+						90,
+						90
+					],
+					"reason": "占地有真实结构阻挡"
+				}
+			],
+			"required": 32,
+			"seat_ids": [
+				"acceptance_public_seat_0000",
+				"acceptance_public_seat_0001",
+				"acceptance_public_seat_0002",
+				"acceptance_public_seat_0003"
+			]
+		}
+	],
+	"schema_version": 1
+}

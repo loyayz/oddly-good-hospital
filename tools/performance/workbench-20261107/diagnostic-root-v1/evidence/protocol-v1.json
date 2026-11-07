@@ -1,0 +1,19 @@
+{
+  "purpose": "Attribution only, no baseline B/speedup claim",
+  "source_base_manifest": "/workspace/scratch/6962cc21ddf3/ogh-performance-20261107/exporter-integration-r2/source-after-integration.json",
+  "source_base_manifest_sha256": "5f5b095edf17f696ae284ad92af5b6f8d7c37913291f814170e7cf9ebdde839e",
+  "input": "/workspace/scratch/6962cc21ddf3/ogh-performance-20261107/evidence/preflight160-v1/result.json.final.bin",
+  "input_sha256": "4880445d76366ed1bb7ccf4cf9406c2a7e309846fe287ef66fe0774a5221a566",
+  "fixed_steps": 800,
+  "start_tick": 1021,
+  "end_tick": 1821,
+  "order": [
+    "plain",
+    "root"
+  ],
+  "hard_seconds": 400,
+  "soft_seconds_between_steps": 360,
+  "semantic_gate": "Exact final facts encoded bytes and ordered events equal; no script errors, complete 800, observer errors empty; attach unchanged facts/RNG and graph references. Any failure remains incomplete, no performance inference.",
+  "limitations": "Restored runtime, root attach constructor may prewarm caches. Spans between root markers, not exclusive function costs. Partition identity not validation. Paired timing diagnostic only.",
+  "smoke": "2 real steps plain/root exact full facts bytes/events; soft=0 incomplete saves full final boundary and exit1"
+}

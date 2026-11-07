@@ -1,0 +1,16 @@
+--- a/tools/performance/fixture.gd
++++ b/tools/performance/fixture.gd
+@@ -152,11 +152,11 @@
+ 
+ func _next_position(floor_id: int, actor: Dictionary) -> Array:
+ 	var choices: Array = _positions[floor_id]
++	var query: RefCounted = preload("res://tools/performance/placement_query.gd").new(_space,world,actor,floor_id)
+ 	while int(_position_next[floor_id])<choices.size():
+ 		var cell: Array = choices[int(_position_next[floor_id])]
+ 		_position_next[floor_id] += 1
+-		actor.location = _location(floor_id,cell)
+-		if _space.static_reason(world,actor,floor_id,Vector2i(int(cell[0]),int(cell[1]))).is_empty() and _space._dynamic_clear(world,actor.id,floor_id,_space.body_rectangle(actor)):
++		if query.reason(cell).is_empty() and query.dynamic_clear():
+ 			return cell.duplicate()
+ 	errors.append("没有足够合法身体位置："+str(floor_id))
+ 	return [48,91]

@@ -1,0 +1,109 @@
+{
+  "source_facts_file": "evidence/inspect-preflight160-cont-v1/facts.json",
+  "source_facts_sha256": "78bb14106614fa533bdb20d99ed03695252bb43034dc0774e64cf274c371f037",
+  "checks": {
+    "actor_exists": true,
+    "not_hospital_staff": true,
+    "contractor_id_matches": true,
+    "service_role_mechanic": true,
+    "job_exists": true,
+    "phase_location_consistent": true,
+    "receipt_worker_matches": true,
+    "job_contribution_matches_receipt": true,
+    "job_completed": true,
+    "original_facility_ids_and_definitions_retained": true
+  },
+  "actor": {
+    "facing": -1.5707963267949,
+    "id": "maintenance_contractor_00000168",
+    "location": {
+      "cell": [
+        61.1999969482422,
+        44.0
+      ],
+      "floor_id": 1,
+      "kind": "floor"
+    },
+    "name": "上门维修员",
+    "posture": "standing",
+    "service_role": "mechanic",
+    "species_id": "S49"
+  },
+  "contractor_owner": {
+    "id": "maintenance_contractor_00000168",
+    "job_id": "maintenance_00000167",
+    "phase": "leaving"
+  },
+  "job": {
+    "automatic": true,
+    "completed_milli": 30000,
+    "contributions": {
+      "maintenance_contractor_00000168": 30000
+    },
+    "created_tick": 1200,
+    "facility_id": "bench_room_4_03_0",
+    "frozen_class": {
+      "base_failure_bp": 40,
+      "id": "medical",
+      "maintenance_parts": 20,
+      "maintenance_seconds": 20,
+      "repair_parts": 40,
+      "repair_seconds": 30,
+      "wear_per_day": 0,
+      "wear_per_use": 2.0
+    },
+    "id": "maintenance_00000167",
+    "kind": "repair",
+    "paid_parts": 40,
+    "paused": false,
+    "phase": "completed",
+    "reason": "",
+    "remaining_milli": 0,
+    "started": true,
+    "total_milli": 30000,
+    "work_cell": [
+      71,
+      7
+    ],
+    "work_floor": 4,
+    "worker_id": "",
+    "worker_rate": 1.0
+  },
+  "receipt": {
+    "facility_id": "bench_room_4_03_0",
+    "id": "maintenance_00000167:repair_completed",
+    "kind": "repair_completed",
+    "practice_awarded": true,
+    "source_id": "maintenance_00000167",
+    "staff_id": "",
+    "standard_work_milli": 30000,
+    "tick": 2546,
+    "worker_id": "maintenance_contractor_00000168"
+  },
+  "receipt_channel": "facts.maintenance.receipts, not TickResult events",
+  "non_reception_service_events": [
+    {
+      "changed_ids": [
+        "bench_visit_0000",
+        "service_00000173"
+      ],
+      "details": {
+        "kind": "gp"
+      },
+      "kind": "service_started",
+      "sim_tick": 1567
+    },
+    {
+      "changed_ids": [
+        "bench_visit_0000",
+        "service_00000173"
+      ],
+      "details": {
+        "kind": "gp"
+      },
+      "kind": "service_completed",
+      "sim_tick": 1688
+    }
+  ],
+  "limitations": "One completed GP, no treatment/full-clinical coverage. Old population helper unowned label remains in frozen old report; explicit current-role mapping above reconciles166 =123patients+32staff+10visitors+1mechanic."
+}

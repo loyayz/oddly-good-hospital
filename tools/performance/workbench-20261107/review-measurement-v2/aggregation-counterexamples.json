@@ -1,0 +1,26 @@
+{
+  "scope": "Pure Python Boolean reproduction only; no runner, engine, benchmark or subprocess executed.",
+  "cases": [
+    {
+      "case": "last_run_script_error",
+      "requested_repeats": 1,
+      "records": [
+        {
+          "complete": true,
+          "non_reception_clinical_work_ticks_lower_bound": 3
+        }
+      ],
+      "script_error_branch_taken": true,
+      "v2_all_repeats_complete": true,
+      "should_be_accepted": false
+    },
+    {
+      "case": "zero_repeat_noop",
+      "requested_repeats": 0,
+      "records": [],
+      "script_error_branch_taken": false,
+      "v2_all_repeats_complete": true,
+      "should_be_accepted": false
+    }
+  ]
+}

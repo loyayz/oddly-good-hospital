@@ -1,0 +1,11 @@
+{
+  "original_path": "/workspace/scratch/6962cc21ddf3/ogh-performance-20261107/source/tools/performance/fixture.gd",
+  "original_sha256": "f99efd9dd5cf8afa2f7ca89f221edbcc54c2e080b1d0339d4b7de80874145189",
+  "diagnostic_sha256": "50e7beba5fc29da6707d3cab0b7556789f982f4cae8069cb7274f1c3b4804dca",
+  "marker_stripping_restores_exact_original": true,
+  "all_original_lines_preserved_in_order": true,
+  "static_dynamic_short_circuit_unchanged": true,
+  "original_calls_not_removed_or_repeated": true,
+  "engine_or_compile_test_run": false,
+  "limits": "Timing and console IO add overhead; syntax and runtime dispatch not yet engine-validated; raw construction result is not a legal business input"
+}

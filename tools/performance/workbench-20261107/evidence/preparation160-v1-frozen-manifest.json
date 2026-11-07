@@ -1,0 +1,70 @@
+{
+  "files": [
+    {
+      "path": "evidence/source-copy-proof.json",
+      "bytes": 243906,
+      "sha256": "c00da9abfb3cfcf1e14122ceca8c0f19ff4cbcbb3b74466c95e041e574a14ac5"
+    },
+    {
+      "path": "evidence/environment.json",
+      "bytes": 15317,
+      "sha256": "bae8af1e15e5b20bd3ee8beb1359a79d77c1c564c7f91a02c90a65988dbc7652"
+    },
+    {
+      "path": "evidence/accepted-runtime-identity.json",
+      "bytes": 694,
+      "sha256": "c3f2462489397a0fd0553c1ef184040190843402d2d0acd8b1d7082baa73dcb4"
+    },
+    {
+      "path": "evidence/tool-v1/identity.json",
+      "bytes": 599,
+      "sha256": "e2dcb6b17cebe055cc3b9d7dc1cebb04c0a6b3728a08bf0e7be8374e9711b1e4"
+    },
+    {
+      "path": "evidence/tool-v1/prepare_inputs.original.gd",
+      "bytes": 20503,
+      "sha256": "74497e2fd98e25d852fe55e264e4e8591cb8f294aef2c77fbd24b176647eb761"
+    },
+    {
+      "path": "evidence/prepare160-v1/started.json",
+      "bytes": 641,
+      "sha256": "81ac7756c483bd393dc40c22a0274d4be6aacf8cefa5469c068042a82b130367"
+    },
+    {
+      "path": "evidence/prepare160-v1/status.json",
+      "bytes": 100,
+      "sha256": "a81974336c76455c46cc419bb449dbac113f52cf1993323c508ae7e0f8c83e4b"
+    },
+    {
+      "path": "evidence/prepare160-v1/raw.log",
+      "bytes": 13744,
+      "sha256": "676ea5d85825d03751715580f280c33e9b927c6e6be4911aaa016b89fb1c94b2"
+    },
+    {
+      "path": "evidence/input160-v1/160four.input.bin",
+      "bytes": 1647064,
+      "sha256": "7dbe20bbd53d7455b5fdb240b8fb80b3f12b7b40f37ab549942ac189cb50b61e"
+    },
+    {
+      "path": "evidence/input160-v1/160four.manifest.json",
+      "bytes": 1968,
+      "sha256": "52c86a4483c9a9c86d5c86b53a7c992a2cafa0a9f902588269ca12096cdaff87"
+    },
+    {
+      "path": "evidence/input160-v1/160four.preflight.bin",
+      "bytes": 1295664,
+      "sha256": "dc333c71a554d7458afb3d1e9c11646476e7f5fce937cb881db48367c5c3dc3c"
+    },
+    {
+      "path": "evidence/input160-v1/base-preparation-160four.json",
+      "bytes": 2327,
+      "sha256": "6fb35c73c01ae0d68a7ec7e18e31473129b8ff260a1228b840509fb993a58e71"
+    },
+    {
+      "path": "evidence/phase-contract.md",
+      "bytes": 2919,
+      "sha256": "abc3abc489f9a9d60380be55dc012443ff10607d98f541ecb82040a6be5a8238"
+    }
+  ],
+  "scope": "Frozen initial current-rule160 construction, not clinical preflight or performance pass."
+}

@@ -1,0 +1,44 @@
+{
+  "files": [
+    {
+      "path": "source/game/building/hospital_movement.gd",
+      "bytes": 71831,
+      "sha256": "4d5a18a7ea9c656fa9f5feafb414fbfcb4ea5c1638d061c662e37fb3d932a68d"
+    },
+    {
+      "path": "source/game/building/hospital_space.gd",
+      "bytes": 67323,
+      "sha256": "f66bd982c46b6bf25ab1035ad3c63a152ca9863995372c6e5c2bae5c1da86048"
+    },
+    {
+      "path": "source/game/building/route_clearance.gd",
+      "bytes": 19173,
+      "sha256": "8f16ecb6f83a14d0914c16092cc6356ec6eacbfb844ed8eb9ac33464d4039970"
+    },
+    {
+      "path": "source/game/content/content_db.gd",
+      "bytes": 3063,
+      "sha256": "658bef312d445be223af4cb7b55254160cd884105a863ee280d16fe0733f803a"
+    },
+    {
+      "path": "source/tests/acceptance/detour_segment_proof.gd",
+      "bytes": 22547,
+      "sha256": "95641b9f6d03985d1fa74b293b9da05f83966ec77a9e532f86bbfc0419fe753f"
+    },
+    {
+      "path": "source/tests/acceptance/detour_step_proof.gd",
+      "bytes": 24687,
+      "sha256": "fcc7a28156495acc9195deca995d06c0027219651963592cc8f5e0dc730690f1"
+    },
+    {
+      "path": "source/tests/acceptance/movement_detour.gd",
+      "bytes": 19351,
+      "sha256": "e92fbabb82227e9eba0b5b75db1dba980484fbdad7bfa929fa7884d1f478c815"
+    },
+    {
+      "path": "source/AGENTS.md",
+      "bytes": 5006,
+      "sha256": "db53e36a9831ccba21a9ed7687df6d0458340692ff7fa4d556d34d305118c5f7"
+    }
+  ]
+}

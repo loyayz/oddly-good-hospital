@@ -1,0 +1,24 @@
+{
+  "files": [
+    {
+      "path": "evidence/prepare640wide-v1/raw.log",
+      "bytes": 213,
+      "sha256": "31bf9d8802cca6488c3039c6c1b49f52a9b6995bc86930a8eceba82cdddd5c19"
+    },
+    {
+      "path": "evidence/prepare640wide-v1/started.json",
+      "bytes": 645,
+      "sha256": "eb712f2abd8739157d63a33ed36b7c5d0bb5dae2ca89b242d935ae521726cc9c"
+    },
+    {
+      "path": "evidence/prepare640wide-v1/status.json",
+      "bytes": 101,
+      "sha256": "9f7c5d4cb1adbb1ee8e329363d3353d2a7d91a890f1acb24a858a25612160cde"
+    }
+  ],
+  "outcome": "incomplete_external600s_watchdog_SIGTERM_exit_minus15",
+  "last_marker": "fixture_load_start",
+  "actual_completed_steps": 0,
+  "valid_input_generated": false,
+  "scope": "Input preparation timeout, not measured simulation-step latency or640performance failure/pass. Do not infer impossible load or root cause from marker."
+}

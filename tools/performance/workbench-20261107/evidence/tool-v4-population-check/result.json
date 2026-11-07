@@ -1,0 +1,29 @@
+{
+	"checks": {
+		"inconsistent_phase_location_rejected": true,
+		"missing_job_rejected": true,
+		"owned_mechanic": true,
+		"wrong_assigned_job_owner_rejected": true,
+		"wrong_role_rejected": true
+	},
+	"ok": true,
+	"original_population": {
+		"other_owned_present": [
+			{
+				"actor_id": "maintenance_contractor_00000168",
+				"job_id": "maintenance_00000167",
+				"job_phase": "completed",
+				"location_kind": "floor",
+				"owner": "maintenance.contractors",
+				"phase": "leaving",
+				"service_role": "mechanic"
+			}
+		],
+		"patients": 123,
+		"present": 166,
+		"staff": 32,
+		"unclassified_actor_ids": [],
+		"visitors": 10
+	},
+	"scope": "Read binary and classify owners, with independent invalid record mutations only in test-owned copies; no simulation steps or source changes"
+}

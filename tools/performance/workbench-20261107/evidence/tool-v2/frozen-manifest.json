@@ -1,0 +1,23 @@
+{
+  "status": "source_frozen_pending_engine_smoke_and_independent_measurement_review",
+  "files": [
+    {
+      "path": "run_engine.py",
+      "bytes": 1276,
+      "sha256": "8a3dd204ac95f3804ba8368e7eeb20c38c16e55648e5a9342e6e6d066acdad11"
+    },
+    {
+      "path": "run_series_v2.py",
+      "bytes": 3059,
+      "sha256": "d205d96c386bb433a97e7e7f9bebff198c581d77c8301ab41ebb9d7de3d1ded2"
+    },
+    {
+      "path": "source/tools/performance/current/plain_v2.gd",
+      "bytes": 8331,
+      "sha256": "3dd153b4bdb1b73d6f497007d3474450c995d52a97e74268182793bde7b5d259"
+    }
+  ],
+  "no_production_changes": true,
+  "series_protocol_not_yet_selected": true,
+  "v1_tools_unchanged": true
+}

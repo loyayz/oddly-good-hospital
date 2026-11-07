@@ -1,0 +1,104 @@
+{
+  "scope": "Static-only A01 artifact review. No engine, no binary decode, no source edits.",
+  "status": "Complete measured interval and observed business counters independently checked; exact GP/repair end-state receipts pending bounded decode because envelope hashes differ.",
+  "prefix_ticks": [
+    22,
+    1021
+  ],
+  "sample_ticks": [
+    1022,
+    3021
+  ],
+  "sample_step_count": 2000,
+  "sample_business": {
+    "clinical_work_ticks_observed_lower_bound": {
+      "gp": 120,
+      "reception": 290
+    },
+    "events": {
+      "arrival_opportunity_admitted": 6,
+      "ledger_settled": 2,
+      "patience_evaluated": 554,
+      "patient_arrived": 6,
+      "patient_departed": 6,
+      "research_opened": 1,
+      "service_completed": 6,
+      "service_queued": 12,
+      "service_started": 6,
+      "tick_completed": 2000,
+      "wait_departure_selected": 18
+    },
+    "guidance_work_ticks": 177
+  },
+  "sample_start_population": {
+    "other_owned_present": [],
+    "patients": 123,
+    "present": 163,
+    "staff": 32,
+    "unclassified_actor_ids": [],
+    "visitors": 8
+  },
+  "final_population": {
+    "other_owned_present": [
+      {
+        "actor_id": "maintenance_contractor_00000168",
+        "job_id": "maintenance_00000167",
+        "job_phase": "completed",
+        "location_kind": "floor",
+        "owner": "maintenance.contractors",
+        "phase": "leaving",
+        "service_role": "mechanic"
+      }
+    ],
+    "patients": 123,
+    "present": 166,
+    "staff": 32,
+    "unclassified_actor_ids": [],
+    "visitors": 10
+  },
+  "sample_population_range": [
+    163,
+    169
+  ],
+  "metrics_recomputed": [
+    "count",
+    "sum_step_us",
+    "p50_us",
+    "p95_us",
+    "p99_us"
+  ],
+  "single_run_metrics": {
+    "count": 2000,
+    "first_sample_step_us": 165674,
+    "fresh_runtime_first_prefix_or_sample_step_us": 1063193,
+    "max_us": 6033047,
+    "mean_step_us": 303004.593,
+    "observation_logging_and_loop_wall_us": 557228,
+    "p50_us": 284698,
+    "p95_us": 460660,
+    "p99_us": 709722,
+    "real_window_us_including_observation": 606566414,
+    "simulated_seconds": 200.0,
+    "simulation_seconds_per_wall_second": 0.329724817239881,
+    "sum_step_us": 606009186
+  },
+  "final_hash": "de17e2605dbc8c8b7609dc320170a0613c8bfeddf65f722f2ecef9dfe06feee1",
+  "preflight_cont_final_hash": "15dfeeab63878550538785c979166711c0f2a6e5fc07403f1585c0bc02985b2c",
+  "snapshot_comparison": "All final snapshot fields except corrected population are equal to independently reviewed preflight continuation. Sample business counters are equal. This does not prove unexported fields equal.",
+  "pending_exact_fields": [
+    "GP service_00000173 start/complete event identity and ticks",
+    "bench_visit_0000 evidence_by_source.gp and clinical participant",
+    "bench_staff_0000 completed_jobs/practice",
+    "maintenance_00000167 completed_milli/contributions",
+    "maintenance_00000167:repair_completed receipt tick/worker/work",
+    "full facts-only equality to prior preflight continuation"
+  ],
+  "next_step": "After all5A processes finish, one bounded batch export or facts-only hashes and selected receipts. No concurrent engine request.",
+  "not_claimed": [
+    "full treatment/clinical coverage",
+    "A/B speedup",
+    "all5A acceptance",
+    "GPU/FPS",
+    "universal liveness"
+  ]
+}

@@ -1,0 +1,119 @@
+{
+  "scope": "Independent lightweight Python read-only recomputation. No engine or whole-source-tree hashing; no modifications to original artifacts.",
+  "analysis_started_utc": "2026-11-07T14:30:11.420034+00:00",
+  "analysis_finished_utc": "2026-11-07T14:30:12.724050+00:00",
+  "analysis_wall_seconds": 1.3040255599989905,
+  "runs": [
+    {
+      "run": "baseline160-GP-v4-A01",
+      "recomputed_sample_metrics": {
+        "count": 2000,
+        "sum_step_us": 606009186,
+        "mean_step_us": 303004.593,
+        "max_us": 6033047,
+        "p50_us": 284698,
+        "p95_us": 460660,
+        "p99_us": 709722
+      },
+      "sample_wall_seconds": 606.566414,
+      "exact_raw_facts_including_rng_equal_A01": true,
+      "exact_raw_events_and_order_equal_A01": true,
+      "facts_sha256": "0e859b58c0dd6e41bbe0bdfe4330c04f6489d3abe43bca2c2a8fd181913e9cd9",
+      "events_sha256": "0ec516436dfb348167a9ace56884cb7f46e30cf3cb751428b5c216df9035b503",
+      "all_steps_contiguous": true,
+      "business_matches_independently_verified_A01": true
+    },
+    {
+      "run": "baseline160-GP-v4-A02",
+      "recomputed_sample_metrics": {
+        "count": 2000,
+        "sum_step_us": 630927881,
+        "mean_step_us": 315463.9405,
+        "max_us": 7260399,
+        "p50_us": 301047,
+        "p95_us": 475331,
+        "p99_us": 730597
+      },
+      "sample_wall_seconds": 631.515885,
+      "exact_raw_facts_including_rng_equal_A01": true,
+      "exact_raw_events_and_order_equal_A01": true,
+      "facts_sha256": "0e859b58c0dd6e41bbe0bdfe4330c04f6489d3abe43bca2c2a8fd181913e9cd9",
+      "events_sha256": "0ec516436dfb348167a9ace56884cb7f46e30cf3cb751428b5c216df9035b503",
+      "all_steps_contiguous": true,
+      "business_matches_independently_verified_A01": true
+    },
+    {
+      "run": "baseline160-GP-v4-A03",
+      "recomputed_sample_metrics": {
+        "count": 2000,
+        "sum_step_us": 630008747,
+        "mean_step_us": 315004.3735,
+        "max_us": 6602937,
+        "p50_us": 298766,
+        "p95_us": 471443,
+        "p99_us": 774329
+      },
+      "sample_wall_seconds": 630.605266,
+      "exact_raw_facts_including_rng_equal_A01": true,
+      "exact_raw_events_and_order_equal_A01": true,
+      "facts_sha256": "0e859b58c0dd6e41bbe0bdfe4330c04f6489d3abe43bca2c2a8fd181913e9cd9",
+      "events_sha256": "0ec516436dfb348167a9ace56884cb7f46e30cf3cb751428b5c216df9035b503",
+      "all_steps_contiguous": true,
+      "business_matches_independently_verified_A01": true
+    },
+    {
+      "run": "baseline160-GP-v4-A04",
+      "recomputed_sample_metrics": {
+        "count": 2000,
+        "sum_step_us": 628861609,
+        "mean_step_us": 314430.8045,
+        "max_us": 6699628,
+        "p50_us": 286315,
+        "p95_us": 477068,
+        "p99_us": 745944
+      },
+      "sample_wall_seconds": 629.472508,
+      "exact_raw_facts_including_rng_equal_A01": true,
+      "exact_raw_events_and_order_equal_A01": true,
+      "facts_sha256": "0e859b58c0dd6e41bbe0bdfe4330c04f6489d3abe43bca2c2a8fd181913e9cd9",
+      "events_sha256": "0ec516436dfb348167a9ace56884cb7f46e30cf3cb751428b5c216df9035b503",
+      "all_steps_contiguous": true,
+      "business_matches_independently_verified_A01": true
+    },
+    {
+      "run": "baseline160-GP-v4-A05",
+      "recomputed_sample_metrics": {
+        "count": 2000,
+        "sum_step_us": 616358865,
+        "mean_step_us": 308179.4325,
+        "max_us": 6263762,
+        "p50_us": 290501,
+        "p95_us": 470733,
+        "p99_us": 725993
+      },
+      "sample_wall_seconds": 616.935178,
+      "exact_raw_facts_including_rng_equal_A01": true,
+      "exact_raw_events_and_order_equal_A01": true,
+      "facts_sha256": "0e859b58c0dd6e41bbe0bdfe4330c04f6489d3abe43bca2c2a8fd181913e9cd9",
+      "events_sha256": "0ec516436dfb348167a9ace56884cb7f46e30cf3cb751428b5c216df9035b503",
+      "all_steps_contiguous": true,
+      "business_matches_independently_verified_A01": true
+    }
+  ],
+  "verdict": "All five runs reproduce the complete fixed1000prefix+2000sample interval with exact encoded facts including RNG and exact ordered event bytes equal. GP and repair proof from independently reviewed A01 applies to all.",
+  "business_scope": "120GP decrement lower bound /1GP completion,290reception,177guidance in each sample;30000ms repair receipt; dynamic163→166 including owned contractor. Not treatment or complete clinical coverage.",
+  "summary_of_independent_runs": {
+    "median_mean_step_us": 314430.8045,
+    "median_p95_us": 471443,
+    "median_p99_us": 730597
+  },
+  "source_no_diff_scope": "Read parent source-no-diff.json assertion; did not independently rehash1388sourcefiles, per assignment. It is not counted as independently verified here.",
+  "not_claimed": [
+    "A/B improvement",
+    "treatment/full clinical workflow",
+    "GPU/FPS",
+    "320/640 qualification",
+    "universal traffic liveness",
+    "independent whole-tree source identity check"
+  ]
+}

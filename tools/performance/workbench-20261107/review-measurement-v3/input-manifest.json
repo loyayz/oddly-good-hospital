@@ -1,0 +1,129 @@
+{
+  "files": [
+    {
+      "path": "evidence/tool-v3-smoke/raw.log",
+      "bytes": 169,
+      "sha256": "713baad9df93a8983f3db5f8a1741928672ffabd8c8f6f8f9696f65138743745"
+    },
+    {
+      "path": "evidence/tool-v3-smoke/result.json",
+      "bytes": 16837,
+      "sha256": "139b1aa27c869ceeb0c429afd9365f252403e9569faec5c731beaf43fa053a39"
+    },
+    {
+      "path": "evidence/tool-v3-smoke/result.json.final.bin",
+      "bytes": 1653064,
+      "sha256": "4b6f5e83482c2ea68e1a1f960be4bf3f536e1a07db38a86a0aba687e2b7bc228"
+    },
+    {
+      "path": "evidence/tool-v3-smoke/result.json.initial.json",
+      "bytes": 7117,
+      "sha256": "02df67e6c053f3932a33b7c7daaf9ece2fa6a96195cebe23faab2fc8039d9f43"
+    },
+    {
+      "path": "evidence/tool-v3-smoke/result.json.steps.ndjson",
+      "bytes": 292,
+      "sha256": "62692a558f926f758d1f84223b8e51581f7cd9f7b874d84efadd9ea69d266a11"
+    },
+    {
+      "path": "evidence/tool-v3-smoke/started.json",
+      "bytes": 710,
+      "sha256": "773880f7fe5856e3b653624f84a25096692dcc82b10ea901deb719d78a57811a"
+    },
+    {
+      "path": "evidence/tool-v3-smoke/status.json",
+      "bytes": 100,
+      "sha256": "1bd58fa9037ae58c751e2864f5c543dfaa987b516cce079203168da7358b1088"
+    },
+    {
+      "path": "evidence/tool-v3/frozen-manifest.json",
+      "bytes": 2210,
+      "sha256": "986d6982e273f28bab45ca0240b0433c053d3ff6b3d17d1c64eccc6631707519"
+    },
+    {
+      "path": "evidence/tool-v3/gate-tests.json",
+      "bytes": 1074,
+      "sha256": "2da10c05d921cf2b0b000c9b8bde7b5b9608f6b211299e618f9201eeadf99f6b"
+    },
+    {
+      "path": "evidence/tool-v4-population-check/raw.log",
+      "bytes": 73,
+      "sha256": "6d1c065383a27c36804949b6ffa4b09714470b112e5dacc0bd5aeb7b9c147c4e"
+    },
+    {
+      "path": "evidence/tool-v4-population-check/result.json",
+      "bytes": 783,
+      "sha256": "54ca9927eae679c4207e531a588990f9a1d436cae7d38e8097aa0276aad5e8d5"
+    },
+    {
+      "path": "evidence/tool-v4-population-check/started.json",
+      "bytes": 705,
+      "sha256": "67821224507ff6d8828e14559ef3362c79b512b46fbe84a14381e931b937b11b"
+    },
+    {
+      "path": "evidence/tool-v4-population-check/status.json",
+      "bytes": 100,
+      "sha256": "14cc225327a18adbee1a233cf06d691cd47bb4300d40ea532dcbb546ca7aec03"
+    },
+    {
+      "path": "evidence/tool-v4/frozen-manifest.json",
+      "bytes": 1589,
+      "sha256": "5ce4f9fd33546a2f1229e8e6f1aa8c3c1ef6d03bd540b6925eb1a965c9647527"
+    },
+    {
+      "path": "review-measurement-v2/aggregation-counterexamples.json",
+      "bytes": 672,
+      "sha256": "fad10c9c707824b07a42e7b535d955c7ea41c62ddb53312e70fd1989ad6400f2"
+    },
+    {
+      "path": "review-measurement-v2/manifest.json",
+      "bytes": 682,
+      "sha256": "304eb8eb7986b48c8ed14d992f209f974a7d6004b79e36f2ab9a44e4226f5c62"
+    },
+    {
+      "path": "run_engine.py",
+      "bytes": 1276,
+      "sha256": "8a3dd204ac95f3804ba8368e7eeb20c38c16e55648e5a9342e6e6d066acdad11"
+    },
+    {
+      "path": "run_series_v3.py",
+      "bytes": 5413,
+      "sha256": "fc6653ee1928d38206210e20ef05cf3c33ce5e2f91b3e77b7a9764be7c7605fc"
+    },
+    {
+      "path": "source/game/operations/maintenance_service.gd",
+      "bytes": 37225,
+      "sha256": "1a62d481c0c1a5c487f3356ad69610674f87b4c8e8304d8b8e4145e4a603955d"
+    },
+    {
+      "path": "source/game/sim/world_state.gd",
+      "bytes": 69940,
+      "sha256": "b2ddfd0295dce3357ecb691ddb7ec189556dbe536438ac1043269767ead7c443"
+    },
+    {
+      "path": "source/tools/performance/current/check_population_v4.gd",
+      "bytes": 1831,
+      "sha256": "42269d9674aca8e7f8ca0fc5ca0f061e6e9c570f0893b35e58cec71f7d50521f"
+    },
+    {
+      "path": "source/tools/performance/current/plain_v2.gd",
+      "bytes": 8331,
+      "sha256": "3dd153b4bdb1b73d6f497007d3474450c995d52a97e74268182793bde7b5d259"
+    },
+    {
+      "path": "source/tools/performance/current/plain_v3.gd",
+      "bytes": 9044,
+      "sha256": "2c13ab34bb1e3b616a8146dfd9f5debef5962c8a059a8ae86e3ad674af196d3e"
+    },
+    {
+      "path": "source/tools/performance/current/plain_v4.gd",
+      "bytes": 9670,
+      "sha256": "9f80ae850108151c1403eff944291b82f5248e625e44cc215f4a4f0d3005c50f"
+    },
+    {
+      "path": "test_series_gate_v3.py",
+      "bytes": 2046,
+      "sha256": "b624259e0e72169bf62619fc73b39f8eaa7dcef0ed138f63a3264ffc2b38370a"
+    }
+  ]
+}

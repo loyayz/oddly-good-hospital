@@ -1,0 +1,105 @@
+{
+  "completed_manifest_hash_mismatches": [],
+  "manifest_files": 20,
+  "whole_final_bin_equal": true,
+  "final_bin_sha256": "009b9ccbdeebaf5b6c3fc79d9adecd14c0786f4463956bb3215df2b79c62445a",
+  "runs": {
+    "plain800": {
+      "status": {
+        "returncode": 0,
+        "timed_out": false,
+        "wall_seconds": 170.49450969696045,
+        "finished": true
+      },
+      "complete": true,
+      "errors": [],
+      "raw_error": false,
+      "continuous_800": true,
+      "alternating_enter_complete": true,
+      "sum_matches_metrics": true,
+      "input_sha256": "4880445d76366ed1bb7ccf4cf9406c2a7e309846fe287ef66fe0774a5221a566",
+      "metrics": {
+        "count": 800,
+        "first_sample_step_us": 1425744,
+        "fresh_runtime_first_prefix_or_sample_step_us": 1425744,
+        "max_us": 6491762,
+        "mean_step_us": 209443.24375,
+        "observation_logging_and_loop_wall_us": 188226,
+        "p50_us": 178395,
+        "p95_us": 271439,
+        "p99_us": 995502,
+        "real_window_us_including_observation": 167742821,
+        "simulated_seconds": 80.0,
+        "simulation_seconds_per_wall_second": 0.476920559241102,
+        "sum_step_us": 167554595
+      }
+    },
+    "root800": {
+      "status": {
+        "returncode": 0,
+        "timed_out": false,
+        "wall_seconds": 170.724125623703,
+        "finished": true
+      },
+      "complete": true,
+      "errors": [],
+      "raw_error": false,
+      "continuous_800": true,
+      "alternating_enter_complete": true,
+      "sum_matches_metrics": true,
+      "input_sha256": "4880445d76366ed1bb7ccf4cf9406c2a7e309846fe287ef66fe0774a5221a566",
+      "metrics": {
+        "count": 800,
+        "first_sample_step_us": 1455823,
+        "fresh_runtime_first_prefix_or_sample_step_us": 1455823,
+        "max_us": 6520767,
+        "mean_step_us": 208611.455,
+        "observation_logging_and_loop_wall_us": 491635,
+        "p50_us": 175171,
+        "p95_us": 276239,
+        "p99_us": 1035042,
+        "real_window_us_including_observation": 167380799,
+        "simulated_seconds": 80.0,
+        "simulation_seconds_per_wall_second": 0.477952073821801,
+        "sum_step_us": 166889164
+      }
+    }
+  },
+  "profile_800_complete": true,
+  "profile_each_step_matches": true,
+  "no_nested": true,
+  "profile_errors": [],
+  "profile_sum_matches": true,
+  "stage_sums_match": true,
+  "all_stage_rows_match": true,
+  "nonnegative_partitions": true,
+  "top3": [
+    {
+      "calls": 800,
+      "max_us": 2078870,
+      "name": "movement.space",
+      "profiled_whole_share": 0.604856670023226,
+      "total_us": 100944024
+    },
+    {
+      "calls": 800,
+      "max_us": 6256582,
+      "name": "dispatch.waiting",
+      "profiled_whole_share": 0.154931137410455,
+      "total_us": 25856328
+    },
+    {
+      "calls": 800,
+      "max_us": 614748,
+      "name": "clinic.dispatch",
+      "profiled_whole_share": 0.132493665077021,
+      "total_us": 22111757
+    }
+  ],
+  "review_execution": {
+    "start_utc": "2026-11-07T14:37:57.975820+00:00",
+    "end_utc": "2026-11-07T14:37:58.075366+00:00",
+    "elapsed_seconds": 0.09954595565795898,
+    "scope": "Python artifact hash/byte comparison and 800 record consistency; no source tree rehash, no engine. Prior two short inspection tool calls have no exact UTC times in receipts."
+  }
+}

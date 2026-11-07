@@ -1,0 +1,30 @@
+{
+  "files": [
+    {
+      "path": "run_series_v4.py",
+      "bytes": 6849,
+      "sha256": "848629c99b88f4633578941da46a80cea0bb1d1e764a9e3eea163c3b34a5c6cc"
+    },
+    {
+      "path": "test_series_gate_v4.py",
+      "bytes": 3069,
+      "sha256": "2dee1df0d95a43a86e5b13ab0546183c22f24d19b852195247b06487dc64ef63"
+    },
+    {
+      "path": "run_engine.py",
+      "bytes": 1276,
+      "sha256": "8a3dd204ac95f3804ba8368e7eeb20c38c16e55648e5a9342e6e6d066acdad11"
+    },
+    {
+      "path": "source/tools/performance/current/plain_v4.gd",
+      "bytes": 9670,
+      "sha256": "9f80ae850108151c1403eff944291b82f5248e625e44cc215f4a4f0d3005c50f"
+    },
+    {
+      "path": "evidence/tool-v4-series/gate-tests.json",
+      "bytes": 1492,
+      "sha256": "62f45adbb803f36a0e5264831847fd5f3f221e58da571944746eec2d1a694360"
+    }
+  ],
+  "scope": "19 purePython gate tests; v4 population helper separately tested; explicit accepted source identity supplied by future protocol, no baseline execution"
+}
