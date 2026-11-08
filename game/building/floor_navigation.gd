@@ -127,6 +127,9 @@ func _disconnect_edge(from_id: int, to_id: int) -> void:
 
 # The graph updates this bounded edge mask at the same ownership points as
 # AStar2D. A field borrows the masks once; failures never become cached no-path.
+func structural_field_input(origin: Vector2i) -> Dictionary:
+	return {"enabled":_enabled,"edges":_edges,"root":_id(origin) if _inside(origin) else -1}
+
 func distance_field(query: RouteClearance, origin: Vector2i, reverse: bool = false, maximum_distance: int = -1) -> Dictionary:
 	var enabled: PackedByteArray = _enabled
 	if maximum_distance>=0:

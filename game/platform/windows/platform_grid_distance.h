@@ -77,6 +77,14 @@ struct Visitor : boost::default_bfs_visitor {
         if (successors) successors[edge.to] = edge.from;
     }
 };
+void compute(const Graph& graph, int root, int32_t* distances, int32_t* successors = nullptr) {
+    if (root < 0 || !graph.enabled[root]) return;
+    distances[root] = 0;
+    std::vector<boost::default_color_type> colors(LIMIT);
+    auto color = boost::make_iterator_property_map(colors.begin(), boost::typed_identity_property_map<int>());
+    boost::queue<int> frontier;
+    boost::breadth_first_search(graph, root, frontier, Visitor(distances, successors), color);
+}
 }
 
 GDExtensionPtrBuiltInMethod grid_distance_bytes_size, grid_distance_ints_resize;
@@ -118,16 +126,73 @@ V solve_grid_distance_field(const V& raw_enabled, const V& raw_edges, const V& r
     if (root.number() >= 0 && enabled.data()[root.number()]) {
         Graph graph; graph.enabled = enabled.data(); graph.edges = edges.data(); graph.reverse = reverse;
         graph.reservations = reservations.size() ? reservations.data() : nullptr;
-        distances.data()[root.number()] = 0;
-        std::vector<boost::default_color_type> colors(LIMIT);
-        auto color = boost::make_iterator_property_map(colors.begin(), boost::typed_identity_property_map<int>());
-        boost::queue<int> frontier;
-        boost::breadth_first_search(graph, static_cast<int>(root.number()), frontier,
-            Visitor(distances.data(), reverse ? successors.data() : nullptr), color);
+        compute(graph, static_cast<int>(root.number()), distances.data(), reverse ? successors.data() : nullptr);
     }
     D result; GDExtensionBool ok = true;
     result.set("ok", V::typed(GDEXTENSION_VARIANT_TYPE_BOOL, &ok));
     result.set("distances", distances.value()); result.set("successors", successors.value()); return result.value();
+}
+namespace structural_field_batch {
+GDExtensionInterfaceWorkerThreadPoolAddNativeGroupTask submit;
+GDExtensionInterfaceObjectMethodBindPtrcall ptrcall;
+GDExtensionObjectPtr pool;
+GDExtensionMethodBindPtr wait;
+struct Job {
+    GridDistanceBytes enabled, edges;
+    GridDistanceInts distances{grid_distance_backend::LIMIT};
+    const uint8_t *nodes, *steps;
+    int32_t* output;
+    int root;
+    std::thread::id thread;
+    std::exception_ptr failure;
+    Job(const V& nodes_value, const V& edges_value, int origin):enabled(nodes_value),edges(edges_value),root(origin) {
+        if (enabled.size()!=grid_distance_backend::LIMIT || edges.size()!=grid_distance_backend::LIMIT)
+            throw std::runtime_error("静态距离批次需要完整96×96掩码");
+        nodes=enabled.data(); steps=edges.data(); output=distances.data();
+    }
+};
+using Jobs = std::vector<std::unique_ptr<Job>>;
+void run(void* data, uint32_t index) {
+    auto& job=*(*static_cast<Jobs*>(data))[index];
+    job.thread=std::this_thread::get_id();
+    try {
+        grid_distance_backend::Graph graph; graph.enabled=job.nodes; graph.edges=job.steps;
+        grid_distance_backend::compute(graph,job.root,job.output);
+    } catch (...) { job.failure=std::current_exception(); }
+}
+}
+V solve_grid_structural_fields(const V& input) {
+    using namespace structural_field_batch;
+    if (!submit || !pool || !wait) throw std::runtime_error("原生工作线程池接口不可用");
+    A requests(input); Jobs jobs;
+    if (requests.size()>INT32_MAX) throw std::runtime_error("静态距离批次超出任务接口范围");
+    jobs.reserve(static_cast<size_t>(requests.size()));
+    for (int64_t index=0; index<requests.size(); ++index) {
+        V value=requests.at(index);
+        if (type(&value.raw)!=GDEXTENSION_VARIANT_TYPE_DICTIONARY) throw std::runtime_error("静态距离请求需要字典");
+        D request(value); V enabled=request.get("enabled"), edges=request.get("edges"), root=request.get("root");
+        if (type(&enabled.raw)!=GDEXTENSION_VARIANT_TYPE_PACKED_BYTE_ARRAY || type(&edges.raw)!=GDEXTENSION_VARIANT_TYPE_PACKED_BYTE_ARRAY ||
+            type(&root.raw)!=GDEXTENSION_VARIANT_TYPE_INT || root.number() < -1 || root.number()>=grid_distance_backend::LIMIT)
+            throw std::runtime_error("静态距离请求需要有效掩码及起点");
+        jobs.emplace_back(new Job(enabled,edges,static_cast<int>(root.number())));
+    }
+    const int workers=static_cast<int>(std::min<size_t>(8,jobs.size()));
+    if (workers>1) {
+        Builtin description; new_string(&description,"Waiting structural distance fields");
+        const int64_t group=submit(pool,run,&jobs,static_cast<int32_t>(jobs.size()),workers,true,&description);
+        destruct[GDEXTENSION_VARIANT_TYPE_STRING](&description);
+        if (group<0) throw std::runtime_error("静态距离批次派发失败");
+        const void* args[]={&group}; ptrcall(wait,pool,args,nullptr);
+    } else if (workers==1) { run(&jobs,0); }
+    A fields; std::set<std::thread::id> threads;
+    for (const auto& job:jobs) {
+        if (job->failure) std::rethrow_exception(job->failure);
+        fields.append(job->distances.value()); threads.insert(job->thread);
+    }
+    D result; GDExtensionBool ok=true;
+    result.set("ok",V::typed(GDEXTENSION_VARIANT_TYPE_BOOL,&ok)); result.set("fields",fields.value());
+    result.set("tasks",V::number(workers)); result.set("threads_used",V::number(threads.size()));
+    return result.value();
 }
 void grid_distance_initialize(GDExtensionInterfaceGetProcAddress api) {
     auto method = reinterpret_cast<GDExtensionInterfaceVariantGetPtrBuiltinMethod>(api("variant_get_ptr_builtin_method"));
@@ -137,4 +202,11 @@ void grid_distance_initialize(GDExtensionInterfaceGetProcAddress api) {
     grid_distance_byte_index = reinterpret_cast<GDExtensionInterfacePackedByteArrayOperatorIndexConst>(api("packed_byte_array_operator_index_const"));
     grid_distance_int_index = reinterpret_cast<GDExtensionInterfacePackedInt32ArrayOperatorIndex>(api("packed_int32_array_operator_index"));
     destruct[GDEXTENSION_VARIANT_TYPE_STRING_NAME](&size); destruct[GDEXTENSION_VARIANT_TYPE_STRING_NAME](&resize);
+    using namespace structural_field_batch;
+    submit=reinterpret_cast<GDExtensionInterfaceWorkerThreadPoolAddNativeGroupTask>(api("worker_thread_pool_add_native_group_task"));
+    ptrcall=reinterpret_cast<GDExtensionInterfaceObjectMethodBindPtrcall>(api("object_method_bind_ptrcall"));
+    Builtin pool_name, wait_name; new_name(&pool_name,"WorkerThreadPool"); new_name(&wait_name,"wait_for_group_task_completion");
+    pool=reinterpret_cast<GDExtensionInterfaceGlobalGetSingleton>(api("global_get_singleton"))(&pool_name);
+    wait=reinterpret_cast<GDExtensionInterfaceClassdbGetMethodBind>(api("classdb_get_method_bind"))(&pool_name,&wait_name,OGH_WORKER_WAIT_GROUP_HASH);
+    destruct[GDEXTENSION_VARIANT_TYPE_STRING_NAME](&pool_name); destruct[GDEXTENSION_VARIANT_TYPE_STRING_NAME](&wait_name);
 }

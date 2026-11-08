@@ -75,6 +75,7 @@ foreach ($name in $expectedSizes.Keys) {
 }
 $userDirHash = ($api.classes | Where-Object name -eq 'OS').methods | Where-Object name -eq 'get_user_data_dir' | Select-Object -ExpandProperty hash
 $notificationHash = ($api.classes | Where-Object name -eq 'Object').methods | Where-Object name -eq 'notification' | Select-Object -ExpandProperty hash
+$workerWaitHash = ($api.classes | Where-Object name -eq 'WorkerThreadPool').methods | Where-Object name -eq 'wait_for_group_task_completion' | Select-Object -ExpandProperty hash
 $astarMethods = ($api.classes | Where-Object name -eq 'AStar2D').methods
 $astarReserveHash = ($astarMethods | Where-Object name -eq 'reserve_space').hash
 $astarAddHash = ($astarMethods | Where-Object name -eq 'add_point').hash
@@ -88,7 +89,7 @@ $arrayAppendHash = ($arrayMethods | Where-Object name -eq 'append').hash
 $bytesResizeHash = ($byteMethods | Where-Object name -eq 'resize').hash
 $dictionaryKeysHash = (($api.builtin_classes | Where-Object name -eq 'Dictionary').methods | Where-Object name -eq 'keys').hash
 $dictionaryGetHash = (($api.builtin_classes | Where-Object name -eq 'Dictionary').methods | Where-Object name -eq 'get').hash
-if (-not $userDirHash -or -not $notificationHash -or -not $astarReserveHash -or -not $astarAddHash -or -not $astarDisableHash -or -not $astarConnectHash -or -not $astarCountHash) { throw 'The required engine method hashes are missing.' }
+if (-not $userDirHash -or -not $notificationHash -or -not $workerWaitHash -or -not $astarReserveHash -or -not $astarAddHash -or -not $astarDisableHash -or -not $astarConnectHash -or -not $astarCountHash) { throw 'The required engine method hashes are missing.' }
 @"
 #define OGH_VARIANT_SIZE 24
 #define OGH_STRING_SIZE 8
@@ -105,6 +106,7 @@ if (-not $userDirHash -or -not $notificationHash -or -not $astarReserveHash -or 
 #define OGH_DICTIONARY_GET_HASH $dictionaryGetHash
 #define OGH_USER_DIR_HASH $userDirHash
 #define OGH_NOTIFICATION_HASH $notificationHash
+#define OGH_WORKER_WAIT_GROUP_HASH $workerWaitHash
 #define OGH_ASTAR_RESERVE_HASH $astarReserveHash
 #define OGH_ASTAR_ADD_HASH $astarAddHash
 #define OGH_ASTAR_DISABLE_HASH $astarDisableHash

@@ -425,7 +425,51 @@ func ready_structural_field(space: HospitalSpace, world: WorldState, floor_id: i
 	if not record.get("ready",false) or record.get("stamp",[])!=[geometry.get_instance_id()]: return {}
 	return {"ready":true,"distances":record.distances}
 
-func _travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, start: Vector2i, goal: Vector2i, witness: bool, forward: bool, structural_only: bool = false, prepared_graph: FloorNavigation = null) -> Dictionary:
+# Native jobs read only the captured masks and own each field's output.
+# Install in request order under the original geometry identity and budget.
+func prepare_structural_fields(space: HospitalSpace, world: WorldState, actor_ids: Array) -> void:
+	var inputs: Array = []
+	var pending: Array = []
+	var seen: Dictionary = {}
+	for actor_id: String in actor_ids:
+		var actor: Dictionary = world.facts.actors[actor_id]
+		var floor_id: int = int(actor.location.floor_id)
+		var root: Vector2i = Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
+		var current: FloorNavigation = graph(space,world,floor_id,actor,[],{})
+		var key: String = _graph_key(space,world,floor_id,actor,[],{},floor_source(space,world,floor_id))
+		var entry: Dictionary = _entries.get(key,{})
+		if entry.is_empty() or entry.graph!=current: continue
+		var destination: String = _distance_destination(space,world,floor_id,actor,root,root,true,true,[])
+		var stamp: Array = [current.geometry.get_instance_id()]
+		var identity: Array = [key,destination,stamp]
+		if seen.has(identity): continue
+		seen[identity] = true
+		var record: Dictionary = entry.get("estimates",{}).get(destination,{})
+		if record.get("ready",false) and record.stamp==stamp: continue
+		inputs.append(current.structural_field_input(root))
+		# Retain masks and identities, not a graph evicted by a later input.
+		pending.append({"key":key,"geometry":stamp[0],"actor":actor,"floor_id":floor_id,"root":root})
+	if inputs.is_empty(): return
+	var batch: Dictionary = _calculate_structural_fields(inputs)
+	if not batch.get("ok",false) or batch.get("fields",[]).size()!=pending.size():
+		space.query_counts["native_field_batch_failures"] = int(space.query_counts.get("native_field_batch_failures",0))+1
+		push_error("候诊静态距离批次失败："+str(batch.get("error","结果不完整")))
+		return
+	space.query_counts["native_field_batches"] = int(space.query_counts.get("native_field_batches",0))+1
+	space.query_counts["native_field_requests"] = int(space.query_counts.get("native_field_requests",0))+inputs.size()
+	space.query_counts["native_field_threads"] = maxi(int(space.query_counts.get("native_field_threads",0)),int(batch.threads_used))
+	space.query_counts["native_field_thread_visits"] = int(space.query_counts.get("native_field_thread_visits",0))+int(batch.threads_used)
+	for index: int in pending.size():
+		var item: Dictionary = pending[index]
+		var entry: Dictionary = _entries.get(item.key,{})
+		if entry.is_empty() or entry.graph.geometry.get_instance_id()!=int(item.geometry): continue
+		var field: Dictionary = {"ready":true,"distances":batch.fields[index],"successors":PackedInt32Array()}
+		_travel_distance(space,world,int(item.floor_id),item.actor,item.root,item.root,false,true,true,entry.graph,field)
+
+func _calculate_structural_fields(inputs: Array) -> Dictionary:
+	return PlatformArrivalMath.grid_structural_fields(inputs)
+
+func _travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, start: Vector2i, goal: Vector2i, witness: bool, forward: bool, structural_only: bool = false, prepared_graph: FloorNavigation = null, supplied_field: Dictionary = {}) -> Dictionary:
 	# Only a structural query may pass its just-acquired graph. Permission-
 	# dependent distance fields retain the original graph/clearance acquisition.
 	var current: FloorNavigation = prepared_graph if structural_only and prepared_graph!=null else graph(space,world,floor_id,actor,[],{})
@@ -453,11 +497,15 @@ func _travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, ac
 	record.hits += 1
 	# One-off quotes retain A*. Repeated endpoints amortize a distance field;
 	# only integer distance is reused, never a route or permission to reserve.
-	if not record.ready and int(record.hits)>=12:
+	if not record.ready and (int(record.hits)>=12 or not supplied_field.is_empty()):
 		var query: RouteClearance = current.geometry if structural_only else RouteClearance.new(space,world,actor,floor_id,[],{},true,current.geometry.source,current.geometry)
 		record.reason = "" if forward else (query.reason(goal) if FloorNavigation._inside(goal) else "目标超出96×96真实楼面")
 		var field: Dictionary
-		if forward:
+		if not supplied_field.is_empty():
+			record.query = query
+			field = supplied_field
+			record.native_batch = true
+		elif forward:
 			record.query = query
 			field = current.distance_field(query,start)
 		else:
@@ -476,6 +524,8 @@ func _travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, ac
 		_query_charged += charge
 	_trim(int(space.content.balance.pathfinding.graph_cache_target_bytes),space.query_counts)
 	if not record.ready: return {"ready":false}
+	if supplied_field.is_empty() and record.get("native_batch",false):
+		space.query_counts["native_field_hits"] = int(space.query_counts.get("native_field_hits",0))+1
 	if not FloorNavigation._inside(start) or not FloorNavigation._inside(goal):
 		return {"ready":true,"ok":false,"reason":"目标超出96×96真实楼面"}
 	if forward:

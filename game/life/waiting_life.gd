@@ -32,6 +32,7 @@ func dispatch(world: WorldState) -> void:
 func _dispatch_waiting(world: WorldState) -> void:
 	ensure(world)
 	var first_scan: bool = true
+	var needs_prepared: bool = false
 	for visit_id: String in world.active_visit_ids():
 		var visit: Dictionary = world.facts.visits[visit_id]
 		if world.facts.waiting_life.needs.has(visit_id):
@@ -51,6 +52,11 @@ func _dispatch_waiting(world: WorldState) -> void:
 		if ticket.get("service_assigned",false) and int(ticket.get("called_tick",-1))>=0:
 			continue
 		if world.sim_tick>=int(world.facts.waiting_life.clocks[visit_id].next_need_tick) and not world.facts.moves.has(visit.actor_id) and (floor_guidance==null or not floor_guidance.working(world,visit_id)):
+			# Prepare pure static costs before the first due need. Task creation,
+			# live safety and resource claims keep this loop's original order.
+			if not needs_prepared:
+				_prepare_need_costs(world)
+				needs_prepared = true
 			_begin_need(world,visit)
 			continue
 		if floor_guidance!=null and not floor_guidance.waiting_allowed(world,visit_id): continue
@@ -77,6 +83,22 @@ func _dispatch_waiting(world: WorldState) -> void:
 			else:
 				visit.waiting_reason = "附近没有可用候诊位"
 				_wait_safely(world,visit,{"area":{}})
+
+func _prepare_need_costs(world: WorldState) -> void:
+	var actors: Array = []
+	for visit_id: String in world.active_visit_ids():
+		var visit: Dictionary = world.facts.visits[visit_id]
+		if not _waiting(world,visit) or world.facts.moves.has(visit.actor_id): continue
+		if world.facts.waiting_life.needs.has(visit_id): continue
+		var ticket: Dictionary = world.facts.tickets[visit.ticket_id]
+		if ticket.get("service_assigned",false) and int(ticket.get("called_tick",-1))>=0: continue
+		if world.sim_tick<int(world.facts.waiting_life.clocks[visit_id].next_need_tick): continue
+		if floor_guidance!=null and floor_guidance.working(world,visit_id): continue
+		actors.append(str(visit.actor_id))
+	if actors.is_empty(): return
+	space.begin_dynamic_route_query(world)
+	space._navigation.prepare_structural_fields(space,world,actors)
+	space.end_route_query()
 
 func advance(world: WorldState) -> void:
 	for visit_id: String in world.facts.get("waiting_life",{}).get("seats",{}).keys():

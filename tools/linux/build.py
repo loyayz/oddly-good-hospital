@@ -91,6 +91,7 @@ def abi(api, destination):
     macros = {'VARIANT':24,'STRING':8,'STRING_NAME':8,'DICTIONARY':8,'ARRAY':8,'PACKED_BYTE_ARRAY':16,'PACKED_INT32_ARRAY':16,'PACKED_INT64_ARRAY':16}
     lines = [f'#define OGH_{k}_SIZE {v}' for k,v in macros.items()]
     methods = [('USER_DIR','OS','get_user_data_dir'),('NOTIFICATION','Object','notification'),('ASTAR_RESERVE','AStar2D','reserve_space'),('ASTAR_ADD','AStar2D','add_point'),('ASTAR_DISABLE','AStar2D','set_point_disabled'),('ASTAR_CONNECT','AStar2D','connect_points'),('ASTAR_COUNT','AStar2D','get_point_count'),('ARRAY_SIZE','Array','size'),('ARRAY_APPEND','Array','append'),('BYTES_RESIZE','PackedByteArray','resize'),('DICTIONARY_KEYS','Dictionary','keys'),('DICTIONARY_GET','Dictionary','get')]
+    methods.append(('WORKER_WAIT_GROUP','WorkerThreadPool','wait_for_group_task_completion'))
     classes = {c['name']:c for c in api['classes']+api['builtin_classes']}
     for macro, cls, method in methods:
         matches=[m['hash'] for m in classes[cls]['methods'] if m['name']==method]

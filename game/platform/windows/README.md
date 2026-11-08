@@ -30,6 +30,10 @@ GMP从十进制字符串赋值后显式约分；返回分数始终为互素分�
 
 依赖来源和全部许可证见`tools/windows/THIRD-PARTY-NOTICES.txt`；构建生成的独立许可文本与GMP对应源码位于`bin/licenses`，正式构建复制到发行目录的`licenses`。源码/头文件及构建中间对象不进入游戏资源包。构建和数学/功能验证不构成完整模拟步或画面性能通过证据。
 
+## 静态距离批次
+
+`PlatformArrivalMath.grid_structural_fields(requests)`批量计算完整静态四邻距离场。每项提供96×96的`enabled`、`edges`字节掩码和整数`root`（-1表示无根）；结果`fields`按原请求顺序返回。主线程借用只读掩码、分配独占输出，Godot原生WorkerThreadPool以前台任务调度最多8个任务，单项直接执行；现有Boost.Graph负责遍历。工作线程不访问Godot对象、字典、随机流或世界事实。全部完成后才返回；失败不返回部分距离场。派发方按原几何身份和缓存预算接收结果，实际安全、到场及资源承诺仍在原主线程交接点执行。
+
 ## 接口
 
 | 方法 | 返回 | 责任 |
