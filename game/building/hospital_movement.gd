@@ -639,8 +639,13 @@ func _initial_route_cursor(actor: Dictionary, path: Array) -> int:
 	var next: Vector2 = Vector2(float(path[1].cell[0]),float(path[1].cell[1]))
 	# A retreat can begin between these cells. Returning to the rounded start
 	# would move toward the body being yielded to before moving away from it.
-	if actual!=first and absf(actual.distance_to(first)+actual.distance_to(next)-first.distance_to(next))<0.001:
-		return 1
+	# A near-corner point is not on the following leg. Triangle-distance
+	# tolerances can skip an unfinished perpendicular segment and turn the
+	# next step into a diagonal through a wall boundary. Only skip an exact
+	# axis-aligned segment containing the published position.
+	if actual!=first:
+		if first.x==next.x and actual.x==first.x and actual.y>=minf(first.y,next.y) and actual.y<=maxf(first.y,next.y): return 1
+		if first.y==next.y and actual.y==first.y and actual.x>=minf(first.x,next.x) and actual.x<=maxf(first.x,next.x): return 1
 	return 0
 
 func queue_waypoint(world: WorldState, movement: Dictionary, floor_id: int, cell: Array) -> void:

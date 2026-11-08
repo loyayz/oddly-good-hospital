@@ -856,6 +856,13 @@ func _waiting_point(world: WorldState, actor_id: String, reference: Dictionary, 
 	var floor_id: int = int(reference.floor_id)
 	if contains(world,reference,actor_id) and safe_wait(world,actor_id,floor_id,actor.location.cell):
 		return {"floor_id":floor_id,"cell":actor.location.cell.duplicate(),"travel_ticks":0}
+	# Every candidate quote first proves this identical fractional departure.
+	# Failure is target-independent: do not repeat it for every area cell.
+	# This is one synchronous observation, never a retained negative result.
+	if not str(space.navigation._prepare_route_subject(world,actor,[],{}).reason).is_empty():
+		# Preserve the source-floor dependency normally recorded by each quote.
+		space.navigation._observe_floor(world,actor_id,int(actor.location.floor_id))
+		return {}
 	var origin: Vector2 = Vector2(float(actor.location.cell[0]),float(actor.location.cell[1]))
 	# Every cross-floor route must first reach a connector anchor on foot.
 	# Include all anchors, even unavailable ones: that only weakens this bound.
