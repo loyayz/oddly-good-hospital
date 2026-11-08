@@ -620,7 +620,12 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 				# fractional stub makes its space-query wider, so retain A* there.
 				var actual_start: bool = actor.location.kind=="floor" and int(actor.location.floor_id)==floor_id and goal==Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
 				var alternative: Dictionary = {}
-				if actual_start or bool(people.call(goal,goal)):
+				var candidate_search: bool=actual_start or bool(people.call(goal,goal))
+				var sealed_goal: bool=false
+				if candidate_search and not actual_start and start!=goal and not convoy_start and not actor.has("_convoy_size") and not actor.has("_convoy_body") and not actor.has("_convoy_goal_direction") and members.is_empty() and offsets.is_empty() and not navigation.get("overlay",false) and navigation.bases.is_empty() and navigation.shifts.is_empty():
+					sealed_goal=not _dynamic_goal_has_entry(graph,goal,people)
+					if sealed_goal: space.query_counts["dynamic_goal_entry_prunes"]=int(space.query_counts.get("dynamic_goal_entry_prunes",0))+1
+				if candidate_search and not sealed_goal:
 					dynamic.merge(space._dynamic_route_query(world,actor,floor_id,members,offsets),true)
 					alternative = graph.find_path(start,goal,query,people,false,navigation.bases,navigation.shifts,bool(navigation.get("overlay",false)),cost_only)
 				if alternative.get("ok",false):
@@ -637,6 +642,20 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 	if cacheable:
 		routes[key] = result.duplicate(true)
 	return result
+
+# A cardinal graph path must finish along one of these exact directed edges.
+# If every existing incoming edge fails the same live people predicate used
+# by A*, that search can only fail. Do not alter routes with any open entry.
+func _dynamic_goal_has_entry(graph: FloorNavigation, goal: Vector2i, people: Callable) -> bool:
+	var goal_id: int=FloorNavigation._id(goal)
+	if not graph.has_point(goal_id): return true
+	for offset: Vector2i in FloorNavigation.NEIGHBOURS:
+		var predecessor: Vector2i=goal+offset
+		if not FloorNavigation._inside(predecessor): continue
+		var from_id: int=FloorNavigation._id(predecessor)
+		if graph.has_point(from_id) and graph.are_points_connected(from_id,goal_id,false) and bool(people.call(predecessor,goal)):
+			return true
+	return false
 
 func _route_envelope(world: WorldState, actor: Dictionary, members: Array, offsets: Dictionary) -> Array:
 	var result: Array = [[space.body(actor),actor.get("posture","standing"),float(actor.get("facing",0.0)),[0,0]]]
