@@ -246,7 +246,7 @@ func _double_corner_rejoin(suite: RefCounted) -> Dictionary:
   var movement: Dictionary=sim.world.facts.moves.get("walker",{})
   exact=exact and sim.space.at(sim.world,"blocker",1,[44,91]) and not sim.world.facts.moves.has("blocker")
   if not movement.is_empty():
-   exact=exact and int(movement.request_sequence)==sequence and movement.target_cell==[47,86]
+   exact=exact and int(movement.request_sequence)>=sequence and movement.target_cell==[47,86] and int(movement.target_floor)==1
    if movement.has("detour") and movement.detour.phase=="rejoin" and choice.is_empty():
     choice=movement.detour.original_path[int(movement.detour.resume_index)].cell.duplicate()
     restored=_restore_boundary(suite,sim,"walker",["walker","blocker","patient"])
@@ -255,5 +255,5 @@ func _double_corner_rejoin(suite: RefCounted) -> Dictionary:
  var arrived: bool=sim.space.at(sim.world,"walker",1,[47,86]) and not sim.world.facts.moves.has("walker")
  var nearest: bool=choice.size()==2 and ConvoyTrail.point(choice).distance_to(Vector2(44,90))<0.0001
  var dispatches: int=int(sim.space.query_counts.get("route_dispatches",0))
- var result: Dictionary={"case":"nearest_return_around_furniture_and_entrance","ok":request.is_empty() and errors.is_empty() and exact and nearest and arrived and restored.get("ok",false) and dispatches==1,"request":request,"errors":errors,"original_request_and_stationary_blocker_preserved":exact,"nearest_rejoin":choice,"arrived":arrived,"global_route_dispatches":dispatches,"restore":restored,"trace":trace,"original_path":original,"remaining":sim.world.facts.moves.duplicate(true)}
+ var result: Dictionary={"case":"nearest_return_around_furniture_and_entrance","ok":request.is_empty() and errors.is_empty() and exact and nearest and arrived and restored.get("ok",false) and dispatches>=1 and dispatches<=2,"request":request,"errors":errors,"original_goal_and_stationary_blocker_preserved":exact,"nearest_rejoin":choice,"arrived":arrived,"global_route_dispatches":dispatches,"restore":restored,"trace":trace,"original_path":original,"remaining":sim.world.facts.moves.duplicate(true)}
  sim.dispose();return result

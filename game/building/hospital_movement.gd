@@ -311,6 +311,12 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 		# Door ownership retains its own wait; it never pushes the owner aside.
 		if not result.door_id.is_empty(): continue
 		if result.blocked:
+			# Local return intentions are not full-route proofs. If the actual
+			# next step hits fixed geometry, rebuild from here instead of
+			# repeatedly sidestepping around the same impossible return leg.
+			if not result.static_reason.is_empty() and movement.has("detour") and not movement.has("convoy") and movement.get("members",[actor.id]).size()==1:
+				_replan_goal(world,movement)
+				continue
 			if movement.has("detour") and _detour_obstruction(world,actor,movement,result.requested_motion): continue
 			if int(movement.blocked_since) < 0:
 				movement.blocked_since = world.facts.sim_tick
@@ -354,6 +360,13 @@ func _move_step(world: WorldState, actor: Dictionary, movement: Dictionary, segm
 	if members.size()>1: speed = float(space.content.balance.movement_speeds["2"])
 	var next: Vector2 = _step_toward(start,target,speed*WorldState.TICK_SECONDS)
 	result.requested_motion = next-start
+	if members.size()==1 and segment.kind=="floor" and space.guidance_queue_provider!=null:
+		var provider: RefCounted=space.guidance_queue_provider.get_ref()
+		if provider!=null and preload("res://game/operations/guidance_queue_entry.gd").block_entry(space,world,provider,actor.id,movement,start,next):
+			# Capacity is not a person to push or a failed route to detour.
+			# Guidance will retain/choose a safe exterior waiting point.
+			movement.waiting_reason="导诊排队区域已满，等待区域外空间"
+			return result
 	if movement.has("detour") and members.size()==1 and segment.kind=="floor":
 		var actual_clearance: RouteClearance=space.navigation.structural_clearance(world,actor,int(actor.location.floor_id))
 		result.static_reason=actual_clearance.sweep_reason(start,next)
@@ -576,8 +589,9 @@ func _dispatch_routes(world: WorldState, present_at_start: int) -> void:
 		var waypoint: Dictionary = movement.get("route_waypoint",{})
 		var floor_id: int = int(movement.target_floor) if waypoint.is_empty() else int(waypoint.floor_id)
 		var cell: Array = movement.target_cell if waypoint.is_empty() else waypoint.cell
-		var quote: Dictionary
-		if not waypoint.is_empty() and movement.has("convoy"):
+		var quote: Dictionary=preload("res://game/operations/guidance_queue_routes.gd").quote(space,world,movement,floor_id,cell) if waypoint.is_empty() else {}
+		if not quote.is_empty():pass
+		elif not waypoint.is_empty() and movement.has("convoy"):
 			quote = space.navigation.convoy_local_route(world,movement,floor_id,cell)
 		elif waypoint.is_empty() and not movement.get("floor_only",false):
 			quote = space.route(world,id,floor_id,cell,movement.get("members",[]),movement.get("offsets",{}))
@@ -807,6 +821,12 @@ func _reserve_doors(world: WorldState, actor: Dictionary, movement: Dictionary, 
 			# sweep contacts prove this step; do not reacquire the whole doorway
 			# against another retained participant or replace the old obligation.
 			continue
+		# An unchanged opening is ordinary walkable geometry, not a single-person
+		# ticket. Actual swept-body contacts still decide this step. Existing
+		# obligations above and genuine enlarged/group openings remain exclusive.
+		var definition: Dictionary = space.content.definition("doors",door.definition_id)
+		if members.size()==1 and not movement.has("convoy") and int(quote.span)==int(door.span) and float(quote.clear_height_m)<=float(definition.clear_height_m) and float(quote.clear_width_m)<=float(definition.clear_width_m):
+			continue
 		var rect: Rect2 = space._door_rect(door,int(quote.span))
 		if not space._dynamic_clear(world,actor.id,floor_id,rect,members):
 			result.door_id = str(door.id)
@@ -823,7 +843,7 @@ func _reserve_doors(world: WorldState, actor: Dictionary, movement: Dictionary, 
 func _mark_door_use(world: WorldState, floor_id: int, swept: Rect2, doors: Array[Dictionary]) -> void:
 	for door: Dictionary in doors:
 		var current: Dictionary = world.facts.adaptations.get(door.id,{})
-		if not current.is_empty() and swept.intersects(space._door_rect(door,int(current.span)),false):
+		if swept.intersects(space._door_rect(door,int(current.get("span",door.span))),false):
 			door.used = true
 
 func _movement_owners(world: WorldState, blocker_actor_ids: Array[String]) -> Array:
@@ -857,7 +877,15 @@ func _yield(world: WorldState, actor: Dictionary, movement: Dictionary, result: 
 			# Do not start a second passing manoeuvre while the first is
 			# actually under way. A finished local prefix which cannot return
 			# is a new obstruction, not a permanent right to block everyone.
-			if int(other.cursor)<int(other.detour.prefix_size): return
+			if int(other.cursor)<int(other.detour.prefix_size):
+				var other_actor: Dictionary = world.facts.actors[owner]
+				var point: Dictionary = other.path[int(other.cursor)]
+				if point.kind=="floor" and other_actor.location.kind=="floor" and int(point.floor_id)==int(other_actor.location.floor_id):
+					var origin: Vector2 = ConvoyTrail.point(other_actor.location.cell)
+					var next: Vector2 = _step_toward(origin,ConvoyTrail.point(point.cell),space.walking_speed(other_actor)*WorldState.TICK_SECONDS)
+					# An intention blocked by a third body is not a passage right.
+					# Keep one-sided avoidance while its actual next step is clear.
+					if _detour_path_clear(world,other_actor,other,[_floor_point(other_actor,next)]): return
 	_start_detour(world,actor,movement)
 
 # This is a current local occupancy probe, not a future journey permission.
@@ -896,6 +924,33 @@ func _local_travelled(movement: Dictionary, floor_id: int) -> Array:
 	result.reverse()
 	return result
 
+# A compressed straight route still traverses its intermediate cells. Keep
+# those actual same-floor points available for near-to-far local return; an
+# occupied distant endpoint must not hide the free portion of the route.
+# Never invent a turn or pass a connector while building return candidates.
+func _detour_original_points(actor: Dictionary, remaining: Array) -> Array:
+	var result: Array = []
+	var previous: Vector2 = ConvoyTrail.point(actor.location.cell)
+	var local_floor: int = int(actor.location.floor_id)
+	var local: bool = true
+	for segment: Dictionary in remaining:
+		if segment.kind!="floor" or int(segment.floor_id)!=local_floor: local=false
+		if local:
+			var target: Vector2 = ConvoyTrail.point(segment.cell)
+			var delta: Vector2 = target-previous
+			if absf(delta.x)<0.001 or absf(delta.y)<0.001:
+				var distance: float = delta.length()
+				var direction: Vector2 = delta.normalized()
+				for step: int in range(1,ceili(distance)):
+					if float(step)>=distance-0.001: break
+					var point: Dictionary = segment.duplicate(true)
+					var position: Vector2 = previous+direction*float(step)
+					point.cell=[position.x,position.y]
+					result.append(point)
+			previous=target
+		result.append(segment.duplicate(true))
+	return result
+
 func _start_detour(world: WorldState, actor: Dictionary, movement: Dictionary) -> void:
 	if movement.has("detour") or int(movement.cursor)>=movement.path.size(): return
 	var first: Dictionary = movement.path[int(movement.cursor)]
@@ -904,7 +959,7 @@ func _start_detour(world: WorldState, actor: Dictionary, movement: Dictionary) -
 	if delta.length()<0.001: return
 	var direction: Vector2 = Vector2(signf(delta.x),0) if absf(delta.x)>=absf(delta.y) else Vector2(0,signf(delta.y))
 	var history: Array = _local_travelled(movement,int(actor.location.floor_id))
-	movement.detour = {"phase":"back","original_path":movement.path.slice(int(movement.cursor)).duplicate(true),"direction":[direction.x,direction.y],"backtrack":history,"back_cursor":history.size()-1,"prefix_size":0,"resume_index":-1}
+	movement.detour = {"phase":"back","original_path":_detour_original_points(actor,movement.path.slice(int(movement.cursor))) if not movement.has("convoy") and movement.get("members",[actor.id]).size()==1 else movement.path.slice(int(movement.cursor)).duplicate(true),"direction":[direction.x,direction.y],"backtrack":history,"back_cursor":history.size()-1,"prefix_size":0,"resume_index":-1}
 	space.query_counts.yield_attempts += 1
 	if _detour_side(world,actor,movement): return
 	# The same local return used at each retreat checkpoint can also leave
@@ -1061,8 +1116,8 @@ func _continue_detour(world: WorldState, actor: Dictionary, movement: Dictionary
 		return
 	if state.phase=="back":
 		if _detour_side(world,actor,movement) or _detour_back(world,actor,movement): return
-		movement.waiting_reason = "等待实际侧方或后退通路"
-		return
+		# A completed retreat with no further side/back step can still leave
+		# by its original route. It has no permanent prohibition on forward.
 
 	var link: Dictionary = _detour_return_path(world,actor,movement,ConvoyTrail.point(actor.location.cell))
 	if not link.is_empty():

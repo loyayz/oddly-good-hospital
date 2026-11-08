@@ -308,6 +308,11 @@ func _step(world: WorldState) -> void:
 		"public_access":
 			if _cursor>=_public_checks.size():
 				_cursor = 0
+				for floor_id: int in _plan.floors:
+					var guidance: Dictionary = service.guidance_floor_error(_candidate,floor_id)
+					if not guidance.ok:
+						_finish(guidance,world)
+						return
 				_phase = "actor_safety"
 				return
 			var id: String = _public_checks[_cursor]

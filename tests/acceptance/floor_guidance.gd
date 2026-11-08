@@ -2,7 +2,7 @@ extends "res://tests/acceptance/staff_fixtures.gd"
 
 func run_cases(database: HospitalContent, selected: Array = []) -> Dictionary:
 	_content = database
-	var runs: Dictionary = {"GUIDE-REAL-ARRIVAL":_single.bind(false),"GUIDE-JSON":_single.bind(true),"GUIDE-CROSS-FLOOR":_cross_floor,"GUIDE-SAME-FLOOR-NEW-STAGE":_same_floor_new_request,"GUIDE-NURSE-RECOVERY":_missing_nurse,"GUIDE-EXIT-BYPASS":_departure,"GUIDE-ARRIVAL-ORDER":_simultaneous,"GUIDE-DESK-BUILD-RECOVERY":_missing_desk,"GUIDE-NURSE-SAFE-HANDOFF":_nurse_handoff,"GUIDE-LOCAL-SEATS":_local_seats,"GUIDE-DESK-REMOVAL":_desk_removal,"GUIDE-MOVE-OWNERSHIP":_move_ownership,"GUIDE-SAVE-GUARDS":_save_guards}
+	var runs: Dictionary = {"GUIDE-REAL-ARRIVAL":_single.bind(false),"GUIDE-JSON":_single.bind(true),"GUIDE-CROSS-FLOOR":_cross_floor,"GUIDE-SAME-FLOOR-NEW-STAGE":_same_floor_new_request,"GUIDE-NURSE-RECOVERY":_missing_nurse,"GUIDE-STAFFED-QUEUE-PAUSE-RECOVERY":_staffed_queue_pause,"GUIDE-EXIT-BYPASS":_departure,"GUIDE-ARRIVAL-ORDER":_simultaneous,"GUIDE-DESK-BUILD-RECOVERY":_missing_desk,"GUIDE-NURSE-SAFE-HANDOFF":_nurse_handoff,"GUIDE-LOCAL-SEATS":_local_seats,"GUIDE-DESK-REMOVAL":_desk_removal,"GUIDE-MOVE-OWNERSHIP":_move_ownership,"GUIDE-SAVE-GUARDS":_save_guards}
 	var cases: Array = []
 	var passed: bool = true
 	for id: String in (runs.keys() if selected.is_empty() else selected):
@@ -153,18 +153,105 @@ func _same_floor_new_request() -> Dictionary:
 	var result: Dictionary = {"case":"GUIDE-SAME-FLOOR-NEW-STAGE","ok":completed and clinical_ticks>0 and continuous and different and visit.ticket_id!=first_ticket and x.world.validate(_content).is_empty(),"actual_gp_work_ticks":clinical_ticks,"gp_completed":completed,"continuous_work_not_interrupted":continuous,"new_request_reguided":different,"state":state.duplicate(true),"phase":visit.phase,"reason":visit.waiting_reason,"validation":x.world.validate(_content)}
 	_dispose(x);return result
 
+# Establish an occupied, genuinely staffed desk, admit the requested patient,
+# then stop the nurse's shift. No queue number or completed journey is injected.
+func _admit_then_pause(x: Dictionary, visit: Dictionary, additional: Array = []) -> Dictionary:
+	# Input placement, before any journey: later patients start in the open
+	# right-side aisle beside their expected successive slots, not in a slot.
+	# They still walk to the actual current tail while the leader receives its
+	# unchanged 60-tick service; no queue number or service progress is injected.
+	var later: Array=[visit]
+	later.append_array(additional)
+	var initial_positions: Dictionary={}
+	for index: int in later.size():
+		var patient: Dictionary=later[index]
+		var cell: Array=[50,85+index]
+		_position(x,patient.actor_id,cell)
+		initial_positions[patient.id]=cell.duplicate()
+	var initial_nonoverlap: bool=true
+	for i: int in later.size():
+		for j: int in range(i+1,later.size()):
+			initial_nonoverlap=initial_nonoverlap and not x.space.body_rectangle(x.world.facts.actors[later[i].actor_id]).intersects(x.space.body_rectangle(x.world.facts.actors[later[j].actor_id]),false)
+	var first: Dictionary = _visit(x,"queue_gate",[48,85])
+	var nurse_start: Dictionary = x.world.facts.actors.guide_nurse.location.duplicate(true)
+	for tick: int in 600:
+		x.g.dispatch(x.world)
+		x.g.prepare(x.world,first,x.world.facts.tickets[first.ticket_id])
+		x.space.advance(x.world)
+		x.g.advance(x.world)
+		x.world.facts.sim_tick += 1
+		x.world.touch(false)
+		if x.g.state(x.world,first.id).get("phase","")=="working": break
+	var staffed: bool = x.g.state(x.world,first.id).get("phase","")=="working" and x.space.at(x.world,"guide_nurse",1,x.space.facility_layout(x.world,"guide").operator_cells[0])
+	for tick: int in 500:
+		_step(x)
+		var row: Dictionary = x.g.state(x.world,visit.id)
+		var all_queued: bool = row.has("queue_seq") and row.get("phase","")=="desk_queue"
+		for extra: Dictionary in additional:
+			var other: Dictionary = x.g.state(x.world,extra.id)
+			all_queued = all_queued and other.has("queue_seq") and other.get("phase","")=="desk_queue" and x.space.at(x.world,extra.actor_id,1,other.get("queue_cell",[])) and not x.world.facts.moves.has(extra.actor_id)
+		if all_queued: break
+	var admitted: Dictionary = x.g.state(x.world,visit.id)
+	var real_queue: bool = admitted.has("queue_seq") and admitted.get("phase","")=="desk_queue" and x.space.at(x.world,visit.actor_id,1,admitted.get("queue_cell",[])) and not x.world.facts.moves.has(visit.actor_id)
+	var all_later_walked: bool=true
+	for patient: Dictionary in later:
+		all_later_walked=all_later_walked and not x.space.at(x.world,patient.actor_id,1,initial_positions[patient.id])
+	var number: int = int(admitted.get("queue_seq",-1))
+	x.world.facts.staff.guide_nurse.on_shift = false
+	for tick: int in 500:
+		_step(x)
+		if not x.world.facts.adaptations.has("guide") and str(x.world.facts.staff.guide_nurse.get("active_job_id","")).is_empty() and not x.world.facts.moves.has("guide_nurse"): break
+	return {"ok":staffed and real_queue and initial_nonoverlap and all_later_walked and int(x.g.state(x.world,visit.id).get("queue_seq",-2))==number and x.g.state(x.world,visit.id).receipts.is_empty() and not x.world.facts.adaptations.has("guide"),"nurse_actually_staffed":staffed,"nurse_walked":nurse_start!=x.world.facts.actors.guide_nurse.location,"patient_really_queued":real_queue,"initial_positions":initial_positions,"initial_later_nonoverlap":initial_nonoverlap,"all_later_really_walked":all_later_walked,"number":number,"state":x.g.state(x.world,visit.id).duplicate(true)}
+
+func _restaff_only(x: Dictionary) -> bool:
+	x.world.facts.staff.guide_nurse.on_shift = true
+	for tick: int in 600:
+		x.g.dispatch(x.world);x.space.advance(x.world);x.g.advance(x.world)
+		x.world.facts.sim_tick += 1;x.world.touch(false)
+		if x.g._desk_usable(x.world,"guide"):return true
+	return false
+
+func _staffed_queue_pause() -> Dictionary:
+	var x: Dictionary = _base()
+	var visit: Dictionary = _visit(x,"pause_queue",[49,86])
+	var admission: Dictionary = _admit_then_pause(x,visit)
+	var number: int = int(x.g.state(x.world,visit.id).get("queue_seq",-1))
+	var retained: bool = admission.ok
+	for tick: int in 50:
+		_step(x)
+		retained = retained and int(x.g.state(x.world,visit.id).get("queue_seq",-2))==number and x.g.state(x.world,visit.id).receipts.is_empty()
+	x.world.facts.staff.guide_nurse.on_shift = true
+	for tick: int in 800:
+		_step(x)
+		if x.g.state(x.world,visit.id).get("phase","")=="ready":break
+	var row: Dictionary = {"case":"GUIDE-STAFFED-QUEUE-PAUSE-RECOVERY","ok":retained and x.g.state(x.world,visit.id).get("phase","")=="ready" and x.g.state(x.world,visit.id).receipts.size()==1 and x.world.validate(_content).is_empty(),"admission":admission,"number_preserved_during_absence":retained,"final":x.g.state(x.world,visit.id).duplicate(true),"validation":x.world.validate(_content)}
+	_dispose(x);return row
+
 func _missing_nurse() -> Dictionary:
 	var x: Dictionary = _base()
 	x.world.facts.staff.guide_nurse.on_shift = false
 	var visit: Dictionary = _visit(x,"missing",[40,88])
-	for tick: int in 150: _step(x)
-	var state: Dictionary = x.g.state(x.world,visit.id)
-	var blocked: bool = state.phase=="desk_queue" and state.receipts.is_empty() and visit.waiting_reason.contains("护士") and not x.world.facts.adaptations.has("diagnosis")
-	x.world.facts.staff.guide_nurse.on_shift = true
-	for tick: int in 700:
+	var ticket: String = visit.ticket_id
+	var preserved: bool = true
+	for tick: int in 150:
 		_step(x)
-		if x.g.state(x.world,visit.id).phase=="ready": break
-	var result: Dictionary = {"case":"GUIDE-NURSE-RECOVERY","ok":blocked and x.g.state(x.world,visit.id).phase=="ready" and x.world.validate(_content).is_empty(),"waited_without_bypass":blocked,"state":x.g.state(x.world,visit.id).duplicate(true),"reason":visit.waiting_reason,"validation":x.world.validate(_content)}
+		var pending: Dictionary = x.g.state(x.world,visit.id)
+		preserved = preserved and pending.get("desk_id","").is_empty() and not pending.has("queue_seq") and pending.receipts.is_empty() and x.world.facts.tickets.has(ticket) and visit.ticket_id==ticket and not x.world.facts.moves.has(visit.actor_id)
+	var blocked: bool = preserved and not x.world.facts.adaptations.has("diagnosis")
+	x.world.facts.staff.guide_nurse.on_shift = true
+	var observed_nurse_travel: bool = false
+	var unstaffed_not_dispatched: bool = true
+	var actual_staffed: bool = false
+	for tick: int in 900:
+		_step(x)
+		var row: Dictionary = x.g.state(x.world,visit.id)
+		if x.world.facts.moves.has("guide_nurse"):
+			observed_nurse_travel = true
+			unstaffed_not_dispatched = unstaffed_not_dispatched and row.get("desk_id","").is_empty() and not row.has("queue_seq") and not x.world.facts.moves.has(visit.actor_id)
+		if x.g._desk_usable(x.world,"guide"):actual_staffed = true
+		if row.get("phase","")=="ready":break
+	var final: Dictionary = x.g.state(x.world,visit.id)
+	var result: Dictionary = {"case":"GUIDE-NURSE-RECOVERY","ok":blocked and observed_nurse_travel and unstaffed_not_dispatched and actual_staffed and final.get("phase","")=="ready" and final.receipts.size()==1 and visit.ticket_id==ticket and x.world.validate(_content).is_empty(),"all_unstaffed_preserved_pending":blocked,"nurse_real_travel_observed":observed_nurse_travel,"no_patient_dispatch_while_nurse_travels":unstaffed_not_dispatched,"nurse_actually_arrived":actual_staffed,"state":final.duplicate(true),"reason":visit.waiting_reason,"validation":x.world.validate(_content)}
 	_dispose(x);return result
 
 func _departure() -> Dictionary:

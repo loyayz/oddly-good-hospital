@@ -1,6 +1,16 @@
 class_name HospitalFloorGuidance
 extends RefCounted
 
+const QueueEntry = preload("res://game/operations/guidance_queue_entry.gd")
+const QueueWait = preload("res://game/operations/guidance_queue_wait.gd")
+const QueueLayout = preload("res://game/operations/guidance_queue_layout.gd")
+var _queue_plans: Dictionary = {}
+var _queue_contexts: Dictionary = {}
+var _queue_valid: Dictionary = {}
+var _queue_batches: Dictionary = {}
+var _queue_plan_revision: int = -1
+var _queue_plan_world: WeakRef
+
 const Scope = preload("res://game/operations/clinic_waiting_scope.gd")
 var content: HospitalContent
 var space: HospitalSpace
@@ -12,6 +22,7 @@ var _worked: Dictionary = {}
 func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 	content = database
 	space = geometry
+	space.guidance_queue_provider=weakref(self)
 	scope = Scope.new(geometry)
 
 # Loading only: warm the same immutable endpoint cache actual floor legs use.
@@ -48,8 +59,8 @@ func prepare_static_routes(world: WorldState, floor_id: int) -> Dictionary:
 			var graph: FloorNavigation=cache.graph(space,world,floor_id,actor,[],{})
 			var goals: Dictionary={}
 			for desk_id: String in desks:
-				var area: Dictionary=scope.area(world,actor_id,desk_id)
-				for point: Vector2i in area.get("points",{}): goals[point]=true
+				for slot: Array in _queue_slots(world,desk_id,space.clearance(actor)):
+					goals[Vector2i(int(slot[0]),int(slot[1]))]=true
 				var cell: Array=space.facility_layout(world,desk_id).patient_cell
 				goals[Vector2i(roundi(cell[0]),roundi(cell[1]))]=true
 			for anchor: Vector2i in anchors:
@@ -75,15 +86,25 @@ func worked_staff() -> Dictionary:
 func dispatch(world: WorldState) -> void:
 	ensure(world)
 	_worked.clear()
+	_queue_batches.clear()
 	for id: String in world.facts.floor_guidance.visits.keys():
 		var visit: Dictionary = world.facts.visits.get(id,{})
 		if visit.is_empty() or visit.get("phase","") in ["leaving","departed"]: release(world,id)
+		else:
+			var row: Dictionary=state(world,id)
+			_observe_queue_departure(world,row)
 	_release_nurses(world)
 	_assign_desks(world)
 
 func _desk_open(world: WorldState, id: String) -> bool:
 	var f: Dictionary = world.facts.facilities.get(id,{})
 	return f.get("definition_id","")=="SE01" and not f.get("failed",false) and f.get("open",true) and f.get("intake_open",true) and not HospitalRemodel.blocked(world,id)
+
+func _desk_usable(world: WorldState, id: String) -> bool:
+	if not _desk_open(world,id):return false
+	var nurse: String=str(world.facts.floor_guidance.desks.get(id,{}).get("nurse_id",""))
+	if not _nurse_ready(world,nurse) or world.facts.moves.has(nurse):return false
+	return world.facts.staff[nurse].get("active_job_id","")=="floor_desk:"+id and space.at(world,nurse,int(world.facts.facilities[id].floor_id),space.guidance_operator_cell(world,id,nurse))
 
 func _nurse_ready(world: WorldState, id: String) -> bool:
 	var s: Dictionary = world.facts.staff.get(id,{})
@@ -289,7 +310,7 @@ func _change_desk(world: WorldState, visit: Dictionary, current: Dictionary, des
 	current.desk_id = desk_id
 	current.phase = "seek"
 	current.arrived_seq = -1
-	for field: String in ["queue_seq","queue_cell","queue_arrived_tick","queue_desk_id","nurse_id","remaining_ticks","started_tick"]:
+	for field: String in ["queue_seq","queue_cell","queue_bank_key","queue_attending","queue_arrived_tick","queue_desk_id","nurse_id","remaining_ticks","started_tick"]:
 		current.erase(field)
 
 func _reset_destination(world: WorldState, visit: Dictionary, current: Dictionary) -> void:
@@ -303,50 +324,234 @@ func _reset_destination(world: WorldState, visit: Dictionary, current: Dictionar
 	current.erase("queue_cell")
 	current.erase("destination_cell")
 
+# Queue geometry is a floor-loading concern. Only membership/tail are live;
+# pedestrians along the journey are left to the movement system.
+func _queue_context(world: WorldState, desk_id: String) -> Dictionary:
+	if _queue_plan_world==null or _queue_plan_world.get_ref()!=world or _queue_plan_revision!=world.geometry_revision:
+		_queue_plans.clear()
+		_queue_contexts.clear()
+		_queue_valid.clear()
+		_queue_batches.clear()
+		_queue_plan_world=weakref(world)
+		_queue_plan_revision=world.geometry_revision
+	if _queue_contexts.has(desk_id):return _queue_contexts[desk_id]
+	var facility: Dictionary=world.facts.facilities.get(desk_id,{})
+	if facility.is_empty(): return {}
+	var room_scope: Dictionary=preload("res://game/operations/guidance_queue_geometry.gd").room_scope(world,int(facility.floor_id),desk_id)
+	var walls: Array=preload("res://game/operations/guidance_queue_geometry.gd").walls(world,int(facility.floor_id),desk_id,room_scope)
+	var result: Dictionary={"facility":facility,"walls":walls,"bounds":room_scope.get("bounds",Rect2i(0,0,96,96)),"room_cells":room_scope.get("cells",{})}
+	_queue_contexts[desk_id]=result
+	return result
+
+func _queue_slots(world: WorldState, desk_id: String, span: int) -> Array:
+	var context: Dictionary=_queue_context(world,desk_id)
+	if context.is_empty():return []
+	var key: String=desk_id+":"+str(span)
+	if _queue_plans.has(key):return _queue_plans[key]
+	var plan: Dictionary=QueueLayout.plan(context.facility,context.walls,context.bounds,span)
+	var slots: Array=plan.slots if plan.placement_ok else []
+	if _queue_plans.size()>=128:_queue_plans.clear()
+	_queue_plans[key]=slots
+	return slots
+
+func _queue_members(world: WorldState, desk_id: String) -> Array:
+	var result: Array=[]
+	for row: Dictionary in world.facts.floor_guidance.visits.values():
+		if row.get("desk_id","")!=desk_id or not row.has("queue_seq") or row.get("phase","") not in ["desk_queue","to_counter","working"]: continue
+		_observe_queue_departure(world,row)
+		if not row.has("queue_seq"):continue
+		if row.get("phase","")=="desk_queue" and not _queue_participating(world,row):
+			# A need intention is not a physical departure. Keep its occupied
+			# place until it actually moves; it is not eligible for service.
+			var visit: Dictionary=world.facts.visits.get(str(row.visit_id),{})
+			if visit.is_empty() or not row.has("queue_cell") or not space.at(world,visit.actor_id,int(row.guide_floor),row.queue_cell):continue
+		result.append(row)
+	result.sort_custom(func(a: Dictionary,b: Dictionary)->bool:return int(a.queue_seq)<int(b.queue_seq))
+	return result
+
+func _queue_position_allowed(world: WorldState, actor_id: String, desk_id: String, slot: Array, span: int) -> bool:
+	var floor_id: int=int(world.facts.facilities[desk_id].floor_id)
+	var actor: Dictionary=world.facts.actors[actor_id]
+	var geometry: RouteClearance=space.navigation.structural_clearance(world,actor,floor_id)
+	var key: String=desk_id+":"+str(span)+":"+str(slot)+":"+space._navigation._graph_key(space,world,floor_id,actor,[],{},geometry.source)
+	if _queue_valid.has(key):return _queue_valid[key]
+	var point:=Vector2i(int(slot[0]),int(slot[1]))
+	# Culling static obstacles to the desk's room is sound only if every
+	# accepted body stays inside its actual cells, including concave rooms.
+	var room_cells: Dictionary=_queue_context(world,desk_id).get("room_cells",{})
+	if not room_cells.is_empty():
+		for xx: int in range(point.x,point.x+span):
+			for yy: int in range(point.y,point.y+span):
+				if not room_cells.has(Vector2i(xx,yy)):
+					if _queue_valid.size()>=512:_queue_valid.clear()
+					_queue_valid[key]=false
+					return false
+	space.public_areas._ensure(world,floor_id)
+	var valid: bool=geometry.reason(point).is_empty() and not space.public_areas._cell_region(floor_id,point).is_empty()
+	var rectangle:=Rect2(Vector2(point),Vector2.ONE*span)
+	if valid and preload("res://game/operations/guidance_queue_geometry.gd").overlaps_landing(world,content,floor_id,rectangle):valid=false
+	if valid:
+		for door: Dictionary in world.facts.floors.overrides.get(str(floor_id),{}).get("doors",[]):
+			if rectangle.intersects(space._door_rect(door,int(door.span)).grow(1.0),false):valid=false;break
+	if valid:
+		for facility: Dictionary in world.facts.facilities.values():
+			if int(facility.floor_id)!=floor_id:continue
+			var points: Array=facility.get("operator_cells",[]).duplicate()
+			points.append(facility.repair_cell)
+			if facility.id!=desk_id:points.append(facility.patient_cell)
+			for work: Array in points:
+				if rectangle.intersects(Rect2(Vector2(work[0],work[1]),Vector2.ONE),false):valid=false;break
+			if not valid:break
+	if _queue_valid.size()>=512:_queue_valid.clear()
+	_queue_valid[key]=valid
+	return valid
+
+func _queue_point(world: WorldState, actor_id: String, desk_id: String, visit_id: String="") -> Dictionary:
+	var context: Dictionary=_queue_context(world,desk_id)
+	if context.is_empty():return {}
+	var members: Array=_queue_members(world,desk_id)
+	var ids: Array=[]
+	var spans: Array=[]
+	var signature: Array=[]
+	for member: Dictionary in members:
+		var id: String=str(world.facts.visits[member.visit_id].actor_id)
+		var size: int=space.clearance(world.facts.actors[id])
+		ids.append(id);spans.append(size)
+		signature.append([member.visit_id,member.queue_seq,size])
+	var key: String=desk_id+":"+str(world.revision)+":"+JSON.stringify(signature)
+	if not _queue_batches.has(key):
+		var check: Callable=func(index: int,cell: Array)->bool:return _queue_position_allowed(world,ids[index],desk_id,cell,int(spans[index]))
+		var packed: Dictionary=QueueLayout.pack(context.facility,context.walls,context.bounds,spans,check)
+		if _queue_batches.size()>=128:_queue_batches.clear()
+		_queue_batches[key]=packed
+	var packing: Dictionary=_queue_batches[key]
+	var index: int=ids.find(actor_id)
+	var cell: Array=[]
+	if index>=0:cell=packing.placements[index]
+	else:
+		if not packing.complete:return {}
+		var span: int=space.clearance(world.facts.actors[actor_id])
+		var check: Callable=func(_index: int,point: Array)->bool:return _queue_position_allowed(world,actor_id,desk_id,point,span)
+		var probe: Dictionary=QueueLayout.probe(packing,span,check)
+		if probe.get("ok",false):cell=probe.cell
+	if cell.is_empty():return {}
+	return {"floor_id":int(context.facility.floor_id),"cell":cell}
+
+func _queue_admission_clear(world: WorldState, actor_id: String, floor_id: int, cell: Array) -> bool:
+	var actor: Dictionary=world.facts.actors[actor_id]
+	var point:=Vector2(float(cell[0]),float(cell[1]))
+	if not RouteClearance.reservation_regions_reason(point,space.clearance(actor),RouteClearance.capture_reservation_regions(world,actor_id,floor_id)).is_empty():return false
+	return space._dynamic_clear(world,actor_id,floor_id,space._actor_rect(actor,point))
+
+func _queue_bank_key(world: WorldState, desk_id: String) -> String:
+	var desk: Dictionary=world.facts.facilities.get(desk_id,{})
+	return JSON.stringify([desk_id,desk.get("floor_id",0),desk.get("cell",[]),desk.get("rotation",0)])
+
+# A number belongs to continuous participation, not to the clinical ticket.
+# A pending need or external trip can be cancelled before it actually moves;
+# only real departure from the held queue point discards that number.
+func _observe_queue_departure(world: WorldState, current: Dictionary) -> void:
+	if not current.has("queue_seq") or current.get("phase","") not in ["desk_queue","to_counter"]:return
+	var visit: Dictionary=world.facts.visits.get(str(current.get("visit_id","")),{})
+	if visit.is_empty():return
+	var actor: Dictionary=world.facts.actors[visit.actor_id]
+	var move: Dictionary=world.facts.moves.get(visit.actor_id,{})
+	var need: bool=world.facts.get("waiting_life",{}).get("needs",{}).has(visit.id)
+	var external: bool=not move.is_empty() and move.get("floor_guidance_key","")!=current.get("request_key","")
+	var other_floor: bool=actor.location.kind!="floor" or int(actor.location.floor_id)!=int(current.guide_floor)
+	var disengaged: bool=not current.get("queue_attending",true) and (move.is_empty() or external)
+	if not need and not external and not other_floor and not disengaged:return
+	current.queue_attending=false
+	if not other_floor and current.has("queue_cell") and space.at(world,visit.actor_id,int(current.guide_floor),current.queue_cell):return
+	if current.phase=="to_counter":_release_counter(world,visit,current)
+	for field: String in ["queue_seq","queue_cell","queue_bank_key","queue_arrived_tick","queue_desk_id","nurse_id","remaining_ticks","started_tick"]:current.erase(field)
+	current.phase="seek"
+	_queue_batches.clear()
+
+func _queue_participating(world: WorldState, current: Dictionary) -> bool:
+	_observe_queue_departure(world,current)
+	var visit: Dictionary=world.facts.visits.get(str(current.get("visit_id","")),{})
+	if visit.is_empty() or world.facts.get("waiting_life",{}).get("needs",{}).has(visit.id):return false
+	if current.get("phase","")!="desk_queue" or not current.get("queue_attending",false) or current.get("queue_bank_key","")!=_queue_bank_key(world,str(current.desk_id)):return false
+	var move: Dictionary=world.facts.moves.get(visit.actor_id,{})
+	if not move.is_empty():
+		if move.get("floor_guidance_key","")!=current.request_key:current.queue_attending=false;return false
+		return move.get("floor_guidance_queue_advance","")==current.queue_bank_key
+	# Admission persists during a queue re-layout before this actor's next
+	# callback. It is distinct from a patient returning from a life need.
+	var actor: Dictionary=world.facts.actors[visit.actor_id]
+	return actor.location.kind=="floor" and int(actor.location.floor_id)==int(current.guide_floor)
+
 func _queue_present(world: WorldState, current: Dictionary) -> bool:
-	# The number survives a same-desk interruption, but it blocks others
-	# only while its patient is really waiting at this desk's current point.
+	# Staffing pauses preserve a present queue; a patient who actually leaves
+	# must arrive at the then-current tail again before receiving a new number.
 	# Read live facts here, not a phase another visit must update first.
 	if current.get("phase","")!="desk_queue" or not current.has("queue_cell"): return false
 	var visit: Dictionary = world.facts.visits.get(str(current.get("visit_id","")),{})
 	if visit.is_empty() or world.facts.get("waiting_life",{}).get("needs",{}).has(visit.id): return false
 	var actor_id: String = str(visit.actor_id)
 	var floor_id: int = int(current.guide_floor)
-	return not world.facts.moves.has(actor_id) and space.at(world,actor_id,floor_id,current.queue_cell) and scope.allows(world,actor_id,str(current.desk_id),floor_id,current.queue_cell)
+	var point: Dictionary=_queue_point(world,actor_id,str(current.desk_id),visit.id)
+	return not point.is_empty() and point.cell==current.queue_cell and not world.facts.moves.has(actor_id) and space.at(world,actor_id,floor_id,current.queue_cell)
 
 func _approach_desk(world: WorldState, visit: Dictionary, ticket: Dictionary, current: Dictionary) -> bool:
+	_observe_queue_departure(world,current)
 	var floor_id: int = int(current.guide_floor)
-	if not _desk_open(world,str(current.desk_id)) or int(world.facts.facilities.get(str(current.desk_id),{}).get("floor_id",0))!=floor_id:
+	var selected: String=str(current.desk_id)
+	if _desk_open(world,selected) and int(world.facts.facilities[selected].floor_id)==floor_id and not _desk_usable(world,selected) and current.has("queue_seq"):
+		# Temporary staffing loss pauses this bank, not its actual queue order.
+		visit.waiting_reason="本层导诊台尚未启用，等待护士实际到岗，保留原队序"
+		return false
+	if not _desk_usable(world,str(current.desk_id)) or int(world.facts.facilities.get(str(current.desk_id),{}).get("floor_id",0))!=floor_id:
 		_change_desk(world,visit,current,"")
 		var options: Array = []
 		for id: String in world.facility_ids("SE01"):
-			if not _desk_open(world,id) or int(world.facts.facilities[id].floor_id)!=floor_id: continue
-			var point: Dictionary = scope.point(world,visit.actor_id,id)
-			if point.is_empty(): continue
+			if not _desk_usable(world,id) or int(world.facts.facilities[id].floor_id)!=floor_id: continue
+			var point: Dictionary = _queue_point(world,visit.actor_id,id)
 			var count: int = 0
 			for row: Dictionary in world.facts.floor_guidance.visits.values():
 				if row.get("desk_id","")==id and row.get("phase","") in ["desk_queue","to_counter","working"]: count += 1
 			options.append({"id":id,"point":point,"count":count})
-		options.sort_custom(func(a: Dictionary,b: Dictionary)->bool: return a.count<b.count if a.count!=b.count else a.id<b.id)
+		options.sort_custom(func(a: Dictionary,b: Dictionary)->bool:
+			if a.point.is_empty()!=b.point.is_empty():return not a.point.is_empty()
+			return a.count<b.count if a.count!=b.count else a.id<b.id)
 		if options.is_empty():
-			if _reselect_unreachable_target(world,visit,current): return false
-			visit.waiting_reason = "%d层缺少可达导诊台或安全排队位置"%floor_id
+			var actor: Dictionary=world.facts.actors[visit.actor_id]
+			if actor.location.kind=="floor" and _has_own_single_move(world,visit.actor_id,current) and space.public_areas.safe_wait(world,visit.actor_id,int(actor.location.floor_id),actor.location.cell):_cancel_own_move(world,visit.actor_id,current)
+			visit.waiting_reason = "%d层暂无护士实际到岗的可用导诊台，保留待办"%floor_id
 			current.reason = visit.waiting_reason
 			return false
 		_change_desk(world,visit,current,str(options[0].id))
-		current.queue_cell = options[0].point.cell
+		if not options[0].point.is_empty():current.queue_cell = options[0].point.cell
 	if current.phase=="to_counter": return _gather_counter(world,visit,current)
-	if not current.has("queue_cell") or not scope.allows(world,visit.actor_id,str(current.desk_id),floor_id,current.queue_cell) or not space.public_areas.safe_wait(world,visit.actor_id,floor_id,current.queue_cell):
-		var point: Dictionary = scope.point(world,visit.actor_id,str(current.desk_id))
-		if point.is_empty():
-			if _reselect_unreachable_target(world,visit,current): return false
-			visit.waiting_reason = "本层导诊台前暂无安全排队位置"
-			return false
-		_cancel_own_move(world,visit.actor_id,current)
-		current.queue_cell = point.cell
-	if not space.at(world,visit.actor_id,floor_id,current.queue_cell) or world.facts.moves.has(visit.actor_id):
+	# Membership changes can move the tail while a patient approaches.
+	# Redirect its own leg through the same safe handoff as other guidance
+	# targets; no remote body/reservation scan or advance queue number.
+	var underway: Dictionary=world.facts.moves.get(visit.actor_id,{})
+	if current.get("queue_attending",false):
+		if current.get("queue_bank_key","")!=_queue_bank_key(world,str(current.desk_id)) or (not underway.is_empty() and underway.get("floor_guidance_key","")!=current.request_key):current.queue_attending=false
+	var point: Dictionary=_queue_point(world,visit.actor_id,str(current.desk_id),visit.id)
+	if not current.has("queue_seq") and (point.is_empty() or not QueueEntry.capacity_available(space,world,self,visit.actor_id,str(current.desk_id))):
+		if _wait_outside_queue(world,visit,current):return false
+	if point.is_empty():
+		# Do not funnel every already-travelling patient into a full bank.
+		# Stop only our own journey on actually safe public ground, never in
+		# a doorway, on another actor, or during a convoy handoff.
+		var actor: Dictionary=world.facts.actors[visit.actor_id]
+		if actor.location.kind=="floor" and _has_own_single_move(world,visit.actor_id,current) and space.public_areas.safe_wait(world,visit.actor_id,int(actor.location.floor_id),actor.location.cell):_cancel_own_move(world,visit.actor_id,current)
+		visit.waiting_reason="本层导诊队列已满，等待队尾空位"
+		return false
+	if not space.at(world,visit.actor_id,floor_id,point.cell) or world.facts.moves.has(visit.actor_id):
 		visit.waiting_reason = "正在前往%d层导诊台，尚未入队"%floor_id
-		_move(world,visit,current,floor_id,current.queue_cell)
+		_move(world,visit,current,floor_id,point.cell)
+		var accepted: Dictionary=world.facts.moves.get(visit.actor_id,{})
+		if accepted.get("floor_guidance_key","")==current.request_key and accepted.get("target_cell",[])==point.cell and int(accepted.get("target_floor",0))==floor_id:
+			current.queue_cell=point.cell
+			if current.get("queue_attending",false):accepted.floor_guidance_queue_advance=_queue_bank_key(world,str(current.desk_id))
+		return false
+	current.queue_cell=point.cell
+	if not _queue_admission_clear(world,visit.actor_id,floor_id,current.queue_cell):
+		visit.waiting_reason="导诊队尾尚未空出"
 		return false
 	if not current.has("queue_seq"):
 		world.facts.floor_guidance.next_arrival += 1
@@ -354,10 +559,12 @@ func _approach_desk(world: WorldState, visit: Dictionary, ticket: Dictionary, cu
 		current.queue_desk_id = current.desk_id
 		current.queue_arrived_tick = world.sim_tick
 	current.phase = "desk_queue"
+	current.queue_attending=true
+	current.queue_bank_key=_queue_bank_key(world,str(current.desk_id))
 	current.reason = ""
 	for other: Dictionary in world.facts.floor_guidance.visits.values():
 		if other.visit_id==visit.id or other.get("desk_id","")!=current.desk_id or world.facts.get("waiting_life",{}).get("needs",{}).has(other.visit_id): continue
-		if other.get("phase","") in ["to_counter","working"] or other.has("queue_seq") and int(other.queue_seq)<int(current.queue_seq) and _queue_present(world,other):
+		if other.get("phase","") in ["to_counter","working"] or other.has("queue_seq") and int(other.queue_seq)<int(current.queue_seq) and _queue_participating(world,other):
 			visit.waiting_reason = "本层导诊排队，尚未进入目的地队列"
 			return false
 	var desk: Dictionary = world.facts.floor_guidance.desks.get(current.desk_id,{})
@@ -382,6 +589,25 @@ func _approach_desk(world: WorldState, visit: Dictionary, ticket: Dictionary, cu
 	current.phase = "to_counter"
 	return _gather_counter(world,visit,current)
 
+# Exterior waiting uses only existing movement ownership and present geometry.
+# No queue number, remote place reservation or additional waiting state exists.
+func _wait_outside_queue(world: WorldState, visit: Dictionary, current: Dictionary) -> bool:
+	var context: Dictionary=QueueEntry.context(space,world,str(current.desk_id))
+	var actor: Dictionary=world.facts.actors[visit.actor_id]
+	if context.is_empty() or actor.location.kind!="floor" or int(actor.location.floor_id)!=int(context.floor_id):return false
+	var move: Dictionary=world.facts.moves.get(visit.actor_id,{})
+	if not move.is_empty() and move.get("floor_guidance_key","")==current.request_key and int(move.target_floor)==int(context.floor_id) and QueueWait.allowed(space,world,visit.actor_id,context,move.target_cell):
+		visit.waiting_reason="导诊排队区域已满，正在区域外安全候位"
+		return true
+	var point: Dictionary=QueueWait.choose(space,world,visit.actor_id,context)
+	if point.is_empty():
+		visit.waiting_reason="导诊区域已满且附近暂无安全候位空间，保留待办"
+		return true
+	if space.at(world,visit.actor_id,int(point.floor_id),point.cell):_cancel_own_move(world,visit.actor_id,current)
+	else:_move(world,visit,current,int(point.floor_id),point.cell)
+	visit.waiting_reason="导诊排队区域已满，在区域外安全候位"
+	return true
+
 func _gather_counter(world: WorldState, visit: Dictionary, current: Dictionary) -> bool:
 	var layout: Dictionary = space.facility_layout(world,str(current.desk_id))
 	var nurse: String = str(current.nurse_id)
@@ -404,6 +630,9 @@ func _gather_counter(world: WorldState, visit: Dictionary, current: Dictionary) 
 
 func _move(world: WorldState, visit: Dictionary, current: Dictionary, floor_id: int, cell: Array) -> void:
 	var movement: Dictionary = world.facts.moves.get(visit.actor_id,{})
+	if not movement.is_empty() and movement.get("floor_guidance_key","")==current.request_key and (int(movement.get("target_floor",floor_id))!=floor_id or movement.get("target_cell",[])!=cell):
+		_cancel_own_move(world,visit.actor_id,current)
+		movement=world.facts.moves.get(visit.actor_id,{})
 	if not movement.is_empty():
 		if movement.get("floor_guidance_key","")==current.request_key:
 			# Movement owns safe retry/landing state. Only its current verified
@@ -444,9 +673,20 @@ func _reselect_unreachable_target(world: WorldState, visit: Dictionary, current:
 	current.reason = visit.waiting_reason
 	return true
 
+func _has_own_single_move(world: WorldState, actor_id: String, current: Dictionary) -> bool:
+	var move: Dictionary=world.facts.moves.get(actor_id,{})
+	return not move.is_empty() and move.get("floor_guidance_key","")==current.get("request_key","") and not move.has("convoy")
+
 func _cancel_own_move(world: WorldState, actor_id: String, current: Dictionary) -> void:
 	var move: Dictionary = world.facts.moves.get(actor_id,{})
-	if move.get("floor_guidance_key","")==current.get("request_key","") and not move.has("detour") and not move.has("convoy"): space.cancel_ground_move(world,actor_id)
+	if move.get("floor_guidance_key","")!=current.get("request_key","") or move.has("convoy"): return
+	if move.has("detour"):
+		var actor: Dictionary=world.facts.actors[actor_id]
+		if actor.location.kind!="floor" or not space.public_areas.safe_wait(world,actor_id,int(actor.location.floor_id),actor.location.cell): return
+	# A single actor already standing on safe public ground can hand off its
+	# old detour. Otherwise a newly occupied destination could keep an obsolete
+	# move alive forever while the guidance owner repeatedly chooses a new one.
+	space.cancel_ground_move(world,actor_id)
 
 func _approach_destination(world: WorldState, visit: Dictionary, ticket: Dictionary, current: Dictionary) -> bool:
 	if not _target_valid(world,visit,ticket,str(current.target_id)):
@@ -560,6 +800,7 @@ static func owns_reservation(world: WorldState, reservation: Dictionary) -> bool
 
 func pause_for_need(world: WorldState, visit: Dictionary) -> void:
 	var current: Dictionary = state(world,visit.id)
+	if not current.is_empty():current.queue_attending=false
 	if current.get("phase","")=="to_counter":
 		_release_counter(world,visit,current)
 		current.phase = "desk_queue"

@@ -27,6 +27,12 @@ class RecordingMovement extends HospitalMovement:
 class CourtesyProbe extends HospitalMovement:
 	var local_detours: int = 0
 	var goal_queries: int = 0
+	# Literal ownership fixture: never run real geometry on its partial world.
+	var next_step_clear: bool = true
+	var next_step_probes: Array = []
+	func _detour_path_clear(_world: WorldState, actor: Dictionary, _movement: Dictionary, path: Array, _query: RouteClearance = null, _proof: Dictionary = {}) -> bool:
+		next_step_probes.append({"actor":actor.id,"path":path.duplicate(true),"controlled_clear":next_step_clear})
+		return next_step_clear
 	func _init(geometry: HospitalSpace) -> void:
 		super(geometry)
 	func _start_detour(_world: WorldState, _actor: Dictionary, _movement: Dictionary) -> void:
@@ -44,7 +50,8 @@ func run(suite: RefCounted) -> Dictionary:
 	var movement: Dictionary = _actual_movement(suite)
 	var group: Dictionary = _actual_group(suite)
 	var door: Dictionary = _door_wait(suite)
-	return {"ok":contacts.ok and courtesy.ok and movement.ok and group.ok and door.ok,"literal_contacts":contacts,"courtesy_handoff":courtesy,"actual_movement":movement,"actual_group":group,"door_wait":door}
+	var real_next: Dictionary = _real_next_step_geometry(suite)
+	return {"ok":contacts.ok and courtesy.ok and movement.ok and group.ok and door.ok and real_next.ok,"real_next_step_geometry":real_next,"literal_contacts":contacts,"courtesy_handoff":courtesy,"actual_movement":movement,"actual_group":group,"door_wait":door}
 
 func _literal_contacts(suite: RefCounted) -> Dictionary:
 	var cases: Array[Dictionary] = [
@@ -127,16 +134,21 @@ func _courtesy_handoff(suite: RefCounted) -> Dictionary:
 	var primary: bool = result.blocker_actor_ids==["secondary"] and probe._movement_owners(world,result.blocker_actor_ids)==["z_primary"] and probe.local_detours==1
 	var no_partner_requery: bool = index.queries==probe.goal_queries
 	world.facts.moves.z_primary.cursor = 0
+	world.facts.moves.z_primary.path = [{"kind":"floor","floor_id":1,"cell":[12.25,8]}]
 	world.facts.moves.z_primary.detour = {"prefix_size":1}
 	probe._yield(world,world.facts.actors.probe,movement,result)
-	var only_one_detour: bool = probe.local_detours==1
+	var only_one_detour: bool = probe.local_detours==1 and probe.next_step_probes.size()==1 and probe.next_step_probes[0].controlled_clear
+	probe.next_step_clear=false
+	probe._yield(world,world.facts.actors.probe,movement,result)
+	var obstructed_owner_not_lock: bool=probe.local_detours==2 and probe.next_step_probes.size()==2 and not probe.next_step_probes[1].controlled_clear
+	probe.next_step_clear=true
 	world.facts.moves.z_primary.cursor = 1
 	probe._yield(world,world.facts.actors.probe,movement,result)
-	var completed_prefix_not_lock: bool = probe.local_detours==2
+	var completed_prefix_not_lock: bool = probe.local_detours==3
 	world.facts.moves.z_primary.erase("detour")
 	world.facts.moves.nearby_primary.detour = {}
 	probe._yield(world,world.facts.actors.probe,movement,result)
-	var unrelated_not_owner: bool = probe.local_detours==3
+	var unrelated_not_owner: bool = probe.local_detours==4
 	# Ownership follows the current journey, not a stale per-phase mapping.
 	probe._phase_owners["secondary"] = "z_primary"
 	world.facts.moves.erase("z_primary")
@@ -148,8 +160,8 @@ func _courtesy_handoff(suite: RefCounted) -> Dictionary:
 	var reservation_result: HospitalMovement.MotionResult = HospitalMovement.MotionResult.new()
 	reservation_result.reservation_ids.append("reservation_only")
 	probe._yield(world,world.facts.actors.probe,movement,reservation_result)
-	var reservation_not_body: bool = probe._movement_owners(world,reservation_result.blocker_actor_ids).is_empty() and probe.local_detours==4
-	return {"ok":primary and no_partner_requery and only_one_detour and completed_prefix_not_lock and unrelated_not_owner and new_single_owner and changed_group_owner and reservation_not_body,"actual_hit_maps_to_current_group":primary,"one_actual_blocker_detours":only_one_detour,"finished_prefix_is_not_permanent_precedence":completed_prefix_not_lock,"noncontact_detour_does_not_claim_precedence":unrelated_not_owner,"contact_handoff_without_partner_requery":no_partner_requery,"new_single_trip_overrides_old_group":new_single_owner,"removed_member_does_not_keep_old_owner":changed_group_owner,"reservation_owner_not_treated_as_body":reservation_not_body}
+	var reservation_not_body: bool = probe._movement_owners(world,reservation_result.blocker_actor_ids).is_empty() and probe.local_detours==5
+	return {"ok":primary and no_partner_requery and only_one_detour and obstructed_owner_not_lock and completed_prefix_not_lock and unrelated_not_owner and new_single_owner and changed_group_owner and reservation_not_body,"scope":"Literal collision/ownership fixture with explicitly controlled clear and blocked next-step predicates; not a whole-world movement test","next_step_probes":probe.next_step_probes,"blocked_owner_is_not_precedence":obstructed_owner_not_lock,"actual_hit_maps_to_current_group":primary,"one_actual_blocker_detours":only_one_detour,"finished_prefix_is_not_permanent_precedence":completed_prefix_not_lock,"noncontact_detour_does_not_claim_precedence":unrelated_not_owner,"contact_handoff_without_partner_requery":no_partner_requery,"new_single_trip_overrides_old_group":new_single_owner,"removed_member_does_not_keep_old_owner":changed_group_owner,"reservation_owner_not_treated_as_body":reservation_not_body}
 
 func _actual_movement(suite: RefCounted) -> Dictionary:
 	var sim: HospitalSimulation = suite._fixture()
@@ -216,19 +228,28 @@ func _door_wait(suite: RefCounted) -> Dictionary:
 	var door: Dictionary = suite._doors(sim.world,"motion_door_room")[0]
 	var x: float = float(door.cell[0])
 	var y: float = float(door.cell[1])
-	suite._add_actor(sim,"door_owner","S49",[x,y+0.1])
-	suite._add_actor(sim,"door_waiter","S49",[x,y+1.1])
+	suite._add_actor(sim,"door_owner","S01",[x,y-1])
+	var owner_body: Rect2=sim.space._actor_rect(sim.world.facts.actors.door_owner,Vector2.ZERO)
+	# Keep the expanded owner's body actually in the door but 0.2 cells
+	# inside its south edge, so the waiter meets the reservation before body.
+	var opening: Rect2=sim.space._door_rect(door,int(door.span))
+	sim.world.facts.actors.door_owner.location.cell=[x,opening.end.y-0.2-owner_body.end.y]
+	sim.space.sync_actor(sim.world,"door_owner")
+	suite._add_actor(sim,"door_waiter","S49",[x,y+3])
 	var recording: RecordingMovement = RecordingMovement.new(sim.space)
 	sim.space.movement = recording
 	var acquisition: HospitalMovement.MotionResult = HospitalMovement.MotionResult.new()
 	var owner: Dictionary = sim.world.facts.actors.door_owner
-	# The owner is physically inside this opening. Acquire its normal door
-	# permission; no transit, arrival, work or release is marked complete.
-	var acquired: bool = recording._reserve_doors(sim.world,owner,{"actor_id":"door_owner","members":["door_owner"]},sim.space.body_rectangle(owner),[door],acquisition)
+	# Actual width AND height adaptation retains exclusive reservation.
+	# Ordinary unexpanded single-person passage is covered separately.
+	var quote: Dictionary=sim.space.door_quote(sim.world,owner,1,door)
+	var admitted: bool=recording._reserve_doors(sim.world,owner,{"actor_id":"door_owner","members":["door_owner"]},sim.space.body_rectangle(owner),[door],acquisition)
+	var held: Dictionary=sim.world.facts.adaptations.get(door.id,{}).duplicate(true)
+	var acquired: bool=admitted and quote.get("ok",false) and int(quote.get("span",0))>int(door.span) and float(quote.get("clear_height_m",0))>float(door.clear_height_m) and held.get("actor_id","")=="door_owner" and int(held.get("span",0))==int(quote.get("span",0)) and float(held.get("clear_height_m",0))==float(quote.get("clear_height_m",0)) and sim.space.body_rectangle(owner).intersects(opening,false)
 	var requested: String = sim.space.request_move(sim.world,"door_waiter",1,[x,y-2])
 	var observed: bool = false
 	var blocked: Dictionary = {}
-	for tick: int in 10:
+	for tick: int in 30:
 		var previous: Array = sim.world.facts.actors.door_waiter.location.cell.duplicate()
 		suite._movement_tick(sim)
 		var sample: Dictionary = recording.results.get("door_waiter",{})
@@ -238,7 +259,7 @@ func _door_wait(suite: RefCounted) -> Dictionary:
 			break
 	var leave: String = sim.space.request_move(sim.world,"door_owner",1,[x+2,y-2])
 	var resumed: bool = suite._wait(sim,func()->bool:return not sim.world.facts.moves.has("door_waiter") and sim.space.at(sim.world,"door_waiter",1,[x,y-2]),240,suite._movement_tick.bind(sim))
-	var result: Dictionary = {"ok":door.axis=="x" and acquired and requested.is_empty() and observed and leave.is_empty() and resumed,"door_id":door.id,"normal_owner_acquisition":acquired,"request_error":requested,"blocked_door_result":blocked,"door_wait_without_displacement":observed,"owner_departure_error":leave,"actual_arrival_after_owner_left":resumed}
+	var result: Dictionary = {"ok":door.axis=="x" and acquired and requested.is_empty() and observed and leave.is_empty() and resumed,"door_id":door.id,"expanded_owner_acquisition":acquired,"actual_reservation":held,"expansion_quote":quote,"request_error":requested,"blocked_door_result":blocked,"door_wait_without_displacement":observed,"owner_departure_error":leave,"actual_arrival_after_owner_left":resumed}
 	sim.dispose()
 	return result
 
@@ -250,3 +271,31 @@ func _sweep(id: String, from: Rect2, to: Rect2) -> BodyIndex.Record:
 	record.sweep_from = from
 	record.sweep_to = to
 	return record
+
+# Separate real HospitalSpace geometry, no LiteralSpace or overridden predicate.
+# These are legal initial placements, not an assertion that transit occurred.
+# The sealed-retreat fixture in incremental_detour additionally runs real ticks.
+func _real_next_step_geometry(suite: RefCounted) -> Dictionary:
+	var rows: Array=[]
+	var ok: bool=true
+	for blocked: bool in [false,true]:
+		var sim: HospitalSimulation=suite._fixture()
+		suite._add_actor(sim,"real_owner","S49",[35,70])
+		var actor: Dictionary=sim.world.facts.actors.real_owner
+		var origin:=Vector2(35,70)
+		var body: Rect2=sim.space.body_rectangle(actor)
+		if blocked:
+			# A 0.01 physical gap is clear initially but crossed by the real
+			# 0.1-second movement budget. No body starts inside another.
+			suite._add_actor(sim,"real_blocker","S49",[body.end.x+0.01-(body.position.x-origin.x),70])
+		var request: String=sim.space.request_move(sim.world,"real_owner",1,[40,70])
+		var move: Dictionary=sim.world.facts.moves.get("real_owner",{})
+		var next: Vector2=sim.space.movement._step_toward(origin,Vector2(40,70),sim.space.walking_speed(actor)*WorldState.TICK_SECONDS)
+		var before: Dictionary=sim.world.freeze()
+		var clear: bool=sim.space.movement._detour_path_clear(sim.world,actor,move,[{"kind":"floor","floor_id":1,"cell":[next.x,next.y]}])
+		var no_overlap: bool=not blocked or not body.intersects(sim.space.body_rectangle(sim.world.facts.actors.real_blocker),false)
+		var passed: bool=request.is_empty() and clear==(not blocked) and no_overlap and sim.world.freeze()==before
+		rows.append({"blocked_setup":blocked,"actual_next_step_clear":clear,"no_initial_overlap":no_overlap,"facts_unchanged":sim.world.freeze()==before,"request_error":request,"ok":passed})
+		ok=ok and passed
+		sim.dispose()
+	return {"ok":ok,"cases":rows,"scope":"Real structural/body next-step predicate, not complete gameplay; real interruption and completion covered by incremental_detour."}

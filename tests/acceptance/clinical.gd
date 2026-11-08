@@ -958,12 +958,21 @@ func _case_32(t) -> void:
 		return relative.location.kind=="outside" and _visitor(refusing).is_empty(),900)
 	var pending: Dictionary = _copy("ward_entered")
 	_remove_waiting_chairs(pending.world)
+	# No seats still permits standing admission. Use a real unavailable
+	# entrance to retain an unadmitted request, then restore it before retry.
+	var original_entry: Dictionary = pending.world.facts.entry.duplicate(true)
+	pending.world.facts.entry.cell = [0,0]
+	pending.world.touch(false)
 	_command(pending,"clinical_visit_consent",{"visit_id":pending.visit_id,"allow":true})
 	_seed_stream(pending.world,"arrival",true,false,5000,5000)
+	var pending_input_valid: bool = pending.world.validate(_content).is_empty()
 	var had_request: bool = await _until(t,pending,func()->bool: return not pending.world.facts.visitors.requests.is_empty(),100)
+	var unadmitted: bool = pending.world.facts.visitors.stays.is_empty()
 	_command(pending,"clinical_visit_consent",{"visit_id":pending.visit_id,"allow":false})
+	pending.world.facts.entry = original_entry
+	pending.world.touch(false)
 	await _steps(t,pending,50)
-	var cancelled_request: bool = had_request and pending.world.facts.visitors.requests.is_empty() and pending.world.facts.visitors.stays.is_empty()
+	var cancelled_request: bool = pending_input_valid and unadmitted and had_request and pending.world.facts.visitors.requests.is_empty() and pending.world.facts.visitors.stays.is_empty()
 	var leaving: Dictionary = _copy("companion_entered")
 	var relative_id: String = str(_visitor(leaving).actor_id)
 	var safe_boundary: bool = await _until(t,leaving,func()->bool: return str(_visit(leaving).get("phase","")).begins_with("wait_") and leaving.world.facts.sessions.is_empty(),1000)

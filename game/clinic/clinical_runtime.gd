@@ -260,6 +260,9 @@ func dispatch(world: WorldState) -> void:
 		elif visit.phase == "leaving":
 			var exit_cell: Array = space.exit_cell(world,world.facts.actors[visit.actor_id])
 			if space.at(world,visit.actor_id,1,exit_cell):
+				# Reaching the exit can occur during a local return leg. End its
+				# real ground journey before the actor leaves the floor.
+				if not space.cancel_ground_move(world,visit.actor_id): continue
 				world.facts.actors[visit.actor_id].location = {"kind":"outside"}
 				space.sync_actor(world,visit.actor_id)
 				visit.phase = "departed"

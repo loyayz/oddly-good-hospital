@@ -164,9 +164,19 @@ func _waiting_view(world: WorldState) -> Dictionary:
 		view.actors[floor_id].append(actor)
 	# Resolve ownership from current source doors, including saved orders whose
 	# member_ids contain rooms but not their doors. Movement owns their release.
-	for layout: Dictionary in world.facts.floors.overrides.values():
+	for floor_key: Variant in world.facts.floors.overrides:
+		var layout: Dictionary = world.facts.floors.overrides[floor_key]
 		for door: Dictionary in layout.get("doors",[]):
-			if world.facts.adaptations.has(door.id): view.occupied_door_rooms[door.room_id] = true
+			if world.facts.adaptations.has(door.id):
+				view.occupied_door_rooms[door.room_id] = true
+				continue
+			# Ordinary passage need not own the whole doorway. Remodeling still
+			# waits for actual bodies to leave the source opening.
+			var opening: Rect2 = space._door_rect(door,int(door.span))
+			for actor: Dictionary in view.actors.get(int(floor_key),[]):
+				if space.body_rectangle(actor).intersects(opening,false):
+					view.occupied_door_rooms[door.room_id] = true
+					break
 	return view
 
 func waiting_all(world: WorldState) -> Dictionary:

@@ -67,6 +67,16 @@ func preview(world: WorldState, kind: String, payload: Dictionary) -> Dictionary
 		if kind=="connector_build": candidate.facts.connectors[id].paid_cost = 0
 	if HospitalLedger.balance(world)<price: return BuildGeometry.failure("资金不足，原连接保持")
 	var builder: BuildService = BuildService.new(content,space)
+	# The same static queue clearance applies to connector construction, not
+	# just furniture edits. Validate before committing any payment or geometry.
+	if kind in ["connector_build","connector_extend"]:
+		var checked: Dictionary={}
+		for desk: Dictionary in candidate.facts.facilities.values():
+			var floor_id: int=int(desk.floor_id)
+			if desk.get("definition_id","")!="SE01" or checked.has(floor_id) or not HospitalTransit.has_stop(candidate.facts.connectors[id],floor_id):continue
+			checked[floor_id]=true
+			var clearance: Dictionary=builder.guidance_floor_error(candidate,floor_id)
+			if not clearance.ok:return clearance
 	var checker: HospitalSpace = HospitalSpace.new(content)
 	var previous_checker: HospitalSpace = HospitalSpace.new(content)
 	for actor: Dictionary in candidate.facts.actors.values():

@@ -18,6 +18,7 @@ var _envelope_next: int = 0
 var _route_queries: Array[Dictionary] = []
 var _reservation_views: Dictionary = {}
 var _facility_geometry: Dictionary = {}
+var guidance_queue_provider: WeakRef
 var movement: HospitalMovement
 var navigation: HospitalNavigation
 var public_areas: HospitalPublicAreas
@@ -1024,6 +1025,8 @@ func grant_facility_access(world: WorldState, facility_id: String, staff_id: Str
 	reservation.staff_ids.append(staff_id)
 	_navigation.invalidate(world,int(reservation.floor_id))
 
+# Ordinary consultation posts remain usable while the same doctor stays at work.
+# Expanded bodies and every active service retain the original reservation rules.
 func ordinary_consultation_regions(facility: Dictionary) -> Array:
 	if facility.get("definition_id","")!="FUR02": return []
 	var cell: Array = facility.cell

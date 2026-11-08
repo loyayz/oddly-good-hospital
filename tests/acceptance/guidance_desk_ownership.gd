@@ -11,11 +11,11 @@ func run_desk_cases(database: HospitalContent, selected: Array = []) -> Dictiona
 
 func _life_change_desk(close_desk: bool = false, save_return: bool = false) -> Dictionary:
 	var x: Dictionary = _base()
-	x.world.facts.staff.guide_nurse.on_shift = false
 	_facility(x,"water","FUR17",[54,89])
 	x.m.ensure(x.world)
 	x.world.touch()
-	var visit: Dictionary = _visit(x,"returning",[40,88])
+	var visit: Dictionary = _visit(x,"returning",[49,86])
+	var admission: Dictionary = _admit_then_pause(x,visit)
 	var ticket_id: String = visit.ticket_id
 	var input_validation: String = x.world.validate(_content)
 	for tick: int in 600:
@@ -42,8 +42,13 @@ func _life_change_desk(close_desk: bool = false, save_return: bool = false) -> D
 	var new_point_local: bool = true
 	var no_remote_new_priority: bool = true
 	var returned: bool = false
+	var actual_new_arrival: bool = false
+	var admission_evidence: Dictionary = {}
 	var evidence: Array = []
 	for tick: int in 1200:
+		var before_location: Dictionary = x.world.facts.actors[visit.actor_id].location.duplicate(true)
+		var before_stopped: bool = not x.world.facts.moves.has(visit.actor_id)
+		var before_seq: int = int(x.g.state(x.world,visit.id).get("queue_seq",-1))
 		_step(x)
 		var need: Dictionary = x.world.facts.waiting_life.needs.get(visit.id,{})
 		var current: Dictionary = x.g.state(x.world,visit.id)
@@ -54,9 +59,10 @@ func _life_change_desk(close_desk: bool = false, save_return: bool = false) -> D
 			if not changed:
 				removal = remodel.execute(x.world,"remodel_prepare",{"commands":[{"kind":"build_move","target_id":"guide","cell":[47,81],"floor_id":1}]}).to_record() if close_desk else build.execute(x.world,"build_demolish",{"target_id":"guide"}).to_record()
 				creation = build.execute(x.world,"build_facility",{"id":"guide_b","definition_id":"SE01","cell":[55,83],"floor_id":1}).to_record()
+				x.world.facts.staff.guide_nurse.on_shift = true
 				other = _visit(x,"already_at_b",[58,86])
 				changed = true
-		if not other.is_empty(): other_seq = int(x.g.state(x.world,other.id).get("queue_seq",-1))
+		if not other.is_empty() and x.g.state(x.world,other.id).has("queue_seq"): other_seq = int(x.g.state(x.world,other.id).queue_seq)
 		if current.get("desk_id","")=="guide_b":
 			if switch_state.is_empty():
 				switch_state = current.duplicate(true)
@@ -71,14 +77,19 @@ func _life_change_desk(close_desk: bool = false, save_return: bool = false) -> D
 					need = x.world.facts.waiting_life.needs.get(visit.id,{})
 			old_privilege_cleared = old_privilege_cleared and int(current.get("queue_seq",-1))!=int(old.get("queue_seq",-2))
 			if current.has("queue_cell"): new_point_local = new_point_local and x.g.scope.allows(x.world,visit.actor_id,"guide_b",1,current.queue_cell)
-			if current.has("queue_seq"): no_remote_new_priority = no_remote_new_priority and current.has("queue_cell") and x.space.at(x.world,visit.actor_id,1,current.queue_cell) and not x.world.facts.moves.has(visit.actor_id)
+			if current.has("queue_seq") and int(current.queue_seq)!=before_seq:
+				# Admission can immediately start a real counter journey in this
+				# same step. Prove arrival from its actual pre-step position,
+				# not a fabricated requirement that it remain frozen afterward.
+				actual_new_arrival = before_stopped and before_location.kind=="floor" and int(before_location.floor_id)==1 and Vector2(float(before_location.cell[0]),float(before_location.cell[1])).distance_to(Vector2(float(current.queue_cell[0]),float(current.queue_cell[1])))<0.001
+				no_remote_new_priority = no_remote_new_priority and actual_new_arrival
+				admission_evidence = {"tick":x.world.sim_tick,"before_location":before_location,"before_stopped":before_stopped,"queue_cell":current.queue_cell.duplicate(),"new_seq":current.queue_seq,"prior_seq":before_seq,"at_tolerance":0.001,"actual":actual_new_arrival}
 		if evidence.is_empty() or evidence.back().need!=need.get("phase","") or evidence.back().desk!=current.get("desk_id",""):
 			evidence.append({"tick":x.world.sim_tick,"need":need.get("phase",""),"desk":current.get("desk_id",""),"seq":current.get("queue_seq",-1),"location":x.world.facts.actors[visit.actor_id].location.duplicate(true)})
-		if changed and need.is_empty() and current.get("phase","")=="desk_queue" and current.get("desk_id","")=="guide_b" and not x.world.facts.moves.has(visit.actor_id): returned = true;break
+		if changed and need.is_empty() and current.has("queue_seq") and current.get("desk_id","")=="guide_b" and actual_new_arrival: returned = true;break
 	var final: Dictionary = x.g.state(x.world,visit.id).duplicate(true)
-	var actual_new_arrival: bool = final.has("queue_cell") and x.space.at(x.world,visit.actor_id,1,final.queue_cell) and x.g.scope.allows(x.world,visit.actor_id,"guide_b",1,final.queue_cell)
 	var correct_order: bool = other_seq>int(old.get("queue_seq",-1)) and int(final.get("queue_seq",-1))>other_seq
-	var row: Dictionary = {"case":"GUIDE-LIFE-CHANGE-DESK-JSON" if save_return else ("GUIDE-LIFE-CLOSED-DESK" if close_desk else "GUIDE-LIFE-CHANGE-DESK"),"json_new_instance":restored,"ok":restored and input_validation.is_empty() and old.get("phase","")=="desk_queue" and removal.get("accepted",false) and creation.get("accepted",false) and using_actual and using_ticks>=79 and returned and switch_before_arrival and old_privilege_cleared and new_point_local and no_remote_new_priority and actual_new_arrival and correct_order and visit.ticket_id==ticket_id and x.world.validate(_content).is_empty(),"input_validation":input_validation,"old_state":old,"removal":removal,"creation":creation,"actual_water_use":using_actual,"using_ticks":using_ticks,"switch_before_new_desk_arrival":switch_before_arrival,"switch_state":switch_state,"old_privilege_cleared":old_privilege_cleared,"new_point_local":new_point_local,"no_remote_new_priority":no_remote_new_priority,"actual_new_arrival":actual_new_arrival,"other_seq":other_seq,"correct_new_queue_order":correct_order,"returned":returned,"same_clinical_ticket":visit.ticket_id==ticket_id,"final":final,"trace":evidence,"validation":x.world.validate(_content)}
+	var row: Dictionary = {"case":"GUIDE-LIFE-CHANGE-DESK-JSON" if save_return else ("GUIDE-LIFE-CLOSED-DESK" if close_desk else "GUIDE-LIFE-CHANGE-DESK"),"json_new_instance":restored,"ok":admission.ok and restored and input_validation.is_empty() and old.get("phase","")=="desk_queue" and removal.get("accepted",false) and creation.get("accepted",false) and using_actual and using_ticks>=79 and returned and switch_before_arrival and old_privilege_cleared and new_point_local and no_remote_new_priority and actual_new_arrival and correct_order and visit.ticket_id==ticket_id and x.world.validate(_content).is_empty(),"input_validation":input_validation,"old_state":old,"removal":removal,"creation":creation,"actual_water_use":using_actual,"using_ticks":using_ticks,"switch_before_new_desk_arrival":switch_before_arrival,"switch_state":switch_state,"old_privilege_cleared":old_privilege_cleared,"new_point_local":new_point_local,"no_remote_new_priority":no_remote_new_priority,"actual_new_arrival":actual_new_arrival,"admission_evidence":admission_evidence,"other_seq":other_seq,"correct_new_queue_order":correct_order,"returned":returned,"same_clinical_ticket":visit.ticket_id==ticket_id,"final":final,"trace":evidence,"validation":x.world.validate(_content)}
 	_dispose(x);return row
 
 func _rejects_unchanged(world: WorldState) -> bool:
@@ -154,7 +165,7 @@ func _desk_staff_pause() -> Dictionary:
 		_scheduled_step(x)
 		if x.g.state(x.world,visit.id).get("phase","")=="to_counter": break
 	var before: Dictionary = x.g.state(x.world,visit.id).duplicate(true)
-	var before_work: bool = before.get("phase","")=="to_counter" and not before.has("remaining_ticks") and not x.space.at(x.world,"guide_nurse",1,x.space.guidance_operator_cell(x.world,"guide","guide_nurse"))
+	var before_work: bool = before.get("phase","")=="to_counter" and not before.has("remaining_ticks") and x.space.at(x.world,"guide_nurse",1,x.space.guidance_operator_cell(x.world,"guide","guide_nurse")) and not x.world.facts.moves.has("guide_nurse")
 	var rest: CommandResult = x.s.execute(x.world,"apply_schedule",{"changes":[{"staff_id":"guide_nurse","schedule":_desk_schedule(true)}]})
 	var paused: bool = true
 	var queue_kept: bool = true
@@ -188,7 +199,7 @@ func _desk_staff_pause() -> Dictionary:
 	var final: Dictionary = x.g.state(x.world,"pause").duplicate(true)
 	var receipt: Dictionary = final.receipts[0] if not final.receipts.is_empty() else {}
 	var completed: bool = final.get("phase","")=="ready" and receipt.get("desk_id","")=="guide" and receipt.get("nurse_id","")=="replacement" and final.receipts.size()==1
-	var row: Dictionary = {"case":"GUIDE-DESK-STAFF-PAUSE","ok":input_validation.is_empty() and setup.accepted and before_work and rest.accepted and paused and queue_kept and saw_release and valid_boundaries and saved_pause and replacement.accepted and actual_work and work_ticks==60 and completed and x.world.validate(_content).is_empty(),"input_validation":input_validation,"counter_approach_before_nurse_arrival":before_work,"rest_command":rest.to_record(),"no_work_while_unstaffed":paused,"same_desk_queue_kept":queue_kept,"actual_nurse_release":saw_release,"all_pause_boundaries_valid":valid_boundaries,"pause_validation_errors":validation_errors,"paused_json_new_instance":saved_pause,"replacement_command":replacement.to_record(),"actual_patient_and_replacement_work":actual_work,"actual_work_ticks":work_ticks,"same_desk_completed_once":completed,"before":before,"paused":paused_snapshot,"final":final,"validation":x.world.validate(_content)}
+	var row: Dictionary = {"case":"GUIDE-DESK-STAFF-PAUSE","ok":input_validation.is_empty() and setup.accepted and before_work and rest.accepted and paused and queue_kept and saw_release and valid_boundaries and saved_pause and replacement.accepted and actual_work and work_ticks==60 and completed and x.world.validate(_content).is_empty(),"input_validation":input_validation,"counter_approach_only_after_nurse_arrival":before_work,"rest_command":rest.to_record(),"no_work_while_unstaffed":paused,"same_desk_queue_kept":queue_kept,"actual_nurse_release":saw_release,"all_pause_boundaries_valid":valid_boundaries,"pause_validation_errors":validation_errors,"paused_json_new_instance":saved_pause,"replacement_command":replacement.to_record(),"actual_patient_and_replacement_work":actual_work,"actual_work_ticks":work_ticks,"same_desk_completed_once":completed,"all_actors":x.world.facts.actors.duplicate(true),"replacement_location":x.world.facts.actors.replacement.location.duplicate(true),"replacement_move":x.world.facts.moves.get("replacement",{}).duplicate(true),"replacement_staff":x.world.facts.staff.replacement.duplicate(true),"desk_state":x.world.facts.floor_guidance.desks.get("guide",{}).duplicate(true),"release_state":x.world.facts.floor_guidance.releases.duplicate(true),"before":before,"paused":paused_snapshot,"final":final,"validation":x.world.validate(_content)}
 	_dispose(x);return row
 
 func _desk_close_active() -> Dictionary:

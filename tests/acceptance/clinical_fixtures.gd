@@ -620,7 +620,9 @@ func _remove_waiting_chairs(world: WorldState) -> void:
 func _companion_entry(t, report_case: bool = false) -> void:
 	var companion: Dictionary = _context(false,false,false)
 	_seed_stream(companion.world,"arrival",true,true,2500,5000)
-	var admitted: bool = _arrive(companion,"B_S13_D09_M09","P_D09_COMMON",true)
+	# Admission starts after the real nurse journey, not an assumed tick budget.
+	var guide_ready: bool = await _until(t,companion,func()->bool: return companion.sim.services.floor_guidance._desk_usable(companion.world,"floor_guidance_desk"),600)
+	var admitted: bool = guide_ready and _arrive(companion,"B_S13_D09_M09","P_D09_COMMON",true)
 	# Named pre-operation unavailable-entry boundary. No actor is relocated:
 	# the original 1F entrance is restored before admission can succeed.
 	var original_entry: Dictionary = companion.world.facts.entry.duplicate(true)
