@@ -689,6 +689,12 @@ func _busy(world: WorldState, id: String, allow_inventory_work: bool = false) ->
 				return "设备存在未完成维护或升级工单，请先安全结束或取消工单"
 	if world.facts.adaptations.has(id):
 		return "等待当前使用者实际离开并释放伸展预约"
+	var consultation: Dictionary = world.facts.facilities.get(id,{})
+	for area: Array in space.ordinary_consultation_regions(consultation):
+		var rect: Rect2 = Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3]))
+		for actor: Dictionary in world.facts.actors.values():
+			if actor.location.kind=="floor" and int(actor.location.floor_id)==int(consultation.floor_id) and space.body_rectangle(actor).intersects(rect,false):
+				return "等待诊桌及操作位上的实际使用者离开"
 	for collection: String in ["sessions","preparations","ward_stays","tickets","facility_reservations","amenity_reservations","maintenance_orders","upgrade_orders"]:
 		for record: Dictionary in world.facts.get(collection,{}).values():
 			if collection=="tickets" and record.has("resume_session_id"): continue

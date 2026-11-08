@@ -215,15 +215,30 @@ func prepare(world: WorldState, visit: Dictionary, ticket: Dictionary) -> bool:
 			if _reselect_unreachable_target(world,visit,current): return false
 			var alternative: String = _ready_target(world,visit,ticket)
 			if not alternative.is_empty() and alternative!=current.target_id and _ready_target(world,visit,ticket,str(current.target_id)).is_empty():
-				_reset_destination(world,visit,current)
-				current.target_id = alternative
-				current.guide_floor = int(world.facts.facilities[current.target_id].floor_id)
+				if _same_clinical_room(world,str(current.target_id),alternative):
+					# A different table inside the same clinic is not another
+					# hospital journey. Keep the actual clinic-arrival order.
+					current.target_id = alternative
+					current.guided_target = alternative
+					if not scope.allows(world,visit.actor_id,alternative,int(actor.location.floor_id),actor.location.cell):
+						current.phase = "destination"
+						current.erase("destination_cell")
+				else:
+					_reset_destination(world,visit,current)
+					current.target_id = alternative
+					current.guide_floor = int(world.facts.facilities[current.target_id].floor_id)
 		if current.phase=="ready": return true
 	if current.phase=="destination": return _approach_destination(world,visit,ticket,current)
 	if current.phase=="working":
 		visit.waiting_reason = "护士正在导诊台安排本次目的地"
 		return false
 	return _approach_desk(world,visit,ticket,current)
+
+func _same_clinical_room(world: WorldState, first_id: String, second_id: String) -> bool:
+	var first: Dictionary = world.facts.facilities.get(first_id,{})
+	var second: Dictionary = world.facts.facilities.get(second_id,{})
+	var room_id: String = str(first.get("room_id",""))
+	return not room_id.is_empty() and world.facts.rooms.has(room_id) and room_id==str(second.get("room_id","")) and int(first.get("floor_id",-1))==int(second.get("floor_id",-2))
 
 func _target_valid(world: WorldState, visit: Dictionary, ticket: Dictionary, id: String) -> bool:
 	if id.is_empty(): return false
@@ -456,9 +471,10 @@ func _approach_destination(world: WorldState, visit: Dictionary, ticket: Diction
 		if current.phase=="seek": return false
 		visit.waiting_reason = "正在前往护士指定目的地，尚未加入当地队列"
 		return false
-	world.facts.floor_guidance.next_arrival += 1
-	current.arrived_seq = world.facts.floor_guidance.next_arrival
-	current.destination_arrived_tick = world.sim_tick
+	if int(current.get("arrived_seq",-1))<0:
+		world.facts.floor_guidance.next_arrival += 1
+		current.arrived_seq = world.facts.floor_guidance.next_arrival
+		current.destination_arrived_tick = world.sim_tick
 	current.phase = "ready"
 	current.reason = ""
 	visit.waiting_reason = "已到达指定目的地，等待叫号"
@@ -551,7 +567,7 @@ func pause_for_need(world: WorldState, visit: Dictionary) -> void:
 func _return_scope(world: WorldState, visit: Dictionary) -> String:
 	var current: Dictionary = state(world,visit.id)
 	if current.is_empty(): return ""
-	if current.get("phase","")=="ready":
+	if current.get("phase","") in ["ready","destination"]:
 		var ticket: Dictionary = world.facts.tickets.get(visit.get("ticket_id",""),{})
 		if not ticket.is_empty() and _target_valid(world,visit,ticket,str(current.get("target_id",""))): return str(current.target_id)
 		# A clinic can legally disappear while the patient uses a life service.

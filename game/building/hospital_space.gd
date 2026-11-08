@@ -1024,6 +1024,32 @@ func grant_facility_access(world: WorldState, facility_id: String, staff_id: Str
 	reservation.staff_ids.append(staff_id)
 	_navigation.invalidate(world,int(reservation.floor_id))
 
+func ordinary_consultation_regions(facility: Dictionary) -> Array:
+	if facility.get("definition_id","")!="FUR02": return []
+	var cell: Array = facility.cell
+	var size: Array = facility.footprint
+	var patient: Array = facility.patient_cell
+	var repair: Array = facility.repair_cell
+	var regions: Array = [[cell[0],cell[1],size[0],size[1]],[patient[0],patient[1],1,1],[repair[0],repair[1],1,1]]
+	for point: Array in facility.operator_cells: regions.append([point[0],point[1],1,1])
+	return regions
+
+func _ordinary_consultation_reservation(world: WorldState, reservation: Dictionary) -> bool:
+	if reservation.kind!="facility" or reservation.owner_id!=reservation.actor_id: return false
+	var facility: Dictionary = world.facts.facilities.get(reservation.facility_id,{})
+	var regions: Array = ordinary_consultation_regions(facility)
+	if regions.is_empty() or regions!=reservation.regions: return false
+	for key: String in ["floor_id","footprint","patient_cell","operator_cells","repair_cell"]:
+		if facility.get(key)!=reservation.get(key): return false
+	return true
+
+func _at_ordinary_operator_post(actor: Dictionary, reservation: Dictionary) -> bool:
+	if actor.location.kind!="floor" or int(actor.location.floor_id)!=int(reservation.floor_id): return false
+	var rectangle: Rect2 = body_rectangle(actor)
+	for point: Array in reservation.operator_cells:
+		if Rect2(float(point[0]),float(point[1]),1,1).encloses(rectangle): return true
+	return false
+
 func release_adaptations(world: WorldState) -> void:
 	for id: String in world.ids("adaptations"):
 		var reservation: Dictionary = world.facts.adaptations[id]
@@ -1031,10 +1057,12 @@ func release_adaptations(world: WorldState) -> void:
 		if reservation.kind=="facility" and (world.facts.tickets.has(reservation.owner_id) or world.facts.sessions.has(reservation.owner_id) or world.facts.preparations.has(reservation.owner_id) or world.facts.ward_stays.has(reservation.owner_id) or world.facts.get("staff_life",{}).get("reservations",{}).has(id) or HospitalFloorGuidance.owns_reservation(world,reservation)):
 			continue
 		var inside: bool = false
+		var ordinary_consultation: bool = _ordinary_consultation_reservation(world,reservation)
 		var participants: Array = reservation.staff_ids.duplicate()
 		if not actor.id in participants: participants.append(actor.id)
 		for participant_id: String in participants:
 			var participant: Dictionary = world.facts.actors[participant_id]
+			if ordinary_consultation and participant_id!=actor.id and _at_ordinary_operator_post(participant,reservation): continue
 			# A newer journey cannot substitute its trail for the original
 			# participants still physically using the held opening.
 			for area: Array in reservation.regions:

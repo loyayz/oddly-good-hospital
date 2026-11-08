@@ -290,6 +290,8 @@ func _affected_view(world: WorldState, order: Dictionary) -> Dictionary:
 		if item.is_empty(): continue
 		if not view.has(int(item.floor_id)): view[int(item.floor_id)] = {"rooms":[],"rects":[]}
 		view[int(item.floor_id)].rects.append(BuildGeometry.rectangle(space.facility_layout(world,id).merged({"cell":item.cell})))
+		for area: Array in space.ordinary_consultation_regions(item):
+			view[int(item.floor_id)].rects.append(Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3])))
 	for command: Dictionary in order.commands:
 		if command.kind!="build_move": continue
 		var item: Dictionary = world.facts.rooms.get(command.target_id,world.facts.facilities.get(command.target_id,{}))
