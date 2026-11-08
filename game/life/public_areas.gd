@@ -773,6 +773,15 @@ func select(world: WorldState, actor_id: String, definitions: Array, room_kinds:
 	var body_key: String = ""
 	# Rest and return-to-waiting also permit a safe standing region without furniture.
 	var candidates: Array = _regions if purpose in ["rest","waiting"] else _candidate_regions(definitions)
+	# Choose a strong bound cheaply before quoting other floors. This changes
+	# evaluation order only; _earlier and equal-cost tie candidates stay intact.
+	if not current_floor_only and purpose in ["water","toilet"]:
+		var ordered_candidates: Array=[]
+		for area: Dictionary in candidates:
+			if int(area.ref.floor_id)==int(actor.location.floor_id): ordered_candidates.append(area)
+		for area: Dictionary in candidates:
+			if int(area.ref.floor_id)!=int(actor.location.floor_id): ordered_candidates.append(area)
+		candidates=ordered_candidates
 	space.query_counts["public_select_regions_total"] = int(space.query_counts.get("public_select_regions_total",0))+_regions.size()
 	space.query_counts["public_select_regions_visited"] = int(space.query_counts.get("public_select_regions_visited",0))+candidates.size()
 	# The caller may already own this unchanged, real-body enumeration. Its
@@ -848,6 +857,12 @@ func _waiting_point(world: WorldState, actor_id: String, reference: Dictionary, 
 	if contains(world,reference,actor_id) and safe_wait(world,actor_id,floor_id,actor.location.cell):
 		return {"floor_id":floor_id,"cell":actor.location.cell.duplicate(),"travel_ticks":0}
 	var origin: Vector2 = Vector2(float(actor.location.cell[0]),float(actor.location.cell[1]))
+	# Every cross-floor route must first reach a connector anchor on foot.
+	# Include all anchors, even unavailable ones: that only weakens this bound.
+	# Fractional stubs, waits and vertical travel add nonnegative time.
+	if int(actor.location.floor_id)!=floor_id and _first_connector_lower_ticks(world,actor)>maximum_travel_ticks:
+		space.query_counts["public_entry_departure_bound_prunes"]=int(space.query_counts.get("public_entry_departure_bound_prunes",0))+1
+		return {}
 	var bounds: Dictionary = space.read_view(world,"public_entry_landings:"+actor_id+":"+str(floor_id),_entry_landings.bind(world,actor_id,floor_id))
 	# Every complete cross-floor estimate must first reach a connector anchor
 	# on this floor. With no complete landing estimate, trying every area cell
@@ -894,7 +909,9 @@ func _waiting_point(world: WorldState, actor_id: String, reference: Dictionary, 
 		if not _safe_wait_at(world,actor_id,floor_id,point,Vector2(point),actor,geometry): continue
 		if field.is_empty() and full_quotes>=next_field_check:
 			field = space.navigation.ready_waiting_cost_field(world,actor_id,floor_id,bounds)
-			next_field_check = full_quotes+12
+			# Local-first selection may not yet have an actor quote context.
+			# Recheck once after the first quote, then keep the cold-field cadence.
+			next_field_check = 1 if full_quotes==0 else 12 if full_quotes<12 else full_quotes+12
 		var travel_ticks: int = -1
 		if not field.is_empty():
 			# The complete resident field is borrowed only by this synchronous
@@ -1035,6 +1052,17 @@ func _ordered_entry_cells(actor: Dictionary, origin: Vector2, bounds: Dictionary
 			if a.lower!=b.lower: return a.lower<b.lower
 			return a.cell.y<b.cell.y or a.cell.y==b.cell.y and a.cell.x<b.cell.x)
 	return {"packed":packed,"fallback":fallback,"compact":compact}
+
+func _first_connector_lower_ticks(world: WorldState, actor: Dictionary) -> int:
+	# Convoy portals can shift their boarding point away from the anchor.
+	if actor.has("_convoy_size") or actor.has("_convoy_body"): return 0
+	if world.facts.connectors.is_empty(): return 0
+	var start: Vector2i=Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
+	var distance: int=HospitalTransit.MAX_TICK
+	for connection: Dictionary in world.facts.connectors.values():
+		var anchor: Vector2i=Vector2i(int(connection.anchor[0]),int(connection.anchor[1]))
+		distance=mini(distance,absi(start.x-anchor.x)+absi(start.y-anchor.y))
+	return HospitalTransit.walking_ticks(space,actor,[],float(distance))
 
 func _entry_landings(world: WorldState, actor_id: String, floor_id: int) -> Dictionary:
 	var result: Dictionary = {"landings":[],"unknown":false}

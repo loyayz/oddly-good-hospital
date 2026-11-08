@@ -93,13 +93,15 @@ func _audit(actual: Array, baseline: Array, field: Dictionary, budget: int) -> D
 	var ok: bool = true
 	for event: Dictionary in baseline:
 		if event.kind=="borrow":
-			borrowed = borrowed or event.ready
 			continue
 		var retained: bool = cursor<calls.size() and calls[cursor].point==event.point
 		if retained:
 			ok = ok and calls[cursor].safe==event.safe
 			cursor += 1
 		else:
+			# Acquisition may occur earlier after the first full quote. Judge the
+			# actual consumer timeline, not the old selector's retry schedule.
+			borrowed = _borrows(actual).any(func(row: Dictionary)->bool:return row.ready and int(row.safe_calls_before_borrow)<=cursor)
 			var ticks: int = _field_cost(field,event.point) if not field.is_empty() else -1
 			var cannot_win: bool = ticks<0 or ticks>budget or has_best and ticks>=incumbent
 			ok = ok and borrowed and FloorNavigation._inside(event.point) and cannot_win
@@ -109,7 +111,7 @@ func _audit(actual: Array, baseline: Array, field: Dictionary, budget: int) -> D
 			if ticks>=0 and ticks<=budget and (not has_best or ticks<incumbent):
 				incumbent = ticks
 				has_best = true
-	ok = ok and cursor==calls.size() and _borrows(actual)==_borrows(baseline)
+	ok = ok and cursor==calls.size() and _borrows(actual).all(func(row: Dictionary)->bool:return int(row.safe_calls_before_borrow)>0)
 	return {"ok":ok,"actual_safe_wait_at_calls":calls.size(),"baseline_safe_wait_at_calls":_safes(baseline).size(),"skipped":skipped,"same_original_field_acquisition_timing":_borrows(actual)==_borrows(baseline),"borrows":_borrows(actual)}
 
 func _observe(x: Dictionary, budget: int = HospitalTransit.MAX_TICK) -> Dictionary:
@@ -203,7 +205,7 @@ func _cold_evicted() -> Dictionary:
 	x.original._navigation._trim(0,x.original.query_counts)
 	var evicted: Dictionary = _observe(x)
 	checks.evicted_first_borrow_unavailable = not evicted.audit.borrows.is_empty() and not evicted.audit.borrows[0].ready and evicted.real_quotes>0
-	checks.reactivation_requires_twelve_real_quotes = evicted.audit.borrows.size()<2 or evicted.real_quotes>=12
+	checks.reactivation_requires_twelve_real_quotes = not evicted.audit.borrows.any(func(row: Dictionary)->bool:return row.ready) or evicted.real_quotes>=12
 	_field_end(x)
 	var unscoped: Dictionary = _observe(x)
 	checks.ordinary_scope_never_borrows = unscoped.audit.borrows.all(func(row: Dictionary)->bool:return not row.ready) and unscoped.audit.actual_safe_wait_at_calls==unscoped.audit.baseline_safe_wait_at_calls
