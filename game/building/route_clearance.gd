@@ -43,6 +43,18 @@ static func reservation_allows(reservation: Dictionary, actor_id: String, member
 		return true
 	return actor_id==reservation.actor_id or actor_id in reservation.staff_ids or reservation.actor_id in members
 
+# Query-local snapshot only. Permission filtering and source order are shared
+# by full route clearance and lightweight public waiting-point checks.
+static func capture_reservation_regions(world: WorldState, actor_id: String, floor_id: int, members: Array = []) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for reservation: Dictionary in world.facts.adaptations.values():
+		if reservation.kind=="facility" and int(reservation.floor_id)==floor_id and not reservation_allows(reservation,actor_id,members):
+			var regions: Array[Rect2] = []
+			for area: Array in reservation.regions:
+				regions.append(Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3])))
+			result.append({"regions":regions,"id":reservation.facility_id})
+	return result
+
 func _init(space: HospitalSpace, world: WorldState, actor: Dictionary, floor_id: int, members: Array = [], offsets: Dictionary = {}, include_reservations: bool = true, floor_source: Dictionary = {}, static_geometry: RouteClearance = null, member_geometries: Dictionary = {}) -> void:
 	_indexed_static = not include_reservations
 	_size = space.clearance(actor)
@@ -65,12 +77,7 @@ func _init(space: HospitalSpace, world: WorldState, actor: Dictionary, floor_id:
 		for field: String in ["_plots","_blocked","_doors","_facilities","_connectors","_walls","_dependencies","_facility_cells","_connector_cells","_open_door_cells","_closed_door_cells","_horizontal_walls","_vertical_walls"]:
 			set(field,static_geometry.get(field))
 	if include_reservations:
-		for reservation: Dictionary in world.facts.adaptations.values():
-			if reservation.kind=="facility" and int(reservation.floor_id)==floor_id and not reservation_allows(reservation,actor.id,members):
-				var regions: Array[Rect2] = []
-				for area: Array in reservation.regions:
-					regions.append(Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3])))
-				_reservations.append({"regions":regions,"id":reservation.facility_id})
+		_reservations = capture_reservation_regions(world,actor.id,floor_id,members)
 	_plain = _plain_geometry()
 
 func _build_static(space: HospitalSpace, world: WorldState, actor: Dictionary, floor_id: int) -> void:
@@ -254,8 +261,11 @@ func _reservation_at(origin: Vector2) -> String:
 		var reason: String = member.query._reservation_at(origin+member.offset)
 		if not reason.is_empty():
 			return reason
-	var footprint: Rect2 = Rect2(origin,Vector2.ONE*_size)
-	for reservation: Dictionary in _reservations:
+	return reservation_regions_reason(origin,_size,_reservations)
+
+static func reservation_regions_reason(origin: Vector2, size: int, reservations: Array[Dictionary]) -> String:
+	var footprint: Rect2 = Rect2(origin,Vector2.ONE*size)
+	for reservation: Dictionary in reservations:
 		for rect: Rect2 in reservation.regions:
 			if footprint.intersects(rect,false):
 				return "真实展开与岗位预约阻挡："+str(reservation.id)

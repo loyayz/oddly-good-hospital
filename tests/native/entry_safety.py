@@ -72,6 +72,7 @@ func contains(_w,_r,_a):return inside
 func _ensure(_w,_f):pass
 func _cell_region(_f,_p):return {"exists":true} if exists else {}
 func _entry_landings(_w,_a,_f):return {}
+func _first_connector_lower_ticks(_w,_a):return 0
 func _entry_geometry_view(_w,_a,_r):return geometry
 func _entry_order(_a,_o,_b,_g,_m):return ordered
 func _safe_wait_geometry(_w,_a,_f,o,_g,_d):
@@ -80,17 +81,17 @@ func _safe_wait_geometry(_w,_a,_f,o,_g,_d):
 '''
 for name, source in [('baseline', reference), ('current', current)]:
     (p / (name + '.gd')).write_text(prefix + source)
-(p/'world.gd').write_text('extends RefCounted\nconst TICK_SECONDS:float=0.1\nvar facts:Dictionary={"actors":{"a":{"id":"a","location":{"floor_id":1,"cell":[0,0]}}}}\n')
-(p/'floor.gd').write_text('extends RefCounted\nstatic func _id(p):return p.y*96+p.x\n')
+(p/'world.gd').write_text('extends RefCounted\nconst TICK_SECONDS:float=0.1\nvar adapter\nvar facts:Dictionary={"actors":{"a":{"id":"a","location":{"floor_id":1,"cell":[0,0]}}}}\n')
+(p/'floor.gd').write_text('extends RefCounted\nstatic func _id(p):return p.y*96+p.x\nstatic func _inside(p):return p.x>=0 and p.y>=0 and p.x<96 and p.y<96\n')
 (p/'transit.gd').write_text('extends RefCounted\nstatic func _add(a,b):return a+b\n')
 (p/'clearance.gd').write_text('''extends RefCounted
-var space
-func _init(s=null,_w=null,_a=null,_f=0,_m=[],_o={},_i=true,_src={},_static=null):
- space=s
- if space!=null:space.constructs+=1
-func reservation_reason(point):
- if space.logging:space.trace.append(["reservation",point])
- return "blocked" if space.reserved else ""
+static func capture_reservation_regions(world,_actor_id,_floor_id):
+ world.adapter.constructs+=1
+ return [{"space":world.adapter,"reserved":world.adapter.reserved}]
+static func reservation_regions_reason(point,_size,regions):
+ var saved=regions[0]
+ if saved.space.logging:saved.space.trace.append(["reservation",Vector2i(point)])
+ return "blocked" if saved.reserved else ""
 ''')
 (p/'space.gd').write_text('''extends RefCounted
 var navigation=preload("res://nav.gd").new()
@@ -104,7 +105,9 @@ var constructs:int=0
 var logging:bool=false
 var trace:Array=[]
 var quote:Dictionary={"ok":false}
+func clearance(_a):return 1
 func read_view(_w,n,c):
+ _w.adapter=self
  if n.begins_with("public_entry_landings:"):return bounds
  if not views.has(n):views[n]=c.call()
  return views[n]

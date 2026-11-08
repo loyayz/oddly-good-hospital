@@ -1099,8 +1099,8 @@ func safe_wait(world: WorldState, actor_id: String, floor_id: int, cell: Array, 
 	if not geometry.points.has(origin): geometry.points[origin] = _safe_wait_geometry(world,actor,floor_id,origin,geometry.geometry,geometry.get("doors",{}))
 	if not geometry.points[origin]: return false
 	var current: Dictionary = space.read_view(world,"public_wait_clearance:"+actor_id+":"+str(floor_id),func()->Dictionary:
-		return {"query":RouteClearance.new(space,world,actor,floor_id,[],{},true,space._navigation.floor_source(space,world,floor_id),geometry.geometry)})
-	if not (current.query as RouteClearance).reservation_reason(point).is_empty(): return false
+		return {"size":space.clearance(actor),"regions":RouteClearance.capture_reservation_regions(world,actor.id,floor_id)})
+	if not RouteClearance.reservation_regions_reason(Vector2(point),int(current.size),current.regions).is_empty(): return false
 	return space._dynamic_clear(world,actor_id,floor_id,space._actor_rect(actor,origin))
 
 # Integer entry candidates only: region() already ensured this floor, and actor
@@ -1111,8 +1111,8 @@ func _safe_wait_at(world: WorldState, actor_id: String, floor_id: int, point: Ve
 	if not geometry.points.has(origin): geometry.points[origin] = _safe_wait_geometry(world,actor,floor_id,origin,geometry.geometry,geometry.get("doors",{}))
 	if not geometry.points[origin]: return false
 	var current: Dictionary = space.read_view(world,"public_wait_clearance:"+actor_id+":"+str(floor_id),func()->Dictionary:
-		return {"query":RouteClearance.new(space,world,actor,floor_id,[],{},true,space._navigation.floor_source(space,world,floor_id),geometry.geometry)})
-	if not (current.query as RouteClearance).reservation_reason(point).is_empty(): return false
+		return {"size":space.clearance(actor),"regions":RouteClearance.capture_reservation_regions(world,actor.id,floor_id)})
+	if not RouteClearance.reservation_regions_reason(Vector2(point),int(current.size),current.regions).is_empty(): return false
 	return space._dynamic_clear(world,actor_id,floor_id,space._actor_rect(actor,origin))
 
 func _safe_wait_geometry(world: WorldState, actor: Dictionary, floor_id: int, origin: Vector2, geometry: RouteClearance, doors: Dictionary = {}) -> bool:
