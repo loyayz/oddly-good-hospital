@@ -33,10 +33,11 @@ func _dispatch_waiting(world: WorldState) -> void:
 	ensure(world)
 	var first_scan: bool = true
 	var needs_prepared: bool = false
+	var need_scan: Dictionary = {"refreshed":false}
 	for visit_id: String in world.active_visit_ids():
 		var visit: Dictionary = world.facts.visits[visit_id]
 		if world.facts.waiting_life.needs.has(visit_id):
-			_dispatch_need(world,visit,world.facts.waiting_life.needs[visit_id])
+			_dispatch_need(world,visit,world.facts.waiting_life.needs[visit_id],need_scan)
 			continue
 		# A real ride temporarily removes floor presence, not the existing
 		# waiting request. Resume the same target after landing; never select
@@ -57,7 +58,7 @@ func _dispatch_waiting(world: WorldState) -> void:
 			if not needs_prepared:
 				_prepare_need_costs(world)
 				needs_prepared = true
-			_begin_need(world,visit)
+			_begin_need(world,visit,need_scan)
 			continue
 		if floor_guidance!=null and not floor_guidance.waiting_allowed(world,visit_id): continue
 		if floor_guidance!=null and not floor_guidance.target(world,visit_id).is_empty():
@@ -765,7 +766,7 @@ func _release_seat(world: WorldState, visit_id: String) -> void:
 	seats.erase(visit_id)
 	space.public_areas.changed(world)
 
-func _begin_need(world: WorldState, visit: Dictionary) -> void:
+func _begin_need(world: WorldState, visit: Dictionary, need_scan: Dictionary = {}) -> void:
 	if floor_guidance!=null: floor_guidance.pause_for_need(world,visit)
 	var clock: Dictionary = world.facts.waiting_life.clocks[visit.id]
 	clock.sequence += 1
@@ -778,9 +779,9 @@ func _begin_need(world: WorldState, visit: Dictionary) -> void:
 	ticket.pause_reasons.need_service = need.id
 	world.facts.waiting_life.needs[visit.id] = need
 	space.public_areas.changed(world)
-	_dispatch_need(world,visit,need)
+	_dispatch_need(world,visit,need,need_scan)
 
-func _dispatch_need(world: WorldState, visit: Dictionary, need: Dictionary) -> void:
+func _dispatch_need(world: WorldState, visit: Dictionary, need: Dictionary, need_scan: Dictionary = {}) -> void:
 	if need.phase in ["using","fallback"]: return
 	if need.phase=="fallback_travel":
 		if world.facts.moves.has(visit.actor_id):
@@ -788,7 +789,7 @@ func _dispatch_need(world: WorldState, visit: Dictionary, need: Dictionary) -> v
 		_start_fallback(world,visit,need)
 		return
 	if need.phase!="returning":
-		_dispatch_public_need(world,visit,need)
+		_dispatch_public_need(world,visit,need,need_scan)
 		return
 	var actor: Dictionary = world.facts.actors[visit.actor_id]
 	if not str(need.facility_id).is_empty() and not space.overlaps_facility(world,actor.id,need.facility_id):
@@ -818,7 +819,7 @@ func _dispatch_need(world: WorldState, visit: Dictionary, need: Dictionary) -> v
 	world.facts.waiting_life.needs.erase(visit.id)
 	space.public_areas.changed(world)
 
-func _dispatch_public_need(world: WorldState, visit: Dictionary, need: Dictionary) -> void:
+func _dispatch_public_need(world: WorldState, visit: Dictionary, need: Dictionary, need_scan: Dictionary = {}) -> void:
 	var actor: Dictionary = world.facts.actors[visit.actor_id]
 	var deadline: int = int(need.started_tick)+_ticks(content.balance.amenity_flow.seek_seconds)
 	var valid_area: bool = not space.public_areas.region(world,need.area).is_empty()
@@ -849,7 +850,13 @@ func _dispatch_public_need(world: WorldState, visit: Dictionary, need: Dictionar
 		for room: Dictionary in world.facts.rooms.values():
 			var kind: String = str(room.get("kind",room.get("type","")))
 			if not kind in room_kinds: room_kinds.append(kind)
+		# Refresh raw bodies once in this dispatch; all later posture/movement
+		# changes use the existing synchronization contract. Each selection owns
+		# a fresh read-only scope, closed before changing an intent or reservation.
+		space.begin_dynamic_route_query(world,not bool(need_scan.get("refreshed",false)))
 		var selected: Dictionary = space.public_areas.select(world,actor.id,definitions,room_kinds,need.purpose)
+		space.end_route_query()
+		if not need_scan.is_empty(): need_scan.refreshed = true
 		if selected.is_empty() or int(selected.start_ticks)>deadline-world.sim_tick:
 			_start_fallback(world,visit,need)
 			return

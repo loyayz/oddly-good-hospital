@@ -1114,10 +1114,13 @@ func _entry_geometry_view(world: WorldState, actor: Dictionary, area: Dictionary
 	var rectangle: Rect2 = space._actor_rect(actor,Vector2.ZERO)
 	var spans: Array = []
 	for door: Dictionary in _wait_constraints(world).doors.get(floor_id,[]): spans.append([door.id,world.facts.adaptations.get(door.id,{}).get("span",door.span)])
-	var key: String = JSON.stringify([area.ref,space.body(actor),actor.get("posture","standing"),rectangle.position,rectangle.size,spans],"",true,true)
+	var doors: Dictionary = _wait_door_view(world,floor_id,spans)
+	# Serialize the unchanged floor door vector once per exact span view, not
+	# once per patient. Preserve the original complete cache key byte for byte.
+	var prefix: String = JSON.stringify([area.ref,space.body(actor),actor.get("posture","standing"),rectangle.position,rectangle.size],"",true,true)
+	var key: String = prefix.substr(0,prefix.length()-1)+","+str(doors.span_key)+"]"
 	var version: String = space._navigation.floor_static_version(space,world,floor_id)
 	var saved: Dictionary = _entry_geometry.get(key,{})
-	var doors: Dictionary = _wait_door_view(world,floor_id,spans)
 	if saved.is_empty() or saved.version!=version:
 		# Region cells are independent of the traveller's body. Their immutable
 		# native representation belongs to the region, while fit/ordering belongs
@@ -1157,6 +1160,7 @@ func _wait_door_view(world: WorldState, floor_id: int, spans: Array) -> Dictiona
 		index.update(str(number),floor_id,rect)
 	if saved.is_empty(): saved = {"index":index}
 	saved.spans = spans.duplicate(true)
+	saved.span_key = JSON.stringify(spans,"",true,true)
 	saved.rectangles = rectangles
 	views[floor_id] = saved
 	space.query_counts["public_wait_door_index_builds"] = int(space.query_counts.get("public_wait_door_index_builds",0))+1
