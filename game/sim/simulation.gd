@@ -84,7 +84,12 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 # App loading and observation changes prepare the complete selected floor.
 # Background floors remain accessible through the same lazy cache entry point.
 func prepare_floor_static(floor_id: int) -> Dictionary:
-	return space._navigation.prepare_floor(space,world,floor_id)
+	var preparation_started: int=Time.get_ticks_usec()
+	var result: Dictionary=space._navigation.prepare_floor(space,world,floor_id)
+	if services.has("floor_guidance"):
+		result.guidance_routes=services.floor_guidance.prepare_static_routes(world,floor_id)
+	result.total_elapsed_usec=Time.get_ticks_usec()-preparation_started
+	return result
 
 func _ensure_services() -> void:
 	if _production():

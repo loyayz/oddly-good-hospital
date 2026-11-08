@@ -582,6 +582,12 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 	if repeated.get("ready",false):
 		space.query_counts["distance_field_hits"] = int(space.query_counts.get("distance_field_hits",0))+1
 		result = {"ok":bool(repeated.ok),"status":"complete" if repeated.ok else "unreachable","reason":repeated.get("reason",""),"walking_distance":int(repeated.get("distance",-1))}
+	elif not convoy_start and not structural_only and members.is_empty() and offsets.is_empty() and not navigation.has("query") and not navigation.get("overlay",false) and navigation.bases.is_empty() and navigation.shifts.is_empty() and not query.has_reservations():
+		# A live single-body query with no unauthorized facility regions has
+		# exactly the graph's static clearance. Reuse its loading-time path;
+		# the ordinary people/door-reservation validation below remains live.
+		# Queries with reservations retain their original search and tie order.
+		result = space._navigation.cached_floor_path(space,world,floor_id,actor,graph,graph.geometry,start,goal,cost_only)
 	elif not convoy_start and (structural_only or not space._route_queries.is_empty() and space._route_queries.back().world==world) and members.is_empty() and offsets.is_empty() and not navigation.has("query") and not navigation.get("overlay",false) and navigation.bases.is_empty() and navigation.shifts.is_empty():
 		# Actual dispatch has no read-only query scope. Its pure static floor
 		# leg can still reuse the resident body/floor/endpoint cache, including

@@ -42,10 +42,12 @@ func _run() -> void:
 	var input: String = ""
 	var steps: int = 1000
 	var prefix_steps: int = 0
+	var observed_floor: int = 1
 	for arg: String in OS.get_cmdline_user_args():
 		if arg.begins_with("--input="): input=arg.trim_prefix("--input=")
 		if arg.begins_with("--output="): output=arg.trim_prefix("--output=")
 		if arg.begins_with("--steps="): steps=arg.trim_prefix("--steps=").to_int()
+		if arg.begins_with("--observed-floor="): observed_floor=arg.trim_prefix("--observed-floor=").to_int()
 		if arg.begins_with("--prefix-steps="): prefix_steps=arg.trim_prefix("--prefix-steps=").to_int()
 	if input.is_empty() or output.is_empty() or steps<=0 or prefix_steps<0 or FileAccess.file_exists(output): quit(2);return
 	var init_start: int = Time.get_ticks_usec()
@@ -57,6 +59,9 @@ func _run() -> void:
 	var validation: String = world.validate(content)
 	if not validation.is_empty(): write_json(output,{"complete":false,"reason":validation});quit(2);return
 	var sim: HospitalSimulation = HospitalSimulation.new(world,content)
+	# Match AppRoot loading: prepare the selected floor before simulation starts.
+	# Background floors still use the production lazy path; do not preload invented work.
+	var floor_preparation: Dictionary=sim.prepare_floor_static(observed_floor)
 	var init_us: int = Time.get_ticks_usec()-init_start
 	var initial: Dictionary = snapshot(world)
 	write_json(output+".initial.json",initial)
@@ -127,5 +132,5 @@ func _run() -> void:
 	var sample_events: Dictionary = {}
 	for kind: String in event_counts: sample_events[kind]=int(event_counts[kind])-int(prefix_events.get(kind,0))
 	var complete: bool = samples.size()==steps+prefix_steps and errors.is_empty()
-	write_json(output,{"complete":complete,"performance_pass":null,"source_input_sha256":FileAccess.get_sha256(input),"mode":"plain_cpu_full_step","requested_sample_steps":steps,"requested_prefix_steps":prefix_steps,"all_completed_steps":samples.size(),"prefix_wall_us":prefix_wall_us,"all_wall_us":all_wall_us,"sample_start_population":sample_start_population,"prefix_business":{"work":prefix_work,"guidance":prefix_guidance,"events":prefix_events},"sample_business":{"clinical_work_ticks_observed_lower_bound":sample_work,"guidance_work_ticks":guidance_work-prefix_guidance,"events":sample_events},"initialization_us":init_us,"initial":initial,"final":final,"metrics":metrics,"business":{"clinical_work_ticks_observed_lower_bound":work,"guidance_work_ticks":guidance_work,"steps_with_active_moves_not_arrival_proof":actual_moving_steps,"events":event_counts},"errors":errors,"gpu_fps":null,"scope":"HospitalSimulation CPU full steps only; no GameSession/renderer/persistence lifecycle. Ordinary business rules retained; no fixed-population hold. Work counter excludes transition ticks and is a lower bound, not total completed work.","final_sha256":FileAccess.get_sha256(output+".final.bin")})
+	write_json(output,{"complete":complete,"performance_pass":null,"source_input_sha256":FileAccess.get_sha256(input),"mode":"plain_cpu_full_step","requested_sample_steps":steps,"requested_prefix_steps":prefix_steps,"all_completed_steps":samples.size(),"prefix_wall_us":prefix_wall_us,"all_wall_us":all_wall_us,"sample_start_population":sample_start_population,"prefix_business":{"work":prefix_work,"guidance":prefix_guidance,"events":prefix_events},"sample_business":{"clinical_work_ticks_observed_lower_bound":sample_work,"guidance_work_ticks":guidance_work-prefix_guidance,"events":sample_events},"initialization_us":init_us,"observed_floor":observed_floor,"floor_static_preparation":floor_preparation,"initial":initial,"final":final,"metrics":metrics,"business":{"clinical_work_ticks_observed_lower_bound":work,"guidance_work_ticks":guidance_work,"steps_with_active_moves_not_arrival_proof":actual_moving_steps,"events":event_counts},"errors":errors,"gpu_fps":null,"scope":"HospitalSimulation CPU full steps only; no GameSession/renderer/persistence lifecycle. Ordinary business rules retained; no fixed-population hold. Work counter excludes transition ticks and is a lower bound, not total completed work.","final_sha256":FileAccess.get_sha256(output+".final.bin")})
 	sim.dispose();quit(0 if complete else 1)

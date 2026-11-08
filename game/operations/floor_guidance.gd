@@ -14,6 +14,53 @@ func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 	space = geometry
 	scope = Scope.new(geometry)
 
+# Loading only: warm the same immutable endpoint cache actual floor legs use.
+# Queue choice, reservations, lift availability and people remain live decisions.
+func prepare_static_routes(world: WorldState, floor_id: int) -> Dictionary:
+	var started: int=Time.get_ticks_usec()
+	# Cache warming must not impersonate a live actor dependency observation.
+	# This method is synchronous; restore the original container, including aliases.
+	var observed: Dictionary=space.navigation._observed_floors
+	space.navigation._observed_floors={}
+	var cache: NavigationCache=space._navigation
+	var charge_before: int=cache._charged+cache._query_charged+cache._source_charged+cache._floor_charged
+	var anchors: Array[Vector2i]=[]
+	for id: String in world.ids("connectors"):
+		var connection: Dictionary=world.facts.connectors[id]
+		if content.definition("vertical_connectors",connection.definition_id).kind!="lift" or not HospitalTransit.has_stop(connection,floor_id): continue
+		var anchor:=Vector2i(int(connection.anchor[0]),int(connection.anchor[1]))
+		if not anchor in anchors: anchors.append(anchor)
+	var desks: Array=[]
+	for id: String in world.facility_ids("SE01"):
+		if int(world.facts.facilities[id].floor_id)==floor_id: desks.append(id)
+	var seen: Dictionary={}
+	var attempted: int=0
+	var reachable: int=0
+	var builds_before: int=int(space.query_counts.static_path_builds)
+	var hits_before: int=int(space.query_counts.static_path_hits)
+	if not anchors.is_empty() and not desks.is_empty():
+		for actor_id: String in world.ids("actors"):
+			var actor: Dictionary=world.facts.actors[actor_id]
+			if actor.has("_convoy_size") or actor.has("_convoy_body"): continue
+			var key: String=cache._graph_key(space,world,floor_id,actor,[],{},cache.floor_source(space,world,floor_id))
+			if seen.has(key): continue
+			seen[key]=true
+			var graph: FloorNavigation=cache.graph(space,world,floor_id,actor,[],{})
+			var goals: Dictionary={}
+			for desk_id: String in desks:
+				var area: Dictionary=scope.area(world,actor_id,desk_id)
+				for point: Vector2i in area.get("points",{}): goals[point]=true
+				var cell: Array=space.facility_layout(world,desk_id).patient_cell
+				goals[Vector2i(roundi(cell[0]),roundi(cell[1]))]=true
+			for anchor: Vector2i in anchors:
+				for goal: Vector2i in goals:
+					var result: Dictionary=cache.cached_floor_path(space,world,floor_id,actor,graph,graph.geometry,anchor,goal)
+					attempted+=1
+					if result.get("ok",false): reachable+=1
+	var charge_after: int=cache._charged+cache._query_charged+cache._source_charged+cache._floor_charged
+	space.navigation._observed_floors=observed
+	return {"elapsed_usec":Time.get_ticks_usec()-started,"body_envelopes":seen.size(),"lift_anchors":anchors.size(),"desks":desks.size(),"path_requests":attempted,"reachable":reachable,"path_builds":int(space.query_counts.static_path_builds)-builds_before,"path_hits":int(space.query_counts.static_path_hits)-hits_before,"cache_charge_before":charge_before,"cache_charge_after":charge_after,"cache_budget":int(content.balance.pathfinding.graph_cache_target_bytes)}
+
 func ensure(world: WorldState) -> void:
 	if not world.facts.has("floor_guidance"):
 		world.facts.floor_guidance = {"visits":{},"desks":{},"releases":{},"next_arrival":0}
