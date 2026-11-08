@@ -311,28 +311,7 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 		# Door ownership retains its own wait; it never pushes the owner aside.
 		if not result.door_id.is_empty(): continue
 		if result.blocked:
-			if movement.has("detour") and movement.detour.phase=="back" and not movement.has("convoy") and movement.get("members",[]).size()<=1 and int(movement.cursor)<int(movement.detour.prefix_size):
-				# An arriving third body can obstruct a retreat after it began.
-				# Test sides of this actual unfinished leg, not the already
-				# decremented historical cursor. Failed probes retain the leg.
-				var retreat: Vector2=result.requested_motion
-				var retreat_axis: Vector2=Vector2(signf(retreat.x),0) if absf(retreat.x)>=absf(retreat.y) else Vector2(0,signf(retreat.y))
-				if retreat.length()>0.001 and _detour_side_step(world,actor,movement,retreat_axis): continue
-			if movement.has("detour") and movement.detour.phase!="back":
-				if movement.has("convoy") or movement.get("members",[]).size()>1:
-					_set_detour_prefix(movement,[],"aside")
-				else:
-					var blocked_direction: Vector2=result.requested_motion
-					if blocked_direction.length()>0.001:
-						movement.detour.direction=[signf(blocked_direction.x),0] if absf(blocked_direction.x)>=absf(blocked_direction.y) else [0,signf(blocked_direction.y)]
-					# A turn starts at an already reached real position, not at an
-					# old integer checkpoint across an intervening corner.
-					var actual: Dictionary=_floor_point(actor,ConvoyTrail.point(actor.location.cell))
-					if movement.travelled.is_empty() or movement.travelled.back()!=actual: movement.travelled.append(actual)
-					movement.detour.backtrack=_local_travelled(movement,int(actor.location.floor_id))
-					movement.detour.back_cursor=movement.detour.backtrack.size()-1
-					_set_detour_prefix(movement,[],"aside")
-					if _detour_side(world,actor,movement) or _detour_back(world,actor,movement): continue
+			if movement.has("detour") and _detour_obstruction(world,actor,movement,result.requested_motion): continue
 			if int(movement.blocked_since) < 0:
 				movement.blocked_since = world.facts.sim_tick
 			_yield(world,actor,movement,result)
@@ -948,6 +927,29 @@ func _set_detour_prefix(movement: Dictionary, path: Array, phase: String, resume
 	movement.blocked_since = -1
 	movement.erase("waiting_reason")
 	_route_checks.erase(movement.actor_id)
+
+# All single-person local legs respond to a real obstruction at the current
+# position. Side selection does not depend on an aside/rejoin/back label.
+func _detour_obstruction(world: WorldState, actor: Dictionary, movement: Dictionary, motion: Vector2) -> bool:
+	if movement.has("convoy") or movement.get("members",[]).size()>1:
+		if movement.detour.phase!="back": _set_detour_prefix(movement,[],"aside")
+		return false
+	var pending_retreat: bool=movement.detour.phase=="back" and int(movement.cursor)<int(movement.detour.prefix_size)
+	if motion.length()<0.001: return false
+	var axis: Vector2=Vector2(signf(motion.x),0) if absf(motion.x)>=absf(motion.y) else Vector2(0,signf(motion.y))
+	if not pending_retreat:
+		movement.detour.direction=[axis.x,axis.y]
+		var actual: Dictionary=_floor_point(actor,ConvoyTrail.point(actor.location.cell))
+		if movement.travelled.is_empty() or movement.travelled.back()!=actual: movement.travelled.append(actual)
+		movement.detour.backtrack=_local_travelled(movement,int(actor.location.floor_id))
+		movement.detour.back_cursor=movement.detour.backtrack.size()-1
+		_set_detour_prefix(movement,[],"aside")
+	if _detour_side_step(world,actor,movement,axis): return true
+	# An unfinished retreat is already the backward fallback. Keep its real
+	# pending target/history when both sides remain occupied; do not reverse
+	# again or consume an unvisited historical point.
+	if pending_retreat: return false
+	return _detour_back(world,actor,movement)
 
 func _detour_side(world: WorldState, actor: Dictionary, movement: Dictionary) -> bool:
 	if movement.has("convoy") or movement.get("members",[]).size()>1:
