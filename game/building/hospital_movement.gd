@@ -280,7 +280,7 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 				_replan_goal(world,movement)
 			continue
 		if int(movement.cursor)==0:
-			movement.cursor = _initial_route_cursor(actor,movement.path)
+			movement.cursor = _initial_route_cursor(actor,movement.path,world)
 		if movement.has("detour"):
 			_continue_detour(world,actor,movement)
 			if movement.has("detour") and int(movement.cursor)>=movement.path.size(): continue
@@ -631,7 +631,7 @@ func _dispatch_routes(world: WorldState, present_at_start: int) -> void:
 		movement.erase("waiting_reason")
 		_route_failures.erase(id)
 
-func _initial_route_cursor(actor: Dictionary, path: Array) -> int:
+func _initial_route_cursor(actor: Dictionary, path: Array, world: WorldState = null) -> int:
 	if path.size()<2 or path[0].kind!="floor" or path[1].kind!="floor" or int(path[0].floor_id)!=int(actor.location.floor_id) or int(path[1].floor_id)!=int(actor.location.floor_id):
 		return 0
 	var actual: Vector2 = Vector2(float(actor.location.cell[0]),float(actor.location.cell[1]))
@@ -639,13 +639,25 @@ func _initial_route_cursor(actor: Dictionary, path: Array) -> int:
 	var next: Vector2 = Vector2(float(path[1].cell[0]),float(path[1].cell[1]))
 	# A retreat can begin between these cells. Returning to the rounded start
 	# would move toward the body being yielded to before moving away from it.
-	# A near-corner point is not on the following leg. Triangle-distance
-	# tolerances can skip an unfinished perpendicular segment and turn the
-	# next step into a diagonal through a wall boundary. Only skip an exact
-	# axis-aligned segment containing the published position.
-	if actual!=first:
-		if first.x==next.x and actual.x==first.x and actual.y>=minf(first.y,next.y) and actual.y<=maxf(first.y,next.y): return 1
-		if first.y==next.y and actual.y==first.y and actual.x>=minf(first.x,next.x) and actual.x<=maxf(first.x,next.x): return 1
+	# Near-collinear starts retain forward travel, but a point still on the
+	# perpendicular incoming leg has zero forward projection. A triangle
+	# tolerance alone must not skip that unfinished corner or either endpoint.
+	var dx: float = float(next.x)-float(first.x)
+	var dy: float = float(next.y)-float(first.y)
+	var projection: float = (float(actual.x)-float(first.x))*dx+(float(actual.y)-float(first.y))*dy
+	if actual!=first and projection>0.0 and projection<=dx*dx+dy*dy and absf(actual.distance_to(first)+actual.distance_to(next)-first.distance_to(next))<0.001:
+		# An off-line shortcut is not the proved route segment. Preserve the
+		# established near-collinear start only when its entire remaining segment is
+		# structurally clear. Exact collinear starts need no additional query.
+		var cross: float = (float(actual.x)-float(first.x))*dy-(float(actual.y)-float(first.y))*dx
+		if cross!=0.0:
+			if world==null: return 0
+			var movement: Dictionary = world.facts.moves.get(actor.id,{})
+			var proxy: Dictionary = ConvoyTrail.proxy(world,movement) if movement.has("convoy") else actor
+			var shift: Vector2 = Vector2.ONE*float(movement.convoy.shift) if movement.has("convoy") else Vector2.ZERO
+			var query: RouteClearance = space.navigation.structural_clearance(world,proxy,int(actor.location.floor_id))
+			if not query.sweep_reason(actual+shift,next+shift).is_empty(): return 0
+		return 1
 	return 0
 
 func queue_waypoint(world: WorldState, movement: Dictionary, floor_id: int, cell: Array) -> void:

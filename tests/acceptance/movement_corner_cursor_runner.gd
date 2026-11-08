@@ -17,8 +17,11 @@ func _initialize() -> void:
 		path = [_point(1,row[0]),_point(1,row[1])]
 		actor.location.cell = row[2]
 		checks["between_axis_"+str(index)] = movement._initial_route_cursor(actor,path)==1
-		actor.location.cell = [float(row[2][0])+0.00003,float(row[2][1])+0.00003]
-		checks["off_axis_"+str(index)] = movement._initial_route_cursor(actor,path)==0
+		var leg: Vector2 = Vector2(row[1][0]-row[0][0],row[1][1]-row[0][1])
+		actor.location.cell = [float(row[0][0])-leg.y*0.00003,float(row[0][1])+leg.x*0.00003]
+		checks["perpendicular_corner_"+str(index)] = movement._initial_route_cursor(actor,path)==0
+		actor.location.cell = [float(row[2][0])-leg.y*0.01,float(row[2][1])+leg.x*0.01]
+		checks["off_line_requires_geometry_"+str(index)] = movement._initial_route_cursor(actor,path)==0
 	actor.location.cell = [52.5,80.0]
 	checks.beyond_first_not_skipped = movement._initial_route_cursor(actor,[_point(1,[52,80]),_point(1,[51,80])])==0
 	checks.beyond_second_not_skipped = movement._initial_route_cursor(actor,[_point(1,[54,80]),_point(1,[53,80])])==0
@@ -28,7 +31,7 @@ func _initialize() -> void:
 	checks.cross_floor_not_skipped = movement._initial_route_cursor(actor,[_point(1,[52,80]),_point(2,[53,80])])==0
 	checks.single_point_not_skipped = movement._initial_route_cursor(actor,[_point(1,[52,80])])==0
 	actor.location.cell = [52.5,80.5]
-	checks.diagonal_conservatively_visits_first = movement._initial_route_cursor(actor,[_point(1,[52,80]),_point(1,[53,81])])==0
+	checks.diagonal_midpoint_keeps_forward_travel = movement._initial_route_cursor(actor,[_point(1,[52,80]),_point(1,[53,81])])==1
 	var ok: bool = not checks.values().has(false)
 	print(JSON.stringify({"ok":ok,"checks":checks}))
 	quit(0 if ok else 1)
