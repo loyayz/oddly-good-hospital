@@ -1004,6 +1004,11 @@ func _detour_return_path(world: WorldState, actor: Dictionary, movement: Diction
 	# search; the next attempt rebuilds. Convoys retain their full trail proof.
 	var proof: Dictionary = {"sweeps":{},"segments":{},"_capture_entry":true,"_return_sample":actor.duplicate(true),"_cache_contacts":true} if not movement.has("convoy") else {}
 	var query: RouteClearance = null
+	# One synchronous owner; failed trials only read these private records.
+	# A successful path escapes once, after which this buffer is never rewritten.
+	var path: Array = prefix.duplicate(true)
+	var prefix_size: int = path.size()
+	var points: Array[Dictionary] = []
 	for index: int in movement.detour.original_path.size():
 		var segment: Dictionary = movement.detour.original_path[index]
 		if segment.kind!="floor" or int(segment.floor_id)!=int(actor.location.floor_id): break
@@ -1030,10 +1035,17 @@ func _detour_return_path(world: WorldState, actor: Dictionary, movement: Diction
 				links.append([Vector2(origin.x,y),Vector2(x,y),Vector2(x,target.y),target])
 		for link: Array in links:
 			if _detour_first_segment_failed(world,actor,origin,prefix,link,segment,proof): continue
-			var path: Array = prefix.duplicate(true)
+			path.resize(prefix_size)
+			var point_index: int = 0
 			var previous: Vector2 = origin
 			for point: Vector2 in link:
-				if previous.distance_to(point)>0.001: path.append(_floor_point(actor,point))
+				if previous.distance_to(point)>0.001:
+					if point_index==points.size(): points.append(_floor_point(actor,point))
+					else:
+						points[point_index].cell[0] = point.x
+						points[point_index].cell[1] = point.y
+					path.append(points[point_index])
+					point_index += 1
 				previous = point
 			if path.is_empty(): path.append(segment.duplicate(true))
 			if _detour_path_clear(world,actor,movement,path,query,proof): return {"path":path,"index":index}
