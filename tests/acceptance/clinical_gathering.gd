@@ -35,7 +35,7 @@ class CandidateOrderSpace extends HospitalSpace:
 func run_case(t, content: HospitalContent) -> void:
 	var results: Array = []
 	var passed: bool = true
-	for kind: String in ["reception","gp"]:
+	for kind: String in ["gp"]:
 		var result: Dictionary = _competition(content,kind)
 		results.append(result)
 		passed = passed and result.passed
@@ -49,7 +49,7 @@ func _candidate_order(content: HospitalContent) -> Dictionary:
 	var checked: int = 0
 	var avoided: int = 0
 	var failures: Array = []
-	for kind: String in ["reception","gp"]:
+	for kind: String in ["gp"]:
 		var c: Dictionary = _context(content,kind)
 		for condition: String in ["ordinary","unreachable_worker","occupied","retained_doctor","other_reservation"]:
 			var input: WorldState = WorldState.new(c.world.freeze())
@@ -100,14 +100,14 @@ func _context(content: HospitalContent, kind: String, geometry: HospitalSpace = 
 	for x: int in 3:
 		for y: int in 3: plots.append([x,y])
 	world.facts.floors.overrides["1"].plots = plots
-	var definition_id: String = "FUR01" if kind=="reception" else "FUR02"
+	var definition_id: String = "FUR02"
 	var definition: Dictionary = content.facility_definition(definition_id)
 	for index: int in 2:
 		var room_id: String = "gather_room_"+str(index)
 		var origin: Array = [8+index*18,8]
 		HospitalFactory._add_room(world,{"id":room_id,"type":"gp","anchor":origin,"size":[8,8],"door":{"definition_id":"DR04","offset":3}},content)
 		HospitalFactory._add_facility(world,{"id":"gather_facility_"+str(index),"definition_id":definition_id,"anchor":[int(origin[0])+1,int(origin[1])+2],"size":definition.footprint,"room_id":room_id},content)
-	HospitalFactory._add_staff(world,"gather_worker","服务职员","receptionist" if kind=="reception" else "doctor",[20,20],content)
+	HospitalFactory._add_staff(world,"gather_worker","服务职员","doctor",[20,20],content)
 	var space: HospitalSpace = geometry if geometry!=null else HospitalSpace.new(content)
 	var clinic: HospitalClinic = HospitalClinic.new(content,space)
 	clinic.ensure(world)
@@ -119,7 +119,7 @@ func _context(content: HospitalContent, kind: String, geometry: HospitalSpace = 
 		world.facts.visits[visit_id] = {"id":visit_id,"actor_id":actor_id,"disease_id":binding.disease_id,"binding_id":binding.id,"requested_plan_id":"P_D09_COMMON","expression":"clear","personality_id":"PP01","anger":15.0,"phase":"arrival","evidence_by_source":{},"attempt_ids":[],"plan_decision":{},"complex":false,"final_result":"","waiting_reason":"","ticket_id":"","doctor_fee_quote":-1,"arrived_tick":0,"arrival_key":visit_id,"last_progress_tick":0,"last_service_tick":0}
 		world.facts.arrival_receipts[visit_id] = visit_id
 		# Declared queue input: the measured operation is gathering and actual
-		# arrival, not the prior reception or diagnostic service.
+		# arrival, not the prior diagnostic service.
 		clinic._queue(world,world.facts.visits[visit_id],kind)
 	world.touch()
 	return {"world":world,"space":space,"clinic":clinic,"validation":world.validate(content)}

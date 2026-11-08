@@ -13,7 +13,7 @@ static func create(hospital_id: String, display_name: String, preset: bool, cont
 		"entry":{"floor_id":1,"cell":starter.entry.anchor.duplicate(),"exit_cell":[48,95]},
 		"arrival_receipts":{},"initial_offers":starter.initial_offers.duplicate()}
 	var world: WorldState = WorldState.new(data)
-	var streams: Array[String] = ["arrival","treatment","incident","personality","equipment","task_board","registration","communication","gratitude","patience","recruitment","community_activity"]
+	var streams: Array[String] = ["arrival","treatment","incident","personality","equipment","task_board","guidance","communication","gratitude","patience","recruitment","community_activity"]
 	for index: int in streams.size():
 		var generator: RandomNumberGenerator = RandomNumberGenerator.new()
 		generator.seed = 314159 + index * 104729
@@ -59,7 +59,7 @@ static func create(hospital_id: String, display_name: String, preset: bool, cont
 			if pay.title_id == roster.title_id:
 				HospitalLedger.post(world,LedgerEntry.new(roster.id,"hire",-int(pay.hire)))
 		doctor_index += 1
-	var positions: Dictionary = {"receptionist":[43,91],"nurse":[52,94],"cleaner":[54,94]}
+	var positions: Dictionary = {"nurse":[52,94],"cleaner":[54,94]}
 	for role: String in positions:
 		_add_staff(world,"starter_"+role,role,role,positions[role],content)
 		for price: Dictionary in content.balance.staff:
@@ -116,8 +116,6 @@ static func _add_facility(world: WorldState, item: Dictionary, content: Hospital
 		patient = [x+1,y+1]
 		operators = [[x,y-1]]
 		repair = [x+width,y]
-	elif item.definition_id == "FUR01":
-		operators = [[x,y-1]]
 	var definition: Dictionary = content.facility_definition(item.definition_id)
 	world.facts.facilities[item.id] = {"id":item.id,"definition_id":item.definition_id,"room_id":str(item.room_id) if item.room_id!=null else "",
 		"floor_id":1,"cell":[x,y],"footprint":[width,height],"patient_cell":patient,"operator_cells":operators,

@@ -46,7 +46,7 @@ func _init(database: HospitalContent, count: int, layout: String = "four_floors"
 	var staff_count: int = count/5
 	for index: int in staff_count:
 		var floor_id: int = floors[index%floors.size()]
-		var role: String = ["doctor","doctor","doctor","doctor","nurse","nurse","receptionist","cleaner"][index/floors.size()%8]
+		var role: String = ["doctor","doctor","doctor","doctor","nurse","nurse","nurse","cleaner"][index/floors.size()%8]
 		var id: String = "bench_staff_%04d"%index
 		HospitalFactory._add_staff(world,id,id,role,[0,0],content)
 		var actor: Dictionary = world.facts.actors[id]
@@ -103,7 +103,7 @@ func _build_floor(floor_id: int, room_count: int, props: int) -> void:
 			var n: int = 1 if index%16 in [10,11] else 2
 			for slot: int in n: _facility(id+"_"+str(slot),definition_id,floor_id,[int(origin[0])+1+slot*3,int(origin[1])+1+slot*3],id)
 		else:
-			_facility(id+"_reception","FUR01",floor_id,[int(origin[0])+1,int(origin[1])+2],id)
+			_facility(id+"_guidance","SE01",floor_id,[int(origin[0])+1,int(origin[1])+2],id)
 			_facility(id+"_water","FUR17",floor_id,[int(origin[0])+5,int(origin[1])+2],id)
 	var placed: int = 0
 	for y: int in 96:
@@ -168,7 +168,7 @@ func describe() -> Dictionary:
 	var beds: int = 0
 	for facility: Dictionary in world.facts.facilities.values():
 		if facility.definition_id=="EQ05": beds += 1
-	return {"actors":world.present_actor_count(),"patients":world.facts.visits.size(),"staff":world.facts.staff.size(),"visitors":visitor_ids.size(),"rooms":world.facts.rooms.size(),"facilities":world.facts.facilities.size(),"beds":beds,"floors":floors,"errors":errors,"boundary":"built hospital; admitted patients before reception; actual production services thereafter"}
+	return {"actors":world.present_actor_count(),"patients":world.facts.visits.size(),"staff":world.facts.staff.size(),"visitors":visitor_ids.size(),"rooms":world.facts.rooms.size(),"facilities":world.facts.facilities.size(),"beds":beds,"floors":floors,"errors":errors,"boundary":"built hospital; admitted patients before floor guidance; actual production services thereafter"}
 
 func store_input(path: String) -> void:
 	var file: FileAccess = FileAccess.open(path,FileAccess.WRITE)

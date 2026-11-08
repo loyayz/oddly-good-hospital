@@ -26,10 +26,10 @@ const CASES: Dictionary = {
 	"STAFF-20":"docs/design/09-consultation-wellbeing.md §4；工作移动休息和待岗按实际速率积分，不复制护士劳累",
 	"STAFF-21":"docs/design/09-consultation-wellbeing.md §4 空闲时自然短休；复用当前派工结果，无替手预测或每池限额，不抢断或强召回",
 	"STAFF-22":"docs/design/09-consultation-wellbeing.md §4 找到能真正使用的休息位置；真实兼容员工位与恢复总时长",
-	"STAFF-23":"docs/design/09-consultation-wellbeing.md §4 六类职员都需要真正睡觉；900秒无床自愿睡眠不等床或离院",
-	"STAFF-24":"docs/design/09-consultation-wellbeing.md §4 六类职员都需要真正睡觉；1350秒必须睡，缺床45秒后真实离院",
-	"STAFF-25":"docs/design/09-consultation-wellbeing.md §4 六类职员都需要真正睡觉；睡25秒后移床20秒仍余425秒",
-	"STAFF-26":"docs/design/09-consultation-wellbeing.md §4 六类职员都需要真正睡觉；六岗位实际450秒才清醒归零，恢复不叠加",
+	"STAFF-23":"docs/design/09-consultation-wellbeing.md §4 四类职员都需要真正睡觉；900秒无床自愿睡眠不等床或离院",
+	"STAFF-24":"docs/design/09-consultation-wellbeing.md §4 四类职员都需要真正睡觉；1350秒必须睡，缺床45秒后真实离院",
+	"STAFF-25":"docs/design/09-consultation-wellbeing.md §4 四类职员都需要真正睡觉；睡25秒后移床20秒仍余425秒",
+	"STAFF-26":"docs/design/09-consultation-wellbeing.md §4 四类职员都需要真正睡觉；四岗位实际450秒才清醒归零，恢复不叠加",
 	"STAFF-27":"docs/design/09-consultation-wellbeing.md §6；娱乐开场才消耗次数冷却，30秒恢复有上限，双人不补搭档",
 	"STAFF-28":"docs/design/09-consultation-wellbeing.md §6；合法非医生待岗可娱乐，工作覆盖与睡眠补休优先",
 	"STAFF-29":"docs/design/08-hospital-life.md §17.2、§17.4；公共兼容空座优先，员工活动占用位不得被预占",
@@ -42,7 +42,7 @@ const CASES: Dictionary = {
 	"STAFF-36":"docs/design/11-growth-arrivals-recruitment.md §6.1、§6.2、§6.4；标准候选稳定、原价录用一次、序号递增，不赠本院实践",
 	"STAFF-37":"docs/design/11-growth-arrivals-recruitment.md §6.2、§6.5；资金入口失败不收费，成功从1F真实录用tick付薪",
 	"STAFF-38":"docs/design/11-growth-arrivals-recruitment.md §6.1、§6.4；寻访100币120秒三身份，冻结名额与随机结果，取消不退款",
-	"STAFF-39":"docs/design/11-growth-arrivals-recruitment.md §6.2、§6.4；六岗位每日简历、两日到期与关注互斥，未录用不收费",
+	"STAFF-39":"docs/design/11-growth-arrivals-recruitment.md §6.2、§6.4；四岗位每日简历、两日到期与关注互斥，未录用不收费",
 	"STAFF-40":"docs/design/11-growth-arrivals-recruitment.md §6.5、§6.6；真实完成与研究120秒余数成长，贡献最大者唯一领取，护士不发通用等级",
 	"STAFF-41":"docs/design/09-consultation-wellbeing.md §4；个人床完整去返程与当前障碍，护理交接保持床位上限及实时排他",
 	"STAFF-42":"docs/design/08-hospital-life.md §17.2、§17.4；选座邻居查询保留真实路线、朋友关系与候选顺序，手动目标到场竞争",
@@ -122,12 +122,12 @@ func _case_44(t) -> void:
 	preload("res://tests/acceptance/staff_repeated_work.gd").new().run_views(t,_content)
 
 func _case_01(t) -> void:
-	var x: Dictionary = _fixture({"doctor":"doctor","nurse":"nurse","reception":"receptionist","cleaner":"cleaner","researcher":"researcher","decorator":"decorator"})
+	var x: Dictionary = _fixture({"doctor":"doctor","nurse":"nurse","cleaner":"cleaner","researcher":"researcher"})
 	var doctor: Dictionary = x.world.facts.staff.doctor
 	var nurse: Dictionary = x.world.facts.staff.nurse
 	var model_ok: bool = HospitalClinicalDevelopment.tracks(doctor)==["diagnosis","treatment","surgery"] and HospitalClinicalDevelopment.tracks(nurse)==["diagnosis","care","surgery"]
 	model_ok = model_ok and doctor.abilities.diagnosis==1 and doctor.abilities.treatment==1 and doctor.abilities.surgery==0 and nurse.abilities.diagnosis==1 and nurse.abilities.care==1 and nurse.abilities.surgery==0
-	for id: String in ["reception","cleaner","researcher","decorator"]:
+	for id: String in ["cleaner","researcher"]:
 		model_ok = model_ok and x.world.facts.staff[id].skill==1 and x.world.facts.staff[id].has("job_practice")
 	model_ok = model_ok and not nurse.certificates.has("q_gp") and not nurse.certificates.has("q_or") and not doctor.has("job_practice") and not nurse.has("job_practice")
 	t.check("STAFF-01",model_ok,{"doctor":doctor,"nurse":nurse})
@@ -754,7 +754,7 @@ func _case_22(t) -> void:
 	t.check("STAFF-22",reservation_ok,{"chosen":selected,"energy_before":travel_before,"energy_after_walk":travelling_energy,"task":doctor.life_task})
 
 func _case_23(t) -> void:
-	var roles: Dictionary = {"reception":"receptionist","doctor":"doctor","nurse":"nurse","cleaner":"cleaner","researcher":"researcher","decorator":"decorator"}
+	var roles: Dictionary = {"doctor":"doctor","nurse":"nurse","cleaner":"cleaner","researcher":"researcher"}
 	var x: Dictionary = _fixture(roles)
 	var room: String = _room(x)
 	for staff: Dictionary in x.world.facts.staff.values():
@@ -810,7 +810,7 @@ func _case_26(t) -> void:
 	var x: Dictionary
 	var sleep_ok: bool = true
 	var sleep_details: Dictionary = {}
-	for role: String in ["receptionist","doctor","nurse","cleaner","researcher","decorator"]:
+	for role: String in ["doctor","nurse","cleaner","researcher"]:
 		x = _sleep_fixture(role)
 		var sleeper: Dictionary = x.world.facts.staff.sleeper
 		var entered: bool = sleeper.life_task.phase=="sleep"
@@ -1217,7 +1217,7 @@ func _case_39(t) -> void:
 	first_day_ids.sort()
 	var bookmark_id: String = str(first_day_ids[0])
 	var bookmark: CommandResult = x.r.execute(x.world,"recruitment_bookmark",{"candidate_id":bookmark_id,"enabled":true})
-	var passive_ok: bool = candidates.size()==6 and roles.size()==6 and bookmark.accepted and candidates[bookmark_id].pool=="bookmarked"
+	var passive_ok: bool = candidates.size()==4 and roles.size()==4 and bookmark.accepted and candidates[bookmark_id].pool=="bookmarked"
 	x.world.facts.sim_tick = 18000
 	x.r.boundaries(x.world)
 	var day_two_count: int = candidates.size()
@@ -1229,7 +1229,7 @@ func _case_39(t) -> void:
 	for candidate: Dictionary in candidates.values():
 		if candidate.pool=="passive":
 			passive_count += 1
-	passive_ok = passive_ok and day_two_count==12 and passive_count==12 and candidates.has(bookmark_id) and candidates[bookmark_id].pool=="bookmarked"
+	passive_ok = passive_ok and day_two_count==8 and passive_count==8 and candidates.has(bookmark_id) and candidates[bookmark_id].pool=="bookmarked"
 	var unbookmark: CommandResult = x.r.execute(x.world,"recruitment_bookmark",{"candidate_id":bookmark_id,"enabled":false})
 	passive_ok = passive_ok and unbookmark.accepted and not candidates.has(bookmark_id)
 	var current_ids: Array = candidates.keys()
@@ -1243,9 +1243,9 @@ func _case_39(t) -> void:
 	t.check("STAFF-39",passive_ok,{"day_two_count":day_two_count,"day_three_passive":passive_count,"fifth_bookmark":fifth.code,"candidate_count":candidates.size()})
 
 func _case_40(t) -> void:
-	var x: Dictionary = _fixture({"reception":"receptionist","cleaner":"cleaner","researcher":"researcher","decorator":"decorator","nurse":"nurse"})
+	var x: Dictionary = _fixture({"cleaner":"cleaner","researcher":"researcher","nurse":"nurse"})
 	var practice_ok: bool = true
-	var sources: Dictionary = {"reception":"registration_completed","cleaner":"cleanup_completed","decorator":"surface_unit_completed"}
+	var sources: Dictionary = {"cleaner":"cleanup_completed"}
 	for id: String in sources:
 		var last_receipt: Dictionary = {}
 		for unit: int in 20:

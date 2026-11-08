@@ -344,7 +344,16 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 func _route_envelope(world: WorldState, actor: Dictionary, members: Array, offsets: Dictionary) -> Array:
 	return self.navigation._route_envelope(world,actor,members,offsets)
 
-func _unit_step_dynamic_clear(world: WorldState, actor: Dictionary, floor_id: int, from: Vector2i, to: Vector2i, members: Array, offsets: Dictionary) -> bool:
+func _unit_step_dynamic_clear(world: WorldState, actor: Dictionary, floor_id: int, from: Vector2i, to: Vector2i, members: Array, offsets: Dictionary, prepared: Dictionary = {}) -> bool:
+	# A prepared projection belongs only to one synchronous A* invocation.
+	# The common single standing body keeps the original addition order.
+	if prepared.has("shape"):
+		var shape: Rect2 = prepared.shape
+		var origin: Vector2 = prepared.origin if prepared.on_floor and from==prepared.start else Vector2(from)
+		var from_rect: Rect2 = Rect2(origin+shape.position,shape.size)
+		var to_rect: Rect2 = Rect2(Vector2(to)+shape.position,shape.size)
+		return not (prepared.index as BodyIndex).intersects(floor_id,from_rect.merge(to_rect),"")
+
 	var unit_ids: Array = [actor.id]
 	for member_id: String in members:
 		if member_id!=actor.id:
@@ -361,9 +370,44 @@ func _unit_step_dynamic_clear(world: WorldState, actor: Dictionary, floor_id: in
 		var from_origin: Vector2 = start_origin if actual_floor_start and from==start_cell else Vector2(from)
 		var from_rect: Rect2 = _actor_rect(member,from_origin+offset)
 		var to_rect: Rect2 = _actor_rect(member,Vector2(to)+offset)
-		if not _dynamic_clear(world,actor.id,floor_id,from_rect.merge(to_rect),members):
+		var swept: Rect2 = from_rect.merge(to_rect)
+		if prepared.is_empty():
+			if not _dynamic_clear(world,actor.id,floor_id,swept,members): return false
+		elif (prepared.index as BodyIndex).intersects(floor_id,swept,""):
 			return false
 	return true
+
+
+# Freeze only the forbidden dynamic rectangles for one synchronous A* search.
+# Boost remains the broadphase and Godot Rect2 retains strict intersections.
+# The projection is discarded before another query or any real move commits.
+func _dynamic_route_query(world: WorldState, actor: Dictionary, floor_id: int, members: Array, offsets: Dictionary) -> Dictionary:
+	_ensure_actor_index(world)
+	var index: BodyIndex = BodyIndex.new()
+	var projection: Dictionary = _actor_exclusion_scope(world)
+	var ignored: Array = members+[actor.id]
+	for source_id: int in 2:
+		var source: BodyIndex = _actor_index if source_id==0 else movement._sweep_index
+		var excluded: Array = ignored+projection.get("actor_exclusions",[]) if source_id==0 else ignored
+		for id: String in source._records:
+			var record: BodyIndex.Record = source._records[id]
+			if record.boundary!=source._boundary or record.floor_id!=floor_id or id in excluded: continue
+			var key: String = str(source_id)+":"+id
+			if record.regions.is_empty(): index.update(key,floor_id,record.rect)
+			else: index.update_compound(key,floor_id,record.regions)
+	var reservations: Dictionary = reservation_view(world).regions
+	for key: String in reservations:
+		var region: Dictionary = reservations[key]
+		var reservation: Dictionary = region.reservation
+		if int(reservation.floor_id)==floor_id and not RouteClearance.reservation_allows(reservation,actor.id,members):
+			index.update("r:"+key,floor_id,region.rect)
+	var prepared: Dictionary = {"index":index}
+	if (members.is_empty() or members==[actor.id]) and offsets.is_empty() and actor.get("posture","standing")!="lying":
+		var on_floor: bool = actor.location.kind=="floor" and int(actor.location.floor_id)==floor_id
+		var origin: Vector2 = Vector2(float(actor.location.cell[0]),float(actor.location.cell[1])) if on_floor else Vector2.ZERO
+		prepared.merge({"shape":_actor_rect(actor,Vector2.ZERO),"on_floor":on_floor,"origin":origin,"start":Vector2i(roundi(origin.x),roundi(origin.y))})
+	query_counts["dynamic_route_projections"] = int(query_counts.get("dynamic_route_projections",0))+1
+	return prepared
 
 func queue_waypoint(world: WorldState, movement: Dictionary, floor_id: int, cell: Array) -> void:
 	self.movement.queue_waypoint(world,movement,floor_id,cell)

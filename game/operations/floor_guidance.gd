@@ -127,7 +127,7 @@ func target(world: WorldState, visit_id: String) -> String:
 
 func prepare(world: WorldState, visit: Dictionary, ticket: Dictionary) -> bool:
 	ensure(world)
-	if ticket.kind=="reception" or ticket.has("resume_session_id"): return true
+	if ticket.has("resume_session_id"): return true
 	# A saved, already committed clinical journey completes its original safe
 	# handoff. New requests never reserve clinical resources before this gate.
 	if ticket.get("service_assigned",false) or world.facts.preparations.has(visit.id): return true
@@ -336,7 +336,7 @@ func _gather_counter(world: WorldState, visit: Dictionary, current: Dictionary) 
 		visit.waiting_reason = "等待导诊护士真实到台"
 		return false
 	current.phase = "working"
-	current.remaining_ticks = maxi(1,ceili(float(content.balance.guidance.nurse_seconds)*10.0))
+	current.remaining_ticks = maxi(1,ceili(float(content.balance.guidance.nurse_seconds)*10.0/clinic._talent_rate(world,str(current.nurse_id),"guidance",visit)))
 	current.started_tick = world.sim_tick
 	return false
 
@@ -428,6 +428,8 @@ func advance(world: WorldState) -> void:
 		current.remaining_ticks -= 1
 		if int(current.remaining_ticks)>0: continue
 		current.receipts.append({"request_key":current.request_key,"floor_id":current.guide_floor,"desk_id":current.desk_id,"nurse_id":current.nurse_id,"started_tick":current.started_tick,"completed_tick":world.sim_tick})
+		if clinic.recruitment!=null:
+			clinic.recruitment.service_mood(world,str(current.nurse_id),"guidance",visit.id,current.receipts[-1])
 		current.initial_done = true
 		current.erase("route_at_desk")
 		_release_counter(world,visit,current)

@@ -29,7 +29,7 @@ func run_case(t, database: HospitalContent) -> void:
 			equal = false
 			continue
 		var facts: Dictionary = candidate.world.freeze()
-		for kind: String in ["reception","gp","consult","outpatient","spectrum","resonance"]:
+		for kind: String in ["gp","consult","outpatient","spectrum","resonance"]:
 			actual.space.begin_route_query(candidate.world,{"nominal":true})
 			var first: Array = actual.service_candidates(candidate.world,candidate.visit,kind,true,true)
 			var warm: Array = actual.service_candidates(candidate.world,candidate.visit,kind,true,true)

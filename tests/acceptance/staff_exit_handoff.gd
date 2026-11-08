@@ -61,7 +61,7 @@ func _recover_and_return(x: Dictionary, exit_task: Dictionary) -> Dictionary:
 	var actor: Dictionary = x.world.facts.actors.exiting_staff
 	# Another real body occupies the entrance while the full offsite sleep
 	# elapses. Do not replace the endpoint with a fabricated completed timer.
-	HospitalFactory._add_staff(x.world,"entry_occupant","入口使用者","receptionist",exit_task.cell,_content)
+	HospitalFactory._add_staff(x.world,"entry_occupant","入口使用者","cleaner",exit_task.cell,_content)
 	for key: String in ["r","d","s","w","l","c","f","e","p","m","a"]: x[key].ensure(x.world)
 	x.world.touch()
 	var input_validation: String = x.world.validate(_content)
@@ -83,7 +83,7 @@ func run_case(t, database: HospitalContent) -> void:
 	_content = database
 	var results: Dictionary = {}
 	var passed: bool = true
-	for role: String in ["receptionist","doctor","nurse","cleaner","researcher","decorator"]:
+	for role: String in ["doctor","nurse","cleaner","researcher"]:
 		for restore: bool in [false,true]:
 			var result: Dictionary = _case(role,"sleep",restore)
 			results[role+"_sleep_"+str(restore)] = result

@@ -16,7 +16,7 @@ func _run() -> void:
 	suite._add_actor(sim,"follower","S49",[42,80])
 	suite._add_actor(sim,"owner","S49",[52,86])
 	HospitalFactory._add_room(sim.world,{"id":"fixture_room","type":"gp","anchor":[48,84],"size":[6,6],"door":{"definition_id":"DR04","offset":1}},suite.content)
-	HospitalFactory._add_facility(sim.world,{"id":"reserved_fixture","definition_id":"FUR01","anchor":[49,85],"room_id":"fixture_room","size":suite.content.facility_definition("FUR01").footprint},suite.content)
+	HospitalFactory._add_facility(sim.world,{"id":"reserved_fixture","definition_id":"FUR05","anchor":[49,85],"room_id":"fixture_room","size":suite.content.facility_definition("FUR05").footprint},suite.content)
 	var request: String = sim.space.request_group_move(sim.world,"leader",["leader","follower"],{},1,[48,80])
 	var input: Dictionary = sim.world.freeze()
 	var initial_error: String = WorldState.new(input.duplicate(true)).validate(suite.content)

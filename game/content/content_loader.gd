@@ -282,8 +282,8 @@ func _validate_semantics(collections: Dictionary, indexes: Dictionary) -> Dictio
 		roles.append(role.role)
 	for species: Dictionary in indexes.species.values():
 		_validate_body(species.body, str(species.id))
-		if not talents.has(species.id) or not rigs.has(species.rig):
-			_fail(str(species.id), "缺少职员天赋或骨架适配")
+		if not rigs.has(species.rig):
+			_fail(str(species.id), "缺少职员骨架适配")
 			continue
 		for role: String in roles:
 			if not role in rigs[species.rig]:

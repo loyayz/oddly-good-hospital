@@ -5,6 +5,8 @@ extends RefCounted
 # accumulated rounding along an ordinary leg. This is only an endpoint budget
 # correction; body and sweep collision predicates retain their strict edges.
 const POSITION_ROUNDING: float = 2.0*FloorNavigation.SIDE/8388608.0
+const RETURN_CONTACT_REGION_CELLS: float = 2.0
+const MAX_RETURN_CONTACT_REGIONS: int = 4096
 
 class MotionResult:
 	extends RefCounted
@@ -14,7 +16,7 @@ class MotionResult:
 	var blocker_actor_ids: Array[String] = []
 	var reservation_ids: Array[String] = []
 	var door_id: String = ""
-	# Private boolean consumers opt in; ordinary movement retains every ID.
+	# Only private return-proof consumers request an existence witness.
 	var first_contact_only: bool = false
 	var blocked: bool:
 		get: return not door_id.is_empty() or not blocker_actor_ids.is_empty() or not reservation_ids.is_empty()
@@ -26,6 +28,7 @@ class ReturnContactScratch:
 	var sweep: BodyIndex.Record = BodyIndex.Record.new()
 	var result: MotionResult = MotionResult.new()
 	var sweeps: Array[BodyIndex.Record] = [sweep]
+	var queries: Dictionary = {}
 	func _init() -> void:
 		result.first_contact_only = true
 
@@ -702,20 +705,33 @@ func _unit_sweeps(world: WorldState, actor: Dictionary, next: Vector2, members: 
 		result.append(sweep)
 	return result
 
-func _movement_contacts(world: WorldState, actor_id: String, floor_id: int, broad: Rect2, sweeps: Array[BodyIndex.Record], members: Array, result: MotionResult) -> void:
-	space._ensure_actor_index(world)
+func _movement_contacts(world: WorldState, actor_id: String, floor_id: int, broad: Rect2, sweeps: Array[BodyIndex.Record], members: Array, result: MotionResult, queries: Dictionary = {}) -> void:
+	# Installing the first region prepares the index for this frozen search.
+	if not queries.has("last"): space._ensure_actor_index(world)
+	var cached: Dictionary = _return_contact_region(world,actor_id,floor_id,broad,members,queries) if queries.has("regions") else {}
+	if not cached.is_empty() and cached.actors.is_empty() and cached.accepted.is_empty() and cached.reservations.is_empty():
+		result.reservation_ids.sort()
+		return
 	var candidates: Dictionary = {}
-	for id: String in space._actor_index.candidates(floor_id,broad,members):
-		candidates[id] = true
-	for id: String in _sweep_index.candidates(floor_id,broad,members):
-		candidates[id] = true
+	var reservations: Array = []
+	if cached.is_empty():
+		for id: String in space._actor_index.candidates(floor_id,broad,members): candidates[id] = true
+		for id: String in _sweep_index.candidates(floor_id,broad,members): candidates[id] = true
+		reservations = space._reservation_regions(world,floor_id,broad)
+	else:
+		# The enclosing box only supplies complete candidates. Reapply the
+		# original strict overlap before the original exact sweep predicates.
+		for id: String in cached.actors:
+			if space._actor_index._overlap(space._actor_index._records[id],broad): candidates[id] = true
+		for id: String in cached.accepted:
+			if _sweep_index._overlap(_sweep_index._records[id],broad): candidates[id] = true
+		for region: Dictionary in cached.reservations:
+			if broad.intersects(region.rect,false): reservations.append(region)
 	var ids: Array = candidates.keys()
 	ids.sort()
 	space.query_counts.movement_candidates += ids.size()
-	var reservations: Array = space._reservation_regions(world,floor_id,broad)
-	# Full consumers retain every contact; return proofs need only existence.
-	# Candidate counts and reservation-view maintenance above always run.
-	# Actor identifiers never confer passage rights.
+	# The cached region is complete before narrow-phase first-hit exits.
+	# Ordinary movement still retains all contacts; actor IDs confer no priority.
 	for id: String in ids:
 		var other: BodyIndex.Record = _accepted_sweeps.get(id)
 		var current: BodyIndex.Record = space._actor_index._records.get(id)
@@ -746,6 +762,26 @@ func _movement_contacts(world: WorldState, actor_id: String, floor_id: int, broa
 				if result.first_contact_only: return
 				break
 	result.reservation_ids.sort()
+
+# The return-search owner creates this memo before any trial and discards it
+# before a real move or reservation change. Floor, members, bodies and accepted
+# sweeps stay fixed in that synchronous search. Region size affects reuse only.
+func _return_contact_region(world: WorldState, actor_id: String, floor_id: int, broad: Rect2, members: Array, queries: Dictionary) -> Dictionary:
+	if queries.has("last") and (queries.last.bounds as Rect2).encloses(broad): return queries.last
+	var low: Vector2 = (broad.position/RETURN_CONTACT_REGION_CELLS).floor()*RETURN_CONTACT_REGION_CELLS
+	var high: Vector2 = (broad.end/RETURN_CONTACT_REGION_CELLS).ceil()*RETURN_CONTACT_REGION_CELLS
+	var region: Rect2 = Rect2(low,high-low)
+	if not region.encloses(broad): return {}
+	if not queries.regions.has(region):
+		# Bound memo entries only; never truncate candidates or the legal search.
+		if queries.regions.size() >= MAX_RETURN_CONTACT_REGIONS: return {}
+		var reservations: Array = []
+		for entry: Dictionary in space._reservation_regions(world,floor_id,region):
+			if int(entry.reservation.floor_id)==floor_id and not RouteClearance.reservation_allows(entry.reservation,actor_id,members): reservations.append(entry)
+		queries.regions[region] = {"bounds":region,"actors":space._actor_index.candidates(floor_id,region,members),"accepted":_sweep_index.candidates(floor_id,region,members),"reservations":reservations}
+		space.query_counts["return_contact_regions_built"] = int(space.query_counts.get("return_contact_regions_built",0))+1
+	queries.last = queries.regions[region]
+	return queries.last
 
 func _reserve_doors(world: WorldState, actor: Dictionary, movement: Dictionary, swept: Rect2, doors: Array[Dictionary], result: MotionResult) -> bool:
 	var floor_id: int = int(actor.location.floor_id)
@@ -966,7 +1002,7 @@ func _detour_return_path(world: WorldState, actor: Dictionary, movement: Diction
 	# Candidate links read one unchanged actor, geometry, reservations and
 	# accepted sweeps. Exact single-body proofs live only in this synchronous
 	# search; the next attempt rebuilds. Convoys retain their full trail proof.
-	var proof: Dictionary = {"sweeps":{},"segments":{},"_capture_entry":true,"_return_sample":actor.duplicate(true)} if not movement.has("convoy") else {}
+	var proof: Dictionary = {"sweeps":{},"segments":{},"_capture_entry":true,"_return_sample":actor.duplicate(true),"_cache_contacts":true} if not movement.has("convoy") else {}
 	var query: RouteClearance = null
 	for index: int in movement.detour.original_path.size():
 		var segment: Dictionary = movement.detour.original_path[index]
@@ -1097,6 +1133,7 @@ func _detour_path_clear(world: WorldState, actor: Dictionary, movement: Dictiona
 			# Allocate lazily: memo hits and static failures create no scratch.
 			if reuse_contact and contact_scratch==null:
 				contact_scratch = ReturnContactScratch.new()
+				if proof.get("_cache_contacts",false): contact_scratch.queries = {"regions":{}}
 				proof._return_contact_scratch = contact_scratch
 			var sweep: BodyIndex.Record = contact_scratch.sweep if reuse_contact else BodyIndex.Record.new()
 			sweep.id = actor.id
@@ -1119,7 +1156,7 @@ func _detour_path_clear(world: WorldState, actor: Dictionary, movement: Dictiona
 				contact.blocker_actor_ids.clear()
 				contact.reservation_ids.clear()
 			if reuse_contact:
-				_movement_contacts(world,actor.id,floor_id,sweep.sweep_from.merge(sweep.sweep_to),contact_scratch.sweeps,members,contact)
+				_movement_contacts(world,actor.id,floor_id,sweep.sweep_from.merge(sweep.sweep_to),contact_scratch.sweeps,members,contact,contact_scratch.queries)
 			else:
 				var sweeps: Array[BodyIndex.Record] = [sweep]
 				_movement_contacts(world,actor.id,floor_id,sweep.sweep_from.merge(sweep.sweep_to),sweeps,members,contact)

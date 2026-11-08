@@ -3,10 +3,10 @@ extends RefCounted
 class CountedSpace extends HospitalSpace:
 	var checks: int = 0
 	var goal_checks: int = 0
-	func _unit_step_dynamic_clear(world: WorldState, actor: Dictionary, floor_id: int, from: Vector2i, to: Vector2i, members: Array, offsets: Dictionary) -> bool:
+	func _unit_step_dynamic_clear(world: WorldState, actor: Dictionary, floor_id: int, from: Vector2i, to: Vector2i, members: Array, offsets: Dictionary, prepared: Dictionary = {}) -> bool:
 		checks += 1
 		if from==to: goal_checks += 1
-		return super._unit_step_dynamic_clear(world,actor,floor_id,from,to,members,offsets)
+		return super._unit_step_dynamic_clear(world,actor,floor_id,from,to,members,offsets,prepared)
 
 # Independent reference keeps the complete original dynamic fallback. It does
 # not call the optimized _floor_route or use its destination condition.
@@ -139,7 +139,8 @@ func run_case(sim: HospitalSimulation, content: HospitalContent) -> Dictionary:
 			var restored: bool = released==cold and released.get("ok",false) and released.get("status")=="complete"
 			observations.append({"variant":"goal_released","complete_cold_equal":released==cold,"expected_behavior":restored})
 			ok = ok and restored
-	return {"ok":ok and sim.world.freeze()==original_facts,"details":{"observations":observations,"scope":"exact original complete dynamic A* comparison; computation only; real transport lifecycle covered separately"}}
+	var projection: Dictionary = preload("res://tests/acceptance/dynamic_route_index.gd").new().run(content)
+	return {"ok":ok and sim.world.freeze()==original_facts and projection.ok,"details":{"observations":observations,"projection":projection,"scope":"Requirement boundaries with complete cold A* comparison; sweep expiry uses real movement; full movement handoff covered separately"}}
 
 func _actor(id: String, cell: Array) -> Dictionary:
 	return {"id":id,"name":id,"species_id":"S49","location":{"kind":"floor","floor_id":1,"cell":cell.duplicate(),"height_m":0.0},"facing":0.0,"posture":"standing"}

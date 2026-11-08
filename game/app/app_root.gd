@@ -987,7 +987,7 @@ func _notification(what: int) -> void:
 			_session.resume("focus")
 
 static func _phase_name(phase: String) -> String:
-	return {"arrival":"到院","wait_reception":"等候接待","reception":"正在接待","wait_gp":"等候初诊","gp":"初诊中",
+	return {"arrival":"到院","wait_gp":"等候初诊","gp":"初诊中",
 		"wait_spectrum":"等候光谱检查","spectrum":"光谱检查中","wait_resonance":"等候共振检查","resonance":"共振检查中",
 		"wait_consult":"等候方案会诊","consult":"方案会诊中","wait_outpatient":"等候门诊治疗","outpatient":"治疗中",
 		"wait_surgery":"手术准备","surgery":"手术进行中","wake":"治疗完成，苏醒中","transfer":"正在转床",

@@ -179,7 +179,7 @@ preview_computation服务既有建造、搬移、蓝图与“试试看”的原�
 | WardStay | id、attempt_id、bed_id、标准恢复余量（定点工作量）、当前覆盖段冻结的护士/床等级/工作率与不足一工作tick余数、主动护理唯一任务与贡献、nursing_visit_done、discharge_round_done、assigned_nurse_id、no_progress_since_tick；不复制总量/效果/收费 |
 | 陪诊/探视请求 | 关联Visit、目的、创建tick、窗口、Visit持有的当前探视日/早中窗口评估与消耗位、已抽意向、暂不接待、已绑定亲友引用或临时模板；每活跃Visit至多一份院外请求，Actor实际入院才创建，患者终结取消请求但不删除在途家属 |
 | CareDepartment | id、name、room_ids、public_area_cells、intake_anchor、focus_specialty_id、pending_focus_id、focus_ready_tick、shared_facility_ids；room_ids归属独占，评分为投影 |
-| RegistrationRoute | visit_id、chosen_department_id、correct_department_id、error_rolled、corrected、guidance_task_id、original_ticket_sequence、可选wrong_entry_fact_id与发生时department_id；corrected表示路线解决，真实到错入口才影响评分/怒气，职员成绩只取本人完成工作，不复制Visit诊断 |
+| GuidanceRoute | visit_id、chosen_department_id、correct_department_id、error_rolled、corrected、guidance_task_id、original_ticket_sequence、可选wrong_entry_fact_id与发生时department_id；corrected表示路线解决，真实到错入口才影响评分/怒气，职员成绩只取本人完成工作，不复制Visit诊断 |
 | InteractionContext | id、predicate_id、producer_id、source_fact_sequence、actor_ids、target_ids、created_tick、expires_tick、consumed；最多160条，10秒过期，无物种即触发规则 |
 | ComedyState | scan_cursor_actor_id、recent_scene_starts≤144、major_starts≤7、last_consumed_fact_sequence；冷却与最近三场只读派生，见熟客记忆规格 |
 | CommunityMemory | resident_id、memory_id、callback_id、source_fact_sequence、source_visit_id或source_stay_id、counterpart_kind/id由已提交来源事实冻结、created_day、consumed、started_tick、source_summary；熟客每人≤3，全院≤600 |
@@ -235,7 +235,7 @@ diagnostic_work_styles由内容注册表建立主体/医生DP性格复合索引�
 
 ## 5. 内容定义的类型约束
 
-SpeciesDef拥有原身体、骨架、家族与外观，StaffTalent通过species_id唯一绑定，StaffRigAdapter按rig覆盖六岗位。ClinicalAbilityDef仅诊断/治疗/手术/护理，ClinicalPracticeSource引用实际工作事实。TreatmentRoutine拥有equipment_id、specialty_id、service_ticks和四段表现；TreatmentBinding引用species_id、disease_id、routine_id、骨架与三种身体表现，并可拥有symptom_envelope；设备从routine派生。MachineDef仅有三类门诊主体的价、占地、适配与状态类别；诊断台、手术台、护理床各有唯一定义，MedicalEquipmentProfile索引六类主体的操作规则，UpgradePresentation提供每主体两级外观。内置检查、麻醉、监护和器械功能不是独立设备实体。
+SpeciesDef拥有原身体、骨架、家族与外观，StaffTalent通过species_id唯一绑定，StaffRigAdapter按rig覆盖四岗位。ClinicalAbilityDef仅诊断/治疗/手术/护理，ClinicalPracticeSource引用实际工作事实。TreatmentRoutine拥有equipment_id、specialty_id、service_ticks和四段表现；TreatmentBinding引用species_id、disease_id、routine_id、骨架与三种身体表现，并可拥有symptom_envelope；设备从routine派生。MachineDef仅有三类门诊主体的价、占地、适配与状态类别；诊断台、手术台、护理床各有唯一定义，MedicalEquipmentProfile索引六类主体的操作规则，UpgradePresentation提供每主体两级外观。内置检查、麻醉、监护和器械功能不是独立设备实体。
 
 DiseaseDef继续拥有病名、症状、临床档位、治愈费与症状资源；DoorDef拥有收起跨度/净宽高、价与自动适配策略。TaskDef拥有kind、metric、target、filter、eligibility_rule及奖励；能力团队指标的metric_parameters拥有所需能力项数和等级，说明文字不执行规则。ResearchDef独占解锁列表，初始病症由initial_disease_ids声明；疾病不另存unlock_id，界面反向索引由注册表派生。TreatmentProtocol拥有方案参数，TreatmentPlan引用病症、协议、额外研究与独特演出；SurgicalAdapter引用binding_id、plan_id、patient_pose、target_description与required_anchors，种族和病症由绑定派生。DoctorTitleDef拥有职称顺序和晋级条件，DoctorPayDef拥有同title_id的工资、招聘费和评估费；BillingPolicy独占各职称初诊诊费及各equipment_id/service_kind的设施单价和收费节点，DoctorPersonalityDef拥有六种评分权重。ClinicalEquipmentDef和ClinicalRoomTypeDef保留临床主体价、尺寸、研究及房间需求；模式资格额外读取DiagnosticMode，不用诊断台通用资格放行护士初诊。
 

@@ -41,8 +41,13 @@
     "id": "REX03",
     "illustrative_only": true,
     "name": "@zh:core.recruitment_examples.REX03.name",
-    "non_doctor_skill": 1,
-    "role": "receptionist",
+    "non_doctor_skill": null,
+    "nurse_profile": {
+      "care": 1,
+      "diagnosis": 1,
+      "surgery": 0
+    },
+    "role": "nurse",
     "social_personality_id": "PP08",
     "species_id": "S02",
     "work_style_id": "WS05"
@@ -71,18 +76,6 @@
     "role": "researcher",
     "social_personality_id": "PP09",
     "species_id": "S70",
-    "work_style_id": "WS03"
-  },
-  {
-    "biography_id": "BIO08",
-    "certificates": [],
-    "id": "REX07",
-    "illustrative_only": true,
-    "name": "@zh:core.recruitment_examples.REX07.name",
-    "non_doctor_skill": 1,
-    "role": "decorator",
-    "social_personality_id": "PP01",
-    "species_id": "S42",
     "work_style_id": "WS03"
   }
 ]

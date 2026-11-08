@@ -317,8 +317,8 @@ func renovation_quote(world: WorldState, payload: Dictionary) -> Dictionary:
 	var cost: int = accepted.size()*price
 	if reason.is_empty() and HospitalLedger.balance(world)<cost:
 		reason = "装修材料资金不足"
-	if reason.is_empty() and not bool(payload.get("allow_waiting",false)) and (not _has_role(world,"decorator") or _tool(world).is_empty()):
-		reason = "缺装修工或正常工具台，可明确选择付费待工"
+	if reason.is_empty() and not bool(payload.get("allow_waiting",false)) and _tool(world).is_empty():
+		reason = "缺正常工具台，可明确选择付费待工"
 	return {"ok":reason.is_empty(),"reason":reason,"floor_id":floor_id,"material_id":str(material.get("id","")),
 		"surface":str(material.get("surface","")),"unit_price":price,"units":accepted,"cost":cost,
 		"work_seconds":accepted.size()*int(content.balance.renovation.work_seconds_per_unit)}
@@ -384,7 +384,7 @@ func execute(world: WorldState, kind: String, payload: Dictionary) -> CommandRes
 func dispatch(world: WorldState) -> void:
 	_worked.clear()
 	for staff: Dictionary in world.facts.staff.values():
-		if staff.role in ["cleaner","decorator"]:
+		if staff.role=="cleaner":
 			staff.dispatch_idle = false
 			staff.dispatch_idle_tick = world.sim_tick
 	for patch: Dictionary in world.facts.environment.dirt.values():
@@ -464,34 +464,34 @@ func dispatch(world: WorldState) -> void:
 			if not _unit_safe(world,order,unit,safety):
 				order.reason = "等待施工单元无人占用及临床安全边界"
 				continue
-			for staff_id: String in world.ids("staff"):
-				var staff: Dictionary = world.facts.staff[staff_id]
-				if staff.role!="decorator" or not _worker_ready(world,staff_id) or not _allowed_region(staff,int(order.floor_id),unit.cell):
-					continue
-				var place: Dictionary = _work_position(world,staff_id,int(order.floor_id),unit.cell,true)
-				if place.is_empty(): continue
-				# Eligibility is shared, but reachability belongs to this worker.
-				var tool_id: String = ""
-				var tool_position: Dictionary = {}
-				for candidate_id: String in available_tools:
-					var tool: Dictionary = world.facts.facilities[candidate_id]
-					tool_position = _work_position(world,staff_id,int(tool.floor_id),tool.cell,true)
-					if not tool_position.is_empty():
-						tool_id = candidate_id
-						break
-				if tool_id.is_empty(): continue
-				if HospitalStaffWellbeing.yield_for_work(world,content,space,[staff_id]): continue
-				unit.worker_id = staff_id
-				unit.work_cell = place.cell
-				unit.tool_id = tool_id
-				unit.tool_cell = tool_position.cell
-				unit.tool_collected = unit.started
-				staff.active_job_id = unit.id
-				assigned += 1
-				break
+			var candidate: WorldState = HospitalMaintenance.contractor_preview(world)
+			var probe_id: String = "contractor_preview"
+			var place: Dictionary = _work_position(candidate,probe_id,int(order.floor_id),unit.cell,true)
+			if place.is_empty():
+				order.reason = "等待外部维修人员可达的施工位置"
+				continue
+			var tool_id: String = ""
+			var tool_position: Dictionary = {}
+			for candidate_id: String in available_tools:
+				var tool: Dictionary = world.facts.facilities[candidate_id]
+				tool_position = _work_position(candidate,probe_id,int(tool.floor_id),tool.cell,true)
+				if not tool_position.is_empty():
+					tool_id = candidate_id
+					break
+			if tool_id.is_empty(): continue
+			var worker_id: String = HospitalMaintenance.admit_contractor(world,space,str(unit.id))
+			if worker_id.is_empty():
+				order.reason = "等待入口实际空位，外部维修人员尚未入院"
+				continue
+			unit.worker_id = worker_id
+			unit.work_cell = place.cell
+			unit.tool_id = tool_id
+			unit.tool_cell = tool_position.cell
+			unit.tool_collected = false
+			assigned += 1
 	for staff_id: String in world.ids("staff"):
 		var staff: Dictionary = world.facts.staff[staff_id]
-		if staff.role in ["cleaner","decorator"] and _worker_ready(world,staff_id):
+		if staff.role=="cleaner" and _worker_ready(world,staff_id):
 			staff.dispatch_idle = true
 
 func advance(world: WorldState) -> void:
@@ -539,7 +539,7 @@ func advance(world: WorldState) -> void:
 				if not _tool_stance_valid(world,unit,tool):
 					if not _reselect_tool(world,unit):
 						_release(world,unit)
-						order.reason = "等待本员工可达的正常装修工具台"
+						order.reason = "等待外部维修人员可达的正常装修工具台"
 						continue
 					tool = world.facts.facilities[unit.tool_id]
 				# _arrive leaves outstanding journeys (including safe transit segments)
@@ -556,7 +556,6 @@ func advance(world: WorldState) -> void:
 			var amount: int = mini(_work_amount(world,str(unit.worker_id)),int(unit.remaining_milli))
 			unit.remaining_milli -= amount
 			_contribute(unit,str(unit.worker_id),amount)
-			_worked[unit.worker_id] = true
 			if int(unit.remaining_milli)==0:
 				var original: Dictionary = unit.original
 				var refund: int = floori(float(original.get("paid_cost",0))*float(content.balance.renovation.installed_refund))
@@ -564,10 +563,32 @@ func advance(world: WorldState) -> void:
 				world.facts.environment.surfaces[unit.key] = {"floor_id":order.floor_id,"cell":unit.cell.duplicate(),
 					"surface":order.surface,"edge":unit.edge,"material_id":order.material_id,"paid_cost":unit.paid_cost,"order_id":order.id}
 				_receipt(world,"renovation_completed",str(unit.id),unit.contributions,int(unit.total_milli))
-				_release(world,unit)
 				unit.phase = "completed"
+				if not _continue_renovation(world,order,unit,safety): _release(world,unit)
 				space.public_areas.changed(world)
 		_finish_order(order)
+
+# The same visiting worker can collect material for the next unit of this order.
+# Only its task ownership changes; no actor moves or work progress are fabricated.
+func _continue_renovation(world: WorldState, order: Dictionary, completed: Dictionary, safety: Dictionary) -> bool:
+	if order.paused or order.cancel_requested: return false
+	var worker_id: String = str(completed.worker_id)
+	var tool: Dictionary = world.facts.facilities.get(completed.tool_id,{})
+	if tool.is_empty(): return false
+	for unit: Dictionary in order.units:
+		if unit.phase in ["completed","cancelled"] or not str(unit.worker_id).is_empty() or not _unit_safe(world,order,unit,safety): continue
+		var place: Dictionary = _work_position(world,worker_id,int(order.floor_id),unit.cell,true)
+		var pickup: Dictionary = _work_position(world,worker_id,int(tool.floor_id),tool.cell,true)
+		if place.is_empty() or pickup.is_empty(): continue
+		unit.worker_id = worker_id
+		unit.work_cell = place.cell
+		unit.tool_id = completed.tool_id
+		unit.tool_cell = pickup.cell
+		unit.tool_collected = false
+		world.facts.maintenance.contractors[worker_id].job_id = unit.id
+		completed.worker_id = ""
+		return true
+	return false
 
 func _tool_stance_valid(world: WorldState, unit: Dictionary, tool: Dictionary) -> bool:
 	var cell: Array = unit.tool_cell
@@ -608,6 +629,9 @@ func _arrive(world: WorldState, job: Dictionary, floor_id: int, cell: Array) -> 
 	return false
 
 func _worker_ready(world: WorldState, id: String, own_job: String = "") -> bool:
+	var contractor: Dictionary = world.facts.maintenance.get("contractors",{}).get(id,{})
+	if not contractor.is_empty():
+		return world.facts.actors.has(id) and contractor.phase=="assigned" and (own_job.is_empty() or contractor.job_id==own_job)
 	if not world.facts.staff.has(id) or not world.facts.actors.has(id):
 		return false
 	var staff: Dictionary = world.facts.staff[id]
@@ -617,6 +641,7 @@ func _release(world: WorldState, job: Dictionary) -> void:
 	var worker_id: String = str(job.get("worker_id",""))
 	if world.facts.staff.has(worker_id) and world.facts.staff[worker_id].get("active_job_id","")==job.id:
 		world.facts.staff[worker_id].active_job_id = ""
+	HospitalMaintenance.release_contractor(world,worker_id)
 	job.worker_id = ""
 	if job.get("phase","") in ["working","travelling"]:
 		job.phase = "queued"
@@ -785,12 +810,6 @@ func _tools(world: WorldState) -> Array:
 			result.append(id)
 	return result
 
-func _has_role(world: WorldState, role: String) -> bool:
-	for staff: Dictionary in world.facts.staff.values():
-		if staff.role==role:
-			return true
-	return false
-
 func _surface_ordered(world: WorldState, key: String) -> bool:
 	for order_id: String in world.active_operation_ids("environment","orders",["completed","cancelled"]):
 		var order: Dictionary = world.facts.environment.orders[order_id]
@@ -818,9 +837,11 @@ func _receipt(world: WorldState, kind: String, source_id: String, contributions:
 		if int(contributions[staff_id])>largest:
 			winner = staff_id
 			largest = int(contributions[staff_id])
+	var contractor_id: String = winner if world.facts.maintenance.get("contractors",{}).has(winner) else ""
 	if not world.facts.staff.has(winner):
 		winner = ""
 	world.facts.environment.receipts[id] = {"id":id,"kind":kind,"source_id":source_id,"staff_id":winner,"tick":world.sim_tick,"standard_work_milli":total}
+	if not contractor_id.is_empty(): world.facts.environment.receipts[id].contractor_id = contractor_id
 	world.completion_receipt_added("environment",id)
 	# Completion evidence changes no floor geometry. The producing owner
 	# publishes its actual material, dirt or completed-floor change separately.
@@ -833,6 +854,7 @@ func _allowed_region(staff: Dictionary, floor_id: int, cell: Array) -> bool:
 	return int(zone.get("floor_id",floor_id))==floor_id and Rect2(float(zone.origin[0]),float(zone.origin[1]),float(zone.size[0]),float(zone.size[1])).has_point(Vector2(float(cell[0]),float(cell[1])))
 
 func _work_amount(world: WorldState, staff_id: String, action: String = "") -> int:
+	if world.facts.maintenance.get("contractors",{}).has(staff_id): return 100
 	if recruitment!=null and recruitment.has_method("work_rate"):
 		if action.is_empty(): action = "cleanup" if world.facts.staff[staff_id].role=="cleaner" else "surface_unit"
 		return roundi(100.0*float(recruitment.call("work_rate",world,staff_id,action)))

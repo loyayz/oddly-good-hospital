@@ -96,14 +96,6 @@
     "scene": "@zh:core.hospital_situations.HS12.scene"
   },
   {
-    "handler": "lost_property",
-    "id": "HS13",
-    "name": "@zh:core.hospital_situations.HS13.name",
-    "once_per_visit": true,
-    "resolution": "@zh:core.hospital_situations.HS13.resolution",
-    "scene": "@zh:core.hospital_situations.HS13.scene"
-  },
-  {
     "handler": "call_missed",
     "id": "HS14",
     "name": "@zh:core.hospital_situations.HS14.name",

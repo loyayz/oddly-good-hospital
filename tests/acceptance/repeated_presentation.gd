@@ -375,12 +375,12 @@ func run_resources(t, content: HospitalContent, case_id: String = "CORE-52") -> 
 	var facility_only: bool = false
 	for id: String in world.ids("facilities"):
 		var facility: Dictionary = world.facts.facilities[id]
-		if facility.definition_id!="FUR01": continue
+		if facility.definition_id!="SE01": continue
 		var wrapper: Node3D = Node3D.new()
 		view.add_child(wrapper)
 		view._facilities[id] = wrapper
 		var signature: String = str(facility.definition_id)+":"+JSON.stringify(facility.footprint)+":"+str(facility.get("rotation",0))
-		view._bind_entity("facility:"+id,signature,wrapper,"res://assets/models/core_fur01_machine.glb")
+		view._bind_entity("facility:"+id,signature,wrapper,"res://assets/models/core_se01_machine.glb")
 		# Cache the proxy's missing player, then publish the replacement.
 		view._animation_player(wrapper)
 		facility_only = view.publish_resource(view.resource_ticket("facility:"+id),Node3D.new()) and view.rebinds==2 and not wrapper.has_meta("_hospital_animation_player")

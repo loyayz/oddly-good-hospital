@@ -123,19 +123,6 @@
   ],
   "objects": [
     {
-      "id": "reception",
-      "definition_id": "FUR01",
-      "anchor": [
-        43,
-        92
-      ],
-      "size": [
-        2,
-        1
-      ],
-      "room_id": null
-    },
-    {
       "id": "gp_station",
       "definition_id": "FUR02",
       "anchor": [

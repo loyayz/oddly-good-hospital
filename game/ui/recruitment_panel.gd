@@ -1,7 +1,7 @@
 class_name HospitalRecruitmentPanel
 extends HospitalActionPanel
 
-const ROLE_NAMES: Dictionary = {"receptionist":"接待员","doctor":"医生","nurse":"护士","cleaner":"保洁员","researcher":"研究员","decorator":"装修员"}
+const ROLE_NAMES: Dictionary = {"doctor":"医生","nurse":"护士","cleaner":"保洁员","researcher":"研究员"}
 const TRACK_NAMES: Dictionary = {"diagnosis":"诊断","treatment":"治疗","care":"护理","surgery":"手术","skill":"岗位技能"}
 var _role: OptionButton
 var _species: OptionButton

@@ -165,17 +165,6 @@ func _maximum_upper(simulation: HospitalSimulation, source: Dictionary) -> Dicti
 	if world.facts.floors.overrides["1"].plots.size()!=9:
 		_failure = "Nine original purchased ground plots are required."
 		return {"ok":false}
-	var recruitment: RecruitmentService = simulation.services.recruitment
-	var card: Dictionary = recruitment.standard_preview(world,{"role":"decorator"})
-	if not card.get("ok",false):
-		_failure = "Original standard decorator preview unavailable: "+str(card.get("reason",""))
-		return {"ok":false}
-	while not card.entry.get("ok",false):
-		if not await _advance(simulation,"decorator_real_entry"): return {"ok":false}
-		card = recruitment.standard_preview(world,{"role":"decorator"})
-	var hired: CommandResult = _command(simulation,"recruitment_hire",{"filter":{"role":"decorator"},"standard_key":card.standard_key,"ordinal":card.ordinal,"quote_hash":card.quote_hash})
-	if not hired.accepted: return {"ok":false,"hire":hired.to_record()}
-	var worker_id: String = str(hired.changed_ids[0])
 	if not _build(simulation,{"kind":"build_facility","id":"formal_upper_tool","definition_id":"SE02","floor_id":4,"cell":[15,81],"room_id":""}): return {"ok":false}
 	# The first module uses the existing main lift's ground anchor plot. Further
 	# modules use the actual completed same-floor module, all worked from 4F.
@@ -233,8 +222,8 @@ func _maximum_upper(simulation: HospitalSimulation, source: Dictionary) -> Dicti
 	var valid: bool = complete.get("ok",false) and int(complete.get("price",-1))==364850 and before_preview==world.freeze() and original_layout
 	if not valid: _failure = "Original maximum-upper complete preflight failed or mutated facts: "+str(complete.get("reason",""))
 	return {"ok":valid,"target_floor":5,"target_size":[96,95],"target_cells":9120,"expected_price":364850,"construction_order_ids":orders,
-		"hired_decorator_id":worker_id,"tool_id":"formal_upper_tool","maximum_preview":complete,"construction_orders":completed_orders,"original_load_and_traffic_retained":original_layout,
-		"scope":"Nine modules built by original ordinary workers from 4F; original 1-4F lift retained. No 5F shaft, actor, room, completion rewrite or timestep change."}
+		"construction_provider":"external_maintenance","tool_id":"formal_upper_tool","maximum_preview":complete,"construction_orders":completed_orders,"original_load_and_traffic_retained":original_layout,
+		"scope":"Nine modules built by external maintenance personnel from 4F; original 1-4F lift retained. No 5F shaft, actor, room, completion rewrite or timestep change."}
 
 func _build(simulation: HospitalSimulation, draft: Dictionary) -> bool:
 	var quote: Dictionary = simulation.services.building.preview(simulation.world,draft)

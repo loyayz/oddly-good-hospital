@@ -10,7 +10,7 @@
     "value": 0.1
   },
   {
-    "action": "registration",
+    "action": "guidance",
     "condition": "always",
     "handler_id": "work_speed",
     "id": "STAL02",
@@ -250,7 +250,7 @@
     "value": 0.1
   },
   {
-    "action": "registration",
+    "action": "guidance",
     "condition": "always",
     "handler_id": "work_speed",
     "id": "STAL26",
@@ -390,7 +390,7 @@
     "value": 0.08
   },
   {
-    "action": "registration",
+    "action": "guidance",
     "condition": "always",
     "handler_id": "service_mood",
     "id": "STAL40",
@@ -400,7 +400,7 @@
     "value": 2.0
   },
   {
-    "action": "registration",
+    "action": "guidance",
     "condition": "always",
     "handler_id": "service_mood",
     "id": "STAL41",
@@ -408,16 +408,6 @@
     "scene": "@zh:core.staff_talents.STAL41.scene",
     "species_id": "S41",
     "value": 2.0
-  },
-  {
-    "action": "surface_unit",
-    "condition": "always",
-    "handler_id": "work_speed",
-    "id": "STAL42",
-    "name": "@zh:core.staff_talents.STAL42.name",
-    "scene": "@zh:core.staff_talents.STAL42.scene",
-    "species_id": "S42",
-    "value": 0.1
   },
   {
     "action": "course",
@@ -490,7 +480,7 @@
     "value": 0.9
   },
   {
-    "action": "registration",
+    "action": "guidance",
     "condition": "always",
     "handler_id": "service_mood",
     "id": "STAL50",
@@ -540,16 +530,6 @@
     "value": 0.08
   },
   {
-    "action": "floor_module",
-    "condition": "always",
-    "handler_id": "work_speed",
-    "id": "STAL55",
-    "name": "@zh:core.staff_talents.STAL55.name",
-    "scene": "@zh:core.staff_talents.STAL55.scene",
-    "species_id": "S55",
-    "value": 0.1
-  },
-  {
     "action": "or_assist",
     "condition": "always",
     "handler_id": "work_speed",
@@ -560,7 +540,7 @@
     "value": 0.1
   },
   {
-    "action": "registration",
+    "action": "guidance",
     "condition": "always",
     "handler_id": "work_speed",
     "id": "STAL57",
@@ -578,16 +558,6 @@
     "scene": "@zh:core.staff_talents.STAL58.scene",
     "species_id": "S58",
     "value": 3.0
-  },
-  {
-    "action": "floor_module",
-    "condition": "always",
-    "handler_id": "work_speed",
-    "id": "STAL59",
-    "name": "@zh:core.staff_talents.STAL59.name",
-    "scene": "@zh:core.staff_talents.STAL59.scene",
-    "species_id": "S59",
-    "value": 0.12
   },
   {
     "action": "guidance",
@@ -660,16 +630,6 @@
     "value": 0.12
   },
   {
-    "action": "surface_unit",
-    "condition": "always",
-    "handler_id": "work_speed",
-    "id": "STAL67",
-    "name": "@zh:core.staff_talents.STAL67.name",
-    "scene": "@zh:core.staff_talents.STAL67.scene",
-    "species_id": "S67",
-    "value": 0.1
-  },
-  {
     "action": "cleanup",
     "condition": "always",
     "handler_id": "work_speed",
@@ -678,16 +638,6 @@
     "scene": "@zh:core.staff_talents.STAL68.scene",
     "species_id": "S68",
     "value": 0.12
-  },
-  {
-    "action": "floor_module",
-    "condition": "always",
-    "handler_id": "work_speed",
-    "id": "STAL69",
-    "name": "@zh:core.staff_talents.STAL69.name",
-    "scene": "@zh:core.staff_talents.STAL69.scene",
-    "species_id": "S69",
-    "value": 0.1
   },
   {
     "action": "course",
@@ -740,7 +690,7 @@
     "value": 0.08
   },
   {
-    "action": "registration",
+    "action": "guidance",
     "condition": "always",
     "handler_id": "service_mood",
     "id": "STAL75",
@@ -757,16 +707,6 @@
     "name": "@zh:core.staff_talents.STAL76.name",
     "scene": "@zh:core.staff_talents.STAL76.scene",
     "species_id": "S76",
-    "value": 0.1
-  },
-  {
-    "action": "surface_unit",
-    "condition": "always",
-    "handler_id": "work_speed",
-    "id": "STAL77",
-    "name": "@zh:core.staff_talents.STAL77.name",
-    "scene": "@zh:core.staff_talents.STAL77.scene",
-    "species_id": "S77",
     "value": 0.1
   },
   {

@@ -134,19 +134,6 @@
   "objects": [
     {
       "anchor": [
-        43,
-        92
-      ],
-      "definition_id": "FUR01",
-      "id": "reception",
-      "room_id": null,
-      "size": [
-        2,
-        1
-      ]
-    },
-    {
-      "anchor": [
         36,
         87
       ],

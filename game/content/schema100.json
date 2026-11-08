@@ -10983,9 +10983,6 @@
                 "hold_mode": {
                   "type": "string"
                 },
-                "reception_pairs_per_station": {
-                  "type": "integer"
-                },
                 "reference_shift_pairs": {
                   "type": "integer"
                 },
@@ -11012,7 +11009,6 @@
                 "apply",
                 "default_mode",
                 "hold_mode",
-                "reception_pairs_per_station",
                 "reference_shift_pairs",
                 "slot_tie_order",
                 "source",
@@ -14436,29 +14432,6 @@
             "accessory_scope": {
               "type": "string"
             },
-            "lost_property_creates_inventory": {
-              "type": "boolean"
-            },
-            "lost_property_interrupt_seconds": {
-              "minimum": 0,
-              "type": "integer"
-            },
-            "lost_property_requires_cabinet": {
-              "type": "boolean"
-            },
-            "lost_property_requires_existing_prop": {
-              "type": "boolean"
-            },
-            "lost_property_requires_idle_staff": {
-              "type": "boolean"
-            },
-            "lost_property_seconds": {
-              "minimum": 0,
-              "type": "integer"
-            },
-            "lost_property_staff_role": {
-              "type": "string"
-            },
             "machine_fear_self_recovery_seconds": {
               "minimum": 0,
               "type": "integer"
@@ -14493,13 +14466,6 @@
           "required": [
             "accessory_preparation_policy",
             "accessory_scope",
-            "lost_property_creates_inventory",
-            "lost_property_interrupt_seconds",
-            "lost_property_requires_cabinet",
-            "lost_property_requires_existing_prop",
-            "lost_property_requires_idle_staff",
-            "lost_property_seconds",
-            "lost_property_staff_role",
             "machine_fear_self_recovery_seconds",
             "max_companions_per_patient",
             "nursing_handoff_seconds",
@@ -16789,10 +16755,6 @@
           ],
           "type": "object"
         },
-        "reception_seconds": {
-          "minimum": 0,
-          "type": "integer"
-        },
         "recruitment": {
           "properties": {
             "daily_referral_probability": {
@@ -18350,16 +18312,10 @@
             "cleaner": {
               "type": "integer"
             },
-            "decorator": {
-              "type": "integer"
-            },
             "doctor": {
               "type": "integer"
             },
             "nurse": {
-              "type": "integer"
-            },
-            "receptionist": {
               "type": "integer"
             },
             "researcher": {
@@ -18368,10 +18324,8 @@
           },
           "required": [
             "cleaner",
-            "decorator",
             "doctor",
             "nurse",
-            "receptionist",
             "researcher"
           ],
           "type": "object"
@@ -20022,7 +19976,6 @@
         "preview_computation",
         "quiet_calling",
         "ratings",
-        "reception_seconds",
         "recruitment",
         "refund_unused",
         "refund_used",

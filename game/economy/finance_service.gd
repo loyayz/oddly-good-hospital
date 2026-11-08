@@ -192,7 +192,7 @@ func operating_rate(world: WorldState) -> int:
 		for facility: Dictionary in world.facts.facilities.values():
 			if facility.get("stored",false) or facility.get("under_construction",false): continue
 			var id: String = str(facility.definition_id)
-			if id.begins_with("M") or id in ["FUR01","FUR02","EQ01","EQ05","FUR05"]:
+			if id.begins_with("M") or id in ["FUR02","EQ01","EQ05","FUR05"]:
 				_stations += int(facility.get("capacity",1)) if id=="EQ05" else 1
 		_station_world = world.get_instance_id()
 		_station_revision = world.geometry_revision
@@ -292,28 +292,28 @@ func execute(world: WorldState, kind: String, payload: Dictionary) -> CommandRes
 	return _result(world,false,"unknown_command","未知财务命令")
 
 func _has_service(world: WorldState, owned_only: bool = false) -> bool:
-	var desks: Dictionary = {"reception":false,"gp":false,"treatment":false}
+	var desks: Dictionary = {"guidance":false,"gp":false,"treatment":false}
 	for facility: Dictionary in world.facts.facilities.values():
 		if facility.get("stored",false) or facility.get("failed",false) or (owned_only and facility.get("ownership","")=="borrowed"):
 			continue
 		var id: String = str(facility.definition_id)
-		if id=="FUR01":
-			desks.reception = true
+		if id=="SE01":
+			desks.guidance = true
 		if id=="FUR02":
 			desks.gp = true
 		if id.begins_with("M"):
 			desks.treatment = true
-	var receptionist: bool = false
+	var guide: bool = false
 	var diagnostic: bool = false
 	var therapeutic: bool = false
 	for staff: Dictionary in world.facts.staff.values():
 		if staff.get("departed",false):
 			continue
-		receptionist = receptionist or staff.role=="receptionist"
+		guide = guide or (staff.role=="nurse" and int(staff.abilities.get("care",0))>=1)
 		if staff.role=="doctor":
 			diagnostic = diagnostic or int(staff.abilities.diagnosis)>0
 			therapeutic = therapeutic or int(staff.abilities.treatment)>0
-	return desks.reception and desks.gp and desks.treatment and receptionist and diagnostic and therapeutic
+	return desks.guidance and desks.gp and desks.treatment and guide and diagnostic and therapeutic
 
 func _rescue(world: WorldState) -> CommandResult:
 	if world.facts.economy.rescue_claimed:
@@ -323,16 +323,16 @@ func _rescue(world: WorldState) -> CommandResult:
 	var clone: WorldState = WorldState.new(world.freeze())
 	if not clone.facts.inventory.has("build_items"):
 		clone.facts.inventory.build_items = {}
-	for definition_id: String in ["FUR01","FUR02","M37"]:
+	for definition_id: String in ["SE01","FUR02","M37"]:
 		var id: String = clone.new_id("rescue_item")
 		clone.facts.inventory.build_items[id] = {"id":id,"definition_id":definition_id,"paid_cost":0,"ownership":"borrowed","rotation":0,"completed_upgrade_paid_cost":0}
-	var counts: Dictionary = {"receptionist":0,"doctor":0}
+	var counts: Dictionary = {"nurse":0,"doctor":0}
 	for staff: Dictionary in clone.facts.staff.values():
 		if counts.has(staff.role) and not staff.get("departed",false):
 			counts[staff.role] += 1
 	var needed: Array = []
-	if int(counts.receptionist)<1:
-		needed.append("receptionist")
+	if int(counts.nurse)<1:
+		needed.append("nurse")
 	for index: int in range(maxi(0,2-int(counts.doctor))):
 		needed.append("doctor")
 	var changed: Array = []
@@ -342,13 +342,10 @@ func _rescue(world: WorldState) -> CommandResult:
 			return _result(world,false,"entry_blocked","入口没有足够的真实落脚位；腾出入口后可领取救援箱")
 		var id: String = clone.new_id("rescue_staff")
 		clone.facts.actors[id] = {"id":id,"name":"社区"+role,"species_id":"S49","location":{"kind":"floor","floor_id":1,"cell":cell,"height_m":0.0},"facing":0.0,"posture":"standing"}
-		clone.facts.staff[id] = {"id":id,"role":role,"title_id":"DT01" if role=="doctor" else "","abilities":{"diagnosis":1 if role=="doctor" else 0,"treatment":1 if role=="doctor" else 0,"care":0,"surgery":0},
+		clone.facts.staff[id] = {"id":id,"role":role,"title_id":"DT01" if role=="doctor" else "","abilities":{"diagnosis":1 if role=="doctor" else 0,"treatment":1 if role=="doctor" else 0,"care":1 if role=="nurse" else 0,"surgery":0},
 			"energy":100.0,"fatigue":10.0 if role=="doctor" else 0.0,"stress_milli":10000,"on_shift":true,"certificates":[],
 			"practice":{"diagnosis":0,"treatment":0,"care":0,"surgery":0},"completed_jobs":{},"hired_tick":world.sim_tick,"wage_numerator":0,"wage_accrued_tick":world.sim_tick-1,
 			"personality_id":"DP01" if role=="doctor" else "","primary_track":"treatment","rescue_employee":true}
-		if role!="doctor":
-			clone.facts.staff[id].skill = 1
-			clone.facts.staff[id].job_practice = 0
 		changed.append(id)
 	clone.facts.economy.rescue_claimed = true
 	clone.facts.economy.rescue_blueprint_id = "BP03"

@@ -24,7 +24,7 @@ func _tick(c: Dictionary, visit: Dictionary, ticket_id: String) -> void:
 func _case(mode: String, kind: String) -> Dictionary:
 	var c: Dictionary = Fixture.new()._context(content,kind)
 	var w: WorldState = c.world
-	HospitalFactory._add_staff(w,"z_second_worker","备用职员","receptionist" if kind=="reception" else "doctor",[25,20],content)
+	HospitalFactory._add_staff(w,"z_second_worker","备用职员","doctor",[25,20],content)
 	w.facts.facilities.gather_facility_0.open = false
 	w.touch()
 	var v: Dictionary = w.facts.visits.gather_visit_0
@@ -66,11 +66,11 @@ func _case(mode: String, kind: String) -> Dictionary:
 		w.facts.facilities.gather_facility_0.open = true
 		w.touch()
 	var max_held: int = _owned(w,tid).size()
-	var completed_reception: bool = false
+	var completed_service: bool = false
 	for n: int in 650:
 		_tick(c,v,tid)
 		max_held = maxi(max_held,_owned(w,tid).size())
-		if v.phase!="wait_"+kind and v.phase!=kind: completed_reception = true;break
+		if v.phase!="wait_"+kind and v.phase!=kind: completed_service = true;break
 	var final: Dictionary = _snapshot(c,tid)
 	var selected: String = ""
 	if not after.sessions.is_empty(): selected = str(after.sessions.values()[0].facility_id)
@@ -84,8 +84,8 @@ func _case(mode: String, kind: String) -> Dictionary:
 		w.facts.sim_tick += 1;w.touch(false);c.space.finish_boundary(w)
 	var stale_ticket: bool = false
 	for reservation: Dictionary in w.facts.adaptations.values(): stale_ticket = stale_ticket or reservation.owner_id==tid
-	var passed: bool = recoverable_wait and input_validation.is_empty() and changed_validation.is_empty() and moved and max_held<=1 and retained and completed_reception and final.validation.is_empty() and not stale_ticket and w.validate(content).is_empty()
-	return {"passed":passed,"retained_pair":retained,"recoverable_wait":recoverable_wait,"stale_ticket":stale_ticket,"cleanup_validation":w.validate(content),"input_validation":input_validation,"changed_validation":changed_validation,"first_assignment":assigned,"real_motion":moved,"reached_assigned_pair":reached,"before_change":before_change,"after_one_dispatch":after,"maximum_held_facilities":max_held,"completed_reception":completed_reception,"final":final}
+	var passed: bool = recoverable_wait and input_validation.is_empty() and changed_validation.is_empty() and moved and max_held<=1 and retained and completed_service and final.validation.is_empty() and not stale_ticket and w.validate(content).is_empty()
+	return {"passed":passed,"retained_pair":retained,"recoverable_wait":recoverable_wait,"stale_ticket":stale_ticket,"cleanup_validation":w.validate(content),"input_validation":input_validation,"changed_validation":changed_validation,"first_assignment":assigned,"real_motion":moved,"reached_assigned_pair":reached,"before_change":before_change,"after_one_dispatch":after,"maximum_held_facilities":max_held,"completed_service":completed_service,"final":final}
 
 func _owned(world: WorldState, ticket_id: String) -> Array:
 	var ids: Array = []
@@ -141,7 +141,7 @@ func _departure(kind: String, stage: String) -> Dictionary:
 func run_case(t, source: HospitalContent) -> void:
 	content = source
 	var passed: bool = true
-	for kind: String in ["reception","gp"]:
+	for kind: String in ["gp"]:
 		for mode: String in ["normal_control","new_earlier_desk_at_arrival","held_desk_closed_during_walk","held_worker_offshift_during_walk","held_desk_closed_at_arrival","held_worker_offshift_at_arrival","held_desk_closed_then_reopened"]:
 			var result: Dictionary = _case(mode,kind)
 			results[kind+"_"+mode] = result

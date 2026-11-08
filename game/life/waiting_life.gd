@@ -678,7 +678,24 @@ func _occupancy_owner(view: Dictionary, facility_id: String, actor_id: String) -
 	if not view.owners.has(facility_id): view.owners[facility_id] = {}
 	view.owners[facility_id][actor_id] = true
 
+# A single live question outside a shared read-only route scope must not build
+# an occupancy map for every unrelated facility. Keep the batch view in scopes.
+func _occupied_now(world: WorldState, facility_id: String, actor_id: String) -> bool:
+	for session: Dictionary in world.facts.sessions.values():
+		if session.facility_id==facility_id: return true
+	if world.facts.get("staff_life",{}).get("reservations",{}).has(facility_id): return true
+	if facility_id.is_empty(): return false
+	for actor: Dictionary in world.facts.actors.values():
+		if str(actor.get("support_facility_id",""))==facility_id and str(actor.id)!=actor_id: return true
+	for seat: Dictionary in world.facts.get("waiting_life",{}).get("seats",{}).values():
+		if seat.phase=="seated" and str(seat.facility_id)==facility_id and str(seat.actor_id)!=actor_id: return true
+	for need: Dictionary in world.facts.get("waiting_life",{}).get("needs",{}).values():
+		if need.phase in ["using","returning"] and str(need.get("facility_id",""))==facility_id and str(world.facts.visits[need.visit_id].actor_id)!=actor_id: return true
+	return false
+
 func _occupied(world: WorldState, facility_id: String, actor_id: String) -> bool:
+	if space._route_queries.is_empty() or space._route_queries.back().world!=world:
+		return _occupied_now(world,facility_id,actor_id)
 	var view: Dictionary = space.read_view(world,"waiting_occupancy",_occupancy_view.bind(world))
 	var owners: Dictionary = view.owners.get(facility_id,{})
 	return view.blocked.has(facility_id) or not owners.is_empty() and (owners.size()>1 or not owners.has(actor_id))

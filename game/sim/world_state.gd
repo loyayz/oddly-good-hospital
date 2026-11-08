@@ -524,7 +524,7 @@ func validate(content: HospitalContent) -> String:
 		var record: Variant = facts.rng[stream]
 		if not record is Dictionary or not _signed_decimal(record.get("state_decimal")) or not _signed_decimal(record.get("seed_decimal")) or record.get("algorithm","")!="godot-pcg32-4.7.2":
 			return "随机流无效：" + stream
-	for stream: String in ["arrival","treatment","incident","personality","equipment","task_board","registration","communication","gratitude","patience","recruitment","community_activity"]:
+	for stream: String in ["arrival","treatment","incident","personality","equipment","task_board","guidance","communication","gratitude","patience","recruitment","community_activity"]:
 		if not facts.rng.has(stream):
 			return "必要随机流缺失："+stream
 	for id: String in facts.actors:
@@ -607,7 +607,7 @@ func validate(content: HospitalContent) -> String:
 	for id: String in facts.preparations:
 		var preparation: Dictionary = facts.preparations[id]
 		var kind: String = str(preparation.get("kind","surgery"))
-		if not facts.visits.has(preparation.visit_id) or not facts.facilities.has(preparation.facility_id) or not kind in ["surgery","outpatient","reception","gp","spectrum","resonance","consult"] or facts.visits[preparation.visit_id].phase!="wait_"+kind:
+		if not facts.visits.has(preparation.visit_id) or not facts.facilities.has(preparation.facility_id) or not kind in ["surgery","outpatient","gp","spectrum","resonance","consult"] or facts.visits[preparation.visit_id].phase!="wait_"+kind:
 			return "临床准备的原票号或服务位不一致："+id
 		if kind=="surgery" and preparation.bed_id.is_empty():
 			return "手术准备缺少兼容床位承诺："+id
@@ -985,7 +985,7 @@ func _validate_shapes() -> String:
 				return "执行会话资源引用类型无效"
 		if not _natural(session.get("total_ticks",-1)) or not _natural(session.get("remaining_ticks",-1)) or int(session.remaining_ticks)>int(session.total_ticks):
 			return "服务工作量无效"
-		if not session.get("kind") is String or not session.kind in ["reception","gp","spectrum","resonance","consult","outpatient","surgery","wake","care","round"]:
+		if not session.get("kind") is String or not session.kind in ["gp","spectrum","resonance","consult","outpatient","surgery","wake","care","round"]:
 			return "执行服务类型无效"
 		if session.kind in ["outpatient","surgery","wake"] and not facts.attempts.has(session.get("attempt_id","")):
 			return "执行会话承诺尝试缺失"

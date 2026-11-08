@@ -155,7 +155,6 @@
       "apply": "next_day",
       "default_mode": "follow_capacity",
       "hold_mode": "min_current_capacity_and_held_capacity",
-      "reception_pairs_per_station": 3,
       "reference_shift_pairs": 3,
       "slot_tie_order": "slot_index",
       "source": "scheduled_complete_clinical_pairs",
@@ -190,7 +189,6 @@
       "reference_patient_personality_id": "PP01",
       "reference_plan": "original_auto_plan_score_with_fixed_reference_context",
       "resource_clocks": [
-        "reception",
         "gp",
         "required_tests_and_consultation",
         "terminal_device",
@@ -1275,7 +1273,7 @@
     "clear_height_m": 7.5,
     "completed_structure_storage": "top_floor_per_plot",
     "connector_object_count": "one_per_lift_driver",
-    "construction_role": "decorator",
+    "construction_role": "mechanic",
     "construction_tool_id": "SE02",
     "emergency_travel_seconds_per_floor": 4,
     "floor_view_camera_cache": 32,
@@ -1393,13 +1391,6 @@
   "hospital_situations": {
     "accessory_preparation_policy": "first_real_need_choose_once_no_stacking",
     "accessory_scope": "detachable_visual_props_only",
-    "lost_property_creates_inventory": false,
-    "lost_property_interrupt_seconds": 1,
-    "lost_property_requires_cabinet": false,
-    "lost_property_requires_existing_prop": true,
-    "lost_property_requires_idle_staff": true,
-    "lost_property_seconds": 8,
-    "lost_property_staff_role": "receptionist",
     "machine_fear_self_recovery_seconds": 20,
     "max_companions_per_patient": 1,
     "nursing_handoff_seconds": 5,
@@ -2079,7 +2070,6 @@
     "window_days": 3,
     "wrong_department_penalty": 8
   },
-  "reception_seconds": 6,
   "recruitment": {
     "daily_referral_probability": 0.25,
     "initial_doctor_fatigue": 10,
@@ -2429,39 +2419,27 @@
   ],
   "staff": [
     {
-      "hire": 120,
       "name": "@zh:core.rules.staff.0.name",
-      "role": "receptionist",
-      "wage_day": 60
-    },
-    {
-      "name": "@zh:core.rules.staff.1.name",
       "pay_source": "doctor_pay",
       "role": "doctor"
     },
     {
       "hire": 200,
-      "name": "@zh:core.rules.staff.2.name",
+      "name": "@zh:core.rules.staff.1.name",
       "role": "nurse",
       "wage_day": 100
     },
     {
       "hire": 140,
-      "name": "@zh:core.rules.staff.3.name",
+      "name": "@zh:core.rules.staff.2.name",
       "role": "cleaner",
       "wage_day": 70
     },
     {
       "hire": 240,
-      "name": "@zh:core.rules.staff.4.name",
+      "name": "@zh:core.rules.staff.3.name",
       "role": "researcher",
       "wage_day": 120
-    },
-    {
-      "hire": 160,
-      "name": "@zh:core.rules.staff.5.name",
-      "role": "decorator",
-      "wage_day": 80
     }
   ],
   "staff_growth": {
@@ -2598,10 +2576,6 @@
       "item": "GP station"
     },
     {
-      "amount": 500,
-      "item": "Reception"
-    },
-    {
       "amount": 300,
       "item": "Rest sofa"
     },
@@ -2645,10 +2619,8 @@
   "starting_cash": 26000,
   "starting_staff": {
     "cleaner": 1,
-    "decorator": 0,
     "doctor": 3,
     "nurse": 2,
-    "receptionist": 1,
     "researcher": 0
   },
   "style_preview": {
@@ -2999,7 +2971,6 @@
     "base_probability": 0.04,
     "check_interval_seconds": 30,
     "eligible_stages": [
-      "waiting_reception",
       "waiting_gp",
       "waiting_test",
       "waiting_consultation",

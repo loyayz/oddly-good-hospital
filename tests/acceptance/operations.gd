@@ -37,9 +37,9 @@ const CASES: Dictionary = {
 	"OPS-30":"docs/design/08-hospital-life.md §6；暂时不足不是挂错且等价目的地就地接续",
 	"OPS-31":"docs/design/08-hospital-life.md §6；真实错入口唯一怒气12流程8并保留票证",
 	"OPS-32":"docs/design/08-hospital-life.md §1/18/19；评分缺样本与真实完成事实去重只读",
-	"OPS-33":"docs/design/01-simulation.md §8/8.2；运营20日1561持余及工资逐人取整",
+	"OPS-33":"docs/design/01-simulation.md §8/8.2；运营20日1401持余及工资逐人取整",
 	"OPS-34":"docs/design/01-simulation.md §8；第三日首补助与1F地块周期幂等",
-	"OPS-35":"docs/design/01-simulation.md §8/8.1；成本950实付100援助850不算盈利",
+	"OPS-35":"docs/design/01-simulation.md §8/8.1；成本890实付100援助790不算盈利",
 	"OPS-36":"docs/design/01-simulation.md §8.1/8.2；六账页三日展望与目标便签不圈存",
 	"OPS-37":"docs/design/01-simulation.md §8；同院救援箱仅一次且只补缺岗正常付薪",
 	"OPS-38":"docs/design/08-hospital-life.md §15；派单按设备停机用途分级，同级置顶且不打断已开工单",
@@ -51,11 +51,12 @@ const CASES: Dictionary = {
 	"OPS-44":"实际动态路线批次：完整碰撞、出口授权、批次失效及公共前缀复用",
 	"OPS-45":"地污生成：完整合法格、最近排序、实际占用与原plot上限保持",
 	"OPS-46":"日常§15；维修移动自行重查障碍，真实到场才支付40并工作30秒",
-	"OPS-47":"日常§4；装修工逐人选择实际可达工具，领料并到场完成8秒",
+	"OPS-47":"日常§4；外部维修人员选择实际可达工具，领料并到场完成8秒",
 	"OPS-48":"日常§10；同单已完成与取消单元不阻止改建，未结束单元仍等待",
 	"OPS-49":"日常§20；完整身体边缘可接触清扫，实际到场与每tick工具阻挡复查",
 	"OPS-50":"日常§15/§21；真实在途或施工维修员随设备收存安全释放、恢复并沿同单续做",
-	"OPS-51":"日常§4；工具搬移后真实到新位置领取，保留工时与一次材料付款"
+	"OPS-51":"日常§4；工具搬移后真实到新位置领取，保留工时与一次材料付款",
+	"OPS-52":"日常§4；同工单外部人员连续处理单元，不进员工工资且完工实际离院"
 }
 
 var _content: HospitalContent
@@ -76,6 +77,27 @@ func run(t) -> void:
 	for simulation: HospitalSimulation in _live:
 		simulation.dispose()
 	_live.clear()
+
+func _case_52() -> Dictionary:
+	var f: Dictionary = _new("外部人员连续施工与离院")
+	if not _construction_tools(f): return _result(false,f.errors)
+	var cash_before: int = HospitalLedger.balance(f.w)
+	var ordered: CommandResult = _command(f,"renovation_order",{"material_id":"MAT01","floor_id":1,"units":[{"cell":[42,80]},{"cell":[44,80]},{"cell":[46,80]}]})
+	if not ordered.accepted: return _result(false,ordered.reason)
+	var order: Dictionary = f.w.facts.environment.orders[ordered.changed_ids[0]]
+	for tick: int in 1000:
+		_work_tick(f,"environment")
+		if order.phase=="completed" and f.w.facts.maintenance.contractors.values().all(func(worker: Dictionary) -> bool: return worker.phase=="departed"): break
+	var workers: Dictionary = f.w.facts.maintenance.contractors
+	var repeated: Dictionary = {}
+	var work: int = 0
+	for unit: Dictionary in order.units:
+		for worker_id: String in unit.contributions:
+			repeated[worker_id] = int(repeated.get(worker_id,0))+1
+			work += int(unit.contributions[worker_id])
+	var departed: bool = workers.values().all(func(worker: Dictionary) -> bool: return worker.phase=="departed" and f.w.facts.actors[worker.id].location.kind=="outside")
+	var valid: String = f.w.validate(_content)
+	return _result(order.phase=="completed" and work==24000 and workers.size()<=2 and repeated.values().any(func(count: int) -> bool: return count>1) and departed and f.w.facts.staff.is_empty() and HospitalLedger.balance(f.w)==cash_before-75 and valid.is_empty(),{"workers":workers,"units_per_worker":repeated,"work":work,"departed":departed,"validation":valid})
 
 func _case_42() -> Dictionary:
 	var batches: Dictionary = preload("res://tests/acceptance/environment_query_batches.gd").new().run(_content)
@@ -169,6 +191,7 @@ func _staff(f: Dictionary, id: String, role: String, cell: Array) -> void:
 
 func _work_tick(f: Dictionary, service: String, observe_work: Callable = Callable()) -> void:
 	var worker: RefCounted = f.s.services[service]
+	if service!="maintenance": f.s.services.maintenance._dispatch_departures(f.w)
 	worker.call("dispatch",f.w)
 	f.s.space.advance(f.w,f.w.present_actor_count())
 	if observe_work.is_valid(): observe_work.call("before")
@@ -588,9 +611,8 @@ func _case_12() -> Dictionary:
 	var denied: CommandResult = _command(g,"renovation_order",payload)
 	return _result(quote.get("cost")==50 and quote.get("work_seconds")==16 and ordered.accepted and HospitalLedger.balance(f.w)==4950 and order.get("units",[]).size()==2 and order.units[0].remaining_milli==8000 and order.units[1].remaining_milli==8000 and paused and not denied.accepted and before==g.w.freeze(),{"quote":quote,"order":order,"rejection":denied.reason})
 
-func _decorator(f: Dictionary) -> bool:
+func _construction_tools(f: Dictionary) -> bool:
 	var placed: bool = _place(f,"ops_tool","SE02",[38,80])
-	_staff(f,"ops_decorator","decorator",[39,80])
 	return placed
 
 func _case_13() -> Dictionary:
@@ -600,7 +622,7 @@ func _case_13() -> Dictionary:
 	var id: String = ordered.changed_ids[0]
 	_work_tick(f,"environment")
 	var waiting: bool = f.w.facts.environment.orders[id].units[0].remaining_milli==8000 and f.w.facts.environment.surfaces.is_empty()
-	if not _decorator(f): return _result(false,f.errors)
+	if not _construction_tools(f): return _result(false,f.errors)
 	var completion: Dictionary = {}
 	var observe: Callable = func(stage: String) -> void:
 		var current: Dictionary = f.w.facts.environment.orders[id].units[0]
@@ -622,11 +644,11 @@ func _case_13() -> Dictionary:
 	var unit: Dictionary = f.w.facts.environment.orders[id].units[0]
 	var surface: Dictionary = f.w.facts.environment.surfaces.get("1:42:80:floor:",{})
 	var receipt: Dictionary = f.w.facts.environment.receipts.get(str(unit.id)+":renovation_completed",{})
-	return _result(waiting and unit.phase=="completed" and unit.remaining_milli==0 and surface.get("material_id")=="MAT01" and surface.get("paid_cost")==25 and receipt.get("standard_work_milli")==8000 and receipt.get("staff_id")=="ops_decorator" and f.s.services.environment.environment_at(f.w,1,[42,80]).value==49 and completion.get("ok",false),{"unit":unit,"surface":surface,"receipt":receipt,"completion_boundary":completion})
+	return _result(waiting and unit.phase=="completed" and unit.remaining_milli==0 and surface.get("material_id")=="MAT01" and surface.get("paid_cost")==25 and receipt.get("standard_work_milli")==8000 and receipt.get("staff_id","").is_empty() and not unit.contributions.is_empty() and not f.w.facts.staff.has(unit.contributions.keys()[0]) and f.s.services.environment.environment_at(f.w,1,[42,80]).value==49 and completion.get("ok",false),{"unit":unit,"surface":surface,"receipt":receipt,"completion_boundary":completion})
 
 func _case_14() -> Dictionary:
 	var f: Dictionary = _new("装修取消与恢复")
-	if not _decorator(f): return _result(false,f.errors)
+	if not _construction_tools(f): return _result(false,f.errors)
 	var ordered: CommandResult = _command(f,"renovation_order",{"material_id":"MAT01","floor_id":1,"units":[{"cell":[42,80]},{"cell":[44,80]},{"cell":[46,80]}]})
 	if not ordered.accepted: return _result(false,ordered.reason)
 	var id: String = ordered.changed_ids[0]
@@ -749,7 +771,7 @@ func _case_18() -> Dictionary:
 	var running: Dictionary = f.s.services.environment.environment_at(f.w,1,[51,88])
 	var paused_query: Dictionary = f.s.services.environment.environment_at(f.w,1,[51,88])
 	var g: Dictionary = _new("施工格边隔音")
-	if not _decorator(g): return _result(false,g.errors)
+	if not _construction_tools(g): return _result(false,g.errors)
 	var applied: CommandResult = _command(g,"renovation_order",{"material_id":"MAT01","floor_id":1,"units":[{"cell":[42,80]}]})
 	if not applied.accepted: return _result(false,applied.reason)
 	var id: String = applied.changed_ids[0]
@@ -1241,7 +1263,7 @@ func _registration_seed(world: WorldState, below: bool) -> void:
 		var state: int = generator.state
 		var roll: int = generator.randi_range(0,9999)
 		if (roll<1800)==below:
-			world.facts.rng.registration = {"algorithm":"godot-pcg32-4.7.2","seed_decimal":str(candidate+100),"state_decimal":str(state)}
+			world.facts.rng.guidance = {"algorithm":"godot-pcg32-4.7.2","seed_decimal":str(candidate+100),"state_decimal":str(state)}
 			return
 
 func _case_30() -> Dictionary:
@@ -1254,13 +1276,13 @@ func _case_30() -> Dictionary:
 	_registration_seed(f.w,false)
 	f.s.services.departments.route_patient(f.w,visit_id)
 	var route: Dictionary = f.w.facts.departments.routes[visit_id]
-	var temporary: bool = right.structurally_compatible and right.ok and wrong.reason_id=="intake_scope_excludes_case" and route.registration_choice in ["general","ops_right"] and not route.error_rolled
+	var temporary: bool = right.structurally_compatible and right.ok and wrong.reason_id=="intake_scope_excludes_case" and route.guidance_choice in ["general","ops_right"] and not route.error_rolled
 	var g: Dictionary = _route_fixture("错误目的地后来等价")
 	var other_id: String = str(g.visit_id)
 	if other_id.is_empty() or not g.errors.is_empty(): return _result(false,g.errors)
 	_registration_seed(g.w,true)
 	g.s.services.departments.route_patient(g.w,other_id)
-	var was_wrong: bool = g.w.facts.departments.routes[other_id].registration_choice=="ops_wrong"
+	var was_wrong: bool = g.w.facts.departments.routes[other_id].guidance_choice=="ops_wrong"
 	var jobs: int = g.w.facts.departments.staff_consumed.size()
 	var anger: float = float(g.w.facts.visits[other_id].anger)
 	var changed: CommandResult = _command(g,"department_configure",{"department_id":"ops_wrong","intake_disease_ids":[]})
@@ -1283,7 +1305,7 @@ func _case_31() -> Dictionary:
 	var visit_id: String = str(f.visit_id)
 	if visit_id.is_empty() or not f.errors.is_empty(): return _result(false,f.errors)
 	# The other cell outside the same two-cell clinic door is a lawful entry;
-	# [44,91] is the receptionist's actual safety-release destination.
+	# [44,91] is the worker's actual safety-release destination.
 	var entry: Array = [45,91]
 	var configured: CommandResult = _command(f,"department_configure",{"department_id":"ops_wrong","entry":{"floor_id":1,"cell":entry}})
 	if not configured.accepted: return _result(false,{"entry_configuration":configured.reason})
@@ -1362,7 +1384,7 @@ func _case_33() -> Dictionary:
 		finance.settle(f.w)
 		f.w.facts.sim_tick += 1
 		_zero_arrivals(f.w)
-	var actual_accrual: bool = f.w.facts.economy.daily_accumulators.operating_numerator==4683
+	var actual_accrual: bool = f.w.facts.economy.daily_accumulators.operating_numerator==4203
 	var costs: Array = []
 	var total: int = 0
 	for day: int in range(1,21):
@@ -1398,8 +1420,8 @@ func _case_33() -> Dictionary:
 	var wage_a: Dictionary = g.w.facts.ledger.entries.get("ops33_doctor_a:wages_day_1",{})
 	var wage_b: Dictionary = g.w.facts.ledger.entries.get("ops33_doctor_b:wages_day_1",{})
 	var expected: bool = costs.size()==20
-	for index: int in costs.size(): expected = expected and costs[index]==(79 if index==19 else 78)
-	return _result(rate==1561 and actual_accrual and expected and total==1561 and f.w.facts.economy.daily_accumulators.operating_numerator==0 and duplicate and wage_a.get("cost")==0 and wage_b.get("cost")==0 and g.w.facts.staff.ops33_doctor_a.wage_numerator==17900 and g.w.facts.staff.ops33_doctor_b.wage_numerator==17900,{"per_tick_numerator":rate,"daily_costs":costs,"total":total,"wages":[wage_a,wage_b],"duplicate_unchanged":duplicate})
+	for index: int in costs.size(): expected = expected and costs[index]==(71 if index==19 else 70)
+	return _result(rate==1401 and actual_accrual and expected and total==1401 and f.w.facts.economy.daily_accumulators.operating_numerator==0 and duplicate and wage_a.get("cost")==0 and wage_b.get("cost")==0 and g.w.facts.staff.ops33_doctor_a.wage_numerator==17900 and g.w.facts.staff.ops33_doctor_b.wage_numerator==17900,{"per_tick_numerator":rate,"daily_costs":costs,"total":total,"wages":[wage_a,wage_b],"duplicate_unchanged":duplicate})
 
 func _case_34() -> Dictionary:
 	var f: Dictionary = _new("补助医院日周期",false,10000)
@@ -1428,7 +1450,7 @@ func _subsidies(world: WorldState) -> int:
 func _case_35() -> Dictionary:
 	var f: Dictionary = _new("必要支出成本与非现金援助",true,100)
 	# A day-2 checkpoint excludes the new-hospital purchase ledger from today's
-	# result and carries 750 wages plus 200 actually accrued operations.
+	# result and carries 690 wages plus 200 actually accrued operations.
 	f.w.facts.sim_tick = 35999
 	_zero_arrivals(f.w)
 	f.w.facts.economy.last_settled_day = 1
@@ -1450,7 +1472,7 @@ func _case_35() -> Dictionary:
 		aid += int(entry.get("direct_paid",0))
 	var before: Dictionary = f.w.freeze()
 	var denied: CommandResult = _command(f,"build_facility",{"id":"ops35_unfunded","definition_id":"M09","floor_id":1,"cell":[34,66]})
-	return _result(HospitalLedger.balance(f.w)==0 and cost==950 and paid==100 and aid==850 and cost==paid+aid and totals.operating_surplus==-950 and totals.cash_change==-100 and totals.direct_support==850 and not denied.accepted and f.w.freeze()==before,{"cost":cost,"hospital_paid":paid,"direct_paid":aid,"today":totals,"construction_rejection":denied.reason})
+	return _result(HospitalLedger.balance(f.w)==0 and cost==890 and paid==100 and aid==790 and cost==paid+aid and totals.operating_surplus==-890 and totals.cash_change==-100 and totals.direct_support==790 and not denied.accepted and f.w.freeze()==before,{"cost":cost,"hospital_paid":paid,"direct_paid":aid,"today":totals,"construction_rejection":denied.reason})
 
 func _case_36() -> Dictionary:
 	var f: Dictionary = _new("财务投影与目标便签",true,5000)
@@ -1460,7 +1482,7 @@ func _case_36() -> Dictionary:
 	for view: Dictionary in first.views: groups.append(str(view.group))
 	var readonly: bool = before==f.w.freeze()
 	var forecast: Array = first.forecast
-	var estimated: bool = forecast.size()==3 and forecast[0].day==1 and forecast[1].day==2 and forecast[2].day==3 and forecast[0].wages==750 and forecast[0].operations==78 and forecast[0].closing_cash==4172 and forecast[0].forecast and forecast[2].subsidy==1200
+	var estimated: bool = forecast.size()==3 and forecast[0].day==1 and forecast[1].day==2 and forecast[2].day==3 and forecast[0].wages==690 and forecast[0].operations==70 and forecast[0].closing_cash==4240 and forecast[0].forecast and forecast[2].subsidy==1200
 	var note: CommandResult = _command(f,"finance_note",{"text":"扩建诊室","target_amount":6000})
 	var noted: Dictionary = f.s.services.finance.query(f.w)
 	var goal: bool = note.accepted and noted.get("saving_note")=="扩建诊室" and noted.get("target_amount")==6000 and noted.get("remaining_to_target")==1000 and HospitalLedger.balance(f.w)==5000
@@ -1500,11 +1522,11 @@ func _case_36() -> Dictionary:
 
 func _case_37() -> Dictionary:
 	var f: Dictionary = _new("基础救援箱按实际缺岗",false,2500)
-	_staff(f,"ops37_existing_reception","receptionist",[40,80])
+	_staff(f,"ops37_existing_nurse","nurse",[40,80])
 	_staff(f,"ops37_existing_doctor","doctor",[42,80])
 	var claimed: CommandResult = _command(f,"finance_rescue",{})
 	if not claimed.accepted: return _result(false,claimed.reason)
-	var counts: Dictionary = {"doctor":0,"receptionist":0}
+	var counts: Dictionary = {"doctor":0,"nurse":0}
 	var paid_staff: bool = true
 	for staff: Dictionary in f.w.facts.staff.values():
 		if counts.has(staff.role): counts[staff.role] += 1
@@ -1519,7 +1541,7 @@ func _case_37() -> Dictionary:
 	var restored: Dictionary = _restore(f)
 	var before: Dictionary = restored.w.freeze()
 	var again: CommandResult = _command(restored,"finance_rescue",{})
-	return _result(counts=={"doctor":2,"receptionist":1} and f.w.facts.staff.size()==3 and paid_staff and zero_cost and borrowed==["FUR01","FUR02","M37"] and f.w.facts.economy.get("rescue_blueprint_id")=="BP03" and f.w.facts.facilities.is_empty() and HospitalLedger.balance(f.w)==2500 and not again.accepted and before==restored.w.freeze(),{"counts":counts,"borrowed":borrowed,"staff_count":f.w.facts.staff.size(),"cash":HospitalLedger.balance(f.w),"repeat":again.reason})
+	return _result(counts=={"doctor":2,"nurse":1} and f.w.facts.staff.size()==3 and paid_staff and zero_cost and borrowed==["FUR02","M37","SE01"] and f.w.facts.economy.get("rescue_blueprint_id")=="BP03" and f.w.facts.facilities.is_empty() and HospitalLedger.balance(f.w)==2500 and not again.accepted and before==restored.w.freeze(),{"counts":counts,"borrowed":borrowed,"staff_count":f.w.facts.staff.size(),"cash":HospitalLedger.balance(f.w),"repeat":again.reason})
 
 func _case_38() -> Dictionary:
 	var f: Dictionary = _machine("无患者仍按设备停机用途派工")

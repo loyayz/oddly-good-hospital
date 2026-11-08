@@ -246,7 +246,7 @@ func coverage(world: WorldState, changes: Array = []) -> Array:
 		overrides[change.staff_id] = change.schedule
 	var rows: Array = []
 	for slot: int in int(content.balance.schedule.shifts_per_day):
-		var row: Dictionary = {"shift":slot,"outpatient":0,"surgeon":0,"anesthesia":0,"ward":0,"nurse":0,"ward_nurse":0,"care":0,"nurse_diagnosis":0,"nurse_surgery":0,"receptionist":0,"cleaner":0,"researcher":0,"decorator":0,"leave_excluded":0,"training":0,"gaps":[]}
+		var row: Dictionary = {"shift":slot,"outpatient":0,"surgeon":0,"anesthesia":0,"ward":0,"nurse":0,"ward_nurse":0,"care":0,"nurse_diagnosis":0,"nurse_surgery":0,"cleaner":0,"researcher":0,"leave_excluded":0,"training":0,"gaps":[]}
 		for id: String in world.ids("staff"):
 			var staff: Dictionary = world.facts.staff[id]
 			# Mirror _apply: past assignments and explicit day overrides survive a draft.
@@ -280,8 +280,6 @@ func coverage(world: WorldState, changes: Array = []) -> Array:
 			row.gaps.append("导诊无排班合资格护士")
 		if _has_facility(world,"SE01") and int(row.care)==1:
 			row.gaps.append("导诊与临床护理共用护士，不能同时保证")
-		if _has_facility(world,"FUR01") and int(row.receptionist)==0:
-			row.gaps.append("接待无排班接待员")
 		if _has_facility(world,"EQ01") and int(row.nurse_surgery)==0:
 			row.gaps.append("手术无排班合资格护士")
 		if int(row.outpatient)==0:

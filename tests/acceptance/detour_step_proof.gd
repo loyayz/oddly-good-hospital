@@ -11,9 +11,9 @@ class CountingMovement extends HospitalMovement:
 	var all_convoy_proofs_empty: bool = true
 	func _init(geometry: HospitalSpace) -> void:
 		super(geometry)
-	func _movement_contacts(world: WorldState, actor_id: String, floor_id: int, broad: Rect2, sweeps: Array[BodyIndex.Record], members: Array, result: MotionResult) -> void:
+	func _movement_contacts(world: WorldState, actor_id: String, floor_id: int, broad: Rect2, sweeps: Array[BodyIndex.Record], members: Array, result: MotionResult, queries: Dictionary = {}) -> void:
 		contacts += 1
-		super._movement_contacts(world,actor_id,floor_id,broad,sweeps,members,result)
+		super._movement_contacts(world,actor_id,floor_id,broad,sweeps,members,result,queries)
 	func _detour_path_clear(world: WorldState, actor: Dictionary, movement: Dictionary, path: Array, query: RouteClearance = null, proof: Dictionary = {}) -> bool:
 		if movement.has("convoy"): all_convoy_proofs_empty = all_convoy_proofs_empty and proof.is_empty()
 		if not proof.is_empty():

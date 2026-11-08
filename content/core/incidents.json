@@ -268,8 +268,8 @@
     "actor_recovery_seconds": 0,
     "base_probability": 0.4,
     "behavior_kind": "mishap",
-    "care_role": "receptionist",
-    "care_work_seconds": 6,
+    "care_role": "",
+    "care_work_seconds": 0,
     "cleanup_count": 0,
     "conditions": {
       "excluded_actor_states": [
@@ -615,8 +615,8 @@
     "actor_recovery_seconds": 0,
     "base_probability": 0.3,
     "behavior_kind": "conflict",
-    "care_role": "receptionist",
-    "care_work_seconds": 8,
+    "care_role": "",
+    "care_work_seconds": 0,
     "cleanup_count": 0,
     "conditions": {
       "excluded_actor_states": [
@@ -821,8 +821,8 @@
     "actor_recovery_seconds": 0,
     "base_probability": 0.3,
     "behavior_kind": "conflict",
-    "care_role": "receptionist",
-    "care_work_seconds": 8,
+    "care_role": "",
+    "care_work_seconds": 0,
     "cleanup_count": 0,
     "conditions": {
       "excluded_actor_states": [
@@ -1121,8 +1121,8 @@
     "actor_recovery_seconds": 0,
     "base_probability": 0.4,
     "behavior_kind": "mishap",
-    "care_role": "receptionist",
-    "care_work_seconds": 8,
+    "care_role": "",
+    "care_work_seconds": 0,
     "cleanup_count": 0,
     "conditions": {
       "excluded_actor_states": [

@@ -103,7 +103,7 @@ func _patient(ctx: Dictionary, cell: Array, binding: String = "B_S49_D37_M37", p
 		ctx.world.facts.residents[resident.id] = resident
 	ctx.world.touch()
 	ctx.space.sync_actor(ctx.world,visit.actor_id)
-	ctx.clinic._queue(ctx.world,visit,"reception")
+	ctx.clinic._queue(ctx.world,visit,"gp")
 	var ticket: Dictionary = ctx.world.facts.tickets[visit.ticket_id]
 	ticket.waited_ticks = 0
 	ticket.wait_accounted_tick = ctx.world.sim_tick

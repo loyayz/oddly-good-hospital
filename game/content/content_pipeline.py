@@ -225,7 +225,6 @@ def validate_semantics(collections: dict, rules: dict, indexes: dict, schema: di
         require(handler["min_value"] <= row["value"] <= handler["max_value"], row["id"], "talent outside handler range")
     for row in species.values():
         body(row["body"], row["id"])
-        require(row["id"] in talents, row["id"], "species lacks staff talent")
         require(roles <= rig_roles.get(row["rig"], set()), row["id"], "rig does not adapt all staff roles")
     envelopes, species_bindings = {}, set()
     for row in values("treatment_bindings"):
@@ -431,9 +430,9 @@ def design_sources():
     catalog["stories"] = stories
     # The book's grouped furniture table is a source format, parsed exactly once.
     furniture = {row["definition_id"]: row for row in catalog["furniture_equipment"]}
-    table = [line for line in content.splitlines() if re.match(r"\| (?:01、02、05—08|09—16|17—24|25—32|33—40|41—48|49—52) \|", line)]
+    table = [line for line in content.splitlines() if re.match(r"\| (?:02、05—08|09—16|17—24|25—32|33—40|41—48|49—52) \|", line)]
     require(len(table) == 7, "content chapter §8", "furniture source table changed")
-    groups = ([1,2,5,6,7,8], list(range(9,17)), list(range(17,25)), list(range(25,33)), list(range(33,41)), list(range(41,49)), list(range(49,53)))
+    groups = ([2,5,6,7,8], list(range(9,17)), list(range(17,25)), list(range(25,33)), list(range(33,41)), list(range(41,49)), list(range(49,53)))
     for line, numbers in zip(table, groups):
         cells = [value.strip() for value in line.strip("|").split("|")]
         names = cells[1].split("、")
@@ -441,7 +440,7 @@ def design_sources():
         for number, name in zip(numbers, names):
             furniture[f"FUR{number:02}"]["name"] = name
         text = cells[2]
-        if numbers[0] == 1:
+        if numbers[0] == 2:
             specs = [tuple(map(int, match)) for match in re.findall(r"(\d+)×(\d+)/(\d+)", text)]
             require(len(specs) == len(numbers), cells[0], "furniture base geometry changed")
         elif numbers[0] == 9:
@@ -485,7 +484,7 @@ def design_sources():
         furniture[f"FUR{number:02}"]["fit_profile_id"] = "FF05"
         furniture[f"FUR{number:02}"].update(max_clearance_cells=max(row["adapter_capacity"]["max_clearance_cells"] for row in catalog["machines"]),
                                             max_height_m=max(row["adapter_capacity"]["max_height_m"] for row in catalog["machines"]))
-    for number in (1,2,5):
+    for number in (2,5):
         furniture[f"FUR{number:02}"]["fit_profile_id"] = "FF06"
     for row in catalog["accessibility_equipment"]:
         row["fit_profile_id"] = "FF05"

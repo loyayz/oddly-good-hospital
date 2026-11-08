@@ -89,7 +89,7 @@ func _fixture_preflight(c: Dictionary, c_profile: bool, surgical: bool) -> void:
 	if disease.is_empty() or routine.is_empty() or plan.get("disease_id","")!=disease_id or _content.definition("treatment_protocols",str(plan.get("protocol_id",""))).is_empty(): missing.append("疾病、治疗流程或常规协议定义不完整")
 	if routine.get("equipment_id","")!="M09": missing.append("本病例的权威治疗主体不是预期M09")
 	if not HospitalResearch.disease_unlocked(c.world,_content,disease_id): missing.append("本病例研究尚未完成："+disease_id)
-	var required: Array = ["FUR01","FUR02","M09"]
+	var required: Array = ["SE01","FUR02","M09"]
 	if surgical: required.append_array(["EQ01","EQ05","SE06"])
 	for definition_id: String in required:
 		var placed: bool = false
@@ -466,7 +466,7 @@ func _roundtrip(c: Dictionary) -> Dictionary:
 
 func _surgery_queue(t, c_profile: bool = false) -> Dictionary:
 	if not c_profile:
-		# The normal patient already completed real reception, GP and consultation.
+		# The normal patient already completed real guidance, GP and consultation.
 		# Add the legal surgical resources to this input hospital instead of
 		# admitting another patient and evaluating every alternative plan again.
 		if not await _ensure_boundary(t,"outpatient_queue"): return _context(true)
@@ -579,7 +579,6 @@ func _waiting_case(c: Dictionary, position: Array) -> String:
 	visit.attempt_ids = []
 	visit.final_result = ""
 	visit.erase("clinical_participants")
-	visit.erase("registration_receipt")
 	c.world.facts.actors[actor_id] = actor
 	c.world.facts.visits[visit_id] = visit
 	c.world.facts.tickets[ticket_id] = {"id":ticket_id,"visit_id":visit_id,"kind":"surgery","enqueued_tick":c.world.sim_tick}

@@ -119,19 +119,19 @@ func _shared_clock_contract() -> bool:
 	# quarter-probability 100-tick retry adds 25 ticks, not another budget.
 	# Each complete visit uses 325 doctor-ticks: 12000/325 = 480/13.
 	var model: Dictionary = {"probability":F.make(1),"bundles":[
-		{"resources":{"doctor_a":F.make(200)},"choices":["diagnosis_a","reception","retry_a"]},
-		{"resources":{"doctor_b":F.make(200)},"choices":["diagnosis_b","reception","retry_b"]}],
+		{"resources":{"doctor_a":F.make(200)},"choices":["diagnosis_a","guidance","retry_a"]},
+		{"resources":{"doctor_b":F.make(200)},"choices":["diagnosis_b","guidance","retry_b"]}],
 		"choice_groups":{
 			"diagnosis_a":[{"resources":{"doctor_b":F.make(100)}}],
 			"diagnosis_b":[{"resources":{"doctor_a":F.make(100)}}],
-			"reception":[{"resources":{"receptionist":F.make(25)}}],
+			"guidance":[{"resources":{"guide":F.make(25)}}],
 			"retry_a":[{"resources":{"doctor_a":F.make(25)},"choices":["retry_round"]}],
 			"retry_b":[{"resources":{"doctor_b":F.make(25)},"choices":["retry_round"]}],
 			"retry_round":[{"resources":{"round":F.make(10)}}]}}
-	var budgets: Dictionary = {"doctor_a":F.make(6000),"doctor_b":F.make(6000),"receptionist":F.make(6000),"round":F.make(6000)}
+	var budgets: Dictionary = {"doctor_a":F.make(6000),"doctor_b":F.make(6000),"guide":F.make(6000),"round":F.make(6000)}
 	var result: Dictionary = ArrivalCapacitySolver.solve([model],budgets)
 	if result.get("capacity",{})!=F.make(480,13): return false
-	budgets.receptionist = F.make(500)
+	budgets.guide = F.make(500)
 	result = ArrivalCapacitySolver.solve([model],budgets)
 	if result.get("capacity",{})!=F.make(20): return false
 	budgets.round = F.make(100)
@@ -548,16 +548,15 @@ func _case_48(t) -> void:
 	var world: WorldState = candidate.world
 	var query: Dictionary = {"candidates":{}}
 	ctx.sim.space.begin_route_query(world,{"nominal":true})
-	var receptions: Array = ctx.sim.clinic._reference_candidates(world,candidate.visit,"reception",query)
 	var diagnostics: Array = ctx.sim.clinic._reference_candidates(world,candidate.visit,"gp",query)
 	var terminal: String = str(world.facility_ids("M09")[0])
 	var quote: Dictionary = ctx.sim.clinic._outpatient_quote(world,candidate.visit,world.facts.staff[ctx.doctors[1]],world.facts.facilities[terminal],"P_D14_GENTLE",true,true,true)
 	var alternatives: Array = ctx.sim.clinic._reference_terminal_beds(world,candidate.visit,quote,{}) if quote.get("ok",false) else []
 	var nurses: Dictionary = {}
-	var correct: bool = not receptions.is_empty() and not diagnostics.is_empty()
+	var correct: bool = not diagnostics.is_empty()
 	for alternative: Dictionary in alternatives:
 		if not correct: break
-		var bundle: Dictionary = ctx.sim.clinic._reference_terminal_bundle(world,candidate.visit,receptions[0],diagnostics[0],alternative,{},query)
+		var bundle: Dictionary = ctx.sim.clinic._reference_terminal_bundle(world,candidate.visit,diagnostics[0],alternative,{},query)
 		var staff: Array = []
 		for id: String in bundle.get("stage_resources",{}).get("transfer",{}):
 			if id.begins_with("staff:"): staff.append(id)
@@ -988,9 +987,9 @@ class QuoteCounts extends HospitalClinic:
 	func _build_availability(world: WorldState) -> Dictionary:
 		availability_calls += 1
 		return super._build_availability(world)
-	func _reference_bundle(world: WorldState, visit: Dictionary, reception: Dictionary, diagnostic: Dictionary, quote: Dictionary, query: Dictionary, consultation: Dictionary = {}) -> Dictionary:
+	func _reference_bundle(world: WorldState, visit: Dictionary, diagnostic: Dictionary, quote: Dictionary, query: Dictionary, consultation: Dictionary = {}) -> Dictionary:
 		full_calls += 1
-		return super._reference_bundle(world,visit,reception,diagnostic,quote,query,consultation)
+		return super._reference_bundle(world,visit,diagnostic,quote,query,consultation)
 	func plan_quote(world: WorldState, visit_id: String, plan_id: String, options: Dictionary = {}) -> Dictionary:
 		plan_calls += 1
 		return super.plan_quote(world,visit_id,plan_id,options)
@@ -1101,7 +1100,7 @@ func _case_68(t) -> void:
 	ctx.space.end_route_query()
 	var shared: bool = observer.availability_calls==1 and is_same(first,second)
 	# Registration reserves space first. Walk and start the real service before
-	# checking the clinical owners; no preparation exists for registration.
+	# checking the clinical owners; no preparation exists for an unassigned diagnosis.
 	var ticks: int = 0
 	while ctx.world.facts.sessions.is_empty() and ticks<500:
 		ctx.simulation.step()
@@ -1136,7 +1135,7 @@ func _case_77(t) -> void:
 func _case_76(t) -> void:
 	var ctx: Dictionary = _context()
 	var first: Dictionary = _patient(ctx,[45,76])
-	var second: Dictionary = _patient(ctx,[46,76])
+	var second: Dictionary = _patient(ctx,[44,76])
 	if first.is_empty() or second.is_empty():
 		t.check("GROW-76",false,{"admission":ctx.get("last_admission",{})})
 		return
@@ -1147,39 +1146,43 @@ func _case_76(t) -> void:
 	ctx.simulation.world = world
 	first = world.facts.visits[first.id]
 	second = world.facts.visits[second.id]
+	for staff_id: String in world.facts.staff:
+		if world.facts.staff[staff_id].role=="doctor" and staff_id!="starter_doctor_a": world.facts.staff[staff_id].on_shift = false
+	# This candidate/reservation boundary begins after ordinary base preparation.
+	world.facts.staff.starter_doctor_a.base_prepared = true
 	var validation: String = world.validate(_content)
 	var observer: QuoteCounts = QuoteCounts.new(_content,ctx.space)
 	var before: Dictionary = world.freeze()
-	var all: Array = observer.service_candidates(world,first,"reception")
-	var first_only: Array = observer.service_candidates(world,second,"reception",false,false,{"first_only":true})
+	var all: Array = observer.service_candidates(world,first,"gp")
+	var first_only: Array = observer.service_candidates(world,second,"gp",false,false,{"first_only":true})
 	var independent: bool = all.size()==1 and first_only==all and observer.availability_calls==2 and world.staff_id_reads==2 and ctx.space._route_queries.is_empty() and world.freeze()==before
 	observer.availability_calls = 0
 	world.staff_id_reads = 0
-	var structural: Array = observer.service_candidates(world,second,"reception",true,false,{"staff_id":"starter_receptionist","first_only":true})
+	var structural: Array = observer.service_candidates(world,second,"gp",true,false,{"staff_id":"starter_doctor_a","first_only":true})
 	var structural_readonly: bool = structural==all and observer.availability_calls==0 and world.staff_id_reads==0 and ctx.space._route_queries.is_empty() and world.freeze()==before
 	var first_ticket: Dictionary = world.facts.tickets[first.ticket_id]
 	var second_ticket: Dictionary = world.facts.tickets[second.ticket_id]
 	var second_identity: Array = [second_ticket.id,second_ticket.enqueued_tick]
 	# The first real dispatcher, rather than an injected busy fact, reserves
-	# the sole reception point and requests actual patient/staff movement.
+	# the sole diagnostic point and requests actual patient/staff movement.
 	ctx.clinic._dispatch_service(world,first,first_ticket)
 	var held: Dictionary = world.facts.adaptations.get(str(all[0].facility_id) if not all.is_empty() else "",{})
 	var reserved: bool = first_ticket.get("service_assigned",false) and held.get("owner_id","")==first_ticket.id and held.get("actor_id","")==first.actor_id and world.facts.moves.has(first.actor_id)
 	before = world.freeze()
 	observer.availability_calls = 0
 	world.staff_id_reads = 0
-	var blocked: Array = observer.service_candidates(world,second,"reception",false,false,{"first_only":true})
+	var blocked: Array = observer.service_candidates(world,second,"gp",false,false,{"first_only":true})
 	var early: bool = blocked.is_empty() and observer.availability_calls==0 and world.staff_id_reads==0 and ctx.space._route_queries.is_empty() and world.freeze()==before
 	ctx.clinic._dispatch_service(world,second,second_ticket)
 	var original_ticket: bool = [second_ticket.id,second_ticket.enqueued_tick]==second_identity and second.ticket_id==second_ticket.id and not second_ticket.get("service_assigned",false) and world.facts.adaptations==before.adaptations and world.facts.ledger==before.ledger and world.facts.rng==before.rng
 	validation += world.validate(_content)
-	t.check("GROW-76",independent and structural_readonly and reserved and early and original_ticket and validation.is_empty(),{"independent_queries":independent,"structural_readonly":structural_readonly,"actual_reservation":reserved,"blocked_without_views":early,"blocked_availability_builds":observer.availability_calls,"blocked_staff_id_reads":world.staff_id_reads,"original_ticket":original_ticket,"validation":validation})
+	t.check("GROW-76",independent and structural_readonly and reserved and early and original_ticket and validation.is_empty(),{"independent_queries":independent,"pairs":all,"first_only":first_only,"reason":first.waiting_reason,"structural_readonly":structural_readonly,"actual_reservation":reserved,"blocked_without_views":early,"blocked_availability_builds":observer.availability_calls,"blocked_staff_id_reads":world.staff_id_reads,"original_ticket":original_ticket,"validation":validation})
 
 func _case_69(t) -> void:
 	var ctx: Dictionary = _context()
 	var query: Dictionary = {}
-	var a: Dictionary = {"resources":{"staff:starter_doctor_a":F.make(1,2),"facility:reception_desk":F.make(2,3)},"structural_resources":["staff:starter_doctor_a"]}
-	var b: Dictionary = {"resources":{"facility:reception_desk":F.make(4,6),"staff:starter_doctor_a":F.make(2,4)},"structural_resources":["staff:starter_doctor_a"]}
+	var a: Dictionary = {"resources":{"staff:starter_doctor_a":F.make(1,2),"facility:guide_desk":F.make(2,3)},"structural_resources":["staff:starter_doctor_a"]}
+	var b: Dictionary = {"resources":{"facility:guide_desk":F.make(4,6),"staff:starter_doctor_a":F.make(2,4)},"structural_resources":["staff:starter_doctor_a"]}
 	var first: Dictionary = ctx.arrivals._capacity_part(a,query,true)
 	var second: Dictionary = ctx.arrivals._capacity_part(b,query,true)
 	var c: Dictionary = b.duplicate(true)
@@ -1825,7 +1828,7 @@ func _case_17(t) -> void:
 	safe.visit.phase = "surgery"
 	safe.arrivals.needs(safe.world)
 	var no_service_draw: bool = safe.world.facts.rng.patience.state_decimal==safe_rng
-	safe.visit.phase = "wait_reception"
+	safe.visit.phase = "wait_gp"
 	safe.visit.anger = 90.0
 	safe.visit.last_service_tick = 600
 	safe.arrivals.needs(safe.world)

@@ -54,4 +54,5 @@ func run(content: HospitalContent) -> Dictionary:
 	var ok: bool = true
 	for value: bool in checks.values(): ok = ok and value
 	sim.dispose()
-	return {"passed":ok,"details":checks}
+	var regions: Dictionary = preload("res://tests/acceptance/detour_contact_regions.gd").new().run(content)
+	return {"passed":ok and regions.passed,"details":checks,"candidate_regions":regions}

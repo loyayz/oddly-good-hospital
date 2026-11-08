@@ -550,6 +550,35 @@ func _release(world: WorldState, job: Dictionary) -> void:
 	if job.phase in ["working","travelling"]:
 		job.phase = "queued"
 
+# External construction and equipment work share one actor lifecycle, never payroll.
+static func contractor_preview(world: WorldState) -> WorldState:
+	var facts: Dictionary = world.facts.duplicate()
+	facts.actors = world.facts.actors.duplicate()
+	var candidate: WorldState = WorldState.new(facts)
+	var entry: Dictionary = world.facts.entry
+	candidate.facts.actors["contractor_preview"] = {"id":"contractor_preview","name":"外部维修人员","species_id":"S49","service_role":"mechanic","location":{"kind":"floor","floor_id":int(entry.floor_id),"cell":entry.cell.duplicate(),"height_m":0.0},"facing":0.0,"posture":"standing"}
+	return candidate
+
+static func admit_contractor(world: WorldState, space: HospitalSpace, job_id: String) -> String:
+	var preview: WorldState = contractor_preview(world)
+	var actor: Dictionary = preview.facts.actors.contractor_preview
+	var entry: Dictionary = world.facts.entry
+	if not space.static_reason(world,actor,int(entry.floor_id),Vector2i(int(entry.cell[0]),int(entry.cell[1]))).is_empty() or not space._dynamic_clear(world,actor.id,int(entry.floor_id),space.body_rectangle(actor)):
+		return ""
+	var id: String = world.new_id("maintenance_contractor")
+	actor.id = id
+	world.facts.actors[id] = actor
+	world.facts.maintenance.get_or_add("contractors",{})[id] = {"id":id,"job_id":job_id,"phase":"assigned"}
+	space.sync_actor(world,id)
+	return id
+
+static func release_contractor(world: WorldState, id: String) -> void:
+	if not world.facts.maintenance.get("contractors",{}).has(id): return
+	world.facts.maintenance.contractors[id].phase = "leaving"
+	if world.facts.moves.has(id) and world.facts.actors[id].location.kind!="transit":
+		HospitalTransit.cancel_waiting(world,world.facts.moves[id])
+		world.facts.moves.erase(id)
+
 func _admit_worker(world: WorldState, job: Dictionary, item: Dictionary) -> void:
 	var entry: Dictionary = world.facts.entry
 	var actor: Dictionary = {"id":"maintenance_probe","name":"上门维修员","species_id":"S49","service_role":"mechanic",
@@ -686,6 +715,9 @@ func validate(world: WorldState) -> String:
 	if not contractors is Dictionary: return "上门维修人员集合无效"
 	var orders: Dictionary = world.facts.maintenance.jobs.duplicate()
 	orders.merge(world.facts.maintenance.upgrades)
+	orders.merge(world.facts.floors.get("orders",{}))
+	for renovation: Dictionary in world.facts.environment.get("orders",{}).values():
+		for unit: Dictionary in renovation.units: orders[unit.id] = unit
 	for id: Variant in contractors:
 		var worker: Variant = contractors[id]
 		if not worker is Dictionary or worker.get("id")!=id or not worker.get("phase","") in ["assigned","leaving","departed"] or not orders.has(worker.get("job_id","")) or not world.facts.actors.has(id) or world.facts.staff.has(id): return "上门维修人员身份或工单无效"

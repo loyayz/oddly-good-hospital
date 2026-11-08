@@ -21,8 +21,8 @@ func run() -> void:
 	panel._preview_suggestion()
 	var rows: Array = panel._proposal.coverage
 	check(before==JSON.stringify(w.facts),"suggestion and UI read only")
-	check(rows[2].nurse==0 and rows[2].receptionist==0 and "导诊无排班合资格护士" in rows[2].gaps and "接待无排班接待员" in rows[2].gaps,"starter third shift explicit gaps")
-	check(rows[0].nurse==2 and rows[0].care==2 and rows[0].receptionist==1 and rows[0].cleaner==1 and rows[0].researcher==0 and rows[0].decorator==0,"six roles and nursing skills")
+	check(rows[2].nurse==0 and not rows[2].has("receptionist") and "导诊无排班合资格护士" in rows[2].gaps,"starter third shift explicit gaps")
+	check(rows[0].nurse==2 and rows[0].care==2 and rows[0].cleaner==1 and rows[0].researcher==0 and not rows[0].has("receptionist") and not rows[0].has("decorator"),"four roles and nursing skills")
 	check("当前实际状态" in panel._preview.text and "不代表已到岗" in panel._preview.text and "草案，未应用" in panel._preview.text,"UI scope text")
 	var doctor_only: bool = true
 	for change: Dictionary in panel._proposal.changes:
@@ -40,13 +40,13 @@ func run() -> void:
 	check(panel._proposal.is_empty() and "尚未预览" in panel._preview.text,"switch staff clears draft and old preview")
 	panel._preview_manual()
 	check(before==JSON.stringify(w.facts) and panel._proposal.changes.size()==1,"manual preview read only")
-	# Reception reporting must depend on the reception desk, not a clinical station.
+	# Guidance reporting must depend on the guidance desk, not a clinical station.
 	var removed: Dictionary = {}
 	for id: String in w.facility_ids("FUR02"):
 		removed[id] = w.facts.facilities[id]
 		w.facts.facilities.erase(id)
-	validate_input(w,db,s,sim.services.wellbeing,"reception without clinic")
-	check("接待无排班接待员" in s.coverage(w)[2].gaps,"reception desk without clinic still reports gap")
+	validate_input(w,db,s,sim.services.wellbeing,"guidance without clinic")
+	check("导诊无排班合资格护士" in s.coverage(w)[2].gaps,"guidance desk without clinic still reports gap")
 	w.facts.facilities.merge(removed)
 	panel._show_coverage(s.coverage(w))
 	check(not "休息/生活任务中" in panel._preview.text,"idle life task is not shown as resting")

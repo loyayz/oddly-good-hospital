@@ -64,5 +64,5 @@ func build_controls() -> void:
 	order_picker.item_selected.connect(func(index: int) -> void: quote_label.text=str(orders[index].get("reason","")))
 	for operation: Dictionary in [{"id":"pause","name":"暂停"},{"id":"resume","name":"继续"},{"id":"cancel","name":"取消未开工部分"}]:
 		action(operation.name,func() -> void: send("renovation_"+str(operation.id),{"order_id":selected(order_picker)}),not orders.is_empty())
-	note("取消时退还未开工材料；正在施工的格先安全完成。缺装修员或工具时保留原单等待。")
+	note("取消时退还未开工材料；正在施工的格先安全完成。外部维修人员尚未到场或工具不可用时保留原单等待。")
 	action("刷新本层工作",rebuild)

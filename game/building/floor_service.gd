@@ -81,7 +81,7 @@ func execute(world: WorldState, kind: String, payload: Dictionary) -> CommandRes
 	var paid: CommandResult = HospitalLedger.post(world,LedgerEntry.new(id,"floor_purchase",-int(quote.price)))
 	if not paid.accepted: return paid
 	world.new_id("floor")
-	var order: Dictionary = {"id":id,"floor_id":quote.floor_id,"plot":quote.plot,"paid_cost":quote.price,"total_milli":quote.total_milli,"remaining_milli":quote.total_milli,"phase":"queued","paused":false,"worker_id":"","work_cell":[],"tool_id":"","tool_collected":false,"contributions":{},"reason":"等待装修工","created_tick":world.sim_tick}
+	var order: Dictionary = {"id":id,"floor_id":quote.floor_id,"plot":quote.plot,"paid_cost":quote.price,"total_milli":quote.total_milli,"remaining_milli":quote.total_milli,"phase":"queued","paused":false,"worker_id":"","work_cell":[],"tool_id":"","tool_collected":false,"contributions":{},"reason":"等待外部维修人员","created_tick":world.sim_tick}
 	world.facts.floors.orders[id] = order
 	if world.facts.mode=="creative":
 		_complete(world,order)
@@ -95,28 +95,23 @@ func below_room(world: WorldState, floor_id: int, plot: Array) -> bool:
 	return false
 
 func _crew(world: WorldState, floor_id: int, plot: Array) -> Dictionary:
-	var busy: Dictionary = {}
-	for id: String in world.ids("staff"):
-		var staff: Dictionary = world.facts.staff[id]
-		if staff.role!=content.balance.floors.construction_role: continue
-		var point: Array = _work_point(world,id,floor_id-1,plot,[])
-		if point.is_empty(): continue
+	var candidate: WorldState = HospitalMaintenance.contractor_preview(world)
+	var id: String = "contractor_preview"
+	var point: Array = _work_point(candidate,id,floor_id-1,plot,[])
+	if not point.is_empty():
 		for tool_id: String in world.facility_ids(str(content.balance.floors.construction_tool_id)):
 			var tool: Dictionary = world.facts.facilities[tool_id]
-			if tool.definition_id!=content.balance.floors.construction_tool_id or tool.failed or HospitalRemodel.blocked(world,tool_id): continue
-			if not space.can_reach(world,id,int(tool.floor_id),tool.operator_cells[0],[],{},true): continue
-			var candidate: Dictionary = {"ok":true,"worker_id":id,"work_cell":point,"tool_id":tool_id}
-			if environment._worker_ready(world,id): return candidate
-			busy = candidate
-	return busy if not busy.is_empty() else BuildGeometry.failure("需要合格可达装修工和正常可达SE02工具台")
+			if tool.failed or HospitalRemodel.blocked(world,tool_id): continue
+			if space.can_reach(candidate,id,int(tool.floor_id),tool.operator_cells[0],[],{},true):
+				return {"ok":true,"work_cell":point,"tool_id":tool_id}
+	return BuildGeometry.failure("需要外部维修人员可达的工作点和正常SE02工具台")
 
 func _work_point(world: WorldState, worker_id: String, floor_id: int, plot: Array, previous: Array) -> Array:
 	var actor: Dictionary = world.facts.actors[worker_id]
-	if not previous.is_empty() and environment._allowed_region(world.facts.staff[worker_id],floor_id,previous) and space.static_reason(world,actor,floor_id,Vector2i(int(previous[0]),int(previous[1]))).is_empty() and space.can_reach(world,worker_id,floor_id,previous,[],{},true):
+	if not previous.is_empty() and space.static_reason(world,actor,floor_id,Vector2i(int(previous[0]),int(previous[1]))).is_empty() and space.can_reach(world,worker_id,floor_id,previous,[],{},true):
 		return previous
 	for y: int in range(int(plot[1])*32,(int(plot[1])+1)*32):
 		for x: int in range(int(plot[0])*32,(int(plot[0])+1)*32):
-			if not environment._allowed_region(world.facts.staff[worker_id],floor_id,[x,y]): continue
 			if space.can_reach(world,worker_id,floor_id,[x,y],[],{},true): return [x,y]
 	return []
 
@@ -132,14 +127,16 @@ func dispatch(world: WorldState) -> void:
 		if not str(order.worker_id).is_empty() and not environment._worker_ready(world,order.worker_id,order.id): _release(world,order)
 		if str(order.worker_id).is_empty():
 			var crew: Dictionary = _crew(world,int(order.floor_id),order.plot)
-			if not crew.ok or not environment._worker_ready(world,str(crew.get("worker_id",""))):
-				order.reason = "等待装修工、正常工具或合法工作点"
+			if not crew.ok:
+				order.reason = "等待外部维修人员、正常工具或合法工作点"
 				continue
-			order.worker_id = crew.worker_id
+			order.worker_id = HospitalMaintenance.admit_contractor(world,space,str(order.id))
+			if str(order.worker_id).is_empty():
+				order.reason = "等待入口实际空位，外部维修人员尚未入院"
+				continue
 			order.work_cell = crew.work_cell
 			order.tool_id = crew.tool_id
 			order.tool_collected = false
-			world.facts.staff[order.worker_id].active_job_id = order.id
 			order.rate_milli = environment._work_amount(world,order.worker_id,"floor_module")
 		var worker_id: String = order.worker_id
 		order.work_cell = _work_point(world,worker_id,int(order.floor_id)-1,order.plot,order.work_cell)
@@ -177,7 +174,6 @@ func advance(world: WorldState) -> void:
 		var amount: int = mini(int(order.remaining_milli),int(order.rate_milli))
 		order.remaining_milli -= amount
 		order.contributions[worker_id] = int(order.contributions.get(worker_id,0))+amount
-		_worked[worker_id] = true
 		if int(order.remaining_milli)==0: _complete(world,order)
 
 func _complete(world: WorldState, order: Dictionary) -> void:
@@ -191,8 +187,7 @@ func _complete(world: WorldState, order: Dictionary) -> void:
 
 func _release(world: WorldState, order: Dictionary) -> void:
 	var worker_id: String = str(order.worker_id)
-	if world.facts.staff.has(worker_id) and world.facts.staff[worker_id].get("active_job_id","")==order.id:
-		world.facts.staff[worker_id].active_job_id = ""
+	HospitalMaintenance.release_contractor(world,worker_id)
 	order.worker_id = ""
 	if not terminal(order): order.phase = "queued"
 
@@ -227,7 +222,7 @@ func validate(world: WorldState) -> String:
 			var target: String = key+":"+str(order.floor_id)
 			if targets.has(target) or int(order.floor_id)!=int(tops[key])+1: return "模块重复购买或跳层"
 			targets[target] = true
-		if not str(order.worker_id).is_empty() and not world.facts.staff.has(order.worker_id): return "模块当前工人不存在"
+		if not str(order.worker_id).is_empty() and not environment._worker_ready(world,order.worker_id,order.id): return "模块当前工人不存在"
 	return ""
 
 func _result(world: WorldState, accepted: bool, reason: String, ids: Array = []) -> CommandResult:

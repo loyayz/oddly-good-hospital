@@ -8,7 +8,7 @@ var _visit_id: String = ""
 var _refer: Button
 
 const PHASES: Dictionary = {
-	"arrival":"正在到院", "wait_reception":"等待接待", "reception":"接待中",
+	"arrival":"正在到院",
 	"wait_gp":"等待初诊", "gp":"初诊中", "wait_spectrum":"等待光谱检查",
 	"spectrum":"光谱检查中", "wait_resonance":"等待共振检查", "resonance":"共振检查中",
 	"wait_consult":"等待会诊", "consult":"会诊中", "wait_outpatient":"等待门诊治疗",

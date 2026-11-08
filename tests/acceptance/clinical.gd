@@ -11,7 +11,7 @@ class UnknownTransferEstimate extends HospitalSpace:
 		return super.route_cost(world,actor_id,floor_id,target,members,offsets,ignore_people)
 
 const CASES: Dictionary = {
-	"CLIN-01":"docs/design/12-implementation-plan.md §10.1–10.2；真实接待6秒，Actor/Visit/原票只建一次",
+	"CLIN-01":"docs/design/12-implementation-plan.md §10.1–10.2；入院直接导诊后医生接诊，Actor/Visit只建一次",
 	"CLIN-02":"docs/design/07-clinical-team.md §9、§14、§17；诊断池与治疗池由不同实际医生安全交接，D09首试成功实收235",
 	"CLIN-03":"docs/design/01-simulation.md §4；C档证据42→77→102，检查各一次且不领包",
 	"CLIN-04":"docs/design/07-clinical-team.md §14；诊断3/奇想台49.2→93，省略共振全部副作用",
@@ -199,9 +199,9 @@ func _case_01(t) -> void:
 	var duplicate: CommandResult = CommandResult.new(false,"not_checked")
 	var request: Dictionary = {"arrival_key":_visit(c).get("arrival_key",""),"binding_id":"B_S13_D09_M09","requested_plan_id":"P_D09_COMMON","personality_id":"PP01"}
 	duplicate = _command(c,"clinical_arrive",request)
-	var reception: bool = arrived and await _until(t,c,func()->bool: return _visit(c).get("phase","")=="reception")
-	var reception_session: Dictionary = _session(c,"reception").duplicate(true)
-	t.check("CLIN-01",reception and duplicate.accepted and c.world.facts.visits.size()==1 and c.world.facts.arrival_receipts.size()==1 and c.world.facts.actors.size()==c.world.facts.staff.size()+1 and int(reception_session.get("total_ticks",-1))==60 and c.world.facts.attempts.is_empty() and _income(c)==0 and _units_used(c)==0,_state(c))
+	var guided: bool = arrived and await _until(t,c,func()->bool: return _visit(c).get("phase","")=="gp")
+	var guidance: Dictionary = c.world.facts.floor_guidance.visits.get(_visit(c).id,{})
+	t.check("CLIN-01",guided and duplicate.accepted and c.world.facts.visits.size()==1 and c.world.facts.arrival_receipts.size()==1 and c.world.facts.actors.size()==c.world.facts.staff.size()+1 and guidance.get("receipts",[]).size()==1 and not _visit(c).has("registration_receipt") and c.world.facts.attempts.is_empty() and _income(c)==0 and _units_used(c)==0,_state(c))
 
 func _case_02(t) -> void:
 	# This is the ordinary outpatient integration case. Its actual GP and

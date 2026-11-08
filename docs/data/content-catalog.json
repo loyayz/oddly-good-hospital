@@ -8358,12 +8358,12 @@
         "play_gag"
       ],
       "scene": "患者影子占了空椅子，主人对空座道歉",
-      "resolution": "接待员在现场举引导牌6秒；20秒影子回位",
+      "resolution": "20秒影子回位",
       "followup": "患者朝脚边仍属于自己的症状影子点头，影子慢半拍跟上；没有提前治好影子病。",
       "restores_state": true,
       "may_start_incident": false,
-      "care_role": "receptionist",
-      "care_work_seconds": 6,
+      "care_role": "",
+      "care_work_seconds": 0,
       "natural_resolution_seconds": 20,
       "actor_recovery_seconds": 0,
       "actor_pause_seconds": 20,
@@ -8706,12 +8706,12 @@
         "play_gag"
       ],
       "scene": "闹钟举号牌催，蜗牛举慢一点牌，两块牌越举越大",
-      "resolution": "接待员8秒按原票号说明；25秒互换小沙漏",
+      "resolution": "25秒互换小沙漏",
       "followup": "沙漏里的沙也慢慢打哈欠",
       "restores_state": true,
       "may_start_incident": false,
-      "care_role": "receptionist",
-      "care_work_seconds": 8,
+      "care_role": "",
+      "care_work_seconds": 0,
       "natural_resolution_seconds": 25,
       "actor_recovery_seconds": 0,
       "actor_pause_seconds": 25,
@@ -8912,12 +8912,12 @@
         "play_gag"
       ],
       "scene": "两人互相藏起对方的小勺，打开哪里都弹出另一把",
-      "resolution": "接待员8秒开失物托盘；30秒两人拿回原道具",
+      "resolution": "30秒两人拿回原道具",
       "followup": "最后多出一把不可拾取的纸勺",
       "restores_state": true,
       "may_start_incident": false,
-      "care_role": "receptionist",
-      "care_work_seconds": 8,
+      "care_role": "",
+      "care_work_seconds": 0,
       "natural_resolution_seconds": 30,
       "actor_recovery_seconds": 0,
       "actor_pause_seconds": 30,
@@ -9209,12 +9209,12 @@
         "play_gag"
       ],
       "scene": "纸鹤衔起仍在书页边的道具页签，书本原地比划正确页码；两人把小页签各转一个方向再看。",
-      "resolution": "接待员8秒给出页码图示；25秒纸鹤把页签放回原插槽，不飞跑、不追逐。",
+      "resolution": "25秒纸鹤把页签放回原插槽，不飞跑、不追逐。",
       "followup": "书本翻到一幅纸鹤插画",
       "restores_state": true,
       "may_start_incident": false,
-      "care_role": "receptionist",
-      "care_work_seconds": 8,
+      "care_role": "",
+      "care_work_seconds": 0,
       "natural_resolution_seconds": 25,
       "actor_recovery_seconds": 0,
       "actor_pause_seconds": 25,
@@ -11919,11 +11919,6 @@
     }
   ],
   "furniture_equipment": [
-    {
-      "definition_id": "FUR01",
-      "equipment_class": "workstation",
-      "passive_decoration": false
-    },
     {
       "definition_id": "FUR02",
       "equipment_class": "workstation",
@@ -16065,7 +16060,10 @@
           "casual_scene_nearby": 3
         },
         "travel_penalty_per_10_seconds": 5,
-        "scene_context_ids": ["decor_nearby", "casual_scene_nearby"],
+        "scene_context_ids": [
+          "decor_nearby",
+          "casual_scene_nearby"
+        ],
         "entry_scene": "看一眼实际附近的装饰或平和小互动，像给医院小摆件做一次认真的验收。",
         "low_motion_scene": "朝实际装饰或互动方向停留观察；没有对应对象就保持普通坐姿。"
       },
@@ -16102,7 +16100,10 @@
           "casual_scene_nearby": 0
         },
         "travel_penalty_per_10_seconds": 5,
-        "scene_context_ids": ["quiet", "less_crowded"],
+        "scene_context_ids": [
+          "quiet",
+          "less_crowded"
+        ],
         "entry_scene": "在真实安静或不拥挤的座位安顿好候诊卡，卡片边缘也规规矩矩缩进自身承托范围。",
         "low_motion_scene": "卡片与自身坐姿紧凑安稳，不生成额外屏风。"
       },
@@ -16139,7 +16140,9 @@
           "casual_scene_nearby": 0
         },
         "travel_penalty_per_10_seconds": 5,
-        "scene_context_ids": ["friendly_neighbor"],
+        "scene_context_ids": [
+          "friendly_neighbor"
+        ],
         "entry_scene": "附近真有正在等候的朋友时，把自己的候诊卡朝朋友方向摆好，像准备并排听懂叫号；朋友继续原阶段。",
         "low_motion_scene": "自身朝实际朋友方向安坐，朋友不配合新动作。"
       },
@@ -16213,7 +16216,9 @@
           "casual_scene_nearby": 0
         },
         "travel_penalty_per_10_seconds": 5,
-        "scene_context_ids": ["clean_ground"],
+        "scene_context_ids": [
+          "clean_ground"
+        ],
         "entry_scene": "脚下真实没有污物时，把候诊卡摆成整齐的小边线，像给干净角落颁了一张静静的合格证。",
         "low_motion_scene": "在原身体承托范围整齐安放卡片，不完成清洁工作。"
       },
@@ -16250,7 +16255,10 @@
           "casual_scene_nearby": 8
         },
         "travel_penalty_per_10_seconds": 2,
-        "scene_context_ids": ["casual_scene_nearby", "decor_nearby"],
+        "scene_context_ids": [
+          "casual_scene_nearby",
+          "decor_nearby"
+        ],
         "entry_scene": "附近真有平和小互动或装饰时，把候诊卡略朝它摆好，仿佛领到了免费观赏席；不插话、不生成观众。",
         "low_motion_scene": "自身朝真实小互动或装饰方向安坐，现场继续原进度。"
       },
@@ -16324,7 +16332,10 @@
           "casual_scene_nearby": 5
         },
         "travel_penalty_per_10_seconds": 2,
-        "scene_context_ids": ["decor_nearby", "casual_scene_nearby"],
+        "scene_context_ids": [
+          "decor_nearby",
+          "casual_scene_nearby"
+        ],
         "entry_scene": "面对实际装饰或平和小互动，把候诊卡转正又端正一下，像它也需要找个好角度；卡片仍是原票号。",
         "low_motion_scene": "卡片归位在原承托内，保持轻松观察姿态，不要求旁人发笑。"
       },
@@ -16676,14 +16687,6 @@
       "once_per_visit": true
     },
     {
-      "id": "HS13",
-      "name": "失物认领",
-      "scene": "居民来核对一只外形相似的随身小包；接待员翻过包上的姓名签，原来名字躲在一张谢谢贴纸后面。",
-      "resolution": "双方已在合法接待位、接待员空闲且无待登记患者时，沿原8秒核对；叫号或新登记需要接待员时1秒内结束。只用本人已有道具，不要求失物柜、不生成寄存库存或第二次登记。",
-      "handler": "lost_property",
-      "once_per_visit": true
-    },
-    {
       "id": "HS14",
       "name": "没留意号签",
       "scene": "患者正专注于眼前的小事，号签箭头在原位置展开提醒；不依赖是否安装导览屏。",
@@ -16766,7 +16769,7 @@
     {
       "id": "HS24",
       "name": "清洁与施工绕行",
-      "scene": "真实清洁员擦洗污渍，或装修工正在铺一格花砖；小路标指向当前可走的路线。",
+      "scene": "真实清洁员擦洗污渍，或外部维修人员正在铺一格花砖；小路标指向当前可走的路线。",
       "resolution": "清扫只按真实人员与工具空间让行，不产生施工噪声；装修仅在实际工作时产生原噪声。唯一出口保持可通行，忙碌治疗区延后施工，未清完垃圾保留。",
       "handler": "worksite_detour",
       "once_per_visit": true
@@ -17323,7 +17326,7 @@
     {
       "id": "carry_materials",
       "name": "材料帮手",
-      "description": "帮助附近现场装修工整理已付材料，减原单剩余工时10%、最多10秒；不新增材料或运输流程"
+      "description": "帮助附近现场外部维修人员整理已付材料，减原单剩余工时10%、最多10秒；不新增材料或运输流程"
     },
     {
       "id": "memory_projection",
@@ -19044,14 +19047,6 @@
       "pay_source": "staff:nurse"
     },
     {
-      "id": "ROLE_RECEPTIONIST",
-      "role": "receptionist",
-      "name": "接待员",
-      "description": "登记、票号解释与失物核对",
-      "qualification_note": "登记不代替诊断，候选技能决定岗位效率",
-      "pay_source": "staff:receptionist"
-    },
-    {
       "id": "ROLE_CLEANER",
       "role": "cleaner",
       "name": "清洁员",
@@ -19066,14 +19061,6 @@
       "description": "课题研究、资料与培训资源协作",
       "qualification_note": "凭研究岗位资格在研究桌推进已批准课题，实际工作提升研究技能。",
       "pay_source": "staff:researcher"
-    },
-    {
-      "id": "ROLE_DECORATOR",
-      "role": "decorator",
-      "name": "装修工",
-      "description": "墙地装修和上层楼板模块组装",
-      "qualification_note": "已付材料、正常工具台与合法施工点缺一不可",
-      "pay_source": "staff:decorator"
     }
   ],
   "staff_work_styles": [
@@ -19213,13 +19200,18 @@
       "id": "REX03",
       "name": "阿八",
       "species_id": "S02",
-      "role": "receptionist",
+      "role": "nurse",
       "social_personality_id": "PP08",
       "work_style_id": "WS05",
       "biography_id": "BIO06",
-      "non_doctor_skill": 1,
       "certificates": [],
-      "illustrative_only": true
+      "illustrative_only": true,
+      "nurse_profile": {
+        "diagnosis": 1,
+        "care": 1,
+        "surgery": 0
+      },
+      "non_doctor_skill": null
     },
     {
       "id": "REX04",
@@ -19245,18 +19237,6 @@
       "certificates": [
         "q_research"
       ],
-      "illustrative_only": true
-    },
-    {
-      "id": "REX07",
-      "name": "方块叔",
-      "species_id": "S42",
-      "role": "decorator",
-      "social_personality_id": "PP01",
-      "work_style_id": "WS03",
-      "biography_id": "BIO08",
-      "non_doctor_skill": 1,
-      "certificates": [],
       "illustrative_only": true
     }
   ],
@@ -19844,7 +19824,7 @@
       "steps": [
         "查看4格噪声传播范围，先移动候诊位或噪声源。",
         "在合法墙边布置屏风，检查声音是否仍能从旁边绕过。",
-        "地毯按材料环境分贡献舒适，等待装修工完成。"
+        "地毯按材料环境分贡献舒适，等待外部维修人员完成。"
       ],
       "watch_for": "环境热图仍反映真实噪声；静音罩椅只减轻使用者的噪声积怒，地毯不隔音，屏风不提供范围消音。"
     },
@@ -20623,18 +20603,6 @@
   ],
   "staff_practice_profiles": [
     {
-      "id": "SP01",
-      "name": "接待员",
-      "role": "receptionist",
-      "sources": [
-        "registration_completed"
-      ],
-      "unit": "completed_work",
-      "first_job_scene": "把本院第一份由自己实际完成登记的号签摆正，小旗尖还想多歪一下。",
-      "growth_owner": "job_skill",
-      "low_motion_first_job_scene": "本次登记完成标记与摆正的小旗；不新增一张队列票。"
-    },
-    {
       "id": "SP02",
       "name": "护士",
       "role": "nurse",
@@ -20674,19 +20642,6 @@
       "first_job_scene": "取得首份真实研究实践后，在刚读懂的一段旁画个小星记号，再把书签移到下一段。",
       "growth_owner": "job_skill",
       "low_motion_first_job_scene": "已读段落的小星与下一段书签；不表示整个课题已经完成。"
-    },
-    {
-      "id": "SP06",
-      "name": "装修工",
-      "role": "decorator",
-      "sources": [
-        "surface_unit_completed",
-        "floor_module_completed"
-      ],
-      "unit": "completed_work",
-      "first_job_scene": "把完成边线旁的测量纸带理直，纸带末端卷成一个整齐的小圈，再收回工具位。",
-      "growth_owner": "job_skill",
-      "low_motion_first_job_scene": "实际完成边线与收好的纸带；不对未完工地面打勾。"
     }
   ],
   "amenity_services": [
@@ -21275,11 +21230,9 @@
       "roles": [
         "doctor",
         "nurse",
-        "receptionist",
         "cleaner",
         "mechanic",
-        "researcher",
-        "decorator"
+        "researcher"
       ],
       "anchors": [
         "operator",
@@ -21310,11 +21263,9 @@
       "roles": [
         "doctor",
         "nurse",
-        "receptionist",
         "cleaner",
         "mechanic",
-        "researcher",
-        "decorator"
+        "researcher"
       ],
       "anchors": [
         "operator",
@@ -21345,11 +21296,9 @@
       "roles": [
         "doctor",
         "nurse",
-        "receptionist",
         "cleaner",
         "mechanic",
-        "researcher",
-        "decorator"
+        "researcher"
       ],
       "anchors": [
         "operator",
@@ -21380,11 +21329,9 @@
       "roles": [
         "doctor",
         "nurse",
-        "receptionist",
         "cleaner",
         "mechanic",
-        "researcher",
-        "decorator"
+        "researcher"
       ],
       "anchors": [
         "operator",
@@ -21415,11 +21362,9 @@
       "roles": [
         "doctor",
         "nurse",
-        "receptionist",
         "cleaner",
         "mechanic",
-        "researcher",
-        "decorator"
+        "researcher"
       ],
       "anchors": [
         "operator",
@@ -21450,11 +21395,9 @@
       "roles": [
         "doctor",
         "nurse",
-        "receptionist",
         "cleaner",
         "mechanic",
-        "researcher",
-        "decorator"
+        "researcher"
       ],
       "anchors": [
         "operator",
@@ -21485,11 +21428,9 @@
       "roles": [
         "doctor",
         "nurse",
-        "receptionist",
         "cleaner",
         "mechanic",
-        "researcher",
-        "decorator"
+        "researcher"
       ],
       "anchors": [
         "operator",
@@ -21520,11 +21461,9 @@
       "roles": [
         "doctor",
         "nurse",
-        "receptionist",
         "cleaner",
         "mechanic",
-        "researcher",
-        "decorator"
+        "researcher"
       ],
       "anchors": [
         "operator",
@@ -21555,11 +21494,9 @@
       "roles": [
         "doctor",
         "nurse",
-        "receptionist",
         "cleaner",
         "mechanic",
-        "researcher",
-        "decorator"
+        "researcher"
       ],
       "anchors": [
         "operator",
@@ -21643,10 +21580,10 @@
       "species_id": "S02",
       "name": "八手有序",
       "handler_id": "work_speed",
-      "action": "registration",
+      "action": "guidance",
       "condition": "always",
       "value": 0.15,
-      "scene": "八只手递笔盖章，最后一只手给自己递杯水"
+      "scene": "八只手整理导诊清单，最后一只手给自己递杯水"
     },
     {
       "id": "STAL03",
@@ -21883,10 +21820,10 @@
       "species_id": "S26",
       "name": "准点递单",
       "handler_id": "work_speed",
-      "action": "registration",
+      "action": "guidance",
       "condition": "always",
       "value": 0.1,
-      "scene": "两根指针把号单夹得笔直，敲一下小铃完成登记"
+      "scene": "两根指针把号单夹得笔直，敲一下小铃完成导诊"
     },
     {
       "id": "STAL27",
@@ -22023,7 +21960,7 @@
       "species_id": "S40",
       "name": "清凉招呼",
       "handler_id": "service_mood",
-      "action": "registration",
+      "action": "guidance",
       "condition": "always",
       "value": 2.0,
       "scene": "小勺形手柄挥出一条清凉弧线，再指向号单"
@@ -22033,20 +21970,10 @@
       "species_id": "S41",
       "name": "抱抱招呼",
       "handler_id": "service_mood",
-      "action": "registration",
+      "action": "guidance",
       "condition": "always",
       "value": 2.0,
       "scene": "柔软手臂做一个不接触患者的欢迎姿态"
-    },
-    {
-      "id": "STAL42",
-      "species_id": "S42",
-      "name": "拼缝眼力",
-      "handler_id": "work_speed",
-      "action": "surface_unit",
-      "condition": "always",
-      "value": 0.1,
-      "scene": "手中的量规像积木一样咔哒对齐"
     },
     {
       "id": "STAL43",
@@ -22123,7 +22050,7 @@
       "species_id": "S50",
       "name": "温和接待",
       "handler_id": "service_mood",
-      "action": "registration",
+      "action": "guidance",
       "condition": "always",
       "value": 2.0,
       "scene": "小熊猫把号单两边拍齐，用双手认真递出"
@@ -22169,16 +22096,6 @@
       "scene": "根须在工具套里逐一理清线头，最后扎一个整齐结"
     },
     {
-      "id": "STAL55",
-      "species_id": "S55",
-      "name": "直线尺感",
-      "handler_id": "work_speed",
-      "action": "floor_module",
-      "condition": "always",
-      "value": 0.1,
-      "scene": "竹节上的刻度和施工标线轻轻重合"
-    },
-    {
       "id": "STAL56",
       "species_id": "S56",
       "name": "夹持精准",
@@ -22193,7 +22110,7 @@
       "species_id": "S57",
       "name": "箱内有序",
       "handler_id": "work_speed",
-      "action": "registration",
+      "action": "guidance",
       "condition": "always",
       "value": 0.08,
       "scene": "号单从同一个小隔层整齐伸出，宝箱自己先看一眼"
@@ -22207,16 +22124,6 @@
       "condition": "always",
       "value": 3.0,
       "scene": "角尖只亮一小圈柔光，安静映出护理卡上的勾"
-    },
-    {
-      "id": "STAL59",
-      "species_id": "S59",
-      "name": "稳固组装",
-      "handler_id": "work_speed",
-      "action": "floor_module",
-      "condition": "always",
-      "value": 0.12,
-      "scene": "大手按着小小量规，轻轻敲出齐整的接缝"
     },
     {
       "id": "STAL60",
@@ -22289,16 +22196,6 @@
       "scene": "皿内纤毛指向同一刻度，小车按原操作区停稳"
     },
     {
-      "id": "STAL67",
-      "species_id": "S67",
-      "name": "细格工艺",
-      "handler_id": "work_speed",
-      "action": "surface_unit",
-      "condition": "always",
-      "value": 0.1,
-      "scene": "小车工具头将装修接缝描成整齐细格"
-    },
-    {
       "id": "STAL68",
       "species_id": "S68",
       "name": "清扫专注",
@@ -22307,16 +22204,6 @@
       "condition": "always",
       "value": 0.12,
       "scene": "刷头先给自己转半圈，再从真实污渍边缘开始"
-    },
-    {
-      "id": "STAL69",
-      "species_id": "S69",
-      "name": "工序成列",
-      "handler_id": "work_speed",
-      "action": "floor_module",
-      "condition": "always",
-      "value": 0.1,
-      "scene": "小车厢上的工序卡一张张翻过，完成才亮下一格"
     },
     {
       "id": "STAL70",
@@ -22373,7 +22260,7 @@
       "species_id": "S75",
       "name": "软糖笑脸",
       "handler_id": "service_mood",
-      "action": "registration",
+      "action": "guidance",
       "condition": "always",
       "value": 2.0,
       "scene": "软软脸颊挤出一个小笑脸，递单时又认真站好"
@@ -22387,16 +22274,6 @@
       "condition": "always",
       "value": 0.1,
       "scene": "先核对自己的发条位置，再给机器打一个小勾"
-    },
-    {
-      "id": "STAL77",
-      "species_id": "S77",
-      "name": "对位搭接",
-      "handler_id": "work_speed",
-      "action": "surface_unit",
-      "condition": "always",
-      "value": 0.1,
-      "scene": "木偶手肘和量规摆成直角，指向正在施工的接缝；实际完成一格后才翻过工序卡"
     },
     {
       "id": "STAL78",
@@ -23989,20 +23866,20 @@
       "held_scene": "症状卡停在当前格，一枚问号书签探出头；仍显示真实暂停原因。",
       "finished_scene": "本次实际取得的线索卡归档，空白卡认真给文件夹鞠一躬；未确诊时不盖确诊章。",
       "low_motion_scene": "卡片队列、探头问号和已归档卡片三个静态姿态；证据灯只认实际采集。",
-    "result_scenes": [
-      {
-        "state": "diagnosis_confirmed",
-        "label": "线索够了，准备选择方案",
-        "scene": "真实证据达到门槛，线索夹合好；空白卡把一枚问号收进夹内，确诊标记随后亮起。",
-        "low_motion_scene": "已归档线索与确诊标记并列，后续方案仍显示当前真实状态。"
-      },
-      {
-        "state": "more_evidence",
-        "label": "已有线索，还需必要检查",
-        "scene": "实际取得的线索卡排好，空白卡给未完成检查留出位置；问号书签认真站在空格边，不盖病名章。",
-        "low_motion_scene": "已取得线索与待检查空格静止并列，保留未确诊说明。"
-      }
-    ],
+      "result_scenes": [
+        {
+          "state": "diagnosis_confirmed",
+          "label": "线索够了，准备选择方案",
+          "scene": "真实证据达到门槛，线索夹合好；空白卡把一枚问号收进夹内，确诊标记随后亮起。",
+          "low_motion_scene": "已归档线索与确诊标记并列，后续方案仍显示当前真实状态。"
+        },
+        {
+          "state": "more_evidence",
+          "label": "已有线索，还需必要检查",
+          "scene": "实际取得的线索卡排好，空白卡给未完成检查留出位置；问号书签认真站在空格边，不盖病名章。",
+          "low_motion_scene": "已取得线索与待检查空格静止并列，保留未确诊说明。"
+        }
+      ],
       "working_variants": []
     },
     {
@@ -24041,32 +23918,32 @@
       "held_scene": "工具停在安全脱离位置，小梳子举起自己的待命号签；不继续拉伸患者。",
       "finished_scene": "工具按原顺序归位，最后一把梳子倒着排队后转正；患者是否康复取实际结果。",
       "low_motion_scene": "梳齿对齐、待命号签、归位工具三幅姿态；不靠抖动表达暂停。",
-    "result_scenes": [
-      {
-        "state": "cured",
-        "label": "这次已奏效，准备离位",
-        "scene": "真实治愈后，定位尺把自己的小结也理直，备用梳子向已归位工具微微鞠躬；患者使用本病例康复动作。",
-        "low_motion_scene": "理直的定位尺与真实治愈标记定格，患者保留本病例合法康复姿态。"
-      },
-      {
-        "state": "retry_ready",
-        "label": "这次没奏效，仍可再试一次",
-        "scene": "定位尺认真对照下一页，备用梳子发现自己拿反了检查牌并转正；医生说明真实结果，患者症状保留。",
-        "low_motion_scene": "定位尺停在下一页旁，保留首次未奏效与实际下一步说明。"
-      },
-      {
-        "state": "final_failure",
-        "label": "两次已完成，安排友好转诊",
-        "scene": "定位尺把再试小签收回工具槽，露出转诊记录的索引页；梳子端正待命，不再招呼第三次治疗。",
-        "low_motion_scene": "收好的工具与实际转诊说明并列，患者仍用未治愈症状姿态。"
-      },
-      {
-        "state": "awaiting_recovery",
-        "label": "操作完成，还需观察与查房",
-        "scene": "夹具安全归位，量尺给当前病例卡夹上中性观察书签；保留承托，不举康复章。",
-        "low_motion_scene": "归位夹具和中性观察书签定格，后续床位与照护按真实状态显示。"
-      }
-    ],
+      "result_scenes": [
+        {
+          "state": "cured",
+          "label": "这次已奏效，准备离位",
+          "scene": "真实治愈后，定位尺把自己的小结也理直，备用梳子向已归位工具微微鞠躬；患者使用本病例康复动作。",
+          "low_motion_scene": "理直的定位尺与真实治愈标记定格，患者保留本病例合法康复姿态。"
+        },
+        {
+          "state": "retry_ready",
+          "label": "这次没奏效，仍可再试一次",
+          "scene": "定位尺认真对照下一页，备用梳子发现自己拿反了检查牌并转正；医生说明真实结果，患者症状保留。",
+          "low_motion_scene": "定位尺停在下一页旁，保留首次未奏效与实际下一步说明。"
+        },
+        {
+          "state": "final_failure",
+          "label": "两次已完成，安排友好转诊",
+          "scene": "定位尺把再试小签收回工具槽，露出转诊记录的索引页；梳子端正待命，不再招呼第三次治疗。",
+          "low_motion_scene": "收好的工具与实际转诊说明并列，患者仍用未治愈症状姿态。"
+        },
+        {
+          "state": "awaiting_recovery",
+          "label": "操作完成，还需观察与查房",
+          "scene": "夹具安全归位，量尺给当前病例卡夹上中性观察书签；保留承托，不举康复章。",
+          "low_motion_scene": "归位夹具和中性观察书签定格，后续床位与照护按真实状态显示。"
+        }
+      ],
       "working_variants": [
         {
           "specialty_id": "T01",
@@ -24118,32 +23995,32 @@
       "held_scene": "节拍球停成省略号，临床工作停止时灯环保留稳定柔光。",
       "finished_scene": "灯环在真实完成后合成一个句号，刚才慢半拍的球从另一边归队；不展示虚假的成功星级。",
       "low_motion_scene": "三个节拍点、省略号和句号依当前阶段切换，亮度恒定。",
-    "result_scenes": [
-      {
-        "state": "cured",
-        "label": "这次已奏效，准备离位",
-        "scene": "真实治愈时，灯环的句号端正落位，最后一颗节拍球向队尾的小空格点头；患者接本病例康复动作。",
-        "low_motion_scene": "稳定灯环与实际治愈说明并列，不用闪光代替结果。"
-      },
-      {
-        "state": "retry_ready",
-        "label": "这次没奏效，仍可再试一次",
-        "scene": "节拍球把自己排成小逗号，认真把再核对标记朝向当前病例卡；光环保持安全柔光，不擦掉患者症状。",
-        "low_motion_scene": "小逗号与首次未奏效说明定格，下一步取当前合法方案。"
-      },
-      {
-        "state": "final_failure",
-        "label": "两次已完成，安排友好转诊",
-        "scene": "节拍球把重复号翻到转诊说明那一面，空灯格安静留白；不继续催动患者或启动新疗程。",
-        "low_motion_scene": "柔光、留白刻度与实际转诊说明并列，没有第三次按钮。"
-      },
-      {
-        "state": "awaiting_recovery",
-        "label": "操作完成，还需观察与查房",
-        "scene": "节拍球停成中性省略号，灯环把观察书签夹稳；机器工作完成，结果仍留待必要照护结束。",
-        "low_motion_scene": "中性省略号与真实恢复阶段并列，不区分隐藏成功或失败。"
-      }
-    ],
+      "result_scenes": [
+        {
+          "state": "cured",
+          "label": "这次已奏效，准备离位",
+          "scene": "真实治愈时，灯环的句号端正落位，最后一颗节拍球向队尾的小空格点头；患者接本病例康复动作。",
+          "low_motion_scene": "稳定灯环与实际治愈说明并列，不用闪光代替结果。"
+        },
+        {
+          "state": "retry_ready",
+          "label": "这次没奏效，仍可再试一次",
+          "scene": "节拍球把自己排成小逗号，认真把再核对标记朝向当前病例卡；光环保持安全柔光，不擦掉患者症状。",
+          "low_motion_scene": "小逗号与首次未奏效说明定格，下一步取当前合法方案。"
+        },
+        {
+          "state": "final_failure",
+          "label": "两次已完成，安排友好转诊",
+          "scene": "节拍球把重复号翻到转诊说明那一面，空灯格安静留白；不继续催动患者或启动新疗程。",
+          "low_motion_scene": "柔光、留白刻度与实际转诊说明并列，没有第三次按钮。"
+        },
+        {
+          "state": "awaiting_recovery",
+          "label": "操作完成，还需观察与查房",
+          "scene": "节拍球停成中性省略号，灯环把观察书签夹稳；机器工作完成，结果仍留待必要照护结束。",
+          "low_motion_scene": "中性省略号与真实恢复阶段并列，不区分隐藏成功或失败。"
+        }
+      ],
       "working_variants": [
         {
           "specialty_id": "T02",
@@ -24203,32 +24080,32 @@
       "held_scene": "抽屉拉到安全刻度，一枚“待处理”书签把自己夹进空文件夹；不继续吸走症状。",
       "finished_scene": "内部抽屉关闭前最后查一次自己的把手，工具清单整齐卷起；原症状是否消失由实际治愈决定。",
       "low_motion_scene": "检查框、待处理书签、卷起的工具清单三个姿态；静态图只使用本病例已有道具。",
-    "result_scenes": [
-      {
-        "state": "cured",
-        "label": "这次已奏效，准备离位",
-        "scene": "真实治愈后，空文件夹确认自己的封面，归档书签把庆祝小印章转向结果栏；病例按自己的康复变体结束。",
-        "low_motion_scene": "闭合文件夹与已结算治愈标记定格，病例症状只按真实治愈移除。"
-      },
-      {
-        "state": "retry_ready",
-        "label": "这次没奏效，仍可再试一次",
-        "scene": "小书签轻轻夹住尚不能使用的庆祝章，翻到再核对页；原幻想症状继续按病例表现，不当场补演成功。",
-        "low_motion_scene": "被夹住的庆祝章与首次未奏效说明并列，没有虚假归档成功。"
-      },
-      {
-        "state": "final_failure",
-        "label": "两次已完成，安排友好转诊",
-        "scene": "书签将再试页合回原夹，转向已确认的转诊记录；空抽屉检查一遍自己的把手后安静待命。",
-        "low_motion_scene": "合起的再试页与真实转诊说明定格，不清走病例症状。"
-      },
-      {
-        "state": "awaiting_recovery",
-        "label": "操作完成，还需观察与查房",
-        "scene": "工具清单卷好，中性观察书签留在当前页；庆祝章仍收在盒内，承托和必要照护继续。",
-        "low_motion_scene": "中性观察页与当前恢复状态并列，隐藏结果不改变配色或印章姿态。"
-      }
-    ],
+      "result_scenes": [
+        {
+          "state": "cured",
+          "label": "这次已奏效，准备离位",
+          "scene": "真实治愈后，空文件夹确认自己的封面，归档书签把庆祝小印章转向结果栏；病例按自己的康复变体结束。",
+          "low_motion_scene": "闭合文件夹与已结算治愈标记定格，病例症状只按真实治愈移除。"
+        },
+        {
+          "state": "retry_ready",
+          "label": "这次没奏效，仍可再试一次",
+          "scene": "小书签轻轻夹住尚不能使用的庆祝章，翻到再核对页；原幻想症状继续按病例表现，不当场补演成功。",
+          "low_motion_scene": "被夹住的庆祝章与首次未奏效说明并列，没有虚假归档成功。"
+        },
+        {
+          "state": "final_failure",
+          "label": "两次已完成，安排友好转诊",
+          "scene": "书签将再试页合回原夹，转向已确认的转诊记录；空抽屉检查一遍自己的把手后安静待命。",
+          "low_motion_scene": "合起的再试页与真实转诊说明定格，不清走病例症状。"
+        },
+        {
+          "state": "awaiting_recovery",
+          "label": "操作完成，还需观察与查房",
+          "scene": "工具清单卷好，中性观察书签留在当前页；庆祝章仍收在盒内，承托和必要照护继续。",
+          "low_motion_scene": "中性观察页与当前恢复状态并列，隐藏结果不改变配色或印章姿态。"
+        }
+      ],
       "working_variants": [
         {
           "specialty_id": "T06",
@@ -24250,14 +24127,14 @@
       "held_scene": "软夹归入安全待命姿态，托盘显示实际等待原因；不做器械递接或继续手术。",
       "finished_scene": "术中工作实际结束后，空托盘翻出一张“物品已点齐”的小卡；随后的苏醒、转床与查房仍照常进行。",
       "low_motion_scene": "按原手术四段显示交接定格，完成卡只代表器械点齐。",
-    "result_scenes": [
-      {
-        "state": "awaiting_recovery",
-        "label": "操作完成，先苏醒再恢复",
-        "scene": "空夹把物品已点齐小卡端端正正转向后续照护提示，托盘收好工具；患者仍由真实团队完成苏醒与转床。",
-        "low_motion_scene": "器械点齐卡和中性后续照护提示定格，承诺的成败完全不露出。"
-      }
-    ],
+      "result_scenes": [
+        {
+          "state": "awaiting_recovery",
+          "label": "操作完成，先苏醒再恢复",
+          "scene": "空夹把物品已点齐小卡端端正正转向后续照护提示，托盘收好工具；患者仍由真实团队完成苏醒与转床。",
+          "low_motion_scene": "器械点齐卡和中性后续照护提示定格，承诺的成败完全不露出。"
+        }
+      ],
       "working_variants": []
     },
     {
@@ -24270,26 +24147,26 @@
       "held_scene": "缺覆盖时枕角停在原位，床边显示真实等待原因；不假装护士正在工作。",
       "finished_scene": "本次护理完成后枕角同时点头，查房结论另取真实事实；病人仍留在自己当前的床与阶段。",
       "low_motion_scene": "当前护理姿态、等待书签和整理好的枕角；不显示虚构恢复进度。",
-    "result_scenes": [
-      {
-        "state": "cured",
-        "label": "查房已完成，准备康复离院",
-        "scene": "真实查房并结算治愈后，床边记录夹合上，枕角向结果栏轻轻点头；患者沿自己的康复与真实离床动作继续。",
-        "low_motion_scene": "已合记录夹与治愈说明并列，床尾仍待患者真实离位才收回。"
-      },
-      {
-        "state": "retry_ready",
-        "label": "必要照护已完成，仍可再试一次",
-        "scene": "查房确认首次未奏效，枕角把再核对书签摆正；记录夹保留真实症状和后续说明，不让患者跳过安全离床。",
-        "low_motion_scene": "查房完成记录与首次未奏效说明并列，仍显示实际离位或等待原因。"
-      },
-      {
-        "state": "final_failure",
-        "label": "必要照护已完成，安排友好转诊",
-        "scene": "真实查房后，记录夹转向转诊说明，枕角把空白第三页轻轻合回；患者保持未治愈症状并走安全离院流程。",
-        "low_motion_scene": "完成的照护记录与实际转诊说明定格，没有第三次疗程或虚假康复。"
-      }
-    ],
+      "result_scenes": [
+        {
+          "state": "cured",
+          "label": "查房已完成，准备康复离院",
+          "scene": "真实查房并结算治愈后，床边记录夹合上，枕角向结果栏轻轻点头；患者沿自己的康复与真实离床动作继续。",
+          "low_motion_scene": "已合记录夹与治愈说明并列，床尾仍待患者真实离位才收回。"
+        },
+        {
+          "state": "retry_ready",
+          "label": "必要照护已完成，仍可再试一次",
+          "scene": "查房确认首次未奏效，枕角把再核对书签摆正；记录夹保留真实症状和后续说明，不让患者跳过安全离床。",
+          "low_motion_scene": "查房完成记录与首次未奏效说明并列，仍显示实际离位或等待原因。"
+        },
+        {
+          "state": "final_failure",
+          "label": "必要照护已完成，安排友好转诊",
+          "scene": "真实查房后，记录夹转向转诊说明，枕角把空白第三页轻轻合回；患者保持未治愈症状并走安全离院流程。",
+          "low_motion_scene": "完成的照护记录与实际转诊说明定格，没有第三次疗程或虚假康复。"
+        }
+      ],
       "working_variants": []
     }
   ],

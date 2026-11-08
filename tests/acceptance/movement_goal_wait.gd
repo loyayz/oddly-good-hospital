@@ -17,7 +17,7 @@ class ObservingMovement extends HospitalMovement:
 	func _start_detour(world: WorldState, actor: Dictionary, movement: Dictionary) -> void:
 		local_requests += 1
 		super._start_detour(world,actor,movement)
-	func _movement_contacts(world: WorldState, actor_id: String, floor_id: int, broad: Rect2, sweeps: Array[BodyIndex.Record], members: Array, result: HospitalMovement.MotionResult) -> void:
+	func _movement_contacts(world: WorldState, actor_id: String, floor_id: int, broad: Rect2, sweeps: Array[BodyIndex.Record], members: Array, result: HospitalMovement.MotionResult, queries: Dictionary = {}) -> void:
 		# Copy numeric envelopes before committing this attempt. Records are
 		# shared runtime scratch; retaining their references would lose evidence.
 		var proposed: Dictionary = {}
@@ -27,7 +27,7 @@ class ObservingMovement extends HospitalMovement:
 		for id: String in _accepted_sweeps:
 			var sweep: BodyIndex.Record = _accepted_sweeps[id]
 			accepted[id] = {"from":_rectangle(sweep.sweep_from),"to":_rectangle(sweep.sweep_to)}
-		super._movement_contacts(world,actor_id,floor_id,broad,sweeps,members,result)
+		super._movement_contacts(world,actor_id,floor_id,broad,sweeps,members,result,queries)
 		contact_attempts[actor_id] = {"proposed":proposed,"accepted_earlier":accepted,"actual_contact_ids":result.blocker_actor_ids.duplicate()}
 	func _rectangle(rectangle: Rect2) -> Array:
 		return [rectangle.position.x,rectangle.position.y,rectangle.size.x,rectangle.size.y]

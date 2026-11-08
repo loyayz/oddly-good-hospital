@@ -29,9 +29,7 @@ func ensure(world: WorldState) -> void:
 			if kind in ["rest","staff_garden","doctor_office","research","workshop","toilet"]: continue
 			if kind in ["ward","operating_room","diagnosis"]: shared.append(room_id)
 			else: rooms.append(room_id)
-		var entry: Dictionary = {"floor_id":1,"cell":[48,93]}
-		if world.facts.facilities.has("reception_desk"):
-			entry = {"floor_id":world.facts.facilities.reception_desk.floor_id,"cell":world.facts.facilities.reception_desk.patient_cell.duplicate()}
+		var entry: Dictionary = world.facts.entry.duplicate(true)
 		state.units.general = {"id":"general","name":"综合诊疗科","room_ids":rooms,"shared_room_ids":shared,"public_cells":[],"entry":entry,"focus_id":"","focus_ready_tick":0,"intake_disease_ids":[],"open":true}
 	for id: String in state.units: world.department_changed(id,true)
 	for visit_id: String in world.active_visit_ids():
@@ -91,7 +89,7 @@ func advance(world: WorldState) -> void:
 		if job.kind=="doctor":
 			_correct(world,visit_id,"doctor")
 			continue
-		var corrected: bool = world.draw("registration",10000)<floori(float(content.balance.guidance.nurse_correction_probability)*10000)
+		var corrected: bool = world.draw("guidance",10000)<floori(float(content.balance.guidance.nurse_correction_probability)*10000)
 		_record_staff_job(world,{"id":job.id,"staff_id":nurse_id,"visit_id":visit_id,"kind":"guidance","tick":world.sim_tick,"success":corrected})
 		route.nurse_attempted = true
 		if corrected:
@@ -242,9 +240,9 @@ func route_patient(world: WorldState, visit_id: String, at_floor_desk: bool = fa
 		if not wrong.is_empty() and correct.size()+wrong.size()>=2:
 			var probability: float = float(content.balance.guidance.regular_error_probability if visit.get("returning_resident",false) else content.balance.guidance.first_visit_error_probability)
 			if _has_guide_screen(world,units[selected],visit): probability = maxf(0.0,probability-float(content.balance.guidance.sign_reduction))
-			error_rolled = world.draw("registration",10000)<floori(probability*10000)
+			error_rolled = world.draw("guidance",10000)<floori(probability*10000)
 			if error_rolled: selected = wrong[0]
-		world.facts.departments.routes[visit_id] = {"visit_id":visit_id,"registration_choice":selected,"correct_department_id":correct[0],"error_rolled":error_rolled,"corrected":false,"nurse_attempted":false,"started_tick":world.sim_tick,"actual_mismatched_entry_arrival":{},"correction_source":""}
+		world.facts.departments.routes[visit_id] = {"visit_id":visit_id,"guidance_choice":selected,"correct_department_id":correct[0],"error_rolled":error_rolled,"corrected":false,"nurse_attempted":false,"started_tick":world.sim_tick,"actual_mismatched_entry_arrival":{},"correction_source":""}
 		visit.department_id = selected
 	var route: Dictionary = world.facts.departments.routes[visit_id]
 	var current: Dictionary = readiness_by_department.get(str(visit.department_id),{})
@@ -304,7 +302,7 @@ func readiness(world: WorldState, department_id: String, visit_id: String, struc
 		return {"ok":false,"reachable":true,"structurally_compatible":false,"reason_id":"intake_scope_excludes_case","reason":"接诊范围明确排除本病例"}
 	# Initial diagnosis does not promise a downstream treatment chain.
 	# Staff, body fit and real routes are still checked by GP dispatch.
-	if visit.get("phase","") in ["arrival","wait_reception","reception","wait_gp","gp"]:
+	if visit.get("phase","") in ["arrival","wait_gp","gp"]:
 		var diagnostic: bool = false
 		for facility_id: String in world.facility_ids("FUR02"):
 			var facility: Dictionary = world.facts.facilities[facility_id]
@@ -564,7 +562,7 @@ func validate(world: WorldState) -> String:
 			if not disease_id is String or content.definition("diseases",disease_id).is_empty(): return "科室接诊范围无效"
 	for visit_id: Variant in state.routes:
 		var route: Variant = state.routes[visit_id]
-		if not visit_id is String or not world.facts.visits.has(visit_id) or not world.facts.visits[visit_id] is Dictionary or not route is Dictionary or not route.get("registration_choice") is String or not route.get("correct_department_id") is String or not route.get("error_rolled") is bool or not route.get("corrected") is bool or not route.get("actual_mismatched_entry_arrival") is Dictionary or not state.units.has(route.registration_choice) or not state.units.has(route.correct_department_id): return "挂号路线与科室引用无效"
+		if not visit_id is String or not world.facts.visits.has(visit_id) or not world.facts.visits[visit_id] is Dictionary or not route is Dictionary or not route.get("guidance_choice") is String or not route.get("correct_department_id") is String or not route.get("error_rolled") is bool or not route.get("corrected") is bool or not route.get("actual_mismatched_entry_arrival") is Dictionary or not state.units.has(route.guidance_choice) or not state.units.has(route.correct_department_id): return "导诊路线与科室引用无效"
 	var staff_locks: Dictionary = {}
 	for visit_id: Variant in state.guidance:
 		var job: Variant = state.guidance[visit_id]

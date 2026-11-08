@@ -62,7 +62,7 @@ const CASES: Dictionary = {
 	"SPACE-11":"docs/design/11-growth-arrivals-recruitment.md §3；共边地面购入仅授草地，重复/非邻接不付款",
 	"SPACE-12":"docs/design/11-growth-arrivals-recruitment.md §3；选梯主锚点h+1，补块须已有实完模块",
 	"SPACE-13":"docs/design/11-growth-arrivals-recruitment.md §3；正下层实际Room内格才构成建筑",
-	"SPACE-14":"docs/design/11-growth-arrivals-recruitment.md §3；真实装修工/正常SE02确认唯一付费单，未完无楼面",
+	"SPACE-14":"docs/design/11-growth-arrivals-recruitment.md §3；外部维修人员/正常SE02确认唯一付费单，未完无楼面",
 	"SPACE-15":"docs/data/balance.json floors.section_pricing；2/3/4/5/10F费用和标准量封顶不封层",
 	"SPACE-16":"docs/design/11-growth-arrivals-recruitment.md §3；真实到场施工，完工一次交付空板",
 	"SPACE-17":"docs/design/11-growth-arrivals-recruitment.md §3；主动暂停及恢复保留原单、付款、贡献和余量",
@@ -542,16 +542,7 @@ func _case_13(_t) -> Dictionary:
 func _case_14(_t) -> Dictionary:
 	var sim: HospitalSimulation = _floor_fixture()
 	var draft: Dictionary = _floor_draft(_connection(sim))
-	var worker: Dictionary = sim.world.facts.staff.decorator.duplicate(true)
-	var actor: Dictionary = sim.world.facts.actors.decorator.duplicate(true)
-	sim.world.facts.staff.erase("decorator")
-	sim.world.facts.actors.erase("decorator")
-	sim.world.touch()
-	var before: Dictionary = sim.world.freeze()
-	var missing_worker: CommandResult = _command(sim,"floor_purchase",draft)
-	var worker_atomic: bool = not missing_worker.accepted and before==sim.world.freeze()
-	sim.world.facts.staff.decorator = worker
-	sim.world.facts.actors.decorator = actor
+	var before: Dictionary
 	sim.world.facts.facilities.tool.failed = true
 	sim.world.touch()
 	before = sim.world.freeze()
@@ -564,7 +555,7 @@ func _case_14(_t) -> Dictionary:
 	var order: Dictionary = _order(sim)
 	var before_repeat: Dictionary = sim.world.freeze()
 	var repeat: CommandResult = _command(sim,"floor_purchase",draft)
-	return _done(sim,worker_atomic and tool_atomic and purchase.accepted and cash-HospitalLedger.balance(sim.world)==3200 and not order.is_empty() and order.remaining_milli==order.total_milli and not sim.space.owned(sim.world,2,Vector2i(40,75)) and not repeat.accepted and before_repeat==sim.world.freeze(),{"worker":missing_worker.reason,"tool":missing_tool.reason,"purchase":purchase.to_record(),"repeat":repeat.to_record()})
+	return _done(sim,sim.world.facts.staff.is_empty() and tool_atomic and purchase.accepted and cash-HospitalLedger.balance(sim.world)==3200 and not order.is_empty() and order.remaining_milli==order.total_milli and not sim.space.owned(sim.world,2,Vector2i(40,75)) and not repeat.accepted and before_repeat==sim.world.freeze(),{"tool":missing_tool.reason,"purchase":purchase.to_record(),"repeat":repeat.to_record()})
 
 func _case_15(_t) -> Dictionary:
 	var details: Array = []
@@ -576,7 +567,6 @@ func _case_15(_t) -> Dictionary:
 			_command(sim,"build_room",_room("below_high",[35,66],[4,4],int(sample[0])-1))
 			for floor_id: int in range(2,int(sample[0])):
 				_command(sim,"connector_extend",{"connection_id":_connection(sim),"floor_id":floor_id})
-			sim.world.facts.staff.decorator.work_region.floor_id = int(sample[0])-1
 		var draft: Dictionary = _floor_draft(_connection(sim),int(sample[0]))
 		var quote: Dictionary = sim.services.floors.preview(sim.world,draft)
 		ok = ok and quote.get("ok",false) and int(quote.get("total_milli",-1))==int(sample[2]) and int(quote.get("price",-1))==int(sample[1])
@@ -628,7 +618,7 @@ func _case_17(_t) -> Dictionary:
 	var saved_order: Dictionary = _order(restored)
 	var stable: bool = saved_order.get("paused",false) and int(saved_order.get("remaining_milli",-2))==remaining and saved_order.get("contributions",{})==contributions and int(saved_order.get("paid_cost",-1))==3200
 	var resumed: CommandResult = _command(restored,"floor_resume",{"order_id":id})
-	var progressed: bool = _wait(restored,func() -> bool: return int(_order(restored).get("remaining_milli",remaining))<remaining,120)
+	var progressed: bool = _wait(restored,func() -> bool: return int(_order(restored).get("remaining_milli",remaining))<remaining,500)
 	var details: Dictionary = {"started":started,"pause":paused.to_record(),"resume":resumed.to_record(),"remaining":remaining,"restored":saved_order.duplicate(true)}
 	restored.dispose()
 	return _done(sim,started and paused.accepted and global_paused and stable and resumed.accepted and progressed,details)
@@ -647,7 +637,7 @@ func _case_18(_t) -> Dictionary:
 	sim.step()
 	var stopped: bool = int(_order(sim).get("remaining_milli",-2))==remaining and str(_order(sim).get("reason","")).contains("下层")
 	var rebuilt: CommandResult = _command(sim,"build_room",_room("below_again",[35,66]))
-	var moved: bool = _wait(sim,func() -> bool: return int(_order(sim).get("remaining_milli",remaining))<remaining,120)
+	var moved: bool = _wait(sim,func() -> bool: return int(_order(sim).get("remaining_milli",remaining))<remaining,500)
 	var order: Dictionary = _order(sim)
 	var same_work: bool = order.id==id and int(order.paid_cost)==paid and int(order.total_milli)==90000 and order.floor_id==2 and order.plot==[1,2] and int(order.get("work_cell",[0,0])[0])/32==1 and int(order.get("work_cell",[0,0])[1])/32==2
 	for worker_id: String in original_contribution:
@@ -1327,7 +1317,6 @@ func _case_42(_t) -> Dictionary:
 	var before: Dictionary = sim.world.freeze()
 	var missing: Dictionary = sim.services.blueprints.preview(sim.world,payload)
 	var atomic: bool = before==sim.world.freeze() and not missing.get("ok",true)
-	_add_staff(sim,"decorator","decorator",[48,80])
 	var tool: CommandResult = _command(sim,"build_facility",{"id":"tool","definition_id":"SE02","floor_id":1,"cell":[47,80]})
 	var plan: Dictionary = sim.services.blueprints.preview(sim.world,payload)
 	payload.quote = _blueprint_quote(plan)
@@ -1783,8 +1772,6 @@ func _floor_fixture() -> HospitalSimulation:
 	_command(sim,"build_room",_room("below",[35,66]))
 	_command(sim,"connector_build",{"definition_id":"VC02","floor_id":1,"cell":[48,70]})
 	_command(sim,"build_facility",{"id":"tool","definition_id":"SE02","floor_id":1,"cell":[40,74]})
-	_add_staff(sim,"decorator","decorator",[44,76])
-	sim.world.facts.staff.decorator.work_region = {"strict":true,"floor_id":1,"origin":[42,74],"size":[1,1]}
 	return sim
 
 func _case_45(_t) -> Dictionary:

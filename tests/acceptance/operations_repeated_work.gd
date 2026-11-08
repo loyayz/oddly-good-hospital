@@ -51,7 +51,7 @@ func run_indices(content: HospitalContent) -> Dictionary:
 	checks.all_owned_observers_released = world._pending_sources.size()==observer_count
 	var finance: FinanceService = f.s.services.finance
 	checks.base_operating_rate = finance.operating_rate(world)==800
-	var placed: bool = builder._place(f,"indexed_seat","FUR01",[42,80])
+	var placed: bool = builder._place(f,"indexed_seat","FUR05",[42,80])
 	checks.formal_build_rate = placed and finance.operating_rate(world)==960 and finance.operating_rate(world)==960
 	var stored: CommandResult = builder._command(f,"build_store",{"target_id":"indexed_seat"})
 	checks.formal_inventory_rate = stored.accepted and finance.operating_rate(world)==800
@@ -81,7 +81,7 @@ func run_indices(content: HospitalContent) -> Dictionary:
 	checks.terminal_retained = cancelled.accepted and world.active_operation_ids("environment","orders",["completed","cancelled"]).is_empty() and world.facts.environment.orders.has(order_id)
 	var restored_f: Dictionary = builder._restore(f)
 	checks.terminal_restore = restored_f.w.active_operation_ids("environment","orders",["completed","cancelled"]).is_empty() and restored_f.w.ledger_owner_ids([unit_id])==owned and restored_f.s.services.finance.operating_rate(restored_f.w)==800
-	var chairs: bool = builder._place(f,"remodel_seat_a","FUR01",[46,80]) and builder._place(f,"remodel_seat_b","FUR01",[50,80])
+	var chairs: bool = builder._place(f,"remodel_seat_a","FUR05",[46,80]) and builder._place(f,"remodel_seat_b","FUR05",[50,80])
 	var first: CommandResult = builder._command(f,"remodel_prepare",{"commands":[{"kind":"build_move","target_id":"remodel_seat_a","floor_id":1,"cell":[46,84]}]})
 	var second: CommandResult = builder._command(f,"remodel_prepare",{"commands":[{"kind":"build_move","target_id":"remodel_seat_b","floor_id":1,"cell":[50,84]}]})
 	checks.remodel_setup = chairs and first.accepted and second.accepted
@@ -119,7 +119,7 @@ func run_routes(content: HospitalContent) -> Dictionary:
 		if condition=="fractional": world.facts.actors.route_cleaner.location.cell = [40.25,80.0]
 		if condition in ["reservation","authorized"]:
 			# A legal reservation boundary, not fabricated movement or work.
-			HospitalFactory._add_facility(world,{"id":"query_support","definition_id":"FUR01","anchor":[55,81],"size":content.facility_definition("FUR01").footprint,"room_id":null},content)
+			HospitalFactory._add_facility(world,{"id":"query_support","definition_id":"FUR05","anchor":[55,81],"size":content.facility_definition("FUR05").footprint,"room_id":null},content)
 			var facility: Dictionary = world.facts.facilities.query_support
 			facility.floor_id = 2
 			world.facts.adaptations.query_support = {"kind":"facility","facility_id":"query_support","owner_id":"route_blocker","actor_id":"route_blocker","staff_ids":["route_cleaner"] if condition=="authorized" else [],"floor_id":2,"regions":[[55,81,3,3]],"footprint":facility.footprint.duplicate(),"patient_cell":facility.patient_cell.duplicate(),"operator_cells":facility.operator_cells.duplicate(true),"repair_cell":facility.repair_cell.duplicate()}
@@ -199,7 +199,7 @@ func run_routes(content: HospitalContent) -> Dictionary:
 func run_spawns(content: HospitalContent) -> Dictionary:
 	var builder: RefCounted = _builder(content)
 	var f: Dictionary = builder._new("地污来源完整占用边界")
-	var placed: bool = builder._place(f,"ground_chair","FUR01",[42,80]) and builder._place(f,"ground_bin","FUR18",[50,80])
+	var placed: bool = builder._place(f,"ground_chair","FUR05",[42,80]) and builder._place(f,"ground_bin","FUR18",[50,80])
 	var environment: HospitalEnvironment = f.s.services.environment
 	var before: Dictionary = f.w.freeze()
 	var checked: int = 0

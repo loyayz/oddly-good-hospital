@@ -546,13 +546,11 @@ func _normalize_bundle(world: WorldState, source: Dictionary, query: Variant = n
 		for resource_id: String in resources:
 			if resource_id.begins_with("staff:"):
 				var staff_id: String = resource_id.substr(6)
-				if world.facts.staff.get(staff_id,{}).get("role","") != "receptionist" and staff_id != coverage_nurse:
+				if staff_id != coverage_nurse:
 					structural.append(resource_id)
 			elif resource_id.begins_with("facility:"):
 				var facility_id: String = resource_id.substr(9)
-				var definition_id: String = world.facts.facilities.get(facility_id,{}).get("definition_id","")
-				if definition_id != "FUR01":
-					structural.append(resource_id)
+				structural.append(resource_id)
 		structural.sort()
 		result.structural_resources = structural
 	return result
@@ -686,13 +684,11 @@ func _remaining_bundle(world: WorldState, visit: Dictionary, source: Dictionary)
 	elif not visit.attempt_ids.is_empty() and source.has("expected_attempts"):
 		factor = F.div(F.make(1),F.from_value(source.expected_attempts))
 	for stage: String in stages:
-		if stage == "reception" and kind != "reception":
-			continue
-		if stage == "gp" and not kind in ["reception","gp"]:
+		if stage == "gp" and not kind in ["gp"]:
 			continue
 		if stage in ["spectrum","resonance"] and visit.evidence_by_source.has(stage):
 			continue
-		if stage == "consult" and not kind in ["reception","gp","spectrum","resonance","consult"]:
+		if stage == "consult" and not kind in ["gp","spectrum","resonance","consult"]:
 			continue
 		for resource_id: String in stages[stage]:
 			var amount: Dictionary = F.from_value(stages[stage][resource_id])
@@ -718,15 +714,13 @@ func _shift_fraction(remaining: Dictionary, shift: int) -> Dictionary:
 
 func _structural_pairs(world: WorldState, classes: Array, shift: int) -> Dictionary:
 	var blocked: Dictionary = {}
-	var reception: Dictionary = {"people":{},"desks":{},"ratio":int(content.balance.arrivals.capacity_scaling.reception_pairs_per_station)}
+	var reception: Dictionary = {"people":{},"desks":{},"ratio":1}
 	for id: String in world.facts.staff:
 		if _staff_budget(world,id,shift)==0: blocked["staff:"+id] = true
-		elif world.facts.staff[id].role=="receptionist": reception.people["staff:"+id] = true
 	for id: String in world.facts.facilities:
 		var facility: Dictionary = world.facts.facilities[id]
 		if facility.get("failed",false) or not facility.get("open",true) or not facility.get("intake_open",true) or facility.get("stop_new_service",false):
 			blocked["facility:"+id] = true
-		elif facility.definition_id=="FUR01": reception.desks["facility:"+id] = true
 	var shape: Array = []
 	for case: Dictionary in classes:
 		shape.append(_structural_case(case,reception))

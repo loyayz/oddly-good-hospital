@@ -434,7 +434,7 @@ func capacity(world: WorldState, _subtract_existing: bool = true, _cancellation:
 
 func _admission_candidates(world: WorldState) -> Array:
 	# Interest depends on unlocked diseases and the player's weights. Actual
-	# reception, diagnosis and treatment decide what can happen after arrival.
+	# guidance, diagnosis and treatment decide what can happen after arrival.
 	var candidates: Array = []
 	var seen: Dictionary = {}
 	for binding: Dictionary in content.catalog.get("treatment_bindings",[]):
@@ -645,7 +645,7 @@ func _release_identity(world: WorldState, resident_id: String) -> void:
 			world.facts.relationships.erase(relationship_id)
 
 func _eligible_wait(world: WorldState, visit: Dictionary, ticket: Dictionary) -> bool:
-	if not visit.phase in ["wait_reception","wait_gp","wait_spectrum","wait_resonance","wait_test","wait_consult","wait_consultation","wait_outpatient","wait_surgery"]:
+	if not visit.phase in ["wait_gp","wait_spectrum","wait_resonance","wait_test","wait_consult","wait_consultation","wait_outpatient","wait_surgery"]:
 		return false
 	if not ticket.get("pause_reasons",{}).is_empty() or ticket.get("paused",false):
 		return false

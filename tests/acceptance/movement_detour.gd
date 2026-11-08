@@ -228,7 +228,7 @@ func _convoy_cannot_back_into_tail(suite: RefCounted) -> Dictionary:
 func _double_corner_rejoin(suite: RefCounted) -> Dictionary:
  var sim: HospitalSimulation=suite._fixture()
  HospitalFactory._add_room(sim.world,{"id":"corner_room","type":"physical","anchor":[42,84],"size":[6,6],"door":{"definition_id":"DR04","offset":2}},suite.content)
- HospitalFactory._add_facility(sim.world,{"id":"corner_reception","definition_id":"FUR01","anchor":[43,92],"size":[2,1],"room_id":null},suite.content)
+ HospitalFactory._add_facility(sim.world,{"id":"corner_workstation","definition_id":"FUR05","anchor":[43,92],"size":[2,1],"room_id":null},suite.content)
  HospitalFactory._add_facility(sim.world,{"id":"corner_chair","definition_id":"FUR09","anchor":[41,92],"size":[1,1],"room_id":null},suite.content)
  HospitalFactory._add_facility(sim.world,{"id":"corner_machine","definition_id":"M09","anchor":[45,85],"size":[2,2],"room_id":"corner_room"},suite.content)
  sim.world.touch()

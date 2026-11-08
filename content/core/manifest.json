@@ -134,7 +134,7 @@
     },
     {
       "path": "furniture_equipment.json",
-      "sha256": "e05b3334451251a6dd3dc84911b4a4961d0b59c5dcb06c40a7ee7a7bd92cf643"
+      "sha256": "203e125a9a0249467c082574cc53e403f34d7b32a4d4a15e443e9719daaa93d0"
     },
     {
       "path": "gratitude_abilities.json",
@@ -154,7 +154,7 @@
     },
     {
       "path": "hospital_situations.json",
-      "sha256": "9ec30e5228cc8696bcf9947e097f88801f0a41b73e3099d31f6f6f1cedcd4a7b"
+      "sha256": "a8f16a3e74f1d2b9a78d65444e0b29e21bc9e4d218888210570f8343789a26e2"
     },
     {
       "path": "incident_contexts.json",
@@ -162,7 +162,7 @@
     },
     {
       "path": "incidents.json",
-      "sha256": "aacb510cd0a4f4bbb1faacd07304bb6447019beae87c52ddc0aad8cad959f7c8"
+      "sha256": "e6af02ae1ddf4d7977227dfa2f00fb1154fc79df0ea630130f64c811e758b8fd"
     },
     {
       "path": "initial_disease_ids.json",
@@ -182,7 +182,7 @@
     },
     {
       "path": "locale/zh_CN.csv",
-      "sha256": "2ade8c67e736aebf5c5fcdea2fd084ebb631d627048fc5db074ff3e7e59058ef"
+      "sha256": "2a8153ce1a4a8da21241b3b517ab55ec7fb3dc6a62b95694cec1efc044aed6bd"
     },
     {
       "path": "machines.json",
@@ -246,7 +246,7 @@
     },
     {
       "path": "recruitment_examples.json",
-      "sha256": "06e0478c1d06a5c71a97864f6e4a292f65bec2bb23ea83d37b1074f963915449"
+      "sha256": "6544cce998708d6e90c82f4b95eee3e26866ad33b27e208656e09831b373104e"
     },
     {
       "path": "remodel_guides.json",
@@ -274,7 +274,7 @@
     },
     {
       "path": "rules.json",
-      "sha256": "0649cc0330371f93cc1ddc545d030502c19b450b87c2df23511cc0423f945a67"
+      "sha256": "d3a5c73d2fc71e2bcbc2b78a6598f6f7abea42ed48a20ea2d38b04bbf7c55ca3"
     },
     {
       "path": "service_equipment.json",
@@ -302,7 +302,7 @@
     },
     {
       "path": "staff_practice_profiles.json",
-      "sha256": "246f01a3400642a32aacdff6a48e6e888746860936d712af32420a13f6b21c9b"
+      "sha256": "8642dfba52d6dcfadcfdf4aedd3af01e5859871417cf76d204d399275c018422"
     },
     {
       "path": "staff_recreation_equipment.json",
@@ -310,11 +310,11 @@
     },
     {
       "path": "staff_rig_adapters.json",
-      "sha256": "faae167a7bf67362134c2bf28e076a84ace43d56bd0d431dcd4043e0371c479d"
+      "sha256": "75931f6410c87afdb9adbedc5bb8a09ca603c44c526b6e1b5c4ffc5bcb87db79"
     },
     {
       "path": "staff_role_profiles.json",
-      "sha256": "750b0e26da652ecac2999f2a2ee8081954b61236801be42b6e41d8ebdb734a32"
+      "sha256": "6ec6e9a8a80863a11263dbb970ae967689344fde98f71c38f31152c388e9576d"
     },
     {
       "path": "staff_support_rooms.json",
@@ -326,7 +326,7 @@
     },
     {
       "path": "staff_talents.json",
-      "sha256": "30789aac2d0de77fd917b9305157fa60da7fe8fe8edd53ccf9764556d52042fb"
+      "sha256": "f5ed397dc574c8f82d8accef77b3fe4a50566b7965da1da79f8b4f9ec631f215"
     },
     {
       "path": "staff_work_styles.json",
@@ -334,7 +334,7 @@
     },
     {
       "path": "starter_layout.json",
-      "sha256": "bc4641b57935ea698e474a64bd648e8d6254fc3c9c6275096f968fdf8b9f416f"
+      "sha256": "32e1ed8fde205803858ec0a1a9d7667e2afb6f85372392464887a05bd3664db6"
     },
     {
       "path": "stories.json",

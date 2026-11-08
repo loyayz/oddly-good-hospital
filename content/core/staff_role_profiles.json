@@ -16,14 +16,6 @@
     "role": "nurse"
   },
   {
-    "description": "@zh:core.staff_role_profiles.ROLE_RECEPTIONIST.description",
-    "id": "ROLE_RECEPTIONIST",
-    "name": "@zh:core.staff_role_profiles.ROLE_RECEPTIONIST.name",
-    "pay_source": "staff:receptionist",
-    "qualification_note": "@zh:core.staff_role_profiles.ROLE_RECEPTIONIST.qualification_note",
-    "role": "receptionist"
-  },
-  {
     "description": "@zh:core.staff_role_profiles.ROLE_CLEANER.description",
     "id": "ROLE_CLEANER",
     "name": "@zh:core.staff_role_profiles.ROLE_CLEANER.name",
@@ -38,13 +30,5 @@
     "pay_source": "staff:researcher",
     "qualification_note": "@zh:core.staff_role_profiles.ROLE_RESEARCHER.qualification_note",
     "role": "researcher"
-  },
-  {
-    "description": "@zh:core.staff_role_profiles.ROLE_DECORATOR.description",
-    "id": "ROLE_DECORATOR",
-    "name": "@zh:core.staff_role_profiles.ROLE_DECORATOR.name",
-    "pay_source": "staff:decorator",
-    "qualification_note": "@zh:core.staff_role_profiles.ROLE_DECORATOR.qualification_note",
-    "role": "decorator"
   }
 ]

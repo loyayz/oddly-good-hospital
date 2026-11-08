@@ -65,7 +65,7 @@ func _preview_suggestion() -> void:
 func _show_coverage(rows: Array) -> void:
 	var lines: PackedStringArray = ["今日有效排班（草案，未应用）", "已过班次仅作排班记录，今日覆盖保留；人数仅表示排班资格，不代表已到岗或整班可用。休假与班次部分重叠也不计入。"]
 	for row: Dictionary in rows:
-		lines.append("第%d班：初诊医生%d · 手术医生%d · 查房医生%d\n护士%d（护理/导诊%d · 检查%d · 手术%d · 病房资格%d）\n接待%d · 清洁%d · 研究%d · 装修%d · 培训%d" % [int(row.shift)+1,row.outpatient,row.surgeon,row.ward,row.nurse,row.care,row.nurse_diagnosis,row.nurse_surgery,row.ward_nurse,row.receptionist,row.cleaner,row.researcher,row.decorator,row.training])
+		lines.append("第%d班：初诊医生%d · 手术医生%d · 查房医生%d\n护士%d（护理/导诊%d · 检查%d · 手术%d · 病房资格%d）\n清洁%d · 研究%d · 培训%d" % [int(row.shift)+1,row.outpatient,row.surgeon,row.ward,row.nurse,row.care,row.nurse_diagnosis,row.nurse_surgery,row.ward_nurse,row.cleaner,row.researcher,row.training])
 		if int(row.leave_excluded)>0: lines.append("休假重叠未计入：%d人" % row.leave_excluded)
 		lines.append("；".join(row.gaps) if not row.gaps.is_empty() else "未发现上述排班零人缺口；仍需核验实际服务条件")
 	lines.append("护士能力人数可重叠，不能相加或同时用于导诊、检查、手术和病房。仍须核对各台/各病房独立人员、技能等级、工作池、路线及工作时窗。其他岗位仅列人数，不判断工作量是否足够。")

@@ -547,6 +547,7 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 		query = RouteClearance.new(space,world,actor,floor_id,members,offsets,true,graph.geometry.source,graph.geometry,navigation.member_geometries)
 	else: query = space._navigation.clearance(space,world,floor_id,actor) if members.is_empty() else RouteClearance.new(space,world,actor,floor_id,members,offsets,true,graph.geometry.source)
 	var people: Callable = Callable()
+	var dynamic: Dictionary = {}
 	var convoy_start: bool = actor.has("_convoy_size") and actor.location.kind=="floor" and int(actor.location.floor_id)==floor_id and start==Vector2i(ConvoyTrail.point(actor.location.cell).round())
 	if not ignore_people or convoy_start:
 		people = func(from_cell: Vector2i,to_cell: Vector2i) -> bool:
@@ -564,7 +565,7 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 					var swept: Rect2 = Rect2(Vector2(from_cell),Vector2.ONE*int(unit.convoy.size)).merge(Rect2(Vector2(to_cell),Vector2.ONE*int(unit.convoy.size)))
 					for region: Rect2 in ConvoyTrail.regions(unit.convoy,prefix):
 						if swept.intersects(region,false): return false
-			return true if ignore_people else space._unit_step_dynamic_clear(world,actor,floor_id,from_cell,to_cell,members,offsets)
+			return true if ignore_people else space._unit_step_dynamic_clear(world,actor,floor_id,from_cell,to_cell,members,offsets,dynamic)
 	var result: Dictionary
 	var repeated: Dictionary = {}
 	if not convoy_start and cost_only and ignore_people and members.is_empty() and offsets.is_empty() and not navigation.has("query") and not navigation.get("overlay",false) and navigation.bases.is_empty() and navigation.shifts.is_empty():
@@ -588,6 +589,7 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 		# remain owned by movement; local dynamic replans keep their old scope.
 		result = space._navigation.cached_floor_path(space,world,floor_id,actor,graph,query,start,goal,cost_only)
 	else:
+		if convoy_start and not ignore_people: dynamic.merge(space._dynamic_route_query(world,actor,floor_id,members,offsets),true)
 		result = graph.find_path(start,goal,query,people if convoy_start else Callable(),false,navigation.bases,navigation.shifts,bool(navigation.get("overlay",false)),cost_only)
 	if result.ok and people.is_valid() and not cost_only:
 		var low: Vector2 = Vector2(start)
@@ -613,6 +615,7 @@ func _floor_route(world: WorldState, actor: Dictionary, floor_id: int, start: Ve
 				var actual_start: bool = actor.location.kind=="floor" and int(actor.location.floor_id)==floor_id and goal==Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
 				var alternative: Dictionary = {}
 				if actual_start or bool(people.call(goal,goal)):
+					dynamic.merge(space._dynamic_route_query(world,actor,floor_id,members,offsets),true)
 					alternative = graph.find_path(start,goal,query,people,false,navigation.bases,navigation.shifts,bool(navigation.get("overlay",false)),cost_only)
 				if alternative.get("ok",false):
 					result = alternative

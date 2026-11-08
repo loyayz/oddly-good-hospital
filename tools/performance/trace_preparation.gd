@@ -257,14 +257,12 @@ class TracedArrivalService extends LegacyArrivalProjection:
 		# the original owners. This separates their actual call boundaries; its
 		# observation cost is not Release acceptance timing.
 		var blocked: Dictionary = {}
-		var reception: Dictionary = {"people":{},"desks":{},"ratio":int(content.balance.arrivals.capacity_scaling.reception_pairs_per_station)}
+		var reception: Dictionary = {"people":{},"desks":{},"ratio":0}
 		for id: String in world.facts.staff:
 			if _staff_budget(world,id,shift)==0: blocked["staff:"+id] = true
-			elif world.facts.staff[id].role=="receptionist": reception.people["staff:"+id] = true
 		for id: String in world.facts.facilities:
 			var facility: Dictionary = world.facts.facilities[id]
 			if facility.get("failed",false) or not facility.get("open",true) or not facility.get("intake_open",true) or facility.get("stop_new_service",false): blocked["facility:"+id] = true
-			elif facility.definition_id=="FUR01": reception.desks["facility:"+id] = true
 		trace.emit("structural_projection","enter",_structural_observation(),null,self,space)
 		var shape: Array = []
 		for case: Dictionary in classes: shape.append(_structural_case(case,reception))

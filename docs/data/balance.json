@@ -230,7 +230,6 @@
     ]
   },
   "gp_seconds": 12,
-  "reception_seconds": 6,
   "diagnosis_threshold": 90,
   "tests": {
     "spectrum": {
@@ -245,12 +244,6 @@
   "second_attempt_bonus": 0.15,
   "max_treatment_attempts": 2,
   "staff": [
-    {
-      "role": "receptionist",
-      "name": "接待员",
-      "wage_day": 60,
-      "hire": 120
-    },
     {
       "role": "doctor",
       "name": "医生",
@@ -273,21 +266,13 @@
       "name": "研究员",
       "wage_day": 120,
       "hire": 240
-    },
-    {
-      "role": "decorator",
-      "name": "装修工",
-      "wage_day": 80,
-      "hire": 160
     }
   ],
   "starting_staff": {
-    "receptionist": 1,
     "doctor": 3,
     "nurse": 2,
     "cleaner": 1,
-    "researcher": 0,
-    "decorator": 0
+    "researcher": 0
   },
   "floor_cost_cell": 20,
   "room_fitout_cost_cell": 20,
@@ -511,10 +496,6 @@
     {
       "item": "GP station",
       "amount": 800
-    },
-    {
-      "item": "Reception",
-      "amount": 500
     },
     {
       "item": "Rest sofa",
@@ -1244,19 +1225,12 @@
     "machine_fear_self_recovery_seconds": 20,
     "prepare_accessory_seconds": 10,
     "visitor_yield_seconds": 2,
-    "lost_property_seconds": 8,
     "ward_visit_seconds": 30,
     "ward_visits_per_patient_per_day": 2,
     "nursing_handoff_seconds": 5,
     "max_companions_per_patient": 1,
     "accessory_scope": "detachable_visual_props_only",
-    "accessory_preparation_policy": "first_real_need_choose_once_no_stacking",
-    "lost_property_staff_role": "receptionist",
-    "lost_property_requires_idle_staff": true,
-    "lost_property_requires_existing_prop": true,
-    "lost_property_requires_cabinet": false,
-    "lost_property_creates_inventory": false,
-    "lost_property_interrupt_seconds": 1
+    "accessory_preparation_policy": "first_real_need_choose_once_no_stacking"
   },
   "comedy": {
     "max_new_casual_per_scan": 2,
@@ -1367,7 +1341,6 @@
     "capacity_scaling": {
       "source": "scheduled_complete_clinical_pairs",
       "reference_shift_pairs": 3,
-      "reception_pairs_per_station": 3,
       "apply": "next_day",
       "default_mode": "follow_capacity",
       "hold_mode": "min_current_capacity_and_held_capacity",
@@ -1393,7 +1366,6 @@
       "extra_consultation_behavior": false,
       "retry_work": "probability_weighted_original_auto_retry_without_reading_hidden_results",
       "resource_clocks": [
-        "reception",
         "gp",
         "required_tests_and_consultation",
         "terminal_device",
@@ -1447,7 +1419,6 @@
     "outcome_rating": 50,
     "rng_stream": "patience",
     "eligible_stages": [
-      "waiting_reception",
       "waiting_gp",
       "waiting_test",
       "waiting_consultation",
@@ -1524,7 +1495,7 @@
     },
     "same_floor_recovery": true,
     "emergency_travel_seconds_per_floor": 4,
-    "construction_role": "decorator",
+    "construction_role": "mechanic",
     "construction_tool_id": "SE02",
     "structural_height_m": 8,
     "clear_height_m": 7.5,

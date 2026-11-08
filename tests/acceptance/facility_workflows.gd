@@ -52,7 +52,6 @@ func tools(suite) -> Dictionary:
 	var f: Dictionary = suite._new("Each decorator chooses a reachable tool")
 	suite._place(f,"a_unreachable_tool","SE02",[36,74])
 	suite._place(f,"z_reachable_tool","SE02",[46,80])
-	suite._staff(f,"worker","decorator",[44,82])
 	for x: int in range(34,40):
 		f.w.facts.floors.overrides["1"].blocked.append([x,72])
 		f.w.facts.floors.overrides["1"].blocked.append([x,77])
@@ -64,14 +63,17 @@ func tools(suite) -> Dictionary:
 	var ordered: CommandResult = suite._command(f,"renovation_order",{"material_id":"MAT01","floor_id":1,"units":[{"cell":[43,83]}],"allow_waiting":true})
 	if not ordered.accepted: return {"ok":false,"details":{"reason":ordered.reason,"errors":f.errors}}
 	var unit: Dictionary = f.w.facts.environment.orders[ordered.changed_ids[0]].units[0]
+	suite._work_tick(f,"environment")
+	var worker_id: String = str(unit.worker_id)
+	if worker_id.is_empty(): return {"ok":false,"details":"contractor not admitted"}
 	var input_validation: String = f.w.validate(suite._content)
-	var first: Dictionary = f.s.services.environment._work_position(f.w,"worker",1,[36,74],true)
-	var second: Dictionary = f.s.services.environment._work_position(f.w,"worker",1,[46,80],true)
+	var first: Dictionary = f.s.services.environment._work_position(f.w,worker_id,1,[36,74],true)
+	var second: Dictionary = f.s.services.environment._work_position(f.w,worker_id,1,[46,80],true)
 	var observed: Dictionary = {"pickup":false,"only_at_work":true,"before_work":-1}
 	var observe: Callable = func(stage: String) -> void:
 		if stage=="before" and unit.tool_collected and not unit.started:
-			observed.pickup = observed.pickup or f.s.space.at(f.w,"worker",1,unit.tool_cell)
-		if stage=="before" and not str(unit.worker_id).is_empty() and not f.s.space.at(f.w,"worker",1,unit.work_cell):
+			observed.pickup = observed.pickup or f.s.space.at(f.w,worker_id,1,unit.tool_cell)
+		if stage=="before" and not str(unit.worker_id).is_empty() and not f.s.space.at(f.w,worker_id,1,unit.work_cell):
 			observed.before_work = int(unit.remaining_milli)
 		elif stage=="after" and int(observed.before_work)>=0:
 			observed.only_at_work = observed.only_at_work and int(unit.remaining_milli)==int(observed.before_work)
@@ -81,12 +83,12 @@ func tools(suite) -> Dictionary:
 		if unit.phase=="completed": break
 	var receipt: Dictionary = f.w.facts.environment.receipts.get(str(unit.id)+":renovation_completed",{})
 	var validation: String = f.w.validate(suite._content)
-	var ok: bool = first.is_empty() and not second.is_empty() and input_validation.is_empty() and validation.is_empty() and f.errors.is_empty() and unit.tool_id=="z_reachable_tool" and observed.pickup and observed.only_at_work and unit.phase=="completed" and unit.remaining_milli==0 and unit.contributions.get("worker")==8000 and receipt.get("standard_work_milli")==8000 and f.w.facts.environment.receipts.size()==1 and cash-HospitalLedger.balance(f.w)==25
+	var ok: bool = first.is_empty() and not second.is_empty() and input_validation.is_empty() and validation.is_empty() and f.errors.is_empty() and unit.tool_id=="z_reachable_tool" and observed.pickup and observed.only_at_work and unit.phase=="completed" and unit.remaining_milli==0 and unit.contributions.get(worker_id)==8000 and receipt.get("standard_work_milli")==8000 and f.w.facts.environment.receipts.size()==1 and cash-HospitalLedger.balance(f.w)==25
 	return {"ok":ok,"details":{"first_tool_unreachable":first.is_empty(),"second_tool_reachable":not second.is_empty(),"actual_tool_pickup":observed.pickup,"work_only_at_destination":observed.only_at_work,"unit":unit.duplicate(true),"paid":cash-HospitalLedger.balance(f.w),"input_validation":input_validation,"final_validation":validation,"errors":f.errors}}
 
 func remodel(suite) -> Dictionary:
 	var f: Dictionary = suite._new("Only unfinished renovation cells block remodel")
-	suite._decorator(f)
+	suite._construction_tools(f)
 	var ordered: CommandResult = suite._command(f,"renovation_order",{"material_id":"MAT01","floor_id":1,"units":[{"cell":[42,80]},{"cell":[44,80]},{"cell":[46,80]}],"allow_waiting":true})
 	if not ordered.accepted: return {"ok":false,"details":{"reason":ordered.reason,"errors":f.errors}}
 	var id: String = ordered.changed_ids[0]

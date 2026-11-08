@@ -113,7 +113,7 @@ func _case_02(t, content: HospitalContent) -> void:
 	var office: Dictionary = initial_space.facility_layout(preset,"doctor_office_desk")
 	var office_route: Dictionary = initial_space.route(preset,"starter_doctor_a",1,office.operator_cells[0])
 	var budget: Dictionary = preload("res://tests/acceptance/starter_economy.gd").new().run_case(preset,content)
-	t.check("CORE-02",HospitalLedger.balance(preset)==10430 and preset.facts.staff.size()==7 and preset.validate(content).is_empty() and office_route.ok and budget.ok,{"validation":preset.validate(content),"office_route":office_route,"budget":budget})
+	t.check("CORE-02",HospitalLedger.balance(preset)==11050 and preset.facts.staff.size()==6 and preset.validate(content).is_empty() and office_route.ok and budget.ok,{"validation":preset.validate(content),"office_route":office_route,"budget":budget})
 
 func _case_03(t, content: HospitalContent) -> void:
 	var empty: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"空地",false,content)

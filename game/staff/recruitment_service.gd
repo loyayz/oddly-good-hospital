@@ -1,8 +1,8 @@
 class_name RecruitmentService
 extends RefCounted
 
-const ROLES: Array[String] = ["receptionist","doctor","nurse","cleaner","researcher","decorator"]
-const ORDINARY_ROLES: Array[String] = ["receptionist","cleaner","researcher","decorator"]
+const ROLES: Array[String] = ["doctor","nurse","cleaner","researcher"]
+const ORDINARY_ROLES: Array[String] = ["cleaner","researcher"]
 var content: HospitalContent
 var space: HospitalSpace
 var _completion_world: WorldState
@@ -185,7 +185,7 @@ func ensure(world: WorldState) -> void:
 			staff.first_job_tick = -1
 
 func standard_key(filter: Dictionary) -> String:
-	var role: String = str(filter.get("role","receptionist"))
+	var role: String = str(filter.get("role","cleaner"))
 	return "%s|%s|%s"%[role,str(filter.get("title_id","DT01")) if role=="doctor" else "",str(filter.get("primary_track","treatment")) if role=="doctor" else ""]
 
 func standard_preview(world: WorldState, filter: Dictionary = {}) -> Dictionary:
@@ -433,7 +433,7 @@ func _bookmark(world: WorldState, id: String, enabled: bool) -> CommandResult:
 	return _result(world,true,"applied","")
 
 func _filter_error(world: WorldState, filter: Dictionary, targeted: bool) -> String:
-	var role: String = str(filter.get("role","receptionist"))
+	var role: String = str(filter.get("role","cleaner"))
 	if not role in ROLES:
 		return "岗位不存在"
 	var species_id: String = str(filter.get("species_id",""))
@@ -476,7 +476,7 @@ func _titles(world: WorldState) -> Array:
 	return result
 
 func _generate(world: WorldState, filter: Dictionary, pool: String, day: int, id: String, random: RandomNumberGenerator = null) -> Dictionary:
-	var role: String = str(filter.get("role","receptionist"))
+	var role: String = str(filter.get("role","cleaner"))
 	var species_id: String = str(filter.get("species_id",""))
 	if species_id.is_empty():
 		species_id = str(content.catalog.species[_draw(world,content.catalog.species.size(),random)].id)
@@ -680,12 +680,6 @@ func service_mood(world: WorldState, staff_id: String, action: String, visit_id:
 func settle(world: WorldState) -> void:
 	ensure(world)
 	_completion_scope(world)
-	for id: String in world.pending_fact_ids("registration_practice","visits",world.facts.visits):
-		if not world.facts.visits.has(id): continue
-		var visit: Dictionary = world.facts.visits[id]
-		var receipt: Dictionary = visit.get("registration_receipt",{})
-		if not receipt.is_empty():
-			consume_completion(world,"registration_completed",receipt)
 	for collection: String in ["environment","maintenance"]:
 		var receipts: Dictionary = world.facts.get(collection,{}).get("receipts",{})
 		for id: String in world.completion_receipt_ids(collection,"recruitment_practice"):

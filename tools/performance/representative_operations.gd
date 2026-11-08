@@ -39,13 +39,10 @@ func apply(simulation: HospitalSimulation, config: Dictionary = {}) -> Dictionar
 		var origin: Array = config.get("concentrated_origin",[40,80])
 		_spawn_group(simulation,metadata,"floor_"+str(target_floor),target_floor,origin,4 if metadata.cleaning_mode=="concentrated4" else 16)
 	if bool(config.get("pending_renovation",true)):
-		var decorators: int = 0
 		var tools: int = 0
-		for staff: Dictionary in world.facts.staff.values():
-			if staff.role=="decorator" and not staff.get("departed",false): decorators += 1
 		for facility: Dictionary in world.facts.facilities.values():
 			if facility.definition_id==simulation.content.balance.renovation.tool_equipment_id and not facility.get("failed",false) and facility.get("location","floor")!="inventory": tools += 1
-		metadata.renovation_availability = {"decorators":decorators,"working_tools":tools}
+		metadata.renovation_availability = {"provider":"external_maintenance","working_tools":tools}
 		for floor_id: int in [1,2,3,4]:
 			var units: Array = []
 			for index: int in 4: units.append({"cell":[42+index*2,87]})
@@ -58,8 +55,8 @@ func apply(simulation: HospitalSimulation, config: Dictionary = {}) -> Dictionar
 				metadata.order_ids.append_array(result.changed_ids)
 			else:
 				metadata.errors.append("Actual renovation command rejected: "+result.reason)
-		if decorators==0 or tools==0:
-			metadata.limitations.append("Paid renovation orders lack a decorator and/or working tool; no construction progress is claimed.")
+		if tools==0:
+			metadata.limitations.append("Paid renovation orders lack a working tool; no construction progress is claimed.")
 	var need_kinds: Array = config.get("need_kinds",["rest","sleep"])
 	_add_idle_needs(simulation,metadata,need_kinds)
 	var allowed_staff_changes: Dictionary = {}

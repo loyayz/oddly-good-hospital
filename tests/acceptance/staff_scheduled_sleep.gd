@@ -53,7 +53,7 @@ func _boundaries() -> Dictionary:
 func _guards() -> Dictionary:
 	var results: Dictionary = {}
 	var passed: bool = true
-	for role: String in ["receptionist","doctor","nurse","cleaner","researcher","decorator"]:
+	for role: String in ["doctor","nurse","cleaner","researcher"]:
 		var x: Dictionary = _input(["rest","work","work"],0,0,false,role)
 		x.w.dispatch(x.world)
 		var staff: Dictionary = x.world.facts.staff.sleeper

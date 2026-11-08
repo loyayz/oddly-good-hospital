@@ -1,23 +1,6 @@
 [
   {
     "blocks_movement": true,
-    "definition_id": "FUR01",
-    "environment_function": "",
-    "equipment_class": "workstation",
-    "fit_profile_id": "FF06",
-    "footprint": [
-      2,
-      1
-    ],
-    "initially_available": true,
-    "name": "@zh:core.furniture_equipment.FUR01.name",
-    "passive_decoration": false,
-    "price": 500,
-    "requires_research": [],
-    "wall_mount": false
-  },
-  {
-    "blocks_movement": true,
     "definition_id": "FUR02",
     "environment_function": "",
     "equipment_class": "workstation",

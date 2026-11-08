@@ -1,17 +1,5 @@
 [
   {
-    "first_job_scene": "@zh:core.staff_practice_profiles.SP01.first_job_scene",
-    "growth_owner": "job_skill",
-    "id": "SP01",
-    "low_motion_first_job_scene": "@zh:core.staff_practice_profiles.SP01.low_motion_first_job_scene",
-    "name": "@zh:core.staff_practice_profiles.SP01.name",
-    "role": "receptionist",
-    "sources": [
-      "registration_completed"
-    ],
-    "unit": "completed_work"
-  },
-  {
     "first_job_scene": "@zh:core.staff_practice_profiles.SP02.first_job_scene",
     "growth_owner": "clinical_ability",
     "id": "SP02",
@@ -51,18 +39,5 @@
       "active_research_ticks"
     ],
     "unit": "active_time"
-  },
-  {
-    "first_job_scene": "@zh:core.staff_practice_profiles.SP06.first_job_scene",
-    "growth_owner": "job_skill",
-    "id": "SP06",
-    "low_motion_first_job_scene": "@zh:core.staff_practice_profiles.SP06.low_motion_first_job_scene",
-    "name": "@zh:core.staff_practice_profiles.SP06.name",
-    "role": "decorator",
-    "sources": [
-      "surface_unit_completed",
-      "floor_module_completed"
-    ],
-    "unit": "completed_work"
   }
 ]

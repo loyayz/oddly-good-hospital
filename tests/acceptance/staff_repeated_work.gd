@@ -56,7 +56,7 @@ func run_views(t, database: HospitalContent) -> void:
 	t.check("STAFF-44",occupancy.ok and bases.ok and desks.ok,{"CL-A03":occupancy,"CL-A04":bases,"shared_desks_and_busy":desks,"elapsed_usec":Time.get_ticks_usec()-started})
 
 func _tea() -> Dictionary:
-	var x: Dictionary = _fixture({"searcher":"receptionist"})
+	var x: Dictionary = _fixture({"searcher":"cleaner"})
 	HospitalFactory._add_room(x.world,{"id":"small_rest","type":"rest","anchor":[34,66],"size":[8,8],"door":{"definition_id":"DR04","offset":3}},_content)
 	_facility(x,"bed","SE04",[35,68],"small_rest")
 	_facility(x,"public_chair","FUR09",[44,80])

@@ -33,7 +33,7 @@ func run_case(world: WorldState, content: HospitalContent) -> Dictionary:
 	var worst_risk_multiplier: float = float(content.balance.equipment.risk_multipliers.max())
 	for facility: Dictionary in world.facts.facilities.values():
 		var definition_id: String = facility.definition_id
-		if definition_id.begins_with("M") or definition_id in ["FUR01","FUR02","FUR05","EQ01","EQ05"]: service_stations += 1
+		if definition_id.begins_with("M") or definition_id in ["FUR02","FUR05","EQ01","EQ05"]: service_stations += 1
 		if definition_id=="FUR09": seats += 1
 		if not definition_id in content.balance.equipment.maintained_definition_ids: continue
 		var definition: Dictionary = content.facility_definition(definition_id)
@@ -46,11 +46,11 @@ func run_case(world: WorldState, content: HospitalContent) -> Dictionary:
 	var cash: int = int(content.balance.starting_cash)-construction-hiring-supply_cost
 	var buffer_days: float = float(cash)/daily_budget
 	var checks: Dictionary = {
-		"actual_roster_matches_source":counts==content.balance.starting_staff and counts.get("doctor")==3 and counts.get("nurse")==2 and world.facts.staff.size()==7,
+		"actual_roster_matches_source":counts==content.balance.starting_staff and counts.get("doctor")==3 and counts.get("nurse")==2 and world.facts.staff.size()==6,
 		"actual_purchase_ledger":paid.construction==construction and paid.hiring==hiring and paid.supplies==supply_cost,
-		"starting_money":construction==12870 and hiring==1500 and supply_cost==1200 and cash==10430 and HospitalLedger.balance(world)==cash,
+		"starting_money":construction==12370 and hiring==1380 and supply_cost==1200 and cash==11050 and HospitalLedger.balance(world)==cash,
 		"preset_items":seats==5 and not world.facts.facilities.has("chair_6") and world.facts.facilities.has("warm_trolley") and world.facts.facilities.has("floor_guidance_desk") and world.facts.floors.overrides["1"].paths.is_empty(),
-		"unchanged_rates":wages==750 and indoor_cells==121 and service_stations==4 and is_equal_approx(operations,78.05) and is_equal_approx(expected_repairs,94.8) and maintenance==120,
-		"expectation_budget_only":is_equal_approx(daily_budget,1042.85) and buffer_days>10.0 and buffer_days<10.002,
+		"current_staff_and_service_rates":wages==690 and indoor_cells==121 and service_stations==3 and is_equal_approx(operations,70.05) and is_equal_approx(expected_repairs,94.8) and maintenance==120,
+		"expectation_budget_only":is_equal_approx(daily_budget,974.85) and buffer_days>11.334 and buffer_days<11.336,
 		"read_only":world.freeze()==before}
 	return {"ok":not checks.values().has(false),"checks":checks,"roster":counts,"construction":construction,"hiring":hiring,"supplies":supply_cost,"cash":cash,"wages_per_day":wages,"indoor_cells":indoor_cells,"service_stations":service_stations,"operations_per_day":operations,"worst_risk_expected_repairs_per_day":expected_repairs,"maintenance_budget_per_day":maintenance,"expected_daily_budget":daily_budget,"zero_income_expected_buffer_days":buffer_days,"survival_guarantee":false}
