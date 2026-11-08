@@ -15,11 +15,12 @@ class MotionResult:
 	var actual_motion: Vector2 = Vector2.ZERO
 	var blocker_actor_ids: Array[String] = []
 	var reservation_ids: Array[String] = []
+	var static_reason: String = ""
 	var door_id: String = ""
 	# Only private return-proof consumers request an existence witness.
 	var first_contact_only: bool = false
 	var blocked: bool:
-		get: return not door_id.is_empty() or not blocker_actor_ids.is_empty() or not reservation_ids.is_empty()
+		get: return not static_reason.is_empty() or not door_id.is_empty() or not blocker_actor_ids.is_empty() or not reservation_ids.is_empty()
 
 # Private to one synchronous nonconvoy return search. Contacts only borrow
 # these objects; they never retain or mutate the sweep, or change motion fields.
@@ -310,10 +311,28 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 		# Door ownership retains its own wait; it never pushes the owner aside.
 		if not result.door_id.is_empty(): continue
 		if result.blocked:
+			if movement.has("detour") and movement.detour.phase=="back" and not movement.has("convoy") and movement.get("members",[]).size()<=1 and int(movement.cursor)<int(movement.detour.prefix_size):
+				# An arriving third body can obstruct a retreat after it began.
+				# Test sides of this actual unfinished leg, not the already
+				# decremented historical cursor. Failed probes retain the leg.
+				var retreat: Vector2=result.requested_motion
+				var retreat_axis: Vector2=Vector2(signf(retreat.x),0) if absf(retreat.x)>=absf(retreat.y) else Vector2(0,signf(retreat.y))
+				if retreat.length()>0.001 and _detour_side_step(world,actor,movement,retreat_axis): continue
 			if movement.has("detour") and movement.detour.phase!="back":
-				# A new obstacle can interrupt the local link. Keep its original
-				# suffix and reconsider the nearest return cell from this real pose.
-				_set_detour_prefix(movement,[],"aside")
+				if movement.has("convoy") or movement.get("members",[]).size()>1:
+					_set_detour_prefix(movement,[],"aside")
+				else:
+					var blocked_direction: Vector2=result.requested_motion
+					if blocked_direction.length()>0.001:
+						movement.detour.direction=[signf(blocked_direction.x),0] if absf(blocked_direction.x)>=absf(blocked_direction.y) else [0,signf(blocked_direction.y)]
+					# A turn starts at an already reached real position, not at an
+					# old integer checkpoint across an intervening corner.
+					var actual: Dictionary=_floor_point(actor,ConvoyTrail.point(actor.location.cell))
+					if movement.travelled.is_empty() or movement.travelled.back()!=actual: movement.travelled.append(actual)
+					movement.detour.backtrack=_local_travelled(movement,int(actor.location.floor_id))
+					movement.detour.back_cursor=movement.detour.backtrack.size()-1
+					_set_detour_prefix(movement,[],"aside")
+					if _detour_side(world,actor,movement) or _detour_back(world,actor,movement): continue
 			if int(movement.blocked_since) < 0:
 				movement.blocked_since = world.facts.sim_tick
 			_yield(world,actor,movement,result)
@@ -356,6 +375,10 @@ func _move_step(world: WorldState, actor: Dictionary, movement: Dictionary, segm
 	if members.size()>1: speed = float(space.content.balance.movement_speeds["2"])
 	var next: Vector2 = _step_toward(start,target,speed*WorldState.TICK_SECONDS)
 	result.requested_motion = next-start
+	if movement.has("detour") and members.size()==1 and segment.kind=="floor":
+		var actual_clearance: RouteClearance=space.navigation.structural_clearance(world,actor,int(actor.location.floor_id))
+		result.static_reason=actual_clearance.sweep_reason(start,next)
+		if not result.static_reason.is_empty(): return result
 	var initial_rect: Rect2 = space._actor_index.rectangle(actor.id) if members.size()==1 else space._unit_rect(world,actor,start,members,offsets)
 	var sweeps: Array[BodyIndex.Record] = _unit_sweeps(world,actor,next,members,offsets,target-start)
 	var swept: Rect2 = initial_rect
@@ -441,6 +464,7 @@ func _replan_goal(world: WorldState, movement: Dictionary, preserve_order: bool 
 		_schedule_route(world,movement)
 
 func _active_route_clear(world: WorldState, actor: Dictionary, movement: Dictionary, versions: Dictionary) -> bool:
+	if movement.has("detour") and not movement.has("convoy") and movement.get("members",[actor.id]).size()==1 and (movement.detour.phase!="rejoin" or int(movement.cursor)<int(movement.detour.prefix_size)): return true
 	if movement.has("convoy"): return _active_convoy_route_clear(world,actor,movement)
 	space.query_counts.route_checks += 1
 	var sequence: int = int(movement.get("request_sequence",0))
@@ -882,6 +906,17 @@ func _convoy_turn_contact(world: WorldState, actor: Dictionary, movement: Dictio
 	space.query_counts["convoy_turn_probes"] = int(space.query_counts.get("convoy_turn_probes",0))+1
 	return result
 
+# Only the continuous trail since the last actual floor arrival is a local
+# retreat. An earlier visit to the same floor across transit is not adjacent.
+func _local_travelled(movement: Dictionary, floor_id: int) -> Array:
+	var result: Array=[]
+	for index: int in range(movement.travelled.size()-1,-1,-1):
+		var past: Dictionary=movement.travelled[index]
+		if int(past.floor_id)!=floor_id: break
+		result.append(past.duplicate(true))
+	result.reverse()
+	return result
+
 func _start_detour(world: WorldState, actor: Dictionary, movement: Dictionary) -> void:
 	if movement.has("detour") or int(movement.cursor)>=movement.path.size(): return
 	var first: Dictionary = movement.path[int(movement.cursor)]
@@ -889,9 +924,7 @@ func _start_detour(world: WorldState, actor: Dictionary, movement: Dictionary) -
 	var delta: Vector2 = ConvoyTrail.point(first.cell)-ConvoyTrail.point(actor.location.cell)
 	if delta.length()<0.001: return
 	var direction: Vector2 = Vector2(signf(delta.x),0) if absf(delta.x)>=absf(delta.y) else Vector2(0,signf(delta.y))
-	var history: Array = []
-	for past: Dictionary in movement.travelled:
-		if int(past.floor_id)==int(actor.location.floor_id): history.append(past.duplicate(true))
+	var history: Array = _local_travelled(movement,int(actor.location.floor_id))
 	movement.detour = {"phase":"back","original_path":movement.path.slice(int(movement.cursor)).duplicate(true),"direction":[direction.x,direction.y],"backtrack":history,"back_cursor":history.size()-1,"prefix_size":0,"resume_index":-1}
 	space.query_counts.yield_attempts += 1
 	if _detour_side(world,actor,movement): return
@@ -917,6 +950,45 @@ func _set_detour_prefix(movement: Dictionary, path: Array, phase: String, resume
 	_route_checks.erase(movement.actor_id)
 
 func _detour_side(world: WorldState, actor: Dictionary, movement: Dictionary) -> bool:
+	if movement.has("convoy") or movement.get("members",[]).size()>1:
+		return _detour_side_full(world,actor,movement)
+	var origin: Vector2 = ConvoyTrail.point(actor.location.cell)
+	var forward: Vector2 = ConvoyTrail.point(movement.detour.direction)
+	# After retracing a bend, left/right follow that local corridor rather
+	# than the heading at the original collision several cells away.
+	if movement.detour.phase=="back" and int(movement.detour.prefix_size)>0:
+		for index: int in range(int(movement.detour.back_cursor),-1,-1):
+			var reverse: Vector2 = ConvoyTrail.point(movement.detour.backtrack[index].cell)-origin
+			if reverse.length()>0.001:
+				forward = -reverse.normalized()
+				break
+	return _detour_side_step(world,actor,movement,forward)
+
+func _detour_side_step(world: WorldState, actor: Dictionary, movement: Dictionary, forward: Vector2) -> bool:
+	var origin: Vector2=ConvoyTrail.point(actor.location.cell)
+	var side: Vector2 = Vector2(-forward.y,forward.x)
+	var width: float = float(movement.convoy.size) if movement.has("convoy") else float(space.clearance(actor))
+	for sign_value: float in [1.0,-1.0]:
+		var target: Vector2 = origin+side*sign_value*width
+		var path: Array = [_floor_point(actor,target)]
+		if not _detour_path_clear(world,actor,movement,path): continue
+		# Decide only the actual side step here. Return is evaluated after arrival,
+		# rather than making the whole future return search a side-step prerequisite.
+		# Do not stop a local retreat inside a doorway: retaining its owner
+		# there would prevent the approaching body from ever passing.
+		var proxy: Dictionary = ConvoyTrail.proxy(world,movement) if movement.has("convoy") else actor
+		var footprint: Rect2 = Rect2(target+Vector2.ONE*float(movement.convoy.shift),Vector2.ONE*int(movement.convoy.size)) if movement.has("convoy") else space._actor_rect(actor,target)
+		var in_door: bool = false
+		for door: Dictionary in space.movement_doors(world,proxy,footprint,[]):
+			if footprint.intersects(space._door_rect(door,space._door_span(proxy,door)),false): in_door = true;break
+		if not in_door:
+			var actual: Dictionary=_floor_point(actor,origin)
+			if movement.travelled.is_empty() or movement.travelled.back()!=actual: movement.travelled.append(actual)
+			_set_detour_prefix(movement,path,"aside")
+			return true
+	return false
+
+func _detour_side_full(world: WorldState, actor: Dictionary, movement: Dictionary) -> bool:
 	var origin: Vector2 = ConvoyTrail.point(actor.location.cell)
 	var forward: Vector2 = ConvoyTrail.point(movement.detour.direction)
 	# After retracing a bend, left/right follow that local corridor rather
@@ -977,6 +1049,27 @@ func _detour_back(world: WorldState, actor: Dictionary, movement: Dictionary) ->
 	return false
 
 func _continue_detour(world: WorldState, actor: Dictionary, movement: Dictionary) -> void:
+	if movement.has("convoy") or movement.get("members",[]).size()>1:
+		_continue_detour_full(world,actor,movement)
+		return
+	var state: Dictionary = movement.detour
+	if int(movement.cursor)<int(state.prefix_size): return
+	if state.phase=="rejoin":
+		movement.erase("detour")
+		return
+	if state.phase=="back":
+		if _detour_side(world,actor,movement) or _detour_back(world,actor,movement): return
+		movement.waiting_reason = "等待实际侧方或后退通路"
+		return
+
+	var link: Dictionary = _detour_return_path(world,actor,movement,ConvoyTrail.point(actor.location.cell))
+	if not link.is_empty():
+		_set_detour_prefix(movement,link.path,"rejoin",int(link.index))
+		return
+	if _detour_side(world,actor,movement) or _detour_back(world,actor,movement): return
+	movement.waiting_reason = "等待原路线最近可达格"
+
+func _continue_detour_full(world: WorldState, actor: Dictionary, movement: Dictionary) -> void:
 	var state: Dictionary = movement.detour
 	if int(movement.cursor)<int(state.prefix_size): return
 	if state.phase=="rejoin":
@@ -999,10 +1092,9 @@ func _continue_detour(world: WorldState, actor: Dictionary, movement: Dictionary
 	movement.waiting_reason = "等待原路线最近可达格"
 
 func _detour_return_path(world: WorldState, actor: Dictionary, movement: Dictionary, origin: Vector2, prefix: Array = []) -> Dictionary:
-	# Candidate links read one unchanged actor, geometry, reservations and
-	# accepted sweeps. Exact single-body proofs live only in this synchronous
-	# search; the next attempt rebuilds. Convoys retain their full trail proof.
-	var proof: Dictionary = {"sweeps":{},"segments":{},"_capture_entry":true,"_return_sample":actor.duplicate(true),"_cache_contacts":true} if not movement.has("convoy") else {}
+	# Choose the nearest currently unoccupied original point whose local
+	# same-axis link can start. Future steps are intentions, never passage grants.
+	# Compound/convoy movement retains its original full trail proof.
 	var query: RouteClearance = null
 	# One synchronous owner; failed trials only read these private records.
 	# A successful path escapes once, after which this buffer is never rewritten.
@@ -1019,22 +1111,24 @@ func _detour_return_path(world: WorldState, actor: Dictionary, movement: Diction
 		# Try the original blocked cell first, then its original successors.
 		# Check fixed orthogonal local links, never a global route.
 		var links: Array = [[Vector2(target.x,origin.y),target],[Vector2(origin.x,target.y),target]]
-		# Four fixed outside links handle a nearby corner/passing pocket.
-		# A queue's margin also clears its own tail before returning.
-		var margin: float = float(movement.convoy.spacing) if movement.has("convoy") else float(space.clearance(actor))
-		var outside_x: Array = [maxf(origin.x,target.x)+margin,minf(origin.x,target.x)-margin]
-		var outside_y: Array = [maxf(origin.y,target.y)+margin,minf(origin.y,target.y)-margin]
-		for x: float in outside_x: links.append([Vector2(x,origin.y),Vector2(x,target.y),target])
-		for y: float in outside_y: links.append([Vector2(origin.x,y),Vector2(target.x,y),target])
-		# A pocket beside furniture may need one outside bend on each axis
-		# to reach the side of a doorway. Try these fixed links for this
-		# original cell before considering a farther one; never redispatch.
-		for x: float in outside_x:
-			for y: float in outside_y:
-				links.append([Vector2(x,origin.y),Vector2(x,y),Vector2(target.x,y),target])
-				links.append([Vector2(origin.x,y),Vector2(x,y),Vector2(x,target.y),target])
+		if not movement.has("convoy") and movement.get("members",[]).size()<=1 and absf(float(movement.detour.get("direction",[1,0])[1]))>0.5: links.reverse()
+		if not movement.has("convoy") and movement.get("members",[actor.id]).size()==1: links.resize(1)
+		if movement.has("convoy") or movement.get("members",[actor.id]).size()>1:
+			# Four fixed outside links handle a nearby corner/passing pocket.
+			# A queue's margin also clears its own tail before returning.
+			var margin: float = float(movement.convoy.spacing) if movement.has("convoy") else float(space.clearance(actor))
+			var outside_x: Array = [maxf(origin.x,target.x)+margin,minf(origin.x,target.x)-margin]
+			var outside_y: Array = [maxf(origin.y,target.y)+margin,minf(origin.y,target.y)-margin]
+			for x: float in outside_x: links.append([Vector2(x,origin.y),Vector2(x,target.y),target])
+			for y: float in outside_y: links.append([Vector2(origin.x,y),Vector2(target.x,y),target])
+			# A pocket beside furniture may need one outside bend on each axis
+			# to reach the side of a doorway. Try these fixed links for this
+			# original cell before considering a farther one; never redispatch.
+			for x: float in outside_x:
+				for y: float in outside_y:
+					links.append([Vector2(x,origin.y),Vector2(x,y),Vector2(target.x,y),target])
+					links.append([Vector2(origin.x,y),Vector2(x,y),Vector2(x,target.y),target])
 		for link: Array in links:
-			if _detour_first_segment_failed(world,actor,origin,prefix,link,segment,proof): continue
 			path.resize(prefix_size)
 			var point_index: int = 0
 			var previous: Vector2 = origin
@@ -1048,8 +1142,40 @@ func _detour_return_path(world: WorldState, actor: Dictionary, movement: Diction
 					point_index += 1
 				previous = point
 			if path.is_empty(): path.append(segment.duplicate(true))
-			if _detour_path_clear(world,actor,movement,path,query,proof): return {"path":path,"index":index}
+			if _return_link_can_start(world,actor,movement,path,query): return {"path":path,"index":index}
 	return {}
+
+# A return intention is not permission to traverse its future path. Every
+# real movement step retains the normal sweep/door/reservation checks.
+func _return_link_can_start(world: WorldState, actor: Dictionary, movement: Dictionary, path: Array, query: RouteClearance) -> bool:
+	var origin: Vector2 = ConvoyTrail.point(actor.location.cell)
+	var first: Vector2 = origin
+	var previous: Vector2 = origin
+	var target: Vector2 = origin
+	var heading: Vector2 = Vector2.ZERO
+	for point: Dictionary in path:
+		target = ConvoyTrail.point(point.cell)
+		if previous.distance_to(target)>0.001:
+			heading = target-previous
+			if first==origin: first=target
+		previous=target
+	if movement.has("convoy") or movement.get("members",[actor.id]).size()>1:
+		# Keep the existing trail proof until leader-only local-turn cases have
+		# separately established a safe incremental implementation.
+		return _detour_path_clear(world,actor,movement,path,query)
+	space._ensure_actor_index(world)
+	var sample: Dictionary=actor.duplicate(true)
+	if heading.length()>0.001: sample.facing=atan2(heading.x,heading.y)
+	if not query.position_reason(target).is_empty(): return false
+	var target_rect: Rect2=space._actor_rect(sample,target)
+	var sweep:=BodyIndex.Record.new();sweep.sweep_from=target_rect;sweep.sweep_to=target_rect
+	var sweeps: Array[BodyIndex.Record]=[sweep]
+	var occupied:=MotionResult.new();occupied.first_contact_only=true
+	_movement_contacts(world,actor.id,int(actor.location.floor_id),target_rect,sweeps,movement.get("members",[actor.id]),occupied)
+	if occupied.blocked: return false
+	if first==origin: return true
+	var next: Vector2=_step_toward(origin,first,space.walking_speed(actor)*WorldState.TICK_SECONDS)
+	return _detour_path_clear(world,actor,movement,[_floor_point(actor,next)],query)
 
 # Only the return-search owner can capture this exact entry state. A known
 # first-segment failure can reject this candidate before building its path;
