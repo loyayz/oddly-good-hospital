@@ -765,9 +765,12 @@ func _case_18() -> Dictionary:
 	var visit_id: String = _diagnosed_outpatient(f,"ops18_work",[48,92])
 	if visit_id.is_empty(): return _result(false,f.errors)
 	var before: Dictionary = f.s.services.environment.environment_at(f.w,1,[51,88])
-	for tick: int in 500:
+	# The diagnosed input still completes real floor guidance, travel and
+	# clinical preparation before a running machine can emit noise.
+	for tick: int in 1200:
 		_clinic_tick(f)
 		if not f.w.facts.attempts.is_empty(): break
+	if f.w.facts.attempts.is_empty(): return _result(false,{"failure_kind":"prerequisite","reason":"Clinical work did not start after real guidance and preparation","tick":f.w.sim_tick,"visit":f.w.facts.visits[visit_id]})
 	var running: Dictionary = f.s.services.environment.environment_at(f.w,1,[51,88])
 	var paused_query: Dictionary = f.s.services.environment.environment_at(f.w,1,[51,88])
 	var g: Dictionary = _new("施工格边隔音")

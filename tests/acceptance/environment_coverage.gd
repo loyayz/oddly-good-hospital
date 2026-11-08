@@ -24,12 +24,21 @@ func _reference(x: Dictionary, floor_id: int, origin: Array, radius: int, noise:
 func _count(x: Dictionary, name: String) -> int:
 	return int(x.space.query_counts.get("environment_coverage_"+name,0))
 
+# Compare canonical coordinate text so the independent raw-fact oracle
+# and its authored order remain independent of the production key type.
+func _coordinate_view(coverage: Dictionary) -> Dictionary:
+	var result: Dictionary = {}
+	for key: Variant in coverage:
+		var canonical: String = "%d:%d" % [key.x,key.y] if key is Vector2i else str(key)
+		result[canonical] = coverage[key]
+	return result
+
 func _compare(x: Dictionary, label: String, floor_id: int, origin: Array, radius: int, noise: bool, edges: Dictionary) -> Dictionary:
 	var frozen: Dictionary = x.world.freeze()
 	var expected: Dictionary = _reference(x,floor_id,origin,radius,noise)
 	var native: int = _count(x,"native_calls")
 	var fallback: int = _count(x,"fallbacks")
-	var actual: Dictionary = x.e._coverage(x.world,floor_id,origin,radius,noise,edges)
+	var actual: Dictionary = _coordinate_view(x.e._coverage(x.world,floor_id,origin,radius,noise,edges))
 	return {"ok":actual==expected and actual.keys()==expected.keys() and x.world.freeze()==frozen,"label":label,"origin":origin,"radius":radius,"noise":noise,"complete_distances_equal":actual==expected,"complete_discovery_order_equal":actual.keys()==expected.keys(),"cells":actual.size(),"native_calls":_count(x,"native_calls")-native,"fallback_calls":_count(x,"fallbacks")-fallback,"actual":actual}
 
 func _dispose(x: Dictionary) -> void:
@@ -89,7 +98,8 @@ func run_ranges(database: HospitalContent) -> Dictionary:
 	rows.append(special)
 	var lifecycle: Dictionary = _cache_lifecycle()
 	var permissions: Dictionary = preload("res://tests/acceptance/environment_source_lifecycle.gd").new().run(database)
-	var result: Dictionary = {"ok":not checks.values().has(false) and rows.all(func(row: Dictionary)->bool:return row.ok) and lifecycle.ok and permissions.ok,"checks":checks,"complete_coverage":rows,"cache_lifecycle":lifecycle,"live_sources_and_permissions":permissions,"scope":"Coverage calculations and source/cache boundaries; actual environment scoring and R15 ranges remain the containing OPS-11 case."}
+	var cell_keys: Dictionary = preload("res://tests/acceptance/environment_cell_keys.gd").new().run(database)
+	var result: Dictionary = {"ok":not checks.values().has(false) and rows.all(func(row: Dictionary)->bool:return row.ok) and lifecycle.ok and permissions.ok and cell_keys.ok,"checks":checks,"complete_coverage":rows,"cache_lifecycle":lifecycle,"live_sources_and_permissions":permissions,"cell_key_domain":cell_keys,"scope":"Coverage calculations and source/cache boundaries; actual environment scoring and R15 ranges remain the containing OPS-11 case."}
 	_dispose(x)
 	_dispose(outside)
 	return result

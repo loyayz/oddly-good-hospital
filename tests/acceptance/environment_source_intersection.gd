@@ -8,13 +8,13 @@ class FullScan extends HospitalEnvironment:
 		var cells: Dictionary = _query.samples[kind].get(floor_id,{})
 		var result: Array = []
 		if cells.is_empty(): return result
-		for key: String in coverage: result.append_array(cells.get(key,[]))
+		for key: Variant in coverage: result.append_array(cells.get(key,[]))
 		return result
 	func _has_sample(kind: String, floor_id: int, coverage: Dictionary) -> bool:
 		_prepare_sample_sources(_query.world)
 		var cells: Dictionary = _query.samples[kind].get(floor_id,{})
 		if cells.is_empty(): return false
-		for key: String in coverage:
+		for key: Variant in coverage:
 			if cells.has(key) and not cells[key].is_empty(): return true
 		return false
 
@@ -57,14 +57,14 @@ func _joins(x: Dictionary, original: HospitalEnvironment) -> Dictionary:
 	original._prepare_sample_sources(x.world)
 	var first: Dictionary = {"id":"first","value":4}
 	var second: Dictionary = {"id":"second","value":10}
-	var coverage: Dictionary = {"44:79":0,"43:79":1,"45:79":1,"42:79":2}
+	var coverage: Dictionary = {Vector2i(44,79):0,Vector2i(43,79):1,Vector2i(45,79):1,Vector2i(42,79):2}
 	# These are legal already-indexed calculation inputs. Duplicate source
 	# records and multiple records at one cell must retain their multiplicity.
 	var cases: Array = [
-		{"name":"sparse_reverse_order","coverage":coverage,"cells":{"45:79":[second],"44:79":[first,second],"80:80":[first]}},
-		{"name":"dense_sources","coverage":{"44:79":0},"cells":{"80:80":[second],"44:79":[first],"45:79":[second]}},
-		{"name":"empty_matching_bucket","coverage":coverage,"cells":{"44:79":[],"80:80":[first]}},
-		{"name":"no_coverage","coverage":{},"cells":{"44:79":[first]}},
+		{"name":"sparse_reverse_order","coverage":coverage,"cells":{Vector2i(45,79):[second],Vector2i(44,79):[first,second],Vector2i(80,80):[first]}},
+		{"name":"dense_sources","coverage":{Vector2i(44,79):0},"cells":{Vector2i(80,80):[second],Vector2i(44,79):[first],Vector2i(45,79):[second]}},
+		{"name":"empty_matching_bucket","coverage":coverage,"cells":{Vector2i(44,79):[],Vector2i(80,80):[first]}},
+		{"name":"no_coverage","coverage":{},"cells":{Vector2i(44,79):[first]}},
 		{"name":"no_sources","coverage":coverage,"cells":{}}
 	]
 	var ok: bool = true

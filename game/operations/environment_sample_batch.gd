@@ -1,17 +1,59 @@
 extends RefCounted
 
+enum RequestSlot { VISIT_ID, ACTOR_ID, FLOOR_ID, CELL }
+enum ResultSlot { OBSERVATION, COVERAGE, SIZE }
+
 # Read-only observation workers. Every mutable service and result slot has one job
 # owner; the main world and prepared source values are borrowed until the barrier.
 class WorkerEnvironment extends HospitalEnvironment:
 	var water_candidates: Array[String] = []
+	var coverage_seed: Dictionary = {}
+	func _cached_coverage(floor_id: int, key: String) -> Variant:
+		var previous: Variant = super._cached_coverage(floor_id,key)
+		if previous!=null: return previous
+		# _coverage_edges replaces rebuilt floors with source-bearing entries,
+		# invalidating every historical seed value for that floor.
+		var local_entry: Variant = _coverage_cache.get(floor_id)
+		if local_entry!=null and local_entry.has("source"): return null
+		var seed_entry: Variant = coverage_seed.get(floor_id)
+		if seed_entry==null: return null
+		var coverage: Variant = seed_entry.get("coverage")
+		return coverage.get(key) if coverage!=null else null
+	var _owned_diagnostics: bool = false
+	var _owned_fast_checks: int = 0
+	var _owned_fallback_checks: int = 0
+	func _owned_at(world: WorldState, floor_id: int, cell: Vector2i) -> bool:
+		if _query.get("worker_owned_prepared",false)!=true or _query_depth<=0 or not is_same(_query.get("world"),world) or space==null or space.get_script()!=preload("res://game/building/hospital_space.gd"):
+			if _owned_diagnostics: _owned_fallback_checks += 1
+			return super._owned_at(world,floor_id,cell)
+		var raw_floors: Variant = _query.get("edges")
+		if not raw_floors is Dictionary:
+			if _owned_diagnostics: _owned_fallback_checks += 1
+			return super._owned_at(world,floor_id,cell)
+		var floors: Dictionary = raw_floors
+		var raw_edge: Variant = floors.get(floor_id)
+		if not raw_edge is Dictionary:
+			if _owned_diagnostics: _owned_fallback_checks += 1
+			return super._owned_at(world,floor_id,cell)
+		var edge: Dictionary = raw_edge
+		var raw_owned: Variant = edge.get("owned")
+		if not raw_owned is Dictionary:
+			if _owned_diagnostics: _owned_fallback_checks += 1
+			return super._owned_at(world,floor_id,cell)
+		if _owned_diagnostics: _owned_fast_checks += 1
+		if floor_id<1 or cell.x<0 or cell.y<0 or cell.x>=96 or cell.y>=96: return false
+		var owned: Dictionary = raw_owned
+		return owned.has(Vector2i(cell.x/32,cell.y/32))
 	func _water_usable(_world: WorldState, facility: Dictionary, _actor_id: String) -> bool:
 		water_candidates.append(str(facility.id))
 		return false
 	func _finish_preference_sources(result: Dictionary, moisture: Dictionary, water_distances: Dictionary) -> void:
 		super._finish_preference_sources(result,moisture,water_distances)
+		if water_candidates.is_empty(): return
 		result._worker_sample_moisture = moisture
 		result._worker_sample_water_distances = water_distances
 	func _finish_observation(result: Dictionary) -> Dictionary:
+		if water_candidates.is_empty(): return super._finish_observation(result)
 		result.quiet = int(result.noise)==0
 		result.value = int(result.value)-int(result.noise)
 		result.status = "current"
@@ -31,7 +73,7 @@ class SampleJob extends RefCounted:
 	var diagnostics: bool = false
 	func _init(database: HospitalContent) -> void:
 		environment = WorkerEnvironment.new(database,HospitalSpace.new(database))
-	func prepare(source: HospitalEnvironment, current: WorldState, batch: Array, diagnostic_times: bool = false) -> void:
+	func prepare(source: HospitalEnvironment, current: WorldState, batch: Array, seed: Dictionary, diagnostic_times: bool = false) -> void:
 		world = current
 		requests = batch
 		results = []
@@ -41,6 +83,9 @@ class SampleJob extends RefCounted:
 		coverage_lookups = 0
 		elapsed_us = 0
 		diagnostics = diagnostic_times
+		environment._owned_diagnostics = diagnostic_times
+		environment._owned_fast_checks = 0
+		environment._owned_fallback_checks = 0
 		environment.begin_query(current)
 		environment._query.facilities = source._query.facilities
 		environment._query.screens = source._query.screens
@@ -48,25 +93,22 @@ class SampleJob extends RefCounted:
 		environment._query.facilities_ready = true
 		environment._query.samples_ready = true
 		environment._query.edges = source._query.edges.duplicate()
+		# Canonical floors use bounded ground plots; legacy upper plots can alias
+		# when converted to Vector2i, so they retain HospitalSpace.owned.
+		environment._query.worker_owned_prepared = current.facts.floors.has("completed_top_floor") and source.get_script()==preload("res://game/operations/environment_service.gd") and source.space!=null and source.space.get_script()==preload("res://game/building/hospital_space.gd") and source._query_depth>0 and is_same(source._query.get("world"),current)
 		environment._positive_definitions = source._positive_definitions.duplicate()
 		environment._coverage_cache = {}
-		# Only mappings are copied. Completed coverage dictionaries and all edge
-		# masks remain shared read-only; workers never end/merge a main query.
-		for floor_id: int in source._coverage_cache:
-			environment._coverage_cache[floor_id] = {"coverage":source._coverage_cache[floor_id].coverage.duplicate()}
-		for floor_id: int in source._query.coverage:
-			var previous: Dictionary = environment._coverage_cache.get_or_add(floor_id,{"coverage":{}})
-			previous.coverage.merge(source._query.coverage[floor_id],true)
+		environment.coverage_seed = seed
 		environment.space.query_counts.clear()
 	func run() -> void:
 		var started: int = Time.get_ticks_usec() if diagnostics else 0
 		for index: int in requests.size():
-			var request: Dictionary = requests[index]
+			var request: Array = requests[index]
 			environment._query.coverage = {}
 			environment.water_candidates = []
-			var observation: Dictionary = environment.sample_at(world,int(request.floor_id),request.cell,str(request.actor_id))
+			var observation: Dictionary = environment.sample_at(world,int(request[RequestSlot.FLOOR_ID]),request[RequestSlot.CELL],str(request[RequestSlot.ACTOR_ID]))
 			var coverage: Dictionary = environment._query.coverage
-			results[index] = {"observation":observation,"coverage":coverage}
+			results[index] = [observation,coverage]
 			# This job's next request may reuse every earlier result. The per-query
 			# map stays separate so main can insert it at the original visit point.
 			for floor_id: int in coverage:
@@ -82,7 +124,11 @@ class SampleJob extends RefCounted:
 		environment._query = {}
 		environment._query_depth = 0
 		environment._coverage_cache = {}
+		environment.coverage_seed = {}
 		environment._facility_sources = {}
+		environment._owned_diagnostics = false
+		environment._owned_fast_checks = 0
+		environment._owned_fallback_checks = 0
 
 var _jobs: Array = []
 var _content: HospitalContent
@@ -105,7 +151,7 @@ func prepare(world: WorldState, source: HospitalEnvironment, visit_ids: Array, t
 		var visit: Dictionary = world.facts.visits[visit_id]
 		var actor: Dictionary = world.facts.actors[visit.actor_id]
 		if actor.location.kind!="floor": continue
-		requests.append({"visit_id":visit_id,"actor_id":str(visit.actor_id),"floor_id":int(actor.location.floor_id),"cell":actor.location.cell.duplicate()})
+		requests.append([visit_id,str(visit.actor_id),int(actor.location.floor_id),actor.location.cell.duplicate()])
 	_mark("requests_us",stamp)
 	if requests.is_empty():
 		_last = {"ok":true,"jobs":[],"requested":0,"processed":0,"consumed":0}
@@ -122,17 +168,30 @@ func prepare(world: WorldState, source: HospitalEnvironment, visit_ids: Array, t
 	# operation indexes. Complete them on main before any job is dispatched.
 	source._prepare_facility_sources(world)
 	source._prepare_sample_sources(world)
-	for request: Dictionary in requests:
-		var floor_id: int = int(request.floor_id)
-		if source._query.edges.has(floor_id) or not source.space.owned(world,floor_id,Vector2i(int(request.cell[0]),int(request.cell[1]))): continue
+	for request: Array in requests:
+		var floor_id: int = int(request[RequestSlot.FLOOR_ID])
+		var cell: Array = request[RequestSlot.CELL]
+		if source._query.edges.has(floor_id) or not source.space.owned(world,floor_id,Vector2i(int(cell[0]),int(cell[1]))): continue
 		var positive: bool = not source._query.facilities.get(floor_id,{}).is_empty() or not source._query.samples.walls.get(floor_id,{}).is_empty()
 		var dirt: bool = not source._query.samples.dirt.get(floor_id,{}).is_empty()
 		var noise: bool = not source._query.samples.machines.get(floor_id,{}).is_empty() or not source._query.samples.construction.get(floor_id,{}).is_empty()
 		if positive or dirt or noise: source._coverage_edges(world,floor_id)
+	# Copy the historical mappings once. Workers share this immutable seed and
+	# write only their own overlays; completed coverage values stay borrowed.
+	var coverage_seed: Dictionary = {}
+	for floor_id: int in source._coverage_cache:
+		coverage_seed[floor_id] = {"coverage":source._coverage_cache[floor_id].coverage.duplicate()}
+	for floor_id: int in source._query.coverage:
+		var previous: Dictionary = coverage_seed.get_or_add(floor_id,{"coverage":{}})
+		previous.coverage.merge(source._query.coverage[floor_id],true)
+	for entry: Dictionary in coverage_seed.values():
+		entry.coverage.make_read_only()
+		entry.make_read_only()
+	coverage_seed.make_read_only()
 	for index: int in count:
 		var low: int = requests.size()*index/count
 		var high: int = requests.size()*(index+1)/count
-		(_jobs[index] as SampleJob).prepare(source,world,requests.slice(low,high),_diagnostics)
+		(_jobs[index] as SampleJob).prepare(source,world,requests.slice(low,high),coverage_seed,_diagnostics)
 	_mark("preparation_us",stamp)
 	stamp = Time.get_ticks_usec() if _diagnostics else 0
 	var group: int = -1
@@ -160,26 +219,34 @@ func prepare(world: WorldState, source: HospitalEnvironment, visit_ids: Array, t
 		var job_row: Dictionary = {"job":index,"thread_id":job.thread_id,"requested":job.requests.size(),"processed":job.processed,"coverage_distinct_lookups":job.coverage_lookups,"coverage_native_calls":native_calls,"coverage_fallback_calls":fallback_calls}
 		if _diagnostics:
 			job_row.elapsed_us = job.elapsed_us
+			job_row.owned_fast_checks = job.environment._owned_fast_checks
+			job_row.owned_fallback_checks = job.environment._owned_fallback_checks
 			_timing["worker_job_elapsed_us"] = int(_timing.get("worker_job_elapsed_us",0))+job.elapsed_us
 		job_rows.append(job_row)
 		_stats.coverage_distinct_lookups += job.coverage_lookups
 		_stats.coverage_native_calls += native_calls
 		_stats.coverage_fallback_calls += fallback_calls
 		for number: int in job.requests.size():
-			var request: Dictionary = job.requests[number]
+			var request: Array = job.requests[number]
 			var item: Variant = job.results[number] if number<job.results.size() else null
-			if not item is Dictionary or not item.get("observation") is Dictionary or not item.get("coverage") is Dictionary:
+			if not item is Array:
 				valid = false
 				continue
-			var observation: Dictionary = item.observation
+			if item.size()!=ResultSlot.SIZE:
+				valid = false
+				continue
+			if not item[ResultSlot.OBSERVATION] is Dictionary or not item[ResultSlot.COVERAGE] is Dictionary:
+				valid = false
+				continue
+			var observation: Dictionary = item[ResultSlot.OBSERVATION]
 			if not observation.get("value") is int or not observation.get("noise") is int or not observation.get("dirt") is int or not observation.get("clean") is bool or not observation.get("water") is bool or not observation.get("subject_id") is String or not observation.get("status") is String:
 				valid = false
 				continue
 			var status: String = observation.status
-			if observation.subject_id!=str(request.actor_id) or not status in ["current","outside_owned_floor"]:
+			if observation.subject_id!=str(request[RequestSlot.ACTOR_ID]) or not status in ["current","outside_owned_floor"]:
 				valid = false
 				continue
-			if status=="current":
+			if status=="current" and observation.has("_worker_sample_raw"):
 				if not observation.get("_worker_sample_raw") is bool or not observation._worker_sample_raw or not observation.get("_worker_sample_water") is Array or not observation.get("_worker_sample_moisture") is Dictionary or not observation.get("_worker_sample_water_distances") is Dictionary:
 					valid = false
 					continue
@@ -189,10 +256,17 @@ func prepare(world: WorldState, source: HospitalEnvironment, visit_ids: Array, t
 				if not candidates_valid:
 					valid = false
 					continue
+			elif status=="current":
+				# A worker can finish the standard observation when no live
+				# water permission remains for the serial consumer.
+				var finished_value: int = int(observation.value)
+				if finished_value<0 or finished_value>100 or observation.water or observation.has("_worker_sample_water") or observation.has("_worker_sample_moisture") or observation.has("_worker_sample_water_distances"):
+					valid = false
+					continue
 			elif observation.has("_worker_sample_raw") or observation.has("_worker_sample_water"):
 				valid = false
 				continue
-			_observations[str(request.visit_id)] = item
+			_observations[str(request[RequestSlot.VISIT_ID])] = item
 		for key: String in job.environment.space.query_counts:
 			source.space.query_counts[key] = int(source.space.query_counts.get(key,0))+int(job.environment.space.query_counts[key])
 		var thread_key: String = str(job.thread_id)
@@ -218,13 +292,14 @@ func begin_apply() -> void:
 	_apply_started = Time.get_ticks_usec() if _diagnostics else 0
 
 func consume(world: WorldState, source: HospitalEnvironment, visit_id: String, actor_id: String) -> Dictionary:
-	var item: Dictionary = _observations[visit_id]
+	var item: Array = _observations[visit_id]
 	var stamp: int = Time.get_ticks_usec() if _diagnostics else 0
-	for floor_id: int in item.coverage:
-		source._query.coverage.get_or_add(floor_id,{}).merge(item.coverage[floor_id])
+	var coverage: Dictionary = item[ResultSlot.COVERAGE]
+	for floor_id: int in coverage:
+		source._query.coverage.get_or_add(floor_id,{}).merge(coverage[floor_id])
 	_mark("coverage_merge_us",stamp)
 	stamp = Time.get_ticks_usec() if _diagnostics else 0
-	var observation: Dictionary = item.observation
+	var observation: Dictionary = item[ResultSlot.OBSERVATION]
 	if bool(observation.get("_worker_sample_raw",false)):
 		var moisture: Dictionary = observation.get("_worker_sample_moisture",{})
 		for id: String in observation._worker_sample_water:

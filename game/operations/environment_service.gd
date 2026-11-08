@@ -67,7 +67,7 @@ func _build_facility_sources(records: Dictionary) -> void:
 		var definition: Dictionary = _positive_definition(str(facility.definition_id))
 		if not definition.decoration and not definition.light and str(definition.preference).is_empty() and not _is_water(str(facility.definition_id)): continue
 		if not _facility_sources.facilities.has(floor_id): _facility_sources.facilities[floor_id] = {}
-		var key: String = _cell_key(facility.cell)
+		var key: Variant = _cell_key(facility.cell)
 		_facility_sources.facilities[floor_id].get_or_add(key,[]).append(str(facility.id))
 
 func _prepare_actor_sources(world: WorldState) -> void:
@@ -106,7 +106,7 @@ func _prepare_sample_sources(world: WorldState) -> void:
 func _index_sample(kind: String, floor_id: int, cell: Array, record: Dictionary) -> void:
 	var floors: Dictionary = _query.samples[kind]
 	if not floors.has(floor_id): floors[floor_id] = {}
-	var key: String = _cell_key(cell)
+	var key: Variant = _cell_key(cell)
 	if not floors[floor_id].has(key): floors[floor_id][key] = []
 	floors[floor_id][key].append(record)
 
@@ -123,10 +123,10 @@ func _sample_records(kind: String, floor_id: int, coverage: Dictionary, preserve
 	# Plain counts and explicit distance/key selection do not consume enumeration
 	# order. Join the smaller source set; explanatory sources retain coverage order.
 	if not preserve_order and cells.size()<coverage.size():
-		for key: String in cells:
+		for key: Variant in cells:
 			if coverage.has(key): result.append_array(cells[key])
 	else:
-		for key: String in coverage:
+		for key: Variant in coverage:
 			if cells.has(key): result.append_array(cells[key])
 	return result
 
@@ -135,10 +135,10 @@ func _has_sample(kind: String, floor_id: int, coverage: Dictionary) -> bool:
 	var cells: Dictionary = _query.samples[kind].get(floor_id,{})
 	if cells.is_empty(): return false
 	if cells.size()<coverage.size():
-		for key: String in cells:
+		for key: Variant in cells:
 			if coverage.has(key) and not cells[key].is_empty(): return true
 	else:
-		for key: String in coverage:
+		for key: Variant in coverage:
 			if cells.has(key) and not cells[key].is_empty(): return true
 	return false
 
@@ -907,8 +907,12 @@ func _wall_between(world: WorldState, floor_id: int, first: Array, second: Array
 				return true
 	return false
 
-func _cell_key(cell: Array) -> String:
-	return "%d:%d" % [int(cell[0]),int(cell[1])]
+func _cell_key(cell: Array) -> Variant:
+	var x: int = int(cell[0])
+	var y: int = int(cell[1])
+	# The finite hospital grid uses compact keys; raw outside roots retain 64-bit coordinates.
+	if x>=0 and y>=0 and x<96 and y<96: return Vector2i(x,y)
+	return "%d:%d" % [x,y]
 
 func _coverage_edge_key(first: Array, second: Array) -> Vector3i:
 	var horizontal: bool = int(first[1])!=int(second[1])
@@ -1015,6 +1019,12 @@ func _edge_open(world: WorldState, floor_id: int, first: Array, second: Array, n
 					return false
 	return true
 
+func _cached_coverage(floor_id: int, key: String) -> Variant:
+	var entry: Variant = _coverage_cache.get(floor_id)
+	if entry==null: return null
+	var coverage: Variant = entry.get("coverage")
+	return coverage.get(key) if coverage!=null else null
+
 func _coverage(world: WorldState, floor_id: int, origin: Array, radius: int, noise: bool, edges: Dictionary = {}) -> Dictionary:
 	var origin_cell: Array = [int(origin[0]),int(origin[1])]
 	var key: String = "%d:%d:%d:%d:%d" % [floor_id,origin_cell[0],origin_cell[1],radius,int(noise)]
@@ -1022,10 +1032,10 @@ func _coverage(world: WorldState, floor_id: int, origin: Array, radius: int, noi
 	if scoped:
 		if not _query.coverage.has(floor_id): _query.coverage[floor_id] = {}
 		if _query.coverage[floor_id].has(key): return _query.coverage[floor_id][key]
-		var previous: Dictionary = _coverage_cache.get(floor_id,{}).get("coverage",{})
-		if previous.has(key):
-			_query.coverage[floor_id][key] = previous[key]
-			return previous[key]
+		var previous: Variant = _cached_coverage(floor_id,key)
+		if previous!=null:
+			_query.coverage[floor_id][key] = previous
+			return previous
 	var prepared: Dictionary = edges.get("native_coverage",{})
 	if prepared.get("ready",false) and origin_cell[0]>=0 and origin_cell[1]>=0 and origin_cell[0]<96 and origin_cell[1]<96:
 		var result: Dictionary = PlatformArrivalMath.environment_coverage(prepared.noise if noise else prepared.ordinary,{"root":int(origin_cell[1])*96+int(origin_cell[0]),"radius":radius})
@@ -1033,7 +1043,7 @@ func _coverage(world: WorldState, floor_id: int, origin: Array, radius: int, noi
 		if result.get("ready",false):
 			var cells: PackedInt32Array = result.cells
 			var covered: Dictionary = {}
-			for index: int in range(0,cells.size(),3): covered["%d:%d" % [cells[index],cells[index+1]]] = cells[index+2]
+			for index: int in range(0,cells.size(),3): covered[Vector2i(cells[index],cells[index+1])] = cells[index+2]
 			space.query_counts["environment_coverage_native_calls"] = int(space.query_counts.get("environment_coverage_native_calls",0))+1
 			if scoped: _query.coverage[floor_id][key] = covered
 			return covered
@@ -1049,7 +1059,7 @@ func _coverage(world: WorldState, floor_id: int, origin: Array, radius: int, noi
 			continue
 		for offset: Array in [[-1,0],[0,-1],[0,1],[1,0]]:
 			var next: Array = [int(cell[0])+int(offset[0]),int(cell[1])+int(offset[1])]
-			var next_key: String = _cell_key(next)
+			var next_key: Variant = _cell_key(next)
 			if not visited.has(next_key) and _edge_open(world,floor_id,cell,next,noise,edges):
 				visited[next_key] = distance+1
 				queue.append(next)
@@ -1063,10 +1073,10 @@ func _positive_facilities(world: WorldState, floor_id: int, coverage: Dictionary
 	var cells: Dictionary = _query.facilities.get(floor_id,{})
 	if cells.is_empty(): return []
 	if cells.size()<coverage.size():
-		for key: String in cells:
+		for key: Variant in cells:
 			if coverage.has(key): ids.append_array(cells[key])
 	else:
-		for key: String in coverage: ids.append_array(cells.get(key,[]))
+		for key: Variant in coverage: ids.append_array(cells.get(key,[]))
 	var result: Array = []
 	for id: String in ids: result.append(world.facts.facilities[id])
 	return result
@@ -1088,11 +1098,14 @@ func environment_at(world: WorldState, floor_id: int, cell: Array, actor_id: Str
 func sample_at(world: WorldState, floor_id: int, cell: Array, actor_id: String = "") -> Dictionary:
 	return _observe_at(world,floor_id,cell,actor_id,false,false)
 
+func _owned_at(world: WorldState, floor_id: int, cell: Vector2i) -> bool:
+	return space.owned(world,floor_id,cell)
+
 func _observe_at(world: WorldState, floor_id: int, cell: Array, actor_id: String, explain: bool, nearby: bool) -> Dictionary:
 	var rules: Dictionary = content.balance.environment
 	var result: Dictionary = {"value":int(rules.base),"noise":0,"dirt":0,"clean":true,"water":false,"light":false,"quiet":false,"moist":false,"dry":false,"cool":false,"sources":[],"subject_id":actor_id,"reference":actor_id.is_empty()}
 	if nearby: result.nearby_count = 0
-	if not space.owned(world,floor_id,Vector2i(int(cell[0]),int(cell[1]))):
+	if not _owned_at(world,floor_id,Vector2i(int(cell[0]),int(cell[1]))):
 		result.status = "outside_owned_floor"
 		return result
 	var range_cells: int = int(rules.upgraded_range_cells if "R15" in world.facts.research else rules.range_cells)
@@ -1215,11 +1228,8 @@ func _is_water(definition_id: String) -> bool:
 func _facility_in_coverage(world: WorldState, facility: Dictionary, coverage: Dictionary) -> bool:
 	var layout: Dictionary = space.facility_layout(world,str(facility.id))
 	for x: int in range(int(facility.cell[0]),int(facility.cell[0])+int(layout.footprint[0])):
-		# Coverage keys retain the original integer cell format. Reuse this
-		# column prefix rather than allocating a cell and format array per tile.
-		var prefix: String = str(x)+":"
 		for y: int in range(int(facility.cell[1]),int(facility.cell[1])+int(layout.footprint[1])):
-			if coverage.has(prefix+str(y)):
+			if coverage.has(_cell_key([x,y])):
 				return true
 	return false
 
