@@ -73,12 +73,27 @@ static func _held_member(space: HospitalSpace, world: WorldState, provider: RefC
 	if not move.is_empty():participating=participating and move.get("floor_guidance_queue_advance","")==bank
 	return participating or at_slot
 
+# Broad phase only: the original per-body geometry remains authoritative.
+# Convoy member shapes are represented by their leader's compound index;
+# conservatively retain every member for the exact check below.
+static func _physical_candidates(space: HospitalSpace, world: WorldState, ctx: Dictionary) -> Dictionary:
+	space._ensure_actor_index(world)
+	var regions: Array[Rect2]=[ctx.room_bounds]
+	for door: Rect2 in ctx.door_bounds:regions.append(door)
+	var candidates: Dictionary={}
+	for id: String in space._actor_index.candidates_in_regions(int(ctx.floor_id),regions,[]):candidates[id]=true
+	for movement: Dictionary in world.facts.moves.values():
+		if movement.has("convoy"):
+			for id: String in movement.members:candidates[id]=true
+	return candidates
+
 static func capacity_available(space: HospitalSpace, world: WorldState, provider: RefCounted, actor_id: String, desk_id: String) -> bool:
 	var ctx: Dictionary=context(space,world,desk_id)
 	# An open hall or unproved room boundary must not acquire a fake gate.
 	if ctx.is_empty() or provider==null:return true
 	var actor: Dictionary=world.facts.actors.get(actor_id,{})
 	if actor.is_empty():return false
+	var physical: Dictionary=_physical_candidates(space,world,ctx)
 	var occupants: Array=[]
 	var seen: Dictionary={}
 	for row: Dictionary in world.facts.floor_guidance.visits.values():
@@ -90,7 +105,7 @@ static func capacity_available(space: HospitalSpace, world: WorldState, provider
 		var other: Dictionary=world.facts.actors.get(id,{})
 		if other.is_empty() or other.location.kind!="floor" or int(other.location.floor_id)!=int(ctx.floor_id):continue
 		var held: bool=_held_member(space,world,provider,row,visit,other)
-		var entering: bool=row.get("phase","")=="seek" and is_inside(ctx,space,other,Vector2(other.location.cell[0],other.location.cell[1]))
+		var entering: bool=row.get("phase","")=="seek" and physical.has(id) and is_inside(ctx,space,other,Vector2(other.location.cell[0],other.location.cell[1]))
 		if not held and not entering:continue
 		seen[id]=true
 		occupants.append({"id":id,"span":space.clearance(other),"held":held,"sequence":int(row.get("queue_seq",0))})
@@ -99,7 +114,7 @@ static func capacity_available(space: HospitalSpace, world: WorldState, provider
 	# Count all patient bodies here, not just current same-desk intentions.
 	for visit: Dictionary in world.facts.visits.values():
 		var id: String=str(visit.get("actor_id",""))
-		if id==actor_id or seen.has(id):continue
+		if id==actor_id or seen.has(id) or not physical.has(id):continue
 		var other: Dictionary=world.facts.actors.get(id,{})
 		if other.is_empty() or other.location.kind!="floor" or int(other.location.floor_id)!=int(ctx.floor_id):continue
 		if not is_inside(ctx,space,other,Vector2(other.location.cell[0],other.location.cell[1])):continue
