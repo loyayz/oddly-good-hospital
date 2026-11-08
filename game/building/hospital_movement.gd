@@ -17,6 +17,14 @@ class MotionResult:
 	var blocked: bool:
 		get: return not door_id.is_empty() or not blocker_actor_ids.is_empty() or not reservation_ids.is_empty()
 
+# Private to one synchronous nonconvoy return search. Contacts only borrow
+# these objects; they never retain or mutate the sweep, or change motion fields.
+class ReturnContactScratch:
+	extends RefCounted
+	var sweep: BodyIndex.Record = BodyIndex.Record.new()
+	var result: MotionResult = MotionResult.new()
+	var sweeps: Array[BodyIndex.Record] = [sweep]
+
 var _space: WeakRef
 var space: HospitalSpace:
 	get: return _space.get_ref()
@@ -707,7 +715,11 @@ func _movement_contacts(world: WorldState, actor_id: String, floor_id: int, broa
 		var current: BodyIndex.Record = space._actor_index._records.get(id)
 		var other_from: Rect2 = current.rect if other==null else other.sweep_from
 		var other_to: Rect2 = other_from if other==null else other.sweep_to
-		var compound: Array[Rect2] = other.regions if other!=null and not other.regions.is_empty() else (current.regions if current!=null else [])
+		var compound: Array[Rect2] = []
+		if other!=null and not other.regions.is_empty():
+			compound = other.regions
+		elif current!=null:
+			compound = current.regions
 		for sweep: BodyIndex.Record in sweeps:
 			var hit: bool = false
 			if compound.is_empty(): hit = BodySweep.intersects(sweep.sweep_from,sweep.sweep_to,other_from,other_to)
@@ -1034,6 +1046,8 @@ func _detour_path_clear(world: WorldState, actor: Dictionary, movement: Dictiona
 	if proof.get("_capture_entry",false) and not proof.has("_entry"):
 		proof._entry = {"origin":origin,"rect":previous}
 	var members: Array = movement.get("members",[actor.id])
+	var reuse_contact: bool = proof.has("_return_sample") and not movement.has("convoy")
+	var contact_scratch: ReturnContactScratch = proof.get("_return_contact_scratch") if reuse_contact else null
 	for segment: Dictionary in path:
 		var target: Vector2 = ConvoyTrail.point(segment.cell)
 		if absf(target.x-origin.x)>0.001 and absf(target.y-origin.y)>0.001: return false
@@ -1072,7 +1086,11 @@ func _detour_path_clear(world: WorldState, actor: Dictionary, movement: Dictiona
 				remember = proof.sweeps.size()<4096
 				if remember: proof.sweeps[proof_key] = false
 			if not query.sweep_reason(origin+shift,next+shift).is_empty(): return false
-			var sweep: BodyIndex.Record = BodyIndex.Record.new()
+			# Allocate lazily: memo hits and static failures create no scratch.
+			if reuse_contact and contact_scratch==null:
+				contact_scratch = ReturnContactScratch.new()
+				proof._return_contact_scratch = contact_scratch
+			var sweep: BodyIndex.Record = contact_scratch.sweep if reuse_contact else BodyIndex.Record.new()
 			sweep.id = actor.id
 			sweep.sweep_from = previous
 			if not trial.is_empty():
@@ -1085,9 +1103,18 @@ func _detour_path_clear(world: WorldState, actor: Dictionary, movement: Dictiona
 					sample.facing = atan2(target.x-origin.x,target.y-origin.y)
 					next_rect = space._actor_rect(sample,next)
 				sweep.sweep_to = next_rect
-			var contact: MotionResult = MotionResult.new()
-			var sweeps: Array[BodyIndex.Record] = [sweep]
-			_movement_contacts(world,actor.id,floor_id,sweep.sweep_from.merge(sweep.sweep_to),sweeps,members,contact)
+			var contact: MotionResult = contact_scratch.result if reuse_contact else MotionResult.new()
+			if reuse_contact:
+				contact.requested_motion = Vector2.ZERO
+				contact.actual_motion = Vector2.ZERO
+				contact.door_id = ""
+				contact.blocker_actor_ids.clear()
+				contact.reservation_ids.clear()
+			if reuse_contact:
+				_movement_contacts(world,actor.id,floor_id,sweep.sweep_from.merge(sweep.sweep_to),contact_scratch.sweeps,members,contact)
+			else:
+				var sweeps: Array[BodyIndex.Record] = [sweep]
+				_movement_contacts(world,actor.id,floor_id,sweep.sweep_from.merge(sweep.sweep_to),sweeps,members,contact)
 			if contact.blocked: return false
 			if remember: proof.sweeps[proof_key] = true
 			previous = sweep.sweep_to
