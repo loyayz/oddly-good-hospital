@@ -10,6 +10,11 @@ class ObserveMovement extends HospitalMovement:
  func _local_choose(world:WorldState,actor:Dictionary,movement:Dictionary,motion:Vector2)->bool:
   triggered=true
   return super._local_choose(world,actor,movement,motion)
+# These authored contact tests isolate blocker eligibility after return has
+# been ruled out. Natural-retreat tests separately exercise real return choice.
+class ContactOnlyMovement extends ObserveMovement:
+ func _local_try_return(_world:WorldState,_actor:Dictionary,_movement:Dictionary,_allow_attempt:bool=false)->bool:
+  return false
 func _p(x:float,y:float)->Dictionary:return {"kind":"floor","floor_id":1,"cell":[x,y]}
 func _journey(id:String,start:Array,goal:Array)->Dictionary:
  return {"actor_id":id,"path":[_p(goal[0],goal[1])],"cursor":0,"travelled":[_p(start[0],start[1])],"blocked_since":-1,"target_floor":1,"target_cell":goal.duplicate(),"request_sequence":101}
@@ -18,6 +23,7 @@ func run(content:HospitalContent)->Dictionary:
  var rows:Array=[]
  for mode:String in ["active","departed_history","busy_staff","idle_staff","stationary","seated","convoy","third_both_sides"]:
   var sim:HospitalSimulation=suite._fixture()
+  sim.space.movement=ContactOnlyMovement.new(sim.space)
   suite._add_actor(sim,"a","S49",[40,70])
   if mode in ["busy_staff","idle_staff"]:suite._add_staff(sim,"b","doctor",[39.4,70])
   else:suite._add_actor(sim,"b","S49",[39.4,70] if mode!="departed_history" else [39.4,73])
@@ -54,8 +60,8 @@ func run(content:HospitalContent)->Dictionary:
    allowed_a.erase("route_pending");expected_a.erase("route_pending")
   var preserved:bool=allowed_a==expected_a and (b.is_empty() or b.target_cell==original_b.target_cell and b.request_sequence==original_b.request_sequence and b.travelled==original_b.travelled and b.cursor==original_b.cursor and b.path==original_b.path)
   var now_other_facts:Dictionary=sim.world.freeze();now_other_facts.erase("moves")
-  var replan_correct:bool=not protected_contact or bool(a.get("route_pending",false)) and not a.has("local_move")
-  var checks:Dictionary={"real_history_route_goals_sequences_preserved":preserved,"protected_contact_replans_original_request":replan_correct,"all_nonmovement_facts_preserved":other_facts==now_other_facts,"no_immediate_displacement":sim.world.facts.actors==bodies,"static_legal_retreat_intention_retained":static_intention,"expected_blocker_action":arranged==expected,"two_sides_blocked_falls_back":fallback_correct,"nonselected_journey_unchanged":expected or b==original_b,"actual_current_body_contact":intersects==(mode!="departed_history")}
+  var replan_correct:bool=not protected_contact or not bool(a.get("route_pending",false)) and a.get("local_move",{})==original_a.get("local_move",{})
+  var checks:Dictionary={"real_history_route_goals_sequences_preserved":preserved,"protected_contact_preserves_local_request":replan_correct,"all_nonmovement_facts_preserved":other_facts==now_other_facts,"no_immediate_displacement":sim.world.facts.actors==bodies,"static_legal_retreat_intention_retained":static_intention,"expected_blocker_action":arranged==expected,"two_sides_blocked_falls_back":fallback_correct,"nonselected_journey_unchanged":expected or b==original_b,"actual_current_body_contact":intersects==(mode!="departed_history")}
   var ok:bool=true
   for v:bool in checks.values():ok=ok and v
   rows.append({"case":mode,"ok":ok,"checks":checks,"blocker_journey":b.duplicate(true),"retreating_journey":a.duplicate(true)})
@@ -166,7 +172,7 @@ func _turning_shape(suite:RefCounted)->Dictionary:
  var a:Dictionary=_journey("a",[40,70],[45,70]);a.path=[_p(41,70),_p(45,70)]
  a.local_move={"origin":[40,70],"target":_p(39,70),"retreat":true}
  sim.world.facts.moves.a=a;sim.world.facts.moves.b=_journey("b",[pos.x,pos.y],[pos.x,75])
- var observer:=ObserveMovement.new(sim.space)
+ var observer:=ContactOnlyMovement.new(sim.space)
  var before:Dictionary=sim.world.facts.actors.duplicate(true)
  var contact:=HospitalMovement.MotionResult.new();contact.requested_motion=Vector2(-0.2,0);contact.blocker_actor_ids.append("b")
  observer._local_collision(sim.world,actor,a,contact)

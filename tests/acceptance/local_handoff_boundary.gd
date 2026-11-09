@@ -21,7 +21,7 @@ func run(content:HospitalContent)->Dictionary:
 		var observer:HospitalMovement=Observe.new(sim.space)
 		var contact:HospitalMovement.MotionResult=observer._move_step(sim.world,sim.world.facts.actors.a,a,a.path[0])
 		observer._local_collision(sim.world,sim.world.facts.actors.a,a,contact)
-		var expected:bool=mode=="cross_floor_completed"
+		var expected:bool=false
 		rows.append({"case":mode,"ok":contact.blocked and "b" in contact.blocker_actor_ids and observer.chosen==expected,"actual_contact":contact.blocker_actor_ids,"new_bypass_attempted":observer.chosen})
 		sim.dispose()
 	return {"ok":rows.all(func(r:Dictionary)->bool:return r.ok),"cases":rows,"scope":"Real next-step contact at authored completed-local boundary; selector observation only, not full journey."}

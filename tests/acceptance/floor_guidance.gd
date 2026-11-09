@@ -150,7 +150,7 @@ func _same_floor_new_request() -> Dictionary:
 		if completed and state.receipts.size()>=2: break
 	var state: Dictionary = x.g.state(x.world,visit.id)
 	var different: bool = state.receipts.size()==2 and state.receipts[0].request_key!=state.receipts[1].request_key
-	var result: Dictionary = {"case":"GUIDE-SAME-FLOOR-NEW-STAGE","ok":completed and clinical_ticks>0 and continuous and different and visit.ticket_id!=first_ticket and x.world.validate(_content).is_empty(),"actual_gp_work_ticks":clinical_ticks,"gp_completed":completed,"continuous_work_not_interrupted":continuous,"new_request_reguided":different,"state":state.duplicate(true),"phase":visit.phase,"reason":visit.waiting_reason,"validation":x.world.validate(_content)}
+	var result: Dictionary = {"actors":x.world.facts.actors.duplicate(true),"moves":x.world.facts.moves.duplicate(true),"case":"GUIDE-SAME-FLOOR-NEW-STAGE","ok":completed and clinical_ticks>0 and continuous and different and visit.ticket_id!=first_ticket and x.world.validate(_content).is_empty(),"actual_gp_work_ticks":clinical_ticks,"gp_completed":completed,"continuous_work_not_interrupted":continuous,"new_request_reguided":different,"state":state.duplicate(true),"phase":visit.phase,"reason":visit.waiting_reason,"validation":x.world.validate(_content)}
 	_dispose(x);return result
 
 # Establish an occupied, genuinely staffed desk, admit the requested patient,

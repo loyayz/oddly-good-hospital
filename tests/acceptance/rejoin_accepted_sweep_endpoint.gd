@@ -9,7 +9,7 @@ class ObserveMovement extends HospitalMovement:
    var endpoint:Rect2=space._actor_rect(other,ConvoyTrail.point(target))
    var historical:BodyIndex.Record=_accepted_sweeps.get("a_sweeper")
    var projection:Dictionary=space._dynamic_route_query(world,other,1,[],{})
-   var quote:Dictionary=space.navigation.current_floor_rejoin(world,other,1,[{"cell":target,"resume":1}])
+   var quote:Dictionary={"ok":_local_path_clear(world,other,[{"kind":"floor","floor_id":1,"cell":target}])}
    quote.erase("static_proof")
    var actual_step:HospitalMovement.MotionResult=super._move_step(world,other,world.facts.moves.z_walker,{"kind":"floor","floor_id":1,"cell":target})
    evidence={"real_accepted_sweep":historical!=null,"projection_bbox_hits":projection.index.intersects(1,endpoint,""),"current_body_clear":not space._actor_index.intersects(1,endpoint,"z_walker",["z_walker"]),"stationary_endpoint_narrow_clear":not BodySweep.intersects(endpoint,endpoint,historical.sweep_from,historical.sweep_to),"quote":quote,"actual_walker_step":str(actual_step.actual_motion),"actual_walker_blocked":actual_step.blocked,"blockers":actual_step.blocker_actor_ids}

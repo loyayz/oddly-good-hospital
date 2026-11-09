@@ -91,7 +91,7 @@ func _retreat_contact(suite:RefCounted,sim:HospitalSimulation,waiting:Dictionary
     try_return_false=not sim.space.movement._local_try_return(sim.world,actor,move)
     if try_return_false:sim.space.movement._local_collision(sim.world,actor,move,result)
     break
- var replanned:bool=move.get("route_pending",false) and not move.has("local_move") and int(move.request_sequence)==seq and ConvoyTrail.point(move.target_cell)==ConvoyTrail.point(goal)
+ var replanned:bool=not move.get("route_pending",false) and move.has("local_move") and int(move.request_sequence)==seq and ConvoyTrail.point(move.target_cell)==ConvoyTrail.point(goal)
  for cell:Array in added:blocked.erase(cell)
  sim.world.touch()
- return {"ok":request.is_empty() and picked and actual_contact and rejected_motion and try_return_false and replanned,"goal":goal,"selected":picked,"actual_contact":actual_contact,"blocker_ids":ids,"blocked_step_did_not_move":rejected_motion,"real_return_unavailable":try_return_false,"same_request_replanned":replanned}
+ return {"ok":request.is_empty() and picked and actual_contact and rejected_motion and try_return_false and replanned,"goal":goal,"selected":picked,"actual_contact":actual_contact,"blocker_ids":ids,"blocked_step_did_not_move":rejected_motion,"real_return_unavailable":try_return_false,"same_request_local_preserved":replanned}

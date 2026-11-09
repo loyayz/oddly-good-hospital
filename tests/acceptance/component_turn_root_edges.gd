@@ -32,7 +32,7 @@ func _first_step(h:RefCounted)->Dictionary:
  var contact:RefCounted=sim.space.movement._move_step(sim.world,actor,move,{"kind":"floor","floor_id":1,"cell":[41,74]})
  var dynamic:Dictionary=sim.space._dynamic_route_query(sim.world,actor,1,[],{})
  var turned:Dictionary=actor.duplicate();turned.facing=PI*0.5
- var allowed:bool=sim.space.navigation._component_dynamic_leg_clear(sim.world,actor,1,Vector2(40,74),Vector2(41,74),sim.space._actor_rect(actor,Vector2.ZERO),sim.space._actor_rect(turned,Vector2.ZERO),dynamic)
+ var allowed:bool=sim.space.movement._local_path_clear(sim.world,actor,[{"kind":"floor","floor_id":1,"cell":[41,74]}])
  var result:Dictionary={"ok":request.is_empty() and contact.blocked and contact.blocker_actor_ids.has("blocker") and contact.actual_motion==Vector2.ZERO and actor==before_facts and not allowed and sim.world.validate(h.content).is_empty(),"case":"first_rotation_step","evidence":evidence,"contact_ids":contact.blocker_actor_ids,"actual_motion":str(contact.actual_motion),"planner_leg_allowed":allowed,"scope":"Real _move_step contact, not a fabricated MotionResult. No request for successful passage through this blocked edge."}
  sim.dispose();return result
 func _root(h:RefCounted)->Dictionary:
@@ -45,7 +45,7 @@ func _root(h:RefCounted)->Dictionary:
  sim.world.touch(false)
  for id:String in ids:sim.space.sync_actor(sim.world,id)
  var actor:Dictionary=sim.world.facts.actors.walker;var target:Array=[40.1,74]
- var quote:Dictionary=sim.space.navigation.current_floor_rejoin(sim.world,actor,1,[{"cell":target,"resume":1}]);quote.erase("static_proof")
+ var quote:Dictionary={"ok":sim.space.movement._local_path_clear(sim.world,actor,[{"kind":"floor","floor_id":1,"cell":target}])};quote.erase("static_proof")
  var graph:Dictionary=sim.space._navigation.query_graphs(sim.space,sim.world,1,actor,[],{})
  var node:int=FloorNavigation._id(Vector2i(40,74));var active_neighbors:int=0
  var from_body:Rect2=sim.space.body_rectangle(actor)
@@ -65,7 +65,7 @@ func _root(h:RefCounted)->Dictionary:
  var move:Dictionary=sim.world.facts.moves.get("walker",{})
  if move.is_empty():sim.dispose();return {"ok":false,"case":"virtual_root_isolated_fractional_terminal","request_error":request,"quote":quote}
  var seq:int=move.request_sequence
- move.path=[{"kind":"floor","floor_id":1,"cell":target}];move.cursor=0;move.route_pending=true;move.live_floor_route=true;move.rejoin_origin=[39.9,74]
+ move.path=[{"kind":"floor","floor_id":1,"cell":target}];move.cursor=0;move.route_pending=false;move.local_move={"origin":[39.9,74],"target":{"kind":"floor","floor_id":1,"cell":[40,74]}}
  var observer:RefCounted=load("res://tests/acceptance/unified_local_behavior.gd").new();var errors:Array=[];var kept:bool=true
  for tick:int in 20:
   var error:String=observer._tick(h,sim,ids)
