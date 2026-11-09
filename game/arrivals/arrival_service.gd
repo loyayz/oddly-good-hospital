@@ -165,8 +165,11 @@ func arrivals(world: WorldState) -> void:
 			# Teaching asks for one known case, not a hospital-wide feasibility scan.
 			chosen = _tutorial_candidate(world,tutorial)
 		else:
-			var candidates: Array = _admission_candidates(world)
-			if not candidates.is_empty(): chosen = _choose_case(world,candidates)
+			# Filtering and drawing read one unchanged interest state. Reuse only
+			# within this opportunity; the next opportunity reads current facts.
+			var weights: Dictionary = {}
+			var candidates: Array = _admission_candidates(world,weights)
+			if not candidates.is_empty(): chosen = _choose_case(world,candidates,weights)
 		if chosen.is_empty():
 			statistics.unready += 1
 			continue
@@ -432,14 +435,18 @@ func capacity(world: WorldState, _subtract_existing: bool = true, _cancellation:
 		"scale_numerator":desks,"desk_count":desks,"reference_average":F.mul(total,F.make(preset.target_load_bp,10000)),
 		"tomorrow_range":Plan.count_range(total,preset)}
 
-func _admission_candidates(world: WorldState) -> Array:
+func _admission_candidates(world: WorldState, weights: Variant = null) -> Array:
 	# Interest depends on unlocked diseases and the player's weights. Actual
 	# guidance, diagnosis and treatment decide what can happen after arrival.
 	var candidates: Array = []
 	var seen: Dictionary = {}
+	if weights==null: weights = {}
 	for binding: Dictionary in content.catalog.get("treatment_bindings",[]):
-		var key: String = str(binding.species_id)+"|"+str(binding.disease_id)
-		if seen.has(key) or _disease_weight(world,str(binding.disease_id))==0: continue
+		var disease_id: String = str(binding.disease_id)
+		var key: String = str(binding.species_id)+"|"+disease_id
+		if seen.has(key): continue
+		if not weights.has(disease_id): weights[disease_id] = _disease_weight(world,disease_id)
+		if int(weights[disease_id])==0: continue
 		seen[key] = true
 		candidates.append({"binding_id":binding.id,"disease_id":binding.disease_id,"species_id":binding.species_id,"variants":_arrival_variants(world,str(binding.disease_id))})
 	return candidates
@@ -457,7 +464,8 @@ func _tutorial_candidate(world: WorldState, request: Dictionary) -> Dictionary:
 			return {"binding_id":binding.id,"disease_id":binding.disease_id,"species_id":binding.species_id,"complex":false}
 	return {}
 
-func _choose_case(world: WorldState, candidates: Array) -> Dictionary:
+func _choose_case(world: WorldState, candidates: Array, weights: Variant = null) -> Dictionary:
+	if weights==null: weights = {}
 	var diseases: Dictionary = {}
 	for candidate: Dictionary in candidates:
 		if not diseases.has(candidate.disease_id):
@@ -467,11 +475,12 @@ func _choose_case(world: WorldState, candidates: Array) -> Dictionary:
 	disease_ids.sort()
 	var weight: int = 0
 	for disease_id: String in disease_ids:
-		weight += _disease_weight(world,disease_id)
+		if not weights.has(disease_id): weights[disease_id] = _disease_weight(world,disease_id)
+		weight += int(weights[disease_id])
 	var chosen_weight: int = int(Plan.uniform_decimal(world,str(weight)))
 	var disease: String = ""
 	for disease_id: String in disease_ids:
-		chosen_weight -= _disease_weight(world,disease_id)
+		chosen_weight -= int(weights[disease_id])
 		if chosen_weight < 0:
 			disease = disease_id
 			break

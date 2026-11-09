@@ -110,6 +110,34 @@ func _index_sample(kind: String, floor_id: int, cell: Array, record: Dictionary)
 	if not floors[floor_id].has(key): floors[floor_id][key] = []
 	floors[floor_id][key].append(record)
 
+func _prepare_observation_bounds(world: WorldState) -> Variant:
+	if _query.get("world")!=world: return null
+	if _query.has("observation_bounds"): return _query.observation_bounds
+	_query.observation_bounds = null
+	if get_script()!=HospitalEnvironment or space==null or space.get_script()!=HospitalSpace or not world.facts.floors.has("completed_top_floor"): return null
+	if not _query.facilities_ready: _prepare_facility_sources(world)
+	if not _query.samples_ready: _prepare_sample_sources(world)
+	var rules: Dictionary = content.balance.environment
+	var positive_radius: int = int(rules.upgraded_range_cells if "R15" in world.facts.research else rules.range_cells)
+	var bounds: Dictionary = {}
+	for group: Array in [[_query.facilities,positive_radius,0],[_query.samples.walls,positive_radius,0],[_query.samples.dirt,int(rules.range_cells),1],[_query.samples.machines,int(rules.range_cells),1],[_query.samples.construction,int(rules.range_cells),1]]:
+		for floor_id: int in group[0]:
+			if bounds.has(floor_id) and bounds[floor_id]==null: continue
+			var regions: Array = bounds.get_or_add(floor_id,[Rect2i(),Rect2i()])
+			for key: Variant in group[0][floor_id]:
+				# Legacy/raw coordinates retain the complete observation path.
+				if not key is Vector2i:
+					bounds[floor_id] = null
+					break
+				var region: Rect2i = Rect2i(key,Vector2i.ONE).grow(int(group[1]))
+				var previous: Rect2i = regions[int(group[2])]
+				regions[int(group[2])] = previous.merge(region) if previous.has_area() else region
+	for regions: Variant in bounds.values():
+		if regions is Array: regions.make_read_only()
+	bounds.make_read_only()
+	_query.observation_bounds = bounds
+	return bounds
+
 func _index_noise(world: WorldState, kind: String, facility: Dictionary) -> void:
 	var layout: Dictionary = space.facility_layout(world,facility.id)
 	for x: int in range(int(facility.cell[0]),int(facility.cell[0])+int(layout.footprint[0])):
@@ -1113,6 +1141,17 @@ func _observe_at(world: WorldState, floor_id: int, cell: Array, actor_id: String
 	if scoped:
 		if not _query.facilities_ready: _prepare_facility_sources(world)
 		if not _query.samples_ready: _prepare_sample_sources(world)
+	if scoped and not explain and not nearby:
+		var bounds: Variant = _prepare_observation_bounds(world)
+		var point: Variant = _cell_key(cell)
+		var regions: Variant = bounds.get(floor_id,[]) if bounds is Dictionary else null
+		if point is Vector2i and regions is Array:
+			var empty: bool = true
+			for region: Rect2i in regions:
+				if region.has_point(point): empty = false; break
+			if empty and world.facts.get("environment",{}).get("surfaces",{}).get(_surface_key(floor_id,cell,"floor"),{}).is_empty():
+				result.value += int(rules.clean_bonus)
+				return _finish_observation(result)
 	# Only this read-only scope proves a field has no sources on the floor.
 	var need_positive: bool = not scoped or not _query.facilities.get(floor_id,{}).is_empty() or not _query.samples.walls.get(floor_id,{}).is_empty()
 	var need_dirt: bool = not scoped or not _query.samples.dirt.get(floor_id,{}).is_empty()

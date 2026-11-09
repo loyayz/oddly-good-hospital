@@ -64,7 +64,8 @@ const CASES: Dictionary = {
 	"GROW-81":"docs/design/04-technical.md §6；名义相同适配布局的完整候选与独立预约世界一致",
 	"GROW-83":"docs/design/11-growth-arrivals-recruitment.md §1.3；居民保护批次及导诊结构查询保持身份、完整路由与随机流",
 	"GROW-84":"docs/design/07-clinical-team.md §6；参考手术预筛选保持完整候选及实际资格验证",
-	"GROW-85":"docs/design/01-simulation.md §9.2；研究历史索引及三班维修预算复用保留付款、暂停、取消、恢复与原序"
+	"GROW-85":"docs/design/01-simulation.md §9.2；研究历史索引及三班维修预算复用保留付款、暂停、取消、恢复与原序",
+	"GROW-86":"docs/design/11-growth-arrivals-recruitment.md §1.2.1；单次病例选择复用保留权重、解锁变更和病症抽签"
 }
 
 func run(t) -> void:
@@ -87,6 +88,9 @@ func run(t) -> void:
 
 func _case_85(t) -> void:
 	await preload("res://tests/acceptance/growth_repeated_work.gd").new().run(t,_content,_cache)
+
+func _case_86(t) -> void:
+	preload("res://tests/acceptance/admission_weights.gd").new().run(t,_content,_context())
 
 func _case_01(t) -> void:
 	var empty: Dictionary = _context(false)
