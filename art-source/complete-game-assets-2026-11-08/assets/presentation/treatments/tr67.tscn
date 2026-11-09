@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3]
+[ext_resource type="PackedScene" path="res://assets/props/library/faces.glb" id="P0"]
+[ext_resource type="AnimationLibrary" path="res://assets/animations/treatments/tr67.tres" id="L"]
+[node name="TreatmentRoutine" type="Node3D"]
+metadata/source_id = "TR67"
+metadata/beat_1 = "采集本人正常叶面图案"
+metadata/beat_2 = "把多余光斑印到练习纸"
+metadata/beat_3 = "卷走一大卷表情纸"
+metadata/beat_4 = "投光台转为检查灯，练习纸卷回机内"
+[node name="Tool" type="Node3D" parent="."]
+[node name="Prop0" parent="Tool" instance=ExtResource("P0")]
+position = Vector3(0.000000, 0.400000, 0.000000)
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {&"": ExtResource("L")}

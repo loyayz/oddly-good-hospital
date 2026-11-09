@@ -1,0 +1,26 @@
+[
+  {
+    "handler_id": "environment.preference@1",
+    "id": "cool"
+  },
+  {
+    "handler_id": "environment.preference@1",
+    "id": "dry"
+  },
+  {
+    "handler_id": "environment.preference@1",
+    "id": "light"
+  },
+  {
+    "handler_id": "environment.preference@1",
+    "id": "moist"
+  },
+  {
+    "handler_id": "environment.preference@1",
+    "id": "quiet"
+  },
+  {
+    "handler_id": "environment.preference@1",
+    "id": "shade"
+  }
+]

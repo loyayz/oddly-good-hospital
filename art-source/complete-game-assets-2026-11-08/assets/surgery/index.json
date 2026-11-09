@@ -1,0 +1,2018 @@
+{
+  "adapters": [
+    {
+      "id": "SA_B_S01_D01_M01",
+      "binding_id": "B_S01_D01_M01",
+      "rig": "longneck",
+      "patient_pose": "身体坐在软台，长颈由竖向软环承托，不强折颈部",
+      "target_description": "长颈外侧的软结与原软环支点，躯干始终留在承托台上",
+      "path": "assets/surgery/sa_b_s01_d01_m01.glb",
+      "source_path": "art-source/production/surgery/sa_b_s01_d01_m01.blend",
+      "sha256": "2617a037830d5385461622f892ceb1ce5d0b9916489c5d31955c3a56d5f1a5a0",
+      "bytes": 93316,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 624
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 624,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S44_D01_M01",
+      "binding_id": "B_S44_D01_M01",
+      "rig": "blob",
+      "patient_pose": "浅软模包住边缘，不生成手脚或骨架",
+      "target_description": "线团表层打结的线头，松开的线沿原线槽回收",
+      "path": "assets/surgery/sa_b_s44_d01_m01.glb",
+      "source_path": "art-source/production/surgery/sa_b_s44_d01_m01.blend",
+      "sha256": "f6c42958845e83153a5bdfe58279d20f6533bd494d668092c7751dfe25f0c865",
+      "bytes": 47520,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 268
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 268,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S06_D04_M04",
+      "binding_id": "B_S06_D04_M04",
+      "rig": "plant",
+      "patient_pose": "菌柄站在柔软圆托内，菌盖由透明罩外围支撑，不把蘑菇当成有叶冠的盆栽",
+      "target_description": "菌盖外缘的蓬起层，蘑菇柄由软托固定",
+      "path": "assets/surgery/sa_b_s06_d04_m04.glb",
+      "source_path": "art-source/production/surgery/sa_b_s06_d04_m04.blend",
+      "sha256": "7517c9668914d0a8b59982416f2720bfcfb3722275b398bb493b6ba4049b1da8",
+      "bytes": 47520,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 268
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 268,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S08_D04_M04",
+      "binding_id": "B_S08_D04_M04",
+      "rig": "biped",
+      "patient_pose": "可调软垫托住身体，外露肢体保留各自轮廓",
+      "target_description": "树冠挤在一起的枝梢，沿真实枝条逐段腾开",
+      "path": "assets/surgery/sa_b_s08_d04_m04.glb",
+      "source_path": "art-source/production/surgery/sa_b_s08_d04_m04.blend",
+      "sha256": "6e4217f807fed39c2109cb63ba8dffcf8b544007c521ee2d0b85d967f0ba02ae",
+      "bytes": 32480,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 152
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 152,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S10_D06_M06",
+      "binding_id": "B_S10_D06_M06",
+      "rig": "biped",
+      "patient_pose": "可调软垫托住身体，外露肢体保留各自轮廓",
+      "target_description": "哥布林原有口袋开口内的次元收纳轨道，器械不穿过躯干",
+      "path": "assets/surgery/sa_b_s10_d06_m06.glb",
+      "source_path": "art-source/production/surgery/sa_b_s10_d06_m06.blend",
+      "sha256": "41aa2190d4337fae88af121d8f761a1c72aafcedaa91f94be6c08cf82dc959c5",
+      "bytes": 32492,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 152
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 152,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S11_D07_M07",
+      "binding_id": "B_S11_D07_M07",
+      "rig": "quadruped",
+      "patient_pose": "四足软吊床支撑躯干，尾部单独留槽",
+      "target_description": "龙嘴外的幻想烟圈与滤泡投影，不把器械伸入喉咙",
+      "path": "assets/surgery/sa_b_s11_d07_m07.glb",
+      "source_path": "art-source/production/surgery/sa_b_s11_d07_m07.blend",
+      "sha256": "ef7204ce6a84a28c3556b758cb53a5b29963345686cd7859c977903c4f3caa8e",
+      "bytes": 32468,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 152
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 152,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S32_D07_M07",
+      "binding_id": "B_S32_D07_M07",
+      "rig": "object",
+      "patient_pose": "轮廓软模按物件形状展开，只操作现有部件",
+      "target_description": "茶壶壶嘴出口的滤泡与打结烟圈，壶盖留在原位",
+      "path": "assets/surgery/sa_b_s32_d07_m07.glb",
+      "source_path": "art-source/production/surgery/sa_b_s32_d07_m07.blend",
+      "sha256": "0fbfb1d1797c41ec3e8a7bf090920c0a7c5e0b1af91d58a502b6f2b0f6f386b3",
+      "bytes": 32488,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 152
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 152,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S13_D09_M09",
+      "binding_id": "B_S13_D09_M09",
+      "rig": "biped",
+      "patient_pose": "可调软垫托住身体，外露肢体保留各自轮廓",
+      "target_description": "僵尸可拆拼肢体的左右接口，软托承接每一块",
+      "path": "assets/surgery/sa_b_s13_d09_m09.glb",
+      "source_path": "art-source/production/surgery/sa_b_s13_d09_m09.blend",
+      "sha256": "0d3884dd7d5f78d1d327a863e6d5327a9f5b440c788e3de1fb302c26f22ad331",
+      "bytes": 32492,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 152
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 152,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S22_D14_M14",
+      "binding_id": "B_S22_D14_M14",
+      "rig": "micro",
+      "patient_pose": "密闭观测载具对接显微臂，全程不让微观角色离开载具",
+      "target_description": "承托盆内交叠的伪足轮廓，用投影标出边界",
+      "path": "assets/surgery/sa_b_s22_d14_m14.glb",
+      "source_path": "art-source/production/surgery/sa_b_s22_d14_m14.blend",
+      "sha256": "76ff1502ea7648531c0ddcb4a803f51328a7b95a87c4932a004596390a0214e7",
+      "bytes": 47528,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 268
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 268,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S23_D14_M14",
+      "binding_id": "B_S23_D14_M14",
+      "rig": "micro",
+      "patient_pose": "密闭观测载具对接显微臂，全程不让微观角色离开载具",
+      "target_description": "小细胞膜边缘的幻想线环，显微投影与载具内真身对应",
+      "path": "assets/surgery/sa_b_s23_d14_m14.glb",
+      "source_path": "art-source/production/surgery/sa_b_s23_d14_m14.blend",
+      "sha256": "46867d36c466eecbf7264a05aac1916691a9e1e307863d114a8a7f66b3651daf",
+      "bytes": 47528,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 268
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 268,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S29_D17_M17",
+      "binding_id": "B_S29_D17_M17",
+      "rig": "object",
+      "patient_pose": "轮廓软模按物件形状展开，只操作现有部件",
+      "target_description": "行李箱原箱口内的回送轨道，物件只在术台道具槽里移动",
+      "path": "assets/surgery/sa_b_s29_d17_m17.glb",
+      "source_path": "art-source/production/surgery/sa_b_s29_d17_m17.blend",
+      "sha256": "f301a7aef0c93dd30fd1de4b15e3ebd01dc2086c7368be6635622b9c5cf94ae6",
+      "bytes": 32488,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 152
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 152,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S41_D22_M22",
+      "binding_id": "B_S41_D22_M22",
+      "rig": "biped",
+      "patient_pose": "可调软垫托住身体，外露肢体保留各自轮廓",
+      "target_description": "布偶填充内芯的透明投影，外壳由软托保持原形",
+      "path": "assets/surgery/sa_b_s41_d22_m22.glb",
+      "source_path": "art-source/production/surgery/sa_b_s41_d22_m22.blend",
+      "sha256": "4a9c1111e1210639c65e1c3398797cd29d0b8c3a5a4e4e570229f3cff1affc7d",
+      "bytes": 32492,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 152
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 152,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S42_D22_M22",
+      "binding_id": "B_S42_D22_M22",
+      "rig": "biped",
+      "patient_pose": "可调软垫托住身体，外露肢体保留各自轮廓",
+      "target_description": "积木人松动的内部连接块，通过原有拼接接口对位",
+      "path": "assets/surgery/sa_b_s42_d22_m22.glb",
+      "source_path": "art-source/production/surgery/sa_b_s42_d22_m22.blend",
+      "sha256": "c5d2557ea8e6f81e13e78fda4616ec0e11064cbdb427734e04fe290c0dd26005",
+      "bytes": 32488,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 152
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 152,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S03_D23_M23",
+      "binding_id": "B_S03_D23_M23",
+      "rig": "quadruped",
+      "patient_pose": "四足软吊床支撑躯干，尾部单独留槽",
+      "target_description": "水豚上方的梦泡边缘，修补云袋投影，不切开头部",
+      "path": "assets/surgery/sa_b_s03_d23_m23.glb",
+      "source_path": "art-source/production/surgery/sa_b_s03_d23_m23.blend",
+      "sha256": "6c0180c5d1a17a6b36a49e2d245a4774e3e6016338e45c3eaaf3650744c29228",
+      "bytes": 32484,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 152
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 152,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S45_D23_M23",
+      "binding_id": "B_S45_D23_M23",
+      "rig": "float",
+      "patient_pose": "悬浮锚圈固定显示高度，轮廓不压到台面",
+      "target_description": "梦团自身漏出的梦境边缘，操作范围限制在稳定光环内",
+      "path": "assets/surgery/sa_b_s45_d23_m23.glb",
+      "source_path": "art-source/production/surgery/sa_b_s45_d23_m23.blend",
+      "sha256": "938e2a9a89c3c59040c01ae7dbb5da991f858f64e6f4953c3883d131934942e7",
+      "bytes": 47524,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 268
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 268,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S49_D23_M23",
+      "binding_id": "B_S49_D23_M23",
+      "rig": "biped",
+      "patient_pose": "可调软垫托住身体，外露肢体保留各自轮廓",
+      "target_description": "人类枕边的梦泡拉链投影，真身安静躺在原承托垫上",
+      "path": "assets/surgery/sa_b_s49_d23_m23.glb",
+      "source_path": "art-source/production/surgery/sa_b_s49_d23_m23.blend",
+      "sha256": "b17b899ce1ad9d35fc53f00bfbc3886d4d19329ffdb61bff5306c2dcade9614d",
+      "bytes": 32492,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 152
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 152,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S16_D28_M28",
+      "binding_id": "B_S16_D28_M28",
+      "rig": "biped",
+      "patient_pose": "可调软垫托住身体，外露肢体保留各自轮廓",
+      "target_description": "木乃伊松开的绷带末端，回卷路径沿原身体包覆面",
+      "path": "assets/surgery/sa_b_s16_d28_m28.glb",
+      "source_path": "art-source/production/surgery/sa_b_s16_d28_m28.blend",
+      "sha256": "dc8571296c6ccdcb1ba87163df7b22cc9e7bce26dfe692ba481efff66f4bd8c3",
+      "bytes": 32492,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 152
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 152,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S19_D29_M29",
+      "binding_id": "B_S19_D29_M29",
+      "rig": "float",
+      "patient_pose": "悬浮锚圈固定显示高度，轮廓不压到台面",
+      "target_description": "陨石周围黏在一起的小卫星轨道，软磁爪不抬走陨石本体",
+      "path": "assets/surgery/sa_b_s19_d29_m29.glb",
+      "source_path": "art-source/production/surgery/sa_b_s19_d29_m29.blend",
+      "sha256": "be26d58c734c3246412a2c534d2993a5fb2eee1bb24da5ea45ec438306d91a35",
+      "bytes": 47524,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 268
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 268,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S38_D33_M33",
+      "binding_id": "B_S38_D33_M33",
+      "rig": "biped",
+      "patient_pose": "可调软垫托住身体，外露肢体保留各自轮廓",
+      "target_description": "面包人表面乱膨胀的幻想气团，透明罩内分流收好",
+      "path": "assets/surgery/sa_b_s38_d33_m33.glb",
+      "source_path": "art-source/production/surgery/sa_b_s38_d33_m33.blend",
+      "sha256": "06bd5b425b670009861d2346c5417321165b1823060d9e32f435633b16c9199a",
+      "bytes": 32488,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 152
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 152,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S43_D34_M34",
+      "binding_id": "B_S43_D34_M34",
+      "rig": "float",
+      "patient_pose": "悬浮锚圈固定显示高度，轮廓不压到台面",
+      "target_description": "纸鹤两翼现有折线，纸样软托分别支撑翼面",
+      "path": "assets/surgery/sa_b_s43_d34_m34.glb",
+      "source_path": "art-source/production/surgery/sa_b_s43_d34_m34.blend",
+      "sha256": "1c059394d6e16cbab64622503cc15d8daceea803b3817a3a5aa755ba6e45ba59",
+      "bytes": 47524,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 268
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 268,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S47_D35_M35",
+      "binding_id": "B_S47_D35_M35",
+      "rig": "float",
+      "patient_pose": "悬浮锚圈固定显示高度，轮廓不压到台面",
+      "target_description": "影子居民自己的边界与重影投影，没有另一个虚构主人",
+      "path": "assets/surgery/sa_b_s47_d35_m35.glb",
+      "source_path": "art-source/production/surgery/sa_b_s47_d35_m35.blend",
+      "sha256": "2d798484ea8a14e8fe0daa7b2a49deab390dc80bff787f2acf0b5f98f230b6c9",
+      "bytes": 47528,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 268
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 268,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S49_D40_M40",
+      "binding_id": "B_S49_D40_M40",
+      "rig": "biped",
+      "patient_pose": "可调软垫托住身体，外露肢体保留各自轮廓",
+      "target_description": "人类牙齿的放大积木投影，泡泡刷只处理投影里的糖霜",
+      "path": "assets/surgery/sa_b_s49_d40_m40.glb",
+      "source_path": "art-source/production/surgery/sa_b_s49_d40_m40.blend",
+      "sha256": "786b5b6d5c57e6635beeb9689a88d75ad3e0ee5c3e794ee25bb6285d86a6d21d",
+      "bytes": 32492,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 152
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 152,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S17_D55_M29",
+      "binding_id": "B_S17_D55_M29",
+      "rig": "biped",
+      "patient_pose": "可调软垫托住身体，外露肢体保留各自轮廓",
+      "target_description": "外星人多眼的焦点轨迹投影，各眼按自身位置映射",
+      "path": "assets/surgery/sa_b_s17_d55_m29.glb",
+      "source_path": "art-source/production/surgery/sa_b_s17_d55_m29.blend",
+      "sha256": "b6c7033ac1bf557abf248b10019bc6097a55e170acefbe5d86eb7b68f7beaf98",
+      "bytes": 32484,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 152
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 152,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S18_D55_M29",
+      "binding_id": "B_S18_D55_M29",
+      "rig": "float",
+      "patient_pose": "悬浮锚圈固定显示高度，轮廓不压到台面",
+      "target_description": "星星人各星角周围打转的光点轨迹",
+      "path": "assets/surgery/sa_b_s18_d55_m29.glb",
+      "source_path": "art-source/production/surgery/sa_b_s18_d55_m29.blend",
+      "sha256": "188a84dbe9b6f533d1725cb56438c7fc086b122457de9b9c82eaf4a2954706d0",
+      "bytes": 47528,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 268
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 268,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S19_D55_M29",
+      "binding_id": "B_S19_D55_M29",
+      "rig": "float",
+      "patient_pose": "悬浮锚圈固定显示高度，轮廓不压到台面",
+      "target_description": "陨石周围失序的小卫星轨迹",
+      "path": "assets/surgery/sa_b_s19_d55_m29.glb",
+      "source_path": "art-source/production/surgery/sa_b_s19_d55_m29.blend",
+      "sha256": "a6744aa9e88859b94bf690c23852d44ce4e21aaf445ca473409d3688d1a41f8e",
+      "bytes": 47524,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 268
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 268,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S20_D55_M29",
+      "binding_id": "B_S20_D55_M29",
+      "rig": "tentacle",
+      "patient_pose": "透明软盆承托躯干，多条触手各有独立软垫",
+      "target_description": "太空水母触须末端绕行的泡泡光轨",
+      "path": "assets/surgery/sa_b_s20_d55_m29.glb",
+      "source_path": "art-source/production/surgery/sa_b_s20_d55_m29.blend",
+      "sha256": "631002ffbe4509579881441b3ebc6b66df1d69a603d16c916892025a79cc4009",
+      "bytes": 77416,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 1068
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 1068,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S21_D59_M13",
+      "binding_id": "B_S21_D59_M13",
+      "rig": "micro",
+      "patient_pose": "密闭观测载具对接显微臂，全程不让微观角色离开载具",
+      "target_description": "显微载具中微观群体重复的队列分组，仍算同一位患者",
+      "path": "assets/surgery/sa_b_s21_d59_m13.glb",
+      "source_path": "art-source/production/surgery/sa_b_s21_d59_m13.blend",
+      "sha256": "4e84f12e88b4934228935529605e3c2e9eea34f17c16959a5b0e5de19ab3b4a4",
+      "bytes": 47528,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 268
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 268,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S22_D59_M13",
+      "binding_id": "B_S22_D59_M13",
+      "rig": "micro",
+      "patient_pose": "密闭观测载具对接显微臂，全程不让微观角色离开载具",
+      "target_description": "变形虫重复分出的伪足与核位置投影，不凭空变成人形",
+      "path": "assets/surgery/sa_b_s22_d59_m13.glb",
+      "source_path": "art-source/production/surgery/sa_b_s22_d59_m13.blend",
+      "sha256": "10ae5ba52fc86ed7bd51c456574eef08577cc03ad6eab28d173e7421976092b0",
+      "bytes": 47528,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 268
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 268,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S23_D59_M13",
+      "binding_id": "B_S23_D59_M13",
+      "rig": "micro",
+      "patient_pose": "密闭观测载具对接显微臂，全程不让微观角色离开载具",
+      "target_description": "小细胞内部重复结构的显微放大投影",
+      "path": "assets/surgery/sa_b_s23_d59_m13.glb",
+      "source_path": "art-source/production/surgery/sa_b_s23_d59_m13.blend",
+      "sha256": "b7dfc31590bd677309ec6c4345eea8f5793503e2943882a0553dd99e2a621431",
+      "bytes": 47528,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 268
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 268,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S24_D59_M13",
+      "binding_id": "B_S24_D59_M13",
+      "rig": "micro",
+      "patient_pose": "密闭观测载具对接显微臂，全程不让微观角色离开载具",
+      "target_description": "合唱团高低声部的小队位置，原成员在软托分栏内调整",
+      "path": "assets/surgery/sa_b_s24_d59_m13.glb",
+      "source_path": "art-source/production/surgery/sa_b_s24_d59_m13.blend",
+      "sha256": "4e267bca938aa96e69fe757ef789e46357e490afda4addeaec4636dbdc5171c0",
+      "bytes": 47528,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 268
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 268,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S25_D62_M55",
+      "binding_id": "B_S25_D62_M55",
+      "rig": "biped",
+      "patient_pose": "可调软垫托住身体，外露肢体保留各自轮廓",
+      "target_description": "机器人肩部现有螺丝孔与松脱螺丝",
+      "path": "assets/surgery/sa_b_s25_d62_m55.glb",
+      "source_path": "art-source/production/surgery/sa_b_s25_d62_m55.blend",
+      "sha256": "fc6c9a76ee52049f94d09f495bc86f0900f13881097637176a4a10418f66cf97",
+      "bytes": 32492,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 152
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 152,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S26_D62_M55",
+      "binding_id": "B_S26_D62_M55",
+      "rig": "object",
+      "patient_pose": "轮廓软模按物件形状展开，只操作现有部件",
+      "target_description": "钟表人背盖边缘的螺丝孔，不把时针当作手臂",
+      "path": "assets/surgery/sa_b_s26_d62_m55.glb",
+      "source_path": "art-source/production/surgery/sa_b_s26_d62_m55.blend",
+      "sha256": "4f3b9630f2204e9411d90085ff386fbd4d4210813b62be1f1381f52765e17de2",
+      "bytes": 32492,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 152
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 152,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S27_D62_M55",
+      "binding_id": "B_S27_D62_M55",
+      "rig": "object",
+      "patient_pose": "轮廓软模按物件形状展开，只操作现有部件",
+      "target_description": "收音机天线底座的紧固螺丝",
+      "path": "assets/surgery/sa_b_s27_d62_m55.glb",
+      "source_path": "art-source/production/surgery/sa_b_s27_d62_m55.blend",
+      "sha256": "65917419e3a94d74218da623630050d78e2b2996cf9f6f973c14d287e1337cf7",
+      "bytes": 32484,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 152
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 152,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S28_D62_M55",
+      "binding_id": "B_S28_D62_M55",
+      "rig": "object",
+      "patient_pose": "轮廓软模按物件形状展开，只操作现有部件",
+      "target_description": "自动售货机货架支点的紧固螺丝",
+      "path": "assets/surgery/sa_b_s28_d62_m55.glb",
+      "source_path": "art-source/production/surgery/sa_b_s28_d62_m55.blend",
+      "sha256": "e1cc7a7d098cb46356b912216f96675fdab9817246519e12094149b10f72a36f",
+      "bytes": 32484,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 152
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 152,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S45_D78_M23",
+      "binding_id": "B_S45_D78_M23",
+      "rig": "float",
+      "patient_pose": "悬浮锚圈固定显示高度，轮廓不压到台面",
+      "target_description": "梦团显出的城堡梦境彩带投影",
+      "path": "assets/surgery/sa_b_s45_d78_m23.glb",
+      "source_path": "art-source/production/surgery/sa_b_s45_d78_m23.blend",
+      "sha256": "4bb7c50e0c502ac72e1272adbf527ff2bd137807024b1d92d94062b294452897",
+      "bytes": 47524,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 268
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 268,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S46_D78_M23",
+      "binding_id": "B_S46_D78_M23",
+      "rig": "float",
+      "patient_pose": "悬浮锚圈固定显示高度，轮廓不压到台面",
+      "target_description": "音符居民缠在一起的五线谱彩带",
+      "path": "assets/surgery/sa_b_s46_d78_m23.glb",
+      "source_path": "art-source/production/surgery/sa_b_s46_d78_m23.blend",
+      "sha256": "6cd8e9f24711eba28508c82942597013b804f3d17d27cbf1a83f1657e4888fb8",
+      "bytes": 47528,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 268
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 268,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S47_D78_M23",
+      "binding_id": "B_S47_D78_M23",
+      "rig": "float",
+      "patient_pose": "悬浮锚圈固定显示高度，轮廓不压到台面",
+      "target_description": "影子居民边缘投出的想象剪影",
+      "path": "assets/surgery/sa_b_s47_d78_m23.glb",
+      "source_path": "art-source/production/surgery/sa_b_s47_d78_m23.blend",
+      "sha256": "9b71724cb521576d118e8d1da4b968e025ffd7c9a0b3d6087bdba14f31123a67",
+      "bytes": 47528,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 268
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 268,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S48_D78_M23",
+      "binding_id": "B_S48_D78_M23",
+      "rig": "float",
+      "patient_pose": "悬浮锚圈固定显示高度，轮廓不压到台面",
+      "target_description": "标点居民问号与感叹号相绕的图形彩带",
+      "path": "assets/surgery/sa_b_s48_d78_m23.glb",
+      "source_path": "art-source/production/surgery/sa_b_s48_d78_m23.blend",
+      "sha256": "4e2d9a8fb5308bf875b687222ccf57aee2ebb207aec4bed82ac7ef537272a663",
+      "bytes": 47528,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 268
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 268,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S63_D55_M29",
+      "binding_id": "B_S63_D55_M29",
+      "rig": "float",
+      "patient_pose": "悬浮锚圈固定显示高度，轮廓不压到台面",
+      "target_description": "土星人原有光环的偏转轨迹",
+      "path": "assets/surgery/sa_b_s63_d55_m29.glb",
+      "source_path": "art-source/production/surgery/sa_b_s63_d55_m29.blend",
+      "sha256": "ec899795a5912ff222c3eca689ea61a142507a46984deea4f11bd6081bdb0351",
+      "bytes": 47520,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 268
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 268,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S64_D55_M29",
+      "binding_id": "B_S64_D55_M29",
+      "rig": "quadruped",
+      "patient_pose": "四足软吊床支撑躯干，尾部单独留槽",
+      "target_description": "彗星猫尾迹里的打转星点，尾巴留在实际支撑槽内",
+      "path": "assets/surgery/sa_b_s64_d55_m29.glb",
+      "source_path": "art-source/production/surgery/sa_b_s64_d55_m29.blend",
+      "sha256": "b5325429144adc3f4b248ba3454098b16104f4ea6db1fc33632ceebb74d9e280",
+      "bytes": 32520,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 152
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 152,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S65_D55_M29",
+      "binding_id": "B_S65_D55_M29",
+      "rig": "biped",
+      "patient_pose": "可调软垫托住身体，外露肢体保留各自轮廓",
+      "target_description": "折叠外星人各折面上的错位星点投影，不增加手臂",
+      "path": "assets/surgery/sa_b_s65_d55_m29.glb",
+      "source_path": "art-source/production/surgery/sa_b_s65_d55_m29.blend",
+      "sha256": "1182099666d93a2e9d660233153cc496c509f4e39aff764c436af31c0a5b7a28",
+      "bytes": 32484,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 152
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 152,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S66_D59_M13",
+      "binding_id": "B_S66_D59_M13",
+      "rig": "micro",
+      "patient_pose": "密闭观测载具对接显微臂，全程不让微观角色离开载具",
+      "target_description": "草履虫体内错队结构的显微投影，左右队列用鞋形检查标记区分",
+      "path": "assets/surgery/sa_b_s66_d59_m13.glb",
+      "source_path": "art-source/production/surgery/sa_b_s66_d59_m13.blend",
+      "sha256": "590e52255b22dc427c7aa4b98418643b1f2f89c93990ec8bfaafe4c6e94768aa",
+      "bytes": 47528,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 268
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 268,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S67_D59_M13",
+      "binding_id": "B_S67_D59_M13",
+      "rig": "micro",
+      "patient_pose": "密闭观测载具对接显微臂，全程不让微观角色离开载具",
+      "target_description": "硅藻体内重叠的微观工位投影，壳体保持完整",
+      "path": "assets/surgery/sa_b_s67_d59_m13.glb",
+      "source_path": "art-source/production/surgery/sa_b_s67_d59_m13.blend",
+      "sha256": "4f78b20f946787e276d3a6868e341b33c54de31e3c909d2de273cb520e75e30a",
+      "bytes": 47528,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 268
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 268,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S68_D62_M55",
+      "binding_id": "B_S68_D62_M55",
+      "rig": "object",
+      "patient_pose": "轮廓软模按物件形状展开，只操作现有部件",
+      "target_description": "扫地机器人侧刷底座的紧固螺丝",
+      "path": "assets/surgery/sa_b_s68_d62_m55.glb",
+      "source_path": "art-source/production/surgery/sa_b_s68_d62_m55.blend",
+      "sha256": "8dad4d9eded9489afd4e20e72b9fa14f973e32744fba77380799f9ba9dbc300b",
+      "bytes": 32484,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 152
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 152,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S69_D62_M55",
+      "binding_id": "B_S69_D62_M55",
+      "rig": "object",
+      "patient_pose": "轮廓软模按物件形状展开，只操作现有部件",
+      "target_description": "小火车轮轴外侧的紧固螺丝，车体由轨形软托承住",
+      "path": "assets/surgery/sa_b_s69_d62_m55.glb",
+      "source_path": "art-source/production/surgery/sa_b_s69_d62_m55.blend",
+      "sha256": "e125be486012b4bf2c27674e0f19ef527bfb93aef57b4170785b0c2e4e18484e",
+      "bytes": 32468,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 152
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 152,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S78_D78_M23",
+      "binding_id": "B_S78_D78_M23",
+      "rig": "float",
+      "patient_pose": "悬浮锚圈固定显示高度，轮廓不压到台面",
+      "target_description": "对话泡泡内部重叠的谈话图形",
+      "path": "assets/surgery/sa_b_s78_d78_m23.glb",
+      "source_path": "art-source/production/surgery/sa_b_s78_d78_m23.blend",
+      "sha256": "8c6329ed27b22f38a7946ca90cdaf347846b8ca084b4887548ed8e236bcd0c13",
+      "bytes": 47524,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 268
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 268,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S79_D78_M23",
+      "binding_id": "B_S79_D78_M23",
+      "rig": "biped",
+      "patient_pose": "可调软垫托住身体，外露肢体保留各自轮廓",
+      "target_description": "涂鸦居民猫与房屋图案交叉的彩线",
+      "path": "assets/surgery/sa_b_s79_d78_m23.glb",
+      "source_path": "art-source/production/surgery/sa_b_s79_d78_m23.blend",
+      "sha256": "84cfc2e90026a620208b2f6ad65ab8bfafb9a49f9f94c589d5b4e559c972b44b",
+      "bytes": 32492,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 152
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 152,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S80_D78_M23",
+      "binding_id": "B_S80_D78_M23",
+      "rig": "float",
+      "patient_pose": "悬浮锚圈固定显示高度，轮廓不压到台面",
+      "target_description": "星期一居民上方打结的日程清单投影",
+      "path": "assets/surgery/sa_b_s80_d78_m23.glb",
+      "source_path": "art-source/production/surgery/sa_b_s80_d78_m23.blend",
+      "sha256": "0007d7ef8b9c009859101d725bd023a4ceb0f35414aba466957065e033d4f828",
+      "bytes": 47524,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 268
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 268,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S59_D88_M09",
+      "binding_id": "B_S59_D88_M09",
+      "rig": "biped",
+      "patient_pose": "可调软垫托住身体，外露肢体保留各自轮廓",
+      "target_description": "石巨人肩膝外层错拼的石块，软吊臂始终承住被移动块",
+      "path": "assets/surgery/sa_b_s59_d88_m09.glb",
+      "source_path": "art-source/production/surgery/sa_b_s59_d88_m09.blend",
+      "sha256": "4ac47d8b66207783db6bc14f2e7850b56c78bc6260c3c597f6615b85548efab4",
+      "bytes": 32480,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 152
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 152,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S63_D92_M29",
+      "binding_id": "B_S63_D92_M29",
+      "rig": "float",
+      "patient_pose": "悬浮锚圈固定显示高度，轮廓不压到台面",
+      "target_description": "土星人套反的双层光环，各环在术台预约范围内分开",
+      "path": "assets/surgery/sa_b_s63_d92_m29.glb",
+      "source_path": "art-source/production/surgery/sa_b_s63_d92_m29.blend",
+      "sha256": "240e5f5ec5f279394b8468f199d935db064c6984db1d8b07fbf4e8fe09a7a07c",
+      "bytes": 47520,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 268
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 268,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S65_D94_M17",
+      "binding_id": "B_S65_D94_M17",
+      "rig": "biped",
+      "patient_pose": "可调软垫托住身体，外露肢体保留各自轮廓",
+      "target_description": "折叠外星人自身卡住的折面与空间边角，四窗只是同一身体的投影",
+      "path": "assets/surgery/sa_b_s65_d94_m17.glb",
+      "source_path": "art-source/production/surgery/sa_b_s65_d94_m17.blend",
+      "sha256": "151b3bb849fa0a6b32bca277e91c1018aa462c526edf163fc5af052ae6975763",
+      "bytes": 32484,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 152
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 152,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S70_D99_M59",
+      "binding_id": "B_S70_D99_M59",
+      "rig": "object",
+      "patient_pose": "轮廓软模按物件形状展开，只操作现有部件",
+      "target_description": "书本居民原有书页与书脊装订带，页码是道具标记",
+      "path": "assets/surgery/sa_b_s70_d99_m59.glb",
+      "source_path": "art-source/production/surgery/sa_b_s70_d99_m59.blend",
+      "sha256": "41762247a529962036a29a844a3f37467ba380be0d32a297388c4433f4c3ab66",
+      "bytes": 32524,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 152
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 152,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    },
+    {
+      "id": "SA_B_S79_D108_M61",
+      "binding_id": "B_S79_D108_M61",
+      "rig": "biped",
+      "patient_pose": "可调软垫托住身体，外露肢体保留各自轮廓",
+      "target_description": "涂鸦居民游走的自身外轮廓，软模跟随既有身体尺寸",
+      "path": "assets/surgery/sa_b_s79_d108_m61.glb",
+      "source_path": "art-source/production/surgery/sa_b_s79_d108_m61.blend",
+      "sha256": "53ecf594727f0d496c3826ff5cafb9a6ce3af70dd95d28ec616876b071a1a372",
+      "bytes": 32492,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 152
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 152,
+      "joint_order": [
+        "root",
+        "support",
+        "tool",
+        "patient_support",
+        "symptom_target",
+        "exit"
+      ],
+      "bone_count": 6,
+      "animation_names": [
+        "climax",
+        "low_motion",
+        "paused",
+        "prepare",
+        "process",
+        "safe_finish"
+      ]
+    }
+  ]
+}

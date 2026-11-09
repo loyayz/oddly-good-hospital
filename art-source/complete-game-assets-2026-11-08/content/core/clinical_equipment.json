@@ -1,0 +1,51 @@
+[
+  {
+    "adapter_capacity": {
+      "max_clearance_cells": 3,
+      "max_height_m": 6.5
+    },
+    "equipment_class": "medical",
+    "fit_profile_id": "FF04",
+    "footprint": [
+      3,
+      3
+    ],
+    "id": "EQ01",
+    "integrated_functions": [
+      "operate",
+      "anesthesia",
+      "monitor",
+      "instruments"
+    ],
+    "name": "@zh:core.clinical_equipment.EQ01.name",
+    "price": 11100,
+    "requires_research": [
+      "R34"
+    ],
+    "upgrade_levels": 2
+  },
+  {
+    "adapter_capacity": {
+      "max_clearance_cells": 3,
+      "max_height_m": 6.5
+    },
+    "equipment_class": "medical",
+    "fit_profile_id": "FF02",
+    "footprint": [
+      3,
+      3
+    ],
+    "id": "EQ05",
+    "integrated_functions": [
+      "bed",
+      "monitor",
+      "care_record"
+    ],
+    "name": "@zh:core.clinical_equipment.EQ05.name",
+    "price": 1850,
+    "requires_research": [
+      "R33"
+    ],
+    "upgrade_levels": 2
+  }
+]

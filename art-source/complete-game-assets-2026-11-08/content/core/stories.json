@@ -1,0 +1,86 @@
+[
+  {
+    "availability_text": "@zh:core.stories.ST01.availability_text",
+    "conditions_text": "@zh:core.stories.ST01.conditions_text",
+    "id": "ST01",
+    "name": "@zh:core.stories.ST01.name",
+    "reward_text": "@zh:core.stories.ST01.reward_text"
+  },
+  {
+    "availability_text": "R03、R01",
+    "conditions_text": "@zh:core.stories.ST02.conditions_text",
+    "id": "ST02",
+    "name": "@zh:core.stories.ST02.name",
+    "reward_text": "@zh:core.stories.ST02.reward_text"
+  },
+  {
+    "availability_text": "R01、R06",
+    "conditions_text": "@zh:core.stories.ST03.conditions_text",
+    "id": "ST03",
+    "name": "@zh:core.stories.ST03.name",
+    "reward_text": "@zh:core.stories.ST03.reward_text"
+  },
+  {
+    "availability_text": "R06、R16",
+    "conditions_text": "@zh:core.stories.ST04.conditions_text",
+    "id": "ST04",
+    "name": "@zh:core.stories.ST04.name",
+    "reward_text": "@zh:core.stories.ST04.reward_text"
+  },
+  {
+    "availability_text": "R07",
+    "conditions_text": "@zh:core.stories.ST05.conditions_text",
+    "id": "ST05",
+    "name": "@zh:core.stories.ST05.name",
+    "reward_text": "@zh:core.stories.ST05.reward_text"
+  },
+  {
+    "availability_text": "R01、R03",
+    "conditions_text": "@zh:core.stories.ST06.conditions_text",
+    "id": "ST06",
+    "name": "@zh:core.stories.ST06.name",
+    "reward_text": "@zh:core.stories.ST06.reward_text"
+  },
+  {
+    "availability_text": "@zh:core.stories.ST07.availability_text",
+    "conditions_text": "@zh:core.stories.ST07.conditions_text",
+    "id": "ST07",
+    "name": "@zh:core.stories.ST07.name",
+    "reward_text": "@zh:core.stories.ST07.reward_text"
+  },
+  {
+    "availability_text": "R09",
+    "conditions_text": "@zh:core.stories.ST08.conditions_text",
+    "id": "ST08",
+    "name": "@zh:core.stories.ST08.name",
+    "reward_text": "@zh:core.stories.ST08.reward_text"
+  },
+  {
+    "availability_text": "R05",
+    "conditions_text": "@zh:core.stories.ST09.conditions_text",
+    "id": "ST09",
+    "name": "@zh:core.stories.ST09.name",
+    "reward_text": "@zh:core.stories.ST09.reward_text"
+  },
+  {
+    "availability_text": "R06",
+    "conditions_text": "@zh:core.stories.ST10.conditions_text",
+    "id": "ST10",
+    "name": "@zh:core.stories.ST10.name",
+    "reward_text": "@zh:core.stories.ST10.reward_text"
+  },
+  {
+    "availability_text": "R09",
+    "conditions_text": "@zh:core.stories.ST11.conditions_text",
+    "id": "ST11",
+    "name": "@zh:core.stories.ST11.name",
+    "reward_text": "@zh:core.stories.ST11.reward_text"
+  },
+  {
+    "availability_text": "@zh:core.stories.ST12.availability_text",
+    "conditions_text": "@zh:core.stories.ST12.conditions_text",
+    "id": "ST12",
+    "name": "@zh:core.stories.ST12.name",
+    "reward_text": "@zh:core.stories.ST12.reward_text"
+  }
+]

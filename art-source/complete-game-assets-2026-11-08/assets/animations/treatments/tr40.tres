@@ -1,0 +1,133 @@
+[gd_resource type="AnimationLibrary" format=3]
+
+[sub_resource type="Animation" id="Animation_wnnef"]
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Tool:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5, 1),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0.07, 0.02, 0), Vector3(0, 0, 0)]
+}
+metadata/source_beat = "@zh:core.treatment_routines.TR40.beats.2"
+
+[sub_resource type="Animation" id="Animation_y3ix7"]
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Tool:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5, 1),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0.03, 0.02, 0), Vector3(0, 0, 0)]
+}
+metadata/source_beat = "@zh:core.treatment_routines.TR40.beats.2"
+
+[sub_resource type="Animation" id="Animation_h8d5u"]
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Tool:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5, 1),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0.03, 0, 0), Vector3(0, 0, 0)]
+}
+metadata/source_beat = "@zh:core.treatment_routines.TR40.beats.0"
+
+[sub_resource type="Animation" id="Animation_8rtvr"]
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Tool:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5, 1),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0.03, 0.01, 0), Vector3(0, 0, 0)]
+}
+metadata/source_beat = "@zh:core.treatment_routines.TR40.beats.1"
+
+[sub_resource type="Animation" id="Animation_4x52v"]
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Tool:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5, 1),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0.03, 0.03, 0), Vector3(0, 0, 0)]
+}
+metadata/source_beat = "@zh:core.treatment_routines.TR40.beats.3"
+
+[sub_resource type="Animation" id="Animation_k0bpe"]
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Tool:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5, 1),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0.07, 0, 0), Vector3(0, 0, 0)]
+}
+metadata/source_beat = "@zh:core.treatment_routines.TR40.beats.0"
+
+[sub_resource type="Animation" id="Animation_yyemp"]
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Tool:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5, 1),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0.07, 0.01, 0), Vector3(0, 0, 0)]
+}
+metadata/source_beat = "@zh:core.treatment_routines.TR40.beats.1"
+
+[sub_resource type="Animation" id="Animation_wrnce"]
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Tool:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5, 1),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0.07, 0.03, 0), Vector3(0, 0, 0)]
+}
+metadata/source_beat = "@zh:core.treatment_routines.TR40.beats.3"
+
+[resource]
+_data = {
+&"climax": SubResource("Animation_wnnef"),
+&"gentle_climax": SubResource("Animation_y3ix7"),
+&"gentle_prepare": SubResource("Animation_h8d5u"),
+&"gentle_process": SubResource("Animation_8rtvr"),
+&"gentle_safe_finish": SubResource("Animation_4x52v"),
+&"prepare": SubResource("Animation_k0bpe"),
+&"process": SubResource("Animation_yyemp"),
+&"safe_finish": SubResource("Animation_wrnce")
+}

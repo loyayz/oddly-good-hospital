@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3]
+[ext_resource type="PackedScene" path="res://assets/props/library/label.glb" id="P0"]
+[ext_resource type="AnimationLibrary" path="res://assets/animations/treatments/tr03.tres" id="L"]
+[node name="TreatmentRoutine" type="Node3D"]
+metadata/source_id = "TR03"
+metadata/beat_1 = "扣上花盘软托"
+metadata/beat_2 = "小太阳绕圈"
+metadata/beat_3 = "花盘急转追上"
+metadata/beat_4 = "小太阳停回遮光罩，花盘软托解除操作锁定"
+[node name="Tool" type="Node3D" parent="."]
+[node name="Prop0" parent="Tool" instance=ExtResource("P0")]
+position = Vector3(0.000000, 0.400000, 0.000000)
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {&"": ExtResource("L")}

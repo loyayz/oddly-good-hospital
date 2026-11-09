@@ -1,0 +1,50 @@
+[
+  {
+    "definition_id": "FUR02",
+    "id": "UP_FUR02",
+    "level1": "@zh:core.upgrade_presentations.UP_FUR02.level1",
+    "level1_static": "@zh:core.upgrade_presentations.UP_FUR02.level1_static",
+    "level2": "@zh:core.upgrade_presentations.UP_FUR02.level2",
+    "level2_static": "@zh:core.upgrade_presentations.UP_FUR02.level2_static"
+  },
+  {
+    "definition_id": "M09",
+    "id": "UP_M09",
+    "level1": "@zh:core.upgrade_presentations.UP_M09.level1",
+    "level1_static": "@zh:core.upgrade_presentations.UP_M09.level1_static",
+    "level2": "@zh:core.upgrade_presentations.UP_M09.level2",
+    "level2_static": "@zh:core.upgrade_presentations.UP_M09.level2_static"
+  },
+  {
+    "definition_id": "M37",
+    "id": "UP_M37",
+    "level1": "@zh:core.upgrade_presentations.UP_M37.level1",
+    "level1_static": "@zh:core.upgrade_presentations.UP_M37.level1_static",
+    "level2": "@zh:core.upgrade_presentations.UP_M37.level2",
+    "level2_static": "@zh:core.upgrade_presentations.UP_M37.level2_static"
+  },
+  {
+    "definition_id": "M17",
+    "id": "UP_M17",
+    "level1": "@zh:core.upgrade_presentations.UP_M17.level1",
+    "level1_static": "@zh:core.upgrade_presentations.UP_M17.level1_static",
+    "level2": "@zh:core.upgrade_presentations.UP_M17.level2",
+    "level2_static": "@zh:core.upgrade_presentations.UP_M17.level2_static"
+  },
+  {
+    "definition_id": "EQ01",
+    "id": "UP_EQ01",
+    "level1": "@zh:core.upgrade_presentations.UP_EQ01.level1",
+    "level1_static": "@zh:core.upgrade_presentations.UP_EQ01.level1_static",
+    "level2": "@zh:core.upgrade_presentations.UP_EQ01.level2",
+    "level2_static": "@zh:core.upgrade_presentations.UP_EQ01.level2_static"
+  },
+  {
+    "definition_id": "EQ05",
+    "id": "UP_EQ05",
+    "level1": "@zh:core.upgrade_presentations.UP_EQ05.level1",
+    "level1_static": "@zh:core.upgrade_presentations.UP_EQ05.level1_static",
+    "level2": "@zh:core.upgrade_presentations.UP_EQ05.level2",
+    "level2_static": "@zh:core.upgrade_presentations.UP_EQ05.level2_static"
+  }
+]

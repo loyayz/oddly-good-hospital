@@ -1,0 +1,2028 @@
+{
+  "props": [
+    {
+      "id": "G_S01",
+      "name": "树梢蜂蜜",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s01.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s01.blend",
+      "sha256": "876836302ec4e6e434d77a66377495bcaf1b634903335abf3be37ceacee62e6a",
+      "bytes": 26528,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 468
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 468,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S02",
+      "name": "八角贝壳风铃",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s02.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s02.blend",
+      "sha256": "96af8f32359d5c7c7630bcfd8e5bcfb3e7c41f61b345910dd8a6668d87f0817b",
+      "bytes": 35400,
+      "surfaces": [
+        {
+          "mesh": "Torus",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 392
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 392,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S03",
+      "name": "温泉小柚子",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s03.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s03.blend",
+      "sha256": "c208f3f633d51debb23e1b08b4e0e76455283b9efab648175cb9f7e399547fc5",
+      "bytes": 19952,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 384
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 384,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S04",
+      "name": "冰川邮票册",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s04.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s04.blend",
+      "sha256": "e5c5814430d93fae81eb7dad6d7e1b1e2c9943a4fc9eb61eec75db8b72723a52",
+      "bytes": 11080,
+      "surfaces": [
+        {
+          "mesh": "FoldedPaper",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 144
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 144,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S05",
+      "name": "阳光瓜子罐",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s05.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s05.blend",
+      "sha256": "cbbd4c109305f5692c06a4e60265f014cc0aadde63b492cc185124d60f7abe1f",
+      "bytes": 17588,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 240
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 240,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S06",
+      "name": "夜光孢子灯",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s06.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s06.blend",
+      "sha256": "4bad38c43c6eca428fe0f8d30485d8864cf245456d3732e8a0ac66b9784042dc",
+      "bytes": 10612,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 164
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 164,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S07",
+      "name": "沙漠花盐瓶",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s07.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s07.blend",
+      "sha256": "df22b3926018488a6d5b6eb5d6a765baedb206f61bc18956cdabe61f76f9383e",
+      "bytes": 26528,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 468
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 468,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S08",
+      "name": "会开花的盆栽",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s08.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s08.blend",
+      "sha256": "d04331b45b03bc23608740af9c61c3ee1ffccd2dae2a2475d9608993ba868fec",
+      "bytes": 22528,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 432
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 432,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S09",
+      "name": "月光果酱",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s09.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s09.blend",
+      "sha256": "62f03c74626d2eff78556a9bd1f5d10fed26767138aa24226421203c4021b184",
+      "bytes": 15012,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 192
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 192,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S10",
+      "name": "歪齿轮八音盒",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s10.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s10.blend",
+      "sha256": "b4baf6d55d84982aa19c49774bf6f45dc72f7a1d1674c9cb0909aa73f109efff",
+      "bytes": 20988,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 324
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 324,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S11",
+      "name": "温热龙鳞垫",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s11.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s11.blend",
+      "sha256": "452515e616a1f2bd75d06e2b956238a855175951434635f0681447171bd9a984",
+      "bytes": 10560,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 132
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 132,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S12",
+      "name": "月纹毛线围巾",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s12.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s12.blend",
+      "sha256": "dfd0d15e386a78c14f316e860c521c1a5a9fb41a85753c8e81c13b1098f2d2f1",
+      "bytes": 6164,
+      "surfaces": [
+        {
+          "mesh": "knot",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 120
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 120,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S13",
+      "name": "老家泥土小陶盆",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s13.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s13.blend",
+      "sha256": "ed2b31434668bd9a89ab749cc2f567a86c278d28b2d8575e538d302e3dfc1b1d",
+      "bytes": 21240,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 408
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 408,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S14",
+      "name": "装着晚风的空瓶",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s14.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s14.blend",
+      "sha256": "8f08697f406782a71da3fca7d0ce3dee0027f4417823f417508c397cfd99336d",
+      "bytes": 27816,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 492
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 492,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S15",
+      "name": "骨纹木琴片",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s15.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s15.blend",
+      "sha256": "3c1dc74b20d48262e70c1badedec6cc777875f7233693c0df647d0a734fc624c",
+      "bytes": 19700,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 300
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 300,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S16",
+      "name": "沙漠香料布包",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s16.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s16.blend",
+      "sha256": "a76810736c1ccd96f6f15cf1ea79b8d51121d8ab760e7d0c4dc4723951903bee",
+      "bytes": 9272,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 108
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 108,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S17",
+      "name": "三维星糖",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s17.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s17.blend",
+      "sha256": "e46c8917df8570f95cf6d259ebac6eb5b3bb19cbdd9523270723332418a869ab",
+      "bytes": 13192,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 212
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 212,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S18",
+      "name": "口袋星光罐",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s18.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s18.blend",
+      "sha256": "ddffebc50d4d9a7eb498d24a15caf06e789f21869c039d7dedbf4af5fb40c5b3",
+      "bytes": 15012,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 192
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 192,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S19",
+      "name": "流星纹镇纸",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s19.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s19.blend",
+      "sha256": "32aadaed83ec4f17770f451c5beeedb1fedad9039c7c701d15ae991607bc4591",
+      "bytes": 11900,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 188
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 188,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S20",
+      "name": "银河气泡项链",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s20.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s20.blend",
+      "sha256": "388b4b23ad2ce153c2b8a4814272d214baefbc739ce3fcc3103252248d2d4bca",
+      "bytes": 13192,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 212
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 212,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S21",
+      "name": "微缩合唱瓶",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s21.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s21.blend",
+      "sha256": "fa234715d365f1707915f6a47a64ae64844529a0bfd7154103ba635efa7dd2c2",
+      "bytes": 25240,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 444
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 444,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S22",
+      "name": "变形软陶球",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s22.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s22.blend",
+      "sha256": "d73f6d666ecec8a7c1af81e46253036fa215ed76f293a847c2c60555e0a10542",
+      "bytes": 11900,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 188
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 188,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S23",
+      "name": "细胞壁花纹杯垫",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s23.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s23.blend",
+      "sha256": "4aac5f07f1c21cf98de2c77ac6b02d9e45f928a69f4e22fcc7ca4617759ca239",
+      "bytes": 27816,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 492
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 492,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S24",
+      "name": "海光和声贝",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s24.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s24.blend",
+      "sha256": "62f5eacdb4da9d260841fd363a930056792ca427a7c96372757a3572029d4fca",
+      "bytes": 32824,
+      "surfaces": [
+        {
+          "mesh": "Torus",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 344
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 344,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S25",
+      "name": "手工电路贺卡",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s25.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s25.blend",
+      "sha256": "a334b7ff774ffaaf203327d1e7f55554c8c6b61b50be0d0845d42ae05bc2c764",
+      "bytes": 16480,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 188
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 188,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S26",
+      "name": "整点报喜小钟",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s26.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s26.blend",
+      "sha256": "facf85f72653ebe3045c97e0059072a6252beca1ff9933706a33b9627caa2a7e",
+      "bytes": 22276,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 348
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 348,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S27",
+      "name": "家乡电台录音带",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s27.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s27.blend",
+      "sha256": "6d58d28fb348332aa9fdd5c4b03439553d02f8500ad01a5b8e9aeb12c462104c",
+      "bytes": 19700,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 300
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 300,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S28",
+      "name": "限定口味纪念罐",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s28.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s28.blend",
+      "sha256": "78a1445ceea131e496b7acd16d4b348143c2cebb78656a8c04eb2956a3904f11",
+      "bytes": 26528,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 468
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 468,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S29",
+      "name": "百城旅行贴纸",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s29.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s29.blend",
+      "sha256": "7567cc802815afc2537039f196c17fa443e7f19062d14420162a2979d408965a",
+      "bytes": 17768,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 212
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 212,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S30",
+      "name": "雨后水珠书签",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s30.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s30.blend",
+      "sha256": "f2abb0416b88cd9968c360fb34317b4a27364cbda125e65a7d7e9801f297fa26",
+      "bytes": 9792,
+      "surfaces": [
+        {
+          "mesh": "FoldedPaper",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 120
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 120,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S31",
+      "name": "暖光玻璃珠",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s31.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s31.blend",
+      "sha256": "95b96e39839991615bca7f003606ee6c0c68ef5e8567f4acd1fa7bb878a91eb1",
+      "bytes": 34112,
+      "surfaces": [
+        {
+          "mesh": "Torus",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 368
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 368,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S32",
+      "name": "家乡花茶",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s32.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s32.blend",
+      "sha256": "4142f405eccebe2668e265c06b6b905cc5799866cd214a5d537aa65bb09fc6df",
+      "bytes": 22528,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 432
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 432,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S33",
+      "name": "一小瓶彩色雨",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s33.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s33.blend",
+      "sha256": "c3af1a2d203aa3cd3e7d5df54ba8ad25bacc2e89b93d0bd90c3b7c2657bc79ca",
+      "bytes": 18696,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 300
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 300,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S34",
+      "name": "不烫手的暖石",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s34.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s34.blend",
+      "sha256": "f0727a0f767d79d4e0b5b4c8d0ab96d281268329a686954dfc509ead27529b5a",
+      "bytes": 11900,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 188
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 188,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S35",
+      "name": "永不融化的雪花牌",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s35.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s35.blend",
+      "sha256": "fdfe07cafebb3f31a7cc86254366b51ad385fe90db874622cb7fd62ac4135cc6",
+      "bytes": 17768,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 212
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 212,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S36",
+      "name": "涟漪玻璃碟",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s36.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s36.blend",
+      "sha256": "b5d0dd419bc682fb7d84a07c46eef81dc4592f2cb2a37777ee9a7a7d40bab4a2",
+      "bytes": 32824,
+      "surfaces": [
+        {
+          "mesh": "Torus",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 344
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 344,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S37",
+      "name": "焦糖丝带",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s37.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s37.blend",
+      "sha256": "fddb5a58c59aab6ac86409443d3b1b36189fa0f0caaa41ddf6f5bb3d9d6777eb",
+      "bytes": 7456,
+      "surfaces": [
+        {
+          "mesh": "knot",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 144
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 144,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S38",
+      "name": "家乡面包篮",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s38.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s38.blend",
+      "sha256": "0954413c3502b740daa18998446420a4dead6c5d4b5bdff2405b6e380cac1628",
+      "bytes": 13192,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 212
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 212,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S39",
+      "name": "会轻响的爆米花花束",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s39.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s39.blend",
+      "sha256": "c841340a936be8135394207d14241e1aacf0baa64478f2236e8f0bc720424861",
+      "bytes": 19952,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 384
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 384,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S40",
+      "name": "霜纹冰晶杯",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s40.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s40.blend",
+      "sha256": "641efd7377181cf5c5149ee392e8e8ace478691d17229f2ad878f1bb8824308e",
+      "bytes": 26528,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 468
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 468,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S41",
+      "name": "手缝感谢布章",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s41.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s41.blend",
+      "sha256": "b07e3dd98fa5800e0af39d3433bc98dc31abedb5ece9f6ec59cc0cc306b33530",
+      "bytes": 17768,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 212
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 212,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S42",
+      "name": "迷你医院积木",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s42.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s42.blend",
+      "sha256": "830668c62b67421d6a00bff0668dce23a9f8ea3f1b492b211e0654999c829e7e",
+      "bytes": 14560,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 148
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 148,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S43",
+      "name": "折纸祝福串",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s43.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s43.blend",
+      "sha256": "ad94e2d4663b56072ed834e5d77d6d915f8f2093f654ce5bf452ac03efc0ee46",
+      "bytes": 7456,
+      "surfaces": [
+        {
+          "mesh": "knot",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 144
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 144,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S44",
+      "name": "彩线幸运结",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s44.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s44.blend",
+      "sha256": "636f7457f22df3698e4ad90a2a0decbfd46de473cf3f24085df4cdba0254a74c",
+      "bytes": 8748,
+      "surfaces": [
+        {
+          "mesh": "knot",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 168
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 168,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S45",
+      "name": "装着好梦的软枕",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s45.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s45.blend",
+      "sha256": "f7826fb52eb33060cb6f1c2256249961d94875314577965730eef4a94d539fa2",
+      "bytes": 7984,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 84
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 84,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S46",
+      "name": "家乡旋律小谱",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s46.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s46.blend",
+      "sha256": "ac2b87b80db2320b85e23a688854e9a02b9a97f01bf5825b280650fe987b1792",
+      "bytes": 16480,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 188
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 188,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S47",
+      "name": "日落剪影画",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s47.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s47.blend",
+      "sha256": "5553308c58f3e45efdbc09f865789e9120321e0127cdbab7d37888c355c8587c",
+      "bytes": 17768,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 212
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 212,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S48",
+      "name": "金色感叹号书签",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s48.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s48.blend",
+      "sha256": "c4a67452d39a34e6b5fa1e4541a349ba5b9a16bf3a969cc42d5012a3a39f0893",
+      "bytes": 9792,
+      "surfaces": [
+        {
+          "mesh": "FoldedPaper",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 120
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 120,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S49",
+      "name": "家乡点心盒",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s49.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s49.blend",
+      "sha256": "9c0bb3d86c3a8c5515885b5ebb353e3419cedf6330b8153d5a93239959ef1e59",
+      "bytes": 15852,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 172
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 172,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S50",
+      "name": "竹林果干",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s50.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s50.blend",
+      "sha256": "5c0d3b06ad0ad23dfcaf48b422c0870ab8b79b668e9f93265ddbefc7d077e5a0",
+      "bytes": 22528,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 432
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 432,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S51",
+      "name": "刺纹木梳",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s51.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s51.blend",
+      "sha256": "688b43bf0fecd874fcd9d420cda285a18e1a6b900abc4c71b6eae4ec12cef75f",
+      "bytes": 17548,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 248
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 248,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S52",
+      "name": "螺旋旅行日记",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s52.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s52.blend",
+      "sha256": "3a3cbd1a565a3eab4acd08a3b3d01542fc67f8aa0b48319876fe10a912174615",
+      "bytes": 11080,
+      "surfaces": [
+        {
+          "mesh": "FoldedPaper",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 144
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 144,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S53",
+      "name": "象鼻陶哨",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s53.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s53.blend",
+      "sha256": "8b5875a598eca4c36c33bc12fe2e22dc83748e6acc47690f3ed8ff7626370ea5",
+      "bytes": 13192,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 212
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 212,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S54",
+      "name": "萝卜糖花",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s54.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s54.blend",
+      "sha256": "92b83f9bee655aee0ee834d5dff7c854fcc4588a0d1edb15c3770d5c3faa5f23",
+      "bytes": 19952,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 384
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 384,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S55",
+      "name": "竹节茶筒",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s55.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s55.blend",
+      "sha256": "559a6cbfcbdfac94c9344b0c8936f2366894aafa362e37488ab0774672eb19ac",
+      "bytes": 26528,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 468
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 468,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S56",
+      "name": "捕虫草香袋",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s56.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s56.blend",
+      "sha256": "017b8ad009018bae475054b2fed68dafeee83dbb09d93ce7895ef2a3e1161fed",
+      "bytes": 22528,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 432
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 432,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S57",
+      "name": "只有祝福的迷你宝箱",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s57.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s57.blend",
+      "sha256": "1b0bd2cd79fe5bcfe49416aba2b0b3840a117f20c0cf8a95acfd12c3e166eb7c",
+      "bytes": 14560,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 148
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 148,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S58",
+      "name": "虹光鬃毛丝带",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s58.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s58.blend",
+      "sha256": "89e3f912e549db4fbabd63ae98bcc4983443670483ee9e00ebd3ebc0b59ebd58",
+      "bytes": 7456,
+      "surfaces": [
+        {
+          "mesh": "knot",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 144
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 144,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S59",
+      "name": "故乡石纹拼图",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s59.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s59.blend",
+      "sha256": "fb79ba702976a634d463522b46519c91713cbbf5d91776ecc4979597c1d27129",
+      "bytes": 13192,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 212
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 212,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S60",
+      "name": "潮汐贝壳歌谱",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s60.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s60.blend",
+      "sha256": "202540d7196c02098650b256fad78d85745be2313cbd39abe8332305f2ec44ba",
+      "bytes": 15192,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 164
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 164,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S61",
+      "name": "灯笼穗平安结",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s61.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s61.blend",
+      "sha256": "f38bd3742304d52a1f0083003e81ed9f233bbde6e4ea46552cf917ae159912cb",
+      "bytes": 7456,
+      "surfaces": [
+        {
+          "mesh": "knot",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 144
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 144,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S62",
+      "name": "迷你盾形徽章",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s62.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s62.blend",
+      "sha256": "cf1e3ff11d6b8034cf74c25657b4404d4e1abd5a757d4ee32566c5becdf15329",
+      "bytes": 17768,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 212
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 212,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S63",
+      "name": "土星环杯托",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s63.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s63.blend",
+      "sha256": "0710ab897a7758a928397d56475944e5b33d89c732a8d874923edd8f4107fedc",
+      "bytes": 15012,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 192
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 192,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S64",
+      "name": "彗尾星砂瓶",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s64.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s64.blend",
+      "sha256": "fa5035dbdaa829794bb565cded8d9e4d8ec38b8877fbf8bff5b877dc443258a6",
+      "bytes": 16300,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 216
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 216,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S65",
+      "name": "四维折叠明信片",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s65.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s65.blend",
+      "sha256": "8f214f6860f7308e44fe117fd16177a491e2e32201df91fb81a4a58adb32b135",
+      "bytes": 17768,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 212
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 212,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S66",
+      "name": "纤毛绒绒书签",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s66.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s66.blend",
+      "sha256": "50a911c3b74e59798f76bf3f5f408af018688c931ad0a405d3efb51849b630c9",
+      "bytes": 9792,
+      "surfaces": [
+        {
+          "mesh": "FoldedPaper",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 120
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 120,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S67",
+      "name": "硅藻窗花",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s67.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s67.blend",
+      "sha256": "e7b443e36c72ce672590db8f4d46a7712ef846fd2ecd2050c4e99ca091127cd5",
+      "bytes": 21240,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 408
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 408,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S68",
+      "name": "擦得发亮的纪念石",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s68.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s68.blend",
+      "sha256": "2deeb92ec2295672dbf16f61a01e1b19bf61b34e43c07a3dca95c2a5e8a62a48",
+      "bytes": 13192,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 212
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 212,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S69",
+      "name": "家乡车票套",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s69.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s69.blend",
+      "sha256": "6ed05093673e3527cc96ade781358416ccb96aacba4a2592350639e307f45f38",
+      "bytes": 15192,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 164
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 164,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S70",
+      "name": "空白续篇小册",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s70.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s70.blend",
+      "sha256": "6fff7ffb0700af1c500f3adcd91b7946c37dff330e7fc2ad9779b02901ea07e0",
+      "bytes": 11080,
+      "surfaces": [
+        {
+          "mesh": "FoldedPaper",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 144
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 144,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S71",
+      "name": "双面微笑镜",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s71.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s71.blend",
+      "sha256": "cd6f30a4e9e9e731a3a18e9a26075af3ae7f52e057058dc20f38abac61952f7d",
+      "bytes": 13192,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 212
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 212,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S72",
+      "name": "彩虹织带",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s72.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s72.blend",
+      "sha256": "849e405a3a7e17f4cb501009fdc18316de37048734361c0ec8ce769e56770194",
+      "bytes": 6164,
+      "surfaces": [
+        {
+          "mesh": "knot",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 120
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 120,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S73",
+      "name": "沙画太阳瓶",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s73.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s73.blend",
+      "sha256": "d10066a26163fd88b9e20da8a567182dd50585f69700b63fbd5b27f2c10e3098",
+      "bytes": 26528,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 468
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 468,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S74",
+      "name": "长长久久面线结",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s74.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s74.blend",
+      "sha256": "70097e021b0fb4e9dbdcd009b9dbf668b5cb0ae6a5ff940bd90af228fb9439d9",
+      "bytes": 8748,
+      "surfaces": [
+        {
+          "mesh": "knot",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 168
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 168,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S75",
+      "name": "软糖熊掌印",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s75.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s75.blend",
+      "sha256": "11580acbe32d0bd6ced431487d3c8660d578569e08bf2e6db5d571353e9b66ac",
+      "bytes": 10612,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 164
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 164,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S76",
+      "name": "发条荷叶音乐盒",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s76.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s76.blend",
+      "sha256": "58f72af0078607bfd57b7b623938ab5ce61241921a76522ef79137eb35eebef5",
+      "bytes": 20988,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 324
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 324,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S77",
+      "name": "木刻医生小像",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s77.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s77.blend",
+      "sha256": "896aa501ec2d49ab1978147eac20b76c177a9e05578c13057a2155648def380e",
+      "bytes": 18720,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 384
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 384,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S78",
+      "name": "装满谢谢的气泡罐",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s78.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s78.blend",
+      "sha256": "b356621d608cb6659ac12623b05533c403ed3d3a9b4292e48e9074b29b921a7b",
+      "bytes": 25240,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 444
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 444,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S79",
+      "name": "会换表情的涂鸦画",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s79.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s79.blend",
+      "sha256": "e7cec72513d1483e048e12dd6516f90c66dcf6702e3282e74579af3e8c23e66a",
+      "bytes": 16480,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 188
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 188,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "G_S80",
+      "name": "周末味道的咖啡豆",
+      "group": "species_gifts",
+      "path": "assets/props/species_gifts/g_s80.glb",
+      "source_path": "art-source/production/props/species_gifts/g_s80.blend",
+      "sha256": "61f1a7f11d57784cf4094f0e381ba819f1429da007fb27e4ae1ab3986b2ff508",
+      "bytes": 27816,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 492
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 492,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "ST01",
+      "name": "午睡小枕头",
+      "group": "mementos",
+      "path": "assets/props/mementos/st01.glb",
+      "source_path": "art-source/production/props/mementos/st01.blend",
+      "sha256": "c549580d99a3ba637c91079b4a78da8b48f70ba504994cef3720946f1ff9d852",
+      "bytes": 7980,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 84
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 84,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "ST02",
+      "name": "夜花盆",
+      "group": "mementos",
+      "path": "assets/props/mementos/st02.glb",
+      "source_path": "art-source/production/props/mementos/st02.blend",
+      "sha256": "2916e02ef468e0abc5bc17ebcff7008f2fbf10a1de96d79ef6ec669996afd817",
+      "bytes": 21236,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 408
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 408,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "ST03",
+      "name": "共生花盆",
+      "group": "mementos",
+      "path": "assets/props/mementos/st03.glb",
+      "source_path": "art-source/production/props/mementos/st03.blend",
+      "sha256": "edb0111fcbce55073d4874c87556b9b268acc66332dbf8401c356a8a4dadb80d",
+      "bytes": 22528,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 432
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 432,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "ST04",
+      "name": "特大合影",
+      "group": "mementos",
+      "path": "assets/props/mementos/st04.glb",
+      "source_path": "art-source/production/props/mementos/st04.blend",
+      "sha256": "f6709caf54a4807641b5c2bc253d91458f9f09120272dc47d7c038b845b104db",
+      "bytes": 10612,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 164
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 164,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "ST05",
+      "name": "迷你舞台",
+      "group": "mementos",
+      "path": "assets/props/mementos/st05.glb",
+      "source_path": "art-source/production/props/mementos/st05.blend",
+      "sha256": "ea3376bc6f25aa8b538b2776f27ecaccd51381593a6962824644b370a7098052",
+      "bytes": 11900,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 188
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 188,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "ST06",
+      "name": "旧花盆奖杯",
+      "group": "mementos",
+      "path": "assets/props/mementos/st06.glb",
+      "source_path": "art-source/production/props/mementos/st06.blend",
+      "sha256": "2059e59c5c0880d3a86cac960f698498927943003796599263118fc43d8e7c8c",
+      "bytes": 27812,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 492
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 492,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "ST07",
+      "name": "拼色伞架",
+      "group": "mementos",
+      "path": "assets/props/mementos/st07.glb",
+      "source_path": "art-source/production/props/mementos/st07.blend",
+      "sha256": "e20a11c81475fec063e6c789e72e25e968cee0e47ed33670874bf10d6c8f3074",
+      "bytes": 14560,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 148
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 148,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "ST08",
+      "name": "笑脸灯",
+      "group": "mementos",
+      "path": "assets/props/mementos/st08.glb",
+      "source_path": "art-source/production/props/mementos/st08.blend",
+      "sha256": "74c1fe9eb9650612bc6577b0f504b7ca3b4dfeec8a6bcd2d22229b4ade7f5334",
+      "bytes": 11900,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 188
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 188,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "ST09",
+      "name": "勺子纪念架",
+      "group": "mementos",
+      "path": "assets/props/mementos/st09.glb",
+      "source_path": "art-source/production/props/mementos/st09.blend",
+      "sha256": "2f53aab5e2dafbd7034458405b717b7310bb0ba5927e108b3dbf0b45ffa9d697",
+      "bytes": 17140,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 196
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 196,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "ST10",
+      "name": "冰邮筒",
+      "group": "mementos",
+      "path": "assets/props/mementos/st10.glb",
+      "source_path": "art-source/production/props/mementos/st10.blend",
+      "sha256": "7ba755f9f70436ccf0f28e21eda128ed30c74d1822f9e5d1455eb3a0fb8bec88",
+      "bytes": 10612,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 164
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 164,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "ST11",
+      "name": "毛毡羊",
+      "group": "mementos",
+      "path": "assets/props/mementos/st11.glb",
+      "source_path": "art-source/production/props/mementos/st11.blend",
+      "sha256": "370f84dca08699194589cbeeca150b5f9469c88c0c43cf8605ea470ab23cb139",
+      "bytes": 17432,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 360
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 360,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "ST12",
+      "name": "社区纪念牌",
+      "group": "mementos",
+      "path": "assets/props/mementos/st12.glb",
+      "source_path": "art-source/production/props/mementos/st12.blend",
+      "sha256": "dc297a7a27a74cbc568b8f89270a0eb603eba1ffacf84873c935fb4f6e396de0",
+      "bytes": 17768,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 212
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 212,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3]
+[ext_resource type="PackedScene" path="res://assets/props/library/faces.glb" id="P0"]
+[ext_resource type="AnimationLibrary" path="res://assets/animations/treatments/tr54.tres" id="L"]
+[node name="TreatmentRoutine" type="Node3D"]
+metadata/source_id = "TR54"
+metadata/beat_1 = "弹出缓存图块"
+metadata/beat_2 = "图块滚入小洗衣篮"
+metadata/beat_3 = "卡住的图块挤成笑脸"
+metadata/beat_4 = "洗衣篮合盖，缓存图块投影收回检查框"
+[node name="Tool" type="Node3D" parent="."]
+[node name="Prop0" parent="Tool" instance=ExtResource("P0")]
+position = Vector3(0.000000, 0.400000, 0.000000)
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {&"": ExtResource("L")}

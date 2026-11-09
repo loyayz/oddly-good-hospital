@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3]
+[ext_resource type="PackedScene" path="res://assets/props/library/note.glb" id="P0"]
+[ext_resource type="PackedScene" path="res://assets/props/library/loading.glb" id="P1"]
+[ext_resource type="AnimationLibrary" path="res://assets/animations/treatments/tr76.tres" id="L"]
+[node name="TreatmentRoutine" type="Node3D"]
+metadata/source_id = "TR76"
+metadata/beat_1 = "请本人完成一次最短的图卡回应动作"
+metadata/beat_2 = "软帘拦住抢跑的图符条"
+metadata/beat_3 = "把同形音符尾巴收进练习小抽屉"
+metadata/beat_4 = "软帘收好，图符投影收进原抽屉"
+[node name="Tool" type="Node3D" parent="."]
+[node name="Prop0" parent="Tool" instance=ExtResource("P0")]
+position = Vector3(-0.150000, 0.400000, 0.000000)
+[node name="Prop1" parent="Tool" instance=ExtResource("P1")]
+position = Vector3(0.150000, 0.400000, 0.000000)
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {&"": ExtResource("L")}

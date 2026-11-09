@@ -1,0 +1,1094 @@
+[
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR01.beats.0",
+      "@zh:core.treatment_routines.TR01.beats.1",
+      "@zh:core.treatment_routines.TR01.beats.2",
+      "@zh:core.treatment_routines.TR01.beats.3"
+    ],
+    "equipment_id": "M09",
+    "id": "TR01",
+    "name": "@zh:core.treatment_routines.TR01.name",
+    "service_seconds": 36,
+    "specialty_id": "T01"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR02.beats.0",
+      "@zh:core.treatment_routines.TR02.beats.1",
+      "@zh:core.treatment_routines.TR02.beats.2",
+      "@zh:core.treatment_routines.TR02.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR02",
+    "name": "@zh:core.treatment_routines.TR02.name",
+    "service_seconds": 40,
+    "specialty_id": "T03"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR03.beats.0",
+      "@zh:core.treatment_routines.TR03.beats.1",
+      "@zh:core.treatment_routines.TR03.beats.2",
+      "@zh:core.treatment_routines.TR03.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR03",
+    "name": "@zh:core.treatment_routines.TR03.name",
+    "service_seconds": 32,
+    "specialty_id": "T04"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR04.beats.0",
+      "@zh:core.treatment_routines.TR04.beats.1",
+      "@zh:core.treatment_routines.TR04.beats.2",
+      "@zh:core.treatment_routines.TR04.beats.3"
+    ],
+    "equipment_id": "M09",
+    "id": "TR04",
+    "name": "@zh:core.treatment_routines.TR04.name",
+    "service_seconds": 44,
+    "specialty_id": "T05"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR05.beats.0",
+      "@zh:core.treatment_routines.TR05.beats.1",
+      "@zh:core.treatment_routines.TR05.beats.2",
+      "@zh:core.treatment_routines.TR05.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR05",
+    "name": "@zh:core.treatment_routines.TR05.name",
+    "service_seconds": 42,
+    "specialty_id": "T02"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR06.beats.0",
+      "@zh:core.treatment_routines.TR06.beats.1",
+      "@zh:core.treatment_routines.TR06.beats.2",
+      "@zh:core.treatment_routines.TR06.beats.3"
+    ],
+    "equipment_id": "M17",
+    "id": "TR06",
+    "name": "@zh:core.treatment_routines.TR06.name",
+    "service_seconds": 45,
+    "specialty_id": "T06"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR07.beats.0",
+      "@zh:core.treatment_routines.TR07.beats.1",
+      "@zh:core.treatment_routines.TR07.beats.2",
+      "@zh:core.treatment_routines.TR07.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR07",
+    "name": "@zh:core.treatment_routines.TR07.name",
+    "service_seconds": 46,
+    "specialty_id": "T08"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR08.beats.0",
+      "@zh:core.treatment_routines.TR08.beats.1",
+      "@zh:core.treatment_routines.TR08.beats.2",
+      "@zh:core.treatment_routines.TR08.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR08",
+    "name": "@zh:core.treatment_routines.TR08.name",
+    "service_seconds": 58,
+    "specialty_id": "T03"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR09.beats.0",
+      "@zh:core.treatment_routines.TR09.beats.1",
+      "@zh:core.treatment_routines.TR09.beats.2",
+      "@zh:core.treatment_routines.TR09.beats.3"
+    ],
+    "equipment_id": "M09",
+    "id": "TR09",
+    "name": "@zh:core.treatment_routines.TR09.name",
+    "service_seconds": 30,
+    "specialty_id": "T01"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR10.beats.0",
+      "@zh:core.treatment_routines.TR10.beats.1",
+      "@zh:core.treatment_routines.TR10.beats.2",
+      "@zh:core.treatment_routines.TR10.beats.3"
+    ],
+    "equipment_id": "M17",
+    "id": "TR10",
+    "name": "@zh:core.treatment_routines.TR10.name",
+    "service_seconds": 40,
+    "specialty_id": "T07"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR11.beats.0",
+      "@zh:core.treatment_routines.TR11.beats.1",
+      "@zh:core.treatment_routines.TR11.beats.2",
+      "@zh:core.treatment_routines.TR11.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR11",
+    "name": "@zh:core.treatment_routines.TR11.name",
+    "service_seconds": 42,
+    "specialty_id": "T02"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR12.beats.0",
+      "@zh:core.treatment_routines.TR12.beats.1",
+      "@zh:core.treatment_routines.TR12.beats.2",
+      "@zh:core.treatment_routines.TR12.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR12",
+    "name": "@zh:core.treatment_routines.TR12.name",
+    "service_seconds": 38,
+    "specialty_id": "T04"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR13.beats.0",
+      "@zh:core.treatment_routines.TR13.beats.1",
+      "@zh:core.treatment_routines.TR13.beats.2",
+      "@zh:core.treatment_routines.TR13.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR13",
+    "name": "@zh:core.treatment_routines.TR13.name",
+    "service_seconds": 40,
+    "specialty_id": "T03"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR14.beats.0",
+      "@zh:core.treatment_routines.TR14.beats.1",
+      "@zh:core.treatment_routines.TR14.beats.2",
+      "@zh:core.treatment_routines.TR14.beats.3"
+    ],
+    "equipment_id": "M09",
+    "id": "TR14",
+    "name": "@zh:core.treatment_routines.TR14.name",
+    "service_seconds": 52,
+    "specialty_id": "T05"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR15.beats.0",
+      "@zh:core.treatment_routines.TR15.beats.1",
+      "@zh:core.treatment_routines.TR15.beats.2",
+      "@zh:core.treatment_routines.TR15.beats.3"
+    ],
+    "equipment_id": "M09",
+    "id": "TR15",
+    "name": "@zh:core.treatment_routines.TR15.name",
+    "service_seconds": 44,
+    "specialty_id": "T09"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR16.beats.0",
+      "@zh:core.treatment_routines.TR16.beats.1",
+      "@zh:core.treatment_routines.TR16.beats.2",
+      "@zh:core.treatment_routines.TR16.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR16",
+    "name": "@zh:core.treatment_routines.TR16.name",
+    "service_seconds": 42,
+    "specialty_id": "T03"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR17.beats.0",
+      "@zh:core.treatment_routines.TR17.beats.1",
+      "@zh:core.treatment_routines.TR17.beats.2",
+      "@zh:core.treatment_routines.TR17.beats.3"
+    ],
+    "equipment_id": "M17",
+    "id": "TR17",
+    "name": "@zh:core.treatment_routines.TR17.name",
+    "service_seconds": 46,
+    "specialty_id": "T06"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR18.beats.0",
+      "@zh:core.treatment_routines.TR18.beats.1",
+      "@zh:core.treatment_routines.TR18.beats.2",
+      "@zh:core.treatment_routines.TR18.beats.3"
+    ],
+    "equipment_id": "M09",
+    "id": "TR18",
+    "name": "@zh:core.treatment_routines.TR18.name",
+    "service_seconds": 32,
+    "specialty_id": "T01"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR19.beats.0",
+      "@zh:core.treatment_routines.TR19.beats.1",
+      "@zh:core.treatment_routines.TR19.beats.2",
+      "@zh:core.treatment_routines.TR19.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR19",
+    "name": "@zh:core.treatment_routines.TR19.name",
+    "service_seconds": 44,
+    "specialty_id": "T08"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR20.beats.0",
+      "@zh:core.treatment_routines.TR20.beats.1",
+      "@zh:core.treatment_routines.TR20.beats.2",
+      "@zh:core.treatment_routines.TR20.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR20",
+    "name": "@zh:core.treatment_routines.TR20.name",
+    "service_seconds": 54,
+    "specialty_id": "T08"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR21.beats.0",
+      "@zh:core.treatment_routines.TR21.beats.1",
+      "@zh:core.treatment_routines.TR21.beats.2",
+      "@zh:core.treatment_routines.TR21.beats.3"
+    ],
+    "equipment_id": "M09",
+    "id": "TR21",
+    "name": "@zh:core.treatment_routines.TR21.name",
+    "service_seconds": 36,
+    "specialty_id": "T05"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR22.beats.0",
+      "@zh:core.treatment_routines.TR22.beats.1",
+      "@zh:core.treatment_routines.TR22.beats.2",
+      "@zh:core.treatment_routines.TR22.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR22",
+    "name": "@zh:core.treatment_routines.TR22.name",
+    "service_seconds": 44,
+    "specialty_id": "T02"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR23.beats.0",
+      "@zh:core.treatment_routines.TR23.beats.1",
+      "@zh:core.treatment_routines.TR23.beats.2",
+      "@zh:core.treatment_routines.TR23.beats.3"
+    ],
+    "equipment_id": "M17",
+    "id": "TR23",
+    "name": "@zh:core.treatment_routines.TR23.name",
+    "service_seconds": 56,
+    "specialty_id": "T07"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR24.beats.0",
+      "@zh:core.treatment_routines.TR24.beats.1",
+      "@zh:core.treatment_routines.TR24.beats.2",
+      "@zh:core.treatment_routines.TR24.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR24",
+    "name": "@zh:core.treatment_routines.TR24.name",
+    "service_seconds": 40,
+    "specialty_id": "T03"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR25.beats.0",
+      "@zh:core.treatment_routines.TR25.beats.1",
+      "@zh:core.treatment_routines.TR25.beats.2",
+      "@zh:core.treatment_routines.TR25.beats.3"
+    ],
+    "equipment_id": "M09",
+    "id": "TR25",
+    "name": "@zh:core.treatment_routines.TR25.name",
+    "service_seconds": 34,
+    "specialty_id": "T01"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR26.beats.0",
+      "@zh:core.treatment_routines.TR26.beats.1",
+      "@zh:core.treatment_routines.TR26.beats.2",
+      "@zh:core.treatment_routines.TR26.beats.3"
+    ],
+    "equipment_id": "M09",
+    "id": "TR26",
+    "name": "@zh:core.treatment_routines.TR26.name",
+    "service_seconds": 34,
+    "specialty_id": "T01"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR27.beats.0",
+      "@zh:core.treatment_routines.TR27.beats.1",
+      "@zh:core.treatment_routines.TR27.beats.2",
+      "@zh:core.treatment_routines.TR27.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR27",
+    "name": "@zh:core.treatment_routines.TR27.name",
+    "service_seconds": 34,
+    "specialty_id": "T03"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR28.beats.0",
+      "@zh:core.treatment_routines.TR28.beats.1",
+      "@zh:core.treatment_routines.TR28.beats.2",
+      "@zh:core.treatment_routines.TR28.beats.3"
+    ],
+    "equipment_id": "M09",
+    "id": "TR28",
+    "name": "@zh:core.treatment_routines.TR28.name",
+    "service_seconds": 42,
+    "specialty_id": "T01"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR29.beats.0",
+      "@zh:core.treatment_routines.TR29.beats.1",
+      "@zh:core.treatment_routines.TR29.beats.2",
+      "@zh:core.treatment_routines.TR29.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR29",
+    "name": "@zh:core.treatment_routines.TR29.name",
+    "service_seconds": 54,
+    "specialty_id": "T02"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR30.beats.0",
+      "@zh:core.treatment_routines.TR30.beats.1",
+      "@zh:core.treatment_routines.TR30.beats.2",
+      "@zh:core.treatment_routines.TR30.beats.3"
+    ],
+    "equipment_id": "M09",
+    "id": "TR30",
+    "name": "@zh:core.treatment_routines.TR30.name",
+    "service_seconds": 44,
+    "specialty_id": "T09"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR31.beats.0",
+      "@zh:core.treatment_routines.TR31.beats.1",
+      "@zh:core.treatment_routines.TR31.beats.2",
+      "@zh:core.treatment_routines.TR31.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR31",
+    "name": "@zh:core.treatment_routines.TR31.name",
+    "service_seconds": 36,
+    "specialty_id": "T04"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR32.beats.0",
+      "@zh:core.treatment_routines.TR32.beats.1",
+      "@zh:core.treatment_routines.TR32.beats.2",
+      "@zh:core.treatment_routines.TR32.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR32",
+    "name": "@zh:core.treatment_routines.TR32.name",
+    "service_seconds": 44,
+    "specialty_id": "T08"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR33.beats.0",
+      "@zh:core.treatment_routines.TR33.beats.1",
+      "@zh:core.treatment_routines.TR33.beats.2",
+      "@zh:core.treatment_routines.TR33.beats.3"
+    ],
+    "equipment_id": "M09",
+    "id": "TR33",
+    "name": "@zh:core.treatment_routines.TR33.name",
+    "service_seconds": 44,
+    "specialty_id": "T05"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR34.beats.0",
+      "@zh:core.treatment_routines.TR34.beats.1",
+      "@zh:core.treatment_routines.TR34.beats.2",
+      "@zh:core.treatment_routines.TR34.beats.3"
+    ],
+    "equipment_id": "M09",
+    "id": "TR34",
+    "name": "@zh:core.treatment_routines.TR34.name",
+    "service_seconds": 40,
+    "specialty_id": "T01"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR35.beats.0",
+      "@zh:core.treatment_routines.TR35.beats.1",
+      "@zh:core.treatment_routines.TR35.beats.2",
+      "@zh:core.treatment_routines.TR35.beats.3"
+    ],
+    "equipment_id": "M17",
+    "id": "TR35",
+    "name": "@zh:core.treatment_routines.TR35.name",
+    "service_seconds": 56,
+    "specialty_id": "T07"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR36.beats.0",
+      "@zh:core.treatment_routines.TR36.beats.1",
+      "@zh:core.treatment_routines.TR36.beats.2",
+      "@zh:core.treatment_routines.TR36.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR36",
+    "name": "@zh:core.treatment_routines.TR36.name",
+    "service_seconds": 54,
+    "specialty_id": "T03"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR37.beats.0",
+      "@zh:core.treatment_routines.TR37.beats.1",
+      "@zh:core.treatment_routines.TR37.beats.2",
+      "@zh:core.treatment_routines.TR37.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR37",
+    "name": "@zh:core.treatment_routines.TR37.name",
+    "service_seconds": 30,
+    "specialty_id": "T10"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR38.beats.0",
+      "@zh:core.treatment_routines.TR38.beats.1",
+      "@zh:core.treatment_routines.TR38.beats.2",
+      "@zh:core.treatment_routines.TR38.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR38",
+    "name": "@zh:core.treatment_routines.TR38.name",
+    "service_seconds": 40,
+    "specialty_id": "T10"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR39.beats.0",
+      "@zh:core.treatment_routines.TR39.beats.1",
+      "@zh:core.treatment_routines.TR39.beats.2",
+      "@zh:core.treatment_routines.TR39.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR39",
+    "name": "@zh:core.treatment_routines.TR39.name",
+    "service_seconds": 32,
+    "specialty_id": "T10"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR40.beats.0",
+      "@zh:core.treatment_routines.TR40.beats.1",
+      "@zh:core.treatment_routines.TR40.beats.2",
+      "@zh:core.treatment_routines.TR40.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR40",
+    "name": "@zh:core.treatment_routines.TR40.name",
+    "service_seconds": 42,
+    "specialty_id": "T10"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR41.beats.0",
+      "@zh:core.treatment_routines.TR41.beats.1",
+      "@zh:core.treatment_routines.TR41.beats.2",
+      "@zh:core.treatment_routines.TR41.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR41",
+    "name": "@zh:core.treatment_routines.TR41.name",
+    "service_seconds": 36,
+    "specialty_id": "T10"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR42.beats.0",
+      "@zh:core.treatment_routines.TR42.beats.1",
+      "@zh:core.treatment_routines.TR42.beats.2",
+      "@zh:core.treatment_routines.TR42.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR42",
+    "name": "@zh:core.treatment_routines.TR42.name",
+    "service_seconds": 44,
+    "specialty_id": "T10"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR43.beats.0",
+      "@zh:core.treatment_routines.TR43.beats.1",
+      "@zh:core.treatment_routines.TR43.beats.2",
+      "@zh:core.treatment_routines.TR43.beats.3"
+    ],
+    "equipment_id": "M09",
+    "id": "TR43",
+    "name": "@zh:core.treatment_routines.TR43.name",
+    "service_seconds": 40,
+    "specialty_id": "T05"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR44.beats.0",
+      "@zh:core.treatment_routines.TR44.beats.1",
+      "@zh:core.treatment_routines.TR44.beats.2",
+      "@zh:core.treatment_routines.TR44.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR44",
+    "name": "@zh:core.treatment_routines.TR44.name",
+    "service_seconds": 36,
+    "specialty_id": "T10"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR45.beats.0",
+      "@zh:core.treatment_routines.TR45.beats.1",
+      "@zh:core.treatment_routines.TR45.beats.2",
+      "@zh:core.treatment_routines.TR45.beats.3"
+    ],
+    "equipment_id": "M09",
+    "id": "TR45",
+    "name": "@zh:core.treatment_routines.TR45.name",
+    "service_seconds": 38,
+    "specialty_id": "T01"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR46.beats.0",
+      "@zh:core.treatment_routines.TR46.beats.1",
+      "@zh:core.treatment_routines.TR46.beats.2",
+      "@zh:core.treatment_routines.TR46.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR46",
+    "name": "@zh:core.treatment_routines.TR46.name",
+    "service_seconds": 42,
+    "specialty_id": "T04"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR47.beats.0",
+      "@zh:core.treatment_routines.TR47.beats.1",
+      "@zh:core.treatment_routines.TR47.beats.2",
+      "@zh:core.treatment_routines.TR47.beats.3"
+    ],
+    "equipment_id": "M09",
+    "id": "TR47",
+    "name": "@zh:core.treatment_routines.TR47.name",
+    "service_seconds": 38,
+    "specialty_id": "T01"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR48.beats.0",
+      "@zh:core.treatment_routines.TR48.beats.1",
+      "@zh:core.treatment_routines.TR48.beats.2",
+      "@zh:core.treatment_routines.TR48.beats.3"
+    ],
+    "equipment_id": "M17",
+    "id": "TR48",
+    "name": "@zh:core.treatment_routines.TR48.name",
+    "service_seconds": 46,
+    "specialty_id": "T07"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR49.beats.0",
+      "@zh:core.treatment_routines.TR49.beats.1",
+      "@zh:core.treatment_routines.TR49.beats.2",
+      "@zh:core.treatment_routines.TR49.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR49",
+    "name": "@zh:core.treatment_routines.TR49.name",
+    "service_seconds": 42,
+    "specialty_id": "T08"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR50.beats.0",
+      "@zh:core.treatment_routines.TR50.beats.1",
+      "@zh:core.treatment_routines.TR50.beats.2",
+      "@zh:core.treatment_routines.TR50.beats.3"
+    ],
+    "equipment_id": "M17",
+    "id": "TR50",
+    "name": "@zh:core.treatment_routines.TR50.name",
+    "service_seconds": 48,
+    "specialty_id": "T07"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR51.beats.0",
+      "@zh:core.treatment_routines.TR51.beats.1",
+      "@zh:core.treatment_routines.TR51.beats.2",
+      "@zh:core.treatment_routines.TR51.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR51",
+    "name": "@zh:core.treatment_routines.TR51.name",
+    "service_seconds": 40,
+    "specialty_id": "T03"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR52.beats.0",
+      "@zh:core.treatment_routines.TR52.beats.1",
+      "@zh:core.treatment_routines.TR52.beats.2",
+      "@zh:core.treatment_routines.TR52.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR52",
+    "name": "@zh:core.treatment_routines.TR52.name",
+    "service_seconds": 42,
+    "specialty_id": "T08"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR53.beats.0",
+      "@zh:core.treatment_routines.TR53.beats.1",
+      "@zh:core.treatment_routines.TR53.beats.2",
+      "@zh:core.treatment_routines.TR53.beats.3"
+    ],
+    "equipment_id": "M09",
+    "id": "TR53",
+    "name": "@zh:core.treatment_routines.TR53.name",
+    "service_seconds": 40,
+    "specialty_id": "T01"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR54.beats.0",
+      "@zh:core.treatment_routines.TR54.beats.1",
+      "@zh:core.treatment_routines.TR54.beats.2",
+      "@zh:core.treatment_routines.TR54.beats.3"
+    ],
+    "equipment_id": "M09",
+    "id": "TR54",
+    "name": "@zh:core.treatment_routines.TR54.name",
+    "service_seconds": 44,
+    "specialty_id": "T09"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR55.beats.0",
+      "@zh:core.treatment_routines.TR55.beats.1",
+      "@zh:core.treatment_routines.TR55.beats.2",
+      "@zh:core.treatment_routines.TR55.beats.3"
+    ],
+    "equipment_id": "M09",
+    "id": "TR55",
+    "name": "@zh:core.treatment_routines.TR55.name",
+    "service_seconds": 40,
+    "specialty_id": "T09"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR56.beats.0",
+      "@zh:core.treatment_routines.TR56.beats.1",
+      "@zh:core.treatment_routines.TR56.beats.2",
+      "@zh:core.treatment_routines.TR56.beats.3"
+    ],
+    "equipment_id": "M09",
+    "id": "TR56",
+    "name": "@zh:core.treatment_routines.TR56.name",
+    "service_seconds": 42,
+    "specialty_id": "T09"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR57.beats.0",
+      "@zh:core.treatment_routines.TR57.beats.1",
+      "@zh:core.treatment_routines.TR57.beats.2",
+      "@zh:core.treatment_routines.TR57.beats.3"
+    ],
+    "equipment_id": "M17",
+    "id": "TR57",
+    "name": "@zh:core.treatment_routines.TR57.name",
+    "service_seconds": 40,
+    "specialty_id": "T06"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR58.beats.0",
+      "@zh:core.treatment_routines.TR58.beats.1",
+      "@zh:core.treatment_routines.TR58.beats.2",
+      "@zh:core.treatment_routines.TR58.beats.3"
+    ],
+    "equipment_id": "M09",
+    "id": "TR58",
+    "name": "@zh:core.treatment_routines.TR58.name",
+    "service_seconds": 40,
+    "specialty_id": "T05"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR59.beats.0",
+      "@zh:core.treatment_routines.TR59.beats.1",
+      "@zh:core.treatment_routines.TR59.beats.2",
+      "@zh:core.treatment_routines.TR59.beats.3"
+    ],
+    "equipment_id": "M17",
+    "id": "TR59",
+    "name": "@zh:core.treatment_routines.TR59.name",
+    "service_seconds": 42,
+    "specialty_id": "T06"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR60.beats.0",
+      "@zh:core.treatment_routines.TR60.beats.1",
+      "@zh:core.treatment_routines.TR60.beats.2",
+      "@zh:core.treatment_routines.TR60.beats.3"
+    ],
+    "equipment_id": "M09",
+    "id": "TR60",
+    "name": "@zh:core.treatment_routines.TR60.name",
+    "service_seconds": 44,
+    "specialty_id": "T05"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR61.beats.0",
+      "@zh:core.treatment_routines.TR61.beats.1",
+      "@zh:core.treatment_routines.TR61.beats.2",
+      "@zh:core.treatment_routines.TR61.beats.3"
+    ],
+    "equipment_id": "M09",
+    "id": "TR61",
+    "name": "@zh:core.treatment_routines.TR61.name",
+    "service_seconds": 44,
+    "specialty_id": "T05"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR62.beats.0",
+      "@zh:core.treatment_routines.TR62.beats.1",
+      "@zh:core.treatment_routines.TR62.beats.2",
+      "@zh:core.treatment_routines.TR62.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR62",
+    "name": "@zh:core.treatment_routines.TR62.name",
+    "service_seconds": 46,
+    "specialty_id": "T03"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR63.beats.0",
+      "@zh:core.treatment_routines.TR63.beats.1",
+      "@zh:core.treatment_routines.TR63.beats.2",
+      "@zh:core.treatment_routines.TR63.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR63",
+    "name": "@zh:core.treatment_routines.TR63.name",
+    "service_seconds": 36,
+    "specialty_id": "T10"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR64.beats.0",
+      "@zh:core.treatment_routines.TR64.beats.1",
+      "@zh:core.treatment_routines.TR64.beats.2",
+      "@zh:core.treatment_routines.TR64.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR64",
+    "name": "@zh:core.treatment_routines.TR64.name",
+    "service_seconds": 38,
+    "specialty_id": "T10"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR65.beats.0",
+      "@zh:core.treatment_routines.TR65.beats.1",
+      "@zh:core.treatment_routines.TR65.beats.2",
+      "@zh:core.treatment_routines.TR65.beats.3"
+    ],
+    "equipment_id": "M09",
+    "id": "TR65",
+    "name": "@zh:core.treatment_routines.TR65.name",
+    "service_seconds": 38,
+    "specialty_id": "T01"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR66.beats.0",
+      "@zh:core.treatment_routines.TR66.beats.1",
+      "@zh:core.treatment_routines.TR66.beats.2",
+      "@zh:core.treatment_routines.TR66.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR66",
+    "name": "@zh:core.treatment_routines.TR66.name",
+    "service_seconds": 42,
+    "specialty_id": "T10"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR67.beats.0",
+      "@zh:core.treatment_routines.TR67.beats.1",
+      "@zh:core.treatment_routines.TR67.beats.2",
+      "@zh:core.treatment_routines.TR67.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR67",
+    "name": "@zh:core.treatment_routines.TR67.name",
+    "service_seconds": 46,
+    "specialty_id": "T04"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR68.beats.0",
+      "@zh:core.treatment_routines.TR68.beats.1",
+      "@zh:core.treatment_routines.TR68.beats.2",
+      "@zh:core.treatment_routines.TR68.beats.3"
+    ],
+    "equipment_id": "M17",
+    "id": "TR68",
+    "name": "@zh:core.treatment_routines.TR68.name",
+    "service_seconds": 50,
+    "specialty_id": "T07"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR69.beats.0",
+      "@zh:core.treatment_routines.TR69.beats.1",
+      "@zh:core.treatment_routines.TR69.beats.2",
+      "@zh:core.treatment_routines.TR69.beats.3"
+    ],
+    "equipment_id": "M17",
+    "id": "TR69",
+    "name": "@zh:core.treatment_routines.TR69.name",
+    "service_seconds": 54,
+    "specialty_id": "T06"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR70.beats.0",
+      "@zh:core.treatment_routines.TR70.beats.1",
+      "@zh:core.treatment_routines.TR70.beats.2",
+      "@zh:core.treatment_routines.TR70.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR70",
+    "name": "@zh:core.treatment_routines.TR70.name",
+    "service_seconds": 38,
+    "specialty_id": "T08"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR71.beats.0",
+      "@zh:core.treatment_routines.TR71.beats.1",
+      "@zh:core.treatment_routines.TR71.beats.2",
+      "@zh:core.treatment_routines.TR71.beats.3"
+    ],
+    "equipment_id": "M09",
+    "id": "TR71",
+    "name": "@zh:core.treatment_routines.TR71.name",
+    "service_seconds": 42,
+    "specialty_id": "T01"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR72.beats.0",
+      "@zh:core.treatment_routines.TR72.beats.1",
+      "@zh:core.treatment_routines.TR72.beats.2",
+      "@zh:core.treatment_routines.TR72.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR72",
+    "name": "@zh:core.treatment_routines.TR72.name",
+    "service_seconds": 46,
+    "specialty_id": "T02"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR73.beats.0",
+      "@zh:core.treatment_routines.TR73.beats.1",
+      "@zh:core.treatment_routines.TR73.beats.2",
+      "@zh:core.treatment_routines.TR73.beats.3"
+    ],
+    "equipment_id": "M09",
+    "id": "TR73",
+    "name": "@zh:core.treatment_routines.TR73.name",
+    "service_seconds": 50,
+    "specialty_id": "T01"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR74.beats.0",
+      "@zh:core.treatment_routines.TR74.beats.1",
+      "@zh:core.treatment_routines.TR74.beats.2",
+      "@zh:core.treatment_routines.TR74.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR74",
+    "name": "@zh:core.treatment_routines.TR74.name",
+    "service_seconds": 54,
+    "specialty_id": "T03"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR75.beats.0",
+      "@zh:core.treatment_routines.TR75.beats.1",
+      "@zh:core.treatment_routines.TR75.beats.2",
+      "@zh:core.treatment_routines.TR75.beats.3"
+    ],
+    "equipment_id": "M09",
+    "id": "TR75",
+    "name": "@zh:core.treatment_routines.TR75.name",
+    "service_seconds": 38,
+    "specialty_id": "T09"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR76.beats.0",
+      "@zh:core.treatment_routines.TR76.beats.1",
+      "@zh:core.treatment_routines.TR76.beats.2",
+      "@zh:core.treatment_routines.TR76.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR76",
+    "name": "@zh:core.treatment_routines.TR76.name",
+    "service_seconds": 42,
+    "specialty_id": "T03"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR77.beats.0",
+      "@zh:core.treatment_routines.TR77.beats.1",
+      "@zh:core.treatment_routines.TR77.beats.2",
+      "@zh:core.treatment_routines.TR77.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR77",
+    "name": "@zh:core.treatment_routines.TR77.name",
+    "service_seconds": 46,
+    "specialty_id": "T04"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR78.beats.0",
+      "@zh:core.treatment_routines.TR78.beats.1",
+      "@zh:core.treatment_routines.TR78.beats.2",
+      "@zh:core.treatment_routines.TR78.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR78",
+    "name": "@zh:core.treatment_routines.TR78.name",
+    "service_seconds": 50,
+    "specialty_id": "T08"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR79.beats.0",
+      "@zh:core.treatment_routines.TR79.beats.1",
+      "@zh:core.treatment_routines.TR79.beats.2",
+      "@zh:core.treatment_routines.TR79.beats.3"
+    ],
+    "equipment_id": "M09",
+    "id": "TR79",
+    "name": "@zh:core.treatment_routines.TR79.name",
+    "service_seconds": 54,
+    "specialty_id": "T05"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR80.beats.0",
+      "@zh:core.treatment_routines.TR80.beats.1",
+      "@zh:core.treatment_routines.TR80.beats.2",
+      "@zh:core.treatment_routines.TR80.beats.3"
+    ],
+    "equipment_id": "M09",
+    "id": "TR80",
+    "name": "@zh:core.treatment_routines.TR80.name",
+    "service_seconds": 38,
+    "specialty_id": "T05"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR81.beats.0",
+      "@zh:core.treatment_routines.TR81.beats.1",
+      "@zh:core.treatment_routines.TR81.beats.2",
+      "@zh:core.treatment_routines.TR81.beats.3"
+    ],
+    "equipment_id": "M09",
+    "id": "TR81",
+    "name": "@zh:core.treatment_routines.TR81.name",
+    "service_seconds": 42,
+    "specialty_id": "T09"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR82.beats.0",
+      "@zh:core.treatment_routines.TR82.beats.1",
+      "@zh:core.treatment_routines.TR82.beats.2",
+      "@zh:core.treatment_routines.TR82.beats.3"
+    ],
+    "equipment_id": "M17",
+    "id": "TR82",
+    "name": "@zh:core.treatment_routines.TR82.name",
+    "service_seconds": 46,
+    "specialty_id": "T07"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR83.beats.0",
+      "@zh:core.treatment_routines.TR83.beats.1",
+      "@zh:core.treatment_routines.TR83.beats.2",
+      "@zh:core.treatment_routines.TR83.beats.3"
+    ],
+    "equipment_id": "M37",
+    "id": "TR83",
+    "name": "@zh:core.treatment_routines.TR83.name",
+    "service_seconds": 50,
+    "specialty_id": "T02"
+  },
+  {
+    "beats": [
+      "@zh:core.treatment_routines.TR84.beats.0",
+      "@zh:core.treatment_routines.TR84.beats.1",
+      "@zh:core.treatment_routines.TR84.beats.2",
+      "@zh:core.treatment_routines.TR84.beats.3"
+    ],
+    "equipment_id": "M17",
+    "id": "TR84",
+    "name": "@zh:core.treatment_routines.TR84.name",
+    "service_seconds": 54,
+    "specialty_id": "T06"
+  }
+]

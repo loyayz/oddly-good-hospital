@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3]
+[ext_resource type="PackedScene" path="res://assets/props/library/flower.glb" id="P0"]
+[ext_resource type="AnimationLibrary" path="res://assets/animations/treatments/tr31.tres" id="L"]
+[node name="TreatmentRoutine" type="Node3D"]
+metadata/source_id = "TR31"
+metadata/beat_1 = "罩上软框"
+metadata/beat_2 = "光束在镜间折返"
+metadata/beat_3 = "照到目标小花"
+metadata/beat_4 = "镜阵退出工作角度，软框解除操作锁定"
+[node name="Tool" type="Node3D" parent="."]
+[node name="Prop0" parent="Tool" instance=ExtResource("P0")]
+position = Vector3(0.000000, 0.400000, 0.000000)
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {&"": ExtResource("L")}

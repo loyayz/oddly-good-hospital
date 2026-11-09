@@ -1,0 +1,65 @@
+[
+  {
+    "fact": "first_course",
+    "id": "GM01",
+    "low_motion_scene": "@zh:core.growth_moments.GM01.low_motion_scene",
+    "name": "@zh:core.growth_moments.GM01.name",
+    "roles": [
+      "doctor",
+      "nurse"
+    ],
+    "scene": "@zh:core.growth_moments.GM01.scene"
+  },
+  {
+    "fact": "second_ability_level2",
+    "id": "GM02",
+    "low_motion_scene": "@zh:core.growth_moments.GM02.low_motion_scene",
+    "name": "@zh:core.growth_moments.GM02.name",
+    "roles": [
+      "doctor",
+      "nurse"
+    ],
+    "scene": "@zh:core.growth_moments.GM02.scene"
+  },
+  {
+    "fact": "first_observation",
+    "id": "GM03",
+    "low_motion_scene": "@zh:core.growth_moments.GM03.low_motion_scene",
+    "name": "@zh:core.growth_moments.GM03.name",
+    "roles": [
+      "doctor"
+    ],
+    "scene": "@zh:core.growth_moments.GM03.scene"
+  },
+  {
+    "fact": "first_mentoring",
+    "id": "GM04",
+    "low_motion_scene": "@zh:core.growth_moments.GM04.low_motion_scene",
+    "name": "@zh:core.growth_moments.GM04.name",
+    "roles": [
+      "doctor",
+      "nurse"
+    ],
+    "scene": "@zh:core.growth_moments.GM04.scene"
+  },
+  {
+    "fact": "first_promotion",
+    "id": "GM05",
+    "low_motion_scene": "@zh:core.growth_moments.GM05.low_motion_scene",
+    "name": "@zh:core.growth_moments.GM05.name",
+    "roles": [
+      "doctor"
+    ],
+    "scene": "@zh:core.growth_moments.GM05.scene"
+  },
+  {
+    "fact": "first_surgical_cure",
+    "id": "GM06",
+    "low_motion_scene": "@zh:core.growth_moments.GM06.low_motion_scene",
+    "name": "@zh:core.growth_moments.GM06.name",
+    "roles": [
+      "doctor"
+    ],
+    "scene": "@zh:core.growth_moments.GM06.scene"
+  }
+]

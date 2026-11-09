@@ -1,0 +1,58 @@
+[
+  {
+    "description": "@zh:core.staff_biographies.BIO01.description",
+    "grants_qualification": false,
+    "hobby": "@zh:core.staff_biographies.BIO01.hobby",
+    "id": "BIO01",
+    "name": "@zh:core.staff_biographies.BIO01.name"
+  },
+  {
+    "description": "@zh:core.staff_biographies.BIO02.description",
+    "grants_qualification": false,
+    "hobby": "@zh:core.staff_biographies.BIO02.hobby",
+    "id": "BIO02",
+    "name": "@zh:core.staff_biographies.BIO02.name"
+  },
+  {
+    "description": "@zh:core.staff_biographies.BIO03.description",
+    "grants_qualification": false,
+    "hobby": "@zh:core.staff_biographies.BIO03.hobby",
+    "id": "BIO03",
+    "name": "@zh:core.staff_biographies.BIO03.name"
+  },
+  {
+    "description": "@zh:core.staff_biographies.BIO04.description",
+    "grants_qualification": false,
+    "hobby": "@zh:core.staff_biographies.BIO04.hobby",
+    "id": "BIO04",
+    "name": "@zh:core.staff_biographies.BIO04.name"
+  },
+  {
+    "description": "@zh:core.staff_biographies.BIO05.description",
+    "grants_qualification": false,
+    "hobby": "@zh:core.staff_biographies.BIO05.hobby",
+    "id": "BIO05",
+    "name": "@zh:core.staff_biographies.BIO05.name"
+  },
+  {
+    "description": "@zh:core.staff_biographies.BIO06.description",
+    "grants_qualification": false,
+    "hobby": "@zh:core.staff_biographies.BIO06.hobby",
+    "id": "BIO06",
+    "name": "@zh:core.staff_biographies.BIO06.name"
+  },
+  {
+    "description": "@zh:core.staff_biographies.BIO07.description",
+    "grants_qualification": false,
+    "hobby": "@zh:core.staff_biographies.BIO07.hobby",
+    "id": "BIO07",
+    "name": "@zh:core.staff_biographies.BIO07.name"
+  },
+  {
+    "description": "@zh:core.staff_biographies.BIO08.description",
+    "grants_qualification": false,
+    "hobby": "@zh:core.staff_biographies.BIO08.hobby",
+    "id": "BIO08",
+    "name": "@zh:core.staff_biographies.BIO08.name"
+  }
+]

@@ -1,0 +1,92 @@
+[
+  {
+    "doctor_qualification": "q_treatment",
+    "id": "T01",
+    "min_inner_size": [
+      5,
+      5
+    ],
+    "name": "@zh:core.specialties.T01.name"
+  },
+  {
+    "doctor_qualification": "q_treatment",
+    "id": "T02",
+    "min_inner_size": [
+      6,
+      6
+    ],
+    "name": "@zh:core.specialties.T02.name"
+  },
+  {
+    "doctor_qualification": "q_treatment",
+    "id": "T03",
+    "min_inner_size": [
+      5,
+      5
+    ],
+    "name": "@zh:core.specialties.T03.name"
+  },
+  {
+    "doctor_qualification": "q_treatment",
+    "id": "T04",
+    "min_inner_size": [
+      5,
+      5
+    ],
+    "name": "@zh:core.specialties.T04.name"
+  },
+  {
+    "doctor_qualification": "q_treatment",
+    "id": "T05",
+    "min_inner_size": [
+      5,
+      5
+    ],
+    "name": "@zh:core.specialties.T05.name"
+  },
+  {
+    "doctor_qualification": "q_treatment",
+    "id": "T06",
+    "min_inner_size": [
+      6,
+      6
+    ],
+    "name": "@zh:core.specialties.T06.name"
+  },
+  {
+    "doctor_qualification": "q_treatment",
+    "id": "T07",
+    "min_inner_size": [
+      6,
+      6
+    ],
+    "name": "@zh:core.specialties.T07.name"
+  },
+  {
+    "doctor_qualification": "q_treatment",
+    "id": "T08",
+    "min_inner_size": [
+      5,
+      5
+    ],
+    "name": "@zh:core.specialties.T08.name"
+  },
+  {
+    "doctor_qualification": "q_treatment",
+    "id": "T09",
+    "min_inner_size": [
+      5,
+      5
+    ],
+    "name": "@zh:core.specialties.T09.name"
+  },
+  {
+    "doctor_qualification": "q_treatment",
+    "id": "T10",
+    "min_inner_size": [
+      5,
+      5
+    ],
+    "name": "@zh:core.specialties.T10.name"
+  }
+]

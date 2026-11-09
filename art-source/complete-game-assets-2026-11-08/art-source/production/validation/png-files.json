@@ -1,0 +1,3322 @@
+{
+  "images": [
+    {
+      "path": "assets/ui/icons/diseases/d01.png",
+      "bytes": 13684,
+      "width": 192,
+      "height": 192,
+      "sha256": "d9907648edafdbfccb6d089d52da877680e51dfbeddcda78225957973f33bae1"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d02.png",
+      "bytes": 13925,
+      "width": 192,
+      "height": 192,
+      "sha256": "a4643b714013dfd3c9a3b2b0bc969fe9d3e3c4b4c8dacf393e3e3c6b36b34758"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d03.png",
+      "bytes": 8824,
+      "width": 192,
+      "height": 192,
+      "sha256": "1ccd4b092dff802cb862d22d855800687e544c5ecd4237eca6a84759ebafaf73"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d04.png",
+      "bytes": 17328,
+      "width": 192,
+      "height": 192,
+      "sha256": "e1eab3f1cb9b83a121daa6eddb2810f170fa4974a0a7ec23f053788a94715b66"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d05.png",
+      "bytes": 8408,
+      "width": 192,
+      "height": 192,
+      "sha256": "a5161b4f48972c92a973a66339e5eb6c9bdbb3706a127eec152a12c92bebbb00"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d06.png",
+      "bytes": 10427,
+      "width": 192,
+      "height": 192,
+      "sha256": "8c9df724763f8f9579d3aac4b0a7f6daa1723fc8f4a794d22fe4048fa544810a"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d07.png",
+      "bytes": 9941,
+      "width": 192,
+      "height": 192,
+      "sha256": "33425021bdee0d22e52c185e47b3136a8a8ed5b2ee7d3331306709ddec00bba3"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d08.png",
+      "bytes": 8417,
+      "width": 192,
+      "height": 192,
+      "sha256": "a4c9f7260ffbbb78118f647edd4c2c641ba7e2b90977cb1e69ac2233731d0efa"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d09.png",
+      "bytes": 6577,
+      "width": 192,
+      "height": 192,
+      "sha256": "c49a1d7c0462a208e5fd91a1a4c6ccbf5bb9aba3c5aa24397b05f8025b56738e"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d10.png",
+      "bytes": 7182,
+      "width": 192,
+      "height": 192,
+      "sha256": "70f0f5b51c0aad22b4761285d4012a9b86695dcc9f0c977934eeddad9a97c0a6"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d100.png",
+      "bytes": 8142,
+      "width": 192,
+      "height": 192,
+      "sha256": "843fef1207a2b156c274923ee0def9a1d40e0380b384b4461b2be04b415445ab"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d101.png",
+      "bytes": 9268,
+      "width": 192,
+      "height": 192,
+      "sha256": "f5e46b714c9d9f67f6032c5ba84dfc150f83a3cb09fb61647196219aa61e855e"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d102.png",
+      "bytes": 9640,
+      "width": 192,
+      "height": 192,
+      "sha256": "c2a41bafcad69db6229925a236b30a22f9b865e3bd4c1546f05cbcaf0f5cdd6d"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d103.png",
+      "bytes": 11472,
+      "width": 192,
+      "height": 192,
+      "sha256": "a1cff7bda8073f153184a63a2a29e565921e314d62990e32ae20af6631126d6b"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d104.png",
+      "bytes": 13140,
+      "width": 192,
+      "height": 192,
+      "sha256": "0775db914108de22211b1e87987f6aa0a970e8cd2fbf8a602b1eb10c9943e3b0"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d105.png",
+      "bytes": 6060,
+      "width": 192,
+      "height": 192,
+      "sha256": "9c6410b65181dc1daebcbf30579f8b39ce288fce411f3894b6b3c1747eefbbe3"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d106.png",
+      "bytes": 11587,
+      "width": 192,
+      "height": 192,
+      "sha256": "67284623a87496615a2402dc5ad757386aa7c2e1b3f6bc7d35cadfdb3c1841e5"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d107.png",
+      "bytes": 10145,
+      "width": 192,
+      "height": 192,
+      "sha256": "2e3a16678b7576bf53f6a78fd2d765450ca2de276d8014f74dbfc23ee2999cf7"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d108.png",
+      "bytes": 10609,
+      "width": 192,
+      "height": 192,
+      "sha256": "3e62f34521525c3e69005323e00e089cc84dd17a5a0088b9a34b53537b7edb03"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d109.png",
+      "bytes": 12431,
+      "width": 192,
+      "height": 192,
+      "sha256": "c3f96dcbc9dd31ef017a3d35cb79faa5bb18eff9033024fb6ba1990a7e12663d"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d11.png",
+      "bytes": 6376,
+      "width": 192,
+      "height": 192,
+      "sha256": "9e5af54c68355949326989b9b3212f70cd99e0f99bb40e6f4720bd9e9fae709b"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d110.png",
+      "bytes": 9372,
+      "width": 192,
+      "height": 192,
+      "sha256": "cc661b372cd3fb23dd3d422e53175fd413f9075bca80f02b31e001fb45aafc2e"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d111.png",
+      "bytes": 5078,
+      "width": 192,
+      "height": 192,
+      "sha256": "f9a38d05757cbd2bc66d9a7a9a4072d6d64a3b93ec483d85ecc27642eb841b9d"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d112.png",
+      "bytes": 7084,
+      "width": 192,
+      "height": 192,
+      "sha256": "f0e3710d6bc47dfb9c2b4ff7efde3ec9377a835828ac3c0855c9401c375914db"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d113.png",
+      "bytes": 8422,
+      "width": 192,
+      "height": 192,
+      "sha256": "c0559ce7c5bdcfdbd847708825918178c7c81eadb8c2fce4188a21cdb3af61f2"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d114.png",
+      "bytes": 7310,
+      "width": 192,
+      "height": 192,
+      "sha256": "e6dd7cb3deeeea51b5497710b3c8f32d72a6fc869bf023d3190331ac913b4633"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d115.png",
+      "bytes": 7294,
+      "width": 192,
+      "height": 192,
+      "sha256": "b7b660f2769b3c27ac16e7345d8859d282f7581d5cd1c8df3648fbea1ff227fb"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d116.png",
+      "bytes": 13906,
+      "width": 192,
+      "height": 192,
+      "sha256": "9a399cabae6edf5a3bb4eb6e8c3dc6c09502ca38881c1c4b34deaa4c826ca5df"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d117.png",
+      "bytes": 7502,
+      "width": 192,
+      "height": 192,
+      "sha256": "6feef6beafe1bd450d4062bd98193e9de98699415ea9c2c867a2628afbdc7589"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d118.png",
+      "bytes": 10597,
+      "width": 192,
+      "height": 192,
+      "sha256": "877572415d4946efd0e7726a428e9a9fb59af714d262d43b3b03889672df42c1"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d119.png",
+      "bytes": 11346,
+      "width": 192,
+      "height": 192,
+      "sha256": "68901d0ddbd8b72a624b1e13f5dc56dd45c35aa4f52e5c0cb3a818f7161d42ca"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d12.png",
+      "bytes": 11276,
+      "width": 192,
+      "height": 192,
+      "sha256": "6484303b992473111f005e83846d242a0cb842d2b4aac2c0ab0a400085259278"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d120.png",
+      "bytes": 6995,
+      "width": 192,
+      "height": 192,
+      "sha256": "37f2815c7d61d98599d58ec61330b93149ca91f56615df78b4524f1ae18a8c74"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d121.png",
+      "bytes": 8151,
+      "width": 192,
+      "height": 192,
+      "sha256": "69f5172e9561f83fff79a734e1426723aaf6468be06807db0db7a3a3d4d5f020"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d122.png",
+      "bytes": 12050,
+      "width": 192,
+      "height": 192,
+      "sha256": "f28ce1363febf13d762ff31ae32587f6ccdb92aaddb02618b7fbcb8d96947a26"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d123.png",
+      "bytes": 5508,
+      "width": 192,
+      "height": 192,
+      "sha256": "90cc2719542f4b0a47f6061e99cd43570811061017aaa4165ebac9980b88ddc7"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d124.png",
+      "bytes": 9642,
+      "width": 192,
+      "height": 192,
+      "sha256": "c65789cdc31f1641ec53d6d35ad15cc28980a0e91a0cb55a3cbcf3b855e5edd4"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d125.png",
+      "bytes": 8711,
+      "width": 192,
+      "height": 192,
+      "sha256": "7e9586cef171aa0604257c5cc5c2340128a1de42c4d2c5ab189825728787ed55"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d126.png",
+      "bytes": 14438,
+      "width": 192,
+      "height": 192,
+      "sha256": "c6b39b2289bd996d70acc6e216c094cc3cf582450226d2f7cb54f2153d940d60"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d127.png",
+      "bytes": 5511,
+      "width": 192,
+      "height": 192,
+      "sha256": "7d6d1c725061ec975b5c2d5b6ab7966295dd0e3f730e93567ae70941ca2a6572"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d128.png",
+      "bytes": 11900,
+      "width": 192,
+      "height": 192,
+      "sha256": "1b80a8a570026e6d794d11ecb6e3d06af1fd3e9cc7751f1ac595ea78a2440ce1"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d129.png",
+      "bytes": 5827,
+      "width": 192,
+      "height": 192,
+      "sha256": "f0db95bf4b6f157af1e948b584a15f3997d242ed419ba7163386a229f66abe9f"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d13.png",
+      "bytes": 6807,
+      "width": 192,
+      "height": 192,
+      "sha256": "54d2364a86e79473ed165f2db7c99fb4cd4c0ccbfbf1386170ab27c19e2f8837"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d130.png",
+      "bytes": 10879,
+      "width": 192,
+      "height": 192,
+      "sha256": "707fc5e47dec1dfa889ee8d5f36b54fdc3f5be08ed05903be70a384153ae56dc"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d131.png",
+      "bytes": 13506,
+      "width": 192,
+      "height": 192,
+      "sha256": "6b467563c809083862991c88b7f433815c9fd88be12d5410c2ec95ee8991347a"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d132.png",
+      "bytes": 8114,
+      "width": 192,
+      "height": 192,
+      "sha256": "f09918f24e34123563d6f5e5bb0b7abbbb6932146f9e42b5f557aced409beed6"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d133.png",
+      "bytes": 5449,
+      "width": 192,
+      "height": 192,
+      "sha256": "d4c26a3e100d029f1604ca42bbdef5c2d7540ca6b697f4f46655b20c86864a42"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d134.png",
+      "bytes": 8590,
+      "width": 192,
+      "height": 192,
+      "sha256": "e13b701f8d0afda6a13f9c1473f7ea6366fe00c1ca310325d96680a8e426a8fd"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d136.png",
+      "bytes": 8181,
+      "width": 192,
+      "height": 192,
+      "sha256": "a579a48ab8d2b0e096541a45d566d4d341cfeb9f45e2f91351d9086e049ddd07"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d137.png",
+      "bytes": 13374,
+      "width": 192,
+      "height": 192,
+      "sha256": "532108e503c08431e48afcc4e904d0ea9c85790d156d0745a28026d630ff00fe"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d138.png",
+      "bytes": 7130,
+      "width": 192,
+      "height": 192,
+      "sha256": "6425e6c900c9e0abfda8a8dd712649fa59daea9e8a50eef2c0c94ce9a1e8d7fb"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d139.png",
+      "bytes": 9642,
+      "width": 192,
+      "height": 192,
+      "sha256": "0eea641551f171b99922384c228c7746db209d3b4d7587d06a9451f7e7e523fd"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d14.png",
+      "bytes": 6018,
+      "width": 192,
+      "height": 192,
+      "sha256": "a79fbf30e1dbb9007c5f7fc3e1e6dbaac213255f702b0db2c648a438dacb2aeb"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d140.png",
+      "bytes": 10608,
+      "width": 192,
+      "height": 192,
+      "sha256": "83feb154a5a9055ed5cd14a922909afa248a9ce5a945d9c8d13f4a2515f236f2"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d141.png",
+      "bytes": 10564,
+      "width": 192,
+      "height": 192,
+      "sha256": "806885a11714bd2cadbfae39dc80cf9a0e2be34b849356d5d6e9f684eac8478c"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d142.png",
+      "bytes": 5137,
+      "width": 192,
+      "height": 192,
+      "sha256": "773f7db73312b8e55890efd65596155fa4e0318580b72acc17a9fa045289604a"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d143.png",
+      "bytes": 11670,
+      "width": 192,
+      "height": 192,
+      "sha256": "225945f3b0e841646340557d7b097eb19d274f20eee0716e8000028319a8a264"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d144.png",
+      "bytes": 6204,
+      "width": 192,
+      "height": 192,
+      "sha256": "e0569bab4afcd5dca12955a225fbe800a88c817e277100570bab0139b09dd2cd"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d145.png",
+      "bytes": 6398,
+      "width": 192,
+      "height": 192,
+      "sha256": "8cd62809ca1c77094d6a489b5ab53663b6d05666deb99ad82a9a0f85969d5ce2"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d146.png",
+      "bytes": 5302,
+      "width": 192,
+      "height": 192,
+      "sha256": "8cee21ec2bef7584d00a18f9b791d6ad8ed621f724a601e3339652ef9beafcae"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d147.png",
+      "bytes": 9462,
+      "width": 192,
+      "height": 192,
+      "sha256": "e47c43c5a1b6af4326717d577164bb6700ee06cab08b3c94d547f475e0f2380c"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d148.png",
+      "bytes": 9114,
+      "width": 192,
+      "height": 192,
+      "sha256": "ae590ce5ab4dfd08276b9f2319b120a4213af76b4114a14e908cc14868a7cb8d"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d149.png",
+      "bytes": 12678,
+      "width": 192,
+      "height": 192,
+      "sha256": "90c075ceab8d52241661f2c9d8f2e4107faf2c87d3ae6c9e5020f8ac9e5e6fe1"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d15.png",
+      "bytes": 8017,
+      "width": 192,
+      "height": 192,
+      "sha256": "37086e88b532abb1e76e8194f64cf289a3524b8ed17cc577bd6b7c5862d03cb2"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d150.png",
+      "bytes": 11757,
+      "width": 192,
+      "height": 192,
+      "sha256": "02b5d01bc974fc1710694049694c1c22bb83ceaaed64fccb4b911fa22e5d23fe"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d151.png",
+      "bytes": 10667,
+      "width": 192,
+      "height": 192,
+      "sha256": "319061ddfa3a2ebc7e1f991ba3d3d6f6af690319b9faeb0f626c10363e33cff8"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d152.png",
+      "bytes": 6019,
+      "width": 192,
+      "height": 192,
+      "sha256": "b08a921e1d91667291c47e2fa030bf71c01b96442c2f8b4b87498c3d392801e4"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d153.png",
+      "bytes": 11577,
+      "width": 192,
+      "height": 192,
+      "sha256": "ce38afe68fac47fd6cb654752535f2ff9c7df76d0d7f50b5878b4a316b2c5763"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d154.png",
+      "bytes": 12025,
+      "width": 192,
+      "height": 192,
+      "sha256": "cf649e49aaadfcb41f95838c64ce03419228aaa20527bb55454d4b779f272593"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d16.png",
+      "bytes": 10866,
+      "width": 192,
+      "height": 192,
+      "sha256": "cead5390b0e5b5ea7e4442d76b33bba3ec2540bc3a7c565f9d56290972060f7b"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d17.png",
+      "bytes": 13923,
+      "width": 192,
+      "height": 192,
+      "sha256": "4af2c98576d6b490d3a49eaf187370357b1f1aaa70309ce856c5f465bebd8b64"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d18.png",
+      "bytes": 12150,
+      "width": 192,
+      "height": 192,
+      "sha256": "cb74a9569387fb647e4c10550f2f3c36b8b129f0a8c52236dc5def5566cdfdd6"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d19.png",
+      "bytes": 6608,
+      "width": 192,
+      "height": 192,
+      "sha256": "8086147810ec89aa3dfb2d9ec125d7f85c45773f9e6dd3da28402d7a776f2f48"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d20.png",
+      "bytes": 13502,
+      "width": 192,
+      "height": 192,
+      "sha256": "ef572e5dd5ba32cfa5b682a0781fb52dbb610cda61e424a204abb2c80cd05422"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d21.png",
+      "bytes": 8785,
+      "width": 192,
+      "height": 192,
+      "sha256": "0a6e0784338999585135344fd77a8d656498cced067ea5165a298e73882b6c90"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d22.png",
+      "bytes": 10928,
+      "width": 192,
+      "height": 192,
+      "sha256": "dfc5dbc29223186a3e0906015e1371d67a9fb86ae95e6f0a452464e58d568b59"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d23.png",
+      "bytes": 7769,
+      "width": 192,
+      "height": 192,
+      "sha256": "4b0df996aab2b99de048681751e6ece600f553a42c6a9e1dc57560514c52f610"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d24.png",
+      "bytes": 7868,
+      "width": 192,
+      "height": 192,
+      "sha256": "c47d0f1b2bdcf32a25bdf1021969a7592345a645770808b9b681c924f718ab63"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d25.png",
+      "bytes": 8108,
+      "width": 192,
+      "height": 192,
+      "sha256": "81d91dd9ab03e69e20039c523636f9f23098b2d9569906ee375857ee885989f8"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d26.png",
+      "bytes": 7271,
+      "width": 192,
+      "height": 192,
+      "sha256": "133a549db11d2e9c0b7172ed8d8cf80f45fe3f22c8420e89e33efa75a9102b35"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d27.png",
+      "bytes": 4328,
+      "width": 192,
+      "height": 192,
+      "sha256": "f961b21323c83ff9a5cb01e7a0256fa31326fc2d6d6b1e2460b8cd3e46674fd5"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d28.png",
+      "bytes": 13327,
+      "width": 192,
+      "height": 192,
+      "sha256": "404c00259b98c9be3096c802337995b12f3965bc150ea50f6ce8d08334fe1887"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d29.png",
+      "bytes": 12174,
+      "width": 192,
+      "height": 192,
+      "sha256": "c853f998acc98a26a9e06e5fa66be862909c0752126bbe48304031c139d2e3df"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d30.png",
+      "bytes": 7048,
+      "width": 192,
+      "height": 192,
+      "sha256": "154a72088db31da71ae6ccd0d23449eaae0e97ac4dafb4b39fb14022174401cd"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d31.png",
+      "bytes": 9869,
+      "width": 192,
+      "height": 192,
+      "sha256": "c01b58799b24ffa5136e58d2851e107c95ebd24c2048a5e5c608c2a505661374"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d32.png",
+      "bytes": 12670,
+      "width": 192,
+      "height": 192,
+      "sha256": "8a008bdf52c6e1501f934cc11aae774d26c8482ea211c4294a77cc30dd7dc6fa"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d33.png",
+      "bytes": 13679,
+      "width": 192,
+      "height": 192,
+      "sha256": "c1f5a910a3f9e673609063426552615a976ab037a40b52de7a48dca091cc545f"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d34.png",
+      "bytes": 13737,
+      "width": 192,
+      "height": 192,
+      "sha256": "d52b4bdf6c91685f23408198c827b942fd685320a6a47017779db320b6f30286"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d35.png",
+      "bytes": 11465,
+      "width": 192,
+      "height": 192,
+      "sha256": "4e22d9d268ab7ceef4042acac3bf100549b91e3f2cc09b72b466a27458c7bdd7"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d36.png",
+      "bytes": 6226,
+      "width": 192,
+      "height": 192,
+      "sha256": "17bfbd03ba4cf725924703972c1124d8804768a07fd385269ce72e73c3162505"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d37.png",
+      "bytes": 13018,
+      "width": 192,
+      "height": 192,
+      "sha256": "d66edbbb491de02f86dadf748ecbcb9675956ac8eb445f7107348f2758f18053"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d38.png",
+      "bytes": 8527,
+      "width": 192,
+      "height": 192,
+      "sha256": "347295c061ff783915b05fee74a3fc19823ae24116f1adaaeb258fdd29ea1200"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d39.png",
+      "bytes": 9996,
+      "width": 192,
+      "height": 192,
+      "sha256": "165b2dc5927de178668c0a4b754cfdb48c64d341c0a166eaed377c5bf9ba691b"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d40.png",
+      "bytes": 6117,
+      "width": 192,
+      "height": 192,
+      "sha256": "a2a061173299a7a2d9e4ca420231958f99465a231d614871a53607f4034d4d07"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d41.png",
+      "bytes": 11361,
+      "width": 192,
+      "height": 192,
+      "sha256": "c75cb71e702d8a029f9bb4a3ebb9ffff0fb26d82c909d8c1bbf18c3aea326533"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d42.png",
+      "bytes": 10020,
+      "width": 192,
+      "height": 192,
+      "sha256": "149312d6f16358a20cc746890dacf65bfa7b343a5741dc8c04d5f5a7e50b5a98"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d43.png",
+      "bytes": 5509,
+      "width": 192,
+      "height": 192,
+      "sha256": "8e8ffc65581166cdb7ffed415133f32f617b4ba03c4c2a9198bd4e22121d16b6"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d44.png",
+      "bytes": 9069,
+      "width": 192,
+      "height": 192,
+      "sha256": "a2f984fce96a6ef550a349d639e8c60fdd752b70b5fea083ed5db1e3ce364a3e"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d45.png",
+      "bytes": 8605,
+      "width": 192,
+      "height": 192,
+      "sha256": "2dced0b5e9c9fdad7f0f50f5e29456ecee90352814305866f918fe87bd94c4ea"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d46.png",
+      "bytes": 12178,
+      "width": 192,
+      "height": 192,
+      "sha256": "e14de6ef9662a579d26eee7287aa6a7a5209fda18d7825b8c4b123001fd7b1f6"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d47.png",
+      "bytes": 8569,
+      "width": 192,
+      "height": 192,
+      "sha256": "f441361e9705a9980d2ccfc908d47f0e9c273a2ba145484b16463913566acb49"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d48.png",
+      "bytes": 6586,
+      "width": 192,
+      "height": 192,
+      "sha256": "2135aa1285273bc980d09bfedea9320ccaef89ef9974a9b537d3ccd238299da6"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d49.png",
+      "bytes": 9823,
+      "width": 192,
+      "height": 192,
+      "sha256": "8620984d4c2cd208c4581725a1ea16aaecc62dad32534e022bee665b3a484548"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d50.png",
+      "bytes": 9984,
+      "width": 192,
+      "height": 192,
+      "sha256": "8bd7fec98d3ee1f89fc5a0f4583449d341feec56a54bb227c68061a7b0973694"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d51.png",
+      "bytes": 10702,
+      "width": 192,
+      "height": 192,
+      "sha256": "aa619a4e9cc1b64e5f513b35d3826f983b6e4879aa0a97206f265173492b9cbc"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d52.png",
+      "bytes": 8258,
+      "width": 192,
+      "height": 192,
+      "sha256": "02ba6456565f6878d802b51295b53d2dd92a97704e51264ff0d52a17fb5054a6"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d53.png",
+      "bytes": 8543,
+      "width": 192,
+      "height": 192,
+      "sha256": "0df7f4928466bb2a79eaa56dadfca8e10f84d9525516c973055c9b66a4b904de"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d54.png",
+      "bytes": 7561,
+      "width": 192,
+      "height": 192,
+      "sha256": "1f77644983c088a95a9c95ace86ec5f5a7b3ea8a67a1b550600b852f4af5cf97"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d55.png",
+      "bytes": 10490,
+      "width": 192,
+      "height": 192,
+      "sha256": "4249854f0fc707d5762b5ebb72a5619f493cc68ea275384a81f231abb7928b91"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d56.png",
+      "bytes": 11343,
+      "width": 192,
+      "height": 192,
+      "sha256": "bfda9d5efa47c5946cd2a83738cd2e8f835b752a0beb93ecd0e8e12ca690f5ce"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d57.png",
+      "bytes": 8463,
+      "width": 192,
+      "height": 192,
+      "sha256": "b67085a74e08806b3b8a6e63d11acd5dbd9109ec95c81a682a2baad060de828b"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d58.png",
+      "bytes": 9537,
+      "width": 192,
+      "height": 192,
+      "sha256": "4de4dc2d5335ad460ac49950227b2b00e3ebccd071b0510e201e722780472585"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d59.png",
+      "bytes": 5727,
+      "width": 192,
+      "height": 192,
+      "sha256": "0f29b440432a4e0ceaafb07ef9e8e27ec82b6badd878b96f258102fa1128f07a"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d60.png",
+      "bytes": 13588,
+      "width": 192,
+      "height": 192,
+      "sha256": "e4b731d55adf025735b80a9b7853fae59161fd90452ddd3a32ee16f2589d3525"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d61.png",
+      "bytes": 11756,
+      "width": 192,
+      "height": 192,
+      "sha256": "64b9c1ba87938a0e5035be4bf51e756e4815c9f102a150118eb2941f195c92e9"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d62.png",
+      "bytes": 4639,
+      "width": 192,
+      "height": 192,
+      "sha256": "1fcea852a95b2a5e9032e39341d1eda396fd070971c06991ed8521e1f9ae5df4"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d63.png",
+      "bytes": 9904,
+      "width": 192,
+      "height": 192,
+      "sha256": "c476d04dfdf51ff51134ed7bae85aaf6f3cbed706a7bf5990a586dcd0332c28d"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d64.png",
+      "bytes": 12909,
+      "width": 192,
+      "height": 192,
+      "sha256": "bca0a76e11eab3ae23fa123c8fc38d22c2c2ed908b0a72c4a1c9d65bed4c252d"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d65.png",
+      "bytes": 8259,
+      "width": 192,
+      "height": 192,
+      "sha256": "6da36c3df28fff8fedfd105c32148492327b592dfa7fdba2f6c0e7ede1f0ab55"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d66.png",
+      "bytes": 13156,
+      "width": 192,
+      "height": 192,
+      "sha256": "46a911ff7c17bc913d47daa79307a427fcccbf53f5e0c3af750eaba8475cdd1e"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d67.png",
+      "bytes": 8628,
+      "width": 192,
+      "height": 192,
+      "sha256": "e1a3a8629db7dbf82b728ee79030b05b52e3641301f5ac00f251c2c98648477d"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d68.png",
+      "bytes": 8259,
+      "width": 192,
+      "height": 192,
+      "sha256": "59271acb85bf13938902c9100b439b71adeacd2f8767e4470445b2859736ba4f"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d69.png",
+      "bytes": 11632,
+      "width": 192,
+      "height": 192,
+      "sha256": "17f32c23a440e93dbb50f56a1614c2290001f6a4e64ee66533c53851fad27921"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d70.png",
+      "bytes": 10112,
+      "width": 192,
+      "height": 192,
+      "sha256": "b892a8a2604589c039ea1a388676ff05110057649b35c00434fbe9b1a43b6db3"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d71.png",
+      "bytes": 4629,
+      "width": 192,
+      "height": 192,
+      "sha256": "10eced0e12d0c25043fd9abbbb6c9397878dff7d528dbb0d0522d8d9ecc19188"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d72.png",
+      "bytes": 13807,
+      "width": 192,
+      "height": 192,
+      "sha256": "7d685bfd3b025271ba30239530ece2ca7db981aee529d01fbc7383704f202849"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d73.png",
+      "bytes": 12960,
+      "width": 192,
+      "height": 192,
+      "sha256": "b06ba4f58d17cad0224c9d65e107b6c34558dfd3b146a09e92920cbfaae3a46d"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d74.png",
+      "bytes": 10177,
+      "width": 192,
+      "height": 192,
+      "sha256": "063ead93a372e448ad6b013cfed1cff790ddd08cfada4ac0d490669616e86e61"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d75.png",
+      "bytes": 12623,
+      "width": 192,
+      "height": 192,
+      "sha256": "016ef8ed613cf42079f22d197f32b14ea35e6b0476cb8fc66dba51ced53f0fb7"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d76.png",
+      "bytes": 12191,
+      "width": 192,
+      "height": 192,
+      "sha256": "377ac0de4253619ccae0cb0f808cc5b119207520d393be31916cec8ab45918e9"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d77.png",
+      "bytes": 13959,
+      "width": 192,
+      "height": 192,
+      "sha256": "d9a4338b8204244089e00789ab822786d0fd6c11eaa904385084ede9e0ac563e"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d78.png",
+      "bytes": 12113,
+      "width": 192,
+      "height": 192,
+      "sha256": "a0df72a2ba8670aa4cc8a4a4e9e66df448c2d4945c04ad744458f13a7321bc9f"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d79.png",
+      "bytes": 6620,
+      "width": 192,
+      "height": 192,
+      "sha256": "eb6068d36713f38e1aa3049bdb350820286bd8e0c85d3cc1153f43b5b1dfb164"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d80.png",
+      "bytes": 12695,
+      "width": 192,
+      "height": 192,
+      "sha256": "94e3f6534ca5591e8d8fb597ad70ec800e38bdf96666bef70a3dee64b65b3f96"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d81.png",
+      "bytes": 8668,
+      "width": 192,
+      "height": 192,
+      "sha256": "16f10ad668d1ae3ed4d2e58fe05d8128bcb8548fb45ff7c98617e163206f710f"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d82.png",
+      "bytes": 12029,
+      "width": 192,
+      "height": 192,
+      "sha256": "bf086a7776e32ad7493a6f9d5ab3bdd5c25c6e28555fe04fcaae76deb500f4c8"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d83.png",
+      "bytes": 6227,
+      "width": 192,
+      "height": 192,
+      "sha256": "31740af8d597402b2010e7be5a5c71ad65d26b20cb3e32417818ad176055e79a"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d84.png",
+      "bytes": 7850,
+      "width": 192,
+      "height": 192,
+      "sha256": "a2827699ded98d4f790c0d2fad0ce20d9b172b25cd1d1dd2c371c6178750e023"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d85.png",
+      "bytes": 4610,
+      "width": 192,
+      "height": 192,
+      "sha256": "0edc47ff543fb93318bc020812cb215bb49c8f902da573c86444cd98c047a842"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d86.png",
+      "bytes": 4739,
+      "width": 192,
+      "height": 192,
+      "sha256": "e707d9fede3dbd3012a4d7e6a4fd8544178f3c6089bdc49e022cc067edd05140"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d87.png",
+      "bytes": 11236,
+      "width": 192,
+      "height": 192,
+      "sha256": "c9e5eda684057fa8266f566ee8b875b5c61c9e2e6666ea8875b7cc7214dd08fd"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d88.png",
+      "bytes": 7106,
+      "width": 192,
+      "height": 192,
+      "sha256": "4c982d6b3a312b354131db1fd00f7600a3e49a3118646ecdea9e34da78207636"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d89.png",
+      "bytes": 5814,
+      "width": 192,
+      "height": 192,
+      "sha256": "6433b1e75df7cdeea65d20403681a4b01ff72afd8b0e653f629fa4f9fdd3bdbf"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d90.png",
+      "bytes": 5259,
+      "width": 192,
+      "height": 192,
+      "sha256": "aa7584f20896c5eb179d4b4978fd0219c5947939e040ac953cbee0f9476fc9ca"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d91.png",
+      "bytes": 11620,
+      "width": 192,
+      "height": 192,
+      "sha256": "605a6161fd910c782def6298f447ba9eb8dab0af665a80cc9d1fa46e4191c4ba"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d92.png",
+      "bytes": 11603,
+      "width": 192,
+      "height": 192,
+      "sha256": "f20aeb9bf1868e8e034260d7dc45375fb18fb3f4359aea5b34cb30ca87cb6caa"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d93.png",
+      "bytes": 5633,
+      "width": 192,
+      "height": 192,
+      "sha256": "07106a25613567a9d53dfb969d07a38bccaf5478fcf094d89d933d1488ce60e9"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d94.png",
+      "bytes": 13507,
+      "width": 192,
+      "height": 192,
+      "sha256": "c8f9833af07243c68cbeae18174fdb5f48f6fdea675fab1284c53cef3fc40fcd"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d95.png",
+      "bytes": 5661,
+      "width": 192,
+      "height": 192,
+      "sha256": "eb93738d5c47c51c9291aa35a54f57c6bd82d26bf909dca05f39cdf5172cf150"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d96.png",
+      "bytes": 9746,
+      "width": 192,
+      "height": 192,
+      "sha256": "61fc702208f8dbf7f701491231d9582ff3cb1bdb558ef7b825b2e7f385544f0f"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d97.png",
+      "bytes": 7995,
+      "width": 192,
+      "height": 192,
+      "sha256": "2bdb2a96ce37983967de3878e0bfa122d02be21317d853a65838a613307ade4a"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d98.png",
+      "bytes": 10308,
+      "width": 192,
+      "height": 192,
+      "sha256": "c0cadf2d310214090772e995da077734f2fedb156c1d5efba60ae455a62b155f"
+    },
+    {
+      "path": "assets/ui/icons/diseases/d99.png",
+      "bytes": 13394,
+      "width": 192,
+      "height": 192,
+      "sha256": "d25160cb67c23a1bdbe87e0830cbe0698b0442e8aa52775c1162ea7b35bcb414"
+    },
+    {
+      "path": "assets/ui/icons/equipment/ae01.png",
+      "bytes": 5310,
+      "width": 192,
+      "height": 192,
+      "sha256": "f3c9c48a6b0e713112feda043e38e7717af7eb2ed207c51429af0b8e3dd70b37"
+    },
+    {
+      "path": "assets/ui/icons/equipment/ae02.png",
+      "bytes": 9587,
+      "width": 192,
+      "height": 192,
+      "sha256": "0f62ca47f57c20f41537ac74c3bef6d99f8b18736cc831038703aee3a1faecfe"
+    },
+    {
+      "path": "assets/ui/icons/equipment/ae03.png",
+      "bytes": 5752,
+      "width": 192,
+      "height": 192,
+      "sha256": "2910ec62dadc0faaef4d99aa9131a8cd8a419dc3ded234516fbb711833ed02c2"
+    },
+    {
+      "path": "assets/ui/icons/equipment/dr01.png",
+      "bytes": 8476,
+      "width": 192,
+      "height": 192,
+      "sha256": "0ef7ae83e5a7a94e9bfab8cf96f4359cd0df74c3f229d6a171dec0261cce86af"
+    },
+    {
+      "path": "assets/ui/icons/equipment/dr02.png",
+      "bytes": 11741,
+      "width": 192,
+      "height": 192,
+      "sha256": "bd077b50a012b86563917261c9cb8638705a154775a2a7411e81da9cc0819458"
+    },
+    {
+      "path": "assets/ui/icons/equipment/dr03.png",
+      "bytes": 6014,
+      "width": 192,
+      "height": 192,
+      "sha256": "8e24a5ae5703c97eeb49aa9672de256ab09bebead787d01355bec6c32e027e3f"
+    },
+    {
+      "path": "assets/ui/icons/equipment/dr04.png",
+      "bytes": 8791,
+      "width": 192,
+      "height": 192,
+      "sha256": "abb8c662a47bda1acfddc691784c8db14d20d545068641cd61c37bf80d711c5d"
+    },
+    {
+      "path": "assets/ui/icons/equipment/dr05.png",
+      "bytes": 11062,
+      "width": 192,
+      "height": 192,
+      "sha256": "af77020b23db45284e2faf1aa66a3f5f804e6f55f872241e24caa720994c127f"
+    },
+    {
+      "path": "assets/ui/icons/equipment/dr06.png",
+      "bytes": 9600,
+      "width": 192,
+      "height": 192,
+      "sha256": "bf541aea55dfee48554c5cd9607e7d6811d29d054c1fc6a4bb08ac97b687a72f"
+    },
+    {
+      "path": "assets/ui/icons/equipment/eq01.png",
+      "bytes": 6731,
+      "width": 192,
+      "height": 192,
+      "sha256": "d0eb21b0abf4997bff2309d8469df10e761604eab56c2a7d0d3f980c68905ccb"
+    },
+    {
+      "path": "assets/ui/icons/equipment/eq05.png",
+      "bytes": 5538,
+      "width": 192,
+      "height": 192,
+      "sha256": "d7f9b623181e8759d510987d9b9b9fe8efcb1c00ebc91ea9e5fcdabbfccf5537"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur01.png",
+      "bytes": 7607,
+      "width": 192,
+      "height": 192,
+      "sha256": "c15f903b60e585a6b988a160206d60a48a5a317fffcf5003d55b692caed56944"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur02.png",
+      "bytes": 7224,
+      "width": 192,
+      "height": 192,
+      "sha256": "d7eee2e25fea6bba95e8d7fa74f0ac764ad2defe8ea59523e24f26ce82a2ed35"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur05.png",
+      "bytes": 6957,
+      "width": 192,
+      "height": 192,
+      "sha256": "4f337e579888090a398c243a62fb2901f3d76053d7c34366bd54618067b47d2f"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur06.png",
+      "bytes": 7660,
+      "width": 192,
+      "height": 192,
+      "sha256": "be8a3c3fa9f923dad436e5cacd4b0f9e8038c6110ccca21c40f1085079d5e669"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur07.png",
+      "bytes": 6439,
+      "width": 192,
+      "height": 192,
+      "sha256": "71b2038ea584a068742eb5f97a3e51c1ab129cd2f716173186d52cc41c9f581a"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur08.png",
+      "bytes": 8016,
+      "width": 192,
+      "height": 192,
+      "sha256": "dc8d6ceb51c9394404d2310e6d344656732dc678d953bdf8ef6349d1978443ce"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur09.png",
+      "bytes": 9075,
+      "width": 192,
+      "height": 192,
+      "sha256": "70d47927a744ec8b039ce062031fa6ce50ebc1b1b312c78c46cb40649f29f0b1"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur10.png",
+      "bytes": 7800,
+      "width": 192,
+      "height": 192,
+      "sha256": "044a9ae01a1bb0455145589b4bfa567b3493bf98539b469e3bf85ae1c4501568"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur11.png",
+      "bytes": 10512,
+      "width": 192,
+      "height": 192,
+      "sha256": "b0b1a988830985900c6faf51b486749facfc4acac53f346e526fadeac1c48a05"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur12.png",
+      "bytes": 6838,
+      "width": 192,
+      "height": 192,
+      "sha256": "8b406c458c6571fd0269dac33f10d5e55aacfa5beff9f50aef4e98e728ff12d8"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur13.png",
+      "bytes": 10348,
+      "width": 192,
+      "height": 192,
+      "sha256": "1bb5934d3d6f17c3ceb965378f7cce39e5baf22f5f9845cd1a4e626039f7f5b0"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur14.png",
+      "bytes": 8865,
+      "width": 192,
+      "height": 192,
+      "sha256": "be906319ebef6069b4d70ed2c2b2f0a267947685da59b8098c09abf9b8f03365"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur15.png",
+      "bytes": 10817,
+      "width": 192,
+      "height": 192,
+      "sha256": "9b557b3c433d97d0a3143b9ab94ba6b78b9cc657ed0d50fc26d845c832ac6a3d"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur16.png",
+      "bytes": 7374,
+      "width": 192,
+      "height": 192,
+      "sha256": "0fc882f4bb2eac0115ab9ac96faf34d96fbbbd6d7357f776d180635f0b653d58"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur17.png",
+      "bytes": 7600,
+      "width": 192,
+      "height": 192,
+      "sha256": "29186adcf7a6d3586e20e39ceb9627056df282b4d68ba1627d685f3e1471b01a"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur18.png",
+      "bytes": 11225,
+      "width": 192,
+      "height": 192,
+      "sha256": "29986e5e26fa632d13cf863e1a2b2df2f9e027ff25a76f3fbe3f15070c04de70"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur19.png",
+      "bytes": 6393,
+      "width": 192,
+      "height": 192,
+      "sha256": "57900d108031f9c92699b657f38b3bac2d1ad85c7c34798ce277f54d6f097322"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur20.png",
+      "bytes": 9739,
+      "width": 192,
+      "height": 192,
+      "sha256": "8036db6cb91d96ac5321a272ece84c7ab5f624b39e290e2180bf804935eebd23"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur21.png",
+      "bytes": 6453,
+      "width": 192,
+      "height": 192,
+      "sha256": "980d73ae0b203c10258025308e26e26997daec0cebfa40be3cb2c00b27f05baf"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur22.png",
+      "bytes": 7540,
+      "width": 192,
+      "height": 192,
+      "sha256": "509772ca8071b402860c80dafc2f674da504f322bb8eda9906680b12d7f80d54"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur23.png",
+      "bytes": 10748,
+      "width": 192,
+      "height": 192,
+      "sha256": "1a3414c73fe22edadfcf2e35d8eefcefc167d4233fc955d256a65b8c5d64bf71"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur24.png",
+      "bytes": 9479,
+      "width": 192,
+      "height": 192,
+      "sha256": "70dc0d1b2d6d72e6782995a9586eb5e507340c020cdf04ffbead6156fea8d0e6"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur25.png",
+      "bytes": 9818,
+      "width": 192,
+      "height": 192,
+      "sha256": "fc45d17eb0c636a1b05af444d732807b8032da596feb679cbb821e25188d53b8"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur26.png",
+      "bytes": 9817,
+      "width": 192,
+      "height": 192,
+      "sha256": "d91df7228b8629a4a4e4d9ce76f835847be03dd746b6e2189ff3cd9383d779ce"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur27.png",
+      "bytes": 4464,
+      "width": 192,
+      "height": 192,
+      "sha256": "4feff4feabb5d02ae3301c05f6b21b505704d1db4bfa7db83c55de85c2133830"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur28.png",
+      "bytes": 7344,
+      "width": 192,
+      "height": 192,
+      "sha256": "fde3ca4e68cbb9f6b3197b55fb6183d537b00fd0714215b804fa2ece3e81aa03"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur29.png",
+      "bytes": 12355,
+      "width": 192,
+      "height": 192,
+      "sha256": "359855dd27753877d073aa90639c017b8778c55ae2b15be28d9d7733e60c8936"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur30.png",
+      "bytes": 11421,
+      "width": 192,
+      "height": 192,
+      "sha256": "209655bbd347926e239ac2ef4648eaa3867a5fceeaa426c0c276e8b134d2e2fe"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur31.png",
+      "bytes": 11696,
+      "width": 192,
+      "height": 192,
+      "sha256": "ea33c37d13fc575a23380c08476e2f3773bc17fdda14b959bb59c56edf0ecfb4"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur32.png",
+      "bytes": 11830,
+      "width": 192,
+      "height": 192,
+      "sha256": "560515842d2d96a66e085766b5fad6dd09c034dce5348611fff98e2a67550bba"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur33.png",
+      "bytes": 7693,
+      "width": 192,
+      "height": 192,
+      "sha256": "10e426947b1377cd7a1bc436aca83e614f0d9b8bef7a56466fb6342f4ee5da76"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur34.png",
+      "bytes": 5238,
+      "width": 192,
+      "height": 192,
+      "sha256": "46c0a6a0e7a0f229751feff2ee9846b6eb3725622f1a63d8f22d3096b09020cd"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur35.png",
+      "bytes": 7378,
+      "width": 192,
+      "height": 192,
+      "sha256": "c8450196dad3e8d65b07472598802727af8f2734edb1be9a4f342bacff444427"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur36.png",
+      "bytes": 9536,
+      "width": 192,
+      "height": 192,
+      "sha256": "94b27403e9459f8fe57d295a0c3957f07afc6b0959f4d65526815b57bb10ad12"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur37.png",
+      "bytes": 7637,
+      "width": 192,
+      "height": 192,
+      "sha256": "1a0461ced7c5684f4e3beb73a8f16898538552bcd2042ee26db3c03801f574b9"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur38.png",
+      "bytes": 7346,
+      "width": 192,
+      "height": 192,
+      "sha256": "f43917f73a538a9ced5a0b82f517ac4d584e5d16bb45f24e2fff7e4777be2916"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur39.png",
+      "bytes": 11281,
+      "width": 192,
+      "height": 192,
+      "sha256": "922174c5a8e305ce68bba8beca3444aeb3066efe13bdda58c53f84bc0b831705"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur40.png",
+      "bytes": 9217,
+      "width": 192,
+      "height": 192,
+      "sha256": "930b902e080708ccb94313a6cb78ea4617ccd4b5c44d76e0e300661bf54856f4"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur41.png",
+      "bytes": 11085,
+      "width": 192,
+      "height": 192,
+      "sha256": "8a0420af6bea409647cd2c639a26dfc6c0a25b8a2b22f61d452ffbd1e3b7fd43"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur42.png",
+      "bytes": 10468,
+      "width": 192,
+      "height": 192,
+      "sha256": "2580b72406f636079c2926c56dbc362041480075f3bcd0d200fbbd252eb97afd"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur43.png",
+      "bytes": 5675,
+      "width": 192,
+      "height": 192,
+      "sha256": "58765c0fc334de4b31f12a924ae5a399108cde781a7c55a9d20491febc6cdf20"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur44.png",
+      "bytes": 5422,
+      "width": 192,
+      "height": 192,
+      "sha256": "8427670065237bb014fc763f7b176626099d3167636559d79adfeabad54563ca"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur45.png",
+      "bytes": 10862,
+      "width": 192,
+      "height": 192,
+      "sha256": "d81671a424823ee9228614ce29a6076c4521af26ef778ec43550747ea5429cd6"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur46.png",
+      "bytes": 11105,
+      "width": 192,
+      "height": 192,
+      "sha256": "9b106bdca8ea9fd8e27e83ad9270e0b4f1a80cfaf234316ec10a7b5295d159f7"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur47.png",
+      "bytes": 8445,
+      "width": 192,
+      "height": 192,
+      "sha256": "997994200eea7e40c6c6cb9c60717e3d6b33aca2906752604d6913ce25bb1196"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur48.png",
+      "bytes": 12638,
+      "width": 192,
+      "height": 192,
+      "sha256": "9278a1033e7832319074552439c4db571925e40ed06a5a963405088ebfe5db9b"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur49.png",
+      "bytes": 10236,
+      "width": 192,
+      "height": 192,
+      "sha256": "43b030fd09859bdb8d1a9d88c72174552d9f5cc161d9ab88cb7f8e0e83ff4886"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur50.png",
+      "bytes": 9543,
+      "width": 192,
+      "height": 192,
+      "sha256": "4a03b8855e0b7a9fc024bc199a835f703cd72fc4b651e08d532a5aedcd4fe152"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur51.png",
+      "bytes": 8881,
+      "width": 192,
+      "height": 192,
+      "sha256": "c4c8bb5e56a4b7eda71ee775cb5792e11f317fec024e74bd479a36908bb25b6e"
+    },
+    {
+      "path": "assets/ui/icons/equipment/fur52.png",
+      "bytes": 7076,
+      "width": 192,
+      "height": 192,
+      "sha256": "a8451b26ee441ad1f2588f8da734dc5a6acd9c008d80317dd1c492fa6eb2539c"
+    },
+    {
+      "path": "assets/ui/icons/equipment/m09.png",
+      "bytes": 7698,
+      "width": 192,
+      "height": 192,
+      "sha256": "4a53f3cd08ab54d5667a5e4a26c26cf2edd7c48270febeea1d0704ebda2c2c31"
+    },
+    {
+      "path": "assets/ui/icons/equipment/m17.png",
+      "bytes": 8945,
+      "width": 192,
+      "height": 192,
+      "sha256": "48f824ffac18046d9f7dc235dc1ea0a7c8799ed12aa8361d8e8692cf6ac317b3"
+    },
+    {
+      "path": "assets/ui/icons/equipment/m37.png",
+      "bytes": 9947,
+      "width": 192,
+      "height": 192,
+      "sha256": "adc0eb3cdb57d70691e68c9fbb74d81402f73a224fdd7d8d6e040a9b912beb17"
+    },
+    {
+      "path": "assets/ui/icons/equipment/rc01.png",
+      "bytes": 10757,
+      "width": 192,
+      "height": 192,
+      "sha256": "b7190865ffd9e40ae6aa9d46bac82f8c811d8dee9c73f854388b2181ae3e4d72"
+    },
+    {
+      "path": "assets/ui/icons/equipment/rc02.png",
+      "bytes": 7855,
+      "width": 192,
+      "height": 192,
+      "sha256": "a1686dfd49ea48a3e5526c0f23e61f7eff512f444d74940c9be5dcd96c9fb2fa"
+    },
+    {
+      "path": "assets/ui/icons/equipment/rc03.png",
+      "bytes": 7271,
+      "width": 192,
+      "height": 192,
+      "sha256": "cf75d5dacff418174a38dd0417275db5815b0298d8c523355c9b13eef8091b89"
+    },
+    {
+      "path": "assets/ui/icons/equipment/rc04.png",
+      "bytes": 6249,
+      "width": 192,
+      "height": 192,
+      "sha256": "491b299c51857a848565a29b26a7d8bdf82e440fd97f757272988c5ea0f346d2"
+    },
+    {
+      "path": "assets/ui/icons/equipment/se01.png",
+      "bytes": 6949,
+      "width": 192,
+      "height": 192,
+      "sha256": "1cacf9f11a9dfae4501f21d7f5acfe6b083938f2db3ba31a576ad2da866dc0eb"
+    },
+    {
+      "path": "assets/ui/icons/equipment/se02.png",
+      "bytes": 8441,
+      "width": 192,
+      "height": 192,
+      "sha256": "1247cd69bad6f8a4aa8ad858ef15b1fa56b414d45848c3c27bc09ab6912bb1d7"
+    },
+    {
+      "path": "assets/ui/icons/equipment/se03.png",
+      "bytes": 7821,
+      "width": 192,
+      "height": 192,
+      "sha256": "4826029507a6e0a2cc3cb2061ca6f55b8335466346c696ccf9677e27b1fa7008"
+    },
+    {
+      "path": "assets/ui/icons/equipment/se04.png",
+      "bytes": 6995,
+      "width": 192,
+      "height": 192,
+      "sha256": "7c0aed86021ec1978a672e1ed363e3175be84ebcd56a376201b16572bffbe494"
+    },
+    {
+      "path": "assets/ui/icons/equipment/vc01.png",
+      "bytes": 6125,
+      "width": 192,
+      "height": 192,
+      "sha256": "be8dfcd4adf7cca9c7f68ae418b768ba926c3c21b801612239764c7df91ee954"
+    },
+    {
+      "path": "assets/ui/icons/equipment/vc02.png",
+      "bytes": 8372,
+      "width": 192,
+      "height": 192,
+      "sha256": "c44861deaf8b728070c382cc584f9bf0fd50a624de1ec989121c21f188f38c6f"
+    },
+    {
+      "path": "assets/ui/icons/equipment/vc03.png",
+      "bytes": 9159,
+      "width": 192,
+      "height": 192,
+      "sha256": "2bc1d9c3f974b74d9ab7117cbcfdcc091a6d55619a43e28fc346b12a4fbc6331"
+    },
+    {
+      "path": "assets/ui/icons/operations/admissions.png",
+      "bytes": 3327,
+      "width": 192,
+      "height": 192,
+      "sha256": "77336026ce124b2be7e35214cdd905d421234be06cdb363a31e2ab287a553b70"
+    },
+    {
+      "path": "assets/ui/icons/operations/blueprint.png",
+      "bytes": 2150,
+      "width": 192,
+      "height": 192,
+      "sha256": "792a6e54d6ce536c2275872bbdb9a7e2ae80db206847601ff773b25fe5f6c61d"
+    },
+    {
+      "path": "assets/ui/icons/operations/build.png",
+      "bytes": 4103,
+      "width": 192,
+      "height": 192,
+      "sha256": "c97efa5019185eaa540faee2e0da51763cd97ea0b9dae8ebde9a844bc97ab763"
+    },
+    {
+      "path": "assets/ui/icons/operations/camera.png",
+      "bytes": 4996,
+      "width": 192,
+      "height": 192,
+      "sha256": "d4245a561d6503c23ed7d4cf8b2d9007eea7d4f773f2c7ddfb9aecb1ca7ee748"
+    },
+    {
+      "path": "assets/ui/icons/operations/cancel.png",
+      "bytes": 6696,
+      "width": 192,
+      "height": 192,
+      "sha256": "ef45e614a949e86c811106783f028c65d03d78fc38b6f0d97351440a9f10454c"
+    },
+    {
+      "path": "assets/ui/icons/operations/close.png",
+      "bytes": 2040,
+      "width": 192,
+      "height": 192,
+      "sha256": "ce72f834ad82f3a06bc4fd629ade426c97baf811166cd225ea19ca83f071d22b"
+    },
+    {
+      "path": "assets/ui/icons/operations/confirm.png",
+      "bytes": 4821,
+      "width": 192,
+      "height": 192,
+      "sha256": "11b9bfe1ec61b1023ad59b7d26df8db48f4e97d417b9fcd3e17b4265e60d6628"
+    },
+    {
+      "path": "assets/ui/icons/operations/delete.png",
+      "bytes": 5240,
+      "width": 192,
+      "height": 192,
+      "sha256": "a5b8f99b1108d549be4e0abe6216a9642d963392b06704856c3222c506cd1e0a"
+    },
+    {
+      "path": "assets/ui/icons/operations/floor_down.png",
+      "bytes": 5947,
+      "width": 192,
+      "height": 192,
+      "sha256": "f58de7987c5e43b12de2f4e7549705454af1a6873b60222e047e940354feb30b"
+    },
+    {
+      "path": "assets/ui/icons/operations/floor_up.png",
+      "bytes": 6219,
+      "width": 192,
+      "height": 192,
+      "sha256": "dc2228b59d89b90d3db1c8e38da4de8ac8341b8a70d81740a9e79f3727a883dc"
+    },
+    {
+      "path": "assets/ui/icons/operations/follow.png",
+      "bytes": 3708,
+      "width": 192,
+      "height": 192,
+      "sha256": "e117cf3306d4d8af92e5e11ec2d24f08917d7c2b6353950a7eddf7f6601c73a5"
+    },
+    {
+      "path": "assets/ui/icons/operations/info.png",
+      "bytes": 6697,
+      "width": 192,
+      "height": 192,
+      "sha256": "3c215eb5316c7259175da3d1cc3400db829f5307654f01bf51e83ec4204388da"
+    },
+    {
+      "path": "assets/ui/icons/operations/load.png",
+      "bytes": 3526,
+      "width": 192,
+      "height": 192,
+      "sha256": "bfb9d981a8364a483a655a06cca50897ade86e35d1ead94c3bf6f60ea765439b"
+    },
+    {
+      "path": "assets/ui/icons/operations/move.png",
+      "bytes": 3875,
+      "width": 192,
+      "height": 192,
+      "sha256": "71d8fc3c9eeac4c8b877b1747efe01a0596399b8dc5bef5209efd463baba5c7a"
+    },
+    {
+      "path": "assets/ui/icons/operations/pause.png",
+      "bytes": 2369,
+      "width": 192,
+      "height": 192,
+      "sha256": "f8d1dc3115d7453da0252ae09dc82b54f804e76b9a920f2339bcd21f2952ab65"
+    },
+    {
+      "path": "assets/ui/icons/operations/play.png",
+      "bytes": 3341,
+      "width": 192,
+      "height": 192,
+      "sha256": "d6b2d38e8cdfa113f1e570548945b21969b7ab69a5ec7072167e417699b29b04"
+    },
+    {
+      "path": "assets/ui/icons/operations/remodel.png",
+      "bytes": 1520,
+      "width": 192,
+      "height": 192,
+      "sha256": "84ebb3977ccc4fdb8722107a0bc3d6c1b11064a047c5e3f2fb3a8e2e86dd7be3"
+    },
+    {
+      "path": "assets/ui/icons/operations/repair.png",
+      "bytes": 5140,
+      "width": 192,
+      "height": 192,
+      "sha256": "3617505462fc9f11233ff34f9986e5ccb6d53956ef74f23512871479fcd52f86"
+    },
+    {
+      "path": "assets/ui/icons/operations/research.png",
+      "bytes": 4391,
+      "width": 192,
+      "height": 192,
+      "sha256": "3caffee3e2d6a434989d44282e9dff6266818ddf4ff10b73bc094306765c3c0d"
+    },
+    {
+      "path": "assets/ui/icons/operations/residents.png",
+      "bytes": 6992,
+      "width": 192,
+      "height": 192,
+      "sha256": "284404a029ecc17c6720173ad8d19872b93dc4930f66d531a11680b857db15c9"
+    },
+    {
+      "path": "assets/ui/icons/operations/rotate_left.png",
+      "bytes": 5486,
+      "width": 192,
+      "height": 192,
+      "sha256": "3835d847d0b0142148427a41274b55ec730a0e85a738147ead07140eae9274a5"
+    },
+    {
+      "path": "assets/ui/icons/operations/rotate_right.png",
+      "bytes": 5531,
+      "width": 192,
+      "height": 192,
+      "sha256": "880691778367558309353f8846e75731bac4c794d90562d1ed666ceb04499c20"
+    },
+    {
+      "path": "assets/ui/icons/operations/save.png",
+      "bytes": 2686,
+      "width": 192,
+      "height": 192,
+      "sha256": "8b8a0a2bee362f1ae80e458fd8b8d93daa2b0f0afad04de05520b45c98802a59"
+    },
+    {
+      "path": "assets/ui/icons/operations/settings.png",
+      "bytes": 7110,
+      "width": 192,
+      "height": 192,
+      "sha256": "42a84c611dc5ae5789e77094f134df524c8b8029ccfdf3e3194d571adb40894c"
+    },
+    {
+      "path": "assets/ui/icons/operations/sound.png",
+      "bytes": 5482,
+      "width": 192,
+      "height": 192,
+      "sha256": "19815498491df6bc63541094a286e20fb3ae20db463809fab07fc122a7f2ab2e"
+    },
+    {
+      "path": "assets/ui/icons/operations/speed.png",
+      "bytes": 5186,
+      "width": 192,
+      "height": 192,
+      "sha256": "bf49336181f1965bb72a136b714dc3ce414ccc6d4d256b26bc1e065dbcd405ed"
+    },
+    {
+      "path": "assets/ui/icons/operations/staff.png",
+      "bytes": 6162,
+      "width": 192,
+      "height": 192,
+      "sha256": "5e33359dc6ebe62ed943bb66f7a0529886aa2d0a034b2083f5bc43373b237376"
+    },
+    {
+      "path": "assets/ui/icons/operations/supplies.png",
+      "bytes": 5968,
+      "width": 192,
+      "height": 192,
+      "sha256": "fe87a43fbbb147bf60e39094ae8ff51b0d7196c83eada6f4bd50b470859aa40b"
+    },
+    {
+      "path": "assets/ui/icons/operations/tasks.png",
+      "bytes": 5482,
+      "width": 192,
+      "height": 192,
+      "sha256": "bd2534c369eb3d2cd1752ff03c229a81ffc0ec89ca16f3f51b97c0b4dc445089"
+    },
+    {
+      "path": "assets/ui/icons/operations/upgrade.png",
+      "bytes": 3940,
+      "width": 192,
+      "height": 192,
+      "sha256": "4147167d6f9648b86f93c1c05e4921a9614304c88063c5384c30f544fa035a83"
+    },
+    {
+      "path": "assets/ui/icons/operations/zoom_in.png",
+      "bytes": 6183,
+      "width": 192,
+      "height": 192,
+      "sha256": "1b021664fbee1fc1de808aac8c64d8e6ccdb6af8e73429c69f53da754babe637"
+    },
+    {
+      "path": "assets/ui/icons/operations/zoom_out.png",
+      "bytes": 5880,
+      "width": 192,
+      "height": 192,
+      "sha256": "4b43c4692edf4abad7cb71886077142d7998234dcbe4c70e362494b9f55e82ed"
+    },
+    {
+      "path": "assets/ui/icons/rooms/doctor_office.png",
+      "bytes": 2186,
+      "width": 192,
+      "height": 192,
+      "sha256": "d898336a2fa05aa2b863b5dbef88e23663e929b5e99a408750518d58464dd3ef"
+    },
+    {
+      "path": "assets/ui/icons/rooms/gp.png",
+      "bytes": 6428,
+      "width": 192,
+      "height": 192,
+      "sha256": "a97f12c69b3537d8c2277296f1f6012bcb613eb1665868c005795dd65c1df668"
+    },
+    {
+      "path": "assets/ui/icons/rooms/operating_room.png",
+      "bytes": 2594,
+      "width": 192,
+      "height": 192,
+      "sha256": "ae9afb5aa485024727d6e4a8d02df3e99ed55ffe8e531a98fdc65004706bdff4"
+    },
+    {
+      "path": "assets/ui/icons/rooms/research.png",
+      "bytes": 6227,
+      "width": 192,
+      "height": 192,
+      "sha256": "5dd53fb990b49e21bd10eeb3a5d383348d5fc0de194e029a42be482f22696a09"
+    },
+    {
+      "path": "assets/ui/icons/rooms/rest.png",
+      "bytes": 3374,
+      "width": 192,
+      "height": 192,
+      "sha256": "80def609dd8cb695f7511d7ade6f659d068fbe2a27b0f81e3226c37609eb9770"
+    },
+    {
+      "path": "assets/ui/icons/rooms/t01.png",
+      "bytes": 5008,
+      "width": 192,
+      "height": 192,
+      "sha256": "81e7740a64fd027202a3263939dcc6edff17561c726b6e37623c739a55c6c3c2"
+    },
+    {
+      "path": "assets/ui/icons/rooms/t02.png",
+      "bytes": 4709,
+      "width": 192,
+      "height": 192,
+      "sha256": "ecff1223574ec07983f8ee881a0171065318f6ce1befe4e008c1c3b3f0640b27"
+    },
+    {
+      "path": "assets/ui/icons/rooms/t03.png",
+      "bytes": 6456,
+      "width": 192,
+      "height": 192,
+      "sha256": "da8f45cef0b5dd30cda9fb44ff26777124461c315672b91c4db4724abec60a65"
+    },
+    {
+      "path": "assets/ui/icons/rooms/t04.png",
+      "bytes": 4342,
+      "width": 192,
+      "height": 192,
+      "sha256": "46da2407f9c8fb34a5fe312a7316210e563eb57dbcd5a7ab55b6d6829f3d4d9b"
+    },
+    {
+      "path": "assets/ui/icons/rooms/t05.png",
+      "bytes": 6230,
+      "width": 192,
+      "height": 192,
+      "sha256": "bde95d19989c0ea6834f824044ed77b8418b103f7f7b183039defb2a26100dcc"
+    },
+    {
+      "path": "assets/ui/icons/rooms/t07.png",
+      "bytes": 6553,
+      "width": 192,
+      "height": 192,
+      "sha256": "2e69cb7f7e54a4c2bc5f5286eddfccda558930e85ecccce51865be37ab1d9628"
+    },
+    {
+      "path": "assets/ui/icons/rooms/t08.png",
+      "bytes": 4393,
+      "width": 192,
+      "height": 192,
+      "sha256": "14e7dc1c0fce756abcc557622f8c84d225b247a076ec6d7f36ea830a36f41f05"
+    },
+    {
+      "path": "assets/ui/icons/rooms/t10.png",
+      "bytes": 5878,
+      "width": 192,
+      "height": 192,
+      "sha256": "715f4f9c2780a328a9b10a25ee053ee4c0941ff90e05840defca2eab3d17b3de"
+    },
+    {
+      "path": "assets/ui/icons/rooms/toilet.png",
+      "bytes": 3174,
+      "width": 192,
+      "height": 192,
+      "sha256": "2db48ff5be05ae85679ecd28e8c1926b1695386001bbdffcee2babda8aab8018"
+    },
+    {
+      "path": "assets/ui/icons/species/s01.png",
+      "bytes": 8933,
+      "width": 192,
+      "height": 192,
+      "sha256": "92d07b4a7baaa3c65491a35d47338a3841cb444c4ee201267e631c619bacab83"
+    },
+    {
+      "path": "assets/ui/icons/species/s02.png",
+      "bytes": 13238,
+      "width": 192,
+      "height": 192,
+      "sha256": "ccbcd4e305780dc05c9b1748eb1d641c5907b5552238205dee9d865c457c688d"
+    },
+    {
+      "path": "assets/ui/icons/species/s03.png",
+      "bytes": 15232,
+      "width": 192,
+      "height": 192,
+      "sha256": "7dd0c0e20ca7051cc57690a1e3e3ec66c876dec4c90582e4c8abefa771a581e6"
+    },
+    {
+      "path": "assets/ui/icons/species/s04.png",
+      "bytes": 9262,
+      "width": 192,
+      "height": 192,
+      "sha256": "b525f60f8189bfec5d15b93e7b212c937399474468931355c8b23e1082923c7e"
+    },
+    {
+      "path": "assets/ui/icons/species/s05.png",
+      "bytes": 8073,
+      "width": 192,
+      "height": 192,
+      "sha256": "546352b6bae73d21c6b69a1762f0d11314604ce1fb8629e0ad6ce64e5af836c7"
+    },
+    {
+      "path": "assets/ui/icons/species/s06.png",
+      "bytes": 9252,
+      "width": 192,
+      "height": 192,
+      "sha256": "44ab2ba67fddb88aca60da0698c237e52dcb36f63b3a986fa2c13bd7d06ec502"
+    },
+    {
+      "path": "assets/ui/icons/species/s07.png",
+      "bytes": 8864,
+      "width": 192,
+      "height": 192,
+      "sha256": "364915e42bc041bd7fe82c0f033c06fe5fb91f20a96146381e0a64befdd56229"
+    },
+    {
+      "path": "assets/ui/icons/species/s08.png",
+      "bytes": 10172,
+      "width": 192,
+      "height": 192,
+      "sha256": "83aabb2d9b188073d9c6cf6bd000332102bad7924cac227072ae484bb3d80f68"
+    },
+    {
+      "path": "assets/ui/icons/species/s09.png",
+      "bytes": 8108,
+      "width": 192,
+      "height": 192,
+      "sha256": "8cea5b970a1a1d4d8ef5757d6afa65c942e6f270942a70b2cad333913b1c64ae"
+    },
+    {
+      "path": "assets/ui/icons/species/s10.png",
+      "bytes": 10163,
+      "width": 192,
+      "height": 192,
+      "sha256": "939ddac0801fd8fc0bda2eb59185767974868e358fdfb1d8161f45e1273072b5"
+    },
+    {
+      "path": "assets/ui/icons/species/s11.png",
+      "bytes": 12103,
+      "width": 192,
+      "height": 192,
+      "sha256": "87028a4df28d0abbaaa7e174c0c1148e20300b11717e4cad16093458abd8478b"
+    },
+    {
+      "path": "assets/ui/icons/species/s12.png",
+      "bytes": 9282,
+      "width": 192,
+      "height": 192,
+      "sha256": "7412202834fbb2596c5cfb56f3cd7ad60efc577f9392d166f93d622ce426787b"
+    },
+    {
+      "path": "assets/ui/icons/species/s13.png",
+      "bytes": 7919,
+      "width": 192,
+      "height": 192,
+      "sha256": "71ae1d1eb5fdbb48b43b6a6d7b02533f2c61e2f18eeb4aade9d2cbad2e6e5d8b"
+    },
+    {
+      "path": "assets/ui/icons/species/s14.png",
+      "bytes": 9047,
+      "width": 192,
+      "height": 192,
+      "sha256": "57914e54409cff65cadcdf104b82ba206e71c9fce92e947da7a10b7e8c0398b0"
+    },
+    {
+      "path": "assets/ui/icons/species/s15.png",
+      "bytes": 6969,
+      "width": 192,
+      "height": 192,
+      "sha256": "af6df79fbeb8d47b1fdb76893cbb156ce23c461e8f535d1c3c4a06a426bda50a"
+    },
+    {
+      "path": "assets/ui/icons/species/s16.png",
+      "bytes": 7750,
+      "width": 192,
+      "height": 192,
+      "sha256": "8f1fb9704158a941571329747917ccd5715978e44b149ceb8c8e2641e334839e"
+    },
+    {
+      "path": "assets/ui/icons/species/s17.png",
+      "bytes": 9917,
+      "width": 192,
+      "height": 192,
+      "sha256": "c65ea3ad0551492bba9c93a4212990bf99f03e30ca7ec5de8e4ded6beefd4617"
+    },
+    {
+      "path": "assets/ui/icons/species/s18.png",
+      "bytes": 9628,
+      "width": 192,
+      "height": 192,
+      "sha256": "a6d5d238f7affb3b5d330e1b634c82cf0b2bff54cd4c89ed2d5bc392cc33c1ba"
+    },
+    {
+      "path": "assets/ui/icons/species/s19.png",
+      "bytes": 11892,
+      "width": 192,
+      "height": 192,
+      "sha256": "69b9e7ac3ca34617c906087bfb73fca21b685812d7347d008a99cdad1cb9c3ef"
+    },
+    {
+      "path": "assets/ui/icons/species/s20.png",
+      "bytes": 9683,
+      "width": 192,
+      "height": 192,
+      "sha256": "b22fa9b032fab77a5b22b2c18a5b39c32e8f49938c596c3c7fe950f7dbd2cdd3"
+    },
+    {
+      "path": "assets/ui/icons/species/s21.png",
+      "bytes": 13094,
+      "width": 192,
+      "height": 192,
+      "sha256": "7ce45bd736dc8e0b02767855ac4c3598191deb9b6af7a7a474ef3fa683a59b2b"
+    },
+    {
+      "path": "assets/ui/icons/species/s22.png",
+      "bytes": 12829,
+      "width": 192,
+      "height": 192,
+      "sha256": "e074203f5907d643998f8017e403a7de04e13bb425df56856d99f860e6799b76"
+    },
+    {
+      "path": "assets/ui/icons/species/s23.png",
+      "bytes": 12804,
+      "width": 192,
+      "height": 192,
+      "sha256": "0414683b9853a6be778f3fdef623862823ebc3bf32f671bbe45434a2b454e74f"
+    },
+    {
+      "path": "assets/ui/icons/species/s24.png",
+      "bytes": 13147,
+      "width": 192,
+      "height": 192,
+      "sha256": "1ea31d1ed98bfff8c4dabdb84181b51051765df659d5445920d58f4ea080c763"
+    },
+    {
+      "path": "assets/ui/icons/species/s25.png",
+      "bytes": 8365,
+      "width": 192,
+      "height": 192,
+      "sha256": "4910334b2f94d2a62a2d97c8fd2467c760a7b3bfd5e1c9773c15aedd05532c14"
+    },
+    {
+      "path": "assets/ui/icons/species/s26.png",
+      "bytes": 10113,
+      "width": 192,
+      "height": 192,
+      "sha256": "161f71600637029d6d438700fbd5bcd0f5d1efb1da9e38d4126e841a918d65e8"
+    },
+    {
+      "path": "assets/ui/icons/species/s27.png",
+      "bytes": 13516,
+      "width": 192,
+      "height": 192,
+      "sha256": "8c4eda1dcd5a5c5e964ea4b3c660bbaf3d28a813252b99915540a69409a3c11e"
+    },
+    {
+      "path": "assets/ui/icons/species/s28.png",
+      "bytes": 10217,
+      "width": 192,
+      "height": 192,
+      "sha256": "d60c24843a7d5913850ae4b1c1a22ea9cbde8888273b45017fca5852a253a34c"
+    },
+    {
+      "path": "assets/ui/icons/species/s29.png",
+      "bytes": 11060,
+      "width": 192,
+      "height": 192,
+      "sha256": "e8e75d3c45367f6d34e4c86edadd5440ae692a7a859188a6154c274c7d95df78"
+    },
+    {
+      "path": "assets/ui/icons/species/s30.png",
+      "bytes": 6327,
+      "width": 192,
+      "height": 192,
+      "sha256": "56ad54ef0b354e892da5d0b79c734bd4eb0ae2103fdf58f16010feddb5788a88"
+    },
+    {
+      "path": "assets/ui/icons/species/s31.png",
+      "bytes": 6405,
+      "width": 192,
+      "height": 192,
+      "sha256": "ad2ff65c66967b8384cbed5798844908db3684ff54feb14cc4514c088527d15c"
+    },
+    {
+      "path": "assets/ui/icons/species/s32.png",
+      "bytes": 10802,
+      "width": 192,
+      "height": 192,
+      "sha256": "e39ed5c041e5cfb968429e7593ecfdbd2443332b66576ada48ec3edf7d342006"
+    },
+    {
+      "path": "assets/ui/icons/species/s33.png",
+      "bytes": 6205,
+      "width": 192,
+      "height": 192,
+      "sha256": "1019c5cc13bae89a837b2cecd6d793d1b9bf6d70c120bbd25fb1f34ceba0cda8"
+    },
+    {
+      "path": "assets/ui/icons/species/s34.png",
+      "bytes": 9704,
+      "width": 192,
+      "height": 192,
+      "sha256": "5419443494d62ced95357bdbf6a3ed02851c1bca3691bb889e2926c41c1c3398"
+    },
+    {
+      "path": "assets/ui/icons/species/s35.png",
+      "bytes": 6808,
+      "width": 192,
+      "height": 192,
+      "sha256": "0edb569049684a05754a807aae07eab2f851d016c5f817ab9c698ee45cd49c3e"
+    },
+    {
+      "path": "assets/ui/icons/species/s36.png",
+      "bytes": 11171,
+      "width": 192,
+      "height": 192,
+      "sha256": "31cf720335b588cfcb4c5772005abdd7f7dd61ca4152146fdc9e1810ec68284c"
+    },
+    {
+      "path": "assets/ui/icons/species/s37.png",
+      "bytes": 12651,
+      "width": 192,
+      "height": 192,
+      "sha256": "4294469e09cf59e8d61d58621e9938d4c9af3efaf28b1f4f407ef3a51a5755a5"
+    },
+    {
+      "path": "assets/ui/icons/species/s38.png",
+      "bytes": 9184,
+      "width": 192,
+      "height": 192,
+      "sha256": "dd2eaf239f73380a2e6417ebb7207af9302e51605d008fba800b0ad378945444"
+    },
+    {
+      "path": "assets/ui/icons/species/s39.png",
+      "bytes": 8993,
+      "width": 192,
+      "height": 192,
+      "sha256": "35cf83bb9f86572ffa7a489eed30bbbdb0dec8bc70a1580c0fc48b30c19ffe43"
+    },
+    {
+      "path": "assets/ui/icons/species/s40.png",
+      "bytes": 6889,
+      "width": 192,
+      "height": 192,
+      "sha256": "dcff6a858a7b1338dec59ffdc066213e15ff087c42bdba73131dc7229d80b55a"
+    },
+    {
+      "path": "assets/ui/icons/species/s41.png",
+      "bytes": 10443,
+      "width": 192,
+      "height": 192,
+      "sha256": "b4ee24d8f4b8116d21a35a3814f2d3c8a9e78cec029b6da38e80f4773d0c20df"
+    },
+    {
+      "path": "assets/ui/icons/species/s42.png",
+      "bytes": 10416,
+      "width": 192,
+      "height": 192,
+      "sha256": "46e9adc1b6a57db4489261af04baaa807b791b0bab9d43ecd45ae9e0f7afb5f7"
+    },
+    {
+      "path": "assets/ui/icons/species/s43.png",
+      "bytes": 6310,
+      "width": 192,
+      "height": 192,
+      "sha256": "ffb4be9577802e61a0bfc06f6177517a01f21ffbb6aed93f43c9903acb0cd0e7"
+    },
+    {
+      "path": "assets/ui/icons/species/s44.png",
+      "bytes": 10853,
+      "width": 192,
+      "height": 192,
+      "sha256": "e8e864ad94309d8146ffa90b88d6848391ad03761e17ff438462ac9f5977c291"
+    },
+    {
+      "path": "assets/ui/icons/species/s45.png",
+      "bytes": 8332,
+      "width": 192,
+      "height": 192,
+      "sha256": "71fe65072d043eb355fc8116acf115ee1d00fd428bbdc390191f724e9628a6a2"
+    },
+    {
+      "path": "assets/ui/icons/species/s46.png",
+      "bytes": 8878,
+      "width": 192,
+      "height": 192,
+      "sha256": "904be12b4fdb6cda3cc9f862155c39ed8a867fb743f19758e291cb201535181c"
+    },
+    {
+      "path": "assets/ui/icons/species/s47.png",
+      "bytes": 8487,
+      "width": 192,
+      "height": 192,
+      "sha256": "d941507435bb5e1f761fb8a07e6aa27cb75d2c7fe06d5e4b99bb1464097eb245"
+    },
+    {
+      "path": "assets/ui/icons/species/s48.png",
+      "bytes": 8607,
+      "width": 192,
+      "height": 192,
+      "sha256": "6efa76656101a364ed576c68adda4a03be0266ff1d50ee1affe197e15698fffe"
+    },
+    {
+      "path": "assets/ui/icons/species/s49.png",
+      "bytes": 8054,
+      "width": 192,
+      "height": 192,
+      "sha256": "70b8c3d37e1972f222cab295a7c72875547eaca594bf17e27f2d007d55ff4378"
+    },
+    {
+      "path": "assets/ui/icons/species/s50.png",
+      "bytes": 12677,
+      "width": 192,
+      "height": 192,
+      "sha256": "7945859a5a691ac82647c09366da051bde5b550584269d791f2ab1081f63e3d6"
+    },
+    {
+      "path": "assets/ui/icons/species/s51.png",
+      "bytes": 15245,
+      "width": 192,
+      "height": 192,
+      "sha256": "70c26a9e3ff284a66b8522ee77629511fcd8cf400cd6165ec02dc230e3b1487c"
+    },
+    {
+      "path": "assets/ui/icons/species/s52.png",
+      "bytes": 14152,
+      "width": 192,
+      "height": 192,
+      "sha256": "d3fa6fc4a4afba10c14220f7ab8e92e5f06d00b4f483b4682311bce815e9f2f3"
+    },
+    {
+      "path": "assets/ui/icons/species/s53.png",
+      "bytes": 14193,
+      "width": 192,
+      "height": 192,
+      "sha256": "f170d7a5392acb05220adc4bb36cb051852c736d71d0ee9669608fdc6a341b7f"
+    },
+    {
+      "path": "assets/ui/icons/species/s54.png",
+      "bytes": 8270,
+      "width": 192,
+      "height": 192,
+      "sha256": "54b4848d36d536030b68e55ee8a381ab9591839357cf660f77a2b1096314a933"
+    },
+    {
+      "path": "assets/ui/icons/species/s55.png",
+      "bytes": 5870,
+      "width": 192,
+      "height": 192,
+      "sha256": "5e23e3576f4100bfa94ac9609e91044c7ee2bb590462c5f0f05b103ceb4ac13d"
+    },
+    {
+      "path": "assets/ui/icons/species/s56.png",
+      "bytes": 9331,
+      "width": 192,
+      "height": 192,
+      "sha256": "5054fd0c33fb99aea1120768914b8ab706c8e55448c1ce6a73eb40b7fcec2f05"
+    },
+    {
+      "path": "assets/ui/icons/species/s57.png",
+      "bytes": 12601,
+      "width": 192,
+      "height": 192,
+      "sha256": "6e6c4f30a1adeb9ec64d528ad7db58242de546d27c5299443710e086d55c767b"
+    },
+    {
+      "path": "assets/ui/icons/species/s58.png",
+      "bytes": 8857,
+      "width": 192,
+      "height": 192,
+      "sha256": "ca0fccbf978395612e7a87ce9e5f6affb250dde61b85847ff2eecbcfb576c4d7"
+    },
+    {
+      "path": "assets/ui/icons/species/s59.png",
+      "bytes": 10685,
+      "width": 192,
+      "height": 192,
+      "sha256": "4571340b5412cd20296852ba8628c3be09dbd0be2493003fa501e924329dd9c1"
+    },
+    {
+      "path": "assets/ui/icons/species/s60.png",
+      "bytes": 9073,
+      "width": 192,
+      "height": 192,
+      "sha256": "e65386a771e2cc5780673274371e1d4c1bc40c44c9d5cf9328eb9b0e47c9aa62"
+    },
+    {
+      "path": "assets/ui/icons/species/s61.png",
+      "bytes": 9971,
+      "width": 192,
+      "height": 192,
+      "sha256": "426f2bb956a01118f8076effae7f21caed3d08a38d86f0e3b36ee3f327e87a98"
+    },
+    {
+      "path": "assets/ui/icons/species/s62.png",
+      "bytes": 8538,
+      "width": 192,
+      "height": 192,
+      "sha256": "3200fe1488012844f19441eecce2d932228ecbc3c0a34d756d2660e90c59c539"
+    },
+    {
+      "path": "assets/ui/icons/species/s63.png",
+      "bytes": 10232,
+      "width": 192,
+      "height": 192,
+      "sha256": "dcceb50a3a24eb1fb253b7eadaa561f445a4394ec8011bc4717a3a45bc172e9e"
+    },
+    {
+      "path": "assets/ui/icons/species/s64.png",
+      "bytes": 10409,
+      "width": 192,
+      "height": 192,
+      "sha256": "6574dadfdc755a393d185465a4f6ec5cb7c81abd200b2ed0358dcacec6a71a23"
+    },
+    {
+      "path": "assets/ui/icons/species/s65.png",
+      "bytes": 7474,
+      "width": 192,
+      "height": 192,
+      "sha256": "d8f7b0e76f7fcdbd359b816309d43336466e5609d58ee977dcfe4fdf2ce98a7c"
+    },
+    {
+      "path": "assets/ui/icons/species/s66.png",
+      "bytes": 12872,
+      "width": 192,
+      "height": 192,
+      "sha256": "2833942f282f0472c2d4046cdb8690e2520fb162951f88b89794e112db646e59"
+    },
+    {
+      "path": "assets/ui/icons/species/s67.png",
+      "bytes": 12829,
+      "width": 192,
+      "height": 192,
+      "sha256": "f03a0ca28705abb0becd1ba790a6d541caeecbda294e5678cdb91ae2494d4519"
+    },
+    {
+      "path": "assets/ui/icons/species/s68.png",
+      "bytes": 10649,
+      "width": 192,
+      "height": 192,
+      "sha256": "a5627a3bf9c662377bb454c290e62698b3a7c22160301089e71563167074f96e"
+    },
+    {
+      "path": "assets/ui/icons/species/s69.png",
+      "bytes": 11202,
+      "width": 192,
+      "height": 192,
+      "sha256": "af7efa6fa95bd63d05faee4496ce9725b2d1a0c89219f0f215264166ede92404"
+    },
+    {
+      "path": "assets/ui/icons/species/s70.png",
+      "bytes": 11381,
+      "width": 192,
+      "height": 192,
+      "sha256": "7c84e2246db395efe6ca68d58b018bc927c76e2a0a20434359d94552b2b4d03c"
+    },
+    {
+      "path": "assets/ui/icons/species/s71.png",
+      "bytes": 8187,
+      "width": 192,
+      "height": 192,
+      "sha256": "a5bee35a389557bd0fca799e63022ba74e2a1826a17e9f69daa78549d8701ab2"
+    },
+    {
+      "path": "assets/ui/icons/species/s72.png",
+      "bytes": 7245,
+      "width": 192,
+      "height": 192,
+      "sha256": "f07126ad9f6b8702b59625d6319e2055ecc12c84a2bde65c62c6f2f6d18abd84"
+    },
+    {
+      "path": "assets/ui/icons/species/s73.png",
+      "bytes": 10529,
+      "width": 192,
+      "height": 192,
+      "sha256": "6a0e535fae0e40c22f2a4471614d496bf649c5df77b815e3330e096374628147"
+    },
+    {
+      "path": "assets/ui/icons/species/s74.png",
+      "bytes": 10773,
+      "width": 192,
+      "height": 192,
+      "sha256": "a0196043ecc7ee240d0ba995c3826010291c410dd2e0a66fe933c7e4bd6b95fd"
+    },
+    {
+      "path": "assets/ui/icons/species/s75.png",
+      "bytes": 10777,
+      "width": 192,
+      "height": 192,
+      "sha256": "bd54b1e0f841ede47438cac9cdba5086101da5ee28ff357d95b168a6a8306084"
+    },
+    {
+      "path": "assets/ui/icons/species/s76.png",
+      "bytes": 10977,
+      "width": 192,
+      "height": 192,
+      "sha256": "839e81663ac3ad3321b46e1d1820dd097194ab0f69c4701ba9dd65340487101c"
+    },
+    {
+      "path": "assets/ui/icons/species/s77.png",
+      "bytes": 8224,
+      "width": 192,
+      "height": 192,
+      "sha256": "9b690c68e805a6487d96fde447cd2381b303682ccc20b0d163b4e3c32ceb1c1f"
+    },
+    {
+      "path": "assets/ui/icons/species/s78.png",
+      "bytes": 6091,
+      "width": 192,
+      "height": 192,
+      "sha256": "0e2a10a12d202b8930d7afd16fd2ab6662d95dd2af3fe72d803f760814389b1a"
+    },
+    {
+      "path": "assets/ui/icons/species/s79.png",
+      "bytes": 7843,
+      "width": 192,
+      "height": 192,
+      "sha256": "887ad55cf98efe2a88685adbe4fd918995cfdb1d4b9f60ed5146eb190bd382c5"
+    },
+    {
+      "path": "assets/ui/icons/species/s80.png",
+      "bytes": 7634,
+      "width": 192,
+      "height": 192,
+      "sha256": "38802040e94a0e102d4b2f436c2e2d4f05294ad28b4c2a300438c669158f32dd"
+    },
+    {
+      "path": "assets/ui/icons/tasks/commission.png",
+      "bytes": 5077,
+      "width": 192,
+      "height": 192,
+      "sha256": "2b0315e1a030ce3f142e1adb14d88e03a4d668d20689a79bfbeb7dcf361766ff"
+    },
+    {
+      "path": "assets/ui/icons/tasks/milestone.png",
+      "bytes": 3917,
+      "width": 192,
+      "height": 192,
+      "sha256": "31cdf940334502b4dca4b2e15fb5bae9536ebe8344f54634a372a6c7d7418901"
+    },
+    {
+      "path": "assets/ui/icons/tasks/story.png",
+      "bytes": 4527,
+      "width": 192,
+      "height": 192,
+      "sha256": "2a31ded2f94140ff41f3d784aa90957b07dd71665103a944e36d03a1eff26f83"
+    },
+    {
+      "path": "assets/ui/illustrations/hospital_welcome.png",
+      "bytes": 40903,
+      "width": 384,
+      "height": 216,
+      "sha256": "eef808e11e120cf4a50a299605d7e8e5be3d4c8d5fb0eec5051ad78fb33c2f27"
+    },
+    {
+      "path": "assets/ui/research/rt01.png",
+      "bytes": 6404,
+      "width": 320,
+      "height": 320,
+      "sha256": "d1bfd35982e1b681870b0475c071acf213b366e67c2d23cfd51e7993add794f6"
+    },
+    {
+      "path": "assets/ui/research/rt02.png",
+      "bytes": 6454,
+      "width": 320,
+      "height": 320,
+      "sha256": "6499763b71894ca8909444c69980b53bb0ec420f22ac859771a2c4bd5dcc72ec"
+    },
+    {
+      "path": "assets/ui/research/rt03.png",
+      "bytes": 6369,
+      "width": 320,
+      "height": 320,
+      "sha256": "0d9989461126442ae4862467ecddc66755da2514a8c3f4ee096c617e2fe3c249"
+    },
+    {
+      "path": "assets/ui/research/rt04.png",
+      "bytes": 6010,
+      "width": 320,
+      "height": 320,
+      "sha256": "aa35e8c389843695c220b3de9f91e1e591de7041989cdb3e196c02cee9621b65"
+    },
+    {
+      "path": "assets/ui/research/rt05.png",
+      "bytes": 6210,
+      "width": 320,
+      "height": 320,
+      "sha256": "58e817ee71557d658453413b786566348e22b2ce3dbb4dad3bfe365059f86262"
+    },
+    {
+      "path": "assets/ui/research/rt06.png",
+      "bytes": 6546,
+      "width": 320,
+      "height": 320,
+      "sha256": "9fb4c3646b122cc4095e111a20cdee28112f838c2f6f522e6783ddfe0a19e294"
+    },
+    {
+      "path": "assets/ui/supplements/biographies/bio01.png",
+      "bytes": 2792,
+      "width": 192,
+      "height": 192,
+      "sha256": "d7924e369cab43d77858ac6c7de883431d56fb8272ee1fd0c572e1feb69846ab"
+    },
+    {
+      "path": "assets/ui/supplements/biographies/bio02.png",
+      "bytes": 3201,
+      "width": 192,
+      "height": 192,
+      "sha256": "d273cee7e57fb1acaeac2377f7b9b882c7acce3198648b61df3002e564583263"
+    },
+    {
+      "path": "assets/ui/supplements/biographies/bio03.png",
+      "bytes": 2993,
+      "width": 192,
+      "height": 192,
+      "sha256": "8ef2db8ff48dc503a9f409352414a66e3a1aa70a9b1ecf4e0d19a43ca2e64692"
+    },
+    {
+      "path": "assets/ui/supplements/biographies/bio04.png",
+      "bytes": 2196,
+      "width": 192,
+      "height": 192,
+      "sha256": "f9afd0833c1c8ef14621300a58d2e5246db30c8a108e59096d4115f1cecc4408"
+    },
+    {
+      "path": "assets/ui/supplements/biographies/bio05.png",
+      "bytes": 3288,
+      "width": 192,
+      "height": 192,
+      "sha256": "6d9a0d350f725fbfe6e735720b00aff61a81a8ac806bbaba96d489852b015133"
+    },
+    {
+      "path": "assets/ui/supplements/biographies/bio06.png",
+      "bytes": 2520,
+      "width": 192,
+      "height": 192,
+      "sha256": "60306f432cd6d682fe3ca9960513032ae8d2761ad3d80bd04f380936491196ac"
+    },
+    {
+      "path": "assets/ui/supplements/biographies/bio07.png",
+      "bytes": 2735,
+      "width": 192,
+      "height": 192,
+      "sha256": "afdb83eccf4959dc228c815388610e369442e3e12f9ef256a2e4107391818861"
+    },
+    {
+      "path": "assets/ui/supplements/biographies/bio08.png",
+      "bytes": 869,
+      "width": 192,
+      "height": 192,
+      "sha256": "5fe5b3fc1a3606abc520738bcbc91b3ae58ae2440aa6c32fa649c38bd1340e7b"
+    },
+    {
+      "path": "assets/ui/supplements/blueprints/bp01.png",
+      "bytes": 1723,
+      "width": 256,
+      "height": 192,
+      "sha256": "72d592f40235a846d5cf28457e3323deb245f406382250c4c91b0c782911a3e9"
+    },
+    {
+      "path": "assets/ui/supplements/blueprints/bp02.png",
+      "bytes": 1782,
+      "width": 256,
+      "height": 192,
+      "sha256": "62f729886afd69e5cb6fbdd6ef7242e83e4a5904b2c800de31d9f87a1017cda9"
+    },
+    {
+      "path": "assets/ui/supplements/blueprints/bp03.png",
+      "bytes": 1769,
+      "width": 256,
+      "height": 192,
+      "sha256": "a70b5ffb3c06657ac3e816809d89111e54c1e8aac53d8100528a6a1561b9c2f5"
+    },
+    {
+      "path": "assets/ui/supplements/blueprints/bp04.png",
+      "bytes": 1917,
+      "width": 256,
+      "height": 192,
+      "sha256": "0b34a8a5df8e914ebe30e409249b1034bf92793b8330f349cde98c5b1b1b1564"
+    },
+    {
+      "path": "assets/ui/supplements/blueprints/bp05.png",
+      "bytes": 2187,
+      "width": 256,
+      "height": 192,
+      "sha256": "d269e0d33a1c3655e6f32951e0320ab418b799a9cb43cf6e895a41ff4e1f3b49"
+    },
+    {
+      "path": "assets/ui/supplements/blueprints/bp06.png",
+      "bytes": 2765,
+      "width": 256,
+      "height": 192,
+      "sha256": "d34fb04d494daa5ca126602eec3a214a62c6c189d7c536e6e5d14031e0a5387b"
+    },
+    {
+      "path": "assets/ui/supplements/blueprints/bp07.png",
+      "bytes": 2491,
+      "width": 256,
+      "height": 192,
+      "sha256": "7ba29c0968edbf60fa9d2f0d1660fe48fa33abcfbc580511f0190e35b5afd0be"
+    },
+    {
+      "path": "assets/ui/supplements/blueprints/bp08.png",
+      "bytes": 2206,
+      "width": 256,
+      "height": 192,
+      "sha256": "8c344c27f04e98f0031bd6151505f9be523c73dc4f146915dd6b6d0b3a2876a0"
+    },
+    {
+      "path": "assets/ui/supplements/blueprints/bp09.png",
+      "bytes": 1883,
+      "width": 256,
+      "height": 192,
+      "sha256": "e71f12d8bda94a9e8dc2b47fe9c4936ea573e26134e58327e5f35da5a66f2549"
+    },
+    {
+      "path": "assets/ui/supplements/chairs/cs01.png",
+      "bytes": 3204,
+      "width": 192,
+      "height": 192,
+      "sha256": "5ffb74bb503e8f212af0b2f67a8b45cff2e99709f4b1e9f87f886a1f8e801d4d"
+    },
+    {
+      "path": "assets/ui/supplements/chairs/cs02.png",
+      "bytes": 2623,
+      "width": 192,
+      "height": 192,
+      "sha256": "a13b822212faec7f650cfd5ed53f98c411ea4ac709996b363e627b043a83a105"
+    },
+    {
+      "path": "assets/ui/supplements/chairs/cs03.png",
+      "bytes": 2228,
+      "width": 192,
+      "height": 192,
+      "sha256": "a5f9cf39653c67eaa786e3d317e307b39c29a2361e0b66b6d0b2c043774cfb11"
+    },
+    {
+      "path": "assets/ui/supplements/chairs/cs04.png",
+      "bytes": 2167,
+      "width": 192,
+      "height": 192,
+      "sha256": "d41f39b21c142274ac4a6a8e8264e4bdb464287517c83bb894fdae41244f1b3e"
+    },
+    {
+      "path": "assets/ui/supplements/cleanup/cl01.png",
+      "bytes": 2022,
+      "width": 192,
+      "height": 192,
+      "sha256": "7ccd0ab24499e04fba584e61a1fe868e32a4337304ead01f20730edfb134946c"
+    },
+    {
+      "path": "assets/ui/supplements/cleanup/cl02.png",
+      "bytes": 2296,
+      "width": 192,
+      "height": 192,
+      "sha256": "9d8211080e2508fefc9ed688bffb6fbae1a65476114103b5c5f3aa3dd121ea1a"
+    },
+    {
+      "path": "assets/ui/supplements/cleanup/cl04.png",
+      "bytes": 2573,
+      "width": 192,
+      "height": 192,
+      "sha256": "b41602f217b816591427c5d685e1342d28d8dac46de2b250242871440335adf0"
+    },
+    {
+      "path": "assets/ui/supplements/context/cl01.png",
+      "bytes": 732,
+      "width": 192,
+      "height": 192,
+      "sha256": "72d66dbac3a263a3d1ea996ab8b644d7d3e7ab37f0bcfa41867a4714e01febd6"
+    },
+    {
+      "path": "assets/ui/supplements/context/cl02.png",
+      "bytes": 859,
+      "width": 192,
+      "height": 192,
+      "sha256": "e47482ece45d39fe987803affeac4c39b16a82ab2a6d85b51cade232e085f817"
+    },
+    {
+      "path": "assets/ui/supplements/context/cl03.png",
+      "bytes": 2566,
+      "width": 192,
+      "height": 192,
+      "sha256": "455ace233c3650a63891d322f6c0d45f22ad59f735eb0709c53f074ee15d1c71"
+    },
+    {
+      "path": "assets/ui/supplements/context/cl04.png",
+      "bytes": 3498,
+      "width": 192,
+      "height": 192,
+      "sha256": "360ed8731749279ca4efa34c52ff87ecca13b08bb6335522ca8f3b52b931a186"
+    },
+    {
+      "path": "assets/ui/supplements/context/cl05.png",
+      "bytes": 2167,
+      "width": 192,
+      "height": 192,
+      "sha256": "7151ee3ef51282b47f2647893e08a9f2c37d1f8ad553ecb1bb573e6ed90c3385"
+    },
+    {
+      "path": "assets/ui/supplements/context/cl06.png",
+      "bytes": 3957,
+      "width": 192,
+      "height": 192,
+      "sha256": "b059e2a442a1e4e237228209e37f86a2c3786542ea4d64e782d530fbe35c4d1c"
+    },
+    {
+      "path": "assets/ui/supplements/context/cl07.png",
+      "bytes": 2004,
+      "width": 192,
+      "height": 192,
+      "sha256": "fde603101d54e9a946c1a6307bab0bc9f898b4283b8bb41c31448037ccd78808"
+    },
+    {
+      "path": "assets/ui/supplements/context/cl08.png",
+      "bytes": 3177,
+      "width": 192,
+      "height": 192,
+      "sha256": "f2f9e4095e22066a9560880053ab72a20ef58446f2f54e2c32f30d36305e455b"
+    },
+    {
+      "path": "assets/ui/supplements/context/cl09.png",
+      "bytes": 3210,
+      "width": 192,
+      "height": 192,
+      "sha256": "7f75b2273e503733c409a557e3e993b6abe7f6d98087b2b6b5f3ff5d7c61ac8b"
+    },
+    {
+      "path": "assets/ui/supplements/finance/fv01.png",
+      "bytes": 3197,
+      "width": 192,
+      "height": 192,
+      "sha256": "98061b730d38a09627f9e76159a2568ab5ad8d107dc6de32e7a94c97e716fe07"
+    },
+    {
+      "path": "assets/ui/supplements/finance/fv02.png",
+      "bytes": 2351,
+      "width": 192,
+      "height": 192,
+      "sha256": "33b8bb08a51b951ff9a097524f8264e0dc48ee85222bdb8e8387ede8b8fb41de"
+    },
+    {
+      "path": "assets/ui/supplements/finance/fv04.png",
+      "bytes": 858,
+      "width": 192,
+      "height": 192,
+      "sha256": "57fc251c7fb077801884c333a2d397ed4b9ec591bf5bcefd0fe79069b4528ec1"
+    },
+    {
+      "path": "assets/ui/supplements/finance/fv05.png",
+      "bytes": 3493,
+      "width": 192,
+      "height": 192,
+      "sha256": "bc48492133e97e348b5e32162779be246eaf61e6d1f0d47c1d9fbb76e989ef1c"
+    },
+    {
+      "path": "assets/ui/supplements/finance/fv06.png",
+      "bytes": 1043,
+      "width": 192,
+      "height": 192,
+      "sha256": "9e1b7688ce61879f07a626e6ae960ff7a8c8bd308c8c4decc42bd9909c69c70a"
+    },
+    {
+      "path": "assets/ui/supplements/history/ht01.png",
+      "bytes": 2127,
+      "width": 192,
+      "height": 192,
+      "sha256": "5abebc9f3a0a3df49d6f3dd47a95884eba51174f746ad1af2ba466830dbe1c4c"
+    },
+    {
+      "path": "assets/ui/supplements/history/ht02.png",
+      "bytes": 3504,
+      "width": 192,
+      "height": 192,
+      "sha256": "f149be37b0b5889418e0ca7cac9de4aff5fd38cd92564bee79b4e78ca350b5f3"
+    },
+    {
+      "path": "assets/ui/supplements/history/ht04.png",
+      "bytes": 2626,
+      "width": 192,
+      "height": 192,
+      "sha256": "bae48e6e68a246a6f3d4ea3f9ebd90eb54bcc1bf4a067e08cce3839b0063893a"
+    },
+    {
+      "path": "assets/ui/supplements/history/ht05.png",
+      "bytes": 2196,
+      "width": 192,
+      "height": 192,
+      "sha256": "9c63044486c4d5150b563355a0ec95efd4a097b08cf0205f3607dc30cf356532"
+    },
+    {
+      "path": "assets/ui/supplements/history/ht06.png",
+      "bytes": 2590,
+      "width": 192,
+      "height": 192,
+      "sha256": "9e385511a415dd326ddc2a4edf5c660e099c239af42c5a47004f411aba3b1326"
+    },
+    {
+      "path": "assets/ui/supplements/history/ht07.png",
+      "bytes": 2174,
+      "width": 192,
+      "height": 192,
+      "sha256": "d1f08c746bdb354231c0d1b2c43ce98486c36f160bb33962b459b969f3fcd6b5"
+    },
+    {
+      "path": "assets/ui/supplements/observation/oc01.png",
+      "bytes": 2499,
+      "width": 192,
+      "height": 192,
+      "sha256": "4c8e65f32e5db596265e79ee8450c9f70de18e07eb05ac586dd5205e30aee76e"
+    },
+    {
+      "path": "assets/ui/supplements/observation/oc03.png",
+      "bytes": 1049,
+      "width": 192,
+      "height": 192,
+      "sha256": "993b138749fa817943d76531735e884851d383a950dbc033b31056fb76dd5b80"
+    },
+    {
+      "path": "assets/ui/supplements/onboarding/ob01.png",
+      "bytes": 870,
+      "width": 192,
+      "height": 192,
+      "sha256": "a2b7ec6a96ab0d7065e9dd6f250d09659ceefeee1d37156559594dd4896bd908"
+    },
+    {
+      "path": "assets/ui/supplements/onboarding/ob03.png",
+      "bytes": 2367,
+      "width": 192,
+      "height": 192,
+      "sha256": "1f20c4a8d4a2966e327b782059150ed9309c9c07bcb4266fe5711ef39f137b35"
+    },
+    {
+      "path": "assets/ui/supplements/onboarding/ob04.png",
+      "bytes": 2505,
+      "width": 192,
+      "height": 192,
+      "sha256": "2237bec237c53b343353d99656fd461dce708661c2fe6d6900c74371fc956e6c"
+    },
+    {
+      "path": "assets/ui/supplements/onboarding/ob05.png",
+      "bytes": 2585,
+      "width": 192,
+      "height": 192,
+      "sha256": "4f1a477d941b7b6923cf27cd3c07d3d9e794f6ef94e5f1fd9efbef03914e27c0"
+    },
+    {
+      "path": "assets/ui/supplements/onboarding/ob06.png",
+      "bytes": 2218,
+      "width": 192,
+      "height": 192,
+      "sha256": "e645f66f987563896b7c19f2244bc7fd63eb6f72c7f21a7f2246b76104bc72ef"
+    },
+    {
+      "path": "assets/ui/supplements/onboarding/ob07.png",
+      "bytes": 2119,
+      "width": 192,
+      "height": 192,
+      "sha256": "1bd5d69ddbdda2ad9cd5f78cc8ceb51738c59e1628f033362ed18340975d849c"
+    },
+    {
+      "path": "assets/ui/supplements/onboarding/ob08.png",
+      "bytes": 3024,
+      "width": 192,
+      "height": 192,
+      "sha256": "70523a80543df3ddf294ff5fc32d2968a51b25a824049daceb428085074ab796"
+    },
+    {
+      "path": "assets/ui/supplements/onboarding/ob09.png",
+      "bytes": 3496,
+      "width": 192,
+      "height": 192,
+      "sha256": "00e03e6f15f0b99588130ddf69ad56cabb8a9b1e8c747ea9e5cab7ea3e44c0fb"
+    },
+    {
+      "path": "assets/ui/supplements/onboarding/ob10.png",
+      "bytes": 2623,
+      "width": 192,
+      "height": 192,
+      "sha256": "3ee0bf675bd4c7086e3cea6914ecc6a3891e62f0889de6a8354ea1a96750040a"
+    },
+    {
+      "path": "assets/ui/supplements/professions/gardener.png",
+      "bytes": 2987,
+      "width": 192,
+      "height": 192,
+      "sha256": "48cf44cb1591bd818f5a4e7dfdc4655a2692e321ffe16858233f1ca6084a3f74"
+    },
+    {
+      "path": "assets/ui/supplements/professions/mage.png",
+      "bytes": 2112,
+      "width": 192,
+      "height": 192,
+      "sha256": "50fd24ac2ba703ee7c5ceb0ee51dffbbbc63703db4ba90284fcbeaa8336e649e"
+    },
+    {
+      "path": "assets/ui/supplements/professions/merchant.png",
+      "bytes": 2263,
+      "width": 192,
+      "height": 192,
+      "sha256": "a747685eee05223dc69e75ecdfafc731aed4c50824564afc0cdd2187f5001ee5"
+    },
+    {
+      "path": "assets/ui/supplements/professions/ordinary.png",
+      "bytes": 2363,
+      "width": 192,
+      "height": 192,
+      "sha256": "57028f148b0ac2cf42541ff6aa6b0c521bfde488d016909e35a93eeb9fa4f279"
+    },
+    {
+      "path": "assets/ui/supplements/professions/performer.png",
+      "bytes": 3280,
+      "width": 192,
+      "height": 192,
+      "sha256": "ee68fa36e7755e948fce6e0c1bede56b149a2b16e4ce9566117b632f1f9db889"
+    },
+    {
+      "path": "assets/ui/supplements/professions/priest.png",
+      "bytes": 2196,
+      "width": 192,
+      "height": 192,
+      "sha256": "286405c81859f65d0e3d2d4720db07c7e43734e044b01365e40280ef74a9377b"
+    },
+    {
+      "path": "assets/ui/supplements/queue/qc01.png",
+      "bytes": 2371,
+      "width": 192,
+      "height": 192,
+      "sha256": "6d52967a47646996ed1bd9727b91f359c3ac29c35a8fcd06bceb7878b4faab37"
+    },
+    {
+      "path": "assets/ui/supplements/queue/qc02.png",
+      "bytes": 1035,
+      "width": 192,
+      "height": 192,
+      "sha256": "fe4590e48f325576c96e31a5b859beae1b615f8c050ab5de1dd15e7eb2f3c687"
+    },
+    {
+      "path": "assets/ui/supplements/queue/qc03.png",
+      "bytes": 2015,
+      "width": 192,
+      "height": 192,
+      "sha256": "bf17017ad59cdd6bbac85c58edb5cc24d5680fb8ae627b8dec10b462a9d97836"
+    },
+    {
+      "path": "assets/ui/supplements/queue/qc04.png",
+      "bytes": 3203,
+      "width": 192,
+      "height": 192,
+      "sha256": "3c1e8e600bc16e411475849d9e8071f4f39abbb803d07e5c911acda1f247bbee"
+    },
+    {
+      "path": "assets/ui/supplements/queue/qc05.png",
+      "bytes": 2141,
+      "width": 192,
+      "height": 192,
+      "sha256": "852a7a8bfcd4c851f93a72f0119d2c6594d98d1957462d9943e7aba65db4064a"
+    },
+    {
+      "path": "assets/ui/supplements/reasons/jc04.png",
+      "bytes": 723,
+      "width": 192,
+      "height": 192,
+      "sha256": "57b9429439c9f130820c2ae941bdda51c2df7dc47451578ce39689b081c44ed1"
+    },
+    {
+      "path": "assets/ui/supplements/reasons/jc06.png",
+      "bytes": 2014,
+      "width": 192,
+      "height": 192,
+      "sha256": "1fa0c6805fb2534792919b052c664ce209293d29365cc0f28074ca5f6e01fd26"
+    },
+    {
+      "path": "assets/ui/supplements/reasons/jc08.png",
+      "bytes": 2176,
+      "width": 192,
+      "height": 192,
+      "sha256": "8b3624dddc6aa6e7eeddbcccb7b107e7f6be122d90ac06927709dcd567cc21aa"
+    },
+    {
+      "path": "assets/ui/supplements/reasons/jc09.png",
+      "bytes": 2276,
+      "width": 192,
+      "height": 192,
+      "sha256": "1c75fb93681c16458a66205c426411f343d54d6b0c08c0b02d99f20b964b1a81"
+    },
+    {
+      "path": "assets/ui/supplements/remodel/rg01.png",
+      "bytes": 2177,
+      "width": 192,
+      "height": 192,
+      "sha256": "d0db0ee39d40d00732547d21b1f7d9f6c576af22a3642ba5ead09abae227c582"
+    },
+    {
+      "path": "assets/ui/supplements/remodel/rg02.png",
+      "bytes": 724,
+      "width": 192,
+      "height": 192,
+      "sha256": "1972d51ca93ae99db702209a1d7cb4547be444411a10b869b9ef96d6025d5760"
+    },
+    {
+      "path": "assets/ui/supplements/remodel/rg03.png",
+      "bytes": 3517,
+      "width": 192,
+      "height": 192,
+      "sha256": "b0a5c453df7d80f3448459a2f5b164a359c5d0495a95dbc942eb8e997ce19a27"
+    },
+    {
+      "path": "assets/ui/supplements/remodel/rg05.png",
+      "bytes": 3939,
+      "width": 192,
+      "height": 192,
+      "sha256": "68c3212677105e050122201af95c9fc7bf69d5ac061a102f85193602c2b8b14c"
+    },
+    {
+      "path": "assets/ui/supplements/remodel/rg06.png",
+      "bytes": 2274,
+      "width": 192,
+      "height": 192,
+      "sha256": "914d2fba918d020840d5fb065101a9ae1cb84679d897b4adf7db4160d6c0fcda"
+    },
+    {
+      "path": "assets/ui/supplements/remodel/rg07.png",
+      "bytes": 858,
+      "width": 192,
+      "height": 192,
+      "sha256": "26e5224ebf2e442b0fff660a0b4ed80800a16b4a4b816d15797ce5c4b5bc9a17"
+    },
+    {
+      "path": "assets/ui/supplements/remodel/rg08.png",
+      "bytes": 2134,
+      "width": 192,
+      "height": 192,
+      "sha256": "08864625b1de289490c24770e82ba5b3f0d89da60e75e831d937570b375666d8"
+    },
+    {
+      "path": "assets/ui/supplements/results/mp01_diagnosis_confirmed.png",
+      "bytes": 3764,
+      "width": 192,
+      "height": 192,
+      "sha256": "fca59d6c142467bc1d89b38c57fa7629632f60a92235b0d6e83eaec064c53ebf"
+    },
+    {
+      "path": "assets/ui/supplements/results/mp01_more_evidence.png",
+      "bytes": 3831,
+      "width": 192,
+      "height": 192,
+      "sha256": "425327101c5bd2f3e9ed41aed67bd8eae42116d50918f0fcc80c81ecb0d8f99c"
+    },
+    {
+      "path": "assets/ui/supplements/results/mp02_awaiting_recovery.png",
+      "bytes": 3358,
+      "width": 192,
+      "height": 192,
+      "sha256": "985c1b44816486aa6f29a38b1bf5f856c01be9bbcce1d5dc90153ae080f84284"
+    },
+    {
+      "path": "assets/ui/supplements/results/mp02_final_failure.png",
+      "bytes": 3879,
+      "width": 192,
+      "height": 192,
+      "sha256": "bab58b7f9f0ea4078365650f71ba693d9a998d8f0965f039dd974633445fed30"
+    },
+    {
+      "path": "assets/ui/supplements/results/mp02_retry_ready.png",
+      "bytes": 4184,
+      "width": 192,
+      "height": 192,
+      "sha256": "93c82f6ff10a1ab5d301b10c2cbe2cb524c1efd35f53b416d25d7e7c6d3f10b5"
+    },
+    {
+      "path": "assets/ui/supplements/roles/cleaner.png",
+      "bytes": 4970,
+      "width": 192,
+      "height": 192,
+      "sha256": "8242a4733456defa7732cd0e7d2820dbd15f2af273a09aa285777150723a7e81"
+    },
+    {
+      "path": "assets/ui/supplements/roles/decorator.png",
+      "bytes": 4794,
+      "width": 192,
+      "height": 192,
+      "sha256": "3584f71586984e78cf4fc2cc23a6ed9edc34f8d97563c6264f482ea4ad34b8c4"
+    },
+    {
+      "path": "assets/ui/supplements/roles/doctor.png",
+      "bytes": 5054,
+      "width": 192,
+      "height": 192,
+      "sha256": "77ae4cc6fd8a0133e1998f230e85d03c67727728b7cf80f816cba892a0157254"
+    },
+    {
+      "path": "assets/ui/supplements/roles/mechanic.png",
+      "bytes": 4900,
+      "width": 192,
+      "height": 192,
+      "sha256": "1bb98e9aadcd6848f53d680438a58dfc813deb5687bf035314930e04fbb431ad"
+    },
+    {
+      "path": "assets/ui/supplements/roles/nurse.png",
+      "bytes": 4922,
+      "width": 192,
+      "height": 192,
+      "sha256": "2fa9e4366cfa3a2ed77580a3b6cbb25a961f10bfa201aefcd0f138a1d16a485a"
+    },
+    {
+      "path": "assets/ui/supplements/roles/receptionist.png",
+      "bytes": 5013,
+      "width": 192,
+      "height": 192,
+      "sha256": "436368c0e4d66e4733d51e19881865deebb5aaa9f00a1a8b3ec788f104f2b7c7"
+    },
+    {
+      "path": "assets/ui/supplements/roles/researcher.png",
+      "bytes": 4799,
+      "width": 192,
+      "height": 192,
+      "sha256": "a33143d6305fae0fd2a41990c2a8de9cb18a17d9ab6f9d9b8739d56fc83d5c31"
+    },
+    {
+      "path": "assets/ui/supplements/states/broken.png",
+      "bytes": 3227,
+      "width": 192,
+      "height": 192,
+      "sha256": "a3fe79d7d46db753f190b52d50a013f0385400f0a3e252e64b6e36e15cd793ec"
+    },
+    {
+      "path": "assets/ui/supplements/states/construction.png",
+      "bytes": 3557,
+      "width": 192,
+      "height": 192,
+      "sha256": "1072b3498fd6e987efe3d11adfb3d3ea5c1d611502cc01e3aa5ee5c568e84a94"
+    },
+    {
+      "path": "assets/ui/supplements/states/idle.png",
+      "bytes": 3123,
+      "width": 192,
+      "height": 192,
+      "sha256": "b77c4d10336356c4f06687d7a232d13dbfb3c5a380863afa081adfac1a069cc0"
+    },
+    {
+      "path": "assets/ui/supplements/states/maintenance.png",
+      "bytes": 3393,
+      "width": 192,
+      "height": 192,
+      "sha256": "67e309c04abfc9841c3c6092611b29c8e3efb22e7db15e51d1cd4e571c098832"
+    },
+    {
+      "path": "assets/ui/supplements/states/paused.png",
+      "bytes": 3157,
+      "width": 192,
+      "height": 192,
+      "sha256": "4595813543bb805e7a04c60d87630604341df7588f9a281c2940f5c14707a0bb"
+    },
+    {
+      "path": "assets/ui/supplements/states/reserved.png",
+      "bytes": 3226,
+      "width": 192,
+      "height": 192,
+      "sha256": "c65db6dc87d315e0cc0b27501d0e36b189faf64e8772cda7e09d0507366dd148"
+    },
+    {
+      "path": "assets/ui/supplements/states/unavailable.png",
+      "bytes": 3253,
+      "width": 192,
+      "height": 192,
+      "sha256": "0032b1fdbaa79e6263946aa0e584a9416640781ad01692d09cca326aae3995cb"
+    },
+    {
+      "path": "assets/ui/supplements/states/using.png",
+      "bytes": 3464,
+      "width": 192,
+      "height": 192,
+      "sha256": "1291b0333c2cc39d79c095a37f133fdc0b1391155eeb58e1058ed4f7e6756405"
+    },
+    {
+      "path": "assets/ui/supplements/tasks/tg02.png",
+      "bytes": 2521,
+      "width": 192,
+      "height": 192,
+      "sha256": "cf12d6a6829b8e95d5d2548a33506aa44b2f7ed1dded2e56ace86dc98af99869"
+    },
+    {
+      "path": "assets/ui/supplements/tasks/tg04.png",
+      "bytes": 3005,
+      "width": 192,
+      "height": 192,
+      "sha256": "9cf7ac95e50f9d31425c677f71d53b6a3bb8ef56ce5453f7d156e72b18688ee0"
+    },
+    {
+      "path": "assets/ui/supplements/tasks/tg06.png",
+      "bytes": 2645,
+      "width": 192,
+      "height": 192,
+      "sha256": "7a4865d68221b51ff768103c96af70d7d27ef199b3cb9005662aa9e30d7676ce"
+    },
+    {
+      "path": "assets/ui/supplements/tasks/tg07.png",
+      "bytes": 2579,
+      "width": 192,
+      "height": 192,
+      "sha256": "fb6e8ad0bdb7bde62beed0ae068419789c35275962e6883e1d20fc9912a24a97"
+    },
+    {
+      "path": "assets/ui/supplements/tasks/tg08.png",
+      "bytes": 2369,
+      "width": 192,
+      "height": 192,
+      "sha256": "d59454d2307d01bb43e9e53eb6286fa01992784ce13ee93c295eba5273d86b19"
+    },
+    {
+      "path": "assets/ui/supplements/titles/dt01.png",
+      "bytes": 1808,
+      "width": 192,
+      "height": 192,
+      "sha256": "0d70f066353270245756bec059f1c251c9967df67d262864aa3a297591c1d003"
+    },
+    {
+      "path": "assets/ui/supplements/titles/dt02.png",
+      "bytes": 1823,
+      "width": 192,
+      "height": 192,
+      "sha256": "b4fb7ca9ca40bbc142e4d4339ab152cf9d618a3d7f75e4ab283d7ed7a76c6c4c"
+    },
+    {
+      "path": "assets/ui/supplements/titles/dt03.png",
+      "bytes": 1821,
+      "width": 192,
+      "height": 192,
+      "sha256": "d5789cfc71587ec3617c4e254a0c2dec69002f5482484840bf362ebd600b686c"
+    },
+    {
+      "path": "assets/ui/supplements/titles/dt04.png",
+      "bytes": 1820,
+      "width": 192,
+      "height": 192,
+      "sha256": "1b7123a6ce8d579121a7986a9867d146613aa686fee89458610098ae0a73f5d6"
+    },
+    {
+      "path": "assets/ui/supplements/transit/vc01_queued_scene.png",
+      "bytes": 996,
+      "width": 192,
+      "height": 192,
+      "sha256": "bda46ee6a60bc068c832fe418b19d7587e913835eaa80da2e17f61dccd7bb92d"
+    },
+    {
+      "path": "assets/ui/supplements/transit/vc02_empty_scene.png",
+      "bytes": 2299,
+      "width": 192,
+      "height": 192,
+      "sha256": "3bdaabbdf4b94d444f41dce7f0ebcfd13edd7ad67685063f40f89c09431b7973"
+    },
+    {
+      "path": "assets/ui/supplements/work_styles/ws03.png",
+      "bytes": 2514,
+      "width": 192,
+      "height": 192,
+      "sha256": "c342160e9e471eb10d5d9ae4778655dd491ff2bf0239ae57580e6ab7392f5c12"
+    },
+    {
+      "path": "assets/ui/supplements/work_styles/ws04.png",
+      "bytes": 2346,
+      "width": 192,
+      "height": 192,
+      "sha256": "533f25a8169e52a5c567f026bd236087fd8549cc8f75d29167a0e70c173e4278"
+    }
+  ]
+}

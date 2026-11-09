@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3]
+[ext_resource type="Texture2D" path="res://assets/ui/supplements/professions/gardener.png" id="Badge"]
+
+[node name="ProfessionAccessory" type="Node3D"]
+metadata/profession_visual = "gardener"
+metadata/target_slot = "spine"
+metadata/allowed_rigs = "all; generic badge"
+
+[node name="Emblem" type="Sprite3D" parent="."]
+position = Vector3(0, -0.02, 0.11)
+pixel_size = 0.001
+texture = ExtResource("Badge")
+alpha_cut = 1

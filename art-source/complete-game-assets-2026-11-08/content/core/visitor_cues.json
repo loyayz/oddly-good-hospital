@@ -1,0 +1,20 @@
+[
+  {
+    "id": "VCU01",
+    "low_motion_scene": "@zh:core.visitor_cues.VCU01.low_motion_scene",
+    "scene": "@zh:core.visitor_cues.VCU01.scene",
+    "state": "arriving_bedside"
+  },
+  {
+    "id": "VCU02",
+    "low_motion_scene": "@zh:core.visitor_cues.VCU02.low_motion_scene",
+    "scene": "@zh:core.visitor_cues.VCU02.scene",
+    "state": "yielding"
+  },
+  {
+    "id": "VCU03",
+    "low_motion_scene": "@zh:core.visitor_cues.VCU03.low_motion_scene",
+    "scene": "@zh:core.visitor_cues.VCU03.scene",
+    "state": "leaving"
+  }
+]

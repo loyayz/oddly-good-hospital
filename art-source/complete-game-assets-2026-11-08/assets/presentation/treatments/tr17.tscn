@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3]
+[ext_resource type="PackedScene" path="res://assets/props/library/label.glb" id="P0"]
+[ext_resource type="AnimationLibrary" path="res://assets/animations/treatments/tr17.tres" id="L"]
+[node name="TreatmentRoutine" type="Node3D"]
+metadata/source_id = "TR17"
+metadata/beat_1 = "箱口对接柜门"
+metadata/beat_2 = "小格套大格"
+metadata/beat_3 = "最后一只袜子被收走"
+metadata/beat_4 = "柜内小格闭合，箱口对接支架松开"
+[node name="Tool" type="Node3D" parent="."]
+[node name="Prop0" parent="Tool" instance=ExtResource("P0")]
+position = Vector3(0.000000, 0.400000, 0.000000)
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {&"": ExtResource("L")}

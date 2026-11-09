@@ -1,0 +1,122 @@
+[
+  {
+    "alighting_seconds": 0,
+    "base_price": 900,
+    "base_stops": 2,
+    "boarding_seconds": 0,
+    "cabin_size": null,
+    "clear_height_m": 3,
+    "clear_width_m": 1.4,
+    "equipment_class": null,
+    "extra_stop_price": null,
+    "failure_policy": "structural",
+    "fit_policy": "automatic",
+    "footprint": [
+      4,
+      6
+    ],
+    "front_operation_anchor": [
+      0,
+      6
+    ],
+    "id": "VC01",
+    "kind": "stairs",
+    "max_clearance_cells": 1,
+    "max_group_size": 1,
+    "max_stops": 2,
+    "name": "@zh:core.vertical_connectors.VC01.name",
+    "repair_anchor": null,
+    "transit_cues": {
+      "empty_scene": null,
+      "low_motion_scene": "@zh:core.vertical_connectors.VC01.transit_cues.low_motion_scene",
+      "queued_scene": "@zh:core.vertical_connectors.VC01.transit_cues.queued_scene",
+      "riding_scene": "@zh:core.vertical_connectors.VC01.transit_cues.riding_scene",
+      "unavailable_scene": "@zh:core.vertical_connectors.VC01.transit_cues.unavailable_scene"
+    },
+    "travel_seconds_per_floor": 2.5
+  },
+  {
+    "alighting_seconds": 1.5,
+    "base_price": 3200,
+    "base_stops": 2,
+    "boarding_seconds": 1.5,
+    "cabin_size": [
+      3,
+      3
+    ],
+    "clear_height_m": 3.2,
+    "clear_width_m": 2.7,
+    "equipment_class": "utility",
+    "extra_stop_price": 1200,
+    "failure_policy": "finish_ride_then_descent_only",
+    "fit_policy": "automatic",
+    "footprint": [
+      4,
+      4
+    ],
+    "front_operation_anchor": [
+      0,
+      4
+    ],
+    "id": "VC02",
+    "kind": "lift",
+    "max_clearance_cells": 2,
+    "max_group_size": 2,
+    "max_stops": null,
+    "name": "@zh:core.vertical_connectors.VC02.name",
+    "repair_anchor": [
+      4,
+      4
+    ],
+    "transit_cues": {
+      "empty_scene": "@zh:core.vertical_connectors.VC02.transit_cues.empty_scene",
+      "low_motion_scene": "@zh:core.vertical_connectors.VC02.transit_cues.low_motion_scene",
+      "queued_scene": "@zh:core.vertical_connectors.VC02.transit_cues.queued_scene",
+      "riding_scene": "@zh:core.vertical_connectors.VC02.transit_cues.riding_scene",
+      "unavailable_scene": "@zh:core.vertical_connectors.VC02.transit_cues.unavailable_scene"
+    },
+    "travel_seconds_per_floor": 1
+  },
+  {
+    "alighting_seconds": 1.5,
+    "base_price": 6400,
+    "base_stops": 2,
+    "boarding_seconds": 1.5,
+    "cabin_size": [
+      6,
+      6
+    ],
+    "clear_height_m": 7,
+    "clear_width_m": 4.2,
+    "equipment_class": "utility",
+    "extra_stop_price": 2800,
+    "failure_policy": "finish_ride_then_descent_only",
+    "fit_policy": "automatic",
+    "footprint": [
+      7,
+      7
+    ],
+    "front_operation_anchor": [
+      0,
+      7
+    ],
+    "id": "VC03",
+    "kind": "lift",
+    "max_clearance_cells": 3,
+    "max_group_size": 2,
+    "max_stops": null,
+    "name": "@zh:core.vertical_connectors.VC03.name",
+    "repair_anchor": [
+      7,
+      7
+    ],
+    "transit_cues": {
+      "empty_scene": "@zh:core.vertical_connectors.VC03.transit_cues.empty_scene",
+      "low_motion_scene": "@zh:core.vertical_connectors.VC03.transit_cues.low_motion_scene",
+      "queued_scene": "@zh:core.vertical_connectors.VC03.transit_cues.queued_scene",
+      "riding_scene": "@zh:core.vertical_connectors.VC03.transit_cues.riding_scene",
+      "unavailable_scene": "@zh:core.vertical_connectors.VC03.transit_cues.unavailable_scene"
+    },
+    "travel_seconds_per_floor": 1
+  }
+]

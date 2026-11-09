@@ -1,0 +1,76 @@
+{
+  "species_id": "S63",
+  "rig": "float",
+  "dimensions": {
+    "depth_m": 3.5,
+    "height_m": 3.2,
+    "width_m": 3.5
+  },
+  "body_path": "assets/models/core_s63_body.glb",
+  "variants": [
+    {
+      "id": 1,
+      "accessory_path": "assets/accessories/looks/float_look_01.glb",
+      "slot": "head",
+      "tint": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "human_hair": null,
+      "distinguishing_attributes": [
+        "accessory silhouette",
+        "body color temperature"
+      ]
+    },
+    {
+      "id": 2,
+      "accessory_path": "assets/accessories/looks/float_look_02.glb",
+      "slot": "carry_anchor",
+      "tint": [
+        1,
+        0.92,
+        0.84,
+        1
+      ],
+      "human_hair": null,
+      "distinguishing_attributes": [
+        "accessory silhouette",
+        "body color temperature"
+      ]
+    },
+    {
+      "id": 3,
+      "accessory_path": "assets/accessories/looks/float_look_03.glb",
+      "slot": "head",
+      "tint": [
+        0.86,
+        0.96,
+        1,
+        1
+      ],
+      "human_hair": null,
+      "distinguishing_attributes": [
+        "accessory silhouette",
+        "body color temperature"
+      ]
+    },
+    {
+      "id": 4,
+      "accessory_path": "assets/accessories/looks/float_look_04.glb",
+      "slot": "carry_anchor",
+      "tint": [
+        0.96,
+        0.88,
+        1,
+        1
+      ],
+      "human_hair": null,
+      "distinguishing_attributes": [
+        "accessory silhouette",
+        "body color temperature"
+      ]
+    }
+  ]
+}

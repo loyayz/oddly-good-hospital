@@ -1,0 +1,84 @@
+{
+  "id": "blob",
+  "reference_species": "S36",
+  "actions": [
+    "idle",
+    "walk",
+    "sit",
+    "notice",
+    "talk",
+    "cheer",
+    "upset",
+    "recover",
+    "interact",
+    "work",
+    "pause",
+    "symptom",
+    "recovery",
+    "low_motion",
+    "sleep",
+    "wake",
+    "rest",
+    "recreation",
+    "blink"
+  ],
+  "staff_actions": [
+    "operate",
+    "record",
+    "carry",
+    "repair",
+    "clean",
+    "build",
+    "teach",
+    "rest",
+    "sleep",
+    "wake"
+  ],
+  "slots": [
+    "head",
+    "look_target",
+    "hand_l",
+    "hand_r",
+    "treatment_anchor",
+    "emotion_anchor",
+    "carry_anchor"
+  ],
+  "animation_library": "assets/animations/staff/blob.tres",
+  "source": {
+    "actions": [
+      "operate",
+      "record",
+      "carry",
+      "repair",
+      "clean",
+      "build",
+      "teach",
+      "rest",
+      "sleep",
+      "wake"
+    ],
+    "anchors": [
+      "operator",
+      "tool",
+      "badge",
+      "handoff"
+    ],
+    "id": "SRA_blob",
+    "low_motion_sleep_scene": "完整软体休眠轮廓和恢复站姿，保留本人真实体积。",
+    "rig": "blob",
+    "roles": [
+      "doctor",
+      "nurse",
+      "receptionist",
+      "cleaner",
+      "mechanic",
+      "researcher",
+      "decorator"
+    ],
+    "scene": "用柔性触端按键，徽章固定在不变形的小托片上。",
+    "sleep_scene": "软体在承托范围内安稳铺好，枕头先陷出一个小笑脸；外轮廓不越出预留区域。",
+    "wake_scene": "先从枕头旁整理出正常站姿，最后一小块软轮廓跟上；身体完全离位后床才收回。"
+  },
+  "root_motion": false,
+  "max_bones": 40
+}

@@ -1,0 +1,1585 @@
+{
+  "definitions": [
+    {
+      "id": "FUR01",
+      "name": "接待台",
+      "base_path": "assets/models/core_fur01_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": "FF06",
+      "footprint": [
+        2,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR01"
+    },
+    {
+      "id": "FUR02",
+      "name": "诊断台",
+      "base_path": "assets/models/core_fur02_machine.glb",
+      "maintainable": true,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using",
+        "broken",
+        "repairing",
+        "maintenance",
+        "construction"
+      ],
+      "upgrade_paths": {
+        "1": "assets/upgrades/fur02_level_1.glb",
+        "2": "assets/upgrades/fur02_level_2.glb"
+      },
+      "fit_profile_id": "FF06",
+      "footprint": [
+        2,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR02"
+    },
+    {
+      "id": "FUR05",
+      "name": "研究桌",
+      "base_path": "assets/models/core_fur05_machine.glb",
+      "maintainable": true,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using",
+        "broken",
+        "repairing",
+        "maintenance",
+        "construction"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": "FF06",
+      "footprint": [
+        2,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR05"
+    },
+    {
+      "id": "FUR06",
+      "name": "休息沙发",
+      "base_path": "assets/models/core_fur06_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": "FF05",
+      "footprint": [
+        2,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR06"
+    },
+    {
+      "id": "FUR07",
+      "name": "卫生间模块",
+      "base_path": "assets/models/core_fur07_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": "FF05",
+      "footprint": [
+        2,
+        2
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR07"
+    },
+    {
+      "id": "FUR08",
+      "name": "暖风车",
+      "base_path": "assets/models/core_fur08_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR08"
+    },
+    {
+      "id": "FUR09",
+      "name": "普通座椅",
+      "base_path": "assets/models/core_fur09_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": "FF05",
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR09"
+    },
+    {
+      "id": "FUR10",
+      "name": "宽体座椅",
+      "base_path": "assets/models/core_fur10_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": "FF05",
+      "footprint": [
+        2,
+        2
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR10"
+    },
+    {
+      "id": "FUR11",
+      "name": "培养皿泊位",
+      "base_path": "assets/models/core_fur11_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": "FF05",
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR11"
+    },
+    {
+      "id": "FUR12",
+      "name": "遮阳座椅",
+      "base_path": "assets/models/core_fur12_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": "FF05",
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR12"
+    },
+    {
+      "id": "FUR13",
+      "name": "接水座椅",
+      "base_path": "assets/models/core_fur13_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": "FF05",
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR13"
+    },
+    {
+      "id": "FUR14",
+      "name": "干燥坐垫席",
+      "base_path": "assets/models/core_fur14_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": "FF05",
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR14"
+    },
+    {
+      "id": "FUR15",
+      "name": "凉爽坐垫席",
+      "base_path": "assets/models/core_fur15_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": "FF05",
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR15"
+    },
+    {
+      "id": "FUR16",
+      "name": "双人友好长椅",
+      "base_path": "assets/models/core_fur16_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": "FF05",
+      "footprint": [
+        2,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR16"
+    },
+    {
+      "id": "FUR17",
+      "name": "饮水机",
+      "base_path": "assets/models/core_fur17_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": "FF05",
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR17"
+    },
+    {
+      "id": "FUR18",
+      "name": "垃圾桶",
+      "base_path": "assets/models/core_fur18_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR18"
+    },
+    {
+      "id": "FUR19",
+      "name": "暖光灯",
+      "base_path": "assets/models/core_fur19_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR19"
+    },
+    {
+      "id": "FUR20",
+      "name": "接水花盆",
+      "base_path": "assets/models/core_fur20_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR20"
+    },
+    {
+      "id": "FUR21",
+      "name": "除湿小伞",
+      "base_path": "assets/models/core_fur21_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR21"
+    },
+    {
+      "id": "FUR22",
+      "name": "凉风叶片",
+      "base_path": "assets/models/core_fur22_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR22"
+    },
+    {
+      "id": "FUR23",
+      "name": "安静屏风",
+      "base_path": "assets/models/core_fur23_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR23"
+    },
+    {
+      "id": "FUR24",
+      "name": "显微观察窗",
+      "base_path": "assets/models/core_fur24_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR24"
+    },
+    {
+      "id": "FUR25",
+      "name": "方花盆",
+      "base_path": "assets/models/core_fur25_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR25"
+    },
+    {
+      "id": "FUR26",
+      "name": "圆花盆",
+      "base_path": "assets/models/core_fur26_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR26"
+    },
+    {
+      "id": "FUR27",
+      "name": "波点地毯",
+      "base_path": "assets/models/core_fur27_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        2,
+        2
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR27"
+    },
+    {
+      "id": "FUR28",
+      "name": "条纹地毯",
+      "base_path": "assets/models/core_fur28_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        2,
+        2
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR28"
+    },
+    {
+      "id": "FUR29",
+      "name": "笑脸挂钟",
+      "base_path": "assets/models/core_fur29_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR29"
+    },
+    {
+      "id": "FUR30",
+      "name": "星星挂钟",
+      "base_path": "assets/models/core_fur30_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR30"
+    },
+    {
+      "id": "FUR31",
+      "name": "植物壁画",
+      "base_path": "assets/models/core_fur31_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR31"
+    },
+    {
+      "id": "FUR32",
+      "name": "社区公告板",
+      "base_path": "assets/models/core_fur32_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR32"
+    },
+    {
+      "id": "FUR33",
+      "name": "月亮雕塑",
+      "base_path": "assets/models/core_fur33_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR33"
+    },
+    {
+      "id": "FUR34",
+      "name": "纸风车",
+      "base_path": "assets/models/core_fur34_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR34"
+    },
+    {
+      "id": "FUR35",
+      "name": "泡泡柱",
+      "base_path": "assets/models/core_fur35_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR35"
+    },
+    {
+      "id": "FUR36",
+      "name": "木摇马",
+      "base_path": "assets/models/core_fur36_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR36"
+    },
+    {
+      "id": "FUR37",
+      "name": "蘑菇路灯",
+      "base_path": "assets/models/core_fur37_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR37"
+    },
+    {
+      "id": "FUR38",
+      "name": "软糖路灯",
+      "base_path": "assets/models/core_fur38_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR38"
+    },
+    {
+      "id": "FUR39",
+      "name": "轨道摆件",
+      "base_path": "assets/models/core_fur39_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR39"
+    },
+    {
+      "id": "FUR40",
+      "name": "云朵摆件",
+      "base_path": "assets/models/core_fur40_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR40"
+    },
+    {
+      "id": "FUR41",
+      "name": "失物柜",
+      "base_path": "assets/models/core_fur41_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        2,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR41"
+    },
+    {
+      "id": "FUR42",
+      "name": "合影架",
+      "base_path": "assets/models/core_fur42_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        2,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR42"
+    },
+    {
+      "id": "FUR43",
+      "name": "花展小台",
+      "base_path": "assets/models/core_fur43_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        2,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR43"
+    },
+    {
+      "id": "FUR44",
+      "name": "庆典旗串",
+      "base_path": "assets/models/core_fur44_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR44"
+    },
+    {
+      "id": "FUR45",
+      "name": "床头书架",
+      "base_path": "assets/models/core_fur45_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        2,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR45"
+    },
+    {
+      "id": "FUR46",
+      "name": "奇物展示柜",
+      "base_path": "assets/models/core_fur46_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        2,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR46"
+    },
+    {
+      "id": "FUR47",
+      "name": "迷你喷泉",
+      "base_path": "assets/models/core_fur47_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        2,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR47"
+    },
+    {
+      "id": "FUR48",
+      "name": "欢迎门牌",
+      "base_path": "assets/models/core_fur48_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR48"
+    },
+    {
+      "id": "FUR49",
+      "name": "轻摇安抚椅",
+      "base_path": "assets/models/core_fur49_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": "FF05",
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR49"
+    },
+    {
+      "id": "FUR50",
+      "name": "静音罩椅",
+      "base_path": "assets/models/core_fur50_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": "FF05",
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR50"
+    },
+    {
+      "id": "FUR51",
+      "name": "翻页阅览椅",
+      "base_path": "assets/models/core_fur51_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": "FF05",
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR51"
+    },
+    {
+      "id": "FUR52",
+      "name": "伸腿活力椅",
+      "base_path": "assets/models/core_fur52_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": "FF05",
+      "footprint": [
+        1,
+        2
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/furniture_equipment.json#FUR52"
+    },
+    {
+      "id": "M09",
+      "name": "整复台",
+      "base_path": "assets/models/core_m09_machine.glb",
+      "maintainable": true,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using",
+        "broken",
+        "repairing",
+        "maintenance",
+        "construction"
+      ],
+      "upgrade_paths": {
+        "1": "assets/upgrades/m09_level_1.glb",
+        "2": "assets/upgrades/m09_level_2.glb"
+      },
+      "fit_profile_id": "FF03",
+      "footprint": [
+        2,
+        2
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/machines.json#M09"
+    },
+    {
+      "id": "M37",
+      "name": "调理舱",
+      "base_path": "assets/models/core_m37_machine.glb",
+      "maintainable": true,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using",
+        "broken",
+        "repairing",
+        "maintenance",
+        "construction"
+      ],
+      "upgrade_paths": {
+        "1": "assets/upgrades/m37_level_1.glb",
+        "2": "assets/upgrades/m37_level_2.glb"
+      },
+      "fit_profile_id": "FF03",
+      "footprint": [
+        2,
+        2
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/machines.json#M37"
+    },
+    {
+      "id": "M17",
+      "name": "奇想台",
+      "base_path": "assets/models/core_m17_machine.glb",
+      "maintainable": true,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using",
+        "broken",
+        "repairing",
+        "maintenance",
+        "construction"
+      ],
+      "upgrade_paths": {
+        "1": "assets/upgrades/m17_level_1.glb",
+        "2": "assets/upgrades/m17_level_2.glb"
+      },
+      "fit_profile_id": "FF03",
+      "footprint": [
+        2,
+        2
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/machines.json#M17"
+    },
+    {
+      "id": "EQ01",
+      "name": "手术台",
+      "base_path": "assets/models/core_eq01_machine.glb",
+      "maintainable": true,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using",
+        "broken",
+        "repairing",
+        "maintenance",
+        "construction"
+      ],
+      "upgrade_paths": {
+        "1": "assets/upgrades/eq01_level_1.glb",
+        "2": "assets/upgrades/eq01_level_2.glb"
+      },
+      "fit_profile_id": "FF04",
+      "footprint": [
+        3,
+        3
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/clinical_equipment.json#EQ01"
+    },
+    {
+      "id": "EQ05",
+      "name": "护理床",
+      "base_path": "assets/models/core_eq05_machine.glb",
+      "maintainable": true,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using",
+        "broken",
+        "repairing",
+        "maintenance",
+        "construction"
+      ],
+      "upgrade_paths": {
+        "1": "assets/upgrades/eq05_level_1.glb",
+        "2": "assets/upgrades/eq05_level_2.glb"
+      },
+      "fit_profile_id": "FF02",
+      "footprint": [
+        3,
+        3
+      ],
+      "resize": "segmented patient support",
+      "source": "content/core/clinical_equipment.json#EQ05"
+    },
+    {
+      "id": "SE01",
+      "name": "导诊台",
+      "base_path": "assets/models/core_se01_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": "FF06",
+      "footprint": [
+        2,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/service_equipment.json#SE01"
+    },
+    {
+      "id": "SE02",
+      "name": "装修工具台",
+      "base_path": "assets/models/core_se02_machine.glb",
+      "maintainable": true,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using",
+        "broken",
+        "repairing",
+        "maintenance",
+        "construction"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/service_equipment.json#SE02"
+    },
+    {
+      "id": "SE03",
+      "name": "叫号导览屏",
+      "base_path": "assets/models/core_se03_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/service_equipment.json#SE03"
+    },
+    {
+      "id": "SE04",
+      "name": "员工小憩床",
+      "base_path": "assets/models/core_se04_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": "FF08",
+      "footprint": [
+        1,
+        2
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/service_equipment.json#SE04"
+    },
+    {
+      "id": "SE05",
+      "name": "医生办公桌",
+      "base_path": "assets/models/core_se05_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": "FF06",
+      "footprint": [
+        2,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/service_equipment.json#SE05"
+    },
+    {
+      "id": "SE06",
+      "name": "护士工作台",
+      "base_path": "assets/models/core_se06_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": "FF06",
+      "footprint": [
+        2,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/service_equipment.json#SE06"
+    },
+    {
+      "id": "AE01",
+      "name": "巨型候诊软垫",
+      "base_path": "assets/models/core_ae01_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": "FF05",
+      "footprint": [
+        4,
+        4
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/accessibility_equipment.json#AE01"
+    },
+    {
+      "id": "AE02",
+      "name": "可调高饮水台",
+      "base_path": "assets/models/core_ae02_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": "FF05",
+      "footprint": [
+        1,
+        1
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/accessibility_equipment.json#AE02"
+    },
+    {
+      "id": "AE03",
+      "name": "通用更衣如厕舱",
+      "base_path": "assets/models/core_ae03_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": "FF05",
+      "footprint": [
+        4,
+        4
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/accessibility_equipment.json#AE03"
+    },
+    {
+      "id": "RC01",
+      "name": "彩灯街机",
+      "base_path": "assets/models/core_rc01_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": "FF05",
+      "footprint": [
+        1,
+        2
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/staff_recreation_equipment.json#RC01"
+    },
+    {
+      "id": "RC02",
+      "name": "轻弹摇椅",
+      "base_path": "assets/models/core_rc02_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": "FF05",
+      "footprint": [
+        2,
+        2
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/staff_recreation_equipment.json#RC02"
+    },
+    {
+      "id": "RC03",
+      "name": "迷你桌球台",
+      "base_path": "assets/models/core_rc03_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": "FF05",
+      "footprint": [
+        3,
+        2
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/staff_recreation_equipment.json#RC03"
+    },
+    {
+      "id": "RC04",
+      "name": "泡泡漫步架",
+      "base_path": "assets/models/core_rc04_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": "FF05",
+      "footprint": [
+        4,
+        4
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/staff_recreation_equipment.json#RC04"
+    },
+    {
+      "id": "VC01",
+      "name": "普通楼梯",
+      "base_path": "assets/models/core_vc01_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        4,
+        6
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/vertical_connectors.json#VC01"
+    },
+    {
+      "id": "VC02",
+      "name": "医用电梯",
+      "base_path": "assets/models/core_vc02_machine.glb",
+      "maintainable": true,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using",
+        "broken",
+        "repairing",
+        "maintenance",
+        "construction"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        4,
+        4
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/vertical_connectors.json#VC02"
+    },
+    {
+      "id": "VC03",
+      "name": "巨型医用电梯",
+      "base_path": "assets/models/core_vc03_machine.glb",
+      "maintainable": true,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using",
+        "broken",
+        "repairing",
+        "maintenance",
+        "construction"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": [
+        7,
+        7
+      ],
+      "resize": "fixed furniture body",
+      "source": "content/core/vertical_connectors.json#VC03"
+    },
+    {
+      "id": "DR01",
+      "name": "普通单扇门",
+      "base_path": "assets/models/core_dr01_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": null,
+      "resize": "segmented door",
+      "source": "content/core/doors.json#DR01"
+    },
+    {
+      "id": "DR02",
+      "name": "加宽双扇门",
+      "base_path": "assets/models/core_dr02_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": null,
+      "resize": "segmented door",
+      "source": "content/core/doors.json#DR02"
+    },
+    {
+      "id": "DR03",
+      "name": "细高拱门",
+      "base_path": "assets/models/core_dr03_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": null,
+      "resize": "segmented door",
+      "source": "content/core/doors.json#DR03"
+    },
+    {
+      "id": "DR04",
+      "name": "高顶双扇门",
+      "base_path": "assets/models/core_dr04_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": null,
+      "resize": "segmented door",
+      "source": "content/core/doors.json#DR04"
+    },
+    {
+      "id": "DR05",
+      "name": "巨型推拉门",
+      "base_path": "assets/models/core_dr05_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": null,
+      "resize": "segmented door",
+      "source": "content/core/doors.json#DR05"
+    },
+    {
+      "id": "DR06",
+      "name": "巨兽高门",
+      "base_path": "assets/models/core_dr06_machine.glb",
+      "maintainable": false,
+      "states": [
+        "idle",
+        "working",
+        "paused",
+        "using"
+      ],
+      "upgrade_paths": {},
+      "fit_profile_id": null,
+      "footprint": null,
+      "resize": "segmented door",
+      "source": "content/core/doors.json#DR06"
+    }
+  ],
+  "maintenance_source": "content/core/rules.json#equipment.maintained_definition_ids"
+}

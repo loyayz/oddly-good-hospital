@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3]
+[ext_resource type="PackedScene" path="res://assets/models/core_s13_body.glb" id="Body"]
+[node name="CastVisual" type="Node3D"]
+metadata/content_id = "CR04"
+metadata/display_name = "阿木"
+metadata/profession_id = "gardener"
+[node name="Body" parent="." instance=ExtResource("Body")]

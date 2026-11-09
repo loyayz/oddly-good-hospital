@@ -1,0 +1,50 @@
+[
+  {
+    "id": "ASC01",
+    "low_motion_scene": "@zh:core.amenity_scenes.ASC01.low_motion_scene",
+    "name": "@zh:core.amenity_scenes.ASC01.name",
+    "personality_id": null,
+    "purpose": "toilet",
+    "scene": "@zh:core.amenity_scenes.ASC01.scene"
+  },
+  {
+    "id": "ASC02",
+    "low_motion_scene": "@zh:core.amenity_scenes.ASC02.low_motion_scene",
+    "name": "@zh:core.amenity_scenes.ASC02.name",
+    "personality_id": "PP02",
+    "purpose": "toilet",
+    "scene": "@zh:core.amenity_scenes.ASC02.scene"
+  },
+  {
+    "id": "ASC03",
+    "low_motion_scene": "@zh:core.amenity_scenes.ASC03.low_motion_scene",
+    "name": "@zh:core.amenity_scenes.ASC03.name",
+    "personality_id": "PP09",
+    "purpose": "toilet",
+    "scene": "@zh:core.amenity_scenes.ASC03.scene"
+  },
+  {
+    "id": "ASC04",
+    "low_motion_scene": "@zh:core.amenity_scenes.ASC04.low_motion_scene",
+    "name": "@zh:core.amenity_scenes.ASC04.name",
+    "personality_id": null,
+    "purpose": "water",
+    "scene": "@zh:core.amenity_scenes.ASC04.scene"
+  },
+  {
+    "id": "ASC05",
+    "low_motion_scene": "@zh:core.amenity_scenes.ASC05.low_motion_scene",
+    "name": "@zh:core.amenity_scenes.ASC05.name",
+    "personality_id": "PP03",
+    "purpose": "water",
+    "scene": "@zh:core.amenity_scenes.ASC05.scene"
+  },
+  {
+    "id": "ASC06",
+    "low_motion_scene": "@zh:core.amenity_scenes.ASC06.low_motion_scene",
+    "name": "@zh:core.amenity_scenes.ASC06.name",
+    "personality_id": "PP10",
+    "purpose": "water",
+    "scene": "@zh:core.amenity_scenes.ASC06.scene"
+  }
+]

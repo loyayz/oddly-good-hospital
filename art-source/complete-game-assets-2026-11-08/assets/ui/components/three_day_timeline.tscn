@@ -1,0 +1,39 @@
+[gd_scene load_steps=2 format=3]
+[ext_resource type="Theme" path="res://assets/ui/hospital_theme.tres" id="Theme"]
+[node name="ThreeDayTimeline" type="HBoxContainer"]
+theme = ExtResource("Theme")
+theme_override_constants/separation = 16
+metadata/binding = "three actual projected settlement days; caller supplies labels and separated cash assumptions"
+
+[node name="Day1" type="VBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+[node name="Date" type="Label" parent="Day1"]
+layout_mode = 2
+[node name="Cash" type="Label" parent="Day1"]
+layout_mode = 2
+[node name="Assumptions" type="Label" parent="Day1"]
+layout_mode = 2
+autowrap_mode = 2
+
+[node name="Day2" type="VBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+[node name="Date" type="Label" parent="Day2"]
+layout_mode = 2
+[node name="Cash" type="Label" parent="Day2"]
+layout_mode = 2
+[node name="Assumptions" type="Label" parent="Day2"]
+layout_mode = 2
+autowrap_mode = 2
+
+[node name="Day3" type="VBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+[node name="Date" type="Label" parent="Day3"]
+layout_mode = 2
+[node name="Cash" type="Label" parent="Day3"]
+layout_mode = 2
+[node name="Assumptions" type="Label" parent="Day3"]
+layout_mode = 2
+autowrap_mode = 2

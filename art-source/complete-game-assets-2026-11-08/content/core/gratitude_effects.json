@@ -1,0 +1,32 @@
+[
+  {
+    "description": "@zh:core.gratitude_effects.cleanup_hint.description",
+    "id": "cleanup_hint",
+    "name": "@zh:core.gratitude_effects.cleanup_hint.name"
+  },
+  {
+    "description": "@zh:core.gratitude_effects.floral_aura.description",
+    "id": "floral_aura",
+    "name": "@zh:core.gratitude_effects.floral_aura.name"
+  },
+  {
+    "description": "@zh:core.gratitude_effects.soft_music.description",
+    "id": "soft_music",
+    "name": "@zh:core.gratitude_effects.soft_music.name"
+  },
+  {
+    "description": "@zh:core.gratitude_effects.repair_hint.description",
+    "id": "repair_hint",
+    "name": "@zh:core.gratitude_effects.repair_hint.name"
+  },
+  {
+    "description": "@zh:core.gratitude_effects.carry_materials.description",
+    "id": "carry_materials",
+    "name": "@zh:core.gratitude_effects.carry_materials.name"
+  },
+  {
+    "description": "@zh:core.gratitude_effects.memory_projection.description",
+    "id": "memory_projection",
+    "name": "@zh:core.gratitude_effects.memory_projection.name"
+  }
+]

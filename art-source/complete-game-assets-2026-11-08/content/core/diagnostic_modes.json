@@ -1,0 +1,63 @@
+[
+  {
+    "equipment_id": "FUR02",
+    "id": "DM_GP",
+    "name": "@zh:core.diagnostic_modes.DM_GP.name",
+    "operators": [
+      {
+        "ability": "diagnosis",
+        "min_level": 1,
+        "requires_research": [],
+        "role": "doctor"
+      }
+    ],
+    "service": "gp",
+    "unlock": "initial"
+  },
+  {
+    "equipment_id": "FUR02",
+    "id": "DM_SPECTRUM",
+    "name": "@zh:core.diagnostic_modes.DM_SPECTRUM.name",
+    "operators": [
+      {
+        "ability": "diagnosis",
+        "min_level": 2,
+        "requires_research": [
+          "R11"
+        ],
+        "role": "doctor"
+      },
+      {
+        "ability": "diagnosis",
+        "min_level": 1,
+        "requires_research": [],
+        "role": "nurse"
+      }
+    ],
+    "service": "spectrum",
+    "unlock": "first_profile_B"
+  },
+  {
+    "equipment_id": "FUR02",
+    "id": "DM_RESONANCE",
+    "name": "@zh:core.diagnostic_modes.DM_RESONANCE.name",
+    "operators": [
+      {
+        "ability": "diagnosis",
+        "min_level": 2,
+        "requires_research": [
+          "R11"
+        ],
+        "role": "doctor"
+      },
+      {
+        "ability": "diagnosis",
+        "min_level": 1,
+        "requires_research": [],
+        "role": "nurse"
+      }
+    ],
+    "service": "resonance",
+    "unlock": "R11"
+  }
+]

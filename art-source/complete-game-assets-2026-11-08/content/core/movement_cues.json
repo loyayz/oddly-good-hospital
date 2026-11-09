@@ -1,0 +1,20 @@
+[
+  {
+    "id": "MV01",
+    "reason": "yielding",
+    "scene": "@zh:core.movement_cues.MV01.scene",
+    "text": "@zh:core.movement_cues.MV01.text"
+  },
+  {
+    "id": "MV02",
+    "reason": "body_clearance",
+    "scene": "@zh:core.movement_cues.MV02.scene",
+    "text": "@zh:core.movement_cues.MV02.text"
+  },
+  {
+    "id": "MV03",
+    "reason": "expanded_facility",
+    "scene": "@zh:core.movement_cues.MV03.scene",
+    "text": "@zh:core.movement_cues.MV03.text"
+  }
+]

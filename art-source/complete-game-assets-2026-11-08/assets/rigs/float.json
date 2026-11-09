@@ -1,0 +1,84 @@
+{
+  "id": "float",
+  "reference_species": "S14",
+  "actions": [
+    "idle",
+    "walk",
+    "sit",
+    "notice",
+    "talk",
+    "cheer",
+    "upset",
+    "recover",
+    "interact",
+    "work",
+    "pause",
+    "symptom",
+    "recovery",
+    "low_motion",
+    "sleep",
+    "wake",
+    "rest",
+    "recreation",
+    "blink"
+  ],
+  "staff_actions": [
+    "operate",
+    "record",
+    "carry",
+    "repair",
+    "clean",
+    "build",
+    "teach",
+    "rest",
+    "sleep",
+    "wake"
+  ],
+  "slots": [
+    "head",
+    "look_target",
+    "hand_l",
+    "hand_r",
+    "treatment_anchor",
+    "emotion_anchor",
+    "carry_anchor"
+  ],
+  "animation_library": "assets/animations/staff/float.tres",
+  "source": {
+    "actions": [
+      "operate",
+      "record",
+      "carry",
+      "repair",
+      "clean",
+      "build",
+      "teach",
+      "rest",
+      "sleep",
+      "wake"
+    ],
+    "anchors": [
+      "operator",
+      "tool",
+      "badge",
+      "handoff"
+    ],
+    "id": "SRA_float",
+    "low_motion_sleep_scene": "床内稳定悬停与已离床两态，阴影/承托标记持续表示床仍被占用。",
+    "rig": "float",
+    "roles": [
+      "doctor",
+      "nurse",
+      "receptionist",
+      "cleaner",
+      "mechanic",
+      "researcher",
+      "decorator"
+    ],
+    "scene": "悬浮手柄伸到语义操作锚点，徽章悬在同一身体包络内。",
+    "sleep_scene": "在床的实际承托区域内稳定悬停，小毯的四角也悬在同一范围，像认真守住一个软盒子。",
+    "wake_scene": "先收好小毯角，再在实际下床位恢复平常悬浮高度；不穿过床边同事。"
+  },
+  "root_motion": false,
+  "max_bones": 40
+}

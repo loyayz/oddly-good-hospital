@@ -1,0 +1,42 @@
+[
+  {
+    "id": "RC01",
+    "state": "early_rest",
+    "text": "@zh:core.rest_cues.RC01.text"
+  },
+  {
+    "id": "RC02",
+    "state": "handoff",
+    "text": "@zh:core.rest_cues.RC02.text"
+  },
+  {
+    "id": "RC03",
+    "state": "resting",
+    "text": "@zh:core.rest_cues.RC03.text"
+  },
+  {
+    "id": "RC04",
+    "state": "returning",
+    "text": "@zh:core.rest_cues.RC04.text"
+  },
+  {
+    "id": "RC05",
+    "state": "sleep_seeking",
+    "text": "@zh:core.rest_cues.RC05.text"
+  },
+  {
+    "id": "RC06",
+    "state": "sleep_waiting",
+    "text": "@zh:core.rest_cues.RC06.text"
+  },
+  {
+    "id": "RC07",
+    "state": "sleeping",
+    "text": "@zh:core.rest_cues.RC07.text"
+  },
+  {
+    "id": "RC08",
+    "state": "offsite_rest",
+    "text": "@zh:core.rest_cues.RC08.text"
+  }
+]

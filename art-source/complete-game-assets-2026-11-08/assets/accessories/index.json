@@ -1,0 +1,2440 @@
+{
+  "accessories": [
+    {
+      "id": "biped_cleaner",
+      "path": "assets/accessories/uniforms/biped_cleaner.glb",
+      "source_path": "art-source/production/accessories/uniforms/biped_cleaner.blend",
+      "sha256": "49fccfdc3bf90064bc124c771a0cc07ade0aa9dfea5316a915d2f1a508f63a6d",
+      "bytes": 15448,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 196
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 196,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "biped",
+      "role": "cleaner",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "biped_decorator",
+      "path": "assets/accessories/uniforms/biped_decorator.glb",
+      "source_path": "art-source/production/accessories/uniforms/biped_decorator.blend",
+      "sha256": "513f26d9388289f73c3b2a3617ad927087c0e9a6b26231d3b7adef9287d2b353",
+      "bytes": 20576,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 192
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 192,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "biped",
+      "role": "decorator",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "biped_doctor",
+      "path": "assets/accessories/uniforms/biped_doctor.glb",
+      "source_path": "art-source/production/accessories/uniforms/biped_doctor.blend",
+      "sha256": "cff80554f90f27fd4ead907476703238598859bd2050582e32590c2c69e1ee14",
+      "bytes": 28868,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 284
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 284,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "biped",
+      "role": "doctor",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "biped_mechanic",
+      "path": "assets/accessories/uniforms/biped_mechanic.glb",
+      "source_path": "art-source/production/accessories/uniforms/biped_mechanic.blend",
+      "sha256": "6ba8830c4545e5409af4971f9cce24fe8be984c299fc8e8e712e82f0d439db3f",
+      "bytes": 28680,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 296
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 296,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "biped",
+      "role": "mechanic",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "biped_nurse",
+      "path": "assets/accessories/uniforms/biped_nurse.glb",
+      "source_path": "art-source/production/accessories/uniforms/biped_nurse.blend",
+      "sha256": "15ebedac4ff4aa9ec0090d9ee3922c83fe4fcb8e33baede24c38168905640e29",
+      "bytes": 20572,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 192
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 192,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "biped",
+      "role": "nurse",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "biped_receptionist",
+      "path": "assets/accessories/uniforms/biped_receptionist.glb",
+      "source_path": "art-source/production/accessories/uniforms/biped_receptionist.blend",
+      "sha256": "a0ed069cbb7e4217cc055a19da889a4e30d14858f2876d408035cf36b97dfafc",
+      "bytes": 21708,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 204
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 204,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "biped",
+      "role": "receptionist",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "biped_researcher",
+      "path": "assets/accessories/uniforms/biped_researcher.glb",
+      "source_path": "art-source/production/accessories/uniforms/biped_researcher.blend",
+      "sha256": "cf9ef1f2cbd4cd21e6660137be8ed08c9e18742da870cfeb7934102253d46a12",
+      "bytes": 14032,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 136
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 136,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "biped",
+      "role": "researcher",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "biped_look_01",
+      "path": "assets/accessories/looks/biped_look_01.glb",
+      "source_path": "art-source/production/accessories/looks/biped_look_01.blend",
+      "sha256": "b970751ca2193c760ea1c3a04ed01577dd2e4b037f1c3876e608149cde5102c9",
+      "bytes": 14544,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 288
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 288,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "biped",
+      "look": 1,
+      "slot": "head"
+    },
+    {
+      "id": "biped_look_02",
+      "path": "assets/accessories/looks/biped_look_02.glb",
+      "source_path": "art-source/production/accessories/looks/biped_look_02.blend",
+      "sha256": "b0b10a568eb48bec0b7e27dd0bc8c4fae4f82860ed4d9f7adb8e67ab3f0d58f4",
+      "bytes": 3284,
+      "surfaces": [
+        {
+          "mesh": "SoftScarf",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 48
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 48,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "biped",
+      "look": 2,
+      "slot": "carry_anchor"
+    },
+    {
+      "id": "biped_look_03",
+      "path": "assets/accessories/looks/biped_look_03.glb",
+      "source_path": "art-source/production/accessories/looks/biped_look_03.blend",
+      "sha256": "7f3b0a423cf61a5078470ffa339191df4ce6a425f53f63d1f428cf4683a5bb8b",
+      "bytes": 21416,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 248
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 248,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "biped",
+      "look": 3,
+      "slot": "head"
+    },
+    {
+      "id": "biped_look_04",
+      "path": "assets/accessories/looks/biped_look_04.glb",
+      "source_path": "art-source/production/accessories/looks/biped_look_04.blend",
+      "sha256": "b660d3108e6d336943326afebded7c1d77d4a6172638d80d2415a950ccb2f051",
+      "bytes": 7776,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 92
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 92,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "biped",
+      "look": 4,
+      "slot": "carry_anchor"
+    },
+    {
+      "id": "blob_cleaner",
+      "path": "assets/accessories/uniforms/blob_cleaner.glb",
+      "source_path": "art-source/production/accessories/uniforms/blob_cleaner.blend",
+      "sha256": "d5132885e4afbea7f031966f2124d3d9c2673e4df112645d8a672eef7d659ee4",
+      "bytes": 15448,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 196
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 196,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "blob",
+      "role": "cleaner",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "blob_decorator",
+      "path": "assets/accessories/uniforms/blob_decorator.glb",
+      "source_path": "art-source/production/accessories/uniforms/blob_decorator.blend",
+      "sha256": "43ba93f62e777dfa3fd29eda4cec69a6e6685c547f2c0270a73d5d1b08c71366",
+      "bytes": 20572,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 192
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 192,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "blob",
+      "role": "decorator",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "blob_doctor",
+      "path": "assets/accessories/uniforms/blob_doctor.glb",
+      "source_path": "art-source/production/accessories/uniforms/blob_doctor.blend",
+      "sha256": "05232c77d5427ac00a3d4f9f5afb40d1e4dc60b5cbb5b05c55d93868db9bafdb",
+      "bytes": 28868,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 284
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 284,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "blob",
+      "role": "doctor",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "blob_mechanic",
+      "path": "assets/accessories/uniforms/blob_mechanic.glb",
+      "source_path": "art-source/production/accessories/uniforms/blob_mechanic.blend",
+      "sha256": "8e31c2a3133dd7f2b7024c93ab714d7cd9f54d8697dec922a2d41a77380acc3c",
+      "bytes": 28676,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 296
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 296,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "blob",
+      "role": "mechanic",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "blob_nurse",
+      "path": "assets/accessories/uniforms/blob_nurse.glb",
+      "source_path": "art-source/production/accessories/uniforms/blob_nurse.blend",
+      "sha256": "e8d662936ae8f0e3cf2980dc39202d3496cf005c26ba696a40fc74dad380c8db",
+      "bytes": 20568,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 192
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 192,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "blob",
+      "role": "nurse",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "blob_receptionist",
+      "path": "assets/accessories/uniforms/blob_receptionist.glb",
+      "source_path": "art-source/production/accessories/uniforms/blob_receptionist.blend",
+      "sha256": "7ef00be955663165a944330e84a0f55239ce4710448d7515dab6eca58d48f690",
+      "bytes": 21704,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 204
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 204,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "blob",
+      "role": "receptionist",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "blob_researcher",
+      "path": "assets/accessories/uniforms/blob_researcher.glb",
+      "source_path": "art-source/production/accessories/uniforms/blob_researcher.blend",
+      "sha256": "4151f8338c5e6d6aed107868c45ee002a5bb6022a1de2697c0530621e7d1377a",
+      "bytes": 14032,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 136
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 136,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "blob",
+      "role": "researcher",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "blob_look_01",
+      "path": "assets/accessories/looks/blob_look_01.glb",
+      "source_path": "art-source/production/accessories/looks/blob_look_01.blend",
+      "sha256": "09fc03a66f0f5b7023442eeae8d88e54561f6424eae91adaeba192b92a41a99a",
+      "bytes": 14544,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 288
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 288,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "blob",
+      "look": 1,
+      "slot": "head"
+    },
+    {
+      "id": "blob_look_02",
+      "path": "assets/accessories/looks/blob_look_02.glb",
+      "source_path": "art-source/production/accessories/looks/blob_look_02.blend",
+      "sha256": "8d09074410c74e5c0e966b0cc5482c6b461459f1baec77e983c395a192f8795b",
+      "bytes": 3280,
+      "surfaces": [
+        {
+          "mesh": "SoftScarf",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 48
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 48,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "blob",
+      "look": 2,
+      "slot": "carry_anchor"
+    },
+    {
+      "id": "blob_look_03",
+      "path": "assets/accessories/looks/blob_look_03.glb",
+      "source_path": "art-source/production/accessories/looks/blob_look_03.blend",
+      "sha256": "2d0af9a5d61d066b37f21dd2ccff2db8eda8e0d9327d2fe1dda134bf129f3088",
+      "bytes": 21416,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 248
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 248,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "blob",
+      "look": 3,
+      "slot": "head"
+    },
+    {
+      "id": "blob_look_04",
+      "path": "assets/accessories/looks/blob_look_04.glb",
+      "source_path": "art-source/production/accessories/looks/blob_look_04.blend",
+      "sha256": "d1be78a22b8a9ca5dcb6f9dba8280e14c41ad595f139e361eb6f156513e6709b",
+      "bytes": 7772,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 92
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 92,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "blob",
+      "look": 4,
+      "slot": "carry_anchor"
+    },
+    {
+      "id": "float_cleaner",
+      "path": "assets/accessories/uniforms/float_cleaner.glb",
+      "source_path": "art-source/production/accessories/uniforms/float_cleaner.blend",
+      "sha256": "148f047b60b771dee2cbc9243236ed4bdac1da7da817c71eb4aa4be3635d2cd0",
+      "bytes": 15448,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 196
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 196,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "float",
+      "role": "cleaner",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "float_decorator",
+      "path": "assets/accessories/uniforms/float_decorator.glb",
+      "source_path": "art-source/production/accessories/uniforms/float_decorator.blend",
+      "sha256": "97e5665bc5b237e399cd2d6d1a931a50292542a590a3624c14179b46ecd2ff0c",
+      "bytes": 20576,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 192
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 192,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "float",
+      "role": "decorator",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "float_doctor",
+      "path": "assets/accessories/uniforms/float_doctor.glb",
+      "source_path": "art-source/production/accessories/uniforms/float_doctor.blend",
+      "sha256": "af2e6aa0afa3136a956557794657374aa7aee4a2bad6591aa4c31103afb88e16",
+      "bytes": 28868,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 284
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 284,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "float",
+      "role": "doctor",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "float_mechanic",
+      "path": "assets/accessories/uniforms/float_mechanic.glb",
+      "source_path": "art-source/production/accessories/uniforms/float_mechanic.blend",
+      "sha256": "1c3f428cb3c697faadcb0088f9f125e53451d5e4cea56e3b204bd227eb1ff9a3",
+      "bytes": 28680,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 296
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 296,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "float",
+      "role": "mechanic",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "float_nurse",
+      "path": "assets/accessories/uniforms/float_nurse.glb",
+      "source_path": "art-source/production/accessories/uniforms/float_nurse.blend",
+      "sha256": "058b3f091ad23e82295f2b743c6407b3f37de07a32da0b35a0cf1d2870cf797d",
+      "bytes": 20572,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 192
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 192,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "float",
+      "role": "nurse",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "float_receptionist",
+      "path": "assets/accessories/uniforms/float_receptionist.glb",
+      "source_path": "art-source/production/accessories/uniforms/float_receptionist.blend",
+      "sha256": "1a686790dce4c1384857289325b93e8ac404b253de5cbf9e810ba7b5bc8b89e1",
+      "bytes": 21708,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 204
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 204,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "float",
+      "role": "receptionist",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "float_researcher",
+      "path": "assets/accessories/uniforms/float_researcher.glb",
+      "source_path": "art-source/production/accessories/uniforms/float_researcher.blend",
+      "sha256": "3b671213d74373565009cb4241163b6021dd3cfc6dc569c67f8beb78035c5f68",
+      "bytes": 14032,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 136
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 136,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "float",
+      "role": "researcher",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "float_look_01",
+      "path": "assets/accessories/looks/float_look_01.glb",
+      "source_path": "art-source/production/accessories/looks/float_look_01.blend",
+      "sha256": "089695190543a6d2a5092b25650b4c4f413cd09e7c4c45df2322ab3eefb5e34d",
+      "bytes": 14544,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 288
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 288,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "float",
+      "look": 1,
+      "slot": "head"
+    },
+    {
+      "id": "float_look_02",
+      "path": "assets/accessories/looks/float_look_02.glb",
+      "source_path": "art-source/production/accessories/looks/float_look_02.blend",
+      "sha256": "4a5e8081eee75aa0971d9a3fe0d5f766dee886dcd7c57b4981124349b3dd86d3",
+      "bytes": 3284,
+      "surfaces": [
+        {
+          "mesh": "SoftScarf",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 48
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 48,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "float",
+      "look": 2,
+      "slot": "carry_anchor"
+    },
+    {
+      "id": "float_look_03",
+      "path": "assets/accessories/looks/float_look_03.glb",
+      "source_path": "art-source/production/accessories/looks/float_look_03.blend",
+      "sha256": "30374bfd483c52e1f748159dd6946bd39190093535b657f4be22a8619374be8a",
+      "bytes": 21416,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 248
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 248,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "float",
+      "look": 3,
+      "slot": "head"
+    },
+    {
+      "id": "float_look_04",
+      "path": "assets/accessories/looks/float_look_04.glb",
+      "source_path": "art-source/production/accessories/looks/float_look_04.blend",
+      "sha256": "ad7322d55f52fe7a3738962479793bb9d3c44fda9396d7836c69a113e12fbfb7",
+      "bytes": 7776,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 92
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 92,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "float",
+      "look": 4,
+      "slot": "carry_anchor"
+    },
+    {
+      "id": "longneck_cleaner",
+      "path": "assets/accessories/uniforms/longneck_cleaner.glb",
+      "source_path": "art-source/production/accessories/uniforms/longneck_cleaner.blend",
+      "sha256": "17943681ac5904f5f54a415c4fe058dc44cd2c692065779db0b97c29dd68b3b1",
+      "bytes": 30492,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 356
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 356,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "longneck",
+      "role": "cleaner",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "longneck_decorator",
+      "path": "assets/accessories/uniforms/longneck_decorator.glb",
+      "source_path": "art-source/production/accessories/uniforms/longneck_decorator.blend",
+      "sha256": "ff43944763f998329b9c6db2cfc3db8a15f4aee76de1ea8a8ba9882937595c79",
+      "bytes": 35616,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 352
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 352,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "longneck",
+      "role": "decorator",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "longneck_doctor",
+      "path": "assets/accessories/uniforms/longneck_doctor.glb",
+      "source_path": "art-source/production/accessories/uniforms/longneck_doctor.blend",
+      "sha256": "3d16309a7bda84d82b2db999c7d58d1cdfafc5496b40bf2b697886e048441dbe",
+      "bytes": 43916,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 444
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 444,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "longneck",
+      "role": "doctor",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "longneck_mechanic",
+      "path": "assets/accessories/uniforms/longneck_mechanic.glb",
+      "source_path": "art-source/production/accessories/uniforms/longneck_mechanic.blend",
+      "sha256": "5405dcc679ce3e53b52d57431460a017a0f37c2ace37c1a9104001da7ed7f1bd",
+      "bytes": 43724,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 456
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 456,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "longneck",
+      "role": "mechanic",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "longneck_nurse",
+      "path": "assets/accessories/uniforms/longneck_nurse.glb",
+      "source_path": "art-source/production/accessories/uniforms/longneck_nurse.blend",
+      "sha256": "5054448a0a36037510d5249cf930201a6b3ea52a0594d49f023f3808df9f187d",
+      "bytes": 35612,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 352
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 352,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "longneck",
+      "role": "nurse",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "longneck_receptionist",
+      "path": "assets/accessories/uniforms/longneck_receptionist.glb",
+      "source_path": "art-source/production/accessories/uniforms/longneck_receptionist.blend",
+      "sha256": "5c211be3e62df30a838988122a693d38d3bc46d9c308a4ff7a94707e41753b76",
+      "bytes": 36748,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 364
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 364,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "longneck",
+      "role": "receptionist",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "longneck_researcher",
+      "path": "assets/accessories/uniforms/longneck_researcher.glb",
+      "source_path": "art-source/production/accessories/uniforms/longneck_researcher.blend",
+      "sha256": "2642c6fbc9a6088052e3e7c8466ab864ac74221ad198e8ee2d0a0ade0f6f76b0",
+      "bytes": 29076,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 296
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 296,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "longneck",
+      "role": "researcher",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "longneck_look_01",
+      "path": "assets/accessories/looks/longneck_look_01.glb",
+      "source_path": "art-source/production/accessories/looks/longneck_look_01.blend",
+      "sha256": "d52ee14d9bdc7042aef8fbe63deb3cd54628712788929465318a8f935ed0d62e",
+      "bytes": 14548,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 288
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 288,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "longneck",
+      "look": 1,
+      "slot": "head"
+    },
+    {
+      "id": "longneck_look_02",
+      "path": "assets/accessories/looks/longneck_look_02.glb",
+      "source_path": "art-source/production/accessories/looks/longneck_look_02.blend",
+      "sha256": "8a7ec8687c84d20b3c0d7c065b6bc7c20d756b268065d485d30c4328c8195906",
+      "bytes": 3284,
+      "surfaces": [
+        {
+          "mesh": "SoftScarf",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 48
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 48,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "longneck",
+      "look": 2,
+      "slot": "carry_anchor"
+    },
+    {
+      "id": "longneck_look_03",
+      "path": "assets/accessories/looks/longneck_look_03.glb",
+      "source_path": "art-source/production/accessories/looks/longneck_look_03.blend",
+      "sha256": "c0d9a2e449f5c7d3cdfb7edc892f5074f0ead60f67e6700653af43f8cde2719c",
+      "bytes": 21420,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 248
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 248,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "longneck",
+      "look": 3,
+      "slot": "head"
+    },
+    {
+      "id": "longneck_look_04",
+      "path": "assets/accessories/looks/longneck_look_04.glb",
+      "source_path": "art-source/production/accessories/looks/longneck_look_04.blend",
+      "sha256": "08cf9b3525bda935aaae616b996bb8869886609699e2a4c71ad034ca17a2f04a",
+      "bytes": 7776,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 92
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 92,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "longneck",
+      "look": 4,
+      "slot": "carry_anchor"
+    },
+    {
+      "id": "micro_cleaner",
+      "path": "assets/accessories/uniforms/micro_cleaner.glb",
+      "source_path": "art-source/production/accessories/uniforms/micro_cleaner.blend",
+      "sha256": "47ed16fdca6c47098db38adffad0309d61671faec58847d5d6b7f82b10e3258e",
+      "bytes": 16740,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 228
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 228,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "micro",
+      "role": "cleaner",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "micro_decorator",
+      "path": "assets/accessories/uniforms/micro_decorator.glb",
+      "source_path": "art-source/production/accessories/uniforms/micro_decorator.blend",
+      "sha256": "66dac2ed1838fa8c0141b352b0888b81c4cb625e711495f8f7e32f9b168a9640",
+      "bytes": 21868,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 224
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 224,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "micro",
+      "role": "decorator",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "micro_doctor",
+      "path": "assets/accessories/uniforms/micro_doctor.glb",
+      "source_path": "art-source/production/accessories/uniforms/micro_doctor.blend",
+      "sha256": "ac9545e806b8f41ba5fcf16d775e904ddebc759707f60f9f9415576e4007245e",
+      "bytes": 30160,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 316
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 316,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "micro",
+      "role": "doctor",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "micro_mechanic",
+      "path": "assets/accessories/uniforms/micro_mechanic.glb",
+      "source_path": "art-source/production/accessories/uniforms/micro_mechanic.blend",
+      "sha256": "629b854a514556942205dd73d526e1cb3d690171936aec30a07526d033f29b83",
+      "bytes": 29968,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 328
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 328,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "micro",
+      "role": "mechanic",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "micro_nurse",
+      "path": "assets/accessories/uniforms/micro_nurse.glb",
+      "source_path": "art-source/production/accessories/uniforms/micro_nurse.blend",
+      "sha256": "89e2aadc7378cf449f3f677638d540bfea6cc1dc73b43aa949f82880b11bc21e",
+      "bytes": 21864,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 224
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 224,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "micro",
+      "role": "nurse",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "micro_receptionist",
+      "path": "assets/accessories/uniforms/micro_receptionist.glb",
+      "source_path": "art-source/production/accessories/uniforms/micro_receptionist.blend",
+      "sha256": "737de6090175359b43c9abeeaf4f24fec989456e4c8821bae193bd0c19120488",
+      "bytes": 22996,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 236
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 236,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "micro",
+      "role": "receptionist",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "micro_researcher",
+      "path": "assets/accessories/uniforms/micro_researcher.glb",
+      "source_path": "art-source/production/accessories/uniforms/micro_researcher.blend",
+      "sha256": "214249a3b3e199637520fa856caede8c043c5242c7f4ae833c7e104d90461136",
+      "bytes": 15324,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 168
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 168,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "micro",
+      "role": "researcher",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "micro_look_01",
+      "path": "assets/accessories/looks/micro_look_01.glb",
+      "source_path": "art-source/production/accessories/looks/micro_look_01.blend",
+      "sha256": "d97c59e7c8d1c1f4b00204050466edf3cfb55ca46c2c66de7c95780877961014",
+      "bytes": 14544,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 288
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 288,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "micro",
+      "look": 1,
+      "slot": "head"
+    },
+    {
+      "id": "micro_look_02",
+      "path": "assets/accessories/looks/micro_look_02.glb",
+      "source_path": "art-source/production/accessories/looks/micro_look_02.blend",
+      "sha256": "ed3a2e8e967c2a95c9bb6df241487e20109612e9180d25bc2ada42b11cbf9269",
+      "bytes": 3284,
+      "surfaces": [
+        {
+          "mesh": "SoftScarf",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 48
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 48,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "micro",
+      "look": 2,
+      "slot": "carry_anchor"
+    },
+    {
+      "id": "micro_look_03",
+      "path": "assets/accessories/looks/micro_look_03.glb",
+      "source_path": "art-source/production/accessories/looks/micro_look_03.blend",
+      "sha256": "7497258d38d6adfd2031c2dff045ed282a91c6b1ea6059893a7ab4f87941dde6",
+      "bytes": 21416,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 248
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 248,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "micro",
+      "look": 3,
+      "slot": "head"
+    },
+    {
+      "id": "micro_look_04",
+      "path": "assets/accessories/looks/micro_look_04.glb",
+      "source_path": "art-source/production/accessories/looks/micro_look_04.blend",
+      "sha256": "2ce05c85c770124c82a2efbee33d9e3b76bf970073b110bf027f5f9f2730278f",
+      "bytes": 7776,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 92
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 92,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "micro",
+      "look": 4,
+      "slot": "carry_anchor"
+    },
+    {
+      "id": "object_cleaner",
+      "path": "assets/accessories/uniforms/object_cleaner.glb",
+      "source_path": "art-source/production/accessories/uniforms/object_cleaner.blend",
+      "sha256": "f2a2f897bc3a9e7ed8e3a5dadb9e8f3c6d964161c0bcc0bb106a95d2aa8dc0f4",
+      "bytes": 16740,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 228
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 228,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "object",
+      "role": "cleaner",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "object_decorator",
+      "path": "assets/accessories/uniforms/object_decorator.glb",
+      "source_path": "art-source/production/accessories/uniforms/object_decorator.blend",
+      "sha256": "d554abd131a98d694baebce1e5b6546fdfb86e4f7caf56491d74ff4ad568a175",
+      "bytes": 21868,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 224
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 224,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "object",
+      "role": "decorator",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "object_doctor",
+      "path": "assets/accessories/uniforms/object_doctor.glb",
+      "source_path": "art-source/production/accessories/uniforms/object_doctor.blend",
+      "sha256": "bceb9cae438fbf47649c57e528aa353ffef047afbbc2fec61577124249882bfc",
+      "bytes": 30160,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 316
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 316,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "object",
+      "role": "doctor",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "object_mechanic",
+      "path": "assets/accessories/uniforms/object_mechanic.glb",
+      "source_path": "art-source/production/accessories/uniforms/object_mechanic.blend",
+      "sha256": "ed26da626d752e1de4bbafbb81eeaa3334b537f814f748251766674d164b13cc",
+      "bytes": 29972,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 328
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 328,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "object",
+      "role": "mechanic",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "object_nurse",
+      "path": "assets/accessories/uniforms/object_nurse.glb",
+      "source_path": "art-source/production/accessories/uniforms/object_nurse.blend",
+      "sha256": "77c67f1162e113174a655f2a313507b772edc573132e5ab4155335001cfeddf3",
+      "bytes": 21864,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 224
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 224,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "object",
+      "role": "nurse",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "object_receptionist",
+      "path": "assets/accessories/uniforms/object_receptionist.glb",
+      "source_path": "art-source/production/accessories/uniforms/object_receptionist.blend",
+      "sha256": "4d5c8c7178164ca5b87a4df8206f7df6661b0e7ed268454d536e4269992350ad",
+      "bytes": 23000,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 236
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 236,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "object",
+      "role": "receptionist",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "object_researcher",
+      "path": "assets/accessories/uniforms/object_researcher.glb",
+      "source_path": "art-source/production/accessories/uniforms/object_researcher.blend",
+      "sha256": "c774f801be59ca7077a179eb8ed1ec52dffb3d37c64d1212266bb7ca7e2c42eb",
+      "bytes": 15324,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 168
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 168,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "object",
+      "role": "researcher",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "object_look_01",
+      "path": "assets/accessories/looks/object_look_01.glb",
+      "source_path": "art-source/production/accessories/looks/object_look_01.blend",
+      "sha256": "382203be5660376e80bb2c2845505c97721e621f9def34074742530f4f1ab20a",
+      "bytes": 14544,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 288
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 288,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "object",
+      "look": 1,
+      "slot": "head"
+    },
+    {
+      "id": "object_look_02",
+      "path": "assets/accessories/looks/object_look_02.glb",
+      "source_path": "art-source/production/accessories/looks/object_look_02.blend",
+      "sha256": "7518514d48fad6df8436152f8072ca6c79cc08f0449e5b90bed752a18ca1b297",
+      "bytes": 3284,
+      "surfaces": [
+        {
+          "mesh": "SoftScarf",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 48
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 48,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "object",
+      "look": 2,
+      "slot": "carry_anchor"
+    },
+    {
+      "id": "object_look_03",
+      "path": "assets/accessories/looks/object_look_03.glb",
+      "source_path": "art-source/production/accessories/looks/object_look_03.blend",
+      "sha256": "4e29a826d0c3fc278ce59762a4a737cf865cf4074865efcbfeb8c6dd76f55127",
+      "bytes": 21416,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 248
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 248,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "object",
+      "look": 3,
+      "slot": "head"
+    },
+    {
+      "id": "object_look_04",
+      "path": "assets/accessories/looks/object_look_04.glb",
+      "source_path": "art-source/production/accessories/looks/object_look_04.blend",
+      "sha256": "63721b6b8d4495fe39ed736cd739c478f58e53d9b46596319665865c6d8cd8c1",
+      "bytes": 7776,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 92
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 92,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "object",
+      "look": 4,
+      "slot": "carry_anchor"
+    },
+    {
+      "id": "plant_cleaner",
+      "path": "assets/accessories/uniforms/plant_cleaner.glb",
+      "source_path": "art-source/production/accessories/uniforms/plant_cleaner.blend",
+      "sha256": "280d0543efe96ae59afdede3651b918956325f9390b1648ff1005525202f8c4b",
+      "bytes": 15448,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 196
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 196,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "plant",
+      "role": "cleaner",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "plant_decorator",
+      "path": "assets/accessories/uniforms/plant_decorator.glb",
+      "source_path": "art-source/production/accessories/uniforms/plant_decorator.blend",
+      "sha256": "c63de05bd4e7e894dccf558ac4d6cb135258b4d96dd8cca4e70abf2ebe09823b",
+      "bytes": 20576,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 192
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 192,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "plant",
+      "role": "decorator",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "plant_doctor",
+      "path": "assets/accessories/uniforms/plant_doctor.glb",
+      "source_path": "art-source/production/accessories/uniforms/plant_doctor.blend",
+      "sha256": "1d46a7cf1d603a9760291c18a6b7e753bb3a2f5e1cf0165d4e2df0b287424b84",
+      "bytes": 28868,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 284
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 284,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "plant",
+      "role": "doctor",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "plant_mechanic",
+      "path": "assets/accessories/uniforms/plant_mechanic.glb",
+      "source_path": "art-source/production/accessories/uniforms/plant_mechanic.blend",
+      "sha256": "5fbba6bf653ae6e2859ac10f45a02a82124c682faa83505a5481a3049c0dd081",
+      "bytes": 28680,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 296
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 296,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "plant",
+      "role": "mechanic",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "plant_nurse",
+      "path": "assets/accessories/uniforms/plant_nurse.glb",
+      "source_path": "art-source/production/accessories/uniforms/plant_nurse.blend",
+      "sha256": "00202b584f78db49e87fd82e9ec9478ffa8a474320a5ac6dfbf6af89c7c06c7c",
+      "bytes": 20572,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 192
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 192,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "plant",
+      "role": "nurse",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "plant_receptionist",
+      "path": "assets/accessories/uniforms/plant_receptionist.glb",
+      "source_path": "art-source/production/accessories/uniforms/plant_receptionist.blend",
+      "sha256": "f6ef5b9fb3f1d455ad9efe4ac934bb0864593110c27a5a8a080f5d86fc73e94a",
+      "bytes": 21708,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 204
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 204,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "plant",
+      "role": "receptionist",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "plant_researcher",
+      "path": "assets/accessories/uniforms/plant_researcher.glb",
+      "source_path": "art-source/production/accessories/uniforms/plant_researcher.blend",
+      "sha256": "8d59d2239683383786aa3ea41e09a12beee7fb9165e7691e9262a0587be9f910",
+      "bytes": 14032,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 136
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 136,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "plant",
+      "role": "researcher",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "plant_look_01",
+      "path": "assets/accessories/looks/plant_look_01.glb",
+      "source_path": "art-source/production/accessories/looks/plant_look_01.blend",
+      "sha256": "30d496a4089bd934dcd36580a05cf5c250ed565706b956a29deb7a2ecf607daf",
+      "bytes": 14544,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 288
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 288,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "plant",
+      "look": 1,
+      "slot": "head"
+    },
+    {
+      "id": "plant_look_02",
+      "path": "assets/accessories/looks/plant_look_02.glb",
+      "source_path": "art-source/production/accessories/looks/plant_look_02.blend",
+      "sha256": "a42d693245d440a179083c88fd16c5b15bf9134d1be48549f8d9b5c8efe26465",
+      "bytes": 3284,
+      "surfaces": [
+        {
+          "mesh": "SoftScarf",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 48
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 48,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "plant",
+      "look": 2,
+      "slot": "carry_anchor"
+    },
+    {
+      "id": "plant_look_03",
+      "path": "assets/accessories/looks/plant_look_03.glb",
+      "source_path": "art-source/production/accessories/looks/plant_look_03.blend",
+      "sha256": "0315978e666b546e3db44a9d79a07cd9225f3f0cd544b3bafde3efd92124ebe1",
+      "bytes": 21416,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 248
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 248,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "plant",
+      "look": 3,
+      "slot": "head"
+    },
+    {
+      "id": "plant_look_04",
+      "path": "assets/accessories/looks/plant_look_04.glb",
+      "source_path": "art-source/production/accessories/looks/plant_look_04.blend",
+      "sha256": "e126db56b405e29571b1013420591ba21e4df7e4bc0e5fea49b0e07bcfd6375f",
+      "bytes": 7776,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 92
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 92,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "plant",
+      "look": 4,
+      "slot": "carry_anchor"
+    },
+    {
+      "id": "quadruped_cleaner",
+      "path": "assets/accessories/uniforms/quadruped_cleaner.glb",
+      "source_path": "art-source/production/accessories/uniforms/quadruped_cleaner.blend",
+      "sha256": "2927e839846f30766a2049ce132099e678006a17cf289e3b14bff8b9605b0646",
+      "bytes": 30492,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 356
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 356,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "quadruped",
+      "role": "cleaner",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "quadruped_decorator",
+      "path": "assets/accessories/uniforms/quadruped_decorator.glb",
+      "source_path": "art-source/production/accessories/uniforms/quadruped_decorator.blend",
+      "sha256": "cf0e4e23e1351fe1310086616acd6d6b7a32c9a941dcad7e6407511c76d588ff",
+      "bytes": 35620,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 352
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 352,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "quadruped",
+      "role": "decorator",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "quadruped_doctor",
+      "path": "assets/accessories/uniforms/quadruped_doctor.glb",
+      "source_path": "art-source/production/accessories/uniforms/quadruped_doctor.blend",
+      "sha256": "3ceaafd24b6ffb7bc4fd199d161f965aa38866793888a8381a817fc698ff2a70",
+      "bytes": 43916,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 444
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 444,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "quadruped",
+      "role": "doctor",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "quadruped_mechanic",
+      "path": "assets/accessories/uniforms/quadruped_mechanic.glb",
+      "source_path": "art-source/production/accessories/uniforms/quadruped_mechanic.blend",
+      "sha256": "f85fdbe6f7dc1638a3d6c946c76e58f824073edc4df333f283d0e8493b5ee97f",
+      "bytes": 43724,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 456
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 456,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "quadruped",
+      "role": "mechanic",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "quadruped_nurse",
+      "path": "assets/accessories/uniforms/quadruped_nurse.glb",
+      "source_path": "art-source/production/accessories/uniforms/quadruped_nurse.blend",
+      "sha256": "6847e22e4bbebecc52eb669eb42e470824a98905c035c8577d0ea1af5fffd446",
+      "bytes": 35616,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 352
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 352,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "quadruped",
+      "role": "nurse",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "quadruped_receptionist",
+      "path": "assets/accessories/uniforms/quadruped_receptionist.glb",
+      "source_path": "art-source/production/accessories/uniforms/quadruped_receptionist.blend",
+      "sha256": "ffb2938dcdc70e7d6baab9e8d08fb9e18acbd3c7a7f05e7c1570de3a5ffb766d",
+      "bytes": 36748,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 364
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 364,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "quadruped",
+      "role": "receptionist",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "quadruped_researcher",
+      "path": "assets/accessories/uniforms/quadruped_researcher.glb",
+      "source_path": "art-source/production/accessories/uniforms/quadruped_researcher.blend",
+      "sha256": "64e490a2ecd120e4e1d6e8ec05ce278c8ee79373239ccd84202625688ae2240f",
+      "bytes": 29076,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 296
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 296,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "quadruped",
+      "role": "researcher",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "quadruped_look_01",
+      "path": "assets/accessories/looks/quadruped_look_01.glb",
+      "source_path": "art-source/production/accessories/looks/quadruped_look_01.blend",
+      "sha256": "8ed69812930377eca502a19e9d00a86ba40657787bccf1c28f7d6eb2ea7e73f3",
+      "bytes": 14548,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 288
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 288,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "quadruped",
+      "look": 1,
+      "slot": "head"
+    },
+    {
+      "id": "quadruped_look_02",
+      "path": "assets/accessories/looks/quadruped_look_02.glb",
+      "source_path": "art-source/production/accessories/looks/quadruped_look_02.blend",
+      "sha256": "22bd716bf59180a66f5700f3117cb228b1a8df5dc1aefebaf6afd0150be7b59b",
+      "bytes": 3288,
+      "surfaces": [
+        {
+          "mesh": "SoftScarf",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 48
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 48,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "quadruped",
+      "look": 2,
+      "slot": "carry_anchor"
+    },
+    {
+      "id": "quadruped_look_03",
+      "path": "assets/accessories/looks/quadruped_look_03.glb",
+      "source_path": "art-source/production/accessories/looks/quadruped_look_03.blend",
+      "sha256": "d13405dc4458f91f1784681023282a809f69b8fd50a349d4c48ef33609f78375",
+      "bytes": 21420,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 248
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 248,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "quadruped",
+      "look": 3,
+      "slot": "head"
+    },
+    {
+      "id": "quadruped_look_04",
+      "path": "assets/accessories/looks/quadruped_look_04.glb",
+      "source_path": "art-source/production/accessories/looks/quadruped_look_04.blend",
+      "sha256": "1b5fd0b720507545eada4931b3467f9db8d17b68dc788e7dc0793b9b31a09ca3",
+      "bytes": 7780,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 92
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 92,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "quadruped",
+      "look": 4,
+      "slot": "carry_anchor"
+    },
+    {
+      "id": "tentacle_cleaner",
+      "path": "assets/accessories/uniforms/tentacle_cleaner.glb",
+      "source_path": "art-source/production/accessories/uniforms/tentacle_cleaner.blend",
+      "sha256": "1aa7e7aef1234f20b6b5c4885eb00b5b898bd00c7afc9a06198ce7b2675f9e0c",
+      "bytes": 15452,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 196
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 196,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "tentacle",
+      "role": "cleaner",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "tentacle_decorator",
+      "path": "assets/accessories/uniforms/tentacle_decorator.glb",
+      "source_path": "art-source/production/accessories/uniforms/tentacle_decorator.blend",
+      "sha256": "fe9f2ae0394e4a65f0d210027d1821ba3c408a2dac0c1a7164531f082f1b7eb1",
+      "bytes": 20576,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 192
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 192,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "tentacle",
+      "role": "decorator",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "tentacle_doctor",
+      "path": "assets/accessories/uniforms/tentacle_doctor.glb",
+      "source_path": "art-source/production/accessories/uniforms/tentacle_doctor.blend",
+      "sha256": "6c660134805cf47887d9132e178849496f99d2b596014938e0b86102409dc19b",
+      "bytes": 28872,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 284
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 284,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "tentacle",
+      "role": "doctor",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "tentacle_mechanic",
+      "path": "assets/accessories/uniforms/tentacle_mechanic.glb",
+      "source_path": "art-source/production/accessories/uniforms/tentacle_mechanic.blend",
+      "sha256": "21e846123f3004ce600eac1c8a07e9922c2c5e29228c919c472bc404d5acba75",
+      "bytes": 28680,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 296
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 296,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "tentacle",
+      "role": "mechanic",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "tentacle_nurse",
+      "path": "assets/accessories/uniforms/tentacle_nurse.glb",
+      "source_path": "art-source/production/accessories/uniforms/tentacle_nurse.blend",
+      "sha256": "689b8b7dc3db0c63d7197a22c4c2e8aa8c1c9d2d021033725f7f8a76b55bea26",
+      "bytes": 20572,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 192
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 192,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "tentacle",
+      "role": "nurse",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "tentacle_receptionist",
+      "path": "assets/accessories/uniforms/tentacle_receptionist.glb",
+      "source_path": "art-source/production/accessories/uniforms/tentacle_receptionist.blend",
+      "sha256": "b0ff12a79db63fadb83039d8754d184f7b6758da84c10bc81a641042ae00cddd",
+      "bytes": 21708,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 204
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 204,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "tentacle",
+      "role": "receptionist",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "tentacle_researcher",
+      "path": "assets/accessories/uniforms/tentacle_researcher.glb",
+      "source_path": "art-source/production/accessories/uniforms/tentacle_researcher.blend",
+      "sha256": "103d18d853d5f395268f7463d96820d1ca163b17a0d42160d57108da24e854d1",
+      "bytes": 14036,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 136
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 136,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "tentacle",
+      "role": "researcher",
+      "slot": "carry_anchor",
+      "fit": "scale to current real body; fixed species dimensions"
+    },
+    {
+      "id": "tentacle_look_01",
+      "path": "assets/accessories/looks/tentacle_look_01.glb",
+      "source_path": "art-source/production/accessories/looks/tentacle_look_01.blend",
+      "sha256": "b4ec02501cf38e16f6072f7c9be030422eb988ece632b3d0eb8572cf6cb39590",
+      "bytes": 14548,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 288
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 288,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "tentacle",
+      "look": 1,
+      "slot": "head"
+    },
+    {
+      "id": "tentacle_look_02",
+      "path": "assets/accessories/looks/tentacle_look_02.glb",
+      "source_path": "art-source/production/accessories/looks/tentacle_look_02.blend",
+      "sha256": "509e8c8d21d21e923a786e7e8ddca3bffb92bd43504e39a65fec379dfac6e774",
+      "bytes": 3284,
+      "surfaces": [
+        {
+          "mesh": "SoftScarf",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 48
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 48,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "tentacle",
+      "look": 2,
+      "slot": "carry_anchor"
+    },
+    {
+      "id": "tentacle_look_03",
+      "path": "assets/accessories/looks/tentacle_look_03.glb",
+      "source_path": "art-source/production/accessories/looks/tentacle_look_03.blend",
+      "sha256": "5422f72608d8c5f661c08af6e8e4e8982f524bb4bc8d28cfc261c8a4dffa9af3",
+      "bytes": 21420,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 248
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 248,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "tentacle",
+      "look": 3,
+      "slot": "head"
+    },
+    {
+      "id": "tentacle_look_04",
+      "path": "assets/accessories/looks/tentacle_look_04.glb",
+      "source_path": "art-source/production/accessories/looks/tentacle_look_04.blend",
+      "sha256": "3d29f7bcd5d9fec3b9f34dc938084db88124662ae6836df4f21c4409a1295fa0",
+      "bytes": 7776,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 92
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 92,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "tentacle",
+      "look": 4,
+      "slot": "carry_anchor"
+    },
+    {
+      "id": "core_s49_look_01",
+      "path": "assets/accessories/looks/core_s49_look_01.glb",
+      "source_path": "art-source/production/accessories/looks/core_s49_look_01.blend",
+      "sha256": "899e71cc3f30107a4c1f8598b2a16b375338daff6d0efea38ecdb2d1184d513f",
+      "bytes": 7392,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 152
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 152,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "biped",
+      "species_id": "S49",
+      "look": 1,
+      "slot": "head"
+    },
+    {
+      "id": "core_s49_look_02",
+      "path": "assets/accessories/looks/core_s49_look_02.glb",
+      "source_path": "art-source/production/accessories/looks/core_s49_look_02.blend",
+      "sha256": "07e20faa33716c5e53369cf4abe006091929a2b6ef9a28ed58878f50c0e4d9e7",
+      "bytes": 44240,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 484
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 484,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "biped",
+      "species_id": "S49",
+      "look": 2,
+      "slot": "head"
+    },
+    {
+      "id": "core_s49_look_03",
+      "path": "assets/accessories/looks/core_s49_look_03.glb",
+      "source_path": "art-source/production/accessories/looks/core_s49_look_03.blend",
+      "sha256": "fa2bd2bfe33bf8943e97ffcdc753e235163a7f377959f8626bfff5b4f009ccdb",
+      "bytes": 16976,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 360
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 360,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "biped",
+      "species_id": "S49",
+      "look": 3,
+      "slot": "head"
+    },
+    {
+      "id": "core_s49_look_04",
+      "path": "assets/accessories/looks/core_s49_look_04.glb",
+      "source_path": "art-source/production/accessories/looks/core_s49_look_04.blend",
+      "sha256": "cd8a4a76eb24f95d2cd7c4e4ac1310e5b928717280cfbaa29ae8696f994b786d",
+      "bytes": 15376,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 360
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 360,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "rig": "biped",
+      "species_id": "S49",
+      "look": 4,
+      "slot": "head"
+    }
+  ]
+}

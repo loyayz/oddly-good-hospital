@@ -1,0 +1,15 @@
+{
+	"appearance_assemblies": 320,
+	"audio_checked": 483,
+	"case_index_sha256": "1cb2a3597c37c37c17dfd2d04347d5024bb508118c8018f39035f1e4c73d7c00",
+	"clinical_state_checks": 5368,
+	"engine": "4.7.2-stable (official)",
+	"factory_sha256": "be997cf6d8f11f7d2163fe512ec559729a8b5ce74da0a48cd9ea29e71bc27ed0",
+	"failures": [],
+	"model_manifest_sha256": "38eda53d23a1568265b99927bfaa0a6f177ba3c8bc7c7ef1877bd8d1c22671f0",
+	"models_checked": 1297,
+	"rendering": "headless import validation; visual and actual backend measurements separate",
+	"requirements_checked": 2809,
+	"scenes_checked": 750,
+	"staff_assemblies": 560
+}

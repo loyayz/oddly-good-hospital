@@ -1,0 +1,84 @@
+{
+  "id": "quadruped",
+  "reference_species": "S03",
+  "actions": [
+    "idle",
+    "walk",
+    "sit",
+    "notice",
+    "talk",
+    "cheer",
+    "upset",
+    "recover",
+    "interact",
+    "work",
+    "pause",
+    "symptom",
+    "recovery",
+    "low_motion",
+    "sleep",
+    "wake",
+    "rest",
+    "recreation",
+    "blink"
+  ],
+  "staff_actions": [
+    "operate",
+    "record",
+    "carry",
+    "repair",
+    "clean",
+    "build",
+    "teach",
+    "rest",
+    "sleep",
+    "wake"
+  ],
+  "slots": [
+    "head",
+    "look_target",
+    "hand_l",
+    "hand_r",
+    "treatment_anchor",
+    "emotion_anchor",
+    "carry_anchor"
+  ],
+  "animation_library": "assets/animations/staff/quadruped.tres",
+  "source": {
+    "actions": [
+      "operate",
+      "record",
+      "carry",
+      "repair",
+      "clean",
+      "build",
+      "teach",
+      "rest",
+      "sleep",
+      "wake"
+    ],
+    "anchors": [
+      "operator",
+      "tool",
+      "badge",
+      "handoff"
+    ],
+    "id": "SRA_quadruped",
+    "low_motion_sleep_scene": "四足侧卧与安全起身姿态，尾部和床尾都保留真实占位。",
+    "rig": "quadruped",
+    "roles": [
+      "doctor",
+      "nurse",
+      "receptionist",
+      "cleaner",
+      "mechanic",
+      "researcher",
+      "decorator"
+    ],
+    "scene": "低位脚踏与口衔控制柄配合，徽章挂在肩侧。",
+    "sleep_scene": "身体沿真实床面侧卧，爪垫一只只收稳，尾部留在原身体包络内；枕头角给最后一只爪垫留位。",
+    "wake_scene": "在原承托范围内完成小幅舒展，四足实际落到合法下床位，再离开床边。"
+  },
+  "root_motion": false,
+  "max_bones": 40
+}

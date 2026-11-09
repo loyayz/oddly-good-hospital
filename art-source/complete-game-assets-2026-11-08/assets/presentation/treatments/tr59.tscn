@@ -1,0 +1,20 @@
+[gd_scene load_steps=5 format=3]
+[ext_resource type="PackedScene" path="res://assets/props/library/tickets.glb" id="P0"]
+[ext_resource type="PackedScene" path="res://assets/props/library/book.glb" id="P1"]
+[ext_resource type="PackedScene" path="res://assets/props/library/comb.glb" id="P2"]
+[ext_resource type="AnimationLibrary" path="res://assets/animations/treatments/tr59.tres" id="L"]
+[node name="TreatmentRoutine" type="Node3D"]
+metadata/source_id = "TR59"
+metadata/beat_1 = "夹住书脊软垫"
+metadata/beat_2 = "页码沿梳齿排队"
+metadata/beat_3 = "结尾从封面搬回末页"
+metadata/beat_4 = "时序梳退出书页，书脊软垫解除操作锁定"
+[node name="Tool" type="Node3D" parent="."]
+[node name="Prop0" parent="Tool" instance=ExtResource("P0")]
+position = Vector3(-0.300000, 0.400000, 0.000000)
+[node name="Prop1" parent="Tool" instance=ExtResource("P1")]
+position = Vector3(0.000000, 0.400000, 0.000000)
+[node name="Prop2" parent="Tool" instance=ExtResource("P2")]
+position = Vector3(0.300000, 0.400000, 0.000000)
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {&"": ExtResource("L")}

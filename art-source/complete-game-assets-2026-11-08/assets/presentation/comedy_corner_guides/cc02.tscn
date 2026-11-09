@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3]
+[ext_resource type="Theme" path="res://assets/ui/hospital_theme.tres" id="1"]
+[node name="PresentationCard" type="PanelContainer"]
+custom_minimum_size = Vector2(280, 100)
+theme = ExtResource("1")
+[node name="Content" type="VBoxContainer" parent="."]
+layout_mode = 2
+[node name="Title" type="Label" parent="Content"]
+layout_mode = 2
+text = "慢慢读书角"
+[node name="Body" type="Label" parent="Content"]
+layout_mode = 2
+text = "书架演出侧与候诊席分别留位，不能把书架摆在临床床边后当作公共互动道具；需要安静的居民不会被拉去聊天。\n空闲居民阅读或安静坐着；长椅仍可使用原安排聊天入口。"
+autowrap_mode = 2

@@ -1,0 +1,67 @@
+[
+  {
+    "flavor": "@zh:core.research_trails.RT01.flavor",
+    "id": "RT01",
+    "name": "@zh:core.research_trails.RT01.name",
+    "next_idea": "@zh:core.research_trails.RT01.next_idea",
+    "research_ids": [
+      "R19",
+      "R32"
+    ]
+  },
+  {
+    "flavor": "@zh:core.research_trails.RT02.flavor",
+    "id": "RT02",
+    "name": "@zh:core.research_trails.RT02.name",
+    "next_idea": "@zh:core.research_trails.RT02.next_idea",
+    "research_ids": [
+      "R01",
+      "R21",
+      "R15"
+    ]
+  },
+  {
+    "flavor": "@zh:core.research_trails.RT03.flavor",
+    "id": "RT03",
+    "name": "@zh:core.research_trails.RT03.name",
+    "next_idea": "@zh:core.research_trails.RT03.next_idea",
+    "research_ids": [
+      "R07",
+      "R25"
+    ]
+  },
+  {
+    "flavor": "@zh:core.research_trails.RT04.flavor",
+    "id": "RT04",
+    "name": "@zh:core.research_trails.RT04.name",
+    "next_idea": "@zh:core.research_trails.RT04.next_idea",
+    "research_ids": [
+      "R16",
+      "R33",
+      "R34"
+    ]
+  },
+  {
+    "flavor": "@zh:core.research_trails.RT05.flavor",
+    "id": "RT05",
+    "name": "@zh:core.research_trails.RT05.name",
+    "next_idea": "@zh:core.research_trails.RT05.next_idea",
+    "research_ids": [
+      "R09",
+      "R31",
+      "R38"
+    ]
+  },
+  {
+    "flavor": "@zh:core.research_trails.RT06.flavor",
+    "id": "RT06",
+    "name": "@zh:core.research_trails.RT06.name",
+    "next_idea": "@zh:core.research_trails.RT06.next_idea",
+    "research_ids": [
+      "R11",
+      "R12",
+      "R13",
+      "R17"
+    ]
+  }
+]

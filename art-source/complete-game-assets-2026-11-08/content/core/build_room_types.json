@@ -1,0 +1,159 @@
+[
+  {
+    "id": "gp",
+    "min_inner_size": [
+      4,
+      4
+    ],
+    "name": "@zh:core.build_room_types.gp.name",
+    "requires_research": []
+  },
+  {
+    "id": "research",
+    "min_inner_size": [
+      4,
+      4
+    ],
+    "name": "@zh:core.build_room_types.research.name",
+    "requires_research": []
+  },
+  {
+    "id": "rest",
+    "min_inner_size": [
+      4,
+      4
+    ],
+    "name": "@zh:core.build_room_types.rest.name",
+    "requires_research": []
+  },
+  {
+    "id": "toilet",
+    "min_inner_size": [
+      3,
+      4
+    ],
+    "name": "@zh:core.build_room_types.toilet.name",
+    "requires_research": []
+  },
+  {
+    "id": "T01",
+    "min_inner_size": [
+      5,
+      5
+    ],
+    "name": "@zh:core.build_room_types.T01.name",
+    "requires_research": []
+  },
+  {
+    "id": "T02",
+    "min_inner_size": [
+      6,
+      6
+    ],
+    "name": "@zh:core.build_room_types.T02.name",
+    "requires_research": []
+  },
+  {
+    "id": "T03",
+    "min_inner_size": [
+      5,
+      5
+    ],
+    "name": "@zh:core.build_room_types.T03.name",
+    "requires_research": []
+  },
+  {
+    "id": "T04",
+    "min_inner_size": [
+      5,
+      5
+    ],
+    "name": "@zh:core.build_room_types.T04.name",
+    "requires_research": []
+  },
+  {
+    "id": "T05",
+    "min_inner_size": [
+      5,
+      5
+    ],
+    "name": "@zh:core.build_room_types.T05.name",
+    "requires_research": []
+  },
+  {
+    "id": "T06",
+    "min_inner_size": [
+      6,
+      6
+    ],
+    "name": "@zh:core.build_room_types.T06.name",
+    "requires_research": []
+  },
+  {
+    "id": "T07",
+    "min_inner_size": [
+      6,
+      6
+    ],
+    "name": "@zh:core.build_room_types.T07.name",
+    "requires_research": []
+  },
+  {
+    "id": "T08",
+    "min_inner_size": [
+      5,
+      5
+    ],
+    "name": "@zh:core.build_room_types.T08.name",
+    "requires_research": []
+  },
+  {
+    "id": "T09",
+    "min_inner_size": [
+      5,
+      5
+    ],
+    "name": "@zh:core.build_room_types.T09.name",
+    "requires_research": []
+  },
+  {
+    "id": "T10",
+    "min_inner_size": [
+      5,
+      5
+    ],
+    "name": "@zh:core.build_room_types.T10.name",
+    "requires_research": []
+  },
+  {
+    "id": "operating_room",
+    "min_inner_size": [
+      8,
+      8
+    ],
+    "name": "@zh:core.build_room_types.operating_room.name",
+    "requires_research": [
+      "R34"
+    ]
+  },
+  {
+    "id": "ward",
+    "min_inner_size": [
+      6,
+      6
+    ],
+    "name": "@zh:core.build_room_types.ward.name",
+    "requires_research": [
+      "R33"
+    ]
+  },
+  {
+    "id": "doctor_office",
+    "min_inner_size": [
+      4,
+      4
+    ],
+    "name": "@zh:core.build_room_types.doctor_office.name",
+    "requires_research": []
+  }
+]

@@ -1,0 +1,157 @@
+[
+  {
+    "consume_on_start": true,
+    "counterpart_kind": "staff",
+    "counterpart_role": "last_treating_staff",
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag"
+    ],
+    "id": "MC01",
+    "idle_only": true,
+    "interrupt_seconds": 1,
+    "low_motion_scene": "@zh:core.memory_callbacks.MC01.low_motion_scene",
+    "min_return_days": 1,
+    "name": "@zh:core.memory_callbacks.MC01.name",
+    "next_visit_required": true,
+    "owner_role": "actor_a",
+    "public_only": true,
+    "scene": "@zh:core.memory_callbacks.MC01.scene",
+    "source": {
+      "definition_id": "E03",
+      "kind": "incident_resolved",
+      "required_relationship": null,
+      "required_response_ids": []
+    }
+  },
+  {
+    "consume_on_start": true,
+    "counterpart_kind": "staff",
+    "counterpart_role": "responding_doctor",
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag"
+    ],
+    "id": "MC02",
+    "idle_only": true,
+    "interrupt_seconds": 1,
+    "low_motion_scene": "@zh:core.memory_callbacks.MC02.low_motion_scene",
+    "min_return_days": 1,
+    "name": "@zh:core.memory_callbacks.MC02.name",
+    "next_visit_required": true,
+    "owner_role": "actor_a",
+    "public_only": true,
+    "scene": "@zh:core.memory_callbacks.MC02.scene",
+    "source": {
+      "definition_id": "CB01",
+      "kind": "communication_completed",
+      "required_relationship": null,
+      "required_response_ids": [
+        "listen",
+        "soothe",
+        "explain",
+        "nurse_assist"
+      ]
+    }
+  },
+  {
+    "consume_on_start": true,
+    "counterpart_kind": "resident",
+    "counterpart_role": "actor_b",
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag"
+    ],
+    "id": "MC03",
+    "idle_only": true,
+    "interrupt_seconds": 1,
+    "low_motion_scene": "@zh:core.memory_callbacks.MC03.low_motion_scene",
+    "min_return_days": 1,
+    "name": "@zh:core.memory_callbacks.MC03.name",
+    "next_visit_required": true,
+    "owner_role": "actor_a",
+    "public_only": true,
+    "scene": "@zh:core.memory_callbacks.MC03.scene",
+    "source": {
+      "definition_id": "I11",
+      "kind": "interaction_completed",
+      "required_relationship": null,
+      "required_response_ids": []
+    }
+  },
+  {
+    "consume_on_start": true,
+    "counterpart_kind": "resident",
+    "counterpart_role": "actor_b",
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag"
+    ],
+    "id": "MC04",
+    "idle_only": true,
+    "interrupt_seconds": 1,
+    "low_motion_scene": "@zh:core.memory_callbacks.MC04.low_motion_scene",
+    "min_return_days": 1,
+    "name": "@zh:core.memory_callbacks.MC04.name",
+    "next_visit_required": true,
+    "owner_role": "actor_a",
+    "public_only": true,
+    "scene": "@zh:core.memory_callbacks.MC04.scene",
+    "source": {
+      "definition_id": "E01",
+      "kind": "incident_resolved",
+      "required_relationship": "reconciled",
+      "required_response_ids": []
+    }
+  },
+  {
+    "consume_on_start": true,
+    "counterpart_kind": "resident",
+    "counterpart_role": "actor_b",
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag"
+    ],
+    "id": "MC05",
+    "idle_only": true,
+    "interrupt_seconds": 1,
+    "low_motion_scene": "@zh:core.memory_callbacks.MC05.low_motion_scene",
+    "min_return_days": 1,
+    "name": "@zh:core.memory_callbacks.MC05.name",
+    "next_visit_required": true,
+    "owner_role": "actor_a",
+    "public_only": true,
+    "scene": "@zh:core.memory_callbacks.MC05.scene",
+    "source": {
+      "definition_id": "I25",
+      "kind": "interaction_completed",
+      "required_relationship": null,
+      "required_response_ids": []
+    }
+  },
+  {
+    "consume_on_start": true,
+    "counterpart_kind": "resident",
+    "counterpart_role": "actor_b",
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag"
+    ],
+    "id": "MC06",
+    "idle_only": true,
+    "interrupt_seconds": 1,
+    "low_motion_scene": "@zh:core.memory_callbacks.MC06.low_motion_scene",
+    "min_return_days": 1,
+    "name": "@zh:core.memory_callbacks.MC06.name",
+    "next_visit_required": true,
+    "owner_role": "actor_a",
+    "public_only": true,
+    "scene": "@zh:core.memory_callbacks.MC06.scene",
+    "source": {
+      "definition_id": "I48",
+      "kind": "interaction_completed",
+      "required_relationship": null,
+      "required_response_ids": []
+    }
+  }
+]

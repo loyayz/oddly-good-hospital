@@ -1,0 +1,68 @@
+[gd_resource type="Theme" load_steps=8 format=3]
+[ext_resource type="FontVariation" path="res://assets/fonts/HospitalUI-Regular.tres" id="1"]
+[ext_resource type="FontVariation" path="res://assets/fonts/HospitalUI-Medium.tres" id="2"]
+[sub_resource type="StyleBoxFlat" id="Panel"]
+bg_color = Color(0.95, 0.92, 0.85, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_left = 14
+corner_radius_bottom_right = 14
+content_margin_left = 18.0
+content_margin_right = 18.0
+content_margin_top = 14.0
+content_margin_bottom = 14.0
+border_width_left = 1
+border_width_right = 1
+border_width_top = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.79, 0.71, 1)
+[sub_resource type="StyleBoxFlat" id="Button"]
+bg_color = Color(0.18, 0.29, 0.44, 1)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_left = 9
+corner_radius_bottom_right = 9
+content_margin_left = 16.0
+content_margin_right = 16.0
+content_margin_top = 10.0
+content_margin_bottom = 10.0
+[sub_resource type="StyleBoxFlat" id="Hover"]
+bg_color = Color(0.27, 0.40, 0.57, 1)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_left = 9
+corner_radius_bottom_right = 9
+[sub_resource type="StyleBoxFlat" id="Pressed"]
+bg_color = Color(0.12, 0.21, 0.34, 1)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_left = 9
+corner_radius_bottom_right = 9
+[sub_resource type="StyleBoxFlat" id="Focus"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.85, 0.62, 0.29, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_left = 10
+corner_radius_bottom_right = 10
+[resource]
+default_font = ExtResource("1")
+default_font_size = 18
+PanelContainer/styles/panel = SubResource("Panel")
+Button/styles/normal = SubResource("Button")
+Button/styles/hover = SubResource("Hover")
+Button/styles/pressed = SubResource("Pressed")
+Button/styles/focus = SubResource("Focus")
+Button/colors/font_color = Color(1, 0.98, 0.91, 1)
+Label/colors/font_color = Color(0.14, 0.22, 0.28, 1)
+RichTextLabel/colors/default_color = Color(0.14, 0.22, 0.28, 1)
+RichTextLabel/fonts/normal_font = ExtResource("1")
+RichTextLabel/fonts/bold_font = ExtResource("2")
+RichTextLabel/font_sizes/normal_font_size = 18
+RichTextLabel/styles/focus = SubResource("Focus")
+Header/fonts/font = ExtResource("2")
+Header/font_sizes/font_size = 24

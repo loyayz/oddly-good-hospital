@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3]
+[ext_resource type="PackedScene" path="res://assets/props/library/flag.glb" id="P0"]
+[ext_resource type="PackedScene" path="res://assets/props/library/loading.glb" id="P1"]
+[ext_resource type="AnimationLibrary" path="res://assets/animations/treatments/tr81.tres" id="L"]
+[node name="TreatmentRoutine" type="Node3D"]
+metadata/source_id = "TR81"
+metadata/beat_1 = "只接入症状按钮和关节"
+metadata/beat_2 = "把多余鼓掌图符导入透明校准槽"
+metadata/beat_3 = "客服图符小旗盖上月牙图章"
+metadata/beat_4 = "校准盒安全断开，客服小旗回到道具盒"
+[node name="Tool" type="Node3D" parent="."]
+[node name="Prop0" parent="Tool" instance=ExtResource("P0")]
+position = Vector3(-0.150000, 0.400000, 0.000000)
+[node name="Prop1" parent="Tool" instance=ExtResource("P1")]
+position = Vector3(0.150000, 0.400000, 0.000000)
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {&"": ExtResource("L")}

@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3]
+[ext_resource type="Theme" path="res://assets/ui/hospital_theme.tres" id="Theme"]
+[ext_resource type="Texture2D" path="res://assets/ui/illustrations/hospital_welcome.png" id="Art"]
+[node name="HospitalEmptyState" type="PanelContainer"]
+theme = ExtResource("Theme")
+[node name="Content" type="VBoxContainer" parent="."]
+layout_mode = 2
+[node name="Illustration" type="TextureRect" parent="Content"]
+custom_minimum_size = Vector2(320, 180)
+layout_mode = 2
+texture = ExtResource("Art")
+expand_mode = 1
+stretch_mode = 5
+[node name="Caption" type="Label" parent="Content"]
+layout_mode = 2
+text = "医院示意图"
+[node name="CreateHospital" type="Button" parent="Content"]
+custom_minimum_size = Vector2(96, 40)
+layout_mode = 2
+text = "开一家医院"

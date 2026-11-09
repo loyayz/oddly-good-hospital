@@ -1,0 +1,41 @@
+[
+  {
+    "common_low_motion_scene": "@zh:core.colleague_scenes.CW01.common_low_motion_scene",
+    "common_scene": "@zh:core.colleague_scenes.CW01.common_scene",
+    "fact": "ward_handoff_completed",
+    "familiar_low_motion_scene": "@zh:core.colleague_scenes.CW01.familiar_low_motion_scene",
+    "familiar_scene": "@zh:core.colleague_scenes.CW01.familiar_scene",
+    "friendly_personality_ids": [
+      "PP05",
+      "PP10"
+    ],
+    "id": "CW01",
+    "pair_source": "outgoing_and_incoming_nurse"
+  },
+  {
+    "common_low_motion_scene": "@zh:core.colleague_scenes.CW02.common_low_motion_scene",
+    "common_scene": "@zh:core.colleague_scenes.CW02.common_scene",
+    "fact": "mentored_course_completed",
+    "familiar_low_motion_scene": "@zh:core.colleague_scenes.CW02.familiar_low_motion_scene",
+    "familiar_scene": "@zh:core.colleague_scenes.CW02.familiar_scene",
+    "friendly_personality_ids": [
+      "PP05",
+      "PP10"
+    ],
+    "id": "CW02",
+    "pair_source": "contributing_mentor_and_student"
+  },
+  {
+    "common_low_motion_scene": "@zh:core.colleague_scenes.CW03.common_low_motion_scene",
+    "common_scene": "@zh:core.colleague_scenes.CW03.common_scene",
+    "fact": "surgical_case_settled_cured",
+    "familiar_low_motion_scene": "@zh:core.colleague_scenes.CW03.familiar_low_motion_scene",
+    "familiar_scene": "@zh:core.colleague_scenes.CW03.familiar_scene",
+    "friendly_personality_ids": [
+      "PP05",
+      "PP10"
+    ],
+    "id": "CW03",
+    "pair_source": "actual_three_person_team_pairs"
+  }
+]

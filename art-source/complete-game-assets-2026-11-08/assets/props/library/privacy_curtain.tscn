@@ -1,0 +1,37 @@
+[gd_scene load_steps=5 format=3]
+[sub_resource type="StandardMaterial3D" id="Fabric"]
+albedo_color = Color(0.72, 0.80, 0.90, 1)
+roughness = 0.95
+[sub_resource type="BoxMesh" id="Panel"]
+material = SubResource("Fabric")
+size = Vector3(1.0, 1.5, 0.035)
+[sub_resource type="StandardMaterial3D" id="FrameMaterial"]
+albedo_color = Color(0.26, 0.35, 0.46, 1)
+[sub_resource type="CylinderMesh" id="Post"]
+material = SubResource("FrameMaterial")
+top_radius = 0.018
+bottom_radius = 0.018
+height = 1.6
+radial_segments = 8
+[node name="PrivacyCurtain" type="Node3D"]
+metadata/placement = "caller supplies actual reserved exterior bounds; no body inside the curtain is rendered"
+[node name="Front" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.8, 0.5)
+mesh = SubResource("Panel")
+[node name="Back" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.8, -0.5)
+mesh = SubResource("Panel")
+[node name="Left" type="MeshInstance3D" parent="."]
+position = Vector3(-0.5, 0.8, 0)
+rotation = Vector3(0, 1.570796, 0)
+mesh = SubResource("Panel")
+[node name="Right" type="MeshInstance3D" parent="."]
+position = Vector3(0.5, 0.8, 0)
+rotation = Vector3(0, 1.570796, 0)
+mesh = SubResource("Panel")
+[node name="PostA" type="MeshInstance3D" parent="."]
+position = Vector3(-0.5, 0.8, 0.5)
+mesh = SubResource("Post")
+[node name="PostB" type="MeshInstance3D" parent="."]
+position = Vector3(0.5, 0.8, 0.5)
+mesh = SubResource("Post")

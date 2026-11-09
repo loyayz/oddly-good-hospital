@@ -1,0 +1,3522 @@
+{
+  "schema": 1,
+  "graphics": [
+    {
+      "group": "biographies",
+      "id": "BIO01",
+      "record": {
+        "description": "曾在会轻轻摇晃的飞艇诊所工作，习惯把东西放稳。",
+        "grants_qualification": false,
+        "hobby": "喜欢收集不同城市的杯垫",
+        "id": "BIO01",
+        "name": "飞艇诊所轮岗"
+      },
+      "name": "飞艇诊所轮岗",
+      "source": "content/core/staff_biographies.json#BIO01",
+      "path": "assets/ui/supplements/biographies/bio01.png",
+      "editable": "art-source/production/ui/biographies/bio01.svg",
+      "card": "assets/ui/cards/biographies/bio01.tscn",
+      "bytes": 2792,
+      "width": 192,
+      "height": 192,
+      "sha256": "d7924e369cab43d77858ac6c7de883431d56fb8272ee1fd0c572e1feb69846ab"
+    },
+    {
+      "group": "biographies",
+      "id": "BIO02",
+      "record": {
+        "description": "曾整理上千种发条盒，对整齐的小零件很有耐心。",
+        "grants_qualification": false,
+        "hobby": "喜欢听雨滴打拍子",
+        "id": "BIO02",
+        "name": "钟表铺学徒"
+      },
+      "name": "钟表铺学徒",
+      "source": "content/core/staff_biographies.json#BIO02",
+      "path": "assets/ui/supplements/biographies/bio02.png",
+      "editable": "art-source/production/ui/biographies/bio02.svg",
+      "card": "assets/ui/cards/biographies/bio02.tscn",
+      "bytes": 3201,
+      "width": 192,
+      "height": 192,
+      "sha256": "d273cee7e57fb1acaeac2377f7b9b882c7acce3198648b61df3002e564583263"
+    },
+    {
+      "group": "biographies",
+      "id": "BIO03",
+      "record": {
+        "description": "参加过社区花园工作，愿意给陌生人指路。",
+        "grants_qualification": false,
+        "hobby": "喜欢照料会唱歌的花盆",
+        "id": "BIO03",
+        "name": "社区花园志愿者"
+      },
+      "name": "社区花园志愿者",
+      "source": "content/core/staff_biographies.json#BIO03",
+      "path": "assets/ui/supplements/biographies/bio03.png",
+      "editable": "art-source/production/ui/biographies/bio03.svg",
+      "card": "assets/ui/cards/biographies/bio03.tscn",
+      "bytes": 2993,
+      "width": 192,
+      "height": 192,
+      "sha256": "8ef2db8ff48dc503a9f409352414a66e3a1aa70a9b1ecf4e0d19a43ca2e64692"
+    },
+    {
+      "group": "biographies",
+      "id": "BIO04",
+      "record": {
+        "description": "在夜间图书馆整理过借阅卡，说话习惯放轻。",
+        "grants_qualification": false,
+        "hobby": "喜欢无字画册",
+        "id": "BIO04",
+        "name": "图书馆夜班"
+      },
+      "name": "图书馆夜班",
+      "source": "content/core/staff_biographies.json#BIO04",
+      "path": "assets/ui/supplements/biographies/bio04.png",
+      "editable": "art-source/production/ui/biographies/bio04.svg",
+      "card": "assets/ui/cards/biographies/bio04.tscn",
+      "bytes": 2196,
+      "width": 192,
+      "height": 192,
+      "sha256": "f9afd0833c1c8ef14621300a58d2e5246db30c8a108e59096d4115f1cecc4408"
+    },
+    {
+      "group": "biographies",
+      "id": "BIO05",
+      "record": {
+        "description": "做过后台道具整理，擅长记住东西原本的位置。",
+        "grants_qualification": false,
+        "hobby": "喜欢制作纸帽子",
+        "id": "BIO05",
+        "name": "剧场后台"
+      },
+      "name": "剧场后台",
+      "source": "content/core/staff_biographies.json#BIO05",
+      "path": "assets/ui/supplements/biographies/bio05.png",
+      "editable": "art-source/production/ui/biographies/bio05.svg",
+      "card": "assets/ui/cards/biographies/bio05.tscn",
+      "bytes": 3288,
+      "width": 192,
+      "height": 192,
+      "sha256": "6d9a0d350f725fbfe6e735720b00aff61a81a8ac806bbaba96d489852b015133"
+    },
+    {
+      "group": "biographies",
+      "id": "BIO06",
+      "record": {
+        "description": "曾负责显微展览讲解，能把复杂见闻说得简短。",
+        "grants_qualification": false,
+        "hobby": "喜欢袖珍合唱",
+        "id": "BIO06",
+        "name": "微观展览讲解"
+      },
+      "name": "微观展览讲解",
+      "source": "content/core/staff_biographies.json#BIO06",
+      "path": "assets/ui/supplements/biographies/bio06.png",
+      "editable": "art-source/production/ui/biographies/bio06.svg",
+      "card": "assets/ui/cards/biographies/bio06.tscn",
+      "bytes": 2520,
+      "width": 192,
+      "height": 192,
+      "sha256": "60306f432cd6d682fe3ca9960513032ae8d2761ad3d80bd04f380936491196ac"
+    },
+    {
+      "group": "biographies",
+      "id": "BIO07",
+      "record": {
+        "description": "照顾过各种体型的旅客，习惯先确认设施尺寸。",
+        "grants_qualification": false,
+        "hobby": "喜欢收集不同形状的毛巾",
+        "id": "BIO07",
+        "name": "温泉旅社"
+      },
+      "name": "温泉旅社",
+      "source": "content/core/staff_biographies.json#BIO07",
+      "path": "assets/ui/supplements/biographies/bio07.png",
+      "editable": "art-source/production/ui/biographies/bio07.svg",
+      "card": "assets/ui/cards/biographies/bio07.tscn",
+      "bytes": 2735,
+      "width": 192,
+      "height": 192,
+      "sha256": "afdb83eccf4959dc228c815388610e369442e3e12f9ef256a2e4107391818861"
+    },
+    {
+      "group": "biographies",
+      "id": "BIO08",
+      "record": {
+        "description": "在积木工坊做过整理，遇到大工程会先检查连接处。",
+        "grants_qualification": false,
+        "hobby": "喜欢拼没有说明书的小屋",
+        "id": "BIO08",
+        "name": "积木工坊"
+      },
+      "name": "积木工坊",
+      "source": "content/core/staff_biographies.json#BIO08",
+      "path": "assets/ui/supplements/biographies/bio08.png",
+      "editable": "art-source/production/ui/biographies/bio08.svg",
+      "card": "assets/ui/cards/biographies/bio08.tscn",
+      "bytes": 869,
+      "width": 192,
+      "height": 192,
+      "sha256": "5fe5b3fc1a3606abc520738bcbc91b3ae58ae2440aa6c32fa649c38bd1340e7b"
+    },
+    {
+      "group": "titles",
+      "id": "DT01",
+      "record": {
+        "id": "DT01",
+        "name": "住院医师",
+        "promotion": null,
+        "rank": 0,
+        "recruitment": {
+          "requires_promoted_chief": false,
+          "requires_research": []
+        }
+      },
+      "name": "住院医师",
+      "source": "content/core/doctor_titles.json#DT01",
+      "path": "assets/ui/supplements/titles/dt01.png",
+      "editable": "art-source/production/ui/titles/dt01.svg",
+      "bytes": 1808,
+      "width": 192,
+      "height": 192,
+      "sha256": "0d70f066353270245756bec059f1c251c9967df67d262864aa3a297591c1d003"
+    },
+    {
+      "group": "titles",
+      "id": "DT02",
+      "record": {
+        "id": "DT02",
+        "name": "主治医师",
+        "promotion": {
+          "cured_case_count": 20,
+          "diagnosis_level": 1,
+          "primary_level": 2,
+          "prior_title_id": "DT01",
+          "requires_research": [
+            "R11"
+          ],
+          "secondary_level": 0
+        },
+        "rank": 1,
+        "recruitment": {
+          "requires_promoted_chief": false,
+          "requires_research": [
+            "R11"
+          ]
+        }
+      },
+      "name": "主治医师",
+      "source": "content/core/doctor_titles.json#DT02",
+      "path": "assets/ui/supplements/titles/dt02.png",
+      "editable": "art-source/production/ui/titles/dt02.svg",
+      "bytes": 1823,
+      "width": 192,
+      "height": 192,
+      "sha256": "b4fb7ca9ca40bbc142e4d4339ab152cf9d618a3d7f75e4ab283d7ed7a76c6c4c"
+    },
+    {
+      "group": "titles",
+      "id": "DT03",
+      "record": {
+        "id": "DT03",
+        "name": "副主任医师",
+        "promotion": {
+          "cured_case_count": 60,
+          "diagnosis_level": 2,
+          "primary_level": 3,
+          "prior_title_id": "DT02",
+          "requires_research": [
+            "R11"
+          ],
+          "secondary_level": 0
+        },
+        "rank": 2,
+        "recruitment": {
+          "requires_promoted_chief": false,
+          "requires_research": [
+            "R34"
+          ]
+        }
+      },
+      "name": "副主任医师",
+      "source": "content/core/doctor_titles.json#DT03",
+      "path": "assets/ui/supplements/titles/dt03.png",
+      "editable": "art-source/production/ui/titles/dt03.svg",
+      "bytes": 1821,
+      "width": 192,
+      "height": 192,
+      "sha256": "d5789cfc71587ec3617c4e254a0c2dec69002f5482484840bf362ebd600b686c"
+    },
+    {
+      "group": "titles",
+      "id": "DT04",
+      "record": {
+        "id": "DT04",
+        "name": "主任医师",
+        "promotion": {
+          "cured_case_count": 140,
+          "diagnosis_level": 3,
+          "primary_level": 4,
+          "prior_title_id": "DT03",
+          "requires_research": [
+            "R11"
+          ],
+          "secondary_level": 2
+        },
+        "rank": 3,
+        "recruitment": {
+          "requires_promoted_chief": true,
+          "requires_research": [
+            "R34"
+          ]
+        }
+      },
+      "name": "主任医师",
+      "source": "content/core/doctor_titles.json#DT04",
+      "path": "assets/ui/supplements/titles/dt04.png",
+      "editable": "art-source/production/ui/titles/dt04.svg",
+      "bytes": 1820,
+      "width": 192,
+      "height": 192,
+      "sha256": "1b7123a6ce8d579121a7986a9867d146613aa686fee89458610098ae0a73f5d6"
+    },
+    {
+      "group": "work_styles",
+      "id": "WS01",
+      "record": {
+        "description": "在空闲时提前查看下一班的位置",
+        "id": "WS01",
+        "name": "守时",
+        "preference": "shift_ready"
+      },
+      "name": "守时",
+      "source": "content/core/staff_work_styles.json#WS01",
+      "path": "assets/ui/supplements/chairs/cs01.png",
+      "editable": "art-source/production/ui/chairs/cs01.svg",
+      "card": "assets/ui/cards/work_styles/ws01.tscn",
+      "bytes": 3204,
+      "width": 192,
+      "height": 192,
+      "sha256": "5ffb74bb503e8f212af0b2f67a8b45cff2e99709f4b1e9f87f886a1f8e801d4d"
+    },
+    {
+      "group": "work_styles",
+      "id": "WS02",
+      "record": {
+        "description": "等价任务之间偏好能帮助同事的一项",
+        "id": "WS02",
+        "name": "热心",
+        "preference": "help"
+      },
+      "name": "热心",
+      "source": "content/core/staff_work_styles.json#WS02",
+      "path": "assets/ui/supplements/history/ht02.png",
+      "editable": "art-source/production/ui/history/ht02.svg",
+      "card": "assets/ui/cards/work_styles/ws02.tscn",
+      "bytes": 3504,
+      "width": 192,
+      "height": 192,
+      "sha256": "f149be37b0b5889418e0ca7cac9de4aff5fd38cd92564bee79b4e78ca350b5f3"
+    },
+    {
+      "group": "work_styles",
+      "id": "WS03",
+      "record": {
+        "description": "优先接续自己尚未结束且合法的工作",
+        "id": "WS03",
+        "name": "专注",
+        "preference": "current_task"
+      },
+      "name": "专注",
+      "source": "content/core/staff_work_styles.json#WS03",
+      "path": "assets/ui/supplements/work_styles/ws03.png",
+      "editable": "art-source/production/ui/work_styles/ws03.svg",
+      "card": "assets/ui/cards/work_styles/ws03.tscn",
+      "bytes": 2514,
+      "width": 192,
+      "height": 192,
+      "sha256": "c342160e9e471eb10d5d9ae4778655dd491ff2bf0239ae57580e6ab7392f5c12"
+    },
+    {
+      "group": "work_styles",
+      "id": "WS04",
+      "record": {
+        "description": "无紧急任务时偏好符合条件的预防保养",
+        "id": "WS04",
+        "name": "细致",
+        "preference": "preventive"
+      },
+      "name": "细致",
+      "source": "content/core/staff_work_styles.json#WS04",
+      "path": "assets/ui/supplements/work_styles/ws04.png",
+      "editable": "art-source/production/ui/work_styles/ws04.svg",
+      "card": "assets/ui/cards/work_styles/ws04.tscn",
+      "bytes": 2346,
+      "width": 192,
+      "height": 192,
+      "sha256": "533f25a8169e52a5c567f026bd236087fd8549cc8f75d29167a0e70c173e4278"
+    },
+    {
+      "group": "work_styles",
+      "id": "WS05",
+      "record": {
+        "description": "合格休息时偏好可共同使用的娱乐设备",
+        "id": "WS05",
+        "name": "爱结伴",
+        "preference": "group_recreation"
+      },
+      "name": "爱结伴",
+      "source": "content/core/staff_work_styles.json#WS05",
+      "path": "assets/ui/supplements/finance/fv05.png",
+      "editable": "art-source/production/ui/finance/fv05.svg",
+      "card": "assets/ui/cards/work_styles/ws05.tscn",
+      "bytes": 3493,
+      "width": 192,
+      "height": 192,
+      "sha256": "bc48492133e97e348b5e32162779be246eaf61e6d1f0d47c1d9fbb76e989ef1c"
+    },
+    {
+      "group": "work_styles",
+      "id": "WS06",
+      "record": {
+        "description": "合格休息时偏好安静的单人设备",
+        "id": "WS06",
+        "name": "喜安静",
+        "preference": "quiet_recreation"
+      },
+      "name": "喜安静",
+      "source": "content/core/staff_work_styles.json#WS06",
+      "path": "assets/ui/supplements/onboarding/ob06.png",
+      "editable": "art-source/production/ui/onboarding/ob06.svg",
+      "card": "assets/ui/cards/work_styles/ws06.tscn",
+      "bytes": 2218,
+      "width": 192,
+      "height": 192,
+      "sha256": "e645f66f987563896b7c19f2244bc7fd63eb6f72c7f21a7f2246b76104bc72ef"
+    },
+    {
+      "group": "reasons",
+      "id": "JC01",
+      "record": {
+        "evidence": "当前所需岗位、本人能力等级及实际研究/职称条件，区分尚未掌握、未排班、途中和安全占用。",
+        "id": "JC01",
+        "name": "当班岗位未就绪",
+        "source": "staff_coverage",
+        "target_panel": "schedule"
+      },
+      "name": "当班岗位未就绪",
+      "source": "content/core/journey_reason_cards.json#JC01",
+      "path": "assets/ui/supplements/queue/qc01.png",
+      "editable": "art-source/production/ui/queue/qc01.svg",
+      "card": "assets/ui/cards/reasons/jc01.tscn",
+      "bytes": 2371,
+      "width": 192,
+      "height": 192,
+      "sha256": "6d52967a47646996ed1bd9727b91f359c3ac29c35a8fcd06bceb7878b4faab37"
+    },
+    {
+      "group": "reasons",
+      "id": "JC02",
+      "record": {
+        "evidence": "实际故障或维护与唯一工单。",
+        "id": "JC02",
+        "name": "设备暂不可用",
+        "source": "equipment_availability",
+        "target_panel": "maintenance"
+      },
+      "name": "设备暂不可用",
+      "source": "content/core/journey_reason_cards.json#JC02",
+      "path": "assets/ui/supplements/history/ht02.png",
+      "editable": "art-source/production/ui/history/ht02.svg",
+      "card": "assets/ui/cards/reasons/jc02.tscn",
+      "bytes": 3504,
+      "width": 192,
+      "height": 192,
+      "sha256": "f149be37b0b5889418e0ca7cac9de4aff5fd38cd92564bee79b4e78ca350b5f3"
+    },
+    {
+      "group": "reasons",
+      "id": "JC03",
+      "record": {
+        "blocker_panel_overrides": {
+          "dirt_patch": "cleaning"
+        },
+        "evidence": "真实身体、门或设备的伸展占地、公共路线和岗位锚点；定位具体阻挡格。地面污渍可走但不能被展开设施盖住，主因是污渍时直达原清洁任务。",
+        "id": "JC03",
+        "name": "通路或伸展空间不足",
+        "source": "traversal",
+        "target_panel": "building"
+      },
+      "name": "通路或伸展空间不足",
+      "source": "content/core/journey_reason_cards.json#JC03",
+      "path": "assets/ui/supplements/context/cl03.png",
+      "editable": "art-source/production/ui/context/cl03.svg",
+      "card": "assets/ui/cards/reasons/jc03.tscn",
+      "bytes": 2566,
+      "width": 192,
+      "height": 192,
+      "sha256": "455ace233c3650a63891d322f6c0d45f22ad59f735eb0709c53f074ee15d1c71"
+    },
+    {
+      "group": "reasons",
+      "id": "JC04",
+      "record": {
+        "evidence": "兼容床、监护和护理覆盖。",
+        "id": "JC04",
+        "name": "同层床位未准备好",
+        "source": "clinical_readiness",
+        "target_panel": "clinical"
+      },
+      "name": "同层床位未准备好",
+      "source": "content/core/journey_reason_cards.json#JC04",
+      "path": "assets/ui/supplements/reasons/jc04.png",
+      "editable": "art-source/production/ui/reasons/jc04.svg",
+      "card": "assets/ui/cards/reasons/jc04.tscn",
+      "bytes": 723,
+      "width": 192,
+      "height": 192,
+      "sha256": "57b9429439c9f130820c2ae941bdda51c2df7dc47451578ce39689b081c44ed1"
+    },
+    {
+      "group": "reasons",
+      "id": "JC05",
+      "record": {
+        "evidence": "原票号与本站预计开始时间。",
+        "id": "JC05",
+        "name": "轮到别人先看",
+        "source": "queue_ticket",
+        "target_panel": "queue"
+      },
+      "name": "轮到别人先看",
+      "source": "content/core/journey_reason_cards.json#JC05",
+      "path": "assets/ui/supplements/context/cl05.png",
+      "editable": "art-source/production/ui/context/cl05.svg",
+      "card": "assets/ui/cards/reasons/jc05.tscn",
+      "bytes": 2167,
+      "width": 192,
+      "height": 192,
+      "sha256": "7151ee3ef51282b47f2647893e08a9f2c37d1f8ad553ecb1bb573e6ed90c3385"
+    },
+    {
+      "group": "reasons",
+      "id": "JC06",
+      "record": {
+        "evidence": "正在进行的生活服务及可达设施。",
+        "id": "JC06",
+        "name": "先照顾生活需要",
+        "source": "need_service",
+        "target_panel": "facilities"
+      },
+      "name": "先照顾生活需要",
+      "source": "content/core/journey_reason_cards.json#JC06",
+      "path": "assets/ui/supplements/reasons/jc06.png",
+      "editable": "art-source/production/ui/reasons/jc06.svg",
+      "card": "assets/ui/cards/reasons/jc06.tscn",
+      "bytes": 2014,
+      "width": 192,
+      "height": 192,
+      "sha256": "1fa0c6805fb2534792919b052c664ce209293d29365cc0f28074ca5f6e01fd26"
+    },
+    {
+      "group": "reasons",
+      "id": "JC07",
+      "record": {
+        "evidence": "实际情境、剩余收尾与护士任务。",
+        "id": "JC07",
+        "name": "一段误会还没结束",
+        "source": "incident_state",
+        "target_panel": "incident"
+      },
+      "name": "一段误会还没结束",
+      "source": "content/core/journey_reason_cards.json#JC07",
+      "path": "assets/ui/supplements/onboarding/ob07.png",
+      "editable": "art-source/production/ui/onboarding/ob07.svg",
+      "card": "assets/ui/cards/reasons/jc07.tscn",
+      "bytes": 2119,
+      "width": 192,
+      "height": 192,
+      "sha256": "1bd5d69ddbdda2ad9cd5f78cc8ceb51738c59e1628f033362ed18340975d849c"
+    },
+    {
+      "group": "reasons",
+      "id": "JC08",
+      "record": {
+        "evidence": "已完成恢复但查房仍未完成。",
+        "id": "JC08",
+        "name": "等最后一次查房",
+        "source": "discharge_round",
+        "target_panel": "schedule"
+      },
+      "name": "等最后一次查房",
+      "source": "content/core/journey_reason_cards.json#JC08",
+      "path": "assets/ui/supplements/reasons/jc08.png",
+      "editable": "art-source/production/ui/reasons/jc08.svg",
+      "card": "assets/ui/cards/reasons/jc08.tscn",
+      "bytes": 2176,
+      "width": 192,
+      "height": 192,
+      "sha256": "8b3624dddc6aa6e7eeddbcccb7b107e7f6be122d90ac06927709dcd567cc21aa"
+    },
+    {
+      "group": "reasons",
+      "id": "JC09",
+      "record": {
+        "evidence": "现存、已为准备中的治疗预留、可用包数和下一次实际需要；可定位采购及补货受阻原因。",
+        "id": "JC09",
+        "name": "治疗包不足",
+        "source": "supply_stock",
+        "target_panel": "supplies"
+      },
+      "name": "治疗包不足",
+      "source": "content/core/journey_reason_cards.json#JC09",
+      "path": "assets/ui/supplements/reasons/jc09.png",
+      "editable": "art-source/production/ui/reasons/jc09.svg",
+      "card": "assets/ui/cards/reasons/jc09.tscn",
+      "bytes": 2276,
+      "width": 192,
+      "height": 192,
+      "sha256": "1c75fb93681c16458a66205c426411f343d54d6b0c08c0b02d99f20b964b1a81"
+    },
+    {
+      "group": "queue",
+      "id": "QC01",
+      "record": {
+        "id": "QC01",
+        "low_motion_scene": "原票号与短横箭头静止显示，不要求手持纸片。",
+        "scene": "号签的小箭头折成短横，原票号仍朝外；患者继续自己的合法候诊姿态。",
+        "state": "waiting",
+        "text": "待诊"
+      },
+      "name": "待诊",
+      "source": "content/core/queue_cues.json#QC01",
+      "path": "assets/ui/supplements/queue/qc01.png",
+      "editable": "art-source/production/ui/queue/qc01.svg",
+      "bytes": 2371,
+      "width": 192,
+      "height": 192,
+      "sha256": "6d52967a47646996ed1bd9727b91f359c3ac29c35a8fcd06bceb7878b4faab37"
+    },
+    {
+      "group": "queue",
+      "id": "QC02",
+      "record": {
+        "id": "QC02",
+        "low_motion_scene": "原票号旁显示目标房间、楼层与稳定箭头。",
+        "scene": "取得真实预约后，号签箭头从短横展开，指向实际目标提示；患者查看后沿原路线出发。",
+        "state": "called",
+        "text": "已预约"
+      },
+      "name": "已预约",
+      "source": "content/core/queue_cues.json#QC02",
+      "path": "assets/ui/supplements/queue/qc02.png",
+      "editable": "art-source/production/ui/queue/qc02.svg",
+      "bytes": 1035,
+      "width": 192,
+      "height": 192,
+      "sha256": "fe4590e48f325576c96e31a5b859beae1b615f8c050ab5de1dd15e7eb2f3c687"
+    },
+    {
+      "group": "queue",
+      "id": "QC03",
+      "record": {
+        "id": "QC03",
+        "low_motion_scene": "暂离图标与原票号并列，医疗队列继续按原规则处理。",
+        "scene": "号签夹上一枚暂离书签，原票号露在外面；书签随真实生活服务结束收回。",
+        "state": "amenity_away",
+        "text": "生活暂离"
+      },
+      "name": "生活暂离",
+      "source": "content/core/queue_cues.json#QC03",
+      "path": "assets/ui/supplements/queue/qc03.png",
+      "editable": "art-source/production/ui/queue/qc03.svg",
+      "bytes": 2015,
+      "width": 192,
+      "height": 192,
+      "sha256": "bf17017ad59cdd6bbac85c58edb5cc24d5680fb8ae627b8dec10b462a9d97836"
+    },
+    {
+      "group": "queue",
+      "id": "QC04",
+      "record": {
+        "id": "QC04",
+        "low_motion_scene": "只保留当前有效预约的目的地，原票号不变。",
+        "scene": "旧目的地箭头卷回号签，新目的地箭头从同一票号旁展开；旧路线同步撤下。",
+        "state": "rerouted",
+        "text": "已改派"
+      },
+      "name": "已改派",
+      "source": "content/core/queue_cues.json#QC04",
+      "path": "assets/ui/supplements/queue/qc04.png",
+      "editable": "art-source/production/ui/queue/qc04.svg",
+      "bytes": 3203,
+      "width": 192,
+      "height": 192,
+      "sha256": "3c1e8e600bc16e411475849d9e8071f4f39abbb803d07e5c911acda1f247bbee"
+    },
+    {
+      "group": "queue",
+      "id": "QC05",
+      "record": {
+        "id": "QC05",
+        "low_motion_scene": "稳定显示当前主要等待原因，没有虚构倒计时。",
+        "scene": "号签把尚未展开的箭头放到实际原因标签旁，等所需人员、设备、空间或物品真正齐备。",
+        "state": "waiting_condition",
+        "text": "等待条件"
+      },
+      "name": "等待条件",
+      "source": "content/core/queue_cues.json#QC05",
+      "path": "assets/ui/supplements/queue/qc05.png",
+      "editable": "art-source/production/ui/queue/qc05.svg",
+      "bytes": 2141,
+      "width": 192,
+      "height": 192,
+      "sha256": "852a7a8bfcd4c851f93a72f0119d2c6594d98d1957462d9943e7aba65db4064a"
+    },
+    {
+      "group": "observation",
+      "id": "OC01",
+      "record": {
+        "id": "OC01",
+        "state": "watching",
+        "text": "慢慢看这一段，医院照常运转。"
+      },
+      "name": "慢慢看这一段，医院照常运转。",
+      "source": "content/core/observation_cues.json#OC01",
+      "path": "assets/ui/supplements/observation/oc01.png",
+      "editable": "art-source/production/ui/observation/oc01.svg",
+      "bytes": 2499,
+      "width": 192,
+      "height": 192,
+      "sha256": "4c8e65f32e5db596265e79ee8450c9f70de18e07eb05ac586dd5205e30aee76e"
+    },
+    {
+      "group": "observation",
+      "id": "OC02",
+      "record": {
+        "id": "OC02",
+        "state": "in_transit",
+        "text": "正在乘梯，抵达后再跟过去。"
+      },
+      "name": "正在乘梯，抵达后再跟过去。",
+      "source": "content/core/observation_cues.json#OC02",
+      "path": "assets/ui/supplements/biographies/bio02.png",
+      "editable": "art-source/production/ui/biographies/bio02.svg",
+      "bytes": 3201,
+      "width": 192,
+      "height": 192,
+      "sha256": "d273cee7e57fb1acaeac2377f7b9b882c7acce3198648b61df3002e564583263"
+    },
+    {
+      "group": "observation",
+      "id": "OC03",
+      "record": {
+        "id": "OC03",
+        "state": "manual_speed",
+        "text": "按你刚选的速度继续。"
+      },
+      "name": "按你刚选的速度继续。",
+      "source": "content/core/observation_cues.json#OC03",
+      "path": "assets/ui/supplements/observation/oc03.png",
+      "editable": "art-source/production/ui/observation/oc03.svg",
+      "bytes": 1049,
+      "width": 192,
+      "height": 192,
+      "sha256": "993b138749fa817943d76531735e884851d383a950dbc033b31056fb76dd5b80"
+    },
+    {
+      "group": "observation",
+      "id": "OC04",
+      "record": {
+        "id": "OC04",
+        "state": "stage_ended",
+        "text": "这一段结束了，下一步仍由真实流程接续。"
+      },
+      "name": "这一段结束了，下一步仍由真实流程接续。",
+      "source": "content/core/observation_cues.json#OC04",
+      "path": "assets/ui/supplements/history/ht04.png",
+      "editable": "art-source/production/ui/history/ht04.svg",
+      "bytes": 2626,
+      "width": 192,
+      "height": 192,
+      "sha256": "bae48e6e68a246a6f3d4ea3f9ebd90eb54bcc1bf4a067e08cce3839b0063893a"
+    },
+    {
+      "group": "onboarding",
+      "id": "OB01",
+      "record": {
+        "evidence": "hospital_created",
+        "help_text": "给医院起个名字，选择现成的小医院，或从空地开始布置。",
+        "id": "OB01",
+        "name": "开一家自己的医院",
+        "order": 1,
+        "patient_seed": null,
+        "target_panel": "hospital"
+      },
+      "name": "开一家自己的医院",
+      "source": "content/core/onboarding_steps.json#OB01",
+      "path": "assets/ui/supplements/onboarding/ob01.png",
+      "editable": "art-source/production/ui/onboarding/ob01.svg",
+      "card": "assets/ui/cards/onboarding/ob01.tscn",
+      "bytes": 870,
+      "width": 192,
+      "height": 192,
+      "sha256": "a2b7ec6a96ab0d7065e9dd6f250d09659ceefeee1d37156559594dd4896bd908"
+    },
+    {
+      "group": "onboarding",
+      "id": "OB02",
+      "record": {
+        "evidence": "patient_selected",
+        "help_text": "点一位正在候诊的居民，看看症状和接下来要去哪里。",
+        "id": "OB02",
+        "name": "看这位正在等候的居民",
+        "order": 2,
+        "patient_seed": null,
+        "target_panel": "patient"
+      },
+      "name": "看这位正在等候的居民",
+      "source": "content/core/onboarding_steps.json#OB02",
+      "path": "assets/ui/supplements/history/ht02.png",
+      "editable": "art-source/production/ui/history/ht02.svg",
+      "card": "assets/ui/cards/onboarding/ob02.tscn",
+      "bytes": 3504,
+      "width": 192,
+      "height": 192,
+      "sha256": "f149be37b0b5889418e0ca7cac9de4aff5fd38cd92564bee79b4e78ca350b5f3"
+    },
+    {
+      "group": "onboarding",
+      "id": "OB03",
+      "record": {
+        "evidence": "human_case_cured",
+        "help_text": "看看普通人类的感冒怎样得到治疗；错过现场，也可以查看这次就诊记录。",
+        "id": "OB03",
+        "name": "第一位人类患者",
+        "order": 3,
+        "patient_seed": {
+          "disease_id": "D37",
+          "species_id": "S49"
+        },
+        "target_panel": "patient"
+      },
+      "name": "第一位人类患者",
+      "source": "content/core/onboarding_steps.json#OB03",
+      "path": "assets/ui/supplements/onboarding/ob03.png",
+      "editable": "art-source/production/ui/onboarding/ob03.svg",
+      "card": "assets/ui/cards/onboarding/ob03.tscn",
+      "bytes": 2367,
+      "width": 192,
+      "height": 192,
+      "sha256": "1f20c4a8d4a2966e327b782059150ed9309c9c07bcb4266fe5711ef39f137b35"
+    },
+    {
+      "group": "onboarding",
+      "id": "OB04",
+      "record": {
+        "evidence": "zombie_case_cured",
+        "help_text": "看看僵尸的零件怎样回到正确位置；已经治好时，可从就诊记录接着看。",
+        "id": "OB04",
+        "name": "零件回到该在的位置",
+        "order": 4,
+        "patient_seed": {
+          "disease_id": "D09",
+          "species_id": "S13"
+        },
+        "target_panel": "patient"
+      },
+      "name": "零件回到该在的位置",
+      "source": "content/core/onboarding_steps.json#OB04",
+      "path": "assets/ui/supplements/onboarding/ob04.png",
+      "editable": "art-source/production/ui/onboarding/ob04.svg",
+      "card": "assets/ui/cards/onboarding/ob04.tscn",
+      "bytes": 2505,
+      "width": 192,
+      "height": 192,
+      "sha256": "2237bec237c53b343353d99656fd461dce708661c2fe6d6900c74371fc956e6c"
+    },
+    {
+      "group": "onboarding",
+      "id": "OB05",
+      "record": {
+        "evidence": "seat_fit_reviewed_or_layout_committed",
+        "help_text": "点“试试看”，看看椅子能否为所选体型伸展开；也可以确认一次座位调整。",
+        "id": "OB05",
+        "name": "看看椅子能否伸展开",
+        "order": 5,
+        "patient_seed": null,
+        "target_panel": "building"
+      },
+      "name": "看看椅子能否伸展开",
+      "source": "content/core/onboarding_steps.json#OB05",
+      "path": "assets/ui/supplements/onboarding/ob05.png",
+      "editable": "art-source/production/ui/onboarding/ob05.svg",
+      "card": "assets/ui/cards/onboarding/ob05.tscn",
+      "bytes": 2585,
+      "width": 192,
+      "height": 192,
+      "sha256": "4f1a477d941b7b6923cf27cd3c07d3d9e794f6ef94e5f1fd9efbef03914e27c0"
+    },
+    {
+      "group": "onboarding",
+      "id": "OB06",
+      "record": {
+        "evidence": "interaction_finished",
+        "help_text": "看看居民之间一件小事怎样结束；暂时没有时，可以先跳过。",
+        "id": "OB06",
+        "name": "看看一件小事怎样收尾",
+        "order": 6,
+        "patient_seed": null,
+        "target_panel": "residents"
+      },
+      "name": "看看一件小事怎样收尾",
+      "source": "content/core/onboarding_steps.json#OB06",
+      "path": "assets/ui/supplements/onboarding/ob06.png",
+      "editable": "art-source/production/ui/onboarding/ob06.svg",
+      "card": "assets/ui/cards/onboarding/ob06.tscn",
+      "bytes": 2218,
+      "width": 192,
+      "height": 192,
+      "sha256": "e645f66f987563896b7c19f2244bc7fd63eb6f72c7f21a7f2246b76104bc72ef"
+    },
+    {
+      "group": "onboarding",
+      "id": "OB07",
+      "record": {
+        "evidence": "research_evidence_received",
+        "help_text": "看看一份已经到达的研究资料；还没有时，可以查看获取办法。",
+        "id": "OB07",
+        "name": "拿到一份研究资料",
+        "order": 7,
+        "patient_seed": null,
+        "target_panel": "research"
+      },
+      "name": "拿到一份研究资料",
+      "source": "content/core/onboarding_steps.json#OB07",
+      "path": "assets/ui/supplements/onboarding/ob07.png",
+      "editable": "art-source/production/ui/onboarding/ob07.svg",
+      "card": "assets/ui/cards/onboarding/ob07.tscn",
+      "bytes": 2119,
+      "width": 192,
+      "height": 192,
+      "sha256": "1bd5d69ddbdda2ad9cd5f78cc8ceb51738c59e1628f033362ed18340975d849c"
+    },
+    {
+      "group": "onboarding",
+      "id": "OB08",
+      "record": {
+        "evidence": "finance_view_opened",
+        "help_text": "打开账目，看看大家的工资、日常开支和下一笔补助。",
+        "id": "OB08",
+        "name": "大家的工资与下次补助",
+        "order": 8,
+        "patient_seed": null,
+        "target_panel": "finance"
+      },
+      "name": "大家的工资与下次补助",
+      "source": "content/core/onboarding_steps.json#OB08",
+      "path": "assets/ui/supplements/onboarding/ob08.png",
+      "editable": "art-source/production/ui/onboarding/ob08.svg",
+      "card": "assets/ui/cards/onboarding/ob08.tscn",
+      "bytes": 3024,
+      "width": 192,
+      "height": 192,
+      "sha256": "70523a80543df3ddf294ff5fc32d2968a51b25a824049daceb428085074ab796"
+    },
+    {
+      "group": "onboarding",
+      "id": "OB09",
+      "record": {
+        "evidence": "milestone_reward_claimed",
+        "help_text": "打开任务簿，领取一项已经完成的成长奖励。",
+        "id": "OB09",
+        "name": "领到一项成长回报",
+        "order": 9,
+        "patient_seed": null,
+        "target_panel": "tasks"
+      },
+      "name": "领到一项成长回报",
+      "source": "content/core/onboarding_steps.json#OB09",
+      "path": "assets/ui/supplements/onboarding/ob09.png",
+      "editable": "art-source/production/ui/onboarding/ob09.svg",
+      "card": "assets/ui/cards/onboarding/ob09.tscn",
+      "bytes": 3496,
+      "width": 192,
+      "height": 192,
+      "sha256": "00e03e6f15f0b99588130ddf69ad56cabb8a9b1e8c747ea9e5cab7ea3e44c0fb"
+    },
+    {
+      "group": "onboarding",
+      "id": "OB10",
+      "record": {
+        "evidence": "manual_save_and_hospital_list",
+        "help_text": "手动保存成功后，打开医院列表；下次就从这里继续经营。",
+        "id": "OB10",
+        "name": "保存，并找到医院列表",
+        "order": 10,
+        "patient_seed": null,
+        "target_panel": "hospital"
+      },
+      "name": "保存，并找到医院列表",
+      "source": "content/core/onboarding_steps.json#OB10",
+      "path": "assets/ui/supplements/onboarding/ob10.png",
+      "editable": "art-source/production/ui/onboarding/ob10.svg",
+      "card": "assets/ui/cards/onboarding/ob10.tscn",
+      "bytes": 2623,
+      "width": 192,
+      "height": 192,
+      "sha256": "3ee0bf675bd4c7086e3cea6914ecc6a3891e62f0889de6a8354ea1a96750040a"
+    },
+    {
+      "group": "context",
+      "id": "CL01",
+      "record": {
+        "help_text": "设施会自己变大，也需要空地。点红色格子，看看是什么挡住了它。",
+        "id": "CL01",
+        "name": "给伸展留点空地",
+        "priority": 3,
+        "target_panel": "building",
+        "trigger": "body_route_blocked"
+      },
+      "name": "给伸展留点空地",
+      "source": "content/core/context_lessons.json#CL01",
+      "path": "assets/ui/supplements/context/cl01.png",
+      "editable": "art-source/production/ui/context/cl01.svg",
+      "card": "assets/ui/cards/context/cl01.tscn",
+      "bytes": 732,
+      "width": 192,
+      "height": 192,
+      "sha256": "72d66dbac3a263a3d1ea996ab8b644d7d3e7ab37f0bcfa41867a4714e01febd6"
+    },
+    {
+      "group": "context",
+      "id": "CL02",
+      "record": {
+        "help_text": "地面新地买来只有空地。向上扩建先选电梯，只买它所在的地块；旁块另购，正下方先有一间已建房间。楼板完工后再建房、接通电梯站。",
+        "id": "CL02",
+        "name": "院界之外的新地方",
+        "priority": 8,
+        "target_panel": "land",
+        "trigger": "land_preview_opened"
+      },
+      "name": "院界之外的新地方",
+      "source": "content/core/context_lessons.json#CL02",
+      "path": "assets/ui/supplements/context/cl02.png",
+      "editable": "art-source/production/ui/context/cl02.svg",
+      "card": "assets/ui/cards/context/cl02.tscn",
+      "bytes": 859,
+      "width": 192,
+      "height": 192,
+      "sha256": "e47482ece45d39fe987803affeac4c39b16a82ab2a6d85b51cade232e085f817"
+    },
+    {
+      "group": "context",
+      "id": "CL03",
+      "record": {
+        "help_text": "看看哪项服务受影响、维修员正在做什么；需要时可以优先处理这张维修单。",
+        "id": "CL03",
+        "name": "设备也会需要歇一歇",
+        "priority": 2,
+        "target_panel": "maintenance",
+        "trigger": "equipment_failed"
+      },
+      "name": "设备也会需要歇一歇",
+      "source": "content/core/context_lessons.json#CL03",
+      "path": "assets/ui/supplements/context/cl03.png",
+      "editable": "art-source/production/ui/context/cl03.svg",
+      "card": "assets/ui/cards/context/cl03.tscn",
+      "bytes": 2566,
+      "width": 192,
+      "height": 192,
+      "sha256": "455ace233c3650a63891d322f6c0d45f22ad59f735eb0709c53f074ee15d1c71"
+    },
+    {
+      "group": "context",
+      "id": "CL04",
+      "record": {
+        "help_text": "打开本班安排，看看缺哪位合格同事。应用建议前，可以先看调整后的覆盖。",
+        "id": "CL04",
+        "name": "这班还缺谁",
+        "priority": 4,
+        "target_panel": "schedule",
+        "trigger": "shift_coverage_missing"
+      },
+      "name": "这班还缺谁",
+      "source": "content/core/context_lessons.json#CL04",
+      "path": "assets/ui/supplements/context/cl04.png",
+      "editable": "art-source/production/ui/context/cl04.svg",
+      "card": "assets/ui/cards/context/cl04.tscn",
+      "bytes": 3498,
+      "width": 192,
+      "height": 192,
+      "sha256": "360ed8731749279ca4efa34c52ff87ecca13b08bb6335522ca8f3b52b931a186"
+    },
+    {
+      "group": "context",
+      "id": "CL05",
+      "record": {
+        "help_text": "先查看本方案需要的合格医护、设备与空间；需要住院时，还须同层兼容病床、护理与查房覆盖。点当前缺项即可定位。",
+        "id": "CL05",
+        "name": "看看这次方案缺什么",
+        "priority": 5,
+        "target_panel": "clinical",
+        "trigger": "clinical_resource_missing"
+      },
+      "name": "看看这次方案缺什么",
+      "source": "content/core/context_lessons.json#CL05",
+      "path": "assets/ui/supplements/context/cl05.png",
+      "editable": "art-source/production/ui/context/cl05.svg",
+      "card": "assets/ui/cards/context/cl05.tscn",
+      "bytes": 2167,
+      "width": 192,
+      "height": 192,
+      "sha256": "7151ee3ef51282b47f2647893e08a9f2c37d1f8ad553ecb1bb573e6ed90c3385"
+    },
+    {
+      "group": "context",
+      "id": "CL06",
+      "record": {
+        "help_text": "正在使用旧房间的人会先安全结束。等房间腾空，再查看费用并应用新布局。",
+        "id": "CL06",
+        "name": "等旧房间安全腾空",
+        "priority": 6,
+        "target_panel": "remodel",
+        "trigger": "remodel_waiting"
+      },
+      "name": "等旧房间安全腾空",
+      "source": "content/core/context_lessons.json#CL06",
+      "path": "assets/ui/supplements/context/cl06.png",
+      "editable": "art-source/production/ui/context/cl06.svg",
+      "card": "assets/ui/cards/context/cl06.tscn",
+      "bytes": 3957,
+      "width": 192,
+      "height": 192,
+      "sha256": "b059e2a442a1e4e237228209e37f86a2c3786542ea4d64e782d530fbe35c4d1c"
+    },
+    {
+      "group": "context",
+      "id": "CL07",
+      "record": {
+        "help_text": "按当前需要定位饮水机或厕所，看看这位居民是否走得到、用得下。",
+        "id": "CL07",
+        "name": "找到合身的生活设施",
+        "priority": 7,
+        "target_panel": "facilities",
+        "trigger": "amenity_fallback_active"
+      },
+      "name": "找到合身的生活设施",
+      "source": "content/core/context_lessons.json#CL07",
+      "path": "assets/ui/supplements/context/cl07.png",
+      "editable": "art-source/production/ui/context/cl07.svg",
+      "card": "assets/ui/cards/context/cl07.tscn",
+      "bytes": 2004,
+      "width": 192,
+      "height": 192,
+      "sha256": "fde603101d54e9a946c1a6307bab0bc9f898b4283b8bb41c31448037ccd78808"
+    },
+    {
+      "group": "context",
+      "id": "CL08",
+      "record": {
+        "help_text": "这笔援助直接支付了必要开支。展开记录，看看它支付了什么、医院实际付了多少。",
+        "id": "CL08",
+        "name": "这笔资助替医院付了什么",
+        "priority": 9,
+        "target_panel": "finance",
+        "trigger": "direct_support_recorded"
+      },
+      "name": "这笔资助替医院付了什么",
+      "source": "content/core/context_lessons.json#CL08",
+      "path": "assets/ui/supplements/context/cl08.png",
+      "editable": "art-source/production/ui/context/cl08.svg",
+      "card": "assets/ui/cards/context/cl08.tscn",
+      "bytes": 3177,
+      "width": 192,
+      "height": 192,
+      "sha256": "f2f9e4095e22066a9560880053ab72a20ef58446f2f54e2c32f30d36305e455b"
+    },
+    {
+      "group": "context",
+      "id": "CL09",
+      "record": {
+        "help_text": "同事能提前解冻，冰块也会自然融化。点事件查看剩余时间、实际帮助和解冻后的短暂休整。",
+        "id": "CL09",
+        "name": "冻住了也有人帮忙",
+        "priority": 1,
+        "target_panel": "incident",
+        "trigger": "actor_frozen"
+      },
+      "name": "冻住了也有人帮忙",
+      "source": "content/core/context_lessons.json#CL09",
+      "path": "assets/ui/supplements/context/cl09.png",
+      "editable": "art-source/production/ui/context/cl09.svg",
+      "card": "assets/ui/cards/context/cl09.tscn",
+      "bytes": 3210,
+      "width": 192,
+      "height": 192,
+      "sha256": "7f75b2273e503733c409a557e3e993b6abe7f6d98087b2b6b5f3ff5d7c61ac8b"
+    },
+    {
+      "group": "remodel",
+      "id": "RG01",
+      "record": {
+        "blueprint_ids": [
+          "BP02"
+        ],
+        "id": "RG01",
+        "name": "让门口更从容",
+        "problem": "候诊座位挡住了实际通路。",
+        "related_content": [
+          {
+            "collection": "doors",
+            "definition_id": "DR04"
+          },
+          {
+            "collection": "machines",
+            "definition_id": "M09"
+          }
+        ],
+        "steps": [
+          "预览目标居民经过时门框展开的墙段与通路。",
+          "移开伸展范围内的座椅或调整位置，设备也需保留真实操作区。",
+          "等使用者离开后应用，保留原房间与设备记录。"
+        ],
+        "watch_for": "门框自动伸缩，身体与通路按真实尺寸通过；堵住的路线不能穿越。"
+      },
+      "name": "让门口更从容",
+      "source": "content/core/remodel_guides.json#RG01",
+      "path": "assets/ui/supplements/remodel/rg01.png",
+      "editable": "art-source/production/ui/remodel/rg01.svg",
+      "card": "assets/ui/cards/remodel/rg01.tscn",
+      "bytes": 2177,
+      "width": 192,
+      "height": 192,
+      "sha256": "d0db0ee39d40d00732547d21b1f7d9f6c576af22a3642ba5ead09abae227c582"
+    },
+    {
+      "group": "remodel",
+      "id": "RG02",
+      "record": {
+        "blueprint_ids": [
+          "BP01",
+          "BP02",
+          "BP03"
+        ],
+        "id": "RG02",
+        "name": "把门诊搬到楼上",
+        "problem": "一楼渐渐拥挤，希望把部分门诊搬到楼上。",
+        "related_content": [
+          {
+            "collection": "vertical_connectors",
+            "definition_id": "VC02"
+          },
+          {
+            "collection": "vertical_connectors",
+            "definition_id": "VC03"
+          }
+        ],
+        "steps": [
+          "先在正下方建好空房，选电梯购买其所属地块的上层模块；旁块另买。楼板及完整井道覆盖地块实完后，确认安装电梯站并检查公共出口；第二站已含初装费。",
+          "预览电梯实际舱内空间与陪同组；控件伸缩不扩大井道或免除身体占位。",
+          "安排门诊搬迁，等腾空后确认，检查新旧楼层接诊覆盖。"
+        ],
+        "watch_for": "角色真实上下楼，物件ID、故障和所属科室保持连续；搬迁后的可用覆盖重新核验，新增完整工作组合才提高次日客流规模，可选择先保持当前客流。"
+      },
+      "name": "把门诊搬到楼上",
+      "source": "content/core/remodel_guides.json#RG02",
+      "path": "assets/ui/supplements/remodel/rg02.png",
+      "editable": "art-source/production/ui/remodel/rg02.svg",
+      "card": "assets/ui/cards/remodel/rg02.tscn",
+      "bytes": 724,
+      "width": 192,
+      "height": 192,
+      "sha256": "1972d51ca93ae99db702209a1d7cb4547be444411a10b869b9ef96d6025d5760"
+    },
+    {
+      "group": "remodel",
+      "id": "RG03",
+      "record": {
+        "blueprint_ids": [
+          "BP04",
+          "BP05",
+          "BP06",
+          "BP07"
+        ],
+        "id": "RG03",
+        "name": "手术和病房住在同一层",
+        "problem": "手术设备齐了，却没有合格的同层护理去处。",
+        "related_content": [
+          {
+            "collection": "clinical_equipment",
+            "definition_id": "EQ05"
+          }
+        ],
+        "steps": [
+          "并排查看手术室、病床、监护与护理路线。",
+          "补齐当班医护和床伸长后仍可达的床边位置。",
+          "成组改建等待既有手术转床与住院安全释放，不移动承诺中的床。"
+        ],
+        "watch_for": "同层床位可预约，护士能真实送达，不增加治疗次数与耗材。"
+      },
+      "name": "手术和病房住在同一层",
+      "source": "content/core/remodel_guides.json#RG03",
+      "path": "assets/ui/supplements/remodel/rg03.png",
+      "editable": "art-source/production/ui/remodel/rg03.svg",
+      "card": "assets/ui/cards/remodel/rg03.tscn",
+      "bytes": 3517,
+      "width": 192,
+      "height": 192,
+      "sha256": "b0a5c453df7d80f3448459a2f5b164a359c5d0495a95dbc942eb8e997ce19a27"
+    },
+    {
+      "group": "remodel",
+      "id": "RG04",
+      "record": {
+        "blueprint_ids": [],
+        "id": "RG04",
+        "name": "给候诊角分一片安静",
+        "problem": "喜欢安静的病人坐在运行机器旁。",
+        "related_content": [
+          {
+            "collection": "furniture_equipment",
+            "definition_id": "FUR23"
+          },
+          {
+            "collection": "renovation_materials",
+            "definition_id": "MAT04"
+          },
+          {
+            "collection": "furniture_equipment",
+            "definition_id": "FUR50"
+          }
+        ],
+        "steps": [
+          "查看4格噪声传播范围，先移动候诊位或噪声源。",
+          "在合法墙边布置屏风，检查声音是否仍能从旁边绕过。",
+          "地毯按材料环境分贡献舒适，等待装修工完成。"
+        ],
+        "watch_for": "环境热图仍反映真实噪声；静音罩椅只减轻使用者的噪声积怒，地毯不隔音，屏风不提供范围消音。"
+      },
+      "name": "给候诊角分一片安静",
+      "source": "content/core/remodel_guides.json#RG04",
+      "path": "assets/ui/supplements/cleanup/cl04.png",
+      "editable": "art-source/production/ui/cleanup/cl04.svg",
+      "card": "assets/ui/cards/remodel/rg04.tscn",
+      "bytes": 2573,
+      "width": 192,
+      "height": 192,
+      "sha256": "b41602f217b816591427c5d685e1342d28d8dac46de2b250242871440335adf0"
+    },
+    {
+      "group": "remodel",
+      "id": "RG05",
+      "record": {
+        "blueprint_ids": [],
+        "id": "RG05",
+        "name": "把喝水处放近一点",
+        "problem": "生活设施离候诊区太远。",
+        "related_content": [
+          {
+            "collection": "accessibility_equipment",
+            "definition_id": "AE01"
+          },
+          {
+            "collection": "accessibility_equipment",
+            "definition_id": "AE02"
+          },
+          {
+            "collection": "accessibility_equipment",
+            "definition_id": "AE03"
+          },
+          {
+            "collection": "doors",
+            "definition_id": "DR06"
+          }
+        ],
+        "steps": [
+          "查看候诊区到生活设施的实际路线。",
+          "预览普通设施自动伸展后的占地，留足空地；大软垫与可调台属于可选造型。",
+          "保留出口，等占用结束再移动旧物件。"
+        ],
+        "watch_for": "设施放得下才伸缩，伸展后占用的通道真实阻挡行走。"
+      },
+      "name": "把喝水处放近一点",
+      "source": "content/core/remodel_guides.json#RG05",
+      "path": "assets/ui/supplements/remodel/rg05.png",
+      "editable": "art-source/production/ui/remodel/rg05.svg",
+      "card": "assets/ui/cards/remodel/rg05.tscn",
+      "bytes": 3939,
+      "width": 192,
+      "height": 192,
+      "sha256": "68c3212677105e050122201af95c9fc7bf69d5ac061a102f85193602c2b8b14c"
+    },
+    {
+      "group": "remodel",
+      "id": "RG06",
+      "record": {
+        "blueprint_ids": [],
+        "id": "RG06",
+        "name": "把空地留给邻居",
+        "problem": "需要在诊疗与候诊之外留一处独立活动角落。",
+        "related_content": [
+          {
+            "collection": "community_activities",
+            "definition_id": "CA03"
+          },
+          {
+            "collection": "community_activities",
+            "definition_id": "CA06"
+          },
+          {
+            "collection": "furniture_equipment",
+            "definition_id": "FUR11"
+          },
+          {
+            "collection": "furniture_equipment",
+            "definition_id": "FUR24"
+          },
+          {
+            "collection": "furniture_equipment",
+            "definition_id": "FUR42"
+          }
+        ],
+        "steps": [
+          "选定独立休闲角或花园，保留原候诊、员工工作休息和通行用途，按需要布置泊位、观察窗或合影架。",
+          "预览真实场地可容纳范围，再确认本次随机名单。",
+          "保留来宾与患者各自真实可达的进出路线，活动不占候诊座位或临床操作区。"
+        ],
+        "watch_for": "活动人数随类型和可用空间抽取，原有故事只按真实完成事实推进。"
+      },
+      "name": "把空地留给邻居",
+      "source": "content/core/remodel_guides.json#RG06",
+      "path": "assets/ui/supplements/remodel/rg06.png",
+      "editable": "art-source/production/ui/remodel/rg06.svg",
+      "card": "assets/ui/cards/remodel/rg06.tscn",
+      "bytes": 2274,
+      "width": 192,
+      "height": 192,
+      "sha256": "914d2fba918d020840d5fb065101a9ae1cb84679d897b4adf7db4160d6c0fcda"
+    },
+    {
+      "group": "remodel",
+      "id": "RG07",
+      "record": {
+        "blueprint_ids": [
+          "BP08",
+          "BP09"
+        ],
+        "id": "RG07",
+        "name": "让同事有处睡、有处开工",
+        "problem": "新增医护后需要可用睡眠床位、办公室或同层护士工作台。",
+        "related_content": [
+          {
+            "collection": "service_equipment",
+            "definition_id": "SE04"
+          },
+          {
+            "collection": "service_equipment",
+            "definition_id": "SE05"
+          },
+          {
+            "collection": "service_equipment",
+            "definition_id": "SE06"
+          }
+        ],
+        "steps": [
+          "从共享办公室或双床休息室开始，查看新职员的真实卧姿、办公位置与往返路线。",
+          "在病房内或同层员工工作角放护士工作台，已有相邻工作台可共享，不逐床再买一张。",
+          "预览空床、办公位与护理交接路线；保留正在睡眠和临床服务者的安全离位过程后再改建。"
+        ],
+        "watch_for": "所有岗位都能睡；普通休息椅不代替床，桌台不代替病床或床边护理，不需要给每人分配一套房。"
+      },
+      "name": "让同事有处睡、有处开工",
+      "source": "content/core/remodel_guides.json#RG07",
+      "path": "assets/ui/supplements/remodel/rg07.png",
+      "editable": "art-source/production/ui/remodel/rg07.svg",
+      "card": "assets/ui/cards/remodel/rg07.tscn",
+      "bytes": 858,
+      "width": 192,
+      "height": 192,
+      "sha256": "26e5224ebf2e442b0fff660a0b4ed80800a16b4a4b816d15797ce5c4b5bc9a17"
+    },
+    {
+      "group": "remodel",
+      "id": "RG08",
+      "record": {
+        "blueprint_ids": [],
+        "id": "RG08",
+        "name": "按用途挑一把椅子",
+        "problem": "候诊与员工短休需要不同帮助。",
+        "related_content": [
+          {
+            "collection": "furniture_equipment",
+            "definition_id": "FUR49"
+          },
+          {
+            "collection": "furniture_equipment",
+            "definition_id": "FUR50"
+          },
+          {
+            "collection": "furniture_equipment",
+            "definition_id": "FUR51"
+          },
+          {
+            "collection": "furniture_equipment",
+            "definition_id": "FUR52"
+          }
+        ],
+        "steps": [
+          "先看区域用途：病人候诊用安抚或静音，员工短休用阅览或伸腿活力。",
+          "卡片直接比较价格、收起占地与一项效果；原有普通椅仍可正常使用，不要求全院换新。",
+          "预览实际使用者的展开轮廓、腿部与出口；空间不足先移位或留空，再确认购买。"
+        ],
+        "watch_for": "效果只给真正坐着且处于对应状态的人，不叠加多张椅子、不变成睡眠或全院光环。"
+      },
+      "name": "按用途挑一把椅子",
+      "source": "content/core/remodel_guides.json#RG08",
+      "path": "assets/ui/supplements/remodel/rg08.png",
+      "editable": "art-source/production/ui/remodel/rg08.svg",
+      "card": "assets/ui/cards/remodel/rg08.tscn",
+      "bytes": 2134,
+      "width": 192,
+      "height": 192,
+      "sha256": "08864625b1de289490c24770e82ba5b3f0d89da60e75e831d937570b375666d8"
+    },
+    {
+      "group": "tasks",
+      "id": "TG01",
+      "record": {
+        "evidence": "原Visit确诊或治愈事实与稳定种族/病症ID。",
+        "id": "TG01",
+        "metric_labels": {
+          "cured_clearance2_visits": {
+            "text": "入院时需要2格通行的治愈就诊",
+            "unit": "次"
+          },
+          "cured_clearance3_visits": {
+            "text": "入院时需要3格通行的治愈就诊",
+            "unit": "次"
+          },
+          "cured_tall_visits": {
+            "text": "入院时身高超过2.4米的治愈就诊",
+            "unit": "次"
+          },
+          "cured_visits": {
+            "text": "治愈就诊",
+            "unit": "次"
+          },
+          "diagnosed_b_visits": {
+            "text": "完成B档检查并确诊的就诊",
+            "unit": "次"
+          },
+          "distinct_cured_diseases": {
+            "text": "已治愈的不同病症",
+            "unit": "种"
+          },
+          "distinct_cured_species": {
+            "text": "已治愈的不同种族",
+            "unit": "种"
+          }
+        },
+        "metrics": [
+          "cured_visits",
+          "cured_clearance2_visits",
+          "cured_clearance3_visits",
+          "cured_tall_visits",
+          "diagnosed_b_visits",
+          "distinct_cured_species",
+          "distinct_cured_diseases"
+        ],
+        "name": "诊疗与不同身体",
+        "next_step": "查看任务实际家族或身体条件，再查看完整接诊路线；居民因实际需要来诊，没有任务预约或限日赶诊。",
+        "target_panel": "admissions"
+      },
+      "name": "诊疗与不同身体",
+      "source": "content/core/task_guides.json#TG01",
+      "path": "assets/ui/supplements/history/ht01.png",
+      "editable": "art-source/production/ui/history/ht01.svg",
+      "card": "assets/ui/cards/tasks/tg01.tscn",
+      "bytes": 2127,
+      "width": 192,
+      "height": 192,
+      "sha256": "5abebc9f3a0a3df49d6f3dd47a95884eba51174f746ad1af2ba466830dbe1c4c"
+    },
+    {
+      "group": "tasks",
+      "id": "TG02",
+      "record": {
+        "evidence": "真实完成的预防保养或随机故障维修单。",
+        "id": "TG02",
+        "metric_labels": {
+          "maintenance_services_purchased": {
+            "text": "已购买维修服务",
+            "unit": "单"
+          },
+          "preventive_maintenance_jobs": {
+            "text": "完成真实设备保养",
+            "unit": "单"
+          },
+          "random_fault_repairs": {
+            "text": "修复实际发生的随机故障",
+            "unit": "单"
+          }
+        },
+        "metrics": [
+          "maintenance_services_purchased",
+          "preventive_maintenance_jobs",
+          "random_fault_repairs"
+        ],
+        "name": "维护清单",
+        "next_step": "从设备维护入口购买实际需要的上门维修或保养服务；完工后维修员离院。",
+        "target_panel": "maintenance"
+      },
+      "name": "维护清单",
+      "source": "content/core/task_guides.json#TG02",
+      "path": "assets/ui/supplements/tasks/tg02.png",
+      "editable": "art-source/production/ui/tasks/tg02.svg",
+      "card": "assets/ui/cards/tasks/tg02.tscn",
+      "bytes": 2521,
+      "width": 192,
+      "height": 192,
+      "sha256": "cf12d6a6829b8e95d5d2548a33506aa44b2f7ed1dded2e56ace86dc98af99869"
+    },
+    {
+      "group": "tasks",
+      "id": "TG03",
+      "record": {
+        "evidence": "在职人数与本人能力实时查询；两项能力目标要求均达到2级，课程委托只计实际医生结课。",
+        "id": "TG03",
+        "metric_labels": {
+          "completed_ability_courses": {
+            "text": "医生实际完成能力课程",
+            "unit": "次"
+          },
+          "doctors_with_two_abilities": {
+            "text": "当前达到目标能力组合的在职医生",
+            "unit": "名"
+          }
+        },
+        "metrics": [
+          "doctors_with_two_abilities",
+          "completed_ability_courses"
+        ],
+        "name": "团队本领",
+        "next_step": "打开招聘或医生培养差项，不代付课程。",
+        "target_panel": "staff"
+      },
+      "name": "团队本领",
+      "source": "content/core/task_guides.json#TG03",
+      "path": "assets/ui/supplements/remodel/rg03.png",
+      "editable": "art-source/production/ui/remodel/rg03.svg",
+      "card": "assets/ui/cards/tasks/tg03.tscn",
+      "bytes": 3517,
+      "width": 192,
+      "height": 192,
+      "sha256": "b0a5c453df7d80f3448459a2f5b164a359c5d0495a95dbc942eb8e997ce19a27"
+    },
+    {
+      "group": "tasks",
+      "id": "TG04",
+      "record": {
+        "evidence": "同一Visit完整连续舒适20秒，不能拼接不同患者。",
+        "id": "TG04",
+        "metric_labels": {
+          "comfortable_visits": {
+            "text": "连续舒适候诊满20秒的独立就诊",
+            "unit": "次"
+          }
+        },
+        "metrics": [
+          "comfortable_visits"
+        ],
+        "name": "舒适的二十秒",
+        "next_step": "找兼容候诊位、环境与饮水缺项。",
+        "target_panel": "facilities"
+      },
+      "name": "舒适的二十秒",
+      "source": "content/core/task_guides.json#TG04",
+      "path": "assets/ui/supplements/tasks/tg04.png",
+      "editable": "art-source/production/ui/tasks/tg04.svg",
+      "card": "assets/ui/cards/tasks/tg04.tscn",
+      "bytes": 3005,
+      "width": 192,
+      "height": 192,
+      "sha256": "9cf7ac95e50f9d31425c677f71d53b6a3bb8ef56ce5453f7d156e72b18688ee0"
+    },
+    {
+      "group": "tasks",
+      "id": "TG05",
+      "record": {
+        "evidence": "友好互动按同一居民对每医院日最多一次；愿望取原故事完成凭据，真实入座与完成演出按原条件计数，预览、近景观看和重播不补进度。",
+        "id": "TG05",
+        "metric_labels": {
+          "completed_stories": {
+            "text": "完成居民愿望",
+            "unit": "条"
+          },
+          "positive_interactions": {
+            "text": "完成友好互动的居民对",
+            "unit": "对"
+          }
+        },
+        "metrics": [
+          "positive_interactions",
+          "completed_stories"
+        ],
+        "name": "邻里小事",
+        "next_step": "安排实际聊天，或打开居民愿望卡查看真实使用、连续停留与当前设施各自还差什么。",
+        "target_panel": "residents"
+      },
+      "name": "邻里小事",
+      "source": "content/core/task_guides.json#TG05",
+      "path": "assets/ui/supplements/history/ht05.png",
+      "editable": "art-source/production/ui/history/ht05.svg",
+      "card": "assets/ui/cards/tasks/tg05.tscn",
+      "bytes": 2196,
+      "width": 192,
+      "height": 192,
+      "sha256": "9c63044486c4d5150b563355a0ec95efd4a097b08cf0205f3607dc30cf356532"
+    },
+    {
+      "group": "tasks",
+      "id": "TG06",
+      "record": {
+        "evidence": "研究完成事实；领取时按实际拥有的1F院地复核。",
+        "id": "TG06",
+        "metric_labels": {
+          "completed_research": {
+            "text": "完成研究",
+            "unit": "项"
+          },
+          "owned_plots": {
+            "text": "当前地面院地",
+            "unit": "块"
+          }
+        },
+        "metrics": [
+          "completed_research",
+          "owned_plots"
+        ],
+        "name": "发展念头",
+        "next_step": "定位研究待办或1F共边可购土地；上层模块不增加地面院地目标。",
+        "target_panel": "growth"
+      },
+      "name": "发展念头",
+      "source": "content/core/task_guides.json#TG06",
+      "path": "assets/ui/supplements/tasks/tg06.png",
+      "editable": "art-source/production/ui/tasks/tg06.svg",
+      "card": "assets/ui/cards/tasks/tg06.tscn",
+      "bytes": 2645,
+      "width": 192,
+      "height": 192,
+      "sha256": "7a4865d68221b51ff768103c96af70d7d27ef199b3cb9005662aa9e30d7676ce"
+    },
+    {
+      "group": "tasks",
+      "id": "TG07",
+      "record": {
+        "evidence": "至少一人在职且全员应付工资已结清的医院日。",
+        "id": "TG07",
+        "metric_labels": {
+          "payroll_days_all_staff_paid": {
+            "text": "全员实际领到到期工资的医院日",
+            "unit": "日"
+          }
+        },
+        "metrics": [
+          "payroll_days_all_staff_paid"
+        ],
+        "name": "大家的发薪日",
+        "next_step": "查看实际在职员工与日末工资账。",
+        "target_panel": "finance"
+      },
+      "name": "大家的发薪日",
+      "source": "content/core/task_guides.json#TG07",
+      "path": "assets/ui/supplements/tasks/tg07.png",
+      "editable": "art-source/production/ui/tasks/tg07.svg",
+      "card": "assets/ui/cards/tasks/tg07.tscn",
+      "bytes": 2579,
+      "width": 192,
+      "height": 192,
+      "sha256": "fb6e8ad0bdb7bde62beed0ae068419789c35275962e6883e1d20fc9912a24a97"
+    },
+    {
+      "group": "tasks",
+      "id": "TG08",
+      "record": {
+        "evidence": "实际脏污完成清扫的唯一工作凭据。",
+        "id": "TG08",
+        "metric_labels": {
+          "cleanup_jobs": {
+            "text": "完成真实脏污清扫",
+            "unit": "单"
+          }
+        },
+        "metrics": [
+          "cleanup_jobs"
+        ],
+        "name": "清爽的一角",
+        "next_step": "定位现有脏物与可达清洁员，不制造新脏污。",
+        "target_panel": "cleaning"
+      },
+      "name": "清爽的一角",
+      "source": "content/core/task_guides.json#TG08",
+      "path": "assets/ui/supplements/tasks/tg08.png",
+      "editable": "art-source/production/ui/tasks/tg08.svg",
+      "card": "assets/ui/cards/tasks/tg08.tscn",
+      "bytes": 2369,
+      "width": 192,
+      "height": 192,
+      "sha256": "d59454d2307d01bb43e9e53eb6286fa01992784ce13ee93c295eba5273d86b19"
+    },
+    {
+      "group": "history",
+      "id": "HT01",
+      "record": {
+        "caption": "又一种烦恼，在这里得到治疗。",
+        "detail_fields": [
+          "resident",
+          "disease",
+          "plan"
+        ],
+        "id": "HT01",
+        "name": "今天少了一种烦恼",
+        "source_captions": {
+          "first_disease_cure": "本院第一次治好了{disease}，这一页记着{resident}。"
+        },
+        "source_kinds": [
+          "first_disease_cure"
+        ]
+      },
+      "name": "今天少了一种烦恼",
+      "source": "content/core/history_templates.json#HT01",
+      "path": "assets/ui/supplements/history/ht01.png",
+      "editable": "art-source/production/ui/history/ht01.svg",
+      "card": "assets/ui/cards/history/ht01.tscn",
+      "bytes": 2127,
+      "width": 192,
+      "height": 192,
+      "sha256": "5abebc9f3a0a3df49d6f3dd47a95884eba51174f746ad1af2ba466830dbe1c4c"
+    },
+    {
+      "group": "history",
+      "id": "HT02",
+      "record": {
+        "caption": "医院多了一处新地方。",
+        "detail_fields": [
+          "location",
+          "completed_day"
+        ],
+        "id": "HT02",
+        "name": "小院又长大一点",
+        "source_captions": {
+          "land_purchased": "新院地：{location}。接下来可以慢慢安排。",
+          "new_floor_completed": "{location}的第一块楼板建成了。新一层，等着安置房间。"
+        },
+        "source_kinds": [
+          "land_purchased",
+          "new_floor_completed"
+        ]
+      },
+      "name": "小院又长大一点",
+      "source": "content/core/history_templates.json#HT02",
+      "path": "assets/ui/supplements/history/ht02.png",
+      "editable": "art-source/production/ui/history/ht02.svg",
+      "card": "assets/ui/cards/history/ht02.tscn",
+      "bytes": 3504,
+      "width": 192,
+      "height": 192,
+      "sha256": "f149be37b0b5889418e0ca7cac9de4aff5fd38cd92564bee79b4e78ca350b5f3"
+    },
+    {
+      "group": "history",
+      "id": "HT03",
+      "record": {
+        "caption": "同一间老房间，有了新位置。",
+        "detail_fields": [
+          "room",
+          "old_location",
+          "new_location"
+        ],
+        "id": "HT03",
+        "name": "老房间的新窗景",
+        "source_captions": {
+          "remodel_applied": "{room}从{old_location}搬到{new_location}。老房间，新位置。"
+        },
+        "source_kinds": [
+          "remodel_applied"
+        ]
+      },
+      "name": "老房间的新窗景",
+      "source": "content/core/history_templates.json#HT03",
+      "path": "assets/ui/supplements/biographies/bio03.png",
+      "editable": "art-source/production/ui/biographies/bio03.svg",
+      "card": "assets/ui/cards/history/ht03.tscn",
+      "bytes": 2993,
+      "width": 192,
+      "height": 192,
+      "sha256": "8ef2db8ff48dc503a9f409352414a66e3a1aa70a9b1ecf4e0d19a43ca2e64692"
+    },
+    {
+      "group": "history",
+      "id": "HT04",
+      "record": {
+        "caption": "今天，医院又学会了一件事。",
+        "detail_fields": [
+          "research",
+          "staff",
+          "growth_tags"
+        ],
+        "id": "HT04",
+        "name": "今天学会一件事",
+        "source_captions": {
+          "research_completed": "研究完成：{research}。新办法写进了医院手册。",
+          "staff_growth": "今天，{staff}有了新进步：{growth_tags}。"
+        },
+        "source_kinds": [
+          "research_completed",
+          "staff_growth"
+        ]
+      },
+      "name": "今天学会一件事",
+      "source": "content/core/history_templates.json#HT04",
+      "path": "assets/ui/supplements/history/ht04.png",
+      "editable": "art-source/production/ui/history/ht04.svg",
+      "card": "assets/ui/cards/history/ht04.tscn",
+      "bytes": 2626,
+      "width": 192,
+      "height": 192,
+      "sha256": "bae48e6e68a246a6f3d4ea3f9ebd90eb54bcc1bf4a067e08cce3839b0063893a"
+    },
+    {
+      "group": "history",
+      "id": "HT05",
+      "record": {
+        "caption": "一次共同参与的活动，留在了这一页。",
+        "detail_fields": [
+          "activity",
+          "participant_count",
+          "core_residents",
+          "variation"
+        ],
+        "id": "HT05",
+        "name": "今天来了这些邻居",
+        "source_captions": {
+          "activity_completed": "{participant_count}位伙伴完成了{activity}，留下同一段经历。"
+        },
+        "source_kinds": [
+          "activity_completed"
+        ]
+      },
+      "name": "今天来了这些邻居",
+      "source": "content/core/history_templates.json#HT05",
+      "path": "assets/ui/supplements/history/ht05.png",
+      "editable": "art-source/production/ui/history/ht05.svg",
+      "card": "assets/ui/cards/history/ht05.tscn",
+      "bytes": 2196,
+      "width": 192,
+      "height": 192,
+      "sha256": "9c63044486c4d5150b563355a0ec95efd4a097b08cf0205f3607dc30cf356532"
+    },
+    {
+      "group": "history",
+      "id": "HT06",
+      "record": {
+        "caption": "一场真实的和解，留在了记录里。",
+        "detail_fields": [
+          "resident_pair",
+          "context"
+        ],
+        "id": "HT06",
+        "name": "把误会留在昨天",
+        "source_captions": {
+          "relationship_reconciled": "{resident_pair}留下了一页和解的记录。"
+        },
+        "source_kinds": [
+          "relationship_reconciled"
+        ]
+      },
+      "name": "把误会留在昨天",
+      "source": "content/core/history_templates.json#HT06",
+      "path": "assets/ui/supplements/history/ht06.png",
+      "editable": "art-source/production/ui/history/ht06.svg",
+      "card": "assets/ui/cards/history/ht06.tscn",
+      "bytes": 2590,
+      "width": 192,
+      "height": 192,
+      "sha256": "9e385511a415dd326ddc2a4edf5c660e099c239af42c5a47004f411aba3b1326"
+    },
+    {
+      "group": "history",
+      "id": "HT07",
+      "record": {
+        "caption": "一件来自居民的小礼物，有自己的来处。",
+        "detail_fields": [
+          "gift",
+          "resident",
+          "credited_staff"
+        ],
+        "id": "HT07",
+        "name": "居民留下的小东西",
+        "source_captions": {
+          "gift_received": "{resident}留下了{gift}。小东西也有自己的来处。"
+        },
+        "source_kinds": [
+          "gift_received"
+        ]
+      },
+      "name": "居民留下的小东西",
+      "source": "content/core/history_templates.json#HT07",
+      "path": "assets/ui/supplements/history/ht07.png",
+      "editable": "art-source/production/ui/history/ht07.svg",
+      "card": "assets/ui/cards/history/ht07.tscn",
+      "bytes": 2174,
+      "width": 192,
+      "height": 192,
+      "sha256": "d1f08c746bdb354231c0d1b2c43ce98486c36f160bb33962b459b969f3fcd6b5"
+    },
+    {
+      "group": "history",
+      "id": "HT08",
+      "record": {
+        "caption": "一个原先盼着的目标，已经达成。",
+        "detail_fields": [
+          "objective",
+          "reward_state"
+        ],
+        "id": "HT08",
+        "name": "那个愿望实现了",
+        "source_captions": {
+          "milestone_completed": "医院完成了{objective}。又走到了一个新的地方。",
+          "story_completed": "{objective}已经实现。这个愿望有了自己的结尾。"
+        },
+        "source_kinds": [
+          "story_completed",
+          "milestone_completed"
+        ]
+      },
+      "name": "那个愿望实现了",
+      "source": "content/core/history_templates.json#HT08",
+      "path": "assets/ui/supplements/biographies/bio08.png",
+      "editable": "art-source/production/ui/biographies/bio08.svg",
+      "card": "assets/ui/cards/history/ht08.tscn",
+      "bytes": 869,
+      "width": 192,
+      "height": 192,
+      "sha256": "5fe5b3fc1a3606abc520738bcbc91b3ae58ae2440aa6c32fa649c38bd1340e7b"
+    },
+    {
+      "group": "finance",
+      "id": "FV01",
+      "record": {
+        "description": "按实际初诊职称诊费、已完成设施使用费、成功治愈费分项；设施可展开检查、门诊、手术与护理床，不叠加旧照护费。",
+        "group": "clinical",
+        "id": "FV01",
+        "name": "诊疗收入",
+        "sources": [
+          "gp",
+          "facility",
+          "cure"
+        ]
+      },
+      "name": "诊疗收入",
+      "source": "content/core/finance_views.json#FV01",
+      "path": "assets/ui/supplements/finance/fv01.png",
+      "editable": "art-source/production/ui/finance/fv01.svg",
+      "card": "assets/ui/cards/finance/fv01.tscn",
+      "bytes": 3197,
+      "width": 192,
+      "height": 192,
+      "sha256": "98061b730d38a09627f9e76159a2568ab5ad8d107dc6de32e7a94c97e716fe07"
+    },
+    {
+      "group": "finance",
+      "id": "FV02",
+      "record": {
+        "description": "完整成本分出医院实付和直接资助，工资覆盖所有岗位。",
+        "group": "operation",
+        "id": "FV02",
+        "name": "日常经营",
+        "sources": [
+          "wages",
+          "operations",
+          "consumables",
+          "maintenance"
+        ]
+      },
+      "name": "日常经营",
+      "source": "content/core/finance_views.json#FV02",
+      "path": "assets/ui/supplements/finance/fv02.png",
+      "editable": "art-source/production/ui/finance/fv02.svg",
+      "card": "assets/ui/cards/finance/fv02.tscn",
+      "bytes": 2351,
+      "width": 192,
+      "height": 192,
+      "sha256": "33b8bb08a51b951ff9a097524f8264e0dc48ee85222bdb8e8387ede8b8fb41de"
+    },
+    {
+      "group": "finance",
+      "id": "FV03",
+      "record": {
+        "description": "为扩建与能力投入的实际费用，不重复扣已经付款的订单。",
+        "group": "development",
+        "id": "FV03",
+        "name": "医院发展",
+        "sources": [
+          "construction",
+          "land",
+          "recruitment",
+          "training",
+          "research",
+          "search",
+          "upgrade",
+          "department_focus",
+          "renovation"
+        ]
+      },
+      "name": "医院发展",
+      "source": "content/core/finance_views.json#FV03",
+      "path": "assets/ui/supplements/context/cl03.png",
+      "editable": "art-source/production/ui/context/cl03.svg",
+      "card": "assets/ui/cards/finance/fv03.tscn",
+      "bytes": 2566,
+      "width": 192,
+      "height": 192,
+      "sha256": "455ace233c3650a63891d322f6c0d45f22ad59f735eb0709c53f074ee15d1c71"
+    },
+    {
+      "group": "finance",
+      "id": "FV04",
+      "record": {
+        "description": "已到账现金独列；未领奖励不是可用余额。",
+        "group": "grant",
+        "id": "FV04",
+        "name": "补助与奖励",
+        "sources": [
+          "subsidy",
+          "task_reward"
+        ]
+      },
+      "name": "补助与奖励",
+      "source": "content/core/finance_views.json#FV04",
+      "path": "assets/ui/supplements/finance/fv04.png",
+      "editable": "art-source/production/ui/finance/fv04.svg",
+      "card": "assets/ui/cards/finance/fv04.tscn",
+      "bytes": 858,
+      "width": 192,
+      "height": 192,
+      "sha256": "57fc251c7fb077801884c333a2d397ed4b9ec591bf5bcefd0fe79069b4528ec1"
+    },
+    {
+      "group": "finance",
+      "id": "FV05",
+      "record": {
+        "description": "链接原交易，不把退款当诊疗营业收入。",
+        "group": "refund",
+        "id": "FV05",
+        "name": "退款",
+        "sources": [
+          "refund"
+        ]
+      },
+      "name": "退款",
+      "source": "content/core/finance_views.json#FV05",
+      "path": "assets/ui/supplements/finance/fv05.png",
+      "editable": "art-source/production/ui/finance/fv05.svg",
+      "card": "assets/ui/cards/finance/fv05.tscn",
+      "bytes": 3493,
+      "width": 192,
+      "height": 192,
+      "sha256": "bc48492133e97e348b5e32162779be246eaf61e6d1f0d47c1d9fbb76e989ef1c"
+    },
+    {
+      "group": "finance",
+      "id": "FV06",
+      "record": {
+        "description": "只覆盖对应实际支出，不进入可花现金。",
+        "group": "direct_support",
+        "id": "FV06",
+        "name": "直接资助",
+        "sources": [
+          "community_aid",
+          "creative_fund"
+        ]
+      },
+      "name": "直接资助",
+      "source": "content/core/finance_views.json#FV06",
+      "path": "assets/ui/supplements/finance/fv06.png",
+      "editable": "art-source/production/ui/finance/fv06.svg",
+      "card": "assets/ui/cards/finance/fv06.tscn",
+      "bytes": 1043,
+      "width": 192,
+      "height": 192,
+      "sha256": "9e1b7688ce61879f07a626e6ae960ff7a8c8bd308c8c4decc42bd9909c69c70a"
+    },
+    {
+      "group": "chairs",
+      "id": "CS01",
+      "record": {
+        "capacity": 1,
+        "card": "候诊时轻轻摇一会儿，让患者平静一些；每次就诊生效一次。",
+        "definition_id": "FUR49",
+        "effect": "patient_calm_once",
+        "effect_scene": "患者真实候诊坐姿累计时，靠背的小笑脸逐渐放松；本Visit达到一次安抚条件后笑脸停成舒缓姿态，不再重复亮起奖励。",
+        "fit_profile_id": "FF05",
+        "footprint": [
+          1,
+          1
+        ],
+        "id": "CS01",
+        "low_motion_scene": "按原坐姿计时显示等待小点或已安抚笑脸，是否生效仍取原Visit凭据。",
+        "name": "轻摇安抚椅",
+        "ordinary_scene": "空椅、访客或员工使用时只作普通轻摇；本Visit已用过安抚时保持普通坐姿，不另起进度。",
+        "parameters": {
+          "anger_reduction": 3,
+          "continuous_seated_seconds": 20
+        },
+        "price": 180,
+        "scene": "椅脚在实际底座内轻摇，靠背的小笑脸也慢慢放松。"
+      },
+      "name": "轻摇安抚椅",
+      "source": "content/core/chair_variants.json#CS01",
+      "path": "assets/ui/supplements/chairs/cs01.png",
+      "editable": "art-source/production/ui/chairs/cs01.svg",
+      "bytes": 3204,
+      "width": 192,
+      "height": 192,
+      "sha256": "5ffb74bb503e8f212af0b2f67a8b45cff2e99709f4b1e9f87f886a1f8e801d4d"
+    },
+    {
+      "group": "chairs",
+      "id": "CS02",
+      "record": {
+        "capacity": 1,
+        "card": "患者坐着时，少受设备和施工噪声打扰，叫号仍看得清。",
+        "definition_id": "FUR50",
+        "effect": "patient_noise_anger_multiplier",
+        "effect_scene": "占座患者确实受到设备或施工噪声时，罩外的大声纹在罩边变成较小声纹；号签始终清楚可见。",
+        "fit_profile_id": "FF05",
+        "footprint": [
+          1,
+          1
+        ],
+        "id": "CS02",
+        "low_motion_scene": "两组静态声纹表示仅削弱当前噪声分量；安静时不显示声纹。",
+        "name": "静音罩椅",
+        "ordinary_scene": "没有对应噪声、没有患者占座时只有透明罩与普通座位，不显示心情下降或累计奖励。",
+        "parameters": {
+          "multiplier": 0.5
+        },
+        "price": 220,
+        "scene": "透明小罩在合法空间内合拢，外面的咚咚声变成罩上轻轻跳动的小点。"
+      },
+      "name": "静音罩椅",
+      "source": "content/core/chair_variants.json#CS02",
+      "path": "assets/ui/supplements/chairs/cs02.png",
+      "editable": "art-source/production/ui/chairs/cs02.svg",
+      "bytes": 2623,
+      "width": 192,
+      "height": 192,
+      "sha256": "a13b822212faec7f650cfd5ed53f98c411ea4ac709996b363e627b043a83a105"
+    },
+    {
+      "group": "chairs",
+      "id": "CS03",
+      "record": {
+        "capacity": 1,
+        "card": "员工清醒休息时更容易放松，减压快于普通椅。",
+        "definition_id": "FUR51",
+        "effect": "staff_rest_stress_rate",
+        "effect_scene": "员工在员工区清醒短休时，小书架展开，书中枕头图案随着真实减压轻轻舒展；压力到0便保持平静构图。",
+        "fit_profile_id": "FF05",
+        "footprint": [
+          1,
+          1
+        ],
+        "id": "CS03",
+        "low_motion_scene": "打开的书页与清醒短休标记；恢复量取原压力变化，不翻页闪烁。",
+        "name": "翻页阅览椅",
+        "ordinary_scene": "患者、访客或不在短休状态的员工只作普通坐席，书架保持日常阅读姿态，不显示员工恢复标记。",
+        "parameters": {
+          "per_second": 0.04
+        },
+        "price": 200,
+        "scene": "椅背翻出可合身阅读的小书架；翻页时，书里的枕头图案先伸个懒腰。"
+      },
+      "name": "翻页阅览椅",
+      "source": "content/core/chair_variants.json#CS03",
+      "path": "assets/ui/supplements/chairs/cs03.png",
+      "editable": "art-source/production/ui/chairs/cs03.svg",
+      "bytes": 2228,
+      "width": 192,
+      "height": 192,
+      "sha256": "a5f9cf39653c67eaa786e3d317e307b39c29a2361e0b66b6d0b2c043774cfb11"
+    },
+    {
+      "group": "chairs",
+      "id": "CS04",
+      "record": {
+        "capacity": 1,
+        "card": "员工清醒短休时更快恢复活力，到了睡觉时间仍需员工床。",
+        "definition_id": "FUR52",
+        "effect": "staff_rest_energy_rate",
+        "effect_scene": "员工实际短休时，合身承托伸入已预约空间，靠背小刻度随真实能量恢复推进，达到原休息终点便准备返岗。",
+        "fit_profile_id": "FF05",
+        "footprint": [
+          1,
+          2
+        ],
+        "id": "CS04",
+        "low_motion_scene": "稳定承托与当前能量刻度；无腿身体使用自身承托面，不额外长出腿。",
+        "name": "伸腿活力椅",
+        "ordinary_scene": "非员工短休状态只作普通座位；能量已满不继续播放充能循环，不出现睡眠已完成标记。",
+        "parameters": {
+          "per_second": 1.2
+        },
+        "price": 240,
+        "scene": "脚托或身体承托沿真实已预留区域伸出，靠背小牌写着先把身体歇好。"
+      },
+      "name": "伸腿活力椅",
+      "source": "content/core/chair_variants.json#CS04",
+      "path": "assets/ui/supplements/chairs/cs04.png",
+      "editable": "art-source/production/ui/chairs/cs04.svg",
+      "bytes": 2167,
+      "width": 192,
+      "height": 192,
+      "sha256": "d41f39b21c142274ac4a6a8e8264e4bdb464287517c83bb894fdae41244f1b3e"
+    },
+    {
+      "group": "cleanup",
+      "id": "CL01",
+      "record": {
+        "bin_collects": false,
+        "id": "CL01",
+        "idle_scene": "散物翘起一角，水迹留着一个小逗号般的边缘；各自保持来源事件的脏物外形和原位置。",
+        "interrupted_scene": "软口清洁头停下，尚未收净的散物或水迹继续留在原污物格；工具离开不会带走未完成的垃圾。",
+        "low_motion_scene": "来源对应的原地污物、部分收拢和真正干净三态；未完成保持待清理图标，不把水迹画成纸屑。",
+        "name": "事件散物",
+        "scene": "清洁员的软口清洁头沿原污物边缘收拢，最后一片散物或一滴水在工具边轻轻一顿；真正完成后才消失。",
+        "source": "incident",
+        "uses_per_patch": null,
+        "work_seconds": 4
+      },
+      "name": "事件散物",
+      "source": "content/core/cleanup_sources.json#CL01",
+      "path": "assets/ui/supplements/cleanup/cl01.png",
+      "editable": "art-source/production/ui/cleanup/cl01.svg",
+      "bytes": 2022,
+      "width": 192,
+      "height": 192,
+      "sha256": "7ccd0ab24499e04fba584e61a1fe868e32a4337304ead01f20730edfb134946c"
+    },
+    {
+      "group": "cleanup",
+      "id": "CL02",
+      "record": {
+        "bin_collects": true,
+        "id": "CL02",
+        "idle_scene": "杯套折出一顶歪小帽，安静留在原地；在桶里时只露出相同的小帽边。",
+        "interrupted_scene": "小帽停在清洁工具旁，仍显示原待清理任务；工作人员离开不会带走半张杯套。",
+        "low_motion_scene": "小帽、工具接触与清空三态；桶内任务未完成时纸边仍可见。",
+        "name": "饮水杯套",
+        "scene": "杯套折成一顶小帽，扫帚一抬它便礼貌鞠躬。",
+        "source": "water_completed",
+        "uses_per_patch": 6,
+        "work_seconds": 4
+      },
+      "name": "饮水杯套",
+      "source": "content/core/cleanup_sources.json#CL02",
+      "path": "assets/ui/supplements/cleanup/cl02.png",
+      "editable": "art-source/production/ui/cleanup/cl02.svg",
+      "bytes": 2296,
+      "width": 192,
+      "height": 192,
+      "sha256": "9d8211080e2508fefc9ed688bffb6fbae1a65476114103b5c5f3aa3dd121ea1a"
+    },
+    {
+      "group": "cleanup",
+      "id": "CL03",
+      "record": {
+        "bin_collects": false,
+        "id": "CL03",
+        "idle_scene": "水印像一个写歪的逗号，反光点恰好落在尾巴上；范围保持原污渍格。",
+        "interrupted_scene": "拖把停下后逗号保持尚未擦净的姿态，剩余水印不会随动画淡出。",
+        "low_motion_scene": "逗号水印、擦拭中和真正干净三态，无需闪光或快速水波。",
+        "name": "厕所水印",
+        "scene": "水印被拖把追成一个逗号，最后被点成句号。",
+        "source": "toilet_completed",
+        "uses_per_patch": 8,
+        "work_seconds": 6
+      },
+      "name": "厕所水印",
+      "source": "content/core/cleanup_sources.json#CL03",
+      "path": "assets/ui/supplements/biographies/bio03.png",
+      "editable": "art-source/production/ui/biographies/bio03.svg",
+      "bytes": 2993,
+      "width": 192,
+      "height": 192,
+      "sha256": "8ef2db8ff48dc503a9f409352414a66e3a1aa70a9b1ecf4e0d19a43ca2e64692"
+    },
+    {
+      "group": "cleanup",
+      "id": "CL04",
+      "record": {
+        "bin_collects": true,
+        "id": "CL04",
+        "idle_scene": "包装纸把印着箭头的那一角折起来，像举着“我在这里”小旗；不冒充未拆治疗包。",
+        "interrupted_scene": "折好的半边保持原位，另一边仍摊开；清洁员回来从原余量继续，不重新展开一整张。",
+        "low_motion_scene": "包装小旗、半折状态和清空三态；图标明确是废包装而非可用库存。",
+        "name": "治疗包装",
+        "scene": "包装纸先站得笔直，遇到簸箕又乖乖折好。",
+        "source": "outpatient_completed",
+        "uses_per_patch": 8,
+        "work_seconds": 6
+      },
+      "name": "治疗包装",
+      "source": "content/core/cleanup_sources.json#CL04",
+      "path": "assets/ui/supplements/cleanup/cl04.png",
+      "editable": "art-source/production/ui/cleanup/cl04.svg",
+      "bytes": 2573,
+      "width": 192,
+      "height": 192,
+      "sha256": "b41602f217b816591427c5d685e1342d28d8dac46de2b250242871440335adf0"
+    },
+    {
+      "group": "blueprints",
+      "id": "BP01",
+      "name": "慢慢问诊屋",
+      "record": {
+        "description": "带初诊台的起始问诊布局，观察叫号、进门与医生位置。",
+        "id": "BP01",
+        "name": "慢慢问诊屋",
+        "source_id": "room_gp",
+        "source_type": "starter_room"
+      },
+      "source": "content/core/blueprint_presets.json#BP01",
+      "path": "assets/ui/supplements/blueprints/bp01.png",
+      "editable": "art-source/production/ui/blueprints/bp01.svg",
+      "card": "assets/ui/cards/blueprints/bp01.tscn",
+      "layout": {
+        "source_id": "room_gp",
+        "size": [
+          4,
+          4
+        ],
+        "objects": 1,
+        "semantic": "authored layout diagram; placement still uses current game validation"
+      },
+      "bytes": 1723,
+      "width": 256,
+      "height": 192,
+      "sha256": "72d592f40235a846d5cf28457e3323deb245f406382250c4c91b0c782911a3e9"
+    },
+    {
+      "group": "blueprints",
+      "id": "BP02",
+      "name": "伸懒腰整复室",
+      "record": {
+        "description": "带整复台的起始布局，同一设备自动切换已解锁病例演出。",
+        "id": "BP02",
+        "name": "伸懒腰整复室",
+        "source_id": "room_physical",
+        "source_type": "starter_room"
+      },
+      "source": "content/core/blueprint_presets.json#BP02",
+      "path": "assets/ui/supplements/blueprints/bp02.png",
+      "editable": "art-source/production/ui/blueprints/bp02.svg",
+      "card": "assets/ui/cards/blueprints/bp02.tscn",
+      "layout": {
+        "source_id": "room_physical",
+        "size": [
+          6,
+          6
+        ],
+        "objects": 1,
+        "semantic": "authored layout diagram; placement still uses current game validation"
+      },
+      "bytes": 1782,
+      "width": 256,
+      "height": 192,
+      "sha256": "62f729886afd69e5cb6fbdd6ef7242e83e4a5904b2c800de31d9f87a1017cda9"
+    },
+    {
+      "group": "blueprints",
+      "id": "BP03",
+      "name": "日常小诊室",
+      "record": {
+        "description": "带调理舱的起始布局，喷嚏回收等不同演出共享同一设备等级。",
+        "id": "BP03",
+        "name": "日常小诊室",
+        "source_id": "room_daily",
+        "source_type": "starter_room"
+      },
+      "source": "content/core/blueprint_presets.json#BP03",
+      "path": "assets/ui/supplements/blueprints/bp03.png",
+      "editable": "art-source/production/ui/blueprints/bp03.svg",
+      "card": "assets/ui/cards/blueprints/bp03.tscn",
+      "layout": {
+        "source_id": "room_daily",
+        "size": [
+          5,
+          5
+        ],
+        "objects": 1,
+        "semantic": "authored layout diagram; placement still uses current game validation"
+      },
+      "bytes": 1769,
+      "width": 256,
+      "height": 192,
+      "sha256": "a70b5ffb3c06657ac3e816809d89111e54c1e8aac53d8100528a6a1561b9c2f5"
+    },
+    {
+      "group": "blueprints",
+      "id": "BP04",
+      "name": "普通手术室",
+      "record": {
+        "description": "普通人类团队与不超过2格患者的临床布局示例，资格与同层病床另查。",
+        "id": "BP04",
+        "name": "普通手术室",
+        "source_id": "or_standard",
+        "source_type": "clinical_layout"
+      },
+      "source": "content/core/blueprint_presets.json#BP04",
+      "path": "assets/ui/supplements/blueprints/bp04.png",
+      "editable": "art-source/production/ui/blueprints/bp04.svg",
+      "card": "assets/ui/cards/blueprints/bp04.tscn",
+      "layout": {
+        "source_id": "or_standard",
+        "size": [
+          8,
+          8
+        ],
+        "objects": 1,
+        "semantic": "authored layout diagram; placement still uses current game validation"
+      },
+      "bytes": 1917,
+      "width": 256,
+      "height": 192,
+      "sha256": "0b34a8a5df8e914ebe30e409249b1034bf92793b8330f349cde98c5b1b1b1564"
+    },
+    {
+      "group": "blueprints",
+      "id": "BP05",
+      "name": "巨型手术室",
+      "record": {
+        "description": "包含3格患者承托与通路的临床布局示例，仍检查真实净高与员工体型。",
+        "id": "BP05",
+        "name": "巨型手术室",
+        "source_id": "or_giant",
+        "source_type": "clinical_layout"
+      },
+      "source": "content/core/blueprint_presets.json#BP05",
+      "path": "assets/ui/supplements/blueprints/bp05.png",
+      "editable": "art-source/production/ui/blueprints/bp05.svg",
+      "card": "assets/ui/cards/blueprints/bp05.tscn",
+      "layout": {
+        "source_id": "or_giant",
+        "size": [
+          10,
+          10
+        ],
+        "objects": 1,
+        "semantic": "authored layout diagram; placement still uses current game validation"
+      },
+      "bytes": 2187,
+      "width": 256,
+      "height": 192,
+      "sha256": "d269e0d33a1c3655e6f32951e0320ab418b799a9cb43cf6e895a41ff4e1f3b49"
+    },
+    {
+      "group": "blueprints",
+      "id": "BP06",
+      "name": "双床安心病房",
+      "record": {
+        "description": "两张自带监护与照护卡的护理床，共享病区护士实际覆盖。",
+        "id": "BP06",
+        "name": "双床安心病房",
+        "source_id": "ward_two_beds",
+        "source_type": "clinical_layout"
+      },
+      "source": "content/core/blueprint_presets.json#BP06",
+      "path": "assets/ui/supplements/blueprints/bp06.png",
+      "editable": "art-source/production/ui/blueprints/bp06.svg",
+      "card": "assets/ui/cards/blueprints/bp06.tscn",
+      "layout": {
+        "source_id": "ward_two_beds",
+        "size": [
+          8,
+          8
+        ],
+        "objects": 3,
+        "semantic": "authored layout diagram; placement still uses current game validation"
+      },
+      "bytes": 2765,
+      "width": 256,
+      "height": 192,
+      "sha256": "d34fb04d494daa5ca126602eec3a214a62c6c189d7c536e6e5d14031e0a5387b"
+    },
+    {
+      "group": "blueprints",
+      "id": "BP07",
+      "name": "大个子安心病房",
+      "record": {
+        "description": "巨型病床与护理操作区的临床布局示例。",
+        "id": "BP07",
+        "name": "大个子安心病房",
+        "source_id": "ward_giant",
+        "source_type": "clinical_layout"
+      },
+      "source": "content/core/blueprint_presets.json#BP07",
+      "path": "assets/ui/supplements/blueprints/bp07.png",
+      "editable": "art-source/production/ui/blueprints/bp07.svg",
+      "card": "assets/ui/cards/blueprints/bp07.tscn",
+      "layout": {
+        "source_id": "ward_giant",
+        "size": [
+          10,
+          10
+        ],
+        "objects": 2,
+        "semantic": "authored layout diagram; placement still uses current game validation"
+      },
+      "bytes": 2491,
+      "width": 256,
+      "height": 192,
+      "sha256": "7ba29c0968edbf60fa9d2f0d1660fe48fa33abcfbc580511f0190e35b5afd0be"
+    },
+    {
+      "group": "blueprints",
+      "id": "BP08",
+      "name": "双床员工休息室",
+      "record": {
+        "description": "复用起始两张小憩床与短休沙发，共享使用；预览目标职员卧姿与出入路线，按需要扩大房间。",
+        "id": "BP08",
+        "name": "双床员工休息室",
+        "source_id": "room_rest",
+        "source_type": "starter_room"
+      },
+      "source": "content/core/blueprint_presets.json#BP08",
+      "path": "assets/ui/supplements/blueprints/bp08.png",
+      "editable": "art-source/production/ui/blueprints/bp08.svg",
+      "card": "assets/ui/cards/blueprints/bp08.tscn",
+      "layout": {
+        "source_id": "room_rest",
+        "size": [
+          4,
+          4
+        ],
+        "objects": 3,
+        "semantic": "authored layout diagram; placement still uses current game validation"
+      },
+      "bytes": 2206,
+      "width": 256,
+      "height": 192,
+      "sha256": "8c344c27f04e98f0031bd6151505f9be523c73dc4f146915dd6b6d0b3a2876a0"
+    },
+    {
+      "group": "blueprints",
+      "id": "BP09",
+      "name": "共享医生办公室",
+      "record": {
+        "description": "复用起始办公桌与独立门，医生轮流整理待办；可加桌扩容，不逐人分办公室。",
+        "id": "BP09",
+        "name": "共享医生办公室",
+        "source_id": "room_doctor_office",
+        "source_type": "starter_room"
+      },
+      "source": "content/core/blueprint_presets.json#BP09",
+      "path": "assets/ui/supplements/blueprints/bp09.png",
+      "editable": "art-source/production/ui/blueprints/bp09.svg",
+      "card": "assets/ui/cards/blueprints/bp09.tscn",
+      "layout": {
+        "source_id": "room_doctor_office",
+        "size": [
+          4,
+          4
+        ],
+        "objects": 1,
+        "semantic": "authored layout diagram; placement still uses current game validation"
+      },
+      "bytes": 1883,
+      "width": 256,
+      "height": 192,
+      "sha256": "e71f12d8bda94a9e8dc2b47fe9c4936ea573e26134e58327e5f35da5a66f2549"
+    },
+    {
+      "group": "roles",
+      "id": "cleaner",
+      "name": "清洁员",
+      "record": {
+        "name": "清洁员"
+      },
+      "source": "content/core/staff_rig_adapters.json#roles/cleaner",
+      "path": "assets/ui/supplements/roles/cleaner.png",
+      "editable": "art-source/production/ui/render_role_portraits.gd",
+      "card": "assets/ui/cards/roles/cleaner.tscn",
+      "bytes": 4970,
+      "width": 192,
+      "height": 192,
+      "sha256": "8242a4733456defa7732cd0e7d2820dbd15f2af273a09aa285777150723a7e81"
+    },
+    {
+      "group": "roles",
+      "id": "decorator",
+      "name": "装修工",
+      "record": {
+        "name": "装修工"
+      },
+      "source": "content/core/staff_rig_adapters.json#roles/decorator",
+      "path": "assets/ui/supplements/roles/decorator.png",
+      "editable": "art-source/production/ui/render_role_portraits.gd",
+      "card": "assets/ui/cards/roles/decorator.tscn",
+      "bytes": 4794,
+      "width": 192,
+      "height": 192,
+      "sha256": "3584f71586984e78cf4fc2cc23a6ed9edc34f8d97563c6264f482ea4ad34b8c4"
+    },
+    {
+      "group": "roles",
+      "id": "doctor",
+      "name": "医生",
+      "record": {
+        "name": "医生"
+      },
+      "source": "content/core/staff_rig_adapters.json#roles/doctor",
+      "path": "assets/ui/supplements/roles/doctor.png",
+      "editable": "art-source/production/ui/render_role_portraits.gd",
+      "card": "assets/ui/cards/roles/doctor.tscn",
+      "bytes": 5054,
+      "width": 192,
+      "height": 192,
+      "sha256": "77ae4cc6fd8a0133e1998f230e85d03c67727728b7cf80f816cba892a0157254"
+    },
+    {
+      "group": "roles",
+      "id": "mechanic",
+      "name": "维修员",
+      "record": {
+        "name": "维修员"
+      },
+      "source": "content/core/staff_rig_adapters.json#roles/mechanic",
+      "path": "assets/ui/supplements/roles/mechanic.png",
+      "editable": "art-source/production/ui/render_role_portraits.gd",
+      "card": "assets/ui/cards/roles/mechanic.tscn",
+      "bytes": 4900,
+      "width": 192,
+      "height": 192,
+      "sha256": "1bb98e9aadcd6848f53d680438a58dfc813deb5687bf035314930e04fbb431ad"
+    },
+    {
+      "group": "roles",
+      "id": "nurse",
+      "name": "护士",
+      "record": {
+        "name": "护士"
+      },
+      "source": "content/core/staff_rig_adapters.json#roles/nurse",
+      "path": "assets/ui/supplements/roles/nurse.png",
+      "editable": "art-source/production/ui/render_role_portraits.gd",
+      "card": "assets/ui/cards/roles/nurse.tscn",
+      "bytes": 4922,
+      "width": 192,
+      "height": 192,
+      "sha256": "2fa9e4366cfa3a2ed77580a3b6cbb25a961f10bfa201aefcd0f138a1d16a485a"
+    },
+    {
+      "group": "roles",
+      "id": "receptionist",
+      "name": "接待员",
+      "record": {
+        "name": "接待员"
+      },
+      "source": "content/core/staff_rig_adapters.json#roles/receptionist",
+      "path": "assets/ui/supplements/roles/receptionist.png",
+      "editable": "art-source/production/ui/render_role_portraits.gd",
+      "card": "assets/ui/cards/roles/receptionist.tscn",
+      "bytes": 5013,
+      "width": 192,
+      "height": 192,
+      "sha256": "436368c0e4d66e4733d51e19881865deebb5aaa9f00a1a8b3ec788f104f2b7c7"
+    },
+    {
+      "group": "roles",
+      "id": "researcher",
+      "name": "研究员",
+      "record": {
+        "name": "研究员"
+      },
+      "source": "content/core/staff_rig_adapters.json#roles/researcher",
+      "path": "assets/ui/supplements/roles/researcher.png",
+      "editable": "art-source/production/ui/render_role_portraits.gd",
+      "card": "assets/ui/cards/roles/researcher.tscn",
+      "bytes": 4799,
+      "width": 192,
+      "height": 192,
+      "sha256": "a33143d6305fae0fd2a41990c2a8de9cb18a17d9ab6f9d9b8739d56fc83d5c31"
+    },
+    {
+      "group": "professions",
+      "id": "ordinary",
+      "name": "普通居民",
+      "record": {},
+      "source": "docs/design/02-content.md#职业基础分布",
+      "path": "assets/ui/supplements/professions/ordinary.png",
+      "editable": "art-source/production/ui/professions/ordinary.svg",
+      "bytes": 2363,
+      "width": 192,
+      "height": 192,
+      "sha256": "57028f148b0ac2cf42541ff6aa6b0c521bfde488d016909e35a93eeb9fa4f279"
+    },
+    {
+      "group": "professions",
+      "id": "gardener",
+      "name": "园艺师",
+      "record": {},
+      "source": "docs/design/02-content.md#职业基础分布",
+      "path": "assets/ui/supplements/professions/gardener.png",
+      "editable": "art-source/production/ui/professions/gardener.svg",
+      "bytes": 2987,
+      "width": 192,
+      "height": 192,
+      "sha256": "48cf44cb1591bd818f5a4e7dfdc4655a2692e321ffe16858233f1ca6084a3f74"
+    },
+    {
+      "group": "professions",
+      "id": "mage",
+      "name": "法师",
+      "record": {},
+      "source": "docs/design/02-content.md#职业基础分布",
+      "path": "assets/ui/supplements/professions/mage.png",
+      "editable": "art-source/production/ui/professions/mage.svg",
+      "bytes": 2112,
+      "width": 192,
+      "height": 192,
+      "sha256": "50fd24ac2ba703ee7c5ceb0ee51dffbbbc63703db4ba90284fcbeaa8336e649e"
+    },
+    {
+      "group": "professions",
+      "id": "priest",
+      "name": "牧师",
+      "record": {},
+      "source": "docs/design/02-content.md#职业基础分布",
+      "path": "assets/ui/supplements/professions/priest.png",
+      "editable": "art-source/production/ui/professions/priest.svg",
+      "bytes": 2196,
+      "width": 192,
+      "height": 192,
+      "sha256": "286405c81859f65d0e3d2d4720db07c7e43734e044b01365e40280ef74a9377b"
+    },
+    {
+      "group": "professions",
+      "id": "merchant",
+      "name": "商贩",
+      "record": {},
+      "source": "docs/design/02-content.md#职业基础分布",
+      "path": "assets/ui/supplements/professions/merchant.png",
+      "editable": "art-source/production/ui/professions/merchant.svg",
+      "bytes": 2263,
+      "width": 192,
+      "height": 192,
+      "sha256": "a747685eee05223dc69e75ecdfafc731aed4c50824564afc0cdd2187f5001ee5"
+    },
+    {
+      "group": "professions",
+      "id": "performer",
+      "name": "表演者",
+      "record": {},
+      "source": "docs/design/02-content.md#职业基础分布",
+      "path": "assets/ui/supplements/professions/performer.png",
+      "editable": "art-source/production/ui/professions/performer.svg",
+      "bytes": 3280,
+      "width": 192,
+      "height": 192,
+      "sha256": "ee68fa36e7755e948fce6e0c1bede56b149a2b16e4ce9566117b632f1f9db889"
+    },
+    {
+      "group": "results",
+      "id": "MP01_diagnosis_confirmed",
+      "name": "线索够了，准备选择方案",
+      "record": {
+        "label": "线索够了，准备选择方案",
+        "low_motion_scene": "已归档线索与确诊标记并列，后续方案仍显示当前真实状态。",
+        "scene": "真实证据达到门槛，线索夹合好；空白卡把一枚问号收进夹内，确诊标记随后亮起。",
+        "state": "diagnosis_confirmed"
+      },
+      "source": "content/core/medical_progress_cues.json#MP01/result_scenes/diagnosis_confirmed",
+      "path": "assets/ui/supplements/results/mp01_diagnosis_confirmed.png",
+      "editable": "art-source/production/ui/results/mp01_diagnosis_confirmed.svg",
+      "bytes": 3764,
+      "width": 192,
+      "height": 192,
+      "sha256": "fca59d6c142467bc1d89b38c57fa7629632f60a92235b0d6e83eaec064c53ebf"
+    },
+    {
+      "group": "results",
+      "id": "MP01_more_evidence",
+      "name": "已有线索，还需必要检查",
+      "record": {
+        "label": "已有线索，还需必要检查",
+        "low_motion_scene": "已取得线索与待检查空格静止并列，保留未确诊说明。",
+        "scene": "实际取得的线索卡排好，空白卡给未完成检查留出位置；问号书签认真站在空格边，不盖病名章。",
+        "state": "more_evidence"
+      },
+      "source": "content/core/medical_progress_cues.json#MP01/result_scenes/more_evidence",
+      "path": "assets/ui/supplements/results/mp01_more_evidence.png",
+      "editable": "art-source/production/ui/results/mp01_more_evidence.svg",
+      "bytes": 3831,
+      "width": 192,
+      "height": 192,
+      "sha256": "425327101c5bd2f3e9ed41aed67bd8eae42116d50918f0fcc80c81ecb0d8f99c"
+    },
+    {
+      "group": "results",
+      "id": "MP02_cured",
+      "name": "这次已奏效，准备离位",
+      "record": {
+        "label": "这次已奏效，准备离位",
+        "low_motion_scene": "理直的定位尺与真实治愈标记定格，患者保留本病例合法康复姿态。",
+        "scene": "真实治愈后，定位尺把自己的小结也理直，备用梳子向已归位工具微微鞠躬；患者使用本病例康复动作。",
+        "state": "cured"
+      },
+      "source": "content/core/medical_progress_cues.json#MP02/result_scenes/cured",
+      "path": "assets/ui/supplements/results/mp01_diagnosis_confirmed.png",
+      "editable": "art-source/production/ui/results/mp01_diagnosis_confirmed.svg",
+      "bytes": 3764,
+      "width": 192,
+      "height": 192,
+      "sha256": "fca59d6c142467bc1d89b38c57fa7629632f60a92235b0d6e83eaec064c53ebf"
+    },
+    {
+      "group": "results",
+      "id": "MP02_retry_ready",
+      "name": "这次没奏效，仍可再试一次",
+      "record": {
+        "label": "这次没奏效，仍可再试一次",
+        "low_motion_scene": "定位尺停在下一页旁，保留首次未奏效与实际下一步说明。",
+        "scene": "定位尺认真对照下一页，备用梳子发现自己拿反了检查牌并转正；医生说明真实结果，患者症状保留。",
+        "state": "retry_ready"
+      },
+      "source": "content/core/medical_progress_cues.json#MP02/result_scenes/retry_ready",
+      "path": "assets/ui/supplements/results/mp02_retry_ready.png",
+      "editable": "art-source/production/ui/results/mp02_retry_ready.svg",
+      "bytes": 4184,
+      "width": 192,
+      "height": 192,
+      "sha256": "93c82f6ff10a1ab5d301b10c2cbe2cb524c1efd35f53b416d25d7e7c6d3f10b5"
+    },
+    {
+      "group": "results",
+      "id": "MP02_final_failure",
+      "name": "两次已完成，安排友好转诊",
+      "record": {
+        "label": "两次已完成，安排友好转诊",
+        "low_motion_scene": "收好的工具与实际转诊说明并列，患者仍用未治愈症状姿态。",
+        "scene": "定位尺把再试小签收回工具槽，露出转诊记录的索引页；梳子端正待命，不再招呼第三次治疗。",
+        "state": "final_failure"
+      },
+      "source": "content/core/medical_progress_cues.json#MP02/result_scenes/final_failure",
+      "path": "assets/ui/supplements/results/mp02_final_failure.png",
+      "editable": "art-source/production/ui/results/mp02_final_failure.svg",
+      "bytes": 3879,
+      "width": 192,
+      "height": 192,
+      "sha256": "bab58b7f9f0ea4078365650f71ba693d9a998d8f0965f039dd974633445fed30"
+    },
+    {
+      "group": "results",
+      "id": "MP02_awaiting_recovery",
+      "name": "操作完成，还需观察与查房",
+      "record": {
+        "label": "操作完成，还需观察与查房",
+        "low_motion_scene": "归位夹具和中性观察书签定格，后续床位与照护按真实状态显示。",
+        "scene": "夹具安全归位，量尺给当前病例卡夹上中性观察书签；保留承托，不举康复章。",
+        "state": "awaiting_recovery"
+      },
+      "source": "content/core/medical_progress_cues.json#MP02/result_scenes/awaiting_recovery",
+      "path": "assets/ui/supplements/results/mp02_awaiting_recovery.png",
+      "editable": "art-source/production/ui/results/mp02_awaiting_recovery.svg",
+      "bytes": 3358,
+      "width": 192,
+      "height": 192,
+      "sha256": "985c1b44816486aa6f29a38b1bf5f856c01be9bbcce1d5dc90153ae080f84284"
+    },
+    {
+      "group": "results",
+      "id": "MP03_cured",
+      "name": "这次已奏效，准备离位",
+      "record": {
+        "label": "这次已奏效，准备离位",
+        "low_motion_scene": "稳定灯环与实际治愈说明并列，不用闪光代替结果。",
+        "scene": "真实治愈时，灯环的句号端正落位，最后一颗节拍球向队尾的小空格点头；患者接本病例康复动作。",
+        "state": "cured"
+      },
+      "source": "content/core/medical_progress_cues.json#MP03/result_scenes/cured",
+      "path": "assets/ui/supplements/results/mp01_diagnosis_confirmed.png",
+      "editable": "art-source/production/ui/results/mp01_diagnosis_confirmed.svg",
+      "bytes": 3764,
+      "width": 192,
+      "height": 192,
+      "sha256": "fca59d6c142467bc1d89b38c57fa7629632f60a92235b0d6e83eaec064c53ebf"
+    },
+    {
+      "group": "results",
+      "id": "MP03_retry_ready",
+      "name": "这次没奏效，仍可再试一次",
+      "record": {
+        "label": "这次没奏效，仍可再试一次",
+        "low_motion_scene": "小逗号与首次未奏效说明定格，下一步取当前合法方案。",
+        "scene": "节拍球把自己排成小逗号，认真把再核对标记朝向当前病例卡；光环保持安全柔光，不擦掉患者症状。",
+        "state": "retry_ready"
+      },
+      "source": "content/core/medical_progress_cues.json#MP03/result_scenes/retry_ready",
+      "path": "assets/ui/supplements/results/mp02_retry_ready.png",
+      "editable": "art-source/production/ui/results/mp02_retry_ready.svg",
+      "bytes": 4184,
+      "width": 192,
+      "height": 192,
+      "sha256": "93c82f6ff10a1ab5d301b10c2cbe2cb524c1efd35f53b416d25d7e7c6d3f10b5"
+    },
+    {
+      "group": "results",
+      "id": "MP03_final_failure",
+      "name": "两次已完成，安排友好转诊",
+      "record": {
+        "label": "两次已完成，安排友好转诊",
+        "low_motion_scene": "柔光、留白刻度与实际转诊说明并列，没有第三次按钮。",
+        "scene": "节拍球把重复号翻到转诊说明那一面，空灯格安静留白；不继续催动患者或启动新疗程。",
+        "state": "final_failure"
+      },
+      "source": "content/core/medical_progress_cues.json#MP03/result_scenes/final_failure",
+      "path": "assets/ui/supplements/results/mp02_final_failure.png",
+      "editable": "art-source/production/ui/results/mp02_final_failure.svg",
+      "bytes": 3879,
+      "width": 192,
+      "height": 192,
+      "sha256": "bab58b7f9f0ea4078365650f71ba693d9a998d8f0965f039dd974633445fed30"
+    },
+    {
+      "group": "results",
+      "id": "MP03_awaiting_recovery",
+      "name": "操作完成，还需观察与查房",
+      "record": {
+        "label": "操作完成，还需观察与查房",
+        "low_motion_scene": "中性省略号与真实恢复阶段并列，不区分隐藏成功或失败。",
+        "scene": "节拍球停成中性省略号，灯环把观察书签夹稳；机器工作完成，结果仍留待必要照护结束。",
+        "state": "awaiting_recovery"
+      },
+      "source": "content/core/medical_progress_cues.json#MP03/result_scenes/awaiting_recovery",
+      "path": "assets/ui/supplements/results/mp02_awaiting_recovery.png",
+      "editable": "art-source/production/ui/results/mp02_awaiting_recovery.svg",
+      "bytes": 3358,
+      "width": 192,
+      "height": 192,
+      "sha256": "985c1b44816486aa6f29a38b1bf5f856c01be9bbcce1d5dc90153ae080f84284"
+    },
+    {
+      "group": "results",
+      "id": "MP04_cured",
+      "name": "这次已奏效，准备离位",
+      "record": {
+        "label": "这次已奏效，准备离位",
+        "low_motion_scene": "闭合文件夹与已结算治愈标记定格，病例症状只按真实治愈移除。",
+        "scene": "真实治愈后，空文件夹确认自己的封面，归档书签把庆祝小印章转向结果栏；病例按自己的康复变体结束。",
+        "state": "cured"
+      },
+      "source": "content/core/medical_progress_cues.json#MP04/result_scenes/cured",
+      "path": "assets/ui/supplements/results/mp01_diagnosis_confirmed.png",
+      "editable": "art-source/production/ui/results/mp01_diagnosis_confirmed.svg",
+      "bytes": 3764,
+      "width": 192,
+      "height": 192,
+      "sha256": "fca59d6c142467bc1d89b38c57fa7629632f60a92235b0d6e83eaec064c53ebf"
+    },
+    {
+      "group": "results",
+      "id": "MP04_retry_ready",
+      "name": "这次没奏效，仍可再试一次",
+      "record": {
+        "label": "这次没奏效，仍可再试一次",
+        "low_motion_scene": "被夹住的庆祝章与首次未奏效说明并列，没有虚假归档成功。",
+        "scene": "小书签轻轻夹住尚不能使用的庆祝章，翻到再核对页；原幻想症状继续按病例表现，不当场补演成功。",
+        "state": "retry_ready"
+      },
+      "source": "content/core/medical_progress_cues.json#MP04/result_scenes/retry_ready",
+      "path": "assets/ui/supplements/results/mp02_retry_ready.png",
+      "editable": "art-source/production/ui/results/mp02_retry_ready.svg",
+      "bytes": 4184,
+      "width": 192,
+      "height": 192,
+      "sha256": "93c82f6ff10a1ab5d301b10c2cbe2cb524c1efd35f53b416d25d7e7c6d3f10b5"
+    },
+    {
+      "group": "results",
+      "id": "MP04_final_failure",
+      "name": "两次已完成，安排友好转诊",
+      "record": {
+        "label": "两次已完成，安排友好转诊",
+        "low_motion_scene": "合起的再试页与真实转诊说明定格，不清走病例症状。",
+        "scene": "书签将再试页合回原夹，转向已确认的转诊记录；空抽屉检查一遍自己的把手后安静待命。",
+        "state": "final_failure"
+      },
+      "source": "content/core/medical_progress_cues.json#MP04/result_scenes/final_failure",
+      "path": "assets/ui/supplements/results/mp02_final_failure.png",
+      "editable": "art-source/production/ui/results/mp02_final_failure.svg",
+      "bytes": 3879,
+      "width": 192,
+      "height": 192,
+      "sha256": "bab58b7f9f0ea4078365650f71ba693d9a998d8f0965f039dd974633445fed30"
+    },
+    {
+      "group": "results",
+      "id": "MP04_awaiting_recovery",
+      "name": "操作完成，还需观察与查房",
+      "record": {
+        "label": "操作完成，还需观察与查房",
+        "low_motion_scene": "中性观察页与当前恢复状态并列，隐藏结果不改变配色或印章姿态。",
+        "scene": "工具清单卷好，中性观察书签留在当前页；庆祝章仍收在盒内，承托和必要照护继续。",
+        "state": "awaiting_recovery"
+      },
+      "source": "content/core/medical_progress_cues.json#MP04/result_scenes/awaiting_recovery",
+      "path": "assets/ui/supplements/results/mp02_awaiting_recovery.png",
+      "editable": "art-source/production/ui/results/mp02_awaiting_recovery.svg",
+      "bytes": 3358,
+      "width": 192,
+      "height": 192,
+      "sha256": "985c1b44816486aa6f29a38b1bf5f856c01be9bbcce1d5dc90153ae080f84284"
+    },
+    {
+      "group": "results",
+      "id": "MP05_awaiting_recovery",
+      "name": "操作完成，先苏醒再恢复",
+      "record": {
+        "label": "操作完成，先苏醒再恢复",
+        "low_motion_scene": "器械点齐卡和中性后续照护提示定格，承诺的成败完全不露出。",
+        "scene": "空夹把物品已点齐小卡端端正正转向后续照护提示，托盘收好工具；患者仍由真实团队完成苏醒与转床。",
+        "state": "awaiting_recovery"
+      },
+      "source": "content/core/medical_progress_cues.json#MP05/result_scenes/awaiting_recovery",
+      "path": "assets/ui/supplements/results/mp02_awaiting_recovery.png",
+      "editable": "art-source/production/ui/results/mp02_awaiting_recovery.svg",
+      "bytes": 3358,
+      "width": 192,
+      "height": 192,
+      "sha256": "985c1b44816486aa6f29a38b1bf5f856c01be9bbcce1d5dc90153ae080f84284"
+    },
+    {
+      "group": "results",
+      "id": "MP06_cured",
+      "name": "查房已完成，准备康复离院",
+      "record": {
+        "label": "查房已完成，准备康复离院",
+        "low_motion_scene": "已合记录夹与治愈说明并列，床尾仍待患者真实离位才收回。",
+        "scene": "真实查房并结算治愈后，床边记录夹合上，枕角向结果栏轻轻点头；患者沿自己的康复与真实离床动作继续。",
+        "state": "cured"
+      },
+      "source": "content/core/medical_progress_cues.json#MP06/result_scenes/cured",
+      "path": "assets/ui/supplements/results/mp01_diagnosis_confirmed.png",
+      "editable": "art-source/production/ui/results/mp01_diagnosis_confirmed.svg",
+      "bytes": 3764,
+      "width": 192,
+      "height": 192,
+      "sha256": "fca59d6c142467bc1d89b38c57fa7629632f60a92235b0d6e83eaec064c53ebf"
+    },
+    {
+      "group": "results",
+      "id": "MP06_retry_ready",
+      "name": "必要照护已完成，仍可再试一次",
+      "record": {
+        "label": "必要照护已完成，仍可再试一次",
+        "low_motion_scene": "查房完成记录与首次未奏效说明并列，仍显示实际离位或等待原因。",
+        "scene": "查房确认首次未奏效，枕角把再核对书签摆正；记录夹保留真实症状和后续说明，不让患者跳过安全离床。",
+        "state": "retry_ready"
+      },
+      "source": "content/core/medical_progress_cues.json#MP06/result_scenes/retry_ready",
+      "path": "assets/ui/supplements/results/mp02_retry_ready.png",
+      "editable": "art-source/production/ui/results/mp02_retry_ready.svg",
+      "bytes": 4184,
+      "width": 192,
+      "height": 192,
+      "sha256": "93c82f6ff10a1ab5d301b10c2cbe2cb524c1efd35f53b416d25d7e7c6d3f10b5"
+    },
+    {
+      "group": "results",
+      "id": "MP06_final_failure",
+      "name": "必要照护已完成，安排友好转诊",
+      "record": {
+        "label": "必要照护已完成，安排友好转诊",
+        "low_motion_scene": "完成的照护记录与实际转诊说明定格，没有第三次疗程或虚假康复。",
+        "scene": "真实查房后，记录夹转向转诊说明，枕角把空白第三页轻轻合回；患者保持未治愈症状并走安全离院流程。",
+        "state": "final_failure"
+      },
+      "source": "content/core/medical_progress_cues.json#MP06/result_scenes/final_failure",
+      "path": "assets/ui/supplements/results/mp02_final_failure.png",
+      "editable": "art-source/production/ui/results/mp02_final_failure.svg",
+      "bytes": 3879,
+      "width": 192,
+      "height": 192,
+      "sha256": "bab58b7f9f0ea4078365650f71ba693d9a998d8f0965f039dd974633445fed30"
+    },
+    {
+      "group": "states",
+      "id": "idle",
+      "name": "idle",
+      "record": {},
+      "source": "docs/design/05-production.md#工作状态表现",
+      "path": "assets/ui/supplements/states/idle.png",
+      "editable": "art-source/production/ui/states/idle.svg",
+      "bytes": 3123,
+      "width": 192,
+      "height": 192,
+      "sha256": "b77c4d10336356c4f06687d7a232d13dbfb3c5a380863afa081adfac1a069cc0"
+    },
+    {
+      "group": "states",
+      "id": "working",
+      "name": "working",
+      "record": {},
+      "source": "docs/design/05-production.md#工作状态表现",
+      "path": "assets/ui/supplements/states/using.png",
+      "editable": "art-source/production/ui/states/using.svg",
+      "bytes": 3464,
+      "width": 192,
+      "height": 192,
+      "sha256": "1291b0333c2cc39d79c095a37f133fdc0b1391155eeb58e1058ed4f7e6756405"
+    },
+    {
+      "group": "states",
+      "id": "paused",
+      "name": "paused",
+      "record": {},
+      "source": "docs/design/05-production.md#工作状态表现",
+      "path": "assets/ui/supplements/states/paused.png",
+      "editable": "art-source/production/ui/states/paused.svg",
+      "bytes": 3157,
+      "width": 192,
+      "height": 192,
+      "sha256": "4595813543bb805e7a04c60d87630604341df7588f9a281c2940f5c14707a0bb"
+    },
+    {
+      "group": "states",
+      "id": "broken",
+      "name": "broken",
+      "record": {},
+      "source": "docs/design/05-production.md#工作状态表现",
+      "path": "assets/ui/supplements/states/broken.png",
+      "editable": "art-source/production/ui/states/broken.svg",
+      "bytes": 3227,
+      "width": 192,
+      "height": 192,
+      "sha256": "a3fe79d7d46db753f190b52d50a013f0385400f0a3e252e64b6e36e15cd793ec"
+    },
+    {
+      "group": "states",
+      "id": "repairing",
+      "name": "repairing",
+      "record": {},
+      "source": "docs/design/05-production.md#工作状态表现",
+      "path": "assets/ui/supplements/states/maintenance.png",
+      "editable": "art-source/production/ui/states/maintenance.svg",
+      "bytes": 3393,
+      "width": 192,
+      "height": 192,
+      "sha256": "67e309c04abfc9841c3c6092611b29c8e3efb22e7db15e51d1cd4e571c098832"
+    },
+    {
+      "group": "states",
+      "id": "maintenance",
+      "name": "maintenance",
+      "record": {},
+      "source": "docs/design/05-production.md#工作状态表现",
+      "path": "assets/ui/supplements/states/maintenance.png",
+      "editable": "art-source/production/ui/states/maintenance.svg",
+      "bytes": 3393,
+      "width": 192,
+      "height": 192,
+      "sha256": "67e309c04abfc9841c3c6092611b29c8e3efb22e7db15e51d1cd4e571c098832"
+    },
+    {
+      "group": "states",
+      "id": "construction",
+      "name": "construction",
+      "record": {},
+      "source": "docs/design/05-production.md#工作状态表现",
+      "path": "assets/ui/supplements/states/construction.png",
+      "editable": "art-source/production/ui/states/construction.svg",
+      "bytes": 3557,
+      "width": 192,
+      "height": 192,
+      "sha256": "1072b3498fd6e987efe3d11adfb3d3ea5c1d611502cc01e3aa5ee5c568e84a94"
+    },
+    {
+      "group": "states",
+      "id": "using",
+      "name": "using",
+      "record": {},
+      "source": "docs/design/05-production.md#工作状态表现",
+      "path": "assets/ui/supplements/states/using.png",
+      "editable": "art-source/production/ui/states/using.svg",
+      "bytes": 3464,
+      "width": 192,
+      "height": 192,
+      "sha256": "1291b0333c2cc39d79c095a37f133fdc0b1391155eeb58e1058ed4f7e6756405"
+    },
+    {
+      "group": "states",
+      "id": "unavailable",
+      "name": "unavailable",
+      "record": {},
+      "source": "docs/design/05-production.md#工作状态表现",
+      "path": "assets/ui/supplements/states/unavailable.png",
+      "editable": "art-source/production/ui/states/unavailable.svg",
+      "bytes": 3253,
+      "width": 192,
+      "height": 192,
+      "sha256": "0032b1fdbaa79e6263946aa0e584a9416640781ad01692d09cca326aae3995cb"
+    },
+    {
+      "group": "states",
+      "id": "waiting",
+      "name": "waiting",
+      "record": {},
+      "source": "docs/design/05-production.md#工作状态表现",
+      "path": "assets/ui/supplements/results/mp02_awaiting_recovery.png",
+      "editable": "art-source/production/ui/results/mp02_awaiting_recovery.svg",
+      "bytes": 3358,
+      "width": 192,
+      "height": 192,
+      "sha256": "985c1b44816486aa6f29a38b1bf5f856c01be9bbcce1d5dc90153ae080f84284"
+    },
+    {
+      "group": "states",
+      "id": "reserved",
+      "name": "reserved",
+      "record": {},
+      "source": "docs/design/05-production.md#工作状态表现",
+      "path": "assets/ui/supplements/states/reserved.png",
+      "editable": "art-source/production/ui/states/reserved.svg",
+      "bytes": 3226,
+      "width": 192,
+      "height": 192,
+      "sha256": "c65db6dc87d315e0cc0b27501d0e36b189faf64e8772cda7e09d0507366dd148"
+    },
+    {
+      "group": "states",
+      "id": "awaiting_recovery",
+      "name": "awaiting_recovery",
+      "record": {},
+      "source": "docs/design/05-production.md#工作状态表现",
+      "path": "assets/ui/supplements/results/mp02_awaiting_recovery.png",
+      "editable": "art-source/production/ui/results/mp02_awaiting_recovery.svg",
+      "bytes": 3358,
+      "width": 192,
+      "height": 192,
+      "sha256": "985c1b44816486aa6f29a38b1bf5f856c01be9bbcce1d5dc90153ae080f84284"
+    },
+    {
+      "group": "states",
+      "id": "retry_ready",
+      "name": "retry_ready",
+      "record": {},
+      "source": "docs/design/05-production.md#工作状态表现",
+      "path": "assets/ui/supplements/results/mp02_retry_ready.png",
+      "editable": "art-source/production/ui/results/mp02_retry_ready.svg",
+      "bytes": 4184,
+      "width": 192,
+      "height": 192,
+      "sha256": "93c82f6ff10a1ab5d301b10c2cbe2cb524c1efd35f53b416d25d7e7c6d3f10b5"
+    },
+    {
+      "group": "states",
+      "id": "final_failure",
+      "name": "final_failure",
+      "record": {},
+      "source": "docs/design/05-production.md#工作状态表现",
+      "path": "assets/ui/supplements/results/mp02_final_failure.png",
+      "editable": "art-source/production/ui/results/mp02_final_failure.svg",
+      "bytes": 3879,
+      "width": 192,
+      "height": 192,
+      "sha256": "bab58b7f9f0ea4078365650f71ba693d9a998d8f0965f039dd974633445fed30"
+    },
+    {
+      "group": "states",
+      "id": "cured",
+      "name": "cured",
+      "record": {},
+      "source": "docs/design/05-production.md#工作状态表现",
+      "path": "assets/ui/supplements/results/mp01_diagnosis_confirmed.png",
+      "editable": "art-source/production/ui/results/mp01_diagnosis_confirmed.svg",
+      "bytes": 3764,
+      "width": 192,
+      "height": 192,
+      "sha256": "fca59d6c142467bc1d89b38c57fa7629632f60a92235b0d6e83eaec064c53ebf"
+    },
+    {
+      "group": "transit",
+      "id": "VC01_queued_scene",
+      "name": "普通楼梯",
+      "record": {
+        "description": "确有通行组排队时，起点小箭头端正朝向目标层，像替这段楼梯认真报幕；不出现轿厢或乘客复制像。"
+      },
+      "source": "content/core/vertical_connectors.json#VC01/transit_cues/queued_scene",
+      "path": "assets/ui/supplements/transit/vc01_queued_scene.png",
+      "editable": "art-source/production/ui/transit/vc01_queued_scene.svg",
+      "bytes": 996,
+      "width": 192,
+      "height": 192,
+      "sha256": "bda46ee6a60bc068c832fe418b19d7587e913835eaa80da2e17f61dccd7bb92d"
+    },
+    {
+      "group": "transit",
+      "id": "VC01_riding_scene",
+      "name": "普通楼梯",
+      "record": {
+        "description": "这段楼梯的层数标尺随真实通行进度归位，角色按正式通行姿态走完，不用箭头代替身体移动。"
+      },
+      "source": "content/core/vertical_connectors.json#VC01/transit_cues/riding_scene",
+      "path": "assets/ui/supplements/transit/vc01_queued_scene.png",
+      "editable": "art-source/production/ui/transit/vc01_queued_scene.svg",
+      "bytes": 996,
+      "width": 192,
+      "height": 192,
+      "sha256": "bda46ee6a60bc068c832fe418b19d7587e913835eaa80da2e17f61dccd7bb92d"
+    },
+    {
+      "group": "transit",
+      "id": "VC01_unavailable_scene",
+      "name": "普通楼梯",
+      "record": {
+        "description": "实际身体或通路不合格时，受阻小箭头停在对应原因旁，不把结构楼梯装成故障机器。"
+      },
+      "source": "content/core/vertical_connectors.json#VC01/transit_cues/unavailable_scene",
+      "path": "assets/ui/supplements/transit/vc01_queued_scene.png",
+      "editable": "art-source/production/ui/transit/vc01_queued_scene.svg",
+      "bytes": 996,
+      "width": 192,
+      "height": 192,
+      "sha256": "bda46ee6a60bc068c832fe418b19d7587e913835eaa80da2e17f61dccd7bb92d"
+    },
+    {
+      "group": "transit",
+      "id": "VC02_empty_scene",
+      "name": "医用电梯",
+      "record": {
+        "description": "空车小箭头认真朝真实接人楼层移动，车内没有乘客剪影；取消接人后仍显示实际空车行程。"
+      },
+      "source": "content/core/vertical_connectors.json#VC02/transit_cues/empty_scene",
+      "path": "assets/ui/supplements/transit/vc02_empty_scene.png",
+      "editable": "art-source/production/ui/transit/vc02_empty_scene.svg",
+      "bytes": 2299,
+      "width": 192,
+      "height": 192,
+      "sha256": "3bdaabbdf4b94d444f41dce7f0ebcfd13edd7ad67685063f40f89c09431b7973"
+    },
+    {
+      "group": "transit",
+      "id": "VC02_queued_scene",
+      "name": "医用电梯",
+      "record": {
+        "description": "真正入队的通行组保持自己的合法待位，设施上的起点与目标层小牌端端正正，像给短旅行排好队；患者原医疗票号保留。"
+      },
+      "source": "content/core/vertical_connectors.json#VC02/transit_cues/queued_scene",
+      "path": "assets/ui/supplements/transit/vc02_empty_scene.png",
+      "editable": "art-source/production/ui/transit/vc02_empty_scene.svg",
+      "bytes": 2299,
+      "width": 192,
+      "height": 192,
+      "sha256": "3bdaabbdf4b94d444f41dce7f0ebcfd13edd7ad67685063f40f89c09431b7973"
+    },
+    {
+      "group": "transit",
+      "id": "VC02_riding_scene",
+      "name": "医用电梯",
+      "record": {
+        "description": "方向箭头随真实行程收短，层号只显示出发与目标，像一把很认真工作的折叠尺；一组乘客仍只算一组。"
+      },
+      "source": "content/core/vertical_connectors.json#VC02/transit_cues/riding_scene",
+      "path": "assets/ui/supplements/transit/vc02_empty_scene.png",
+      "editable": "art-source/production/ui/transit/vc02_empty_scene.svg",
+      "bytes": 2299,
+      "width": 192,
+      "height": 192,
+      "sha256": "3bdaabbdf4b94d444f41dce7f0ebcfd13edd7ad67685063f40f89c09431b7973"
+    },
+    {
+      "group": "transit",
+      "id": "VC02_unavailable_scene",
+      "name": "医用电梯",
+      "record": {
+        "description": "真实故障标明载客仅安全下楼；空车上行接人仍画实际空车方向和维修原因，没有工人在修就不画修好了的勾。"
+      },
+      "source": "content/core/vertical_connectors.json#VC02/transit_cues/unavailable_scene",
+      "path": "assets/ui/supplements/transit/vc02_empty_scene.png",
+      "editable": "art-source/production/ui/transit/vc02_empty_scene.svg",
+      "bytes": 2299,
+      "width": 192,
+      "height": 192,
+      "sha256": "3bdaabbdf4b94d444f41dce7f0ebcfd13edd7ad67685063f40f89c09431b7973"
+    },
+    {
+      "group": "transit",
+      "id": "VC03_empty_scene",
+      "name": "巨型医用电梯",
+      "record": {
+        "description": "宽宽的小箭头沿真实空车方向去接人，两个舱位保持空着；空载移动不扣两份磨损。"
+      },
+      "source": "content/core/vertical_connectors.json#VC03/transit_cues/empty_scene",
+      "path": "assets/ui/supplements/transit/vc02_empty_scene.png",
+      "editable": "art-source/production/ui/transit/vc02_empty_scene.svg",
+      "bytes": 2299,
+      "width": 192,
+      "height": 192,
+      "sha256": "3bdaabbdf4b94d444f41dce7f0ebcfd13edd7ad67685063f40f89c09431b7973"
+    },
+    {
+      "group": "transit",
+      "id": "VC03_queued_scene",
+      "name": "巨型医用电梯",
+      "record": {
+        "description": "真正到齐的一人或患者加护士通行组各守自己的合法待位，原卡片像认真点名的小队，不召来缺席成员。"
+      },
+      "source": "content/core/vertical_connectors.json#VC03/transit_cues/queued_scene",
+      "path": "assets/ui/supplements/transit/vc02_empty_scene.png",
+      "editable": "art-source/production/ui/transit/vc02_empty_scene.svg",
+      "bytes": 2299,
+      "width": 192,
+      "height": 192,
+      "sha256": "3bdaabbdf4b94d444f41dce7f0ebcfd13edd7ad67685063f40f89c09431b7973"
+    },
+    {
+      "group": "transit",
+      "id": "VC03_riding_scene",
+      "name": "巨型医用电梯",
+      "record": {
+        "description": "舱内真实一人或两人的位置保留，方向小箭头像大号折叠尺收短；空位不补乘客，长颈与承托不穿舱顶。"
+      },
+      "source": "content/core/vertical_connectors.json#VC03/transit_cues/riding_scene",
+      "path": "assets/ui/supplements/transit/vc02_empty_scene.png",
+      "editable": "art-source/production/ui/transit/vc02_empty_scene.svg",
+      "bytes": 2299,
+      "width": 192,
+      "height": 192,
+      "sha256": "3bdaabbdf4b94d444f41dce7f0ebcfd13edd7ad67685063f40f89c09431b7973"
+    },
+    {
+      "group": "transit",
+      "id": "VC03_unavailable_scene",
+      "name": "巨型医用电梯",
+      "record": {
+        "description": "真实故障标明载客仅安全下楼，空车仍按实际接人方向显示；保留检修原因，不把巨型舱变成载客上楼通道。"
+      },
+      "source": "content/core/vertical_connectors.json#VC03/transit_cues/unavailable_scene",
+      "path": "assets/ui/supplements/transit/vc02_empty_scene.png",
+      "editable": "art-source/production/ui/transit/vc02_empty_scene.svg",
+      "bytes": 2299,
+      "width": 192,
+      "height": 192,
+      "sha256": "3bdaabbdf4b94d444f41dce7f0ebcfd13edd7ad67685063f40f89c09431b7973"
+    }
+  ],
+  "rules": "images are illustrative; current facts, qualifications, prices and progress come from the game"
+}

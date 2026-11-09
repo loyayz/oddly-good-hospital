@@ -1,0 +1,76 @@
+{
+  "species_id": "S60",
+  "rig": "biped",
+  "dimensions": {
+    "depth_m": 1.0,
+    "height_m": 1.9,
+    "width_m": 1.0
+  },
+  "body_path": "assets/models/core_s60_body.glb",
+  "variants": [
+    {
+      "id": 1,
+      "accessory_path": "assets/accessories/looks/biped_look_01.glb",
+      "slot": "head",
+      "tint": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "human_hair": null,
+      "distinguishing_attributes": [
+        "accessory silhouette",
+        "body color temperature"
+      ]
+    },
+    {
+      "id": 2,
+      "accessory_path": "assets/accessories/looks/biped_look_02.glb",
+      "slot": "carry_anchor",
+      "tint": [
+        1,
+        0.92,
+        0.84,
+        1
+      ],
+      "human_hair": null,
+      "distinguishing_attributes": [
+        "accessory silhouette",
+        "body color temperature"
+      ]
+    },
+    {
+      "id": 3,
+      "accessory_path": "assets/accessories/looks/biped_look_03.glb",
+      "slot": "head",
+      "tint": [
+        0.86,
+        0.96,
+        1,
+        1
+      ],
+      "human_hair": null,
+      "distinguishing_attributes": [
+        "accessory silhouette",
+        "body color temperature"
+      ]
+    },
+    {
+      "id": 4,
+      "accessory_path": "assets/accessories/looks/biped_look_04.glb",
+      "slot": "carry_anchor",
+      "tint": [
+        0.96,
+        0.88,
+        1,
+        1
+      ],
+      "human_hair": null,
+      "distinguishing_attributes": [
+        "accessory silhouette",
+        "body color temperature"
+      ]
+    }
+  ]
+}

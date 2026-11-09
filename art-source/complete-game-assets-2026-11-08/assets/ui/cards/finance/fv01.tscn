@@ -1,0 +1,40 @@
+[gd_scene load_steps=3 format=3]
+[ext_resource type="Theme" path="res://assets/ui/hospital_theme.tres" id="Theme"]
+[ext_resource type="Texture2D" path="res://assets/ui/supplements/finance/fv01.png" id="Image"]
+[node name="AssetCard" type="PanelContainer"]
+offset_right = 320.0
+offset_bottom = 280.0
+custom_minimum_size = Vector2(280, 200)
+theme = ExtResource("Theme")
+metadata/source = "content/core/finance_views.json#FV01"
+[node name="Content" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 12
+[node name="Artwork" type="TextureRect" parent="Content"]
+custom_minimum_size = Vector2(96, 96)
+layout_mode = 2
+texture = ExtResource("Image")
+expand_mode = 1
+stretch_mode = 5
+[node name="Title" type="Label" parent="Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "诊疗收入"
+autowrap_mode = 2
+max_lines_visible = 2
+[node name="Description" type="RichTextLabel" parent="Content"]
+custom_minimum_size = Vector2(0, 112)
+layout_mode = 2
+focus_mode = 2
+text = "按实际初诊职称诊费、已完成设施使用费、成功治愈费分项；设施可展开检查、门诊、手术与护理床，不叠加旧照护费。"
+fit_content = false
+scroll_active = true
+autowrap_mode = 3
+[node name="CurrentFacts" type="Label" parent="Content"]
+layout_mode = 2
+visible = false
+autowrap_mode = 2
+[node name="PrimaryAction" type="Button" parent="Content"]
+custom_minimum_size = Vector2(96, 40)
+layout_mode = 2
+visible = false

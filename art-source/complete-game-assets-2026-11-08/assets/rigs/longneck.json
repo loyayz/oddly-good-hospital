@@ -1,0 +1,84 @@
+{
+  "id": "longneck",
+  "reference_species": "S01",
+  "actions": [
+    "idle",
+    "walk",
+    "sit",
+    "notice",
+    "talk",
+    "cheer",
+    "upset",
+    "recover",
+    "interact",
+    "work",
+    "pause",
+    "symptom",
+    "recovery",
+    "low_motion",
+    "sleep",
+    "wake",
+    "rest",
+    "recreation",
+    "blink"
+  ],
+  "staff_actions": [
+    "operate",
+    "record",
+    "carry",
+    "repair",
+    "clean",
+    "build",
+    "teach",
+    "rest",
+    "sleep",
+    "wake"
+  ],
+  "slots": [
+    "head",
+    "look_target",
+    "hand_l",
+    "hand_r",
+    "treatment_anchor",
+    "emotion_anchor",
+    "carry_anchor"
+  ],
+  "animation_library": "assets/animations/staff/longneck.tres",
+  "source": {
+    "actions": [
+      "operate",
+      "record",
+      "carry",
+      "repair",
+      "clean",
+      "build",
+      "teach",
+      "rest",
+      "sleep",
+      "wake"
+    ],
+    "anchors": [
+      "operator",
+      "tool",
+      "badge",
+      "handoff"
+    ],
+    "id": "SRA_longneck",
+    "low_motion_sleep_scene": "展开长床、合身卧姿、真实起身位三态，绝不把脖子折成一格。",
+    "rig": "longneck",
+    "roles": [
+      "doctor",
+      "nurse",
+      "receptionist",
+      "cleaner",
+      "mechanic",
+      "researcher",
+      "decorator"
+    ],
+    "scene": "升降操作臂接到胸前，长颈保持真实高度。",
+    "sleep_scene": "长身体沿已展开床面躺好，眼罩从近处小托盘送到真实头部；床边请小声牌跟着戴上长帽。",
+    "wake_scene": "先在仍被预留的承托范围内舒展，再沿合法操作位起身；长帽牌最后才翻回可用。"
+  },
+  "root_motion": false,
+  "max_bones": 40
+}

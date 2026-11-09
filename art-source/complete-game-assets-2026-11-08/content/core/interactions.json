@@ -1,0 +1,2068 @@
+[
+  {
+    "actor_a": {
+      "species_any": [
+        "S36"
+      ]
+    },
+    "actor_b": {
+      "tags_any": [
+        "plant"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I01",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I01.name",
+    "scene": "@zh:core.interactions.I01.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S33"
+      ]
+    },
+    "actor_b": {
+      "tags_any": [
+        "plant"
+      ]
+    },
+    "conditions": {
+      "required_object_id": "FUR20"
+    },
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I02",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I02.name",
+    "scene": "@zh:core.interactions.I02.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S49"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S15"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 8,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I03",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I03.name",
+    "response_variants": [
+      {
+        "actor_role": "actor_b",
+        "condition": "actor_personality",
+        "id": "I03_P",
+        "low_motion_scene": "@zh:core.interactions.I03.response_variants.I03_P.low_motion_scene",
+        "personality_id": "PP07",
+        "scene": "@zh:core.interactions.I03.response_variants.I03_P.scene"
+      },
+      {
+        "condition": "familiar_relationship",
+        "id": "I03_F",
+        "low_motion_scene": "@zh:core.interactions.I03.response_variants.I03_F.low_motion_scene",
+        "scene": "@zh:core.interactions.I03.response_variants.I03_F.scene"
+      }
+    ],
+    "scene": "@zh:core.interactions.I03.scene"
+  },
+  {
+    "actor_a": {
+      "disease": "D38"
+    },
+    "actor_b": {
+      "any_resident": true
+    },
+    "conditions": {
+      "required_object_id": "FUR48"
+    },
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I04",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I04.name",
+    "scene": "@zh:core.interactions.I04.scene"
+  },
+  {
+    "actor_a": {
+      "disease": "D42"
+    },
+    "actor_b": {
+      "species_any": [
+        "S45"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I05",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I05.name",
+    "response_variants": [
+      {
+        "actor_role": "actor_a",
+        "condition": "actor_personality",
+        "id": "I05_P",
+        "low_motion_scene": "@zh:core.interactions.I05.response_variants.I05_P.low_motion_scene",
+        "personality_id": "PP02",
+        "scene": "@zh:core.interactions.I05.response_variants.I05_P.scene"
+      },
+      {
+        "condition": "familiar_relationship",
+        "id": "I05_F",
+        "low_motion_scene": "@zh:core.interactions.I05.response_variants.I05_F.low_motion_scene",
+        "scene": "@zh:core.interactions.I05.response_variants.I05_F.scene"
+      }
+    ],
+    "scene": "@zh:core.interactions.I05.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S09"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S30"
+      ]
+    },
+    "conditions": {
+      "environment": "light"
+    },
+    "duration_seconds": 8,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I06",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I06.name",
+    "scene": "@zh:core.interactions.I06.scene"
+  },
+  {
+    "actor_a": {
+      "tags_any": [
+        "plant"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S13"
+      ]
+    },
+    "conditions": {
+      "relationship": "reconciled"
+    },
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I07",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I07.name",
+    "scene": "@zh:core.interactions.I07.scene"
+  },
+  {
+    "actor_a": {
+      "profession": "priest"
+    },
+    "actor_b": {
+      "species_any": [
+        "S09"
+      ]
+    },
+    "conditions": {
+      "relationship": "reconciled"
+    },
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I08",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I08.name",
+    "scene": "@zh:core.interactions.I08.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S02"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S49"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 8,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I09",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I09.name",
+    "response_variants": [
+      {
+        "actor_role": "actor_b",
+        "condition": "actor_personality",
+        "id": "I09_P",
+        "low_motion_scene": "@zh:core.interactions.I09.response_variants.I09_P.low_motion_scene",
+        "personality_id": "PP03",
+        "scene": "@zh:core.interactions.I09.response_variants.I09_P.scene"
+      },
+      {
+        "condition": "familiar_relationship",
+        "id": "I09_F",
+        "low_motion_scene": "@zh:core.interactions.I09.response_variants.I09_F.low_motion_scene",
+        "scene": "@zh:core.interactions.I09.response_variants.I09_F.scene"
+      }
+    ],
+    "scene": "@zh:core.interactions.I09.scene"
+  },
+  {
+    "actor_a": {
+      "family": "F06"
+    },
+    "actor_b": {
+      "any_resident": true
+    },
+    "conditions": {
+      "required_object_id": "FUR24"
+    },
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I10",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I10.name",
+    "scene": "@zh:core.interactions.I10.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S25"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S41"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I11",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I11.name",
+    "response_variants": [
+      {
+        "actor_role": "actor_a",
+        "condition": "actor_personality",
+        "id": "I11_P",
+        "low_motion_scene": "@zh:core.interactions.I11.response_variants.I11_P.low_motion_scene",
+        "personality_id": "PP04",
+        "scene": "@zh:core.interactions.I11.response_variants.I11_P.scene"
+      },
+      {
+        "condition": "familiar_relationship",
+        "id": "I11_F",
+        "low_motion_scene": "@zh:core.interactions.I11.response_variants.I11_F.low_motion_scene",
+        "scene": "@zh:core.interactions.I11.response_variants.I11_F.scene"
+      }
+    ],
+    "scene": "@zh:core.interactions.I11.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S18"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S31"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 8,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I12",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I12.name",
+    "response_variants": [
+      {
+        "actor_role": "actor_b",
+        "condition": "actor_personality",
+        "id": "I12_P",
+        "low_motion_scene": "@zh:core.interactions.I12.response_variants.I12_P.low_motion_scene",
+        "personality_id": "PP03",
+        "scene": "@zh:core.interactions.I12.response_variants.I12_P.scene"
+      },
+      {
+        "condition": "familiar_relationship",
+        "id": "I12_F",
+        "low_motion_scene": "@zh:core.interactions.I12.response_variants.I12_F.low_motion_scene",
+        "scene": "@zh:core.interactions.I12.response_variants.I12_F.scene"
+      }
+    ],
+    "scene": "@zh:core.interactions.I12.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S32"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S35"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I13",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I13.name",
+    "response_variants": [
+      {
+        "actor_role": "actor_a",
+        "condition": "actor_personality",
+        "id": "I13_P",
+        "low_motion_scene": "@zh:core.interactions.I13.response_variants.I13_P.low_motion_scene",
+        "personality_id": "PP07",
+        "scene": "@zh:core.interactions.I13.response_variants.I13_P.scene"
+      },
+      {
+        "condition": "familiar_relationship",
+        "id": "I13_F",
+        "low_motion_scene": "@zh:core.interactions.I13.response_variants.I13_F.low_motion_scene",
+        "scene": "@zh:core.interactions.I13.response_variants.I13_F.scene"
+      }
+    ],
+    "scene": "@zh:core.interactions.I13.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S46"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S27"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I14",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I14.name",
+    "scene": "@zh:core.interactions.I14.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S43"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S44"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 8,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I15",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I15.name",
+    "scene": "@zh:core.interactions.I15.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S10"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S29"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I16",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I16.name",
+    "scene": "@zh:core.interactions.I16.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S52"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S70"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I17",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I17.name",
+    "response_variants": [
+      {
+        "actor_role": "actor_a",
+        "condition": "actor_personality",
+        "id": "I17_P",
+        "low_motion_scene": "@zh:core.interactions.I17.response_variants.I17_P.low_motion_scene",
+        "personality_id": "PP09",
+        "scene": "@zh:core.interactions.I17.response_variants.I17_P.scene"
+      },
+      {
+        "condition": "familiar_relationship",
+        "id": "I17_F",
+        "low_motion_scene": "@zh:core.interactions.I17.response_variants.I17_F.low_motion_scene",
+        "scene": "@zh:core.interactions.I17.response_variants.I17_F.scene"
+      }
+    ],
+    "scene": "@zh:core.interactions.I17.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S53"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S23"
+      ]
+    },
+    "conditions": {
+      "required_object_id": "FUR24"
+    },
+    "duration_seconds": 8,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I18",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I18.name",
+    "scene": "@zh:core.interactions.I18.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S51"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S50"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I19",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I19.name",
+    "scene": "@zh:core.interactions.I19.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S55"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S01"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I20",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I20.name",
+    "scene": "@zh:core.interactions.I20.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S56"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S49"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 8,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I21",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I21.name",
+    "scene": "@zh:core.interactions.I21.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S54"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S35"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I22",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I22.name",
+    "scene": "@zh:core.interactions.I22.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S57"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S41"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I23",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I23.name",
+    "response_variants": [
+      {
+        "actor_role": "actor_b",
+        "condition": "actor_personality",
+        "id": "I23_P",
+        "low_motion_scene": "@zh:core.interactions.I23.response_variants.I23_P.low_motion_scene",
+        "personality_id": "PP04",
+        "scene": "@zh:core.interactions.I23.response_variants.I23_P.scene"
+      },
+      {
+        "condition": "familiar_relationship",
+        "id": "I23_F",
+        "low_motion_scene": "@zh:core.interactions.I23.response_variants.I23_F.low_motion_scene",
+        "scene": "@zh:core.interactions.I23.response_variants.I23_F.scene"
+      }
+    ],
+    "scene": "@zh:core.interactions.I23.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S58"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S42"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 8,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I24",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I24.name",
+    "scene": "@zh:core.interactions.I24.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S59"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S42"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I25",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I25.name",
+    "scene": "@zh:core.interactions.I25.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S60"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S32"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I26",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I26.name",
+    "scene": "@zh:core.interactions.I26.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S61"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S47"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 8,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I27",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I27.name",
+    "scene": "@zh:core.interactions.I27.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S62"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S77"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I28",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I28.name",
+    "scene": "@zh:core.interactions.I28.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S63"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S75"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I29",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I29.name",
+    "scene": "@zh:core.interactions.I29.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S64"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S44"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 8,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I30",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I30.name",
+    "scene": "@zh:core.interactions.I30.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S65"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S43"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I31",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I31.name",
+    "scene": "@zh:core.interactions.I31.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S66"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S67"
+      ]
+    },
+    "conditions": {
+      "required_object_id": "FUR24"
+    },
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I32",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I32.name",
+    "scene": "@zh:core.interactions.I32.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S68"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S46"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 8,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I33",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I33.name",
+    "scene": "@zh:core.interactions.I33.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S69"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S26"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I34",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I34.name",
+    "response_variants": [
+      {
+        "actor_role": "actor_b",
+        "condition": "actor_personality",
+        "id": "I34_P",
+        "low_motion_scene": "@zh:core.interactions.I34.response_variants.I34_P.low_motion_scene",
+        "personality_id": "PP02",
+        "scene": "@zh:core.interactions.I34.response_variants.I34_P.scene"
+      },
+      {
+        "condition": "familiar_relationship",
+        "id": "I34_F",
+        "low_motion_scene": "@zh:core.interactions.I34.response_variants.I34_F.low_motion_scene",
+        "scene": "@zh:core.interactions.I34.response_variants.I34_F.scene"
+      }
+    ],
+    "scene": "@zh:core.interactions.I34.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S71"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S18"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I35",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I35.name",
+    "scene": "@zh:core.interactions.I35.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S70"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S80"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 8,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I36",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I36.name",
+    "scene": "@zh:core.interactions.I36.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S72"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S33"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I37",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I37.name",
+    "scene": "@zh:core.interactions.I37.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S73"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S79"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I38",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I38.name",
+    "scene": "@zh:core.interactions.I38.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S74"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S16"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 8,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I39",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I39.name",
+    "scene": "@zh:core.interactions.I39.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S75"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S37"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I40",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I40.name",
+    "scene": "@zh:core.interactions.I40.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S76"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S24"
+      ]
+    },
+    "conditions": {
+      "required_object_id": "FUR24"
+    },
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I41",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I41.name",
+    "scene": "@zh:core.interactions.I41.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S77"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S02"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 8,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I42",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I42.name",
+    "scene": "@zh:core.interactions.I42.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S78"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S17"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I43",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I43.name",
+    "scene": "@zh:core.interactions.I43.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S79"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S49"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I44",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I44.name",
+    "response_variants": [
+      {
+        "actor_role": "actor_b",
+        "condition": "actor_personality",
+        "id": "I44_P",
+        "low_motion_scene": "@zh:core.interactions.I44.response_variants.I44_P.low_motion_scene",
+        "personality_id": "PP04",
+        "scene": "@zh:core.interactions.I44.response_variants.I44_P.scene"
+      },
+      {
+        "condition": "familiar_relationship",
+        "id": "I44_F",
+        "low_motion_scene": "@zh:core.interactions.I44.response_variants.I44_F.low_motion_scene",
+        "scene": "@zh:core.interactions.I44.response_variants.I44_F.scene"
+      }
+    ],
+    "scene": "@zh:core.interactions.I44.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S80"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S68"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 8,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I45",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I45.name",
+    "scene": "@zh:core.interactions.I45.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S25"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S43"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I46",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I46.name",
+    "scene": "@zh:core.interactions.I46.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S35"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S40"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I47",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I47.name",
+    "scene": "@zh:core.interactions.I47.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S49"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S10"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 8,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I48",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I48.name",
+    "response_variants": [
+      {
+        "actor_role": "actor_a",
+        "condition": "actor_personality",
+        "id": "I48_P",
+        "low_motion_scene": "@zh:core.interactions.I48.response_variants.I48_P.low_motion_scene",
+        "personality_id": "PP07",
+        "scene": "@zh:core.interactions.I48.response_variants.I48_P.scene"
+      },
+      {
+        "condition": "familiar_relationship",
+        "id": "I48_F",
+        "low_motion_scene": "@zh:core.interactions.I48.response_variants.I48_F.low_motion_scene",
+        "scene": "@zh:core.interactions.I48.response_variants.I48_F.scene"
+      }
+    ],
+    "scene": "@zh:core.interactions.I48.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S02"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S01"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I49",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I49.name",
+    "preferred_personality_ids": [
+      "PP03",
+      "PP10"
+    ],
+    "response_variants": [
+      {
+        "actor_role": "actor_a",
+        "condition": "actor_personality",
+        "id": "I49_P",
+        "low_motion_scene": "@zh:core.interactions.I49.response_variants.I49_P.low_motion_scene",
+        "personality_id": "PP03",
+        "scene": "@zh:core.interactions.I49.response_variants.I49_P.scene"
+      },
+      {
+        "condition": "familiar_relationship",
+        "id": "I49_F",
+        "low_motion_scene": "@zh:core.interactions.I49.response_variants.I49_F.low_motion_scene",
+        "scene": "@zh:core.interactions.I49.response_variants.I49_F.scene"
+      }
+    ],
+    "scene": "@zh:core.interactions.I49.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S09"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S71"
+      ]
+    },
+    "conditions": {
+      "required_object_id": "FUR42"
+    },
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I50",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I50.name",
+    "preferred_personality_ids": [
+      "PP08",
+      "PP10"
+    ],
+    "response_variants": [
+      {
+        "actor_role": "actor_a",
+        "condition": "actor_personality",
+        "id": "I50_P",
+        "low_motion_scene": "@zh:core.interactions.I50.response_variants.I50_P.low_motion_scene",
+        "personality_id": "PP04",
+        "scene": "@zh:core.interactions.I50.response_variants.I50_P.scene"
+      },
+      {
+        "condition": "familiar_relationship",
+        "id": "I50_F",
+        "low_motion_scene": "@zh:core.interactions.I50.response_variants.I50_F.low_motion_scene",
+        "scene": "@zh:core.interactions.I50.response_variants.I50_F.scene"
+      }
+    ],
+    "scene": "@zh:core.interactions.I50.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S24"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S53"
+      ]
+    },
+    "conditions": {
+      "required_object_id": "FUR24"
+    },
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I51",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I51.name",
+    "preferred_personality_ids": [
+      "PP05",
+      "PP08"
+    ],
+    "scene": "@zh:core.interactions.I51.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S80"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S26"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I52",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I52.name",
+    "preferred_personality_ids": [
+      "PP09",
+      "PP10"
+    ],
+    "scene": "@zh:core.interactions.I52.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S14"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S16"
+      ]
+    },
+    "conditions": {
+      "required_object_id": "FUR45"
+    },
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I53",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I53.name",
+    "preferred_personality_ids": [
+      "PP03",
+      "PP09"
+    ],
+    "scene": "@zh:core.interactions.I53.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S37"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S10"
+      ]
+    },
+    "conditions": {
+      "required_object_id": "FUR42"
+    },
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I54",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I54.name",
+    "preferred_personality_ids": [
+      "PP03",
+      "PP08"
+    ],
+    "scene": "@zh:core.interactions.I54.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S52"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S69"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I55",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I55.name",
+    "preferred_personality_ids": [
+      "PP01",
+      "PP09"
+    ],
+    "response_variants": [
+      {
+        "actor_role": "actor_b",
+        "condition": "actor_personality",
+        "id": "I55_P",
+        "low_motion_scene": "@zh:core.interactions.I55.response_variants.I55_P.low_motion_scene",
+        "personality_id": "PP02",
+        "scene": "@zh:core.interactions.I55.response_variants.I55_P.scene"
+      },
+      {
+        "condition": "familiar_relationship",
+        "id": "I55_F",
+        "low_motion_scene": "@zh:core.interactions.I55.response_variants.I55_F.low_motion_scene",
+        "scene": "@zh:core.interactions.I55.response_variants.I55_F.scene"
+      }
+    ],
+    "scene": "@zh:core.interactions.I55.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S47"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S62"
+      ]
+    },
+    "conditions": {
+      "required_object_id": "FUR19"
+    },
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I56",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I56.name",
+    "preferred_personality_ids": [
+      "PP03",
+      "PP08"
+    ],
+    "scene": "@zh:core.interactions.I56.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S28"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S49"
+      ]
+    },
+    "conditions": {
+      "required_object_id": "FUR32"
+    },
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I57",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I57.name",
+    "preferred_personality_ids": [
+      "PP05",
+      "PP10"
+    ],
+    "scene": "@zh:core.interactions.I57.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S33"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S07"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I58",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I58.name",
+    "preferred_personality_ids": [
+      "PP01",
+      "PP05"
+    ],
+    "scene": "@zh:core.interactions.I58.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S05"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S54"
+      ]
+    },
+    "conditions": {
+      "required_object_id": "FUR42"
+    },
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I59",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I59.name",
+    "preferred_personality_ids": [
+      "PP08",
+      "PP10"
+    ],
+    "scene": "@zh:core.interactions.I59.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S43"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S11"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I60",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I60.name",
+    "preferred_personality_ids": [
+      "PP01",
+      "PP07"
+    ],
+    "scene": "@zh:core.interactions.I60.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S48"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S49"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I61",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I61.name",
+    "preferred_personality_ids": [
+      "PP03",
+      "PP10"
+    ],
+    "scene": "@zh:core.interactions.I61.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S17"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S71"
+      ]
+    },
+    "conditions": {
+      "required_object_id": "FUR42"
+    },
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I62",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I62.name",
+    "preferred_personality_ids": [
+      "PP04",
+      "PP10"
+    ],
+    "response_variants": [
+      {
+        "actor_role": "actor_a",
+        "condition": "actor_personality",
+        "id": "I62_P",
+        "low_motion_scene": "@zh:core.interactions.I62.response_variants.I62_P.low_motion_scene",
+        "personality_id": "PP04",
+        "scene": "@zh:core.interactions.I62.response_variants.I62_P.scene"
+      },
+      {
+        "condition": "familiar_relationship",
+        "id": "I62_F",
+        "low_motion_scene": "@zh:core.interactions.I62.response_variants.I62_F.low_motion_scene",
+        "scene": "@zh:core.interactions.I62.response_variants.I62_F.scene"
+      }
+    ],
+    "scene": "@zh:core.interactions.I62.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S63"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S20"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I63",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I63.name",
+    "preferred_personality_ids": [
+      "PP03",
+      "PP07"
+    ],
+    "scene": "@zh:core.interactions.I63.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S70"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S80"
+      ]
+    },
+    "conditions": {
+      "required_object_id": "FUR45"
+    },
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I64",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I64.name",
+    "preferred_personality_ids": [
+      "PP01",
+      "PP09"
+    ],
+    "scene": "@zh:core.interactions.I64.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S27"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S51"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I65",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I65.name",
+    "preferred_personality_ids": [
+      "PP05",
+      "PP07"
+    ],
+    "scene": "@zh:core.interactions.I65.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S35"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S34"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I66",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I66.name",
+    "preferred_personality_ids": [
+      "PP01",
+      "PP08"
+    ],
+    "scene": "@zh:core.interactions.I66.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S74"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S15"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I67",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I67.name",
+    "preferred_personality_ids": [
+      "PP03",
+      "PP10"
+    ],
+    "scene": "@zh:core.interactions.I67.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S64"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S79"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I68",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I68.name",
+    "preferred_personality_ids": [
+      "PP03",
+      "PP08"
+    ],
+    "scene": "@zh:core.interactions.I68.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S57"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S29"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I69",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I69.name",
+    "preferred_personality_ids": [
+      "PP01",
+      "PP04"
+    ],
+    "response_variants": [
+      {
+        "actor_role": "actor_a",
+        "condition": "actor_personality",
+        "id": "I69_P",
+        "low_motion_scene": "@zh:core.interactions.I69.response_variants.I69_P.low_motion_scene",
+        "personality_id": "PP04",
+        "scene": "@zh:core.interactions.I69.response_variants.I69_P.scene"
+      },
+      {
+        "condition": "familiar_relationship",
+        "id": "I69_F",
+        "low_motion_scene": "@zh:core.interactions.I69.response_variants.I69_F.low_motion_scene",
+        "scene": "@zh:core.interactions.I69.response_variants.I69_F.scene"
+      }
+    ],
+    "scene": "@zh:core.interactions.I69.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S36"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S71"
+      ]
+    },
+    "conditions": {
+      "required_object_id": "FUR42"
+    },
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I70",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I70.name",
+    "preferred_personality_ids": [
+      "PP03",
+      "PP10"
+    ],
+    "response_variants": [
+      {
+        "actor_role": "actor_a",
+        "condition": "actor_personality",
+        "id": "I70_P",
+        "low_motion_scene": "@zh:core.interactions.I70.response_variants.I70_P.low_motion_scene",
+        "personality_id": "PP10",
+        "scene": "@zh:core.interactions.I70.response_variants.I70_P.scene"
+      },
+      {
+        "condition": "familiar_relationship",
+        "id": "I70_F",
+        "low_motion_scene": "@zh:core.interactions.I70.response_variants.I70_F.low_motion_scene",
+        "scene": "@zh:core.interactions.I70.response_variants.I70_F.scene"
+      }
+    ],
+    "scene": "@zh:core.interactions.I70.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S59"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S42"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I71",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I71.name",
+    "preferred_personality_ids": [
+      "PP01",
+      "PP05"
+    ],
+    "scene": "@zh:core.interactions.I71.scene"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S02"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S25"
+      ]
+    },
+    "conditions": {},
+    "duration_seconds": 6,
+    "effects": [
+      "play_gag",
+      "mood_delta"
+    ],
+    "id": "I72",
+    "interrupt_seconds": 1,
+    "may_start_incident": false,
+    "name": "@zh:core.interactions.I72.name",
+    "preferred_personality_ids": [
+      "PP07",
+      "PP10"
+    ],
+    "response_variants": [
+      {
+        "actor_role": "actor_b",
+        "condition": "actor_personality",
+        "id": "I72_P",
+        "low_motion_scene": "@zh:core.interactions.I72.response_variants.I72_P.low_motion_scene",
+        "personality_id": "PP07",
+        "scene": "@zh:core.interactions.I72.response_variants.I72_P.scene"
+      },
+      {
+        "condition": "familiar_relationship",
+        "id": "I72_F",
+        "low_motion_scene": "@zh:core.interactions.I72.response_variants.I72_F.low_motion_scene",
+        "scene": "@zh:core.interactions.I72.response_variants.I72_F.scene"
+      }
+    ],
+    "scene": "@zh:core.interactions.I72.scene"
+  }
+]

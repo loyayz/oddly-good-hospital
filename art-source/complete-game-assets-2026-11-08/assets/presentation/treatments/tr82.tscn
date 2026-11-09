@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3]
+[ext_resource type="PackedScene" path="res://assets/props/library/label.glb" id="P0"]
+[ext_resource type="PackedScene" path="res://assets/props/library/loading.glb" id="P1"]
+[ext_resource type="AnimationLibrary" path="res://assets/animations/treatments/tr82.tres" id="L"]
+[node name="TreatmentRoutine" type="Node3D"]
+metadata/source_id = "TR82"
+metadata/beat_1 = "展开只记录幻想症状的小幕布"
+metadata/beat_2 = "剪去提前播放的片头"
+metadata/beat_3 = "图符条坐上迷你末班车回梦里"
+metadata/beat_4 = "小幕布关合，剪辑工具收回支架"
+[node name="Tool" type="Node3D" parent="."]
+[node name="Prop0" parent="Tool" instance=ExtResource("P0")]
+position = Vector3(-0.150000, 0.400000, 0.000000)
+[node name="Prop1" parent="Tool" instance=ExtResource("P1")]
+position = Vector3(0.150000, 0.400000, 0.000000)
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {&"": ExtResource("L")}

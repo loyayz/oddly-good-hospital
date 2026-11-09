@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=3]
+[ext_resource type="Texture2D" path="res://assets/ui/supplements/professions/priest.png" id="Badge"]
+[sub_resource type="StandardMaterial3D" id="Cloth"]
+albedo_color = Color(0.70, 0.65, 0.83, 1)
+roughness = 0.9
+[sub_resource type="BoxMesh" id="Garment"]
+material = SubResource("Cloth")
+size = Vector3(0.33, 0.43, 0.025)
+
+[node name="ProfessionAccessory" type="Node3D"]
+metadata/profession_visual = "priest"
+metadata/target_slot = "spine"
+metadata/allowed_rigs = "biped"
+[node name="Tabard" type="MeshInstance3D" parent="."]
+position = Vector3(0, -0.15, 0.08)
+mesh = SubResource("Garment")
+
+[node name="Emblem" type="Sprite3D" parent="."]
+position = Vector3(0, -0.02, 0.11)
+pixel_size = 0.001
+texture = ExtResource("Badge")
+alpha_cut = 1

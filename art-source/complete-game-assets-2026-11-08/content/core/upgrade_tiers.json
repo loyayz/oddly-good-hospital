@@ -1,0 +1,18 @@
+[
+  {
+    "appearance": "@zh:core.upgrade_tiers.UT01.appearance",
+    "id": "UT01",
+    "level": 1,
+    "price_basis_points": 3000,
+    "research_id": "R12",
+    "work_seconds": 30
+  },
+  {
+    "appearance": "@zh:core.upgrade_tiers.UT02.appearance",
+    "id": "UT02",
+    "level": 2,
+    "price_basis_points": 4500,
+    "research_id": "R13",
+    "work_seconds": 30
+  }
+]

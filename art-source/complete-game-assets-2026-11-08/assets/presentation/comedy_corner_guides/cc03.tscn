@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3]
+[ext_resource type="Theme" path="res://assets/ui/hospital_theme.tres" id="1"]
+[node name="PresentationCard" type="PanelContainer"]
+custom_minimum_size = Vector2(280, 100)
+theme = ExtResource("1")
+[node name="Content" type="VBoxContainer" parent="."]
+layout_mode = 2
+[node name="Title" type="Label" parent="Content"]
+layout_mode = 2
+text = "小小观察站"
+[node name="Body" type="Label" parent="Content"]
+layout_mode = 2
+text = "观察窗外按观察者真实身体留完整站位和往返路线，微观居民使用自己的实际载具及兼容位置；三格长的细缝不能当巨人的3×3空地。\n微观载具停靠与真实观察；按观察窗的放大按钮近看已到场居民和小合唱，空窗不凭空生成微生物。"
+autowrap_mode = 2

@@ -1,0 +1,93 @@
+[
+  {
+    "capacity": 1,
+    "equipment_class": "comfort",
+    "fit_profile_id": "FF05",
+    "footprint": [
+      4,
+      4
+    ],
+    "id": "AE01",
+    "initially_available": true,
+    "max_clearance_cells": 3,
+    "max_height_m": 6.5,
+    "name": "@zh:core.accessibility_equipment.AE01.name",
+    "operation_anchor": [
+      0,
+      -3
+    ],
+    "price": 360,
+    "purposes": [
+      "waiting",
+      "staff_rest"
+    ],
+    "repair_anchor": [
+      4,
+      0
+    ],
+    "service_seconds": null,
+    "support_anchor": [
+      0,
+      0
+    ]
+  },
+  {
+    "capacity": 1,
+    "equipment_class": "utility",
+    "fit_profile_id": "FF05",
+    "footprint": [
+      1,
+      1
+    ],
+    "id": "AE02",
+    "initially_available": true,
+    "max_clearance_cells": 3,
+    "max_height_m": 6.5,
+    "name": "@zh:core.accessibility_equipment.AE02.name",
+    "operation_anchor": [
+      -1,
+      -3
+    ],
+    "price": 220,
+    "purposes": [
+      "water"
+    ],
+    "repair_anchor": [
+      1,
+      0
+    ],
+    "service_seconds": 8,
+    "support_anchor": null
+  },
+  {
+    "capacity": 1,
+    "equipment_class": "utility",
+    "fit_profile_id": "FF05",
+    "footprint": [
+      4,
+      4
+    ],
+    "id": "AE03",
+    "initially_available": true,
+    "max_clearance_cells": 3,
+    "max_height_m": 6.5,
+    "name": "@zh:core.accessibility_equipment.AE03.name",
+    "operation_anchor": [
+      0,
+      -3
+    ],
+    "price": 850,
+    "purposes": [
+      "toilet"
+    ],
+    "repair_anchor": [
+      4,
+      0
+    ],
+    "service_seconds": 8,
+    "support_anchor": [
+      0,
+      0
+    ]
+  }
+]

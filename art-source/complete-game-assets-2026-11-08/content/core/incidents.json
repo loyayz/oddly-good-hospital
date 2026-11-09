@@ -1,0 +1,1257 @@
+[
+  {
+    "actor_a": {
+      "tags_any": [
+        "plant"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S13"
+      ]
+    },
+    "actor_pause_seconds": 25,
+    "actor_recovery_seconds": 0,
+    "base_probability": 0.3,
+    "behavior_kind": "conflict",
+    "care_role": "nurse",
+    "care_work_seconds": 8,
+    "cleanup_count": 3,
+    "conditions": {
+      "excluded_actor_states": [
+        "surgery_locked",
+        "ward_recovering",
+        "nurse_escorting"
+      ],
+      "excluded_relationships": [
+        "reconciled"
+      ]
+    },
+    "contexts_any": [
+      "resource_dispute",
+      "misunderstanding",
+      "provocation"
+    ],
+    "effects": [
+      "pause_actor",
+      "play_gag",
+      "spawn_cleanup"
+    ],
+    "followup": "@zh:core.incidents.E01.followup",
+    "followup_max": 1,
+    "id": "E01",
+    "max_duration_seconds": 45,
+    "may_start_incident": false,
+    "name": "@zh:core.incidents.E01.name",
+    "natural_resolution_seconds": 25,
+    "observer_max": 0,
+    "release_reservations_on_finish": true,
+    "required_context_ids": [
+      "shared_resource_claim"
+    ],
+    "resolution": "@zh:core.incidents.E01.resolution",
+    "restores_state": true,
+    "scene": "@zh:core.incidents.E01.scene",
+    "trigger": "encounter"
+  },
+  {
+    "actor_a": {
+      "profession": "priest"
+    },
+    "actor_b": {
+      "species_any": [
+        "S09"
+      ]
+    },
+    "actor_pause_seconds": 25,
+    "actor_recovery_seconds": 0,
+    "base_probability": 0.3,
+    "behavior_kind": "conflict",
+    "care_role": "nurse",
+    "care_work_seconds": 8,
+    "cleanup_count": 0,
+    "conditions": {
+      "excluded_actor_states": [
+        "surgery_locked",
+        "ward_recovering",
+        "nurse_escorting"
+      ],
+      "excluded_relationships": [
+        "reconciled"
+      ]
+    },
+    "contexts_any": [
+      "resource_dispute",
+      "misunderstanding",
+      "provocation"
+    ],
+    "effects": [
+      "pause_actor",
+      "play_gag"
+    ],
+    "followup": "@zh:core.incidents.E02.followup",
+    "followup_max": 1,
+    "id": "E02",
+    "max_duration_seconds": 45,
+    "may_start_incident": false,
+    "name": "@zh:core.incidents.E02.name",
+    "natural_resolution_seconds": 25,
+    "observer_max": 0,
+    "release_reservations_on_finish": true,
+    "required_context_ids": [
+      "sunshade_prop_misread"
+    ],
+    "resolution": "@zh:core.incidents.E02.resolution",
+    "restores_state": true,
+    "scene": "@zh:core.incidents.E02.scene",
+    "trigger": "encounter"
+  },
+  {
+    "actor_a": {
+      "quirk": "ice_temper"
+    },
+    "actor_b": {
+      "any_resident": true
+    },
+    "actor_pause_seconds": 45,
+    "actor_recovery_seconds": 8,
+    "base_probability": 0.4,
+    "behavior_kind": "outburst",
+    "care_role": "nurse",
+    "care_work_seconds": 12,
+    "cleanup_count": 0,
+    "conditions": {
+      "excluded_actor_states": [
+        "surgery_locked",
+        "ward_recovering",
+        "nurse_escorting"
+      ],
+      "mood_below": 55,
+      "once_per_visit": true,
+      "target": "last_treating_staff",
+      "visit_outcome": "failed"
+    },
+    "contexts_any": [
+      "failed_treatment"
+    ],
+    "effects": [
+      "pause_actor",
+      "play_gag",
+      "assign_care_task"
+    ],
+    "followup": "@zh:core.incidents.E03.followup",
+    "followup_max": 1,
+    "id": "E03",
+    "max_duration_seconds": 60,
+    "may_start_incident": false,
+    "name": "@zh:core.incidents.E03.name",
+    "natural_resolution_seconds": 45,
+    "observer_max": 0,
+    "release_reservations_on_finish": true,
+    "required_context_ids": [
+      "failed_treatment"
+    ],
+    "resolution": "@zh:core.incidents.E03.resolution",
+    "restores_state": true,
+    "scene": "@zh:core.incidents.E03.scene",
+    "trigger": "failure"
+  },
+  {
+    "actor_a": {
+      "quirk": "smoke_shame"
+    },
+    "actor_b": {
+      "any_resident": true
+    },
+    "actor_pause_seconds": 30,
+    "actor_recovery_seconds": 0,
+    "base_probability": 0.4,
+    "behavior_kind": "outburst",
+    "care_role": "mechanic",
+    "care_work_seconds": 10,
+    "cleanup_count": 0,
+    "conditions": {
+      "excluded_actor_states": [
+        "surgery_locked",
+        "ward_recovering",
+        "nurse_escorting"
+      ],
+      "mood_below": 55,
+      "once_per_visit": true,
+      "target": "last_treatment_station",
+      "visit_outcome": "failed"
+    },
+    "contexts_any": [
+      "failed_treatment"
+    ],
+    "effects": [
+      "pause_actor",
+      "play_gag",
+      "pause_station"
+    ],
+    "followup": "@zh:core.incidents.E04.followup",
+    "followup_max": 1,
+    "id": "E04",
+    "max_duration_seconds": 45,
+    "may_start_incident": false,
+    "name": "@zh:core.incidents.E04.name",
+    "natural_resolution_seconds": 30,
+    "observer_max": 0,
+    "release_reservations_on_finish": true,
+    "required_context_ids": [
+      "failed_treatment"
+    ],
+    "resolution": "@zh:core.incidents.E04.resolution",
+    "restores_state": true,
+    "scene": "@zh:core.incidents.E04.scene",
+    "trigger": "failure"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S33"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S34"
+      ]
+    },
+    "actor_pause_seconds": 20,
+    "actor_recovery_seconds": 0,
+    "base_probability": 0.4,
+    "behavior_kind": "mishap",
+    "care_role": "nurse",
+    "care_work_seconds": 8,
+    "cleanup_count": 0,
+    "conditions": {
+      "excluded_actor_states": [
+        "surgery_locked",
+        "ward_recovering",
+        "nurse_escorting"
+      ],
+      "relationship": "friend",
+      "required_seat_state": "wet"
+    },
+    "contexts_any": [
+      "misunderstanding"
+    ],
+    "effects": [
+      "pause_actor",
+      "play_gag"
+    ],
+    "followup": "@zh:core.incidents.E05.followup",
+    "followup_max": 1,
+    "id": "E05",
+    "max_duration_seconds": 35,
+    "may_start_incident": false,
+    "name": "@zh:core.incidents.E05.name",
+    "natural_resolution_seconds": 20,
+    "observer_max": 0,
+    "release_reservations_on_finish": true,
+    "required_context_ids": [
+      "wet_seat_invitation"
+    ],
+    "resolution": "@zh:core.incidents.E05.resolution",
+    "restores_state": true,
+    "scene": "@zh:core.incidents.E05.scene",
+    "trigger": "encounter"
+  },
+  {
+    "actor_a": {
+      "disease": "D35"
+    },
+    "actor_b": {
+      "any_resident": true
+    },
+    "actor_pause_seconds": 20,
+    "actor_recovery_seconds": 0,
+    "base_probability": 0.4,
+    "behavior_kind": "mishap",
+    "care_role": "receptionist",
+    "care_work_seconds": 6,
+    "cleanup_count": 0,
+    "conditions": {
+      "excluded_actor_states": [
+        "surgery_locked",
+        "ward_recovering",
+        "nurse_escorting"
+      ],
+      "min_wait_seconds": 30,
+      "requires_empty_seat": true
+    },
+    "contexts_any": [
+      "misunderstanding"
+    ],
+    "effects": [
+      "pause_actor",
+      "play_gag"
+    ],
+    "followup": "@zh:core.incidents.E06.followup",
+    "followup_max": 1,
+    "id": "E06",
+    "max_duration_seconds": 30,
+    "may_start_incident": false,
+    "name": "@zh:core.incidents.E06.name",
+    "natural_resolution_seconds": 20,
+    "observer_max": 0,
+    "release_reservations_on_finish": true,
+    "required_context_ids": [
+      "shadow_seat_overlap"
+    ],
+    "reserved_object": "empty_seat",
+    "resolution": "@zh:core.incidents.E06.resolution",
+    "restores_state": true,
+    "scene": "@zh:core.incidents.E06.scene",
+    "trigger": "self"
+  },
+  {
+    "actor_a": {
+      "disease": "D06"
+    },
+    "actor_b": {
+      "any_resident": true
+    },
+    "actor_pause_seconds": 10,
+    "actor_recovery_seconds": 0,
+    "base_probability": 0.4,
+    "behavior_kind": "mishap",
+    "care_role": "cleaner",
+    "care_work_seconds": 4,
+    "cleanup_count": 3,
+    "conditions": {
+      "definition_cooldown_seconds": 300,
+      "excluded_actor_states": [
+        "surgery_locked",
+        "ward_recovering",
+        "nurse_escorting"
+      ]
+    },
+    "contexts_any": [
+      "misunderstanding"
+    ],
+    "effects": [
+      "pause_actor",
+      "play_gag",
+      "spawn_cleanup"
+    ],
+    "followup": "@zh:core.incidents.E07.followup",
+    "followup_max": 1,
+    "id": "E07",
+    "max_duration_seconds": 70,
+    "may_start_incident": false,
+    "name": "@zh:core.incidents.E07.name",
+    "natural_resolution_seconds": 10,
+    "observer_max": 0,
+    "release_reservations_on_finish": true,
+    "required_context_ids": [
+      "pocket_overflow"
+    ],
+    "resolution": "@zh:core.incidents.E07.resolution",
+    "restores_state": true,
+    "scene": "@zh:core.incidents.E07.scene",
+    "trigger": "self"
+  },
+  {
+    "actor_a": {
+      "disease": "D37"
+    },
+    "actor_b": {
+      "any_resident": true
+    },
+    "actor_pause_seconds": 6,
+    "actor_recovery_seconds": 0,
+    "base_probability": 0.4,
+    "behavior_kind": "mishap",
+    "care_role": "cleaner",
+    "care_work_seconds": 8,
+    "cleanup_count": 3,
+    "conditions": {
+      "definition_cooldown_seconds": 300,
+      "excluded_actor_states": [
+        "surgery_locked",
+        "ward_recovering",
+        "nurse_escorting"
+      ]
+    },
+    "contexts_any": [
+      "misunderstanding"
+    ],
+    "effects": [
+      "pause_actor",
+      "play_gag",
+      "spawn_cleanup"
+    ],
+    "followup": "@zh:core.incidents.E08.followup",
+    "followup_max": 1,
+    "id": "E08",
+    "max_duration_seconds": 35,
+    "may_start_incident": false,
+    "name": "@zh:core.incidents.E08.name",
+    "natural_resolution_seconds": 20,
+    "observer_max": 0,
+    "release_reservations_on_finish": true,
+    "required_context_ids": [
+      "sneeze_buildup"
+    ],
+    "resolution": "@zh:core.incidents.E08.resolution",
+    "restores_state": true,
+    "scene": "@zh:core.incidents.E08.scene",
+    "trigger": "self"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S07",
+        "S51"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S78"
+      ]
+    },
+    "actor_pause_seconds": 25,
+    "actor_recovery_seconds": 0,
+    "base_probability": 0.3,
+    "behavior_kind": "conflict",
+    "care_role": "nurse",
+    "care_work_seconds": 8,
+    "cleanup_count": 0,
+    "conditions": {
+      "excluded_actor_states": [
+        "surgery_locked",
+        "ward_recovering",
+        "nurse_escorting"
+      ]
+    },
+    "contexts_any": [
+      "resource_dispute",
+      "misunderstanding",
+      "provocation"
+    ],
+    "effects": [
+      "pause_actor",
+      "play_gag"
+    ],
+    "followup": "@zh:core.incidents.E09.followup",
+    "followup_max": 1,
+    "id": "E09",
+    "max_duration_seconds": 40,
+    "may_start_incident": false,
+    "name": "@zh:core.incidents.E09.name",
+    "natural_resolution_seconds": 25,
+    "observer_max": 0,
+    "release_reservations_on_finish": true,
+    "required_context_ids": [
+      "tail_prop_contact"
+    ],
+    "resolution": "@zh:core.incidents.E09.resolution",
+    "restores_state": true,
+    "scene": "@zh:core.incidents.E09.scene",
+    "trigger": "encounter"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S25"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S62"
+      ]
+    },
+    "actor_pause_seconds": 25,
+    "actor_recovery_seconds": 0,
+    "base_probability": 0.4,
+    "behavior_kind": "mishap",
+    "care_role": "mechanic",
+    "care_work_seconds": 10,
+    "cleanup_count": 0,
+    "conditions": {
+      "excluded_actor_states": [
+        "surgery_locked",
+        "ward_recovering",
+        "nurse_escorting"
+      ]
+    },
+    "contexts_any": [
+      "misunderstanding"
+    ],
+    "effects": [
+      "pause_actor",
+      "play_gag"
+    ],
+    "followup": "@zh:core.incidents.E10.followup",
+    "followup_max": 1,
+    "id": "E10",
+    "max_duration_seconds": 40,
+    "may_start_incident": false,
+    "name": "@zh:core.incidents.E10.name",
+    "natural_resolution_seconds": 25,
+    "observer_max": 0,
+    "release_reservations_on_finish": true,
+    "required_context_ids": [
+      "magnetic_badge_contact"
+    ],
+    "resolution": "@zh:core.incidents.E10.resolution",
+    "restores_state": true,
+    "scene": "@zh:core.incidents.E10.scene",
+    "trigger": "encounter"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S70"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S16"
+      ]
+    },
+    "actor_pause_seconds": 25,
+    "actor_recovery_seconds": 0,
+    "base_probability": 0.3,
+    "behavior_kind": "conflict",
+    "care_role": "nurse",
+    "care_work_seconds": 8,
+    "cleanup_count": 0,
+    "conditions": {
+      "excluded_actor_states": [
+        "surgery_locked",
+        "ward_recovering",
+        "nurse_escorting"
+      ]
+    },
+    "contexts_any": [
+      "resource_dispute",
+      "misunderstanding",
+      "provocation"
+    ],
+    "effects": [
+      "pause_actor",
+      "play_gag"
+    ],
+    "followup": "@zh:core.incidents.E11.followup",
+    "followup_max": 1,
+    "id": "E11",
+    "max_duration_seconds": 40,
+    "may_start_incident": false,
+    "name": "@zh:core.incidents.E11.name",
+    "natural_resolution_seconds": 25,
+    "observer_max": 0,
+    "release_reservations_on_finish": true,
+    "required_context_ids": [
+      "loose_ribbon_borrowed"
+    ],
+    "resolution": "@zh:core.incidents.E11.resolution",
+    "restores_state": true,
+    "scene": "@zh:core.incidents.E11.scene",
+    "trigger": "encounter"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S68"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S73"
+      ]
+    },
+    "actor_pause_seconds": 30,
+    "actor_recovery_seconds": 0,
+    "base_probability": 0.4,
+    "behavior_kind": "mishap",
+    "care_role": "mechanic",
+    "care_work_seconds": 10,
+    "cleanup_count": 0,
+    "conditions": {
+      "excluded_actor_states": [
+        "surgery_locked",
+        "ward_recovering",
+        "nurse_escorting"
+      ]
+    },
+    "contexts_any": [
+      "misunderstanding"
+    ],
+    "effects": [
+      "pause_actor",
+      "play_gag"
+    ],
+    "followup": "@zh:core.incidents.E12.followup",
+    "followup_max": 1,
+    "id": "E12",
+    "max_duration_seconds": 45,
+    "may_start_incident": false,
+    "name": "@zh:core.incidents.E12.name",
+    "natural_resolution_seconds": 30,
+    "observer_max": 0,
+    "release_reservations_on_finish": true,
+    "required_context_ids": [
+      "decorative_sand_dropped"
+    ],
+    "resolution": "@zh:core.incidents.E12.resolution",
+    "restores_state": true,
+    "scene": "@zh:core.incidents.E12.scene",
+    "trigger": "encounter"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S52"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S26"
+      ]
+    },
+    "actor_pause_seconds": 25,
+    "actor_recovery_seconds": 0,
+    "base_probability": 0.3,
+    "behavior_kind": "conflict",
+    "care_role": "receptionist",
+    "care_work_seconds": 8,
+    "cleanup_count": 0,
+    "conditions": {
+      "excluded_actor_states": [
+        "surgery_locked",
+        "ward_recovering",
+        "nurse_escorting"
+      ],
+      "excluded_relationships": [
+        "reconciled"
+      ]
+    },
+    "contexts_any": [
+      "resource_dispute",
+      "misunderstanding",
+      "provocation"
+    ],
+    "effects": [
+      "pause_actor",
+      "play_gag"
+    ],
+    "followup": "@zh:core.incidents.E13.followup",
+    "followup_max": 1,
+    "id": "E13",
+    "max_duration_seconds": 40,
+    "may_start_incident": false,
+    "name": "@zh:core.incidents.E13.name",
+    "natural_resolution_seconds": 25,
+    "observer_max": 0,
+    "release_reservations_on_finish": true,
+    "required_context_ids": [
+      "queue_order_dispute"
+    ],
+    "resolution": "@zh:core.incidents.E13.resolution",
+    "restores_state": true,
+    "scene": "@zh:core.incidents.E13.scene",
+    "trigger": "encounter"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S58"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S72"
+      ]
+    },
+    "actor_pause_seconds": 30,
+    "actor_recovery_seconds": 0,
+    "base_probability": 0.4,
+    "behavior_kind": "mishap",
+    "care_role": "nurse",
+    "care_work_seconds": 10,
+    "cleanup_count": 0,
+    "conditions": {
+      "excluded_actor_states": [
+        "surgery_locked",
+        "ward_recovering",
+        "nurse_escorting"
+      ]
+    },
+    "contexts_any": [
+      "misunderstanding"
+    ],
+    "effects": [
+      "pause_actor",
+      "play_gag"
+    ],
+    "followup": "@zh:core.incidents.E14.followup",
+    "followup_max": 1,
+    "id": "E14",
+    "max_duration_seconds": 45,
+    "may_start_incident": false,
+    "name": "@zh:core.incidents.E14.name",
+    "natural_resolution_seconds": 30,
+    "observer_max": 0,
+    "release_reservations_on_finish": true,
+    "required_context_ids": [
+      "ribbon_handshake"
+    ],
+    "resolution": "@zh:core.incidents.E14.resolution",
+    "restores_state": true,
+    "scene": "@zh:core.incidents.E14.scene",
+    "trigger": "encounter"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S71"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S47"
+      ]
+    },
+    "actor_pause_seconds": 25,
+    "actor_recovery_seconds": 0,
+    "base_probability": 0.3,
+    "behavior_kind": "conflict",
+    "care_role": "nurse",
+    "care_work_seconds": 8,
+    "cleanup_count": 0,
+    "conditions": {
+      "excluded_actor_states": [
+        "surgery_locked",
+        "ward_recovering",
+        "nurse_escorting"
+      ],
+      "excluded_relationships": [
+        "reconciled"
+      ]
+    },
+    "contexts_any": [
+      "resource_dispute",
+      "misunderstanding",
+      "provocation"
+    ],
+    "effects": [
+      "pause_actor",
+      "play_gag"
+    ],
+    "followup": "@zh:core.incidents.E15.followup",
+    "followup_max": 1,
+    "id": "E15",
+    "max_duration_seconds": 40,
+    "may_start_incident": false,
+    "name": "@zh:core.incidents.E15.name",
+    "natural_resolution_seconds": 25,
+    "observer_max": 0,
+    "release_reservations_on_finish": true,
+    "required_context_ids": [
+      "greeting_turn_dispute"
+    ],
+    "resolution": "@zh:core.incidents.E15.resolution",
+    "restores_state": true,
+    "scene": "@zh:core.incidents.E15.scene",
+    "trigger": "encounter"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S02"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S74"
+      ]
+    },
+    "actor_pause_seconds": 25,
+    "actor_recovery_seconds": 0,
+    "base_probability": 0.4,
+    "behavior_kind": "mishap",
+    "care_role": "nurse",
+    "care_work_seconds": 8,
+    "cleanup_count": 0,
+    "conditions": {
+      "excluded_actor_states": [
+        "surgery_locked",
+        "ward_recovering",
+        "nurse_escorting"
+      ]
+    },
+    "contexts_any": [
+      "misunderstanding"
+    ],
+    "effects": [
+      "pause_actor",
+      "play_gag"
+    ],
+    "followup": "@zh:core.incidents.E16.followup",
+    "followup_max": 1,
+    "id": "E16",
+    "max_duration_seconds": 40,
+    "may_start_incident": false,
+    "name": "@zh:core.incidents.E16.name",
+    "natural_resolution_seconds": 25,
+    "observer_max": 0,
+    "release_reservations_on_finish": true,
+    "required_context_ids": [
+      "ticket_ribbon_contact"
+    ],
+    "resolution": "@zh:core.incidents.E16.resolution",
+    "restores_state": true,
+    "scene": "@zh:core.incidents.E16.scene",
+    "trigger": "encounter"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S57"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S10"
+      ]
+    },
+    "actor_pause_seconds": 30,
+    "actor_recovery_seconds": 0,
+    "base_probability": 0.3,
+    "behavior_kind": "conflict",
+    "care_role": "receptionist",
+    "care_work_seconds": 8,
+    "cleanup_count": 0,
+    "conditions": {
+      "excluded_actor_states": [
+        "surgery_locked",
+        "ward_recovering",
+        "nurse_escorting"
+      ],
+      "excluded_relationships": [
+        "reconciled"
+      ]
+    },
+    "contexts_any": [
+      "resource_dispute",
+      "misunderstanding",
+      "provocation"
+    ],
+    "effects": [
+      "pause_actor",
+      "play_gag"
+    ],
+    "followup": "@zh:core.incidents.E17.followup",
+    "followup_max": 1,
+    "id": "E17",
+    "max_duration_seconds": 45,
+    "may_start_incident": false,
+    "name": "@zh:core.incidents.E17.name",
+    "natural_resolution_seconds": 30,
+    "observer_max": 0,
+    "release_reservations_on_finish": true,
+    "required_context_ids": [
+      "spoon_prank_refused"
+    ],
+    "resolution": "@zh:core.incidents.E17.resolution",
+    "restores_state": true,
+    "scene": "@zh:core.incidents.E17.scene",
+    "trigger": "encounter"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S19"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S59"
+      ]
+    },
+    "actor_pause_seconds": 30,
+    "actor_recovery_seconds": 0,
+    "base_probability": 0.4,
+    "behavior_kind": "mishap",
+    "care_role": "nurse",
+    "care_work_seconds": 10,
+    "cleanup_count": 0,
+    "conditions": {
+      "excluded_actor_states": [
+        "surgery_locked",
+        "ward_recovering",
+        "nurse_escorting"
+      ]
+    },
+    "contexts_any": [
+      "misunderstanding"
+    ],
+    "effects": [
+      "pause_actor",
+      "play_gag"
+    ],
+    "followup": "@zh:core.incidents.E18.followup",
+    "followup_max": 1,
+    "id": "E18",
+    "max_duration_seconds": 45,
+    "may_start_incident": false,
+    "name": "@zh:core.incidents.E18.name",
+    "natural_resolution_seconds": 30,
+    "observer_max": 0,
+    "release_reservations_on_finish": true,
+    "required_context_ids": [
+      "shoulder_rest_request"
+    ],
+    "resolution": "@zh:core.incidents.E18.resolution",
+    "restores_state": true,
+    "scene": "@zh:core.incidents.E18.scene",
+    "trigger": "encounter"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S60"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S04"
+      ]
+    },
+    "actor_pause_seconds": 25,
+    "actor_recovery_seconds": 0,
+    "base_probability": 0.4,
+    "behavior_kind": "mishap",
+    "care_role": "cleaner",
+    "care_work_seconds": 8,
+    "cleanup_count": 3,
+    "conditions": {
+      "excluded_actor_states": [
+        "surgery_locked",
+        "ward_recovering",
+        "nurse_escorting"
+      ]
+    },
+    "contexts_any": [
+      "misunderstanding"
+    ],
+    "effects": [
+      "pause_actor",
+      "play_gag",
+      "spawn_cleanup"
+    ],
+    "followup": "@zh:core.incidents.E19.followup",
+    "followup_max": 1,
+    "id": "E19",
+    "max_duration_seconds": 40,
+    "may_start_incident": false,
+    "name": "@zh:core.incidents.E19.name",
+    "natural_resolution_seconds": 25,
+    "observer_max": 0,
+    "release_reservations_on_finish": true,
+    "required_context_ids": [
+      "wet_footprints_overlap"
+    ],
+    "resolution": "@zh:core.incidents.E19.resolution",
+    "restores_state": true,
+    "scene": "@zh:core.incidents.E19.scene",
+    "trigger": "encounter"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S39"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S34"
+      ]
+    },
+    "actor_pause_seconds": 25,
+    "actor_recovery_seconds": 0,
+    "base_probability": 0.4,
+    "behavior_kind": "mishap",
+    "care_role": "nurse",
+    "care_work_seconds": 8,
+    "cleanup_count": 0,
+    "conditions": {
+      "excluded_actor_states": [
+        "surgery_locked",
+        "ward_recovering",
+        "nurse_escorting"
+      ]
+    },
+    "contexts_any": [
+      "misunderstanding"
+    ],
+    "effects": [
+      "pause_actor",
+      "play_gag"
+    ],
+    "followup": "@zh:core.incidents.E20.followup",
+    "followup_max": 1,
+    "id": "E20",
+    "max_duration_seconds": 40,
+    "may_start_incident": false,
+    "name": "@zh:core.incidents.E20.name",
+    "natural_resolution_seconds": 25,
+    "observer_max": 0,
+    "release_reservations_on_finish": true,
+    "required_context_ids": [
+      "warm_greeting"
+    ],
+    "resolution": "@zh:core.incidents.E20.resolution",
+    "restores_state": true,
+    "scene": "@zh:core.incidents.E20.scene",
+    "trigger": "encounter"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S80"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S26"
+      ]
+    },
+    "actor_pause_seconds": 20,
+    "actor_recovery_seconds": 0,
+    "base_probability": 0.4,
+    "behavior_kind": "mishap",
+    "care_role": "nurse",
+    "care_work_seconds": 6,
+    "cleanup_count": 0,
+    "conditions": {
+      "excluded_actor_states": [
+        "surgery_locked",
+        "ward_recovering",
+        "nurse_escorting"
+      ]
+    },
+    "contexts_any": [
+      "misunderstanding"
+    ],
+    "effects": [
+      "pause_actor",
+      "play_gag"
+    ],
+    "followup": "@zh:core.incidents.E21.followup",
+    "followup_max": 1,
+    "id": "E21",
+    "max_duration_seconds": 35,
+    "may_start_incident": false,
+    "name": "@zh:core.incidents.E21.name",
+    "natural_resolution_seconds": 20,
+    "observer_max": 1,
+    "release_reservations_on_finish": true,
+    "required_context_ids": [
+      "calendar_yawn"
+    ],
+    "resolution": "@zh:core.incidents.E21.resolution",
+    "restores_state": true,
+    "scene": "@zh:core.incidents.E21.scene",
+    "trigger": "encounter"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S05"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S54"
+      ]
+    },
+    "actor_pause_seconds": 25,
+    "actor_recovery_seconds": 0,
+    "base_probability": 0.4,
+    "behavior_kind": "mishap",
+    "care_role": "nurse",
+    "care_work_seconds": 8,
+    "cleanup_count": 0,
+    "conditions": {
+      "excluded_actor_states": [
+        "surgery_locked",
+        "ward_recovering",
+        "nurse_escorting"
+      ]
+    },
+    "contexts_any": [
+      "misunderstanding"
+    ],
+    "effects": [
+      "pause_actor",
+      "play_gag"
+    ],
+    "followup": "@zh:core.incidents.E22.followup",
+    "followup_max": 1,
+    "id": "E22",
+    "max_duration_seconds": 40,
+    "may_start_incident": false,
+    "name": "@zh:core.incidents.E22.name",
+    "natural_resolution_seconds": 25,
+    "observer_max": 0,
+    "release_reservations_on_finish": true,
+    "required_context_ids": [
+      "flower_hat_exchange"
+    ],
+    "resolution": "@zh:core.incidents.E22.resolution",
+    "restores_state": true,
+    "scene": "@zh:core.incidents.E22.scene",
+    "trigger": "encounter"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S43"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S70"
+      ]
+    },
+    "actor_pause_seconds": 25,
+    "actor_recovery_seconds": 0,
+    "base_probability": 0.4,
+    "behavior_kind": "mishap",
+    "care_role": "receptionist",
+    "care_work_seconds": 8,
+    "cleanup_count": 0,
+    "conditions": {
+      "excluded_actor_states": [
+        "surgery_locked",
+        "ward_recovering",
+        "nurse_escorting"
+      ]
+    },
+    "contexts_any": [
+      "misunderstanding"
+    ],
+    "effects": [
+      "pause_actor",
+      "play_gag"
+    ],
+    "followup": "@zh:core.incidents.E23.followup",
+    "followup_max": 1,
+    "id": "E23",
+    "max_duration_seconds": 40,
+    "may_start_incident": false,
+    "name": "@zh:core.incidents.E23.name",
+    "natural_resolution_seconds": 25,
+    "observer_max": 0,
+    "release_reservations_on_finish": true,
+    "required_context_ids": [
+      "bookmark_dropped"
+    ],
+    "resolution": "@zh:core.incidents.E23.resolution",
+    "restores_state": true,
+    "scene": "@zh:core.incidents.E23.scene",
+    "trigger": "encounter"
+  },
+  {
+    "actor_a": {
+      "species_any": [
+        "S53"
+      ]
+    },
+    "actor_b": {
+      "species_any": [
+        "S33"
+      ]
+    },
+    "actor_pause_seconds": 30,
+    "actor_recovery_seconds": 0,
+    "base_probability": 0.4,
+    "behavior_kind": "mishap",
+    "care_role": "cleaner",
+    "care_work_seconds": 10,
+    "cleanup_count": 3,
+    "conditions": {
+      "excluded_actor_states": [
+        "surgery_locked",
+        "ward_recovering",
+        "nurse_escorting"
+      ]
+    },
+    "contexts_any": [
+      "misunderstanding"
+    ],
+    "effects": [
+      "pause_actor",
+      "play_gag",
+      "spawn_cleanup"
+    ],
+    "followup": "@zh:core.incidents.E24.followup",
+    "followup_max": 1,
+    "id": "E24",
+    "max_duration_seconds": 45,
+    "may_start_incident": false,
+    "name": "@zh:core.incidents.E24.name",
+    "natural_resolution_seconds": 30,
+    "observer_max": 0,
+    "release_reservations_on_finish": true,
+    "required_context_ids": [
+      "water_arc_invitation"
+    ],
+    "resolution": "@zh:core.incidents.E24.resolution",
+    "restores_state": true,
+    "scene": "@zh:core.incidents.E24.scene",
+    "trigger": "encounter"
+  },
+  {
+    "actor_a": {
+      "any_resident": true
+    },
+    "actor_b": {},
+    "actor_recovery_seconds": 4,
+    "base_probability": 0.3,
+    "behavior_kind": "outburst",
+    "care_role": "nurse",
+    "care_work_seconds": 8,
+    "cleanup_count": 0,
+    "conditions": {
+      "anger_gte": 80,
+      "excluded_actor_states": [
+        "surgery_locked",
+        "ward_recovering",
+        "nurse_escorting"
+      ],
+      "min_wait_seconds": 90,
+      "once_per_visit": true,
+      "patient_only": true,
+      "required_public_door": true
+    },
+    "contexts_any": [
+      "angry_wait"
+    ],
+    "effects": [
+      "pause_actor",
+      "play_gag",
+      "assign_care_task"
+    ],
+    "equipment_wear": 0,
+    "followup": "@zh:core.incidents.E25.followup",
+    "followup_max": 1,
+    "id": "E25",
+    "max_duration_seconds": 30,
+    "may_start_incident": false,
+    "name": "@zh:core.incidents.E25.name",
+    "natural_resolution_seconds": 20,
+    "observer_max": 1,
+    "release_reservations_on_finish": true,
+    "required_context_ids": [
+      "angry_wait"
+    ],
+    "resolution": "@zh:core.incidents.E25.resolution",
+    "restores_state": true,
+    "scene": "@zh:core.incidents.E25.scene",
+    "trigger": "self"
+  }
+]

@@ -1,0 +1,37 @@
+[
+  {
+    "id": "QC01",
+    "low_motion_scene": "@zh:core.queue_cues.QC01.low_motion_scene",
+    "scene": "@zh:core.queue_cues.QC01.scene",
+    "state": "waiting",
+    "text": "@zh:core.queue_cues.QC01.text"
+  },
+  {
+    "id": "QC02",
+    "low_motion_scene": "@zh:core.queue_cues.QC02.low_motion_scene",
+    "scene": "@zh:core.queue_cues.QC02.scene",
+    "state": "called",
+    "text": "@zh:core.queue_cues.QC02.text"
+  },
+  {
+    "id": "QC03",
+    "low_motion_scene": "@zh:core.queue_cues.QC03.low_motion_scene",
+    "scene": "@zh:core.queue_cues.QC03.scene",
+    "state": "amenity_away",
+    "text": "@zh:core.queue_cues.QC03.text"
+  },
+  {
+    "id": "QC04",
+    "low_motion_scene": "@zh:core.queue_cues.QC04.low_motion_scene",
+    "scene": "@zh:core.queue_cues.QC04.scene",
+    "state": "rerouted",
+    "text": "@zh:core.queue_cues.QC04.text"
+  },
+  {
+    "id": "QC05",
+    "low_motion_scene": "@zh:core.queue_cues.QC05.low_motion_scene",
+    "scene": "@zh:core.queue_cues.QC05.scene",
+    "state": "waiting_condition",
+    "text": "@zh:core.queue_cues.QC05.text"
+  }
+]

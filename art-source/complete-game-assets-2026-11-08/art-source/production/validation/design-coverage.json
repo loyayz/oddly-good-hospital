@@ -1,0 +1,332 @@
+{
+  "schema": 1,
+  "source": "docs/design/05-production.md#3; related content and experience specifications",
+  "production_batches": [
+    {
+      "batch": "居民主体",
+      "authored_delivery": "80个模型、每个4外观方案",
+      "authored_acceptance": "正面/背面/四向等距、近远LOD、症状与治疗适配截图",
+      "requirement_kinds": [
+        "body",
+        "appearance"
+      ],
+      "requirement_ids": "assets/asset-plan.json; filter by kind and content source",
+      "status": "resource paths covered; gameplay and full production acceptance remain integration work"
+    },
+    {
+      "batch": "通用动作",
+      "authored_delivery": "9骨架×9动作配置",
+      "authored_acceptance": "idle、walk、sit、notice、talk、cheer、upset、recover、interact；不适用动作有明确等价姿态",
+      "requirement_kinds": [
+        "rig"
+      ],
+      "requirement_ids": "assets/asset-plan.json; filter by kind and content source",
+      "status": "resource paths covered; gameplay and full production acceptance remain integration work"
+    },
+    {
+      "batch": "病症表现",
+      "authored_delivery": "154组基础病例表现、334条额外种族适配变体",
+      "authored_acceptance": "488条绑定全部能看见症状与康复，变体表为验收依据",
+      "requirement_kinds": [
+        "case"
+      ],
+      "requirement_ids": "assets/asset-plan.json; filter by kind and content source",
+      "status": "resource paths covered; gameplay and full production acceptance remain integration work"
+    },
+    {
+      "batch": "医疗主体与演出",
+      "authored_delivery": "六类主体各有2级升级配件；84套门诊四阶段自动演出",
+      "authored_acceptance": "工作量映射一致、成功和失败结局、暂停恢复、维修动作",
+      "requirement_kinds": [
+        "equipment",
+        "routine",
+        "upgrade"
+      ],
+      "requirement_ids": "assets/asset-plan.json; filter by kind and content source",
+      "status": "resource paths covered; gameplay and full production acceptance remain integration work"
+    },
+    {
+      "batch": "主要事件",
+      "authored_delivery": "25套主体演出、25套指定附属反应",
+      "authored_acceptance": "双方配合、处理员工动作、超时收尾；冰冻不得有永久僵直",
+      "requirement_kinds": [
+        "presentation"
+      ],
+      "requirement_ids": "assets/asset-plan.json; filter by kind and content source",
+      "status": "resource paths covered; gameplay and full production acceptance remain integration work"
+    },
+    {
+      "batch": "熟客回访",
+      "authored_delivery": "6套有前情的公共区演出",
+      "authored_acceptance": "同一对方、可中断、逐条低动态姿态；医患回访支持九骨架，道具不实际加热、不越出预留区；配件不可售、不重复发奖",
+      "requirement_kinds": [
+        "presentation"
+      ],
+      "requirement_ids": "assets/asset-plan.json; filter by kind and content source",
+      "status": "resource paths covered; gameplay and full production acceptance remain integration work"
+    },
+    {
+      "batch": "全体型生活",
+      "authored_delivery": "AE01…AE03三设备及九骨架承托/操作姿态",
+      "authored_acceptance": "一至三格、高至6.5米、固定主体的身体受阻/使用姿态齐全；免维护设备不制作虚构故障或维修状态",
+      "requirement_kinds": [
+        "equipment",
+        "presentation"
+      ],
+      "requirement_ids": "assets/asset-plan.json; filter by kind and content source",
+      "status": "resource paths covered; gameplay and full production acceptance remain integration work"
+    },
+    {
+      "batch": "日常互动",
+      "authored_delivery": "72套配对演出",
+      "authored_acceptance": "叫号1秒内安全退出、不中断诊疗、不同角色体型对位",
+      "requirement_kinds": [
+        "presentation"
+      ],
+      "requirement_ids": "assets/asset-plan.json; filter by kind and content source",
+      "status": "resource paths covered; gameplay and full production acceptance remain integration work"
+    },
+    {
+      "batch": "居民故事",
+      "authored_delivery": "12套开场/完成演出、12件纪念物",
+      "authored_acceptance": "每条至少一项专属完成演出，阶段中间使用常规玩法",
+      "requirement_kinds": [
+        "memento",
+        "presentation"
+      ],
+      "requirement_ids": "assets/asset-plan.json; filter by kind and content source",
+      "status": "resource paths covered; gameplay and full production acceptance remain integration work"
+    },
+    {
+      "batch": "社区活动",
+      "authored_delivery": "5套通用三段演出、15种性格/关系变体、8位故事身份的外观与职业搭配",
+      "authored_acceptance": "在各自随机人数范围内完整表演；复用80种族主体，八位身份不重复算新种族；集合、1秒收尾与真实散场齐全",
+      "requirement_kinds": [
+        "presentation"
+      ],
+      "requirement_ids": "assets/asset-plan.json; filter by kind and content source",
+      "status": "resource paths covered; gameplay and full production acceptance remain integration work"
+    },
+    {
+      "batch": "家具装饰",
+      "authored_delivery": "50件基础条目",
+      "authored_acceptance": "模型、图标、操作位置、材质、功能/纯装饰说明；维护集合内设备有完好/待修/维修姿态，免维护家具只展示真实使用状态",
+      "requirement_kinds": [
+        "equipment"
+      ],
+      "requirement_ids": "assets/asset-plan.json; filter by kind and content source",
+      "status": "resource paths covered; gameplay and full production acceptance remain integration work"
+    },
+    {
+      "batch": "多层与招聘",
+      "authored_delivery": "3种竖向设施、实际端口、楼板施工、7岗位头像卡/8履历/6工作习惯表现",
+      "authored_acceptance": "1F买地仅草地，产权线不是墙；在建上层只有信息轮廓与实际施工，完工才有空板，房间另建；单站梯不画2F出口，高宽拒绝与巨型真实乘梯可辨，候选能力费用清楚",
+      "requirement_kinds": [
+        "equipment",
+        "ui_supplement",
+        "presentation"
+      ],
+      "requirement_ids": "assets/asset-plan.json; filter by kind and content source",
+      "status": "resource paths covered; gameplay and full production acceptance remain integration work"
+    },
+    {
+      "batch": "建筑模块",
+      "authored_delivery": "4套墙地配色、六型门及1/2/3格通路、窗、围栏、路面",
+      "authored_acceptance": "四向切墙、拐角连续、与网格轮廓一致",
+      "requirement_kinds": [
+        "architecture",
+        "material",
+        "equipment"
+      ],
+      "requirement_ids": "assets/asset-plan.json; filter by kind and content source",
+      "status": "resource paths covered; gameplay and full production acceptance remain integration work"
+    },
+    {
+      "batch": "UI图标",
+      "authored_delivery": "种族80、病症154、医疗主体6、房间17、家具50、门6、任务分类3、通用操作32",
+      "authored_acceptance": "同一笔触和轮廓，低分辨率也可区分",
+      "requirement_kinds": [
+        "icon"
+      ],
+      "requirement_ids": "assets/asset-plan.json; filter by kind and content source",
+      "status": "resource paths covered; gameplay and full production acceptance remain integration work"
+    },
+    {
+      "batch": "手术/住院",
+      "authored_delivery": "整合手术台与通用护理床、4职称徽章、6性格动作、24手术四段流程、53身体适配",
+      "authored_acceptance": "衣服徽章不复制种族模型；显微/长颈/巨人承托与床型匹配，恢复、查房、转床明确可见",
+      "requirement_kinds": [
+        "surgery",
+        "equipment",
+        "ui_supplement"
+      ],
+      "requirement_ids": "assets/asset-plan.json; filter by kind and content source",
+      "status": "resource paths covered; gameplay and full production acceptance remain integration work"
+    },
+    {
+      "batch": "舒缓方案",
+      "authored_delivery": "488绑定的慢速与安抚动作层",
+      "authored_acceptance": "每病例有安抚前奏与清楚的方案差别；不只把普通动画全局减速",
+      "requirement_kinds": [
+        "case",
+        "presentation"
+      ],
+      "requirement_ids": "assets/asset-plan.json; filter by kind and content source",
+      "status": "resource paths covered; gameplay and full production acceptance remain integration work"
+    },
+    {
+      "batch": "新日常",
+      "authored_delivery": "8材料、6服务设备（含员工床、医生桌与护士台）、4娱乐设备、80种族土特产、80回馈表现、12性格行为、17诊室互动、24服务情境",
+      "authored_acceptance": "多数动作复用九骨架，但每条须验证角色身体与情境；谢礼可辨、装修过程可见",
+      "requirement_kinds": [
+        "material",
+        "equipment",
+        "gift",
+        "presentation"
+      ],
+      "requirement_ids": "assets/asset-plan.json; filter by kind and content source",
+      "status": "resource paths covered; gameplay and full production acceptance remain integration work"
+    },
+    {
+      "batch": "空间整理",
+      "authored_delivery": "9张内置蓝图缩略图、8张改造引导卡、源/目标与体型通路叠加层",
+      "authored_acceptance": "复用既有房间、机器和临床布局；显示等待腾空、库存故障、材料费用及施工缺口，不增加新房型或免费资产",
+      "requirement_kinds": [
+        "ui_supplement",
+        "overlay",
+        "presentation"
+      ],
+      "requirement_ids": "assets/asset-plan.json; filter by kind and content source",
+      "status": "resource paths covered; gameplay and full production acceptance remain integration work"
+    },
+    {
+      "batch": "渐进引导",
+      "authored_delivery": "十项开院卡、九类情境短说明及键盘/缩放布局",
+      "authored_acceptance": "只定位真实对象；已错过的场景用记录解释，示意插画不能伪装实时世界；冰冻提示共用预算",
+      "requirement_kinds": [
+        "ui_supplement",
+        "presentation"
+      ],
+      "requirement_ids": "assets/asset-plan.json; filter by kind and content source",
+      "status": "resource paths covered; gameplay and full production acceptance remain integration work"
+    },
+    {
+      "batch": "候诊生活表现",
+      "authored_delivery": "2类服务的6种内嵌动作、10种性格入座与低动态姿态、随身杯与隐私帘、暂离叫号状态",
+      "authored_acceptance": "入座动作复用自身候诊卡；生活动作不加时不送资源，如厕只呈现帘外，全部身体真实适配",
+      "requirement_kinds": [
+        "native_prop",
+        "presentation"
+      ],
+      "requirement_ids": "assets/asset-plan.json; filter by kind and content source",
+      "status": "resource paths covered; gameplay and full production acceptance remain integration work"
+    },
+    {
+      "batch": "跨层通行",
+      "authored_delivery": "三种连接的排队、真实移动、不可用/低动态标记；电梯另有空载接人姿态",
+      "authored_acceptance": "复用方向箭头/层数尺与已有卡片，真实空车没有乘客，稀疏高层只显示起终层，不加时或常驻人群",
+      "requirement_kinds": [
+        "equipment",
+        "presentation",
+        "ui_supplement"
+      ],
+      "requirement_ids": "assets/asset-plan.json; filter by kind and content source",
+      "status": "resource paths covered; gameplay and full production acceptance remain integration work"
+    },
+    {
+      "batch": "非医生履历",
+      "authored_delivery": "六岗位首件工作表现、实践条与资格独立展示",
+      "authored_acceptance": "原动作与道具复用，叫号1秒内响应；护理能力不冒充手术能力",
+      "requirement_kinds": [
+        "presentation",
+        "ui_supplement"
+      ],
+      "requirement_ids": "assets/asset-plan.json; filter by kind and content source",
+      "status": "resource paths covered; gameplay and full production acceptance remain integration work"
+    },
+    {
+      "batch": "任务与愿望",
+      "authored_delivery": "8类指引卡、故事并列条件/任选路径、暂停与待领状态",
+      "authored_acceptance": "真实缺项可定位，具名角色不以外观替代，不用虚构来信推动领奖",
+      "requirement_kinds": [
+        "presentation",
+        "ui_supplement"
+      ],
+      "requirement_ids": "assets/asset-plan.json; filter by kind and content source",
+      "status": "resource paths covered; gameplay and full production acceptance remain integration work"
+    },
+    {
+      "batch": "经营阅读",
+      "authored_delivery": "6类账页、资金来源分项、三日结算时间线及便签",
+      "authored_acceptance": "盈亏与现金变化名称清楚，预测标出假设，直接资助不画成现金礼物",
+      "requirement_kinds": [
+        "presentation",
+        "ui_supplement",
+        "ui_component"
+      ],
+      "requirement_ids": "assets/asset-plan.json; filter by kind and content source",
+      "status": "resource paths covered; gameplay and full production acceptance remain integration work"
+    },
+    {
+      "batch": "成长与记忆",
+      "authored_delivery": "6种成长短动作、4种维修完整状态表现、6张研究路线插画、9类就诊原因图标、8类院史卡",
+      "authored_acceptance": "动作复用原角色骨架和工具道具；不把插画当真实来信，院史卡只能取已发生事实，缺照片保留文字版",
+      "requirement_kinds": [
+        "presentation",
+        "ui_supplement"
+      ],
+      "requirement_ids": "assets/asset-plan.json; filter by kind and content source",
+      "status": "resource paths covered; gameplay and full production acceptance remain integration work"
+    },
+    {
+      "batch": "工作状态表现",
+      "authored_delivery": "6医疗主体状态、10专业道具反应、6设施受阻姿态、5号签状态、4治疗包展开、4椅子效果状态、4清洁来源状态、9骨架睡眠/醒来",
+      "authored_acceptance": "复用已有业务阶段、原占位与计时；每项有低动态可读版本，不以动画完成触发业务结算",
+      "requirement_kinds": [
+        "presentation",
+        "ui_supplement"
+      ],
+      "requirement_ids": "assets/asset-plan.json; filter by kind and content source",
+      "status": "resource paths covered; gameplay and full production acceptance remain integration work"
+    },
+    {
+      "batch": "声音",
+      "authored_delivery": "84治疗演出音效组、13家族非语言音效组、25主要事件音效组、界面16种",
+      "authored_acceptance": "无对白录音/TTS/拟语声；音乐与物件声遵守并发预算，必要状态用独立图示/文字",
+      "requirement_kinds": [
+        "sound"
+      ],
+      "requirement_ids": "assets/asset-plan.json; filter by kind and content source",
+      "status": "resource paths covered; gameplay and full production acceptance remain integration work"
+    },
+    {
+      "batch": "音乐",
+      "authored_delivery": "4首循环配乐",
+      "authored_acceptance": "音量可独立调整，循环无明显接缝",
+      "requirement_kinds": [
+        "music"
+      ],
+      "requirement_ids": "assets/asset-plan.json; filter by kind and content source",
+      "status": "resource paths covered; gameplay and full production acceptance remain integration work"
+    }
+  ],
+  "required_resources": 3019,
+  "authored_scene_fields": 787,
+  "unmapped_scene_fields": [],
+  "additional_sections": [
+    "02-content: resident professions",
+    "03-experience: empty state, blueprint and native UI",
+    "04-technical: shared font fallback",
+    "05-production: low-cost shadow and overlays"
+  ],
+  "ui_graphic_definitions": 529,
+  "physical_runtime_png": 474,
+  "image_byte_limit": 50000,
+  "evidence": [
+    "asset-audit.json",
+    "design-supplement.json",
+    "godot-import.json",
+    "packaging.json"
+  ],
+  "acceptance_scope": "asset coverage and selected native verification; no claim of complete hospital gameplay/performance acceptance"
+}

@@ -1,0 +1,58 @@
+[
+  {
+    "environment_value": 6,
+    "id": "MAT01",
+    "name": "@zh:core.renovation_materials.MAT01.name",
+    "surface": "floor",
+    "unit_price": 25
+  },
+  {
+    "environment_value": 8,
+    "id": "MAT02",
+    "name": "@zh:core.renovation_materials.MAT02.name",
+    "surface": "floor",
+    "unit_price": 35
+  },
+  {
+    "environment_value": 10,
+    "id": "MAT03",
+    "name": "@zh:core.renovation_materials.MAT03.name",
+    "surface": "floor",
+    "unit_price": 45
+  },
+  {
+    "environment_value": 12,
+    "id": "MAT04",
+    "name": "@zh:core.renovation_materials.MAT04.name",
+    "surface": "floor",
+    "unit_price": 55
+  },
+  {
+    "environment_value": 4,
+    "id": "MAT05",
+    "name": "@zh:core.renovation_materials.MAT05.name",
+    "surface": "wall",
+    "unit_price": 20
+  },
+  {
+    "environment_value": 6,
+    "id": "MAT06",
+    "name": "@zh:core.renovation_materials.MAT06.name",
+    "surface": "wall",
+    "unit_price": 30
+  },
+  {
+    "environment_value": 8,
+    "id": "MAT07",
+    "name": "@zh:core.renovation_materials.MAT07.name",
+    "surface": "wall",
+    "unit_price": 40
+  },
+  {
+    "environment_value": 10,
+    "id": "MAT08",
+    "name": "@zh:core.renovation_materials.MAT08.name",
+    "surface": "wall",
+    "unit_price": 50
+  }
+]

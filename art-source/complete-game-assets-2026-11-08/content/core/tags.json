@@ -1,0 +1,98 @@
+[
+  {
+    "id": "alien",
+    "kind": "filter"
+  },
+  {
+    "id": "aquatic",
+    "kind": "filter"
+  },
+  {
+    "id": "carrier",
+    "kind": "filter"
+  },
+  {
+    "id": "cold",
+    "kind": "filter"
+  },
+  {
+    "id": "dragon",
+    "kind": "filter"
+  },
+  {
+    "id": "dream",
+    "kind": "filter"
+  },
+  {
+    "id": "fungus",
+    "kind": "filter"
+  },
+  {
+    "id": "hot",
+    "kind": "filter"
+  },
+  {
+    "id": "human",
+    "kind": "filter"
+  },
+  {
+    "id": "luminous",
+    "kind": "filter"
+  },
+  {
+    "id": "mechanical",
+    "kind": "filter"
+  },
+  {
+    "id": "micro",
+    "kind": "filter"
+  },
+  {
+    "id": "musical",
+    "kind": "filter"
+  },
+  {
+    "id": "paper",
+    "kind": "filter"
+  },
+  {
+    "id": "plant",
+    "kind": "filter"
+  },
+  {
+    "id": "soft",
+    "kind": "filter"
+  },
+  {
+    "id": "spiky",
+    "kind": "filter"
+  },
+  {
+    "id": "spirit",
+    "kind": "filter"
+  },
+  {
+    "id": "steam",
+    "kind": "filter"
+  },
+  {
+    "id": "tall",
+    "kind": "filter"
+  },
+  {
+    "id": "undead",
+    "kind": "filter"
+  },
+  {
+    "id": "vampire",
+    "kind": "filter"
+  },
+  {
+    "id": "wet",
+    "kind": "filter"
+  },
+  {
+    "id": "zombie",
+    "kind": "filter"
+  }
+]

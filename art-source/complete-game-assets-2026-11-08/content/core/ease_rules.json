@@ -1,0 +1,56 @@
+[
+  {
+    "default": "@zh:core.ease_rules.ER01.default",
+    "detail": "@zh:core.ease_rules.ER01.detail",
+    "id": "ER01",
+    "topic": "@zh:core.ease_rules.ER01.topic"
+  },
+  {
+    "default": "@zh:core.ease_rules.ER02.default",
+    "detail": "@zh:core.ease_rules.ER02.detail",
+    "id": "ER02",
+    "topic": "@zh:core.ease_rules.ER02.topic"
+  },
+  {
+    "default": "@zh:core.ease_rules.ER03.default",
+    "detail": "@zh:core.ease_rules.ER03.detail",
+    "id": "ER03",
+    "topic": "@zh:core.ease_rules.ER03.topic"
+  },
+  {
+    "default": "@zh:core.ease_rules.ER04.default",
+    "detail": "@zh:core.ease_rules.ER04.detail",
+    "id": "ER04",
+    "topic": "@zh:core.ease_rules.ER04.topic"
+  },
+  {
+    "default": "@zh:core.ease_rules.ER05.default",
+    "detail": "@zh:core.ease_rules.ER05.detail",
+    "id": "ER05",
+    "topic": "@zh:core.ease_rules.ER05.topic"
+  },
+  {
+    "default": "@zh:core.ease_rules.ER06.default",
+    "detail": "@zh:core.ease_rules.ER06.detail",
+    "id": "ER06",
+    "topic": "@zh:core.ease_rules.ER06.topic"
+  },
+  {
+    "default": "@zh:core.ease_rules.ER07.default",
+    "detail": "@zh:core.ease_rules.ER07.detail",
+    "id": "ER07",
+    "topic": "@zh:core.ease_rules.ER07.topic"
+  },
+  {
+    "default": "@zh:core.ease_rules.ER08.default",
+    "detail": "@zh:core.ease_rules.ER08.detail",
+    "id": "ER08",
+    "topic": "@zh:core.ease_rules.ER08.topic"
+  },
+  {
+    "default": "@zh:core.ease_rules.ER09.default",
+    "detail": "@zh:core.ease_rules.ER09.detail",
+    "id": "ER09",
+    "topic": "@zh:core.ease_rules.ER09.topic"
+  }
+]

@@ -1,0 +1,9 @@
+[gd_resource type="StandardMaterial3D" format=3]
+[resource]
+resource_name = "hospital_vertex_alpha"
+vertex_color_use_as_albedo = true
+transparency = 1
+albedo_color = Color(1, 1, 1, 0.42)
+roughness = 0.78
+metallic_specular = 0.22
+cull_mode = 0

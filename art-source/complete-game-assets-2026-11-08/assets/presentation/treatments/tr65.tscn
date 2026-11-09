@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3]
+[ext_resource type="PackedScene" path="res://assets/props/library/rings.glb" id="P0"]
+[ext_resource type="PackedScene" path="res://assets/props/library/label.glb" id="P1"]
+[ext_resource type="AnimationLibrary" path="res://assets/animations/treatments/tr65.tres" id="L"]
+[node name="TreatmentRoutine" type="Node3D"]
+metadata/source_id = "TR65"
+metadata/beat_1 = "记录一个正常动作"
+metadata/beat_2 = "软环只截住重复段"
+metadata/beat_3 = "把多余动作收进胶片盒"
+metadata/beat_4 = "胶片盒关盖，软环退出身体动作范围"
+[node name="Tool" type="Node3D" parent="."]
+[node name="Prop0" parent="Tool" instance=ExtResource("P0")]
+position = Vector3(-0.150000, 0.400000, 0.000000)
+[node name="Prop1" parent="Tool" instance=ExtResource("P1")]
+position = Vector3(0.150000, 0.400000, 0.000000)
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {&"": ExtResource("L")}

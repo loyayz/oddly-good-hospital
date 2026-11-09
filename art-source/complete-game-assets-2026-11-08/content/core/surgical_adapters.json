@@ -1,0 +1,638 @@
+[
+  {
+    "binding_id": "B_S01_D01_M01",
+    "id": "SA_B_S01_D01_M01",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S01_D01_M01.patient_pose",
+    "plan_id": "P_D01_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S01_D01_M01.target_description"
+  },
+  {
+    "binding_id": "B_S44_D01_M01",
+    "id": "SA_B_S44_D01_M01",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S44_D01_M01.patient_pose",
+    "plan_id": "P_D01_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S44_D01_M01.target_description"
+  },
+  {
+    "binding_id": "B_S06_D04_M04",
+    "id": "SA_B_S06_D04_M04",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S06_D04_M04.patient_pose",
+    "plan_id": "P_D04_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S06_D04_M04.target_description"
+  },
+  {
+    "binding_id": "B_S08_D04_M04",
+    "id": "SA_B_S08_D04_M04",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S08_D04_M04.patient_pose",
+    "plan_id": "P_D04_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S08_D04_M04.target_description"
+  },
+  {
+    "binding_id": "B_S10_D06_M06",
+    "id": "SA_B_S10_D06_M06",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S10_D06_M06.patient_pose",
+    "plan_id": "P_D06_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S10_D06_M06.target_description"
+  },
+  {
+    "binding_id": "B_S11_D07_M07",
+    "id": "SA_B_S11_D07_M07",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S11_D07_M07.patient_pose",
+    "plan_id": "P_D07_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S11_D07_M07.target_description"
+  },
+  {
+    "binding_id": "B_S32_D07_M07",
+    "id": "SA_B_S32_D07_M07",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S32_D07_M07.patient_pose",
+    "plan_id": "P_D07_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S32_D07_M07.target_description"
+  },
+  {
+    "binding_id": "B_S13_D09_M09",
+    "id": "SA_B_S13_D09_M09",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S13_D09_M09.patient_pose",
+    "plan_id": "P_D09_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S13_D09_M09.target_description"
+  },
+  {
+    "binding_id": "B_S22_D14_M14",
+    "id": "SA_B_S22_D14_M14",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S22_D14_M14.patient_pose",
+    "plan_id": "P_D14_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S22_D14_M14.target_description"
+  },
+  {
+    "binding_id": "B_S23_D14_M14",
+    "id": "SA_B_S23_D14_M14",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S23_D14_M14.patient_pose",
+    "plan_id": "P_D14_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S23_D14_M14.target_description"
+  },
+  {
+    "binding_id": "B_S29_D17_M17",
+    "id": "SA_B_S29_D17_M17",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S29_D17_M17.patient_pose",
+    "plan_id": "P_D17_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S29_D17_M17.target_description"
+  },
+  {
+    "binding_id": "B_S41_D22_M22",
+    "id": "SA_B_S41_D22_M22",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S41_D22_M22.patient_pose",
+    "plan_id": "P_D22_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S41_D22_M22.target_description"
+  },
+  {
+    "binding_id": "B_S42_D22_M22",
+    "id": "SA_B_S42_D22_M22",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S42_D22_M22.patient_pose",
+    "plan_id": "P_D22_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S42_D22_M22.target_description"
+  },
+  {
+    "binding_id": "B_S03_D23_M23",
+    "id": "SA_B_S03_D23_M23",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S03_D23_M23.patient_pose",
+    "plan_id": "P_D23_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S03_D23_M23.target_description"
+  },
+  {
+    "binding_id": "B_S45_D23_M23",
+    "id": "SA_B_S45_D23_M23",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S45_D23_M23.patient_pose",
+    "plan_id": "P_D23_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S45_D23_M23.target_description"
+  },
+  {
+    "binding_id": "B_S49_D23_M23",
+    "id": "SA_B_S49_D23_M23",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S49_D23_M23.patient_pose",
+    "plan_id": "P_D23_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S49_D23_M23.target_description"
+  },
+  {
+    "binding_id": "B_S16_D28_M28",
+    "id": "SA_B_S16_D28_M28",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S16_D28_M28.patient_pose",
+    "plan_id": "P_D28_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S16_D28_M28.target_description"
+  },
+  {
+    "binding_id": "B_S19_D29_M29",
+    "id": "SA_B_S19_D29_M29",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S19_D29_M29.patient_pose",
+    "plan_id": "P_D29_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S19_D29_M29.target_description"
+  },
+  {
+    "binding_id": "B_S38_D33_M33",
+    "id": "SA_B_S38_D33_M33",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S38_D33_M33.patient_pose",
+    "plan_id": "P_D33_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S38_D33_M33.target_description"
+  },
+  {
+    "binding_id": "B_S43_D34_M34",
+    "id": "SA_B_S43_D34_M34",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S43_D34_M34.patient_pose",
+    "plan_id": "P_D34_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S43_D34_M34.target_description"
+  },
+  {
+    "binding_id": "B_S47_D35_M35",
+    "id": "SA_B_S47_D35_M35",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S47_D35_M35.patient_pose",
+    "plan_id": "P_D35_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S47_D35_M35.target_description"
+  },
+  {
+    "binding_id": "B_S49_D40_M40",
+    "id": "SA_B_S49_D40_M40",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S49_D40_M40.patient_pose",
+    "plan_id": "P_D40_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S49_D40_M40.target_description"
+  },
+  {
+    "binding_id": "B_S17_D55_M29",
+    "id": "SA_B_S17_D55_M29",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S17_D55_M29.patient_pose",
+    "plan_id": "P_D55_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S17_D55_M29.target_description"
+  },
+  {
+    "binding_id": "B_S18_D55_M29",
+    "id": "SA_B_S18_D55_M29",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S18_D55_M29.patient_pose",
+    "plan_id": "P_D55_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S18_D55_M29.target_description"
+  },
+  {
+    "binding_id": "B_S19_D55_M29",
+    "id": "SA_B_S19_D55_M29",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S19_D55_M29.patient_pose",
+    "plan_id": "P_D55_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S19_D55_M29.target_description"
+  },
+  {
+    "binding_id": "B_S20_D55_M29",
+    "id": "SA_B_S20_D55_M29",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S20_D55_M29.patient_pose",
+    "plan_id": "P_D55_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S20_D55_M29.target_description"
+  },
+  {
+    "binding_id": "B_S21_D59_M13",
+    "id": "SA_B_S21_D59_M13",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S21_D59_M13.patient_pose",
+    "plan_id": "P_D59_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S21_D59_M13.target_description"
+  },
+  {
+    "binding_id": "B_S22_D59_M13",
+    "id": "SA_B_S22_D59_M13",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S22_D59_M13.patient_pose",
+    "plan_id": "P_D59_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S22_D59_M13.target_description"
+  },
+  {
+    "binding_id": "B_S23_D59_M13",
+    "id": "SA_B_S23_D59_M13",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S23_D59_M13.patient_pose",
+    "plan_id": "P_D59_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S23_D59_M13.target_description"
+  },
+  {
+    "binding_id": "B_S24_D59_M13",
+    "id": "SA_B_S24_D59_M13",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S24_D59_M13.patient_pose",
+    "plan_id": "P_D59_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S24_D59_M13.target_description"
+  },
+  {
+    "binding_id": "B_S25_D62_M55",
+    "id": "SA_B_S25_D62_M55",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S25_D62_M55.patient_pose",
+    "plan_id": "P_D62_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S25_D62_M55.target_description"
+  },
+  {
+    "binding_id": "B_S26_D62_M55",
+    "id": "SA_B_S26_D62_M55",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S26_D62_M55.patient_pose",
+    "plan_id": "P_D62_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S26_D62_M55.target_description"
+  },
+  {
+    "binding_id": "B_S27_D62_M55",
+    "id": "SA_B_S27_D62_M55",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S27_D62_M55.patient_pose",
+    "plan_id": "P_D62_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S27_D62_M55.target_description"
+  },
+  {
+    "binding_id": "B_S28_D62_M55",
+    "id": "SA_B_S28_D62_M55",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S28_D62_M55.patient_pose",
+    "plan_id": "P_D62_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S28_D62_M55.target_description"
+  },
+  {
+    "binding_id": "B_S45_D78_M23",
+    "id": "SA_B_S45_D78_M23",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S45_D78_M23.patient_pose",
+    "plan_id": "P_D78_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S45_D78_M23.target_description"
+  },
+  {
+    "binding_id": "B_S46_D78_M23",
+    "id": "SA_B_S46_D78_M23",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S46_D78_M23.patient_pose",
+    "plan_id": "P_D78_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S46_D78_M23.target_description"
+  },
+  {
+    "binding_id": "B_S47_D78_M23",
+    "id": "SA_B_S47_D78_M23",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S47_D78_M23.patient_pose",
+    "plan_id": "P_D78_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S47_D78_M23.target_description"
+  },
+  {
+    "binding_id": "B_S48_D78_M23",
+    "id": "SA_B_S48_D78_M23",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S48_D78_M23.patient_pose",
+    "plan_id": "P_D78_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S48_D78_M23.target_description"
+  },
+  {
+    "binding_id": "B_S63_D55_M29",
+    "id": "SA_B_S63_D55_M29",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S63_D55_M29.patient_pose",
+    "plan_id": "P_D55_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S63_D55_M29.target_description"
+  },
+  {
+    "binding_id": "B_S64_D55_M29",
+    "id": "SA_B_S64_D55_M29",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S64_D55_M29.patient_pose",
+    "plan_id": "P_D55_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S64_D55_M29.target_description"
+  },
+  {
+    "binding_id": "B_S65_D55_M29",
+    "id": "SA_B_S65_D55_M29",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S65_D55_M29.patient_pose",
+    "plan_id": "P_D55_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S65_D55_M29.target_description"
+  },
+  {
+    "binding_id": "B_S66_D59_M13",
+    "id": "SA_B_S66_D59_M13",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S66_D59_M13.patient_pose",
+    "plan_id": "P_D59_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S66_D59_M13.target_description"
+  },
+  {
+    "binding_id": "B_S67_D59_M13",
+    "id": "SA_B_S67_D59_M13",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S67_D59_M13.patient_pose",
+    "plan_id": "P_D59_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S67_D59_M13.target_description"
+  },
+  {
+    "binding_id": "B_S68_D62_M55",
+    "id": "SA_B_S68_D62_M55",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S68_D62_M55.patient_pose",
+    "plan_id": "P_D62_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S68_D62_M55.target_description"
+  },
+  {
+    "binding_id": "B_S69_D62_M55",
+    "id": "SA_B_S69_D62_M55",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S69_D62_M55.patient_pose",
+    "plan_id": "P_D62_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S69_D62_M55.target_description"
+  },
+  {
+    "binding_id": "B_S78_D78_M23",
+    "id": "SA_B_S78_D78_M23",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S78_D78_M23.patient_pose",
+    "plan_id": "P_D78_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S78_D78_M23.target_description"
+  },
+  {
+    "binding_id": "B_S79_D78_M23",
+    "id": "SA_B_S79_D78_M23",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S79_D78_M23.patient_pose",
+    "plan_id": "P_D78_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S79_D78_M23.target_description"
+  },
+  {
+    "binding_id": "B_S80_D78_M23",
+    "id": "SA_B_S80_D78_M23",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S80_D78_M23.patient_pose",
+    "plan_id": "P_D78_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S80_D78_M23.target_description"
+  },
+  {
+    "binding_id": "B_S59_D88_M09",
+    "id": "SA_B_S59_D88_M09",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S59_D88_M09.patient_pose",
+    "plan_id": "P_D88_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S59_D88_M09.target_description"
+  },
+  {
+    "binding_id": "B_S63_D92_M29",
+    "id": "SA_B_S63_D92_M29",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S63_D92_M29.patient_pose",
+    "plan_id": "P_D92_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S63_D92_M29.target_description"
+  },
+  {
+    "binding_id": "B_S65_D94_M17",
+    "id": "SA_B_S65_D94_M17",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S65_D94_M17.patient_pose",
+    "plan_id": "P_D94_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S65_D94_M17.target_description"
+  },
+  {
+    "binding_id": "B_S70_D99_M59",
+    "id": "SA_B_S70_D99_M59",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S70_D99_M59.patient_pose",
+    "plan_id": "P_D99_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S70_D99_M59.target_description"
+  },
+  {
+    "binding_id": "B_S79_D108_M61",
+    "id": "SA_B_S79_D108_M61",
+    "patient_pose": "@zh:core.surgical_adapters.SA_B_S79_D108_M61.patient_pose",
+    "plan_id": "P_D108_SURGERY",
+    "required_anchors": [
+      "patient_support",
+      "symptom_target",
+      "exit"
+    ],
+    "target_description": "@zh:core.surgical_adapters.SA_B_S79_D108_M61.target_description"
+  }
+]

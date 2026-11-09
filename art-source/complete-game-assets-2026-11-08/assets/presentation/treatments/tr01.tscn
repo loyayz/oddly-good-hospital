@@ -1,0 +1,20 @@
+[gd_scene load_steps=5 format=3]
+[ext_resource type="PackedScene" path="res://assets/props/library/rings.glb" id="P0"]
+[ext_resource type="PackedScene" path="res://assets/props/library/label.glb" id="P1"]
+[ext_resource type="PackedScene" path="res://assets/props/library/comb.glb" id="P2"]
+[ext_resource type="AnimationLibrary" path="res://assets/animations/treatments/tr01.tres" id="L"]
+[node name="TreatmentRoutine" type="Node3D"]
+metadata/source_id = "TR01"
+metadata/beat_1 = "逐段套入软环"
+metadata/beat_2 = "软环沿病例登记的结构逐段松开结头"
+metadata/beat_3 = "梳开结头"
+metadata/beat_4 = "梳齿回到原槽，软环依次解除操作拉力"
+[node name="Tool" type="Node3D" parent="."]
+[node name="Prop0" parent="Tool" instance=ExtResource("P0")]
+position = Vector3(-0.300000, 0.400000, 0.000000)
+[node name="Prop1" parent="Tool" instance=ExtResource("P1")]
+position = Vector3(0.000000, 0.400000, 0.000000)
+[node name="Prop2" parent="Tool" instance=ExtResource("P2")]
+position = Vector3(0.300000, 0.400000, 0.000000)
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {&"": ExtResource("L")}

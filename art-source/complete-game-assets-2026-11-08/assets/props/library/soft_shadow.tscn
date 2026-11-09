@@ -1,0 +1,13 @@
+[gd_scene load_steps=4 format=3]
+[sub_resource type="Shader" id="Soft"]
+code = "shader_type spatial; render_mode unshaded, cull_disabled, depth_draw_never, shadows_disabled; void fragment(){ float r=length(UV-vec2(0.5))*2.0; ALBEDO=vec3(0.12,0.16,0.22); ALPHA=(1.0-smoothstep(0.20,1.0,r))*0.18; }"
+[sub_resource type="ShaderMaterial" id="Material"]
+shader = SubResource("Soft")
+[sub_resource type="PlaneMesh" id="Plane"]
+material = SubResource("Material")
+size = Vector2(1, 1)
+[node name="SoftShadow" type="MeshInstance3D"]
+position = Vector3(0, 0.005, 0)
+mesh = SubResource("Plane")
+cast_shadow = 0
+metadata/pipeline = "Compatibility alpha blend; one tightly fitted ground quad; caller scales to actual body"

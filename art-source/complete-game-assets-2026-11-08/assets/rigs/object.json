@@ -1,0 +1,84 @@
+{
+  "id": "object",
+  "reference_species": "S26",
+  "actions": [
+    "idle",
+    "walk",
+    "sit",
+    "notice",
+    "talk",
+    "cheer",
+    "upset",
+    "recover",
+    "interact",
+    "work",
+    "pause",
+    "symptom",
+    "recovery",
+    "low_motion",
+    "sleep",
+    "wake",
+    "rest",
+    "recreation",
+    "blink"
+  ],
+  "staff_actions": [
+    "operate",
+    "record",
+    "carry",
+    "repair",
+    "clean",
+    "build",
+    "teach",
+    "rest",
+    "sleep",
+    "wake"
+  ],
+  "slots": [
+    "head",
+    "look_target",
+    "hand_l",
+    "hand_r",
+    "treatment_anchor",
+    "emotion_anchor",
+    "carry_anchor"
+  ],
+  "animation_library": "assets/animations/staff/object.tres",
+  "source": {
+    "actions": [
+      "operate",
+      "record",
+      "carry",
+      "repair",
+      "clean",
+      "build",
+      "teach",
+      "rest",
+      "sleep",
+      "wake"
+    ],
+    "anchors": [
+      "operator",
+      "tool",
+      "badge",
+      "handoff"
+    ],
+    "id": "SRA_object",
+    "low_motion_sleep_scene": "主体休眠/清醒与工作臂收放两态；柜体、箱盖与附件按实际包络保留。",
+    "rig": "object",
+    "roles": [
+      "doctor",
+      "nurse",
+      "receptionist",
+      "cleaner",
+      "mechanic",
+      "researcher",
+      "decorator"
+    ],
+    "scene": "通过侧挂柔性工具臂工作，徽章固定在主体可见面。",
+    "sleep_scene": "物件主体进入对应休眠姿态，外接工作小臂收进原范围；一张小小休眠签给自己盖上被角。",
+    "wake_scene": "主体恢复正常状态，小臂先确认岗位徽章，再收起休眠签；无额外开机费用。"
+  },
+  "root_motion": false,
+  "max_bones": 40
+}

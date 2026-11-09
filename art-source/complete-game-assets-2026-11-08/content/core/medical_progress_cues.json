@@ -1,0 +1,315 @@
+[
+  {
+    "definition_id": "FUR02",
+    "finished_scene": "@zh:core.medical_progress_cues.MP01.finished_scene",
+    "held_scene": "@zh:core.medical_progress_cues.MP01.held_scene",
+    "id": "MP01",
+    "low_motion_scene": "@zh:core.medical_progress_cues.MP01.low_motion_scene",
+    "progress_source": "diagnostic_service",
+    "protocol_variants": [],
+    "result_scenes": [
+      {
+        "label": "@zh:core.medical_progress_cues.MP01.result_scenes.0.label",
+        "low_motion_scene": "@zh:core.medical_progress_cues.MP01.result_scenes.0.low_motion_scene",
+        "scene": "@zh:core.medical_progress_cues.MP01.result_scenes.0.scene",
+        "state": "diagnosis_confirmed"
+      },
+      {
+        "label": "@zh:core.medical_progress_cues.MP01.result_scenes.1.label",
+        "low_motion_scene": "@zh:core.medical_progress_cues.MP01.result_scenes.1.low_motion_scene",
+        "scene": "@zh:core.medical_progress_cues.MP01.result_scenes.1.scene",
+        "state": "more_evidence"
+      }
+    ],
+    "text": "@zh:core.medical_progress_cues.MP01.text",
+    "working_scene": "@zh:core.medical_progress_cues.MP01.working_scene",
+    "working_variants": []
+  },
+  {
+    "definition_id": "M09",
+    "finished_scene": "@zh:core.medical_progress_cues.MP02.finished_scene",
+    "held_scene": "@zh:core.medical_progress_cues.MP02.held_scene",
+    "id": "MP02",
+    "low_motion_scene": "@zh:core.medical_progress_cues.MP02.low_motion_scene",
+    "progress_source": "attempt_work",
+    "protocol_variants": [
+      {
+        "beats": [
+          {
+            "low_motion_scene": "@zh:core.medical_progress_cues.MP02.protocol_variants.0.beats.0.low_motion_scene",
+            "phase": "preparation",
+            "scene": "@zh:core.medical_progress_cues.MP02.protocol_variants.0.beats.0.scene"
+          },
+          {
+            "low_motion_scene": "@zh:core.medical_progress_cues.MP02.protocol_variants.0.beats.1.low_motion_scene",
+            "phase": "process",
+            "scene": "@zh:core.medical_progress_cues.MP02.protocol_variants.0.beats.1.scene"
+          },
+          {
+            "low_motion_scene": "@zh:core.medical_progress_cues.MP02.protocol_variants.0.beats.2.low_motion_scene",
+            "phase": "climax",
+            "scene": "@zh:core.medical_progress_cues.MP02.protocol_variants.0.beats.2.scene"
+          },
+          {
+            "low_motion_scene": "@zh:core.medical_progress_cues.MP02.protocol_variants.0.beats.3.low_motion_scene",
+            "phase": "safe_closing",
+            "scene": "@zh:core.medical_progress_cues.MP02.protocol_variants.0.beats.3.scene"
+          }
+        ],
+        "mode": "gentle"
+      }
+    ],
+    "result_scenes": [
+      {
+        "label": "@zh:core.medical_progress_cues.MP02.result_scenes.0.label",
+        "low_motion_scene": "@zh:core.medical_progress_cues.MP02.result_scenes.0.low_motion_scene",
+        "scene": "@zh:core.medical_progress_cues.MP02.result_scenes.0.scene",
+        "state": "cured"
+      },
+      {
+        "label": "@zh:core.medical_progress_cues.MP02.result_scenes.1.label",
+        "low_motion_scene": "@zh:core.medical_progress_cues.MP02.result_scenes.1.low_motion_scene",
+        "scene": "@zh:core.medical_progress_cues.MP02.result_scenes.1.scene",
+        "state": "retry_ready"
+      },
+      {
+        "label": "@zh:core.medical_progress_cues.MP02.result_scenes.2.label",
+        "low_motion_scene": "@zh:core.medical_progress_cues.MP02.result_scenes.2.low_motion_scene",
+        "scene": "@zh:core.medical_progress_cues.MP02.result_scenes.2.scene",
+        "state": "final_failure"
+      },
+      {
+        "label": "@zh:core.medical_progress_cues.MP02.result_scenes.3.label",
+        "low_motion_scene": "@zh:core.medical_progress_cues.MP02.result_scenes.3.low_motion_scene",
+        "scene": "@zh:core.medical_progress_cues.MP02.result_scenes.3.scene",
+        "state": "awaiting_recovery"
+      }
+    ],
+    "text": "@zh:core.medical_progress_cues.MP02.text",
+    "working_scene": "@zh:core.medical_progress_cues.MP02.working_scene",
+    "working_variants": [
+      {
+        "scene": "@zh:core.medical_progress_cues.MP02.working_variants.0.scene",
+        "specialty_id": "T01"
+      },
+      {
+        "scene": "@zh:core.medical_progress_cues.MP02.working_variants.1.scene",
+        "specialty_id": "T05"
+      },
+      {
+        "scene": "@zh:core.medical_progress_cues.MP02.working_variants.2.scene",
+        "specialty_id": "T09"
+      }
+    ]
+  },
+  {
+    "definition_id": "M37",
+    "finished_scene": "@zh:core.medical_progress_cues.MP03.finished_scene",
+    "held_scene": "@zh:core.medical_progress_cues.MP03.held_scene",
+    "id": "MP03",
+    "low_motion_scene": "@zh:core.medical_progress_cues.MP03.low_motion_scene",
+    "progress_source": "attempt_work",
+    "protocol_variants": [
+      {
+        "beats": [
+          {
+            "low_motion_scene": "@zh:core.medical_progress_cues.MP03.protocol_variants.0.beats.0.low_motion_scene",
+            "phase": "preparation",
+            "scene": "@zh:core.medical_progress_cues.MP03.protocol_variants.0.beats.0.scene"
+          },
+          {
+            "low_motion_scene": "@zh:core.medical_progress_cues.MP03.protocol_variants.0.beats.1.low_motion_scene",
+            "phase": "process",
+            "scene": "@zh:core.medical_progress_cues.MP03.protocol_variants.0.beats.1.scene"
+          },
+          {
+            "low_motion_scene": "@zh:core.medical_progress_cues.MP03.protocol_variants.0.beats.2.low_motion_scene",
+            "phase": "climax",
+            "scene": "@zh:core.medical_progress_cues.MP03.protocol_variants.0.beats.2.scene"
+          },
+          {
+            "low_motion_scene": "@zh:core.medical_progress_cues.MP03.protocol_variants.0.beats.3.low_motion_scene",
+            "phase": "safe_closing",
+            "scene": "@zh:core.medical_progress_cues.MP03.protocol_variants.0.beats.3.scene"
+          }
+        ],
+        "mode": "gentle"
+      }
+    ],
+    "result_scenes": [
+      {
+        "label": "@zh:core.medical_progress_cues.MP03.result_scenes.0.label",
+        "low_motion_scene": "@zh:core.medical_progress_cues.MP03.result_scenes.0.low_motion_scene",
+        "scene": "@zh:core.medical_progress_cues.MP03.result_scenes.0.scene",
+        "state": "cured"
+      },
+      {
+        "label": "@zh:core.medical_progress_cues.MP03.result_scenes.1.label",
+        "low_motion_scene": "@zh:core.medical_progress_cues.MP03.result_scenes.1.low_motion_scene",
+        "scene": "@zh:core.medical_progress_cues.MP03.result_scenes.1.scene",
+        "state": "retry_ready"
+      },
+      {
+        "label": "@zh:core.medical_progress_cues.MP03.result_scenes.2.label",
+        "low_motion_scene": "@zh:core.medical_progress_cues.MP03.result_scenes.2.low_motion_scene",
+        "scene": "@zh:core.medical_progress_cues.MP03.result_scenes.2.scene",
+        "state": "final_failure"
+      },
+      {
+        "label": "@zh:core.medical_progress_cues.MP03.result_scenes.3.label",
+        "low_motion_scene": "@zh:core.medical_progress_cues.MP03.result_scenes.3.low_motion_scene",
+        "scene": "@zh:core.medical_progress_cues.MP03.result_scenes.3.scene",
+        "state": "awaiting_recovery"
+      }
+    ],
+    "text": "@zh:core.medical_progress_cues.MP03.text",
+    "working_scene": "@zh:core.medical_progress_cues.MP03.working_scene",
+    "working_variants": [
+      {
+        "scene": "@zh:core.medical_progress_cues.MP03.working_variants.0.scene",
+        "specialty_id": "T02"
+      },
+      {
+        "scene": "@zh:core.medical_progress_cues.MP03.working_variants.1.scene",
+        "specialty_id": "T03"
+      },
+      {
+        "scene": "@zh:core.medical_progress_cues.MP03.working_variants.2.scene",
+        "specialty_id": "T04"
+      },
+      {
+        "scene": "@zh:core.medical_progress_cues.MP03.working_variants.3.scene",
+        "specialty_id": "T08"
+      },
+      {
+        "scene": "@zh:core.medical_progress_cues.MP03.working_variants.4.scene",
+        "specialty_id": "T10"
+      }
+    ]
+  },
+  {
+    "definition_id": "M17",
+    "finished_scene": "@zh:core.medical_progress_cues.MP04.finished_scene",
+    "held_scene": "@zh:core.medical_progress_cues.MP04.held_scene",
+    "id": "MP04",
+    "low_motion_scene": "@zh:core.medical_progress_cues.MP04.low_motion_scene",
+    "progress_source": "attempt_work",
+    "protocol_variants": [
+      {
+        "beats": [
+          {
+            "low_motion_scene": "@zh:core.medical_progress_cues.MP04.protocol_variants.0.beats.0.low_motion_scene",
+            "phase": "preparation",
+            "scene": "@zh:core.medical_progress_cues.MP04.protocol_variants.0.beats.0.scene"
+          },
+          {
+            "low_motion_scene": "@zh:core.medical_progress_cues.MP04.protocol_variants.0.beats.1.low_motion_scene",
+            "phase": "process",
+            "scene": "@zh:core.medical_progress_cues.MP04.protocol_variants.0.beats.1.scene"
+          },
+          {
+            "low_motion_scene": "@zh:core.medical_progress_cues.MP04.protocol_variants.0.beats.2.low_motion_scene",
+            "phase": "climax",
+            "scene": "@zh:core.medical_progress_cues.MP04.protocol_variants.0.beats.2.scene"
+          },
+          {
+            "low_motion_scene": "@zh:core.medical_progress_cues.MP04.protocol_variants.0.beats.3.low_motion_scene",
+            "phase": "safe_closing",
+            "scene": "@zh:core.medical_progress_cues.MP04.protocol_variants.0.beats.3.scene"
+          }
+        ],
+        "mode": "gentle"
+      }
+    ],
+    "result_scenes": [
+      {
+        "label": "@zh:core.medical_progress_cues.MP04.result_scenes.0.label",
+        "low_motion_scene": "@zh:core.medical_progress_cues.MP04.result_scenes.0.low_motion_scene",
+        "scene": "@zh:core.medical_progress_cues.MP04.result_scenes.0.scene",
+        "state": "cured"
+      },
+      {
+        "label": "@zh:core.medical_progress_cues.MP04.result_scenes.1.label",
+        "low_motion_scene": "@zh:core.medical_progress_cues.MP04.result_scenes.1.low_motion_scene",
+        "scene": "@zh:core.medical_progress_cues.MP04.result_scenes.1.scene",
+        "state": "retry_ready"
+      },
+      {
+        "label": "@zh:core.medical_progress_cues.MP04.result_scenes.2.label",
+        "low_motion_scene": "@zh:core.medical_progress_cues.MP04.result_scenes.2.low_motion_scene",
+        "scene": "@zh:core.medical_progress_cues.MP04.result_scenes.2.scene",
+        "state": "final_failure"
+      },
+      {
+        "label": "@zh:core.medical_progress_cues.MP04.result_scenes.3.label",
+        "low_motion_scene": "@zh:core.medical_progress_cues.MP04.result_scenes.3.low_motion_scene",
+        "scene": "@zh:core.medical_progress_cues.MP04.result_scenes.3.scene",
+        "state": "awaiting_recovery"
+      }
+    ],
+    "text": "@zh:core.medical_progress_cues.MP04.text",
+    "working_scene": "@zh:core.medical_progress_cues.MP04.working_scene",
+    "working_variants": [
+      {
+        "scene": "@zh:core.medical_progress_cues.MP04.working_variants.0.scene",
+        "specialty_id": "T06"
+      },
+      {
+        "scene": "@zh:core.medical_progress_cues.MP04.working_variants.1.scene",
+        "specialty_id": "T07"
+      }
+    ]
+  },
+  {
+    "definition_id": "EQ01",
+    "finished_scene": "@zh:core.medical_progress_cues.MP05.finished_scene",
+    "held_scene": "@zh:core.medical_progress_cues.MP05.held_scene",
+    "id": "MP05",
+    "low_motion_scene": "@zh:core.medical_progress_cues.MP05.low_motion_scene",
+    "progress_source": "surgery_work",
+    "protocol_variants": [],
+    "result_scenes": [
+      {
+        "label": "@zh:core.medical_progress_cues.MP05.result_scenes.0.label",
+        "low_motion_scene": "@zh:core.medical_progress_cues.MP05.result_scenes.0.low_motion_scene",
+        "scene": "@zh:core.medical_progress_cues.MP05.result_scenes.0.scene",
+        "state": "awaiting_recovery"
+      }
+    ],
+    "text": "@zh:core.medical_progress_cues.MP05.text",
+    "working_scene": "@zh:core.medical_progress_cues.MP05.working_scene",
+    "working_variants": []
+  },
+  {
+    "definition_id": "EQ05",
+    "finished_scene": "@zh:core.medical_progress_cues.MP06.finished_scene",
+    "held_scene": "@zh:core.medical_progress_cues.MP06.held_scene",
+    "id": "MP06",
+    "low_motion_scene": "@zh:core.medical_progress_cues.MP06.low_motion_scene",
+    "progress_source": "ward_work_and_care",
+    "protocol_variants": [],
+    "result_scenes": [
+      {
+        "label": "@zh:core.medical_progress_cues.MP06.result_scenes.0.label",
+        "low_motion_scene": "@zh:core.medical_progress_cues.MP06.result_scenes.0.low_motion_scene",
+        "scene": "@zh:core.medical_progress_cues.MP06.result_scenes.0.scene",
+        "state": "cured"
+      },
+      {
+        "label": "@zh:core.medical_progress_cues.MP06.result_scenes.1.label",
+        "low_motion_scene": "@zh:core.medical_progress_cues.MP06.result_scenes.1.low_motion_scene",
+        "scene": "@zh:core.medical_progress_cues.MP06.result_scenes.1.scene",
+        "state": "retry_ready"
+      },
+      {
+        "label": "@zh:core.medical_progress_cues.MP06.result_scenes.2.label",
+        "low_motion_scene": "@zh:core.medical_progress_cues.MP06.result_scenes.2.low_motion_scene",
+        "scene": "@zh:core.medical_progress_cues.MP06.result_scenes.2.scene",
+        "state": "final_failure"
+      }
+    ],
+    "text": "@zh:core.medical_progress_cues.MP06.text",
+    "working_scene": "@zh:core.medical_progress_cues.MP06.working_scene",
+    "working_variants": []
+  }
+]

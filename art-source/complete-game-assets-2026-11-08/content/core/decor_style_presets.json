@@ -1,0 +1,30 @@
+[
+  {
+    "description": "@zh:core.decor_style_presets.DS01.description",
+    "floor_material_id": "MAT01",
+    "id": "DS01",
+    "name": "@zh:core.decor_style_presets.DS01.name",
+    "wall_material_id": "MAT05"
+  },
+  {
+    "description": "@zh:core.decor_style_presets.DS02.description",
+    "floor_material_id": "MAT03",
+    "id": "DS02",
+    "name": "@zh:core.decor_style_presets.DS02.name",
+    "wall_material_id": "MAT06"
+  },
+  {
+    "description": "@zh:core.decor_style_presets.DS03.description",
+    "floor_material_id": "MAT02",
+    "id": "DS03",
+    "name": "@zh:core.decor_style_presets.DS03.name",
+    "wall_material_id": "MAT07"
+  },
+  {
+    "description": "@zh:core.decor_style_presets.DS04.description",
+    "floor_material_id": "MAT04",
+    "id": "DS04",
+    "name": "@zh:core.decor_style_presets.DS04.name",
+    "wall_material_id": "MAT08"
+  }
+]

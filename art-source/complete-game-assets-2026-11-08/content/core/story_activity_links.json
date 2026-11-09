@@ -1,0 +1,86 @@
+[
+  {
+    "activity_id": "CA04",
+    "designated_pair_cast_ids": [],
+    "id": "SAL01",
+    "intro_relationship": null,
+    "kind": "celebration",
+    "required_cast_ids": [
+      "CR01",
+      "CR03"
+    ],
+    "required_completions": 0,
+    "required_family_ids": [],
+    "story_id": "ST02"
+  },
+  {
+    "activity_id": "CA03",
+    "designated_pair_cast_ids": [],
+    "id": "SAL02",
+    "intro_relationship": null,
+    "kind": "celebration",
+    "required_cast_ids": [
+      "CR05",
+      "CR06",
+      "CR07",
+      "CR08"
+    ],
+    "required_completions": 0,
+    "required_family_ids": [],
+    "story_id": "ST05"
+  },
+  {
+    "activity_id": "CA02",
+    "designated_pair_cast_ids": [
+      "CR03",
+      "CR04"
+    ],
+    "id": "SAL03",
+    "intro_relationship": {
+      "context": "@zh:core.story_activity_links.SAL03.intro_relationship.context",
+      "only_if_absent": true,
+      "state": "rival"
+    },
+    "kind": "objective",
+    "required_cast_ids": [
+      "CR03",
+      "CR04"
+    ],
+    "required_completions": 3,
+    "required_family_ids": [],
+    "story_id": "ST06"
+  },
+  {
+    "activity_id": "CA01",
+    "designated_pair_cast_ids": [
+      "CR01",
+      "CR02"
+    ],
+    "id": "SAL04",
+    "intro_relationship": null,
+    "kind": "objective",
+    "required_cast_ids": [
+      "CR01",
+      "CR02"
+    ],
+    "required_completions": 1,
+    "required_family_ids": [],
+    "story_id": "ST07"
+  },
+  {
+    "activity_id": "CA06",
+    "designated_pair_cast_ids": [],
+    "id": "SAL06",
+    "intro_relationship": null,
+    "kind": "objective",
+    "required_cast_ids": [],
+    "required_completions": 1,
+    "required_family_ids": [
+      "F13",
+      "F02",
+      "F04",
+      "F06"
+    ],
+    "story_id": "ST12"
+  }
+]

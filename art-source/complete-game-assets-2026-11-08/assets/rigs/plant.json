@@ -1,0 +1,84 @@
+{
+  "id": "plant",
+  "reference_species": "S05",
+  "actions": [
+    "idle",
+    "walk",
+    "sit",
+    "notice",
+    "talk",
+    "cheer",
+    "upset",
+    "recover",
+    "interact",
+    "work",
+    "pause",
+    "symptom",
+    "recovery",
+    "low_motion",
+    "sleep",
+    "wake",
+    "rest",
+    "recreation",
+    "blink"
+  ],
+  "staff_actions": [
+    "operate",
+    "record",
+    "carry",
+    "repair",
+    "clean",
+    "build",
+    "teach",
+    "rest",
+    "sleep",
+    "wake"
+  ],
+  "slots": [
+    "head",
+    "look_target",
+    "hand_l",
+    "hand_r",
+    "treatment_anchor",
+    "emotion_anchor",
+    "carry_anchor"
+  ],
+  "animation_library": "assets/animations/staff/plant.tres",
+  "source": {
+    "actions": [
+      "operate",
+      "record",
+      "carry",
+      "repair",
+      "clean",
+      "build",
+      "teach",
+      "rest",
+      "sleep",
+      "wake"
+    ],
+    "anchors": [
+      "operator",
+      "tool",
+      "badge",
+      "handoff"
+    ],
+    "id": "SRA_plant",
+    "low_motion_sleep_scene": "原有枝叶的睡眠姿态与醒来姿态，不长出额外枝条、不减少身体体积。",
+    "rig": "plant",
+    "roles": [
+      "doctor",
+      "nurse",
+      "receptionist",
+      "cleaner",
+      "mechanic",
+      "researcher",
+      "decorator"
+    ],
+    "scene": "枝叶握住带软套的工具，徽章夹在不会遮挡脸的位置。",
+    "sleep_scene": "枝叶在允许卧姿里放松，叶梢把一片软眼罩摆正；枕头的小叶图案也跟着合拢。",
+    "wake_scene": "枝叶恢复原有舒展方向，一片叶子把其他叶子的眼罩角理平，然后沿真实路线下床。"
+  },
+  "root_motion": false,
+  "max_bones": 40
+}

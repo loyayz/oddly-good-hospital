@@ -1,0 +1,292 @@
+{
+  "upgrades": [
+    {
+      "id": "fur02_level_1",
+      "path": "assets/upgrades/fur02_level_1.glb",
+      "source_path": "art-source/production/upgrades/fur02_level_1.blend",
+      "sha256": "615c5918796a8e840bc652ba8262953acd983e245e689543c3114d03bc0b2f78",
+      "bytes": 10436,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 88
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 88,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "definition_id": "FUR02",
+      "level": 1,
+      "description": "实际诊察时单层透明症状板逐条展开，定位刻度跟着医生当前检查项移动。",
+      "static_description": "单层透明症状板与大勾形边框"
+    },
+    {
+      "id": "fur02_level_2",
+      "path": "assets/upgrades/fur02_level_2.glb",
+      "source_path": "art-source/production/upgrades/fur02_level_2.blend",
+      "sha256": "f7d4a779047a4f8d9a66560c2a973eb657b031516ad49498faa1be619fab4313",
+      "bytes": 43436,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 424
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 424,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "definition_id": "FUR02",
+      "level": 2,
+      "description": "实际诊察时三层症状板错落展开，完成一项便整齐合回一层；小听诊器在准备段先对准自身校准点。",
+      "static_description": "三层折叠症状板与听诊器形顶饰"
+    },
+    {
+      "id": "m09_level_1",
+      "path": "assets/upgrades/m09_level_1.glb",
+      "source_path": "art-source/production/upgrades/m09_level_1.blend",
+      "sha256": "ee0a8bf0a1c722483cbd3812e0e4bca16b12e7247404e77d475c33aa491189c2",
+      "bytes": 29912,
+      "surfaces": [
+        {
+          "mesh": "SegmentedTrack",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 296
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 296,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "definition_id": "M09",
+      "level": 1,
+      "description": "实际整复时分段定位轨随病例目标点亮，软托在准备段先检查自己的对齐。",
+      "static_description": "两侧分节定位轨与软托端头"
+    },
+    {
+      "id": "m09_level_2",
+      "path": "assets/upgrades/m09_level_2.glb",
+      "source_path": "art-source/production/upgrades/m09_level_2.blend",
+      "sha256": "9da191d8df45783555896b96ac5f8140b9014843a053c013d822b9725c0df26b",
+      "bytes": 70996,
+      "surfaces": [
+        {
+          "mesh": "SegmentedTrack",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 828
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 828,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "definition_id": "M09",
+      "level": 2,
+      "description": "悬臂架只送出当前病例需要的梳子、拼装夹或小磁钓竿；对应工具就位前在架内认真排一次队。",
+      "static_description": "台内悬臂架与三件病例工具插槽"
+    },
+    {
+      "id": "m37_level_1",
+      "path": "assets/upgrades/m37_level_1.glb",
+      "source_path": "art-source/production/upgrades/m37_level_1.blend",
+      "sha256": "32f5849d675f39a5291bd547790e2b6913587eddc670787352be95b742cc3e51",
+      "bytes": 16508,
+      "surfaces": [
+        {
+          "mesh": "Torus",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 160
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 160,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "definition_id": "M37",
+      "level": 1,
+      "description": "实际调理时透明罩内的单层灯环随当前光照、气流或节拍工作，不同病例保留各自介质。",
+      "static_description": "透明圆罩与一圈厚边灯环"
+    },
+    {
+      "id": "m37_level_2",
+      "path": "assets/upgrades/m37_level_2.glb",
+      "source_path": "art-source/production/upgrades/m37_level_2.blend",
+      "sha256": "2379c67aee4bae2015958ec326a40269aaf253f8b1532d6dfc506d1f066b15e1",
+      "bytes": 45460,
+      "surfaces": [
+        {
+          "mesh": "Torus",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 680
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 680,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "definition_id": "M37",
+      "level": 2,
+      "description": "双层环架配合当前病例：光疗用小光帘，声调训练用指挥杆，温湿调理用云形喷口；安全收尾时只让本次使用的机构回位。",
+      "static_description": "圆罩内双层环架与云形助手座"
+    },
+    {
+      "id": "m17_level_1",
+      "path": "assets/upgrades/m17_level_1.glb",
+      "source_path": "art-source/production/upgrades/m17_level_1.blend",
+      "sha256": "860947aa44271e7dd20e0d78a55348536a999835bc5e084c81a959dc71c47c70",
+      "bytes": 3828,
+      "surfaces": [
+        {
+          "mesh": "PerspectiveWindow",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 64
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 64,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "definition_id": "M17",
+      "level": 1,
+      "description": "实际奇想治疗时透视窗框随当前折叠、认知或梦境病例展开，窗口只显示本次病例图案。",
+      "static_description": "方形透视窗与折叠格框"
+    },
+    {
+      "id": "m17_level_2",
+      "path": "assets/upgrades/m17_level_2.glb",
+      "source_path": "art-source/production/upgrades/m17_level_2.blend",
+      "sha256": "095e21858346ff5d2db68d0a74bb1913ec315c6a8126d1e24f15da309fbc2fb5",
+      "bytes": 18528,
+      "surfaces": [
+        {
+          "mesh": "PerspectiveWindow",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 224
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 224,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "definition_id": "M17",
+      "level": 2,
+      "description": "星环框把本次病例的图案依次送入对应格口；帽形收纳机构只整理自己的空工具托，不替患者收走症状。",
+      "static_description": "台内星环框与帽形收纳机构"
+    },
+    {
+      "id": "eq01_level_1",
+      "path": "assets/upgrades/eq01_level_1.glb",
+      "source_path": "art-source/production/upgrades/eq01_level_1.blend",
+      "sha256": "101abad6a88e24430cc16178ca2a979cfbee25f6e4a76a431dc040f1b3ef8445",
+      "bytes": 10432,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 88
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 88,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "definition_id": "EQ01",
+      "level": 1,
+      "description": "术前定位时成对刻度尺和分段软托对齐实际承托目标，进入手术后保持稳定。",
+      "static_description": "成对定位尺与分段软托"
+    },
+    {
+      "id": "eq01_level_2",
+      "path": "assets/upgrades/eq01_level_2.glb",
+      "source_path": "art-source/production/upgrades/eq01_level_2.blend",
+      "sha256": "e76293a5ebc0944a403fd8ec0e9f4968d2429bd8fc5902c7bb757f7f006e9977",
+      "bytes": 19544,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 296
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 296,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "definition_id": "EQ01",
+      "level": 2,
+      "description": "主刀、麻醉与护士的实际操作按各自协作标记显示；工具臂准备段在台内依次就位，关键操作中专注稳定，安全收尾才折回空工具架。",
+      "static_description": "内收式工具臂列架与三处协作标记"
+    },
+    {
+      "id": "eq05_level_1",
+      "path": "assets/upgrades/eq05_level_1.glb",
+      "source_path": "art-source/production/upgrades/eq05_level_1.blend",
+      "sha256": "3c896b28f77bbd97f7156ee66b71b8ffd5209e2f65900d053e1434e1c6993d73",
+      "bytes": 19412,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 176
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 176,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "definition_id": "EQ05",
+      "level": 1,
+      "description": "真实护理时贴合软垫的分段刻度显示本次调整位置，调整完成后保持稳定承托。",
+      "static_description": "带刻度的加厚贴合软垫"
+    },
+    {
+      "id": "eq05_level_2",
+      "path": "assets/upgrades/eq05_level_2.glb",
+      "source_path": "art-source/production/upgrades/eq05_level_2.blend",
+      "sha256": "53d9c8bc903397777b2a4d4af5961de2a76a635d040540d584919046b0ef8594",
+      "bytes": 55112,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 976
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 976,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": [],
+      "definition_id": "EQ05",
+      "level": 2,
+      "description": "护士实际调整时云形床栏内的小机构同步整理承托面，枕边旗随记录完成轻点一下；平常休眠时安静保持原支撑。",
+      "static_description": "云形床栏与枕边静立小旗"
+    }
+  ]
+}

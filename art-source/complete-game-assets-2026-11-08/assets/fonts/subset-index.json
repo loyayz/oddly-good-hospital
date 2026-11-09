@@ -1,0 +1,36 @@
+{
+  "fonts": [
+    {
+      "path": "assets/fonts/HospitalUI-Regular.otf",
+      "bytes": 856320,
+      "source": "NotoSansCJKsc-Regular.otf",
+      "codepoints": 1889,
+      "license": "OFL.txt"
+    },
+    {
+      "path": "assets/fonts/HospitalUI-Medium.otf",
+      "bytes": 852632,
+      "source": "NotoSansCJKsc-Medium.otf",
+      "codepoints": 1889,
+      "license": "OFL.txt"
+    }
+  ],
+  "text_source": "content/core and asset browser labels",
+  "fallbacks": [
+    {
+      "path": "assets/fonts/NotoSansCJKsc-Regular.otf",
+      "variation": "assets/fonts/HospitalUI-Regular.tres",
+      "codepoints": 44810,
+      "sha256": "2c76254f6fc379fddfce0a7e84fb5385bb135d3e399294f6eeb6680d0365b74b",
+      "license": "OFL.txt"
+    },
+    {
+      "path": "assets/fonts/NotoSansCJKsc-Medium.otf",
+      "variation": "assets/fonts/HospitalUI-Medium.tres",
+      "codepoints": 44810,
+      "sha256": "ca094f6b0001fb048ca39ddd797a0cdb0179e1e55c6561e111c49c3e6a61d7b7",
+      "license": "OFL.txt"
+    }
+  ],
+  "usage": "Shared content subset with complete CJK fallback; engine creates glyphs for actual visible text."
+}

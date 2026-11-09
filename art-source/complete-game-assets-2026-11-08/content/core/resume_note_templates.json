@@ -1,0 +1,22 @@
+[
+  {
+    "id": "RN01",
+    "state": "care_blocker",
+    "text": "@zh:core.resume_note_templates.RN01.text"
+  },
+  {
+    "id": "RN02",
+    "state": "tracked_goal",
+    "text": "@zh:core.resume_note_templates.RN02.text"
+  },
+  {
+    "id": "RN03",
+    "state": "active_project",
+    "text": "@zh:core.resume_note_templates.RN03.text"
+  },
+  {
+    "id": "RN04",
+    "state": "all_clear",
+    "text": "@zh:core.resume_note_templates.RN04.text"
+  }
+]

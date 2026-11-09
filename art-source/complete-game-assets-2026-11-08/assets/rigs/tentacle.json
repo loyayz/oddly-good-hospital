@@ -1,0 +1,84 @@
+{
+  "id": "tentacle",
+  "reference_species": "S02",
+  "actions": [
+    "idle",
+    "walk",
+    "sit",
+    "notice",
+    "talk",
+    "cheer",
+    "upset",
+    "recover",
+    "interact",
+    "work",
+    "pause",
+    "symptom",
+    "recovery",
+    "low_motion",
+    "sleep",
+    "wake",
+    "rest",
+    "recreation",
+    "blink"
+  ],
+  "staff_actions": [
+    "operate",
+    "record",
+    "carry",
+    "repair",
+    "clean",
+    "build",
+    "teach",
+    "rest",
+    "sleep",
+    "wake"
+  ],
+  "slots": [
+    "head",
+    "look_target",
+    "hand_l",
+    "hand_r",
+    "treatment_anchor",
+    "emotion_anchor",
+    "carry_anchor"
+  ],
+  "animation_library": "assets/animations/staff/tentacle.tres",
+  "source": {
+    "actions": [
+      "operate",
+      "record",
+      "carry",
+      "repair",
+      "clean",
+      "build",
+      "teach",
+      "rest",
+      "sleep",
+      "wake"
+    ],
+    "anchors": [
+      "operator",
+      "tool",
+      "badge",
+      "handoff"
+    ],
+    "id": "SRA_tentacle",
+    "low_motion_sleep_scene": "主躯干和全部腕足完整收在床内，醒来先回位后离床，不把腕足算额外员工。",
+    "rig": "tentacle",
+    "roles": [
+      "doctor",
+      "nurse",
+      "receptionist",
+      "cleaner",
+      "mechanic",
+      "researcher",
+      "decorator"
+    ],
+    "scene": "触腕各司其职但只执行一份工作，徽章固定在主躯干前侧。",
+    "sleep_scene": "腕足在承托范围里各分一个被角，最后一条腕足认真给自己的末端盖好，主躯干随即安静。",
+    "wake_scene": "先收好一条被角，其余腕足逐条回到正常姿态；一条腕足想再摆正枕头，主躯干已经点头上班。"
+  },
+  "root_motion": false,
+  "max_bones": 40
+}

@@ -1,0 +1,44 @@
+[
+  {
+    "definition_id": "FUR02",
+    "doctor_personality_id": "DP01",
+    "id": "DW01",
+    "low_motion_scene": "@zh:core.diagnostic_work_styles.DW01.low_motion_scene",
+    "scene": "@zh:core.diagnostic_work_styles.DW01.scene"
+  },
+  {
+    "definition_id": "FUR02",
+    "doctor_personality_id": "DP02",
+    "id": "DW02",
+    "low_motion_scene": "@zh:core.diagnostic_work_styles.DW02.low_motion_scene",
+    "scene": "@zh:core.diagnostic_work_styles.DW02.scene"
+  },
+  {
+    "definition_id": "FUR02",
+    "doctor_personality_id": "DP03",
+    "id": "DW03",
+    "low_motion_scene": "@zh:core.diagnostic_work_styles.DW03.low_motion_scene",
+    "scene": "@zh:core.diagnostic_work_styles.DW03.scene"
+  },
+  {
+    "definition_id": "FUR02",
+    "doctor_personality_id": "DP04",
+    "id": "DW04",
+    "low_motion_scene": "@zh:core.diagnostic_work_styles.DW04.low_motion_scene",
+    "scene": "@zh:core.diagnostic_work_styles.DW04.scene"
+  },
+  {
+    "definition_id": "FUR02",
+    "doctor_personality_id": "DP05",
+    "id": "DW05",
+    "low_motion_scene": "@zh:core.diagnostic_work_styles.DW05.low_motion_scene",
+    "scene": "@zh:core.diagnostic_work_styles.DW05.scene"
+  },
+  {
+    "definition_id": "FUR02",
+    "doctor_personality_id": "DP06",
+    "id": "DW06",
+    "low_motion_scene": "@zh:core.diagnostic_work_styles.DW06.low_motion_scene",
+    "scene": "@zh:core.diagnostic_work_styles.DW06.scene"
+  }
+]

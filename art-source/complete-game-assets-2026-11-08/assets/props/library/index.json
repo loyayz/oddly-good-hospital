@@ -1,0 +1,2890 @@
+{
+  "props": [
+    {
+      "id": "air",
+      "path": "assets/props/library/air.glb",
+      "source_path": "art-source/production/props/library/air.blend",
+      "sha256": "1ee2f5af254bb00095691a1ad316898a4705e9facf5264ea91371bd67799503d",
+      "bytes": 5312,
+      "surfaces": [
+        {
+          "mesh": "Wave",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 96
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 96,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "applause",
+      "path": "assets/props/library/applause.glb",
+      "source_path": "art-source/production/props/library/applause.blend",
+      "sha256": "d98f894c68b37a7cecdbd5f3fe69486a5a3cc987f85192fe7bd5b7dad6a0945c",
+      "bytes": 3664,
+      "surfaces": [
+        {
+          "mesh": "applause",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 36
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 36,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "armor",
+      "path": "assets/props/library/armor.glb",
+      "source_path": "art-source/production/props/library/armor.blend",
+      "sha256": "9af4bdd18de8d140351a241ddb7b1ae5d939a4f081d3172629eea99f50c6e500",
+      "bytes": 9320,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 80
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 80,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "arrow",
+      "path": "assets/props/library/arrow.glb",
+      "source_path": "art-source/production/props/library/arrow.blend",
+      "sha256": "14a662f66453d81bd12d31fa8a4a304d0986d20ee2d736961977662c2e6a86a6",
+      "bytes": 2936,
+      "surfaces": [
+        {
+          "mesh": "Arrow",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 24
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 24,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "bamboo",
+      "path": "assets/props/library/bamboo.glb",
+      "source_path": "art-source/production/props/library/bamboo.blend",
+      "sha256": "5a9e60639dd46a60a80849eb9c6374a7869fd79f500d6f0494e62eef36a3b1c7",
+      "bytes": 9448,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 188
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 188,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "bandage",
+      "path": "assets/props/library/bandage.glb",
+      "source_path": "art-source/production/props/library/bandage.blend",
+      "sha256": "a741a2f075bbb9c11723e86d85f38a19be8f0f905369d0923a923c30509f599b",
+      "bytes": 4884,
+      "surfaces": [
+        {
+          "mesh": "bandage",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 96
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 96,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "bat",
+      "path": "assets/props/library/bat.glb",
+      "source_path": "art-source/production/props/library/bat.blend",
+      "sha256": "c43c78630a5fd589cd0adeed4dc25fc840e06d526a8f4779222a72b679e05ceb",
+      "bytes": 16536,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 328
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 328,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "battery",
+      "path": "assets/props/library/battery.glb",
+      "source_path": "art-source/production/props/library/battery.blend",
+      "sha256": "f7ae72398ff95a6ae098be2e7e47b7e84959a54c4fc2ccdb181f0f5318398ba2",
+      "bytes": 9324,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 80
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 80,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "beam",
+      "path": "assets/props/library/beam.glb",
+      "source_path": "art-source/production/props/library/beam.blend",
+      "sha256": "70c5e16e68dae4a09303396cf8cfdcc094b7b94150b0ae700e5793b65b7b1b22",
+      "bytes": 6076,
+      "surfaces": [
+        {
+          "mesh": "Frame",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 112
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 112,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "beard",
+      "path": "assets/props/library/beard.glb",
+      "source_path": "art-source/production/props/library/beard.blend",
+      "sha256": "bc7a27246a194dca1e2d10fb4dc212350fca7a47b68c7997073b8ff1b3253466",
+      "bytes": 3268,
+      "surfaces": [
+        {
+          "mesh": "beard",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 48
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 48,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "bell",
+      "path": "assets/props/library/bell.glb",
+      "source_path": "art-source/production/props/library/bell.blend",
+      "sha256": "1f1d2268a77e42c6999ef562a4f9f86b840323ce3ed1984a7c2e6f8087da8a12",
+      "bytes": 9444,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 188
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 188,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "blanket",
+      "path": "assets/props/library/blanket.glb",
+      "source_path": "art-source/production/props/library/blanket.blend",
+      "sha256": "0fbb9290405deab788c258c36f8a56d1af6549d229ddd7b8de5493f0faa32a47",
+      "bytes": 6684,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 60
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 60,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "blocks",
+      "path": "assets/props/library/blocks.glb",
+      "source_path": "art-source/production/props/library/blocks.blend",
+      "sha256": "bdedc94e0c4fb9f437d982859692c1f3885a3e2df07f774c9dec594f15d56b41",
+      "bytes": 9324,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 80
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 80,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "bone",
+      "path": "assets/props/library/bone.glb",
+      "source_path": "art-source/production/props/library/bone.blend",
+      "sha256": "3404c4fd76065977164a272147fd8c940ad518046480ab3b150a50e1afb42bf9",
+      "bytes": 8148,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 156
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 156,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "book",
+      "path": "assets/props/library/book.glb",
+      "source_path": "art-source/production/props/library/book.blend",
+      "sha256": "c5883636bf9e02a6f0b4fbd8d36de5e75fc661fe6220fd180bee8e59229af938",
+      "bytes": 3912,
+      "surfaces": [
+        {
+          "mesh": "FoldedPaper",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 36
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 36,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "brackets",
+      "path": "assets/props/library/brackets.glb",
+      "source_path": "art-source/production/props/library/brackets.blend",
+      "sha256": "e423a72769e55b2388073b7d6db08de040eed64760a162aa0b3d2b40b30aeee4",
+      "bytes": 4032,
+      "surfaces": [
+        {
+          "mesh": "Bracket",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 64
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 64,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "braid",
+      "path": "assets/props/library/braid.glb",
+      "source_path": "art-source/production/props/library/braid.blend",
+      "sha256": "1738254f8d330983bdf2aba79cb48a9b979d36ca9a00b8fc8eb45037cbfeabaa",
+      "bytes": 4880,
+      "surfaces": [
+        {
+          "mesh": "braid",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 96
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 96,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "broom",
+      "path": "assets/props/library/broom.glb",
+      "source_path": "art-source/production/props/library/broom.blend",
+      "sha256": "a29d56dfdb78e4618f7987633070ea42bdabd000aa1d1cb29892846cb8080bbc",
+      "bytes": 8008,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 80
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 80,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "bubble",
+      "path": "assets/props/library/bubble.glb",
+      "source_path": "art-source/production/props/library/bubble.blend",
+      "sha256": "83ee487dc9248d3e568170b01ebc126f305ab16c62b2f7292d66cdbf585f6f75",
+      "bytes": 18676,
+      "surfaces": [
+        {
+          "mesh": "Torus",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 208
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 208,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "butterfly",
+      "path": "assets/props/library/butterfly.glb",
+      "source_path": "art-source/production/props/library/butterfly.blend",
+      "sha256": "cc9b850956a07c0d39197f305823cacd1beff433bfbbc562afa4f118ba60458a",
+      "bytes": 12356,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 240
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 240,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "buttons",
+      "path": "assets/props/library/buttons.glb",
+      "source_path": "art-source/production/props/library/buttons.blend",
+      "sha256": "e630ab1a08a6b16bb047bc91ce09d35ec502cd2b4d591c52c09eba4999d7e570",
+      "bytes": 7992,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 144
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 144,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "calendar",
+      "path": "assets/props/library/calendar.glb",
+      "source_path": "art-source/production/props/library/calendar.blend",
+      "sha256": "f80f00686f5a10df60851085fd2aa451aa3b2c865341fb2fdef5f14ed91c5488",
+      "bytes": 10432,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 88
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 88,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "cilia",
+      "path": "assets/props/library/cilia.glb",
+      "source_path": "art-source/production/props/library/cilia.blend",
+      "sha256": "abae77a920c2f40528d510b9fc19ebcdf4679332cd3eed2e47374dfbdcc556cb",
+      "bytes": 7988,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 144
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 144,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "clock",
+      "path": "assets/props/library/clock.glb",
+      "source_path": "art-source/production/props/library/clock.blend",
+      "sha256": "fcc7d3db8ebe055710d2fae1544ee5001a2e67b502ac0cbfa18d07a7272808f3",
+      "bytes": 17792,
+      "surfaces": [
+        {
+          "mesh": "Torus",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 192
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 192,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "clothes",
+      "path": "assets/props/library/clothes.glb",
+      "source_path": "art-source/production/props/library/clothes.blend",
+      "sha256": "cd405b69e298771d00be9ac8391708fd45401b37aecbeec0eda8f7a9bdee05ae",
+      "bytes": 6684,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 60
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 60,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "cloud",
+      "path": "assets/props/library/cloud.glb",
+      "source_path": "art-source/production/props/library/cloud.blend",
+      "sha256": "23dd07c6140ca846bf85e8b954fe87a32bc27af2d0633cedb59f79b060cd1773",
+      "bytes": 15368,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 360
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 360,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "colony",
+      "path": "assets/props/library/colony.glb",
+      "source_path": "art-source/production/props/library/colony.blend",
+      "sha256": "7f7e72cd3b2c55422c9f532aa7d90ab426a1a6a21021f7c9ef6afcb5272be55f",
+      "bytes": 7992,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 144
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 144,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "comb",
+      "path": "assets/props/library/comb.glb",
+      "source_path": "art-source/production/props/library/comb.blend",
+      "sha256": "b814a8421b2a7c9e274a8fc31ba6d90bf32da632e8934e2c299297d10e8adac7",
+      "bytes": 16260,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 224
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 224,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "compass",
+      "path": "assets/props/library/compass.glb",
+      "source_path": "art-source/production/props/library/compass.blend",
+      "sha256": "ad22e1f4325227aaa69e09b8baa67da0e9d976fa69905b59002f99481acacf7c",
+      "bytes": 2936,
+      "surfaces": [
+        {
+          "mesh": "Arrow",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 24
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 24,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "confetti",
+      "path": "assets/props/library/confetti.glb",
+      "source_path": "art-source/production/props/library/confetti.blend",
+      "sha256": "27d4ae97bc2b964f96b80f4915668de2024ddb954aea3feeaf3cdcf596c1fc34",
+      "bytes": 5936,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 44
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 44,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "countdown",
+      "path": "assets/props/library/countdown.glb",
+      "source_path": "art-source/production/props/library/countdown.blend",
+      "sha256": "5e311e5679b55d43bec4c7c50c47a599c0735fe076b4344a7de1bd33385fd8a6",
+      "bytes": 14928,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 132
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 132,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "crown",
+      "path": "assets/props/library/crown.glb",
+      "source_path": "art-source/production/props/library/crown.blend",
+      "sha256": "470091f266d416b80bebc0d445a3c8304cd5d2bb326fe2efb6804fbe55f668c9",
+      "bytes": 19848,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 404
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 404,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "cup",
+      "path": "assets/props/library/cup.glb",
+      "source_path": "art-source/production/props/library/cup.blend",
+      "sha256": "9f85bfd18d6e48f171d9569b00d97afa48e557a285262d89c6b83da562f155c1",
+      "bytes": 18956,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 204
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 204,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "drum",
+      "path": "assets/props/library/drum.glb",
+      "source_path": "art-source/production/props/library/drum.blend",
+      "sha256": "6b3c996add82acaaaf274ce843b2c1e5e090be983297c17afa0f57725d807aad",
+      "bytes": 17428,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 396
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 396,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "ear",
+      "path": "assets/props/library/ear.glb",
+      "source_path": "art-source/production/props/library/ear.blend",
+      "sha256": "73969f6b945c3f7d472733229344c20851d9ca8e015dfa1105e2d6536749644a",
+      "bytes": 9444,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 188
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 188,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "echo",
+      "path": "assets/props/library/echo.glb",
+      "source_path": "art-source/production/props/library/echo.blend",
+      "sha256": "b80792b731f89dd12765a77b7ccb5a939b141b8414759fd116a98f2fe4b3c7e6",
+      "bytes": 5316,
+      "surfaces": [
+        {
+          "mesh": "Wave",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 96
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 96,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "elastic",
+      "path": "assets/props/library/elastic.glb",
+      "source_path": "art-source/production/props/library/elastic.blend",
+      "sha256": "f415805ce9d66b73d86d2641d3f864f6a49dab440b43cd05b000fc8904d4f449",
+      "bytes": 4884,
+      "surfaces": [
+        {
+          "mesh": "elastic",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 96
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 96,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "ends",
+      "path": "assets/props/library/ends.glb",
+      "source_path": "art-source/production/props/library/ends.blend",
+      "sha256": "c0281e3c7d1b80a63b1bbbcf2f6d2060727a55652e47aefed72150ff764a0997",
+      "bytes": 4876,
+      "surfaces": [
+        {
+          "mesh": "ends",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 96
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 96,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "eye_mask",
+      "path": "assets/props/library/eye_mask.glb",
+      "source_path": "art-source/production/props/library/eye_mask.blend",
+      "sha256": "38d9bba45b6e260ccb32ac405df50ab1006140476c77c3203d97ffbb2e5fa548",
+      "bytes": 8676,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 184
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 184,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "faces",
+      "path": "assets/props/library/faces.glb",
+      "source_path": "art-source/production/props/library/faces.blend",
+      "sha256": "929345eade4a047f10749f24e72f77f8f73644055519f5f0b9845b494508ff89",
+      "bytes": 32680,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 672
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 672,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "fin",
+      "path": "assets/props/library/fin.glb",
+      "source_path": "art-source/production/props/library/fin.blend",
+      "sha256": "525cfaf7817dd517a8d6e80fb3d6752a9eeb98cc7a51850efd1362616fac6cac",
+      "bytes": 2688,
+      "surfaces": [
+        {
+          "mesh": "fin",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 20
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 20,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "flag",
+      "path": "assets/props/library/flag.glb",
+      "source_path": "art-source/production/props/library/flag.blend",
+      "sha256": "56c250d81db9d67c9c78962254aa67ecf937f1a0ec535a10cb35dd15fc7c2657",
+      "bytes": 4348,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 44
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 44,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "flower",
+      "path": "assets/props/library/flower.glb",
+      "source_path": "art-source/production/props/library/flower.blend",
+      "sha256": "2febd7237cab9ac57f14ba6dbef6804a060579b4626458ef0a4514fda5a629b9",
+      "bytes": 14536,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 288
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 288,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "fog",
+      "path": "assets/props/library/fog.glb",
+      "source_path": "art-source/production/props/library/fog.blend",
+      "sha256": "75abd4bc398197cb748b833d921c5caee5a117a4affaecf367b89fa646ad5879",
+      "bytes": 6072,
+      "surfaces": [
+        {
+          "mesh": "Frame",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 112
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 112,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "fold",
+      "path": "assets/props/library/fold.glb",
+      "source_path": "art-source/production/props/library/fold.blend",
+      "sha256": "446bc42408fa2302f5a51a8ba589696b289dd875b3063d96036954fc9077da27",
+      "bytes": 2724,
+      "surfaces": [
+        {
+          "mesh": "FoldedPaper",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 20
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 20,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "footprints",
+      "path": "assets/props/library/footprints.glb",
+      "source_path": "art-source/production/props/library/footprints.blend",
+      "sha256": "381e5d56a65b9c81e51f859309b298de99c57aaad59f462050d9171948e8b085",
+      "bytes": 8000,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 144
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 144,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "frame",
+      "path": "assets/props/library/frame.glb",
+      "source_path": "art-source/production/props/library/frame.blend",
+      "sha256": "7f8adbe52b79c17c526a1fb2fe57763b28b0b3b883df6299af68241cdb135e46",
+      "bytes": 3804,
+      "surfaces": [
+        {
+          "mesh": "Frame",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 64
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 64,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "frames",
+      "path": "assets/props/library/frames.glb",
+      "source_path": "art-source/production/props/library/frames.blend",
+      "sha256": "010fb0605e9064bf3f0c2c2d367b4d00f0e093af3ecf681d7b8aa74086fbbb72",
+      "bytes": 5932,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 44
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 44,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "furball",
+      "path": "assets/props/library/furball.glb",
+      "source_path": "art-source/production/props/library/furball.blend",
+      "sha256": "350abec8c467ca09b7d996a82089987c2d9c42f6f9c8b824649b56dc3006bf36",
+      "bytes": 3272,
+      "surfaces": [
+        {
+          "mesh": "furball",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 48
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 48,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "glasses",
+      "path": "assets/props/library/glasses.glb",
+      "source_path": "art-source/production/props/library/glasses.blend",
+      "sha256": "06316bb1a4211cbcc9d6c7297054c6c856ef1b5e2880cd0f4acc8f1fb05012bf",
+      "bytes": 33600,
+      "surfaces": [
+        {
+          "mesh": "Torus",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 356
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 356,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "gravity",
+      "path": "assets/props/library/gravity.glb",
+      "source_path": "art-source/production/props/library/gravity.blend",
+      "sha256": "d857307582adaa9648ea5f9b2a7fba97ca6cf51c4ef6b73106441a15a819fe8d",
+      "bytes": 5316,
+      "surfaces": [
+        {
+          "mesh": "Wave",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 96
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 96,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "greeting",
+      "path": "assets/props/library/greeting.glb",
+      "source_path": "art-source/production/props/library/greeting.blend",
+      "sha256": "5731504d1ee9aef2fdf0148b2b7637cf60209e385dceeeb61aef6190e2bfe498",
+      "bytes": 2940,
+      "surfaces": [
+        {
+          "mesh": "Arrow",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 24
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 24,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "hats",
+      "path": "assets/props/library/hats.glb",
+      "source_path": "art-source/production/props/library/hats.blend",
+      "sha256": "cca9035b5de1105b66d48eaeb40013ec0cc98b6a4da1d2deb05a9aaccc811492",
+      "bytes": 10424,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 88
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 88,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "highlight",
+      "path": "assets/props/library/highlight.glb",
+      "source_path": "art-source/production/props/library/highlight.blend",
+      "sha256": "1f3486ef808f3b7765e55a9a0e50ee7b6e9c86d19e50726f759feed7ccf31832",
+      "bytes": 3668,
+      "surfaces": [
+        {
+          "mesh": "highlight",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 36
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 36,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "hinge",
+      "path": "assets/props/library/hinge.glb",
+      "source_path": "art-source/production/props/library/hinge.blend",
+      "sha256": "8ccfff9b8b9f9a518bcc352ad645d08a2c6ee1f77d6d7531c306172fc2668dd5",
+      "bytes": 9320,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 80
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 80,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "hourglass",
+      "path": "assets/props/library/hourglass.glb",
+      "source_path": "art-source/production/props/library/hourglass.blend",
+      "sha256": "858ebfd1781ab71702ca371b05dfae25470c538dbe8357c91fabf70f80ee8ce5",
+      "bytes": 14564,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 160
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 160,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "ice",
+      "path": "assets/props/library/ice.glb",
+      "source_path": "art-source/production/props/library/ice.blend",
+      "sha256": "5dfefaaf777fb88a27f781e2a6981171ff030255e1fb88ce760a187e5b5b5602",
+      "bytes": 8564,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_alpha",
+          "alpha_mode": "BLEND",
+          "triangles": 44
+        },
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 32
+        }
+      ],
+      "surface_count": 2,
+      "triangles": 76,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "ink",
+      "path": "assets/props/library/ink.glb",
+      "source_path": "art-source/production/props/library/ink.blend",
+      "sha256": "c1c8e4b7db8b5c311ad690cdb4a4017ad308d193e4b1f22fd6dc878db5a59ddd",
+      "bytes": 6084,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 120
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 120,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "joint",
+      "path": "assets/props/library/joint.glb",
+      "source_path": "art-source/production/props/library/joint.blend",
+      "sha256": "62a112a378b953e17154cd3c9922f7cf9100b512deda305d85cc5986aa981e1c",
+      "bytes": 7988,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 144
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 144,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "key",
+      "path": "assets/props/library/key.glb",
+      "source_path": "art-source/production/props/library/key.blend",
+      "sha256": "52e4b06bbfa58797f1cc8f6a90a6d3148e2cc2f6ffae8abf1646bbdf20b49e13",
+      "bytes": 18560,
+      "surfaces": [
+        {
+          "mesh": "Torus",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 196
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 196,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "knot",
+      "path": "assets/props/library/knot.glb",
+      "source_path": "art-source/production/props/library/knot.blend",
+      "sha256": "e5da4f631075e7a7d4e098e48e4fea3581b0efd918e404235d8b55e33a14fb3a",
+      "bytes": 4876,
+      "surfaces": [
+        {
+          "mesh": "knot",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 96
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 96,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "label",
+      "path": "assets/props/library/label.glb",
+      "source_path": "art-source/production/props/library/label.blend",
+      "sha256": "883875f81656370527f9484269467416a5d3c42b8be6a43eef5148879595e89f",
+      "bytes": 9320,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 80
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 80,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "letters",
+      "path": "assets/props/library/letters.glb",
+      "source_path": "art-source/production/props/library/letters.blend",
+      "sha256": "b0854cd8746dd2f0e13d3478156514ffcd9db5ea37cdcb9519380e275b6fa417",
+      "bytes": 5936,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 44
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 44,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "lightning",
+      "path": "assets/props/library/lightning.glb",
+      "source_path": "art-source/production/props/library/lightning.blend",
+      "sha256": "384e2f1db43defeb2815b82c9de10946b5964857b0d4f6e5ebc992ff90aa6bca",
+      "bytes": 2708,
+      "surfaces": [
+        {
+          "mesh": "lightning",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 20
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 20,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "loading",
+      "path": "assets/props/library/loading.glb",
+      "source_path": "art-source/production/props/library/loading.blend",
+      "sha256": "02cb9ca602d09f3c2088bde59b8d55992ecf33f7beb8e7eff5f7ad5f692c2ade",
+      "bytes": 16500,
+      "surfaces": [
+        {
+          "mesh": "Torus",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 160
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 160,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "magnify",
+      "path": "assets/props/library/magnify.glb",
+      "source_path": "art-source/production/props/library/magnify.blend",
+      "sha256": "bd03df63c25ad6a6b5a0adf9696db432d91bb6f648826fb7526c909d38495c2e",
+      "bytes": 18560,
+      "surfaces": [
+        {
+          "mesh": "Torus",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 196
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 196,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "manual",
+      "path": "assets/props/library/manual.glb",
+      "source_path": "art-source/production/props/library/manual.blend",
+      "sha256": "5afdf7e4f243d8c04c164dbb03ab8436c7d3a0465ac02629e7062173045d9b52",
+      "bytes": 9324,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 80
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 80,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "membrane",
+      "path": "assets/props/library/membrane.glb",
+      "source_path": "art-source/production/props/library/membrane.blend",
+      "sha256": "9e7e91fcb79a729759ca7ec2e0f28e1e17c5f2d19a82368778e7a513d3e64300",
+      "bytes": 18680,
+      "surfaces": [
+        {
+          "mesh": "Torus",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 208
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 208,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "meteor",
+      "path": "assets/props/library/meteor.glb",
+      "source_path": "art-source/production/props/library/meteor.blend",
+      "sha256": "b393b6399259a9a610eed43c7188b2facdebdc8eea85bdc745cf0340df2359ed",
+      "bytes": 3660,
+      "surfaces": [
+        {
+          "mesh": "meteor",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 36
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 36,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "mirror",
+      "path": "assets/props/library/mirror.glb",
+      "source_path": "art-source/production/props/library/mirror.blend",
+      "sha256": "eceef5a21e93b1490e60d2e24c4ae9308590750fcf6f2d090423b747ec7dbd3c",
+      "bytes": 3804,
+      "surfaces": [
+        {
+          "mesh": "Frame",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 64
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 64,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "moon",
+      "path": "assets/props/library/moon.glb",
+      "source_path": "art-source/production/props/library/moon.blend",
+      "sha256": "497203dfc292490b0989cc6c026ac29c91c869277b217c3db2fb7da4ec8a595c",
+      "bytes": 3808,
+      "surfaces": [
+        {
+          "mesh": "Crescent",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 64
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 64,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "neck",
+      "path": "assets/props/library/neck.glb",
+      "source_path": "art-source/production/props/library/neck.blend",
+      "sha256": "b52df67a2e04403067298655cea60acbd205afcad2a7acd78612d4188830cf73",
+      "bytes": 9320,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 80
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 80,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "nested",
+      "path": "assets/props/library/nested.glb",
+      "source_path": "art-source/production/props/library/nested.blend",
+      "sha256": "ebee39703cb7e30765932926fb67a58c34a4e669985fe89c497633b172ea31cc",
+      "bytes": 31536,
+      "surfaces": [
+        {
+          "mesh": "Torus",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 320
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 320,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "noodle",
+      "path": "assets/props/library/noodle.glb",
+      "source_path": "art-source/production/props/library/noodle.blend",
+      "sha256": "bf30495c66e5194c7053c7f547e209097597365bd06bc4d5c13aa2ca73ea1372",
+      "bytes": 4880,
+      "surfaces": [
+        {
+          "mesh": "noodle",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 96
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 96,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "note",
+      "path": "assets/props/library/note.glb",
+      "source_path": "art-source/production/props/library/note.blend",
+      "sha256": "60a172ea77b3ac8e0619b1114fda596e99e9b49d6c4c31780bb8d36f57a52cfa",
+      "bytes": 9444,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 188
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 188,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "orbit",
+      "path": "assets/props/library/orbit.glb",
+      "source_path": "art-source/production/props/library/orbit.blend",
+      "sha256": "1c0f29c0bac442d41e6e270d7cfb5eb4de276dab8d0b9a000a3ed866004ae6db",
+      "bytes": 31536,
+      "surfaces": [
+        {
+          "mesh": "Torus",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 320
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 320,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "packaging",
+      "path": "assets/props/library/packaging.glb",
+      "source_path": "art-source/production/props/library/packaging.blend",
+      "sha256": "4dde19c9a8c56b877eb745c7d98071ca71467afe01d8cd89aba938306e03ac58",
+      "bytes": 7456,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 76
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 76,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "paintroller",
+      "path": "assets/props/library/paintroller.glb",
+      "source_path": "art-source/production/props/library/paintroller.blend",
+      "sha256": "91ac3f8431b68c33c91db2a2ce76621a6df54078fc4bf9e5685d20cebfba0e84",
+      "bytes": 4816,
+      "surfaces": [
+        {
+          "mesh": "RollerHandle",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 68
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 68,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "palette",
+      "path": "assets/props/library/palette.glb",
+      "source_path": "art-source/production/props/library/palette.blend",
+      "sha256": "f57d09b6bcd8bd2e5b7dfef536d9f2b1a745712c222394d251296559742999f2",
+      "bytes": 6088,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 120
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 120,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "parade",
+      "path": "assets/props/library/parade.glb",
+      "source_path": "art-source/production/props/library/parade.blend",
+      "sha256": "9660e7ea3a5dfc9bafa45076013dcc412d29d149b1529dd7ddeba88b2419b334",
+      "bytes": 7992,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 144
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 144,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "pattern",
+      "path": "assets/props/library/pattern.glb",
+      "source_path": "art-source/production/props/library/pattern.blend",
+      "sha256": "90ebed9475eb67bea333af6ddcdfeb9227d526019ddb45c4d31ccaa7a8bd6f60",
+      "bytes": 7992,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 144
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 144,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "pillow",
+      "path": "assets/props/library/pillow.glb",
+      "source_path": "art-source/production/props/library/pillow.blend",
+      "sha256": "0718e7ebd838af203a9e16c3a75b089e11518100a395fae2a9bca359680c2b2e",
+      "bytes": 6680,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 60
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 60,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "planets",
+      "path": "assets/props/library/planets.glb",
+      "source_path": "art-source/production/props/library/planets.blend",
+      "sha256": "b03bb77c3e4b98ebff8d4b2cadb7958ffc4461449028d378b5b892e3df0b7182",
+      "bytes": 31540,
+      "surfaces": [
+        {
+          "mesh": "Torus",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 320
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 320,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "plantpot",
+      "path": "assets/props/library/plantpot.glb",
+      "source_path": "art-source/production/props/library/plantpot.blend",
+      "sha256": "8668187f4244825a3c0279c436b571f432cc931cafc665533b74c181f9e7d394",
+      "bytes": 20620,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 232
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 232,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "pocket",
+      "path": "assets/props/library/pocket.glb",
+      "source_path": "art-source/production/props/library/pocket.blend",
+      "sha256": "2d7b9f6e483f99f9544b75fe6a521e70a724f517acd5536af065968a797a1a08",
+      "bytes": 5920,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 44
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 44,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "preview",
+      "path": "assets/props/library/preview.glb",
+      "source_path": "art-source/production/props/library/preview.blend",
+      "sha256": "c91f849f1872fdbab5391f33dfb49e3fe8dfa2a3f9b5e27a1ab8d80d3efef19f",
+      "bytes": 6780,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 52
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 52,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "proportion",
+      "path": "assets/props/library/proportion.glb",
+      "source_path": "art-source/production/props/library/proportion.blend",
+      "sha256": "b48be06583470d6b964e7b1a5cb2c5f136b9cead6c42efb7a506f4b6b7d107d2",
+      "bytes": 9332,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 80
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 80,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "pseudopod",
+      "path": "assets/props/library/pseudopod.glb",
+      "source_path": "art-source/production/props/library/pseudopod.blend",
+      "sha256": "e107a8d06071f9769c0c4e97227f910994ea6dd1d294699c48a4a0c0160a4a3e",
+      "bytes": 7996,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 144
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 144,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "punctuation",
+      "path": "assets/props/library/punctuation.glb",
+      "source_path": "art-source/production/props/library/punctuation.blend",
+      "sha256": "cecc2efb69bc7f0e5b1f36d84d4c9ba4bc783853c80d84bca69fb10e3971fa9d",
+      "bytes": 8160,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 156
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 156,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "queue",
+      "path": "assets/props/library/queue.glb",
+      "source_path": "art-source/production/props/library/queue.blend",
+      "sha256": "b3e569171a39555fa5dd71ead5f90713f15bdb500e882d1b73dda40a28b395eb",
+      "bytes": 7996,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 144
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 144,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "radio",
+      "path": "assets/props/library/radio.glb",
+      "source_path": "art-source/production/props/library/radio.blend",
+      "sha256": "a4e06f9fe96a65da733a97a20de8df21da8248ee5bb900fafe34efd401ee2319",
+      "bytes": 9448,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 188
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 188,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "rain",
+      "path": "assets/props/library/rain.glb",
+      "source_path": "art-source/production/props/library/rain.blend",
+      "sha256": "4a38123289999cf5517af95c8976de4179dba47ce7f134f20568e6f924d9fb19",
+      "bytes": 7988,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 144
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 144,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "rainbow",
+      "path": "assets/props/library/rainbow.glb",
+      "source_path": "art-source/production/props/library/rainbow.blend",
+      "sha256": "387730ac43fe43e066f911138bc4f557772f9fbff42289c17ddb4715c2f51259",
+      "bytes": 8552,
+      "surfaces": [
+        {
+          "mesh": "ColorArc",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 192
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 192,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "reboot",
+      "path": "assets/props/library/reboot.glb",
+      "source_path": "art-source/production/props/library/reboot.blend",
+      "sha256": "1e84664ec61b339da60811238ee84a804a83ea56969445cee7e9e96592fb2dcc",
+      "bytes": 2936,
+      "surfaces": [
+        {
+          "mesh": "Arrow",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 24
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 24,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "rhyme",
+      "path": "assets/props/library/rhyme.glb",
+      "source_path": "art-source/production/props/library/rhyme.blend",
+      "sha256": "45207c044acfcabd8a915ef85beb9053350f16e9057b4f8c38eddd1a952c7cbd",
+      "bytes": 9448,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 188
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 188,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "ribbon",
+      "path": "assets/props/library/ribbon.glb",
+      "source_path": "art-source/production/props/library/ribbon.blend",
+      "sha256": "63182f5e795eb364c73b0fc4d682f3c7abc0f6275f073da8de22619778d7fc23",
+      "bytes": 3272,
+      "surfaces": [
+        {
+          "mesh": "ribbon",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 48
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 48,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "ring",
+      "path": "assets/props/library/ring.glb",
+      "source_path": "art-source/production/props/library/ring.blend",
+      "sha256": "950f3642ce8cca317ab4a8f08c632e615c3ad2b44a1b62dbd1746cab5269d1b5",
+      "bytes": 16492,
+      "surfaces": [
+        {
+          "mesh": "Torus",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 160
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 160,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "rings",
+      "path": "assets/props/library/rings.glb",
+      "source_path": "art-source/production/props/library/rings.blend",
+      "sha256": "64a528596b7b0b3f983a70242a9f245cb9fe9d74f8d97ebf44b657fde57c455c",
+      "bytes": 31536,
+      "surfaces": [
+        {
+          "mesh": "Torus",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 320
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 320,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "roots",
+      "path": "assets/props/library/roots.glb",
+      "source_path": "art-source/production/props/library/roots.blend",
+      "sha256": "61ca57221e870f9959dd7c64538018df5de14e147c632545606f0faa073dccb4",
+      "bytes": 5316,
+      "surfaces": [
+        {
+          "mesh": "Root",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 96
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 96,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "round",
+      "path": "assets/props/library/round.glb",
+      "source_path": "art-source/production/props/library/round.blend",
+      "sha256": "9ae97db22a59782687fb710e95e338a3669e0f3bb4f7999117a54c452a89df05",
+      "bytes": 5920,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 44
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 44,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "ruler",
+      "path": "assets/props/library/ruler.glb",
+      "source_path": "art-source/production/props/library/ruler.blend",
+      "sha256": "5dbd9ddca4913bf9d114c15bfe4a3b9afd97d26e3d6396c4ebe82796f6d4acdf",
+      "bytes": 9320,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 80
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 80,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "sand",
+      "path": "assets/props/library/sand.glb",
+      "source_path": "art-source/production/props/library/sand.blend",
+      "sha256": "c1c6cee6786cdcd800bf4489a8e25e97db7b8baef7b6b36439000fcc38692880",
+      "bytes": 15364,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 360
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 360,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "scale",
+      "path": "assets/props/library/scale.glb",
+      "source_path": "art-source/production/props/library/scale.blend",
+      "sha256": "6beb5f60b2a6c1dfd2b31729a330f1b2bbca248f9710ae4521f276a1ed372bee",
+      "bytes": 7996,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 144
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 144,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "screw",
+      "path": "assets/props/library/screw.glb",
+      "source_path": "art-source/production/props/library/screw.blend",
+      "sha256": "2dc1c02bf65bf4c1803695788497e421c79d482b5e621c75403c2650f625dfbd",
+      "bytes": 8148,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 156
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 156,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "seasons",
+      "path": "assets/props/library/seasons.glb",
+      "source_path": "art-source/production/props/library/seasons.blend",
+      "sha256": "6a36b3e21b369e31b6a2f25592461a7b87a867b20aa5c05d4b346eb3cef48573",
+      "bytes": 14536,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 288
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 288,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "seed",
+      "path": "assets/props/library/seed.glb",
+      "source_path": "art-source/production/props/library/seed.blend",
+      "sha256": "05f2e69de5a9c90c70c71961ecc1861e8d706cfb811cc108a17d5311f75b24d4",
+      "bytes": 3620,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 48
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 48,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "shadow",
+      "path": "assets/props/library/shadow.glb",
+      "source_path": "art-source/production/props/library/shadow.blend",
+      "sha256": "1107801a0c252c8c1d6c8b356ef40718efaa9f7a3d092494730958579ef9411e",
+      "bytes": 10736,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 240
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 240,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "sheep",
+      "path": "assets/props/library/sheep.glb",
+      "source_path": "art-source/production/props/library/sheep.blend",
+      "sha256": "851ac33e1828d649ece9424fc31b571bb7063e97ce8973fc6b44b81b6ce27257",
+      "bytes": 14856,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 312
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 312,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "shoe",
+      "path": "assets/props/library/shoe.glb",
+      "source_path": "art-source/production/props/library/shoe.blend",
+      "sha256": "9534b93007259aec6a7795da429a409de85b75b7f122d812d131f56fd70a5d4a",
+      "bytes": 7228,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 76
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 76,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "sign",
+      "path": "assets/props/library/sign.glb",
+      "source_path": "art-source/production/props/library/sign.blend",
+      "sha256": "d5c21e9428ec7c095e1f9976eb7a22d45a260ec6f86e8b09320589b64a3c3f00",
+      "bytes": 2936,
+      "surfaces": [
+        {
+          "mesh": "Arrow",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 24
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 24,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "smoke",
+      "path": "assets/props/library/smoke.glb",
+      "source_path": "art-source/production/props/library/smoke.blend",
+      "sha256": "f6ad18a546c58ade1a2b4e856438e022cef7229ab94f73cd88e0fb0250cc6886",
+      "bytes": 46584,
+      "surfaces": [
+        {
+          "mesh": "Torus",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 480
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 480,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "snore",
+      "path": "assets/props/library/snore.glb",
+      "source_path": "art-source/production/props/library/snore.blend",
+      "sha256": "de3aad28cb632ec2d3dec44ba4e9502b0b461f5e9ce2b43065f5d5edfe488e53",
+      "bytes": 9448,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 188
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 188,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "soft_tool",
+      "path": "assets/props/library/soft_tool.glb",
+      "source_path": "art-source/production/props/library/soft_tool.blend",
+      "sha256": "3f9fa501d790c98d031f0cc16638a45c9761490bafedb806dc72961d5a4f9994",
+      "bytes": 16264,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 224
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 224,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "spoon",
+      "path": "assets/props/library/spoon.glb",
+      "source_path": "art-source/production/props/library/spoon.blend",
+      "sha256": "c55fe92d8de90bd24d7c3f71c8b63dd39268162282bc482af4e1f2f56f8eb0dd",
+      "bytes": 8148,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 156
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 156,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "spring",
+      "path": "assets/props/library/spring.glb",
+      "source_path": "art-source/production/props/library/spring.blend",
+      "sha256": "1f97499fd761815aa9301d4f8a8b9f74d0af20d5c3cfb13938ee9136e7ca2338",
+      "bytes": 10244,
+      "surfaces": [
+        {
+          "mesh": "Coil",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 256
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 256,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "stamp",
+      "path": "assets/props/library/stamp.glb",
+      "source_path": "art-source/production/props/library/stamp.blend",
+      "sha256": "05e61d1cff6000532930607310f8dcf0ecf0102b74d8dc9164ccdfe7e7c1082a",
+      "bytes": 5100,
+      "surfaces": [
+        {
+          "mesh": "stamp",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 60
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 60,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "star",
+      "path": "assets/props/library/star.glb",
+      "source_path": "art-source/production/props/library/star.blend",
+      "sha256": "7233675bb24279beacd8fc6bac3b97af35972bc0b03b680e395d0437b9ee4fd5",
+      "bytes": 3652,
+      "surfaces": [
+        {
+          "mesh": "star",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 36
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 36,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "static",
+      "path": "assets/props/library/static.glb",
+      "source_path": "art-source/production/props/library/static.blend",
+      "sha256": "aeb0e6eb90c19a0196ef60fc507dd9bd4cd9e4b1d06c4fb530c06b4574cedebb",
+      "bytes": 3660,
+      "surfaces": [
+        {
+          "mesh": "static",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 36
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 36,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "stethoscope",
+      "path": "assets/props/library/stethoscope.glb",
+      "source_path": "art-source/production/props/library/stethoscope.blend",
+      "sha256": "1e09cbde854825d3def50ed249fb703245e4275366f0b237e6b7b24554f6831f",
+      "bytes": 18336,
+      "surfaces": [
+        {
+          "mesh": "ScopeTube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 208
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 208,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "sticky",
+      "path": "assets/props/library/sticky.glb",
+      "source_path": "art-source/production/props/library/sticky.blend",
+      "sha256": "93f8f617f405468e1cee81937d9779fcaf11c368f18f59b6b10c10ba6f55e95c",
+      "bytes": 4880,
+      "surfaces": [
+        {
+          "mesh": "sticky",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 96
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 96,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "stomach",
+      "path": "assets/props/library/stomach.glb",
+      "source_path": "art-source/production/props/library/stomach.blend",
+      "sha256": "f2e55559d8734f7edb7ef4e0655304d4a9267a5b859349fa534bd4112c63e4c2",
+      "bytes": 9324,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 80
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 80,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "strings",
+      "path": "assets/props/library/strings.glb",
+      "source_path": "art-source/production/props/library/strings.blend",
+      "sha256": "72c836104865288c461a3c58c3e9326d54721b87c6f317db1cc202693df04905",
+      "bytes": 4884,
+      "surfaces": [
+        {
+          "mesh": "strings",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 96
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 96,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "stuffing",
+      "path": "assets/props/library/stuffing.glb",
+      "source_path": "art-source/production/props/library/stuffing.blend",
+      "sha256": "7260c96897948845e74f2a50dd3fbd44f78e07982e42e27da51c89ce4e6ac6d4",
+      "bytes": 5924,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 44
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 44,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "subtitle",
+      "path": "assets/props/library/subtitle.glb",
+      "source_path": "art-source/production/props/library/subtitle.blend",
+      "sha256": "10f142f3fa0d4a96986decdd6eee72ff408899d53e853a978f0e63500ca0099e",
+      "bytes": 9328,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 80
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 80,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "sun",
+      "path": "assets/props/library/sun.glb",
+      "source_path": "art-source/production/props/library/sun.blend",
+      "sha256": "d2edb1ae832f62ff44a5cb4804eb4f9fef978607cf15ddd401ccb96aab252d09",
+      "bytes": 12416,
+      "surfaces": [
+        {
+          "mesh": "sun",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 156
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 156,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "tail",
+      "path": "assets/props/library/tail.glb",
+      "source_path": "art-source/production/props/library/tail.blend",
+      "sha256": "7f5e3ce948e0fd2c8391e0a39bd2ce99bfebe6668096332c1e4425c2e7cb334b",
+      "bytes": 2692,
+      "surfaces": [
+        {
+          "mesh": "tail",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 20
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 20,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "taste",
+      "path": "assets/props/library/taste.glb",
+      "source_path": "art-source/production/props/library/taste.blend",
+      "sha256": "7592e8bc8fb9cad2d6d57488f6a614c2f234681395564097aac9a8d5c11cafc9",
+      "bytes": 3268,
+      "surfaces": [
+        {
+          "mesh": "taste",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 48
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 48,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "teeth",
+      "path": "assets/props/library/teeth.glb",
+      "source_path": "art-source/production/props/library/teeth.blend",
+      "sha256": "072756382f2d400ddc6f6c35a4043a7d00614013d31d37f41ea57f83c411f9ec",
+      "bytes": 7952,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 138
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 138,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "temperature",
+      "path": "assets/props/library/temperature.glb",
+      "source_path": "art-source/production/props/library/temperature.blend",
+      "sha256": "164dc9916eaddcf63fb47da6c09c1c2da750d96b606e79b2695dc4486d267e2a",
+      "bytes": 15372,
+      "surfaces": [
+        {
+          "mesh": "Sphere",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 360
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 360,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "thermometer",
+      "path": "assets/props/library/thermometer.glb",
+      "source_path": "art-source/production/props/library/thermometer.blend",
+      "sha256": "a75658fdbb45bcf71e8d88261e09ac5b712b8196b315c2589128c03c964e20e0",
+      "bytes": 3284,
+      "surfaces": [
+        {
+          "mesh": "thermometer",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 48
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 48,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "thread",
+      "path": "assets/props/library/thread.glb",
+      "source_path": "art-source/production/props/library/thread.blend",
+      "sha256": "d1b11f9ba649f7b0af6c14673215556e1ca5176af25c239b4c0907555899b0b9",
+      "bytes": 4880,
+      "surfaces": [
+        {
+          "mesh": "thread",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 96
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 96,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "ticket",
+      "path": "assets/props/library/ticket.glb",
+      "source_path": "art-source/production/props/library/ticket.blend",
+      "sha256": "6cac8f1c97780e86b0a22cd8d77ee171f827b059133078da16b7f4b0484c9cde",
+      "bytes": 9324,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 80
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 80,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "tickets",
+      "path": "assets/props/library/tickets.glb",
+      "source_path": "art-source/production/props/library/tickets.blend",
+      "sha256": "9bd5669bc8a0b8e6a1260f2a03ae5c1210df68c3e7d3c32224aefaf0f0819726",
+      "bytes": 9324,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 80
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 80,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "tissue",
+      "path": "assets/props/library/tissue.glb",
+      "source_path": "art-source/production/props/library/tissue.blend",
+      "sha256": "af9e17ab1442c9bb49b3daf735f16553f052fc8ff89b40538a9cdac8f01ec821",
+      "bytes": 2728,
+      "surfaces": [
+        {
+          "mesh": "FoldedPaper",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 20
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 20,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "trailing",
+      "path": "assets/props/library/trailing.glb",
+      "source_path": "art-source/production/props/library/trailing.blend",
+      "sha256": "5f2ce033504a2c7693ce3ea83f31b708eaa8d671c3ccabe15900437e26a9b9ca",
+      "bytes": 4888,
+      "surfaces": [
+        {
+          "mesh": "trailing",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 96
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 96,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "transparency",
+      "path": "assets/props/library/transparency.glb",
+      "source_path": "art-source/production/props/library/transparency.blend",
+      "sha256": "17b19e07f097e8edc5ff7528b56ee3b4efe683c72385bdc2477c21bcbffb033b",
+      "bytes": 3812,
+      "surfaces": [
+        {
+          "mesh": "Frame",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 64
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 64,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "trumpet",
+      "path": "assets/props/library/trumpet.glb",
+      "source_path": "art-source/production/props/library/trumpet.blend",
+      "sha256": "12a4c65470aac295205041347b9ef944342fb307f574b844214657ecd33b019f",
+      "bytes": 3272,
+      "surfaces": [
+        {
+          "mesh": "trumpet",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 48
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 48,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "umbrella",
+      "path": "assets/props/library/umbrella.glb",
+      "source_path": "art-source/production/props/library/umbrella.blend",
+      "sha256": "ea10f77f4b7f8c115bcc774e06730ee3f3a05ba47b1ff2773e627c0989bd1f05",
+      "bytes": 5228,
+      "surfaces": [
+        {
+          "mesh": "FoldedPaper",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 56
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 56,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "wave",
+      "path": "assets/props/library/wave.glb",
+      "source_path": "art-source/production/props/library/wave.blend",
+      "sha256": "ab324b5381ddd9a0fc34739177d5a034e95c3fa0b0a577aa2166761bbe555a4a",
+      "bytes": 5316,
+      "surfaces": [
+        {
+          "mesh": "Wave",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 96
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 96,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "weather",
+      "path": "assets/props/library/weather.glb",
+      "source_path": "art-source/production/props/library/weather.blend",
+      "sha256": "b58340d15389ec5b43698466b4a22e47b09ee25589a44cdc2b3f58d1caad268d",
+      "bytes": 2936,
+      "surfaces": [
+        {
+          "mesh": "Arrow",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 24
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 24,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "wick",
+      "path": "assets/props/library/wick.glb",
+      "source_path": "art-source/production/props/library/wick.blend",
+      "sha256": "10f278b596559ca474bfc8512dd2848b5530cc6fba29ceff4a833eb0b4e75bc3",
+      "bytes": 3264,
+      "surfaces": [
+        {
+          "mesh": "wick",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 48
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 48,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "wrench",
+      "path": "assets/props/library/wrench.glb",
+      "source_path": "art-source/production/props/library/wrench.blend",
+      "sha256": "ab72c9e93c37d934ad728daa38d281ec26bc803e7bdc7cca4845740cef31f51c",
+      "bytes": 5340,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 84
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 84,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "yawn",
+      "path": "assets/props/library/yawn.glb",
+      "source_path": "art-source/production/props/library/yawn.blend",
+      "sha256": "4cbd4ed36cec1e2925b1a7530c2888a185b6a96896eac410ea1c9db611a09f1d",
+      "bytes": 5316,
+      "surfaces": [
+        {
+          "mesh": "Wave",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 96
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 96,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "yeast",
+      "path": "assets/props/library/yeast.glb",
+      "source_path": "art-source/production/props/library/yeast.blend",
+      "sha256": "0cf5eab74c7f75c0e8da4bf8251fe43f09edb2e01ef91ba6bad662f34ea0fcc0",
+      "bytes": 5920,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 44
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 44,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    }
+  ]
+}

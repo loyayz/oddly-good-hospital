@@ -20,6 +20,6 @@ D23 的 `awaiting_result` 保持梦泡完整且不暗示结果，`recovery` 仅�
 pwsh -NoProfile -File tools/export-stage01-gags.ps1 -RenderSourcePreview -VerifyGodotImport
 ```
 
-成品与精简 metadata 位于 `assets/gags`。源文件及联系图位于本目录；预览从实际 GLB 导入，以 Cycles CPU 渲染，用于美术检查。游戏内 Compatibility 的可读性、实际锚点绑定与临床状态映射由运行验收记录。道具不携带世界逻辑、临床计时器、随机选择或模拟实体。
+成品与精简 metadata 位于 `assets/gags`。本目录保留三份 `.blend` 及生成、预览脚本；`-RenderSourcePreview` 可从实际 GLB 临时重建 Cycles CPU 检查图，检查图不随源工程保留。游戏内 Compatibility 的可读性、实际锚点绑定与临床状态映射由运行验收记录。道具不携带世界逻辑、临床计时器、随机选择或模拟实体。
 
 三个 `.glb.import` 复用项目的顶点色导入脚本，保留实际 COLOR，并关闭不可变动画轨道删除与名称后缀转换，让静态姿态及动作名完整保留。Godot 检查读取实际 PackedScene 的材质、颜色流、无 Skin 路径及动作列表；headless 导入检查不宣告 GPU 呈色或游戏性能通过。`short_loop` 首尾相接，表现采样按既有次要演出周期定位，不通过片段结束回调推进临床。

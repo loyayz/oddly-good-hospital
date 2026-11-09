@@ -1,0 +1,50 @@
+[
+  {
+    "bin_collects": false,
+    "id": "CL01",
+    "idle_scene": "@zh:core.cleanup_sources.CL01.idle_scene",
+    "interrupted_scene": "@zh:core.cleanup_sources.CL01.interrupted_scene",
+    "low_motion_scene": "@zh:core.cleanup_sources.CL01.low_motion_scene",
+    "name": "@zh:core.cleanup_sources.CL01.name",
+    "scene": "@zh:core.cleanup_sources.CL01.scene",
+    "source": "incident",
+    "uses_per_patch": null,
+    "work_seconds": 4
+  },
+  {
+    "bin_collects": true,
+    "id": "CL02",
+    "idle_scene": "@zh:core.cleanup_sources.CL02.idle_scene",
+    "interrupted_scene": "@zh:core.cleanup_sources.CL02.interrupted_scene",
+    "low_motion_scene": "@zh:core.cleanup_sources.CL02.low_motion_scene",
+    "name": "@zh:core.cleanup_sources.CL02.name",
+    "scene": "@zh:core.cleanup_sources.CL02.scene",
+    "source": "water_completed",
+    "uses_per_patch": 6,
+    "work_seconds": 4
+  },
+  {
+    "bin_collects": false,
+    "id": "CL03",
+    "idle_scene": "@zh:core.cleanup_sources.CL03.idle_scene",
+    "interrupted_scene": "@zh:core.cleanup_sources.CL03.interrupted_scene",
+    "low_motion_scene": "@zh:core.cleanup_sources.CL03.low_motion_scene",
+    "name": "@zh:core.cleanup_sources.CL03.name",
+    "scene": "@zh:core.cleanup_sources.CL03.scene",
+    "source": "toilet_completed",
+    "uses_per_patch": 8,
+    "work_seconds": 6
+  },
+  {
+    "bin_collects": true,
+    "id": "CL04",
+    "idle_scene": "@zh:core.cleanup_sources.CL04.idle_scene",
+    "interrupted_scene": "@zh:core.cleanup_sources.CL04.interrupted_scene",
+    "low_motion_scene": "@zh:core.cleanup_sources.CL04.low_motion_scene",
+    "name": "@zh:core.cleanup_sources.CL04.name",
+    "scene": "@zh:core.cleanup_sources.CL04.scene",
+    "source": "outpatient_completed",
+    "uses_per_patch": 8,
+    "work_seconds": 6
+  }
+]

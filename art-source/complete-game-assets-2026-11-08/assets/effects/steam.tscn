@@ -1,0 +1,29 @@
+[gd_scene load_steps=3 format=3]
+[sub_resource type="StandardMaterial3D" id="Material"]
+shading_mode = 0
+albedo_color = Color(0.94, 0.89, 0.79, 1)
+[sub_resource type="SphereMesh" id="Mesh"]
+radius = 0.018
+height = 0.036
+radial_segments = 6
+rings = 3
+material = SubResource("Material")
+[node name="Steam" type="Node3D"]
+metadata/max_particles = 16
+metadata/pool_owner = "scene presentation; global emitter budget 24"
+[node name="Particles" type="CPUParticles3D" parent="."]
+emitting = false
+amount = 16
+lifetime = 1.2
+one_shot = true
+explosiveness = 0.5
+mesh = SubResource("Mesh")
+direction = Vector3(0, 1, 0)
+spread = 35.0
+gravity = Vector3(0, -0.18, 0)
+initial_velocity_min = 0.08
+initial_velocity_max = 0.22
+[node name="LowMotion" type="MeshInstance3D" parent="."]
+visible = false
+mesh = SubResource("Mesh")
+position = Vector3(0, 0.1, 0)

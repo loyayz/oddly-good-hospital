@@ -1,0 +1,21 @@
+{
+  "adapter": "Intel(R) Arc(TM) Graphics",
+  "driver": "opengl3",
+  "engine": "4.7.2-stable (official)",
+  "method": "gl_compatibility",
+  "rendering_server_metrics": {
+    "RENDERING_INFO_BUFFER_MEM_USED": 9412872,
+    "RENDERING_INFO_PIPELINE_COMPILATIONS_CANVAS": 0,
+    "RENDERING_INFO_PIPELINE_COMPILATIONS_DRAW": 0,
+    "RENDERING_INFO_PIPELINE_COMPILATIONS_MESH": 0,
+    "RENDERING_INFO_PIPELINE_COMPILATIONS_SPECIALIZATION": 0,
+    "RENDERING_INFO_PIPELINE_COMPILATIONS_SURFACE": 0,
+    "RENDERING_INFO_TEXTURE_MEM_USED": 12547843,
+    "RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME": 50,
+    "RENDERING_INFO_TOTAL_OBJECTS_IN_FRAME": 50,
+    "RENDERING_INFO_TOTAL_PRIMITIVES_IN_FRAME": 14902,
+    "RENDERING_INFO_VIDEO_MEM_USED": 21960715
+  },
+  "scope": "real backend asset preview; not the 640-person hospital acceptance benchmark",
+  "visible_subjects": 12
+}

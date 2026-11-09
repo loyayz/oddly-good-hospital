@@ -1,0 +1,56 @@
+[
+  {
+    "anger_delta": -5,
+    "id": "listen",
+    "low_motion_scene": "@zh:core.doctor_responses.listen.low_motion_scene",
+    "name": "@zh:core.doctor_responses.listen.name",
+    "scene": "@zh:core.doctor_responses.listen.scene",
+    "short_line": "@zh:core.doctor_responses.listen.short_line",
+    "work_delta_seconds": 2
+  },
+  {
+    "anger_delta": -3,
+    "id": "checklist",
+    "low_motion_scene": "@zh:core.doctor_responses.checklist.low_motion_scene",
+    "name": "@zh:core.doctor_responses.checklist.name",
+    "scene": "@zh:core.doctor_responses.checklist.scene",
+    "short_line": "@zh:core.doctor_responses.checklist.short_line",
+    "work_delta_seconds": -2
+  },
+  {
+    "anger_delta": -8,
+    "id": "soothe",
+    "low_motion_scene": "@zh:core.doctor_responses.soothe.low_motion_scene",
+    "name": "@zh:core.doctor_responses.soothe.name",
+    "scene": "@zh:core.doctor_responses.soothe.scene",
+    "short_line": "@zh:core.doctor_responses.soothe.short_line",
+    "work_delta_seconds": 3
+  },
+  {
+    "anger_delta": -5,
+    "id": "explain",
+    "low_motion_scene": "@zh:core.doctor_responses.explain.low_motion_scene",
+    "name": "@zh:core.doctor_responses.explain.name",
+    "scene": "@zh:core.doctor_responses.explain.scene",
+    "short_line": "@zh:core.doctor_responses.explain.short_line",
+    "work_delta_seconds": 2
+  },
+  {
+    "anger_delta": -2,
+    "id": "boundary",
+    "low_motion_scene": "@zh:core.doctor_responses.boundary.low_motion_scene",
+    "name": "@zh:core.doctor_responses.boundary.name",
+    "scene": "@zh:core.doctor_responses.boundary.scene",
+    "short_line": "@zh:core.doctor_responses.boundary.short_line",
+    "work_delta_seconds": 0
+  },
+  {
+    "anger_delta": -8,
+    "id": "nurse_assist",
+    "low_motion_scene": "@zh:core.doctor_responses.nurse_assist.low_motion_scene",
+    "name": "@zh:core.doctor_responses.nurse_assist.name",
+    "scene": "@zh:core.doctor_responses.nurse_assist.scene",
+    "short_line": "@zh:core.doctor_responses.nurse_assist.short_line",
+    "work_delta_seconds": -2
+  }
+]

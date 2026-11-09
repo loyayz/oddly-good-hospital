@@ -1,0 +1,84 @@
+{
+  "id": "micro",
+  "reference_species": "S21",
+  "actions": [
+    "idle",
+    "walk",
+    "sit",
+    "notice",
+    "talk",
+    "cheer",
+    "upset",
+    "recover",
+    "interact",
+    "work",
+    "pause",
+    "symptom",
+    "recovery",
+    "low_motion",
+    "sleep",
+    "wake",
+    "rest",
+    "recreation",
+    "blink"
+  ],
+  "staff_actions": [
+    "operate",
+    "record",
+    "carry",
+    "repair",
+    "clean",
+    "build",
+    "teach",
+    "rest",
+    "sleep",
+    "wake"
+  ],
+  "slots": [
+    "head",
+    "look_target",
+    "hand_l",
+    "hand_r",
+    "treatment_anchor",
+    "emotion_anchor",
+    "carry_anchor"
+  ],
+  "animation_library": "assets/animations/staff/micro.tres",
+  "source": {
+    "actions": [
+      "operate",
+      "record",
+      "carry",
+      "repair",
+      "clean",
+      "build",
+      "teach",
+      "rest",
+      "sleep",
+      "wake"
+    ],
+    "anchors": [
+      "operator",
+      "tool",
+      "badge",
+      "handoff"
+    ],
+    "id": "SRA_micro",
+    "low_motion_sleep_scene": "整辆载具与显微睡姿并列，成员不是新增员工或多个床位。",
+    "rig": "micro",
+    "roles": [
+      "doctor",
+      "nurse",
+      "receptionist",
+      "cleaner",
+      "mechanic",
+      "researcher",
+      "decorator"
+    ],
+    "scene": "培养皿小车的微型控制台驱动同一设备手柄，徽章装在车侧。",
+    "sleep_scene": "载具停入兼容床位，显微窗口里的成员各盖一块小方毯；最后一盏小灯向大家点头后熄下。",
+    "wake_scene": "载具内部的小灯依次恢复，成员整队到工作姿态；仍作为一名职员沿真实路线驶离。"
+  },
+  "root_motion": false,
+  "max_bones": 40
+}

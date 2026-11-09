@@ -1,0 +1,9 @@
+{
+	"audio_players": 16,
+	"duplicate_one_shot": "omitted",
+	"effects_instantiated": 14,
+	"failures": [],
+	"late_one_shot": "omitted",
+	"mute": "all playback stopped and stream references released",
+	"sound_bank_sha256": "0d2ebb9f50686b5e1873a629e814fa58d61143c3fa830f3cb637c25c2f35ee18"
+}

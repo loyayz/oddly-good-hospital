@@ -1,0 +1,77 @@
+[gd_resource type="AnimationLibrary" format=3]
+
+[sub_resource type="Animation" id="Animation_fo11q"]
+resource_name = "climax"
+length = 2.0416667
+tracks/0/type = "rotation_3d"
+tracks/0/imported = true
+tracks/0/enabled = true
+tracks/0/path = NodePath("Surgery/Skeleton3D:tool")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/keys = PackedFloat32Array(0, 1, 0, 0, 0, 1)
+
+[sub_resource type="Animation" id="Animation_ulp84"]
+resource_name = "low_motion"
+length = 2.0416667
+tracks/0/type = "rotation_3d"
+tracks/0/imported = true
+tracks/0/enabled = true
+tracks/0/path = NodePath("Surgery/Skeleton3D:tool")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/keys = PackedFloat32Array(0, 1, 0, 0, 0, 1)
+
+[sub_resource type="Animation" id="Animation_0d3ku"]
+resource_name = "paused"
+length = 2.0416667
+tracks/0/type = "rotation_3d"
+tracks/0/imported = true
+tracks/0/enabled = true
+tracks/0/path = NodePath("Surgery/Skeleton3D:tool")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/keys = PackedFloat32Array(0, 1, 0, 0, 0, 1)
+
+[sub_resource type="Animation" id="Animation_nejvh"]
+resource_name = "prepare"
+length = 2.0416667
+tracks/0/type = "rotation_3d"
+tracks/0/imported = true
+tracks/0/enabled = true
+tracks/0/path = NodePath("Surgery/Skeleton3D:tool")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = PackedFloat32Array(0, 1, 0, 0, 0, 1, 0.13333334, 1, 0, 0.0012923869, 0, 0.99999917, 0.16666667, 1, 0, 0.0022598738, 0, 0.99999744, 0.2, 1, 0, 0.0035184105, 0, 0.9999938, 0.23333333, 1, 0, 0.0049537155, 0, 0.9999877, 0.26666668, 1, 0, 0.0065381103, 0, 0.99997866, 0.3, 1, 0, 0.00824391, 0, 0.9999661, 0.33333334, 1, 0, 0.010043426, 0, 0.9999496, 0.4, 1, 0, 0.013792372, 0, 0.9999049, 0.43333334, 1, 0, 0.015655186, 0, 0.9998775, 0.46666667, 1, 0, 0.017473321, 0, 0.9998474, 0.5, 1, 0, 0.019219108, 0, 0.99981534, 0.53333336, 1, 0, 0.020813115, 0, 0.9997834, 0.56666666, 1, 0, 0.02226041, 0, 0.9997523, 0.6, 1, 0, 0.023562092, 0, 0.9997225, 0.6333333, 1, 0, 0.02472212, 0, 0.99969435, 0.6666667, 1, 0, 0.025747359, 0, 0.9996685, 0.73333335, 1, 0, 0.027351547, 0, 0.9996259, 0.8, 1, 0, 0.028526096, 0, 0.9995931, 0.9, 1, 0, 0.029560193, 0, 0.99956304, 1.3, 1, 0, 0.028273217, 0, 0.9996003, 1.3666667, 1, 0, 0.02699811, 0, 0.9996356, 1.4333333, 1, 0, 0.025234746, 0, 0.9996816, 1.4666667, 1, 0, 0.024164569, 0, 0.99970806, 1.5, 1, 0, 0.0229596, 0, 0.9997365, 1.5333333, 1, 0, 0.021561213, 0, 0.9997676, 1.5666667, 1, 0, 0.020016115, 0, 0.9997997, 1.6, 1, 0, 0.018346222, 0, 0.9998318, 1.6333333, 1, 0, 0.016576309, 0, 0.9998627, 1.6666666, 1, 0, 0.0147340465, 0, 0.99989146, 1.7333333, 1, 0, 0.010978, 0, 0.9999398, 1.7666667, 1, 0, 0.009143673, 0, 0.9999583, 1.8, 1, 0, 0.00737539, 0, 0.9999729, 1.8333334, 1, 0, 0.0057008266, 0, 0.9999838, 1.8666667, 1, 0, 0.004206601, 0, 0.9999912, 1.9, 1, 0, 0.0028891424, 0, 0.9999959, 1.9333333, 1, 0, 0.001776132, 0, 0.99999845, 2, 1, 0, 0.00027416, 0, 1, 2.0416667, 1, 0, 3.6739405e-18, 0, 1)
+
+[sub_resource type="Animation" id="Animation_q8k1k"]
+resource_name = "process"
+length = 2.0416667
+tracks/0/type = "rotation_3d"
+tracks/0/imported = true
+tracks/0/enabled = true
+tracks/0/path = NodePath("Surgery/Skeleton3D:tool")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/keys = PackedFloat32Array(0, 1, 0, 0, 0, 1)
+
+[sub_resource type="Animation" id="Animation_m180r"]
+resource_name = "safe_finish"
+length = 2.0416667
+tracks/0/type = "rotation_3d"
+tracks/0/imported = true
+tracks/0/enabled = true
+tracks/0/path = NodePath("Surgery/Skeleton3D:tool")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = PackedFloat32Array(0, 1, 0, 0, 0, 1, 0.13333334, 1, 0, 0.0012923869, 0, 0.99999917, 0.16666667, 1, 0, 0.0022598738, 0, 0.99999744, 0.2, 1, 0, 0.0035184105, 0, 0.9999938, 0.23333333, 1, 0, 0.0049537155, 0, 0.9999877, 0.26666668, 1, 0, 0.0065381103, 0, 0.99997866, 0.3, 1, 0, 0.00824391, 0, 0.9999661, 0.33333334, 1, 0, 0.010043426, 0, 0.9999496, 0.4, 1, 0, 0.013792372, 0, 0.9999049, 0.43333334, 1, 0, 0.015655186, 0, 0.9998775, 0.46666667, 1, 0, 0.017473321, 0, 0.9998474, 0.5, 1, 0, 0.019219108, 0, 0.99981534, 0.53333336, 1, 0, 0.020813115, 0, 0.9997834, 0.56666666, 1, 0, 0.02226041, 0, 0.9997523, 0.6, 1, 0, 0.023562092, 0, 0.9997225, 0.6333333, 1, 0, 0.02472212, 0, 0.99969435, 0.6666667, 1, 0, 0.025747359, 0, 0.9996685, 0.73333335, 1, 0, 0.027351547, 0, 0.9996259, 0.8, 1, 0, 0.028526096, 0, 0.9995931, 0.9, 1, 0, 0.029560193, 0, 0.99956304, 1.3, 1, 0, 0.028273217, 0, 0.9996003, 1.3666667, 1, 0, 0.02699811, 0, 0.9996356, 1.4333333, 1, 0, 0.025234746, 0, 0.9996816, 1.4666667, 1, 0, 0.024164569, 0, 0.99970806, 1.5, 1, 0, 0.0229596, 0, 0.9997365, 1.5333333, 1, 0, 0.021561213, 0, 0.9997676, 1.5666667, 1, 0, 0.020016115, 0, 0.9997997, 1.6, 1, 0, 0.018346222, 0, 0.9998318, 1.6333333, 1, 0, 0.016576309, 0, 0.9998627, 1.6666666, 1, 0, 0.0147340465, 0, 0.99989146, 1.7333333, 1, 0, 0.010978, 0, 0.9999398, 1.7666667, 1, 0, 0.009143673, 0, 0.9999583, 1.8, 1, 0, 0.00737539, 0, 0.9999729, 1.8333334, 1, 0, 0.0057008266, 0, 0.9999838, 1.8666667, 1, 0, 0.004206601, 0, 0.9999912, 1.9, 1, 0, 0.0028891424, 0, 0.9999959, 1.9333333, 1, 0, 0.001776132, 0, 0.99999845, 2, 1, 0, 0.00027416, 0, 1, 2.0416667, 1, 0, 3.6739405e-18, 0, 1)
+
+[resource]
+_data = {
+&"climax": SubResource("Animation_fo11q"),
+&"low_motion": SubResource("Animation_ulp84"),
+&"paused": SubResource("Animation_0d3ku"),
+&"prepare": SubResource("Animation_nejvh"),
+&"process": SubResource("Animation_q8k1k"),
+&"safe_finish": SubResource("Animation_m180r")
+}

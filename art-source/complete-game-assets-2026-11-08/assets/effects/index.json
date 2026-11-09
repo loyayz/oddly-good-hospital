@@ -1,0 +1,89 @@
+{
+  "effects": [
+    {
+      "id": "smoke",
+      "path": "assets/effects/smoke.tscn",
+      "max_particles": 16,
+      "renderer": "Compatibility CPU particles"
+    },
+    {
+      "id": "rain",
+      "path": "assets/effects/rain.tscn",
+      "max_particles": 16,
+      "renderer": "Compatibility CPU particles"
+    },
+    {
+      "id": "sparkle",
+      "path": "assets/effects/sparkle.tscn",
+      "max_particles": 16,
+      "renderer": "Compatibility CPU particles"
+    },
+    {
+      "id": "dust",
+      "path": "assets/effects/dust.tscn",
+      "max_particles": 16,
+      "renderer": "Compatibility CPU particles"
+    },
+    {
+      "id": "steam",
+      "path": "assets/effects/steam.tscn",
+      "max_particles": 16,
+      "renderer": "Compatibility CPU particles"
+    },
+    {
+      "id": "seed",
+      "path": "assets/effects/seed.tscn",
+      "max_particles": 16,
+      "renderer": "Compatibility CPU particles"
+    },
+    {
+      "id": "confetti",
+      "path": "assets/effects/confetti.tscn",
+      "max_particles": 16,
+      "renderer": "Compatibility CPU particles"
+    },
+    {
+      "id": "paper",
+      "path": "assets/effects/paper.tscn",
+      "max_particles": 16,
+      "renderer": "Compatibility CPU particles"
+    },
+    {
+      "id": "snow",
+      "path": "assets/effects/snow.tscn",
+      "max_particles": 16,
+      "renderer": "Compatibility CPU particles"
+    },
+    {
+      "id": "bubble",
+      "path": "assets/effects/bubble.tscn",
+      "max_particles": 16,
+      "renderer": "Compatibility CPU particles"
+    },
+    {
+      "id": "leaf",
+      "path": "assets/effects/leaf.tscn",
+      "max_particles": 16,
+      "renderer": "Compatibility CPU particles"
+    },
+    {
+      "id": "sleep",
+      "path": "assets/effects/sleep.tscn",
+      "max_particles": 16,
+      "renderer": "Compatibility CPU particles"
+    },
+    {
+      "id": "dream",
+      "path": "assets/effects/dream.tscn",
+      "max_particles": 16,
+      "renderer": "Compatibility CPU particles"
+    },
+    {
+      "id": "flow",
+      "path": "assets/effects/flow.tscn",
+      "max_particles": 16,
+      "renderer": "Compatibility CPU particles"
+    }
+  ],
+  "max_concurrent_emitters": 24
+}

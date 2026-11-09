@@ -1,0 +1,84 @@
+{
+  "id": "biped",
+  "reference_species": "S04",
+  "actions": [
+    "idle",
+    "walk",
+    "sit",
+    "notice",
+    "talk",
+    "cheer",
+    "upset",
+    "recover",
+    "interact",
+    "work",
+    "pause",
+    "symptom",
+    "recovery",
+    "low_motion",
+    "sleep",
+    "wake",
+    "rest",
+    "recreation",
+    "blink"
+  ],
+  "staff_actions": [
+    "operate",
+    "record",
+    "carry",
+    "repair",
+    "clean",
+    "build",
+    "teach",
+    "rest",
+    "sleep",
+    "wake"
+  ],
+  "slots": [
+    "head",
+    "look_target",
+    "hand_l",
+    "hand_r",
+    "treatment_anchor",
+    "emotion_anchor",
+    "carry_anchor"
+  ],
+  "animation_library": "assets/animations/staff/biped.tres",
+  "source": {
+    "actions": [
+      "operate",
+      "record",
+      "carry",
+      "repair",
+      "clean",
+      "build",
+      "teach",
+      "rest",
+      "sleep",
+      "wake"
+    ],
+    "anchors": [
+      "operator",
+      "tool",
+      "badge",
+      "handoff"
+    ],
+    "id": "SRA_biped",
+    "low_motion_sleep_scene": "合身躺卧与收好眼罩两个定格，床位仍显示真实占用。",
+    "rig": "biped",
+    "roles": [
+      "doctor",
+      "nurse",
+      "receptionist",
+      "cleaner",
+      "mechanic",
+      "researcher",
+      "decorator"
+    ],
+    "scene": "双手操作旋钮，胸前佩戴岗位徽章。",
+    "sleep_scene": "躺进真实承托区，把眼罩翻正；眼罩上的小眼睛比本人晚一拍闭上。",
+    "wake_scene": "睡足后本人先睁眼，眼罩上的小眼睛还闭着；收好眼罩，沿实际下床位起身。"
+  },
+  "root_motion": false,
+  "max_bones": 40
+}

@@ -1,0 +1,214 @@
+{
+  "modules": [
+    {
+      "id": "floor_tile",
+      "path": "assets/architecture/floor_tile.glb",
+      "sha256": "af736c1b867965eeb3bdfefad7e32ea06d471467f29d7c9a788cf5bfd1c85fba",
+      "bytes": 5852,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 44
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 44,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "wall_straight",
+      "path": "assets/architecture/wall_straight.glb",
+      "sha256": "8f0a53cdb90cb3464f09f65b8c9e72554fa689d53f27f4cd89d2de58c8fe44b9",
+      "bytes": 10360,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 88
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 88,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "wall_corner",
+      "path": "assets/architecture/wall_corner.glb",
+      "sha256": "6d0553000cede31fb90dd12d5904c64cbb4299e6354bbead641bd5ca126f1f1b",
+      "bytes": 14852,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 132
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 132,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "window",
+      "path": "assets/architecture/window.glb",
+      "sha256": "77292fcf45b6e651404f82f03c2cd0909a97672e2c670280409c69c42454f99d",
+      "bytes": 28384,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 264
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 264,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "fence",
+      "path": "assets/architecture/fence.glb",
+      "sha256": "c1cbc309dd5c9f4995b7babf8dcd7317e1c8a737ca38ae319723892f74bc9a4d",
+      "bytes": 23876,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 220
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 220,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "path_1",
+      "path": "assets/architecture/path_1.glb",
+      "sha256": "a56ac37c289e0c8f219f1637d3ae594c258f9bce56c79a72e0a070f90651f3fe",
+      "bytes": 10360,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 88
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 88,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "path_2",
+      "path": "assets/architecture/path_2.glb",
+      "sha256": "11ddee33fb77a8c861c03a4cf48b4a71c971654ac4a7fc25867fd894a97bf132",
+      "bytes": 14848,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 132
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 132,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "path_3",
+      "path": "assets/architecture/path_3.glb",
+      "sha256": "85e32ee9b4136cf1a5a27a1c1c92b8ca67db30357dc7d474ff9f70d61b99c838",
+      "bytes": 19340,
+      "surfaces": [
+        {
+          "mesh": "Cube",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 176
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 176,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "construction_scaffold",
+      "path": "assets/architecture/construction_scaffold.glb",
+      "sha256": "7942dc9978ebd58f9478fa3deae793bc21cf527a1e6a6eaf0268431e9d125bb3",
+      "bytes": 23952,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 292
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 292,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "land_marker",
+      "path": "assets/architecture/land_marker.glb",
+      "sha256": "f29c7c6340e92c81fd52306cb285ecf9e8395764c6a8f1d1b4268495b023b0f7",
+      "bytes": 4336,
+      "surfaces": [
+        {
+          "mesh": "Cone",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 44
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 44,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    },
+    {
+      "id": "floor_build_outline",
+      "path": "assets/architecture/floor_build_outline.glb",
+      "sha256": "97e9a41c9541daaf3d75963e65782cf35a1b5431f06130a9822fbced51702966",
+      "bytes": 3832,
+      "surfaces": [
+        {
+          "mesh": "BuildOutline",
+          "material": "hospital_vertex_opaque",
+          "alpha_mode": "OPAQUE",
+          "triangles": 64
+        }
+      ],
+      "surface_count": 1,
+      "triangles": 64,
+      "joint_order": [],
+      "bone_count": 0,
+      "animation_names": []
+    }
+  ],
+  "cell_metres": 1.5
+}

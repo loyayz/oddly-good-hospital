@@ -1,0 +1,194 @@
+[
+  {
+    "handler": "registration_error",
+    "id": "HS01",
+    "name": "@zh:core.hospital_situations.HS01.name",
+    "once_per_visit": true,
+    "resolution": "@zh:core.hospital_situations.HS01.resolution",
+    "scene": "@zh:core.hospital_situations.HS01.scene"
+  },
+  {
+    "handler": "called_while_away",
+    "id": "HS02",
+    "name": "@zh:core.hospital_situations.HS02.name",
+    "once_per_visit": true,
+    "resolution": "@zh:core.hospital_situations.HS02.resolution",
+    "scene": "@zh:core.hospital_situations.HS02.scene"
+  },
+  {
+    "handler": "same_display_name",
+    "id": "HS03",
+    "name": "@zh:core.hospital_situations.HS03.name",
+    "once_per_visit": true,
+    "resolution": "@zh:core.hospital_situations.HS03.resolution",
+    "scene": "@zh:core.hospital_situations.HS03.scene"
+  },
+  {
+    "handler": "doctor_unavailable",
+    "id": "HS04",
+    "name": "@zh:core.hospital_situations.HS04.name",
+    "once_per_visit": true,
+    "resolution": "@zh:core.hospital_situations.HS04.resolution",
+    "scene": "@zh:core.hospital_situations.HS04.scene"
+  },
+  {
+    "handler": "machine_fear",
+    "id": "HS05",
+    "name": "@zh:core.hospital_situations.HS05.name",
+    "once_per_visit": true,
+    "resolution": "@zh:core.hospital_situations.HS05.resolution",
+    "scene": "@zh:core.hospital_situations.HS05.scene"
+  },
+  {
+    "handler": "prepare_accessory",
+    "id": "HS06",
+    "name": "@zh:core.hospital_situations.HS06.name",
+    "once_per_visit": true,
+    "resolution": "@zh:core.hospital_situations.HS06.resolution",
+    "scene": "@zh:core.hospital_situations.HS06.scene"
+  },
+  {
+    "handler": "slow_arrival",
+    "id": "HS07",
+    "name": "@zh:core.hospital_situations.HS07.name",
+    "once_per_visit": true,
+    "resolution": "@zh:core.hospital_situations.HS07.resolution",
+    "scene": "@zh:core.hospital_situations.HS07.scene"
+  },
+  {
+    "handler": "missing_compatible_seat",
+    "id": "HS08",
+    "name": "@zh:core.hospital_situations.HS08.name",
+    "once_per_visit": true,
+    "resolution": "@zh:core.hospital_situations.HS08.resolution",
+    "scene": "@zh:core.hospital_situations.HS08.scene"
+  },
+  {
+    "handler": "toilet_queue",
+    "id": "HS09",
+    "name": "@zh:core.hospital_situations.HS09.name",
+    "once_per_visit": true,
+    "resolution": "@zh:core.hospital_situations.HS09.resolution",
+    "scene": "@zh:core.hospital_situations.HS09.scene"
+  },
+  {
+    "handler": "water_access_blocked",
+    "id": "HS10",
+    "name": "@zh:core.hospital_situations.HS10.name",
+    "once_per_visit": true,
+    "resolution": "@zh:core.hospital_situations.HS10.resolution",
+    "scene": "@zh:core.hospital_situations.HS10.scene"
+  },
+  {
+    "handler": "escort_arrival",
+    "id": "HS11",
+    "name": "@zh:core.hospital_situations.HS11.name",
+    "once_per_visit": true,
+    "resolution": "@zh:core.hospital_situations.HS11.resolution",
+    "scene": "@zh:core.hospital_situations.HS11.scene"
+  },
+  {
+    "handler": "visitor_seat_conflict",
+    "id": "HS12",
+    "name": "@zh:core.hospital_situations.HS12.name",
+    "once_per_visit": true,
+    "resolution": "@zh:core.hospital_situations.HS12.resolution",
+    "scene": "@zh:core.hospital_situations.HS12.scene"
+  },
+  {
+    "handler": "lost_property",
+    "id": "HS13",
+    "name": "@zh:core.hospital_situations.HS13.name",
+    "once_per_visit": true,
+    "resolution": "@zh:core.hospital_situations.HS13.resolution",
+    "scene": "@zh:core.hospital_situations.HS13.scene"
+  },
+  {
+    "handler": "call_missed",
+    "id": "HS14",
+    "name": "@zh:core.hospital_situations.HS14.name",
+    "once_per_visit": true,
+    "resolution": "@zh:core.hospital_situations.HS14.resolution",
+    "scene": "@zh:core.hospital_situations.HS14.scene"
+  },
+  {
+    "handler": "sign_confusion",
+    "id": "HS15",
+    "name": "@zh:core.hospital_situations.HS15.name",
+    "once_per_visit": true,
+    "resolution": "@zh:core.hospital_situations.HS15.resolution",
+    "scene": "@zh:core.hospital_situations.HS15.scene"
+  },
+  {
+    "handler": "noise_complaint",
+    "id": "HS16",
+    "name": "@zh:core.hospital_situations.HS16.name",
+    "once_per_visit": true,
+    "resolution": "@zh:core.hospital_situations.HS16.resolution",
+    "scene": "@zh:core.hospital_situations.HS16.scene"
+  },
+  {
+    "handler": "diagnosis_handoff",
+    "id": "HS17",
+    "name": "@zh:core.hospital_situations.HS17.name",
+    "once_per_visit": true,
+    "resolution": "@zh:core.hospital_situations.HS17.resolution",
+    "scene": "@zh:core.hospital_situations.HS17.scene"
+  },
+  {
+    "handler": "bed_race",
+    "id": "HS18",
+    "name": "@zh:core.hospital_situations.HS18.name",
+    "once_per_visit": true,
+    "resolution": "@zh:core.hospital_situations.HS18.resolution",
+    "scene": "@zh:core.hospital_situations.HS18.scene"
+  },
+  {
+    "handler": "ward_visit",
+    "id": "HS19",
+    "name": "@zh:core.hospital_situations.HS19.name",
+    "once_per_visit": true,
+    "resolution": "@zh:core.hospital_situations.HS19.resolution",
+    "scene": "@zh:core.hospital_situations.HS19.scene"
+  },
+  {
+    "handler": "quiet_hours",
+    "id": "HS20",
+    "name": "@zh:core.hospital_situations.HS20.name",
+    "once_per_visit": true,
+    "resolution": "@zh:core.hospital_situations.HS20.resolution",
+    "scene": "@zh:core.hospital_situations.HS20.scene"
+  },
+  {
+    "handler": "nursing_handoff",
+    "id": "HS21",
+    "name": "@zh:core.hospital_situations.HS21.name",
+    "once_per_visit": true,
+    "resolution": "@zh:core.hospital_situations.HS21.resolution",
+    "scene": "@zh:core.hospital_situations.HS21.scene"
+  },
+  {
+    "handler": "rounds_wait",
+    "id": "HS22",
+    "name": "@zh:core.hospital_situations.HS22.name",
+    "once_per_visit": true,
+    "resolution": "@zh:core.hospital_situations.HS22.resolution",
+    "scene": "@zh:core.hospital_situations.HS22.scene"
+  },
+  {
+    "handler": "discharge_feedback",
+    "id": "HS23",
+    "name": "@zh:core.hospital_situations.HS23.name",
+    "once_per_visit": true,
+    "resolution": "@zh:core.hospital_situations.HS23.resolution",
+    "scene": "@zh:core.hospital_situations.HS23.scene"
+  },
+  {
+    "handler": "worksite_detour",
+    "id": "HS24",
+    "name": "@zh:core.hospital_situations.HS24.name",
+    "once_per_visit": true,
+    "resolution": "@zh:core.hospital_situations.HS24.resolution",
+    "scene": "@zh:core.hospital_situations.HS24.scene"
+  }
+]

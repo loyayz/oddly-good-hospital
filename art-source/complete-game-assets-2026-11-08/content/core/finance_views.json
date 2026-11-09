@@ -1,0 +1,71 @@
+[
+  {
+    "description": "@zh:core.finance_views.FV01.description",
+    "group": "clinical",
+    "id": "FV01",
+    "name": "@zh:core.finance_views.FV01.name",
+    "sources": [
+      "gp",
+      "facility",
+      "cure"
+    ]
+  },
+  {
+    "description": "@zh:core.finance_views.FV02.description",
+    "group": "operation",
+    "id": "FV02",
+    "name": "@zh:core.finance_views.FV02.name",
+    "sources": [
+      "wages",
+      "operations",
+      "consumables",
+      "maintenance"
+    ]
+  },
+  {
+    "description": "@zh:core.finance_views.FV03.description",
+    "group": "development",
+    "id": "FV03",
+    "name": "@zh:core.finance_views.FV03.name",
+    "sources": [
+      "construction",
+      "land",
+      "recruitment",
+      "training",
+      "research",
+      "search",
+      "upgrade",
+      "department_focus",
+      "renovation"
+    ]
+  },
+  {
+    "description": "@zh:core.finance_views.FV04.description",
+    "group": "grant",
+    "id": "FV04",
+    "name": "@zh:core.finance_views.FV04.name",
+    "sources": [
+      "subsidy",
+      "task_reward"
+    ]
+  },
+  {
+    "description": "@zh:core.finance_views.FV05.description",
+    "group": "refund",
+    "id": "FV05",
+    "name": "@zh:core.finance_views.FV05.name",
+    "sources": [
+      "refund"
+    ]
+  },
+  {
+    "description": "@zh:core.finance_views.FV06.description",
+    "group": "direct_support",
+    "id": "FV06",
+    "name": "@zh:core.finance_views.FV06.name",
+    "sources": [
+      "community_aid",
+      "creative_fund"
+    ]
+  }
+]

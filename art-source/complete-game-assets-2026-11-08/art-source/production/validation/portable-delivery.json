@@ -1,0 +1,10 @@
+{
+  "engine": "4.7.2.stable.official.ed1daf0bf",
+  "fresh_import": "passed",
+  "standalone_preview": "passed",
+  "renderer": "gl_compatibility/opengl3",
+  "adapter": "Intel(R) Arc(TM) Graphics",
+  "source_links": "none; regular copied files",
+  "gameplay_integration": "not performed",
+  "full_hospital_benchmark": "not performed"
+}

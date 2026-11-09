@@ -1,0 +1,175 @@
+[
+  {
+    "context": "seat_needed",
+    "context_source": "seat_occupancy",
+    "duration_seconds": 6,
+    "handler": "offer_seat",
+    "id": "PB01",
+    "interrupt_seconds": 1,
+    "name": "@zh:core.patient_behaviors.PB01.name",
+    "personality_ids": [
+      "PP01",
+      "PP05"
+    ],
+    "probability": 0.5,
+    "scene": "@zh:core.patient_behaviors.PB01.scene"
+  },
+  {
+    "context": "wait_over_grace",
+    "context_source": "queue_ticket",
+    "duration_seconds": 6,
+    "handler": "ask_status",
+    "id": "PB02",
+    "interrupt_seconds": 1,
+    "name": "@zh:core.patient_behaviors.PB02.name",
+    "personality_ids": [
+      "PP02"
+    ],
+    "probability": 0.5,
+    "scene": "@zh:core.patient_behaviors.PB02.scene"
+  },
+  {
+    "context": "idle_near_machine",
+    "context_source": "placed_equipment",
+    "duration_seconds": 6,
+    "handler": "observe",
+    "id": "PB03",
+    "interrupt_seconds": 1,
+    "name": "@zh:core.patient_behaviors.PB03.name",
+    "personality_ids": [
+      "PP03"
+    ],
+    "probability": 0.35,
+    "scene": "@zh:core.patient_behaviors.PB03.scene"
+  },
+  {
+    "context": "crowded_waiting",
+    "context_source": "noise_and_seat_query",
+    "duration_seconds": 6,
+    "handler": "seek_quiet_seat",
+    "id": "PB04",
+    "interrupt_seconds": 1,
+    "name": "@zh:core.patient_behaviors.PB04.name",
+    "personality_ids": [
+      "PP04"
+    ],
+    "probability": 0.5,
+    "scene": "@zh:core.patient_behaviors.PB04.scene"
+  },
+  {
+    "context": "neighbor_dropped_ticket",
+    "context_source": "idle_prop_fact",
+    "duration_seconds": 6,
+    "handler": "help_neighbor",
+    "id": "PB05",
+    "interrupt_seconds": 1,
+    "name": "@zh:core.patient_behaviors.PB05.name",
+    "personality_ids": [
+      "PP05"
+    ],
+    "probability": 0.6,
+    "scene": "@zh:core.patient_behaviors.PB05.scene"
+  },
+  {
+    "context": "queue_dispute",
+    "context_source": "queue_claim_context",
+    "duration_seconds": 6,
+    "handler": "request_mediation",
+    "id": "PB06",
+    "interrupt_seconds": 1,
+    "name": "@zh:core.patient_behaviors.PB06.name",
+    "personality_ids": [
+      "PP06"
+    ],
+    "probability": 0.4,
+    "scene": "@zh:core.patient_behaviors.PB06.scene"
+  },
+  {
+    "context": "nearby_litter",
+    "context_source": "dirt_patch",
+    "duration_seconds": 6,
+    "handler": "request_cleaning",
+    "id": "PB07",
+    "interrupt_seconds": 1,
+    "name": "@zh:core.patient_behaviors.PB07.name",
+    "personality_ids": [
+      "PP07"
+    ],
+    "probability": 0.5,
+    "scene": "@zh:core.patient_behaviors.PB07.scene"
+  },
+  {
+    "context": "music_invitation",
+    "context_source": "existing_music_offer",
+    "duration_seconds": 6,
+    "handler": "join_music",
+    "id": "PB08",
+    "interrupt_seconds": 1,
+    "name": "@zh:core.patient_behaviors.PB08.name",
+    "personality_ids": [
+      "PP08"
+    ],
+    "probability": 0.45,
+    "scene": "@zh:core.patient_behaviors.PB08.scene"
+  },
+  {
+    "context": "idle_near_decoration",
+    "context_source": "placed_decoration",
+    "duration_seconds": 6,
+    "handler": "observe",
+    "id": "PB09",
+    "interrupt_seconds": 1,
+    "name": "@zh:core.patient_behaviors.PB09.name",
+    "personality_ids": [
+      "PP09"
+    ],
+    "probability": 0.4,
+    "scene": "@zh:core.patient_behaviors.PB09.scene"
+  },
+  {
+    "context": "receptive_neighbor",
+    "context_source": "accepted_social_offer",
+    "duration_seconds": 6,
+    "handler": "tell_joke",
+    "id": "PB10",
+    "interrupt_seconds": 1,
+    "name": "@zh:core.patient_behaviors.PB10.name",
+    "personality_ids": [
+      "PP10"
+    ],
+    "probability": 0.45,
+    "scene": "@zh:core.patient_behaviors.PB10.scene"
+  },
+  {
+    "context": "mediation_completed",
+    "context_source": "mediation_completed_fact",
+    "duration_seconds": 6,
+    "handler": "accept_peace",
+    "id": "PB11",
+    "interrupt_seconds": 1,
+    "name": "@zh:core.patient_behaviors.PB11.name",
+    "personality_ids": [
+      "PP01",
+      "PP05",
+      "PP09"
+    ],
+    "probability": 0.6,
+    "scene": "@zh:core.patient_behaviors.PB11.scene"
+  },
+  {
+    "context": "help_received",
+    "context_source": "help_completed_fact",
+    "duration_seconds": 6,
+    "handler": "thank_neighbor",
+    "id": "PB12",
+    "interrupt_seconds": 1,
+    "name": "@zh:core.patient_behaviors.PB12.name",
+    "personality_ids": [
+      "PP01",
+      "PP05",
+      "PP10"
+    ],
+    "probability": 0.5,
+    "scene": "@zh:core.patient_behaviors.PB12.scene"
+  }
+]

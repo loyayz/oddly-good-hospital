@@ -1,0 +1,6 @@
+[gd_resource type="StandardMaterial3D" format=3]
+[resource]
+resource_name = "森林手绘壁纸"
+albedo_color = Color(0.3, 0.56, 0.54, 1)
+roughness = 0.88
+cull_mode = 0
