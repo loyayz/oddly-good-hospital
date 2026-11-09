@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "description": "Offline PNG packing for Oddly Good Hospital source assets",
+  "dependencies": {
+    "sharp": "0.35.5"
+  }
+}
