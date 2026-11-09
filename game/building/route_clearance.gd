@@ -89,12 +89,22 @@ func _build_static(space: HospitalSpace, world: WorldState, actor: Dictionary, f
 	for item: Dictionary in base.doors:
 		var door: Dictionary = item.door
 		var fit: Dictionary = space.door_quote(world,actor,floor_id,door)
-		var record: Dictionary = {"original":item.original,"opening":space._door_rect(door,int(fit.span)) if fit.ok else Rect2(),"ok":fit.ok,"reason":fit.get("reason",""),"room_id":door.room_id,"axis":door.axis}
+		var record: Dictionary = {"original":item.original,"opening":space._door_rect(door,int(fit.span)) if fit.ok else Rect2(),"ok":fit.ok,"span":int(fit.get("span",0)),"reason":fit.get("reason",""),"room_id":door.room_id,"axis":door.axis}
 		_doors.append(record)
 		if _indexed_static:
 			if record.ok: _index_rectangle(record.opening,_open_door_cells,true)
 			else: _index_rectangle(record.original,_closed_door_cells,record.reason)
 		_dependencies["door:"+str(door.id)] = {"rect":Rect2i(record.original.merge(record.opening)),"value":record}
+
+# Scalars only: never expose a writable reference to shared graph records.
+# The caller must first acquire this geometry through current-source validation.
+# Exact metre dimensions and reservation permission are deliberately absent.
+func door_static_fit(door_id: String) -> Dictionary:
+	var dependency: Dictionary=_dependencies.get("door:"+door_id,{})
+	if dependency.is_empty():return {}
+	var record: Dictionary=dependency.value
+	if not record.ok:return {"ok":false,"reason":str(record.reason)}
+	return {"ok":true,"span":int(record.span)}
 
 func _plain_geometry() -> bool:
 	return _members.is_empty() and _blocked.is_empty() and _doors.is_empty() and _facilities.is_empty() and _connectors.is_empty() and _reservations.is_empty() and _walls.is_empty()

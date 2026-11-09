@@ -134,8 +134,11 @@ func transport_search(world: WorldState) -> void:
 			_mark_transport_dependency(reference)
 			reference.transport_searches = int(reference.get("transport_searches",0))+1
 
-func _blocking_facility(world: WorldState, floor_id: int, rect: Rect2, except_id: String = "") -> String:
-	var hits: Array[String] = _navigation.facility_index(self,world,floor_id).candidates(floor_id,rect,[except_id])
+# Optional geometry is borrowed only within one synchronous call for the same
+# world and floor; never retain it across world mutations or query boundaries.
+func _blocking_facility(world: WorldState, floor_id: int, rect: Rect2, except_id: String = "", geometry: FloorStaticGeometry = null) -> String:
+	var index: BodyIndex = _navigation.facility_index(self,world,floor_id) if geometry==null else geometry.facility_index
+	var hits: Array[String] = index.candidates(floor_id,rect,[except_id])
 	if hits.is_empty(): return ""
 	if hits.size()==1 or not _route_queries.is_empty() and _route_queries.back().world==world: return hits[0]
 	# The unscoped diagnostic keeps the original facts order when several
@@ -488,9 +491,11 @@ func reservation_changed(world: WorldState, id: String) -> void:
 	if not cached.is_empty(): _index_reservation(cached.view,id,world.facts.adaptations.get(id,{}))
 	if public_areas!=null: public_areas.reservation_changed(world,id)
 
-func movement_doors(world: WorldState, actor: Dictionary, swept: Rect2, members: Array = [], floor_id: int = 0) -> Array[Dictionary]:
+# Optional geometry has the same world/floor synchronous borrowing contract
+# as _blocking_facility; reservations below are always queried live.
+func movement_doors(world: WorldState, actor: Dictionary, swept: Rect2, members: Array = [], floor_id: int = 0, geometry: FloorStaticGeometry = null) -> Array[Dictionary]:
 	if floor_id==0: floor_id = int(actor.location.floor_id)
-	var geometry: FloorStaticGeometry = _navigation.floor_geometry(self,world,floor_id)
+	if geometry==null: geometry = _navigation.floor_geometry(self,world,floor_id)
 	var entry: Dictionary = {"index":geometry.door_index,"doors":geometry.door_order,"order":geometry.door_order}
 	var ids: Dictionary = {}
 	# A door may grow from its fixed anchor to fit this body's envelope.
@@ -1087,6 +1092,22 @@ func _door_span(actor: Dictionary, door: Dictionary) -> int:
 	var dimensions: Dictionary = body(actor)
 	return maxi(int(door.span),ceili((maxf(float(dimensions.width_m),float(dimensions.depth_m))+0.1)/CELL_METERS))
 
+# Actual passage only, with a current world door and the actual actor/proxy.
+# Reuse an already-built, source-validated structural proof. Never construct a
+# graph here: its builder uses door_quote and must not recurse through this path.
+# Compound member aggregation still uses door_quote; a convoy supplies its proxy.
+func door_passage_quote(world: WorldState, actor: Dictionary, floor_id: int, door: Dictionary) -> Dictionary:
+	var geometry: RouteClearance=_navigation.cached_static_geometry(self,world,floor_id,actor)
+	if geometry==null:return door_quote(world,actor,floor_id,door)
+	var fit: Dictionary=geometry.door_static_fit(str(door.id))
+	if fit.is_empty():return door_quote(world,actor,floor_id,door)
+	if not fit.ok:return fit
+	# Graph keys share integer spans/ceiling predicates, not exact dimensions.
+	# Recompute both values for every actual reservation comparison/creation.
+	var dimensions: Dictionary=body(actor)
+	var definition: Dictionary=content.definition("doors",door.definition_id)
+	return {"ok":true,"span":int(fit.span),"clear_height_m":maxf(float(definition.clear_height_m),float(dimensions.height_m)+0.1),"clear_width_m":maxf(float(definition.clear_width_m),maxf(float(dimensions.width_m),float(dimensions.depth_m))+0.1)}
+
 func door_quote(world: WorldState, actor: Dictionary, floor_id: int, door: Dictionary, members: Array = []) -> Dictionary:
 	var dimensions: Dictionary = body(actor)
 	if members.size()>1:
@@ -1118,10 +1139,12 @@ func door_quote(world: WorldState, actor: Dictionary, floor_id: int, door: Dicti
 		continuous = int(door.cell[along])>=int(room.origin[along]) and int(door.cell[along])+span<=int(room.origin[along])+int(room.size[along])
 	if not continuous:
 		return {"ok":false,"reason":"门展开越过连续墙段或墙角"}
-	for other: Dictionary in movement_doors(world,actor,opening,members,floor_id):
+	# Borrow only within this synchronous quote; live reservations are still read.
+	var geometry: FloorStaticGeometry = _navigation.floor_geometry(self,world,floor_id)
+	for other: Dictionary in movement_doors(world,actor,opening,members,floor_id,geometry):
 		if other.id!=door.id and opening.intersects(_door_rect(other,int(other.span)),false):
 			return {"ok":false,"reason":"门展开与另一扇门相交"}
-	if not _blocking_facility(world,floor_id,opening).is_empty():
+	if not _blocking_facility(world,floor_id,opening,"",geometry).is_empty():
 		return {"ok":false,"reason":"门展开区域有实际设施"}
 	var k: int = clearance(actor)
 	for id: String in members: k = maxi(k,clearance(world.facts.actors[id]))
@@ -1133,7 +1156,7 @@ func door_quote(world: WorldState, actor: Dictionary, floor_id: int, door: Dicti
 			for cy: int in range(int(side.position.y),int(side.end.y)):
 				if not owned(world,floor_id,Vector2i(cx,cy)) or [cx,cy] in world.facts.floors.overrides.get(str(floor_id),{}).get("blocked",[]):
 					return {"ok":false,"reason":"门两侧没有容纳真实身体的完整空间"}
-		if not _blocking_facility(world,floor_id,side).is_empty():
+		if not _blocking_facility(world,floor_id,side,"",geometry).is_empty():
 			return {"ok":false,"reason":"门两侧通路有实际设施"}
 	return {"ok":true,"span":span,"clear_height_m":height,"clear_width_m":maxf(float(definition.clear_width_m),maxf(float(dimensions.width_m),float(dimensions.depth_m))+0.1)}
 

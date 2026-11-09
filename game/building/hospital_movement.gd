@@ -546,9 +546,7 @@ func _route_body_basis(actor: Dictionary) -> Array:
 	# RouteClearance uses integer width/depth clearance and posture-dependent
 	# height; doors and connector fits also use the full standing dimensions.
 	# Facing belongs to the exact collision sweep performed during movement.
-	var body: Dictionary = space.body(actor)
-	var posture: String = actor.get("posture","standing")
-	return [actor.species_id,actor.get("body_binding_id",""),posture,float(body.width_m),float(body.depth_m),float(body.height_m),actor.get("support_facility_id","") if posture=="lying" else ""]
+	return space.navigation.route_body_basis(actor)
 
 func _dispatch_routes(world: WorldState, present_at_start: int) -> void:
 	_ensure_route_queue(world)
@@ -597,23 +595,7 @@ func _dispatch_routes(world: WorldState, present_at_start: int) -> void:
 			quote = space.route(world,id,floor_id,cell,movement.get("members",[]),movement.get("offsets",{}))
 		else:
 			var actor: Dictionary = world.facts.actors[id]
-			var start: Vector2i = Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
-			var goal: Vector2i = Vector2i(roundi(cell[0]),roundi(cell[1]))
-			var actual: Vector2 = Vector2(float(actor.location.cell[0]),float(actor.location.cell[1]))
-			var target: Vector2 = Vector2(float(cell[0]),float(cell[1]))
-			quote = space._floor_route(world,actor,floor_id,start,goal,movement.get("members",[]),movement.get("offsets",{}))
-			if quote.ok:
-				var query: RouteClearance = RouteClearance.new(space,world,actor,floor_id,movement.get("members",[]),movement.get("offsets",{}),false,space._navigation.floor_source(space,world,floor_id))
-				var reason: String = query.sweep_reason(actual,Vector2(start))
-				if reason.is_empty():
-					reason = query.sweep_reason(Vector2(goal),target)
-				if not reason.is_empty():
-					quote = {"ok":false,"reason":reason}
-				else:
-					if actual!=Vector2(start):
-						quote.path.push_front({"kind":"floor","floor_id":floor_id,"cell":[start.x,start.y]})
-					if target!=Vector2(goal):
-						quote.path.append({"kind":"floor","floor_id":floor_id,"cell":cell.duplicate()})
+			quote = space.navigation.exact_floor_route(world,actor,floor_id,cell,movement.get("members",[]),movement.get("offsets",{}))
 		if not quote.ok:
 			movement.waiting_reason = quote.reason
 			movement.route_retry_tick = world.sim_tick+int(space.content.balance.movement_courtesy.retry_hard_block_seconds)*10
@@ -626,10 +608,25 @@ func _dispatch_routes(world: WorldState, present_at_start: int) -> void:
 			movement.path.append_array(waypoint.continuation)
 			movement.erase("route_waypoint")
 		movement.cursor = 0
+		if waypoint.is_empty(): _accept_static_proof(world,world.facts.actors[id],movement,quote.get("static_proof",{}))
 		movement.route_pending = false
 		movement.erase("route_retry_tick")
 		movement.erase("waiting_reason")
 		_route_failures.erase(id)
+
+# Consume only a planner-owned exact single-floor proof. No proof is serialized
+# with movement facts; cold restore and every other route keep full validation.
+func _accept_static_proof(world: WorldState, actor: Dictionary, movement: Dictionary, proof: Dictionary) -> bool:
+	if proof.is_empty() or proof.world.get_ref()!=world or movement.has("convoy") or movement.has("detour"): return false
+	var members: Array = movement.get("members",[actor.id])
+	var offsets: Dictionary = movement.get("offsets",{})
+	if members!=[actor.id] or not offsets.is_empty() or actor.location.kind!="floor" or int(actor.location.floor_id)!=int(proof.floor): return false
+	if int(movement.target_floor)!=int(proof.floor) or movement.target_cell!=proof.target: return false
+	if proof.origin!=Vector2(float(actor.location.cell[0]),float(actor.location.cell[1])) or proof.path!=movement.path or proof.body!=_route_body_basis(actor): return false
+	if proof.version!=space._navigation.floor_static_version(space,world,int(proof.floor)): return false
+	_route_checks[actor.id] = {"sequence":int(movement.get("request_sequence",0)),"floors":{int(proof.floor):proof.version},"connections":{},"bodies":{actor.id:proof.body.duplicate()},"members":members.duplicate(),"offsets":{},"validated":true}
+	space.query_counts["route_proof_handoffs"] = int(space.query_counts.get("route_proof_handoffs",0))+1
+	return true
 
 func _initial_route_cursor(actor: Dictionary, path: Array, world: WorldState = null) -> int:
 	if path.size()<2 or path[0].kind!="floor" or path[1].kind!="floor" or int(path[0].floor_id)!=int(actor.location.floor_id) or int(path[1].floor_id)!=int(actor.location.floor_id):
@@ -824,7 +821,7 @@ func _reserve_doors(world: WorldState, actor: Dictionary, movement: Dictionary, 
 	for door: Dictionary in doors:
 		var span: int = space._door_span(actor,door)
 		if not swept.intersects(space._door_rect(door,span),false): continue
-		var quote: Dictionary = space.door_quote(world,actor,floor_id,door,[])
+		var quote: Dictionary = space.door_passage_quote(world,actor,floor_id,door)
 		if not quote.ok:
 			result.door_id = str(door.id)
 			return false

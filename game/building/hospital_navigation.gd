@@ -124,9 +124,8 @@ func destination_reason(world: WorldState, actor: Dictionary, floor_id: int, tar
 
 func structural_clearance(world: WorldState, actor: Dictionary, floor_id: int, members: Array = [], offsets: Dictionary = {}) -> RouteClearance:
 	if actor.has("_convoy_size") or members.size()==1 and members[0]==actor.id: members = []
-	var source: Dictionary = space._navigation.floor_source(space,world,floor_id)
 	var query: RouteClearance = space._navigation.cached_static_geometry(space,world,floor_id,actor) if members.is_empty() else null
-	if query==null: query = RouteClearance.new(space,world,actor,floor_id,members,offsets,false,source)
+	if query==null: query = RouteClearance.new(space,world,actor,floor_id,members,offsets,false,space._navigation.floor_source(space,world,floor_id))
 	return query
 
 # This synchronous projection retains the original floor and connector owners.
@@ -656,6 +655,32 @@ func _dynamic_goal_has_entry(graph: FloorNavigation, goal: Vector2i, people: Cal
 		if graph.has_point(from_id) and graph.are_points_connected(from_id,goal_id,false) and bool(people.call(predecessor,goal)):
 			return true
 	return false
+
+# The planner owns the complete static leg, including its exact endpoint stubs.
+# This proof is runtime-only. Restored or externally supplied paths have none.
+func exact_floor_route(world: WorldState, actor: Dictionary, floor_id: int, cell: Array, members: Array = [], offsets: Dictionary = {}) -> Dictionary:
+	var start: Vector2i = Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
+	var goal: Vector2i = Vector2i(roundi(cell[0]),roundi(cell[1]))
+	var actual: Vector2 = Vector2(float(actor.location.cell[0]),float(actor.location.cell[1]))
+	var target: Vector2 = Vector2(float(cell[0]),float(cell[1]))
+	var quote: Dictionary = space._floor_route(world,actor,floor_id,start,goal,members,offsets)
+	if not quote.ok: return quote
+	var query: RouteClearance = structural_clearance(world,actor,floor_id,members,offsets)
+	var reason: String = query.sweep_reason(actual,Vector2(start))
+	if reason.is_empty(): reason = query.sweep_reason(Vector2(goal),target)
+	if not reason.is_empty(): return {"ok":false,"reason":reason}
+	if actual!=Vector2(start): quote.path.push_front({"kind":"floor","floor_id":floor_id,"cell":[start.x,start.y]})
+	if target!=Vector2(goal): quote.path.append({"kind":"floor","floor_id":floor_id,"cell":cell.duplicate()})
+	# Overridden planners may return a path without the standard graph proof.
+	# They retain the original full movement validation, not a trust shortcut.
+	if str(get_script().resource_path)=="res://game/building/hospital_navigation.gd" and str(space.get_script().resource_path)=="res://game/building/hospital_space.gd" and (members.is_empty() or members==[actor.id]) and offsets.is_empty() and not actor.has("_convoy_size"):
+		quote.static_proof = {"world":weakref(world),"floor":floor_id,"version":space._navigation.floor_static_version(space,world,floor_id),"body":route_body_basis(actor),"origin":actual,"target":cell.duplicate(),"path":quote.path.duplicate(true)}
+	return quote
+
+func route_body_basis(actor: Dictionary) -> Array:
+	var body: Dictionary = space.body(actor)
+	var posture: String = actor.get("posture","standing")
+	return [actor.species_id,actor.get("body_binding_id",""),posture,float(body.width_m),float(body.depth_m),float(body.height_m),actor.get("support_facility_id","") if posture=="lying" else ""]
 
 func _route_envelope(world: WorldState, actor: Dictionary, members: Array, offsets: Dictionary) -> Array:
 	var result: Array = [[space.body(actor),actor.get("posture","standing"),float(actor.get("facing",0.0)),[0,0]]]
