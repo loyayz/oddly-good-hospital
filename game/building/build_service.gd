@@ -428,85 +428,12 @@ func _facility_position(world: WorldState, facility: Dictionary, ignore: Array =
 			return BuildGeometry.failure("设施不能占据真实门口",[door.cell])
 	return guidance_front_error(world,facility)
 
-# Placement uses the physical base, not the temporary service adaptation.
-# Only the three rows in front of the desk are required here. Queue capacity
-# and larger bodies are handled by the live queue layout, not by shrinking them.
-func guidance_front_error(world: WorldState, facility: Dictionary) -> Dictionary:
-	if facility.get("definition_id","")!="SE01": return {"ok":true}
-	var definition: Dictionary = content.facility_definition("SE01")
-	var dimensions: Array = definition.footprint
-	var floor_id: int = int(facility.floor_id)
-	var origin: Vector2i = Vector2i(int(facility.cell[0]),int(facility.cell[1]))
-	var low: Vector2i = Vector2i(100000,100000)
-	var high: Vector2i = Vector2i(-100000,-100000)
-	var layout: Dictionary = world.facts.floors.overrides.get(str(floor_id),{})
-	for x: int in int(dimensions[0]):
-		for depth: int in 3:
-			var cell: Vector2i = origin+_rotate_offset(Vector2i(x,int(dimensions[1])+depth),dimensions,int(facility.get("rotation",0)))
-			if cell.x<0 or cell.y<0 or cell.x>=96 or cell.y>=96 or not space.owned(world,floor_id,cell) or [cell.x,cell.y] in layout.get("blocked",[]):
-				return BuildGeometry.failure("导诊台前须有至少3格完整净空（含2格通路）",[[cell.x,cell.y]])
-			low = low.min(cell)
-			high = high.max(cell+Vector2i.ONE)
-	var front: Rect2 = Rect2(Vector2(low),Vector2(high-low))
-	var forward: Vector2i = _rotate_offset(Vector2i(0,1),dimensions,int(facility.get("rotation",0)))-_rotate_offset(Vector2i.ZERO,dimensions,int(facility.get("rotation",0)))
-	# Walls are zero-width edges. A wall on the far edge leaves exactly three
-	# complete cells and is allowed; one inside the strip divides its free area.
-	for room: Dictionary in world.facts.rooms.values():
-		if int(room.floor_id)!=floor_id: continue
-		for wall: Dictionary in BuildGeometry.room_walls(room):
-			var horizontal: bool = wall.axis=="x"
-			var line: float = float(wall.line)
-			var near: float = front.position.y if horizontal else front.position.x
-			var far: float = front.end.y if horizontal else front.end.x
-			var start: float = front.position.x if horizontal else front.position.y
-			var end: float = front.end.x if horizontal else front.end.y
-			var at_face: bool = (horizontal and forward.y!=0 or not horizontal and forward.x!=0) and line==(near if forward.x+forward.y>0 else far)
-			if (line>near and line<far or at_face) and float(wall.low)<end and float(wall.high)>start:
-				return BuildGeometry.failure("导诊台前墙距不足3格",[facility.cell])
-	for door: Dictionary in layout.get("doors",[]):
-		if front.intersects(space._door_rect(door,int(door.span)),false):
-			return BuildGeometry.failure("导诊排队和预留通路不能占用门口",[door.cell])
-	for other: Dictionary in world.facts.facilities.values():
-		if other.id==facility.id or int(other.floor_id)!=floor_id: continue
-		if front.intersects(BuildGeometry.rectangle(other),false):
-			return BuildGeometry.failure("导诊台前3格净空被设施占用",[other.cell])
-	for connector: Dictionary in world.facts.connectors.values():
-		if HospitalTransit.has_stop(connector,floor_id) and connector.has("cell") and front.intersects(BuildGeometry.rectangle(connector),false):
-			return BuildGeometry.failure("导诊台前3格净空被竖向结构占用",[connector.cell])
+# Guidance has no reserved frontage or wall-distance placement rule.
+# Generic facility/building geometry still rejects actual overlaps.
+func guidance_front_error(_world: WorldState, _facility: Dictionary) -> Dictionary:
 	return {"ok":true}
 
-func guidance_floor_error(world: WorldState, floor_id: int) -> Dictionary:
-	# Only floors touched by this transaction are checked, including edits to
-	# nearby walls/doors and composite transactions after all pieces are placed.
-	for facility: Dictionary in world.facts.facilities.values():
-		if int(facility.floor_id)!=floor_id or facility.get("definition_id","")!="SE01": continue
-		var result: Dictionary = guidance_front_error(world,facility)
-		if not result.ok: return result
-		# A later build may shorten future capacity, but cannot consume the
-		# two-cell static clearance behind an actually committed queue body.
-		var fixed: Array=[]
-		var guidance: Dictionary=world.facts.get("floor_guidance",{})
-		var queue: Array=guidance.get("desks",{}).get(facility.id,{}).get("queue",[])
-		if space.guidance_queue_provider!=null and space.guidance_queue_provider.get_ref()!=null:queue=space.guidance_queue_provider.get_ref()._desk_queue(world,str(facility.id))
-		for visit_id: String in queue:
-			var row: Dictionary=guidance.get("visits",{}).get(visit_id,{})
-			if row.get("desk_id","")!=facility.id or not row.has("queue_seq") or not row.has("queue_cell"):continue
-			if row.get("phase","") not in ["desk_queue","to_counter","working"]:continue
-			var visit: Dictionary=world.facts.visits.get(str(row.get("visit_id","")),{})
-			var actor: Dictionary=world.facts.actors.get(str(visit.get("actor_id","")),{})
-			if actor.is_empty() or actor.location.kind!="floor" or int(actor.location.floor_id)!=floor_id:continue
-			var move: Dictionary=world.facts.moves.get(actor.id,{})
-			var at_slot: bool=space.at(world,actor.id,floor_id,row.queue_cell)
-			var moving_in_queue: bool=not move.is_empty() and move.get("floor_guidance_key","")==row.get("request_key","")
-			if not at_slot and not moving_in_queue and row.phase!="working":continue
-			if fixed.is_empty():fixed=preload("res://game/operations/guidance_queue_geometry.gd").walls(world,floor_id,str(facility.id))
-			var span: int=space.clearance(actor)
-			var rect: Rect2i=Rect2i(int(row.queue_cell[0]),int(row.queue_cell[1]),span,span)
-			if preload("res://game/operations/guidance_queue_geometry.gd").overlaps_landing(world,content,floor_id,Rect2(rect)):
-				return BuildGeometry.failure("实际导诊队列不能占用竖向连接上下客落点，请待患者离开后调整布局",[row.queue_cell])
-			var front: Vector2i=[Vector2i.DOWN,Vector2i.LEFT,Vector2i.UP,Vector2i.RIGHT][posmod(int(facility.get("rotation",0)),4)]
-			if not preload("res://game/operations/guidance_queue_layout.gd")._pack_fixed_space(rect,front,fixed,Rect2i(0,0,96,96)):
-				return BuildGeometry.failure("实际导诊队列后须保留两格静态通路，请待患者离开后调整布局",[row.queue_cell])
+func guidance_floor_error(_world: WorldState, _floor_id: int) -> Dictionary:
 	return {"ok":true}
 
 func _move(world: WorldState, kind: String, payload: Dictionary) -> Dictionary:

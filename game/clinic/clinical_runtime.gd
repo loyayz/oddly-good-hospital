@@ -477,7 +477,7 @@ func _dispatch_service(world: WorldState, visit: Dictionary, ticket: Dictionary)
 		if recommendation.is_empty():
 			visit.waiting_reason = "暂无适用方案，保留原票号等待治疗条件"
 			return
-	if kind=="gp" and departments!=null and not departments.call("route_patient",world,visit.id):
+	if kind=="gp" and departments!=null and (floor_guidance==null or floor_guidance.target(world,visit.id).is_empty()) and not departments.call("route_patient",world,visit.id):
 		return
 	var facility_id: String = LEGACY_SERVICE_FACILITIES.get(kind,"")
 	var staff_id: String = LEGACY_SERVICE_STAFF.get(kind,"")

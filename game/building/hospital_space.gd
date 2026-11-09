@@ -812,7 +812,19 @@ func _facility_region_reason(world: WorldState, facility: Dictionary, room: Dict
 		for cy: int in range(int(area[1]),int(area[1])+int(area[3])):
 			if not owned(world,int(facility.floor_id),Vector2i(cx,cy)) or [cx,cy] in world.facts.floors.overrides.get(str(facility.floor_id),{}).get("blocked",[]):
 				return "展开或退出区域受墙、地块阻挡：%d,%d" % [cx,cy]
-	if not room.is_empty() and not room_contains(room,rect): return "展开、岗位或出口超出本房间"
+	if facility.definition_id=="SE01":
+		# Guidance belongs to the desk, not its room label. Preserve real
+		# walls (including partial/concave walls and actual doorway gaps).
+		for actual_room: Dictionary in world.facts.rooms.values():
+			if int(actual_room.floor_id)!=int(facility.floor_id):continue
+			for wall: Dictionary in BuildGeometry.room_walls(actual_room):
+				var horizontal: bool=str(wall.axis)=="x"
+				var low: float=rect.position.y if horizontal else rect.position.x
+				var high: float=rect.end.y if horizontal else rect.end.x
+				var across_low: float=rect.position.x if horizontal else rect.position.y
+				var across_high: float=rect.end.x if horizontal else rect.end.y
+				if float(wall.line)>low and float(wall.line)<high and float(wall.high)>across_low and float(wall.low)<across_high:return "导诊操作区域跨越实际墙体"
+	elif not room.is_empty() and not room_contains(room,rect): return "展开、岗位或出口超出本房间"
 	var other: String = _blocking_facility(world,int(facility.floor_id),rect,str(facility.id))
 	return "" if other.is_empty() else "展开区域有其他实际设施："+other
 
@@ -1010,8 +1022,14 @@ func reserve_facility(world: WorldState, facility_id: String, actor_id: String, 
 	world.facts.adaptations[facility_id] = quote
 	reservation_changed(world,facility_id)
 	_navigation.invalidate(world,int(quote.floor_id))
-	public_areas.facility_changed(before,quote)
+	_facility_layout_changed(world,before,quote)
 	return ""
+
+func _facility_layout_changed(world: WorldState, before: Dictionary, after: Dictionary) -> void:
+	public_areas.facility_changed(before,after)
+	if guidance_queue_provider==null:return
+	var provider: RefCounted=guidance_queue_provider.get_ref()
+	if provider!=null and provider.has_method("facility_layout_changed"):provider.facility_layout_changed(world,before,after)
 
 func commit_facility_reservations(world: WorldState, validated: Dictionary, facility_ids: Array) -> void:
 	# The complete bundle was checked on a clone in this synchronous command.
@@ -1022,7 +1040,7 @@ func commit_facility_reservations(world: WorldState, validated: Dictionary, faci
 			world.facts.adaptations[facility_id] = validated[facility_id].duplicate(true)
 			reservation_changed(world,facility_id)
 			_navigation.invalidate(world,int(validated[facility_id].floor_id))
-			public_areas.facility_changed(before,validated[facility_id])
+			_facility_layout_changed(world,before,validated[facility_id])
 
 func grant_facility_access(world: WorldState, facility_id: String, staff_id: String) -> void:
 	var reservation: Dictionary = world.facts.adaptations.get(facility_id,{})
@@ -1086,7 +1104,7 @@ func release_adaptations(world: WorldState) -> void:
 			world.facts.adaptations.erase(id)
 			reservation_changed(world,id)
 			_navigation.invalidate(world,int(reservation.floor_id))
-			if reservation.kind=="facility" and world.facts.facilities.has(id): public_areas.facility_changed(reservation,world.facts.facilities[id])
+			if reservation.kind=="facility" and world.facts.facilities.has(id): _facility_layout_changed(world,reservation,world.facts.facilities[id])
 
 func _door_span(actor: Dictionary, door: Dictionary) -> int:
 	var dimensions: Dictionary = body(actor)

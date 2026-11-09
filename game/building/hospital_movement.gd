@@ -373,13 +373,6 @@ func _move_step(world: WorldState, actor: Dictionary, movement: Dictionary, segm
 	if members.size()>1: speed = float(space.content.balance.movement_speeds["2"])
 	var next: Vector2 = _step_toward(start,target,speed*WorldState.TICK_SECONDS)
 	result.requested_motion = next-start
-	if members.size()==1 and segment.kind=="floor" and space.guidance_queue_provider!=null:
-		var provider: RefCounted=space.guidance_queue_provider.get_ref()
-		if provider!=null and preload("res://game/operations/guidance_queue_entry.gd").block_entry(space,world,provider,actor.id,movement,start,next):
-			# Capacity is not a person to push or a failed route to detour.
-			# Guidance will retain/choose a safe exterior waiting point.
-			movement.waiting_reason="导诊排队区域已满，等待区域外空间"
-			return result
 	if (movement.has("detour") or movement.has("local_move")) and members.size()==1 and segment.kind=="floor":
 		var actual_clearance: RouteClearance=space.navigation.structural_clearance(world,actor,int(actor.location.floor_id))
 		result.static_reason=actual_clearance.sweep_reason(start,next)
@@ -998,7 +991,6 @@ func _local_choose(world: WorldState, actor: Dictionary, movement: Dictionary, m
 	var forward: Vector2 = Vector2(signf(motion.x),0) if absf(motion.x)>=absf(motion.y) else Vector2(0,signf(motion.y))
 	var side: Vector2 = Vector2(-forward.y,forward.x)
 	var origin: Vector2 = ConvoyTrail.point(actor.location.cell)
-	var exterior: Callable=preload("res://game/operations/guidance_queue_routes.gd").exterior_guard(space,world,movement)
 	for direction: Vector2 in [side,-side,-forward]:
 		var target: Vector2 = origin+direction*space.clearance(actor)
 		if direction==-forward:
@@ -1016,7 +1008,6 @@ func _local_choose(world: WorldState, actor: Dictionary, movement: Dictionary, m
 				var delta: Vector2 = past-origin
 				if delta.dot(direction)>0.001 and absf(delta.cross(direction))<0.00001:
 					target=past;break
-		if exterior.is_valid() and not exterior.call(origin,target): continue
 		var path: Array = [_floor_point(actor,target)]
 		if direction==-forward:
 			if not _retreat_intention_clear(world,actor,movement,path): continue
@@ -1101,7 +1092,6 @@ func _local_resume(world: WorldState, actor: Dictionary, movement: Dictionary) -
 func _local_try_return(world: WorldState, actor: Dictionary, movement: Dictionary) -> bool:
 	var local: Dictionary=movement.local_move
 	var query: RouteClearance = space.navigation.structural_clearance(world,actor,int(actor.location.floor_id))
-	var exterior: Callable=preload("res://game/operations/guidance_queue_routes.gd").exterior_guard(space,world,movement)
 	var previous: Vector2 = ConvoyTrail.point(local.origin)
 	for index: int in range(int(movement.cursor),movement.path.size()):
 		var point: Dictionary = movement.path[index]
@@ -1117,19 +1107,18 @@ func _local_try_return(world: WorldState, actor: Dictionary, movement: Dictionar
 		var coordinate: float = floorf(position)+1.0 if sign_step>0.0 else ceilf(position)-1.0
 		while sign_step!=0.0 and (limit-coordinate)*sign_step>0.0:
 			var candidate: Vector2 = Vector2(coordinate,previous.y) if direction.x!=0.0 else Vector2(previous.x,coordinate)
-			if _local_return(world,actor,movement,query,index,candidate,exterior): return true
+			if _local_return(world,actor,movement,query,index,candidate): return true
 			coordinate+=sign_step
-		if _local_return(world,actor,movement,query,index,end,exterior): return true
+		if _local_return(world,actor,movement,query,index,end): return true
 		previous=end
 	return false
 
-func _local_return(world: WorldState, actor: Dictionary, movement: Dictionary, query: RouteClearance, index: int, target: Vector2, exterior: Callable = Callable()) -> bool:
+func _local_return(world: WorldState, actor: Dictionary, movement: Dictionary, query: RouteClearance, index: int, target: Vector2) -> bool:
 	if not query.position_reason(target).is_empty(): return false
 	var origin: Vector2 = ConvoyTrail.point(actor.location.cell)
 	var rect: Rect2 = space._actor_rect(actor,target)
 	if space._actor_index.intersects(int(actor.location.floor_id),rect,actor.id,[actor.id]): return false
 	for corner: Vector2 in [Vector2(target.x,origin.y),Vector2(origin.x,target.y)]:
-		if exterior.is_valid() and (not exterior.call(origin,corner) or not exterior.call(corner,target)): continue
 		if not query.sweep_reason(origin,corner).is_empty() or not query.sweep_reason(corner,target).is_empty(): continue
 		var corner_rect: Rect2 = space._actor_rect(actor,corner)
 		if space._actor_index.intersects(int(actor.location.floor_id),corner_rect,actor.id,[actor.id]): continue

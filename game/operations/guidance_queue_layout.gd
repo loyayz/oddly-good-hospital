@@ -163,3 +163,103 @@ static func _pack_fixed_space(rect: Rect2i, front: Vector2i, walls: Array, floor
 		if perpendicular and line==near:crosses=true
 		if crosses and int(wall.low)<across_high and int(wall.high)>across_low:return false
 	return true
+
+# Actual-body snake. Shapes are the engine's four cardinal _actor_rect values
+# at cell zero; their offsets are retained when converting back to actor cells.
+# No wall-depth capacity, column gap, rear passage or occupancy is planned here.
+static func snake(facility: Dictionary, bodies: Array) -> Dictionary:
+	var turn: int=posmod(int(facility.get("rotation",0)),4)
+	var front: Vector2=[Vector2.DOWN,Vector2.LEFT,Vector2.UP,Vector2.RIGHT][turn]
+	var right:=Vector2(front.y,-front.x)
+	var origin:=Vector2(float(facility.cell[0]),float(facility.cell[1]))
+	var size:=Vector2(float(facility.footprint[0]),float(facility.footprint[1]))
+	var edge: Vector2=origin
+	match turn:
+		0:edge+=Vector2(size.x*0.5,size.y)
+		1:edge+=Vector2(0,size.y*0.5)
+		2:edge+=Vector2(size.x*0.5,0)
+		3:edge+=Vector2(size.x,size.y*0.5)
+	var width: float=size.x if front.x==0 else size.y
+	var result: Dictionary={"placements":[],"front":front,"right":right,"edge":edge,"width":width,"row":0,"row_top":0.0,"bottom":0.0,"single":false,"front_anchor":facility.get("queue_front_cell",[]).duplicate()}
+	for body: Dictionary in bodies:
+		var placement: Dictionary=snake_append(result,body)
+		if placement.is_empty():return {}
+		snake_accept(result,placement)
+	return result
+
+# Read-only probe: a walking visitor must not alter the accepted queue.
+static func snake_append(packing: Dictionary, body: Dictionary) -> Dictionary:
+	if packing.is_empty() or body.get("shapes",[]).size()!=4:return {}
+	var front: Vector2=packing.front
+	var right: Vector2=packing.right
+	var rows: Array=packing.placements
+	var row: int=int(packing.row)
+	var row_top: float=float(packing.row_top)
+	var single: bool=bool(packing.single)
+	var direction: float=1.0 if row%2==0 else -1.0
+	var facing: float=atan2(-front.x,-front.y)
+	var shape: Rect2=_snake_shape(body,facing)
+	var size: Vector2=_snake_size(shape,right,front)
+	var local: Rect2
+	if rows.is_empty():
+		# The existing service anchor is a cell-envelope origin, not a body
+		# edge. Borrow only its normal coordinate; the actual body remains
+		# centered on the desk and retains its own engine shape offset.
+		var anchor: Array=packing.get("front_anchor",[])
+		if anchor.size()==2:
+			var anchor_point:=Vector2(float(anchor[0]),float(anchor[1]))
+			var shape_front: float=shape.position.dot(front)+minf(0.0,shape.size.x*front.x)+minf(0.0,shape.size.y*front.y)
+			row_top=anchor_point.dot(front)-Vector2(packing.edge).dot(front)+shape_front
+		local=Rect2(Vector2(-size.x*0.5,row_top),size)
+	else:
+		var previous: Rect2=rows.back().local_rect
+		var lateral_facing: float=atan2(-right.x*direction,-right.y*direction)
+		var lateral_shape: Rect2=_snake_shape(body,lateral_facing)
+		var lateral_size: Vector2=_snake_size(lateral_shape,right,front)
+		# A desk too narrow for two actual adjacent bodies is a single
+		# file, left aligned with its predecessor rather than edge zigzags.
+		if rows.size()==1 and previous.size.x+lateral_size.x>float(packing.width)+0.000001:single=true
+		if single:
+			local=Rect2(Vector2(previous.position.x,previous.end.y),size)
+		else:
+			facing=lateral_facing
+			shape=lateral_shape
+			size=lateral_size
+			var x: float=previous.end.x if direction>0 else previous.position.x-size.x
+			# Left edge in the patient's facing frame: bottom for left-facing
+			# people, top for right-facing people. Large bodies use real depth.
+			var y: float=previous.end.y-size.y if direction>0 else previous.position.y
+			local=Rect2(Vector2(x,maxf(row_top,y)),size)
+			if local.end.x>float(packing.width)*0.5+0.000001 or local.position.x< -float(packing.width)*0.5-0.000001:
+				row+=1
+				row_top=float(packing.bottom)
+				facing=atan2(-front.x,-front.y)
+				shape=_snake_shape(body,facing)
+				size=_snake_size(shape,right,front)
+				# Alternating rows begin at the actual desk edge. An oversized
+				# body may extend beyond it, never shrink to a nominal grid cell.
+				x=float(packing.width)*0.5-size.x if row%2==1 else -float(packing.width)*0.5
+				local=Rect2(Vector2(x,row_top),size)
+	var a: Vector2=packing.edge+right*local.position.x+front*local.position.y
+	var b: Vector2=packing.edge+right*local.end.x+front*local.end.y
+	var rect:=Rect2(a.min(b),(a-b).abs())
+	var cell: Vector2=rect.position-shape.position
+	return {"cell":[cell.x,cell.y],"facing":facing,"rect":rect,"row":row,"local_rect":local,"row_top":row_top,"single":single}
+
+# Only an actual accepted queue member is appended. This is deliberately
+# separate from snake_append, which is safe to use for a destination probe.
+static func snake_accept(packing: Dictionary, placement: Dictionary) -> void:
+	packing.placements.append(placement)
+	packing.row=int(placement.row)
+	packing.row_top=float(placement.row_top)
+	packing.single=bool(placement.single)
+	packing.bottom=maxf(float(packing.bottom),float(placement.local_rect.end.y))
+
+static func snake_next(facility: Dictionary, bodies: Array, body: Dictionary) -> Dictionary:
+	return snake_append(snake(facility,bodies),body)
+
+static func _snake_shape(body: Dictionary, facing: float) -> Rect2:
+	return body.shapes[posmod(roundi(facing/(PI*0.5)),4)]
+
+static func _snake_size(shape: Rect2, right: Vector2, front: Vector2) -> Vector2:
+	return Vector2(absf(right.x)*shape.size.x+absf(right.y)*shape.size.y,absf(front.x)*shape.size.x+absf(front.y)*shape.size.y)
