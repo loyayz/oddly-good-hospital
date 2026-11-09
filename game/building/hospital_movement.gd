@@ -317,7 +317,7 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 			if not result.static_reason.is_empty() and movement.has("detour") and not movement.has("convoy") and movement.get("members",[actor.id]).size()==1:
 				_replan_goal(world,movement)
 				continue
-			if movement.has("detour") and _detour_obstruction(world,actor,movement,result.requested_motion): continue
+			if movement.has("detour") and _detour_obstruction(world,actor,movement,result): continue
 			if int(movement.blocked_since) < 0:
 				movement.blocked_since = world.facts.sim_tick
 			_yield(world,actor,movement,result)
@@ -999,12 +999,16 @@ func _set_detour_prefix(movement: Dictionary, path: Array, phase: String, resume
 
 # All single-person local legs respond to a real obstruction at the current
 # position. Side selection does not depend on an aside/rejoin/back label.
-func _detour_obstruction(world: WorldState, actor: Dictionary, movement: Dictionary, motion: Vector2) -> bool:
+func _detour_obstruction(world: WorldState, actor: Dictionary, movement: Dictionary, contact: MotionResult) -> bool:
+	var motion: Vector2 = contact.requested_motion
 	if movement.has("convoy") or movement.get("members",[]).size()>1:
 		if movement.detour.phase!="back": _set_detour_prefix(movement,[],"aside")
 		return false
 	var pending_retreat: bool=movement.detour.phase=="back" and int(movement.cursor)<int(movement.detour.prefix_size)
 	if motion.length()<0.001: return false
+	if pending_retreat:
+		_redirect_retreat_blocker(world,actor,movement,contact)
+		return false
 	var axis: Vector2=Vector2(signf(motion.x),0) if absf(motion.x)>=absf(motion.y) else Vector2(0,signf(motion.y))
 	if not pending_retreat:
 		movement.detour.direction=[axis.x,axis.y]
@@ -1105,7 +1109,7 @@ func _detour_back(world: WorldState, actor: Dictionary, movement: Dictionary) ->
 			state.back_cursor = index-1
 			continue
 		var path: Array = [past.duplicate(true)]
-		if not _detour_path_clear(world,actor,movement,path): return false
+		if not _retreat_intention_clear(world,actor,movement,path): return false
 		state.back_cursor = index-1
 		_set_detour_prefix(movement,path,"back")
 		return true
@@ -1114,10 +1118,57 @@ func _detour_back(world: WorldState, actor: Dictionary, movement: Dictionary) ->
 	# A convoy cannot reverse its leader into its own occupied tail.
 	var width: float = float(movement.convoy.size) if movement.has("convoy") else float(space.clearance(actor))
 	var path: Array = [_floor_point(actor,origin-ConvoyTrail.point(state.direction)*width)]
-	if _detour_path_clear(world,actor,movement,path):
+	if _retreat_intention_clear(world,actor,movement,path):
 		_set_detour_prefix(movement,path,"back")
 		return true
 	return false
+
+# Retreat is an intention: fixed geometry must permit it, but a present
+# body is handled by the actual movement contact without reversing again.
+func _retreat_intention_clear(world: WorldState, actor: Dictionary, movement: Dictionary, path: Array) -> bool:
+	if movement.has("convoy") or movement.get("members",[actor.id]).size()!=1:
+		return _detour_path_clear(world,actor,movement,path)
+	var query: RouteClearance = space.navigation.structural_clearance(world,actor,int(actor.location.floor_id))
+	var origin: Vector2 = ConvoyTrail.point(actor.location.cell)
+	for segment: Dictionary in path:
+		var target: Vector2 = ConvoyTrail.point(segment.cell)
+		if not query.sweep_reason(origin,target).is_empty(): return false
+		origin=target
+	return true
+
+# React only to a current body still crossing this actual retreat step.
+# Set a local intention, never move another body or recurse through traffic.
+func _redirect_retreat_blocker(world: WorldState, actor: Dictionary, movement: Dictionary, contact: MotionResult) -> void:
+	var origin: Vector2 = ConvoyTrail.point(actor.location.cell)
+	var from: Rect2 = space._actor_rect(actor,origin)
+	var sample: Dictionary = actor.duplicate()
+	sample.facing = atan2(contact.requested_motion.x,contact.requested_motion.y)
+	var to: Rect2 = space._actor_rect(sample,origin+contact.requested_motion)
+	for id: String in contact.blocker_actor_ids:
+		var other: Dictionary = world.facts.actors.get(id,{})
+		var journey: Dictionary = world.facts.moves.get(id,{})
+		if other.is_empty() or journey.is_empty() or other.location.kind!="floor" or int(other.location.floor_id)!=int(actor.location.floor_id): continue
+		if journey.has("convoy") or journey.get("members",[id]).size()!=1 or other.get("posture","standing")!="standing": continue
+		if world.facts.staff.has(id) and _staff_has_movement_responsibility(world,id): continue
+		var body: Rect2 = space._actor_rect(other,ConvoyTrail.point(other.location.cell))
+		if not BodySweep.intersects(from,to,body,body): continue
+		if journey.has("detour"):
+			if int(journey.cursor)<int(journey.detour.prefix_size):
+				# Two unfinished retreats can meet. The contacted body may
+				# step aside, but never consume another unvisited back point.
+				if journey.detour.phase=="back" and int(journey.cursor)<journey.path.size():
+					var pending: Dictionary = journey.path[int(journey.cursor)]
+					if pending.kind=="floor" and int(pending.floor_id)==int(other.location.floor_id):
+						var motion: Vector2 = ConvoyTrail.point(pending.cell)-ConvoyTrail.point(other.location.cell)
+						if motion.length()>0.001:
+							var axis: Vector2 = Vector2(signf(motion.x),0) if absf(motion.x)>=absf(motion.y) else Vector2(0,signf(motion.y))
+							_detour_side_step(world,other,journey,axis)
+				return
+			if _detour_side(world,other,journey): return
+			_detour_back(world,other,journey)
+		else:
+			_start_detour(world,other,journey)
+		return
 
 func _continue_detour(world: WorldState, actor: Dictionary, movement: Dictionary) -> void:
 	if movement.has("convoy") or movement.get("members",[]).size()>1:
