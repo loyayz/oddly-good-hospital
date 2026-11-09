@@ -156,6 +156,7 @@ func _assign_desks(world: WorldState) -> void:
 					current.erase("nurse_id")
 			if world.facts.staff.has(nurse) and world.facts.staff[nurse].get("active_job_id","")=="floor_desk:"+id:
 				world.facts.staff[nurse].active_job_id = "floor_desk_release:"+id
+				_retain_departing_nurse_access(world,id,nurse)
 				world.facts.floor_guidance.releases[nurse] = {"desk_id":id,"floor_id":int(world.facts.actors[nurse].location.get("floor_id",world.facts.facilities.get(id,{}).get("floor_id",1))),"cell":world.facts.actors[nurse].location.get("cell",[0,0]).duplicate(),"clearance":space.clearance(world.facts.actors[nurse])}
 			desk.nurse_id = ""
 		if not world.facts.facilities.has(id): desks.erase(id)
@@ -903,6 +904,22 @@ func _ready_candidate(world: WorldState, visit: Dictionary, ticket: Dictionary, 
 		selection.accept = clinic._accept_outpatient_dispatch.bind(world,visit,status)
 	var choices: Array = clinic.service_candidates(world,visit,str(ticket.kind),false,false,selection)
 	return "" if choices.is_empty() else str(choices[0].facility_id)
+
+func _retain_departing_nurse_access(world: WorldState, desk_id: String, nurse_id: String) -> void:
+	# Keep the original participant able to leave its own still-held service
+	# region. Membership ends with this reservation, not a separate movement rule.
+	# Ordinary staffed completion does not take this departure branch.
+	var held: Dictionary=world.facts.adaptations.get(desk_id,{})
+	var actor: Dictionary=world.facts.actors.get(nurse_id,{})
+	if held.get("kind","")!="facility" or actor.get("location",{}).get("kind","")!="floor":return
+	if int(actor.location.floor_id)!=int(held.floor_id) or nurse_id in held.staff_ids:return
+	var body: Rect2=space.body_rectangle(actor)
+	for area: Array in held.regions:
+		if body.intersects(Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3])),false):
+			held.staff_ids.append(nurse_id)
+			space.reservation_changed(world,desk_id)
+			space._navigation.invalidate(world,int(held.floor_id))
+			return
 
 func _release_nurses(world: WorldState) -> void:
 	for id: String in world.facts.floor_guidance.releases.keys():
