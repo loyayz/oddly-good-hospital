@@ -52,9 +52,17 @@ var _pending_floor: int = -1
 var _view_work_budget: ViewWorkBudget
 
 func _ready() -> void:
+	_configure_main_thread()
 	get_tree().auto_accept_quit = false
 	_build_ui()
 	_acquire()
+
+func _configure_main_thread() -> void:
+	if OS.get_name()!="Windows": return
+	var policy: Dictionary = {"applied":false,"reason":"native_policy_unavailable"}
+	if ClassDB.class_exists("PlatformThreadPolicy"):
+		policy = ClassDB.class_call_static("PlatformThreadPolicy","apply_main_thread")
+	print("MAIN_THREAD_POLICY="+JSON.stringify(policy))
 
 func _exit_tree() -> void:
 	if _simulation!=null:

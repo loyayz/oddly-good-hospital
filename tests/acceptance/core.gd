@@ -55,7 +55,8 @@ const CASES: Dictionary = {
 	"CORE-52":"资源发布：同批一次包围盒、独立及批量绑定、迟到票与当前模型句柄",
 	"CORE-53":"管理界面：方案完整比较、提交复核、窄招聘状态与预览发布",
 	"CORE-54":"导入与预览：复合员工身份最长前缀及不规则阻挡颜色保持",
-	"CORE-55":"默认双床休息室：普通建造锚点一致、真实两床/沙发往返、固定归属及原预算"
+	"CORE-55":"默认双床休息室：普通建造锚点一致、真实两床/沙发往返、固定归属及原预算",
+	"CORE-56":"Windows主线程性能核：按系统核型选择、重复调用及工作线程拒绝，其他平台保留默认调度"
 }
 
 func run(t) -> void:
@@ -63,6 +64,9 @@ func run(t) -> void:
 		if not t.wants(case_id): continue
 		t.begin_case(case_id)
 		await call("_case_"+case_id.right(2),t,HospitalContent.new())
+
+func _case_56(t, _content: HospitalContent) -> void:
+	preload("res://tests/acceptance/windows_thread_policy.gd").new().run(t)
 
 func _case_43(t, content: HospitalContent) -> void:
 	await preload("res://tests/acceptance/scene_pixels.gd").new().run(t,content)
