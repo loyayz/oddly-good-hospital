@@ -44,6 +44,9 @@ func prepare_static_routes(world: WorldState, floor_id: int) -> Dictionary:
 	var desks: Array=[]
 	for id: String in world.facility_ids("SE01"):
 		if int(world.facts.facilities[id].floor_id)==floor_id: desks.append(id)
+	for desk_id: String in desks:
+		_queue_context(world,desk_id)
+		_desk_queue(world,desk_id)
 	var seen: Dictionary={}
 	var attempted: int=0
 	var reachable: int=0
@@ -86,7 +89,6 @@ func worked_staff() -> Dictionary:
 func dispatch(world: WorldState) -> void:
 	ensure(world)
 	_worked.clear()
-	_queue_batches.clear()
 	for id: String in world.facts.floor_guidance.visits.keys():
 		var visit: Dictionary = world.facts.visits.get(id,{})
 		if visit.is_empty() or visit.get("phase","") in ["leaving","departed"]: release(world,id)
@@ -131,12 +133,12 @@ func _assign_desks(world: WorldState) -> void:
 		var desk: Dictionary = desks[id]
 		var nurse: String = str(desk.get("nurse_id",""))
 		var working: bool = false
-		for state: Dictionary in world.facts.floor_guidance.visits.values():
+		for state: Dictionary in _queue_members(world,id):
 			if state.get("desk_id","")==id and state.get("phase","")=="working": working = true
 		if not working and (not _desk_open(world,id) or not _nurse_ready(world,nurse)):
 			# A not-yet-started counter approach belongs to this desk, not to
 			# the departing nurse. Keep its same-desk queue place for relief.
-			for current: Dictionary in world.facts.floor_guidance.visits.values():
+			for current: Dictionary in _queue_members(world,id):
 				if current.get("desk_id","")==id and current.get("phase","")=="to_counter":
 					var visit: Dictionary = world.facts.visits[current.visit_id]
 					_cancel_own_move(world,visit.actor_id,current)
@@ -150,6 +152,7 @@ func _assign_desks(world: WorldState) -> void:
 		if not world.facts.facilities.has(id): desks.erase(id)
 	for id: String in world.facility_ids("SE01"):
 		var desk: Dictionary = desks.get_or_add(id,{"id":id,"nurse_id":"","reason":""})
+		if not desk.has("queue"):desk.queue=_desk_queue(world,id)
 		if not _desk_open(world,id):
 			desk.reason = "导诊台关闭、故障或正在改建"
 			continue
@@ -307,6 +310,7 @@ func _change_desk(world: WorldState, visit: Dictionary, current: Dictionary, des
 	# Arrival priority and unfinished counter work belong only to the old
 	# desk. Preserve the clinical ticket and waiting history, never move the
 	# old desk's queue place or service progress into another desk.
+	_queue_leave(world,current)
 	current.desk_id = desk_id
 	current.phase = "seek"
 	current.arrived_seq = -1
@@ -340,6 +344,8 @@ func _queue_context(world: WorldState, desk_id: String) -> Dictionary:
 	var room_scope: Dictionary=preload("res://game/operations/guidance_queue_geometry.gd").room_scope(world,int(facility.floor_id),desk_id)
 	var walls: Array=preload("res://game/operations/guidance_queue_geometry.gd").walls(world,int(facility.floor_id),desk_id,room_scope)
 	var result: Dictionary={"facility":facility,"walls":walls,"bounds":room_scope.get("bounds",Rect2i(0,0,96,96)),"room_cells":room_scope.get("cells",{})}
+	result.layout=QueueLayout.plan(facility,walls,result.bounds,1)
+	result.capacity=result.layout.slots.size() if result.layout.placement_ok else 0
 	_queue_contexts[desk_id]=result
 	return result
 
@@ -354,19 +360,41 @@ func _queue_slots(world: WorldState, desk_id: String, span: int) -> Array:
 	_queue_plans[key]=slots
 	return slots
 
+# One ordered array per desk. Loading an existing test boundary initializes it
+# once; live arrivals/departures subsequently maintain it directly.
+func _desk_queue(world: WorldState, desk_id: String) -> Array:
+	var desk: Dictionary=world.facts.get("floor_guidance",{}).get("desks",{}).get(desk_id,{})
+	if desk.has("queue"):return desk.queue
+	# Read-only bootstrap for old test boundary inputs. Live creation stores
+	# the array on the desk, never as a side effect of an entry query.
+	var queue: Array=[]
+	for row: Dictionary in world.facts.get("floor_guidance",{}).get("visits",{}).values():
+		if row.get("desk_id","")==desk_id and row.has("queue_seq") and row.get("phase","") in ["desk_queue","to_counter","working"]:queue.append(row.visit_id)
+	queue.sort_custom(func(a: String,b: String)->bool:return int(state(world,a).queue_seq)<int(state(world,b).queue_seq))
+	return queue
+
+func _queue_join(world: WorldState, current: Dictionary) -> void:
+	var desk_id: String=str(current.desk_id)
+	var queue: Array=_desk_queue(world,desk_id)
+	world.facts.floor_guidance.desks.get_or_add(desk_id,{"id":desk_id,"nurse_id":"","reason":""}).queue=queue
+	if current.visit_id in queue:return
+	queue.append(current.visit_id)
+	_queue_batches.erase(desk_id)
+
+func _queue_leave(world: WorldState, current: Dictionary) -> void:
+	var desk_id: String=str(current.get("desk_id",""))
+	if desk_id.is_empty():return
+	var queue: Array=_desk_queue(world,desk_id)
+	if world.facts.floor_guidance.desks.has(desk_id):world.facts.floor_guidance.desks[desk_id].queue=queue
+	if current.get("visit_id","") in queue:
+		queue.erase(current.visit_id)
+		_queue_batches.erase(desk_id)
+
 func _queue_members(world: WorldState, desk_id: String) -> Array:
 	var result: Array=[]
-	for row: Dictionary in world.facts.floor_guidance.visits.values():
-		if row.get("desk_id","")!=desk_id or not row.has("queue_seq") or row.get("phase","") not in ["desk_queue","to_counter","working"]: continue
-		_observe_queue_departure(world,row)
-		if not row.has("queue_seq"):continue
-		if row.get("phase","")=="desk_queue" and not _queue_participating(world,row):
-			# A need intention is not a physical departure. Keep its occupied
-			# place until it actually moves; it is not eligible for service.
-			var visit: Dictionary=world.facts.visits.get(str(row.visit_id),{})
-			if visit.is_empty() or not row.has("queue_cell") or not space.at(world,visit.actor_id,int(row.guide_floor),row.queue_cell):continue
-		result.append(row)
-	result.sort_custom(func(a: Dictionary,b: Dictionary)->bool:return int(a.queue_seq)<int(b.queue_seq))
+	for id: String in _desk_queue(world,desk_id).duplicate():
+		var row: Dictionary=state(world,id)
+		if row.has("queue_seq"):result.append(row)
 	return result
 
 func _queue_position_allowed(world: WorldState, actor_id: String, desk_id: String, slot: Array, span: int) -> bool:
@@ -409,34 +437,43 @@ func _queue_position_allowed(world: WorldState, actor_id: String, desk_id: Strin
 	_queue_valid[key]=valid
 	return valid
 
+# Packing changes only with the desk's membership, body envelope or static
+# geometry. Ordinary simulation ticks never rebuild an unchanged queue.
 func _queue_point(world: WorldState, actor_id: String, desk_id: String, visit_id: String="") -> Dictionary:
 	var context: Dictionary=_queue_context(world,desk_id)
 	if context.is_empty():return {}
-	var members: Array=_queue_members(world,desk_id)
-	var ids: Array=[]
-	var spans: Array=[]
-	var signature: Array=[]
-	for member: Dictionary in members:
-		var id: String=str(world.facts.visits[member.visit_id].actor_id)
-		var size: int=space.clearance(world.facts.actors[id])
-		ids.append(id);spans.append(size)
-		signature.append([member.visit_id,member.queue_seq,size])
-	var key: String=desk_id+":"+str(world.revision)+":"+JSON.stringify(signature)
-	if not _queue_batches.has(key):
+	var actor: Dictionary=world.facts.actors[actor_id]
+	var span: int=space.clearance(actor)
+	var envelope: String=space._navigation._graph_key(space,world,int(context.facility.floor_id),actor,[],{},space._navigation.floor_source(space,world,int(context.facility.floor_id)))
+	# Body mutations are rare, but may happen while walking to the counter
+	# or working. Check only this desk's admitted members, never the hospital.
+	# This small shape signature does not recompute slots or reorder the queue.
+	var shapes: Array=[]
+	for id: String in _desk_queue(world,desk_id):
+		var member_actor: Dictionary=world.facts.actors[world.facts.visits[id].actor_id]
+		shapes.append([id,space.clearance(member_actor),space.movement._route_body_basis(member_actor)])
+	if _queue_batches.has(desk_id) and _queue_batches[desk_id].shapes!=shapes:_queue_batches.erase(desk_id)
+	if not _queue_batches.has(desk_id):
+		var members: Array=_queue_members(world,desk_id)
+		var ids: Array=[]
+		var spans: Array=[]
+		for member: Dictionary in members:
+			var id: String=str(world.facts.visits[member.visit_id].actor_id)
+			ids.append(id);spans.append(space.clearance(world.facts.actors[id]))
 		var check: Callable=func(index: int,cell: Array)->bool:return _queue_position_allowed(world,ids[index],desk_id,cell,int(spans[index]))
 		var packed: Dictionary=QueueLayout.pack(context.facility,context.walls,context.bounds,spans,check)
-		if _queue_batches.size()>=128:_queue_batches.clear()
-		_queue_batches[key]=packed
-	var packing: Dictionary=_queue_batches[key]
-	var index: int=ids.find(actor_id)
-	var cell: Array=[]
-	if index>=0:cell=packing.placements[index]
-	else:
-		if not packing.complete:return {}
-		var span: int=space.clearance(world.facts.actors[actor_id])
-		var check: Callable=func(_index: int,point: Array)->bool:return _queue_position_allowed(world,actor_id,desk_id,point,span)
-		var probe: Dictionary=QueueLayout.probe(packing,span,check)
-		if probe.get("ok",false):cell=probe.cell
+		var positions: Dictionary={}
+		for index: int in range(ids.size()):positions[ids[index]]=packed.placements[index]
+		_queue_batches[desk_id]={"packing":packed,"positions":positions,"tails":{},"shapes":shapes}
+	var bank: Dictionary=_queue_batches[desk_id]
+	var cell: Array=bank.positions.get(actor_id,[])
+	if not bank.positions.has(actor_id):
+		if not bank.packing.complete or bank.positions.size()>=int(context.capacity):return {}
+		if not bank.tails.has(envelope):
+			var check: Callable=func(_index: int,point: Array)->bool:return _queue_position_allowed(world,actor_id,desk_id,point,span)
+			var probe: Dictionary=QueueLayout.probe(bank.packing,span,check)
+			bank.tails[envelope]=probe.cell if probe.get("ok",false) else []
+		cell=bank.tails[envelope]
 	if cell.is_empty():return {}
 	return {"floor_id":int(context.facility.floor_id),"cell":cell}
 
@@ -467,9 +504,9 @@ func _observe_queue_departure(world: WorldState, current: Dictionary) -> void:
 	current.queue_attending=false
 	if not other_floor and current.has("queue_cell") and space.at(world,visit.actor_id,int(current.guide_floor),current.queue_cell):return
 	if current.phase=="to_counter":_release_counter(world,visit,current)
+	_queue_leave(world,current)
 	for field: String in ["queue_seq","queue_cell","queue_bank_key","queue_arrived_tick","queue_desk_id","nurse_id","remaining_ticks","started_tick"]:current.erase(field)
 	current.phase="seek"
-	_queue_batches.clear()
 
 func _queue_participating(world: WorldState, current: Dictionary) -> bool:
 	_observe_queue_departure(world,current)
@@ -511,9 +548,7 @@ func _approach_desk(world: WorldState, visit: Dictionary, ticket: Dictionary, cu
 		for id: String in world.facility_ids("SE01"):
 			if not _desk_usable(world,id) or int(world.facts.facilities[id].floor_id)!=floor_id: continue
 			var point: Dictionary = _queue_point(world,visit.actor_id,id)
-			var count: int = 0
-			for row: Dictionary in world.facts.floor_guidance.visits.values():
-				if row.get("desk_id","")==id and row.get("phase","") in ["desk_queue","to_counter","working"]: count += 1
+			var count: int = _desk_queue(world,id).size()
 			options.append({"id":id,"point":point,"count":count})
 		options.sort_custom(func(a: Dictionary,b: Dictionary)->bool:
 			if a.point.is_empty()!=b.point.is_empty():return not a.point.is_empty()
@@ -534,11 +569,9 @@ func _approach_desk(world: WorldState, visit: Dictionary, ticket: Dictionary, cu
 	if current.get("queue_attending",false):
 		if current.get("queue_bank_key","")!=_queue_bank_key(world,str(current.desk_id)) or (not underway.is_empty() and underway.get("floor_guidance_key","")!=current.request_key):current.queue_attending=false
 	var point: Dictionary=_queue_point(world,visit.actor_id,str(current.desk_id),visit.id)
-	# Exterior waiting cannot act on a patient still on another floor.
-	# Its read-only capacity result would be discarded; real entry stays gated.
-	var location: Dictionary=world.facts.actors[visit.actor_id].location
-	var same_floor: bool=location.kind=="floor" and int(location.floor_id)==floor_id
-	if not current.has("queue_seq") and (point.is_empty() or (same_floor and not QueueEntry.capacity_available(space,world,self,visit.actor_id,str(current.desk_id)))):
+	# Layout gives the current tail directly. Live collisions are resolved by
+	# movement and by the final arrival check, not a second room-wide queue.
+	if not current.has("queue_seq") and point.is_empty():
 		if _wait_outside_queue(world,visit,current):return false
 	if point.is_empty():
 		# Do not funnel every already-travelling patient into a full bank.
@@ -565,11 +598,12 @@ func _approach_desk(world: WorldState, visit: Dictionary, ticket: Dictionary, cu
 		current.queue_seq = world.facts.floor_guidance.next_arrival
 		current.queue_desk_id = current.desk_id
 		current.queue_arrived_tick = world.sim_tick
+		_queue_join(world,current)
 	current.phase = "desk_queue"
 	current.queue_attending=true
 	current.queue_bank_key=_queue_bank_key(world,str(current.desk_id))
 	current.reason = ""
-	for other: Dictionary in world.facts.floor_guidance.visits.values():
+	for other: Dictionary in _queue_members(world,str(current.desk_id)):
 		if other.visit_id==visit.id or other.get("desk_id","")!=current.desk_id or world.facts.get("waiting_life",{}).get("needs",{}).has(other.visit_id): continue
 		if other.get("phase","") in ["to_counter","working"] or other.has("queue_seq") and int(other.queue_seq)<int(current.queue_seq) and _queue_participating(world,other):
 			visit.waiting_reason = "本层导诊排队，尚未进入目的地队列"
@@ -650,7 +684,9 @@ func _move(world: WorldState, visit: Dictionary, current: Dictionary, floor_id: 
 		world.facts.tickets[visit.ticket_id].called_tick = -1
 	elif waiting!=null: waiting._release_seat(world,visit.id)
 	var reason: String = space.request_floor_move(world,visit.actor_id,floor_id,cell) if int(world.facts.actors[visit.actor_id].location.get("floor_id",0))==floor_id else space.request_move(world,visit.actor_id,floor_id,cell)
-	if reason.is_empty() and world.facts.moves.has(visit.actor_id): world.facts.moves[visit.actor_id].floor_guidance_key = current.request_key
+	if reason.is_empty() and world.facts.moves.has(visit.actor_id):
+		world.facts.moves[visit.actor_id].floor_guidance_key = current.request_key
+		world.facts.moves[visit.actor_id].floor_guidance_visit_id = visit.id
 	elif not reason.is_empty():
 		if not _reselect_unreachable_target(world,visit,current): visit.waiting_reason = reason
 
@@ -743,6 +779,7 @@ func advance(world: WorldState) -> void:
 		current.initial_done = true
 		current.erase("route_at_desk")
 		_release_counter(world,visit,current)
+		_queue_leave(world,current)
 		current.phase = "destination"
 		current.erase("queue_seq")
 		var ticket: Dictionary = world.facts.tickets.get(visit.get("ticket_id",""),{})
@@ -770,6 +807,7 @@ func release(world: WorldState, visit_id: String) -> void:
 	if not visit.is_empty():
 		_cancel_own_move(world,visit.actor_id,current)
 		_release_counter(world,visit,current)
+	_queue_leave(world,current)
 	world.facts.floor_guidance.visits.erase(visit_id)
 
 func ordered_tickets(world: WorldState) -> Array:
@@ -918,9 +956,19 @@ static func validate_state(world: WorldState) -> String:
 	var nurses: Dictionary = {}
 	var queues: Dictionary = {}
 	var active_desks: Dictionary = {}
+	var queued_visits: Dictionary = {}
 	for id: Variant in data.desks:
 		var desk: Variant = data.desks[id]
 		if not id is String or not desk is Dictionary or desk.get("id")!=id or not desk.get("nurse_id") is String or not desk.get("reason") is String: return "楼层导诊台岗位结构无效"
+		if desk.has("queue"):
+			if not desk.queue is Array:return "导诊台队列数组无效"
+			var prior: int=-1
+			for visit_id: Variant in desk.queue:
+				var row: Dictionary=data.visits.get(visit_id,{})
+				if not visit_id is String or queued_visits.has(visit_id) or row.get("desk_id","")!=id or not row.has("queue_seq") or row.get("phase","") not in ["desk_queue","to_counter","working"]:return "导诊台队列成员归属无效"
+				if int(row.queue_seq)<=prior:return "导诊台队列顺序无效"
+				prior=int(row.queue_seq)
+				queued_visits[visit_id]=id
 		var nurse: String = str(desk.nurse_id)
 		if nurse.is_empty(): continue
 		if nurses.has(nurse) or not world.facts.staff.has(nurse) or world.facts.staff[nurse].role!="nurse" or world.facts.staff[nurse].get("active_job_id","")!="floor_desk:"+str(id): return "楼层导诊护士被重复指派或岗位归属无效"
@@ -941,6 +989,7 @@ static func validate_state(world: WorldState) -> String:
 		for field: String in ["queue_cell","destination_cell"]:
 			if row.has(field) and not BuildGeometry.point(row[field]): return "楼层导诊移动位置无效"
 		if row.has("queue_seq"):
+			if data.desks.get(row.desk_id,{}).has("queue") and not queued_visits.has(id):return "导诊排队患者缺少台队列成员记录"
 			if not WorldState._natural(row.queue_seq) or int(row.queue_seq)>int(data.next_arrival) or queues.has(int(row.queue_seq)): return "楼层导诊排队顺序无效"
 			queues[int(row.queue_seq)] = true
 			if row.has("queue_desk_id") and row.queue_desk_id!=row.desk_id: return "楼层导诊排队资格不属于当前台"

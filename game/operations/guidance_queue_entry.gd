@@ -89,54 +89,12 @@ static func _physical_candidates(space: HospitalSpace, world: WorldState, ctx: D
 
 static func capacity_available(space: HospitalSpace, world: WorldState, provider: RefCounted, actor_id: String, desk_id: String) -> bool:
 	var ctx: Dictionary=context(space,world,desk_id)
-	# An open hall or unproved room boundary must not acquire a fake gate.
 	if ctx.is_empty() or provider==null:return true
-	var actor: Dictionary=world.facts.actors.get(actor_id,{})
-	if actor.is_empty():return false
-	var physical: Dictionary=_physical_candidates(space,world,ctx)
-	var occupants: Array=[]
-	var seen: Dictionary={}
-	for row: Dictionary in world.facts.floor_guidance.visits.values():
-		# Only held-number candidates need the membership pass. All actual
-		# entering/non-held bodies are counted by the physical pass below.
-		if row.get("desk_id","")!=desk_id or not row.has("queue_seq") or row.get("phase","") not in ["desk_queue","to_counter","working"]:continue
-		var visit: Dictionary=world.facts.visits.get(str(row.get("visit_id","")),{})
-		if visit.is_empty() or visit.get("phase","") in ["leaving","departed"]:continue
-		var id: String=str(visit.actor_id)
-		if id==actor_id or seen.has(id):continue
-		var other: Dictionary=world.facts.actors.get(id,{})
-		if other.is_empty() or other.location.kind!="floor" or int(other.location.floor_id)!=int(ctx.floor_id):continue
-		var held: bool=_held_member(space,world,provider,row,visit,other)
-		if not held:continue
-		seen[id]=true
-		occupants.append({"id":id,"span":space.clearance(other),"held":held,"sequence":int(row.get("queue_seq",0))})
-	# Physical departing patients still consume this bounded room's capacity,
-	# even after their guidance row changed desk/floor or their number vanished.
-	# Count all patient bodies here, not just current same-desk intentions.
-	for visit: Dictionary in world.facts.visits.values():
-		var id: String=str(visit.get("actor_id",""))
-		if id==actor_id or seen.has(id) or not physical.has(id):continue
-		var other: Dictionary=world.facts.actors.get(id,{})
-		if other.is_empty() or other.location.kind!="floor" or int(other.location.floor_id)!=int(ctx.floor_id):continue
-		if not is_inside(ctx,space,other,Vector2(other.location.cell[0],other.location.cell[1])):continue
-		seen[id]=true
-		occupants.append({"id":id,"span":space.clearance(other),"held":false,"sequence":0})
-	# Existing queue order stays unchanged. The ID tie-break only gives this
-	# temporary geometric calculation a stable order, never a service number.
-	occupants.sort_custom(func(a: Dictionary,b: Dictionary)->bool:
-		if a.held!=b.held:return a.held
-		if a.held and a.sequence!=b.sequence:return a.sequence<b.sequence
-		return a.id<b.id)
-	var spans: Array=[]
-	for occupant: Dictionary in occupants:spans.append(occupant.span)
-	var geometry: Dictionary=provider._queue_context(world,desk_id)
-	if geometry.is_empty():return true
-	var valid: Callable=func(index: int,cell: Array)->bool:return provider._queue_position_allowed(world,occupants[index].id,desk_id,cell,int(spans[index]))
-	var packing: Dictionary=Layout.pack(geometry.facility,geometry.walls,geometry.bounds,spans,valid)
-	if not packing.complete:return false
-	var span: int=space.clearance(actor)
-	var allowed: Callable=func(_index: int,cell: Array)->bool:return provider._queue_position_allowed(world,actor_id,desk_id,cell,span)
-	return bool(Layout.probe(packing,span,allowed).get("ok",false))
+	# The desk owns one real queue. Do not repack all patients found in the
+	# room into a hypothetical second queue. The next actual queue position
+	# must exist and be physically clear, including bodies still departing.
+	var point: Dictionary=provider._queue_point(world,actor_id,desk_id)
+	return not point.is_empty() and provider._queue_admission_clear(world,actor_id,int(point.floor_id),point.cell)
 
 static func block_entry(space: HospitalSpace, world: WorldState, provider: RefCounted, actor_id: String, movement: Dictionary, start: Vector2, next: Vector2) -> bool:
 	if provider==null or movement.has("convoy") or movement.get("members",[actor_id]).size()!=1:return false
@@ -144,7 +102,11 @@ static func block_entry(space: HospitalSpace, world: WorldState, provider: RefCo
 	if actor.is_empty() or actor.location.kind!="floor":return false
 	var key: String=str(movement.get("floor_guidance_key",""))
 	if key.is_empty():return false
-	for row: Dictionary in world.facts.floor_guidance.visits.values():
+	var rows: Array=[]
+	var visit_id: String=str(movement.get("floor_guidance_visit_id",""))
+	if not visit_id.is_empty():rows.append(provider.state(world,visit_id))
+	else:rows=world.facts.floor_guidance.visits.values()
+	for row: Dictionary in rows:
 		if row.get("phase","")!="seek" or row.get("request_key","")!=key:continue
 		var visit: Dictionary=world.facts.visits.get(str(row.get("visit_id","")),{})
 		if visit.get("actor_id","")!=actor_id:continue

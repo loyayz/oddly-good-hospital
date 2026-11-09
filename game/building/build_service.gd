@@ -485,7 +485,11 @@ func guidance_floor_error(world: WorldState, floor_id: int) -> Dictionary:
 		# A later build may shorten future capacity, but cannot consume the
 		# two-cell static clearance behind an actually committed queue body.
 		var fixed: Array=[]
-		for row: Dictionary in world.facts.get("floor_guidance",{}).get("visits",{}).values():
+		var guidance: Dictionary=world.facts.get("floor_guidance",{})
+		var queue: Array=guidance.get("desks",{}).get(facility.id,{}).get("queue",[])
+		if space.guidance_queue_provider!=null and space.guidance_queue_provider.get_ref()!=null:queue=space.guidance_queue_provider.get_ref()._desk_queue(world,str(facility.id))
+		for visit_id: String in queue:
+			var row: Dictionary=guidance.get("visits",{}).get(visit_id,{})
 			if row.get("desk_id","")!=facility.id or not row.has("queue_seq") or not row.has("queue_cell"):continue
 			if row.get("phase","") not in ["desk_queue","to_counter","working"]:continue
 			var visit: Dictionary=world.facts.visits.get(str(row.get("visit_id","")),{})
