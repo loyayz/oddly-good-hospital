@@ -1,5 +1,6 @@
 .godot/
 .cache/
+/perf-work/
 .build/
 game/platform/windows/bin/
 art-source/.godot/
