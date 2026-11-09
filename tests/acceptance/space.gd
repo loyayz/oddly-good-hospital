@@ -471,8 +471,8 @@ func _case_10(_t) -> Dictionary:
 			courtesy_targets = courtesy_targets and movement.target_floor==1 and movement.target_cell==([34,86] if actor_id=="head_on_a" else [34,94])
 			var cell: Array = courtesy.world.facts.actors[actor_id].location.cell
 			request_order_kept = request_order_kept and movement.request_sequence==detour_sequences[actor_id] and not movement.has("yield_partner") and not movement.get("yielding",false)
-			if movement.has("detour"): detours += 1
-			if movement.has("detour") and (not is_equal_approx(float(cell[0]),roundf(float(cell[0]))) or not is_equal_approx(float(cell[1]),roundf(float(cell[1])))):
+			if movement.has("local_move"): detours += 1
+			if movement.has("local_move") and (not is_equal_approx(float(cell[0]),roundf(float(cell[0]))) or not is_equal_approx(float(cell[1]),roundf(float(cell[1])))):
 				fractional_yield = true
 		one_detour = one_detour and detours<=1
 	var courtesy_arrived: bool = courtesy.space.at(courtesy.world,"head_on_a",1,[34,86]) and courtesy.space.at(courtesy.world,"head_on_b",1,[34,94]) and courtesy.world.facts.moves.is_empty()

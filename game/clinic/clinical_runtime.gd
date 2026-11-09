@@ -2179,6 +2179,8 @@ func _dispatch_ward_release(world: WorldState, staff_id: String, release: Dictio
 		if bool(movement.get("route_pending",false)): return
 		var detour: Dictionary = movement.get("detour",{})
 		if not detour.is_empty() and int(movement.cursor)<int(detour.prefix_size): return
+		var local: Dictionary = movement.get("local_move",{})
+		if not local.is_empty() and (int(actor.location.floor_id)!=int(local.target.floor_id) or ConvoyTrail.point(actor.location.cell)!=ConvoyTrail.point(local.target.cell)): return
 		if str(movement.get("waiting_reason","")).is_empty() and int(movement.get("blocked_since",-1))<0: return
 	# The parking point is a preference, not a promise to wait forever for
 	# a stationary colleague. Keep the bed's full exit buffer when reselecting.

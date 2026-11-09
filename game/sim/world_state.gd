@@ -641,6 +641,7 @@ func validate(content: HospitalContent) -> String:
 			var convoy_error: String = ConvoyTrail.validate(geometry,self,movement)
 			if not convoy_error.is_empty(): return convoy_error
 		var segments: Array = movement.path+movement.get("route_waypoint",{}).get("continuation",[])+movement.get("detour",{}).get("original_path",[])+movement.get("detour",{}).get("backtrack",[])
+		if movement.has("local_move"): segments.append(movement.local_move.target)
 		for segment: Dictionary in segments:
 			if segment.kind=="connector" and not facts.connectors.has(segment.connector_id):
 				return "移动使用的竖向连接不存在"
@@ -1047,7 +1048,42 @@ func _validate_shapes() -> String:
 			return "移动游标或目标无效"
 		if movement.has("yielding") and (not movement.yielding is bool or movement.yielding) or movement.has("yield_partner"):
 			return "旧优先级让行状态不受支持"
+		if movement.has("local_move"):
+			var local: Variant = movement.local_move
+			if not local is Dictionary or not local.get("target") is Dictionary: return "局部移动目标结构无效"
+			if movement.has("detour") or movement.has("convoy") or movement.has("members") or movement.get("route_pending",false) or movement.has("route_waypoint"): return "局部移动不能与其他路线拥有者并存"
+			for key: Variant in local:
+				if not key in ["target","origin","rejoin","retreat"]: return "局部移动含未知状态"
+			if not _point(local.get("origin")): return "局部移动缺少原路线离开点"
+			if local.has("retreat") and (typeof(local.retreat)!=TYPE_BOOL or not local.retreat or local.has("rejoin")): return "局部后退不能混为原路线接回"
+			var local_actor: Dictionary = facts.actors.get(movement.actor_id,{})
+			var local_target: Dictionary = local.target
+			if local_actor.get("location",{}).get("kind")!="floor" or local_target.get("kind")!="floor" or not _point(local_target.get("cell")) or not _natural(local_target.get("floor_id",-1)) or local_target.floor_id!=local_actor.location.floor_id: return "局部移动必须保持同层有限坐标"
+			var local_origin: Vector2 = ConvoyTrail.point(local_actor.location.cell)
+			var local_endpoint: Vector2 = ConvoyTrail.point(local_target.cell)
+			if local_origin.x!=local_endpoint.x and local_origin.y!=local_endpoint.y: return "局部移动不能斜穿格子"
+			if int(movement.cursor)>=movement.path.size(): return "局部移动缺少尚未完成的原路线"
+			if local.has("rejoin"):
+				var link: Variant = local.rejoin
+				if not link is Dictionary or link.size()!=2 or not _point(link.get("cell")) or not link.get("index") is int: return "局部移动接回结构无效"
+				var local_index: int = link.index
+				if local_index<int(movement.cursor) or local_index>=movement.path.size(): return "局部移动接回索引无效"
+				var start: Vector2 = ConvoyTrail.point(local.origin)
+				for index: int in range(int(movement.cursor),local_index+1):
+					var original: Variant = movement.path[index]
+					if not original is Dictionary or original.get("kind")!="floor" or original.get("floor_id")!=local_actor.location.floor_id or not _point(original.get("cell")): return "局部移动不能跳过跨层或非层内路线"
+					if index<local_index: start=ConvoyTrail.point(original.cell)
+				var end: Vector2 = ConvoyTrail.point(movement.path[local_index].cell)
+				var rejoin: Vector2 = ConvoyTrail.point(link.cell)
+				if (end-start).cross(rejoin-start)!=0.0 or (rejoin-start).dot(rejoin-end)>0.0: return "局部移动接点不在原路线段"
+				if local_endpoint.x!=rejoin.x and local_endpoint.y!=rejoin.y: return "局部移动中间转角不能斜接原路线"
+				if local_endpoint!=rejoin and local_origin!=local_endpoint and (local_endpoint-local_origin).dot(rejoin-local_endpoint)!=0.0: return "局部移动中间点必须是正交转角"
+			else:
+				var original: Variant = movement.path[int(movement.cursor)]
+				if not original is Dictionary or original.get("kind")!="floor" or original.get("floor_id")!=local_actor.location.floor_id: return "局部移动原路线不在当前楼层"
+
 		if movement.has("detour"):
+			if not movement.has("convoy") and movement.get("members",[movement.actor_id]).size()==1: return "旧单人detour绕行状态不受支持"
 			var detour: Variant = movement.detour
 			if not detour is Dictionary or not _fields(detour,{"phase":TYPE_STRING,"original_path":TYPE_ARRAY,"direction":TYPE_ARRAY,"backtrack":TYPE_ARRAY,"back_cursor":TYPE_INT,"prefix_size":TYPE_INT,"resume_index":TYPE_INT}).is_empty(): return "局部绕行状态结构无效"
 			if not detour.phase in ["aside","back","rejoin"] or detour.original_path.is_empty() or not _point(detour.direction): return "局部绕行阶段或原路线无效"
@@ -1098,6 +1134,7 @@ func _validate_shapes() -> String:
 				if actor.is_empty() or actor.location.get("kind")!="floor" or not _natural(actor.location.get("floor_id",-1)) or int(actor.location.floor_id)!=int(ticket.from):
 					return "到站通行组没有实际位于起点层"
 		var segments: Array = movement.path+movement.get("route_waypoint",{}).get("continuation",[])+movement.get("detour",{}).get("original_path",[])+movement.get("detour",{}).get("backtrack",[])
+		if movement.has("local_move"): segments.append(movement.local_move.target)
 		for segment: Variant in segments:
 			if not segment is Dictionary or not segment.get("kind") in ["floor","support_exit","connector"]:
 				return "实际路线段类型无效"

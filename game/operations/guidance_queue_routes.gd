@@ -12,6 +12,10 @@ static func quote(space: HospitalSpace, world: WorldState, movement: Dictionary,
  if int(actor.location.floor_id)!=floor_id:return _cross_floor_exit(space,world,provider,actor,floor_id,goal)
  var start:=Vector2(float(actor.location.cell[0]),float(actor.location.cell[1]))
  var target:=Vector2(float(goal[0]),float(goal[1]))
+ # An exterior guidance wait must not be routed back through the queue's
+ # entry boundary. The same real-body region used by block_entry applies.
+ var entry: Dictionary=exterior_context(space,world,movement)
+ if not entry.is_empty():return _exterior_wait(space,world,actor,floor_id,start,target,entry)
  for desk_id: String in world.facility_ids("SE01"):
   var desk: Dictionary=world.facts.facilities[desk_id]
   if int(desk.floor_id)!=floor_id:continue
@@ -63,6 +67,60 @@ static func quote(space: HospitalSpace, world: WorldState, movement: Dictionary,
   space.query_counts["guidance_flow_routes"]=int(space.query_counts.get("guidance_flow_routes",0))+1
   return {"ok":true,"path":path}
  return {}
+
+static func exterior_context(space: HospitalSpace, world: WorldState, movement: Dictionary) -> Dictionary:
+ if space.guidance_queue_provider==null or movement.has("convoy") or movement.get("members",[]).size()>1:return {}
+ var provider: RefCounted=space.guidance_queue_provider.get_ref()
+ var visit_id: String=str(movement.get("floor_guidance_visit_id",""))
+ if provider==null or visit_id.is_empty():return {}
+ var actor: Dictionary=world.facts.actors.get(str(movement.actor_id),{})
+ var visit: Dictionary=world.facts.visits.get(visit_id,{})
+ var row: Dictionary=provider.state(world,visit_id)
+ if actor.get("location",{}).get("kind","")!="floor" or visit.get("actor_id","")!=actor.id or row.get("phase","")!="seek" or row.get("request_key","")!=movement.get("floor_guidance_key",""):return {}
+ var entry: Dictionary=preload("res://game/operations/guidance_queue_entry.gd").context(space,world,str(row.get("desk_id","")))
+ if entry.is_empty() or int(entry.floor_id)!=int(actor.location.floor_id) or int(movement.target_floor)!=int(entry.floor_id):return {}
+ var start: Vector2=ConvoyTrail.point(actor.location.cell)
+ var target: Vector2=ConvoyTrail.point(movement.target_cell)
+ if preload("res://game/operations/guidance_queue_entry.gd").is_inside(entry,space,actor,start) or preload("res://game/operations/guidance_queue_entry.gd").is_inside(entry,space,actor,target):return {}
+ return entry
+
+static func exterior_guard(space: HospitalSpace, world: WorldState, movement: Dictionary) -> Callable:
+ var entry: Dictionary=exterior_context(space,world,movement)
+ if entry.is_empty():return Callable()
+ return _exterior_region_guard(space,world.facts.actors[movement.actor_id],entry)
+
+static func _exterior_region_guard(space: HospitalSpace, actor: Dictionary, entry: Dictionary) -> Callable:
+ var regions: Array=[entry.room_bounds]
+ regions.append_array(entry.door_bounds)
+ # A route can turn. Use the current and all axis-facing body extents,
+ # computed once, rather than incorrectly freezing its current narrow side.
+ var envelope: Rect2=space._actor_rect(actor,Vector2.ZERO)
+ var sample: Dictionary=actor.duplicate()
+ for facing: float in [0.0,PI*0.5,PI,PI*1.5]:
+  sample.facing=facing
+  envelope=envelope.merge(space._actor_rect(sample,Vector2.ZERO))
+ return func(a: Vector2,b: Vector2)->bool:
+  var swept: Rect2=Rect2(a+envelope.position,envelope.size).merge(Rect2(b+envelope.position,envelope.size))
+  for region: Rect2 in regions:
+   if swept.intersects(region,false):return false
+  return true
+
+static func _exterior_wait(space: HospitalSpace, world: WorldState, actor: Dictionary, floor_id: int, origin: Vector2, goal: Vector2, entry: Dictionary) -> Dictionary:
+ var graph: FloorNavigation=space._navigation.graph(space,world,floor_id,actor,[],{})
+ var fixed: RouteClearance=graph.geometry
+ var clear: Callable=_exterior_region_guard(space,actor,entry)
+ var a:=Vector2i(origin.round());var b:=Vector2i(goal.round())
+ var failed: Dictionary={"ok":false,"status":"unreachable","reason":"导诊区域外候位没有可用的区域外路线"}
+ if not clear.call(origin,Vector2(a)) or not clear.call(Vector2(b),goal):return failed
+ if not fixed.sweep_reason(origin,Vector2(a)).is_empty() or not fixed.sweep_reason(Vector2(b),goal).is_empty():return failed
+ var allowed: Callable=func(from:Vector2i,to:Vector2i)->bool:return clear.call(Vector2(from),Vector2(to))
+ var result: Dictionary=graph.find_path(a,b,fixed,allowed)
+ if not result.get("ok",false):return failed
+ var path: Array=[]
+ if origin!=Vector2(a):path.append(_point(floor_id,Vector2(a)))
+ for cell:Array in result.cells:path.append(_point(floor_id,Vector2(cell[0],cell[1])))
+ if goal!=Vector2(b):path.append(_point(floor_id,goal))
+ return {"ok":true,"path":path}
 
 static func _point(floor_id: int, point: Vector2) -> Dictionary:
  return {"kind":"floor","floor_id":floor_id,"cell":[point.x,point.y]}

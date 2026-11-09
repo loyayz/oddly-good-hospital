@@ -91,10 +91,10 @@ func _edited_real_flow(suite: RefCounted) -> Dictionary:
   safe=safe and geometry.sweep_reason(previous,now).is_empty()
   side_seen=side_seen or absf(now.y-70.0)>0.01
   var current:Dictionary=w.facts.moves.get("walker",{})
-  if first_rejoin.is_empty() and current.get("detour",{}).get("phase","")=="rejoin":first_rejoin=current.path[int(current.detour.prefix_size)-1].cell.duplicate()
-  trace.append({"tick":i,"cell":a.location.cell.duplicate(),"phase":current.get("detour",{}).get("phase","")})
+  if first_rejoin.is_empty() and side_seen and absf(now.y-70.0)<0.0001:first_rejoin=[now.x,now.y]
+  trace.append({"tick":i,"cell":a.location.cell.duplicate(),"local_move":current.get("local_move",{}).duplicate(true)})
   if not w.facts.moves.has("walker"):break
  var result:Dictionary={"request":reason,"initial_return_rejects_wall":rejected,"side_seen":side_seen,"first_rejoin":first_rejoin,"safe_sweeps":safe,"arrived":s.at(w,"walker",1,[45,70]),"trace":trace,"validation":w.validate(suite.content)}
- result.ok=reason.is_empty() and rejected and side_seen and first_rejoin==[37.0,70.0] and safe and result.arrived and result.validation.is_empty()
+ result.ok=reason.is_empty() and rejected and side_seen and first_rejoin.size()==2 and ConvoyTrail.point(first_rejoin).distance_to(Vector2(37,70))<0.0001 and safe and result.arrived and result.validation.is_empty()
  sim.dispose()
  return result

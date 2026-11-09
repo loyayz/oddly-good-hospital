@@ -61,12 +61,12 @@ func _head_on(suite: RefCounted, swap: bool, repeat_target: bool=false) -> Dicti
    var move: Dictionary=sim.world.facts.moves.get(id,{})
    if move.is_empty(): continue
    order_kept=order_kept and move.request_sequence==sequences[id] and not move.has("yield_partner") and not move.get("yielding",false)
-   if move.has("detour"):
+   if move.has("local_move"):
     count+=1;bypass_seen=true
     if first_detouring.is_empty(): first_detouring=id
-    var phase: String=move.detour.phase
+    var phase: String="return_target" if move.local_move.has("rejoin") else "local_target"
     if not samples.has(phase): samples[phase]=_restore_boundary(suite,sim,id,["a","b"])
-    if phase=="rejoin" and before[id]!=sim.world.facts.actors[id].location.cell and sim.world.facts.moves.has("b" if id=="a" else "a"): resumed_before_partner_finished=true
+    if phase=="return_target" and before[id]!=sim.world.facts.actors[id].location.cell and sim.world.facts.moves.has("b" if id=="a" else "a"): resumed_before_partner_finished=true
   unilateral=unilateral and count<=1
   if sim.world.facts.moves.is_empty(): break
  var arrived: bool=sim.space.at(sim.world,"a",1,goal_a) and sim.space.at(sim.world,"b",1,goal_b) and sim.world.facts.moves.is_empty()
@@ -93,12 +93,12 @@ func _stationary(suite: RefCounted, release: bool) -> Dictionary:
   if departed and rejoin.is_empty() and is_equal_approx(float(cell[1]),70.0): rejoin=cell.duplicate()
   if not move.is_empty():
    original=original and move.target_cell==[45,70] and int(move.request_sequence)==sequence
-   if move.has("detour"):
-    var phase: String=move.detour.phase
+   if move.has("local_move"):
+    var phase: String="return_target" if move.local_move.has("rejoin") else "local_target"
     if not samples.has(phase): samples[phase]=_restore_boundary(suite,sim,"walker",["walker","blocker"])
     if release and not release_sent:
      release_error=sim.space.request_move(sim.world,"blocker",1,[40,67]);release_sent=true
-    if phase=="rejoin" and choices.is_empty(): choices=move.detour.original_path[int(move.detour.resume_index)].cell.duplicate()
+    if phase=="return_target" and choices.is_empty(): choices=move.local_move.rejoin.cell.duplicate()
   if move.is_empty(): break
  var expected: Array=[40,70] if release else [41,70]
  var arrived: bool=not sim.world.facts.moves.has("walker") and sim.space.at(sim.world,"walker",1,[45,70])
@@ -128,7 +128,7 @@ func _backward(suite: RefCounted, no_history: bool, sealed: bool, crossing_relea
   var error: String=_tick(suite,sim,ids)
   if not error.is_empty(): errors.append(error);break
   var move: Dictionary=sim.world.facts.moves.get("walker",{})
-  if move.has("detour") and move.detour.phase=="back":
+  if move.has("local_move") and float(move.local_move.target.cell[0])<float(before[0])-0.001:
    back_seen=true
    if before_back==0: before_back=float(before[0])
    if restored.is_empty(): restored=_restore_boundary(suite,sim,"walker",ids)
@@ -162,6 +162,9 @@ func _restore_boundary(suite: RefCounted, sim: HospitalSimulation, id: String, i
  var second: String=_tick(suite,b,ids)
  var continued: bool=first.is_empty() and second.is_empty() and a.world.freeze()==b.world.freeze()
  a.dispose();b.dispose()
+ if input.moves[id].has("local_move"):
+  var corrupt:Dictionary=_local_corrupt_states(input,id,suite)
+  return {"ok":validation.is_empty() and exact and continued and corrupt.ok,"stream_exact":exact,"validation":validation,"same_safe_next_real_tick":continued,"next_errors":[first,second],"corrupt_states":corrupt}
  var rejected: Array=[];var accepted_bad: Array=[]
  var probes: Array=["bad_phase","empty_original","diagonal","nonfinite_direction","fractional_back_cursor","fractional_resume","huge_prefix","foreign_prefix","false_completed_prefix","pending_route","back_other_floor","bad_original_segment","missing_connector","old_yielding","old_partner"]
  if input.moves[id].detour.phase=="rejoin": probes.append_array(["wrong_rejoin_endpoint","changed_suffix"])
@@ -247,13 +250,55 @@ func _double_corner_rejoin(suite: RefCounted) -> Dictionary:
   exact=exact and sim.space.at(sim.world,"blocker",1,[44,91]) and not sim.world.facts.moves.has("blocker")
   if not movement.is_empty():
    exact=exact and int(movement.request_sequence)>=sequence and movement.target_cell==[47,86] and int(movement.target_floor)==1
-   if movement.has("detour") and movement.detour.phase=="rejoin" and choice.is_empty():
-    choice=movement.detour.original_path[int(movement.detour.resume_index)].cell.duplicate()
+   if movement.has("local_move") and movement.local_move.has("rejoin") and choice.is_empty():
+    choice=movement.local_move.rejoin.cell.duplicate()
     restored=_restore_boundary(suite,sim,"walker",["walker","blocker","patient"])
-  if tick%25==0 or movement.is_empty(): trace.append({"tick":tick,"position":sim.world.facts.actors.walker.location.cell.duplicate(),"phase":movement.get("detour",{}).get("phase","")})
+  if tick%25==0 or movement.is_empty(): trace.append({"tick":tick,"position":sim.world.facts.actors.walker.location.cell.duplicate(),"local_move":movement.get("local_move",{}).duplicate(true)})
   if movement.is_empty(): break
  var arrived: bool=sim.space.at(sim.world,"walker",1,[47,86]) and not sim.world.facts.moves.has("walker")
  var nearest: bool=choice.size()==2 and ConvoyTrail.point(choice).distance_to(Vector2(44,90))<0.0001
  var dispatches: int=int(sim.space.query_counts.get("route_dispatches",0))
  var result: Dictionary={"case":"nearest_return_around_furniture_and_entrance","ok":request.is_empty() and errors.is_empty() and exact and nearest and arrived and restored.get("ok",false) and dispatches>=1 and dispatches<=2,"request":request,"errors":errors,"original_goal_and_stationary_blocker_preserved":exact,"nearest_rejoin":choice,"arrived":arrived,"global_route_dispatches":dispatches,"restore":restored,"trace":trace,"original_path":original,"remaining":sim.world.facts.moves.duplicate(true)}
  sim.dispose();return result
+
+# Ownership, finite same-floor motion, cursor integrity and original-route
+# membership replace obsolete phase/prefix shape checks. No safety class is
+# discarded merely because the single-person representation changed.
+func _local_corrupt_states(input:Dictionary,id:String,suite:RefCounted)->Dictionary:
+ var rejected:Array=[];var accepted:Array=[]
+ var probes:Array=["unknown_phase","empty_original","diagonal","nonfinite_origin","fractional_cursor","fractional_resume","huge_resume","foreign_target","false_completed_route","pending_route","retreat_other_floor","bad_original_segment","missing_connector","old_yielding","old_partner","wrong_rejoin_endpoint","changed_suffix","retreat_and_rejoin","legacy_single_detour"]
+ for probe:String in probes:
+  var snapshot:Dictionary=input.duplicate(true)
+  var move:Dictionary=snapshot.moves[id];var local:Dictionary=move.local_move
+  var position:Array=snapshot.actors[id].location.cell
+  match probe:
+   "legacy_single_detour":
+    # A structurally valid old aside, not coexistence with the new owner.
+    # Rejection must identify single-person legacy state specifically.
+    var original:Array=move.path.slice(int(move.cursor)).duplicate(true)
+    var target:Dictionary=local.target.duplicate(true)
+    move.erase("local_move")
+    move.path=[target];move.cursor=0
+    move.detour={"phase":"aside","original_path":original,"direction":[1,0],"backtrack":[],"back_cursor":-1,"prefix_size":1,"resume_index":-1}
+   "unknown_phase":local.phase="winner"
+   "empty_original":move.path=[];move.cursor=0
+   "diagonal":local.target.cell=[float(position[0])+1,float(position[1])+1]
+   "nonfinite_origin":local.origin=[NAN,0]
+   "fractional_cursor":move.cursor=0.5
+   "fractional_resume":local.rejoin={"index":0.5,"cell":position.duplicate()}
+   "huge_resume":local.rejoin={"index":move.path.size(),"cell":position.duplicate()}
+   "foreign_target":local.target.floor_id=999
+   "false_completed_route":move.cursor=move.path.size()
+   "pending_route":move.route_pending=true
+   "retreat_other_floor":local.retreat=true;local.erase("rejoin");local.target.floor_id=999
+   "bad_original_segment":move.path[int(move.cursor)]=false
+   "missing_connector":move.path[int(move.cursor)]={"kind":"connector","connector_id":"missing","from":1,"to":2}
+   "old_yielding":move.yielding=true
+   "old_partner":move.yield_partner=id
+   "wrong_rejoin_endpoint":local.erase("retreat");local.rejoin={"index":int(move.cursor),"cell":[999,999]}
+   "changed_suffix":local.erase("retreat");local.rejoin={"index":int(move.cursor),"cell":[999,999]};move.path[int(move.cursor)]={"kind":"floor","floor_id":1,"cell":[998,998]}
+   "retreat_and_rejoin":local.retreat=true;local.rejoin={"index":int(move.cursor),"cell":position.duplicate()}
+  var error:String=WorldState.new(snapshot).validate(suite.content)
+  if error.is_empty() or probe=="legacy_single_detour" and (not error.contains("单人") or not error.contains("detour")):accepted.append(probe)
+  else:rejected.append(probe)
+ return {"ok":accepted.is_empty(),"rejected":rejected,"accepted_bad_states":accepted}
