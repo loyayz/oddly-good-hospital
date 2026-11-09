@@ -147,7 +147,13 @@ func _arrive(world: WorldState, payload: Dictionary) -> CommandResult:
 	if not space._dynamic_clear(world,actor.id,int(entry.floor_id),space.body_rectangle(actor)):
 		return CommandResult.new(false,"arrival_occupied","入口尚未腾出真实身体空间",[],world.revision)
 	if int(world.facts.get("gameplay_version",0))>=1:
-		var readiness: Dictionary = arrival_readiness(world,binding.id,bool(payload.get("complex",false)))
+		# Static and dynamic entry checks above already cover this synchronous
+		# admission. Keep public/overridden readiness fully validating for callers.
+		var readiness: Dictionary
+		if get_script()==load("res://game/clinic/clinical_runtime.gd"):
+			readiness = _arrival_case_readiness(world,binding)
+		else:
+			readiness = arrival_readiness(world,binding.id,bool(payload.get("complex",false)))
 		if not readiness.ok:
 			return CommandResult.new(false,"admission_unavailable",readiness.reason,[],world.revision)
 	var actor_id: String = world.new_id("patient")
@@ -2656,14 +2662,21 @@ func shortage_requests(world: WorldState) -> Array:
 
 func arrival_readiness(world: WorldState, binding_id: String, _complex_case: bool = false, _explain: bool = true) -> Dictionary:
 	var binding: Dictionary = content.definition("treatment_bindings",binding_id)
-	if binding.is_empty(): return {"ok":false,"reason":"病例绑定不存在","plans":[]}
-	if not HospitalResearch.disease_unlocked(world,content,str(binding.disease_id),_research_jobs.view(world)):
-		return {"ok":false,"reason":"病例研究尚未完成","plans":[]}
+	var eligibility: Dictionary = _arrival_case_readiness(world,binding)
+	if not eligibility.ok: return eligibility
 	var entry: Dictionary = world.facts.get("entry",{"floor_id":1,"cell":[47,93]})
 	var actor: Dictionary = {"id":"arrival_probe","species_id":binding.species_id,"body_binding_id":binding.id,
 		"location":{"kind":"floor","floor_id":int(entry.floor_id),"cell":entry.cell.duplicate(),"height_m":0.0},"facing":0.0,"posture":"standing"}
 	var reason: String = space.static_reason(world,actor,int(entry.floor_id),Vector2i(int(entry.cell[0]),int(entry.cell[1])))
 	return {"ok":reason.is_empty(),"reason":reason,"plans":[]}
+
+# Eligibility only: callers must own their entry geometry check. This is not
+# a public readiness shortcut and does not retain any proof across calls.
+func _arrival_case_readiness(world: WorldState, binding: Dictionary) -> Dictionary:
+	if binding.is_empty(): return {"ok":false,"reason":"病例绑定不存在","plans":[]}
+	if not HospitalResearch.disease_unlocked(world,content,str(binding.disease_id),_research_jobs.view(world)):
+		return {"ok":false,"reason":"病例研究尚未完成","plans":[]}
+	return {"ok":true,"reason":"","plans":[]}
 
 func _arrival_candidate(world: WorldState, binding_id: String, complex_case: bool) -> Dictionary:
 	var binding: Dictionary = content.definition("treatment_bindings",binding_id)
