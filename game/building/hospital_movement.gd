@@ -1228,6 +1228,9 @@ func _local_return(world: WorldState, actor: Dictionary, movement: Dictionary, q
 		for offset:Vector2 in [side,-side]:
 			var first:Vector2=origin+offset
 			var last:Vector2=target+offset
+			# The exact constructed middle leg must be axis-aligned. Offsets can
+			# round distinct original coordinates to the same binary32 value.
+			if first.x!=last.x and first.y!=last.y:continue
 			var path:Array=[_floor_point(actor,first),_floor_point(actor,last),_floor_point(actor,target)]
 			if not _local_path_clear(world,actor,path,query):continue
 			movement.local_move={"origin":movement.local_move.origin,"target":path[0]}
