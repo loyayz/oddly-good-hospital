@@ -803,11 +803,16 @@ func _sample_anger(world: WorldState, visit: Dictionary, data: Dictionary, provi
 		_anger_change(visit,data,"natural_calm",-decay)
 
 func _update_cause_clocks(world: WorldState, visit: Dictionary, data: Dictionary, observation: Dictionary) -> void:
-	var active: Dictionary = {}
 	var ticket: Dictionary = world.facts.tickets.get(visit.get("ticket_id",""),{})
-	if not ticket.is_empty() and ticket.get("pause_reasons",{}).is_empty() and not HospitalWaitingLife.is_seated(world,str(visit.id)): active.no_compatible_seat = true
-	if not bool(observation.get("clean",true)): active.dirty = true
-	if float(observation.get("noise",0.0))>0: active.construction_noise = true
+	var no_seat: bool = not ticket.is_empty() and ticket.get("pause_reasons",{}).is_empty() and not HospitalWaitingLife.is_seated(world,str(visit.id))
+	var dirty: bool = not bool(observation.get("clean",true))
+	var noisy: bool = float(observation.get("noise",0.0))>0
+	var clocks: Dictionary = data.cause_clocks
+	if clocks.size()==int(no_seat)+int(dirty)+int(noisy) and (not no_seat or clocks.has("no_compatible_seat")) and (not dirty or clocks.has("dirty")) and (not noisy or clocks.has("construction_noise")): return
+	var active: Dictionary = {}
+	if no_seat: active.no_compatible_seat = true
+	if dirty: active.dirty = true
+	if noisy: active.construction_noise = true
 	for id: String in active:
 		if not data.cause_clocks.has(id): data.cause_clocks[id] = world.sim_tick
 	for id: String in data.cause_clocks.keys():

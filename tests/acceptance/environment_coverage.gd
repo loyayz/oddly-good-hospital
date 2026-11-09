@@ -99,8 +99,11 @@ func run_ranges(database: HospitalContent) -> Dictionary:
 	var lifecycle: Dictionary = _cache_lifecycle()
 	var permissions: Dictionary = preload("res://tests/acceptance/environment_source_lifecycle.gd").new().run(database)
 	var cell_keys: Dictionary = preload("res://tests/acceptance/environment_cell_keys.gd").new().run(database)
+	var empty_regions: Dictionary = preload("res://tests/acceptance/environment_empty_regions.gd").new().run(database)
+	checks.conservative_empty_regions = empty_regions.ok
 	var result: Dictionary = {"ok":not checks.values().has(false) and rows.all(func(row: Dictionary)->bool:return row.ok) and lifecycle.ok and permissions.ok and cell_keys.ok,"checks":checks,"complete_coverage":rows,"cache_lifecycle":lifecycle,"live_sources_and_permissions":permissions,"cell_key_domain":cell_keys,"scope":"Coverage calculations and source/cache boundaries; actual environment scoring and R15 ranges remain the containing OPS-11 case."}
 	_dispose(x)
+	result.empty_regions = empty_regions
 	_dispose(outside)
 	return result
 

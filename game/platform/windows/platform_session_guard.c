@@ -1,4 +1,7 @@
 #if defined(_WIN32)
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0A00
+#endif
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <windows.h>
@@ -69,6 +72,8 @@ static volatile LONG active_guard_count;
 static StringName guard_class;
 static StringName parent_class;
 static StringName numbers_class;
+static StringName thread_policy_class;
+static uint32_t main_thread_id;
 static GDExtensionObjectPtr os_singleton;
 static GDExtensionMethodBindPtr user_dir_method;
 static GDExtensionMethodBindPtr notification_method;
@@ -643,10 +648,73 @@ static void bind_decimal_decoder(void) {
 }
 
 #include "platform_sqlite.h"
+#include "platform_thread_policy.h"
+
+static void main_thread_policy_result(Dictionary *result) {
+    OghThreadPolicyResult policy = ogh_apply_main_thread_policy(main_thread_id);
+    dictionary_new(result, NULL);
+    set_bool(result, "applied", policy.applied);
+    set_bool(result, "hybrid", policy.hybrid);
+    set_int(result, "error", policy.error);
+    set_int(result, "group", policy.group);
+    char mask[17];
+    snprintf(mask, sizeof(mask), "%llx", (unsigned long long)policy.mask);
+    set_string(result, "mask_hex", mask);
+    set_string(result, "reason", policy.reason);
+}
+
+static void thread_policy_call(void *userdata, GDExtensionClassInstancePtr instance,
+        const GDExtensionConstVariantPtr *args, GDExtensionInt count,
+        GDExtensionVariantPtr returned, GDExtensionCallError *error) {
+    (void)userdata; (void)instance; (void)args;
+    error->error = count ? GDEXTENSION_CALL_ERROR_TOO_MANY_ARGUMENTS : GDEXTENSION_CALL_OK;
+    error->argument = 0; error->expected = 0;
+    variant_destroy(returned);
+    if (count) { variant_new_nil(returned); return; }
+    Dictionary result;
+    main_thread_policy_result(&result);
+    variant_from_dictionary(returned, &result);
+    dictionary_destroy(&result);
+}
+
+static void thread_policy_ptrcall(void *userdata, GDExtensionClassInstancePtr instance,
+        const GDExtensionConstTypePtr *args, GDExtensionTypePtr returned) {
+    (void)userdata; (void)instance; (void)args;
+    Dictionary result;
+    main_thread_policy_result(&result);
+    const GDExtensionConstTypePtr copy_args[] = { &result };
+    dictionary_destroy(returned);
+    dictionary_copy(returned, copy_args);
+    dictionary_destroy(&result);
+}
+
+static void bind_thread_policy(void) {
+    string_name_new(&thread_policy_class, "PlatformThreadPolicy");
+    GDExtensionClassCreationInfo6 info = { .is_exposed = 1, .is_abstract = 1 };
+    register_class(library, &thread_policy_class, &parent_class, &info);
+    StringName name, empty;
+    String hint;
+    string_name_new(&name, "apply_main_thread");
+    string_name_new(&empty, "");
+    string_new(&hint, "");
+    GDExtensionPropertyInfo output = { .type = GDEXTENSION_VARIANT_TYPE_DICTIONARY,
+        .name = &empty, .class_name = &empty, .hint_string = &hint, .usage = 6 };
+    GDExtensionClassMethodInfo method = { .name = &name,
+        .call_func = thread_policy_call, .ptrcall_func = thread_policy_ptrcall,
+        .method_flags = GDEXTENSION_METHOD_FLAG_NORMAL | GDEXTENSION_METHOD_FLAG_STATIC,
+        .has_return_value = 1, .return_value_info = &output };
+    register_method(library, &thread_policy_class, &method);
+    string_destroy(&hint);
+    string_name_destroy(&empty);
+    string_name_destroy(&name);
+}
 
 static void initialize(void *userdata, GDExtensionInitializationLevel level) {
     (void)userdata;
     if (level != GDEXTENSION_INITIALIZATION_SCENE) return;
+#if defined(_WIN32)
+    main_thread_id = GetCurrentThreadId();
+#endif
     StringName os_class, directory_name, object_class, notification_name;
     string_name_new(&guard_class, "PlatformSessionGuard");
     string_name_new(&parent_class, "RefCounted");
@@ -666,6 +734,7 @@ static void initialize(void *userdata, GDExtensionInitializationLevel level) {
     bind_method("is_held", METHOD_IS_HELD, GDEXTENSION_VARIANT_TYPE_BOOL);
     bind_method("get_resource_status", METHOD_RESOURCES, GDEXTENSION_VARIANT_TYPE_DICTIONARY);
     bind_decimal_decoder();
+    bind_thread_policy();
     bind_sqlite();
     ogh_math_initialize(platform_api, library);
     string_name_destroy(&notification_name);
@@ -678,6 +747,8 @@ static void deinitialize(void *userdata, GDExtensionInitializationLevel level) {
     (void)userdata;
     if (level != GDEXTENSION_INITIALIZATION_SCENE) return;
     ogh_math_deinitialize(platform_api);
+    unregister_class(library, &thread_policy_class);
+    string_name_destroy(&thread_policy_class);
     unregister_class(library, &guard_class);
     unregister_class(library, &numbers_class);
     unregister_class(library, &sqlite_class);

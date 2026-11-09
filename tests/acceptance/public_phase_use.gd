@@ -78,6 +78,7 @@ func _case_69(t) -> void:
 	var rescanned: bool = x.probe.quotes>quotes and x.probe.scores==scores and intent.phase=="local_wait"
 	var no_failed_queue: bool = not x.space.public_areas._wait_results.has(str(intent.id)) and not x.space.public_areas._wait_dependencies.waiters.has(str(intent.id))
 	var reaction: Dictionary = _standing_seat_reaction(x)
+	var standing_clocks: Dictionary = preload("res://tests/acceptance/department_cause_clocks.gd").new().run(x.world,x.waiter,x.p,true)
 	x.l.execute(x.world,"waiting_release_seat",{"visit_id":x.holder.id})
 	x.c.execute(x.world,"clinical_refer",{"visit_id":x.holder.id})
 	var release_move: String = x.space.request_move(x.world,x.holder.actor_id,1,[40,76])
@@ -86,6 +87,9 @@ func _case_69(t) -> void:
 	var data: Dictionary = {"anger_sources":{},"cause_clocks":{"no_compatible_seat":0}}
 	x.p._update_cause_clocks(x.world,x.waiter,data,{"value":50.0,"clean":true,"noise":0.0})
 	var cleared: bool = actual and not data.cause_clocks.has("no_compatible_seat")
+	var seated_clocks: Dictionary = preload("res://tests/acceptance/department_cause_clocks.gd").new().run(x.world,x.waiter,x.p,false)
+	cleared = cleared and standing_clocks.ok and seated_clocks.ok
+	reaction.cause_clock_boundaries = {"standing":standing_clocks,"seated":seated_clocks}
 	t.check("STAFF-69",missing_area.ok and x.held and arrived and between_scans and rescanned and no_failed_queue and reaction.ok and release_move.is_empty() and actual and cleared and x.l.validate(x.world).is_empty(),{"missing_area_retry":missing_area,"arrived_standing":arrived,"no_search_between_behavior_scans":between_scans,"occupied_area_rechecked_on_scan":rescanned,"no_failed_seat_subscription":no_failed_queue,"standing_reaction":reaction,"actual_holder_exit":release_move,"actually_seated_after_release":actual,"real_seating_clears_no_seat_clock":cleared,"intent":intent})
 
 func _missing_seat_area_retry() -> Dictionary:
