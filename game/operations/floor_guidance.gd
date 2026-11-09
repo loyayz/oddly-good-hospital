@@ -372,9 +372,12 @@ func _queue_members(world: WorldState, desk_id: String) -> Array:
 func _queue_position_allowed(world: WorldState, actor_id: String, desk_id: String, slot: Array, span: int) -> bool:
 	var floor_id: int=int(world.facts.facilities[desk_id].floor_id)
 	var actor: Dictionary=world.facts.actors[actor_id]
-	var geometry: RouteClearance=space.navigation.structural_clearance(world,actor,floor_id)
-	var key: String=desk_id+":"+str(span)+":"+str(slot)+":"+space._navigation._graph_key(space,world,floor_id,actor,[],{},geometry.source)
+	# A cached position proof only needs the current structural envelope key.
+	# Acquire the clearance object only when there is a new position to prove.
+	var source: Dictionary=space._navigation.floor_source(space,world,floor_id)
+	var key: String=desk_id+":"+str(span)+":"+str(slot)+":"+space._navigation._graph_key(space,world,floor_id,actor,[],{},source)
 	if _queue_valid.has(key):return _queue_valid[key]
+	var geometry: RouteClearance=space.navigation.structural_clearance(world,actor,floor_id)
 	var point:=Vector2i(int(slot[0]),int(slot[1]))
 	# Culling static obstacles to the desk's room is sound only if every
 	# accepted body stays inside its actual cells, including concave rooms.
