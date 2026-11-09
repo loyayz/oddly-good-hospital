@@ -38,7 +38,8 @@ func _case(suite:RefCounted,species:String,fractional:bool,back:Vector2,history:
  if history:
   expected=start+back*(span+0.5)
   travelled=[{"kind":"floor","floor_id":1,"cell":[expected.x,expected.y]},{"kind":"floor","floor_id":1,"cell":[start.x,start.y]}]
- var movement:Dictionary={"actor_id":"walker","members":["walker"],"travelled":travelled.duplicate(true)}
+ var forward_target:Vector2=start-back*span
+ var movement:Dictionary={"actor_id":"walker","members":["walker"],"cursor":0,"path":[{"kind":"floor","floor_id":1,"cell":[forward_target.x,forward_target.y]}],"travelled":travelled.duplicate(true)}
  var before_actor:Dictionary=actor.duplicate(true)
  var before_history:Array=movement.travelled.duplicate(true)
  var query:RouteClearance=sim.space.navigation.structural_clearance(sim.world,actor,1)

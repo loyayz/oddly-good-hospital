@@ -983,8 +983,18 @@ func _local_path_clear(world: WorldState, actor: Dictionary, path: Array, query:
 			origin=next;previous=sweep.sweep_to
 	return true
 
+# Local motion owns only a current same-floor walking segment. Transit,
+# support departure, pending routes and exhausted paths retain their owner.
+func _local_floor_segment(actor: Dictionary, movement: Dictionary) -> bool:
+	if actor.get("location",{}).get("kind")!="floor" or movement.get("route_pending",false): return false
+	var cursor: int=int(movement.get("cursor",-1))
+	var path: Array=movement.get("path",[])
+	if cursor<0 or cursor>=path.size(): return false
+	var point: Dictionary=path[cursor]
+	return point.get("kind")=="floor" and point.get("floor_id")==actor.location.floor_id
+
 func _local_choose(world: WorldState, actor: Dictionary, movement: Dictionary, motion: Vector2) -> bool:
-	if motion.length()<0.001: return false
+	if motion.length()<0.001 or not _local_floor_segment(actor,movement): return false
 	var forward: Vector2 = Vector2(signf(motion.x),0) if absf(motion.x)>=absf(motion.y) else Vector2(0,signf(motion.y))
 	var side: Vector2 = Vector2(-forward.y,forward.x)
 	var origin: Vector2 = ConvoyTrail.point(actor.location.cell)
@@ -1048,7 +1058,7 @@ func _local_collision(world: WorldState, actor: Dictionary, movement: Dictionary
 			var body: Rect2 = space._actor_rect(other,ConvoyTrail.point(other.location.cell))
 			if not BodySweep.intersects(space._actor_rect(actor,start),space._actor_rect(sample,start+contact.requested_motion),body,body): continue
 			if journey.get("route_pending",false): continue
-			if journey.is_empty() or journey.has("convoy") or journey.get("members",[id]).size()!=1 or other.posture!="standing" or world.facts.staff.has(id) and _staff_has_movement_responsibility(world,id):
+			if not _local_floor_segment(other,journey) or journey.has("convoy") or journey.get("members",[id]).size()!=1 or other.posture!="standing" or world.facts.staff.has(id) and _staff_has_movement_responsibility(world,id):
 				immovable_contact=true
 				continue
 			var toward: Vector2 = -contact.requested_motion
