@@ -534,7 +534,11 @@ func _approach_desk(world: WorldState, visit: Dictionary, ticket: Dictionary, cu
 	if current.get("queue_attending",false):
 		if current.get("queue_bank_key","")!=_queue_bank_key(world,str(current.desk_id)) or (not underway.is_empty() and underway.get("floor_guidance_key","")!=current.request_key):current.queue_attending=false
 	var point: Dictionary=_queue_point(world,visit.actor_id,str(current.desk_id),visit.id)
-	if not current.has("queue_seq") and (point.is_empty() or not QueueEntry.capacity_available(space,world,self,visit.actor_id,str(current.desk_id))):
+	# Exterior waiting cannot act on a patient still on another floor.
+	# Its read-only capacity result would be discarded; real entry stays gated.
+	var location: Dictionary=world.facts.actors[visit.actor_id].location
+	var same_floor: bool=location.kind=="floor" and int(location.floor_id)==floor_id
+	if not current.has("queue_seq") and (point.is_empty() or (same_floor and not QueueEntry.capacity_available(space,world,self,visit.actor_id,str(current.desk_id)))):
 		if _wait_outside_queue(world,visit,current):return false
 	if point.is_empty():
 		# Do not funnel every already-travelling patient into a full bank.
