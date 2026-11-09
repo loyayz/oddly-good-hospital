@@ -1818,21 +1818,28 @@ func _case_17(t) -> void:
 	safe.ticket.waited_ticks = 1200
 	safe.ticket.service_assigned = true
 	safe.ticket.called_tick = 1200
-	safe.space.request_move(safe.world,safe.visit.actor_id,1,[46,76])
+	# The guidance desk occupies [46,76]; walking exclusion needs a real,
+	# accepted move that remains in transit, not a rejected request.
+	var before_cell: Array = safe.world.facts.actors[safe.visit.actor_id].location.cell.duplicate()
+	var move_reason: String = safe.space.request_move(safe.world,safe.visit.actor_id,1,[44,80])
 	safe.space.advance(safe.world)
+	var after_cell: Array = safe.world.facts.actors[safe.visit.actor_id].location.cell.duplicate()
+	var walking_setup: bool = move_reason.is_empty() and before_cell!=after_cell and safe.world.facts.moves.has(safe.visit.actor_id) and after_cell!=[44,80]
 	var safe_rng: String = safe.world.facts.rng.patience.state_decimal
 	safe.arrivals.needs(safe.world)
-	var no_walking_draw: bool = safe.world.facts.rng.patience.state_decimal==safe_rng
+	var no_walking_draw: bool = walking_setup and safe.world.facts.rng.patience.state_decimal==safe_rng
 	safe.world.facts.moves.erase(safe.visit.actor_id)
 	safe.ticket.service_assigned = false
 	safe.visit.phase = "surgery"
+	var service_rng: String = safe.world.facts.rng.patience.state_decimal
 	safe.arrivals.needs(safe.world)
-	var no_service_draw: bool = safe.world.facts.rng.patience.state_decimal==safe_rng
+	var no_service_draw: bool = safe.world.facts.rng.patience.state_decimal==service_rng
 	safe.visit.phase = "wait_gp"
 	safe.visit.anger = 90.0
 	safe.visit.last_service_tick = 600
+	var anger_rng: String = safe.world.facts.rng.patience.state_decimal
 	safe.arrivals.needs(safe.world)
-	var deterministic: bool = safe.world.facts.wait_departures.get(safe.visit.actor_id,{}).get("selected",false) and safe.world.facts.rng.patience.state_decimal==safe_rng
+	var deterministic: bool = safe.world.facts.wait_departures.get(safe.visit.actor_id,{}).get("selected",false) and safe.world.facts.rng.patience.state_decimal==anger_rng
 	var stalled: Dictionary = _wait_ctx()
 	stalled.world.facts.sim_tick = 6000
 	stalled.ticket.waited_ticks = 6000
@@ -1840,7 +1847,7 @@ func _case_17(t) -> void:
 	stalled.visit.last_progress_tick = 0
 	var stalled_rng: String = stalled.world.facts.rng.patience.state_decimal
 	stalled.arrivals.needs(stalled.world)
-	t.check("GROW-17",no_walking_draw and no_service_draw and deterministic and stalled.world.facts.wait_departures.get(stalled.visit.actor_id,{}).get("selected",false) and stalled.world.facts.rng.patience.state_decimal==stalled_rng,{"walking":no_walking_draw,"service":no_service_draw,"anger_exit":deterministic,"stalled":stalled.world.facts.wait_departures.get(stalled.visit.actor_id,{})})
+	t.check("GROW-17",no_walking_draw and no_service_draw and deterministic and stalled.world.facts.wait_departures.get(stalled.visit.actor_id,{}).get("selected",false) and stalled.world.facts.rng.patience.state_decimal==stalled_rng,{"walking_setup":walking_setup,"move_reason":move_reason,"before_cell":before_cell,"after_cell":after_cell,"walking":no_walking_draw,"service":no_service_draw,"anger_exit":deterministic,"stalled":stalled.world.facts.wait_departures.get(stalled.visit.actor_id,{})})
 
 func _case_18(t) -> void:
 	var saved: Dictionary = _wait_ctx()
