@@ -67,6 +67,12 @@ func _details() -> String:
 	lines.append("当前阻碍："+(reason if not reason.is_empty() else "暂无；按当前流程继续"))
 	lines.append("已完成诊疗尝试：%d" % visit.get("attempt_ids",[]).size())
 	if phase in ["leaving","departed"]:
-		var results: Dictionary = {"cured":"治愈", "referred":"转诊", "abandoned":"离开候诊", "retry":"重新评估"}
-		lines.append("离院反馈："+str(results.get(str(visit.get("final_result","")),"正在整理")))
+		lines.append("离院反馈："+departure_feedback(visit))
 	return "\n\n".join(lines)
+
+# Presentation only: no mood numbers, outcomes or settlement are mutated.
+static func departure_feedback(visit: Dictionary) -> String:
+	var reason: String = str(visit.get("guidance_departure_reason",""))
+	if not reason.is_empty(): return "不满离院："+reason
+	var results: Dictionary = {"cured":"治愈", "referred":"转诊", "abandoned":"离开候诊", "retry":"重新评估"}
+	return str(results.get(str(visit.get("final_result","")),"正在整理"))

@@ -18,6 +18,19 @@ func run_rules(database: HospitalContent) -> Dictionary:
 	var chosen: Dictionary={}
 	for index: int in 32:chosen[x.g._choose_target(x.world,visit,ticket)]=true
 	checks.random_multiple=chosen.has("diagnosis") and chosen.has("diagnosis_other")
+	var original_intake: Array=x.world.facts.departments.units.general.intake_disease_ids.duplicate()
+	var shared: Dictionary=x.world.facts.departments.units.general.duplicate(true)
+	shared.id="shared_accepts"
+	shared.room_ids=[]
+	shared.shared_room_ids=["clinic"]
+	shared.intake_disease_ids=[visit.disease_id]
+	x.world.facts.departments.units.general.intake_disease_ids=["not_this_case"]
+	x.world.facts.departments.units[shared.id]=shared
+	checks.shared_owner_can_accept=x.g._target_ids(x.world,visit,"gp").size()==2 and x.g._destination_department(x.world,visit,x.world.facts.facilities.diagnosis).id==shared.id
+	shared.intake_disease_ids=["also_not_this_case"]
+	checks.all_owners_exclude=x.g._target_ids(x.world,visit,"gp").is_empty()
+	x.world.facts.departments.units.erase(shared.id)
+	x.world.facts.departments.units.general.intake_disease_ids=original_intake
 	var current: Dictionary={"visit_id":visit.id,"request_key":x.g._key(ticket),"ticket_id":ticket.id,"phase":"destination","desk_id":"","target_id":"diagnosis","guide_floor":2,"initial_done":true,"receipts":[],"guided_target":"diagnosis","arrived_seq":-1}
 	x.world.facts.floor_guidance.visits[visit.id]=current
 	checks.unavailable_not_reassigned=not x.g._reselect_unreachable_target(x.world,visit,current) and current.target_id=="diagnosis"
@@ -58,6 +71,14 @@ func run_rules(database: HospitalContent) -> Dictionary:
 	checks.none_is_empty=x.g._choose_target(x.world,visit,ticket).is_empty()
 	x.g._depart_missing_destination(x.world,visit,current)
 	checks.missing_departs=visit.phase=="leaving" and not x.world.facts.tickets.has(ticket.id) and visit.get("guidance_departure_reason","")!=""
+	var panel = preload("res://game/ui/clinical_panel.gd")
+	var before_feedback: Dictionary=visit.duplicate(true)
+	checks.missing_feedback_visible=panel.departure_feedback(visit)=="不满离院：医院没有本次所需诊室或设备"
+	checks.feedback_read_only=visit==before_feedback
+	checks.cured_feedback_unchanged=panel.departure_feedback({"final_result":"cured"})=="治愈"
+	checks.abandoned_feedback_unchanged=panel.departure_feedback({"final_result":"abandoned"})=="离开候诊"
+	checks.empty_guidance_reason_unchanged=panel.departure_feedback({"final_result":"abandoned","guidance_departure_reason":""})=="离开候诊"
+	checks.other_feedback_unchanged=panel.departure_feedback({"final_result":"referred"})=="转诊" and panel.departure_feedback({"final_result":"retry"})=="重新评估" and panel.departure_feedback({})=="正在整理"
 	var result: Dictionary={"ok":checks.values().all(func(value:Variant)->bool:return value==true),"checks":checks,"scope":"destination-boundary checks, not natural movement proof"}
 	_dispose(x)
 	return result

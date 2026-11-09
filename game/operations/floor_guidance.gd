@@ -40,6 +40,13 @@ func prepare_static_routes(world: WorldState, floor_id: int) -> Dictionary:
 		if content.definition("vertical_connectors",connection.definition_id).kind!="lift" or not HospitalTransit.has_stop(connection,floor_id): continue
 		var anchor:=Vector2i(int(connection.anchor[0]),int(connection.anchor[1]))
 		if not anchor in anchors: anchors.append(anchor)
+	var lift_anchor_count: int=anchors.size()
+	var entry: Dictionary=world.facts.get("entry",{})
+	var entry_anchor_count: int=0
+	if int(entry.get("floor_id",1))==floor_id and entry.get("cell",[]).size()==2:
+		var entry_anchor:=Vector2i(roundi(entry.cell[0]),roundi(entry.cell[1]))
+		if not entry_anchor in anchors:anchors.append(entry_anchor)
+		entry_anchor_count=1
 	var desks: Array=[]
 	for id: String in world.facility_ids("SE01"):
 		if int(world.facts.facilities[id].floor_id)==floor_id: desks.append(id)
@@ -61,8 +68,11 @@ func prepare_static_routes(world: WorldState, floor_id: int) -> Dictionary:
 			var graph: FloorNavigation=cache.graph(space,world,floor_id,actor,[],{})
 			var goals: Dictionary={}
 			for desk_id: String in desks:
-				for slot: Array in _queue_slots(world,desk_id,space.clearance(actor)):
-					goals[Vector2i(int(slot[0]),int(slot[1]))]=true
+				# Warm the empty-queue arrival, using the same real-body snake
+				# geometry as dispatch. Never inspect live membership or reserve a tail.
+				var context: Dictionary=_queue_context(world,desk_id)
+				var first: Dictionary=QueueLayout.snake_next(context.facility,[],_queue_body(actor))
+				if not first.is_empty():goals[Vector2i(roundi(first.cell[0]),roundi(first.cell[1]))]=true
 				var cell: Array=space.facility_layout(world,desk_id).patient_cell
 				goals[Vector2i(roundi(cell[0]),roundi(cell[1]))]=true
 			for anchor: Vector2i in anchors:
@@ -72,7 +82,7 @@ func prepare_static_routes(world: WorldState, floor_id: int) -> Dictionary:
 					if result.get("ok",false): reachable+=1
 	var charge_after: int=cache._charged+cache._query_charged+cache._source_charged+cache._floor_charged
 	space.navigation._observed_floors=observed
-	return {"elapsed_usec":Time.get_ticks_usec()-started,"body_envelopes":seen.size(),"lift_anchors":anchors.size(),"desks":desks.size(),"path_requests":attempted,"reachable":reachable,"path_builds":int(space.query_counts.static_path_builds)-builds_before,"path_hits":int(space.query_counts.static_path_hits)-hits_before,"cache_charge_before":charge_before,"cache_charge_after":charge_after,"cache_budget":int(content.balance.pathfinding.graph_cache_target_bytes)}
+	return {"elapsed_usec":Time.get_ticks_usec()-started,"body_envelopes":seen.size(),"lift_anchors":lift_anchor_count,"entry_anchors":entry_anchor_count,"desks":desks.size(),"path_requests":attempted,"reachable":reachable,"path_builds":int(space.query_counts.static_path_builds)-builds_before,"path_hits":int(space.query_counts.static_path_hits)-hits_before,"cache_charge_before":charge_before,"cache_charge_after":charge_after,"cache_budget":int(content.balance.pathfinding.graph_cache_target_bytes)}
 
 func ensure(world: WorldState) -> void:
 	if not world.facts.has("floor_guidance"):
@@ -262,13 +272,19 @@ func _target_ids(world: WorldState, visit: Dictionary, kind: String, only_id: St
 	return ids
 
 func _destination_department(world: WorldState, visit: Dictionary, facility: Dictionary) -> Dictionary:
-	# Match the clinical remit, not present staffing, availability or distance.
+	# A shared clinical room can belong to several departments. One owner's
+	# excluded remit must not hide another owner's matching destination.
+	var matched: Dictionary = {}
+	var belongs_to_department: bool = false
 	for department: Dictionary in world.facts.get("departments",{}).get("units",{}).values():
-		if clinic.departments!=null and clinic.departments._belongs(department,facility):
-			var diseases: Array=department.get("intake_disease_ids",[])
-			if not diseases.is_empty() and not visit.disease_id in diseases:return {"excluded":true}
-			return department
-	return {}
+		if clinic.departments==null or not clinic.departments._belongs(department,facility): continue
+		belongs_to_department = true
+		var diseases: Array = department.get("intake_disease_ids",[])
+		if not diseases.is_empty() and not visit.disease_id in diseases: continue
+		if str(department.id)==str(visit.get("department_id","")): return department
+		if matched.is_empty(): matched=department
+	if not matched.is_empty(): return matched
+	return {"excluded":true} if belongs_to_department else {}
 
 func _choose_target(world: WorldState, visit: Dictionary, ticket: Dictionary) -> String:
 	var ids: Array = _target_ids(world,visit,str(ticket.get("kind","")))
@@ -429,7 +445,8 @@ func _queue_admission_clear(world: WorldState, actor_id: String, floor_id: int, 
 	var actor: Dictionary=world.facts.actors[actor_id].duplicate()
 	if facing!=INF:actor.facing=facing
 	var point:=Vector2(float(cell[0]),float(cell[1]))
-	if not RouteClearance.reservation_regions_reason(point,space.clearance(actor),RouteClearance.capture_reservation_regions(world,actor_id,floor_id)).is_empty():return false
+	# Arrival checks the actual oriented body. _dynamic_clear already checks
+	# reservations, other bodies and accepted movement sweeps with this rectangle.
 	return space._dynamic_clear(world,actor_id,floor_id,space._actor_rect(actor,point))
 
 func _queue_bank_key(world: WorldState, desk_id: String) -> String:

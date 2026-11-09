@@ -12,6 +12,15 @@ func run_checks()->Dictionary:
  var narrow:Dictionary=Layout.snake({"cell":[0,0],"footprint":[1,2]},[unit,_body(1.5,0.75),unit])
  var n:Array=narrow.placements
  cases.append({"name":"single_file_left_edges_actual_size","ok":n[1].single and is_equal_approx(n[0].local_rect.position.x,n[1].local_rect.position.x) and is_equal_approx(n[1].local_rect.position.x,n[2].local_rect.position.x) and is_equal_approx(n[1].local_rect.size.x,1.5) and is_equal_approx(n[2].local_rect.position.y,n[1].local_rect.end.y)})
+ var changing:Dictionary=Layout.snake({"cell":[0,0],"footprint":[3,2]},[_body(2.0,0.5),_body(0.5,2.0),_body(0.2,0.2)])
+ var c:Array=changing.placements
+ cases.append({"name":"large_pair_does_not_lock_later_small_body_to_single_file","ok":c[1].single and not c[2].single and c[2].row==c[1].row and not is_equal_approx(c[2].local_rect.position.x,c[1].local_rect.position.x) and not c[2].rect.intersects(c[1].rect,false)})
+ var aligned:Dictionary=Layout.snake(desk,[_body(1.0,1.0),_body(0.5,0.6),_body(0.4,0.3)])
+ var aligned_rows:Array=aligned.placements
+ cases.append({"name":"mixed_rightward_patient_left_edges_independent_expected","ok":_same(aligned_rows[1].local_rect,Rect2(0.5,0.5,0.6,0.5)) and _same(aligned_rows[2].local_rect,Rect2(1.1,0.6,0.3,0.4))})
+ var left:Dictionary=Layout.snake({"cell":[0,0],"footprint":[3,2]},[unit,unit,_body(0.5,0.7),_body(0.4,0.3)])
+ var l:Array=left.placements
+ cases.append({"name":"new_row_at_desk_edge_then_leftward_patient_left_edges","ok":_same(l[2].local_rect,Rect2(1.0,1.0,0.5,0.7)) and _same(l[3].local_rect,Rect2(0.7,1.0,0.3,0.4))})
  var mixed:Array=[_body(0.7,0.4),_body(1.4,0.8),_body(0.6,1.2),_body(2.1,0.9),unit,_body(0.4,0.3),unit,_body(1.9,1.2),unit,unit]
  var reference:Dictionary=Layout.snake(desk,mixed)
  for turn:int in range(4):

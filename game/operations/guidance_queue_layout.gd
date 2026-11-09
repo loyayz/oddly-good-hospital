@@ -195,7 +195,7 @@ static func snake_append(packing: Dictionary, body: Dictionary) -> Dictionary:
 	var rows: Array=packing.placements
 	var row: int=int(packing.row)
 	var row_top: float=float(packing.row_top)
-	var single: bool=bool(packing.single)
+	var single: bool=false
 	var direction: float=1.0 if row%2==0 else -1.0
 	var facing: float=atan2(-front.x,-front.y)
 	var shape: Rect2=_snake_shape(body,facing)
@@ -218,9 +218,14 @@ static func snake_append(packing: Dictionary, body: Dictionary) -> Dictionary:
 		var lateral_size: Vector2=_snake_size(lateral_shape,right,front)
 		# A desk too narrow for two actual adjacent bodies is a single
 		# file, left aligned with its predecessor rather than edge zigzags.
-		if rows.size()==1 and previous.size.x+lateral_size.x>float(packing.width)+0.000001:single=true
+		single=previous.size.x+lateral_size.x>float(packing.width)+0.000001
 		if single:
-			local=Rect2(Vector2(previous.position.x,previous.end.y),size)
+			# This pair needs a single-file step; it does not lock later
+			# smaller people into that mode. A vertical step begins a new
+			# actual row, so later sideward placement stays below prior rows.
+			row+=1
+			row_top=float(packing.bottom)
+			local=Rect2(Vector2(previous.position.x,row_top),size)
 		else:
 			facing=lateral_facing
 			shape=lateral_shape
