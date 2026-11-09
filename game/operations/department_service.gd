@@ -109,6 +109,14 @@ func worked_staff() -> Dictionary:
 
 func sample(world: WorldState) -> void:
 	ensure(world)
+	# Sampling changes experience records, not bodies or facility ownership.
+	# Share read-only water fit/occupancy views only inside this sample; a
+	# hypothetical world keeps its own scope and the view ends before movement.
+	var shared_water_scope: bool=(environment!=null
+		and environment.get_script()==preload("res://game/operations/environment_service.gd")
+		and environment.space!=null and environment.space.get_script()==preload("res://game/building/hospital_space.gd")
+		and (environment.waiting_life==null or environment.waiting_life.get_script()==preload("res://game/life/waiting_life.gd")))
+	if shared_water_scope:environment.space.begin_route_query(world,{},environment.space.nominal_query(world))
 	if environment!=null: environment.begin_query(world)
 	var _worker_visit_ids: Array = world.active_visit_ids()
 	var _worker_sample_active: bool = sample_workers_enabled and environment!=null and environment.get_script()==preload("res://game/operations/environment_service.gd") and environment.space!=null and environment.space.get_script()==preload("res://game/building/hospital_space.gd")
@@ -136,6 +144,7 @@ func sample(world: WorldState) -> void:
 			if not reasons.is_empty(): _detail(world,experience,{"kind":"cause","tick":world.sim_tick,"cause_id":reasons[0].id,"text":reasons[0].reason})
 	if _worker_sample_active: _worker_sample_batch.end_apply(environment)
 	if environment!=null: environment.end_query()
+	if shared_water_scope:environment.space.end_route_query()
 	var staff_ids: Array = world.ids("staff")
 	if staff_ids.is_empty(): return
 	# All employees in this synchronous sample share the same hospital day.
