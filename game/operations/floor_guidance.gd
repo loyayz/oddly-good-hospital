@@ -570,7 +570,9 @@ func _approach_desk(world: WorldState, visit: Dictionary, ticket: Dictionary, cu
 			if accepted.get("floor_guidance_key","")==current.request_key:accepted.floor_guidance_queue_advance=_queue_bank_key(world,str(current.desk_id))
 		return false
 	if not _queue_admission_clear(world,visit.actor_id,floor_id,point.cell,point.facing):
-		_queue_blocked(world,visit,current)
+		# A body/reservation/sweep can clear without any queue membership change.
+		# Retry actual admission next dispatch, not a queue-revision subscription.
+		visit.waiting_reason="队尾暂时被占用，等待实际入队"
 		return false
 	world.facts.actors[visit.actor_id].facing=point.facing
 	current.queue_cell=point.cell.duplicate()

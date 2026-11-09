@@ -2,7 +2,7 @@ extends "res://tests/acceptance/staff_fixtures.gd"
 
 func run_cases(database: HospitalContent, selected: Array = []) -> Dictionary:
 	_content = database
-	var runs: Dictionary = {"GUIDE-REAL-ARRIVAL":_single.bind(false),"GUIDE-JSON":_single.bind(true),"GUIDE-CROSS-FLOOR":_cross_floor,"GUIDE-SAME-FLOOR-NEW-STAGE":_same_floor_new_request,"GUIDE-NURSE-RECOVERY":_missing_nurse,"GUIDE-STAFFED-QUEUE-PAUSE-RECOVERY":_staffed_queue_pause,"GUIDE-EXIT-BYPASS":_departure,"GUIDE-ARRIVAL-ORDER":_simultaneous,"GUIDE-DESK-BUILD-RECOVERY":_missing_desk,"GUIDE-NURSE-SAFE-HANDOFF":_nurse_handoff,"GUIDE-LOCAL-SEATS":_local_seats,"GUIDE-DESK-REMOVAL":_desk_removal,"GUIDE-MOVE-OWNERSHIP":_move_ownership,"GUIDE-SAVE-GUARDS":_save_guards}
+	var runs: Dictionary = {"GUIDE-REAL-ARRIVAL":_single.bind(false),"GUIDE-JSON":_single.bind(true),"GUIDE-CROSS-FLOOR":_cross_floor,"GUIDE-SAME-FLOOR-NEW-STAGE":_same_floor_new_request,"GUIDE-NURSE-RECOVERY":_missing_nurse,"GUIDE-STAFFED-QUEUE-PAUSE-RECOVERY":_staffed_queue_pause,"GUIDE-EXIT-BYPASS":_departure,"GUIDE-ARRIVAL-ORDER":_simultaneous,"GUIDE-DESK-BUILD-RECOVERY":_missing_desk,"GUIDE-NURSE-SAFE-HANDOFF":_nurse_handoff,"GUIDE-LOCAL-SEATS":_local_seats,"GUIDE-DESK-REMOVAL":_desk_removal,"GUIDE-MOVE-OWNERSHIP":_move_ownership,"GUIDE-SAVE-GUARDS":_save_guards,"GUIDE-DYNAMIC-ADMISSION-RETRY":_dynamic_admission_retry}
 	var cases: Array = []
 	var passed: bool = true
 	for id: String in (runs.keys() if selected.is_empty() else selected):
@@ -410,3 +410,35 @@ func _save_guards() -> Dictionary:
 		checks["release_"+field] = not candidate.validate(_content).is_empty() and candidate.freeze()==before
 	var row: Dictionary = {"case":"GUIDE-SAVE-GUARDS","ok":not checks.values().has(false),"checks":checks}
 	_dispose(x);return row
+
+func _dynamic_admission_retry()->Dictionary:
+	var x:Dictionary=_base()
+	var v:Dictionary=_visit(x,"dynamic_retry",[35,94])
+	var reached:bool=false
+	for tick:int in 700:
+		x.g.dispatch(x.world);x.c.dispatch(x.world);x.space.advance(x.world)
+		var s:Dictionary=x.g.state(x.world,v.id)
+		if not s.is_empty() and not s.has("queue_seq"):
+			var p:Dictionary=x.g._queue_point(x.world,v.actor_id,"guide",v.id)
+			if not p.is_empty() and x.space.at(x.world,v.actor_id,1,p.cell) and not x.world.facts.moves.has(v.actor_id):reached=true;break
+		x.g.advance(x.world);x.world.facts.sim_tick+=1;x.world.touch(false)
+	var s:Dictionary=x.g.state(x.world,v.id)
+	var a:Dictionary=x.world.facts.actors[v.actor_id]
+	var body:Rect2=x.space._actor_rect(a,ConvoyTrail.point(a.location.cell))
+	# Controlled transient reservation at the real arrival boundary. No movement,
+	# admission query or path result is replaced. This is not a reservation creator test.
+	x.world.facts.adaptations.dynamic_retry={"kind":"facility","floor_id":1,"actor_id":"other","staff_ids":[],"facility_id":"probe","regions":[[body.position.x,body.position.y,body.size.x,body.size.y]]}
+	x.space.reservation_changed(x.world,"dynamic_retry");x.world.touch(false)
+	x.g.prepare(x.world,v,x.world.facts.tickets[v.ticket_id])
+	var rejected:bool=not s.has("queue_seq")
+	var revision:int=int(x.world.facts.floor_guidance.desks.guide.get("queue_revision",0))
+	x.world.facts.adaptations.erase("dynamic_retry")
+	x.space.reservation_changed(x.world,"dynamic_retry");x.world.touch(false)
+	var released:bool=x.g._queue_admission_clear(x.world,v.actor_id,1,a.location.cell)
+	var admitted:bool=false
+	for tick:int in 20:
+		x.g.prepare(x.world,v,x.world.facts.tickets[v.ticket_id])
+		if s.has("queue_seq"):admitted=true;break
+		x.world.facts.sim_tick+=1;x.world.touch(false)
+	var result:Dictionary={"ok":reached and rejected and released and admitted,"reached_by_actual_movement":reached,"blocked_without_number":rejected,"released_body_check_clear":released,"admitted_without_other_queue_changes":admitted,"revision_before_release":revision,"state":s.duplicate(true)}
+	_dispose(x);return result
