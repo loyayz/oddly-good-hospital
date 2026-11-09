@@ -1107,6 +1107,13 @@ func _validate_shapes() -> String:
 				if not past is Dictionary or past.get("kind")!="floor" or not _point(past.get("cell")) or not _natural(past.get("floor_id",-1)) or past.floor_id!=actor.location.floor_id: return "局部后退历史无效"
 		if not movement.get("route_pending",false) is bool:
 			return "移动请求状态无效"
+		if movement.has("live_floor_route"):
+			if not movement.live_floor_route is bool or movement.live_floor_route!=true or not movement.get("route_pending",false) or movement.has("local_move") or movement.has("convoy") or movement.has("route_waypoint") or facts.actors[movement.actor_id].location.kind!="floor" or int(facts.actors[movement.actor_id].location.floor_id)!=int(movement.target_floor):return "实际同层重派状态无效"
+		if movement.has("route_rejoin"):return "不支持旧原路线失败游标"
+		if movement.has("rejoin_origin"):
+			if not movement.get("live_floor_route",false) or not _point(movement.rejoin_origin) or int(movement.cursor)>=movement.path.size():return "原路线回接起点无效"
+			var first: Dictionary=movement.path[int(movement.cursor)]
+			if first.get("kind")!="floor" or int(first.get("floor_id",-1))!=int(facts.actors[movement.actor_id].location.floor_id):return "原路线回接不得接管连接段"
 		if movement.has("request_sequence"):
 			var sequence: Variant = movement.request_sequence
 			if not _natural(sequence) or int(sequence)<1 or int(sequence)>int(facts.get("move_request_next",0)) or request_sequences.has(sequence):

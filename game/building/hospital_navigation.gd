@@ -658,6 +658,173 @@ func _dynamic_goal_has_entry(graph: FloorNavigation, goal: Vector2i, people: Cal
 
 # The planner owns the complete static leg, including its exact endpoint stubs.
 # This proof is runtime-only. Restored or externally supplied paths have none.
+# One dispatch owns this entire current-world component. Parent links and
+# failed candidates are local variables, never cached or serialized.
+func current_floor_rejoin(world: WorldState, actor: Dictionary, floor_id: int, candidates: Array) -> Dictionary:
+	if str(get_script().resource_path)!="res://game/building/hospital_navigation.gd" or str(space.get_script().resource_path)!="res://game/building/hospital_space.gd":return {"ok":false,"status":"unsupported","reason":"扩展寻路实现尚未提供当前连通域查询"}
+	var navigation: Dictionary=space._navigation.query_graphs(space,world,floor_id,actor,[],{})
+	var graph: FloorNavigation=navigation.graph
+	if str(graph.get_script().resource_path)!="res://game/building/floor_navigation.gd":return {"ok":false,"status":"unsupported","reason":"扩展图未提供当前连通域查询"}
+	var query: RouteClearance=space._navigation.clearance(space,world,floor_id,actor)
+	var dynamic: Dictionary=space._dynamic_route_query(world,actor,floor_id,[],{})
+	# Exact source is handled by stubs. Internal graph edges always start at
+	# their integer vertex, even when it equals round(actual).
+	dynamic.on_floor=false
+	var actual: Vector2=ConvoyTrail.point(actor.location.cell)
+	# Standing bodies need only the two distinct cardinal rectangles. A
+	# lying body's forward offset is directional, so keep four in that case.
+	var orientations: int=4 if actor.get("posture","standing")=="lying" else 2
+	var shapes: Array[Rect2]=[]
+	for axis: int in orientations:
+		var sample: Dictionary=actor.duplicate()
+		sample.facing=[PI*0.5,0.0,-PI*0.5,PI][axis]
+		shapes.append(space._actor_rect(sample,Vector2.ZERO))
+	if orientations==2 and shapes[0]==shapes[1]:orientations=1
+	var states: Dictionary={}
+	var queue: Array[int]=[]
+	var root_keys: Array[int]=[]
+	for root: Vector2i in _component_anchors(actual):
+		var id: int=FloorNavigation._id(root)
+		if not graph.has_point(id) or graph.is_point_disabled(id) or not graph._composed_node(root,navigation.bases,navigation.shifts):continue
+		var stubs: Array=_component_stubs(world,actor,floor_id,actual,Vector2(root),query,dynamic,space._actor_rect(actor,Vector2.ZERO))
+		for stub: Dictionary in stubs:
+			# Two legal L connections can reach the same anchor with distinct
+			# body orientations. Keep both, at most eight virtual roots total.
+			var key: int=-root_keys.size()-1
+			states[key]={"parent":-100,"node":id,"shape":stub.shape,"prefix":stub.path}
+			queue.append(key);root_keys.append(key)
+	# If the first physically eligible original point is reached, farther
+	# exploration cannot improve route order. No failed state survives here.
+	var preferred: Dictionary={}
+	var preferred_nodes: Array[int]=[]
+	for candidate: Dictionary in candidates:
+		var target: Vector2=ConvoyTrail.point(candidate.cell)
+		if target==actual or not query.position_reason(target).is_empty():continue
+		var possible: bool=false
+		for shape: Rect2 in shapes:
+			# Current endpoint bodies/reservations are necessary exclusions.
+			# An accepted motion's broad sweep is not: its exact time collision
+			# remains the responsibility of the connection/edge narrow phase.
+			var occupied: bool=false
+			for id: String in (dynamic.index as BodyIndex).candidates(floor_id,Rect2(target+shape.position,shape.size)):
+				if not id.begins_with("1:"):occupied=true;break
+			if not occupied:possible=true;break
+		if not possible:continue
+		preferred=candidate
+		for cell: Vector2i in _component_anchors(target):preferred_nodes.append(FloorNavigation._id(cell))
+		break
+	# No endpoint can accept the body now; exploring edges cannot change that.
+	# This result is invocation-local: the next budgeted retry observes anew.
+	if preferred.is_empty():
+		space.query_counts["rejoin_component_queries"]=int(space.query_counts.get("rejoin_component_queries",0))+1
+		return {"ok":false,"status":"contention","reason":"当前身体与预约下没有可达原路线接点"}
+	var index: int=0
+	var tested: int=0
+	while index<queue.size():
+		var current: int=queue[index];index+=1
+		var state: Dictionary=states[current]
+		var from_cell: Vector2i=FloorNavigation._cell(int(state.node))
+		if not preferred.is_empty() and int(state.node) in preferred_nodes:
+			var connection: Dictionary=_component_stub(world,actor,floor_id,Vector2(from_cell),ConvoyTrail.point(preferred.cell),query,dynamic,state.shape)
+			if connection.ok:break
+		for next: int in graph.get_point_connections(int(state.node)):
+			if graph.is_point_disabled(next):continue
+			var cell: Vector2i=FloorNavigation._cell(next)
+			var delta: Vector2i=cell-from_cell
+			var axis: int=0 if delta.x!=0 else 1
+			if orientations==1:axis=0
+			elif orientations==4:axis=0 if delta.x>0 else 2 if delta.x<0 else 1 if delta.y>0 else 3
+			var key: int=next*orientations+axis
+			if states.has(key):continue
+			if not graph._composed_node(cell,navigation.bases,navigation.shifts) or not graph._composed_edge(from_cell,cell,navigation.bases,navigation.shifts):continue
+			if navigation.get("overlay",false) and (not query.reason(cell).is_empty() or not query.edge_reason(from_cell,cell).is_empty()):continue
+			if not query.reservation_reason(cell).is_empty():continue
+			tested+=1
+			if not _component_dynamic_leg_clear(world,actor,floor_id,Vector2(from_cell),Vector2(cell),state.shape,shapes[axis],dynamic):continue
+			states[key]={"parent":current,"node":next,"shape":shapes[axis]};queue.append(key)
+	space.query_counts["rejoin_component_queries"]=int(space.query_counts.get("rejoin_component_queries",0))+1
+	space.query_counts["rejoin_component_nodes"]=int(space.query_counts.get("rejoin_component_nodes",0))+queue.size()
+	space.query_counts["rejoin_component_edges"]=int(space.query_counts.get("rejoin_component_edges",0))+tested
+	space.query_counts["rejoin_component_state_bound"]=maxi(int(space.query_counts.get("rejoin_component_state_bound",0)),orientations*FloorNavigation.LIMIT+8)
+	for candidate: Dictionary in candidates:
+		var target: Vector2=ConvoyTrail.point(candidate.cell)
+		if target==actual:continue
+		for terminal: Vector2i in _component_anchors(target):
+			var id: int=FloorNavigation._id(terminal)
+			var keys: Array[int]=[]
+			for axis: int in orientations:
+				if states.has(id*orientations+axis):keys.append(id*orientations+axis)
+			for root_key: int in root_keys:
+				if states.has(root_key) and int(states[root_key].node)==id:keys.append(root_key)
+			for key: int in keys:
+				var stub: Dictionary=_component_stub(world,actor,floor_id,Vector2(terminal),target,query,dynamic,states[key].shape)
+				if not stub.ok:continue
+				var cells: Array=[]
+				var cursor: int=key
+				while int(states[cursor].parent)!=-100:
+					cells.push_front(_component_point(floor_id,Vector2(FloorNavigation._cell(int(states[cursor].node)))))
+					cursor=int(states[cursor].parent)
+				var path: Array=states[cursor].prefix.duplicate(true)
+				path.append_array(cells);path.append_array(stub.path)
+				return {"ok":true,"status":"complete","reason":"","path":path,"resume":int(candidate.resume)}
+	return {"ok":false,"status":"contention","reason":"当前身体与预约下没有可达原路线接点"}
+
+func _component_anchors(point: Vector2) -> Array[Vector2i]:
+	var result: Array[Vector2i]=[]
+	for x: int in [floori(point.x),ceili(point.x)]:
+		for y: int in [floori(point.y),ceili(point.y)]:
+			var cell: Vector2i=Vector2i(x,y)
+			if FloorNavigation._inside(cell) and cell not in result:result.append(cell)
+	return result
+
+func _component_point(floor_id: int, point: Vector2) -> Dictionary:
+	return {"kind":"floor","floor_id":floor_id,"cell":[point.x,point.y]}
+
+# Exact cardinal stubs preserve fractional positions. No snap earns movement.
+func _component_dynamic_leg_clear(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2, target: Vector2, before_shape: Rect2, after_shape: Rect2, dynamic: Dictionary) -> bool:
+	var first: Vector2=space.movement._step_toward(start,target,space.walking_speed(actor)*WorldState.TICK_SECONDS)
+	var before: Rect2=Rect2(start+before_shape.position,before_shape.size)
+	var turn: Rect2=Rect2(first+after_shape.position,after_shape.size)
+	var end: Rect2=Rect2(target+after_shape.position,after_shape.size)
+	var index: BodyIndex=dynamic.index
+	for pair: Array in [[before,turn],[turn,end]]:
+		var broad: Rect2=(pair[0] as Rect2).merge(pair[1])
+		if not index.intersects(floor_id,broad,""):continue
+		var sweep: BodyIndex.Record=BodyIndex.Record.new()
+		sweep.id=actor.id;sweep.sweep_from=pair[0];sweep.sweep_to=pair[1]
+		var sweeps: Array[BodyIndex.Record]=[sweep]
+		var contact: HospitalMovement.MotionResult=HospitalMovement.MotionResult.new()
+		contact.first_contact_only=true
+		space.movement._movement_contacts(world,actor.id,floor_id,broad,sweeps,[actor.id],contact)
+		if contact.blocked:return false
+	return true
+
+func _component_stubs(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2, target: Vector2, query: RouteClearance, dynamic: Dictionary, start_shape: Rect2) -> Array:
+	var results: Array=[]
+	for corner: Vector2 in [Vector2(target.x,start.y),Vector2(start.x,target.y)]:
+		var previous: Vector2=start
+		var shape: Rect2=start_shape
+		var path: Array=[]
+		var clear: bool=true
+		for point: Vector2 in [corner,target]:
+			if point==previous:continue
+			if not query.sweep_reason(previous,point).is_empty():clear=false;break
+			var sample: Dictionary=actor.duplicate()
+			sample.facing=atan2(point.x-previous.x,point.y-previous.y)
+			var next_shape: Rect2=space._actor_rect(sample,Vector2.ZERO)
+			if not _component_dynamic_leg_clear(world,actor,floor_id,previous,point,shape,next_shape,dynamic):clear=false;break
+			path.append(_component_point(floor_id,point));previous=point;shape=next_shape
+		if clear:
+			var duplicate: bool=false
+			for found: Dictionary in results:
+				if found.shape==shape:duplicate=true;break
+			if not duplicate:results.append({"ok":true,"path":path,"shape":shape})
+	return results
+
+func _component_stub(world: WorldState, actor: Dictionary, floor_id: int, start: Vector2, target: Vector2, query: RouteClearance, dynamic: Dictionary, start_shape: Rect2) -> Dictionary:
+	var choices: Array=_component_stubs(world,actor,floor_id,start,target,query,dynamic,start_shape)
+	return {"ok":false} if choices.is_empty() else choices[0]
+
 func exact_floor_route(world: WorldState, actor: Dictionary, floor_id: int, cell: Array, members: Array = [], offsets: Dictionary = {}) -> Dictionary:
 	var start: Vector2i = Vector2i(roundi(actor.location.cell[0]),roundi(actor.location.cell[1]))
 	var goal: Vector2i = Vector2i(roundi(cell[0]),roundi(cell[1]))

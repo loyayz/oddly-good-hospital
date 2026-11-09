@@ -111,7 +111,7 @@ func _backward(suite: RefCounted, no_history: bool, sealed: bool, crossing_relea
  var result: Dictionary={"case":"second_mover_crosses_existing_detour" if crossing_release else "three_sides_sealed_waits_safely" if sealed else "fresh_start_without_history_checks_back" if no_history else "both_sides_blocked_retreats_before_bypass","ok":ok,"all_movers_arrived":all_arrived,"orders_kept":orders_kept,"release_errors":release_errors,"errors":errors,"back_phase_seen":back_seen,"actual_backward_step":actual_back,"actual_arrival":arrived,"sealed_position_unchanged":unchanged,"restored_back_phase":restored,"remaining":sim.world.facts.moves.duplicate(true)}
  sim.dispose();return result
 
-func _double_corner_rejoin(suite: RefCounted) -> Dictionary:
+func _double_corner_rejoin(suite: RefCounted, local_restore: Callable=Callable()) -> Dictionary:
  var sim: HospitalSimulation=suite._fixture()
  HospitalFactory._add_room(sim.world,{"id":"corner_room","type":"physical","anchor":[42,84],"size":[6,6],"door":{"definition_id":"DR04","offset":2}},suite.content)
  HospitalFactory._add_facility(sim.world,{"id":"corner_workstation","definition_id":"FUR05","anchor":[43,92],"size":[2,1],"room_id":null},suite.content)
@@ -125,24 +125,70 @@ func _double_corner_rejoin(suite: RefCounted) -> Dictionary:
  var sequence: int=int(sim.world.facts.moves.get("walker",{}).get("request_sequence",-1))
  suite._add_actor(sim,"blocker","S49",[44,91])
  suite._add_actor(sim,"patient","S49",[45,87])
- var errors: Array=[];var choice: Array=[];var exact: bool=true;var restored: Dictionary={};var trace: Array=[]
+ var errors: Array=[];var choice: Array=[];var exact: bool=true;var restored: Dictionary={};var trace: Array=[];var first_actual: Array=[];var departed:bool=false;var returning:bool=false;var route_points:Array=[];var route_events:Array=[]
+ # Original physical route only, independent of later replacement paths.
+ for point:Dictionary in original:
+  if point.get("kind","")!="floor" or int(point.get("floor_id",-1))!=1:break
+  route_points.append(ConvoyTrail.point(point.cell))
+ var local_restore_observed:bool=false
+ var budget_kept:bool=true
+ var dispatch_steps:Array=[]
  for tick: int in 300:
+  var previous:Vector2=ConvoyTrail.point(sim.world.facts.actors.walker.location.cell)
+  var before_dispatch:int=int(sim.space.query_counts.get("route_dispatches",0))
+  var budget:int=maxi(int(suite.content.balance.pathfinding.minimum_actor_requests_per_tick),ceili(float(sim.world.present_actor_count())/float(suite.content.balance.pathfinding.actors_per_request)))
   var error: String=_tick(suite,sim,["walker","blocker","patient"])
+  var used:int=int(sim.space.query_counts.get("route_dispatches",0))-before_dispatch
+  budget_kept=budget_kept and used<=budget
+  if used>0:dispatch_steps.append({"tick":tick,"used":used,"budget":budget})
   if not error.is_empty(): errors.append(error);break
   var movement: Dictionary=sim.world.facts.moves.get("walker",{})
+  var position:Vector2=ConvoyTrail.point(sim.world.facts.actors.walker.location.cell)
+  if movement.has("local_move") or movement.get("live_floor_route",false):
+   returning=true
+   if restored.is_empty():restored=local_restore.call(suite,sim,"walker",["walker","blocker","patient"]) if local_restore.is_valid() and movement.has("local_move") else _restore_boundary(suite,sim,"walker",["walker","blocker","patient"])
+  if local_restore.is_valid() and movement.has("local_move") and not local_restore_observed:
+   restored=local_restore.call(suite,sim,"walker",["walker","blocker","patient"])
+   local_restore_observed=true
+  if returning and not _original_route_contains(route_points,previous):departed=true
+  if departed and first_actual.is_empty():
+   var hit:Dictionary=_original_route_first_crossing(route_points,previous,position)
+   if not hit.is_empty():
+    first_actual=[hit.cell.x,hit.cell.y]
+    route_events.append({"tick":tick,"from":[previous.x,previous.y],"to":[position.x,position.y],"intersection":first_actual,"segment":hit.index})
+  if returning and not _original_route_contains(route_points,position):departed=true
+  if movement.has("route_rejoin"):route_events.append({"tick":tick,"pending_route_rejoin":movement.route_rejoin.duplicate(true)})
   exact=exact and sim.space.at(sim.world,"blocker",1,[44,91]) and not sim.world.facts.moves.has("blocker")
   if not movement.is_empty():
    exact=exact and int(movement.request_sequence)>=sequence and movement.target_cell==[47,86] and int(movement.target_floor)==1
    if movement.has("local_move") and movement.local_move.has("rejoin") and choice.is_empty():
     choice=movement.local_move.rejoin.cell.duplicate()
-    restored=_restore_boundary(suite,sim,"walker",["walker","blocker","patient"])
+    if restored.is_empty():restored=local_restore.call(suite,sim,"walker",["walker","blocker","patient"]) if local_restore.is_valid() and movement.has("local_move") else _restore_boundary(suite,sim,"walker",["walker","blocker","patient"])
   if tick%25==0 or movement.is_empty(): trace.append({"tick":tick,"position":sim.world.facts.actors.walker.location.cell.duplicate(),"local_move":movement.get("local_move",{}).duplicate(true)})
   if movement.is_empty(): break
  var arrived: bool=sim.space.at(sim.world,"walker",1,[47,86]) and not sim.world.facts.moves.has("walker")
- var nearest: bool=choice.size()==2 and ConvoyTrail.point(choice).distance_to(Vector2(44,90))<0.0001
+ var nearest: bool=first_actual.size()==2 and ConvoyTrail.point(first_actual).distance_to(Vector2(44,90))<0.0001
  var dispatches: int=int(sim.space.query_counts.get("route_dispatches",0))
- var result: Dictionary={"case":"nearest_return_around_furniture_and_entrance","ok":request.is_empty() and errors.is_empty() and exact and nearest and arrived and restored.get("ok",false) and dispatches>=1 and dispatches<=2,"request":request,"errors":errors,"original_goal_and_stationary_blocker_preserved":exact,"nearest_rejoin":choice,"arrived":arrived,"global_route_dispatches":dispatches,"restore":restored,"trace":trace,"original_path":original,"remaining":sim.world.facts.moves.duplicate(true)}
+ var result: Dictionary={"case":"nearest_return_around_furniture_and_entrance","ok":request.is_empty() and errors.is_empty() and exact and nearest and arrived and restored.get("ok",false) and dispatches==2 and budget_kept and (not local_restore.is_valid() or local_restore_observed),"strict_local_restore_observed":local_restore_observed,"request":request,"errors":errors,"original_goal_and_stationary_blocker_preserved":exact,"nearest_rejoin":choice,"actual_first_rejoin":first_actual,"departed_original_route":departed,"route_events":route_events,"arrived":arrived,"global_route_dispatches":dispatches,"per_tick_budget_kept":budget_kept,"dispatch_steps":dispatch_steps,"dispatch_scope":"one initial route plus one current-component query under the existing budget","restore":restored,"trace":trace,"original_path":original,"remaining":sim.world.facts.moves.duplicate(true)}
  sim.dispose();return result
+
+# Geometric observation only. Never drives movement or invokes a planner.
+func _original_route_contains(points:Array, p:Vector2)->bool:
+ for i:int in range(1,points.size()):
+  if Geometry2D.get_closest_point_to_segment(p,points[i-1],points[i]).distance_to(p)<0.00001:return true
+ return false
+func _original_route_first_crossing(points:Array, a:Vector2, b:Vector2)->Dictionary:
+ var best:Dictionary={};var distance:float=INF
+ for i:int in range(1,points.size()):
+  var c:Vector2=points[i-1];var d:Vector2=points[i]
+  var hit:Variant=Geometry2D.segment_intersects_segment(a,b,c,d)
+  # Includes collinear step endpoints and stationary observations.
+  if hit==null and Geometry2D.get_closest_point_to_segment(b,c,d).distance_to(b)<0.00001:hit=b
+  if hit==null:continue
+  var travelled:float=a.distance_to(hit)
+  if travelled<distance:
+   distance=travelled;best={"cell":hit,"index":i}
+ return best
 
 func _restore_boundary(suite:RefCounted,sim:HospitalSimulation,id:String,ids:Array)->Dictionary:
  var input:Dictionary=sim.world.freeze()
