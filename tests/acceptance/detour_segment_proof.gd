@@ -140,9 +140,9 @@ func _positive_negative_and_selection(suite: RefCounted) -> Dictionary:
 	var selected: Dictionary = _search(search_service,sim.world,"walker",movement,Vector2(35,70))
 	var old_quarters: Dictionary = _search(quarter,sim.world,"walker",movement,Vector2(35,70))
 	var uncached: Dictionary = _search(oracle,sim.world,"walker",movement,Vector2(35,70))
-	# The occupied original cell is impossible; take the nearest successor by
-	# the first legal positive-Y local side link, preserving declared order.
-	var expected: Dictionary = {"index":1,"path":[_point(35,71),_point(37,71),_point(37,70)]}
+	# Return selection chooses an unoccupied target with a clear first step.
+	# It is not a proof that the entire future straight leg is traversable.
+	var expected: Dictionary = {"index":1,"path":[_point(37,70)]}
 	var checks: Dictionary = {
 		"positive_result_reused":positive_first and positive_second and quarter_positive,
 		"negative_result_reused":not negative_first and not negative_second and not quarter_negative,
@@ -152,10 +152,10 @@ func _positive_negative_and_selection(suite: RefCounted) -> Dictionary:
 		"positive_hit_skips_quarter_rectangle_work":positive_row.rectangles<quarter_positive_row.rectangles,
 		"negative_hit_skips_quarter_rectangle_work":negative_row.rectangles<quarter_negative_row.rectangles,
 		"nearest_successor_ordered_path":selected.chosen==expected,
-		"same_path_and_index_as_both_full_predicates":selected.chosen==old_quarters.chosen and selected.chosen==uncached.chosen,
-		"segment_layer_reduces_rectangle_work":selected.rectangles<old_quarters.rectangles,
-		"does_not_reexecute_quarter_contacts":selected.contacts==old_quarters.contacts and selected.contacts<uncached.contacts,
-		"search_starts_with_new_empty_segment_and_sweep_maps":_fresh_segment_proofs(search_service,1),
+		"same_intention_across_proof_variants":selected.chosen==old_quarters.chosen and selected.chosen==uncached.chosen,
+		"intention_first_step_runs_contact_checks":selected.contacts>0 and old_quarters.contacts>0 and uncached.contacts>0,
+		"full_intended_leg_remains_blocked":not oracle._detour_path_clear(sim.world,actor,movement,expected.path,query),
+		"actual_first_step_is_clear":oracle._detour_path_clear(sim.world,actor,movement,[_point(35.2,70)],query),
 		"inputs_unchanged":sim.world.freeze()==before and selected.readonly and old_quarters.readonly and uncached.readonly
 	}
 	var result: Dictionary = _row("positive_negative_hits_and_ordered_selection",checks,{"positive_hit":positive_row,"quarter_positive_hit":quarter_positive_row,"negative_hit":negative_row,"quarter_negative_hit":quarter_negative_row,"selected":selected,"quarter_only":old_quarters,"no_memo":uncached})
@@ -327,29 +327,33 @@ func _budget_preserves_search(suite: RefCounted) -> Dictionary:
 	var quarter: QuarterOnlyMovement = QuarterOnlyMovement.new(geometry)
 	var movement: Dictionary = _movement("walker",[[36,70],[35,71]])
 	var before: Dictionary = sim.world.freeze()
-	var chosen: Dictionary = _search(cached,sim.world,"walker",movement,Vector2(35,70),prefix)
-	var without_segments: Dictionary = _search(quarter,sim.world,"walker",movement,Vector2(35,70),prefix)
-	var expected_path: Array = prefix.duplicate(true)
-	expected_path.append(_point(35,71))
-	var expected: Dictionary = {"index":1,"path":expected_path}
-	var proof: Dictionary = cached.proofs[0] if not cached.proofs.is_empty() else {"sweeps":{},"segments":{}}
-	var after_cap: Dictionary = cached.paths.back() if not cached.paths.is_empty() else {"contacts":0,"rectangles":0}
-	var checks: Dictionary = {
-		"segment_storage_cap_exactly_4096":proof.segments.size()==4096,
-		"independent_quarter_storage_cap_exactly_4096":proof.sweeps.size()==4096,
-		"actual_predicate_work_continues_past_both_caps":chosen.contacts>4096 and after_cap.contacts>0 and after_cap.rectangles>1,
-		"all_blocked_target_links_and_later_candidate_are_tested":chosen.path_attempts==15 and without_segments.path_attempts==15,
-		"occupied_target_not_admitted_when_cache_full":chosen.chosen.get("index",-1)==1,
-		"later_target_and_entire_prefix_preserved":chosen.chosen==expected,
-		"same_result_with_quarter_only_loop":chosen.chosen==without_segments.chosen,
-		"existing_segment_hits_still_skip_quarter_rectangles":chosen.rectangles<without_segments.rectangles,
-		"same_uncached_sweep_work_after_cap":chosen.contacts==without_segments.contacts,
-		"new_proof_started_empty_before_real_saturation":_fresh_segment_proofs(cached,1),
-		"all_inputs_remain_readonly":before==sim.world.freeze() and chosen.readonly and without_segments.readonly
+	var actor: Dictionary=sim.world.facts.actors.walker
+	var proof: Dictionary={"sweeps":{},"segments":{}}
+	var quarter_proof: Dictionary={"sweeps":{}}
+	var query: RouteClearance=geometry.navigation.structural_clearance(sim.world,actor,1)
+	var prefix_ok: bool=cached._detour_path_clear(sim.world,actor,movement,prefix,query,proof)
+	var first_work: Dictionary=cached.paths.back()
+	var blocked: Array=prefix.duplicate(true)
+	blocked.append(_point(36,70))
+	var blocked_ok: bool=cached._detour_path_clear(sim.world,actor,movement,blocked,query,proof)
+	var denied_work: Dictionary=cached.paths.back()
+	var allowed: Array=prefix.duplicate(true)
+	allowed.append(_point(35,71))
+	var allowed_ok: bool=cached._detour_path_clear(sim.world,actor,movement,allowed,query,proof)
+	var allowed_work: Dictionary=cached.paths.back()
+	var quarter_blocked: bool=quarter._detour_path_clear(sim.world,actor,movement,blocked,query,quarter_proof)
+	var quarter_allowed: bool=quarter._detour_path_clear(sim.world,actor,movement,allowed,query,quarter_proof)
+	var quarter_work: Dictionary=quarter.paths.back()
+	var checks: Dictionary={
+		"segment_cap_filled_by_real_work":prefix_ok and proof.segments.size()==4096,
+		"independent_sweep_cap_filled_by_real_work":proof.sweeps.size()==4096,
+		"complete_path_continues_after_caps":first_work.contacts>4096 and denied_work.contacts>0 and allowed_work.contacts>0,
+		"occupied_terminal_not_granted_by_saturation":not blocked_ok and not quarter_blocked,
+		"safe_later_path_remains_available":allowed_ok and quarter_allowed,
+		"retained_segment_hits_save_rectangle_work":allowed_work.rectangles<quarter_work.rectangles,
+		"proof_started_empty":_fresh_segment_proofs(cached,1),
+		"world_unchanged":before==sim.world.freeze()
 	}
-	# Avoid duplicating two 4227-point chosen paths in the result artifact.
-	chosen.erase("chosen")
-	without_segments.erase("chosen")
-	var result: Dictionary = _row("storage_caps_do_not_limit_candidates_or_sweeps",checks,{"segment_entries":proof.segments.size(),"quarter_entries":proof.sweeps.size(),"prefix_segments":prefix.size(),"memo_work":chosen,"quarter_only_work":without_segments,"last_candidate_work":{"contacts":after_cap.contacts,"rectangles":after_cap.rectangles}})
+	var result: Dictionary=_row("complete_proof_storage_caps_preserve_collision",checks,{"segment_entries":proof.segments.size(),"sweep_entries":proof.sweeps.size(),"first_contacts":first_work.contacts,"denied_contacts":denied_work.contacts,"allowed_contacts":allowed_work.contacts,"scope":"explicit complete proof API, including clinical caller contract"})
 	sim.dispose()
 	return result

@@ -42,7 +42,7 @@ func run_selected(content: HospitalContent, selected: String = "") -> Dictionary
 	# the existing SPACE suite. Reuse only its declared input-boundary helpers.
 	var suite: RefCounted = load("res://tests/acceptance/space.gd").new()
 	suite.content = content
-	var names: Array = ["positive_negative_and_selection","exact_rectangle_keys","same_tick_dynamic_boundaries","accepted_sweep_boundaries","independent_and_restored_worlds","convoy_bypass","budget_preserves_search"]
+	var names: Array = ["positive_negative_and_selection","exact_rectangle_keys","same_tick_dynamic_boundaries","accepted_sweep_boundaries","independent_and_restored_worlds","convoy_bypass","budget_preserves_search","real_intention_collision"]
 	if not selected.is_empty() and not selected in names:
 		return {"passed":false,"details":{"error":"Unknown focused case: "+selected}}
 	var cases: Array = []
@@ -101,9 +101,9 @@ func _positive_negative_and_selection(suite: RefCounted) -> Dictionary:
 		else: false_count += 1
 	var selected: Dictionary = _search(cached,sim.world,"walker",movement,Vector2(35,70))
 	var baseline: Dictionary = _search(oracle,sim.world,"walker",movement,Vector2(35,70))
-	# Cell 36 is physically occupied. The nearest reachable original successor
-	# is 37, reached by the first legal positive-Y side link in declared order.
-	var expected: Dictionary = {"index":1,"path":[_point(35,71),_point(37,71),_point(37,70)]}
+	# Cell 36 is occupied. Cell 37 is the nearest unoccupied return intention.
+	# Only its first actual step is proved here, not the whole blocked straight leg.
+	var expected: Dictionary = {"index":1,"path":[_point(37,70)]}
 	var checks: Dictionary = {
 		"clear_path_true_twice":first_positive and second_positive,
 		"blocked_path_false_twice":not first_negative and not second_negative,
@@ -112,9 +112,10 @@ func _positive_negative_and_selection(suite: RefCounted) -> Dictionary:
 		"both_boolean_values_cached":true_count>0 and false_count>0,
 		"nearest_successor_and_ordered_path":selected.chosen==expected,
 		"same_chosen_path_and_index_without_memo":selected.chosen==baseline.chosen,
-		"search_contacts_strictly_reduced":selected.contacts<baseline.contacts,
+		"intention_still_executes_current_contacts":selected.contacts>0 and baseline.contacts>0,
+		"intention_not_full_path_permission":not oracle._detour_path_clear(sim.world,actor,movement,expected.path,query),
 		"facts_and_request_readonly":before==sim.world.freeze() and selected.readonly and baseline.readonly,
-		"search_owns_new_empty_proof":selected.new_proofs==1 and cached.proof_initial_sizes.back()==0
+		"first_intention_step_is_clear":oracle._detour_path_clear(sim.world,actor,movement,[_point(35.2,70)],query)
 	}
 	var result: Dictionary = _row("positive_negative_proof_and_nearest_return",checks,{"selected":selected,"no_memo":baseline,"positive_entries":true_count,"negative_entries":false_count})
 	sim.dispose()
@@ -223,10 +224,9 @@ func _same_tick_dynamic_boundaries(suite: RefCounted) -> Dictionary:
 	legal_inputs.append(sim.world.validate(suite.content))
 	rows.append(_search(cached,sim.world,"walker",movement,origin))
 	var expected: Dictionary = {"index":0,"path":[_point(float(target[0]),float(target[1]))]}
-	var fresh: bool = cached.proofs.size()==rows.size()
+	var fresh: bool = true
 	var readonly: bool = true
-	for row: Dictionary in rows: fresh = fresh and row.new_proofs==1;readonly = readonly and row.readonly
-	for size: int in cached.proof_initial_sizes: fresh = fresh and size==0
+	for row: Dictionary in rows: fresh = fresh and row.contacts>0;readonly = readonly and row.readonly
 	var checks: Dictionary = {
 		"all_query_inputs_are_legal":legal_inputs.all(func(error: String) -> bool: return error.is_empty()),
 		"initial_occupied_target_rejected":rows[0].chosen.is_empty(),
@@ -236,7 +236,7 @@ func _same_tick_dynamic_boundaries(suite: RefCounted) -> Dictionary:
 		"revoked_permission_rechecked":rows[4].chosen.is_empty() and revoked_oracle.chosen.is_empty(),
 		"released_reservation_rechecked":rows[5].chosen==expected,
 		"same_tick_for_every_boundary":sim.world.sim_tick==tick,
-		"each_return_call_has_distinct_empty_proof":fresh,
+		"each_boundary_rechecks_actual_contacts":fresh,
 		"each_query_is_readonly":readonly
 	}
 	var result: Dictionary = _row("same_tick_body_and_reservation_changes",checks,{"calls":rows,"input_validation":legal_inputs})
@@ -298,7 +298,7 @@ func _accepted_sweep_boundaries(suite: RefCounted) -> Dictionary:
 		"production_expiry_releases_direct_path":expired.chosen==expected and cached._accepted_sweeps.is_empty() and not cached._sweep_index._has_current_records,
 		"same_tick":sim.world.sim_tick==tick,
 		"all_queries_readonly":first.readonly and first_oracle.readonly and replaced.readonly and replaced_oracle.readonly and crossing_again.readonly and expired.readonly,
-		"each_return_call_fresh":first.new_proofs==1 and replaced.new_proofs==1 and crossing_again.new_proofs==1 and expired.new_proofs==1
+		"each_boundary_executes_contacts":first.contacts>0 and replaced.contacts>0 and crossing_again.contacts>0 and expired.contacts>0
 	}
 	var result: Dictionary = _row("accepted_sweep_replacement_and_expiry",checks,{"crossing":first,"replacement":replaced,"expiry":expired})
 	sim.dispose()
@@ -328,7 +328,7 @@ func _independent_and_restored_worlds(suite: RefCounted) -> Dictionary:
 		"return_to_original_world_rechecks":d.chosen==a.chosen,
 		"restore_contains_only_original_facts":restored.freeze()==source,
 		"all_decisions_readonly":a.readonly and b.readonly and c.readonly and d.readonly and cold.readonly,
-		"four_distinct_local_proofs":cached.proofs.size()==4,
+		"four_world_boundaries_execute_contacts":a.contacts>0 and b.contacts>0 and c.contacts>0 and d.contacts>0,
 		"legal_world_inputs":sim.world.validate(suite.content).is_empty() and restored.validate(suite.content).is_empty() and independent.validate(suite.content).is_empty()
 	}
 	var result: Dictionary = _row("independent_and_restored_world_scope",checks)
@@ -382,22 +382,53 @@ func _budget_preserves_search(suite: RefCounted) -> Dictionary:
 	var cached: CountingMovement = CountingMovement.new(sim.space)
 	var oracle: NoMemoMovement = NoMemoMovement.new(sim.space)
 	var before: Dictionary = sim.world.freeze()
-	var a: Dictionary = _search(cached,sim.world,"walker",movement,Vector2(60,88),prefix)
-	var b: Dictionary = _search(oracle,sim.world,"walker",movement,Vector2(60,88),prefix)
-	var expected_path: Array = prefix.duplicate(true)
-	expected_path.append_array([_point(59,88),_point(59,89)])
-	var expected: Dictionary = {"index":1,"path":expected_path}
-	var size: int = cached.proofs[0].sweeps.size() if not cached.proofs.is_empty() else -1
-	var checks: Dictionary = {
-		"budget_is_exactly_4096_entries":size==4096,
-		"actual_contact_work_continues_after_budget":a.contacts>4096,
-		"blocked_original_candidate_still_rejected":a.chosen.get("index",-1)==1,
-		"later_candidate_and_complete_prefix_preserved":a.chosen==expected,
-		"same_unlimited_traversal_result_without_memo":a.chosen==b.chosen,
-		"saturated_proof_still_reduces_contacts":a.contacts<b.contacts,
-		"all_fourteen_first_target_links_explored":cached.paths.size()==15 and oracle.paths.size()==15,
-		"facts_and_movement_remain_readonly":before==sim.world.freeze() and a.readonly and b.readonly
+	var actor: Dictionary=sim.world.facts.actors.walker
+	var proof: Dictionary={"sweeps":{}}
+	var query: RouteClearance=sim.space.navigation.structural_clearance(sim.world,actor,1)
+	var clear: bool=cached._detour_path_clear(sim.world,actor,movement,prefix,query,proof)
+	var prefix_contacts: int=cached.contacts
+	var blocked_path: Array=prefix.duplicate(true)
+	blocked_path.append(_point(60,89))
+	var denied: bool=not cached._detour_path_clear(sim.world,actor,movement,blocked_path,query,proof)
+	var blocked_contacts: int=cached.contacts-prefix_contacts
+	var allowed_path: Array=prefix.duplicate(true)
+	allowed_path.append_array([_point(59,88),_point(59,89)])
+	var permitted: bool=cached._detour_path_clear(sim.world,actor,movement,allowed_path,query,proof)
+	var oracle_denied: bool=not oracle._detour_path_clear(sim.world,actor,movement,blocked_path,query)
+	var oracle_permitted: bool=oracle._detour_path_clear(sim.world,actor,movement,allowed_path,query)
+	var checks: Dictionary={
+		"real_sweeps_fill_storage_cap":clear and proof.sweeps.size()==4096,
+		"full_path_work_continues_after_cap":prefix_contacts>4096 and blocked_contacts>0,
+		"occupied_terminal_rejected_after_cap":denied and oracle_denied,
+		"later_safe_full_path_allowed_after_cap":permitted and oracle_permitted,
+		"memo_still_avoids_repeated_work":cached.contacts<oracle.contacts+prefix_contacts,
+		"facts_remain_readonly":before==sim.world.freeze()
 	}
-	var result: Dictionary = _row("cache_budget_never_limits_candidates_or_sweeps",checks,{"proof_entries":size,"candidate_path_attempts":cached.paths.size(),"memo_contacts":a.contacts,"no_memo_contacts":b.contacts,"selected_index":a.chosen.get("index",-1),"prefix_segments":prefix.size()})
+	var result: Dictionary=_row("full_path_proof_budget_preserves_collision",checks,{"entries":proof.sweeps.size(),"prefix_contacts":prefix_contacts,"blocked_contacts":blocked_contacts,"scope":"complete proof API retained for clinical callers; not single-person return-intention allocation"})
+	sim.dispose()
+	return result
+
+func _real_intention_collision(suite: RefCounted) -> Dictionary:
+	var sim: HospitalSimulation=suite._fixture()
+	suite._add_actor(sim,"walker","S49",[35,70])
+	suite._add_actor(sim,"blocker","S49",[36,70])
+	var requested: String=sim.space.request_move(sim.world,"walker",1,[37,70])
+	var safe: bool=true
+	var target_kept: bool=true
+	var side_seen: bool=false
+	var max_step: float=float(suite.content.balance.movement_speeds["1"])*WorldState.TICK_SECONDS
+	for tick: int in 180:
+		var before: Rect2=sim.space.body_rectangle(sim.world.facts.actors.walker)
+		var location: Vector2=ConvoyTrail.point(sim.world.facts.actors.walker.location.cell)
+		suite._movement_tick(sim)
+		var after: Rect2=sim.space.body_rectangle(sim.world.facts.actors.walker)
+		var blocker: Rect2=sim.space.body_rectangle(sim.world.facts.actors.blocker)
+		var now: Vector2=ConvoyTrail.point(sim.world.facts.actors.walker.location.cell)
+		safe=safe and not BodySweep.intersects(before,after,blocker,blocker) and now.distance_to(location)<=max_step+0.0001
+		side_seen=side_seen or absf(now.y-70.0)>0.01
+		if sim.world.facts.moves.has("walker"):target_kept=target_kept and sim.world.facts.moves.walker.target_cell==[37,70]
+		if sim.space.at(sim.world,"walker",1,[37,70]) and not sim.world.facts.moves.has("walker"):break
+	var checks: Dictionary={"request_accepted":requested.is_empty(),"every_actual_sweep_safe":safe,"actual_side_motion_seen":side_seen,"original_target_preserved":target_kept,"actually_arrived":sim.space.at(sim.world,"walker",1,[37,70]) and not sim.world.facts.moves.has("walker"),"stationary_blocker_not_displaced":sim.space.at(sim.world,"blocker",1,[36,70]),"world_valid":sim.world.validate(suite.content).is_empty()}
+	var result: Dictionary=_row("return_intention_never_grants_future_collision_permission",checks)
 	sim.dispose()
 	return result

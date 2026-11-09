@@ -12,7 +12,7 @@ class CountingNavigation:
 
 # A local-return decision boundary, not a replacement for actual movement tests.
 # Every original candidate cell initially has a stationary body, so no local
-# link may reach it; all 14 alternatives per cell must retain collision checks.
+# link may reach it; a return intention must retain collision checks.
 func run(suite: RefCounted) -> Dictionary:
  var sim: HospitalSimulation = suite._fixture()
  suite._add_actor(sim,"walker","S49",[35,70])
@@ -37,14 +37,16 @@ func run(suite: RefCounted) -> Dictionary:
  checks.released_actor_uses_first_original_cell = released.get("index",-1)==0
  checks.new_call_acquires_again = navigation.acquisitions==before+1 and not is_same(navigation.geometries[0],navigation.geometries.back())
  checks.release_decision_readonly = sim.world.freeze()==original
- # A new static obstacle blocks the first original cell, but leaves a fixed
- # outside link to its next cell. Original-cell order remains authoritative.
+ # A new static obstacle blocks the common first leg. The return helper
+ # must reject it; actual side movement belongs to the movement state machine.
  sim.world.facts.floors.overrides["1"].blocked.append([36,70])
  sim.world.touch()
  before = navigation.acquisitions
  original = sim.world.freeze()
  var edited: Dictionary = sim.space.movement._detour_return_path(sim.world,actor,movement,Vector2(35,70))
- checks.static_edit_uses_next_original_cell = edited.get("index",-1)==1
+ checks.static_edit_rejects_blocked_first_leg = edited.is_empty()
+ var flow: Dictionary = _edited_real_flow(suite)
+ checks.static_edit_real_side_and_nearest_rejoin = flow.ok
  checks.static_edit_reacquired = navigation.acquisitions==before+1
  checks.static_edit_readonly = sim.world.freeze()==original
  # A body change likewise belongs to the next proof, even with unchanged XY.
@@ -67,6 +69,32 @@ func run(suite: RefCounted) -> Dictionary:
  checks.empty_suffix_allocates_nothing = empty.is_empty() and navigation.acquisitions==before
  var ok: bool = true
  for passed: bool in checks.values(): ok = ok and passed
- var report: Dictionary = {"case":"query_local_detour_geometry","ok":ok,"checks":checks,"blocked_geometry_acquisitions":blocked_acquisitions,"original_candidates":path.size(),"released_index":released.get("index",-1),"edited_index":edited.get("index",-1)}
+ var report: Dictionary = {"case":"query_local_detour_geometry","ok":ok,"checks":checks,"blocked_geometry_acquisitions":blocked_acquisitions,"original_candidates":path.size(),"released_index":released.get("index",-1),"edited_index":edited.get("index",-1),"edited_real_flow":flow}
  sim.dispose()
  return report
+
+func _edited_real_flow(suite: RefCounted) -> Dictionary:
+ var sim:HospitalSimulation=suite._fixture();suite._add_actor(sim,"walker","S49",[35,70])
+ var w:WorldState=sim.world;var s:HospitalSpace=sim.space;var a:Dictionary=w.facts.actors.walker
+ var reason:String=s.request_move(w,"walker",1,[45,70]);s.movement._dispatch_routes(w,1)
+ var m:Dictionary=w.facts.moves.walker;m.cursor=s.movement._initial_route_cursor(a,m.path,w)
+ var original:Array=m.path.slice(int(m.cursor)).duplicate(true)
+ w.facts.floors.overrides["1"].blocked.append([36,70]);w.touch()
+ var rejected:bool=s.movement._detour_return_path(w,a,{"actor_id":"walker","detour":{"original_path":original}},Vector2(35,70)).is_empty()
+ s.movement._start_detour(w,a,m)
+ var trace:Array=[];var safe:bool=true;var side_seen:bool=false;var first_rejoin:Array=[]
+ for i:int in 200:
+  var previous:Vector2=ConvoyTrail.point(a.location.cell)
+  s.advance(w);w.facts.sim_tick+=1;w.touch(false)
+  var now:Vector2=ConvoyTrail.point(a.location.cell)
+  var geometry:RouteClearance=s.navigation.structural_clearance(w,a,1)
+  safe=safe and geometry.sweep_reason(previous,now).is_empty()
+  side_seen=side_seen or absf(now.y-70.0)>0.01
+  var current:Dictionary=w.facts.moves.get("walker",{})
+  if first_rejoin.is_empty() and current.get("detour",{}).get("phase","")=="rejoin":first_rejoin=current.path[int(current.detour.prefix_size)-1].cell.duplicate()
+  trace.append({"tick":i,"cell":a.location.cell.duplicate(),"phase":current.get("detour",{}).get("phase","")})
+  if not w.facts.moves.has("walker"):break
+ var result:Dictionary={"request":reason,"initial_return_rejects_wall":rejected,"side_seen":side_seen,"first_rejoin":first_rejoin,"safe_sweeps":safe,"arrived":s.at(w,"walker",1,[45,70]),"trace":trace,"validation":w.validate(suite.content)}
+ result.ok=reason.is_empty() and rejected and side_seen and first_rejoin==[37.0,70.0] and safe and result.arrived and result.validation.is_empty()
+ sim.dispose()
+ return result
