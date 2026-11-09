@@ -186,13 +186,13 @@ func _admit_then_pause(x: Dictionary, visit: Dictionary, additional: Array = [])
 	for tick: int in 500:
 		_step(x)
 		var row: Dictionary = x.g.state(x.world,visit.id)
-		var all_queued: bool = row.has("queue_seq") and row.get("phase","")=="desk_queue"
+		var all_queued: bool = _actual_queue_admission(x,visit,row)
 		for extra: Dictionary in additional:
 			var other: Dictionary = x.g.state(x.world,extra.id)
-			all_queued = all_queued and other.has("queue_seq") and other.get("phase","")=="desk_queue" and x.space.at(x.world,extra.actor_id,1,other.get("queue_cell",[])) and not x.world.facts.moves.has(extra.actor_id)
+			all_queued = all_queued and _actual_queue_admission(x,extra,other)
 		if all_queued: break
 	var admitted: Dictionary = x.g.state(x.world,visit.id)
-	var real_queue: bool = admitted.has("queue_seq") and admitted.get("phase","")=="desk_queue" and x.space.at(x.world,visit.actor_id,1,admitted.get("queue_cell",[])) and not x.world.facts.moves.has(visit.actor_id)
+	var real_queue: bool = _actual_queue_admission(x,visit,admitted)
 	var all_later_walked: bool=true
 	for patient: Dictionary in later:
 		all_later_walked=all_later_walked and not x.space.at(x.world,patient.actor_id,1,initial_positions[patient.id])
@@ -202,6 +202,15 @@ func _admit_then_pause(x: Dictionary, visit: Dictionary, additional: Array = [])
 		_step(x)
 		if not x.world.facts.adaptations.has("guide") and str(x.world.facts.staff.guide_nurse.get("active_job_id","")).is_empty() and not x.world.facts.moves.has("guide_nurse"): break
 	return {"ok":staffed and real_queue and initial_nonoverlap and all_later_walked and int(x.g.state(x.world,visit.id).get("queue_seq",-2))==number and x.g.state(x.world,visit.id).receipts.is_empty() and not x.world.facts.adaptations.has("guide"),"nurse_actually_staffed":staffed,"nurse_walked":nurse_start!=x.world.facts.actors.guide_nurse.location,"patient_really_queued":real_queue,"initial_positions":initial_positions,"initial_later_nonoverlap":initial_nonoverlap,"all_later_really_walked":all_later_walked,"number":number,"state":x.g.state(x.world,visit.id).duplicate(true)}
+
+# The arrival is real even when the head immediately starts its counter
+# approach in the same dispatch. Observe the facts production wrote; never
+# manufacture a queue number, arrival, location or service completion.
+func _actual_queue_admission(x: Dictionary, visit: Dictionary, row: Dictionary) -> bool:
+	if int(row.get("queue_seq",-1))<0 or int(row.get("queue_arrived_tick",-1))<0 or int(row.queue_arrived_tick)>int(x.world.sim_tick):return false
+	if row.get("queue_cell",[]).size()!=2 or row.get("queue_desk_id","")!=row.get("desk_id",""):return false
+	if row.get("phase","")=="to_counter":return true
+	return row.get("phase","")=="desk_queue" and x.space.at(x.world,visit.actor_id,int(row.guide_floor),row.queue_cell) and not x.world.facts.moves.has(visit.actor_id)
 
 func _restaff_only(x: Dictionary) -> bool:
 	x.world.facts.staff.guide_nurse.on_shift = true
