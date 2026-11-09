@@ -97,7 +97,9 @@ static func capacity_available(space: HospitalSpace, world: WorldState, provider
 	var occupants: Array=[]
 	var seen: Dictionary={}
 	for row: Dictionary in world.facts.floor_guidance.visits.values():
-		if row.get("desk_id","")!=desk_id:continue
+		# Only held-number candidates need the membership pass. All actual
+		# entering/non-held bodies are counted by the physical pass below.
+		if row.get("desk_id","")!=desk_id or not row.has("queue_seq") or row.get("phase","") not in ["desk_queue","to_counter","working"]:continue
 		var visit: Dictionary=world.facts.visits.get(str(row.get("visit_id","")),{})
 		if visit.is_empty() or visit.get("phase","") in ["leaving","departed"]:continue
 		var id: String=str(visit.actor_id)
@@ -105,8 +107,7 @@ static func capacity_available(space: HospitalSpace, world: WorldState, provider
 		var other: Dictionary=world.facts.actors.get(id,{})
 		if other.is_empty() or other.location.kind!="floor" or int(other.location.floor_id)!=int(ctx.floor_id):continue
 		var held: bool=_held_member(space,world,provider,row,visit,other)
-		var entering: bool=row.get("phase","")=="seek" and physical.has(id) and is_inside(ctx,space,other,Vector2(other.location.cell[0],other.location.cell[1]))
-		if not held and not entering:continue
+		if not held:continue
 		seen[id]=true
 		occupants.append({"id":id,"span":space.clearance(other),"held":held,"sequence":int(row.get("queue_seq",0))})
 	# Physical departing patients still consume this bounded room's capacity,
