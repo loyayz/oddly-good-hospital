@@ -245,5 +245,7 @@ func _ground_full(world: WorldState, space: HospitalSpace, floor_id: int, cell: 
 		var rect: Rect2 = Rect2(float(facility.cell[0]),float(facility.cell[1]),float(facility.footprint[0]),float(facility.footprint[1]))
 		if rect.has_point(Vector2(float(cell[0]),float(cell[1]))) or cell in facility.get("operator_cells",[]) or cell==facility.get("patient_cell",[]) or cell==facility.get("repair_cell",[]): return false
 	for reservation: Dictionary in world.facts.adaptations.values():
-		if int(reservation.get("floor_id",-1))==floor_id and cell in reservation.get("occupied_cells",[]): return false
+		if int(reservation.get("floor_id",-1))!=floor_id: continue
+		for region: Array in reservation.get("regions",[]):
+			if Rect2(Vector2(float(cell[0]),float(cell[1])),Vector2.ONE).intersects(Rect2(float(region[0]),float(region[1]),float(region[2]),float(region[3])),false): return false
 	return true

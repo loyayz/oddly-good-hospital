@@ -288,10 +288,9 @@ func _ground_spawn_view(world: WorldState, floor_id: int) -> Dictionary:
 		for field: String in ["patient_cell","repair_cell"]:
 			if not facility.get(field,[]).is_empty(): cells.append(facility[field])
 		for cell: Array in cells: points[Vector2(float(cell[0]),float(cell[1]))] = true
-	for reservation: Dictionary in world.facts.adaptations.values():
-		if int(reservation.get("floor_id",-1))!=floor_id: continue
-		for cell: Array in reservation.get("occupied_cells",[]): points[Vector2(float(cell[0]),float(cell[1]))] = true
-	return {"points":points,"rectangles":rectangles,"index":index}
+	# Reservation owners publish complete regions, not occupied_cells. Borrow
+	# their live index; dirt has no participant permission to enter a held area.
+	return {"points":points,"rectangles":rectangles,"index":index,"reservations":space.reservation_view(world).index}
 
 func _ground_spawn_legal(world: WorldState, floor_id: int, cell: Array, view: Dictionary = {}) -> bool:
 	if not space.owned(world,floor_id,Vector2i(int(cell[0]),int(cell[1]))):
@@ -301,7 +300,7 @@ func _ground_spawn_legal(world: WorldState, floor_id: int, cell: Array, view: Di
 	if view.points.has(point): return false
 	for id: String in view.index.candidates(floor_id,Rect2(point,Vector2(0.001,0.001))):
 		if view.rectangles[id].has_point(point): return false
-	return true
+	return not (view.reservations as BodyIndex).intersects(floor_id,Rect2(point,Vector2.ONE),"")
 
 func renovation_quote(world: WorldState, payload: Dictionary) -> Dictionary:
 	var material: Dictionary = content.definition("renovation_materials",str(payload.get("material_id","")))
