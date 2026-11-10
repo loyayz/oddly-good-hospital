@@ -73,3 +73,5 @@ pwsh -NoProfile -File tests/run-acceptance.ps1 -Case CLIN-23 -RebuildFixtures
 地污生成对有效预约的独立边界与恢复专项见 [地污生成与有效预约](acceptance/dirt_spawn_reservations.md)。
 
 地污来源、合法格与地块预算的局部查询及实际清完更新专项见 [地污当前态索引](acceptance/dirt_spawn_indices.md)。
+
+个人床候选区域变化与真实预约释放的定点专项见 [个人床局部机会观察](acceptance/personal_bed_dependencies.md)。

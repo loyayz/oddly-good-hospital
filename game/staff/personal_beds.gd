@@ -5,6 +5,8 @@ var _owner: WeakRef
 var _world: WeakRef
 var _basis: Array = []
 var _by_staff: Dictionary = {}
+var _route_basis: Array = []
+var _pending_regions: Dictionary = {}
 
 func _init(owner: HospitalStaffWellbeing) -> void:
 	_owner = weakref(owner)
@@ -25,13 +27,20 @@ func sync(world: WorldState) -> void:
 		signature.append([adaptation_id,adaptation.kind,adaptation.get("actor_id","") if adaptation.kind=="facility" else "",adaptation.get("staff_ids",[]),adaptation.get("footprint",[]),adaptation.get("span",0)])
 	for bed_id: String in world.facility_ids("SE04"):
 		var bed: Dictionary = world.facts.facilities[bed_id]
-		signature.append([bed_id,bed.get("failed",false),bed.get("stored",false)])
-	# Only a genuine unassigned/free-bed gap depends on changing live routes.
-	# Fully owned capacity never observes every passing body or rematches it.
-	signature.append(_pending_route_basis(world,owners,space))
-	if _world!=null and _world.get_ref()==world and signature==_basis: return
+		signature.append([bed_id,bed.get("failed",false),bed.get("stored",false),HospitalRemodel.blocked(world,bed_id),HospitalStaffWellbeing._is_staff_room(world.facts.rooms.get(bed.get("room_id",""),{}))])
+	for bed_id: String in owners:
+		var staff_id: String = str(owners[bed_id].staff_id)
+		var staff: Dictionary = world.facts.staff.get(staff_id,{})
+		if staff.is_empty() or staff.get("departed",false):
+			# Only a departing owner's actual bed release affects this lifecycle.
+			signature.append([bed_id,state.reservations.has(bed_id),world.facts.actors.get(staff_id,{}).get("location",{}).duplicate(true)])
+	# Dynamic opportunity belongs to the remaining candidates, not every body
+	# and journey in the hospital. Their exact fit regions were already proved
+	# by the previous batch; the original static/lifecycle basis owns their age.
+	if _world!=null and _world.get_ref()==world and signature==_basis and _pending_route_basis(world,owners,space)==_route_basis: return
 	_world = weakref(world)
 	_by_staff.clear()
+	_pending_regions.clear()
 	for bed_id: String in owners.keys():
 		var staff_id: String = str(owners[bed_id].staff_id)
 		var staff: Dictionary = world.facts.staff.get(staff_id,{})
@@ -61,6 +70,7 @@ func sync(world: WorldState) -> void:
 	if staff_ids.is_empty() or free_beds.is_empty():
 		signature[3] = owners.duplicate(true)
 		_basis = signature
+		_route_basis = []
 		return
 	# No ownership, actor or layout changes occur while collecting this batch.
 	# Share sealed before-layout exit witnesses across all staff/bed candidates;
@@ -82,8 +92,12 @@ func sync(world: WorldState) -> void:
 			var quote: Dictionary = space.facility_trip_quote(world,bed_id,staff_id)
 			if quote.ok:
 				candidates[staff_id].append({"bed_id":bed_id,"travel_ticks":int(quote.travel_ticks)})
+				_remember_regions(bed_id,quote.fit,staff_id)
 			elif not geometry.has(bed_id):
-				geometry[bed_id] = not space.facility_geometry_quote(world,bed_id,staff_id).ok
+				var fit: Dictionary = space.facility_geometry_quote(world,bed_id,staff_id)
+				geometry[bed_id] = not fit.ok
+				if fit.ok: _remember_regions(bed_id,fit,staff_id)
+			if geometry.has(bed_id) and not geometry[bed_id]: _pending_regions[bed_id].staff_ids[staff_id] = true
 	space.end_route_query()
 	var result: Dictionary = HospitalPersonalBedMatching.compute(staff_ids,candidates)
 	if not result.ok:
@@ -96,26 +110,68 @@ func sync(world: WorldState) -> void:
 	# Store the new ownership identity so the next ordinary step does no batch
 	# matching. Real lifecycle/layout events invalidate this derived basis.
 	signature[3] = owners.duplicate(true)
-	signature[signature.size()-1] = _pending_route_basis(world,owners,space)
 	_basis = signature
+	_route_basis = _pending_route_basis(world,owners,space)
+
+# SE04 uses its fixed FF08 base plus actual access/repair regions. This saves
+# only geometry already returned by fit, never a route or assignment decision.
+func _remember_regions(bed_id: String, fit: Dictionary, staff_id: String) -> void:
+	var saved: Dictionary = _pending_regions.get_or_add(bed_id,{"floor_id":int(fit.floor_id),"regions":[],"staff_ids":{}})
+	saved.staff_ids[staff_id] = true
+	for area: Array in fit.regions:
+		var rect: Rect2 = Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3]))
+		if not rect in saved.regions: saved.regions.append(rect)
 
 func _pending_route_basis(world: WorldState, owners: Dictionary, space: HospitalSpace) -> Array:
-	var free: bool = false
-	for bed_id: String in world.facility_ids("SE04"):
-		var bed: Dictionary = world.facts.facilities[bed_id]
-		if not owners.has(bed_id) and not bed.get("failed",false) and not bed.get("stored",false) and not HospitalRemodel.blocked(world,bed_id) and HospitalStaffWellbeing._is_staff_room(world.facts.rooms.get(bed.get("room_id",""),{})): free = true; break
-	if not free: return []
 	var assigned: Dictionary = {}
 	for owner: Dictionary in owners.values(): assigned[owner.staff_id] = true
-	var unassigned: bool = false
-	for staff_id: String in world.ids("staff"):
-		if not assigned.has(staff_id) and not world.facts.staff[staff_id].get("departed",false) and world.facts.actors[staff_id].location.kind=="floor": unassigned = true; break
-	if not unassigned: return []
-	var actors: Array = []
-	for actor_id: String in world.ids("actors"):
-		var actor: Dictionary = world.facts.actors[actor_id]
-		actors.append([actor_id,actor.species_id,actor.get("body_binding_id",""),actor.location.duplicate(true),actor.get("posture","standing")])
-	return [actors,world.facts.moves.duplicate(true),world.facts.connectors.duplicate(true),world.facts.staff_life.reservations.duplicate(true)]
+	var floors: Dictionary = {}
+	var eligible: Dictionary = {}
+	for bed_id: String in _pending_regions:
+		if owners.has(bed_id): continue
+		var bed: Dictionary = _pending_regions[bed_id]
+		var pending: bool = false
+		for staff_id: String in bed.staff_ids:
+			if assigned.has(staff_id): continue
+			eligible[staff_id] = true
+			pending = true
+		if not pending: continue
+		var regions: Array[Rect2] = floors.get_or_add(int(bed.floor_id),[] as Array[Rect2])
+		for rect: Rect2 in bed.regions:
+			if not rect in regions: regions.append(rect)
+	if floors.is_empty(): return []
+	var subjects: Array = []
+	var staff_ids: Array = eligible.keys()
+	staff_ids.sort()
+	# Geometry-incompatible bodies cannot gain this bed by moving. Their
+	# bodies/layout still invalidate _basis, and their real local occupancy is
+	# observed below exactly like every other actor's.
+	for staff_id: String in staff_ids:
+		if world.facts.staff[staff_id].get("departed",false): continue
+		var actor: Dictionary = world.facts.actors[staff_id]
+		if actor.location.kind!="floor": continue
+		var movement: Dictionary = world.facts.moves.get(staff_id,{})
+		# Single-body structural routes do not read unrelated journeys or lift
+		# queues. A candidate's own convoy still owns its connector fit.
+		subjects.append([staff_id,actor.location.duplicate(true),actor.get("posture","standing"),actor.get("facing",0.0),movement.duplicate(true) if movement.has("convoy") else {}])
+	if subjects.is_empty(): return []
+	space._ensure_actor_index(world)
+	var local: Array = []
+	var ordered_floors: Array = floors.keys()
+	ordered_floors.sort()
+	for floor_id: int in ordered_floors:
+		var regions: Array[Rect2] = floors[floor_id]
+		local.append([floor_id,_indexed_regions(space._actor_index,floor_id,regions),_indexed_regions(space.movement._sweep_index,floor_id,regions)])
+		for region: Dictionary in space._reservation_regions_many(world,floor_id,regions):
+			local.append([region.reservation_id,region.rect,region.reservation.duplicate(true)])
+	return [subjects,local,space.navigation.connection_basis(world)]
+
+func _indexed_regions(index: BodyIndex, floor_id: int, regions: Array[Rect2]) -> Array:
+	var result: Array = []
+	for id: String in index.candidates_in_regions(floor_id,regions):
+		var record: BodyIndex.Record = index.record(id)
+		result.append([id,record.rect,record.regions.duplicate()])
+	return result
 
 func bed_for(world: WorldState, staff_id: String) -> String:
 	if _world==null or _world.get_ref()!=world: sync(world)
