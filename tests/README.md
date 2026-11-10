@@ -89,3 +89,5 @@ EQ05 空岗位可通行而使用权仍独占、真实床体/身体/扫掠安全�
 单人回接意图专项：`godot --headless --path . --script res://tests/acceptance/run_local_return_intent.gd -- OUTPUT.json`。从已完成侧移的合法边界实际执行 B→C→D，覆盖普通与压缩路线段；B、C 发生真实接触后才换目标，原请求与路径保持，实际到达才推进游标，并验证身体/扫掠安全、保存恢复及没有整条未来动态预检查。
 
 同一专项还覆盖带转弯原路线、回接中再次遇到固定身体的侧移出口，以及近共线 binary32 历史点的真实后退；后退保持当前实际轴线，不横向吸附到旧检查点。
+
+环境表面/污渍来源的加载绑定、单条增删、局部实时值、保守边界及 worker 借用见 [环境表面与污渍来源](acceptance/environment_surface_sources.md)。

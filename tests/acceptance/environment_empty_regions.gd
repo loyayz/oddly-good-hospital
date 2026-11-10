@@ -67,7 +67,10 @@ func run(database: HospitalContent) -> Dictionary:
 		x.e.begin_query(x.world)
 		x.e._prepare_facility_sources(x.world)
 		x.e._prepare_sample_sources(x.world)
-		x.e._query.samples[kind][1] = {Vector2i(44,80):[]}
+		# These are complete prepared-source inputs. Replace this scope's view,
+		# rather than mutating a borrowed owner index retained across scopes.
+		x.e._query.samples[kind] = {1:{Vector2i(44,80):[]}}
+		if kind=="dirt": x.e._query.sample_bounds.dirt = {1:Rect2i(44,80,1,1)}
 		var bounds: Dictionary = x.e._prepare_observation_bounds(x.world)
 		rows.append({"name":kind+"_base_range_with_R15","ok":not _outside(bounds,[44+radius,80]) and _outside(bounds,[45+radius,80]) and x.world.freeze()==before})
 		x.e.end_query()
@@ -75,7 +78,9 @@ func run(database: HospitalContent) -> Dictionary:
 		x.e.begin_query(x.world)
 		x.e._prepare_facility_sources(x.world)
 		x.e._prepare_sample_sources(x.world)
-		x.e._query.facilities[1] = {key:[]}
+		x.e._query.facilities = {1:{key:[]}}
+		x.e._query.facility_bounds = {}
+		x.e._expand_source_bound(x.e._query.facility_bounds,1,key)
 		var bounds: Dictionary = x.e._prepare_observation_bounds(x.world)
 		rows.append({"name":"unsupported_source_key_keeps_full_path","ok":bounds.has(1) and bounds[1]==null and x.world.freeze()==before})
 		x.e.end_query()
