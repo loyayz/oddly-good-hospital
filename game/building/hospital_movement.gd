@@ -170,7 +170,7 @@ func request_group_move(world: WorldState, primary_id: String, members: Array, o
 	var query: RouteClearance = space.navigation.structural_clearance(world,proxy,int(actor.location.floor_id))
 	var shift: Vector2 = Vector2.ONE*float(m.convoy.shift)
 	for region: Rect2 in ConvoyTrail.regions(m.convoy):
-		if not space._dynamic_clear(world,primary_id,int(actor.location.floor_id),region,members): return "队列集合尾迹已有占用"
+		if not space._dynamic_clear(world,primary_id,int(actor.location.floor_id),region,members,false,true): return "队列集合尾迹已有占用"
 		for door: Dictionary in space.movement_doors(world,proxy,region):
 			if region.intersects(space._door_rect(door,space._door_span(proxy,door)),false): return "必须离开门口后完整成队"
 	for i: int in range(1,m.convoy.points.size()):
@@ -272,6 +272,14 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 		# Final portal egress already spent this frame's leader walking budget.
 		# Publishing a floor location does not grant a second movement attempt.
 		if _accepted_sweeps.has(actor_id): continue
+		# A new bed claim can supersede an old destination without becoming a
+		# passage wall. Wait before entering its post, keeping this journey and
+		# request order. An already requested local yield may still clear traffic.
+		var held_goal: String=_bed_goal_blocker(world,actor,movement)
+		if not held_goal.is_empty():
+			movement.waiting_reason="护理床岗位已有使用预约："+held_goal
+			if not movement.has("local_move"): continue
+
 		# Dispatch can legally publish outside or a supported body position
 		# after real arrival but before this phase cleans the exhausted route.
 		# Its last real checkpoint survives that handoff, including cold restore.
@@ -286,6 +294,7 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 			movement.cursor = _initial_route_cursor(actor,movement.path,world)
 		if movement.has("local_move"):
 			if not _local_resume(world,actor,movement): continue
+			if not held_goal.is_empty() and not movement.has("local_move"): continue
 			# Rejoining transfers movement back to the original route. Its
 			# earlier proof may have expired while the local action was active.
 			if not movement.has("local_move") and int(movement.cursor)<movement.path.size() and not _active_route_clear(world,actor,movement,floor_versions):
@@ -293,7 +302,15 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 				_replan_goal(world,movement,true)
 				continue
 		if movement.has("detour"):
+			var temporary_route: bool=movement.detour.phase!="rejoin"
 			_continue_detour(world,actor,movement)
+			# Publishing the rejoin suffix can reveal the final approach in this
+			# same frame; do not enter a claimed post before next frame's gate.
+			if temporary_route and movement.has("detour") and movement.detour.phase=="rejoin":
+				var rejoin_held: String=_bed_goal_blocker(world,actor,movement)
+				if not rejoin_held.is_empty():
+					movement.waiting_reason="护理床岗位已有使用预约："+rejoin_held
+					continue
 			if movement.has("detour") and int(movement.cursor)>=movement.path.size(): continue
 		if int(movement.cursor) >= movement.path.size():
 			if not movement.has("convoy") and not reached_target and not space.at(world,actor_id,int(movement.target_floor),movement.target_cell):
@@ -310,6 +327,24 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 			if space.public_areas!=null: space.public_areas.changed(world)
 			continue
 		var segment: Dictionary = movement.local_move.target if movement.has("local_move") else movement.path[int(movement.cursor)]
+		# Resume may replace a reached local corner with the rejoin target in
+		# this same frame. Check the segment we will actually execute, not the
+		# stale local target from before that ownership transition.
+		if movement.has("local_move"):
+			var local_held: String=_bed_local_path_blocker(world,actor,movement,[segment])
+			if not local_held.is_empty():
+				movement.waiting_reason="护理床岗位已有使用预约："+local_held
+				continue
+		if movement.has("convoy") and movement.has("detour") and movement.detour.phase in ["back","aside"] and not movement.path.is_empty():
+			var stop: Dictionary=movement.path[-1]
+			if stop.kind=="floor":
+				var local_stop: Dictionary=movement.duplicate()
+				local_stop.target_floor=stop.floor_id
+				local_stop.target_cell=stop.cell
+				var temporary_held: String=_bed_goal_blocker(world,actor,local_stop)
+				if not temporary_held.is_empty():
+					movement.waiting_reason="护理床岗位已有使用预约："+temporary_held
+					continue
 		if segment.kind == "connector":
 			HospitalTransit.begin(space,world,actor,movement,segment)
 			continue
@@ -364,6 +399,112 @@ func _step_toward(start: Vector2, target: Vector2, budget: float) -> Vector2:
 	var dy: float = float(target.y)-float(start.y)
 	if sqrt(dx*dx+dy*dy)<=budget+POSITION_ROUNDING: return target
 	return start.move_toward(target,budget)
+
+# Read only the issued route's final arrival direction/tail. The convoy
+# suffix is bounded by its own physical tail length, never by floor size.
+func _bed_goal_regions(world: WorldState, actor: Dictionary, movement: Dictionary) -> Array[Rect2]:
+	var goal: Vector2=ConvoyTrail.point(movement.target_cell)
+	var floor_id: int=int(movement.target_floor)
+	var path: Array=movement.path
+	var final_leg: bool=not path.is_empty() and path[-1].kind=="floor" and int(path[-1].floor_id)==floor_id and ConvoyTrail.point(path[-1].cell)==goal
+	var direct_local: bool=movement.has("local_move") and int(movement.local_move.target.floor_id)==floor_id and ConvoyTrail.point(movement.local_move.target.cell)==goal
+	var landing: Dictionary={}
+	if not path.is_empty() and path[-1].kind=="connector" and int(path[-1].to)==floor_id:
+		landing=world.facts.connectors[path[-1].connector_id]
+		if movement.has("convoy"):
+			var plan: Dictionary=ConvoyPortal.plan(space,world,landing,actor.id,movement.members,movement.convoy)
+			if plan.get("ok",false) and ConvoyTrail.point(plan.egress)==goal: return ConvoyTrail.regions(ConvoyPortal.predict(movement.convoy,plan,floor_id))
+		elif ConvoyTrail.point(landing.anchor)==goal: return [space._actor_rect(actor,goal)]
+	# A temporary waypoint/support exit has not issued its final approach yet.
+	# Never invent a straight line from another floor or around an unseen turn.
+	if not final_leg and not direct_local: return []
+	if not movement.has("convoy"):
+		var sample: Dictionary=actor.duplicate()
+		var previous: Vector2=goal
+		if direct_local: previous=ConvoyTrail.point(actor.location.cell)
+		elif path.size()>1:
+			var prior: Dictionary=path[-2]
+			if prior.kind=="floor" and int(prior.floor_id)==floor_id: previous=ConvoyTrail.point(prior.cell)
+			elif prior.kind=="connector" and int(prior.to)==floor_id: previous=ConvoyTrail.point(world.facts.connectors[prior.connector_id].anchor)
+		elif actor.location.kind=="floor" and int(actor.location.floor_id)==floor_id: previous=ConvoyTrail.point(actor.location.cell)
+		var direction: Vector2=goal-previous
+		if direction!=Vector2.ZERO: sample.facing=atan2(direction.x,direction.y)
+		return [space._actor_rect(sample,goal)]
+	var convoy: Dictionary=movement.convoy
+	var tail: Dictionary={"left":float(convoy.spacing)*(movement.members.size()-1),"points":[[goal.x,goal.y]]}
+	var cursor: int=maxi(0,int(movement.cursor))
+	var reached_connector: bool=false
+	for index: int in range(path.size()-2,cursor-1,-1):
+		if float(tail.left)<=0.000001: break
+		var segment: Dictionary=path[index]
+		if segment.kind=="connector":
+			reached_connector=true
+			if int(segment.to)!=floor_id: break
+			var connection: Dictionary=world.facts.connectors[segment.connector_id]
+			var plan: Dictionary=ConvoyPortal.plan(space,world,connection,actor.id,movement.members,convoy)
+			if not plan.get("ok",false): break
+			var predicted: Dictionary=ConvoyPortal.predict(convoy,plan,floor_id)
+			for i: int in range(predicted.points.size()-1,-1,-1): _bed_tail_append(tail,ConvoyTrail.point(predicted.points[i]))
+			break
+		if segment.kind!="floor" or int(segment.floor_id)!=floor_id: break
+		_bed_tail_append(tail,ConvoyTrail.point(segment.cell))
+	# begin() advances the issued route cursor before the actual ride. Its
+	# in-flight canonical egress supplies the missing short terminal tail.
+	if not reached_connector and float(tail.left)>0.000001 and convoy.has("portal"):
+		var connection: Dictionary=world.facts.connectors.get(actor.location.get("connector_id",""),{})
+		if not connection.is_empty() and int(connection.to)==floor_id:
+			var predicted: Dictionary=ConvoyPortal.predict(convoy,convoy.portal.plan,floor_id)
+			for i: int in range(predicted.points.size()-1,-1,-1): _bed_tail_append(tail,ConvoyTrail.point(predicted.points[i]))
+	if not reached_connector and float(tail.left)>0.000001 and not convoy.has("portal") and actor.location.kind=="floor" and int(actor.location.floor_id)==floor_id:
+		for index: int in range(convoy.points.size()-1,-1,-1):
+			if float(tail.left)<=0.000001: break
+			_bed_tail_append(tail,ConvoyTrail.point(convoy.points[index]))
+	return ConvoyTrail.regions(convoy,tail.points)
+
+func _bed_tail_append(tail: Dictionary, point: Vector2) -> void:
+	if float(tail.left)<=0.000001: return
+	var current: Vector2=ConvoyTrail.point(tail.points[-1])
+	var distance: float=current.distance_to(point)
+	if distance<=0.000001: return
+	var used: float=minf(float(tail.left),distance)
+	current=current.move_toward(point,used)
+	tail.points.append([current.x,current.y])
+	tail.left=float(tail.left)-used
+
+func _bed_goal_blocker(world: WorldState, actor: Dictionary, movement: Dictionary) -> String:
+	for region: Rect2 in _bed_goal_regions(world,actor,movement):
+		var blocker: String=space.bed_destination_blocker(world,actor.id,int(movement.target_floor),region,movement.get("members",[actor.id]))
+		if not blocker.is_empty(): return blocker
+	return ""
+
+# Local single-person targets are real temporary stops, including each
+# corner installed before a rejoin. Test the actual approach facing while
+# choosing them, so an unavailable post cannot hide the other legal side.
+# Passage along the segments remains soft; only their stops hold use rights.
+func _bed_local_path_blocker(world: WorldState, actor: Dictionary, movement: Dictionary, path: Array) -> String:
+	var origin: Vector2=ConvoyTrail.point(actor.location.cell)
+	var sample: Dictionary=actor.duplicate()
+	for index: int in path.size():
+		var segment: Dictionary=path[index]
+		var target: Vector2=ConvoyTrail.point(segment.cell)
+		if target==origin and index<path.size()-1: continue
+		if target!=origin: sample.facing=atan2(target.x-origin.x,target.y-origin.y)
+		var held: String=space.bed_destination_blocker(world,actor.id,int(segment.floor_id),space._actor_rect(sample,target),movement.get("members",[actor.id]))
+		if not held.is_empty(): return held
+		origin=target
+	return ""
+
+# A convoy's side/retreat stop owns its whole predicted tail, not just the
+# leader. Reuse final-arrival geometry without replacing the real journey.
+func _bed_path_stop_blocker(world: WorldState, actor: Dictionary, movement: Dictionary, path: Array) -> String:
+	if path.is_empty(): return ""
+	var stop: Dictionary=movement.duplicate()
+	stop.path=path
+	stop.cursor=0
+	stop.target_floor=path[-1].floor_id
+	stop.target_cell=path[-1].cell
+	stop.erase("local_move")
+	return _bed_goal_blocker(world,actor,stop)
 
 func _move_step(world: WorldState, actor: Dictionary, movement: Dictionary, segment: Dictionary) -> MotionResult:
 	if movement.has("convoy"): return _move_convoy(world,actor,movement,segment)
@@ -831,6 +972,7 @@ func _movement_contacts(world: WorldState, actor_id: String, floor_id: int, broa
 				if result.first_contact_only: return
 				break
 	for region: Dictionary in reservations:
+		if not bool(region.blocks_passage): continue
 		var reservation: Dictionary = region.reservation
 		if int(reservation.floor_id)!=floor_id or RouteClearance.reservation_allows(reservation,actor_id,members) or str(region.reservation_id) in result.reservation_ids:
 			continue
@@ -855,7 +997,7 @@ func _return_contact_region(world: WorldState, actor_id: String, floor_id: int, 
 		if queries.regions.size() >= MAX_RETURN_CONTACT_REGIONS: return {}
 		var reservations: Array = []
 		for entry: Dictionary in space._reservation_regions(world,floor_id,region):
-			if int(entry.reservation.floor_id)==floor_id and not RouteClearance.reservation_allows(entry.reservation,actor_id,members): reservations.append(entry)
+			if bool(entry.blocks_passage) and int(entry.reservation.floor_id)==floor_id and not RouteClearance.reservation_allows(entry.reservation,actor_id,members): reservations.append(entry)
 		queries.regions[region] = {"bounds":region,"actors":space._actor_index.candidates(floor_id,region,members),"accepted":_sweep_index.candidates(floor_id,region,members),"reservations":reservations}
 		space.query_counts["return_contact_regions_built"] = int(space.query_counts.get("return_contact_regions_built",0))+1
 	queries.last = queries.regions[region]
@@ -889,7 +1031,7 @@ func _reserve_doors(world: WorldState, actor: Dictionary, movement: Dictionary, 
 		if members.size()==1 and not movement.has("convoy") and int(quote.span)==int(door.span) and float(quote.clear_height_m)<=float(definition.clear_height_m) and float(quote.clear_width_m)<=float(definition.clear_width_m):
 			continue
 		var rect: Rect2 = space._door_rect(door,int(quote.span))
-		if not space._dynamic_clear(world,actor.id,floor_id,rect,members):
+		if not space._dynamic_clear(world,actor.id,floor_id,rect,members,false,true):
 			result.door_id = str(door.id)
 			return false
 		var reservation: Dictionary = {"kind":"door","owner_id":actor.id,"actor_id":actor.id,"staff_ids":members,"floor_id":floor_id,"span":quote.span,"clear_height_m":quote.clear_height_m,"clear_width_m":quote.clear_width_m,"regions":[[rect.position.x,rect.position.y,rect.size.x,rect.size.y]]}
@@ -1053,6 +1195,7 @@ func _local_choose_options(world: WorldState, actor: Dictionary, movement: Dicti
 				if delta.dot(direction)>0.001 and absf(delta.cross(direction))<0.00001:
 					target=past;break
 		var path: Array = [_floor_point(actor,target)]
+		if not _bed_local_path_blocker(world,actor,movement,path).is_empty(): continue
 		if direction==-forward:
 			if not _retreat_intention_clear(world,actor,movement,path): continue
 		elif not _local_path_clear(world,actor,path): continue
@@ -1137,6 +1280,7 @@ func _local_side_exit(world:WorldState,actor:Dictionary,movement:Dictionary,side
 		for corner:Vector2 in [Vector2(target.x,side.y),Vector2(side.x,target.y)]:
 			if not query.sweep_reason(side,corner).is_empty() or not query.sweep_reason(corner,target).is_empty():continue
 			sample.facing=side_facing
+			if not _bed_local_path_blocker(world,sample,movement,[_floor_point(actor,corner),_floor_point(actor,target)]).is_empty():continue
 			var previous:Rect2=space._actor_rect(sample,side)
 			var origin:Vector2=side
 			var clear:bool=true
@@ -1215,6 +1359,7 @@ func _local_return(world: WorldState, actor: Dictionary, movement: Dictionary, q
 	if target==origin:return false
 	for corner: Vector2 in [Vector2(target.x,origin.y),Vector2(origin.x,target.y)]:
 		if not query.sweep_reason(origin,corner).is_empty() or not query.sweep_reason(corner,target).is_empty(): continue
+		if not _bed_local_path_blocker(world,actor,movement,[_floor_point(actor,corner),_floor_point(actor,target)]).is_empty(): continue
 		if check_people and not _local_path_clear(world,actor,[_floor_point(actor,corner),_floor_point(actor,target)],query): continue
 		var next: Vector2 = target if corner==origin or corner==target else corner
 		movement.local_move={"origin":movement.local_move.origin,"target":_floor_point(actor,next),"rejoin":{"index":index,"cell":[target.x,target.y]}}
@@ -1232,6 +1377,7 @@ func _local_return(world: WorldState, actor: Dictionary, movement: Dictionary, q
 			# round distinct original coordinates to the same binary32 value.
 			if first.x!=last.x and first.y!=last.y:continue
 			var path:Array=[_floor_point(actor,first),_floor_point(actor,last),_floor_point(actor,target)]
+			if not _bed_local_path_blocker(world,actor,movement,path).is_empty():continue
 			if not _local_path_clear(world,actor,path,query):continue
 			movement.local_move={"origin":movement.local_move.origin,"target":path[0]}
 			return true
@@ -1298,6 +1444,7 @@ func _detour_side_full(world: WorldState, actor: Dictionary, movement: Dictionar
 	for sign_value: float in [1.0,-1.0]:
 		var target: Vector2 = origin+side*sign_value*width
 		var path: Array = [_floor_point(actor,target)]
+		if not _bed_path_stop_blocker(world,actor,movement,path).is_empty(): continue
 		if not _detour_path_clear(world,actor,movement,path): continue
 		# Prefer a side from which a local return is presently possible.
 		# This avoids stepping into a doorway pocket when the other side
@@ -1344,6 +1491,7 @@ func _detour_back(world: WorldState, actor: Dictionary, movement: Dictionary) ->
 # Retreat is an intention: fixed geometry must permit it, but a present
 # body is handled by the actual movement contact without reversing again.
 func _retreat_intention_clear(world: WorldState, actor: Dictionary, movement: Dictionary, path: Array) -> bool:
+	if not _bed_path_stop_blocker(world,actor,movement,path).is_empty(): return false
 	if movement.has("convoy") or movement.get("members",[actor.id]).size()!=1:
 		return _detour_path_clear(world,actor,movement,path)
 	var query: RouteClearance = space.navigation.structural_clearance(world,actor,int(actor.location.floor_id))
@@ -1788,4 +1936,6 @@ func _convoy_goal_reason(world: WorldState, movement: Dictionary, floor_id: int,
 	if goal.x<0.0 or goal.y<0.0 or goal.x>=FloorNavigation.SIDE or goal.y>=FloorNavigation.SIDE: return "队列目标超出楼层范围"
 	var proxy: Dictionary = ConvoyTrail.proxy(world,movement)
 	var origin: Vector2 = goal+Vector2.ONE*float(movement.convoy.shift)
+	var blocked_bed: String=space.bed_destination_blocker(world,str(movement.actor_id),floor_id,space._actor_rect(proxy,origin),movement.members)
+	if not blocked_bed.is_empty(): return "护理床岗位已有使用预约："+blocked_bed
 	return space.navigation.structural_clearance(world,proxy,floor_id).sweep_reason(origin,origin)

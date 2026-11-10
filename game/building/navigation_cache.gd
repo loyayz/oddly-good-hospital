@@ -346,7 +346,7 @@ func _build_reservation_stamp(graph: FloorNavigation, world: WorldState, floor_i
 	var forbidden: Array = []
 	for reservation: Dictionary in world.facts.adaptations.values():
 		if reservation.kind=="facility" and int(reservation.floor_id)==floor_id and not RouteClearance.reservation_allows(reservation,actor_id):
-			forbidden.append([reservation.facility_id,reservation.regions])
+			forbidden.append([reservation.facility_id,RouteClearance.passage_regions(world,reservation)])
 	return [graph.geometry.get_instance_id(),forbidden]
 
 # Cache only the pure single-body A* result of this exact clearance query.

@@ -827,7 +827,7 @@ func _validate_convoy_ground(geometry: HospitalSpace) -> String:
 			query._doors.append({"original":rectangle,"opening":rectangle,"ok":fits,"reason":"保存队列穿过尚未实际展开的门","room_id":door.room_id,"axis":door.axis})
 		query._plain = query._plain_geometry()
 		for region: Rect2 in regions:
-			if not geometry._dynamic_clear(self,movement.actor_id,floor_id,region,movement.members): return "保存队列尾迹与外部身体或预约重叠："+str(movement.actor_id)
+			if not geometry._dynamic_clear(self,movement.actor_id,floor_id,region,movement.members,false,true): return "保存队列尾迹与外部身体或预约重叠："+str(movement.actor_id)
 			for y: int in range(floori(region.position.y),ceili(region.end.y)):
 				for x: int in range(floori(region.position.x),ceili(region.end.x)):
 					var reason: String = query.reason(Vector2i(x,y))

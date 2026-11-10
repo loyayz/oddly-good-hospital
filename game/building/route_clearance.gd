@@ -43,6 +43,14 @@ static func reservation_allows(reservation: Dictionary, actor_id: String, member
 		return true
 	return actor_id==reservation.actor_id or actor_id in reservation.staff_ids or reservation.actor_id in members
 
+# A nursing bed keeps its complete use/placement claim. Only its real bed
+# rectangle blocks a passer-by; empty bedside roles are not physical walls.
+static func is_soft_bed(world: WorldState, reservation: Dictionary) -> bool:
+	return reservation.get("kind","")=="facility" and world.facts.facilities.get(reservation.get("facility_id",""),{}).get("definition_id","")=="EQ05"
+
+static func passage_regions(world: WorldState, reservation: Dictionary) -> Array:
+	return reservation.regions.slice(0,1) if is_soft_bed(world,reservation) else reservation.regions
+
 # Query-local snapshot only. Permission filtering and source order are shared
 # by full route clearance and lightweight public waiting-point checks.
 static func capture_reservation_regions(world: WorldState, actor_id: String, floor_id: int, members: Array = []) -> Array[Dictionary]:
@@ -50,7 +58,7 @@ static func capture_reservation_regions(world: WorldState, actor_id: String, flo
 	for reservation: Dictionary in world.facts.adaptations.values():
 		if reservation.kind=="facility" and int(reservation.floor_id)==floor_id and not reservation_allows(reservation,actor_id,members):
 			var regions: Array[Rect2] = []
-			for area: Array in reservation.regions:
+			for area: Array in passage_regions(world,reservation):
 				regions.append(Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3])))
 			result.append({"regions":regions,"id":reservation.facility_id})
 	return result

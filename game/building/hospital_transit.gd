@@ -161,7 +161,7 @@ static func egress_clear(space: HospitalSpace, world: WorldState, connection: Di
 		var query: RouteClearance = space.navigation.structural_clearance(world,proxy,floor_id)
 		if not query.sweep_reason(start,end).is_empty(): return false
 		var envelope: Rect2 = Rect2(start,Vector2.ONE*float(movement.convoy.size)).merge(Rect2(end,Vector2.ONE*float(movement.convoy.size)))
-		return space.nominal_query(world) or space._dynamic_clear(world,actor_id,floor_id,envelope,movement.members)
+		return space.nominal_query(world) or space._dynamic_clear(world,actor_id,floor_id,envelope,movement.members,false,true)
 	var actor: Dictionary = world.facts.actors[actor_id]
 	var anchor: Vector2i = Vector2i(int(connection.anchor[0]),int(connection.anchor[1]))
 	if not space.static_reason(world,actor,floor_id,anchor,members,offsets).is_empty():
@@ -171,7 +171,7 @@ static func egress_clear(space: HospitalSpace, world: WorldState, connection: Di
 	for id: String in ignored:
 		var offset: Array = offsets.get(id,[0,0])
 		var rect: Rect2 = space._actor_rect(world.facts.actors[id],Vector2(anchor)+Vector2(float(offset[0]),float(offset[1])))
-		if not space._dynamic_clear(world,actor_id,floor_id,rect,ignored):
+		if not space._dynamic_clear(world,actor_id,floor_id,rect,ignored,false,true):
 			return false
 	return true
 
@@ -367,6 +367,17 @@ static func _alight(space: HospitalSpace, world: WorldState, connection: Diction
 	if not egress_clear(space,world,connection,primary,int(connection.to),connection.riders,offsets):
 		connection.remaining_ticks = 1
 		return
+	# If the original goal is now claimed, the actual landing must be a safe
+	# waiting position. A clear landing still leaves the connector normally.
+	if not space.movement._bed_goal_blocker(world,world.facts.actors[primary],movement).is_empty():
+		for actor_id: String in connection.riders:
+			var offset: Array=offsets.get(actor_id,[0,0])
+			var body: Rect2=space._actor_rect(world.facts.actors[actor_id],ConvoyTrail.point(connection.anchor)+ConvoyTrail.point(offset))
+			var held: String=space.bed_destination_blocker(world,primary,int(connection.to),body,connection.riders)
+			if not held.is_empty():
+				movement.waiting_reason="护理床岗位已有使用预约："+held
+				connection.remaining_ticks=1
+				return
 	for actor_id: String in connection.riders:
 		var offset: Array = offsets.get(actor_id,[0,0])
 		world.facts.actors[actor_id].location = {"kind":"floor","floor_id":connection.to,"cell":[float(connection.anchor[0])+float(offset[0]),float(connection.anchor[1])+float(offset[1])]}
@@ -541,6 +552,13 @@ static func _advance_convoy(space: HospitalSpace, world: WorldState, connection:
 		movement.convoy.floor_id=int(connection.to)
 		space._sync_convoy(world,movement)
 		return
+	if connection.phase=="alighting" and not space.movement._bed_goal_blocker(world,world.facts.actors[movement.actor_id],movement).is_empty():
+		var landed: Dictionary=ConvoyPortal.predict(movement.convoy,portal.plan,int(connection.to))
+		for region: Rect2 in ConvoyTrail.regions(landed):
+			var held: String=space.bed_destination_blocker(world,movement.actor_id,int(connection.to),region,movement.members)
+			if not held.is_empty():
+				movement.waiting_reason="护理床岗位已有使用预约："+held
+				return
 	var targets: Array=portal.plan.boarding if connection.phase=="boarding" else portal.plan.alighting
 	if int(portal.cursor)<targets.size():
 		space.movement._move_convoy_portal(world,world.facts.actors[movement.actor_id],movement,targets,int(connection.from) if connection.phase=="boarding" else int(connection.to),str(connection.id))

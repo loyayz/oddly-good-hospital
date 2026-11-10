@@ -79,3 +79,5 @@ pwsh -NoProfile -File tests/run-acceptance.ps1 -Case CLIN-23 -RebuildFixtures
 个人床候选区域变化与真实预约释放的定点专项见 [个人床局部机会观察](acceptance/personal_bed_dependencies.md)。
 
 招聘与员工返院的入口身体局部查询、多人实际入院及队列跨层边界见 [入口真实身体查询](acceptance/entry_body_lookup.md)。
+
+EQ05 空岗位可通行而使用权仍独占、真实床体/身体/扫掠安全、局部重接及跨层落地、护理查房与维修恢复的显式专项见 [护理床岗位通行](acceptance/bed_passage.md)。分段输入和真实执行范围分别标明，不替代原有完整临床链结果。
