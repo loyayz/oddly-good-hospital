@@ -13,6 +13,8 @@
 
 自然入院和随机需求改造另见 [自然入院专项](acceptance/natural-admission.md) 与 [随机需求专项](acceptance/random-arrival-demand.md)，均有独立无头入口及逐项结果。
 
+候诊椅实际占用、手动预览与安全离位另见 [候诊椅占用查询专项](acceptance/seat_owner_lookup.md)，按独立交接选择用例。
+
 回归范围、前置状态使用边界和停止条件见 [AGENTS.md](../AGENTS.md)。六个专题的已注册用例组成需求覆盖库，每次执行选择实际受影响的用例；不带范围的命令会拒绝执行。
 
 查询用例清单，不启动 Godot：

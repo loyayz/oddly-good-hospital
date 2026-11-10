@@ -286,30 +286,19 @@ func _manual_seat_quote(world: WorldState, visit: Dictionary, facility_id: Strin
 	# projected away to validate body fit; this grants no live use or reservation.
 	var facts: Dictionary = world.facts.duplicate()
 	facts.actors = world.facts.actors.duplicate()
-	facts.waiting_life = world.facts.waiting_life.duplicate()
-	facts.waiting_life.seats = world.facts.waiting_life.seats.duplicate()
 	facts.staff_life = world.facts.staff_life.duplicate()
 	facts.staff_life.reservations = world.facts.staff_life.reservations.duplicate()
 	facts.adaptations = world.facts.adaptations.duplicate()
 	var candidate: WorldState = WorldState.new(facts)
 	var departing: Array = []
-	for id: String in candidate.facts.actors:
-		var actor: Dictionary = candidate.facts.actors[id]
-		if actor.get("support_facility_id","")==facility_id:
-			departing.append(id)
-			actor = actor.duplicate(true)
-			candidate.facts.actors[id] = actor
-			actor.location = {"kind":"outside"}
-			actor.erase("support_facility_id")
-	for id: String in candidate.facts.waiting_life.seats:
-		var seat: Dictionary = candidate.facts.waiting_life.seats[id]
-		if seat.get("facility_id","")==facility_id:
-			seat = seat.duplicate(true)
-			candidate.facts.waiting_life.seats[id] = seat
-			if not seat.actor_id in departing: departing.append(seat.actor_id)
-			candidate.facts.actors[seat.actor_id] = candidate.facts.actors[seat.actor_id].duplicate(true)
-			candidate.facts.actors[seat.actor_id].location = {"kind":"outside"}
-			seat.facility_id = ""
+	var reservation: Dictionary = world.facts.adaptations.get(facility_id,{})
+	var user_id: String = str(reservation.get("actor_id",""))
+	if not user_id.is_empty():
+		departing.append(user_id)
+		var actor: Dictionary = world.facts.actors[user_id].duplicate(true)
+		candidate.facts.actors[user_id] = actor
+		actor.location = {"kind":"outside"}
+		actor.erase("support_facility_id")
 	candidate.facts.staff_life.reservations.erase(facility_id)
 	candidate.facts.adaptations.erase(facility_id)
 	space.prepare_projection(world,candidate,[facility_id])
@@ -700,6 +689,10 @@ func _occupancy_owner(view: Dictionary, facility_id: String, actor_id: String) -
 # A single live question outside a shared read-only route scope must not build
 # an occupancy map for every unrelated facility. Keep the batch view in scopes.
 func _occupied_now(world: WorldState, facility_id: String, actor_id: String) -> bool:
+	if world.facts.facilities.get(facility_id,{}).get("definition_id","") in PUBLIC_SEAT_DEFINITIONS:
+		# Actual arrival owns the existing facility envelope through safe exit.
+		# Walking intents and stale seated/returning labels never own a chair.
+		return world.facts.get("staff_life",{}).get("reservations",{}).has(facility_id) or not space.facility_reservation_reason(world,facility_id,actor_id).is_empty()
 	for session: Dictionary in world.facts.sessions.values():
 		if session.facility_id==facility_id: return true
 	if world.facts.get("staff_life",{}).get("reservations",{}).has(facility_id): return true
@@ -713,7 +706,7 @@ func _occupied_now(world: WorldState, facility_id: String, actor_id: String) -> 
 	return false
 
 func _occupied(world: WorldState, facility_id: String, actor_id: String) -> bool:
-	if space._route_queries.is_empty() or space._route_queries.back().world!=world:
+	if world.facts.facilities.get(facility_id,{}).get("definition_id","") in PUBLIC_SEAT_DEFINITIONS or space._route_queries.is_empty() or space._route_queries.back().world!=world:
 		return _occupied_now(world,facility_id,actor_id)
 	var view: Dictionary = space.read_view(world,"waiting_occupancy",_occupancy_view.bind(world))
 	var owners: Dictionary = view.owners.get(facility_id,{})

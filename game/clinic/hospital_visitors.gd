@@ -367,11 +367,9 @@ func _stop_lost_seat_trip(world: WorldState, stay: Dictionary) -> void:
 	if movement.has("detour") or movement.has("convoy") or movement.get("members",[stay.actor_id])!=[stay.actor_id]: return
 	var layout: Dictionary = space.facility_layout(world,facility_id)
 	if int(movement.target_floor)!=int(layout.floor_id) or movement.target_cell!=layout.patient_cell: return
-	var occupied: bool = false
-	for other: Dictionary in world.facts.actors.values():
-		if other.id!=stay.actor_id and other.get("posture","")=="seated" and other.get("support_facility_id","")==facility_id:
-			occupied = true
-			break
+	var user_id: String = str(world.facts.adaptations.get(facility_id,{}).get("actor_id",""))
+	var other: Dictionary = world.facts.actors.get(user_id,{})
+	var occupied: bool = user_id!=stay.actor_id and other.get("posture","")=="seated" and other.get("support_facility_id","")==facility_id
 	if not occupied or not space.cancel_ground_move(world,stay.actor_id): return
 	intent.facility_id = ""
 	intent.phase = "local_wait"
@@ -411,16 +409,9 @@ func _public_seat_quote(world: WorldState, stay: Dictionary, facility_id: String
 	# straight back into that chair; it remains free for every other arrival.
 	if _yielded_seat(world,stay.public_use)==facility_id: return {}
 	if not space.public_areas.turn(world,stay.public_use,facility_id): return {}
-	var supported: Dictionary = space.read_view(world,"visitor_supported:"+str(stay.actor_id),_supported_facilities.bind(world,str(stay.actor_id)))
-	if supported.has(facility_id): return {}
+	if not space.facility_reservation_reason(world,facility_id,str(stay.actor_id)).is_empty(): return {}
 	var quote: Dictionary = space.facility_trip_quote(world,facility_id,str(stay.actor_id))
 	return quote if quote.ok else {}
-
-func _supported_facilities(world: WorldState, actor_id: String) -> Dictionary:
-	var supported: Dictionary = {}
-	for other: Dictionary in world.facts.actors.values():
-		if other.id!=actor_id and not str(other.get("support_facility_id","")).is_empty(): supported[other.support_facility_id] = true
-	return supported
 
 func _take_waiting_seat(world: WorldState, stay: Dictionary, quote: Dictionary) -> bool:
 	var actor: Dictionary = world.facts.actors[stay.actor_id]
