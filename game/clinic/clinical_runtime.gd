@@ -2175,7 +2175,17 @@ func _dispatch_ward_release(world: WorldState, staff_id: String, release: Dictio
 		if clear and space.cancel_ground_move(world,staff_id):
 			staff.erase("clinical_release")
 			return
-	if not movement.is_empty():
+	var parking_occupied: bool=false
+	if release.has("target_cell"):
+		var target_body: Rect2=space._actor_rect(actor,ConvoyTrail.point(release.target_cell))
+		space._ensure_actor_index(world)
+		for other_id: String in space._actor_index.candidates(int(bed.floor_id),target_body,[staff_id]):
+			if not world.facts.moves.has(other_id) and target_body.intersects(space.body_rectangle(world.facts.actors[other_id]),false):
+				parking_occupied=true
+				break
+	# A local walk is not a promise that its parking point stays available.
+	# Reconsider an occupied point even between the current bypass's corners.
+	if not movement.is_empty() and not parking_occupied:
 		if bool(movement.get("route_pending",false)): return
 		var detour: Dictionary = movement.get("detour",{})
 		if not detour.is_empty() and int(movement.cursor)<int(detour.prefix_size): return
@@ -2189,6 +2199,7 @@ func _dispatch_ward_release(world: WorldState, staff_id: String, release: Dictio
 		release.phase = "blocked"
 		release.reason = "等待真实可达且不占床边通路的离位空间"
 		return
+	if parking_occupied and not movement.is_empty() and not space.cancel_ground_move(world,staff_id): return
 	var reason: String = space.request_move(world,staff_id,int(bed.floor_id),selected)
 	if _gathering_move(world.facts.moves.get(staff_id,{}),int(bed.floor_id),selected):
 		release.target_floor = int(bed.floor_id)

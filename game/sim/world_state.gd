@@ -1056,7 +1056,7 @@ func _validate_shapes() -> String:
 				if not key in ["target","origin","rejoin","retreat","corners"]: return "局部移动含未知状态"
 			if not _point(local.get("origin")): return "局部移动缺少原路线离开点"
 			if local.has("retreat") and (typeof(local.retreat)!=TYPE_BOOL or not local.retreat): return "局部后退标记无效"
-			if local.has("corners") and (not local.corners is Array or local.corners.is_empty() or local.corners.size()>2 or not local.has("rejoin") or local.get("retreat",false)): return "局部连续转角必须属于短回接路线"
+			if local.has("corners") and (not local.corners is Array or local.corners.is_empty() or local.corners.size()>2 or not local.has("rejoin")): return "局部连续转角必须属于短回接路线"
 			var local_actor: Dictionary = facts.actors.get(movement.actor_id,{})
 			var local_target: Dictionary = local.target
 			if local_actor.get("location",{}).get("kind")!="floor" or local_target.get("kind")!="floor" or not _point(local_target.get("cell")) or not _natural(local_target.get("floor_id",-1)) or local_target.floor_id!=local_actor.location.floor_id: return "局部移动必须保持同层有限坐标"
