@@ -618,12 +618,7 @@ func _entry(world: WorldState, candidate: Dictionary) -> Dictionary:
 				continue
 			actor.location.cell = [x,y]
 			var rectangle: Rect2 = space.body_rectangle(actor)
-			var occupied: bool = false
-			for present: Dictionary in world.facts.actors.values():
-				if present.location.kind=="floor" and int(present.location.floor_id)==1 and rectangle.intersects(space.body_rectangle(present)):
-					occupied = true
-					break
-			if not occupied:
+			if not space.intersects_actor_body(world,1,rectangle):
 				return {"ok":true,"floor_id":1,"cell":[x,y]}
 	return {"ok":false,"reason":"1F入口缺少支持该真实身体的合法空位"}
 

@@ -574,7 +574,10 @@ func _approach_desk(world: WorldState, visit: Dictionary, ticket: Dictionary, cu
 		# Retry actual admission next dispatch, not a queue-revision subscription.
 		visit.waiting_reason="队尾暂时被占用，等待实际入队"
 		return false
-	world.facts.actors[visit.actor_id].facing=point.facing
+	var arriving: Dictionary=world.facts.actors[visit.actor_id]
+	if float(arriving.facing)!=float(point.facing):
+		arriving.facing=point.facing
+		space.sync_actor(world,visit.actor_id)
 	current.queue_cell=point.cell.duplicate()
 	if not current.has("queue_seq"):
 		world.facts.floor_guidance.next_arrival+=1

@@ -690,10 +690,9 @@ func _return_from_outside(world: WorldState, staff_id: String) -> void:
 	var arriving: Dictionary = actor.duplicate()
 	arriving.location = {"kind":"floor","floor_id":entry.floor_id,"cell":entry.cell.duplicate(),"height_m":0.0}
 	var bounds: Rect2 = space.body_rectangle(arriving)
-	for other: Dictionary in world.facts.actors.values():
-		if other.id!=staff_id and other.location.kind=="floor" and int(other.location.floor_id)==int(entry.floor_id) and bounds.intersects(space.body_rectangle(other),false):
-			world.facts.staff[staff_id].life_reason = "返院入口正被使用，等待实际空位"
-			return
+	if space.intersects_actor_body(world,int(entry.floor_id),bounds,staff_id):
+		world.facts.staff[staff_id].life_reason = "返院入口正被使用，等待实际空位"
+		return
 	actor.location = {"kind":"floor","floor_id":entry.floor_id,"cell":entry.cell.duplicate(),"height_m":0.0}
 	space.sync_actor(world,staff_id)
 	_begin_return(world,staff_id)

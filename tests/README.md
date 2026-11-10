@@ -75,3 +75,5 @@ pwsh -NoProfile -File tests/run-acceptance.ps1 -Case CLIN-23 -RebuildFixtures
 地污来源、合法格与地块预算的局部查询及实际清完更新专项见 [地污当前态索引](acceptance/dirt_spawn_indices.md)。
 
 个人床候选区域变化与真实预约释放的定点专项见 [个人床局部机会观察](acceptance/personal_bed_dependencies.md)。
+
+招聘与员工返院的入口身体局部查询、多人实际入院及队列跨层边界见 [入口真实身体查询](acceptance/entry_body_lookup.md)。

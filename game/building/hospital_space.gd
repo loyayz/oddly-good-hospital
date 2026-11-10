@@ -463,6 +463,20 @@ func overlaps_facility(world: WorldState, actor_id: String, facility_id: String)
 func body_rectangle(actor: Dictionary) -> Rect2:
 	return _actor_rect(actor,Vector2(float(actor.location.cell[0]),float(actor.location.cell[1])))
 
+func intersects_actor_body(world: WorldState, floor_id: int, rect: Rect2, ignored_id: String = "") -> bool:
+	_ensure_actor_index(world)
+	# The movement index may contain a whole convoy corridor, not individual
+	# bodies. Legal ground convoys contain standing members covered by that
+	# envelope; support/lying begins only after the convoy ends. Expand local
+	# owners and test their current floor bodies. Corridor gaps, transit
+	# riders, reservations and sweeps are not occupancy.
+	for owner: String in _actor_index.candidates(floor_id,rect):
+		for id: String in _convoy_members.get(owner,[owner]):
+			if id==ignored_id: continue
+			var actor: Dictionary = world.facts.actors[id]
+			if actor.location.kind=="floor" and int(actor.location.floor_id)==floor_id and rect.intersects(body_rectangle(actor),false): return true
+	return false
+
 func _unit_rect(world: WorldState, actor: Dictionary, origin: Vector2, members: Array, offsets: Dictionary) -> Rect2:
 	var rect: Rect2 = _actor_rect(actor,origin)
 	for member_id: String in members:
