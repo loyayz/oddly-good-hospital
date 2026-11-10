@@ -874,7 +874,7 @@ func _dispatch_public_need(world: WorldState, visit: Dictionary, need: Dictionar
 			need.phase = "local_wait"
 			space.public_areas.changed(world)
 	if world.sim_tick<deadline and need.phase=="area_travel" and space.public_areas.owns_arrival(world,actor.id,need.area,"waiting_need_id",need.id):
-		for choice: Dictionary in _public_need_choices(world,visit,need,definitions,deadline):
+		for choice: Dictionary in _public_need_choices(world,visit,need,definitions,deadline,need_scan):
 			if not _request_need_move(world,need,actor.id,int(choice.floor_id),choice.patient_cell).is_empty(): continue
 			need.facility_id = choice.facility_id
 			need.phase = "local_travel"
@@ -935,7 +935,7 @@ func _dispatch_public_need(world: WorldState, visit: Dictionary, need: Dictionar
 	if world.sim_tick<deadline and not space.public_areas.should_recheck(world,need,definitions):
 		_wait_need(world,visit,need)
 		return
-	var choices: Array = _public_need_choices(world,visit,need,definitions,deadline)
+	var choices: Array = _public_need_choices(world,visit,need,definitions,deadline,need_scan)
 	for choice: Dictionary in choices:
 		need.facility_id = choice.facility_id
 		if not space.at(world,actor.id,int(choice.floor_id),choice.patient_cell):
@@ -959,10 +959,14 @@ func _request_need_move(world: WorldState, need: Dictionary, actor_id: String, f
 	if reason.is_empty() and not movement.is_empty() and int(movement.target_floor)==floor_id and movement.target_cell==cell: movement.waiting_need_id = need.id
 	return reason
 
-func _public_need_choices(world: WorldState, visit: Dictionary, need: Dictionary, definitions: Array, deadline: int) -> Array:
+func _public_need_choices(world: WorldState, visit: Dictionary, need: Dictionary, definitions: Array, deadline: int, need_scan: Dictionary = {}) -> Array:
 	var actor: Dictionary = world.facts.actors[visit.actor_id]
 	var choices: Array = []
-	space.begin_dynamic_route_query(world)
+	# Local facility choices share the dispatch's existing first refresh with
+	# region selection. Each query still closes before movement or reservation;
+	# independent callers retain a fresh raw-body read through the empty default.
+	space.begin_dynamic_route_query(world,not bool(need_scan.get("refreshed",false)))
+	if not need_scan.is_empty(): need_scan.refreshed = true
 	for id: String in space.public_areas.facilities(world,need.area,definitions):
 		if not space.public_areas.turn(world,need,id): continue
 		if world.sim_tick==deadline:
