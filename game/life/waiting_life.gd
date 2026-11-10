@@ -1101,7 +1101,10 @@ func _preferred(_world: WorldState, visit: Dictionary, facility: Dictionary, obs
 	return false
 
 func _environment(world: WorldState, actor_id: String, floor_id: int, cell: Array) -> Dictionary:
-	if environment!=null: return environment.environment_at(world,floor_id,cell,actor_id)
+	# Seat consumers use values and preferences. Their reachable crowd/friend
+	# conditions are computed separately, so do not acquire unused people detail.
+	if environment!=null:
+		return environment.sample_at(world,floor_id,cell,actor_id) if environment.has_method("sample_at") else environment.environment_at(world,floor_id,cell,actor_id)
 	return {"value":float(content.balance.environment.base)+float(content.balance.environment.clean_bonus),"noise":0.0,"dirt":false,"clean":true,"water":false}
 
 func _chair(definition_id: String) -> Dictionary:
