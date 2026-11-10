@@ -140,7 +140,7 @@ var _diagnostics: bool = false
 var _timing: Dictionary = {}
 var _apply_started: int = 0
 var _last: Dictionary = {}
-var _stats: Dictionary = {"batches":0,"jobs":0,"processed":0,"consumed":0,"failed_batches":0,"coverage_distinct_lookups":0,"coverage_native_calls":0,"coverage_fallback_calls":0,"threads":{},"timings_us":{}}
+var _stats: Dictionary = {"batches":0,"jobs":0,"processed":0,"consumed":0,"failed_batches":0,"main_empty_observations":0,"coverage_distinct_lookups":0,"coverage_native_calls":0,"coverage_fallback_calls":0,"threads":{},"timings_us":{}}
 
 func prepare(world: WorldState, source: HospitalEnvironment, visit_ids: Array, task_count: int, diagnostics: bool) -> bool:
 	_diagnostics = diagnostics
@@ -182,6 +182,11 @@ func prepare(world: WorldState, source: HospitalEnvironment, visit_ids: Array, t
 		var dirt: bool = not source._query.samples.dirt.get(floor_id,{}).is_empty()
 		var noise: bool = not source._query.samples.machines.get(floor_id,{}).is_empty() or not source._query.samples.construction.get(floor_id,{}).is_empty()
 		if positive or dirt or noise: source._coverage_edges(world,floor_id)
+	# The native empty-source fast path needs no worker observation. Keep every
+	# requested result, and dispatch only the requests that still need sampling.
+	var worker_requests: Array = _prepare_empty_samples(world,source,requests,observation_bounds)
+	var main_empty: int = requests.size()-worker_requests.size()
+	count = mini(4,mini(maxi(1,task_count),worker_requests.size()))
 	# Copy the historical mappings once. Workers share this immutable seed and
 	# write only their own overlays; completed coverage values stay borrowed.
 	var coverage_seed: Dictionary = {}
@@ -195,9 +200,9 @@ func prepare(world: WorldState, source: HospitalEnvironment, visit_ids: Array, t
 		entry.make_read_only()
 	coverage_seed.make_read_only()
 	for index: int in count:
-		var low: int = requests.size()*index/count
-		var high: int = requests.size()*(index+1)/count
-		(_jobs[index] as SampleJob).prepare(source,world,requests.slice(low,high),coverage_seed,_diagnostics,observation_bounds)
+		var low: int = worker_requests.size()*index/count
+		var high: int = worker_requests.size()*(index+1)/count
+		(_jobs[index] as SampleJob).prepare(source,world,worker_requests.slice(low,high),coverage_seed,_diagnostics,observation_bounds)
 	_mark("preparation_us",stamp)
 	stamp = Time.get_ticks_usec() if _diagnostics else 0
 	var group: int = -1
@@ -206,7 +211,7 @@ func prepare(world: WorldState, source: HospitalEnvironment, visit_ids: Array, t
 		# Use the same virtual runner and result validation as the parallel path.
 		_run_job(0)
 		_mark("inline_job_us",stamp)
-	else:
+	elif count>1:
 		group = WorkerThreadPool.add_group_task(_run_job,count,count,false,"Department environment observations")
 		_mark("dispatch_us",stamp)
 		stamp = Time.get_ticks_usec() if _diagnostics else 0
@@ -214,7 +219,7 @@ func prepare(world: WorldState, source: HospitalEnvironment, visit_ids: Array, t
 		_mark("wait_us",stamp)
 	stamp = Time.get_ticks_usec() if _diagnostics else 0
 	var valid: bool = true
-	var processed: int = 0
+	var processed: int = main_empty
 	var job_rows: Array = []
 	for index: int in count:
 		var job: SampleJob = _jobs[index]
@@ -282,7 +287,8 @@ func prepare(world: WorldState, source: HospitalEnvironment, visit_ids: Array, t
 	_stats.batches += 1
 	_stats.jobs += count
 	_stats.processed += processed
-	_last = {"ok":valid,"group_id":group,"main_thread_id":OS.get_main_thread_id(),"jobs":job_rows,"requested":requests.size(),"processed":processed,"consumed":0}
+	_stats.main_empty_observations += main_empty
+	_last = {"ok":valid,"main_empty_observations":main_empty,"group_id":group,"main_thread_id":OS.get_main_thread_id(),"jobs":job_rows,"requested":requests.size(),"processed":processed,"consumed":0}
 	_mark("harvest_us",stamp)
 	if not valid:
 		_stats.failed_batches += 1
@@ -290,6 +296,43 @@ func prepare(world: WorldState, source: HospitalEnvironment, visit_ids: Array, t
 		for job: SampleJob in _jobs: job.results = []
 		_record_times(source)
 	return valid
+
+# This is exactly the source-free branch of native _observe_at, before any
+# coverage, water permission or floor material is needed. Unknown/custom paths
+# retain their original workers, including result validation and failure hooks.
+func _prepare_empty_samples(world: WorldState, source: HospitalEnvironment, requests: Array, bounds: Variant) -> Array:
+	if get_script()!=preload("res://game/operations/environment_sample_batch.gd") or source.get_script()!=HospitalEnvironment or source.space==null or source.space.get_script()!=HospitalSpace or not bounds is Dictionary or not world.facts.floors.has("completed_top_floor") or source._query_depth<=0 or not is_same(source._query.get("world"),world):
+		return requests
+	var pending: Array = []
+	var rules: Dictionary = source.content.balance.environment
+	var template: Dictionary = {"value":clampi(int(rules.base)+int(rules.clean_bonus),0,100),"noise":0,"dirt":0,"clean":true,"water":false,"light":false,"quiet":true,"moist":false,"dry":false,"cool":false,"sources":[],"subject_id":"","reference":false,"status":"current"}
+	var surfaces: Dictionary = world.facts.get("environment",{}).get("surfaces",{})
+	for request: Array in requests:
+		var floor_id: int = int(request[RequestSlot.FLOOR_ID])
+		var cell: Array = request[RequestSlot.CELL]
+		var point: Variant = source._cell_key(cell)
+		var regions: Variant = bounds.get(floor_id)
+		var empty: bool = point is Vector2i and regions is Array
+		if empty:
+			for region: Rect2i in regions:
+				if region.has_point(point): empty = false; break
+		if empty: empty = surfaces.get(source._surface_key(floor_id,cell,"floor"),{}).is_empty()
+		if empty:
+			# Same canonical owned projection as WorkerEnvironment._owned_at.
+			var edge: Variant = source._query.edges.get(floor_id)
+			if edge is Dictionary and edge.get("owned") is Dictionary:
+				empty = floor_id>=1 and edge.owned.has(Vector2i(point.x/32,point.y/32))
+			else:
+				empty = source.space.owned(world,floor_id,point)
+		if not empty:
+			pending.append(request)
+			continue
+		var observation: Dictionary = template.duplicate()
+		observation.sources = []
+		observation.subject_id = str(request[RequestSlot.ACTOR_ID])
+		observation.reference = observation.subject_id.is_empty()
+		_observations[str(request[RequestSlot.VISIT_ID])] = [observation,{}]
+	return pending
 
 func _run_job(index: int) -> void:
 	(_jobs[index] as SampleJob).run()
