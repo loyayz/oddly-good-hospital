@@ -15,6 +15,8 @@
 
 候诊椅实际占用、手动预览与安全离位另见 [候诊椅占用查询专项](acceptance/seat_owner_lookup.md)，按独立交接选择用例。
 
+环境覆盖复用、实际扩门恢复与9×9热图批次另见 [环境观察专项](acceptance/environment_cache_scope.md)。
+
 回归范围、前置状态使用边界和停止条件见 [AGENTS.md](../AGENTS.md)。六个专题的已注册用例组成需求覆盖库，每次执行选择实际受影响的用例；不带范围的命令会拒绝执行。
 
 查询用例清单，不启动 Godot：

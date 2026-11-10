@@ -950,6 +950,14 @@ func _coverage_edges(world: WorldState, floor_id: int) -> Dictionary:
 	if _query.get("world")==world and _query.edges.has(floor_id):
 		return _query.edges[floor_id]
 	if _query.get("world")==world and not _query.facilities_ready: _prepare_facility_sources(world)
+	var cached: Dictionary = _coverage_cache.get(floor_id,{})
+	# Scoped observers consume committed owner notifications. Unchanged layout
+	# and temporary door reservations need no room/door/screen enumeration.
+	# Direct raw-fact queries retain their complete source check.
+	if _query.get("world")==world and cached.has("world") and cached.world.get_ref()==world and cached.revision==world.geometry_revision and cached.reservations==space.reservation_revision:
+		space.query_counts["environment_coverage_source_hits"] = int(space.query_counts.get("environment_coverage_source_hits",0))+1
+		return _use_coverage_edges(world,floor_id,cached)
+	space.query_counts["environment_coverage_source_checks"] = int(space.query_counts.get("environment_coverage_source_checks",0))+1
 	var layout: Dictionary = world.facts.floors.overrides.get(str(floor_id),{})
 	var source: Dictionary = {"floor_id":floor_id,"plots":space.floor_plots(world,floor_id),"blocked":layout.get("blocked",[]),"rooms":[],"doors":[],"screens":[]}
 	for room: Dictionary in world.facts.rooms.values():
@@ -970,12 +978,11 @@ func _coverage_edges(world: WorldState, floor_id: int) -> Dictionary:
 		var facing: int = int(facility.get("rotation",0))%4
 		var across: Array = [int(facility.cell[0])+(1 if facing in [1,3] else 0),int(facility.cell[1])+(1 if facing in [0,2] else 0)]
 		source.screens.append(_coverage_edge_key(facility.cell,across))
-	var cached: Dictionary = _coverage_cache.get(floor_id,{})
 	if cached.get("source",{})==source:
-		_coverage_used += 1
-		cached.used = _coverage_used
-		if _query.get("world")==world: _query.edges[floor_id] = cached.edges
-		return cached.edges
+		cached.world = weakref(world)
+		cached.revision = world.geometry_revision
+		cached.reservations = space.reservation_revision
+		return _use_coverage_edges(world,floor_id,cached)
 	var edges: Dictionary = {"walls":{},"noise":{},"blocked":{},"owned":{}}
 	for plot: Array in source.plots: edges.owned[Vector2i(int(plot[0]),int(plot[1]))] = true
 	for cell: Array in source.blocked: edges.blocked[Vector2i(int(cell[0]),int(cell[1]))] = true
@@ -994,7 +1001,7 @@ func _coverage_edges(world: WorldState, floor_id: int) -> Dictionary:
 	for edge: Vector3i in source.screens: edges.noise[edge] = true
 	edges.native_coverage = _prepare_coverage_masks(edges)
 	_coverage_used += 1
-	var entry: Dictionary = {"source":source.duplicate(true),"edges":edges,"coverage":{},"used":_coverage_used}
+	var entry: Dictionary = {"world":weakref(world),"revision":world.geometry_revision,"reservations":space.reservation_revision,"source":source.duplicate(true),"edges":edges,"coverage":{},"used":_coverage_used}
 	_coverage_cache[floor_id] = entry
 	if _coverage_cache.size()>8:
 		var floors: Array = _coverage_cache.keys()
@@ -1002,6 +1009,12 @@ func _coverage_edges(world: WorldState, floor_id: int) -> Dictionary:
 		while _coverage_cache.size()>8: _coverage_cache.erase(floors.pop_front())
 	if _query.get("world")==world: _query.edges[floor_id] = edges
 	return edges
+
+func _use_coverage_edges(world: WorldState, floor_id: int, entry: Dictionary) -> Dictionary:
+	_coverage_used += 1
+	entry.used = _coverage_used
+	if _query.get("world")==world: _query.edges[floor_id] = entry.edges
+	return entry.edges
 
 func _prepare_coverage_masks(edges: Dictionary) -> Dictionary:
 	var input: Dictionary = {"owned":PackedInt32Array(),"blocked":PackedInt32Array(),"walls":PackedInt32Array(),"noise":PackedInt32Array()}
@@ -1284,8 +1297,11 @@ func _water_usable(world: WorldState, facility: Dictionary, actor_id: String) ->
 
 func heatmap(world: WorldState, floor_id: int, cells: Array, actor_id: String = "") -> Array:
 	var result: Array = []
+	if cells.is_empty(): return result
+	begin_query(world)
 	for cell: Array in cells:
 		result.append({"cell":cell.duplicate(),"environment":environment_at(world,floor_id,cell,actor_id)})
+	end_query()
 	return result
 
 func validate(world: WorldState) -> String:

@@ -17,6 +17,7 @@ var _navigation: NavigationCache = NavigationCache.new()
 var _envelope_next: int = 0
 var _route_queries: Array[Dictionary] = []
 var _reservation_views: Dictionary = {}
+var reservation_revision: int = 0
 var _facility_geometry: Dictionary = {}
 var guidance_queue_provider: WeakRef
 var movement: HospitalMovement
@@ -487,6 +488,9 @@ func reservation_view(world: WorldState) -> Dictionary:
 	return cached.view
 
 func reservation_changed(world: WorldState, id: String) -> void:
+	# Temporary door spans change environmental propagation without changing
+	# the structural floor. All reservation owners already publish here.
+	reservation_revision += 1
 	var cached: Dictionary = _reservation_views.get(world.get_instance_id(),{})
 	if not cached.is_empty(): _index_reservation(cached.view,id,world.facts.adaptations.get(id,{}))
 	if public_areas!=null: public_areas.reservation_changed(world,id)
