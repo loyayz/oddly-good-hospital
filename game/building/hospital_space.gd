@@ -1,6 +1,8 @@
 class_name HospitalSpace
 extends RefCounted
 
+signal reservation_updated(world: WorldState, id: String)
+
 const CELL_METERS: float = 1.5
 var content: HospitalContent
 var _convoy_owner: Dictionary = {}
@@ -507,6 +509,7 @@ func reservation_changed(world: WorldState, id: String) -> void:
 	reservation_revision += 1
 	var cached: Dictionary = _reservation_views.get(world.get_instance_id(),{})
 	if not cached.is_empty(): _index_reservation(cached.view,id,world.facts.adaptations.get(id,{}))
+	reservation_updated.emit(world,id)
 	if public_areas!=null: public_areas.reservation_changed(world,id)
 
 # Optional geometry has the same world/floor synchronous borrowing contract
@@ -1121,7 +1124,9 @@ func release_adaptations(world: WorldState) -> void:
 		if not inside:
 			world.facts.adaptations.erase(id)
 			reservation_changed(world,id)
-			_navigation.invalidate(world,int(reservation.floor_id))
+			# Static navigation sources contain facility occupancy/footprints, not
+			# temporary door spans. Door release uses the same live path as acquire.
+			if reservation.kind=="facility": _navigation.invalidate(world,int(reservation.floor_id))
 			if reservation.kind=="facility" and world.facts.facilities.has(id): _facility_layout_changed(world,reservation,world.facts.facilities[id])
 
 func _door_span(actor: Dictionary, door: Dictionary) -> int:

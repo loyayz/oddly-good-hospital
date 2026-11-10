@@ -19,6 +19,7 @@ var _spawn_index: RefCounted = preload("res://game/operations/dirt_spawn_index.g
 func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 	content = database
 	space = geometry
+	space.reservation_updated.connect(_reservation_updated)
 	for amenity: Dictionary in content.catalog.get("amenity_services",[]):
 		if amenity.get("purpose","")=="water":
 			for field: String in ["ordinary_facility_id","universal_facility_id"]: _water_ids[str(amenity.get(field,""))] = true
@@ -180,7 +181,7 @@ func end_query() -> void:
 		if not _coverage_cache.has(floor_id): continue
 		var entry: Dictionary = _coverage_cache[floor_id]
 		# An unscoped read of another world may have replaced this floor's owner.
-		if not entry.has("world") or entry.world.get_ref()!=_query.world: continue
+		if not entry.has("world") or entry.world.get_ref()!=_query.world or not is_same(entry.edges,_query.edges[floor_id]): continue
 		entry.coverage.merge(_query.coverage.get(floor_id,{}))
 		var excess: int = entry.coverage.size()-128
 		if excess>0:
@@ -955,10 +956,11 @@ func _coverage_edges(world: WorldState, floor_id: int) -> Dictionary:
 		return _query.edges[floor_id]
 	if _query.get("world")==world and not _query.facilities_ready: _prepare_facility_sources(world)
 	var cached: Dictionary = _coverage_cache.get(floor_id,{})
-	# Scoped observers consume committed owner notifications. Unchanged layout
-	# and temporary door reservations need no room/door/screen enumeration.
+	# Scoped observers consume committed owner notifications. Door changes
+	# repair only their changed edges, without acquiring the floor source again.
 	# Direct raw-fact queries retain their complete source check.
-	if _query.get("world")==world and cached.has("world") and cached.world.get_ref()==world and cached.revision==world.geometry_revision and cached.reservations==space.reservation_revision:
+	if _query.get("world")==world and cached.has("world") and cached.world.get_ref()==world and cached.revision==world.geometry_revision:
+		_apply_door_changes(world,floor_id,cached)
 		space.query_counts["environment_coverage_source_hits"] = int(space.query_counts.get("environment_coverage_source_hits",0))+1
 		return _use_coverage_edges(world,floor_id,cached)
 	space.query_counts["environment_coverage_source_checks"] = int(space.query_counts.get("environment_coverage_source_checks",0))+1
@@ -971,7 +973,7 @@ func _coverage_edges(world: WorldState, floor_id: int) -> Dictionary:
 			if room.has(field): shape[field] = room[field]
 		source.rooms.append(shape)
 	for door: Dictionary in layout.get("doors",[]):
-		source.doors.append({"room_id":door.room_id,"axis":door.axis,"cell":door.cell,"span":int(world.facts.adaptations.get(door.id,{}).get("span",door.span))})
+		source.doors.append({"id":door.id,"room_id":door.room_id,"axis":door.axis,"cell":door.cell,"span":int(door.span)})
 	var screens: Array = []
 	if _query.get("world")==world:
 		for id: String in _query.screens.get(floor_id,[]): screens.append(world.facts.facilities[id])
@@ -982,12 +984,13 @@ func _coverage_edges(world: WorldState, floor_id: int) -> Dictionary:
 		var facing: int = int(facility.get("rotation",0))%4
 		var across: Array = [int(facility.cell[0])+(1 if facing in [1,3] else 0),int(facility.cell[1])+(1 if facing in [0,2] else 0)]
 		source.screens.append(_coverage_edge_key(facility.cell,across))
-	if cached.get("source",{})==source:
+	if cached.has("world") and cached.world.get_ref()==world and cached.get("source",{})==source:
 		cached.world = weakref(world)
 		cached.revision = world.geometry_revision
-		cached.reservations = space.reservation_revision
+		_sync_door_spans(world,cached)
+		_apply_door_changes(world,floor_id,cached,source if _query.get("world")!=world else {})
 		return _use_coverage_edges(world,floor_id,cached)
-	var edges: Dictionary = {"walls":{},"noise":{},"blocked":{},"owned":{}}
+	var edges: Dictionary = {"walls":{},"noise":{},"blocked":{},"owned":{},"wall_overrides":{}}
 	for plot: Array in source.plots: edges.owned[Vector2i(int(plot[0]),int(plot[1]))] = true
 	for cell: Array in source.blocked: edges.blocked[Vector2i(int(cell[0]),int(cell[1]))] = true
 	for room: Dictionary in source.rooms:
@@ -1005,14 +1008,115 @@ func _coverage_edges(world: WorldState, floor_id: int) -> Dictionary:
 	for edge: Vector3i in source.screens: edges.noise[edge] = true
 	edges.native_coverage = _prepare_coverage_masks(edges)
 	_coverage_used += 1
-	var entry: Dictionary = {"world":weakref(world),"revision":world.geometry_revision,"reservations":space.reservation_revision,"source":source.duplicate(true),"edges":edges,"coverage":{},"used":_coverage_used}
+	var entry: Dictionary = {"world":weakref(world),"revision":world.geometry_revision,"source":source.duplicate(true),"edges":edges,"coverage":{},"used":_coverage_used,"doors":{},"spans":{},"dirty_doors":{}}
+	for door: Dictionary in entry.source.doors: entry.doors[door.id] = door
+	_sync_door_spans(world,entry)
+	_apply_door_changes(world,floor_id,entry,source if _query.get("world")!=world else {})
 	_coverage_cache[floor_id] = entry
 	if _coverage_cache.size()>8:
 		var floors: Array = _coverage_cache.keys()
 		floors.sort_custom(func(a: int,b: int)->bool: return int(_coverage_cache[a].used)<int(_coverage_cache[b].used))
 		while _coverage_cache.size()>8: _coverage_cache.erase(floors.pop_front())
-	if _query.get("world")==world: _query.edges[floor_id] = edges
-	return edges
+	if _query.get("world")==world: _query.edges[floor_id] = entry.edges
+	return entry.edges
+
+# Only resident environment floors observe this existing owner notification.
+# A bounded set of dirty door IDs survives release; there is no shared history
+# to consume and no enumeration of every current reservation or floor door.
+func _reservation_updated(world: WorldState, id: String) -> void:
+	for entry: Dictionary in _coverage_cache.values():
+		if not entry.has("world") or entry.world.get_ref()!=world or not entry.doors.has(id): continue
+		var door: Dictionary = entry.doors[id]
+		var span: int = int(world.facts.adaptations.get(id,{}).get("span",door.span))
+		if span!=int(entry.spans.get(id,door.span)): entry.dirty_doors[id] = true
+
+# Complete source acquisition is restricted to a cold/layout-changed floor or
+# the explicit raw-fact path. Formal reservation changes use the callback above.
+func _sync_door_spans(world: WorldState, entry: Dictionary) -> void:
+	for id: String in entry.doors:
+		var door: Dictionary = entry.doors[id]
+		if int(world.facts.adaptations.get(id,{}).get("span",door.span))!=int(entry.spans.get(id,door.span)):
+			entry.dirty_doors[id] = true
+
+func _apply_door_changes(world: WorldState, floor_id: int, entry: Dictionary, raw_source: Dictionary = {}) -> void:
+	if entry.dirty_doors.is_empty(): return
+	var affected: Dictionary = {}
+	for id: String in entry.dirty_doors:
+		var door: Dictionary = entry.doors[id]
+		var previous: int = int(entry.spans.get(id,door.span))
+		var current: int = int(world.facts.adaptations.get(id,{}).get("span",door.span))
+		if current==int(door.span): entry.spans.erase(id)
+		else: entry.spans[id] = current
+		var start: int = int(door.cell[0] if door.axis=="x" else door.cell[1])
+		var line: int = int(door.cell[1] if door.axis=="x" else door.cell[0])
+		for along: int in range(start+mini(previous,current),start+maxi(previous,current)):
+			affected[Vector3i(0 if door.axis=="x" else 1,line,along)] = true
+	entry.dirty_doors.clear()
+	if affected.is_empty(): return
+	var geometry: FloorStaticGeometry = space._navigation.floor_geometry(space,world,floor_id) if raw_source.is_empty() else null
+	var changed: Dictionary = {}
+	var old: Dictionary = entry.edges
+	for key: Vector3i in affected:
+		var first: Array = [key.z,key.y-1] if key.x==0 else [key.y-1,key.z]
+		var second: Array = [key.z,key.y] if key.x==0 else [key.y,key.z]
+		# A second room or overlapping door can keep this edge closed/open.
+		var closed: bool = _wall_between(world,floor_id,first,second,geometry) if raw_source.is_empty() else _raw_source_wall_closed(world,raw_source,key)
+		if closed!=bool(old.wall_overrides.get(key,old.walls.has(key))): changed[key] = closed
+	space.query_counts["environment_coverage_door_edge_checks"] = int(space.query_counts.get("environment_coverage_door_edge_checks",0))+affected.size()
+	if changed.is_empty(): return
+	# Workers and older observations retain the immutable prior snapshot. Packed
+	# arrays alias on assignment, so each changed snapshot copies exactly 18 KiB.
+	var updated: Dictionary = old.duplicate()
+	updated.wall_overrides = old.wall_overrides.duplicate()
+	var ready: bool = old.native_coverage.get("ready",false)
+	if ready:
+		updated.native_coverage = old.native_coverage.duplicate()
+		updated.native_coverage.ordinary = old.native_coverage.ordinary.duplicate()
+		updated.native_coverage.noise = old.native_coverage.noise.duplicate()
+		space.query_counts["environment_coverage_mask_patches"] = int(space.query_counts.get("environment_coverage_mask_patches",0))+1
+		space.query_counts["environment_coverage_mask_copied_bytes"] = int(space.query_counts.get("environment_coverage_mask_copied_bytes",0))+updated.native_coverage.ordinary.size()+updated.native_coverage.noise.size()
+	for key: Vector3i in changed:
+		var closed: bool = changed[key]
+		if closed==old.walls.has(key): updated.wall_overrides.erase(key)
+		else: updated.wall_overrides[key] = closed
+		if ready:
+			_patch_mask_edge(updated.native_coverage.ordinary,key,not closed,updated)
+			_patch_mask_edge(updated.native_coverage.noise,key,not closed and not updated.noise.has(key),updated)
+	entry.edges = updated
+	entry.coverage = {}
+
+# The explicit non-scoped calculation path permits raw edits without owner
+# notifications. Its already acquired complete source must not borrow stale
+# navigation/reservation indices. Normal runtime scopes never enter this path.
+func _raw_source_wall_closed(world: WorldState, source: Dictionary, edge: Vector3i) -> bool:
+	var axis: String = "x" if edge.x==0 else "y"
+	for room: Dictionary in source.rooms:
+		for wall: Dictionary in BuildGeometry.room_walls(room):
+			if wall.axis!=axis or int(wall.line)!=edge.y or edge.z<int(wall.low) or edge.z>=int(wall.high): continue
+			var opening: bool = false
+			for door: Dictionary in source.doors:
+				var line: int = int(door.cell[1] if edge.x==0 else door.cell[0])
+				var start: int = int(door.cell[0] if edge.x==0 else door.cell[1])
+				var span: int = int(world.facts.adaptations.get(door.id,{}).get("span",door.span))
+				if door.room_id==room.id and door.axis==axis and line==edge.y and edge.z>=start and edge.z<start+span:
+					opening = true
+					break
+			if not opening: return true
+	return false
+
+func _patch_mask_edge(mask: PackedByteArray, edge: Vector3i, open: bool, edges: Dictionary) -> void:
+	var first: Vector2i = Vector2i(edge.z,edge.y-1) if edge.x==0 else Vector2i(edge.y-1,edge.z)
+	var second: Vector2i = Vector2i(edge.z,edge.y) if edge.x==0 else Vector2i(edge.y,edge.z)
+	_patch_mask_direction(mask,first,second,3 if edge.x==0 else 2,open,edges)
+	_patch_mask_direction(mask,second,first,0 if edge.x==0 else 1,open,edges)
+
+func _patch_mask_direction(mask: PackedByteArray, from: Vector2i, to: Vector2i, direction: int, open: bool, edges: Dictionary) -> void:
+	if from.x<0 or from.y<0 or from.x>=96 or from.y>=96: return
+	# The environment contract checks the destination only: a blocked/unowned
+	# observation root may leave its cell. Never restore both directions blindly.
+	var allowed: bool = open and to.x>=0 and to.y>=0 and to.x<96 and to.y<96 and not edges.blocked.has(to) and edges.owned.has(Vector2i(to.x/32,to.y/32))
+	var id: int = from.y*96+from.x
+	mask[id] = (int(mask[id]) | (1<<direction)) if allowed else (int(mask[id]) & ~(1<<direction))
 
 func _use_coverage_edges(world: WorldState, floor_id: int, entry: Dictionary) -> Dictionary:
 	_coverage_used += 1
@@ -1047,7 +1151,7 @@ func _edge_open(world: WorldState, floor_id: int, first: Array, second: Array, n
 		var cell: Vector2i = Vector2i(int(second[0]),int(second[1]))
 		if cell.x<0 or cell.y<0 or cell.x>=96 or cell.y>=96 or edges.blocked.has(cell) or not edges.owned.has(Vector2i(cell.x/32,cell.y/32)): return false
 		var key: Vector3i = _coverage_edge_key(first,second)
-		return not edges.walls.has(key) and (not noise or not edges.noise.has(key))
+		return not bool(edges.get("wall_overrides",{}).get(key,edges.walls.has(key))) and (not noise or not edges.noise.has(key))
 	var floor_data: Dictionary = world.facts.floors.overrides.get(str(floor_id),{})
 	if second in floor_data.get("blocked",[]):
 		return false
