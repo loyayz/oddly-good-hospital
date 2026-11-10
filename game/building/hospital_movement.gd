@@ -1223,10 +1223,28 @@ func _local_choose_options(world: WorldState, actor: Dictionary, movement: Dicti
 		return true
 	return false
 
+func _local_goal_contact_wait(world: WorldState, actor: Dictionary, movement: Dictionary, contact: MotionResult) -> bool:
+	if actor.get("posture","standing")=="lying" or int(movement.target_floor)!=int(actor.location.floor_id): return false
+	# Every upright arrival facing contains this square. Check only bodies
+	# actually touched now, never the future connector or a moving journey.
+	var dimensions: Dictionary=space.body(actor)
+	var side: float=minf(float(dimensions.width_m),float(dimensions.depth_m))/HospitalSpace.CELL_METERS
+	var target: Vector2=ConvoyTrail.point(movement.target_cell)
+	var center: Vector2=space._actor_rect(actor,target).get_center()
+	var unavoidable:=Rect2(center-Vector2.ONE*side*0.5,Vector2.ONE*side)
+	for id: String in contact.blocker_actor_ids:
+		if world.facts.moves.has(id) or not _member_owner(world,id).is_empty(): continue
+		if unavoidable.intersects(space._actor_index.rectangle(id),false):
+			movement.waiting_reason="等待实际占用目的地的身体离开"
+			space.query_counts["local_goal_contact_waits"]=int(space.query_counts.get("local_goal_contact_waits",0))+1
+			return true
+	return false
+
 func _local_collision(world: WorldState, actor: Dictionary, movement: Dictionary, contact: MotionResult) -> void:
 	if not contact.static_reason.is_empty():
 		_replan_goal(world,movement,true)
 		return
+	if _local_goal_contact_wait(world,actor,movement,contact): return
 	# While the contacted body's actual local step is clear, this event
 	# need not start a second manoeuvre. No endpoint or future right is held.
 	for id: String in contact.blocker_actor_ids:
