@@ -1227,24 +1227,6 @@ func _local_collision(world: WorldState, actor: Dictionary, movement: Dictionary
 	if not contact.static_reason.is_empty():
 		_replan_goal(world,movement,true)
 		return
-	if movement.get("local_move",{}).has("rejoin") and not bool(movement.local_move.get("retreat",false)):
-		# A blocked B is an attempted target, not earned route progress. Try C
-		# from this actual position; never replay B's complete dynamic corridor.
-		var changed: bool=_local_try_return(world,actor,movement,true,contact.requested_motion)
-		if not changed:
-			var link: Dictionary=movement.local_move.rejoin
-			changed=_local_return(world,actor,movement,space.navigation.structural_clearance(world,actor,int(actor.location.floor_id)),int(link.index),ConvoyTrail.point(link.cell),contact.requested_motion)
-		if changed:
-			var next: Vector2=ConvoyTrail.point(movement.local_move.target.cell)-ConvoyTrail.point(actor.location.cell)
-			if next.cross(contact.requested_motion)==0.0 and next.dot(contact.requested_motion)>0.0:
-				var fixed: Array=[]
-				for id: String in contact.blocker_actor_ids:
-					var other: Dictionary=world.facts.actors.get(id,{})
-					if other.get("location",{}).get("kind")!="floor" or other.location.floor_id!=actor.location.floor_id: continue
-					if not _local_movable(world,other,world.facts.moves.get(id,{})): fixed.append(id)
-				if fixed.is_empty(): _local_choose(world,actor,movement,next)
-				else: _local_choose_options(world,actor,movement,next,fixed)
-			return
 	# While the contacted body's actual local step is clear, this event
 	# need not start a second manoeuvre. No endpoint or future right is held.
 	for id: String in contact.blocker_actor_ids:
@@ -1264,6 +1246,24 @@ func _local_collision(world: WorldState, actor: Dictionary, movement: Dictionary
 		# movement turns. Do not start a second bypass in that handoff gap.
 		if next==origin and journey.local_move.has("rejoin"): return
 		if next!=origin and _local_path_clear(world,other,[_floor_point(other,next)]): return
+	if movement.get("local_move",{}).has("rejoin") and not bool(movement.local_move.get("retreat",false)):
+		# A blocked B is an attempted target, not earned route progress. Try C
+		# only after the existing single local mover has been considered.
+		var changed: bool=_local_try_return(world,actor,movement,true,contact.requested_motion)
+		if not changed:
+			var link: Dictionary=movement.local_move.rejoin
+			changed=_local_return(world,actor,movement,space.navigation.structural_clearance(world,actor,int(actor.location.floor_id)),int(link.index),ConvoyTrail.point(link.cell),contact.requested_motion)
+		if changed:
+			var next: Vector2=ConvoyTrail.point(movement.local_move.target.cell)-ConvoyTrail.point(actor.location.cell)
+			if next.cross(contact.requested_motion)==0.0 and next.dot(contact.requested_motion)>0.0:
+				var fixed: Array=[]
+				for id: String in contact.blocker_actor_ids:
+					var other: Dictionary=world.facts.actors.get(id,{})
+					if other.get("location",{}).get("kind")!="floor" or other.location.floor_id!=actor.location.floor_id: continue
+					if not _local_movable(world,other,world.facts.moves.get(id,{})): fixed.append(id)
+				if fixed.is_empty(): _local_choose(world,actor,movement,next)
+				else: _local_choose_options(world,actor,movement,next,fixed)
+			return
 	# The subject of this collision is picked once; no actor is moved here.
 	if bool(movement.get("local_move",{}).get("retreat",false)):
 		var start: Vector2 = ConvoyTrail.point(actor.location.cell)
