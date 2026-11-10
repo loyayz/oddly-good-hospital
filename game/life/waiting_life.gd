@@ -527,6 +527,35 @@ func patient_summary(world: WorldState, visit_id: String, low_motion: bool = fal
 		summary.reason = "附近没有可用候诊位" if _waiting(world,visit) else ""
 	return summary
 
+# The anger sampler only asks whether the existing summary has any positive
+# personality reason. Keep that contract distinct from species preferences and
+# leave the public summary, complete scores and live neighbor rules unchanged.
+func has_positive_seat_reason(world: WorldState, visit_id: String) -> bool:
+	var state: Dictionary = world.facts.get("waiting_life",{})
+	var visit: Dictionary = world.facts.visits.get(visit_id,{})
+	var seat: Dictionary = state.get("seats",{}).get(visit_id,{})
+	if visit.is_empty() or not state.get("needs",{}).get(visit_id,{}).is_empty() or seat.get("phase","")!="seated": return false
+	var facility_id: String = str(seat.get("facility_id",""))
+	if not world.facts.facilities.has(facility_id): return false
+	space.begin_route_query(world,{},space.nominal_query(world))
+	var result: bool = _positive_seat_reason_in_query(world,visit,facility_id)
+	space.end_route_query()
+	return result
+
+func _positive_seat_reason_in_query(world: WorldState, visit: Dictionary, facility_id: String) -> bool:
+	var facility: Dictionary = world.facts.facilities[facility_id]
+	if not _public_seat(world,facility): return false
+	var quote: Dictionary = _facility_quote(world,visit,facility_id)
+	if not quote.ok: return false
+	var observation: Dictionary = _environment(world,visit.actor_id,int(facility.floor_id),quote.patient_cell)
+	var weights: Dictionary = content.definition("patient_personalities",visit.personality_id).seating.weights
+	var conditions: Dictionary = _seat_observation_conditions(visit,facility,observation)
+	for criterion: String in conditions:
+		if conditions[criterion] and int(weights.get(criterion,0))>0: return true
+	if int(weights.get("less_crowded",0))<=0 and int(weights.get("friendly_neighbor",0))<=0: return false
+	conditions = _conditions(world,visit,facility,quote.patient_cell,observation)
+	return (int(weights.get("less_crowded",0))>0 and conditions.less_crowded) or (int(weights.get("friendly_neighbor",0))>0 and conditions.friendly_neighbor)
+
 # A walking target or a standing search is not a usable chair.
 static func is_seated(world: WorldState, visit_id: String) -> bool:
 	var seat: Dictionary = world.facts.get("waiting_life",{}).get("seats",{}).get(visit_id,{})
@@ -1083,7 +1112,13 @@ func _conditions(world: WorldState, visit: Dictionary, facility: Dictionary, cel
 		nearby += 1
 		if possible_friend: friendly = true
 		if nearby>=crowded_at and friendly: break
-	return {"quiet":float(observation.noise)<=0,"less_crowded":nearby<int(content.balance.patient_behavior.crowded_neighbors_min),"friendly_neighbor":friendly,
+	var conditions: Dictionary = _seat_observation_conditions(visit,facility,observation)
+	conditions.less_crowded = nearby<int(content.balance.patient_behavior.crowded_neighbors_min)
+	conditions.friendly_neighbor = friendly
+	return conditions
+
+func _seat_observation_conditions(visit: Dictionary, facility: Dictionary, observation: Dictionary) -> Dictionary:
+	return {"quiet":float(observation.noise)<=0,
 		"calm_available":facility.definition_id=="FUR49" and float(visit.anger)>=float(content.balance.seat_choice.calm_minimum_anger) and not visit.get("chair_calm_claimed",false),
 		"noise_reduction":facility.definition_id=="FUR50" and float(observation.noise)>0,"clean_ground":bool(observation.clean),
 		"decor_nearby":observation.get("decor_nearby",false),"casual_scene_nearby":observation.get("casual_scene_nearby",false)}

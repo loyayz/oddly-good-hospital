@@ -798,8 +798,15 @@ func _sample_anger(world: WorldState, visit: Dictionary, data: Dictionary, provi
 		data.anger_sources.environment_buffer = float(data.anger_sources.get("environment_buffer",0.0))+increase*(1.0-environment_multiplier)
 	else:
 		var decay: float = float(content.balance.anger.natural_decay)*float(personality.anger_decay_multiplier)
-		var summary: Dictionary = waiting_life.patient_summary(world,visit.id) if waiting_life!=null else {}
-		if not summary.get("seat",{}).is_empty() and summary.seat.phase=="seated" and not summary.get("reasons",[]).is_empty(): decay += float(content.balance.anger.preferred_seat_decay)
+		var seat_reason: bool = false
+		if waiting_life!=null:
+			if waiting_life.get_script()==HospitalWaitingLife:
+				seat_reason = waiting_life.has_positive_seat_reason(world,visit.id)
+			else:
+				# Custom waiting services retain their existing summary contract.
+				var summary: Dictionary = waiting_life.patient_summary(world,visit.id)
+				seat_reason = not summary.get("seat",{}).is_empty() and summary.seat.phase=="seated" and not summary.get("reasons",[]).is_empty()
+		if seat_reason: decay += float(content.balance.anger.preferred_seat_decay)
 		_anger_change(visit,data,"natural_calm",-decay)
 
 func _update_cause_clocks(world: WorldState, visit: Dictionary, data: Dictionary, observation: Dictionary) -> void:
