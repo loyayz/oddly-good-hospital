@@ -96,6 +96,8 @@ EQ05 空岗位可通行而使用权仍独占、真实床体/身体/扫掠安全�
 
 局部意图存在但当前一步被堵住时，不能让另一人无限等待。窄通道中两人真实相遇、原任务到达和完整冷恢复专项见 [受阻的局部动作](acceptance/blocked_local_mover.md)，与上例共同区分有效离开和受阻意图。
 
+导诊队首先真实走到服务位、到齐后取得完整预约才工作，覆盖操作区被过路者挡住、实际绕开、完整六秒工时和生产保存冷恢复，见 [导诊服务位的行走意图](acceptance/guidance_post_intent.md)。
+
 环境表面/污渍来源的加载绑定、单条增删、局部实时值、保守边界及 worker 借用见 [环境表面与污渍来源](acceptance/environment_surface_sources.md)。
 
 临床会话噪声来源的实际启停、同 ID 安全接续、局部占地与楼层边界、恢复及 worker 借用见 [环境临床会话来源](acceptance/environment_session_sources.md)。

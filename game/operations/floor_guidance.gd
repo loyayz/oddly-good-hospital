@@ -599,7 +599,9 @@ func _approach_desk(world: WorldState, visit: Dictionary, ticket: Dictionary, cu
 	if nurse.is_empty() or not _nurse_ready(world,nurse):
 		visit.waiting_reason = "本层导诊台缺少当班护士，保留排队顺序"
 		return false
-	var quote: Dictionary = space.facility_quote(world,str(current.desk_id),visit.actor_id,[nurse])
+	# The queue head may intend to walk into its post before the complete
+	# operating area clears. Actual steps stay physical; no use is reserved yet.
+	var quote: Dictionary = space.facility_geometry_quote(world,str(current.desk_id),visit.actor_id,[nurse])
 	if not quote.get("ok",false) or quote.get("unchanged",false):
 		visit.waiting_reason = quote.get("reason","导诊台缺少真实双人服务空间")
 		return false
@@ -607,10 +609,6 @@ func _approach_desk(world: WorldState, visit: Dictionary, ticket: Dictionary, cu
 	var n: Dictionary = world.facts.actors[nurse]
 	if space._actor_rect(a,Vector2(quote.patient_cell[0],quote.patient_cell[1])).intersects(space._actor_rect(n,Vector2(quote.operator_cells[0][0],quote.operator_cells[0][1])),false):
 		visit.waiting_reason = "导诊台患者位与护士位身体相交，需要调整布局"
-		return false
-	var reason: String = space.reserve_facility(world,str(current.desk_id),visit.actor_id,"floor_guide:"+visit.id,[nurse])
-	if not reason.is_empty():
-		visit.waiting_reason = reason
 		return false
 	current.nurse_id = nurse
 	current.phase = "to_counter"
@@ -646,11 +644,14 @@ func _wait_near_queue(world: WorldState, visit: Dictionary, current: Dictionary)
 	return true
 
 func _gather_counter(world: WorldState, visit: Dictionary, current: Dictionary) -> bool:
-	var layout: Dictionary = space.facility_layout(world,str(current.desk_id))
 	var nurse: String = str(current.nurse_id)
 	if not _nurse_ready(world,nurse) or world.facts.floor_guidance.desks.get(current.desk_id,{}).get("nurse_id","")!=nurse:
 		_release_counter(world,visit,current)
 		current.phase = "desk_queue"
+		return false
+	var layout: Dictionary = space.facility_geometry_quote(world,str(current.desk_id),visit.actor_id,[nurse])
+	if not layout.get("ok",false):
+		visit.waiting_reason = layout.get("reason","导诊台没有合法的真实服务位")
 		return false
 	if not space.at(world,visit.actor_id,int(layout.floor_id),layout.patient_cell) or world.facts.moves.has(visit.actor_id):
 		_move(world,visit,current,int(layout.floor_id),layout.patient_cell)
@@ -659,6 +660,12 @@ func _gather_counter(world: WorldState, visit: Dictionary, current: Dictionary) 
 	if not space.at(world,nurse,int(layout.floor_id),layout.operator_cells[0]) or world.facts.moves.has(nurse):
 		if not world.facts.moves.has(nurse): space.request_move(world,nurse,int(layout.floor_id),layout.operator_cells[0])
 		visit.waiting_reason = "等待导诊护士真实到台"
+		return false
+	# Service begins only with both bodies really present and the original
+	# full live preflight/reservation accepted in this dispatch boundary.
+	var reason: String = space.reserve_facility(world,str(current.desk_id),visit.actor_id,"floor_guide:"+visit.id,[nurse])
+	if not reason.is_empty():
+		visit.waiting_reason = reason
 		return false
 	current.phase = "working"
 	current.remaining_ticks = maxi(1,ceili(float(content.balance.guidance.nurse_seconds)*10.0/clinic._talent_rate(world,str(current.nurse_id),"guidance",visit)))
@@ -1022,8 +1029,11 @@ static func validate_state(world: WorldState) -> String:
 		if row.phase in ["to_counter","working"]:
 			if active_desks.has(row.desk_id): return "同一导诊台不能同时服务两名患者"
 			active_desks[row.desk_id] = id
-			var reservation: Dictionary = world.facts.adaptations.get(row.desk_id,{})
-			if reservation.get("owner_id","")!="floor_guide:"+str(id) or not owns_reservation(world,reservation): return "楼层导诊台服务与病例、护士或预约不一致"
+			# A movement intention may still be waiting on a previous physical
+			# exit. Working alone requires this head's live use reservation.
+			if row.phase=="working":
+				var reservation: Dictionary = world.facts.adaptations.get(row.desk_id,{})
+				if reservation.get("owner_id","")!="floor_guide:"+str(id) or not owns_reservation(world,reservation): return "楼层导诊台服务与病例、护士或预约不一致"
 		if row.phase=="working" and (not WorldState._natural(row.get("remaining_ticks",-1)) or int(row.remaining_ticks)<1 or not WorldState._natural(row.get("started_tick",-1))): return "楼层导诊工作余量无效"
 		for receipt: Variant in row.receipts:
 			if not receipt is Dictionary or not receipt.get("request_key") is String or not receipt.get("desk_id") is String or not receipt.get("nurse_id") is String or not WorldState._natural(receipt.get("floor_id",-1)) or not WorldState._natural(receipt.get("started_tick",-1)) or not WorldState._natural(receipt.get("completed_tick",-1)) or int(receipt.completed_tick)<int(receipt.started_tick): return "楼层导诊完成凭据无效"
