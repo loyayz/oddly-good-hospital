@@ -1,0 +1,221 @@
+{
+  "game_commit": "30056f3b433939f315b5b590978ebc80453de0f9",
+  "measurement_tool_commit": "6cba75203d014f64258e525e1aaa03a06b907fd4",
+  "input_sha256": "ce56591c43fe1704abf76348dd5e67b0eae2a599143c03e045a780439a1bc15c",
+  "verification": "audit_raw.py passed: 9000 real steps, 6000 samples, exact repeat business/terminal equality and disjoint root-stage partition",
+  "scope": "Three serial full Simulation.step runs with root-stage observer, app main-thread policy, four environment tasks, no game changes, no additional benchmark or visual measurement",
+  "archive_sha256": "83fa064e28567ddacd3ee4b64fd44d576e03c7efbdacd896f5739172e70cc7d2",
+  "archive_bytes": 6124538,
+  "files": [
+    {
+      "path": "runs/protocol.json",
+      "bytes": 8222,
+      "sha256": "0e2c82d82928323d954b60011af160a7b6728c416ed5c0b2300e81d5a47a0bb7"
+    },
+    {
+      "path": "runs/r1.json",
+      "bytes": 148146,
+      "sha256": "7fdbf1f83911b6716a87be2a2be618bd74591329efe49cdb382a5e5fc43861fe"
+    },
+    {
+      "path": "runs/r1.json.execution.json",
+      "bytes": 2456,
+      "sha256": "53d1f75999faf4bb43766b8a5aa1f0fd323d5899435e4a1cfc235aa194e0873f"
+    },
+    {
+      "path": "runs/r1.json.final.bin",
+      "bytes": 3648736,
+      "sha256": "4a7352139c4cb752eea7aeb542a99dcea7a60d45ce2cd27e496674b442147ce3"
+    },
+    {
+      "path": "runs/r1.json.initial.json",
+      "bytes": 61423,
+      "sha256": "535fd188f88881eeecd18cf9b6e29edb60b0f444d9d327c24a3edd945112927d"
+    },
+    {
+      "path": "runs/r1.json.stages.json",
+      "bytes": 17742398,
+      "sha256": "bc4f6dbd25b084f2ea444e0fca71b9f66f1f6f898965e7a7919575c1fb2e521b"
+    },
+    {
+      "path": "runs/r1.json.steps.ndjson",
+      "bytes": 463760,
+      "sha256": "21b484f3b0c92674eb4317e32f325188226ceae9c7027e62b16393eef3583372"
+    },
+    {
+      "path": "runs/r1.log",
+      "bytes": 3243,
+      "sha256": "428567a7783e000d5ced01ee8d89414511dd759c3c69c2f767ff6f34e4f0759c"
+    },
+    {
+      "path": "runs/r1.processes-before.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "runs/r2.json",
+      "bytes": 148146,
+      "sha256": "2be54456fabb4c550bd45d5dc9ea500cd95feed0f0bce0f041d9ec6627d96c62"
+    },
+    {
+      "path": "runs/r2.json.execution.json",
+      "bytes": 2455,
+      "sha256": "a470e0470469acd4f49f650eb57fa5d1acb81a89476dfd7b57d9e06933ddbf06"
+    },
+    {
+      "path": "runs/r2.json.final.bin",
+      "bytes": 3648736,
+      "sha256": "4a7352139c4cb752eea7aeb542a99dcea7a60d45ce2cd27e496674b442147ce3"
+    },
+    {
+      "path": "runs/r2.json.initial.json",
+      "bytes": 61423,
+      "sha256": "535fd188f88881eeecd18cf9b6e29edb60b0f444d9d327c24a3edd945112927d"
+    },
+    {
+      "path": "runs/r2.json.stages.json",
+      "bytes": 17737511,
+      "sha256": "2efd8e9e0ff73c6535901162d04863983bc223722682187a8ce4cb84747fc011"
+    },
+    {
+      "path": "runs/r2.json.steps.ndjson",
+      "bytes": 463662,
+      "sha256": "fea7626155ab89f0c1a80ba4e43514f09d9ce7c4f464dd59ffd7ef8d4f0708f7"
+    },
+    {
+      "path": "runs/r2.log",
+      "bytes": 3240,
+      "sha256": "ad933ca22954742f2db087647799ba5cf5ff27a7ec3b0181de3c3aefe5fe2476"
+    },
+    {
+      "path": "runs/r2.processes-before.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "runs/r3.json",
+      "bytes": 148146,
+      "sha256": "7d2be72d4e5906c09543f87c61e68008f9b6382276409e90a0e25a313d85c3cf"
+    },
+    {
+      "path": "runs/r3.json.execution.json",
+      "bytes": 2455,
+      "sha256": "e717265a30566f1655028aae07db57d50a44a11dbbf457e10df982752e874d9a"
+    },
+    {
+      "path": "runs/r3.json.final.bin",
+      "bytes": 3648736,
+      "sha256": "4a7352139c4cb752eea7aeb542a99dcea7a60d45ce2cd27e496674b442147ce3"
+    },
+    {
+      "path": "runs/r3.json.initial.json",
+      "bytes": 61423,
+      "sha256": "535fd188f88881eeecd18cf9b6e29edb60b0f444d9d327c24a3edd945112927d"
+    },
+    {
+      "path": "runs/r3.json.stages.json",
+      "bytes": 17741259,
+      "sha256": "54b30dc127c3f5b7b5320fed8f9daead2bb2ecfe15df4780bbf7f82bb62c405e"
+    },
+    {
+      "path": "runs/r3.json.steps.ndjson",
+      "bytes": 463721,
+      "sha256": "47db2100ab792bf5b8eff43622bb63bea498dbf5dcbc59f61607a4efdf859b0e"
+    },
+    {
+      "path": "runs/r3.log",
+      "bytes": 3242,
+      "sha256": "3e243b13468f00278f3e82c189ea2e236f1fb93a4f17a3d7bc9fff55ee0714ec"
+    },
+    {
+      "path": "runs/r3.processes-before.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "runs/source-identity.json",
+      "bytes": 222381,
+      "sha256": "261e784d167559aa1b36842d5ea6b4b9ab1669fe2a63f67fc5f800d074ff2f24"
+    },
+    {
+      "path": "runs/status.json",
+      "bytes": 96,
+      "sha256": "9c42d41b4068422c49c2f3c5b62386bdba719d967e85e6575ccb53bb1af7eea7"
+    },
+    {
+      "path": "runs/summary.json",
+      "bytes": 13643,
+      "sha256": "7db6d830695f5ae3cb9398c234929a90470643f6ca35f663647491f73a44226c"
+    },
+    {
+      "path": "input.bin",
+      "bytes": 1582752,
+      "sha256": "ce56591c43fe1704abf76348dd5e67b0eae2a599143c03e045a780439a1bc15c"
+    },
+    {
+      "path": "setup.json",
+      "bytes": 1542,
+      "sha256": "7cfde41a4b8b9c37db9c7dcb806ad61c2365d8a51cec65f02c9429b9f6e0df37"
+    },
+    {
+      "path": "preparation-attempts.json",
+      "bytes": 437,
+      "sha256": "faf1273f499d5fa550ae29199f9c5d595019badfb87f5b5fbfc4a5c103e54d00"
+    },
+    {
+      "path": "host-before.json",
+      "bytes": 551,
+      "sha256": "423b077d9000d290c4d7ae70388f20db3eb4deea8af8606f46dd8dbf444a061b"
+    },
+    {
+      "path": "launch.json",
+      "bytes": 1353,
+      "sha256": "2dcb617cfd478c9985fa4dcb9e124c01da964e03b614643f29a4b426815127f7"
+    },
+    {
+      "path": "controller.log",
+      "bytes": 2251,
+      "sha256": "9f7d494908898da3afcb396a26842b6f7ec031cc31484814c02a911fcc535735"
+    },
+    {
+      "path": "controller-status.json",
+      "bytes": 61,
+      "sha256": "413437b8820d9d3376892dcc77988209fde1ce7b764b715fa814d7294dec5d55"
+    },
+    {
+      "path": "audit_raw.py",
+      "bytes": 7963,
+      "sha256": "1288e5c049c3549faa4bbf71e5e06841ccff8af61c1f189c4c6f32de1890a114"
+    },
+    {
+      "path": "raw-audit.json",
+      "bytes": 49421,
+      "sha256": "e54f38bb3ad7bfc0e88b54af7ae8deeb7fb6e435f6c281b40d362317afd3c05d"
+    },
+    {
+      "path": "derive_observations.py",
+      "bytes": 1999,
+      "sha256": "01646694d73666f71e54aae1960619f55db863843920a71520b9685dd40d10ac"
+    },
+    {
+      "path": "derived-observations.json",
+      "bytes": 2817,
+      "sha256": "fa9044b24f26b38a35e9dea6549d1cf11a81bedaa8d322e2ac68c61354214165"
+    },
+    {
+      "path": "source-tools/tools/performance/current/plain_v4.gd",
+      "bytes": 12371,
+      "sha256": "40dd7946211006513ed882cdeff9d8b19ddc8d9490f06f2262bb3751c520a5cc"
+    },
+    {
+      "path": "source-tools/tools/performance/current/campaign160.py",
+      "bytes": 7852,
+      "sha256": "8d9ba052e13b31d7e01442e2631e604dc65db267c51fcb357f0bb8df5887915b"
+    },
+    {
+      "path": "source-tools/tools/performance/step_profile.gd",
+      "bytes": 27320,
+      "sha256": "0f1b25373ddc3595a782de59b7e9aab501527406bdd9ec9e76c6880913f9a700"
+    }
+  ]
+}
