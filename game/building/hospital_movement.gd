@@ -1191,7 +1191,10 @@ func _local_choose_options(world: WorldState, actor: Dictionary, movement: Dicti
 				var past: Vector2 = ConvoyTrail.point(visited.cell)
 				var delta: Vector2 = past-origin
 				if delta.dot(direction)>0.001 and absf(delta.cross(direction))<0.00001:
-					target=past;break
+					# A near-collinear binary32 checkpoint supplies retreat distance,
+					# not a lateral snap. Keep the current real axis exactly.
+					target=Vector2(past.x,origin.y) if direction.x!=0.0 else Vector2(origin.x,past.y)
+					break
 		var path: Array = [_floor_point(actor,target)]
 		if not _bed_local_path_blocker(world,actor,movement,path).is_empty(): continue
 		if direction==-forward:

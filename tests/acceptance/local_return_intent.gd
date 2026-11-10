@@ -27,7 +27,7 @@ class ObservedMovement extends HospitalMovement:
 func run(content: HospitalContent) -> Dictionary:
 	var suite: RefCounted=load("res://tests/acceptance/space.gd").new()
 	suite.content=content
-	var rows: Array=[_sequence(suite,false),_sequence(suite,true),_sequence(suite,false,true),_fixed_contact(suite)]
+	var rows: Array=[_sequence(suite,false),_sequence(suite,true),_sequence(suite,false,true),_fixed_contact(suite),_retreat_axis(suite)]
 	return {"ok":rows.all(func(row: Dictionary)->bool: return row.ok),"cases":rows}
 
 func _sequence(suite: RefCounted, compressed: bool, bend: bool = false) -> Dictionary:
@@ -92,5 +92,36 @@ func _fixed_contact(suite: RefCounted) -> Dictionary:
 	var arrived: bool=not sim.world.facts.moves.has("walker") and sim.space.at(sim.world,"walker",1,[42,68])
 	var checks: Dictionary={"initial_valid":initial.is_empty(),"arrived":arrived,"safe_real_steps":errors.is_empty(),"fixed_exit_used":observer.fixed_exit_checks>0,"fixed_body_kept":sim.space.at(sim.world,"B",1,[42,70]) and not sim.world.facts.moves.has("B"),"contact_keeps_cursor":observer.cursor_kept_on_contact,"no_future_body_probe":observer.future_body_probes==0}
 	var result: Dictionary={"case":"fixed_contact_after_rejoin_attempt","ok":checks.values().all(func(value: Variant)->bool:return value==true),"checks":checks,"errors":errors,"fixed_exit_checks":observer.fixed_exit_checks}
+	sim.dispose()
+	return result
+
+func _retreat_axis(suite: RefCounted) -> Dictionary:
+	var sim: HospitalSimulation=suite._fixture()
+	var x: float=40.0000038146973
+	suite._add_actor(sim,"walker","S49",[x,70.8])
+	suite._add_actor(sim,"left","S49",[x-0.8,70.8])
+	suite._add_actor(sim,"right","S49",[x+0.8,70.8])
+	suite._add_actor(sim,"front","S49",[x,71.6])
+	sim.world.facts.move_request_next=1
+	sim.world.facts.moves["walker"]={"actor_id":"walker","path":[{"kind":"floor","floor_id":1,"cell":[x,75.0]}],"cursor":0,"travelled":[{"kind":"floor","floor_id":1,"cell":[40.0,69.8]}],"blocked_since":-1,"target_floor":1,"target_cell":[x,75.0],"request_sequence":1}
+	sim.world.touch()
+	var initial: String=sim.world.validate(suite.content)
+	var probe: RefCounted=load("res://tests/acceptance/movement_detour.gd").new()
+	var errors: Array=[]
+	var retreat_seen: bool=false
+	var exact_axis: bool=true
+	var backward: bool=false
+	for tick: int in 3:
+		var before: Vector2=ConvoyTrail.point(sim.world.facts.actors.walker.location.cell)
+		var error: String=probe._tick(suite,sim,["walker","left","right","front"])
+		if not error.is_empty():errors.append(error);break
+		var actor: Dictionary=sim.world.facts.actors.walker
+		var local: Dictionary=sim.world.facts.moves.get("walker",{}).get("local_move",{})
+		if local.get("retreat",false):
+			retreat_seen=true
+			exact_axis=exact_axis and ConvoyTrail.point(local.target.cell).x==ConvoyTrail.point(actor.location.cell).x
+		backward=backward or float(actor.location.cell[1])<before.y
+	var checks: Dictionary={"initial_valid":initial.is_empty(),"actual_contact_and_retreat":retreat_seen,"actual_backward_step":backward,"exact_axis":exact_axis,"safe_real_steps":errors.is_empty(),"current_restore_valid":WorldState.new(sim.world.freeze()).validate(suite.content).is_empty()}
+	var result: Dictionary={"case":"binary32_history_retreat_axis","ok":checks.values().all(func(value: Variant)->bool:return value==true),"checks":checks,"errors":errors,"remaining":sim.world.facts.moves.get("walker",{}).get("local_move",{})}
 	sim.dispose()
 	return result
