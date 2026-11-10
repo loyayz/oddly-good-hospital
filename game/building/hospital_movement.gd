@@ -354,8 +354,6 @@ func advance(world: WorldState, present_at_start: int = -1) -> void:
 		var result: MotionResult = _convoy_turn_contact(world,actor,movement,segment)
 		if result==null or not result.blocked:
 			result = _move_step(world,actor,movement,segment)
-		if result.actual_motion!=Vector2.ZERO and bool(movement.get("local_move",{}).get("retreat",false)):
-			_local_try_return(world,actor,movement)
 		# Door ownership retains its own wait; it never pushes the owner aside.
 		if not result.door_id.is_empty(): continue
 		if result.blocked:
@@ -1206,7 +1204,9 @@ func _local_choose_options(world: WorldState, actor: Dictionary, movement: Dicti
 			if rect.intersects(space._door_rect(door,space._door_span(actor,door)),false): in_door=true;break
 		if in_door: continue
 		var route_origin: Array = movement.get("local_move",{}).get("origin",actor.location.cell).duplicate()
+		var rejoin: Dictionary = movement.get("local_move",{}).get("rejoin",{})
 		movement.local_move={"target":path[0],"origin":route_origin}
+		if not rejoin.is_empty(): movement.local_move.rejoin=rejoin
 		if direction==-forward: movement.local_move.retreat=true
 		return true
 	return false
@@ -1215,7 +1215,18 @@ func _local_collision(world: WorldState, actor: Dictionary, movement: Dictionary
 	if not contact.static_reason.is_empty():
 		_replan_goal(world,movement,true)
 		return
-	if bool(movement.get("local_move",{}).get("retreat",false)) and _local_try_return(world,actor,movement): return
+	if movement.get("local_move",{}).has("rejoin") and not bool(movement.local_move.get("retreat",false)):
+		# A blocked B is an attempted target, not earned route progress. Try C
+		# from this actual position; never replay B's complete dynamic corridor.
+		var changed: bool=_local_try_return(world,actor,movement,true,contact.requested_motion)
+		if not changed:
+			var link: Dictionary=movement.local_move.rejoin
+			changed=_local_return(world,actor,movement,space.navigation.structural_clearance(world,actor,int(actor.location.floor_id)),int(link.index),ConvoyTrail.point(link.cell),contact.requested_motion)
+		if changed:
+			var next: Vector2=ConvoyTrail.point(movement.local_move.target.cell)-ConvoyTrail.point(actor.location.cell)
+			if next.cross(contact.requested_motion)==0.0 and next.dot(contact.requested_motion)>0.0:
+				_local_choose(world,actor,movement,next)
+			return
 	# While the contacted body's actual local step is clear, this event
 	# need not start a second manoeuvre. No endpoint or future right is held.
 	for id: String in contact.blocker_actor_ids:
@@ -1226,7 +1237,7 @@ func _local_collision(world: WorldState, actor: Dictionary, movement: Dictionary
 		# Finish a reached-sidepoint handoff before treating it as a second
 		# collision episode. This changes only intent, never the other body.
 		if origin==ConvoyTrail.point(journey.local_move.target.cell) and not journey.local_move.has("rejoin"):
-			_local_try_return(world,other,journey,true)
+			_local_try_return(world,other,journey)
 		var next: Vector2 = _step_toward(origin,ConvoyTrail.point(journey.local_move.target.cell),space.walking_speed(other)*WorldState.TICK_SECONDS)
 		# This collision already has one local mover. The other walker only
 		# waits while physically blocked; it may advance as soon as its step clears.
@@ -1300,87 +1311,64 @@ func _local_side_exit(world:WorldState,actor:Dictionary,movement:Dictionary,side
 func _local_resume(world: WorldState, actor: Dictionary, movement: Dictionary) -> bool:
 	var local: Dictionary = movement.local_move
 	var origin: Vector2 = ConvoyTrail.point(actor.location.cell)
-	if origin!=ConvoyTrail.point(local.target.cell): return true
-	if local.has("rejoin"):
+	if local.has("rejoin") and origin==ConvoyTrail.point(local.rejoin.cell):
 		var cell: Vector2 = ConvoyTrail.point(local.rejoin.cell)
-		if origin!=cell:
-			local.target=_floor_point(actor,cell)
-			return true
 		var index: int = int(local.rejoin.index)
 		movement.cursor=index+1 if cell==ConvoyTrail.point(movement.path[index].cell) else index
 		movement.erase("local_move")
 		_route_checks.erase(actor.id)
 		return true
-	if _local_try_return(world,actor,movement,true):return true
+	if origin!=ConvoyTrail.point(local.target.cell): return true
+	if bool(local.get("retreat",false)):
+		var toward: Vector2=ConvoyTrail.point(local.rejoin.cell if local.has("rejoin") else movement.path[int(movement.cursor)].cell)-origin
+		if _local_choose(world,actor,movement,toward): return true
+	elif _local_try_return(world,actor,movement): return true
 	# No floor search or another side step without a real collision.
 	movement.waiting_reason="等待原路线局部连接空出"
 	return false
 
-# A completed real retreat step can expose an original-route connection
-# before its temporary neighbour is reached. Test current geometry/bodies;
-# this earns no route cursor progress until the selected point is reached.
-func _local_try_return(world: WorldState, actor: Dictionary, movement: Dictionary, allow_attempt: bool = false) -> bool:
+# One current original-route target. Static geometry selects its connector;
+# only an actual blocked move advances the attempted target, never the route.
+func _local_try_return(world: WorldState, actor: Dictionary, movement: Dictionary, advance: bool = false, blocked_motion: Vector2 = Vector2.ZERO) -> bool:
 	var local:Dictionary=movement.local_move
 	var query:RouteClearance=space.navigation.structural_clearance(world,actor,int(actor.location.floor_id))
-	# First choose the nearest currently usable local connection. Only after
-	# all are blocked may a completed local action retain the nearest static
-	# connection as an intention. Actual motion, not this query, meets people.
-	for check_people:bool in ([true,false] if allow_attempt else [true]):
-		var scan:Dictionary={"path":movement.path,"search":{"previous":local.origin.duplicate(),"index":int(movement.cursor)}}
-		while true:
-			var index:int=int(scan.search.index)
-			var candidate:Dictionary=_next_rejoin_candidate(actor,scan)
-			if candidate.is_empty():break
-			var target:Vector2=ConvoyTrail.point(candidate.cell)
-			if not _local_return_endpoint_clear(world,actor,query,target,not check_people):continue
-			if _local_return(world,actor,movement,query,index,target,check_people):return true
-	return false
-func _local_return_endpoint_clear(world: WorldState, actor: Dictionary, query: RouteClearance, target: Vector2, ignore_walkers: bool = false) -> bool:
-	if target==ConvoyTrail.point(actor.location.cell) or not query.position_reason(target).is_empty():return false
-	var sample: Dictionary=actor.duplicate()
-	for facing: float in [float(actor.facing),0.0,PI*0.5,PI,-PI*0.5]:
-		sample.facing=facing
-		var rect:Rect2=space._actor_rect(sample,target)
-		if not ignore_walkers:
-			if not space._actor_index.intersects(int(actor.location.floor_id),rect,actor.id,[actor.id]):return true
-			continue
-		var blocked:bool=false
-		for id:String in space._actor_index.candidates(int(actor.location.floor_id),rect,[actor.id]):
-			var other:Dictionary=world.facts.actors[id]
-			var journey:Dictionary=world.facts.moves.get(id,{})
-			if _local_movable(world,other,journey):continue
-			if rect.intersects(space._actor_rect(other,ConvoyTrail.point(other.location.cell)),false):blocked=true;break
-		if not blocked:return true
+	var previous: Array=local.origin
+	var index: int=int(movement.cursor)
+	if local.has("rejoin"):
+		var point: Vector2=ConvoyTrail.point(local.rejoin.cell)
+		index=int(local.rejoin.index)
+		if not advance and _local_return(world,actor,movement,query,index,point,blocked_motion): return true
+		previous=local.rejoin.cell
+		if point==ConvoyTrail.point(movement.path[index].cell): index+=1
+	var scan:Dictionary={"path":movement.path,"search":{"previous":previous,"index":index}}
+	while true:
+		index=int(scan.search.index)
+		var candidate:Dictionary=_next_rejoin_candidate(actor,scan)
+		if candidate.is_empty():break
+		var target:Vector2=ConvoyTrail.point(candidate.cell)
+		if _local_return(world,actor,movement,query,index,target,blocked_motion):return true
 	return false
 
-func _local_return(world: WorldState, actor: Dictionary, movement: Dictionary, query: RouteClearance, index: int, target: Vector2, check_people: bool = true) -> bool:
+func _local_return_endpoint_clear(_world: WorldState, actor: Dictionary, query: RouteClearance, target: Vector2) -> bool:
+	return target!=ConvoyTrail.point(actor.location.cell) and query.position_reason(target).is_empty()
+
+func _local_return(world: WorldState, actor: Dictionary, movement: Dictionary, query: RouteClearance, index: int, target: Vector2, blocked_motion: Vector2 = Vector2.ZERO) -> bool:
 	if not query.position_reason(target).is_empty(): return false
 	var origin: Vector2 = ConvoyTrail.point(actor.location.cell)
 	if target==origin:return false
-	for corner: Vector2 in [Vector2(target.x,origin.y),Vector2(origin.x,target.y)]:
+	var corners: Array[Vector2]=[Vector2(target.x,origin.y),Vector2(origin.x,target.y)]
+	# Continue around the obstruction after a real side step, rather than
+	# immediately undoing that step. A contact supplies the blocked heading;
+	# otherwise the last actually walked heading supplies the local bend.
+	var heading: Vector2=blocked_motion
+	if heading==Vector2.ZERO: heading=Vector2(sin(float(actor.facing)),cos(float(actor.facing)))
+	if absf(heading.x)>absf(heading.y): corners.reverse()
+	for corner: Vector2 in corners:
 		if not query.sweep_reason(origin,corner).is_empty() or not query.sweep_reason(corner,target).is_empty(): continue
 		if not _bed_local_path_blocker(world,actor,movement,[_floor_point(actor,corner),_floor_point(actor,target)]).is_empty(): continue
-		if check_people and not _local_path_clear(world,actor,[_floor_point(actor,corner),_floor_point(actor,target)],query): continue
 		var next: Vector2 = target if corner==origin or corner==target else corner
 		movement.local_move={"origin":movement.local_move.origin,"target":_floor_point(actor,next),"rejoin":{"index":index,"cell":[target.x,target.y]}}
 		return true
-	# A same-axis return can be blocked on both sides of the current retreat.
-	# Connect to the original point through one body-width local flank. Only
-	# the first real corner is installed; arrival then uses the ordinary return.
-	if check_people:
-		var delta:Vector2=target-origin
-		var side:Vector2=Vector2(0,space.clearance(actor)) if absf(delta.x)>=absf(delta.y) else Vector2(space.clearance(actor),0)
-		for offset:Vector2 in [side,-side]:
-			var first:Vector2=origin+offset
-			var last:Vector2=target+offset
-			# The exact constructed middle leg must be axis-aligned. Offsets can
-			# round distinct original coordinates to the same binary32 value.
-			if first.x!=last.x and first.y!=last.y:continue
-			var path:Array=[_floor_point(actor,first),_floor_point(actor,last),_floor_point(actor,target)]
-			if not _bed_local_path_blocker(world,actor,movement,path).is_empty():continue
-			if not _local_path_clear(world,actor,path,query):continue
-			movement.local_move={"origin":movement.local_move.origin,"target":path[0]}
-			return true
 	return false
 
 func _start_detour(world: WorldState, actor: Dictionary, movement: Dictionary) -> void:

@@ -13,7 +13,7 @@ class ObserveMovement extends HospitalMovement:
 # These authored contact tests isolate blocker eligibility after return has
 # been ruled out. Natural-retreat tests separately exercise real return choice.
 class ContactOnlyMovement extends ObserveMovement:
- func _local_try_return(_world:WorldState,_actor:Dictionary,_movement:Dictionary,_allow_attempt:bool=false)->bool:
+ func _local_try_return(_world:WorldState,_actor:Dictionary,_movement:Dictionary,_advance:bool=false,_blocked_motion:Vector2=Vector2.ZERO)->bool:
   return false
 func _p(x:float,y:float)->Dictionary:return {"kind":"floor","floor_id":1,"cell":[x,y]}
 func _journey(id:String,start:Array,goal:Array)->Dictionary:

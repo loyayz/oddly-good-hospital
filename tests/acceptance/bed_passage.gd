@@ -190,7 +190,7 @@ func local_rejoin() -> void:
 	var sequence: int=m.request_sequence
 	tick(x)
 	observations.local_rejoin={"location":w.facts.actors.walker.location.duplicate(true),"movement":m.duplicate(true)}
-	checks.local_rejoin_cannot_enter=s.at(w,"walker",1,[43,74]) and ConvoyTrail.point(m.local_move.target.cell)==ConvoyTrail.point(x.fit.patient_cell) and m.request_sequence==sequence and not m.get("waiting_reason","").is_empty()
+	checks.local_rejoin_cannot_enter=s.at(w,"walker",1,[43,74]) and ConvoyTrail.point(m.local_move.rejoin.cell)==ConvoyTrail.point(x.fit.patient_cell) and m.request_sequence==sequence and not m.get("waiting_reason","").is_empty()
 	var exit: Dictionary=walk(x,"p",[54,88])
 	for i: int in 100:
 		if not w.facts.moves.has("walker"):break
@@ -245,7 +245,7 @@ func candidate_stops() -> void:
 		checks[key+"_legal_input_and_end"]=initial.is_empty() and w.validate(content).is_empty()
 		checks[key+"_other_side_and_arrival"]=requested.is_empty() and not selected.is_empty() and float(selected[0])<42.0 and s.at(w,"walker",1,[42,y-3]) and not w.facts.moves.has("walker")
 		checks[key+"_safe_original_intent"]=safe and retained and w.facts.adaptations.has("bed")
-		observations[key]={"initial_validation":initial,"final_validation":w.validate(content),"selected":selected,"ticks":steps}
+		observations[key]={"initial_validation":initial,"final_validation":w.validate(content),"selected":selected,"ticks":steps,"position":w.facts.actors.walker.location.cell.duplicate(),"remaining":w.facts.moves.get("walker",{}).duplicate(true)}
 
 	# Explicit calculation boundary: choose between two orthogonal return
 	# links. The first corner is held; the second is a real usable stop.

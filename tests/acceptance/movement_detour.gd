@@ -101,11 +101,12 @@ func _stationary(suite: RefCounted, release: bool) -> Dictionary:
     if phase=="return_target" and choices.is_empty(): choices=move.local_move.rejoin.cell.duplicate()
   if move.is_empty(): break
  var expected: Array=[40,70] if release else [41,70]
+ var intended: Array=[40,70]
  var arrived: bool=not sim.world.facts.moves.has("walker") and sim.space.at(sim.world,"walker",1,[45,70])
  var saves_ok: bool=not samples.is_empty()
  for result: Dictionary in samples.values(): saves_ok=saves_ok and result.ok
  var dispatches: int=int(sim.space.query_counts.get("route_dispatches",0))
- var result: Dictionary={"case":"return_original_blocked_cell_when_freed" if release else "skip_occupied_return_to_first_reachable_successor","ok":request.is_empty() and errors.is_empty() and original and arrived and choices.size()==2 and rejoin.size()==2 and ConvoyTrail.point(choices).distance_to(ConvoyTrail.point(expected))<0.0001 and ConvoyTrail.point(rejoin).distance_to(ConvoyTrail.point(expected))<0.0001 and saves_ok and dispatches==(2 if release else 1) and release_error.is_empty(),"errors":errors,"original_goal_and_sequence":original,"rejoin_choice":choices,"actual_first_rejoin":rejoin,"expected_first_rejoin":expected,"arrived":arrived,"global_route_dispatches":dispatches,"release_error":release_error,"restored_phases":samples,"remaining":sim.world.facts.moves.duplicate(true)}
+ var result: Dictionary={"case":"return_original_blocked_cell_when_freed" if release else "attempt_blocked_cell_before_successor","ok":request.is_empty() and errors.is_empty() and original and arrived and choices.size()==2 and rejoin.size()==2 and ConvoyTrail.point(choices).distance_to(ConvoyTrail.point(intended))<0.0001 and ConvoyTrail.point(rejoin).distance_to(ConvoyTrail.point(expected))<0.0001 and saves_ok and dispatches==(2 if release else 1) and release_error.is_empty(),"errors":errors,"original_goal_and_sequence":original,"rejoin_choice":choices,"expected_first_intention":intended,"actual_first_rejoin":rejoin,"expected_first_rejoin":expected,"arrived":arrived,"global_route_dispatches":dispatches,"release_error":release_error,"restored_phases":samples,"remaining":sim.world.facts.moves.duplicate(true)}
  sim.dispose();return result
 
 func _backward(suite: RefCounted, no_history: bool, sealed: bool, crossing_release: bool=false) -> Dictionary:
@@ -256,9 +257,9 @@ func _double_corner_rejoin(suite: RefCounted) -> Dictionary:
   if tick%25==0 or movement.is_empty(): trace.append({"tick":tick,"position":sim.world.facts.actors.walker.location.cell.duplicate(),"local_move":movement.get("local_move",{}).duplicate(true)})
   if movement.is_empty(): break
  var arrived: bool=sim.space.at(sim.world,"walker",1,[47,86]) and not sim.world.facts.moves.has("walker")
- var nearest: bool=choice.size()==2 and ConvoyTrail.point(choice).distance_to(Vector2(44,90))<0.0001
+ var first_intention: bool=choice.size()==2 and ConvoyTrail.point(choice).distance_to(Vector2(44,91))<0.0001
  var dispatches: int=int(sim.space.query_counts.get("route_dispatches",0))
- var result: Dictionary={"case":"nearest_return_around_furniture_and_entrance","ok":request.is_empty() and errors.is_empty() and exact and nearest and arrived and restored.get("ok",false) and dispatches>=1 and dispatches<=2,"request":request,"errors":errors,"original_goal_and_stationary_blocker_preserved":exact,"nearest_rejoin":choice,"arrived":arrived,"global_route_dispatches":dispatches,"restore":restored,"trace":trace,"original_path":original,"remaining":sim.world.facts.moves.duplicate(true)}
+ var result: Dictionary={"case":"intended_return_around_furniture_and_entrance","ok":request.is_empty() and errors.is_empty() and exact and first_intention and arrived and restored.get("ok",false) and dispatches>=1 and dispatches<=2,"request":request,"errors":errors,"original_goal_and_stationary_blocker_preserved":exact,"first_intended_rejoin":choice,"arrived":arrived,"global_route_dispatches":dispatches,"restore":restored,"trace":trace,"original_path":original,"remaining":sim.world.facts.moves.duplicate(true)}
  sim.dispose();return result
 
 # Ownership, finite same-floor motion, cursor integrity and original-route
@@ -266,7 +267,7 @@ func _double_corner_rejoin(suite: RefCounted) -> Dictionary:
 # discarded merely because the single-person representation changed.
 func _local_corrupt_states(input:Dictionary,id:String,suite:RefCounted)->Dictionary:
  var rejected:Array=[];var accepted:Array=[]
- var probes:Array=["unknown_phase","empty_original","diagonal","nonfinite_origin","fractional_cursor","fractional_resume","huge_resume","foreign_target","false_completed_route","pending_route","retreat_other_floor","bad_original_segment","missing_connector","old_yielding","old_partner","wrong_rejoin_endpoint","changed_suffix","retreat_and_rejoin","legacy_single_detour"]
+ var probes:Array=["unknown_phase","empty_original","diagonal","nonfinite_origin","fractional_cursor","fractional_resume","huge_resume","foreign_target","false_completed_route","pending_route","retreat_other_floor","bad_original_segment","missing_connector","old_yielding","old_partner","wrong_rejoin_endpoint","changed_suffix","invalid_retreat_flag","legacy_single_detour"]
  for probe:String in probes:
   var snapshot:Dictionary=input.duplicate(true)
   var move:Dictionary=snapshot.moves[id];var local:Dictionary=move.local_move
@@ -297,7 +298,7 @@ func _local_corrupt_states(input:Dictionary,id:String,suite:RefCounted)->Diction
    "old_partner":move.yield_partner=id
    "wrong_rejoin_endpoint":local.erase("retreat");local.rejoin={"index":int(move.cursor),"cell":[999,999]}
    "changed_suffix":local.erase("retreat");local.rejoin={"index":int(move.cursor),"cell":[999,999]};move.path[int(move.cursor)]={"kind":"floor","floor_id":1,"cell":[998,998]}
-   "retreat_and_rejoin":local.retreat=true;local.rejoin={"index":int(move.cursor),"cell":position.duplicate()}
+   "invalid_retreat_flag":local.retreat="back"
   var error:String=WorldState.new(snapshot).validate(suite.content)
   if error.is_empty() or probe=="legacy_single_detour" and (not error.contains("单人") or not error.contains("detour")):accepted.append(probe)
   else:rejected.append(probe)

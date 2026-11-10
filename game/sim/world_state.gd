@@ -1055,7 +1055,7 @@ func _validate_shapes() -> String:
 			for key: Variant in local:
 				if not key in ["target","origin","rejoin","retreat"]: return "局部移动含未知状态"
 			if not _point(local.get("origin")): return "局部移动缺少原路线离开点"
-			if local.has("retreat") and (typeof(local.retreat)!=TYPE_BOOL or not local.retreat or local.has("rejoin")): return "局部后退不能混为原路线接回"
+			if local.has("retreat") and (typeof(local.retreat)!=TYPE_BOOL or not local.retreat): return "局部后退标记无效"
 			var local_actor: Dictionary = facts.actors.get(movement.actor_id,{})
 			var local_target: Dictionary = local.target
 			if local_actor.get("location",{}).get("kind")!="floor" or local_target.get("kind")!="floor" or not _point(local_target.get("cell")) or not _natural(local_target.get("floor_id",-1)) or local_target.floor_id!=local_actor.location.floor_id: return "局部移动必须保持同层有限坐标"
@@ -1076,8 +1076,6 @@ func _validate_shapes() -> String:
 				var end: Vector2 = ConvoyTrail.point(movement.path[local_index].cell)
 				var rejoin: Vector2 = ConvoyTrail.point(link.cell)
 				if (end-start).cross(rejoin-start)!=0.0 or (rejoin-start).dot(rejoin-end)>0.0: return "局部移动接点不在原路线段"
-				if local_endpoint.x!=rejoin.x and local_endpoint.y!=rejoin.y: return "局部移动中间转角不能斜接原路线"
-				if local_endpoint!=rejoin and local_origin!=local_endpoint and (local_endpoint-local_origin).dot(rejoin-local_endpoint)!=0.0: return "局部移动中间点必须是正交转角"
 			else:
 				var original: Variant = movement.path[int(movement.cursor)]
 				if not original is Dictionary or original.get("kind")!="floor" or original.get("floor_id")!=local_actor.location.floor_id: return "局部移动原路线不在当前楼层"
