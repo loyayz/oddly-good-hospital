@@ -1239,12 +1239,11 @@ func _local_collision(world: WorldState, actor: Dictionary, movement: Dictionary
 		if origin==ConvoyTrail.point(journey.local_move.target.cell) and not journey.local_move.has("rejoin"):
 			_local_try_return(world,other,journey)
 		var next: Vector2 = _step_toward(origin,ConvoyTrail.point(journey.local_move.target.cell),space.walking_speed(other)*WorldState.TICK_SECONDS)
-		# This collision already has one local mover. The other walker only
-		# waits while physically blocked; it may advance as soon as its step clears.
-		if not movement.has("local_move") and (next!=origin or journey.local_move.has("rejoin")):return
 		# Reaching a local endpoint and handing it back occur on adjacent
 		# movement turns. Do not start a second bypass in that handoff gap.
 		if next==origin and journey.local_move.has("rejoin"): return
+		# An intention alone cannot clear this contact. Only an actually clear
+		# next step lets the other body leave without another local manoeuvre.
 		if next!=origin and _local_path_clear(world,other,[_floor_point(other,next)]): return
 	if movement.get("local_move",{}).has("rejoin") and not bool(movement.local_move.get("retreat",false)):
 		# A blocked B is an attempted target, not earned route progress. Try C
