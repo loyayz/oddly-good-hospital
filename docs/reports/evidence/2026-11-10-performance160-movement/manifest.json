@@ -1,0 +1,263 @@
+{
+  "game_base": "e7146a3ec943155ac5fa0dd666363967e239def1",
+  "diagnostic_base": "5d873dfe31eecf7b3806b36c52378f90f1edbd09",
+  "archive_bytes": 6501051,
+  "archive_sha256": "fac30943875c8c0842bb542034032df9fa4a48db55eb731f8aab973d546f9fd2",
+  "files": [
+    {
+      "path": "baseline-movement/protocol.json",
+      "bytes": 423823,
+      "sha256": "4a87d4ad2642f2a37843990172f1e705edf82f63693b22c3c55c8561283073dd"
+    },
+    {
+      "path": "baseline-movement/r1.json",
+      "bytes": 148147,
+      "sha256": "80ce40f009aefcab31e0dfa2f481226a5d65d5817c56eda80265aba5946b8863"
+    },
+    {
+      "path": "baseline-movement/r1.json.calls.json",
+      "bytes": 2603,
+      "sha256": "47a0d342500d3a53c03f244e5eb9d2e70ef80c4ef581a43a9288b44ac7e0a659"
+    },
+    {
+      "path": "baseline-movement/r1.json.execution.json",
+      "bytes": 2455,
+      "sha256": "749ba1548b0d9066f0e608a09fcba6656cd435ab18c796d2921aa914ecbf02d8"
+    },
+    {
+      "path": "baseline-movement/r1.json.final.bin",
+      "bytes": 3648736,
+      "sha256": "4a7352139c4cb752eea7aeb542a99dcea7a60d45ce2cd27e496674b442147ce3"
+    },
+    {
+      "path": "baseline-movement/r1.json.initial.json",
+      "bytes": 61423,
+      "sha256": "535fd188f88881eeecd18cf9b6e29edb60b0f444d9d327c24a3edd945112927d"
+    },
+    {
+      "path": "baseline-movement/r1.json.stages.json",
+      "bytes": 17747668,
+      "sha256": "98aeabf29a156c5002c3730ed83e402369985541f1a1b282ada26c66d0a5ed5e"
+    },
+    {
+      "path": "baseline-movement/r1.json.steps.ndjson",
+      "bytes": 463950,
+      "sha256": "d1129825eea73df325e15c35909393d422d8a20194e6d059955c2006ac14ab01"
+    },
+    {
+      "path": "baseline-movement/r1.log",
+      "bytes": 3242,
+      "sha256": "6ad48e48942e996290dca57b04561d69550f4a008bf5964039c563cc52ffe1bf"
+    },
+    {
+      "path": "baseline-movement/r1.processes-before.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "baseline-movement/r2.json",
+      "bytes": 148145,
+      "sha256": "1339783e2884a550c3f7c2a83d077360e0ee1276ee8c9a70daba352661167cb2"
+    },
+    {
+      "path": "baseline-movement/r2.json.calls.json",
+      "bytes": 2605,
+      "sha256": "ba83b147680ec2ea6dd93bb0dd2a554ff8e08fc96696b11c46a141107417e980"
+    },
+    {
+      "path": "baseline-movement/r2.json.execution.json",
+      "bytes": 2455,
+      "sha256": "40a3f05b63dca0aca5195f28856a491c2e2b599c9aa72cf41d53db3814efd6e7"
+    },
+    {
+      "path": "baseline-movement/r2.json.final.bin",
+      "bytes": 3648736,
+      "sha256": "4a7352139c4cb752eea7aeb542a99dcea7a60d45ce2cd27e496674b442147ce3"
+    },
+    {
+      "path": "baseline-movement/r2.json.initial.json",
+      "bytes": 61423,
+      "sha256": "535fd188f88881eeecd18cf9b6e29edb60b0f444d9d327c24a3edd945112927d"
+    },
+    {
+      "path": "baseline-movement/r2.json.stages.json",
+      "bytes": 17751009,
+      "sha256": "57e85e9bbba5b6fb4d616c15e671eea1982faeaf7f2957988b4a1fdef99b00bb"
+    },
+    {
+      "path": "baseline-movement/r2.json.steps.ndjson",
+      "bytes": 463997,
+      "sha256": "3c725db2ba4c73c0de62ede4de4fcacef5182d59d79dd31ba0ef94a0f9e2702e"
+    },
+    {
+      "path": "baseline-movement/r2.log",
+      "bytes": 3242,
+      "sha256": "828ca611e8c84bfeab8aded90fd05d8af8732a0b5606b68df7ea619055024d22"
+    },
+    {
+      "path": "baseline-movement/r2.processes-before.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "baseline-movement/r3.json",
+      "bytes": 148148,
+      "sha256": "6770b6302adca2d173443ca738d3209a31066b67dad8e78273c04963937161e0"
+    },
+    {
+      "path": "baseline-movement/r3.json.calls.json",
+      "bytes": 2611,
+      "sha256": "a5dc42df050549038b0febf6272daf5d9fa12144945c2b640c85ca609873d434"
+    },
+    {
+      "path": "baseline-movement/r3.json.execution.json",
+      "bytes": 2455,
+      "sha256": "9f46b1a2ea56b5839a6c991cae6958f4ab24e6993dc3704979bbb903962e7a07"
+    },
+    {
+      "path": "baseline-movement/r3.json.final.bin",
+      "bytes": 3648736,
+      "sha256": "4a7352139c4cb752eea7aeb542a99dcea7a60d45ce2cd27e496674b442147ce3"
+    },
+    {
+      "path": "baseline-movement/r3.json.initial.json",
+      "bytes": 61423,
+      "sha256": "535fd188f88881eeecd18cf9b6e29edb60b0f444d9d327c24a3edd945112927d"
+    },
+    {
+      "path": "baseline-movement/r3.json.stages.json",
+      "bytes": 17758637,
+      "sha256": "0cacfaa9b1ea561f02cadacb6b5f3f58710442c8f062c72ae306f4ace5475ad3"
+    },
+    {
+      "path": "baseline-movement/r3.json.steps.ndjson",
+      "bytes": 464075,
+      "sha256": "663f0d1847c24e01132e1597bb95ebc2205ca86b95e6b7a9275f11a031867b8a"
+    },
+    {
+      "path": "baseline-movement/r3.log",
+      "bytes": 3247,
+      "sha256": "412a42e9258292a9475a1c7341072e31bbb6fcda87da72a42e4be648dbc1c1fc"
+    },
+    {
+      "path": "baseline-movement/r3.processes-before.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "baseline-movement/source-identity.json",
+      "bytes": 222116,
+      "sha256": "4523d7427915baa85610b7ccff00b7112864ce12a3b2d0b59218a65856eec8d8"
+    },
+    {
+      "path": "baseline-movement/status.json",
+      "bytes": 96,
+      "sha256": "7a4613219b60c929c3a76e4ee036f39dccc505a13f4d3bff72719ec47bbce591"
+    },
+    {
+      "path": "baseline-movement/summary.json",
+      "bytes": 13645,
+      "sha256": "ab83516790c9db7ab8292f8ff201b218c462aa7444c045ee690a3c98655eaffd"
+    },
+    {
+      "path": "smoke-movement/protocol.json",
+      "bytes": 423817,
+      "sha256": "2962e51d223d2658e746c153364526cc096d8d0e166731a62ad5cf5d1b446d62"
+    },
+    {
+      "path": "smoke-movement/r1.json",
+      "bytes": 130194,
+      "sha256": "ebc5424d05e484d4fa545f9fbc57eb44348e6dcdf15c38a8c41cc1793442256c"
+    },
+    {
+      "path": "smoke-movement/r1.json.calls.json",
+      "bytes": 1383,
+      "sha256": "10b0cbd9bc9f438f1275979ebea60bb1a260ae5885cab1d9aeb8cf118bc4c46c"
+    },
+    {
+      "path": "smoke-movement/r1.json.execution.json",
+      "bytes": 2277,
+      "sha256": "307a628d96a6e66c3350afa4673e8d003d49e7332e2debfd1671ed53abdbe9ce"
+    },
+    {
+      "path": "smoke-movement/r1.json.final.bin",
+      "bytes": 1587120,
+      "sha256": "4c5dfa7509256702590d4592a188a9b5cdea2319f5ae537e9a15cfd099d9ab70"
+    },
+    {
+      "path": "smoke-movement/r1.json.initial.json",
+      "bytes": 61423,
+      "sha256": "535fd188f88881eeecd18cf9b6e29edb60b0f444d9d327c24a3edd945112927d"
+    },
+    {
+      "path": "smoke-movement/r1.json.stages.json",
+      "bytes": 28056,
+      "sha256": "31c7d190a9a4d5f08abd0915f6d13d977b3c95b30366726fbf145f6459bee8e5"
+    },
+    {
+      "path": "smoke-movement/r1.json.steps.ndjson",
+      "bytes": 291,
+      "sha256": "6a313378a5cd6ef95501583a29215055c39a3193f49a35dd365397d6b87e70fc"
+    },
+    {
+      "path": "smoke-movement/r1.log",
+      "bytes": 328,
+      "sha256": "89640d0a30d9046d1778ec169cd6959cf9a60b4a7165b01a5ba118ec38ab99a6"
+    },
+    {
+      "path": "smoke-movement/r1.processes-before.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "smoke-movement/source-identity.json",
+      "bytes": 222116,
+      "sha256": "4523d7427915baa85610b7ccff00b7112864ce12a3b2d0b59218a65856eec8d8"
+    },
+    {
+      "path": "smoke-movement/status.json",
+      "bytes": 96,
+      "sha256": "ee14d7261658abfed9c285ab8f4b8a9be0fac145d5bc650793f5ceb2221c7f9a"
+    },
+    {
+      "path": "smoke-movement/summary.json",
+      "bytes": 3908,
+      "sha256": "06460c18e0d4548b045b4ca2268de9bb2e70c15f1a362c3499974d179b80199f"
+    },
+    {
+      "path": "functional-baseline/acceptance-results.json",
+      "bytes": 77092,
+      "sha256": "f798069c5ea0537e9fe05b27c1a59716eceb04c883f78250dd21827d3ecce5b2"
+    },
+    {
+      "path": "functional-baseline/space10.log",
+      "bytes": 36339,
+      "sha256": "51ec1613bf4876fb4c1546d0e2b8ecace011e8e4f419e88cda4552b1c7238e4a"
+    },
+    {
+      "path": "functional-baseline/status.json",
+      "bytes": 640,
+      "sha256": "dbdabb46a354661934ebd8df28a0a8d1bce2ff5247b30357437c98d415f37ed4"
+    },
+    {
+      "path": "functional-local-v2/acceptance-results.json",
+      "bytes": 77092,
+      "sha256": "ba828e2939b82ce74ecf05ec911c6b5e030404b7c624d727814dbfa368622b39"
+    },
+    {
+      "path": "functional-local-v2/space10.log",
+      "bytes": 36339,
+      "sha256": "fd99f1e26e4b182c45fff93a01347e552da8726ff483d5b56c3b2db452b67ef7"
+    },
+    {
+      "path": "functional-local-v2/status.json",
+      "bytes": 758,
+      "sha256": "3a4f8c0f310c3f7645bc08a7d4293b4847fa019112d45b556b7a481556c9f80d"
+    },
+    {
+      "path": "movement-profile-source.json",
+      "bytes": 1237,
+      "sha256": "c1230057b751f62da0d9ae21bb3f97ac28579bb773c7b06348df2efb389c17f1"
+    }
+  ]
+}
