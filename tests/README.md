@@ -95,3 +95,5 @@ EQ05 空岗位可通行而使用权仍独占、真实床体/身体/扫掠安全�
 已在回接的人遇到另一名正在有效侧移的人，先检查对方当前实际一步，不能直接换接点并启动第二次侧移。专项见 [相遇时只让一人绕开](acceptance/one_local_avoider.md)，验证两人真实到达及通路空出后立即继续，不等待对方完成整次绕行。
 
 环境表面/污渍来源的加载绑定、单条增删、局部实时值、保守边界及 worker 借用见 [环境表面与污渍来源](acceptance/environment_surface_sources.md)。
+
+临床会话噪声来源的实际启停、同 ID 安全接续、局部占地与楼层边界、恢复及 worker 借用见 [环境临床会话来源](acceptance/environment_session_sources.md)。

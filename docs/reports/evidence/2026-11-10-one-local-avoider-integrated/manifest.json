@@ -1,0 +1,141 @@
+{
+  "parents": [
+    "9047712",
+    "78cfb64435ee2fa77760f0976846cd907a0a2a6a"
+  ],
+  "scope": "Six environment session functional, three waiting consumers functional, one actual two-actor, two warm/cold corner arrivals, CLIN37 ten modes. No measure selector or benchmark. All pass.",
+  "files": [
+    {
+      "path": "latest-session/real-outpatient-started.bin",
+      "bytes": 56184,
+      "sha256": "8c1edf0281311ebb51bd567c78b09ef623cd21dd6f2b43f5d969338bf124c17e"
+    },
+    {
+      "path": "latest-session/result.json",
+      "bytes": 13215,
+      "sha256": "01204bb4c33c386b221bfafeacbe412fc9cbcb8ad69166acbb908118c961f88c"
+    },
+    {
+      "path": "latest-session/run.log",
+      "bytes": 103554,
+      "sha256": "90bd5289e9b907569c006a4278753e504fa3c684796205741324ed861a1942a0"
+    },
+    {
+      "path": "latest-session/source-identity.json",
+      "bytes": 58067,
+      "sha256": "f945769ad43c5e268df5bbf85d6a75d183106311d8ffcd991ad6d6e51f491943"
+    },
+    {
+      "path": "latest-session/source.patch",
+      "bytes": 74735,
+      "sha256": "bcc6c56ebb083aa26736caf4075c90890fd11756dca9e8fefaf8ccb2b11f2747"
+    },
+    {
+      "path": "latest-session/status.json",
+      "bytes": 677,
+      "sha256": "f359119b2c30ffb3c3ebfd0c2cb367c49c6e0834b0fed71ad82fcdc07d1799a9"
+    },
+    {
+      "path": "latest-waiting/result.json",
+      "bytes": 4557,
+      "sha256": "207ac9b436998db5ad9151b5b9a2434280d189bd7bc8df48705d5354f2c0a595"
+    },
+    {
+      "path": "latest-waiting/run.log",
+      "bytes": 3277,
+      "sha256": "a807fda0e6f5987269d073ad7a9ebeaf92f7c4f67a3e40d8bff4e8d91969de6d"
+    },
+    {
+      "path": "latest-waiting/source-identity.json",
+      "bytes": 58067,
+      "sha256": "f945769ad43c5e268df5bbf85d6a75d183106311d8ffcd991ad6d6e51f491943"
+    },
+    {
+      "path": "latest-waiting/source.patch",
+      "bytes": 74735,
+      "sha256": "bcc6c56ebb083aa26736caf4075c90890fd11756dca9e8fefaf8ccb2b11f2747"
+    },
+    {
+      "path": "latest-waiting/status.json",
+      "bytes": 583,
+      "sha256": "2ffbc3d71f3f3300ba79cfda1157986c8f952eae5d83f6d432768d319899548e"
+    },
+    {
+      "path": "latest-one-avoider/result.json",
+      "bytes": 5418,
+      "sha256": "b4fccbbfec28772b92a33899f9cb9e727ec2cbdef29e11111f8c4a64757a9ceb"
+    },
+    {
+      "path": "latest-one-avoider/run.log",
+      "bytes": 378,
+      "sha256": "6d9b30ba8847013ceaa9a195908e888de8411f7a15163d150e3c1ddf9946d224"
+    },
+    {
+      "path": "latest-one-avoider/source-identity.json",
+      "bytes": 58067,
+      "sha256": "f945769ad43c5e268df5bbf85d6a75d183106311d8ffcd991ad6d6e51f491943"
+    },
+    {
+      "path": "latest-one-avoider/source.patch",
+      "bytes": 74735,
+      "sha256": "bcc6c56ebb083aa26736caf4075c90890fd11756dca9e8fefaf8ccb2b11f2747"
+    },
+    {
+      "path": "latest-one-avoider/status.json",
+      "bytes": 500,
+      "sha256": "f5a85bc0699c55c4d1f046a5da629920d1b62489c633d470e4735ae56b48b691"
+    },
+    {
+      "path": "latest-corners/result.json",
+      "bytes": 19458,
+      "sha256": "633ee6b9f579878cee62330733b0ee445a6bd86dcfc8ba3857fd8392f5433f79"
+    },
+    {
+      "path": "latest-corners/run.log",
+      "bytes": 9849,
+      "sha256": "460c11fa9edd03127484f35d8e56f26912827e6d6c2e4b0ef634fcf80d65c717"
+    },
+    {
+      "path": "latest-corners/source-identity.json",
+      "bytes": 58067,
+      "sha256": "f945769ad43c5e268df5bbf85d6a75d183106311d8ffcd991ad6d6e51f491943"
+    },
+    {
+      "path": "latest-corners/source.patch",
+      "bytes": 74735,
+      "sha256": "bcc6c56ebb083aa26736caf4075c90890fd11756dca9e8fefaf8ccb2b11f2747"
+    },
+    {
+      "path": "latest-corners/status.json",
+      "bytes": 557,
+      "sha256": "7d26add935b4a36408a53626a78dcdb77343acaf957b543fc401862c9635c4e1"
+    },
+    {
+      "path": "latest-clin37/result.json",
+      "bytes": 21367,
+      "sha256": "48a6135e8f376c013c08bb0896be612000b7b2f6ee59fa05c055b8845a26b3d6"
+    },
+    {
+      "path": "latest-clin37/run.log",
+      "bytes": 66499,
+      "sha256": "f44986559c1659ff8853fd9d6ffbdf89b2a5eed7333bcf311cf044b88ba6d300"
+    },
+    {
+      "path": "latest-clin37/source-identity.json",
+      "bytes": 58067,
+      "sha256": "f945769ad43c5e268df5bbf85d6a75d183106311d8ffcd991ad6d6e51f491943"
+    },
+    {
+      "path": "latest-clin37/source.patch",
+      "bytes": 74735,
+      "sha256": "bcc6c56ebb083aa26736caf4075c90890fd11756dca9e8fefaf8ccb2b11f2747"
+    },
+    {
+      "path": "latest-clin37/status.json",
+      "bytes": 417,
+      "sha256": "25b6d418928ae78b7cc45bbc68321d0cc4bbcbc38652ea3ff1e7d4a3f4534416"
+    }
+  ],
+  "archive_bytes": 264869,
+  "archive_sha256": "18b9f1f844b73bb4b735ad6c572e32f11b21ef97201a62fb2467fc9a53deb275"
+}

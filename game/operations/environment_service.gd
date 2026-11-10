@@ -15,6 +15,7 @@ var _facility_sources: Dictionary = {}
 var _water_ids: Dictionary = {}
 var _positive_definitions: Dictionary = {}
 var _surface_sources: RefCounted = preload("res://game/operations/environment_surface_sources.gd").new()
+var _session_sources: RefCounted = preload("res://game/operations/environment_session_sources.gd").new()
 var _spawn_index: RefCounted = preload("res://game/operations/dirt_spawn_index.gd").new()
 
 func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
@@ -93,11 +94,13 @@ func _prepare_sample_sources(world: WorldState) -> void:
 	space.query_counts["environment_dynamic_source_builds"] = int(space.query_counts.get("environment_dynamic_source_builds",0))+1
 	_query.samples.walls = _surface_sources.sources(world,space,"surfaces")
 	_query.samples.dirt = _surface_sources.sources(world,space,"dirt")
-	_query.sample_bounds = {"walls":_surface_sources.bounds("surfaces"),"dirt":_surface_sources.bounds("dirt")}
-	for session: Dictionary in world.facts.sessions.values():
-		var facility: Dictionary = world.facts.facilities[session.facility_id]
-		if facility.definition_id in content.balance.environment.machine_noise_definition_ids and session.kind in ["outpatient","surgery","operate"] and not facility.get("failed",false):
-			_index_noise(world,"machines",facility)
+	var machine_bounds: Dictionary = {}
+	if world.facts.sessions.is_empty():
+		_session_sources.observed_empty(world)
+	else:
+		_query.samples.machines = _session_sources.sources(world,space,content.balance.environment.machine_noise_definition_ids)
+		machine_bounds = _session_sources.bounds()
+	_query.sample_bounds = {"walls":_surface_sources.bounds("surfaces"),"dirt":_surface_sources.bounds("dirt"),"machines":machine_bounds,"construction":{}}
 	for id: String in world.active_operation_ids("environment","orders",["completed","cancelled"]):
 		var order: Dictionary = world.facts.environment.orders[id]
 		if order.paused: continue
@@ -113,33 +116,46 @@ func _index_sample(kind: String, floor_id: int, cell: Array, record: Dictionary)
 	var key: Variant = _cell_key(cell)
 	if not floors[floor_id].has(key): floors[floor_id][key] = []
 	floors[floor_id][key].append(record)
+	_expand_source_bound(_query.sample_bounds[kind],floor_id,key)
 
-func _prepare_observation_bounds(world: WorldState) -> Variant:
+func _prepare_observation_bounds(world: WorldState, floor_ids: Array = []) -> Variant:
 	if _query.get("world")!=world: return null
-	if _query.has("observation_bounds"): return _query.observation_bounds
-	_query.observation_bounds = null
-	if get_script()!=HospitalEnvironment or space==null or space.get_script()!=HospitalSpace or not world.facts.floors.has("completed_top_floor"): return null
+	if _query.has("observation_bounds"):
+		if _query.observation_bounds==null or _query.get("observation_bounds_complete",false): return _query.observation_bounds
+		if not floor_ids.is_empty() and floor_ids.all(func(id: int)->bool:return _query.observation_bounds.has(id)): return _query.observation_bounds
+	if get_script()!=HospitalEnvironment or space==null or space.get_script()!=HospitalSpace or not world.facts.floors.has("completed_top_floor"):
+		_query.observation_bounds = null
+		return null
 	if not _query.facilities_ready: _prepare_facility_sources(world)
 	if not _query.samples_ready: _prepare_sample_sources(world)
 	var rules: Dictionary = content.balance.environment
 	var positive_radius: int = int(rules.upgraded_range_cells if "R15" in world.facts.research else rules.range_cells)
-	var bounds: Dictionary = {}
-	for group: Array in [[_query.facilities,positive_radius,0,_query.facility_bounds],[_query.samples.walls,positive_radius,0,_query.sample_bounds.walls],[_query.samples.dirt,int(rules.range_cells),1,_query.sample_bounds.dirt],[_query.samples.machines,int(rules.range_cells),1,null],[_query.samples.construction,int(rules.range_cells),1,null]]:
-		for floor_id: int in group[0]:
-			if bounds.has(floor_id) and bounds[floor_id]==null: continue
-			var source_bounds: Variant = group[3]
-			if source_bounds==null:
-				source_bounds = {}
-				for key: Variant in group[0][floor_id]: _expand_source_bound(source_bounds,floor_id,key)
+	var groups: Array = [[_query.facilities,positive_radius,0,_query.facility_bounds],[_query.samples.walls,positive_radius,0,_query.sample_bounds.walls],[_query.samples.dirt,int(rules.range_cells),1,_query.sample_bounds.dirt],[_query.samples.machines,int(rules.range_cells),1,_query.sample_bounds.machines],[_query.samples.construction,int(rules.range_cells),1,_query.sample_bounds.construction]]
+	var requested: Dictionary = {}
+	# Direct reads and worker batches name their actual floors. The explicit
+	# no-argument diagnostic API may still request a complete source-floor view.
+	if floor_ids.is_empty():
+		for group: Array in groups:
+			for floor_id: int in group[0]: requested[floor_id] = true
+		_query.observation_bounds_complete = true
+	else:
+		for floor_id: int in floor_ids: requested[floor_id] = true
+	var bounds: Dictionary = _query.get("observation_bounds",{}).duplicate()
+	for floor_id: int in requested:
+		if bounds.has(floor_id): continue
+		space.query_counts["environment_observation_bound_floor_checks"] = int(space.query_counts.get("environment_observation_bound_floor_checks",0))+1
+		var regions: Array = [Rect2i(),Rect2i()]
+		bounds[floor_id] = regions
+		for group: Array in groups:
+			if not group[0].has(floor_id): continue
+			var source_bounds: Dictionary = group[3]
 			if source_bounds.get(floor_id)==null:
 				bounds[floor_id] = null
-				continue
-			var regions: Array = bounds.get_or_add(floor_id,[Rect2i(),Rect2i()])
+				break
 			var region: Rect2i = (source_bounds[floor_id] as Rect2i).grow(int(group[1]))
 			var previous: Rect2i = regions[int(group[2])]
 			regions[int(group[2])] = previous.merge(region) if previous.has_area() else region
-	for regions: Variant in bounds.values():
-		if regions is Array: regions.make_read_only()
+		regions.make_read_only()
 	bounds.make_read_only()
 	_query.observation_bounds = bounds
 	return bounds
@@ -187,10 +203,23 @@ func _has_sample(kind: String, floor_id: int, coverage: Dictionary) -> bool:
 	if cells.is_empty(): return false
 	if cells.size()<coverage.size():
 		for key: Variant in cells:
-			if coverage.has(key) and not cells[key].is_empty(): return true
+			if coverage.has(key) and _sample_active(kind,cells[key]): return true
 	else:
 		for key: Variant in coverage:
-			if cells.has(key) and not cells[key].is_empty(): return true
+			if cells.has(key) and _sample_active(kind,cells[key]): return true
+	return false
+
+func _sample_active(kind: String, records: Array) -> bool:
+	if records.is_empty(): return false
+	# Machine positions include failed candidates so repair does not require a
+	# second owner notification. Only local identities reach these live reads.
+	if kind!="machines" or not records[0] is String: return true
+	var world: WorldState = _query.world
+	for id: String in records:
+		var session: Dictionary = world.facts.sessions.get(id,{})
+		if session.is_empty() or not session.kind in ["outpatient","surgery","operate"]: continue
+		var facility: Dictionary = world.facts.facilities.get(str(session.facility_id),{})
+		if not facility.is_empty() and facility.definition_id in content.balance.environment.machine_noise_definition_ids and not facility.get("failed",false): return true
 	return false
 
 func end_query() -> void:
@@ -219,6 +248,13 @@ func ensure(world: WorldState) -> void:
 	# maintain them thereafter; standalone/raw calculations still build lazily.
 	_surface_sources.sources(world,space,"surfaces")
 	_surface_sources.sources(world,space,"dirt")
+	_session_sources.sources(world,space,content.balance.environment.machine_noise_definition_ids)
+
+func session_written(world: WorldState, id: String) -> void:
+	_session_sources.written(world,space,id)
+
+func session_removing(world: WorldState, id: String) -> void:
+	_session_sources.removing(world,space,id)
 
 func worked_staff() -> Dictionary:
 	return _worked.duplicate()
@@ -1052,6 +1088,7 @@ func _coverage_edges(world: WorldState, floor_id: int) -> Dictionary:
 # A bounded set of dirty door IDs survives release; there is no shared history
 # to consume and no enumeration of every current reservation or floor door.
 func _reservation_updated(world: WorldState, id: String) -> void:
+	_session_sources.layout_changed(world,space,id)
 	for entry: Dictionary in _coverage_cache.values():
 		if not entry.has("world") or entry.world.get_ref()!=world or not entry.doors.has(id): continue
 		var door: Dictionary = entry.doors[id]
@@ -1300,7 +1337,7 @@ func _observe_at(world: WorldState, floor_id: int, cell: Array, actor_id: String
 		if not _query.facilities_ready: _prepare_facility_sources(world)
 		if not _query.samples_ready: _prepare_sample_sources(world)
 	if scoped and not explain and not nearby:
-		var bounds: Variant = _prepare_observation_bounds(world)
+		var bounds: Variant = _prepare_observation_bounds(world,[floor_id])
 		var point: Variant = _cell_key(cell)
 		var regions: Variant = bounds.get(floor_id,[]) if bounds is Dictionary else null
 		if point is Vector2i and regions is Array:
