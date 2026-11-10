@@ -96,7 +96,9 @@ class SampleJob extends RefCounted:
 		# Canonical floors use bounded ground plots; legacy upper plots can alias
 		# when converted to Vector2i, so they retain HospitalSpace.owned.
 		environment._query.worker_owned_prepared = current.facts.floors.has("completed_top_floor") and source.get_script()==preload("res://game/operations/environment_service.gd") and source.space!=null and source.space.get_script()==preload("res://game/building/hospital_space.gd") and source._query_depth>0 and is_same(source._query.get("world"),current)
-		if environment._query.worker_owned_prepared and bounds is Dictionary: environment._query.observation_bounds = bounds
+		if environment._query.worker_owned_prepared and bounds is Dictionary:
+			environment._query.observation_bounds = bounds
+			environment._query.observation_bounds_complete = true
 		environment._positive_definitions = source._positive_definitions.duplicate()
 		environment._coverage_cache = {}
 		environment.coverage_seed = seed
@@ -169,7 +171,9 @@ func prepare(world: WorldState, source: HospitalEnvironment, visit_ids: Array, t
 	# operation indexes. Complete them on main before any job is dispatched.
 	source._prepare_facility_sources(world)
 	source._prepare_sample_sources(world)
-	var observation_bounds: Variant = source._prepare_observation_bounds(world)
+	var request_floors: Dictionary = {}
+	for request: Array in requests: request_floors[int(request[RequestSlot.FLOOR_ID])] = true
+	var observation_bounds: Variant = source._prepare_observation_bounds(world,request_floors.keys())
 	for request: Array in requests:
 		var floor_id: int = int(request[RequestSlot.FLOOR_ID])
 		var cell: Array = request[RequestSlot.CELL]

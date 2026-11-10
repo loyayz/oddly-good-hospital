@@ -1917,6 +1917,7 @@ func _start(world: WorldState, visit: Dictionary, kind: String, facility_id: Str
 	session.merge(extra)
 	if world.facts.tickets.has(str(visit.get("ticket_id",""))): session.original_ticket = world.facts.tickets[visit.ticket_id].duplicate(true)
 	world.facts.sessions[id] = session
+	if environment!=null: environment.call("session_written",world,id)
 	visit.last_service_tick = world.sim_tick
 	visit.last_progress_tick = world.sim_tick
 	if departments != null:
@@ -1946,6 +1947,7 @@ func _complete_service(world: WorldState, session: Dictionary) -> void:
 		for staff_id: String in session.staff_ids:
 			if world.facts.staff[staff_id].role=="doctor":
 				visit.clinical_participants[staff_id] = true
+	if environment!=null: environment.call("session_removing",world,str(session.id))
 	world.facts.sessions.erase(session.id)
 	_events.append(SimEvent.new(world.sim_tick,"service_completed",[visit.id,session.id],{"kind":session.kind}))
 	match session.kind:
@@ -2479,6 +2481,7 @@ func _pause_bed_sessions(world: WorldState, stay: Dictionary) -> void:
 		var session: Dictionary = world.facts.sessions[id]
 		if session.get("stay_id","")==stay.id:
 			stay[str(session.kind)+"_remaining_ticks"] = int(session.remaining_ticks)
+			if environment!=null: environment.call("session_removing",world,id)
 			world.facts.sessions.erase(id)
 
 func _begin_ward_referral(world: WorldState, visit: Dictionary, stay: Dictionary) -> void:
@@ -3421,6 +3424,7 @@ func suspend_outpatient(world: WorldState, facility_id: String) -> void:
 		record.suspended_tick = world.sim_tick
 		record.definition_id = world.facts.facilities[facility_id].definition_id
 		record.suspended_ticket_id = ticket.id
+		if environment!=null: environment.call("session_removing",world,id)
 		world.facts.sessions.erase(id)
 		world.facts.clinical_suspensions[id] = record
 		ticket.resume_session_id = id
@@ -3479,6 +3483,7 @@ func _dispatch_suspended(world: WorldState, visit: Dictionary, ticket: Dictionar
 	record.erase("suspended_tick")
 	record.erase("suspended_ticket_id")
 	world.facts.sessions[record.id] = record
+	if environment!=null: environment.call("session_written",world,str(record.id))
 	world.facts.clinical_suspensions.erase(record.id)
 	world.facts.preparations.erase(visit.id)
 	world.facts.tickets.erase(ticket.id)

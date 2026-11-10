@@ -70,7 +70,7 @@ func run(database: HospitalContent) -> Dictionary:
 		# These are complete prepared-source inputs. Replace this scope's view,
 		# rather than mutating a borrowed owner index retained across scopes.
 		x.e._query.samples[kind] = {1:{Vector2i(44,80):[]}}
-		if kind=="dirt": x.e._query.sample_bounds.dirt = {1:Rect2i(44,80,1,1)}
+		x.e._query.sample_bounds[kind] = {1:Rect2i(44,80,1,1)}
 		var bounds: Dictionary = x.e._prepare_observation_bounds(x.world)
 		rows.append({"name":kind+"_base_range_with_R15","ok":not _outside(bounds,[44+radius,80]) and _outside(bounds,[45+radius,80]) and x.world.freeze()==before})
 		x.e.end_query()
