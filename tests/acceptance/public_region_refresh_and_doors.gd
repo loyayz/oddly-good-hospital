@@ -3,8 +3,8 @@ extends "res://tests/acceptance/public_region_build.gd"
 const RegionBuild = preload("res://tests/acceptance/public_region_build.gd")
 
 class FullDoorAreas extends HospitalPublicAreas:
-	func _wait_door_view(_world: WorldState, _floor_id: int, _spans: Array) -> Dictionary:
-		return {}
+	func _safe_wait_geometry(world: WorldState, actor: Dictionary, floor_id: int, origin: Vector2, geometry: RouteClearance, _doors: Dictionary = {}) -> bool:
+		return super._safe_wait_geometry(world,actor,floor_id,origin,geometry,{})
 
 func run_case(database: HospitalContent) -> Dictionary:
 	_content = database

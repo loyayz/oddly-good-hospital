@@ -1209,6 +1209,10 @@ func _wait_constraints(world: WorldState) -> Dictionary:
 		result.doors[floor_id] = []
 		for door: Dictionary in world.facts.floors.overrides[floor_key].get("doors",[]): result.doors[floor_id].append(door)
 	for facility: Dictionary in world.facts.facilities.values():
+		var definition: Dictionary = space.content.facility_definition(facility.definition_id)
+		# Nonblocking noise screens have no use or maintenance workstation.
+		# Their generic placement anchors do not reserve standing space.
+		if definition.get("environment_function", "")=="noise_barrier" and not definition.get("blocks_movement",true): continue
 		var floor_id: int = int(facility.floor_id)
 		if not result.points.has(floor_id): result.points[floor_id] = {}
 		var layout: Dictionary = space.facility_layout(world,facility.id)
