@@ -15,7 +15,7 @@ func _outside(bounds: Dictionary, cell: Array) -> bool:
 func _sample(x: Dictionary, name: String, cell: Array, excluded: bool, value: Variant = null) -> Dictionary:
 	var before: Dictionary = x.world.freeze()
 	# The no-scope path retains the complete propagation/scoring calculation.
-	var expected: Dictionary = x.e.sample_at(x.world,1,cell)
+	var expected: Dictionary = x.e._observe_at(x.world,1,cell,"",false,false)
 	x.e.begin_query(x.world)
 	var actual: Dictionary = x.e.sample_at(x.world,1,cell)
 	var bounds: Variant = x.e._query.get("observation_bounds")

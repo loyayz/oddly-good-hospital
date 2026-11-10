@@ -179,6 +179,8 @@ func end_query() -> void:
 	for floor_id: int in _query.get("edges",{}):
 		if not _coverage_cache.has(floor_id): continue
 		var entry: Dictionary = _coverage_cache[floor_id]
+		# An unscoped read of another world may have replaced this floor's owner.
+		if not entry.has("world") or entry.world.get_ref()!=_query.world: continue
 		entry.coverage.merge(_query.coverage.get(floor_id,{}))
 		var excess: int = entry.coverage.size()-128
 		if excess>0:
@@ -1135,11 +1137,20 @@ func _nearby_actors(world: WorldState, floor_id: int, cell: Array) -> Array:
 	return result
 
 func environment_at(world: WorldState, floor_id: int, cell: Array, actor_id: String = "", explain: bool = true) -> Dictionary:
-	return _observe_at(world,floor_id,cell,actor_id,explain,true)
+	return _query_observation(world,floor_id,cell,actor_id,explain,true)
 
 # Experience and anger consume environmental values without nearby-person detail.
 func sample_at(world: WorldState, floor_id: int, cell: Array, actor_id: String = "") -> Dictionary:
-	return _observe_at(world,floor_id,cell,actor_id,false,false)
+	return _query_observation(world,floor_id,cell,actor_id,false,false)
+
+func _query_observation(world: WorldState, floor_id: int, cell: Array, actor_id: String, explain: bool, nearby: bool) -> Dictionary:
+	# A direct observer is a one-read batch. Existing batches (including an
+	# outer world's scope) retain their ownership and are never opened/closed here.
+	if _query_depth>0: return _observe_at(world,floor_id,cell,actor_id,explain,nearby)
+	begin_query(world)
+	var result: Dictionary = _observe_at(world,floor_id,cell,actor_id,explain,nearby)
+	end_query()
+	return result
 
 func _owned_at(world: WorldState, floor_id: int, cell: Vector2i) -> bool:
 	return space.owned(world,floor_id,cell)

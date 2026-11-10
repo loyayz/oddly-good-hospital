@@ -124,7 +124,8 @@ func _heatmap() -> Dictionary:
 	for dx: int in range(-4,5):
 		for dy: int in range(-4,5): cells.append([44+dx,80+dy])
 	var expected: Array = []
-	for cell: Array in cells: expected.append({"cell":cell.duplicate(),"environment":x.e.environment_at(x.world,1,cell)})
+	# Keep the original raw-fact oracle independent of public automatic scopes.
+	for cell: Array in cells: expected.append({"cell":cell.duplicate(),"environment":x.e._observe_at(x.world,1,cell,"",true,true)})
 	var reference_checks: int = _count(x.space,"coverage_source_checks")
 	# Use a cold service to count this user action, not the reference's work.
 	x.e = HospitalEnvironment.new(_content,x.space)
@@ -144,7 +145,7 @@ func _heatmap() -> Dictionary:
 	x.world.facts.facilities.light.failed = true
 	_position(x,"neighbor",[60,80])
 	expected.clear()
-	for cell: Array in cells: expected.append({"cell":cell.duplicate(),"environment":x.e.environment_at(x.world,1,cell)})
+	for cell: Array in cells: expected.append({"cell":cell.duplicate(),"environment":x.e._observe_at(x.world,1,cell,"",true,true)})
 	var changed: Array = x.e.heatmap(x.world,1,cells)
 	checks.next_heatmap_reads_live_failure_and_people = _normalized(changed)==_normalized(expected) and changed!=actual
 	var outside: Array = x.e.heatmap(x.world,1,[[0,0],[95,95]])
@@ -160,6 +161,9 @@ func _movement_tick(sim: HospitalSimulation) -> void:
 	sim.world.touch(false)
 	sim.space.finish_boundary(sim.world)
 
+func _seed_door_sources(_x: Dictionary) -> void:
+	pass
+
 func _door() -> Dictionary:
 	var suite: RefCounted = load("res://tests/acceptance/space.gd").new()
 	suite.content = _content
@@ -168,6 +172,7 @@ func _door() -> Dictionary:
 	suite._add_actor(sim,"giant","S59",[36,84])
 	var door: Dictionary = suite._doors(sim.world,"room")[0]
 	var x: Dictionary = {"world":sim.world,"space":sim.space,"e":sim.services.environment}
+	_seed_door_sources(x)
 	var initial: Dictionary = _edges(x.e,x.world)
 	var geometry: int = sim.world.geometry_revision
 	var checks: Dictionary = {"built":built.accepted,"legal_input":sim.world.validate(_content).is_empty()}

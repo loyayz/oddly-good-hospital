@@ -10,11 +10,17 @@ func _read(x: Dictionary, cell: Array, actor_id: String = "subject", nearby: boo
 	result.sources.sort_custom(func(a: Dictionary,b: Dictionary)->bool: return JSON.stringify(a)<JSON.stringify(b))
 	return result
 
+func _raw_read(x: Dictionary, cell: Array, actor_id: String = "subject", nearby: bool = false) -> Dictionary:
+	# Deliberately bypass the public one-read batch for an independent oracle.
+	var result: Dictionary = x.e._observe_at(x.world,1,cell,actor_id,nearby,nearby)
+	result.sources.sort_custom(func(a: Dictionary,b: Dictionary)->bool: return JSON.stringify(a)<JSON.stringify(b))
+	return result
+
 func _matches(x: Dictionary, cell: Array, actor_id: String = "subject", nearby: bool = false) -> Dictionary:
 	var before: Dictionary = x.world.freeze()
 	# The no-scope path enumerates original facts, independently of every new
 	# source view, sample bucket and nearby-person bucket.
-	var expected: Dictionary = _read(x,cell,actor_id,nearby)
+	var expected: Dictionary = _raw_read(x,cell,actor_id,nearby)
 	x.e.begin_query(x.world)
 	var actual: Dictionary = _read(x,cell,actor_id,nearby)
 	x.e.end_query()
@@ -38,7 +44,7 @@ func run(database: HospitalContent) -> Dictionary:
 		service.begin_query(x.world)
 		service.end_query()
 	checks.empty_scopes_acquire_no_sources = _counts(x)==[0,0,0] and service.query_builds==20 and service._query.is_empty() and service._query_depth==0 and frozen==x.world.freeze()
-	var expected: Dictionary = _read(x,[44,80])
+	var expected: Dictionary = _raw_read(x,[44,80])
 	var before: Dictionary = x.world.freeze()
 	service.begin_query(x.world)
 	service.begin_query(x.world)

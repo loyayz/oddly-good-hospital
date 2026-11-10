@@ -802,7 +802,8 @@ func _sampling_matches(f: Dictionary, cells: Array) -> bool:
 	var service: RefCounted = f.s.services.environment
 	var expected: Array = []
 	var before: Dictionary = f.w.freeze()
-	for cell: Array in cells: expected.append(service.environment_at(f.w,1,cell))
+	# Public direct queries now open scopes; retain the raw-source oracle.
+	for cell: Array in cells: expected.append(service._observe_at(f.w,1,cell,"",true,true))
 	service.begin_query(f.w)
 	var equal: bool = true
 	for index: int in cells.size():

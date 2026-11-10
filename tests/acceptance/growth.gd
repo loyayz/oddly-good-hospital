@@ -1325,8 +1325,9 @@ func _case_75(t) -> void:
 		correct = correct and classified.decoration==original.get("passive_decoration",false) and classified.light==(original.get("environment","")=="light" or original.get("environment_function","")=="light") and classified.has("category")==original.has("decoration_category") and environment._is_water(definition_id)==seen_water.has(definition_id)
 	for id: String in seen_water: correct = correct and environment._is_water(id)
 	var before: Dictionary = ctx.world.freeze()
-	var complete: Dictionary = environment.environment_at(ctx.world,1,[44,80],visit.actor_id)
-	var brief: Dictionary = environment.environment_at(ctx.world,1,[44,80],visit.actor_id,false)
+	# Explicitly retain the original raw-source reference for scoped sampling.
+	var complete: Dictionary = environment._observe_at(ctx.world,1,[44,80],visit.actor_id,true,true)
+	var brief: Dictionary = environment._observe_at(ctx.world,1,[44,80],visit.actor_id,false,true)
 	var expected_brief: Dictionary = complete.duplicate(true)
 	expected_brief.sources = []
 	environment.begin_query(ctx.world)
