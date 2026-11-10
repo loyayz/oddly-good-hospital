@@ -14,6 +14,7 @@ var query_builds: int = 0
 var _facility_sources: Dictionary = {}
 var _water_ids: Dictionary = {}
 var _positive_definitions: Dictionary = {}
+var _surface_sources: RefCounted = preload("res://game/operations/environment_surface_sources.gd").new()
 var _spawn_index: RefCounted = preload("res://game/operations/dirt_spawn_index.gd").new()
 
 func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
@@ -52,13 +53,14 @@ func _prepare_facility_sources(world: WorldState) -> void:
 	if _facility_sources.is_empty() or _facility_sources.world.get_ref()!=world or _facility_sources.revision!=world.geometry_revision or not is_same(_facility_sources.records,records) or _facility_sources.count!=records.size():
 		# Environment owns this one derived position/classification view. Layout
 		# owners invalidate geometry; mutable values remain in original facts.
-		_facility_sources = {"world":weakref(world),"revision":world.geometry_revision,"records":records,"count":records.size(),"facilities":{},"screens":{}}
+		_facility_sources = {"world":weakref(world),"revision":world.geometry_revision,"records":records,"count":records.size(),"facilities":{},"screens":{},"bounds":{}}
 		space.query_counts["environment_facility_source_builds"] = int(space.query_counts.get("environment_facility_source_builds",0))+1
 		_build_facility_sources(records)
 	else:
 		space.query_counts["environment_facility_source_hits"] = int(space.query_counts.get("environment_facility_source_hits",0))+1
 	_query.facilities = _facility_sources.facilities
 	_query.screens = _facility_sources.screens
+	_query.facility_bounds = _facility_sources.bounds
 	_query.facilities_ready = true
 
 func _build_facility_sources(records: Dictionary) -> void:
@@ -71,6 +73,7 @@ func _build_facility_sources(records: Dictionary) -> void:
 		if not _facility_sources.facilities.has(floor_id): _facility_sources.facilities[floor_id] = {}
 		var key: Variant = _cell_key(facility.cell)
 		_facility_sources.facilities[floor_id].get_or_add(key,[]).append(str(facility.id))
+		_expand_source_bound(_facility_sources.bounds,floor_id,key)
 
 func _prepare_actor_sources(world: WorldState) -> void:
 	if _query.actors_ready: return
@@ -88,10 +91,9 @@ func _prepare_sample_sources(world: WorldState) -> void:
 	if _query.samples_ready: return
 	_query.samples_ready = true
 	space.query_counts["environment_dynamic_source_builds"] = int(space.query_counts.get("environment_dynamic_source_builds",0))+1
-	for surface: Dictionary in world.facts.get("environment",{}).get("surfaces",{}).values():
-		if surface.surface=="wall": _index_sample("walls",int(surface.floor_id),surface.cell,surface)
-	for patch: Dictionary in world.facts.get("environment",{}).get("dirt",{}).values():
-		if str(patch.bin_id).is_empty(): _index_sample("dirt",int(patch.floor_id),patch.cell,patch)
+	_query.samples.walls = _surface_sources.sources(world,space,"surfaces")
+	_query.samples.dirt = _surface_sources.sources(world,space,"dirt")
+	_query.sample_bounds = {"walls":_surface_sources.bounds("surfaces"),"dirt":_surface_sources.bounds("dirt")}
 	for session: Dictionary in world.facts.sessions.values():
 		var facility: Dictionary = world.facts.facilities[session.facility_id]
 		if facility.definition_id in content.balance.environment.machine_noise_definition_ids and session.kind in ["outpatient","surgery","operate"] and not facility.get("failed",false):
@@ -122,23 +124,35 @@ func _prepare_observation_bounds(world: WorldState) -> Variant:
 	var rules: Dictionary = content.balance.environment
 	var positive_radius: int = int(rules.upgraded_range_cells if "R15" in world.facts.research else rules.range_cells)
 	var bounds: Dictionary = {}
-	for group: Array in [[_query.facilities,positive_radius,0],[_query.samples.walls,positive_radius,0],[_query.samples.dirt,int(rules.range_cells),1],[_query.samples.machines,int(rules.range_cells),1],[_query.samples.construction,int(rules.range_cells),1]]:
+	for group: Array in [[_query.facilities,positive_radius,0,_query.facility_bounds],[_query.samples.walls,positive_radius,0,_query.sample_bounds.walls],[_query.samples.dirt,int(rules.range_cells),1,_query.sample_bounds.dirt],[_query.samples.machines,int(rules.range_cells),1,null],[_query.samples.construction,int(rules.range_cells),1,null]]:
 		for floor_id: int in group[0]:
 			if bounds.has(floor_id) and bounds[floor_id]==null: continue
+			var source_bounds: Variant = group[3]
+			if source_bounds==null:
+				source_bounds = {}
+				for key: Variant in group[0][floor_id]: _expand_source_bound(source_bounds,floor_id,key)
+			if source_bounds.get(floor_id)==null:
+				bounds[floor_id] = null
+				continue
 			var regions: Array = bounds.get_or_add(floor_id,[Rect2i(),Rect2i()])
-			for key: Variant in group[0][floor_id]:
-				# Legacy/raw coordinates retain the complete observation path.
-				if not key is Vector2i:
-					bounds[floor_id] = null
-					break
-				var region: Rect2i = Rect2i(key,Vector2i.ONE).grow(int(group[1]))
-				var previous: Rect2i = regions[int(group[2])]
-				regions[int(group[2])] = previous.merge(region) if previous.has_area() else region
+			var region: Rect2i = (source_bounds[floor_id] as Rect2i).grow(int(group[1]))
+			var previous: Rect2i = regions[int(group[2])]
+			regions[int(group[2])] = previous.merge(region) if previous.has_area() else region
 	for regions: Variant in bounds.values():
 		if regions is Array: regions.make_read_only()
 	bounds.make_read_only()
 	_query.observation_bounds = bounds
 	return bounds
+
+# Raw/outside-grid keys retain the complete observation path.
+func _expand_source_bound(bounds: Dictionary, floor_id: int, key: Variant) -> void:
+	if bounds.has(floor_id) and bounds[floor_id]==null: return
+	if not key is Vector2i:
+		bounds[floor_id] = null
+		return
+	var previous: Rect2i = bounds.get(floor_id,Rect2i())
+	var point: Rect2i = Rect2i(key,Vector2i.ONE)
+	bounds[floor_id] = previous.merge(point) if previous.has_area() else point
 
 func _index_noise(world: WorldState, kind: String, facility: Dictionary) -> void:
 	var layout: Dictionary = space.facility_layout(world,facility.id)
@@ -158,6 +172,13 @@ func _sample_records(kind: String, floor_id: int, coverage: Dictionary, preserve
 	else:
 		for key: Variant in coverage:
 			if cells.has(key): result.append_array(cells[key])
+	return _sample_values(kind,result)
+
+func _sample_values(kind: String, selected: Array) -> Array:
+	if selected.is_empty() or not selected[0] is String: return selected
+	var records: Dictionary = _query.world.facts.environment["surfaces" if kind=="walls" else "dirt"]
+	var result: Array = []
+	for id: String in selected: result.append(records[id])
 	return result
 
 func _has_sample(kind: String, floor_id: int, coverage: Dictionary) -> bool:
@@ -194,6 +215,10 @@ func end_query() -> void:
 func ensure(world: WorldState) -> void:
 	if not world.facts.has("environment"):
 		world.facts.environment = {"dirt":{},"orders":{},"surfaces":{},"receipts":{},"pinned_dirt_id":""}
+	# Production binding prepares restored sources before queries. Owner writes
+	# maintain them thereafter; standalone/raw calculations still build lazily.
+	_surface_sources.sources(world,space,"surfaces")
+	_surface_sources.sources(world,space,"dirt")
 
 func worked_staff() -> Dictionary:
 	return _worked.duplicate()
@@ -274,6 +299,7 @@ func spawn_dirt(world: WorldState, source_kind: String, source_id: String, sourc
 		"floor_id":floor_id,"cell":target.duplicate(),"bin_id":bin_id,"generated_tick":world.sim_tick,
 		"total_milli":work,"remaining_milli":work,"contributions":{},"worker_id":"","work_cell":[],"phase":"queued","reason":""}
 	_spawn_index.inserted(world,world.facts.environment.dirt[id])
+	_surface_sources.written(world,space,"dirt",id)
 	# Thin dirt changes observations, not structural movement geometry.
 	world.touch(false)
 	space.public_areas.changed(world)
@@ -536,6 +562,7 @@ func advance(world: WorldState) -> void:
 			_receipt(world,"cleanup_completed",str(patch.id),patch.contributions,int(patch.total_milli))
 			_release(world,patch)
 			_spawn_index.removing(world,patch)
+			_surface_sources.removing(world,space,"dirt",id)
 			world.facts.environment.dirt.erase(id)
 			if world.facts.environment.pinned_dirt_id==id:
 				world.facts.environment.pinned_dirt_id = ""
@@ -584,6 +611,7 @@ func advance(world: WorldState) -> void:
 				HospitalLedger.post(world,LedgerEntry.new(str(unit.id),"surface_replacement_refund",refund))
 				world.facts.environment.surfaces[unit.key] = {"floor_id":order.floor_id,"cell":unit.cell.duplicate(),
 					"surface":order.surface,"edge":unit.edge,"material_id":order.material_id,"paid_cost":unit.paid_cost,"order_id":order.id}
+				_surface_sources.written(world,space,"surfaces",str(unit.key))
 				_receipt(world,"renovation_completed",str(unit.id),unit.contributions,int(unit.total_milli))
 				unit.phase = "completed"
 				if not _continue_renovation(world,order,unit,safety): _release(world,unit)

@@ -1,0 +1,86 @@
+{
+  "parents": [
+    "e347c3c",
+    "104e83610c977690e9908337c0646723fb2f8040"
+  ],
+  "scope": "Environment surface source functional5(no measure selector),WIDE/LOST warm/cold arrivals,CLIN37 ten modes including real occupied parking/cold JSON complete arrival; all pass.",
+  "files": [
+    {
+      "path": "clin37-integrated/result.json",
+      "bytes": 21371,
+      "sha256": "428c3b6f84cb7e24ce68bff635fbc3ecfba9256018f0e76da8efea3e38cab9b5"
+    },
+    {
+      "path": "clin37-integrated/run.log",
+      "bytes": 66499,
+      "sha256": "b86c960d30a682dd57214fc188a535a44b41a70dc325814071ec00178d4f87d7"
+    },
+    {
+      "path": "clin37-integrated/source-identity.json",
+      "bytes": 57306,
+      "sha256": "256fc47607eae22310cb431dba7bcf9bc2d244c242606ade00b4b06cae07abd8"
+    },
+    {
+      "path": "clin37-integrated/source.patch",
+      "bytes": 36820,
+      "sha256": "9c17c932459f0c37f45aef13646a521871c8a892b717635fded5c282f33ab16c"
+    },
+    {
+      "path": "clin37-integrated/status.json",
+      "bytes": 417,
+      "sha256": "f48dcb3600886d921e5e90982165058a168ef72c546405b273aa16b4b79e6d2a"
+    },
+    {
+      "path": "corners-integrated/result.json",
+      "bytes": 19458,
+      "sha256": "971cee71fc46b218e6fcb15d47d95c7e50cdbad13cea3d2a227d22ce82f33d5c"
+    },
+    {
+      "path": "corners-integrated/run.log",
+      "bytes": 9849,
+      "sha256": "2e7b28f6388730a36f315d8d55974070db70d62edd79e9b2fd19f2f12b4c99c1"
+    },
+    {
+      "path": "corners-integrated/source-identity.json",
+      "bytes": 57306,
+      "sha256": "256fc47607eae22310cb431dba7bcf9bc2d244c242606ade00b4b06cae07abd8"
+    },
+    {
+      "path": "corners-integrated/source.patch",
+      "bytes": 36820,
+      "sha256": "9c17c932459f0c37f45aef13646a521871c8a892b717635fded5c282f33ab16c"
+    },
+    {
+      "path": "corners-integrated/status.json",
+      "bytes": 561,
+      "sha256": "b4affe69d0dc34088e1d73e8a5214fd1380a713c25b2555d06c7cf03e43f41e4"
+    },
+    {
+      "path": "environment-integrated/result.json",
+      "bytes": 4557,
+      "sha256": "1f2cab12dfb9da19b1a37d631c481de2290f0c28a60376a9679fd81e6902a988"
+    },
+    {
+      "path": "environment-integrated/run.log",
+      "bytes": 3214,
+      "sha256": "e266d84249d8bef39aaaaadee2d159a11ac09fdfdae16e491b761cfdd592c681"
+    },
+    {
+      "path": "environment-integrated/source-identity.json",
+      "bytes": 57306,
+      "sha256": "256fc47607eae22310cb431dba7bcf9bc2d244c242606ade00b4b06cae07abd8"
+    },
+    {
+      "path": "environment-integrated/source.patch",
+      "bytes": 36820,
+      "sha256": "9c17c932459f0c37f45aef13646a521871c8a892b717635fded5c282f33ab16c"
+    },
+    {
+      "path": "environment-integrated/status.json",
+      "bytes": 649,
+      "sha256": "df04f10fb0ce68df2327489bb4ee07d68e983f1fad20a0b073348aa3acf3e5fe"
+    }
+  ],
+  "archive_bytes": 115750,
+  "archive_sha256": "d471bb8eea6e77c66efcb25b682bd7cc7f137151891f8347e4d55f2f045417df"
+}

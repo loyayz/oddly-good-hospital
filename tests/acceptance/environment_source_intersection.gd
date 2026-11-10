@@ -9,7 +9,7 @@ class FullScan extends HospitalEnvironment:
 		var result: Array = []
 		if cells.is_empty(): return result
 		for key: Variant in coverage: result.append_array(cells.get(key,[]))
-		return result
+		return _sample_values(kind,result)
 	func _has_sample(kind: String, floor_id: int, coverage: Dictionary) -> bool:
 		_prepare_sample_sources(_query.world)
 		var cells: Dictionary = _query.samples[kind].get(floor_id,{})
