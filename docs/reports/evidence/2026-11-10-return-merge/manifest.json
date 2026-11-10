@@ -1,0 +1,176 @@
+{
+  "merged_parents": [
+    "184a647b3144b6c85821e051ce3a223dc0e34fdc",
+    "5b45b023ed579b5bef54b0853512ebbf3d4c9017"
+  ],
+  "scope": "Merge preparation and selected functional checks only. Five return intent cases and WIDE pass; LOST arrival remains failed. No performance or graphics validation.",
+  "files": [
+    {
+      "path": "merge-corners-checkpoint/result.json",
+      "bytes": 61428,
+      "sha256": "592c658cfc78513417d6f1e8572b4181c813915d43d4b5597b6e3913430ae8af"
+    },
+    {
+      "path": "merge-corners-checkpoint/run.log",
+      "bytes": 29411,
+      "sha256": "d35c08bd0c4f272d8ca00160ed6552f33ec3e964f337e735840d2049e792ee52"
+    },
+    {
+      "path": "merge-corners-checkpoint/source-identity.json",
+      "bytes": 56675,
+      "sha256": "8dcd60b4ce4177694a59b83f443f22a687aaca1dfbae77507f98ef721e783e48"
+    },
+    {
+      "path": "merge-corners-checkpoint/source.patch",
+      "bytes": 198502,
+      "sha256": "fdbab1eeca8a9f13fb334f3163a510f06589c5e8e147001068a67815d7d241cd"
+    },
+    {
+      "path": "merge-corners-checkpoint/status.json",
+      "bytes": 566,
+      "sha256": "eec054e02b9228cb03608349e79642200ed5caa03593e01a916e9bd55b5f1de7"
+    },
+    {
+      "path": "merge-corners-continuity/result.json",
+      "bytes": 59965,
+      "sha256": "3bbc9c798998f162e1ee92b69015c4a48e6d0f07ddd73358d0dbff3092f9d4f5"
+    },
+    {
+      "path": "merge-corners-continuity/run.log",
+      "bytes": 27893,
+      "sha256": "5f7b2c4191e1f6bea8850b71109636b368597acd2a5c81e1057b341cc85f967c"
+    },
+    {
+      "path": "merge-corners-continuity/source-identity.json",
+      "bytes": 56675,
+      "sha256": "efdabb6aec7284927b026e82d3f517424276be230c09656dff7b923f098d33e2"
+    },
+    {
+      "path": "merge-corners-continuity/source.patch",
+      "bytes": 198443,
+      "sha256": "d3ce25b3132484a29e12536802cb7f4e293f9bb20311407eb6f3fd076c8c6f49"
+    },
+    {
+      "path": "merge-corners-continuity/status.json",
+      "bytes": 568,
+      "sha256": "f40df155f60b348ee0a0b0930bad18926e058975b2f75e354c76b44e2603f83f"
+    },
+    {
+      "path": "merge-corners-ready/result.json",
+      "bytes": 84245,
+      "sha256": "4dae004fce411e0fbd5e9e98e83805055780eeb8b00ddee34215d347d613d680"
+    },
+    {
+      "path": "merge-corners-ready/run.log",
+      "bytes": 38208,
+      "sha256": "bd1c2e343f305c6492af753422529a0298f39d1d9852a910ffbba77ac26a1b00"
+    },
+    {
+      "path": "merge-corners-ready/source-identity.json",
+      "bytes": 56675,
+      "sha256": "d0c7c26e90b51744ad495784f424c66afce88857614de2e371d903f2778196ce"
+    },
+    {
+      "path": "merge-corners-ready/source.patch",
+      "bytes": 196883,
+      "sha256": "8e3feb7bd6601ba2504ffa94eb64e3b41e9b461545ce5eed82d43fddeab68b7f"
+    },
+    {
+      "path": "merge-corners-ready/status.json",
+      "bytes": 563,
+      "sha256": "2977540fe433c21209bb893edc34df465ed9319d678ba424e4a270b96862a5ae"
+    },
+    {
+      "path": "merge-intent/run.log",
+      "bytes": 2124,
+      "sha256": "2446a01d5f89443d1e6647f6a1e8395f16aa89dede98311d0691c8c9cc7e65a5"
+    },
+    {
+      "path": "merge-intent/source-identity.json",
+      "bytes": 56675,
+      "sha256": "d0c7c26e90b51744ad495784f424c66afce88857614de2e371d903f2778196ce"
+    },
+    {
+      "path": "merge-intent/source.patch",
+      "bytes": 196883,
+      "sha256": "8e3feb7bd6601ba2504ffa94eb64e3b41e9b461545ce5eed82d43fddeab68b7f"
+    },
+    {
+      "path": "merge-intent/status.json",
+      "bytes": 517,
+      "sha256": "49d4f731cb160d852da0565df383caacddde338d7f95dff94df01560ba4459dc"
+    },
+    {
+      "path": "merge-intent-checkpoint/result.json",
+      "bytes": 5190,
+      "sha256": "6521c9c909f2ab801bb8cf401d997372849aec0fdb1f0b7121da6fa25f8725bd"
+    },
+    {
+      "path": "merge-intent-checkpoint/run.log",
+      "bytes": 101,
+      "sha256": "12e4758a795e249168ca40db22af5b4ac1fa486218bf647558ef4a8ec3d2bee3"
+    },
+    {
+      "path": "merge-intent-checkpoint/source-identity.json",
+      "bytes": 56675,
+      "sha256": "8dcd60b4ce4177694a59b83f443f22a687aaca1dfbae77507f98ef721e783e48"
+    },
+    {
+      "path": "merge-intent-checkpoint/source.patch",
+      "bytes": 198502,
+      "sha256": "fdbab1eeca8a9f13fb334f3163a510f06589c5e8e147001068a67815d7d241cd"
+    },
+    {
+      "path": "merge-intent-checkpoint/status.json",
+      "bytes": 508,
+      "sha256": "0865b8f612eacb130c4e846a41d2f2fc00a6b21b70c32eae64155addb7e775a9"
+    },
+    {
+      "path": "merge-intent-ready/result.json",
+      "bytes": 5190,
+      "sha256": "6521c9c909f2ab801bb8cf401d997372849aec0fdb1f0b7121da6fa25f8725bd"
+    },
+    {
+      "path": "merge-intent-ready/run.log",
+      "bytes": 101,
+      "sha256": "12e4758a795e249168ca40db22af5b4ac1fa486218bf647558ef4a8ec3d2bee3"
+    },
+    {
+      "path": "merge-intent-ready/source-identity.json",
+      "bytes": 56675,
+      "sha256": "d0c7c26e90b51744ad495784f424c66afce88857614de2e371d903f2778196ce"
+    },
+    {
+      "path": "merge-intent-ready/source.patch",
+      "bytes": 196883,
+      "sha256": "8e3feb7bd6601ba2504ffa94eb64e3b41e9b461545ce5eed82d43fddeab68b7f"
+    },
+    {
+      "path": "merge-intent-ready/status.json",
+      "bytes": 503,
+      "sha256": "5694c505f5a4e49e6e67c380daa91786061028b2d366662054cf09bc64f244ac"
+    },
+    {
+      "path": "native-before/identity.json",
+      "bytes": 1189,
+      "sha256": "d036f5861eaebff365f2c7c3c3e8b38d4f8de020c013f3b334497ccfcf1a272d"
+    },
+    {
+      "path": "prepare-main/run.log",
+      "bytes": 31533,
+      "sha256": "c69db05cc46cc3b07af561795b37b1b48b74d0aa5e2cdc78316adc4018ce0f4a"
+    },
+    {
+      "path": "prepare-main/status.json",
+      "bytes": 288,
+      "sha256": "11e396eccc554d64d3d91efc4582064ab518b4d6657ba86612a8eb6ca052369d"
+    },
+    {
+      "path": "run_selected.py",
+      "bytes": 3171,
+      "sha256": "1c84fa03d93cadeb3ace145debe97b538104933d23f83067a74d910c7a1fd989"
+    }
+  ],
+  "archive_bytes": 511636,
+  "archive_sha256": "87800ea3d0f932f8fee47a92a213caf7b4d47f5867957474a36e41b561e815d4"
+}

@@ -85,3 +85,7 @@ pwsh -NoProfile -File tests/run-acceptance.ps1 -Case CLIN-23 -RebuildFixtures
 EQ05 空岗位可通行而使用权仍独占、真实床体/身体/扫掠安全、局部重接及跨层落地、护理查房与维修恢复的显式专项见 [护理床岗位通行](acceptance/bed_passage.md)。分段输入和真实执行范围分别标明，不替代原有完整临床链结果。
 
 连续局部转弯、已有生活旅程所有权，以及从候手术到真实离院的完整工时与冷恢复专项见 [真实临床连续交接](acceptance/clinical_full_chain.md)。
+
+单人回接意图专项：`godot --headless --path . --script res://tests/acceptance/run_local_return_intent.gd -- OUTPUT.json`。从已完成侧移的合法边界实际执行 B→C→D，覆盖普通与压缩路线段；B、C 发生真实接触后才换目标，原请求与路径保持，实际到达才推进游标，并验证身体/扫掠安全、保存恢复及没有整条未来动态预检查。
+
+同一专项还覆盖带转弯原路线、回接中再次遇到固定身体的侧移出口，以及近共线 binary32 历史点的真实后退；后退保持当前实际轴线，不横向吸附到旧检查点。

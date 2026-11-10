@@ -43,13 +43,26 @@ func _run() -> void:
 	var steps: int = 1000
 	var prefix_steps: int = 0
 	var observed_floor: int = 1
+	var profile_stages: bool = false
+	var thread_policy_mode: String = "app"
+	var worker_tasks: int = 4
 	for arg: String in OS.get_cmdline_user_args():
 		if arg.begins_with("--input="): input=arg.trim_prefix("--input=")
 		if arg.begins_with("--output="): output=arg.trim_prefix("--output=")
 		if arg.begins_with("--steps="): steps=arg.trim_prefix("--steps=").to_int()
 		if arg.begins_with("--observed-floor="): observed_floor=arg.trim_prefix("--observed-floor=").to_int()
 		if arg.begins_with("--prefix-steps="): prefix_steps=arg.trim_prefix("--prefix-steps=").to_int()
+		if arg=="--profile-stages": profile_stages=true
+		if arg.begins_with("--main-thread-policy="): thread_policy_mode=arg.trim_prefix("--main-thread-policy=")
+		if arg.begins_with("--worker-tasks="): worker_tasks=arg.trim_prefix("--worker-tasks=").to_int()
+	if not thread_policy_mode in ["app","default"] or not worker_tasks in [0,1,4]: quit(2);return
 	if input.is_empty() or output.is_empty() or steps<=0 or prefix_steps<0 or FileAccess.file_exists(output): quit(2);return
+	var thread_policy: Dictionary = {"requested":thread_policy_mode,"applied":false,"reason":"platform_default","caller_thread_id":OS.get_thread_caller_id()}
+	if OS.get_name()=="Windows" and thread_policy_mode=="app":
+		if ClassDB.class_exists("PlatformThreadPolicy"):
+			thread_policy.merge(ClassDB.class_call_static("PlatformThreadPolicy","apply_main_thread"),true)
+		else: thread_policy.reason="native_policy_unavailable"
+	print("MAIN_THREAD_POLICY="+JSON.stringify(thread_policy))
 	var init_start: int = Time.get_ticks_usec()
 	var content: HospitalContent = HospitalContent.new()
 	var file: FileAccess = FileAccess.open(input,FileAccess.READ)
@@ -59,9 +72,17 @@ func _run() -> void:
 	var validation: String = world.validate(content)
 	if not validation.is_empty(): write_json(output,{"complete":false,"reason":validation});quit(2);return
 	var sim: HospitalSimulation = HospitalSimulation.new(world,content)
+	sim.services.departments.sample_workers_enabled=worker_tasks>0
+	sim.services.departments.sample_worker_tasks=maxi(1,worker_tasks)
 	# Match AppRoot loading: prepare the selected floor before simulation starts.
 	# Background floors still use the production lazy path; do not preload invented work.
 	var floor_preparation: Dictionary=sim.prepare_floor_static(observed_floor)
+	var profiler = preload("res://tools/performance/step_profile.gd").new()
+	if profile_stages:
+		profiler.source_directory="res://.cache/performance160-profile-sources"
+		profiler.max_step_records=steps
+		sim=profiler.attach(sim,false)
+		if sim==null: write_json(output,{"complete":false,"errors":profiler.errors});quit(2);return
 	var init_us: int = Time.get_ticks_usec()-init_start
 	var initial: Dictionary = snapshot(world)
 	write_json(output+".initial.json",initial)
@@ -88,9 +109,11 @@ func _run() -> void:
 		var before_sessions: Dictionary = world.facts.sessions.duplicate(true)
 		var before_guidance: Dictionary = world.facts.floor_guidance.visits.duplicate(true)
 		stream.store_line(JSON.stringify({"kind":"enter","index":index,"tick":world.sim_tick}));stream.flush()
+		if profile_stages and index>=prefix_steps: profiler.begin_step()
 		var started: int = Time.get_ticks_usec()
 		var result: TickResult = sim.step()
 		var elapsed: int = Time.get_ticks_usec()-started
+		if profile_stages and index>=prefix_steps: profiler.end_step(result,elapsed)
 		if result==null: errors.append("Incomplete production step");break
 		if world.sim_tick!=int(initial.tick)+index+1: errors.append("Unexpected tick increment");break
 		for id: String in before_sessions:
@@ -132,5 +155,12 @@ func _run() -> void:
 	var sample_events: Dictionary = {}
 	for kind: String in event_counts: sample_events[kind]=int(event_counts[kind])-int(prefix_events.get(kind,0))
 	var complete: bool = samples.size()==steps+prefix_steps and errors.is_empty()
+	var attribution: Dictionary = profiler.report() if profile_stages else {}
+	if profile_stages:
+		write_json(output+".stages.json",attribution)
+		if not attribution.errors.is_empty() or not attribution.step_records_complete or int(attribution.complete_steps)!=steps:
+			errors.append("Incomplete or invalid stage attribution")
+			complete=false
+	write_json(output+".execution.json",{"main_thread_policy":thread_policy,"worker_tasks":worker_tasks,"worker_samples":sim.services.departments.sample_worker_report(),"profile_stages":profile_stages,"scope":"Simulation.step wall elapsed including internal waits; excludes renderer, GameSession and initialization. Stage spans are diagnostic, not function self CPU."})
 	write_json(output,{"complete":complete,"performance_pass":null,"source_input_sha256":FileAccess.get_sha256(input),"mode":"plain_cpu_full_step","requested_sample_steps":steps,"requested_prefix_steps":prefix_steps,"all_completed_steps":samples.size(),"prefix_wall_us":prefix_wall_us,"all_wall_us":all_wall_us,"sample_start_population":sample_start_population,"prefix_business":{"work":prefix_work,"guidance":prefix_guidance,"events":prefix_events},"sample_business":{"clinical_work_ticks_observed_lower_bound":sample_work,"guidance_work_ticks":guidance_work-prefix_guidance,"events":sample_events},"initialization_us":init_us,"observed_floor":observed_floor,"floor_static_preparation":floor_preparation,"initial":initial,"final":final,"metrics":metrics,"business":{"clinical_work_ticks_observed_lower_bound":work,"guidance_work_ticks":guidance_work,"steps_with_active_moves_not_arrival_proof":actual_moving_steps,"events":event_counts},"errors":errors,"gpu_fps":null,"scope":"HospitalSimulation CPU full steps only; no GameSession/renderer/persistence lifecycle. Ordinary business rules retained; no fixed-population hold. Work counter excludes transition ticks and is a lower bound, not total completed work.","final_sha256":FileAccess.get_sha256(output+".final.bin")})
 	sim.dispose();quit(0 if complete else 1)
