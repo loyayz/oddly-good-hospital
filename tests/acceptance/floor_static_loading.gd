@@ -35,9 +35,11 @@ func run_case(suite: RefCounted) -> Dictionary:
 	var before: Dictionary = world.freeze()
 	var checks: Dictionary = {"valid_input":world.validate(suite.content).is_empty() and chair.accepted and room.accepted}
 	var first: Dictionary = sim.prepare_floor_static(1)
-	checks.only_displayed_floor_no_body_graphs = first.complete and cache._sources.size()==1 and cache._floor_geometries.size()==1 and cache._entries.is_empty() and space._bodies.is_empty()
+	# Public-arrival preparation also reads body dimensions. That dictionary
+	# is not an A* graph; raw floor preparation must still create no body graph.
+	checks.only_displayed_floor_no_body_graphs = first.complete and cache._sources.size()==1 and cache._floor_geometries.size()==1 and cache._entries.is_empty()
 	var one: FloorStaticGeometry = cache.floor_geometry(space,world,1)
-	checks.complete_floor = one._plots.size()==HospitalSpace.floor_plots(world,1).size() and one.doors.size()==HospitalSpace.floor_layout(world,1).get("doors",[]).size() and one._facilities.size()==one.source.facilities.size() and one._connectors.size()==one.source.connectors.size() and one.facility_index._records.size()==one._facilities.size() and one.door_index._records.size()==one.doors.size()
+	checks.complete_floor = one._plots.size()==HospitalSpace.floor_plots(world,1).size() and one.doors.size()==HospitalSpace.floor_layout(world,1).get("doors",[]).size() and one._facilities.size()==one.source.facilities.size() and one._connectors.size()==one.source.connectors.size() and one.facility_index._records.size()==one._facilities.size() and one.door_index._records.size()==one.doors.size() and one.wall_index._records.size()==one._walls.size()
 	var second: Dictionary = sim.prepare_floor_static(2)
 	var again: Dictionary = sim.prepare_floor_static(1)
 	checks.whole_unoccupied_floor_and_return = second.complete and second.floor_id==2 and again.resident_hit and cache._sources.size()==2 and cache._floor_geometries.size()==2 and cache.floor_geometry(space,world,1)==one and cache._entries.is_empty()

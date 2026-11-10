@@ -17,6 +17,7 @@ var _vertical_walls: Dictionary = {}
 var doors: Array[Dictionary] = []
 var door_order: Dictionary = {}
 var door_index: BodyIndex = BodyIndex.new()
+var wall_index: BodyIndex = BodyIndex.new()
 var facility_index: BodyIndex = BodyIndex.new()
 var charge: int = 0
 
@@ -62,13 +63,20 @@ func _init(space: HospitalSpace, floor_id: int, static_source: Dictionary) -> vo
 			_walls.append({"room_id":id,"axis":"x","line":y,"low":rect.position.x,"high":rect.end.x})
 		for x: int in [rect.position.x,rect.end.x]:
 			_walls.append({"room_id":id,"axis":"y","line":x,"low":rect.position.y,"high":rect.end.y})
-	for wall: Dictionary in _walls:
+	for number: int in _walls.size():
+		var wall: Dictionary = _walls[number]
 		var lines: Dictionary = _horizontal_walls if wall.axis=="x" else _vertical_walls
 		var line: int = int(wall.line)
 		if not lines.has(line): lines[line] = []
 		lines[line].append(wall)
+		# One-cell edge strips share the same coordinates as original door
+		# rectangles. Exact axis/line tests remain with the local consumer.
+		var low: int = int(wall.low)
+		var length: int = int(wall.high)-low
+		var rect: Rect2 = Rect2(low,line,length,1) if wall.axis=="x" else Rect2(line,low,1,length)
+		wall_index.update(str(number),floor_id,rect)
 	# Conservative ownership allowance, not a measurement of native RSS.
-	charge = 16384+var_to_bytes(source).size()*8+(_facility_cells.size()+_connector_cells.size())*128+(_walls.size()+doors.size()+_facilities.size())*512
+	charge = 16384+var_to_bytes(source).size()*8+(_facility_cells.size()+_connector_cells.size())*128+_walls.size()*1024+(doors.size()+_facilities.size())*512
 
 func _index_rectangle(rect: Rect2, cells: Dictionary, value: Variant) -> void:
 	for y: int in range(maxi(0,ceili(rect.position.y)),mini(FloorNavigation.SIDE,ceili(rect.end.y))):

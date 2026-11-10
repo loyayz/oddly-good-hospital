@@ -17,6 +17,8 @@
 
 环境覆盖复用、实际扩门恢复与9×9热图批次另见 [环境观察专项](acceptance/environment_cache_scope.md)。
 
+环境墙段、真实门洞、共墙归属与实时扩门的局部查询另见 [环境真实墙边专项](acceptance/environment_wall_lookup.md)。
+
 回归范围、前置状态使用边界和停止条件见 [AGENTS.md](../AGENTS.md)。六个专题的已注册用例组成需求覆盖库，每次执行选择实际受影响的用例；不带范围的命令会拒绝执行。
 
 查询用例清单，不启动 Godot：

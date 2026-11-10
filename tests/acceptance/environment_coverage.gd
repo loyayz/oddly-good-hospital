@@ -4,6 +4,7 @@ extends "res://tests/acceptance/staff_fixtures.gd"
 # from raw world facts. Neither the prepared masks nor the native graph decide
 # the expected distances or the complete discovery order.
 func _reference(x: Dictionary, floor_id: int, origin: Array, radius: int, noise: bool) -> Dictionary:
+	var reference: HospitalEnvironment = preload("res://tests/acceptance/environment_wall_reference.gd").new(x.e.content,x.space)
 	var root: Array = [int(origin[0]),int(origin[1])]
 	var found: Dictionary = {"%d:%d" % root:0}
 	var pending: Array = [root]
@@ -16,7 +17,7 @@ func _reference(x: Dictionary, floor_id: int, origin: Array, radius: int, noise:
 		for delta: Array in [[-1,0],[0,-1],[0,1],[1,0]]:
 			var next: Array = [cell[0]+delta[0],cell[1]+delta[1]]
 			var key: String = "%d:%d" % next
-			if not found.has(key) and x.e._edge_open(x.world,floor_id,cell,next,noise):
+			if not found.has(key) and reference._edge_open(x.world,floor_id,cell,next,noise):
 				found[key] = distance+1
 				pending.append(next)
 	return found

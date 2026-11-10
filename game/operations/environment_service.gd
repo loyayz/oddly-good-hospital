@@ -899,31 +899,42 @@ func _wall_edge(world: WorldState, floor_id: int, cell: Array, edge: String) -> 
 	if offset.is_empty():
 		return false
 	var other: Array = [int(cell[0])+int(offset[0]),int(cell[1])+int(offset[1])]
-	return other in world.facts.floors.overrides.get(str(floor_id),{}).get("blocked",[]) or _wall_between(world,floor_id,cell,other)
+	var geometry: FloorStaticGeometry = space._navigation.floor_geometry(space,world,floor_id)
+	return geometry._blocked.has(Vector2i(int(other[0]),int(other[1]))) or _wall_between(world,floor_id,cell,other,geometry)
 
-func _wall_between(world: WorldState, floor_id: int, first: Array, second: Array) -> bool:
+func _wall_between(world: WorldState, floor_id: int, first: Array, second: Array, geometry: FloorStaticGeometry = null) -> bool:
 	if first==second:
 		return false
+	if geometry==null: geometry = space._navigation.floor_geometry(space,world,floor_id)
 	var horizontal: bool = int(first[1])!=int(second[1])
 	var axis: String = "x" if horizontal else "y"
 	var line: int = maxi(int(first[1]),int(second[1])) if horizontal else maxi(int(first[0]),int(second[0]))
 	var along: int = int(first[0]) if horizontal else int(first[1])
-	for room: Dictionary in world.facts.rooms.values():
-		if int(room.floor_id)!=floor_id:
-			continue
-		for wall: Dictionary in BuildGeometry.room_walls(room):
-			if wall.axis!=axis or int(wall.line)!=line or along<int(wall.low) or along>=int(wall.high):
-				continue
-			var opening: bool = false
-			for door: Dictionary in world.facts.floors.overrides.get(str(floor_id),{}).get("doors",[]):
-				var door_line: int = int(door.cell[1] if horizontal else door.cell[0])
-				var door_start: int = int(door.cell[0] if horizontal else door.cell[1])
-				var span: int = int(world.facts.adaptations.get(door.id,{}).get("span",door.span))
-				if door.room_id==room.id and door.axis==axis and door_line==line and along>=door_start and along<door_start+span:
-					opening = true
-					break
-			if not opening:
-				return true
+	var bounds: Rect2 = Rect2(along,line,1,1) if horizontal else Rect2(line,along,1,1)
+	var walls: Array[String] = geometry.wall_index.candidates(floor_id,bounds)
+	space.query_counts["environment_wall_candidates"] = int(space.query_counts.get("environment_wall_candidates",0))+walls.size()
+	if walls.is_empty(): return false
+	var doors: Dictionary = {}
+	for id: String in geometry.door_index.candidates(floor_id,bounds): doors[id] = true
+	# Real temporary openings can extend beyond their static door rectangles.
+	# Their current span applies to everyone observing sound/materials, not
+	# only the original actor allowed to move through the reservation.
+	for region: Dictionary in space._reservation_regions(world,floor_id,bounds):
+		if region.reservation.kind=="door" and geometry.door_order.has(region.reservation_id): doors[region.reservation_id] = true
+	space.query_counts["environment_wall_door_candidates"] = int(space.query_counts.get("environment_wall_door_candidates",0))+doors.size()
+	for id: String in walls:
+		var wall: Dictionary = geometry._walls[int(id)]
+		if wall.axis!=axis or int(wall.line)!=line or along<int(wall.low) or along>=int(wall.high): continue
+		var opening: bool = false
+		for door_id: String in doors:
+			var door: Dictionary = geometry.doors[int(geometry.door_order[door_id])].door
+			var door_line: int = int(door.cell[1] if horizontal else door.cell[0])
+			var door_start: int = int(door.cell[0] if horizontal else door.cell[1])
+			var span: int = int(world.facts.adaptations.get(door.id,{}).get("span",door.span))
+			if door.room_id==wall.room_id and door.axis==axis and door_line==line and along>=door_start and along<door_start+span:
+				opening = true
+				break
+		if not opening: return true
 	return false
 
 func _cell_key(cell: Array) -> Variant:
