@@ -797,7 +797,7 @@ func _case_27(t) -> void:
 			if doctor.on_shift or shortage.world.facts.moves.has(doctor_id) or shortage.sim.clinic.staff_busy(shortage.world,doctor_id): return false
 		return true,600)
 	if not off_shift:
-		t.check("CLIN-27",false,{"missing":"actual_off_shift_after_safe_work_and_movement","initial_progress_tick":initial_progress,"state":_state(shortage)})
+		t.check("CLIN-27",false,{"missing":"actual_off_shift_after_safe_work_and_movement","initial_progress_tick":initial_progress,"state":_state(shortage),"failure_world":_failure_world("CLIN-27",shortage.world)})
 		return
 	var shortage_tick: int = shortage.world.sim_tick
 	var no_progress: int = int(_stay(shortage).last_progress_tick)

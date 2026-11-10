@@ -1053,9 +1053,10 @@ func _validate_shapes() -> String:
 			if not local is Dictionary or not local.get("target") is Dictionary: return "局部移动目标结构无效"
 			if movement.has("detour") or movement.has("convoy") or movement.has("members") or movement.get("route_pending",false) or movement.has("route_waypoint"): return "局部移动不能与其他路线拥有者并存"
 			for key: Variant in local:
-				if not key in ["target","origin","rejoin","retreat"]: return "局部移动含未知状态"
+				if not key in ["target","origin","rejoin","retreat","corners"]: return "局部移动含未知状态"
 			if not _point(local.get("origin")): return "局部移动缺少原路线离开点"
 			if local.has("retreat") and (typeof(local.retreat)!=TYPE_BOOL or not local.retreat or local.has("rejoin")): return "局部后退不能混为原路线接回"
+			if local.has("corners") and (not local.corners is Array or local.corners.is_empty() or local.corners.size()>2 or not local.has("rejoin")): return "局部连续转角必须属于短回接路线"
 			var local_actor: Dictionary = facts.actors.get(movement.actor_id,{})
 			var local_target: Dictionary = local.target
 			if local_actor.get("location",{}).get("kind")!="floor" or local_target.get("kind")!="floor" or not _point(local_target.get("cell")) or not _natural(local_target.get("floor_id",-1)) or local_target.floor_id!=local_actor.location.floor_id: return "局部移动必须保持同层有限坐标"
@@ -1076,8 +1077,17 @@ func _validate_shapes() -> String:
 				var end: Vector2 = ConvoyTrail.point(movement.path[local_index].cell)
 				var rejoin: Vector2 = ConvoyTrail.point(link.cell)
 				if (end-start).cross(rejoin-start)!=0.0 or (rejoin-start).dot(rejoin-end)>0.0: return "局部移动接点不在原路线段"
-				if local_endpoint.x!=rejoin.x and local_endpoint.y!=rejoin.y: return "局部移动中间转角不能斜接原路线"
-				if local_endpoint!=rejoin and local_origin!=local_endpoint and (local_endpoint-local_origin).dot(rejoin-local_endpoint)!=0.0: return "局部移动中间点必须是正交转角"
+				var corner_from: Vector2=local_origin
+				var corner: Vector2=local_endpoint
+				var suffix: Array=local.get("corners",[]).duplicate()
+				suffix.append({"kind":"floor","floor_id":local_actor.location.floor_id,"cell":link.cell})
+				for next: Variant in suffix:
+					if not next is Dictionary or next.get("kind")!="floor" or next.get("floor_id")!=local_actor.location.floor_id or not _point(next.get("cell")): return "局部连续转角必须保持同层有限坐标"
+					var after: Vector2=ConvoyTrail.point(next.cell)
+					if local.has("corners") and corner==after: return "局部连续转角不能重复坐标"
+					if corner.x!=after.x and corner.y!=after.y: return "局部移动中间转角不能斜接原路线"
+					if corner!=after and corner_from!=corner and (corner-corner_from).dot(after-corner)!=0.0: return "局部移动中间点必须是正交转角"
+					corner_from=corner;corner=after
 			else:
 				var original: Variant = movement.path[int(movement.cursor)]
 				if not original is Dictionary or original.get("kind")!="floor" or original.get("floor_id")!=local_actor.location.floor_id: return "局部移动原路线不在当前楼层"

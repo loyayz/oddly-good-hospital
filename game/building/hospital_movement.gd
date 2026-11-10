@@ -1167,7 +1167,14 @@ func _local_floor_segment(actor: Dictionary, movement: Dictionary) -> bool:
 	return point.get("kind")=="floor" and point.get("floor_id")==actor.location.floor_id
 
 func _local_movable(world:WorldState,actor:Dictionary,journey:Dictionary)->bool:
-	return _local_floor_segment(actor,journey) and not journey.has("convoy") and journey.get("members",[actor.id]).size()==1 and actor.get("posture")=="standing" and not (world.facts.staff.has(actor.id) and _staff_has_movement_responsibility(world,actor.id))
+	if not _local_floor_segment(actor,journey) or journey.has("convoy") or journey.get("members",[actor.id]).size()!=1 or actor.get("posture")!="standing": return false
+	# A real optional trip already owns this ground walk. Its life task is
+	# not a stationary working body; local avoidance keeps that same trip.
+	var life: Dictionary=world.facts.staff.get(actor.id,{}).get("life_task",{})
+	if not str(life.get("id","")).is_empty() and journey.get("waiting_seat_id","")==life.id and life.get("phase","") in ["area_travel","local_travel","returning","release","exiting"]:
+		var job: Dictionary=world.facts.get("training_jobs",{}).get(world.facts.staff[actor.id].get("training_job_id",""),{})
+		return not HospitalClinicalDevelopment.safe_busy(world,actor.id) and not job.get("state","") in ["travelling","working"]
+	return not (world.facts.staff.has(actor.id) and _staff_has_movement_responsibility(world,actor.id))
 
 func _local_choose(world: WorldState, actor: Dictionary, movement: Dictionary, motion: Vector2) -> bool:
 	return _local_choose_options(world,actor,movement,motion,[])
@@ -1302,6 +1309,10 @@ func _local_resume(world: WorldState, actor: Dictionary, movement: Dictionary) -
 	var origin: Vector2 = ConvoyTrail.point(actor.location.cell)
 	if origin!=ConvoyTrail.point(local.target.cell): return true
 	if local.has("rejoin"):
+		if not local.get("corners",[]).is_empty():
+			local.target=local.corners.pop_front()
+			if local.corners.is_empty(): local.erase("corners")
+			return true
 		var cell: Vector2 = ConvoyTrail.point(local.rejoin.cell)
 		if origin!=cell:
 			local.target=_floor_point(actor,cell)
@@ -1381,6 +1392,53 @@ func _local_return(world: WorldState, actor: Dictionary, movement: Dictionary, q
 			if not _local_path_clear(world,actor,path,query):continue
 			movement.local_move={"origin":movement.local_move.origin,"target":path[0]}
 			return true
+		if _local_return_around_nearby(world,actor,movement,query,index,target): return true
+	return false
+
+# Use the edges of geometry touching this actor's immediate neighbourhood.
+# These are a few continuous connectors, not a floor grid or a new journey.
+# Retain only this short connector's remaining corners. Losing a later
+# obstacle from the neighbourhood must not forget a turn already proved.
+# Actual steps still recheck geometry; the original cursor advances on rejoin.
+func _local_return_around_nearby(world: WorldState, actor: Dictionary, movement: Dictionary, query: RouteClearance, index: int, target: Vector2) -> bool:
+	var origin: Vector2=ConvoyTrail.point(actor.location.cell)
+	var width: float=float(space.clearance(actor))
+	var near: Rect2=space._actor_rect(actor,origin).grow(width)
+	var floor_id: int=int(actor.location.floor_id)
+	var facilities: BodyIndex=space._navigation.facility_index(space,world,floor_id)
+	var obstacles: Array[Rect2]=[]
+	for id: String in facilities.candidates(floor_id,near): obstacles.append(facilities.rectangle(id))
+	for id: String in space._actor_index.candidates(floor_id,near,[actor.id]): obstacles.append(space._actor_index.rectangle(id))
+	var xs: Array[float]=[]
+	var ys: Array[float]=[]
+	for rect: Rect2 in obstacles:
+		for x: float in [floorf(rect.position.x)-width,ceilf(rect.end.x)]:
+			if not x in xs: xs.append(x)
+		for y: float in [floorf(rect.position.y)-width,ceilf(rect.end.y)]:
+			if not y in ys: ys.append(y)
+	var links: Array=[]
+	for x: float in xs: links.append([Vector2(x,origin.y),Vector2(x,target.y),target])
+	for y: float in ys: links.append([Vector2(origin.x,y),Vector2(target.x,y),target])
+	for x: float in xs:
+		for y: float in ys:
+			links.append([Vector2(x,origin.y),Vector2(x,y),Vector2(target.x,y),target])
+			links.append([Vector2(origin.x,y),Vector2(x,y),Vector2(x,target.y),target])
+	for link: Array in links:
+		var path: Array=[]
+		var previous: Vector2=origin
+		var direction: Vector2=Vector2.ZERO
+		for point: Vector2 in link:
+			if point==previous: continue
+			if direction!=Vector2.ZERO and direction.dot(point-previous)!=0.0:
+				path.clear();break
+			path.append(_floor_point(actor,point))
+			direction=point-previous
+			previous=point
+		if path.is_empty() or not _bed_local_path_blocker(world,actor,movement,path).is_empty(): continue
+		if not _local_path_clear(world,actor,path,query): continue
+		movement.local_move={"origin":movement.local_move.origin,"target":path[0],"rejoin":{"index":index,"cell":[target.x,target.y]}}
+		if path.size()>2: movement.local_move.corners=path.slice(1,path.size()-1)
+		return true
 	return false
 
 func _start_detour(world: WorldState, actor: Dictionary, movement: Dictionary) -> void:

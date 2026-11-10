@@ -1,0 +1,363 @@
+{
+  "created_utc": "2026-11-10T09:09:21.267543+00:00",
+  "base_commit": "30056f3b433939f315b5b590978ebc80453de0f9",
+  "dot_branch": "dot/next-stage-20261107",
+  "observed_codex_head": "1fb3008f975e29e22efc98e8906e5c563ecb65fe",
+  "isolation": "Fresh private clone; no user worktree, performance branch or shared source was modified.",
+  "engine": {
+    "version": "4.7.2.stable.official.ed1daf0bf",
+    "sha256": "8d106cbe6144c2dc7e881d61d2429c1a8a76e6b22ef48bd5e48dcf934953f71e"
+  },
+  "native_library": {
+    "path": "game/platform/linux/bin/oddly_good_platform.linux.x86_64.so",
+    "sha256": "04d595afc0f80d4b6f9a8ea37ebf444bb5d1d26901f4ec761f760d116f796381"
+  },
+  "changed_source_sha256": {
+    "game/building/hospital_movement.gd": "30693a8a4384ae7c779c190a8e550a13844b4ac7806a257b1476697d49329a41",
+    "game/sim/world_state.gd": "e9c600d081a0cf89b2b8821181c769313d95a55b3a8a659fa7929114d9a914c8",
+    "tests/acceptance/clinical.gd": "e2d770f950ddcc88bbc048c4fd6b7c2c92d1f28cb12b53de0b37d1497cc95778",
+    "tests/acceptance/clinical_full_chain.gd": "522c9bd2d553720735db6d4293ac4e95c3449ffa3a7ed5df1763eee4e0c4943b",
+    "tests/acceptance/clinical_full_chain_runner.gd": "3c6f0005a395034895bd90e0addfd88fbd3cbc69f95851c015050762714e3aa7",
+    "tests/acceptance/local_obstacle_corners.gd": "fcd8822f5960a699de180bed0d0fd3fdb411d7bc8f07807aa47777c076c309ac",
+    "tests/acceptance/local_obstacle_corners_runner.gd": "763298edf8fd599fd497a11adeaedde5758067aa41951505c08c8159ab9268b8",
+    "tests/acceptance/life_local_movement.gd": "8069768431ebc9ef96f7f3eb918f465b32e3e2036bb5275ed784d0cf0df3207a",
+    "tests/acceptance/life_local_movement_runner.gd": "56bca7f66910e5898305468206663f1dbe5d9a81271eaaf89e3b9198fc80aaa0"
+  },
+  "fixture_source_sha256": {
+    "tests/acceptance/clinical_fixtures.gd": "f882de7fca87cd7dbbbd52afebb314de35955c9239398f1a82e8dc0afc262c92",
+    "tests/acceptance/clinical_step.gd": "94d2aa91e106f48b99840767fc271ac8381442c98f07e7bc437d5a2caf5eb817",
+    "tests/acceptance/checkpoints.gd": "de21e64d915707e1008f631175d53e68df2d4f8faf6055ba5b0a84b58e605ce6",
+    "tests/acceptance/space.gd": "8740b3b9bdba5ef4f92028ecdf49816bf3cad6c2f298bfeee65705dfe50c552e",
+    "tests/acceptance/unified_local_behavior.gd": "2737ccef0dadf29a0111c3775c7866c303530466fc5ce76a04d9286e9afd30d6",
+    "tests/acceptance/clinical_ward_release.gd": "ccc332e6d52bf740eb35254b37744c5ece6a71a11b55b16a4ac2064f3b9d31be"
+  },
+  "commands": [
+    "godot-4.7.2 --headless --path . --script res://tests/acceptance/runner.gd -- clinical --case=CLIN-24 --case=CLIN-25 --case=CLIN-27 --case=CLIN-37",
+    "godot-4.7.2 --headless --path . --script res://tests/acceptance/clinical_full_chain_runner.gd -- full_chain.json LIVE RESTORE",
+    "godot-4.7.2 --headless --path . --script res://tests/acceptance/local_obstacle_corners_runner.gd -- verified.json LOCAL-CORNER-WIDE LOCAL-CORNER-LOST",
+    "godot-4.7.2 --headless --path . --script res://tests/acceptance/life_local_movement_runner.gd -- life_local.json",
+    "godot-4.7.2 --headless --path . --script res://tests/acceptance/bed_passage_runner.gd -- bed_local.json BED-LOCAL BED-CANDIDATE BED-RESTORE BED-FACING",
+    "godot-4.7.2 --headless --path . --script res://tests/acceptance/run_unified_local_behavior.gd -- run_unified_local_behavior.json focus",
+    "godot-4.7.2 --headless --path . --script res://tests/acceptance/run_retreat_blocker_contract.gd -- run_retreat_blocker_contract.json",
+    "godot-4.7.2 --headless --path . --script res://tests/acceptance/run_rejoin_fractional_diagonal_stub.gd -- run_rejoin_fractional_diagonal_stub.json",
+    "godot-4.7.2 --headless --path . --script res://tests/acceptance/run_rejoin_accepted_sweep_endpoint.gd -- run_rejoin_accepted_sweep_endpoint.json"
+  ],
+  "clinical": {
+    "failed": 0,
+    "checks": 4,
+    "elapsed_ms": 40659,
+    "cases": {
+      "CLIN-24": {
+        "passed": true,
+        "setup_ms": 8020,
+        "body_ms": 3313
+      },
+      "CLIN-25": {
+        "passed": true,
+        "setup_ms": 36,
+        "body_ms": 1503
+      },
+      "CLIN-27": {
+        "passed": true,
+        "setup_ms": 2,
+        "body_ms": 22318
+      },
+      "CLIN-37": {
+        "passed": true,
+        "setup_ms": 3,
+        "body_ms": 4282
+      }
+    }
+  },
+  "full_chain": {
+    "ok": true,
+    "setup_ms": 5628,
+    "cases": [
+      {
+        "case": "LIVE",
+        "ok": true,
+        "body_ms": 35820,
+        "initial": {
+          "no_attempt": true,
+          "phase": "wait_surgery",
+          "selection": {
+            "accepted": true,
+            "changed_ids": [
+              "visit_00000006"
+            ],
+            "code": "applied",
+            "new_revision": 1955,
+            "reason": ""
+          },
+          "tick": 1921,
+          "validation": ""
+        },
+        "checks": {
+          "actual_departure": true,
+          "all_real_steps_valid": true,
+          "cold_restore": true,
+          "full_care": true,
+          "full_recovery": true,
+          "full_surgery": true,
+          "full_wake": true,
+          "legal_input": true,
+          "local_avoidance_observed": true,
+          "one_attempt": true,
+          "one_service_each": true,
+          "one_settlement": true,
+          "qualified_full_round": true,
+          "sole_supply_issue": true,
+          "stationary_escort_preserved": true
+        },
+        "work_ticks": {
+          "care": 80,
+          "round": 100,
+          "surgery": 1200,
+          "wake": 150
+        },
+        "recovery_ticks": 1800,
+        "phases": [
+          {
+            "phase": "wait_surgery",
+            "tick": 1922
+          },
+          {
+            "phase": "surgery",
+            "tick": 2429
+          },
+          {
+            "phase": "wake",
+            "tick": 3628
+          },
+          {
+            "phase": "transfer",
+            "tick": 3778
+          },
+          {
+            "phase": "recovery",
+            "tick": 3982
+          },
+          {
+            "phase": "round_wait",
+            "tick": 5781
+          },
+          {
+            "phase": "round",
+            "tick": 5822
+          },
+          {
+            "phase": "leaving",
+            "tick": 5921
+          },
+          {
+            "phase": "departed",
+            "tick": 6233
+          }
+        ],
+        "final_tick": 6233,
+        "source_unchanged": true
+      },
+      {
+        "case": "RESTORE",
+        "ok": true,
+        "body_ms": 47382,
+        "initial": {
+          "no_attempt": true,
+          "phase": "wait_surgery",
+          "selection": {
+            "accepted": true,
+            "changed_ids": [
+              "visit_00000006"
+            ],
+            "code": "applied",
+            "new_revision": 1955,
+            "reason": ""
+          },
+          "tick": 1921,
+          "validation": ""
+        },
+        "checks": {
+          "actual_departure": true,
+          "all_real_steps_valid": true,
+          "cold_restore": true,
+          "full_care": true,
+          "full_recovery": true,
+          "full_surgery": true,
+          "full_wake": true,
+          "legal_input": true,
+          "local_avoidance_observed": true,
+          "one_attempt": true,
+          "one_service_each": true,
+          "one_settlement": true,
+          "qualified_full_round": true,
+          "sole_supply_issue": true,
+          "stationary_escort_preserved": true
+        },
+        "work_ticks": {
+          "care": 80,
+          "round": 100,
+          "surgery": 1200,
+          "wake": 150
+        },
+        "recovery_ticks": 1800,
+        "phases": [
+          {
+            "phase": "wait_surgery",
+            "tick": 1922
+          },
+          {
+            "phase": "surgery",
+            "tick": 2429
+          },
+          {
+            "phase": "wake",
+            "tick": 3628
+          },
+          {
+            "phase": "transfer",
+            "tick": 3778
+          },
+          {
+            "phase": "recovery",
+            "tick": 3982
+          },
+          {
+            "phase": "round_wait",
+            "tick": 5781
+          },
+          {
+            "phase": "round",
+            "tick": 5822
+          },
+          {
+            "phase": "leaving",
+            "tick": 5921
+          },
+          {
+            "phase": "departed",
+            "tick": 6233
+          }
+        ],
+        "final_tick": 6233,
+        "source_unchanged": true
+      }
+    ]
+  },
+  "local_corners": {
+    "ok": true,
+    "cases": [
+      {
+        "case": "LOCAL-CORNER-WIDE",
+        "ok": true,
+        "arrived": true,
+        "fixture_ms": 12,
+        "test_ms": 356,
+        "dispatches": 1,
+        "cursor_only_at_real_rejoin": true,
+        "goal_sequence_and_route": true,
+        "blocker_unchanged": true,
+        "invalid_corner_states": {
+          "ok": true,
+          "rejections": {
+            "diagonal": "局部移动中间转角不能斜接原路线",
+            "off_floor": "局部连续转角必须保持同层有限坐标",
+            "rejoin_index": "局部移动接回索引无效",
+            "repeated": "局部连续转角不能重复坐标",
+            "reversing": "局部移动中间点必须是正交转角",
+            "too_many": "局部连续转角必须属于短回接路线",
+            "without_rejoin": "局部连续转角必须属于短回接路线"
+          }
+        }
+      },
+      {
+        "case": "LOCAL-CORNER-LOST",
+        "ok": true,
+        "arrived": true,
+        "fixture_ms": 4,
+        "test_ms": 485,
+        "dispatches": 1,
+        "cursor_only_at_real_rejoin": true,
+        "goal_sequence_and_route": true,
+        "blocker_unchanged": true,
+        "invalid_corner_states": {
+          "ok": true,
+          "rejections": {
+            "diagonal": "局部移动中间转角不能斜接原路线",
+            "off_floor": "局部连续转角必须保持同层有限坐标",
+            "rejoin_index": "局部移动接回索引无效",
+            "repeated": "局部连续转角不能重复坐标",
+            "reversing": "局部移动中间点必须是正交转角",
+            "too_many": "局部连续转角必须属于短回接路线",
+            "without_rejoin": "局部连续转角必须属于短回接路线"
+          }
+        }
+      }
+    ]
+  },
+  "exit_codes": "run_unified_local_behavior\t0\nrun_retreat_blocker_contract\t0\nrun_rejoin_fractional_diagonal_stub\t0\nrun_rejoin_accepted_sweep_endpoint\t0\nbed_local\t0\nlife_local\t0\nclinical\t0\nfull_chain\t0\nfurniture_current\t1\nno_eligible_current\t1\n",
+  "corner_exit_code": 0,
+  "known_failures": [
+    {
+      "case": "nearest_return_around_furniture_and_entrance",
+      "base_and_candidate_fail": true,
+      "actual_arrival": false,
+      "static_and_body_errors": [],
+      "notes": "Different room/entrance geometry from the new desk tests; stationary at [43.4,91]. Existing dispatch==2 assertion also assumes removed current-component routing. No claim this case is fixed."
+    },
+    {
+      "case": "rejoin_no_eligible_endpoint",
+      "base_and_candidate_fail": true,
+      "actual_arrivals": true,
+      "notes": "Historical assertions expect pending live floor route, 50-tick retry and fresh component BFS. These are not the current local-only contract. No safety/arrival failure found in this fixture."
+    }
+  ],
+  "static_check": "git diff --check: exit 0",
+  "not_measured": [
+    "long-running performance",
+    "Windows performance",
+    "rendering",
+    "all-map arrival",
+    "complete acceptance suite"
+  ],
+  "raw_evidence": {
+    "file": "raw-evidence.zip",
+    "sha256": "a8a18bfb092a8f5facb4a8086c90f1413e866240d32209a0bf4ab48ac4239a94",
+    "files_sha256": {
+      "final/furniture_current.json": "dc30e5802573b6465a65232661fbcdb678438b494bf0f7dd3d4a07eed2b895c8",
+      "final/furniture_current.log": "8b1b38eea649757a992f54043d6d44c092a460808401afd4cb09f2f5353752a9",
+      "final/bed_local.json": "280f7605765072d5d2b4f95259545a35d3a0c35c6054ce3f74970046e5d42794",
+      "final/run_rejoin_fractional_diagonal_stub.log": "5548722446ee6e0dde5f2e36340e8a81584db67416618267db68349da177825b",
+      "final/run_unified_local_behavior.json": "7178e35baa6f997c172e19ec07a352fef64d99a9bc8bf44a4d2f95f7ec85db56",
+      "final/run_retreat_blocker_contract.json": "7d316f3733464321382f0ace550ed5def0cdb24871501bd209592d2cfc6708fd",
+      "final/full_chain.log": "ad7735ec39e08550bea0b1961a21b4ef8375c30790c7c85f9af1eb04c28c6093",
+      "final/clinical.json": "c3d503def2cf975b0aeb72ab069f4cce249cb0f429d05dcb4e4cd8b7e47d7b57",
+      "final/run_retreat_blocker_contract.log": "f53708c9d628c49dc68f17f8e794f1d0d03553034703d64cb8292b5f78b204fc",
+      "final/clinical.log": "d830e3d4e0848e7fd37f85a43619b2a3bb3445a7d9f87957084286d5bfda1137",
+      "final/run_unified_local_behavior.log": "80b4b1f05ef9d70de495900e3c70283adbcba424f03e2c2812ecc76bc3207426",
+      "final/run_rejoin_accepted_sweep_endpoint.log": "4e2b3070aa74bb176e1bf83ee8220d21a50330ef7813c6b9fa72b6a20d816cee",
+      "final/run_rejoin_accepted_sweep_endpoint.json": "f9de8f87acc4c071dc870b9e0556205b5aae4edab2a0dd84d6f7756682e53170",
+      "final/full_chain.json": "7a0a3101bd0bd1c96d04448b56ec370f45bc9809e2aaf9225fb8601a1be7a0a6",
+      "final/bed_local.log": "3b5ee775a41bf15c4c5eb22c96cb310af4915ba1d3228d9101a7e31acb3ddea6",
+      "final/run_rejoin_fractional_diagonal_stub.json": "ac873ae09986752ed3fb995f909f72cbf0f0ea3895b67948a7bad3e86173b1f3",
+      "final/life_local.log": "6365d212a682a85e8ef84f1bfef6832b4ee0781668cfed7479759c5eff987092",
+      "final/no_eligible_current.json": "b29a8d0531411ad6faa45d7b62f46a2e6471f4957f23100b210b69a6dd3ac243",
+      "final/no_eligible_current.log": "bcb2d2bb863f5d4dcd344a6a7a5831bad4dffa99b5f01c599b46a1b35efdfc35",
+      "final/life_local.json": "e6db139083a42771c356933607dce9c34f78ced277a089611f3e8fc19c493a55",
+      "final/exit-codes.tsv": "f84391c9833abbed6f084eb34ebc10dca730a8e17128c40e00f539200fe70d67",
+      "baseline.json": "1bde376d57c64f852fe1df84f3d97e97d66f69a03a196666bf1f0dea4dfdf02f",
+      "baseline.log": "1253660f2e9fedbdbec05ce3921ef03c2b4888fcd28bb6935e187b3389db25fd",
+      "corner_tests/verified.json": "0571867899215cdb26d3fb7f3a04132650157a0a72bc4a4159ec08c60e74affd",
+      "corner_tests/verified.log": "e061e83829c01d26061e16252ade5917f2742fdbc1d32632efd4e48f6078bd5e",
+      "corner_tests/verified.sha256": "4a126ab41285220b554a61409148090880dd64cc3d1f96ea41d4a27064bf3a60",
+      "corner_tests/final.json": "5aaa0507632161d30070c82775daac90b415607b371d5b25d4e4e360a4009d5c",
+      "corner_tests/final.log": "6e8a6c1dcb603e28fcfc73ba4e1b2599b0858655fcfc0d92a495f6a1a661301c",
+      "corner_tests/continuity.json": "de812b5daff968ee7414e8c11e119d5c09702b1d29b6f36c9c3dcd709e36590c",
+      "corner_tests/continuity.log": "22f0485124deea6a9ecc41bdfaeb7af8e7fa3adef966f9af5fcf88b133a80bb0",
+      "corner_tests/control-unified-clean.json": "bf640ad9ab9ac3bc4eac5234b3ef7a8ba6b3dba86ccca7b260155aad1a856ceb",
+      "corner_tests/control-unified-clean.log": "e1a5c638b46e6b301c04ca5c14263143fa074bc5b63cdc408c4cb86330522d5c",
+      "regressions/no_eligible_head_control.json": "b29a8d0531411ad6faa45d7b62f46a2e6471f4957f23100b210b69a6dd3ac243",
+      "regressions/no_eligible_head_control.log": "bcb2d2bb863f5d4dcd344a6a7a5831bad4dffa99b5f01c599b46a1b35efdfc35",
+      "furniture_current_runner.gd": "0694f3f15e6209da7091cc45ecdefa851dc8d0a90d894c6f44cc01ef2a4d57a7"
+    }
+  }
+}

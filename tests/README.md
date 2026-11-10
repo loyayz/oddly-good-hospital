@@ -83,3 +83,5 @@ pwsh -NoProfile -File tests/run-acceptance.ps1 -Case CLIN-23 -RebuildFixtures
 招聘与员工返院的入口身体局部查询、多人实际入院及队列跨层边界见 [入口真实身体查询](acceptance/entry_body_lookup.md)。
 
 EQ05 空岗位可通行而使用权仍独占、真实床体/身体/扫掠安全、局部重接及跨层落地、护理查房与维修恢复的显式专项见 [护理床岗位通行](acceptance/bed_passage.md)。分段输入和真实执行范围分别标明，不替代原有完整临床链结果。
+
+连续局部转弯、已有生活旅程所有权，以及从候手术到真实离院的完整工时与冷恢复专项见 [真实临床连续交接](acceptance/clinical_full_chain.md)。
