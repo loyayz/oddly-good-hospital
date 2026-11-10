@@ -1,7 +1,25 @@
 extends "res://tests/acceptance/staff_fixtures.gd"
 
-class SerialWaiting extends HospitalWaitingLife:
-	func _prepare_need_costs(_world: WorldState) -> void: pass
+# Explicit preparation is an acceptance setup operation, not a side effect
+# of ordinary due-need dispatch. Preserve the native field and rejection
+# contracts independently of whether gameplay requests a complete field.
+class PreparedWaiting extends HospitalWaitingLife:
+	func prepare_for_test(world: WorldState) -> void:
+		var actors: Array = []
+		for visit_id: String in world.active_visit_ids():
+			var visit: Dictionary = world.facts.visits[visit_id]
+			if not _waiting(world,visit) or world.facts.moves.has(visit.actor_id): continue
+			if world.facts.waiting_life.needs.has(visit_id): continue
+			var ticket: Dictionary = world.facts.tickets[visit.ticket_id]
+			if ticket.get("service_assigned",false) and int(ticket.get("called_tick",-1))>=0: continue
+			if world.sim_tick<int(world.facts.waiting_life.clocks[visit_id].next_need_tick): continue
+			if floor_guidance!=null and floor_guidance.working(world,visit_id): continue
+			actors.append(str(visit.actor_id))
+		if actors.is_empty(): return
+		space.begin_dynamic_route_query(world)
+		space._navigation.prepare_structural_fields(space,world,actors)
+		space.end_route_query()
+
 
 class FailedNativeCache extends NavigationCache:
 	var include_partial: bool = false
@@ -29,11 +47,11 @@ class FailedNativeCache extends NavigationCache:
 				if field.get("native_batch",false): count += 1
 		return count
 
-class CheckedWaiting extends HospitalWaitingLife:
+class CheckedWaiting extends PreparedWaiting:
 	var prepared_closed: bool = false
 	var partial_fields: int = -1
-	func _prepare_need_costs(world: WorldState) -> void:
-		super._prepare_need_costs(world)
+	func prepare_for_test(world: WorldState) -> void:
+		super.prepare_for_test(world)
 		prepared_closed = space._route_queries.is_empty() and space._indexed_actor_scope.is_empty()
 		partial_fields = space._navigation.installed_fields()
 
@@ -57,9 +75,13 @@ func run(database: HospitalContent, include_failures: bool = false) -> Dictionar
 	var validation: String = x.world.validate(_content)
 	var before: Dictionary = x.world.freeze()
 	var original: Dictionary = _bind(WorldState.new(before.duplicate(true)))
-	var serial: SerialWaiting = SerialWaiting.new(_content,original.space)
+	var serial: HospitalWaitingLife = HospitalWaitingLife.new(_content,original.space)
 	serial.environment=original.e; serial.visitors=original.c.visitors
 	original.l=serial; original.p.waiting_life=serial
+	var prepared: PreparedWaiting = PreparedWaiting.new(_content,x.space)
+	prepared.environment=x.e;prepared.visitors=x.c.visitors
+	x.l=prepared;x.p.waiting_life=prepared
+	prepared.prepare_for_test(x.world)
 	x.l.dispatch(x.world)
 	serial.dispatch(original.world)
 	var travelling: bool = x.world.facts.waiting_life.needs.size()==12 and x.world.facts.adaptations.is_empty()
@@ -82,6 +104,7 @@ func run(database: HospitalContent, include_failures: bool = false) -> Dictionar
 		var waiting: CheckedWaiting = CheckedWaiting.new(_content,failed.space)
 		waiting.environment=failed.e; waiting.visitors=failed.c.visitors
 		failed.l=waiting; failed.p.waiting_life=waiting
+		waiting.prepare_for_test(failed.world)
 		waiting.dispatch(failed.world)
 		var counts: Dictionary = failed.space.query_counts
 		var route_counts: Dictionary = counts.duplicate()

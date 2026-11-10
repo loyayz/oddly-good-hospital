@@ -12,6 +12,26 @@ class MutationWaiting extends HospitalWaitingLife:
 			actor.location.cell[0]+=0.25
 			space.sync_actor(world,actor.id)
 
+class OriginalPrewarm extends MutationWaiting:
+	func _dispatch_waiting(world: WorldState) -> void:
+		_prepare_need_costs(world)
+		super._dispatch_waiting(world)
+	func _prepare_need_costs(world: WorldState) -> void:
+		var actors: Array = []
+		for visit_id: String in world.active_visit_ids():
+			var visit: Dictionary = world.facts.visits[visit_id]
+			if not _waiting(world,visit) or world.facts.moves.has(visit.actor_id): continue
+			if world.facts.waiting_life.needs.has(visit_id): continue
+			var ticket: Dictionary = world.facts.tickets[visit.ticket_id]
+			if ticket.get("service_assigned",false) and int(ticket.get("called_tick",-1))>=0: continue
+			if world.sim_tick<int(world.facts.waiting_life.clocks[visit_id].next_need_tick): continue
+			if floor_guidance!=null and floor_guidance.working(world,visit_id): continue
+			actors.append(str(visit.actor_id))
+		if actors.is_empty(): return
+		space.begin_dynamic_route_query(world)
+		space._navigation.prepare_structural_fields(space,world,actors)
+		space.end_route_query()
+
 func run(database: HospitalContent, mutate: bool = false) -> Dictionary:
 	_content = database
 	var x: Dictionary = _fixture()
@@ -35,7 +55,7 @@ func run(database: HospitalContent, mutate: bool = false) -> Dictionary:
 	var validation: String = x.world.validate(_content)
 	var before: Dictionary = x.world.freeze()
 	var original: Dictionary = _bind(WorldState.new(before.duplicate(true)))
-	var serial: MutationWaiting = MutationWaiting.new(_content,original.space)
+	var serial: OriginalPrewarm = OriginalPrewarm.new(_content,original.space)
 	serial.force_refresh=true;serial.mutate=mutate
 	var batched: MutationWaiting=MutationWaiting.new(_content,x.space)
 	batched.mutate=mutate
@@ -51,13 +71,14 @@ func run(database: HospitalContent, mutate: bool = false) -> Dictionary:
 		var need: Dictionary = x.world.facts.waiting_life.needs.get(visit.id,{})
 		travelling = travelling and need.get("phase","")=="area_travel" and x.world.facts.moves.has(visit.actor_id) and (mutate and str(visit.id)=="due_01" or x.world.facts.actors[visit.actor_id].location==before.actors[visit.actor_id].location) and int(x.world.facts.tickets[visit.ticket_id].waited_ticks)==1800
 	var same: bool = x.world.freeze()==original.world.freeze()
-	var used: bool = int(x.space.query_counts.get("native_field_batches",0))==1 and int(x.space.query_counts.get("native_field_requests",0))==12 and int(x.space.query_counts.get("native_field_hits",0))>0
+	var used: bool = int(x.space.query_counts.get("native_field_batches",0))==0 and int(original.space.query_counts.get("native_field_batches",0))==1 and int(original.space.query_counts.get("native_field_requests",0))==12
+	var avoided: bool = int(x.space.query_counts.get("native_field_requests",0))==0
 	var after_validation: String = x.world.validate(_content)
 	var excluded: bool = move_reason.is_empty() and not x.world.facts.waiting_life.needs.has(later.id) and not x.world.facts.waiting_life.needs.has(moving.id)
-	var details: Dictionary = {"batch_actor_index_builds":x.space.query_counts.actor_index_builds,"forced_actor_index_builds":original.space.query_counts.actor_index_builds,"input_validation":validation,"output_validation":after_validation,"due_visits":12,"one_real_batch_consumed":used,"travel_without_early_reservation_or_position_commit":travelling,"not_due_and_existing_move_excluded":excluded,"facts_rng_ids_tickets_equal_to_serial_preparation":same,"threads_used":x.space.query_counts.get("native_field_threads",0)}
+	var details: Dictionary = {"batch_actor_index_builds":x.space.query_counts.actor_index_builds,"forced_actor_index_builds":original.space.query_counts.actor_index_builds,"input_validation":validation,"output_validation":after_validation,"due_visits":12,"old_preparation_reference_executed":used,"new_dispatch_avoids_whole_fields":avoided,"new_field_requests":x.space.query_counts.get("native_field_requests",0),"old_field_requests":original.space.query_counts.get("native_field_requests",0),"travel_without_early_reservation_or_position_commit":travelling,"not_due_and_existing_move_excluded":excluded,"facts_rng_ids_tickets_equal_to_serial_preparation":same,"threads_used":x.space.query_counts.get("native_field_threads",0)}
 	var closed: bool=x.space._route_queries.is_empty() and original.space._route_queries.is_empty() and x.space._indexed_actor_scope.is_empty() and original.space._indexed_actor_scope.is_empty()
 	details.scopes_closed=closed
 	details.injected_raw_and_synchronized_body_changes=mutate
 	for row: Dictionary in [x,original]:
 		row.a.dispose(); row.p.waiting_life=null; row.p.environment=null; row.l.environment=null; row.l.visitors=null; row.e.waiting_life=null; row.c.recruitment=null
-	return {"ok":validation.is_empty() and after_validation.is_empty() and travelling and same and used and excluded and closed,"details":details}
+	return {"ok":validation.is_empty() and after_validation.is_empty() and travelling and same and used and avoided and excluded and closed,"details":details}
