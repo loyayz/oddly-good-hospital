@@ -763,10 +763,12 @@ func select(world: WorldState, actor_id: String, definitions: Array, room_kinds:
 	if actor.location.kind!="floor" or actor.get("posture","standing")=="lying": return {}
 	# Furniture-free standing areas remain valid for rest/return-to-waiting.
 	# Other purposes cannot select a region without a requested definition.
+	# Reuse the world's layout-owned type index instead of enumerating every
+	# facility for each selection. Failure and occupancy remain live below.
 	if not purpose in ["rest","waiting"]:
 		var present: bool = false
-		for facility: Dictionary in world.facts.facilities.values():
-			if facility.definition_id in definitions: present = true; break
+		for definition: String in definitions:
+			if not world.facility_ids(definition).is_empty(): present = true; break
 		if not present: return {}
 	_ensure(world)
 	var best: Dictionary = {}

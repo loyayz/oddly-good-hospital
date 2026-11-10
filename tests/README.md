@@ -15,6 +15,8 @@
 
 候诊椅实际占用、手动预览与安全离位另见 [候诊椅占用查询专项](acceptance/seat_owner_lookup.md)，按独立交接选择用例。
 
+公共选区复用既有类型索引、缺类提前返回及布局/事实替换后的恢复见 [公共选区类型查询](acceptance/public_select_type_index.md)。
+
 环境覆盖复用、实际扩门恢复与9×9热图批次另见 [环境观察专项](acceptance/environment_cache_scope.md)。
 
 环境墙段、真实门洞、共墙归属与实时扩门的局部查询另见 [环境真实墙边专项](acceptance/environment_wall_lookup.md)。

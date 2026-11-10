@@ -1,8 +1,10 @@
 extends HospitalPublicAreas
 
-# Frozen pre-optimization select body; its real geometry, collisions, routes
-# and availability helpers remain production code. No fabricated route result.
-# Source public_areas.gd SHA256:
+# Pre-optimization select algorithm; its real geometry, collisions, routes
+# and availability helpers remain production code. The entry handoff now uses
+# arrival_point, as required by the current area-arrival contract, rather than
+# the former safe-standing destination. No fabricated route result.
+# Original source public_areas.gd SHA256:
 # 5642782f1cb44249158a9ca40874faaebeb6a53b6faa0ae3a5462cb56fcc36ee
 
 func select(world: WorldState, actor_id: String, definitions: Array, room_kinds: Array, purpose: String, members: Array = [], maximum_travel_ticks: int = 9223372036854775807, selected_entries: Dictionary = {}, current_floor_only: bool = false) -> Dictionary:
@@ -49,13 +51,13 @@ func select(world: WorldState, actor_id: String, definitions: Array, room_kinds:
 				if inside==bool(best.inside): travel_limit = mini(travel_limit,int(best.travel_ticks))
 		# Equal bounds remain candidates: the original stable area tie-break
 		# and the slowest member's actual journey still decide the winner.
-		var point: Dictionary = waiting_point(world,actor_id,area.ref,travel_limit)
+		var point: Dictionary = arrival_point(world,actor_id,area.ref,travel_limit)
 		if point.is_empty(): continue
 		var entries: Dictionary = {actor_id:point.duplicate(true)}
 		var all_reachable: bool = true
 		for member: String in travellers:
 			if member==actor_id: continue
-			var entry: Dictionary = waiting_point(world,member,area.ref,travel_limit)
+			var entry: Dictionary = arrival_point(world,member,area.ref,travel_limit)
 			if entry.is_empty(): all_reachable = false; break
 			entries[member] = entry
 			point.travel_ticks = maxi(int(point.travel_ticks),int(entry.travel_ticks))
