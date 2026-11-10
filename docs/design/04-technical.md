@@ -91,7 +91,6 @@ WorldState是唯一模拟事实，不保存到场景节点里。建筑系统拥�
 | QueueService | enqueue(world: WorldState, visit_id: StringName, service_key: StringName) -> QueueTicket | 分配票号、幂等，当前服务仅一张票 |
 | ClinicService | try_start(world: WorldState, ticket_id: StringName) -> ServiceStartResult | 原子占患者/员工/站点，承诺随机结果和费用 |
 | HospitalEquipmentUse | query(world: WorldState, equipment_id: String) -> Dictionary | 只读返回placed、occupied、critical_commitment；从设备使用方与实际空间占用合并，不保存第二份预约或占用状态 |
-| DepartmentService | assign_rooms(world, department_id: StringName, room_ids: Array[StringName]) -> CommandResult；change_focus(world, department_id: StringName, specialty_id: StringName) -> CommandResult | 区域归属、共享资源、专长冷却与报价 |
 | ExperienceSystem | update(world: WorldState, facts: Array[SimEvent]) -> void | 怒气/等待原因、体验累计与有限评分窗口 |
 | GuidanceService | correct_route(world, visit_id: StringName, guide_id: StringName) -> CommandResult | 按真实接诊范围/设备筛选错误候选并保存一次选择；纠正前重查等效目的地，需转科时保留票号与收费 |
 | RenovationService | preview(world, draft: RenovationDraft) -> RenovationQuote；commit(world, quote: RenovationQuote) -> CommandResult | 付材料费、创建分格工单、取消退款、完工环境脏标记 |
@@ -101,7 +100,7 @@ WorldState是唯一模拟事实，不保存到场景节点里。建筑系统拥�
 | ScheduleService | preview(world, changes: Array[ShiftAssignment]) -> SchedulePreview；commit(world, preview_revision: int, changes: Array[ShiftAssignment]) -> CommandResult | 校验跨日休息、任务能力与覆盖，保留安全任务和补休 |
 | DoctorDevelopment | train(world, staff_id: StringName, track_id: StringName) -> CommandResult；promote(world, staff_id: StringName) -> CommandResult | 条件、付费、独占研究桌；完成后原子更改能力/职称 |
 | SurgeryService | try_start(world: WorldState, ticket_id: StringName) -> ServiceStartResult | 一次占用互异医护、设备、床位与窗口，复核方案并承诺结果 |
-| WardService | admit(world, attempt_id: StringName, bed_id: StringName) -> CommandResult；transfer(world, stay_id: StringName, target_bed_id: StringName) -> CommandResult | 床位关联、护理覆盖、恢复工时、查房与最终结算事实 |
+| WardService | admit(world, attempt_id: StringName, bed_id: StringName) -> CommandResult；transfer(world, stay_id: StringName, target_bed_id: StringName) -> CommandResult | 床位关联、护理覆盖、恢复工时与最终结算事实 |
 | IncidentService | evaluate(world: WorldState, facts: Array[SimEvent]) -> void | 条件过滤、名额与冷静期、创建或推进事件 |
 | ResearchService | start(world: WorldState, research_id: StringName, desk_id: StringName, community: bool, allow_waiting: bool = false) -> CommandResult | desk_id为空表示自动选桌；检查前置/资料/费用及唯一任务，缺桌/人时只有allow_waiting明确为true才保留已付待办，普通计划排序不调用开始 |
 | LandService | purchase(world: WorldState, plot_id: StringName, expected_revision: int) -> CommandResult | 邻接、价格和余额一次验证，原子取得土地 |
@@ -163,7 +162,7 @@ preview_computation服务既有建造、搬移、蓝图与“试试看”的原�
 | VisitorStay | id、resident_id、arrived_tick、left_tick(实际未离院为空)、purpose(companion/ward_visit/activity)、related_visit_id或activity_instance_id、探视起止tick/原陪诊理由、major_event_participated；同居民不能同时拥有Visit和访客停留，普通访客关联另一位患者的Visit；陪诊随关联就诊结束离院，探视在床边30秒结束后离开或回陪诊等候，活动由散场驱动，不套固定停留钟 |
 | Actor | id、resident_id或staff_id、location_kind(floor/transit)、cell:CellRef或transit_session_id（二者互斥）、edge_to、edge_progress(0…1023)、route_cells、route_index、navigation_request、goal、pose_state；可在两格之间保存 |
 | Visit | id、resident_id、disease_id、stage、evidence_by_source、attempts、affect_id、experience_id、communication_state、consultation_behavior_id、preparation_cues(所选来源、原工作引用、完成事实，不复制工时)、need_state、current_ticket_id、session_id、interruption、outburst_consumed、major_event_participated、initial_consultation_charge_id、arrived_tick、complexity(normal/complex)、plan_decision_id、participating_doctor_ids、final_settlement_id |
-| Staff | id、species_id、appearance_id、role、social_personality_id、work_style_id、biography_id、五非医护岗位的job_skill/job_experience、research_practice_remainder_ticks、practice_fact_cursor、first_job_shown、doctor_profile_id或nurse_profile_id、energy_milli、stress_milli、awake_ticks、sleep_remaining_ticks、sleep_phase、sleep_bed_ref、offsite_rest_started_tick、offsite_sleep_satisfied、work_block_id、base_preparation_remaining_ticks、base_preparation_done、休闲/分配/任务与工资字段；医护不再保存通用岗位等级或资格集合，天赋由种族引用派生 |
+| Staff | id、species_id、appearance_id、role、social_personality_id、work_style_id、biography_id、五非医护岗位的job_skill/job_experience、research_practice_remainder_ticks、practice_fact_cursor、first_job_shown、doctor_profile_id或nurse_profile_id、energy_milli、stress_milli、awake_ticks、sleep_remaining_ticks、sleep_phase、sleep_bed_ref、offsite_rest_started_tick、offsite_sleep_satisfied、work_block_id、护士适用的base_preparation_remaining_ticks/base_preparation_done、休闲/分配/任务与工资字段；医护不再保存通用岗位等级或资格集合，天赋由种族引用派生 |
 | DoctorProfile | staff_id唯一、title_id/title_changed_tick、diagnosis_level、treatment_level、surgery_level、primary_track、personality_id、三能力practice_by_track、completed_courses、cured_case_count、completed_attempts_by_plan、training_id、growth_goal、occurred_growth_moment_ids、fatigue_milli、leave_plan_id；无科室/麻醉子能力或重复资格 |
 | NurseProfile | staff_id唯一、diagnosis_level、care_level、surgery_level、三能力practice_by_track、training_id、growth_goal、occurred_growth_moment_ids；只有适用岗位的有界成长标记，研究和岗位共同派生检查/护理/手术协助资格 |
 | ScheduleState | staff_id、daily_template、today_overrides、rest_debt_ticks、rest_target_energy；过往班次不无限保存 |
@@ -176,17 +175,16 @@ preview_computation服务既有建造、搬移、蓝图与“试试看”的原�
 | ClinicalPreparation | id、visit_id、plan_decision_id、resource_ids、supply_units_reserved、adaptation_ids、expires_tick、器械核对总量/余量；资源和治疗包原子预留，开工才领用，不提前增加尝试或结算实践 |
 | BedReservation | id、preparation_id、attempt_id(开术前为空)、bed_id、expires_tick、committed；开始前30秒过期，开术后到转床/转诊才释放 |
 | BedSlot | bed_object_id、ward_room_id；床内监护和照护卡由同一设备定义提供，无外部组件实例或第二份等级/状态 |
-| WardStay | id、attempt_id、bed_id、标准恢复余量（定点工作量）、当前覆盖段冻结的护士/床等级/工作率与不足一工作tick余数、主动护理唯一任务与贡献、nursing_visit_done、discharge_round_done、assigned_nurse_id、no_progress_since_tick；不复制总量/效果/收费 |
+| WardStay | id、attempt_id、bed_id、标准恢复余量（定点工作量）、当前覆盖段冻结的护士/床等级/工作率与不足一工作tick余数、主动护理唯一任务与贡献、nursing_visit_done、assigned_nurse_id、no_progress_since_tick；不复制总量/效果/收费 |
 | 陪诊/探视请求 | 关联Visit、目的、创建tick、窗口、Visit持有的当前探视日/早中窗口评估与消耗位、已抽意向、暂不接待、已绑定亲友引用或临时模板；每活跃Visit至多一份院外请求，Actor实际入院才创建，患者终结取消请求但不删除在途家属 |
-| CareDepartment | id、name、room_ids、public_area_cells、intake_anchor、focus_specialty_id、pending_focus_id、focus_ready_tick、shared_facility_ids；room_ids归属独占，评分为投影 |
-| GuidanceRoute | visit_id、chosen_department_id、correct_department_id、error_rolled、corrected、guidance_task_id、original_ticket_sequence、可选wrong_entry_fact_id与发生时department_id；corrected表示路线解决，真实到错入口才影响评分/怒气，职员成绩只取本人完成工作，不复制Visit诊断 |
+| GuidanceRoute | visit_id、target_room_id、target_facility_id、guidance_task_id、original_ticket_sequence；候选来自当前楼层用途/设施索引，随机选可用目标，繁忙可排队；无候选暂停整个导诊队列并保留顺序，候选变化或队首离开时再评估 |
 | InteractionContext | id、predicate_id、producer_id、source_fact_sequence、actor_ids、target_ids、created_tick、expires_tick、consumed；最多160条，10秒过期，无物种即触发规则 |
 | ComedyState | scan_cursor_actor_id、recent_scene_starts≤144、major_starts≤7、last_consumed_fact_sequence；冷却与最近三场只读派生，见熟客记忆规格 |
 | CommunityMemory | resident_id、memory_id、callback_id、source_fact_sequence、source_visit_id或source_stay_id、counterpart_kind/id由已提交来源事实冻结、created_day、consumed、started_tick、source_summary；熟客每人≤3，全院≤600 |
 | 当前社区活动 | 每医院至多一个未结束实例；名单、配位、阶段、预留容量的派生、故事关联和收尾凭据遵循社区活动规格§12；故事角色模板到Resident的稳定绑定归原故事进度保存；报名理由及已核验最小来源摘要只随当前活动保留，不成为永久病史或新治愈事实 |
 | LifeNeed | visit_id、need_sequence、purpose、next_due_tick、started_tick、actual_queue_ticks(当前连续排队，离开排队即清零)、phase、facility_id、scene_id；每Visit最多一个需求，使用余量归ServiceSession；完成后仅保留最新序号和下次类型/时间，兜底不满按当前序号幂等 |
 | PatientAffect | visit_id、anger_milli、cause_clocks、applied_impulse_keys、last_help_tick、high_anger_no_progress_ticks；mood派生，主队列有效等待由QueueTicket拥有，cause_clocks不再复制同一计时 |
-| VisitExperience | visit_id、queue_excess_ticks、environment_value_tick_sum、observed_ticks、care_facts、attributed_department_id(无实际治疗为空)、finalized；评价按公式生成 |
+| VisitExperience | visit_id、queue_excess_ticks、environment_value_tick_sum、observed_ticks、care_facts、finalized；评价按公式生成 |
 | RenovationOrder | id、material_id、unit_targets、paid_material_cost、completed_units、active_unit_work、worker_ids、tool_id、stop_after_active_units、refund_entry_id；首次开工领料，取消退未开工部分，单元不重复领料 |
 | SurfaceFinish | owner(room/public)、surface_key(局部格或带朝向墙边；公共表面为CellRef)、material_id、paid_cost、completed_tick；共墙两侧独立，搬房保留成本，实际表面唯一，环境缓存从定义重建 |
 | RatingWindow | owner_type、owner_id、last_fact_sequence、bounded_samples、daily_aggregates；总分不另存到实体 |
@@ -195,7 +193,7 @@ preview_computation服务既有建造、搬移、蓝图与“试试看”的原�
 | TemporaryCommunityEffect | id、definition_id、source_visit_id、anchor:CellRef、remaining_ticks；仅三类有时限的区域效果，范围由当前公共区域与墙体派生，不复制覆盖格集合，不强引用已离院Actor。即时工作帮助归GratitudeReceipt |
 | LeavePlan | id、staff_id、kind(planned/overfatigue)、requested_day、actual_start_tick、end_tick(自动长休为空)、status；主动假期安全结束后才开始，自动长休须恢复至55才结束 |
 | RecreationSession | id、equipment_id、staff_ids、remaining_ticks；次数/冷却在Staff中有界保存 |
-| Room | id、floor_id、room_type_id、inner_cells、wall_edges、door_edges、admission_intent、last_focus_specialty_id、focus_ready_tick；实例即原子提交完毕的基础壳体，缺设备仍可存在；建筑存在从当前inner_cells与地块相交派生，不存历史建成标记；开放意愿为事实，实际可预约状态派生；改建归属从安排参与集索引，运营科室归属从CareDepartment房间集索引查询 |
+| Room | id、floor_id、room_type_id、inner_cells、wall_edges、door_edges、admission_intent；墙门闭合且有至少一扇朝内的门才生成空房，再指定用途；不设最小尺寸，内部连续无孔洞且与其他房间不重叠；门仅归属一个房间，禁止房间间开门；开放意愿为事实，就绪状态由设施与本房排班派生 |
 | 改建安排 | id、参与实体ID集、冻结目标布局、来源蓝图ID/修订、创建序号；每实体至多一个安排，就绪与阻碍实时派生；不复制各工作任务进度 |
 | 空间蓝图 | schema_version、id、revision、名称/说明/缩略图、依赖、相对布局/材料意图；共享资料库独立原子写，医院内已确认安排保存布局值而不依赖外部文件 |
 | PlacedObject | id、definition_id、anchor:CellRef、rotation、room_id、paid_cost、ever_used、borrowed、upgrade_level、仅维护集合实例具有condition_milli、wear_remainder、equipment_state、pending_failure、last_fault_roll_tick、repair_grace_until、maintenance_order_id；库存用location=inventory而非复制一件 |
@@ -537,7 +535,7 @@ environment.heatmap_view使用spatial_view原16×16显示块，只为当前层�
 
 Windows游戏正常启动时，原生平台桥接读取系统CPU Set的EfficiencyClass，在主线程当前处理器组及允许范围内选择最高性能类别，仅设置游戏主线程的核亲和性，不限制进程或工作线程，也不写死核编号。同构CPU、当前允许范围内没有性能核、查询或设置失败时保留原调度，并在启动日志记录结果。其他平台沿用系统调度；线程策略不进入世界、存档或随机流。
 
-候诊先到导诊指定诊室同层邻近的合法公共区域，再自主选择可选座位。自动和手动选座均受此范围限制；实际到椅并成功取得占用的人坐下，途中不预订座位，无座可站在安全点，不建立椅子资格队列或失败订阅。临床票拥有累计等待，座位会话只拥有实际坐下和安全离位占用；找座、换座、侧移不重置临床票与无进展时钟。叫号可取消可选找座，不中断乘梯、改建撤离或多人安全段。
+候诊先到导诊指定门诊室门外6格内的合法公共等待位置。范围相交的诊室共享椅子，实际先到并取得占用者坐下；无椅可在本诊室附近安全站立，途中不预订。门诊接诊顺序独立按导诊安排顺序保存，座位选择、换椅、到达先后不改变票序。叫到患者后等待30模拟秒，未到则后移三位（不足三位移到末尾）再叫下一位；再次被叫时重启期限。只有一人时继续等待，不反复改序。患者离开删除其票，其余相对顺序保持。
 
 座位候选从邻近公共区域内的家具与空间索引查询，保留身体适配、物种环境偏好、性格和真实朋友关系。距离场只能排除可证明不可达的候选，不能截成最近N张椅子、删掉合法偏好候选或替代最终动态检查。无座时选择安全站立点，站位被占用或失效后重新选择；既有合法座位保持稳定。邻居、污物、装饰及小戏使用当前局部事实，不构造全院角色对，不保存座位分数或朋友位置副本。家属无家具时仍检查合法站立点，不把空家具候选等同于没有公共等待空间。
 
@@ -761,13 +759,13 @@ performance_targets.spatial_samples增加完整同层面积与高层组合。宽
 
 ## 10. 临床资源事务与确定性
 
-患者性格、怒气与表达决定当前服务工作量，劳累决定员工速度，运营科室专长可减5%操作工时；所有倍率在Readiness预计与实际开单时使用同一规则对象，不能UI少算住院或休假覆盖。
+患者性格、怒气与表达决定当前服务工作量，劳累决定员工速度，不设运营科室专长倍率；所有倍率在Readiness预计与实际开单时使用同一规则对象，不能UI少算住院或休假覆盖。
 
 候选方案用同一Readiness查询返回研究、人员、空间、设备、床位与治疗包原因；报价带world_revision，不占资源。开始准备按票号和准备ID原子锁互异人员、患者、设备、床位、护理名额、适配区域及本次治疗包数量。失败全部回滚；30秒准备过期释放全部未承诺资源。到齐并通过最终检查才创建TreatmentAttempt、扣实物和抽一次结果；此时没有第二笔耗材现金支出。恢复、转床、安全接续引用同一Attempt，不能再次领包。
 
 概率以整数基点保存、工时以tick保存，方案费用乘数向上取整。医生性格评分使用有界定点数，按得分、效果、总时长、方案ID排序。预计团队用同一组实际资格计算概率，不把不同人的能力最大值分别拼合。新增方案只参加下一次会诊，当前TreatmentAttempt保留参数。
 
-ClinicService负责门诊执行、SurgeryService负责手术与苏醒、WardService负责恢复与查房，它们均引用同一TreatmentAttempt；没有第二份承诺随机结果和待收费用。设施使用费在实际服务完成时以owner_id+component唯一键入账；治愈费无住院时在成功治疗完成后、住院时在成功查房后结算。只有一个final_settlement_id可提交治愈事实、治愈费账目和医生病例累计，不能阻止失败尝试已完成设施的独立收费。失败尝试先恢复再重选或转诊，不能同时有两个活动尝试。
+ClinicService负责门诊执行、SurgeryService负责手术与苏醒、WardService负责恢复与必要护理，它们均引用同一TreatmentAttempt；没有第二份承诺随机结果和待收费用。设施使用费在实际服务完成时以owner_id+component唯一键入账；治愈费无住院时在成功治疗完成后、住院时在必要护理与恢复完成、结果揭晓后结算。只有一个final_settlement_id可提交治愈事实、治愈费账目和医生病例累计，不能阻止失败尝试已完成设施的独立收费。失败尝试先恢复再重选或转诊，不能同时有两个活动尝试。
 
 员工任务锁优先于排班意图。排班修改先落模板，正在安全任务中不释放员工；结束后算越过可用窗口的时间形成补休债务。日工资逐tick查询当时职称费率，晋级不重写既往累计分子。每床最多一个活动住院或开术预留、一个护士不能同时承担手术锁与病区覆盖、每个员工最多一个执行任务，加载和每次资源提交后均检查这些不变量。
 
@@ -786,13 +784,25 @@ FloorView只显示一层，其他层只保留模拟事实。图缓存和移动�
 
 ## 12. 医护成长与主体设备的一致性
 
-空闲时提前短休由原Staff任务调度拥有：保存休息原因、关联工作池和最近实际休息结束tick；能量高于35且不高于45时，复用本步原岗位派工已经完成且本人没有可接工作的结论，不使用上一tick的闲置记录。不预测替手、不要求两人以上，也不设每池提前休人数上限。本人执行中、已接受或预留的工作、实际移动、上岗整理、培训和必要病房覆盖仍由原业务所有者保护；固定导诊台持续职责不能因暂无患者视为空闲。原能量阈值、补休、强制睡眠、长休与病房真实安全交接各保留唯一事实源。非医生待岗娱乐复用阶段④原调度的无可派工作结论，按诊室互动规格§6复核资格后进入原RecreationSession；不新存闲置计时、娱乐来源或90能量目标。娱乐期间与恢复后的原休息义务仍取Staff、ScheduleState和LeavePlan，不能从当前能量反推。
+空闲时提前短休由原Staff任务调度拥有：保存休息原因、关联工作池和最近实际休息结束tick；能量高于35且不高于45时，复用本步原岗位派工已经完成且本人没有可接工作的结论，不使用上一tick的闲置记录。不预测替手、不要求两人以上，也不设每池提前休人数上限。本人执行中、已接受或预留的工作、实际移动、护士上岗整理、培训和必要病房覆盖仍由原业务所有者保护；固定导诊台持续职责不能因暂无患者视为空闲。原能量阈值、补休、强制睡眠、长休与病房真实安全交接各保留唯一事实源。非医生待岗娱乐复用阶段④原调度的无可派工作结论，按诊室互动规格§6复核资格后进入原RecreationSession；不新存闲置计时、娱乐来源或90能量目标。娱乐期间与恢复后的原休息义务仍取Staff、ScheduleState和LeavePlan，不能从当前能量反推。
 
 AbilityService只消费实际完成事实，按role+工作种类映射到本人三能力之一；同原始工作、同执行岗位只结算一次。DevelopmentJob固定目标能力与等级，阶段⑨按“真实课程完成/主动取消→实践门槛→仍未完成而已实操掌握的课程终结”归并，实践上限180，课程不阻止自然升级。自动终结引用原任务的剩余量、实付学费和唯一退款凭据，reason为practice_mastered，不发course_completed；任务只拥有一个终态。Readiness与预测/真正开工共用EquipmentOperation查询，先验证角色、能力、研究与实际操作位，再计算效果；同类设备升级不改变资格门槛。
 
 天赋只调用五种有版本处理器：工作率、门诊成功率、实际服务心情、课程工作量、解冻照护工作量。条件与目标动作有注册表，不能执行任意脚本或按种族写工作分支。课程天赋报名时冻结，工作率每段冻结，成功率Attempt开始冻结，心情原服务完成时幂等结算；Visit只保留天赋已获心情0…5及原事实游标，不新增无限触发历史。
 
 设计目录、数值、布局与快照各自拥有结构版本，当前归属与版本边界见本章§8。当前数据直接使用六类主体与四能力，不同时保留旧机器目录或旧医护技能字段。发挥率用万分整数，团队平均保留分子/人数，最后概率向下取整至万分点、工时向上取整至tick，阶段内不反复舍入；病房按定点速率积累未满一工作tick余数并保存。
+
+### 房间、排班与设施区域的单一事实
+
+建筑系统保存独立墙边和有方向的门；墙、门变更只重新识别实际受影响的闭合边界。房间破坏后不保留旧用途、排班或不存在的可用性；合并形成的新闭合空间是空房间。未拆墙门家具保留，当前已开始工作按真实安全资源收尾，不瞬移患者。新墙按长度收费，共墙不重收；地砖自选，拆墙门无退款。用途为门诊室、诊疗室、手术室、病房、医生办公室、研究室、员工休息室、员工宿舍、卫生间九种。
+
+房间排班拥有人员分配，设备只校验操作资格，不另设设备班表。门诊每班一名医生；诊疗允许按设备需要安排多个医生或护士；手术一张台及其团队；病房只排护士，护士无需持续待在房内。研究培训共享研究室工位，一桌一任务；医生办公室只提供长期个人桌位与无排班时默认位置，不产生开工整备门槛。
+
+区域是每台设施独立的可重建投影：仅室外公共空间或公共属性房间内的适用设施生成，距设施边缘最多3格，墙和门均为边界。卫生间、员工休息室为公共属性；其余七类非公共。区域允许重叠但不合并，不保存手绘区域。设施或墙门变更仅更新受影响3格邻域，房间公共属性改变仅更新其内设施。自动选择先到区域再局部挑选合适设施，手动选择固定设施；实际到场取得使用权。途中目标移除仍先走原目标，到达才重选或结束手动命令；真正无法继续行走时才结束该段，不能每步重算业务目标。
+
+导诊候选按楼层及用途维护索引，检查和治疗只查当前楼层，禁止为选择目标实时扫描全院。可用表示开放、设施满足且有合格当班人员，不等于空闲。整个导诊队列暂停仍积累正常等待与情绪，离开者移除；恢复由相关可用性事件或队首变化触发，不每步遍历全部房间。患者到队尾原目标前不追踪变化，到达再读当前队尾。临床票序与设施真实到场占用分开保存，超时后移三位不产生新的就诊或收费。
+
+不再保存CareDepartment、专长切换/冷却或科室评分；保留VisitExperience、患者怒气、等待环境、小票和医院/员工评价。T01—T10只作病症和治疗内容类别，不生成玩家运营实体。
 
 ## 13. 实际库存、清洁和伸缩占地的事实归属
 
@@ -813,9 +823,9 @@ AbilityService只消费实际完成事实，按role+工作种类映射到本人�
 
 功能物件的equipment_class仍描述既有设备类别；是否产生磨损、随机故障、事件磨损或保养，唯一取equipment.maintained_definition_ids。集合外物件不建立condition和维修工单，不能因统一class查表又给椅子抽故障。新增包定义须显式加入维护集合才能参与；维护范围和伸缩能力相互独立。
 
-员工公共设施意图、区域等待沿Staff原任务保存，原空间占用事实登记到场后的真实使用。个人员工床的自动固定分配与唯一长期归属执行[个人床规格§6](../specs/26-10/2026-10-18-public-facility-area-use.md#6-员工床固定归属与自动分配)，与本次睡眠预约分离，其他员工不能借用；专用工作位继续沿其预约职责，不被公共队列分配。起始布局的staff_work_areas只定义公共区域中的员工工作角，不生成新房型或隐形墙。建造与选位排除患者等候、活动配位和临床操作冲突，行走仍读取实际物件与展开占地。员工专用房间的进入权限属于Room，任何权限变更不得困住现有角色。
+员工公共设施意图与队列沿Staff原任务保存，实际到场后才取得使用权。个人床仅放员工宿舍，长期指定一人，办公桌在医生办公室长期指定一名医生；均不作为允许上班的条件。睡眠无可用个人床时尝试休息室沙发等家具，没有位置则换其他休息室，均无可用位置则本次不睡。短休、茶饮同样不在无位置时建立额外站立休息；茶饮无需专用设施，有空闲站位或座位即可。娱乐设施只放员工休息室且只供员工，容量已满则排队。房间公共属性与使用资格分离，不能因公共区域自动允许患者娱乐。
 
-WardHandoff沿既有员工任务保存接班者、可选离班者、同病房本组床位引用、剩余5秒和完成凭据；完成时原子转移仍有效的覆盖。原工作段准备凭据不能代替它，独自核对原记录不产生两人合作事实。当前人员、床位和任务是唯一来源，不另存病房“虚拟可用护士数”。
+WardHandoff沿既有员工任务保存接班者、可选离班者、同病房本组床位引用、剩余5秒和完成凭据；完成时原子转移仍有效的覆盖。医生不设工作段整备凭据；独自核对原记录不产生两人合作事实。当前人员、床位和任务是唯一来源，不另存病房“虚拟可用护士数”。
 
 ArrivalPlan保存当天冻结的诊桌规模、三班兴趣基数、随机机会数、三个班机会数、时刻算法/种子与消费游标。capacity/shift_capacities等内部字段承载需求基数，不再表示可完成诊疗的容量；scale_numerator为开放诊桌整数个数。UI、编码和恢复不推进arrival或从当前排班重分活跃日。保持模式保存选择时的诊桌规模及兴趣基数，未来日取当前与所存规模较小者。
 
@@ -825,7 +835,7 @@ ArrivalPlan保存当天冻结的诊桌规模、三班兴趣基数、随机机会
 
 SE04主体固定，access_anchor_policy从实际床边求上下床区，operation_anchor仅为基座示意；SE05/SE06的operator_pose选择骨架姿态，不改变有效身体包络。已求出的岗位坐标仍只归AdaptationReservation，不在Staff或PlacedObject另存一套可修改锚点。实际几何未通过就不能开工或入睡。
 
-采购建议复用原缺货候选和临床Readiness的实际就绪排序，不建立一份预先承诺的“下一位患者”。正常接单资格包括原罢工/整理/休息条件；若没有合法首候选且本事件有罢工参与者，才复用原缺货关闭查询的逐请求最大需要量。候选与门槛只读派生，库存/预留变更重算当前缺量，只有现金或容量改变时重算成交可行性；设备放置、临床、人员和占用变化仍按原Readiness范围使相关首候选失效。不能每帧重做全院候选×方案查询，提交采购仍只拥有医院ID、固定数量和单价。
+采购建议复用原缺货候选和临床Readiness的实际就绪排序，不建立一份预先承诺的“下一位患者”。正常接单资格包括原罢工、适用岗位的整理和休息条件，医生不要求整备；若没有合法首候选且本事件有罢工参与者，才复用原缺货关闭查询的逐请求最大需要量。候选与门槛只读派生，库存/预留变更重算当前缺量，只有现金或容量改变时重算成交可行性；设备放置、临床、人员和占用变化仍按原Readiness范围使相关首候选失效。不能每帧重做全院候选×方案查询，提交采购仍只拥有医院ID、固定数量和单价。
 
 普通采购与创作基金付款使用原采购订单和Ledger事务：实际成本等于医院实付加直接代付，库存增加与付款凭据同一次提交；资助不进入可花现金，普通购买不消费社区援助次数。报价、目标说明、当前C/R/T/B与纸箱姿态不进世界快照，不持有患者、病例或医护的第二份状态。UI纸箱不改变Stock或SupplyUsage，库存下发后原准备资源束再次按同一公平顺序复核。当前卡片打开、缓存冷热、切层与保存恢复不改变订单或医疗顺序。
 
@@ -833,7 +843,7 @@ SE04主体固定，access_anchor_policy从实际床边求上下床区，operatio
 
 ## 14. 临床结果投影与大医院
 
-诊断ServiceSession的实际完成及Visit证据、TreatmentAttempt的操作/必要恢复/结算、WardStay的实际照护和查房是结果提示的唯一来源。result_scenes按主体与临床团队§15的键查不可变映射，不能从动画末帧、疗程百分比或开工时承诺但尚未揭晓的结果反推可见结局。awaiting_recovery只读取已经完成的操作和仍未完成的恢复链，不分成功/失败材质；揭晓由原结算事实触发。CB15的消费键为原Attempt及failure_feedback阶段，原沟通进度只保留当前实际反馈；没有第二套治疗结果、重试队列或待演结果表。
+诊断ServiceSession的实际完成及Visit证据、TreatmentAttempt的操作/必要恢复/结算、WardStay的实际照护和恢复是结果提示的唯一来源。result_scenes按主体与临床团队§15的键查不可变映射，不能从动画末帧、疗程百分比或开工时承诺但尚未揭晓的结果反推可见结局。awaiting_recovery只读取已经完成的操作和仍未完成的恢复链，不分成功/失败材质；揭晓由原结算事实触发。CB15的消费键为原Attempt及failure_feedback阶段，原沟通进度只保留当前实际反馈；没有第二套治疗结果、重试队列或待演结果表。
 
 保存保持原Attempt承诺参数、实际阶段、已结算凭据、Visit当前方案来源/修订以及沟通消费边界。恢复先重建身体、床位和安全占用，再直接投影当前已知状态；未完成的实际反馈按余量继续，已经完成的失败不重加怒、不重抽事件、不回收后再次领包。静态结果文字可查看，短动作不因恢复、切层或重新打开卡片重播。内容更新的表现可换资源，当前已开始Attempt的效果、费用和恢复承诺仍冻结。
 
