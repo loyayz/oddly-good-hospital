@@ -865,9 +865,24 @@ func _return_scope(world: WorldState, visit: Dictionary) -> String:
 func return_point(world: WorldState, visit: Dictionary) -> Dictionary:
 	var id: String = _return_scope(world,visit)
 	if not id.is_empty(): return scope.point(world,visit.actor_id,id)
-	# With no surviving desk, finish the life return at a real safe local point.
-	# This clears no guide requirement and grants no destination queue place.
+	# With no surviving desk, enter a legal waiting area before choosing a
+	# safe local stop. Being inside a region is not proof of safe standing.
+	# Neither step clears guidance or grants a destination queue place.
+	var area: Dictionary = space.public_areas.current_area(world,visit.actor_id)
+	if space.public_areas.area_valid(world,area,HospitalWaitingLife.WAITING_ROOM_KINDS) and space.public_areas.contains(world,area,visit.actor_id):
+		var point: Dictionary = space.public_areas.waiting_point(world,visit.actor_id,area)
+		if not point.is_empty(): point.area = area
+		return point
 	return space.public_areas.select(world,visit.actor_id,[],HospitalWaitingLife.WAITING_ROOM_KINDS,"waiting",[],9223372036854775807,{},true)
+
+# A return journey can aim through a doorway that is not a safe stopping
+# point. The original need owns that move; return_allows remains the separate
+# proof required at the actual resting position after movement completes.
+func return_target_valid(world: WorldState, visit: Dictionary, floor_id: int, cell: Array, area: Dictionary) -> bool:
+	var id: String = _return_scope(world,visit)
+	if not id.is_empty(): return scope.allows(world,visit.actor_id,id,floor_id,cell)
+	var actor: Dictionary = world.facts.actors[visit.actor_id]
+	return actor.location.kind=="floor" and int(actor.location.floor_id)==floor_id and int(area.get("floor_id",0))==floor_id and space.public_areas.area_valid(world,area,HospitalWaitingLife.WAITING_ROOM_KINDS)
 
 func return_allows(world: WorldState, visit: Dictionary, floor_id: int, cell: Array) -> bool:
 	var id: String = _return_scope(world,visit)

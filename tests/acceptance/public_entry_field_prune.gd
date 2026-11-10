@@ -34,6 +34,8 @@ class NavigationProbe extends HospitalNavigation:
 class OutsideActual extends ActualAreas:
 	func _entry_geometry_view(world: WorldState, actor: Dictionary, area: Dictionary) -> Dictionary:
 		var result: Dictionary = super._entry_geometry_view(world,actor,area).duplicate()
+		# This test explicitly consumes the complete safety candidate set.
+		_prepare_order_geometry(result)
 		result.cells = result.cells.duplicate()
 		result.cells.append(Vector2i(96,96))
 		result.native_order = false
@@ -44,6 +46,8 @@ class OutsideActual extends ActualAreas:
 class OutsideBaseline extends BaselineAreas:
 	func _entry_geometry_view(world: WorldState, actor: Dictionary, area: Dictionary) -> Dictionary:
 		var result: Dictionary = super._entry_geometry_view(world,actor,area).duplicate()
+		# This test explicitly consumes the complete safety candidate set.
+		_prepare_order_geometry(result)
 		result.cells = result.cells.duplicate()
 		result.cells.append(Vector2i(96,96))
 		result.native_order = false

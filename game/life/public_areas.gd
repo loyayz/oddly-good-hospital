@@ -757,6 +757,10 @@ func compatible_geometry(world: WorldState, reference: Dictionary, definitions: 
 	return false
 
 func select(world: WorldState, actor_id: String, definitions: Array, room_kinds: Array, purpose: String, members: Array = [], maximum_travel_ticks: int = 9223372036854775807, selected_entries: Dictionary = {}, current_floor_only: bool = false) -> Dictionary:
+	var actor: Dictionary = world.facts.actors[actor_id]
+	# Support exit owns the real height, pose and origin until it finishes.
+	# Public destinations are selected only after that ordinary handoff.
+	if actor.location.kind!="floor" or actor.get("posture","standing")=="lying": return {}
 	# Furniture-free standing areas remain valid for rest/return-to-waiting.
 	# Other purposes cannot select a region without a requested definition.
 	if not purpose in ["rest","waiting"]:
@@ -765,8 +769,6 @@ func select(world: WorldState, actor_id: String, definitions: Array, room_kinds:
 			if facility.definition_id in definitions: present = true; break
 		if not present: return {}
 	_ensure(world)
-	var actor: Dictionary = world.facts.actors[actor_id]
-	if actor.location.kind!="floor": return {}
 	var best: Dictionary = {}
 	var best_entries: Dictionary = {}
 	var travellers: Array = [actor_id] if members.is_empty() else members
@@ -816,13 +818,13 @@ func select(world: WorldState, actor_id: String, definitions: Array, room_kinds:
 				if inside==bool(best.inside): travel_limit = mini(travel_limit,int(best.travel_ticks))
 		# Equal bounds remain candidates: the original stable area tie-break
 		# and the slowest member's actual journey still decide the winner.
-		var point: Dictionary = waiting_point(world,actor_id,area.ref,travel_limit)
+		var point: Dictionary = arrival_point(world,actor_id,area.ref,travel_limit)
 		if point.is_empty(): continue
 		var entries: Dictionary = {actor_id:point.duplicate(true)}
 		var all_reachable: bool = true
 		for member: String in travellers:
 			if member==actor_id: continue
-			var entry: Dictionary = waiting_point(world,member,area.ref,travel_limit)
+			var entry: Dictionary = arrival_point(world,member,area.ref,travel_limit)
 			if entry.is_empty(): all_reachable = false; break
 			entries[member] = entry
 			point.travel_ticks = maxi(int(point.travel_ticks),int(entry.travel_ticks))
@@ -849,10 +851,147 @@ func waiting_point(world: WorldState, actor_id: String, reference: Dictionary, m
 	space.end_route_query()
 	return result
 
-func _waiting_point(world: WorldState, actor_id: String, reference: Dictionary, maximum_travel_ticks: int) -> Dictionary:
+# Arrival is a structural journey into a region, not a claim on a free cell.
+# A body already inside has arrived even if it still needs to leave a doorway.
+func prepare_floor_arrivals(world: WorldState, floor_id: int) -> Dictionary:
+	_ensure(world,floor_id)
+	var before: int = int(space.query_counts.get("public_arrival_geometry_builds",0))
+	for actor: Dictionary in world.facts.actors.values():
+		if actor.get("posture","standing")=="lying": continue
+		for area: Dictionary in _floor_regions.get(floor_id,{}).get("regions",[]):
+			var geometry: Dictionary = _entry_geometry_view(world,actor,area)
+			_arrival_points(world,actor,area,geometry)
+	return {"complete":true,"built":int(space.query_counts.get("public_arrival_geometry_builds",0))-before}
+
+func arrival_point(world: WorldState, actor_id: String, reference: Dictionary, maximum_travel_ticks: int = 9223372036854775807) -> Dictionary:
 	var area: Dictionary = region(world,reference)
 	if area.is_empty(): return {}
 	var actor: Dictionary = world.facts.actors[actor_id]
+	if actor.location.kind!="floor" or actor.get("posture","standing")=="lying": return {}
+	if contains(world,reference,actor_id): return {"floor_id":int(reference.floor_id),"cell":actor.location.cell.duplicate(),"travel_ticks":0,"inside":true}
+	space.begin_route_query(world,{},false)
+	var geometry: Dictionary = _entry_geometry_view(world,actor,area)
+	var best: Dictionary = {}
+	for point: Vector2i in _arrival_points(world,actor,area,geometry):
+		for target: Dictionary in _arrival_targets(world,actor,area,point,geometry.geometry):
+			space.query_counts["public_arrival_quotes"] = int(space.query_counts.get("public_arrival_quotes",0))+1
+			var route: Dictionary = space.travel_quote(world,actor_id,int(reference.floor_id),target.cell)
+			if not route.ok or not route.has("travel_ticks"): continue
+			var ticks: int = HospitalTransit._add(int(route.travel_ticks),int(target.remaining_ticks))
+			if ticks<0 or ticks>maximum_travel_ticks: continue
+			if best.is_empty() or ticks<int(best.travel_ticks):
+				best = {"floor_id":int(reference.floor_id),"cell":target.cell,"travel_ticks":ticks,"inside":false}
+				if int(target.remaining_ticks)>0: best.entry_cell = [point.x,point.y]
+	space.end_route_query()
+	return best
+
+# An integer goal can itself be the fractional departure stub. If its actual
+# final facing would still straddle the region, first walk to an adjacent
+# structural approach. The original task then continues into the region;
+# neither this waypoint nor its estimate is an arrival or a waiting claim.
+func _arrival_targets(world: WorldState, actor: Dictionary, area: Dictionary, point: Vector2i, query: RouteClearance) -> Array:
+	var direct: Array = [{"cell":[point.x,point.y],"remaining_ticks":0}]
+	if int(actor.location.floor_id)!=int(area.ref.floor_id): return direct
+	var origin: Vector2 = ConvoyTrail.point(actor.location.cell)
+	if Vector2i(roundi(origin.x),roundi(origin.y))!=point: return direct
+	var arrival: Dictionary = actor.duplicate()
+	if origin!=Vector2(point): arrival.facing = atan2(float(point.x)-origin.x,float(point.y)-origin.y)
+	if _contains_point(arrival,area,Vector2(point)): return direct
+	var targets: Array = []
+	for direction: Vector2i in BuildGeometry.DIRECTIONS:
+		var approach: Vector2i = point+direction
+		if not query.reason(approach).is_empty() or not query.edge_reason(approach,point).is_empty(): continue
+		var remaining: int = 0 if _contains_arrival_envelope(area,approach,space.clearance(actor)) else HospitalTransit.walking_ticks(space,actor,[],1.0)
+		targets.append({"cell":[approach.x,approach.y],"remaining_ticks":remaining})
+	return targets
+
+func _contains_point(actor: Dictionary, area: Dictionary, point: Vector2) -> bool:
+	var rect: Rect2 = space._actor_rect(actor,point)
+	for y: int in range(floori(rect.position.y),ceili(rect.end.y)):
+		for x: int in range(floori(rect.position.x),ceili(rect.end.x)):
+			if not area.cells.has(Vector2i(x,y)): return false
+	return true
+
+# The route's upright cardinal approach uses its checked square envelope,
+# not the body's departure facing. Actual arrival still requires contains.
+func _contains_arrival_envelope(area: Dictionary, point: Vector2i, size: int) -> bool:
+	for y: int in range(point.y,point.y+size):
+		for x: int in range(point.x,point.x+size):
+			if not area.cells.has(Vector2i(x,y)): return false
+	return true
+
+# Enumerate actual door lanes and connector/entry anchors, never region cells.
+# Cold bodies and changed door spans use the same small structural calculation.
+func _arrival_points(world: WorldState, actor: Dictionary, area: Dictionary, geometry: Dictionary) -> Array:
+	if geometry.has("arrival_points"): return geometry.arrival_points
+	var floor_id: int = int(area.ref.floor_id)
+	var size: int = space.clearance(actor)
+	var seeds: Array[Vector2i] = []
+	for door: Dictionary in _wait_constraints(world).doors.get(floor_id,[]):
+		var fit: Dictionary = space.door_quote(world,actor,floor_id,door)
+		if not fit.ok: continue
+		var depth: int = 0 if world.facts.rooms.get(door.room_id,{}).has("wall_edges") else 1
+		for offset: int in range(0,int(fit.span)-size+1):
+			var first: Vector2i = Vector2i(int(door.cell[0]),int(door.cell[1]))
+			var second: Vector2i = first
+			if door.axis=="x": first += Vector2i(offset,-size);second += Vector2i(offset,depth)
+			else: first += Vector2i(-size,offset);second += Vector2i(depth,offset)
+			seeds.append(first);seeds.append(second)
+	for connection: Dictionary in world.facts.connectors.values():
+		if HospitalTransit.has_stop(connection,floor_id) and not connection.get("stored",false): seeds.append(Vector2i(int(connection.anchor[0]),int(connection.anchor[1])))
+	var entry: Dictionary = world.facts.get("entry",{})
+	if int(entry.get("floor_id",1))==floor_id and entry.get("cell",[]).size()==2: seeds.append(Vector2i(roundi(entry.cell[0]),roundi(entry.cell[1])))
+	var points: Dictionary = {}
+	var query: RouteClearance = geometry.geometry
+	for seed: Vector2i in seeds:
+		space.query_counts["public_arrival_ports"] = int(space.query_counts.get("public_arrival_ports",0))+1
+		if not area.cells.has(seed) or not query.reason(seed).is_empty(): continue
+		# A rotated body can straddle the boundary at the door seed. Check
+		# immediate inward continuations before deciding this lane cannot enter.
+		var candidates: Array[Vector2i] = [seed]
+		for direction: Vector2i in BuildGeometry.DIRECTIONS:
+			for distance: int in range(1,size+1): candidates.append(seed+direction*distance)
+		var fallback: Array = []
+		for next: Vector2i in candidates:
+			space.query_counts["public_arrival_local_geometry"] = int(space.query_counts.get("public_arrival_local_geometry",0))+1
+			if not _contains_arrival_envelope(area,next,size) or not query.sweep_reason(Vector2(seed),Vector2(next)).is_empty(): continue
+			if fallback.is_empty(): fallback = [next]
+			if _safe_wait_geometry(world,actor,floor_id,Vector2(next),query,geometry.doors): fallback = [next];break
+		# Lack of a safe stopping point does not eliminate a genuine entrance.
+		if not fallback.is_empty(): points[fallback[0]] = true
+
+	geometry.arrival_points = points.keys()
+	space.query_counts["public_arrival_geometry_builds"] = int(space.query_counts.get("public_arrival_geometry_builds",0))+1
+	return geometry.arrival_points
+
+# Full safety selection is separate from entering a region. The existing
+# complete order is prepared only when that safety query actually needs it;
+# an entrance or current-position check must never enumerate the region.
+func _prepare_order_geometry(geometry: Dictionary) -> void:
+	if geometry.has("entry_cells"): return
+	var area: Dictionary = geometry.area
+	if not area.has("entry_order_cells"):
+		var cells: Array = area.cells.keys()
+		var entry_cells: PackedInt32Array = PackedInt32Array()
+		entry_cells.resize(cells.size())
+		var native_order: bool = true
+		for index: int in cells.size():
+			var point: Vector2i = cells[index]
+			if point.x<0 or point.y<0 or point.x>=ENTRY_GRID_WIDTH or point.y>=ENTRY_GRID_WIDTH:
+				native_order = false
+				break
+			entry_cells[index] = point.y*ENTRY_GRID_WIDTH+point.x
+		area.entry_order_cells = {"cells":cells,"ids":entry_cells,"native_order":native_order}
+	var prepared: Dictionary = area.entry_order_cells
+	geometry.cells = prepared.cells
+	geometry.entry_cells = prepared.ids
+	geometry.native_order = prepared.native_order
+
+func _waiting_point(world: WorldState, actor_id: String, reference: Dictionary, maximum_travel_ticks: int) -> Dictionary:
+	var actor: Dictionary = world.facts.actors[actor_id]
+	if actor.location.kind!="floor" or actor.get("posture","standing")=="lying": return {}
+	var area: Dictionary = region(world,reference)
+	if area.is_empty(): return {}
 	var floor_id: int = int(reference.floor_id)
 	if contains(world,reference,actor_id) and safe_wait(world,actor_id,floor_id,actor.location.cell):
 		return {"floor_id":floor_id,"cell":actor.location.cell.duplicate(),"travel_ticks":0}
@@ -939,6 +1078,7 @@ func _waiting_point(world: WorldState, actor_id: String, reference: Dictionary, 
 	return best
 
 func _entry_order(actor: Dictionary, origin: Vector2, bounds: Dictionary, geometry: Dictionary, maximum_travel_ticks: int) -> Dictionary:
+	_prepare_order_geometry(geometry)
 	var start: Vector2i = Vector2i(roundi(origin.x),roundi(origin.y))
 	var speed: float = float(space.content.balance.movement_speeds[str(space.clearance(actor))])
 	var prefix: int = ceili(origin.distance_to(Vector2(start))/speed/WorldState.TICK_SECONDS)
@@ -980,6 +1120,7 @@ func _entry_order(actor: Dictionary, origin: Vector2, bounds: Dictionary, geomet
 	return {"packed":ordered.packed,"fallback":[],"compact":true,"offset_ticks":prefix}
 
 func _ordered_entry_cells(actor: Dictionary, origin: Vector2, bounds: Dictionary, geometry: Dictionary, maximum_travel_ticks: int) -> Dictionary:
+	_prepare_order_geometry(geometry)
 	var start: Vector2i = Vector2i(roundi(origin.x),roundi(origin.y))
 	var speed: float = float(space.content.balance.movement_speeds[str(space.clearance(actor))])
 	var stub_ticks: int = ceili(origin.distance_to(Vector2(start))/speed/WorldState.TICK_SECONDS)
@@ -1059,6 +1200,20 @@ func _ordered_entry_cells(actor: Dictionary, origin: Vector2, bounds: Dictionary
 			if a.lower!=b.lower: return a.lower<b.lower
 			return a.cell.y<b.cell.y or a.cell.y==b.cell.y and a.cell.x<b.cell.x)
 	return {"packed":packed,"fallback":fallback,"compact":compact}
+
+func owns_arrival(world: WorldState, actor_id: String, area: Dictionary, owner_key: String, owner_id: String) -> bool:
+	var movement: Dictionary = world.facts.moves.get(actor_id,{})
+	if movement.is_empty() or movement.get(owner_key,"")!=owner_id or movement.has("detour") or movement.has("convoy") or movement.get("members",[actor_id])!=[actor_id]: return false
+	var actor: Dictionary = world.facts.actors[actor_id]
+	if actor.location.kind!="floor" or actor.get("posture","standing")=="lying" or not contains(world,area,actor_id): return false
+	var cursor: int = int(movement.get("cursor",0))
+	var path: Array = movement.get("path",[])
+	return cursor<0 or cursor>=path.size() or path[cursor].kind=="floor"
+
+func try_finish_arrival(world: WorldState, actor_id: String, area: Dictionary, owner_key: String, owner_id: String) -> bool:
+	if not owns_arrival(world,actor_id,area,owner_key,owner_id): return false
+	var actor: Dictionary = world.facts.actors[actor_id]
+	return safe_wait(world,actor_id,int(actor.location.floor_id),actor.location.cell) and space.cancel_ground_move(world,actor_id)
 
 func _first_connector_lower_ticks(world: WorldState, actor: Dictionary) -> int:
 	# Convoy portals can shift their boarding point away from the anchor.
@@ -1157,23 +1312,7 @@ func _entry_geometry_view(world: WorldState, actor: Dictionary, area: Dictionary
 	var version: String = space._navigation.floor_static_version(space,world,floor_id)
 	var saved: Dictionary = _entry_geometry.get(key,{})
 	if saved.is_empty() or saved.version!=version:
-		# Region cells are independent of the traveller's body. Their immutable
-		# native representation belongs to the region, while fit/ordering belongs
-		# to this exact static body/door geometry. Region replacement drops both.
-		if not area.has("entry_order_cells"):
-			var cells: Array = area.cells.keys()
-			var entry_cells: PackedInt32Array = PackedInt32Array()
-			entry_cells.resize(cells.size())
-			var native_order: bool = true
-			for index: int in cells.size():
-				var point: Vector2i = cells[index]
-				if point.x<0 or point.y<0 or point.x>=ENTRY_GRID_WIDTH or point.y>=ENTRY_GRID_WIDTH:
-					native_order = false
-					break
-				entry_cells[index] = point.y*ENTRY_GRID_WIDTH+point.x
-			area.entry_order_cells = {"cells":cells,"ids":entry_cells,"native_order":native_order}
-		var prepared: Dictionary = area.entry_order_cells
-		saved = {"version":version,"cells":prepared.cells,"entry_cells":prepared.ids,"native_order":prepared.native_order,"points":{},"geometry":space.navigation.structural_clearance(world,actor,floor_id),"ordering":{},"previous_ordering":{}}
+		saved = {"version":version,"area":area,"points":{},"geometry":space.navigation.structural_clearance(world,actor,floor_id),"ordering":{},"previous_ordering":{}}
 		_entry_geometry[key] = saved
 	saved.doors = doors
 	return saved

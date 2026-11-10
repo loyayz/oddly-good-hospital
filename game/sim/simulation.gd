@@ -86,6 +86,7 @@ func _init(state: WorldState, database: HospitalContent) -> void:
 func prepare_floor_static(floor_id: int) -> Dictionary:
 	var preparation_started: int=Time.get_ticks_usec()
 	var result: Dictionary=space._navigation.prepare_floor(space,world,floor_id)
+	result.public_arrivals=space.public_areas.prepare_floor_arrivals(world,floor_id)
 	if services.has("floor_guidance"):
 		result.guidance_routes=services.floor_guidance.prepare_static_routes(world,floor_id)
 	result.total_elapsed_usec=Time.get_ticks_usec()-preparation_started

@@ -513,7 +513,9 @@ func _case_74(t) -> void:
 			x.c.visitors.dispatch(x.world)
 			x.l.dispatch(x.world)
 			if need.phase=="fallback":
-				arrived = x.space.public_areas.safe_wait(x.world,visit.actor_id,int(x.world.facts.actors[visit.actor_id].location.floor_id),x.world.facts.actors[visit.actor_id].location.cell) and not x.world.facts.moves.has(visit.actor_id) and need.remaining_ticks==80 and need.started_tick==original_start and x.space.at(x.world,visit.actor_id,1,target)
+				# The owner may stop at an earlier real safe footprint along the
+				# route. An arbitrary integer waypoint is not the work boundary.
+				arrived = x.space.public_areas.safe_wait(x.world,visit.actor_id,int(x.world.facts.actors[visit.actor_id].location.floor_id),x.world.facts.actors[visit.actor_id].location.cell) and not x.world.facts.moves.has(visit.actor_id) and need.remaining_ticks==80 and need.started_tick==original_start and x.world.facts.actors[visit.actor_id].location.cell!=start
 				break
 			no_early_work = no_early_work and need.phase=="fallback_travel" and need.remaining_ticks==0 and visit.anger==anger and need.started_tick==original_start
 			x.space.advance(x.world)

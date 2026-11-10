@@ -373,7 +373,7 @@ func _dispatch_task(world: WorldState, staff_id: String) -> void:
 		if _at_target(world,staff_id,task):
 			# Arrival can precede the movement owner's final cleanup by one phase.
 			# Finish only a safe ground move before publishing an outside body.
-			if not space.cancel_ground_move(world,staff_id): return
+			if not _cancel_life_move(world,staff_id,task): return
 			world.facts.actors[staff_id].location = {"kind":"outside"}
 			space.sync_actor(world,staff_id)
 			task.phase = "offsite"
@@ -393,7 +393,7 @@ func _dispatch_task(world: WorldState, staff_id: String) -> void:
 		var released: bool = str(task.get("facility_id","")).is_empty() and str(task.get("leaving_facility_id","")).is_empty()
 		if released and not _return_target(world,staff_id,task): return
 		if released and _at_target(world,staff_id,task):
-			if not space.cancel_ground_move(world,staff_id): return
+			if not _cancel_life_move(world,staff_id,task): return
 			staff.life_task = {"phase":"idle"}
 			staff.last_rest_end_tick = world.sim_tick
 			staff.block_new_work = bool(staff.rest_obligation) or int(staff.sleep_remaining_ticks)>0
@@ -535,12 +535,9 @@ func _tea_position(world: WorldState, staff_id: String) -> Dictionary:
 	space.end_route_query()
 	return point
 
-func _public_entry(world: WorldState, staff_id: String, area: Dictionary, task: Dictionary, selected: Dictionary = {}) -> Dictionary:
+func _public_entry(world: WorldState, staff_id: String, area: Dictionary, _task: Dictionary, selected: Dictionary = {}) -> Dictionary:
 	if not selected.is_empty(): return selected
-	var cell: Array = task.get("cell",[])
-	if task.phase=="area_travel" and cell.size()==2 and int(task.get("floor_id",-1))==int(area.floor_id) and space.public_areas.region(world,area).get("cells",{}).has(Vector2i(roundi(cell[0]),roundi(cell[1]))) and space.public_areas.safe_wait(world,staff_id,int(task.floor_id),cell):
-		return {"floor_id":task.floor_id,"cell":cell}
-	return space.public_areas.waiting_point(world,staff_id,area)
+	return space.public_areas.arrival_point(world,staff_id,area)
 
 func _public_wait_safety(world: WorldState, staff_id: String, area: Dictionary) -> void:
 	var actor: Dictionary = world.facts.actors[staff_id]
@@ -559,13 +556,17 @@ func _dispatch_public_rest(world: WorldState, staff_id: String) -> void:
 	var failed: Dictionary = space.movement_failure(world,staff_id)
 	var valid: bool = space.public_areas.area_valid(world,task.area,["rest","staff_garden"])
 	if not failed.is_empty() or not valid:
-		if world.facts.moves.has(staff_id) and not space.cancel_ground_move(world,staff_id): return
+		if world.facts.moves.has(staff_id) and (not _owns_public_move(world,staff_id,task) or not space.cancel_ground_move(world,staff_id)): return
 		if task.phase=="area_travel" or not valid: task.area = {}; task.arrived_tick = -1
 		task.facility_id = ""
 		task.erase("tea")
 		task.phase = "area_travel" if task.area.is_empty() else "local_wait"
 		space.public_areas.changed(world)
-	if actor.location.kind!="floor" or world.facts.moves.has(staff_id): return
+	if actor.location.kind!="floor": return
+	if task.phase=="area_travel":
+		space.public_areas.try_finish_arrival(world,staff_id,task.area,"waiting_seat_id",str(task.id))
+	var pending_arrival: bool = world.facts.moves.has(staff_id)
+	if pending_arrival and (task.phase!="area_travel" or not _owns_public_move(world,staff_id,task) or not space.public_areas.contains(world,task.area,staff_id)): return
 	var selected_point: Dictionary = {}
 	if space.public_areas.region(world,task.area).is_empty():
 		var selected: Dictionary = space.public_areas.select(world,staff_id,REST_SEATS,["rest","staff_garden"],"rest")
@@ -586,7 +587,7 @@ func _dispatch_public_rest(world: WorldState, staff_id: String) -> void:
 			_move_target(world,staff_id,task)
 		staff.life_reason = "前往休息区"
 		return
-	if int(task.arrived_tick)<0:
+	if int(task.arrived_tick)<0 and not pending_arrival and space.public_areas.safe_wait(world,staff_id,int(actor.location.floor_id),actor.location.cell):
 		task.arrived_tick = world.sim_tick
 		space.public_areas.changed(world)
 	# The local target is an intention, not a reservation. Revalidate it at
@@ -615,7 +616,7 @@ func _dispatch_public_rest(world: WorldState, staff_id: String) -> void:
 		task.facility_id = ""
 		task.erase("tea")
 		space.public_areas.changed(world)
-	task.phase = "local_wait"
+	if not pending_arrival: task.phase = "local_wait"
 	# Only a negative result is retained: energy changes can change ranking,
 	# but cannot create a lawful chair or tea position. Duties are checked above.
 	var dependencies: Dictionary = {}
@@ -626,6 +627,19 @@ func _dispatch_public_rest(world: WorldState, staff_id: String) -> void:
 	space.begin_dynamic_route_query(world)
 	var choice: Dictionary = _select_facility(world,staff_id,"rest",query)
 	space.end_route_query()
+	if pending_arrival:
+		# A concrete local destination replaces this owner's entrance atomically.
+		# No candidate (or a failed request) leaves the original walk intact.
+		var target: Dictionary = choice if not choice.is_empty() else query.get("tea",{})
+		if not target.is_empty() and _request_public_target(world,staff_id,task,int(target.floor_id),target.cell,true):
+			task.facility_id = str(target.get("facility_id",""))
+			task.floor_id = target.floor_id
+			task.cell = target.cell
+			task.phase = "local_travel"
+			if choice.is_empty(): task.tea = true
+			else: task.erase("tea")
+			space.public_areas.changed(world)
+		return
 	if not choice.is_empty():
 		task.erase("tea")
 		task.facility_id = choice.facility_id
@@ -857,7 +871,7 @@ func _begin_public_recreation(world: WorldState, ids: Array, preferred: String) 
 		if not preferred.is_empty():
 			point = {"floor_id":known_target.floor_id,"cell":known_target.positions[ids.find(id)]}
 		else:
-			point = {"floor_id":actor.location.floor_id,"cell":actor.location.cell.duplicate(),"travel_ticks":0} if space.public_areas.contains(world,area,id) else selected_entries[id] if selected_entries.has(id) else space.public_areas.waiting_point(world,id,area)
+			point = {"floor_id":actor.location.floor_id,"cell":actor.location.cell.duplicate(),"travel_ticks":0} if space.public_areas.contains(world,area,id) else selected_entries[id] if selected_entries.has(id) else space.public_areas.arrival_point(world,id,area)
 		if point.is_empty(): return _result(world,false,"no_recreation_slot","娱乐组成员无法真实进入指定区域")
 		entries[id] = point
 	var group_id: String = "recreation_"+str(world.sim_tick)+"_"+ids[0]
@@ -928,6 +942,8 @@ func _dispatch_public_recreation(world: WorldState, leader_id: String, known_tar
 		if not space.movement_failure(world,id).is_empty(): failed = true; break
 	if not area_valid or failed:
 		for id: String in ids:
+			if world.facts.moves.has(id) and not _owns_public_move(world,id,world.facts.staff[id].life_task): return
+		for id: String in ids:
 			if world.facts.moves.has(id) and not space.cancel_ground_move(world,id): return
 		if leader.mode=="manual":
 			for member: String in ids: _begin_return(world,member)
@@ -956,6 +972,8 @@ func _dispatch_public_recreation(world: WorldState, leader_id: String, known_tar
 		leader.facility_id = ""
 		space.public_areas.changed(world)
 	var all_inside: bool = true
+	var all_waiting_safe: bool = true
+	var pending_arrivals: Dictionary = {}
 	var needs_direct: bool = false
 	if leader.mode=="manual":
 		for id: String in ids:
@@ -963,9 +981,18 @@ func _dispatch_public_recreation(world: WorldState, leader_id: String, known_tar
 	var direct: Dictionary = _recreation_choice(world,ids,str(leader.manual_facility_id),leader.area,leader,known_target) if needs_direct else {}
 	for id: String in ids:
 		var task: Dictionary = world.facts.staff[id].life_task
-		if world.facts.actors[id].location.kind!="floor" or world.facts.moves.has(id):
+		var actor: Dictionary = world.facts.actors[id]
+		if leader.phase=="area_travel":
+			space.public_areas.try_finish_arrival(world,id,leader.area,"waiting_seat_id",str(task.id))
+		if actor.location.kind!="floor":
 			all_inside = false
 			continue
+		if world.facts.moves.has(id):
+			if leader.phase!="area_travel" or not _owns_public_move(world,id,task) or not space.public_areas.contains(world,leader.area,id):
+				all_inside = false
+				continue
+			pending_arrivals[id] = true
+		if world.facts.moves.has(id) or not space.public_areas.safe_wait(world,id,int(actor.location.floor_id),actor.location.cell): all_waiting_safe = false
 		if not space.public_areas.contains(world,leader.area,id):
 			all_inside = false
 			var entry: Dictionary = {"floor_id":direct.floor_id,"cell":direct.positions[ids.find(id)]} if not direct.is_empty() else _public_entry(world,id,leader.area,task,selected_entries.get(id,{}))
@@ -975,7 +1002,7 @@ func _dispatch_public_recreation(world: WorldState, leader_id: String, known_tar
 				_move_target(world,id,task)
 		world.facts.staff[id].life_reason = "前往指定设施" if leader.mode=="manual" else "前往娱乐区"
 	if not all_inside: return
-	if int(leader.arrived_tick)<0:
+	if int(leader.arrived_tick)<0 and all_waiting_safe:
 		leader.arrived_tick = world.sim_tick
 		space.public_areas.changed(world)
 	var choice: Dictionary = {}
@@ -983,7 +1010,7 @@ func _dispatch_public_recreation(world: WorldState, leader_id: String, known_tar
 		choice = _recreation_choice(world,ids,str(leader.facility_id),leader.area,leader)
 	var previous_phase: String = str(leader.phase)
 	var previous_facility: String = str(leader.get("facility_id",""))
-	leader.phase = "manual_wait" if leader.mode=="manual" else "local_wait"
+	if pending_arrivals.is_empty(): leader.phase = "manual_wait" if leader.mode=="manual" else "local_wait"
 	if choice.is_empty() and not space.public_areas.should_recheck(world,leader,definitions,ids):
 		for id: String in ids: _public_wait_safety(world,id,leader.area)
 		return
@@ -998,10 +1025,13 @@ func _dispatch_public_recreation(world: WorldState, leader_id: String, known_tar
 	var all_present: bool = true
 	for index: int in ids.size():
 		var task: Dictionary = world.facts.staff[ids[index]].life_task
+		if pending_arrivals.has(ids[index]):
+			all_present = false
+			if not _request_public_target(world,ids[index],task,int(choice.floor_id),choice.positions[index],true): continue
 		task.facility_id = choice.facility_id
 		task.floor_id = choice.floor_id
 		task.cell = choice.positions[index]
-		if not _at_target(world,ids[index],task):
+		if not _at_target(world,ids[index],task) or world.facts.moves.has(ids[index]):
 			all_present = false
 			task.phase = "local_travel"
 			_move_target(world,ids[index],task)
@@ -1169,8 +1199,39 @@ static func _entry(world: WorldState) -> Dictionary:
 func _at_target(world: WorldState, staff_id: String, task: Dictionary) -> bool:
 	return not task.get("cell",[]).is_empty() and space.at(world,staff_id,int(task.floor_id),task.cell)
 
+# Reuse the optional-trip marker because HospitalMovement clears it on every
+# retarget. A task identifier alone never grants control of a later work trip.
+func _owns_public_move(world: WorldState, staff_id: String, task: Dictionary) -> bool:
+	var movement: Dictionary = world.facts.moves.get(staff_id,{})
+	if movement.is_empty() or movement.get("waiting_seat_id","")!=task.get("id",""): return false
+	if movement.has("detour") or movement.has("convoy") or movement.get("members",[staff_id])!=[staff_id]: return false
+	var actor: Dictionary = world.facts.actors[staff_id]
+	if actor.location.kind!="floor" or actor.get("posture","")=="lying": return false
+	var cursor: int = int(movement.cursor)
+	return cursor<0 or cursor>=movement.path.size() or movement.path[cursor].kind=="floor"
+
+func _cancel_life_move(world: WorldState, staff_id: String, task: Dictionary) -> bool:
+	if world.facts.moves.has(staff_id) and (task.has("public_purpose") or not str(task.get("group_leader_id","")).is_empty()) and not _owns_public_move(world,staff_id,task): return false
+	return space.cancel_ground_move(world,staff_id)
+
+func _request_public_target(world: WorldState, staff_id: String, task: Dictionary, floor_id: int, cell: Array, replace_arrival: bool = false) -> bool:
+	if world.facts.moves.has(staff_id) and (not replace_arrival or not _owns_public_move(world,staff_id,task)): return false
+	var previous: Dictionary = world.facts.moves.get(staff_id,{})
+	if not previous.is_empty() and int(previous.target_floor)==floor_id and previous.target_cell==cell: return true
+	var reason: String = space.request_move(world,staff_id,floor_id,cell)
+	var movement: Dictionary = world.facts.moves.get(staff_id,{})
+	if not reason.is_empty():
+		world.facts.staff[staff_id].life_reason = reason
+		return false
+	if movement.is_empty() or int(movement.target_floor)!=floor_id or movement.target_cell!=cell: return false
+	movement.waiting_seat_id = task.id
+	return true
+
 func _move_target(world: WorldState, staff_id: String, task: Dictionary) -> void:
 	if not _at_target(world,staff_id,task):
+		if task.has("public_purpose") or not str(task.get("group_leader_id","")).is_empty():
+			_request_public_target(world,staff_id,task,int(task.floor_id),task.cell,task.phase in ["returning","release","exiting"])
+			return
 		var reason: String = space.request_move(world,staff_id,int(task.floor_id),task.cell)
 		if not reason.is_empty():
 			world.facts.staff[staff_id].life_reason = reason
