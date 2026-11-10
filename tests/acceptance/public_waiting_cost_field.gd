@@ -100,6 +100,7 @@ func _field_dispose(x: Dictionary) -> void:
 func _warm(x: Dictionary) -> Dictionary:
 	var valid: bool = true
 	var count: int = 0
+	var builds: int = int(x.actual.query_counts.get("distance_field_builds",0))
 	var region: Dictionary = x.actual.public_areas.region(x.world,x.area)
 	for point: Vector2i in region.cells:
 		var cell: Array = [point.x,point.y]
@@ -109,7 +110,17 @@ func _warm(x: Dictionary) -> Dictionary:
 		valid = valid and var_to_bytes(actual)==var_to_bytes(expected)
 		count += 1
 		if count>=18: break
-	return {"ok":valid and count==18,"real_complete_quotes":count,"complete_quote_types_cost_status_equal":valid}
+	var no_promotion: bool = builds==int(x.actual.query_counts.get("distance_field_builds",0))
+	# This is explicit test preparation, not runtime quote-count promotion.
+	# A landing field uses an independent input actor at that floor's root.
+	# The shared structural identity is then proved again in the real world.
+	var prepared: WorldState = WorldState.new(x.world.freeze())
+	prepared.facts.actors[ACTOR].location.floor_id = 1
+	prepared.facts.actors[ACTOR].location.cell = [x.root.x,x.root.y]
+	var preparation_validation: String = prepared.validate(_content)
+	for owner: HospitalSpace in [x.actual,x.original]:
+		owner._navigation.prepare_structural_fields(owner,prepared,[ACTOR])
+	return {"ok":valid and count==18 and no_promotion and preparation_validation.is_empty(),"preparation_input_validation":preparation_validation,"real_complete_quotes":count,"complete_quote_types_cost_status_equal":valid,"quotes_do_not_prepare_fields":no_promotion,"field_source":"explicit prepare_structural_fields on independent preparation input"}
 
 func _compare_wait(x: Dictionary, budget: int = HospitalTransit.MAX_TICK) -> Dictionary:
 	var before: Dictionary = x.world.freeze()
@@ -129,7 +140,7 @@ func _warm_case(cross_floor: bool, fractional: bool = false, unreachable: bool =
 	var checks: Dictionary = {"legal_input":validation.is_empty()}
 	_field_begin(x)
 	var warm: Dictionary = _warm(x)
-	checks.original_real_quote_warmup_and_results = warm.ok
+	checks.explicit_preparation_and_real_quote_results = warm.ok
 	var bounds: Dictionary = x.actual.public_areas._entry_landings(x.world,ACTOR,1)
 	var borrow: Dictionary = x.actual.navigation.ready_waiting_cost_field(x.world,ACTOR,1,bounds)
 	checks.expected_single_or_multiple_connector_guard = borrow.get("ready",false)==(not multiple)
@@ -164,9 +175,8 @@ func _warm_case(cross_floor: bool, fractional: bool = false, unreachable: bool =
 	checks.real_trim_removes_ready_field = x.actual._navigation.ready_structural_field(x.actual,x.world,1,x.world.facts.actors[ACTOR],x.root).is_empty() and x.actual._navigation._entries.is_empty() and int(x.actual.query_counts.get("cache_query_clears",0))>query_clears
 	var after_trim: Dictionary = _compare_wait(x)
 	checks.after_trim_uses_real_route_queries = after_trim.ok and after_trim.actual_complete_quote_calls+after_trim.actual_floor_leg_quote_calls>0
-	# Trimming removes the original field, but later real complete queries may
-	# rebuild it. Borrowing is retried only after twelve such quotes.
-	checks.after_trim_reactivation_requires_real_quote_warmup = after_trim.warm_field_reads==0 or (after_trim.actual_complete_quote_calls+after_trim.actual_floor_leg_quote_calls>=12 and after_trim.distance_fields_built>0)
+	# Trimming removes the original field. Real quotes cannot rebuild it.
+	checks.after_trim_quotes_do_not_reactivate_field = after_trim.warm_field_reads==0 and after_trim.distance_fields_built==0
 	_field_end(x)
 	var ok: bool = not checks.values().has(false)
 	var result: Dictionary = {"ok":ok,"cross_floor":cross_floor,"fractional":fractional,"unreachable":unreachable,"multiple_connections":multiple,"validation":validation,"checks":checks,"warmup":warm,"comparison":comparison,"after_real_trim":after_trim}
@@ -196,7 +206,7 @@ func _unprepared_and_changed() -> Dictionary:
 	var changed_before_any_graph_refresh: Dictionary = cache.ready_structural_field(x.actual,x.world,1,actor,x.root)
 	var changed: Dictionary = _compare_wait(x)
 	_field_end(x)
-	var checks: Dictionary = {"legal_initial_input":validation.is_empty(),"missing_original_source_proof_keeps_fallback":subject_missing,"getter_does_not_force_field_warmup":no_synthetic_warmup,"cold_complete_result_equal":cold.ok,"real_quotes_make_existing_field_ready":warm.ok and ready,"raw_and_ordinary_scope_keep_fallback":unscoped and ordinary.ok and ordinary.warm_field_reads==0,"source_edit_rejects_stale_ready_stamp_before_graph_refresh":changed_before_any_graph_refresh.is_empty(),"changed_geometry_keeps_complete_selection":changed.ok,"scopes_closed":x.actual._route_queries.is_empty() and x.original._route_queries.is_empty()}
+	var checks: Dictionary = {"legal_initial_input":validation.is_empty(),"missing_original_source_proof_keeps_fallback":subject_missing,"getter_does_not_force_field_warmup":no_synthetic_warmup,"cold_complete_result_equal":cold.ok,"explicit_preparation_makes_field_ready":warm.ok and ready,"raw_and_ordinary_scope_keep_fallback":unscoped and ordinary.ok and ordinary.warm_field_reads==0,"source_edit_rejects_stale_ready_stamp_before_graph_refresh":changed_before_any_graph_refresh.is_empty(),"changed_geometry_keeps_complete_selection":changed.ok,"scopes_closed":x.actual._route_queries.is_empty() and x.original._route_queries.is_empty()}
 	var result: Dictionary = {"ok":not checks.values().has(false),"checks":checks,"validation":validation,"cold":cold,"warmup":warm,"ordinary":ordinary,"changed":changed}
 	_field_dispose(x)
 	return result

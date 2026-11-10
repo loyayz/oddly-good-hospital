@@ -173,7 +173,7 @@ func _resident(cross_floor: bool, fractional: bool, unreachable: bool = false) -
 	var literal: Dictionary = _literal(x)
 	_field_begin(x)
 	var warm: Dictionary = _warm(x)
-	checks.real_complete_quote_warmup = warm.ok
+	checks.explicit_preparation_and_real_quotes = warm.ok
 	var first: Dictionary = _observe(x)
 	checks.independent_complete_result = literal.readonly and first.actual==_expected(literal)
 	checks.resident_field_really_consumed = not x.actual.navigation.observed_field.is_empty()
@@ -200,12 +200,12 @@ func _cold_evicted() -> Dictionary:
 	var cold: Dictionary = _observe(x)
 	checks.cold_first_borrow_unavailable = not cold.audit.borrows.is_empty() and not cold.audit.borrows[0].ready and cold.real_quotes>0
 	var warm: Dictionary = _warm(x)
-	checks.real_warmup = warm.ok
+	checks.explicit_preparation = warm.ok
 	x.actual._navigation._trim(0,x.actual.query_counts)
 	x.original._navigation._trim(0,x.original.query_counts)
 	var evicted: Dictionary = _observe(x)
 	checks.evicted_first_borrow_unavailable = not evicted.audit.borrows.is_empty() and not evicted.audit.borrows[0].ready and evicted.real_quotes>0
-	checks.reactivation_requires_twelve_real_quotes = not evicted.audit.borrows.any(func(row: Dictionary)->bool:return row.ready) or evicted.real_quotes>=12
+	checks.quotes_do_not_reactivate_evicted_field = not evicted.audit.borrows.any(func(row: Dictionary)->bool:return row.ready)
 	_field_end(x)
 	var unscoped: Dictionary = _observe(x)
 	checks.ordinary_scope_never_borrows = unscoped.audit.borrows.all(func(row: Dictionary)->bool:return not row.ready) and unscoped.audit.actual_safe_wait_at_calls==unscoped.audit.baseline_safe_wait_at_calls
@@ -225,7 +225,7 @@ func _dynamic_body() -> Dictionary:
 	_field_begin(x)
 	var warm: Dictionary = _warm(x)
 	var blocked: Dictionary = _observe(x)
-	checks.real_warmup = warm.ok
+	checks.explicit_preparation = warm.ok
 	checks.occupied_candidate_checked_and_rejected = _safes(blocked.trace).any(func(row: Dictionary)->bool:return [row.point.x,row.point.y]==winner and not row.safe)
 	checks.independent_tie_winner = blocked.actual==_expected(blocked_literal) and blocked.actual.cell!=winner
 	_field_end(x)
@@ -252,7 +252,7 @@ func _outside_projection() -> Dictionary:
 	_field_begin(x)
 	var warm: Dictionary = _warm(x)
 	var observed: Dictionary = _observe(x)
-	checks.real_warmup = warm.ok
+	checks.explicit_preparation = warm.ok
 	checks.resident_field_before_outside_candidate = not x.actual.navigation.observed_field.is_empty()
 	checks.real_outside_safety_reached_and_rejected = _safes(observed.trace).any(func(row: Dictionary)->bool:return row.point==Vector2i(96,96) and not row.safe)
 	checks.unreachable_skips_continue_to_later_outside_point = not observed.audit.skipped.is_empty() and checks.real_outside_safety_reached_and_rejected

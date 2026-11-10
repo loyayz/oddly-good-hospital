@@ -32,8 +32,8 @@ func run_case(suite: RefCounted) -> Dictionary:
 	var observations: Array = []
 	actual.begin_dynamic_route_query(world)
 	reference.begin_dynamic_route_query(world)
-	# Distinct complete targets preserve the original 12-query threshold and
-	# cross its distance-field warmup boundary; no candidate is skipped.
+	# Distinct complete targets cross the former 12-query promotion threshold.
+	# Every quote remains exact without preparing a whole-floor distance field.
 	for y: int in range(82,85):
 		for x: int in range(44,50):
 			var goal: Vector2i = Vector2i(x,y)
@@ -43,7 +43,7 @@ func run_case(suite: RefCounted) -> Dictionary:
 			observations.append({"goal":goal,"equal":current==expected,"available":current.ok,"distance":current.get("walking_distance",-1)})
 	checks.distinct_targets_keep_complete_cost_type_status = equal
 	checks.one_graph_acquisition_per_structural_floor_query = actual_cache.graph_calls==18 and reference_cache.graph_calls==36
-	checks.same_forward_field_warmup_and_reuse = int(actual.query_counts.get("distance_field_builds",0))==1 and actual.query_counts.get("distance_field_builds",0)==reference.query_counts.get("distance_field_builds",0) and actual.query_counts.get("distance_field_hits",0)==reference.query_counts.get("distance_field_hits",0)
+	checks.repeated_quotes_do_not_prepare_fields = int(actual.query_counts.get("distance_field_builds",0))==0 and actual.query_counts.get("distance_field_builds",0)==reference.query_counts.get("distance_field_builds",0) and actual.query_counts.get("distance_field_hits",0)==reference.query_counts.get("distance_field_hits",0)
 	var impossible: Dictionary = actual.navigation._floor_route(world,actor,1,Vector2i(44,80),Vector2i(-1,80),[],{},true,{},true,true)
 	var expected_impossible: Dictionary = reference.navigation._floor_route(world,actor,1,Vector2i(44,80),Vector2i(-1,80),[],{},true,{},true,true)
 	checks.goal_first_failure_is_unchanged = impossible==expected_impossible and not impossible.ok
@@ -63,7 +63,8 @@ func run_case(suite: RefCounted) -> Dictionary:
 	reference_prior = reference_cache.graph_calls
 	var external: Dictionary = actual.navigation._floor_route(world,actor,1,Vector2i(44,80),Vector2i(47,82),[],{},true,supplied,true,true)
 	var expected_external: Dictionary = reference.navigation._floor_route(world,actor,1,Vector2i(44,80),Vector2i(47,82),[],{},true,supplied_reference,true,true)
-	checks.externally_supplied_graph_keeps_original_validation = external==expected_external and actual_cache.graph_calls-actual_prior==1 and reference_cache.graph_calls-reference_prior==1
+	# Both nonresident forward/reverse lookups validate an externally supplied graph.
+	checks.externally_supplied_graph_keeps_original_validation = external==expected_external and actual_cache.graph_calls-actual_prior==2 and reference_cache.graph_calls-reference_prior==2
 	world.facts.floors.overrides["1"].blocked.append([46,82])
 	world.touch()
 	before = world.freeze()

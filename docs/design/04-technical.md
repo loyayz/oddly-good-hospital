@@ -383,7 +383,7 @@ AStar2D的确定性不能只靠冷建时排序。每次局部修补均将受影�
 
 跨层结构路线按任务、寻路与移动规格仅累计真实步行与固定登乘、层间通行、离舱时间，由Boost.Graph Dijkstra按需调用楼层路线报价。完整int64耗时、节点ID平局和溢出不可达由薄适配层保持，不提前计算所有锚点组合。实际到场后的票序、排队、出口等待及乘梯交给Movement与TransitService；原承诺交通报价仍保留max(A,P)+E+G，未知等待不伪装几何无路。
 
-重复端点保留原命中门槛后建立距离场，由[Boost.Graph BFS](https://www.boost.org/doc/libs/latest/libs/graph/doc/html/graph/algorithms/traversal/breadth_first_search.html)执行遍历。FloorNavigation在同一建图与局部修补边界维护有界四位出边掩码，查询借用该掩码和预约掩码，不重建另一套几何。反向距离场保留有向边、邻居顺序以及可离开已预约起点、不可进入未授权预约目标的规则；原生失败回到AStar2D，不把计算失败缓存为无路。移动静态路线版本只随真实几何变化，预约权限仍在实际移动时即时核验。
+普通报价只读取已准备的距离场，不因端点重复次数自动触发整层遍历；缺场时保留真实点对点路线计算。完整距离场只由加载或显式准备操作建立，由[Boost.Graph BFS](https://www.boost.org/doc/libs/latest/libs/graph/doc/html/graph/algorithms/traversal/breadth_first_search.html)执行遍历。FloorNavigation在同一建图与局部修补边界维护有界四位出边掩码，查询借用该掩码和预约掩码，不重建另一套几何。反向距离场保留有向边、邻居顺序以及可离开已预约起点、不可进入未授权预约目标的规则；原生失败回到AStar2D，不把计算失败缓存为无路。移动静态路线版本只随真实几何变化，预约权限仍在实际移动时即时核验。
 
 任务报价使用`HospitalSpace.route_cost`取得与完整结构路线相同的状态、失败原因、行走距离及基准耗时，不物化执行路径。实际移动和确实消费路径的安全见证继续使用完整路线；包含实际人物动态绕行的层内查询不能直接改为纯成本模式。活跃路线保存自身证明过的真实身体数值与姿态，临时报价投影重建人物索引不使同一身体失效。
 

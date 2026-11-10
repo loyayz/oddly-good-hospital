@@ -56,13 +56,14 @@ func run_case(sim: HospitalSimulation, content: HospitalContent) -> Dictionary:
 			if first.has("cells") and not first.cells.is_empty(): first.cells[0][0] = -900
 			var hit: Dictionary = space._navigation.cached_floor_path(space,world,1,actor,graph,query,pair[0],pair[1])
 			paths_equal = paths_equal and retained==expected and hit==expected
-			var field: Dictionary = {}
-			for count: int in 13: field = space._navigation.forward_distance(space,world,1,actor,pair[0],pair[1])
-			paths_equal = paths_equal and field.ready and field.ok==expected.ok and field.reason==expected.reason
-			if expected.ok: paths_equal = paths_equal and int(field.distance)==int(expected.walking_distance)
+			for count: int in 13:
+				var field: Dictionary = space._navigation.forward_distance(space,world,1,actor,pair[0],pair[1])
+				var cost: Dictionary = space.navigation._floor_route(world,actor,1,pair[0],pair[1],[],{},true,{},false,true)
+				paths_equal = paths_equal and not field.ready and cost.ok==expected.ok and cost.reason==expected.reason
+				if expected.ok: paths_equal = paths_equal and int(cost.walking_distance)==int(expected.walking_distance)
 		space.end_route_query()
 		ok = ok and equal and identity_ok and paths_equal and before==world.freeze()
-		observations.append({"pass":pass_id,"all_9216_reasons_cold_equal":equal,"query_identity_correct":identity_ok,"full_paths_fields_and_owned_result":paths_equal,"readonly":before==world.freeze()})
+		observations.append({"pass":pass_id,"all_9216_reasons_cold_equal":equal,"query_identity_correct":identity_ok,"full_paths_costs_and_owned_result":paths_equal,"readonly":before==world.freeze()})
 		previous = query
 	# Geometry refresh and complete eviction cannot retain an old path/query.
 	world.facts.floors.overrides["1"].blocked.append([40,90])

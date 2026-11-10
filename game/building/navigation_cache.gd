@@ -410,7 +410,7 @@ func reverse_structural_distance(space: HospitalSpace, world: WorldState, floor_
 	return _travel_distance(space,world,floor_id,actor,start,goal,false,false,true,prepared_graph)
 
 # Borrow only a resident, already-built field for one synchronous task loop.
-# This does not advance its warmup, retain a graph or create an extra allowance.
+# This does not prepare a field, retain a graph or create an extra allowance.
 func ready_structural_field(space: HospitalSpace, world: WorldState, floor_id: int, actor: Dictionary, root: Vector2i) -> Dictionary:
 	if not space.in_dynamic_route_query(world): return {}
 	# This performs the original complete current-source proof before exposing
@@ -425,6 +425,8 @@ func ready_structural_field(space: HospitalSpace, world: WorldState, floor_id: i
 	if not record.get("ready",false) or record.get("stamp",[])!=[geometry.get_instance_id()]: return {}
 	return {"ready":true,"distances":record.distances}
 
+# Explicit preparation only. Ordinary quotes never promote themselves to a
+# complete floor field, regardless of how often an endpoint is requested.
 # Native jobs read only the captured masks and own each field's output.
 # Install in request order under the original geometry identity and budget.
 func prepare_structural_fields(space: HospitalSpace, world: WorldState, actor_ids: Array) -> void:
@@ -487,29 +489,23 @@ func _travel_distance(space: HospitalSpace, world: WorldState, floor_id: int, ac
 	var stamp: Array = [current.geometry.get_instance_id()] if structural_only else _reservation_stamp(space,current,world,floor_id,actor.id)
 	var record: Dictionary = entry.estimates.get(destination,{})
 	if record.is_empty() or record.stamp!=stamp:
+		if supplied_field.is_empty(): return {"ready":false}
 		var old_charge: int = int(record.get("charge",0))
 		entry.query_charge = int(entry.get("query_charge",0))-old_charge
 		_query_charged -= old_charge
-		record = {"stamp":stamp.duplicate(true),"hits":0,"ready":false,"charge":512+destination.length()*8+var_to_bytes(stamp).size()*8}
+		record = {"stamp":stamp.duplicate(true),"ready":false,"charge":512+destination.length()*8+var_to_bytes(stamp).size()*8}
 		entry.estimates[destination] = record
 		entry.query_charge += int(record.charge)
 		_query_charged += int(record.charge)
-	record.hits += 1
-	# One-off quotes retain A*. Repeated endpoints amortize a distance field;
-	# only integer distance is reused, never a route or permission to reserve.
-	if not record.ready and (int(record.hits)>=12 or not supplied_field.is_empty()):
+	# Reuse only an already prepared field. A miss falls back to the caller's
+	# exact point-to-point route; repeated quotes must not start a whole-floor
+	# traversal. Explicit preparation supplies the complete field below.
+	if not record.ready and not supplied_field.is_empty():
 		var query: RouteClearance = current.geometry if structural_only else RouteClearance.new(space,world,actor,floor_id,[],{},true,current.geometry.source,current.geometry)
 		record.reason = "" if forward else (query.reason(goal) if FloorNavigation._inside(goal) else "目标超出96×96真实楼面")
-		var field: Dictionary
-		if not supplied_field.is_empty():
-			record.query = query
-			field = supplied_field
-			record.native_batch = true
-		elif forward:
-			record.query = query
-			field = current.distance_field(query,start)
-		else:
-			field = current.distance_field(query,goal,true) if str(record.reason).is_empty() else {"ready":true,"distances":PackedInt32Array(),"successors":PackedInt32Array()}
+		record.query = query
+		var field: Dictionary = supplied_field
+		record.native_batch = true
 		if not field.get("ready",false):
 			space.query_counts["distance_field_failures"] = int(space.query_counts.get("distance_field_failures",0))+1
 			return {"ready":false}

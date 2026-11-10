@@ -61,12 +61,13 @@ func run_case(sim: HospitalSimulation, content: HospitalContent) -> Dictionary:
 			var shared: bool = first_quote==next_quote and before_size==after_size
 			valid = valid and shared
 			observations.append({"mode":mode,"same_permissions":pair,"shared":shared})
+	var exits: Dictionary = _exit_contract(source,goal,content)
 	var fields: Dictionary = _forward_contract(source,goal,content)
 	var reverse: Dictionary = _reverse_contract(source,goal,content)
 	var masks: Dictionary = _mask_contract(source,content)
 	var projections: Dictionary = _projection_contract(source,content)
 	var reuse: Dictionary = preload("res://tests/acceptance/navigation_static_reuse.gd").new().run_case(sim,content)
-	return {"ok":valid and fields.ok and reverse.ok and masks.ok and projections.ok and reuse.ok,"details":{"observations":observations,"forward_fields":fields,"reverse_structural_fields":reverse,"reservation_masks":masks,"projection_sources":projections,"static_reuse":reuse,"no_simulation_steps":true}}
+	return {"ok":valid and exits.ok and fields.ok and reverse.ok and masks.ok and projections.ok and reuse.ok,"details":{"observations":observations,"exit_witnesses":exits,"forward_fields":fields,"reverse_structural_fields":reverse,"reservation_masks":masks,"projection_sources":projections,"static_reuse":reuse,"no_simulation_steps":true}}
 
 func _reverse_contract(source: Dictionary, goal: Array, content: HospitalContent) -> Dictionary:
 	var world: WorldState = WorldState.new(source.duplicate(true))
@@ -76,8 +77,8 @@ func _reverse_contract(source: Dictionary, goal: Array, content: HospitalContent
 	var valid: bool = world.validate(content).is_empty()
 	var observations: Array = []
 	space.begin_dynamic_route_query(world)
-	# Distinct origins keep every forward field cold. The shared destination
-	# must warm only after twelve real cost queries across equivalent bodies.
+	# Distinct origins share one destination across equivalent bodies. Neither
+	# direction may prepare a whole-floor field at the old twelfth query.
 	for index: int in 16:
 		var actor: Dictionary = world.facts.actors[[OWNER,OTHER,PEER][index%3]]
 		var origin: Vector2i = Vector2i(35+index,88)
@@ -85,11 +86,11 @@ func _reverse_contract(source: Dictionary, goal: Array, content: HospitalContent
 		var expected: Dictionary = cold_space.navigation._floor_route(world,actor,1,origin,target,[],{},true,{},true,true)
 		var actual: Dictionary = space.navigation._floor_route(world,actor,1,origin,target,[],{},true,{},true,true)
 		var builds: int = int(space.query_counts.get("distance_field_builds",0))
-		var equal: bool = actual==expected and builds==(0 if index<11 else 1)
+		var equal: bool = actual==expected and builds==0
 		valid = valid and equal
 		observations.append({"query":index+1,"complete_cost_equal":equal,"field_builds":builds})
 	space.end_route_query()
-	valid = valid and int(space.query_counts.get("structural_reverse_field_hits",0))==5
+	valid = valid and int(space.query_counts.get("structural_reverse_field_hits",0))==0
 	var failed_schema: bool = true
 	space.begin_dynamic_route_query(world)
 	for index: int in 13:
@@ -102,8 +103,15 @@ func _reverse_contract(source: Dictionary, goal: Array, content: HospitalContent
 		failed_schema = failed_schema and not expected.ok and var_to_bytes(actual)==var_to_bytes(expected)
 	space.end_route_query()
 	valid = valid and failed_schema
-	# Structural reachability never supplies permission to enter another
-	# patient's reservation, including when its reverse field is already warm.
+	# Explicitly prepared structural reachability never supplies permission
+	# to enter another patient's reservation. Use an independent legal origin.
+	var prepared: WorldState = WorldState.new(source.duplicate(true))
+	prepared.facts.actors[OTHER].location.cell = START.duplicate()
+	space._navigation.prepare_structural_fields(space,prepared,[OTHER])
+	space.begin_dynamic_route_query(world)
+	var resident: Dictionary = space._navigation.ready_structural_field(space,world,1,world.facts.actors[OTHER],Vector2i(START[0],START[1]))
+	space.end_route_query()
+	valid = valid and resident.get("ready",false)
 	var actor: Dictionary = world.facts.actors[OTHER]
 	var permission: Dictionary = space._floor_route(world,actor,1,Vector2i(START[0],START[1]),target,[],{},true,{},true)
 	var permission_cold: Dictionary = HospitalSpace.new(content)._floor_route(world,actor,1,Vector2i(START[0],START[1]),target,[],{},true,{},true)
@@ -114,14 +122,17 @@ func _reverse_contract(source: Dictionary, goal: Array, content: HospitalContent
 	var edited_before: Dictionary = world.freeze()
 	var first: Dictionary = space._navigation.reverse_structural_distance(space,world,1,actor,Vector2i(35,88),target)
 	var invalidated: bool = not first.ready
-	var changed: Dictionary
-	for hit: int in 12: changed = space._navigation.reverse_structural_distance(space,world,1,actor,Vector2i(35,88),target)
-	var cold_space: HospitalSpace = HospitalSpace.new(content)
-	var cold: Dictionary = cold_space.navigation._floor_route(world,actor,1,Vector2i(35,88),target,[],{},true,{},true,true)
-	invalidated = invalidated and changed.ready and changed.ok==cold.ok and changed.reason==cold.reason
-	var zero: Dictionary = space._navigation.reverse_structural_distance(space,world,1,actor,target,target)
-	var outside: Dictionary = space._navigation.reverse_structural_distance(space,world,1,actor,Vector2i(-1,88),target)
-	var boundaries: bool = zero.ready and zero.ok and zero.distance==0 and outside.ready and not outside.ok and outside.reason=="目标超出96×96真实楼面"
+	var builds_before: int = int(space.query_counts.get("distance_field_builds",0))
+	for hit: int in 13:
+		var absent: Dictionary = space._navigation.reverse_structural_distance(space,world,1,actor,Vector2i(35,88),target)
+		var changed: Dictionary = space.navigation._floor_route(world,actor,1,Vector2i(35,88),target,[],{},true,{},true,true)
+		var cold_space: HospitalSpace = HospitalSpace.new(content)
+		var cold: Dictionary = cold_space.navigation._floor_route(world,actor,1,Vector2i(35,88),target,[],{},true,{},true,true)
+		invalidated = invalidated and not absent.ready and var_to_bytes(changed)==var_to_bytes(cold)
+	invalidated = invalidated and int(space.query_counts.get("distance_field_builds",0))==builds_before
+	var zero: Dictionary = space.navigation._floor_route(world,actor,1,target,target,[],{},true,{},true,true)
+	var outside: Dictionary = space.navigation._floor_route(world,actor,1,Vector2i(-1,88),target,[],{},true,{},true,true)
+	var boundaries: bool = zero.ok and zero.walking_distance==0 and not outside.ok and outside.reason=="目标超出96×96真实楼面"
 	valid = valid and invalidated and boundaries and world.freeze()==edited_before
 	space._navigation._trim(0)
 	var evicted: bool = space._navigation._entries.is_empty() and space._navigation._charged==0 and space._navigation._query_charged==0
@@ -208,20 +219,29 @@ func _forward_contract(source: Dictionary, goal: Array, content: HospitalContent
 			var start: Vector2i = Vector2i(pair[0][0],pair[0][1])
 			var target: Vector2i = Vector2i(pair[1][0],pair[1][1])
 			var expected: Dictionary = HospitalSpace.new(content)._floor_route(world,world.facts.actors[actor_id],1,start,target,[],{},true)
+			var equal: bool = true
+			var absent: bool = true
 			var actual: Dictionary = {}
-			for hit: int in 13: actual = space._navigation.forward_distance(space,world,1,world.facts.actors[actor_id],start,target)
-			var equal: bool = actual.ready and actual.ok==expected.ok and actual.reason==expected.reason
-			if expected.ok: equal = equal and int(actual.distance)==int(expected.walking_distance)
-			valid = valid and equal and world.freeze()==before
-			observations.append({"actor":actor_id,"start":pair[0],"goal":pair[1],"equal":equal,"ok":actual.ok,"reason":actual.reason})
-	# The same cache must discard its field after geometry changes and eviction.
+			for hit: int in 13:
+				absent = absent and not space._navigation.forward_distance(space,world,1,world.facts.actors[actor_id],start,target).ready
+				absent = absent and not space._navigation.travel_distance(space,world,1,world.facts.actors[actor_id],start,target,true).ready
+				actual = space._floor_route(world,world.facts.actors[actor_id],1,start,target,[],{},true)
+				equal = equal and var_to_bytes(actual)==var_to_bytes(expected)
+			valid = valid and equal and absent and world.freeze()==before
+			observations.append({"actor":actor_id,"start":pair[0],"goal":pair[1],"equal":equal,"ordinary_fields_stay_absent":absent,"ok":actual.ok,"reason":actual.reason})
+	var no_fields: bool = int(space.query_counts.get("distance_field_builds",0))==0
+	# A changed goal remains blocked in repeated real point-to-point queries.
 	var changed: WorldState = WorldState.new(source.duplicate(true))
 	changed.facts.floors.overrides["1"].blocked.append(START.duplicate())
 	changed.touch()
-	var blocked: Dictionary = {}
-	for hit: int in 13: blocked = space._navigation.forward_distance(space,changed,1,changed.facts.actors[OWNER],Vector2i(goal[0],goal[1]),Vector2i(START[0],START[1]))
+	var changed_before: Dictionary = changed.freeze()
+	var invalidated: bool = true
 	var complete: Dictionary = HospitalSpace.new(content)._floor_route(changed,changed.facts.actors[OWNER],1,Vector2i(goal[0],goal[1]),Vector2i(START[0],START[1]),[],{},true)
-	var invalidated: bool = blocked.ready and not blocked.ok and blocked.reason==complete.reason
+	for hit: int in 13:
+		var field: Dictionary = space._navigation.forward_distance(space,changed,1,changed.facts.actors[OWNER],Vector2i(goal[0],goal[1]),Vector2i(START[0],START[1]))
+		var blocked: Dictionary = space._floor_route(changed,changed.facts.actors[OWNER],1,Vector2i(goal[0],goal[1]),Vector2i(START[0],START[1]),[],{},true)
+		invalidated = invalidated and not field.ready and not blocked.ok and var_to_bytes(blocked)==var_to_bytes(complete)
+	invalidated = invalidated and changed.freeze()==changed_before
 	space._navigation._trim(0)
 	var evicted: bool = space._navigation._entries.is_empty() and space._navigation._charged==0 and space._navigation._query_charged==0
 	# Primitive directed-graph contract: a field follows outgoing edges. A*
@@ -242,7 +262,7 @@ func _forward_contract(source: Dictionary, goal: Array, content: HospitalContent
 		directed = directed and expected.ok and distances[FloorNavigation._id(pair[1])]==int(expected.walking_distance)
 		var reverse: Dictionary = graph.distance_field(query,pair[1],true)
 		directed = directed and reverse.get("ready",false) and reverse.distances[FloorNavigation._id(pair[0])]==int(expected.walking_distance)
-	return {"ok":valid and invalidated and evicted and directed,"observations":observations,"geometry_invalidated":invalidated,"complete_budget_eviction":evicted,"directed_astar_equal":directed}
+	return {"ok":valid and no_fields and invalidated and evicted and directed,"ordinary_quotes_never_prepare_fields":no_fields,"observations":observations,"geometry_invalidated":invalidated,"complete_budget_eviction":evicted,"directed_astar_equal":directed}
 
 func _quote(space: HospitalSpace, world: WorldState, id: String, goal: Array, reference: Dictionary, mode: String) -> Dictionary:
 	space.begin_route_query(world,reference)
@@ -253,3 +273,24 @@ func _quote(space: HospitalSpace, world: WorldState, id: String, goal: Array, re
 		result = space.route(world,id,1,goal,[],{},true)
 	space.end_route_query()
 	return result
+
+func _exit_contract(source: Dictionary, goal: Array, content: HospitalContent) -> Dictionary:
+	var world: WorldState = WorldState.new(source.duplicate(true))
+	var before: Dictionary = world.freeze()
+	var space: HospitalSpace = HospitalSpace.new(content)
+	var valid: bool = true
+	var observations: Array = []
+	for actor_id: String in [OWNER,STAFF,OTHER,PEER]:
+		var actor: Dictionary = world.facts.actors[actor_id]
+		for pair: Array in [[START,goal],[goal,START],[goal,goal],[START,[-1,80]]]:
+			var start: Vector2i = Vector2i(pair[0][0],pair[0][1])
+			var target: Vector2i = Vector2i(pair[1][0],pair[1][1])
+			var expected: Dictionary = HospitalSpace.new(content)._exit_witness(world,actor,1,start,target)
+			var equal: bool = true
+			for hit: int in 13:
+				var actual: Dictionary = space._exit_witness(world,actor,1,start,target)
+				equal = equal and var_to_bytes(actual)==var_to_bytes(expected)
+			valid = valid and equal
+			observations.append({"actor":actor_id,"start":pair[0],"goal":pair[1],"path_and_sweeps_equal":equal,"ok":expected.ok})
+	var no_fields: bool = int(space.query_counts.get("distance_field_builds",0))==0
+	return {"ok":valid and no_fields and world.freeze()==before,"observations":observations,"ordinary_exit_proofs_never_prepare_fields":no_fields,"facts_rng_unchanged":world.freeze()==before}
