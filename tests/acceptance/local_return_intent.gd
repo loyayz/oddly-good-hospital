@@ -5,6 +5,7 @@ class ObservedMovement extends HospitalMovement:
 	var blocked: Array=[]
 	var cursor_kept_on_contact: bool=true
 	var future_body_probes: int=0
+	var fixed_exit_checks: int=0
 	func _init(geometry: HospitalSpace) -> void: super(geometry)
 	func _move_step(world: WorldState, actor: Dictionary, movement: Dictionary, segment: Dictionary) -> MotionResult:
 		var point: Array=movement.get("local_move",{}).get("rejoin",{}).get("cell",[]).duplicate()
@@ -19,11 +20,14 @@ class ObservedMovement extends HospitalMovement:
 	func _local_path_clear(world: WorldState, actor: Dictionary, path: Array, query: RouteClearance = null) -> bool:
 		if path.size()>1: future_body_probes+=1
 		return super._local_path_clear(world,actor,path,query)
+	func _local_side_exit(world: WorldState, actor: Dictionary, movement: Dictionary, side: Vector2, fixed: Array) -> bool:
+		fixed_exit_checks+=1
+		return super._local_side_exit(world,actor,movement,side,fixed)
 
 func run(content: HospitalContent) -> Dictionary:
 	var suite: RefCounted=load("res://tests/acceptance/space.gd").new()
 	suite.content=content
-	var rows: Array=[_sequence(suite,false),_sequence(suite,true),_sequence(suite,false,true)]
+	var rows: Array=[_sequence(suite,false),_sequence(suite,true),_sequence(suite,false,true),_fixed_contact(suite)]
 	return {"ok":rows.all(func(row: Dictionary)->bool: return row.ok),"cases":rows}
 
 func _sequence(suite: RefCounted, compressed: bool, bend: bool = false) -> Dictionary:
@@ -64,5 +68,29 @@ func _sequence(suite: RefCounted, compressed: bool, bend: bool = false) -> Dicti
 	var actual_contacts: bool=observer.blocked.any(func(point: Array)->bool: return ConvoyTrail.point(point)==Vector2(41,70)) and observer.blocked.any(func(point: Array)->bool: return ConvoyTrail.point(point)==Vector2(42,70))
 	var checks: Dictionary={"initial_valid":initial.is_empty(),"arrived":arrived,"safe_real_steps":errors.is_empty(),"B_C_D_order":order,"B_C_actual_contacts":actual_contacts,"cursor_not_advanced_by_attempt":observer.cursor_kept_on_contact,"original_request_and_path":original,"fixed_actors_kept":fixed,"no_future_body_probe":observer.future_body_probes==0,"restore":restored.get("ok",false)}
 	var result: Dictionary={"case":"bent_route_B_C_D" if bend else "compressed_B_C_D" if compressed else "B_C_D","ok":checks.values().all(func(value: Variant)->bool: return value==true),"checks":checks,"initial_validation":initial,"errors":errors,"intended":observer.intended,"blocked":observer.blocked,"restored":restored,"ticks":ticks,"remaining":sim.world.facts.moves.duplicate(true)}
+	sim.dispose()
+	return result
+
+func _fixed_contact(suite: RefCounted) -> Dictionary:
+	var sim: HospitalSimulation=suite._fixture()
+	suite._add_actor(sim,"walker","S49",[42,70.8])
+	suite._add_actor(sim,"B","S49",[42,70])
+	var path: Array=[]
+	for y: int in [70,69,68]:path.append({"kind":"floor","floor_id":1,"cell":[42,y]})
+	sim.world.facts.move_request_next=1
+	sim.world.facts.moves["walker"]={"actor_id":"walker","path":path,"cursor":0,"travelled":[{"kind":"floor","floor_id":1,"cell":[42,71]}],"blocked_since":-1,"target_floor":1,"target_cell":[42,68],"request_sequence":1,"local_move":{"origin":[42,71],"target":path[0].duplicate(true),"rejoin":{"index":0,"cell":[42,70]}}}
+	sim.world.touch()
+	var initial: String=sim.world.validate(suite.content)
+	var observer:=ObservedMovement.new(sim.space)
+	sim.space.movement=observer
+	var probe: RefCounted=load("res://tests/acceptance/movement_detour.gd").new()
+	var errors: Array=[]
+	for tick: int in 120:
+		var error: String=probe._tick(suite,sim,["walker","B"])
+		if not error.is_empty():errors.append(error);break
+		if sim.world.facts.moves.is_empty():break
+	var arrived: bool=not sim.world.facts.moves.has("walker") and sim.space.at(sim.world,"walker",1,[42,68])
+	var checks: Dictionary={"initial_valid":initial.is_empty(),"arrived":arrived,"safe_real_steps":errors.is_empty(),"fixed_exit_used":observer.fixed_exit_checks>0,"fixed_body_kept":sim.space.at(sim.world,"B",1,[42,70]) and not sim.world.facts.moves.has("B"),"contact_keeps_cursor":observer.cursor_kept_on_contact,"no_future_body_probe":observer.future_body_probes==0}
+	var result: Dictionary={"case":"fixed_contact_after_rejoin_attempt","ok":checks.values().all(func(value: Variant)->bool:return value==true),"checks":checks,"errors":errors,"fixed_exit_checks":observer.fixed_exit_checks}
 	sim.dispose()
 	return result

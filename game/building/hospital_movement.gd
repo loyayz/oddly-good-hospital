@@ -1225,7 +1225,13 @@ func _local_collision(world: WorldState, actor: Dictionary, movement: Dictionary
 		if changed:
 			var next: Vector2=ConvoyTrail.point(movement.local_move.target.cell)-ConvoyTrail.point(actor.location.cell)
 			if next.cross(contact.requested_motion)==0.0 and next.dot(contact.requested_motion)>0.0:
-				_local_choose(world,actor,movement,next)
+				var fixed: Array=[]
+				for id: String in contact.blocker_actor_ids:
+					var other: Dictionary=world.facts.actors.get(id,{})
+					if other.get("location",{}).get("kind")!="floor" or other.location.floor_id!=actor.location.floor_id: continue
+					if not _local_movable(world,other,world.facts.moves.get(id,{})): fixed.append(id)
+				if fixed.is_empty(): _local_choose(world,actor,movement,next)
+				else: _local_choose_options(world,actor,movement,next,fixed)
 			return
 	# While the contacted body's actual local step is clear, this event
 	# need not start a second manoeuvre. No endpoint or future right is held.
