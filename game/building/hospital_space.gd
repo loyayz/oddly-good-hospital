@@ -379,7 +379,7 @@ func _unit_step_dynamic_clear(world: WorldState, actor: Dictionary, floor_id: in
 		var to_rect: Rect2 = _actor_rect(member,Vector2(to)+offset)
 		var swept: Rect2 = from_rect.merge(to_rect)
 		if prepared.is_empty():
-			if not _dynamic_clear(world,actor.id,floor_id,swept,members): return false
+			if not _dynamic_clear(world,actor.id,floor_id,swept,members,false,true): return false
 		elif (prepared.index as BodyIndex).intersects(floor_id,swept,""):
 			return false
 	return true
@@ -405,6 +405,7 @@ func _dynamic_route_query(world: WorldState, actor: Dictionary, floor_id: int, m
 	var reservations: Dictionary = reservation_view(world).regions
 	for key: String in reservations:
 		var region: Dictionary = reservations[key]
+		if not bool(region.blocks_passage): continue
 		var reservation: Dictionary = region.reservation
 		if int(reservation.floor_id)==floor_id and not RouteClearance.reservation_allows(reservation,actor.id,members):
 			index.update("r:"+key,floor_id,region.rect)
@@ -490,7 +491,7 @@ func _unit_rect(world: WorldState, actor: Dictionary, origin: Vector2, members: 
 func _build_reservation_view(world: WorldState) -> Dictionary:
 	query_counts.reservation_index_builds += 1
 	var view: Dictionary = {"index":BodyIndex.new(),"regions":{},"reservation_keys":{}}
-	for id: String in world.facts.adaptations: _index_reservation(view,id,world.facts.adaptations[id])
+	for id: String in world.facts.adaptations: _index_reservation(world,view,id,world.facts.adaptations[id])
 	return view
 
 func reservation_view(world: WorldState) -> Dictionary:
@@ -508,7 +509,7 @@ func reservation_changed(world: WorldState, id: String) -> void:
 	# the structural floor. All reservation owners already publish here.
 	reservation_revision += 1
 	var cached: Dictionary = _reservation_views.get(world.get_instance_id(),{})
-	if not cached.is_empty(): _index_reservation(cached.view,id,world.facts.adaptations.get(id,{}))
+	if not cached.is_empty(): _index_reservation(world,cached.view,id,world.facts.adaptations.get(id,{}))
 	reservation_updated.emit(world,id)
 	if public_areas!=null: public_areas.reservation_changed(world,id)
 
@@ -536,7 +537,7 @@ func movement_doors(world: WorldState, actor: Dictionary, swept: Rect2, members:
 	query_counts.door_candidates += result.size()
 	return result
 
-func _index_reservation(view: Dictionary, id: String, reservation: Dictionary) -> void:
+func _index_reservation(world: WorldState, view: Dictionary, id: String, reservation: Dictionary) -> void:
 	query_counts.reservation_index_updates += 1
 	for key: String in view.reservation_keys.get(id,[]):
 		view.index.remove(key)
@@ -550,7 +551,7 @@ func _index_reservation(view: Dictionary, id: String, reservation: Dictionary) -
 		var rect: Rect2 = Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3]))
 		var key: String = id+":"+str(ordinal)
 		view.index.update(key,int(reservation.floor_id),rect)
-		view.regions[key] = {"reservation":reservation,"reservation_id":id,"rect":rect}
+		view.regions[key] = {"reservation":reservation,"reservation_id":id,"rect":rect,"blocks_passage":ordinal==0 or not RouteClearance.is_soft_bed(world,reservation)}
 		keys.append(key)
 	view.reservation_keys[id] = keys
 
@@ -570,9 +571,10 @@ func _reservation_regions_many(world: WorldState, floor_id: int, bounds: Array[R
 	for key: String in view.index.candidates_in_regions(floor_id,bounds): regions.append(view.regions[key])
 	return regions
 
-func _dynamic_clear(world: WorldState, actor_id: String, floor_id: int, rect: Rect2, members: Array = [], actors_checked: bool = false) -> bool:
+func _dynamic_clear(world: WorldState, actor_id: String, floor_id: int, rect: Rect2, members: Array = [], actors_checked: bool = false, passing: bool = false) -> bool:
 	if not actors_checked: _ensure_actor_index(world)
 	for region: Dictionary in _reservation_regions(world,floor_id,rect):
+		if passing and not bool(region.blocks_passage): continue
 		var reservation: Dictionary = region.reservation
 		if int(reservation.floor_id)!=floor_id or RouteClearance.reservation_allows(reservation,actor_id,members):
 			continue
@@ -586,6 +588,14 @@ func _dynamic_clear(world: WorldState, actor_id: String, floor_id: int, rect: Re
 	if movement._sweep_index.intersects(floor_id,rect,actor_id,members):
 		return false
 	return true
+
+# Destination claims stay exclusive even when empty bedside floor can be
+# crossed. This local indexed check never treats people as permanent walls.
+func bed_destination_blocker(world: WorldState, actor_id: String, floor_id: int, rect: Rect2, members: Array = []) -> String:
+	for region: Dictionary in _reservation_regions(world,floor_id,rect):
+		if bool(region.blocks_passage) or RouteClearance.reservation_allows(region.reservation,actor_id,members): continue
+		if rect.intersects(region.rect,false): return str(region.reservation_id)
+	return ""
 
 func facility_layout(world: WorldState, facility_id: String) -> Dictionary:
 	var facility: Dictionary = world.facts.facilities[facility_id]
@@ -870,6 +880,21 @@ func _facility_exit_quote(world: WorldState, facility_id: String, actor_id: Stri
 	var candidate: WorldState
 	var previous_footprint: Array = facility_layout(world,facility_id).footprint
 	var same_footprint: bool = footprint==previous_footprint
+	# Bedside use claims do not add passage obstacles. The preflight still
+	# checked current bodies, competing uses and the whole placement bundle.
+	if facility.definition_id=="EQ05" and same_footprint:
+		query_counts["bed_unchanged_passage_quotes"] = int(query_counts.get("bed_unchanged_passage_quotes",0))+1
+		return quote
+	# A real extension may not materialize through any body, including its
+	# own nurse/doctor. Permission to use a post is not a collision exception.
+	var x: int=int(facility.cell[0]);var y: int=int(facility.cell[1])
+	var additions: Array[Rect2]=[]
+	if int(footprint[0])>int(previous_footprint[0]): additions.append(Rect2(x+int(previous_footprint[0]),y,int(footprint[0])-int(previous_footprint[0]),int(footprint[1])))
+	if int(footprint[1])>int(previous_footprint[1]): additions.append(Rect2(x,y+int(previous_footprint[1]),mini(int(footprint[0]),int(previous_footprint[0])),int(footprint[1])-int(previous_footprint[1])))
+	for addition: Rect2 in additions:
+		if intersects_actor_body(world,int(facility.floor_id),addition) or movement._sweep_index.intersects(int(facility.floor_id),addition,""): return {"ok":false,"reason":"护理床新增实体区域仍有实际身体"}
+	# Genuine changed bed geometry retains the existing full safety proof.
+	# This is not a fallback for unchanged beds or a claim of local expansion.
 	var expands: bool = int(footprint[0])>=int(previous_footprint[0]) and int(footprint[1])>=int(previous_footprint[1])
 	var candidate_source: Dictionary = {}
 	var geometries: Dictionary = {}

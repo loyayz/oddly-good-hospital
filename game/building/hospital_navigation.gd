@@ -116,7 +116,10 @@ func destination_reason(world: WorldState, actor: Dictionary, floor_id: int, tar
 		if not offsets.is_empty(): return "同行组只支持前后队列"
 		var m: Dictionary = _convoy_query_movement(world,actor.id,members)
 		var proxy: Dictionary = ConvoyTrail.proxy(world,m)
-		return structural_clearance(world,proxy,floor_id).position_reason(Vector2(target)+Vector2.ONE*float(m.convoy.shift))
+		var origin: Vector2=Vector2(target)+Vector2.ONE*float(m.convoy.shift)
+		var blocked_bed: String=space.bed_destination_blocker(world,actor.id,floor_id,space._actor_rect(proxy,origin),members)
+		if not blocked_bed.is_empty(): return "护理床岗位已有使用预约："+blocked_bed
+		return structural_clearance(world,proxy,floor_id).position_reason(origin)
 	var query: RouteClearance = structural_clearance(world,actor,floor_id,members,offsets)
 	# Integer admission retains the existing graph predicate. A fractional
 	# body can overlap a wall or fixture absent from its rounded neighbor.

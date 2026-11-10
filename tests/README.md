@@ -15,6 +15,8 @@
 
 候诊椅实际占用、手动预览与安全离位另见 [候诊椅占用查询专项](acceptance/seat_owner_lookup.md)，按独立交接选择用例。
 
+公共选区复用既有类型索引、缺类提前返回及布局/事实替换后的恢复见 [公共选区类型查询](acceptance/public_select_type_index.md)。
+
 环境覆盖复用、实际扩门恢复与9×9热图批次另见 [环境观察专项](acceptance/environment_cache_scope.md)。
 
 环境墙段、真实门洞、共墙归属与实时扩门的局部查询另见 [环境真实墙边专项](acceptance/environment_wall_lookup.md)。
@@ -79,3 +81,5 @@ pwsh -NoProfile -File tests/run-acceptance.ps1 -Case CLIN-23 -RebuildFixtures
 个人床候选区域变化与真实预约释放的定点专项见 [个人床局部机会观察](acceptance/personal_bed_dependencies.md)。
 
 招聘与员工返院的入口身体局部查询、多人实际入院及队列跨层边界见 [入口真实身体查询](acceptance/entry_body_lookup.md)。
+
+EQ05 空岗位可通行而使用权仍独占、真实床体/身体/扫掠安全、局部重接及跨层落地、护理查房与维修恢复的显式专项见 [护理床岗位通行](acceptance/bed_passage.md)。分段输入和真实执行范围分别标明，不替代原有完整临床链结果。
