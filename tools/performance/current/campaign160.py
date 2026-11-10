@@ -51,12 +51,16 @@ def main():
     parser.add_argument("--worker-tasks", choices=[0, 1, 4], type=int, default=4)
     parser.add_argument("--exact-reference", type=Path)
     parser.add_argument("--smoke", action="store_true", help="Two-step tool qualification, no performance claim")
+    parser.add_argument("--repeat-number", type=int, choices=[1, 2, 3], help="One full repeat for the serial paired controller; never shortens either window")
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[3]
     output, engine, input_path = args.output.resolve(), args.engine.resolve(), args.input.resolve()
     output.mkdir(parents=True, exist_ok=False)
     source = source_identity(root)
     prefix, steps, repeats = (0, 2, 1) if args.smoke else (1000, 2000, 3)
+    assert not (args.smoke and args.repeat_number), "Smoke is not a paired measurement"
+    if args.repeat_number:
+        repeats = 1
     protocol = {"commit": git(root, "rev-parse", "HEAD"),
                 "tree": git(root, "rev-parse", "HEAD^{tree}"),
                 "tracked_diff": git(root, "diff", "HEAD", "--"),
@@ -67,6 +71,7 @@ def main():
                 "prefix_steps": prefix, "sample_steps": steps, "repeats": repeats,
                 "main_thread_policy": args.main_thread_policy, "worker_tasks": args.worker_tasks,
                 "profile_stages": args.profile_stages, "OMP_NUM_THREADS": "1",
+                "paired_repeat": args.repeat_number,
                 "started_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
                 "scope": "Simulation.step elapsed, no renderer/GameSession. Fresh processes; OS caches retained. Desktop applications remain running. Stage timers are diagnostic."}
     write(output / "protocol.json", protocol)
