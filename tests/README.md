@@ -71,3 +71,5 @@ pwsh -NoProfile -File tests/run-acceptance.ps1 -Case CLIN-23 -RebuildFixtures
 运行 `godot --headless --path . --script res://tests/acceptance/schedule_preview.gd`，输出逐项 checks 与 INPUT_VALIDATION。覆盖医生建议/手动草案、三班六岗位与护士资格、当日覆盖/休假边界、离职后草案失效、当前实际状态和换选员工清空。正式输入先检查完整世界、排班和生活验证器。护理有能力但无 q_ward 是合法原始资格计算边界，不声称正常培养会生成该组合；离职边界通过正式工资结清生成，不代表执行了辞退及真实离院流程。睡眠状态由合法睡前输入经真实移动、床位预约及入睡产生，只验证预览，不重复完整睡眠周期。
 
 地污生成对有效预约的独立边界与恢复专项见 [地污生成与有效预约](acceptance/dirt_spawn_reservations.md)。
+
+地污来源、合法格与地块预算的局部查询及实际清完更新专项见 [地污当前态索引](acceptance/dirt_spawn_indices.md)。

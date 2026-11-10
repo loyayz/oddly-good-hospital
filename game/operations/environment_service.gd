@@ -14,6 +14,7 @@ var query_builds: int = 0
 var _facility_sources: Dictionary = {}
 var _water_ids: Dictionary = {}
 var _positive_definitions: Dictionary = {}
+var _spawn_index: RefCounted = preload("res://game/operations/dirt_spawn_index.gd").new()
 
 func _init(database: HospitalContent, geometry: HospitalSpace) -> void:
 	content = database
@@ -223,23 +224,29 @@ func spawn_dirt(world: WorldState, source_kind: String, source_id: String, sourc
 	var source: Dictionary = content.definition("cleanup_sources",source_kind)
 	if source.is_empty():
 		return ""
-	for patch: Dictionary in world.facts.environment.dirt.values():
-		if patch.source_id == source_id and patch.source_kind == source_kind:
-			return str(patch.id)
+	var dirt: Dictionary = _spawn_index.dirt(world,space)
+	var same_source: Array = dirt.sources.get(source_kind,{}).get(source_id,[])
+	if not same_source.is_empty(): return str(same_source[0])
 	var bin_id: String = ""
 	var target: Array = []
 	if bool(source.bin_collects):
-		var reachable: Dictionary = _coverage(world,floor_id,cell,int(content.balance.cleanup.bin_range_cells),false)
-		for id: String in world.facility_ids(str(content.balance.cleanup.bin_definition_id)):
+		var radius: int = int(content.balance.cleanup.bin_range_cells)
+		begin_query(world)
+		var reachable: Dictionary = _coverage(world,floor_id,cell,radius,false,_coverage_edges(world,floor_id))
+		end_query()
+		var layout: Dictionary = _spawn_index.layout(world,space,floor_id)
+		var bounds: Rect2 = Rect2(Vector2(int(cell[0])-radius,int(cell[1])-radius),Vector2.ONE*(2*radius+1))
+		# The shared sparse index returns sorted local IDs, retaining the original
+		# first reachable bin choice without enumerating every bin in the hospital.
+		for id: String in layout.index.candidates(floor_id,bounds):
 			var bin: Dictionary = world.facts.facilities[id]
-			if bin.definition_id == content.balance.cleanup.bin_definition_id and int(bin.floor_id)==floor_id and reachable.has(_cell_key(bin.cell)):
+			if bin.definition_id==content.balance.cleanup.bin_definition_id and reachable.has(_cell_key(bin.cell)):
 				bin_id = id
-				target = bin.cell.duplicate()
 				break
 		if not bin_id.is_empty():
-			for patch: Dictionary in world.facts.environment.dirt.values():
-				if patch.bin_id == bin_id:
-					return str(patch.id)
+			target = world.facts.facilities[bin_id].cell.duplicate()
+			var same_bin: Array = dirt.bins.get(bin_id,[])
+			if not same_bin.is_empty(): return str(same_bin[0])
 	if target.is_empty():
 		var candidates: Array = []
 		var ground: Dictionary = _ground_spawn_view(world,floor_id)
@@ -255,10 +262,7 @@ func spawn_dirt(world: WorldState, source_kind: String, source_id: String, sourc
 		if candidates.is_empty():
 			return ""
 		target = candidates[0].cell
-	var count: int = 0
-	for patch: Dictionary in world.facts.environment.dirt.values():
-		if int(patch.floor_id)==floor_id and int(patch.cell[0])/32==int(target[0])/32 and int(patch.cell[1])/32==int(target[1])/32:
-			count += 1
+	var count: int = int(dirt.plots.get(floor_id,{}).get(_spawn_index.plot_key(target),0))
 	if count>=int(content.balance.cleanup.active_patches_per_plot):
 		return ""
 	var id: String = world.new_id("dirt")
@@ -266,40 +270,27 @@ func spawn_dirt(world: WorldState, source_kind: String, source_id: String, sourc
 	world.facts.environment.dirt[id] = {"id":id,"source_kind":source_kind,"source_id":source_id,"source_receipt":source_receipt,
 		"floor_id":floor_id,"cell":target.duplicate(),"bin_id":bin_id,"generated_tick":world.sim_tick,
 		"total_milli":work,"remaining_milli":work,"contributions":{},"worker_id":"","work_cell":[],"phase":"queued","reason":""}
-	world.touch()
+	_spawn_index.inserted(world,world.facts.environment.dirt[id])
+	# Thin dirt changes observations, not structural movement geometry.
+	world.touch(false)
+	space.public_areas.changed(world)
 	return id
 
 func _ground_spawn_view(world: WorldState, floor_id: int) -> Dictionary:
-	var points: Dictionary = {}
-	var rectangles: Dictionary = {}
-	var index: BodyIndex = BodyIndex.new()
-	var floor_data: Dictionary = world.facts.floors.overrides.get(str(floor_id),{})
-	for cell: Array in floor_data.get("blocked",[]): points[Vector2(float(cell[0]),float(cell[1]))] = true
-	for door: Dictionary in floor_data.get("doors",[]): points[Vector2(float(door.cell[0]),float(door.cell[1]))] = true
-	for patch: Dictionary in world.facts.environment.dirt.values():
-		if int(patch.floor_id)==floor_id and patch.bin_id.is_empty(): points[Vector2(float(patch.cell[0]),float(patch.cell[1]))] = true
-	for id: String in world.facts.facilities:
-		var facility: Dictionary = world.facts.facilities[id]
-		if int(facility.get("floor_id",-1))!=floor_id or facility.get("location","floor")=="inventory": continue
-		var rect: Rect2 = _rectangle(facility)
-		index.update(id,floor_id,rect)
-		rectangles[id] = rect
-		var cells: Array = facility.get("operator_cells",[]).duplicate()
-		for field: String in ["patient_cell","repair_cell"]:
-			if not facility.get(field,[]).is_empty(): cells.append(facility[field])
-		for cell: Array in cells: points[Vector2(float(cell[0]),float(cell[1]))] = true
-	# Reservation owners publish complete regions, not occupied_cells. Borrow
-	# their live index; dirt has no participant permission to enter a held area.
-	return {"points":points,"rectangles":rectangles,"index":index,"reservations":space.reservation_view(world).index}
+	var layout: Dictionary = _spawn_index.layout(world,space,floor_id)
+	var dirt: Dictionary = _spawn_index.dirt(world,space)
+	# Reuse sparse layout and current dirt lookups. Reservations are borrowed
+	# afresh from their owner for this synchronous spawn, including same-tick edits.
+	return {"points":layout.points,"index":layout.index,"dirt":dirt.points.get(floor_id,{}),"reservations":space.reservation_view(world).index}
 
 func _ground_spawn_legal(world: WorldState, floor_id: int, cell: Array, view: Dictionary = {}) -> bool:
 	if not space.owned(world,floor_id,Vector2i(int(cell[0]),int(cell[1]))):
 		return false
 	if view.is_empty(): view = _ground_spawn_view(world,floor_id)
 	var point: Vector2 = Vector2(float(cell[0]),float(cell[1]))
-	if view.points.has(point): return false
+	if view.points.has(point) or view.dirt.has(point): return false
 	for id: String in view.index.candidates(floor_id,Rect2(point,Vector2(0.001,0.001))):
-		if view.rectangles[id].has_point(point): return false
+		if (view.index as BodyIndex).rectangle(id).has_point(point): return false
 	return not (view.reservations as BodyIndex).intersects(floor_id,Rect2(point,Vector2.ONE),"")
 
 func renovation_quote(world: WorldState, payload: Dictionary) -> Dictionary:
@@ -541,6 +532,7 @@ func advance(world: WorldState) -> void:
 		if int(patch.remaining_milli)==0:
 			_receipt(world,"cleanup_completed",str(patch.id),patch.contributions,int(patch.total_milli))
 			_release(world,patch)
+			_spawn_index.removing(world,patch)
 			world.facts.environment.dirt.erase(id)
 			if world.facts.environment.pinned_dirt_id==id:
 				world.facts.environment.pinned_dirt_id = ""
