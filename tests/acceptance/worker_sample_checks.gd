@@ -232,11 +232,12 @@ func _sample_pair(input: Dictionary, content: HospitalContent, nested: bool, cus
 	for job: Dictionary in report.get("last_batch",{}).get("jobs",[]):
 		owned_fast += int(job.get("owned_fast_checks",0))
 		owned_fallback += int(job.get("owned_fallback_checks",0))
+	var main_empty: int = int(report.get("last_batch",{}).get("main_empty_observations",0))
 	var owned_witness: bool = true
 	if not custom and not custom_space and requested>0:
 		if diagnostics:
-			owned_witness = owned_fast+owned_fallback==requested
-			owned_witness = owned_witness and (owned_fast>0 if parallel.world.facts.floors.has("completed_top_floor") else owned_fast==0 and owned_fallback==requested)
+			owned_witness = owned_fast+owned_fallback+main_empty==requested
+			owned_witness = owned_witness and (owned_fast+main_empty>0 if parallel.world.facts.floors.has("completed_top_floor") else owned_fast==0 and main_empty==0 and owned_fallback==requested)
 		else: owned_witness = owned_fast==0 and owned_fallback==0
 	var execution: bool
 	if custom or custom_space or requested==0:
@@ -246,8 +247,9 @@ func _sample_pair(input: Dictionary, content: HospitalContent, nested: bool, cus
 	else:
 		execution = int(report.batches)==repetitions and int(report.failed_batches)==0 and int(report.processed)==requested*repetitions and int(report.consumed)==requested*repetitions and bool(report.last_batch.get("all_results_consumed",false))
 	if not custom and not custom_space and requested>0:
-		var inline_job: bool = mini(maxi(1,task_count),requested)==1
-		execution = execution and report.last_batch.jobs.size()==mini(4,mini(maxi(1,task_count),requested))
+		var worker_requests: int = requested-main_empty
+		var inline_job: bool = mini(maxi(1,task_count),worker_requests)<=1
+		execution = execution and report.last_batch.jobs.size()==mini(4,mini(maxi(1,task_count),worker_requests))
 		execution = execution and (int(report.last_batch.group_id)==-1 if inline_job else int(report.last_batch.group_id)>=0)
 		for job: Dictionary in report.last_batch.jobs:
 			execution = execution and int(job.thread_id)!=0 and ((int(job.thread_id)==OS.get_main_thread_id())==inline_job)
@@ -265,7 +267,7 @@ func _sample_pair(input: Dictionary, content: HospitalContent, nested: bool, cus
 		"ok":input.validation.is_empty() and valid.is_empty() and defaults and execution and equal and rng and cache_equal and budget and seed_released and scopes and staff_days and overrides and space_override and nesting and owned_witness,
 		"input_validation":input.validation,"output_validation":valid,"real_worker_execution_or_expected_fallback":execution,
 		"default_workers_enabled_with_four_tasks":defaults,
-		"owned_branch_witness":owned_witness,"owned_fast_checks":owned_fast,"owned_fallback_checks":owned_fallback,
+		"owned_branch_witness":owned_witness,"main_empty_observations":main_empty,"owned_fast_checks":owned_fast,"owned_fallback_checks":owned_fallback,
 		"complete_facts_equal_including_experience_anger_details_staff_days":equal,"rng_unchanged":rng,
 		"retained_coverage_order_and_values_equal":cache_equal,"coverage_budget_preserved":budget,"seed_borrow_released":seed_released,"scopes_closed":scopes,"staff_days_present":staff_days,"nested_depth_preserved":nesting,"override_calls_preserved":overrides,"custom_space_owned_called":space_override,"worker_report":report}
 	for x: Dictionary in [serial,parallel]:
