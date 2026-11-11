@@ -8,6 +8,8 @@ from pathlib import Path
 import subprocess
 import time
 
+SCENARIOS = ("comprehensive160-clinical-family-v3", "mixed160-clinical-ops-v1")
+
 
 def digest(path):
     with path.open("rb") as stream:
@@ -83,11 +85,28 @@ def target_checks(metrics, targets):
     }
 
 
+def build_engine_command(root, engine, input_path, result_path, prefix, steps, args):
+    command = [str(engine), "--headless", "--path", str(root), "--script",
+               "res://tools/performance/current/plain_v4.gd", "--",
+               f"--input={input_path}", f"--output={result_path}",
+               f"--prefix-steps={prefix}", f"--steps={steps}", "--observed-floor=1",
+               f"--main-thread-policy={args.main_thread_policy}", f"--worker-tasks={args.worker_tasks}"]
+    if args.scenario is not None:
+        command.append(f"--expected-scenario={args.scenario}")
+    if args.profile_stages:
+        command.append("--profile-stages")
+    if args.require_coverage and not args.smoke:
+        command.append("--require-coverage")
+    return command
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--engine", type=Path, required=True)
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--scenario", choices=SCENARIOS,
+                        help="Optional expected input row; only an explicit value enables the pre-step scenario gate")
     parser.add_argument("--profile-stages", action="store_true")
     parser.add_argument("--main-thread-policy", choices=["app", "default"], default="app")
     parser.add_argument("--worker-tasks", choices=[0, 1, 4], type=int, default=4)
@@ -113,6 +132,7 @@ def main():
                 "tree": git(root, "rev-parse", "HEAD^{tree}"),
                 "tracked_diff": git(root, "diff", "HEAD", "--"),
                 "input_sha256": digest(input_path), "input": str(input_path),
+                "scenario": args.scenario,
                 "engine": str(engine), "engine_sha256": digest(engine),
                 "engine_executables": engine_identity(engine),
                 "runner_sha256": digest(root / "tools/performance/current/plain_v4.gd"),
@@ -143,15 +163,7 @@ def main():
         write(output / f"r{repeat}.processes-before.json", before)
         assert not before, f"Another engine/compiler is active: {before}"
         result_path = output / f"r{repeat}.json"
-        command = [str(engine), "--headless", "--path", str(root), "--script",
-                   "res://tools/performance/current/plain_v4.gd", "--",
-                   f"--input={input_path}", f"--output={result_path}",
-                   f"--prefix-steps={prefix}", f"--steps={steps}", "--observed-floor=1",
-                   f"--main-thread-policy={args.main_thread_policy}", f"--worker-tasks={args.worker_tasks}"]
-        if args.profile_stages:
-            command.append("--profile-stages")
-        if args.require_coverage and not args.smoke:
-            command.append("--require-coverage")
+        command = build_engine_command(root, engine, input_path, result_path, prefix, steps, args)
         write(output / "status.json", {"state": "running", "repeat": repeat, "command": command})
         print(f"START repeat={repeat} output={result_path}", flush=True)
         started = time.perf_counter()

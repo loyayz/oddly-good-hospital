@@ -1,5 +1,6 @@
 extends RefCounted
 
+const SCENARIOS: Array=["comprehensive160-clinical-family-v3","mixed160-clinical-ops-v1"]
 # Observation is outside Simulation.step. A populated room, an enqueued order,
 # a route intention or a historical input receipt never establishes coverage.
 var prefix: Dictionary={"steps":0,"work":{},"events":{},"commands":{},"ledger":{},"moving_actors":0,"floor_transitions":0,"new_attempts":0,"consumed_units":0,"purchased_units":0,"inventory_delta":0}
@@ -17,8 +18,11 @@ var _initial_visits: Dictionary={}
 var _completed_exams: Dictionary={}
 var _saved_rolls: Dictionary={}
 var _error_counts: Dictionary={}
+var _scenario: String="comprehensive160-clinical-family-v3"
 
-func _init(content: HospitalContent) -> void:
+func _init(content: HospitalContent, scenario: String = "comprehensive160-clinical-family-v3") -> void:
+	assert(scenario in SCENARIOS,"Unsupported comprehensive scenario")
+	_scenario=scenario
 	_geometry=HospitalSpace.new(content)
 
 func capture(world: WorldState) -> Dictionary:
@@ -313,7 +317,7 @@ func report(world: WorldState) -> Dictionary:
 	var output_errors: Array=errors.duplicate()
 	if not facts_error.is_empty(): output_errors.append(facts_error)
 	for key: String in missing: output_errors.append("No measured activity: "+key)
-	return {"schema":3,"scenario":"comprehensive160-clinical-family-v3","coverage_pass":output_errors.is_empty() and int(sample.steps)>0,"coverage":coverage,"errors":output_errors,"invariant_failure_counts":_error_counts.duplicate(),"uncovered":missing,"prefix":prefix.duplicate(true),"sample":sample.duplicate(true),"sample_first_tick":_sample_first_tick,"sample_last_tick":_sample_last_tick,"initial_core_ids":_initial_core.keys(),"initial_visit_boundaries":_initial_visits,"completed_examinations":_completed_exams,"present_min":_minimum_population,"present_max":_maximum_population,"natural_additional_actors":_external_ids,"scope":"Only sample deltas establish coverage. Historical input and prefix are separate. Measured entries, effective visit progress, original-doctor review, real ward return, completed examinations, actual attempts, outcomes and fees are recorded; work progress alone is not a cured or complete-job claim.","not_covered_by_this_scenario":["UI/rendering","save persistence","quarterly/full-day cycles","every possible clinical plan","all clinical/family acceptance boundaries"]}
+	return {"schema":3,"scenario":_scenario,"coverage_pass":output_errors.is_empty() and int(sample.steps)>0,"coverage":coverage,"errors":output_errors,"invariant_failure_counts":_error_counts.duplicate(),"uncovered":missing,"prefix":prefix.duplicate(true),"sample":sample.duplicate(true),"sample_first_tick":_sample_first_tick,"sample_last_tick":_sample_last_tick,"initial_core_ids":_initial_core.keys(),"initial_visit_boundaries":_initial_visits,"completed_examinations":_completed_exams,"present_min":_minimum_population,"present_max":_maximum_population,"natural_additional_actors":_external_ids,"scope":"Only sample deltas establish coverage. Historical input and prefix are separate. Measured entries, effective visit progress, original-doctor review, real ward return, completed examinations, actual attempts, outcomes and fees are recorded; work progress alone is not a cured or complete-job claim.","not_covered_by_this_scenario":["UI/rendering","save persistence","quarterly/full-day cycles","every possible clinical plan","all clinical/family acceptance boundaries"]}
 
 func _check(coverage: Dictionary, key: String, actual: int, lower_bound: int, unit: String) -> void:
 	coverage[key]={"covered":actual>=lower_bound,"actual":actual,"lower_bound":lower_bound,"unit":unit}

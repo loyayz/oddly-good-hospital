@@ -2,10 +2,12 @@
 
 当前场景为 `comprehensive160-clinical-family-v3`，适用 [临床流程与住院家属统一规格](../../../docs/specs/26-11/2026-11-11-clinical-flow-and-inpatient-family.md)。旧 `comprehensive160-v1` 的普通门诊陪诊、证据分数和双检查输入已经退役；v2 的家属优先准备未通过资格检查。旧输入均不能作为 v3 的有效基准，历史报告、原始输出和输入哈希保留其历史意义。
 
+[混合临床与运营行](mixed160.md)使用独立入口和显式 `--scenario mixed160-clinical-ops-v1`。它保留完整 160 核心和全部设施，将原行 84 份当前 GP 输入改为 10 份待检查、6 份待复核、68 份待常规治疗。原 v3 完整输入及其 84 份 GP 请求继续保留。不同负载两行各建基线，只在本行相同输入下比较实现；行间差异不作为优化收益。覆盖、采样、密集窗口和 CPU 门槛相同。
+
 `campaign160.py` 默认串行启动三个独立进程，每次执行相同完整输入、1000 个真实前缀步和 6000 个采样步。每步为生产模拟的 0.1 秒。正式采样至少 1000 步；同轮与优化对比固定输入、窗口、引擎、原生库、线程策略、观察器及全部合法负载。输出目录必须不存在，失败证据保留，不自动重跑。
 
 ```powershell
-python -X utf8 -B tools/performance/current/campaign160.py --engine <Godot控制台程序> --input <新160人输入> --output <新目录> --require-coverage
+python -X utf8 -B tools/performance/current/campaign160.py --engine <Godot控制台程序> --input <新160人输入> --output <新目录> --scenario comprehensive160-clinical-family-v3 --require-coverage
 ```
 
 `--repeat-number 1/2/3` 每次仅执行一个完整轮次，便于串行控制和在当前轮次结束后停止。每轮独立判定 P95 ≤ 10 ms、P99 ≤ 15 ms、普通步最大值 ≤ 30 ms、模拟速度比 ≥ 0.99，不能用三轮平均掩盖超标。`--smoke` 只执行两个真实步，校验工具入口，不提供功能覆盖或性能结论。

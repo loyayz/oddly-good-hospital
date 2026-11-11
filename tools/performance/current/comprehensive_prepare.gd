@@ -4,6 +4,8 @@ const Operations = preload("res://tools/performance/current/comprehensive_operat
 const ClinicalInputs = preload("res://tools/performance/current/comprehensive_clinical_inputs.gd")
 const SCENARIO: String = "comprehensive160-clinical-family-v3"
 const WARD_OPENING: Dictionary={"bench_staff_0025":"bench_room_1_03","bench_staff_0027":"bench_room_3_03"}
+var _scenario: String=SCENARIO
+var _input_name: String="comprehensive160"
 var _setup: Dictionary = {"commands":[],"initial_cohorts":[],"added_facilities":[],"moved_facilities":[],"errors":[],"limitations":[]}
 var _failure_boundary_path: String=""
 var _preparation_events: Array=[]
@@ -17,17 +19,17 @@ func _run() -> void:
 	if output_dir.is_empty() or _maximum_steps<=0 or _maximum_us<=0:
 		push_error("Expected --output-dir and positive preparation watchdogs.");quit(2);return
 	if DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(output_dir))!=OK: quit(2);return
-	var output: String=output_dir.path_join("comprehensive160.input.bin")
+	var output: String=output_dir.path_join(_input_name+".input.bin")
 	_failure_boundary_path=output+".failed-boundary"
-	for existing: String in [output,output_dir.path_join("comprehensive160.manifest.json"),_failure_boundary_path+".bin",_failure_boundary_path+".json"]:
+	for existing: String in [output,output_dir.path_join(_input_name+".manifest.json"),_failure_boundary_path+".bin",_failure_boundary_path+".json"]:
 		if FileAccess.file_exists(existing): push_error("Preserve the existing preparation evidence; choose a new directory: "+existing);quit(2);return
-	_started=Time.get_ticks_usec();_steps=0;_case_id="comprehensive160"
+	_started=Time.get_ticks_usec();_steps=0;_case_id=_input_name
 	var content: HospitalContent=HospitalContent.new()
 	if not content.error.is_empty(): push_error(content.error);quit(2);return
 	var result: Dictionary=await _construct(content,output)
 	result.preparation_us=Time.get_ticks_usec()-_started
-	result.scenario=SCENARIO
-	var report_file: FileAccess=FileAccess.open(output_dir.path_join("comprehensive160.manifest.json"),FileAccess.WRITE)
+	result.scenario=_scenario
+	var report_file: FileAccess=FileAccess.open(output_dir.path_join(_input_name+".manifest.json"),FileAccess.WRITE)
 	if report_file==null: quit(2);return
 	report_file.store_string(JSON.stringify(result,"\t"));report_file.close()
 	print("COMPREHENSIVE_PREPARATION="+JSON.stringify(result))
@@ -104,14 +106,12 @@ func _construct(content: HospitalContent, output: String) -> Dictionary:
 	if not _setup.staff_preparation.ok:
 		var failure: Dictionary=_save_failed_boundary(sim,"Real guidance and ward-nurse opening preparation did not finish",[],_setup.staff_preparation)
 		sim.dispose();return failure.merged({"setup":_setup})
-	var cohorts: Dictionary=ClinicalInputs.prepare(pending,world,content)
+	var cohorts: Dictionary=_declare_clinical_boundary(pending,world,content)
 	if not cohorts.ok: sim.dispose();return cohorts.merged({"setup":_setup})
 	_setup.initial_cohorts=cohorts.historical
 	_setup.fresh_gp_cohorts=cohorts.fresh
-	var additional: Dictionary=ClinicalInputs.add_fresh(pending,content)
-	if not additional.ok: sim.dispose();return additional
-	_setup.additional_fresh_patients=additional.records
-	for row: Dictionary in additional.records: original_bodies[row.actor_id]=row.body_dimensions.duplicate(true)
+	_setup.additional_fresh_patients=cohorts.get("additional_fresh_records",cohorts.additional_records)
+	for row: Dictionary in cohorts.additional_records: original_bodies[row.actor_id]=row.body_dimensions.duplicate(true)
 	var all_patients: Array=pending.visits.keys()
 	all_patients.sort()
 	_setup.patient_join=_join_patient_batch(sim,pending,all_patients,"patients")
@@ -119,14 +119,18 @@ func _construct(content: HospitalContent, output: String) -> Dictionary:
 	var patient_deployment: Dictionary=_deploy_initial_core(sim,_setup.patient_join.actor_ids,"patients")
 	var staff_stage: Dictionary=staff_deployment.duplicate();staff_stage.erase("records")
 	var patient_stage: Dictionary=patient_deployment.duplicate();patient_stage.erase("records")
-	_setup.initial_deployment={"ok":staff_deployment.ok and patient_deployment.ok,"count":staff_deployment.count+patient_deployment.get("count",0),"staff_stage":staff_stage,"patient_stage":patient_stage,"records":staff_deployment.records+patient_deployment.get("records",[]),"boundary":"All original 120 patients and eight additional full-body fresh patients join once, before any patient's first step. Participating employees and their actual work, locations, travel and clocks remain unchanged."}
+	_setup.initial_deployment={"ok":staff_deployment.ok and patient_deployment.ok,"count":staff_deployment.count+patient_deployment.get("count",0),"staff_stage":staff_stage,"patient_stage":patient_stage,"records":staff_deployment.records+patient_deployment.get("records",[]),"boundary":cohorts.get("patient_boundary_description","All original 120 patients and eight additional full-body fresh patients join once, before any patient's first step. Participating employees and their actual work, locations, travel and clocks remain unchanged.")}
 	for key: String in ["same_floors","only_locations_and_revision_changed","all_full_bodies_public_and_clear"]: _setup.initial_deployment[key]=staff_deployment.get(key,false) and patient_deployment.get(key,false)
 	_setup.initial_deployment.validation_scope="Each cohort at its own initial declaration, not a requirement that actual final work posts be public waiting cells. Final world/build/schedule validation is separate."
 	if not patient_deployment.ok:
 		sim.dispose();return {"ok":false,"reason":"New patient public deployment failed","setup":_setup}
 	for row: Dictionary in _setup.initial_cohorts+_setup.fresh_gp_cohorts:
 		row.freeze_location=world.facts.actors[world.facts.visits[row.visit_id].actor_id].location.duplicate(true)
-	_setup.clinical_start={"joined_tick":world.sim_tick,"original_patients":120,"additional_fresh_patients":8,"total_patients":128,"patient_steps":_steps-int(_setup.patient_join.joined_step),"ward_stays":world.facts.ward_stays.size(),"attempts":world.facts.attempts.size(),"sessions":world.facts.sessions.size(),"preparations":world.facts.preparations.size(),"scope":"No patient, admission, relative or clinical work is advanced during preparation. Saved diagnostic history is declared input. Real admission, family decisions, visits and all clinical progress must execute after this boundary."}
+	_setup.clinical_start={"joined_tick":world.sim_tick,"original_patients":120,"additional_fresh_patients":_setup.additional_fresh_patients.size(),"total_patients":128,"patient_steps":_steps-int(_setup.patient_join.joined_step),"ward_stays":world.facts.ward_stays.size(),"attempts":world.facts.attempts.size(),"sessions":world.facts.sessions.size(),"preparations":world.facts.preparations.size(),"scope":"No patient, admission, relative or clinical work is advanced during preparation. Saved diagnostic history is declared input. Real admission, family decisions, visits and all clinical progress must execute after this boundary."}
+	var additional_historical: int=cohorts.additional_records.size()-_setup.additional_fresh_patients.size()
+	if additional_historical>0:
+		_setup.clinical_start.additional_historical_patients=additional_historical
+		_setup.clinical_start.total_additional_patients=cohorts.additional_records.size()
 	# The worn spare is declared at the complete patient input boundary. The
 	# employee-only opening phase cannot consume the sample's maintenance job.
 	world.facts.facilities[Operations.MAINTENANCE_ITEM].condition=float(content.balance.maintenance_dispatch.manual_threshold)
@@ -155,15 +159,26 @@ func _construct(content: HospitalContent, output: String) -> Dictionary:
 	var ok: bool=validation.is_empty() and rules.ok and core_identity.ok and _setup.errors.is_empty() and retained and beds==24 and layout.rooms==64 and layout.facilities==1361 and layout.service_objects==161 and layout.props==1200 and population.staff==32 and population.patients==128 and population.visitors==0 and population.present==160 and no_patient_progress
 	var identity: Dictionary=_identity()
 	for path: String in ["res://tools/performance/current/comprehensive_prepare.gd","res://tools/performance/current/comprehensive_clinical_inputs.gd","res://tools/performance/current/comprehensive_operations.gd","res://tools/performance/current/comprehensive_observer.gd"]: identity.sources[path]=FileAccess.get_sha256(path)
-	var metadata: Dictionary={"ok":ok,"population":population,"family_input":family_input,"no_patient_progress":no_patient_progress,"layout":layout,"care_beds":beds,"original_entities_retained":retained,"room_rules":rules,"core_identity":core_identity,"setup":_setup,"validation":validation,"actual_preparation_steps":_steps,"source_tick":world.sim_tick,"scenario":SCENARIO,"identity":identity}
+	var metadata: Dictionary={"ok":ok,"population":population,"family_input":family_input,"no_patient_progress":no_patient_progress,"layout":layout,"care_beds":beds,"original_entities_retained":retained,"room_rules":rules,"core_identity":core_identity,"setup":_setup,"validation":validation,"actual_preparation_steps":_steps,"source_tick":world.sim_tick,"scenario":_scenario,"identity":identity}
 	if ok:
 		var file: FileAccess=FileAccess.open(output,FileAccess.WRITE)
 		if file==null: sim.dispose();return {"ok":false,"reason":"Cannot publish new complete input"}
-		file.store_var({"content_fingerprint":content.content_fingerprint,"facts":world.freeze(),"floors":fixture.floors,"visitor_ids":fixture.visitor_ids,"fixture_migration":fixture.migration,"scenario":SCENARIO,"comprehensive_setup":_setup})
+		file.store_var({"content_fingerprint":content.content_fingerprint,"facts":world.freeze(),"floors":fixture.floors,"visitor_ids":fixture.visitor_ids,"fixture_migration":fixture.migration,"scenario":_scenario,"comprehensive_setup":_setup})
 		file.close();metadata.input=output;metadata.input_sha256=FileAccess.get_sha256(output)
 	else:
 		metadata.merge(_save_failed_boundary(sim,"Complete initial boundary did not qualify",all_patients,{}),true)
 	sim.dispose();return metadata
+
+func _declare_clinical_boundary(pending: Dictionary, world: WorldState, content: HospitalContent) -> Dictionary:
+	var cohorts: Dictionary=ClinicalInputs.prepare(pending,world,content)
+	if not cohorts.ok: return cohorts
+	var additional: Dictionary=ClinicalInputs.add_fresh(pending,content)
+	if not additional.ok:
+		_setup.initial_cohorts=cohorts.historical
+		_setup.fresh_gp_cohorts=cohorts.fresh
+		return additional
+	cohorts.additional_records=additional.records
+	return cohorts
 
 # Fixture patients have not participated in any step. Hold their full immutable
 # input outside the employee-only world; no live actor or journey is withdrawn.
@@ -346,7 +361,7 @@ func _save_failed_boundary(sim: HospitalSimulation, reason: String, visit_ids: A
 		affected.append({"visit_id":id,"phase":visit.get("phase","missing"),"result":visit.get("final_result",""),"waiting_reason":visit.get("waiting_reason",""),"diagnosis":visit.get("diagnosis",{}).duplicate(true),"actor_location":actor.get("location",{}).duplicate(true),"ticket":world.facts.tickets.get(str(visit.get("ticket_id","")),{}).duplicate(true)})
 	var visitor_ids: Array=[]
 	for family: Dictionary in world.facts.visitors.stays.values(): visitor_ids.append(str(family.actor_id))
-	var boundary: Dictionary={"scenario":SCENARIO+"-failed-preparation","content_fingerprint":sim.content.content_fingerprint,"facts":world.freeze(),"events":_preparation_events.duplicate(true),"floors":[1,2,3,4],"visitor_ids":visitor_ids,"reason":reason,"tick":world.sim_tick,"context":context.duplicate(true),"visits":affected}
+	var boundary: Dictionary={"scenario":_scenario+"-failed-preparation","content_fingerprint":sim.content.content_fingerprint,"facts":world.freeze(),"events":_preparation_events.duplicate(true),"floors":[1,2,3,4],"visitor_ids":visitor_ids,"reason":reason,"tick":world.sim_tick,"context":context.duplicate(true),"visits":affected}
 	var binary: FileAccess=FileAccess.open(_failure_boundary_path+".bin",FileAccess.WRITE)
 	if binary!=null: binary.store_var(boundary);binary.close()
 	var json: FileAccess=FileAccess.open(_failure_boundary_path+".json",FileAccess.WRITE)

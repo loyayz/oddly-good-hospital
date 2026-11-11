@@ -1,5 +1,6 @@
 extends SceneTree
 const Population = preload("res://tools/performance/acceptance/fixtures/prepare_inputs.gd")
+const Observer = preload("res://tools/performance/current/comprehensive_observer.gd")
 var output: String
 func _initialize() -> void: call_deferred("_run")
 func write_json(path: String, data: Dictionary) -> void:
@@ -94,6 +95,7 @@ func _run() -> void:
 	var thread_policy_mode: String = "app"
 	var worker_tasks: int = 4
 	var require_coverage: bool = false
+	var expected_scenario: String = ""
 	for arg: String in OS.get_cmdline_user_args():
 		if arg.begins_with("--input="): input=arg.trim_prefix("--input=")
 		if arg.begins_with("--output="): output=arg.trim_prefix("--output=")
@@ -104,6 +106,7 @@ func _run() -> void:
 		if arg.begins_with("--main-thread-policy="): thread_policy_mode=arg.trim_prefix("--main-thread-policy=")
 		if arg.begins_with("--worker-tasks="): worker_tasks=arg.trim_prefix("--worker-tasks=").to_int()
 		if arg=="--require-coverage": require_coverage=true
+		if arg.begins_with("--expected-scenario="): expected_scenario=arg.trim_prefix("--expected-scenario=")
 	if not thread_policy_mode in ["app","default"] or not worker_tasks in [0,1,4]: quit(2);return
 	if input.is_empty() or output.is_empty() or steps<=0 or prefix_steps<0 or FileAccess.file_exists(output): quit(2);return
 	var thread_policy: Dictionary = {"requested":thread_policy_mode,"applied":false,"reason":"platform_default","caller_thread_id":OS.get_thread_caller_id()}
@@ -116,13 +119,15 @@ func _run() -> void:
 	var content: HospitalContent = HospitalContent.new()
 	var file: FileAccess = FileAccess.open(input,FileAccess.READ)
 	var envelope: Dictionary = file.get_var(false);file.close()
+	var scenario: String=str(envelope.get("scenario",""))
+	if not expected_scenario.is_empty() and scenario!=expected_scenario: write_json(output,{"complete":false,"reason":"scenario mismatch","expected_scenario":expected_scenario,"actual_scenario":scenario});quit(2);return
 	if envelope.content_fingerprint!=content.content_fingerprint: write_json(output,{"complete":false,"reason":"content mismatch"});quit(2);return
 	var world: WorldState = WorldState.new(envelope.facts)
 	var validation: String = world.validate(content)
 	if not validation.is_empty(): write_json(output,{"complete":false,"reason":validation});quit(2);return
 	var sim: HospitalSimulation = HospitalSimulation.new(world,content)
-	var comprehensive: bool = envelope.get("scenario","")=="comprehensive160-clinical-family-v3"
-	var observer = load("res://tools/performance/current/comprehensive_observer.gd").new(content) if comprehensive else null
+	var comprehensive: bool = scenario in Observer.SCENARIOS
+	var observer = Observer.new(content,scenario) if comprehensive else null
 	var operations = load("res://tools/performance/current/comprehensive_operations.gd").new() if comprehensive else null
 	if require_coverage and not comprehensive:
 		write_json(output,{"complete":false,"reason":"The input has no comprehensive coverage contract"});sim.dispose();quit(2);return
