@@ -1,5 +1,14 @@
 extends RefCounted
 
+class FirstContactMovement extends HospitalMovement:
+ var original_stop: Array=[]
+ func _init(geometry: HospitalSpace) -> void:
+  super(geometry)
+ func _move_step(world: WorldState, actor: Dictionary, movement: Dictionary, segment: Dictionary) -> MotionResult:
+  var result: MotionResult=super._move_step(world,actor,movement,segment)
+  if original_stop.is_empty() and not movement.has("local_move") and not result.blocker_actor_ids.is_empty() and segment.kind=="floor": original_stop=segment.cell.duplicate()
+  return result
+
 # Explicit movement boundaries. Actors are placed only when declaring inputs;
 # every tested retreat, side step, return and arrival is a real movement tick.
 func run(suite: RefCounted) -> Dictionary:
@@ -231,7 +240,9 @@ func _convoy_cannot_back_into_tail(suite: RefCounted) -> Dictionary:
 # global route request or displacement of the stationary actor is allowed.
 func _double_corner_rejoin(suite: RefCounted) -> Dictionary:
  var sim: HospitalSimulation=suite._fixture()
- HospitalFactory._add_room(sim.world,{"id":"corner_room","type":"physical","anchor":[42,84],"size":[6,6],"door":{"definition_id":"DR04","offset":2}},suite.content)
+ var observer:=FirstContactMovement.new(sim.space)
+ sim.space.movement=observer
+ HospitalFactory._add_room(sim.world,{"id":"corner_room","type":"treatment","anchor":[42,84],"size":[6,6],"door":{"definition_id":"DR04","offset":2}},suite.content)
  HospitalFactory._add_facility(sim.world,{"id":"corner_workstation","definition_id":"FUR05","anchor":[43,92],"size":[2,1],"room_id":null},suite.content)
  HospitalFactory._add_facility(sim.world,{"id":"corner_chair","definition_id":"FUR09","anchor":[41,92],"size":[1,1],"room_id":null},suite.content)
  HospitalFactory._add_facility(sim.world,{"id":"corner_machine","definition_id":"M09","anchor":[45,85],"size":[2,2],"room_id":"corner_room"},suite.content)
@@ -257,9 +268,11 @@ func _double_corner_rejoin(suite: RefCounted) -> Dictionary:
   if tick%25==0 or movement.is_empty(): trace.append({"tick":tick,"position":sim.world.facts.actors.walker.location.cell.duplicate(),"local_move":movement.get("local_move",{}).duplicate(true)})
   if movement.is_empty(): break
  var arrived: bool=sim.space.at(sim.world,"walker",1,[47,86]) and not sim.world.facts.moves.has("walker")
- var first_intention: bool=choice.size()==2 and ConvoyTrail.point(choice).distance_to(Vector2(44,91))<0.0001
+ # The built wall/door geometry owns the issued path. Check its first real
+ # blocked stop, rather than a coordinate from the removed room definition.
+ var first_intention: bool=choice.size()==2 and observer.original_stop.size()==2 and ConvoyTrail.point(choice).distance_to(ConvoyTrail.point(observer.original_stop))<0.0001
  var dispatches: int=int(sim.space.query_counts.get("route_dispatches",0))
- var result: Dictionary={"case":"intended_return_around_furniture_and_entrance","ok":request.is_empty() and errors.is_empty() and exact and first_intention and arrived and restored.get("ok",false) and dispatches>=1 and dispatches<=2,"request":request,"errors":errors,"original_goal_and_stationary_blocker_preserved":exact,"first_intended_rejoin":choice,"arrived":arrived,"global_route_dispatches":dispatches,"restore":restored,"trace":trace,"original_path":original,"remaining":sim.world.facts.moves.duplicate(true)}
+ var result: Dictionary={"case":"intended_return_around_furniture_and_entrance","ok":request.is_empty() and errors.is_empty() and exact and first_intention and arrived and restored.get("ok",false) and dispatches>=1 and dispatches<=2,"request":request,"errors":errors,"original_goal_and_stationary_blocker_preserved":exact,"first_intended_rejoin":choice,"actual_first_blocked_stop":observer.original_stop,"arrived":arrived,"global_route_dispatches":dispatches,"restore":restored,"trace":trace,"original_path":original,"remaining":sim.world.facts.moves.duplicate(true)}
  sim.dispose();return result
 
 # Ownership, finite same-floor motion, cursor integrity and original-route

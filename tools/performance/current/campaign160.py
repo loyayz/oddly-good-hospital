@@ -27,7 +27,11 @@ def git(root, *args):
 
 
 def source_identity(root):
-    paths = git(root, "ls-files", "--cached", "--others", "--exclude-standard").splitlines()
+    # A frozen diagnostic beneath .cache is not the parent Git worktree.
+    # Its preparer supplies the source inventory, excluding runtime outputs.
+    inventory = root / "source-inventory.json"
+    paths = read(inventory) if inventory.is_file() else git(root, "ls-files", "--cached", "--others", "--exclude-standard").splitlines()
+    assert paths, "Empty measured source inventory; provide source-inventory.json for an isolated project"
     return {p: digest(root / p) for p in sorted(set(paths))
             if (root / p).is_file() and not p.endswith(".gd.uid")}
 
@@ -71,6 +75,7 @@ def main():
                 "prefix_steps": prefix, "sample_steps": steps, "repeats": repeats,
                 "main_thread_policy": args.main_thread_policy, "worker_tasks": args.worker_tasks,
                 "profile_stages": args.profile_stages, "OMP_NUM_THREADS": "1",
+                "source_inventory_sha256": digest(root / "source-inventory.json") if (root / "source-inventory.json").is_file() else None,
                 "paired_repeat": args.repeat_number,
                 "started_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
                 "scope": "Simulation.step elapsed, no renderer/GameSession. Fresh processes; OS caches retained. Desktop applications remain running. Stage timers are diagnostic."}

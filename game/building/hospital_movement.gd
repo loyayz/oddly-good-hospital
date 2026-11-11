@@ -472,6 +472,7 @@ func _bed_tail_append(tail: Dictionary, point: Vector2) -> void:
 	tail.left=float(tail.left)-used
 
 func _bed_goal_blocker(world: WorldState, actor: Dictionary, movement: Dictionary) -> String:
+	if not space.has_bed_destination_claims(world): return ""
 	for region: Rect2 in _bed_goal_regions(world,actor,movement):
 		var blocker: String=space.bed_destination_blocker(world,actor.id,int(movement.target_floor),region,movement.get("members",[actor.id]))
 		if not blocker.is_empty(): return blocker
@@ -482,6 +483,7 @@ func _bed_goal_blocker(world: WorldState, actor: Dictionary, movement: Dictionar
 # choosing them, so an unavailable post cannot hide the other legal side.
 # Passage along the segments remains soft; only their stops hold use rights.
 func _bed_local_path_blocker(world: WorldState, actor: Dictionary, movement: Dictionary, path: Array) -> String:
+	if not space.has_bed_destination_claims(world): return ""
 	var origin: Vector2=ConvoyTrail.point(actor.location.cell)
 	var sample: Dictionary=actor.duplicate()
 	for index: int in path.size():
@@ -1227,6 +1229,10 @@ func _local_collision(world: WorldState, actor: Dictionary, movement: Dictionary
 	if not contact.static_reason.is_empty():
 		_replan_goal(world,movement,true)
 		return
+	# As with group courtesy, an actual fixed-body contact may reveal that
+	# every local bypass still ends in an occupied destination. Moving
+	# contacts retain the ordinary one-sided encounter instead of deadlocking.
+	if _movement_owners(world,contact.blocker_actor_ids).is_empty() and _local_goal_occupied(world,actor,movement,contact): return
 	# While the contacted body's actual local step is clear, this event
 	# need not start a second manoeuvre. No endpoint or future right is held.
 	for id: String in contact.blocker_actor_ids:

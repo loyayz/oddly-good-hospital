@@ -17,6 +17,10 @@ class ObservingMovement extends HospitalMovement:
 	func _start_detour(world: WorldState, actor: Dictionary, movement: Dictionary) -> void:
 		local_requests += 1
 		super._start_detour(world,actor,movement)
+	func _local_choose_options(world: WorldState, actor: Dictionary, movement: Dictionary, motion: Vector2, fixed: Array) -> bool:
+		var chosen: bool=super._local_choose_options(world,actor,movement,motion,fixed)
+		if chosen: local_requests+=1
+		return chosen
 	func _movement_contacts(world: WorldState, actor_id: String, floor_id: int, broad: Rect2, sweeps: Array[BodyIndex.Record], members: Array, result: HospitalMovement.MotionResult, queries: Dictionary = {}) -> void:
 		# Copy numeric envelopes before committing this attempt. Records are
 		# shared runtime scratch; retaining their references would lose evidence.
@@ -204,7 +208,10 @@ func _alternative_facing(suite: RefCounted) -> Dictionary:
 
 func _physical_tick(suite: RefCounted, sim: HospitalSimulation) -> bool:
 	var before: Dictionary = {}
-	for id: String in sim.world.ids("actors"): before[id] = sim.space.body_rectangle(sim.world.facts.actors[id])
+	var positions: Dictionary={}
+	for id: String in sim.world.ids("actors"):
+		before[id] = sim.space.body_rectangle(sim.world.facts.actors[id])
+		positions[id]=ConvoyTrail.point(sim.world.facts.actors[id].location.cell)
 	(sim.space.movement as ObservingMovement).contacts.clear()
 	(sim.space.movement as ObservingMovement).contact_attempts.clear()
 	suite._movement_tick(sim)
@@ -237,8 +244,12 @@ func _physical_tick(suite: RefCounted, sim: HospitalSimulation) -> bool:
 		return false
 	for first: int in ids.size():
 		var a: Rect2 = canonical[ids[first]]
-		if before[ids[first]].position.distance_to(a.position)>0.2+0.0001:
-			_record_safety_failure(sim,{"kind":"displacement","actor":ids[first],"distance":before[ids[first]].position.distance_to(a.position),"from":_rect_fields(before[ids[first]]),"to":_rect_fields(a)})
+		# A rectangular body's AABB corner moves when it turns. Walking budget
+		# constrains the actor's real origin; complete changing-body sweeps
+		# remain checked independently below.
+		var distance: float=positions[ids[first]].distance_to(ConvoyTrail.point(sim.world.facts.actors[ids[first]].location.cell))
+		if distance>0.2+0.0001:
+			_record_safety_failure(sim,{"kind":"displacement","actor":ids[first],"distance":distance,"from":_rect_fields(before[ids[first]]),"to":_rect_fields(a)})
 			return false
 		for second: int in range(first+1,ids.size()):
 			var b: Rect2 = canonical[ids[second]]

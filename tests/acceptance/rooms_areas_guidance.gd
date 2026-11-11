@@ -10,6 +10,7 @@ const CASES: Dictionary = {
 	"ROOM-11":"房间规格§4.2；无专用设施实际茶饮，门口无合法空位则结束本次尝试",
 	"ROOM-12":"房间规格§9；连续转床尾迹插值舍入至端点时不产生零长段",
 	"ROOM-13":"房间规格§3、§7.3；同一诊疗房两台同型设备真实并行，不改变原房间安排",
+	"ROOM-14":"房间规格§3.2、§9；护理床空岗位仅限制停点，预约增删、权限与事实替换后实时生效",
 	"AREA-01":"房间规格§5；逐设施三格、重叠不合并、墙门边界及用途切换",
 	"AREA-02":"房间规格§5.2；移动途中冻结原目标，自动重选与手动结束",
 	"AREA-03":"房间规格§5.3；局部墙变更仅重建受影响设施投影，移动移除旧区域",
@@ -23,6 +24,7 @@ const CASES: Dictionary = {
 	"GUIDE-07":"房间规格§7.3；如厕后实际返回原诊室，原室失效则恢复导诊待办且保留就诊票",
 	"GUIDE-08":"房间规格§7.3、§9；代表设备移往别室或拆除后保留原房间，原行程与冷恢复不改派",
 	"GUIDE-09":"房间规格§7.3、§9；手术原全院选择、患者真实跨层导诊、原目标与实际到场票序及冷恢复",
+	"GUIDE-10":"房间规格§7.4、§9；排票逐次读取当前到场序号，未到场、移除、重排与冷恢复顺序保持",
 	"LIFE-01":"房间规格§8.1；门外唯一队伍、多洁具实际并行、不重置原期限",
 	"LIFE-02":"房间规格§8.2；重叠饮水区域共享实际先后，远处不锁位",
 	"LIFE-03":"房间规格§8；员工患者真实共用饮水/卫生间，按到场先后且完整使用后安全退出",
@@ -68,6 +70,7 @@ func _case(id: String) -> Dictionary:
 		"ROOM-11": return _tea()
 		"ROOM-12": return _trail_boundary()
 		"ROOM-13": return _same_equipment_parallel()
+		"ROOM-14": return _bed_destination_claims()
 		"AREA-01": return _areas()
 		"AREA-02": return _frozen_seat()
 		"AREA-03": return load("res://tests/acceptance/public_region_lifecycle.gd").new().run_case(content)
@@ -81,6 +84,7 @@ func _case(id: String) -> Dictionary:
 		"GUIDE-07": return _need_return()
 		"GUIDE-08": return _arranged_room_identity()
 		"GUIDE-09": return load("res://tests/acceptance/surgery_guidance_contract.gd").new().run_case(content)
+		"GUIDE-10": return _ticket_order_keys()
 		"LIFE-01": return _toilets()
 		"LIFE-02": return _water_order()
 		"LIFE-03": return _shared_amenities()
@@ -366,6 +370,102 @@ func _clinic_order() -> Dictionary:
 	g.can_call(x.world,first,x.world.facts.tickets[first.ticket_id])
 	x.checks.single_never_reorders=queue.visit_ids==[first.id] and queue.called_id==first.id and queue.deadline_tick==600
 	return _finish(x,{"calculation_boundaries":[299,300,1000]})
+
+func _ticket_order_keys() -> Dictionary:
+	var x: Dictionary=_base()
+	x.checks.room=_room(x,"gp","gp",[34,66]) and _facility(x,"desk","FUR02",[38,69],"gp")
+	x.sim.services.floors.ensure(x.world)
+	x.sim.services.maintenance.ensure(x.world)
+	var tickets: Array=[]
+	var visits: Array=[]
+	for number: int in 6:
+		var visit: Dictionary=_patient(x,"sort_"+str(number),[46+number*2,90])
+		_arranged(x,visit,"desk",true)
+		visits.append(visit.id); tickets.append(visit.ticket_id)
+	var guidance: HospitalFloorGuidance=x.sim.services.floor_guidance
+	# Legal calculation inputs immediately before ticket ordering. These do
+	# not replace the actual arrival/deadline flows in GUIDE-01/06/09.
+	var cases: Array=[
+		{"name":"not_arrived","sequence":[-1,-1,-1,-1,-1,-1],"order":[0,1,2,3,4,5]},
+		{"name":"reverse_arrival","sequence":[6,5,4,3,2,1],"order":[5,4,3,2,1,0]},
+		{"name":"mixed","sequence":[6,-1,1,2,-1,4],"order":[2,3,5,0,1,4]},
+		{"name":"legal_counter_upper_boundary","sequence":[1000000000000,-1,1,2,-1,4],"order":[2,3,5,0,1,4]}
+	]
+	var rows: Array=[]
+	for item: Dictionary in cases:
+		for number: int in visits.size(): guidance.state(x.world,visits[number]).arrived_seq=item.sequence[number]
+		x.world.facts.floor_guidance.next_arrival=1000000000000 if item.name=="legal_counter_upper_boundary" else 6
+		var expected: Array=[]
+		for number: int in item.order: expected.append(tickets[number])
+		var before: Dictionary=x.world.freeze()
+		var actual: Array=guidance.ordered_tickets(x.world)
+		x.checks[item.name]=actual==expected and x.world.freeze()==before and x.world.validate(content).is_empty()
+		var cold:=WorldState.new(before.duplicate(true))
+		var cold_sim:=HospitalSimulation.new(cold,content)
+		x.checks[item.name+"_cold"]=cold_sim.services.floor_guidance.ordered_tickets(cold)==expected and cold.freeze()==before
+		cold_sim.dispose()
+		rows.append({"name":item.name,"expected":expected,"actual":actual})
+	# A new call observes membership and arrival changes without a tick/revision
+	# change; there is no persistent ordering result to invalidate.
+	x.world.facts.floor_guidance.visits.erase(visits[2])
+	guidance.state(x.world,visits[5]).arrived_seq=0
+	var changed: Array=[tickets[5],tickets[3],tickets[0],tickets[1],tickets[2],tickets[4]]
+	x.checks.missing_state_and_same_tick_update=guidance.ordered_tickets(x.world)==changed
+	x.world.facts.tickets.erase(tickets[3])
+	x.world.facts.visits[visits[3]].ticket_id=""
+	x.world.facts.floor_guidance.clinic_queues.gp.visit_ids.erase(visits[3])
+	x.world.facts.floor_guidance.visits.erase(visits[3])
+	changed.erase(tickets[3])
+	x.checks.ticket_removal=guidance.ordered_tickets(x.world)==changed
+	return _finish(x,{"ordering_inputs":rows,"changed_order":changed})
+
+func _bed_destination_claims() -> Dictionary:
+	var x: Dictionary=_base()
+	for research: Dictionary in content.catalog.research:
+		if not research.id in x.world.facts.research: x.world.facts.research.append(research.id)
+	x.checks.room=_room(x,"ward","ward",[34,66]) and _facility(x,"bed","EQ05",[37,69],"ward")
+	_staff(x,"nurse","nurse",[55,88],"ward")
+	var owner: Dictionary=_patient(x,"owner",[52,85])
+	var other: Dictionary=_patient(x,"other",[58,90])
+	var space: HospitalSpace=x.sim.space
+	x.checks.empty_view=not space.has_bed_destination_claims(x.world) and space.bed_destination_blocker(x.world,other.actor_id,1,Rect2(36,69,1,1)).is_empty()
+	var reason: String=space.reserve_facility(x.world,"bed",owner.actor_id,owner.actor_id,["nurse"])
+	var reservation: Dictionary=x.world.facts.adaptations.get("bed",{})
+	x.checks.formal_claim=reason.is_empty() and reservation.get("regions",[]).size()>1 and x.world.validate(content).is_empty()
+	if not x.checks.formal_claim: return _finish(x,{"reserve_reason":reason,"reservation":reservation})
+	var area: Array=reservation.regions[1]
+	var stop:=Rect2(float(area[0])+0.1,float(area[1])+0.1,0.2,0.2)
+	var core:=Rect2(37.1,69.1,0.2,0.2)
+	var frozen: Dictionary=x.world.freeze()
+	x.checks.empty_post_reserved_for_stopping=space.bed_destination_blocker(x.world,other.actor_id,1,stop)=="bed"
+	x.checks.physical_bed_uses_passage_checks=space.bed_destination_blocker(x.world,other.actor_id,1,core).is_empty()
+	x.checks.owner_and_nurse_permission=space.bed_destination_blocker(x.world,owner.actor_id,1,stop).is_empty() and space.bed_destination_blocker(x.world,"nurse",1,stop).is_empty()
+	x.checks.member_owner_permission=space.bed_destination_blocker(x.world,other.actor_id,1,stop,[owner.actor_id]).is_empty()
+	x.checks.strict_edge_and_other_floor=space.bed_destination_blocker(x.world,other.actor_id,1,Rect2(float(area[0])+float(area[2]),float(area[1]),0.2,0.2)).is_empty() and space.bed_destination_blocker(x.world,other.actor_id,2,stop).is_empty()
+	x.checks.query_readonly=x.world.freeze()==frozen
+	space.grant_facility_access(x.world,"bed",other.actor_id)
+	x.checks.permission_update=space.bed_destination_blocker(x.world,other.actor_id,1,stop).is_empty()
+	# Named released boundary: only the query/index contract is tested here.
+	# Actual bed departure and transfer remain CLIN-25 and RESULT-04 flows.
+	x.world.facts.adaptations.erase("bed")
+	space.reservation_changed(x.world,"bed")
+	x.checks.released_view=not space.has_bed_destination_claims(x.world) and space.bed_destination_blocker(x.world,other.actor_id,1,stop).is_empty()
+	var released: Dictionary=x.world.freeze()
+	var cold:=WorldState.new(frozen.duplicate(true))
+	var cold_space:=HospitalSpace.new(content)
+	x.checks.cold_owner=space.bed_destination_blocker(cold,other.actor_id,1,stop)=="bed" and cold_space.bed_destination_blocker(cold,other.actor_id,1,stop)=="bed"
+	x.checks.original_owner_still_clear=space.bed_destination_blocker(x.world,other.actor_id,1,stop).is_empty() and x.world.freeze()==released
+	x.world.facts=frozen.duplicate(true)
+	x.checks.equal_revision_fact_replacement=x.world.revision==int(frozen.world_revision) and space.bed_destination_blocker(x.world,other.actor_id,1,stop)=="bed"
+	var actor: Dictionary=x.world.facts.actors[other.actor_id]
+	var target: Array=[float(area[0]),float(area[1])]
+	var path: Array=[{"kind":"floor","floor_id":1,"cell":target}]
+	var movement: Dictionary={"actor_id":actor.id,"target_cell":target,"target_floor":1,"path":path,"cursor":0,"members":[actor.id]}
+	x.checks.journey_and_local_stop=space.movement._bed_goal_blocker(x.world,actor,movement)=="bed" and space.movement._bed_local_path_blocker(x.world,actor,movement,path)=="bed"
+	x.world.facts.adaptations.erase("bed")
+	space.reservation_changed(x.world,"bed")
+	x.checks.both_stops_release=space.movement._bed_goal_blocker(x.world,actor,movement).is_empty() and space.movement._bed_local_path_blocker(x.world,actor,movement,path).is_empty()
+	return _finish(x,{"formal_reservation":reservation,"stop_probe":stop,"named_query_boundaries_only":true})
 
 func _arranged_room_identity() -> Dictionary:
 	var rows: Array=[]

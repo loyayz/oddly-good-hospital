@@ -923,11 +923,15 @@ func can_call(world: WorldState, visit: Dictionary, ticket: Dictionary) -> bool:
 
 func ordered_tickets(world: WorldState) -> Array:
 	var ids: Array = world.ids("tickets")
+	# One synchronous ordering reads each live key once. No queue or ordering
+	# survives this call; the next dispatch observes every arrival/removal.
+	var sequence: Dictionary={}
+	for id: String in ids:
+		var arrived: int=int(state(world,world.facts.tickets[id].visit_id).get("arrived_seq",-1))
+		sequence[id]=9223372036854775807 if arrived<0 else arrived
 	ids.sort_custom(func(a: String,b: String)->bool:
-		var sa: int = int(state(world,world.facts.tickets[a].visit_id).get("arrived_seq",-1))
-		var sb: int = int(state(world,world.facts.tickets[b].visit_id).get("arrived_seq",-1))
-		if sa<0: sa = 9223372036854775807
-		if sb<0: sb = 9223372036854775807
+		var sa: int=sequence[a]
+		var sb: int=sequence[b]
 		if sa!=sb: return sa<sb
 		return a<b)
 	return ids

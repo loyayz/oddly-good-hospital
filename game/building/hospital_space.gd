@@ -492,7 +492,7 @@ func _unit_rect(world: WorldState, actor: Dictionary, origin: Vector2, members: 
 
 func _build_reservation_view(world: WorldState) -> Dictionary:
 	query_counts.reservation_index_builds += 1
-	var view: Dictionary = {"index":BodyIndex.new(),"regions":{},"reservation_keys":{}}
+	var view: Dictionary = {"index":BodyIndex.new(),"regions":{},"reservation_keys":{},"destination_claims":{}}
 	for id: String in world.facts.adaptations: _index_reservation(world,view,id,world.facts.adaptations[id])
 	return view
 
@@ -541,6 +541,7 @@ func movement_doors(world: WorldState, actor: Dictionary, swept: Rect2, members:
 
 func _index_reservation(world: WorldState, view: Dictionary, id: String, reservation: Dictionary) -> void:
 	query_counts.reservation_index_updates += 1
+	view.destination_claims.erase(id)
 	for key: String in view.reservation_keys.get(id,[]):
 		view.index.remove(key)
 		view.regions.erase(key)
@@ -553,7 +554,9 @@ func _index_reservation(world: WorldState, view: Dictionary, id: String, reserva
 		var rect: Rect2 = Rect2(float(area[0]),float(area[1]),float(area[2]),float(area[3]))
 		var key: String = id+":"+str(ordinal)
 		view.index.update(key,int(reservation.floor_id),rect)
-		view.regions[key] = {"reservation":reservation,"reservation_id":id,"rect":rect,"blocks_passage":ordinal==0 or not RouteClearance.is_soft_bed(world,reservation)}
+		var blocks_passage: bool=ordinal==0 or not RouteClearance.is_soft_bed(world,reservation)
+		view.regions[key] = {"reservation":reservation,"reservation_id":id,"rect":rect,"blocks_passage":blocks_passage}
+		if not blocks_passage: view.destination_claims[id]=true
 		keys.append(key)
 	view.reservation_keys[id] = keys
 
@@ -593,7 +596,13 @@ func _dynamic_clear(world: WorldState, actor_id: String, floor_id: int, rect: Re
 
 # Destination claims stay exclusive even when empty bedside floor can be
 # crossed. This local indexed check never treats people as permanent walls.
+func has_bed_destination_claims(world: WorldState) -> bool:
+	# This summary belongs to the same current reservation view. Door and
+	# ordinary facility claims still run all physical passage checks.
+	return not world.facts.adaptations.is_empty() and not reservation_view(world).destination_claims.is_empty()
+
 func bed_destination_blocker(world: WorldState, actor_id: String, floor_id: int, rect: Rect2, members: Array = []) -> String:
+	if not has_bed_destination_claims(world): return ""
 	for region: Dictionary in _reservation_regions(world,floor_id,rect):
 		if bool(region.blocks_passage) or RouteClearance.reservation_allows(region.reservation,actor_id,members): continue
 		if rect.intersects(region.rect,false): return str(region.reservation_id)
