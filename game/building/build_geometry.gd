@@ -54,24 +54,36 @@ static func shape(draft: Dictionary, _minimum: Array = [1,1]) -> Dictionary:
 	var occupied: Dictionary = {}
 	var low: Vector2i = Vector2i(96,96)
 	var high: Vector2i = Vector2i(-1,-1)
+	var order: PackedInt32Array = PackedInt32Array()
+	order.resize(actual.size())
+	var cursor: int = 0
 	for cell: Variant in actual:
 		if not point(cell) or int(cell[0])<0 or int(cell[1])<0 or int(cell[0])>=96 or int(cell[1])>=96:
 			return failure("房间内格超出本层96×96范围",[cell] if cell is Array else [])
 		var position: Vector2i = Vector2i(int(cell[0]),int(cell[1]))
 		if occupied.has(position):
 			return failure("房间内格重复",[cell])
-		occupied[position] = true
+		# Keep each owned input cell, including integer-valued float types.
+		occupied[position] = cell
+		order[cursor] = position.y*96+position.x
+		cursor += 1
 		low = low.min(position)
 		high = high.max(position)
-	var visited: Dictionary = _flood(occupied,Vector2i(int(actual[0][0]),int(actual[0][1])),true,low,high)
-	if visited.size()!=actual.size():
-		return failure("房间内格必须四邻连续")
-	var outside: Dictionary = _flood(occupied,low-Vector2i.ONE,false,low-Vector2i.ONE,high+Vector2i.ONE)
-	for y: int in range(low.y,high.y+1):
-		for x: int in range(low.x,high.x+1):
-			if not occupied.has(Vector2i(x,y)) and not outside.has(Vector2i(x,y)):
-				return failure("房间不能包含内部孔洞",[[x,y]])
-	actual.sort_custom(func(a: Array,b: Array) -> bool: return a[1]<b[1] or (a[1]==b[1] and a[0]<b[0]))
+	# Only after every point is valid and unique can this count prove that
+	# the complete bounding rectangle is filled, connected and hole-free.
+	if actual.size()!=(high.x-low.x+1)*(high.y-low.y+1):
+		var visited: Dictionary = _flood(occupied,Vector2i(int(actual[0][0]),int(actual[0][1])),true,low,high)
+		if visited.size()!=actual.size():
+			return failure("房间内格必须四邻连续")
+		var outside: Dictionary = _flood(occupied,low-Vector2i.ONE,false,low-Vector2i.ONE,high+Vector2i.ONE)
+		for y: int in range(low.y,high.y+1):
+			for x: int in range(low.x,high.x+1):
+				if not occupied.has(Vector2i(x,y)) and not outside.has(Vector2i(x,y)):
+					return failure("房间不能包含内部孔洞",[[x,y]])
+	order.sort()
+	for index: int in actual.size():
+		var id: int = order[index]
+		actual[index] = occupied[Vector2i(id%96,id/96)]
 	return {"ok":true,"cells":actual,"origin":[low.x,low.y],"size":[high.x-low.x+1,high.y-low.y+1],"wall_edges":walls(occupied)}
 
 static func _rectangle_inside(occupied: Dictionary, origin: Vector2i, dimensions: Vector2i) -> bool:

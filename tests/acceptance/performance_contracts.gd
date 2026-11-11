@@ -9,7 +9,8 @@ const CASES: Dictionary = {
 	"PERF-06":"建造预览：分片只读、草案隔离、确认重检及一次收费",
 	"PERF-07":"设备维护：空闲、逐日磨损、待生效故障及原随机抽取",
 	"PERF-08":"导航缓存：冷热一致、假设来源隔离、真实失效及预算重建",
-	"PERF-09":"墙边批量规划：完整障碍、精确首错、停靠层、预约、调用隔离及移除无额外扫描"
+	"PERF-09":"墙边批量规划：完整障碍、精确首错、停靠层、预约、调用隔离及移除无额外扫描",
+	"PERF-10":"完整几何：合法唯一后矩形证明、原坐标类型、边界96、无孔连通及开放分量全量排序"
 }
 
 class SlowSimulation extends HospitalSimulation:
@@ -39,6 +40,9 @@ func _world(content: HospitalContent, preset: bool = false) -> WorldState:
 
 func _case_09(content: HospitalContent) -> Dictionary:
 	return preload("res://tests/acceptance/wall_batch_view.gd").new().run_case(content)
+
+func _case_10(_content: HospitalContent) -> Dictionary:
+	return preload("res://tests/acceptance/build_shape_contract.gd").new().run_case()
 
 func _visit(world: WorldState, id: String, cell: Array) -> Dictionary:
 	# A legal pre-service input boundary. These cases test scheduling and index

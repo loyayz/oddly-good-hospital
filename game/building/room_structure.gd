@@ -83,9 +83,16 @@ static func _component(start: Vector2i, plots: Dictionary, barriers: Dictionary,
 				points[next] = true
 				visited[next] = true
 				pending.append(next)
+	# Every visited point is owned and inside 96x96. Sorting its integer key
+	# preserves exact y/x order without a script callback per comparison.
+	var order: PackedInt32Array = PackedInt32Array()
+	order.resize(pending.size())
+	for index: int in pending.size():
+		var point: Vector2i = pending[index]
+		order[index] = point.y*96+point.x
+	order.sort()
 	var cells: Array = []
-	for point: Vector2i in pending: cells.append([point.x,point.y])
-	cells.sort_custom(func(a: Array,b: Array)->bool: return a[1]<b[1] or a[1]==b[1] and a[0]<b[0])
+	for id: int in order: cells.append([id%96,int(id/96)])
 	return {"cells":cells,"points":points,"closed":closed,"doors":[]}
 
 static func reconcile(world: WorldState, floor_id: int, starts: Array[Vector2i], protected_facilities: Dictionary = {}, requested: Dictionary = {}) -> Array:
