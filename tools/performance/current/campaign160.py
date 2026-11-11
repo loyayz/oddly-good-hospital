@@ -36,6 +36,10 @@ def source_identity(root):
             if (root / p).is_file() and not p.endswith(".gd.uid")}
 
 
+def native_identity(root):
+    return {p.name: digest(p) for p in (root / "game/platform/windows/bin").glob("*.dll")}
+
+
 def processes():
     script = ("@(Get-Process | Where-Object {$_.ProcessName -match "
               "'^(Godot.*|zig|clang.*|gcc|g\\+\\+|ninja|cmake)$'} | "
@@ -56,12 +60,17 @@ def main():
     parser.add_argument("--exact-reference", type=Path)
     parser.add_argument("--smoke", action="store_true", help="Two-step tool qualification, no performance claim")
     parser.add_argument("--repeat-number", type=int, choices=[1, 2, 3], help="One full repeat for the serial paired controller; never shortens either window")
+    parser.add_argument("--prefix-steps", type=int, default=1000)
+    parser.add_argument("--sample-steps", type=int, default=2000)
+    parser.add_argument("--require-coverage", action="store_true")
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[3]
     output, engine, input_path = args.output.resolve(), args.engine.resolve(), args.input.resolve()
     output.mkdir(parents=True, exist_ok=False)
     source = source_identity(root)
-    prefix, steps, repeats = (0, 2, 1) if args.smoke else (1000, 2000, 3)
+    targets = read(root / "docs/data/balance.json")["performance_targets"]["metrics"]
+    assert args.prefix_steps >= 0 and args.sample_steps >= 1000, "A measured window requires at least 1000 samples"
+    prefix, steps, repeats = (0, 2, 1) if args.smoke else (args.prefix_steps, args.sample_steps, 3)
     assert not (args.smoke and args.repeat_number), "Smoke is not a paired measurement"
     if args.repeat_number:
         repeats = 1
@@ -71,10 +80,13 @@ def main():
                 "input_sha256": digest(input_path), "input": str(input_path),
                 "engine": str(engine), "engine_sha256": digest(engine),
                 "runner_sha256": digest(root / "tools/performance/current/plain_v4.gd"),
-                "native": {p.name: digest(p) for p in (root / "game/platform/windows/bin").glob("*.dll")},
+                "native": native_identity(root),
                 "prefix_steps": prefix, "sample_steps": steps, "repeats": repeats,
                 "main_thread_policy": args.main_thread_policy, "worker_tasks": args.worker_tasks,
                 "profile_stages": args.profile_stages, "OMP_NUM_THREADS": "1",
+                "require_coverage": args.require_coverage and not args.smoke,
+                "cpu_targets": {key: targets[key] for key in (
+                    "sim_step_p95_ms", "sim_step_p99_ms", "sim_step_ordinary_max_ms", "sim_speed_ratio_min")},
                 "source_inventory_sha256": digest(root / "source-inventory.json") if (root / "source-inventory.json").is_file() else None,
                 "paired_repeat": args.repeat_number,
                 "started_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
@@ -85,6 +97,8 @@ def main():
     results = []
     for repeat in range(1, repeats + 1):
         assert source_identity(root) == source, "Source changed during the series"
+        assert native_identity(root) == protocol["native"], "Native libraries changed during the series"
+        assert digest(engine) == protocol["engine_sha256"], "Engine changed during the series"
         assert digest(input_path) == protocol["input_sha256"], "Input changed"
         before = processes()
         write(output / f"r{repeat}.processes-before.json", before)
@@ -97,6 +111,8 @@ def main():
                    f"--main-thread-policy={args.main_thread_policy}", f"--worker-tasks={args.worker_tasks}"]
         if args.profile_stages:
             command.append("--profile-stages")
+        if args.require_coverage and not args.smoke:
+            command.append("--require-coverage")
         write(output / "status.json", {"state": "running", "repeat": repeat, "command": command})
         print(f"START repeat={repeat} output={result_path}", flush=True)
         started = time.perf_counter()
@@ -121,9 +137,20 @@ def main():
         elapsed = time.perf_counter() - started
         data = read(result_path) if result_path.exists() else {}
         raw = (output / f"r{repeat}.log").read_text(encoding="utf-8")
-        assert process.returncode == 0 and data.get("complete") and not data.get("errors"), raw[-5000:]
+        assert process.returncode == 0 and data.get("complete") and not data.get("errors"), {
+            "returncode": process.returncode, "reason": data.get("reason"), "errors": data.get("errors"),
+            "coverage": data.get("sample_business", {}).get("comprehensive"), "log_tail": raw[-2500:]}
         assert "SCRIPT ERROR" not in raw and not any(l.startswith("ERROR:") for l in raw.splitlines()), raw[-5000:]
         assert data["all_completed_steps"] == prefix + steps and data["metrics"]["count"] == steps
+        if args.require_coverage and not args.smoke:
+            assert data["sample_business"]["comprehensive"]["coverage_pass"], data["sample_business"]["comprehensive"]
+        metrics = data["metrics"]
+        checks = {
+            "p95": metrics["p95_us"] <= targets["sim_step_p95_ms"] * 1000,
+            "p99": metrics["p99_us"] <= targets["sim_step_p99_ms"] * 1000,
+            "ordinary_maximum": metrics["max_us"] <= targets["sim_step_ordinary_max_ms"] * 1000,
+            "speed_1x_including_observation": metrics["simulation_seconds_per_wall_second"] >= targets["sim_speed_ratio_min"],
+        }
         assert digest(Path(str(result_path) + ".final.bin")) == data["final_sha256"]
         execution = read(Path(str(result_path) + ".execution.json"))
         if args.main_thread_policy == "app":
@@ -133,8 +160,12 @@ def main():
         if args.exact_reference:
             assert data["final_sha256"] == read(args.exact_reference / "r1.json")["final_sha256"], "Diagnostic/candidate outcome differs from the reference"
         assert source_identity(root) == source, "Source changed during execution"
+        assert native_identity(root) == protocol["native"], "Native libraries changed during execution"
+        assert digest(input_path) == protocol["input_sha256"], "Input changed during execution"
+        assert digest(engine) == protocol["engine_sha256"], "Engine changed during execution"
         row = {"repeat": repeat, "returncode": process.returncode, "wall_seconds": elapsed,
                "metrics": data["metrics"], "business": data["sample_business"],
+               "cpu_target_checks": checks, "cpu_targets_pass": all(checks.values()) if not args.smoke else None,
                "final_sha256": data["final_sha256"], "execution": execution}
         results.append(row)
         write(output / "summary.json", results)

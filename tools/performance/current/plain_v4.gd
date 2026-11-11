@@ -46,6 +46,7 @@ func _run() -> void:
 	var profile_stages: bool = false
 	var thread_policy_mode: String = "app"
 	var worker_tasks: int = 4
+	var require_coverage: bool = false
 	for arg: String in OS.get_cmdline_user_args():
 		if arg.begins_with("--input="): input=arg.trim_prefix("--input=")
 		if arg.begins_with("--output="): output=arg.trim_prefix("--output=")
@@ -55,6 +56,7 @@ func _run() -> void:
 		if arg=="--profile-stages": profile_stages=true
 		if arg.begins_with("--main-thread-policy="): thread_policy_mode=arg.trim_prefix("--main-thread-policy=")
 		if arg.begins_with("--worker-tasks="): worker_tasks=arg.trim_prefix("--worker-tasks=").to_int()
+		if arg=="--require-coverage": require_coverage=true
 	if not thread_policy_mode in ["app","default"] or not worker_tasks in [0,1,4]: quit(2);return
 	if input.is_empty() or output.is_empty() or steps<=0 or prefix_steps<0 or FileAccess.file_exists(output): quit(2);return
 	var thread_policy: Dictionary = {"requested":thread_policy_mode,"applied":false,"reason":"platform_default","caller_thread_id":OS.get_thread_caller_id()}
@@ -72,6 +74,11 @@ func _run() -> void:
 	var validation: String = world.validate(content)
 	if not validation.is_empty(): write_json(output,{"complete":false,"reason":validation});quit(2);return
 	var sim: HospitalSimulation = HospitalSimulation.new(world,content)
+	var comprehensive: bool = envelope.get("scenario","")=="comprehensive160-v1"
+	var observer = load("res://tools/performance/current/comprehensive_observer.gd").new() if comprehensive else null
+	var operations = load("res://tools/performance/current/comprehensive_operations.gd").new() if comprehensive else null
+	if require_coverage and not comprehensive:
+		write_json(output,{"complete":false,"reason":"The input has no comprehensive coverage contract"});sim.dispose();quit(2);return
 	sim.services.experience.sample_workers_enabled=worker_tasks>0
 	sim.services.experience.sample_worker_tasks=maxi(1,worker_tasks)
 	# Match AppRoot loading: prepare the selected floor before simulation starts.
@@ -108,6 +115,8 @@ func _run() -> void:
 			sample_wall_start=Time.get_ticks_usec();prefix_wall_us=sample_wall_start-wall_start
 		var before_sessions: Dictionary = world.facts.sessions.duplicate(true)
 		var before_guidance: Dictionary = world.facts.floor_guidance.visits.duplicate(true)
+		if comprehensive and index>=prefix_steps: operations.enqueue(sim,index-prefix_steps)
+		var observed_before: Dictionary = observer.capture(world) if comprehensive else {}
 		stream.store_line(JSON.stringify({"kind":"enter","index":index,"tick":world.sim_tick}));stream.flush()
 		if profile_stages and index>=prefix_steps: profiler.begin_step()
 		var started: int = Time.get_ticks_usec()
@@ -116,6 +125,7 @@ func _run() -> void:
 		if profile_stages and index>=prefix_steps: profiler.end_step(result,elapsed)
 		if result==null: errors.append("Incomplete production step");break
 		if world.sim_tick!=int(initial.tick)+index+1: errors.append("Unexpected tick increment");break
+		if comprehensive: observer.observe(observed_before,world,result,index>=prefix_steps)
 		for id: String in before_sessions:
 			var old: Dictionary = before_sessions[id]
 			var now: Dictionary = world.facts.sessions.get(id,{})
@@ -142,12 +152,17 @@ func _run() -> void:
 	var ending: FileAccess = FileAccess.open(output+".final.bin",FileAccess.WRITE)
 	ending.store_var({"content_fingerprint":content.content_fingerprint,"facts":world.freeze(),"floors":envelope.floors,"visitor_ids":envelope.visitor_ids,"events":events});ending.close()
 	var values: Array = []
+	var populations: Array = []
 	var sum_us: int = 0
 	for row: Dictionary in samples:
-		if int(row.index)>=prefix_steps: values.append(int(row.elapsed_us));sum_us+=int(row.elapsed_us)
+		if int(row.index)>=prefix_steps:
+			values.append(int(row.elapsed_us));sum_us+=int(row.elapsed_us)
+			populations.append(int(row.present))
 	values.sort()
+	populations.sort()
 	var metrics: Dictionary = {"count":values.size(),"sum_step_us":sum_us,"real_window_us_including_observation":wall_us,"simulated_seconds":values.size()*0.1,"simulation_seconds_per_wall_second":values.size()*100000.0/maxi(1,wall_us),"observation_logging_and_loop_wall_us":wall_us-sum_us}
 	if not values.is_empty():
+		metrics.present_population={"minimum":populations.front(),"median":populations[ceili(populations.size()*0.5)-1],"maximum":populations.back()}
 		metrics.mean_step_us=float(sum_us)/values.size();metrics.fresh_runtime_first_prefix_or_sample_step_us=samples[0].elapsed_us;metrics.first_sample_step_us=samples[prefix_steps].elapsed_us;metrics.max_us=values.back()
 		for pct: int in [50,95,99]: metrics["p%d_us"%pct]=values[ceili(values.size()*pct/100.0)-1]
 	var sample_work: Dictionary = {}
@@ -155,6 +170,10 @@ func _run() -> void:
 	var sample_events: Dictionary = {}
 	for kind: String in event_counts: sample_events[kind]=int(event_counts[kind])-int(prefix_events.get(kind,0))
 	var complete: bool = samples.size()==steps+prefix_steps and errors.is_empty()
+	var comprehensive_report: Dictionary = observer.report(world) if comprehensive else {}
+	if require_coverage and not comprehensive_report.get("coverage_pass",false):
+		errors.append("Comprehensive workload did not satisfy its business coverage contract")
+		complete=false
 	var attribution: Dictionary = profiler.report() if profile_stages else {}
 	if profile_stages:
 		write_json(output+".stages.json",attribution)
@@ -162,5 +181,5 @@ func _run() -> void:
 			errors.append("Incomplete or invalid stage attribution")
 			complete=false
 	write_json(output+".execution.json",{"main_thread_policy":thread_policy,"worker_tasks":worker_tasks,"worker_samples":sim.services.experience.sample_worker_report(),"profile_stages":profile_stages,"scope":"Simulation.step wall elapsed including internal waits; excludes renderer, GameSession and initialization. Stage spans are diagnostic, not function self CPU."})
-	write_json(output,{"complete":complete,"performance_pass":null,"source_input_sha256":FileAccess.get_sha256(input),"mode":"plain_cpu_full_step","requested_sample_steps":steps,"requested_prefix_steps":prefix_steps,"all_completed_steps":samples.size(),"prefix_wall_us":prefix_wall_us,"all_wall_us":all_wall_us,"sample_start_population":sample_start_population,"prefix_business":{"work":prefix_work,"guidance":prefix_guidance,"events":prefix_events},"sample_business":{"clinical_work_ticks_observed_lower_bound":sample_work,"guidance_work_ticks":guidance_work-prefix_guidance,"events":sample_events},"initialization_us":init_us,"observed_floor":observed_floor,"floor_static_preparation":floor_preparation,"initial":initial,"final":final,"metrics":metrics,"business":{"clinical_work_ticks_observed_lower_bound":work,"guidance_work_ticks":guidance_work,"steps_with_active_moves_not_arrival_proof":actual_moving_steps,"events":event_counts},"errors":errors,"gpu_fps":null,"scope":"HospitalSimulation CPU full steps only; no GameSession/renderer/persistence lifecycle. Ordinary business rules retained; no fixed-population hold. Work counter excludes transition ticks and is a lower bound, not total completed work.","final_sha256":FileAccess.get_sha256(output+".final.bin")})
+	write_json(output,{"complete":complete,"performance_pass":null,"source_input_sha256":FileAccess.get_sha256(input),"mode":"plain_cpu_full_step","requested_sample_steps":steps,"requested_prefix_steps":prefix_steps,"all_completed_steps":samples.size(),"prefix_wall_us":prefix_wall_us,"all_wall_us":all_wall_us,"sample_start_population":sample_start_population,"prefix_business":{"work":prefix_work,"guidance":prefix_guidance,"events":prefix_events},"sample_business":{"clinical_work_ticks_observed_lower_bound":sample_work,"guidance_work_ticks":guidance_work-prefix_guidance,"events":sample_events,"comprehensive":comprehensive_report},"initialization_us":init_us,"observed_floor":observed_floor,"floor_static_preparation":floor_preparation,"initial":initial,"final":final,"metrics":metrics,"business":{"clinical_work_ticks_observed_lower_bound":work,"guidance_work_ticks":guidance_work,"steps_with_active_moves_not_arrival_proof":actual_moving_steps,"events":event_counts},"errors":errors,"gpu_fps":null,"scope":"HospitalSimulation CPU full steps only; no GameSession/renderer/persistence lifecycle. Ordinary business rules retained; no fixed-population hold. Work counter excludes transition ticks and is a lower bound, not total completed work.","final_sha256":FileAccess.get_sha256(output+".final.bin")})
 	sim.dispose();quit(0 if complete else 1)
