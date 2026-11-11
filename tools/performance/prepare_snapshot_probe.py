@@ -90,6 +90,8 @@ def main():
     parser.add_argument("--base-project", type=Path, required=True)
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--snapshot-source", type=Path, help="Overlay this one explicit production file for a local candidate comparison.")
+    parser.add_argument("--contract", type=Path, help="Also freeze the independent estimate contract script.")
     parser.add_argument("--engine", type=Path, default=Path("C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe"))
     args = parser.parse_args()
     repo = Path(__file__).resolve().parents[2]
@@ -111,12 +113,19 @@ def main():
     for name in [".godot/global_script_class_cache.cfg", ".godot/extension_list.cfg"]:
         shutil.copy2(base / name, target / name)
     snapshot_path = target / "game/persistence/snapshot_store.gd"
+    if args.snapshot_source:
+        shutil.copy2(args.snapshot_source.resolve(), snapshot_path)
+    uninstrumented_sha256 = digest(snapshot_path)
     instrumented, snapshot = instrument(snapshot_path.read_bytes())
     snapshot_path.write_bytes(instrumented)
-    snapshot.update({"original_sha256": original["game/persistence/snapshot_store.gd"], "instrumented_sha256": digest(snapshot_path)})
+    snapshot.update({"base_sha256": original["game/persistence/snapshot_store.gd"], "original_sha256": uninstrumented_sha256, "instrumented_sha256": digest(snapshot_path)})
     for name in ["snapshot_prepare_trace.gd", "snapshot_prepare_probe.gd", Path(__file__).name]:
         relative = "tools/performance/" + name
         shutil.copy2(Path(__file__).with_name(name), target / relative)
+        if relative not in inventory: inventory.append(relative)
+    if args.contract:
+        relative = "tests/acceptance/snapshot_estimate_contract.gd"
+        shutil.copy2(args.contract.resolve(), target / relative)
         if relative not in inventory: inventory.append(relative)
     profile = "OddlyGoodHospital SnapshotProbe " + uuid.uuid4().hex
     project = target / "project.godot"
@@ -136,6 +145,8 @@ def main():
     assert all(digest(base / name) == sha for name, sha in original.items()), "Immutable base changed during freeze"
     source = {name: digest(target / name) for name in inventory}
     identity = {"base_project": str(base), "base_inventory_sha256": digest(inventory_path), "original_source": original, "source": source, "snapshot": snapshot, "input": str(target / "input.bin"), "original_input": str(input_path), "input_sha256": expected_input, "profile": profile, "engine": str(engine), "engine_executables": {str(path): digest(path) for path in [engine, engine.with_name(engine.name.replace("_console", ""))]}, "native": {path.name: digest(path) for path in (target / "game/platform/windows/bin").glob("*.dll")}, "import": runs[0], "runs": runs[1:], "scope": "Reversible diagnostic timing of actual synchronous preparation and background save operations; isolated fresh test library for every repeat, no engine execution during freezing and no production source edits."}
+    if args.contract:
+        identity["contract"] = {"repeat": 0, "environment": runs[0]["environment"], "arguments": ["--headless", "--path", str(target), "--script", "res://tests/acceptance/snapshot_estimate_contract.gd", "--", "--input=" + str(target / "input.bin"), "--output=" + str(target / "estimate-contract.json")], "output": str(target / "estimate-contract.json")}
     (target / "snapshot-prepare-identity.json").write_text(json.dumps(identity, ensure_ascii=False, indent=2), encoding="utf-8")
     (target / "source-inventory.json").write_text(json.dumps(inventory, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps({"project": str(target), "source_files": len(source), "body_restoration_exact": True, "input_sha256": expected_input, "engine_runs_started": 0}))

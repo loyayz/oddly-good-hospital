@@ -512,15 +512,24 @@ func _cleanup(hospital_id: String, validated_snapshot_id: String) -> void:
 	database.call("close")
 
 static func estimate(value: Variant) -> int:
+	return _estimate(value,{})
+
+static func _estimate(value: Variant, key_costs: Dictionary) -> int:
 	if value is Dictionary:
 		var size: int = 2
 		for key: String in value:
-			size += key.to_utf8_buffer().size()*6+4+estimate(value[key])
+			# The original key charge is at least four, so zero is an exact
+			# missing marker. This cache belongs only to one estimate call.
+			var key_cost: int = key_costs.get(key,0)
+			if key_cost==0:
+				key_cost = key.to_utf8_buffer().size()*6+4
+				key_costs[key] = key_cost
+			size += key_cost+_estimate(value[key],key_costs)
 		return size
 	if value is Array:
 		var size: int = 2
 		for element: Variant in value:
-			size += estimate(element)+1
+			size += _estimate(element,key_costs)+1
 		return size
 	return str(value).to_utf8_buffer().size()*6+32
 
