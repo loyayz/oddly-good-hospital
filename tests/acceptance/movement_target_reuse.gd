@@ -260,7 +260,10 @@ func _optional_repeat(world: WorldState, space: HospitalSpace, actor_id: String)
 func _optional() -> Dictionary:
 	var waiting = preload("res://tests/acceptance/waiting_adoption.gd").new()
 	waiting._content = suite.content
-	var x: Dictionary = waiting._areas()
+	# A legal public chair is enough for this ownership boundary. The retired
+	# waiting-room type is not part of the current room catalogue.
+	var x: Dictionary = waiting._fixture()
+	waiting._facility(x,"west_chair","FUR09",[36,82])
 	var visit: Dictionary = waiting._visit(x,"target_reuse",[38,90])
 	# Named legal scheduling input; this is ownership handoff, not seat arrival.
 	x.world.facts.sim_tick = 50

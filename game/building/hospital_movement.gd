@@ -1168,15 +1168,11 @@ func _local_floor_segment(actor: Dictionary, movement: Dictionary) -> bool:
 	var point: Dictionary=path[cursor]
 	return point.get("kind")=="floor" and point.get("floor_id")==actor.location.floor_id
 
-func _local_movable(world:WorldState,actor:Dictionary,journey:Dictionary)->bool:
+func _local_movable(_world:WorldState,actor:Dictionary,journey:Dictionary)->bool:
 	if not _local_floor_segment(actor,journey) or journey.has("convoy") or journey.get("members",[actor.id]).size()!=1 or actor.get("posture")!="standing": return false
-	# A real optional trip already owns this ground walk. Its life task is
-	# not a stationary working body; local avoidance keeps that same trip.
-	var life: Dictionary=world.facts.staff.get(actor.id,{}).get("life_task",{})
-	if not str(life.get("id","")).is_empty() and journey.get("waiting_seat_id","")==life.id and life.get("phase","") in ["area_travel","local_travel","returning","release","exiting"]:
-		var job: Dictionary=world.facts.get("training_jobs",{}).get(world.facts.staff[actor.id].get("training_job_id",""),{})
-		return not HospitalClinicalDevelopment.safe_busy(world,actor.id) and not job.get("state","") in ["travelling","working"]
-	return not (world.facts.staff.has(actor.id) and _staff_has_movement_responsibility(world,actor.id))
+	# The existing ground journey owns this walking body. Duties still own
+	# their commitments and safe release; they do not make its walk a fixed post.
+	return true
 
 func _local_choose(world: WorldState, actor: Dictionary, movement: Dictionary, motion: Vector2) -> bool:
 	return _local_choose_options(world,actor,movement,motion,[])

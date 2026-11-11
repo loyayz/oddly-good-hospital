@@ -1,0 +1,1121 @@
+{
+  "schema": "moving-staff-local-contract-v1",
+  "date": "2026-11-12",
+  "authority": [
+    "docs/design/01-simulation.md section 3",
+    "docs/specs/26-10/2026-10-19-task-navigation-movement.md section 4"
+  ],
+  "scope": "Current single-person standing ground leg may perform ordinary local avoidance, regardless of unrelated generic staff busy flags. Original service/release owners, fixed working bodies, seats, convoy, transit and support-exit guards remain.",
+  "engine": "Godot 4.7.2.stable.official.ed1daf0bf",
+  "functional_validation_only": true,
+  "timing_note": "Case wall time and process wall time are reported separately. These small functional fixtures are not a 160-person performance measurement and provide no speed conclusion.",
+  "raw_root": "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\moving-staff-local-20261112",
+  "all_raw_failures_retained": true,
+  "production_patch": {
+    "file": "game/building/hospital_movement.gd",
+    "function": "_local_movable",
+    "baseline_function_sha256": "02a2c15fc0d75a759177a3ba056f95e5a45d678702b22e3006c79e3d5d5270fe",
+    "fixed_function_sha256": "4f24d097b4753835d9b83e4ef200cbcb23f4f4013a940694066554c617f9fc3d",
+    "baseline_file_sha256": "875dbe2276742865aeaeef94d236c7a6a491285a9719931098dc31cfc3265de8",
+    "fixed_file_sha256": "d4ccd806fd0004bdd67c67346c7097a7e96ca363d03579c013aef86e80ec5773",
+    "only_function_diff_proved": true,
+    "staff_responsibility_helper_byte_identical_to_head": true
+  },
+  "final_sources": {
+    "game/building/hospital_movement.gd": {
+      "sha256": "d4ccd806fd0004bdd67c67346c7097a7e96ca363d03579c013aef86e80ec5773",
+      "frozen_execution_copy_equal": true
+    },
+    "tests/acceptance/life_local_movement.gd": {
+      "sha256": "7d42a29e75b348abdb5185e2323f53b1fc8f953aaa54314626e3dece47a071ab",
+      "frozen_execution_copy_equal": true
+    },
+    "tests/acceptance/life_local_movement_runner.gd": {
+      "sha256": "f79bcd4ea8f98be0ae5d5838f1c68d4af0452beddb91b0b5c525e692ead5c000",
+      "frozen_execution_copy_equal": true
+    },
+    "tests/acceptance/life_local_movement.md": {
+      "sha256": "b81a09d3a82410f03951334af65c387729f47b97cc4ff023653f049006c328f8",
+      "frozen_execution_copy_equal": false
+    },
+    "tests/acceptance/movement_target_reuse.gd": {
+      "sha256": "e098104c1a2eee720e95897d45814520ec1e6295159c9afaba16445a8a7f5e80",
+      "frozen_execution_copy_equal": true
+    },
+    "tests/acceptance/life_local_movement.gd.uid": {
+      "sha256": "0d061e1aaaecd0f7175d735b1f7ce173259489ce2bada07521e32cacc09a4862",
+      "frozen_execution_copy_equal": true
+    },
+    "tests/acceptance/life_local_movement_runner.gd.uid": {
+      "sha256": "b0d7b5fcdef6c784c7466307734ee5647479e251d1a53beebb0bdf9653d1fcae",
+      "frozen_execution_copy_equal": true
+    }
+  },
+  "initial_snapshot_inventory": {
+    "path": ".cache/moving-staff-local-20261112/source-identity.fixed.json",
+    "sha256": "01593cd431ba88f375c8995ac407768182ee635184c518c2ba17905e07110bfc"
+  },
+  "native_identity": {
+    "game/platform/windows/bin/oddly_good_platform.windows.x86_64.dll": "86978835fbce69d625e51b0f69c7e18748dce1682a4e295e2512a2d155e3369e",
+    "game/platform/windows/bin/libgmp-10.dll": "c2567ccf3f410c3411ba7cd4b7ba14f393a0e70a1d0c0593297df6706b5fba96",
+    "game/platform/windows/bin/libmpfr-6.dll": "b881beb5ed7e3413283ab94f24ab25cd47ed27127774867ae105642ff2fc2e47",
+    "game/platform/windows/bin/libgcc_s_seh-1.dll": "791ebf66e99c7c1b4ed3666468cec45a0172b4c8942ac6c84c3e9cab3e1b5270",
+    "game/platform/windows/bin/libwinpthread-1.dll": "e765ee6109a0080a7c42848911f4349099b3c15aa734d845cb0e438f6f5a91b5"
+  },
+  "reuse": "Passing safe-release, amenity and convoy rows from fixed2 are reused. Later source edits were confined to _seated_use and _fixed_clinical; shared probe/observer and production functions stayed unchanged. Only the changed seated/fixed-GP cases were rerun. Final source hashes are recorded separately; no earlier whole-test-file hash is claimed for those reused rows.",
+  "baseline": {
+    "raw_sha256": "457f698ef5938e03930f5ecdf3d093bad9c00e61e613a6ba0d1caed5e561e31d",
+    "result": {
+      "case": "safe_release_collision",
+      "ok": false,
+      "elapsed_ms": 1080.85,
+      "real_steps": 554,
+      "checks": {
+        "actual_body_contact": true,
+        "actual_local_intention_keeps_all_owners": false,
+        "actual_probe_route": true,
+        "full_eight_seconds_and_real_return": true,
+        "legal_input": true,
+        "legal_precontact": true,
+        "need_accepted": true,
+        "no_extra_charge_or_supply": true,
+        "no_extra_clinical_work": true,
+        "no_validation_errors": true,
+        "original_work_segment": true,
+        "real_need_walk": true,
+        "real_release_completed": true,
+        "release_only_after_safe_walk": true,
+        "release_owned_before_collision": true,
+        "remote_desk": true,
+        "walking_blocker_can_yield": false,
+        "water_at_real_facility": true,
+        "water_downstairs": true,
+        "water_upstairs": true,
+        "world_valid": true
+      },
+      "water_work_ticks": 80,
+      "release_walk_steps": 136,
+      "release_point": {
+        "cell": [
+          37.0,
+          79.1999969482422
+        ],
+        "floor_id": 1,
+        "height_m": 0.0,
+        "kind": "floor"
+      },
+      "observed_contacts": [
+        {
+          "actual": [
+            0.0,
+            0.0
+          ],
+          "body_blockers": [
+            "release_nurse"
+          ],
+          "requested": [
+            -0.200000762939453,
+            0.0
+          ],
+          "reservations": [],
+          "static_reason": "",
+          "tick": 0
+        }
+      ],
+      "observed_choices": [],
+      "observed_eligibility": [
+        {
+          "convoy": false,
+          "has_ground_move": true,
+          "movable": false,
+          "posture": "standing",
+          "tick": 0
+        }
+      ],
+      "validation": "",
+      "errors": [],
+      "probe_error": ""
+    },
+    "interpretation": "Actual body contact at tick 0 proves erroneous local-movable=false for a standing real single-person floor leg. The remainder of the 554-step case completed release, 80 water ticks and return, so this small fixture is not evidence of permanent deadlock."
+  },
+  "selected_cases": [
+    {
+      "raw_result": ".cache/moving-staff-local-20261112/fixed2.json",
+      "raw_sha256": "f2abb26d7136a68c65fc57acd71ceeea07274efc4c90d44f066af82c5895b5ec",
+      "result": {
+        "case": "safe_release_collision",
+        "ok": true,
+        "elapsed_ms": 1100.011,
+        "real_steps": 564,
+        "checks": {
+          "actual_body_contact": true,
+          "actual_local_intention_keeps_all_owners": true,
+          "actual_probe_route": true,
+          "full_eight_seconds_and_real_return": true,
+          "legal_input": true,
+          "legal_precontact": true,
+          "need_accepted": true,
+          "no_extra_charge_or_supply": true,
+          "no_extra_clinical_work": true,
+          "no_validation_errors": true,
+          "original_work_segment": true,
+          "real_need_walk": true,
+          "real_release_completed": true,
+          "release_only_after_safe_walk": true,
+          "release_owned_before_collision": true,
+          "remote_desk": true,
+          "walking_blocker_can_yield": true,
+          "water_at_real_facility": true,
+          "water_downstairs": true,
+          "water_upstairs": true,
+          "world_valid": true
+        },
+        "water_work_ticks": 80,
+        "release_walk_steps": 146,
+        "release_point": {
+          "cell": [
+            37.0,
+            79.1999969482422
+          ],
+          "floor_id": 1,
+          "height_m": 0.0,
+          "kind": "floor"
+        },
+        "observed_contacts": [
+          {
+            "actual": [
+              0.0,
+              0.0
+            ],
+            "body_blockers": [
+              "release_nurse"
+            ],
+            "requested": [
+              -0.200000762939453,
+              0.0
+            ],
+            "reservations": [],
+            "static_reason": "",
+            "tick": 0
+          }
+        ],
+        "observed_choices": [
+          {
+            "accepted": true,
+            "body_not_moved_by_choice": true,
+            "clinical_tickets_unchanged": true,
+            "local": {
+              "origin": [
+                59,
+                74
+              ],
+              "target": {
+                "cell": [
+                  59.0,
+                  75.0
+                ],
+                "floor_id": 1,
+                "kind": "floor"
+              }
+            },
+            "original_move_unchanged": true,
+            "release_owner_unchanged": true,
+            "reservations_unchanged": true,
+            "staff_owner_unchanged": true,
+            "tick": 0
+          }
+        ],
+        "observed_eligibility": [
+          {
+            "convoy": false,
+            "has_ground_move": true,
+            "movable": true,
+            "posture": "standing",
+            "tick": 0
+          }
+        ],
+        "validation": "",
+        "errors": [],
+        "probe_error": ""
+      }
+    },
+    {
+      "raw_result": ".cache/moving-staff-local-20261112/fixed2.json",
+      "raw_sha256": "f2abb26d7136a68c65fc57acd71ceeea07274efc4c90d44f066af82c5895b5ec",
+      "result": {
+        "case": "amenity_walk",
+        "ok": true,
+        "elapsed_ms": 245.359,
+        "real_steps": 163,
+        "checks": {
+          "actual_body_contact": true,
+          "actual_local_intention_keeps_all_owners": true,
+          "actual_probe_route": true,
+          "full_eight_seconds_and_real_return": true,
+          "legal_precontact": true,
+          "need_accepted": true,
+          "no_extra_clinical_work": true,
+          "no_validation_errors": true,
+          "original_work_segment": true,
+          "real_need_walk": true,
+          "real_release_completed": true,
+          "release_only_after_safe_walk": true,
+          "release_owned_before_collision": true,
+          "walking_blocker_can_yield": true,
+          "water": true,
+          "water_at_real_facility": true,
+          "world_valid": true
+        },
+        "water_work_ticks": 80,
+        "release_walk_steps": 0,
+        "release_point": {},
+        "observed_contacts": [
+          {
+            "actual": [
+              0.0,
+              0.0
+            ],
+            "body_blockers": [
+              "amenity_employee"
+            ],
+            "requested": [
+              -0.200000762939453,
+              0.0
+            ],
+            "reservations": [],
+            "static_reason": "",
+            "tick": 0
+          }
+        ],
+        "observed_choices": [
+          {
+            "accepted": true,
+            "body_not_moved_by_choice": true,
+            "clinical_tickets_unchanged": true,
+            "local": {
+              "origin": [
+                43.0,
+                83.0
+              ],
+              "target": {
+                "cell": [
+                  42.0,
+                  83.0
+                ],
+                "floor_id": 1,
+                "kind": "floor"
+              }
+            },
+            "original_move_unchanged": true,
+            "release_owner_unchanged": true,
+            "reservations_unchanged": true,
+            "staff_owner_unchanged": true,
+            "tick": 0
+          }
+        ],
+        "observed_eligibility": [
+          {
+            "convoy": false,
+            "has_ground_move": true,
+            "movable": true,
+            "posture": "standing",
+            "tick": 0
+          }
+        ],
+        "validation": "",
+        "errors": [],
+        "probe_error": ""
+      }
+    },
+    {
+      "raw_result": ".cache/moving-staff-local-20261112/fixed5.json",
+      "raw_sha256": "f660efe7e604ddd87baaf46ad1eaa00bb3152693cbdc720de6eeb70166b0ced9",
+      "result": {
+        "case": "fixed_clinical",
+        "ok": true,
+        "elapsed_ms": 294.401,
+        "real_steps": 338,
+        "checks": {
+          "actual_rejected_approach": true,
+          "fixed_post_not_selected": true,
+          "legal_approach": true,
+          "legal_precontact": true,
+          "one_original_charge": true,
+          "original_clinical_completed": true,
+          "original_post_and_reservation_retained": true,
+          "original_session_commitment_retained": true,
+          "real_clinical_started": true,
+          "real_fixed_body_not_movable": true,
+          "room": true,
+          "world_valid": true
+        },
+        "observed_contacts": [
+          {
+            "actual": [
+              0.0,
+              0.0
+            ],
+            "body_blockers": [],
+            "requested": [
+              0.0,
+              -0.199996948242188
+            ],
+            "reservations": [
+              "desk"
+            ],
+            "static_reason": "",
+            "tick": 220
+          }
+        ],
+        "observed_choices": [],
+        "original_session": {
+          "doctor_fee": 20,
+          "facility_fee": 5,
+          "facility_id": "desk",
+          "id": "service_00000009",
+          "insufficient": true,
+          "insufficient_bp": 4000,
+          "kind": "gp",
+          "original_ticket": {
+            "called_tick": 217,
+            "enqueued_tick": 0,
+            "id": "ticket_00000004",
+            "kind": "gp",
+            "service_assigned": true,
+            "visit_id": "fixed_work",
+            "wait_accounted_tick": 216,
+            "waited_ticks": 172
+          },
+          "remaining_ticks": 120,
+          "resources": [
+            "patient_fixed_work",
+            "desk",
+            "doctor"
+          ],
+          "staff_ids": [
+            "doctor"
+          ],
+          "start_tick": 217,
+          "total_ticks": 121,
+          "visit_id": "fixed_work"
+        },
+        "validation": "",
+        "probe_error": ""
+      }
+    },
+    {
+      "raw_result": ".cache/moving-staff-local-20261112/fixed4.json",
+      "raw_sha256": "504bf99c844175c63621b141b464349473ba409bad37e65588f5075001b91228",
+      "result": {
+        "case": "seated_use",
+        "ok": true,
+        "elapsed_ms": 442.363,
+        "real_steps": 506,
+        "checks": {
+          "actual_rejected_approach": true,
+          "actual_seated_body_not_movable": true,
+          "actually_seated": true,
+          "chair": true,
+          "first_real_gp": true,
+          "fixed_seat_not_selected": true,
+          "legal_approach": true,
+          "legal_precontact": true,
+          "manual_seat_request": true,
+          "normal_refer": true,
+          "original_gp_completed": true,
+          "real_continuous_use": true,
+          "real_safe_exit_and_release": true,
+          "room": true,
+          "seat_support_owner_and_ticket_retained": true,
+          "world_valid": true
+        },
+        "actual_seated_use_ticks": 25,
+        "observed_contacts": [
+          {
+            "actual": [
+              0.0,
+              0.0
+            ],
+            "body_blockers": [],
+            "requested": [
+              -0.200000762939453,
+              0.0
+            ],
+            "reservations": [
+              "chair"
+            ],
+            "static_reason": "",
+            "tick": 232
+          }
+        ],
+        "observed_choices": [
+          {
+            "accepted": true,
+            "body_not_moved_by_choice": true,
+            "clinical_tickets_unchanged": true,
+            "local": {
+              "origin": [
+                46.6000022888184,
+                77.0
+              ],
+              "target": {
+                "cell": [
+                  46.6000022888184,
+                  78.0
+                ],
+                "floor_id": 1,
+                "kind": "floor"
+              }
+            },
+            "original_move_unchanged": true,
+            "release_owner_unchanged": true,
+            "reservations_unchanged": true,
+            "staff_owner_unchanged": true,
+            "tick": 268
+          }
+        ],
+        "validation": "",
+        "probe_error": ""
+      }
+    },
+    {
+      "raw_result": ".cache/moving-staff-local-20261112/fixed2.json",
+      "raw_sha256": "f2abb26d7136a68c65fc57acd71ceeea07274efc4c90d44f066af82c5895b5ec",
+      "result": {
+        "case": "convoy",
+        "ok": true,
+        "elapsed_ms": 176.407,
+        "real_steps": 73,
+        "checks": {
+          "actual_body_contact": true,
+          "actual_group_not_independently_movable": true,
+          "legal_precontact": true,
+          "members_not_selected": true,
+          "no_individual_displacement": true,
+          "no_validation_errors": true,
+          "original_group_and_order": true,
+          "probe_route": true,
+          "real_group_arrival": true,
+          "real_group_request": true,
+          "world_valid": true
+        },
+        "observed_contacts": [
+          {
+            "actual": [
+              0.0,
+              0.0
+            ],
+            "body_blockers": [
+              "leader"
+            ],
+            "requested": [
+              -0.200000762939453,
+              0.0
+            ],
+            "reservations": [],
+            "static_reason": "",
+            "tick": 1
+          }
+        ],
+        "observed_choices": [],
+        "validation": "",
+        "errors": [],
+        "probe_error": ""
+      }
+    }
+  ],
+  "regressions": [
+    {
+      "label": "life04",
+      "raw_sha256": "e840c94237eb9bb21d3b1ac7444c32f6a370be9e8468bd76b95d975f8e1281c1",
+      "result": {
+        "ok": true,
+        "cases": [
+          {
+            "elapsed_ms": 4713.219,
+            "id": "LIFE-04",
+            "ok": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "local3",
+      "raw_sha256": "9bafbaf4aeb936d29bb564ce5381f6c9166b5c72a9d212d477cf90489ca280c2",
+      "result": {
+        "cases": [
+          {
+            "case": "local_ring",
+            "checks": {
+              "actual_collisions": true,
+              "all_arrived": true,
+              "final_valid": true,
+              "initial_valid": true,
+              "no_component_search": true,
+              "no_rejoin_pending": true,
+              "requests_kept": true,
+              "safe": true,
+              "walking_budget": true
+            },
+            "collisions": 4,
+            "final_validation": "",
+            "initial_validation": "",
+            "ok": true,
+            "remaining": {},
+            "ticks": 15
+          },
+          {
+            "case": "local_ring_reversed_ids",
+            "checks": {
+              "actual_collisions": true,
+              "all_arrived": true,
+              "final_valid": true,
+              "initial_valid": true,
+              "no_component_search": true,
+              "no_rejoin_pending": true,
+              "requests_kept": true,
+              "safe": true,
+              "walking_budget": true
+            },
+            "collisions": 4,
+            "final_validation": "",
+            "initial_validation": "",
+            "ok": true,
+            "remaining": {},
+            "ticks": 15
+          },
+          {
+            "case": "clear_return_no_bypass",
+            "collisions": 0,
+            "no_new_bypass": true,
+            "ok": true,
+            "validation": ""
+          }
+        ],
+        "ok": true
+      }
+    },
+    {
+      "label": "optional2",
+      "raw_sha256": "f0d127c52a619e7f3fd2b1e43f20347ea84682ea513f1e0b332c301ad4b208d4",
+      "result": {
+        "errors": [],
+        "fixed_tick_seconds": 0.1,
+        "ok": true,
+        "rows": [
+          {
+            "case": "numeric_same_goal_optional_ownership_transfer",
+            "nurse": {
+              "after": {
+                "actor_id": "guide_nurse",
+                "blocked_since": -1,
+                "cursor": 0,
+                "path": [],
+                "request_sequence": 1,
+                "route_pending": true,
+                "target_cell": [
+                  47,
+                  82
+                ],
+                "target_floor": 1,
+                "travelled": [
+                  {
+                    "cell": [
+                      36,
+                      92
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  }
+                ]
+              },
+              "before": {
+                "actor_id": "guide_nurse",
+                "blocked_since": -1,
+                "cursor": 0,
+                "guidance_nurse_desk": "guide",
+                "path": [],
+                "request_sequence": 1,
+                "route_pending": true,
+                "target_cell": [
+                  47,
+                  82
+                ],
+                "target_floor": 1,
+                "travelled": [
+                  {
+                    "cell": [
+                      36,
+                      92
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  }
+                ]
+              },
+              "cleared_fields": [
+                "guidance_nurse_desk"
+              ],
+              "ok": true,
+              "old_owner_cannot_cancel": true,
+              "only_ownership_changed": true,
+              "reason": "",
+              "requested_target": [
+                47.0,
+                82.0
+              ],
+              "validation": ""
+            },
+            "ok": true,
+            "seat": {
+              "after": {
+                "actor_id": "patient_target_reuse",
+                "blocked_since": -1,
+                "cursor": 0,
+                "path": [],
+                "request_sequence": 1,
+                "route_pending": true,
+                "target_cell": [
+                  38,
+                  83
+                ],
+                "target_floor": 1,
+                "travelled": [
+                  {
+                    "cell": [
+                      38,
+                      90
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  }
+                ]
+              },
+              "before": {
+                "actor_id": "patient_target_reuse",
+                "blocked_since": -1,
+                "cursor": 0,
+                "floor_only": true,
+                "path": [],
+                "request_sequence": 1,
+                "route_pending": true,
+                "target_cell": [
+                  38,
+                  83
+                ],
+                "target_floor": 1,
+                "travelled": [
+                  {
+                    "cell": [
+                      38,
+                      90
+                    ],
+                    "floor_id": 1,
+                    "kind": "floor"
+                  }
+                ],
+                "waiting_seat_id": "seat_target_reuse"
+              },
+              "cleared_fields": [
+                "waiting_seat_id",
+                "floor_only"
+              ],
+              "ok": true,
+              "old_owner_cannot_cancel": true,
+              "only_ownership_changed": true,
+              "reason": "",
+              "requested_target": [
+                38.0,
+                83.0
+              ],
+              "validation": ""
+            }
+          }
+        ],
+        "scope": "Selected exact numeric-target reuse and affected handoffs; declared legal starting inputs, real movement and fresh frozen-world runtime restore; no performance or full-suite claim."
+      }
+    }
+  ],
+  "preparation_and_prerequisite_failures": [
+    {
+      "label": "import",
+      "classification": "tool",
+      "reason": "Required existing native runtime omitted by preparation; no production step ran.",
+      "import.log": {
+        "path": ".cache/moving-staff-local-20261112/import.log",
+        "sha256": "45c89be133d36dc7d9c9a7632c2380171ea70b2f3ea532db844b5fb4c3f8a60d"
+      },
+      "import.execution.json": {
+        "path": ".cache/moving-staff-local-20261112/import.execution.json",
+        "sha256": "ec944aa06d47aa5e125b6f21be5754b603e7d4ac6d2ca67cfdd7bfd718d013a9"
+      }
+    },
+    {
+      "label": "baseline",
+      "classification": "tool",
+      "reason": "Test inheritance used parent CASES and run names; no case executed.",
+      "baseline.log": {
+        "path": ".cache/moving-staff-local-20261112/baseline.log",
+        "sha256": "d62388ba6fc27db9cd0ba8ddbcd0ad6570fc49a9b86159add87ee9a45e7d0656"
+      },
+      "baseline.execution.json": {
+        "path": ".cache/moving-staff-local-20261112/baseline.execution.json",
+        "sha256": "7d769f34273457fc9e800c4c53c1a502082c31647a4564d70e592580beec7fe2"
+      }
+    },
+    {
+      "label": "baseline2",
+      "classification": "prerequisite",
+      "reason": "Probe original goal exceeded acquired plot; zero production steps.",
+      "baseline2.json": {
+        "path": ".cache/moving-staff-local-20261112/baseline2.json",
+        "sha256": "9f95d2209a621f5ddc9f42281340dc33f57fc2876e2c4a1dbb105bf927008d16"
+      },
+      "baseline2.log": {
+        "path": ".cache/moving-staff-local-20261112/baseline2.log",
+        "sha256": "36125bb6654df2577b13afd094227526ceb519153fc89301ad42001452132cc7"
+      },
+      "baseline2.execution.json": {
+        "path": ".cache/moving-staff-local-20261112/baseline2.execution.json",
+        "sha256": "9f96b3a1ab0bf6ae4b9f169f7ab687f0081bf35b03e9617e2e92bb15e957ae99"
+      }
+    },
+    {
+      "label": "fixed",
+      "classification": "prerequisite",
+      "reason": "safe_release original goal exceeded plot; seated input had no valid clinical destination.",
+      "fixed.json": {
+        "path": ".cache/moving-staff-local-20261112/fixed.json",
+        "sha256": "b8b2f4b420f4fd27b55af7b409f401b2db15745ba1588635b1bc3aa73f7ebc0d"
+      },
+      "fixed.log": {
+        "path": ".cache/moving-staff-local-20261112/fixed.log",
+        "sha256": "00473997c47e3ae2fcc7464afeeead517d6aaedf90f44873575310316f50c544"
+      },
+      "fixed.execution.json": {
+        "path": ".cache/moving-staff-local-20261112/fixed.execution.json",
+        "sha256": "e18a416bc46570db99f7a3f221095f063663c77b94c7448a9d26852862ef8c18"
+      }
+    },
+    {
+      "label": "fixed2",
+      "classification": "prerequisite",
+      "reason": "Only seated input still lacked an eligible original clinical destination; other four individual cases passed.",
+      "fixed2.json": {
+        "path": ".cache/moving-staff-local-20261112/fixed2.json",
+        "sha256": "f2abb26d7136a68c65fc57acd71ceeea07274efc4c90d44f066af82c5895b5ec"
+      },
+      "fixed2.log": {
+        "path": ".cache/moving-staff-local-20261112/fixed2.log",
+        "sha256": "e770c8d530b9a2b22455e4388e801ea0ce2f91c2e246ba889316953b5e4fbe89"
+      },
+      "fixed2.execution.json": {
+        "path": ".cache/moving-staff-local-20261112/fixed2.execution.json",
+        "sha256": "bcd422c4b2ceb5430f1b25387f3e2feb8435aa7f96e0154f5f463e87bd74b81a"
+      }
+    },
+    {
+      "label": "fixed3",
+      "classification": "test_observation",
+      "reason": "Real seat protections passed; FUR09 was incorrectly expected to advance the FUR49 effect clock, and observation ended before original slow GP completed.",
+      "fixed3.json": {
+        "path": ".cache/moving-staff-local-20261112/fixed3.json",
+        "sha256": "f126d7ffea2d440da33f6cce7416434b049b1302a36162ab2582454adc75d943"
+      },
+      "fixed3.log": {
+        "path": ".cache/moving-staff-local-20261112/fixed3.log",
+        "sha256": "16fe663bfa74ec80d3ea51f953c20ca82a9432a17f20b36fe712d092b36d11c2"
+      },
+      "fixed3.execution.json": {
+        "path": ".cache/moving-staff-local-20261112/fixed3.execution.json",
+        "sha256": "f26e0419f93a77036ccd58a39dfe6306edddcbbbe944d897e217b1a58c18500a"
+      }
+    },
+    {
+      "label": "optional",
+      "classification": "prerequisite",
+      "reason": "Legacy helper attempted retired waiting-room type; runtime assertion retained.",
+      "optional.json": {
+        "path": ".cache/moving-staff-local-20261112/optional.json",
+        "sha256": "12be4c5267c18b779d20f22d429c321234dfbd082ad03fb4f885637493de5dea"
+      },
+      "optional.log": {
+        "path": ".cache/moving-staff-local-20261112/optional.log",
+        "sha256": "b8164d89d835340e1ca20fa08611e26848f844825ba20a5fc5d12f40d88d41e8"
+      },
+      "optional.execution.json": {
+        "path": ".cache/moving-staff-local-20261112/optional.execution.json",
+        "sha256": "a3ff090777bee291dd4461d2cb9f996ff715a6f53a4e51186f3b91a34f277657"
+      }
+    }
+  ],
+  "executions": [
+    {
+      "label": "import",
+      "started_utc": "2026-11-11T20:37:17.254470+00:00",
+      "ended_utc": "2026-11-11T20:37:32.570144+00:00",
+      "elapsed_seconds": 15.315583,
+      "exit_code": 1,
+      "fatal": true,
+      "command": [
+        "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--editor",
+        "--path",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\moving-staff-local-20261112\\project",
+        "--import",
+        "--quit"
+      ]
+    },
+    {
+      "label": "import2",
+      "started_utc": "2026-11-11T20:38:05.536579+00:00",
+      "ended_utc": "2026-11-11T20:38:13.508199+00:00",
+      "elapsed_seconds": 7.971564,
+      "exit_code": 0,
+      "fatal": false,
+      "command": [
+        "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--editor",
+        "--path",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\moving-staff-local-20261112\\project",
+        "--import",
+        "--quit"
+      ]
+    },
+    {
+      "label": "baseline",
+      "started_utc": "2026-11-11T20:38:23.227309+00:00",
+      "ended_utc": "2026-11-11T20:38:23.738756+00:00",
+      "elapsed_seconds": 0.511461,
+      "exit_code": 1,
+      "fatal": true,
+      "command": [
+        "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\moving-staff-local-20261112\\project",
+        "--script",
+        "res://tests/acceptance/life_local_movement_runner.gd",
+        "--",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\moving-staff-local-20261112\\baseline.json",
+        "safe_release_collision"
+      ]
+    },
+    {
+      "label": "baseline2",
+      "started_utc": "2026-11-11T20:38:46.188766+00:00",
+      "ended_utc": "2026-11-11T20:38:49.718345+00:00",
+      "elapsed_seconds": 3.529563,
+      "exit_code": 1,
+      "fatal": false,
+      "command": [
+        "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\moving-staff-local-20261112\\project",
+        "--script",
+        "res://tests/acceptance/life_local_movement_runner.gd",
+        "--",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\moving-staff-local-20261112\\baseline2.json",
+        "safe_release_collision"
+      ]
+    },
+    {
+      "label": "baseline3",
+      "started_utc": "2026-11-11T20:40:52.217928+00:00",
+      "ended_utc": "2026-11-11T20:40:56.954940+00:00",
+      "elapsed_seconds": 4.736986,
+      "exit_code": 1,
+      "fatal": false,
+      "command": [
+        "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\moving-staff-local-20261112\\project",
+        "--script",
+        "res://tests/acceptance/life_local_movement_runner.gd",
+        "--",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\moving-staff-local-20261112\\baseline3.json",
+        "safe_release_collision"
+      ]
+    },
+    {
+      "label": "fixed",
+      "started_utc": "2026-11-11T20:38:56.547206+00:00",
+      "ended_utc": "2026-11-11T20:39:01.287063+00:00",
+      "elapsed_seconds": 4.739832,
+      "exit_code": 1,
+      "fatal": false,
+      "command": [
+        "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\moving-staff-local-20261112\\project",
+        "--script",
+        "res://tests/acceptance/life_local_movement_runner.gd",
+        "--",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\moving-staff-local-20261112\\fixed.json",
+        "safe_release_collision,amenity_walk,fixed_clinical,seated_use,convoy"
+      ]
+    },
+    {
+      "label": "fixed2",
+      "started_utc": "2026-11-11T20:41:04.044566+00:00",
+      "ended_utc": "2026-11-11T20:41:09.891865+00:00",
+      "elapsed_seconds": 5.84727,
+      "exit_code": 1,
+      "fatal": false,
+      "command": [
+        "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\moving-staff-local-20261112\\project",
+        "--script",
+        "res://tests/acceptance/life_local_movement_runner.gd",
+        "--",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\moving-staff-local-20261112\\fixed2.json",
+        "safe_release_collision,amenity_walk,fixed_clinical,seated_use,convoy"
+      ]
+    },
+    {
+      "label": "fixed3",
+      "started_utc": "2026-11-11T20:41:58.745523+00:00",
+      "ended_utc": "2026-11-11T20:42:02.679753+00:00",
+      "elapsed_seconds": 3.934219,
+      "exit_code": 1,
+      "fatal": false,
+      "command": [
+        "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\moving-staff-local-20261112\\project",
+        "--script",
+        "res://tests/acceptance/life_local_movement_runner.gd",
+        "--",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\moving-staff-local-20261112\\fixed3.json",
+        "seated_use"
+      ]
+    },
+    {
+      "label": "fixed4",
+      "started_utc": "2026-11-11T20:42:58.317273+00:00",
+      "ended_utc": "2026-11-11T20:43:02.350046+00:00",
+      "elapsed_seconds": 4.03276,
+      "exit_code": 0,
+      "fatal": false,
+      "command": [
+        "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\moving-staff-local-20261112\\project",
+        "--script",
+        "res://tests/acceptance/life_local_movement_runner.gd",
+        "--",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\moving-staff-local-20261112\\fixed4.json",
+        "seated_use"
+      ]
+    },
+    {
+      "label": "fixed5",
+      "started_utc": "2026-11-11T20:44:51.681103+00:00",
+      "ended_utc": "2026-11-11T20:44:55.615321+00:00",
+      "elapsed_seconds": 3.934208,
+      "exit_code": 0,
+      "fatal": false,
+      "command": [
+        "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\moving-staff-local-20261112\\project",
+        "--script",
+        "res://tests/acceptance/life_local_movement_runner.gd",
+        "--",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\moving-staff-local-20261112\\fixed5.json",
+        "fixed_clinical"
+      ]
+    },
+    {
+      "label": "life04",
+      "started_utc": "2026-11-11T20:43:18.155840+00:00",
+      "ended_utc": "2026-11-11T20:43:26.319136+00:00",
+      "elapsed_seconds": 8.163242,
+      "exit_code": 0,
+      "fatal": false,
+      "command": [
+        "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\moving-staff-local-20261112\\project",
+        "--script",
+        "res://tests/acceptance/rooms_areas_guidance_runner.gd",
+        "--",
+        "--case=LIFE-04",
+        "--output=C:\\code\\loyayz\\oddly-good-hospital\\.cache\\moving-staff-local-20261112\\life04.json"
+      ]
+    },
+    {
+      "label": "local3",
+      "started_utc": "2026-11-11T20:43:26.319918+00:00",
+      "ended_utc": "2026-11-11T20:43:31.559773+00:00",
+      "elapsed_seconds": 5.23983,
+      "exit_code": 0,
+      "fatal": false,
+      "command": [
+        "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\moving-staff-local-20261112\\project",
+        "--script",
+        "res://tests/acceptance/run_local_only_movement.gd",
+        "--",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\moving-staff-local-20261112\\local3.json"
+      ]
+    },
+    {
+      "label": "optional",
+      "started_utc": "2026-11-11T20:43:31.560829+00:00",
+      "ended_utc": "2026-11-11T20:43:36.807424+00:00",
+      "elapsed_seconds": 5.246566,
+      "exit_code": 1,
+      "fatal": true,
+      "command": [
+        "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\moving-staff-local-20261112\\project",
+        "--script",
+        "res://tests/acceptance/movement_target_reuse.gd",
+        "--",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\moving-staff-local-20261112\\optional.json",
+        "optional"
+      ]
+    },
+    {
+      "label": "optional2",
+      "started_utc": "2026-11-11T20:44:55.731765+00:00",
+      "ended_utc": "2026-11-11T20:45:01.173865+00:00",
+      "elapsed_seconds": 5.442077,
+      "exit_code": 0,
+      "fatal": false,
+      "command": [
+        "C:/programs/godot/Godot_v4.7.2-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\moving-staff-local-20261112\\project",
+        "--script",
+        "res://tests/acceptance/movement_target_reuse.gd",
+        "--",
+        "C:\\code\\loyayz\\oddly-good-hospital\\.cache\\moving-staff-local-20261112\\optional2.json",
+        "optional"
+      ]
+    }
+  ],
+  "unresolved_related_issues": [],
+  "not_verified": [
+    "160-person coverage or performance after this behavior fix",
+    "Rendering/GPU or long stability validation",
+    "A general guarantee that every legal crowded geometry clears"
+  ]
+}
