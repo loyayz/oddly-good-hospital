@@ -7,16 +7,17 @@
   "workflow": {
     "full_contract_complete": true,
     "independent_review_complete": false,
-    "pushed": false,
-    "post_review_performance_complete": false,
-    "optimization_cycle_complete": false,
+    "pushed": true,
+    "post_review_performance_complete": true,
+    "optimization_cycle_complete": true,
     "implementation_pushed": true,
     "review_complete": true,
-    "review_repairs_pushed": false
+    "review_repairs_pushed": true,
+    "optimization_pushed": true
   },
   "pending_design": [],
   "selected_cases": {
-    "unique_passed": 75,
+    "unique_passed": 80,
     "cases": [
       {
         "case": "AREA-01",
@@ -82,13 +83,14 @@
         "report_sha256": "036d57392ada3b4c4be28771e8141fd12eb2a17cf46624297cbc6ea6e53b24fb"
       },
       {
+        "case": "CLIN-25",
         "suite": "clinical",
         "requirement": "docs/design/07-clinical-team.md §8.1、§10；安全换床保留标准余量/护理，回原床不重复磨损/收费",
-        "body_ms": 1175,
-        "setup_ms": 9054,
-        "case": "CLIN-25",
-        "report": ".cache/acceptance/b3100c4f5fe0475b9d50698647a307ef/acceptance-results.json",
-        "report_sha256": "2812febaa4aeba12ecd2e824d382409b605ac7ccdb67335af58f54557ce170be"
+        "body_ms": 1142,
+        "setup_ms": 8702,
+        "report": ".cache/acceptance/21baf98f875240b6bc6a147589d73c08/acceptance-results.json",
+        "report_sha256": "e759ada4045e045cdb8e32997a019d0f33e214fb7ac101193cfd88b84386b5bf",
+        "scope": "This case and its necessary prerequisites; batch-wide failures are recorded separately."
       },
       {
         "case": "CLIN-28",
@@ -301,10 +303,11 @@
         "case": "GUIDE-01",
         "suite": "rooms_areas_guidance",
         "requirement": "房间规格§7.1～7.2；真实导诊护士、六秒工作、实体队列与实际到诊室",
-        "body_ms": 792,
+        "body_ms": 535,
         "setup_ms": 0,
-        "report": ".cache/rooms-areas-guidance-20261111/function-auto-life-regression-v1.json",
-        "report_sha256": "e0ff5e5071d454f892434aa8bcfbb3211e0c02bb5963bf2514b07622e3abb016"
+        "report": ".cache/acceptance/21baf98f875240b6bc6a147589d73c08/acceptance-results.json",
+        "report_sha256": "e759ada4045e045cdb8e32997a019d0f33e214fb7ac101193cfd88b84386b5bf",
+        "scope": "This case and its necessary prerequisites; batch-wide failures are recorded separately."
       },
       {
         "case": "GUIDE-02",
@@ -319,10 +322,11 @@
         "case": "GUIDE-03",
         "suite": "rooms_areas_guidance",
         "requirement": "房间规格§7.4、§9；安排票序、精确三十秒后移三位与冷恢复",
-        "body_ms": 18,
+        "body_ms": 17,
         "setup_ms": 0,
-        "report": ".cache/rooms-areas-guidance-20261111/function-surgical-ordinary-regression.json",
-        "report_sha256": "d83f86ac6e4df8ede8bebd4fa64d149553c102863336bd35133b241eade35a4e"
+        "report": ".cache/acceptance/404498d9763c48b8a76a493a35c08353/acceptance-results.json",
+        "report_sha256": "3ee4e2842161036da76108ca01e608119c295d12a11734b018fb9a10e164a5eb",
+        "scope": "This case and its necessary prerequisites; batch-wide failures are recorded separately."
       },
       {
         "suite": "rooms_areas_guidance",
@@ -346,10 +350,11 @@
         "case": "GUIDE-06",
         "suite": "rooms_areas_guidance",
         "requirement": "房间规格§7.4；实际长途到诊室期间医生等满三十秒后移三位",
-        "body_ms": 527,
+        "body_ms": 475,
         "setup_ms": 0,
-        "report": ".cache/rooms-areas-guidance-20261111/function-surgical-ordinary-regression.json",
-        "report_sha256": "d83f86ac6e4df8ede8bebd4fa64d149553c102863336bd35133b241eade35a4e"
+        "report": ".cache/acceptance/21baf98f875240b6bc6a147589d73c08/acceptance-results.json",
+        "report_sha256": "e759ada4045e045cdb8e32997a019d0f33e214fb7ac101193cfd88b84386b5bf",
+        "scope": "This case and its necessary prerequisites; batch-wide failures are recorded separately."
       },
       {
         "case": "GUIDE-07",
@@ -373,10 +378,21 @@
         "case": "GUIDE-09",
         "suite": "rooms_areas_guidance",
         "requirement": "房间规格§7.3、§9；手术原全院选择、患者真实跨层导诊、原目标与实际到场票序及冷恢复",
-        "body_ms": 11941,
+        "body_ms": 7227,
         "setup_ms": 0,
-        "report": ".cache/rooms-areas-guidance-20261111/function-auto-life-regression-v1.json",
-        "report_sha256": "e0ff5e5071d454f892434aa8bcfbb3211e0c02bb5963bf2514b07622e3abb016"
+        "report": ".cache/acceptance/21baf98f875240b6bc6a147589d73c08/acceptance-results.json",
+        "report_sha256": "e759ada4045e045cdb8e32997a019d0f33e214fb7ac101193cfd88b84386b5bf",
+        "scope": "This case and its necessary prerequisites; batch-wide failures are recorded separately."
+      },
+      {
+        "case": "GUIDE-10",
+        "suite": "rooms_areas_guidance",
+        "requirement": "房间规格§7.4、§9；排票逐次读取当前到场序号，未到场、移除、重排与冷恢复顺序保持",
+        "body_ms": 31,
+        "setup_ms": 0,
+        "report": ".cache/acceptance/9a82c2fc483445bf9df3085b9c328735/acceptance-results.json",
+        "report_sha256": "e69375d64d2f4b6d49c31a6fa366372dee7ea3defba9b587c43599ec09bda119",
+        "scope": "This case and its necessary prerequisites; batch-wide failures are recorded separately."
       },
       {
         "case": "LIFE-01",
@@ -469,13 +485,14 @@
         "report_sha256": "036d57392ada3b4c4be28771e8141fd12eb2a17cf46624297cbc6ea6e53b24fb"
       },
       {
+        "case": "RESULT-04",
         "suite": "rooms_areas_guidance",
         "requirement": "房间规格§3.2、§8；住院护士自动如厕等待原护理与覆盖安全结束，再真实使用设施",
-        "body_ms": 39244,
+        "body_ms": 37365,
         "setup_ms": 0,
-        "case": "RESULT-04",
-        "report": ".cache/acceptance/d8d656e1ccad4aa2aff71986a41bce7e/acceptance-results.json",
-        "report_sha256": "cf7b642b3629655b138e387a11e590b04399755f87535d5f4d81d3171a5a02a6"
+        "report": ".cache/acceptance/21baf98f875240b6bc6a147589d73c08/acceptance-results.json",
+        "report_sha256": "e759ada4045e045cdb8e32997a019d0f33e214fb7ac101193cfd88b84386b5bf",
+        "scope": "This case and its necessary prerequisites; batch-wide failures are recorded separately."
       },
       {
         "case": "RESULT-05",
@@ -568,6 +585,16 @@
         "report_sha256": "e0ff5e5071d454f892434aa8bcfbb3211e0c02bb5963bf2514b07622e3abb016"
       },
       {
+        "case": "ROOM-14",
+        "suite": "rooms_areas_guidance",
+        "requirement": "房间规格§3.2、§9；护理床空岗位仅限制停点，预约增删、权限与事实替换后实时生效",
+        "body_ms": 22,
+        "setup_ms": 0,
+        "report": ".cache/acceptance/9a82c2fc483445bf9df3085b9c328735/acceptance-results.json",
+        "report_sha256": "e69375d64d2f4b6d49c31a6fa366372dee7ea3defba9b587c43599ec09bda119",
+        "scope": "This case and its necessary prerequisites; batch-wide failures are recorded separately."
+      },
+      {
         "case": "ROOM-BUILD-01",
         "suite": "room_construction",
         "requirement": "房间规格§2.1；分次墙、先门、闭合空房和实际长度收费",
@@ -658,6 +685,36 @@
         "report_sha256": "2812febaa4aeba12ecd2e824d382409b605ac7ccdb67335af58f54557ce170be"
       },
       {
+        "case": "SPACE-10",
+        "suite": "space",
+        "requirement": "docs/design/04-technical.md §6 局部更新；真实阻挡/层/修订及恢复不串合法路线",
+        "body_ms": 1839,
+        "setup_ms": 0,
+        "report": ".cache/acceptance/dfe53d99656546e5b08be40e448c2ed3/acceptance-results.json",
+        "report_sha256": "fc6edf3550a104e7b7af85381dc5621ba7ec8dd17f98f74e5230651c1169a62c",
+        "scope": "This case and its necessary prerequisites; batch-wide failures are recorded separately."
+      },
+      {
+        "case": "SPACE-56",
+        "suite": "space",
+        "requirement": "docs/specs/26-10/2026-10-19-task-navigation-movement.md §4；实际位移与精确阻挡一次交接，队长许可、受保护尾迹、预约、门等待及真实恢复",
+        "body_ms": 74,
+        "setup_ms": 0,
+        "report": ".cache/acceptance/21baf98f875240b6bc6a147589d73c08/acceptance-results.json",
+        "report_sha256": "e759ada4045e045cdb8e32997a019d0f33e214fb7ac101193cfd88b84386b5bf",
+        "scope": "This case and its necessary prerequisites; batch-wide failures are recorded separately."
+      },
+      {
+        "case": "SPACE-57",
+        "suite": "space",
+        "requirement": "docs/specs/26-10/2026-10-19-task-navigation-movement.md §4；真实终点占用等待不重派，当前释放及历史扫掠、中段阻挡和受保护尾迹边界",
+        "body_ms": 188,
+        "setup_ms": 0,
+        "report": ".cache/acceptance/21baf98f875240b6bc6a147589d73c08/acceptance-results.json",
+        "report_sha256": "e759ada4045e045cdb8e32997a019d0f33e214fb7ac101193cfd88b84386b5bf",
+        "scope": "This case and its necessary prerequisites; batch-wide failures are recorded separately."
+      },
+      {
         "suite": "space",
         "requirement": "docs/specs/26-10/2026-10-19-task-navigation-movement.md §3/§4；单人精确分数目标、末段扫掠与报价、原子拒绝、改目标、跨层实到和取消不复活",
         "body_ms": 2594,
@@ -730,6 +787,16 @@
       {
         "case": "GROW-11",
         "report": ".cache/acceptance/a9b3db5adeae4962a1f798f854880727/acceptance-results.json"
+      },
+      {
+        "stage": "post-review performance functional boundaries",
+        "failed_batches": [
+          "b68a6f94e0664a16a406456f8bed4c9c",
+          "c9b77f9b1d9b40d99a8e83448c9214ec",
+          "404498d9763c48b8a76a493a35c08353",
+          "21baf98f875240b6bc6a147589d73c08"
+        ],
+        "resolution": "ROOM-14/GUIDE-10 clean final batch 9a82c2fc483445bf9df3085b9c328735; SPACE-10 clean final batch dfe53d99656546e5b08be40e448c2ed3; individually passed unchanged cases retain scoped evidence, not batch-wide pass."
       }
     ],
     "scope": "Selected affected cases, not the complete acceptance library."
@@ -806,246 +873,6 @@
     "merged_p99_ms": 159.675,
     "final_sha256": "ebcd1d63dd66b421f3016af133cf50f92494559ebee4ee9c8fff2fb25103d0c7"
   },
-  "current_snapshot": {
-    "stage": "Before later nursing work-segment, original-room identity and surgical-guidance repairs; not final full-contract performance acceptance.",
-    "input_sha256": "6e03590bd46507c73895ab3765a6f389906a8946f233a79be8981be52530fbcd",
-    "complete_steps": 9000,
-    "sample_steps": 6000,
-    "verified_source_files": 1824,
-    "merged_mean_ms": 36.47429116666667,
-    "merged_p95_ms": 50.886,
-    "merged_p99_ms": 61.051,
-    "root_mean_ms": {
-      "movement.space": 16.7634255,
-      "clinic.dispatch": 6.820435000000001,
-      "sample.experience": 2.8490819999999997,
-      "dispatch.waiting": 1.5348666666666666,
-      "needs.arrivals": 1.01185,
-      "dispatch.wellbeing": 0.9432933333333333,
-      "settle.development": 0.8240485,
-      "dispatch.floor_guidance": 0.7351371666666666,
-      "dispatch.development": 0.6110805,
-      "advance_wait.arrivals": 0.6050075,
-      "boundaries.maintenance": 0.4850031666666667,
-      "settle.finance": 0.4798605,
-      "boundaries.scheduler": 0.329208,
-      "boundaries.wellbeing": 0.2914368333333333,
-      "advance.waiting": 0.187068,
-      "advance.floor_guidance": 0.17574466666666666,
-      "settle.experience": 0.17541733333333334,
-      "settle.arrivals": 0.14549916666666668,
-      "clinic.advance": 0.10668716666666667,
-      "advance.wellbeing": 0.10639566666666667,
-      "advance.supplies": 0.10617333333333333,
-      "dispatch.maintenance": 0.100116,
-      "advance.maintenance": 0.09698466666666666,
-      "dispatch.environment": 0.08552383333333333,
-      "dispatch.staff_idle": 0.08284016666666666,
-      "advance.development": 0.0792325,
-      "settle.recruitment": 0.07151433333333335,
-      "step.setup": 0.0621655,
-      "settlement.finish_visits": 0.05102216666666666,
-      "movement.capture_staff_locations": 0.049737,
-      "clinic.arrivals": 0.04045033333333333,
-      "arrivals.arrivals": 0.036727333333333334,
-      "advance.recruitment": 0.034111833333333334,
-      "boundaries.recruitment": 0.021998166666666666,
-      "end_query.environment": 0.01953883333333333,
-      "boundaries.supplies": 0.01832366666666667,
-      "snapshot.tick_result": 0.017948166666666664,
-      "settle.research": 0.014454,
-      "advance.environment": 0.013355333333333334,
-      "boundaries.research": 0.012916166666666668,
-      "advance.floors": 0.012039666666666667,
-      "integrate.worked_staff": 0.011418166666666667,
-      "dispatch.scheduler": 0.010756166666666667,
-      "dispatch.floors": 0.010466666666666668,
-      "advance.research": 0.010283333333333334,
-      "dispatch.remodel": 0.0098665,
-      "events.collect": 0.009722166666666667,
-      "commands.drain": 0.009690666666666667,
-      "boundaries.arrivals": 0.009533333333333333,
-      "begin_query.environment": 0.007287,
-      "settlement.ledger": 0.006960833333333334,
-      "clinic.release_departed": 0.005447333333333333,
-      "clinic.settle_practice": 0.0048935,
-      "advance.scheduler": 0.004256833333333334,
-      "snapshot.bookkeeping": 0.004104666666666667,
-      "snapshot.space_boundary": 0.0022,
-      "snapshot.world_boundary": 0.0020858333333333336
-    },
-    "runs": [
-      {
-        "repeat": 1,
-        "metrics": {
-          "count": 2000,
-          "first_sample_step_us": 17296,
-          "fresh_runtime_first_prefix_or_sample_step_us": 139839,
-          "max_us": 195807,
-          "mean_step_us": 35872.81,
-          "observation_logging_and_loop_wall_us": 2183191,
-          "p50_us": 37032,
-          "p95_us": 49348,
-          "p99_us": 58571,
-          "real_window_us_including_observation": 73928811,
-          "simulated_seconds": 200.0,
-          "simulation_seconds_per_wall_second": 2.70530524290456,
-          "sum_step_us": 71745620
-        },
-        "process_wall_seconds": 100.06000259998837,
-        "sample_business": {
-          "clinical_work_ticks_observed_lower_bound": {
-            "gp": 387
-          },
-          "events": {
-            "arrival_opportunity_admitted": 5,
-            "ledger_settled": 4,
-            "patience_evaluated": 483,
-            "patient_arrived": 5,
-            "patient_departed": 9,
-            "research_opened": 1,
-            "service_completed": 2,
-            "service_queued": 7,
-            "service_started": 2,
-            "tick_completed": 2000,
-            "wait_departure_selected": 15
-          },
-          "guidance_work_ticks": 846
-        },
-        "final_sha256": "0de566ddfb8e88a56c55be9419afc64060a5c056866e54df814465fbd57f0d29"
-      },
-      {
-        "repeat": 2,
-        "metrics": {
-          "count": 2000,
-          "first_sample_step_us": 15682,
-          "fresh_runtime_first_prefix_or_sample_step_us": 152607,
-          "max_us": 186070,
-          "mean_step_us": 36415.7265,
-          "observation_logging_and_loop_wall_us": 2215232,
-          "p50_us": 37362,
-          "p95_us": 51017,
-          "p99_us": 63522,
-          "real_window_us_including_observation": 75046685,
-          "simulated_seconds": 200.0,
-          "simulation_seconds_per_wall_second": 2.66500778815213,
-          "sum_step_us": 72831453
-        },
-        "process_wall_seconds": 100.0603844000143,
-        "sample_business": {
-          "clinical_work_ticks_observed_lower_bound": {
-            "gp": 387
-          },
-          "events": {
-            "arrival_opportunity_admitted": 5,
-            "ledger_settled": 4,
-            "patience_evaluated": 483,
-            "patient_arrived": 5,
-            "patient_departed": 9,
-            "research_opened": 1,
-            "service_completed": 2,
-            "service_queued": 7,
-            "service_started": 2,
-            "tick_completed": 2000,
-            "wait_departure_selected": 15
-          },
-          "guidance_work_ticks": 846
-        },
-        "final_sha256": "0de566ddfb8e88a56c55be9419afc64060a5c056866e54df814465fbd57f0d29"
-      },
-      {
-        "repeat": 3,
-        "metrics": {
-          "count": 2000,
-          "first_sample_step_us": 17601,
-          "fresh_runtime_first_prefix_or_sample_step_us": 156800,
-          "max_us": 198649,
-          "mean_step_us": 37134.337,
-          "observation_logging_and_loop_wall_us": 2207835,
-          "p50_us": 38250,
-          "p95_us": 51737,
-          "p99_us": 60948,
-          "real_window_us_including_observation": 76476509,
-          "simulated_seconds": 200.0,
-          "simulation_seconds_per_wall_second": 2.61518213390206,
-          "sum_step_us": 74268674
-        },
-        "process_wall_seconds": 104.0585194999876,
-        "sample_business": {
-          "clinical_work_ticks_observed_lower_bound": {
-            "gp": 387
-          },
-          "events": {
-            "arrival_opportunity_admitted": 5,
-            "ledger_settled": 4,
-            "patience_evaluated": 483,
-            "patient_arrived": 5,
-            "patient_departed": 9,
-            "research_opened": 1,
-            "service_completed": 2,
-            "service_queued": 7,
-            "service_started": 2,
-            "tick_completed": 2000,
-            "wait_departure_selected": 15
-          },
-          "guidance_work_ticks": 846
-        },
-        "final_sha256": "0de566ddfb8e88a56c55be9419afc64060a5c056866e54df814465fbd57f0d29"
-      }
-    ],
-    "physical_and_business_audit": {
-      "current_snapshot_business": [
-        {
-          "final_tick": 3036,
-          "repeat": 1,
-          "sample_completed_service_kinds": {
-            "gp": 2
-          },
-          "sample_departures_by_result": {
-            "abandoned": 9
-          },
-          "total_attempts": 0,
-          "total_supply_issues": 0,
-          "validation_current_reader": ""
-        },
-        {
-          "final_tick": 3036,
-          "repeat": 2,
-          "sample_completed_service_kinds": {
-            "gp": 2
-          },
-          "sample_departures_by_result": {
-            "abandoned": 9
-          },
-          "total_attempts": 0,
-          "total_supply_issues": 0,
-          "validation_current_reader": ""
-        },
-        {
-          "final_tick": 3036,
-          "repeat": 3,
-          "sample_completed_service_kinds": {
-            "gp": 2
-          },
-          "sample_departures_by_result": {
-            "abandoned": 9
-          },
-          "total_attempts": 0,
-          "total_supply_issues": 0,
-          "validation_current_reader": ""
-        }
-      ],
-      "input_physical_comparison": {
-        "failures": [],
-        "new_facilities": 1340,
-        "new_rooms": 64,
-        "old_facilities": 1340,
-        "old_rooms": 64
-      },
-      "ok": true,
-      "simulated_steps": 0
-    }
-  },
   "changed_source_sha256": {
     "content/core/blueprint_presets.json": "de7636b261d4e72ea60dfcb4b2b5673f74281b302e0d8e350af3513c723f4a9d",
     "content/core/build_room_types.json": "332750b09f407efe281fc8d8c3086bd64692b5a7dd23e261f8900e6add579e36",
@@ -1065,6 +892,8 @@
     "docs/data/content-catalog.json": "d9498f6db5e6fe4c67521238cb1a24e8c2d86e98c8312242012eff79f1f5a54c",
     "docs/data/room-purposes.json": "54209ee51513b4ae0b90d4619c7f81f30fdd55fd69b3705b2cf877c970277a88",
     "docs/data/starter-layout.json": "b0f2f41ada883bbf2b4848d956ea8783c43552100760472b3bc8cedd6f3f8459",
+    "docs/specs/26-11/2026-11-10-rooms-areas-guidance-implementation.md": "9212a09e09ae112834b34e8669e53aa68e2fc00bddf208c5444add25fddce8a0",
+    "docs/specs/26-11/2026-11-10-rooms-areas-guidance.md": "541fbbb58b192bba6af760d827a44223b7785ffd0c971f919dd2487854e4d89c",
     "game/app/app_root.gd": "e3b8fd18042028fd9ee58a6cd028deb01d213f8af2ae456fd83b21e5522db5a2",
     "game/arrivals/arrival_service.gd": "0cbada47ad7c5f06d0ce3b4d4234b934fa9a9e24a4401ff69b8addc73ef2d0eb",
     "game/building/blueprint_service.gd": "0ec9a7d34e076e5bed90581db18e37b1d068991e09560d5b2e8ffe00287b5743",
@@ -1073,8 +902,8 @@
     "game/building/build_service.gd": "73b07e7dd0d77228fadd98fc019743dd99b0982ff2dac8165e411fd033979e0a",
     "game/building/convoy_trail.gd": "03962ae096514aa49056c157648607cad242fd79a7748c6f760f090f5f65cfd4",
     "game/building/floor_static_geometry.gd": "422b2f2bb6d7ffbd960bc31bf15e9977ca603a406d6a2cd581948799b4b46b14",
-    "game/building/hospital_movement.gd": "aa93207b01a7cb78aff903da1c79d07fd040433241d08ec47687ad366e8b776e",
-    "game/building/hospital_space.gd": "d8757196ea0e463956b5b7429bd3d928d166325aad98dcf7c03e529757940afd",
+    "game/building/hospital_movement.gd": "51dd560a584e0d3eeb094ec9a3a93f82bb3f22f79487cff9cd25a72b3212e6fb",
+    "game/building/hospital_space.gd": "ae3d9c8806e3dc0f7b8cad9071234044cd082565a10e22108f00239a80d0367c",
     "game/building/remodel_service.gd": "a256b9356ac885468c0e8aad381a771ee35eeeb2c6ffaa09c71b7525bc199508",
     "game/building/room_structure.gd": "1a6a67099f24adedc9c20953566e209ff4cfdebfa715d760a8ee2eff9f3408db",
     "game/building/room_structure.gd.uid": "fd7fe14ac69f23f903785570697ce1a42f766e887e3e0714bd85b4b2b8655387",
@@ -1093,11 +922,11 @@
     "game/life/toilet_queue.gd.uid": "6d789109fb6aa07b21fca4ca38eebb75a5af6806243e4ca4786d4274b8e414b0",
     "game/life/waiting_life.gd": "55649dc608d5b1526ae153669d32e97f4ac35a20736696ad4fe785a8df9a8599",
     "game/operations/clinic_waiting_scope.gd": "3d253e6c2327cdac4009a9760efcb2106f7dc14c96bb011cba58187492e3ac1b",
-    "game/operations/department_service.gd": null,
-    "game/operations/department_service.gd.uid": null,
+    "game/operations/department_service.gd": "deleted",
+    "game/operations/department_service.gd.uid": "deleted",
     "game/operations/environment_sample_batch.gd": "4d88946f0d23f06ad0a1973f86e9ffacebcc517c7b025c857851f5982ecc969b",
     "game/operations/environment_service.gd": "81f27c18f5c196ac59ea99e87eae2fc536be8000c150c49301329d91d2efb452",
-    "game/operations/floor_guidance.gd": "4ecc2c6f70edb6918d1f963b6a814758a1cf1fc425d3b429bd0064a6e1f8e877",
+    "game/operations/floor_guidance.gd": "8f23865cd111e099f55e920f2985538fbe8ab85e22d8e6bdeaa2cf790088b672",
     "game/operations/patient_experience.gd": "2bfb45b887b9fa31f00738feb2b53f313b6bc778af957bd87388823fde5e66ea",
     "game/operations/patient_experience.gd.uid": "8b24e05e935251b47be67d4f5107360767d93c22a37412d29fc20b4d5a232462",
     "game/persistence/hospital_library.gd": "1e565c4c24b4d360755d5509f6d290eca7381c42e4ce2cee761799c12bc1ca8a",
@@ -1112,7 +941,7 @@
     "game/staff/staff_wellbeing.gd": "f1889a057b1e751268faa4d3ca2e00c1656480c92dcd77fe9a4f35c19eb64172",
     "game/ui/build_panel.gd": "e81456381ade73cac4674a87affcfb7bb4803c729296c1ff83cab36a4272292f",
     "game/ui/clinical_panel.gd": "51803b3c2ad301e5e10ded832f6ed1500af60d869b52215f4ae604f9a7fc7953",
-    "game/ui/departments_panel.gd": null,
+    "game/ui/departments_panel.gd": "deleted",
     "game/ui/experience_panel.gd": "79ebdbf06aaa84e9cc21dc28a5caec5c44ff9fccf01956065c80e04c149cb02f",
     "game/ui/experience_panel.gd.uid": "228f70a3e11122be02603aaed60bd5c24181c459c379569c1f4c2edc03b4687f",
     "game/ui/remodel_panel.gd": "c6ad766f1d3a6a1e955ada905beaf496cc15f68b0b1d24cf10921f3e4e44618d",
@@ -1121,8 +950,8 @@
     "game/ui/ward_panel.gd": "f564dfec8f75b40453c508284673c6e9b6e623ebe2d71679ac101eda16742255",
     "game/view/build_overlay.gd": "dab9fd0c7cf8cd78a2745a75a3c1ab01f106b8fb290ebc75e143535b02e7732f",
     "game/view/hospital_view.gd": "f640fda7ee141b0969952ab7c7313996d54dd061d1bb3cc63b2dceb36c54a3aa",
-    "tests/acceptance/arrival_cancellation.gd": null,
-    "tests/acceptance/arrival_cancellation.gd.uid": null,
+    "tests/acceptance/arrival_cancellation.gd": "deleted",
+    "tests/acceptance/arrival_cancellation.gd.uid": "deleted",
     "tests/acceptance/bed_service.gd": "8a47e672bdb9955d46af269ba3b6389131c0d069ac616f1a7d55e66f643004a8",
     "tests/acceptance/clinical.gd": "0b68cba08e06558d1e1da0d29cbf6ab02e288ff10c6489ae313122c4cce76124",
     "tests/acceptance/clinical.md": "4a83d65167d5e3e8474469d6fbc4ea91f115d6a5e9bf9cbb3f38f8c30b2f6464",
@@ -1147,12 +976,14 @@
     "tests/acceptance/growth.gd": "7bdc4342059db5dc06cc6cb37f3655d8278711563b3f4aa6a2d92ad4c34ee659",
     "tests/acceptance/growth.md": "2b23ef74c5cb53d89f7808f9ac697fb874e4cd16a74d6204a3b6aa9fecdae69b",
     "tests/acceptance/growth_fixtures.gd": "cda354219528bbf17724fe283b95928756e76cf0f1b105bb55b7ea501641497f",
-    "tests/acceptance/guidance_destination_rules.gd": null,
+    "tests/acceptance/guidance_destination_rules.gd": "deleted",
     "tests/acceptance/guidance_same_room_reselection.gd": "a610e0b23f08972ff6d4c6d125cfeedd9799c8254b4df67056c88e576e2d7216",
     "tests/acceptance/guidance_target_reselection.gd": "937922f32e2ffcd0dcca90a12384b1d7930c2aa7a33738e1824dc370a66266e8",
     "tests/acceptance/legacy_arrival_preparation.gd": "8be7cf0beec361a1f1f7654b1109e4c269e90dffc242b2bb36c8bc646b65ef09",
     "tests/acceptance/legacy_arrival_projection.gd": "67499bdfa44410a4ba48a61d920ba48ad4be82509b4882c2e2d2727e60e41070",
     "tests/acceptance/local_region_first.gd": "be8285778173096f5f168378259256e9e99e88cff56ab7eac99f3d96a13e4b23",
+    "tests/acceptance/movement_detour.gd": "03fdc5d213b5aecca76e8498237c06f9fe6806265962f13377b5fe8792c3fe0a",
+    "tests/acceptance/movement_goal_wait.gd": "0c0dbde1ce941bb19c886232ea3c436cd93db86cd18a2716986f767e15f05581",
     "tests/acceptance/movement_target_reuse.gd": "a890d83c687c1133b37e8bcbc8a7a5afb9b514566a9efbfd816842438283af41",
     "tests/acceptance/natural_admission.gd": "5f56f63c1c5f5bb611b343e72c0d09050dda0ca865ac546383396e31a0b280f2",
     "tests/acceptance/navigation_exact_target.gd": "829ca07cbe7663a9f9d142e5ae26664a32306b72035d803a17b719fd95431cb1",
@@ -1171,22 +1002,23 @@
     "tests/acceptance/room_construction.md": "28127099710c24427e3483dea8a2c6e9dfbeb7696a6a3aece7f4301e5c727683",
     "tests/acceptance/room_construction_runner.gd": "4ffce30a83c2f715c2ac63a602435479fcbd8fc28c4a61f595f4f99ec5e7f458",
     "tests/acceptance/room_construction_runner.gd.uid": "2f7c4dba1947a0da2ffc8ea0f2643c6b3217686e0648d4962e52a2b00560abba",
-    "tests/acceptance/rooms_areas_guidance.gd": "6388932a61f3c71abfe33cf927422b874c3d62e3e93c240bd8c4bcabfbde94c4",
+    "tests/acceptance/rooms_areas_guidance.gd": "76cf56044a525de14d3251b57c9411339607078875987d90fc3496fc106440a0",
     "tests/acceptance/rooms_areas_guidance.gd.uid": "721faa4ae266d3957af466fc5e2603c3086210cdee476bf90ba842e79076ea3f",
-    "tests/acceptance/rooms_areas_guidance.md": "0a8c916000a8e50b5ae0b9633178f5374ff74cac76e55890682963f83ef17f00",
+    "tests/acceptance/rooms_areas_guidance.md": "dd18ea033d958b4e147b494dbdf844257bec16daae67a12a335a82b084631c9c",
     "tests/acceptance/rooms_areas_guidance_runner.gd": "7c7610b78422074644f819114205b8d66eb9a236ebb9a160e9c194c2f253e568",
     "tests/acceptance/rooms_areas_guidance_runner.gd.uid": "b615e1c849e6e744e5773a89a058989ee8d90515d956c50b782c9d9212ca03ed",
-    "tests/acceptance/run_guidance_destination_rules.gd": null,
+    "tests/acceptance/run_guidance_destination_rules.gd": "deleted",
     "tests/acceptance/runner.gd": "f43a7cdf346b5a916cf44b5c81b31db17d0653f8beb89a5826235f03d2b07a7d",
-    "tests/acceptance/space.gd": "01991f0caa60966a33fbb16e34e5e575272a26220aa1063133307f541185d058",
+    "tests/acceptance/space.gd": "c4be1503d7cd65646e45eb231a696687c023c2164b302b01836bc1ba2c76b8ce",
+    "tests/acceptance/space.md": "3a9b800959e823ad8989b0d8f8653f548fa8f3f6d6a06a2fecf5fe00eab06e99",
     "tests/acceptance/staff.gd": "2997ffcfdf95907108869c915f659baad5fd25af81dd2d840c15d218d0e89d11",
     "tests/acceptance/staff.md": "beb44b834004c6a70117d479397a9ea79a67068b3c19a1db7c6c3a1a0587d27d",
     "tests/acceptance/staff_fixtures.gd": "03a964afe8ffa7f6a6ff09ce1c072fdae4d0df6b5b5d3e66811ed359258542e8",
     "tests/acceptance/staff_room_life_contract.gd": "8086f4b9e9c43418900153447388f31218a95b82cb1333f6eabb584fcb512b3c",
     "tests/acceptance/starter_economy.gd": "f5f4b0112fbc92567941aa0b34838847ff84d003f778108282fa1525d46bbd71",
     "tests/acceptance/starter_rest_layout.gd": "5907025bff82eb0dc679ead6bf948c763803de4f563e58cd96af788e0359e1b3",
-    "tests/acceptance/structure_dominance.gd": null,
-    "tests/acceptance/structure_dominance.gd.uid": null,
+    "tests/acceptance/structure_dominance.gd": "deleted",
+    "tests/acceptance/structure_dominance.gd.uid": "deleted",
     "tests/acceptance/surgery_guidance_contract.gd": "76d920b14fb6d1d208df25026bf0eeb19639b3a5535fa357c01de81ff7cf43be",
     "tests/acceptance/visitor_seat_no_area.gd": "992efcbd82cd141a6463cf73bb02eb411676266ff2d8a3d2d2e9edc7d1cef257",
     "tests/acceptance/waiting_adoption.gd": "1cb79a965aad9b54c9e0be16cede311831f7678ff6d48048e36fe61c0906adcd",
@@ -1194,6 +1026,7 @@
     "tests/acceptance/worker_sample_checks.gd": "fd4b6182b92a06ce79a0bc8c9103e661e1128e16a813239d5b67791a7389c291",
     "tests/run-acceptance.ps1": "7fed8349763fd178f099d36f6e5360c9ef60aa239318a7584c36b69403d531c5",
     "tools/performance/acceptance/fixtures/prepare_inputs.gd": "a02e93c87c75b6961d5e7c1d103de656c8f976bda78819516b7f62d979791ee7",
+    "tools/performance/current/campaign160.py": "6817bf49f0fd911cf8a5db0bb4bd3a0d7d5e50b59f921610553158751d49b0bb",
     "tools/performance/current/plain_v4.gd": "adf7266840ae4134c8d913fff875013e499152c774e9d30b204c4fcd58bda98b",
     "tools/performance/current/prepare_inputs.gd": "d5ccdac7b8fdbe9ec3d754acd623b71d0417576e97a20011e56b51d851c28eaa",
     "tools/performance/fixture.gd": "d7550f82e04567672e811148c14b88bde0ada497f72aee35c63bbf31244ac50a"
@@ -1703,5 +1536,377 @@
       }
     },
     "result": "All five confirmed issues repaired and final affected verification passed; independent reviewer unavailable."
+  },
+  "review_repairs_commit": "4ae35310389348383a29f56ad2d0ec49ce24fd8c",
+  "historical_snapshots": [
+    {
+      "stage": "Before later nursing work-segment, original-room identity and surgical-guidance repairs; not final full-contract performance acceptance.",
+      "input_sha256": "6e03590bd46507c73895ab3765a6f389906a8946f233a79be8981be52530fbcd",
+      "complete_steps": 9000,
+      "sample_steps": 6000,
+      "verified_source_files": 1824,
+      "merged_mean_ms": 36.47429116666667,
+      "merged_p95_ms": 50.886,
+      "merged_p99_ms": 61.051,
+      "root_mean_ms": {
+        "movement.space": 16.7634255,
+        "clinic.dispatch": 6.820435000000001,
+        "sample.experience": 2.8490819999999997,
+        "dispatch.waiting": 1.5348666666666666,
+        "needs.arrivals": 1.01185,
+        "dispatch.wellbeing": 0.9432933333333333,
+        "settle.development": 0.8240485,
+        "dispatch.floor_guidance": 0.7351371666666666,
+        "dispatch.development": 0.6110805,
+        "advance_wait.arrivals": 0.6050075,
+        "boundaries.maintenance": 0.4850031666666667,
+        "settle.finance": 0.4798605,
+        "boundaries.scheduler": 0.329208,
+        "boundaries.wellbeing": 0.2914368333333333,
+        "advance.waiting": 0.187068,
+        "advance.floor_guidance": 0.17574466666666666,
+        "settle.experience": 0.17541733333333334,
+        "settle.arrivals": 0.14549916666666668,
+        "clinic.advance": 0.10668716666666667,
+        "advance.wellbeing": 0.10639566666666667,
+        "advance.supplies": 0.10617333333333333,
+        "dispatch.maintenance": 0.100116,
+        "advance.maintenance": 0.09698466666666666,
+        "dispatch.environment": 0.08552383333333333,
+        "dispatch.staff_idle": 0.08284016666666666,
+        "advance.development": 0.0792325,
+        "settle.recruitment": 0.07151433333333335,
+        "step.setup": 0.0621655,
+        "settlement.finish_visits": 0.05102216666666666,
+        "movement.capture_staff_locations": 0.049737,
+        "clinic.arrivals": 0.04045033333333333,
+        "arrivals.arrivals": 0.036727333333333334,
+        "advance.recruitment": 0.034111833333333334,
+        "boundaries.recruitment": 0.021998166666666666,
+        "end_query.environment": 0.01953883333333333,
+        "boundaries.supplies": 0.01832366666666667,
+        "snapshot.tick_result": 0.017948166666666664,
+        "settle.research": 0.014454,
+        "advance.environment": 0.013355333333333334,
+        "boundaries.research": 0.012916166666666668,
+        "advance.floors": 0.012039666666666667,
+        "integrate.worked_staff": 0.011418166666666667,
+        "dispatch.scheduler": 0.010756166666666667,
+        "dispatch.floors": 0.010466666666666668,
+        "advance.research": 0.010283333333333334,
+        "dispatch.remodel": 0.0098665,
+        "events.collect": 0.009722166666666667,
+        "commands.drain": 0.009690666666666667,
+        "boundaries.arrivals": 0.009533333333333333,
+        "begin_query.environment": 0.007287,
+        "settlement.ledger": 0.006960833333333334,
+        "clinic.release_departed": 0.005447333333333333,
+        "clinic.settle_practice": 0.0048935,
+        "advance.scheduler": 0.004256833333333334,
+        "snapshot.bookkeeping": 0.004104666666666667,
+        "snapshot.space_boundary": 0.0022,
+        "snapshot.world_boundary": 0.0020858333333333336
+      },
+      "runs": [
+        {
+          "repeat": 1,
+          "metrics": {
+            "count": 2000,
+            "first_sample_step_us": 17296,
+            "fresh_runtime_first_prefix_or_sample_step_us": 139839,
+            "max_us": 195807,
+            "mean_step_us": 35872.81,
+            "observation_logging_and_loop_wall_us": 2183191,
+            "p50_us": 37032,
+            "p95_us": 49348,
+            "p99_us": 58571,
+            "real_window_us_including_observation": 73928811,
+            "simulated_seconds": 200.0,
+            "simulation_seconds_per_wall_second": 2.70530524290456,
+            "sum_step_us": 71745620
+          },
+          "process_wall_seconds": 100.06000259998837,
+          "sample_business": {
+            "clinical_work_ticks_observed_lower_bound": {
+              "gp": 387
+            },
+            "events": {
+              "arrival_opportunity_admitted": 5,
+              "ledger_settled": 4,
+              "patience_evaluated": 483,
+              "patient_arrived": 5,
+              "patient_departed": 9,
+              "research_opened": 1,
+              "service_completed": 2,
+              "service_queued": 7,
+              "service_started": 2,
+              "tick_completed": 2000,
+              "wait_departure_selected": 15
+            },
+            "guidance_work_ticks": 846
+          },
+          "final_sha256": "0de566ddfb8e88a56c55be9419afc64060a5c056866e54df814465fbd57f0d29"
+        },
+        {
+          "repeat": 2,
+          "metrics": {
+            "count": 2000,
+            "first_sample_step_us": 15682,
+            "fresh_runtime_first_prefix_or_sample_step_us": 152607,
+            "max_us": 186070,
+            "mean_step_us": 36415.7265,
+            "observation_logging_and_loop_wall_us": 2215232,
+            "p50_us": 37362,
+            "p95_us": 51017,
+            "p99_us": 63522,
+            "real_window_us_including_observation": 75046685,
+            "simulated_seconds": 200.0,
+            "simulation_seconds_per_wall_second": 2.66500778815213,
+            "sum_step_us": 72831453
+          },
+          "process_wall_seconds": 100.0603844000143,
+          "sample_business": {
+            "clinical_work_ticks_observed_lower_bound": {
+              "gp": 387
+            },
+            "events": {
+              "arrival_opportunity_admitted": 5,
+              "ledger_settled": 4,
+              "patience_evaluated": 483,
+              "patient_arrived": 5,
+              "patient_departed": 9,
+              "research_opened": 1,
+              "service_completed": 2,
+              "service_queued": 7,
+              "service_started": 2,
+              "tick_completed": 2000,
+              "wait_departure_selected": 15
+            },
+            "guidance_work_ticks": 846
+          },
+          "final_sha256": "0de566ddfb8e88a56c55be9419afc64060a5c056866e54df814465fbd57f0d29"
+        },
+        {
+          "repeat": 3,
+          "metrics": {
+            "count": 2000,
+            "first_sample_step_us": 17601,
+            "fresh_runtime_first_prefix_or_sample_step_us": 156800,
+            "max_us": 198649,
+            "mean_step_us": 37134.337,
+            "observation_logging_and_loop_wall_us": 2207835,
+            "p50_us": 38250,
+            "p95_us": 51737,
+            "p99_us": 60948,
+            "real_window_us_including_observation": 76476509,
+            "simulated_seconds": 200.0,
+            "simulation_seconds_per_wall_second": 2.61518213390206,
+            "sum_step_us": 74268674
+          },
+          "process_wall_seconds": 104.0585194999876,
+          "sample_business": {
+            "clinical_work_ticks_observed_lower_bound": {
+              "gp": 387
+            },
+            "events": {
+              "arrival_opportunity_admitted": 5,
+              "ledger_settled": 4,
+              "patience_evaluated": 483,
+              "patient_arrived": 5,
+              "patient_departed": 9,
+              "research_opened": 1,
+              "service_completed": 2,
+              "service_queued": 7,
+              "service_started": 2,
+              "tick_completed": 2000,
+              "wait_departure_selected": 15
+            },
+            "guidance_work_ticks": 846
+          },
+          "final_sha256": "0de566ddfb8e88a56c55be9419afc64060a5c056866e54df814465fbd57f0d29"
+        }
+      ],
+      "physical_and_business_audit": {
+        "current_snapshot_business": [
+          {
+            "final_tick": 3036,
+            "repeat": 1,
+            "sample_completed_service_kinds": {
+              "gp": 2
+            },
+            "sample_departures_by_result": {
+              "abandoned": 9
+            },
+            "total_attempts": 0,
+            "total_supply_issues": 0,
+            "validation_current_reader": ""
+          },
+          {
+            "final_tick": 3036,
+            "repeat": 2,
+            "sample_completed_service_kinds": {
+              "gp": 2
+            },
+            "sample_departures_by_result": {
+              "abandoned": 9
+            },
+            "total_attempts": 0,
+            "total_supply_issues": 0,
+            "validation_current_reader": ""
+          },
+          {
+            "final_tick": 3036,
+            "repeat": 3,
+            "sample_completed_service_kinds": {
+              "gp": 2
+            },
+            "sample_departures_by_result": {
+              "abandoned": 9
+            },
+            "total_attempts": 0,
+            "total_supply_issues": 0,
+            "validation_current_reader": ""
+          }
+        ],
+        "input_physical_comparison": {
+          "failures": [],
+          "new_facilities": 1340,
+          "new_rooms": 64,
+          "old_facilities": 1340,
+          "old_rooms": 64
+        },
+        "ok": true,
+        "simulated_steps": 0
+      }
+    }
+  ],
+  "current_snapshot": {
+    "stage": "post_review_repaired_and_optimized",
+    "input_sha256": "9dba7de9fccb47a1bc2b50ed7d5d058b0d190327924f8b8cebb166248e63513c",
+    "complete_steps": 9000,
+    "sample_steps": 6000,
+    "verified_source_files": 1826,
+    "merged_mean_ms": 34.6372605,
+    "merged_p95_ms": 48.42,
+    "merged_p99_ms": 56.578,
+    "root_mean_ms": {
+      "movement.space": 15.594648833333332,
+      "clinic.dispatch": 3.7893848333333335,
+      "sample.experience": 3.1121535,
+      "dispatch.wellbeing": 3.0540151666666664,
+      "dispatch.waiting": 1.6864346666666667,
+      "dispatch.floor_guidance": 1.0215216666666667,
+      "needs.arrivals": 0.843407,
+      "settle.development": 0.797455,
+      "advance_wait.arrivals": 0.5627385,
+      "dispatch.development": 0.5494796666666666,
+      "settle.finance": 0.4773433333333333,
+      "boundaries.maintenance": 0.4702538333333333,
+      "boundaries.scheduler": 0.3220671666666666,
+      "boundaries.wellbeing": 0.290471,
+      "advance.floor_guidance": 0.17128183333333333,
+      "settle.experience": 0.16984333333333335,
+      "settle.arrivals": 0.14982583333333332,
+      "advance.wellbeing": 0.13454233333333335,
+      "advance.waiting": 0.1329275,
+      "advance.supplies": 0.111406,
+      "dispatch.maintenance": 0.10269116666666667,
+      "advance.maintenance": 0.09798683333333334,
+      "advance.development": 0.07936483333333334,
+      "dispatch.staff_idle": 0.07824233333333333,
+      "dispatch.environment": 0.07647633333333333,
+      "settle.recruitment": 0.06940483333333333,
+      "step.setup": 0.056947833333333336,
+      "movement.capture_staff_locations": 0.0525725,
+      "settlement.finish_visits": 0.05017183333333333,
+      "clinic.arrivals": 0.04441916666666667,
+      "advance.recruitment": 0.035116999999999995,
+      "arrivals.arrivals": 0.03493516666666667,
+      "clinic.advance": 0.02628283333333333,
+      "end_query.environment": 0.021697666666666667,
+      "boundaries.recruitment": 0.021624833333333336,
+      "snapshot.tick_result": 0.018467833333333336,
+      "boundaries.supplies": 0.018014,
+      "settle.research": 0.014333166666666668,
+      "advance.environment": 0.013633833333333333,
+      "boundaries.research": 0.012633166666666666,
+      "advance.floors": 0.012202,
+      "integrate.worked_staff": 0.011491333333333333,
+      "dispatch.floors": 0.010399666666666666,
+      "dispatch.scheduler": 0.010331,
+      "advance.research": 0.010297166666666668,
+      "events.collect": 0.009672666666666666,
+      "boundaries.arrivals": 0.009666833333333333,
+      "commands.drain": 0.009346666666666666,
+      "dispatch.remodel": 0.009323333333333335,
+      "settlement.ledger": 0.006912833333333333,
+      "begin_query.environment": 0.006782666666666667,
+      "clinic.release_departed": 0.0054371666666666665,
+      "clinic.settle_practice": 0.004937666666666667,
+      "advance.scheduler": 0.0043355,
+      "snapshot.bookkeeping": 0.004165333333333333,
+      "snapshot.space_boundary": 0.002317833333333333,
+      "snapshot.world_boundary": 0.0020813333333333335
+    },
+    "final_sha256": "dd619649565fbf81ab5716d2bdc88971fee9047568707739354ca0132ca32fc1",
+    "performance_evidence": {
+      "path": "docs/reports/2026-11-11-rooms-areas-guidance-performance.json",
+      "sha256": "05a424fb61847bd2d9ed65c9de2c720fb361fe347bada58d7f5eb3faefa93eab"
+    },
+    "scope": "HospitalSimulation.step wall elapsed including internal waits and stage observation; excludes initialization, GameSession, rendering and persistence. Three fresh serial processes per variant; 1000 prefix and 2000 sample steps at 0.1 seconds. Desktop applications retained."
+  },
+  "post_review_performance": {
+    "control_mean_ms": 39.309873833333334,
+    "optimized_mean_ms": 34.6372605,
+    "mean_reduction_percent": 11.886614933297324,
+    "same_input_same_rules_same_business": true,
+    "source_inventory_tool_check": {
+      "positive_source_count": 1826,
+      "all_files_match_preparation_and_control_delta": true,
+      "empty_inventory_rejected": true
+    },
+    "function_audit": {
+      "path": ".cache/rooms-areas-guidance-20261111/post-opt-function-audit.json",
+      "sha256": "113b4fb72376e861881b666321f1a95cb9f842219a4490c0ac1a641e2168289c"
+    },
+    "business_audit": {
+      "path": ".cache/rooms-areas-guidance-20261111/post-repair-paired-business.json",
+      "sha256": "82220c0d4c200e8fc1b2ebf510a4ed58508d370ba33724f8ab0fc4c68c334ad8"
+    }
+  },
+  "post_review_repairs": [
+    {
+      "issue": "Existing single-person occupied-goal predicate was not invoked",
+      "baseline_commits": [
+        "1343f3b",
+        "4ae3531"
+      ],
+      "fixed": true,
+      "test": "SPACE-57",
+      "code_audit": {
+        "path": ".cache/rooms-areas-guidance-20261111/occupied-goal-baseline-code-audit.json",
+        "sha256": "f93d3b1923672b5fe5e505eb2c01ff41a2c9f28305b969e20e1443dafa51d0cc"
+      }
+    },
+    {
+      "issue": "Frozen projects in ignored directories had empty Git source enumeration",
+      "fixed": true,
+      "tests": [
+        "1826-file preparation/delta check",
+        "empty inventory rejection",
+        "six complete final measurements with nonempty source identity"
+      ]
+    }
+  ],
+  "measurement_source_scope": "Runtime/game sources were verified before writing final reports. Subsequent report changes do not change measured game behavior.",
+  "optimization_commit": "ddeab4e22b966222fc7b8f62abef7f44d130d80b",
+  "delivery": {
+    "branch": "dot/next-stage-20261107",
+    "implementation_commit": "050681a82f91684b443d6f6f682be4f742ce3917",
+    "review_repair_commit": "4ae35310389348383a29f56ad2d0ec49ce24fd8c",
+    "optimization_commit": "ddeab4e22b966222fc7b8f62abef7f44d130d80b",
+    "verified_remote_code_commit": "ddeab4e22b966222fc7b8f62abef7f44d130d80b",
+    "runtime_sources_verified_after_push": 255,
+    "report_commit_follows_code_commit": true
   }
 }
