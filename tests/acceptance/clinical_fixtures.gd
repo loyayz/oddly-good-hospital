@@ -18,7 +18,7 @@ func _dispose_simulations() -> void:
 		simulation.dispose()
 	_simulations.clear()
 
-func _context(surgical: bool = false, c_profile: bool = false, chairs: bool = true, initial_guidance_cell: Array = [], capture_events: bool = false, team_floor: int = 1, or_floor: int = 1) -> Dictionary:
+func _context(surgical: bool = false, c_profile: bool = false, chairs: bool = true, initial_guidance_cell: Array = [], capture_events: bool = false, team_floor: int = 1, or_floor: int = 1, initial_bed_grade: int = 0) -> Dictionary:
 	_fixture_sequence += 1
 	var world: WorldState = HospitalFactory.create(HospitalSnapshots.uuid(),"临床验收%04d"%_fixture_sequence,true,_content)
 	var doctors: Array = []
@@ -73,6 +73,11 @@ func _context(surgical: bool = false, c_profile: bool = false, chairs: bool = tr
 			world.facts.facilities.nurse_workbench.floor_id = team_floor
 			for index: int in 3:
 				world.facts.actors[["clin_surgeon","clin_anesthesia","clin_or_nurse"][index]].location = {"kind":"floor","floor_id":team_floor,"cell":[54+index*2,72],"height_m":0.0}
+	if initial_bed_grade>0:
+		assert(world.sim_tick==0,"Declare initial equipment before its first real step")
+		for id: String in world.facility_ids("EQ05"):
+			world.facts.facilities[id].grade=initial_bed_grade
+			world.facts.facilities[id].upgrade_level=initial_bed_grade
 	var simulation: HospitalSimulation = HospitalSimulation.new(world,_content)
 	_simulations.append(simulation)
 	var c: Dictionary = {"sim":simulation,"world":world,"serial":0,"visit_id":"","doctors":doctors,"started":{},"group_seen":false,"beats":{},"errors":[],"fixture_ready":true}
@@ -500,8 +505,8 @@ func _roundtrip(c: Dictionary) -> Dictionary:
 	c.sim = simulation
 	return {"ok":true,"bytes":encoder.bytes,"sha256":encoder.digest}
 
-func _surgery_queue(t, c_profile: bool = false, allow_visitors: bool = false, or_floor: int = 1) -> Dictionary:
-	var c: Dictionary=_context(true,c_profile,true,[],false,or_floor,or_floor)
+func _surgery_queue(t, c_profile: bool = false, allow_visitors: bool = false, or_floor: int = 1, initial_bed_grade: int = 0) -> Dictionary:
+	var c: Dictionary=_context(true,c_profile,true,[],false,or_floor,or_floor,initial_bed_grade)
 	c.clinical_scenario=true
 	c.ward_return={"ok":false,"reason":"ward_base_not_ready"}
 	c.plan_selection=CommandResult.new(false,"diagnosis_missing").to_record()

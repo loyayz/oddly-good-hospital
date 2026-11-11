@@ -1,6 +1,6 @@
 extends "res://tests/acceptance/clinical_flow_fixtures.gd"
 
-const IDS: Array[String]=["CLFLOW-13","CLFLOW-14","CLFLOW-15","CLFLOW-16","CLFLOW-17","CLFLOW-18","CLFLOW-26","CLFLOW-27"]
+const IDS: Array[String]=["CLFLOW-13","CLFLOW-14","CLFLOW-15","CLFLOW-16","CLFLOW-17","CLFLOW-18","CLFLOW-26","CLFLOW-27","CLFLOW-29"]
 
 func run(t, database: HospitalContent, selected: Array = []) -> void:
 	var wanted: Array=[]
@@ -440,3 +440,63 @@ func _case_27(t) -> void:
 		checks.real_second_return=await flow_until(t,c,func()->bool:return flow_stay(c).get("phase","")=="recovery",4800)
 		checks.only_two=flow_visit(c).attempt_ids.size()==2 and flow_stay(c).get("id","")==original_stay
 	flow_check(t,"CLFLOW-27",checks,c)
+
+func _case_29(t) -> void:
+	var prefix_started: int=Time.get_ticks_msec()
+	# The input's beds are grade 1 before any employee or patient step. All
+	# admission, surgery, care, transfer and recovery below execute normally.
+	var c: Dictionary=await _surgery_queue(t,false,false,1,1)
+	t.preparation_elapsed(prefix_started)
+	var checks: Dictionary={"actual_graded_admission":flow_stay(c).has("admitted_tick") and flow_stay(c).get("phase","")=="waiting_surgery"}
+	if not checks.actual_graded_admission: flow_check(t,"CLFLOW-29",checks,c);return
+	var stay_id: String=str(flow_stay(c).id)
+	var first_bed: String=str(flow_stay(c).bed_id)
+	flow_exact_draw(c.world,"treatment",9999)
+	checks.first_started=await flow_until(t,c,func()->bool:return not _session(c,"surgery").is_empty(),3000)
+	if not checks.first_started: flow_check(t,"CLFLOW-29",checks,c);return
+	var first: Dictionary=c.world.facts.attempts[flow_visit(c).attempt_ids[0]].duplicate(true)
+	checks.first_failed=not first.result
+	checks.first_care_started=await flow_until(t,c,func()->bool:return not _session(c,"care").is_empty(),5000)
+	if not checks.first_care_started: flow_check(t,"CLFLOW-29",checks,c);return
+	checks.twenty_real_care_ticks=await flow_until(t,c,func()->bool:
+		var care: Dictionary=_session(c,"care")
+		return not care.is_empty() and int(care.total_ticks)-int(care.remaining_ticks)>=20,160)
+	var care: Dictionary=_session(c,"care").duplicate(true)
+	checks.original_care_work=int(care.get("total_ticks",0))==80 and int(care.get("remaining_ticks",0))==60
+	var other_bed: String=""
+	for id: String in c.world.facility_ids("EQ05"):
+		if id!=first_bed: other_bed=id;break
+	var transfer: CommandResult=_command(c,"clinical_transfer_bed",{"visit_id":c.visit_id,"bed_id":other_bed})
+	checks.real_transfer_accepted=transfer.accepted
+	checks.current_care_checkpoint=transfer.accepted and flow_stay(c).id==stay_id and flow_stay(c).attempt_id==first.id and int(flow_stay(c).get("care_remaining_ticks",-1))==60 and _session(c,"care").is_empty()
+	var transfer_save: Dictionary=_roundtrip(c)
+	checks.transfer_saved=transfer_save.get("ok",false)
+	if not transfer.accepted: flow_check(t,"CLFLOW-29",checks,c,{"transfer":transfer.to_record(),"transfer_save":transfer_save});return
+	checks.real_transfer_and_resume=await flow_until(t,c,func()->bool:return flow_stay(c).get("phase","")=="recovery" and not _session(c,"care").is_empty(),2400)
+	var resumed: Dictionary=_session(c,"care").duplicate(true)
+	checks.same_attempt_care_continues=checks.real_transfer_and_resume and flow_stay(c).bed_id==other_bed and resumed.get("id","")!=care.get("id","") and int(resumed.get("total_ticks",0))==60 and flow_visit(c).attempt_ids==[first.id]
+	checks.first_recovery_completed=await flow_until(t,c,func()->bool:return flow_visit(c).get("result_receipt",{}).get("attempt_id","")==first.id,5000)
+	var first_completed: Dictionary=flow_stay(c).duplicate(true)
+	checks.fractional_recovery_rate=int(first_completed.get("coverage_segment",{}).get("rate_milli",0))==1090
+	checks.no_old_recovery_credit=checks.first_recovery_completed and int(first_completed.get("remaining_ticks",-1))==0 and int(first_completed.get("work_credit_milli",-1))==0
+	checks.no_completed_care_checkpoint=not first_completed.has("care_remaining_ticks")
+	var retry_save: Dictionary=_roundtrip(c)
+	checks.retry_wait_saved=retry_save.get("ok",false)
+	checks.first_bill_once=_income(c,"ward")==60 and _income(c,"cure")==0
+	var selected: CommandResult=_command(c,"clinical_select_plan",{"visit_id":c.visit_id,"plan_id":"P_D09_SURGERY"})
+	checks.second_plan_accepted=selected.accepted
+	flow_exact_draw(c.world,"treatment",0)
+	checks.second_started=selected.accepted and await flow_until(t,c,func()->bool:return flow_visit(c).attempt_ids.size()==2,3000)
+	if not checks.second_started: flow_check(t,"CLFLOW-29",checks,c,{"first_completed":first_completed,"retry_save":retry_save,"selection":selected.to_record()});return
+	var second: Dictionary=c.world.facts.attempts[flow_visit(c).attempt_ids[1]].duplicate(true)
+	checks.new_attempt_same_stay=second.id!=first.id and second.result and flow_stay(c).id==stay_id and flow_stay(c).bed_id==other_bed and not flow_stay(c).care_completed and not flow_stay(c).has("care_remaining_ticks") and int(flow_stay(c).remaining_ticks)==1800
+	checks.second_care_started=await flow_until(t,c,func()->bool:return not _session(c,"care").is_empty(),5000)
+	var second_care: Dictionary=_session(c,"care").duplicate(true)
+	# Care 1, a neutral nursing talent and eight standard seconds require
+	# eighty real work ticks for each operation, regardless of the old pause.
+	checks.full_second_care=int(second_care.get("total_ticks",0))==80
+	var care_save: Dictionary=_roundtrip(c)
+	checks.second_care_saved=care_save.get("ok",false) and _session(c,"care").get("remaining_ticks",-1)==second_care.get("remaining_ticks",-2)
+	checks.second_completed=await flow_until(t,c,func()->bool:return flow_visit(c).get("result_receipt",{}).get("attempt_id","")==second.id,5000)
+	checks.complete_unique_bill=checks.second_completed and flow_visit(c).attempt_ids.size()==2 and _income(c,"ward")==120 and _income(c,"cure")==int(second.cure_fee) and _units_used(c)==16
+	flow_check(t,"CLFLOW-29",checks,c,{"first_care":care,"transfer":transfer.to_record(),"transfer_save":transfer_save,"resumed_care":resumed,"first_completed":first_completed,"retry_save":retry_save,"second_care":second_care,"second_care_save":care_save})

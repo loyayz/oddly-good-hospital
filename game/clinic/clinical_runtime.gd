@@ -1383,6 +1383,7 @@ func _prepare_surgery(world: WorldState, visit: Dictionary, ticket: Dictionary) 
 	stay.remaining_ticks=int(attempt.recovery_ticks)
 	stay.work_credit_milli=0
 	stay.care_completed=false
+	stay.erase("care_remaining_ticks")
 	stay.escort_id=team[2]
 	stay.last_progress_tick=world.sim_tick
 	if world.facts.adaptations.has(quote.bed_id):
@@ -1850,9 +1851,11 @@ func _complete_service(world: WorldState, session: Dictionary) -> void:
 			Flow.ward_stay(world,visit.id).phase = "transfer"
 			visit.phase = "transfer"
 		"care":
-			world.facts.ward_stays[session.stay_id].care_completed = true
+			var care_stay: Dictionary=world.facts.ward_stays[session.stay_id]
+			care_stay.care_completed = true
+			care_stay.erase("care_remaining_ticks")
 			_practice(world,session.staff_ids[0],"care",session.id)
-			_release_ward_operator(world,world.facts.ward_stays[session.stay_id],session.staff_ids[0])
+			_release_ward_operator(world,care_stay,session.staff_ids[0])
 	_mark_clinical_release(world,visit,session)
 
 func _mark_clinical_release(world: WorldState, visit: Dictionary, session: Dictionary) -> void:
@@ -2096,6 +2099,7 @@ func _start_bed_service(world: WorldState, visit: Dictionary, stay: Dictionary, 
 
 func _complete_ward(world: WorldState, visit: Dictionary, stay: Dictionary) -> void:
 	var attempt: Dictionary = world.facts.attempts[stay.attempt_id]
+	stay.work_credit_milli=0
 	HospitalLedger.post(world,LedgerEntry.new(attempt.id,"ward",int(attempt.get("ward_fee",content.facility_fee("EQ05","ward")))),false)
 	_settle(world,visit,attempt)
 	stay.phase = "release_wait" if visit.phase=="leaving" else "waiting_surgery"
