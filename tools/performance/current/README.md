@@ -44,6 +44,12 @@ python -X utf8 -B tools/performance/current/campaign160.py --engine <Godot控制
 
 `--profile-stages` 使用生产根阶段时间标记，不替换服务对象。阶段之间不重叠，但包含标记间未单列的工作，属于经过时间而非函数自身 CPU。`function_probe.py --output <新冻结工程目录>` 包装明确的方法入口/出口并验证还原后函数体与源文件逐字相同。`.calls.json` 的独占经过时间仅扣除其他已插桩子调用，仍含未插桩工作和等待；不能把嵌套耗时相加，也不能用带探针的整步时间声明加速。
 
+`prepare_hotpath_diagnostic.py prepare --base-project <完整plain冻结工程> --output <新.cache工程> --input <同一输入> --reference <完整plain轮次目录>` 从该工程的来源清单复制原始文件，默认包装32个移动、空间、导航和体验采样方法，并单列环境批次的历史覆盖映射复制、线程派发、等待和结果回收。所有原文件和方法体按记录逆剥后恢复完整字节；不从当前工作区带入新业务实现。`--check-only` 只检查输入、签名和逆变换，`--methods <JSON>` 可调整方法集合，但须保留移动与体验采样的最外层入口。
+
+计时只在采样的真实`sim.step`期间启用。主线程按最外层被探方法及父子调用边记录`.hotpath.json`，Worker调用不写共享计时状态，也不开启生产`worker_diagnostics`。导航在移动子树中的耗时与其他调用分列；最外层标签只代表被探入口，不推断未采集的调用者。`.query-counts.json`保存初始化后、采样前及窗口末的原计数和区间差值，`native_field_threads`峰值只保留原值，不计为事件次数。沿用原1000＋6000完整窗口，可先运行原两步smoke；分别执行`verify --project <工程> --diagnostic-output <轮次目录> --reference <对应plain目录>`，smoke验证另加`--smoke`。验证包括主线程栈、被探区间分区、计数差值、完整世界及有序事件、原始字节还原和源/引擎/DLL身份；业务覆盖仍单独判定，带探针的时间不能用于性能达标或收益结论。
+
+[两步工具资格记录](../../../docs/reports/evidence/2026-11-12-clinical-performance/hotpath-overlay-smoke.json)保存0＋2步的18项独立校验、来源与运行环境身份、原始文件哈希和具体耗时。完整世界及有序事件与相应原始两步窗口一致；这项检查不替代完整业务覆盖和性能测量。
+
 `prepare_clinical_diagnostic.py prepare --base-project <冻结工程> --output <新诊断工程> --input <原输入> --reference <完整plain轮次目录>` 构造可逆的临床计时诊断。原代码的逐 tick 探视扣减和终结清零分别记录，首个观察器错误保留步前、步后及实际分支当刻的家属、病房、患者、身体、移动、医疗和让位事实；独立几何只读取实际房间格与完整身体，不调用业务报价或移动。移除注入后原文件及方法体逐字节还原。诊断继续使用 `--profile-stages`、原 1000＋6000 窗口及业务覆盖门槛；即使覆盖断言失败，也须执行 `verify --project <诊断工程> --diagnostic-output <诊断轮次目录> --reference <plain轮次目录>`，独立核对完整世界和有序事件二进制哈希、阶段记录、源码、输入、引擎与原生库。带 hook 的整步耗时及阶段占比只用于归因，不能作为优化收益或性能达标证据。
 
 同一业务实现的 plain 与诊断运行可用 `--outcome-reference <plain目录>` 核对完整终态和有序事件编码哈希，旧参数 `--exact-reference` 兼容。该参数是业务输出见证，与已经退役的临床容量 reference 算法无关，不要求新规则与旧内核逐帧一致。`paired160.py` 默认只记录两个版本的完整输出，只有明确要求全部输出相同时才用 `--require-outcome-equality`；仍须分别满足需求定义的业务结果。
